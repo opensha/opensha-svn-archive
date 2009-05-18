@@ -25,7 +25,7 @@ import org.opensha.param.editor.*;
 import org.opensha.param.event.*;
 import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.data.function.*;
+
 import org.opensha.gui.plot.jfreechart.*;
 import org.opensha.util.ImageUtils;
 

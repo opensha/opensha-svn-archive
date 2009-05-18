@@ -5,8 +5,8 @@ import java.util.*;
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
-import org.opensha.data.*;
-import org.opensha.data.region.*;
+
+
 import org.opensha.sha.earthquake.observedEarthquake.*;
 import org.opensha.sha.faultSurface.*;
 

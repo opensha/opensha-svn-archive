@@ -16,9 +16,9 @@ import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.function.ArbDiscrFuncWithParams;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.data.function.*;
+
 import org.opensha.util.*;
-import org.opensha.data.*;
+
 
 /**
  *  <b>Title:</b> AttenuationRelationshipGuiBean<p>

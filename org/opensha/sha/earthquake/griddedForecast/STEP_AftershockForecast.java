@@ -2,7 +2,7 @@ package org.opensha.sha.earthquake.griddedForecast;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
-import org.opensha.data.region.*;
+
 import org.opensha.sha.faultSurface.SimpleFaultData;
 
 /**

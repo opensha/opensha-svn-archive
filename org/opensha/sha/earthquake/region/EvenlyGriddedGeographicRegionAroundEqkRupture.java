@@ -5,8 +5,8 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.EvenlyGriddedSausageGeographicRegion;
-import org.opensha.data.region.*;
-import org.opensha.data.*;
+
+
 
 /**
  * <p>Title: EvenlyGriddedGeographicRegionAroundEqkRupture</p>

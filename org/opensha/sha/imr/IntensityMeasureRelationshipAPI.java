@@ -6,7 +6,7 @@ import java.util.*;
 
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.Site;
-import org.opensha.data.*;
+
 import org.opensha.exceptions.*;
 import org.opensha.metadata.XMLSaveable;
 import org.opensha.param.*;

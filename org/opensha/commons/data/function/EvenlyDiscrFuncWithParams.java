@@ -1,7 +1,7 @@
 package org.opensha.commons.data.function;
 
 import java.util.*;
-import org.opensha.data.*;
+
 import org.opensha.param.*;
 
 /**

@@ -10,7 +10,7 @@ import org.opensha.commons.data.estimate.MinMaxPrefEstimate;
 import org.opensha.commons.data.estimate.NormalEstimate;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.data.estimate.*;
+
 import org.opensha.refFaultParamDb.data.*;
 import java.util.ArrayList;
 

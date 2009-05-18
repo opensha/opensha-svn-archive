@@ -1,6 +1,6 @@
 package org.opensha.commons.data.region;
 
-import org.opensha.data.*;
+
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Direction;
 import org.opensha.commons.data.Location;

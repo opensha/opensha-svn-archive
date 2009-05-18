@@ -16,7 +16,7 @@ import org.opensha.util.FileUtils;
 import org.opensha.webservices.client.*;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
-import org.opensha.data.*;
+
 
 import org.opensha.exceptions.GMT_MapException;
 import org.opensha.exceptions.RegionConstraintException;

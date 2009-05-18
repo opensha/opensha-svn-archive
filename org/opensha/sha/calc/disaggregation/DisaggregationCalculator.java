@@ -8,7 +8,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.text.DecimalFormat;
 
-import org.opensha.data.function.*;
+
 import org.opensha.param.Parameter;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.earthquake.*;

@@ -9,7 +9,7 @@ import org.opensha.sha.faultSurface.*;
 import org.opensha.exceptions.*;
 
 
-import org.opensha.data.*;
+
 import org.opensha.util.FaultUtils;
 
 /**

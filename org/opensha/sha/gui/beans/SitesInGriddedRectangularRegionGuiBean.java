@@ -20,7 +20,7 @@ import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
-import org.opensha.data.region.*;
+
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.util.SiteTranslator;
 

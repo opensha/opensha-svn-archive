@@ -11,10 +11,10 @@ import org.opensha.commons.data.region.EvenlyGriddedCircularGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.EvenlyGriddedSausageGeographicRegion;
 import org.opensha.commons.data.region.GeographicRegion;
-import org.opensha.data.*;
+
 import java.io.IOException;
 import java.io.FileNotFoundException;
-import org.opensha.data.region.*;
+
 
 /**
  * @author matthew

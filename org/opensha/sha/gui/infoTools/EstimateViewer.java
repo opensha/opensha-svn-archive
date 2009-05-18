@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.opensha.commons.data.estimate.DiscreteValueEstimate;
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.data.function.DiscretizedFunc;
-import org.opensha.data.estimate.*;
+
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import java.awt.Color;
 

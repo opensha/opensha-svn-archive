@@ -3,7 +3,7 @@ package org.opensha.sha.earthquake.rupForecastImpl;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.opensha.data.*;
+
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;

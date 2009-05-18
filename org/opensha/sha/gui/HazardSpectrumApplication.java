@@ -14,7 +14,7 @@ import java.rmi.RemoteException;
 
 import org.jfree.data.Range;
 
-import org.opensha.data.function.*;
+
 import org.opensha.gui.*;
 import org.opensha.gui.plot.jfreechart.*;
 import org.opensha.param.*;

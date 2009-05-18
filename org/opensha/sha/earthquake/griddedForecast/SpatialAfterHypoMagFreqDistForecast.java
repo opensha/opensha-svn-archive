@@ -5,7 +5,7 @@ import scratchJavaDevelopers.matt.calc.*;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
-import org.opensha.data.region.*;
+
 import org.opensha.sha.earthquake.observedEarthquake.*;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;

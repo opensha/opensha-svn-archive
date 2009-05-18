@@ -1,8 +1,8 @@
 package org.opensha.sha.earthquake.rupForecastImpl.Frankel02;
 
 import org.opensha.sha.magdist.*;
-import org.opensha.data.*;
-import org.opensha.data.function.*;
+
+
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.*;
 

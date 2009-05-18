@@ -1,6 +1,6 @@
 package org.opensha.sha.magdist;
 
-import org.opensha.data.function.*;
+
 import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;

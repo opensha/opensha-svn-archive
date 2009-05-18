@@ -8,7 +8,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import org.opensha.commons.data.Location;
-import org.opensha.data.*;
+
 import org.opensha.param.*;
 import org.opensha.param.editor.*;
 import org.opensha.param.event.*;

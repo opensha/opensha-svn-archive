@@ -23,7 +23,7 @@ import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
 import org.opensha.sha.gui.beans.MapGuiBean;
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.XYZ_DataSetAPI;
-import org.opensha.data.*;
+
 
 /**
  * <p>Title: STEP_MapViewerApp </p>

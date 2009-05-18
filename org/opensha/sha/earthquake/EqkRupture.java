@@ -3,7 +3,7 @@ package org.opensha.sha.earthquake;
 import java.util.*;
 
 import org.opensha.commons.data.Location;
-import org.opensha.data.*;
+
 import org.opensha.exceptions.*;
 import org.opensha.param.*;
 import org.opensha.sha.faultSurface.*;

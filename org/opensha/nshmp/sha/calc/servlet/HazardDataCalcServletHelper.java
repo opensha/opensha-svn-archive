@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import org.opensha.nshmp.sha.calc.HazardDataCalc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncList;
-import org.opensha.data.function.*;
+
 import java.lang.reflect.Method;
 
 /**

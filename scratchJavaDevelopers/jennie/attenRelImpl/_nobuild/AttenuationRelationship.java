@@ -5,8 +5,8 @@ import java.net.URL;
 import java.util.*;
 
 
-import org.opensha.data.*;
-import org.opensha.data.function.*;
+
+
 import org.opensha.exceptions.*;
 import org.opensha.param.*;
 import org.opensha.sha.earthquake.*;

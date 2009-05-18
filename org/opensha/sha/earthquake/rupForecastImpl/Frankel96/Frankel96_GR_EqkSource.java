@@ -5,7 +5,7 @@ import java.util.Iterator;
 
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.SingleMagFreqDist;
-import org.opensha.data.*;
+
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.Direction;

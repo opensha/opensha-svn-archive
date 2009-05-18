@@ -6,10 +6,10 @@ import java.text.DecimalFormat;
 
 import org.opensha.sha.imr.*;
 import org.opensha.param.*;
-import org.opensha.data.function.*;
+
 import org.opensha.exceptions.*;
 import org.opensha.util.*;
-import org.opensha.data.*;
+
 import org.opensha.sha.param.*;
 
 /**

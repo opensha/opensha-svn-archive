@@ -6,7 +6,7 @@ import java.io.*;
 import java.util.*;
 
 import org.opensha.commons.data.Location;
-import org.opensha.data.region.*;
+
 import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
 /**
  * <p>Title: WillsSiteClassServlet  </p>

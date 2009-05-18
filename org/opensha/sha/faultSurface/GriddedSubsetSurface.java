@@ -2,7 +2,7 @@ package org.opensha.sha.faultSurface;
 
 import java.util.*;
 import org.opensha.exceptions.LocationException;
-import org.opensha.data.*;
+
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Container2D;
 import org.opensha.commons.data.Container2DAPI;

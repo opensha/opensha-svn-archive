@@ -11,7 +11,7 @@ import org.opensha.mapping.gmtWrapper.GMT_MapGenerator;
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.XYZ_DataSetAPI;
-import org.opensha.data.*;
+
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.imr.AttenuationRelationship;

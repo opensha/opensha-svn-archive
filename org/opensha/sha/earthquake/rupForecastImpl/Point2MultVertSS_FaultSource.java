@@ -1,6 +1,6 @@
 package org.opensha.sha.earthquake.rupForecastImpl;
 
-import org.opensha.data.*;
+
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.*;
 import java.util.ArrayList;

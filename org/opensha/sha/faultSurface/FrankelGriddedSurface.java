@@ -9,7 +9,7 @@ import org.opensha.sha.faultSurface.*;
 import org.opensha.exceptions.*;
 
 
-import org.opensha.data.*;
+
 
 /**
  * <b>Title:</b> FrankelGriddedSurface.  This creates an

@@ -7,7 +7,7 @@ import org.opensha.exceptions.DataPoint2DException;
 import java.util.*;
 import java.io.Serializable;
 import org.opensha.exceptions.*;
-import org.opensha.data.*;
+
 
 /**
  * <b>Title:</b> ArbDiscrEmpiricalDistFunc<p>

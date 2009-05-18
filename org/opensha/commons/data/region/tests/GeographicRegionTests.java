@@ -6,8 +6,8 @@ import junit.framework.TestCase;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.GeographicRegion;
-import org.opensha.data.region.*;
-import org.opensha.data.*;
+
+
 /**
  * <b>Title:</b> GeographicRegionTests<p>
  *

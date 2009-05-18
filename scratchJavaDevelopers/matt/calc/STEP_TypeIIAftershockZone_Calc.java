@@ -5,8 +5,8 @@ import java.util.*;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.EvenlyGriddedSausageGeographicRegion;
-import org.opensha.data.*;
-import org.opensha.data.region.*;
+
+
 import org.opensha.sha.earthquake.griddedForecast.*;
 import org.opensha.sha.earthquake.observedEarthquake.*;
 

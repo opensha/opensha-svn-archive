@@ -2,7 +2,7 @@ package org.opensha.sha.param;
 
 import java.util.*;
 
-import org.opensha.data.*;
+
 import org.opensha.exceptions.*;
 import org.opensha.param.*;
 import org.opensha.param.event.*;

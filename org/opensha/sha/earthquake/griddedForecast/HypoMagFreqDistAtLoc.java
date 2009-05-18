@@ -1,7 +1,7 @@
 package org.opensha.sha.earthquake.griddedForecast;
 
 import org.opensha.commons.data.Location;
-import org.opensha.data.*;
+
 import org.opensha.sha.magdist.*;
 import org.opensha.sha.earthquake.*;
 

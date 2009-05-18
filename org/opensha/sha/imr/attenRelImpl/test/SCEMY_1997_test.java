@@ -11,9 +11,9 @@ import org.opensha.sha.imr.attenRelImpl.*;
 
 
 import org.opensha.exceptions.*;
-import org.opensha.data.function.*;
+
 import org.opensha.util.*;
-import org.opensha.data.*;
+
 
 /**
  *

@@ -1,7 +1,7 @@
 package scratchJavaDevelopers.matt.calc;
 
 import org.opensha.util.*;
-import org.opensha.data.*;
+
 import java.util.*;
 import java.io.*;
 import java.util.GregorianCalendar;

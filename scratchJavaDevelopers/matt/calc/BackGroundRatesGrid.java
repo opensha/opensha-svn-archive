@@ -12,8 +12,8 @@ import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
-import org.opensha.data.region.*;
-import org.opensha.data.*;
+
+
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.sha.magdist.*;
 import org.opensha.util.FileUtils;

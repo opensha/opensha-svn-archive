@@ -4,7 +4,7 @@ import org.netlib.util.doubleW;
 import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.data.function.*;
+
 import org.opensha.sha.earthquake.recurInterval.BPT_DistCalc;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.gui.A_FaultsMFD_Plotter;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;

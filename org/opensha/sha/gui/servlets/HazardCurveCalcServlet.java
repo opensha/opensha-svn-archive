@@ -14,7 +14,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.earthquake.*;
-import org.opensha.data.function.*;
+
 
 /**
  * <p>Title: HazardCurveCalcServlet </p>

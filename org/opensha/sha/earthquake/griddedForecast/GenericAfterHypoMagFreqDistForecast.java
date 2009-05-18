@@ -7,7 +7,7 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.EvenlyGriddedCircularGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.EvenlyGriddedSausageGeographicRegion;
-import org.opensha.data.region.*;
+
 import org.opensha.sha.earthquake.observedEarthquake.*;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 import org.opensha.sha.magdist.*;

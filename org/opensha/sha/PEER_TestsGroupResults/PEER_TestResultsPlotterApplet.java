@@ -24,7 +24,7 @@ import org.jfree.data.*;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
 
 
-import org.opensha.data.function.*;
+
 import org.opensha.gui.*;
 
 import org.opensha.gui.plot.jfreechart.*;
@@ -33,7 +33,7 @@ import org.opensha.util.*;
 import org.opensha.param.*;
 import org.opensha.param.editor.*;
 import org.opensha.param.event.*;
-import org.opensha.data.*;
+
 import org.opensha.commons.calc.FunctionListCalc;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;

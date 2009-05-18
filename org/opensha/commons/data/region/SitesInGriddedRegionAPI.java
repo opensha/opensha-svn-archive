@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
-import org.opensha.data.*;
+
 import org.opensha.param.*;
 import org.opensha.sha.util.*;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;

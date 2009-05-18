@@ -4,7 +4,7 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.GeographicRegion;
-import org.opensha.data.*;
+
 import org.opensha.param.ParameterList;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;

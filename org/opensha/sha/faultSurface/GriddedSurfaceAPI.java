@@ -5,7 +5,7 @@ import java.util.*;
 import org.opensha.commons.data.Container2DAPI;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
-import org.opensha.data.*;
+
 
 /**
  * <b>Title:</b> GriddedSurfaceAPI<p>

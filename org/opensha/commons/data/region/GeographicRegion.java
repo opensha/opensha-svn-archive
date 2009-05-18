@@ -4,7 +4,7 @@ import java.util.ListIterator;
 import java.awt.Polygon;
 
 import org.dom4j.Element;
-import org.opensha.data.*;
+
 import org.opensha.metadata.XMLSaveable;
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;

@@ -1,9 +1,9 @@
 package org.opensha.sha.earthquake.rupForecastImpl;
 
 import org.opensha.sha.magdist.*;
-import org.opensha.data.*;
-import org.opensha.data.region.*;
-import org.opensha.data.function.*;
+
+
+
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;

@@ -11,8 +11,8 @@ import org.opensha.commons.data.region.CircularGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedCircularGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.EvenlyGriddedSausageGeographicRegion;
-import org.opensha.data.*;
-import org.opensha.data.region.*;
+
+
 import org.opensha.sha.earthquake.observedEarthquake.*;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.SimpleFaultData;

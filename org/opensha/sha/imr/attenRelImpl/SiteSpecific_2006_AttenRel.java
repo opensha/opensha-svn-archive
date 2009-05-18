@@ -10,7 +10,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValue;
-import org.opensha.data.*;
+
 import org.opensha.exceptions.*;
 import org.opensha.param.*;
 import org.opensha.param.event.*;

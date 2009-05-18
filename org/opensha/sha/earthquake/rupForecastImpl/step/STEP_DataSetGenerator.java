@@ -22,8 +22,8 @@ import org.opensha.sha.calc.hazardMap.HazardMapCalculatorOld;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.util.*;
-import org.opensha.data.*;
-import org.opensha.data.region.*;
+
+
 import org.opensha.param.ParameterAPI;
 import org.opensha.sha.util.SiteTranslator;
 import org.opensha.exceptions.RegionConstraintException;

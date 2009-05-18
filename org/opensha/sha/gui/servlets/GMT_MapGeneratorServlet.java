@@ -6,7 +6,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 
 import org.opensha.commons.data.XYZ_DataSetAPI;
-import org.opensha.data.*;
+
 import org.opensha.util.*;
 
 /**

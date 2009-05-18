@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.StringTokenizer;
 
 
-import org.opensha.data.*;
+
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.EmpiricalModel;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;

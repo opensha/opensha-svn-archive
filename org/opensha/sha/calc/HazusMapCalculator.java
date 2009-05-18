@@ -11,13 +11,13 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
-import org.opensha.data.function.*;
+
 import org.opensha.param.DoubleDiscreteParameter;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.gui.infoTools.*;
-import org.opensha.data.region.*;
-import org.opensha.data.function.*;
+
+
 import org.opensha.exceptions.InvalidRangeException;
 import org.opensha.sha.imr.*;
 

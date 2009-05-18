@@ -12,7 +12,7 @@ import javax.swing.text.*;
 
 import org.jfree.data.*;
 
-import org.opensha.data.function.*;
+
 import org.opensha.gui.*;
 import org.opensha.param.*;
 import org.opensha.param.editor.*;

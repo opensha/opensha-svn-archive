@@ -1,7 +1,7 @@
 package org.opensha.commons.calc.magScalingRelations;
 
 import org.opensha.util.FaultUtils;
-import org.opensha.data.*;
+
 
 /**
  * <b>Title:</b>MagLengthRelationship<br>

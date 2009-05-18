@@ -4,7 +4,7 @@ import junit.framework.*;
 
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.DataPoint2DTreeMap;
-import org.opensha.data.*;
+
 
 
 /**

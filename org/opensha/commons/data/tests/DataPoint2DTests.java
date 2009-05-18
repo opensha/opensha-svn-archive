@@ -4,7 +4,7 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.opensha.commons.data.DataPoint2D;
-import org.opensha.data.*;
+
 
 /**
  * <b>Title:</b> DataPoint2DTestCase<p>

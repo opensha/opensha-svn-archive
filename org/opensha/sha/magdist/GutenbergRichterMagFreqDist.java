@@ -2,7 +2,7 @@ package org.opensha.sha.magdist;
 
 import org.opensha.exceptions.*;
 import org.opensha.commons.data.DataPoint2D;
-import org.opensha.data.function.*;
+
 
 /**
  * <p>Title: GutenbergRichterMagFreqDist.java </p>

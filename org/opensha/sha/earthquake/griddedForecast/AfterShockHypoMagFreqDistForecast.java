@@ -1,7 +1,7 @@
 package org.opensha.sha.earthquake.griddedForecast;
 
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
-import org.opensha.data.region.*;
+
 import org.opensha.sha.earthquake.observedEarthquake.*;
 
 import scratchJavaDevelopers.matt.calc.SortAftershocks_Calc;

@@ -23,7 +23,7 @@ import org.opensha.commons.data.estimate.PDF_Estimate;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.data.estimate.*;
+
 import org.opensha.sha.gui.infoTools.EstimateViewer;
 import java.text.DecimalFormat;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;

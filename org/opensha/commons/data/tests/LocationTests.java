@@ -3,7 +3,7 @@ package org.opensha.commons.data.tests;
 import junit.framework.*;
 
 import org.opensha.commons.data.Location;
-import org.opensha.data.*;
+
 
 /**
  * <b>Title:</b> TestLocation<p>

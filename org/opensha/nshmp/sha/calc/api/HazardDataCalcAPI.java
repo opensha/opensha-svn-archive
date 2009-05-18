@@ -4,7 +4,7 @@ import java.rmi.*;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncList;
-import org.opensha.data.function.*;
+
 import org.opensha.nshmp.exceptions.*;
 
 /**

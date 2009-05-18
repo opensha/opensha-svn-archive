@@ -16,9 +16,9 @@ import org.opensha.sha.param.editor.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.*;
-import org.opensha.data.function.*;
+
 import org.opensha.util.*;
-import org.opensha.data.*;
+
 import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.param.editor.gui.SimpleFaultParameterEditorPanel;
 import org.opensha.sha.gui.controls.SetMinSourceSiteDistanceControlPanel;
