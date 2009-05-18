@@ -1,4 +1,4 @@
-package org.opensha.sha.nga;
+package unusedArchive.nga;
 
 import java.util.*;
 import java.io.*;

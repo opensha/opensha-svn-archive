@@ -1,4 +1,4 @@
-package org.opensha.sha.nga.calc;
+package unusedArchive.nga.calc;
 
 import java.util.*;
 
@@ -13,6 +13,8 @@ import org.opensha.sha.nga.*;
 
 import org.opensha.sha.imr.*;
 import org.opensha.sha.util.SiteTranslator;
+
+import unusedArchive.nga.EqkRuptureFromNGA;
 
 /**
  * <p>Title: PEER_NGA_HazardCalc</p>

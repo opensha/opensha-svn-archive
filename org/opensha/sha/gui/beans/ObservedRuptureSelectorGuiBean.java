@@ -31,7 +31,9 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
-import org.opensha.sha.nga.EqkRuptureFromNGA;
+
+import unusedArchive.nga.EqkRuptureFromNGA;
+
 import java.awt.*;
 
 
