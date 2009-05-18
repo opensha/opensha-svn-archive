@@ -4,7 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import org.opensha.param.ParameterAPI;
-import org.opensha.exceptions.ParameterException;
+import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.param.ParameterConstraintAPI;
 
 /**

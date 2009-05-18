@@ -15,7 +15,7 @@ import org.opensha.param.DoubleDiscreteConstraint;
 import org.opensha.param.DoubleDiscreteParameter;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterConstraintAPI;
-import org.opensha.exceptions.ConstraintException;
+import org.opensha.commons.exceptions.ConstraintException;
 
 /**
  * <b>Title:</b> ConstrainedDoubleDiscreteParameterEditor<p>

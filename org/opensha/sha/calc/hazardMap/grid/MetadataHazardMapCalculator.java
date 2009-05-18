@@ -23,7 +23,7 @@ import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegionAPI;
 import org.opensha.commons.data.siteData.SiteDataValueListList;
-import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.gridComputing.GridJob;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.event.ParameterChangeWarningListener;

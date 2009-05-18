@@ -3,7 +3,7 @@ package org.opensha.nshmp.util;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.region.RectangularGeographicRegion;
-import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.nshmp.exceptions.AnalysisOptionNotSupportedException;
 
 

@@ -2,7 +2,7 @@ package org.opensha.commons.data;
 
 import java.util.Comparator;
 
-import org.opensha.exceptions.InvalidRangeException;
+import org.opensha.commons.exceptions.InvalidRangeException;
 
 /**
  *  <b>Title:</b> DataPoint2DComparatorAPI<p>

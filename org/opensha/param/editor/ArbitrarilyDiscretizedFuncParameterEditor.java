@@ -25,8 +25,8 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.exceptions.ConstraintException;
-import org.opensha.exceptions.DataPoint2DException;
+import org.opensha.commons.exceptions.ConstraintException;
+import org.opensha.commons.exceptions.DataPoint2DException;
 import org.opensha.param.ArbitrarilyDiscretizedFuncParameter;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.editor.ArbitrarilyDiscretizedFuncTableModel.ArbitrarilyDiscretizedFuncTableCellRenderer;

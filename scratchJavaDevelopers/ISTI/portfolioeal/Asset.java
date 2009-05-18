@@ -11,7 +11,8 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.exceptions.ParameterException;
+import org.opensha.commons.exceptions.ParameterException;
+
 import scratchJavaDevelopers.ISTI.portfolioeal.gui.PortfolioEALCalculatorView;
 import org.opensha.param.*;
 import org.opensha.sha.calc.HazardCurveCalculator;

@@ -4,7 +4,7 @@ import java.lang.ArrayIndexOutOfBoundsException;
 import java.util.*;
 
 import org.opensha.commons.data.Location;
-import org.opensha.exceptions.InvalidRangeException;
+import org.opensha.commons.exceptions.InvalidRangeException;
 
 
 /**

@@ -20,7 +20,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.DiscretizedFuncList;
-import org.opensha.exceptions.WarningException;
+import org.opensha.commons.exceptions.WarningException;
 
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterConstraint;

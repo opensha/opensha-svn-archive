@@ -1,4 +1,4 @@
-package org.opensha.deformationModel;
+package unusedArchive.deformationModel;
 
 import java.util.ArrayList;
 

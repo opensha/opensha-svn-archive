@@ -6,7 +6,7 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import org.opensha.exceptions.InvalidRangeException;
+import org.opensha.commons.exceptions.InvalidRangeException;
 
 /**
  *  <b>Title:</b> TimeSpan<p>

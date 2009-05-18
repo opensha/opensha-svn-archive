@@ -9,6 +9,8 @@ import javax.servlet.http.*;
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.exceptions.RegionConstraintException;
 
 
 import org.opensha.param.*;
@@ -19,8 +21,6 @@ import org.opensha.sha.gui.infoTools.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.param.*;
 import org.opensha.util.*;
-import org.opensha.exceptions.RegionConstraintException;
-import org.opensha.exceptions.ParameterException;
 
 /**
  * <p>Title: ScenarioShakeMapCalcServlet  </p>

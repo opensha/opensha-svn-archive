@@ -8,6 +8,8 @@ import java.io.*;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.imr.*;
@@ -26,7 +28,6 @@ import org.opensha.sha.gui.beans.MapGuiBean;
 
 import java.text.DecimalFormat;
 import org.opensha.sha.gui.infoTools.IMT_Info;
-import org.opensha.exceptions.ParameterException;
 import org.opensha.mapping.gmtWrapper.GMT_MapGenerator;
 import org.opensha.exceptions.*;
 

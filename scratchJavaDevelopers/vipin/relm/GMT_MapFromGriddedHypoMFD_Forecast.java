@@ -9,6 +9,7 @@ import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_TestingRegion;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
+import org.opensha.commons.exceptions.DataPoint2DException;
 import org.opensha.mapping.gmtWrapper.GMT_MapGenerator;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.sha.earthquake.EqkRupForecast;
@@ -17,7 +18,6 @@ import java.io.FileWriter;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
-import org.opensha.exceptions.DataPoint2DException;
 
 import java.util.ArrayList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;

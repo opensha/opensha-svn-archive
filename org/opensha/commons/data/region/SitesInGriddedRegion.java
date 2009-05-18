@@ -14,11 +14,11 @@ import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
+import org.opensha.commons.exceptions.RegionConstraintException;
 
 import org.opensha.param.*;
 import org.opensha.sha.util.*;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
-import org.opensha.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: SitesInGriddedRegion</p>

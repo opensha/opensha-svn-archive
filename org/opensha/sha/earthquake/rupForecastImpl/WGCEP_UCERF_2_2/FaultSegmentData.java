@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.opensha.commons.calc.FaultMomentCalc;
-import org.opensha.exceptions.InvalidRangeException;
+import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.SegRateConstraint;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.SegmentTimeDepData;

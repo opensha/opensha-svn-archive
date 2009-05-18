@@ -4,6 +4,7 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.exceptions.DataPoint2DException;
 
 import org.opensha.param.ParameterList;
 import org.opensha.param.event.ParameterChangeEvent;
@@ -13,7 +14,6 @@ import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import java.util.EventObject;
 import java.util.ArrayList;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.opensha.exceptions.DataPoint2DException;
 
 /**
  * <p>Title: GriddedHypoMagFreqForecast</p>

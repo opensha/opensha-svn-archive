@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
-import org.opensha.exceptions.InvalidRangeException;
+import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;

@@ -1,4 +1,4 @@
-package org.opensha.exceptions;
+package org.opensha.commons.exceptions;
 
 /**
  *  <b>Title:</b> ParameterException<br>

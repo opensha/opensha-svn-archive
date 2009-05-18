@@ -3,7 +3,7 @@ package org.opensha.param;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import org.opensha.exceptions.ConstraintException;
+import org.opensha.commons.exceptions.ConstraintException;
 
 /**
  * <p>Title: StringListConstraint.java </p>

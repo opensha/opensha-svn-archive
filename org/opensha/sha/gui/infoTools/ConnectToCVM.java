@@ -8,7 +8,7 @@ import java.io.*;
 
 import org.opensha.sha.gui.servlets.siteEffect.*;
 import org.opensha.commons.data.LocationList;
-import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.commons.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: ConnectToCVM</p>

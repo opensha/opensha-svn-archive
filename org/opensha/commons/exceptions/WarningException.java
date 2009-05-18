@@ -1,9 +1,9 @@
-package org.opensha.exceptions;
+package org.opensha.commons.exceptions;
 
 /**
- *  <b>Title:</b> ParameterException<p>
- *  <b>Description:</b> Exception thrown when Parameter errors occur, such as
- *  setting a value with an invalid data type for that parameter<p> *
+ *  <b>Title:</b> WarningException<p>
+ *  <b>Description:</b> Exception thrown when WarningListener set's a
+ *  parameter value, to overide calling ParameterChangeEvent<p>
  *
  * Note: These exception subclasses add no new functionality. It's really
  * the class name that is the important information. The name indicates what
@@ -15,12 +15,11 @@ package org.opensha.exceptions;
  * @created    February 20, 2002
  * @version    1.0
  */
-public class ParameterException extends RuntimeException {
+
+public final class WarningException extends RuntimeException {
 
     /** No-arg constructor */
-    public ParameterException()  { super(); }
+    public WarningException() { super(); }
     /** Constructor that specifies an error message */
-    public ParameterException( String string ) { super( string ); }
+    public WarningException( String string ) { super( string ); }
 }
-
-

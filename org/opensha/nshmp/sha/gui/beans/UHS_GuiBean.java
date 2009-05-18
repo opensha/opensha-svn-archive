@@ -23,7 +23,7 @@ import javax.swing.border.TitledBorder;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.RectangularGeographicRegion;
-import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.nshmp.exceptions.AnalysisOptionNotSupportedException;
 import org.opensha.nshmp.exceptions.LocationErrorException;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;

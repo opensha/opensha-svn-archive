@@ -3,10 +3,10 @@ package org.opensha.param;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import org.opensha.exceptions.ConstraintException;
-import org.opensha.exceptions.EditableException;
-import org.opensha.exceptions.ParameterException;
-import org.opensha.exceptions.WarningException;
+import org.opensha.commons.exceptions.ConstraintException;
+import org.opensha.commons.exceptions.EditableException;
+import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.exceptions.WarningException;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.event.ParameterChangeWarningListener;
 

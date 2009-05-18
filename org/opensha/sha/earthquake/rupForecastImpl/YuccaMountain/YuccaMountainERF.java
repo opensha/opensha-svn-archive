@@ -9,7 +9,7 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
-import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.param.StringParameter;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.sha.earthquake.EqkRupForecast;

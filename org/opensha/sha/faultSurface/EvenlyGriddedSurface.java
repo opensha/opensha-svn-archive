@@ -8,7 +8,7 @@ import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Container2D;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
-import org.opensha.exceptions.LocationException;
+import org.opensha.commons.exceptions.LocationException;
 
 /**
  * <b>Title:</b> GriddedSurface<p>

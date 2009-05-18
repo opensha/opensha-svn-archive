@@ -26,7 +26,7 @@ import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegionAPI;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
-import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.gridComputing.GridResources;
 import org.opensha.gridComputing.GridResourcesList;
 import org.opensha.gridComputing.ResourceProvider;

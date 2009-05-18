@@ -6,7 +6,7 @@ import java.util.ListIterator;
 
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.NamedObjectAPI;
-import org.opensha.exceptions.DiscretizedFuncException;
+import org.opensha.commons.exceptions.DiscretizedFuncException;
 
 /**
  * <b>Title:</b> DiscretizedFuncList<p>

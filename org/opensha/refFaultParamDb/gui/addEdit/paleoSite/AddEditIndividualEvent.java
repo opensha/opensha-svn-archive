@@ -17,6 +17,7 @@ import org.opensha.refFaultParamDb.dao.db.PaleoEventDB_DAO;
 import org.opensha.refFaultParamDb.vo.PaleoEvent;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.commons.data.estimate.Estimate;
+import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.refFaultParamDb.data.TimeAPI;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;

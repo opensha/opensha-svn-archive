@@ -11,7 +11,7 @@ import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
 import java.awt.*;
 import java.util.ArrayList;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
-import org.opensha.exceptions.ConstraintException;
+import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionSuccessEvent;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;

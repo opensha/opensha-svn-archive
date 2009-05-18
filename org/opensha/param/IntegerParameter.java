@@ -1,8 +1,8 @@
 package org.opensha.param;
 
 import org.dom4j.Element;
-import org.opensha.exceptions.ConstraintException;
-import org.opensha.exceptions.ParameterException;
+import org.opensha.commons.exceptions.ConstraintException;
+import org.opensha.commons.exceptions.ParameterException;
 
 /**
  *  <b>Title:</b> IntegerParameter<p>

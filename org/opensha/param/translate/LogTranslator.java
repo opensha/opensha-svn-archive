@@ -1,6 +1,6 @@
 package org.opensha.param.translate;
 
-import org.opensha.exceptions.TranslateException;
+import org.opensha.commons.exceptions.TranslateException;
 
 /**
  * <b>Title:</b> LogTranslator<p>

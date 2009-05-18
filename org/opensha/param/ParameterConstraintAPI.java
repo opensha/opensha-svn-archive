@@ -1,7 +1,7 @@
 package org.opensha.param;
 
 import org.opensha.commons.data.NamedObjectAPI;
-import org.opensha.exceptions.EditableException;
+import org.opensha.commons.exceptions.EditableException;
 
 /**
  * <b>Title:</b> ParameterConstraintAPI<p>

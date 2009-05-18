@@ -9,6 +9,8 @@ import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.exceptions.ConstraintException;
+import org.opensha.commons.exceptions.WarningException;
 
 import java.util.StringTokenizer;
 import javax.swing.JOptionPane;

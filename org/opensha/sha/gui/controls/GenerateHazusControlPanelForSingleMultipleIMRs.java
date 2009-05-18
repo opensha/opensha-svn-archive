@@ -12,11 +12,11 @@ import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.param.*;
 import org.opensha.sha.gui.ScenarioShakeMapApp;
-import org.opensha.exceptions.RegionConstraintException;
-import org.opensha.exceptions.ParameterException;
 
 /**
  * <p>Title: GenerateHazusControlPanelForSingleMultipleIMRs</p>

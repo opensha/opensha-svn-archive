@@ -26,7 +26,7 @@ import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.data.siteData.SiteDataValueListList;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
-import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.gridComputing.ResourceProvider;
 import org.opensha.gridComputing.StorageHost;
 import org.opensha.gridComputing.SubmitHost;

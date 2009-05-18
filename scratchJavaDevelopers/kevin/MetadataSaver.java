@@ -13,7 +13,7 @@ import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.region.RELM_TestingRegion;
-import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.gridComputing.GridResources;
 import org.opensha.gridComputing.ResourceProvider;
 import org.opensha.gridComputing.StorageHost;

@@ -17,6 +17,7 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.exceptions.ConstraintException;
 
 /**
  * <b>Title:</b> DistanceX_Parameter<p>

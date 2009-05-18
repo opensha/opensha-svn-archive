@@ -2,7 +2,8 @@ package org.opensha.commons.data.function;
 
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.EmpiricalDistributionTreeMap;
-import org.opensha.exceptions.DataPoint2DException;
+import org.opensha.commons.exceptions.DataPoint2DException;
+import org.opensha.commons.exceptions.InvalidRangeException;
 
 import java.util.*;
 import java.io.Serializable;

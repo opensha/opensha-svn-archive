@@ -4,7 +4,7 @@
 package org.opensha.param;
 
 import org.opensha.commons.data.ValueWeight;
-import org.opensha.exceptions.EditableException;
+import org.opensha.commons.exceptions.EditableException;
 
 /**
  * DoubleValueWeightConstraint : This class accepts a ValueWeight object and checks whether

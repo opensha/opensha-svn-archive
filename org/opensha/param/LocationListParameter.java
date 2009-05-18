@@ -5,7 +5,7 @@ import java.util.ListIterator;
 import org.dom4j.Element;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
-import org.opensha.exceptions.ParameterException;
+import org.opensha.commons.exceptions.ParameterException;
 
 /**
  * <p>Title: LocationListParameter</p>

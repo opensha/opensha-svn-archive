@@ -1,6 +1,6 @@
 package org.opensha.param;
 
-import org.opensha.exceptions.EditableException;
+import org.opensha.commons.exceptions.EditableException;
 
 /**
  * <b>Title:</b> DoubleConstraint<p>

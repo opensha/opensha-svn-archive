@@ -24,7 +24,7 @@ import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
-import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.mapping.gmtWrapper.GMT_MapGenerator;
 import org.opensha.mapping.gmtWrapper.gui.GMT_MapGuiBean;
 import org.opensha.param.ParameterAPI;

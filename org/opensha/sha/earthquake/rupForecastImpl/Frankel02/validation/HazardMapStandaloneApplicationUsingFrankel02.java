@@ -13,13 +13,13 @@ import org.opensha.param.event.*;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
-import org.opensha.exceptions.ParameterException;
+import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.calc.hazardMap.HazardMapCalculatorOld;
-import org.opensha.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: HazardMapStandaloneApplicationUsingFrankel02</p>

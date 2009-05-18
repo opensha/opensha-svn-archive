@@ -3,7 +3,7 @@ package org.opensha.commons.data.region;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
-import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.commons.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: RectangularGeographicRegion</p>

@@ -20,11 +20,11 @@ import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
+import org.opensha.commons.exceptions.RegionConstraintException;
 
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.util.SiteTranslator;
 
-import org.opensha.exceptions.RegionConstraintException;
 
 /**
  * <p>Title:SitesInGriddedRectangularRegionGuiBean </p>

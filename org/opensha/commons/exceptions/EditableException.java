@@ -1,8 +1,10 @@
-package org.opensha.exceptions;
+package org.opensha.commons.exceptions;
 
 /**
- * <b>Title:</b> FaultException<p>
- * <b>Description: </b> Errors thrown when creating fault models.<p>
+ * <b>Title:</b> EditableException<p>
+ *
+ * <b>Description:</b> SWR: I have no idea what this is used for since
+ * I didn't create the class, and the creator left no comments<p>
  *
  * Note: These exception subclasses add no new functionality. It's really
  * the class name that is the important information. The name indicates what
@@ -14,11 +16,10 @@ package org.opensha.exceptions;
  * @version 1.0
  */
 
-public class FaultException extends RuntimeException {
+public class EditableException extends RuntimeException {
 
     /** No-arg constructor */
-    public FaultException()  { super(); }
+    public EditableException()  { super(); }
     /** Constructor that specifies an error message */
-    public FaultException( String string ) { super( string ); }
-
+    public EditableException( String string ) { super( string ); }
 }

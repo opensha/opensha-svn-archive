@@ -10,16 +10,16 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.exceptions.ParameterException;
 import org.opensha.sha.param.PropagationEffect;
 import org.opensha.param.DependentParameter;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
 
-import org.opensha.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: ScenarioShakeMapCalculator</p>

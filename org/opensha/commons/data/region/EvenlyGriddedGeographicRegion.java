@@ -5,7 +5,7 @@ import java.util.*;
 import org.dom4j.Element;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
-import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.metadata.XMLSaveable;
 
 import java.io.IOException;

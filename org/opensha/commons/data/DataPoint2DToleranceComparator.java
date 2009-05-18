@@ -2,7 +2,7 @@ package org.opensha.commons.data;
 
 import java.io.Serializable;
 
-import org.opensha.exceptions.InvalidRangeException;
+import org.opensha.commons.exceptions.InvalidRangeException;
 
 
 /**

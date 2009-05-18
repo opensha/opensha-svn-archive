@@ -1,9 +1,10 @@
-package org.opensha.exceptions;
+package org.opensha.commons.exceptions;
 
 /**
- *  <b>Title:</b> InvalidRangeException<p>
- *  <b>Description:</b> Exception thrown when trying to set a value outside an
- *  axis range.<p>
+ *  <b>Title:</b> NotResizableException<p>
+ *
+ *  <b>Description:</b> Exception thrown when trying to resize data structures
+ *  that are not resizable, such as a GriddedSurface<p>
  *
  * Note: These exception subclasses add no new functionality. It's really
  * the class name that is the important information. The name indicates what
@@ -15,11 +16,14 @@ package org.opensha.exceptions;
  * @created    February 20, 2002
  * @version    1.0
  */
-public class InvalidRangeException extends RuntimeException {
+public final class NotResizableException extends RuntimeException {
 
+	private static final long serialVersionUID = 0x64354A8;
+	
     /** No-arg constructor */
-    public InvalidRangeException()  { super(); }
+    public NotResizableException()  { super(); }
     /** Constructor that specifies an error message */
-    public InvalidRangeException( String string ) { super( string ); }
+    public NotResizableException( String string ){ super( string ); }
 }
+
 

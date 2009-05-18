@@ -10,12 +10,12 @@ import org.opensha.param.event.*;
 import org.opensha.param.*;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.*;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.sha.calc.HazusMapCalculator;
 import org.opensha.sha.earthquake.*;
 
 import org.opensha.sha.gui.infoTools.*;
 
-import org.opensha.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: HazusDataGenerator</p>

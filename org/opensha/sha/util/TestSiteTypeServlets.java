@@ -2,7 +2,7 @@ package org.opensha.sha.util;
 
 import java.util.ArrayList;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
-import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.commons.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: TestSiteTypeServlets</p>

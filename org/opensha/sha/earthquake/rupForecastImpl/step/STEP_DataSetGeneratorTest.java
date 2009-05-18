@@ -18,6 +18,8 @@ import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
+import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.sha.calc.hazardMap.HazardMapCalculatorOld;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
@@ -26,8 +28,6 @@ import org.opensha.util.*;
 
 import org.opensha.param.ParameterAPI;
 import org.opensha.sha.util.SiteTranslator;
-import org.opensha.exceptions.RegionConstraintException;
-import org.opensha.exceptions.ParameterException;
 
 /**
  * <p>Title: STEP_DataSetGenerator</p>

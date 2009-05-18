@@ -2,7 +2,7 @@ package org.opensha.commons.data;
 
 import java.util.Comparator;
 
-import org.opensha.exceptions.NamedObjectException;
+import org.opensha.commons.exceptions.NamedObjectException;
 
 /**
  * <b>Title:</b> NamedObjectComparator<p>

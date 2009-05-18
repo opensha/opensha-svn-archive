@@ -10,6 +10,7 @@ import org.opensha.sha.calc.*;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
+import org.opensha.commons.exceptions.ConstraintException;
 
 /**
  * <b>Title:</b> DistanceSeisParameter<p>

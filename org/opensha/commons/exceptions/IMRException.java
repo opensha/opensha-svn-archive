@@ -1,9 +1,10 @@
-package org.opensha.exceptions;
+package org.opensha.commons.exceptions;
 
 /**
- *  <b>Title:</b> MagFreqDistException<p>
+ *  <b>Title:</b> IMRException<p>
  *
- *  <b>Description:</b> Exception thrown when MagFreqDistException errors occur<p>
+ *  <b>Description:</b> Exception thrown when constraints reject setting a
+ *  Parameter value inside the IMR GUI Tester<p>
  *
  * Note: These exception subclasses add no new functionality. It's really
  * the class name that is the important information. The name indicates what
@@ -11,15 +12,15 @@ package org.opensha.exceptions;
  * in the code. It it much easier to see different exception types than have one
  * catchall RuntimeException type.<p>
  *
- * @author     Nitin Gupta
- * @created    August, 9,2002
+ * @author     Steven W. Rock
+ * @created    February 20, 2002
  * @version    1.0
  */
-public class MagFreqDistException extends RuntimeException {
+
+public final class IMRException extends RuntimeException {
 
     /** No-arg constructor */
-    public MagFreqDistException()  { super(); }
+    public IMRException()  { super(); }
     /** Constructor that specifies an error message */
-    public MagFreqDistException(String string ) { super( string ); }
+    public IMRException( String string ) { super( string ); }
 }
-

@@ -5,9 +5,9 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.DataPoint2D;
-import org.opensha.exceptions.DataPoint2DException;
-import org.opensha.exceptions.DiscretizedFuncException;
-import org.opensha.exceptions.InvalidRangeException;
+import org.opensha.commons.exceptions.DataPoint2DException;
+import org.opensha.commons.exceptions.DiscretizedFuncException;
+import org.opensha.commons.exceptions.InvalidRangeException;
 
 
 /**

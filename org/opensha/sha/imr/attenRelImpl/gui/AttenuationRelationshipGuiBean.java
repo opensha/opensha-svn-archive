@@ -16,6 +16,8 @@ import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.function.ArbDiscrFuncWithParams;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.exceptions.ConstraintException;
+import org.opensha.commons.exceptions.ParameterException;
 
 import org.opensha.util.*;
 

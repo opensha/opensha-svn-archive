@@ -6,8 +6,8 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import org.opensha.exceptions.ConstraintException;
-import org.opensha.exceptions.ParameterException;
+import org.opensha.commons.exceptions.ConstraintException;
+import org.opensha.commons.exceptions.ParameterException;
 
 /**
  * <b>Title:</b> ParameterList<p>

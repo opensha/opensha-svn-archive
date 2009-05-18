@@ -5,7 +5,7 @@ import java.util.Random;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.SitesInGriddedRegionAPI;
-import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.hazardMap.grid.HazardMapPortionCalculator;
 import org.opensha.sha.earthquake.EqkRupForecast;

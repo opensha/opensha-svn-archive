@@ -2,8 +2,8 @@ package org.opensha.sha.imr.attenRelImpl.test;
 
 import java.util.*;
 
-import org.opensha.exceptions.ConstraintException;
-import org.opensha.exceptions.ParameterException;
+import org.opensha.commons.exceptions.ConstraintException;
+import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.param.BooleanParameter;
 import org.opensha.param.DoubleParameter;
 import org.opensha.param.WarningDoubleParameter;

@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import javax.swing.*;
 
 import org.opensha.commons.data.ValueWeight;
-import org.opensha.exceptions.ConstraintException;
-import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.commons.exceptions.ConstraintException;
+import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.param.DoubleConstraint;
 import org.opensha.param.DoubleDiscreteConstraint;
 import org.opensha.param.DoubleDiscreteParameter;

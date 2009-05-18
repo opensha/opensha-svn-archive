@@ -1,9 +1,9 @@
 package org.opensha.param;
 
 import org.dom4j.Element;
-import org.opensha.exceptions.ConstraintException;
-import org.opensha.exceptions.EditableException;
-import org.opensha.exceptions.ParameterException;
+import org.opensha.commons.exceptions.ConstraintException;
+import org.opensha.commons.exceptions.EditableException;
+import org.opensha.commons.exceptions.ParameterException;
 
 
 

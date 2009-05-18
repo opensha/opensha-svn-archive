@@ -13,13 +13,13 @@ import org.opensha.param.*;
 import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.exceptions.FaultException;
 import org.opensha.util.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
-import org.opensha.exceptions.FaultException;
 import org.opensha.sha.earthquake.rupForecastImpl.remote.*;
 import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_EqkRupForecastClient;
 

@@ -19,7 +19,7 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 
 import org.dom4j.Document;
-import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.util.FileUtils;
 import org.opensha.util.XMLUtils;
 

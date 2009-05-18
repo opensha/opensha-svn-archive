@@ -23,12 +23,12 @@ import org.opensha.commons.data.region.RELM_TestingRegion;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegionAPI;
+import org.opensha.commons.exceptions.RegionConstraintException;
 
 import org.opensha.sha.calc.hazardMap.NamedGeographicRegion;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.util.SiteTranslator;
 
-import org.opensha.exceptions.RegionConstraintException;
 
 /**
  * <p>SitesInGriddedRegionGuiBean </p>

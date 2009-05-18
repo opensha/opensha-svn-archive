@@ -33,7 +33,7 @@ import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
-import org.opensha.exceptions.FaultException;
+import org.opensha.commons.exceptions.FaultException;
 import org.opensha.param.*;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;

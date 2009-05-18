@@ -14,6 +14,7 @@ import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.imr.*;
 import org.opensha.param.event.*;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.sha.gui.controls.*;
 import org.opensha.sha.gui.infoTools.*;
 
@@ -22,7 +23,6 @@ import org.opensha.sha.calc.HazusMapCalculator;
 
 import org.opensha.util.ImageUtils;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
-import org.opensha.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: HuzusDataSetCalcApp</p>

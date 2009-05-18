@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 
-import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.commons.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: ScenarioShakeMapLocalModeCalcApplication</p>

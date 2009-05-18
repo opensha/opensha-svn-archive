@@ -25,7 +25,7 @@ import javax.swing.SwingConstants;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.exceptions.ParameterException;
+import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.gui.UserAuthDialog;
 import org.opensha.param.DoubleDiscreteParameter;
 import org.opensha.param.DoubleParameter;

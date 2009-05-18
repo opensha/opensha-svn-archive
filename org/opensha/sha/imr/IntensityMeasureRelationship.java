@@ -8,6 +8,9 @@ import java.util.*;
 import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.exceptions.ConstraintException;
+import org.opensha.commons.exceptions.IMRException;
+import org.opensha.commons.exceptions.ParameterException;
 
 import org.opensha.exceptions.*;
 import org.opensha.metadata.MetadataLoader;

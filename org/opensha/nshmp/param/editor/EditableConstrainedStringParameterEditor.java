@@ -2,7 +2,8 @@ package org.opensha.nshmp.param.editor;
 
 import org.opensha.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.param.ParameterAPI;
-import org.opensha.exceptions.ConstraintException;
+import org.opensha.commons.exceptions.ConstraintException;
+
 import javax.swing.JComboBox;
 
 /**

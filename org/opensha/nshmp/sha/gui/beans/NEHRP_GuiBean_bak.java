@@ -10,6 +10,7 @@ import javax.swing.border.*;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.RectangularGeographicRegion;
+import org.opensha.commons.exceptions.RegionConstraintException;
 
 
 import org.opensha.param.*;
@@ -21,7 +22,6 @@ import org.opensha.nshmp.sha.data.api.*;
 import org.opensha.nshmp.sha.gui.api.*;
 import org.opensha.nshmp.sha.gui.infoTools.*;
 import org.opensha.nshmp.util.*;
-import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 
 /**

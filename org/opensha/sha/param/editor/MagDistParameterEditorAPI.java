@@ -2,8 +2,8 @@ package org.opensha.sha.param.editor;
 
 
 import org.opensha.param.ParameterList;
-import org.opensha.exceptions.ConstraintException;
-import org.opensha.exceptions.ParameterException;
+import org.opensha.commons.exceptions.ConstraintException;
+import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.param.ParameterAPI;
 import org.opensha.sha.magdist.SummedMagFreqDist;

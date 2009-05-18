@@ -5,7 +5,7 @@ import java.util.Vector;
 
 import javax.swing.JComboBox;
 
-import org.opensha.exceptions.ConstraintException;
+import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterConstraintAPI;
 import org.opensha.param.StringConstraint;

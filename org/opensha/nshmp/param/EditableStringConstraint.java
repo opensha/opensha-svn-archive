@@ -3,7 +3,7 @@ package org.opensha.nshmp.param;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import org.opensha.exceptions.ConstraintException;
+import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.param.StringConstraint;
 
 /**

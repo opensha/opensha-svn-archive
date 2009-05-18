@@ -15,8 +15,8 @@ import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.DataPoint2DComparatorAPI;
 import org.opensha.commons.data.DataPoint2DToleranceComparator;
 import org.opensha.commons.data.DataPoint2DTreeMap;
-import org.opensha.exceptions.DataPoint2DException;
-import org.opensha.exceptions.InvalidRangeException;
+import org.opensha.commons.exceptions.DataPoint2DException;
+import org.opensha.commons.exceptions.InvalidRangeException;
 
 /**
  * <b>Title:</b> ArbitrarilyDiscretizedFunc<p>

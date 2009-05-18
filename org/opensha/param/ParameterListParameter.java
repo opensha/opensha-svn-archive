@@ -3,7 +3,7 @@ package org.opensha.param;
 import java.util.ListIterator;
 
 import org.dom4j.Element;
-import org.opensha.exceptions.ParameterException;
+import org.opensha.commons.exceptions.ParameterException;
 
 
 /**

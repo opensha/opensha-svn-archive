@@ -2,7 +2,7 @@ package org.opensha.param;
 
 import java.util.ListIterator;
 
-import org.opensha.exceptions.ParameterException;
+import org.opensha.commons.exceptions.ParameterException;
 
 /**
  * <b>Title:</b> DependentParameterAPI<p>

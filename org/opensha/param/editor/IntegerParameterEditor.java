@@ -2,6 +2,9 @@ package org.opensha.param.editor;
 
 import java.awt.event.*;
 import javax.swing.border.*;
+
+import org.opensha.commons.exceptions.ConstraintException;
+import org.opensha.commons.exceptions.WarningException;
 import org.opensha.exceptions.*;
 import org.opensha.param.*;
 

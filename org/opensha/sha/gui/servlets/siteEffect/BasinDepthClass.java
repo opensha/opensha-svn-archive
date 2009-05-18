@@ -6,9 +6,9 @@ import java.io.*;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
+import org.opensha.commons.exceptions.RegionConstraintException;
 
 
-import org.opensha.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: BasinDepthClass</p>

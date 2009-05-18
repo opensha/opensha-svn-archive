@@ -3,7 +3,7 @@ import java.io.Serializable;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
-import org.opensha.exceptions.InvalidArrayShapeException;
+import org.opensha.commons.exceptions.InvalidArrayShapeException;
 
 /**
  *  <b>Title:</b> Container2D<p>

@@ -5,10 +5,10 @@ import java.util.ListIterator;
 import org.opensha.commons.data.Container2D;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
+import org.opensha.commons.exceptions.LocationException;
 
 
 import java.util.Iterator;
-import org.opensha.exceptions.LocationException;
 
 
 /**

@@ -16,8 +16,8 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
-import org.opensha.exceptions.GMT_MapException;
-import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.commons.exceptions.GMT_MapException;
+import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.param.BooleanParameter;
 import org.opensha.param.DoubleParameter;
 import org.opensha.param.IntegerParameter;

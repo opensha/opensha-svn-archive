@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
+import org.opensha.commons.exceptions.InvalidRangeException;
 
 import java.util.StringTokenizer;
 import org.opensha.util.FileUtils;

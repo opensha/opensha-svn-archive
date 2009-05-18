@@ -2,7 +2,7 @@ package org.opensha.commons.data;
 import java.text.DecimalFormat;
 
 import org.dom4j.Element;
-import org.opensha.exceptions.InvalidRangeException;
+import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.metadata.XMLSaveable;
 
 

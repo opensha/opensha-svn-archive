@@ -4,7 +4,7 @@ import java.util.ListIterator;
 import java.util.Iterator;
 
 import org.opensha.commons.data.DataPoint2D;
-import org.opensha.exceptions.DataPoint2DException;
+import org.opensha.commons.exceptions.DataPoint2DException;
 import org.opensha.param.ParameterList;
 
 /**

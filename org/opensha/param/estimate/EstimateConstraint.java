@@ -6,9 +6,9 @@ import org.opensha.commons.data.estimate.IntegerEstimate;
 import org.opensha.commons.data.estimate.MinMaxPrefEstimate;
 import org.opensha.commons.data.estimate.NormalEstimate;
 import org.opensha.commons.data.estimate.PDF_Estimate;
+import org.opensha.commons.exceptions.EditableException;
 
 
-import org.opensha.exceptions.EditableException;
 import java.util.ArrayList;
 import org.opensha.param.*;
 

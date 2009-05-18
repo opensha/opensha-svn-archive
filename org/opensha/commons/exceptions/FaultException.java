@@ -1,8 +1,8 @@
-package org.opensha.exceptions;
+package org.opensha.commons.exceptions;
 
 /**
- *  <b>Title:</b> DiscretizedFuncException<p>
- *  <b>Description:</b> Exception thrown when Discretized Function errors occur<p>
+ * <b>Title:</b> FaultException<p>
+ * <b>Description: </b> Errors thrown when creating fault models.<p>
  *
  * Note: These exception subclasses add no new functionality. It's really
  * the class name that is the important information. The name indicates what
@@ -10,16 +10,15 @@ package org.opensha.exceptions;
  * in the code. It it much easier to see different exception types than have one
  * catchall RuntimeException type.<p>
  *
- * @author     Steven W. Rock
- * @created    February 20, 2002
- * @version    1.0
+ * @author unascribed
+ * @version 1.0
  */
-public class DiscretizedFuncException extends RuntimeException {
+
+public class FaultException extends RuntimeException {
 
     /** No-arg constructor */
-    public DiscretizedFuncException()  { super(); }
+    public FaultException()  { super(); }
     /** Constructor that specifies an error message */
-    public DiscretizedFuncException( String string ) { super( string ); }
+    public FaultException( String string ) { super( string ); }
+
 }
-
-

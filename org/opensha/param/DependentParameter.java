@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import org.opensha.exceptions.ConstraintException;
-import org.opensha.exceptions.EditableException;
-import org.opensha.exceptions.ParameterException;
+import org.opensha.commons.exceptions.ConstraintException;
+import org.opensha.commons.exceptions.EditableException;
+import org.opensha.commons.exceptions.ParameterException;
 
 /**
  * <b>Title:</b> DependentParameter<p>

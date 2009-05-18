@@ -7,6 +7,9 @@ import org.opensha.exceptions.*;
 import org.opensha.param.*;
 import org.opensha.sha.magdist.*;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.exceptions.ConstraintException;
+import org.opensha.commons.exceptions.EditableException;
+import org.opensha.commons.exceptions.ParameterException;
 
 /**
  *  <b>Title:</b> MagFreqDistParameter<p>

@@ -10,6 +10,8 @@ import javax.swing.border.*;
 import org.opensha.gui.SidesBorder;
 import org.opensha.param.*;
 import org.opensha.util.ParamUtils;
+import org.opensha.commons.exceptions.ConstraintException;
+import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.exceptions.*;
 import org.opensha.param.translate.*;
 

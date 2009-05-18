@@ -1,9 +1,9 @@
-package org.opensha.exceptions;
+package org.opensha.commons.exceptions;
 
 /**
- *  <b>Title:</b> NamedObjectException<p>
- *
- *  <b>Description:</b> Exception thrown when NamedObject errors occur<p>
+ *  <b>Title:</b> InvalidArrayShapeException<p>
+ *  <b>Description:</b> Exception thrown when trying to set invalid sizes to any
+ *  2D grid i nthe gridded fault framework. <p>
  *
  * Note: These exception subclasses add no new functionality. It's really
  * the class name that is the important information. The name indicates what
@@ -15,12 +15,14 @@ package org.opensha.exceptions;
  * @created    February 20, 2002
  * @version    1.0
  */
-public class NamedObjectException extends RuntimeException {
+public final class InvalidArrayShapeException extends RuntimeException {
 
+	private static final long serialVersionUID = 0x12EA7F9;
+	
     /** No-arg constructor */
-    public NamedObjectException()  { super(); }
+    public InvalidArrayShapeException()  { super(); }
     /** Constructor that specifies an error message */
-    public NamedObjectException( String string ) { super( string ); }
+    public InvalidArrayShapeException( String string ) { super( string ); }
 }
 
 

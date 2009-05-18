@@ -2,6 +2,10 @@ package org.opensha.sha.magdist;
 
 import org.opensha.exceptions.*;
 import org.opensha.commons.data.DataPoint2D;
+import org.opensha.commons.exceptions.DataPoint2DException;
+import org.opensha.commons.exceptions.DiscretizedFuncException;
+import org.opensha.commons.exceptions.InvalidRangeException;
+import org.opensha.commons.exceptions.MagFreqDistException;
 
 
 /**

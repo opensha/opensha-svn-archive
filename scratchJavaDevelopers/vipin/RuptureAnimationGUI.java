@@ -13,6 +13,7 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
+import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.gui.plot.jfreechart.GriddedSurfaceXYDataSet;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;

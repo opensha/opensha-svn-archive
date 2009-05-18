@@ -10,6 +10,9 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValue;
+import org.opensha.commons.exceptions.IMRException;
+import org.opensha.commons.exceptions.InvalidRangeException;
+import org.opensha.commons.exceptions.ParameterException;
 
 import org.opensha.exceptions.*;
 import org.opensha.param.*;

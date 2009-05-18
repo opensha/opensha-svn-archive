@@ -1,6 +1,6 @@
 package org.opensha.util;
 
-import org.opensha.exceptions.InvalidRangeException;
+import org.opensha.commons.exceptions.InvalidRangeException;
 
 /**
  * <b>Title:</b> FaultUtils<p>

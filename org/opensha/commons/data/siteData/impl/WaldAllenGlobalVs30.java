@@ -14,7 +14,7 @@ import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataToXYZ;
 import org.opensha.commons.data.siteData.servlet.SiteDataServletAccessor;
-import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.param.ArbitrarilyDiscretizedFuncParameter;
 import org.opensha.param.BooleanParameter;
 import org.opensha.param.StringParameter;

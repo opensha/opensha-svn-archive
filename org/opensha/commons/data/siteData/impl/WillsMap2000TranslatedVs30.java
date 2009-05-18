@@ -7,7 +7,7 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.siteData.AbstractSiteData;
-import org.opensha.exceptions.InvalidRangeException;
+import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.sha.util.SiteTranslator;
 
 public class WillsMap2000TranslatedVs30 extends AbstractSiteData<Double> {
