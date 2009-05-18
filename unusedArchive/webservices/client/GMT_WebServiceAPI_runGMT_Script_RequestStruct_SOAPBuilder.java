@@ -2,13 +2,13 @@
 // Contents subject to change without notice.
 // JAX-RPC Standard Implementation (1.1, build EA-R39)
 
-package org.opensha.webservices.client;
+package unusedArchive.webservices.client;
 
 import com.sun.xml.rpc.encoding.*;
 import com.sun.xml.rpc.util.exception.LocalizableExceptionAdapter;
 
 public class GMT_WebServiceAPI_runGMT_Script_RequestStruct_SOAPBuilder implements SOAPInstanceBuilder {
-    private org.opensha.webservices.client.GMT_WebServiceAPI_runGMT_Script_RequestStruct _instance;
+    private unusedArchive.webservices.client.GMT_WebServiceAPI_runGMT_Script_RequestStruct _instance;
     private java.lang.String[] arrayOfString_1;
     private javax.activation.DataHandler[] arrayOfDataHandler_2;
     private static final int myARRAYOFSTRING_1_INDEX = 0;
@@ -64,7 +64,7 @@ public class GMT_WebServiceAPI_runGMT_Script_RequestStruct_SOAPBuilder implement
     }
 
     public void setInstance(Object instance) {
-        _instance = (org.opensha.webservices.client.GMT_WebServiceAPI_runGMT_Script_RequestStruct)instance;
+        _instance = (unusedArchive.webservices.client.GMT_WebServiceAPI_runGMT_Script_RequestStruct)instance;
     }
 
     public Object getInstance() {

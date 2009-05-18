@@ -2,7 +2,7 @@
 // Contents subject to change without notice.
 // null
 
-package org.opensha.webservices.client;
+package unusedArchive.webservices.client;
 
 import com.sun.xml.rpc.encoding.*;
 import com.sun.xml.rpc.client.ServiceExceptionImpl;
@@ -18,13 +18,13 @@ import javax.xml.namespace.QName;
 public class GMT_WebService_Impl extends com.sun.xml.rpc.client.BasicService implements GMT_WebService {
     private static final QName serviceName = new QName("http://gravity.usc.edu/gmt/ws/GMT_WS", "GMT_WebService");
     private static final QName ns1_GMT_WebServiceAPIPort_QNAME = new QName("http://gravity.usc.edu/gmt/ws/GMT_WS", "GMT_WebServiceAPIPort");
-    private static final Class GMT_WebServiceAPI_PortClass = org.opensha.webservices.client.GMT_WebServiceAPI.class;
+    private static final Class GMT_WebServiceAPI_PortClass = unusedArchive.webservices.client.GMT_WebServiceAPI.class;
 
     public GMT_WebService_Impl() {
         super(serviceName, new QName[] {
                         ns1_GMT_WebServiceAPIPort_QNAME
                     },
-            new org.opensha.webservices.client.GMT_WebService_SerializerRegistry().getRegistry());
+            new unusedArchive.webservices.client.GMT_WebService_SerializerRegistry().getRegistry());
 
     }
 
@@ -51,11 +51,11 @@ public class GMT_WebService_Impl extends com.sun.xml.rpc.client.BasicService imp
         return super.getPort(serviceDefInterface);
     }
 
-    public org.opensha.webservices.client.GMT_WebServiceAPI getGMT_WebServiceAPIPort() {
+    public unusedArchive.webservices.client.GMT_WebServiceAPI getGMT_WebServiceAPIPort() {
         String[] roles = new String[] {};
         HandlerChainImpl handlerChain = new HandlerChainImpl(getHandlerRegistry().getHandlerChain(ns1_GMT_WebServiceAPIPort_QNAME));
         handlerChain.setRoles(roles);
-        org.opensha.webservices.client.GMT_WebServiceAPI_Stub stub = new org.opensha.webservices.client.GMT_WebServiceAPI_Stub(handlerChain);
+        unusedArchive.webservices.client.GMT_WebServiceAPI_Stub stub = new unusedArchive.webservices.client.GMT_WebServiceAPI_Stub(handlerChain);
         try {
             stub._initialize(super.internalTypeRegistry);
         } catch (JAXRPCException e) {

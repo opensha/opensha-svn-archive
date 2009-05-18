@@ -2,7 +2,7 @@
 // Contents subject to change without notice.
 // JAX-RPC Standard Implementation (1.1, build EA-R39)
 
-package org.opensha.webservices.client;
+package unusedArchive.webservices.client;
 
 import com.sun.xml.rpc.server.http.MessageContextProperties;
 import com.sun.xml.rpc.streaming.*;
@@ -29,7 +29,7 @@ import javax.xml.rpc.soap.SOAPFaultException;
 
 public class GMT_WebServiceAPI_Stub
     extends com.sun.xml.rpc.client.StubBase
-    implements org.opensha.webservices.client.GMT_WebServiceAPI {
+    implements unusedArchive.webservices.client.GMT_WebServiceAPI {
 
 
     /*
@@ -53,8 +53,8 @@ public class GMT_WebServiceAPI_Stub
 
             InternalSOAPMessage _request = _state.getRequest();
             _request.setOperationCode(runGMT_Script_OPCODE);
-            org.opensha.webservices.client.GMT_WebServiceAPI_runGMT_Script_RequestStruct _myGMT_WebServiceAPI_runGMT_Script_RequestStruct =
-                new org.opensha.webservices.client.GMT_WebServiceAPI_runGMT_Script_RequestStruct();
+            unusedArchive.webservices.client.GMT_WebServiceAPI_runGMT_Script_RequestStruct _myGMT_WebServiceAPI_runGMT_Script_RequestStruct =
+                new unusedArchive.webservices.client.GMT_WebServiceAPI_runGMT_Script_RequestStruct();
 
             _myGMT_WebServiceAPI_runGMT_Script_RequestStruct.setArrayOfString_1(arrayOfString_1);
             _myGMT_WebServiceAPI_runGMT_Script_RequestStruct.setArrayOfDataHandler_2(arrayOfDataHandler_2);
@@ -68,14 +68,14 @@ public class GMT_WebServiceAPI_Stub
 
             _send((String) _getProperty(ENDPOINT_ADDRESS_PROPERTY), _state);
 
-            org.opensha.webservices.client.GMT_WebServiceAPI_runGMT_Script_ResponseStruct _myGMT_WebServiceAPI_runGMT_Script_ResponseStruct = null;
+            unusedArchive.webservices.client.GMT_WebServiceAPI_runGMT_Script_ResponseStruct _myGMT_WebServiceAPI_runGMT_Script_ResponseStruct = null;
             Object _responseObj = _state.getResponse().getBody().getValue();
             if (_responseObj instanceof SOAPDeserializationState) {
                 _myGMT_WebServiceAPI_runGMT_Script_ResponseStruct =
-                    (org.opensha.webservices.client.GMT_WebServiceAPI_runGMT_Script_ResponseStruct)((SOAPDeserializationState)_responseObj).getInstance();
+                    (unusedArchive.webservices.client.GMT_WebServiceAPI_runGMT_Script_ResponseStruct)((SOAPDeserializationState)_responseObj).getInstance();
             } else {
                 _myGMT_WebServiceAPI_runGMT_Script_ResponseStruct =
-                    (org.opensha.webservices.client.GMT_WebServiceAPI_runGMT_Script_ResponseStruct)_responseObj;
+                    (unusedArchive.webservices.client.GMT_WebServiceAPI_runGMT_Script_ResponseStruct)_responseObj;
             }
 
             return _myGMT_WebServiceAPI_runGMT_Script_ResponseStruct.getResult();
@@ -162,8 +162,8 @@ public class GMT_WebServiceAPI_Stub
 
     public void _initialize(InternalTypeMappingRegistry registry) throws Exception {
         super._initialize(registry);
-        ns1_myGMT_WebServiceAPI_runGMT_Script_RequestStruct_SOAPSerializer = (CombinedSerializer)registry.getSerializer(SOAPConstants.NS_SOAP_ENCODING, org.opensha.webservices.client.GMT_WebServiceAPI_runGMT_Script_RequestStruct.class, ns1_runGMT_Script_TYPE_QNAME);
-        ns1_myGMT_WebServiceAPI_runGMT_Script_ResponseStruct_SOAPSerializer = (CombinedSerializer)registry.getSerializer(SOAPConstants.NS_SOAP_ENCODING, org.opensha.webservices.client.GMT_WebServiceAPI_runGMT_Script_ResponseStruct.class, ns1_runGMT_ScriptResponse_TYPE_QNAME);
+        ns1_myGMT_WebServiceAPI_runGMT_Script_RequestStruct_SOAPSerializer = (CombinedSerializer)registry.getSerializer(SOAPConstants.NS_SOAP_ENCODING, unusedArchive.webservices.client.GMT_WebServiceAPI_runGMT_Script_RequestStruct.class, ns1_runGMT_Script_TYPE_QNAME);
+        ns1_myGMT_WebServiceAPI_runGMT_Script_ResponseStruct_SOAPSerializer = (CombinedSerializer)registry.getSerializer(SOAPConstants.NS_SOAP_ENCODING, unusedArchive.webservices.client.GMT_WebServiceAPI_runGMT_Script_ResponseStruct.class, ns1_runGMT_ScriptResponse_TYPE_QNAME);
     }
 
     private static final QName _portName = new QName("http://gravity.usc.edu/gmt/ws/GMT_WS", "GMT_WebServiceAPIPort");

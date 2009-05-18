@@ -2,10 +2,10 @@
 // Contents subject to change without notice.
 // JAX-RPC Standard Implementation (1.1, build EA-R39)
 
-package org.opensha.webservices.client;
+package unusedArchive.webservices.client;
 
 import javax.xml.rpc.*;
 
 public interface GMT_WebService extends javax.xml.rpc.Service {
-    public org.opensha.webservices.client.GMT_WebServiceAPI getGMT_WebServiceAPIPort();
+    public unusedArchive.webservices.client.GMT_WebServiceAPI getGMT_WebServiceAPIPort();
 }

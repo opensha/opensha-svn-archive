@@ -2,21 +2,15 @@
 // Contents subject to change without notice.
 // JAX-RPC Standard Implementation (1.1, build EA-R39)
 
-package org.opensha.webservices;
+package unusedArchive.webservices.client;
 
-import javax.xml.namespace.QName;
-
-import com.sun.xml.rpc.encoding.CombinedSerializer;
-import com.sun.xml.rpc.encoding.Initializable;
-import com.sun.xml.rpc.encoding.InternalTypeMappingRegistry;
-import com.sun.xml.rpc.encoding.ObjectSerializerBase;
-import com.sun.xml.rpc.encoding.SOAPDeserializationContext;
-import com.sun.xml.rpc.encoding.SOAPDeserializationState;
-import com.sun.xml.rpc.encoding.SOAPSerializationContext;
+import com.sun.xml.rpc.encoding.*;
+import com.sun.xml.rpc.encoding.literal.DetailFragmentDeserializer;
 import com.sun.xml.rpc.encoding.soap.SOAPConstants;
-import com.sun.xml.rpc.streaming.XMLReader;
-import com.sun.xml.rpc.streaming.XMLReaderUtil;
-import com.sun.xml.rpc.streaming.XMLWriter;
+import com.sun.xml.rpc.encoding.soap.SOAP12Constants;
+import com.sun.xml.rpc.streaming.*;
+import com.sun.xml.rpc.wsdl.document.schema.SchemaConstants;
+import javax.xml.namespace.QName;
 
 public class GMT_WebServiceAPI_runGMT_Script_RequestStruct_SOAPSerializer extends ObjectSerializerBase implements Initializable {
     private static final QName ns1_arrayOfString_1_QNAME = new QName("", "arrayOfString_1");
@@ -39,20 +33,23 @@ public class GMT_WebServiceAPI_runGMT_Script_RequestStruct_SOAPSerializer extend
 
     public Object doDeserialize(SOAPDeserializationState state, XMLReader reader,
         SOAPDeserializationContext context) throws Exception {
-        org.opensha.webservices.GMT_WebServiceAPI_runGMT_Script_RequestStruct instance = new org.opensha.webservices.GMT_WebServiceAPI_runGMT_Script_RequestStruct();
-        org.opensha.webservices.GMT_WebServiceAPI_runGMT_Script_RequestStruct_SOAPBuilder builder = null;
+        unusedArchive.webservices.client.GMT_WebServiceAPI_runGMT_Script_RequestStruct instance = new unusedArchive.webservices.client.GMT_WebServiceAPI_runGMT_Script_RequestStruct();
+        unusedArchive.webservices.client.GMT_WebServiceAPI_runGMT_Script_RequestStruct_SOAPBuilder builder = null;
         Object member;
         boolean isComplete = true;
         QName elementName;
 
         reader.nextElementContent();
-        elementName = reader.getName();
-        if (reader.getState() == XMLReader.START) {
+        for (int i=0; i<2; i++) {
+            elementName = reader.getName();
+            if (reader.getState() == XMLReader.END) {
+                break;
+            }
             if (elementName.equals(ns1_arrayOfString_1_QNAME)) {
                 member = ns2_myns2_ArrayOfstring__StringArray_SOAPSerializer1.deserialize(ns1_arrayOfString_1_QNAME, reader, context);
                 if (member instanceof SOAPDeserializationState) {
                     if (builder == null) {
-                        builder = new org.opensha.webservices.GMT_WebServiceAPI_runGMT_Script_RequestStruct_SOAPBuilder();
+                        builder = new unusedArchive.webservices.client.GMT_WebServiceAPI_runGMT_Script_RequestStruct_SOAPBuilder();
                     }
                     state = registerWithMemberState(instance, state, member, myARRAYOFSTRING_1_INDEX, builder);
                     isComplete = false;
@@ -60,15 +57,13 @@ public class GMT_WebServiceAPI_runGMT_Script_RequestStruct_SOAPSerializer extend
                     instance.setArrayOfString_1((java.lang.String[])member);
                 }
                 reader.nextElementContent();
+                continue;
             }
-        }
-        elementName = reader.getName();
-        if (reader.getState() == XMLReader.START) {
             if (elementName.equals(ns1_arrayOfDataHandler_2_QNAME)) {
                 member = ns2_myns2_ArrayOfdatahandler__DataHandlerArray_SOAPSerializer1.deserialize(ns1_arrayOfDataHandler_2_QNAME, reader, context);
                 if (member instanceof SOAPDeserializationState) {
                     if (builder == null) {
-                        builder = new org.opensha.webservices.GMT_WebServiceAPI_runGMT_Script_RequestStruct_SOAPBuilder();
+                        builder = new unusedArchive.webservices.client.GMT_WebServiceAPI_runGMT_Script_RequestStruct_SOAPBuilder();
                     }
                     state = registerWithMemberState(instance, state, member, myARRAYOFDATAHANDLER_2_INDEX, builder);
                     isComplete = false;
@@ -76,6 +71,9 @@ public class GMT_WebServiceAPI_runGMT_Script_RequestStruct_SOAPSerializer extend
                     instance.setArrayOfDataHandler_2((javax.activation.DataHandler[])member);
                 }
                 reader.nextElementContent();
+                continue;
+            } else {
+                throw new DeserializationException("soap.unexpectedElementName", new Object[] {ns1_arrayOfDataHandler_2_QNAME, elementName});
             }
         }
 
@@ -84,7 +82,7 @@ public class GMT_WebServiceAPI_runGMT_Script_RequestStruct_SOAPSerializer extend
     }
 
     public void doSerializeInstance(Object obj, XMLWriter writer, SOAPSerializationContext context) throws Exception {
-        org.opensha.webservices.GMT_WebServiceAPI_runGMT_Script_RequestStruct instance = (org.opensha.webservices.GMT_WebServiceAPI_runGMT_Script_RequestStruct)obj;
+        unusedArchive.webservices.client.GMT_WebServiceAPI_runGMT_Script_RequestStruct instance = (unusedArchive.webservices.client.GMT_WebServiceAPI_runGMT_Script_RequestStruct)obj;
 
         ns2_myns2_ArrayOfstring__StringArray_SOAPSerializer1.serialize(instance.getArrayOfString_1(), ns1_arrayOfString_1_QNAME, null, writer, context);
         ns2_myns2_ArrayOfdatahandler__DataHandlerArray_SOAPSerializer1.serialize(instance.getArrayOfDataHandler_2(), ns1_arrayOfDataHandler_2_QNAME, null, writer, context);

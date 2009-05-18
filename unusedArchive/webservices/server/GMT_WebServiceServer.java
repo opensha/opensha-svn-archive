@@ -1,10 +1,11 @@
-package org.opensha.webservices.server;
+package unusedArchive.webservices.server;
 
 import javax.activation.*;
 import java.io.*;
 
-import org.opensha.webservices.GMT_WebServiceAPI;
 import org.opensha.commons.util.RunScript;
+
+import unusedArchive.webservices.GMT_WebServiceAPI;
 /**
  * <p>Title: </p>
  * <p>Description: </p>

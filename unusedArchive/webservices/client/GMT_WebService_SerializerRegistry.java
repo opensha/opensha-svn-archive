@@ -2,7 +2,7 @@
 // Contents subject to change without notice.
 // JAX-RPC Standard Implementation (1.1, build EA-R39)
 
-package org.opensha.webservices.server;
+package unusedArchive.webservices.client;
 
 import com.sun.xml.rpc.client.BasicService;
 import com.sun.xml.rpc.encoding.*;
@@ -35,18 +35,11 @@ public class GMT_WebService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping,javax.activation.DataHandler[].class, type, serializer);
         }
         {
-            QName type = new QName("http://gravity.usc.edu/gmt/ws/GMT_WS", "runGMT_Script");
-            CombinedSerializer serializer = new org.opensha.webservices.GMT_WebServiceAPI_runGMT_Script_RequestStruct_SOAPSerializer(type,
-                DONT_ENCODE_TYPE, NULLABLE, SOAPConstants.NS_SOAP_ENCODING);
-            serializer = new ReferenceableSerializerImpl(DONT_SERIALIZE_AS_REF, serializer, SOAPVersion.SOAP_11);
-            registerSerializer(mapping,org.opensha.webservices.GMT_WebServiceAPI_runGMT_Script_RequestStruct.class, type, serializer);
-        }
-        {
             QName type = new QName("http://gravity.usc.edu/gmt/ws/GMT_WS", "runGMT_ScriptResponse");
-            CombinedSerializer serializer = new org.opensha.webservices.GMT_WebServiceAPI_runGMT_Script_ResponseStruct_SOAPSerializer(type,
+            CombinedSerializer serializer = new unusedArchive.webservices.client.GMT_WebServiceAPI_runGMT_Script_ResponseStruct_SOAPSerializer(type,
                 DONT_ENCODE_TYPE, NULLABLE, SOAPConstants.NS_SOAP_ENCODING);
             serializer = new ReferenceableSerializerImpl(DONT_SERIALIZE_AS_REF, serializer, SOAPVersion.SOAP_11);
-            registerSerializer(mapping,org.opensha.webservices.GMT_WebServiceAPI_runGMT_Script_ResponseStruct.class, type, serializer);
+            registerSerializer(mapping,unusedArchive.webservices.client.GMT_WebServiceAPI_runGMT_Script_ResponseStruct.class, type, serializer);
         }
         {
             QName type = new QName("http://gravity.usc.edu/gmt/ws/GMT_WS", "ArrayOfstring");
@@ -56,6 +49,13 @@ public class GMT_WebService_SerializerRegistry implements SerializerConstants {
                 elemName, SchemaConstants.QNAME_TYPE_STRING, java.lang.String.class, 1, null, SOAPVersion.SOAP_11);
             serializer = new ReferenceableSerializerImpl(SERIALIZE_AS_REF, serializer, SOAPVersion.SOAP_11);
             registerSerializer(mapping,java.lang.String[].class, type, serializer);
+        }
+        {
+            QName type = new QName("http://gravity.usc.edu/gmt/ws/GMT_WS", "runGMT_Script");
+            CombinedSerializer serializer = new unusedArchive.webservices.client.GMT_WebServiceAPI_runGMT_Script_RequestStruct_SOAPSerializer(type,
+                DONT_ENCODE_TYPE, NULLABLE, SOAPConstants.NS_SOAP_ENCODING);
+            serializer = new ReferenceableSerializerImpl(DONT_SERIALIZE_AS_REF, serializer, SOAPVersion.SOAP_11);
+            registerSerializer(mapping,unusedArchive.webservices.client.GMT_WebServiceAPI_runGMT_Script_RequestStruct.class, type, serializer);
         }
         return registry;
     }
