@@ -5,7 +5,7 @@ import java.util.*;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.exceptions.InvalidRangeException;
 
-import org.opensha.exceptions.*;
+
 import org.opensha.param.*;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.util.*;

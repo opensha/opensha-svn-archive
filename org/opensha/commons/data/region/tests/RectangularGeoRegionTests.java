@@ -8,7 +8,7 @@ import org.opensha.commons.data.region.RectangularGeographicRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 
 
-import org.opensha.exceptions.*;
+
 /**
  * <b>Title:</b> GeographicRegionTests<p>
  *

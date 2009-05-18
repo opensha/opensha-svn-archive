@@ -7,7 +7,7 @@ import javax.swing.*;
 import java.lang.RuntimeException;
 import org.opensha.param.editor.*;
 import org.opensha.param.*;
-import org.opensha.exceptions.*;
+
 import org.opensha.param.event.*;
 import org.opensha.param.estimate.EstimateParameter;
 import org.opensha.param.estimate.EstimateConstraint;

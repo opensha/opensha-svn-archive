@@ -3,7 +3,7 @@ package org.opensha.sha.param;
 import java.util.*;
 
 import org.dom4j.Element;
-import org.opensha.exceptions.*;
+
 import org.opensha.param.*;
 import org.opensha.sha.magdist.*;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;

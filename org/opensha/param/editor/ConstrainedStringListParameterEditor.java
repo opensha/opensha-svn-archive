@@ -11,7 +11,7 @@ import org.opensha.param.StringListConstraint;
 import org.opensha.param.StringListParameter;
 import org.opensha.param.ParameterConstraintAPI;
 import org.opensha.commons.exceptions.ConstraintException;
-import org.opensha.exceptions.*;
+
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.border.TitledBorder;

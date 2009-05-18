@@ -14,7 +14,7 @@ import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.ParameterException;
 
 
-import org.opensha.exceptions.*;
+
 import org.opensha.param.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.*;

@@ -22,7 +22,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartPanel;
 import javax.swing.border.TitledBorder;
 import javax.swing.border.EtchedBorder;
-import org.opensha.exceptions.*;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;

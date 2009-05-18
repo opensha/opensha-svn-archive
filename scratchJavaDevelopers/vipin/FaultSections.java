@@ -10,7 +10,7 @@ import java.util.StringTokenizer;
 import org.opensha.util.FileUtils;
 import java.util.ArrayList;
 import java.io.FileWriter;
-import org.opensha.exceptions.*;
+
 import java.io.*;
 
 /**

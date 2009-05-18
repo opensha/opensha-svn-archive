@@ -18,8 +18,8 @@ import org.opensha.commons.exceptions.ParameterException;
 
 import java.util.GregorianCalendar;
 import java.util.Calendar;
-import org.opensha.exceptions.*;
-import org.opensha.exceptions.*;
+
+
 
 /**
  * <p>Title: TimeGuiBean.java </p>

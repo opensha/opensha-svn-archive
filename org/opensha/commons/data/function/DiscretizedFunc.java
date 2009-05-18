@@ -3,7 +3,7 @@ package org.opensha.commons.data.function;
 import java.util.Iterator;
 
 import org.dom4j.Element;
-import org.opensha.exceptions.*;
+
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.exceptions.InvalidRangeException;
 

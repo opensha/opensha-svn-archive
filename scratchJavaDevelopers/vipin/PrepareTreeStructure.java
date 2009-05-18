@@ -10,7 +10,7 @@ import org.opensha.commons.data.LocationList;
 import org.opensha.commons.exceptions.InvalidRangeException;
 
 import java.io.*;
-import org.opensha.exceptions.*;
+
 import java.text.DecimalFormat;
 
 /**

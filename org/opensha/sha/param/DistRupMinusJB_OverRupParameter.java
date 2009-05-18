@@ -4,7 +4,7 @@ import java.util.*;
 
 import org.dom4j.Element;
 
-import org.opensha.exceptions.*;
+
 import org.opensha.param.*;
 import org.opensha.sha.calc.*;
 import org.opensha.commons.calc.RelativeLocation;

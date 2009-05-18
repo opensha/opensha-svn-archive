@@ -13,7 +13,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
 
-import org.opensha.exceptions.*;
+
 import org.opensha.param.*;
 import org.opensha.param.event.*;
 import org.opensha.sha.earthquake.*;

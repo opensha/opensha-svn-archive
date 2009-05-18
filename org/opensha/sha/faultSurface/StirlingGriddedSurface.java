@@ -7,7 +7,7 @@ import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Direction;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.exceptions.FaultException;
-import org.opensha.exceptions.*;
+
 
 
 /**

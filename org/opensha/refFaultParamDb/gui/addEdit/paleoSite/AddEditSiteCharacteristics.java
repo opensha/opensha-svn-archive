@@ -20,7 +20,7 @@ import java.awt.event.ActionEvent;
 import org.opensha.refFaultParamDb.gui.*;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.gui.LabeledBoxPanel;
-import org.opensha.exceptions.*;
+
 import org.opensha.refFaultParamDb.dao.db.SiteTypeDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;

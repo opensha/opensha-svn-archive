@@ -7,7 +7,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
-import org.opensha.exceptions.*;
+
 import org.opensha.param.*;
 import org.opensha.param.editor.*;
 import org.opensha.param.event.*;

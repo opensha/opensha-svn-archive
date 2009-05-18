@@ -2,7 +2,7 @@ package org.opensha.sha.param;
 
 import org.opensha.commons.data.Site;
 
-import org.opensha.exceptions.*;
+
 import org.opensha.param.*;
 import org.opensha.sha.earthquake.*;
 

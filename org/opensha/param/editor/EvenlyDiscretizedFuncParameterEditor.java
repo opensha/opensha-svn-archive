@@ -2,7 +2,7 @@ package org.opensha.param.editor;
 
 import java.awt.event.*;
 import javax.swing.border.*;
-import org.opensha.exceptions.*;
+
 import org.opensha.param.*;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;

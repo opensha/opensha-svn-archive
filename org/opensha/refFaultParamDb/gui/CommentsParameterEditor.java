@@ -2,7 +2,7 @@ package org.opensha.refFaultParamDb.gui;
 
 import java.awt.event.*;
 import javax.swing.border.*;
-import org.opensha.exceptions.*;
+
 import org.opensha.param.*;
 import org.opensha.param.editor.ParameterEditor;
 import javax.swing.JTextArea;

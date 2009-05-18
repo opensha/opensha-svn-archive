@@ -14,7 +14,7 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import org.opensha.exceptions.*;
+
 
 /**
  * <p>Title: GriddedRegionPoissonEqkSource </p>

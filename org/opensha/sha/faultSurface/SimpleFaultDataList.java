@@ -3,7 +3,7 @@ package org.opensha.sha.faultSurface;
 import java.util.*;
 
 import org.opensha.commons.exceptions.InvalidRangeException;
-import org.opensha.exceptions.*;
+
 
 // Fix - Needs more comments
 

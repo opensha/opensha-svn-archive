@@ -12,7 +12,7 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.ParameterException;
 
-import org.opensha.exceptions.*;
+
 import org.opensha.metadata.MetadataLoader;
 import org.opensha.param.*;
 import org.opensha.param.event.ParameterChangeWarningListener;

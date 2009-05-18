@@ -6,7 +6,7 @@ import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.exceptions.*;
+
 import org.opensha.param.*;
 import org.opensha.sha.magdist.*;
 

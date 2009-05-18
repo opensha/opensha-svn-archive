@@ -10,7 +10,7 @@ import org.opensha.param.editor.*;
 import org.opensha.param.*;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.exceptions.*;
+
 import org.opensha.param.event.*;
 import org.opensha.sha.param.*;
 import org.opensha.sha.magdist.*;

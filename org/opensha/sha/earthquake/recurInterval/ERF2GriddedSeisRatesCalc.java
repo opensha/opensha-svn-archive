@@ -12,7 +12,7 @@ import org.opensha.commons.data.region.GeographicRegion;
 
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.exceptions.*;
+
 import java.io.*;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.
     Frankel02_AdjustableEqkRupForecast;

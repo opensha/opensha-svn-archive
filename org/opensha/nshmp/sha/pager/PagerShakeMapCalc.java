@@ -29,7 +29,7 @@ import org.opensha.sha.gui.beans.MapGuiBean;
 import java.text.DecimalFormat;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.mapping.gmtWrapper.GMT_MapGenerator;
-import org.opensha.exceptions.*;
+
 
 /**
  * <p>Title: PagerShakeMapCalc</p>
