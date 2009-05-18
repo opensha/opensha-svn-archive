@@ -10,7 +10,6 @@ import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.data.region.GeographicRegion;
-import org.opensha.calc.*;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.EmpiricalModel;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;

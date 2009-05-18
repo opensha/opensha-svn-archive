@@ -11,7 +11,7 @@ import org.opensha.data.*;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
-import org.opensha.calc.*;
+
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_TypeB_EqkSource;

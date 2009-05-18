@@ -15,7 +15,7 @@ import java.util.StringTokenizer;
 
 
 
-import org.opensha.calc.magScalingRelations.magScalingRelImpl.*;
+
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;

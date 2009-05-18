@@ -1,7 +1,7 @@
 package org.opensha.commons.calc.magScalingRelations.magScalingRelImpl;
 
 //double check what's needed
-import org.opensha.calc.magScalingRelations.*;
+
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 
 /**

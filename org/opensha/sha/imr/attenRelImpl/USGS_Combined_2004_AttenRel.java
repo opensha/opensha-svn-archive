@@ -4,7 +4,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
-import org.opensha.calc.*;
 import org.opensha.commons.calc.GaussianDistCalc;
 import org.opensha.data.*;
 import org.opensha.data.function.*;

@@ -3,7 +3,6 @@ package org.opensha.sha.earthquake.griddedForecast;
 import java.util.*;
 import scratchJavaDevelopers.matt.calc.*;
 
-import org.opensha.calc.magScalingRelations.magScalingRelImpl.*;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.data.*;
 import org.opensha.data.region.*;

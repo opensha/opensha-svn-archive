@@ -1,6 +1,5 @@
 package org.opensha.sha.magdist;
 
-import org.opensha.calc.*;
 import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.exceptions.*;
 /**

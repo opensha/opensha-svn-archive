@@ -22,7 +22,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.exceptions.FaultException;
 import org.opensha.data.TimeSpan;
 import org.opensha.data.region.*;
-import org.opensha.calc.magScalingRelations.magScalingRelImpl.*;
+
 import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
 

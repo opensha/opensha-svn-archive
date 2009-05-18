@@ -34,7 +34,6 @@ import org.opensha.param.*;
 import org.opensha.param.editor.*;
 import org.opensha.param.event.*;
 import org.opensha.data.*;
-import org.opensha.calc.*;
 import org.opensha.commons.calc.FunctionListCalc;
 import org.opensha.sha.gui.controls.*;
 

@@ -7,8 +7,6 @@ import org.opensha.data.TimeSpan;
 import org.opensha.param.*;
 import org.opensha.sha.param.*;
 import org.opensha.sha.magdist.*;
-import org.opensha.calc.magScalingRelations.magScalingRelImpl.*;
-import org.opensha.calc.magScalingRelations.*;
 import org.opensha.commons.calc.magScalingRelations.MagScalingRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.PEER_testsMagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;

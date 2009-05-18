@@ -8,7 +8,7 @@ import org.opensha.data.*;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
-import org.opensha.calc.*;
+
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.FaultSegmentData;
