@@ -16,17 +16,20 @@ import org.jfree.data.*;
 import org.jfree.chart.labels.*;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 
-import org.opensha.gui.*;
 
-import org.opensha.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
+
 
 import org.opensha.param.*;
 import org.opensha.param.editor.*;
 import org.opensha.param.event.*;
 import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.OvalBorder;
+import org.opensha.commons.gui.SidesBorder;
+import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
+import org.opensha.commons.gui.plot.jfreechart.MyTickUnits;
 
-import org.opensha.gui.plot.jfreechart.*;
+
 import org.opensha.util.ImageUtils;
 
 

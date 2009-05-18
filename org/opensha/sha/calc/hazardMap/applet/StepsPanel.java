@@ -13,7 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
-import org.opensha.gui.ConsoleWindow;
+import org.opensha.commons.gui.ConsoleWindow;
 
 public class StepsPanel extends JPanel implements ActionListener {
 	

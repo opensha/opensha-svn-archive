@@ -3,7 +3,7 @@ package org.opensha.util.http;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 
-import org.opensha.gui.UserAuthDialog;
+import org.opensha.commons.gui.UserAuthDialog;
 
 
 public class HTTPAuthenticator extends Authenticator {

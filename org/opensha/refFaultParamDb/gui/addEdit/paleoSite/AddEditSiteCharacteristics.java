@@ -12,6 +12,7 @@ import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.gui.LabeledBoxPanel;
 
 import java.awt.*;
 import org.opensha.param.editor.ConstrainedStringParameterEditor;
@@ -19,7 +20,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import org.opensha.refFaultParamDb.gui.*;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
-import org.opensha.gui.LabeledBoxPanel;
 
 import org.opensha.refFaultParamDb.dao.db.SiteTypeDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;

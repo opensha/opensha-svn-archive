@@ -13,8 +13,8 @@ import java.lang.RuntimeException;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 
-import org.opensha.gui.*;
-import org.opensha.gui.plot.*;
+
+
 import org.opensha.util.ImageUtils;
 
 

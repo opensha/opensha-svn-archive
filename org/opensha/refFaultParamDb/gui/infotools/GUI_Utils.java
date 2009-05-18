@@ -2,7 +2,9 @@ package org.opensha.refFaultParamDb.gui.infotools;
 
 import java.awt.GridBagLayout;
 import javax.swing.JPanel;
-import org.opensha.gui.TitledBorderPanel;
+
+import org.opensha.commons.gui.TitledBorderPanel;
+
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.text.DecimalFormat;

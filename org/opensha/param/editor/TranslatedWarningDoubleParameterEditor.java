@@ -7,11 +7,11 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import org.opensha.gui.SidesBorder;
 import org.opensha.param.*;
 import org.opensha.util.ParamUtils;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.gui.SidesBorder;
 
 import org.opensha.param.translate.*;
 

@@ -10,8 +10,8 @@ import java.awt.*;
 import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 
-import org.opensha.gui.TitledBorderPanel;
-import org.opensha.gui.LabeledBoxPanel;
+import org.opensha.commons.gui.LabeledBoxPanel;
+import org.opensha.commons.gui.TitledBorderPanel;
 import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditIndividualEvent;
 import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditSiteCharacteristics;
 import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddSiteInfo;

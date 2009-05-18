@@ -14,8 +14,10 @@ import org.jfree.data.*;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.gui.OvalBorder;
+import org.opensha.commons.gui.SidesBorder;
 
-import org.opensha.gui.*;
+
 import org.opensha.param.*;
 import org.opensha.param.editor.*;
 import org.opensha.param.event.*;

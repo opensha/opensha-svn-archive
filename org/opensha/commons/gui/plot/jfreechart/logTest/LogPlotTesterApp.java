@@ -21,7 +21,7 @@ import org.jfree.chart.labels.*;
 
 import org.opensha.commons.gui.plot.jfreechart.JFreeLogarithmicAxis;
 import org.opensha.commons.gui.plot.jfreechart.MyTickUnits;
-import org.opensha.gui.*;
+
 /**
 
  * <p>Title: LogPlotTesterApp</p>

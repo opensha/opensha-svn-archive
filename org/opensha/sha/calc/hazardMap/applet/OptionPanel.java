@@ -15,7 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
-import org.opensha.gui.ConsoleWindow;
+import org.opensha.commons.gui.ConsoleWindow;
 
 public class OptionPanel extends JPanel implements ActionListener {
 	

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
-import org.opensha.gui.ConsoleWindow;
+import org.opensha.commons.gui.ConsoleWindow;
 
 public class StepManager {
 

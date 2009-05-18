@@ -19,7 +19,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 import org.jfree.chart.labels.*;
 
-import org.opensha.gui.*;
+
 
 
 /**

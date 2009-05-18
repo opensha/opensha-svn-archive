@@ -41,7 +41,7 @@ import org.opensha.commons.data.siteData.impl.CVM2BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2000;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
-import org.opensha.gui.UserAuthDialog;
+import org.opensha.commons.gui.UserAuthDialog;
 import org.opensha.param.DoubleDiscreteParameter;
 import org.opensha.param.ParameterAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;

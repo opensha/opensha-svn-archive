@@ -1,12 +1,12 @@
 package org.opensha.refFaultParamDb.gui.view;
 
-import org.opensha.gui.LabeledBoxPanel;
 import java.awt.*;
 import javax.swing.JButton;
 
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.data.estimate.LogNormalEstimate;
 import org.opensha.commons.data.estimate.NormalEstimate;
+import org.opensha.commons.gui.LabeledBoxPanel;
 
 import javax.swing.JPanel;
 import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;

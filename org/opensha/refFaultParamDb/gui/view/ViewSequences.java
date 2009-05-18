@@ -1,6 +1,6 @@
 package org.opensha.refFaultParamDb.gui.view;
 
-import org.opensha.gui.LabeledBoxPanel;
+import org.opensha.commons.gui.LabeledBoxPanel;
 import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
 import javax.swing.JButton;
 import org.opensha.param.StringParameter;

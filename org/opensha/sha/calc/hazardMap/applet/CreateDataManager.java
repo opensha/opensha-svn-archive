@@ -32,7 +32,7 @@ import org.opensha.commons.gridComputing.GridResourcesList;
 import org.opensha.commons.gridComputing.ResourceProvider;
 import org.opensha.commons.gridComputing.StorageHost;
 import org.opensha.commons.gridComputing.SubmitHost;
-import org.opensha.gui.UserAuthDialog;
+import org.opensha.commons.gui.UserAuthDialog;
 import org.opensha.param.ParameterAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.hazardMap.HazardMapCalculationParameters;

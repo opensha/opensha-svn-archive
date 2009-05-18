@@ -26,7 +26,7 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.gui.UserAuthDialog;
+import org.opensha.commons.gui.UserAuthDialog;
 import org.opensha.param.DoubleDiscreteParameter;
 import org.opensha.param.DoubleParameter;
 import org.opensha.param.ParameterList;

@@ -1,11 +1,11 @@
 package org.opensha.refFaultParamDb.gui.view;
 
-import org.opensha.gui.LabeledBoxPanel;
+import org.opensha.commons.gui.LabeledBoxPanel;
+import org.opensha.commons.gui.TitledBorderPanel;
 import org.opensha.refFaultParamDb.data.TimeAPI;
 import java.awt.*;
 import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
 import org.opensha.param.StringParameter;
-import org.opensha.gui.TitledBorderPanel;
 import javax.swing.JPanel;
 import org.opensha.refFaultParamDb.gui.*;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;

@@ -10,7 +10,7 @@ import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
 
-import org.opensha.gui.UserAuthDialog;
+import org.opensha.commons.gui.UserAuthDialog;
 
 
 public class HTTPAuthTest {

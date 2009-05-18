@@ -10,12 +10,12 @@ import javax.swing.border.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
-import org.opensha.gui.SidesBorder;
 import org.opensha.param.DoubleDiscreteConstraint;
 import org.opensha.param.DoubleDiscreteParameter;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterConstraintAPI;
 import org.opensha.commons.exceptions.ConstraintException;
+import org.opensha.commons.gui.SidesBorder;
 
 /**
  * <b>Title:</b> ConstrainedDoubleDiscreteParameterEditor<p>

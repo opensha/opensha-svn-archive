@@ -5,7 +5,7 @@ import java.sql.*;
 import java.text.*;
 import java.util.Date;
 
-import org.opensha.gui.UserAuthDialog;
+import org.opensha.commons.gui.UserAuthDialog;
 
 
 

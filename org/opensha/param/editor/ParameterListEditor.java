@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
-import org.opensha.gui.LabeledBoxPanel;
+import org.opensha.commons.gui.LabeledBoxPanel;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
 

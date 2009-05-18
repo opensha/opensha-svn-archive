@@ -6,7 +6,6 @@ import java.awt.*;
 import org.opensha.param.editor.*;
 import java.util.ArrayList;
 
-import org.opensha.gui.LabeledBoxPanel;
 import org.opensha.refFaultParamDb.data.*;
 import org.opensha.commons.data.estimate.DiscreteValueEstimate;
 import org.opensha.commons.data.estimate.DiscretizedFuncEstimate;
@@ -18,6 +17,7 @@ import org.opensha.commons.data.estimate.NormalEstimate;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.exceptions.ConstraintException;
+import org.opensha.commons.gui.LabeledBoxPanel;
 
 
 import org.opensha.param.StringParameter;

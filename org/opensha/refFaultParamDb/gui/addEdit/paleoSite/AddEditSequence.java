@@ -11,7 +11,7 @@ import org.opensha.param.editor.*;
 import org.opensha.param.editor.estimate.*;
 import org.opensha.refFaultParamDb.gui.*;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
-import org.opensha.gui.LabeledBoxPanel;
+import org.opensha.commons.gui.LabeledBoxPanel;
 import org.opensha.refFaultParamDb.vo.EventSequence;
 import java.util.Iterator;
 import org.opensha.refFaultParamDb.dao.db.PaleoEventDB_DAO;
