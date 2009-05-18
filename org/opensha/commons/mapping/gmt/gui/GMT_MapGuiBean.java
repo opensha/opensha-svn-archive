@@ -9,7 +9,7 @@ import javax.swing.*;
 
 
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
-import org.opensha.webservices.client.*;
+
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.commons.exceptions.GMT_MapException;
