@@ -1,6 +1,6 @@
 package org.opensha.data;
 
-import java.util.*;
+import java.util.ArrayList;
 /**
  * <p>Title: XYZ_DataSetAPI</p>
  * <p>Description: This interface defines the DataSet for the X,Y and Z.

@@ -11,14 +11,6 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.opensha.cybershake.db.CybershakeERF;
-import org.opensha.cybershake.db.CybershakeSite;
-import org.opensha.cybershake.db.CybershakeSiteInfo2DB;
-import org.opensha.cybershake.db.Cybershake_OpenSHA_DBApplication;
-import org.opensha.cybershake.db.DBAccess;
-import org.opensha.cybershake.db.ERF2DB;
-import org.opensha.cybershake.db.PeakAmplitudesFromDB;
-import org.opensha.cybershake.param.CyberShakeERFSelectorParam;
 import org.opensha.data.Location;
 import org.opensha.data.Site;
 import org.opensha.param.BooleanParameter;
@@ -28,6 +20,14 @@ import org.opensha.param.StringParameter;
 import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
+import org.opensha.sha.cybershake.db.CybershakeERF;
+import org.opensha.sha.cybershake.db.CybershakeSite;
+import org.opensha.sha.cybershake.db.CybershakeSiteInfo2DB;
+import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
+import org.opensha.sha.cybershake.db.DBAccess;
+import org.opensha.sha.cybershake.db.ERF2DB;
+import org.opensha.sha.cybershake.db.PeakAmplitudesFromDB;
+import org.opensha.sha.cybershake.param.CyberShakeERFSelectorParam;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 
 public class CyberShakeSiteSetterControlPanel extends JFrame implements

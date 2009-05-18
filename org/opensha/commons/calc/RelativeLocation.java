@@ -4,6 +4,8 @@ import org.opensha.data.Direction;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 
+import com.sun.j3d.internal.Distance;
+
 
 /**
  *  <b>Title:</b> RelativeLocation<p>

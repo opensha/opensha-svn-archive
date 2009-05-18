@@ -1,6 +1,5 @@
 package org.opensha.param;
 
-import java.util.*;
 import org.opensha.exceptions.EditableException;
 
 /**

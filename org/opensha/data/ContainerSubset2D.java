@@ -1,7 +1,7 @@
 package org.opensha.data;
 import java.io.Serializable;
-
-import java.util.*;
+import java.util.ListIterator;
+import java.util.NoSuchElementException;
 
 
 /**

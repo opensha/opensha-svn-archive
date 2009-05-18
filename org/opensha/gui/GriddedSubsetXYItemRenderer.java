@@ -1,29 +1,25 @@
 package org.opensha.gui;
 
-import org.jfree.chart.*;
-
-
-
 import java.awt.Graphics2D;
-import java.awt.Shape;
-import java.awt.Paint;
-import java.awt.Stroke;
 import java.awt.Image;
+import java.awt.Paint;
 import java.awt.Point;
-import java.awt.image.ImageObserver;
+import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.AffineTransform;
-import org.jfree.data.xy.XYDataset;
+import java.awt.image.ImageObserver;
+
+import org.jfree.chart.ChartRenderingInfo;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.labels.XYToolTipGenerator;
-import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.plot.CrosshairState;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.axis.ValueAxis;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.util.ShapeUtilities;
 

@@ -1,6 +1,7 @@
 package org.opensha.util;
 
 import java.io.PrintStream;
+
 import sun.net.smtp.SmtpClient;
 
 /**

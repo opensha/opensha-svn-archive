@@ -1,9 +1,10 @@
 package org.opensha.data;
 
-import java.util.*;
 import java.io.Serializable;
-import org.opensha.param.*;
-import org.opensha.util.*;
+import java.util.ListIterator;
+
+import org.opensha.param.ParameterAPI;
+import org.opensha.param.ParameterList;
 
 /**
  *  <b>Title:</b> Site<p>

@@ -1,13 +1,28 @@
 package org.opensha.data;
 
-import java.util.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.EventObject;
+import java.util.GregorianCalendar;
+import java.util.Iterator;
+import java.util.ListIterator;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;
-import org.opensha.exceptions.InvalidRangeException;
-import org.opensha.param.*;
-import org.opensha.param.event.*;
+import org.opensha.param.DoubleConstraint;
+import org.opensha.param.DoubleDiscreteConstraint;
+import org.opensha.param.DoubleDiscreteParameter;
+import org.opensha.param.DoubleParameter;
+import org.opensha.param.IntegerConstraint;
+import org.opensha.param.IntegerParameter;
+import org.opensha.param.ParameterList;
+import org.opensha.param.StringConstraint;
+import org.opensha.param.StringParameter;
+import org.opensha.param.event.ParameterChangeEvent;
+import org.opensha.param.event.ParameterChangeListener;
+import org.opensha.param.event.TimeSpanChangeListener;
 
 /**
  *  <b>Title:</b> TimeSpan<p>

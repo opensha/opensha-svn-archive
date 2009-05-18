@@ -1,6 +1,8 @@
 package org.opensha.commons.calc;
 
-import org.opensha.data.function.*;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.function.DiscretizedFunc;
+import org.opensha.data.function.DiscretizedFuncList;
 
 /**
  * <p>Title: FunctionListCalc</p>

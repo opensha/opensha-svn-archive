@@ -1,10 +1,10 @@
 package org.opensha.commons.calc;
 
-import org.opensha.data.function.DiscretizedFuncList;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
-
 import java.util.ArrayList;
+
+import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.function.DiscretizedFuncList;
 /**
  * <p>Title:  FractileCurveCalculator</p>
  * <p>Description: This class calculates fractiles from a list of discretized functions (e.g., hazzard curves) and their relative weights</p>

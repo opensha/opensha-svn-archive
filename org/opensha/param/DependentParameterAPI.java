@@ -1,6 +1,7 @@
 package org.opensha.param;
 
 import java.util.ListIterator;
+
 import org.opensha.exceptions.ParameterException;
 
 /**

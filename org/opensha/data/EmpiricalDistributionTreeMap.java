@@ -1,9 +1,6 @@
 package org.opensha.data;
 
-import java.util.*;
-import org.opensha.exceptions.InvalidRangeException;
-
-import org.opensha.util.*;
+import java.util.Comparator;
 
 /**
  *  <b>Title:</b> EmpiricalDistributionTreeMap <p>

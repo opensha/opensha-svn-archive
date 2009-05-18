@@ -1,6 +1,10 @@
 package org.opensha.util;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 /**
  * <p>Title: RunScript</p>
  * <p>Description : Accepts the command and runs the shell script

@@ -1,7 +1,9 @@
 package org.opensha.mapping.gmtWrapper;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.StringTokenizer;
+
 import org.opensha.util.RunScript;
 
 /**

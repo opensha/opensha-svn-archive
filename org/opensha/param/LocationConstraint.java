@@ -1,10 +1,10 @@
 package org.opensha.param;
+import java.util.ArrayList;
 import java.util.ListIterator;
 
-import java.util.ArrayList;
+import org.opensha.data.Location;
 import org.opensha.exceptions.ConstraintException;
 import org.opensha.exceptions.EditableException;
-import org.opensha.data.Location;
 
 /**
  * <b>Title:</b> LocationConstraint<p>

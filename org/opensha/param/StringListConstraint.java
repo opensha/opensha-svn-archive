@@ -1,8 +1,9 @@
 package org.opensha.param;
 
 import java.util.ArrayList;
-import org.opensha.exceptions.ConstraintException;
 import java.util.ListIterator;
+
+import org.opensha.exceptions.ConstraintException;
 
 /**
  * <p>Title: StringListConstraint.java </p>

@@ -4,25 +4,24 @@
 
 package org.opensha.webservices;
 
-import com.sun.xml.rpc.server.http.MessageContextProperties;
-import com.sun.xml.rpc.streaming.*;
-import com.sun.xml.rpc.encoding.*;
-import com.sun.xml.rpc.encoding.soap.SOAPConstants;
-import com.sun.xml.rpc.encoding.soap.SOAP12Constants;
-import com.sun.xml.rpc.encoding.literal.*;
-import com.sun.xml.rpc.soap.streaming.*;
-import com.sun.xml.rpc.soap.message.*;
-import com.sun.xml.rpc.soap.SOAPVersion;
-import com.sun.xml.rpc.soap.SOAPEncodingConstants;
-import com.sun.xml.rpc.wsdl.document.schema.SchemaConstants;
+import java.lang.reflect.Method;
+
 import javax.xml.namespace.QName;
-import java.rmi.RemoteException;
-import java.util.Iterator;
-import java.lang.reflect.*;
-import java.lang.Class;
-import com.sun.xml.rpc.server.*;
-import javax.xml.rpc.handler.HandlerInfo;
-import com.sun.xml.rpc.client.HandlerChainImpl;
+
+import com.sun.xml.rpc.encoding.CombinedSerializer;
+import com.sun.xml.rpc.encoding.InternalTypeMappingRegistry;
+import com.sun.xml.rpc.encoding.SOAPDeserializationContext;
+import com.sun.xml.rpc.encoding.SOAPDeserializationState;
+import com.sun.xml.rpc.encoding.SOAPFaultInfoSerializer;
+import com.sun.xml.rpc.encoding.SerializerConstants;
+import com.sun.xml.rpc.encoding.soap.SOAPConstants;
+import com.sun.xml.rpc.server.StreamingHandlerState;
+import com.sun.xml.rpc.soap.message.InternalSOAPMessage;
+import com.sun.xml.rpc.soap.message.SOAPBlockInfo;
+import com.sun.xml.rpc.soap.message.SOAPFaultInfo;
+import com.sun.xml.rpc.soap.message.SOAPHeaderBlockInfo;
+import com.sun.xml.rpc.soap.streaming.SOAPProtocolViolationException;
+import com.sun.xml.rpc.streaming.XMLReader;
 
 public class GMT_WebServiceAPI_Tie
     extends com.sun.xml.rpc.server.TieBase implements SerializerConstants {

@@ -1,13 +1,12 @@
 package org.opensha.param;
 
 import java.util.ArrayList;
-import java.util.ListIterator;
 
 import org.dom4j.Element;
 import org.opensha.exceptions.ConstraintException;
-import org.opensha.exceptions.ParameterException;
 import org.opensha.exceptions.EditableException;
-import org.opensha.param.event.*;
+import org.opensha.exceptions.ParameterException;
+import org.opensha.param.event.ParameterChangeEvent;
 
 /**
  * <b>Title: </b> Parameter<p>

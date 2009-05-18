@@ -1,7 +1,7 @@
 package org.opensha.util;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
 /**
  * <p>Title: Test</p>
  * <p>Description: Following program compares the 2 text files with line by line

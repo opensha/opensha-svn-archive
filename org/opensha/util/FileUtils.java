@@ -1,12 +1,25 @@
 package org.opensha.util;
 
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.zip.ZipOutputStream;
+import java.util.ArrayList;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 
 /**

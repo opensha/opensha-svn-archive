@@ -1,6 +1,6 @@
 package org.opensha.data;
 
-import java.util.*;
+import java.util.Comparator;
 
 /**
  * <p>Title: EqkRuptureMagComparator</p>

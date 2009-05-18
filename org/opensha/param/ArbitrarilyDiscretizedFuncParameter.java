@@ -1,8 +1,9 @@
 package org.opensha.param;
 
 import org.dom4j.Element;
-import org.opensha.exceptions.*;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.exceptions.EditableException;
+import org.opensha.exceptions.ParameterException;
 
 /**
  * <p>Title: ArbitrarilyDiscretizedFuncParameter.java </p>

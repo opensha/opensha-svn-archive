@@ -1,7 +1,8 @@
 package org.opensha.param;
 
-import java.util.*;
+import java.util.ListIterator;
 
+import org.opensha.exceptions.ConstraintException;
 import org.opensha.exceptions.ParameterException;
 
 /**

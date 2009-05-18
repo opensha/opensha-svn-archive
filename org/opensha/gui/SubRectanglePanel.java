@@ -1,18 +1,19 @@
 package org.opensha.gui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 
-import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
-import org.opensha.exceptions.*;
-import org.opensha.gui.*;
-import org.opensha.param.*;
-import org.opensha.param.event.*;
-
-import org.opensha.param.editor.*;
+import org.opensha.param.editor.IntegerTextField;
 
 /**
  * <b>Title:</b> SubRectanglePanel<p>

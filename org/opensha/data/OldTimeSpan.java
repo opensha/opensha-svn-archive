@@ -1,6 +1,11 @@
 package org.opensha.data;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.TimeZone;
+
 import org.opensha.exceptions.InvalidRangeException;
 
 /**

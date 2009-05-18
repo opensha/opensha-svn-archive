@@ -1,18 +1,30 @@
 package org.opensha.mapping.gmtWrapper;
 
-import java.io.*;
-import java.util.*;
-//import javax.activation.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.DecimalFormat;
-import java.net.*;
+import java.util.ArrayList;
+import java.util.ListIterator;
+import java.util.StringTokenizer;
 
-import org.opensha.param.*;
 import org.opensha.data.XYZ_DataSetAPI;
 import org.opensha.data.region.EvenlyGriddedRectangularGeographicRegion;
-//import org.opensha.webservices.client.*;
-import org.opensha.util.RunScript;
 import org.opensha.exceptions.GMT_MapException;
 import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.param.BooleanParameter;
+import org.opensha.param.DoubleParameter;
+import org.opensha.param.IntegerParameter;
+import org.opensha.param.ParameterList;
+import org.opensha.param.StringConstraint;
+import org.opensha.param.StringParameter;
+import org.opensha.util.RunScript;
 
 /**
  * <p>Title: GMT_MapGenerator</p>

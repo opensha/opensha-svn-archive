@@ -4,13 +4,20 @@
 
 package org.opensha.webservices;
 
-import com.sun.xml.rpc.encoding.*;
-import com.sun.xml.rpc.encoding.literal.DetailFragmentDeserializer;
-import com.sun.xml.rpc.encoding.soap.SOAPConstants;
-import com.sun.xml.rpc.encoding.soap.SOAP12Constants;
-import com.sun.xml.rpc.streaming.*;
-import com.sun.xml.rpc.wsdl.document.schema.SchemaConstants;
 import javax.xml.namespace.QName;
+
+import com.sun.xml.rpc.encoding.CombinedSerializer;
+import com.sun.xml.rpc.encoding.Initializable;
+import com.sun.xml.rpc.encoding.InternalTypeMappingRegistry;
+import com.sun.xml.rpc.encoding.ObjectSerializerBase;
+import com.sun.xml.rpc.encoding.SOAPDeserializationContext;
+import com.sun.xml.rpc.encoding.SOAPDeserializationState;
+import com.sun.xml.rpc.encoding.SOAPSerializationContext;
+import com.sun.xml.rpc.encoding.soap.SOAPConstants;
+import com.sun.xml.rpc.streaming.XMLReader;
+import com.sun.xml.rpc.streaming.XMLReaderUtil;
+import com.sun.xml.rpc.streaming.XMLWriter;
+import com.sun.xml.rpc.wsdl.document.schema.SchemaConstants;
 
 public class GMT_WebServiceAPI_runGMT_Script_ResponseStruct_SOAPSerializer extends ObjectSerializerBase implements Initializable {
     private static final QName ns1_result_QNAME = new QName("", "result");

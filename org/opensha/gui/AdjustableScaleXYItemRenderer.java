@@ -1,9 +1,8 @@
 package org.opensha.gui;
 
-import org.jfree.chart.renderer.*;
-import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.Plot;
+import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 
 /**
  * <p>Title: AdjustableScaleXYItemRenderer</p>

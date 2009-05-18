@@ -1,9 +1,16 @@
 package org.opensha.util;
 
 
-import java.io.*;
-import java.awt.*;
-import javax.swing.JOptionPane;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.PrintGraphics;
+import java.awt.PrintJob;
+import java.io.EOFException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.StringReader;
 
 
 /**

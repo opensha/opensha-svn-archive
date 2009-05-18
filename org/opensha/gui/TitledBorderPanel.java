@@ -1,8 +1,12 @@
 package org.opensha.gui;
 
-import java.awt.*;
-import javax.swing.border.*;
-import javax.swing.*;
+import java.awt.Color;
+import java.awt.Font;
+
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 
 /**
  * <p>Title: TitledBorderPanel</p>

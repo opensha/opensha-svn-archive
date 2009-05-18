@@ -1,11 +1,13 @@
 package org.opensha.param;
 
-import java.util.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.ListIterator;
 
 import org.opensha.exceptions.ConstraintException;
 import org.opensha.exceptions.ParameterException;
-import org.opensha.param.editor.ParameterEditor;
 
 /**
  * <b>Title:</b> ParameterList<p>

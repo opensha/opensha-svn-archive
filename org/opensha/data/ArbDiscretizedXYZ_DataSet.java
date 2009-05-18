@@ -1,6 +1,6 @@
 package org.opensha.data;
 
-import java.util.*;
+import java.util.ArrayList;
 
 /**
  * <p>Title: ArbDiscretizedXYZ_DataSet</p>

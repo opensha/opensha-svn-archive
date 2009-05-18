@@ -1,7 +1,8 @@
 package org.opensha.data;
 
-import org.opensha.exceptions.InvalidRangeException;
 import java.io.Serializable;
+
+import org.opensha.exceptions.InvalidRangeException;
 
 
 /**

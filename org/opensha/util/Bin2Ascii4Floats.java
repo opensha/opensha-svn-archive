@@ -1,6 +1,9 @@
 package org.opensha.util;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * <p>Title: Bin2Ascii4Floats</p>

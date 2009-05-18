@@ -1,7 +1,7 @@
 package org.opensha.param;
 
-import java.util.ListIterator;
 import java.util.ArrayList;
+import java.util.ListIterator;
 
 /**
  * <b>Title:</b> DiscreteParameterConstraintAPI<p>

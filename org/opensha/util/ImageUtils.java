@@ -1,7 +1,6 @@
 package org.opensha.util;
 
 import java.awt.Image;
-import java.io.InputStream;
 import java.awt.Toolkit;
 /**
  * <p>Title: ImageUtils.java </p>

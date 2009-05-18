@@ -1,6 +1,7 @@
 package org.opensha.data;
 
 import java.util.Comparator;
+
 import org.opensha.exceptions.InvalidRangeException;
 
 /**

@@ -1,11 +1,11 @@
 package org.opensha.param;
 
-import java.util.*;
+import java.util.ListIterator;
 
 import org.dom4j.Element;
-import org.opensha.exceptions.*;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
+import org.opensha.exceptions.ParameterException;
 
 /**
  * <p>Title: LocationListParameter</p>
