@@ -1,4 +1,4 @@
-package org.opensha.sha.util;
+package unusedArchive;
 
 import java.util.ArrayList;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;

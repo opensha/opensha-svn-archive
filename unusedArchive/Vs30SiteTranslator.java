@@ -1,4 +1,4 @@
-package org.opensha.sha.util;
+package unusedArchive;
 
 import java.util.ListIterator;
 

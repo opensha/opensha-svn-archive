@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.awt.event.*;
 
 
-import org.opensha.sha.PEER_TestsGroupResults.*;
 import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.*;
 import org.opensha.sha.gui.*;
 
