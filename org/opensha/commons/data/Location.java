@@ -3,7 +3,7 @@ import java.text.DecimalFormat;
 
 import org.dom4j.Element;
 import org.opensha.commons.exceptions.InvalidRangeException;
-import org.opensha.metadata.XMLSaveable;
+import org.opensha.commons.metadata.XMLSaveable;
 
 
 /**

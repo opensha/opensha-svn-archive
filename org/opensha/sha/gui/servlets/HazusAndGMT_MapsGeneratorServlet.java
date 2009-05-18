@@ -7,7 +7,7 @@ import java.io.*;
 import java.util.*;
 
 import org.opensha.util.RunScript;
-import org.opensha.mapping.gmtWrapper.GMT_MapGenerator;
+import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.util.FileUtils;
 import org.opensha.util.SystemPropertiesUtils;
 

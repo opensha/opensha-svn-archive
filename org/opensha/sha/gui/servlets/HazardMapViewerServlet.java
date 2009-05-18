@@ -12,12 +12,12 @@ import java.util.StringTokenizer;
 import java.text.DecimalFormat;
 import java.util.Collections;
 
-import org.opensha.mapping.gmtWrapper.GMT_MapGenerator;
 import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
 import org.opensha.param.ParameterList;
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.util.FileUtils;
 import org.opensha.sha.gui.servlets.*;
 

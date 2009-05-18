@@ -6,7 +6,7 @@ import java.util.ListIterator;
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.exceptions.DataPoint2DException;
-import org.opensha.metadata.XMLSaveable;
+import org.opensha.commons.metadata.XMLSaveable;
 
 /**
  * <b>Title:</b> DiscretizedFuncAPI<p>

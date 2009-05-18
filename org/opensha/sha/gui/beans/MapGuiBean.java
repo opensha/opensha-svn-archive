@@ -17,9 +17,9 @@ import org.opensha.util.FileUtils;
 import org.opensha.webservices.client.*;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.exceptions.GMT_MapException;
+import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.mapping.gmtWrapper.gui.GMT_MapGuiBean;
 
 /**
  * <p>Title: MapGuiBean</p>

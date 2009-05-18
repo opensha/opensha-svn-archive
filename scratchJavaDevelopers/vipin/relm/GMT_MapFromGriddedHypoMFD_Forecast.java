@@ -10,7 +10,7 @@ import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_TestingRegion;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.commons.exceptions.DataPoint2DException;
-import org.opensha.mapping.gmtWrapper.GMT_MapGenerator;
+import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;

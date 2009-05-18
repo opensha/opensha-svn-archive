@@ -4,7 +4,7 @@ import java.util.ListIterator;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
-import org.opensha.metadata.XMLSaveable;
+import org.opensha.commons.metadata.XMLSaveable;
 
 
 /**

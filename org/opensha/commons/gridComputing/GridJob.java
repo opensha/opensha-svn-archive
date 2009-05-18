@@ -2,7 +2,7 @@ package org.opensha.commons.gridComputing;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;
-import org.opensha.metadata.XMLSaveable;
+import org.opensha.commons.metadata.XMLSaveable;
 
 public class GridJob implements XMLSaveable {
 	

@@ -2,7 +2,7 @@ package org.opensha.refFaultParamDb.vo;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;
-import org.opensha.metadata.XMLSaveable;
+import org.opensha.commons.metadata.XMLSaveable;
 
 /**
  * <p>Title: Contributor.java </p>

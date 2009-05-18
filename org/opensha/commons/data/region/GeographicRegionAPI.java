@@ -2,9 +2,9 @@ package org.opensha.commons.data.region;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
+import org.opensha.commons.metadata.XMLSaveable;
 
 import java.util.ListIterator;
-import org.opensha.metadata.XMLSaveable;
 
 /**
  * <p>Title: GeographicRegionAPI</p>

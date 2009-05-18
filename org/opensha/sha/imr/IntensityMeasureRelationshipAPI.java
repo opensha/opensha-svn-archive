@@ -7,9 +7,9 @@ import java.util.*;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.metadata.XMLSaveable;
 
 
-import org.opensha.metadata.XMLSaveable;
 import org.opensha.param.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.param.*;

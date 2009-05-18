@@ -11,9 +11,9 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.metadata.MetadataLoader;
 
 
-import org.opensha.metadata.MetadataLoader;
 import org.opensha.param.*;
 import org.opensha.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.*;

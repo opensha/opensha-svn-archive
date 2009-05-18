@@ -9,7 +9,7 @@ import java.util.ListIterator;
 import org.dom4j.Element;
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.exceptions.InvalidRangeException;
-import org.opensha.metadata.XMLSaveable;
+import org.opensha.commons.metadata.XMLSaveable;
 
 /**
  *  <b>Title:</b> LocationList<p>

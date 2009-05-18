@@ -5,10 +5,10 @@ import java.awt.Polygon;
 
 import org.dom4j.Element;
 
-import org.opensha.metadata.XMLSaveable;
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
+import org.opensha.commons.metadata.XMLSaveable;
 
 /**
  * <p>Title: GeographicRegion </p>

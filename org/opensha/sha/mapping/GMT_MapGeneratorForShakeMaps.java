@@ -7,11 +7,11 @@ import java.net.*;
 import java.io.*;
 
 import org.opensha.param.*;
-import org.opensha.mapping.gmtWrapper.GMT_MapGenerator;
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.exceptions.GMT_MapException;
+import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.*;

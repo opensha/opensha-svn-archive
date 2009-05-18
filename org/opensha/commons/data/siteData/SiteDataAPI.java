@@ -7,7 +7,7 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.region.GeographicRegion;
-import org.opensha.metadata.XMLSaveable;
+import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.param.ParameterList;
 import org.opensha.param.editor.ParameterListEditor;
 

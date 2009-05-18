@@ -2,10 +2,10 @@ package org.opensha.sha.gui.controls;
 
 import java.util.*;
 
-import org.opensha.mapping.gmtWrapper.GMT_MapGenerator;
 import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
+import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.param.*;
 import org.opensha.sha.param.editor.gui.SimpleFaultParameterEditorPanel;

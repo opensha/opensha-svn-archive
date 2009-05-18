@@ -3,7 +3,6 @@ package org.opensha.sha.gui.controls;
 
 import java.util.*;
 
-import org.opensha.mapping.gmtWrapper.GMT_MapGenerator;
 import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.calc.IM_EventSetCalc_v01.IM_EventSetScenarioForCEA;
 import org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF;
@@ -21,6 +20,7 @@ import org.opensha.sha.imr.attenRelImpl.Field_2000_AttenRel;
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Direction;
 import org.opensha.commons.data.Location;
+import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 
 

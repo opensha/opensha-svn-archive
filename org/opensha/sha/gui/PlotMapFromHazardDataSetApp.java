@@ -27,7 +27,7 @@ import org.opensha.param.StringParameter;
 import org.opensha.param.DoubleParameter;
 import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
-import org.opensha.mapping.gmtWrapper.gui.GMT_MapGuiBean;
+import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;

@@ -4,7 +4,7 @@ import java.util.*;
 import java.io.*;
 import java.awt.event.*;
 
-import org.opensha.mapping.gmtWrapper.GMT_MapGenerator;
+import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
