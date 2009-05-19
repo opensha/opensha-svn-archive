@@ -37,6 +37,7 @@ import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ParamUtils;
 
@@ -222,7 +223,7 @@ public class AttenuationRelationshipGuiBean
      * </code><p>
      *
      */
-    public static Object createAttenRelClassInstance( String className, org.opensha.commons.param.event.ParameterChangeWarningListener listener){
+    public static Object createAttenRelClassInstance( String className, ParameterChangeWarningListener listener){
         String S = C + ": createAttenRelClassInstance(): ";
         try {
 
