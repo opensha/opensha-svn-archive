@@ -160,7 +160,8 @@ public class AttenuationRelationshipsInstance {
 	public AttenuationRelationship createIMRClassInstance( org.opensha.commons.param.event.ParameterChangeWarningListener listener, String className){
 		String S = C + ": createIMRClassInstance(): ";
 		try {
-			Class listenerClass = Class.forName( "org.opensha.param.event.ParameterChangeWarningListener" );
+		    // KLUDGY why is this class hardcoded and dynamically loaded
+			Class listenerClass = Class.forName( "org.opensha.commons.param.event.ParameterChangeWarningListener" );
 			Object[] paramObjects = new Object[]{ listener };
 			Class[] params = new Class[]{ listenerClass };
 			Class imrClass = Class.forName(className);

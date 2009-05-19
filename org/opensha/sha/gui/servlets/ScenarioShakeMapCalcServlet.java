@@ -350,7 +350,7 @@ public class ScenarioShakeMapCalcServlet
     try {
 
       Class listenerClass = Class.forName(
-          "org.opensha.param.event.ParameterChangeWarningListener");
+          "org.opensha.commons.param.event.ParameterChangeWarningListener");
       Object[] paramObjects = new Object[] {
           listener};
       Class[] params = new Class[] {

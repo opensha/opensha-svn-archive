@@ -226,7 +226,7 @@ public class AttenuationRelationshipGuiBean
         String S = C + ": createAttenRelClassInstance(): ";
         try {
 
-            Class listenerClass = Class.forName( "org.opensha.param.event.ParameterChangeWarningListener" );
+            Class listenerClass = Class.forName( "org.opensha.commons.param.event.ParameterChangeWarningListener" );
             Object[] paramObjects = new Object[]{ listener };
             Class[] params = new Class[]{ listenerClass };
             Class attenRelClass = Class.forName( className );

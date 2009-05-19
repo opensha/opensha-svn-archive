@@ -126,7 +126,7 @@ public class Asset implements Cloneable {
 		ParameterParser parameterParser = ParameterParser.getParameterParser();
 		Class<?> c = null;
 		try {
-			String className = "org.opensha.param." + parameterParser.getParameterType(paramName);
+			String className = "org.opensha.commons.param." + parameterParser.getParameterType(paramName);
 			c = Class.forName( className );
 			Class<?>[] paramTypes = {String.class};
 			Constructor<?> cons = c.getConstructor(paramTypes);

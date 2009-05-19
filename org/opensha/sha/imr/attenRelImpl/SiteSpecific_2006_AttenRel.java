@@ -292,7 +292,7 @@ public class SiteSpecific_2006_AttenRel
      int size = supportedAttenRelClasses.size();
      for(int i=0;i< size;++i){
        try {
-         Class listenerClass = Class.forName( "org.opensha.param.event.ParameterChangeWarningListener" );
+         Class listenerClass = Class.forName( "org.opensha.commons.param.event.ParameterChangeWarningListener" );
          Object[] paramObjects = new Object[]{ warningListener };
          Class[] params = new Class[]{ listenerClass };
          Class imrClass = Class.forName((String)supportedAttenRelClasses.get(i));

@@ -230,7 +230,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
   private void createIMRClassInstance(String AttenRelClassName){
     String attenRelClassPackage = "org.opensha.sha.imr.attenRelImpl.";
       try {
-        Class listenerClass = Class.forName( "org.opensha.param.event.ParameterChangeWarningListener" );
+        Class listenerClass = Class.forName( "org.opensha.commons.param.event.ParameterChangeWarningListener" );
         Object[] paramObjects = new Object[]{ this };
         Class[] params = new Class[]{ listenerClass };
         Class imrClass = Class.forName(attenRelClassPackage+AttenRelClassName);

@@ -94,7 +94,7 @@ public class StructureDescriptorBean implements GuiBeanAPI {
 	public String getVisualizationClassName(int type) {
 		String cname = null;
 		if(type == GuiBeanAPI.APPLICATION) {
-			cname = "org.opensha.param.editor.ParameterListEditor";
+			cname = "org.opensha.commons.param.editor.ParameterListEditor";
 		}
 		
 		return cname;

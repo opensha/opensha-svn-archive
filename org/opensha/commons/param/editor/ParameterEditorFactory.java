@@ -49,7 +49,7 @@ public class ParameterEditorFactory {
     protected final static boolean D = false;
 
     /** First path this Factory looks for Editor Classes */
-    protected final static String DEFAULT_PATH = "org.opensha.param.editor";
+    protected final static String DEFAULT_PATH = "org.opensha.commons.param.editor";
 
     /**
      * Additional search paths ( i.e. corresponds to java pacakges ) that the

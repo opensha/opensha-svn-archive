@@ -210,7 +210,7 @@ public void getHazardMapCurves(String[] args, int startSiteIndex,
  public Object createIMRClassInstance( String className, org.opensha.commons.param.event.ParameterChangeWarningListener listener){
    try {
 
-     Class listenerClass = Class.forName( "org.opensha.param.event.ParameterChangeWarningListener" );
+     Class listenerClass = Class.forName( "org.opensha.commons.param.event.ParameterChangeWarningListener" );
      Object[] paramObjects = new Object[]{ listener };
      Class[] params = new Class[]{ listenerClass };
      Class imrClass = Class.forName( className );

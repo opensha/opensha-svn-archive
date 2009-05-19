@@ -78,7 +78,7 @@ public class ParameterListEditor extends LabeledBoxPanel {
       searchPaths = new String[3];
       searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
       searchPaths[1] = "org.opensha.sha.param.editor";
-      searchPaths[2] = "org.opensha.param.editor.estimate";
+      searchPaths[2] = "org.opensha.commons.param.editor.estimate";
     }
 
     /**
