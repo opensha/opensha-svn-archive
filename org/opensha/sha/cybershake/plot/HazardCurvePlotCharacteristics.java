@@ -288,8 +288,8 @@ public class HazardCurvePlotCharacteristics implements XMLSaveable {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		String robXML = "org/opensha/cybershake/conf/robPlot.xml";
-		String tomXML = "org/opensha/cybershake/conf/tomPlot.xml";
+		String robXML = "org/opensha/sha/cybershake/conf/robPlot.xml";
+		String tomXML = "org/opensha/sha/cybershake/conf/tomPlot.xml";
 		
 		HazardCurvePlotCharacteristics chars = createRobPlotChars();
 		try {

@@ -13,7 +13,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 
 public class CyberShakeUCERFWrapper_ERF extends EqkRupForecast {
 	
-	public static final String ERF_XML_FILE = "org/opensha/cybershake/conf/MeanUCERF.xml";
+	public static final String ERF_XML_FILE = "org/opensha/sha/cybershake/conf/MeanUCERF.xml";
 	
 	public static final int ERF_ID = 35;
 	

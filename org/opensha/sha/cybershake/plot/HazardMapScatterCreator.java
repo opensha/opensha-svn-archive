@@ -124,7 +124,7 @@ public class HazardMapScatterCreator {
 		}
 	}
 	
-	private ScatterSymbol getSymbol(CybershakeSite site, ArrayList<ScatterSymbol> symbols, ScatterSymbol defaultSym) {
+	private static ScatterSymbol getSymbol(CybershakeSite site, ArrayList<ScatterSymbol> symbols, ScatterSymbol defaultSym) {
 		if (symbols == null)
 			return defaultSym;
 		for (ScatterSymbol symbol : symbols) {
@@ -135,7 +135,7 @@ public class HazardMapScatterCreator {
 		return defaultSym;
 	}
 	
-	private double scaleSize(double size, ScatterSymbol symbol) {
+	private static double scaleSize(double size, ScatterSymbol symbol) {
 //		if (symbol.equals("c"))
 //			size = 0.75 * size;
 //		else if (symbol.equals("d"))
@@ -143,26 +143,26 @@ public class HazardMapScatterCreator {
 		return size * symbol.getScaleFactor();
 	}
 	
-	private String getGMTColorString(Color color) {
+	private static String getGMTColorString(Color color) {
 		return "-G" + color.getRed() + "/" + color.getGreen() + "/" + color.getBlue();
 	}
 	
-	private String getGMTSymbolLine(ArrayList<ScatterSymbol> symbols, ScatterSymbol defaultSym, CybershakeSite site, double val, double size) {
+	private static String getGMTSymbolLine(ArrayList<ScatterSymbol> symbols, ScatterSymbol defaultSym, CybershakeSite site, CPT cpt, double val, double size) {
 		
-		ScatterSymbol sym = this.getSymbol(site, symbols, defaultSym);
+		ScatterSymbol sym = getSymbol(site, symbols, defaultSym);
 		if (sym.getSymbol().equals(ScatterSymbol.SYMBOL_INVISIBLE))
 			return null;
-		double scaledSize = this.scaleSize(size, sym);
+		double scaledSize = scaleSize(size, sym);
 		
 		Color color;
-		if (val < 0) {
+		if (val < 0 || cpt == null) {
 			color = BLANK_COLOR;
 			scaledSize = scaledSize * 0.5;
 		} else {
 			color = cpt.getColor((float)val);
 		}
 		
-		String colorStr = this.getGMTColorString(color);
+		String colorStr = getGMTColorString(color);
 		String outline = "-W" + (float)(size * 0.09) + "i,255/255/255";
 //		String outline = "-W2,255/255/255";
 		
@@ -175,7 +175,7 @@ public class HazardMapScatterCreator {
 		return line;
 	}
 	
-	public String getGMTLabelLine(CybershakeSite site, double fontSize) {
+	public static String getGMTLabelLine(CybershakeSite site, double fontSize) {
 		double x = site.lon + (0.025);
 		double y = site.lat;
 		double angle = 0;
@@ -183,7 +183,7 @@ public class HazardMapScatterCreator {
 		String justify = "LM";
 		String text = site.short_name;
 		
-		String colorStr = this.getGMTColorString(Color.white);
+		String colorStr = getGMTColorString(Color.white);
 		
 		String line = "echo " + x + " " + y + " " + fontSize + " " + angle + " " + fontno + " " + justify + " " + text +  " | ";
 		
@@ -202,7 +202,7 @@ public class HazardMapScatterCreator {
 		return allSites;
 	}
 	
-	private void writeInitScriptLines(FileWriter write) throws IOException {
+	private static void writeInitScriptLines(FileWriter write) throws IOException {
 		write.write("#!/bin/bash" + "\n");
 		write.write("set -o errexit" + "\n");
 		write.write("\n");
@@ -226,7 +226,7 @@ public class HazardMapScatterCreator {
 				}
 			}
 			if (writeEmptySites || val >=0) {
-				String line = this.getGMTSymbolLine(symbols, defaultSym, site, val, size);
+				String line = getGMTSymbolLine(symbols, defaultSym, site, cpt, val, size);
 				
 				if (line == null)
 					continue;
@@ -272,7 +272,7 @@ public class HazardMapScatterCreator {
 		for (CybershakeSite site : sites) {
 			
 			double val = -1d;
-			String line = this.getGMTSymbolLine(symbols, defaultSym, site, val, size);
+			String line = getGMTSymbolLine(symbols, defaultSym, site, cpt, val, size);
 			
 			if (line == null)
 				continue;
@@ -282,6 +282,36 @@ public class HazardMapScatterCreator {
 			
 			if (labels) {
 				line = this.getGMTLabelLine(site, fontSize);
+				System.out.println(line);
+				write.write(line + "\n");
+			}
+		}
+		
+		write.close();
+	}
+	
+	public static void writeScatterMarkerScript(ArrayList<CybershakeSite> sites, ArrayList<ScatterSymbol> symbols,
+			ScatterSymbol defaultSym, String script, boolean labels, double fontSize) throws IOException {
+		FileWriter write = new FileWriter(script);
+		
+		writeInitScriptLines(write);
+		
+		double size = 0.18;
+//		double fontSize = 10;
+		
+		for (CybershakeSite site : sites) {
+			
+			double val = -1d;
+			String line = getGMTSymbolLine(symbols, defaultSym, site, null, val, size);
+			
+			if (line == null)
+				continue;
+			
+			System.out.println(line);
+			write.write(line + "\n");
+			
+			if (labels) {
+				line = getGMTLabelLine(site, fontSize);
 				System.out.println(line);
 				write.write(line + "\n");
 			}

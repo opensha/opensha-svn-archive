@@ -66,11 +66,11 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 	
 	private HazardCurvePlotter plotter = null;
 	
-	private static final String ERF_COMPARISON_FILE = "org/opensha/cybershake/conf/MeanUCERF.xml";
-	private static final String CB_2008_ATTEN_REL_FILE = "org/opensha/cybershake/conf/cb2008.xml";
-	private static final String BA_2008_ATTEN_REL_FILE = "org/opensha/cybershake/conf/ba2008.xml";
-	private static final String AS_2008_ATTEN_REL_FILE = "org/opensha/cybershake/conf/as2008.xml";
-	private static final String CY_2008_ATTEN_REL_FILE = "org/opensha/cybershake/conf/cy2008.xml";
+	private static final String ERF_COMPARISON_FILE = "org/opensha/sha/cybershake/conf/MeanUCERF.xml";
+	private static final String CB_2008_ATTEN_REL_FILE = "org/opensha/sha/cybershake/conf/cb2008.xml";
+	private static final String BA_2008_ATTEN_REL_FILE = "org/opensha/sha/cybershake/conf/ba2008.xml";
+	private static final String AS_2008_ATTEN_REL_FILE = "org/opensha/sha/cybershake/conf/as2008.xml";
+	private static final String CY_2008_ATTEN_REL_FILE = "org/opensha/sha/cybershake/conf/cy2008.xml";
 	
 	private EqkRupForecast erf = null;
 	private AttenuationRelationship cb2008 = null;

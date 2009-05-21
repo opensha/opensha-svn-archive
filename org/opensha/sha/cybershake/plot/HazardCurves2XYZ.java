@@ -31,11 +31,10 @@ public class HazardCurves2XYZ {
 		fetcher = new HazardCurveFetcher(db, erfIDs, rupVarScenarioID, sgtVarID, imTypeID);
 	}
 	
-	public void writeXYZ(String fileName, boolean isProbAt_IML, double level) throws IOException {
+	public static void writeXYZ(String fileName, ArrayList<CybershakeSite> sites, ArrayList<Double> vals,
+			ArrayList<Integer> siteTypeIDs) throws IOException {
 		FileWriter fw = new FileWriter(fileName);
 		
-		ArrayList<Double> vals = fetcher.getSiteValues(isProbAt_IML, level);
-		ArrayList<CybershakeSite> sites = fetcher.getCurveSites();
 		
 		if (vals.size() != sites.size()) {
 			throw new RuntimeException("Number of curves and curve sites not consistant!");
@@ -54,6 +53,33 @@ public class HazardCurves2XYZ {
 		}
 		
 		fw.close();
+	}
+	
+	public void writeXYZ(String fileName, boolean isProbAt_IML, double level) throws IOException {
+		ArrayList<Double> vals = fetcher.getSiteValues(isProbAt_IML, level);
+		ArrayList<CybershakeSite> sites = fetcher.getCurveSites();
+		
+		writeXYZ(fileName, sites, vals, siteTypeIDs);
+	}
+	
+	public void writeLabelsFile(String labelsFile) throws IOException {
+		ArrayList<CybershakeSite> sites = new ArrayList<CybershakeSite>();
+		for (CybershakeSite site : fetcher.getCurveSites()) {
+			if (siteTypeIDs == null || siteTypeIDs.contains(site.type_id)) {
+				sites.add(site);
+			}
+		}
+		writeLabelsFile(labelsFile, sites);
+	}
+	
+	public static void writeLabelsFile(String labelsFile, ArrayList<CybershakeSite> sites) throws IOException {
+		ScatterSymbol circle = new ScatterSymbol(ScatterSymbol.SYMBOL_CIRCLE, CybershakeSite.TYPE_POI, 0.5 * 0.75);
+		
+		ArrayList<ScatterSymbol> symbols = HazardMapScatterCreator.getCyberShakeSymbols(0.5);
+		
+		System.out.println("Writing " + labelsFile);
+		HazardMapScatterCreator.writeScatterMarkerScript(sites, symbols, circle, labelsFile,
+						true, 6d);
 	}
 	
 	public static void main(String args[]) {
@@ -103,25 +129,9 @@ public class HazardCurves2XYZ {
 			System.exit(1);
 		}
 		
-		CPT cpt = null;
-
-		ScatterSymbol circle = new ScatterSymbol(ScatterSymbol.SYMBOL_CIRCLE, CybershakeSite.TYPE_POI, 0.5 * 0.75);
-		HazardMapScatterCreator scatter = new HazardMapScatterCreator(db, null, 3, 5, 21, cpt, isProbAt_IML, level);
-		
-		ArrayList<ScatterSymbol> symbols = HazardMapScatterCreator.getCyberShakeSymbols(0.5);
-		if (typeIDs != null) {
-			for (ScatterSymbol symbol : symbols) {
-				if (!typeIDs.contains(symbol.getSiteTypeID())) {
-					symbol.setSymbol(ScatterSymbol.SYMBOL_INVISIBLE);
-					System.out.println("Making site type " + symbol.getSiteTypeID() + " invisible!");
-				}
-			}
-		}
-		
 		try {
 			System.out.println("Writing " + labelsFile);
-			scatter.writeScatterMarkerScript(symbols, circle,
-					labelsFile, true, true, 6);
+			xyz.writeLabelsFile(labelsFile);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
