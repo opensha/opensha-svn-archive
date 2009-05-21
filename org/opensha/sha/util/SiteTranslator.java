@@ -31,6 +31,10 @@ import org.opensha.sha.imr.attenRelImpl.*;
  * (except for Sadigh, who used a dataset similar to Abrahamson & Silve (1997) so that
  * translation is applied).  The main method tests the translations of all currently
  * implemented attenuation-relationship site-related parameters.<p>
+ * 
+ * <p>If you would like to add a new site data type, or new site parameter, see
+ * javadocs for <code>createMap</code> and <code>setParameterValue</code> below
+ * for instructions.<p>
  *
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
