@@ -157,16 +157,26 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 		if (!dbConnInitialized)
 			initDB();
 		double site_tol = 0.01;
+		
+		CybershakeSite minSite = null;
+		double minDist = Double.POSITIVE_INFINITY;
+		
 		for (CybershakeSite csSite : sites) {
-			if (Math.abs(csSite.lat - site.getLocation().getLatitude()) < site_tol) {
-				if (Math.abs(csSite.lon - site.getLocation().getLongitude()) < site_tol) {
-					// it's a match!
-					System.out.println("Idedntified CyberShake site: " + csSite);
-					this.csSite = csSite;
-					break;
-				}
+			double latDist = csSite.lat - site.getLocation().getLatitude();
+			double lonDist = csSite.lon - site.getLocation().getLongitude();
+			double dist = Math.sqrt(Math.pow(latDist, 2) + Math.pow(lonDist, 2));
+			if (dist < site_tol && dist < minDist) {
+				// it's a match!
+				minSite = csSite;
+				minDist = dist;
+				System.out.println("Idedntified possible CyberShake site (dist=" + dist + "): " + csSite);
 			}
 		}
+		this.csSite = minSite;
+		if (this.csSite == null)
+			System.out.println("No match for site: " + site);
+		else
+			System.out.println("Using site: " + this.csSite.name);
 		this.site = site;
 	}
 
