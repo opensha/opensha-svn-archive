@@ -44,7 +44,7 @@ public class AttenuationRelationshipsInstance {
 	public final static String GouletEtAl_2006_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.GouletEtAl_2006_AttenRel";
 	public final static String AS_2008_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel";
 	public final static String CY_2008_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel";
-	public final static String CyberShake_CLASS_NAME = "org.opensha.cybershake.openshaAPIs.CyberShakeIMR";
+	public final static String CyberShake_CLASS_NAME = "org.opensha.sha.cybershake.openshaAPIs.CyberShakeIMR";
 
 	//arrayList to store the supported AttenRel Class Names with their full package structure.
 	ArrayList<String> supportedAttenRelClasses = new ArrayList<String>();

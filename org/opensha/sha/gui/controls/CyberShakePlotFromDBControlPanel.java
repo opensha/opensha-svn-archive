@@ -1102,7 +1102,7 @@ extends JFrame implements ParameterChangeListener {
 		function.set(0.50119,1);
 		function.set(0.63096,1);
 		function.set(0.79433,1);
-		function.set(1,1);
+		function.set(1d,1d);
 		function.set(1.25893,1);
 		function.set(1.58489,1);
 		function.set(1.99526,1);
@@ -1112,7 +1112,7 @@ extends JFrame implements ParameterChangeListener {
 		function.set(5.01187,1);
 		function.set(6.30957,1);
 		function.set(7.94328,1);
-		function.set(10,1);
+		function.set(10d,1d);
 		return function;
 	}
 
