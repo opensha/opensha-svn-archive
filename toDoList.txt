@@ -8,6 +8,8 @@ BROADER ISSUES:
 
 Revise IMR APIs (& convert CyberShake to this?).
 
+Consider whether params (and IMRs and ERFs for that matter) should have getGUI_Editor() methods
+
 Develop a complete set of Junit tests for the entire project (that at least tests whether any important changes have occurred).
 
 Take "API" out of filenames
