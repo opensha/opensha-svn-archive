@@ -67,6 +67,18 @@ implements java.io.Serializable {
 		wills_vs30_map.put(WILLS_DE,	180d);
 		wills_vs30_map.put(WILLS_E,		Double.NaN);
 	}
+	
+	public static ArrayList<String> getSortedWillsValues() {
+		ArrayList<String> wills = new ArrayList<String>();
+		wills.add(WILLS_B);
+		wills.add(WILLS_BC);
+		wills.add(WILLS_C);
+		wills.add(WILLS_CD);
+		wills.add(WILLS_D);
+		wills.add(WILLS_DE);
+		wills.add(WILLS_E);
+		return wills;
+	}
 
 	public static SiteDataTypeParameterNameMap DATA_TYPE_PARAM_NAME_MAP = createMap();
 
@@ -109,7 +121,7 @@ implements java.io.Serializable {
 	public static String getWillsVs30TranslationString() {
 		String str = "";
 		
-		for (String wills : wills_vs30_map.keySet()) {
+		for (String wills : getSortedWillsValues()) {
 			if (str.length() > 0)
 				str += "\n";
 			str += wills + "\t=>\t" + wills_vs30_map.get(wills);
@@ -1076,7 +1088,7 @@ implements java.io.Serializable {
 				SiteDataAPI.TYPE_FLAG_INFERRED, "NA");
 		line = getTableValLine(params, val);
 		fw.write(line + "\n");
-		for (String wills : wills_vs30_map.keySet()) {
+		for (String wills : getSortedWillsValues()) {
 			val = new SiteDataValue<String>(SiteDataAPI.TYPE_WILLS_CLASS,
 					SiteDataAPI.TYPE_FLAG_INFERRED, wills);
 			line = getTableValLine(params, val);
