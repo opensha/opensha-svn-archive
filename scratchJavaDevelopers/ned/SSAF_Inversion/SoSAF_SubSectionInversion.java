@@ -253,6 +253,72 @@ public class SoSAF_SubSectionInversion {
 	
 	
 	
+	/**
+	 * This writes the 
+	 * @param dirName
+	 * @param gmt_plot
+	 */
+	public void writeAndPlotRupRatesByEndPoints(String dirName, boolean gmt_plot) {
+		
+		try{
+			FileWriter fw = new FileWriter(ROOT_PATH+dirName+"/rupRatesByEndPoints.txt");
+			FileWriter fw2 = new FileWriter(ROOT_PATH+dirName+"/rupMagsByEndPoints.txt");
+			fw.write("index\tseg_index\tslip_rate\n");
+			fw2.write("index\tseg_index\trate\n");
+			boolean firstNotYetFound, lastNotYetFound;
+			int first=-1, last=-1;
+			for(int rup=0; rup<num_rup;rup++) {
+				first = firstSegOfRup[rup];
+				last = first+numSegInRup[rup]-1;
+				fw.write(last+"\t"+first+"\t"+(float)Math.log10(rupRateSolution[rup])+"\n");
+				fw2.write(last+"\t"+first+"\t"+(float)this.rupMeanMag[rup]+"\n");
+			}	
+			fw.close();
+			fw2.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+
+		if(gmt_plot) {
+			String PATH = ROOT_PATH+dirName+"/";
+			String gmtScriptName = PATH+"gmt_script_for_rupRatesByEndPoints.txt";
+			int num = num_seg;
+			String region = "-R/-1/"+num+"/-1/"+num;
+			try{
+			FileWriter fw = new FileWriter(gmtScriptName);
+			/**/
+			fw.write("/sw/bin/xyz2grd "+PATH+"rupRatesByEndPoints.txt -G"+PATH+"temp.grd -I1.0/1.0 "+region+" -H1\n");
+			fw.write("/sw/bin/gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p HEADER_FONT_SIZE 22p\n");
+			fw.write("/sw/bin/grdimage "+PATH+"temp.grd -X1.25i  -Y3i  -JX6i/6i  -C"+ROOT_PATH+"final.cpt  -P -T -K "+region+"  > "+PATH+"plotForRupRatesByEndPoints.ps\n");
+			fw.write("/sw/bin/psscale -Ba1.0:log10_Rate: -D3i/-1i/6i/0.3ih -C"+ROOT_PATH+"final.cpt -O -K -N70 >> "+PATH+"plotForRupRatesByEndPoints.ps\n");
+			fw.write("/sw/bin/psbasemap -B5.0:last_sub_section:/5:first_sub_section:eWnS:.Rupture_Rates:  -JX6i/6i  "+region+" -O  >> "+PATH+"plotForRupRatesByEndPoints.ps\n");
+
+			
+			fw.write("/sw/bin/xyz2grd "+PATH+"rupMagsByEndPoints.txt -G"+PATH+"temp.grd -I1.0/1.0 "+region+" -H1\n");
+			fw.write("/sw/bin/gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p HEADER_FONT_SIZE 22p\n");
+			fw.write("/sw/bin/grdimage "+PATH+"temp.grd -X1.25i  -Y3i  -JX6i/6i  -C"+ROOT_PATH+"finalMag.cpt  -P -T -K "+region+"  > "+PATH+"plotForRupMagsByEndPoints.ps\n");
+			fw.write("/sw/bin/psscale -Ba1.0:Mag: -D3i/-1i/6i/0.3ih -C"+ROOT_PATH+"finalMag.cpt -O -K -N70 >> "+PATH+"plotForRupMagsByEndPoints.ps\n");
+			fw.write("/sw/bin/psbasemap -B5.0:last_sub_section:/5:first_sub_section:eWnS:.Rupture_Mags:  -JX6i/6i  "+region+" -O  >> "+PATH+"plotForRupMagsByEndPoints.ps\n");
+
+/*
+			fw.write("/sw/bin/xyz2grd "+PATH+"rupRateData.txt -G"+PATH+"temp.grd -I1.0/1.0 "+region+" -H1\n");
+			fw.write("/sw/bin/grdimage "+PATH+"temp.grd -X1.25i  -Y3i  -JX6i/7i  -C"+ROOT_PATH+"final.cpt  -P -T -K "+region+"  > "+PATH+"plotForRupRates.ps\n");
+			fw.write("/sw/bin/psscale -Ba1.0:log10_Rate: -D3i/-1i/6i/0.3ih -C"+ROOT_PATH+"final.cpt -O -K -N70 >> "+PATH+"plotForRupRates.ps\n");
+			fw.write("/sw/bin/psbasemap -B5.0:sub_section:/5:rupture:eWnS:.Rupture_Rates:  -JX6i/7i  "+region+" -O  >> "+PATH+"plotForRupRates.ps\n");
+*/
+			fw.close();
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		    // now run the GMT script file
+		    String[] command ={"sh","-c","sh "+gmtScriptName};
+		    RunScript.runScript(command);
+		}
+			
+	}
+
+	
+	
 	
 	
 	/**
@@ -2080,6 +2146,7 @@ public class SoSAF_SubSectionInversion {
 //		MagAreaRelationship magAreaRel = new Ellsworth_B_WG02_MagAreaRel();
 		double relativeSegRateWt=1;
 		double relative_aPrioriRupWt = 100;
+		double relative_aPrioriSegRateWt = 100;
 		double relative_smoothnessWt = 10;
 		boolean wtedInversion = true;
 		double minRupRate = 1e-6;
@@ -2094,7 +2161,6 @@ public class SoSAF_SubSectionInversion {
 //		double grConstraintRateScaleFactor = 0.83;  // for case where b=0
 		double grConstraintBvalue = 1;
 		double grConstraintRateScaleFactor = 0.89;  // for case where b=1
-		double relative_aPrioriSegRateWt = 100;
 
 
 		soSAF_SubSections.doInversion(maxSubsectionLength,numSegForSmallestRups,deformationModel,
@@ -2111,12 +2177,13 @@ public class SoSAF_SubSectionInversion {
 //		soSAF_SubSections.plotHistograms();
 
 		
-		String dirName = "test1";
+		String dirName = "test";
 	    File file = new File(soSAF_SubSections.ROOT_PATH+dirName);
 	    file.mkdirs();
 	    soSAF_SubSections.plotStuff(dirName);
 		soSAF_SubSections.plotOrWriteSegPartMFDs(dirName, true);
 		soSAF_SubSections.writeAndPlotNonZeroRateRups(dirName, true);
+		soSAF_SubSections.writeAndPlotRupRatesByEndPoints(dirName, true);
 
 
 	/*
