@@ -30,16 +30,16 @@ import org.opensha.sha.param.*;
  *
  *  <b>Description:</b> Abstract base class for Intensity Measure Relationship (IMR).
  *  All IMRs compute the probability of exceeding a particular shaking level (specified
- *  by an intenisty-measure Parameter) given a Site and ProbEqkRupture object.
+ *  by an intensity-measure Parameter) given a Site and ProbEqkRupture object.
  *  Subclasses will implement specific types of IMRs (e.g., AttenuationRelationship).
- *  This abstract IMR class also contains seperate parameterList objects for the
- *  site, potential-earthquake, and propagation-effect related parameters, as well
+ *  This abstract IMR class also contains separate parameterList objects for the
+ *  site, earthquake rupture, and propagation-effect related parameters, as well
  *  as a list of "other" parameters that don't fit into those three categories.
  *  This class also contains a list of supported intensity-measure parameters (which
  *  may have internal independent parameters). These five lists combined (siteParams,
  *  EqkRuptureParams, propagationEffectParams, supportedIMParams, and otherParams)
  *  constitutes the complete list of parameters that the exceedance probability depends
- *  upon.  The only other paramter is exceedProbParam, which is used to compute the
+ *  upon.  The only other parameter is exceedProbParam, which is used to compute the
  *  IML at a particular probability in subclasses that support the getIML_AtExceedProb()
  *  method. <p>
  *
@@ -54,6 +54,9 @@ public abstract class IntensityMeasureRelationship
 
   private final static String NAME = "Intensity Measure Relationship";
   
+  /**
+   * This is to provide more info at a web site
+   */
   protected String url_info_string;
   
   public final static String XML_METADATA_NAME = "IMR";
@@ -111,18 +114,20 @@ public abstract class IntensityMeasureRelationship
    */
   protected EqkRupture eqkRupture;
 
+  /**
+   * This is used for efficiency
+   */
   protected PropagationEffect propEffect;
 
   /**
    *  Intensity Measure.  This is a specification of the type of shaking one
-   *  is concered about.  Its representation as a Parameter makes the
+   *  is concerned about.  Its representation as a Parameter makes the
    *  specification quite general and flexible.  IMRs compute the probability
    *  of exceeding the "value" field of this im Parameter.
    */
   protected ParameterAPI im;
 
-  //this flag checks if intensity measure has been changed, if it is then make it
-  //true else false. It is initialized to false
+  //this flag keeps track of whether the intensity measure has changed,  initialized to false
   protected boolean intensityMeasureChanged;
 
   /**
@@ -130,12 +135,9 @@ public abstract class IntensityMeasureRelationship
    *  creates one parameter (exceedProbParam) used by some subclasses.
    */
   public IntensityMeasureRelationship() {
-
-    exceedProbParam = new DoubleParameter(EXCEED_PROB_NAME, EXCEED_PROB_MIN,
-                                          EXCEED_PROB_MAX, EXCEED_PROB_DEFAULT);
+    exceedProbParam = new DoubleParameter(EXCEED_PROB_NAME, EXCEED_PROB_MIN, EXCEED_PROB_MAX, EXCEED_PROB_DEFAULT);
     exceedProbParam.setInfo(EXCEED_PROB_INFO);
     exceedProbParam.setNonEditable();
-
   }
 
   /**
@@ -247,8 +249,7 @@ public abstract class IntensityMeasureRelationship
 
     if (isIntensityMeasureSupported(intensityMeasure)) {
       setIntensityMeasure(intensityMeasure.getName());
-      ListIterator it = ( (DependentParameterAPI) intensityMeasure).
-          getIndependentParametersIterator();
+      ListIterator it = ( (DependentParameterAPI) intensityMeasure).getIndependentParametersIterator();
       while (it.hasNext()) {
         ParameterAPI param = (ParameterAPI) it.next();
         getParameter(param.getName()).setValue(param.getValue());

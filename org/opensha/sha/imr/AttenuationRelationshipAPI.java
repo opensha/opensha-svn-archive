@@ -46,16 +46,6 @@ public interface AttenuationRelationshipAPI
   public void setUserMaxDistance(double maxDist);
 
   /**
-   *  Sets the intensityMeasure parameter.
-   *
-   * IS THIS REALLY NEEDED SINCE IT'S DEFINED IN THE PARENT?
-   *
-   * @param  intensityMeasure  The new intensityMeasure Parameter
-   */
-  public void setIntensityMeasure(ParameterAPI intensityMeasure) throws
-      ParameterException, ConstraintException;
-
-  /**
    *  Sets the value of the selected intensityMeasure;
    *  IS THIS NEEDED SINCE WE HAVE THE OTHER VERSION THAT TAKES AN OBJECT?
    *  IS IT EVER USED?
