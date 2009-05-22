@@ -300,12 +300,6 @@ public class SoSAF_SubSectionInversion {
 			fw.write("/sw/bin/psscale -Ba1.0:Mag: -D3i/-1i/6i/0.3ih -C"+ROOT_PATH+"finalMag.cpt -O -K -N70 >> "+PATH+"plotForRupMagsByEndPoints.ps\n");
 			fw.write("/sw/bin/psbasemap -B5.0:last_sub_section:/5:first_sub_section:eWnS:.Rupture_Mags:  -JX6i/6i  "+region+" -O  >> "+PATH+"plotForRupMagsByEndPoints.ps\n");
 
-/*
-			fw.write("/sw/bin/xyz2grd "+PATH+"rupRateData.txt -G"+PATH+"temp.grd -I1.0/1.0 "+region+" -H1\n");
-			fw.write("/sw/bin/grdimage "+PATH+"temp.grd -X1.25i  -Y3i  -JX6i/7i  -C"+ROOT_PATH+"final.cpt  -P -T -K "+region+"  > "+PATH+"plotForRupRates.ps\n");
-			fw.write("/sw/bin/psscale -Ba1.0:log10_Rate: -D3i/-1i/6i/0.3ih -C"+ROOT_PATH+"final.cpt -O -K -N70 >> "+PATH+"plotForRupRates.ps\n");
-			fw.write("/sw/bin/psbasemap -B5.0:sub_section:/5:rupture:eWnS:.Rupture_Rates:  -JX6i/7i  "+region+" -O  >> "+PATH+"plotForRupRates.ps\n");
-*/
 			fw.close();
 			}catch(Exception e) {
 				e.printStackTrace();
