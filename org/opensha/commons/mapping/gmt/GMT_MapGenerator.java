@@ -74,7 +74,7 @@ public class GMT_MapGenerator implements Serializable{
 	public static final String OPENSHA_PS2PDF_PATH = "/usr/bin/ps2pdf";
 	public static final String OPENSHA_CONVERT_PATH="/usr/bin/convert";
 	public static final String OPENSHA_GMT_DATA_PATH = "/export/opensha/data/gmt/";
-	public static final String OPENSHA_SERVLET_URL = "http://opensha.usc.edu/OpenSHA_dev/GMT_MapGeneratorServlet";
+	public static final String OPENSHA_SERVLET_URL = "http://opensha.usc.edu:8080/OpenSHA_dev/GMT_MapGeneratorServlet";
 	
 	/*				gravity.usc.edu paths				*/
 	public static final String GRAVITY_GMT_PATH="/opt/install/gmt/bin/";
@@ -891,6 +891,8 @@ public class GMT_MapGenerator implements Serializable{
 		// set x-axis offset to 1 inch
 		xOff = " -X1.0i ";
 
+		gmtCommandLines.add("#!/bin/bash\n\n");
+		
 		// command line to convert xyz file to grd file
 		commandLine = GMT_PATH+"xyz2grd "+ XYZ_FILE_NAME+" -G"+ grdFileName+ " -I"+gridSpacing+ region +" -D/degree/degree/amp/=/=/=  -: -H0";
 		gmtCommandLines.add(commandLine+"\n");
