@@ -7,9 +7,6 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
-import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.util.FileUtils;
@@ -17,7 +14,6 @@ import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
-import org.opensha.sha.earthquake.rupForecastImpl.GriddedRegionPoissonEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
