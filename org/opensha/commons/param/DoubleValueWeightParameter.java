@@ -8,6 +8,8 @@ import org.opensha.commons.data.ValueWeight;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.param.editor.DoubleValueWeightParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditor;
 
 /**
  * <b>Title:</b> DoubleValueWeightParameter<p>
@@ -27,6 +29,8 @@ public class DoubleValueWeightParameter extends DependentParameter
     protected final static String C = "DoubleValueWeightParameter";
     /** If true print out debug statements. */
     protected final static boolean D = false;
+    
+    private ParameterEditor paramEdit = null;
 
 
     /**
@@ -464,5 +468,21 @@ public class DoubleValueWeightParameter extends DependentParameter
 	public boolean setValueFromXMLMetadata(Element el) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+
+	public ParameterEditor getEditor() {
+		if (paramEdit == null) {
+			try {
+				paramEdit = new DoubleValueWeightParameterEditor(this);
+				// ConstrainedDoubleValueWeightParameterEditor hasn't been implemented yet, although the
+				// class exists
+//				else
+//					paramEdit = new ConstrainedDoubleValueWeightParameterEditor(this);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return paramEdit;
 	}
 }

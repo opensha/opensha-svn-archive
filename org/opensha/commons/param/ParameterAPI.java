@@ -5,6 +5,7 @@ import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.metadata.XMLSaveable;
+import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 
 
@@ -57,7 +58,7 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
  * @version    1.0
  */
 
-public interface ParameterAPI extends NamedObjectAPI, Comparable, XMLSaveable {
+public interface ParameterAPI<E> extends NamedObjectAPI, Comparable, XMLSaveable {
 
     /** Every parameter has a name, this function gets that name. */
     public String getName();
@@ -97,8 +98,8 @@ public interface ParameterAPI extends NamedObjectAPI, Comparable, XMLSaveable {
     /** Sets the info attribute of the ParameterAPI object. */
     public void setInfo( String info );
 
-    /** Returns the value onject stored in this parameter. */
-    public Object getValue();
+    /** Returns the value stored in this parameter. */
+    public E getValue();
 
     /**
      *  Set's the parameter's value.
@@ -108,7 +109,7 @@ public interface ParameterAPI extends NamedObjectAPI, Comparable, XMLSaveable {
      *      is not the correct type.
      * @throws  ConstraintException  Thrown if the object value is not allowed
      */
-    public void setValue( Object value ) throws ConstraintException, ParameterException;
+    public void setValue( E value ) throws ConstraintException, ParameterException;
     
     /**
      * Sets the value of this parameter from am XML element
@@ -119,7 +120,7 @@ public interface ParameterAPI extends NamedObjectAPI, Comparable, XMLSaveable {
 
 
      /** Needs to be called by subclasses when field change fails due to constraint problems. */
-     public void unableToSetValue( Object value ) throws ConstraintException;
+     public void unableToSetValue( E value ) throws ConstraintException;
 
 
 
@@ -205,7 +206,7 @@ public interface ParameterAPI extends NamedObjectAPI, Comparable, XMLSaveable {
      * Proxy to constraint check when setting a value. If no
      * constraint then this always returns true.
      */
-    public boolean isAllowed( Object value );
+    public boolean isAllowed( E value );
 
 
     /** Determines if the value can be edited, i.e. changed after initialization .*/
@@ -239,4 +240,10 @@ public interface ParameterAPI extends NamedObjectAPI, Comparable, XMLSaveable {
      * from scratch.
      */
     public String getMetadataString() ;
+    
+    /**
+     * This returns an editor for this parameter. The parameter editor shouldn't be
+     * instantiated until the first call to this method in order to save memory.
+     */
+    public ParameterEditor getEditor();
 }

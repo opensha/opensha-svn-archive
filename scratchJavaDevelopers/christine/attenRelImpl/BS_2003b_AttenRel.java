@@ -224,14 +224,14 @@ public class BS_2003b_AttenRel
   public void setSite(Site site) throws ParameterException {
 
 	
-    AF_InterceptParam.setValue(site.getParameter(AF_INTERCEPT_PARAM_NAME).getValue());
-    AF_AddRefAccParam.setValue(site.getParameter(AF_ADDITIVE_REF_ACCELERATION_PARAM_NAME).getValue());
-    AF_SlopeParam.setValue(site.getParameter(AF_SLOPE_PARAM_NAME).getValue());
-    AF_StdDevParam.setValue(site.getParameter(AF_STD_DEV_PARAM_NAME).getValue());
+    AF_InterceptParam.setValue((Double)site.getParameter(AF_INTERCEPT_PARAM_NAME).getValue());
+    AF_AddRefAccParam.setValue((Double)site.getParameter(AF_ADDITIVE_REF_ACCELERATION_PARAM_NAME).getValue());
+    AF_SlopeParam.setValue((Double)site.getParameter(AF_SLOPE_PARAM_NAME).getValue());
+    AF_StdDevParam.setValue((Double)site.getParameter(AF_STD_DEV_PARAM_NAME).getValue());
     
-    vs30Param.setValue(site.getParameter(VS30_NAME).getValue());
+    vs30Param.setValue((Double)site.getParameter(VS30_NAME).getValue());
 //    VS30SParam.setValueIgnoreWarning(site.getParameter(VS30_NAME).getValue());
-    softSoilParam.setValue(site.getParameter(SOFT_SOIL_NAME).getValue());
+    softSoilParam.setValue((Boolean)(site.getParameter(SOFT_SOIL_NAME).getValue()));
     numRunsParam.setValue(site.getParameter(NUM_RUNS_PARAM_NAME).getValue());
     this.site = site;
     // set the location in cb_2008_attenRel

@@ -618,7 +618,7 @@ public class AttenuationRelationshipGuiBean
             DoubleDiscreteParameter ddParam = ( DoubleDiscreteParameter ) attenRel.getParameter( paramName );
             DoubleDiscreteConstraint constraint = ( DoubleDiscreteConstraint ) ddParam.getConstraint();
 
-            Object oldVal = ddParam.getValue();
+            Double oldVal = ddParam.getValue();
 
             // Loop over all discrete values & calculate the mean
             ListIterator it = constraint.listIterator();

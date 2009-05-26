@@ -408,6 +408,15 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 		periodParam.setValue(new Double(3));
 		periodParam.addParameterChangeListener(this);
 		saParam.addIndependentParameter(periodParam);
+		
+		// (overide this in subclass of other damping levels are available)
+	    dampingConstraint = new DoubleDiscreteConstraint();
+	    dampingConstraint.addDouble(DAMPING_DEFAULT);
+		dampingParam = new DoubleDiscreteParameter(DAMPING_NAME, dampingConstraint,
+                DAMPING_UNITS, DAMPING_DEFAULT);
+		dampingParam.setInfo(DAMPING_INFO);
+		dampingParam.setNonEditable();
+		saParam.addIndependentParameter(dampingParam);
 
 		supportedIMParams.addParameter(saParam);
 	}

@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
+import javax.swing.JPanel;
+
 import org.opensha.commons.gui.LabeledBoxPanel;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
@@ -58,27 +60,13 @@ public class ParameterListEditor extends LabeledBoxPanel {
     /** Both the parameterEditor and parameterName maintain the same ordering of the
      *  parameters. parametersEditor store the editor for each parameter name stored
      *  in the  parameterName variable at the same index.*/
-    protected ArrayList parameterEditors = new ArrayList();
-    protected ArrayList parametersName = new ArrayList();
-
-    /** The collection of paths used to search for editor classes. */
-    protected String[] searchPaths;
-
+    protected ArrayList<ParameterEditor> parameterEditors = new ArrayList<ParameterEditor>();
+    protected ArrayList<String> parametersName = new ArrayList<String>();
 
     /** Calls super() to configure the GUI */
     public ParameterListEditor() {
         super();
-        // Build package names search path
-        makeSearchPaths();
         this.setLayout( new GridBagLayout());
-    }
-
-    // make search paths
-    private void makeSearchPaths() {
-      searchPaths = new String[3];
-      searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
-      searchPaths[1] = "org.opensha.sha.param.editor";
-      searchPaths[2] = "org.opensha.commons.param.editor.estimate";
     }
 
     /**
@@ -93,27 +81,6 @@ public class ParameterListEditor extends LabeledBoxPanel {
         super();
         parameterList = paramList;
         // Build package names search path
-        makeSearchPaths();
-        addParameters();
-
-    }
-
-    /**
-     * Constructor for the ParameterListEditor object, calls
-     * super() to initialize the GUI. The model Parameter List
-     * is set, the search paths configured, then all Parameter
-     * Editors are initialized with the parameters, and added
-     * to the GUI in a scrolling list. <p>
-     */
-    public ParameterListEditor(ParameterList paramList, String[] searchPaths) {
-
-        super();
-
-        parameterList = paramList;
-        this.searchPaths = searchPaths;
-
-        this.setLayout( new GridBagLayout());
-
         addParameters();
 
     }
@@ -140,7 +107,7 @@ public class ParameterListEditor extends LabeledBoxPanel {
         parameterName = parameterList.getParameterName( parameterName );
         int index = getIndexOf(parameterName);
         if ( index != -1 ) {
-            ParameterEditor editor = ( ParameterEditor ) parameterEditors.get(index);
+            ParameterEditor editor = parameterEditors.get(index);
             editor.setVisible( visible );
         }
 
@@ -152,7 +119,7 @@ public class ParameterListEditor extends LabeledBoxPanel {
      */
     public void setEnabled(boolean isEnabled) {
       for(int i=0; i<parameterEditors.size(); ++i)
-        (( ParameterEditor ) parameterEditors.get(i)).setEnabled(isEnabled);
+        parameterEditors.get(i).getPanel().setEnabled(isEnabled);
     }
 
 
@@ -170,12 +137,6 @@ public class ParameterListEditor extends LabeledBoxPanel {
       return -1;
     }
 
-
-    /** Returns the default search path for editor classes.  */
-    public static String getDefaultSearchPath() {
-        return ParameterEditorFactory.DEFAULT_PATH;
-    }
-
     /**
      * Returns ParameterList of all parameters that have their
      * GUI editors currently visible.
@@ -184,10 +145,10 @@ public class ParameterListEditor extends LabeledBoxPanel {
 
         ParameterList visibles = new ParameterList();
 
-        Iterator it = parameterEditors.iterator();
+        Iterator<ParameterEditor> it = parameterEditors.iterator();
         while ( it.hasNext() ) {
 
-            ParameterEditor editor = ( ParameterEditor ) it.next();
+            ParameterEditor editor = it.next();
             if ( editor.isVisible() ) {
                 ParameterAPI param = ( ParameterAPI ) editor.getParameter();
                 visibles.addParameter( param );
@@ -220,7 +181,7 @@ public class ParameterListEditor extends LabeledBoxPanel {
       parameterName = parameterList.getParameterName( parameterName );
       int index = getIndexOf(parameterName);
       if ( index != -1 ) {
-        ParameterEditor editor = ( ParameterEditor ) parameterEditors.get(index);
+        ParameterEditor editor = parameterEditors.get(index);
         return editor;
       }
       else
@@ -239,9 +200,9 @@ public class ParameterListEditor extends LabeledBoxPanel {
      * event.
      */
     public void refreshParamEditor() {
-        Iterator it = parameterEditors.iterator();
+        Iterator<ParameterEditor> it = parameterEditors.iterator();
         while ( it.hasNext() ) {
-            ParameterEditorAPI editor = ( ParameterEditorAPI )it.next();
+            ParameterEditor editor = it.next();
             editor.refreshParamEditor();
         }
     }
@@ -257,7 +218,7 @@ public class ParameterListEditor extends LabeledBoxPanel {
       parameterName = this.parameterList.getParameterName( parameterName );
       int index = getIndexOf(parameterName);
       if ( index != -1 ) {
-        ParameterEditor editor = ( ParameterEditor ) parameterEditors.get(index);
+        ParameterEditor editor = parameterEditors.get(index);
         editor.setParameter( param );
         parameterList.removeParameter( parameterName );
         parameterList.addParameter( param );
@@ -282,10 +243,6 @@ public class ParameterListEditor extends LabeledBoxPanel {
         int counter = 0;
         //boolean first = true;
 
-        // Set additional search paths for non-standard editors
-        if ( ( searchPaths != null ) || ( searchPaths.length > 0 ) )
-            ParameterEditorFactory.setSearchPaths( this.searchPaths );
-
         parameterEditors.clear();
        // editorPanel.setLayout(new VerticalFlowLayout());
         editorPanel.setLayout(GBL);
@@ -298,11 +255,13 @@ public class ParameterListEditor extends LabeledBoxPanel {
 
             // if(obj instanceof ParameterAPI){
             //ParameterAPI param = (ParameterAPI)obj;
-            ParameterEditor panel = ParameterEditorFactory.getEditor( param );
+            ParameterEditor paramEdit = param.getEditor();
+            if (paramEdit == null)
+            	throw new RuntimeException("No parameter exists for type: " + param.getType());
             parametersName.add(counter,name);
-            parameterEditors.add(counter,panel );
-            editorPanel.add(panel);
-            editorPanel.add( panel, new GridBagConstraints( 0, counter, 0,1, 1.0, 1.0
+            parameterEditors.add(counter,paramEdit );
+            editorPanel.add(paramEdit);
+            editorPanel.add(paramEdit, new GridBagConstraints( 0, counter, 0,1, 1.0, 1.0
                     , GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets( 4, 4, 4, 4 ), 0, 0 ) );
             counter++;
             //}

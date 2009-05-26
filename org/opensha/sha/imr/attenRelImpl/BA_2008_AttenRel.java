@@ -211,7 +211,7 @@ public class BA_2008_AttenRel
    */
   public void setSite(Site site) throws ParameterException {
 
-    vs30Param.setValue(site.getParameter(this.VS30_NAME).getValue());
+    vs30Param.setValue((Double)site.getParameter(VS30_NAME).getValue());
     this.site = site;
     setPropagationEffectParams();
 
@@ -383,7 +383,7 @@ public class BA_2008_AttenRel
     this.site = propEffect.getSite();
     this.eqkRupture = propEffect.getEqkRupture();
 
-    vs30Param.setValueIgnoreWarning(site.getParameter(VS30_NAME).getValue());
+    vs30Param.setValueIgnoreWarning((Double)site.getParameter(VS30_NAME).getValue());
 
     magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
     setFaultTypeFromRake(eqkRupture.getAveRake());

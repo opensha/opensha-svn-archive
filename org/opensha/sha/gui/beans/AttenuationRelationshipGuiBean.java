@@ -655,7 +655,8 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 							values, param2.getUnits (), (Double)allowedValues.get(0));
 
 					// added by Ned so the default period is 1.0 sec (this is a hack).
-					if( ((String) independentParam.getName()).equals(AttenuationRelationship.PERIOD_NAME) )
+					if( ((String) independentParam.getName()).equals(AttenuationRelationship.PERIOD_NAME)
+							&& independentParam.isAllowed(new Double(1.0)))
 						independentParam.setValue(new Double(1.0));
 
 					/**

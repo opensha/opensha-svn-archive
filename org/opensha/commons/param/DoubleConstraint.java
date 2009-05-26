@@ -20,7 +20,7 @@ import org.opensha.commons.exceptions.EditableException;
  * @created    February 20, 2002
  * @version    1.0
  */
-public class DoubleConstraint extends ParameterConstraint{
+public class DoubleConstraint extends ParameterConstraint<Double> {
 
     /** Class name for debugging. */
     protected final static String C = "DoubleConstraint";
@@ -102,27 +102,6 @@ public class DoubleConstraint extends ParameterConstraint{
 
     /** Gets the max allowed value of this constraint */
     public Double getMax() { return max; }
-
-
-
-    /**
-     * Checks if the passed in value is within the min and max, inclusive of
-     * the end points. First the value is chekced if it's null and null values
-     * are allowed. Then it checks the passed in object is a Double. If the
-     * constraint min and max values are null, true is returned, else the value
-     * is compared against the min and max values. If any of these checks fails
-     * false is returned. Otherwise true is returned.
-     *
-     * @param  obj  The object to check if allowed.
-     * @return      True if this is a Double and one of the allowed values.
-     */
-    public boolean isAllowed( Object obj ) {
-        if( nullAllowed && ( obj == null ) ) return true;
-        else if ( !( obj instanceof Double ) ) return false;
-        else return isAllowed( ( Double ) obj );
-
-    }
-
 
     /**
      * Checks if the passed in value is within the min and max, inclusive of

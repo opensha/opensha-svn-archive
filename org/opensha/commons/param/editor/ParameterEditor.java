@@ -545,5 +545,10 @@ public class ParameterEditor
       return outerPanel;
     }
 
+
+	public JPanel getPanel() {
+		return this;
+	}
+
 }
 

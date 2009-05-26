@@ -31,15 +31,15 @@ import org.opensha.commons.exceptions.ParameterException;
  * @author Steven W. Rock
  * @version 1.0
  */
-public abstract class DependentParameter
-    extends Parameter
-    implements DependentParameterAPI
+public abstract class DependentParameter<E>
+    extends Parameter<E>
+    implements DependentParameterAPI<E>
 {
 
   /**
    * ArrayList to store the independent Parameters
    */
-  protected ArrayList independentParameters = new ArrayList();
+  protected ArrayList<ParameterAPI<?>> independentParameters = new ArrayList<ParameterAPI<?>>();
   //gets the Parameters Metadata
   protected String metadataString;
 
@@ -63,9 +63,9 @@ public abstract class DependentParameter
    */
   public DependentParameter(
       String name,
-      ParameterConstraintAPI constraint,
+      ParameterConstraintAPI<E> constraint,
       String units,
-      Object value )
+      E value )
       throws ConstraintException
   {
     super(name, constraint, units, value);
@@ -80,7 +80,7 @@ public abstract class DependentParameter
    * Returns an iterator of all parameters in the list.<p>
    *
    */
-  public ListIterator getIndependentParametersIterator(){
+  public ListIterator<ParameterAPI> getIndependentParametersIterator(){
     return getIndependentParameterList().getParametersIterator();
   }
 
@@ -88,11 +88,11 @@ public abstract class DependentParameter
 
 
   /** Returns parameter from list if exist else throws exception */
-  public ParameterAPI getIndependentParameter(String name) throws ParameterException {
+  public ParameterAPI<?> getIndependentParameter(String name) throws ParameterException {
 
     int index = getIndexOf(name);
     if( index != -1 ) {
-      ParameterAPI param = (ParameterAPI)independentParameters.get(index);
+      ParameterAPI<?> param = (ParameterAPI<?>)independentParameters.get(index);
       return param;
     }
     else{
@@ -111,7 +111,7 @@ public abstract class DependentParameter
   private int getIndexOf(String paramName){
     int size =  independentParameters.size();
     for(int i=0;i<size;++i){
-      if(((ParameterAPI)independentParameters.get(i)).getName().equals(paramName))
+      if(((ParameterAPI<?>)independentParameters.get(i)).getName().equals(paramName))
         return i;
     }
     return -1;

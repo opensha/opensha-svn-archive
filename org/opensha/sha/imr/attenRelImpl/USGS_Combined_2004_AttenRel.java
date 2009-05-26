@@ -276,7 +276,7 @@ public class USGS_Combined_2004_AttenRel
 
     this.propEffect.setEqkRupture(eqkRupture);
 
-    vs30Param.setValueIgnoreWarning(site.getParameter(VS30_NAME).getValue());
+    vs30Param.setValueIgnoreWarning((Double)site.getParameter(VS30_NAME).getValue());
 
     // set the location of the BC bounday site object
     site_BC.setLocation(site.getLocation());
@@ -319,7 +319,7 @@ public class USGS_Combined_2004_AttenRel
    */
   public void setSite(Site site) throws ParameterException {
 
-    vs30Param.setValueIgnoreWarning(site.getParameter(this.VS30_NAME).getValue());
+    vs30Param.setValueIgnoreWarning((Double)site.getParameter(VS30_NAME).getValue());
     this.site = site;
 
     // set the location of the BC bounday site object

@@ -20,7 +20,7 @@ import org.opensha.commons.exceptions.EditableException;
  * @author Steven W. Rock
  * @version 1.0
  */
-public abstract class ParameterConstraint implements ParameterConstraintAPI {
+public abstract class ParameterConstraint<E> implements ParameterConstraintAPI<E> {
 
     /** Class name for debugging. */
     protected final static String C = "ParameterConstraint";

@@ -1,6 +1,9 @@
 package org.opensha.commons.param.editor;
 
+import java.awt.Component;
 import java.beans.PropertyChangeListener;
+
+import javax.swing.JPanel;
 
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.event.ParameterChangeEvent;

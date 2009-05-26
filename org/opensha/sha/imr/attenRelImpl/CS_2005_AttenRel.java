@@ -166,8 +166,8 @@ public class CS_2005_AttenRel
    */
   public void setSite(Site site) throws ParameterException {
 
-    vs30Param.setValueIgnoreWarning(site.getParameter(VS30_NAME).getValue());
-    softSoilParam.setValue(site.getParameter(SOFT_SOIL_NAME).getValue());
+    vs30Param.setValueIgnoreWarning((Double)site.getParameter(VS30_NAME).getValue());
+    softSoilParam.setValue((Boolean)(site.getParameter(SOFT_SOIL_NAME).getValue()));
     this.site = site;
     // set the location in as_1997_attenRel
     as_1997_attenRel.setSiteLocation(site.getLocation());

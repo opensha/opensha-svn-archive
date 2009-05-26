@@ -14,7 +14,7 @@ import java.util.ListIterator;
  * @version 1.0
  */
 
-public interface DiscreteParameterConstraintAPI extends ParameterConstraintAPI {
+public interface DiscreteParameterConstraintAPI<E> extends ParameterConstraintAPI<E> {
 
     /** Returns cloned vector of allowed values, unable to modify original values. */
     public ArrayList getAllowedValues();

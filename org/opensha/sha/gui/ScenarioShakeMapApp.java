@@ -79,7 +79,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 	protected final static boolean D = false;
 
 
-	protected final static String version = "0.0.14";
+	protected final static String version = "0.0.15";
 
 	protected final static String versionURL = "http://www.opensha.org/applications/scenShakeMapApp/ScenarioShakeMapApp_Version.txt";
 	protected final static String appURL = "http://www.opensha.org/applications/scenShakeMapApp/ScenarioShakeMapApp.jar";

@@ -66,6 +66,21 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
 
     private static String TAB = "\t";
 
+    /**
+     * Creates an ArbitrarilyDiscretizedFunc from an DiscretizedFunc
+     * 
+     * @param func
+     */
+    public ArbitrarilyDiscretizedFunc(DiscretizedFunc func) {
+    	this(func.getTolerance());
+    	Iterator<DataPoint2D> it = func.getPointsIterator();
+    	while (it.hasNext())
+    		this.set(it.next());
+    	this.setInfo(func.getInfo());
+    	this.setName(func.getName());
+    	this.setXAxisName(func.getXAxisName());
+    	this.setYAxisName(func.getYAxisName());
+    }
 
     /**
      * Constructor that takes a DataPoint2D Comparator. The comparator is used

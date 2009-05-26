@@ -378,7 +378,7 @@ public class HazardCurveServerModeApplication extends JFrame
   protected JButton cancelCalcButton = new JButton();
   private FlowLayout flowLayout1 = new FlowLayout();
 
-  protected final static String version = "0.0.17";
+  protected final static String version = "0.0.18";
 
   protected final static String versionURL = "http://www.opensha.org/applications/hazCurvApp/HazardCurveApp_Version.txt";
   protected final static String appURL = "http://www.opensha.org/applications/hazCurvApp/HazardCurveServerModeApp.jar";
@@ -419,11 +419,11 @@ public class HazardCurveServerModeApplication extends JFrame
       }
     }
     catch(Exception e) {
+    	e.printStackTrace();
       ExceptionWindow bugWindow = new ExceptionWindow(this,e,"Exception occured while creating the GUI.\n"+
           "No Parameters have been set");
       bugWindow.setVisible(true);
       bugWindow.pack();
-      //e.printStackTrace();
     }
     startAppProgressClass.dispose();
     ((JPanel)getContentPane()).updateUI();

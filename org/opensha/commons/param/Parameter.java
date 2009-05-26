@@ -33,9 +33,9 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
  * @see        ParameterAPI
  * @version    1.0
  */
-public abstract class Parameter
+public abstract class Parameter<E>
     implements
-        ParameterAPI, java.io.Serializable
+        ParameterAPI<E>, java.io.Serializable
 {
 
     /** Class name used for debug statements and building the parameter type for getType(). */
@@ -68,7 +68,7 @@ public abstract class Parameter
     protected boolean editable = true;
 
     /** The value object of this Parameter, subclasses will define the object type. */
-    protected Object value = null;
+    protected E value = null;
 
     /**
      *  ArrayList of all the objects who want to listen on change of this paramter
@@ -110,7 +110,7 @@ public abstract class Parameter
      * @throws  ConstraintException     This is thrown if the passes in
      *      parameter is not allowed.
      */
-    public Parameter( String name, ParameterConstraintAPI constraint, String units, Object value )
+    public Parameter( String name, ParameterConstraintAPI constraint, String units, E value )
              throws ConstraintException {
 
         String S = C + ": Constructor(): ";
@@ -144,7 +144,7 @@ public abstract class Parameter
        * @param  obj  Object to check if allowed via constraints
        * @return      True if the value is allowed
        */
-      public boolean isAllowed( Object obj ) {
+      public boolean isAllowed( E obj ) {
           if ( constraint != null ) return constraint.isAllowed( obj );
            else return true;
 
@@ -159,7 +159,7 @@ public abstract class Parameter
      *      editable.
      * @throws  ConstraintException  Thrown if the object value is not allowed.
      */
-    public void setValue( Object value ) throws ConstraintException, ParameterException {
+    public void setValue( E value ) throws ConstraintException, ParameterException {
         String S = getName() + ": setValue(): ";
 
         if ( !isAllowed( value ) ) {
@@ -347,7 +347,7 @@ public abstract class Parameter
 
 
     /** Returns the parameter's value. Each subclass defines what type of object it returns. */
-    public Object getValue()  { return value;}
+    public E getValue()  { return value;}
 
     /** Returns the units of this parameter, represented as a String. */
     public String getUnits() { return units; }

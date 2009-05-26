@@ -8,6 +8,7 @@ import org.opensha.commons.data.estimate.NormalEstimate;
 import org.opensha.commons.data.estimate.PDF_Estimate;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.param.DoubleConstraint;
+import org.opensha.commons.param.ParameterConstraint;
 import org.opensha.commons.param.StringConstraint;
 
 
@@ -30,11 +31,17 @@ import java.util.ArrayList;
  * @version 1.0
  */
 
-public class EstimateConstraint extends DoubleConstraint {
+public class EstimateConstraint extends ParameterConstraint<Estimate> {
+	
     /** Class name for debugging. */
     protected final static String C = "DoubleEstimateConstraint";
     /** If true print out debug statements. */
     protected final static boolean D = false;
+    
+    /** The minimum value allowed in this constraint, inclusive */
+    protected Double min = null;
+    /** The maximum value allowed in this constraint, inclusive */
+    protected Double max = null;
 
     /** It contains a list of Strings specifying the classnames of allowed Estimates */
     protected StringConstraint allowedEstimateList=null;
@@ -51,9 +58,8 @@ public class EstimateConstraint extends DoubleConstraint {
      *
      * @param allowedEstimateList List of classnames of allowed Estimate objects
      */
-    public EstimateConstraint(ArrayList allowedEstimateList) {
-      super();
-      setAllowedEstimateList(allowedEstimateList);
+    public EstimateConstraint(ArrayList<String> allowedEstimateList) {
+      this(null, null, allowedEstimateList);
     }
 
     /**
@@ -93,8 +99,9 @@ public class EstimateConstraint extends DoubleConstraint {
      * @param  max  The max value allowed
      * @param allowedEstimateList List of classnames of allowed Estimate objects
      */
-    public EstimateConstraint( Double min, Double max, ArrayList allowedEstimateList ) {
-        super(min,max);
+    public EstimateConstraint( Double min, Double max, ArrayList<String> allowedEstimateList ) {
+    	this.min = min;
+    	this.max = max;
         setAllowedEstimateList(allowedEstimateList);
     }
 
@@ -107,7 +114,7 @@ public class EstimateConstraint extends DoubleConstraint {
      * @throws EditableException This exception is thrown if this constraint is
      * non-editable but user tries to call this function
      */
-    public void setAllowedEstimateList(ArrayList allowedEstimateList) throws EditableException{
+    public void setAllowedEstimateList(ArrayList<String> allowedEstimateList) throws EditableException{
       String S = C + ": setAllowedEstimateList(StringConstraint): ";
       checkEditable(S);
       this.allowedEstimateList = new StringConstraint(allowedEstimateList);
@@ -123,29 +130,7 @@ public class EstimateConstraint extends DoubleConstraint {
     public ArrayList getAllowedEstimateList() {
       return allowedEstimateList.getAllowedStrings();
     }
-
-    /**
-     * This function first checks whether null values are allowed and if passed
-     * in value is a null value. If null values are allowed and passed in value
-     * is null value, it returns true. If null values are not allowed and passed
-     * in value is a null value, it return false.
-     *
-     * Then this function checks whether passed in value is an object of Estimate.
-     * If it is not an object of estimate, false is returned else it calls
-     * another function isAllowed(Estimate) to check whether this value of
-     * Estimate is allowed.
-     *
-     *
-     * @param  obj  The object to check if allowed.
-     * @return      True if this is a Estimate and one of the allowed values.
-     */
-    public boolean isAllowed( Object obj ) {
-        if( nullAllowed && ( obj == null ) ) return true;
-        else if ( !( obj instanceof Estimate ) ) return false;
-        else return isAllowed( ( Estimate ) obj );
-    }
-
-
+    
     /**
      *
      * This function first checks that estimate object is one of the
@@ -259,7 +244,11 @@ public class EstimateConstraint extends DoubleConstraint {
 
    }
 
+   /** Returns the min allowed value of this constraint. */
+   public Double getMin() { return min; }
 
+   /** Gets the max allowed value of this constraint */
+   public Double getMax() { return max; }
 
 
 }

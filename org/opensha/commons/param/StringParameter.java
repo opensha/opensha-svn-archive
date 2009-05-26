@@ -6,6 +6,9 @@ import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.StringParameterEditor;
 
 /**
  *  <b>Title:</b> StringParameter<p>
@@ -38,6 +41,8 @@ public class StringParameter
     protected final static String C = "StringParameter";
     /** If true print out debug statements. */
     protected final static boolean D = false;
+    
+    private ParameterEditor paramEdit = null;
 
     /**
      * Constructor doesn't specify a constraint, all values allowed. This
@@ -283,6 +288,20 @@ public class StringParameter
 	public boolean setValueFromXMLMetadata(Element el) {
 		this.setValue(el.attributeValue("value"));
 		return true;
+	}
+
+	public ParameterEditor getEditor() {
+		if (paramEdit == null) {
+			if (constraint == null)
+				try {
+					paramEdit = new StringParameterEditor(this);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			else
+				paramEdit = new ConstrainedStringParameterEditor(this);
+		}
+		return paramEdit;
 	}
 
 }

@@ -272,8 +272,8 @@ NamedObjectAPI, ParameterChangeListener {
 	 */
 	public void setSite(Site site) throws ParameterException {
 
-		vs30Param.setValue(site.getParameter(VS30_NAME).getValue());
-		depthTo1pt0kmPerSecParam.setValue(site.getParameter(DEPTH_1pt0_NAME).getValue());
+		vs30Param.setValue((Double)site.getParameter(VS30_NAME).getValue());
+		depthTo1pt0kmPerSecParam.setValue((Double)site.getParameter(DEPTH_1pt0_NAME).getValue());
 		vs30_TypeParam.setValue(site.getParameter(VS30_TYPE_NAME).getValue());
 		this.site = site;
 		setPropagationEffectParams();

@@ -99,8 +99,8 @@ public class DoubleValueWeightParameterEditor extends ParameterEditor
      */ 
     private void createParamEditors() {
     	try {
-			valueParameterEditor = ParameterEditorFactory.getEditor(this.valueParameter);
-			weightParameterEditor = ParameterEditorFactory.getEditor(this.weightParameter);
+			valueParameterEditor = valueParameter.getEditor();
+			weightParameterEditor = weightParameter.getEditor();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

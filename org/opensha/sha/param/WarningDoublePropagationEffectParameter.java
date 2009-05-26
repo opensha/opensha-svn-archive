@@ -224,7 +224,7 @@ public abstract class WarningDoublePropagationEffectParameter
      * @return      True if the value is allowed.
      */
     public boolean isRecommended( Object obj ) {
-        if ( warningConstraint != null ) return warningConstraint.isAllowed( obj );
+        if ( warningConstraint != null ) return warningConstraint.isAllowed( (Double)obj );
         else return true;
 
     }

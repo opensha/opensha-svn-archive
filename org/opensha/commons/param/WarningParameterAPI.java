@@ -25,7 +25,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
  * @version 1.0
  */
 
-public interface WarningParameterAPI extends ParameterAPI{
+public interface WarningParameterAPI<E> extends ParameterAPI<E> {
 
     /** Sets a flag to ignore the warning - overides constraint */
     public void setIgnoreWarning(boolean ignoreWarning);
@@ -61,7 +61,7 @@ public interface WarningParameterAPI extends ParameterAPI{
      * @param  obj  Object to check if allowed via constraints
      * @return      True if the value is allowed
      */
-    public boolean isRecommended( Object obj );
+    public boolean isRecommended( E obj );
 
     /**
      * Set's the parameter's value bypassing the warning constraint. This is
@@ -73,7 +73,7 @@ public interface WarningParameterAPI extends ParameterAPI{
      * @throws  ConstraintException  Thrown if the object value is not allowed as determined
      * by the absolute constraints.
      */
-    public void setValueIgnoreWarning( Object value ) throws ConstraintException, ParameterException;
+    public void setValueIgnoreWarning( E value ) throws ConstraintException, ParameterException;
 
 
     /**
@@ -116,13 +116,13 @@ public interface WarningParameterAPI extends ParameterAPI{
      * @return                The min value
      * @exception  Exception  Description of the Exception
      */
-    public Object getWarningMin() throws Exception ;
+    public E getWarningMin() throws Exception ;
 
 
     /**
      * Gets the max Double value of the warning constraint.
      * @return    The max value
      */
-    public Object getWarningMax() ;
+    public E getWarningMax() ;
 
 }

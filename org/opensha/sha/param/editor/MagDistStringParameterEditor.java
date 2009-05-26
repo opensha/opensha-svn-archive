@@ -30,7 +30,13 @@ import org.opensha.sha.param.MagDistStringParameter;
 public class MagDistStringParameterEditor extends
 		ConstrainedStringParameterEditor {
 
+	public MagDistStringParameterEditor() {
+		super();
+	}
 	
+	public MagDistStringParameterEditor(ParameterAPI param) {
+		super(param);
+	}
 	
    /**
      * The parameter is checked that it is a

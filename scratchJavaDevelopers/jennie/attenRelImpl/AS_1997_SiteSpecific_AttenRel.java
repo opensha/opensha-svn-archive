@@ -220,12 +220,12 @@ public class AS_1997_SiteSpecific_AttenRel
   public void setSite(Site site) throws ParameterException {
 
 	  AF_FuncForm.setValue(AF_FuncForm_DEFAULT);
-	  AF_InterceptParam.setValue(site.getParameter(AF_INTERCEPT_PARAM_NAME).getValue());
-	  AF_AddRefAccParam.setValue(site.getParameter(AF_ADDITIVE_REF_ACCELERATION_PARAM_NAME).getValue());
-	  AF_SlopeParam.setValue(site.getParameter(AF_SLOPE_PARAM_NAME).getValue());
-	  AF_MagParam.setValue(site.getParameter(AF_MagPARAM_NAME).getValue());
-	  AF_RupParam.setValue(site.getParameter(AF_RupPARAM_NAME).getValue());
-	  AF_StdDevParam.setValue(site.getParameter(AF_STD_DEV_PARAM_NAME).getValue());  
+	  AF_InterceptParam.setValue((Double)site.getParameter(AF_INTERCEPT_PARAM_NAME).getValue());
+	  AF_AddRefAccParam.setValue((Double)site.getParameter(AF_ADDITIVE_REF_ACCELERATION_PARAM_NAME).getValue());
+	  AF_SlopeParam.setValue((Double)site.getParameter(AF_SLOPE_PARAM_NAME).getValue());
+	  AF_MagParam.setValue((Double)site.getParameter(AF_MagPARAM_NAME).getValue());
+	  AF_RupParam.setValue((Double)site.getParameter(AF_RupPARAM_NAME).getValue());
+	  AF_StdDevParam.setValue((Double)site.getParameter(AF_STD_DEV_PARAM_NAME).getValue());  
 	  this.site = site;
 	  // set the location in as_1997_attenRel
 	  as_1997_attenRel.setSiteLocation(site.getLocation());

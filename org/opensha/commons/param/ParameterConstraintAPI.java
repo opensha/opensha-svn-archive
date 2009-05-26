@@ -16,7 +16,7 @@ import org.opensha.commons.exceptions.EditableException;
  * @version    1.0
  */
 
-public interface ParameterConstraintAPI extends NamedObjectAPI{
+public interface ParameterConstraintAPI<E> extends NamedObjectAPI{
 
     /**  Every parameter constraint has a name, this function returns that name.  */
     public String getName();
@@ -29,7 +29,7 @@ public interface ParameterConstraintAPI extends NamedObjectAPI{
      * @param  obj  Object to check if allowed via constraints.
      * @return      True if the value is allowed.
      */
-    public boolean isAllowed( Object obj );
+    public boolean isAllowed( E obj );
 
 
     /**

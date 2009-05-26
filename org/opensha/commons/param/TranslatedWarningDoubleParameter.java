@@ -7,6 +7,8 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.TranslateException;
 import org.opensha.commons.exceptions.WarningException;
+import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.TranslatedWarningDoubleParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
@@ -62,7 +64,7 @@ import org.opensha.commons.param.translate.TranslatorAPI;
  */
 
 public class TranslatedWarningDoubleParameter
-    implements WarningParameterAPI, DependentParameterAPI
+    implements WarningParameterAPI<Double>, DependentParameterAPI<Double>
 {
 
 
@@ -97,6 +99,8 @@ public class TranslatedWarningDoubleParameter
 
     /** Internal reference to the wrapped parameter */
     protected WarningDoubleParameter param = null;
+    
+    private ParameterEditor paramEdit = null;
 
     /**
      * Allows setting the parameter upon construction. The translator defaults to
@@ -159,7 +163,7 @@ public class TranslatedWarningDoubleParameter
      * @return                The reverse translated min value.
      * @exception  Exception  Thrown if any mathmatical exceptions occur.
      */
-    public Object getWarningMin() throws TranslateException, Exception {
+    public Double getWarningMin() throws TranslateException, Exception {
         Double min = (Double)param.getWarningMin();
         if( min  == null || !translate ) return min;
         else return new Double( trans.reverse( min.doubleValue() ) );
@@ -172,7 +176,7 @@ public class TranslatedWarningDoubleParameter
      * @param  value  Description of the Parameter
      * @return        The allowed value
      */
-    public boolean isAllowed( Object value ){
+    public boolean isAllowed( Double value ){
 
         if( value == null || ( value instanceof Double) || !translate  ){
             return param.isAllowed( value );
@@ -191,7 +195,7 @@ public class TranslatedWarningDoubleParameter
      * @return                The reverse translated max value.
      * @exception  Exception  Thrown if any mathmatical exceptions occur.
      */
-    public Object getWarningMax() throws TranslateException {
+    public Double getWarningMax() throws TranslateException {
         Double max = (Double)param.getWarningMax();
         if( max  == null || !translate ) return max;
         else return new Double( trans.reverse( max.doubleValue() ) );
@@ -209,7 +213,7 @@ public class TranslatedWarningDoubleParameter
      *      editable
      * @throws  ConstraintException  Thrown if the object value is not allowed
      */
-    public synchronized void setValue( Object value ) throws ConstraintException, WarningException {
+    public synchronized void setValue( Double value ) throws ConstraintException, WarningException {
         String S = getName() + ": setValue(): ";
         if(D) System.out.println(S + "Starting: ");
 
@@ -257,7 +261,7 @@ public class TranslatedWarningDoubleParameter
       * @param  value                    Description of the Parameter
       * @exception  ConstraintException  Description of the Exception
       */
-     public void unableToSetValue( Object value ) throws ConstraintException {
+     public void unableToSetValue( Double value ) throws ConstraintException {
        param.unableToSetValue(value);
      }
 
@@ -270,9 +274,9 @@ public class TranslatedWarningDoubleParameter
      *
      * @return    The value value
      */
-    public Object getValue() {
+    public Double getValue() {
 
-        Object value = param.getValue();
+        Double value = param.getValue();
         if ( value == null || !translate || !(value instanceof Double) ) return value;
         else{
             double d = ((Double)value).doubleValue();
@@ -295,7 +299,7 @@ public class TranslatedWarningDoubleParameter
      *      editable
      * @throws  ConstraintException  Thrown if the object value is not allowed
      */
-    public void setValueIgnoreWarning( Object value ) throws ConstraintException, ParameterException {
+    public void setValueIgnoreWarning( Double value ) throws ConstraintException, ParameterException {
         String S = C + ": setValueIgnoreWarning(): ";
         if(D) System.out.println(S + "Setting value ignoring warning and constraint: ");
 
@@ -317,7 +321,7 @@ public class TranslatedWarningDoubleParameter
      * @param  obj  Object to check if allowed via constraints
      * @return      True if the value is allowed
      */
-    public boolean isRecommended( Object obj ) {
+    public boolean isRecommended( Double obj ) {
 
         if ( obj == null || !translate || !( obj instanceof Double ) ) return param.isRecommended( obj );
         else{
@@ -660,6 +664,16 @@ public class TranslatedWarningDoubleParameter
 	public boolean setValueFromXMLMetadata(Element el) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	public ParameterEditor getEditor() {
+		if (paramEdit == null)
+			try {
+				paramEdit = new TranslatedWarningDoubleParameterEditor(this);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		return paramEdit;
 	}
 
 

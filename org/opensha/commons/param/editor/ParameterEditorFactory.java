@@ -35,7 +35,7 @@ import org.opensha.commons.param.ParameterConstraintAPI;
  * @author Steven W. Rock
  * @version 1.0
  */
-
+@Deprecated
 public class ParameterEditorFactory {
 
     /* *******************/

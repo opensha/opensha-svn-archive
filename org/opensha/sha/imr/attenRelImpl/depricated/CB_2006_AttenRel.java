@@ -474,8 +474,8 @@ public class CB_2006_AttenRel
    */
   public void setSite(Site site) throws ParameterException {
 
-    vs30Param.setValue(site.getParameter(this.VS30_NAME).getValue());
-    depthTo2pt5kmPerSecParam.setValueIgnoreWarning(site.getParameter(this.DEPTH_2pt5_NAME).
+    vs30Param.setValue((Double)site.getParameter(this.VS30_NAME).getValue());
+    depthTo2pt5kmPerSecParam.setValueIgnoreWarning((Double)site.getParameter(this.DEPTH_2pt5_NAME).
                                       getValue());
     this.site = site;
     setPropagationEffectParams();

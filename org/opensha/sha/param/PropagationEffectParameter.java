@@ -4,6 +4,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.editor.ParameterEditor;
 
 
 
@@ -138,5 +139,9 @@ public abstract class PropagationEffectParameter
      * so originaly can not be modified
      */
     public abstract Object clone();
+    
+    public ParameterEditor getEditor() {
+    	return null;
+    }
 
 }

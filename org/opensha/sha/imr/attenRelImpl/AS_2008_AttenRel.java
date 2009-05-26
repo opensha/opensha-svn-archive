@@ -479,8 +479,8 @@ NamedObjectAPI, ParameterChangeListener {
 	 */
 	public void setSite(Site site) throws ParameterException {
 
-		vs30Param.setValue(site.getParameter(this.VS30_NAME).getValue());
-		depthTo1pt0kmPerSecParam.setValueIgnoreWarning(site.getParameter(this.DEPTH_1pt0_NAME).
+		vs30Param.setValue((Double)site.getParameter(this.VS30_NAME).getValue());
+		depthTo1pt0kmPerSecParam.setValueIgnoreWarning((Double)site.getParameter(this.DEPTH_1pt0_NAME).
 				getValue());
 		vs30_TypeParam.setValue(site.getParameter(VS30_TYPE_NAME).getValue());
 

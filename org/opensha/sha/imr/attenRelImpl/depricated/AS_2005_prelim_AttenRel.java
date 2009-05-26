@@ -280,7 +280,7 @@ public class AS_2005_prelim_AttenRel
    */
   public void setSite(Site site) throws ParameterException {
 
-    vs30Param.setValue(site.getParameter(this.VS30_NAME).getValue());
+    vs30Param.setValue((Double)site.getParameter(this.VS30_NAME).getValue());
     this.site = site;
     setPropagationEffectParams();
 

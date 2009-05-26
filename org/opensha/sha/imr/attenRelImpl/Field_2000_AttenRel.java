@@ -163,8 +163,8 @@ public class Field_2000_AttenRel
    */
   public void setSite(Site site) throws ParameterException {
 
-    vs30Param.setValueIgnoreWarning(site.getParameter(VS30_NAME).getValue());
-    basinDepthParam.setValueIgnoreWarning(site.getParameter(BASIN_DEPTH_NAME).
+    vs30Param.setValueIgnoreWarning((Double)site.getParameter(VS30_NAME).getValue());
+    basinDepthParam.setValueIgnoreWarning((Double)site.getParameter(BASIN_DEPTH_NAME).
                                           getValue());
     this.site = site;
     setPropagationEffectParams();
@@ -186,8 +186,8 @@ public class Field_2000_AttenRel
     this.eqkRupture = propEffect.getEqkRupture();
 
     // set the locat site-type param
-    vs30Param.setValueIgnoreWarning(site.getParameter(VS30_NAME).getValue());
-    basinDepthParam.setValueIgnoreWarning(site.getParameter(BASIN_DEPTH_NAME).
+    vs30Param.setValueIgnoreWarning((Double)site.getParameter(VS30_NAME).getValue());
+    basinDepthParam.setValueIgnoreWarning((Double)site.getParameter(BASIN_DEPTH_NAME).
                                           getValue());
 
     magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));

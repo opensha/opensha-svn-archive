@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.param.editor.ConstrainedStringListParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditor;
 
 /**
  * <p>Title: StringListParameter.java </p>
@@ -28,6 +30,8 @@ public class StringListParameter extends StringParameter {
 
   /** Class name for debugging. */
   protected final static String C = "StringListParameter";
+  
+  private ParameterEditor paramEdit = null;
 
   /**
    * Constructor doesn't specify a constraint, all values allowed. This
@@ -248,5 +252,14 @@ public class StringListParameter extends StringParameter {
         return param;
 
     }
+
+    @Override
+	public ParameterEditor getEditor() {
+		if (paramEdit == null) {
+			if (constraint == null)
+				paramEdit = new ConstrainedStringListParameterEditor(this);
+		}
+		return paramEdit;
+	}
 
 }

@@ -85,8 +85,6 @@ public class ParameterApplet
     JLabel mainTitleLabel = new JLabel();
     JPanel jPanel1 = new JPanel();
     JPanel jPanel2 = new JPanel();
-    public String searchPaths[];
-    final static String SPECIAL_EDITORS_PACKAGE = "org.opensha.sha.propagation";
 
     /**
      *  Gets the applet parameter attribute of the ParameterApplet object
@@ -160,12 +158,8 @@ public class ParameterApplet
 
         ParameterList list = makeParameterList( 5 );
         // Build package names search path
-        searchPaths = new String[3];
-        searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
-        searchPaths[1] = SPECIAL_EDITORS_PACKAGE;
-        searchPaths[2] = "org.opensha.sha.param.editor" ;
 
-        ParameterListEditor editor = new ParameterListEditor( list,searchPaths );
+        ParameterListEditor editor = new ParameterListEditor( list );
 
         jPanel1.add( editor,
                 new GridBagConstraints( 1, 2, 1, 1, 1.0, 1.0, 10, 1,

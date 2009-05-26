@@ -19,8 +19,8 @@ import org.opensha.commons.exceptions.EditableException;
  */
 
 public class DoubleDiscreteConstraint
-    extends ParameterConstraint
-    implements DiscreteParameterConstraintAPI
+    extends ParameterConstraint<Double>
+    implements DiscreteParameterConstraintAPI<Double>
 {
 
     /** Class name for debugging. */
@@ -86,21 +86,6 @@ public class DoubleDiscreteConstraint
     public ArrayList getAllowedDoubles() {
         return ( ArrayList ) doubles.clone();
     }
-
-
-    /**
-     *  Checks if the value is allowed by checking the list of doubles.
-     *
-     * @param  d_wted  value to check.
-     * @return    True if the value is allowed, i.e. in the doubles list.
-     */
-    public boolean isAllowed( Object obj ) {
-        if( nullAllowed && ( obj == null ) ) return true;
-        else if ( !( obj instanceof Double ) ) return false;
-        else if ( !containsDouble( ( Double ) obj ) ) return false;
-        else return true;
-    }
-
 
     /**
      *  Checks if the value is allowed by checking the list of doubles.

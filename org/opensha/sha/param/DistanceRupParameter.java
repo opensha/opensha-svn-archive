@@ -13,6 +13,7 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.editor.ParameterEditor;
 
 
 /**
@@ -166,6 +167,11 @@ public class DistanceRupParameter
 	public boolean setValueFromXMLMetadata(Element el) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+
+	public ParameterEditor getEditor() {
+		return null;
 	}
 
 }
