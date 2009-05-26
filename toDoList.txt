@@ -6,15 +6,30 @@ BROADER ISSUES:
 --------------
 
 
-Revise IMR APIs (& convert CyberShake to this?).
+Remove the use of "*" in import statements (to make refactoring easier)
 
-Consider whether params (and IMRs and ERFs for that matter) should have getGUI_Editor() methods
+Change param API to include getEditor() method
+
+Change parameters to utilize generics
+
+See if param API method "getType()" is needed anymore.
+
+Clean up as many warnings as possible
+
+Need to port servlets and RMI stuff from gravity.usc.edu to opensha.usc.edu.
+
+Revise Event Set Data Calculator - talk to Ned when ready
+
+
+
+
+Clean the Application build process
+
+Revise IMR APIs (& convert CyberShake to this?).
 
 Develop a complete set of Junit tests for the entire project (that at least tests whether any important changes have occurred).
 
 Take "API" out of filenames
-
-Remove the use of "* in import statements (to make refactoring easier)
 
 fork project and truncate one end? (for verification purposes as we move forward)
 
@@ -26,7 +41,6 @@ Merge contents of org.nshmp (new location) into the rest of the project.  Eric s
 	nshmp.sha.nico.*
 	nshmp.sha.pager.*
 	nshmp.util.AppConfigurer.java
-
 
 Figure out where to put org.opensha.refFaultParamDb
 
@@ -57,8 +71,6 @@ ProbEqkSource	Define field to declare what type of source it is
 
 ERF		-extend API to include getting max and min magnitude, and the various types of
 		sources generated (to check for compatibility with each chosen IMR)
-
-Need to port servlets and RMI stuff from gravity.usc.edu to opensha.usc.edu.
 
 Update topo files, and include global coverage (see milner email on April 3, 2009); do this when the item just above is done.
 
