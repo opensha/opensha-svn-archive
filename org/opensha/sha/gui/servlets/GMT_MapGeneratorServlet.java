@@ -150,7 +150,7 @@ extends HttpServlet {
 
 			//running the gmtScript file
 			String[] command = {
-					"sh", "-c", "sh " + gmtScriptFile};
+					"sh", "-c", "/bin/bash " + gmtScriptFile};
 			RunScript.runScript(command);
 
 			//create the Zip file for all the files generated
