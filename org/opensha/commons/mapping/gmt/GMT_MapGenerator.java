@@ -55,6 +55,8 @@ public class GMT_MapGenerator implements Serializable{
 	protected String PS_FILE_NAME = DEFAULT_PS_FILE_NAME;
 	protected final static String DEFAULT_JPG_FILE_NAME = "map.jpg";
 	protected String JPG_FILE_NAME = DEFAULT_JPG_FILE_NAME;
+	protected final static String DEFAULT_PNG_FILE_NAME = "map.png";
+	protected String PNG_FILE_NAME = DEFAULT_PNG_FILE_NAME;
 	protected final static String DEFAULT_PDF_FILE_NAME = "map.pdf";
 	protected String PDF_FILE_NAME = DEFAULT_PDF_FILE_NAME;
 
@@ -836,10 +838,12 @@ public class GMT_MapGenerator implements Serializable{
 	 * This method generates a list of strings needed for the GMT script
 	 */
 	protected ArrayList getGMT_ScriptLines() throws GMT_MapException{
+		
+		ArrayList<String> rmFiles = new ArrayList<String>();
 
 		String commandLine;
 
-		ArrayList gmtCommandLines = new ArrayList();
+		ArrayList<String> gmtCommandLines = new ArrayList<String>();
 
 		// Get the limits and discretization of the map
 		double minLat = ((Double) minLatParam.getValue()).doubleValue();
@@ -859,6 +863,7 @@ public class GMT_MapGenerator implements Serializable{
 		String fileName = "temp_junk";
 
 		String grdFileName  = fileName+".grd";
+		rmFiles.add(grdFileName);
 
 		String cptFile = SCEC_GMT_DATA_PATH + (String) cptFileParam.getValue();
 
@@ -892,9 +897,14 @@ public class GMT_MapGenerator implements Serializable{
 		xOff = " -X1.0i ";
 
 		gmtCommandLines.add("#!/bin/bash\n\n");
+		gmtCommandLines.add("# path variables\n");
+		gmtCommandLines.add("GMT_PATH='" + GMT_PATH + "'\n");
+		gmtCommandLines.add("CONVERT_PATH='" + CONVERT_PATH + "'\n");
+		gmtCommandLines.add("COMMAND_PATH='" + COMMAND_PATH + "'\n");
+		gmtCommandLines.add("PS2PDF_PATH='" + PS2PDF_PATH + "'\n\n");
 		
 		// command line to convert xyz file to grd file
-		commandLine = GMT_PATH+"xyz2grd "+ XYZ_FILE_NAME+" -G"+ grdFileName+ " -I"+gridSpacing+ region +" -D/degree/degree/amp/=/=/=  -: -H0";
+		commandLine = "${GMT_PATH}xyz2grd "+ XYZ_FILE_NAME+" -G"+ grdFileName+ " -I"+gridSpacing+ region +" -D/degree/degree/amp/=/=/=  -: -H0";
 		gmtCommandLines.add(commandLine+"\n");
 
 		// get color scale limits
@@ -915,11 +925,11 @@ public class GMT_MapGenerator implements Serializable{
 
 		// make the cpt file
 		float inc = (float) ((colorScaleMax-colorScaleMin)/20);
-		commandLine=GMT_PATH+"makecpt -C" + cptFile + " -T" + colorScaleMin +"/"+ colorScaleMax +"/" + inc + " -Z > "+fileName+".cpt";
+		commandLine="${GMT_PATH}makecpt -C" + cptFile + " -T" + colorScaleMin +"/"+ colorScaleMax +"/" + inc + " -Z > "+fileName+".cpt";
 		gmtCommandLines.add(commandLine+"\n");
 
 		// set some defaults
-		commandLine = GMT_PATH+"gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait PAPER_MEDIA letter";
+		commandLine = "${GMT_PATH}gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait PAPER_MEDIA letter";
 		gmtCommandLines.add(commandLine+"\n");
 
 		int dpi = (Integer)this.dpiParam.getValue();
@@ -927,7 +937,7 @@ public class GMT_MapGenerator implements Serializable{
 		if(!(Boolean)this.gmtSmoothingParam.getValue()) gmtSmoothOption=" -T ";
 		// generate the image depending on whether topo relief is desired
 		if( resolution.equals(TOPO_RESOLUTION_NONE) ) {
-			commandLine=GMT_PATH+"grdimage "+ grdFileName + xOff + yOff + projWdth + " -C"+fileName+".cpt "+gmtSmoothOption+" -K -E"+dpi+ region + " > " + PS_FILE_NAME;
+			commandLine="${GMT_PATH}grdimage "+ grdFileName + xOff + yOff + projWdth + " -C"+fileName+".cpt "+gmtSmoothOption+" -K -E"+dpi+ region + " > " + PS_FILE_NAME;
 			gmtCommandLines.add(commandLine+"\n");
 		}
 		else {
@@ -940,30 +950,34 @@ public class GMT_MapGenerator implements Serializable{
 			maxLat = Math.floor(((maxLat-minLat)/gridSpacing))*gridSpacing +minLat;
 			maxLon = Math.floor(((maxLon-minLon)/gridSpacing))*gridSpacing +minLon;
 			region = " -R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat + " ";
-
-			commandLine=GMT_PATH+"grdsample "+grdFileName+" -G"+fileName+"HiResData.grd -I" +
+			
+			String hiResFile = fileName+"HiResData.grd";
+			rmFiles.add(hiResFile);
+			commandLine="${GMT_PATH}grdsample "+grdFileName+" -G"+hiResFile+" -I" +
 			resolution + "c -Q "+region;
 			gmtCommandLines.add(commandLine+"\n");
-			commandLine=GMT_PATH+"grdcut " + topoIntenFile + " -G"+fileName+"Inten.grd "+region;
+			String intenFile = fileName+"Inten.grd";
+			commandLine="${GMT_PATH}grdcut " + topoIntenFile + " -G"+intenFile+ " " +region;
+			rmFiles.add(intenFile);
 			gmtCommandLines.add(commandLine+"\n");
-			commandLine=GMT_PATH+"grdimage "+fileName+"HiResData.grd " + xOff + yOff + projWdth +
+			commandLine="${GMT_PATH}grdimage "+hiResFile+" " + xOff + yOff + projWdth +
 			" -I"+fileName+"Inten.grd -C"+fileName+".cpt "+ gmtSmoothOption +"-K -E"+dpi+ region + " > " + PS_FILE_NAME;
 			gmtCommandLines.add(commandLine+"\n");
 		}
 
 		// add highways if desired
 		if ( !showHiwys.equals(SHOW_HIWYS_NONE) ) {
-			commandLine=GMT_PATH+"psxy  "+region + projWdth + " -K -O -W5/125/125/125 -: -Ms " + SCEC_GMT_DATA_PATH + showHiwys + " >> " + PS_FILE_NAME;
+			commandLine="${GMT_PATH}psxy  "+region + projWdth + " -K -O -W5/125/125/125 -: -Ms " + SCEC_GMT_DATA_PATH + showHiwys + " >> " + PS_FILE_NAME;
 			gmtCommandLines.add(commandLine+"\n");
 		}
 
 		// add coast and fill if desired
 		if(coast.equals(COAST_FILL)) {
-			commandLine=GMT_PATH+"pscoast "+region + projWdth + " -K -O  -W1/17/73/71 -P -S17/73/71 -Dh -N2 >> " + PS_FILE_NAME;
+			commandLine="${GMT_PATH}pscoast "+region + projWdth + " -K -O  -W1/17/73/71 -P -S17/73/71 -Dh -N2 >> " + PS_FILE_NAME;
 			gmtCommandLines.add(commandLine+"\n");
 		}
 		else if(coast.equals(COAST_DRAW)) {
-			commandLine=GMT_PATH+"pscoast "+region + projWdth + " -K -O  -W4/0/0/0 -P -Dh -N2>> " + PS_FILE_NAME;
+			commandLine="${GMT_PATH}pscoast "+region + projWdth + " -K -O  -W4/0/0/0 -P -Dh -N2>> " + PS_FILE_NAME;
 			gmtCommandLines.add(commandLine+"\n");
 		}
 
@@ -972,7 +986,7 @@ public class GMT_MapGenerator implements Serializable{
 		addIntermediateGMT_ScriptLines(gmtCommandLines);
 
 		// set some defaults
-		commandLine=GMT_PATH+"gmtset BASEMAP_FRAME_RGB 255/255/255 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
+		commandLine="${GMT_PATH}gmtset BASEMAP_FRAME_RGB 255/255/255 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
 		gmtCommandLines.add(commandLine+"\n");
 
 		// add the color scale
@@ -986,47 +1000,56 @@ public class GMT_MapGenerator implements Serializable{
 			scaleLabel = (String)scaleLabelParam.getValue();
 		else
 			scaleLabel = SCALE_LABEL;
-		commandLine=GMT_PATH+"psscale -Ba"+inc+":"+scaleLabel+": -D3.25i/-0.5i/6i/0.3ih -C"+fileName+".cpt -O -K -N70 >> " + PS_FILE_NAME;
+		commandLine="${GMT_PATH}psscale -Ba"+inc+":"+scaleLabel+": -D3.25i/-0.5i/6i/0.3ih -C"+fileName+".cpt -O -K -N70 >> " + PS_FILE_NAME;
 		gmtCommandLines.add(commandLine+"\n");
 
 		// add the basemap
 		double niceKmLength = getNiceKmScaleLength(minLat, minLon, maxLon);
 		double kmScaleXoffset = plotWdth/2;
 		double niceTick = getNiceMapTickInterval(minLat, maxLat, minLon, maxLon);
-		commandLine=GMT_PATH+"psbasemap -B"+niceTick+"/"+niceTick+"eWNs " + projWdth +region+
+		commandLine="${GMT_PATH}psbasemap -B"+niceTick+"/"+niceTick+"eWNs " + projWdth +region+
 		" -Lfx"+kmScaleXoffset+"i/0.5i/"+minLat+"/"+niceKmLength+" -O >> " + PS_FILE_NAME;
 		gmtCommandLines.add(commandLine+"\n");
 
 		// add a command line to convert the ps file to a jpg file - using convert
-		//    gmtCommandLines.add(CONVERT_PATH+" " + PS_FILE_NAME + " " + JPG_FILE_NAME+"\n");
-
-		// add a command line to convert the ps file to a jpg file - using gs
-		// this looks a bit better than that above (which sometimes shows some horz lines).
-		gmtCommandLines.add(COMMAND_PATH+"cat "+ PS_FILE_NAME + " | "+GS_PATH+" -sDEVICE=jpeg -sOutputFile=temp1.jpg -\n");
-
 		int heightInPixels = (int) ((11.0 - yOffset + 2.0) * (double) dpi);
-		commandLine = CONVERT_PATH+" -crop 595x"+heightInPixels+"+0+0 temp1.jpg temp2.jpg";
-		gmtCommandLines.add(commandLine+"\n");
-
-		//resize the image if desired
+		String convertArgs = "-density " + dpi + " -crop 595x"+heightInPixels+"+0+0";
 		double imageWidth = ((Double)imageWidthParam.getValue()).doubleValue();
 		if (imageWidth != IMAGE_WIDTH_DEFAULT.doubleValue()) {
 			int wdth = (int)(imageWidth*(double)dpi);
-			commandLine = CONVERT_PATH+" -filter Lanczos -geometry "+wdth+" temp2.jpg "+JPG_FILE_NAME;
-			gmtCommandLines.add(commandLine+"\n");
+			convertArgs += " -filter Lanczos -geometry "+wdth;
 		}
-		else {
-			commandLine = COMMAND_PATH+"mv temp2.jpg "+JPG_FILE_NAME;
-			gmtCommandLines.add(commandLine+"\n");
-		}
+		gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + PS_FILE_NAME + " " + JPG_FILE_NAME+"\n");
+		gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + PS_FILE_NAME + " " + PNG_FILE_NAME+"\n");
 
-		commandLine = PS2PDF_PATH+"  "+PS_FILE_NAME+"  "+PDF_FILE_NAME;
+		// add a command line to convert the ps file to a jpg file - using gs
+		// this looks a bit better than that above (which sometimes shows some horz lines).
+//		gmtCommandLines.add("${COMMAND_PATH}cat "+ PS_FILE_NAME + " | "+GS_PATH+" -sDEVICE=jpeg -sOutputFile=temp1.jpg -\n");
+
+//		commandLine = "${CONVERT_PATH} -crop 595x"+heightInPixels+"+0+0 temp1.jpg temp2.jpg";
+//		gmtCommandLines.add(commandLine+"\n");
+
+		//resize the image if desired
+//		if (imageWidth != IMAGE_WIDTH_DEFAULT.doubleValue()) {
+//			int wdth = (int)(imageWidth*(double)dpi);
+//			commandLine = "${CONVERT_PATH} -filter Lanczos -geometry "+wdth+" temp2.jpg "+JPG_FILE_NAME;
+//			gmtCommandLines.add(commandLine+"\n");
+//		}
+//		else {
+//			commandLine = "${COMMAND_PATH}mv temp2.jpg "+JPG_FILE_NAME;
+//			gmtCommandLines.add(commandLine+"\n");
+//		}
+
+		commandLine = "${PS2PDF_PATH}  "+PS_FILE_NAME+"  "+PDF_FILE_NAME;
 		gmtCommandLines.add(commandLine+"\n");
 		// clean out temp files
-		commandLine = COMMAND_PATH+"rm temp1.jpg temp2.jpg "+fileName+".grd "+fileName+
-		".cpt "+fileName+"HiResData.grd "+fileName+"Inten.grd ";
-		gmtCommandLines.add(commandLine+"\n");
-
+		if (rmFiles.size() > 0) {
+			String rmCommand = "${COMMAND_PATH}rm";
+			for (String rmFile : rmFiles) {
+				rmCommand += " " + rmFile;
+			}
+			gmtCommandLines.add(rmCommand+"\n");
+		}
 
 		// This adds any final commands
 		addFinalGMT_ScriptLines(gmtCommandLines);
