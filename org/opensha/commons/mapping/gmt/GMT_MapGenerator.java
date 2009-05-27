@@ -972,7 +972,7 @@ public class GMT_MapGenerator implements Serializable{
 		addIntermediateGMT_ScriptLines(gmtCommandLines);
 
 		// set some defaults
-		commandLine=GMT_PATH+"gmtset BASEMAP_FRAME_RGB 255/255/255 DEGREE_FORMAT 5 FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
+		commandLine=GMT_PATH+"gmtset BASEMAP_FRAME_RGB 255/255/255 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
 		gmtCommandLines.add(commandLine+"\n");
 
 		// add the color scale
