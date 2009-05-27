@@ -26,7 +26,7 @@ public class GMT_MapGeneratorServlet
 extends HttpServlet {
 
 	/*			opensha.usc.edu paths and URLs			*/
-	private static final String OPENSHA_GMT_URL_PATH = "http://opensha.usc.edu/OpenSHA/";
+	private static final String OPENSHA_GMT_URL_PATH = "http://opensha.usc.edu/";
 	private static final String OPENSHA_FILE_PATH = "/usr/local/tomcat/default/webapps/OpenSHA/";
 	
 	/*			gravity.usc.edu paths and URLs			*/
