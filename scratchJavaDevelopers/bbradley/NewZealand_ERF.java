@@ -85,6 +85,7 @@ public class NewZealand_ERF extends EqkRupForecast {
 		timeSpan.setDuration(50);
 		
 		createFaultSurfaces();
+		mkFaultSources();
 		mkBackRegion();
 		initAdjParams();
 
