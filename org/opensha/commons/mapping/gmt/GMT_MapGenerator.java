@@ -2,8 +2,10 @@ package org.opensha.commons.mapping.gmt;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -18,6 +20,7 @@ import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.commons.mapping.gmt.raster.RasterExtractor;
 import org.opensha.commons.param.BooleanParameter;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.IntegerParameter;
@@ -77,7 +80,8 @@ public class GMT_MapGenerator implements Serializable{
 	public static final String OPENSHA_CONVERT_PATH="/usr/bin/convert";
 	public static final String OPENSHA_GMT_DATA_PATH = "/export/opensha/data/gmt/";
 	public static final String OPENSHA_SERVLET_URL = "http://opensha.usc.edu:8080/OpenSHA_dev/GMT_MapGeneratorServlet";
-	
+	public static final String OPENSHA_CLASSPATH = "/usr/local/tomcat/default/webapps/OpenSHA_dev/WEB-INF/classes";
+
 	/*				gravity.usc.edu paths				*/
 	public static final String GRAVITY_GMT_PATH="/opt/install/gmt/bin/";
 	public static final String GRAVITY_GS_PATH="/usr/local/bin/gs";
@@ -85,10 +89,12 @@ public class GMT_MapGenerator implements Serializable{
 	public static final String GRAVITY_CONVERT_PATH="/usr/bin/convert";
 	public static final String GRAVITY_GMT_DATA_PATH = "/usr/scec/data/gmt/";
 	public static final String GRAVITY_SERVLET_URL = "http://gravity.usc.edu/OpenSHA/servlet/GMT_MapGeneratorServlet";
-	
+	public static final String GRAVITY_CLASSPATH = "";
+
 	// this is the path where general data (e.g., topography) are found:
 	private static String SCEC_GMT_DATA_PATH = OPENSHA_GMT_DATA_PATH;
 	private static String SERVLET_URL = OPENSHA_SERVLET_URL;
+	private static String JAVA_CLASSPATH = OPENSHA_CLASSPATH;
 
 	protected XYZ_DataSetAPI xyzDataSet;
 
@@ -838,7 +844,7 @@ public class GMT_MapGenerator implements Serializable{
 	 * This method generates a list of strings needed for the GMT script
 	 */
 	protected ArrayList getGMT_ScriptLines() throws GMT_MapException{
-		
+
 		ArrayList<String> rmFiles = new ArrayList<String>();
 
 		String commandLine;
@@ -902,7 +908,7 @@ public class GMT_MapGenerator implements Serializable{
 		gmtCommandLines.add("CONVERT_PATH='" + CONVERT_PATH + "'\n");
 		gmtCommandLines.add("COMMAND_PATH='" + COMMAND_PATH + "'\n");
 		gmtCommandLines.add("PS2PDF_PATH='" + PS2PDF_PATH + "'\n\n");
-		
+
 		// command line to convert xyz file to grd file
 		commandLine = "${GMT_PATH}xyz2grd "+ XYZ_FILE_NAME+" -G"+ grdFileName+ " -I"+gridSpacing+ region +" -D/degree/degree/amp/=/=/=  -: -H0";
 		gmtCommandLines.add(commandLine+"\n");
@@ -950,7 +956,7 @@ public class GMT_MapGenerator implements Serializable{
 			maxLat = Math.floor(((maxLat-minLat)/gridSpacing))*gridSpacing +minLat;
 			maxLon = Math.floor(((maxLon-minLon)/gridSpacing))*gridSpacing +minLon;
 			region = " -R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat + " ";
-			
+
 			String hiResFile = fileName+"HiResData.grd";
 			rmFiles.add(hiResFile);
 			commandLine="${GMT_PATH}grdsample "+grdFileName+" -G"+hiResFile+" -I" +
@@ -1011,34 +1017,78 @@ public class GMT_MapGenerator implements Serializable{
 		" -Lfx"+kmScaleXoffset+"i/0.5i/"+minLat+"/"+niceKmLength+" -O >> " + PS_FILE_NAME;
 		gmtCommandLines.add(commandLine+"\n");
 
-		// add a command line to convert the ps file to a jpg file - using convert
+		// boolean to switch between purely using convert for the ps conversion, 
+		// and using gs.
+		boolean use_gs_raster = true;
+
 		int heightInPixels = (int) ((11.0 - yOffset + 2.0) * (double) dpi);
-		String convertArgs = "-density " + dpi + " -crop 595x"+heightInPixels+"+0+0";
+		String convertArgs = "-crop 595x"+heightInPixels+"+0+0";
 		double imageWidth = ((Double)imageWidthParam.getValue()).doubleValue();
 		if (imageWidth != IMAGE_WIDTH_DEFAULT.doubleValue()) {
 			int wdth = (int)(imageWidth*(double)dpi);
 			convertArgs += " -filter Lanczos -geometry "+wdth;
 		}
-		gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + PS_FILE_NAME + " " + JPG_FILE_NAME+"\n");
-		gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + PS_FILE_NAME + " " + PNG_FILE_NAME+"\n");
+		if (use_gs_raster) {
+			int jpeg_quality= 90;
+			gmtCommandLines.add("${COMMAND_PATH}cat "+ PS_FILE_NAME + " | "+GS_PATH+" -sDEVICE=jpeg " + 
+					" -dJPEGQ="+jpeg_quality+" -sOutputFile="+JPG_FILE_NAME+" -\n");
+			gmtCommandLines.add("${COMMAND_PATH}cat "+ PS_FILE_NAME + " | "+GS_PATH+" -sDEVICE=png16m " + 
+					" -sOutputFile="+PNG_FILE_NAME+" -\n");
+
+			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + JPG_FILE_NAME + " " + JPG_FILE_NAME+"\n");
+			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + PNG_FILE_NAME + " " + PNG_FILE_NAME+"\n");
+		} else {
+			convertArgs = "-density " + dpi + " " + convertArgs;
+
+			// add a command line to convert the ps file to a jpg file - using convert
+			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + PS_FILE_NAME + " " + JPG_FILE_NAME+"\n");
+			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + PS_FILE_NAME + " " + PNG_FILE_NAME+"\n");
+		}
+
+		boolean googleearth = false;
+
+		// Add google earth lines...this doesn't work yet, still need to figure out how to get raste extracter
+		// to be called during execution
+		if (googleearth) {
+			System.out.println("Making Google Earth files!");
+			String gEarth_psFileName = "gEarth_" + PS_FILE_NAME;
+			rmFiles.add(gEarth_psFileName);
+			String gEarth_proj = " -JQ180/"+plotWdth+"i ";
+			String gEarth_kmz_name = "map.kmz";
+			if( resolution.equals(TOPO_RESOLUTION_NONE) ) {
+				commandLine="${GMT_PATH}grdimage "+ grdFileName + xOff + yOff + gEarth_proj +
+				" -C"+fileName+".cpt "+gmtSmoothOption+" -K -E"+dpi+ region + " > " + gEarth_psFileName;
+				gmtCommandLines.add(commandLine+"\n");
+			}
+			else {
+				commandLine="${GMT_PATH}grdimage "+fileName+"HiResData.grd " + xOff + yOff + gEarth_proj +
+				" -I"+fileName+"Inten.grd -C"+fileName+".cpt "+ gmtSmoothOption +"-K -E"+
+				dpi+ region + " > " + gEarth_psFileName;
+				gmtCommandLines.add(commandLine+"\n");
+			}
+
+			commandLine = "java -cp " + JAVA_CLASSPATH + " " + GMT_KML_Generator.class.getName() + PS_FILE_NAME
+			+ " " + gEarth_kmz_name + " " + minLat + " " + maxLat + " " + minLon + " " + maxLon;
+			gmtCommandLines.add(commandLine+"\n");
+		}
 
 		// add a command line to convert the ps file to a jpg file - using gs
 		// this looks a bit better than that above (which sometimes shows some horz lines).
-//		gmtCommandLines.add("${COMMAND_PATH}cat "+ PS_FILE_NAME + " | "+GS_PATH+" -sDEVICE=jpeg -sOutputFile=temp1.jpg -\n");
 
-//		commandLine = "${CONVERT_PATH} -crop 595x"+heightInPixels+"+0+0 temp1.jpg temp2.jpg";
-//		gmtCommandLines.add(commandLine+"\n");
+
+		//		commandLine = "${CONVERT_PATH} -crop 595x"+heightInPixels+"+0+0 temp1.jpg temp2.jpg";
+		//		gmtCommandLines.add(commandLine+"\n");
 
 		//resize the image if desired
-//		if (imageWidth != IMAGE_WIDTH_DEFAULT.doubleValue()) {
-//			int wdth = (int)(imageWidth*(double)dpi);
-//			commandLine = "${CONVERT_PATH} -filter Lanczos -geometry "+wdth+" temp2.jpg "+JPG_FILE_NAME;
-//			gmtCommandLines.add(commandLine+"\n");
-//		}
-//		else {
-//			commandLine = "${COMMAND_PATH}mv temp2.jpg "+JPG_FILE_NAME;
-//			gmtCommandLines.add(commandLine+"\n");
-//		}
+		//		if (imageWidth != IMAGE_WIDTH_DEFAULT.doubleValue()) {
+		//			int wdth = (int)(imageWidth*(double)dpi);
+		//			commandLine = "${CONVERT_PATH} -filter Lanczos -geometry "+wdth+" temp2.jpg "+JPG_FILE_NAME;
+		//			gmtCommandLines.add(commandLine+"\n");
+		//		}
+		//		else {
+		//			commandLine = "${COMMAND_PATH}mv temp2.jpg "+JPG_FILE_NAME;
+		//			gmtCommandLines.add(commandLine+"\n");
+		//		}
 
 		commandLine = "${PS2PDF_PATH}  "+PS_FILE_NAME+"  "+PDF_FILE_NAME;
 		gmtCommandLines.add(commandLine+"\n");

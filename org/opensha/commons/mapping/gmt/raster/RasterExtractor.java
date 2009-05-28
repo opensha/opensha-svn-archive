@@ -13,7 +13,6 @@ import javax.imageio.ImageIO;
 
 import org.opensha.commons.util.FileUtils;
 
-
 public class RasterExtractor {
 	
 	String psFileName;
@@ -202,8 +201,19 @@ public class RasterExtractor {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		String psFileName =  "/home/kevin/OpenSHA/basin/plots/temp/basin.ps";
-		String pngFileName = "/home/kevin/OpenSHA/basin/plots/temp/extract.png";
+		String psFileName =  null;
+		String pngFileName = null;
+		if (args.length == 0) {
+			System.err.println("WARNING: Running from debug mode with hardcoded paths!");
+			psFileName =  "/home/kevin/OpenSHA/basin/plots/temp/basin.ps";
+			pngFileName = "/home/kevin/OpenSHA/basin/plots/temp/extract.png";
+		} else if (args.length == 2) {
+			psFileName = args[0];
+			pngFileName = args[1];
+		} else {
+			System.err.println("USAGE: RasterExtractor ps_file_name png_file_name");
+			System.exit(2);
+		}
 		
 		RasterExtractor extract = new RasterExtractor(psFileName, pngFileName);
 		
