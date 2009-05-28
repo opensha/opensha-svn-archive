@@ -6,7 +6,7 @@ package scratchJavaDevelopers.bbradley;
 			 28 May 2009
 
 */
-public class Test_NewZealand_ERF {
+public class Test_NewZealandERFv1 {
 	// Define the main method to test the object
 	public static void main(String[] args) {
 		
@@ -14,7 +14,7 @@ public class Test_NewZealand_ERF {
 		
 		
 		//Instantiate NewZealand_ERF object
-		NewZealand_ERF nzerf = new NewZealand_ERF();
+		NewZealandERFv1 nzerf = new NewZealandERFv1();
 		
 		
 		

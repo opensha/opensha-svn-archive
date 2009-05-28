@@ -34,7 +34,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  * @version 1.0
  */
 
-public class NewZealand_ERF extends EqkRupForecast {
+public class NewZealandERFv1 extends EqkRupForecast {
 
 	//for Debug purposes
 	private static String  C = new String("NZ_ERF");
@@ -74,7 +74,7 @@ public class NewZealand_ERF extends EqkRupForecast {
 
 
 
-	public NewZealand_ERF(){
+	public NewZealandERFv1(){
 		/*
 		 * note: Had to move timeSpan object up before creation of the fault sources since timeSpan is 
 		 * needed in the background pointEqkSource object definition
