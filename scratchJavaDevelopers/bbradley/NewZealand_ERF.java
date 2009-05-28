@@ -45,8 +45,8 @@ public class NewZealand_ERF extends EqkRupForecast {
 
 //	private final static String FAULT_SOURCE_FILENAME = "org/opensha/sha/earthquake/rupForecastImpl/NewZealand/NZ_FLTmodel.txt";
 //	private final static String BG_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/NewZealand/NZ_BKmodel.txt";
-	private final static String FAULT_SOURCE_FILENAME = "scratchJavaDevelopers.bbradley/NZ_FLTmodel.txt";
-	private final static String BG_FILE_NAME = "scratchJavaDevelopers.bbradley/NZ_BKmodel.txt";
+	private final static String FAULT_SOURCE_FILENAME = "scratchJavaDevelopers/bbradley/NZ_FLTmodeldraft.txt";
+	private final static String BG_FILE_NAME = "scratchJavaDevelopers/bbradley/NZ_BKmodeldraft.txt";
 	
 	// Min/Max/Num Mags for Mag Freq Dist for making fault sources
 	private final static double MIN_MAG = 5.5;
@@ -75,15 +75,20 @@ public class NewZealand_ERF extends EqkRupForecast {
 
 
 	public NewZealand_ERF(){
-
-		createFaultSurfaces();
-		mkBackRegion();
-		initAdjParams();
-
+		/*
+		 * note: Had to move timeSpan object up before creation of the fault sources since timeSpan is 
+		 * needed in the background pointEqkSource object definition
+		 */
 		//create the timespan object with start time and duration in years
 		timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
 		timeSpan.addParameterChangeListener(this);
 		timeSpan.setDuration(50);
+		
+		createFaultSurfaces();
+		mkBackRegion();
+		initAdjParams();
+
+		
 
 	}
 
@@ -112,14 +117,14 @@ public class NewZealand_ERF extends EqkRupForecast {
 		try {
 			ArrayList<String> fileLines = FileUtils.loadJarFile(BG_FILE_NAME);
 			int size = fileLines.size();
-			int j=5;
+			int j=4;
 			String sourceName = fileLines.get(j);
 			StringTokenizer st = new StringTokenizer(sourceName);
 			String srcCode = st.nextToken();
 			int srcCodeLength = srcCode.length();
 			String sourceNameString = sourceName.substring(srcCodeLength);
 
-			for(int i=6;i<size;++i){ 
+			for(int i=5;i<size;++i){ 
 				String magDistInfo  = fileLines.get(i);
 				st = new StringTokenizer(magDistInfo);
 				double aVal = Double.parseDouble(st.nextToken().trim());
@@ -181,7 +186,7 @@ public class NewZealand_ERF extends EqkRupForecast {
 		try {
 			ArrayList<String> fileLines = FileUtils.loadJarFile(FAULT_SOURCE_FILENAME);
 			int size = fileLines.size();
-			for(int i=6;i<size;++i){ 
+			for(int i=7;i<size;++i){ 
 				String sourceName = fileLines.get(i);
 				if(sourceName.trim().equals(""))
 					continue;
@@ -192,8 +197,9 @@ public class NewZealand_ERF extends EqkRupForecast {
 				st = new StringTokenizer(sourceDipInfo);
 				double dip = Double.parseDouble(st.nextToken().trim());
 				double rake = Double.parseDouble(st.nextToken().trim());
-				double lowerSeis = Double.parseDouble(st.nextToken().trim());
 				double upperSeis = Double.parseDouble(st.nextToken().trim());
+				double lowerSeis = Double.parseDouble(st.nextToken().trim());
+				
 				++i;
 				String sourceMFD = fileLines.get(i);
 				st = new StringTokenizer(sourceMFD);
@@ -201,7 +207,9 @@ public class NewZealand_ERF extends EqkRupForecast {
 				double sigma = Double.parseDouble(st.nextToken().trim());
 				double seisMomentRate = Double.parseDouble(st.nextToken().trim());
 				++i;
-				int numSourceLocations = Integer.parseInt(fileLines.get(i));
+				String numSourceLoc = fileLines.get(i);
+				st = new StringTokenizer(numSourceLoc);
+				int numSourceLocations = Integer.parseInt(st.nextToken().trim());			//replaced "Integer.parseInt(fileLines.get(i));"
 				FaultTrace fltTrace = new FaultTrace(srcCode);
 				int numLinesDone = i;
 				for(i=i+1;i<=(numLinesDone+numSourceLocations);++i){
