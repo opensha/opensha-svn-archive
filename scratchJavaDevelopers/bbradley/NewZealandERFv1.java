@@ -49,9 +49,9 @@ public class NewZealandERFv1 extends EqkRupForecast {
 	private final static String BG_FILE_NAME = "scratchJavaDevelopers/bbradley/NZ_BKmodeldraft.txt";
 	
 	// Min/Max/Num Mags for Mag Freq Dist for making fault sources
-	private final static double MIN_MAG = 5.5;
-	private final static double MAX_MAG = 8.5;
-	private final static int NUM_MAGS = 31;
+	private final static double MIN_MAG = 5.0;
+	private final static double MAX_MAG = 9.0;
+	private final static int NUM_MAGS = 41;
 
 	// Default Grid Spacing for making Evenly Gridded Surface
 	private final static double DEFAULT_GRID_SPACING = 1.0;
@@ -70,7 +70,7 @@ public class NewZealandERFv1 extends EqkRupForecast {
 	private ArrayList<Double> sourceMoRates = new ArrayList<Double>();
 	private ArrayList<EvenlyGriddedSurface> sourceGriddedSurface = new ArrayList<EvenlyGriddedSurface>();
 
-	private ArrayList<ProbEqkSource> allSources;
+	private ArrayList<ProbEqkSource> allSources = new ArrayList<ProbEqkSource>();
 
 
 
