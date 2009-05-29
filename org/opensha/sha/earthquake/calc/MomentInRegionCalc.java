@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opensha.sha.earthquake.recurInterval;
+package org.opensha.sha.earthquake.calc;
 
 import java.util.Iterator;
 

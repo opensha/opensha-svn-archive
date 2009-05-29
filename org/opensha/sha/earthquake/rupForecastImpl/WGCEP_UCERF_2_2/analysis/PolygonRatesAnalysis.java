@@ -11,7 +11,7 @@ import java.util.Arrays;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.commons.data.region.GeographicRegion;
-import org.opensha.sha.earthquake.recurInterval.ERF2GriddedSeisRatesCalc;
+import org.opensha.sha.earthquake.calc.ERF2GriddedSeisRatesCalc;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UnsegmentedSource;

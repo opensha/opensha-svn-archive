@@ -1,4 +1,4 @@
-package org.opensha.sha.earthquake.recurInterval;
+package org.opensha.sha.earthquake.calc.recurInterval;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.param.DoubleParameter;

@@ -28,7 +28,7 @@ import java.util.Set;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
 
-import org.opensha.sha.earthquake.recurInterval.ERF2GriddedSeisRatesCalc;
+import org.opensha.sha.earthquake.calc.ERF2GriddedSeisRatesCalc;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.imr.IntensityMeasureRelationship;
 

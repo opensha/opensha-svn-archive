@@ -12,7 +12,7 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.earthquake.recurInterval.ERF2GriddedSeisRatesCalc;
+import org.opensha.sha.earthquake.calc.ERF2GriddedSeisRatesCalc;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_TypeB_EqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;

@@ -1,4 +1,4 @@
-package org.opensha.sha.earthquake.recurInterval.gui;
+package org.opensha.sha.earthquake.calc.recurInterval.gui;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
