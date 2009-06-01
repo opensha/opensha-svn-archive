@@ -85,7 +85,6 @@ public class NewZealandERFv1 extends EqkRupForecast {
 		timeSpan.setDuration(50);
 		
 		createFaultSurfaces();
-		//mkFaultSources();
 		mkBackRegion();
 		initAdjParams();
 
@@ -241,7 +240,6 @@ public class NewZealandERFv1 extends EqkRupForecast {
 	 *
 	 */
 	private void mkFaultSources() {
-		//allSources = new ArrayList<ProbEqkSource>();
 		for(int srcIndex=0; srcIndex<sourceNames.size(); ++srcIndex) {
 			EvenlyGriddedSurface surface = this.sourceGriddedSurface.get(srcIndex);
 			IncrementalMagFreqDist magDist = new GaussianMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAGS,
