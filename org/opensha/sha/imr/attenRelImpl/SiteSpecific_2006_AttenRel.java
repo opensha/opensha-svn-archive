@@ -530,7 +530,7 @@ public class SiteSpecific_2006_AttenRel
     if(modelType.equals(this.BATURAY_STEWART_MODEL)){
     	vs30Param.setValueIgnoreWarning((Double)site.getParameter(VS30_NAME).getValue());
     	softSoilParam.setValue((Boolean)(site.getParameter(SOFT_SOIL_NAME).getValue()));
-    	numRunsParam.setValue(site.getParameter(NUM_RUNS_PARAM_NAME).getValue());
+    	numRunsParam.setValue((Integer)site.getParameter(NUM_RUNS_PARAM_NAME).getValue());
     }
     
     this.site = site;

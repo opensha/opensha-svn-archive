@@ -46,7 +46,7 @@ import org.opensha.commons.exceptions.ParameterException;
  * @version 1.0
  */
 
-public class ParameterList implements Serializable, Iterable<ParameterAPI> {
+public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
 
 
     // *******************/
@@ -63,7 +63,7 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI> {
     protected final static boolean D = false;
 
     /** Internal vector list of parameters. */
-    protected ArrayList<ParameterAPI> params = new ArrayList<ParameterAPI>();
+    protected ArrayList<ParameterAPI<?>> params = new ArrayList<ParameterAPI<?>>();
 
     /** Internal list of constraint name mapped to parameter name. */
     protected Hashtable<String, String> constraintNameMap = new Hashtable<String, String>();
@@ -536,7 +536,7 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI> {
     }
 
 
-	public Iterator<ParameterAPI> iterator() {
+	public Iterator<ParameterAPI<?>> iterator() {
 		return this.params.iterator();
 	}
 

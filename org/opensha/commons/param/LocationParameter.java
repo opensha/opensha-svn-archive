@@ -20,7 +20,7 @@ import org.opensha.commons.param.editor.ParameterEditor;
  * @version 1.0
  */
 
-public class LocationParameter extends DependentParameter
+public class LocationParameter extends DependentParameter<Location>
 implements java.io.Serializable{
 
 
@@ -256,7 +256,7 @@ implements java.io.Serializable{
 	 */
 	public void setValue(Location loc){
 		location = loc;
-		setValue((Object)loc);
+		super.setValue(loc);
 	}
 
 
@@ -329,10 +329,12 @@ implements java.io.Serializable{
 		if ( (this.value == null) && (param.value == null))return 0;
 		int result = 0;
 
-		LocationParameter n1 = (LocationParameter)this.getValue();
-		LocationParameter n2 = (LocationParameter) param.getValue();
+		Location n1 = (Location)this.getValue();
+		Location n2 = (Location) param.getValue();
 
-		return n1.compareTo(n2);
+		if (n1.equals(n2))
+			return 0;
+		return -1;
 
 	}
 
@@ -387,22 +389,6 @@ implements java.io.Serializable{
 		param.info = info;
 		return param;
 
-	}
-
-	/**
-	 * Returns the ListIterator of the parameters included within this parameter
-	 * @return
-	 */
-	public ListIterator getParametersIterator(){
-		return ((ParameterList)this.getValue()).getParametersIterator();
-	}
-
-	/**
-	 *
-	 * @returns the parameterList contained in this parameter
-	 */
-	public ParameterList getParameter(){
-		return (ParameterList)getValue();
 	}
 
 	/**

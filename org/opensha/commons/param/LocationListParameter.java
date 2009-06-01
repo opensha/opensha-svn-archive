@@ -18,7 +18,7 @@ import org.opensha.commons.param.editor.ParameterEditor;
  * @version 1.0
  */
 
-public class LocationListParameter extends DependentParameter
+public class LocationListParameter extends DependentParameter<LocationList>
 implements java.io.Serializable{
 
 
@@ -112,20 +112,6 @@ implements java.io.Serializable{
 		setValue(locList);
 	}
 
-
-	/**
-	 * Set's the parameter's value, which is basically a parameterList.
-	 *
-	 * @param  value                 The new value for this Parameter
-	 * @throws  ParameterException   Thrown if the object is currenlty not
-	 *      editable
-	 */
-	public void setValue( LocationList value ) throws ParameterException {
-
-		setValue( (Object) value );
-
-	}
-
 	/**
 	 * Compares value to see if equal.
 	 *
@@ -149,17 +135,6 @@ implements java.io.Serializable{
 		else {
 			return false;
 		}
-	}
-
-	/*  This function just checks that we only allow an object of LocationList.
-	 *
-	 * @param  obj  Object to check if allowed via constraints
-	 * @return      True if the value is allowed
-	 */
-	public boolean isAllowed(Object obj) {
-		if(obj == null && this.isNullAllowed()) return true;
-		if(obj instanceof LocationList) return true;
-		else return false;
 	}
 
 	/**

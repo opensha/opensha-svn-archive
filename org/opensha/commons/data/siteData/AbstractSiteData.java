@@ -253,7 +253,7 @@ public abstract class AbstractSiteData<Element> implements SiteDataAPI<Element> 
 		org.dom4j.Element paramsEl = el.addElement("DataParameters");
 		addXMLParameters(paramsEl);
 		
-		Iterator<ParameterAPI> paramIt = this.paramList.iterator();
+		Iterator<ParameterAPI<?>> paramIt = this.paramList.iterator();
 		org.dom4j.Element paramsElement = el.addElement(Parameter.XML_GROUP_METADATA_NAME);
 		while (paramIt.hasNext()) {
 			ParameterAPI param = paramIt.next();

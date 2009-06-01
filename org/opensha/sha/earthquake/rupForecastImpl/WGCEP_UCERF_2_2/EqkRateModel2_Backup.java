@@ -1977,9 +1977,9 @@ public class EqkRateModel2_Backup extends EqkRupForecast {
 		for(int imag=0; imag<magAreaOptions.size();imag++)
 //			for(int irup=0; irup<rupModelOptions.size();irup++)
 					for(int islip=0; islip<slipModelOptions.size();islip++) {
-						magAreaRelParam.setValue(magAreaOptions.get(imag));
+						magAreaRelParam.setValue((String)magAreaOptions.get(imag));
 //						rupModelParam.setValue(rupModelOptions.get(irup));
-						slipModelParam.setValue(slipModelOptions.get(islip));
+						slipModelParam.setValue((String)slipModelOptions.get(islip));
 						System.out.println("% "+magAreaOptions.get(imag)+
 //								"\n% " + rupModelOptions.get(irup) +
 								"\n% " + slipModelOptions.get(islip));
@@ -2062,8 +2062,8 @@ public class EqkRateModel2_Backup extends EqkRupForecast {
 //							for(double bVal1=0.8; bVal1<=1.2; bVal1+=0.1)  // b faults B val
 //							for(double bVal2=0.8; bVal2<=1.2; bVal2+=0.1) // bacgrd B val
 							for(double frac=0.0; frac<=0.5; frac+=0.15){ // moment rate reduction
-								magAreaRelParam.setValue(magAreaOptions.get(imag));
-								slipModelParam.setValue(slipModelOptions.get(islip));
+								magAreaRelParam.setValue((String)magAreaOptions.get(imag));
+								slipModelParam.setValue((String)slipModelOptions.get(islip));
 								this.moRateFracToBackgroundParam.setValue(frac);
 //								this.bFaultB_ValParam.setValue(bVal1);
 								this.percentCharVsGRParam.setValue(per);

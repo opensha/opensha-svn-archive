@@ -134,7 +134,7 @@ public class DahleEtAl_1995_AttenRel
    */
   public void setSite(Site site) throws ParameterException {
 
-    siteTypeParam.setValue(site.getParameter(SITE_TYPE_NAME).getValue());
+    siteTypeParam.setValue((String)site.getParameter(SITE_TYPE_NAME).getValue());
     this.site = site;
     setPropagationEffectParams();
 

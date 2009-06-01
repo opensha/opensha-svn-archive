@@ -228,7 +228,7 @@ public class Abrahamson_2000_AttenRel
    */
   public void setSite(Site site) throws ParameterException {
 
-    siteTypeParam.setValue(site.getParameter(SITE_TYPE_NAME).getValue());
+    siteTypeParam.setValue((String)site.getParameter(SITE_TYPE_NAME).getValue());
     this.site = site;
     setPropagationEffectParams();
   }
@@ -248,7 +248,7 @@ public class Abrahamson_2000_AttenRel
     this.eqkRupture = propEffect.getEqkRupture();
 
     // set the locat site-type param
-    this.siteTypeParam.setValue(site.getParameter(SITE_TYPE_NAME).getValue());
+    this.siteTypeParam.setValue((String)site.getParameter(SITE_TYPE_NAME).getValue());
 
     magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
     setFaultTypeFromRake(eqkRupture.getAveRake());

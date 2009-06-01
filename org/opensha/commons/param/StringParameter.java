@@ -33,8 +33,8 @@ import org.opensha.commons.param.editor.StringParameterEditor;
  */
 
 public class StringParameter
-    extends DependentParameter
-    implements DependentParameterAPI, ParameterAPI
+    extends DependentParameter<String>
+    implements DependentParameterAPI<String>, ParameterAPI<String>
 {
 
     /** Class name for debugging. */

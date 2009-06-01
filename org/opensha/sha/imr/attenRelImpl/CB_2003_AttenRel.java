@@ -207,7 +207,7 @@ public class CB_2003_AttenRel
    */
   public void setSite(Site site) throws ParameterException {
 
-    siteTypeParam.setValue(site.getParameter(SITE_TYPE_NAME).getValue());
+    siteTypeParam.setValue((String)site.getParameter(SITE_TYPE_NAME).getValue());
     this.site = site;
     setPropagationEffectParams();
 
@@ -227,7 +227,7 @@ public class CB_2003_AttenRel
     this.site = propEffect.getSite();
     this.eqkRupture = propEffect.getEqkRupture();
 
-    this.siteTypeParam.setValue(site.getParameter(SITE_TYPE_NAME).getValue());
+    this.siteTypeParam.setValue((String)site.getParameter(SITE_TYPE_NAME).getValue());
 
     magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
     setFaultTypeFromRake(eqkRupture.getAveRake(),

@@ -24,7 +24,7 @@ import org.opensha.commons.exceptions.EditableException;
  * @created    February 21, 2002
  * @version    1.0
  */
-public class IntegerConstraint extends ParameterConstraint  {
+public class IntegerConstraint extends ParameterConstraint<Integer>  {
 
     /** Class name for debugging. */
     protected final static String C = "IntegerConstraint";
@@ -106,22 +106,6 @@ public class IntegerConstraint extends ParameterConstraint  {
 
     /** Gets the max allowed value of this constraint */
     public Integer getMax() { return max; }
-     /**
-     * Checks if the passed in value is within the min and max, inclusive of
-     * the end points. First the value is chekced if it's null and null values
-     * are allowed. Then it checks the passed in object is an Integer. If the
-     * constraint min and max values are null, true is returned, else the value
-     * is compared against the min and max values. If any of these checks fails
-     * false is returned. Otherwise true is returned.
-     *
-     * @param  obj  The object to check if allowed.
-     * @return      True if this is an Integer and one of the allowed values.
-     */
-    public boolean isAllowed( Object obj ) {
-        if( nullAllowed && ( obj == null ) ) return true;
-        else if ( !( obj instanceof Integer ) ) return false;
-        else  return isAllowed( ( Integer ) obj );
-    }
 
     /**
      * Checks if the passed in value is within the min and max, inclusive of

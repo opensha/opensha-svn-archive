@@ -19,8 +19,8 @@ import org.opensha.commons.exceptions.EditableException;
  */
 
 public class StringConstraint
-        extends ParameterConstraint
-        implements DiscreteParameterConstraintAPI
+        extends ParameterConstraint<String>
+        implements DiscreteParameterConstraintAPI<String>
 {
 
     /** Class name for debugging. */
@@ -29,7 +29,7 @@ public class StringConstraint
     protected final static boolean D = false;
 
     /** ArrayList list of possible string values, i.e. allowed values. */
-    private ArrayList strings = new ArrayList();
+    private ArrayList<String> strings = new ArrayList<String>();
 
 
     /** No-Arg constructor for the StringConstraint object. Calls the super() constructor. */
@@ -44,7 +44,7 @@ public class StringConstraint
      * @param  strings                  ArrayList of allowed strings
      * @exception  ConstraintException  Thrown if the passed in vector size is 0
      */
-    public StringConstraint( ArrayList strings ) throws ConstraintException {
+    public StringConstraint( ArrayList<String> strings ) throws ConstraintException {
         if ( strings.size() > 0 ) this.strings = strings;
         else {
             String S = C + ": Constructor(ArrayList strings): ";
@@ -86,7 +86,7 @@ public class StringConstraint
      * @param  obj  Object to check if allowed String
      * @return      True if the value is allowed
      */
-    public boolean isAllowed( Object obj ) {
+    public boolean isAllowed( String obj ) {
 
         if( nullAllowed && ( obj == null ) ) return true;
         else if ( !( obj instanceof String ) ) return false;

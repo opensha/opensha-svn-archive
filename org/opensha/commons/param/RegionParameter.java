@@ -20,7 +20,7 @@ import org.opensha.commons.param.editor.RegionParameterEditor;
  * @version 1.0
  */
 
-public class RegionParameter extends DependentParameter
+public class RegionParameter extends DependentParameter<RectangularGeographicRegion>
 implements java.io.Serializable{
 
 
@@ -166,7 +166,7 @@ implements java.io.Serializable{
 		minLon.setValue(reg.getMinLon());
 		maxLon.setValue(reg.getMaxLon());
 		region = reg;
-		setValue((Object)region);
+		super.setValue(region);
 	}
 
 
@@ -239,21 +239,22 @@ implements java.io.Serializable{
 	public int compareTo( Object obj ) {
 		String S = C + ":compareTo(): ";
 
-		if (! (obj instanceof LocationParameter)) {
+		if (! (obj instanceof RegionParameter)) {
 			throw new ClassCastException(S +
-					"Object not a LocationParameter, unable to compare");
+					"Object not a RegionParameter, unable to compare");
 		}
 
-		LocationParameter param = (LocationParameter) obj;
+		RegionParameter param = (RegionParameter) obj;
 
 		if ( (this.value == null) && (param.value == null))return 0;
 		int result = 0;
 
-		LocationParameter n1 = (LocationParameter)this.getValue();
-		LocationParameter n2 = (LocationParameter) param.getValue();
+		RectangularGeographicRegion n1 = this.getValue();
+		RectangularGeographicRegion n2 = param.getValue();
 
-		return n1.compareTo(n2);
-
+		if (n1.equals(n2))
+			return 0;
+		return -1;
 	}
 
 
@@ -300,23 +301,6 @@ implements java.io.Serializable{
 		param.info = info;
 		return param;
 
-	}
-
-	/**
-	 * Returns the ListIterator of the parameters included within this parameter
-	 * 
-	 * @return
-	 */
-	public ListIterator getParametersIterator(){
-		return ((ParameterList)this.getValue()).getParametersIterator();
-	}
-
-	/**
-	 *
-	 * @returns the parameterList contained in this parameter
-	 */
-	public ParameterList getParameter(){
-		return (ParameterList)getValue();
 	}
 
 	/**

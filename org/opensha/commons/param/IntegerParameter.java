@@ -32,8 +32,8 @@ import org.opensha.commons.param.editor.ParameterEditor;
  * @version    1.0
  */
 public class IntegerParameter
-extends DependentParameter
-implements DependentParameterAPI, ParameterAPI
+extends DependentParameter<Integer>
+implements DependentParameterAPI<Integer>, ParameterAPI<Integer>
 {
 
 	/** Class name for debugging. */
@@ -308,36 +308,6 @@ implements DependentParameterAPI, ParameterAPI
 		}
 		else super.setConstraint( constraint );
 
-	}
-
-	/**
-	 * Determine if the new value being set is allowed by validating
-	 * against the constraints.
-	 *
-	 * @param  obj  Object to check if allowed via constraints
-	 * @return      True if the value is allowed
-	 */
-	public boolean isAllowed( Integer i ){
-		return isAllowed( (Object)i );
-	}
-
-
-	/**
-	 *
-	 *  Uses the constraint object to determine if the new value being set is
-	 *  allowed. If no Constraints are present all values are allowed. This
-	 *  function is now available to all subclasses, since any type of
-	 *  constraint object follows the same api.
-	 *
-	 * @param  obj  Object to check if allowed via constraints, must be object of type
-	 * Integer else it will return false
-	 * @return      True if the value is allowed
-	 */
-	public boolean isAllowed(Object d){
-		if (d instanceof Integer || (d == null))
-			return super.isAllowed(d);
-
-		return false;
 	}
 
 	/**

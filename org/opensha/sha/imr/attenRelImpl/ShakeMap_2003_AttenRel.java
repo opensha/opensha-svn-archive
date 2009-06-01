@@ -248,7 +248,7 @@ public class ShakeMap_2003_AttenRel
    */
   public void setSite(Site site) throws ParameterException {
 
-    willsSiteParam.setValue(site.getParameter(WILLS_SITE_NAME).getValue());
+    willsSiteParam.setValue((String)site.getParameter(WILLS_SITE_NAME).getValue());
     this.site = site;
     setPropagationEffectParams();
 
@@ -268,7 +268,7 @@ public class ShakeMap_2003_AttenRel
     this.site = propEffect.getSite();
     this.eqkRupture = propEffect.getEqkRupture();
 
-    willsSiteParam.setValue(site.getParameter(this.WILLS_SITE_NAME).getValue());
+    willsSiteParam.setValue((String)site.getParameter(this.WILLS_SITE_NAME).getValue());
 
     magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
     setFaultTypeFromRake(eqkRupture.getAveRake());

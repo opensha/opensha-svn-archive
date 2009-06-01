@@ -232,7 +232,7 @@ public class BS_2003b_AttenRel
     vs30Param.setValue((Double)site.getParameter(VS30_NAME).getValue());
 //    VS30SParam.setValueIgnoreWarning(site.getParameter(VS30_NAME).getValue());
     softSoilParam.setValue((Boolean)(site.getParameter(SOFT_SOIL_NAME).getValue()));
-    numRunsParam.setValue(site.getParameter(NUM_RUNS_PARAM_NAME).getValue());
+    numRunsParam.setValue((Integer)site.getParameter(NUM_RUNS_PARAM_NAME).getValue());
     this.site = site;
     // set the location in cb_2008_attenRel
     cb_2008_attenRel.setSiteLocation(site.getLocation());
@@ -405,7 +405,7 @@ public class BS_2003b_AttenRel
 //        cb_2008_attenRel.SITE_TYPE_ROCK);
 //    cb_2008_attenRel.getParameter(cb_2008_attenRel.COMPONENT_NAME).setValue(
 //        cb_2008_attenRel.COMPONENT_AVE_HORZ);
-    componentParam.setValue(cb_2008_attenRel.getParameter(COMPONENT_NAME).getValue()); 
+    componentParam.setValue((String)cb_2008_attenRel.getParameter(COMPONENT_NAME).getValue()); 
 
     // re-set the site type to rock and component to ave horz
     double rockVS = 1100.00;

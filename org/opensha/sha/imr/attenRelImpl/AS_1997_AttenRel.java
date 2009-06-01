@@ -226,7 +226,7 @@ public class AS_1997_AttenRel
    */
   public void setSite(Site site) throws ParameterException {
 
-    siteTypeParam.setValue(site.getParameter(SITE_TYPE_NAME).getValue());
+    siteTypeParam.setValue((String)site.getParameter(SITE_TYPE_NAME).getValue());
     this.site = site;
     setPropagationEffectParams();
 
@@ -247,7 +247,7 @@ public class AS_1997_AttenRel
     this.eqkRupture = propEffect.getEqkRupture();
 
     // set the locat site-type param
-    siteTypeParam.setValue(site.getParameter(SITE_TYPE_NAME).getValue());
+    siteTypeParam.setValue((String)site.getParameter(SITE_TYPE_NAME).getValue());
 
     // set the eqkRupture params
     magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));

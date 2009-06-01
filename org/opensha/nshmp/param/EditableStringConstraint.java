@@ -18,60 +18,43 @@ import org.opensha.commons.param.StringConstraint;
  * @version 1.0
  */
 public class EditableStringConstraint
-    extends StringConstraint {
+extends StringConstraint {
 
-  /** Class name for debugging. */
-  protected final static String C = "EditableStringConstraint";
-  /** If true print out debug statements. */
-  protected final static boolean D = false;
+	/** Class name for debugging. */
+	protected final static String C = "EditableStringConstraint";
+	/** If true print out debug statements. */
+	protected final static boolean D = false;
 
-  /** ArrayList list of possible string values, i.e. allowed values. */
-  private ArrayList strings = new ArrayList();
-
-
-
-  public EditableStringConstraint() {
-    super();
-  }
-
-  public EditableStringConstraint(ArrayList strings) throws ConstraintException {
-    super(strings);
-  }
-
-  /**
-  * Determine if the new value being set is allowed. First checks
-  * if null and if nulls are allowed. Then verifies the Object is
-  * a String. Finally the code verifies that the String is
-  * in the allowed strings vector. If any of these checks fails, false
-  * is returned.
-  *
-  * @param  obj  Object to check if allowed String
-  * @return      True if the value is allowed
-  */
- public boolean isAllowed( Object obj ) {
-
-     if( nullAllowed && ( obj == null ) ) return true;
-     else if ( !( obj instanceof String ) ) return false;
-     else return true;
- }
+	/** ArrayList list of possible string values, i.e. allowed values. */
+	private ArrayList strings = new ArrayList();
 
 
- /** Returns a copy so you can't edit or damage the origial. */
- public Object clone() {
 
-   EditableStringConstraint c1 = new EditableStringConstraint();
-   c1.name = name;
-   ArrayList v = getAllowedStrings();
-   ListIterator it = v.listIterator();
-   while (it.hasNext()) {
-     String val = (String) it.next();
-     c1.addString(val);
-   }
+	public EditableStringConstraint() {
+		super();
+	}
 
-   c1.setNullAllowed(nullAllowed);
-   c1.editable = true;
-   return c1;
- }
+	public EditableStringConstraint(ArrayList strings) throws ConstraintException {
+		super(strings);
+	}
+
+
+	/** Returns a copy so you can't edit or damage the origial. */
+	public Object clone() {
+
+		EditableStringConstraint c1 = new EditableStringConstraint();
+		c1.name = name;
+		ArrayList v = getAllowedStrings();
+		ListIterator it = v.listIterator();
+		while (it.hasNext()) {
+			String val = (String) it.next();
+			c1.addString(val);
+		}
+
+		c1.setNullAllowed(nullAllowed);
+		c1.editable = true;
+		return c1;
+	}
 
 
 }

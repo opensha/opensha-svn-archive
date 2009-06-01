@@ -2278,9 +2278,9 @@ public class UCERF2 extends EqkRupForecast {
 		for(int imag=0; imag<magAreaOptions.size();imag++)
 //			for(int irup=0; irup<rupModelOptions.size();irup++)
 			for(int islip=0; islip<slipModelOptions.size();islip++) {
-				magAreaRelParam.setValue(magAreaOptions.get(imag));
+				magAreaRelParam.setValue((String)magAreaOptions.get(imag));
 //				rupModelParam.setValue(rupModelOptions.get(irup));
-				slipModelParam.setValue(slipModelOptions.get(islip));
+				slipModelParam.setValue((String)slipModelOptions.get(islip));
 				System.out.println("% "+magAreaOptions.get(imag)+
 //						"\n% " + rupModelOptions.get(irup) +
 						"\n% " + slipModelOptions.get(islip));

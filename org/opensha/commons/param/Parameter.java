@@ -145,9 +145,14 @@ public abstract class Parameter<E>
        * @return      True if the value is allowed
        */
       public boolean isAllowed( E obj ) {
-          if ( constraint != null ) return constraint.isAllowed( obj );
-           else return true;
-
+    	  // if it's null, and null isn't allowed, return false
+    	  if (obj == null && !isNullAllowed())
+    		  return false;
+    	  // if there's a constraint, use that
+          if ( constraint != null )
+        	  return constraint.isAllowed( obj );
+          // otherwise just return true
+          return true;
       }
 
 

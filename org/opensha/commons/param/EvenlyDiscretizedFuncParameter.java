@@ -23,7 +23,7 @@ import org.opensha.commons.param.editor.ParameterEditor;
  * @version 1.0
  */
 
-public class EvenlyDiscretizedFuncParameter extends DependentParameter
+public class EvenlyDiscretizedFuncParameter extends DependentParameter<EvenlyDiscretizedFunc>
 implements java.io.Serializable{
 
 
@@ -144,32 +144,6 @@ implements java.io.Serializable{
 		if(n1.equals(n2)) return 0;
 		else return -1;
 	}
-
-
-
-	/**
-	 * Set's the parameter's value, which is basically a EvenlyDiscretizedFunc.
-	 *
-	 * @param  value                 The new value for this Parameter
-	 * @throws  ParameterException   Thrown if the object is currenlty not
-	 *      editable
-	 */
-	public void setValue( EvenlyDiscretizedFunc value ) throws ParameterException {
-		setValue( (Object) value );
-	}
-
-
-	/*  This function just checks that we only allow an object of EvenlyDiscretizedFunc.
-	 *
-	 * @param  obj  Object to check if allowed via constraints
-	 * @return      True if the value is allowed
-	 */
-	public boolean isAllowed(Object obj) {
-		if(obj == null && this.isNullAllowed()) return true;
-		if(obj instanceof EvenlyDiscretizedFunc) return true;
-		else return false;
-	}
-
 
 	/**
 	 * Compares value to see if equal.

@@ -19,8 +19,8 @@ import org.opensha.commons.exceptions.EditableException;
  */
 
 public class LocationConstraint
-        extends ParameterConstraint
-        implements DiscreteParameterConstraintAPI
+        extends ParameterConstraint<Location>
+        implements DiscreteParameterConstraintAPI<Location>
 {
 
     /** Class name for debugging. */
@@ -89,11 +89,11 @@ public class LocationConstraint
      * @param  obj  Object to check if allowed Location
      * @return      True if the value is allowed
      */
-    public boolean isAllowed( Object obj ) {
+    public boolean isAllowed( Location loc ) {
 
-        if( nullAllowed && ( obj == null ) ) return true;
-        else if ( !( obj instanceof Location ) ) return false;
-        else if ( !containsLocation((Location)obj) ) return false;
+        if( nullAllowed && ( loc == null ) ) return true;
+        else if ( !( loc instanceof Location ) ) return false;
+        else if ( !containsLocation((Location)loc) ) return false;
         else return true;
     }
 

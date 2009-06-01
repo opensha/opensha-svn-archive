@@ -57,7 +57,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 
 public class WarningIntegerParameter
     extends IntegerParameter
-    implements WarningParameterAPI {
+    implements WarningParameterAPI<Integer> {
 
     /** Class name for debugging. */
     protected final static String C = "WarningIntegerParameter";
@@ -380,7 +380,7 @@ public class WarningIntegerParameter
      * @return                The min value
      * @exception  Exception  Description of the Exception
      */
-    public Object getWarningMin() throws Exception {
+    public Integer getWarningMin() throws Exception {
         if ( warningConstraint != null ) return warningConstraint.getMin();
         else return null;
     }
@@ -393,7 +393,7 @@ public class WarningIntegerParameter
      * @return                The min value
      * @exception  Exception  Description of the Exception
      */
-    public Object getWarningMax() {
+    public Integer getWarningMax() {
         if ( warningConstraint != null ) return warningConstraint.getMax();
         else return null;
 
@@ -412,7 +412,7 @@ public class WarningIntegerParameter
      *  levels or null values not allowed.
      * @throws WarningException     Thrown if the new value is beyond the warning levels.
      */
-    public synchronized void setValue( Object value ) throws ConstraintException, WarningException {
+    public synchronized void setValue( Integer value ) throws ConstraintException, WarningException {
         String S = getName() + ": setValue(): ";
         if(D) System.out.println(S + "Starting: ");
 
@@ -461,7 +461,7 @@ public class WarningIntegerParameter
      *  levels or null values not allowed.
      * @throws WarningException     Thrown if the new value is beyond the warning levels.
      */
-    public void setValueIgnoreWarning( Object value ) throws ConstraintException, ParameterException {
+    public void setValueIgnoreWarning( Integer value ) throws ConstraintException, ParameterException {
         String S = C + ": setValueIgnoreWarning(): ";
         if(D) System.out.println(S + "Setting value ignoring warning and constraint: ");
         this.value = value;
@@ -477,7 +477,7 @@ public class WarningIntegerParameter
      * @param  obj  Object to check if allowed via constraints
      * @return      True if the value is allowed
      */
-    public boolean isRecommended( Object obj ) {
+    public boolean isRecommended( Integer obj ) {
         if ( warningConstraint != null ) return warningConstraint.isAllowed( obj );
         else return true;
 

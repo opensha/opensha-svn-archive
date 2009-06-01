@@ -2,6 +2,7 @@ package org.opensha.commons.param;
 
 import java.util.ArrayList;
 
+import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
@@ -26,7 +27,8 @@ import org.opensha.commons.param.editor.ParameterEditor;
  * @version 1.0
  */
 
-public class StringListParameter extends StringParameter {
+public class StringListParameter extends DependentParameter<ArrayList<String>>
+implements DependentParameterAPI<ArrayList<String>>, ParameterAPI<ArrayList<String>> {
 
   /** Class name for debugging. */
   protected final static String C = "StringListParameter";
@@ -37,7 +39,7 @@ public class StringListParameter extends StringParameter {
    * Constructor doesn't specify a constraint, all values allowed. This
    * constructor sets the name of this parameter.
    */
-  public StringListParameter( String name ) { super(name); }
+  public StringListParameter( String name ) { this(name, null, null, null); }
 
 
      /**
@@ -52,7 +54,7 @@ public class StringListParameter extends StringParameter {
       * @throws  ConstraintException     Thrown if vector of allowed values is
       *      empty
       */
-     public StringListParameter( String name, ArrayList strings ) throws ConstraintException {
+     public StringListParameter( String name, ArrayList<String> strings ) throws ConstraintException {
          this( name, new StringListConstraint( strings ), null, null );
      }
 
@@ -129,9 +131,9 @@ public class StringListParameter extends StringParameter {
       * @exception  ConstraintException  Is thrown if the value is not allowed
       * @throws  ConstraintException     Is thrown if the value is not allowed
       */
-     public StringListParameter( String name, StringListConstraint constraint, String units, ArrayList values )
+     public StringListParameter( String name, StringListConstraint constraint, String units, ArrayList<String> values )
               throws ConstraintException {
-         super( name, constraint, units);
+         super( name, constraint, units, values);
          this.value = values;
      }
 
@@ -253,13 +255,17 @@ public class StringListParameter extends StringParameter {
 
     }
 
-    @Override
 	public ParameterEditor getEditor() {
 		if (paramEdit == null) {
 			if (constraint == null)
 				paramEdit = new ConstrainedStringListParameterEditor(this);
 		}
 		return paramEdit;
+	}
+
+
+	public boolean setValueFromXMLMetadata(Element el) {
+		return false;
 	}
 
 }

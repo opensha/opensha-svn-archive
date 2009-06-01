@@ -219,7 +219,7 @@ public class BS_2003_AttenRel
     
     vs30Param.setValueIgnoreWarning((Double)site.getParameter(VS30_NAME).getValue());
     softSoilParam.setValue((Boolean)(site.getParameter(SOFT_SOIL_NAME).getValue()));
-    numRunsParam.setValue(site.getParameter(NUM_RUNS_PARAM_NAME).getValue());
+    numRunsParam.setValue((Integer)site.getParameter(NUM_RUNS_PARAM_NAME).getValue());
     this.site = site;
     // set the location in as_1997_attenRel
     as_1997_attenRel.setSiteLocation(site.getLocation());

@@ -1117,9 +1117,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			for(int irup=0; irup<rupModelOptions.size();irup++)
 				if(!((String)rupModelOptions.get(irup)).equals(UNSEGMENTED_A_FAULT_MODEL))
 					for(int islip=0; islip<slipModelOptions.size();islip++) {
-						magAreaRelParam.setValue(magAreaOptions.get(imag));
-						rupModelParam.setValue(rupModelOptions.get(irup));
-						slipModelParam.setValue(slipModelOptions.get(islip));
+						magAreaRelParam.setValue((String)magAreaOptions.get(imag));
+						rupModelParam.setValue((String)rupModelOptions.get(irup));
+						slipModelParam.setValue((String)slipModelOptions.get(islip));
 						System.out.println("% "+magAreaOptions.get(imag)+
 								"\n% " + rupModelOptions.get(irup) +
 								"\n% " + slipModelOptions.get(islip));
@@ -1139,9 +1139,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		for(int imag=0; imag<magAreaOptions.size();imag++)
 			for(int irup=0; irup<rupModelOptions.size();irup++)
 					for(int islip=0; islip<slipModelOptions.size();islip++) {
-						magAreaRelParam.setValue(magAreaOptions.get(imag));
-						rupModelParam.setValue(rupModelOptions.get(irup));
-						slipModelParam.setValue(slipModelOptions.get(islip));
+						magAreaRelParam.setValue((String)magAreaOptions.get(imag));
+						rupModelParam.setValue((String)rupModelOptions.get(irup));
+						slipModelParam.setValue((String)slipModelOptions.get(islip));
 						try {
 							updateForecast();
 						}catch(Exception e) {
@@ -1182,9 +1182,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 							for(double bVal1=0.8; bVal1<=1.2; bVal1+=0.1)  // b faults B val
 								for(double bVal2=0.8; bVal2<=1.2; bVal2+=0.1) // bacgrd B val
 									for(double frac=0.1; frac<0.3; frac+=0.05){ // moment rate reduction
-										magAreaRelParam.setValue(magAreaOptions.get(imag));
-										rupModelParam.setValue(rupModelOptions.get(irup));
-										slipModelParam.setValue(slipModelOptions.get(islip));
+										magAreaRelParam.setValue((String)magAreaOptions.get(imag));
+										rupModelParam.setValue((String)rupModelOptions.get(irup));
+										slipModelParam.setValue((String)slipModelOptions.get(islip));
 										this.aAndB_MoRateReducParam.setValue(frac);
 										this.bFaultB_ValParam.setValue(bVal1);
 										this.percentCharVsGRParam.setValue(per);
@@ -1251,9 +1251,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 				if(!((String)rupModelOptions.get(irup)).equals(UNSEGMENTED_A_FAULT_MODEL))
 					for(int islip=0; islip<slipModelOptions.size();islip++) {
 			
-						magAreaRelParam.setValue(magAreaOptions.get(imag));
-						rupModelParam.setValue(rupModelOptions.get(irup));
-						slipModelParam.setValue(slipModelOptions.get(islip));
+						magAreaRelParam.setValue((String)magAreaOptions.get(imag));
+						rupModelParam.setValue((String)rupModelOptions.get(irup));
+						slipModelParam.setValue((String)slipModelOptions.get(islip));
 						mkA_FaultSegmentedSources();
 						
 						// Write header for each Rup Solution Types
@@ -1391,9 +1391,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 				if(!((String)rupModelOptions.get(irup)).equals(UNSEGMENTED_A_FAULT_MODEL))
 					for(int islip=0; islip<slipModelOptions.size();islip++) {
 			
-						magAreaRelParam.setValue(magAreaOptions.get(imag));
-						rupModelParam.setValue(rupModelOptions.get(irup));
-						slipModelParam.setValue(slipModelOptions.get(islip));
+						magAreaRelParam.setValue((String)magAreaOptions.get(imag));
+						rupModelParam.setValue((String)rupModelOptions.get(irup));
+						slipModelParam.setValue((String)slipModelOptions.get(islip));
 						mkA_FaultSegmentedSources();
 						
 						// Write header for each Rup Solution Types

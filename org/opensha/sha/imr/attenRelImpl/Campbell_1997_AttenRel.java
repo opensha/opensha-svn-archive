@@ -190,7 +190,7 @@ public class Campbell_1997_AttenRel
    */
   public void setSite(Site site) throws ParameterException {
 
-    siteTypeParam.setValue(site.getParameter(SITE_TYPE_NAME).getValue());
+    siteTypeParam.setValue((String)site.getParameter(SITE_TYPE_NAME).getValue());
     basinDepthParam.setValueIgnoreWarning((Double)site.getParameter(BASIN_DEPTH_NAME).
                                           getValue());
     this.site = site;
@@ -212,7 +212,7 @@ public class Campbell_1997_AttenRel
     this.site = propEffect.getSite();
     this.eqkRupture = propEffect.getEqkRupture();
 
-    siteTypeParam.setValue(site.getParameter(SITE_TYPE_NAME).getValue());
+    siteTypeParam.setValue((String)site.getParameter(SITE_TYPE_NAME).getValue());
     basinDepthParam.setValueIgnoreWarning((Double)site.getParameter(BASIN_DEPTH_NAME).
                                           getValue());
 

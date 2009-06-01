@@ -387,7 +387,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
 
   // set the values in pdf estimate
   private void setPDF_EstimateVals(PDF_Estimate pdfEst) {
-    this.evenlyDiscFuncParam.setValue(pdfEst.getValues());
+    this.evenlyDiscFuncParam.setValue((EvenlyDiscretizedFunc) pdfEst.getValues());
   }
 
   protected void jbInit() {

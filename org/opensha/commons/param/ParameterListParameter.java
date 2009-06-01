@@ -16,7 +16,7 @@ import org.opensha.commons.param.editor.ParameterListParameterEditor;
  * @version 1.0
  */
 
-public class ParameterListParameter extends DependentParameter
+public class ParameterListParameter extends DependentParameter<ParameterList>
 implements java.io.Serializable{
 
 
@@ -92,7 +92,7 @@ implements java.io.Serializable{
 	public void setValue( ParameterList value ) throws ParameterException {
 
 		ListIterator it  = value.getParametersIterator();
-		setValue( (Object) value );
+		super.setValue(value );
 		//setting the independent Param List for this parameter
 		this.setIndependentParameters(value);
 	}
@@ -110,7 +110,7 @@ implements java.io.Serializable{
 
 		if (! (obj instanceof ParameterListParameter)) {
 			throw new ClassCastException(S +
-					"Object not a ParameterListParameter, unable to compare");
+			"Object not a ParameterListParameter, unable to compare");
 		}
 
 		String otherName = ( (ParameterListParameter) obj).getName();
@@ -121,20 +121,6 @@ implements java.io.Serializable{
 			return false;
 		}
 	}
-
-	/*  This function just checks that we only allow an object of ParameterList.
-	 *
-	 * @param  obj  Object to check if allowed via constraints
-	 * @return      True if the value is allowed
-	 */
-	public boolean isAllowed(Object obj) {
-		if(obj == null && this.isNullAllowed()) return true;
-		if (obj instanceof ParameterList)
-			return true;
-		else
-			return false;
-	}
-
 
 	/**
 	 *  Returns a copy so you can't edit or damage the origial.
