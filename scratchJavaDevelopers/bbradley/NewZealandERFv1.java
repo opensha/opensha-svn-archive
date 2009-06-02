@@ -62,7 +62,14 @@ public class NewZealandERFv1 extends EqkRupForecast {
 	public final static String BACK_SEIS_EXCLUDE = new String ("Exclude");
 	private StringParameter backSeisParam;
 
-
+	private int numBkSources = 0;
+	private ArrayList<String> bkSourceNames = new ArrayList<String>();
+	private ArrayList<Location> bkSourceLocation = new ArrayList<Location>();
+	private ArrayList<IncrementalMagFreqDist> bkMagFD = new ArrayList<IncrementalMagFreqDist>();
+	private ArrayList<Double> bkRake = new ArrayList<Double>(); 
+	private ArrayList<Double> bkDip = new ArrayList<Double>(); 
+	private ArrayList<Double> bkMinMag = new ArrayList<Double>(); 
+		
 	private ArrayList<String> sourceNames = new ArrayList<String>();
 	private ArrayList<Double> sourceMags = new ArrayList<Double>();
 	private ArrayList<Double> sourceSigmas = new ArrayList<Double>();
@@ -85,11 +92,8 @@ public class NewZealandERFv1 extends EqkRupForecast {
 		timeSpan.setDuration(50);
 		
 		createFaultSurfaces();
-		mkBackRegion();
+		createBackRegion();
 		initAdjParams();
-
-		
-
 	}
 
 
@@ -113,7 +117,7 @@ public class NewZealandERFv1 extends EqkRupForecast {
 	 * Make Background sources
 	 */
 
-	private void mkBackRegion(){
+	private void createBackRegion(){
 		try {
 			ArrayList<String> fileLines = FileUtils.loadJarFile(BG_FILE_NAME);
 			int size = fileLines.size();
@@ -125,6 +129,7 @@ public class NewZealandERFv1 extends EqkRupForecast {
 			String sourceNameString = sourceName.substring(srcCodeLength);
 
 			for(int i=5;i<size;++i){ 
+				++numBkSources;
 				String magDistInfo  = fileLines.get(i);
 				st = new StringTokenizer(magDistInfo);
 				double aVal = Double.parseDouble(st.nextToken().trim());
@@ -139,15 +144,27 @@ public class NewZealandERFv1 extends EqkRupForecast {
 				double rake  = Double.parseDouble(st.nextToken().trim());
 				double dip   = Double.parseDouble(st.nextToken().trim());
 				IncrementalMagFreqDist backgroundMagDist = new GutenbergRichterMagFreqDist(bVal,totCumRate,minMag,maxMag,numMag);
-
 				Location bckLocation = new Location(lat,lon,depth);
-				PointEqkSource rupSource = new PointEqkSource(bckLocation,backgroundMagDist,timeSpan.getDuration(),rake,dip);
-
+				
+				this.bkSourceNames.add("backgroundSource"+numBkSources);
+				this.bkSourceLocation.add(bckLocation);
+				this.bkMagFD.add(backgroundMagDist);
+				this.bkRake.add(rake);
+				this.bkDip.add(dip);
+				this.bkMinMag.add(minMag);
 			}
 
 
 		}catch(IOException e){
 			e.printStackTrace();
+		}
+	}
+	
+	private void mkBackRegion(){
+		for(int srcIndex=0; srcIndex<bkSourceNames.size(); ++srcIndex) {
+			PointEqkSource rupSource = new PointEqkSource(this.bkSourceLocation.get(srcIndex),this.bkMagFD.get(srcIndex),
+					timeSpan.getDuration(),this.bkRake.get(srcIndex),this.bkDip.get(srcIndex),this.bkMinMag.get(srcIndex));
+			allSources.add(rupSource);
 		}
 	}
 
@@ -296,11 +313,7 @@ public class NewZealandERFv1 extends EqkRupForecast {
 			mkFaultSources();
 			String bgVal = (String)backSeisParam.getValue();
 			if(bgVal.equals(BACK_SEIS_INCLUDE)){
-//				GriddedRegionPoissonEqkSource grSource = new GriddedRegionPoissonEqkSource(this.backgroundRegion,
-//						backgroundMagDist,
-//						timeSpan.getDuration(), -90.0, 60, this.backgroundMagDist.getMagLower());
-//				this.allSources.add(grSource);
-
+				mkBackRegion();
 			}
 		}
 		parameterChangeFlag = false;
