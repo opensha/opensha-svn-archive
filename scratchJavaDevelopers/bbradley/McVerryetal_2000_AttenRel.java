@@ -555,7 +555,7 @@ public class McVerryetal_2000_AttenRel
 
     // initialise dummy variables
     double CN=0.0, CR=0.0, SI=0.0, DS=0.0, deltaC=0.0, deltaD=0.0;
-    
+    String siteType = siteTypeParam.getValue().toString();
     double lnSA_AB,lnSA_CD;
     double rVol=0.0, hc=0.0;  // need to change value of rVol and Hc 
     
@@ -580,12 +580,12 @@ public class McVerryetal_2000_AttenRel
     }
     
     //allocate dummy site variables
-    //if(siteTypeParam.equals(SITE_TYPE_C)) {
-    //	deltaC=1.0;
-    //}
-    //else if(siteTypeParam.equals(SITE_TYPE_C)) {
-	//   	deltaD=1.0;
-	//}
+    if(siteType.equals(SITE_TYPE_C)) {
+    	deltaC=1.0;
+    }
+    else if(siteType.equals(SITE_TYPE_C)) {
+	   	deltaD=1.0;
+	}
 
     //Crustal attenuation relation
     lnSA_AB=C1[iper]+C4AS*(mag-6.)+C3AS[iper]*Math.pow(8.5-mag,2)+C5[iper]*rRup+(C8[iper]+C6AS*(mag-6.))*Math.log(Math.sqrt(Math.pow(rRup,2.)+Math.pow(C10AS[iper],2.)))+C46[iper]*rVol+C32*CN+C33AS[iper]*CR;
