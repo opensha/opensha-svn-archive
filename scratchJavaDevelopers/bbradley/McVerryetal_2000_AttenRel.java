@@ -198,6 +198,7 @@ public class McVerryetal_2000_AttenRel
     initIndependentParamLists(); // This must be called after the above
     initParameterEventListeners(); //add the change listeners to the parameters
 
+    propagationEffect = new PropagationEffect();
   }
 
   /**
@@ -283,8 +284,8 @@ public class McVerryetal_2000_AttenRel
 	  }
 	  
 	  // remember that pga4nl term uses coeff index 0
-	  double pga = Math.exp(getMean(-1, siteTypeParam, rRup, mag, fltType));
-	  double pga_prime = Math.exp(getMean(0, siteTypeParam, rRup, mag, fltType));
+	  double pga = Math.exp(getMean(0, siteTypeParam, rRup, mag, fltType));
+	  double pga_prime = Math.exp(getMean(1, siteTypeParam, rRup, mag, fltType));
 	  double sa_prime = Math.exp(getMean(iper, siteTypeParam, rRup, mag, fltType));
 	  return (sa_prime*pga/pga_prime);
   }
@@ -579,12 +580,12 @@ public class McVerryetal_2000_AttenRel
     }
     
     //allocate dummy site variables
-    if(siteTypeParam.equals(SITE_TYPE_C)) {
-    	deltaC=1.0;
-    }
-    else if(siteTypeParam.equals(SITE_TYPE_C)) {
-	   	deltaD=1.0;
-	}
+    //if(siteTypeParam.equals(SITE_TYPE_C)) {
+    //	deltaC=1.0;
+    //}
+    //else if(siteTypeParam.equals(SITE_TYPE_C)) {
+	//   	deltaD=1.0;
+	//}
 
     //Crustal attenuation relation
     lnSA_AB=C1[iper]+C4AS*(mag-6.)+C3AS[iper]*Math.pow(8.5-mag,2)+C5[iper]*rRup+(C8[iper]+C6AS*(mag-6.))*Math.log(Math.sqrt(Math.pow(rRup,2.)+Math.pow(C10AS[iper],2.)))+C46[iper]*rVol+C32*CN+C33AS[iper]*CR;
