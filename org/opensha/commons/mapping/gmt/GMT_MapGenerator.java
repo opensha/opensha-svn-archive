@@ -765,7 +765,7 @@ public class GMT_MapGenerator implements Serializable{
 			else
 				throw (RuntimeException)messageFromServlet;
 		}catch(RuntimeException e){
-			throw new RuntimeException(e.getMessage());
+			throw new RuntimeException(e);
 		}catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException("Server is down , please try again later");
@@ -1402,7 +1402,7 @@ public class GMT_MapGenerator implements Serializable{
 		//checks to see if customLabel is selected, then get the custom label
 		String scaleLabel = map.getCustomLabel();
 		if (scaleLabel == null)
-			scaleLabel = SCALE_LABEL;
+			scaleLabel = " ";
 		scaleLabel = stripFormatLabel(scaleLabel);
 		gmtCommandLines.add("# Colorbar/label");
 		commandLine="${GMT_PATH}psscale -Ba"+tickInc+":"+scaleLabel+": -D3.25i/-0.5i/6i/0.3ih -C"+tempFilePrefix+".cpt -O -K -N70 >> " + PS_FILE_NAME;
