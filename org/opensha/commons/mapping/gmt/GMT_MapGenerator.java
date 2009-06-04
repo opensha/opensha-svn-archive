@@ -76,10 +76,10 @@ public class GMT_MapGenerator implements Serializable{
 	protected String SCALE_LABEL; // what's used to label the color scale
 
 	// paths to needed code
-	protected String GMT_PATH;
-	protected String GS_PATH;
-	protected String CONVERT_PATH;
-	protected String PS2PDF_PATH;
+	protected String GMT_PATH = OPENSHA_GMT_PATH;
+	protected String GS_PATH = OPENSHA_GS_PATH;
+	protected String CONVERT_PATH = OPENSHA_CONVERT_PATH;
+	protected String PS2PDF_PATH = OPENSHA_PS2PDF_PATH;
 	protected static String COMMAND_PATH = "/bin/";
 
 	/*				opensha.usc.edu paths				*/
