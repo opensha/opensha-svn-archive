@@ -1,8 +1,9 @@
 package org.opensha.commons.mapping.gmt.elements;
 
 import java.awt.Color;
+import java.io.Serializable;
 
-public class CoastAttributes {
+public class CoastAttributes implements Serializable {
 	private Color fillColor = new Color(17, 73, 71);
 	
 	private Color lineColor = fillColor;

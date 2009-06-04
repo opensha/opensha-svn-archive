@@ -1,5 +1,7 @@
 package org.opensha.commons.mapping.gmt;
 
+import java.io.Serializable;
+
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.GeographicRegionAPI;
 import org.opensha.commons.data.region.RectangularGeographicRegion;
@@ -8,7 +10,7 @@ import org.opensha.commons.mapping.gmt.elements.CoastAttributes;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.util.cpt.CPT;
 
-public class GMT_Map {
+public class GMT_Map implements Serializable {
 	
 	private RectangularGeographicRegion region;
 	
