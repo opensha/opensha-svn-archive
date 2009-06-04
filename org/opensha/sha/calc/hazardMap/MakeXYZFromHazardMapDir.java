@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.util.FileUtils;
 
@@ -98,7 +99,7 @@ public class MakeXYZFromHazardMapDir {
 
 	public double handleFile(String fileName, boolean isProbAt_IML, double val) {
 		try {
-			ArbitrarilyDiscretizedFunc func = loadFuncFromFile(fileName);
+			ArbitrarilyDiscretizedFunc func = DiscretizedFunc.loadFuncFromSimpleFile(fileName);
 			
 			return getCurveVal(func, isProbAt_IML, val);
 		} catch (FileNotFoundException e) {
@@ -107,24 +108,6 @@ public class MakeXYZFromHazardMapDir {
 			e.printStackTrace();
 		}
 		return Double.NaN;
-	}
-	
-	public static ArbitrarilyDiscretizedFunc loadFuncFromFile(String fileName) throws FileNotFoundException, IOException {
-		ArrayList<String> fileLines = FileUtils.loadFile(fileName);
-		String dataLine;
-		StringTokenizer st;
-		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-
-		for(int i=0;i<fileLines.size();++i) {
-			dataLine=(String)fileLines.get(i);
-			st=new StringTokenizer(dataLine);
-			//using the currentIML and currentProb we interpolate the iml or prob
-			//value entered by the user.
-			double currentIML = Double.parseDouble(st.nextToken());
-			double currentProb= Double.parseDouble(st.nextToken());
-			func.set(currentIML, currentProb);
-		}
-		return func;
 	}
 	
 	public static double getCurveVal(DiscretizedFuncAPI func, boolean isProbAt_IML, double val) {

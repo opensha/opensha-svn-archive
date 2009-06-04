@@ -1,5 +1,6 @@
 package org.opensha.commons.mapping.gmt;
 
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -16,10 +17,17 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
+import org.opensha.commons.calc.ArcsecondConverter;
+import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
+import org.opensha.commons.data.region.GeographicRegionAPI;
+import org.opensha.commons.data.region.RectangularGeographicRegion;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.commons.mapping.gmt.GMT_Map.HighwayFile;
+import org.opensha.commons.mapping.gmt.elements.CoastAttributes;
+import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.mapping.gmt.raster.RasterExtractor;
 import org.opensha.commons.param.BooleanParameter;
 import org.opensha.commons.param.DoubleParameter;
@@ -28,6 +36,7 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.util.RunScript;
+import org.opensha.commons.util.cpt.CPT;
 
 /**
  * <p>Title: GMT_MapGenerator</p>
@@ -80,6 +89,7 @@ public class GMT_MapGenerator implements Serializable{
 	public static final String OPENSHA_CONVERT_PATH="/usr/bin/convert";
 	public static final String OPENSHA_GMT_DATA_PATH = "/export/opensha/data/gmt/";
 	public static final String OPENSHA_SERVLET_URL = "http://opensha.usc.edu:8080/OpenSHA_dev/GMT_MapGeneratorServlet";
+	public static final String OPENSHA_JAVA_PATH = "/usr/java/1.5.0_10/bin/java";
 	public static final String OPENSHA_CLASSPATH = "/usr/local/tomcat/default/webapps/OpenSHA_dev/WEB-INF/classes";
 
 	/*				gravity.usc.edu paths				*/
@@ -89,11 +99,13 @@ public class GMT_MapGenerator implements Serializable{
 	public static final String GRAVITY_CONVERT_PATH="/usr/bin/convert";
 	public static final String GRAVITY_GMT_DATA_PATH = "/usr/scec/data/gmt/";
 	public static final String GRAVITY_SERVLET_URL = "http://gravity.usc.edu/OpenSHA/servlet/GMT_MapGeneratorServlet";
+	public static final String GRAVITY_JAVA_PATH = "";
 	public static final String GRAVITY_CLASSPATH = "";
 
 	// this is the path where general data (e.g., topography) are found:
-	private static String SCEC_GMT_DATA_PATH = OPENSHA_GMT_DATA_PATH;
+	protected static String SCEC_GMT_DATA_PATH = OPENSHA_GMT_DATA_PATH;
 	private static String SERVLET_URL = OPENSHA_SERVLET_URL;
+	private static String JAVA_PATH = OPENSHA_JAVA_PATH;
 	private static String JAVA_CLASSPATH = OPENSHA_CLASSPATH;
 
 	protected XYZ_DataSetAPI xyzDataSet;
@@ -130,11 +142,11 @@ public class GMT_MapGenerator implements Serializable{
 	private final static String IMAGE_WIDTH_INFO = "Width of the final jpg image (ps file width is always 8.5 inches)";
 	private final static double IMAGE_WIDTH_MIN = 1.0;
 	private final static double IMAGE_WIDTH_MAX = 20.0;
-	private final static Double IMAGE_WIDTH_DEFAULT = new Double(6.5);
+	protected final static Double IMAGE_WIDTH_DEFAULT = new Double(6.5);
 	DoubleParameter imageWidthParam;
 
 	public final static String CPT_FILE_PARAM_NAME = "Color Scheme";
-	private final static String CPT_FILE_PARAM_DEFAULT = "MaxSpectrum.cpt";
+	protected final static String CPT_FILE_PARAM_DEFAULT = "MaxSpectrum.cpt";
 	private final static String CPT_FILE_PARAM_INFO = "Color scheme for the scale";
 	public final static String CPT_FILE_MAX_SPECTRUM = "MaxSpectrum.cpt";
 	public final static String CPT_FILE_STEP = "STEP.cpt";
@@ -147,7 +159,7 @@ public class GMT_MapGenerator implements Serializable{
 	public final static String COAST_DRAW = "Draw Boundary";
 	public final static String COAST_FILL = "Draw & Fill";
 	public final static String COAST_NONE = "Draw Nothing";
-	private final static String COAST_DEFAULT = COAST_FILL;
+	protected final static String COAST_DEFAULT = COAST_FILL;
 	private final static String COAST_PARAM_INFO = "Specifies how bodies of water are drawn";
 	StringParameter coastParam;
 
@@ -173,7 +185,7 @@ public class GMT_MapGenerator implements Serializable{
 	// DPI
 	public final static String DPI_PARAM_NAME = "DPI";
 	private final static String DPI_PARAM_INFO = "Dots per inch for PS file";
-	private final static Integer DPI_DEFAULT = new Integer(72);
+	protected final static Integer DPI_DEFAULT = new Integer(72);
 	private final static Integer DPI_MIN = new Integer(0);
 	private final static Integer DPI_MAX = new Integer(Integer.MAX_VALUE);
 	private IntegerParameter dpiParam;
@@ -181,14 +193,14 @@ public class GMT_MapGenerator implements Serializable{
 	// Apply GMT smoothing
 	public final static String GMT_SMOOTHING_PARAM_NAME = "Apply GMT Smoothing?";
 	private final static String GMT_SMOOTHING_PARAM_INFO = "Apply GMT Smoothing?";
-	private final static boolean GMT_SMOOTHING_DEFAULT = true;
+	protected final static boolean GMT_SMOOTHING_DEFAULT = true;
 	private BooleanParameter gmtSmoothingParam; 
 
 
 	// shaded relief resolution
 	public final static String TOPO_RESOLUTION_PARAM_NAME = "Topo Resolution";
 	private final static String TOPO_RESOLUTION_PARAM_UNITS = "arc-sec";
-	private final static String TOPO_RESOLUTION_PARAM_DEFAULT = "18";
+	protected final static String TOPO_RESOLUTION_PARAM_DEFAULT = "18";
 	private final static String TOPO_RESOLUTION_PARAM_INFO = "Resolution of the shaded relief";
 	private final static String TOPO_RESOLUTION_03 = "03";
 	private final static String TOPO_RESOLUTION_06 = "06";
@@ -215,6 +227,7 @@ public class GMT_MapGenerator implements Serializable{
 	//Boolean parameter to see if user wants linear or log plot
 	public final static String LOG_PLOT_NAME = "Plot Log";
 	private final static String LOG_PLOT_INFO = "Plot Log or Linear Map";
+	protected final static boolean LOG_PLOT_PARAM_DEFAULT = true;
 	protected BooleanParameter logPlotParam;
 
 
@@ -301,7 +314,7 @@ public class GMT_MapGenerator implements Serializable{
 		gmtFromServer = new BooleanParameter(GMT_WEBSERVICE_NAME,new Boolean("true"));
 		gmtFromServer.setInfo(GMT_WEBSERVICE_INFO);
 
-		logPlotParam = new BooleanParameter(LOG_PLOT_NAME, new Boolean("true"));
+		logPlotParam = new BooleanParameter(LOG_PLOT_NAME, LOG_PLOT_PARAM_DEFAULT);
 		logPlotParam.setInfo(LOG_PLOT_INFO);
 
 
@@ -392,6 +405,72 @@ public class GMT_MapGenerator implements Serializable{
 
 		return JPG_FILE_NAME;
 	}
+	
+	public GMT_Map getGMTMapSpecification(XYZ_DataSetAPI xyzData) {
+		RectangularGeographicRegion region;
+		try {
+			region = new RectangularGeographicRegion(minLatParam.getValue(),
+					maxLatParam.getValue(), minLonParam.getValue(), maxLonParam.getValue());
+		} catch (RegionConstraintException e) {
+			throw new RuntimeException(e);
+		}
+		GMT_Map map = new GMT_Map(region, xyzData, gridSpacingParam.getValue(), cptFileParam.getValue());
+		
+		CoastAttributes coast = null;
+		if (coastParam.getValue().equals(COAST_DRAW)) {
+			coast = new CoastAttributes(4.0);
+		} else if (coastParam.getValue().equals(COAST_FILL)) {
+			coast = new CoastAttributes();
+		}
+		map.setCoast(coast);
+		
+		if (customScaleLabelCheckParam.getValue())
+			map.setCustomLabel(scaleLabelParam.getValue());
+		else
+			map.setCustomLabel(null);
+		
+		if (colorScaleModeParam.getValue().equals(COLOR_SCALE_MODE_MANUALLY)) {
+			map.setCustomScaleMin(colorScaleMinParam.getValue());
+			map.setCustomScaleMax(colorScaleMaxParam.getValue());
+		} else {
+			map.setCustomScaleMin(null);
+			map.setCustomScaleMax(null);
+		}
+		
+		map.setDpi(dpiParam.getValue());
+		
+		if (showHiwysParam.getValue().equals(SHOW_HIWYS_ALL)) {
+			map.setHighwayFile(HighwayFile.ALL);
+		} else if (showHiwysParam.getValue().equals(SHOW_HIWYS_MAIN)) {
+			map.setHighwayFile(HighwayFile.MAIN);
+		} else if (showHiwysParam.getValue().equals(SHOW_HIWYS_OTHER)) {
+			map.setHighwayFile(HighwayFile.OTHER);
+		} else {
+			map.setHighwayFile(null);
+		}
+		
+		map.setImageWidth(imageWidthParam.getValue());
+		
+		map.setLogPlot(logPlotParam.getValue());
+		
+		map.setRescaleCPT(true);
+		
+		if (topoResolutionParam.getValue().equals(TOPO_RESOLUTION_03)) {
+			map.setTopoResolution(TopographicSlopeFile.CA_THREE);
+		} else if (topoResolutionParam.getValue().equals(TOPO_RESOLUTION_06)) {
+			map.setTopoResolution(TopographicSlopeFile.CA_SIX);
+		} else if (topoResolutionParam.getValue().equals(TOPO_RESOLUTION_18)) {
+			map.setTopoResolution(TopographicSlopeFile.CA_EIGHTEEN);
+		} else if (topoResolutionParam.getValue().equals(TOPO_RESOLUTION_30)) {
+			map.setTopoResolution(TopographicSlopeFile.CA_THIRTY);
+		} else {
+			map.setTopoResolution(null);
+		}
+		
+		map.setUseGMTSmoothing(gmtSmoothingParam.getValue());
+		
+		return map;
+	}
 
 
 
@@ -415,6 +494,8 @@ public class GMT_MapGenerator implements Serializable{
 
 		// The color scale label
 		SCALE_LABEL = scaleLabel;
+		
+		GMT_Map map = getGMTMapSpecification(xyzDataSet);
 
 		this.xyzDataSet = xyzDataSet;
 
@@ -424,10 +505,8 @@ public class GMT_MapGenerator implements Serializable{
 		// check the xyz data set
 		if(!xyzDataSet.checkXYZ_NumVals())
 			throw new RuntimeException("X, Y and Z dataset does not have equal size");
-
-		// get the GMT script lines
-		ArrayList gmtLines = getGMT_ScriptLines();
-		imgWebAddr = this.openServletConnection(xyzDataSet,gmtLines,metadata, dirName);
+		
+		imgWebAddr = this.openServletConnection(map, metadata, dirName);
 
 
 		return imgWebAddr+JPG_FILE_NAME;
@@ -628,8 +707,7 @@ public class GMT_MapGenerator implements Serializable{
 	/**
 	 * sets up the connection with the servlet on the server (gravity.usc.edu)
 	 */
-	protected String openServletConnection(XYZ_DataSetAPI xyzDataVals,
-			ArrayList gmtFileLines,
+	protected String openServletConnection(GMT_Map map,
 			String metadataLines, String dirName) throws RuntimeException{
 
 		String webaddr=null;
@@ -658,22 +736,14 @@ public class GMT_MapGenerator implements Serializable{
 			//sending the directory name to the servlet
 			outputToServlet.writeObject(dirName);
 
-			//sending the ArrayList of the gmt Script Lines
-			outputToServlet.writeObject(gmtFileLines);
-
-
-			//sending the contents of the XYZ data set to the servlet
-			outputToServlet.writeObject(xyzDataVals);
-
-			//sending the xyz file name to the servlet
-			outputToServlet.writeObject(XYZ_FILE_NAME);
+			//sending the map specification
+			outputToServlet.writeObject(map);
 
 			//sending the contents of the Metadata file to the server.
 			outputToServlet.writeObject(metadataLines);
 
 			//sending the name of the MetadataFile to the server.
 			outputToServlet.writeObject(DEFAULT_METADATA_FILE_NAME);
-
 
 			outputToServlet.flush();
 			outputToServlet.close();
@@ -1045,7 +1115,7 @@ public class GMT_MapGenerator implements Serializable{
 			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + PS_FILE_NAME + " " + PNG_FILE_NAME+"\n");
 		}
 
-		boolean googleearth = false;
+		boolean googleearth = true;
 
 		// Add google earth lines...this doesn't work yet, still need to figure out how to get raste extracter
 		// to be called during execution
@@ -1054,7 +1124,7 @@ public class GMT_MapGenerator implements Serializable{
 			String gEarth_psFileName = "gEarth_" + PS_FILE_NAME;
 			rmFiles.add(gEarth_psFileName);
 			String gEarth_proj = " -JQ180/"+plotWdth+"i ";
-			String gEarth_kmz_name = "map.kmz";
+			String gEarth_kmz_name = "./map.kmz";
 			if( resolution.equals(TOPO_RESOLUTION_NONE) ) {
 				commandLine="${GMT_PATH}grdimage "+ grdFileName + xOff + yOff + gEarth_proj +
 				" -C"+fileName+".cpt "+gmtSmoothOption+" -K -E"+dpi+ region + " > " + gEarth_psFileName;
@@ -1067,8 +1137,9 @@ public class GMT_MapGenerator implements Serializable{
 				gmtCommandLines.add(commandLine+"\n");
 			}
 
-			commandLine = "java -cp " + JAVA_CLASSPATH + " " + GMT_KML_Generator.class.getName() + PS_FILE_NAME
-			+ " " + gEarth_kmz_name + " " + minLat + " " + maxLat + " " + minLon + " " + maxLon;
+			commandLine = JAVA_PATH + " -cp " + JAVA_CLASSPATH + " " + GMT_KML_Generator.class.getName() + " " + 
+						gEarth_psFileName + " " + gEarth_kmz_name +
+						" " + minLat + " " + maxLat + " " + minLon + " " + maxLon;
 			gmtCommandLines.add(commandLine+"\n");
 		}
 
@@ -1101,6 +1172,340 @@ public class GMT_MapGenerator implements Serializable{
 			gmtCommandLines.add(rmCommand+"\n");
 		}
 
+		// This adds any final commands
+		addFinalGMT_ScriptLines(gmtCommandLines);
+
+
+		return gmtCommandLines;
+	}
+	
+	private static String getGMTColorString(Color color) {
+		return color.getRed() + "/" + color.getGreen() + "/" + color.getBlue();
+	}
+	
+	private static String stripFormatLabel(String label) {
+		label = label.replaceAll("'", "");
+		label = label.replaceAll(";", "");
+		
+		return "'" + label + "'";
+	}
+	
+	/**
+	 * This method generates a list of strings needed for the GMT script
+	 */
+	public ArrayList<String> getGMT_ScriptLines(GMT_Map map, String dir) throws GMT_MapException{
+		
+		if (!dir.endsWith(File.separator))
+			dir += File.separator;
+
+		ArrayList<String> rmFiles = new ArrayList<String>();
+
+		String commandLine;
+
+		ArrayList<String> gmtCommandLines = new ArrayList<String>();
+
+		// Get the limits and discretization of the map
+		double minLat = map.getRegion().getMinLat();
+		double maxTempLat = map.getRegion().getMaxLat();
+		double minLon = map.getRegion().getMinLon();
+		double maxTempLon = map.getRegion().getMaxLon();
+		double gridSpacing = map.getGriddedDataInc();
+
+		// adjust the max lat and lon to be an exact increment (needed for xyz2grd)
+		double maxLat = Math.rint(((maxTempLat-minLat)/gridSpacing))*gridSpacing +minLat;
+		double maxLon = Math.rint(((maxTempLon-minLon)/gridSpacing))*gridSpacing +minLon;
+
+		region = " -R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat+" ";
+		if(D) System.out.println(C+" region = "+region);
+
+		// this is the prefixed used for temporary files
+		String tempFilePrefix = "temp_junk";
+
+		String grdFileName = tempFilePrefix+".grd";
+		rmFiles.add(grdFileName);
+
+		String cptFile;
+		if (map.getCptFile() != null) {
+			cptFile = SCEC_GMT_DATA_PATH + map.getCptFile();
+		} else {
+			cptFile = "cptFile.cpt";
+			CPT cpt = map.getCpt();
+			try {
+				cpt.writeCPTFile(dir + cptFile);
+			} catch (IOException e) {
+				throw new GMT_MapException("Could not write custom CPT file", e);
+			}
+		}
+
+		String topoIntenFile = null;
+		if (map.getTopoResolution() != null)
+			topoIntenFile = SCEC_GMT_DATA_PATH + map.getTopoResolution().fileName();
+
+		// hard-code check that lat & lon bounds are in the region where we have topography:
+		// this is only temporary until we have worldwide topo data
+		if(topoIntenFile != null && !map.getTopoResolution().region().isRegionInside(map.getRegion()))
+			throw new GMT_MapException("Topography not available for the chosen region; please select \"" +
+					TOPO_RESOLUTION_NONE + "\" for the " + TOPO_RESOLUTION_PARAM_NAME + " parameter");
+
+		// plot size parameter
+		double plotWdth = 6.5;
+		projWdth = " -JM"+plotWdth+"i ";
+		double plotHght = ((maxLat-minLat)/(maxLon-minLon))*plotWdth/Math.cos(Math.PI*(maxLat+minLat)/(2*180));
+
+		double yOffset = 11 - plotHght - 0.5;
+		yOff = " -Y" + yOffset + "i ";
+
+		// set x-axis offset to 1 inch
+		xOff = " -X1.0i ";
+
+		gmtCommandLines.add("#!/bin/bash");
+		gmtCommandLines.add("");
+		gmtCommandLines.add("cd " + dir);
+		gmtCommandLines.add("");
+		gmtCommandLines.add("## path variables ##");
+		gmtCommandLines.add("GMT_PATH='" + GMT_PATH + "'");
+		gmtCommandLines.add("CONVERT_PATH='" + CONVERT_PATH + "'");
+		gmtCommandLines.add("COMMAND_PATH='" + COMMAND_PATH + "'");
+		gmtCommandLines.add("PS2PDF_PATH='" + PS2PDF_PATH + "'");
+		gmtCommandLines.add("");
+		gmtCommandLines.add("## Plot Script ##");
+		gmtCommandLines.add("");
+
+		XYZ_DataSetAPI griddedData = map.getGriddedData();
+		
+		try {
+			ArbDiscretizedXYZ_DataSet.writeXYZFile(griddedData, dir + map.getXyzFileName());
+		} catch (IOException e) {
+			throw new GMT_MapException("Could not write XYZ data to a file", e);
+		}
+		gmtCommandLines.add("# convert xyz file to grd file");
+		commandLine = "${GMT_PATH}xyz2grd "+ map.getXyzFileName()+" -G"+ grdFileName+ " -I"+gridSpacing+
+						region +" -D/degree/degree/amp/=/=/=  -: -H0";
+		gmtCommandLines.add(commandLine);
+		
+		// get color scale limits
+		double colorScaleMin, colorScaleMax;
+		if (map.isCustomScale()) {
+			colorScaleMin = map.getCustomScaleMin();
+			colorScaleMax = map.getCustomScaleMax();
+			if (colorScaleMin >= colorScaleMax)
+				throw new RuntimeException("Error: Color-Scale Min must be less than the Max");
+		}
+		else {
+			colorScaleMin = griddedData.getMinZ();
+			colorScaleMax = griddedData.getMaxZ();
+			System.out.println(colorScaleMin+","+colorScaleMax);
+			if (colorScaleMin == colorScaleMax)
+				throw new RuntimeException("Can't make the image plot because all Z values in the XYZ dataset have the same value ");
+		}
+
+		if (map.isRescaleCPT()) {
+			// make the cpt file
+			float inc = (float) ((colorScaleMax-colorScaleMin)/20);
+			String tempCPT = tempFilePrefix+".cpt";
+			rmFiles.add(tempCPT);
+			gmtCommandLines.add("# Rescale the CPT file");
+			commandLine="${GMT_PATH}makecpt -C" + cptFile + " -T" + colorScaleMin +"/"+ colorScaleMax +"/" + inc + " -Z > "+tempCPT;
+			gmtCommandLines.add(commandLine);
+			cptFile = tempCPT;
+		}
+
+		// set some defaults
+		gmtCommandLines.add("# Set GMT paper/font defaults");
+		commandLine = "${GMT_PATH}gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait PAPER_MEDIA letter";
+		gmtCommandLines.add(commandLine+"\n");
+
+		int dpi = map.getDpi();
+		String gmtSmoothOption="";
+		if (!map.isUseGMTSmoothing()) gmtSmoothOption=" -T ";
+		// generate the image depending on whether topo relief is desired
+		if (map.getTopoResolution() == null) {
+			gmtCommandLines.add("# Plot the gridded data");
+			commandLine="${GMT_PATH}grdimage "+ grdFileName + xOff + yOff + projWdth + " -C"+tempFilePrefix+".cpt "+gmtSmoothOption+" -K -E"+dpi+ region + " > " + PS_FILE_NAME;
+			gmtCommandLines.add(commandLine+"\n");
+		}
+		else {
+			// redefine the region so that maxLat, minLat, and delta fall exactly on the topoIntenFile
+			TopographicSlopeFile topoFile = map.getTopoResolution();
+			gridSpacing = ArcsecondConverter.getDegrees(map.getTopoResolution().resolution());
+			double tempNum = Math.ceil((minLat-topoFile.region().getMinLat())/gridSpacing);
+			minLat = tempNum*gridSpacing+topoFile.region().getMinLat();
+			tempNum = Math.ceil((minLon-(topoFile.region().getMinLon()))/gridSpacing);
+			minLon = tempNum*gridSpacing+(topoFile.region().getMinLon());
+			maxLat = Math.floor(((maxLat-minLat)/gridSpacing))*gridSpacing +minLat;
+			maxLon = Math.floor(((maxLon-minLon)/gridSpacing))*gridSpacing +minLon;
+			region = " -R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat + " ";
+
+			String hiResFile = tempFilePrefix+"HiResData.grd";
+			rmFiles.add(hiResFile);
+			gmtCommandLines.add("# Resample the map to the topo resolution");
+			commandLine="${GMT_PATH}grdsample "+grdFileName+" -G"+hiResFile+" -I" +
+			topoFile.resolution() + "c -Q "+region;
+			gmtCommandLines.add(commandLine);
+			String intenFile = tempFilePrefix+"Inten.grd";
+			gmtCommandLines.add("# Cut the topo file to match the data region");
+			commandLine="${GMT_PATH}grdcut " + topoIntenFile + " -G"+intenFile+ " " +region;
+			rmFiles.add(intenFile);
+			gmtCommandLines.add(commandLine);
+			gmtCommandLines.add("# Plot the gridded data with topographic shading");
+			commandLine="${GMT_PATH}grdimage "+hiResFile+" " + xOff + yOff + projWdth +
+			" -I"+tempFilePrefix+"Inten.grd -C"+tempFilePrefix+".cpt "+ gmtSmoothOption +"-K -E"+dpi+ region + " > " + PS_FILE_NAME;
+			gmtCommandLines.add(commandLine);
+		}
+		
+		gmtCommandLines.add("");
+
+		// add highways if desired
+		if (map.getHighwayFile() != null) {
+			gmtCommandLines.add("# Add highways to plot");
+			commandLine="${GMT_PATH}psxy  "+region + projWdth + " -K -O -W5/125/125/125 -: -Ms "
+						+ SCEC_GMT_DATA_PATH + map.getHighwayFile().fileName() + " >> " + PS_FILE_NAME;
+			gmtCommandLines.add(commandLine);
+		}
+
+		// add coast and fill if desired
+		CoastAttributes coastAt = map.getCoast();
+		if(coastAt != null) {
+			
+			String fillColor = "";
+			if (coastAt.getFillColor() != null) {
+				fillColor = "-S" + getGMTColorString(coastAt.getFillColor());
+			}
+			String lineColor = "";
+			if (coastAt.getLineColor() != null) {
+				fillColor = "-W" + coastAt.getLineSize() + "/" + getGMTColorString(coastAt.getLineColor());
+			}
+			
+			gmtCommandLines.add("# Draw coastline");
+			commandLine="${GMT_PATH}pscoast "+region + projWdth + " -K -O " + lineColor + 
+						" -P " + fillColor + " -Dh -N2 >> " + PS_FILE_NAME;
+			gmtCommandLines.add(commandLine);
+		}
+		
+//
+//		//TODO: figure this out...
+//		// This adds intermediate commands
+//		addIntermediateGMT_ScriptLines(gmtCommandLines);
+//
+		// set some defaults
+		gmtCommandLines.add("# Set GMT map property defaults");
+		commandLine="${GMT_PATH}gmtset BASEMAP_FRAME_RGB 255/255/255 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
+		gmtCommandLines.add(commandLine);
+
+		// add the color scale
+		DecimalFormat df2 = new DecimalFormat("0.E0");
+		Float tickInc = new Float(df2.format((colorScaleMax-colorScaleMin)/4.0));
+		//checks to see if customLabel is selected, then get the custom label
+		String scaleLabel = map.getCustomLabel();
+		if (scaleLabel == null)
+			scaleLabel = SCALE_LABEL;
+		scaleLabel = stripFormatLabel(scaleLabel);
+		gmtCommandLines.add("# Colorbar/label");
+		commandLine="${GMT_PATH}psscale -Ba"+tickInc+":"+scaleLabel+": -D3.25i/-0.5i/6i/0.3ih -C"+tempFilePrefix+".cpt -O -K -N70 >> " + PS_FILE_NAME;
+		gmtCommandLines.add(commandLine);
+
+		// add the basemap
+		double niceKmLength = getNiceKmScaleLength(minLat, minLon, maxLon);
+		double kmScaleXoffset = plotWdth/2;
+		double niceTick = getNiceMapTickInterval(minLat, maxLat, minLon, maxLon);
+		gmtCommandLines.add("# Map frame and KM scale label");
+		commandLine="${GMT_PATH}psbasemap -B"+niceTick+"/"+niceTick+"eWNs " + projWdth +region+
+		" -Lfx"+kmScaleXoffset+"i/0.5i/"+minLat+"/"+niceKmLength+" -O >> " + PS_FILE_NAME;
+		gmtCommandLines.add(commandLine);
+		
+		gmtCommandLines.add("");
+		gmtCommandLines.add("## PostScript conversion ##");
+
+		// boolean to switch between purely using convert for the ps conversion, 
+		// and using gs.
+		boolean use_gs_raster = true;
+
+		int heightInPixels = (int) ((11.0 - yOffset + 2.0) * (double) dpi);
+		String convertArgs = "-crop 595x"+heightInPixels+"+0+0";
+		double imageWidth = map.getImageWidth();
+		if (imageWidth != IMAGE_WIDTH_DEFAULT.doubleValue()) {
+			int wdth = (int)(imageWidth*(double)dpi);
+			convertArgs += " -filter Lanczos -geometry "+wdth;
+		}
+		if (use_gs_raster) {
+			int jpeg_quality= 90;
+			gmtCommandLines.add("${COMMAND_PATH}cat "+ PS_FILE_NAME + " | "+GS_PATH+" -sDEVICE=jpeg " + 
+					" -dJPEGQ="+jpeg_quality+" -sOutputFile="+JPG_FILE_NAME+" -");
+			gmtCommandLines.add("${COMMAND_PATH}cat "+ PS_FILE_NAME + " | "+GS_PATH+" -sDEVICE=png16m " + 
+					" -sOutputFile="+PNG_FILE_NAME+" -");
+
+			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + JPG_FILE_NAME + " " + JPG_FILE_NAME);
+			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + PNG_FILE_NAME + " " + PNG_FILE_NAME);
+		} else {
+			convertArgs = "-density " + dpi + " " + convertArgs;
+
+			// add a command line to convert the ps file to a jpg file - using convert
+			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + PS_FILE_NAME + " " + JPG_FILE_NAME);
+			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + PS_FILE_NAME + " " + PNG_FILE_NAME);
+		}
+		
+		commandLine = "${PS2PDF_PATH}  "+PS_FILE_NAME+"  "+PDF_FILE_NAME;
+		gmtCommandLines.add(commandLine);
+
+		boolean googleearth = false;
+
+		// Add google earth lines...this doesn't work yet, still need to figure out how to get raste extracter
+		// to be called during execution
+		if (googleearth) {
+			gmtCommandLines.add("## Google earth files ##");
+			System.out.println("Making Google Earth files!");
+			String gEarth_psFileName = "gEarth_" + PS_FILE_NAME;
+			rmFiles.add(gEarth_psFileName);
+			String gEarth_proj = " -JQ180/"+plotWdth+"i ";
+			String gEarth_kmz_name = "./map.kmz";
+			gmtCommandLines.add("# Make PS file for google earth");
+			if (map.getTopoResolution() == null) {
+				commandLine="${GMT_PATH}grdimage "+ grdFileName + xOff + yOff + gEarth_proj +
+				" -C"+tempFilePrefix+".cpt "+gmtSmoothOption+" -E"+dpi+ region + " > " + gEarth_psFileName;
+				gmtCommandLines.add(commandLine);
+			}
+			else {
+				commandLine="${GMT_PATH}grdimage "+tempFilePrefix+"HiResData.grd " + xOff + yOff + gEarth_proj +
+				" -I"+tempFilePrefix+"Inten.grd -C"+tempFilePrefix+".cpt "+ gmtSmoothOption +"-E"+
+				dpi+ region + " > " + gEarth_psFileName;
+				gmtCommandLines.add(commandLine);
+			}
+
+			commandLine = JAVA_PATH + " -cp " + JAVA_CLASSPATH + " " + GMT_KML_Generator.class.getName() + " " + 
+						gEarth_psFileName + " " + gEarth_kmz_name +
+						" " + minLat + " " + maxLat + " " + minLon + " " + maxLon;
+			gmtCommandLines.add(commandLine);
+		}
+
+		// add a command line to convert the ps file to a jpg file - using gs
+		// this looks a bit better than that above (which sometimes shows some horz lines).
+
+
+		//		commandLine = "${CONVERT_PATH} -crop 595x"+heightInPixels+"+0+0 temp1.jpg temp2.jpg";
+		//		gmtCommandLines.add(commandLine+"\n");
+
+		//resize the image if desired
+		//		if (imageWidth != IMAGE_WIDTH_DEFAULT.doubleValue()) {
+		//			int wdth = (int)(imageWidth*(double)dpi);
+		//			commandLine = "${CONVERT_PATH} -filter Lanczos -geometry "+wdth+" temp2.jpg "+JPG_FILE_NAME;
+		//			gmtCommandLines.add(commandLine+"\n");
+		//		}
+		//		else {
+		//			commandLine = "${COMMAND_PATH}mv temp2.jpg "+JPG_FILE_NAME;
+		//			gmtCommandLines.add(commandLine+"\n");
+		//		}
+
+		// clean out temp files
+		if (rmFiles.size() > 0) {
+			gmtCommandLines.add("");
+			gmtCommandLines.add("# Clean up");
+			String rmCommand = "${COMMAND_PATH}rm";
+			for (String rmFile : rmFiles) {
+				rmCommand += " " + rmFile;
+			}
+			gmtCommandLines.add(rmCommand);
+		}
+		
 		// This adds any final commands
 		addFinalGMT_ScriptLines(gmtCommandLines);
 

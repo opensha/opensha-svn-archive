@@ -49,7 +49,7 @@ public class FileUtils {
 	 * @throws FileNotFoundException    If the filename doesn't exist
 	 * @throws IOException              Unable to read from the file
 	 */
-	public static ArrayList loadFile(String fileName)
+	public static ArrayList<String> loadFile(String fileName)
 	throws
 	FileNotFoundException,
 	IOException
@@ -60,7 +60,7 @@ public class FileUtils {
 		if( D ) System.out.println(S + "Starting");
 		if (D) System.out.println(S + fileName);
 		// Allocate variables
-		ArrayList list = new ArrayList();
+		ArrayList<String> list = new ArrayList<String>();
 		File f = new File(fileName);
 
 		// Read in data if it exists

@@ -1,11 +1,18 @@
 package org.opensha.commons.data.function;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.StringTokenizer;
 
 import org.dom4j.Element;
 
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.exceptions.InvalidRangeException;
+import org.opensha.commons.util.FileUtils;
 
 
 /**
@@ -227,5 +234,31 @@ public abstract class DiscretizedFunc implements DiscretizedFuncAPI,
     	
 		return func;
     }
+    
+    public static void writeSimpleFuncFile(DiscretizedFuncAPI func, String fileName) throws IOException {
+    	File outFile = new File(fileName);
+		FileWriter fr = new FileWriter(outFile);
+		for (int i = 0; i < func.getNum(); ++i)
+			fr.write(func.getX(i) + " " + func.getY(i) + "\n");
+		fr.close();
+    }
+    
+    public static ArbitrarilyDiscretizedFunc loadFuncFromSimpleFile(String fileName) throws FileNotFoundException, IOException {
+		ArrayList<String> fileLines = FileUtils.loadFile(fileName);
+		String dataLine;
+		StringTokenizer st;
+		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+
+		for(int i=0;i<fileLines.size();++i) {
+			dataLine=(String)fileLines.get(i);
+			st=new StringTokenizer(dataLine);
+			//using the currentIML and currentProb we interpolate the iml or prob
+			//value entered by the user.
+			double x = Double.parseDouble(st.nextToken());
+			double y= Double.parseDouble(st.nextToken());
+			func.set(x, y);
+		}
+		return func;
+	}
 
 }

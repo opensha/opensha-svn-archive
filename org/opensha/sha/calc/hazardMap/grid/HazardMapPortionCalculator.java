@@ -18,6 +18,7 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
@@ -400,11 +401,7 @@ public class HazardMapPortionCalculator {
 				// write the result to the file
 				if (print)
 					System.out.println("Writing Results to File: " + outFileName);
-				File outFile = new File(outFileName);
-				FileWriter fr = new FileWriter(outFile);
-				for (int i = 0; i < numPoints; ++i)
-					fr.write(hazFunction.getX(i) + " " + hazFunction.getY(i) + "\n");
-				fr.close();
+				DiscretizedFunc.writeSimpleFuncFile(hazFunction, outFileName);
 //				chmod(outFile.getAbsolutePath());
 			}
 			if ((lessPrints && j % 100 != 0 || !lessPrints) && timer && j>0) {
@@ -537,7 +534,7 @@ public class HazardMapPortionCalculator {
 	
 	public static ArbitrarilyDiscretizedFunc loadCurveFile(String fileName) {
 		try {
-			ArbitrarilyDiscretizedFunc func = MakeXYZFromHazardMapDir.loadFuncFromFile(fileName);
+			ArbitrarilyDiscretizedFunc func = DiscretizedFunc.loadFuncFromSimpleFile(fileName);
 			return func;
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -35,16 +35,16 @@ public interface XYZ_DataSetAPI extends java.io.Serializable{
   public double getMaxZ();
 
   //sets the X, Y , Z values as the vector of double
-  public void setXYZ_DataSet(ArrayList xVals, ArrayList yVals,ArrayList zVals);
+  public void setXYZ_DataSet(ArrayList<Double> xVals, ArrayList<Double> yVals,ArrayList<Double> zVals);
 
   //gets the X values dataSet
-  public ArrayList getX_DataSet();
+  public ArrayList<Double> getX_DataSet();
 
   //gets the Y values dataSet
-  public ArrayList getY_DataSet();
+  public ArrayList<Double> getY_DataSet();
 
   //gets the Z values dataSet
-  public ArrayList getZ_DataSet();
+  public ArrayList<Double> getZ_DataSet();
 
   //returns true if size ArrayList for X,Y and Z dataset values is equal else return false
   public boolean checkXYZ_NumVals();

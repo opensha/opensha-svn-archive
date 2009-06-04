@@ -121,7 +121,7 @@ public class CPTVal implements Comparable<CPTVal> {
 
 
 	public String toString() {
-		return "" + start + "\t" + minColor.getRed() + "\\" + minColor.getGreen() + "\\" + minColor.getBlue() + "\t" + end
-		+ "\t" + maxColor.getRed() + "\\" + maxColor.getGreen() + "\\" + maxColor.getBlue() + "\n";
+		return start + "\t" + CPT.tabDelimColor(minColor) + "\t" + end
+		+ "\t" + CPT.tabDelimColor(maxColor);
 	}
 }

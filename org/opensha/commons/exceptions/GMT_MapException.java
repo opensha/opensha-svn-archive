@@ -21,6 +21,8 @@ public class GMT_MapException extends Exception {
     public GMT_MapException()  { super(); }
     /** Constructor that specifies an error message */
     public GMT_MapException( String string ) { super( string ); }
+    public GMT_MapException(Exception e) {super(e); }
+    public GMT_MapException(String message, Exception e) {super(message, e); }
 }
 
 
