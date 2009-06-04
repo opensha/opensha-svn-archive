@@ -508,6 +508,8 @@ public class GMT_MapGenerator implements Serializable{
 		
 		imgWebAddr = this.openServletConnection(map, metadata, dirName);
 
+		if (!imgWebAddr.endsWith(File.separator))
+			imgWebAddr += File.separator;
 
 		return imgWebAddr+JPG_FILE_NAME;
 	}
@@ -1194,6 +1196,8 @@ public class GMT_MapGenerator implements Serializable{
 	 * This method generates a list of strings needed for the GMT script
 	 */
 	public ArrayList<String> getGMT_ScriptLines(GMT_Map map, String dir) throws GMT_MapException{
+		
+		System.out.println("Generating map for dir: " + dir);
 		
 		if (!dir.endsWith(File.separator))
 			dir += File.separator;

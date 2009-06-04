@@ -135,7 +135,6 @@ extends HttpServlet {
 			//creating a new gmt script for the user and writing it ot the directory created for the user
 			FileWriter fw = new FileWriter(gmtScriptFile);
 			BufferedWriter bw = new BufferedWriter(fw);
-			bw.write("cd " + newDir + "/" + "\n");
 			int size = gmtMapScript.size();
 			for (int i = 0; i < size; ++i) {
 				bw.write( (String) gmtMapScript.get(i) + "\n");
@@ -189,7 +188,7 @@ extends HttpServlet {
 
 		}catch (Exception e) {
 			//sending the error message back to the application
-			outputToApplet.writeObject(new RuntimeException(e.getMessage()));
+			outputToApplet.writeObject(new RuntimeException(e));
 			outputToApplet.close();
 		}
 	}
