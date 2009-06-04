@@ -1270,7 +1270,7 @@ public class GMT_MapGenerator implements Serializable{
 		String gmtPath = GMT_PATH;
 		if (gmtPath == null)
 			gmtPath = "";
-		gmtCommandLines.add("GMT_PATH='" + imgWebAddr + "'");
+		gmtCommandLines.add("GMT_PATH='" + gmtPath + "'");
 		String convertPath = CONVERT_PATH;
 		if (convertPath == null)
 			convertPath = "";
