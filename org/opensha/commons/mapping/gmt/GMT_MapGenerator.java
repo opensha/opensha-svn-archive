@@ -1267,10 +1267,22 @@ public class GMT_MapGenerator implements Serializable{
 		gmtCommandLines.add("cd " + dir);
 		gmtCommandLines.add("");
 		gmtCommandLines.add("## path variables ##");
-		gmtCommandLines.add("GMT_PATH='" + GMT_PATH + "'");
-		gmtCommandLines.add("CONVERT_PATH='" + CONVERT_PATH + "'");
-		gmtCommandLines.add("COMMAND_PATH='" + COMMAND_PATH + "'");
-		gmtCommandLines.add("PS2PDF_PATH='" + PS2PDF_PATH + "'");
+		String gmtPath = GMT_PATH;
+		if (gmtPath == null)
+			gmtPath = "";
+		gmtCommandLines.add("GMT_PATH='" + imgWebAddr + "'");
+		String convertPath = CONVERT_PATH;
+		if (convertPath == null)
+			convertPath = "";
+		gmtCommandLines.add("CONVERT_PATH='" + convertPath + "'");
+		String cmdPath = COMMAND_PATH;
+		if (cmdPath == null)
+			cmdPath = "";
+		gmtCommandLines.add("COMMAND_PATH='" + cmdPath + "'");
+		String ps2pdfPath = PS2PDF_PATH;
+		if (ps2pdfPath == null)
+			ps2pdfPath = "";
+		gmtCommandLines.add("PS2PDF_PATH='" + ps2pdfPath + "'");
 		gmtCommandLines.add("");
 		gmtCommandLines.add("## Plot Script ##");
 		gmtCommandLines.add("");
