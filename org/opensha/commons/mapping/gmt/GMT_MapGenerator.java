@@ -1389,7 +1389,7 @@ public class GMT_MapGenerator implements Serializable{
 			}
 			String lineColor = "";
 			if (coastAt.getLineColor() != null) {
-				fillColor = "-W" + coastAt.getLineSize() + "/" + getGMTColorString(coastAt.getLineColor());
+				lineColor = "-W" + coastAt.getLineSize() + "/" + getGMTColorString(coastAt.getLineColor());
 			}
 			
 			gmtCommandLines.add("# Draw coastline");
