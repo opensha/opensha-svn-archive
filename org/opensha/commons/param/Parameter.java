@@ -15,7 +15,7 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
  * ParameterAPI of common functionality accross all parameter subclasses.
  * The common fields with get and setters are here, as well as a default
  * constructor that sets all these fields, and the setValue field that
- * always checks if the value is allowed before setting. The fields
+ * always checks if the value is allowefd before setting. The fields
  * with gettesr and setters are:
  *
  * <ul>
@@ -188,7 +188,7 @@ public abstract class Parameter<E>
       *  Needs to be called by subclasses when field change fails
       *  due to constraint problems.
       */
-     public void unableToSetValue( Object value ) throws ConstraintException {
+     public void unableToSetValue( E value ) throws ConstraintException {
 
        String S = C + ": unableToSetValue():";
        org.opensha.commons.param.event.ParameterChangeFailEvent event =
