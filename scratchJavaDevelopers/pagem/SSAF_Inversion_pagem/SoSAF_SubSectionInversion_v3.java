@@ -8,6 +8,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Random;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -82,6 +83,7 @@ public class SoSAF_SubSectionInversion_v3 {
 	private SummedMagFreqDist aveOfSegPartMFDs;
 
 	private boolean transitionAseisAtEnds, transitionSlipRateAtEnds;
+	private boolean slipRateConstraintAtSegCentersOnly;
 	private int slipRateSmoothing;
 
 	private double PARKFIELD_EVENT_RATE = 0.04;
@@ -119,14 +121,14 @@ public class SoSAF_SubSectionInversion_v3 {
 														// rate and segment rate
 														// uncertainties
 	private double relativeSegRateWt, relative_aPrioriRupWt,
-			relative_smoothnessWt, relative_aPrioriSegRateWt;
+			relative_smoothnessWt, relativeSlipRateSmoothnessWt, relative_aPrioriSegRateWt;
 	private double relativeGR_constraintWt, grConstraintBvalue,
 			grConstraintRateScaleFactor, smallestGR_constriantMag;
 
 	private int firstRowSegSlipRateData = -1, firstRowSegEventRateData = -1,
-			firstRowAprioriData = -1, firstRowSmoothnessData = -1;
+			firstRowAprioriData = -1, firstRowSmoothnessData = -1, firstRowSlipRateSmoothnessData = -1;
 	private int lastRowSegSlipRateData = -1, lastRowSegEventRateData = -1,
-			lastRowAprioriData = -1, lastRowSmoothnessData = -1;
+			lastRowAprioriData = -1, lastRowSmoothnessData = -1, lastRowSlipRateSmoothnessData = -1;
 	private int firstRowGR_constraintData = -1, lastRowGR_constraintData = -1,
 			firstRowParkSegConstraint = -1, lastRowParkSegConstraint = -1;
 	private int totNumRows;
@@ -222,9 +224,12 @@ public class SoSAF_SubSectionInversion_v3 {
 			FileWriter fw = new FileWriter(ROOT_PATH + dirName
 					+ "/segPartMFDsData.txt");
 			FileWriter cfw = new FileWriter(ROOT_PATH + dirName
-					+ "/segPartCumMFDsData.txt");
+					+ "/segPartCumMFDsData" +
+							String.valueOf(System.currentTimeMillis()) +
+							".txt");		
+			
 			fw.write("seg_index\tmag\tpart_rate\n");
-			cfw.write("seg_index\tmag\tpart_cum_rate\n");
+	//		cfw.write("seg_index\tmag\tpart_cum_rate\n");
 			for (int s = 0; s < segmentParticipationMFDs.size(); s++) {
 				SummedMagFreqDist mfd = segmentParticipationMFDs.get(s);
 				EvenlyDiscretizedFunc cmfd = mfd.getCumRateDist();
@@ -317,11 +322,13 @@ public class SoSAF_SubSectionInversion_v3 {
 			FileWriter fw = new FileWriter(ROOT_PATH + dirName
 					+ "/rupSlipRateData.txt");
 			FileWriter fw2 = new FileWriter(ROOT_PATH + dirName
-					+ "/rupRateData.txt");
+					+ "/rupRateData"
+					+ String.valueOf(System.currentTimeMillis())
+					+ ".txt");
 			fw.write("index\tseg_index\tslip_rate\n");
-			fw2.write("index\tseg_index\trate\n");
+		//	fw2.write("index\tseg_index\trate\n");
 			for (int rup = 0; rup < num_rup; rup++) {
-				if (rupRateSolution[rup] > minRupRate) {
+			//	if (rupRateSolution[rup] > minRupRate) {
 					num += 1;
 					for (int s = 0; s < num_seg; s++)
 						if (rupInSeg[s][rup] == 1) {
@@ -329,15 +336,17 @@ public class SoSAF_SubSectionInversion_v3 {
 									* rupRateSolution[rup];
 							fw.write(s + "\t" + num + "\t"
 									+ (float) Math.log10(slipRate) + "\n");
-							fw2.write(s + "\t" + num + "\t"
-									+ (float) Math.log10(rupRateSolution[rup])
-									+ "\n");
+						//	fw2.write(s + "\t" + num + "\t"
+						//			+ (float) Math.log10(rupRateSolution[rup])
+						//			+ "\n");
+							fw2.write(s+"\t"+num+"\t"+rupRateSolution[rup]+"\n");
+							
 							if (slipRate > max)
 								max = slipRate;
 							if (slipRate < min)
 								min = slipRate;
 						}
-				}
+			//	}
 			}
 			fw.close();
 			fw2.close();
@@ -430,6 +439,8 @@ public class SoSAF_SubSectionInversion_v3 {
 	 *            weight on a-priori rates (relative to slip rate)
 	 * @param relative_smoothnessWt -
 	 *            weight on smoothness equations (relative to slip rate)
+	 * @param relativeSlipRateSmoothnessWt -
+	 *            weight on slip rate smoothness equations (relative to slip rate)       
 	 * @param wtedInversion -
 	 *            apply data uncertainties?
 	 * @param minRupRate -
@@ -443,6 +454,8 @@ public class SoSAF_SubSectionInversion_v3 {
 	 *            linear taper aseismicity at ends?
 	 * @param transitionSlipRateAtEnds -
 	 *            linear taper slip rates at ends?
+	 * @param slipRateConstraintAtSegCentersOnly
+	 * 			   applies slip rate constraint to center of fault segments only if true
 	 * @param slipRateSmoothing -
 	 *            if > 1, this boxcar-smoothes slip rates over the number given
 	 *            (use odd number)
@@ -450,13 +463,13 @@ public class SoSAF_SubSectionInversion_v3 {
 	public void doInversion(int maxSubsectionLength, int numSegForSmallestRups,
 			String deformationModel, String slipModelType,
 			MagAreaRelationship magAreaRel, double relativeSegRateWt,
-			double relative_aPrioriRupWt, double relative_smoothnessWt,
+			double relative_aPrioriRupWt, double relative_smoothnessWt, double relativeSlipRateSmoothnessWt,
 			boolean wtedInversion, double minRupRate, boolean applyProbVisible,
 			double moRateReduction, boolean transitionAseisAtEnds,
-			boolean transitionSlipRateAtEnds, int slipRateSmoothing,
+			boolean transitionSlipRateAtEnds, boolean slipRateConstraintAtSegCentersOnly, int slipRateSmoothing,
 			double relativeGR_constraintWt, double grConstraintBvalue,
 			double grConstraintRateScaleFactor, double relative_aPrioriSegRateWt) {
-
+		
 		this.maxSubsectionLength = maxSubsectionLength;
 		this.numSegForSmallestRups = numSegForSmallestRups;
 		this.deformationModel = deformationModel;
@@ -465,13 +478,15 @@ public class SoSAF_SubSectionInversion_v3 {
 		this.relativeSegRateWt = relativeSegRateWt;
 		this.relative_aPrioriRupWt = relative_aPrioriRupWt;
 		this.relative_smoothnessWt = relative_smoothnessWt;
+		this.relativeSlipRateSmoothnessWt = relativeSlipRateSmoothnessWt;
 		this.wtedInversion = wtedInversion;
 		this.minRupRate = minRupRate;
 		this.applyProbVisible = applyProbVisible;
 		this.moRateReduction = moRateReduction;
 		this.transitionAseisAtEnds = transitionAseisAtEnds;
 		this.transitionSlipRateAtEnds = transitionSlipRateAtEnds;
-		this.slipRateSmoothing = slipRateSmoothing;
+		this.slipRateConstraintAtSegCentersOnly = slipRateConstraintAtSegCentersOnly;	
+		this.slipRateSmoothing = slipRateSmoothing;		
 		this.relativeGR_constraintWt = relativeGR_constraintWt;
 		this.grConstraintBvalue = grConstraintBvalue;
 		this.grConstraintRateScaleFactor = grConstraintRateScaleFactor;
@@ -490,7 +505,7 @@ public class SoSAF_SubSectionInversion_v3 {
 		if (transitionSlipRateAtEnds)
 			transitionSlipRateAtEnds();
 
-		if (slipRateSmoothing > 1)
+		if (slipRateSmoothing > 1 && slipRateConstraintAtSegCentersOnly == false)
 			smoothSlipRates(slipRateSmoothing);
 		/*
 		 * // print out subsection lengths, final slipRates, and aseis factors
@@ -564,6 +579,12 @@ public class SoSAF_SubSectionInversion_v3 {
 
 		// get the number of a-priori rate constraints
 		int num_aPriori_constraints = aPriori_rupIndex.length;
+		
+		// set the number of slip rate smoothing constraints
+		// leave out slip rate smoothing at fault intersections
+		ArrayList<Integer> subsectionsToSkip = new ArrayList<Integer>();
+		subsectionsToSkip.add(52); // San Jacinto-SSAF intersection
+		int numSlipRateSmoothnessConstraints = num_seg-2-2*subsectionsToSkip.size(); 
 
 		// set the minimum rupture rate constraints
 		if (minRupRate > 0.0) {
@@ -589,7 +610,10 @@ public class SoSAF_SubSectionInversion_v3 {
 
 		// segment slip-rates always used (for now)
 		firstRowSegSlipRateData = 0;
-		totNumRows = num_seg;
+		if (slipRateConstraintAtSegCentersOnly == false) 
+			totNumRows = num_seg; 
+		else 
+			totNumRows = numSubSections.length;
 		lastRowSegSlipRateData = totNumRows - 1;
 
 		// add segment rate constraints if needed
@@ -606,7 +630,7 @@ public class SoSAF_SubSectionInversion_v3 {
 			lastRowAprioriData = totNumRows - 1;
 		}
 
-		// add number of smoothness constraints
+		// add number of smoothness constraints (smoothness of rupture rates)
 		if (relative_smoothnessWt > 0) {
 			firstRowSmoothnessData = totNumRows;
 			if (numSegForSmallestRups == 1)
@@ -617,10 +641,17 @@ public class SoSAF_SubSectionInversion_v3 {
 			lastRowSmoothnessData = totNumRows - 1;
 		}
 
+		// add number of slip rate smoothing constraints
+		if (relativeSlipRateSmoothnessWt > 0) {
+			firstRowSlipRateSmoothnessData = totNumRows;
+			totNumRows += numSlipRateSmoothnessConstraints;
+			lastRowSlipRateSmoothnessData = totNumRows - 1;
+		}
+			
 		// add number of GR constraints
 		if (relativeGR_constraintWt > 0) {
 			firstRowGR_constraintData = totNumRows;
-			totNumRows += numGR_constraints;
+			// totNumRows += numGR_constraints;
 			lastRowGR_constraintData = totNumRows - 1;
 
 		}
@@ -634,7 +665,8 @@ public class SoSAF_SubSectionInversion_v3 {
 		System.out.println("\nfirstRowSegEventRateData="
 				+ firstRowSegEventRateData + ";\tfirstRowAprioriData="
 				+ firstRowAprioriData + ";\tfirstRowSmoothnessData="
-				+ firstRowSmoothnessData + ";\tfirstRowGR_constraintData="
+				+ firstRowSmoothnessData + ";\tfirstRowSlipRateSmoothnessData="
+				+ firstRowSlipRateSmoothnessData + ";\tfirstRowGR_constraintData="
 				+ firstRowGR_constraintData + ";\tfirstRowParkSegConstraint="
 				+ firstRowParkSegConstraint + ";\ttotNumRows=" + totNumRows
 				+ "\n");
@@ -655,13 +687,29 @@ public class SoSAF_SubSectionInversion_v3 {
 		// CREATE THE MODEL AND DATA MATRICES
 
 		// first fill in the slip-rate constraints & wts
+		int cmlNumRows = 0;
+		int centerSegIndex = 0;
 		for (int row = firstRowSegSlipRateData; row <= lastRowSegSlipRateData; row++) {
-			d[row] = segSlipRate[row] * (1 - moRateReduction);
-			if (wtedInversion)
-				data_wt[row] = 1 / ((1 - moRateReduction) * segSlipRateStdDev[row]);
-			for (int col = 0; col < num_rup; col++)
-				C[row][col] = segSlipInRup[row][col];
+			if (slipRateConstraintAtSegCentersOnly == false) {
+				d[row] = segSlipRate[row] * (1 - moRateReduction);	
+				if (wtedInversion)
+					data_wt[row] = 1 / ((1 - moRateReduction) * segSlipRateStdDev[row]);
+				for (int col = 0; col < num_rup; col++)
+					C[row][col] = segSlipInRup[row][col]; 
+				}
+			else {
+				centerSegIndex = numSubSections[row-firstRowSegSlipRateData]/2 + cmlNumRows;
+				// System.out.println("centerSegIndex = " + centerSegIndex);
+				d[row] = segSlipRate[centerSegIndex]*(1 - moRateReduction);
+				if (wtedInversion)
+					data_wt[row] = 1 / ((1 - moRateReduction) * segSlipRateStdDev[centerSegIndex]);
+				for (int col = 0; col < num_rup; col++)
+					C[row][col] = segSlipInRup[centerSegIndex][col];
+				cmlNumRows += numSubSections[row-firstRowSegSlipRateData];
+			}
 		}
+				
+		
 		// now fill in the segment event rate constraints if requested
 		if (relativeSegRateWt > 0.0) {
 			SegRateConstraint constraint;
@@ -692,7 +740,7 @@ public class SoSAF_SubSectionInversion_v3 {
 				C[row][col] = 1.0;
 			}
 		}
-		// add the smoothness constraint
+		// add the smoothness constraint on rupture rates
 		if (relative_smoothnessWt > 0.0) {
 			int row = firstRowSmoothnessData;
 			int counter = 0;
@@ -711,6 +759,23 @@ public class SoSAF_SubSectionInversion_v3 {
 				// row="+row+"\trup="+rup+"\tcounter="+counter);
 			}
 		}
+		
+		// add the smoothness constraint on slip rates
+		if (relativeSlipRateSmoothnessWt > 0.0) {
+			int row = firstRowSlipRateSmoothnessData-1;	
+			for (int i=1; i<numSlipRateSmoothnessConstraints; i++) {
+				if (subsectionsToSkip.contains(i)==false && subsectionsToSkip.contains(i-1)==false) {
+					row++;
+					for (int col = 0; col < num_rup; col++) 
+						C[row][col] = - segSlipInRup[i-1][col] + 2 * segSlipInRup[i][col] - segSlipInRup[i+1][col];
+					//	C[row][col] = segSlipInRup[i-2][col] - 4 * segSlipInRup[i-1][col] + 6 * segSlipInRup[i][col] - 4 * segSlipInRup[i+1][col] + segSlipInRup[i+2][col];
+					d[row]=0;
+				}
+			}
+		}
+		
+		
+		
 		// System.out.println("num_smooth_constrints="+num_smooth_constrints);
 		// now fill in the GR constraint if needed
 		if (relativeGR_constraintWt > 0.0) {
@@ -722,13 +787,9 @@ public class SoSAF_SubSectionInversion_v3 {
 			gr.setAllButTotCumRate(5, largestGR_constriantMag, totMoRate,
 					grConstraintBvalue);
 			double totRate = gr.getTotCumRate();
-			gr.scaleToCumRate(0, totRate * grConstraintRateScaleFactor); // grConstraintRateScaleFactor
-																			// adjusts
-																			// the
-																			// a-value
-																			// up
-																			// op
-																			// down
+			// grConstraintRateScaleFactor adjusts the a-value up or down
+			gr.scaleToCumRate(0, totRate * grConstraintRateScaleFactor); 
+
 			System.out.println("GR Constraint's Incremental Rate At M=6.5:\t"
 					+ (float) gr.getIncrRate(6.5) + "\t");
 			for (int i = 0; i < numGR_constraints; i++) {
@@ -815,7 +876,7 @@ public class SoSAF_SubSectionInversion_v3 {
 				C_wted[row][col] = full_wt[row];
 			}
 		}
-		// smoothness constraint wts
+		// rupture rate smoothness constraint wts
 		if (relative_smoothnessWt > 0.0) {
 			int row = firstRowSmoothnessData;
 			for (int rup = 0; rup < num_rup; rup++) {
@@ -830,6 +891,17 @@ public class SoSAF_SubSectionInversion_v3 {
 				}
 			}
 		}
+		// slip rate smoothness constraint wts
+		if (relativeSlipRateSmoothnessWt > 0.0) {
+			for (int i = 0; i < numSlipRateSmoothnessConstraints; i++) {
+				int row = i + firstRowSlipRateSmoothnessData;
+				full_wt[row] = relativeSlipRateSmoothnessWt;
+				d_wted[row] *= full_wt[row];
+				for (int rup = 0; rup < num_rup; rup++)
+					C_wted[row][rup] *= full_wt[row];
+			}
+		}	
+		
 		// GR constraint wts
 		if (relativeGR_constraintWt > 0.0) {
 			for (int i = 0; i < numGR_constraints; i++) {
@@ -870,7 +942,13 @@ public class SoSAF_SubSectionInversion_v3 {
 		// SOLVE THE INVERSE PROBLEM
 		// rupRateSolution = getNNLS_solution(C_wted, d_wted);
 		rupRateSolution = getSimulatedAnnealing_solution(C_wted, d_wted);
-
+		
+		//System.out.print("\n");
+		//System.out.print("rupRateSolution:\n");
+		//for (int col = 0; col < num_rup; col++)
+		//	System.out.println(rupRateSolution[col]);
+		//System.out.print("\n");               
+		
 		// CORRECT FINAL RATES IF MINIMUM RATE CONSTRAINT APPLIED
 		if (minRupRate > 0.0)
 			for (int rup = 0; rup < num_rup; rup++)
@@ -943,6 +1021,7 @@ public class SoSAF_SubSectionInversion_v3 {
 					.getSubSectionsList(this.maxSubsectionLength));
 			// compute & write the number of subsections for this section
 			numSubSections[i] = subSectionList.size() - lastNum;
+			// System.out.println(faultSectionPrefData.getSectionName()+"\t"+subSectionList.size());
 			// System.out.println(faultSectionPrefData.getSectionName()+"\t"+numSubSections[i]);
 			lastNum = subSectionList.size();
 
@@ -1434,7 +1513,7 @@ public class SoSAF_SubSectionInversion_v3 {
 	}
 
 	/**
-	 * This gets the smoothness prediction error regardless of whether it was
+	 * This gets the rupture rate smoothness prediction error regardless of whether it was
 	 * used in the inversion
 	 * 
 	 * @return
@@ -1451,6 +1530,29 @@ public class SoSAF_SubSectionInversion_v3 {
 		}
 		return predErr;
 	}
+	
+	
+	/**
+	 * This gets the slip rate smoothness prediction error regardless of whether it was
+	 * used in the inversion
+	 * 
+	 * @return
+	 */
+	private double getTotSlipRateSmoothnessPredErr() {
+		double predErr = 0;
+		double temp;
+		for (int row = 0; row < num_seg; row++) {
+			temp=0;
+			for (int col = 0; col < num_rup-1; col++) {
+				temp += segSlipInRup[row][col] * rupRateSolution[col]
+				     - segSlipInRup[row][col] * rupRateSolution[col+1];
+			}
+			predErr += temp * temp;
+			
+		}
+		return predErr;
+	}
+	
 
 	// This gets the seg-rate constraints by associating locations from Appendix
 	// C to those sub-sections created here
@@ -1631,6 +1733,9 @@ public class SoSAF_SubSectionInversion_v3 {
 		int nRow = A.length;
 		int nCol = A[0].length;
 
+		System.out.println("nRow = " + nRow);
+		System.out.println("nCol = " + nCol);
+		
 		double[] x = new double[nCol]; // current model
 		double[] xbest = new double[nCol]; // best model seen so far
 		double[] xnew = new double[nCol]; // new perturbed model
@@ -1639,17 +1744,26 @@ public class SoSAF_SubSectionInversion_v3 {
 		double[] syn = new double[nRow]; // data synthetics
 		double[] misfit = new double[nRow]; // mifit between data and synthetics
 
-		double E, Enew, Ebest, T, P;
+		double E, Enew, Ebest, T, P, r;
 		int i, j, iter, numiter, index;
 
+		//Random r = new Random(System.currentTimeMillis());
+		
 		// Set initial state (random or a priori starting model)
 		for (i = 0; i < nCol; i++) {
 			initial_state[i] = 0; // Need to Change !!!
+		//	initial_state[i] = Math.random() / 100000;
 		}
-		x = initial_state;
-
+		for (j = 0; j < nCol; j++) {
+			x[j] = initial_state[j];
+		}
+		// x=initial_state.clone();
+		
 		// Initial "best" solution & its Energy
-		xbest = x;
+		for (j = 0; j < nCol; j++) {
+			xbest[j] = x[j];  
+		}
+		
 		E = 0;
 		for (i = 0; i < nRow; i++) {
 			syn[i] = 0;
@@ -1659,28 +1773,41 @@ public class SoSAF_SubSectionInversion_v3 {
 			misfit[i] = syn[i] - d[i];  // misfit between synthetics and data
 			E += Math.pow(misfit[i], 2);  // L2 norm of misfit vector
 		}
-		E = Math.sqrt(E);
+		//E = Math.sqrt(E);
 		Ebest = E;
-
+		System.out.println("Starting energy = " + Ebest);
+		
 		numiter = 100000;
 		for (iter = 1; iter <= numiter; iter++) {
-			if ((double) iter / 1000 == Math.floor(iter / 1000)) {
+			
+			
+			// Simulated annealing "temperature"
+			// T = 1 / (double) iter; 
+			// T = 1/Math.log( (double) iter);
+			// T = Math.pow(0.999,iter-1);
+			T = Math.exp(-( (double) iter - 1));
+			
+			if ((double) iter / 10000 == Math.floor(iter / 10000)) {
 				System.out.println("Iteration # " + iter);
+			//	System.out.println("T = " + T);
 				System.out.println("Lowest energy found = " + Ebest);
 			}
-			
-			T = 1 / (double) iter; // Simulated annealing "temperature"
+					
 			
 			// Pick neighbor of current model
 			for (j = 0; j < nCol; j++) {
 				xnew[j]=x[j];
 			}
 			
-			index = (int) Math.floor(Math.random() * nCol); // Index of model to
-															// randomly perturb
+			// Index of model to randomly perturb
+			index = (int) Math.floor(Math.random() * nCol); 
 			
-			perturb[index] = (Math.random() - 0.5) * 0.001; // Need to Change
-															// !!!
+			// How much to perturb index (can be a function of T)	
+			perturb[index] = (Math.random()-0.5) * 0.001;
+			// perturb[index] =  (1/Math.sqrt(T)) * r.nextGaussian() * 0.0001 * Math.exp(1/(2*T)); 
+			// perturb[index] = T * 0.001 * Math.tan(Math.PI*Math.random() - Math.PI/2);		
+			// r = Math.random();
+			// perturb[index] = Math.signum(r-0.5) * T * 0.001 * (Math.pow(1+1/T,Math.abs(2*r-1))-1);
 			
 			// Nonnegativity constraint
 			// while (x[index] + perturb[index] < 0) {
@@ -1701,11 +1828,12 @@ public class SoSAF_SubSectionInversion_v3 {
 				misfit[i] = syn[i] - d[i];  // misfit between synthetics and data
 				Enew += Math.pow(misfit[i], 2);  // L2 norm of misfit vector
 			}
-			Enew = Math.sqrt(Enew);
+			//Enew = Math.sqrt(Enew);
 			
 			// Is this a new best?
 			if (Enew < Ebest) {
-				xbest = xnew;
+				for (j = 0; j < nCol; j++) {
+					xbest[j] = xnew[j]; }
 				Ebest = Enew;
 			}
 
@@ -1713,8 +1841,9 @@ public class SoSAF_SubSectionInversion_v3 {
 			if (Enew < E) {
 				P = 1; // Always keep new model if better
 			} else {
-				P = Math.exp((E - Enew) / (double) T); // Sometimes keep new model if
-												// worse (depends on T)
+			
+				// Sometimes keep new model if worse (depends on T)
+				P = Math.exp((E - Enew) / (double) T); 
 			}
 			
 			if (P > Math.random()) {
@@ -1974,7 +2103,7 @@ public class SoSAF_SubSectionInversion_v3 {
 	public void writePredErrorInfo() {
 
 		// First without equation weights
-		double totPredErr = 0, slipRateErr = 0, eventRateErr = 0, aPrioriErr = 0, smoothnessErr = 0, grErr = 0, parkSegRateErr = 0;
+		double totPredErr = 0, slipRateErr = 0, eventRateErr = 0, aPrioriErr = 0, smoothnessErr = 0, SlipRateSmoothnessErr = 0, grErr = 0, parkSegRateErr = 0;
 
 		for (int row = firstRowSegSlipRateData; row <= lastRowSegSlipRateData; row++)
 			slipRateErr += (d[row] - d_pred[row]) * (d[row] - d_pred[row])
@@ -1991,6 +2120,10 @@ public class SoSAF_SubSectionInversion_v3 {
 			for (int row = firstRowSmoothnessData; row <= lastRowSmoothnessData; row++)
 				smoothnessErr += (d[row] - d_pred[row])
 						* (d[row] - d_pred[row]) * data_wt[row] * data_wt[row];
+		if (relativeSlipRateSmoothnessWt > 0)
+			for (int row = firstRowSlipRateSmoothnessData; row <= lastRowSlipRateSmoothnessData; row++)
+				SlipRateSmoothnessErr += (d[row] - d_pred[row])
+						* (d[row] - d_pred[row]) * data_wt[row] * data_wt[row];
 		if (relativeGR_constraintWt > 0)
 			for (int row = firstRowGR_constraintData; row <= lastRowGR_constraintData; row++) {
 				grErr += (d[row] - d_pred[row]) * (d[row] - d_pred[row])
@@ -2003,29 +2136,32 @@ public class SoSAF_SubSectionInversion_v3 {
 			for (int row = firstRowParkSegConstraint; row <= lastRowParkSegConstraint; row++)
 				parkSegRateErr += (d[row] - d_pred[row])
 						* (d[row] - d_pred[row]) * data_wt[row] * data_wt[row];
-		totPredErr = slipRateErr + eventRateErr + aPrioriErr + smoothnessErr
+		totPredErr = slipRateErr + eventRateErr + aPrioriErr + smoothnessErr + SlipRateSmoothnessErr
 				+ grErr + parkSegRateErr;
 
 		// get alt versions in case equation wts zero
 		double eventRateErrAlt = getTotEventRatePredErr();
 		double smoothnessErrAlt = getTotSmoothnessPredErr();
-
+		double SlipRateSmoothnessErrAlt = getTotSlipRateSmoothnessPredErr();
+		
 		double aveSRnormResid = Math.sqrt(slipRateErr / num_seg);
 		double aveERnormResid = Math.sqrt(eventRateErrAlt
 				/ segRateConstraints.size());
 
-		String resultsString = "\nTotal Prediction Error =\t"
-				+ (float) totPredErr + "\n\t" + "Slip Rate Err =\t\t"
+		String resultsString = "\nTotal Prediction Error =\t\t"
+				+ (float) totPredErr + "\n\t" + "Slip Rate Err =\t\t\t"
 				+ (float) slipRateErr + "\trel. wt = 1.0"
 				+ "\tnorm resid rms = " + (float) aveSRnormResid + "\n\t"
-				+ "Event Rate Err =\t" + (float) eventRateErrAlt
+				+ "Event Rate Err =\t\t" + (float) eventRateErrAlt
 				+ "\trel. wt = " + relativeSegRateWt + "\tnorm resid rms = "
-				+ (float) aveERnormResid + "\n\t" + "A Priori Err =\t\t"
+				+ (float) aveERnormResid + "\n\t" + "A Priori Err =\t\t\t"
 				+ (float) aPrioriErr + "\trel. wt = " + relative_aPrioriRupWt
-				+ "\n\t" + "Smoothness Err =\t" + (float) smoothnessErrAlt
-				+ "\trel. wt = " + relative_smoothnessWt + "\n\t"
-				+ "GR Err =\t" + (float) grErr + "\trel. wt = "
-				+ relativeGR_constraintWt + "\n\t" + "Parkfield Seg Err =\t"
+				+ "\n\t" + "Smoothness Err =\t\t" + (float) smoothnessErrAlt		
+				+ "\trel. wt = " + relative_smoothnessWt + "\n\t"		
+				+ "Slip Rate Smoothing Err =\t" + (float) SlipRateSmoothnessErrAlt		
+				+ "\trel. wt = " + relativeSlipRateSmoothnessWt + "\n\t"		
+				+ "GR Err =\t\t\t" + (float) grErr + "\trel. wt = "
+				+ relativeGR_constraintWt + "\n\t" + "Parkfield Seg Err =\t\t"
 				+ (float) parkSegRateErr + "\trel. wt = "
 				+ relative_aPrioriSegRateWt + "\n\t";
 
@@ -2037,6 +2173,7 @@ public class SoSAF_SubSectionInversion_v3 {
 		eventRateErr = 0;
 		aPrioriErr = 0;
 		smoothnessErr = 0;
+		SlipRateSmoothnessErr = 0;
 		grErr = 0;
 		parkSegRateErr = 0;
 		for (int row = firstRowSegSlipRateData; row <= lastRowSegSlipRateData; row++)
@@ -2054,6 +2191,10 @@ public class SoSAF_SubSectionInversion_v3 {
 			for (int row = firstRowSmoothnessData; row <= lastRowSmoothnessData; row++)
 				smoothnessErr += (d[row] - d_pred[row])
 						* (d[row] - d_pred[row]) * full_wt[row] * full_wt[row];
+		if (relativeSlipRateSmoothnessWt > 0)
+			for (int row = firstRowSlipRateSmoothnessData; row <= lastRowSlipRateSmoothnessData; row++)
+				SlipRateSmoothnessErr += (d[row] - d_pred[row])
+						* (d[row] - d_pred[row]) * full_wt[row] * full_wt[row];
 		if (relativeGR_constraintWt > 0)
 			for (int row = firstRowGR_constraintData; row <= lastRowGR_constraintData; row++)
 				grErr += (d[row] - d_pred[row]) * (d[row] - d_pred[row])
@@ -2062,19 +2203,21 @@ public class SoSAF_SubSectionInversion_v3 {
 			for (int row = firstRowParkSegConstraint; row <= lastRowParkSegConstraint; row++)
 				parkSegRateErr += (d[row] - d_pred[row])
 						* (d[row] - d_pred[row]) * full_wt[row] * full_wt[row];
-		totPredErr = slipRateErr + eventRateErr + aPrioriErr + smoothnessErr
+		totPredErr = slipRateErr + eventRateErr + aPrioriErr + smoothnessErr + SlipRateSmoothnessErr
 				+ grErr + parkSegRateErr;
 
-		System.out.println("\nTotal Pred Err w/ Eq Wts =\t"
-				+ (float) totPredErr + "\n\t" + "Slip Rate Err =\t\t"
+		System.out.println("\nTotal Pred Err w/ Eq Wts =\t\t"
+				+ (float) totPredErr + "\n\t" + "Slip Rate Err =\t\t\t"
 				+ (float) slipRateErr + "\trel. wt = 1.0\n\t"
-				+ "Event Rate Err =\t" + (float) eventRateErr + "\trel. wt = "
-				+ relativeSegRateWt + "\n\t" + "A Priori Err =\t\t"
+				+ "Event Rate Err =\t\t" + (float) eventRateErr + "\trel. wt = "
+				+ relativeSegRateWt + "\n\t" + "A Priori Err =\t\t\t"
 				+ (float) aPrioriErr + "\trel. wt = " + relative_aPrioriRupWt
-				+ "\n\t" + "Smoothness Err =\t" + (float) smoothnessErr
+				+ "\n\t" + "Smoothness Err =\t\t" + (float) smoothnessErr
 				+ "\trel. wt = " + relative_smoothnessWt + "\n\t"
-				+ "GR Err =\t" + (float) grErr + "\trel. wt = "
-				+ relativeGR_constraintWt + "\n\t" + "Parkfield Seg Err =\t"
+				+ "Slip Rate Smoothing Err =\t" + (float) SlipRateSmoothnessErr
+				+ "\trel. wt = " + relativeSlipRateSmoothnessWt + "\n\t"
+				+ "GR Err =\t\t\t" + (float) grErr + "\trel. wt = "
+				+ relativeGR_constraintWt + "\n\t" + "Parkfield Seg Err =\t\t"
 				+ (float) parkSegRateErr + "\trel. wt = "
 				+ relative_aPrioriSegRateWt + "\n\t");
 
@@ -2209,6 +2352,7 @@ public class SoSAF_SubSectionInversion_v3 {
 		max = num_rup - 1;
 		EvenlyDiscretizedFunc rupRateFunc = new EvenlyDiscretizedFunc(min, max,
 				num_rup);
+	
 		for (int rup = 0; rup < num_rup; rup++) {
 			rupRateFunc.set(rup, rupRateSolution[rup]);
 		}
@@ -2420,7 +2564,7 @@ public class SoSAF_SubSectionInversion_v3 {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-
+		
 		SoSAF_SubSectionInversion_v3 soSAF_SubSections = new SoSAF_SubSectionInversion_v3();
 
 		/* */
@@ -2436,15 +2580,16 @@ public class SoSAF_SubSectionInversion_v3 {
 		double relativeSegRateWt = 1;
 		double relative_aPrioriRupWt = 1;
 		double relative_smoothnessWt = 0; // 10 (Ned) or 10000(MP)
+		double relativeSlipRateSmoothnessWt = 1000; // 1000
 		boolean wtedInversion = true;
 		double minRupRate = 0;
 		boolean applyProbVisible = true;
 		double moRateReduction = 0.1;
 		boolean transitionAseisAtEnds = true;
 		boolean transitionSlipRateAtEnds = true;
-		int slipRateSmoothing = 5;
-		// double relativeGR_constraintWt = 0.0;
-		double relativeGR_constraintWt = 1e3;// 1e6
+		boolean slipRateConstraintAtSegCentersOnly = false;
+		int slipRateSmoothing = 1; // Only used if slipRateConstraintAtSegCentersOnly=false
+		double relativeGR_constraintWt = 0; // 1e6 (Ned) // 1e4 (Morgan)
 		// double grConstraintBvalue = 0;
 		// double grConstraintRateScaleFactor = 0.83; // for case where b=0
 		double grConstraintBvalue = 1;
@@ -2454,9 +2599,9 @@ public class SoSAF_SubSectionInversion_v3 {
 		soSAF_SubSections.doInversion(maxSubsectionLength,
 				numSegForSmallestRups, deformationModel, slipModelType,
 				magAreaRel, relativeSegRateWt, relative_aPrioriRupWt,
-				relative_smoothnessWt, wtedInversion, minRupRate,
+				relative_smoothnessWt, relativeSlipRateSmoothnessWt, wtedInversion, minRupRate,
 				applyProbVisible, moRateReduction, transitionAseisAtEnds,
-				transitionSlipRateAtEnds, slipRateSmoothing,
+				transitionSlipRateAtEnds, slipRateConstraintAtSegCentersOnly, slipRateSmoothing,
 				relativeGR_constraintWt, grConstraintBvalue,
 				grConstraintRateScaleFactor, relative_aPrioriSegRateWt);
 
@@ -2484,9 +2629,9 @@ public class SoSAF_SubSectionInversion_v3 {
 		 * **********\n");
 		 * soSAF_SubSections.doInversion(maxSubsectionLength,numSegForSmallestRups,deformationModel,
 		 * slipModelType, magAreaRel, relativeSegRateWt, relative_aPrioriRupWt,
-		 * relative_smoothnessWt, wtedInversion, minRupRate, applyProbVisible,
+		 * relative_smoothnessWt, relativeSlipRateSmoothnessWt, wtedInversion, minRupRate, applyProbVisible,
 		 * moRateReduction, transitionAseisAtEnds, transitionSlipRateAtEnds,
-		 * slipRateSmoothing, relativeGR_constraintWt, grConstraintBvalue,
+		 * slipRateConstraintAtSegCentersOnly, slipRateSmoothing, relativeGR_constraintWt, grConstraintBvalue,
 		 * scale, relative_aPrioriSegRateWt);
 		 * //soSAF_SubSections.writeFinalStuff();
 		 * soSAF_SubSections.writePredErrorInfo(); }

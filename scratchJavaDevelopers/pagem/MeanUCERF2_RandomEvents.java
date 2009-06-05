@@ -31,9 +31,12 @@ public class MeanUCERF2_RandomEvents {
 	 * @param args
 	 */
 	public static void main(String []args) {
+		
+		
+		
 		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
 		meanUCERF2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
-		meanUCERF2.getTimeSpan().setDuration(30.0);
+		meanUCERF2.getTimeSpan().setDuration(3000.0);
 		meanUCERF2.updateForecast();
 //		for(int i=0;i<5;i++) {
 			ArrayList<ProbEqkRupture> rupList = meanUCERF2.drawRandomEventSet();
