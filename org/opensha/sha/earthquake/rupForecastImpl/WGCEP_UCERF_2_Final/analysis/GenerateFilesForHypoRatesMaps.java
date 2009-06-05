@@ -60,6 +60,9 @@ System.out.println("UCERF2");
 			new RELM_ERF_ToGriddedHypoMagFreqDistForecast(meanUCERF2, evenlyGriddedRegion,
 					minMag, maxMag, numMag, duration); 
 
+// this is a high-bulge location (index= 1638 , lat=34.4, lon=-118.7, ratio=9.6377)
+// System.out.println(griddedHypoMagFeqDistForecast1.getHypoMagFreqDistAtLoc(1638).getFirstMagFreqDist().toString());
+// System.out.println(griddedHypoMagFeqDistForecast1.getHypoMagFreqDistAtLoc(1638).getFirstMagFreqDist().getCumRateDist().toString());
 		// minLat=31.5, maxLat=43.0, minLon=-125.4, MaxLon=-113.1
 		generateNedsBulgeFiles("UCERF2", griddedHypoMagFeqDistForecast1);
 
