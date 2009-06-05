@@ -58,5 +58,8 @@ public interface DependentParameterAPI<E> extends ParameterAPI<E> {
 
     /** see implementation in the DependentParameter class for information */
     public String getDependentParamMetadataString();
+    
+    /** see implementation in the DependentParameter class for information */
+    public int getNumIndependentParameters();
 
 }

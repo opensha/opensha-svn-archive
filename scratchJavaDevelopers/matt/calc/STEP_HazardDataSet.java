@@ -156,7 +156,9 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 		//attenRel.setIntensityMeasure(((ShakeMap_2003_AttenRel)attenRel).PGA_NAME);
 		//attenRel.setIntensityMeasure(((ShakeMap_2003_AttenRel)attenRel).SA_NAME, SA_PERIOD);
 		attenRel.setParamDefaults();
-		attenRel.setIntensityMeasure(((BA_2006_AttenRel)attenRel).SA_NAME, SA_PERIOD);
+	      attenRel.setIntensityMeasure(AttenuationRelationship.SA_NAME);
+	      attenRel.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(SA_PERIOD);
+//		attenRel.setIntensityMeasure(((BA_2006_AttenRel)attenRel).SA_NAME, SA_PERIOD);
 
 	}
 	//}

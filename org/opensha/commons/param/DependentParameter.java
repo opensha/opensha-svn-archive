@@ -243,4 +243,11 @@ public abstract class DependentParameter<E>
     }
     return list;
   }
+  
+  /**
+   * Returns the number of independent parameters
+   */
+  public int getNumIndependentParameters() {
+	  return independentParameters.size();
+  }
 }

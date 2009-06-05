@@ -522,6 +522,12 @@ public class TranslatedWarningDoubleParameter
     /** Direct proxy to wrapped parameter. See that class for documentation. */
     public String getIndependentParametersKey(){
         return param.getIndependentParametersKey() ;}
+    
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
+	  public int getNumIndependentParameters() {
+		  return param.getNumIndependentParameters();
+	  }
+
 
 
 
@@ -676,5 +682,5 @@ public class TranslatedWarningDoubleParameter
 		return paramEdit;
 	}
 
-
+	
 }

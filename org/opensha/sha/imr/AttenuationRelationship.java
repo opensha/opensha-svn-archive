@@ -463,6 +463,7 @@ public abstract class AttenuationRelationship
   public final static String COMPONENT_AVE_HORZ = "Average Horizontal";
   public final static String COMPONENT_GMRotI50 = "Average Horizontal (GMRotI50)";
   public final static String COMPONENT_RANDOM_HORZ = "Random Horizontal";
+  public final static String COMPONENT_GREATER_OF_TWO_HORZ = "Greater of Two Horz.";
   public final static String COMPONENT_VERT = "Vertical";
   public final static String COMPONENT_INFO = "Component of shaking";
   // constraint will be created and added in subclass

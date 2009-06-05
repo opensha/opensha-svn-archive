@@ -747,7 +747,9 @@ public class BCR_Application extends JFrame
 	    // intialize the hazard function
 	    ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
 	    initX_Values(hazFunction,imls,imt);
-	    ((AttenuationRelationship)imr).setIntensityMeasure(imt,period);
+	    imr.setIntensityMeasure(imt);
+	    imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(period);
+//	    ((AttenuationRelationship)imr).setIntensityMeasure(imt,period);
 	    //System.out.println("22222222HazFunction: "+hazFunction.toString());
 	    try {
 	      // calculate the hazard curve

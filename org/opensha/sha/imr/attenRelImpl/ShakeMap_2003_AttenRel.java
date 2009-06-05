@@ -114,11 +114,6 @@ public class ShakeMap_2003_AttenRel
   protected final static Double MAG_WARN_MIN = new Double(3.3);
   protected final static Double MAG_WARN_MAX = new Double(7.5);
 
-  /**
-   * Thier maximum horizontal component option.
-   */
-  public final static String COMPONENT_GREATER_OF_TWO_HORZ =
-      "Greater of Two Horz.";
 
   // Joyner-Boore Distance parameter
   private DistanceJBParameter distanceJBParam = null;

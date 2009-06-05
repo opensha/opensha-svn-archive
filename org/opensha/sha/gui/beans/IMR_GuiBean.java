@@ -215,12 +215,36 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 		int numSupportedAttenRels = supportedAttenRels.size();
 		for(int i=0;i < numSupportedAttenRels;++i){
 			AttenuationRelationship attenRel = (AttenuationRelationship)supportedAttenRels.get(i);
-			if(attenRel.isIntensityMeasureSupported(currentIMT,currentPeriod) && 
-					attenRel.isIntensityMeasureSupported(retroIMT,retroPeriod) )
+			if(isIntensityMeasureSupported(attenRel,currentIMT,currentPeriod) && 
+					isIntensityMeasureSupported(attenRel,retroIMT,retroPeriod) )
 				attenRelsSupportedForIM.add(attenRel);
 		}
 		return attenRelsSupportedForIM;
 	}
+	
+	  /**
+	   * Checks if the Parameter is a supported intensity-Measure (checking
+	   * only the name and Period).
+	   * @param intensityMeasure Name of the intensity Measure parameter
+	   * @param period Period Param Name is intensity measure is SA
+	   * @return
+	   */
+	  public boolean isIntensityMeasureSupported(AttenuationRelationship attenRel,String intensityMeasure, double period){
+		  if(attenRel.isIntensityMeasureSupported(intensityMeasure)){
+			ParameterAPI imParam = attenRel.getSupportedIntensityMeasuresList().getParameter(intensityMeasure);
+			if(imParam.getName().equals(AttenuationRelationship.SA_NAME)){
+		        if (attenRel.getParameter(AttenuationRelationship.PERIOD_NAME).isAllowed(period)) {
+		          return true;
+		        }
+		        else {
+		          return false;
+		        }
+			}
+			return true;
+		  }
+		return false;
+	  }
+	  
 
 
 	/**

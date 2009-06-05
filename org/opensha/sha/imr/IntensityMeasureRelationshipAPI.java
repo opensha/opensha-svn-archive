@@ -9,6 +9,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
 
 
 
@@ -45,18 +46,19 @@ public interface IntensityMeasureRelationshipAPI
   public void setSite(Site site);
 
   /**
-   * This sets the site and probEqkRupture from the propEffect object passed in
+   * This sets the Site, EqkRupture, and perhaps other things from the propEffect 
+   * object passed in (implementation details will vary according to efficiency considerations).
    * @param propEffect
    */
   public void setPropagationEffect(PropagationEffect propEffect);
 
   /**
-   * Sets the exceed probabality param value. This function is only for setting
-   * the value of the Exceed Prob. Param , so that we can get the IML@ excced prob.
+   * This sets the probability to be used for getting the IML at a user-specified
+   * probability.  This value is not what is returned by the getExceedProbability() 
+   * method, as the latter is what is computed for a specified given IML. It's 
+   * important to understand this distinction.
    *
-   * @param prob : The value passed in to set the Exceed Prob Param is not what
-   * is returned back from function getExceedProb(), becuase that returns the
-   * computed exceedance probablity at the selected IML.
+   * @param prob
    *
    * @throws ParameterException
    */
@@ -70,7 +72,7 @@ public interface IntensityMeasureRelationshipAPI
   public EqkRupture getEqkRupture();
 
   /**
-   *  Sets the probEqkRupture object in the IMR as a reference
+   *  Sets the EqkRupture object in the IMR as a reference
    *  to the one passed in, and sets any earthquake-rupture related
    *  parameters that the IMR depends upon.
    *
@@ -96,9 +98,11 @@ public interface IntensityMeasureRelationshipAPI
 
   /**
    *  Sets the intensityMeasure parameter, not as a  pointer to that passed in,
-   *  but by finding the internally held one with the same name and then setting
-   *  its value (and the value of any of its independent parameters) to be equal
-   *  to that passed in.
+   *  but by finding and setting the internally held one with the same name, and 
+   *  also setting the values of any of its independent parameters to be equal
+   *  to the associated values of those passed in.  Note that the IML is not
+   *  set (the value of the selected IM is not set as the value of that passed in).
+   *  The latter could be changed if anyone so desires.
    *
    * @param  intensityMeasure  The new intensityMeasure Parameter
    */
@@ -173,8 +177,8 @@ public interface IntensityMeasureRelationshipAPI
   /**
    *  This calculates the probability that the intensity-measure level
    *  (the value in the Intensity-Measure Parameter) will be exceeded.
-   *  This function does not return the value set inside the exceedance
-   *  prob. param, rather return a computed probabilty value at choosen IML.
+   *  This function does not set or return the value in the exceedProbParam,
+   *  as the latter is for for computing the IML at a user-supplied prob.
    *
    * @return    The exceed Probability value
    */
@@ -208,7 +212,8 @@ public interface IntensityMeasureRelationshipAPI
   /**
    *  Returns the iterator over all Propagation-Effect related parameters
    * (perhaps this method should exist only in subclasses that have these types
-   * of parameters).
+   * of parameters?).  A Propagation-Effect related parameter is any parameter
+   * for which the value can be compute from a Site and eqkRupture object.
    *
    * @return    The Propagation Effect Parameters Iterator
    */
@@ -221,6 +226,21 @@ public interface IntensityMeasureRelationshipAPI
    * @return    The Supported Intensity-Measures Iterator
    */
   public ListIterator getSupportedIntensityMeasuresIterator();
+  
+  /**
+   *  Returns a list of all supported Intensity-Measure
+   *  Parameters.
+   *
+   * @return    The Supported Intensity-Measures Iterator
+   */
+  public ParameterList getSupportedIntensityMeasuresList();
+  
+  /**
+   *  Returns name of the IntensityMeasureRelationship.
+   *
+   * @return    The name string
+   */
+  public String getName();
   
   /**
    * This provides a URL where additional info can be found

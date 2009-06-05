@@ -160,7 +160,8 @@ public abstract class IntensityMeasureRelationship
   }
 
   /**
-   * This sets the site and EqkRupture from the propEffect object passed in
+   * This sets the Site & EqkRupture (and subclasses can set propagation effect params more
+   * efficiently by overriding this).
    * @param propEffect
    */
   public void setPropagationEffect(PropagationEffect propEffect) {
@@ -238,9 +239,11 @@ public abstract class IntensityMeasureRelationship
 
   /**
    *  Sets the intensityMeasure parameter, not as a  pointer to that passed in,
-   *  but by finding the internally held one with the same name and then setting
-   *  its value (and the value of any of its independent parameters) to be equal
-   *  to that passed in.
+   *  but by finding and setting the internally held one with the same name, and 
+   *  also setting the values of any of its independent parameters to be equal
+   *  to the associated values of those passed in.  Note that the IML is not
+   *  set (the value of the selected IM is not set as the value of that passed in).
+   *  The latter could be changed if anyone so desires.
    *
    * @param  intensityMeasure  The new intensityMeasure Parameter
    */
@@ -261,25 +264,7 @@ public abstract class IntensityMeasureRelationship
     }
   }
 
-  /**
-   *  This sets the intensityMeasure parameter as that which has the name
-   *  passed in and sets the passed in period  is IMT is SA.
-   *
-   * @param  intensityMeasure  The new intensityMeasureParameter name
-   */
-  public void setIntensityMeasure(String intensityMeasure , double period) throws
-      ParameterException, ConstraintException {
-
-    if (isIntensityMeasureSupported(intensityMeasure,period)) {
-        setIntensityMeasure(intensityMeasure);
-        if(intensityMeasure.equals(AttenuationRelationship.SA_NAME))
-           getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(period));
-    }
-    else {
-      throw new ParameterException("This im is not supported, name = " +
-                                   intensityMeasure);
-    }
-  }
+  
   
   /**
    *  This sets the intensityMeasure parameter as that which has the name
@@ -296,12 +281,12 @@ public abstract class IntensityMeasureRelationship
   }
 
   /**
-   * Sets the exceed probabality param value. This function is only for setting
-   * the value of the Exceed Prob. Param , so that we can get the IML@ excced prob.
+   * This sets the probability to be used for getting the IML at a user-specified
+   * probability.  This value is stored in exceedProbParam.  This value is not what 
+   * is returned by the getExceedProbability() method, as the latter is what is 
+   * computed for a specified given IML. It's important to understand this distinction.
    *
-   * @param prob : The value passed in to set the Exceed Prob Param is not what
-   * is returned back from function getExceedProb(), becuase that returns the
-   * computed exceedance probablity at the selected IML.
+   * @param prob
    *
    * @throws ParameterException
    */
@@ -311,35 +296,39 @@ public abstract class IntensityMeasureRelationship
   }
 
   /**
-   *  Checks if the Parameter is a supported intensity-Measure (checking
-   *  both the name and value, as well as any dependent parameters
-   *  (names and values) of the IM).  PROBLEM: THE VALUE OF THE IM IS NOT CHECKED,
-   *  AND THIS IMPLEMENTATION ASSUMES THAT ALL THE DEPENDENT PARAMETERS ARE DOUBLE
-   *  PARAMETERS - WE NEED TO FIX THE FORMER AND RELAX THAT LATTER.
+   *  Checks whether the intensity measure passed in is supported (checking
+   *  whether the name of that passed in is the same as the name of one of the
+   *  supported IMs, but not checking whether the value (IML) of that passed in is
+   *  supported (this could be changed is anyone so desires).  The name and value 
+   *  of all independent parameters associated with the intensity measure are also checked.
    *
    * @param  intensityMeasure  Description of the Parameter
    * @return                   True if this is a supported IMT
    */
   public boolean isIntensityMeasureSupported(ParameterAPI intensityMeasure) {
 
-    if (supportedIMParams.containsParameter(intensityMeasure)) {
-      //   ParameterAPI param = supportedIMParams.getParameter( intensityMeasure.getName() );
-      ListIterator it = ( (DependentParameterAPI) intensityMeasure).
-          getIndependentParametersIterator();
-      while (it.hasNext()) {
-        ParameterAPI param = (ParameterAPI) it.next();
-        if (getParameter(param.getName()).isAllowed(param.getValue())) {
-          continue;
-        }
-        else {
-          return false;
-        }
-      }
-      return true;
-    }
-    else {
-      return false;
-    }
+	  if (supportedIMParams.containsParameter(intensityMeasure)) {
+		  int numIndParams = ((DependentParameterAPI)getIntensityMeasure()).getNumIndependentParameters();
+		  //ParameterAPI param = supportedIMParams.getParameter( intensityMeasure.getName() );
+		  ListIterator it = ( (DependentParameterAPI) intensityMeasure).getIndependentParametersIterator();
+		  while (it.hasNext()) {
+			  ParameterAPI param = (ParameterAPI) it.next();
+			  if (getParameter(param.getName()).isAllowed(param.getValue())) {
+				  continue;
+			  }
+			  else {
+				  return false;
+			  }
+		  }
+		  // now check to make sure both have the same number of independent params
+		  if(( (DependentParameterAPI) intensityMeasure).getNumIndependentParameters() == numIndParams)
+			  return true;
+		  else
+			  return false;
+	  }
+	  else {
+		  return false;
+	  }
   }
 
   /**
@@ -355,28 +344,7 @@ public abstract class IntensityMeasureRelationship
     return false;
   }
   
-  /**
-   * Checks if the Parameter is a supported intensity-Measure (checking
-   * only the name and Period).
-   * @param intensityMeasure Name of the intensity Measure parameter
-   * @param period Period Param Name is intensity measure is SA
-   * @return
-   */
-  public boolean isIntensityMeasureSupported(String intensityMeasure,double period){
-	  if(isIntensityMeasureSupported(intensityMeasure)){
-		ParameterAPI imParam = supportedIMParams.getParameter(intensityMeasure);
-		if(imParam.getName().equals(AttenuationRelationship.SA_NAME)){
-	        if (getParameter(AttenuationRelationship.PERIOD_NAME).isAllowed(period)) {
-	          return true;
-	        }
-	        else {
-	          return false;
-	        }
-		}
-		return true;
-	  }
-	return false;
-  }
+
 
   /**
    *  Sets the eqkRupture, site, and intensityMeasure objects
@@ -496,7 +464,8 @@ public abstract class IntensityMeasureRelationship
   /**
    *  Returns the iterator over all Propagation-Effect related parameters
    * (perhaps this method should exist only in subclasses that have these types
-   * of parameters).
+   * of parameters?).  A Propagation-Effect related parameter is any parameter
+   * for which the value can be compute from a Site and eqkRupture object.
    *
    * @return    The Propagation Effect Parameters Iterator
    */
@@ -513,6 +482,17 @@ public abstract class IntensityMeasureRelationship
   public ListIterator<ParameterAPI> getSupportedIntensityMeasuresIterator() {
     return supportedIMParams.getParametersIterator();
   }
+  
+  /**
+   *  Returns a list of all supported Intensity-Measure
+   *  Parameters.
+   *
+   * @return    The Supported Intensity-Measures Iterator
+   */
+  public ParameterList getSupportedIntensityMeasuresList() {
+    return supportedIMParams;
+  }
+
   
   public Element toXMLMetadata(Element root) {
 	  Element xml = root.addElement(IntensityMeasureRelationship.XML_METADATA_NAME);
