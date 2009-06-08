@@ -115,7 +115,7 @@ public class DoubleConstraint extends ParameterConstraint<Double> {
      * @return      True if this is a Double and one of the allowed values.
      */
     public boolean isAllowed( Double d ) {
-        if( nullAllowed && ( d == null ) ) return true;
+        if( d == null ) return nullAllowed;
         if( ( min == null ) || ( max == null ) ) return true;
         else if( ( d.compareTo(min) >= 0 ) && ( d.compareTo(max) <= 0 ) ) return true;
         return false;
