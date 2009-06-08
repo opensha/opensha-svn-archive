@@ -201,8 +201,4 @@ implements WarningParameterAPI
 		return false;
 	}
 
-	public ParameterEditor getEditor() {
-		return null;
-	}
-
 }

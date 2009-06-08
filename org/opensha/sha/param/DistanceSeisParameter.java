@@ -200,8 +200,4 @@ public class DistanceSeisParameter
 		return false;
 	}
 
-
-	public ParameterEditor getEditor() {
-		return null;
-	}
 }
