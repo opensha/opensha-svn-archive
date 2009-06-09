@@ -70,6 +70,10 @@ public abstract class Parameter<E>
     /** The value object of this Parameter, subclasses will define the object type. */
     protected E value = null;
 
+
+    /** The default value object of this Parameter, subclasses will define the object type. */
+    protected E defaultValue = null;
+
     /**
      *  ArrayList of all the objects who want to listen on change of this paramter
      */
@@ -183,6 +187,37 @@ public abstract class Parameter<E>
 
         firePropertyChange( event );
     }
+   
+    
+    /**
+     *  Set's the default value.
+     *
+     * @param  defaultValue          The default value for this Parameter.
+     * @throws  ConstraintException  Thrown if the object value is not allowed.
+     */
+    public void setDefaultValue( E defaultValue ) throws ConstraintException {
+    	checkEditable(C + ": setDefaultValue(): ");
+    	
+        if ( !isAllowed( defaultValue ) ) {
+            throw new ConstraintException( getName() + ": setDefaultValue(): Value is not allowed: " + value.toString() );
+        }
+
+        this.defaultValue = defaultValue;
+    }
+    
+
+    /**
+     * This sets the value as the default setting
+     * @param value
+     */
+    public void setValueAsDefault() throws ConstraintException, ParameterException {
+    	setValue(value);
+    }
+    
+    
+    /** Returns the parameter's default value. Each subclass defines what type of object it returns. */
+    public E getDefaultValue()  { return defaultValue;}
+    
 
     /**
       *  Needs to be called by subclasses when field change fails
@@ -403,7 +438,7 @@ public abstract class Parameter<E>
 
 
     /**
-     *  Disables editing units, info, constraints, et. Basically all set()s disabled
+     *  Disables editing units, info, constraints, etc. Basically all set()s disabled
      *  except for setValue(). Once set non-editable, it cannot be set back.
      *  This is a one-time operation.
      */

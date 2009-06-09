@@ -284,6 +284,43 @@ public class TranslatedWarningDoubleParameter
             return new Double( d ) ;
         }
     }
+    
+    /**
+     *  Set's the default value.
+     *
+     * @param  defaultValue          The default value for this Parameter.
+     * @throws  ConstraintException  Thrown if the object value is not allowed.
+     */
+    public void setDefaultValue( Double defaultValue ) throws ConstraintException {
+    	/*
+    	checkEditable(C + ": setDefaultValue(): ");
+        if ( !isAllowed( defaultValue ) ) {
+            throw new ConstraintException( getName() + ": setDefaultValue(): Value is not allowed: " + value.toString() );
+        }
+        this.defaultValue = defaultValue;
+        */
+        throw new RuntimeException("not yet implemented");
+    }
+    
+
+    /**
+     * This sets the value as the default setting
+     * @param value
+     */
+    public void setValueAsDefault() throws ConstraintException, ParameterException {
+    	throw new RuntimeException("not yet implemented");
+    	//setValue(value);
+    }
+    
+    
+    /** Returns the parameter's default value. Each subclass defines what type of object it returns. */
+    public Double getDefaultValue()  { 
+    	throw new RuntimeException("not yet implemented");
+    	// return defaultValue;
+    }
+
+    
+   
 
 
     /**

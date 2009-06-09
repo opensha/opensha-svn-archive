@@ -100,6 +100,24 @@ public interface ParameterAPI<E> extends NamedObjectAPI, Comparable, XMLSaveable
 
     /** Returns the value stored in this parameter. */
     public E getValue();
+    
+    /**
+     *  Set's the default value.
+     *
+     * @param  defaultValue          The default value for this Parameter.
+     * @throws  ConstraintException  Thrown if the object value is not allowed.
+     */
+    public void setDefaultValue( E defaultValue );
+
+    /**
+     * This sets the value as the default setting
+     * @param value
+     */
+    public void setValueAsDefault();
+    
+    /** Returns the parameter's default value. Each subclass defines what type of object it returns. */
+    public E getDefaultValue();
+
 
     /**
      *  Set's the parameter's value.
@@ -214,9 +232,9 @@ public interface ParameterAPI<E> extends NamedObjectAPI, Comparable, XMLSaveable
 
 
     /**
-     * Disables editing the value once it is set. This permits
-     * a one time setup during initialization. Then the object ca
-     * be changed to read only.
+     *  Disables editing units, info, constraints, etc. Basically all set()s disabled
+     *  except for setValue(). Once set non-editable, it cannot be set back.
+     *  This is a one-time operation.
      */
     public void setNonEditable();
 
