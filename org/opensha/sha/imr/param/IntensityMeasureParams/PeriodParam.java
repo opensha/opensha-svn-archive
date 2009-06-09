@@ -17,8 +17,6 @@ import org.opensha.commons.param.WarningDoubleParameter;
  */
 public class PeriodParam extends DoubleDiscreteParameter {
 
-	private static final long serialVersionUID = 0xBD103F5;	// is this correct
-
 	public final static String NAME = "SA Period";
 	public final static String UNITS = "sec";
 	protected final static Double DEFAULT = new Double(1.0);

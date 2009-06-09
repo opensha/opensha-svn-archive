@@ -13,8 +13,6 @@ import org.opensha.commons.param.WarningDoubleParameter;
  */
 public class PGD_Param extends WarningDoubleParameter {
 
-	private static final long serialVersionUID = 0xBD103F5;	// is this correct
-
 	public final static String NAME = "PGD";
 	public final static String UNITS = "cm";
 	public final static Double DEFAULT = new Double(Math.log(0.01));

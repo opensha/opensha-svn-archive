@@ -8,8 +8,6 @@ import org.opensha.commons.param.WarningDoubleParameter;
  * Aftershock parameter, indicates whether or not an event is an aftershock
  */
 public class AftershockParam extends BooleanParameter {
-	
-	private static final long serialVersionUID = 0xBD103F5;	// is this correct
 
 	public final static String NAME = "Aftershock";
 	public final static String INFO = "Indicates whether earthquake is an aftershock";

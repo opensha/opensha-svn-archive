@@ -9,8 +9,6 @@ import org.opensha.commons.param.WarningDoubleParameter;
  * rupture.
  */
 public class RakeParam extends DoubleParameter {
-	
-	private static final long serialVersionUID = 0xBD103F5;	// is this correct
 
 	public final static String NAME = "Rake";
 	public final static String UNITS = "degrees";

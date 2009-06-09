@@ -9,8 +9,6 @@ import org.opensha.commons.param.WarningDoubleParameter;
  * rupture.
  */
 public class DipParam extends DoubleParameter {
-	
-	private static final long serialVersionUID = 0xBD103F5;	// is this correct
 
 	  public final static String NAME = "Dip";
 	  public final static String UNITS = "degrees";

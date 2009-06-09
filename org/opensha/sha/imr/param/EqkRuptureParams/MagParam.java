@@ -8,8 +8,6 @@ import org.opensha.commons.param.WarningDoubleParameter;
  * The warning constraint must be created and added after instantiation.
  */
 public class MagParam extends WarningDoubleParameter {
-	
-	private static final long serialVersionUID = 0xBD103F5;	// is this correct
 
 	public final static String NAME = "Magnitude";
 	// There are no units for Magnitude

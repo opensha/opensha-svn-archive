@@ -10,8 +10,6 @@ import org.opensha.commons.param.WarningDoubleParameter;
  * of value must be handled in the implementing class
  */
 public class HangingWallFlagParam extends BooleanParameter {
-	
-	private static final long serialVersionUID = 0xBD103F5;	// is this correct
 
 	  public final static String NAME = "Site on Hanging Wall";
 	  public final static String INFO = "Indicates whether the site is on the hanging wall";

@@ -1,0 +1,27 @@
+package org.opensha.sha.imr.param.PropagationEffectParams;
+
+import org.opensha.commons.param.DoubleConstraint;
+import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.WarningDoubleParameter;
+
+/**
+ * DistRupMinusDistX_OverRupParam - this represents distance X (relative to  
+ * dist rup), where distance X the horizontal distance to surface projection
+ * of the top edge of the rupture, extended to infinity off the ends.  
+ * This is not a formal propagation parameter because it's not used that way here
+ * (due to inefficiencies)
+ */
+public class DistRupMinusDistX_OverRupParam extends DoubleParameter {
+
+	public final static String NAME = "(distRup-distX)/distRup";
+	public final static String INFO = "(DistanceRup - DistanceX)/DistanceRup";
+	public final static Double MIN = new Double(Double.NEGATIVE_INFINITY);
+	public final static Double MAX = new Double(Double.POSITIVE_INFINITY);
+	public final static Double DEFAULT = new Double(0.0);
+
+	public DistRupMinusDistX_OverRupParam() {
+		super(NAME, MIN, MAX);
+	    setInfo(INFO);
+	    setDefaultValue(DEFAULT);
+	}
+}

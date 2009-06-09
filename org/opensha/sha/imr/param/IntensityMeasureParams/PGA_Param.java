@@ -12,8 +12,6 @@ import org.opensha.commons.param.WarningDoubleParameter;
  *
  */
 public class PGA_Param extends WarningDoubleParameter {
-	
-	private static final long serialVersionUID = 0xBD103F5;	// is this correct
 
 	public final static String NAME = "PGA";
 	public final static String UNITS = "g";

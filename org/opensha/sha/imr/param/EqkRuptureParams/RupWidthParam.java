@@ -7,8 +7,6 @@ import org.opensha.commons.param.WarningDoubleParameter;
  * RupWidthParam - Down-dip width of rupture.
  */
 public class RupWidthParam extends WarningDoubleParameter {
-	
-	private static final long serialVersionUID = 0xBD103F5;	// is this correct
 
 	public final static String NAME = "Down-Dip Width";
 	public final static String UNITS = "km";

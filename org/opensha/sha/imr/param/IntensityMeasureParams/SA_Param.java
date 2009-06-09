@@ -16,8 +16,6 @@ import org.opensha.commons.param.WarningDoubleParameter;
  */
 public class SA_Param extends WarningDoubleParameter {
 
-	private static final long serialVersionUID = 0xBD103F5;	// is this correct
-
 	  public final static String NAME = "SA";
 	  public final static String UNITS = "g";
 	  protected final static Double DEFAULT = new Double(Math.log(0.5));

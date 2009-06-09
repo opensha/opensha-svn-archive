@@ -17,8 +17,6 @@ import org.opensha.commons.param.WarningDoubleParameter;
  */
 public class DampingParam extends DoubleDiscreteParameter {
 
-	private static final long serialVersionUID = 0xBD103F5;	// is this correct
-
 	public final static String NAME = "SA Damping";
 	public final static String UNITS = " % ";
 	protected final static Double DEFAULT = new Double(5);
