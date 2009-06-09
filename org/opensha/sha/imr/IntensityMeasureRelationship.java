@@ -30,7 +30,7 @@ import org.opensha.sha.param.*;
  *
  *  <b>Description:</b> Abstract base class for Intensity Measure Relationship (IMR).
  *  All IMRs compute the probability of exceeding a particular shaking level (specified
- *  by an intensity-measure Parameter) given a Site and ProbEqkRupture object.
+ *  by an intensity-measure Parameter) given a Site and EqkRupture object.
  *  Subclasses will implement specific types of IMRs (e.g., AttenuationRelationship).
  *  This abstract IMR class also contains separate parameterList objects for the
  *  site, earthquake rupture, and propagation-effect related parameters, as well
@@ -43,7 +43,7 @@ import org.opensha.sha.param.*;
  *  IML at a particular probability in subclasses that support the getIML_AtExceedProb()
  *  method. <p>
  *
- * @author     Edward H. Field & Steven W. Rock
+ * @author     Edward H. Field
  * @created    February 21, 2002
  * @version    1.0
  * @see        IntensityMeasureRelationshipAPI
@@ -150,8 +150,7 @@ public abstract class IntensityMeasureRelationship
   }
 
   /**
-   *  Sets the Site object as a reference to that passed in, and sets
-   *  any internal site-related parameters that the IMR depends upon.
+   *  Sets the Site object as a reference to that passed in.
    *
    * @param  site  The new site object
    */
@@ -189,8 +188,7 @@ public abstract class IntensityMeasureRelationship
 
   /**
    *  Sets the EqkRupture object in the IMR as a reference
-   *  to the one passed in, and sets any earthquake-rupture related
-   *  parameters that the IMR depends upon.
+   *  to the one passed in.
    *
    * @param  eqkRupture  The new EqkRupture object
    */
@@ -291,7 +289,6 @@ public abstract class IntensityMeasureRelationship
    * @throws ParameterException
    */
   public void setExceedProb(double prob) throws ParameterException {
-    //just sets the exccedProb param value
     exceedProbParam.setValue(prob);
   }
 
@@ -367,10 +364,7 @@ public abstract class IntensityMeasureRelationship
    * @exception  IMRException         Description of the Exception
    * @exception  ConstraintException  Description of the Exception
    */
-  public void setAll(
-      EqkRupture eqkRupture,
-      Site site,
-      ParameterAPI intensityMeasure
+  public void setAll(EqkRupture eqkRupture, Site site, ParameterAPI intensityMeasure
       ) throws ParameterException, IMRException, ConstraintException {
     setSite(site);
     setEqkRupture(eqkRupture);
@@ -463,9 +457,8 @@ public abstract class IntensityMeasureRelationship
 
   /**
    *  Returns the iterator over all Propagation-Effect related parameters
-   * (perhaps this method should exist only in subclasses that have these types
-   * of parameters?).  A Propagation-Effect related parameter is any parameter
-   * for which the value can be compute from a Site and eqkRupture object.
+   *  A Propagation-Effect related parameter is any parameter
+   *  for which the value can be compute from a Site and eqkRupture object.
    *
    * @return    The Propagation Effect Parameters Iterator
    */
@@ -493,7 +486,9 @@ public abstract class IntensityMeasureRelationship
     return supportedIMParams;
   }
 
-  
+  /**
+   * This converts the IMR to an XML representation in an Element object
+   */
   public Element toXMLMetadata(Element root) {
 	  Element xml = root.addElement(IntensityMeasureRelationship.XML_METADATA_NAME);
 	  xml.addAttribute("className", this.getClass().getName());
@@ -602,7 +597,6 @@ public abstract class IntensityMeasureRelationship
   /**
    * This provides a URL where more info on this model can be obtained
    * @throws MalformedURLException if returned URL is not a valid URL.
-   * @returns the URL to the AttenuationRelationship document on the Web.
    * 
    * This default implementation returns nothing
    */

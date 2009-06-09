@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
+import org.dom4j.Element;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.ParameterException;
@@ -22,7 +23,7 @@ import org.opensha.sha.param.*;
  *  IntensityMeasureRelationship classes.  See the abstract class for more
  *  description.<br>
  *
- * @author     Edward H. Field & Steven W. Rock
+ * @author     Edward H. Field
  * @created    February 21, 2002
  * @version    1.0
  */
@@ -38,8 +39,7 @@ public interface IntensityMeasureRelationshipAPI
   public Site getSite();
 
   /**
-   *  Sets the Site object as a reference to that passed in, and sets
-   *  any internal site-related parameters that the IMR depends upon.
+   *  Sets the Site object as a reference to that passed in.
    *
    * @param  site  The new site object
    */
@@ -73,8 +73,7 @@ public interface IntensityMeasureRelationshipAPI
 
   /**
    *  Sets the EqkRupture object in the IMR as a reference
-   *  to the one passed in, and sets any earthquake-rupture related
-   *  parameters that the IMR depends upon.
+   *  to the one passed in.
    *
    * @param  EqkRupture  The new probEqkRupture object
    */
@@ -128,9 +127,11 @@ public interface IntensityMeasureRelationshipAPI
   public ParameterAPI getIntensityMeasure();
 
   /**
-   *  Checks if the Parameter is a supported intensity-Measure (checking
-   *  both the name and value, as well as any dependent parameters
-   *  (names and values) of the IM).
+   *  Checks whether the intensity measure passed in is supported (checking
+   *  whether the name of that passed in is the same as the name of one of the
+   *  supported IMs, but not checking whether the value (IML) of that passed in is
+   *  supported (this could be changed is anyone so desires).  The name and value 
+   *  of all independent parameters associated with the intensity measure are also checked.
    *
    * @param  intensityMeasure  Description of the Parameter
    * @return                   True if this is a supported IMT
@@ -154,11 +155,8 @@ public interface IntensityMeasureRelationshipAPI
    * @param  site                   The new Site
    * @param  intensityMeasure       The new IM
    */
-  public void setAll(
-      EqkRupture EqkRupture,
-      Site site,
-      ParameterAPI intensityMeasure
-      );
+  public void setAll(EqkRupture EqkRupture, Site site, ParameterAPI intensityMeasure);
+  
 
   /**
    * Returns a pointer to a parameter if it exists in one of the parameter lists
@@ -211,9 +209,8 @@ public interface IntensityMeasureRelationshipAPI
 
   /**
    *  Returns the iterator over all Propagation-Effect related parameters
-   * (perhaps this method should exist only in subclasses that have these types
-   * of parameters?).  A Propagation-Effect related parameter is any parameter
-   * for which the value can be compute from a Site and eqkRupture object.
+   *  A Propagation-Effect related parameter is any parameter
+   *  for which the value can be compute from a Site and eqkRupture object.
    *
    * @return    The Propagation Effect Parameters Iterator
    */
@@ -243,11 +240,22 @@ public interface IntensityMeasureRelationshipAPI
   public String getName();
   
   /**
+   * Returns a Short Name for the IMR
+   * @return String
+   */
+  public String getShortName();
+
+  
+  /**
    * This provides a URL where additional info can be found
    * @throws MalformedURLException if returned URL is not a valid URL.
-   * @returns the URL to the AttenuationRelationship document on the Web.
    */
   public URL getInfoURL() throws MalformedURLException;
 
+  /**
+   * This converts the IMR to an XML representation in an Element object
+   */
+
+  public Element toXMLMetadata(Element root);
 
 }

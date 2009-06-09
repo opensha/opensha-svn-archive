@@ -12,17 +12,12 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.ParameterAPI;
 
 
-
-
-
 /**
  * <b>Title:</b> AttenuationRelationshipAPI<br>
- * <b>Description:</b> AttenuationRelationship is a subclass of IntensityMeasureParameter
- * that uses a Gaussian distribution to compute probabilities.  It also assumes the
- * intensity-measure type is a scalar value (DoubleParameter).   See the abstract class
- * of AttenuationRelationship for more info. <br>
+ * <b>Description:</b> AttenuationRelationshipAPI extends IntensityMeasureParameterAPI
+ * for the case where the intensity-measure type is a scalar value (DoubleParameter).   
  *
- * @author     Edward H. Field & Steven W. Rock
+ * @author     Edward H. Field
  * @created    February 21, 2002
  * @version    1.0
  */
@@ -33,7 +28,7 @@ public interface AttenuationRelationshipAPI
 
     /**
      * This returns metadata for all parameters (only showing the independent parameters
-     * relevant for the presently chosen imt)
+     * relevant for the presently chosen imt).  This could exist in the parent class.
      * @return
      */
     public String getAllParamMetadata();
@@ -47,8 +42,6 @@ public interface AttenuationRelationshipAPI
 
   /**
    *  Sets the value of the selected intensityMeasure;
-   *  IS THIS NEEDED SINCE WE HAVE THE OTHER VERSION THAT TAKES AN OBJECT?
-   *  IS IT EVER USED?
    *
    * @param  iml                     The new intensityMeasureLevel value
    * @exception  ParameterException  Description of the Exception
@@ -66,11 +59,11 @@ public interface AttenuationRelationshipAPI
   public double getIML_AtExceedProb();
 
   /**
-   *  This calculates the intensity-measure level associated with probability
-   *  held by the exceedProbParam given the mean and standard deviation
-   * (according to the chosen truncation type and level).  Note
-   *  that this does not store the answer in the value of the internally held
-   *  intensity-measure parameter.
+   *  This calculates the intensity-measure level associated with 
+   *  given probability and the calculated mean and standard deviation
+   * (and according to the chosen truncation type and level).  Note
+   *  that this does not store the answer in the value of the internally 
+   *  held intensity-measure parameter.
    * @param exceedProb : Sets the Value of the exceed Prob param with this value.
    * @return                         The intensity-measure level
    * @exception  ParameterException  Description of the Exception
@@ -97,7 +90,7 @@ public interface AttenuationRelationshipAPI
    *  This fills in the exceedance probability for multiple intensityMeasure
    *  levels (often called a "hazard curve"); the levels are obtained from
    *  the X values of the input function, and Y values are filled in with the
-   *  asociated exceedance probabilities.
+   *  associated exceedance probabilities.
    *
    * @param  intensityMeasureLevel  The function to be filled in
    * @return                        The same function
@@ -107,15 +100,11 @@ public interface AttenuationRelationshipAPI
       );
 
   /**
-   * This calculates the intensity-measure level for each Sa Period
-   * associated with probability
-   * held by the exceedProbParam given the mean and standard deviation
-   * (according to the chosen truncation type and level).  Note
-   * that this does not store the answer in the value of the internally held
-   * intensity-measure parameter.
-   * @param exceedProb : Sets the Value of the exceed Prob param with this value.
-   * @return                         The intensity-measure level
-   * @exception  ParameterException  Description of the Exception
+   * This calculates the intensity-measure level for each SA Period
+   * associated with the given probability.  The x values in the
+   * returned function correspond to the periods supported by the IMR.
+   * @param exceedProb
+   * @return DiscretizedFuncAPI - the IML function
    */
   public DiscretizedFuncAPI getSA_IML_AtExceedProbSpectrum(double exceedProb) throws
       ParameterException,
@@ -123,17 +112,11 @@ public interface AttenuationRelationshipAPI
 
 
   /**
-   *  This calculates the exceed-probability for each SA-Period that
-   *  the supplied intensity-measure level
-   *  will be exceeded given the mean and stdDev computed from current independent
-   *  parameter values.  Note that the answer is not stored in the internally held
-   *  exceedProbParam (this latter param is used only for the
-   *  getIML_AtExceedProb() method).
+   *  This calculates the exceed-probability at each SA Period for
+   *  the supplied intensity-measure level (a hazard spectrum).  The x values 
+   *  in the returned function correspond to the periods supported by the IMR.
    *
-   * @return     DiscretizedFuncAPI  The DiscretizedFuncAPI function with each
-   * value corresponding the SA Period
-   * @exception  ParameterException  Description of the Exception
-   * @exception  IMRException        Description of the Exception
+   * @return     DiscretizedFuncAPI - The hazard spectrum
    */
   public DiscretizedFuncAPI getSA_ExceedProbSpectrum(double iml) throws ParameterException,
       IMRException ;
@@ -171,7 +154,7 @@ public interface AttenuationRelationshipAPI
 
   /**
    *  Returns an iterator over all the Parameters that the Mean calculation depends upon.
-   *  (not including the intensity-measure related paramters and their internal,
+   *  (not including the intensity-measure related parameters and their internal,
    *  independent parameters).
    *
    * @return    The Independent Params Iterator
@@ -180,7 +163,7 @@ public interface AttenuationRelationshipAPI
 
   /**
    *  Returns an iterator over all the Parameters that the StdDev calculation depends upon
-   *  (not including the intensity-measure related paramters and their internal,
+   *  (not including the intensity-measure related parameters and their internal,
    *  independent parameters).
    *
    * @return    The Independent Parameters Iterator
@@ -189,7 +172,7 @@ public interface AttenuationRelationshipAPI
 
   /**
    *  Returns an iterator over all the Parameters that the exceedProb calculation
-   *  depends upon (not including the intensity-measure related paramters and
+   *  depends upon (not including the intensity-measure related parameters and
    *  their internal, independent parameters).
    *
    * @return    The Independent Params Iterator
@@ -217,10 +200,10 @@ public interface AttenuationRelationshipAPI
   public void setSiteLocation(Location loc);
 
   /**
-   * Returns the Short Name of each AttenuationRelationship
-   * @return String
+   * Allows to reset the change listeners on the parameters
    */
-  public String getShortName();
+  public void resetParameterEventListeners();
+
   
 
 }

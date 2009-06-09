@@ -221,14 +221,13 @@ import org.opensha.sha.earthquake.rupForecastImpl.*;
  * @version    1.0
  */
 
-/* Note: For the sake of simplicity when calling getMean(), getStdDev() and
- * getExceedenceProbability all parameters are looked up and/or calculated
- * within the function call. This may not provide the best performance when calling
- * these functions many times from within a loop where only one parameter is
- * updated. This was done intentionally so that scientists who implement other
- * IMRs can use this one as a template without having to learn the complexities
- * of advanced programming techniques.  A more efficient technique would be to
- * listen for parameter changes and act accordingly. <p>
+/* This is the abstract implementation for Attenuation Relationships (also known as
+ * Ground Motion Prediction Equations (GMPEs)), which in addition to implementing the
+ * ScalarIntensityMeasureRelationship interface, assumes that the probability
+ * distribution for the IMLs is Gaussian.  Thus, much of the probability calculations
+ * are handled here in the abstract classe, whereas subclasses simply implement
+ * the getMean() and getStdDev() methods.
+ * 
  *
  */
 
@@ -716,14 +715,6 @@ public abstract class AttenuationRelationship
    */
   public double getExceedProbability() throws ParameterException, IMRException {
 
-    // IS THIS REALLY NEEDED; IS IT SLOWING US DOWN?
-    if ( (im == null) || (im.getValue() == null)) {
-      throw new ParameterException(C +
-                                   ": getExceedProbability(): " +
-          "Intensity measure or value is null, unable to run this calculation."
-          );
-    }
-
     // Calculate the standardized random variable
     double iml = ((Double) im.getValue()).doubleValue();
     double stdDev = getStdDev();
@@ -754,17 +745,11 @@ public abstract class AttenuationRelationship
 
 
   /**
-   *  This calculates the exceed-probability for each SA-Period that
-   *  the supplied intensity-measure level
-   *  will be exceeded given the mean and stdDev computed from current independent
-   *  parameter values.  Note that the answer is not stored in the internally held
-   *  exceedProbParam (this latter param is used only for the
-   *  getIML_AtExceedProb() method).
+   *  This calculates the exceed-probability at each SA Period for
+   *  the supplied intensity-measure level (a hazard spectrum).  The x values 
+   *  in the returned function correspond to the periods supported by the IMR.
    *
-   * @return     DiscretizedFuncAPI  The DiscretizedFuncAPI function with each
-   * value corresponding the SA Period
-   * @exception  ParameterException  Description of the Exception
-   * @exception  IMRException        Description of the Exception
+   * @return     DiscretizedFuncAPI - The hazard spectrum
    */
   public DiscretizedFuncAPI getSA_ExceedProbSpectrum(double iml) throws ParameterException,
       IMRException {
@@ -783,15 +768,11 @@ public abstract class AttenuationRelationship
 
 
   /**
-   * This calculates the intensity-measure level for each Sa Period
-   * associated with probability
-   * held by the exceedProbParam given the mean and standard deviation
-   * (according to the chosen truncation type and level).  Note
-   * that this does not store the answer in the value of the internally held
-   * intensity-measure parameter.
-   * @param exceedProb : Sets the Value of the exceed Prob param with this value.
-   * @return                         The intensity-measure level
-   * @exception  ParameterException  Description of the Exception
+   * This calculates the intensity-measure level for each SA Period
+   * associated with the given probability.  The x values in the
+   * returned function correspond to the periods supported by the IMR.
+   * @param exceedProb
+   * @return DiscretizedFuncAPI - the IML function
    */
   public DiscretizedFuncAPI getSA_IML_AtExceedProbSpectrum(double exceedProb) throws ParameterException,
       IMRException {
@@ -814,8 +795,7 @@ public abstract class AttenuationRelationship
 
   /**
    * This returns (iml-mean)/stdDev, ignoring any truncation.  This gets the iml
-   * from the value in the Intensity-Measure Parameter.  SHOULD THIS THROW AN
-   * EXCEPTION LIKE GetExceedProbabilityY()?
+   * from the value in the Intensity-Measure Parameter.
    * @return double
    */
   public double getEpsilon(){
@@ -839,7 +819,7 @@ public abstract class AttenuationRelationship
 
   /**
    * This method computed the probability of exceeding the IM-level given the
-   * mean and stdDev.
+   * mean and stdDev, and considering the sigma truncation type and level.
    * @param mean
    * @param stdDev
    * @param iml
@@ -881,9 +861,7 @@ public abstract class AttenuationRelationship
    *  This fills in the exceedance probability for multiple intensityMeasure
    *  levels (often called a "hazard curve"); the levels are obtained from
    *  the X values of the input function, and Y values are filled in with the
-   *  asociated exceedance probabilities. NOTE: THE PRESENT IMPLEMENTATION IS
-   *  STRANGE IN THAT WE DON'T NEED TO RETURN ANYTHING SINCE THE FUNCTION PASSED
-   *  IN IS WHAT CHANGES (SHOULD RETURN NULL?).
+   *  asociated exceedance probabilities.
    *
    * @param  intensityMeasureLevels  The function to be filled in
    * @return                         The function filled in
@@ -999,11 +977,11 @@ public abstract class AttenuationRelationship
   }
 
   /**
-   *  This calculates the intensity-measure level associated with probability
-   *  held by the exceedProbParam given the mean and standard deviation
-   * (according to the chosen truncation type and level).  Note
-   *  that this does not store the answer in the value of the internally held
-   *  intensity-measure parameter.
+   *  This calculates the intensity-measure level associated with 
+   *  given probability and the calculated mean and standard deviation
+   * (and according to the chosen truncation type and level).  Note
+   *  that this does not store the answer in the value of the internally 
+   *  held intensity-measure parameter.
    * @param exceedProb : Sets the Value of the exceed Prob param with this value.
    * @return                         The intensity-measure level
    * @exception  ParameterException  Description of the Exception
@@ -1018,7 +996,7 @@ public abstract class AttenuationRelationship
 
   /**
    *  Returns an iterator over all the Parameters that the Mean calculation depends upon.
-   *  (not including the intensity-measure related paramters and their internal,
+   *  (not including the intensity-measure related parameters and their internal,
    *  independent parameters).
    *
    * @return    The Independent Params Iterator
@@ -1029,7 +1007,7 @@ public abstract class AttenuationRelationship
 
   /**
    *  Returns an iterator over all the Parameters that the StdDev calculation depends upon
-   *  (not including the intensity-measure related paramters and their internal,
+   *  (not including the intensity-measure related parameters and their internal,
    *  independent parameters).
    *
    * @return    The Independent Parameters Iterator
@@ -1040,7 +1018,7 @@ public abstract class AttenuationRelationship
 
   /**
    *  Returns an iterator over all the Parameters that the exceedProb calculation
-   *  depends upon (not including the intensity-measure related paramters and
+   *  depends upon (not including the intensity-measure related parameters and
    *  their internal, independent parameters).
    *
    * @return    The Independent Params Iterator
@@ -1082,8 +1060,8 @@ public abstract class AttenuationRelationship
   /**
    *  This creates the following parameters for subclasses: saParam; dampingParam,
    *  and pgaParam; the periodParam (one of saParam's independent parameters) is
-   *  created and added in subclasses.  All these parameters are added to the
-   *  supportedIMParams list in subclasses.  Note: this must generally be executed
+   *  created and added in subclasses.  All these parameters are added (if supported)
+   *   to the supportedIMParams list in subclasses.  Note: this must generally be executed
    *  after the initCoefficients() method.<br>
    *
    */
