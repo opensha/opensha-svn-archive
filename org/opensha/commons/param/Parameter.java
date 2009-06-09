@@ -211,7 +211,7 @@ public abstract class Parameter<E>
      * @param value
      */
     public void setValueAsDefault() throws ConstraintException, ParameterException {
-    	setValue(value);
+    	setValue(defaultValue);
     }
     
     
