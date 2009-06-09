@@ -305,7 +305,8 @@ public abstract class IntensityMeasureRelationship
   public boolean isIntensityMeasureSupported(ParameterAPI intensityMeasure) {
 
 	  if (supportedIMParams.containsParameter(intensityMeasure)) {
-		  int numIndParams = ((DependentParameterAPI)getIntensityMeasure()).getNumIndependentParameters();
+//		  System.out.println("got here");
+		  int numIndParams = ((DependentParameterAPI)supportedIMParams.getParameter(intensityMeasure.getName())).getNumIndependentParameters();
 		  //ParameterAPI param = supportedIMParams.getParameter( intensityMeasure.getName() );
 		  ListIterator it = ( (DependentParameterAPI) intensityMeasure).getIndependentParametersIterator();
 		  while (it.hasNext()) {
