@@ -1,4 +1,4 @@
-package org.opensha.sha.imr.param;
+package org.opensha.sha.imr.param.IntensityMeasureParams;
 
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.WarningDoubleParameter;
