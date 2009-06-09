@@ -403,10 +403,6 @@ public abstract class Parameter<E>
 
 
     /**
-     *  Uses the constraint object to determine if the new value being set is
-     *  allowed. If no Constraints are present all values are allowed. This
-     *  function is now available to all subclasses, since any type of
-     *  constraint object follows the same api.
      *  Disables editing units, info, constraints, et. Basically all set()s disabled
      *  except for setValue(). Once set non-editable, it cannot be set back.
      *  This is a one-time operation.
