@@ -940,8 +940,8 @@ public class SoSAF_SubSectionInversion_v3 {
 		 */
 
 		// SOLVE THE INVERSE PROBLEM
-		// rupRateSolution = getNNLS_solution(C_wted, d_wted);
-		rupRateSolution = getSimulatedAnnealing_solution(C_wted, d_wted);
+		rupRateSolution = getNNLS_solution(C_wted, d_wted);
+		// rupRateSolution = getSimulatedAnnealing_solution(C_wted, d_wted);
 		
 		//System.out.print("\n");
 		//System.out.print("rupRateSolution:\n");
