@@ -65,7 +65,7 @@ public class RasterExtractor {
 					expected = pixels * 3; // pixels * 1 byte for R, G, and B
 					bytes = new byte[expected];
 					
-					System.out.println("time to READ! " + width + " " + height + " " + pixels);
+					System.out.println("time to READ: false 3 colorimage " + width + "x" + height + " " + pixels + " px");
 					colorimage = true;
 					continue;
 				} else if (line.contains("ASCII85Decode")) {
@@ -97,7 +97,7 @@ public class RasterExtractor {
 					expected = pixels * 3; // pixels * 1 byte for R, G, and B
 					bytes = new byte[expected];
 					
-					System.out.println("time to READ! " + width + " " + height + " " + pixels);
+					System.out.println("time to READ! ASCII85Decode " + width + "x" + height + " " + pixels + " px");
 					
 					reading = true;
 					ascii85 = true;
@@ -128,6 +128,8 @@ public class RasterExtractor {
 			
 			curLine++;
 		}
+		
+		System.out.println("Done reading...converting.");
 		
 		if (ascii85) {
 			InputStream is = new ByteArrayInputStream(asciiImage.getBytes("UTF-8"));
@@ -194,6 +196,7 @@ public class RasterExtractor {
 	
 	public void writePNG() throws FileNotFoundException, IOException {
 		ImageIO.write(this.getRasterImage(), "png", new File(outFileName));
+		System.out.println("DONE!");
 	}
 	
 	
