@@ -1778,7 +1778,7 @@ public class SoSAF_SubSectionInversion_small {
 		System.out.println("Starting energy = " + Ebest);
 		
 		//numiter = 1000000000;
-		numiter = 10000
+		numiter = 10000;
 		for (iter = 1; iter <= numiter; iter++) {
 			
 			
