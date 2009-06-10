@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import org.opensha.commons.mapping.gmt.raster.RasterExtractor;
 import org.opensha.commons.util.FileUtils;
@@ -87,6 +88,20 @@ public class GMT_KML_Generator {
 			new File(parent + fileName).delete();
 		}
 	}
+	
+	public static double[] decodeGMTRegion(String reg) {
+		String newReg = reg.substring(2);
+		StringTokenizer tok = new StringTokenizer(newReg, "/");
+		if (tok.countTokens() != 4)
+			throw new RuntimeException("Invalid region string: " + reg);
+		double bounds[] = new double[4];
+		bounds[0] = Double.parseDouble(tok.nextToken());
+		bounds[1] = Double.parseDouble(tok.nextToken());
+		bounds[2] = Double.parseDouble(tok.nextToken());
+		bounds[3] = Double.parseDouble(tok.nextToken());
+		
+		return bounds;
+	}
 
 	/**
 	 * @param args
@@ -108,8 +123,18 @@ public class GMT_KML_Generator {
 			maxLat = Double.parseDouble(args[3]);
 			minLon = Double.parseDouble(args[4]);
 			maxLon = Double.parseDouble(args[5]);
+		} else if (args.length == 3 && args[2].startsWith("-R")) {
+			psFile = args[0];
+			kmzFile = args[1];
+			double bounds[] = decodeGMTRegion(args[2]);
+			minLon = bounds[0];
+			maxLon = bounds[1];
+			minLat = bounds[2];
+			maxLat = bounds[3];
 		} else {
 			System.err.println("USAGE: GMT_KML_Generator ps_file kmz_file minLat maxLat minLon maxLon");
+			System.err.println("\t-- OR --");
+			System.err.println("USAGE: GMT_KML_Generator ps_file kmz_file -R<minLon>/<maxLon>/<minLat>/<maxLat>");
 			System.exit(2);
 		}
 		
