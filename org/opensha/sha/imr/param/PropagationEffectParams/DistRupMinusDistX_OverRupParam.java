@@ -6,9 +6,10 @@ import org.opensha.commons.param.WarningDoubleParameter;
 
 /**
  * DistRupMinusDistX_OverRupParam - this represents distance X (relative to  
- * dist rup), where distance X the horizontal distance to surface projection
- * of the top edge of the rupture, extended to infinity off the ends.  
- * This is not a formal propagation parameter because it's not used that way here
+ * dist rup, or specifically: (DistRup-DistX)/DistRup), where distance 
+ * X is the horizontal distance to surface projection of the 
+ * top edge of the rupture, extended to infinity off the ends.  
+ * This is not a formal propagation parameter because it's not used that way
  * (due to inefficiencies)
  */
 public class DistRupMinusDistX_OverRupParam extends DoubleParameter {
