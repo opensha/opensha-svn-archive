@@ -4,7 +4,7 @@ import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.WarningDoubleParameter;
 
 /**
- * This constitutes is for the natural-log Peak Ground Acceleration intensity measure
+ * This constitutes the natural-log Peak Ground Acceleration intensity measure
  * parameter.  The default, internally held constraint objects are set as non editable, 
  * but the parameter is otherwise editable (including the constraints), so call the
  * setNonEditable() method when you no longer want it editable.

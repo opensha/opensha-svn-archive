@@ -6,11 +6,10 @@ import org.opensha.commons.param.WarningDoubleParameter;
 /**
  * This constitutes is for the natural-log Spectral Acceleration intensity measure
  * parameter.  Note also that periodParam and dampingParam are internal 
- * independentParameters of saParam, both of which must be created and added to this.
+ * independentParameters of saParam, both of which must provided in the constructor.
  * 
- * The default, internally held constraint objects are set as non editable, 
- * but the parameter is otherwise editable (including the constraints), so call the
- * setNonEditable() method when you no longer want it editable.
+ * The parameter is left as editable in case one wants to change the warning
+ * constraints etc.
  * @author field
  *
  */
@@ -25,13 +24,15 @@ public class SA_Param extends WarningDoubleParameter {
 	  protected final static Double WARN_MIN = new Double(Math.log(Double.MIN_VALUE));
 	  protected final static Double WARN_MAX = new Double(Math.log(3.0));
 
-	public SA_Param() {
+	public SA_Param(PeriodParam periodPeram, DampingParam dampingParam) {
 		super(NAME, new DoubleConstraint(MIN, MAX), UNITS);
 		getConstraint().setNonEditable();
 		this.setInfo(INFO);
 		DoubleConstraint warn2 = new DoubleConstraint(WARN_MIN, WARN_MAX);
 		warn2.setNonEditable();
 		setWarningConstraint(warn2);
+		addIndependentParameter(periodPeram);
+		addIndependentParameter(dampingParam);
 		setDefaultValue(DEFAULT);
 	}
 }

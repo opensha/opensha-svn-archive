@@ -40,6 +40,7 @@ public class DampingParam extends DoubleDiscreteParameter {
 		super(NAME, UNITS);
 		DoubleDiscreteConstraint dampingConstraint = new DoubleDiscreteConstraint();
 		dampingConstraint.addDouble(DEFAULT);
+		setValue(DEFAULT); // set this hear so current value doesn't cause problems when setting the constraint
 		dampingConstraint.setNonEditable();
 		setConstraint(dampingConstraint);
 		setInfo(INFO);
