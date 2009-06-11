@@ -82,6 +82,12 @@ public class HazardCurve2DB {
 		return getAllHazardCurveRecords(runWhere);
 	}
 	
+	public ArrayList<CybershakeHazardCurveRecord> getHazardCurveRecordsForRun(int runID) {
+		String runWhere = "Run_ID=" + runID;
+		
+		return getAllHazardCurveRecords(runWhere);
+	}
+	
 	public ArrayList<CybershakeHazardCurveRecord> getAllHazardCurveRecords() {
 		return getAllHazardCurveRecords(null);
 	}
