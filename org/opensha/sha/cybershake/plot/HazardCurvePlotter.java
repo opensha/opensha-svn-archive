@@ -45,6 +45,7 @@ import org.opensha.commons.gui.UserAuthDialog;
 import org.opensha.commons.param.DoubleDiscreteParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
+import org.opensha.sha.cybershake.db.CybershakeHazardCurveRecord;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeRun;
 import org.opensha.sha.cybershake.db.CybershakeSite;
@@ -133,7 +134,26 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		ArrayList<Integer> runIDs = runs2db.getRunIDs(siteID, erfID, sgtVarID, rupVarScenarioID, null, null, null, null);
 		if (runIDs == null || runIDs.size() == 0)
 			return -1;
-		int id = runIDs.get(0);
+		int id = -1;
+		if (runIDs.size() == 1) {
+			id = runIDs.get(0);
+		} else {
+			// we want to select a runID that has data, if available.
+			// we favor the first one with curves, or if that doesn't exist, the first one
+			// with amplitudes
+			int ampsID = -1;
+			for (int runID : runIDs) {
+				ArrayList<CybershakeHazardCurveRecord> curves = curve2db.getHazardCurveRecordsForRun(runID);
+				if (curves != null && curves.size() > 0) {
+					id = runID;
+					break;
+				} else if (amps2db.hasAmps(runID) && ampsID == -1) {
+					ampsID = runID;
+				}
+			}
+			if (id < 0 && ampsID >= 0)
+				id = ampsID;
+		}
 		System.out.println("Detected runID '" + id + "' from " + runIDs.size() + " matches");
 		return id;
 	}
