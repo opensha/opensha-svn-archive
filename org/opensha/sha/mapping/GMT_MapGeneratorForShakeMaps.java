@@ -20,6 +20,9 @@ import org.opensha.commons.util.RunScript;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
 /**
  * <p>Title: GMT_MapGeneratorForShakeMaps</p>
@@ -512,7 +515,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
       region = " -R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat+" ";
       String commandLine;
       //if the selected IMT is SA
-      if(imt.equals(AttenuationRelationship.SA_NAME)){
+      if(imt.equals(SA_Param.NAME)){
         commandLine = GMT_PATH +"xyz2grd "+XYZ_FILE_NAME+" -Gtemp.grd=1 "+
                       "-I"+gridSpacing+region+" -D/degree/degree/amp/=/=/= -: -H0 -V";
         gmtCommandLines.add(commandLine+"\n");
@@ -520,7 +523,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
         gmtCommandLines.add(commandLine+"\n");
       }
       //if the selected IMT is PGA
-      else if(imt.equals(AttenuationRelationship.PGA_NAME)){
+      else if(imt.equals(PGA_Param.NAME)){
         commandLine = GMT_PATH +"xyz2grd "+XYZ_FILE_NAME+" -Gtemp.grd=1 "+
                       "-I"+gridSpacing+region+" -D/degree/degree/amp/=/=/= -: -H0 -V";
         gmtCommandLines.add(commandLine+"\n");
@@ -528,7 +531,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
         gmtCommandLines.add(commandLine+"\n");
       }
       //if the selected IMT is PGV
-      else if(imt.equals(AttenuationRelationship.PGV_NAME)){
+      else if(imt.equals(PGV_Param.NAME)){
         commandLine = GMT_PATH +"xyz2grd "+XYZ_FILE_NAME+" -Gtemp.grd=1 "+
                       "-I"+gridSpacing+region+" -D/degree/degree/amp/=/=/= -: -H0 -V";
         gmtCommandLines.add(commandLine+"\n");

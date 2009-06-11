@@ -28,6 +28,12 @@ import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.param.*;
 
 
@@ -383,11 +389,11 @@ public class AS_1997_AttenRel
     }
 
     StringBuffer key = new StringBuffer(im.getName());
-    if (im.getName().equalsIgnoreCase(SA_NAME)) {
-      key.append("/" + periodParam.getValue());
+    if (im.getName().equalsIgnoreCase(SA_Param.NAME)) {
+      key.append("/" + saPeriodParam.getValue());
     }
     // Get component-dependent coefficients
-    if (componentParam.getValue().toString().equals(COMPONENT_AVE_HORZ)) {
+    if (componentParam.getValue().toString().equals(ComponentParam.COMPONENT_AVE_HORZ)) {
       // these are the same for all periods
       a2 = 0.512;
       a4 = -0.144;
@@ -464,8 +470,8 @@ public class AS_1997_AttenRel
     }
 
     // Get PGA coefficients
-    if (componentParam.getValue().toString().equals(COMPONENT_AVE_HORZ)) {
-      coeff = (AS_1997_AttenRelCoefficients) horzCoeffs.get(PGA_NAME);
+    if (componentParam.getValue().toString().equals(ComponentParam.COMPONENT_AVE_HORZ)) {
+      coeff = (AS_1997_AttenRelCoefficients) horzCoeffs.get(PGA_Param.NAME);
       a2 = 0.512;
       a4 = -0.144;
       a13 = 0.17;
@@ -474,7 +480,7 @@ public class AS_1997_AttenRel
       n = 2;
     }
     else {
-      coeff = (AS_1997_AttenRelCoefficients) vertCoeffs.get(PGA_NAME);
+      coeff = (AS_1997_AttenRelCoefficients) vertCoeffs.get(PGA_Param.NAME);
       a2 = 0.909;
       a4 = 0.275;
       a13 = 0.06;
@@ -595,7 +601,7 @@ public class AS_1997_AttenRel
    */
   public double getStdDev() throws IMRException {
 
-    if (stdDevTypeParam.getValue().equals(STD_DEV_TYPE_NONE)) {
+    if (stdDevTypeParam.getValue().equals(StdDevTypeParam.STD_DEV_TYPE_NONE)) {
       return 0;
     }
     else {
@@ -622,12 +628,12 @@ public class AS_1997_AttenRel
     magParam.setValue(MAG_DEFAULT);
     fltTypeParam.setValue(FLT_TYPE_DEFAULT);
     distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
-    saParam.setValue(SA_DEFAULT);
-    periodParam.setValue(PERIOD_DEFAULT);
-    dampingParam.setValue(DAMPING_DEFAULT);
-    pgaParam.setValue(PGA_DEFAULT);
-    componentParam.setValue(COMPONENT_DEFAULT);
-    stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
+    saParam.setValueAsDefault();
+    saPeriodParam.setValueAsDefault();
+    saDampingParam.setValueAsDefault();
+    pgaParam.setValueAsDefault();
+    componentParam.setValueAsDefault();
+    stdDevTypeParam.setValueAsDefault();
     isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_DEFAULT);
 
   }
@@ -765,10 +771,7 @@ public class AS_1997_AttenRel
    */
   protected void initSupportedIntensityMeasureParams() {
 
-    // Create saParam (& its dampingParam) and pgaParam:
-    super.initSupportedIntensityMeasureParams();
-
-    // Create saParam's "Period" independent parameter:
+    // Create saParam:
     DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
     TreeSet set = new TreeSet();
     Enumeration keys = horzCoeffs.keys(); // same as for vertCoeffs
@@ -784,20 +787,15 @@ public class AS_1997_AttenRel
       periodConstraint.addDouble( (Double) it.next());
     }
     periodConstraint.setNonEditable();
-    periodParam = new DoubleDiscreteParameter(PERIOD_NAME, periodConstraint,
-                                              PERIOD_UNITS, null);
-    periodParam.setInfo(PERIOD_INFO);
-    periodParam.setNonEditable();
+	saPeriodParam = new PeriodParam(periodConstraint);
+	saDampingParam = new DampingParam();
+	saParam = new SA_Param(saPeriodParam, saDampingParam);
+	saParam.setNonEditable();
 
-    // Set damping constraint as non editable since no other options exist
-    dampingConstraint.setNonEditable();
+	//  Create PGA Parameter (pgaParam):
+	pgaParam = new PGA_Param();
+	pgaParam.setNonEditable();
 
-    // Add SA's independent parameters:
-    saParam.addIndependentParameter(dampingParam);
-    saParam.addIndependentParameter(periodParam);
-
-    // Now Make the parameter noneditable:
-    saParam.setNonEditable();
 
     // Add the warning listeners:
     saParam.addParameterChangeWarningListener(warningListener);
@@ -821,24 +819,17 @@ public class AS_1997_AttenRel
 
     // the Component Parameter
     StringConstraint constraint = new StringConstraint();
-    constraint.addString(COMPONENT_AVE_HORZ);
-    constraint.addString(COMPONENT_VERT);
+    constraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
+    constraint.addString(ComponentParam.COMPONENT_VERT);
     constraint.setNonEditable();
-    componentParam = new StringParameter(COMPONENT_NAME, constraint,
-                                         COMPONENT_DEFAULT);
-    componentParam.setInfo(COMPONENT_INFO);
-    componentParam.setNonEditable();
+    componentParam = new ComponentParam(constraint, ComponentParam.COMPONENT_AVE_HORZ);
 
     // the stdDevType Parameter
     StringConstraint stdDevTypeConstraint = new StringConstraint();
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_TOTAL);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_NONE);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_NONE);
     stdDevTypeConstraint.setNonEditable();
-    stdDevTypeParam = new StringParameter(STD_DEV_TYPE_NAME,
-                                          stdDevTypeConstraint,
-                                          STD_DEV_TYPE_DEFAULT);
-    stdDevTypeParam.setInfo(STD_DEV_TYPE_INFO);
-    stdDevTypeParam.setNonEditable();
+    stdDevTypeParam = new StdDevTypeParam(stdDevTypeConstraint);
 
     // add these to the list
     otherParams.addParameter(componentParam);
@@ -863,12 +854,12 @@ public class AS_1997_AttenRel
 
     // PGA
     AS_1997_AttenRelCoefficients coeff = new AS_1997_AttenRelCoefficients(
-        PGA_NAME,
+        PGA_Param.NAME,
         0, 5.6, 1.64, -1.145, 0.61, 0.26, 0.37, -0.417, -0.23, 0, 0.7, 0.135);
 
     // SA/5.00
     AS_1997_AttenRelCoefficients coeff0 = new AS_1997_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("5.00")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("5.00")).doubleValue(),
         5.00, 3.5, -1.46, -0.725, 0.4, -0.2, 0, 0.664, 0.04, -0.215, 0.89,
         0.087);
     // SA/4.00
@@ -1045,13 +1036,13 @@ public class AS_1997_AttenRel
     vertCoeffs.clear();
 
     // PGA
-    coeff = new AS_1997_AttenRelCoefficients(PGA_NAME,
+    coeff = new AS_1997_AttenRelCoefficients(PGA_Param.NAME,
                                              0, 6.00, 1.642, -1.2520, 0.390,
                                              -0.050, 0.630, -0.140, -0.220,
                                              -0.0000, 0.76, 0.085);
 
     // SA/5.00
-    coeff0 = new AS_1997_AttenRelCoefficients(SA_NAME + '/' +
+    coeff0 = new AS_1997_AttenRelCoefficients(SA_Param.NAME + '/' +
                                               (new Double("5.00")).doubleValue(),
                                               5.00, 2.50, -2.053, -0.7200,
                                               0.260, -0.100, 0.240, 0.040,

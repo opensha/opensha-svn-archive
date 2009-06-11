@@ -30,6 +30,9 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.event.AttenuationRelationshipChangeEvent;
 import org.opensha.sha.imr.event.AttenuationRelationshipChangeListener;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 
 /**
@@ -371,7 +374,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		imrPanel.add(singleAttenRelParamListEditor,new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
 				,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
 		// set the trunc level based on trunc type
-		String value = (String)singleAttenRelParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).getValue();
+		String value = (String)singleAttenRelParamList.getParameter(SigmaTruncTypeParam.NAME).getValue();
 		toggleSigmaLevelBasedOnTypeValue(value);
 
 	}
@@ -408,8 +411,8 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 			while(it.hasNext()){
 				ParameterAPI tempParam  = (ParameterAPI)it.next();
 
-				/*if(!tempParam.getName().equals(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME) &&
-           !tempParam.getName().equals(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME))*/
+				/*if(!tempParam.getName().equals(SigmaTruncLevelParam.NAME) &&
+           !tempParam.getName().equals(SigmaTruncTypeParam.NAME))*/
 				paramList[i].addParameter(tempParam);
 				//adding the other common parameters ( same for all attenuation relationship)
 				// to the list of the other param list.
@@ -429,7 +432,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 			imrParamsFrame[i].getContentPane().setLayout(new GridBagLayout());
 			imrParamsFrame[i].getContentPane().add(editor[i],new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
 					,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
-			String value = (String)paramList[i].getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).getValue();
+			String value = (String)paramList[i].getParameter(SigmaTruncTypeParam.NAME).getValue();
 			toggleSigmaLevelBasedOnTypeValue(value,i);
 		}
 
@@ -542,7 +545,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 			selectIMRsForChoosenIMT();
 		}
 		// if Truncation type changes
-		else if( name1.equals(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME) ){
+		else if( name1.equals(SigmaTruncTypeParam.NAME) ){
 			// special case hardcoded. Not the best way to do it, but need framework to handle it.
 			String value = event.getNewValue().toString();
 			if(!singleAttenRelSelected) //if the multipleAtten is selected
@@ -550,7 +553,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 			else //if the single attenRel is selected
 				toggleSigmaLevelBasedOnTypeValue(value);
 		}
-		else if(name1.equals(AttenuationRelationship.PERIOD_NAME)){
+		else if(name1.equals(PeriodParam.NAME)){
 			//update the AttenRels List supported by the choosen IM
 			getAttenRelsSupportedForSelectedIM();
 			if(singleAttenRelSelected)
@@ -655,7 +658,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 							values, param2.getUnits (), (Double)allowedValues.get(0));
 
 					// added by Ned so the default period is 1.0 sec (this is a hack).
-					if( ((String) independentParam.getName()).equals(AttenuationRelationship.PERIOD_NAME)
+					if( ((String) independentParam.getName()).equals(PeriodParam.NAME)
 							&& independentParam.isAllowed(new Double(1.0)))
 						independentParam.setValue(new Double(1.0));
 
@@ -757,11 +760,11 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 	private void toggleSigmaLevelBasedOnTypeValue(String value, int buttonIndex){
 		if( value.equalsIgnoreCase("none") ) {
 			if(D) System.out.println("Value = " + value + ", need to set value param off.");
-			editor[buttonIndex].setParameterVisible( AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME, false );
+			editor[buttonIndex].setParameterVisible( SigmaTruncLevelParam.NAME, false );
 		}
 		else{
 			if(D) System.out.println("Value = " + value + ", need to set value param on.");
-			editor[buttonIndex].setParameterVisible( AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME, true );
+			editor[buttonIndex].setParameterVisible( SigmaTruncLevelParam.NAME, true );
 		}
 	}
 
@@ -773,11 +776,11 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 
 		if( value.equalsIgnoreCase("none") ) {
 			if(D) System.out.println("Value = " + value + ", need to set value param off.");
-			singleAttenRelParamListEditor.setParameterVisible( AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME, false );
+			singleAttenRelParamListEditor.setParameterVisible( SigmaTruncLevelParam.NAME, false );
 		}
 		else{
 			if(D) System.out.println("Value = " + value + ", need to set value param on.");
-			singleAttenRelParamListEditor.setParameterVisible( AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME, true );
+			singleAttenRelParamListEditor.setParameterVisible( SigmaTruncLevelParam.NAME, true );
 		}
 		imrPanel.validate();
 		imrPanel.repaint();

@@ -7,6 +7,10 @@ import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.imr.attenRelImpl.depricated.BA_2006_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.param.*;
 
 import java.io.File;
@@ -61,10 +65,10 @@ public class BA_2006_test extends TestCase implements ParameterChangeWarningList
 			
 			double period = Double.parseDouble(st.nextToken().trim());
 			if(period == -1)
-				ba_2006.setIntensityMeasure(ba_2006.PGV_NAME);
+				ba_2006.setIntensityMeasure(ba_2006.PGV_Param.NAME);
 			else{
-			  ba_2006.setIntensityMeasure(ba_2006.SA_NAME);
-			  ba_2006.getParameter(ba_2006.PERIOD_NAME).setValue(new Double(period));
+			  ba_2006.setIntensityMeasure(ba_2006.SA_Param.NAME);
+			  ba_2006.getParameter(ba_2006.PeriodParam.NAME).setValue(new Double(period));
 			}
 			double mag = Double.parseDouble(st.nextToken().trim());
 			ba_2006.getParameter(ba_2006.MAG_NAME).setValue(new Double(mag));
@@ -112,7 +116,7 @@ public class BA_2006_test extends TestCase implements ParameterChangeWarningList
             if(results == false){
             	 String failedResultMetadata = "Results failed for Median calculation for" +
             	 		" BA-2006 attenuation with the following parameter settings:"+
-            	          "IMT ="+ba_2006.SA_NAME+" with Period ="+period+"\nMag ="+(float)mag+
+            	          "IMT ="+ba_2006.SA_Param.NAME+" with Period ="+period+"\nMag ="+(float)mag+
             	          "  vs30 = "+vs30+"  rjb = "+(float)rjb+"   FaultType = "+faultType+"\n"+
             	          " Median is "+medianFromOpenSHA+"  where as it should be "+targetMedian;
             	          
@@ -133,7 +137,7 @@ public class BA_2006_test extends TestCase implements ParameterChangeWarningList
 			if(results == false){
            	 String failedResultMetadata = "Results failed for Sig calculation for" +
            	 		"BA-2006 attenuation with the following parameter settings:"+
-           	          "IMT ="+ba_2006.SA_NAME+" with Period ="+period+"\nMag ="+(float)mag+
+           	          "IMT ="+ba_2006.SA_Param.NAME+" with Period ="+period+"\nMag ="+(float)mag+
            	          "  vs30 = "+vs30+"  rjb = "+(float)rjb+"   FaultType = "+faultType+"\n"+
            	          " Sig is "+stdVal+"  where as it should be "+targetSig;
            	          
@@ -185,7 +189,7 @@ public class BA_2006_test extends TestCase implements ParameterChangeWarningList
 						((WarningDoublePropagationEffectParameter)ba_2006.getParameter(DistanceJBParameter.NAME)).setValueIgnoreWarning(new Double(rjb));
 						st.nextToken().trim();//for rRup
 						st.nextToken().trim();//for rSeis
-						ba_2006.setIntensityMeasure(ba_2006.PGA_NAME);
+						ba_2006.setIntensityMeasure(PGA_Param.NAME);
 						double openSHA_mean_ForPGA = Math.exp(ba_2006.getMean());
 						double tested_mean = Double.parseDouble(st.nextToken().trim());
 						boolean results = this.compareResults(openSHA_mean_ForPGA, tested_mean);
@@ -200,7 +204,7 @@ public class BA_2006_test extends TestCase implements ParameterChangeWarningList
 			            	 //System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
 			              this.assertNull(failedResultMetadata,failedResultMetadata);
 			            }
-						ba_2006.setIntensityMeasure(ba_2006.PGV_NAME);
+						ba_2006.setIntensityMeasure(PGV_Param.NAME);
 						double openSHA_mean = Math.exp(ba_2006.getMean());
 						tested_mean = Double.parseDouble(st.nextToken().trim());
 						results = this.compareResults(openSHA_mean, tested_mean);
@@ -217,10 +221,10 @@ public class BA_2006_test extends TestCase implements ParameterChangeWarningList
 			            }
 						st.nextToken();//for PGD
 						
-						ba_2006.setIntensityMeasure(ba_2006.SA_NAME);
+						ba_2006.setIntensityMeasure(SA_Param.NAME);
 						int num= period.length;
 						for(int k=0;k<num;++k){
-							ba_2006.getParameter(ba_2006.PERIOD_NAME).setValue(new Double(period[k]));
+							ba_2006.getParameter(PeriodParam.NAME).setValue(new Double(period[k]));
 							if(k == 0){
 								st.nextToken();
 								st.nextToken();

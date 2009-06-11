@@ -26,6 +26,13 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.param.*;
 
 /**
@@ -169,10 +176,6 @@ NamedObjectAPI, ParameterChangeListener {
 	public final static String FLT_TYPE_REVERSE = "Reverse";
 	public final static String FLT_TYPE_NORMAL = "Normal";
 	public final static String FLT_TYPE_DEFAULT = FLT_TYPE_STRIKE_SLIP;
-
-
-	// change component default from that of parent
-	String COMPONENT_DEFAULT = COMPONENT_GMRotI50;
 
 	/**
 	 * The DistanceRupParameter, closest distance to fault surface.
@@ -331,9 +334,9 @@ NamedObjectAPI, ParameterChangeListener {
 			);
 		}
 
-		if (im.getName().equalsIgnoreCase(SA_NAME))
-			iper = ( (Integer) indexFromPerHashMap.get(periodParam.getValue())).intValue();
-		else if (im.getName().equalsIgnoreCase(PGA_NAME))
+		if (im.getName().equalsIgnoreCase(SA_Param.NAME))
+			iper = ( (Integer) indexFromPerHashMap.get(saPeriodParam.getValue())).intValue();
+		else if (im.getName().equalsIgnoreCase(PGA_Param.NAME))
 			iper = 22;
 		else
 			iper = 23; // PGV
@@ -397,13 +400,13 @@ NamedObjectAPI, ParameterChangeListener {
 		distRupMinusDistX_OverRupParam.setValue(DIST_RUP_MINUS_DIST_X_DEFAULT);
 		hangingWallFlagParam.setValue(HANGING_WALL_FLAG_DEFAULT);
 
-		componentParam.setValue(COMPONENT_DEFAULT);
-		stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
+		componentParam.setValueAsDefault();
+	    stdDevTypeParam.setValueAsDefault();
 		
-		saParam.setValue(SA_DEFAULT);
-		periodParam.setValue(PERIOD_DEFAULT);
-		dampingParam.setValue(DAMPING_DEFAULT);
-		pgaParam.setValue(PGA_DEFAULT);
+		saParam.setValueAsDefault();
+		saPeriodParam.setValueAsDefault();
+		saDampingParam.setValueAsDefault();
+		pgaParam.setValueAsDefault();
 
 	}
 
@@ -578,40 +581,24 @@ NamedObjectAPI, ParameterChangeListener {
 	 */
 	protected void initSupportedIntensityMeasureParams() {
 
-		// Create saParam (& its dampingParam) and pgaParam:
-		super.initSupportedIntensityMeasureParams();
-
-		// Create saParam's "Period" independent parameter:
+		// Create saParam:
 		DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
 		for (int i = 0; i < period.length-2; i++) {  // subtract two for PGA and PGV (last two indices)
 			periodConstraint.addDouble(new Double(period[i]));
 		}
 		periodConstraint.setNonEditable();
-		periodParam = new DoubleDiscreteParameter(PERIOD_NAME, periodConstraint,
-				PERIOD_UNITS, null);
-		periodParam.setInfo(PERIOD_INFO);
-		periodParam.setNonEditable();
-
-		// Set damping constraint as non editable since no other options exist
-		dampingConstraint.setNonEditable();
-
-		// Add SA's independent parameters:
-		saParam.addIndependentParameter(dampingParam);
-		saParam.addIndependentParameter(periodParam);
-
-		// Now Make the parameter noneditable:
+		saPeriodParam = new PeriodParam(periodConstraint);
+		saDampingParam = new DampingParam();
+		saParam = new SA_Param(saPeriodParam, saDampingParam);
 		saParam.setNonEditable();
-		
-		//  Create PGV Parameter (pgvParam):
-		DoubleConstraint pgvConstraint = new DoubleConstraint(PGV_MIN, PGV_MAX);
-		pgvConstraint.setNonEditable();
-		pgvParam = new WarningDoubleParameter(PGV_NAME, pgvConstraint, PGV_UNITS);
-		pgvParam.setInfo(PGV_INFO);
-		DoubleConstraint warn = new DoubleConstraint(PGV_WARN_MIN, PGV_WARN_MAX);
-		warn.setNonEditable();
-		pgvParam.setWarningConstraint(warn);
-		pgvParam.setNonEditable();
 
+		//  Create PGA Parameter (pgaParam):
+		pgaParam = new PGA_Param();
+		pgaParam.setNonEditable();
+	
+		//  Create PGV Parameter (pgvParam):
+		pgvParam = new PGV_Param();
+		pgvParam.setNonEditable();
 
 		// Add the warning listeners:
 		saParam.addParameterChangeWarningListener(warningListener);
@@ -637,26 +624,18 @@ NamedObjectAPI, ParameterChangeListener {
 
 		// the Component Parameter
 		StringConstraint constraint = new StringConstraint();
-		constraint.addString(COMPONENT_GMRotI50);
+		constraint.addString(ComponentParam.COMPONENT_GMRotI50);
 		constraint.setNonEditable();
-		componentParam = new StringParameter(COMPONENT_NAME, constraint,
-				COMPONENT_DEFAULT);
-		componentParam.setInfo(COMPONENT_INFO);
-		componentParam.setNonEditable();
+	    componentParam = new ComponentParam(constraint,ComponentParam.COMPONENT_GMRotI50);
 
 		// the stdDevType Parameter
 		StringConstraint stdDevTypeConstraint = new StringConstraint();
-		stdDevTypeConstraint.addString(STD_DEV_TYPE_TOTAL);
-		stdDevTypeConstraint.addString(STD_DEV_TYPE_NONE);
-		stdDevTypeConstraint.addString(STD_DEV_TYPE_INTER);
-		stdDevTypeConstraint.addString(STD_DEV_TYPE_INTRA);
+		stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
+		stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_NONE);
+		stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_INTER);
+		stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_INTRA);
 		stdDevTypeConstraint.setNonEditable();
-		stdDevTypeParam = new StringParameter(STD_DEV_TYPE_NAME,
-				stdDevTypeConstraint,
-				STD_DEV_TYPE_DEFAULT);
-		stdDevType = STD_DEV_TYPE_DEFAULT;
-		stdDevTypeParam.setInfo(STD_DEV_TYPE_INFO);
-		stdDevTypeParam.setNonEditable();
+	    stdDevTypeParam = new StdDevTypeParam(stdDevTypeConstraint);
 
 		// add these to the list
 		otherParams.addParameter(componentParam);
@@ -813,13 +792,13 @@ NamedObjectAPI, ParameterChangeListener {
 		double sigma = sig1[iper] + 0.5*(sig2[iper]-sig1[iper])*magTest + sig4[iper]*aftershock;
 		sigma *= Math.sqrt((sig3[iper]*(1-f_meas)+0.7*f_meas)+(1+NLo)*(1+NLo));
 
-		if (stdDevType.equals(STD_DEV_TYPE_TOTAL))
+		if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL))
 			return Math.sqrt((1+NLo)*(1+NLo)*tau*tau + sigma*sigma);
-		else if (stdDevType.equals(STD_DEV_TYPE_NONE))
+		else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE))
 			return 0;
-		else if (stdDevType.equals(STD_DEV_TYPE_INTRA))
+		else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTRA))
 			return sigma;
-		else if (stdDevType.equals(STD_DEV_TYPE_INTER))
+		else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTER))
 			return (1+NLo)*tau;  // not completely sure if this is the right thing to return here
 		else 
 			return Double.NaN;
@@ -900,10 +879,10 @@ NamedObjectAPI, ParameterChangeListener {
 				f_hw = 0.0;
 			}
 		}
-		else if (pName.equals(STD_DEV_TYPE_NAME)) {
+		else if (pName.equals(StdDevTypeParam.NAME)) {
 			stdDevType = (String) val;
 		}
-		else if (pName.equals(PERIOD_NAME) ) {
+		else if (pName.equals(PeriodParam.NAME) ) {
 			intensityMeasureChanged = true;
 		}
 	}
@@ -925,7 +904,7 @@ NamedObjectAPI, ParameterChangeListener {
 		distRupMinusDistX_OverRupParam.removeParameterChangeListener(this);
 		hangingWallFlagParam.removeParameterChangeListener(this);
 		stdDevTypeParam.removeParameterChangeListener(this);
-		periodParam.removeParameterChangeListener(this);
+		saPeriodParam.removeParameterChangeListener(this);
 		this.initParameterEventListeners();
 	}
 
@@ -948,7 +927,7 @@ NamedObjectAPI, ParameterChangeListener {
 		distRupMinusDistX_OverRupParam.addParameterChangeListener(this);
 		hangingWallFlagParam.addParameterChangeListener(this);
 		stdDevTypeParam.addParameterChangeListener(this);
-		periodParam.addParameterChangeListener(this);
+		saPeriodParam.addParameterChangeListener(this);
 	}
 	
 	  

@@ -798,8 +798,8 @@ public class HazardCurveServerModeApplication extends JFrame
               this.clearPlot(true);
 
               // now do SA
-              /*imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.SA_NAME);
-              imtGuiBean.getParameterList().getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(1.0));
+              /*imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(SA_Param.NAME);
+              imtGuiBean.getParameterList().getParameter(PeriodParam.NAME).setValue(new Double(1.0));
               addButton();
               peerFile = new FileWriter(peerDirName+(String)testCasesTwo.get(i)+"-1secSA_OpenSHA.dat");
               for(int j=0; j<totalProbFuncs.get(0).getNum();++j)

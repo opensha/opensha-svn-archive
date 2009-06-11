@@ -22,6 +22,12 @@ import org.opensha.commons.util.FaultUtils;
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.param.*;
 
 
@@ -221,8 +227,8 @@ public class BJF_1997_AttenRel
             else throw new ParameterException( C + ": setIntensityMeasureType(): " + "Unable to locate coefficients with key = " + key );
      */
     StringBuffer key = new StringBuffer(im.getName());
-    if (im.getName().equalsIgnoreCase(SA_NAME)) {
-      key.append("/" + periodParam.getValue());
+    if (im.getName().equalsIgnoreCase(SA_Param.NAME)) {
+      key.append("/" + saPeriodParam.getValue());
     }
     if (coefficients.containsKey(key.toString())) {
       coeff = (BJF_1997_AttenRelCoefficients) coefficients.get(key.toString());
@@ -329,39 +335,39 @@ public class BJF_1997_AttenRel
     updateCoefficients();
 
     // set the correct standard deviation depending on component and type
-    if (component.equals(COMPONENT_AVE_HORZ)) {
+    if (component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
 
-      if (stdDevType.equals(STD_DEV_TYPE_TOTAL)) { // "Total"
+      if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL)) { // "Total"
         return Math.pow( (coeff.sigmaE * coeff.sigmaE +
                           coeff.sigma1 * coeff.sigma1), 0.5);
       }
-      else if (stdDevType.equals(STD_DEV_TYPE_INTER)) { // "Inter-Event"
+      else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTER)) { // "Inter-Event"
         return coeff.sigmaE;
       }
-      else if (stdDevType.equals(STD_DEV_TYPE_INTRA)) { // "Intra-Event"
+      else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTRA)) { // "Intra-Event"
         return (coeff.sigma1);
       }
-      else if (stdDevType.equals(STD_DEV_TYPE_NONE)) { // "None (zero)"
+      else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE)) { // "None (zero)"
         return 0;
       }
       else {
         throw new ParameterException(C + ": getStdDev(): Invalid StdDevType");
       }
     }
-    else if (component.equals(COMPONENT_RANDOM_HORZ)) {
+    else if (component.equals(ComponentParam.COMPONENT_RANDOM_HORZ)) {
 
-      if (stdDevType.equals(STD_DEV_TYPE_TOTAL)) { // "Total"
+      if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL)) { // "Total"
         return (coeff.sigmaLnY);
       }
-      else if (stdDevType.equals(STD_DEV_TYPE_INTER)) { // "Inter-Event"
+      else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTER)) { // "Inter-Event"
         return (coeff.sigmaE);
       }
-      else if (stdDevType.equals(STD_DEV_TYPE_INTRA)) { // "Intra-Event"
+      else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTRA)) { // "Intra-Event"
         return Math.pow( (coeff.sigmaLnY * coeff.sigmaLnY -
                           coeff.sigmaE * coeff.sigmaE), 0.5);
         // return return  ( coeff.sigma1 );
       }
-      else if (stdDevType.equals(STD_DEV_TYPE_NONE)) { // "None (zero)"
+      else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE)) { // "None (zero)"
         return 0;
       }
       else {
@@ -381,12 +387,12 @@ public class BJF_1997_AttenRel
     magParam.setValue(MAG_DEFAULT);
     fltTypeParam.setValue(FLT_TYPE_DEFAULT);
     distanceJBParam.setValue(DISTANCE_JB_DEFAULT);
-    saParam.setValue(SA_DEFAULT);
-    periodParam.setValue(PERIOD_DEFAULT);
-    dampingParam.setValue(DAMPING_DEFAULT);
-    pgaParam.setValue(PGA_DEFAULT);
-    componentParam.setValue(COMPONENT_DEFAULT);
-    stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
+    saParam.setValueAsDefault();
+    saPeriodParam.setValueAsDefault();
+    saDampingParam.setValueAsDefault();
+    pgaParam.setValueAsDefault();
+    componentParam.setValueAsDefault();
+    stdDevTypeParam.setValueAsDefault();
 
   }
 
@@ -506,10 +512,7 @@ public class BJF_1997_AttenRel
    */
   protected void initSupportedIntensityMeasureParams() {
 
-    // Create saParam (& its dampingParam) and pgaParam:
-    super.initSupportedIntensityMeasureParams();
-
-    // Create saParam's "Period" independent parameter:
+     // Create saParam:
     DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
     TreeSet set = new TreeSet();
     Enumeration keys = coefficients.keys();
@@ -525,20 +528,14 @@ public class BJF_1997_AttenRel
       periodConstraint.addDouble( (Double) it.next());
     }
     periodConstraint.setNonEditable();
-    periodParam = new DoubleDiscreteParameter(PERIOD_NAME, periodConstraint,
-                                              PERIOD_UNITS, null);
-    periodParam.setInfo(PERIOD_INFO);
-    periodParam.setNonEditable();
+	saPeriodParam = new PeriodParam(periodConstraint);
+	saDampingParam = new DampingParam();
+	saParam = new SA_Param(saPeriodParam, saDampingParam);
+	saParam.setNonEditable();
 
-    // Set damping constraint as non editable since no other options exist
-    dampingConstraint.setNonEditable();
-
-    // Add SA's independent parameters:
-    saParam.addIndependentParameter(dampingParam);
-    saParam.addIndependentParameter(periodParam);
-
-    // Now Make the parameter noneditable:
-    saParam.setNonEditable();
+	//  Create PGA Parameter (pgaParam):
+	pgaParam = new PGA_Param();
+	pgaParam.setNonEditable();
 
     // Add the warning listeners:
     saParam.addParameterChangeWarningListener(warningListener);
@@ -562,26 +559,19 @@ public class BJF_1997_AttenRel
 
     // the Component Parameter
     StringConstraint constraint = new StringConstraint();
-    constraint.addString(COMPONENT_AVE_HORZ);
-    constraint.addString(COMPONENT_RANDOM_HORZ);
+    constraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
+    constraint.addString(ComponentParam.COMPONENT_RANDOM_HORZ);
     constraint.setNonEditable();
-    componentParam = new StringParameter(COMPONENT_NAME, constraint,
-                                         COMPONENT_DEFAULT);
-    componentParam.setInfo(COMPONENT_INFO);
-    componentParam.setNonEditable();
-
+    componentParam = new ComponentParam(constraint,componentParam.COMPONENT_AVE_HORZ);
+    
     // the stdDevType Parameter
     StringConstraint stdDevTypeConstraint = new StringConstraint();
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_TOTAL);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_INTER);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_INTRA);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_NONE);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_INTER);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_INTRA);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_NONE);
     stdDevTypeConstraint.setNonEditable();
-    stdDevTypeParam = new StringParameter(STD_DEV_TYPE_NAME,
-                                          stdDevTypeConstraint,
-                                          STD_DEV_TYPE_DEFAULT);
-    stdDevTypeParam.setInfo(STD_DEV_TYPE_INFO);
-    stdDevTypeParam.setNonEditable();
+    stdDevTypeParam = new StdDevTypeParam(stdDevTypeConstraint);
 
     // add these to the list
     otherParams.addParameter(componentParam);
@@ -623,13 +613,13 @@ public class BJF_1997_AttenRel
 
     // PGA
     BJF_1997_AttenRelCoefficients coeff = new BJF_1997_AttenRelCoefficients(
-        PGA_NAME,
+        PGA_Param.NAME,
         0, -0.313, -0.117, -0.242, 0.527, 0.000, -0.778, -0.371, 1396, 5.57,
         0.431, 0.226, 0.486, 0.184, 0.520);
 
     // SA/0.00
     BJF_1997_AttenRelCoefficients coeff0 = new BJF_1997_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.00")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.00")).doubleValue(),
         0.00, -0.313, -0.117, -0.242, 0.527, 0, -0.778, -0.371, 1396, 5.57,
         0.431, 0.226, 0.486, 0.184, 0.520);
     // SA/0.10

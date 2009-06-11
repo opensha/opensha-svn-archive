@@ -27,6 +27,7 @@ import org.opensha.sha.gui.infoTools.*;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.WC94_DisplMagRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.earthquake.EqkRupForecast;
@@ -774,7 +775,7 @@ public class HazardSpectrumApplication extends JApplet
     if ( name1.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
       AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
       //set the intensity measure for the IMR
-      imr.setIntensityMeasure(this.SA_NAME);
+      imr.setIntensityMeasure(SA_Param.NAME);
       //gets the SA Period Values for the IMR
       this.getSA_PeriodForIMR(imr);
       siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
@@ -1118,9 +1119,9 @@ public class HazardSpectrumApplication extends JApplet
       arb.set(Math.log(imlProbVal),1);
     else{ //iml@Prob then we have to interpolate over a range of X-Values
       if(!useCustomX_Values)
-        function = imtInfo.getDefaultHazardCurve(SA_NAME);
+        function = imtInfo.getDefaultHazardCurve(SA_Param.NAME);
 
-      if (imtInfo.isIMT_LogNormalDist(SA_NAME)) {
+      if (imtInfo.isIMT_LogNormalDist(SA_Param.NAME)) {
         for(int i=0;i<function.getNum();++i)
           arb.set(Math.log(function.getX(i)),1);
       }
@@ -1683,7 +1684,7 @@ public class HazardSpectrumApplication extends JApplet
    * @returns the selected IMT
    */
   public String getSelectedIMT(){
-    return SA_NAME;
+    return SA_Param.NAME;
   }
 
   /**

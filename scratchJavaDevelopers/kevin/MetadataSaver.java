@@ -29,6 +29,8 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.Mea
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
 public class MetadataSaver implements ParameterChangeWarningListener {
 
@@ -49,9 +51,9 @@ public class MetadataSaver implements ParameterChangeWarningListener {
 		// set default parameters
 		imr.setParamDefaults();
 		// set the Intensity Measure Type
-//		imr.setIntensityMeasure(AttenuationRelationship.PGA_NAME);
-		imr.setIntensityMeasure(AttenuationRelationship.SA_NAME);
-		imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new
+//		imr.setIntensityMeasure(PGA_Param.NAME);
+		imr.setIntensityMeasure(SA_Param.NAME);
+		imr.getParameter(PeriodParam.NAME).setValue(new
                 Double(0.5));
 		
 		GeographicRegion region = new RELM_TestingRegion();

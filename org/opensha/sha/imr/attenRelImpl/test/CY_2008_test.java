@@ -14,6 +14,10 @@ import org.opensha.commons.param.WarningDoubleParameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.param.DistRupMinusJB_OverRupParameter;
 import org.opensha.sha.param.DistanceRupParameter;
 
@@ -183,12 +187,12 @@ public class CY_2008_test extends NGATest {
 					double zsed = Double.parseDouble(st.nextToken()); // Zsed, sediment/basin depth
 					cy_08.getParameter(CY_2008_AttenRel.DEPTH_1pt0_NAME).setValue(new Double(zsed));
 					
-					cy_08.setIntensityMeasure(CY_2008_AttenRel.SA_NAME);
+					cy_08.setIntensityMeasure(SA_Param.NAME);
 					int num= period.length;
 					double openSHA_Val, tested_Val;
 					boolean skipTest = false;
 					for(int k=0;k<num;++k){
-						cy_08.getParameter(CY_2008_AttenRel.PERIOD_NAME).setValue(new Double(period[k]));
+						cy_08.getParameter(PeriodParam.NAME).setValue(new Double(period[k]));
 						if(isMedian) openSHA_Val = Math.exp(cy_08.getMean());
 						else openSHA_Val = cy_08.getStdDev();
 						tested_Val = Double.parseDouble(st.nextToken().trim());
@@ -220,7 +224,7 @@ public class CY_2008_test extends NGATest {
 					if (SA_ONLY)
 						continue;
 
-					cy_08.setIntensityMeasure(CY_2008_AttenRel.PGA_NAME);
+					cy_08.setIntensityMeasure(PGA_Param.NAME);
 					if(isMedian) openSHA_Val = Math.exp(cy_08.getMean());
 					else openSHA_Val = cy_08.getStdDev();
 					tested_Val = Double.parseDouble(st.nextToken().trim());
@@ -251,7 +255,7 @@ public class CY_2008_test extends NGATest {
 					if (SA_PGA_ONLY)
 						continue;
 					
-					cy_08.setIntensityMeasure(CY_2008_AttenRel.PGV_NAME);
+					cy_08.setIntensityMeasure(PGV_Param.NAME);
 					if(isMedian) openSHA_Val = Math.exp(cy_08.getMean());
 					else openSHA_Val = cy_08.getStdDev();
 					tested_Val = Double.parseDouble(st.nextToken().trim());
@@ -314,8 +318,8 @@ public class CY_2008_test extends NGATest {
 		String str = "";
 		
 		str += "OpenSHA params:";
-		if (attenRel.getIntensityMeasure().getName().equals(AttenuationRelationship.SA_NAME))
-			str += "\nSA period = " + attenRel.getParameter(CY_2008_AttenRel.PERIOD_NAME).getValue();
+		if (attenRel.getIntensityMeasure().getName().equals(SA_Param.NAME))
+			str += "\nSA period = " + attenRel.getParameter(PeriodParam.NAME).getValue();
 		else
 			str += "\nIM Type = " + attenRel.getIntensityMeasure().getName();
 		str += "\nMag = " + attenRel.getParameter(CY_2008_AttenRel.MAG_NAME).getValue();

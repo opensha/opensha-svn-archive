@@ -25,6 +25,11 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.param.DistanceRupParameter;
 import org.opensha.sha.param.DistanceJBParameter;
 
@@ -169,16 +174,16 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel2
 //        as_2008_attenRel.COMPONENT_AVE_HORZ);
 
     // overide local params with those in as_2008_attenRel
-    this.sigmaTruncTypeParam = (StringParameter) toroEtAl_1997_attenRel.getParameter(
-    		toroEtAl_1997_attenRel.SIGMA_TRUNC_TYPE_NAME);
-    this.sigmaTruncLevelParam = (DoubleParameter) toroEtAl_1997_attenRel.getParameter(
-    		toroEtAl_1997_attenRel.SIGMA_TRUNC_LEVEL_NAME);
+    this.sigmaTruncTypeParam = (SigmaTruncTypeParam) toroEtAl_1997_attenRel.getParameter(
+    		SigmaTruncTypeParam.NAME);
+    this.sigmaTruncLevelParam = (SigmaTruncLevelParam) toroEtAl_1997_attenRel.getParameter(
+    		SigmaTruncLevelParam.NAME);
     this.exceedProbParam = (DoubleParameter) toroEtAl_1997_attenRel.getParameter(
     		toroEtAl_1997_attenRel.EXCEED_PROB_NAME);
-    this.stdDevTypeParam = (StringParameter) toroEtAl_1997_attenRel.getParameter(
-    		toroEtAl_1997_attenRel.STD_DEV_TYPE_NAME);
-    this.periodParam = (DoubleDiscreteParameter) toroEtAl_1997_attenRel.getParameter(
-        PERIOD_NAME);
+    this.stdDevTypeParam = (StdDevTypeParam) toroEtAl_1997_attenRel.getParameter(
+    		StdDevTypeParam.NAME);
+    this.saPeriodParam = (PeriodParam) toroEtAl_1997_attenRel.getParameter(
+        PeriodParam.NAME);
 
 //    initCoefficients();
     initSupportedIntensityMeasureParams();
@@ -297,7 +302,7 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel2
   public double getStdDev(){
 	  
 	  String stdDevType = stdDevTypeParam.getValue().toString();
-	  if (stdDevType.equals(STD_DEV_TYPE_NONE)) { // "None (zero)"
+	  if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE)) { // "None (zero)"
 		  return 0;
 	  }
 	  return getStdDevForGoulet();
@@ -448,7 +453,7 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel2
     constraint.setNonEditable();
     this.AF_FuncForm = new StringParameter(this.AF_FuncForm_NAME, constraint,
     		this.AF_FuncForm_DEFAULT);
-    AF_FuncForm.setInfo(COMPONENT_INFO);
+    AF_FuncForm.setInfo(ComponentParam.INFO);
     AF_FuncForm.setNonEditable();
     
     //make the AF intercept parameter
@@ -561,7 +566,7 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel2
 
     // the Component Parameter (not supporting AS_1997's vertical)
 //    StringConstraint constraint = new StringConstraint();
- //   constraint.addString(COMPONENT_AVE_HORZ);
+ //   constraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
   //  constraint.setNonEditable();
   //  componentParam = new StringParameter(COMPONENT_NAME, constraint,
   //                                       COMPONENT_DEFAULT);

@@ -8,6 +8,11 @@ import java.io.*;
 
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 
 
 import org.opensha.commons.data.Site;
@@ -134,7 +139,7 @@ public class HazardMapStandaloneApplicationUsingFrankel02
    */
   private void initIMTGuiBean(){
     // set the im as PGA
-    attenRel.setIntensityMeasure(attenRel.PGA_NAME);
+    attenRel.setIntensityMeasure(PGA_Param.NAME);
   }
 
   /**
@@ -144,10 +149,10 @@ public class HazardMapStandaloneApplicationUsingFrankel02
     // make the imr
     attenRel = new BJF_1997_AttenRel(this);
 
-    attenRel.getParameter(attenRel.SIGMA_TRUNC_TYPE_NAME).setValue(attenRel.SIGMA_TRUNC_TYPE_1SIDED);
-    attenRel.getParameter(attenRel.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
-    attenRel.getParameter(attenRel.COMPONENT_NAME).setValue(attenRel.COMPONENT_RANDOM_HORZ);
-    attenRel.getParameter(attenRel.STD_DEV_TYPE_NAME).setValue(attenRel.STD_DEV_TYPE_TOTAL);
+    attenRel.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
+    attenRel.getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0));
+    attenRel.getParameter(ComponentParam.NAME).setValue(ComponentParam.COMPONENT_RANDOM_HORZ);
+    attenRel.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
     // set the vs30
     attenRel.getParameter(attenRel.VS30_NAME).setValue(new Double(760.0));
   }

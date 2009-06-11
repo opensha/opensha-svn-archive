@@ -32,6 +32,12 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.param.DistanceJBParameter;
 import org.opensha.sha.param.DistanceRupParameter;
 import org.opensha.sha.util.SiteTranslator;
@@ -359,17 +365,17 @@ public class SiteSpecific_2006_AttenRel
 	    		  SiteDataAPI.TYPE_FLAG_INFERRED, 760d);
 	      vs30Trans.setParameterValue(siteParam, val);
 		    // set the component to ave horz
-		  attenRel.getParameter(AttenuationRelationship.COMPONENT_NAME).setValue(
-				  AttenuationRelationship.COMPONENT_AVE_HORZ);
+		  attenRel.getParameter(ComponentParam.NAME).setValue(
+				  ComponentParam.COMPONENT_AVE_HORZ);
 		    // overide local params with those in as_1997_attenRel
-		    this.sigmaTruncTypeParam = (StringParameter) attenRel.getParameter(
-		    		AS_1997_AttenRel.SIGMA_TRUNC_TYPE_NAME);
-		    this.sigmaTruncLevelParam = (DoubleParameter) attenRel.getParameter(
-		    		AS_1997_AttenRel.SIGMA_TRUNC_LEVEL_NAME);
+		    this.sigmaTruncTypeParam = (SigmaTruncTypeParam) attenRel.getParameter(
+		    		SigmaTruncTypeParam.NAME);
+		    this.sigmaTruncLevelParam = (SigmaTruncLevelParam) attenRel.getParameter(
+		    		SigmaTruncLevelParam.NAME);
 		    this.exceedProbParam = (DoubleParameter) attenRel.getParameter(
 		    		AS_1997_AttenRel.EXCEED_PROB_NAME);
-		    this.stdDevTypeParam = (StringParameter) attenRel.getParameter(
-		    		AS_1997_AttenRel.STD_DEV_TYPE_NAME);
+		    this.stdDevTypeParam = (StdDevTypeParam) attenRel.getParameter(
+		    		StdDevTypeParam.NAME);
 		    
 	  }
 	  else if(attenRelName.equals(BJF_1997_AttenRel.NAME)){
@@ -381,17 +387,17 @@ public class SiteSpecific_2006_AttenRel
 		    		  SiteDataAPI.TYPE_FLAG_INFERRED, 760d);
 		   vs30Trans.setParameterValue(siteParam, val);
 		   // set the component to ave horz
-		   attenRel.getParameter(AttenuationRelationship.COMPONENT_NAME).setValue(
-				   AttenuationRelationship.COMPONENT_AVE_HORZ);
+		   attenRel.getParameter(ComponentParam.NAME).setValue(
+				   ComponentParam.COMPONENT_AVE_HORZ);
 		    // overide local params with those in as_1997_attenRel
-		    this.sigmaTruncTypeParam = (StringParameter) attenRel.getParameter(
-		    		BJF_1997_AttenRel.SIGMA_TRUNC_TYPE_NAME);
-		    this.sigmaTruncLevelParam = (DoubleParameter) attenRel.getParameter(
-		    		BJF_1997_AttenRel.SIGMA_TRUNC_LEVEL_NAME);
+		    this.sigmaTruncTypeParam = (SigmaTruncTypeParam) attenRel.getParameter(
+		    		SigmaTruncTypeParam.NAME);
+		    this.sigmaTruncLevelParam = (SigmaTruncLevelParam) attenRel.getParameter(
+		    		SigmaTruncLevelParam.NAME);
 		    this.exceedProbParam = (DoubleParameter) attenRel.getParameter(
 		    		BJF_1997_AttenRel.EXCEED_PROB_NAME);
-		    this.stdDevTypeParam = (StringParameter) attenRel.getParameter(
-		    		BJF_1997_AttenRel.STD_DEV_TYPE_NAME);
+		    this.stdDevTypeParam = (StdDevTypeParam) attenRel.getParameter(
+		    		StdDevTypeParam.NAME);
 	  }
 	  else 	if(attenRelName.equals(Campbell_1997_AttenRel.NAME)){
 		  
@@ -402,17 +408,17 @@ public class SiteSpecific_2006_AttenRel
 		    		  SiteDataAPI.TYPE_FLAG_INFERRED, 760d);
 		    vs30Trans.setParameterValue(siteParam, val);
 		    // set the component to ave horz
-		    attenRel.getParameter(Campbell_1997_AttenRel.COMPONENT_NAME).setValue(
-			    	  Campbell_1997_AttenRel.COMPONENT_AVE_HORZ);
+		    attenRel.getParameter(ComponentParam.NAME).setValue(
+		    		ComponentParam.COMPONENT_AVE_HORZ);
 		    // overide local params with those in as_1997_attenRel
-		    this.sigmaTruncTypeParam = (StringParameter) attenRel.getParameter(
-		    		Campbell_1997_AttenRel.SIGMA_TRUNC_TYPE_NAME);
-		    this.sigmaTruncLevelParam = (DoubleParameter) attenRel.getParameter(
-		    		Campbell_1997_AttenRel.SIGMA_TRUNC_LEVEL_NAME);
+		    this.sigmaTruncTypeParam = (SigmaTruncTypeParam) attenRel.getParameter(
+		    		SigmaTruncTypeParam.NAME);
+		    this.sigmaTruncLevelParam = (SigmaTruncLevelParam) attenRel.getParameter(
+		    		SigmaTruncLevelParam.NAME);
 		    this.exceedProbParam = (DoubleParameter) attenRel.getParameter(
 		    		Campbell_1997_AttenRel.EXCEED_PROB_NAME);
-		    this.stdDevTypeParam = (StringParameter) attenRel.getParameter(
-		    		Campbell_1997_AttenRel.STD_DEV_TYPE_NAME);
+		    this.stdDevTypeParam = (StdDevTypeParam) attenRel.getParameter(
+		    		StdDevTypeParam.NAME);
 	  }
 	  else if(attenRelName.equals(SadighEtAl_1997_AttenRel.NAME)){
 		  
@@ -420,20 +426,20 @@ public class SiteSpecific_2006_AttenRel
 		  attenRel.getParameter(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME).setValue(
 				  SadighEtAl_1997_AttenRel.SITE_TYPE_ROCK);
 		    // set the component to ave horz
-		  attenRel.getParameter(SadighEtAl_1997_AttenRel.COMPONENT_NAME).setValue(
-				  SadighEtAl_1997_AttenRel.COMPONENT_AVE_HORZ);
+		  attenRel.getParameter(ComponentParam.NAME).setValue(
+				  ComponentParam.COMPONENT_AVE_HORZ);
 		    // overide local params with those in as_1997_attenRel
-		    this.sigmaTruncTypeParam = (StringParameter) attenRel.getParameter(
-		    		SadighEtAl_1997_AttenRel.SIGMA_TRUNC_TYPE_NAME);
-		    this.sigmaTruncLevelParam = (DoubleParameter) attenRel.getParameter(
-		    		SadighEtAl_1997_AttenRel.SIGMA_TRUNC_LEVEL_NAME);
+		    this.sigmaTruncTypeParam = (SigmaTruncTypeParam) attenRel.getParameter(
+		    		SigmaTruncTypeParam.NAME);
+		    this.sigmaTruncLevelParam = (SigmaTruncLevelParam) attenRel.getParameter(
+		    		SigmaTruncLevelParam.NAME);
 		    this.exceedProbParam = (DoubleParameter) attenRel.getParameter(
 		    		SadighEtAl_1997_AttenRel.EXCEED_PROB_NAME);
-		    this.stdDevTypeParam = (StringParameter) attenRel.getParameter(
-		    		SadighEtAl_1997_AttenRel.STD_DEV_TYPE_NAME);
+		    this.stdDevTypeParam = (StdDevTypeParam) attenRel.getParameter(
+		    		StdDevTypeParam.NAME);
 	  }
-	  this.periodParam = (DoubleDiscreteParameter) attenRel.getParameter(
-		        PERIOD_NAME);
+	  this.saPeriodParam = (PeriodParam) attenRel.getParameter(
+		        PeriodParam.NAME);
   }
 
   /**
@@ -567,7 +573,7 @@ public class SiteSpecific_2006_AttenRel
    */
   public double getStdDev(){
 	  String stdDevType = stdDevTypeParam.getValue().toString();
-	  if (stdDevType.equals(STD_DEV_TYPE_NONE)) { // "None (zero)"
+	  if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE)) { // "None (zero)"
 		  return 0;
 	  }
 	  else {
@@ -576,8 +582,8 @@ public class SiteSpecific_2006_AttenRel
 			  return getStdDevForBC();
 		  else{
 			  float periodParamVal;
-			  if(im.getName().equals(this.SA_NAME))
-				  periodParamVal = (float)((Double) periodParam.getValue()).doubleValue();
+			  if(im.getName().equals(SA_Param.NAME))
+				  periodParamVal = (float)((Double) saPeriodParam.getValue()).doubleValue();
 			  else
 				  periodParamVal = 0;
 			  
@@ -587,14 +593,14 @@ public class SiteSpecific_2006_AttenRel
 				  return getStdDevForCS();
 			  else{
 				  //getting the Std Dev for Period of 0.75
-				  periodParam.setValue(new Double(0.75));
+				  saPeriodParam.setValue(new Double(0.75));
 				  double stdDev_BS = getStdDevForBS();
 				  //getting the Std Dev. for period param 1.5
-				  periodParam.setValue(new Double(1.5));
+				  saPeriodParam.setValue(new Double(1.5));
 				  double stdDev_CS = getStdDevForCS();
 				  //setting the period to period selected by the user
 				  DecimalFormat format = new DecimalFormat("##.###");
-				  periodParam.setValue(new Double(format.format(periodParamVal)));
+				  saPeriodParam.setValue(new Double(format.format(periodParamVal)));
 				  //linear interpolation to get the Std Dev.
 				  double stdDev = ((periodParamVal - 0.75)/(1.5 -0.75))*
 				  (stdDev_CS - stdDev_BS) + stdDev_BS;
@@ -642,7 +648,7 @@ public class SiteSpecific_2006_AttenRel
 
       double vs30, sigmaV, sigmaAS;
 
-      double periodParamVal = ((Double)this.periodParam.getValue()).doubleValue();
+      double periodParamVal = ((Double)this.saPeriodParam.getValue()).doubleValue();
             
       // set vs30 from the parameters
       if ( ( (Boolean) softSoilParam.getValue()).booleanValue()) {
@@ -714,7 +720,7 @@ public class SiteSpecific_2006_AttenRel
     int numSiteParams = siteParamNames.size();
     while (it.hasNext()) {
       Parameter param = (Parameter) it.next();
-	  if (!(param.getName().equals(AttenuationRelationship.COMPONENT_NAME)))  {
+	  if (!(param.getName().equals(ComponentParam.NAME)))  {
 		  boolean isSiteTypeParam = false;
 		  for(int i=0;i<numSiteParams;++i){
 			 String siteParamName = (String)siteParamNames.get(i);
@@ -734,7 +740,7 @@ public class SiteSpecific_2006_AttenRel
      it = attenRel.getStdDevIndependentParamsIterator();
     while (it.hasNext()) {
         Parameter param = (Parameter) it.next();
-  	  	if (!(param.getName().equals(AttenuationRelationship.COMPONENT_NAME)))  {
+  	  	if (!(param.getName().equals(ComponentParam.NAME)))  {
   		  boolean isSiteTypeParam = false;
   		  for(int i=0;i<numSiteParams;++i){
   			 String siteParamName = (String)siteParamNames.get(i);
@@ -754,7 +760,7 @@ public class SiteSpecific_2006_AttenRel
     it = attenRel.getExceedProbIndependentParamsIterator();
     while (it.hasNext()) {
         Parameter param = (Parameter) it.next();
-  	  	if (!(param.getName().equals(AttenuationRelationship.COMPONENT_NAME)))  {
+  	  	if (!(param.getName().equals(ComponentParam.NAME)))  {
   		  boolean isSiteTypeParam = false;
   		  for(int i=0;i<numSiteParams;++i){
   			 String siteParamName = (String)siteParamNames.get(i);
@@ -912,7 +918,7 @@ public class SiteSpecific_2006_AttenRel
     Iterator it = attenRel.getSupportedIntensityMeasuresIterator();
     while (it.hasNext()) {
       ParameterAPI imParam = (ParameterAPI)it.next();
-      if(imParam.getName().equals(AttenuationRelationship.SA_NAME))
+      if(imParam.getName().equals(SA_Param.NAME))
          supportedIMParams.addParameter( imParam);
     }
   }
@@ -928,15 +934,14 @@ public class SiteSpecific_2006_AttenRel
 
     // the Component Parameter (not supporting AS_1997's vertical)
     StringConstraint constraint = new StringConstraint();
-    constraint.addString(COMPONENT_AVE_HORZ);
+    constraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
     constraint.setNonEditable();
-    componentParam = new StringParameter(COMPONENT_NAME, constraint,
-                                         COMPONENT_DEFAULT);
-    componentParam.setInfo(COMPONENT_INFO);
-    componentParam.setNonEditable();
+    componentParam = new ComponentParam(constraint,componentParam.COMPONENT_AVE_HORZ);
+
     // add this to the list
     otherParams.clear();
     otherParams.addParameter(rockAttenRelSelectorParam);
+    
 //  create the Site Effect correction parameter
     ArrayList siteEffectCorrectionModelList = new ArrayList();
     siteEffectCorrectionModelList.add(this.BATURAY_STEWART_MODEL);
@@ -952,7 +957,7 @@ public class SiteSpecific_2006_AttenRel
     Parameter param;
     while (it.hasNext()) {
       param = (Parameter) it.next();
-      if (!COMPONENT_NAME.equals(param.getName())) {
+      if (!ComponentParam.NAME.equals(param.getName())) {
         otherParams.addParameter(param);
       }
     }

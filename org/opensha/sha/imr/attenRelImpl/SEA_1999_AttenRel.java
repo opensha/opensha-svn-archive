@@ -21,6 +21,12 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.param.*;
 
 /**
@@ -196,8 +202,8 @@ public class SEA_1999_AttenRel
     }
 
     StringBuffer key = new StringBuffer(im.getName());
-    if (im.getName().equalsIgnoreCase(SA_NAME)) {
-      key.append("/" + periodParam.getValue());
+    if (im.getName().equalsIgnoreCase(SA_Param.NAME)) {
+      key.append("/" + saPeriodParam.getValue());
     }
     coeff = (SEA_1999_AttenRelCoefficients) coefficients.get(key.toString());
   }
@@ -275,7 +281,7 @@ public class SEA_1999_AttenRel
     mean *= log2ln;
 
     // make the PSV to SA correction (and cm/s-sq to g)
-    if (im.getName().equals(SA_NAME)) {
+    if (im.getName().equals(SA_Param.NAME)) {
       if (coeff.period != 0.0) {
         mean += Math.log(2.0 * Math.PI / (coeff.period * 980));
       }
@@ -297,43 +303,43 @@ public class SEA_1999_AttenRel
     updateCoefficients();
 
     // set the correct standard deviation depending on component and type
-    if (component.equals(COMPONENT_AVE_HORZ)) {
+    if (component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
 
-      if (stdDevType.equals(STD_DEV_TYPE_TOTAL)) { // "Total"
+      if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL)) { // "Total"
         return log2ln *
             Math.pow( (coeff.sigma1 * coeff.sigma1 +
                        coeff.sigma2 * coeff.sigma2), 0.5);
       }
-      else if (stdDevType.equals(STD_DEV_TYPE_INTER)) { // "Inter-Event"
+      else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTER)) { // "Inter-Event"
         return log2ln * coeff.sigma2;
       }
-      else if (stdDevType.equals(STD_DEV_TYPE_INTRA)) { // "Intra-Event"
+      else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTRA)) { // "Intra-Event"
         return log2ln * coeff.sigma1;
       }
-      else if (stdDevType.equals(STD_DEV_TYPE_NONE)) { // "None (zero)"
+      else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE)) { // "None (zero)"
         return 0;
       }
       else {
         throw new ParameterException(C + ": getStdDev(): Invalid StdDevType");
       }
     }
-    else if (component.equals(COMPONENT_RANDOM_HORZ)) {
+    else if (component.equals(ComponentParam.COMPONENT_RANDOM_HORZ)) {
 
-      if (stdDevType.equals(STD_DEV_TYPE_TOTAL)) { // "Total"
+      if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL)) { // "Total"
         return log2ln *
             Math.pow( (coeff.sigma1 * coeff.sigma1 +
                        coeff.sigma2 * coeff.sigma2 +
                        coeff.sigma3 * coeff.sigma3), 0.5);
       }
-      else if (stdDevType.equals(STD_DEV_TYPE_INTER)) { // "Inter-Event"
+      else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTER)) { // "Inter-Event"
         return log2ln * coeff.sigma2;
       }
-      else if (stdDevType.equals(STD_DEV_TYPE_INTRA)) { // "Intra-Event"
+      else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTRA)) { // "Intra-Event"
         return log2ln *
             Math.pow( (coeff.sigma1 * coeff.sigma1 +
                        coeff.sigma3 * coeff.sigma3), 0.5);
       }
-      else if (stdDevType.equals(STD_DEV_TYPE_NONE)) { // "None (zero)"
+      else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE)) { // "None (zero)"
         return 0;
       }
       else {
@@ -352,12 +358,12 @@ public class SEA_1999_AttenRel
     siteTypeParam.setValue(SITE_TYPE_DEFAULT);
     magParam.setValue(MAG_DEFAULT);
     distanceJBParam.setValue(DISTANCE_JB_DEFAULT);
-    saParam.setValue(SA_DEFAULT);
-    periodParam.setValue(PERIOD_DEFAULT);
-    dampingParam.setValue(DAMPING_DEFAULT);
-    pgaParam.setValue(PGA_DEFAULT);
-    componentParam.setValue(COMPONENT_DEFAULT);
-    stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
+    saParam.setValueAsDefault();
+    saPeriodParam.setValueAsDefault();
+    saDampingParam.setValueAsDefault();
+    pgaParam.setValueAsDefault();
+    componentParam.setValueAsDefault();
+    stdDevTypeParam.setValueAsDefault();
 
   }
 
@@ -462,10 +468,7 @@ public class SEA_1999_AttenRel
    */
   protected void initSupportedIntensityMeasureParams() {
 
-    // Create saParam (& its dampingParam) and pgaParam:
-    super.initSupportedIntensityMeasureParams();
-
-    // Create saParam's "Period" independent parameter:
+    // Create saParam:
     DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
     TreeSet set = new TreeSet();
     Enumeration keys = coefficients.keys();
@@ -481,20 +484,14 @@ public class SEA_1999_AttenRel
       periodConstraint.addDouble( (Double) it.next());
     }
     periodConstraint.setNonEditable();
-    periodParam = new DoubleDiscreteParameter(PERIOD_NAME, periodConstraint,
-                                              PERIOD_UNITS, null);
-    periodParam.setInfo(PERIOD_INFO);
-    periodParam.setNonEditable();
+	saPeriodParam = new PeriodParam(periodConstraint);
+	saDampingParam = new DampingParam();
+	saParam = new SA_Param(saPeriodParam, saDampingParam);
+	saParam.setNonEditable();
 
-    // Set damping constraint as non editable since no other options exist
-    dampingConstraint.setNonEditable();
-
-    // Add SA's independent parameters:
-    saParam.addIndependentParameter(dampingParam);
-    saParam.addIndependentParameter(periodParam);
-
-    // Now Make the parameter noneditable:
-    saParam.setNonEditable();
+	//  Create PGA Parameter (pgaParam):
+	pgaParam = new PGA_Param();
+	pgaParam.setNonEditable();
 
     // Add the warning listeners:
     saParam.addParameterChangeWarningListener(warningListener);
@@ -518,26 +515,19 @@ public class SEA_1999_AttenRel
 
     // the Component Parameter
     StringConstraint constraint = new StringConstraint();
-    constraint.addString(COMPONENT_AVE_HORZ);
-    constraint.addString(COMPONENT_RANDOM_HORZ);
+    constraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
+    constraint.addString(ComponentParam.COMPONENT_RANDOM_HORZ);
     constraint.setNonEditable();
-    componentParam = new StringParameter(COMPONENT_NAME, constraint,
-                                         COMPONENT_DEFAULT);
-    componentParam.setInfo(COMPONENT_INFO);
-    componentParam.setNonEditable();
+    componentParam = new ComponentParam(constraint,componentParam.COMPONENT_AVE_HORZ);
 
     // the stdDevType Parameter
     StringConstraint stdDevTypeConstraint = new StringConstraint();
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_TOTAL);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_INTER);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_INTRA);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_NONE);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_INTER);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_INTRA);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_NONE);
     stdDevTypeConstraint.setNonEditable();
-    stdDevTypeParam = new StringParameter(STD_DEV_TYPE_NAME,
-                                          stdDevTypeConstraint,
-                                          STD_DEV_TYPE_DEFAULT);
-    stdDevTypeParam.setInfo(STD_DEV_TYPE_INFO);
-    stdDevTypeParam.setNonEditable();
+    stdDevTypeParam = new StdDevTypeParam(stdDevTypeConstraint);
 
     // add these to the list
     otherParams.addParameter(componentParam);
@@ -562,26 +552,26 @@ public class SEA_1999_AttenRel
         siteTypeParam.setValue(SITE_TYPE_ROCK);
 
         System.out.print(mag + "\t" + dist + "\t" + SITE_TYPE_ROCK);
-        setIntensityMeasure(PGA_NAME);
+        setIntensityMeasure(PGA_Param.NAME);
         System.out.print("\t" + (float) Math.exp(getMean()));
 
-        setIntensityMeasure(SA_NAME);
+        setIntensityMeasure(SA_Param.NAME);
         per = 0.1;
-        this.periodParam.setValue(new Double(per));
+        this.saPeriodParam.setValue(new Double(per));
         System.out.print("\t" +
                          (float) (Math.exp(getMean()) * (980 * per) /
                                   (2.0 * Math.PI)));
 
-        setIntensityMeasure(SA_NAME);
+        setIntensityMeasure(SA_Param.NAME);
         per = 0.5;
-        this.periodParam.setValue(new Double(per));
+        this.saPeriodParam.setValue(new Double(per));
         System.out.print("\t" +
                          (float) (Math.exp(getMean()) * (980 * per) /
                                   (2.0 * Math.PI)));
 
-        setIntensityMeasure(SA_NAME);
+        setIntensityMeasure(SA_Param.NAME);
         per = 2.0;
-        this.periodParam.setValue(new Double(per));
+        this.saPeriodParam.setValue(new Double(per));
         System.out.print("\t" +
                          (float) (Math.exp(getMean()) * (980 * per) /
                                   (2.0 * Math.PI)) + "\n");
@@ -589,26 +579,26 @@ public class SEA_1999_AttenRel
         siteTypeParam.setValue(SITE_TYPE_SOIL);
 
         System.out.print(mag + "\t" + dist + "\t" + SITE_TYPE_SOIL);
-        setIntensityMeasure(PGA_NAME);
+        setIntensityMeasure(PGA_Param.NAME);
         System.out.print("\t" + (float) (Math.exp(getMean())));
 
-        setIntensityMeasure(SA_NAME);
+        setIntensityMeasure(SA_Param.NAME);
         per = 0.1;
-        this.periodParam.setValue(new Double(per));
+        this.saPeriodParam.setValue(new Double(per));
         System.out.print("\t" +
                          (float) (Math.exp(getMean()) * (980 * per) /
                                   (2.0 * Math.PI)));
 
-        setIntensityMeasure(SA_NAME);
+        setIntensityMeasure(SA_Param.NAME);
         per = 0.5;
-        this.periodParam.setValue(new Double(per));
+        this.saPeriodParam.setValue(new Double(per));
         System.out.print("\t" +
                          (float) (Math.exp(getMean()) * (980 * per) /
                                   (2.0 * Math.PI)));
 
-        setIntensityMeasure(SA_NAME);
+        setIntensityMeasure(SA_Param.NAME);
         per = 2.0;
-        this.periodParam.setValue(new Double(per));
+        this.saPeriodParam.setValue(new Double(per));
         System.out.print("\t" +
                          (float) (Math.exp(getMean()) * (980 * per) /
                                   (2.0 * Math.PI)) + "\n");
@@ -616,42 +606,42 @@ public class SEA_1999_AttenRel
       }
     }
     System.out.print("sigma_ave_horz\t\t");
-    setIntensityMeasure(PGA_NAME);
+    setIntensityMeasure(PGA_Param.NAME);
     System.out.print("\t" + (float) (getStdDev() / log2ln));
 
-    setIntensityMeasure(SA_NAME);
+    setIntensityMeasure(SA_Param.NAME);
     per = 0.1;
-    this.periodParam.setValue(new Double(per));
+    this.saPeriodParam.setValue(new Double(per));
     System.out.print("\t" + (float) (getStdDev() / log2ln));
 
-    setIntensityMeasure(SA_NAME);
+    setIntensityMeasure(SA_Param.NAME);
     per = 0.5;
-    this.periodParam.setValue(new Double(per));
+    this.saPeriodParam.setValue(new Double(per));
     System.out.print("\t" + (float) (getStdDev() / log2ln));
 
-    setIntensityMeasure(SA_NAME);
+    setIntensityMeasure(SA_Param.NAME);
     per = 2.0;
-    this.periodParam.setValue(new Double(per));
+    this.saPeriodParam.setValue(new Double(per));
     System.out.print("\t" + (float) (getStdDev() / log2ln) + "\n");
 
     System.out.print("sigma_rand_horz\t\t");
-    this.componentParam.setValue(COMPONENT_RANDOM_HORZ);
-    setIntensityMeasure(PGA_NAME);
+    this.componentParam.setValue(ComponentParam.COMPONENT_RANDOM_HORZ);
+    setIntensityMeasure(PGA_Param.NAME);
     System.out.print("\t" + (float) (getStdDev() / log2ln));
 
-    setIntensityMeasure(SA_NAME);
+    setIntensityMeasure(SA_Param.NAME);
     per = 0.1;
-    this.periodParam.setValue(new Double(per));
+    this.saPeriodParam.setValue(new Double(per));
     System.out.print("\t" + (float) (getStdDev() / log2ln));
 
-    setIntensityMeasure(SA_NAME);
+    setIntensityMeasure(SA_Param.NAME);
     per = 0.5;
-    this.periodParam.setValue(new Double(per));
+    this.saPeriodParam.setValue(new Double(per));
     System.out.print("\t" + (float) (getStdDev() / log2ln));
 
-    setIntensityMeasure(SA_NAME);
+    setIntensityMeasure(SA_Param.NAME);
     per = 2.0;
-    this.periodParam.setValue(new Double(per));
+    this.saPeriodParam.setValue(new Double(per));
     System.out.print("\t" + (float) (getStdDev() / log2ln));
   }
 
@@ -694,149 +684,149 @@ public class SEA_1999_AttenRel
     coefficients.clear();
 
     SEA_1999_AttenRelCoefficients coeff = new SEA_1999_AttenRelCoefficients(
-        PGA_NAME,
+        PGA_Param.NAME,
         0.0, 0.299, 0.229, 0, -1.052, 0.112, 7.27, 0.172, 0.108, 0.094);
 
     SEA_1999_AttenRelCoefficients coeff0 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.00")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.00")).doubleValue(),
         0.00, 0.299, 0.229, 0, -1.052, 0.112, 7.27, 0.172, 0.108, 0.094);
     SEA_1999_AttenRelCoefficients coeff1 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.100")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.100")).doubleValue(),
         0.100, 2.144, 0.327, -0.098, -1.250, 0.064, 9.99, 0.205, 0.181, 0.110);
     SEA_1999_AttenRelCoefficients coeff2 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.110")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.110")).doubleValue(),
         0.110, 2.155, 0.318, -0.100, -1.207, 0.064, 9.84, 0.205, 0.168, 0.111);
     SEA_1999_AttenRelCoefficients coeff3 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.120")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.120")).doubleValue(),
         0.120, 2.165, 0.313, -0.101, -1.173, 0.065, 9.69, 0.204, 0.156, 0.113);
     SEA_1999_AttenRelCoefficients coeff4 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.130")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.130")).doubleValue(),
         0.130, 2.174, 0.309, -0.101, -1.145, 0.067, 9.54, 0.205, 0.146, 0.114);
     SEA_1999_AttenRelCoefficients coeff5 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.140")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.140")).doubleValue(),
         0.140, 2.183, 0.307, -0.100, -1.122, 0.069, 9.39, 0.205, 0.137, 0.115);
     SEA_1999_AttenRelCoefficients coeff6 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.150")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.150")).doubleValue(),
         0.150, 2.191, 0.305, -0.099, -1.103, 0.072, 9.25, 0.205, 0.129, 0.116);
     SEA_1999_AttenRelCoefficients coeff7 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.160")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.160")).doubleValue(),
         0.160, 2.199, 0.305, -0.098, -1.088, 0.075, 9.12, 0.206, 0.122, 0.117);
     SEA_1999_AttenRelCoefficients coeff8 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.170")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.170")).doubleValue(),
         0.170, 2.206, 0.305, -0.096, -1.075, 0.078, 8.99, 0.207, 0.116, 0.118);
     SEA_1999_AttenRelCoefficients coeff9 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.180")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.180")).doubleValue(),
         0.180, 2.212, 0.306, -0.094, -1.064, 0.081, 8.86, 0.208, 0.110, 0.119);
     SEA_1999_AttenRelCoefficients coeff10 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.190")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.190")).doubleValue(),
         0.190, 2.218, 0.308, -0.092, -1.055, 0.085, 8.74, 0.209, 0.105, 0.119);
     SEA_1999_AttenRelCoefficients coeff11 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.200")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.200")).doubleValue(),
         0.200, 2.224, 0.309, -0.090, -1.047, 0.088, 8.63, 0.210, 0.100, 0.120);
     SEA_1999_AttenRelCoefficients coeff12 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.220")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.220")).doubleValue(),
         0.220, 2.234, 0.313, -0.086, -1.036, 0.095, 8.41, 0.212, 0.092, 0.121);
     SEA_1999_AttenRelCoefficients coeff13 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.240")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.240")).doubleValue(),
         0.240, 2.242, 0.318, -0.082, -1.029, 0.102, 8.22, 0.214, 0.086, 0.122);
     SEA_1999_AttenRelCoefficients coeff14 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.260")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.260")).doubleValue(),
         0.260, 2.250, 0.323, -0.078, -1.024, 0.108, 8.04, 0.216, 0.081, 0.123);
     SEA_1999_AttenRelCoefficients coeff15 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.280")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.280")).doubleValue(),
         0.280, 2.257, 0.329, -0.073, -1.021, 0.115, 7.87, 0.218, 0.076, 0.124);
     SEA_1999_AttenRelCoefficients coeff16 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.300")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.300")).doubleValue(),
         0.300, 2.263, 0.334, -0.070, -1.020, 0.121, 7.72, 0.220, 0.073, 0.125);
     SEA_1999_AttenRelCoefficients coeff17 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.320")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.320")).doubleValue(),
         0.320, 2.268, 0.340, -0.066, -1.019, 0.126, 7.58, 0.221, 0.070, 0.126);
     SEA_1999_AttenRelCoefficients coeff18 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.340")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.340")).doubleValue(),
         0.340, 2.272, 0.345, -0.062, -1.020, 0.132, 7.45, 0.223, 0.067, 0.126);
     SEA_1999_AttenRelCoefficients coeff19 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.360")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.360")).doubleValue(),
         0.360, 2.276, 0.350, -0.059, -1.021, 0.137, 7.33, 0.225, 0.065, 0.127);
     SEA_1999_AttenRelCoefficients coeff20 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.380")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.380")).doubleValue(),
         0.380, 2.279, 0.356, -0.055, -1.023, 0.142, 7.22, 0.227, 0.064, 0.128);
     SEA_1999_AttenRelCoefficients coeff21 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.400")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.400")).doubleValue(),
         0.400, 2.282, 0.361, -0.052, -1.025, 0.147, 7.11, 0.228, 0.063, 0.128);
     SEA_1999_AttenRelCoefficients coeff22 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.420")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.420")).doubleValue(),
         0.420, 2.285, 0.365, -0.049, -1.027, 0.151, 7.02, 0.230, 0.062, 0.129);
     SEA_1999_AttenRelCoefficients coeff23 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.440")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.440")).doubleValue(),
         0.440, 2.287, 0.370, -0.047, -1.030, 0.155, 6.93, 0.231, 0.061, 0.129);
     SEA_1999_AttenRelCoefficients coeff24 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.460")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.460")).doubleValue(),
         0.460, 2.289, 0.375, -0.044, -1.032, 0.159, 6.85, 0.233, 0.061, 0.129);
     SEA_1999_AttenRelCoefficients coeff25 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.480")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.480")).doubleValue(),
         0.480, 2.291, 0.379, -0.042, -1.035, 0.163, 6.77, 0.234, 0.060, 0.130);
     SEA_1999_AttenRelCoefficients coeff26 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.500")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.500")).doubleValue(),
         0.500, 2.292, 0.384, -0.039, -1.038, 0.166, 6.70, 0.235, 0.061, 0.130);
     SEA_1999_AttenRelCoefficients coeff27 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.550")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.550")).doubleValue(),
         0.550, 2.294, 0.394, -0.034, -1.044, 0.174, 6.55, 0.238, 0.061, 0.131);
     SEA_1999_AttenRelCoefficients coeff28 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.600")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.600")).doubleValue(),
         0.600, 2.295, 0.403, -0.030, -1.051, 0.181, 6.42, 0.241, 0.063, 0.132);
     SEA_1999_AttenRelCoefficients coeff29 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.650")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.650")).doubleValue(),
         0.650, 2.295, 0.411, -0.026, -1.057, 0.187, 6.32, 0.243, 0.065, 0.132);
     SEA_1999_AttenRelCoefficients coeff30 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.700")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.700")).doubleValue(),
         0.700, 2.294, 0.418, -0.023, -1.062, 0.192, 6.23, 0.245, 0.068, 0.133);
     SEA_1999_AttenRelCoefficients coeff31 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.750")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.750")).doubleValue(),
         0.750, 2.292, 0.425, -0.020, -1.067, 0.197, 6.17, 0.247, 0.071, 0.133);
     SEA_1999_AttenRelCoefficients coeff32 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.800")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.800")).doubleValue(),
         0.800, 2.290, 0.431, -0.018, -1.071, 0.200, 6.11, 0.249, 0.074, 0.134);
     SEA_1999_AttenRelCoefficients coeff33 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.850")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.850")).doubleValue(),
         0.850, 2.287, 0.437, -0.016, -1.075, 0.203, 6.07, 0.250, 0.077, 0.134);
     SEA_1999_AttenRelCoefficients coeff34 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.900")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.900")).doubleValue(),
         0.900, 2.284, 0.442, -0.015, -1.078, 0.206, 6.04, 0.251, 0.081, 0.134);
     SEA_1999_AttenRelCoefficients coeff35 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.950")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.950")).doubleValue(),
         0.950, 2.280, 0.446, -0.014, -1.081, 0.208, 6.02, 0.253, 0.085, 0.135);
     SEA_1999_AttenRelCoefficients coeff36 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("1.000")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("1.000")).doubleValue(),
         1.0, 2.276, 0.450, -0.014, -1.083, 0.210, 6.01, 0.254, 0.089, 0.135);
     SEA_1999_AttenRelCoefficients coeff37 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("1.100")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("1.100")).doubleValue(),
         1.1, 2.267, 0.457, -0.013, -1.085, 0.213, 6.01, 0.255, 0.097, 0.135);
     SEA_1999_AttenRelCoefficients coeff38 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("1.200")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("1.200")).doubleValue(),
         1.2, 2.258, 0.462, -0.014, -1.086, 0.214, 6.03, 0.257, 0.106, 0.136);
     SEA_1999_AttenRelCoefficients coeff39 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("1.300")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("1.300")).doubleValue(),
         1.3, 2.248, 0.466, -0.015, -1.085, 0.214, 6.07, 0.258, 0.115, 0.136);
     SEA_1999_AttenRelCoefficients coeff40 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("1.400")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("1.400")).doubleValue(),
         1.4, 2.237, 0.469, -0.017, -1.083, 0.213, 6.13, 0.258, 0.123, 0.136);
     SEA_1999_AttenRelCoefficients coeff41 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("1.500")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("1.500")).doubleValue(),
         1.5, 2.226, 0.471, -0.019, -1.079, 0.212, 6.21, 0.259, 0.132, 0.137);
     SEA_1999_AttenRelCoefficients coeff42 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("1.600")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("1.600")).doubleValue(),
         1.6, 2.215, 0.472, -0.022, -1.075, 0.210, 6.29, 0.259, 0.141, 0.137);
     SEA_1999_AttenRelCoefficients coeff43 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("1.700")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("1.700")).doubleValue(),
         1.7, 2.203, 0.473, -0.025, -1.070, 0.207, 6.39, 0.259, 0.150, 0.137);
     SEA_1999_AttenRelCoefficients coeff44 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("1.800")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("1.800")).doubleValue(),
         1.8, 2.192, 0.472, -0.029, -1.063, 0.204, 6.49, 0.259, 0.158, 0.137);
     SEA_1999_AttenRelCoefficients coeff45 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("1.900")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("1.900")).doubleValue(),
         1.9, 2.180, 0.472, -0.032, -1.056, 0.201, 6.60, 0.258, 0.167, 0.137);
     SEA_1999_AttenRelCoefficients coeff46 = new SEA_1999_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("2.000")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("2.000")).doubleValue(),
         2.0, 2.168, 0.471, -0.037, -1.049, 0.197, 6.71, 0.258, 0.175, 0.137);
 
     coefficients.put(coeff.getName(), coeff);

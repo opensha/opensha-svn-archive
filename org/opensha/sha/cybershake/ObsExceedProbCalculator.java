@@ -25,6 +25,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_Adjustable
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.util.SiteTranslator;
 
 
@@ -251,7 +252,7 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
     if(imt.equalsIgnoreCase("SA")){
 
       try{
-        attenRel.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new
+        attenRel.getParameter(PeriodParam.NAME).setValue(new
             Double(period));
       }
       catch (Exception e) {

@@ -21,6 +21,7 @@ import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 
 
 /**
@@ -78,7 +79,7 @@ public class HardcodedHazardMapCalculator implements ParameterChangeWarningListe
 		// max cutoff distance for calculator
 		double maxDistance =  200.0;
 		
-		String imt = AttenuationRelationship.PGA_NAME;
+		String imt = PGA_Param.NAME;
 
 		// create IMR
 		AttenuationRelationshipAPI imr = new CB_2008_AttenRel(this);

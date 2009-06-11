@@ -23,6 +23,11 @@ import org.opensha.commons.util.FaultUtils;
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.param.*;
 
 /**
@@ -219,7 +224,7 @@ public class ToroEtAl_1997_AttenRel
           );
     }
     
-    iper = ( (Integer) indexFromPerHashMap.get(periodParam.getValue())).intValue();
+    iper = ( (Integer) indexFromPerHashMap.get(saPeriodParam.getValue())).intValue();
     
 
     parameterChange = true;
@@ -265,11 +270,11 @@ public class ToroEtAl_1997_AttenRel
  //   vs30Param.setValue(VS30_DEFAULT);
     magParam.setValue(MAG_DEFAULT);
     distanceJBParam.setValue(DISTANCE_JB_DEFAULT);
-    saParam.setValue(SA_DEFAULT);
-    periodParam.setValue(PERIOD_DEFAULT);
-    dampingParam.setValue(DAMPING_DEFAULT);
-    pgaParam.setValue(PGA_DEFAULT);
-    stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
+    saParam.setValueAsDefault();
+    saPeriodParam.setValueAsDefault();
+    saDampingParam.setValueAsDefault();
+    pgaParam.setValueAsDefault();
+    stdDevTypeParam.setValueAsDefault();
 
  //   vs30 = ( (Double) vs30Param.getValue()).doubleValue(); 
     rjb = ( (Double) distanceJBParam.getValue()).doubleValue();
@@ -395,29 +400,20 @@ public class ToroEtAl_1997_AttenRel
    */
   protected void initSupportedIntensityMeasureParams() {
 
-    // Create saParam (& its dampingParam) and pgaParam:
-    super.initSupportedIntensityMeasureParams();
-
-    // Create saParam's "Period" independent parameter:
+    // Create saParam:
     DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
     for (int i = 0; i < period.length; i++) {
       periodConstraint.addDouble(new Double(period[i]));
     }
     periodConstraint.setNonEditable();
-    periodParam = new DoubleDiscreteParameter(PERIOD_NAME, periodConstraint,
-                                              PERIOD_UNITS, null);
-    periodParam.setInfo(PERIOD_INFO);
-    periodParam.setNonEditable();
+	saPeriodParam = new PeriodParam(periodConstraint);
+	saDampingParam = new DampingParam();
+	saParam = new SA_Param(saPeriodParam, saDampingParam);
+	saParam.setNonEditable();
 
-    // Set damping constraint as non editable since no other options exist
-    dampingConstraint.setNonEditable();
-
-    // Add SA's independent parameters:
-    saParam.addIndependentParameter(dampingParam);
-    saParam.addIndependentParameter(periodParam);
-
-    // Now Make the parameter noneditable:
-    saParam.setNonEditable();
+	//  Create PGA Parameter (pgaParam):
+	pgaParam = new PGA_Param();
+	pgaParam.setNonEditable();
 
     // Add the warning listeners:
     saParam.addParameterChangeWarningListener(warningListener);
@@ -437,14 +433,10 @@ public class ToroEtAl_1997_AttenRel
 
 	    // the stdDevType Parameter
 	    StringConstraint stdDevTypeConstraint = new StringConstraint();
-	    stdDevTypeConstraint.addString(STD_DEV_TYPE_TOTAL);
+	    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
 	    stdDevTypeConstraint.addString(STD_DEV_TYPE_BASEMENT);
 	    stdDevTypeConstraint.setNonEditable();
-	    stdDevTypeParam = new StringParameter(STD_DEV_TYPE_NAME,
-	                                          stdDevTypeConstraint,
-	                                          STD_DEV_TYPE_DEFAULT);
-	    stdDevTypeParam.setInfo(STD_DEV_TYPE_INFO);
-	    stdDevTypeParam.setNonEditable();
+	    stdDevTypeParam = new StdDevTypeParam(stdDevTypeConstraint);
 
 	    // add these to the list
 	    otherParams.addParameter(stdDevTypeParam);
@@ -555,7 +547,7 @@ public class ToroEtAl_1997_AttenRel
     else if (pName.equals(MAG_NAME)) {
       mag = ( (Double) val).doubleValue();
     }
-    else if (pName.equals(PERIOD_NAME) ) {
+    else if (pName.equals(PeriodParam.NAME) ) {
     	intensityMeasureChanged = true;
     }
   }
@@ -567,7 +559,7 @@ public class ToroEtAl_1997_AttenRel
     distanceJBParam.removeParameterChangeListener(this);
 //    vs30Param.removeParameterChangeListener(this);
     magParam.removeParameterChangeListener(this);
-    periodParam.removeParameterChangeListener(this);
+    saPeriodParam.removeParameterChangeListener(this);
 
     this.initParameterEventListeners();
   }
@@ -581,7 +573,7 @@ public class ToroEtAl_1997_AttenRel
     distanceJBParam.addParameterChangeListener(this);
 //    vs30Param.addParameterChangeListener(this);
     magParam.addParameterChangeListener(this);
-    periodParam.addParameterChangeListener(this);
+    saPeriodParam.addParameterChangeListener(this);
   }
 
   /**

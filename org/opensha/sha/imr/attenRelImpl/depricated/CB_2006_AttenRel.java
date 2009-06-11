@@ -26,6 +26,14 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGD_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.param.*;
 
 /**
@@ -152,10 +160,6 @@ public class CB_2006_AttenRel
   public final static String FLT_TYPE_REVERSE = "Reverse";
   public final static String FLT_TYPE_NORMAL = "Normal";
   public final static String FLT_TYPE_DEFAULT = FLT_TYPE_STRIKE_SLIP;
-
-  // change component default from that of parent
-  String COMPONENT_DEFAULT = this.COMPONENT_GMRotI50;
-
 
   /**
    * The DistanceRupParameter, closest distance to fault surface.
@@ -514,17 +518,17 @@ public class CB_2006_AttenRel
           );
     }
 
-    if (im.getName().equalsIgnoreCase(SA_NAME)) {
-      iper = ( (Integer) indexFromPerHashMap.get(periodParam.getValue())).
+    if (im.getName().equalsIgnoreCase(SA_Param.NAME)) {
+      iper = ( (Integer) indexFromPerHashMap.get(saPeriodParam.getValue())).
           intValue();
     }
-    else if (im.getName().equalsIgnoreCase(PGV_NAME)) {
+    else if (im.getName().equalsIgnoreCase(PGV_Param.NAME)) {
         iper = 1;
       }
-    else if (im.getName().equalsIgnoreCase(PGA_NAME)) {
+    else if (im.getName().equalsIgnoreCase(PGA_Param.NAME)) {
     		iper = 2;
     }
-    else if (im.getName().equalsIgnoreCase(PGD_NAME)) {
+    else if (im.getName().equalsIgnoreCase(PGD_Param.NAME)) {
 		iper = 0;
     }
     parameterChange = true;
@@ -599,14 +603,14 @@ public class CB_2006_AttenRel
     rupTopDepthParam.setValue(RUP_TOP_DEFAULT);
     distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
     distRupMinusJB_OverRupParam.setValue(DISTANCE_RUP_MINUS_DEFAULT);
-    saParam.setValue(SA_DEFAULT);
-    periodParam.setValue(PERIOD_DEFAULT);
-    dampingParam.setValue(DAMPING_DEFAULT);
-    pgaParam.setValue(PGA_DEFAULT);
-    pgvParam.setValue(PGV_DEFAULT);
-    pgdParam.setValue(PGD_DEFAULT);
-    componentParam.setValue(COMPONENT_DEFAULT);
-    stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
+    saParam.setValueAsDefault();
+    saPeriodParam.setValueAsDefault();
+    saDampingParam.setValueAsDefault();
+    pgaParam.setValueAsDefault();
+    pgvParam.setValueAsDefault();
+    pgdParam.setValueAsDefault();
+    componentParam.setValueAsDefault();
+    stdDevTypeParam.setValueAsDefault();
     depthTo2pt5kmPerSecParam.setValue(DEPTH_2pt5_DEFAULT);
     dipParam.setValue(DIP_DEFAULT);
     
@@ -768,57 +772,34 @@ public class CB_2006_AttenRel
    */
   protected void initSupportedIntensityMeasureParams() {
 
-    // Create saParam (& its dampingParam) and pgaParam:
-    super.initSupportedIntensityMeasureParams();
-
-    // Create saParam's "Period" independent parameter:
+    // Create saParam:
     DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
     for (int i = 3; i < per.length; i++) {
       periodConstraint.addDouble(new Double(per[i]));
     }
     periodConstraint.setNonEditable();
-    periodParam = new DoubleDiscreteParameter(PERIOD_NAME, periodConstraint,
-                                              PERIOD_UNITS, null);
-    periodParam.setInfo(PERIOD_INFO);
-    periodParam.setNonEditable();
+	saPeriodParam = new PeriodParam(periodConstraint);
+	saDampingParam = new DampingParam();
+	saParam = new SA_Param(saPeriodParam, saDampingParam);
+	saParam.setNonEditable();
 
-    // Set damping constraint as non editable since no other options exist
-    dampingConstraint.setNonEditable();
+	//  Create PGA Parameter (pgaParam):
+	pgaParam = new PGA_Param();
+	pgaParam.setNonEditable();
 
-    // Add SA's independent parameters:
-    saParam.addIndependentParameter(dampingParam);
-    saParam.addIndependentParameter(periodParam);
-
-    // Now Make the parameter noneditable:
-    saParam.setNonEditable();
-
-    //  Create PGV Parameter (pgvParam):
-    DoubleConstraint pgvConstraint = new DoubleConstraint(PGV_MIN, PGV_MAX);
-    pgvConstraint.setNonEditable();
-    pgvParam = new WarningDoubleParameter(PGV_NAME, pgvConstraint, PGV_UNITS);
-    pgvParam.setInfo(PGV_INFO);
-    DoubleConstraint warn = new DoubleConstraint(PGV_WARN_MIN, PGV_WARN_MAX);
-    warn.setNonEditable();
-    pgvParam.setWarningConstraint(warn);
-    pgvParam.setNonEditable();
-    
-    //  Create PGD Parameter (pgdParam):
-    DoubleConstraint pgdConstraint = new DoubleConstraint(PGD_MIN, PGD_MAX);
-    pgdConstraint.setNonEditable();
-    pgdParam = new WarningDoubleParameter(PGD_NAME, pgdConstraint, PGD_UNITS);
-    pgdParam.setInfo(PGD_INFO);
-    DoubleConstraint pgdWarn = new DoubleConstraint(PGD_WARN_MIN, PGD_WARN_MAX);
-    pgdWarn.setNonEditable();
-    pgdParam.setWarningConstraint(pgdWarn);
-    pgdParam.setNonEditable();
+	//  Create PGV Parameter (pgvParam):
+	pgvParam = new PGV_Param();
+	pgvParam.setNonEditable();
+	
+	//  Create PGV Parameter (pgvParam):
+	pgdParam = new PGD_Param();
+	pgdParam.setNonEditable();
     
     // Add the warning listeners:
     saParam.addParameterChangeWarningListener(warningListener);
     pgaParam.addParameterChangeWarningListener(warningListener);
     pgvParam.addParameterChangeWarningListener(warningListener);
     pgdParam.addParameterChangeWarningListener(warningListener);
-    
-
     
     // Put parameters in the supportedIMParams list:
     supportedIMParams.clear();
@@ -839,28 +820,18 @@ public class CB_2006_AttenRel
 
     // the Component Parameter
     StringConstraint constraint = new StringConstraint();
-    constraint.addString(COMPONENT_GMRotI50);
-    constraint.addString(COMPONENT_RANDOM_HORZ);
-    
-    componentParam = new StringParameter(COMPONENT_NAME, constraint,
-                                         COMPONENT_DEFAULT);
-    componentParam.setInfo(COMPONENT_INFO);
-    componentParam.setNonEditable();
+    constraint.addString(ComponentParam.COMPONENT_GMRotI50);
+    constraint.addString(ComponentParam.COMPONENT_RANDOM_HORZ);
+    componentParam = new ComponentParam(constraint,ComponentParam.COMPONENT_GMRotI50);
 
     // the stdDevType Parameter
     StringConstraint stdDevTypeConstraint = new StringConstraint();
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_TOTAL);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_NONE);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_INTER);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_INTRA);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_NONE);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_INTER);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_INTRA);
     stdDevTypeConstraint.setNonEditable();
-    stdDevTypeParam = new StringParameter(STD_DEV_TYPE_NAME,
-                                          stdDevTypeConstraint,
-                                          STD_DEV_TYPE_DEFAULT);
-    stdDevTypeParam.setInfo(STD_DEV_TYPE_INFO);
-    stdDevTypeParam.setNonEditable();
-
- 
+    stdDevTypeParam = new StdDevTypeParam(stdDevTypeConstraint);
 
     // add these to the list
     otherParams.addParameter(componentParam);
@@ -1000,20 +971,20 @@ public class CB_2006_AttenRel
 	  
 	  // set k for random versus ave horz
 	  double k;
-	  if(component.equals(COMPONENT_GMRotI50))
+	  if(component.equals(ComponentParam.COMPONENT_GMRotI50))
 		  k =0;
-	  else if (component.equals(COMPONENT_RANDOM_HORZ))
+	  else if (component.equals(ComponentParam.COMPONENT_RANDOM_HORZ))
 		  k=1;
 	  else
 		  k = Double.NaN; // just in case invalid component given
 	  
-	  if (stdDevType.equals(STD_DEV_TYPE_TOTAL))
+	  if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL))
 		  return Math.sqrt(t*t + s*s + k*c*c);
-	  else if (stdDevType.equals(STD_DEV_TYPE_INTRA))
+	  else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTRA))
 		  return Math.sqrt(s*s + k*c*c);
-	  else if (stdDevType.equals(STD_DEV_TYPE_INTER))
+	  else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTER))
 		  return Math.sqrt(t*t + k*c*c);
-	  else if (stdDevType.equals(STD_DEV_TYPE_NONE))
+	  else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE))
 		  return 0;
 	  else
 		  return Double.NaN;   // just in case invalid stdDev given
@@ -1064,16 +1035,16 @@ public class CB_2006_AttenRel
 	  else if (pName.equals(RUP_TOP_NAME)) {
 		  depthTop = ( (Double) val).doubleValue();
 	  }
-	  else if (pName.equals(STD_DEV_TYPE_NAME)) {
+	  else if (pName.equals(StdDevTypeParam.NAME)) {
 		  stdDevType = (String) val;
 	  }
 	  else if (pName.equals(DIP_NAME)) {
 		  dip = ( (Double) val).doubleValue();
 	  }
-	  else if (pName.equals(COMPONENT_NAME)) {
+	  else if (pName.equals(ComponentParam.NAME)) {
 		  component = (String)componentParam.getValue();
 	  }
-	  else if (pName.equals(PERIOD_NAME)) {
+	  else if (pName.equals(PeriodParam.NAME)) {
 		  intensityMeasureChanged = true;
 	  }
   }
@@ -1091,7 +1062,7 @@ public class CB_2006_AttenRel
     rupTopDepthParam.removeParameterChangeListener(this);
     dipParam.removeParameterChangeListener(this);
     stdDevTypeParam.removeParameterChangeListener(this);
-    periodParam.removeParameterChangeListener(this);
+    saPeriodParam.removeParameterChangeListener(this);
 
     this.initParameterEventListeners();
   }
@@ -1110,7 +1081,7 @@ public class CB_2006_AttenRel
     fltTypeParam.addParameterChangeListener(this);
     rupTopDepthParam.addParameterChangeListener(this);
     stdDevTypeParam.addParameterChangeListener(this);
-    periodParam.addParameterChangeListener(this);
+    saPeriodParam.addParameterChangeListener(this);
     dipParam.addParameterChangeListener(this);
   }
 

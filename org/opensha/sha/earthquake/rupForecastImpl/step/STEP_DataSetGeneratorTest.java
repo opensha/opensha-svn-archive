@@ -8,6 +8,7 @@ import java.text.DecimalFormat;
 
 import org.opensha.sha.earthquake.rupForecastImpl.step.*;
 import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
@@ -94,7 +95,7 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
       // make the imr
       ShakeMap_2003_AttenRel attenRel = new ShakeMap_2003_AttenRel(this);
             // set the im as PGA
-      attenRel.setIntensityMeasure(attenRel.PGA_NAME);
+      attenRel.setIntensityMeasure(PGA_Param.NAME);
       currentTime = System.currentTimeMillis();
       fw.write("Time to instantiate ShakeMap attenuationRelationship :"+(currentTime - startTime)+"\n");
       //make the Gridded Region object

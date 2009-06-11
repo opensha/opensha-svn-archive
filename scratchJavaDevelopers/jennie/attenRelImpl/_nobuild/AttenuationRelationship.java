@@ -31,7 +31,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.*;
  *  <b>Peak Ground Acceleration</b> Intensity-Measure parameter.
  *  This parameter is instantiated in its entirety in the
  *  initSupportedIntenistyMeasureParams() method here.<br>
- *  PGA_NAME = "PGA"<br>
+ *  PGA_Param.NAME = "PGA"<br>
  *  PGA_UNITS = "g"<br>
  *  PGA_INFO = "Peak Ground Acceleration"<br>
  *  PGA_MIN = 0<br>
@@ -43,7 +43,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.*;
  *  <b>pgvParam</b> - a WarningDoubleParameter representing the natural-log of the
  *  <b>Peak Ground Velocity</b> Intensity-Measure parameter.
  *  This parameter is not instantiated here due to limited use.<br>
- *  PGV_NAME = "PGV"<br>
+ *  PGV_Param.NAME = "PGV"<br>
  *  PGV_UNITS = "g"<br>
  *  PGV_INFO = "Peak Ground Acceleration"<br>
  *  PGV_MIN = 0<br>
@@ -57,7 +57,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.*;
  *  This parameter is instantiated in its entirety in the
  *  initSupportedIntenistyMeasureParams() method here. However its periodParam independent-
  *  parameter must be created and added in subclasses (since supported periods will vary).<br>
- *  SA_NAME = "SA"<br>
+ *  SA_Param.NAME = "SA"<br>
  *  SA_UNITS = "g"<br>
  *  SA_INFO = "Response Spectral Acceleration"<br>
  *  SA_MIN = 0<br>
@@ -69,7 +69,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.*;
  * <b>periodParam</b> - a DoubleDiscreteParameter representing the <b>Period</b> associated
  * with the Response-Spectral-Acceleration Parameter (periodParam is an
  * independentParameter of saParam).  This must be created and added to saParam in subclasses.<br>
- * PERIOD_NAME = "SA Period"<br>
+ * PeriodParam.NAME = "SA Period"<br>
  * PERIOD_UNITS = "sec"<br>
  * PERIOD_INFO = "Oscillator Period for SA"<br>
  * PERIOD_DEFAULT = new Double( 0 )<br>
@@ -163,7 +163,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.*;
  * STD_DEV_TYPE_INFO = "Type of Standard Deviation"<br>
  * STD_DEV_TYPE_DEFAULT = "Total"<br>
  * STD_DEV_TYPE_TOTAL = "Total"<br>
- * STD_DEV_TYPE_INTER = "Inter-Event"<br>
+ * StdDevTypeParam.STD_DEV_TYPE_INTER = "Inter-Event"<br>
  * STD_DEV_TYPE_INTRA = "Intra-Event"<p>
  * STD_DEV_TYPE_NONE = "None (zero)"<br>
  *
@@ -234,7 +234,7 @@ public abstract class AttenuationRelationship
    * in its entirety in the initSupportedIntenistyMeasureParams() method here.
    */
   protected WarningDoubleParameter pgaParam = null;
-  public final static String PGA_NAME = "PGA";
+  public final static String PGA_Param.NAME = "PGA";
   public final static String PGA_UNITS = "g";
   protected final static Double PGA_DEFAULT = new Double(Math.log(0.1));
   public final static String PGA_INFO = "Peak Ground Acceleration";
@@ -251,7 +251,7 @@ public abstract class AttenuationRelationship
    * here due to limited use.
    */
   protected WarningDoubleParameter pgvParam = null;
-  public final static String PGV_NAME = "PGV";
+  public final static String PGV_Param.NAME = "PGV";
   public final static String PGV_UNITS = "cm/sec";
   protected final static Double PGV_DEFAULT = new Double(Math.log(0.1));
   public final static String PGV_INFO = "Peak Ground Velocity";
@@ -290,7 +290,7 @@ public abstract class AttenuationRelationship
    * and added in subclasses.
    */
   protected WarningDoubleParameter saParam = null;
-  public final static String SA_NAME = "SA";
+  public final static String SA_Param.NAME = "SA";
   public final static String SA_UNITS = "g";
   protected final static Double SA_DEFAULT = new Double(Math.log(0.5));
   public final static String SA_INFO = "Response Spectral Acceleration";
@@ -307,7 +307,7 @@ public abstract class AttenuationRelationship
    * Parameter.  This parameter is created and added to saParam in subclasses.
    */
   protected DoubleDiscreteParameter periodParam = null;
-  public final static String PERIOD_NAME = "SA Period";
+  public final static String PeriodParam.NAME = "SA Period";
   public final static String PERIOD_UNITS = "sec";
   protected final static Double PERIOD_DEFAULT = new Double(1.0);
   public final static String PERIOD_INFO = "Oscillator Period for SA";
@@ -453,7 +453,7 @@ public abstract class AttenuationRelationship
   public final static String STD_DEV_TYPE_INFO = "Type of Standard Deviation";
   public final static String STD_DEV_TYPE_DEFAULT = "Total";
   public final static String STD_DEV_TYPE_TOTAL = "Total";
-  public final static String STD_DEV_TYPE_INTER = "Inter-Event";
+  public final static String StdDevTypeParam.STD_DEV_TYPE_INTER = "Inter-Event";
   public final static String STD_DEV_TYPE_INTRA = "Intra-Event";
   public final static String STD_DEV_TYPE_NONE = "None (zero)";
   public final static String STD_DEV_TYPE_TOTAL_MAG_DEP =
@@ -770,14 +770,14 @@ public abstract class AttenuationRelationship
    */
   public DiscretizedFuncAPI getSA_ExceedProbSpectrum(double iml) throws ParameterException,
       IMRException {
-    this.setIntensityMeasure(this.SA_NAME);
+    this.setIntensityMeasure(this.SA_Param.NAME);
     im.setValue(new Double(iml));
     DiscretizedFuncAPI exeedProbFunction =  new ArbitrarilyDiscretizedFunc();
     ArrayList allowedSA_Periods = periodParam.getAllowedDoubles();
     int size = allowedSA_Periods.size();
     for(int i=0;i<size;++i){
       Double saPeriod = (Double)allowedSA_Periods.get(i);
-      getParameter(this.PERIOD_NAME).setValue(saPeriod);
+      getParameter(this.PeriodParam.NAME).setValue(saPeriod);
       exeedProbFunction.set(saPeriod.doubleValue(),getExceedProbability());
     }
     return exeedProbFunction;
@@ -797,7 +797,7 @@ public abstract class AttenuationRelationship
    */
   public DiscretizedFuncAPI getSA_IML_AtExceedProbSpectrum(double exceedProb) throws ParameterException,
       IMRException {
-    this.setIntensityMeasure(this.SA_NAME);
+    this.setIntensityMeasure(this.SA_Param.NAME);
     //sets the value of the exceedProb Param.
     exceedProbParam.setValue(exceedProb);
     DiscretizedFuncAPI imlFunction =  new ArbitrarilyDiscretizedFunc();
@@ -805,7 +805,7 @@ public abstract class AttenuationRelationship
     int size = allowedSA_Periods.size();
     for(int i=0;i<size;++i){
       Double saPeriod = (Double)allowedSA_Periods.get(i);
-      getParameter(this.PERIOD_NAME).setValue(saPeriod);
+      getParameter(this.PeriodParam.NAME).setValue(saPeriod);
       imlFunction.set(saPeriod.doubleValue(),getIML_AtExceedProb());
     }
 
@@ -1095,7 +1095,7 @@ public abstract class AttenuationRelationship
     // Create SA Parameter:
     DoubleConstraint saConstraint = new DoubleConstraint(SA_MIN, SA_MAX);
     saConstraint.setNonEditable();
-    saParam = new WarningDoubleParameter(SA_NAME, saConstraint, SA_UNITS);
+    saParam = new WarningDoubleParameter(SA_Param.NAME, saConstraint, SA_UNITS);
     saParam.setInfo(SA_INFO);
     DoubleConstraint warn1 = new DoubleConstraint(SA_WARN_MIN, SA_WARN_MAX);
     warn1.setNonEditable();
@@ -1114,7 +1114,7 @@ public abstract class AttenuationRelationship
     // Create PGA Parameter
     DoubleConstraint pgaConstraint = new DoubleConstraint(PGA_MIN, PGA_MAX);
     pgaConstraint.setNonEditable();
-    pgaParam = new WarningDoubleParameter(PGA_NAME, pgaConstraint, PGA_UNITS);
+    pgaParam = new WarningDoubleParameter(PGA_Param.NAME, pgaConstraint, PGA_UNITS);
     pgaParam.setInfo(PGA_INFO);
     DoubleConstraint warn2 = new DoubleConstraint(PGA_WARN_MIN, PGA_WARN_MAX);
     warn2.setNonEditable();

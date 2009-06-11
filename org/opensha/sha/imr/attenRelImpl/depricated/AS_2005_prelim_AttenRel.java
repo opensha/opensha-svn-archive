@@ -24,6 +24,12 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.param.*;
 
 /**
@@ -338,8 +344,8 @@ public class AS_2005_prelim_AttenRel
           );
     }
 
-    if (im.getName().equalsIgnoreCase(SA_NAME)) {
-      iper = ( (Integer) indexFromPerHashMap.get(periodParam.getValue())).
+    if (im.getName().equalsIgnoreCase(SA_Param.NAME)) {
+      iper = ( (Integer) indexFromPerHashMap.get(saPeriodParam.getValue())).
           intValue();
     }
     else {
@@ -398,12 +404,12 @@ public class AS_2005_prelim_AttenRel
     rupTopDepthParam.setValue(RUP_TOP_DEFAULT);
     distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
     distRupMinusJB_OverRupParam.setValue(this.DISTANCE_RUP_MINUS_JB_DEFAULT);
-    saParam.setValue(SA_DEFAULT);
-    periodParam.setValue(PERIOD_DEFAULT);
-    dampingParam.setValue(DAMPING_DEFAULT);
-    pgaParam.setValue(PGA_DEFAULT);
-    componentParam.setValue(COMPONENT_DEFAULT);
-    stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
+    saParam.setValueAsDefault();
+    saPeriodParam.setValueAsDefault();
+    saDampingParam.setValueAsDefault();
+    pgaParam.setValueAsDefault();
+    componentParam.setValueAsDefault();
+    stdDevTypeParam.setValueAsDefault();
     srcSiteAngleParam.setValue(SRC_SITE_ANGLE_DEFAULT);
 
     vs30 = ( (Double) vs30Param.getValue()).doubleValue();
@@ -549,29 +555,21 @@ public class AS_2005_prelim_AttenRel
    */
   protected void initSupportedIntensityMeasureParams() {
 
-    // Create saParam (& its dampingParam) and pgaParam:
-    super.initSupportedIntensityMeasureParams();
-
-    // Create saParam's "Period" independent parameter:
+     // Create saParam:
     DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
     for (int i = 0; i < period.length; i++) {
       periodConstraint.addDouble(new Double(period[i]));
     }
     periodConstraint.setNonEditable();
-    periodParam = new DoubleDiscreteParameter(PERIOD_NAME, periodConstraint,
-                                              PERIOD_UNITS, null);
-    periodParam.setInfo(PERIOD_INFO);
-    periodParam.setNonEditable();
+	saPeriodParam = new PeriodParam(periodConstraint);
+	saDampingParam = new DampingParam();
+	saParam = new SA_Param(saPeriodParam, saDampingParam);
+	saParam.setNonEditable();
 
-    // Set damping constraint as non editable since no other options exist
-    dampingConstraint.setNonEditable();
+	//  Create PGA Parameter (pgaParam):
+	pgaParam = new PGA_Param();
+	pgaParam.setNonEditable();
 
-    // Add SA's independent parameters:
-    saParam.addIndependentParameter(dampingParam);
-    saParam.addIndependentParameter(periodParam);
-
-    // Now Make the parameter noneditable:
-    saParam.setNonEditable();
 
     // Add the warning listeners:
     saParam.addParameterChangeWarningListener(warningListener);
@@ -595,25 +593,18 @@ public class AS_2005_prelim_AttenRel
 
     // the Component Parameter
     StringConstraint constraint = new StringConstraint();
-    constraint.addString(COMPONENT_AVE_HORZ);
+    constraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
     constraint.setNonEditable();
-    componentParam = new StringParameter(COMPONENT_NAME, constraint,
-                                         COMPONENT_DEFAULT);
-    componentParam.setInfo(COMPONENT_INFO);
-    componentParam.setNonEditable();
+    componentParam = new ComponentParam(constraint,componentParam.COMPONENT_AVE_HORZ);
 
     // the stdDevType Parameter
     StringConstraint stdDevTypeConstraint = new StringConstraint();
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_TOTAL);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_NONE);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_INTER);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_INTRA);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_NONE);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_INTER);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_INTRA);
     stdDevTypeConstraint.setNonEditable();
-    stdDevTypeParam = new StringParameter(STD_DEV_TYPE_NAME,
-                                          stdDevTypeConstraint,
-                                          STD_DEV_TYPE_DEFAULT);
-    stdDevTypeParam.setInfo(STD_DEV_TYPE_INFO);
-    stdDevTypeParam.setNonEditable();
+    stdDevTypeParam = new StdDevTypeParam(stdDevTypeConstraint);
 
     // add these to the list
     otherParams.addParameter(componentParam);
@@ -813,10 +804,10 @@ public class AS_2005_prelim_AttenRel
     sigma = sigma0[iper];
     tau = tau0[iper];
 
-    if (stdDevType.equals(STD_DEV_TYPE_NONE)) {
+    if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE)) {
       return 0;
     }
-    else if (stdDevType.equals(STD_DEV_TYPE_INTRA)) {
+    else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTRA)) {
       return sigma;
     }
     else {
@@ -833,7 +824,7 @@ public class AS_2005_prelim_AttenRel
       tau = Math.sqrt(tau0[iper] * tau0[iper] + Math.pow(dAmp_dPGA * tau0[0], 2) +
                       2. * dAmp_dPGA * tau0[0] * tau0[iper] * tauCorr[iper]);
 
-      if (stdDevType.equals(STD_DEV_TYPE_INTER)) {
+      if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTER)) {
         return tau;
       }
 
@@ -880,10 +871,10 @@ public class AS_2005_prelim_AttenRel
     else if (pName.equals(this.RUP_TOP_NAME)) {
       depthTop = ( (Double) val).doubleValue();
     }
-    else if (pName.equals(this.STD_DEV_TYPE_NAME)) {
+    else if (pName.equals(StdDevTypeParam.NAME)) {
       stdDevType = (String) val;
     }
-    else if (pName.equals(this.PERIOD_NAME) && intensityMeasureChanged) {
+    else if (pName.equals(PeriodParam.NAME) && intensityMeasureChanged) {
       setCoeffIndex();
     }
   }
@@ -902,7 +893,7 @@ public class AS_2005_prelim_AttenRel
     rupTopDepthParam.removeParameterChangeListener(this);
     srcSiteAngleParam.removeParameterChangeListener(this);
     stdDevTypeParam.removeParameterChangeListener(this);
-    periodParam.removeParameterChangeListener(this);
+    saPeriodParam.removeParameterChangeListener(this);
 
     this.initParameterEventListeners();
 
@@ -924,7 +915,7 @@ public class AS_2005_prelim_AttenRel
     rupTopDepthParam.addParameterChangeListener(this);
     srcSiteAngleParam.addParameterChangeListener(this);
     stdDevTypeParam.addParameterChangeListener(this);
-    periodParam.addParameterChangeListener(this);
+    saPeriodParam.addParameterChangeListener(this);
   }
 
 }

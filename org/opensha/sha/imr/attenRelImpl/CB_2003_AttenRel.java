@@ -23,6 +23,13 @@ import org.opensha.commons.util.FaultUtils;
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.param.*;
 
 
@@ -103,9 +110,6 @@ public class CB_2003_AttenRel
   protected final static Double DISTANCE_SEIS_WARN_MIN = new Double(3.0);
   protected final static Double DISTANCE_SEIS_WARN_MAX = new Double(60.0);
   // the minimum warning will get overridden by seisDepth is less than seisDepth
-
-  // set the default stdDev type
-  public final static String STD_DEV_TYPE_DEFAULT = STD_DEV_TYPE_TOTAL_MAG_DEP;
 
   /**
    * The DistanceSeisParameter, which is the closest distance to the seimogenic
@@ -342,12 +346,12 @@ public class CB_2003_AttenRel
     }
 
     StringBuffer key = new StringBuffer(im.getName());
-    if (im.getName().equalsIgnoreCase(SA_NAME)) {
-      key.append("/" + periodParam.getValue());
+    if (im.getName().equalsIgnoreCase(SA_Param.NAME)) {
+      key.append("/" + saPeriodParam.getValue());
     }
 
     // Set coefficients depending on component:
-    if (componentParam.getValue().toString().equals(COMPONENT_AVE_HORZ)) {
+    if (componentParam.getValue().toString().equals(ComponentParam.COMPONENT_AVE_HORZ)) {
       if (horzCoefficients.containsKey(key.toString())) {
         coeff = (CB_2003_AttenRelCoefficients) horzCoefficients.get(key.
             toString());
@@ -435,7 +439,7 @@ public class CB_2003_AttenRel
     }
 
     // throw exception if user has chosen vertical component and site type SITE_TYPE_NEHRP_BC
-    if (componentParam.getValue().toString().equals(COMPONENT_VERT) &&
+    if (componentParam.getValue().toString().equals(ComponentParam.COMPONENT_VERT) &&
         siteType.equals(SITE_TYPE_NEHRP_BC)) {
       throw new RuntimeException(SITE_TYPE_NEHRP_BC +
                                  " site type is not supported " +
@@ -533,17 +537,17 @@ public class CB_2003_AttenRel
     String stdevType = stdDevTypeParam.getValue().toString();
 
     // throw exception if user has chosen vertical component and site type SITE_TYPE_NEHRP_BC
-    if (componentParam.getValue().toString().equals(COMPONENT_VERT) &&
+    if (componentParam.getValue().toString().equals(ComponentParam.COMPONENT_VERT) &&
         siteTypeParam.getValue().toString().equals(SITE_TYPE_NEHRP_BC)) {
       throw new RuntimeException(SITE_TYPE_NEHRP_BC +
                                  " site type is not supported " +
                                  "for the vertical component. Please choose a different site type.");
     }
 
-    if (stdevType.equals(STD_DEV_TYPE_NONE)) {
+    if (stdevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE)) {
       return 0;
     }
-    else if (stdevType.equals(STD_DEV_TYPE_TOTAL_MAG_DEP)) {
+    else if (stdevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL_MAG_DEP)) {
       try {
         mag = ( (Double) magParam.getValue()).doubleValue();
       }
@@ -567,11 +571,11 @@ public class CB_2003_AttenRel
       // get the PGA coeffs (Note diff between those for PGA vs SA at zero period)
       StringBuffer key = new StringBuffer(im.getName());
       // If SA, append zero period
-      if (im.getName().equalsIgnoreCase(SA_NAME)) {
+      if (im.getName().equalsIgnoreCase(SA_Param.NAME)) {
         key.append("/0.0");
       }
 
-      if (component.equals(COMPONENT_AVE_HORZ)) {
+      if (component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
         coeff = (CB_2003_AttenRelCoefficients) horzCoefficients.get(key.
             toString());
       }
@@ -601,12 +605,12 @@ public class CB_2003_AttenRel
     fltTypeParam.setValue(FLT_TYPE_DEFAULT);
     distanceSeisParam.setValue(DISTANCE_SEIS_DEFAULT);
     hangingWallParam.setValue(HANGING_WALL_DEFAULT);
-    saParam.setValue(SA_DEFAULT);
-    periodParam.setValue(PERIOD_DEFAULT);
-    dampingParam.setValue(DAMPING_DEFAULT);
-    pgaParam.setValue(PGA_DEFAULT);
-    componentParam.setValue(COMPONENT_DEFAULT);
-    stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
+    saParam.setValueAsDefault();
+    saPeriodParam.setValueAsDefault();
+    saDampingParam.setValueAsDefault();
+    pgaParam.setValueAsDefault();
+    componentParam.setValueAsDefault();
+    stdDevTypeParam.setValueAsDefault();
   }
 
   /**
@@ -746,10 +750,7 @@ public class CB_2003_AttenRel
    */
   protected void initSupportedIntensityMeasureParams() {
 
-    // Create saParam (& its dampingParam) and pgaParam:
-    super.initSupportedIntensityMeasureParams();
-
-    // Create saParam's "Period" independent parameter:
+    // Create saParam:
     DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
     TreeSet set = new TreeSet();
     Enumeration keys = horzCoefficients.keys(); // same as for vertCoeffs
@@ -764,20 +765,14 @@ public class CB_2003_AttenRel
     while (it.hasNext()) {
       periodConstraint.addDouble( (Double) it.next());
     }
-    periodParam = new DoubleDiscreteParameter(PERIOD_NAME, periodConstraint,
-                                              PERIOD_UNITS, null);
-    periodParam.setInfo(PERIOD_INFO);
-    periodParam.setNonEditable();
+	saPeriodParam = new PeriodParam(periodConstraint);
+	saDampingParam = new DampingParam();
+	saParam = new SA_Param(saPeriodParam, saDampingParam);
+	saParam.setNonEditable();
 
-    // Set damping constraint as non editable since no other options exist
-    dampingConstraint.setNonEditable();
-
-    // Add SA's independent parameters:
-    saParam.addIndependentParameter(dampingParam);
-    saParam.addIndependentParameter(periodParam);
-
-    // Now Make the parameter noneditable:
-    saParam.setNonEditable();
+	//  Create PGA Parameter (pgaParam):
+	pgaParam = new PGA_Param();
+	pgaParam.setNonEditable();
 
     // Add the warning listeners:
     saParam.addParameterChangeWarningListener(warningListener);
@@ -801,25 +796,18 @@ public class CB_2003_AttenRel
 
     // the Component Parameter
     StringConstraint constraint = new StringConstraint();
-    constraint.addString(COMPONENT_AVE_HORZ);
-    constraint.addString(COMPONENT_VERT);
+    constraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
+    constraint.addString(ComponentParam.COMPONENT_VERT);
     constraint.setNonEditable();
-    componentParam = new StringParameter(COMPONENT_NAME, constraint,
-                                         COMPONENT_DEFAULT);
-    componentParam.setInfo(COMPONENT_INFO);
-    componentParam.setNonEditable();
+    componentParam = new ComponentParam(constraint,componentParam.COMPONENT_AVE_HORZ);
 
     // the stdDevType Parameter
     StringConstraint stdDevTypeConstraint = new StringConstraint();
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_TOTAL_MAG_DEP);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_TOTAL_PGA_DEP);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_NONE);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_TOTAL_MAG_DEP);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_TOTAL_PGA_DEP);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_NONE);
     stdDevTypeConstraint.setNonEditable();
-    stdDevTypeParam = new StringParameter(STD_DEV_TYPE_NAME,
-                                          stdDevTypeConstraint,
-                                          STD_DEV_TYPE_DEFAULT);
-    stdDevTypeParam.setInfo(STD_DEV_TYPE_INFO);
-    stdDevTypeParam.setNonEditable();
+    stdDevTypeParam = new StdDevTypeParam(stdDevTypeConstraint,StdDevTypeParam.STD_DEV_TYPE_TOTAL_MAG_DEP);
 
     // add these to the list
     otherParams.addParameter(componentParam);
@@ -858,88 +846,88 @@ public class CB_2003_AttenRel
     // PGA - this is not "Unc. PGA" (which he recommends for PGA in his Table 4). but rather "Cor. PGA"
     // which he said over the phone should actually be used
     CB_2003_AttenRelCoefficients coeffPGA = new CB_2003_AttenRelCoefficients(
-        PGA_NAME,
+        PGA_Param.NAME,
         -1, -4.033, 0.812, 0.036, -1.061, 0.041, -0.005, -0.018, 0.766, 0.034,
         0.343, 0.351, -0.123, -0.138, -0.289, 0.370, 0.920, 0.219, -0.371);
 //              -1, -2.896, 0.812, 0.000, -1.318, 0.187, -0.029, -0.064, 0.616, 0, 0.179, 0.307, -0.062, -0.195, -0.320, 0.370, 0.964, 0.263, -0.371);
 
     // SA/0.0 - this is "Cor. PGA" (corrected, as he recommends for SA at zero period) from his Table 4
     CB_2003_AttenRelCoefficients coeff0 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.0")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.0")).doubleValue(),
         0.0, -4.033, 0.812, 0.036, -1.061, 0.041, -0.005, -0.018, 0.766, 0.034,
         0.343, 0.351, -0.123, -0.138, -0.289, 0.370, 0.920, 0.219, -0.371);
     // SA/0.05
     CB_2003_AttenRelCoefficients coeff1 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.05")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.05")).doubleValue(),
         0.05, -3.740, 0.812, 0.036, -1.121, 0.058, -0.004, -0.028, 0.724, 0.032,
         0.302, 0.362, -0.140, -0.158, -0.205, 0.370, 0.940, 0.239, -0.304);
     // SA/0.075
     CB_2003_AttenRelCoefficients coeff2 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.075")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.075")).doubleValue(),
         0.075, -3.076, 0.812, 0.050, -1.252, 0.121, -0.005, -0.051, 0.648,
         0.040, 0.243, 0.333, -0.150, -0.196, -0.208, 0.370, 0.952, 0.251,
         -0.250);
     // SA/0.1
     CB_2003_AttenRelCoefficients coeff3 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.1")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.1")).doubleValue(),
         0.10, -2.661, 0.812, 0.060, -1.308, 0.166, -0.009, -0.068, 0.621, 0.046,
         0.224, 0.313, -0.146, -0.253, -0.258, 0.370, 0.958, 0.257, -0.212);
     // SA/0.15
     CB_2003_AttenRelCoefficients coeff4 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.15")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.15")).doubleValue(),
         0.15, -2.270, 0.812, 0.041, -1.324, 0.212, -0.033, -0.081, 0.613, 0.031,
         0.318, 0.344, -0.176, -0.267, -0.284, 0.370, 0.974, 0.273, -0.238);
     // SA/0.2
     CB_2003_AttenRelCoefficients coeff5 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.2")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.2")).doubleValue(),
         0.20, -2.771, 0.812, 0.030, -1.153, 0.098, -0.014, -0.038, 0.704, 0.026,
         0.296, 0.342, -0.148, -0.183, -0.359, 0.370, 0.981, 0.280, -0.292);
     // SA/0.3
     CB_2003_AttenRelCoefficients coeff6 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.3")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.3")).doubleValue(),
         0.30, -2.999, 0.812, 0.007, -1.080, 0.059, -0.007, -0.022, 0.752, 0.007,
         0.359, 0.385, -0.162, -0.157, -0.585, 0.370, 0.984, 0.283, -0.401);
     // SA/0.4
     CB_2003_AttenRelCoefficients coeff7 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.4")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.4")).doubleValue(),
         0.40, -3.511, 0.812, -0.015, -0.964, 0.024, -0.002, -0.005, 0.842,
         -0.016, 0.379, 0.438, -0.078, -0.129, -0.557, 0.370, 0.987, 0.286,
         -0.487);
     // SA/0.5
     CB_2003_AttenRelCoefficients coeff8 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.5")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.5")).doubleValue(),
         0.50, -3.556, 0.812, -0.035, -0.964, 0.023, -0.002, -0.004, 0.842,
         -0.036, 0.406, 0.479, -0.122, -0.130, -0.701, 0.370, 0.990, 0.289,
         -0.553);
     // SA/0.75
     CB_2003_AttenRelCoefficients coeff9 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.75")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.75")).doubleValue(),
         0.75, -3.709, 0.812, -0.071, -0.964, 0.021, -0.002, -0.002, 0.842,
         -0.074, 0.347, 0.419, -0.108, -0.124, -0.796, 0.331, 1.021, 0.320,
         -0.653);
     // SA/1.0
     CB_2003_AttenRelCoefficients coeff10 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("1.0")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("1.0")).doubleValue(),
         1.0, -3.867, 0.812, -0.101, -0.964, 0.019, 0, 0, 0.842, -0.105, 0.329,
         0.338, -0.073, -0.072, -0.858, 0.281, 1.021, 0.320, -0.698);
     // SA/1.5
     CB_2003_AttenRelCoefficients coeff11 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("1.5")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("1.5")).doubleValue(),
         1.5, -4.093, 0.812, -0.150, -0.964, 0.019, 0, 0, 0.842, -0.155, 0.217,
         0.188, -0.079, -0.056, -0.954, 0.210, 1.021, 0.320, -0.704);
     // SA/2.0
     CB_2003_AttenRelCoefficients coeff12 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("2.0")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("2.0")).doubleValue(),
         2.0, -4.311, 0.812, -0.180, -0.964, 0.019, 0, 0, 0.842, -0.187, 0.060,
         0.064, -0.124, -0.116, -0.916, 0.160, 1.021, 0.320, -0.655);
     // SA/3.0
     CB_2003_AttenRelCoefficients coeff13 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("3.0")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("3.0")).doubleValue(),
         3.0, -4.817, 0.812, -0.193, -0.964, 0.019, 0, 0, 0.842, -0.200, -0.079,
         0.021, -0.154, -0.117, -0.873, 0.089, 1.021, 0.320, -0.655);
     // SA/4.0
     CB_2003_AttenRelCoefficients coeff14 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("4.0")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("4.0")).doubleValue(),
         4.0, -5.211, 0.812, -0.202, -0.964, 0.019, 0, 0, 0.842, -0.209, -0.061,
         0.057, -0.054, -0.261, -0.889, 0.039, 1.021, 0.320, -0.655);
 
@@ -979,84 +967,84 @@ public class CB_2003_AttenRel
     // PGA - this is not "Unc. PGA" (which he recommends for PGA in his Table 4). but rather "Cor. PGA"
     // which he said over the phone should actually be used
     CB_2003_AttenRelCoefficients coeffPGA = new CB_2003_AttenRelCoefficients(
-        PGA_NAME,
+        PGA_Param.NAME,
         -1, -3.108, 0.756, 0, -1.287, 0.142, 0.046, -0.040, 0.587, 0, 0.253,
         0.173, -0.135, -0.138, -0.256, 0.630, 0.975, 0.274, -0.371);
 //            -1, -2.807, 0.756, 0, -1.391, 0.191, 0.044, -0.014, 0.544, 0, 0.091, 0.223, -0.096, -0.212, -0.199, 0.630, 1.003, 0.302, -0.371);
 
     // SA/0.0 - this is "Cor. PGA" (corrected, as he recommends for SA at zero period) from his Table 4
     CB_2003_AttenRelCoefficients coeff0 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.0")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.0")).doubleValue(),
         0.0, -3.108, 0.756, 0, -1.287, 0.142, 0.046, -0.040, 0.587, 0, 0.253,
         0.173, -0.135, -0.138, -0.256, 0.630, 0.975, 0.274, -0.371);
     // SA/0.05
     CB_2003_AttenRelCoefficients coeff1 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.05")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.05")).doubleValue(),
         0.05, -1.918, 0.756, 0, -1.517, 0.309, 0.069, -0.023, 0.498, 0, 0.058,
         0.100, -0.195, -0.274, -0.219, 0.630, 1.031, 0.330, -0.304);
     // SA/0.075
     CB_2003_AttenRelCoefficients coeff2 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.075")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.075")).doubleValue(),
         0.075, -1.504, 0.756, 0, -1.551, 0.343, 0.083, 0.000, 0.487, 0, 0.135,
         0.182, -0.224, -0.303, -0.263, 0.630, 1.031, 0.330, -0.250);
     // SA/0.1
     CB_2003_AttenRelCoefficients coeff3 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.1")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.1")).doubleValue(),
         0.10, -1.672, 0.756, 0, -1.473, 0.282, 0.062, 0.001, 0.513, 0, 0.168,
         0.210, -0.198, -0.275, -0.252, 0.630, 1.031, 0.330, -0.212);
     // SA/0.15
     CB_2003_AttenRelCoefficients coeff4 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.15")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.15")).doubleValue(),
         0.15, -2.323, 0.756, 0, -1.280, 0.171, 0.045, 0.008, 0.591, 0, 0.223,
         0.238, -0.170, -0.175, -0.270, 0.630, 1.031, 0.330, -0.238);
     // SA/0.2
     CB_2003_AttenRelCoefficients coeff5 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.2")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.2")).doubleValue(),
         0.20, -2.998, 0.756, 0, -1.131, 0.089, 0.028, 0.004, 0.668, 0, 0.234,
         0.256, -0.098, -0.041, -0.311, 0.571, 1.031, 0.330, -0.292);
     // SA/0.3
     CB_2003_AttenRelCoefficients coeff6 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.3")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.3")).doubleValue(),
         0.30, -3.721, 0.756, 0.007, -1.028, 0.050, 0.010, 0.004, 0.736, 0.007,
         0.249, 0.328, -0.026, 0.082, -0.265, 0.488, 1.031, 0.330, -0.401);
     // SA/0.4
     CB_2003_AttenRelCoefficients coeff7 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.4")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.4")).doubleValue(),
         0.40, -4.536, 0.756, -0.015, -0.812, 0.012, 0, 0, 0.931, -0.018, 0.299,
         0.317, -0.017, 0.022, -0.257, 0.428, 1.031, 0.330, -0.487);
     // SA/0.5
     CB_2003_AttenRelCoefficients coeff8 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.5")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.5")).doubleValue(),
         0.50, -4.651, 0.756, -0.035, -0.812, 0.012, 0, 0, 0.931, -0.043, 0.243,
         0.354, -0.020, 0.092, -0.293, 0.383, 1.031, 0.330, -0.553);
     // SA/0.75
     CB_2003_AttenRelCoefficients coeff9 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.75")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.75")).doubleValue(),
         0.75, -4.903, 0.756, -0.071, -0.812, 0.012, 0, 0, 0.931, -0.087, 0.295,
         0.418, 0.078, 0.091, -0.349, 0.299, 1.031, 0.330, -0.653);
     // SA/1.0
     CB_2003_AttenRelCoefficients coeff10 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("1.0")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("1.0")).doubleValue(),
         1.0, -4.950, 0.756, -0.101, -0.812, 0.012, 0, 0, 0.931, -0.124, 0.266,
         0.315, 0.043, 0.101, -0.481, 0.240, 1.031, 0.330, -0.698);
     // SA/1.5
     CB_2003_AttenRelCoefficients coeff11 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("1.5")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("1.5")).doubleValue(),
         1.5, -5.073, 0.756, -0.150, -0.812, 0.012, 0, 0, 0.931, -0.184, 0.171,
         0.211, -0.038, -0.018, -0.518, 0.240, 1.031, 0.330, -0.704);
     // SA/2.0
     CB_2003_AttenRelCoefficients coeff12 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("2.0")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("2.0")).doubleValue(),
         2.0, -5.292, 0.756, -0.180, -0.812, 0.012, 0, 0, 0.931, -0.222, 0.114,
         0.115, 0.033, -0.022, -0.503, 0.240, 1.031, 0.330, -0.655);
     // SA/3.0
     CB_2003_AttenRelCoefficients coeff13 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("3.0")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("3.0")).doubleValue(),
         3.0, -5.748, 0.756, -0.193, -0.812, 0.012, 0, 0, 0.931, -0.238, 0.179,
         0.159, -0.010, -0.047, -0.539, 0.240, 1.031, 0.330, -0.655);
     // SA/4.0
     CB_2003_AttenRelCoefficients coeff14 = new CB_2003_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("4.0")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("4.0")).doubleValue(),
         4.0, -6.042, 0.756, -0.202, -0.812, 0.012, 0, 0, 0.931, -0.248, 0.237,
         0.134, -0.059, -0.267, -0.606, 0.240, 1.031, 0.330, -0.655);
 

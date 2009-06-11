@@ -15,6 +15,10 @@ import org.opensha.sha.param.editor.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 
 
 
@@ -293,71 +297,71 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
    /*   the following settings apply to most test cases; these are subsequently
         overridded where needed below */
    imrGuiBean.getParameterList().getParameter(IMR_GuiBean.IMR_PARAM_NAME).setValue(SadighEtAl_1997_AttenRel.NAME);
-   imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
-   imrGuiBean.getParameterList().getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
-   imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
+   imrGuiBean.getParameterList().getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE);
+   imrGuiBean.getParameterList().getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_NONE);
+   imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);
    siteParams.getParameter(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME).setValue(SadighEtAl_1997_AttenRel.SITE_TYPE_ROCK);
 
    //if the selected test case is number 8_1
    if(selectedTest.equals(TEST_CASE_EIGHT_A)){
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
-     imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);  // needed because IMT gets reset to SA afer the above
+     imrGuiBean.getParameterList().getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE);
+     imrGuiBean.getParameterList().getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
+     imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);  // needed because IMT gets reset to SA afer the above
    }
 
    //if the selected test case is number 8_2
    if(selectedTest.equals(TEST_CASE_EIGHT_B)){
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(2.0));
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
-     imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);  // needed because IMT gets reset to SA afer the above
+     imrGuiBean.getParameterList().getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
+     imrGuiBean.getParameterList().getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(2.0));
+     imrGuiBean.getParameterList().getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
+     imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);  // needed because IMT gets reset to SA afer the above
    }
 
    //if the selected test case is number 8_3
    if(selectedTest.equals(TEST_CASE_EIGHT_C)){
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
-     imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);  // needed because IMT gets reset to SA afer the above
+     imrGuiBean.getParameterList().getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
+     imrGuiBean.getParameterList().getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0));
+     imrGuiBean.getParameterList().getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
+     imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);  // needed because IMT gets reset to SA afer the above
    }
 
    //if the selected test case is number 9_1
    if(selectedTest.equals(TEST_CASE_NINE_A)){
      imrGuiBean.getParameterList().getParameter(IMR_GuiBean.IMR_PARAM_NAME).setValue(SadighEtAl_1997_AttenRel.NAME);
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
-     imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
+     imrGuiBean.getParameterList().getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
+     imrGuiBean.getParameterList().getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0));
+     imrGuiBean.getParameterList().getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
+     imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);
      siteParams.getParameter(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME).setValue(SadighEtAl_1997_AttenRel.SITE_TYPE_ROCK);
    }
 
    //if the selected test case is number 9_2
    if(selectedTest.equals(TEST_CASE_NINE_B)){
      imrGuiBean.getParameterList().getParameter(IMR_GuiBean.IMR_PARAM_NAME).setValue(AS_1997_AttenRel.NAME);
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0)); // this shouldn't matter
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
-     imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
+     imrGuiBean.getParameterList().getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE);
+     imrGuiBean.getParameterList().getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0)); // this shouldn't matter
+     imrGuiBean.getParameterList().getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_NONE);
+     imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);
      siteParams.getParameter(AS_1997_AttenRel.SITE_TYPE_NAME).setValue(AS_1997_AttenRel.SITE_TYPE_ROCK);
    }
 
    //if the selected test case is number 9_3
    if(selectedTest.equals(TEST_CASE_NINE_C)){
      imrGuiBean.getParameterList().getParameter(IMR_GuiBean.IMR_PARAM_NAME).setValue(Campbell_1997_AttenRel.NAME);
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(Campbell_1997_AttenRel.STD_DEV_TYPE_TOTAL_PGA_DEP);
-     imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
+     imrGuiBean.getParameterList().getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
+     imrGuiBean.getParameterList().getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0));
+     imrGuiBean.getParameterList().getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL_PGA_DEP);
+     imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);
      siteGuiBean.getParameterListEditor().getParameterList().getParameter(Campbell_1997_AttenRel.SITE_TYPE_NAME).setValue(Campbell_1997_AttenRel.SITE_TYPE_SOFT_ROCK);
      siteParams.getParameter(Campbell_1997_AttenRel.BASIN_DEPTH_NAME).setValue(new Double(2.0));
    }
 
    //if the selected test case is number 12
    if(selectedTest.equals(TEST_CASE_TWELVE)){
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
-     imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);  // needed because IMT gets reset to SA afer the above
+     imrGuiBean.getParameterList().getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
+     imrGuiBean.getParameterList().getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0));
+     imrGuiBean.getParameterList().getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
+     imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);  // needed because IMT gets reset to SA afer the above
    }
 
 
@@ -529,17 +533,17 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
    // ******* Set the IMR, IMT, & Site-Related Parameters (except lat and lon) first ************
 
    imrGuiBean.getParameterList().getParameter(IMR_GuiBean.IMR_PARAM_NAME).setValue(SadighEtAl_1997_AttenRel.NAME);
-   imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
-   imrGuiBean.getParameterList().getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
-   imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
+   imrGuiBean.getParameterList().getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE);
+   imrGuiBean.getParameterList().getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_NONE);
+   imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);
    siteParams.getParameter(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME).setValue(SadighEtAl_1997_AttenRel.SITE_TYPE_ROCK);
 
 
    // change IMR sigma if it's Case 2
    if(selectedTest.equalsIgnoreCase(TEST_CASE_TWO) || selectedTest.equalsIgnoreCase(TEST_CASE_FIVE)){
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
+     imrGuiBean.getParameterList().getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
+     imrGuiBean.getParameterList().getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0));
+     imrGuiBean.getParameterList().getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
 
    }
 

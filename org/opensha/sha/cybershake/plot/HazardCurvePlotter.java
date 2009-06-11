@@ -62,6 +62,10 @@ import org.opensha.sha.gui.infoTools.GraphPanelAPI;
 import org.opensha.sha.gui.infoTools.PlotControllerAPI;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.util.SiteTranslator;
 
 import scratchJavaDevelopers.kevin.XMLSaver.AttenRelSaver;
@@ -747,10 +751,10 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		String imtMetadata = "IMT = " + imtName;
 		if (imtName.toLowerCase().equals("sa")) {
 			imtMetadata += "; ";
-			ParameterAPI damp = imr.getParameter(AttenuationRelationship.DAMPING_NAME);
+			ParameterAPI damp = imr.getParameter(DampingParam.NAME);
 			if (damp != null)
 				imtMetadata += damp.getName() + " = " + damp.getValue() + "; ";
-			ParameterAPI period = imr.getParameter(AttenuationRelationship.PERIOD_NAME);
+			ParameterAPI period = imr.getParameter(PeriodParam.NAME);
 			imtMetadata += period.getName() + " = " + period.getValue();
 		}
 //		imr.get
@@ -784,17 +788,17 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	
 	private Site setAttenRelParams(AttenuationRelationship attenRel, CybershakeIM im) {
 //		// set 1 sided truncation
-//		StringParameter truncTypeParam = (StringParameter)attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME);
-//		truncTypeParam.setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
+//		StringParameter truncTypeParam = (StringParameter)attenRel.getParameter(SigmaTruncTypeParam.NAME);
+//		truncTypeParam.setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
 //		// set truncation at 3 std dev's
-//		DoubleParameter truncLevelParam = (DoubleParameter)attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME);
+//		DoubleParameter truncLevelParam = (DoubleParameter)attenRel.getParameter(SigmaTruncLevelParam.NAME);
 //		truncLevelParam.setValue(3.0);
 		
-		attenRel.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
+		attenRel.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
 		
 		// set IMT
-		attenRel.setIntensityMeasure(AttenuationRelationship.SA_NAME);
-		DoubleDiscreteParameter saPeriodParam = (DoubleDiscreteParameter)attenRel.getParameter(AttenuationRelationship.PERIOD_NAME);
+		attenRel.setIntensityMeasure(SA_Param.NAME);
+		DoubleDiscreteParameter saPeriodParam = (DoubleDiscreteParameter)attenRel.getParameter(PeriodParam.NAME);
 		ArrayList<Double> allowedVals = saPeriodParam.getAllowedDoubles();
 		
 		double closestPeriod = Double.NaN;

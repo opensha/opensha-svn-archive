@@ -1,6 +1,7 @@
 package org.opensha.sha.imr.attenRelImpl;
 
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 
 public class GouletEtAl_2006_AttenRel extends BC_2004_AttenRel {
 
@@ -21,7 +22,7 @@ public class GouletEtAl_2006_AttenRel extends BC_2004_AttenRel {
   public double getStdDev(){
 	  
 	  String stdDevType = stdDevTypeParam.getValue().toString();
-	  if (stdDevType.equals(STD_DEV_TYPE_NONE)) { // "None (zero)"
+	  if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE)) { // "None (zero)"
 		  return 0;
 	  }
 	  updateCoefficients();

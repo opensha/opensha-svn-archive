@@ -61,6 +61,8 @@ import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
 import scratchJavaDevelopers.martinez.BenefitCostCalculator;
 import scratchJavaDevelopers.martinez.EALCalculator;
@@ -574,14 +576,14 @@ public class BCR_Application extends JFrame
      	VulnerabilityModel currentModel = bcbean.getVulnModel(bcbean.CURRENT);
         String currentIMT = currentModel.getIMT();
         double currentPeriod = 0;
-        if(currentIMT.equals(AttenuationRelationship.SA_NAME))
+        if(currentIMT.equals(SA_Param.NAME))
         	currentPeriod = currentModel.getPeriod();
         
         
         VulnerabilityModel newModel = bcbean.getVulnModel(bcbean.RETRO);
         String newIMT = newModel.getIMT();
         double newPeriod = 0;
-        if(newIMT.equals(AttenuationRelationship.SA_NAME))
+        if(newIMT.equals(SA_Param.NAME))
         	newPeriod = newModel.getPeriod();
         
     	imrGuiBean.setIMRParamListAndEditor(currentIMT, newIMT, currentPeriod, newPeriod);
@@ -646,14 +648,14 @@ public class BCR_Application extends JFrame
     VulnerabilityModel currentModel = bcbean.getVulnModel(bcbean.CURRENT);
     String currentIMT = currentModel.getIMT();
     double currentPeriod = 0;
-    if(currentIMT.equals(AttenuationRelationship.SA_NAME))
+    if(currentIMT.equals(SA_Param.NAME))
     	currentPeriod = currentModel.getPeriod();
     ArrayList<Double> currentIMLs = currentModel.getIMLVals();
     
     VulnerabilityModel newModel = bcbean.getVulnModel(bcbean.RETRO);
     String newIMT = newModel.getIMT();
     double newPeriod = 0;
-    if(newIMT.equals(AttenuationRelationship.SA_NAME))
+    if(newIMT.equals(SA_Param.NAME))
     	newPeriod = newModel.getPeriod();
     ArrayList<Double> newIMLs = newModel.getIMLVals();
     
@@ -748,7 +750,7 @@ public class BCR_Application extends JFrame
 	    ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
 	    initX_Values(hazFunction,imls,imt);
 	    imr.setIntensityMeasure(imt);
-	    imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(period);
+	    imr.getParameter(PeriodParam.NAME).setValue(period);
 //	    ((AttenuationRelationship)imr).setIntensityMeasure(imt,period);
 	    //System.out.println("22222222HazFunction: "+hazFunction.toString());
 	    try {
@@ -806,14 +808,14 @@ public class BCR_Application extends JFrame
 	VulnerabilityModel currentModel = bcbean.getVulnModel(bcbean.CURRENT);
     String currentIMT = currentModel.getIMT();
     double currentPeriod = 0;
-    if(currentIMT.equals(AttenuationRelationship.SA_NAME))
+    if(currentIMT.equals(SA_Param.NAME))
     	currentPeriod = currentModel.getPeriod();
     
     
     VulnerabilityModel newModel = bcbean.getVulnModel(bcbean.RETRO);
     String newIMT = newModel.getIMT();
     double newPeriod = 0;
-    if(newIMT.equals(AttenuationRelationship.SA_NAME))
+    if(newIMT.equals(SA_Param.NAME))
     	newPeriod = newModel.getPeriod();
     imrPanel.removeAll();
      imrGuiBean = new IMR_GuiBean(this,currentIMT,newIMT,currentPeriod,newPeriod);

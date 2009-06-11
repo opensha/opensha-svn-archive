@@ -38,6 +38,11 @@ import org.opensha.sha.cybershake.db.SiteInfo2DB;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.IntensityMeasureRelationship;
+import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.param.PropagationEffect;
 
 public class CyberShakeIMR extends AttenuationRelationship implements ParameterChangeListener {
@@ -135,7 +140,7 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 			otherParams.addParameter(rupVarScenarioParam);
 			otherParams.addParameter(sgtVarParam);
 
-			periodParam.addParameterChangeListener(this);
+			saPeriodParam.addParameterChangeListener(this);
 
 			isInitialized = true;
 		}
@@ -342,28 +347,10 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 	protected void initOtherParams() {
 
 		// Sigma truncation type parameter:
-		StringConstraint sigmaTruncTypeConstraint = new StringConstraint();
-		sigmaTruncTypeConstraint.addString(SIGMA_TRUNC_TYPE_NONE);
-		// only allow NONE
-//		sigmaTruncTypeConstraint.addString(SIGMA_TRUNC_TYPE_1SIDED);
-//		sigmaTruncTypeConstraint.addString(SIGMA_TRUNC_TYPE_2SIDED);
-		sigmaTruncTypeConstraint.setNonEditable();
-		sigmaTruncTypeParam = new StringParameter(SIGMA_TRUNC_TYPE_NAME,
-				sigmaTruncTypeConstraint,
-				SIGMA_TRUNC_TYPE_DEFAULT);
-		sigmaTruncTypeParam.setInfo(SIGMA_TRUNC_TYPE_INFO);
-		sigmaTruncTypeParam.setNonEditable();
+		sigmaTruncTypeParam = new SigmaTruncTypeParam();
 
 		// Sigma truncation level parameter:
-		DoubleConstraint sigmaTruncLevelConstraint = new DoubleConstraint(
-				SIGMA_TRUNC_LEVEL_MIN, SIGMA_TRUNC_LEVEL_MAX);
-		sigmaTruncLevelConstraint.setNonEditable();
-		sigmaTruncLevelParam = new DoubleParameter(SIGMA_TRUNC_LEVEL_NAME,
-				sigmaTruncLevelConstraint,
-				SIGMA_TRUNC_LEVEL_UNITS,
-				SIGMA_TRUNC_LEVEL_DEFAULT);
-		sigmaTruncLevelParam.setInfo(SIGMA_TRUNC_LEVEL_INFO);
-		sigmaTruncLevelParam.setNonEditable();
+		sigmaTruncLevelParam = new SigmaTruncLevelParam();
 
 		// Put parameters in the otherParams list:
 		otherParams.clear();
@@ -376,24 +363,6 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 	protected void initSupportedIntensityMeasureParams() {
 
 		// Create SA Parameter:
-		DoubleConstraint saConstraint = new DoubleConstraint(SA_MIN, SA_MAX);
-		saConstraint.setNonEditable();
-		saParam = new WarningDoubleParameter(SA_NAME, saConstraint, SA_UNITS);
-		saParam.setInfo(SA_INFO);
-		DoubleConstraint warn1 = new DoubleConstraint(SA_WARN_MIN, SA_WARN_MAX);
-		warn1.setNonEditable();
-		saParam.setWarningConstraint(warn1);
-
-		//		// Damping-level parameter for SA
-		//		// (overide this in subclass of other damping levels are available)
-		//		dampingConstraint = new DoubleDiscreteConstraint();
-		//		dampingConstraint.addDouble(DAMPING_DEFAULT);
-		//		// leave constrain editable in case subclasses want to add other options
-		//		dampingParam = new DoubleDiscreteParameter(DAMPING_NAME, dampingConstraint,
-		//		DAMPING_UNITS, DAMPING_DEFAULT);
-		//		dampingParam.setInfo(DAMPING_INFO);
-		//		dampingParam.setNonEditable();
-
 		DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
 //		periodConstraint.addDouble(1);
 		periodConstraint.addDouble(2);
@@ -401,22 +370,10 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 		periodConstraint.addDouble(5);
 		periodConstraint.addDouble(10);
 		periodConstraint.setNonEditable();
-		periodParam = new DoubleDiscreteParameter(PERIOD_NAME, periodConstraint,
-				PERIOD_UNITS, null);
-		periodParam.setInfo(PERIOD_INFO);
-		periodParam.setNonEditable();
-		periodParam.setValue(new Double(3));
-		periodParam.addParameterChangeListener(this);
-		saParam.addIndependentParameter(periodParam);
-		
-		// (overide this in subclass of other damping levels are available)
-	    dampingConstraint = new DoubleDiscreteConstraint();
-	    dampingConstraint.addDouble(DAMPING_DEFAULT);
-		dampingParam = new DoubleDiscreteParameter(DAMPING_NAME, dampingConstraint,
-                DAMPING_UNITS, DAMPING_DEFAULT);
-		dampingParam.setInfo(DAMPING_INFO);
-		dampingParam.setNonEditable();
-		saParam.addIndependentParameter(dampingParam);
+		saPeriodParam = new PeriodParam(periodConstraint);
+		saDampingParam = new DampingParam();
+		saParam = new SA_Param(saPeriodParam, saDampingParam);
+		saParam.setNonEditable();
 
 		supportedIMParams.addParameter(saParam);
 	}
@@ -449,7 +406,7 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 		checkInit();
 		String paramName = event.getParameterName();
 
-		if (paramName.equals(PERIOD_NAME)) {
+		if (paramName.equals(PeriodParam.NAME)) {
 			this.curIM = getIMForPeriod((Double)event.getParameter().getValue());
 			System.out.println("We got a period of " + (Double)event.getParameter().getValue() + "! " + curIM);
 		} else if (paramName.equals(SGT_VAR_PARAM)) {

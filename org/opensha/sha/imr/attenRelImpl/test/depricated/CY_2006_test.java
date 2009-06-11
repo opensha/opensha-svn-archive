@@ -7,6 +7,9 @@ import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.imr.attenRelImpl.depricated.CY_2006_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.param.*;
 
 import java.io.File;
@@ -56,10 +59,10 @@ public class CY_2006_test extends TestCase implements ParameterChangeWarningList
 	public void testGetMean() {
 		int numDataLines = testDataLines.size();
 		for(int i=1;i<numDataLines;++i){
-			cy_2006.setIntensityMeasure(cy_2006.SA_NAME);
+			cy_2006.setIntensityMeasure(cy_2006.SA_Param.NAME);
 			StringTokenizer st = new StringTokenizer((String)testDataLines.get(i));
 			double period = Double.parseDouble(st.nextToken().trim());
-			cy_2006.getParameter(cy_2006.PERIOD_NAME).setValue(new Double(period));
+			cy_2006.getParameter(cy_2006.PeriodParam.NAME).setValue(new Double(period));
 			double mag = Double.parseDouble(st.nextToken().trim());
 			cy_2006.getParameter(cy_2006.MAG_NAME).setValue(new Double(mag));
 			double rrup = Double.parseDouble(st.nextToken().trim());
@@ -96,7 +99,7 @@ public class CY_2006_test extends TestCase implements ParameterChangeWarningList
 			
             if(results == false){
             	 String failedResultMetadata = "Results failed for CY-2006 attenuation with the following parameter settings:"+
-            	          "IMT ="+cy_2006.SA_NAME+" with Period ="+period+"\nMag ="+(float)mag+" rRup = "+rrup+
+            	          "IMT ="+cy_2006.SA_Param.NAME+" with Period ="+period+"\nMag ="+(float)mag+" rRup = "+rrup+
             	          "  vs30 = "+vs30+"  rjb = "+(float)rjb+"\n   rupWidth = "+rupWidth+"   Frv = "+frv+
             	          "   Fnm = "+fnm+
             	          "   depthTop = "+depthTop+"\n   dip = "+dip;
@@ -152,7 +155,7 @@ public class CY_2006_test extends TestCase implements ParameterChangeWarningList
 						((WarningDoublePropagationEffectParameter)cy_2006.getParameter(DistRupMinusJB_OverRupParameter.NAME)).
 						setValueIgnoreWarning(new Double(distRupMinusJB_OverRup));
 						st.nextToken().trim();//for rSeis
-						cy_2006.setIntensityMeasure(cy_2006.PGA_NAME);
+						cy_2006.setIntensityMeasure(PGA_Param.NAME);
 						double openSHA_mean = Math.exp(cy_2006.getMean());
 						double tested_mean = Double.parseDouble(st.nextToken().trim());
 						boolean results = this.compareResults(openSHA_mean, tested_mean);
@@ -171,10 +174,10 @@ public class CY_2006_test extends TestCase implements ParameterChangeWarningList
 						st.nextToken();//for PGV
 						st.nextToken();//for PGD
 						
-						cy_2006.setIntensityMeasure(cy_2006.SA_NAME);
+						cy_2006.setIntensityMeasure(SA_Param.NAME);
 						int num= period.length;
 						for(int k=0;k<num;++k){
-							cy_2006.getParameter(cy_2006.PERIOD_NAME).setValue(new Double(period[k]));
+							cy_2006.getParameter(PeriodParam.NAME).setValue(new Double(period[k]));
 							if(k == 1)
 								st.nextToken();
 

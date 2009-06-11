@@ -19,6 +19,8 @@ import org.dom4j.io.XMLWriter;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
@@ -704,15 +706,15 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 			if (imt == null)
 				System.out.println("NULL IMT!!!");
 			imr.setIntensityMeasure(imt);
-			ParameterAPI dampingParam = imtGuiBean.getParameterList().getParameter(AttenuationRelationship.DAMPING_NAME);
+			ParameterAPI dampingParam = imtGuiBean.getParameterList().getParameter(DampingParam.NAME);
 			if (dampingParam != null) {
 				double damping = (Double)dampingParam.getValue();
-				imr.getParameter(AttenuationRelationship.DAMPING_NAME).setValue(damping);
+				imr.getParameter(DampingParam.NAME).setValue(damping);
 			}
-			ParameterAPI periodParam = imtGuiBean.getParameterList().getParameter(AttenuationRelationship.PERIOD_NAME);
+			ParameterAPI periodParam = imtGuiBean.getParameterList().getParameter(PeriodParam.NAME);
 			if (periodParam != null) {
 				double period = (Double)periodParam.getValue();
-				imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(period);
+				imr.getParameter(PeriodParam.NAME).setValue(period);
 			}
 			root = imr.toXMLMetadata(root);
 

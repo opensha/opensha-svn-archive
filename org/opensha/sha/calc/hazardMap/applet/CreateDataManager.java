@@ -53,6 +53,8 @@ import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.IntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.event.AttenuationRelationshipChangeEvent;
 import org.opensha.sha.imr.event.AttenuationRelationshipChangeListener;
+import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 
 public class CreateDataManager extends StepManager implements AttenuationRelationshipChangeListener {
 	
@@ -295,15 +297,15 @@ public class CreateDataManager extends StepManager implements AttenuationRelatio
 		if (imt == null)
 			System.out.println("NULL IMT!!!");
 		imr.setIntensityMeasure(imt);
-		ParameterAPI dampingParam = imtGuiBean.getParameterList().getParameter(AttenuationRelationship.DAMPING_NAME);
+		ParameterAPI dampingParam = imtGuiBean.getParameterList().getParameter(DampingParam.NAME);
 		if (dampingParam != null) {
 			double damping = (Double)dampingParam.getValue();
-			imr.getParameter(AttenuationRelationship.DAMPING_NAME).setValue(damping);
+			imr.getParameter(DampingParam.NAME).setValue(damping);
 		}
-		ParameterAPI periodParam = imtGuiBean.getParameterList().getParameter(AttenuationRelationship.PERIOD_NAME);
+		ParameterAPI periodParam = imtGuiBean.getParameterList().getParameter(PeriodParam.NAME);
 		if (periodParam != null) {
 			double period = (Double)periodParam.getValue();
-			imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(period);
+			imr.getParameter(PeriodParam.NAME).setValue(period);
 		}
 		ArrayList<ParameterAPI> siteParams = sitesGuiBean.getSiteParams();
 		Iterator<ParameterAPI> imrParams = imr.getSiteParamsIterator();

@@ -23,6 +23,13 @@ import org.opensha.commons.util.FaultUtils;
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.param.*;
 
 
@@ -114,9 +121,6 @@ public class Campbell_1997_AttenRel
   protected final static Double BASIN_DEPTH_MAX = new Double(30);
   protected final static Double BASIN_DEPTH_WARN_MIN = new Double(0);
   protected final static Double BASIN_DEPTH_WARN_MAX = new Double(10);
-
-  // set the default stdDev type
-  public final static String STD_DEV_TYPE_DEFAULT = STD_DEV_TYPE_TOTAL_MAG_DEP;
 
   /**
    * The DistanceSeisParameter, which is the closest distance to the seimogenic
@@ -257,7 +261,7 @@ public class Campbell_1997_AttenRel
 
     // Only SA coefficients here (PGA and PGV are hard coded because they're different)
     StringBuffer key = new StringBuffer(im.getName() + "/" +
-                                        periodParam.getValue());
+                                        saPeriodParam.getValue());
     if (coefficients.containsKey(key.toString())) {
       coeff = (Campbell_1997_AttenRelCoefficients) coefficients.get(key.
           toString());
@@ -399,8 +403,8 @@ public class Campbell_1997_AttenRel
     }
 
     // Do PGA first:
-    if (im_name.equals(PGA_NAME)) {
-      if (component.equals(COMPONENT_AVE_HORZ)) {
+    if (im_name.equals(PGA_Param.NAME)) {
+      if (component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
         mean = lnPGA;
       }
       else { // vertical component
@@ -412,13 +416,13 @@ public class Campbell_1997_AttenRel
     }
 
     // Now do SA:
-    else if (im_name.equals(SA_NAME)) {
+    else if (im_name.equals(SA_Param.NAME)) {
 
       //check whether it's the zero period case (for which there are not coeffs)
-      double period = ( (Double) periodParam.getValue()).doubleValue();
+      double period = ( (Double) saPeriodParam.getValue()).doubleValue();
 
       if (period == 0.0) { // do same as for PGA
-        if (component.equals(COMPONENT_AVE_HORZ)) {
+        if (component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
           mean = lnPGA;
         }
         else { // vertical component
@@ -440,7 +444,7 @@ public class Campbell_1997_AttenRel
         }
 
         // check if vertical component desired
-        if (component.equals(COMPONENT_VERT)) {
+        if (component.equals(ComponentParam.COMPONENT_VERT)) {
           mean += coeff.c1_v - 0.1 * mag + coeff.c2_v * tanh(0.71 * (mag - 4.7)) +
               coeff.c3_v * tanh(0.66 * (mag - 4.7)) -
               1.50 * Math.log(dist + 0.079 * Math.exp(0.661 * mag)) +
@@ -463,7 +467,7 @@ public class Campbell_1997_AttenRel
         mean -= 0.3 * (1.0 - depth) * (1.0 - 0.5 * S_sr) * (1.0 - S_hr);
       }
       // check if vertical component desired
-      if (component.equals(COMPONENT_VERT)) {
+      if (component.equals(ComponentParam.COMPONENT_VERT)) {
         mean += -2.15 + 0.07 * mag -
             1.24 * Math.log(dist + 0.00394 * Math.exp(1.17 * mag)) +
             1.44 * Math.log(dist + 0.0203 * Math.exp(0.958 * mag)) + 0.1 * F +
@@ -481,7 +485,7 @@ public class Campbell_1997_AttenRel
    */
   public double getStdDev() throws IMRException {
 
-    if (stdDevTypeParam.getValue().equals(STD_DEV_TYPE_NONE)) {
+    if (stdDevTypeParam.getValue().equals(StdDevTypeParam.STD_DEV_TYPE_NONE)) {
       return 0;
     }
     else {
@@ -505,7 +509,7 @@ public class Campbell_1997_AttenRel
       // First find Horz PGA sigma:
 
       // mag dependent case:
-      if (stdevType.equals(STD_DEV_TYPE_TOTAL_MAG_DEP)) {
+      if (stdevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL_MAG_DEP)) {
         if (mag < 7.4) {
           sigma = 0.889 - 0.0691 * mag;
         }
@@ -572,8 +576,8 @@ public class Campbell_1997_AttenRel
       // now return value depending on component and im_name
 
       // Do PGA first:
-      if (im_name.equals(PGA_NAME)) {
-        if (component.equals(COMPONENT_AVE_HORZ)) {
+      if (im_name.equals(PGA_Param.NAME)) {
+        if (component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
           return (sigma);
         }
         else { // vertical component
@@ -582,11 +586,11 @@ public class Campbell_1997_AttenRel
       }
 
       // Now do SA:
-      else if (im_name.equals(SA_NAME)) {
+      else if (im_name.equals(SA_Param.NAME)) {
         // make same as PGA if period = zero
-        double period = ( (Double) periodParam.getValue()).doubleValue();
+        double period = ( (Double) saPeriodParam.getValue()).doubleValue();
         if (period == 0) {
-          if (component.equals(COMPONENT_AVE_HORZ)) {
+          if (component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
             return (sigma);
           }
           else { // vertical component
@@ -596,7 +600,7 @@ public class Campbell_1997_AttenRel
         else {
           // compute horz comp SA sigma:
           sigma = Math.pow(sigma * sigma + 0.0729, 0.5);
-          if (component.equals(COMPONENT_AVE_HORZ)) {
+          if (component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
             return (sigma);
           }
           else { // vertical component
@@ -609,7 +613,7 @@ public class Campbell_1997_AttenRel
       else {
         // compute horz comp PGV sigma:
         sigma = Math.pow(sigma * sigma + 0.0036, 0.5);
-        if (component.equals(COMPONENT_AVE_HORZ)) {
+        if (component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
           return (sigma);
         }
         else { // vertical component
@@ -631,13 +635,13 @@ public class Campbell_1997_AttenRel
     fltTypeParam.setValue(FLT_TYPE_DEFAULT);
     distanceSeisParam.setValue(DISTANCE_SEIS_DEFAULT);
     basinDepthParam.setValue(BASIN_DEPTH_DEFAULT);
-    saParam.setValue(SA_DEFAULT);
-    periodParam.setValue(PERIOD_DEFAULT);
-    dampingParam.setValue(DAMPING_DEFAULT);
-    pgaParam.setValue(PGA_DEFAULT);
-    pgvParam.setValue(PGV_DEFAULT);
-    componentParam.setValue(COMPONENT_DEFAULT);
-    stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
+    saParam.setValueAsDefault();
+    saPeriodParam.setValueAsDefault();
+    saDampingParam.setValueAsDefault();
+    pgaParam.setValueAsDefault();
+    pgvParam.setValueAsDefault();
+    componentParam.setValueAsDefault();
+    stdDevTypeParam.setValueAsDefault();
   }
 
   /**
@@ -796,30 +800,18 @@ public class Campbell_1997_AttenRel
     while (it.hasNext()) {
       periodConstraint.addDouble( (Double) it.next());
     }
-    periodParam = new DoubleDiscreteParameter(PERIOD_NAME, periodConstraint,
-                                              PERIOD_UNITS, null);
-    periodParam.setInfo(PERIOD_INFO);
-    periodParam.setNonEditable();
+	saPeriodParam = new PeriodParam(periodConstraint);
+	saDampingParam = new DampingParam();
+	saParam = new SA_Param(saPeriodParam, saDampingParam);
+	saParam.setNonEditable();
 
-    // Set damping constraint as non editable since no other options exist
-    dampingConstraint.setNonEditable();
+	//  Create PGA Parameter (pgaParam):
+	pgaParam = new PGA_Param();
+	pgaParam.setNonEditable();
 
-    // Add SA's independent parameters:
-    saParam.addIndependentParameter(dampingParam);
-    saParam.addIndependentParameter(periodParam);
-
-    // Now Make the parameter noneditable:
-    saParam.setNonEditable();
-
-    //Create PGV Parameter (pgvParam):
-    DoubleConstraint pgvConstraint = new DoubleConstraint(PGV_MIN, PGV_MAX);
-    pgvConstraint.setNonEditable();
-    pgvParam = new WarningDoubleParameter(PGV_NAME, pgvConstraint, PGV_UNITS);
-    pgvParam.setInfo(PGV_INFO);
-    DoubleConstraint warn = new DoubleConstraint(PGV_WARN_MIN, PGV_WARN_MAX);
-    warn.setNonEditable();
-    pgvParam.setWarningConstraint(warn);
-    pgvParam.setNonEditable();
+	//  Create PGV Parameter (pgvParam):
+	pgvParam = new PGV_Param();
+	pgvParam.setNonEditable();
 
     // Add the warning listeners:
     saParam.addParameterChangeWarningListener(warningListener);
@@ -845,25 +837,18 @@ public class Campbell_1997_AttenRel
 
     // the Component Parameter
     StringConstraint constraint = new StringConstraint();
-    constraint.addString(COMPONENT_AVE_HORZ);
-    constraint.addString(COMPONENT_VERT);
+    constraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
+    constraint.addString(ComponentParam.COMPONENT_VERT);
     constraint.setNonEditable();
-    componentParam = new StringParameter(COMPONENT_NAME, constraint,
-                                         COMPONENT_DEFAULT);
-    componentParam.setInfo(COMPONENT_INFO);
-    componentParam.setNonEditable();
+    componentParam = new ComponentParam(constraint,componentParam.COMPONENT_AVE_HORZ);
 
     // the stdDevType Parameter
     StringConstraint stdDevTypeConstraint = new StringConstraint();
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_TOTAL_MAG_DEP);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_TOTAL_PGA_DEP);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_NONE);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_TOTAL_MAG_DEP);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_TOTAL_PGA_DEP);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_NONE);
     stdDevTypeConstraint.setNonEditable();
-    stdDevTypeParam = new StringParameter(STD_DEV_TYPE_NAME,
-                                          stdDevTypeConstraint,
-                                          STD_DEV_TYPE_DEFAULT);
-    stdDevTypeParam.setInfo(STD_DEV_TYPE_INFO);
-    stdDevTypeParam.setNonEditable();
+    stdDevTypeParam = new StdDevTypeParam(stdDevTypeConstraint, StdDevTypeParam.STD_DEV_TYPE_TOTAL_MAG_DEP);
 
     // add these to the list
     otherParams.addParameter(componentParam);
@@ -889,91 +874,91 @@ public class Campbell_1997_AttenRel
     // There are no coefficients for PGA or PGV because these are hard wired in the code
     // SA/0.05
     Campbell_1997_AttenRelCoefficients coeff0 = new
-        Campbell_1997_AttenRelCoefficients(SA_NAME + '/' +
+        Campbell_1997_AttenRelCoefficients(SA_Param.NAME + '/' +
                                            (new Double("0.05")).doubleValue(),
                                            0.05, 0.05, 0.0, 0.0, -0.0011,
                                            0.000055, 0.20, 0.0, 0.0, -1.32, 0.0,
                                            0.0, 0.0, 0.0);
     // SA/0.075
     Campbell_1997_AttenRelCoefficients coeff1 = new
-        Campbell_1997_AttenRelCoefficients(SA_NAME + '/' +
+        Campbell_1997_AttenRelCoefficients(SA_Param.NAME + '/' +
                                            (new Double("0.075")).doubleValue(),
                                            0.075, 0.27, 0.0, 0.0, -0.0024,
                                            0.000095, 0.22, 0.0, 0.0, -1.21, 0.0,
                                            0.0, 0.0, 0.0);
     // SA/0.1
     Campbell_1997_AttenRelCoefficients coeff2 = new
-        Campbell_1997_AttenRelCoefficients(SA_NAME + '/' +
+        Campbell_1997_AttenRelCoefficients(SA_Param.NAME + '/' +
                                            (new Double("0.1")).doubleValue(),
                                            0.1, 0.48, 0.0, 0.0, -0.0024,
                                            0.000007, 0.14, 0.0, 0.0, -1.29, 0.0,
                                            0.0, 0.0, 0.0);
     // SA/0.15
     Campbell_1997_AttenRelCoefficients coeff3 = new
-        Campbell_1997_AttenRelCoefficients(SA_NAME + '/' +
+        Campbell_1997_AttenRelCoefficients(SA_Param.NAME + '/' +
                                            (new Double("0.15")).doubleValue(),
                                            0.15, 0.72, 0.0, 0.0, -0.0010,
                                            -0.00027, -0.02, 0.0, 0.0, -1.57,
                                            0.0, 0.0, 0.0, 0.0);
     // SA/0.2
     Campbell_1997_AttenRelCoefficients coeff4 = new
-        Campbell_1997_AttenRelCoefficients(SA_NAME + '/' +
+        Campbell_1997_AttenRelCoefficients(SA_Param.NAME + '/' +
                                            (new Double("0.2")).doubleValue(),
                                            0.2, 0.79, 0.0, 0.0, 0.0011,
                                            -0.00053, -0.18, 0.0, 0.0, -1.73,
                                            0.0, 0.0, 0.0, 0.0);
     // SA/0.3
     Campbell_1997_AttenRelCoefficients coeff5 = new
-        Campbell_1997_AttenRelCoefficients(SA_NAME + '/' +
+        Campbell_1997_AttenRelCoefficients(SA_Param.NAME + '/' +
                                            (new Double("0.3")).doubleValue(),
                                            0.3, 0.77, 0.0, 0.0, 0.0035,
                                            -0.00072, -0.40, 0.0, 0.0, -1.98,
                                            0.0, 0.0, 0.0, 0.0);
     // SA/0.5
     Campbell_1997_AttenRelCoefficients coeff6 = new
-        Campbell_1997_AttenRelCoefficients(SA_NAME + '/' +
+        Campbell_1997_AttenRelCoefficients(SA_Param.NAME + '/' +
                                            (new Double("0.5")).doubleValue(),
                                            0.5, -0.28, 0.74, 0.66, 0.0068,
                                            -0.001, -0.42, 0.25, 0.62, -2.03,
                                            0.46, -0.74, 0.0, 0.0);
     // SA/0.75
     Campbell_1997_AttenRelCoefficients coeff7 = new
-        Campbell_1997_AttenRelCoefficients(SA_NAME + '/' +
+        Campbell_1997_AttenRelCoefficients(SA_Param.NAME + '/' +
                                            (new Double("0.75")).doubleValue(),
                                            0.75, -1.08, 1.23, 0.66, 0.0077,
                                            -0.001, -0.44, 0.37, 0.62, -1.79,
                                            0.67, -1.23, 0.0, 0.0);
     // SA/1.0
     Campbell_1997_AttenRelCoefficients coeff8 = new
-        Campbell_1997_AttenRelCoefficients(SA_NAME + '/' +
+        Campbell_1997_AttenRelCoefficients(SA_Param.NAME + '/' +
                                            (new Double("1.0")).doubleValue(),
                                            1.0, -1.79, 1.59, 0.66, 0.0085,
                                            -0.001, -0.38, 0.57, 0.62, -1.82,
                                            1.13, -1.59, 0.18, -0.18);
     // SA/1.5
     Campbell_1997_AttenRelCoefficients coeff9 = new
-        Campbell_1997_AttenRelCoefficients(SA_NAME + '/' +
+        Campbell_1997_AttenRelCoefficients(SA_Param.NAME + '/' +
                                            (new Double("1.5")).doubleValue(),
                                            1.5, -2.65, 1.98, 0.66, 0.0094,
                                            -0.001, -0.32, 0.72, 0.62, -1.81,
                                            1.52, -1.98, 0.57, -0.49);
     // SA/2.0
     Campbell_1997_AttenRelCoefficients coeff10 = new
-        Campbell_1997_AttenRelCoefficients(SA_NAME + '/' +
+        Campbell_1997_AttenRelCoefficients(SA_Param.NAME + '/' +
                                            (new Double("2.0")).doubleValue(),
                                            2.0, -3.28, 2.23, 0.66, 0.0100,
                                            -0.001, -0.36, 0.83, 0.62, -1.65,
                                            1.65, -2.23, 0.61, -0.63);
     // SA/3.0
     Campbell_1997_AttenRelCoefficients coeff11 = new
-        Campbell_1997_AttenRelCoefficients(SA_NAME + '/' +
+        Campbell_1997_AttenRelCoefficients(SA_Param.NAME + '/' +
                                            (new Double("3.0")).doubleValue(),
                                            3.0, -4.07, 2.39, 0.66, 0.0108,
                                            -0.001, -0.22, 0.86, 0.62, -1.31,
                                            1.28, -2.39, 1.07, -0.84);
     // SA/4.0
     Campbell_1997_AttenRelCoefficients coeff12 = new
-        Campbell_1997_AttenRelCoefficients(SA_NAME + '/' +
+        Campbell_1997_AttenRelCoefficients(SA_Param.NAME + '/' +
                                            (new Double("4.0")).doubleValue(),
                                            4.0, -4.26, 2.03, 0.66, 0.0112,
                                            -0.001, -0.30, 1.05, 0.62, -1.35,

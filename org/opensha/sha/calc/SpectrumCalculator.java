@@ -12,6 +12,8 @@ import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.gui.infoTools.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
 /**
  * <p>Title: SpectrumCalculator</p>
@@ -200,7 +202,7 @@ public class SpectrumCalculator extends UnicastRemoteObject
 
         //looping over all the SA Periods to get the ExceedProb Val for each.
         for (int saPeriodIndex = 0; saPeriodIndex < numSAPeriods; ++saPeriodIndex) {
-          imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(
+          imr.getParameter(PeriodParam.NAME).setValue(
               supportedSA_Periods.get(saPeriodIndex));
 
           // get the conditional probability of exceedance from the IMR
@@ -295,7 +297,7 @@ public class SpectrumCalculator extends UnicastRemoteObject
    */
   private DiscretizedFuncAPI initDiscretizedValuesToLog(DiscretizedFuncAPI linearFunc,double val){
     DiscretizedFuncAPI toXLogFunc = new ArbitrarilyDiscretizedFunc();
-    if (IMT_Info.isIMT_LogNormalDist(AttenuationRelationship.SA_NAME))
+    if (IMT_Info.isIMT_LogNormalDist(SA_Param.NAME))
       for (int i = 0; i < linearFunc.getNum(); ++i)
         toXLogFunc.set(Math.log(linearFunc.getX(i)), val);
     return toXLogFunc;

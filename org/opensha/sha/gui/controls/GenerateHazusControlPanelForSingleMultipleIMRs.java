@@ -10,6 +10,10 @@ import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.gui.controls.GenerateHazusFilesConrolPanelAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.exceptions.ParameterException;
@@ -187,7 +191,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
     int size = selectedAttenRels.size();
     for(int i=0;i<size;++i){
       AttenuationRelationship attenRel = (AttenuationRelationship)selectedAttenRels.get(i);
-      if(attenRel.isIntensityMeasureSupported(AttenuationRelationship.PGV_NAME)){
+      if(attenRel.isIntensityMeasureSupported(PGV_Param.NAME)){
         attenRelListSupportingPGV.add(attenRel);
         attenRelListPGV_Wts.add(selectedAttenRelsWts.get(i));
       }
@@ -273,7 +277,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
     int size = attenRelsSupportingPGV.size();
 
     for(int i=0;i<size;++i){
-      ((AttenuationRelationshipAPI)attenRelsSupportingPGV.get(i)).setIntensityMeasure(AttenuationRelationship.PGV_NAME);
+      ((AttenuationRelationshipAPI)attenRelsSupportingPGV.get(i)).setIntensityMeasure(PGV_Param.NAME);
       attenRelList.add((AttenuationRelationshipAPI)attenRelsSupportingPGV.get(i));
       attenRelWtList.add(attenRelListPGV_Wts.get(i));
     }
@@ -281,7 +285,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
     //setting the IMT to SA-1sec for the AttenRels not supporting PGV
     size = attenRelsNotSupportingPGV.size();
     for(int i=0;i<size;++i){
-      ((AttenuationRelationshipAPI)attenRelsNotSupportingPGV.get(i)).setIntensityMeasure(AttenuationRelationship.SA_NAME);
+      ((AttenuationRelationshipAPI)attenRelsNotSupportingPGV.get(i)).setIntensityMeasure(SA_Param.NAME);
       attenRelList.add((AttenuationRelationshipAPI)attenRelsNotSupportingPGV.get(i));
       attenRelWtList.add(attenRelListNot_PGV_Wts.get(i));
     }
@@ -289,7 +293,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
     this.setSA_PeriodForSelectedIMRs(attenRelsNotSupportingPGV,1.0);
 
     //as the calculation will be done on the server so saves the XYZ object and returns the path to object file.
-    pgv_xyzDataString = (String)application.generateShakeMap(attenRelList,attenRelWtList,AttenuationRelationship.PGV_NAME);
+    pgv_xyzDataString = (String)application.generateShakeMap(attenRelList,attenRelWtList,PGV_Param.NAME);
 
   }
 
@@ -305,12 +309,12 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
     step =5;
     int size = selectedAttenRels.size();
     for(int i=0;i<size;++i)
-      ((AttenuationRelationshipAPI)selectedAttenRels.get(i)).setIntensityMeasure(AttenuationRelationship.PGA_NAME);
+      ((AttenuationRelationshipAPI)selectedAttenRels.get(i)).setIntensityMeasure(PGA_Param.NAME);
 
     if(!calcOnServer) //if calculation are not to be done on the server
-      pga_xyzdata = (XYZ_DataSetAPI)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,AttenuationRelationship.PGA_NAME);
+      pga_xyzdata = (XYZ_DataSetAPI)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,PGA_Param.NAME);
     else //if calculation are to be done on the server
-      pga_xyzDataString = (String)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,AttenuationRelationship.PGA_NAME);
+      pga_xyzDataString = (String)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,PGA_Param.NAME);
     metadata += "IMT = PGA"+"\n";
   }
 
@@ -325,16 +329,16 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
     step =2;
     int size = selectedAttenRels.size();
     for(int i=0;i<size;++i)
-      ((AttenuationRelationshipAPI)selectedAttenRels.get(i)).setIntensityMeasure(AttenuationRelationship.SA_NAME);
+      ((AttenuationRelationshipAPI)selectedAttenRels.get(i)).setIntensityMeasure(SA_Param.NAME);
 
     //Doing for SA-0.3sec
     setSA_PeriodForSelectedIMRs(selectedAttenRels,0.3);
 
     //if calculation are not to be done on the server
     if(!calcOnServer)
-      sa03_xyzdata = (XYZ_DataSetAPI)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,AttenuationRelationship.SA_NAME);
+      sa03_xyzdata = (XYZ_DataSetAPI)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,SA_Param.NAME);
     else //if calculation are to be done on the server
-      sa_03xyzDataString = (String)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,AttenuationRelationship.SA_NAME);
+      sa_03xyzDataString = (String)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,SA_Param.NAME);
     metadata += "IMT = SA [ SA Damping = 5.0 ; SA Period = 0.3 ]"+"<br>\n";
 
     step =3;
@@ -342,10 +346,10 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
     setSA_PeriodForSelectedIMRs(selectedAttenRels,1.0);
     //if calculation are not to be done on the server
     if(!calcOnServer)
-      sa10_xyzdata = (XYZ_DataSetAPI)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,AttenuationRelationship.SA_NAME);
+      sa10_xyzdata = (XYZ_DataSetAPI)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,SA_Param.NAME);
     else
       //if calculation are to be done on the server
-      sa_10xyzDataString = (String)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,AttenuationRelationship.SA_NAME);
+      sa_10xyzDataString = (String)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,SA_Param.NAME);
     metadata += "IMT = SA [ SA Damping = 5.0 ; SA Period = 1.0 ]"+"<br>\n";
   }
 
@@ -362,17 +366,17 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
     int size = attenRelList.size();
     if(pgvSupported){
       for(int i=0;i<size;++i)
-        ((AttenuationRelationshipAPI)attenRelList.get(i)).setIntensityMeasure(AttenuationRelationship.PGV_NAME);
+        ((AttenuationRelationshipAPI)attenRelList.get(i)).setIntensityMeasure(PGV_Param.NAME);
 
-      pgvDataSet = (XYZ_DataSetAPI)application.generateShakeMap(attenRelList,attenRelWtList,AttenuationRelationship.PGV_NAME);
+      pgvDataSet = (XYZ_DataSetAPI)application.generateShakeMap(attenRelList,attenRelWtList,PGV_Param.NAME);
       //metadata += imtParamEditor.getVisibleParameters().getParameterListMetadataString()+"<br>\n";
     }
     else{ //if the List of the attenRels does not support IMT then use SA at 1sec for PGV
       for(int i=0;i<size;++i)
-        ((AttenuationRelationshipAPI)attenRelList.get(i)).setIntensityMeasure(AttenuationRelationship.SA_NAME);
+        ((AttenuationRelationshipAPI)attenRelList.get(i)).setIntensityMeasure(SA_Param.NAME);
       this.setSA_PeriodForSelectedIMRs(attenRelList,1.0);
 
-      pgvDataSet = (XYZ_DataSetAPI)application.generateShakeMap(attenRelList,attenRelWtList,AttenuationRelationship.SA_NAME);
+      pgvDataSet = (XYZ_DataSetAPI)application.generateShakeMap(attenRelList,attenRelWtList,SA_Param.NAME);
 
       //if PGV is not supported by the attenuation then use the SA-1sec pd
       //and multiply the value by scaler 37.24*2.54
@@ -393,7 +397,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
   private void setSA_PeriodForSelectedIMRs(ArrayList selectedAttenRels, double period) {
     int size = selectedAttenRels.size();
     for(int i=0;i<size;++i)
-      ((AttenuationRelationshipAPI)selectedAttenRels.get(i)).getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(period));
+      ((AttenuationRelationshipAPI)selectedAttenRels.get(i)).getParameter(PeriodParam.NAME).setValue(new Double(period));
   }
 
 

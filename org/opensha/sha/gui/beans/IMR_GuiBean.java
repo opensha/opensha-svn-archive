@@ -15,6 +15,10 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.event.AttenuationRelationshipChangeEvent;
 import org.opensha.sha.imr.event.AttenuationRelationshipChangeListener;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 
 import java.util.*;
 import java.lang.reflect.*;
@@ -199,7 +203,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 		panel.setBorder(border1);
 
 		// set the trunc level based on trunc type
-		String value = (String)parameterList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).getValue();
+		String value = (String)parameterList.getParameter(SigmaTruncTypeParam.NAME).getValue();
 		toggleSigmaLevelBasedOnTypeValue(value);
 		isFirstTimeLaunched = false;
 
@@ -232,8 +236,8 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 	  public boolean isIntensityMeasureSupported(AttenuationRelationship attenRel,String intensityMeasure, double period){
 		  if(attenRel.isIntensityMeasureSupported(intensityMeasure)){
 			ParameterAPI imParam = attenRel.getSupportedIntensityMeasuresList().getParameter(intensityMeasure);
-			if(imParam.getName().equals(AttenuationRelationship.SA_NAME)){
-		        if (attenRel.getParameter(AttenuationRelationship.PERIOD_NAME).isAllowed(period)) {
+			if(imParam.getName().equals(SA_Param.NAME)){
+		        if (attenRel.getParameter(PeriodParam.NAME).isAllowed(period)) {
 		          return true;
 		        }
 		        else {
@@ -333,7 +337,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 		panel.setBorder(border1);
 
 		// set the trunc level based on trunc type
-		String value = (String)parameterList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).getValue();
+		String value = (String)parameterList.getParameter(SigmaTruncTypeParam.NAME).getValue();
 		toggleSigmaLevelBasedOnTypeValue(value);
 		
 		this.fireAttenuationRelationshipChangedEvent(currentAttenRel, imr);
@@ -362,7 +366,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 		String name1 = event.getParameterName();
 
 		// if Truncation type changes
-		if( name1.equals(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME) ){  // special case hardcoded. Not the best way to do it, but need framework to handle it.
+		if( name1.equals(SigmaTruncTypeParam.NAME) ){  // special case hardcoded. Not the best way to do it, but need framework to handle it.
 			String value = event.getNewValue().toString();
 			toggleSigmaLevelBasedOnTypeValue(value);
 		}
@@ -387,13 +391,13 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 	 */
 	protected void toggleSigmaLevelBasedOnTypeValue(String value){
 
-		if( value.equalsIgnoreCase("none") ) {
+		if( value.equalsIgnoreCase(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE) ) {
 			if(D) System.out.println("Value = " + value + ", need to set value param off.");
-			setParameterVisible( AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME, false );
+			setParameterVisible( SigmaTruncLevelParam.NAME, false );
 		}
 		else{
 			if(D) System.out.println("Value = " + value + ", need to set value param on.");
-			setParameterVisible( AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME, true );
+			setParameterVisible( SigmaTruncLevelParam.NAME, true );
 		}
 
 	}

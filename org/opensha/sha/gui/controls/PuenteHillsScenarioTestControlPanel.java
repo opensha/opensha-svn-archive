@@ -14,6 +14,8 @@ import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
 import org.opensha.sha.param.*;
 import org.opensha.sha.magdist.SingleMagFreqDist;
 import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 
 /**
  * <p>Title: PuenteHillsScenarioTestControlPanel</p>
@@ -124,7 +126,7 @@ public class PuenteHillsScenarioTestControlPanel {
 
     //Updating the IMR Gui Bean with the ShakeMap attenuation relationship.
     imrGuiBean.getParameterList().getParameter(imrGuiBean.IMR_PARAM_NAME).setValue(ShakeMap_2003_AttenRel.NAME);
-    imrGuiBean.getSelectedIMR_Instance().getParameter(ShakeMap_2003_AttenRel.COMPONENT_NAME).setValue(ShakeMap_2003_AttenRel.COMPONENT_GREATER_OF_TWO_HORZ);
+    imrGuiBean.getSelectedIMR_Instance().getParameter(ComponentParam.NAME).setValue(ComponentParam.COMPONENT_GREATER_OF_TWO_HORZ);
     imrGuiBean.refreshParamEditor();
 
     //Updating the SitesInGriddedRectangularRegionGuiBean with the Puente Hills resion setting
@@ -136,7 +138,7 @@ public class PuenteHillsScenarioTestControlPanel {
     regionGuiBean.getParameterList().getParameter(regionGuiBean.SITE_PARAM_NAME).setValue(regionGuiBean.SET_SITE_USING_WILLS_SITE_TYPE);
 
     // Set the imt as PGA
-    imtGuiBean.getParameterList().getParameter(imtGuiBean.IMT_PARAM_NAME).setValue(ShakeMap_2003_AttenRel.PGA_NAME);
+    imtGuiBean.getParameterList().getParameter(imtGuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);
     imtGuiBean.refreshParamEditor();
 
     // Set some of the mapping params:

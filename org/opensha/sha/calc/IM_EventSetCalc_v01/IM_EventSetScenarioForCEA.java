@@ -23,6 +23,9 @@ import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.depricated.BA_2006_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.depricated.CB_2006_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
 import org.opensha.sha.param.PropagationEffect;
 import org.opensha.sha.param.SimpleFaultParameter;
@@ -203,9 +206,9 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 	  
 	  private void createIMTList(){
 		  imtSupported = new ArrayList();
-		  imtSupported.add(AttenuationRelationship.PGA_NAME);
-		  imtSupported.add(AttenuationRelationship.SA_NAME+" "+"0.3");
-		  imtSupported.add(AttenuationRelationship.SA_NAME+" "+"1.0");
+		  imtSupported.add(PGA_Param.NAME);
+		  imtSupported.add(SA_Param.NAME+" "+"0.3");
+		  imtSupported.add(SA_Param.NAME+" "+"1.0");
 	  }
 
 	  
@@ -266,12 +269,12 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 				for(int j=0;j<imtSupported.size();++j){
 					String imt = (String)imtSupported.get(j);
 					double period = -1;
-					if(imt.startsWith(AttenuationRelationship.SA_NAME)){
+					if(imt.startsWith(SA_Param.NAME)){
 						StringTokenizer st = new StringTokenizer(imt);
 						String  saName = st.nextToken().trim();
 						period = Double.parseDouble(st.nextToken().trim());
 						attenRel.setIntensityMeasure(saName);
-						attenRel.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(period));
+						attenRel.getParameter(PeriodParam.NAME).setValue(new Double(period));
 					}
 					
 					if(period ==-1)

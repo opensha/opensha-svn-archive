@@ -61,6 +61,8 @@ import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculatorAPI;
@@ -839,7 +841,7 @@ public class LossEstimationApplication extends JFrame
 	     	VulnerabilityModel currentModel = vulnBean.getCurrentModel();
 	        String currentIMT = currentModel.getIMT();
 	        double currentPeriod = 0;
-	        if(currentIMT.equals(AttenuationRelationship.SA_NAME))
+	        if(currentIMT.equals(SA_Param.NAME))
 	        	currentPeriod = currentModel.getPeriod();
 	    	imrGuiBean.setIMRParamListAndEditor(currentIMT, currentIMT, currentPeriod, currentPeriod);
 	    	AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
@@ -904,7 +906,7 @@ public class LossEstimationApplication extends JFrame
     VulnerabilityModel currentModel = this.vulnBean.getCurrentModel();
     String currentIMT = currentModel.getIMT();
     double currentPeriod = 0;
-    if(currentIMT.equals(AttenuationRelationship.SA_NAME))
+    if(currentIMT.equals(SA_Param.NAME))
     	currentPeriod = currentModel.getPeriod();
     ArrayList<Double> currentIMLs = currentModel.getIMLVals();
     
@@ -974,7 +976,7 @@ public class LossEstimationApplication extends JFrame
 	    ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
 	    initX_Values(hazFunction,imls,imt);
 	    imr.setIntensityMeasure(imt);
-	    imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(period);
+	    imr.getParameter(PeriodParam.NAME).setValue(period);
 //	    ((AttenuationRelationship)imr).setIntensityMeasure(imt,period);
 	    //System.out.println("22222222HazFunction: "+hazFunction.toString());
 	    try {
@@ -1052,7 +1054,7 @@ public class LossEstimationApplication extends JFrame
   	VulnerabilityModel currentModel = vulnBean.getCurrentModel();
       String currentIMT = currentModel.getIMT();
       double currentPeriod = 0;
-      if(currentIMT.equals(AttenuationRelationship.SA_NAME))
+      if(currentIMT.equals(SA_Param.NAME))
       	currentPeriod = currentModel.getPeriod();
       
        imrPanel.removeAll();

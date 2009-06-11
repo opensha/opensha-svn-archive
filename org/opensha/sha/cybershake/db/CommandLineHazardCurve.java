@@ -25,6 +25,7 @@ import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.util.SiteTranslator;
 
 
@@ -204,7 +205,7 @@ public class CommandLineHazardCurve implements ParameterChangeWarningListener {
 
 		// Generate Hazard Curves for SA 3.0s
 		imr.setIntensityMeasure("SA");
-		imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(3.0);
+		imr.getParameter(PeriodParam.NAME).setValue(3.0);
 		System.out.println(imr.getParameter(AS_1997_AttenRel.SITE_TYPE_NAME).getValue());
 		String imtString = "SA_3.0sec";
 		createUSGS_SA_Function();// for SA

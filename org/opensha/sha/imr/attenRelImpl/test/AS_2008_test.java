@@ -10,6 +10,10 @@ import org.opensha.commons.param.WarningDoubleParameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.param.*;
 
 import java.io.File;
@@ -57,8 +61,8 @@ public class AS_2008_test extends NGATest {
 		String str = "";
 		
 		str += "OpenSHA params:";
-		if (attenRel.getIntensityMeasure().getName().equals(AttenuationRelationship.SA_NAME))
-			str += "\nSA period = " + attenRel.getParameter(AS_2008_AttenRel.PERIOD_NAME).getValue();
+		if (attenRel.getIntensityMeasure().getName().equals(SA_Param.NAME))
+			str += "\nSA period = " + attenRel.getParameter(PeriodParam.NAME).getValue();
 		else
 			str += "\nIM Type = " + attenRel.getIntensityMeasure().getName();
 		str += "\nMag = " + attenRel.getParameter(AS_2008_AttenRel.MAG_NAME).getValue();
@@ -212,12 +216,12 @@ public class AS_2008_test extends NGATest {
 					as_2008.getParameter(AS_2008_AttenRel.DEPTH_1pt0_NAME).setValue(new Double(zsed));
 
 
-					as_2008.setIntensityMeasure(as_2008.SA_NAME);
+					as_2008.setIntensityMeasure(SA_Param.NAME);
 					int num= period.length;
 					double openSHA_Val, tested_Val;
 					boolean skipTest = false;
 					for(int k=0;k<num;++k){
-						as_2008.getParameter(as_2008.PERIOD_NAME).setValue(new Double(period[k]));
+						as_2008.getParameter(PeriodParam.NAME).setValue(new Double(period[k]));
 						if(isMedian) openSHA_Val = Math.exp(as_2008.getMean());
 						else openSHA_Val = as_2008.getStdDev();
 						tested_Val = Double.parseDouble(st.nextToken().trim());
@@ -244,7 +248,7 @@ public class AS_2008_test extends NGATest {
 						}
 					}
 
-					as_2008.setIntensityMeasure(as_2008.PGA_NAME);
+					as_2008.setIntensityMeasure(PGA_Param.NAME);
 					if(isMedian) openSHA_Val = Math.exp(as_2008.getMean());
 					else openSHA_Val = as_2008.getStdDev();
 					tested_Val = Double.parseDouble(st.nextToken().trim());
@@ -269,7 +273,7 @@ public class AS_2008_test extends NGATest {
 						
 						return -1;
 					};
-					as_2008.setIntensityMeasure(as_2008.PGV_NAME);
+					as_2008.setIntensityMeasure(PGV_Param.NAME);
 					if(isMedian) openSHA_Val = Math.exp(as_2008.getMean());
 					else openSHA_Val = as_2008.getStdDev();
 					tested_Val = Double.parseDouble(st.nextToken().trim());

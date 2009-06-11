@@ -15,6 +15,7 @@ import org.opensha.sha.calc.hazardMap.HazardMapJob;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.IntensityMeasureRelationship;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 
 public class MetadataLoader implements ParameterChangeWarningListener {
 
@@ -88,7 +89,7 @@ public class MetadataLoader implements ParameterChangeWarningListener {
 	        IntensityMeasureRelationship imr = IntensityMeasureRelationship.fromXMLMetadata(document.getRootElement().element(IntensityMeasureRelationship.XML_METADATA_NAME), new MetadataLoader());
 	        System.out.println("Name: " + imr.getName());
 	        System.out.println("IMT: " + imr.getIntensityMeasure().getName());
-	        System.out.println("Period: " + imr.getParameter(AttenuationRelationship.PERIOD_NAME).getValue());
+	        System.out.println("Period: " + imr.getParameter(PeriodParam.NAME).getValue());
 	        EqkRupForecast erf = EqkRupForecast.fromXMLMetadata(document.getRootElement().element(EqkRupForecast.XML_METADATA_NAME));
 	        System.out.println("Name: " + erf.getName());
 //	        System.out.println("Background: " + erf.getAdjustableParameterList().getParameter(UCERF2.BACK_SEIS_NAME).getValue());

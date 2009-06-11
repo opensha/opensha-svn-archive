@@ -7,6 +7,10 @@ import java.util.*;
 import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.gui.controls.GenerateHazusFilesConrolPanelAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 
@@ -109,20 +113,20 @@ public class GenerateHazusFilesControlPanel extends JFrame {
    */
   private void generateHazusFiles(AttenuationRelationship imr){
 
-      String sa = AttenuationRelationship.SA_NAME;
-      String pga = AttenuationRelationship.PGA_NAME;
-      String pgv = AttenuationRelationship.PGV_NAME;
+      String sa = SA_Param.NAME;
+      String pga = PGA_Param.NAME;
+      String pgv = PGV_Param.NAME;
 
       //Doing for SA
       imtGuiBean.getParameterList().getParameter(imtGuiBean.IMT_PARAM_NAME).setValue(sa);
       //Doing for SA-0.3sec
-      imtGuiBean.getParameterList().getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(0.3));
+      imtGuiBean.getParameterList().getParameter(PeriodParam.NAME).setValue(new Double(0.3));
       sa03_xyzdata = application.generateShakeMap();
 
       metadata = imtGuiBean.getVisibleParameters().getParameterListMetadataString()+"<br>\n";
 
       //Doing for SA-1.0sec
-      imtGuiBean.getParameterList().getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(1.0));
+      imtGuiBean.getParameterList().getParameter(PeriodParam.NAME).setValue(new Double(1.0));
       sa10_xyzdata = application.generateShakeMap();
       metadata += imtGuiBean.getVisibleParameters().getParameterListMetadataString()+"<br>\n";
 

@@ -23,6 +23,13 @@ import org.opensha.commons.util.FaultUtils;
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.param.*;
 
 
@@ -98,9 +105,6 @@ public class Field_2000_AttenRel
   private final static Double DISTANCE_JB_DEFAULT = new Double(0);
   protected final static Double DISTANCE_JB_WARN_MIN = new Double(0.0);
   protected final static Double DISTANCE_JB_WARN_MAX = new Double(150.0);
-
-  // set the default stdDev type
-  public final static String STD_DEV_TYPE_DEFAULT = STD_DEV_TYPE_TOTAL_MAG_DEP;
 
   /**
    * The current set of coefficients based on the selected intensityMeasure
@@ -231,13 +235,13 @@ public class Field_2000_AttenRel
     }
 
     // if IMT is PGV, get the 1-sec SA coefficients
-    if (im.getName().equals(PGV_NAME)) {
+    if (im.getName().equals(PGV_Param.NAME)) {
       coeff = (Field_2000_AttenRelCoefficients) coefficients.get("SA/1.0");
     }
     else {
       StringBuffer key = new StringBuffer(im.getName());
-      if (im.getName().equalsIgnoreCase(SA_NAME)) {
-        key.append("/" + periodParam.getValue());
+      if (im.getName().equalsIgnoreCase(SA_Param.NAME)) {
+        key.append("/" + saPeriodParam.getValue());
       }
       if (coefficients.containsKey(key.toString())) {
         coeff = (Field_2000_AttenRelCoefficients) coefficients.get(key.toString());
@@ -342,7 +346,7 @@ public class Field_2000_AttenRel
     }
 
     // convert the 1.0-period SA value if IMT="PGV"
-    if (im.getName().equals(PGV_NAME)) {
+    if (im.getName().equals(PGV_Param.NAME)) {
       mean += Math.log(37.27 * 2.54);
     }
 
@@ -375,24 +379,24 @@ public class Field_2000_AttenRel
 
     // set the correct standard deviation depending on component and type
     double temp_std;
-    if (stdDevType.equals(STD_DEV_TYPE_TOTAL_MAG_DEP)) { // "Total - Mag Dep."
+    if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL_MAG_DEP)) { // "Total - Mag Dep."
       temp_std = Math.sqrt(coeff.intra_slope * mag + coeff.intra_intercept +
                            coeff.tau * coeff.tau);
     }
-    else if (stdDevType.equals(STD_DEV_TYPE_TOTAL)) { // "Total"
+    else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL)) { // "Total"
       temp_std = Math.sqrt( (coeff.intra_mag_ind * coeff.intra_mag_ind +
                              coeff.tau * coeff.tau));
     }
-    else if (stdDevType.equals(STD_DEV_TYPE_INTER)) { // "Inter-Event"
+    else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTER)) { // "Inter-Event"
       temp_std = coeff.tau;
     }
-    else if (stdDevType.equals(STD_DEV_TYPE_INTRA_MAG_DEP)) { // "Intra-Event - Mag. Dep."
+    else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTRA_MAG_DEP)) { // "Intra-Event - Mag. Dep."
       temp_std = Math.sqrt(coeff.intra_slope * mag + coeff.intra_intercept);
     }
-    else if (stdDevType.equals(STD_DEV_TYPE_INTRA)) { // "Intra-Event"
+    else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTRA)) { // "Intra-Event"
       temp_std = coeff.intra_mag_ind;
     }
-    else if (stdDevType.equals(STD_DEV_TYPE_NONE)) { // "None (zero)"
+    else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE)) { // "None (zero)"
       temp_std = 0;
     }
     else {
@@ -410,13 +414,13 @@ public class Field_2000_AttenRel
     magParam.setValue(MAG_DEFAULT);
     fltTypeParam.setValue(FLT_TYPE_DEFAULT);
     distanceJBParam.setValue(DISTANCE_JB_DEFAULT);
-    saParam.setValue(SA_DEFAULT);
-    periodParam.setValue(PERIOD_DEFAULT);
-    dampingParam.setValue(DAMPING_DEFAULT);
-    pgaParam.setValue(PGA_DEFAULT);
-    pgvParam.setValue(PGV_DEFAULT);
-    componentParam.setValue(COMPONENT_DEFAULT);
-    stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
+    saParam.setValueAsDefault();
+    saPeriodParam.setValueAsDefault();
+    saDampingParam.setValueAsDefault();
+    pgaParam.setValueAsDefault();
+    pgvParam.setValueAsDefault();
+    componentParam.setValueAsDefault();
+    stdDevTypeParam.setValueAsDefault();
     basinDepthParam.setValue(BASIN_DEPTH_DEFAULT);
 
   }
@@ -549,10 +553,7 @@ public class Field_2000_AttenRel
    */
   protected void initSupportedIntensityMeasureParams() {
 
-    // Create saParam (& its dampingParam) and pgaParam:
-    super.initSupportedIntensityMeasureParams();
-
-    // Create saParam's "Period" independent parameter:
+    // Create saParam:
     DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
     TreeSet set = new TreeSet();
     Enumeration keys = coefficients.keys();
@@ -568,30 +569,18 @@ public class Field_2000_AttenRel
       periodConstraint.addDouble( (Double) it.next());
     }
     periodConstraint.setNonEditable();
-    periodParam = new DoubleDiscreteParameter(PERIOD_NAME, periodConstraint,
-                                              PERIOD_UNITS, null);
-    periodParam.setInfo(PERIOD_INFO);
-    periodParam.setNonEditable();
+	saPeriodParam = new PeriodParam(periodConstraint);
+	saDampingParam = new DampingParam();
+	saParam = new SA_Param(saPeriodParam, saDampingParam);
+	saParam.setNonEditable();
 
-    // Set damping constraint as non editable since no other options exist
-    dampingConstraint.setNonEditable();
+	//  Create PGA Parameter (pgaParam):
+	pgaParam = new PGA_Param();
+	pgaParam.setNonEditable();
 
-    // Add SA's independent parameters:
-    saParam.addIndependentParameter(dampingParam);
-    saParam.addIndependentParameter(periodParam);
-
-    // Now Make the parameter noneditable:
-    saParam.setNonEditable();
-
-    //Create PGV Parameter (pgvParam):
-    DoubleConstraint pgvConstraint = new DoubleConstraint(PGV_MIN, PGV_MAX);
-    pgvConstraint.setNonEditable();
-    pgvParam = new WarningDoubleParameter(PGV_NAME, pgvConstraint, PGV_UNITS);
-    pgvParam.setInfo(PGV_INFO);
-    DoubleConstraint warn = new DoubleConstraint(PGV_WARN_MIN, PGV_WARN_MAX);
-    warn.setNonEditable();
-    pgvParam.setWarningConstraint(warn);
-    pgvParam.setNonEditable();
+	//  Create PGV Parameter (pgvParam):
+	pgvParam = new PGV_Param();
+	pgvParam.setNonEditable();
 
     // Add the warning listeners:
     saParam.addParameterChangeWarningListener(warningListener);
@@ -617,27 +606,20 @@ public class Field_2000_AttenRel
 
     // the Component Parameter
     StringConstraint constraint = new StringConstraint();
-    constraint.addString(COMPONENT_AVE_HORZ);
+    constraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
     constraint.setNonEditable();
-    componentParam = new StringParameter(COMPONENT_NAME, constraint,
-                                         COMPONENT_DEFAULT);
-    componentParam.setInfo(COMPONENT_INFO);
-    componentParam.setNonEditable();
+    componentParam = new ComponentParam(constraint,componentParam.COMPONENT_AVE_HORZ);
 
     // the stdDevType Parameter
     StringConstraint stdDevTypeConstraint = new StringConstraint();
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_TOTAL_MAG_DEP);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_TOTAL);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_INTER);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_INTRA_MAG_DEP);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_INTRA);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_NONE);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_TOTAL_MAG_DEP);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_INTER);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_INTRA_MAG_DEP);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_INTRA);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_NONE);
     stdDevTypeConstraint.setNonEditable();
-    stdDevTypeParam = new StringParameter(STD_DEV_TYPE_NAME,
-                                          stdDevTypeConstraint,
-                                          STD_DEV_TYPE_DEFAULT);
-    stdDevTypeParam.setInfo(STD_DEV_TYPE_INFO);
-    stdDevTypeParam.setNonEditable();
+    stdDevTypeParam = new StdDevTypeParam(stdDevTypeConstraint, StdDevTypeParam.STD_DEV_TYPE_TOTAL_MAG_DEP);
 
     // add these to the list
     otherParams.addParameter(componentParam);
@@ -662,13 +644,13 @@ public class Field_2000_AttenRel
 
     // PGA
     Field_2000_AttenRelCoefficients coeff = new Field_2000_AttenRelCoefficients(
-        PGA_NAME,
+        PGA_Param.NAME,
         0.0, 0.853, 0.872, 0.442, -0.067, -0.960, -0.154, 8.90, 0.067, -0.14,
         -0.1, 0.8771, 0.23, 0.47);
 
     // SA/0.00
     Field_2000_AttenRelCoefficients coeff0 = new
-        Field_2000_AttenRelCoefficients(SA_NAME + '/' +
+        Field_2000_AttenRelCoefficients(SA_Param.NAME + '/' +
                                         (new Double("0.0")).doubleValue(),
                                         0.0, 0.853, 0.872, 0.442, -0.067,
                                         -0.960, -0.154, 8.90, 0.067, -0.14,

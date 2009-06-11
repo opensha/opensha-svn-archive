@@ -12,6 +12,7 @@ import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.*;
 import org.opensha.sha.imr.attenRelImpl.depricated.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 
 import java.util.*;
 import java.io.*;
@@ -527,7 +528,7 @@ implements ParameterChangeWarningListener {
 			if (numTokens == 2) {
 				pd = st.nextToken().trim();
 				if (pd != null && !pd.equals(""))
-					imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(Double.parseDouble(pd)));
+					imr.getParameter(PeriodParam.NAME).setValue(new Double(Double.parseDouble(pd)));
 				String str = pd.replace('.', '_');
 				meanSigmaFile = new FileWriter(fileNamePrefixCommon + "_" +
 						imt + "_" + str + ".txt");

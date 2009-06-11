@@ -25,6 +25,12 @@ import org.opensha.commons.util.FaultUtils;
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.param.*;
 
 /**
@@ -161,9 +167,8 @@ public class McVerryetal_2000_AttenRel
 
   // change component default from that of parent
   //Currently the above coefficients are for the (unrotated) geometric mean - will include larger horizontal later
-  public final static String COMPONENT_GEOMEAN = COMPONENT_RANDOM_HORZ;
+  public final static String COMPONENT_GEOMEAN = ComponentParam.COMPONENT_RANDOM_HORZ;
   //public final static String COMPONENT_LARGERHORIZ = COMPONENT_LARGER;
-  String COMPONENT_DEFAULT = COMPONENT_RANDOM_HORZ;
   
   /**
    * The DistanceRupParameter, closest distance to fault surface.
@@ -260,7 +265,7 @@ public class McVerryetal_2000_AttenRel
           );
     }
 
-    iper = ( (Integer) indexFromPerHashMap.get(periodParam.getValue())).
+    iper = ( (Integer) indexFromPerHashMap.get(saPeriodParam.getValue())).
        intValue();
 
     parameterChange = true;
@@ -336,11 +341,11 @@ public class McVerryetal_2000_AttenRel
     magParam.setValue(MAG_DEFAULT);
     distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
     fltTypeParam.setValue(FLT_TYPE_DEFAULT);
-    saParam.setValue(SA_DEFAULT);
-    periodParam.setValue(PERIOD_DEFAULT);
-    dampingParam.setValue(DAMPING_DEFAULT);
-    pgaParam.setValue(PGA_DEFAULT);
-    stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
+    saParam.setValueAsDefault();
+    saPeriodParam.setValueAsDefault();
+    saDampingParam.setValueAsDefault();
+    pgaParam.setValueAsDefault();
+    stdDevTypeParam.setValueAsDefault();
 
     mag = ( (Double) magParam.getValue()).doubleValue();
     fltType = (String) fltTypeParam.getValue();
@@ -459,30 +464,21 @@ public class McVerryetal_2000_AttenRel
 	   */
 	  protected void initSupportedIntensityMeasureParams() {
 
-	    // Create saParam (& its dampingParam) and pgaParam:
-	    super.initSupportedIntensityMeasureParams();
-
-	    // Create saParam's "Period" independent parameter:
+	    // Create saParam:
 	    DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
 	    for (int i = 2; i < period.length; i++) {
 	      periodConstraint.addDouble(new Double(period[i]));
 	    }
 	    periodConstraint.setNonEditable();
-	    periodParam = new DoubleDiscreteParameter(PERIOD_NAME, periodConstraint,
-	                                              PERIOD_UNITS, null);
-	    periodParam.setInfo(PERIOD_INFO);
-	    periodParam.setNonEditable();
+		saPeriodParam = new PeriodParam(periodConstraint);
+		saDampingParam = new DampingParam();
+		saParam = new SA_Param(saPeriodParam, saDampingParam);
+		saParam.setNonEditable();
 
-	    // Set damping constraint as non editable since no other options exist
-	    dampingConstraint.setNonEditable();
-
-	    // Add SA's independent parameters:
-	    saParam.addIndependentParameter(dampingParam);
-	    saParam.addIndependentParameter(periodParam);
-
-	    // Now Make the parameter noneditable:
-	    saParam.setNonEditable();
-	    
+		//  Create PGA Parameter (pgaParam):
+		pgaParam = new PGA_Param();
+		pgaParam.setNonEditable();
+		    
 	    // Add the warning listeners:
 	    saParam.addParameterChangeWarningListener(warningListener);
 	    pgaParam.addParameterChangeWarningListener(warningListener);
@@ -504,28 +500,17 @@ public class McVerryetal_2000_AttenRel
 
 	    // the Component Parameter
 	    StringConstraint constraint = new StringConstraint();
-	    constraint.addString(COMPONENT_RANDOM_HORZ);
-	    //constraint.addString(COMPONENT_LARGER_HORZ);
-	    
-	    componentParam = new StringParameter(COMPONENT_NAME, constraint,
-	                                         COMPONENT_DEFAULT);
-	    componentParam.setInfo(COMPONENT_INFO);
-	    componentParam.setNonEditable();
+	    constraint.addString(ComponentParam.COMPONENT_RANDOM_HORZ);
+	    componentParam = new ComponentParam(constraint,ComponentParam.COMPONENT_RANDOM_HORZ);
 	    
 	    // the stdDevType Parameter
 	    StringConstraint stdDevTypeConstraint = new StringConstraint();
-	    stdDevTypeConstraint.addString(STD_DEV_TYPE_TOTAL);
-	    stdDevTypeConstraint.addString(STD_DEV_TYPE_NONE);
-	    stdDevTypeConstraint.addString(STD_DEV_TYPE_INTER);
-	    stdDevTypeConstraint.addString(STD_DEV_TYPE_INTRA);
+	    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
+	    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_NONE);
+	    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_INTER);
+	    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_INTRA);
 	    stdDevTypeConstraint.setNonEditable();
-	    stdDevTypeParam = new StringParameter(STD_DEV_TYPE_NAME,
-	                                          stdDevTypeConstraint,
-	                                          STD_DEV_TYPE_DEFAULT);
-	    stdDevTypeParam.setInfo(STD_DEV_TYPE_INFO);
-	    stdDevTypeParam.setNonEditable();
-
-	 
+	    stdDevTypeParam = new StdDevTypeParam(stdDevTypeConstraint);
 
 	    // add these to the list
 	    otherParams.addParameter(componentParam);
@@ -602,10 +587,10 @@ public class McVerryetal_2000_AttenRel
 
   public double getStdDev(int iper, String stdDevType) {
 	  
-	if(stdDevType.equals(STD_DEV_TYPE_NONE)) {
+	if(stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE)) {
 		return 0.0;
 	}
-	else if (stdDevType.equals(STD_DEV_TYPE_INTER)) {
+	else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTER)) {
 		return (tau[iper]);
 	}
 	else {   
@@ -620,10 +605,10 @@ public class McVerryetal_2000_AttenRel
 			sigmaIntra=sigma6[iper]+sigSlope[iper]*(mag-6.);
 		}
 		
-		if (stdDevType.equals(STD_DEV_TYPE_INTRA)) {
+		if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTRA)) {
 			return sigmaIntra;
 		}
-		else if (stdDevType.equals(STD_DEV_TYPE_TOTAL)) {
+		else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL)) {
 			double sigmaTotal = Math.sqrt(Math.pow(sigmaIntra,2.)+Math.pow(tau[iper],2.));
 			return (sigmaTotal);
 		}
@@ -652,13 +637,13 @@ public class McVerryetal_2000_AttenRel
 	  else if (pName.equals(MAG_NAME)) {
 		  mag = ( (Double) val).doubleValue();
 	  }
-	  else if (pName.equals(STD_DEV_TYPE_NAME)) {
+	  else if (pName.equals(StdDevTypeParam.NAME)) {
 		  stdDevType = (String) val;
 	  }
-	  else if (pName.equals(COMPONENT_NAME)) {
+	  else if (pName.equals(ComponentParam.NAME)) {
 		  component = (String)componentParam.getValue();
 	  }
-	  else if (pName.equals(PERIOD_NAME)) {
+	  else if (pName.equals(PeriodParam.NAME)) {
 		  intensityMeasureChanged = true;
 	  }
   }
@@ -671,7 +656,7 @@ public class McVerryetal_2000_AttenRel
     magParam.removeParameterChangeListener(this);
     fltTypeParam.removeParameterChangeListener(this);
     stdDevTypeParam.removeParameterChangeListener(this);
-    periodParam.removeParameterChangeListener(this);
+    saPeriodParam.removeParameterChangeListener(this);
 
     this.initParameterEventListeners();
   }
@@ -687,7 +672,7 @@ public class McVerryetal_2000_AttenRel
     magParam.addParameterChangeListener(this);
     fltTypeParam.addParameterChangeListener(this);
     stdDevTypeParam.addParameterChangeListener(this);
-    periodParam.addParameterChangeListener(this);
+    saPeriodParam.addParameterChangeListener(this);
   }
 
   

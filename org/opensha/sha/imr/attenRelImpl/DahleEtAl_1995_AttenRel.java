@@ -19,6 +19,12 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.param.*;
 
 /**
@@ -168,8 +174,8 @@ public class DahleEtAl_1995_AttenRel
     }
 
     StringBuffer key = new StringBuffer(im.getName());
-    if (im.getName().equalsIgnoreCase(SA_NAME)) {
-      key.append("/" + periodParam.getValue());
+    if (im.getName().equalsIgnoreCase(SA_Param.NAME)) {
+      key.append("/" + saPeriodParam.getValue());
     }
     if (coefficients.containsKey(key.toString())) {
       coeff = (DahleEtAl_AttenRelCoefficients) coefficients.get(key.toString());
@@ -282,12 +288,12 @@ public class DahleEtAl_1995_AttenRel
     siteTypeParam.setValue(SITE_TYPE_DEFAULT);
     magParam.setValue(MAG_DEFAULT);
     distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
-    saParam.setValue(SA_DEFAULT);
-    periodParam.setValue(PERIOD_DEFAULT);
-    dampingParam.setValue(DAMPING_DEFAULT);
-    pgaParam.setValue(PGA_DEFAULT);
-    componentParam.setValue(COMPONENT_DEFAULT);
-    stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
+    saParam.setValueAsDefault();
+    saPeriodParam.setValueAsDefault();
+    saDampingParam.setValueAsDefault();
+    pgaParam.setValueAsDefault();
+    componentParam.setValueAsDefault();
+    stdDevTypeParam.setValueAsDefault();
 
   }
 
@@ -412,20 +418,14 @@ public class DahleEtAl_1995_AttenRel
       periodConstraint.addDouble( (Double) it.next());
     }
     periodConstraint.setNonEditable();
-    periodParam = new DoubleDiscreteParameter(PERIOD_NAME, periodConstraint,
-                                              PERIOD_UNITS, null);
-    periodParam.setInfo(PERIOD_INFO);
-    periodParam.setNonEditable();
+	saPeriodParam = new PeriodParam(periodConstraint);
+	saDampingParam = new DampingParam();
+	saParam = new SA_Param(saPeriodParam, saDampingParam);
+	saParam.setNonEditable();
 
-    // Set damping constraint as non editable since no other options exist
-    dampingConstraint.setNonEditable();
-
-    // Add SA's independent parameters:
-    saParam.addIndependentParameter(dampingParam);
-    saParam.addIndependentParameter(periodParam);
-
-    // Now Make the parameter noneditable:
-    saParam.setNonEditable();
+	//  Create PGA Parameter (pgaParam):
+	pgaParam = new PGA_Param();
+	pgaParam.setNonEditable();
 
     // Add the warning listeners:
     saParam.addParameterChangeWarningListener(warningListener);
@@ -451,22 +451,15 @@ public class DahleEtAl_1995_AttenRel
     StringConstraint constraint = new StringConstraint();
     constraint.addString(COMPONENT_UNKNOWN_HORZ);
     constraint.setNonEditable();
-    componentParam = new StringParameter(COMPONENT_NAME, constraint,
-                                         COMPONENT_DEFAULT);
-    componentParam.setInfo(COMPONENT_INFO);
-    componentParam.setNonEditable();
+    componentParam = new ComponentParam(constraint,COMPONENT_UNKNOWN_HORZ);
 
     // the stdDevType Parameter
     StringConstraint stdDevTypeConstraint = new StringConstraint();
     stdDevTypeConstraint.addString(STD_DEV_TYPE_BAY);
     stdDevTypeConstraint.addString(STD_DEV_TYPE_LS);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_NONE);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_NONE);
     stdDevTypeConstraint.setNonEditable();
-    stdDevTypeParam = new StringParameter(STD_DEV_TYPE_NAME,
-                                          stdDevTypeConstraint,
-                                          STD_DEV_TYPE_DEFAULT);
-    stdDevTypeParam.setInfo(STD_DEV_TYPE_INFO);
-    stdDevTypeParam.setNonEditable();
+    stdDevTypeParam = new StdDevTypeParam(stdDevTypeConstraint);
 
     // add these to the list
     otherParams.addParameter(componentParam);
@@ -509,12 +502,12 @@ public class DahleEtAl_1995_AttenRel
 
     // PGA
     DahleEtAl_AttenRelCoefficients coeff = new DahleEtAl_AttenRelCoefficients(
-        PGA_NAME,
+        PGA_Param.NAME,
         0, -1.579, 0.554, -0.560, -0.00302, 0.326, 6.0, 0.75, 0.73);
 
     // SA/0.00
     DahleEtAl_AttenRelCoefficients coeff0 = new DahleEtAl_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.00")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.00")).doubleValue(),
         0.00, -1.579, 0.554, -0.560, -0.00302, 0.326, 6.0, 0.75, 0.73);
     // SA/0.025
     DahleEtAl_AttenRelCoefficients coeff1 = new DahleEtAl_AttenRelCoefficients(

@@ -20,6 +20,10 @@ import org.opensha.sha.gui.infoTools.*;
 
 
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
 /**
  * <p>Title: HazardMapCalculator </p>
@@ -310,7 +314,7 @@ public class HazusMapCalculator {
     hazFunction[1] = IMT_Info.getUSGS_SA_Function(); //SA@0.3sec
     hazFunction[2] = hazFunction[1].deepClone(); //SA@1.0sec
     IMT_Info imtInfo = new IMT_Info();
-    DiscretizedFuncAPI pgvFunction = imtInfo.getDefaultHazardCurve(AttenuationRelationship.PGV_NAME);
+    DiscretizedFuncAPI pgvFunction = imtInfo.getDefaultHazardCurve(PGV_Param.NAME);
     hazFunction[3] = pgvFunction.deepClone();; //PGV
  
 
@@ -331,7 +335,7 @@ public class HazusMapCalculator {
     double qkProb, distance;
     int k;
     
-    String pgv = AttenuationRelationship.PGV_NAME;
+    String pgv = PGV_Param.NAME;
     pgvSupported = ((AttenuationRelationship)imr).isIntensityMeasureSupported(pgv);
 	
 
@@ -400,25 +404,25 @@ public class HazusMapCalculator {
 
         	 if(imtIndex ==0){
         		 condProbFunc = IMT_Info.getUSGS_PGA_Function();
-        		 imr.setIntensityMeasure(AttenuationRelationship.PGA_NAME);
+        		 imr.setIntensityMeasure(PGA_Param.NAME);
         	 }
         	 else if(imtIndex ==1){
         		 condProbFunc = IMT_Info.getUSGS_SA_Function();
-        		 imr.setIntensityMeasure(AttenuationRelationship.SA_NAME);
-        		 imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(0.3));
+        		 imr.setIntensityMeasure(SA_Param.NAME);
+        		 imr.getParameter(PeriodParam.NAME).setValue(new Double(0.3));
         	 }
         	 else if(imtIndex ==2){
         		 condProbFunc = IMT_Info.getUSGS_SA_Function();
-        		 imr.setIntensityMeasure(AttenuationRelationship.SA_NAME);
-        		 imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(1.0));
+        		 imr.setIntensityMeasure(SA_Param.NAME);
+        		 imr.getParameter(PeriodParam.NAME).setValue(new Double(1.0));
         	 }
         	 else if(imtIndex ==3){
         		 condProbFunc = pgvFunction.deepClone();
         		 if(pgvSupported)
         		     imr.setIntensityMeasure(pgv);
         		 else{
-        			 imr.setIntensityMeasure(AttenuationRelationship.SA_NAME);
-            		 imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(1.0));
+        			 imr.setIntensityMeasure(SA_Param.NAME);
+            		 imr.getParameter(PeriodParam.NAME).setValue(new Double(1.0));
         		 }
         		 
         	 }

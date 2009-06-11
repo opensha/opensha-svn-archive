@@ -12,6 +12,8 @@ import java.util.*;
 
 
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.function.ArbDiscrFuncWithParams;
@@ -894,9 +896,9 @@ public class AttenuationRelationshipGuiBean
                 System.out.println( S +":Control Parameter changed, need to update gui parameter editors" );
             synchRequiredVisibleParameters();
         }
-        else if( name1.equals(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME) ){  // special case hardcoded. Not the best way to do it, but need framework to handle it.
+        else if( name1.equals(SigmaTruncTypeParam.NAME) ){  // special case hardcoded. Not the best way to do it, but need framework to handle it.
 
-        //    System.out.println(S + AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME + " has changed");
+        //    System.out.println(S + SigmaTruncTypeParam.NAME + " has changed");
             String value = event.getNewValue().toString();
             toggleSigmaLevelBasedOnTypeValue(value);
 
@@ -907,11 +909,11 @@ public class AttenuationRelationshipGuiBean
 
         if( value.equalsIgnoreCase("none") ) {
             if(D) System.out.println("Value = " + value + ", need to set value param off.");
-            independentsEditor.setParameterVisible( AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME, false );
+            independentsEditor.setParameterVisible( SigmaTruncLevelParam.NAME, false );
         }
         else{
             if(D) System.out.println("Value = " + value + ", need to set value param on.");
-            independentsEditor.setParameterVisible( AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME, true );
+            independentsEditor.setParameterVisible( SigmaTruncLevelParam.NAME, true );
         }
 
     }
@@ -1200,7 +1202,7 @@ public class AttenuationRelationshipGuiBean
             setParamsInIteratorVisible( attenRel.getExceedProbIndependentParamsIterator() );
 
             // Hardcoded for special values
-            ParameterEditorAPI paramEditor = independentsEditor.getParameterEditor(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME);
+            ParameterEditorAPI paramEditor = independentsEditor.getParameterEditor(SigmaTruncTypeParam.NAME);
             if( paramEditor != null ){
                 String value = paramEditor.getParameter().getValue().toString();
                 toggleSigmaLevelBasedOnTypeValue(value);
@@ -1210,7 +1212,7 @@ public class AttenuationRelationshipGuiBean
         else if ( yAxisName.equals( Y_AXIS_V4 ) ) {
             setParamsInIteratorVisible( attenRel.getIML_AtExceedProbIndependentParamsIterator());
             // Hardcoded for special values
-            ParameterEditorAPI paramEditor = independentsEditor.getParameterEditor(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME);
+            ParameterEditorAPI paramEditor = independentsEditor.getParameterEditor(SigmaTruncTypeParam.NAME);
             if( paramEditor != null ){
                String value = paramEditor.getParameter().getValue().toString();
                toggleSigmaLevelBasedOnTypeValue(value);

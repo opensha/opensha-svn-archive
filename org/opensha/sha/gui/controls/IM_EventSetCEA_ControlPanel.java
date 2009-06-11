@@ -17,6 +17,7 @@ import org.opensha.sha.magdist.SingleMagFreqDist;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.depricated.BA_2006_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.Field_2000_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Direction;
 import org.opensha.commons.data.Location;
@@ -112,7 +113,7 @@ public class IM_EventSetCEA_ControlPanel {
       imrGuiBean.toggleBetweenSingleAndMultipleAttenRelGuiSelection();
     // Set the imt as PGA
     ParameterListEditor editor = imrGuiBean.getIntensityMeasureParamEditor();
-    editor.getParameterList().getParameter(imrGuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
+    editor.getParameterList().getParameter(imrGuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);
     editor.refreshParamEditor();
     //Updating the IMR Gui Bean with the ShakeMap attenuation relationship
     imrGuiBean.setIMR_Selected(BA_2006_AttenRel.NAME);

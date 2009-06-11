@@ -26,6 +26,14 @@ import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.calc.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.param.*;
 
 
@@ -305,8 +313,8 @@ public class ShakeMap_2003_AttenRel
     }
 
     StringBuffer key = new StringBuffer(im.getName());
-    if (im.getName().equalsIgnoreCase(SA_NAME)) {
-      key.append("/" + periodParam.getValue());
+    if (im.getName().equalsIgnoreCase(SA_Param.NAME)) {
+      key.append("/" + saPeriodParam.getValue());
     }
     if (coefficientsBJF.containsKey(key.toString())) {
       coeffBJF = (BJF_1997_AttenRelCoefficients) coefficientsBJF.get(key.
@@ -331,7 +339,7 @@ public class ShakeMap_2003_AttenRel
     if (!imt.equals(MMI_NAME)) {
       updateCoefficients();
       double b_mean = getRockMean();
-      if (imt.equals(PGA_NAME)) {
+      if (imt.equals(PGA_Param.NAME)) {
         return b_mean + Math.log(getAmpFactor(im.getName(), b_mean));
       }
       else {
@@ -354,8 +362,8 @@ public class ShakeMap_2003_AttenRel
     String S = ".getAmpFactor()";
 
     // get the PGA for B category
-    coeffBJF = (BJF_1997_AttenRelCoefficients) coefficientsBJF.get(PGA_NAME);
-    coeffSM = (BJF_1997_AttenRelCoefficients) coefficientsSM.get(PGA_NAME);
+    coeffBJF = (BJF_1997_AttenRelCoefficients) coefficientsBJF.get(PGA_Param.NAME);
+    coeffSM = (BJF_1997_AttenRelCoefficients) coefficientsSM.get(PGA_Param.NAME);
     return getAmpFactor(imt, getRockMean());
   }
 
@@ -365,14 +373,14 @@ public class ShakeMap_2003_AttenRel
 
     // figure out whether we need short-period or mid-period amps
     boolean shortPeriod;
-    if (imt.equals(PGA_NAME)) {
+    if (imt.equals(PGA_Param.NAME)) {
       shortPeriod = true;
     }
-    else if (imt.equals(PGV_NAME)) {
+    else if (imt.equals(PGV_Param.NAME)) {
       shortPeriod = false;
     }
-    else if (imt.equals(SA_NAME)) {
-      double per = ( (Double) periodParam.getValue()).doubleValue();
+    else if (imt.equals(SA_Param.NAME)) {
+      double per = ( (Double) saPeriodParam.getValue()).doubleValue();
       if (per <= 0.45) {
         shortPeriod = true;
       }
@@ -603,10 +611,10 @@ public class ShakeMap_2003_AttenRel
     String S = ".getMMI()";
 
     // get PGA
-    coeffBJF = (BJF_1997_AttenRelCoefficients) coefficientsBJF.get(PGA_NAME);
-    coeffSM = (BJF_1997_AttenRelCoefficients) coefficientsSM.get(PGA_NAME);
+    coeffBJF = (BJF_1997_AttenRelCoefficients) coefficientsBJF.get(PGA_Param.NAME);
+    coeffSM = (BJF_1997_AttenRelCoefficients) coefficientsSM.get(PGA_Param.NAME);
     double b_pga = getRockMean();
-    pga = b_pga + Math.log(getAmpFactor(PGA_NAME));
+    pga = b_pga + Math.log(getAmpFactor(PGA_Param.NAME));
     // Convert to linear domain
     pga = Math.exp(pga);
 
@@ -615,10 +623,10 @@ public class ShakeMap_2003_AttenRel
     }
 
     // get PGV
-    coeffBJF = (BJF_1997_AttenRelCoefficients) coefficientsBJF.get(PGV_NAME);
-    coeffSM = (BJF_1997_AttenRelCoefficients) coefficientsSM.get(PGV_NAME);
+    coeffBJF = (BJF_1997_AttenRelCoefficients) coefficientsBJF.get(PGV_Param.NAME);
+    coeffSM = (BJF_1997_AttenRelCoefficients) coefficientsSM.get(PGV_Param.NAME);
     double b_pgv = getRockMean();
-    pgv = b_pgv + Math.log(getAmpFactor(PGV_NAME));
+    pgv = b_pgv + Math.log(getAmpFactor(PGV_Param.NAME));
     // Convert to linear domain (what's needed below)
     pgv = Math.exp(pgv);
 
@@ -702,7 +710,7 @@ public class ShakeMap_2003_AttenRel
 
     //correct it max horizontal is desired
     String component = (String) componentParam.getValue();
-    if (component.equals(COMPONENT_GREATER_OF_TWO_HORZ)) {
+    if (component.equals(ComponentParam.COMPONENT_GREATER_OF_TWO_HORZ)) {
       meanSM += 0.139762; // add ln(1.15)
       meanBJF += 0.139762;
     }
@@ -731,7 +739,7 @@ public class ShakeMap_2003_AttenRel
       double exceedProb = ( (Double) ( (ParameterAPI) exceedProbParam).getValue()).
           doubleValue();
       if (exceedProb == 0.5) {
-        if (sigmaTruncTypeParam.getValue().equals(SIGMA_TRUNC_TYPE_1SIDED)) {
+        if (sigmaTruncTypeParam.getValue().equals(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED)) {
           throw new RuntimeException(MMI_ERROR_STRING);
         }
         else {
@@ -774,24 +782,24 @@ public class ShakeMap_2003_AttenRel
 
     double stdevBJF, stdevSM;
     // set the correct standard deviation depending on component and type
-    if (component.equals(COMPONENT_AVE_HORZ) ||
-        component.equals(COMPONENT_GREATER_OF_TWO_HORZ)) {
+    if (component.equals(ComponentParam.COMPONENT_AVE_HORZ) ||
+        component.equals(ComponentParam.COMPONENT_GREATER_OF_TWO_HORZ)) {
 
-      if (stdDevType.equals(STD_DEV_TYPE_TOTAL)) { // "Total"
+      if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL)) { // "Total"
         stdevBJF = Math.pow( (coeffBJF.sigmaE * coeffBJF.sigmaE +
                               coeffBJF.sigma1 * coeffBJF.sigma1), 0.5);
         stdevSM = Math.pow( (coeffSM.sigmaE * coeffSM.sigmaE +
                              coeffSM.sigma1 * coeffSM.sigma1), 0.5);
       }
-      else if (stdDevType.equals(STD_DEV_TYPE_INTER)) { // "Inter-Event"
+      else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTER)) { // "Inter-Event"
         stdevBJF = coeffBJF.sigmaE;
         stdevSM = coeffSM.sigmaE;
       }
-      else if (stdDevType.equals(STD_DEV_TYPE_INTRA)) { // "Intra-Event"
+      else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTRA)) { // "Intra-Event"
         stdevBJF = (coeffBJF.sigma1);
         stdevSM = (coeffSM.sigma1);
       }
-      else if (stdDevType.equals(STD_DEV_TYPE_NONE)) { // "None (zero)"
+      else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE)) { // "None (zero)"
         stdevBJF = 0;
         stdevSM = 0;
       }
@@ -799,21 +807,21 @@ public class ShakeMap_2003_AttenRel
         throw new ParameterException(C + ": getStdDev(): Invalid StdDevType");
       }
     }
-    else if (component.equals(COMPONENT_RANDOM_HORZ)) {
+    else if (component.equals(ComponentParam.COMPONENT_RANDOM_HORZ)) {
 
-      if (stdDevType.equals(STD_DEV_TYPE_TOTAL)) { // "Total"
+      if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL)) { // "Total"
         stdevBJF = (coeffBJF.sigmaLnY);
         stdevSM = (coeffSM.sigmaLnY);
       }
-      else if (stdDevType.equals(STD_DEV_TYPE_INTER)) { // "Inter-Event"
+      else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTER)) { // "Inter-Event"
         stdevBJF = (coeffBJF.sigmaE);
         stdevSM = (coeffSM.sigmaE);
       }
-      else if (stdDevType.equals(STD_DEV_TYPE_INTRA)) { // "Intra-Event"
+      else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTRA)) { // "Intra-Event"
         stdevBJF = (coeffBJF.sigmaR);
         stdevSM = (coeffSM.sigmaR);
       }
-      else if (stdDevType.equals(STD_DEV_TYPE_NONE)) { // "None (zero)"
+      else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE)) { // "None (zero)"
         stdevBJF = 0;
         stdevSM = 0;
       }
@@ -845,14 +853,14 @@ public class ShakeMap_2003_AttenRel
     magParam.setValue(MAG_DEFAULT);
     fltTypeParam.setValue(FLT_TYPE_DEFAULT);
     distanceJBParam.setValue(DISTANCE_JB_DEFAULT);
-    saParam.setValue(SA_DEFAULT);
-    periodParam.setValue(PERIOD_DEFAULT);
-    dampingParam.setValue(DAMPING_DEFAULT);
-    pgaParam.setValue(PGA_DEFAULT);
-    pgvParam.setValue(PGV_DEFAULT);
+    saParam.setValueAsDefault();
+    saPeriodParam.setValueAsDefault();
+    saDampingParam.setValueAsDefault();
+    pgaParam.setValueAsDefault();
+    pgvParam.setValueAsDefault();
     mmiParam.setValue(MMI_DEFAULT);
-    componentParam.setValue(COMPONENT_DEFAULT);
-    stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
+    componentParam.setValueAsDefault();
+    stdDevTypeParam.setValueAsDefault();
 
   }
 
@@ -981,12 +989,7 @@ public class ShakeMap_2003_AttenRel
    */
   protected void initSupportedIntensityMeasureParams() {
 
-    // Create saParam (& its dampingParam) and pgaParam:
-    super.initSupportedIntensityMeasureParams();
-
-    supportedIMParams.clear();
-
-    // Create saParam's "Period" independent parameter:
+    // Create saParam:
     DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
     TreeSet set = new TreeSet();
     Enumeration keys = coefficientsBJF.keys();
@@ -1002,48 +1005,34 @@ public class ShakeMap_2003_AttenRel
       periodConstraint.addDouble( (Double) it.next());
     }
     periodConstraint.setNonEditable();
-    periodParam = new DoubleDiscreteParameter(PERIOD_NAME, periodConstraint,
-                                              PERIOD_UNITS, null);
-    periodParam.setInfo(PERIOD_INFO);
-    periodParam.setNonEditable();
+	saPeriodParam = new PeriodParam(periodConstraint);
+	saDampingParam = new DampingParam();
+	saParam = new SA_Param(saPeriodParam, saDampingParam);
+	saParam.setNonEditable();
 
-    // Set damping constraint as non editable since no other options exist
-    dampingConstraint.setNonEditable();
+	//  Create PGA Parameter (pgaParam):
+	pgaParam = new PGA_Param();
+	pgaParam.setNonEditable();
 
-    // Add SA's independent parameters:
-    saParam.addIndependentParameter(dampingParam);
-    saParam.addIndependentParameter(periodParam);
-
-    // Now Make the parameter noneditable:
-    saParam.setNonEditable();
-
-    // Add the warning listeners:
-    saParam.addParameterChangeWarningListener(warningListener);
-
-    // Put parameters in the supportedIMParams list:
-    supportedIMParams.addParameter(saParam);
-
-    // now do the PGA param
-    pgaParam.addParameterChangeWarningListener(warningListener);
-    pgaParam.setNonEditable();
-    supportedIMParams.addParameter(pgaParam);
-
-    //Create PGV Parameter (pgvParam):
-    DoubleConstraint pgvConstraint = new DoubleConstraint(PGV_MIN, PGV_MAX);
-    pgvConstraint.setNonEditable();
-    pgvParam = new WarningDoubleParameter(PGV_NAME, pgvConstraint, PGV_UNITS);
-    pgvParam.setInfo(PGV_INFO);
-    DoubleConstraint warn = new DoubleConstraint(PGV_WARN_MIN, PGV_WARN_MAX);
-    warn.setNonEditable();
-    pgvParam.setWarningConstraint(warn);
-    pgvParam.addParameterChangeWarningListener(warningListener);
-    pgvParam.setNonEditable();
-    supportedIMParams.addParameter(pgvParam);
+	//  Create PGV Parameter (pgvParam):
+	pgvParam = new PGV_Param();
+	pgvParam.setNonEditable();
 
     // The MMI parameter
     mmiParam = new DoubleParameter(MMI_NAME, MMI_MIN, MMI_MAX);
     mmiParam.setInfo(MMI_INFO);
     mmiParam.setNonEditable();
+    
+    // Add the warning listeners:
+    saParam.addParameterChangeWarningListener(warningListener);
+    pgaParam.addParameterChangeWarningListener(warningListener);
+    pgvParam.addParameterChangeWarningListener(warningListener);
+   
+    // create supported list
+    supportedIMParams.clear();
+    supportedIMParams.addParameter(saParam);
+    supportedIMParams.addParameter(pgaParam);
+    supportedIMParams.addParameter(pgvParam);
     supportedIMParams.addParameter(mmiParam);
 
   }
@@ -1059,27 +1048,20 @@ public class ShakeMap_2003_AttenRel
 
     // the Component Parameter
     StringConstraint constraint = new StringConstraint();
-    constraint.addString(COMPONENT_AVE_HORZ);
-    constraint.addString(COMPONENT_RANDOM_HORZ);
-    constraint.addString(COMPONENT_GREATER_OF_TWO_HORZ);
+    constraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
+    constraint.addString(ComponentParam.COMPONENT_RANDOM_HORZ);
+    constraint.addString(ComponentParam.COMPONENT_GREATER_OF_TWO_HORZ);
     constraint.setNonEditable();
-    componentParam = new StringParameter(COMPONENT_NAME, constraint,
-                                         COMPONENT_DEFAULT);
-    componentParam.setInfo(COMPONENT_INFO);
-    componentParam.setNonEditable();
+    componentParam = new ComponentParam(constraint,componentParam.COMPONENT_AVE_HORZ);
 
     // the stdDevType Parameter
     StringConstraint stdDevTypeConstraint = new StringConstraint();
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_TOTAL);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_INTER);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_INTRA);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_NONE);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_INTER);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_INTRA);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_NONE);
     stdDevTypeConstraint.setNonEditable();
-    stdDevTypeParam = new StringParameter(STD_DEV_TYPE_NAME,
-                                          stdDevTypeConstraint,
-                                          STD_DEV_TYPE_DEFAULT);
-    stdDevTypeParam.setInfo(STD_DEV_TYPE_INFO);
-    stdDevTypeParam.setNonEditable();
+    stdDevTypeParam = new StdDevTypeParam(stdDevTypeConstraint);
 
     // add these to the list
     otherParams.addParameter(componentParam);
@@ -1126,12 +1108,12 @@ public class ShakeMap_2003_AttenRel
     // (except for PGV).
     // PGA
     BJF_1997_AttenRelCoefficients coeffSM0 = new BJF_1997_AttenRelCoefficients(
-        PGA_NAME,
+        PGA_Param.NAME,
         -1, 2.408, 2.408, 2.408, 1.3171, 0.000, -1.757, -0.473, 760, 6.0,
         0.660, 0.328, 0.737, 0.3948, 0.836);
     // SA/0.00
     BJF_1997_AttenRelCoefficients coeffSM1 = new BJF_1997_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.00")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.00")).doubleValue(),
         0.00, 2.408, 2.408, 2.408, 1.3171, 0.000, -1.757, -0.473, 760, 6.0,
         0.660, 0.328, 0.737, 0.3948, 0.836);
     // Note: no sigma values were available for those below (Vince needs to recompute them)
@@ -1165,7 +1147,7 @@ public class ShakeMap_2003_AttenRel
         (1.082 / 0.836) * 0.836);
     // PGV - They actually give PGV coeffs so no scaling of 1-sec SA is needed.
     BJF_1997_AttenRelCoefficients coeffSM5 = new BJF_1997_AttenRelCoefficients(
-        PGV_NAME,
+        PGV_Param.NAME,
         -1, 5.1186, 5.1186, 5.1186, 1.70391, 0.000, -1.386, -0.668, 760, 6.0,
         (0.753 / 0.836) * 0.660, (0.753 / 0.836) * 0.328,
         (0.753 / 0.836) * 0.737, (0.753 / 0.836) * 0.3948,
@@ -1183,12 +1165,12 @@ public class ShakeMap_2003_AttenRel
     coefficientsBJF.clear();
     // PGA
     BJF_1997_AttenRelCoefficients coeff0 = new BJF_1997_AttenRelCoefficients(
-        PGA_NAME,
+        PGA_Param.NAME,
         -1, -0.313, -0.117, -0.242, 0.527, 0.000, -0.778, -0.371, 1396, 5.57,
         0.431, 0.226, 0.486, 0.184, 0.520);
     // SA/0.00
     BJF_1997_AttenRelCoefficients coeff1 = new BJF_1997_AttenRelCoefficients(
-        SA_NAME + '/' + (new Double("0.00")).doubleValue(),
+        SA_Param.NAME + '/' + (new Double("0.00")).doubleValue(),
         0.00, -0.313, -0.117, -0.242, 0.527, 0, -0.778, -0.371, 1396, 5.57,
         0.431, 0.226, 0.486, 0.184, 0.520);
     // SA/0.30
@@ -1211,7 +1193,7 @@ public class ShakeMap_2003_AttenRel
     // The following formula is slightly more accurate (from Ken Campbell)
     double SA10toPGV = Math.log(981.0 / (2.0 * Math.PI * 1.65));
     BJF_1997_AttenRelCoefficients coeff5 = new BJF_1997_AttenRelCoefficients(
-        PGV_NAME,
+        PGV_Param.NAME,
         -1, -1.133 + SA10toPGV, -1.009 + SA10toPGV, -1.08 + SA10toPGV, 1.036,
         -0.032, -0.798, -0.698, 1406, 2.9, 0.474, 0.325, 0.575, 0.214, 0.613);
 

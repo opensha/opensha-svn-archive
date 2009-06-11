@@ -23,6 +23,8 @@ import org.opensha.sha.calc.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.gui.infoTools.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.param.*;
 
 
@@ -118,7 +120,7 @@ public class ScenarioShakeMapCalcServlet
           propEffect);
 
       ArbDiscretizedXYZ_DataSet xyzData = null;
-      if (!selectedIMT.equals(AttenuationRelationship.PGV_NAME)) {
+      if (!selectedIMT.equals(PGV_Param.NAME)) {
         //XYZ data for the scenarioshake as computed
         xyzData = (ArbDiscretizedXYZ_DataSet) calc.getScenarioShakeMapData(
             selectedAttenRels, selectedAttenRelWts,
@@ -207,7 +209,7 @@ public class ScenarioShakeMapCalcServlet
       AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI)
           selectedIMRs.get(i);
       String imt = attenRel.getIntensityMeasure().getName();
-      if (imt.equals(AttenuationRelationship.SA_NAME)) {
+      if (imt.equals(SA_Param.NAME)) {
         attenRelsNotSupportingPGV.add(attenRel);
         attenRelsWtsNotSupportingPGV.add(selectedWts.get(i));
       }
@@ -230,7 +232,7 @@ public class ScenarioShakeMapCalcServlet
           attenRelsNotSupportingPGV, attenRelsWtsNotSupportingPGV,
           region, rupture, isProbAtIML, value);
       convertIML_ValuesToExpo( (ArbDiscretizedXYZ_DataSet) xyzDataSetForNotPGV,
-                              AttenuationRelationship.SA_NAME, isProbAtIML);
+                              SA_Param.NAME, isProbAtIML);
       //if PGV is not supported by the attenuation then use the SA-1sec pd
       //and multiply the value by scaler 37.24*2.54
       ArrayList zVals = xyzDataSetForNotPGV.getZ_DataSet();
@@ -245,7 +247,7 @@ public class ScenarioShakeMapCalcServlet
           attenRelsWtsSupportingPGV,
           region, rupture, isProbAtIML, value);
       convertIML_ValuesToExpo( (ArbDiscretizedXYZ_DataSet) xyzDataSetForPGV,
-                              AttenuationRelationship.PGV_NAME, isProbAtIML);
+                              PGV_Param.NAME, isProbAtIML);
     }
 
     //if there are both AttenRels selected those that support PGV and those that don't.

@@ -27,6 +27,12 @@ import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.param.*;
 
 
@@ -388,8 +394,8 @@ public class Abrahamson_2000_AttenRel
     }
 
     StringBuffer key = new StringBuffer(im.getName());
-    if (im.getName().equalsIgnoreCase(SA_NAME)) {
-      key.append("/" + periodParam.getValue());
+    if (im.getName().equalsIgnoreCase(SA_Param.NAME)) {
+      key.append("/" + saPeriodParam.getValue());
     }
 
     // so far only the horizontal coeffs case
@@ -481,7 +487,7 @@ public class Abrahamson_2000_AttenRel
     c1 = 6.4;
     c5 = 0.03;
     n = 2;
-    coeff = (Abrahamson_2000_AttenRelCoefficients) horzCoeffs.get(PGA_NAME);
+    coeff = (Abrahamson_2000_AttenRelCoefficients) horzCoeffs.get(PGA_Param.NAME);
 
     rockMeanPGA = calcRockMean(mag, dist, F, HW);
 
@@ -619,7 +625,7 @@ public class Abrahamson_2000_AttenRel
    */
   public double getStdDev() throws IMRException {
 
-    if (stdDevTypeParam.getValue().equals(STD_DEV_TYPE_NONE)) {
+    if (stdDevTypeParam.getValue().equals(StdDevTypeParam.STD_DEV_TYPE_NONE)) {
       return 0;
     }
     else {
@@ -655,12 +661,11 @@ public class Abrahamson_2000_AttenRel
     magParam.setValue(MAG_DEFAULT);
     fltTypeParam.setValue(FLT_TYPE_DEFAULT);
     distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
-    saParam.setValue(SA_DEFAULT);
-    periodParam.setValue(PERIOD_DEFAULT);
-    dampingParam.setValue(DAMPING_DEFAULT);
-    pgaParam.setValue(PGA_DEFAULT);
-    componentParam.setValue(COMPONENT_DEFAULT);
-    stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
+    saParam.setValueAsDefault();
+    saPeriodParam.setValueAsDefault();
+    saDampingParam.setValueAsDefault();
+    componentParam.setValueAsDefault();
+    stdDevTypeParam.setValueAsDefault();
 //        isOnHangingWallParam.setValue( IS_ON_HANGING_WALL_DEFAULT );
     xDirParam.setValue(X_DEFAULT);
     thetaDirParam.setValue(THETA_DEFAULT);
@@ -821,10 +826,7 @@ public class Abrahamson_2000_AttenRel
    */
   protected void initSupportedIntensityMeasureParams() {
 
-    // Create saParam (& its dampingParam) and pgaParam (latter won't be used here):
-    super.initSupportedIntensityMeasureParams();
-
-    // NOTE: pga exists here, it's just not made visable because it's no different than for AS_1997_AttenRel
+    // NOTE: pga is not supported because it's no different than for AS_1997_AttenRel
 
     // Create saParam's "Period" independent parameter:
     DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
@@ -842,32 +844,18 @@ public class Abrahamson_2000_AttenRel
       periodConstraint.addDouble( (Double) it.next());
     }
     periodConstraint.setNonEditable();
-    periodParam = new DoubleDiscreteParameter(PERIOD_NAME, periodConstraint,
-                                              PERIOD_UNITS, null);
-    periodParam.setInfo(PERIOD_INFO);
-    periodParam.setNonEditable();
-
-    // Set damping constraint as non editable since no other options exist
-    dampingConstraint.setNonEditable();
-
-    // Add SA's independent parameters:
-    saParam.addIndependentParameter(dampingParam);
-    saParam.addIndependentParameter(periodParam);
-
-    // Now Make the parameter noneditable:
-    saParam.setNonEditable();
+	saPeriodParam = new PeriodParam(periodConstraint);
+	saDampingParam = new DampingParam();
+	saParam = new SA_Param(saPeriodParam, saDampingParam);
+	saParam.setNonEditable();
 
     // Add the warning listeners:
     saParam.addParameterChangeWarningListener(warningListener);
-    pgaParam.addParameterChangeWarningListener(warningListener);
 
     // Put parameters in the supportedIMParams list:
     supportedIMParams.clear();
 
     supportedIMParams.addParameter(saParam);
-
-//      This one not supported here
-//        supportedIMParams.addParameter( pgaParam );
 
   }
 
@@ -877,29 +865,21 @@ public class Abrahamson_2000_AttenRel
    */
   protected void initOtherParams() {
 
-    // init other params defined in parent class
+    // init other params implemented in parent class
     super.initOtherParams();
 
     // the Component Parameter
     StringConstraint constraint = new StringConstraint();
-    constraint.addString(COMPONENT_AVE_HORZ);
-//not yet available        constraint.addString( COMPONENT_VERT );
+    constraint.addString(componentParam.COMPONENT_AVE_HORZ);
     constraint.setNonEditable();
-    componentParam = new StringParameter(COMPONENT_NAME, constraint,
-                                         COMPONENT_DEFAULT);
-    componentParam.setInfo(COMPONENT_INFO);
-    componentParam.setNonEditable();
+    componentParam = new ComponentParam(constraint,componentParam.COMPONENT_AVE_HORZ);
 
     // the stdDevType Parameter
     StringConstraint stdDevTypeConstraint = new StringConstraint();
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_TOTAL);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_NONE);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_NONE);
     stdDevTypeConstraint.setNonEditable();
-    stdDevTypeParam = new StringParameter(STD_DEV_TYPE_NAME,
-                                          stdDevTypeConstraint,
-                                          STD_DEV_TYPE_DEFAULT);
-    stdDevTypeParam.setInfo(STD_DEV_TYPE_INFO);
-    stdDevTypeParam.setNonEditable();
+    stdDevTypeParam = new StdDevTypeParam(stdDevTypeConstraint);
 
     // add these to the list
     otherParams.addParameter(componentParam);
@@ -923,14 +903,14 @@ public class Abrahamson_2000_AttenRel
 
     // PGA
     Abrahamson_2000_AttenRelCoefficients coeff = new
-        Abrahamson_2000_AttenRelCoefficients(PGA_NAME,
+        Abrahamson_2000_AttenRelCoefficients(PGA_Param.NAME,
                                              0, 5.6, 1.64, -1.145, 0.61, 0.26,
                                              0.37, -0.417, -0.23, 0, 0.7, 0.135,
                                              0, 0);
 
     // SA/5.00
     Abrahamson_2000_AttenRelCoefficients coeff0 = new
-        Abrahamson_2000_AttenRelCoefficients(SA_NAME + '/' +
+        Abrahamson_2000_AttenRelCoefficients(SA_Param.NAME + '/' +
                                              (new Double("5.00")).doubleValue(),
                                              5.00, 3.5, -1.46, -0.725, 0.4,
                                              -0.2, 0, 0.664, 0.04, -0.215, 0.89,

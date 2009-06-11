@@ -19,6 +19,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.util.SiteTranslator;
 
 /**
@@ -240,7 +241,7 @@ public class IML_Calc_Cybershake extends MedianCalc_Cybershake {
 	      if (numTokens == 2) {
 	        pd = st.nextToken().trim();
 	        if (pd != null && !pd.equals(""))	
-	        	  imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(Double.parseDouble(pd)));
+	        	  imr.getParameter(PeriodParam.NAME).setValue(new Double(Double.parseDouble(pd)));
 	        imlFile = new FileWriter(fileNamePrefixCommon + "_" +
 	                                       imt + "_" + pd + ".txt");
 	      }

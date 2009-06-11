@@ -38,6 +38,7 @@ import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.infoTools.WeightedFuncListforPlotting;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.SpectrumCalculator;
 import org.opensha.sha.calc.SpectrumCalculatorAPI;
@@ -446,7 +447,7 @@ public class HazardSpectrumLocalModeApplication
     if (name1.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
       AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
       //set the intensity measure fo	r the IMR
-      imr.setIntensityMeasure(SA_NAME);
+      imr.setIntensityMeasure(SA_Param.NAME);
       //gets the SA Period Values fo	r the IMR
       this.getSA_PeriodForIMR(imr);
       siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
@@ -703,7 +704,7 @@ public class HazardSpectrumLocalModeApplication
 
     //iml@Prob then we have to interpolate over a range of X-Values
     if (!useCustomX_Values)
-      function = imtInfo.getDefaultHazardCurve(SA_NAME);
+      function = imtInfo.getDefaultHazardCurve(SA_Param.NAME);
 
 
       for (int i = 0; i < function.getNum(); ++i)

@@ -7,6 +7,12 @@ import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGD_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.param.*;
 
 import java.io.File;
@@ -76,11 +82,11 @@ public class CB_2008_test extends TestCase implements ParameterChangeWarningList
 				 standard deviation of arbitrary horizontal component */
 				if(fileName.contains("SIGARB")) {
 					// Std Dev of arbitrary horizontal component
-					cb_2008.getParameter(cb_2008.COMPONENT_NAME).setValue(cb_2008.COMPONENT_RANDOM_HORZ);
+					cb_2008.getParameter(ComponentParam.NAME).setValue(ComponentParam.COMPONENT_RANDOM_HORZ);
 					testValString = "Std Dev of Arb Horz Comp";
 				} else {
 					//Std dev of geomteric mean 
-					cb_2008.getParameter(cb_2008.COMPONENT_NAME).setValue(cb_2008.COMPONENT_GMRotI50);
+					cb_2008.getParameter(ComponentParam.NAME).setValue(ComponentParam.COMPONENT_GMRotI50);
 					testValString = "Std dev of geomteric mean";
 				}
 			}
@@ -133,12 +139,12 @@ public class CB_2008_test extends TestCase implements ParameterChangeWarningList
 					double depth25 = Double.parseDouble(st.nextToken().trim());
 					((WarningDoubleParameter)cb_2008.getParameter(cb_2008.DEPTH_2pt5_NAME)).setValueIgnoreWarning(new Double(depth25));
 					
-					cb_2008.setIntensityMeasure(cb_2008.SA_NAME);
+					cb_2008.setIntensityMeasure(SA_Param.NAME);
 					int num= period.length;
 					double openSHA_Val, tested_Val;
 					boolean results;
 					for(int k=0;k<num;++k){
-						cb_2008.getParameter(cb_2008.PERIOD_NAME).setValue(new Double(period[k]));
+						cb_2008.getParameter(PeriodParam.NAME).setValue(new Double(period[k]));
 						if(isMedian) openSHA_Val = Math.exp(cb_2008.getMean());
 						else openSHA_Val = cb_2008.getStdDev();
 						tested_Val = Double.parseDouble(st.nextToken().trim());
@@ -158,7 +164,7 @@ public class CB_2008_test extends TestCase implements ParameterChangeWarningList
 					}
 
 					
-					cb_2008.setIntensityMeasure(cb_2008.PGA_NAME);
+					cb_2008.setIntensityMeasure(PGA_Param.NAME);
 					if(isMedian) openSHA_Val = Math.exp(cb_2008.getMean());
 					else openSHA_Val = cb_2008.getStdDev();
 					tested_Val = Double.parseDouble(st.nextToken().trim());
@@ -175,7 +181,7 @@ public class CB_2008_test extends TestCase implements ParameterChangeWarningList
 						//System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
 						this.assertNull(failedResultMetadata,failedResultMetadata);
 					}
-					cb_2008.setIntensityMeasure(cb_2008.PGV_NAME);
+					cb_2008.setIntensityMeasure(PGV_Param.NAME);
 					if(isMedian) openSHA_Val = Math.exp(cb_2008.getMean());
 					else openSHA_Val = cb_2008.getStdDev();
 					tested_Val = Double.parseDouble(st.nextToken().trim());
@@ -192,7 +198,7 @@ public class CB_2008_test extends TestCase implements ParameterChangeWarningList
 						//System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
 						this.assertNull(failedResultMetadata,failedResultMetadata);
 					}
-					cb_2008.setIntensityMeasure(cb_2008.PGD_NAME);
+					cb_2008.setIntensityMeasure(PGD_Param.NAME);
 					if(isMedian) openSHA_Val = Math.exp(cb_2008.getMean());
 					else openSHA_Val = cb_2008.getStdDev();
 					tested_Val = Double.parseDouble(st.nextToken().trim());

@@ -7,6 +7,9 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
 
 import org.opensha.sha.imr.attenRelImpl.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 /**
  * <p>Title: IMT_Info</p>
  * <p>Description: This class provides the default X values for the selected
@@ -88,21 +91,21 @@ public final class IMT_Info {
    */
   public ArbitrarilyDiscretizedFunc getDefaultHazardCurve(String imtName){
     ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();
-    if(imtName.equals(AttenuationRelationship.SA_NAME)){
+    if(imtName.equals(SA_Param.NAME)){
       for(int i=0; i < NUM_SA ;++i){
         double xVal =Double.parseDouble(format.format(Math.exp(Math.log(MIN_SA)+i*discretization_sa)));
         function.set(xVal,1.0);
       }
       return function;
     }
-    else if(imtName.equals(AttenuationRelationship.PGA_NAME)){
+    else if(imtName.equals(PGA_Param.NAME)){
       for(int i=0; i < NUM_PGA ;++i){
         double xVal =Double.parseDouble(format.format(Math.exp(Math.log(MIN_PGA)+i*discretization_pga)));
         function.set(xVal,1.0);
       }
       return function;
     }
-    else if((imtName.equals(AttenuationRelationship.PGV_NAME))){
+    else if((imtName.equals(PGV_Param.NAME))){
       for(int i=0; i < NUM_PGV ;++i){
         double xVal = Double.parseDouble(format.format(Math.exp(Math.log(MIN_PGV)+i*discretization_pgv)));
         function.set(xVal,1.0);
@@ -136,11 +139,11 @@ public final class IMT_Info {
    * @return
    */
   public static double getMinIMT_Val(String imt){
-    if(imt.equals(AttenuationRelationship.SA_NAME))
+    if(imt.equals(SA_Param.NAME))
       return MIN_SA;
-    else if(imt.equals(AttenuationRelationship.PGA_NAME))
+    else if(imt.equals(PGA_Param.NAME))
       return MIN_PGA;
-    else if(imt.equals(AttenuationRelationship.PGV_NAME))
+    else if(imt.equals(PGV_Param.NAME))
       return MIN_PGV;
     else if(imt.equals(WC94_DisplMagRel.FAULT_DISPL_NAME))
       return MIN_FAULT_DISPL;
@@ -155,11 +158,11 @@ public final class IMT_Info {
    * @return
    */
   public static double getMaxIMT_Val(String imt){
-    if(imt.equals(AttenuationRelationship.SA_NAME))
+    if(imt.equals(SA_Param.NAME))
       return MAX_SA;
-    else if(imt.equals(AttenuationRelationship.PGA_NAME))
+    else if(imt.equals(PGA_Param.NAME))
       return MAX_PGA;
-    else if(imt.equals(AttenuationRelationship.PGV_NAME))
+    else if(imt.equals(PGV_Param.NAME))
       return MAX_PGV;
     else if(imt.equals(WC94_DisplMagRel.FAULT_DISPL_NAME))
       return MAX_FAULT_DISPL;
@@ -174,11 +177,11 @@ public final class IMT_Info {
    * @return
    */
   public static double getNumIMT_Val(String imt){
-    if(imt.equals(AttenuationRelationship.SA_NAME))
+    if(imt.equals(SA_Param.NAME))
       return NUM_SA;
-    else if(imt.equals(AttenuationRelationship.PGA_NAME))
+    else if(imt.equals(PGA_Param.NAME))
       return NUM_PGA;
-    else if(imt.equals(AttenuationRelationship.PGV_NAME))
+    else if(imt.equals(PGV_Param.NAME))
       return NUM_PGV;
     else if(imt.equals(WC94_DisplMagRel.FAULT_DISPL_NAME))
       return NUM_FAULT_DISPL;
@@ -193,11 +196,11 @@ public final class IMT_Info {
    * @return
    */
   public static double getDefaultIMT_VAL(String imt){
-    if(imt.equals(AttenuationRelationship.SA_NAME))
+    if(imt.equals(SA_Param.NAME))
       return DEFAULT_SA;
-    else if(imt.equals(AttenuationRelationship.PGA_NAME))
+    else if(imt.equals(PGA_Param.NAME))
       return DEFAULT_PGA;
-    else if(imt.equals(AttenuationRelationship.PGV_NAME))
+    else if(imt.equals(PGV_Param.NAME))
       return DEFAULT_PGV;
     else if(imt.equals(WC94_DisplMagRel.FAULT_DISPL_NAME))
       return DEFAULT_FAULT_DISPL;
@@ -214,9 +217,9 @@ public final class IMT_Info {
    * else returns false
    */
   public static boolean isIMT_LogNormalDist(String imt){
-    if(imt.equalsIgnoreCase(AttenuationRelationship.PGA_NAME) ||
-       imt.equalsIgnoreCase(AttenuationRelationship.PGV_NAME) ||
-       imt.equalsIgnoreCase(AttenuationRelationship.SA_NAME)  ||
+    if(imt.equalsIgnoreCase(PGA_Param.NAME) ||
+       imt.equalsIgnoreCase(PGV_Param.NAME) ||
+       imt.equalsIgnoreCase(SA_Param.NAME)  ||
        imt.equalsIgnoreCase(ShakeMap_2003_AttenRel.MMI_NAME)  ||
        imt.equalsIgnoreCase(WC94_DisplMagRel.FAULT_DISPL_NAME))
       return true;

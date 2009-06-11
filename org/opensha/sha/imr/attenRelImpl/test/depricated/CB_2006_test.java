@@ -7,6 +7,11 @@ import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.imr.attenRelImpl.depricated.CB_2006_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGD_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.param.*;
 
 import java.io.File;
@@ -62,10 +67,10 @@ public class CB_2006_test extends TestCase implements ParameterChangeWarningList
 			StringTokenizer st = new StringTokenizer((String)testDataLines.get(i));
 			double period = Double.parseDouble(st.nextToken().trim());
 			if(period == -1)
-				cb_2006.setIntensityMeasure(cb_2006.PGV_NAME);
+				cb_2006.setIntensityMeasure(cb_2006.PGV_Param.NAME);
 			else{
-				cb_2006.setIntensityMeasure(cb_2006.SA_NAME);
-				cb_2006.getParameter(cb_2006.PERIOD_NAME).setValue(new Double(period));
+				cb_2006.setIntensityMeasure(cb_2006.SA_Param.NAME);
+				cb_2006.getParameter(cb_2006.PeriodParam.NAME).setValue(new Double(period));
 			}
 			double mag = Double.parseDouble(st.nextToken().trim());
 			cb_2006.getParameter(cb_2006.MAG_NAME).setValue(new Double(mag));
@@ -203,7 +208,7 @@ public class CB_2006_test extends TestCase implements ParameterChangeWarningList
 						double distRupMinusJB_OverRup = (rrup-rjb)/rrup;
 						((WarningDoublePropagationEffectParameter)cb_2006.getParameter(DistRupMinusJB_OverRupParameter.NAME)).setValueIgnoreWarning(new Double(distRupMinusJB_OverRup));
 						st.nextToken().trim();
-						cb_2006.setIntensityMeasure(cb_2006.PGA_NAME);
+						cb_2006.setIntensityMeasure(PGA_Param.NAME);
 						double openSHA_meanForPGA = Math.exp(cb_2006.getMean());
 						double tested_mean = Double.parseDouble(st.nextToken().trim());
 						boolean results = this.compareResults(openSHA_meanForPGA, tested_mean);
@@ -219,7 +224,7 @@ public class CB_2006_test extends TestCase implements ParameterChangeWarningList
 			            	 //System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
 			              this.assertNull(failedResultMetadata,failedResultMetadata);
 			            }
-						cb_2006.setIntensityMeasure(cb_2006.PGV_NAME);
+						cb_2006.setIntensityMeasure(PGV_Param.NAME);
 						double openSHA_mean = Math.exp(cb_2006.getMean());
 						tested_mean = Double.parseDouble(st.nextToken().trim());
 						results = this.compareResults(openSHA_mean, tested_mean);
@@ -235,7 +240,7 @@ public class CB_2006_test extends TestCase implements ParameterChangeWarningList
 			            	 //System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
 			              this.assertNull(failedResultMetadata,failedResultMetadata);
 			            }
-						cb_2006.setIntensityMeasure(cb_2006.PGD_NAME);
+						cb_2006.setIntensityMeasure(PGD_Param.NAME);
 						openSHA_mean = Math.exp(cb_2006.getMean());
 						tested_mean = Double.parseDouble(st.nextToken().trim());
 						results = this.compareResults(openSHA_mean, tested_mean);
@@ -251,10 +256,10 @@ public class CB_2006_test extends TestCase implements ParameterChangeWarningList
 			            	 //System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
 			              this.assertNull(failedResultMetadata,failedResultMetadata);
 			            }
-						cb_2006.setIntensityMeasure(cb_2006.SA_NAME);
+						cb_2006.setIntensityMeasure(SA_Param.NAME);
 						int num= period.length;
 						for(int k=0;k<num;++k){
-							cb_2006.getParameter(cb_2006.PERIOD_NAME).setValue(new Double(period[k]));
+							cb_2006.getParameter(PeriodParam.NAME).setValue(new Double(period[k]));
 							if(k == 1 || k==2 || k==3){
 								st.nextToken();
 							}

@@ -8,6 +8,10 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.param.*;
 
 import java.io.File;
@@ -130,12 +134,12 @@ public class BA_2008_test extends TestCase implements ParameterChangeWarningList
 
 					st.nextToken(); // ignore Zsed, sediment/basin depth
 					
-					ba_2008.setIntensityMeasure(ba_2008.SA_NAME);
+					ba_2008.setIntensityMeasure(SA_Param.NAME);
 					int num= period.length;
 					double openSHA_Val, tested_Val;
 					boolean results;
 					for(int k=0;k<num;++k){
-						ba_2008.getParameter(ba_2008.PERIOD_NAME).setValue(new Double(period[k]));
+						ba_2008.getParameter(PeriodParam.NAME).setValue(new Double(period[k]));
 						if(isMedian) openSHA_Val = Math.exp(ba_2008.getMean());
 						else openSHA_Val = ba_2008.getStdDev();
 						tested_Val = Double.parseDouble(st.nextToken().trim());
@@ -155,7 +159,7 @@ public class BA_2008_test extends TestCase implements ParameterChangeWarningList
 					}
 
 					
-					ba_2008.setIntensityMeasure(ba_2008.PGA_NAME);
+					ba_2008.setIntensityMeasure(PGA_Param.NAME);
 					if(isMedian) openSHA_Val = Math.exp(ba_2008.getMean());
 					else openSHA_Val = ba_2008.getStdDev();
 					tested_Val = Double.parseDouble(st.nextToken().trim());
@@ -172,7 +176,7 @@ public class BA_2008_test extends TestCase implements ParameterChangeWarningList
 						//System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
 						this.assertNull(failedResultMetadata,failedResultMetadata);
 					}
-					ba_2008.setIntensityMeasure(ba_2008.PGV_NAME);
+					ba_2008.setIntensityMeasure(PGV_Param.NAME);
 					if(isMedian) openSHA_Val = Math.exp(ba_2008.getMean());
 					else openSHA_Val = ba_2008.getStdDev();
 					tested_Val = Double.parseDouble(st.nextToken().trim());

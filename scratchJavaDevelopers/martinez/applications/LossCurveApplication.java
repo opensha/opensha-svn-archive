@@ -33,6 +33,7 @@ import org.opensha.sha.gui.beans.TimeSpanGuiBean;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
 import scratchJavaDevelopers.martinez.LossCurveCalculator;
 import scratchJavaDevelopers.martinez.VulnerabilityModels.VulnerabilityModel;
@@ -96,7 +97,7 @@ public class LossCurveApplication extends JFrame {
 			}
 		});
 		
-		imr.setIntensityMeasure(AttenuationRelationship.SA_NAME);
+		imr.setIntensityMeasure(SA_Param.NAME);
 		imr.setParamDefaults();
 		
 		// Dummy parameters for easy display only

@@ -24,6 +24,13 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 
 /**
  * <b>Title:</b> BS_2003_AttenRel<p>
@@ -154,20 +161,20 @@ public class BS_2003_AttenRel
     as_1997_attenRel.getParameter(as_1997_attenRel.SITE_TYPE_NAME).setValue(
         as_1997_attenRel.SITE_TYPE_ROCK);
     // set the component to ave horz
-    as_1997_attenRel.getParameter(as_1997_attenRel.COMPONENT_NAME).setValue(
-        as_1997_attenRel.COMPONENT_AVE_HORZ);
+    as_1997_attenRel.getParameter(ComponentParam.NAME).setValue(
+        ComponentParam.COMPONENT_AVE_HORZ);
 
     // overide local params with those in as_1997_attenRel
-    this.sigmaTruncTypeParam = (StringParameter) as_1997_attenRel.getParameter(
-        as_1997_attenRel.SIGMA_TRUNC_TYPE_NAME);
-    this.sigmaTruncLevelParam = (DoubleParameter) as_1997_attenRel.getParameter(
-        as_1997_attenRel.SIGMA_TRUNC_LEVEL_NAME);
+    this.sigmaTruncTypeParam = (SigmaTruncTypeParam) as_1997_attenRel.getParameter(
+        SigmaTruncTypeParam.NAME);
+    this.sigmaTruncLevelParam = (SigmaTruncLevelParam) as_1997_attenRel.getParameter(
+        SigmaTruncLevelParam.NAME);
     this.exceedProbParam = (DoubleParameter) as_1997_attenRel.getParameter(
         as_1997_attenRel.EXCEED_PROB_NAME);
-    this.stdDevTypeParam = (StringParameter) as_1997_attenRel.getParameter(
-        as_1997_attenRel.STD_DEV_TYPE_NAME);
-    this.periodParam = (DoubleDiscreteParameter) as_1997_attenRel.getParameter(
-        PERIOD_NAME);
+    this.stdDevTypeParam = (StdDevTypeParam) as_1997_attenRel.getParameter(
+    		StdDevTypeParam.NAME);
+    this.saPeriodParam = (PeriodParam) as_1997_attenRel.getParameter(
+        PeriodParam.NAME);
 
     initCoefficients();
     initSupportedIntensityMeasureParams();
@@ -239,8 +246,8 @@ public class BS_2003_AttenRel
     }
 
     StringBuffer key = new StringBuffer(im.getName());
-    if (im.getName().equalsIgnoreCase(SA_NAME)) {
-      key.append("/" + periodParam.getValue());
+    if (im.getName().equalsIgnoreCase(SA_Param.NAME)) {
+      key.append("/" + saPeriodParam.getValue());
     }
     if (horzCoeffs.containsKey(key.toString())) {
       coeffs = (BS_2003_AttenRelCoefficients) horzCoeffs.get(key.toString());
@@ -281,13 +288,13 @@ public class BS_2003_AttenRel
   public double getStdDev(){
 	  
 	  String stdDevType = stdDevTypeParam.getValue().toString();
-	  if (stdDevType.equals(STD_DEV_TYPE_NONE)) { // "None (zero)"
+	  if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE)) { // "None (zero)"
 		  return 0;
 	  }
 	  else {
 			  float periodParamVal;
-			  if(im.getName().equals(this.SA_NAME))
-				  periodParamVal = (float)((Double) periodParam.getValue()).doubleValue();
+			  if(im.getName().equals(SA_Param.NAME))
+				  periodParamVal = (float)((Double) saPeriodParam.getValue()).doubleValue();
 			  else
 				  periodParamVal = 0;
 			   // this is inefficient if the im has not been changed in any way
@@ -298,14 +305,14 @@ public class BS_2003_AttenRel
 				  return getStdDevForCS();
 			  else{
 				  //getting the Std Dev for Period of 0.75
-				  periodParam.setValue(new Double(0.75));
+				  saPeriodParam.setValue(new Double(0.75));
 				  double stdDev_BS = getStdDevForBS();
 				  //getting the Std Dev. for period param 1.5
-				  periodParam.setValue(new Double(1.5));
+				  saPeriodParam.setValue(new Double(1.5));
 				  double stdDev_CS = getStdDevForCS();
 				  //setting the period to period selected by the user
 				  DecimalFormat format = new DecimalFormat("##.###");
-				  periodParam.setValue(new Double(format.format(periodParamVal)));
+				  saPeriodParam.setValue(new Double(format.format(periodParamVal)));
 				  //linear interpolation to get the Std Dev.
 				  double stdDev = ((periodParamVal - 0.75)/(1.5 -0.75))*
 				  (stdDev_CS - stdDev_BS) + stdDev_BS;
@@ -390,8 +397,8 @@ public class BS_2003_AttenRel
     // re-set the site type to rock and component to ave horz
     as_1997_attenRel.getParameter(as_1997_attenRel.SITE_TYPE_NAME).setValue(
         as_1997_attenRel.SITE_TYPE_ROCK);
-    as_1997_attenRel.getParameter(as_1997_attenRel.COMPONENT_NAME).setValue(
-        as_1997_attenRel.COMPONENT_AVE_HORZ);
+    as_1997_attenRel.getParameter(ComponentParam.NAME).setValue(
+        ComponentParam.COMPONENT_AVE_HORZ);
   }
 
   /**
@@ -407,7 +414,7 @@ public class BS_2003_AttenRel
     meanIndependentParams.clear();
     ListIterator it = as_1997_attenRel.getMeanIndependentParamsIterator();
     String ignoreStr1 = as_1997_attenRel.SITE_TYPE_NAME;
-    String ignoreStr2 = as_1997_attenRel.COMPONENT_NAME;
+    String ignoreStr2 = ComponentParam.NAME;
     while (it.hasNext()) {
       Parameter param = (Parameter) it.next();
       if (!ignoreStr1.equals(param.getName()) &&
@@ -585,12 +592,10 @@ public class BS_2003_AttenRel
 
     // the Component Parameter (not supporting AS_1997's vertical)
     StringConstraint constraint = new StringConstraint();
-    constraint.addString(COMPONENT_AVE_HORZ);
+    constraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
     constraint.setNonEditable();
-    componentParam = new StringParameter(COMPONENT_NAME, constraint,
-                                         COMPONENT_DEFAULT);
-    componentParam.setInfo(COMPONENT_INFO);
-    componentParam.setNonEditable();
+    componentParam = new ComponentParam(constraint,componentParam.COMPONENT_AVE_HORZ);
+
     // add this to the list
     otherParams.clear();
     otherParams.addParameter(componentParam);
@@ -598,7 +603,7 @@ public class BS_2003_AttenRel
     Parameter param;
     while (it.hasNext()) {
       param = (Parameter) it.next();
-      if (!COMPONENT_NAME.equals(param.getName())) {
+      if (!ComponentParam.NAME.equals(param.getName())) {
         otherParams.addParameter(param);
       }
     }
@@ -637,96 +642,96 @@ public class BS_2003_AttenRel
     horzCoeffs.clear();
 
     BS_2003_AttenRelCoefficients coeff = new BS_2003_AttenRelCoefficients(
-        PGA_NAME,
+        PGA_Param.NAME,
         0.0, -0.64, 418, -0.36, -0.14, 0.27, 0.44, 0.50);
 
     BS_2003_AttenRelCoefficients coeff0 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.01")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("0.01")).doubleValue(),
         0.01, -0.64, 418, -0.36, -0.14, 0.27, 0.44, 0.50);
     BS_2003_AttenRelCoefficients coeff1 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.02")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("0.02")).doubleValue(),
         0.02, -0.63, 490, -0.34, -0.12, 0.26, 0.45, 0.51);
     BS_2003_AttenRelCoefficients coeff2 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.03")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("0.03")).doubleValue(),
         0.03, -0.62, 324, -0.33, -0.11, 0.26, 0.46, 0.51);
     BS_2003_AttenRelCoefficients coeff3 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.04")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("0.04")).doubleValue(),
         0.04, -0.61, 233, -0.31, -0.11, 0.26, 0.47, 0.51);
     BS_2003_AttenRelCoefficients coeff4 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.05")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("0.05")).doubleValue(),
         0.05, -0.64, 192, -0.29, -0.11, 0.25, 0.47, 0.52);
     BS_2003_AttenRelCoefficients coeff5 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.06")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("0.06")).doubleValue(),
         0.06, -0.64, 181, -0.25, -0.11, 0.25, 0.48, 0.52);
     BS_2003_AttenRelCoefficients coeff6 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.075")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("0.075")).doubleValue(),
         0.075, -0.64, 196, -0.23, -0.11, 0.24, 0.48, 0.52);
     BS_2003_AttenRelCoefficients coeff7 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.09")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("0.09")).doubleValue(),
         0.09, -0.64, 239, -0.23, -0.12, 0.23, 0.49, 0.52);
     BS_2003_AttenRelCoefficients coeff8 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.10")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("0.10")).doubleValue(),
         0.10, -0.60, 257, -0.25, -0.13, 0.23, 0.49, 0.53);
     BS_2003_AttenRelCoefficients coeff9 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.12")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("0.12")).doubleValue(),
         0.12, -0.56, 299, -0.26, -0.14, 0.24, 0.49, 0.53);
     BS_2003_AttenRelCoefficients coeff10 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.15")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("0.15")).doubleValue(),
         0.15, -0.53, 357, -0.28, -0.18, 0.25, 0.49, 0.54);
     BS_2003_AttenRelCoefficients coeff11 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.17")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("0.17")).doubleValue(),
         0.17, -0.53, 406, -0.29, -0.19, 0.26, 0.48, 0.55);
     BS_2003_AttenRelCoefficients coeff12 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.20")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("0.20")).doubleValue(),
         0.20, -0.52, 453, -0.31, -0.19, 0.27, 0.47, 0.56);
     BS_2003_AttenRelCoefficients coeff13 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.24")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("0.24")).doubleValue(),
         0.24, -0.52, 493, -0.38, -0.16, 0.29, 0.47, 0.56);
     BS_2003_AttenRelCoefficients coeff14 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.30")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("0.30")).doubleValue(),
         0.30, -0.52, 532, -0.44, -0.14, 0.35, 0.46, 0.57);
     BS_2003_AttenRelCoefficients coeff15 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.36")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("0.36")).doubleValue(),
         0.36, -0.51, 535, -0.48, -0.11, 0.38, 0.46, 0.57);
     BS_2003_AttenRelCoefficients coeff16 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.40")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("0.40")).doubleValue(),
         0.40, -0.51, 535, -0.50, -0.10, 0.40, 0.46, 0.57);
     BS_2003_AttenRelCoefficients coeff17 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.46")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("0.46")).doubleValue(),
         0.46, -0.50, 535, -0.55, -0.08, 0.42, 0.45, 0.58);
     BS_2003_AttenRelCoefficients coeff18 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.50")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("0.50")).doubleValue(),
         0.50, -0.50, 535, -0.60, -0.06, 0.42, 0.45, 0.59);
     BS_2003_AttenRelCoefficients coeff19 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.60")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("0.60")).doubleValue(),
         0.60, -0.49, 535, -0.66, -0.03, 0.42, 0.44, 0.60);
     BS_2003_AttenRelCoefficients coeff20 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.75")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("0.75")).doubleValue(),
         0.75, -0.47, 535, -0.69, 0.00, 0.42, 0.44, 0.63);
     BS_2003_AttenRelCoefficients coeff21 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.85")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("0.85")).doubleValue(),
         0.85, -0.46, 535, -0.69, 0.00, 0.42, 0.44, 0.63);
     BS_2003_AttenRelCoefficients coeff22 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("1.00")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("1.00")).doubleValue(),
         1.00, -0.44, 535, -0.70, 0.00, 0.42, 0.44, 0.64);
     BS_2003_AttenRelCoefficients coeff23 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("1.50")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("1.50")).doubleValue(),
         1.50, -0.40, 535, -0.72, 0.00, 0.42, 0.44, 0.67);
     BS_2003_AttenRelCoefficients coeff24 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("2.00")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("2.00")).doubleValue(),
         2.00, -0.38, 535, -0.73, 0.00, 0.43, 0.44, 0.69);
     BS_2003_AttenRelCoefficients coeff25 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("3.00")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("3.00")).doubleValue(),
         3.00, -0.34, 535, -0.74, 0.00, 0.45, 0.44, 0.71);
     BS_2003_AttenRelCoefficients coeff26 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("4.00")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("4.00")).doubleValue(),
         4.00, -0.31, 535, -0.75, 0.00, 0.47, 0.44, 0.73);
     BS_2003_AttenRelCoefficients coeff27 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("5.00")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("5.00")).doubleValue(),
         5.00, -0.30, 535, -0.75, 0.00, 0.49, 0.44, 0.75);
     // add zero-period case; same as 0.01 sec.
     BS_2003_AttenRelCoefficients coeff28 = new BS_2003_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.0")).doubleValue(),
+        SA_Param.NAME + "/" + (new Double("0.0")).doubleValue(),
         0.0, -0.64, 418, -0.36, -0.14, 0.27, 0.44, 0.50);
 
     horzCoeffs.put(coeff.getName(), coeff);

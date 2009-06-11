@@ -30,6 +30,8 @@ import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.depricated.BA_2006_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.util.SiteTranslator;
 
 
@@ -138,12 +140,12 @@ public class STEP_DamageState implements ParameterChangeWarningListener{
 	      //attenRel = new ShakeMap_2003_AttenRel(this);
 	      attenRel = new BA_2006_AttenRel(this);
 	            // set the im as PGA
-	      //attenRel.setIntensityMeasure(((ShakeMap_2003_AttenRel)attenRel).PGA_NAME);
-	      //attenRel.setIntensityMeasure(((ShakeMap_2003_AttenRel)attenRel).SA_NAME, SA_PERIOD);
+	      //attenRel.setIntensityMeasure(((ShakeMap_2003_AttenRel)attenRel).PGA_Param.NAME);
+	      //attenRel.setIntensityMeasure(((ShakeMap_2003_AttenRel)attenRel).SA_Param.NAME, SA_PERIOD);
 	      attenRel.setParamDefaults();
-	      attenRel.setIntensityMeasure(AttenuationRelationship.SA_NAME);
-	      attenRel.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(SA_PERIOD);
-//	      attenRel.setIntensityMeasure(((BA_2006_AttenRel)attenRel).SA_NAME, SA_PERIOD);
+	      attenRel.setIntensityMeasure(SA_Param.NAME);
+	      attenRel.getParameter(PeriodParam.NAME).setValue(SA_PERIOD);
+//	      attenRel.setIntensityMeasure(((BA_2006_AttenRel)attenRel).SA_Param.NAME, SA_PERIOD);
 	      
 	}
 	//}

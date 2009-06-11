@@ -15,6 +15,8 @@ import org.opensha.sha.param.*;
 import org.opensha.sha.magdist.SingleMagFreqDist;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.Field_2000_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Direction;
 import org.opensha.commons.data.Location;
@@ -258,11 +260,11 @@ public class SanAndreasScenarioControlPanel {
       imrGuiBean.toggleBetweenSingleAndMultipleAttenRelGuiSelection();
     // Set the imt as PGA
     ParameterListEditor editor = imrGuiBean.getIntensityMeasureParamEditor();
-    editor.getParameterList().getParameter(imrGuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.PGV_NAME);
+    editor.getParameterList().getParameter(imrGuiBean.IMT_PARAM_NAME).setValue(PGV_Param.NAME);
     editor.refreshParamEditor();
     //Updating the IMR Gui Bean with the ShakeMap attenuation relationship
     imrGuiBean.setIMR_Selected(Field_2000_AttenRel.NAME);
-    imrGuiBean.getSelectedIMR_Instance().getParameter(Field_2000_AttenRel.COMPONENT_NAME).setValue(Field_2000_AttenRel.COMPONENT_AVE_HORZ);
+    imrGuiBean.getSelectedIMR_Instance().getParameter(ComponentParam.NAME).setValue(ComponentParam.COMPONENT_AVE_HORZ);
     imrGuiBean.getSingleAttenRelParamListEditor().refreshParamEditor();
 
     //Updating the SitesInGriddedRectangularRegionGuiBean with the Puente Hills resion setting

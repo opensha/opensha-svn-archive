@@ -23,6 +23,10 @@ import org.opensha.commons.util.FaultUtils;
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.param.*;
 
 /**
@@ -216,12 +220,12 @@ public class AmbraseysEtAl_1996_AttenRel
           );
     }
     
-    if (im.getName().equalsIgnoreCase(PGA_NAME)) {
+    if (im.getName().equalsIgnoreCase(PGA_Param.NAME)) {
         iper = 0;
       }
     else
     {
-    iper = ( (Integer) indexFromPerHashMap.get(periodParam.getValue())).intValue();
+    iper = ( (Integer) indexFromPerHashMap.get(saPeriodParam.getValue())).intValue();
     }
     
 
@@ -267,12 +271,12 @@ public class AmbraseysEtAl_1996_AttenRel
 
     magParam.setValue(MAG_DEFAULT);
     distanceJBParam.setValue(DISTANCE_JB_DEFAULT);
-    saParam.setValue(SA_DEFAULT);
-    periodParam.setValue(PERIOD_DEFAULT);
-    dampingParam.setValue(DAMPING_DEFAULT);
-    pgaParam.setValue(PGA_DEFAULT);
+    saParam.setValueAsDefault();
+    saPeriodParam.setValueAsDefault();
+    saDampingParam.setValueAsDefault();
+    pgaParam.setValueAsDefault();
     siteTypeParam.setValue(SITE_TYPE_DEFAULT);
-//    stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
+//    stdDevTypeParam.setValueAsDefault();
 
     rjb = ( (Double) distanceJBParam.getValue()).doubleValue();
     mag = ( (Double) magParam.getValue()).doubleValue();
@@ -408,20 +412,14 @@ public class AmbraseysEtAl_1996_AttenRel
       periodConstraint.addDouble(new Double(period[i]));
     }
     periodConstraint.setNonEditable();
-    periodParam = new DoubleDiscreteParameter(PERIOD_NAME, periodConstraint,
-                                              PERIOD_UNITS, null);
-    periodParam.setInfo(PERIOD_INFO);
-    periodParam.setNonEditable();
+	saPeriodParam = new PeriodParam(periodConstraint);
+	saDampingParam = new DampingParam();
+	saParam = new SA_Param(saPeriodParam, saDampingParam);
+	saParam.setNonEditable();
 
-    // Set damping constraint as non editable since no other options exist
-    dampingConstraint.setNonEditable();
-
-    // Add SA's independent parameters:
-    saParam.addIndependentParameter(dampingParam);
-    saParam.addIndependentParameter(periodParam);
-
-    // Now Make the parameter noneditable:
-    saParam.setNonEditable();
+	//  Create PGA Parameter (pgaParam):
+	pgaParam = new PGA_Param();
+	pgaParam.setNonEditable();
 
     // Add the warning listeners:
     saParam.addParameterChangeWarningListener(warningListener);
@@ -505,7 +503,7 @@ public class AmbraseysEtAl_1996_AttenRel
     else if (pName.equals(MAG_NAME)) {
       mag = ( (Double) val).doubleValue();
     }
-    else if (pName.equals(PERIOD_NAME) ) {
+    else if (pName.equals(PeriodParam.NAME) ) {
     	intensityMeasureChanged = true;
     }
     else if (pName.equals(SITE_TYPE_NAME) ) {
@@ -520,7 +518,7 @@ public class AmbraseysEtAl_1996_AttenRel
   public void resetParameterEventListeners(){
     distanceJBParam.removeParameterChangeListener(this);
     magParam.removeParameterChangeListener(this);
-    periodParam.removeParameterChangeListener(this);
+    saPeriodParam.removeParameterChangeListener(this);
 
     this.initParameterEventListeners();
   }
@@ -533,7 +531,7 @@ public class AmbraseysEtAl_1996_AttenRel
 
     distanceJBParam.addParameterChangeListener(this);
     magParam.addParameterChangeListener(this);
-    periodParam.addParameterChangeListener(this);
+    saPeriodParam.addParameterChangeListener(this);
     siteTypeParam.addParameterChangeListener(this);
   }
 

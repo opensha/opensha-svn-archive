@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 import org.opensha.sha.imr.attenRelImpl.*;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.util.SiteTranslator;
 
@@ -118,12 +121,12 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
 	  attenRel = new USGS_Combined_2004_AttenRel(this);
           attenRel.setParamDefaults();
 	  attenRel.getParameter(attenRel.VS30_NAME).setValue(new Double(760));
-	  attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).
-	  setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
-	  attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).
+	  attenRel.getParameter(SigmaTruncTypeParam.NAME).
+	  setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
+	  attenRel.getParameter(SigmaTruncLevelParam.NAME).
 	  setValue(new Double(3.0));
-	  attenRel.getParameter(AttenuationRelationship.COMPONENT_NAME).
-	  setValue(USGS_Combined_2004_AttenRel.COMPONENT_AVE_HORZ);
+	  attenRel.getParameter(ComponentParam.NAME).
+	  setValue(ComponentParam.COMPONENT_AVE_HORZ);
   }
 
 

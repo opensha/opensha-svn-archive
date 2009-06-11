@@ -8,6 +8,9 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
 import java.util.*;
 import java.io.*;
@@ -291,19 +294,19 @@ public class MeanSigmaCalc
             //Location in the site of the attenuation relationship
             imr.setSiteLocation(locList.getLocationAt(j));
             //setting different intensity measures for each site and writing those to the file.
-            imr.setIntensityMeasure(AttenuationRelationship.PGA_NAME);
+            imr.setIntensityMeasure(PGA_Param.NAME);
 
             fwPGAMean.write(format.format(imr.getMean()) + " ");
             fwPGASigma.write(format.format(imr.getStdDev()) + " ");
 
-            imr.setIntensityMeasure(AttenuationRelationship.SA_NAME);
-            imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new
+            imr.setIntensityMeasure(SA_Param.NAME);
+            imr.getParameter(PeriodParam.NAME).setValue(new
                 Double(1.0));
 
             fwSA_10_Mean.write(format.format(imr.getMean()) + " ");
             fwSA_10_Sigma.write(format.format(imr.getStdDev()) + " ");
 
-            imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new
+            imr.getParameter(PeriodParam.NAME).setValue(new
                 Double(0.3));
 
             fwSA_03_Mean.write(format.format(imr.getMean()) + " ");

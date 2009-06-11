@@ -25,6 +25,9 @@ import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 
 /**
  * This class creates a bunch of hazard curves using MeanUCERF2 for verification with NSHMP.
@@ -88,14 +91,14 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 		// Generate Hazard Curves for SA 0.2s
 		imr.setIntensityMeasure("SA");
 		createUSGS_SA_01_AND_02_Function();
-		imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(0.2);
+		imr.getParameter(PeriodParam.NAME).setValue(0.2);
 		imtString = "SA_0.2sec";
 		//generateHazardCurves(imtString, LAT1, MIN_LON1, MAX_LON1);
 		//generateHazardCurves(imtString, LAT2, MIN_LON2, MAX_LON2);
 		
 		// Generate hazard curves for SA 1.0s
 		imr.setIntensityMeasure("SA");
-		imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(1.0);
+		imr.getParameter(PeriodParam.NAME).setValue(1.0);
 		createUSGS_SA_Function();
 		imtString = "SA_1sec";
 		//generateHazardCurves(imtString, LAT1, MIN_LON1, MAX_LON1);
@@ -190,8 +193,8 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 	private void setupIMR() {
 		imr = new BA_2008_AttenRel(this);
 		imr.setParamDefaults();
-		imr.getParameter(BA_2008_AttenRel.SIGMA_TRUNC_TYPE_NAME).setValue(BA_2008_AttenRel.SIGMA_TRUNC_TYPE_1SIDED);
-		imr.getParameter(BA_2008_AttenRel.SIGMA_TRUNC_LEVEL_NAME).setValue(3.0);
+		imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
+		imr.getParameter(SigmaTruncLevelParam.NAME).setValue(3.0);
 		/*
 		imr = new CB_2008_AttenRel(this);
 		imr.setParamDefaults();

@@ -20,6 +20,7 @@ import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.IntensityMeasureRelationship;
 import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
 public class AttenRelSaver extends XMLSaver implements IMR_GuiBeanAPI {
 	
@@ -43,7 +44,7 @@ public class AttenRelSaver extends XMLSaver implements IMR_GuiBeanAPI {
 	@Override
 	public Element getXML(Element root) {
 		AttenuationRelationship attenRel = (AttenuationRelationship)bean.getSelectedIMR_Instance();
-		attenRel.setIntensityMeasure(AttenuationRelationship.SA_NAME);
+		attenRel.setIntensityMeasure(SA_Param.NAME);
 		
 		return attenRel.toXMLMetadata(root);
 	}
@@ -70,9 +71,9 @@ public class AttenRelSaver extends XMLSaver implements IMR_GuiBeanAPI {
 		
 //		CY_2008_AttenRel cy08 = new CY_2008_AttenRel(new FakeParameterListener());
 //		
-//		cy08.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
-//		cy08.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
-//		cy08.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(3.0));
+//		cy08.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
+//		cy08.getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0));
+//		cy08.getParameter(PeriodParam.NAME).setValue(new Double(3.0));
 //		
 //		
 	}

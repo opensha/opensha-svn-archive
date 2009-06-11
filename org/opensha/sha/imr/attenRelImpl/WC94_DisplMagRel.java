@@ -18,6 +18,7 @@ import org.opensha.commons.util.FaultUtils;
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.param.*;
 
 
@@ -295,7 +296,7 @@ public class WC94_DisplMagRel
       throw new IMRException(C + ": getStdDev(): " + ERR);
     }
 
-    if (stdDevType.equals(this.STD_DEV_TYPE_NONE)) {
+    if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE)) {
       return 0.0;
     }
     else {
@@ -317,7 +318,7 @@ public class WC94_DisplMagRel
     fltTypeParam.setValue(FLT_TYPE_SS);
     distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
     faultDisplParam.setValue(FAULT_DISPL_DEFAULT);
-    stdDevTypeParam.setValue(STD_DEV_TYPE_TOTAL);
+    stdDevTypeParam.setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
   }
 
   /**
@@ -448,14 +449,10 @@ public class WC94_DisplMagRel
 
     // the stdDevType Parameter
     StringConstraint stdDevTypeConstraint = new StringConstraint();
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_TOTAL);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_NONE);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_NONE);
     stdDevTypeConstraint.setNonEditable();
-    stdDevTypeParam = new StringParameter(STD_DEV_TYPE_NAME,
-                                          stdDevTypeConstraint,
-                                          STD_DEV_TYPE_TOTAL);
-    stdDevTypeParam.setInfo(STD_DEV_TYPE_INFO);
-    stdDevTypeParam.setNonEditable();
+    stdDevTypeParam = new StdDevTypeParam(stdDevTypeConstraint);
 
     otherParams.addParameter(stdDevTypeParam);
 

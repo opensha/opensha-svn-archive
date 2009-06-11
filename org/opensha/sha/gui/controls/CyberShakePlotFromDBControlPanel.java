@@ -62,6 +62,8 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 
 /**
  * <p>Title: CyberShakePlotFromDBControlPanel </p>
@@ -895,14 +897,14 @@ extends JFrame implements ParameterChangeListener {
 	private void setIMR_Params(){
 		IMR_GuiBean imrGui = application.getIMRGuiBeanInstance();
 
-//		AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED;
+//		SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED;
 
 		try {
-			StringParameter truncTypeParam = (StringParameter)imrGui.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME);
+			StringParameter truncTypeParam = (StringParameter)imrGui.getParameterList().getParameter(SigmaTruncTypeParam.NAME);
 
-			truncTypeParam.setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
+			truncTypeParam.setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
 
-			DoubleParameter truncLevelParam = (DoubleParameter)imrGui.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME);
+			DoubleParameter truncLevelParam = (DoubleParameter)imrGui.getParameterList().getParameter(SigmaTruncLevelParam.NAME);
 
 			truncLevelParam.setValue(3.0);
 

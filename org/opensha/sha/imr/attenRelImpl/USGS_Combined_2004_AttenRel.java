@@ -30,6 +30,14 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.PointSurface;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.calc.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.param.*;
 
 /**
@@ -248,13 +256,12 @@ public class USGS_Combined_2004_AttenRel
         VS30_NAME));
 
     // set the components in the attenuation relationships
-    as_1997_attenRel.getParameter(COMPONENT_NAME).setValue(COMPONENT_AVE_HORZ);
-    cb_2003_attenRel.getParameter(COMPONENT_NAME).setValue(COMPONENT_AVE_HORZ);
-    scemy_1997_attenRel.getParameter(COMPONENT_NAME).setValue(
-        COMPONENT_AVE_HORZ);
+    as_1997_attenRel.getParameter(ComponentParam.NAME).setValue(ComponentParam.COMPONENT_AVE_HORZ);
+    cb_2003_attenRel.getParameter(ComponentParam.NAME).setValue(ComponentParam.COMPONENT_AVE_HORZ);
+    scemy_1997_attenRel.getParameter(ComponentParam.NAME).setValue(
+    		ComponentParam.COMPONENT_AVE_HORZ);
     // the next one is different to be consistent with Frankel's implementation
-    bjf_1997_attenRel.getParameter(COMPONENT_NAME).setValue(bjf_1997_attenRel.
-        COMPONENT_RANDOM_HORZ);
+    bjf_1997_attenRel.getParameter(ComponentParam.NAME).setValue(ComponentParam.COMPONENT_RANDOM_HORZ);
 
   }
 
@@ -366,9 +373,9 @@ public class USGS_Combined_2004_AttenRel
     setAttenRelsIMT();
 
     String imt = (String) im.getName();
-    double per = ( (Double) periodParam.getValue()).doubleValue();
+    double per = ( (Double) saPeriodParam.getValue()).doubleValue();
     double mean = 0;
-    if (imt.equals(this.SA_NAME) && (per >= 3.0)) {
+    if (imt.equals(SA_Param.NAME) && (per >= 3.0)) {
       mean += getMean(as_1997_attenRel);
       mean += getMean(cb_2003_attenRel);
       mean += getMean(scemy_1997_attenRel);
@@ -430,18 +437,18 @@ private double getEpsilon(AttenuationRelationship attenRel,
 
     String imt = im.getName();
 
-    if (imt.equals(PGA_NAME)) {
+    if (imt.equals(PGA_Param.NAME)) {
       pga_bc = attenRel.getMean();
       amp = borcherdtAmpCalc.getShortPeriodAmp(vs30, VS30_REF, Math.exp(pga_bc));
       mean = pga_bc + Math.log(amp);
     }
-    else if (imt.equals(SA_NAME)) {
+    else if (imt.equals(SA_Param.NAME)) {
       ave_bc = attenRel.getMean();
       // now get PGA for amp factor
-      attenRel.setIntensityMeasure(PGA_NAME);
+      attenRel.setIntensityMeasure(PGA_Param.NAME);
       pga_bc = attenRel.getMean();
-      attenRel.setIntensityMeasure(SA_NAME); // revert back
-      double per = ( (Double) periodParam.getValue()).doubleValue();
+      attenRel.setIntensityMeasure(SA_Param.NAME); // revert back
+      double per = ( (Double) saPeriodParam.getValue()).doubleValue();
       if (per <= 0.5) {
         amp = borcherdtAmpCalc.getShortPeriodAmp(vs30, VS30_REF,
                                                  Math.exp(pga_bc));
@@ -451,21 +458,21 @@ private double getEpsilon(AttenuationRelationship attenRel,
       }
       mean = ave_bc + Math.log(amp);
     }
-    else if (imt.equals(PGV_NAME)) {
+    else if (imt.equals(PGV_Param.NAME)) {
       ave_bc = attenRel.getMean();
       // now get PGA for amp factor
-      attenRel.setIntensityMeasure(PGA_NAME);
+      attenRel.setIntensityMeasure(PGA_Param.NAME);
       pga_bc = attenRel.getMean();
-      attenRel.setIntensityMeasure(SA_NAME); // revert back
+      attenRel.setIntensityMeasure(SA_Param.NAME); // revert back
       amp = borcherdtAmpCalc.getMidPeriodAmp(vs30, VS30_REF, Math.exp(pga_bc));
       mean = ave_bc + Math.log(amp) + SA10toPGV; // last term is the PGV conversion
     }
     else { // it must be MMI
       // here we must set the imt because it wasn't done in the setAttenRelsIMT(*) method
-      attenRel.setIntensityMeasure(SA_NAME);
-      attenRel.getParameter(PERIOD_NAME).setValue(new Double(1.0));
+      attenRel.setIntensityMeasure(SA_Param.NAME);
+      attenRel.getParameter(PeriodParam.NAME).setValue(new Double(1.0));
       ave_bc = attenRel.getMean();
-      attenRel.setIntensityMeasure(PGA_NAME);
+      attenRel.setIntensityMeasure(PGA_Param.NAME);
       pga_bc = attenRel.getMean();
       amp = borcherdtAmpCalc.getMidPeriodAmp(vs30, VS30_REF, pga_bc);
       double pgv = ave_bc + Math.log(amp) + Math.log(37.27 * 2.54);
@@ -491,36 +498,36 @@ private double getEpsilon(AttenuationRelationship attenRel,
    */
   private void setAttenRelsIMT() {
     String imt = im.getName();
-    if (imt.equals(PGA_NAME)) {
-      as_1997_attenRel.setIntensityMeasure(PGA_NAME);
-      scemy_1997_attenRel.setIntensityMeasure(PGA_NAME);
-      cb_2003_attenRel.setIntensityMeasure(PGA_NAME);
-      bjf_1997_attenRel.setIntensityMeasure(PGA_NAME);
+    if (imt.equals(PGA_Param.NAME)) {
+      as_1997_attenRel.setIntensityMeasure(PGA_Param.NAME);
+      scemy_1997_attenRel.setIntensityMeasure(PGA_Param.NAME);
+      cb_2003_attenRel.setIntensityMeasure(PGA_Param.NAME);
+      bjf_1997_attenRel.setIntensityMeasure(PGA_Param.NAME);
     }
-    else if (imt.equals(SA_NAME)) {
-      Double per = (Double) periodParam.getValue();
-      as_1997_attenRel.setIntensityMeasure(SA_NAME);
-      as_1997_attenRel.getParameter(PERIOD_NAME).setValue(per);
-      scemy_1997_attenRel.setIntensityMeasure(SA_NAME);
-      scemy_1997_attenRel.getParameter(PERIOD_NAME).setValue(per);
-      cb_2003_attenRel.setIntensityMeasure(SA_NAME);
-      cb_2003_attenRel.getParameter(PERIOD_NAME).setValue(per);
+    else if (imt.equals(SA_Param.NAME)) {
+      Double per = (Double) saPeriodParam.getValue();
+      as_1997_attenRel.setIntensityMeasure(SA_Param.NAME);
+      as_1997_attenRel.getParameter(PeriodParam.NAME).setValue(per);
+      scemy_1997_attenRel.setIntensityMeasure(SA_Param.NAME);
+      scemy_1997_attenRel.getParameter(PeriodParam.NAME).setValue(per);
+      cb_2003_attenRel.setIntensityMeasure(SA_Param.NAME);
+      cb_2003_attenRel.getParameter(PeriodParam.NAME).setValue(per);
       if (per.doubleValue() <= 2.0) {
-        bjf_1997_attenRel.setIntensityMeasure(SA_NAME);
-        bjf_1997_attenRel.getParameter(PERIOD_NAME).setValue(per);
+        bjf_1997_attenRel.setIntensityMeasure(SA_Param.NAME);
+        bjf_1997_attenRel.getParameter(PeriodParam.NAME).setValue(per);
       }
     }
-    else if (imt.equals(PGV_NAME)) {
+    else if (imt.equals(PGV_Param.NAME)) {
       Double per = new Double(1.0);
-      as_1997_attenRel.setIntensityMeasure(SA_NAME);
-      as_1997_attenRel.getParameter(PERIOD_NAME).setValue(per);
-      scemy_1997_attenRel.setIntensityMeasure(SA_NAME);
-      scemy_1997_attenRel.getParameter(PERIOD_NAME).setValue(per);
-      cb_2003_attenRel.setIntensityMeasure(SA_NAME);
-      cb_2003_attenRel.getParameter(PERIOD_NAME).setValue(per);
+      as_1997_attenRel.setIntensityMeasure(SA_Param.NAME);
+      as_1997_attenRel.getParameter(PeriodParam.NAME).setValue(per);
+      scemy_1997_attenRel.setIntensityMeasure(SA_Param.NAME);
+      scemy_1997_attenRel.getParameter(PeriodParam.NAME).setValue(per);
+      cb_2003_attenRel.setIntensityMeasure(SA_Param.NAME);
+      cb_2003_attenRel.getParameter(PeriodParam.NAME).setValue(per);
       if (per.doubleValue() <= 2.0) {
-        bjf_1997_attenRel.setIntensityMeasure(SA_NAME);
-        bjf_1997_attenRel.getParameter(PERIOD_NAME).setValue(per);
+        bjf_1997_attenRel.setIntensityMeasure(SA_Param.NAME);
+        bjf_1997_attenRel.getParameter(PeriodParam.NAME).setValue(per);
       }
     }
   }
@@ -534,16 +541,16 @@ private double getEpsilon(AttenuationRelationship attenRel,
     // set the stdDevTypes
     String stdTyp = (String) stdDevTypeParam.getValue();
 
-    as_1997_attenRel.getParameter(STD_DEV_TYPE_NAME).setValue(stdTyp);
-    scemy_1997_attenRel.getParameter(STD_DEV_TYPE_NAME).setValue(stdTyp);
-    bjf_1997_attenRel.getParameter(STD_DEV_TYPE_NAME).setValue(stdTyp);
-    if (stdTyp.equals(STD_DEV_TYPE_TOTAL)) {
-      cb_2003_attenRel.getParameter(STD_DEV_TYPE_NAME).setValue(
-          cb_2003_attenRel.STD_DEV_TYPE_TOTAL_MAG_DEP);
+    as_1997_attenRel.getParameter(StdDevTypeParam.NAME).setValue(stdTyp);
+    scemy_1997_attenRel.getParameter(StdDevTypeParam.NAME).setValue(stdTyp);
+    bjf_1997_attenRel.getParameter(StdDevTypeParam.NAME).setValue(stdTyp);
+    if (stdTyp.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL)) {
+      cb_2003_attenRel.getParameter(StdDevTypeParam.NAME).setValue(
+    		  StdDevTypeParam.STD_DEV_TYPE_TOTAL_MAG_DEP);
     }
     else {
-      cb_2003_attenRel.getParameter(STD_DEV_TYPE_NAME).setValue(
-          STD_DEV_TYPE_NONE);
+      cb_2003_attenRel.getParameter(StdDevTypeParam.NAME).setValue(
+    		  StdDevTypeParam.STD_DEV_TYPE_NONE);
     }
   }
 
@@ -570,7 +577,7 @@ private double getEpsilon(AttenuationRelationship attenRel,
     // compute the iml from exceed probability based on truncation type:
 
     // check for the simplest, most common case (median from symmectric truncation)
-    if (!sigTrType.equals(SIGMA_TRUNC_TYPE_1SIDED) && exceedProb == 0.5) {
+    if (!sigTrType.equals(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED) && exceedProb == 0.5) {
       return getMean();
     }
     else {
@@ -580,13 +587,13 @@ private double getEpsilon(AttenuationRelationship attenRel,
       }
 
       // get the stRndVar dep on sigma truncation type and level
-      if (sigTrType.equals(SIGMA_TRUNC_TYPE_NONE)) {
+      if (sigTrType.equals(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE)) {
         stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 0, 0, 1e-6);
       }
       else {
         double numSig = ( (Double) ( (ParameterAPI) sigmaTruncLevelParam).
                          getValue()).doubleValue();
-        if (sigTrType.equals(SIGMA_TRUNC_TYPE_1SIDED)) {
+        if (sigTrType.equals(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED)) {
           stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 1, numSig,
               1e-6);
         }
@@ -603,8 +610,8 @@ private double getEpsilon(AttenuationRelationship attenRel,
       setAttenRelsIMT();
 
       String imt = (String) im.getName();
-      double per = ( (Double) periodParam.getValue()).doubleValue();
-      if (imt.equals(this.SA_NAME) && (per >= 3.0)) {
+      double per = ( (Double) saPeriodParam.getValue()).doubleValue();
+      if (imt.equals(SA_Param.NAME) && (per >= 3.0)) {
         ave_iml += getMean(as_1997_attenRel) +
             stRndVar * as_1997_attenRel.getStdDev();
         ave_iml += getMean(scemy_1997_attenRel) +
@@ -634,7 +641,7 @@ private double getEpsilon(AttenuationRelationship attenRel,
    */
   public double getStdDev() throws IMRException {
 //    throw new RuntimeException(UNSUPPORTED_METHOD_ERROR);
-    if (stdDevTypeParam.getValue().equals(STD_DEV_TYPE_NONE)) {
+    if (stdDevTypeParam.getValue().equals(StdDevTypeParam.STD_DEV_TYPE_NONE)) {
       return 0;
     }
     else {
@@ -645,9 +652,9 @@ private double getEpsilon(AttenuationRelationship attenRel,
       setAttenRelsStdDevTypes();
 
       String imt = (String) im.getName();
-      double per = ( (Double) periodParam.getValue()).doubleValue();
+      double per = ( (Double) saPeriodParam.getValue()).doubleValue();
       double std = 0;
-      if (imt.equals(this.SA_NAME) && (per >= 3.0)) {
+      if (imt.equals(SA_Param.NAME) && (per >= 3.0)) {
         std += as_1997_attenRel.getStdDev();
         std += cb_2003_attenRel.getStdDev();
         std += scemy_1997_attenRel.getStdDev();
@@ -675,9 +682,9 @@ private double getEpsilon(AttenuationRelationship attenRel,
   private double getCombinedExceedProbability(double iml) throws
       ParameterException, IMRException {
 
-    double per = ( (Double) periodParam.getValue()).doubleValue();
+    double per = ( (Double) saPeriodParam.getValue()).doubleValue();
     double prob = 0;
-    if (im.getName().equals(SA_NAME) && (per >= 3.0)) {
+    if (im.getName().equals(SA_Param.NAME) && (per >= 3.0)) {
       prob += getExceedProbability(as_1997_attenRel, iml);
       prob += getExceedProbability(cb_2003_attenRel, iml);
       prob += getExceedProbability(scemy_1997_attenRel, iml);
@@ -705,7 +712,7 @@ private double getEpsilon(AttenuationRelationship attenRel,
   private double getCombinedEpsilon(double iml) throws
       ParameterException, IMRException {
 
-    double per = ( (Double) periodParam.getValue()).doubleValue();
+    double per = ( (Double) saPeriodParam.getValue()).doubleValue();
     double prob;
     double wt = 0, epsilon=0;
 
@@ -719,7 +726,7 @@ private double getEpsilon(AttenuationRelationship attenRel,
     epsilon += prob * getEpsilon(scemy_1997_attenRel, iml);
     wt += prob;
 
-    if (im.getName().equals(SA_NAME) && (per >= 3.0)) {
+    if (im.getName().equals(SA_Param.NAME) && (per >= 3.0)) {
       return epsilon / wt;
     }
     else {
@@ -843,14 +850,14 @@ public double getEpsilon() {
 
     //((ParameterAPI)this.iml).setValue( IML_DEFAULT );
     vs30Param.setValue(VS30_DEFAULT);
-    saParam.setValue(SA_DEFAULT);
-    periodParam.setValue(PERIOD_DEFAULT);
-    dampingParam.setValue(DAMPING_DEFAULT);
-    pgaParam.setValue(PGA_DEFAULT);
-    pgvParam.setValue(PGV_DEFAULT);
+    saParam.setValueAsDefault();
+    saPeriodParam.setValueAsDefault();
+    saDampingParam.setValueAsDefault();
+    pgaParam.setValueAsDefault();
+    pgvParam.setValueAsDefault();
     mmiParam.setValue(MMI_DEFAULT);
-    componentParam.setValue(COMPONENT_DEFAULT);
-    stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
+    componentParam.setValueAsDefault();
+    stdDevTypeParam.setValueAsDefault();
 
   }
 
@@ -931,7 +938,6 @@ public double getEpsilon() {
     // Create saParam (& its dampingParam) and pgaParam:
     super.initSupportedIntensityMeasureParams();
 
-    supportedIMParams.clear();
 
     // Create saParam's "Period" independent parameter:
     DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
@@ -948,48 +954,35 @@ public double getEpsilon() {
     periodConstraint.addDouble(3.0);
     periodConstraint.addDouble(4.0);
     periodConstraint.setNonEditable();
-    periodParam = new DoubleDiscreteParameter(PERIOD_NAME, periodConstraint,
-                                              PERIOD_UNITS, new Double(1.0));
-    periodParam.setInfo(PERIOD_INFO);
-    periodParam.setNonEditable();
+	saPeriodParam = new PeriodParam(periodConstraint);
+	saDampingParam = new DampingParam();
+	saParam = new SA_Param(saPeriodParam, saDampingParam);
+	saParam.setNonEditable();
 
-    // Set damping constraint as non editable since no other options exist
-    dampingConstraint.setNonEditable();
+	//  Create PGA Parameter (pgaParam):
+	pgaParam = new PGA_Param();
+	pgaParam.setNonEditable();
 
-    // Add SA's independent parameters:
-    saParam.addIndependentParameter(dampingParam);
-    saParam.addIndependentParameter(periodParam);
-
-    // Now Make the parameter noneditable:
-    saParam.setNonEditable();
-
-    // Add the warning listeners:
-    saParam.addParameterChangeWarningListener(warningListener);
-
-    // Put parameters in the supportedIMParams list:
-    supportedIMParams.addParameter(saParam);
-
-    // now do the PGA param
-    pgaParam.addParameterChangeWarningListener(warningListener);
-    pgaParam.setNonEditable();
-    supportedIMParams.addParameter(pgaParam);
-
-    //Create PGV Parameter (pgvParam):
-    DoubleConstraint pgvConstraint = new DoubleConstraint(PGV_MIN, PGV_MAX);
-    pgvConstraint.setNonEditable();
-    pgvParam = new WarningDoubleParameter(PGV_NAME, pgvConstraint, PGV_UNITS);
-    pgvParam.setInfo(PGV_INFO);
-    DoubleConstraint warn = new DoubleConstraint(PGV_WARN_MIN, PGV_WARN_MAX);
-    warn.setNonEditable();
-    pgvParam.setWarningConstraint(warn);
-    pgvParam.addParameterChangeWarningListener(warningListener);
-    pgvParam.setNonEditable();
-    supportedIMParams.addParameter(pgvParam);
+	//  Create PGV Parameter (pgvParam):
+	pgvParam = new PGV_Param();
+	pgvParam.setNonEditable();
 
     // The MMI parameter
     mmiParam = new DoubleParameter(MMI_NAME, MMI_MIN, MMI_MAX);
     mmiParam.setInfo(MMI_INFO);
     mmiParam.setNonEditable();
+    
+    // Add the warning listeners:
+    saParam.addParameterChangeWarningListener(warningListener);
+    pgaParam.addParameterChangeWarningListener(warningListener);
+    pgvParam.addParameterChangeWarningListener(warningListener);
+
+    
+    // Put parameters in the supportedIMParams list:
+    supportedIMParams.clear();
+    supportedIMParams.addParameter(saParam);
+    supportedIMParams.addParameter(pgaParam);
+    supportedIMParams.addParameter(pgvParam);
     supportedIMParams.addParameter(mmiParam);
 
   }
@@ -1005,24 +998,17 @@ public double getEpsilon() {
 
     // the Component Parameter
     StringConstraint constraint = new StringConstraint();
-    constraint.addString(COMPONENT_AVE_HORZ);
-    constraint.addString(COMPONENT_GREATER_OF_TWO_HORZ);
+    constraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
+    constraint.addString(ComponentParam.COMPONENT_GREATER_OF_TWO_HORZ);
     constraint.setNonEditable();
-    componentParam = new StringParameter(COMPONENT_NAME, constraint,
-                                         COMPONENT_DEFAULT);
-    componentParam.setInfo(COMPONENT_INFO);
-    componentParam.setNonEditable();
+    componentParam = new ComponentParam(constraint,componentParam.COMPONENT_AVE_HORZ);
 
     // the stdDevType Parameter
     StringConstraint stdDevTypeConstraint = new StringConstraint();
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_TOTAL);
-    stdDevTypeConstraint.addString(STD_DEV_TYPE_NONE);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
+    stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_NONE);
     stdDevTypeConstraint.setNonEditable();
-    stdDevTypeParam = new StringParameter(STD_DEV_TYPE_NAME,
-                                          stdDevTypeConstraint,
-                                          STD_DEV_TYPE_DEFAULT);
-    stdDevTypeParam.setInfo(STD_DEV_TYPE_INFO);
-    stdDevTypeParam.setNonEditable();
+    stdDevTypeParam = new StdDevTypeParam(stdDevTypeConstraint);
 
     // add these to the list
     otherParams.addParameter(componentParam);
@@ -1108,7 +1094,7 @@ public double getEpsilon() {
     ProbEqkRupture qk = new ProbEqkRupture(6.25, 0, 8.27442E-4, new PointSurface(34.0,-117,0.0), null);
     ar.setEqkRupture(qk);
     ar.setSite(site);
-    ar.setIntensityMeasure(ar.PGA_NAME);
+    ar.setIntensityMeasure(PGA_Param.NAME);
     System.out.println(ar.getMean());
     System.out.println(ar.getStdDev());
     PropagationEffect pe = new PropagationEffect();

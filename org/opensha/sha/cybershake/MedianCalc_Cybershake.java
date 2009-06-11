@@ -31,6 +31,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkR
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.param.DistanceRupParameter;
 import org.opensha.sha.param.PropagationEffect;
 import org.opensha.sha.util.SiteTranslator;
@@ -238,9 +239,9 @@ public class MedianCalc_Cybershake
       Class imrClass = Class.forName(attenRelClassPackage + AttenRelClassName);
       Constructor con = imrClass.getConstructor(params);
       AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI) con.newInstance(paramObjects);
-      /*attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).
-          setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
-      attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).
+      /*attenRel.getParameter(SigmaTruncTypeParam.NAME).
+          setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
+      attenRel.getParameter(SigmaTruncLevelParam.NAME).
           setValue(new Double(3.0));*/
       
 
@@ -485,7 +486,7 @@ public class MedianCalc_Cybershake
       if (numTokens == 2) {
         pd = st.nextToken().trim();
         if (pd != null && !pd.equals(""))	
-        	  imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(Double.parseDouble(pd)));
+        	  imr.getParameter(PeriodParam.NAME).setValue(new Double(Double.parseDouble(pd)));
         medianFile = new FileWriter(fileNamePrefixCommon + "_" +
                                        imt + "_" + pd + ".txt");
       }
