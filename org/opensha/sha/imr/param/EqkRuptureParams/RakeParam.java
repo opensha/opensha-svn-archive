@@ -7,20 +7,32 @@ import org.opensha.commons.param.WarningDoubleParameter;
 /**
  * Rake Parameter, reserved for representing the average rake of the earthquake
  * rupture.
+ * See constructors for info on editability and default values.
  */
 public class RakeParam extends DoubleParameter {
 
 	public final static String NAME = "Rake";
 	public final static String UNITS = "degrees";
 	public final static String INFO = "Average rake of earthquake rupture";
-	public final static Double DEFAULT = new Double("0");
 	protected final static Double MIN = new Double( -180);
 	protected final static Double MAX = new Double(180);
 
-	public RakeParam() {
+	/**
+	 * This sets the default as given  
+	 * This also leaves the parameter as non editable.
+	 */
+	public RakeParam(double defaultRake) {
 		super(NAME, new DoubleConstraint(MIN, MAX), UNITS);
 		getConstraint().setNonEditable();
 	    setInfo(INFO);
-	    setDefaultValue(DEFAULT);
+	    setDefaultValue(defaultRake);
+	    setNonEditable();
 	}
+
+	/**
+	 * This sets the default as 0.0  
+	 * This also leaves the parameter as non editable.
+	 */
+	public RakeParam() {this(0.0);}
+
 }

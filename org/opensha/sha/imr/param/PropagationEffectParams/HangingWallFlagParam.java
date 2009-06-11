@@ -7,18 +7,30 @@ import org.opensha.commons.param.WarningDoubleParameter;
 /**
  * HangingWallFlagParam parameter - indicates whether a site is 
  * on the hanging wall of a rupture surface.  Exact definition and setting 
- * of value must be handled in the implementing class
+ * of value must be handled in the implementing class.
+ * See constructors for info on editability and default values.
  */
 public class HangingWallFlagParam extends BooleanParameter {
 
-	  public final static String NAME = "Site on Hanging Wall";
-	  public final static String INFO = "Indicates whether the site is on the hanging wall";
-	  public final static Boolean DEFAULT = false;
+	public final static String NAME = "Site on Hanging Wall";
+	public final static String INFO = "Indicates whether the site is on the hanging wall";
 
-
-	public HangingWallFlagParam() {
+	/**
+	 * This sets the default value as given, and leaves the parameter
+	 * non editable.
+	 * @param defaultValue
+	 */
+	public HangingWallFlagParam(boolean defaultValue) {
 		super(NAME);
-	    setInfo(INFO);
-	    setDefaultValue(DEFAULT);
+		setInfo(INFO);
+		setDefaultValue(defaultValue);
 	}
+	
+	/**
+	 * This sets the default value as "false", and leaves the parameter
+	 * non editable.
+	 * @param defaultValue
+	 */
+	public HangingWallFlagParam() {this(false);}
+
 }

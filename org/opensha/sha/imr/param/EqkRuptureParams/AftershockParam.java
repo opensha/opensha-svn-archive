@@ -5,18 +5,30 @@ import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.WarningDoubleParameter;
 
 /**
- * Aftershock parameter, indicates whether or not an event is an aftershock
+ * Aftershock parameter, indicates whether or not an event is an aftershock.
+ * See constructors for info on editability and default values.
  */
 public class AftershockParam extends BooleanParameter {
 
 	public final static String NAME = "Aftershock";
 	public final static String INFO = "Indicates whether earthquake is an aftershock";
-	public final Boolean  DEFAULT = false;
 
-
-	public AftershockParam() {
+	/**
+	 * This constructor sets the default value as "false".
+	 * This also makes the parameter non editable.
+	 */
+	public AftershockParam(boolean defaultValue) {
 		super(NAME);
 	    setInfo(INFO);
-	    setDefaultValue(DEFAULT);
+	    setDefaultValue(defaultValue);
+	    setNonEditable();
 	}
+	/**
+	 * This constructor sets the default value as "false".  
+	 * This also makes the parameter non editable.
+	 */
+	public AftershockParam() { this(false); }
+
+
+
 }

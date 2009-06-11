@@ -5,34 +5,54 @@ import org.opensha.commons.param.WarningDoubleParameter;
 
 /**
  * This constitutes is for the natural-log Spectral Acceleration intensity measure
- * parameter.  Note also that periodParam and dampingParam are internal 
- * independentParameters of saParam, both of which must provided in the constructor.
- * 
- * The parameter is left as editable in case one wants to change the warning
- * constraints etc.
+ * parameter.  It requires being given a PeriodParam and DampingParam, as these are
+ * the parameters that SA depends upon.
+ * See constructors for info on editability and default values.
  * @author field
  *
  */
 public class SA_Param extends WarningDoubleParameter {
 
-	  public final static String NAME = "SA";
-	  public final static String UNITS = "g";
-	  protected final static Double DEFAULT = new Double(Math.log(0.5));
-	  public final static String INFO = "Response Spectral Acceleration";
-	  protected final static Double MIN = new Double(Math.log(Double.MIN_VALUE));
-	  protected final static Double MAX = new Double(Double.MAX_VALUE);
-	  protected final static Double WARN_MIN = new Double(Math.log(Double.MIN_VALUE));
-	  protected final static Double WARN_MAX = new Double(Math.log(3.0));
+	public final static String NAME = "SA";
+	public final static String UNITS = "g";
+	public final static String INFO = "Response Spectral Acceleration";
+	protected final static Double MIN = new Double(Math.log(Double.MIN_VALUE));
+	protected final static Double MAX = new Double(Double.MAX_VALUE);
+	protected final static Double DEFAULT_WARN_MIN = new Double(Math.log(Double.MIN_VALUE));
+	protected final static Double DEFAULT_WARN_MAX = new Double(Math.log(3.0));
 
+	/**
+	 * This uses the DEFAULT_WARN_MIN and DEFAULT_WARN_MAX fields to set the
+	 * warning constraint, and sets the default as Math.log(0.5) (the natural
+	 * log of 0.5). The parameter is left as non editable
+	 */
 	public SA_Param(PeriodParam periodPeram, DampingParam dampingParam) {
 		super(NAME, new DoubleConstraint(MIN, MAX), UNITS);
 		getConstraint().setNonEditable();
 		this.setInfo(INFO);
-		DoubleConstraint warn2 = new DoubleConstraint(WARN_MIN, WARN_MAX);
+		DoubleConstraint warn2 = new DoubleConstraint(DEFAULT_WARN_MIN, DEFAULT_WARN_MAX);
 		warn2.setNonEditable();
 		setWarningConstraint(warn2);
 		addIndependentParameter(periodPeram);
 		addIndependentParameter(dampingParam);
-		setDefaultValue(DEFAULT);
+		setDefaultValue(0.5);
+		setNonEditable();
 	}
+	/**
+	 * This uses the supplied warning constraint and default (both in natural-log space).
+	 * The parameter is left as non editable
+	 * @param warningConstraint
+	 * @param defaultPGA
+	 */
+	public SA_Param(PeriodParam periodPeram, DampingParam dampingParam, DoubleConstraint warningConstraint, double defaultPGA) {
+		super(NAME, new DoubleConstraint(MIN, MAX), UNITS);
+		getConstraint().setNonEditable();
+		this.setInfo(INFO);
+		setWarningConstraint(warningConstraint);
+		addIndependentParameter(periodPeram);
+		addIndependentParameter(dampingParam);
+		setDefaultValue(defaultPGA);
+		setNonEditable();
+	}
+
 }

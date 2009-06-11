@@ -5,6 +5,8 @@ import org.opensha.commons.param.DoubleParameter;
 /**
  * SigmaTruncLevelParam, a DoubleParameter that represents where truncation occurs
  * on the Gaussian distribution (in units of standard deviation, relative to the mean).
+ * See constructors for info on editability and default values.
+
  */
 
 public class SigmaTruncLevelParam extends DoubleParameter {
@@ -17,12 +19,20 @@ public class SigmaTruncLevelParam extends DoubleParameter {
 	public final static Double MAX = new Double(Double.MAX_VALUE);
 
 	/**
-	 * This constructor invokes the standard options (none, 1-sided, or 2-sided)
+	 * This constructor sets the default as given, and leaves the
+	 * parameter non-editable
 	 */
-	public SigmaTruncLevelParam() {
+	public SigmaTruncLevelParam(double defaultTruncLevel) {
 		super(NAME, MIN, MAX, UNITS);
 		setInfo(INFO);
-		setDefaultValue(DEFAULT);
+		setDefaultValue(defaultTruncLevel);
 		setNonEditable();
 	}
+
+	/**
+	 * This constructor sets the default as 2.0, and leaves the
+	 * parameter non-editable
+	 */
+	public SigmaTruncLevelParam() {this(2.0); }
+
 }

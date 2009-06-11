@@ -8,20 +8,23 @@ import org.opensha.commons.param.StringParameter;
  * styles of faulting.  The options are not specified here because
  * nomenclature generally differs among subclasses.  The default must
  * also be specified in the constructor.
+ * See constructors for info on editability and default values.
  */
 
 public class FaultTypeParam extends StringParameter {
 
 	public final static String NAME = "Fault Type";
-	// No units for this one
 	public final static String INFO = "Style of faulting";
 
-	public String DEFAULT;
-
+	/**
+	 * This sets the parameter as non-editable
+	 * @param options
+	 * @param defaultValue
+	 */
 	public FaultTypeParam(StringConstraint options, String defaultValue) {
 		super(NAME, options);
 	    setInfo(INFO);
-		DEFAULT = defaultValue;
-	    setDefaultValue(DEFAULT);
+	    setDefaultValue(defaultValue);
+	    this.setNonEditable();
 	}
 }

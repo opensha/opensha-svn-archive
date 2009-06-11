@@ -10,8 +10,7 @@ import org.opensha.commons.param.WarningDoubleParameter;
  * The constructor requires a list of supported periods (in the form of a
  * DoubleDiscreteConstraint).  Once instantiated, this can be added to the
  * SA_Param as an independent parameter.
- * 
- * Everything is set as uneditable.
+ * See constructors for info on editability and default values.
  * @author field
  *
  */
@@ -19,14 +18,26 @@ public class PeriodParam extends DoubleDiscreteParameter {
 
 	public final static String NAME = "SA Period";
 	public final static String UNITS = "sec";
-	protected final static Double DEFAULT = new Double(1.0);
 	public final static String INFO = "Oscillator Period for SA";
 
-	public PeriodParam(DoubleDiscreteConstraint peroidList) {
+	/**
+	 * This is the most general constructor
+	 * @param peroidList - desired constraints
+	 * @param defaultPeriod - desired default value
+	 * @param leaveEditable - whether or not to leave editable
+	 */
+	public PeriodParam(DoubleDiscreteConstraint peroidList, double defaultPeriod, boolean leaveEditable) {
 		super(NAME, peroidList, UNITS);
 		peroidList.setNonEditable();
 		this.setInfo(INFO);
-		setDefaultValue(DEFAULT);
-		this.setNonEditable();
+		setDefaultValue(defaultPeriod);
+		if(!leaveEditable) setNonEditable();
 	}
+	
+	/**
+	 * This sets the default as 1.0 and leaves the parameter non editable
+	 * @param peroidList
+	 */
+	public PeriodParam(DoubleDiscreteConstraint peroidList) { this(peroidList,1.0,false);}
+
 }

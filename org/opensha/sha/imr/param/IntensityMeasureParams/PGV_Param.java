@@ -5,9 +5,7 @@ import org.opensha.commons.param.WarningDoubleParameter;
 
 /**
  * This constitutes is for the natural-log Peak Ground Velocity intensity measure
- * parameter.  The default, internally held constraint objects are set as non editable, 
- * but the parameter is otherwise editable (including the constraints), so call the
- * setNonEditable() method when you no longer want it editable.
+ * parameter.  See constructors for info on editability and default values.  
  * @author field
  *
  */
@@ -15,20 +13,41 @@ public class PGV_Param extends WarningDoubleParameter {
 
 	public final static String NAME = "PGV";
 	public final static String UNITS = "cm/sec";
-	public final static Double DEFAULT = new Double(Math.log(0.1));
 	public final static String INFO = "Peak Ground Velocity";
 	public final static Double MIN = new Double(Math.log(Double.MIN_VALUE));
 	public final static Double MAX = new Double(Double.MAX_VALUE);
-	public final static Double WARN_MIN = new Double(Math.log(Double.MIN_VALUE));
-	public final static Double WARN_MAX = new Double(Math.log(500));
+	public final static Double DEFAULT_WARN_MIN = new Double(Math.log(Double.MIN_VALUE));
+	public final static Double DEFAULT_WARN_MAX = new Double(Math.log(500));
 
-	public PGV_Param() {
+	/**
+	 * This uses the supplied warning constraint and default (both in natural-log space).
+	 * The parameter is left as non editable
+	 * @param warningConstraint
+	 * @param defaultPGA
+	 */
+	public PGV_Param(DoubleConstraint warningConstraint, double defaultPGA) {
 		super(NAME, new DoubleConstraint(MIN, MAX), UNITS);
 		getConstraint().setNonEditable();
 		this.setInfo(INFO);
-		DoubleConstraint warn2 = new DoubleConstraint(WARN_MIN, WARN_MAX);
+		setWarningConstraint(warningConstraint);
+		setDefaultValue(defaultPGA);
+		setNonEditable();
+	}
+
+	/**
+	 * This uses the DEFAULT_WARN_MIN and DEFAULT_WARN_MAX fields to set the
+	 * warning constraint, and sets the default as Math.log(0.1) (the natural
+	 * log of 0.1).
+	 * The parameter is left as non editable
+	 */
+	public PGV_Param() {
+		super(NAME, new DoubleConstraint(MIN, MAX), UNITS);
+		getConstraint().setNonEditable();
+		setInfo(INFO);
+		DoubleConstraint warn2 = new DoubleConstraint(DEFAULT_WARN_MIN, DEFAULT_WARN_MAX);
 		warn2.setNonEditable();
 		setWarningConstraint(warn2);
-		setDefaultValue(DEFAULT);
+		setDefaultValue(Math.log(0.1));
+		setNonEditable();
 	}
 }
