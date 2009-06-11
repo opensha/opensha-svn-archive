@@ -27,6 +27,7 @@ public class SigmaTruncLevelParam extends DoubleParameter {
 		setInfo(INFO);
 		setDefaultValue(defaultTruncLevel);
 		setNonEditable();
+		setValueAsDefault();
 	}
 
 	/**

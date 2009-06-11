@@ -22,6 +22,8 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 
 
 import org.opensha.sha.earthquake.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.param.*;
 
 
@@ -508,12 +510,12 @@ public abstract class IntensityMeasureRelationship
 	  String imt = this.getIntensityMeasure().getName();
 	  Element imtElem = xml.addElement(IntensityMeasureRelationship.XML_METADATA_IMT_NAME);
 	  imtElem.addAttribute("Type", imt);
-	  ParameterAPI period = this.getParameter(AttenuationRelationship.PERIOD_NAME);
+	  ParameterAPI period = this.getParameter(PeriodParam.NAME);
 	  if (period != null)
-		  imtElem.addAttribute(AttenuationRelationship.PERIOD_NAME.replaceAll(" ", ""), period.getValue().toString());
-	  ParameterAPI damping = this.getParameter(AttenuationRelationship.DAMPING_NAME);
+		  imtElem.addAttribute(PeriodParam.NAME.replaceAll(" ", ""), period.getValue().toString());
+	  ParameterAPI damping = this.getParameter(DampingParam.NAME);
 	  if (damping != null)
-		  imtElem.addAttribute(AttenuationRelationship.DAMPING_NAME.replaceAll(" ", ""), damping.getValue().toString());
+		  imtElem.addAttribute(DampingParam.NAME.replaceAll(" ", ""), damping.getValue().toString());
 	  return root;
   }
   
@@ -576,16 +578,16 @@ public abstract class IntensityMeasureRelationship
 	  Element imtElem = root.element(IntensityMeasureRelationship.XML_METADATA_IMT_NAME);
 	  if (imtElem != null) {
 		  imr.setIntensityMeasure(imtElem.attribute("Type").getValue());
-		  Attribute period = imtElem.attribute(AttenuationRelationship.PERIOD_NAME.replaceAll(" ", ""));
+		  Attribute period = imtElem.attribute(PeriodParam.NAME.replaceAll(" ", ""));
 		  if (period != null) {
-			  ParameterAPI periodParam = imr.getParameter(AttenuationRelationship.PERIOD_NAME);
+			  ParameterAPI periodParam = imr.getParameter(PeriodParam.NAME);
 			  if (periodParam != null)
 				  periodParam.setValue(Double.parseDouble(period.getValue()));
 		  }
 
-		  Attribute damping = imtElem.attribute(AttenuationRelationship.DAMPING_NAME.replaceAll(" ", ""));
+		  Attribute damping = imtElem.attribute(DampingParam.NAME.replaceAll(" ", ""));
 		  if (damping != null) {
-			  ParameterAPI dampingParam = imr.getParameter(AttenuationRelationship.DAMPING_NAME);
+			  ParameterAPI dampingParam = imr.getParameter(DampingParam.NAME);
 			  if (dampingParam != null)
 				  dampingParam.setValue(Double.parseDouble(damping.getValue()));
 		  }

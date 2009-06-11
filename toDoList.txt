@@ -20,6 +20,7 @@ Need to port servlets and RMI stuff from gravity.usc.edu to opensha.usc.edu.
 
 Revise Event Set Data Calculator - talk to Ned when ready
 
+On-line short course
 
 
 

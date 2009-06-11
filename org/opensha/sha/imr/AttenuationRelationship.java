@@ -29,6 +29,16 @@ import org.opensha.commons.param.WarningDoubleParameter;
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.*;
+import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGD_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 
 /**
  *  <b>Title:</b> AttenuationRelationship</p> <p>
@@ -49,7 +59,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.*;
  *  <b>Peak Ground Acceleration</b> Intensity-Measure parameter.
  *  This parameter is instantiated in its entirety in the
  *  initSupportedIntenistyMeasureParams() method here.<br>
- *  PGA_NAME = "PGA"<br>
+ *  PGA_Param.NAME = "PGA"<br>
  *  PGA_UNITS = "g"<br>
  *  PGA_INFO = "Peak Ground Acceleration"<br>
  *  PGA_MIN = 0<br>
@@ -61,7 +71,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.*;
  *  <b>pgvParam</b> - a WarningDoubleParameter representing the natural-log of the
  *  <b>Peak Ground Velocity</b> Intensity-Measure parameter.
  *  This parameter is not instantiated here due to limited use.<br>
- *  PGV_NAME = "PGV"<br>
+ *  PGV_Param.NAME = "PGV"<br>
  *  PGV_UNITS = "g"<br>
  *  PGV_INFO = "Peak Ground Acceleration"<br>
  *  PGV_MIN = 0<br>
@@ -75,7 +85,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.*;
  *  This parameter is instantiated in its entirety in the
  *  initSupportedIntenistyMeasureParams() method here. However its periodParam independent-
  *  parameter must be created and added in subclasses (since supported periods will vary).<br>
- *  SA_NAME = "SA"<br>
+ *  SA_Param.NAME = "SA"<br>
  *  SA_UNITS = "g"<br>
  *  SA_INFO = "Response Spectral Acceleration"<br>
  *  SA_MIN = 0<br>
@@ -87,7 +97,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.*;
  * <b>periodParam</b> - a DoubleDiscreteParameter representing the <b>Period</b> associated
  * with the Response-Spectral-Acceleration Parameter (periodParam is an
  * independentParameter of saParam).  This must be created and added to saParam in subclasses.<br>
- * PERIOD_NAME = "SA Period"<br>
+ * PeriodParam.NAME = "SA Period"<br>
  * PERIOD_UNITS = "sec"<br>
  * PERIOD_INFO = "Oscillator Period for SA"<br>
  * PERIOD_DEFAULT = new Double( 0 )<br>
@@ -181,7 +191,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.*;
  * STD_DEV_TYPE_INFO = "Type of Standard Deviation"<br>
  * STD_DEV_TYPE_DEFAULT = "Total"<br>
  * STD_DEV_TYPE_TOTAL = "Total"<br>
- * STD_DEV_TYPE_INTER = "Inter-Event"<br>
+ * StdDevTypeParam.STD_DEV_TYPE_INTER = "Inter-Event"<br>
  * STD_DEV_TYPE_INTRA = "Intra-Event"<p>
  * STD_DEV_TYPE_NONE = "None (zero)"<br>
  *
@@ -244,111 +254,40 @@ public abstract class AttenuationRelationship
    */
   protected final static boolean D = false;
 
-  /**
-   * PGA parameter, reserved for the natural log of the "Peak Ground Acceleration"
-   * Intensity-Measure Parameter that most subclasses will support; all of the "PGA_*"
-   * class variables relate to this Parameter. This parameter is instantiated
-   * in its entirety in the initSupportedIntenistyMeasureParams() method here.
-   */
-  protected WarningDoubleParameter pgaParam = null;
-  public final static String PGA_NAME = "PGA";
-  public final static String PGA_UNITS = "g";
-  protected final static Double PGA_DEFAULT = new Double(Math.log(0.1));
-  public final static String PGA_INFO = "Peak Ground Acceleration";
-  protected final static Double PGA_MIN = new Double(Math.log(Double.MIN_VALUE));
-  protected final static Double PGA_MAX = new Double(Double.MAX_VALUE);
-  protected final static Double PGA_WARN_MIN = new Double(Math.log(Double.
-      MIN_VALUE));
-  protected final static Double PGA_WARN_MAX = new Double(Math.log(2.5));
-
-  /**
-   * PGV parameter, reserved for the natural log of the "Peak Ground Velocity" Intensity-
-   * Measure Parameter that most subclasses will support; all of the "PGV_*"
-   * class variables relate to this Parameter.This parameter is not instantiated
-   * here due to limited use.
-   */
-  protected WarningDoubleParameter pgvParam = null;
-  public final static String PGV_NAME = "PGV";
-  public final static String PGV_UNITS = "cm/sec";
-  protected final static Double PGV_DEFAULT = new Double(Math.log(0.1));
-  public final static String PGV_INFO = "Peak Ground Velocity";
-  protected final static Double PGV_MIN = new Double(Math.log(Double.MIN_VALUE));
-  protected final static Double PGV_MAX = new Double(Double.MAX_VALUE);
-  protected final static Double PGV_WARN_MIN = new Double(Math.log(Double.
-      MIN_VALUE));
-  protected final static Double PGV_WARN_MAX = new Double(Math.log(500));
   
+  /**
+   * Intensity-Measure Parameters
+   * (see classes for exact definitions)
+   */
+  protected PGA_Param pgaParam = null;
+  protected PGV_Param pgvParam = null;
+  protected PGD_Param pgdParam = null;
+  protected SA_Param saParam = null;
+  protected PeriodParam saPeriodParam = null;
+  protected DampingParam saDampingParam = null;
   
   
   /**
-   * PGD parameter, reserved for the natural log of the "Peak Ground displacement" Intensity-
-   * Measure Parameter that most subclasses will support; all of the "PGD_*"
-   * class variables relate to this Parameter.This parameter is not instantiated
-   * here due to limited use.
+   * Other Parameters
+   * (see classes for exact definitions)
    */
-  protected WarningDoubleParameter pgdParam = null;
-  public final static String PGD_NAME = "PGD";
-  public final static String PGD_UNITS = "cm";
-  protected final static Double PGD_DEFAULT = new Double(Math.log(0.01));
-  public final static String PGD_INFO = "Peak Ground Displacement";
-  protected final static Double PGD_MIN = new Double(Math.log(Double.MIN_VALUE));
-  protected final static Double PGD_MAX = new Double(Double.MAX_VALUE);
-  protected final static Double PGD_WARN_MIN = new Double(Math.log(Double.
-      MIN_VALUE));
-  protected final static Double PGD_WARN_MAX = new Double(Math.log(2500));
+  protected StdDevTypeParam stdDevTypeParam = null;
+  protected SigmaTruncTypeParam sigmaTruncTypeParam = null;
+  protected SigmaTruncLevelParam sigmaTruncLevelParam = null;
+  protected ComponentParam componentParam = null;
+  
 
   /**
-   * SA parameter, reserved for the the natural log of "Spectral Acceleration"
-   * Intensity-Measure Parameter that most subclasses will support; all of the
-   * "SA_*" class variables relate to this Parameter.  Note also that periodParam and
-   * dampingParam are internal independentParameters of saParam. This parameter
-   * is instantiated in its entirety in the initSupportedIntenistyMeasureParams()
-   * method here. However its periodParam independent-parameter must be created
-   * and added in subclasses.
+   * FltTypeParam, a StringParameter reserved for representing different
+   * styles of faulting.  The options are not specified here because
+   * nomenclature generally differs among subclasses.
    */
-  protected WarningDoubleParameter saParam = null;
-  public final static String SA_NAME = "SA";
-  public final static String SA_UNITS = "g";
-  protected final static Double SA_DEFAULT = new Double(Math.log(0.5));
-  public final static String SA_INFO = "Response Spectral Acceleration";
-  protected final static Double SA_MIN = new Double(Math.log(Double.MIN_VALUE));
-  protected final static Double SA_MAX = new Double(Double.MAX_VALUE);
-  protected final static Double SA_WARN_MIN = new Double(Math.log(Double.
-      MIN_VALUE));
-  protected final static Double SA_WARN_MAX = new Double(Math.log(3.0));
+  protected StringParameter fltTypeParam = null;
+  public final static String FLT_TYPE_NAME = "Fault Type";
+  // No units for this one
+  public final static String FLT_TYPE_INFO = "Style of faulting";
 
-  /**
-   * Period parameter, reserved for the oscillator period that Spectral
-   * Acceleration (saParam) depends on (periodParam is an independentParameter
-   * of saParam); all of the "PERIOD_*" class variables relate to this
-   * Parameter.  This parameter is created and added to saParam in subclasses.
-   */
-  protected DoubleDiscreteParameter periodParam = null;
-  public final static String PERIOD_NAME = "SA Period";
-  public final static String PERIOD_UNITS = "sec";
-  protected final static Double PERIOD_DEFAULT = new Double(1.0);
-  public final static String PERIOD_INFO = "Oscillator Period for SA";
-  // The constraint is created and added in the subclass.
-
-
-  /**
-   * Damping parameter, reserved for the damping level that Spectral
-   * Acceleration (saParam) depends on (dampingParam is an independentParameter
-   * of saParam); all of the "DAMPING_*" class variables relate to this
-   * Parameter.  This parameter is instantiated in its entirety in the
-   * initSupportedIntenistyMeasureParams() method here.  This must be added to
-   * saParam in subclasses.  If damping values besides 5% are available, add
-   * them in subclass and then set to non-editable.
-   */
-  protected DoubleDiscreteParameter dampingParam = null;
-  protected DoubleDiscreteConstraint dampingConstraint = null;
-  public final static String DAMPING_NAME = "SA Damping";
-  public final static String DAMPING_UNITS = " % ";
-  protected final static Double DAMPING_DEFAULT = new Double(5);
-  public final static String DAMPING_INFO = "Oscillator Damping for SA";
-  //The constraint is created and added in the subclass; most will support only this default value
-
-
+  
   /**
    * Magnitude parameter, reserved for representing moment magnitude in all
    * subclasses; all of the "MAG_*" class variables relate to this magParam
@@ -450,22 +389,6 @@ public abstract class AttenuationRelationship
 
 
 
-  /**
-   * Component Parameter, reserved for representing the component of shaking
-   * (in 3D space); all of the "COMPONENT_*" class variables relate to this
-   * Parameter.
-   */
-  protected StringParameter componentParam = null;
-  public final static String COMPONENT_NAME = "Component";
-  // not units for Component
-  public final static String COMPONENT_DEFAULT = "Average Horizontal";
-  public final static String COMPONENT_AVE_HORZ = "Average Horizontal";
-  public final static String COMPONENT_GMRotI50 = "Average Horizontal (GMRotI50)";
-  public final static String COMPONENT_RANDOM_HORZ = "Random Horizontal";
-  public final static String COMPONENT_GREATER_OF_TWO_HORZ = "Greater of Two Horz.";
-  public final static String COMPONENT_VERT = "Vertical";
-  public final static String COMPONENT_INFO = "Component of shaking";
-  // constraint will be created and added in subclass
 
 
   /**
@@ -528,65 +451,6 @@ public abstract class AttenuationRelationship
 	// warning values set in subclasses
 
 
-  /**
-   * StdDevType, a StringParameter, reserved for representing the various types of
-   * standard deviations that various IMR might support:  "InterEvent" is
-   * the event to event variability, "Intra-Event" is the variability within
-   * an event, and "Total" (the most common) is the other two two added in quadrature.
-   * Other options are defined in some subclasses.
-   */
-  protected StringParameter stdDevTypeParam = null;
-  public final static String STD_DEV_TYPE_NAME = "Std Dev Type";
-  // No units for this one
-  public final static String STD_DEV_TYPE_INFO = "Type of Standard Deviation";
-  public final static String STD_DEV_TYPE_DEFAULT = "Total";
-  public final static String STD_DEV_TYPE_TOTAL = "Total";
-  public final static String STD_DEV_TYPE_INTER = "Inter-Event";
-  public final static String STD_DEV_TYPE_INTRA = "Intra-Event";
-  public final static String STD_DEV_TYPE_NONE = "None (zero)";
-  public final static String STD_DEV_TYPE_TOTAL_MAG_DEP =
-      "Total (Mag Dependent)";
-  public final static String STD_DEV_TYPE_TOTAL_PGA_DEP =
-      "Total (PGA Dependent)";
-  public final static String STD_DEV_TYPE_INTRA_MAG_DEP =
-      "Intra-Event (Mag Dependent)";
-
-  /**
-   * FltTypeParam, a StringParameter reserved for representing different
-   * styles of faulting.  The options are not specified here because
-   * nomenclature generally differs among subclasses.
-   */
-  protected StringParameter fltTypeParam = null;
-  public final static String FLT_TYPE_NAME = "Fault Type";
-  // No units for this one
-  public final static String FLT_TYPE_INFO = "Style of faulting";
-
-  /**
-   * SigmaTruncTypeParam, a StringParameter that represents the type of
-   * probability distribution truncation.
-   */
-  protected StringParameter sigmaTruncTypeParam = null;
-  public final static String SIGMA_TRUNC_TYPE_NAME = "Gaussian Truncation";
-  public final static String SIGMA_TRUNC_TYPE_INFO = "Type of distribution truncation to apply when computing exceedance probabilities";
-  public final static String SIGMA_TRUNC_TYPE_NONE = "None";
-  public final static String SIGMA_TRUNC_TYPE_1SIDED = "1 Sided";
-  public final static String SIGMA_TRUNC_TYPE_2SIDED = "2 Sided";
-  public final static String SIGMA_TRUNC_TYPE_DEFAULT = "None";
-
-  /**
-   * SigmaTruncLevelParam, a DoubleParameter that represents where truncation occurs
-   * on the Gaussian distribution (in units of standard deviation, relative to the mean).
-   */
-  protected DoubleParameter sigmaTruncLevelParam = null;
-  public final static String SIGMA_TRUNC_LEVEL_NAME = "Truncation Level";
-  public final static String SIGMA_TRUNC_LEVEL_UNITS = "Std Dev";
-  public final static String SIGMA_TRUNC_LEVEL_INFO =
-      "The number of standard deviations, from the mean, where truncation occurs";
-  public final static Double SIGMA_TRUNC_LEVEL_DEFAULT = new Double(2.0);
-  public final static Double SIGMA_TRUNC_LEVEL_MIN = new Double(Double.
-      MIN_VALUE);
-  public final static Double SIGMA_TRUNC_LEVEL_MAX = new Double(Double.
-      MAX_VALUE);
 
   /**
    * This allows users to set a maximul distance (beyond which the mean will
@@ -753,14 +617,14 @@ public abstract class AttenuationRelationship
    */
   public DiscretizedFuncAPI getSA_ExceedProbSpectrum(double iml) throws ParameterException,
       IMRException {
-    this.setIntensityMeasure(this.SA_NAME);
+    this.setIntensityMeasure(SA_Param.NAME);
     im.setValue(new Double(iml));
     DiscretizedFuncAPI exeedProbFunction =  new ArbitrarilyDiscretizedFunc();
-    ArrayList allowedSA_Periods = periodParam.getAllowedDoubles();
+    ArrayList allowedSA_Periods = saPeriodParam.getAllowedDoubles();
     int size = allowedSA_Periods.size();
     for(int i=0;i<size;++i){
       Double saPeriod = (Double)allowedSA_Periods.get(i);
-      getParameter(this.PERIOD_NAME).setValue(saPeriod);
+      getParameter(PeriodParam.NAME).setValue(saPeriod);
       exeedProbFunction.set(saPeriod.doubleValue(),getExceedProbability());
     }
     return exeedProbFunction;
@@ -776,15 +640,15 @@ public abstract class AttenuationRelationship
    */
   public DiscretizedFuncAPI getSA_IML_AtExceedProbSpectrum(double exceedProb) throws ParameterException,
       IMRException {
-    this.setIntensityMeasure(this.SA_NAME);
+    this.setIntensityMeasure(SA_Param.NAME);
     //sets the value of the exceedProb Param.
     exceedProbParam.setValue(exceedProb);
     DiscretizedFuncAPI imlFunction =  new ArbitrarilyDiscretizedFunc();
-    ArrayList allowedSA_Periods = periodParam.getAllowedDoubles();
+    ArrayList allowedSA_Periods = saPeriodParam.getAllowedDoubles();
     int size = allowedSA_Periods.size();
     for(int i=0;i<size;++i){
       Double saPeriod = (Double)allowedSA_Periods.get(i);
-      getParameter(this.PERIOD_NAME).setValue(saPeriod);
+      getParameter(PeriodParam.NAME).setValue(saPeriod);
       imlFunction.set(saPeriod.doubleValue(),getIML_AtExceedProb());
     }
 
@@ -833,13 +697,13 @@ public abstract class AttenuationRelationship
     if (stdDev != 0) {
       double stRndVar = (iml - mean) / stdDev;
       // compute exceedance probability based on truncation type
-      if (sigmaTruncTypeParam.getValue().equals(SIGMA_TRUNC_TYPE_NONE)) {
+      if (sigmaTruncTypeParam.getValue().equals(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE)) {
         return GaussianDistCalc.getExceedProb(stRndVar);
       }
       else {
         double numSig = ( (Double) ( (ParameterAPI) sigmaTruncLevelParam).
                          getValue()).doubleValue();
-        if (sigmaTruncTypeParam.getValue().equals(SIGMA_TRUNC_TYPE_1SIDED)) {
+        if (sigmaTruncTypeParam.getValue().equals(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED)) {
           return GaussianDistCalc.getExceedProb(stRndVar, 1, numSig);
         }
         else {
@@ -953,17 +817,17 @@ public abstract class AttenuationRelationship
 
     // check for the simplest, most common case (median from symmectric truncation)
 
-    if (!sigTrType.equals(SIGMA_TRUNC_TYPE_1SIDED) && exceedProb == 0.5) {
+    if (!sigTrType.equals(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED) && exceedProb == 0.5) {
       return getMean();
     }
     else {
-      if (sigTrType.equals(SIGMA_TRUNC_TYPE_NONE)) {
+      if (sigTrType.equals(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE)) {
         stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 0, 0, 1e-6);
       }
       else {
         double numSig = ( (Double) ( (ParameterAPI) sigmaTruncLevelParam).
                          getValue()).doubleValue();
-        if (sigTrType.equals(SIGMA_TRUNC_TYPE_1SIDED)) {
+        if (sigTrType.equals(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED)) {
           stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 1, numSig,
               1e-6);
         }
@@ -1058,43 +922,12 @@ public abstract class AttenuationRelationship
   }
 
   /**
-   *  This creates the following parameters for subclasses: saParam; dampingParam,
-   *  and pgaParam; the periodParam (one of saParam's independent parameters) is
-   *  created and added in subclasses.  All these parameters are added (if supported)
-   *   to the supportedIMParams list in subclasses.  Note: this must generally be executed
-   *  after the initCoefficients() method.<br>
+   *  This creates the supported intensity-measure parameters.  
+   *  All implementation is in the subclass.
    *
    */
   protected void initSupportedIntensityMeasureParams() {
 
-    // Create SA Parameter:
-    DoubleConstraint saConstraint = new DoubleConstraint(SA_MIN, SA_MAX);
-    saConstraint.setNonEditable();
-    saParam = new WarningDoubleParameter(SA_NAME, saConstraint, SA_UNITS);
-    saParam.setInfo(SA_INFO);
-    DoubleConstraint warn1 = new DoubleConstraint(SA_WARN_MIN, SA_WARN_MAX);
-    warn1.setNonEditable();
-    saParam.setWarningConstraint(warn1);
-
-    // Damping-level parameter for SA
-    // (overide this in subclass of other damping levels are available)
-    dampingConstraint = new DoubleDiscreteConstraint();
-    dampingConstraint.addDouble(DAMPING_DEFAULT);
-    // leave constrain editable in case subclasses want to add other options
-    dampingParam = new DoubleDiscreteParameter(DAMPING_NAME, dampingConstraint,
-                                               DAMPING_UNITS, DAMPING_DEFAULT);
-    dampingParam.setInfo(DAMPING_INFO);
-    dampingParam.setNonEditable();
-
-    // Create PGA Parameter
-    DoubleConstraint pgaConstraint = new DoubleConstraint(PGA_MIN, PGA_MAX);
-    pgaConstraint.setNonEditable();
-    pgaParam = new WarningDoubleParameter(PGA_NAME, pgaConstraint, PGA_UNITS);
-    pgaParam.setInfo(PGA_INFO);
-    DoubleConstraint warn2 = new DoubleConstraint(PGA_WARN_MIN, PGA_WARN_MAX);
-    warn2.setNonEditable();
-    pgaParam.setWarningConstraint(warn2);
-    pgaParam.setNonEditable();
 
   }
 
@@ -1206,38 +1039,20 @@ public abstract class AttenuationRelationship
    * not a supported IMT (or one of their independent parameters) and is not contained
    * in, or computed from, the site or eqkRutpure objects.  Note that this does not
    * include the exceedProbParam (which exceedance probability does not depend on).
+   * sigmaTruncTypeParam and sigmaTruncLevelParam are instantiated here and added
+   * to the otherParams list (others whould be implemented as desired in subclasses)
    */
   protected void initOtherParams() {
 
-    // Sigma truncation type parameter:
-    StringConstraint sigmaTruncTypeConstraint = new StringConstraint();
-    sigmaTruncTypeConstraint.addString(SIGMA_TRUNC_TYPE_NONE);
-    sigmaTruncTypeConstraint.addString(SIGMA_TRUNC_TYPE_1SIDED);
-    sigmaTruncTypeConstraint.addString(SIGMA_TRUNC_TYPE_2SIDED);
-    sigmaTruncTypeConstraint.setNonEditable();
-    sigmaTruncTypeParam = new StringParameter(SIGMA_TRUNC_TYPE_NAME,
-                                              sigmaTruncTypeConstraint,
-                                              SIGMA_TRUNC_TYPE_DEFAULT);
-    sigmaTruncTypeParam.setInfo(SIGMA_TRUNC_TYPE_INFO);
-    sigmaTruncTypeParam.setNonEditable();
+	  sigmaTruncTypeParam = new SigmaTruncTypeParam();
+	  sigmaTruncLevelParam = new SigmaTruncLevelParam();
 
-    // Sigma truncation level parameter:
-    DoubleConstraint sigmaTruncLevelConstraint = new DoubleConstraint(
-        SIGMA_TRUNC_LEVEL_MIN, SIGMA_TRUNC_LEVEL_MAX);
-    sigmaTruncLevelConstraint.setNonEditable();
-    sigmaTruncLevelParam = new DoubleParameter(SIGMA_TRUNC_LEVEL_NAME,
-                                               sigmaTruncLevelConstraint,
-                                               SIGMA_TRUNC_LEVEL_UNITS,
-                                               SIGMA_TRUNC_LEVEL_DEFAULT);
-    sigmaTruncLevelParam.setInfo(SIGMA_TRUNC_LEVEL_INFO);
-    sigmaTruncLevelParam.setNonEditable();
-
-    // Put parameters in the otherParams list:
-    otherParams.clear();
-    otherParams.addParameter(sigmaTruncTypeParam);
-    otherParams.addParameter(sigmaTruncLevelParam);
+	  // Put parameters in the otherParams list:
+	  otherParams.clear();
+	  otherParams.addParameter(sigmaTruncTypeParam);
+	  otherParams.addParameter(sigmaTruncLevelParam);
 
   }
 
-  
+
 }

@@ -29,8 +29,10 @@ public class SigmaTruncTypeParam extends StringParameter {
 		options.addString(SIGMA_TRUNC_TYPE_NONE);
 		options.addString(SIGMA_TRUNC_TYPE_1SIDED);
 		options.addString(SIGMA_TRUNC_TYPE_2SIDED);
+		setConstraint(options);
 		setInfo(INFO);
 		setDefaultValue(SIGMA_TRUNC_TYPE_NONE);
 		setNonEditable();
+		setValueAsDefault();
 	}
 }
