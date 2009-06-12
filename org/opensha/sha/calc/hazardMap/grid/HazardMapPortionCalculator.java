@@ -293,7 +293,7 @@ public class HazardMapPortionCalculator {
 //								boolean flag = false;
 //								
 //								// this is a basin depth
-//								if (tempParam.getName().equals(Field_2000_AttenRel.BASIN_DEPTH_NAME) || tempParam.getName().equals(AttenuationRelationship.DEPTH_2pt5_NAME)) {
+//								if (tempParam.getName().equals(Field_2000_AttenRel.BASIN_DEPTH_NAME) || tempParam.getName().equals(DepthTo2pt5kmPerSecParam.NAME)) {
 //									if (skipBasin) {
 ////										System.out.println("****SKIPPING A BASIN SET!!!!");
 //										flag = false;

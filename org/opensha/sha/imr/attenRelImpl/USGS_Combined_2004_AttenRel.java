@@ -38,6 +38,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.param.*;
 
 /**
@@ -250,10 +251,9 @@ public class USGS_Combined_2004_AttenRel
     site_BC.addParameter(scemy_1997_attenRel.getParameter(scemy_1997_attenRel.
         SITE_TYPE_NAME));
 
-    bjf_1997_attenRel.getParameter(bjf_1997_attenRel.VS30_NAME).setValue(new
+    bjf_1997_attenRel.getParameter(Vs30_Param.NAME).setValue(new
         Double(760.0));
-    site_BC.addParameter(bjf_1997_attenRel.getParameter(bjf_1997_attenRel.
-        VS30_NAME));
+    site_BC.addParameter(bjf_1997_attenRel.getParameter(Vs30_Param.NAME));
 
     // set the components in the attenuation relationships
     as_1997_attenRel.getParameter(ComponentParam.NAME).setValue(ComponentParam.COMPONENT_AVE_HORZ);
@@ -283,7 +283,7 @@ public class USGS_Combined_2004_AttenRel
 
     this.propEffect.setEqkRupture(eqkRupture);
 
-    vs30Param.setValueIgnoreWarning((Double)site.getParameter(VS30_NAME).getValue());
+    vs30Param.setValueIgnoreWarning((Double)site.getParameter(Vs30_Param.NAME).getValue());
 
     // set the location of the BC bounday site object
     site_BC.setLocation(site.getLocation());
@@ -326,7 +326,7 @@ public class USGS_Combined_2004_AttenRel
    */
   public void setSite(Site site) throws ParameterException {
 
-    vs30Param.setValueIgnoreWarning((Double)site.getParameter(VS30_NAME).getValue());
+    vs30Param.setValueIgnoreWarning((Double)site.getParameter(Vs30_Param.NAME).getValue());
     this.site = site;
 
     // set the location of the BC bounday site object
@@ -849,7 +849,7 @@ public double getEpsilon() {
   public void setParamDefaults() {
 
     //((ParameterAPI)this.iml).setValue( IML_DEFAULT );
-    vs30Param.setValue(VS30_DEFAULT);
+    vs30Param.setValueAsDefault();
     saParam.setValueAsDefault();
     saPeriodParam.setValueAsDefault();
     saDampingParam.setValueAsDefault();
@@ -901,15 +901,7 @@ public double getEpsilon() {
    */
   protected void initSiteParams() {
 
-    // create willsSiteType Parameter:
-    super.initSiteParams();
-
-    // create vs30 Parameter:
-    DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
-    warn.setNonEditable();
-    vs30Param.setWarningConstraint(warn);
-    vs30Param.addParameterChangeWarningListener(warningListener);
-    vs30Param.setNonEditable();
+	vs30Param = new Vs30_Param(VS30_WARN_MIN, VS30_WARN_MAX);
 
     // add it to the siteParams list:
     siteParams.clear();
@@ -934,10 +926,6 @@ public double getEpsilon() {
    *  them to the supportedIMParams list. Makes the parameters noneditable.
    */
   protected void initSupportedIntensityMeasureParams() {
-
-    // Create saParam (& its dampingParam) and pgaParam:
-    super.initSupportedIntensityMeasureParams();
-
 
     // Create saParam's "Period" independent parameter:
     DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
@@ -1090,7 +1078,7 @@ public double getEpsilon() {
     USGS_Combined_2004_AttenRel ar = new USGS_Combined_2004_AttenRel(null);
     ar.setParamDefaults();
     Site site = new Site(new Location(34,-117,0));
-    site.addParameter(ar.getParameter(ar.VS30_NAME));
+    site.addParameter(ar.getParameter(Vs30_Param.NAME));
     ProbEqkRupture qk = new ProbEqkRupture(6.25, 0, 8.27442E-4, new PointSurface(34.0,-117,0.0), null);
     ar.setEqkRupture(qk);
     ar.setSite(site);

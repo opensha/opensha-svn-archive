@@ -24,6 +24,8 @@ import org.opensha.commons.util.FaultUtils;
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
@@ -31,6 +33,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.param.*;
 
 /**
@@ -141,7 +144,6 @@ public class BA_2006_AttenRel
   public final static String FLT_TYPE_STRIKE_SLIP = "Strike-Slip";
   public final static String FLT_TYPE_REVERSE = "Reverse";
   public final static String FLT_TYPE_NORMAL = "Normal";
-  public final static String FLT_TYPE_DEFAULT = "Unknown";
   
   /**
    * The DistanceRupParameter, closest distance to fault surface.
@@ -208,7 +210,7 @@ public class BA_2006_AttenRel
    */
   public void setSite(Site site) throws ParameterException {
 
-    vs30Param.setValue((Double)site.getParameter(VS30_NAME).getValue());
+    vs30Param.setValue((Double)site.getParameter(Vs30_Param.NAME).getValue());
     this.site = site;
     setPropagationEffectParams();
 
@@ -320,10 +322,10 @@ public class BA_2006_AttenRel
    */
   public void setParamDefaults() {
 
-    vs30Param.setValue(VS30_DEFAULT);
-    magParam.setValue(MAG_DEFAULT);
+    vs30Param.setValueAsDefault();
+    magParam.setValueAsDefault();
     distanceJBParam.setValue(DISTANCE_JB_DEFAULT);
-    fltTypeParam.setValue(FLT_TYPE_DEFAULT);
+    fltTypeParam.setValueAsDefault();
     saParam.setValueAsDefault();
     saPeriodParam.setValueAsDefault();
     saDampingParam.setValueAsDefault();
@@ -386,7 +388,7 @@ public class BA_2006_AttenRel
     this.site = propEffect.getSite();
     this.eqkRupture = propEffect.getEqkRupture();
 
-    vs30Param.setValueIgnoreWarning((Double)site.getParameter(VS30_NAME).getValue());
+    vs30Param.setValueIgnoreWarning((Double)site.getParameter(Vs30_Param.NAME).getValue());
 
     magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
     setFaultTypeFromRake(eqkRupture.getAveRake());
@@ -403,15 +405,7 @@ public class BA_2006_AttenRel
    */
   protected void initSiteParams() {
 
-    // create vs30 Parameter:
-    super.initSiteParams();
-
-    // create and add the warning constraint:
-    DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
-    warn.setNonEditable();
-    vs30Param.setWarningConstraint(warn);
-    vs30Param.addParameterChangeWarningListener(warningListener);
-    vs30Param.setNonEditable();
+	vs30Param = new Vs30_Param(VS30_WARN_MIN, VS30_WARN_MAX);
 
     siteParams.clear();
     siteParams.addParameter(vs30Param);
@@ -424,25 +418,15 @@ public class BA_2006_AttenRel
    */
   protected void initEqkRuptureParams() {
 
-    // Create magParam & other common EqkRup-related params
-    super.initEqkRuptureParams();
-
-    //  Create and add warning constraint to magParam:
-    DoubleConstraint warn = new DoubleConstraint(MAG_WARN_MIN, MAG_WARN_MAX);
-    warn.setNonEditable();
-    magParam.setWarningConstraint(warn);
-    magParam.addParameterChangeWarningListener(warningListener);
-    magParam.setNonEditable();
-
+	  magParam = new MagParam(MAG_WARN_MIN, MAG_WARN_MAX);
+	  
     StringConstraint constraint = new StringConstraint();
     constraint.addString(FLT_TYPE_UNKNOWN);
     constraint.addString(FLT_TYPE_STRIKE_SLIP);
     constraint.addString(FLT_TYPE_NORMAL);
     constraint.addString(FLT_TYPE_REVERSE);
     constraint.setNonEditable();
-    fltTypeParam = new StringParameter(FLT_TYPE_NAME, constraint, null);
-    fltTypeParam.setInfo(FLT_TYPE_INFO);
-    fltTypeParam.setNonEditable();
+    fltTypeParam = new FaultTypeParam(constraint,FLT_TYPE_UNKNOWN);
 
     eqkRuptureParams.clear();
     eqkRuptureParams.addParameter(magParam);
@@ -671,13 +655,13 @@ public class BA_2006_AttenRel
     if (pName.equals(DistanceJBParameter.NAME)) {
       rjb = ( (Double) val).doubleValue();
     }
-    else if (pName.equals(VS30_NAME)) {
+    else if (pName.equals(Vs30_Param.NAME)) {
       vs30 = ( (Double) val).doubleValue();
     }
-    else if (pName.equals(MAG_NAME)) {
+    else if (pName.equals(magParam.NAME)) {
       mag = ( (Double) val).doubleValue();
     }
-    else if (pName.equals(FLT_TYPE_NAME)) {
+    else if (pName.equals(FaultTypeParam.NAME)) {
         fltType = (String)fltTypeParam.getValue();
     }
     else if (pName.equals(StdDevTypeParam.NAME)) {

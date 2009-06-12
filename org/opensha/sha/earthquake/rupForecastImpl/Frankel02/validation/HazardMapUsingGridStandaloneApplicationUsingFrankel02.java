@@ -12,6 +12,7 @@ import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 
 import org.opensha.commons.data.Site;
@@ -153,7 +154,7 @@ public class HazardMapUsingGridStandaloneApplicationUsingFrankel02
     attenRel.getParameter(ComponentParam.NAME).setValue(ComponentParam.COMPONENT_RANDOM_HORZ);
     attenRel.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
     // set the vs30
-    attenRel.getParameter(attenRel.VS30_NAME).setValue(new Double(760.0));
+    attenRel.getParameter(Vs30_Param.NAME).setValue(new Double(760.0));
   }
 
   /**

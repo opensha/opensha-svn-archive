@@ -14,6 +14,18 @@ import org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
+import org.opensha.sha.imr.param.EqkRuptureParams.AftershockParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.RupTopDepthParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.RupWidthParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistRupMinusDistX_OverRupParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.HangingWallFlagParam;
+import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
+import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
+import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.param.*;
 
@@ -33,7 +45,7 @@ public class NGA08_Site_EqkRup_Tests extends TestCase {
 	
 	// hard-coded test values (just make sure they aren't equal to defaults in atten relationships)
 	double mag=6.345, vs30=551.2, depth2pt5=8.134, depth1pt0=1111.1;
-	String vs30_type = AttenuationRelationship.VS30_TYPE_INFERRED;
+	String vs30_type = Vs30_TypeParam.VS30_TYPE_INFERRED;
 	Boolean aftershock = new Boolean(false);
 	
 		
@@ -219,10 +231,10 @@ public class NGA08_Site_EqkRup_Tests extends TestCase {
 		eqkRup.setMag(mag);
 		
 		// set site parameters
-		site.getParameter(AttenuationRelationship.VS30_NAME).setValue(new Double(vs30));
-		site.getParameter(AttenuationRelationship.VS30_TYPE_NAME).setValue(vs30_type);
-		site.getParameter(AttenuationRelationship.DEPTH_2pt5_NAME).setValue(new Double(depth2pt5));
-		site.getParameter(AttenuationRelationship.DEPTH_1pt0_NAME).setValue(new Double(depth1pt0));
+		site.getParameter(Vs30_Param.NAME).setValue(new Double(vs30));
+		site.getParameter(Vs30_TypeParam.NAME).setValue(vs30_type);
+		site.getParameter(DepthTo2pt5kmPerSecParam.NAME).setValue(new Double(depth2pt5));
+		site.getParameter(DepthTo1pt0kmPerSecParam.NAME).setValue(new Double(depth1pt0));
 
 		int counter=0;
 		
@@ -319,42 +331,42 @@ public class NGA08_Site_EqkRup_Tests extends TestCase {
 		while(it.hasNext()) {
 			ParameterAPI param = it.next();
 			
-			if(param.getName().equals(AttenuationRelationship.AFTERSHOCK_NAME)) {
+			if(param.getName().equals(AftershockParam.NAME)) {
 				Boolean ashock = (Boolean)param.getValue();
 				if(!aftershock.equals(ashock)){
 					if (D) System.out.println(param.getName()+"\t"+ashock+"\t"+aftershock);
 					return false;
 				}
 			}
-			else if(param.getName().equals(AttenuationRelationship.DIP_NAME)) {
+			else if(param.getName().equals(DipParam.NAME)) {
 				double testDip = ((Double)param.getValue()).doubleValue();
 				if(dip != testDip){
 					if (D) System.out.println(param.getName()+"\t"+dip+"\t"+testDip);
 					return false;
 				}
 			}
-			else if(param.getName().equals(AttenuationRelationship.MAG_NAME)) {
+			else if(param.getName().equals(MagParam.NAME)) {
 				double testMag = ((Double)param.getValue()).doubleValue();
 				if(mag != testMag){
 					if (D) System.out.println(param.getName()+"\t"+mag+"\t"+testMag);
 					return false;				
 				}
 			}
-			else if(param.getName().equals(AttenuationRelationship.RUP_TOP_NAME)) {
+			else if(param.getName().equals(RupTopDepthParam.NAME)) {
 				double testRupTop = ((Double)param.getValue()).doubleValue();
 				if(upperSeisDepth != testRupTop){
 					if (D) System.out.println(param.getName()+"\t"+upperSeisDepth+"\t"+testRupTop);
 					return false;
 				}
 			}
-			else if(param.getName().equals(AttenuationRelationship.RUP_WIDTH_NAME)) {
+			else if(param.getName().equals(RupWidthParam.NAME)) {
 				double testWidth = ((Double)param.getValue()).doubleValue();
 				if(faultDDW != testWidth){
 					if (D) System.out.println(param.getName()+"\t"+faultDDW+"\t"+testWidth);
 					return false;				
 				}
 			}
-			else if(param.getName().equals(AttenuationRelationship.FLT_TYPE_NAME)) {
+			else if(param.getName().equals(FaultTypeParam.NAME)) {
 				String actual;
 				if(rake==0 || rake==180) {
 					actual = (String)param.getValue(); 
@@ -389,28 +401,28 @@ public class NGA08_Site_EqkRup_Tests extends TestCase {
 		while(it.hasNext()) {
 			ParameterAPI param = it.next();
 			
-			if(param.getName().equals(AttenuationRelationship.VS30_TYPE_NAME)) {
+			if(param.getName().equals(Vs30_TypeParam.NAME)) {
 				String vs30_type_value = (String)param.getValue();
 				if(!vs30_type_value.equals(vs30_type)){
 					if (D) System.out.println(param.getName()+"\t"+vs30_type_value+"\t"+vs30_type);
 					return false;
 				}
 			}
-			else if(param.getName().equals(AttenuationRelationship.VS30_NAME)) {
+			else if(param.getName().equals(Vs30_Param.NAME)) {
 				double testVs30 = ((Double)param.getValue()).doubleValue();
 				if(vs30 != testVs30){
 					if (D) System.out.println(param.getName()+"\t"+vs30+"\t"+testVs30);
 					return false;
 				}
 			}
-			else if(param.getName().equals(AttenuationRelationship.DEPTH_2pt5_NAME)) {
+			else if(param.getName().equals(DepthTo2pt5kmPerSecParam.NAME)) {
 				double testDepth2pt5 = ((Double)param.getValue()).doubleValue();
 				if(depth2pt5 != testDepth2pt5){
 					if (D) System.out.println(param.getName()+"\t"+depth2pt5+"\t"+testDepth2pt5);
 					return false;				
 				}
 			}
-			else if(param.getName().equals(AttenuationRelationship.DEPTH_1pt0_NAME)) {
+			else if(param.getName().equals(DepthTo1pt0kmPerSecParam.NAME)) {
 				double testDepth1pt0 = ((Double)param.getValue()).doubleValue();
 				if(depth1pt0 != testDepth1pt0){
 					if (D) System.out.println(param.getName()+"\t"+depth1pt0+"\t"+testDepth1pt0);
@@ -437,7 +449,7 @@ public class NGA08_Site_EqkRup_Tests extends TestCase {
 		while(it.hasNext()) {
 			ParameterAPI param = it.next();
 			
-			if(param.getName().equals(AttenuationRelationship.HANGING_WALL_FLAG_NAME)) {
+			if(param.getName().equals(HangingWallFlagParam.NAME)) {
 				int value;
 				if((Boolean)param.getValue())
 					value = 1;
@@ -470,7 +482,7 @@ public class NGA08_Site_EqkRup_Tests extends TestCase {
 					return false;
 				}
 			}
-			else if(param.getName().equals(AttenuationRelationship.DIST_RUP_MINUS_DIST_X_NAME)) {
+			else if(param.getName().equals(DistRupMinusDistX_OverRupParam.NAME)) {
 				double val = ((Double)param.getValue()).doubleValue();
 				double pred_distX = dRup*(1-val);
 				if(onHangingWall[lat][lon] != 1) pred_distX *= -1;  // change sign if on hanging wall

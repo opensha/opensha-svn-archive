@@ -26,6 +26,8 @@ import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.calc.*;
+import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
@@ -116,7 +118,6 @@ public class ShakeMap_2003_AttenRel
   public final static String FLT_TYPE_UNKNOWN = "Unknown";
   public final static String FLT_TYPE_STRIKE_SLIP = "Strike-Slip";
   public final static String FLT_TYPE_REVERSE = "Reverse";
-  public final static String FLT_TYPE_DEFAULT = "Unknown";
 
   // warning constraint fields:
   protected final static Double MAG_WARN_MIN = new Double(3.3);
@@ -850,8 +851,8 @@ public class ShakeMap_2003_AttenRel
 
     //((ParameterAPI)this.iml).setValue( IML_DEFAULT );
     willsSiteParam.setValue(WILLS_SITE_DEFAULT);
-    magParam.setValue(MAG_DEFAULT);
-    fltTypeParam.setValue(FLT_TYPE_DEFAULT);
+    magParam.setValueAsDefault();
+    fltTypeParam.setValueAsDefault();
     distanceJBParam.setValue(DISTANCE_JB_DEFAULT);
     saParam.setValueAsDefault();
     saPeriodParam.setValueAsDefault();
@@ -911,9 +912,6 @@ public class ShakeMap_2003_AttenRel
    */
   protected void initSiteParams() {
 
-    // create willsSiteType Parameter:
-    super.initSiteParams();
-
     // create and add the warning constraint:
     ArrayList willsSiteTypes = new ArrayList();
     willsSiteTypes.add(WILLS_SITE_B);
@@ -942,24 +940,14 @@ public class ShakeMap_2003_AttenRel
    */
   protected void initEqkRuptureParams() {
 
-    // Create magParam
-    super.initEqkRuptureParams();
-
-    //  Create and add warning constraint to magParam:
-    DoubleConstraint warn = new DoubleConstraint(MAG_WARN_MIN, MAG_WARN_MAX);
-    warn.setNonEditable();
-    magParam.setWarningConstraint(warn);
-    magParam.addParameterChangeWarningListener(warningListener);
-    magParam.setNonEditable();
+	magParam = new MagParam(MAG_WARN_MIN, MAG_WARN_MAX);
 
     StringConstraint constraint = new StringConstraint();
     constraint.addString(FLT_TYPE_UNKNOWN);
     constraint.addString(FLT_TYPE_STRIKE_SLIP);
     constraint.addString(FLT_TYPE_REVERSE);
     constraint.setNonEditable();
-    fltTypeParam = new StringParameter(FLT_TYPE_NAME, constraint, null);
-    fltTypeParam.setInfo(FLT_TYPE_INFO);
-    fltTypeParam.setNonEditable();
+    fltTypeParam = new FaultTypeParam(constraint,FLT_TYPE_UNKNOWN);
 
     eqkRuptureParams.clear();
     eqkRuptureParams.addParameter(magParam);

@@ -8,10 +8,13 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
+import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.param.*;
 
 import java.io.File;
@@ -81,11 +84,11 @@ public class BA_2008_test extends TestCase implements ParameterChangeWarningList
 				 standard deviation of arbitrary horizontal component */
 				if(fileName.contains("SIGTM")) {
 					// Std Dev of arbitrary horizontal component
-					ba_2008.getParameter(ba_2008.FLT_TYPE_NAME).setValue(BA_2008_AttenRel.FLT_TYPE_STRIKE_SLIP);
+					ba_2008.getParameter(FaultTypeParam.NAME).setValue(BA_2008_AttenRel.FLT_TYPE_STRIKE_SLIP);
 					testValString = "Std Dev of geometric mean for known faulting";
 				} else {
 					//Std dev of geomteric mean 
-					ba_2008.getParameter(ba_2008.FLT_TYPE_NAME).setValue(BA_2008_AttenRel.FLT_TYPE_UNKNOWN);
+					ba_2008.getParameter(FaultTypeParam.NAME).setValue(BA_2008_AttenRel.FLT_TYPE_UNKNOWN);
 					testValString = "Std dev of geomteric mean for unspecified faulting";
 				}
 			}
@@ -94,14 +97,14 @@ public class BA_2008_test extends TestCase implements ParameterChangeWarningList
 			fltType.replaceAll("_", "");
 			
 			if(fileName.contains("SS.TXT") && !fileName.contains("SIGTU"))
-				ba_2008.getParameter(ba_2008.FLT_TYPE_NAME).setValue(ba_2008.FLT_TYPE_STRIKE_SLIP);
+				ba_2008.getParameter(FaultTypeParam.NAME).setValue(ba_2008.FLT_TYPE_STRIKE_SLIP);
 			else if(fileName.contains("RV.TXT"))
-				ba_2008.getParameter(ba_2008.FLT_TYPE_NAME).setValue(ba_2008.FLT_TYPE_REVERSE);
+				ba_2008.getParameter(FaultTypeParam.NAME).setValue(ba_2008.FLT_TYPE_REVERSE);
 			else if(fileName.contains("NM.TXT"))
-				ba_2008.getParameter(ba_2008.FLT_TYPE_NAME).setValue(ba_2008.FLT_TYPE_NORMAL);
+				ba_2008.getParameter(FaultTypeParam.NAME).setValue(ba_2008.FLT_TYPE_NORMAL);
 			else 
 				//throw new RuntimeException("Unknown Fault Type");
-				ba_2008.getParameter(ba_2008.FLT_TYPE_NAME).setValue(ba_2008.FLT_TYPE_UNKNOWN);
+				ba_2008.getParameter(FaultTypeParam.NAME).setValue(ba_2008.FLT_TYPE_UNKNOWN);
 			
 				try {
 				testDataLines = FileUtils.loadFile(fileList[i].getAbsolutePath());
@@ -111,7 +114,7 @@ public class BA_2008_test extends TestCase implements ParameterChangeWarningList
 					String fileLine = (String)testDataLines.get(j);
 					StringTokenizer st = new StringTokenizer(fileLine);
 					double mag = Double.parseDouble(st.nextToken().trim());
-					((WarningDoubleParameter)ba_2008.getParameter(ba_2008.MAG_NAME)).setValueIgnoreWarning(new Double(mag));
+					((WarningDoubleParameter)ba_2008.getParameter(MagParam.NAME)).setValueIgnoreWarning(new Double(mag));
 					
 					//Rrup not used, skipping
 					st.nextToken();
@@ -130,7 +133,7 @@ public class BA_2008_test extends TestCase implements ParameterChangeWarningList
 					st.nextToken(); // ignore Ztor, depth of top
 
 					double vs30 = Double.parseDouble(st.nextToken().trim());
-					((WarningDoubleParameter)ba_2008.getParameter(ba_2008.VS30_NAME)).setValueIgnoreWarning(new Double(vs30));
+					((WarningDoubleParameter)ba_2008.getParameter(Vs30_Param.NAME)).setValueIgnoreWarning(new Double(vs30));
 
 					st.nextToken(); // ignore Zsed, sediment/basin depth
 					

@@ -23,12 +23,20 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.WarningDoubleParameter;
+import org.opensha.commons.param.event.ParameterChangeEvent;
 
 
 
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.*;
+import org.opensha.sha.imr.param.EqkRuptureParams.AftershockParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.RakeParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.RupTopDepthParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.RupWidthParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGD_Param;
@@ -39,204 +47,150 @@ import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistRupMinusDistX_OverRupParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.HangingWallFlagParam;
+import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
+import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
+import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 
 /**
  *  <b>Title:</b> AttenuationRelationship</p> <p>
  *
- *  <b>Description:</b> This is subclass of IntensityMeasureRealtionship .
- *  The shaking is assumed to follow a Gaussian distribution,
- *  which is why there's a getMean() and a getStdDev() method in addition to
- *  the getExceedProbability() method of its parent class.  For this subclass of IMR
- *  the value field of the Intensity-Measure Parameter must be a Double.  As an
- *  abstract class, this implements the basic functionality common to all
- *  subclasses. Various parameters and their attributes (*_NAME, *_UNITS, *_INFO
- *  *_DEFAULT,*_MIN, *_MAX) are declared here to encourage the use of uniform
- *  conventions. Some of these parameters are instantiated in the various init*
- *  methods here, some are not.  If subclasses do not need these params, they can
- *  be ignored.  They can also be overridden if different attributes are desired.<p>
- *
- *  <b>pgaParam</b> - a WarningDoubleParameter representing the natural-log of the
- *  <b>Peak Ground Acceleration</b> Intensity-Measure parameter.
- *  This parameter is instantiated in its entirety in the
- *  initSupportedIntenistyMeasureParams() method here.<br>
- *  PGA_Param.NAME = "PGA"<br>
- *  PGA_UNITS = "g"<br>
- *  PGA_INFO = "Peak Ground Acceleration"<br>
- *  PGA_MIN = 0<br>
- *  PGA_MAX = Double.MAX_VALUE<br>
- *  PGA_WARN_MIN - <i>see code</i><br>
- *  PGA_WARN_MAX - <i>see code</i><br>
- *  PGA_DEFAULT - <i>see code</i><p>
- *
- *  <b>pgvParam</b> - a WarningDoubleParameter representing the natural-log of the
- *  <b>Peak Ground Velocity</b> Intensity-Measure parameter.
- *  This parameter is not instantiated here due to limited use.<br>
- *  PGV_Param.NAME = "PGV"<br>
- *  PGV_UNITS = "g"<br>
- *  PGV_INFO = "Peak Ground Acceleration"<br>
- *  PGV_MIN = 0<br>
- *  PGV_MAX = Double.MAX_VALUE<br>
- *  PGV_WARN_MIN - <i>see code</i><br>
- *  PGV_WARN_MAX - <i>see code</i><br>
- *  PGV_DEFAULT - <i>see code</i><p>
- *
- *  <b>saParam</b> - a WarningDoubleParameter representing the natural-log of the
- *  <b>Response Spectral Acceleration</b> Intensity-Measure Parameter
- *  This parameter is instantiated in its entirety in the
- *  initSupportedIntenistyMeasureParams() method here. However its periodParam independent-
- *  parameter must be created and added in subclasses (since supported periods will vary).<br>
- *  SA_Param.NAME = "SA"<br>
- *  SA_UNITS = "g"<br>
- *  SA_INFO = "Response Spectral Acceleration"<br>
- *  SA_MIN = 0<br>
- *  SA_MAX = Double.MAX_VALUE<br>
- *  SA_WARN_MIN - <i>see code</i><br>
- *  SA_WARN_MAX - <i>see code</i><br>
- *  SA_DEFAULT - <i>see code</i><p>
- *
- * <b>periodParam</b> - a DoubleDiscreteParameter representing the <b>Period</b> associated
- * with the Response-Spectral-Acceleration Parameter (periodParam is an
- * independentParameter of saParam).  This must be created and added to saParam in subclasses.<br>
- * PeriodParam.NAME = "SA Period"<br>
- * PERIOD_UNITS = "sec"<br>
- * PERIOD_INFO = "Oscillator Period for SA"<br>
- * PERIOD_DEFAULT = new Double( 0 )<br>
- * <i>Constraint is created and added in sub-classes</i><p>
- *
- * <b>dampingParam</b> - a DoubleDiscreteParameter representing the <b>Damping</b> level
- * associated with the Response-Spectral-Acceleration Parameter (dampingParam is
- * an independentParameter of saParam).  This parameter is instantiated in its entirety
- * in the initSupportedIntenistyMeasureParams() method here.  This must be added to
- * saParam in subclasses.  If damping values besides 5% are available, add them in
- * subclass and then set to non-editable.<br>
- * DAMPING_NAME = "SA Damping"<br>
- * DAMPING_UNITS = " % "<br>
- * DAMPING_INFO = "Oscillator Damping for SA"<br>
- * DAMPING_DEFAULT = new Double( 5.0 )<br>
- * <i>Constraint is created and added in sublclasses</i><p>
- *
- * <b>magParam</b> - a WarningDoubleParameter representing the earthquake moment <b>Magnitude</b><br>
- * MAG_NAME = "Magnitude".  This parameter is created in the initProbEqkRuptureParams()
- * method here, but the warning constraint must be created and added in subclasses.<br>
- * <i>There are no units for Magnitude</i><br>
- * MAG_INFO = "Earthquake Moment Magnatude"<br>
- * MAG_DEFAULT - <i>see code</i><br>
- * MAG_MIN - <i>see code</i><br>
- * MAG_MAX - <i>see code</i><p>
- *
- * <b>rakeParam</b> - DoubleParameter representing the earthquake rupture  <b>Rake</b><br>
- * RAKE_NAME = "Rake".  This parameter is created in the initProbEqkRuptureParams()
- * method here.<br>
- * RAKE_UNITS = "degrees"<br>
- * RAKE_INFO = "Average rake of earthquake rupture"<br>
- * RAKE_DEFAULT - <i>see code</i><br>
- * RAKE_MIN - <i>see code</i><br>
- * RAKE_MAX - <i>see code</i><p>
- *
- * <b>dipParam</b> - a DoubleParameter representing the earthquake rupture <b>Dip</b><br>
- * DIP_NAME = "Dip".  This parameter is created in the initProbEqkRuptureParams()
- * method here.<br>
- * DIP_UNITS = "degrees"<br>
- * DIP_INFO = "Average dip of earthquake rupture"<br>
- * DIP_DEFAULT - <i>see code</i><br>
- * DIP_MIN - <i>see code</i><br>
- * DIP_MAX - <i>see code</i><p>
- *
- * <b>rupTopDepthParam</b> - a DoubleParameter representing the depth to the top of the earthquake rupture<br>
- * RUP_TOP_NAME = "Rupture Top Depth".  This parameter is created in the initProbEqkRuptureParams()
- * method here.<br>
- * RUP_TOP_UNITS = "km"<br>
- * RUP_TOP_INFO = "Depth to the top of the earthquake rupture"<br>
- * RUP_TOP_DEFAULT - <i>see code</i><br>
- * RUP_TOP_MIN - <i>see code</i><br>
- * RUP_TOP_MAX - <i>see code</i><p>
- *
- * <b>componentParam</b> - a StringParameter representing the <b>Components</b> of shaking
- * that the IMR supports.<br>
- * COMPONENT_NAME = "Component"<br>
- * <i>There are no units for Component</i><br>
- * COMPONENT_DEFAULT = "Average Horizontal"<br>
- * COMPONENT_AVE_HORZ = "Average Horizontal"<br>
- * COMPONENT_OI_AVE_HORZ = "Orient. Ind. Ave. Horz."<br>
- * COMPONENT_RANDOM_HORZ = "Random Horizontal"<br>
- * COMPONENT_VERT = "Vertical";<br>
- * COMPONENT_INFO = "Component of shaking"<br>
- * <i>Constraint will be created and added in subclass</i><p>
- *
- * <b>vs30Param</b> - A WarningDoubleParameter representing the <b>average 30-meter shear-
- * wave velocity at the surface of a site</b>.  This parameter is created in the initSiteParams()
- * method here, but the warning constraint must be created and added in subclasses.<br>
- * VS30_NAME = "Vs30"<br>
- * VS30_UNITS = "m/sec"<br>
- * VS30_INFO = "Average 30 meter shear wave velocity at surface"<br>
- * VS30_DEFAULT - <i>see code</i><br>
- * VS30_MIN = - <i>see code</i><br>
- * VS30_MAX = - <i>see code</i><p>
- *
- * <b>depthTo2pt5kmPerSecParam</b> - A WarningDoubleParameter representing the
- * <b>depth to where shear-wave velocity = 2.5 km/sec</b>.  This parameter is created
- * in the initSiteParams() method here, but the warning constraint must be created
- * and added in subclasses.<br>
- * DEPTH_2pt5_NAME = "Depth 2.5 km/sec"<br>
- * DEPTH_2pt5_UNITS = "km"<br>
- * DEPTH_2pt5_INFO = "The depth to where shear-wave velocity = 2.5 km/sec"<br>
- * DEPTH_2pt5_DEFAULT - <i>see code</i><br>
- * DEPTH_2pt5_MIN = - <i>see code</i><br>
- * DEPTH_2pt5_MAX = - <i>see code</i><p>
- *
- * <b>stdDevTypeParam</b> - A StringParameter representing the various <b>types of standard
- * deviations</b> that an IMR might support; "Total" is the most common (see description
- * below for more details).<br>
- * STD_DEV_TYPE_NAME = "Std Dev Type"<br>
- * STD_DEV_TYPE_INFO = "Type of Standard Deviation"<br>
- * STD_DEV_TYPE_DEFAULT = "Total"<br>
- * STD_DEV_TYPE_TOTAL = "Total"<br>
- * StdDevTypeParam.STD_DEV_TYPE_INTER = "Inter-Event"<br>
- * STD_DEV_TYPE_INTRA = "Intra-Event"<p>
- * STD_DEV_TYPE_NONE = "None (zero)"<br>
- *
- * <b>fltTypeParam</b> - A StringParameter representing <b>different styles of faulting</b>;
- * options are specified in subclasses because nomenclature varies.<br>
- * FLT_TYPE_NAME = "Fault Type"<br>
- * <i>No units for this one</i><br>
- * FLT_TYPE_INFO = "Style of faulting"<p>
- *
- * <b>sigmaTruncTypeParam</b> - A StringParameter representing the <b>various types of truncation
- * available for the Gaussian probability distribution</b>; "1 Sided" is an upper
- * truncation (zero probabilities above); see <i>sigmaTruncLevelParam</i> below for more info.<br>
- * SIGMA_TRUNC_TYPE_NAME = "Gaussian Distribution Truncation"<br>
- * SIGMA_TRUNC_TYPE_INFO = "Type of distribution truncation to apply when computing exceedance probabilities"<br>
- * SIGMA_TRUNC_TYPE_NONE = "None"<br>
- * SIGMA_TRUNC_TYPE_1SIDED = "1 Sided"<br>
- * SIGMA_TRUNC_TYPE_2SIDED = "2 Sided"<br>
- * SIGMA_TRUNC_TYPE_DEFAULT = "None"<p>
- *
- * <b>sigmaTruncLevelParam</b> - A DoubleParameter defining <b>where the Gaussian
- * distribution is truncated </b> (this is ignored if sigmaTruncTypeParam is "None");
- * This level is defined in terms of some number of standard deviations above
- * (and perhaps below) the mean.<br>
- * SIGMA_TRUNC_LEVEL_NAME = "Truncation Level"<br>
- * SIGMA_TRUNC_LEVEL_UNITS = "Std Dev"<br>
- * SIGMA_TRUNC_LEVEL_INFO = "The number of standard deviations, from the mean, where truncation occurs"<br>
- * SIGMA_TRUNC_LEVEL_DEFAULT = 2.0 <br>
- * SIGMA_TRUNC_LEVEL_MIN = Double.MIN_VALUE<br>
- * SIGMA_TRUNC_LEVEL_MAX = Double.MAX_VALUE<p>
- *
- *
- *
- * </p> Note: SWR - SetAll() is not truly robust in case of error. <p>
-
- * @author     Steven W. Rock & Edward H. Field
+ *  <b>Description:</b> This subclass of IntensityMeasureRelationship is the abstract 
+ *  implementation for Attenuation Relationships (also known as Ground Motion Prediction 
+ *  Equations (GMPEs)).  In addition to implementing the ScalarIntensityMeasureRelationship 
+ *  interface (where all IMLs are double values), this also assumes that the probability 
+ *  distribution for the IMLs is Gaussian.  The probability calculation is identical for all
+ *  subclasses, and is therefore handled here in the abstract class (according to the 
+ *  truncation-type and truncation-level parameters defined here), whereas subclasses 
+ *  simply implement the getMean() and getStdDev() methods (as well as others).<p>
+ *  
+ *  Remember, the probability that an intensity-measure type (IMT, defined by a 
+ *  parameter in the subclass) will exceed some IML is computed from
+ *  parameters defined in the subclass, and these parameters are categorized according to
+ *  whether they relate to a Site, EqkRupture, Propagation Effect (meaning the value depends on 
+ *  both the given Site and EqkRupture), or to some "Other" category (there is a separate list defined for each 
+ *  of these categories).  In addition, each subclass has a list of supported IMTs.<p>
+ *  
+ *  We need to avoid subclasses from defining the same parameter with different names, or
+ *  defining different parameters with he same name.  To this end, we define the following 
+ *  parameters here in this abstract class (all of which are instances of the associated parameter 
+ *  defined in the "param" folder at the same directory level of this class, see that code for exact
+ *  definitions):<p>
+ *  
+ *  Intensity-Measure parameters (IMTs)<p>
+ * <UL>
+ * <LI><b>pgaParam</b> - Natural-log of Peak Ground Acceleration
+ * <LI><b>pgvParam</b> - Natural-log of Peak Ground Velocity
+ * <LI><b>pgdParam</b> - Natural-log of Peak Ground Displacement
+ * <LI><b>saParam</b> - Natural-log of Response Spectral Acceleration (also depends on saPeriodParam and saDampingParam)
+ * </UL><p>
+ *  
+ *  Site-related parameters<p>
+ *  <UL>
+ *  <LI><b>vs30Param</b> - Average shear-wave velocity between 0 and 30 meters depth
+ *  <LI><b>vs30_TypeParam</b> - Indicates whether Vs30 is Measured or Inferred
+ *  <LI><b>depthTo2pt5kmPerSecParam</b> - Depth to where shear-wave velocity equals 2.5 km/sec
+ *  <LI><b>depthTo1pt0kmPerSecParam</b> - Depth to where shear-wave velocity equals 1.0 km/sec
+ *  </UL><p>
+ * 
+ *  EqkRupture-related parameters<p>
+ *  <UL>
+ *  <LI><b>magParam</b> - Moment Magnitude
+ *  <LI><b>fltTypeParam</b> - Text field indicating type of faulting (e.g., "Strike Slip")
+ *  <LI><b>aftershockParam</b> - Indicates whether event is an aftershock
+ *  <LI><b>rakeParam</b> - Average rake of rupture
+ *  <LI><b>dipParam</b> - Average dip of rupture
+ *  <LI><b>rupTopDepthParam</b> - Depth to the top-edge of the rupture
+ *  <LI><b>rupWidthParam</b> - Down-dip width of rupture
+ *  
+ *  </UL><p>
+ *  Propagation-Effect related parameters<p>
+ *  <UL>
+ *  <LI><b>hangingWallFlagParam</b> - Indicates whether Site is on the hanging wall of the rupture
+ *  <LI><b>distRupMinusDistX_OverRupParam</b> - See class for definition
+ *  </UL>
+ * 
+ *  Other parameters<p>
+ *  <UL>
+ *  <LI><b>stdDevTypeParam</b> - The standard deviation type (e.g., total vs intra-event vs inter-event)
+ *  <LI><b>componentParam</b> - The component of shaking (e.g., ave horizontal vs vertical)
+ *  <LI><b>sigmaTruncTypeParam</b>  - Type of truncation to apply to the Gaussian distribution 
+ *  <LI><b>sigmaTruncLevelParam</b> - Level of truncation
+ *  </UL><p>
+ *  Note that these parameters are only defined here, and need to be instantiated in a 
+ *  given subclass if their use is desired (otherwise they can be ignored).  Again, most 
+ *  of the parameters do not really need to be defined here (other than the few that are 
+ *  actually used in methods here), but we define them here anyway to encourage consistent 
+ *  usage.  These parameters can also be overridden if different attributes are desired.<p>
+ *  
+ *  
+ *  <b>Notes for Implementing Subclasses:</b><p>
+ *  The easiest way to learn how to implement an AttenuationRelationship is to look at 
+ *  one that's already been implemented.  In fact, you can simply duplicate the one that
+ *  is closest to what you want to implement, change the name, and modify accordingly (that's
+ *  what we generally do).<p>
+ *  
+ *  The first step is to identify the intensity-measure types the model is to support, and to
+ *  initialize these from the constructor using the initPropagationEffectParams() method, which 
+ *  also populates the supportedIMParams list.<p>  
+ *  When defining a new parameter (either for an IMT or for one of the other parameter types 
+ *  described below), you should always choose from the parameters already defined in the 
+ *  "param" folder (at the same level as this class) if it exists.  Otherwise you need to
+ *  define and create a new one in your subclass.  If you think anyone else might want to use 
+ *  your new one (or could accidentally adopt the same name), then we should add it to "params" 
+ *  folder here to avoid effort duplication (or inconsistencies).  <p>
+ *  The second step is to identify the parameters the model depends upon (categorized by those that
+ *  depend on the Site, EqkRupture, Propagation Effect, or Other), and to initialize them from
+ *  the constructor using the following associated methods:
+ *  <UL>
+ *  <LI>initEqkRuptureParams()
+ *  <LI>initPropagationEffectParams()
+ *  <LI>initSiteParams()
+ *  <LI>initOtherParams()
+ *  </UL><p>
+ *  All but the last method is defined as abstract here in order to remind developers to implement
+ *  these methods (they can have an empty implementation if there are no such parameters in the
+ *  subclass).  The initOtherParams() method is implemented here because the two truncation-related
+ *  parameters will likely exist in every subclass (although this method must still be called as 
+ *  "super.initOtherParams()" from the subclass in order to include them). Each of the above methods also populates 
+ *  the associated list (siteParams, eqkRuptureParams, propagationEffectParams, or otherParams).<p>
+ *  
+ *  The third step is to populate the following lists (typically done using a 
+ *  initIndependentParamLists() method called from the constructor): meanIndependentParams, 
+ *  stdDevIndependentParams, exceedProbIndependentParams, and imlAtExceedProbIndependentParams.  If the
+ *  Attenuation Relationship is to listen to, and act, on any parameter changes, the following methods
+ *  need to be implement: initParameterEventListeners(), resetParameterEventListeners() and 
+ *  parameterChange(*).<p>
+ *  
+ *  The fourth step is to implement the setEqkRupture(qkRup) and setSite(site) methods, which simply set
+ *  the values of the EqkRupture-related and Site-related parameters from the objects passed in.  We also
+ *  need to implement the initPropagationEffectParams() method, which sets those parameters from the
+ *  current Site and EqkRupture objects (this method is generally called at the end of the 
+ *  setEqkRupture(qkRup) and setSite(site) methods).<p>
+ *  
+ *  The fifth step is to implement the getMean() and getStdDev() methods, which simply calculate those 
+ *  respective values from current parameter settings.<p>  Note that if the value of the distance parameter
+ *  used by the model exceeds the USER_MAX_DISTANCE field, then the value of VERY_SMALL_MEAN should be returned 
+ *  by the getMean() method (implemented in order to get results consistent with the 2003 NSHMP Fortran code).
+ *  The final step is to document the attenuation relationship, both in terms of Java docs and the 
+ *  glossary at our web page (http://www.opensha.org/documentation/glossary), for which you can use 
+ *  another model as a guide (e.g., see CB_2008_AttenRel and its glossary entry -
+ *  http://www.opensha.org/documentation/modelsImplemented/attenRel/CB_2008.html).<p>
+ *  
+ *  We've skipped some details in these instructions, but again, the easiest way to implement a model is
+ *  look at one that's already been implemented<p>
+ *  
+ *  Please ask questions and feel free to improve these notes if you can.
+ *  
+ *  
+ * @author     Edward H. Field
  * @created    April 1st, 2002
  * @version    1.0
  */
 
-/* This is the abstract implementation for Attenuation Relationships (also known as
- * Ground Motion Prediction Equations (GMPEs)), which in addition to implementing the
- * ScalarIntensityMeasureRelationship interface, assumes that the probability
- * distribution for the IMLs is Gaussian.  Thus, much of the probability calculations
- * are handled here in the abstract classe, whereas subclasses simply implement
- * the getMean() and getStdDev() methods.
+/* 
  * 
  *
  */
@@ -253,7 +207,6 @@ public abstract class AttenuationRelationship
    *  Prints out debugging statements if true
    */
   protected final static boolean D = false;
-
   
   /**
    * Intensity-Measure Parameters
@@ -266,7 +219,6 @@ public abstract class AttenuationRelationship
   protected PeriodParam saPeriodParam = null;
   protected DampingParam saDampingParam = null;
   
-  
   /**
    * Other Parameters
    * (see classes for exact definitions)
@@ -276,182 +228,33 @@ public abstract class AttenuationRelationship
   protected SigmaTruncLevelParam sigmaTruncLevelParam = null;
   protected ComponentParam componentParam = null;
   
+  /**
+   * Earthquake Rupture related parameters
+   * (see classes for exact definitions)
+   */
+  protected MagParam magParam = null;
+  protected FaultTypeParam fltTypeParam = null;
+  protected AftershockParam aftershockParam = null;
+  protected RakeParam rakeParam = null;
+  protected DipParam dipParam = null;
+  protected RupTopDepthParam rupTopDepthParam = null;
+  protected RupWidthParam rupWidthParam;
 
   /**
-   * FltTypeParam, a StringParameter reserved for representing different
-   * styles of faulting.  The options are not specified here because
-   * nomenclature generally differs among subclasses.
+   * Propagation Effect Parameters
    */
-  protected StringParameter fltTypeParam = null;
-  public final static String FLT_TYPE_NAME = "Fault Type";
-  // No units for this one
-  public final static String FLT_TYPE_INFO = "Style of faulting";
+  protected HangingWallFlagParam hangingWallFlagParam = null;
+  protected DistRupMinusDistX_OverRupParam distRupMinusDistX_OverRupParam = null;
 
+  /**
+   * Site related parameters.
+   */
+  protected Vs30_Param vs30Param = null;
+  protected Vs30_TypeParam vs30_TypeParam;
+  protected DepthTo2pt5kmPerSecParam depthTo2pt5kmPerSecParam = null;
+  protected DepthTo1pt0kmPerSecParam depthTo1pt0kmPerSecParam;
   
-  /**
-   * Magnitude parameter, reserved for representing moment magnitude in all
-   * subclasses; all of the "MAG_*" class variables relate to this magParam
-   * object.  This parameter is created in the initProbEqkRuptureParams()
-   * method here, but the warning constraint must be created and added in subclasses.
-   */
-  protected WarningDoubleParameter magParam = null;
-  public final static String MAG_NAME = "Magnitude";
-  // There are no units for Magnitude
-  public final static String MAG_INFO = "Earthquake Moment Magnatude";
-  protected final static Double MAG_DEFAULT = new Double(5.5);
-  protected final static Double MAG_MIN = new Double(0);
-  protected final static Double MAG_MAX = new Double(10);
-  // warning values are set in subclasses
   
-  
-  /**
-   * Aftershock parameter, indicates whether or not an event is an aftershock
-   */
-  protected BooleanParameter aftershockParam = null;
-  public final static String AFTERSHOCK_NAME = "Aftershock";
-  public final static String AFTERSHOCK_INFO = "Indicates whether earthquake is an aftershock";
-  public final Boolean  AFTERSHOCK_DEFAULT = false;
-
-
-
-  /**
-   * Rake Parameter, reserved for representing the average rake of the earthquake
-   * rupture.  This parameter is created in the initEqkRuptureParams() method
-   * here.
-   */
-  protected DoubleParameter rakeParam = null;
-  public final static String RAKE_NAME = "Rake";
-  public final static String RAKE_UNITS = "degrees";
-  public final static String RAKE_INFO = "Average rake of earthquake rupture";
-  public final static Double RAKE_DEFAULT = new Double("0");
-  protected final static Double RAKE_MIN = new Double( -180);
-  protected final static Double RAKE_MAX = new Double(180);
-
-  /**
-   * Dip Parameter, reserved for representing the average rake of the earthquake
-   * rupture.  This parameter is created in the initEqkRuptureParams() method
-   * here.
-   */
-  protected WarningDoubleParameter dipParam = null;
-  public final static String DIP_NAME = "Dip";
-  public final static String DIP_UNITS = "degrees";
-  public final static String DIP_INFO = "Average dip of earthquake rupture";
-  public final static Double DIP_DEFAULT = new Double("90");
-  protected final static Double DIP_MIN = new Double(0);
-  protected final static Double DIP_MAX = new Double(90);
-
-  /**
-   * rupTopDepth parameter - Depth to top of rupture.  This is created in the
-   * initEqkRuptureParams method.
-   */
-  protected WarningDoubleParameter rupTopDepthParam = null;
-  public final static String RUP_TOP_NAME = "Rupture Top Depth";
-  public final static String RUP_TOP_UNITS = "km";
-  public final static String RUP_TOP_INFO =
-      "The depth to the shallowest point on the earthquake rupture surface";
-  public final static Double RUP_TOP_DEFAULT = new Double(0);
-  protected final static Double RUP_TOP_MIN = new Double(0);
-  protected final static Double RUP_TOP_MAX = new Double(30);
-  
-
-	/**
-	 * Down-dip width of fault rupture param
-	 */
-	protected WarningDoubleParameter rupWidthParam;
-	public final static String RUP_WIDTH_NAME = "Down-Dip Width (km)";
-	public final static String RUP_WIDTH_UNITS = "km";
-	public final static String RUP_WIDTH_INFO = "Fault down-dip rupture width (km).";
-	public final static Double RUP_WIDTH_MIN = new Double(0.1);
-	public final static Double RUP_WIDTH_MAX = new Double(100.0);
-	public final static Double RUP_WIDTH_DEFAULT = new Double(10.0);
-
-  
-  /**
-   * Hanging wall parameter, indicates whether site is on the hanging wall
-   */
-  protected BooleanParameter hangingWallFlagParam = null;
-  public final static String HANGING_WALL_FLAG_NAME = "Site on Hanging Wall";
-  public final static String HANGING_WALL_FLAG_INFO = "Indicates whether the site is on the hanging wall";
-  public final static Boolean HANGING_WALL_FLAG_DEFAULT = false;
-
-  
-	/**
-	 * This sets distance X (relative to dist rup) - the horizontal distance to surface projection of the top edge of the rupture, 
-	 * extended to infinity off the ends.  This is not a formal propagation parameter because it's not used that way here
-	 * (due to inefficiencies)
-	 */
-  protected DoubleParameter distRupMinusDistX_OverRupParam = null;
-	public final static String DIST_RUP_MINUS_DIST_X_NAME = "(distRup-distX)/distRup";
-	public final static String DIST_RUP_MINUS_DIST_X_INFO = "(DistanceRup - DistanceX)/DistanceRup";
-	public final static Double DIST_RUP_MINUS_DIST_X_MIN = new Double(Double.NEGATIVE_INFINITY);
-	public final static Double DIST_RUP_MINUS_DIST_X_MAX = new Double(Double.POSITIVE_INFINITY);
-	public final static Double DIST_RUP_MINUS_DIST_X_DEFAULT = new Double(0.0);
-
-
-
-
-
-  /**
-   * Vs30 Parameter, reserved for representing the average shear-wave velocity
-   * in the upper 30 meters of a site (a commonly used parameter); all of the
-   * "VS30_*" class variables relate to this Parameter.  This parameter is
-   * created in the initSiteParams() method here, but the warning constraint
-   * must be created and added in subclasses.
-   */
-  protected WarningDoubleParameter vs30Param = null;
-  public final static String VS30_NAME = "Vs30";
-  public final static String VS30_UNITS = "m/sec";
-  public final static String VS30_INFO =
-      "The average shear-wave velocity between 0 and 30-meters depth";
-  public final static Double VS30_DEFAULT = new Double("760");
-  protected final static Double VS30_MIN = new Double(0.0);
-  protected final static Double VS30_MAX = new Double(5000.0);
-  // warning values set in subclasses
-  
-  /**
-   *  Vs flag Parameter - indicates whether vs was measured or inferred/estimated
-   */
-	protected StringParameter vs30_TypeParam;
-	public final static String VS30_TYPE_NAME = "Vs30 Type";
-	public final static String VS30_TYPE_INFO = "Indicates how Vs30 was obtained";
-	public final static String VS30_TYPE_MEASURED = "Measured";
-	public final static String VS30_TYPE_INFERRED = "Inferred";
-	public final static String VS30_TYPE_DEFAULT = VS30_TYPE_INFERRED;
-
-
-
-  /**
-   * Depth 2.5 km/sec Parameter, reserved for representing the depth to where
-   * shear-wave velocity = 2.5 km/sec ("Z2.5 (m)" in PEER's 2005 NGA flat file);
-   * This parameter is created in the initSiteParams() method here, but the
-   * warning constraint must be created and added in subclasses.
-   */
-  protected WarningDoubleParameter depthTo2pt5kmPerSecParam = null;
-  public final static String DEPTH_2pt5_NAME = "Depth 2.5 km/sec";
-  public final static String DEPTH_2pt5_UNITS = "km";
-  public final static String DEPTH_2pt5_INFO =
-      "The depth to where shear-wave velocity = 2.5 km/sec";
-  public final static Double DEPTH_2pt5_DEFAULT = new Double("1.0");
-  protected final static Double DEPTH_2pt5_MIN = new Double(0.0);
-  protected final static Double DEPTH_2pt5_MAX = new Double(30000.0);
-  // warning values set in subclasses
-
-
-	/**
-	 * Depth 1.0 km/sec Parameter, reserved for representing the depth to where
-	 * shear-wave velocity = 1.0 km/sec ("Z1.0 (m)" in PEER's 2008 NGA flat file);
-	 */
-	protected WarningDoubleParameter depthTo1pt0kmPerSecParam;
-	public final static String DEPTH_1pt0_NAME = "Depth 1.0 km/sec";
-	public final static String DEPTH_1pt0_UNITS = "m";
-	public final static String DEPTH_1pt0_INFO = "The depth to where shear-wave velocity = 1.0 km/sec";
-	public final static Double DEPTH_1pt0_DEFAULT = new Double("100.0");
-	protected final static Double DEPTH_1pt0_MIN = new Double(0.0);
-	protected final static Double DEPTH_1pt0_MAX = new Double(30000.0);
-	// warning values set in subclasses
-
-
-
   /**
    * This allows users to set a maximul distance (beyond which the mean will
    * be effectively zero)
@@ -923,104 +726,51 @@ public abstract class AttenuationRelationship
 
   /**
    *  This creates the supported intensity-measure parameters.  
-   *  All implementation is in the subclass.
-   *
+   *  All implementation is in the subclass (it's defined here as a reminder/suggestions).
    */
-  protected void initSupportedIntensityMeasureParams() {
-
-
-  }
+  protected abstract void initSupportedIntensityMeasureParams();
 
   /**
-   *  Creates the Vs30 parameter for subclasses that use it; subclasses must
-   *  create and added the warning constraint and add this parameter to the
-   *  siteParams list; subclasses that don't use this vs30Param can simply not
-   *  call this method.
-   *  <br>
-   *
+   *  This creates Site-related parameters, which are all associated parameters 
+   *  that the exceedance probability depends upon.
+   *  All implementation is in the subclass (it's defined here as a reminder/suggestions).
    */
-  protected void initSiteParams() {
-
-    // create Vs30Param:
-    DoubleConstraint vs30Constraint = new DoubleConstraint(VS30_MIN, VS30_MAX);
-    vs30Constraint.setNonEditable();
-    vs30Param = new WarningDoubleParameter(VS30_NAME, vs30Constraint,
-                                           VS30_UNITS);
-    vs30Param.setInfo(VS30_INFO);
-    
-	StringConstraint constraintVS = new StringConstraint();
-	constraintVS.addString(VS30_TYPE_MEASURED);
-	constraintVS.addString(VS30_TYPE_INFERRED);
-	constraintVS.setNonEditable();
-	vs30_TypeParam = new StringParameter(VS30_TYPE_NAME, constraintVS, null);
-	vs30_TypeParam.setInfo(VS30_TYPE_INFO);
-	vs30_TypeParam.setNonEditable();
-
-    // create the depth to 2.5 shear-wave velocity parameter
-    DoubleConstraint c = new DoubleConstraint(DEPTH_2pt5_MIN, DEPTH_2pt5_MAX);
-    c.setNullAllowed(true);
-    c.setNonEditable();
-    depthTo2pt5kmPerSecParam = new WarningDoubleParameter(DEPTH_2pt5_NAME, c,
-        DEPTH_2pt5_UNITS);
-    depthTo2pt5kmPerSecParam.setInfo(DEPTH_2pt5_INFO);
-    
-	// create the depth to 1.0 shear-wave velocity parameter
-	DoubleConstraint c2 = new DoubleConstraint(DEPTH_1pt0_MIN,DEPTH_1pt0_MAX);
-    c2.setNullAllowed(true);
-    c2.setNonEditable();
-	depthTo1pt0kmPerSecParam = new WarningDoubleParameter(DEPTH_1pt0_NAME,c2, DEPTH_1pt0_UNITS);
-	depthTo1pt0kmPerSecParam.setInfo(DEPTH_1pt0_INFO);
-  }
-  
-  
+  protected abstract void initSiteParams();
   
 
   /**
-   *  Creates the following potential-Earthquake Parameters for subclasses: magParam
-   *  (moment Magnitude parameter).  Warning constraints must be created and added
-   *  in subclasses. This parameter is also added to the probEqkRuptureParams list
-   *  in subclasses.<br>
-   *
+   *  Creates the EqkRupture-related parameters, which are all associated parameters 
+   *  that the exceedance probability depends upon.
+   *  All implementation is in the subclass (it's defined here as a reminder/suggestions).
    */
-  protected void initEqkRuptureParams() {
-
-    // Moment Magnitude Parameter:
-    DoubleConstraint magConstraint = new DoubleConstraint(MAG_MIN, MAG_MAX);
-    magConstraint.setNonEditable();
-    magParam = new WarningDoubleParameter(MAG_NAME, magConstraint);
-    magParam.setInfo(MAG_INFO);
-    // Warning constraint is created and added in subclass
-
-    // Dip Parameter:
-    DoubleConstraint dipConstraint = new DoubleConstraint(DIP_MIN, DIP_MAX);
-    dipConstraint.setNonEditable();
-    dipParam = new WarningDoubleParameter(DIP_NAME, dipConstraint, DIP_UNITS);
-    dipParam.setInfo(DIP_INFO);
-
-    // Rake Parameter:
-    DoubleConstraint rakeConstraint = new DoubleConstraint(RAKE_MIN, RAKE_MAX);
-    rakeConstraint.setNonEditable();
-    rakeParam = new DoubleParameter(RAKE_NAME, rakeConstraint);
-    rakeParam.setInfo(RAKE_INFO);
-
-    // create RupTopDepthParam
-    DoubleConstraint c = new DoubleConstraint(RUP_TOP_MIN, RUP_TOP_MAX);
-    rupTopDepthParam = new WarningDoubleParameter(this.RUP_TOP_NAME, c,
-                                           this.RUP_TOP_UNITS);
-    rupTopDepthParam.setInfo(RUP_TOP_INFO);
-    
-    // create Aftershock parameter
-    aftershockParam = new BooleanParameter(AFTERSHOCK_NAME);
-    aftershockParam.setInfo(AFTERSHOCK_INFO);
-
-  }
+  protected abstract void initEqkRuptureParams();
 
   /**
-   *  Creates any Propagation-Effect related parameters and adds them to the
-   *  propagationEffectParams list<br>
-   *
+   *  Creates Propagation-Effect related parameters, which are all associated parameters 
+   *  that the exceedance probability depends upon.
+   *  All implementation is in the subclass (it's defined here as a reminder/suggestions).
    */
   protected abstract void initPropagationEffectParams();
+  
+  /**
+   * This creates the otherParams list.
+   * These are any parameters that the exceedance probability depends upon that is
+   * not a supported IMT (or one of their independent parameters) and is not contained
+   * in, or computed from, the site or eqkRutpure objects.  Note that this does not
+   * include the exceedProbParam (which exceedance probability does not depend on).
+   * sigmaTruncTypeParam and sigmaTruncLevelParam are instantiated here and added
+   * to the otherParams list (others should be implemented as desired in subclasses)
+   */
+  protected void initOtherParams() {
+
+	  sigmaTruncTypeParam = new SigmaTruncTypeParam();
+	  sigmaTruncLevelParam = new SigmaTruncLevelParam();
+
+	  // Put parameters in the otherParams list:
+	  otherParams.clear();
+	  otherParams.addParameter(sigmaTruncTypeParam);
+	  otherParams.addParameter(sigmaTruncLevelParam);
+  }
 
   /**
    * Adds the Listeners to the parameters so that Attenuation can listen
@@ -1032,27 +782,5 @@ public abstract class AttenuationRelationship
    * Allows to reset the change listeners on the parameters
    */
   public void resetParameterEventListeners(){};
-
-  /**
-   * This creates the otherParams list.
-   * These are any parameters that the exceedance probability depends upon that is
-   * not a supported IMT (or one of their independent parameters) and is not contained
-   * in, or computed from, the site or eqkRutpure objects.  Note that this does not
-   * include the exceedProbParam (which exceedance probability does not depend on).
-   * sigmaTruncTypeParam and sigmaTruncLevelParam are instantiated here and added
-   * to the otherParams list (others whould be implemented as desired in subclasses)
-   */
-  protected void initOtherParams() {
-
-	  sigmaTruncTypeParam = new SigmaTruncTypeParam();
-	  sigmaTruncLevelParam = new SigmaTruncLevelParam();
-
-	  // Put parameters in the otherParams list:
-	  otherParams.clear();
-	  otherParams.addParameter(sigmaTruncTypeParam);
-	  otherParams.addParameter(sigmaTruncLevelParam);
-
-  }
-
 
 }

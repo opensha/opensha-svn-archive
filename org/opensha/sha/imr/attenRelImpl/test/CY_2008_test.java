@@ -14,10 +14,20 @@ import org.opensha.commons.param.WarningDoubleParameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
+import org.opensha.sha.imr.param.EqkRuptureParams.AftershockParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.RupTopDepthParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistRupMinusDistX_OverRupParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.HangingWallFlagParam;
+import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
+import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 import org.opensha.sha.param.DistRupMinusJB_OverRupParameter;
 import org.opensha.sha.param.DistanceRupParameter;
 
@@ -72,12 +82,12 @@ public class CY_2008_test extends NGATest {
 			 standard deviation of arbitrary horizontal component */
 			if(fileName.contains("SIGTM")) {
 				// Std Dev of arbitrary horizontal component
-				cy_08.getParameter(AttenuationRelationship.FLT_TYPE_NAME).setValue(CY_2008_AttenRel.FLT_TYPE_STRIKE_SLIP);
+				cy_08.getParameter(FaultTypeParam.NAME).setValue(CY_2008_AttenRel.FLT_TYPE_STRIKE_SLIP);
 				testValString = "Std Dev of geometric mean for known faulting";
 			} else {
 				//Std dev of geomteric mean
-				cy_08.getParameter(AttenuationRelationship.FLT_TYPE_NAME).setValue(CY_2008_AttenRel.FLT_TYPE_DEFAULT);
-				//					as_2008.getParameter(as_2008.FLT_TYPE_NAME).setValue(AS_2008_AttenRel.FLT_TYPE_UNKNOWN);
+				cy_08.getParameter(FaultTypeParam.NAME).setValueAsDefault();
+				//					as_2008.getParameter(FaultTypeParam.NAME).setValue(AS_2008_AttenRel.FLT_TYPE_UNKNOWN);
 				testValString = "Std dev of geomteric mean for unspecified faulting";
 			}
 		}
@@ -88,23 +98,23 @@ public class CY_2008_test extends NGATest {
 
 		
 		if(fileName.contains("SS.OUT") && !fileName.contains("SIGTU"))
-			cy_08.getParameter(CY_2008_AttenRel.FLT_TYPE_NAME).setValue(CY_2008_AttenRel.FLT_TYPE_STRIKE_SLIP);
+			cy_08.getParameter(FaultTypeParam.NAME).setValue(CY_2008_AttenRel.FLT_TYPE_STRIKE_SLIP);
 		else if(fileName.contains("RV.OUT"))
-			cy_08.getParameter(CY_2008_AttenRel.FLT_TYPE_NAME).setValue(CY_2008_AttenRel.FLT_TYPE_REVERSE);
+			cy_08.getParameter(FaultTypeParam.NAME).setValue(CY_2008_AttenRel.FLT_TYPE_REVERSE);
 		else if(fileName.contains("NM.OUT"))
-			cy_08.getParameter(CY_2008_AttenRel.FLT_TYPE_NAME).setValue(CY_2008_AttenRel.FLT_TYPE_NORMAL);
+			cy_08.getParameter(FaultTypeParam.NAME).setValue(CY_2008_AttenRel.FLT_TYPE_NORMAL);
 		else 
 			//throw new RuntimeException("Unknown Fault Type");
-			//				as_2008.getParameter(as_2008.FLT_TYPE_NAME).setValue(as_2008.FLT_TYPE_UNKNOWN);
-			cy_08.getParameter(CY_2008_AttenRel.FLT_TYPE_NAME).setValue(CY_2008_AttenRel.FLT_TYPE_DEFAULT);
+			//				as_2008.getParameter(FaultTypeParam.NAME).setValue(as_2008.FLT_TYPE_UNKNOWN);
+			cy_08.getParameter(FaultTypeParam.NAME).setValueAsDefault();
 		
-		BooleanParameter hangingWallFlagParam = (BooleanParameter)cy_08.getParameter(CY_2008_AttenRel.HANGING_WALL_FLAG_NAME);
+		BooleanParameter hangingWallFlagParam = (BooleanParameter)cy_08.getParameter(HangingWallFlagParam.NAME);
 		if(fileName.contains("_FW"))
 			hangingWallFlagParam.setValue(false);
 		else
 			hangingWallFlagParam.setValue(true);
 		
-		BooleanParameter aftershockParam = (BooleanParameter)cy_08.getParameter(CY_2008_AttenRel.AFTERSHOCK_NAME);
+		AftershockParam aftershockParam = (AftershockParam)cy_08.getParameter(AftershockParam.NAME);
 		
 		if (fileName.contains("_AS_"))
 			aftershockParam.setValue(true);
@@ -112,9 +122,9 @@ public class CY_2008_test extends NGATest {
 			aftershockParam.setValue(false);
 		
 		if (fileName.contains("SIGMEAS"))
-			cy_08.getParameter(CY_2008_AttenRel.VS30_TYPE_NAME).setValue(AttenuationRelationship.VS30_TYPE_MEASURED);
+			cy_08.getParameter(Vs30_TypeParam.NAME).setValue(Vs30_TypeParam.VS30_TYPE_MEASURED);
 		else
-			cy_08.getParameter(CY_2008_AttenRel.VS30_TYPE_NAME).setValue(AttenuationRelationship.VS30_TYPE_INFERRED);
+			cy_08.getParameter(Vs30_TypeParam.NAME).setValue(Vs30_TypeParam.VS30_TYPE_INFERRED);
 		
 		try {
 			ArrayList<String> testDataLines = FileUtils.loadFile(file.getAbsolutePath());
@@ -131,7 +141,7 @@ public class CY_2008_test extends NGATest {
 					String fileLine = (String)testDataLines.get(j);
 					st = new StringTokenizer(fileLine);
 					mag = Double.parseDouble(st.nextToken().trim());
-					((WarningDoubleParameter)cy_08.getParameter(CY_2008_AttenRel.MAG_NAME)).setValueIgnoreWarning(new Double(mag));
+					((WarningDoubleParameter)cy_08.getParameter(MagParam.NAME)).setValueIgnoreWarning(new Double(mag));
 
 					//Rrup is used for this one
 					double rRup = Double.parseDouble(st.nextToken().trim());
@@ -149,7 +159,7 @@ public class CY_2008_test extends NGATest {
 					
 					
 					double rx = Double.parseDouble(st.nextToken()); // R(x) ( Horizontal distance from top of rupture perpendicular to fault strike)
-					DoubleParameter distRupMinusDistX_OverRupParam = (DoubleParameter)cy_08.getParameter(CY_2008_AttenRel.DIST_RUP_MINUS_DIST_X_NAME);
+					DoubleParameter distRupMinusDistX_OverRupParam = (DoubleParameter)cy_08.getParameter(DistRupMinusDistX_OverRupParam.NAME);
 					
 					if (rRup > 0) {
 						distRupMinusJB_OverRupParam.setValueIgnoreWarning((rRup-dist_jb)/rRup);
@@ -165,7 +175,7 @@ public class CY_2008_test extends NGATest {
 					}
 
 					double dip = Double.parseDouble(st.nextToken()); // dip
-					cy_08.getParameter(CY_2008_AttenRel.DIP_NAME).setValue(new Double(dip));
+					cy_08.getParameter(DipParam.NAME).setValue(new Double(dip));
 
 					double w = Double.parseDouble(st.nextToken()); // W, width of rup plane
 					// not sure what i should do here....
@@ -179,13 +189,13 @@ public class CY_2008_test extends NGATest {
 					
 
 					double ztor = Double.parseDouble(st.nextToken()); // Ztor, depth of top
-					cy_08.getParameter(CY_2008_AttenRel.RUP_TOP_NAME).setValue(new Double(ztor));
+					cy_08.getParameter(RupTopDepthParam.NAME).setValue(new Double(ztor));
 
 					vs30 = Double.parseDouble(st.nextToken().trim());
-					((WarningDoubleParameter)cy_08.getParameter(CY_2008_AttenRel.VS30_NAME)).setValueIgnoreWarning(new Double(vs30));
+					((WarningDoubleParameter)cy_08.getParameter(Vs30_Param.NAME)).setValueIgnoreWarning(new Double(vs30));
 
 					double zsed = Double.parseDouble(st.nextToken()); // Zsed, sediment/basin depth
-					cy_08.getParameter(CY_2008_AttenRel.DEPTH_1pt0_NAME).setValue(new Double(zsed));
+					cy_08.getParameter(DepthTo1pt0kmPerSecParam.NAME).setValue(new Double(zsed));
 					
 					cy_08.setIntensityMeasure(SA_Param.NAME);
 					int num= period.length;
@@ -322,18 +332,18 @@ public class CY_2008_test extends NGATest {
 			str += "\nSA period = " + attenRel.getParameter(PeriodParam.NAME).getValue();
 		else
 			str += "\nIM Type = " + attenRel.getIntensityMeasure().getName();
-		str += "\nMag = " + attenRel.getParameter(CY_2008_AttenRel.MAG_NAME).getValue();
+		str += "\nMag = " + attenRel.getParameter(MagParam.NAME).getValue();
 		str += "\tRrup = " + attenRel.getParameter(DistanceRupParameter.NAME).getValue();
 		str += "\t(Rrup-Rjb)/Rrup = " + attenRel.getParameter(DistRupMinusJB_OverRupParameter.NAME).getValue();
-		str += "\nFault Type = " + attenRel.getParameter(CY_2008_AttenRel.FLT_TYPE_NAME).getValue();
-		str += "\t(distRup-distX)/distRup = " + attenRel.getParameter(CY_2008_AttenRel.DIST_RUP_MINUS_DIST_X_NAME).getValue();
-		str += "\tDip = " + attenRel.getParameter(CY_2008_AttenRel.DIP_NAME).getValue();
+		str += "\nFault Type = " + attenRel.getParameter(FaultTypeParam.NAME).getValue();
+		str += "\t(distRup-distX)/distRup = " + attenRel.getParameter(DistRupMinusDistX_OverRupParam.NAME).getValue();
+		str += "\tDip = " + attenRel.getParameter(DipParam.NAME).getValue();
 //		str += "\nDDWidth = " + attenRel.getParameter(CY_2008_AttenRel.RUP_WIDTH_NAME).getValue();
-		str += "\nzTor = " + attenRel.getParameter(CY_2008_AttenRel.RUP_TOP_NAME).getValue();
-		str += "\tVs30 = " + attenRel.getParameter(CY_2008_AttenRel.VS30_NAME).getValue();
-		str += "\tVs30 flag = " + attenRel.getParameter(CY_2008_AttenRel.VS30_TYPE_NAME).getValue();
-		str += "\nDepthto1km/sec = " + attenRel.getParameter(CY_2008_AttenRel.DEPTH_1pt0_NAME).getValue();
-		str += "\tHanging Wall Flag: = " + attenRel.getParameter(CY_2008_AttenRel.HANGING_WALL_FLAG_NAME).getValue();
+		str += "\nzTor = " + attenRel.getParameter(RupTopDepthParam.NAME).getValue();
+		str += "\tVs30 = " + attenRel.getParameter(Vs30_Param.NAME).getValue();
+		str += "\tVs30 flag = " + attenRel.getParameter(Vs30_TypeParam.NAME).getValue();
+		str += "\nDepthto1km/sec = " + attenRel.getParameter(DepthTo1pt0kmPerSecParam.NAME).getValue();
+		str += "\tHanging Wall Flag: = " + attenRel.getParameter(HangingWallFlagParam.NAME).getValue();
 		str += "\n";
 		
 		return str;

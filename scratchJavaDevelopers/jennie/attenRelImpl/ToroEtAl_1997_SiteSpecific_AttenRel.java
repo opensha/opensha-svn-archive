@@ -25,6 +25,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.*;
+import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
@@ -170,7 +171,7 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
     toroEtAl_1997_attenRel = new ToroEtAl_1997_AttenRel(warningListener);
     // set the site type to rock
  //   double rockVS = 2000.00;
- //   toroEtAl_1997_attenRel.getParameter(toroEtAl_1997_attenRel.VS30_NAME).setValue(rockVS);
+ //   toroEtAl_1997_attenRel.getParameter(toroEtAl_1997_Vs30_Param.NAME).setValue(rockVS);
     // set the component to ave horz
 //    toroEtAl_1997_attenRel.getParameter(toroEtAl_1997_attenRel.COMPONENT_NAME).setValue(
 //        toroEtAl_1997_attenRel.COMPONENT_AVE_HORZ);
@@ -346,10 +347,10 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
 	    toroEtAl_1997_attenRel.setParamDefaults();
 	    // re-set the site type to rock and component to ave horz
 //	    double rockVS = 2000.00;
-//	    toroEtAl_1997_attenRel.getParameter(toroEtAl_1997_attenRel.VS30_NAME).setValue(rockVS);
+//	    toroEtAl_1997_attenRel.getParameter(toroEtAl_1997_Vs30_Param.NAME).setValue(rockVS);
 //	    toroEtAl_1997_attenRel.getParameter(toroEtAl_1997_attenRel.COMPONENT_NAME).setValue(
 //	        toroEtAl_1997_attenRel.COMPONENT_AVE_HORZ);
-	    magParam.setValue(MAG_DEFAULT);
+	    magParam.setValueAsDefault();
 	    distanceJBParam.setValue(DISTANCE_JB_DEFAULT);
   }
   
@@ -368,7 +369,7 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
     // params that the mean depends upon
     meanIndependentParams.clear();
     ListIterator it = toroEtAl_1997_attenRel.getMeanIndependentParamsIterator();
-//    String ignoreStr1 = toroEtAl_1997_attenRel.VS30_NAME;
+//    String ignoreStr1 = toroEtAl_1997_Vs30_Param.NAME;
 //    String ignoreStr2 = toroEtAl_1997_attenRel.COMPONENT_NAME;
     while (it.hasNext()) {
       Parameter param = (Parameter) it.next();
@@ -438,13 +439,6 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
    */
   protected void initSiteParams() {
 
-    // create vs30 Parameter:
-    super.initSiteParams();
-
-    // create and add the warning constraint:
- //   DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
- //   warn.setNonEditable();
-
     //make the AF functional form parameter
     StringConstraint constraint = new StringConstraint();
     constraint.addString(AF_FuncForm_DEFAULT);
@@ -505,10 +499,7 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
    */
   protected void initEqkRuptureParams() {
 
-	  // Create magParam
-	  super.initEqkRuptureParams();
-
-	  magParam = (WarningDoubleParameter) toroEtAl_1997_attenRel.getParameter(MAG_NAME);
+	  magParam = (MagParam) toroEtAl_1997_attenRel.getParameter(magParam.NAME);
 
 	  eqkRuptureParams.clear();
 	  ListIterator it = toroEtAl_1997_attenRel.getEqkRuptureParamsIterator();

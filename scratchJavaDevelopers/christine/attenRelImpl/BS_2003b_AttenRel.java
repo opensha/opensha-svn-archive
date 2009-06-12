@@ -33,6 +33,7 @@ import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 /**
  * <b>Title:</b> BS_2003_AttenRel<p>
@@ -232,8 +233,8 @@ public class BS_2003b_AttenRel
     AF_SlopeParam.setValue((Double)site.getParameter(AF_SLOPE_PARAM_NAME).getValue());
     AF_StdDevParam.setValue((Double)site.getParameter(AF_STD_DEV_PARAM_NAME).getValue());
     
-    vs30Param.setValue((Double)site.getParameter(VS30_NAME).getValue());
-//    VS30SParam.setValueIgnoreWarning(site.getParameter(VS30_NAME).getValue());
+    vs30Param.setValue((Double)site.getParameter(Vs30_Param.NAME).getValue());
+//    VS30SParam.setValueIgnoreWarning(site.getParameter(Vs30_Param.NAME).getValue());
     softSoilParam.setValue((Boolean)(site.getParameter(SOFT_SOIL_NAME).getValue()));
     numRunsParam.setValue((Integer)site.getParameter(NUM_RUNS_PARAM_NAME).getValue());
     this.site = site;
@@ -412,7 +413,7 @@ public class BS_2003b_AttenRel
 
     // re-set the site type to rock and component to ave horz
     double rockVS = 1100.00;
-    cb_2008_attenRel.getParameter(cb_2008_attenRel.VS30_NAME).setValue(rockVS);
+    cb_2008_attenRel.getParameter(Vs30_Param.NAME).setValue(rockVS);
 
   }
 
@@ -436,7 +437,7 @@ public class BS_2003b_AttenRel
 //          !ignoreStr2.equals(param.getName())) {
       	// we don't want to add vs30 twice, and since vs30 is fixed for the wrapped CB 2008
       	// we only want to include the one that changes
-      	if (param.getName().equals(VS30_NAME))
+      	if (param.getName().equals(Vs30_Param.NAME))
       		continue;
         meanIndependentParams.addParameter(param);
 //      }
@@ -460,7 +461,7 @@ public class BS_2003b_AttenRel
 //          !ignoreStr2.equals(param.getName())) {
       	// we don't want to add vs30 twice, and since vs30 is fixed for the wrapped CB 2008
     	// we only want to include the one that changes
-    	if (param.getName().equals(VS30_NAME))
+    	if (param.getName().equals(Vs30_Param.NAME))
     		continue;
         stdDevIndependentParams.addParameter(param);
 //      }
@@ -484,7 +485,7 @@ public class BS_2003b_AttenRel
 //          !ignoreStr2.equals(param.getName())) {
       	// we don't want to add vs30 twice, and since vs30 is fixed for the wrapped CB 2008
     	// we only want to include the one that changes
-    	if (param.getName().equals(VS30_NAME))
+    	if (param.getName().equals(Vs30_Param.NAME))
     		continue;
         exceedProbIndependentParams.addParameter(param);
 //      }
@@ -512,23 +513,14 @@ public class BS_2003b_AttenRel
    */
   protected void initSiteParams() {
 
-    // create vs30S Parameter:
-    super.initSiteParams();
-
-    // create and add the warning constraint:
-    DoubleConstraint warn = new DoubleConstraint(VS30S_WARN_MIN, VS30S_WARN_MAX);
-    warn.setNonEditable();
-//    VS30SParam.setWarningConstraint(warn);
-//    VS30SParam.addParameterChangeWarningListener(warningListener);
-//    VS30SParam.setNonEditable();
-
     // make the Soft Soil parameter
     softSoilParam = new BooleanParameter(SOFT_SOIL_NAME, SOFT_SOIL_DEFAULT);
     softSoilParam.setInfo(SOFT_SOIL_INFO);
     
     //make the AF intercept paarameter
-    vs30Param.setConstraint(Vs30SparamConstraint);
-    vs30Param.setValueIgnoreWarning(VS30S_PARAM_DEFAULT);
+	vs30Param = new Vs30_Param(VS30S_PARAM_DEFAULT, Vs30SparamConstraint.getMin(), Vs30SparamConstraint.getMax());
+//   vs30Param.setConstraint(Vs30SparamConstraint);
+//    vs30Param.setValueIgnoreWarning(VS30S_PARAM_DEFAULT);
 //    VS30SParam = new DoubleParameter(this.VS30S_PARAM_NAME,
 //    		Vs30SparamConstraint,this.VS30S_PARAM_DEFAULT);
 //    VS30SParam.setInfo(this.VS30S_PARAM_INFO);
@@ -577,9 +569,6 @@ public class BS_2003b_AttenRel
    *  list. Makes the parameters noneditable.
    */
   protected void initEqkRuptureParams() {
-
-    // Create magParam
-    super.initEqkRuptureParams();
 
     eqkRuptureParams.clear();
     ListIterator it = cb_2008_attenRel.getEqkRuptureParamsIterator();

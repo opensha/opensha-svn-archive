@@ -25,6 +25,8 @@ import org.opensha.commons.util.FaultUtils;
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
@@ -161,7 +163,6 @@ public class McVerryetal_2000_AttenRel
   public final static String FLT_TYPE_REVERSE = "Reverse";
   public final static String FLT_TYPE_REVERSE_OBLIQUE = "Oblique-Reverse";
   public final static String FLT_TYPE_NORMAL = "Normal";
-  public final static String FLT_TYPE_DEFAULT = "Strike-Slip";
   public final static String FLT_TYPE_INTERFACE = "Subduction-Interface";
   public final static String FLT_TYPE_DEEP_SLAB = "Subduction-Deep-Slab";
 
@@ -338,9 +339,9 @@ public class McVerryetal_2000_AttenRel
   public void setParamDefaults() {
 
 	siteTypeParam.setValue(SITE_TYPE_DEFAULT);
-    magParam.setValue(MAG_DEFAULT);
+    magParam.setValueAsDefault();
     distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
-    fltTypeParam.setValue(FLT_TYPE_DEFAULT);
+    fltTypeParam.setValueAsDefault();
     saParam.setValueAsDefault();
     saPeriodParam.setValueAsDefault();
     saDampingParam.setValueAsDefault();
@@ -387,9 +388,6 @@ public class McVerryetal_2000_AttenRel
   }
 
   protected void initSiteParams() {
-
-	    // create vs30 Parameter:
-	    super.initSiteParams();
 	    
 	    StringConstraint siteConstraint = new StringConstraint();
 	    siteConstraint.addString(SITE_TYPE_A);
@@ -412,15 +410,7 @@ public class McVerryetal_2000_AttenRel
 	   */
 	  protected void initEqkRuptureParams() {
 
-	    // Create magParam & other common EqkRup-related params
-	    super.initEqkRuptureParams();
-
-	    //  Create and add warning constraint to magParam:
-	    DoubleConstraint warn = new DoubleConstraint(MAG_WARN_MIN, MAG_WARN_MAX);
-	    warn.setNonEditable();
-	    magParam.setWarningConstraint(warn);
-	    magParam.addParameterChangeWarningListener(warningListener);
-	    magParam.setNonEditable();
+		magParam = new MagParam(MAG_WARN_MIN, MAG_WARN_MAX);
 	    
 	    StringConstraint constraint = new StringConstraint();
 	    constraint.addString(FLT_TYPE_STRIKE_SLIP);
@@ -430,9 +420,7 @@ public class McVerryetal_2000_AttenRel
 	    constraint.addString(FLT_TYPE_INTERFACE);
 	    constraint.addString(FLT_TYPE_DEEP_SLAB);
 	    constraint.setNonEditable();
-	    fltTypeParam = new StringParameter(FLT_TYPE_NAME, constraint, null);
-	    fltTypeParam.setInfo(FLT_TYPE_INFO);
-	    fltTypeParam.setNonEditable();
+	    fltTypeParam = new FaultTypeParam(constraint,FLT_TYPE_STRIKE_SLIP);
 
 	    eqkRuptureParams.clear();
 	    eqkRuptureParams.addParameter(magParam);
@@ -631,10 +619,10 @@ public class McVerryetal_2000_AttenRel
 	  if (pName.equals(DistanceRupParameter.NAME)) {
 		  rRup = ( (Double) val).doubleValue();
 	  }
-	  //else if (pName.equals(VS30_NAME)) {
+	  //else if (pName.equals(Vs30_Param.NAME)) {
 		//  vs30 = ( (Double) val).doubleValue();
 	  //}
-	  else if (pName.equals(MAG_NAME)) {
+	  else if (pName.equals(magParam.NAME)) {
 		  mag = ( (Double) val).doubleValue();
 	  }
 	  else if (pName.equals(StdDevTypeParam.NAME)) {

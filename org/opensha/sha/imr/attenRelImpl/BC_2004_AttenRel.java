@@ -28,6 +28,7 @@ import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.param.DistanceRupParameter;
 import org.opensha.sha.param.WarningDoublePropagationEffectParameter;
 
@@ -377,12 +378,8 @@ public class BC_2004_AttenRel
    */
   protected void initSiteParams() {
 
-    // create vs30 Parameter:
-    super.initSiteParams();
+    vs30Param = new Vs30_Param(VS30_WARN_MIN, VS30_WARN_MAX);
 
-    // create and add the warning constraint:
-    DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
-    warn.setNonEditable();
    
     //make the AF intercept paarameter
     AF_InterceptParam = new DoubleParameter(this.AF_INTERCEPT_PARAM_NAME,
@@ -421,9 +418,6 @@ public class BC_2004_AttenRel
    *  list. Makes the parameters noneditable.
    */
   protected void initEqkRuptureParams() {
-
-    // Create magParam
-    super.initEqkRuptureParams();
 
     eqkRuptureParams.clear();
     ListIterator it = as_1997_attenRel.getEqkRuptureParamsIterator();

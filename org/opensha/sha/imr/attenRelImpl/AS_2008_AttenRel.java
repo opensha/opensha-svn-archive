@@ -31,6 +31,12 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.EqkRuptureParams.AftershockParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.RupTopDepthParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.RupWidthParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
@@ -38,6 +44,11 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistRupMinusDistX_OverRupParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.HangingWallFlagParam;
+import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
+import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 import org.opensha.sha.param.*;
 
 /**
@@ -119,7 +130,6 @@ NamedObjectAPI, ParameterChangeListener {
 	public final static String FLT_TYPE_STRIKE_SLIP = "Strike-Slip";
 	public final static String FLT_TYPE_REVERSE = "Reverse";
 	public final static String FLT_TYPE_NORMAL = "Normal";
-	public final static String FLT_TYPE_DEFAULT = FLT_TYPE_STRIKE_SLIP;
 
 	/**
 	 * The DistanceRupParameter, closest distance to fault surface.
@@ -481,10 +491,10 @@ NamedObjectAPI, ParameterChangeListener {
 	 */
 	public void setSite(Site site) throws ParameterException {
 
-		vs30Param.setValue((Double)site.getParameter(this.VS30_NAME).getValue());
-		depthTo1pt0kmPerSecParam.setValueIgnoreWarning((Double)site.getParameter(this.DEPTH_1pt0_NAME).
+		vs30Param.setValue((Double)site.getParameter(Vs30_Param.NAME).getValue());
+		depthTo1pt0kmPerSecParam.setValueIgnoreWarning((Double)site.getParameter(DepthTo1pt0kmPerSecParam.NAME).
 				getValue());
-		vs30_TypeParam.setValue((String)site.getParameter(VS30_TYPE_NAME).getValue());
+		vs30_TypeParam.setValue((String)site.getParameter(Vs30_TypeParam.NAME).getValue());
 
 		this.site = site;
 		setPropagationEffectParams();
@@ -663,24 +673,22 @@ NamedObjectAPI, ParameterChangeListener {
 	 * Relationship.
 	 */
 	public void setParamDefaults() {
-
-		aftershockParam.setValue(AFTERSHOCK_DEFAULT);
 	
-		magParam.setValue(MAG_DEFAULT);
-		fltTypeParam.setValue(FLT_TYPE_DEFAULT);
-		rupTopDepthParam.setValue(RUP_TOP_DEFAULT);
-		dipParam.setValue(DIP_DEFAULT);
-		rupWidthParam.setValue(RUP_WIDTH_DEFAULT);
-		aftershockParam.setValue(AFTERSHOCK_DEFAULT);
+		magParam.setValueAsDefault();
+		fltTypeParam.setValueAsDefault();
+		rupTopDepthParam.setValueAsDefault();
+		dipParam.setValueAsDefault();
+		rupWidthParam.setValueAsDefault();
+		aftershockParam.setValueAsDefault();
 		
-		vs30Param.setValue(VS30_DEFAULT);
-		vs30_TypeParam.setValue(VS30_TYPE_DEFAULT);
-		depthTo1pt0kmPerSecParam.setValue(DEPTH_1pt0_DEFAULT);
+		vs30Param.setValueAsDefault();
+		vs30_TypeParam.setValueAsDefault();
+		depthTo1pt0kmPerSecParam.setValueAsDefault();
 		
 		distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
 		distRupMinusJB_OverRupParam.setValue(DISTANCE_RUP_MINUS_DEFAULT);
-		distRupMinusDistX_OverRupParam.setValue(DIST_RUP_MINUS_DIST_X_DEFAULT);
-		hangingWallFlagParam.setValue(HANGING_WALL_FLAG_DEFAULT);
+		distRupMinusDistX_OverRupParam.setValueAsDefault();
+		hangingWallFlagParam.setValueAsDefault();
 
 		componentParam.setValueAsDefault();
 	    stdDevTypeParam.setValueAsDefault();
@@ -741,24 +749,9 @@ NamedObjectAPI, ParameterChangeListener {
 	 */
 	protected void initSiteParams() {
 
-		// create vs30 Parameter:
-		super.initSiteParams();
-
-		// create and add the warning constraint:
-		DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
-		warn.setNonEditable();
-		vs30Param.setWarningConstraint(warn);
-		vs30Param.addParameterChangeWarningListener(warningListener);
-		vs30Param.setNonEditable();
-
-		// create and add the warning constraint:
-		depthTo1pt0kmPerSecParam = new WarningDoubleParameter(DEPTH_1pt0_NAME, DEPTH_1pt0_DEFAULT);
-		DoubleConstraint warn2 = new DoubleConstraint(DEPTH_1pt0_WARN_MIN,
-				DEPTH_1pt0_WARN_MAX);
-		warn2.setNonEditable();
-		depthTo1pt0kmPerSecParam.setWarningConstraint(warn2);
-		depthTo1pt0kmPerSecParam.addParameterChangeWarningListener(warningListener);
-		depthTo1pt0kmPerSecParam.setNonEditable();
+	    vs30Param = new Vs30_Param(VS30_WARN_MIN, VS30_WARN_MAX);
+	    vs30_TypeParam = new Vs30_TypeParam();
+		depthTo1pt0kmPerSecParam = new DepthTo1pt0kmPerSecParam(DEPTH_1pt0_WARN_MIN, DEPTH_1pt0_WARN_MAX);
 
 		siteParams.clear();
 		siteParams.addParameter(vs30Param);
@@ -773,39 +766,19 @@ NamedObjectAPI, ParameterChangeListener {
 	 */
 	protected void initEqkRuptureParams() {
 
-		// Create magParam & other common EqkRup-related params
-		super.initEqkRuptureParams();
 
-		//  Create and add warning constraint to magParam:
-		DoubleConstraint warn = new DoubleConstraint(MAG_WARN_MIN, MAG_WARN_MAX);
-		warn.setNonEditable();
-		magParam.setWarningConstraint(warn);
-		magParam.addParameterChangeWarningListener(warningListener);
-		magParam.setNonEditable();
-
-		DoubleConstraint warn2 = new DoubleConstraint(RUP_TOP_MIN, RUP_TOP_MAX);
-		warn.setNonEditable();
-		rupTopDepthParam.setWarningConstraint(warn2);
-		rupTopDepthParam.addParameterChangeWarningListener(warningListener);
-		rupTopDepthParam.setNonEditable();
+	    magParam = new MagParam(MAG_WARN_MIN, MAG_WARN_MAX);
+	    aftershockParam = new AftershockParam();
+		dipParam = new DipParam(DIP_WARN_MIN,DIP_WARN_MAX);
+		rupTopDepthParam = new RupTopDepthParam(RUP_TOP_WARN_MIN, RUP_TOP_WARN_MAX);
+		rupWidthParam = new RupWidthParam(RUP_WIDTH_WARN_MIN, RUP_WIDTH_WARN_MAX);
 
 		StringConstraint constraint = new StringConstraint();
 		constraint.addString(FLT_TYPE_STRIKE_SLIP);
 		constraint.addString(FLT_TYPE_NORMAL);
 		constraint.addString(FLT_TYPE_REVERSE);
 		constraint.setNonEditable();
-		fltTypeParam = new StringParameter(FLT_TYPE_NAME, constraint, null);
-		fltTypeParam.setInfo(FLT_TYPE_INFO);
-		fltTypeParam.setNonEditable();
-
-		// now create the params unique to this relationship
-		DoubleConstraint rupWidthConstraint = new DoubleConstraint(RUP_WIDTH_MIN, RUP_WIDTH_MAX);
-		rupWidthConstraint.setNonEditable();
-		rupWidthParam = new WarningDoubleParameter(RUP_WIDTH_NAME, rupWidthConstraint, RUP_WIDTH_DEFAULT);
-		rupWidthParam.setInfo(RUP_WIDTH_INFO);
-		DoubleConstraint warnRupWidthConstraint = new DoubleConstraint(RUP_WIDTH_WARN_MIN, RUP_WIDTH_WARN_MAX);
-		warnRupWidthConstraint.setNonEditable();
-		rupWidthParam.setWarningConstraint(warnRupWidthConstraint);
+	    fltTypeParam = new FaultTypeParam(constraint,FLT_TYPE_STRIKE_SLIP);
 		
 		eqkRuptureParams.clear();
 		eqkRuptureParams.addParameter(magParam);
@@ -838,13 +811,10 @@ NamedObjectAPI, ParameterChangeListener {
 		distRupMinusJB_OverRupParam.addParameterChangeWarningListener(warningListener);
 		distRupMinusJB_OverRupParam.setNonEditable();
 		
-		distRupMinusDistX_OverRupParam = new DoubleParameter(DIST_RUP_MINUS_DIST_X_NAME, DIST_RUP_MINUS_DIST_X_MIN, DIST_RUP_MINUS_DIST_X_MAX);
-		distRupMinusDistX_OverRupParam.setInfo(DIST_RUP_MINUS_DIST_X_INFO);
-		distRupMinusDistX_OverRupParam.setNonEditable();
+		distRupMinusDistX_OverRupParam = new DistRupMinusDistX_OverRupParam();
 		
 	    // create hanging wall parameter
-	    hangingWallFlagParam = new BooleanParameter(HANGING_WALL_FLAG_NAME, HANGING_WALL_FLAG_DEFAULT);
-	    hangingWallFlagParam.setInfo(HANGING_WALL_FLAG_INFO);
+	    hangingWallFlagParam = new HangingWallFlagParam();
 
 		propagationEffectParams.addParameter(distanceRupParam);
 		propagationEffectParams.addParameter(distRupMinusJB_OverRupParam);
@@ -1336,10 +1306,10 @@ NamedObjectAPI, ParameterChangeListener {
 		
 //		System.out.println(pName+"\t"+val);
 		
-		if (pName.equals(MAG_NAME)) {
+		if (pName.equals(magParam.NAME)) {
 			mag = ( (Double) val).doubleValue();
 		}
-		else if (pName.equals(FLT_TYPE_NAME)) {
+		else if (pName.equals(FaultTypeParam.NAME)) {
 			String fltType = (String)fltTypeParam.getValue();
 			if (fltType.equals(FLT_TYPE_NORMAL)) {
 				f_rv = 0 ;
@@ -1354,33 +1324,33 @@ NamedObjectAPI, ParameterChangeListener {
 				f_nm = 0;
 			}
 		}
-		else if (pName.equals(RUP_TOP_NAME)) {
+		else if (pName.equals(RupTopDepthParam.NAME)) {
 			depthTop = ( (Double) val).doubleValue();
 		}
-		else if (pName.equals(DIP_NAME)) {
+		else if (pName.equals(DipParam.NAME)) {
 			dip = ( (Double) val).doubleValue();
 		}
-		else if (pName.equals(RUP_WIDTH_NAME)) {
+		else if (pName.equals(RupWidthParam.NAME)) {
 			rupWidth = ( (Double) val).doubleValue();
 		}
-		else if (pName.equals(AFTERSHOCK_NAME)) {
+		else if (pName.equals(AftershockParam.NAME)) {
 			if(((Boolean)val).booleanValue())
 				f_as = 1;
 			else
 				f_as = 0;
 		}
-		else if (pName.equals(VS30_NAME)) {
+		else if (pName.equals(Vs30_Param.NAME)) {
 			vs30 = ( (Double) val).doubleValue();
 		}
-		else if (pName.equals(VS30_TYPE_NAME)) {
-			if(((String)val).equals(VS30_TYPE_MEASURED)) {
+		else if (pName.equals(Vs30_TypeParam.NAME)) {
+			if(((String)val).equals(Vs30_TypeParam.VS30_TYPE_MEASURED)) {
 				vsm = 1;
 			}
 			else {
 				vsm = 0;
 			}
 		}
-		else if (pName.equals(DEPTH_1pt0_NAME)) {
+		else if (pName.equals(DepthTo1pt0kmPerSecParam.NAME)) {
 			if(val == null)
 				depthTo1pt0kmPerSec = Double.NaN;  // can't set the default here because vs30 could still change
 			else
@@ -1395,7 +1365,7 @@ NamedObjectAPI, ParameterChangeListener {
 		else if(pName.equals(distRupMinusDistX_OverRupParam.getName())){
 			distRupMinusDistX_OverRup = ((Double)val).doubleValue();
 		}
-		else if (pName.equals(HANGING_WALL_FLAG_NAME)) {
+		else if (pName.equals(HangingWallFlagParam.NAME)) {
 			if(((Boolean)val)) {
 				f_hw = 1.0;
 			}
@@ -1503,9 +1473,9 @@ NamedObjectAPI, ParameterChangeListener {
 		attenRel.setEqkRupture(rup);
 
 		Site site = new Site();
-		site.addParameter(attenRel.getParameter(attenRel.VS30_NAME));
-		site.addParameter(attenRel.getParameter(attenRel.DEPTH_1pt0_NAME));
-		site.addParameter(attenRel.getParameter(attenRel.VS30_TYPE_NAME));
+		site.addParameter(attenRel.getParameter(Vs30_Param.NAME));
+		site.addParameter(attenRel.getParameter(DepthTo1pt0kmPerSecParam.NAME));
+		site.addParameter(attenRel.getParameter(Vs30_TypeParam.NAME));
 
 		Location loc;
 		for(double dist=-0.3; dist<=0.3; dist+=0.01) {

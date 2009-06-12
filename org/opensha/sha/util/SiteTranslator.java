@@ -16,6 +16,10 @@ import org.opensha.commons.param.WarningDoubleParameter;
 
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.*;
+import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
+import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
+import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 
 /**
  * <p>Title: SiteTranslator</p>
@@ -154,10 +158,10 @@ implements java.io.Serializable {
 		map.addMapping(SiteDataAPI.TYPE_WILLS_CLASS,	ShakeMap_2003_AttenRel.WILLS_SITE_NAME);
 		
 		/*				params common to Vs30 and Wills Classes							*/
-		map.addMapping(SiteDataAPI.TYPE_VS30,			AttenuationRelationship.VS30_NAME);
-		map.addMapping(SiteDataAPI.TYPE_WILLS_CLASS,	AttenuationRelationship.VS30_NAME);
-		map.addMapping(SiteDataAPI.TYPE_VS30,			AttenuationRelationship.VS30_TYPE_NAME);
-		map.addMapping(SiteDataAPI.TYPE_WILLS_CLASS,	AttenuationRelationship.VS30_TYPE_NAME);
+		map.addMapping(SiteDataAPI.TYPE_VS30,			Vs30_Param.NAME);
+		map.addMapping(SiteDataAPI.TYPE_WILLS_CLASS,	Vs30_Param.NAME);
+		map.addMapping(SiteDataAPI.TYPE_VS30,			Vs30_TypeParam.NAME);
+		map.addMapping(SiteDataAPI.TYPE_WILLS_CLASS,	Vs30_TypeParam.NAME);
 		map.addMapping(SiteDataAPI.TYPE_VS30,			AS_1997_AttenRel.SITE_TYPE_NAME);
 		map.addMapping(SiteDataAPI.TYPE_WILLS_CLASS,	AS_1997_AttenRel.SITE_TYPE_NAME);
 		map.addMapping(SiteDataAPI.TYPE_VS30,			SadighEtAl_1997_AttenRel.SITE_TYPE_NAME);
@@ -170,12 +174,12 @@ implements java.io.Serializable {
 		map.addMapping(SiteDataAPI.TYPE_WILLS_CLASS,	CS_2005_AttenRel.SOFT_SOIL_NAME);
 		
 		/*				params that can be set from Depth to Vs = 2.5 KM/sec			*/
-		map.addMapping(SiteDataAPI.TYPE_DEPTH_TO_2_5,	AttenuationRelationship.DEPTH_2pt5_NAME);
+		map.addMapping(SiteDataAPI.TYPE_DEPTH_TO_2_5,	DepthTo2pt5kmPerSecParam.NAME);
 		map.addMapping(SiteDataAPI.TYPE_DEPTH_TO_2_5,	Field_2000_AttenRel.BASIN_DEPTH_NAME);
 		map.addMapping(SiteDataAPI.TYPE_DEPTH_TO_2_5,	Campbell_1997_AttenRel.BASIN_DEPTH_NAME);
 		
 		/*				params that can be set from Depth to Vs = 1.0 KM/sec			*/
-		map.addMapping(SiteDataAPI.TYPE_DEPTH_TO_1_0,	AttenuationRelationship.DEPTH_1pt0_NAME);
+		map.addMapping(SiteDataAPI.TYPE_DEPTH_TO_1_0,	DepthTo1pt0kmPerSecParam.NAME);
 		
 		return map;
 	}
@@ -229,9 +233,9 @@ implements java.io.Serializable {
 			// this means that the given parameter can be set by at least one of the data types
 			
 			// VS 30/Wills Site Class
-			if (paramName.equals(AttenuationRelationship.VS30_NAME)) {
+			if (paramName.equals(Vs30_Param.NAME)) {
 				return setVS30Param(param, datas);
-			} else if (paramName.equals(AttenuationRelationship.VS30_TYPE_NAME)) {
+			} else if (paramName.equals(Vs30_TypeParam.NAME)) {
 				return setVS30FlagParam(param, datas);
 			} else if (paramName.equals(AS_1997_AttenRel.SITE_TYPE_NAME)) {
 				return setAS_SiteType(param, datas);
@@ -250,9 +254,9 @@ implements java.io.Serializable {
 			}
 			
 			// BASIN Depth
-			if (paramName.equals(AttenuationRelationship.DEPTH_2pt5_NAME)) {
+			if (paramName.equals(DepthTo2pt5kmPerSecParam.NAME)) {
 				return setDepthTo2p5Param(param, datas);
-			} else if (paramName.equals(AttenuationRelationship.DEPTH_1pt0_NAME)) {
+			} else if (paramName.equals(DepthTo1pt0kmPerSecParam.NAME)) {
 				return setDepthTo1p0Param(param, datas);
 			} else if (paramName.equals(Field_2000_AttenRel.BASIN_DEPTH_NAME)){
 				return setDepthTo2p5Param(param, datas);
@@ -403,11 +407,11 @@ implements java.io.Serializable {
 			if (isVS30ValueValid(vsValue)) {
 				if (data.getDataMeasurementType().equals(SiteDataAPI.TYPE_FLAG_MEASURED)) {
 					if (D) System.out.println("setSiteParamsForData: +++ Setting VS measured");
-					param.setValue(AttenuationRelationship.VS30_TYPE_MEASURED); // set it to measured
+					param.setValue(Vs30_TypeParam.VS30_TYPE_MEASURED); // set it to measured
 					return true;
 				} else {
 					if (D) System.out.println("setSiteParamsForData: +++ Setting VS inferred");
-					param.setValue(AttenuationRelationship.VS30_TYPE_INFERRED); // set it to inferred
+					param.setValue(Vs30_TypeParam.VS30_TYPE_INFERRED); // set it to inferred
 					return true;
 				}
 			}
@@ -987,12 +991,12 @@ implements java.io.Serializable {
 		AttenuationRelationship ar;
 		ar = new CB_2008_AttenRel(null);
 		attenNames += ",(multiple),(multiple)";
-		params.add(ar.getParameter(AttenuationRelationship.VS30_NAME));
-		params.add(ar.getParameter(AttenuationRelationship.DEPTH_2pt5_NAME));
+		params.add(ar.getParameter(Vs30_Param.NAME));
+		params.add(ar.getParameter(DepthTo2pt5kmPerSecParam.NAME));
 		
 		ar = new CY_2008_AttenRel(null);
 		attenNames += ",(multiple)";
-		params.add(ar.getParameter(AttenuationRelationship.DEPTH_1pt0_NAME));
+		params.add(ar.getParameter(DepthTo1pt0kmPerSecParam.NAME));
 		
 		ar = new AS_1997_AttenRel(null);
 		attenNames += "," + ar.getName().replaceAll(",", "");
@@ -1148,14 +1152,14 @@ implements java.io.Serializable {
 		siteTrans.test(ar.getParameter(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME));
 
 		ar = new BJF_1997_AttenRel(null);
-		siteTrans.test(ar.getParameter(AttenuationRelationship.VS30_NAME));
+		siteTrans.test(ar.getParameter(Vs30_Param.NAME));
 
 		ar = new Campbell_1997_AttenRel(null);
 		siteTrans.test(ar.getParameter(Campbell_1997_AttenRel.SITE_TYPE_NAME));
 		siteTrans.test(ar.getParameter(Campbell_1997_AttenRel.BASIN_DEPTH_NAME));
 
 		ar = new Field_2000_AttenRel(null);
-		siteTrans.test(ar.getParameter(AttenuationRelationship.VS30_NAME));
+		siteTrans.test(ar.getParameter(Vs30_Param.NAME));
 		siteTrans.test(ar.getParameter(Field_2000_AttenRel.BASIN_DEPTH_NAME));
 
 		ar = new Abrahamson_2000_AttenRel(null);
@@ -1168,7 +1172,7 @@ implements java.io.Serializable {
 		siteTrans.test(ar.getParameter(ShakeMap_2003_AttenRel.WILLS_SITE_NAME));
 
 		ar = new USGS_Combined_2004_AttenRel(null);
-		siteTrans.test(ar.getParameter(AttenuationRelationship.VS30_NAME));
+		siteTrans.test(ar.getParameter(Vs30_Param.NAME));
 
 		//  ar = new SEA_1999_AttenRel(null);
 		//  siteTrans.test(ar.getParameter(SEA_1999_AttenRel.SITE_TYPE_NAME));

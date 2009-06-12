@@ -17,8 +17,30 @@ public class MagParam extends WarningDoubleParameter {
 	// warning values are set in subclasses
 	
 	/**
-	 * This sets the default value as given.
-	 * This is left editable so warning constraints can be added.
+	 * This sets the default value and warning-constraint limits
+	 *  as given, and leaves the parameter as non editable.
+	 */
+	public MagParam(double minWarning, double maxWarning, double defaultMag) {
+		super(NAME, new DoubleConstraint(MIN, MAX));
+		getConstraint().setNonEditable();
+		DoubleConstraint warn = new DoubleConstraint(minWarning, maxWarning);
+		warn.setNonEditable();
+		setWarningConstraint(warn);
+	    setInfo(INFO);
+	    setDefaultValue(defaultMag);
+	    setNonEditable();
+	    
+	}
+
+	/**
+	 * This sets the default value as 5.5, and applies the given warning-
+	 * constraint limits. The parameter is left as non editable.
+	 */
+	public MagParam(double minWarning, double maxWarning) { this(minWarning, maxWarning, 5.5);}
+
+	/**
+	 * This sets the default value as given.  No warning limits are set, so
+	 * this is left editable so warning constraints can be added.
 	 */
 	public MagParam(double defaultMag) {
 		super(NAME, new DoubleConstraint(MIN, MAX));
@@ -28,8 +50,10 @@ public class MagParam extends WarningDoubleParameter {
 	}
 
 	/**
-	 * This sets the default value as 5.5.
-	 * This is left editable so warning constraints can be added.
+	 * This sets the default value as 5.5.  No warning limits are set, so
+	 * this is left editable so warning constraints can be added.
 	 */
 	public MagParam() { this(5.5);}
+	
+	
 }

@@ -26,11 +26,14 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.*;
+import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
+import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.param.DistanceRupParameter;
 import org.opensha.sha.param.DistanceJBParameter;
 
@@ -169,7 +172,7 @@ public class AS_2008_SiteSpecific_AttenRel
     as_2008_attenRel = new AS_2008_AttenRel(warningListener);
     // set the site type to rock
 //    double rockVS = 2000.00;
-//    as_2008_attenRel.getParameter(as_2008_attenRel.VS30_NAME).setValue(rockVS);
+//    as_2008_attenRel.getParameter(as_2008_Vs30_Param.NAME).setValue(rockVS);
     // set the component to ave horz
 //    as_2008_attenRel.getParameter(as_2008_attenRel.COMPONENT_NAME).setValue(
 //        as_2008_attenRel.COMPONENT_AVE_HORZ);
@@ -348,10 +351,10 @@ public class AS_2008_SiteSpecific_AttenRel
 	    as_2008_attenRel.setParamDefaults();
 	    // re-set the site type to rock and component to ave horz
 	    double rockVS = 1100.00;
-	    as_2008_attenRel.getParameter(as_2008_attenRel.VS30_NAME).setValue(rockVS);
+	    as_2008_attenRel.getParameter(Vs30_Param.NAME).setValue(rockVS);
 	    double rockZ10 = 0.0;
-	    as_2008_attenRel.getParameter(as_2008_attenRel.DEPTH_1pt0_NAME).setValue(rockZ10);
-	    magParam.setValue(MAG_DEFAULT);
+	    as_2008_attenRel.getParameter(DepthTo1pt0kmPerSecParam.NAME).setValue(rockZ10);
+	    magParam.setValueAsDefault();
 	    Double DISTANCE_RUP_DEFAULT = new Double(0);
 	    distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
   }
@@ -371,7 +374,7 @@ public class AS_2008_SiteSpecific_AttenRel
     // params that the mean depends upon
     meanIndependentParams.clear();
     ListIterator it = as_2008_attenRel.getMeanIndependentParamsIterator();
- //   String ignoreStr1 = as_2008_attenRel.VS30_NAME;
+ //   String ignoreStr1 = as_2008_Vs30_Param.NAME;
  //   String ignoreStr2 = as_2008_attenRel.COMPONENT_NAME;
     while (it.hasNext()) {
       Parameter param = (Parameter) it.next();
@@ -441,13 +444,6 @@ public class AS_2008_SiteSpecific_AttenRel
    */
   protected void initSiteParams() {
 
-    // create vs30 Parameter:
-    super.initSiteParams();
-
-    // create and add the warning constraint:
- //   DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
- //   warn.setNonEditable();
-
     //make the AF functional form parameter
     StringConstraint constraint = new StringConstraint();
     constraint.addString(AF_FuncForm_DEFAULT);
@@ -499,7 +495,7 @@ public class AS_2008_SiteSpecific_AttenRel
     siteParams.addParameter(AF_StdDevParam);
 
 //    String vS_Rename = "Basement rock Vs30";
-//    as_2008_attenRel.getParameter(as_2008_attenRel.VS30_NAME).setName(vS_Rename);
+//    as_2008_attenRel.getParameter(as_2008_Vs30_Param.NAME).setName(vS_Rename);
 
     ListIterator it = as_2008_attenRel.getSiteParamsIterator();
 	  while (it.hasNext()) {
@@ -515,10 +511,7 @@ public class AS_2008_SiteSpecific_AttenRel
    */
   protected void initEqkRuptureParams() {
 
-	  // Create magParam
-	  super.initEqkRuptureParams();
-
-	  magParam = (WarningDoubleParameter) as_2008_attenRel.getParameter(MAG_NAME);
+	  magParam = (MagParam) as_2008_attenRel.getParameter(magParam.NAME);
 
 	  eqkRuptureParams.clear();
 	  ListIterator it = as_2008_attenRel.getEqkRuptureParamsIterator();

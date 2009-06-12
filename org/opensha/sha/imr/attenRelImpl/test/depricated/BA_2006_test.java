@@ -7,10 +7,13 @@ import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.imr.attenRelImpl.depricated.BA_2006_AttenRel;
+import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.param.*;
 
 import java.io.File;
@@ -90,7 +93,7 @@ public class BA_2006_test extends TestCase implements ParameterChangeWarningList
 			else
 				faultType = ba_2006.FLT_TYPE_UNKNOWN;
 			
-			ba_2006.getParameter(ba_2006.FLT_TYPE_NAME).setValue(faultType);
+			ba_2006.getParameter(FaultTypeParam.NAME).setValue(faultType);
 			double meanVal = ba_2006.getMean();
 			
 			double targetMedian = Double.parseDouble(st.nextToken().trim());
@@ -164,18 +167,18 @@ public class BA_2006_test extends TestCase implements ParameterChangeWarningList
 			if(fileName.endsWith(".txt")){
 				String fltType = fileName.substring(5,7);
 				if(fltType.equals("SS"))
-				  ba_2006.getParameter(ba_2006.FLT_TYPE_NAME).setValue(ba_2006.FLT_TYPE_STRIKE_SLIP);
+				  ba_2006.getParameter(FaultTypeParam.NAME).setValue(ba_2006.FLT_TYPE_STRIKE_SLIP);
 				else if(fltType.equals("RV"))
-					  ba_2006.getParameter(ba_2006.FLT_TYPE_NAME).setValue(ba_2006.FLT_TYPE_REVERSE);
+					  ba_2006.getParameter(FaultTypeParam.NAME).setValue(ba_2006.FLT_TYPE_REVERSE);
 				else if(fltType.equals("NR"))
-					ba_2006.getParameter(ba_2006.FLT_TYPE_NAME).setValue(ba_2006.FLT_TYPE_NORMAL);
+					ba_2006.getParameter(FaultTypeParam.NAME).setValue(ba_2006.FLT_TYPE_NORMAL);
 				else if(fltType.equals("UN"))
-					ba_2006.getParameter(ba_2006.FLT_TYPE_NAME).setValue(ba_2006.FLT_TYPE_UNKNOWN);
+					ba_2006.getParameter(FaultTypeParam.NAME).setValue(ba_2006.FLT_TYPE_UNKNOWN);
 				else 
 					continue;
 				
 				double vs30 = Double.parseDouble(fileName.substring(11,fileName.indexOf(".")));
-				ba_2006.getParameter(ba_2006.VS30_NAME).setValue(new Double(vs30));
+				ba_2006.getParameter(Vs30_Param.NAME).setValue(new Double(vs30));
 				try {
 					testDataLines = FileUtils.loadFile(fileList[i].getAbsolutePath());
 					int numLines = testDataLines.size();
@@ -183,7 +186,7 @@ public class BA_2006_test extends TestCase implements ParameterChangeWarningList
 						String fileLine = (String)testDataLines.get(j);
 						StringTokenizer st = new StringTokenizer(fileLine);
 						double mag = Double.parseDouble(st.nextToken().trim());
-						((WarningDoubleParameter)ba_2006.getParameter(ba_2006.MAG_NAME)).setValueIgnoreWarning(new Double(mag));
+						((WarningDoubleParameter)ba_2006.getParameter(MagParam.NAME)).setValueIgnoreWarning(new Double(mag));
 						
 						double rjb = Double.parseDouble(st.nextToken().trim());
 						((WarningDoublePropagationEffectParameter)ba_2006.getParameter(DistanceJBParameter.NAME)).setValueIgnoreWarning(new Double(rjb));

@@ -28,6 +28,7 @@ import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 /**
  * <b>Title:</b> CS_2005_AttenRel<p>
@@ -173,7 +174,7 @@ public class CS_2005_AttenRel
    */
   public void setSite(Site site) throws ParameterException {
 
-    vs30Param.setValueIgnoreWarning((Double)site.getParameter(VS30_NAME).getValue());
+    vs30Param.setValueIgnoreWarning((Double)site.getParameter(Vs30_Param.NAME).getValue());
     softSoilParam.setValue((Boolean)(site.getParameter(SOFT_SOIL_NAME).getValue()));
     this.site = site;
     // set the location in as_1997_attenRel
@@ -328,7 +329,7 @@ public class CS_2005_AttenRel
   public void setParamDefaults() {
 
     //((ParameterAPI)this.iml).setValue( IML_DEFAULT );
-    vs30Param.setValue(VS30_DEFAULT);
+    vs30Param.setValueAsDefault();
     softSoilParam.setValue(new Boolean(false));
     as_1997_attenRel.setParamDefaults();
     // re-set the site type to rock and component to ave horz
@@ -404,24 +405,16 @@ public class CS_2005_AttenRel
    */
   protected void initSiteParams() {
 
-    // create vs30 Parameter:
-    super.initSiteParams();
+	  vs30Param = new Vs30_Param(VS30_WARN_MIN, VS30_WARN_MAX);
 
-    // create and add the warning constraint:
-    DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
-    warn.setNonEditable();
-    vs30Param.setWarningConstraint(warn);
-    vs30Param.addParameterChangeWarningListener(warningListener);
-    vs30Param.setNonEditable();
+	  // make the Soft Soil parameter
+	  softSoilParam = new BooleanParameter(SOFT_SOIL_NAME, SOFT_SOIL_DEFAULT);
+	  softSoilParam.setInfo(SOFT_SOIL_INFO);
 
-    // make the Soft Soil parameter
-    softSoilParam = new BooleanParameter(SOFT_SOIL_NAME, SOFT_SOIL_DEFAULT);
-    softSoilParam.setInfo(SOFT_SOIL_INFO);
-
-    // add it to the siteParams list:
-    siteParams.clear();
-    siteParams.addParameter(vs30Param);
-    siteParams.addParameter(softSoilParam);
+	  // add it to the siteParams list:
+	  siteParams.clear();
+	  siteParams.addParameter(vs30Param);
+	  siteParams.addParameter(softSoilParam);
 
   }
 
@@ -431,9 +424,6 @@ public class CS_2005_AttenRel
    *  list. Makes the parameters noneditable.
    */
   protected void initEqkRuptureParams() {
-
-    // Create magParam
-    super.initEqkRuptureParams();
 
     eqkRuptureParams.clear();
     ListIterator it = as_1997_attenRel.getEqkRuptureParamsIterator();

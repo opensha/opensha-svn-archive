@@ -177,7 +177,7 @@ public class ScenarioShakeMapCalculator {
       // write out useful info
       System.out.print((float)site.getLocation().getLatitude()+"\t"+
                        (float)site.getLocation().getLongitude()+"\t"+
-                       ((Double)site.getParameter(AttenuationRelationship.VS30_NAME).getValue()).floatValue()+"\t"+
+                       ((Double)site.getParameter(Vs30_Param.NAME).getValue()).floatValue()+"\t"+
                        site.getParameter(AS_1997_AttenRel.SITE_TYPE_NAME).getValue()+"\t"+
                        site.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).getValue()+"\t"+
                        site.getParameter(CB_2003_AttenRel.SITE_TYPE_NAME).getValue()+"\t"+

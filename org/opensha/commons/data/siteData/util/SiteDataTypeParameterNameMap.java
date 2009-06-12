@@ -10,6 +10,7 @@ import org.opensha.commons.util.NtoNMap;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.util.SiteTranslator;
 
 /**
@@ -144,12 +145,12 @@ public class SiteDataTypeParameterNameMap extends NtoNMap<String, String> {
 		map.printParamsForType(SiteDataAPI.TYPE_DEPTH_TO_2_5);
 		map.printParamsForType(SiteDataAPI.TYPE_DEPTH_TO_1_0);
 		
-		map.printTypesForParams(AttenuationRelationship.VS30_NAME);
+		map.printTypesForParams(Vs30_Param.NAME);
 		
-		map.printValidTest(SiteDataAPI.TYPE_VS30, AttenuationRelationship.VS30_NAME);
+		map.printValidTest(SiteDataAPI.TYPE_VS30, Vs30_Param.NAME);
 		map.printValidTest(SiteDataAPI.TYPE_WILLS_CLASS, Campbell_1997_AttenRel.SITE_TYPE_NAME);
 		map.printValidTest(SiteDataAPI.TYPE_VS30, Campbell_1997_AttenRel.SITE_TYPE_NAME);
-		map.printValidTest(SiteDataAPI.TYPE_DEPTH_TO_2_5, AttenuationRelationship.VS30_NAME);
+		map.printValidTest(SiteDataAPI.TYPE_DEPTH_TO_2_5, Vs30_Param.NAME);
 		
 		System.out.println("Size: " + map.size());
 	}

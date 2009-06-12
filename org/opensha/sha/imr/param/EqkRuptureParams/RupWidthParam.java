@@ -17,6 +17,27 @@ public class RupWidthParam extends WarningDoubleParameter {
 	// warning values are set in subclasses
 
 	/**
+	 * This sets the default value and warning-constraint limits
+	 *  as given, and leaves the parameter as non editable.
+	 */
+	public RupWidthParam(double minWarning, double maxWarning, double defaultWidth) {
+		super(NAME, new DoubleConstraint(MIN, MAX));
+		getConstraint().setNonEditable();
+		DoubleConstraint warn = new DoubleConstraint(minWarning,maxWarning);
+		warn.setNonEditable();
+		setWarningConstraint(warn);
+		setInfo(INFO);
+		setDefaultValue(defaultWidth);
+		setNonEditable();
+	}
+
+	/**
+	 * This sets the default value as 10, and applies the given warning-
+	 * constraint limits. The parameter is left as non editable.
+	 */
+	public RupWidthParam(double minWarning, double maxWarning) { this(minWarning, maxWarning, 10);}
+
+	/**
 	 * This sets the default as given.
 	 * This is left editable so warning constraints can be added.
 	 */

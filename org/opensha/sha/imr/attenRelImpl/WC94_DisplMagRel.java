@@ -18,6 +18,8 @@ import org.opensha.commons.util.FaultUtils;
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.param.*;
 
@@ -314,7 +316,7 @@ public class WC94_DisplMagRel
 
   public void setParamDefaults() {
 
-    magParam.setValue(MAG_DEFAULT);
+    magParam.setValueAsDefault();
     fltTypeParam.setValue(FLT_TYPE_SS);
     distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
     faultDisplParam.setValue(FAULT_DISPL_DEFAULT);
@@ -371,23 +373,13 @@ public class WC94_DisplMagRel
    */
   protected void initEqkRuptureParams() {
 
-    // Create magParam
-    super.initEqkRuptureParams();
-
-    //  Create and add warning constraint to magParam:
-    DoubleConstraint warn = new DoubleConstraint(MAG_WARN_MIN, MAG_WARN_MAX);
-    warn.setNonEditable();
-    magParam.setWarningConstraint(warn);
-    magParam.addParameterChangeWarningListener(warningListener);
-    magParam.setNonEditable();
+	magParam = new MagParam(MAG_WARN_MIN, MAG_WARN_MAX);
 
     StringConstraint constraint = new StringConstraint();
     constraint.addString(FLT_TYPE_SS);
     constraint.addString(FLT_TYPE_ALL);
     constraint.setNonEditable();
-    fltTypeParam = new StringParameter(FLT_TYPE_NAME, constraint, null);
-    fltTypeParam.setInfo(FLT_TYPE_INFO);
-    fltTypeParam.setNonEditable();
+    fltTypeParam = new FaultTypeParam(constraint,FLT_TYPE_SS);
 
     eqkRuptureParams.clear();
     eqkRuptureParams.addParameter(magParam);

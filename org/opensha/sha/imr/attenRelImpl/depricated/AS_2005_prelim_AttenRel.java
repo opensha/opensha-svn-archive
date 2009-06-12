@@ -24,12 +24,17 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.RakeParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.RupTopDepthParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.param.*;
 
 /**
@@ -286,7 +291,7 @@ public class AS_2005_prelim_AttenRel
    */
   public void setSite(Site site) throws ParameterException {
 
-    vs30Param.setValue((Double)site.getParameter(this.VS30_NAME).getValue());
+    vs30Param.setValue((Double)site.getParameter(Vs30_Param.NAME).getValue());
     this.site = site;
     setPropagationEffectParams();
 
@@ -396,12 +401,12 @@ public class AS_2005_prelim_AttenRel
    */
   public void setParamDefaults() {
 
-    vs30Param.setValue(VS30_DEFAULT);
-    magParam.setValue(MAG_DEFAULT);
-    rakeParam.setValue(RAKE_DEFAULT);
-    dipParam.setValue(DIP_DEFAULT);
+    vs30Param.setValueAsDefault();
+    magParam.setValueAsDefault();
+    rakeParam.setValueAsDefault();
+	dipParam.setValueAsDefault();
     aspectRatioParam.setValue(ASPECT_RATIO_DEFAULT);
-    rupTopDepthParam.setValue(RUP_TOP_DEFAULT);
+    rupTopDepthParam.setValueAsDefault();
     distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
     distRupMinusJB_OverRupParam.setValue(this.DISTANCE_RUP_MINUS_JB_DEFAULT);
     saParam.setValueAsDefault();
@@ -469,15 +474,7 @@ public class AS_2005_prelim_AttenRel
    */
   protected void initSiteParams() {
 
-    // create vs30 Parameter:
-    super.initSiteParams();
-
-    // create and add the warning constraint:
-    DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
-    warn.setNonEditable();
-    vs30Param.setWarningConstraint(warn);
-    vs30Param.addParameterChangeWarningListener(warningListener);
-    vs30Param.setNonEditable();
+    vs30Param = new Vs30_Param(VS30_WARN_MIN, VS30_WARN_MAX);
 
     siteParams.clear();
     siteParams.addParameter(vs30Param);
@@ -491,16 +488,13 @@ public class AS_2005_prelim_AttenRel
    */
   protected void initEqkRuptureParams() {
 
-    // Create magParam & other common EqkRup-related params
-    super.initEqkRuptureParams();
+	magParam = new MagParam(MAG_WARN_MIN, MAG_WARN_MAX);
+	rakeParam = new RakeParam();
+	dipParam = new DipParam();
+	rupTopDepthParam = new RupTopDepthParam();
 
-    //  Create and add warning constraint to magParam:
-    DoubleConstraint warn = new DoubleConstraint(MAG_WARN_MIN, MAG_WARN_MAX);
-    warn.setNonEditable();
-    magParam.setWarningConstraint(warn);
-    magParam.addParameterChangeWarningListener(warningListener);
-    magParam.setNonEditable();
 
+	  
     // create aspectRatioParam
     DoubleConstraint c2 = new DoubleConstraint(ASPECT_RATIO_MIN,
                                                ASPECT_RATIO_MAX);
@@ -850,16 +844,16 @@ public class AS_2005_prelim_AttenRel
     else if (pName.equals(DistRupMinusJB_OverRupParameter.NAME)) {
       distRupJB_Fraction = ( (Double) val).doubleValue();
     }
-    else if (pName.equals(this.VS30_NAME)) {
+    else if (pName.equals(Vs30_Param.NAME)) {
       vs30 = ( (Double) val).doubleValue();
     }
-    else if (pName.equals(this.MAG_NAME)) {
+    else if (pName.equals(MagParam.NAME)) {
       mag = ( (Double) val).doubleValue();
     }
-    else if (pName.equals(this.DIP_NAME)) {
+    else if (pName.equals(DipParam.NAME)) {
       dip = ( (Double) val).doubleValue();
     }
-    else if (pName.equals(this.RAKE_NAME)) {
+    else if (pName.equals(RakeParam.NAME)) {
       rake = ( (Double) val).doubleValue();
     }
     else if (pName.equals(this.ASPECT_RATIO_NAME)) {
@@ -868,7 +862,7 @@ public class AS_2005_prelim_AttenRel
     else if (pName.equals(this.SRC_SITE_ANGLE_NAME)) {
       srcSiteA = ( (Double) val).doubleValue();
     }
-    else if (pName.equals(this.RUP_TOP_NAME)) {
+    else if (pName.equals(RupTopDepthParam.NAME)) {
       depthTop = ( (Double) val).doubleValue();
     }
     else if (pName.equals(StdDevTypeParam.NAME)) {

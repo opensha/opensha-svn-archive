@@ -3,6 +3,8 @@ package unusedArchive;
 import java.util.ListIterator;
 
 import org.opensha.sha.imr.attenRelImpl.*;
+import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.WarningDoubleParameter;
@@ -134,12 +136,12 @@ public class Vs30SiteTranslator implements java.io.Serializable{
       }
 
       // Vs30 site type (e.g., BJF-1997 and Field-2000) site type
-      else if(tempParam.getName().equalsIgnoreCase(AttenuationRelationship.VS30_NAME)){
+      else if(tempParam.getName().equalsIgnoreCase(Vs30_Param.NAME)){
         if(vs30>180)
           tempParam.setValue(new Double(vs30));
       }
 //    Depth 2.5 km/sec Parameter
-      else if (tempParam.getName().equals(AttenuationRelationship.DEPTH_2pt5_NAME)) {
+      else if (tempParam.getName().equals(DepthTo2pt5kmPerSecParam.NAME)) {
         // set Depth 2.5 km/sec in kms
         if (Double.isNaN(basinDepth)) tempParam.setValue(null);
         else ((WarningDoubleParameter)tempParam).setValueIgnoreWarning(new Double(basinDepth / 1000));

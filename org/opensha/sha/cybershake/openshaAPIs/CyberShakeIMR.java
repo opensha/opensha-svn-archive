@@ -580,4 +580,8 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 		}
 		System.exit(1);
 	}
+	
+	// Methods required by abstract parent, but not needed here
+	protected void initEqkRuptureParams() {}
+	protected void initSiteParams() {}
 }

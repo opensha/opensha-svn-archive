@@ -1158,13 +1158,6 @@ public abstract class AttenuationRelationship
    */
   protected void initEqkRuptureParams() {
 
-    // Moment Magnitude Parameter:
-    DoubleConstraint magConstraint = new DoubleConstraint(MAG_MIN, MAG_MAX);
-    magConstraint.setNonEditable();
-    magParam = new WarningDoubleParameter(MAG_NAME, magConstraint);
-    magParam.setInfo(MAG_INFO);
-    // Warning constraint is created and added in subclass
-
     // Dip Parameter:
     DoubleConstraint dipConstraint = new DoubleConstraint(DIP_MIN, DIP_MAX);
     dipConstraint.setNonEditable();

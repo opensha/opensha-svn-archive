@@ -23,6 +23,7 @@ import org.opensha.commons.util.FaultUtils;
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
@@ -193,7 +194,7 @@ public class ToroEtAl_1997_AttenRel
    */
   public void setSite(Site site) throws ParameterException {
 
-//    vs30Param.setValue(site.getParameter(this.VS30_NAME).getValue());
+//    vs30Param.setValue(site.getParameter(Vs30_Param.NAME).getValue());
     this.site = site;
     setPropagationEffectParams();
 
@@ -267,8 +268,8 @@ public class ToroEtAl_1997_AttenRel
    */
   public void setParamDefaults() {
 
- //   vs30Param.setValue(VS30_DEFAULT);
-    magParam.setValue(MAG_DEFAULT);
+ //   vs30Param.setValueAsDefault();
+    magParam.setValueAsDefault();
     distanceJBParam.setValue(DISTANCE_JB_DEFAULT);
     saParam.setValueAsDefault();
     saPeriodParam.setValueAsDefault();
@@ -327,7 +328,7 @@ public class ToroEtAl_1997_AttenRel
     this.site = propEffect.getSite();
     this.eqkRupture = propEffect.getEqkRupture();
 
-//    vs30Param.setValueIgnoreWarning(site.getParameter(VS30_NAME).getValue());
+//    vs30Param.setValueIgnoreWarning(site.getParameter(Vs30_Param.NAME).getValue());
 
     magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
 
@@ -340,9 +341,6 @@ public class ToroEtAl_1997_AttenRel
    *  Makes the parameters noneditable.
    */
   protected void initSiteParams() {
-
-    // create vs30 Parameter:
-    super.initSiteParams();
 
     // create and add the warning constraint:
 //    DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
@@ -361,15 +359,7 @@ public class ToroEtAl_1997_AttenRel
    */
   protected void initEqkRuptureParams() {
 
-    // Create magParam & other common EqkRup-related params
-    super.initEqkRuptureParams();
-
-    //  Create and add warning constraint to magParam:
-    DoubleConstraint warn = new DoubleConstraint(MAG_WARN_MIN, MAG_WARN_MAX);
-    warn.setNonEditable();
-    magParam.setWarningConstraint(warn);
-    magParam.addParameterChangeWarningListener(warningListener);
-    magParam.setNonEditable();
+	magParam = new MagParam(MAG_WARN_MIN, MAG_WARN_MAX);
 
     eqkRuptureParams.clear();
     eqkRuptureParams.addParameter(magParam);
@@ -541,10 +531,10 @@ public class ToroEtAl_1997_AttenRel
     if (pName.equals(DistanceJBParameter.NAME)) {
       rjb = ( (Double) val).doubleValue();
     }
-//    else if (pName.equals(VS30_NAME)) {
+//    else if (pName.equals(Vs30_Param.NAME)) {
 //      vs30 = ( (Double) val).doubleValue();
 //    }
-    else if (pName.equals(MAG_NAME)) {
+    else if (pName.equals(magParam.NAME)) {
       mag = ( (Double) val).doubleValue();
     }
     else if (pName.equals(PeriodParam.NAME) ) {

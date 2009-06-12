@@ -5,6 +5,8 @@ import org.opensha.commons.param.WarningDoubleParameter;
 
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.*;
+import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 /**
  * <p>Title: SiteTranslator</p>
@@ -33,7 +35,7 @@ import org.opensha.sha.imr.attenRelImpl.*;
  * <LI> Rock		                if C, BC, or B
  * </UL>
  *
- * AttenuationRelationship.VS30_NAME (Boore et al. (1997) & Field (2000))<p>
+ * Vs30_Param.NAME (Boore et al. (1997) & Field (2000))<p>
  * <LI> <UL>
  * <LI> Vs30 = NA			if E
  * <LI> Vs30 = 180			if DE
@@ -159,9 +161,9 @@ public class OldSiteTranslator
       }
     }
 
-    // AttenuationRelationship.VS30_NAME
+    // Vs30_Param.NAME
     // (e.g., used by BJF-1997 and Field-2000) site type
-    else if (param.getName().equals(AttenuationRelationship.VS30_NAME)) {
+    else if (param.getName().equals(Vs30_Param.NAME)) {
       if (wc.equals(WILLS_DE)) {
         param.setValue(new Double(180));
         return true;
@@ -266,7 +268,7 @@ public class OldSiteTranslator
       return true;
     }
     // Depth 2.5 km/sec Parameter
-    else if (param.getName().equals(AttenuationRelationship.DEPTH_2pt5_NAME)) {
+    else if (param.getName().equals(DepthTo2pt5kmPerSecParam.NAME)) {
       // set Depth 2.5 km/sec in kms
       if (Double.isNaN(basinDepth)) param.setValue(null);
       else ((WarningDoubleParameter)param).setValueIgnoreWarning(new Double(basinDepth / 1000));
@@ -411,14 +413,14 @@ public class OldSiteTranslator
     siteTrans.test(ar.getParameter(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME));
 
     ar = new BJF_1997_AttenRel(null);
-    siteTrans.test(ar.getParameter(AttenuationRelationship.VS30_NAME));
+    siteTrans.test(ar.getParameter(Vs30_Param.NAME));
 
     ar = new Campbell_1997_AttenRel(null);
     siteTrans.test(ar.getParameter(Campbell_1997_AttenRel.SITE_TYPE_NAME));
     siteTrans.test(ar.getParameter(Campbell_1997_AttenRel.BASIN_DEPTH_NAME));
 
     ar = new Field_2000_AttenRel(null);
-    siteTrans.test(ar.getParameter(AttenuationRelationship.VS30_NAME));
+    siteTrans.test(ar.getParameter(Vs30_Param.NAME));
     siteTrans.test(ar.getParameter(Field_2000_AttenRel.BASIN_DEPTH_NAME));
 
     ar = new Abrahamson_2000_AttenRel(null);
@@ -431,7 +433,7 @@ public class OldSiteTranslator
     siteTrans.test(ar.getParameter(ShakeMap_2003_AttenRel.WILLS_SITE_NAME));
 
     ar = new USGS_Combined_2004_AttenRel(null);
-    siteTrans.test(ar.getParameter(AttenuationRelationship.VS30_NAME));
+    siteTrans.test(ar.getParameter(Vs30_Param.NAME));
 
 //  ar = new SEA_1999_AttenRel(null);
 //  siteTrans.test(ar.getParameter(SEA_1999_AttenRel.SITE_TYPE_NAME));

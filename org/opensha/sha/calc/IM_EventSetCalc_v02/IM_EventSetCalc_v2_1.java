@@ -13,6 +13,7 @@ import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.*;
 import org.opensha.sha.imr.attenRelImpl.depricated.*;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 
 import java.util.*;
 import java.io.*;
@@ -442,7 +443,7 @@ implements ParameterChangeWarningListener {
 			ParameterAPI tempParam = (ParameterAPI) it.next();
 			
 			// we currently can't set Depth to Vs=1.0 km/sec, so skip
-			if (tempParam.getName().equals(AS_2008_AttenRel.DEPTH_1pt0_NAME))
+			if (tempParam.getName().equals(DepthTo1pt0kmPerSecParam.NAME))
 				continue;
 			
 			//adding the site Params from the CVM, if site is out the range of CVM then it

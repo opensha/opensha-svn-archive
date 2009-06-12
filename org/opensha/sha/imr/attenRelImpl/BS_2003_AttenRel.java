@@ -31,6 +31,7 @@ import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 /**
  * <b>Title:</b> BS_2003_AttenRel<p>
@@ -224,7 +225,7 @@ public class BS_2003_AttenRel
     AF_SlopeParam.setValue((Double)site.getParameter(AF_SLOPE_PARAM_NAME).getValue());
     AF_StdDevParam.setValue((Double)site.getParameter(AF_STD_DEV_PARAM_NAME).getValue());
     
-    vs30Param.setValueIgnoreWarning((Double)site.getParameter(VS30_NAME).getValue());
+    vs30Param.setValueIgnoreWarning((Double)site.getParameter(Vs30_Param.NAME).getValue());
     softSoilParam.setValue((Boolean)(site.getParameter(SOFT_SOIL_NAME).getValue()));
     numRunsParam.setValue((Integer)site.getParameter(NUM_RUNS_PARAM_NAME).getValue());
     this.site = site;
@@ -386,7 +387,7 @@ public class BS_2003_AttenRel
   public void setParamDefaults() {
 
     //((ParameterAPI)this.iml).setValue( IML_DEFAULT );
-    vs30Param.setValue(VS30_DEFAULT);
+    vs30Param.setValueAsDefault();
     softSoilParam.setValue(new Boolean(false));
     AF_AddRefAccParam.setValue(this.AF_ADDITIVE_REF_ACCERLATION_DEFAULT);
     AF_InterceptParam.setValue(this.AF_INTERCEPT_PARAM_DEFAULT);
@@ -485,15 +486,7 @@ public class BS_2003_AttenRel
    */
   protected void initSiteParams() {
 
-    // create vs30 Parameter:
-    super.initSiteParams();
-
-    // create and add the warning constraint:
-    DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
-    warn.setNonEditable();
-    vs30Param.setWarningConstraint(warn);
-    vs30Param.addParameterChangeWarningListener(warningListener);
-    vs30Param.setNonEditable();
+	vs30Param = new Vs30_Param(VS30_WARN_MIN, VS30_WARN_MAX);
 
     // make the Soft Soil parameter
     softSoilParam = new BooleanParameter(SOFT_SOIL_NAME, SOFT_SOIL_DEFAULT);
@@ -543,9 +536,6 @@ public class BS_2003_AttenRel
    *  list. Makes the parameters noneditable.
    */
   protected void initEqkRuptureParams() {
-
-    // Create magParam
-    super.initEqkRuptureParams();
 
     eqkRuptureParams.clear();
     ListIterator it = as_1997_attenRel.getEqkRuptureParamsIterator();

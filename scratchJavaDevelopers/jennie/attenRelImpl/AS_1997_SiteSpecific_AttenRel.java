@@ -23,6 +23,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.*;
+import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
@@ -322,7 +323,7 @@ public class AS_1997_SiteSpecific_AttenRel
 	        as_1997_attenRel.SITE_TYPE_ROCK);
 	    as_1997_attenRel.getParameter(ComponentParam.NAME).setValue(
 	        ComponentParam.COMPONENT_AVE_HORZ);
-	    magParam.setValue(MAG_DEFAULT);
+	    magParam.setValueAsDefault();
   }
   
   
@@ -410,13 +411,6 @@ public class AS_1997_SiteSpecific_AttenRel
    */
   protected void initSiteParams() {
 
-    // create vs30 Parameter:
-    super.initSiteParams();
-
-    // create and add the warning constraint:
-    DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
-    warn.setNonEditable();
-
     //make the AF functional form parameter
     StringConstraint constraint = new StringConstraint();
     constraint.addString(AF_FuncForm_DEFAULT);
@@ -480,7 +474,7 @@ public class AS_1997_SiteSpecific_AttenRel
 	  // Create magParam
 	  //super.initEqkRuptureParams();
 
-	  magParam = (WarningDoubleParameter) as_1997_attenRel.getParameter(MAG_NAME);
+	  magParam = (MagParam) as_1997_attenRel.getParameter(magParam.NAME);
 
 	  eqkRuptureParams.clear();
 	  ListIterator it = as_1997_attenRel.getEqkRuptureParamsIterator();

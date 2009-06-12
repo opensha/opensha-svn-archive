@@ -32,6 +32,7 @@ import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 /**
  * <b>Title:</b> BC 2004_ Site Specific AttenRel with CB 2008<p>
@@ -302,7 +303,7 @@ public class BC_2004b_AttenRel
 //	        cb_2008_attenRel.COMPONENT_AVE_HORZ);
 	    // re-set the site type to rock and component to ave horz
 	    double rockVS = 1100.00;
-	    cb_2008_attenRel.getParameter(cb_2008_attenRel.VS30_NAME).setValue(rockVS);
+	    cb_2008_attenRel.getParameter(Vs30_Param.NAME).setValue(rockVS);
 
   }
   
@@ -384,13 +385,6 @@ public class BC_2004b_AttenRel
    */
   protected void initSiteParams() {
 
-    // create vs30 Parameter:
-    super.initSiteParams();
-
-    // create and add the warning constraint:
-    DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
-    warn.setNonEditable();
-   
     //make the AF intercept paarameter
     AF_InterceptParam = new DoubleParameter(this.AF_INTERCEPT_PARAM_NAME,
     		AF_InterceptparamConstraint,this.AF_INTERCEPT_PARAM_DEFAULT);
@@ -428,9 +422,6 @@ public class BC_2004b_AttenRel
    *  list. Makes the parameters noneditable.
    */
   protected void initEqkRuptureParams() {
-
-    // Create magParam
-    super.initEqkRuptureParams();
 
     eqkRuptureParams.clear();
     ListIterator it = cb_2008_attenRel.getEqkRuptureParamsIterator();

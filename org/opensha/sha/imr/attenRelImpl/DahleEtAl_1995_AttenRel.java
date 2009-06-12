@@ -19,6 +19,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
@@ -286,7 +287,7 @@ public class DahleEtAl_1995_AttenRel
 
     //((ParameterAPI)this.iml).setValue( IML_DEFAULT );
     siteTypeParam.setValue(SITE_TYPE_DEFAULT);
-    magParam.setValue(MAG_DEFAULT);
+    magParam.setValueAsDefault();
     distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
     saParam.setValueAsDefault();
     saPeriodParam.setValueAsDefault();
@@ -362,15 +363,7 @@ public class DahleEtAl_1995_AttenRel
    */
   protected void initEqkRuptureParams() {
 
-    // Create magParam
-    super.initEqkRuptureParams();
-
-    //  Create and add warning constraint to magParam:
-    DoubleConstraint warn = new DoubleConstraint(MAG_WARN_MIN, MAG_WARN_MAX);
-    warn.setNonEditable();
-    magParam.setWarningConstraint(warn);
-    magParam.addParameterChangeWarningListener(warningListener);
-    magParam.setNonEditable();
+	magParam = new MagParam(MAG_WARN_MIN, MAG_WARN_MAX);
 
     eqkRuptureParams.clear();
     eqkRuptureParams.addParameter(magParam);
@@ -398,9 +391,6 @@ public class DahleEtAl_1995_AttenRel
    *  them to the supportedIMParams list. Makes the parameters noneditable.
    */
   protected void initSupportedIntensityMeasureParams() {
-
-    // Create saParam (& its dampingParam) and pgaParam:
-    super.initSupportedIntensityMeasureParams();
 
     // Create saParam's "Period" independent parameter:
     DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();

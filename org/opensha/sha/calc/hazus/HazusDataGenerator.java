@@ -7,6 +7,7 @@ import org.opensha.sha.imr.attenRelImpl.*;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.util.SiteTranslator;
 
@@ -57,7 +58,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
     	                "\n"+
                       "ERF: "+forecast.getName()+"\n"+
                       "IMR Name: "+attenRel.getName()+"\n"+
-                      "\t"+"Site Name: "+ attenRel.VS30_NAME+"\n"+
+                      "\t"+"Site Name: "+ Vs30_Param.NAME+"\n"+
                       "Region Info: "+
                       "\t MIN LAT: "+region.getMinLat()+" MAX LAT:"+region.getMaxLat()+
                       " MIN LON: "+region.getMinLon()+" MAX LON: "+region.getMaxLon()+
@@ -120,7 +121,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
   private void createAttenRel_Instance(){
 	  attenRel = new USGS_Combined_2004_AttenRel(this);
           attenRel.setParamDefaults();
-	  attenRel.getParameter(attenRel.VS30_NAME).setValue(new Double(760));
+	  attenRel.getParameter(Vs30_Param.NAME).setValue(new Double(760));
 	  attenRel.getParameter(SigmaTruncTypeParam.NAME).
 	  setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
 	  attenRel.getParameter(SigmaTruncLevelParam.NAME).

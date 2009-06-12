@@ -129,7 +129,7 @@ public abstract class IntensityMeasureRelationship
    */
   protected ParameterAPI im;
 
-  //this flag keeps track of whether the intensity measure has changed,  initialized to false
+  //this flag keeps track of whether the intensity measure has changed
   protected boolean intensityMeasureChanged;
 
   /**

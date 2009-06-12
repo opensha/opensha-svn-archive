@@ -38,6 +38,7 @@ import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.param.DistanceJBParameter;
 import org.opensha.sha.param.DistanceRupParameter;
 import org.opensha.sha.util.SiteTranslator;
@@ -381,7 +382,7 @@ public class SiteSpecific_2006_AttenRel
 	  else if(attenRelName.equals(BJF_1997_AttenRel.NAME)){
 		  
 		   ParameterAPI siteParam = ((BJF_1997_AttenRel)attenRel).getParameter
-                                   (BJF_1997_AttenRel.VS30_NAME);
+                                   (Vs30_Param.NAME);
            //set the site parameter to rock
 		   SiteDataValue<Double> val = new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30,
 		    		  SiteDataAPI.TYPE_FLAG_INFERRED, 760d);
@@ -470,7 +471,7 @@ public class SiteSpecific_2006_AttenRel
     else if(pName.equals(SITE_EFFECT_PARAM_NAME)){
     	if(val.equals(this.BAZZURO_CORNELL_MODEL)){
     		if(siteParams.containsParameter(vs30Param))
-    			siteParams.removeParameter(this.VS30_NAME);
+    			siteParams.removeParameter(Vs30_Param.NAME);
     		if(siteParams.containsParameter(SOFT_SOIL_NAME))
     			siteParams.removeParameter(this.SOFT_SOIL_NAME);
     		if(siteParams.containsParameter(NUM_RUNS_PARAM_NAME))
@@ -534,7 +535,7 @@ public class SiteSpecific_2006_AttenRel
     AF_StdDevParam.setValue((Double)site.getParameter(AF_STD_DEV_PARAM_NAME).getValue());
     String modelType = (String)siteEffectCorrectionParam.getValue();
     if(modelType.equals(this.BATURAY_STEWART_MODEL)){
-    	vs30Param.setValueIgnoreWarning((Double)site.getParameter(VS30_NAME).getValue());
+    	vs30Param.setValueIgnoreWarning((Double)site.getParameter(Vs30_Param.NAME).getValue());
     	softSoilParam.setValue((Boolean)(site.getParameter(SOFT_SOIL_NAME).getValue()));
     	numRunsParam.setValue((Integer)site.getParameter(NUM_RUNS_PARAM_NAME).getValue());
     }
@@ -684,7 +685,7 @@ public class SiteSpecific_2006_AttenRel
   public void setParamDefaults() {
 
     //((ParameterAPI)this.iml).setValue( IML_DEFAULT );
-    vs30Param.setValue(VS30_DEFAULT);
+    vs30Param.setValueAsDefault();
     softSoilParam.setValue(new Boolean(false));
     String rockAttenDefaultVal = (String)rockAttenRelSelectorParam.getAllowedStrings().get(0);
     rockAttenRelSelectorParam.setValue(rockAttenDefaultVal);
@@ -801,7 +802,7 @@ public class SiteSpecific_2006_AttenRel
     else{
     	while(lit.hasNext()){
 	    	ParameterAPI param = (ParameterAPI)lit.next();
-	    	if(!param.getName().equals(this.VS30_NAME) && 
+	    	if(!param.getName().equals(Vs30_Param.NAME) && 
 	    		!param.getName().equals(this.NUM_RUNS_PARAM_NAME)	&&
 	    		!param.getName().equals(this.softSoilParam.getName())){
 		    	meanIndependentParams.addParameter(param);
@@ -824,15 +825,7 @@ public class SiteSpecific_2006_AttenRel
    */
   protected void initSiteParams() {
 
-    // create vs30 Parameter:
-    super.initSiteParams();
-
-    // create and add the warning constraint:
-    DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
-    warn.setNonEditable();
-    vs30Param.setWarningConstraint(warn);
-    vs30Param.addParameterChangeWarningListener(warningListener);
-    vs30Param.setNonEditable();
+	vs30Param = new Vs30_Param(VS30_WARN_MIN, VS30_WARN_MAX);
 
     // make the Soft Soil parameter
     softSoilParam = new BooleanParameter(SOFT_SOIL_NAME, SOFT_SOIL_DEFAULT);
@@ -884,10 +877,7 @@ public class SiteSpecific_2006_AttenRel
    */
   protected void initEqkRuptureParams() {
 
-    // Create magParam
-    super.initEqkRuptureParams();
-
-    eqkRuptureParams.clear();
+	eqkRuptureParams.clear();
     ListIterator it = attenRel.getEqkRuptureParamsIterator();
     while (it.hasNext()) {
       eqkRuptureParams.addParameter( (Parameter) it.next());

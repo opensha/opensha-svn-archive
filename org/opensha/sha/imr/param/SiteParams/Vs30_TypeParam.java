@@ -38,6 +38,7 @@ public class Vs30_TypeParam extends StringParameter {
 		options.addString(VS30_TYPE_MEASURED);
 		options.addString(VS30_TYPE_INFERRED);
 		options.setNonEditable();
+		setValue(VS30_TYPE_INFERRED); // need to do this so next line succeeds
 		setConstraint(options);
 	    setInfo(INFO);
 	    setDefaultValue(VS30_TYPE_INFERRED);

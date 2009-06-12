@@ -7,9 +7,14 @@ import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.imr.attenRelImpl.depricated.CY_2006_AttenRel;
+import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.RupTopDepthParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.param.*;
 
 import java.io.File;
@@ -124,20 +129,20 @@ public class CY_2006_test extends TestCase implements ParameterChangeWarningList
 			if(fileName.endsWith(".txt")){
 				String fltType = fileName.substring(5,7);
 				if(fltType.equals("SS"))
-				  cy_2006.getParameter(cy_2006.FLT_TYPE_NAME).setValue(cy_2006.FLT_TYPE_STRIKE_SLIP);
+				  cy_2006.getParameter(FaultTypeParam.NAME).setValue(cy_2006.FLT_TYPE_STRIKE_SLIP);
 				else if(fltType.equals("RV"))
-					  cy_2006.getParameter(cy_2006.FLT_TYPE_NAME).setValue(cy_2006.FLT_TYPE_REVERSE);
+					  cy_2006.getParameter(FaultTypeParam.NAME).setValue(cy_2006.FLT_TYPE_REVERSE);
 				else if(fltType.equals("NR"))
-					cy_2006.getParameter(cy_2006.FLT_TYPE_NAME).setValue(cy_2006.FLT_TYPE_NORMAL);
+					cy_2006.getParameter(FaultTypeParam.NAME).setValue(cy_2006.FLT_TYPE_NORMAL);
 				else
 				    continue;
 				double dip = Double.parseDouble(fileName.substring(8,10));
-				cy_2006.getParameter(cy_2006.DIP_NAME).setValue(new Double(dip));
+				cy_2006.getParameter(DipParam.NAME).setValue(new Double(dip));
 				
 				double vs30 = Double.parseDouble(fileName.substring(11,fileName.indexOf("_Z")));
-				cy_2006.getParameter(cy_2006.VS30_NAME).setValue(new Double(vs30));
+				cy_2006.getParameter(Vs30_Param.NAME).setValue(new Double(vs30));
 				double depthTop = Double.parseDouble(fileName.substring((fileName.indexOf("Zt")+2),fileName.indexOf(".")));
-				cy_2006.getParameter(cy_2006.RUP_TOP_NAME).setValue(new Double(depthTop));
+				cy_2006.getParameter(RupTopDepthParam.NAME).setValue(new Double(depthTop));
 				try {
 					testDataLines = FileUtils.loadFile(fileList[i].getAbsolutePath());
 					int numLines = testDataLines.size();
@@ -145,7 +150,7 @@ public class CY_2006_test extends TestCase implements ParameterChangeWarningList
 						String fileLine = (String)testDataLines.get(j);
 						StringTokenizer st = new StringTokenizer(fileLine);
 						double mag = Double.parseDouble(st.nextToken().trim());
-						((WarningDoubleParameter)cy_2006.getParameter(cy_2006.MAG_NAME)).setValueIgnoreWarning(new Double(mag));
+						((WarningDoubleParameter)cy_2006.getParameter(MagParam.NAME)).setValueIgnoreWarning(new Double(mag));
 						
 						double rjb = Double.parseDouble(st.nextToken().trim());
 						double rrup = Double.parseDouble(st.nextToken().trim());

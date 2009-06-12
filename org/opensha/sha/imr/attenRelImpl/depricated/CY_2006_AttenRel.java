@@ -24,12 +24,18 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.RupTopDepthParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.RupWidthParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.param.*;
 
 /**
@@ -339,7 +345,6 @@ public class CY_2006_AttenRel
   public final static String FLT_TYPE_STRIKE_SLIP = "Strike-Slip";
   public final static String FLT_TYPE_REVERSE = "Reverse";
   public final static String FLT_TYPE_NORMAL = "Normal";
-  public final static String FLT_TYPE_DEFAULT = FLT_TYPE_STRIKE_SLIP;
 
   /**
    * The DistanceRupParameter, closest distance to fault surface.
@@ -353,20 +358,7 @@ public class CY_2006_AttenRel
    */
   private DistRupMinusJB_OverRupParameter distRupMinusJB_OverRupParam = null;
   private final static Double DISTANCE_RUP_MINUS_DEFAULT = new Double(0);
-
-  /**
-   * RuptureWidth parameter - Width of rupture.  This is created in the
-   * initEqkRuptureParams method.
-   */
-  protected DoubleParameter rupWidthParam = null;
-  public final static String RUP_WIDTH_NAME = "Rupture Width";
-  public final static String RUP_WIDTH_UNITS = "km";
-  public final static String RUP_WIDTH_INFO =
-      "The down dip width of the earthquake rupture surface";
-  public final static Double RUP_WIDTH_DEFAULT = new Double(1);
-  protected final static Double RUP_WIDTH_MIN = new Double(1);
-  protected final static Double RUP_WIDTH_MAX = new Double(100);
-
+ 
   // for issuing warnings:
   private transient ParameterChangeWarningListener warningListener = null;
 
@@ -445,7 +437,7 @@ public class CY_2006_AttenRel
    */
   public void setSite(Site site) throws ParameterException {
 
-    vs30Param.setValue((Double)site.getParameter(VS30_NAME).getValue());
+    vs30Param.setValue((Double)site.getParameter(Vs30_Param.NAME).getValue());
     this.site = site;
     setPropagationEffectParams();
 
@@ -544,11 +536,11 @@ public class CY_2006_AttenRel
    */
   public void setParamDefaults() {
 
-    vs30Param.setValue(VS30_DEFAULT);
-    magParam.setValue(MAG_DEFAULT);
-    fltTypeParam.setValue(FLT_TYPE_DEFAULT);
-    dipParam.setValue(DIP_DEFAULT);
-    rupTopDepthParam.setValue(RUP_TOP_DEFAULT);
+    vs30Param.setValueAsDefault();
+    magParam.setValueAsDefault();
+    fltTypeParam.setValueAsDefault();
+	dipParam.setValueAsDefault();
+    rupTopDepthParam.setValueAsDefault();
     distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
     distRupMinusJB_OverRupParam.setValue(DISTANCE_RUP_MINUS_DEFAULT);
     saParam.setValueAsDefault();
@@ -557,7 +549,7 @@ public class CY_2006_AttenRel
     pgaParam.setValueAsDefault();
     componentParam.setValueAsDefault();
     stdDevTypeParam.setValueAsDefault();
-    rupWidthParam.setValue(RUP_WIDTH_DEFAULT);
+	rupWidthParam.setValueAsDefault();
     
     vs30 = ( (Double) vs30Param.getValue()).doubleValue(); 
     mag = ( (Double) magParam.getValue()).doubleValue();
@@ -610,15 +602,7 @@ public class CY_2006_AttenRel
    */
   protected void initSiteParams() {
 
-    // create vs30 Parameter:
-    super.initSiteParams();
-
-    // create and add the warning constraint:
-    DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
-    warn.setNonEditable();
-    vs30Param.setWarningConstraint(warn);
-    vs30Param.addParameterChangeWarningListener(warningListener);
-    vs30Param.setNonEditable();
+	vs30Param = new Vs30_Param(VS30_WARN_MIN, VS30_WARN_MAX);
 
     siteParams.clear();
     siteParams.addParameter(vs30Param);
@@ -632,36 +616,17 @@ public class CY_2006_AttenRel
    */
   protected void initEqkRuptureParams() {
 
-    // Create magParam & other common EqkRup-related params
-    super.initEqkRuptureParams();
-
-    //  Create and add warning constraint to magParam:
-    DoubleConstraint warn = new DoubleConstraint(MAG_WARN_MIN, MAG_WARN_MAX);
-    warn.setNonEditable();
-    magParam.setWarningConstraint(warn);
-    magParam.addParameterChangeWarningListener(warningListener);
-    magParam.setNonEditable();
-
-    	// set warning on rupTopDepthParam
-    DoubleConstraint warn2 = new DoubleConstraint(RUP_TOP_WARN_MIN, RUP_TOP_WARN_MAX);
-    warn2.setNonEditable();
-    rupTopDepthParam.setWarningConstraint(warn2);
-    rupTopDepthParam.addParameterChangeWarningListener(warningListener);
-    rupTopDepthParam.setNonEditable();
-
-//  create RupWidthParam
-    DoubleConstraint c = new DoubleConstraint(RUP_WIDTH_MIN, RUP_WIDTH_MAX);
-    rupWidthParam = new DoubleParameter(RUP_WIDTH_NAME, c, RUP_WIDTH_UNITS);
-    rupWidthParam.setInfo(RUP_WIDTH_INFO);
+	magParam = new MagParam(MAG_WARN_MIN, MAG_WARN_MAX);
+	dipParam = new DipParam();
+	rupTopDepthParam = new RupTopDepthParam(RUP_TOP_WARN_MIN, RUP_TOP_WARN_MAX);
+	rupWidthParam = new RupWidthParam();
     
     StringConstraint constraint = new StringConstraint();
     constraint.addString(FLT_TYPE_STRIKE_SLIP);
     constraint.addString(FLT_TYPE_NORMAL);
     constraint.addString(FLT_TYPE_REVERSE);
     constraint.setNonEditable();
-    fltTypeParam = new StringParameter(FLT_TYPE_NAME, constraint, null);
-    fltTypeParam.setInfo(FLT_TYPE_INFO);
-    fltTypeParam.setNonEditable();
+    fltTypeParam = new FaultTypeParam(constraint,FLT_TYPE_STRIKE_SLIP);
 
     
     eqkRuptureParams.clear();
@@ -875,16 +840,16 @@ public class CY_2006_AttenRel
 	  else if (pName.equals(DistRupMinusJB_OverRupParameter.NAME)) {
 		  distRupMinusJB_OverRup = ( (Double) val).doubleValue();
 	  }
-	  else if (pName.equals(VS30_NAME)) {
+	  else if (pName.equals(Vs30_Param.NAME)) {
 		  vs30 = ( (Double) val).doubleValue();
 	  }
-	  else if (pName.equals(DIP_NAME)) {
+	  else if (pName.equals(DipParam.NAME)) {
 		  dip = ( (Double) val).doubleValue();
 	  }
-	  else if (pName.equals(MAG_NAME)) {
+	  else if (pName.equals(magParam.NAME)) {
 		  mag = ( (Double) val).doubleValue();
 	  }
-	  else if (pName.equals(FLT_TYPE_NAME)) {
+	  else if (pName.equals(FaultTypeParam.NAME)) {
 		  String fltType = (String)fltTypeParam.getValue();
 		  if (fltType.equals(FLT_TYPE_NORMAL)) {
 			  f_rv = 0 ;
@@ -899,13 +864,13 @@ public class CY_2006_AttenRel
 			  f_nm = 0;
 		  }
 	  }
-	  else if (pName.equals(RUP_TOP_NAME)) {
+	  else if (pName.equals(RupTopDepthParam.NAME)) {
 		  depthTop = ( (Double) val).doubleValue();
 	  }
 	  else if (pName.equals(StdDevTypeParam.NAME)) {
 		  stdDevType = (String) val;
 	  }
-	  else if(pName.equals(RUP_WIDTH_NAME)){
+	  else if(pName.equals(RupWidthParam.NAME)){
 		  ruptureWidth = ((Double)val).doubleValue();
 	  }
 	  else if (pName.equals(PeriodParam.NAME) ) {

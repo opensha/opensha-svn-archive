@@ -27,6 +27,10 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.RupTopDepthParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGD_Param;
@@ -35,6 +39,8 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
+import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.param.*;
 
 /**
@@ -136,7 +142,6 @@ public class CB_2008_AttenRel
   public final static String FLT_TYPE_STRIKE_SLIP = "Strike-Slip";
   public final static String FLT_TYPE_REVERSE = "Reverse";
   public final static String FLT_TYPE_NORMAL = "Normal";
-  public final static String FLT_TYPE_DEFAULT = FLT_TYPE_STRIKE_SLIP;
 
   /**
    * The DistanceRupParameter, closest distance to fault surface.
@@ -473,8 +478,8 @@ public class CB_2008_AttenRel
    */
   public void setSite(Site site) throws ParameterException {
 
-    vs30Param.setValue((Double)site.getParameter(VS30_NAME).getValue());
-    depthTo2pt5kmPerSecParam.setValueIgnoreWarning((Double)site.getParameter(DEPTH_2pt5_NAME).
+    vs30Param.setValue((Double)site.getParameter(Vs30_Param.NAME).getValue());
+    depthTo2pt5kmPerSecParam.setValueIgnoreWarning((Double)site.getParameter(DepthTo2pt5kmPerSecParam.NAME).
                                       getValue());
     this.site = site;
     setPropagationEffectParams();
@@ -616,10 +621,10 @@ public class CB_2008_AttenRel
    */
   public void setParamDefaults() {
 
-    vs30Param.setValue(VS30_DEFAULT);
-    magParam.setValue(MAG_DEFAULT);
-    fltTypeParam.setValue(FLT_TYPE_DEFAULT);
-    rupTopDepthParam.setValue(RUP_TOP_DEFAULT);
+    vs30Param.setValueAsDefault();
+    magParam.setValueAsDefault();
+    fltTypeParam.setValueAsDefault();
+    rupTopDepthParam.setValueAsDefault();
     distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
     distRupMinusJB_OverRupParam.setValue(DISTANCE_RUP_MINUS_DEFAULT);
     saParam.setValueAsDefault();
@@ -630,9 +635,8 @@ public class CB_2008_AttenRel
     pgdParam.setValueAsDefault();
     componentParam.setValueAsDefault();
     stdDevTypeParam.setValueAsDefault();
-    depthTo2pt5kmPerSecParam.setValue(DEPTH_2pt5_DEFAULT);
-    dipParam.setValue(DIP_DEFAULT);
-    
+    depthTo2pt5kmPerSecParam.setValueAsDefault();
+    dipParam.setValueAsDefault();    
     vs30 = ( (Double) vs30Param.getValue()).doubleValue(); 
     mag = ( (Double) magParam.getValue()).doubleValue();
     stdDevType = (String) stdDevTypeParam.getValue();
@@ -684,23 +688,8 @@ public class CB_2008_AttenRel
    */
   protected void initSiteParams() {
 
-    // create vs30 Parameter:
-    super.initSiteParams();
-
-    // create and add the warning constraint:
-    DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
-    warn.setNonEditable();
-    vs30Param.setWarningConstraint(warn);
-    vs30Param.addParameterChangeWarningListener(warningListener);
-    vs30Param.setNonEditable();
-
-    // create and add the warning constraint:
-    DoubleConstraint warn2 = new DoubleConstraint(DEPTH_2pt5_WARN_MIN,
-                                                  DEPTH_2pt5_WARN_MAX);
-    warn2.setNonEditable();
-    depthTo2pt5kmPerSecParam.setWarningConstraint(warn2);
-    depthTo2pt5kmPerSecParam.addParameterChangeWarningListener(warningListener);
-    depthTo2pt5kmPerSecParam.setNonEditable();
+	vs30Param = new Vs30_Param(VS30_WARN_MIN, VS30_WARN_MAX);
+	depthTo2pt5kmPerSecParam = new DepthTo2pt5kmPerSecParam(DEPTH_2pt5_WARN_MIN, DEPTH_2pt5_WARN_MAX);
 
     siteParams.clear();
     siteParams.addParameter(vs30Param);
@@ -715,38 +704,16 @@ public class CB_2008_AttenRel
    */
   protected void initEqkRuptureParams() {
 
-    // Create magParam & other common EqkRup-related params
-    super.initEqkRuptureParams();
-
-    //  Create and add warning constraint to magParam:
-    DoubleConstraint warn = new DoubleConstraint(MAG_WARN_MIN, MAG_WARN_MAX);
-    warn.setNonEditable();
-    magParam.setWarningConstraint(warn);
-    magParam.addParameterChangeWarningListener(warningListener);
-    magParam.setNonEditable();
-    
-    DoubleConstraint warn1 = new DoubleConstraint(DIP_MIN, DIP_MAX);
-    warn.setNonEditable();
-    dipParam.setWarningConstraint(warn1);
-    dipParam.addParameterChangeWarningListener(warningListener);
-    dipParam.setNonEditable();
-
-    DoubleConstraint warn2 = new DoubleConstraint(RUP_TOP_MIN, RUP_TOP_MAX);
-    warn.setNonEditable();
-    rupTopDepthParam.setWarningConstraint(warn2);
-    rupTopDepthParam.addParameterChangeWarningListener(warningListener);
-    rupTopDepthParam.setNonEditable();
+	magParam = new MagParam(MAG_WARN_MIN, MAG_WARN_MAX);
+	dipParam = new DipParam(DIP_WARN_MIN,DIP_WARN_MAX);
+	rupTopDepthParam = new RupTopDepthParam(RUP_TOP_WARN_MIN, RUP_TOP_WARN_MAX);
     
     StringConstraint constraint = new StringConstraint();
     constraint.addString(FLT_TYPE_STRIKE_SLIP);
     constraint.addString(FLT_TYPE_NORMAL);
     constraint.addString(FLT_TYPE_REVERSE);
     constraint.setNonEditable();
-    fltTypeParam = new StringParameter(FLT_TYPE_NAME, constraint, null);
-    fltTypeParam.setInfo(FLT_TYPE_INFO);
-    fltTypeParam.setNonEditable();
-
-
+    fltTypeParam = new FaultTypeParam(constraint,FLT_TYPE_STRIKE_SLIP);
 
     eqkRuptureParams.clear();
     eqkRuptureParams.addParameter(magParam);
@@ -1041,19 +1008,19 @@ public class CB_2008_AttenRel
 	  else if (pName.equals(DistRupMinusJB_OverRupParameter.NAME)) {
 		  distRupMinusJB_OverRup = ( (Double) val).doubleValue();
 	  }
-	  else if (pName.equals(VS30_NAME)) {
+	  else if (pName.equals(Vs30_Param.NAME)) {
 		  vs30 = ( (Double) val).doubleValue();
 	  }
-	  else if (pName.equals(DEPTH_2pt5_NAME)) {
+	  else if (pName.equals(DepthTo2pt5kmPerSecParam.NAME)) {
 		  if(val == null)
 			  depthTo2pt5kmPerSec = Double.NaN;  // can't set the defauly here because vs30 could still change
 		  else
 			  depthTo2pt5kmPerSec = ( (Double) val).doubleValue();
 	  }
-	  else if (pName.equals(MAG_NAME)) {
+	  else if (pName.equals(magParam.NAME)) {
 		  mag = ( (Double) val).doubleValue();
 	  }
-	  else if (pName.equals(FLT_TYPE_NAME)) {
+	  else if (pName.equals(FaultTypeParam.NAME)) {
 		  String fltType = (String)fltTypeParam.getValue();
 		  if (fltType.equals(FLT_TYPE_NORMAL)) {
 			  f_rv = 0 ;
@@ -1068,13 +1035,13 @@ public class CB_2008_AttenRel
 			  f_nm = 0;
 		  }
 	  }
-	  else if (pName.equals(RUP_TOP_NAME)) {
+	  else if (pName.equals(RupTopDepthParam.NAME)) {
 		  depthTop = ( (Double) val).doubleValue();
 	  }
 	  else if (pName.equals(StdDevTypeParam.NAME)) {
 		  stdDevType = (String) val;
 	  }
-	  else if (pName.equals(DIP_NAME)) {
+	  else if (pName.equals(DipParam.NAME)) {
 		  dip = ( (Double) val).doubleValue();
 	  }
 	  else if (pName.equals(ComponentParam.NAME)) {
@@ -1155,8 +1122,8 @@ public class CB_2008_AttenRel
 	  attenRel.setEqkRupture(rup);
 	  
 	  Site site = new Site();
-	  site.addParameter(attenRel.getParameter(attenRel.VS30_NAME));
-	  site.addParameter(attenRel.getParameter(attenRel.DEPTH_2pt5_NAME));
+	  site.addParameter(attenRel.getParameter(Vs30_Param.NAME));
+	  site.addParameter(attenRel.getParameter(DepthTo2pt5kmPerSecParam.NAME));
 	  
 	  Location loc;
 	  for(double dist=-0.3; dist<=0.3; dist+=0.01) {

@@ -34,6 +34,7 @@ import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 import scratchJavaDevelopers.martinez.LossCurveCalculator;
 import scratchJavaDevelopers.martinez.VulnerabilityModels.VulnerabilityModel;
@@ -274,7 +275,7 @@ public class LossCurveApplication extends JFrame {
 				vulnBean.getCurrentModel().getDisplayName() + NEWLINE);
 		strBuf.append("Vs30 Value:             " + TAB + 
 				siteBean.getParameterListEditor().getParameterList()
-				.getParameter(AttenuationRelationship.VS30_NAME).getValue() + 
+				.getParameter(Vs30_Param.NAME).getValue() + 
 				" m/sec" + NEWLINE);
 		strBuf.append("Latitude:" + TAB + 
 				siteBean.getSite().getLocation().getLatitude() + TAB +

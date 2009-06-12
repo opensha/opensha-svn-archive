@@ -7,12 +7,18 @@ import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
+import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.RupTopDepthParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGD_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.param.*;
 
 import java.io.File;
@@ -94,11 +100,11 @@ public class CB_2008_test extends TestCase implements ParameterChangeWarningList
 			String fltType = fileName.substring(index1-2, index1);
 			
 			if(fltType.equals("SS"))
-				cb_2008.getParameter(cb_2008.FLT_TYPE_NAME).setValue(cb_2008.FLT_TYPE_STRIKE_SLIP);
+				cb_2008.getParameter(FaultTypeParam.NAME).setValue(cb_2008.FLT_TYPE_STRIKE_SLIP);
 			else if(fltType.equals("RV"))
-				cb_2008.getParameter(cb_2008.FLT_TYPE_NAME).setValue(cb_2008.FLT_TYPE_REVERSE);
+				cb_2008.getParameter(FaultTypeParam.NAME).setValue(cb_2008.FLT_TYPE_REVERSE);
 			else if(fltType.equals("NM"))
-				cb_2008.getParameter(cb_2008.FLT_TYPE_NAME).setValue(cb_2008.FLT_TYPE_NORMAL);
+				cb_2008.getParameter(FaultTypeParam.NAME).setValue(cb_2008.FLT_TYPE_NORMAL);
 			else 
 				throw new RuntimeException("Unknown Fault Type");
 			
@@ -110,7 +116,7 @@ public class CB_2008_test extends TestCase implements ParameterChangeWarningList
 					String fileLine = (String)testDataLines.get(j);
 					StringTokenizer st = new StringTokenizer(fileLine);
 					double mag = Double.parseDouble(st.nextToken().trim());
-					cb_2008.getParameter(cb_2008.MAG_NAME).setValue(new Double(mag));
+					cb_2008.getParameter(MagParam.NAME).setValue(new Double(mag));
 
 					double rrup = Double.parseDouble(st.nextToken().trim());
 					((WarningDoublePropagationEffectParameter)cb_2008.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(rrup));
@@ -126,18 +132,18 @@ public class CB_2008_test extends TestCase implements ParameterChangeWarningList
 					st.nextToken().trim(); // ignore R(x) ( Horizontal distance from top of rupture perpendicular to fault strike)
 					
 					double dip = Double.parseDouble(st.nextToken().trim());
-					cb_2008.getParameter(cb_2008.DIP_NAME).setValue(new Double(dip));
+					cb_2008.getParameter(DipParam.NAME).setValue(new Double(dip));
 					
 					st.nextToken().trim(); // ignore W, width of rup plane
 					
 					double depthTop = Double.parseDouble(st.nextToken().trim());
-					cb_2008.getParameter(cb_2008.RUP_TOP_NAME).setValue(new Double(depthTop));
+					cb_2008.getParameter(RupTopDepthParam.NAME).setValue(new Double(depthTop));
 
 					double vs30 = Double.parseDouble(st.nextToken().trim());
-					((WarningDoubleParameter)cb_2008.getParameter(cb_2008.VS30_NAME)).setValueIgnoreWarning(new Double(vs30));
+					((WarningDoubleParameter)cb_2008.getParameter(Vs30_Param.NAME)).setValueIgnoreWarning(new Double(vs30));
 
 					double depth25 = Double.parseDouble(st.nextToken().trim());
-					((WarningDoubleParameter)cb_2008.getParameter(cb_2008.DEPTH_2pt5_NAME)).setValueIgnoreWarning(new Double(depth25));
+					((WarningDoubleParameter)cb_2008.getParameter(DepthTo2pt5kmPerSecParam.NAME)).setValueIgnoreWarning(new Double(depth25));
 					
 					cb_2008.setIntensityMeasure(SA_Param.NAME);
 					int num= period.length;
