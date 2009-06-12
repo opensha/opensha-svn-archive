@@ -23,6 +23,9 @@ Revise Event Set Data Calculator - talk to Ned when ready
 On-line short course
 
 
+Move the PropagationEffect parameters in sha.param to sha.imr.param.PropagationEffectParams; 
+also add defining of these to the abstract AttenuationRelationship class (rather than in
+subclasses of AttenuationRelationship)?
 
 Clean the Application build process
 
