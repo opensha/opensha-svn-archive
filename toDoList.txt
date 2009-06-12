@@ -27,6 +27,8 @@ Move the PropagationEffect parameters in sha.param to sha.imr.param.PropagationE
 also add defining of these to the abstract AttenuationRelationship class (rather than in
 subclasses of AttenuationRelationship)?
 
+Check that Parameter classes and APIs are being sensibly subclassed (Peter mentioned some redundant inheritances?)
+
 Clean the Application build process
 
 Revise IMR APIs (& convert CyberShake to this?).
