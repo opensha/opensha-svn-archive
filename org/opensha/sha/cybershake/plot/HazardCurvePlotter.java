@@ -67,6 +67,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.util.SiteTranslator;
 
 import scratchJavaDevelopers.kevin.XMLSaver.AttenRelSaver;
@@ -859,7 +860,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 				boolean flag = siteTranslator.setParameterValue(tempParam, datas);
 				if( !flag ) {
 					System.err.println("Param " + tempParam.getName() + " not set for site! Not available from web service.");
-					if (tempParam.getName().equals(AttenuationRelationship.VS30_NAME)) {
+					if (tempParam.getName().equals(Vs30_Param.NAME)) {
 						BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 						System.out.print("Enter Vs30 value (or hit enter for default, " + tempParam.getValue() + "): ");
 						String line = in.readLine();
