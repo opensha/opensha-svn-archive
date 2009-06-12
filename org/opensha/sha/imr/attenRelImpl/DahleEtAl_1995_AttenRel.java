@@ -449,7 +449,7 @@ public class DahleEtAl_1995_AttenRel
     stdDevTypeConstraint.addString(STD_DEV_TYPE_LS);
     stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_NONE);
     stdDevTypeConstraint.setNonEditable();
-    stdDevTypeParam = new StdDevTypeParam(stdDevTypeConstraint);
+    stdDevTypeParam = new StdDevTypeParam(stdDevTypeConstraint, STD_DEV_TYPE_DEFAULT);
 
     // add these to the list
     otherParams.addParameter(componentParam);
