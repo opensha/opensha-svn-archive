@@ -5,12 +5,7 @@
 BROADER ISSUES:
 --------------
 
-
 Remove the use of "*" in import statements (to make refactoring easier)
-
-Change param API to include getEditor() method
-
-Change parameters to utilize generics
 
 See if param API method "getType()" is needed anymore.
 
@@ -22,6 +17,7 @@ Revise Event Set Data Calculator - talk to Ned when ready
 
 On-line short course
 
+Fix j-unit tests for broken AttenuationRelationships (believed to be a rounding issue in the previous verification files).
 
 Move the PropagationEffect parameters in sha.param to sha.imr.param.PropagationEffectParams; 
 also add defining of these to the abstract AttenuationRelationship class (rather than in
@@ -31,13 +27,9 @@ Check that Parameter classes and APIs are being sensibly subclassed (Peter menti
 
 Clean the Application build process
 
-Revise IMR APIs (& convert CyberShake to this?).
-
 Develop a complete set of Junit tests for the entire project (that at least tests whether any important changes have occurred).
 
 Take "API" out of filenames
-
-fork project and truncate one end? (for verification purposes as we move forward)
 
 Merge contents of org.nshmp (new location) into the rest of the project.  Eric says he's not using the following:
 
