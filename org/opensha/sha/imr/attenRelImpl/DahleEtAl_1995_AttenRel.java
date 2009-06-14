@@ -79,12 +79,6 @@ public class DahleEtAl_1995_AttenRel
   public final static String STD_DEV_TYPE_BAY = "Bayesian";
   public final static String STD_DEV_TYPE_LS = "Least Squares";
   public final static String STD_DEV_TYPE_DEFAULT = STD_DEV_TYPE_BAY;
-
-  /**
-   * Joyner-Boore Distance parameter
-   */
-  private DistanceRupParameter distanceRupParam = null;
-  private final static Double DISTANCE_RUP_DEFAULT = new Double(0);
   protected final static Double DISTANCE_RUP_WARN_MIN = new Double(0.0);
   protected final static Double DISTANCE_RUP_WARN_MAX = new Double(400.0);
 
@@ -288,7 +282,7 @@ public class DahleEtAl_1995_AttenRel
     //((ParameterAPI)this.iml).setValue( IML_DEFAULT );
     siteTypeParam.setValue(SITE_TYPE_DEFAULT);
     magParam.setValueAsDefault();
-    distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
+    distanceRupParam.setValueAsDefault();
     saParam.setValueAsDefault();
     saPeriodParam.setValueAsDefault();
     saDampingParam.setValueAsDefault();
@@ -375,7 +369,7 @@ public class DahleEtAl_1995_AttenRel
    *  propagationEffectParams list. Makes the parameters noneditable.
    */
   protected void initPropagationEffectParams() {
-    distanceRupParam = new DistanceRupParameter();
+    distanceRupParam = new DistanceRupParameter(0.0);
     distanceRupParam.addParameterChangeWarningListener(warningListener);
     DoubleConstraint warn = new DoubleConstraint(DISTANCE_RUP_WARN_MIN,
                                                  DISTANCE_RUP_WARN_MAX);

@@ -79,9 +79,6 @@ public class AS_1997_SiteSpecific_AttenRel
  
   protected AS_1997_AttenRel as_1997_attenRel;
   
-  // this will be a pointer to that in as_1997_attenRel for local access 
-  protected DistanceRupParameter distanceRupParam;
-
   /**
    * The current set of coefficients based on the selected intensityMeasure
    */

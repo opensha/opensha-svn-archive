@@ -103,8 +103,6 @@ public class Field_2000_AttenRel
   /**
    * Joyner-Boore Distance parameter
    */
-  private DistanceJBParameter distanceJBParam = null;
-  private final static Double DISTANCE_JB_DEFAULT = new Double(0);
   protected final static Double DISTANCE_JB_WARN_MIN = new Double(0.0);
   protected final static Double DISTANCE_JB_WARN_MAX = new Double(150.0);
 
@@ -415,7 +413,7 @@ public class Field_2000_AttenRel
     vs30Param.setValueAsDefault();
     magParam.setValueAsDefault();
     fltTypeParam.setValueAsDefault();
-    distanceJBParam.setValue(DISTANCE_JB_DEFAULT);
+    distanceJBParam.setValueAsDefault();
     saParam.setValueAsDefault();
     saPeriodParam.setValueAsDefault();
     saDampingParam.setValueAsDefault();
@@ -520,7 +518,7 @@ public class Field_2000_AttenRel
    *  propagationEffectParams list. Makes the parameters noneditable.
    */
   protected void initPropagationEffectParams() {
-    distanceJBParam = new DistanceJBParameter();
+    distanceJBParam = new DistanceJBParameter(0.0);
     distanceJBParam.addParameterChangeWarningListener(warningListener);
     DoubleConstraint warn = new DoubleConstraint(DISTANCE_JB_WARN_MIN,
                                                  DISTANCE_JB_WARN_MAX);

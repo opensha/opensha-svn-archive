@@ -81,10 +81,6 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
 
  
   protected ToroEtAl_1997_AttenRel toroEtAl_1997_attenRel;
-  
-  // this will be a pointer to that in toroEtAl_1997_attenRel for local access 
-  protected DistanceJBParameter distanceJBParam;
-  private final static Double DISTANCE_JB_DEFAULT = new Double(0);
 
 
   /**
@@ -351,7 +347,7 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
 //	    toroEtAl_1997_attenRel.getParameter(toroEtAl_1997_attenRel.COMPONENT_NAME).setValue(
 //	        toroEtAl_1997_attenRel.COMPONENT_AVE_HORZ);
 	    magParam.setValueAsDefault();
-	    distanceJBParam.setValue(DISTANCE_JB_DEFAULT);
+	    distanceJBParam.setValueAsDefault();
   }
   
   

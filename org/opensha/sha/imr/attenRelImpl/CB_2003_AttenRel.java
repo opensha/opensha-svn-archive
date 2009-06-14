@@ -113,13 +113,6 @@ public class CB_2003_AttenRel
   // the minimum warning will get overridden by seisDepth is less than seisDepth
 
   /**
-   * The DistanceSeisParameter, which is the closest distance to the seimogenic
-   * part of the fault.
-   */
-  private DistanceSeisParameter distanceSeisParam = null;
-  private final static Double DISTANCE_SEIS_DEFAULT = new Double(3);
-
-  /**
    * Hanging-Wall Parameter, defined as 1 above the surface projection, tapering
    * linearly to 0.0 at 5 km from surface projection.
    */
@@ -135,7 +128,6 @@ public class CB_2003_AttenRel
    * Joyner-Boore Distance parameter, used to compute the hanging-wall
    * parameter from a site and eqkRupture.
    */
-  private DistanceJBParameter distanceJBParam = null;
   // No waring constraint needed for this
 
   /**
@@ -604,7 +596,7 @@ public class CB_2003_AttenRel
     siteTypeParam.setValue(SITE_TYPE_DEFAULT);
     magParam.setValueAsDefault();
     fltTypeParam.setValueAsDefault();
-    distanceSeisParam.setValue(DISTANCE_SEIS_DEFAULT);
+    distanceSeisParam.setValueAsDefault();
     hangingWallParam.setValue(HANGING_WALL_DEFAULT);
     saParam.setValueAsDefault();
     saPeriodParam.setValueAsDefault();
@@ -715,7 +707,7 @@ public class CB_2003_AttenRel
    */
   protected void initPropagationEffectParams() {
 
-    distanceSeisParam = new DistanceSeisParameter();
+    distanceSeisParam = new DistanceSeisParameter(3.0);
     distanceSeisParam.addParameterChangeWarningListener(warningListener);
     DoubleConstraint warn = new DoubleConstraint(DISTANCE_SEIS_WARN_MIN,
                                                  DISTANCE_SEIS_WARN_MAX);

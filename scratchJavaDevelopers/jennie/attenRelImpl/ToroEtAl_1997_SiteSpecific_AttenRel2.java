@@ -83,7 +83,6 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel2
 	  protected ToroEtAl_1997_AttenRel toroEtAl_1997_attenRel;
   
   // this will be a pointer to that in toroEtAl_1997_attenRel for local access 
-	  protected DistanceJBParameter distanceJBParam;
 
   /**
    * The current set of coefficients based on the selected intensityMeasure
@@ -352,8 +351,7 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel2
 //	    double rockZ10 = 0.0;
 //	    as_2008_attenRel.getParameter(as_2008_attenRel.DEPTH_1pt0_NAME).setValue(rockZ10);
 	    magParam.setValueAsDefault();
-	    Double DISTANCE_JB_DEFAULT = new Double(0);
-	    distanceJBParam.setValue(DISTANCE_JB_DEFAULT);
+	    distanceJBParam.setValueAsDefault();
   }
   
   

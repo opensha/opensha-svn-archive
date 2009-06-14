@@ -129,21 +129,6 @@ public class Abrahamson_2000_AttenRel
   protected final static Double DISTANCE_RUP_WARN_MAX = new Double(200.0);
 
   /**
-   * The DistanceRupParameter, closest distance to fault surface.
-   */
-  private DistanceRupParameter distanceRupParam = null;
-  private final static Double DISTANCE_RUP_DEFAULT = new Double(0);
-
-  /* NOT NEEDED HERE
-   * Joyner-Boore Distance parameter, used as a proxy for computing their
-   * hanging-wall term from a site and eqkRupture.
-
-      private DistanceJBParameter distanceJBParam = null;
-      private final static Double DISTANCE_JB_DEFAULT = new Double( 0 );
-      // No waring constraint needed for this
-   */
-
-  /**
    * theta directivity parameter.
    */
   protected DoubleParameter thetaDirParam = null;
@@ -661,7 +646,7 @@ public class Abrahamson_2000_AttenRel
     siteTypeParam.setValue(SITE_TYPE_DEFAULT);
     magParam.setValueAsDefault();
     fltTypeParam.setValueAsDefault();
-    distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
+    distanceRupParam.setValueAsDefault();
     saParam.setValueAsDefault();
     saPeriodParam.setValueAsDefault();
     saDampingParam.setValueAsDefault();
@@ -765,7 +750,7 @@ public class Abrahamson_2000_AttenRel
    */
   protected void initPropagationEffectParams() {
 
-    distanceRupParam = new DistanceRupParameter();
+    distanceRupParam = new DistanceRupParameter(0.0);
     distanceRupParam.addParameterChangeWarningListener(warningListener);
     DoubleConstraint warn = new DoubleConstraint(DISTANCE_RUP_WARN_MIN,
                                                  DISTANCE_RUP_WARN_MAX);

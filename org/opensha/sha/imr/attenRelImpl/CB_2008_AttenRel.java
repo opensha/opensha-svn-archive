@@ -143,20 +143,6 @@ public class CB_2008_AttenRel
   public final static String FLT_TYPE_REVERSE = "Reverse";
   public final static String FLT_TYPE_NORMAL = "Normal";
 
-  /**
-   * The DistanceRupParameter, closest distance to fault surface.
-   */
-  private DistanceRupParameter distanceRupParam = null;
-  private final static Double DISTANCE_RUP_DEFAULT = new Double(0);
-
-  /**
-   * this is used to compute JB Distance value, used as a proxy for computing their
-   * hanging-wall term.
-   */
-  private DistRupMinusJB_OverRupParameter distRupMinusJB_OverRupParam = null;
-  private final static Double DISTANCE_RUP_MINUS_DEFAULT = new Double(0);
-
-
   // for issuing warnings:
   private transient ParameterChangeWarningListener warningListener = null;
 
@@ -625,8 +611,8 @@ public class CB_2008_AttenRel
     magParam.setValueAsDefault();
     fltTypeParam.setValueAsDefault();
     rupTopDepthParam.setValueAsDefault();
-    distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
-    distRupMinusJB_OverRupParam.setValue(DISTANCE_RUP_MINUS_DEFAULT);
+    distanceRupParam.setValueAsDefault();
+    distRupMinusJB_OverRupParam.setValueAsDefault();
     saParam.setValueAsDefault();
     saPeriodParam.setValueAsDefault();
     saDampingParam.setValueAsDefault();
@@ -728,7 +714,7 @@ public class CB_2008_AttenRel
    */
   protected void initPropagationEffectParams() {
 
-    distanceRupParam = new DistanceRupParameter();
+    distanceRupParam = new DistanceRupParameter(0.0);
     DoubleConstraint warn = new DoubleConstraint(DISTANCE_RUP_WARN_MIN,
                                                  DISTANCE_RUP_WARN_MAX);
     warn.setNonEditable();
@@ -738,7 +724,7 @@ public class CB_2008_AttenRel
     distanceRupParam.setNonEditable();
 
     //create distRupMinusJB_OverRupParam
-    distRupMinusJB_OverRupParam = new DistRupMinusJB_OverRupParameter();
+    distRupMinusJB_OverRupParam = new DistRupMinusJB_OverRupParameter(0.0);
     DoubleConstraint warnJB = new DoubleConstraint(DISTANCE_MINUS_WARN_MIN, DISTANCE_MINUS_WARN_MAX);
     distRupMinusJB_OverRupParam.addParameterChangeWarningListener(warningListener);
     warn.setNonEditable();

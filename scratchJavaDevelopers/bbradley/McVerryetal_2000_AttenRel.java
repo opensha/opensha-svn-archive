@@ -170,13 +170,7 @@ public class McVerryetal_2000_AttenRel
   //Currently the above coefficients are for the (unrotated) geometric mean - will include larger horizontal later
   public final static String COMPONENT_GEOMEAN = ComponentParam.COMPONENT_RANDOM_HORZ;
   //public final static String COMPONENT_LARGERHORIZ = COMPONENT_LARGER;
-  
-  /**
-   * The DistanceRupParameter, closest distance to fault surface.
-   */
-  private DistanceRupParameter distanceRupParam = null;
-  private final static Double DISTANCE_RUP_DEFAULT = new Double(0);
-
+ 
   // for issuing warnings:
   private transient ParameterChangeWarningListener warningListener = null;
 
@@ -340,7 +334,7 @@ public class McVerryetal_2000_AttenRel
 
 	siteTypeParam.setValue(SITE_TYPE_DEFAULT);
     magParam.setValueAsDefault();
-    distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
+    distanceRupParam.setValueAsDefault();
     fltTypeParam.setValueAsDefault();
     saParam.setValueAsDefault();
     saPeriodParam.setValueAsDefault();
@@ -433,7 +427,7 @@ public class McVerryetal_2000_AttenRel
 	   */
 	  protected void initPropagationEffectParams() {
 
-	    distanceRupParam = new DistanceRupParameter();
+	    distanceRupParam = new DistanceRupParameter(0.0);
 	    DoubleConstraint warn = new DoubleConstraint(DISTANCE_RUP_WARN_MIN,
 	                                                 DISTANCE_RUP_WARN_MAX);
 	    warn.setNonEditable();

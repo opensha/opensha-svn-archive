@@ -53,6 +53,10 @@ import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
+import org.opensha.sha.param.DistRupMinusJB_OverRupParameter;
+import org.opensha.sha.param.DistanceJBParameter;
+import org.opensha.sha.param.DistanceRupParameter;
+import org.opensha.sha.param.DistanceSeisParameter;
 
 /**
  *  <b>Title:</b> AttenuationRelationship</p> <p>
@@ -242,12 +246,18 @@ public abstract class AttenuationRelationship
 
   /**
    * Propagation Effect Parameters
+   * (see classes for exact definitions)
    */
-  protected HangingWallFlagParam hangingWallFlagParam = null;
-  protected DistRupMinusDistX_OverRupParam distRupMinusDistX_OverRupParam = null;
+  protected DistanceRupParameter distanceRupParam = null;
+  protected DistanceJBParameter distanceJBParam = null;
+  protected DistanceSeisParameter distanceSeisParam = null;
+  protected DistRupMinusJB_OverRupParameter distRupMinusJB_OverRupParam = null;
+  protected DistRupMinusDistX_OverRupParam distRupMinusDistX_OverRupParam = null;  // not a subclass of PropagationEffectParameter
+  protected HangingWallFlagParam hangingWallFlagParam = null;  	// not a subclass of PropagationEffectParameter
 
   /**
-   * Site related parameters.
+   * Site related parameters
+   * (see classes for exact definitions)
    */
   protected Vs30_Param vs30Param = null;
   protected Vs30_TypeParam vs30_TypeParam;

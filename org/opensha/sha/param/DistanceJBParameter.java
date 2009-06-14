@@ -59,6 +59,13 @@ implements WarningParameterAPI
 	 * All value are allowed.
 	 */
 	public DistanceJBParameter() { init(); }
+	
+	/** This constructor sets the default value.  */
+	public DistanceJBParameter(double defaultValue) { 
+		init(); 
+		this.setDefaultValue(defaultValue);
+	}
+
 
 
 	/** Constructor that sets up constraints. This is a constrained parameter. */
@@ -73,6 +80,21 @@ implements WarningParameterAPI
 		}
 		init( (DoubleConstraint)warningConstraint );
 	}
+	
+    /** Constructor that sets up constraints & the default value. This is a constrained parameter. */
+    public DistanceJBParameter(ParameterConstraintAPI warningConstraint, double defaultValue)
+        throws ConstraintException
+    {
+        if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
+            throw new ConstraintException(
+                C + " : Constructor(): " +
+                "Input constraint must be a DoubleConstraint"
+            );
+        }
+        init( (DoubleConstraint)warningConstraint );
+        setDefaultValue(defaultValue);
+    }
+
 
 	/** Initializes the constraints, name, etc. for this parameter */
 	protected void init( DoubleConstraint warningConstraint){

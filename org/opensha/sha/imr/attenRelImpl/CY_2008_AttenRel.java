@@ -185,20 +185,6 @@ NamedObjectAPI, ParameterChangeListener {
 	public final static String FLT_TYPE_STRIKE_SLIP = "Strike-Slip";
 	public final static String FLT_TYPE_REVERSE = "Reverse";
 	public final static String FLT_TYPE_NORMAL = "Normal";
-
-	/**
-	 * The DistanceRupParameter, closest distance to fault surface.
-	 */
-	private DistanceRupParameter distanceRupParam = null;
-	private final static Double DISTANCE_RUP_DEFAULT = new Double(0);
-
-	/**
-	 * this is used to compute JB Distance value, used as a proxy for computing their
-	 * hanging-wall term.
-	 */
-	private DistRupMinusJB_OverRupParameter distRupMinusJB_OverRupParam = null;
-	private final static Double DISTANCE_RUP_MINUS_DEFAULT = new Double(0);
-	
 	
 	// this is for computing distance metrics efficiently
 	private PropagationEffect propagationEffect;
@@ -404,8 +390,8 @@ NamedObjectAPI, ParameterChangeListener {
 		vs30_TypeParam.setValue(Vs30_TypeParam.VS30_TYPE_INFERRED);
 		depthTo1pt0kmPerSecParam.setValueAsDefault();
 
-		distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
-		distRupMinusJB_OverRupParam.setValue(DISTANCE_RUP_MINUS_DEFAULT);
+		distanceRupParam.setValueAsDefault();
+		distRupMinusJB_OverRupParam.setValueAsDefault();
 		distRupMinusDistX_OverRupParam.setValueAsDefault();
 		hangingWallFlagParam.setValueAsDefault();
 
@@ -526,7 +512,7 @@ NamedObjectAPI, ParameterChangeListener {
 	 */
 	protected void initPropagationEffectParams() {
 
-		distanceRupParam = new DistanceRupParameter();
+		distanceRupParam = new DistanceRupParameter(0.0);
 		distanceRupParam.addParameterChangeWarningListener(warningListener);
 		DoubleConstraint warn = new DoubleConstraint(DISTANCE_RUP_WARN_MIN,
 				DISTANCE_RUP_WARN_MAX);
@@ -535,7 +521,7 @@ NamedObjectAPI, ParameterChangeListener {
 		distanceRupParam.setNonEditable();
 
 		//create distRupMinusJB_OverRupParam
-		distRupMinusJB_OverRupParam = new DistRupMinusJB_OverRupParameter();
+		distRupMinusJB_OverRupParam = new DistRupMinusJB_OverRupParameter(0.0);
 		DoubleConstraint warn2 = new DoubleConstraint(DISTANCE_MINUS_WARN_MIN, DISTANCE_MINUS_WARN_MAX);
 		distRupMinusJB_OverRupParam.addParameterChangeWarningListener(warningListener);
 		warn.setNonEditable();

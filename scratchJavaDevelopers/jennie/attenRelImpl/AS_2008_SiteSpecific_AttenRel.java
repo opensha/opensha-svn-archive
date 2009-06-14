@@ -84,9 +84,6 @@ public class AS_2008_SiteSpecific_AttenRel
 
  
   protected AS_2008_AttenRel as_2008_attenRel;
-  
-  // this will be a pointer to that in toroEtAl_1997_attenRel for local access 
-  protected DistanceRupParameter distanceRupParam;
 
   /**
    * The current set of coefficients based on the selected intensityMeasure
@@ -355,8 +352,7 @@ public class AS_2008_SiteSpecific_AttenRel
 	    double rockZ10 = 0.0;
 	    as_2008_attenRel.getParameter(DepthTo1pt0kmPerSecParam.NAME).setValue(rockZ10);
 	    magParam.setValueAsDefault();
-	    Double DISTANCE_RUP_DEFAULT = new Double(0);
-	    distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
+	    distanceRupParam.setValueAsDefault();
   }
   
   

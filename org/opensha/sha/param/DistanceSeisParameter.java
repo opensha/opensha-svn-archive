@@ -67,6 +67,12 @@ public class DistanceSeisParameter
      */
     public DistanceSeisParameter() { init(); }
 
+	/** This constructor sets the default value.  */
+	public DistanceSeisParameter(double defaultValue) { 
+		init(); 
+		this.setDefaultValue(defaultValue);
+	}
+
 
     /** Constructor that sets up constraints. This is a constrained parameter. */
     public DistanceSeisParameter(ParameterConstraintAPI warningConstraint)
@@ -80,6 +86,22 @@ public class DistanceSeisParameter
         }
         init( (DoubleConstraint)warningConstraint );
     }
+    
+    
+    /** Constructor that sets up constraints & the default value. This is a constrained parameter. */
+    public DistanceSeisParameter(ParameterConstraintAPI warningConstraint, double defaultValue)
+        throws ConstraintException
+    {
+        if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
+            throw new ConstraintException(
+                C + " : Constructor(): " +
+                "Input constraint must be a DoubleConstraint"
+            );
+        }
+        init( (DoubleConstraint)warningConstraint );
+        setDefaultValue(defaultValue);
+    }
+
 
 
     /** Initializes the constraints, name, etc. for this parameter */

@@ -151,12 +151,6 @@ public class BA_2008_AttenRel
   public final static String FLT_TYPE_STRIKE_SLIP = "Strike-Slip";
   public final static String FLT_TYPE_REVERSE = "Thrust/Reverse";
   public final static String FLT_TYPE_NORMAL = "Normal";
-  
-  /**
-   * The DistanceRupParameter, closest distance to fault surface.
-   */
-  private DistanceJBParameter distanceJBParam = null;
-  private final static Double DISTANCE_JB_DEFAULT = new Double(0);
 
   // for issuing warnings:
   private transient ParameterChangeWarningListener warningListener = null;
@@ -325,7 +319,7 @@ public class BA_2008_AttenRel
 
 	vs30Param.setValueAsDefault();
     magParam.setValueAsDefault();
-    distanceJBParam.setValue(DISTANCE_JB_DEFAULT);
+    distanceJBParam.setValueAsDefault();
     fltTypeParam.setValueAsDefault();
     saParam.setValueAsDefault();
     saPeriodParam.setValueAsDefault();
@@ -441,7 +435,7 @@ public class BA_2008_AttenRel
    */
   protected void initPropagationEffectParams() {
 
-	distanceJBParam = new DistanceJBParameter();
+	distanceJBParam = new DistanceJBParameter(0.0);
     distanceJBParam.addParameterChangeWarningListener(warningListener);
     DoubleConstraint warn = new DoubleConstraint(DISTANCE_JB_WARN_MIN,
                                                  DISTANCE_JB_WARN_MAX);

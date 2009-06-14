@@ -203,22 +203,6 @@ public class AS_2005_prelim_AttenRel
   protected final static Double ASPECT_RATIO_MIN = new Double(Double.MIN_VALUE);
   protected final static Double ASPECT_RATIO_MAX = new Double(200);
 
-  /**
-   * The DistanceRupParameter, closest distance to fault surface.
-   */
-  private DistanceRupParameter distanceRupParam = null;
-  private final static Double DISTANCE_RUP_DEFAULT = new Double(0);
-
-  /**
-   * Joyner-Boore Distance parameter, used as a proxy for computing their
-   * hanging-wall term from a site and eqkRupture.
-   */
-  private DistRupMinusJB_OverRupParameter distRupMinusJB_OverRupParam = null;
-  private final static Double DISTANCE_RUP_MINUS_JB_DEFAULT = new Double(0);
-  // No waring constraint needed for this
-
-
-
   // for issuing warnings:
   private transient ParameterChangeWarningListener warningListener = null;
 
@@ -407,8 +391,8 @@ public class AS_2005_prelim_AttenRel
 	dipParam.setValueAsDefault();
     aspectRatioParam.setValue(ASPECT_RATIO_DEFAULT);
     rupTopDepthParam.setValueAsDefault();
-    distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
-    distRupMinusJB_OverRupParam.setValue(this.DISTANCE_RUP_MINUS_JB_DEFAULT);
+    distanceRupParam.setValueAsDefault();
+    distRupMinusJB_OverRupParam.setValueAsDefault();
     saParam.setValueAsDefault();
     saPeriodParam.setValueAsDefault();
     saDampingParam.setValueAsDefault();
@@ -516,7 +500,7 @@ public class AS_2005_prelim_AttenRel
    */
   protected void initPropagationEffectParams() {
 
-    distanceRupParam = new DistanceRupParameter();
+    distanceRupParam = new DistanceRupParameter(0.0);
     distanceRupParam.addParameterChangeWarningListener(warningListener);
     DoubleConstraint warn = new DoubleConstraint(DISTANCE_RUP_WARN_MIN,
                                                  DISTANCE_RUP_WARN_MAX);
@@ -525,7 +509,7 @@ public class AS_2005_prelim_AttenRel
     distanceRupParam.setNonEditable();
 
     //create distRupMinusJB_OverRupParam
-    distRupMinusJB_OverRupParam = new DistRupMinusJB_OverRupParameter();
+    distRupMinusJB_OverRupParam = new DistRupMinusJB_OverRupParameter(0.0);
     distRupMinusJB_OverRupParam.setNonEditable();
 
     // create srcSiteAngleParam

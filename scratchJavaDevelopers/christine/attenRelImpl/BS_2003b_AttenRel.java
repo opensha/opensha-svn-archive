@@ -100,7 +100,6 @@ public class BS_2003b_AttenRel
 //  public final static String VS30S_PARAM_INFO = 
 //	  "Vs30 of the soil column above rock.";
   private DoubleConstraint Vs30SparamConstraint = new DoubleConstraint(50,2000);
-  public final static double VS30S_PARAM_DEFAULT = 500;
 
   
   //Intercept param
@@ -395,9 +394,9 @@ public class BS_2003b_AttenRel
   
   public void setParamDefaults() {
 
-	    cb_2008_attenRel.setParamDefaults();
+	cb_2008_attenRel.setParamDefaults();
     //((ParameterAPI)this.iml).setValue( IML_DEFAULT );
-	  vs30Param.setValue(VS30S_PARAM_DEFAULT);
+	vs30Param.setValueAsDefault();
     softSoilParam.setValue(new Boolean(false));
     AF_AddRefAccParam.setValue(this.AF_ADDITIVE_REF_ACCERLATION_DEFAULT);
     AF_InterceptParam.setValue(this.AF_INTERCEPT_PARAM_DEFAULT);
@@ -518,7 +517,7 @@ public class BS_2003b_AttenRel
     softSoilParam.setInfo(SOFT_SOIL_INFO);
     
     //make the AF intercept paarameter
-	vs30Param = new Vs30_Param(VS30S_PARAM_DEFAULT, Vs30SparamConstraint.getMin(), Vs30SparamConstraint.getMax());
+	vs30Param = new Vs30_Param(500, Vs30SparamConstraint.getMin(), Vs30SparamConstraint.getMax());
 //   vs30Param.setConstraint(Vs30SparamConstraint);
 //    vs30Param.setValueIgnoreWarning(VS30S_PARAM_DEFAULT);
 //    VS30SParam = new DoubleParameter(this.VS30S_PARAM_NAME,

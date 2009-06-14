@@ -124,13 +124,6 @@ public class Campbell_1997_AttenRel
   protected final static Double BASIN_DEPTH_WARN_MAX = new Double(10);
 
   /**
-   * The DistanceSeisParameter, which is the closest distance to the seimogenic
-   * part of the fault.
-   */
-  private DistanceSeisParameter distanceSeisParam = null;
-  private final static Double DISTANCE_SEIS_DEFAULT = new Double(3);
-
-  /**
    * The current set of coefficients based on the selected intensityMeasure
    */
   private Campbell_1997_AttenRelCoefficients coeff = null;
@@ -634,7 +627,7 @@ public class Campbell_1997_AttenRel
     siteTypeParam.setValue(SITE_TYPE_DEFAULT);
     magParam.setValueAsDefault();
     fltTypeParam.setValueAsDefault();
-    distanceSeisParam.setValue(DISTANCE_SEIS_DEFAULT);
+    distanceSeisParam.setValueAsDefault();
     basinDepthParam.setValue(BASIN_DEPTH_DEFAULT);
     saParam.setValueAsDefault();
     saPeriodParam.setValueAsDefault();
@@ -753,7 +746,7 @@ public class Campbell_1997_AttenRel
    */
   protected void initPropagationEffectParams() {
 
-    distanceSeisParam = new DistanceSeisParameter();
+    distanceSeisParam = new DistanceSeisParameter(3.0);
     distanceSeisParam.addParameterChangeWarningListener(warningListener);
     DoubleConstraint warn = new DoubleConstraint(DISTANCE_SEIS_WARN_MIN,
                                                  DISTANCE_SEIS_WARN_MAX);

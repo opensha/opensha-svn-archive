@@ -50,6 +50,13 @@ public class DistRupMinusJB_OverRupParameter
 
     /** No-Arg constructor that calls init(). No constraint so all values are allowed.  */
     public DistRupMinusJB_OverRupParameter() { init(); }
+    
+	/** This constructor sets the default value.  */
+	public DistRupMinusJB_OverRupParameter(double defaultValue) { 
+		init(); 
+		this.setDefaultValue(defaultValue);
+	}
+
 
 
     /** Constructor that sets up constraints. This is a constrained parameter. */
@@ -64,6 +71,21 @@ public class DistRupMinusJB_OverRupParameter
         }
         init( (DoubleConstraint)warningConstraint );
     }
+    
+    /** Constructor that sets up constraints & the default value. This is a constrained parameter. */
+    public DistRupMinusJB_OverRupParameter(ParameterConstraintAPI warningConstraint, double defaultValue)
+        throws ConstraintException
+    {
+        if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
+            throw new ConstraintException(
+                C + " : Constructor(): " +
+                "Input constraint must be a DoubleConstraint"
+            );
+        }
+        init( (DoubleConstraint)warningConstraint );
+        setDefaultValue(defaultValue);
+    }
+
 
     /** Sets default fields on the Constraint,  such as info and units. */
     protected void init( DoubleConstraint warningConstraint){

@@ -96,12 +96,6 @@ public class WC94_DisplMagRel
   protected final static Double DISTANCE_RUP_WARN_MIN = new Double(0.0);
   protected final static Double DISTANCE_RUP_WARN_MAX = new Double(200.0);
 
-  /**
-   * The DistanceRupParameter, closest distance to fault surface.
-   */
-  private DistanceRupParameter distanceRupParam = null;
-  private final static Double DISTANCE_RUP_DEFAULT = new Double(0);
-
   // for issuing warnings:
   private transient ParameterChangeWarningListener warningListener = null;
 
@@ -318,7 +312,7 @@ public class WC94_DisplMagRel
 
     magParam.setValueAsDefault();
     fltTypeParam.setValue(FLT_TYPE_SS);
-    distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
+    distanceRupParam.setValueAsDefault();
     faultDisplParam.setValue(FAULT_DISPL_DEFAULT);
     stdDevTypeParam.setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
   }
@@ -391,7 +385,7 @@ public class WC94_DisplMagRel
    *
    */
   protected void initPropagationEffectParams() {
-    distanceRupParam = new DistanceRupParameter();
+    distanceRupParam = new DistanceRupParameter(0.0);
     distanceRupParam.addParameterChangeWarningListener(warningListener);
     DoubleConstraint warn = new DoubleConstraint(DISTANCE_RUP_WARN_MIN,
                                                  DISTANCE_RUP_WARN_MAX);

@@ -129,13 +129,7 @@ public class ToroEtAl_1997_AttenRel
 //  protected final static Double VS30_WARN_MAX = new Double(2500.0);
   
   public final static String STD_DEV_TYPE_BASEMENT = "Basement rock";
-  
-  /**
-   * The DistanceRupParameter, closest distance to fault surface.
-   */
-  private DistanceJBParameter distanceJBParam = null;
-  private final static Double DISTANCE_JB_DEFAULT = new Double(0);
-
+ 
   // for issuing warnings:
   private transient ParameterChangeWarningListener warningListener = null;
 
@@ -270,7 +264,7 @@ public class ToroEtAl_1997_AttenRel
 
  //   vs30Param.setValueAsDefault();
     magParam.setValueAsDefault();
-    distanceJBParam.setValue(DISTANCE_JB_DEFAULT);
+    distanceJBParam.setValueAsDefault();
     saParam.setValueAsDefault();
     saPeriodParam.setValueAsDefault();
     saDampingParam.setValueAsDefault();
@@ -371,7 +365,7 @@ public class ToroEtAl_1997_AttenRel
    */
   protected void initPropagationEffectParams() {
 
-	distanceJBParam = new DistanceJBParameter();
+	distanceJBParam = new DistanceJBParameter(0.0);
     distanceJBParam.addParameterChangeWarningListener(warningListener);
     DoubleConstraint warn = new DoubleConstraint(DISTANCE_JB_WARN_MIN,
                                                  DISTANCE_JB_WARN_MAX);

@@ -63,6 +63,12 @@ public class DistanceX_Parameter
      * All value are allowed.
      */
     public DistanceX_Parameter() { init(); }
+    
+	/** This constructor sets the default value.  */
+	public DistanceX_Parameter(double defaultValue) { 
+		init(); 
+		this.setDefaultValue(defaultValue);
+	}
 
 
     /** Constructor that sets up constraints. This is a constrained parameter. */
@@ -77,6 +83,21 @@ public class DistanceX_Parameter
         }
         init( (DoubleConstraint)warningConstraint );
     }
+    
+    /** Constructor that sets up constraints & the default value. This is a constrained parameter. */
+    public DistanceX_Parameter(ParameterConstraintAPI warningConstraint, double defaultValue)
+        throws ConstraintException
+    {
+        if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
+            throw new ConstraintException(
+                C + " : Constructor(): " +
+                "Input constraint must be a DoubleConstraint"
+            );
+        }
+        init( (DoubleConstraint)warningConstraint );
+        setDefaultValue(defaultValue);
+    }
+
 
     /** Initializes the constraints, name, etc. for this parameter */
     protected void init( DoubleConstraint warningConstraint){

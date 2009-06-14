@@ -128,12 +128,6 @@ public class AmbraseysEtAl_1996_AttenRel
   public final static String SITE_TYPE_SOIL = "Soil";
   public final static String SITE_TYPE_DEFAULT = SITE_TYPE_ROCK;
 
-  /**
-   * The DistanceRupParameter, closest distance to fault surface.
-   */
-  private DistanceJBParameter distanceJBParam = null;
-  private final static Double DISTANCE_JB_DEFAULT = new Double(0);
-
   // for issuing warnings:
   private transient ParameterChangeWarningListener warningListener = null;
 
@@ -271,7 +265,7 @@ public class AmbraseysEtAl_1996_AttenRel
   public void setParamDefaults() {
 
     magParam.setValueAsDefault();
-    distanceJBParam.setValue(DISTANCE_JB_DEFAULT);
+    distanceJBParam.setValueAsDefault();
     saParam.setValueAsDefault();
     saPeriodParam.setValueAsDefault();
     saDampingParam.setValueAsDefault();
@@ -375,7 +369,7 @@ public class AmbraseysEtAl_1996_AttenRel
    */
   protected void initPropagationEffectParams() {
 
-	distanceJBParam = new DistanceJBParameter();
+	distanceJBParam = new DistanceJBParameter(0.0);
     distanceJBParam.addParameterChangeWarningListener(warningListener);
     DoubleConstraint warn = new DoubleConstraint(DISTANCE_JB_WARN_MIN,
                                                  DISTANCE_JB_WARN_MAX);
