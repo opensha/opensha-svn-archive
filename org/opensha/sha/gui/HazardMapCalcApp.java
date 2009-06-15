@@ -893,7 +893,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 	 * sets up the connection with the servlet on the server (gravity.usc.edu)
 	 */
 	private void sendParametersToServlet(SitesInGriddedRectangularRegion regionSites,
-			AttenuationRelationshipAPI imr,
+			ScalarIntensityMeasureRelationshipAPI imr,
 			String eqkRupForecastLocation) {
 
 		try{
@@ -1024,7 +1024,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 	 */
 	public void updateIM() {
 		//get the selected IMR
-		AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 		imtGuiBean.setIM(imr,imr.getSupportedIntensityMeasuresIterator()) ;
 	}
 
@@ -1036,7 +1036,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 	 */
 	public void updateSiteParams() {
 		//get the selected IMR
-		AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 		sitesGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
 		sitesGuiBean.validate();
 		sitesGuiBean.repaint();

@@ -12,7 +12,7 @@ import java.awt.event.*;
 
 
 
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;

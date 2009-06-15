@@ -1,4 +1,4 @@
-package org.opensha.sha.param;
+package org.opensha.sha.imr.param.PropagationEffectParams;
 
 import java.util.*;
 
@@ -7,60 +7,75 @@ import org.dom4j.Element;
 
 
 import org.opensha.sha.calc.*;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.WarningParameterAPI;
-
+import org.opensha.commons.param.editor.ParameterEditor;
 
 /**
- * <b>Title:</b> DistanceRupParameter<p>
+ * <b>Title:</b> DistanceSeisParameter<p>
  *
  * <b>Description:</b> Special subclass of PropagationEffectParameter.
- * This finds the shortest distance to the fault surface. <p>
+ * This computes the closest distance to the seimogenic part of the fault;
+ * that is, the closest distance to the part of the fault that is below the seimogenic
+ * thickness (seisDepth); this depth is currently hardwired at 3 km, but we can add
+ * setSeisDepth() and getSeisDepth() methods if desired (the setter will have to create
+ * a new constraint with seisDepth as the lower bound, which can be done even if the
+ * parameter has been set as non editable).  Note that if the earthquake rupture is a
+ * line or point source where the depths are less than seisDepth, then the depths are
+ * treated as seisDepth (e.g., for grid based forecast where all sources are put at
+ * zero depth) <p>
  *
+ * @see DistanceRupParameter
  * @see DistanceJBParameter
- * @see DistanceSeisParameter
  * @author Steven W. Rock
  * @version 1.0
  */
-public class DistRupMinusJB_OverRupParameter
+public class DistanceSeisParameter
      extends WarningDoublePropagationEffectParameter
      implements WarningParameterAPI
 {
 
 
     /** Class name used in debug strings */
-    protected final static String C = "DistanceRupMinusJB_Parameter";
+    protected final static String C = "DistanceSeisParameter";
     /** If true debug statements are printed out */
     protected final static boolean D = false;
 
 
     /** Hardcoded name */
-    public final static String NAME = "(distRup-distJB)/distRup";
+    public final static String NAME = "DistanceSeis";
+    /** Hardcoded units string */
+    private final static String UNITS = "km";
     /** Hardcoded info string */
-    public final static String INFO = "(DistanceRup - DistanceJB)/DistanceRup";
-    /** Hardcoded min allowed value */
-    private final static Double MIN = new Double(0.0);
+    private final static String INFO = "Seismogenic Distance (closest distance to seismogenic part of fault surface)";
+
     /** Hardcoded max allowed value */
-    private final static Double MAX = new Double(1.0);
+    private final static Double MAX = new Double(Double.MAX_VALUE);
+
+    /** set default seismogenic depth. actually hard-wired for now. */
+    public final static double seisDepth = 3.0;
 
 
-    /** No-Arg constructor that calls init(). No constraint so all values are allowed.  */
-    public DistRupMinusJB_OverRupParameter() { init(); }
-    
+    /**
+     * No-Arg constructor that just calls init() with null constraints.
+     * All value are allowed.
+     */
+    public DistanceSeisParameter() { init(); }
+
 	/** This constructor sets the default value.  */
-	public DistRupMinusJB_OverRupParameter(double defaultValue) { 
+	public DistanceSeisParameter(double defaultValue) { 
 		init(); 
 		this.setDefaultValue(defaultValue);
 	}
 
 
-
     /** Constructor that sets up constraints. This is a constrained parameter. */
-    public DistRupMinusJB_OverRupParameter(ParameterConstraintAPI warningConstraint)
+    public DistanceSeisParameter(ParameterConstraintAPI warningConstraint)
         throws ConstraintException
     {
         if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
@@ -72,8 +87,9 @@ public class DistRupMinusJB_OverRupParameter
         init( (DoubleConstraint)warningConstraint );
     }
     
+    
     /** Constructor that sets up constraints & the default value. This is a constrained parameter. */
-    public DistRupMinusJB_OverRupParameter(ParameterConstraintAPI warningConstraint, double defaultValue)
+    public DistanceSeisParameter(ParameterConstraintAPI warningConstraint, double defaultValue)
         throws ConstraintException
     {
         if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
@@ -87,55 +103,65 @@ public class DistRupMinusJB_OverRupParameter
     }
 
 
-    /** Sets default fields on the Constraint,  such as info and units. */
+
+    /** Initializes the constraints, name, etc. for this parameter */
     protected void init( DoubleConstraint warningConstraint){
         this.warningConstraint = warningConstraint;
-        this.constraint = new DoubleConstraint(MIN, MAX );
-        this.constraint.setNullAllowed(false);
+        this.constraint = new DoubleConstraint(seisDepth, Double.MAX_VALUE );
         this.name = NAME;
         this.constraint.setName( this.name );
+        this.constraint.setNullAllowed(false);
+        this.units = UNITS;
         this.info = INFO;
         //setNonEditable();
     }
 
-    /** Sets the warning constraint to null, then initializes the absolute constraint */
+    /** Initializes the constraints, name, etc. for this parameter */
     protected void init(){ init( null ); }
 
-
     /**
-     * Note that this doesn not throw a warning
+     * Note that this does not throw a warning
      */
     protected void calcValueFromSiteAndEqkRup(){
         if( ( this.site != null ) && ( this.eqkRupture != null ) ){
 
-            Location loc1 = site.getLocation();
-            double minRupDistance = Double.MAX_VALUE;
-            double minHorzDistance = Double.MAX_VALUE;
-            double horzDist, vertDist, totalDist;
+          Location loc1 = site.getLocation();
+          double minDistance = Double.MAX_VALUE;
+          double totalDist, horzDist, vertDist;
 
-            ListIterator it = eqkRupture.getRuptureSurface().getLocationsIterator();
-            while( it.hasNext() ){
 
-                Location loc2 = (Location) it.next();
+          EvenlyGriddedSurfaceAPI rupSurf = eqkRupture.getRuptureSurface();
 
+          // flag to project to seisDepth if only one row and depth is below seisDepth
+          boolean projectToDepth = false;
+          if (rupSurf.getNumRows() == 1 && rupSurf.getLocation(0,0).getDepth() < seisDepth)
+            projectToDepth = true;
+
+          ListIterator it = rupSurf.getLocationsIterator();
+          while( it.hasNext() ){
+
+              Location loc2 = (Location)it.next();
+              // ignore locations with depth less than siesDepth (unless projectToDepth=true):
+              if (loc2.getDepth() >= seisDepth) {
+                  horzDist = RelativeLocation.getHorzDistance(loc1, loc2);
+                  vertDist = RelativeLocation.getVertDistance(loc1, loc2);
+                  totalDist = horzDist * horzDist + vertDist * vertDist;
+                  if( totalDist < minDistance )  minDistance = totalDist;
+              }
+              // put a zero-depth point source at the seisDepth
+              else if (projectToDepth) {
                 horzDist = RelativeLocation.getHorzDistance(loc1, loc2);
-                vertDist = RelativeLocation.getVertDistance(loc1, loc2);
+                totalDist = horzDist * horzDist + seisDepth * seisDepth;
+                if( totalDist < minDistance )  minDistance = totalDist;
+              }
 
-                totalDist = horzDist * horzDist + vertDist * vertDist;
-                if( totalDist < minRupDistance ) minRupDistance = totalDist;
-                if( horzDist < minHorzDistance ) minHorzDistance = horzDist;
+          }
+          // take square root before returning
+          // Steve- is this effiecient?
+          this.setValueIgnoreWarning( new Double( Math.pow ( minDistance , 0.5 ) ));
 
-            }
-            totalDist = Math.sqrt( minRupDistance );
-            if(totalDist == 0)
-              this.setValueIgnoreWarning( new Double( 0 ));
-            else{
-              double fract = (totalDist - minHorzDistance) / totalDist;
-              this.setValueIgnoreWarning(new Double(fract));
-            }
         }
-        else this.value = null;
-
+        else this.setValue(null);
 
     }
 
@@ -176,18 +202,20 @@ public class DistRupMinusJB_OverRupParameter
             val2 = new Double( val.doubleValue() );
         }
 
-        DistRupMinusJB_OverRupParameter param = new DistRupMinusJB_OverRupParameter(  );
+        DistanceSeisParameter param = new DistanceSeisParameter(  );
+        param.info = info;
         param.value = val2;
-        param.constraint =  c1;
+        param.constraint = c1;
         param.warningConstraint = c2;
         param.name = name;
         param.info = info;
         param.site = site;
         param.eqkRupture = eqkRupture;
         if( !this.editable ) param.setNonEditable();
-        return param;
-    }
 
+        return param;
+
+    }
 
 	public boolean setValueFromXMLMetadata(Element el) {
 		// TODO Auto-generated method stub

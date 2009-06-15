@@ -37,7 +37,7 @@ import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.infoTools.WeightedFuncListforPlotting;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.SpectrumCalculator;
@@ -445,7 +445,7 @@ public class HazardSpectrumLocalModeApplication
 
     // if IMR selection changed, update the site parameter list and supported IMT
     if (name1.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
-      AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+      ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
       //set the intensity measure fo	r the IMR
       imr.setIntensityMeasure(SA_Param.NAME);
       //gets the SA Period Values fo	r the IMR
@@ -551,7 +551,7 @@ public class HazardSpectrumLocalModeApplication
    * Gets the SA Period Values for the IMR
    * @param imr
    */
-  private void getSA_PeriodForIMR(AttenuationRelationshipAPI imr) {
+  private void getSA_PeriodForIMR(ScalarIntensityMeasureRelationshipAPI imr) {
     ListIterator it = imr.getSupportedIntensityMeasuresIterator();
     while (it.hasNext()) {
       DependentParameterAPI tempParam = (DependentParameterAPI) it.next();
@@ -576,7 +576,7 @@ public class HazardSpectrumLocalModeApplication
    * @param eqkRupForecast : List of Eqk Rup forecasts
    */
   protected void handleForecastList(Site site,
-                                    AttenuationRelationshipAPI imr,
+                                    ScalarIntensityMeasureRelationshipAPI imr,
                                     EqkRupForecastBaseAPI forecast,
                                     double imlProbValue) {
 

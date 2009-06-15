@@ -19,7 +19,7 @@ import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.event.AttenuationRelationshipChangeEvent;
 import org.opensha.sha.imr.event.AttenuationRelationshipChangeListener;
 import org.opensha.sha.util.SiteTranslator;
@@ -31,7 +31,7 @@ public class SiteDataControlPanel extends JFrame implements AttenuationRelations
 	private Site_GuiBean siteGuiBean;
 	private OrderedSiteDataGUIBean dataGuiBean;
 	
-	private AttenuationRelationshipAPI attenRel;
+	private ScalarIntensityMeasureRelationshipAPI attenRel;
 	
 	private JPanel mainPanel = new JPanel(new BorderLayout());
 	

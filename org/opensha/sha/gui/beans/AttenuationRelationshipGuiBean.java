@@ -60,7 +60,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 	private static final boolean D = false;
 
 	//list of the supported AttenuationRelationships
-	ArrayList<AttenuationRelationshipAPI> attenRelsSupported;
+	ArrayList<ScalarIntensityMeasureRelationshipAPI> attenRelsSupported;
 
 	//number of the supported Attenuation Relatoinships
 	int numSupportedAttenRels ;
@@ -177,7 +177,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 
 		//setting the default parameters value for all the attenuationRelationship object.
 		for(int i=0;i<numSupportedAttenRels;++i)
-			((AttenuationRelationshipAPI)attenRelsSupported.get(i)).setParamDefaults();
+			((ScalarIntensityMeasureRelationshipAPI)attenRelsSupported.get(i)).setParamDefaults();
 
 		//creates the IMT paameterList editor for the supported IMRs
 		init_imtParamListAndEditor();
@@ -249,7 +249,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		editor = new ParameterListEditor[numSupportedAttenRels];
 		imrParamsFrame = new JDialog[numSupportedAttenRels];
 		for(int i=0;i<numSupportedAttenRels;++i){
-			attenRelCheckBox[i] = new JCheckBox(((AttenuationRelationshipAPI)attenRelsSupported.get(i)).getName());
+			attenRelCheckBox[i] = new JCheckBox(((ScalarIntensityMeasureRelationshipAPI)attenRelsSupported.get(i)).getName());
 			attenRelCheckBox[i].addItemListener(this);
 			wtsParameter[i] = new DoubleParameter(wtsParamName+(i+1),new Double(1.0));
 			wtsParameterEditor[i] = new DoubleParameterEditor(wtsParameter[i]);
@@ -273,7 +273,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		Iterator it= attenRelsSupportedForIM.iterator();
 		while(it.hasNext()){
 			// make the IMR objects as needed to get the site params later
-			AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI )it.next();
+			ScalarIntensityMeasureRelationshipAPI imr = (ScalarIntensityMeasureRelationshipAPI )it.next();
 			//checks to see if we are showing the IMR param for the first time,
 			//if so then initialise it with the default param settings.
 			if(firstTimeIMR_ParamInit){
@@ -330,7 +330,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		// now find the selceted IMR and add the parameters related to it
 
 		// find & set the selectedIMR
-		AttenuationRelationshipAPI imr = getSelectedIMR_Instance();
+		ScalarIntensityMeasureRelationshipAPI imr = getSelectedIMR_Instance();
 		
 		fireAttenuationRelationshipChangedEvent(null, imr);
 
@@ -406,7 +406,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 
 		for(int i=0;i<numSupportedAttenRels;++i){
 			paramList[i] = new ParameterList();
-			ListIterator it =((AttenuationRelationshipAPI)attenRelsSupported.get(i)).getOtherParamsIterator();
+			ListIterator it =((ScalarIntensityMeasureRelationshipAPI)attenRelsSupported.get(i)).getOtherParamsIterator();
 			//iterating over all the Attenuation relationship parameters for the IMR.
 			while(it.hasNext()){
 				ParameterAPI tempParam  = (ParameterAPI)it.next();
@@ -427,7 +427,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 			//showing the parameter editors of the AttenRel in a window
 			editor[i] = new ParameterListEditor(paramList[i]);
 			editor[i].setTitle(attenRelNonIdenticalParams);
-			imrParamsFrame[i] = new JDialog((JFrame)parent,((AttenuationRelationshipAPI)attenRelsSupported.get(i)).getName()+" Params");
+			imrParamsFrame[i] = new JDialog((JFrame)parent,((ScalarIntensityMeasureRelationshipAPI)attenRelsSupported.get(i)).getName()+" Params");
 			imrParamsFrame[i].setSize(300,200);
 			imrParamsFrame[i].getContentPane().setLayout(new GridBagLayout());
 			imrParamsFrame[i].getContentPane().add(editor[i],new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
@@ -583,7 +583,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		ArrayList<String> imt=new ArrayList<String>();
 		imtParam = new ArrayList<ParameterAPI>();
 		for(int i=0;i<numSupportedAttenRels;++i){
-			Iterator<DependentParameterAPI> it = ((AttenuationRelationshipAPI)attenRelsSupported.get(i)).getSupportedIntensityMeasuresIterator();
+			Iterator<DependentParameterAPI> it = ((ScalarIntensityMeasureRelationshipAPI)attenRelsSupported.get(i)).getSupportedIntensityMeasuresIterator();
 
 			//loop over each IMT and get their independent parameters
 			while ( it.hasNext() ) {
@@ -737,13 +737,13 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 	 * AttenuationRelationship is selected else returns null.
 	 * @return : Selected IMR instance
 	 */
-	public AttenuationRelationshipAPI getSelectedIMR_Instance() {
-		AttenuationRelationshipAPI imr = null;
+	public ScalarIntensityMeasureRelationshipAPI getSelectedIMR_Instance() {
+		ScalarIntensityMeasureRelationshipAPI imr = null;
 		if(singleAttenRelSelected){
 			String selectedIMR = getSelectedIMR_Name();
 			int size = attenRelsSupportedForIM.size();
 			for(int i=0; i<size ; ++i) {
-				imr = (AttenuationRelationshipAPI)attenRelsSupportedForIM.get(i);
+				imr = (ScalarIntensityMeasureRelationshipAPI)attenRelsSupportedForIM.get(i);
 				if(imr.getName().equalsIgnoreCase(selectedIMR))
 					break;
 			}
@@ -833,13 +833,13 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		String name = param.getName();
 
 		// only show messages for visible site parameters
-		AttenuationRelationshipAPI imr = null ;
+		ScalarIntensityMeasureRelationshipAPI imr = null ;
 		//currently I am handling the situation if this event occurs due to some
 		//non-identical params for each AttenRel.
 		//We might have to think of the situation if event occurs to the identical
 		//params for AttenRel's, them I will have to iterate over all the selected AttenRel.
 		if(indexOfAttenRel !=0 && !singleAttenRelSelected) //if multiple attenRel selected
-			imr = (AttenuationRelationshipAPI)attenRelsSupported.get(indexOfAttenRel);
+			imr = (ScalarIntensityMeasureRelationshipAPI)attenRelsSupported.get(indexOfAttenRel);
 		else if(singleAttenRelSelected) //if single attenRel selected
 			imr = getSelectedIMR_Instance();
 
@@ -888,13 +888,13 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		//check if this parameter exists in the site param list of this IMR
 		// if it does not then set its value using ignore warningAttenuationRelationshipAPI imr ;
 		// only show messages for visible site parameters
-		AttenuationRelationshipAPI imr =null;
+		ScalarIntensityMeasureRelationshipAPI imr =null;
 		//currently I am handling the situation if this event occurs due to some
 		//non-identical params for each AttenRel.
 		//We might have to think of the situation if event occurs to the identical
 		//params for AttenRel's, them I will have to iterate over all the selected AttenRel.
 		if(indexOfAttenRel !=0  && !this.singleAttenRelSelected)
-			imr = (AttenuationRelationshipAPI)attenRelsSupported.get(indexOfAttenRel);
+			imr = (ScalarIntensityMeasureRelationshipAPI)attenRelsSupported.get(indexOfAttenRel);
 		else if(singleAttenRelSelected) //if single attenRel selected
 			imr = getSelectedIMR_Instance();
 
@@ -1020,7 +1020,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		else{
 			int size = attenRelsSupportedForIM.size();
 			for(int i=0;i<size;++i){ //if single Attenuation relationship is selected
-				String name = ((AttenuationRelationshipAPI)attenRelsSupportedForIM.get(i)).getName();
+				String name = ((ScalarIntensityMeasureRelationshipAPI)attenRelsSupportedForIM.get(i)).getName();
 				//add the Attenuation that is selected
 				if(name.equals((String)singleAttenRelParamListEditor.getParameterEditor(this.IMR_PARAM_NAME).getValue())){
 					selectedIMRs.add(attenRelsSupportedForIM.get(i));
@@ -1041,7 +1041,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		ArrayList selectedAttenRels = getSelectedIMRs();
 		int size = selectedAttenRels.size();
 		for(int i=0;i<size;++i)
-			((AttenuationRelationshipAPI)selectedAttenRels.get(i)).setIntensityMeasure(param);
+			((ScalarIntensityMeasureRelationshipAPI)selectedAttenRels.get(i)).setIntensityMeasure(param);
 	}
 
 
@@ -1103,7 +1103,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		//don't want to duplicate the site params but do want to set their values in both
 		//the selected attenRels.
 		for(int i=0;i<attenRel.size();++i){
-			AttenuationRelationshipAPI attenRelApp = (AttenuationRelationshipAPI)attenRel.get(i);
+			ScalarIntensityMeasureRelationshipAPI attenRelApp = (ScalarIntensityMeasureRelationshipAPI)attenRel.get(i);
 			ListIterator it = attenRelApp.getSiteParamsIterator();
 			while(it.hasNext()){
 				ParameterAPI tempParam = (ParameterAPI)it.next();
@@ -1307,7 +1307,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		if(!this.singleAttenRelSelected){
 			for(int i=0;i<numSupportedAttenRels;++i){
 				if(attenRelCheckBox[i].isSelected()){
-					metadata += "IMR = "+((AttenuationRelationshipAPI)attenRelsSupported.get(i)).getName()+
+					metadata += "IMR = "+((ScalarIntensityMeasureRelationshipAPI)attenRelsSupported.get(i)).getName()+
 					" ; "+ wtsParameter[i].getName()+" = "+wtsParameter[i].getValue()+" ; "+
 					"Non Identical Param: "+editor[i].getVisibleParameters().toString()+"<br>\n";
 				}
@@ -1407,7 +1407,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		listeners.remove(listener);
 	}
 	
-	public void fireAttenuationRelationshipChangedEvent(AttenuationRelationshipAPI oldAttenRel, AttenuationRelationshipAPI newAttenRel) {
+	public void fireAttenuationRelationshipChangedEvent(ScalarIntensityMeasureRelationshipAPI oldAttenRel, ScalarIntensityMeasureRelationshipAPI newAttenRel) {
 		if (listeners.size() == 0)
 			return;
 		AttenuationRelationshipChangeEvent event = new AttenuationRelationshipChangeEvent(this, oldAttenRel, newAttenRel);

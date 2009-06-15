@@ -46,7 +46,7 @@ public class PEER_NGA_HazardCalc {
    * @return
    */
   public  XYZ_DataSetAPI getXYZData(EqkRuptureFromNGA rupture,
-                                    AttenuationRelationshipAPI imr,boolean isProbAtIML,double value){
+                                    ScalarIntensityMeasureRelationshipAPI imr,boolean isProbAtIML,double value){
 
     //instance of the XYZ dataset to store the Lat, Lon and IML or Prob based n what the user has choosen
     //XYZ_DataSetAPI xyzDataSet;

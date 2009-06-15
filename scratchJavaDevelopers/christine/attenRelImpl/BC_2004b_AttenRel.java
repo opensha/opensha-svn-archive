@@ -22,8 +22,6 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
-import org.opensha.sha.param.DistanceRupParameter;
-import org.opensha.sha.param.WarningDoublePropagationEffectParameter;
 import org.opensha.sha.imr.attenRelImpl.*;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
@@ -32,6 +30,8 @@ import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.WarningDoublePropagationEffectParameter;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 /**
@@ -64,7 +64,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 
 public class BC_2004b_AttenRel
-    extends AttenuationRelationship implements AttenuationRelationshipAPI,
+    extends AttenuationRelationship implements ScalarIntensityMeasureRelationshipAPI,
     NamedObjectAPI {
 
   // debugging stuff:

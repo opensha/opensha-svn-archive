@@ -286,7 +286,7 @@ implements java.io.Serializable {
 	 * @param datas
 	 * @return true if at least one parameter was set.
 	 */
-	public boolean setAllSiteParams(AttenuationRelationshipAPI imr, SiteDataValue<?> data) {
+	public boolean setAllSiteParams(ScalarIntensityMeasureRelationshipAPI imr, SiteDataValue<?> data) {
 		Collection<SiteDataValue<?>> datas = new ArrayList<SiteDataValue<?>>();
 		datas.add(data);
 		return setAllSiteParams(imr, datas);
@@ -300,7 +300,7 @@ implements java.io.Serializable {
 	 * @param datas
 	 * @return true if at least one parameter was set.
 	 */
-	public boolean setAllSiteParams(AttenuationRelationshipAPI imr, Collection<SiteDataValue<?>> datas) {
+	public boolean setAllSiteParams(ScalarIntensityMeasureRelationshipAPI imr, Collection<SiteDataValue<?>> datas) {
 		boolean setSomething = false;
 		
 		ListIterator<ParameterAPI> it = imr.getSiteParamsIterator();

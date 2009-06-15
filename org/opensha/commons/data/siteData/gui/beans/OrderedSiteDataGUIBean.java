@@ -28,14 +28,14 @@ import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.util.SiteDataTypeParameterNameMap;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterListEditor;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.util.SiteTranslator;
 
 public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, ListSelectionListener {
 	
 	private OrderedSiteDataProviderList list;
 	
-	private AttenuationRelationshipAPI attenRel;
+	private ScalarIntensityMeasureRelationshipAPI attenRel;
 	private SiteDataTypeParameterNameMap map = SiteTranslator.DATA_TYPE_PARAM_NAME_MAP;
 	
 	// list editing buttons
@@ -64,7 +64,7 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 		this(list, null);
 	}
 	
-	public OrderedSiteDataGUIBean(OrderedSiteDataProviderList list, AttenuationRelationshipAPI attenRel) {
+	public OrderedSiteDataGUIBean(OrderedSiteDataProviderList list, ScalarIntensityMeasureRelationshipAPI attenRel) {
 		super(new BorderLayout());
 		
 		this.attenRel = attenRel;
@@ -179,7 +179,7 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 		dataList.validate();
 	}
 	
-	public void setAttenuationRelationship(AttenuationRelationshipAPI attenRel) {
+	public void setAttenuationRelationship(ScalarIntensityMeasureRelationshipAPI attenRel) {
 		this.attenRel = attenRel;
 		for (int i=0; i<list.size(); i++)
 			list.setEnabled(i, true);
@@ -407,7 +407,7 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 		JFrame window = new JFrame();
 		OrderedSiteDataProviderList list = OrderedSiteDataProviderList.createDebugSiteDataProviders();
 		
-		AttenuationRelationshipAPI attenRel = null;
+		ScalarIntensityMeasureRelationshipAPI attenRel = null;
 		
 		OrderedSiteDataGUIBean bean = new OrderedSiteDataGUIBean(list, attenRel);
 		

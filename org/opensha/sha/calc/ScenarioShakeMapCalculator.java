@@ -18,7 +18,6 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.param.PropagationEffect;
 
 
 /**

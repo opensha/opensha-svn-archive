@@ -13,8 +13,8 @@ import org.opensha.commons.param.ParameterAPI;
 
 
 /**
- * <b>Title:</b> AttenuationRelationshipAPI<br>
- * <b>Description:</b> AttenuationRelationshipAPI extends IntensityMeasureParameterAPI
+ * <b>Title:</b> ScalarIntensityMeasureRelationshipAPI<br>
+ * <b>Description:</b> ScalarIntensityMeasureRelationshipAPI extends IntensityMeasureParameterAPI
  * for the case where the intensity-measure type is a scalar value (DoubleParameter).   
  *
  * @author     Edward H. Field
@@ -22,7 +22,7 @@ import org.opensha.commons.param.ParameterAPI;
  * @version    1.0
  */
 
-public interface AttenuationRelationshipAPI
+public interface ScalarIntensityMeasureRelationshipAPI
     extends IntensityMeasureRelationshipAPI {
 
 

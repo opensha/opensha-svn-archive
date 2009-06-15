@@ -35,7 +35,7 @@ import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 
 

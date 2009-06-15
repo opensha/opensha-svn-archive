@@ -48,22 +48,22 @@ import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistRupMinusDistX_OverRupParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistRupMinusJB_OverRupParameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.HangingWallFlagParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
-import org.opensha.sha.param.DistRupMinusJB_OverRupParameter;
-import org.opensha.sha.param.DistanceJBParameter;
-import org.opensha.sha.param.DistanceRupParameter;
-import org.opensha.sha.param.DistanceSeisParameter;
 
 /**
  *  <b>Title:</b> AttenuationRelationship</p> <p>
  *
  *  <b>Description:</b> This subclass of IntensityMeasureRelationship is the abstract 
  *  implementation for Attenuation Relationships (also known as Ground Motion Prediction 
- *  Equations (GMPEs)).  In addition to implementing the ScalarIntensityMeasureRelationship 
+ *  Equations (GMPEs)).  In addition to implementing the ScalarIntensityMeasureRelationshipAPI 
  *  interface (where all IMLs are double values), this also assumes that the probability 
  *  distribution for the IMLs is Gaussian.  The probability calculation is identical for all
  *  subclasses, and is therefore handled here in the abstract class (according to the 
@@ -200,7 +200,7 @@ import org.opensha.sha.param.DistanceSeisParameter;
  */
 
 public abstract class AttenuationRelationship
-    extends IntensityMeasureRelationship implements AttenuationRelationshipAPI {
+    extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationshipAPI {
 
   /**
    *  Classname constant used for debugging statements

@@ -1,4 +1,4 @@
-package org.opensha.sha.param;
+package org.opensha.sha.imr;
 
 import java.util.*;
 
@@ -8,6 +8,11 @@ import java.util.*;
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceX_Parameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.WarningDoublePropagationEffectParameter;
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
@@ -16,7 +21,6 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.sha.param.WarningDoublePropagationEffectParameter;
 
 
 /**

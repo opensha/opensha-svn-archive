@@ -439,7 +439,7 @@ public class HazusDataSetCalcApp extends JFrame
      HazusMapCalculator hazusCalc = new HazusMapCalculator();
      hazusCalc.setMaxSourceDistance(maxDistance.doubleValue());
      String dirName = datasetIdText.getText().trim();
-     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+     ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
      SitesInGriddedRectangularRegion griddedSites = sitesGuiBean.getGriddedRegionSite();
      EqkRupForecast eqkRupForecast = (EqkRupForecast) erfGuiBean.getSelectedERF();
      step =0;
@@ -498,7 +498,7 @@ public class HazusDataSetCalcApp extends JFrame
   */
  public void updateSiteParams() {
    //get the selected IMR
-	AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+	ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 	sitesGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
 	sitesGuiBean.validate();
     sitesGuiBean.repaint();

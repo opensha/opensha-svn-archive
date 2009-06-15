@@ -11,7 +11,7 @@ import java.net.URLConnection;
 
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.util.SiteTranslator;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
@@ -146,7 +146,7 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
     ArrayList imrObjects = this.imrGuiBean.getSupportedIMRs();
     int num = imrObjects.size();
     for (int i = 0; i < num; ++i)
-      setSiteParamsInIMR( (AttenuationRelationshipAPI) imrObjects.get(i),
+      setSiteParamsInIMR( (ScalarIntensityMeasureRelationshipAPI) imrObjects.get(i),
                          willsClass, basinDepth);
 
     // reflect the new parameter value in GUI
@@ -165,7 +165,7 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
    * ***NOTE: THIS NEEDS TO FIXED TO HANDLE THE SOFT SOIL CASE FOR CHOI AND STEWART MODEL****
    * ****So try not to set site parameters for ALL IMR's.
    */
-  private void setSiteParamsInIMR(AttenuationRelationshipAPI imr, String willsClass, double basinDepth) {
+  private void setSiteParamsInIMR(ScalarIntensityMeasureRelationshipAPI imr, String willsClass, double basinDepth) {
 
     Iterator it = imr.getSiteParamsIterator(); // get site params for this IMR
     while(it.hasNext()) {
@@ -206,7 +206,7 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
       return;
     }
     // do for selected IMR
-    AttenuationRelationshipAPI imr =   this.imrGuiBean.getSelectedIMR_Instance();
+    ScalarIntensityMeasureRelationshipAPI imr =   this.imrGuiBean.getSelectedIMR_Instance();
     setSiteParamsInIMR(imr,willsClass, basinDepth);
     // reflect the new parameter value in GUI
    this.siteGuiBean.getParameterListEditor().refreshParamEditor();

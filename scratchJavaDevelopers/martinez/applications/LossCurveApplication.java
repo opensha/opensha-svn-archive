@@ -31,7 +31,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.
 import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.gui.beans.TimeSpanGuiBean;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
@@ -66,7 +66,7 @@ public class LossCurveApplication extends JFrame {
 	
 	/* Static Parameters used for Calculation */
 	private static EqkRupForecastBaseAPI forecast = null;
-	private static AttenuationRelationshipAPI imr = null;
+	private static ScalarIntensityMeasureRelationshipAPI imr = null;
 
 	
 	/**

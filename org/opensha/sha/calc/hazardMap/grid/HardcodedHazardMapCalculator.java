@@ -18,7 +18,7 @@ import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
@@ -82,7 +82,7 @@ public class HardcodedHazardMapCalculator implements ParameterChangeWarningListe
 		String imt = PGA_Param.NAME;
 
 		// create IMR
-		AttenuationRelationshipAPI imr = new CB_2008_AttenRel(this);
+		ScalarIntensityMeasureRelationshipAPI imr = new CB_2008_AttenRel(this);
 		//AttenuationRelationshipAPI imr = new BJF_1997_AttenRel(this);
 		// set the Intensity Measure Type
 		imr.setIntensityMeasure(imt);

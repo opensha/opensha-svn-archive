@@ -19,15 +19,15 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.attenRelImpl.depricated.BA_2006_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.depricated.CB_2006_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
-import org.opensha.sha.param.PropagationEffect;
 import org.opensha.sha.param.SimpleFaultParameter;
 import org.opensha.sha.util.SiteTranslator;
 
@@ -175,7 +175,7 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 	  *
 	  */
 
-	  private AttenuationRelationshipAPI createIMRClassInstance(String AttenRelClassName){
+	  private ScalarIntensityMeasureRelationshipAPI createIMRClassInstance(String AttenRelClassName){
 	    String attenRelClassPackage = "org.opensha.sha.imr.attenRelImpl.";
 	      try {
 	        Class listenerClass = Class.forName( "org.opensha.commons.param.event.ParameterChangeWarningListener" );
@@ -183,7 +183,7 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 	        Class[] params = new Class[]{ listenerClass };
 	        Class imrClass = Class.forName(attenRelClassPackage+AttenRelClassName);
 	        Constructor con = imrClass.getConstructor( params );
-	        AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI)con.newInstance( paramObjects );
+	        ScalarIntensityMeasureRelationshipAPI attenRel = (ScalarIntensityMeasureRelationshipAPI)con.newInstance( paramObjects );
 	        //setting the Attenuation with the default parameters
 	        attenRel.setParamDefaults();
 	        return attenRel;
@@ -220,7 +220,7 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 	   * @param willsClass
 	   * @param basinDepth
 	   */
-	  private void setSiteParamsInIMR(AttenuationRelationshipAPI imr,
+	  private void setSiteParamsInIMR(ScalarIntensityMeasureRelationshipAPI imr,
 	                                  int vs30) {
 
 	    Iterator it = imr.getSiteParamsIterator(); // get site params for this IMR
@@ -253,7 +253,7 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 			
 			for(int i=0;i<this.attenRelList.size();++i){
 				boolean writenTofile = false;
-				AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI)attenRelList.get(i);
+				ScalarIntensityMeasureRelationshipAPI attenRel = (ScalarIntensityMeasureRelationshipAPI)attenRelList.get(i);
 				if(attenRel.getName().equals(BA_2006_AttenRel.NAME))
 					fwTest = new FileWriter(this.BA2006_TEST_FILE);
 				else if(attenRel.getName().equals(CB_2006_AttenRel.NAME))

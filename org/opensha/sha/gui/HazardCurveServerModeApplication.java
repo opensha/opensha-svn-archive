@@ -63,7 +63,7 @@ import org.opensha.sha.gui.infoTools.GraphPanelAPI;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.IMT_Info;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculatorAPI;
@@ -1084,7 +1084,7 @@ public class HazardCurveServerModeApplication extends JFrame
 
     // if IMR selection changed, update the site parameter list and supported IMT
     if ( name1.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
-      AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+      ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
       imtGuiBean.setIM(imr,imr.getSupportedIntensityMeasuresIterator());
       imtGuiBean.validate();
       imtGuiBean.repaint();
@@ -1170,7 +1170,7 @@ public class HazardCurveServerModeApplication extends JFrame
     }
 
     // get the selected IMR
-    AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+    ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 
     // make a site object to pass to IMR
     Site site = siteGuiBean.getSite();
@@ -1503,7 +1503,7 @@ public class HazardCurveServerModeApplication extends JFrame
    * @param eqkRupForecast : List of Eqk Rup forecasts
    */
   protected void handleForecastList(Site site,
-                                  AttenuationRelationshipAPI imr,
+                                  ScalarIntensityMeasureRelationshipAPI imr,
                                   EqkRupForecastBaseAPI eqkRupForecast) {
 
 	  ERF_EpistemicList erfList  = (ERF_EpistemicList)eqkRupForecast;
@@ -1656,7 +1656,7 @@ public class HazardCurveServerModeApplication extends JFrame
   private void initIMT_GuiBean() {
 
      // get the selected IMR
-     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+     ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
      // create the IMT Gui Bean object
      imtGuiBean = new IMT_GuiBean(imr,imr.getSupportedIntensityMeasuresIterator());
      imtPanel.setLayout(gridBagLayout8);
@@ -1674,7 +1674,7 @@ public class HazardCurveServerModeApplication extends JFrame
   protected void initSiteGuiBean() {
 
      // get the selected IMR
-     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+     ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
      // create the Site Gui Bean object
      siteGuiBean = new Site_GuiBean();
      siteGuiBean.addSiteParams(imr.getSiteParamsIterator());
@@ -2644,7 +2644,7 @@ public class HazardCurveServerModeApplication extends JFrame
    */
   public void updateIM() {
     //get the selected IMR
-	AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+	ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 	imtGuiBean.setIM(imr,imr.getSupportedIntensityMeasuresIterator()) ;
   }
   
@@ -2656,7 +2656,7 @@ public class HazardCurveServerModeApplication extends JFrame
    */
   public void updateSiteParams() {
     //get the selected IMR
-	AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+	ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 	siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
 	siteGuiBean.validate();
     siteGuiBean.repaint();

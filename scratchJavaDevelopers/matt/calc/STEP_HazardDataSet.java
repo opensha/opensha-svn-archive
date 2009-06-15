@@ -25,7 +25,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.step.STEP_BackSiesDataAdditionObject;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.depricated.BA_2006_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;

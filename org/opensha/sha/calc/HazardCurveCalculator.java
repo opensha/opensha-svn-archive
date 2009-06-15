@@ -96,7 +96,7 @@ public class HazardCurveCalculator extends UnicastRemoteObject
    * @return
    */
   public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI hazFunction,
-                             Site site, AttenuationRelationshipAPI imr, EqkRupForecastAPI eqkRupForecast)
+                             Site site, ScalarIntensityMeasureRelationshipAPI imr, EqkRupForecastAPI eqkRupForecast)
   throws java.rmi.RemoteException{
 
     this.currRuptures = -1;
@@ -257,7 +257,7 @@ public class HazardCurveCalculator extends UnicastRemoteObject
    */
   public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI
       hazFunction,
-      Site site, AttenuationRelationshipAPI imr, EqkRupture rupture) throws
+      Site site, ScalarIntensityMeasureRelationshipAPI imr, EqkRupture rupture) throws
       java.rmi.RemoteException {
 
 

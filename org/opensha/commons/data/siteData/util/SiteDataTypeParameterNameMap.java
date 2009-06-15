@@ -8,7 +8,7 @@ import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.util.NtoNMap;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.util.SiteTranslator;
@@ -87,7 +87,7 @@ public class SiteDataTypeParameterNameMap extends NtoNMap<String, String> {
 	 * @param attenRel
 	 * @return
 	 */
-	public boolean isTypeApplicable(String type, AttenuationRelationshipAPI attenRel) {
+	public boolean isTypeApplicable(String type, ScalarIntensityMeasureRelationshipAPI attenRel) {
 		ListIterator<ParameterAPI> it = attenRel.getSiteParamsIterator();
 		while (it.hasNext()) {
 			ParameterAPI param = it.next();
@@ -105,7 +105,7 @@ public class SiteDataTypeParameterNameMap extends NtoNMap<String, String> {
 	 * @param attenRel
 	 * @return
 	 */
-	public boolean isTypeApplicable(SiteDataValue<?> value, AttenuationRelationshipAPI attenRel) {
+	public boolean isTypeApplicable(SiteDataValue<?> value, ScalarIntensityMeasureRelationshipAPI attenRel) {
 		return isTypeApplicable(value.getDataType(), attenRel);
 	}
 	

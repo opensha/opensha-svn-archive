@@ -146,7 +146,7 @@ public class MeanSigmaCalc
                              "Rupture_Prob.txt");
 
     for (int i = 0; i < numIMRs; ++i) {
-      AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI)
+      ScalarIntensityMeasureRelationshipAPI attenRel = (ScalarIntensityMeasureRelationshipAPI)
           supportedAttenuationsList.get(i);
       attenRel.setParamDefaults();
       generateMeanAndSigmaFile(attenRel,dirName+SystemPropertiesUtils.getSystemFileSeparator());
@@ -162,7 +162,7 @@ public class MeanSigmaCalc
    * @param willsClass
    * @param basinDepth
    */
-  protected void setSiteParamsInIMR(AttenuationRelationshipAPI imr,
+  protected void setSiteParamsInIMR(ScalarIntensityMeasureRelationshipAPI imr,
                                   String willsClass) {
 
     Iterator it = imr.getSiteParamsIterator(); // get site params for this IMR
@@ -237,7 +237,7 @@ public class MeanSigmaCalc
    * @param imr AttenuationRelationshipAPI
    * @param dirName String
    */
-  protected void generateMeanAndSigmaFile(AttenuationRelationshipAPI imr,String dirName) {
+  protected void generateMeanAndSigmaFile(ScalarIntensityMeasureRelationshipAPI imr,String dirName) {
 
     // get total number of sources
     int numSources = frankelForecast.getNumSources();

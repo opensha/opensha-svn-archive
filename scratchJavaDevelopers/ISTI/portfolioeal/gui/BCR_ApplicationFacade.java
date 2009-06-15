@@ -1,6 +1,6 @@
 package scratchJavaDevelopers.ISTI.portfolioeal.gui;
 import org.opensha.commons.param.event.ParameterChangeEvent;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.gui.BCR_Application;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
@@ -46,7 +46,7 @@ public class BCR_ApplicationFacade extends BCR_Application {
 	 * method is still called because of coupling in other classes.
 	 */
 	public void updateSiteParams() {
-		AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 		siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
 		siteGuiBean.validate();
 	    siteGuiBean.repaint();
@@ -84,7 +84,7 @@ public class BCR_ApplicationFacade extends BCR_Application {
 	  String name = event.getParameterName();
 
 	  if ( name.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
-		  AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+		  ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 	      siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
 	      siteGuiBean.validate();
 	      siteGuiBean.repaint();

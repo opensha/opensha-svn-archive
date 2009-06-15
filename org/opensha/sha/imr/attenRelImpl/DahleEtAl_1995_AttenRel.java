@@ -26,6 +26,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.param.*;
 
 /**
@@ -56,7 +57,7 @@ import org.opensha.sha.param.*;
 
 public class DahleEtAl_1995_AttenRel
     extends AttenuationRelationship implements
-    AttenuationRelationshipAPI,
+    ScalarIntensityMeasureRelationshipAPI,
     NamedObjectAPI {
 
   // debugging stuff:

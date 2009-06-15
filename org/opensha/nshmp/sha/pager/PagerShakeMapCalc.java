@@ -25,7 +25,6 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 
 
 import org.opensha.sha.util.SiteTranslator;
-import org.opensha.sha.param.PropagationEffect;
 import org.opensha.sha.param.SimpleFaultParameter;
 import org.opensha.sha.calc.ScenarioShakeMapCalculator;
 import org.opensha.sha.gui.beans.MapGuiBean;
@@ -50,7 +49,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
    */
   private SitesInGriddedRectangularRegion region; //Geographic Region
   private EqkRupture rupture; //EqkRupture
-  private AttenuationRelationshipAPI attenRel; //Attenunation Relationship to be used.
+  private ScalarIntensityMeasureRelationshipAPI attenRel; //Attenunation Relationship to be used.
   private boolean imlAtProb; //checks what to plot IML_At_Prob or Prob_At_IML
   private double imlProbVal; //if IML@Prob needs to be calculated the Prob val
   //will be given,else IML val will be given
@@ -236,7 +235,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
         Class[] params = new Class[]{ listenerClass };
         Class imrClass = Class.forName(attenRelClassPackage+AttenRelClassName);
         Constructor con = imrClass.getConstructor( params );
-        attenRel = (AttenuationRelationshipAPI)con.newInstance( paramObjects );
+        attenRel = (ScalarIntensityMeasureRelationshipAPI)con.newInstance( paramObjects );
         //setting the Attenuation with the default parameters
         attenRel.setParamDefaults();
       } catch ( ClassCastException e ) {

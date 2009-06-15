@@ -24,7 +24,7 @@ import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.util.SiteTranslator;
 
@@ -194,7 +194,7 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
   *
   */
 
-  private AttenuationRelationshipAPI createIMRClassInstance(String AttenRelClassName){
+  private ScalarIntensityMeasureRelationshipAPI createIMRClassInstance(String AttenRelClassName){
     //String attenRelClassPackage = "org.opensha.sha.imr.attenRelImpl.";
       try {
         Class listenerClass = Class.forName( "org.opensha.commons.param.event.ParameterChangeWarningListener" );
@@ -202,7 +202,7 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
         Class[] params = new Class[]{ listenerClass };
         Class imrClass = Class.forName(AttenRelClassName);
         Constructor con = imrClass.getConstructor( params );
-        AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI)con.newInstance( paramObjects );
+        ScalarIntensityMeasureRelationshipAPI attenRel = (ScalarIntensityMeasureRelationshipAPI)con.newInstance( paramObjects );
         //setting the Attenuation with the default parameters
         attenRel.setParamDefaults();
         return attenRel;
@@ -242,7 +242,7 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
    * Sets the IMT in the AttenuationRelationship
    * @param attenRel AttenuationRelationshipAPI
    */
-  private void setIMT(AttenuationRelationshipAPI attenRel) {
+  private void setIMT(ScalarIntensityMeasureRelationshipAPI attenRel) {
     try{
       attenRel.setIntensityMeasure(imt);
     }catch(Exception e){
@@ -288,7 +288,7 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
    * @param willsClass
    * @param basinDepth
    */
-  private void setSiteParamsInIMR(AttenuationRelationshipAPI attenRel,
+  private void setSiteParamsInIMR(ScalarIntensityMeasureRelationshipAPI attenRel,
                                   String willsClass, double basinDepth) {
 
     Iterator it = attenRel.getSiteParamsIterator(); // get site params for this IMR
@@ -345,7 +345,7 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
       FileWriter fw = new FileWriter("AttenuationRelationship_Cybershake_test.txt");
       for(int i=0;i<this.supportedAttenRelClasses.size();++i){
         String attenRel = (String)supportedAttenRelClasses.get(i);
-        AttenuationRelationshipAPI imr = this.createIMRClassInstance(attenRel);
+        ScalarIntensityMeasureRelationshipAPI imr = this.createIMRClassInstance(attenRel);
         this.setIMT(imr);
         setSiteParamsInIMR(imr,willsClass, basinDepth);
         imr.setEqkRupture(rupture);

@@ -48,7 +48,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.IntensityMeasureRelationship;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
@@ -78,7 +78,7 @@ public class HazardMapPortionCalculator {
 	private SitesInGriddedRegionAPI sites;
 	
 	private EqkRupForecastAPI erf;
-	private AttenuationRelationshipAPI imr;
+	private ScalarIntensityMeasureRelationshipAPI imr;
 	private double maxDistance;
 	private String outputDir;
 	private ArbitrarilyDiscretizedFunc hazFunction;
@@ -95,7 +95,7 @@ public class HazardMapPortionCalculator {
 	 * @param outputDir - directory to store results (or empty string for current working directory)
 	 */
 	public HazardMapPortionCalculator(SitesInGriddedRegionAPI sites, EqkRupForecastAPI erf,
-			AttenuationRelationshipAPI imr, ArbitrarilyDiscretizedFunc hazFunction,
+			ScalarIntensityMeasureRelationshipAPI imr, ArbitrarilyDiscretizedFunc hazFunction,
 			SiteDataValueListList siteDataValues, double maxDistance, String outputDir) {
 		this.sites = sites;
 		

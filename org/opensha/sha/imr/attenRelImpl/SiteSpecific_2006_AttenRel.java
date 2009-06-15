@@ -38,9 +38,9 @@ import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
-import org.opensha.sha.param.DistanceJBParameter;
-import org.opensha.sha.param.DistanceRupParameter;
 import org.opensha.sha.util.SiteTranslator;
 
 /**
@@ -73,7 +73,7 @@ import org.opensha.sha.util.SiteTranslator;
 
 
 public class SiteSpecific_2006_AttenRel
-    extends AttenuationRelationship implements AttenuationRelationshipAPI,ParameterChangeListener,
+    extends AttenuationRelationship implements ScalarIntensityMeasureRelationshipAPI,ParameterChangeListener,
     NamedObjectAPI {
 
   // debugging stuff:
@@ -219,7 +219,7 @@ public class SiteSpecific_2006_AttenRel
   private transient ParameterChangeWarningListener warningListener = null;
   
   //Rock AttenuationRealtiobnships instances
-  private AttenuationRelationshipAPI attenRel;
+  private ScalarIntensityMeasureRelationshipAPI attenRel;
   
   private SiteTranslator vs30Trans = new SiteTranslator();
   
@@ -495,11 +495,11 @@ public class SiteSpecific_2006_AttenRel
    * This method will return the instance of selected IMR
    * @return : Selected IMR instance
    */
-  public AttenuationRelationshipAPI getSelectedIMR_Instance(String selectedIMR) {
-    AttenuationRelationshipAPI imr = null;
+  public ScalarIntensityMeasureRelationshipAPI getSelectedIMR_Instance(String selectedIMR) {
+    ScalarIntensityMeasureRelationshipAPI imr = null;
     int size = this.attenRelObjects.size();
     for(int i=0; i<size ; ++i) {
-      imr = (AttenuationRelationshipAPI)attenRelObjects.get(i);
+      imr = (ScalarIntensityMeasureRelationshipAPI)attenRelObjects.get(i);
       if(imr.getName().equalsIgnoreCase(selectedIMR))
         break;
     }

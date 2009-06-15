@@ -29,7 +29,7 @@ import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
-import org.opensha.sha.param.DistanceRupParameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 
 /**
  * <b>Title:</b> AS_1997_SiteSpecific_AttenRel<p>
@@ -60,7 +60,7 @@ import org.opensha.sha.param.DistanceRupParameter;
 
 
 public class AS_1997_SiteSpecific_AttenRel
-    extends AttenuationRelationship implements AttenuationRelationshipAPI,
+    extends AttenuationRelationship implements ScalarIntensityMeasureRelationshipAPI,
     NamedObjectAPI {
 
   // debugging stuff:

@@ -23,7 +23,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.util.SiteTranslator;
@@ -39,7 +39,7 @@ public class CommandLineHazardCurve implements ParameterChangeWarningListener {
 	
 	private String site;
 	private MeanUCERF2 meanUCERF2;
-	private AttenuationRelationshipAPI imr;		
+	private ScalarIntensityMeasureRelationshipAPI imr;		
 	private ArbitrarilyDiscretizedFunc function;
 
 	private String ERF_NAME = "WGCEP (2007) UCERF2 - Single Branch";
@@ -314,7 +314,7 @@ public class CommandLineHazardCurve implements ParameterChangeWarningListener {
 	 * Set up the IMR with default values
 	 * @return
 	 */
-	private AttenuationRelationshipAPI setupIMR() {
+	private ScalarIntensityMeasureRelationshipAPI setupIMR() {
 		imr = new AS_1997_AttenRel(this);
 		imr.setParamDefaults();
 		return imr;

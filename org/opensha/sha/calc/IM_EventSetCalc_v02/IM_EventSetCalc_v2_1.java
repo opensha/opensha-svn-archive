@@ -13,6 +13,7 @@ import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.*;
 import org.opensha.sha.imr.attenRelImpl.depricated.*;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 
 import java.util.*;
@@ -36,8 +37,6 @@ import java.lang.reflect.*;
 
 import javax.swing.UIManager;
 
-import org.opensha.sha.param.PropagationEffect;
-import org.opensha.sha.param.DistanceRupParameter;
 
 
 /**
@@ -305,7 +304,7 @@ implements ParameterChangeWarningListener {
 					listenerClass};
 			Class imrClass = Class.forName(AttenRelClassName);
 			Constructor con = imrClass.getConstructor(params);
-			AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI) con.newInstance(paramObjects);
+			ScalarIntensityMeasureRelationshipAPI attenRel = (ScalarIntensityMeasureRelationshipAPI) con.newInstance(paramObjects);
 			if(attenRel.getName().equals(USGS_Combined_2004_AttenRel.NAME))
 				throw new RuntimeException("Cannot use "+USGS_Combined_2004_AttenRel.NAME+" in calculation of Mean and Sigma");
 			//setting the Attenuation with the default parameters
@@ -414,7 +413,7 @@ implements ParameterChangeWarningListener {
 
 		int numIMTs = supportedIMTs.size();
 		for (int i = 0; i < numIMRs; ++i) {
-			AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI)
+			ScalarIntensityMeasureRelationshipAPI attenRel = (ScalarIntensityMeasureRelationshipAPI)
 			chosenAttenuationsList.get(i);
 			attenRel.setUserMaxDistance(sourceCutOffDistance);
 			for (int j = 0; j < numIMTs; ++j) {
@@ -435,7 +434,7 @@ implements ParameterChangeWarningListener {
 	 * @param willsClass
 	 * @param basinDepth
 	 */
-	private void setSiteParamsInIMR(AttenuationRelationshipAPI imr,
+	private void setSiteParamsInIMR(ScalarIntensityMeasureRelationshipAPI imr,
 			String willsClass) {
 
 		Iterator it = imr.getSiteParamsIterator(); // get site params for this IMR
@@ -502,7 +501,7 @@ implements ParameterChangeWarningListener {
 	 * @param imr AttenuationRelationshipAPI
 	 * @param dirName String
 	 */
-	private void generateMeanAndSigmaFile(AttenuationRelationshipAPI imr,
+	private void generateMeanAndSigmaFile(ScalarIntensityMeasureRelationshipAPI imr,
 			String imtLine,
 			String dirName) {
 

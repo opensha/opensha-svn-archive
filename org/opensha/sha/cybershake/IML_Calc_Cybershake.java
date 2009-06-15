@@ -18,7 +18,7 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.util.SiteTranslator;
 
@@ -213,7 +213,7 @@ public class IML_Calc_Cybershake extends MedianCalc_Cybershake {
 	   * @param imr AttenuationRelationshipAPI
 	   * @param dirName String
 	   */
-	  protected void generateMedian(AttenuationRelationshipAPI imr,
+	  protected void generateMedian(ScalarIntensityMeasureRelationshipAPI imr,
 	                                          String imtLine,
 	                                          String dirName) {
 

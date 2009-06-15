@@ -22,7 +22,7 @@ import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
@@ -53,7 +53,7 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 	private final static DoubleParameter VS_30_PARAM = new DoubleParameter("Vs30", 760.0);
 	private final static DoubleParameter DEPTH_2_5KM_PARAM = new DoubleParameter("Depth 2.5 km/sec", 2.0);
 	private MeanUCERF2 meanUCERF2;
-	private AttenuationRelationshipAPI imr;
+	private ScalarIntensityMeasureRelationshipAPI imr;
 	private DecimalFormat latLonFormat = new DecimalFormat("0.00");
 	private ArbitrarilyDiscretizedFunc function; // X-Values function
 	private HazardCurveCalculator hazardCurveCalculator;

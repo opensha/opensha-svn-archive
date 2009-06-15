@@ -303,7 +303,7 @@ public class HazardMapUsingGridStandaloneApplicationUsingFrankel02
   * sets up the connection with the servlet on the server (gravity.usc.edu)
   */
  private void sendParametersToServlet(SitesInGriddedRectangularRegion regionSites,
-                                       AttenuationRelationshipAPI imr,
+                                       ScalarIntensityMeasureRelationshipAPI imr,
                                        String eqkRupForecastLocation) {
 
    try{

@@ -95,7 +95,7 @@ public class PortfolioLossCurveCalculator extends UnicastRemoteObject {
 	 * @return
 	 */
 	public DiscretizedFuncAPI getLossCurve(DiscretizedFuncAPI hazFunction,
-			Site site, AttenuationRelationshipAPI imr, EqkRupForecastAPI eqkRupForecast)
+			Site site, ScalarIntensityMeasureRelationshipAPI imr, EqkRupForecastAPI eqkRupForecast)
 	throws java.rmi.RemoteException{
 		// TODO Replace site with Portfolio
 		this.currRuptures = -1;

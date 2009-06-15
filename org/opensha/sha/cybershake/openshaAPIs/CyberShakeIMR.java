@@ -38,12 +38,12 @@ import org.opensha.sha.cybershake.db.SiteInfo2DB;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.IntensityMeasureRelationship;
+import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
-import org.opensha.sha.param.PropagationEffect;
 
 public class CyberShakeIMR extends AttenuationRelationship implements ParameterChangeListener {
 

@@ -51,7 +51,7 @@ public class HazardMapCalcServlet extends HttpServlet {
       SitesInGriddedRectangularRegion sites = (SitesInGriddedRectangularRegion) inputFromApplet.
                                    readObject();
       //get the selected IMR
-      AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI)
+      ScalarIntensityMeasureRelationshipAPI imr = (ScalarIntensityMeasureRelationshipAPI)
                                        inputFromApplet.readObject();
       //get the selected EqkRupForecast
       Object obj = inputFromApplet.readObject();

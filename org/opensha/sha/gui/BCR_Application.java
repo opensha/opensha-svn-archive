@@ -60,7 +60,7 @@ import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
@@ -567,7 +567,7 @@ public class BCR_Application extends JFrame
 
     // if IMR selection changed, update the site parameter list and supported IMT
     if ( name1.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
-      AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+      ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
       siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
       siteGuiBean.validate();
       siteGuiBean.repaint();
@@ -587,7 +587,7 @@ public class BCR_Application extends JFrame
         	newPeriod = newModel.getPeriod();
         
     	imrGuiBean.setIMRParamListAndEditor(currentIMT, newIMT, currentPeriod, newPeriod);
-    	AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+    	ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
     	siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
         siteGuiBean.validate();
         siteGuiBean.repaint();
@@ -660,7 +660,7 @@ public class BCR_Application extends JFrame
     ArrayList<Double> newIMLs = newModel.getIMLVals();
     
     // get the selected IMR
-    AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+    ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 
     // make a site object to pass to IMR
     Site site = siteGuiBean.getSite();
@@ -744,7 +744,7 @@ public class BCR_Application extends JFrame
   }
   
   private ArbitrarilyDiscretizedFunc calcHazardCurve(String imt, double period, ArrayList<Double> imls,
-		  Site site,EqkRupForecastBaseAPI forecast,AttenuationRelationshipAPI imr){
+		  Site site,EqkRupForecastBaseAPI forecast,ScalarIntensityMeasureRelationshipAPI imr){
 	  // initialize the values in condProbfunc with log values as passed in hazFunction
 	    // intialize the hazard function
 	    ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
@@ -832,7 +832,7 @@ public class BCR_Application extends JFrame
   private void initSiteGuiBean() {
 
      // get the selected IMR
-     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+     ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
      // create the IMT Gui Bean object
      siteGuiBean = new Site_GuiBean();
      siteGuiBean.addSiteParams(imr.getSiteParamsIterator());
@@ -1123,7 +1123,7 @@ public class BCR_Application extends JFrame
    */
   public void updateSiteParams() {
     //get the selected IMR
-	AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+	ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 	siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
 	siteGuiBean.validate();
     siteGuiBean.repaint();

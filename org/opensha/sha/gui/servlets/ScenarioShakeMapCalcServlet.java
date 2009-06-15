@@ -206,7 +206,7 @@ public class ScenarioShakeMapCalcServlet
 
     int size = selectedIMRs.size();
     for (int i = 0; i < size; ++i) {
-      AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI)
+      ScalarIntensityMeasureRelationshipAPI attenRel = (ScalarIntensityMeasureRelationshipAPI)
           selectedIMRs.get(i);
       String imt = attenRel.getIntensityMeasure().getName();
       if (imt.equals(SA_Param.NAME)) {
@@ -310,10 +310,10 @@ public class ScenarioShakeMapCalcServlet
      */
     ListIterator it = selectedAttenRels.listIterator();
     while (it.hasNext()) {
-      AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI) it.next();
+      ScalarIntensityMeasureRelationshipAPI imr = (ScalarIntensityMeasureRelationshipAPI) it.next();
 
-      AttenuationRelationshipAPI imr_temp =
-          (AttenuationRelationshipAPI) createIMRClassInstance(imr.getClass().
+      ScalarIntensityMeasureRelationshipAPI imr_temp =
+          (ScalarIntensityMeasureRelationshipAPI) createIMRClassInstance(imr.getClass().
           getName(), this);
 
       // set other params

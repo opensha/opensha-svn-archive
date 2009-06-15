@@ -5,7 +5,7 @@ import java.rmi.Remote;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ public interface SpectrumCalculatorAPI extends Remote{
    * @return
    */
   public DiscretizedFuncAPI getDeterministicSpectrumCurve(Site site,
-      AttenuationRelationshipAPI imr, EqkRupture rupture, boolean probAtIML,
+      ScalarIntensityMeasureRelationshipAPI imr, EqkRupture rupture, boolean probAtIML,
       double imlProbVal) throws RemoteException;
 
   /**
@@ -46,7 +46,7 @@ public interface SpectrumCalculatorAPI extends Remote{
    */
   public DiscretizedFuncAPI getIML_SpectrumCurve(DiscretizedFuncAPI
                                                  spectrumFunction, Site site,
-                                                 AttenuationRelationshipAPI imr,
+                                                 ScalarIntensityMeasureRelationshipAPI imr,
                                                  EqkRupForecastAPI
                                                  eqkRupForecast, double probVal,
                                                  ArrayList supportedSA_Periods) throws
@@ -63,7 +63,7 @@ public interface SpectrumCalculatorAPI extends Remote{
    * @return
    */
   public DiscretizedFuncAPI getSpectrumCurve(Site site,
-                                             AttenuationRelationshipAPI imr,
+                                             ScalarIntensityMeasureRelationshipAPI imr,
                                              EqkRupForecastAPI eqkRupForecast,
                                              double imlVal,
                                              ArrayList supportedSA_Periods)

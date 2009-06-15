@@ -22,7 +22,7 @@ import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
 import scratchJavaDevelopers.martinez.EALCalculator;
 import scratchJavaDevelopers.martinez.VulnerabilityModels.VulnerabilityModel;
@@ -190,7 +190,7 @@ public class Asset implements Cloneable {
 	 * @return The EAL for the asset.  This will be summed up with all of the EAL's
 	 * for the other assets in the list.
 	 */
-	public double calculateEAL( AttenuationRelationshipAPI imr, double distance, Site site, EqkRupForecastBaseAPI erf, PortfolioEALCalculatorController controller ) {
+	public double calculateEAL( ScalarIntensityMeasureRelationshipAPI imr, double distance, Site site, EqkRupForecastBaseAPI erf, PortfolioEALCalculatorController controller ) {
 		// Edit the site with the asset values
 		siteSetup(site);
 		Site newSite = getSite();

@@ -649,7 +649,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
        //meaning it is safe to proceeed with the calculation and the name of the dataset that user
        //has specified.
        // get the selected IMR
-       AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+       ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
        step =2;
        //gets the instance of the selected ERF
        String eqkRupForecastLocation =  erfGuiBean.saveSelectedERF();
@@ -733,7 +733,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
   * sets up the connection with the servlet on the server (gravity.usc.edu)
   */
  private void sendParametersToServlet(SitesInGriddedRectangularRegion regionSites,
-                                       AttenuationRelationshipAPI imr,
+                                       ScalarIntensityMeasureRelationshipAPI imr,
                                        String eqkRupForecastLocation) {
 
    try{
@@ -864,7 +864,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
   */
  public void updateIM() {
    //get the selected IMR
-	AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+	ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 	imtGuiBean.setIM(imr,imr.getSupportedIntensityMeasuresIterator()) ;
  }
 
@@ -876,7 +876,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
   */
  public void updateSiteParams() {
    //get the selected IMR
-	AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+	ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 	sitesGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
 	sitesGuiBean.validate();
     sitesGuiBean.repaint();

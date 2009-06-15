@@ -45,6 +45,8 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistRupMinusDistX_OverRupParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistRupMinusJB_OverRupParameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.HangingWallFlagParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
@@ -105,7 +107,7 @@ import org.opensha.sha.param.*;
 
 public class AS_2008_AttenRel
 extends AttenuationRelationship implements
-AttenuationRelationshipAPI,
+ScalarIntensityMeasureRelationshipAPI,
 NamedObjectAPI, ParameterChangeListener {
 
 	// Name of IMR

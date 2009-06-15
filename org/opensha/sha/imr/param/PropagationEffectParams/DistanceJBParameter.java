@@ -1,4 +1,4 @@
-package org.opensha.sha.param;
+package org.opensha.sha.imr.param.PropagationEffectParams;
 
 import java.util.*;
 
@@ -7,56 +7,61 @@ import org.dom4j.Element;
 
 
 import org.opensha.sha.calc.*;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.WarningParameterAPI;
-import org.opensha.commons.param.editor.ConstrainedDoubleParameterEditor;
-import org.opensha.commons.param.editor.DoubleParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditor;
 
-
 /**
- * <b>Title:</b> DistanceRupParameter<p>
+ * <b>Title:</b> DistanceJBParameter<p>
  *
  * <b>Description:</b> Special subclass of PropagationEffectParameter.
- * This finds the shortest distance to the fault surface. <p>
+ * This finds the shortest distance to the surface projection of the fault.
+ * <p>
  *
- * @see DistanceJBParameter
+ * @see DistanceRupParameter
  * @see DistanceSeisParameter
  * @author Steven W. Rock
  * @version 1.0
  */
-public class DistanceRupParameter
+public class DistanceJBParameter
 extends WarningDoublePropagationEffectParameter
 implements WarningParameterAPI
 {
 
+
+
 	/** Class name used in debug strings */
-	protected final static String C = "DistanceRupParameter";
+	protected final static String C = "DistanceJBParameter";
 	/** If true debug statements are printed out */
 	protected final static boolean D = false;
 
+	protected boolean fix_dist_JB = false;
 
 	/** Hardcoded name */
-	public final static String NAME = "DistanceRup";
+	public final static String NAME = "DistanceJB";
 	/** Hardcoded units string */
-	public final static String UNITS = "km";
+	private final static String UNITS = "km";
 	/** Hardcoded info string */
-	public final static String INFO = "Rupture Distance (closest distance to fault surface)";
+	private final static String INFO = "Joyner-Boore Distance (closest distance to surface projection of fault)";
 	/** Hardcoded min allowed value */
 	private final static Double MIN = new Double(0.0);
 	/** Hardcoded max allowed value */
 	private final static Double MAX = new Double(Double.MAX_VALUE);
 
 
-	/** No-Arg constructor that calls init(). No constraint so all values are allowed.  */
-	public DistanceRupParameter() { init(); }
+	/**
+	 * No-Arg constructor that just calls init() with null constraints.
+	 * All value are allowed.
+	 */
+	public DistanceJBParameter() { init(); }
 	
 	/** This constructor sets the default value.  */
-	public DistanceRupParameter(double defaultValue) { 
+	public DistanceJBParameter(double defaultValue) { 
 		init(); 
 		this.setDefaultValue(defaultValue);
 	}
@@ -64,7 +69,7 @@ implements WarningParameterAPI
 
 
 	/** Constructor that sets up constraints. This is a constrained parameter. */
-	public DistanceRupParameter(ParameterConstraintAPI warningConstraint)
+	public DistanceJBParameter(ParameterConstraintAPI warningConstraint)
 	throws ConstraintException
 	{
 		if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
@@ -77,7 +82,7 @@ implements WarningParameterAPI
 	}
 	
     /** Constructor that sets up constraints & the default value. This is a constrained parameter. */
-    public DistanceRupParameter(ParameterConstraintAPI warningConstraint, double defaultValue)
+    public DistanceJBParameter(ParameterConstraintAPI warningConstraint, double defaultValue)
         throws ConstraintException
     {
         if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
@@ -91,10 +96,10 @@ implements WarningParameterAPI
     }
 
 
-	/** Sets default fields on the Constraint,  such as info and units. */
+	/** Initializes the constraints, name, etc. for this parameter */
 	protected void init( DoubleConstraint warningConstraint){
 		this.warningConstraint = warningConstraint;
-		this.constraint = new DoubleConstraint(MIN, MAX );
+		this.constraint = new DoubleConstraint(MIN,MAX);
 		this.constraint.setNullAllowed(false);
 		this.name = NAME;
 		this.constraint.setName( this.name );
@@ -103,40 +108,62 @@ implements WarningParameterAPI
 		//setNonEditable();
 	}
 
-	/** Sets the warning constraint to null, then initializes the absolute constraint */
+	/** Initializes the constraints, name, etc. for this parameter */
 	protected void init(){ init( null ); }
 
-
 	/**
-	 * Note that this doesn not throw a warning
+	 * Note that this does not throw a warning
 	 */
 	protected void calcValueFromSiteAndEqkRup(){
 		if( ( this.site != null ) && ( this.eqkRupture != null ) ){
 
 			Location loc1 = site.getLocation();
+			Location loc2;
 			double minDistance = 999999;
-			double horzDist, vertDist, totalDist;
+			double currentDistance;
 
-			ListIterator it = eqkRupture.getRuptureSurface().getLocationsIterator();
+			EvenlyGriddedSurfaceAPI rupSurf = eqkRupture.getRuptureSurface();
+			ListIterator it = rupSurf.getLocationsIterator();
+			int numLocs=0;
 			while( it.hasNext() ){
 
-				Location loc2 = (Location) it.next();
-
-				horzDist = RelativeLocation.getHorzDistance(loc1, loc2);
-				vertDist = RelativeLocation.getVertDistance(loc1, loc2);
-
-				totalDist = horzDist * horzDist + vertDist * vertDist;
-				if( totalDist < minDistance ) minDistance = totalDist;
-
+				loc2 = (Location) it.next();
+				currentDistance = RelativeLocation.getHorzDistance(loc1, loc2);
+				if( currentDistance < minDistance ) minDistance = currentDistance;
+				numLocs += 1;
 			}
 
-			this.setValueIgnoreWarning( new Double( Math.pow ( minDistance , 0.5 ) ));
+			// fix distanceJB if needed
+			if(fix_dist_JB)
+				if(rupSurf.getNumCols() > 1 && rupSurf.getNumCols() > 1) {
+					double d1, d2,min_dist;
+					loc1 = rupSurf.getLocation(0, 0);
+					loc2 = rupSurf.getLocation(1, 1);
+					d1 = RelativeLocation.getHorzDistance(loc1,loc2);
+					loc1 = rupSurf.getLocation(0, 1);
+					loc2 = rupSurf.getLocation(1, 0);
+					d2 = RelativeLocation.getHorzDistance(loc1,loc2);
+					min_dist = Math.min(d1, d1)/2;
+					if(minDistance<=min_dist) minDistance = 0;
+				}
 
+			this.setValueIgnoreWarning( new Double( minDistance ) );
 		}
-		else this.value = null;
-
-
+		else this.setValue(null);
 	}
+
+	/**
+	 * Setting this as true will change the calculated distanceJB value to 0.0 if it's less
+	 * than half the distance between diagonally neighboring points on the rupture surface
+	 * (otherwise it's never exactly zero everywhere above the entire surface).  This is useful
+	 * where differences between 0.0 and 0.5 km are important. The default value is false.
+	 * @param fixIt
+	 */
+	public void fixDistanceJB(boolean fixIt) {
+		fix_dist_JB = fixIt;
+	}
+
+
 
 	/** This is used to determine what widget editor to use in GUI Applets.  */
 	public String getType() {
@@ -175,22 +202,25 @@ implements WarningParameterAPI
 			val2 = new Double( val.doubleValue() );
 		}
 
-		DistanceRupParameter param = new DistanceRupParameter(  );
+		DistanceJBParameter param = new DistanceJBParameter(  );
+		param.info = info;
 		param.value = val2;
-		param.constraint =  c1;
+		param.constraint = c1;
 		param.warningConstraint = c2;
 		param.name = name;
 		param.info = info;
 		param.site = site;
 		param.eqkRupture = eqkRupture;
 		if( !this.editable ) param.setNonEditable();
+
 		return param;
+
 	}
+
 
 	public boolean setValueFromXMLMetadata(Element el) {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
 
 }

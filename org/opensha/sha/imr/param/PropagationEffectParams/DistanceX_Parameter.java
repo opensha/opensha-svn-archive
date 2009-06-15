@@ -1,4 +1,4 @@
-package org.opensha.sha.param;
+package org.opensha.sha.imr.param.PropagationEffectParams;
 
 import java.util.*;
 

@@ -14,6 +14,9 @@ import org.opensha.sha.imr.param.EqkRuptureParams.RupTopDepthParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistRupMinusJB_OverRupParameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.WarningDoublePropagationEffectParameter;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.param.*;
 

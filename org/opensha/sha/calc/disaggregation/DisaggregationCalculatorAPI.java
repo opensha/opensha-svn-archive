@@ -4,7 +4,7 @@ import java.rmi.Remote;
 
 import org.opensha.commons.data.Site;
 import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
 /**
  * <p>Title: DisaggregationCalculatorAPI</p>
@@ -50,7 +50,7 @@ public interface DisaggregationCalculatorAPI extends Remote{
    * @return boolean
    */
   public boolean disaggregate(double iml, Site site,
-                              AttenuationRelationshipAPI imr,
+                              ScalarIntensityMeasureRelationshipAPI imr,
                               EqkRupForecast eqkRupForecast) throws java.rmi.
       RemoteException;
 

@@ -16,7 +16,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import java.text.DecimalFormat;
 
@@ -93,13 +93,13 @@ public void getHazardMapCurves(String[] args, int startSiteIndex,
      // load the objects from the file
      SitesInGriddedRectangularRegion griddedSites = (SitesInGriddedRectangularRegion)FileUtils.loadObject(args[2]);
      EqkRupForecast eqkRupForecast = (EqkRupForecast)FileUtils.loadObject(args[3]);
-     AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI)FileUtils.loadObject(args[4]);
+     ScalarIntensityMeasureRelationshipAPI imr = (ScalarIntensityMeasureRelationshipAPI)FileUtils.loadObject(args[4]);
 
      /**
       * LOAD THE IMR FROM THE FILE
       */
-     AttenuationRelationshipAPI imr_temp =
-         (AttenuationRelationshipAPI)createIMRClassInstance(imr.getClass().getName(), this);
+     ScalarIntensityMeasureRelationshipAPI imr_temp =
+         (ScalarIntensityMeasureRelationshipAPI)createIMRClassInstance(imr.getClass().getName(), this);
 
      // set other params
      ListIterator lt = imr.getOtherParamsIterator();

@@ -10,6 +10,7 @@ import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.*;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 
 import java.util.*;
 import java.io.*;
@@ -29,8 +30,6 @@ import org.opensha.commons.util.SystemPropertiesUtils;
 
 import java.text.DecimalFormat;
 import java.lang.reflect.*;
-import org.opensha.sha.param.PropagationEffect;
-import org.opensha.sha.param.DistanceRupParameter;
 
 
 /**
@@ -223,7 +222,7 @@ public class IM_EventSetCalc
           listenerClass};
       Class imrClass = Class.forName(attenRelClassPackage + AttenRelClassName);
       Constructor con = imrClass.getConstructor(params);
-      AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI) con.newInstance(paramObjects);
+      ScalarIntensityMeasureRelationshipAPI attenRel = (ScalarIntensityMeasureRelationshipAPI) con.newInstance(paramObjects);
       if(attenRel.getName().equals(USGS_Combined_2004_AttenRel.NAME))
     	  	throw new RuntimeException("Cannot use "+USGS_Combined_2004_AttenRel.NAME+" in calculation of Mean and Sigma");
       //setting the Attenuation with the default parameters
@@ -352,7 +351,7 @@ public class IM_EventSetCalc
 
     int numIMTs = supportedIMTs.size();
     for (int i = 0; i < numIMRs; ++i) {
-      AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI)
+      ScalarIntensityMeasureRelationshipAPI attenRel = (ScalarIntensityMeasureRelationshipAPI)
           supportedAttenuationsList.get(i);
       attenRel.setUserMaxDistance(sourceCutOffDistance);
       for (int j = 0; j < numIMTs; ++j) {
@@ -373,7 +372,7 @@ public class IM_EventSetCalc
    * @param willsClass
    * @param basinDepth
    */
-  private void setSiteParamsInIMR(AttenuationRelationshipAPI imr,
+  private void setSiteParamsInIMR(ScalarIntensityMeasureRelationshipAPI imr,
                                   String willsClass) {
 
     Iterator it = imr.getSiteParamsIterator(); // get site params for this IMR
@@ -435,7 +434,7 @@ public class IM_EventSetCalc
    * @param imr AttenuationRelationshipAPI
    * @param dirName String
    */
-  private void generateMeanAndSigmaFile(AttenuationRelationshipAPI imr,
+  private void generateMeanAndSigmaFile(ScalarIntensityMeasureRelationshipAPI imr,
                                           String imtLine,
                                           String dirName) {
 

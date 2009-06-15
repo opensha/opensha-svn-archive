@@ -32,10 +32,10 @@ import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
-import org.opensha.sha.param.DistanceRupParameter;
-import org.opensha.sha.param.DistanceJBParameter;
 
 /**
  * <b>Title:</b> AS_2008_SiteSpecific_AttenRel<p>
@@ -66,7 +66,7 @@ import org.opensha.sha.param.DistanceJBParameter;
 
 
 public class AS_2008_SiteSpecific_AttenRel
-    extends AttenuationRelationship implements AttenuationRelationshipAPI,
+    extends AttenuationRelationship implements ScalarIntensityMeasureRelationshipAPI,
     NamedObjectAPI {
 
   // debugging stuff:

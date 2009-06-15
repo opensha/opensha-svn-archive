@@ -60,7 +60,7 @@ import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
@@ -832,7 +832,7 @@ public class LossEstimationApplication extends JFrame
 
 	    // if IMR selection changed, update the site parameter list and supported IMT
 	    if ( name1.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
-	      AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+	      ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 	      siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
 	      siteGuiBean.validate();
 	      siteGuiBean.repaint();
@@ -844,7 +844,7 @@ public class LossEstimationApplication extends JFrame
 	        if(currentIMT.equals(SA_Param.NAME))
 	        	currentPeriod = currentModel.getPeriod();
 	    	imrGuiBean.setIMRParamListAndEditor(currentIMT, currentIMT, currentPeriod, currentPeriod);
-	    	AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+	    	ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 	    	siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
 	        siteGuiBean.validate();
 	        siteGuiBean.repaint();
@@ -912,7 +912,7 @@ public class LossEstimationApplication extends JFrame
     
     
     // get the selected IMR
-    AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+    ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 
     // make a site object to pass to IMR
     Site site = siteGuiBean.getSite();
@@ -970,7 +970,7 @@ public class LossEstimationApplication extends JFrame
   }
   
   private ArbitrarilyDiscretizedFunc calcHazardCurve(String imt, double period, ArrayList<Double> imls,
-		  Site site,EqkRupForecastBaseAPI forecast,AttenuationRelationshipAPI imr){
+		  Site site,EqkRupForecastBaseAPI forecast,ScalarIntensityMeasureRelationshipAPI imr){
 	  // initialize the values in condProbfunc with log values as passed in hazFunction
 	    // intialize the hazard function
 	    ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
@@ -1090,7 +1090,7 @@ public class LossEstimationApplication extends JFrame
   protected void initSiteGuiBean() {
 
      // get the selected IMR
-     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+     ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
      // create the Site Gui Bean object
      siteGuiBean = new Site_GuiBean();
      siteGuiBean.addSiteParams(imr.getSiteParamsIterator());
@@ -1629,7 +1629,7 @@ public class LossEstimationApplication extends JFrame
    */
   public void updateSiteParams() {
     //get the selected IMR
-	AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+	ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 	siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
 	siteGuiBean.validate();
     siteGuiBean.repaint();

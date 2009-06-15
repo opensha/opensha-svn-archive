@@ -112,7 +112,7 @@ public class AttenuationRelationshipGuiBean
      *  The AttenuationRelationship is what will perform the exceedence probability
      *  calculations as needed by the Gui.
      */
-    protected AttenuationRelationshipAPI attenRel = null;
+    protected ScalarIntensityMeasureRelationshipAPI attenRel = null;
 
     /**
      *  This is the paramater list editor that contains all the control
@@ -181,7 +181,7 @@ public class AttenuationRelationshipGuiBean
         // Create AttenRel class dynamically from string name
         if ( className == null || className.equals( "" ) )
             throw new ParameterException( S + "AttenRel Class name cannot be empty or null" );
-        attenRel = ( AttenuationRelationshipAPI ) createAttenRelClassInstance( className,  (org.opensha.commons.param.event.ParameterChangeWarningListener)applet );
+        attenRel = ( ScalarIntensityMeasureRelationshipAPI ) createAttenRelClassInstance( className,  (org.opensha.commons.param.event.ParameterChangeWarningListener)applet );
         attenRel.setParamDefaults();
 
         // Create the control parameters for this attenRel
@@ -318,7 +318,7 @@ public class AttenuationRelationshipGuiBean
      *
      * @return    The attenRel value
      */
-    public AttenuationRelationshipAPI getAttenRel() {
+    public ScalarIntensityMeasureRelationshipAPI getAttenRel() {
         return attenRel;
     }
 

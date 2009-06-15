@@ -32,6 +32,8 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
 import org.opensha.sha.param.*;
 
 
@@ -71,7 +73,7 @@ import org.opensha.sha.param.*;
 
 public class CB_2003_AttenRel
     extends AttenuationRelationship implements
-    AttenuationRelationshipAPI,
+    ScalarIntensityMeasureRelationshipAPI,
     NamedObjectAPI {
 
   private final static String C = "CB_2003_AttenRel";

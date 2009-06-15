@@ -18,7 +18,7 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
 /**
  * <p>Title: HazardCurveCalcForCybershakeVerification </p>
@@ -88,7 +88,7 @@ public class HazardCurveCalcForCybershakeVerification extends UnicastRemoteObjec
    * @return
    */
   public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI hazFunction,
-                             Site site, AttenuationRelationshipAPI imr, EqkRupForecastAPI eqkRupForecast)
+                             Site site, ScalarIntensityMeasureRelationshipAPI imr, EqkRupForecastAPI eqkRupForecast)
   throws java.rmi.RemoteException{
 
     this.currRuptures = -1;

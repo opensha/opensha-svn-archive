@@ -28,6 +28,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
 import org.opensha.sha.param.*;
 
 /**
@@ -62,7 +63,7 @@ import org.opensha.sha.param.*;
 
 public class AmbraseysEtAl_1996_AttenRel
     extends AttenuationRelationship implements
-    AttenuationRelationshipAPI,
+    ScalarIntensityMeasureRelationshipAPI,
     NamedObjectAPI, ParameterChangeListener {
 
 

@@ -73,7 +73,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 	private IMR_GuiBeanAPI application;
 	private boolean isFirstTimeLaunched = true;
 	
-	private AttenuationRelationshipAPI currentAttenRel = null;
+	private ScalarIntensityMeasureRelationshipAPI currentAttenRel = null;
 
 	/**
 	 * class default constructor
@@ -110,7 +110,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 		supportedAttenRels = attenRelInstances.createIMRClassInstance(this);
 		int numSupportedAttenRels = supportedAttenRels.size();
 		for(int i=0;i<numSupportedAttenRels;++i){
-			AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI )supportedAttenRels.get(i);
+			ScalarIntensityMeasureRelationshipAPI imr = (ScalarIntensityMeasureRelationshipAPI )supportedAttenRels.get(i);
 			imr.setParamDefaults();
 		}
 		setIMRParamListAndEditor(currentIMT ,retroIMT, currentPeriod,retroPeriod);
@@ -130,7 +130,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 		ArrayList supportedIMRNames = new ArrayList();
 		while(it.hasNext()){
 			// make the IMR objects as needed to get the site params later
-			AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI )it.next();
+			ScalarIntensityMeasureRelationshipAPI imr = (ScalarIntensityMeasureRelationshipAPI )it.next();
 			if(isFirstTimeLaunched)
 				imr.setParamDefaults();
 			supportedIMRNames.add(imr.getName());
@@ -162,7 +162,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 
 
 		// initalize imr
-		AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI)attenRels.get(0);
+		ScalarIntensityMeasureRelationshipAPI imr = (ScalarIntensityMeasureRelationshipAPI)attenRels.get(0);
 
 		// find & set the selectedIMR
 		imr = this.getSelectedIMR_Instance();
@@ -265,7 +265,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 			ArrayList supportedIMRNames = new ArrayList();
 			while(it.hasNext()){
 				// make the IMR objects as needed to get the site params later
-				AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI )it.next();
+				ScalarIntensityMeasureRelationshipAPI imr = (ScalarIntensityMeasureRelationshipAPI )it.next();
 				imr.setParamDefaults();
 				supportedIMRNames.add(imr.getName());
 				Iterator it1 = imr.getSiteParamsIterator();
@@ -296,7 +296,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 		// now find the selceted IMR and add the parameters related to it
 
 		// initalize imr
-		AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI)supportedAttenRels.get(0);
+		ScalarIntensityMeasureRelationshipAPI imr = (ScalarIntensityMeasureRelationshipAPI)supportedAttenRels.get(0);
 
 		// find & set the selectedIMR
 		imr = this.getSelectedIMR_Instance();
@@ -522,7 +522,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 		String name = param.getName();
 
 		// only show messages for visible site parameters
-		AttenuationRelationshipAPI imr = getSelectedIMR_Instance();
+		ScalarIntensityMeasureRelationshipAPI imr = getSelectedIMR_Instance();
 		ListIterator it = imr.getSiteParamsIterator();
 		boolean found = false;
 		// see whether this parameter exists in site param list for this IMR
@@ -567,12 +567,12 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 	 * This method will return the instance of selected IMR
 	 * @return : Selected IMR instance
 	 */
-	public AttenuationRelationshipAPI getSelectedIMR_Instance() {
-		AttenuationRelationshipAPI imr = null;
+	public ScalarIntensityMeasureRelationshipAPI getSelectedIMR_Instance() {
+		ScalarIntensityMeasureRelationshipAPI imr = null;
 		String selectedIMR = getSelectedIMR_Name();
 		int size = supportedAttenRels.size();
 		for(int i=0; i<size ; ++i) {
-			imr = (AttenuationRelationshipAPI)supportedAttenRels.get(i);
+			imr = (ScalarIntensityMeasureRelationshipAPI)supportedAttenRels.get(i);
 			if(imr.getName().equalsIgnoreCase(selectedIMR))
 				break;
 		}
@@ -596,7 +596,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 		listeners.remove(listener);
 	}
 	
-	public void fireAttenuationRelationshipChangedEvent(AttenuationRelationshipAPI oldAttenRel, AttenuationRelationshipAPI newAttenRel) {
+	public void fireAttenuationRelationshipChangedEvent(ScalarIntensityMeasureRelationshipAPI oldAttenRel, ScalarIntensityMeasureRelationshipAPI newAttenRel) {
 		if (listeners.size() == 0)
 			return;
 		AttenuationRelationshipChangeEvent event = new AttenuationRelationshipChangeEvent(this, oldAttenRel, newAttenRel);

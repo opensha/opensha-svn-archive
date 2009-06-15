@@ -21,6 +21,7 @@ import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.param.*;
 
 
@@ -53,7 +54,7 @@ import org.opensha.sha.param.*;
 
 public class WC94_DisplMagRel
     extends AttenuationRelationship implements
-    AttenuationRelationshipAPI,
+    ScalarIntensityMeasureRelationshipAPI,
     NamedObjectAPI {
 
   // debugging stuff:

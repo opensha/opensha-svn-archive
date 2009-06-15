@@ -15,7 +15,7 @@ import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
 import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.beans.SitesInGriddedRegionGuiBean;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.IntensityMeasureRelationshipAPI;
 
 public class HazardStep extends JPanel implements IMR_GuiBeanAPI {
@@ -121,7 +121,7 @@ public class HazardStep extends JPanel implements IMR_GuiBeanAPI {
 	 */
 	public void updateIM() {
 		//get the selected IMR
-		AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 		imtGuiBean.setIM(imr,imr.getSupportedIntensityMeasuresIterator()) ;
 	}
 
@@ -133,7 +133,7 @@ public class HazardStep extends JPanel implements IMR_GuiBeanAPI {
 	 */
 	public void updateSiteParams() {
 		//get the selected IMR
-		AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 		sitesGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
 		sitesGuiBean.validate();
 		sitesGuiBean.repaint();
@@ -143,7 +143,7 @@ public class HazardStep extends JPanel implements IMR_GuiBeanAPI {
 		return (EqkRupForecast)erfBean.getSelectedERF_Instance();
 	}
 	
-	public AttenuationRelationshipAPI getIMR() {
+	public ScalarIntensityMeasureRelationshipAPI getIMR() {
 		return imrGuiBean.getSelectedIMR_Instance();
 	}
 	

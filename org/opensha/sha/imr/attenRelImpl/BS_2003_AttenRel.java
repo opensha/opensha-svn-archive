@@ -63,7 +63,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 
 public class BS_2003_AttenRel
-    extends AttenuationRelationship implements AttenuationRelationshipAPI,
+    extends AttenuationRelationship implements ScalarIntensityMeasureRelationshipAPI,
     NamedObjectAPI {
 
   // debugging stuff:

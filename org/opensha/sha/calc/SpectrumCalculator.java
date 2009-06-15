@@ -82,7 +82,7 @@ public class SpectrumCalculator extends UnicastRemoteObject
    */
   public DiscretizedFuncAPI getIML_SpectrumCurve(DiscretizedFuncAPI spectrumFunction,
                                            Site site,
-                                           AttenuationRelationshipAPI imr,
+                                           ScalarIntensityMeasureRelationshipAPI imr,
                                            EqkRupForecastAPI eqkRupForecast,
                                            double probVal,
                                            ArrayList supportedSA_Periods) throws
@@ -316,7 +316,7 @@ public class SpectrumCalculator extends UnicastRemoteObject
    * @return
    */
   public DiscretizedFuncAPI getSpectrumCurve(Site site,
-                                             AttenuationRelationshipAPI imr,
+                                             ScalarIntensityMeasureRelationshipAPI imr,
                                              EqkRupForecastAPI eqkRupForecast,
                                              double imlVal,
                                              ArrayList supportedSA_Periods) throws
@@ -514,7 +514,7 @@ public class SpectrumCalculator extends UnicastRemoteObject
     * @return
     */
    public DiscretizedFuncAPI getDeterministicSpectrumCurve(
-       Site site, AttenuationRelationshipAPI imr, EqkRupture rupture,
+       Site site, ScalarIntensityMeasureRelationshipAPI imr, EqkRupture rupture,
         boolean probAtIML, double imlProbVal)  throws RemoteException{
 
 

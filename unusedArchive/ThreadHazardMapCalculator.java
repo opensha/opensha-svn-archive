@@ -13,7 +13,7 @@ import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
 import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
 
 

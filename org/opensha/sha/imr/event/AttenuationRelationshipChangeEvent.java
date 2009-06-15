@@ -3,7 +3,7 @@ package org.opensha.sha.imr.event;
 import java.util.EventObject;
 
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
 /**
  *  <b>Title:</b> AttenuationRelationshipChangeEvent<p>
@@ -19,10 +19,10 @@ import org.opensha.sha.imr.AttenuationRelationshipAPI;
 public class AttenuationRelationshipChangeEvent extends EventObject {
 
     /** New value for the Parameter. */
-    private AttenuationRelationshipAPI newAttenRel;
+    private ScalarIntensityMeasureRelationshipAPI newAttenRel;
 
     /** Old value for the Parameter. */
-    private AttenuationRelationshipAPI oldAttenRel;
+    private ScalarIntensityMeasureRelationshipAPI oldAttenRel;
 
 
     /**
@@ -34,8 +34,8 @@ public class AttenuationRelationshipChangeEvent extends EventObject {
      */
     public AttenuationRelationshipChangeEvent(
             Object reference,
-            AttenuationRelationshipAPI oldAttenRel,
-            AttenuationRelationshipAPI newAttenRel
+            ScalarIntensityMeasureRelationshipAPI oldAttenRel,
+            ScalarIntensityMeasureRelationshipAPI newAttenRel
              ) {
         super( reference );
         this.oldAttenRel = oldAttenRel;
@@ -48,7 +48,7 @@ public class AttenuationRelationshipChangeEvent extends EventObject {
      *
      * @return    New AttentuationRelationship
      */
-    public AttenuationRelationshipAPI getNewAttenRel() {
+    public ScalarIntensityMeasureRelationshipAPI getNewAttenRel() {
         return newAttenRel;
     }
 
@@ -58,7 +58,7 @@ public class AttenuationRelationshipChangeEvent extends EventObject {
      *
      * @return    Old AttentuationRelationship
      */
-    public AttenuationRelationshipAPI getOldValue() {
+    public ScalarIntensityMeasureRelationshipAPI getOldValue() {
         return oldAttenRel;
     }
 }

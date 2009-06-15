@@ -24,7 +24,7 @@ import org.jfree.data.Range;
 import org.opensha.sha.gui.controls.*;
 import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.gui.infoTools.*;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.WC94_DisplMagRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
@@ -773,7 +773,7 @@ public class HazardSpectrumApplication extends JApplet
 
     // if IMR selection changed, update the site parameter list and supported IMT
     if ( name1.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
-      AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+      ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
       //set the intensity measure for the IMR
       imr.setIntensityMeasure(SA_Param.NAME);
       //gets the SA Period Values for the IMR
@@ -978,7 +978,7 @@ public class HazardSpectrumApplication extends JApplet
    * Gets the SA Period Values for the IMR
    * @param imr
    */
-  private void getSA_PeriodForIMR(AttenuationRelationshipAPI imr){
+  private void getSA_PeriodForIMR(ScalarIntensityMeasureRelationshipAPI imr){
     ListIterator it =imr.getSupportedIntensityMeasuresIterator();
     while(it.hasNext()){
       DependentParameterAPI  tempParam = (DependentParameterAPI)it.next();
@@ -1004,7 +1004,7 @@ public class HazardSpectrumApplication extends JApplet
    * @param eqkRupForecast : List of Eqk Rup forecasts
    */
   private void handleForecastList(Site site,
-                                  AttenuationRelationshipAPI imr,
+                                  ScalarIntensityMeasureRelationshipAPI imr,
                                   EqkRupForecastBaseAPI eqkRupForecast,
                                   double imlProbValue,boolean imlAtProb,
                                   boolean probAtIML) {
@@ -1298,7 +1298,7 @@ public class HazardSpectrumApplication extends JApplet
   private void initSiteGuiBean() {
 
      // get the selected IMR
-     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+     ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
      // create the Site Gui Bean object
      siteGuiBean = new Site_GuiBean();
      siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
@@ -1716,7 +1716,7 @@ public class HazardSpectrumApplication extends JApplet
    */
   public void updateSiteParams() {
     //get the selected IMR
-	AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+	ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 	siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
 	siteGuiBean.validate();
     siteGuiBean.repaint();

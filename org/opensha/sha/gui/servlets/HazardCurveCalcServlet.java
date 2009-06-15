@@ -43,7 +43,7 @@ public class HazardCurveCalcServlet extends HttpServlet {
       //get the sites for which this needs to be calculated
       Site site = (Site) inputFromApplet.readObject();
       //get the selected IMR
-      AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI)
+      ScalarIntensityMeasureRelationshipAPI imr = (ScalarIntensityMeasureRelationshipAPI)
           inputFromApplet.readObject();
       //get the selected EqkRupForecast
       Object obj = inputFromApplet.readObject();
@@ -90,7 +90,7 @@ public class HazardCurveCalcServlet extends HttpServlet {
    * @param function
    * @param maxDistance
    */
-  private void getHazardCurve(AttenuationRelationshipAPI imr,EqkRupForecastAPI eqkRupForecast,
+  private void getHazardCurve(ScalarIntensityMeasureRelationshipAPI imr,EqkRupForecastAPI eqkRupForecast,
                                    Site site,ArbitrarilyDiscretizedFunc function,double maxDistance){
     try{
       HazardCurveCalculator calc = new HazardCurveCalculator();

@@ -99,7 +99,7 @@ public class HazusMapCalculator {
      * @return
    */
   public void getHazardMapCurves(SitesInGriddedRectangularRegion griddedSites,
-                                 AttenuationRelationshipAPI imr,
+                                 ScalarIntensityMeasureRelationshipAPI imr,
                                  EqkRupForecast eqkRupForecast,
                                  String mapParametersInfo) {
 
@@ -152,7 +152,7 @@ public class HazusMapCalculator {
    */
   public void getHazardMapCurves(String dirName,
                                  SitesInGriddedRectangularRegion griddedSites,
-                                 AttenuationRelationshipAPI imr,
+                                 ScalarIntensityMeasureRelationshipAPI imr,
                                  EqkRupForecast eqkRupForecast,
                                  String mapParametersInfo) {
 
@@ -201,7 +201,7 @@ public class HazusMapCalculator {
    *
    */
   private void calculate( SitesInGriddedRectangularRegion griddedSites,
-                          AttenuationRelationshipAPI imr,
+                          ScalarIntensityMeasureRelationshipAPI imr,
                           EqkRupForecast eqkRupForecast) {
 
     try{
@@ -295,7 +295,7 @@ public class HazusMapCalculator {
    * @return
    */
   public DiscretizedFuncAPI[] getSiteHazardCurve(Site site,
-                                           AttenuationRelationshipAPI imr,
+                                           ScalarIntensityMeasureRelationshipAPI imr,
                                            EqkRupForecastAPI eqkRupForecast)  {
 
 

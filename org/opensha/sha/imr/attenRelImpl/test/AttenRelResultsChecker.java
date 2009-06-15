@@ -5,6 +5,7 @@ import java.util.*;
 import java.text.DecimalFormat;
 
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.PropagationEffectParams.WarningDoublePropagationEffectParameter;
 import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.DoubleDiscreteParameter;
 import org.opensha.commons.param.DoubleParameter;
@@ -32,7 +33,7 @@ import org.opensha.sha.param.*;
 public class AttenRelResultsChecker {
 
   private ParameterList list = new ParameterList();
-  private AttenuationRelationshipAPI imr;
+  private ScalarIntensityMeasureRelationshipAPI imr;
   private String resultFile= null;
 
   //hardcode strings string val for all the X and Y axis values that are shown
@@ -82,7 +83,7 @@ public class AttenRelResultsChecker {
   private String intensityMeasureName=null;
 
 
-  public AttenRelResultsChecker(AttenuationRelationshipAPI imr, String file, double tolerence) {
+  public AttenRelResultsChecker(ScalarIntensityMeasureRelationshipAPI imr, String file, double tolerence) {
     this.imr = imr;
     this.resultFile = file;
     //initially the parameterList is empty but when te constructr is called

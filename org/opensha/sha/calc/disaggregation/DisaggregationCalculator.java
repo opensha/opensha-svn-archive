@@ -10,9 +10,10 @@ import java.text.DecimalFormat;
 
 
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
-import org.opensha.sha.param.DistanceRupParameter;
 
 
 import org.opensha.sha.calc.HazardCurveCalculator;
@@ -26,8 +27,6 @@ import org.opensha.commons.param.Parameter;
 
 import java.net.URL;
 import java.net.URLConnection;
-import org.opensha.sha.param.DistanceSeisParameter;
-import org.opensha.sha.param.PropagationEffect;
 
 
 /**
@@ -146,7 +145,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
    * @return boolean
    */
   public boolean disaggregate(double iml, Site site,
-                              AttenuationRelationshipAPI imr,
+                              ScalarIntensityMeasureRelationshipAPI imr,
                               EqkRupForecast eqkRupForecast) throws java.rmi.
       RemoteException {
 
