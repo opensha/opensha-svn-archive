@@ -112,8 +112,12 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
  *  </UL><p>
  *  Propagation-Effect related parameters<p>
  *  <UL>
- *  <LI><b>hangingWallFlagParam</b> - Indicates whether Site is on the hanging wall of the rupture
+ *  <LI><b>distanceRupParam</b> -  See class for definition
+ *  <LI><b>distanceJBParam</b> -  See class for definition
+ *  <LI><b>distanceSeisParam</b> -  See class for definition
+ *  <LI><b>distRupMinusJB_OverRupParam</b> - See class for definition
  *  <LI><b>distRupMinusDistX_OverRupParam</b> - See class for definition
+ *  <LI><b>hangingWallFlagParam</b> - Indicates whether Site is on the hanging wall of the rupture
  *  </UL>
  * 
  *  Other parameters<p>
