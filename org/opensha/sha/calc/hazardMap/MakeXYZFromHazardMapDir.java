@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.StringTokenizer;
 
+import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
@@ -48,16 +49,10 @@ public class MakeXYZFromHazardMapDir {
 						String fileName = file.getName();
 						//files that ends with ".txt"
 						if(fileName.endsWith(".txt")){
-							int index = fileName.indexOf("_");
-							int firstIndex = fileName.indexOf(".");
-							int lastIndex = fileName.lastIndexOf(".");
-							// Hazard data files have 3 "." in their names
-							//And leaving the rest of the files which contains only 1"." in their names
-							if(firstIndex != lastIndex){
-
-								//getting the lat and Lon values from file names
-								Double latVal = new Double(fileName.substring(0,index).trim());
-								Double lonVal = new Double(fileName.substring(index+1,lastIndex).trim());
+							Location loc = decodeFileName(fileName);
+							if (loc != null) {
+								double latVal = loc.getLatitude();
+								double lonVal = loc.getLongitude();
 								//System.out.println("Lat: " + latVal + " Lon: " + lonVal);
 								// handle the file
 								double writeVal = handleFile(file.getAbsolutePath(), isProbAt_IML, val);
@@ -94,6 +89,29 @@ public class MakeXYZFromHazardMapDir {
 		System.out.println("DONE");
 		System.out.println("MinLat: " + minLat + " MaxLat: " + maxLat + " MinLon: " + minLon + " MaxLon " + maxLon);
 		System.out.println(count + " curves processed!");
+	}
+	
+	/**
+	 * Decodes a filename of the format lat_lon.txt
+	 * 
+	 * @param fileName
+	 * @return
+	 */
+	public static Location decodeFileName(String fileName) {
+		int index = fileName.indexOf("_");
+		int firstIndex = fileName.indexOf(".");
+		int lastIndex = fileName.lastIndexOf(".");
+		// Hazard data files have 3 "." in their names
+		//And leaving the rest of the files which contains only 1"." in their names
+		if(firstIndex != lastIndex){
+
+			//getting the lat and Lon values from file names
+			Double latVal = new Double(fileName.substring(0,index).trim());
+			Double lonVal = new Double(fileName.substring(index+1,lastIndex).trim());
+			return new Location(latVal, lonVal);
+		} else {
+			return null;
+		}
 	}
 
 
@@ -172,12 +190,17 @@ public class MakeXYZFromHazardMapDir {
 //			String curveDir = "/home/kevin/OpenSHA/condor/test_results";
 //			String curveDir = "/home/kevin/OpenSHA/condor/oldRuns/statewide/test_30000_2/curves";
 //			String curveDir = "/home/kevin/OpenSHA/condor/frankel_0.1";
-			String curveDir = "/home/kevin/CyberShake/baseMaps/ba2008/curves";
+			String curveDir = "/home/kevin/CyberShake/baseMaps/ave2008/curves_3sec";
 //			String outfile = "xyzCurves.txt";
 //			String outfile = "/home/kevin/OpenSHA/condor/oldRuns/statewide/test_30000_2/xyzCurves.txt";
-			String outfile = "/home/kevin/CyberShake/baseMaps/ba2008/xyzCurves_IML_0.002.txt";
+			String outfile = "/home/kevin/CyberShake/baseMaps/ave2008/xyzCurves.txt";
+//			boolean isProbAt_IML = true;
+//			double level = 0.2;
+			boolean isProbAt_IML = false;
+			double level = 0.002;		// 10% in 50
+//			double level = 0.0004;		// 	2% in 50
 			boolean latFirst = true;
-			MakeXYZFromHazardMapDir maker = new MakeXYZFromHazardMapDir(curveDir, false, 0.002, outfile, false, latFirst);
+			MakeXYZFromHazardMapDir maker = new MakeXYZFromHazardMapDir(curveDir, isProbAt_IML, level, outfile, false, latFirst);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
