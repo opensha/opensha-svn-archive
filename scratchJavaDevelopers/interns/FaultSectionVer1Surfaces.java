@@ -27,7 +27,8 @@ import org.opensha.sha.faultSurface.*;
  */
 public class FaultSectionVer1Surfaces implements FaultSectionSurfaces{
 
-	private final static double GRID_SPACING = 1.0;
+	private final static double DEFAULT_GRID_SPACING = 1.0;
+	private double gridSpacing = DEFAULT_GRID_SPACING;
 	private final static String DEFAULT_INPUT_FILENAME = "FaultSections_Trace2002.txt";
 	private ArrayList faultSectionsSummaryList; // saves fault section Id and corresponding name
 	private HashMap faultSectionsMap; // saves fault section Id and fault section object mapping
@@ -119,7 +120,7 @@ public class FaultSectionVer1Surfaces implements FaultSectionSurfaces{
 		FaultSection2002 faultSection = (FaultSection2002)faultSectionsMap.get(new Integer(faultSectionId));
 		SimpleFaultData simpleFaultData = faultSection.getSimpleFaultData();
 //		 frankel fault factory
-		return new FrankelGriddedSurface(simpleFaultData, GRID_SPACING);
+		return new FrankelGriddedSurface(simpleFaultData, gridSpacing);
 	}
 
 	/**
@@ -129,7 +130,7 @@ public class FaultSectionVer1Surfaces implements FaultSectionSurfaces{
 		FaultSection2002 faultSection = (FaultSection2002)faultSectionsMap.get(new Integer(faultSectionId));
 		SimpleFaultData simpleFaultData = faultSection.getSimpleFaultData();
 		// stirling fault factory
-		return new StirlingGriddedSurface(simpleFaultData, GRID_SPACING);
+		return new StirlingGriddedSurface(simpleFaultData, gridSpacing);
 	}
 
 	
@@ -151,4 +152,8 @@ public class FaultSectionVer1Surfaces implements FaultSectionSurfaces{
 	 * @return
 	 */
 	public double getSlipRate(int faultSectionId) { return 0;}
+	
+	public void setGridSpacing(double gridSpacing) {
+		this.gridSpacing = gridSpacing;
+	}
 }

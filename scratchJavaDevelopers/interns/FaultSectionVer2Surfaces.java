@@ -18,7 +18,8 @@ import org.opensha.sha.faultSurface.*;
  */
 public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 
-	private final static double GRID_SPACING = 1.0;
+	private final static double DEFAULT_GRID_SPACING = 1.0;
+	private double gridSpacing = DEFAULT_GRID_SPACING;
 	private final FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
 	private final PrefFaultSectionDataDB_DAO faultSectionPrefDataDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
 	private static ArrayList faultSectionsSummary=null;
@@ -56,7 +57,7 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	public EvenlyGriddedSurfaceAPI getFrankelSurface(int faultSectionId) {
 		SimpleFaultData simpleFaultData = getFaultSection(faultSectionId).getSimpleFaultData(false);
 		//frankel fault factory
-		return new FrankelGriddedSurface(simpleFaultData, GRID_SPACING);
+		return new FrankelGriddedSurface(simpleFaultData, gridSpacing);
 	}
 
 	/**
@@ -66,7 +67,7 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	 */
 	public EvenlyGriddedSurfaceAPI getStirlingSurface(int faultSectionId) {
 		SimpleFaultData simpleFaultData = getFaultSection(faultSectionId).getSimpleFaultData(false);
-		return new StirlingGriddedSurface(simpleFaultData, GRID_SPACING);
+		return new StirlingGriddedSurface(simpleFaultData, gridSpacing);
 	}
 
 	/**
@@ -123,6 +124,10 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 		double slipRate = this.getFaultSection(faultSectionId).getAveLongTermSlipRate();
 		if(Double.isNaN(slipRate)) slipRate = 0;
 		return slipRate;
+	}
+	
+	public void setGridSpacing(double gridSpacing) {
+		this.gridSpacing = gridSpacing;
 	}
 	
 }

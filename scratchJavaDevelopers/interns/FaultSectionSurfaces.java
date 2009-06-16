@@ -68,6 +68,13 @@ public interface FaultSectionSurfaces {
 	 * @return
 	 */
 	public double getSlipRate(int faultSectionId) ;
+	
+	/**
+	 * Set the grid spacing.
+	 * 
+	 * @param gridSpacing
+	 */
+	public void setGridSpacing(double gridSpacing);
 
 
 }
