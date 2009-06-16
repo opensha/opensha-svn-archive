@@ -184,7 +184,7 @@ public class ParameterApplet
         ParameterList list = new ParameterList();
         list.addParameter( makeConstrainedStringParameter( constraint ) );
         list.addParameter( makeStringParameter() );
-        list.addParameter( makeConstrainedStringParameter( constraint ) );
+//        list.addParameter( makeConstrainedStringParameter( constraint ) );
         list.addParameter( makeDoubleParameter() );
         list.addParameter( makeIntegerParameter() );
         list.addParameter( makeConstrainedIntegerParameter() );
@@ -202,7 +202,7 @@ public class ParameterApplet
     }
 
     private ParameterAPI makeLocationParameter() {
-  	  String name = "Name " + paramCount;
+  	  String name = "Location Parameter";
         paramCount++;
         LocationParameter param = new LocationParameter("Location Param", "Lat", "Lon", "Depth", 34.0, -120.0, 0.0);
         param.addParameterChangeFailListener(this);
@@ -212,7 +212,7 @@ public class ParameterApplet
   }
     
     private ParameterAPI makeRegionParameter() {
-    	  String name = "Name " + paramCount;
+    	  String name = "Region Parameter";
           paramCount++;
           RegionParameter param = null;
 		try {
@@ -231,7 +231,7 @@ public class ParameterApplet
     }
     
     private ParameterAPI makeDoubleValueWeightParameter() {
-    	  String name = "Name " + paramCount;
+    	  String name = "Double Value Weight Parameter";
           paramCount++;
           DoubleValueWeightParameter param = new DoubleValueWeightParameter( name, 0, 1, 0 , 1000, "mm/yr", new ValueWeight( 0.5, 99.9 ) );
           param.addParameterChangeFailListener(this);
@@ -247,13 +247,13 @@ public class ParameterApplet
       ParameterList paramList = new ParameterList();
       paramList.addParameter(param1);
       paramList.addParameter(param2);
-      ParameterListParameter param = new ParameterListParameter("New Param",paramList);
+      ParameterListParameter param = new ParameterListParameter("Parameter List",paramList);
       return param;
     }
 
     /** Makes a parameter example of this type */
     private ParameterAPI makeConstrainedDoubleDiscreteParameter() {
-        String name = "Name " + paramCount;
+        String name = "Constrained Double Discrete Parameter";
         String value = "12.1";
         paramCount++;
         ArrayList val = new ArrayList();
@@ -271,7 +271,7 @@ public class ParameterApplet
 
     /** Makes a parameter example of this type */
     private ParameterAPI makeIntegerParameter() {
-        String name = "Name " + paramCount;
+        String name = "Integer Parameter";
         String value = "1" + paramCount;
         paramCount++;
         IntegerParameter param = new IntegerParameter( name, new Integer( value ) );
@@ -284,7 +284,7 @@ public class ParameterApplet
     /** Makes the parameter example of type EvenlyGriddedSurface **/
     private ParameterAPI makeEvenlyGriddedsurfaceParameter(){
 
-      String name = "Name " + paramCount;
+      String name = "Simple Fault Parameter";
       ParameterAPI param = new SimpleFaultParameter(name,null);
       paramCount++;
       return param;
@@ -292,7 +292,7 @@ public class ParameterApplet
 
     /** Makes a parameter example of this type */
     private ParameterAPI makeConstrainedIntegerParameter() {
-        String name = "Name " + paramCount;
+        String name = "Constrained Integer Parameter";
         String value = "1" + paramCount;
         paramCount++;
         IntegerConstraint constraint = new IntegerConstraint( -180, 180 );
@@ -305,7 +305,7 @@ public class ParameterApplet
 
     /** Makes a Parameter example for the Warning Integer Type */
     private ParameterAPI makeWarningIntegerParameter(){
-      String name = "Name " + paramCount;
+      String name = "Warning Integer Parameter";
       String value = "1" + paramCount;
       paramCount++;
       IntegerConstraint constraint = new IntegerConstraint( -200, 200 );
@@ -321,7 +321,7 @@ public class ParameterApplet
 
     /** Makes a Parameter example for the Warning Integer Type */
     private ParameterAPI makeWarningDoubleParameter(){
-      String name = "Name " + paramCount;
+      String name = "Warning Double Parameter";
       String value = "1" + paramCount;
       paramCount++;
       DoubleConstraint constraint = new DoubleConstraint( -120, 120 );
@@ -337,7 +337,7 @@ public class ParameterApplet
 
     /** Makes a parameter example of this type */
     private ParameterAPI makeDoubleParameter() {
-        String name = "Name " + paramCount;
+        String name = "Constrained Double Parameter";
         String value = "12." + paramCount;
         paramCount++;
         DoubleConstraint constraint = new DoubleConstraint( 0.0, 20.0 );
@@ -351,7 +351,7 @@ public class ParameterApplet
 
     /** Makes a parameter example of this type */
     private ParameterAPI makeStringParameter() {
-        String name = "Name " + paramCount;
+        String name = "String Parameter (" + paramCount + ")";
         String value = "Value " + paramCount;
         paramCount++;
         StringParameter param = new StringParameter( name, value );
@@ -363,7 +363,7 @@ public class ParameterApplet
     /** Makes a parameter example of this type */
     private ParameterAPI makeConstrainedStringParameter
             ( StringConstraint constraint ) {
-        String name = "Name " + paramCount;
+        String name = "Constrained String Parameter";
         String value = "Value " + paramCount;
         paramCount++;
         StringParameter param = new StringParameter( name, constraint, null, "William" );
