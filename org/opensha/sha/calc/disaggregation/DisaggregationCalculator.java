@@ -782,7 +782,7 @@ implements DisaggregationCalculatorAPI{
 			String viewAngle = "-E150/30";
 			String boxPenWidth = "-W0.5p";  // pen width for drawing boxes
 			String verticalScaling = "-JZ"+z_axis_length+"i";
-			String gmt_const_comands = "gmtset PAGE_COLOR 180/180/180 \n gmtset X_ORIGIN 1.0i \n"+
+			String gmt_const_comands = "gmtset COLOR_BACKGROUND 180/180/180 PAGE_COLOR 180/180/180 \n gmtset X_ORIGIN 1.0i \n"+
 			"gmtset Y_ORIGIN 2.0i\n";
 			String img_ps_file = "DisaggregationPlot.ps";
 
