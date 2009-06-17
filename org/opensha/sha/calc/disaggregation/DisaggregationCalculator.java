@@ -782,7 +782,7 @@ implements DisaggregationCalculatorAPI{
 			String viewAngle = "-E150/30";
 			String boxPenWidth = "-W0.5p";  // pen width for drawing boxes
 			String verticalScaling = "-JZ"+z_axis_length+"i";
-			String gmt_const_comands = "gmtset COLOR_BACKGROUND 180/180/180 PAGE_COLOR 180/180/180 \n gmtset X_ORIGIN 1.0i \n"+
+			String gmt_const_comands = "gmtset PAGE_COLOR 180/180/180 \n gmtset X_ORIGIN 1.0i \n"+
 			"gmtset Y_ORIGIN 2.0i\n";
 			String img_ps_file = "DisaggregationPlot.ps";
 
@@ -872,7 +872,9 @@ implements DisaggregationCalculatorAPI{
 			gmtScriptLines.add("echo " + "\"4.5 0.75 13 0.0 12 CB 0.5<e<1\" >> temp_label");
 			gmtScriptLines.add("echo " + "\"5.4 0.75 13 0.0 12 CB 1<e<2\" >> temp_label");
 			gmtScriptLines.add("echo " + "\"6.3 0.75 13 0.0 12 CB 2<e\" >> temp_label");
-			gmtScriptLines.add("pstext temp_label -R0/8.5/0/11 -N -Jx1i -X-2.45 -P -O >> " + img_ps_file);
+			// on gravity we used -X-2.45, but for some reason that puts stuff to the right
+			// on opensha.usc.edu
+			gmtScriptLines.add("pstext temp_label -R0/8.5/0/11 -N -Jx1i -X-6 -P -O >> " + img_ps_file);
 
 			gmtScriptLines.add("cat "+img_ps_file+ " |"+ "gs -sDEVICE=jpeg -sOutputFile=temp.jpg"+" -");
 			gmtScriptLines.add("ps2pdf "+img_ps_file+"  "+DISAGGREGATION_PLOT_PDF_NAME);
