@@ -784,7 +784,7 @@ implements DisaggregationCalculatorAPI{
 			String verticalScaling = "-JZ"+z_axis_length+"i";
 			// temporarily switching background color to 0/0/0 from 180/180/180 because anything
 			// that's not pure white comes out as pure black
-			String gmt_const_comands = "gmtset PAGE_COLOR 0/0/0 \n gmtset X_ORIGIN 1.0i \n"+
+			String gmt_const_comands = "gmtset PAGE_COLOR 255/255/255 \n gmtset X_ORIGIN 1.0i \n"+
 			"gmtset Y_ORIGIN 2.0i\n";
 			String img_ps_file = "DisaggregationPlot.ps";
 
