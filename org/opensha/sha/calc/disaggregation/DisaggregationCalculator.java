@@ -1,32 +1,26 @@
 package org.opensha.sha.calc.disaggregation;
 
 
-import java.util.*;
-
-import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
-import java.text.DecimalFormat;
-
-
-import org.opensha.sha.imr.*;
-import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
-import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
-
-
-import org.opensha.sha.calc.HazardCurveCalculator;
-
-import java.io.*;
-import org.opensha.commons.calc.RelativeLocation;
-import org.opensha.commons.data.Location;
-import org.opensha.commons.data.Site;
-import org.opensha.commons.data.XYZ_DataSetAPI;
-import org.opensha.commons.param.Parameter;
-
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+
+import org.opensha.commons.data.Site;
+import org.opensha.sha.calc.HazardCurveCalculator;
+import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 
 
 /**
@@ -44,235 +38,236 @@ import java.net.URLConnection;
  */
 
 public class DisaggregationCalculator extends UnicastRemoteObject
- implements DisaggregationCalculatorAPI{
+implements DisaggregationCalculatorAPI{
 
-  protected final static String C = "DisaggregationCalculator";
-  protected final static boolean D = false;
-
-
-  // maximum permitted distance between fault and site to consider source in hazard analysis for that site
-  protected double MAX_DISTANCE = HazardCurveCalculator.MAX_DISTANCE_DEFAULT;
+	protected final static String C = "DisaggregationCalculator";
+	protected final static boolean D = false;
 
 
-  // disaggregation stuff
-  
-  private double[] mag_center, mag_binEdges;
-  private double[] dist_center, dist_binEdges;
+	// maximum permitted distance between fault and site to consider source in hazard analysis for that site
+	protected double MAX_DISTANCE = HazardCurveCalculator.MAX_DISTANCE_DEFAULT;
+	
+	public static final String OPENSHA_SERVLET_URL = "http://opensha.usc.edu:8080/OpenSHA/DisaggregationPlotServlet";
 
-  private int NUM_E = 8;
-  private double[][][] pdf3D;
-  private double maxContrEpsilonForDisaggrPlot;
-  private double maxContrEpsilonForGMT_Plot;
+	// disaggregation stuff
 
+	private double[] mag_center, mag_binEdges;
+	private double[] dist_center, dist_binEdges;
 
-  private int iMag, iDist, iEpsilon;
-  private double mag, dist, epsilon;
-  private boolean withinBounds;
-
-  private double Mbar, Dbar, Ebar;
-  private int M_index_mode3D, D_index_mode3D; //E_mode3D;
-
-  //gets the Epsilon Range
-  private String epsilonRangeString;
-
-  private double totalRate, outOfBoundsRate;
-
-  private int currRuptures = -1;
-  private int totRuptures=0;
-
-  //gets the number of sources to be shown in the disaggregation window
-  private int numSourcesToShow = 0;
-
-  //stores the source Disagg info
-  private String sourceDisaggInfo;
-
-  //Disaggregation Plot Img Name
-  public static final String DISAGGREGATION_PLOT_NAME = "DisaggregationPlot";
-  public static final String DISAGGREGATION_PLOT_IMG_NAME = DISAGGREGATION_PLOT_NAME +".jpg";
-  public static final String DISAGGREGATION_PLOT_PDF_NAME = DISAGGREGATION_PLOT_NAME +".pdf";
-
-  //Address to the disaggregation plot img
-  private String disaggregationPlotImgWebAddr;
-
-  /**
-   * This sets the maximum distance of sources to be considered in the calculation
-   * (as determined by the getMinDistance(Site) method of ProbEqkSource subclasses).
-   * Sources more than this distance away are ignored.
-   * Default value is 250 km.
-   *
-   * @param distance: the maximum distance in km
-   */
-  public void setMaxSourceDistance(double distance) throws java.rmi.RemoteException{
-    MAX_DISTANCE = distance;
-  }
+	private int NUM_E = 8;
+	private double[][][] pdf3D;
+	private double maxContrEpsilonForDisaggrPlot;
+	private double maxContrEpsilonForGMT_Plot;
 
 
-  String[] epsilonColors = {
-      "-G215/38/3",
-      "-G252/94/62",
-      "-G252/180/158",
-      "-G254/220/210",
-      "-G217/217/255",
-      "-G151/151/255",
-      "-G0/0/255",
-      "-G0/0/170"};
+	private int iMag, iDist, iEpsilon;
+	private double mag, dist, epsilon;
+	private boolean withinBounds;
+
+	private double Mbar, Dbar, Ebar;
+	private int M_index_mode3D, D_index_mode3D; //E_mode3D;
+
+	//gets the Epsilon Range
+	private String epsilonRangeString;
+
+	private double totalRate, outOfBoundsRate;
+
+	private int currRuptures = -1;
+	private int totRuptures=0;
+
+	//gets the number of sources to be shown in the disaggregation window
+	private int numSourcesToShow = 0;
+
+	//stores the source Disagg info
+	private String sourceDisaggInfo;
+
+	//Disaggregation Plot Img Name
+	public static final String DISAGGREGATION_PLOT_NAME = "DisaggregationPlot";
+	public static final String DISAGGREGATION_PLOT_IMG_NAME = DISAGGREGATION_PLOT_NAME +".jpg";
+	public static final String DISAGGREGATION_PLOT_PDF_NAME = DISAGGREGATION_PLOT_NAME +".pdf";
+
+	//Address to the disaggregation plot img
+	private String disaggregationPlotImgWebAddr;
+
+	/**
+	 * This sets the maximum distance of sources to be considered in the calculation
+	 * (as determined by the getMinDistance(Site) method of ProbEqkSource subclasses).
+	 * Sources more than this distance away are ignored.
+	 * Default value is 250 km.
+	 *
+	 * @param distance: the maximum distance in km
+	 */
+	public void setMaxSourceDistance(double distance) throws java.rmi.RemoteException{
+		MAX_DISTANCE = distance;
+	}
 
 
-  /**
-   * creates the DisaggregationCalculator object
-   *
-   * @throws java.rmi.RemoteException
-   * @throws IOException
-   */
-  public DisaggregationCalculator()throws java.rmi.RemoteException {
-	  
-	  //set defaults
-	  setMagRange(5, 9, 0.5);
-	  setDistanceRange(5, 11, 10);
-  }
+	static String[] epsilonColors = {
+			"-G215/38/3",
+			"-G252/94/62",
+			"-G252/180/158",
+			"-G254/220/210",
+			"-G217/217/255",
+			"-G151/151/255",
+			"-G0/0/255",
+	"-G0/0/170"};
+
+
+	/**
+	 * creates the DisaggregationCalculator object
+	 *
+	 * @throws java.rmi.RemoteException
+	 * @throws IOException
+	 */
+	public DisaggregationCalculator()throws java.rmi.RemoteException {
+
+		//set defaults
+		setMagRange(5, 9, 0.5);
+		setDistanceRange(5, 11, 10);
+	}
 
 
 
-  /**
-   * this function performs the disaggregation.
-   * Returns true if it was succesfully able to disaggregate above
-   * a given IML else return false
-   *
-   * @param iml: the intensity measure level to disaggregate
-   * @param site: site parameter
-   * @param imr: selected IMR object
-   * @param eqkRupForecast: selected Earthquake rup forecast
-   * @return boolean
-   */
-  public boolean disaggregate(double iml, Site site,
-                              ScalarIntensityMeasureRelationshipAPI imr,
-                              EqkRupForecast eqkRupForecast) throws java.rmi.
-      RemoteException {
+	/**
+	 * this function performs the disaggregation.
+	 * Returns true if it was succesfully able to disaggregate above
+	 * a given IML else return false
+	 *
+	 * @param iml: the intensity measure level to disaggregate
+	 * @param site: site parameter
+	 * @param imr: selected IMR object
+	 * @param eqkRupForecast: selected Earthquake rup forecast
+	 * @return boolean
+	 */
+	public boolean disaggregate(double iml, Site site,
+			ScalarIntensityMeasureRelationshipAPI imr,
+			EqkRupForecast eqkRupForecast) throws java.rmi.
+			RemoteException {
 
-    double rate, condProb;
+		double rate, condProb;
 
-    DecimalFormat f1 = new DecimalFormat("000000");
-    DecimalFormat f2 = new DecimalFormat("00.00");
+		DecimalFormat f1 = new DecimalFormat("000000");
+		DecimalFormat f2 = new DecimalFormat("00.00");
 
-    pdf3D = new double[dist_center.length][mag_center.length][NUM_E];
+		pdf3D = new double[dist_center.length][mag_center.length][NUM_E];
 
-    DistanceRupParameter distRup = new DistanceRupParameter();
+		DistanceRupParameter distRup = new DistanceRupParameter();
 
-    String S = C + ": disaggregate(): ";
+		String S = C + ": disaggregate(): ";
 
-    if (D) System.out.println(S + "STARTING DISAGGREGATION");
+		if (D) System.out.println(S + "STARTING DISAGGREGATION");
 
-    if (D) System.out.println(S + "iml = " + iml);
+		if (D) System.out.println(S + "iml = " + iml);
 
-//    if( D )System.out.println(S + "deltaMag = " + deltaMag + "; deltaDist = " + deltaDist + "; deltaE = " + deltaE);
-    ArrayList disaggSourceList = null;
-    DisaggregationSourceRuptureComparator srcRupComparator = null;
-    if (this.numSourcesToShow > 0) {
-      disaggSourceList = new ArrayList();
-      srcRupComparator = new
-          DisaggregationSourceRuptureComparator();
-    }
-    //resetting the Parameter change Listeners on the AttenuationRelationship
-    //parameters. This allows the Server version of our application to listen to the
-    //parameter changes.
-    ( (AttenuationRelationship) imr).resetParameterEventListeners();
+		//    if( D )System.out.println(S + "deltaMag = " + deltaMag + "; deltaDist = " + deltaDist + "; deltaE = " + deltaE);
+		ArrayList disaggSourceList = null;
+		DisaggregationSourceRuptureComparator srcRupComparator = null;
+		if (this.numSourcesToShow > 0) {
+			disaggSourceList = new ArrayList();
+			srcRupComparator = new
+			DisaggregationSourceRuptureComparator();
+		}
+		//resetting the Parameter change Listeners on the AttenuationRelationship
+		//parameters. This allows the Server version of our application to listen to the
+		//parameter changes.
+		( (AttenuationRelationship) imr).resetParameterEventListeners();
 
-    // set the maximum distance in the attenuation relationship
-    // (Note- other types of IMRs may not have this method so we should really check type here)
-    imr.setUserMaxDistance(MAX_DISTANCE);
+		// set the maximum distance in the attenuation relationship
+		// (Note- other types of IMRs may not have this method so we should really check type here)
+		imr.setUserMaxDistance(MAX_DISTANCE);
 
-    // set iml in imr
-    imr.setIntensityMeasureLevel(new Double(iml));
+		// set iml in imr
+		imr.setIntensityMeasureLevel(new Double(iml));
 
-    // get total number of sources
-    int numSources = eqkRupForecast.getNumSources();
+		// get total number of sources
+		int numSources = eqkRupForecast.getNumSources();
 
-    HashMap sourceDissaggMap = new HashMap();
+		HashMap sourceDissaggMap = new HashMap();
 
-    // compute the total number of ruptures for updating the progress bar
-    totRuptures = 0;
-    for (int i = 0; i < numSources; ++i)
-      totRuptures += eqkRupForecast.getSource(i).getNumRuptures();
+		// compute the total number of ruptures for updating the progress bar
+		totRuptures = 0;
+		for (int i = 0; i < numSources; ++i)
+			totRuptures += eqkRupForecast.getSource(i).getNumRuptures();
 
-    // init the current rupture number (also for progress bar)
-    currRuptures = 0;
+		// init the current rupture number (also for progress bar)
+		currRuptures = 0;
 
-    try {
-      // set the site in IMR
-      imr.setSite(site);
-    }
-    catch (Exception ex) {
-      if (D) System.out.println(C + ":Param warning caught" + ex);
-      ex.printStackTrace();
-    }
+		try {
+			// set the site in IMR
+			imr.setSite(site);
+		}
+		catch (Exception ex) {
+			if (D) System.out.println(C + ":Param warning caught" + ex);
+			ex.printStackTrace();
+		}
 
-    // initialize
-    Ebar = 0;
-    Mbar = 0;
-    Dbar = 0;
-    totalRate = 0;
-    outOfBoundsRate = 0;
+		// initialize
+		Ebar = 0;
+		Mbar = 0;
+		Dbar = 0;
+		totalRate = 0;
+		outOfBoundsRate = 0;
 
-    // initialize the PDF
-    for (int i = 0; i < dist_center.length; i++)
-      for (int j = 0; j < mag_center.length; j++)
-        for (int k = 0; k < NUM_E; k++)
-          pdf3D[i][j][k] = 0;
+		// initialize the PDF
+		for (int i = 0; i < dist_center.length; i++)
+			for (int j = 0; j < mag_center.length; j++)
+				for (int k = 0; k < NUM_E; k++)
+					pdf3D[i][j][k] = 0;
 
-    int testNum = 0;
-    for (int i = 0; i < numSources; i++) {
+		int testNum = 0;
+		for (int i = 0; i < numSources; i++) {
 
-      double sourceRate = 0;
-      // get source and get its distance from the site
-      ProbEqkSource source = eqkRupForecast.getSource(i);
+			double sourceRate = 0;
+			// get source and get its distance from the site
+			ProbEqkSource source = eqkRupForecast.getSource(i);
 
-      String sourceName = source.getName();
-      int numRuptures = eqkRupForecast.getNumRuptures(i);
+			String sourceName = source.getName();
+			int numRuptures = eqkRupForecast.getNumRuptures(i);
 
-      // check the distance of the source
-      double distance = source.getMinDistance(site);
-      if (distance > MAX_DISTANCE) {
-        currRuptures += numRuptures;
-        continue;
-      }
+			// check the distance of the source
+			double distance = source.getMinDistance(site);
+			if (distance > MAX_DISTANCE) {
+				currRuptures += numRuptures;
+				continue;
+			}
 
-      if (numSourcesToShow > 0)
-        sourceDissaggMap.put(sourceName, new ArrayList());
+			if (numSourcesToShow > 0)
+				sourceDissaggMap.put(sourceName, new ArrayList());
 
-      // loop over ruptures
-      for (int n = 0; n < numRuptures; n++, ++currRuptures) {
+			// loop over ruptures
+			for (int n = 0; n < numRuptures; n++, ++currRuptures) {
 
-        // get the rupture
-        ProbEqkRupture rupture = source.getRupture(n);
+				// get the rupture
+				ProbEqkRupture rupture = source.getRupture(n);
 
-        double qkProb = rupture.getProbability();
+				double qkProb = rupture.getProbability();
 
-        // set the rupture in the imr
-        try {
-          imr.setEqkRupture(rupture);
-        }
-        catch (Exception ex) {
-          System.out.println("Parameter change warning caught");
-        }
+				// set the rupture in the imr
+				try {
+					imr.setEqkRupture(rupture);
+				}
+				catch (Exception ex) {
+					System.out.println("Parameter change warning caught");
+				}
 
-        // get the cond prob
-        condProb = imr.getExceedProbability();
-        // should the following throw an exception?
-        if (condProb == 0 && D)
-          System.out.println(S +
-              "Exceedance probability is zero! (thus the NaNs below)");
+				// get the cond prob
+				condProb = imr.getExceedProbability();
+				// should the following throw an exception?
+				if (condProb == 0 && D)
+					System.out.println(S +
+							"Exceedance probability is zero! (thus the NaNs below)");
 
-        // get the mean, stdDev, epsilon, dist, and mag
-        epsilon = imr.getEpsilon();
-        distRup.setValue(rupture, site);
-        dist = ( (Double) distRup.getValue()).doubleValue();
-        mag = rupture.getMag();
+				// get the mean, stdDev, epsilon, dist, and mag
+				epsilon = imr.getEpsilon();
+				distRup.setValue(rupture, site);
+				dist = ( (Double) distRup.getValue()).doubleValue();
+				mag = rupture.getMag();
 
-        // get the equiv. Poisson rate over the time interval (not annualized)
-        rate = -condProb * Math.log(1 - qkProb);
+				// get the equiv. Poisson rate over the time interval (not annualized)
+				rate = -condProb * Math.log(1 - qkProb);
 
 
-        /*
+				/*
                    if( Double.isNaN(epsilon) && testNum < 1) {
           System.out.println("srcName = " + sourceName +
                              " src#=" + i +
@@ -296,32 +291,32 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 
           testNum += 1;
                    }
-         */
+				 */
 
-        // proceed only if rate is greater than zero (avoids NaN epsilons & is faster)
-        if( rate > 0.0) {
-          // set the 3D array indices & check that all are in bounds
-          setIndices();
-          if (withinBounds)
-            pdf3D[iDist][iMag][iEpsilon] += rate;
-          else {
-            if (D) System.out.println(
-                "disaggregation(): Some bin is out of range");
-            outOfBoundsRate += rate;
-          }
+				// proceed only if rate is greater than zero (avoids NaN epsilons & is faster)
+				if( rate > 0.0) {
+					// set the 3D array indices & check that all are in bounds
+					setIndices();
+					if (withinBounds)
+						pdf3D[iDist][iMag][iEpsilon] += rate;
+					else {
+						if (D) System.out.println(
+								"disaggregation(): Some bin is out of range");
+						outOfBoundsRate += rate;
+					}
 
-        //          if( D ) System.out.println("disaggregation(): bins: " + iMag + "; " + iDist + "; " + iEpsilon);
+					//          if( D ) System.out.println("disaggregation(): bins: " + iMag + "; " + iDist + "; " + iEpsilon);
 
-          totalRate += rate;
+					totalRate += rate;
 
-          Mbar += rate * mag;
-          Dbar += rate * dist;
-          Ebar += rate * epsilon;
-          sourceRate += rate;
+					Mbar += rate * mag;
+					Dbar += rate * dist;
+					Ebar += rate * epsilon;
+					sourceRate += rate;
 
-        }
-          // create and add rupture info to source list
-          /*if (numSourcesToShow > 0) {
+				}
+				// create and add rupture info to source list
+				/*if (numSourcesToShow > 0) {
             double eventRate = -Math.log(1 - qkProb); // this event rate is not annualized!
             DisaggregationSourceRuptureInfo rupInfo = new
                 DisaggregationSourceRuptureInfo(null, eventRate, (float) rate, n,
@@ -329,44 +324,44 @@ public class DisaggregationCalculator extends UnicastRemoteObject
             ( (ArrayList) sourceDissaggMap.get(sourceName)).add(rupInfo);
           }*/
 
-      }
-      if (numSourcesToShow > 0) {
-        // sort the ruptures in this source according to contribution
-        //ArrayList sourceRupList = (ArrayList) sourceDissaggMap.get(sourceName);
-        //Collections.sort(sourceRupList,srcRupComparator);
-        // create the total rate info for this source
-        DisaggregationSourceRuptureInfo disaggInfo = new
-            DisaggregationSourceRuptureInfo(sourceName, (float) sourceRate, i);
-        disaggSourceList.add(disaggInfo);
-      }
-    }
+			}
+			if (numSourcesToShow > 0) {
+				// sort the ruptures in this source according to contribution
+				//ArrayList sourceRupList = (ArrayList) sourceDissaggMap.get(sourceName);
+				//Collections.sort(sourceRupList,srcRupComparator);
+				// create the total rate info for this source
+				DisaggregationSourceRuptureInfo disaggInfo = new
+				DisaggregationSourceRuptureInfo(sourceName, (float) sourceRate, i);
+				disaggSourceList.add(disaggInfo);
+			}
+		}
 
-    //if no rate of exceedance above a given IML then return false.
-    if (! (totalRate > 0))
-      return false;
+		//if no rate of exceedance above a given IML then return false.
+		if (! (totalRate > 0))
+			return false;
 
-    // sort the disaggSourceList according to contribution
-    if (numSourcesToShow > 0) {
-      Collections.sort(disaggSourceList, srcRupComparator);
-      // make a string of the sorted list info
-      sourceDisaggInfo =
-          "Source#\t% Contribution\tTotExceedRate\tSourceName\n";
-      int size = disaggSourceList.size();
-      if (size > numSourcesToShow)
-        size = numSourcesToShow;
-      // overide to only give the top 100 sources (otherwise can be to big and cause crash)
-      for (int i = 0; i < size; ++i) {
-        DisaggregationSourceRuptureInfo disaggInfo = (
-            DisaggregationSourceRuptureInfo)
-            disaggSourceList.get(i);
-        sourceDisaggInfo += f1.format(disaggInfo.getId()) + "\t" +
-            f2.format(100*disaggInfo.getRate()/totalRate) +
-            "\t" + (float) disaggInfo.getRate() +
-            "\t" + disaggInfo.getName() + "\n";
-//System.out.println(f2.format(100*disaggInfo.getRate()/totalRate));
-      }
-    }
-    /*try {
+		// sort the disaggSourceList according to contribution
+		if (numSourcesToShow > 0) {
+			Collections.sort(disaggSourceList, srcRupComparator);
+			// make a string of the sorted list info
+			sourceDisaggInfo =
+				"Source#\t% Contribution\tTotExceedRate\tSourceName\n";
+			int size = disaggSourceList.size();
+			if (size > numSourcesToShow)
+				size = numSourcesToShow;
+			// overide to only give the top 100 sources (otherwise can be to big and cause crash)
+			for (int i = 0; i < size; ++i) {
+				DisaggregationSourceRuptureInfo disaggInfo = (
+						DisaggregationSourceRuptureInfo)
+						disaggSourceList.get(i);
+				sourceDisaggInfo += f1.format(disaggInfo.getId()) + "\t" +
+				f2.format(100*disaggInfo.getRate()/totalRate) +
+				"\t" + (float) disaggInfo.getRate() +
+				"\t" + disaggInfo.getName() + "\n";
+				//System.out.println(f2.format(100*disaggInfo.getRate()/totalRate));
+			}
+		}
+		/*try {
       FileWriter fw = new FileWriter("Source_Rupture_OpenSHA.txt");
       String sourceRupDisaggregationInfo =
           "#Source-Id  Source-Rate   Rupture-Id   Mag   Distance   Rupture-Exceed-Rate Rupture-Rate  Source-Name\n";
@@ -399,558 +394,569 @@ public class DisaggregationCalculator extends UnicastRemoteObject
       ex1.printStackTrace();
     }*/
 
-    Mbar /= totalRate;
-    Dbar /= totalRate;
-    Ebar /= totalRate;
-    if (D) System.out.println(S + "Mbar = " + Mbar);
-    if (D) System.out.println(S + "Dbar = " + Dbar);
-    if (D) System.out.println(S + "Ebar = " + Ebar);
+		Mbar /= totalRate;
+		Dbar /= totalRate;
+		Ebar /= totalRate;
+		if (D) System.out.println(S + "Mbar = " + Mbar);
+		if (D) System.out.println(S + "Dbar = " + Dbar);
+		if (D) System.out.println(S + "Ebar = " + Ebar);
 
-    maxContrEpsilonForDisaggrPlot = -1;
-    int modeMagBin = -1, modeDistBin = -1, modeEpsilonBin = -1;
-    double maxContrBinRate = -1;
-    for (int i = 0; i < dist_center.length; i++) {
-      for (int j = 0; j < mag_center.length; j++) {
-        double contrEpsilonSum = 0;
-        for (int k = 0; k < NUM_E; k++) {
-          pdf3D[i][j][k] = pdf3D[i][j][k] / totalRate * 100; // convert to
-          //summing over all the contributing Epsilon for a given dist and Mag.
-          contrEpsilonSum += pdf3D[i][j][k];
-          if (pdf3D[i][j][k] > maxContrBinRate) {
-            maxContrBinRate = pdf3D[i][j][k];
-            modeDistBin = i;
-            modeMagBin = j;
-            modeEpsilonBin = k;
-          }
-        }
-        if (contrEpsilonSum > maxContrEpsilonForDisaggrPlot)
-          maxContrEpsilonForDisaggrPlot = contrEpsilonSum;
-      }
-    }
-    M_index_mode3D = modeMagBin;
-    D_index_mode3D = modeDistBin;
-    epsilonRangeString = this.getEpsilonRange(modeEpsilonBin);
-    //E_mode3D = eps(modeEpsilonBin);
+		maxContrEpsilonForDisaggrPlot = -1;
+		int modeMagBin = -1, modeDistBin = -1, modeEpsilonBin = -1;
+		double maxContrBinRate = -1;
+		for (int i = 0; i < dist_center.length; i++) {
+			for (int j = 0; j < mag_center.length; j++) {
+				double contrEpsilonSum = 0;
+				for (int k = 0; k < NUM_E; k++) {
+					pdf3D[i][j][k] = pdf3D[i][j][k] / totalRate * 100; // convert to
+					//summing over all the contributing Epsilon for a given dist and Mag.
+					contrEpsilonSum += pdf3D[i][j][k];
+					if (pdf3D[i][j][k] > maxContrBinRate) {
+						maxContrBinRate = pdf3D[i][j][k];
+						modeDistBin = i;
+						modeMagBin = j;
+						modeEpsilonBin = k;
+					}
+				}
+				if (contrEpsilonSum > maxContrEpsilonForDisaggrPlot)
+					maxContrEpsilonForDisaggrPlot = contrEpsilonSum;
+			}
+		}
+		M_index_mode3D = modeMagBin;
+		D_index_mode3D = modeDistBin;
+		epsilonRangeString = this.getEpsilonRange(modeEpsilonBin);
+		//E_mode3D = eps(modeEpsilonBin);
 
-    if (D) System.out.println(S + "MagModeIndex = " + M_index_mode3D + "; binNum = " +
-                              modeMagBin);
-    if (D) System.out.println(S + "DistModeIndex = " + D_index_mode3D + "; binNum = " +
-                              modeDistBin);
-    if (D) System.out.println(S + "EpsMode = " + epsilonRangeString +
-                              "; binNum = " + modeEpsilonBin);
-    //if( D ) System.out.println(S + "EpsMode = "  + E_mode3D + "; binNum = " + modeEpsilonBin);
-
- 
-    return true;
-  }
+		if (D) System.out.println(S + "MagModeIndex = " + M_index_mode3D + "; binNum = " +
+				modeMagBin);
+		if (D) System.out.println(S + "DistModeIndex = " + D_index_mode3D + "; binNum = " +
+				modeDistBin);
+		if (D) System.out.println(S + "EpsMode = " + epsilonRangeString +
+				"; binNum = " + modeEpsilonBin);
+		//if( D ) System.out.println(S + "EpsMode = "  + E_mode3D + "; binNum = " + modeEpsilonBin);
 
 
-  /**
-   *
-   * Returns the disaggregated source list with following info ( in each line)
-   * 1)Source Id as given by OpenSHA
-   * 2)Name of the Source
-   * 3)Rate Contributed by that source
-   * 4)Percentage Contribution of the source in Hazard at the site.
-   *
-   * @return String
-   * @throws RemoteException
-   */
-  public String getDisaggregationSourceInfo() throws java.rmi.RemoteException{
-    if(numSourcesToShow >0)
-      return sourceDisaggInfo;
-    return "";
-  }
-
-  /**
-   * Setting up the Mag Range
-   * @param minMag double - this is the center of the first bin
-   * @param numMags int
-   * @param deltaMag double
-   */
-  public void setMagRange(double minMag, int numMags, double deltaMag) throws
-      java.rmi.RemoteException {
-	  mag_center = new double[numMags];
-	  mag_binEdges = new double[numMags+1];
-	  mag_binEdges[0] = minMag-deltaMag/2;
-	  for(int i=0;i<numMags;i++) {
-		  mag_center[i] = minMag+i*deltaMag;
-		  mag_binEdges[i+1] = mag_center[i] + deltaMag/2;
-	  }
-  }
-  
-  /**
-   * Setting up the Mag Range
-   * @param dmagBinEdges - a double array of the distance-bin edges (in correct order, from low to high)
-   */
-  public void setMagRange(double[] magBinEdges) throws
-      java.rmi.RemoteException {
-	  this.mag_binEdges = magBinEdges;
-	  mag_center = new double[mag_binEdges.length-1];
-	  for(int i=0;i<mag_center.length;i++)
-		  mag_center[i] = (mag_binEdges[i]+mag_binEdges[i+1])/2;
-  }
+		return true;
+	}
 
 
+	/**
+	 *
+	 * Returns the disaggregated source list with following info ( in each line)
+	 * 1)Source Id as given by OpenSHA
+	 * 2)Name of the Source
+	 * 3)Rate Contributed by that source
+	 * 4)Percentage Contribution of the source in Hazard at the site.
+	 *
+	 * @return String
+	 * @throws RemoteException
+	 */
+	public String getDisaggregationSourceInfo() throws java.rmi.RemoteException{
+		if(numSourcesToShow >0)
+			return sourceDisaggInfo;
+		return "";
+	}
 
-  /**
-   * Setting up the Distance Range
-   * @param minDist double - this is the center of the first bin
-   * @param numDist int
-   * @param deltaDist double
-   */
-  public void setDistanceRange(double minDist, int numDist, double deltaDist) throws
-      java.rmi.RemoteException {
-	  dist_center = new double[numDist];
-	  dist_binEdges = new double[numDist+1];
-	  dist_binEdges[0] = minDist-deltaDist/2;
-	  for(int i=0;i<numDist;i++) {
-		  dist_center[i] = minDist+i*deltaDist;
-		  dist_binEdges[i+1] = dist_center[i] + deltaDist/2;
-	  }
- // hack test:
-//	  double[] temp = {0,1,2,5,10,20,50,100,200};
-//	  setDistanceRange(temp);
-  }
-  
- 
-  /**
-   * Setting up the Distance Range
-   * @param distBinEdges - a double array of the distance-bin edges (in correct order, from low to high)
-   */
-  public void setDistanceRange(double[] distBinEdges) throws
-      java.rmi.RemoteException {
-	  this.dist_binEdges = distBinEdges;
-	  dist_center = new double[distBinEdges.length-1];
-	  for(int i=0;i<dist_center.length;i++)
-		  dist_center[i] = (distBinEdges[i]+distBinEdges[i+1])/2;
-  }
+	/**
+	 * Setting up the Mag Range
+	 * @param minMag double - this is the center of the first bin
+	 * @param numMags int
+	 * @param deltaMag double
+	 */
+	public void setMagRange(double minMag, int numMags, double deltaMag) throws
+	java.rmi.RemoteException {
+		mag_center = new double[numMags];
+		mag_binEdges = new double[numMags+1];
+		mag_binEdges[0] = minMag-deltaMag/2;
+		for(int i=0;i<numMags;i++) {
+			mag_center[i] = minMag+i*deltaMag;
+			mag_binEdges[i+1] = mag_center[i] + deltaMag/2;
+		}
+	}
 
-  
-  
-  /**
-   * Sets the Max Z Axis Range value for plotting purposes
-   * @param zMax
-   * @throws java.rmi.RemoteException
-   */
-  public void setMaxZAxisForPlot(double zMax) throws
-      java.rmi.RemoteException {
-    if(!Double.isNaN(zMax))
-    	maxContrEpsilonForGMT_Plot = zMax;
-    else
-    	maxContrEpsilonForGMT_Plot = this.maxContrEpsilonForDisaggrPlot;
-  }
-
-  /**
-   * gets the number of current rupture being processed
-   * @return
-   */
-  public int getCurrRuptures() throws java.rmi.RemoteException{
-    return this.currRuptures;
-  }
-
-  /**
-   * gets the total number of ruptures
-   * @return
-   */
-  public int getTotRuptures() throws java.rmi.RemoteException{
-    return this.totRuptures;
-  }
-
-  /**
-   * Checks to see if disaggregation calculation for the selected site
-   * have been completed.
-   * @return
-   */
-  public boolean done() throws java.rmi.RemoteException{
-    return (currRuptures==totRuptures);
-  }
-
-  /**
-   *
-   * @returns resultant disaggregation in a String format.
-   * @throws java.rmi.RemoteException
-   */
-  public String getMeanAndModeInfo() throws java.rmi.RemoteException{
+	/**
+	 * Setting up the Mag Range
+	 * @param dmagBinEdges - a double array of the distance-bin edges (in correct order, from low to high)
+	 */
+	public void setMagRange(double[] magBinEdges) throws
+	java.rmi.RemoteException {
+		this.mag_binEdges = magBinEdges;
+		mag_center = new double[mag_binEdges.length-1];
+		for(int i=0;i<mag_center.length;i++)
+			mag_center[i] = (mag_binEdges[i]+mag_binEdges[i+1])/2;
+	}
 
 
-    float mm_l = (float) mag_binEdges[M_index_mode3D]; 
-    float mm_u = (float) mag_binEdges[M_index_mode3D+1]; 
-    float dm_l = (float) dist_binEdges[D_index_mode3D]; 
-    float dm_u = (float) dist_binEdges[D_index_mode3D+1]; 
-    //float em_l = (float) (E_mode3D-deltaE/2.0);
-    //float em_u = (float) (E_mode3D+deltaE/2.0);
-    String results;
 
-    results = "\n" +
-              "\n  Mbar = " + (float) Mbar +
-              "\n  Dbar = " + (float) Dbar +
-              "\n  Ebar = " + (float) Ebar + "\n" +
-              "\n  " + mm_l+" � Mmode < " + mm_u +
-              "\n  " + dm_l+" � Dmode < " + dm_u;
-    /*if( E_mode3D == Double.NEGATIVE_INFINITY || E_mode3D == Double.POSITIVE_INFINITY)
+	/**
+	 * Setting up the Distance Range
+	 * @param minDist double - this is the center of the first bin
+	 * @param numDist int
+	 * @param deltaDist double
+	 */
+	public void setDistanceRange(double minDist, int numDist, double deltaDist) throws
+	java.rmi.RemoteException {
+		dist_center = new double[numDist];
+		dist_binEdges = new double[numDist+1];
+		dist_binEdges[0] = minDist-deltaDist/2;
+		for(int i=0;i<numDist;i++) {
+			dist_center[i] = minDist+i*deltaDist;
+			dist_binEdges[i+1] = dist_center[i] + deltaDist/2;
+		}
+		// hack test:
+		//	  double[] temp = {0,1,2,5,10,20,50,100,200};
+		//	  setDistanceRange(temp);
+	}
+
+
+	/**
+	 * Setting up the Distance Range
+	 * @param distBinEdges - a double array of the distance-bin edges (in correct order, from low to high)
+	 */
+	public void setDistanceRange(double[] distBinEdges) throws
+	java.rmi.RemoteException {
+		this.dist_binEdges = distBinEdges;
+		dist_center = new double[distBinEdges.length-1];
+		for(int i=0;i<dist_center.length;i++)
+			dist_center[i] = (distBinEdges[i]+distBinEdges[i+1])/2;
+	}
+
+
+
+	/**
+	 * Sets the Max Z Axis Range value for plotting purposes
+	 * @param zMax
+	 * @throws java.rmi.RemoteException
+	 */
+	public void setMaxZAxisForPlot(double zMax) throws
+	java.rmi.RemoteException {
+		if(!Double.isNaN(zMax))
+			maxContrEpsilonForGMT_Plot = zMax;
+		else
+			maxContrEpsilonForGMT_Plot = this.maxContrEpsilonForDisaggrPlot;
+	}
+
+	/**
+	 * gets the number of current rupture being processed
+	 * @return
+	 */
+	public int getCurrRuptures() throws java.rmi.RemoteException{
+		return this.currRuptures;
+	}
+
+	/**
+	 * gets the total number of ruptures
+	 * @return
+	 */
+	public int getTotRuptures() throws java.rmi.RemoteException{
+		return this.totRuptures;
+	}
+
+	/**
+	 * Checks to see if disaggregation calculation for the selected site
+	 * have been completed.
+	 * @return
+	 */
+	public boolean done() throws java.rmi.RemoteException{
+		return (currRuptures==totRuptures);
+	}
+
+	/**
+	 *
+	 * @returns resultant disaggregation in a String format.
+	 * @throws java.rmi.RemoteException
+	 */
+	public String getMeanAndModeInfo() throws java.rmi.RemoteException{
+
+
+		float mm_l = (float) mag_binEdges[M_index_mode3D]; 
+		float mm_u = (float) mag_binEdges[M_index_mode3D+1]; 
+		float dm_l = (float) dist_binEdges[D_index_mode3D]; 
+		float dm_u = (float) dist_binEdges[D_index_mode3D+1]; 
+		//float em_l = (float) (E_mode3D-deltaE/2.0);
+		//float em_u = (float) (E_mode3D+deltaE/2.0);
+		String results;
+
+		results = "\n" +
+		"\n  Mbar = " + (float) Mbar +
+		"\n  Dbar = " + (float) Dbar +
+		"\n  Ebar = " + (float) Ebar + "\n" +
+		"\n  " + mm_l+" � Mmode < " + mm_u +
+		"\n  " + dm_l+" � Dmode < " + dm_u;
+		/*if( E_mode3D == Double.NEGATIVE_INFINITY || E_mode3D == Double.POSITIVE_INFINITY)
       results += "\n  Emode = " + E_mode3D;
     else
       results += "\n  " + em_l+" � Emode < " + em_u;*/
-    results += "\n"+epsilonRangeString;
+		results += "\n"+epsilonRangeString;
 
-    if(totalRate == 0.0)
-      results += "\n\nNote:\n" +
-                 "The above NaN values result from the chosen IML\n" +
-                 "(or that interpolated from the chosen probability)\n" +
-                 "never being exceeded.";
+		if(totalRate == 0.0)
+			results += "\n\nNote:\n" +
+			"The above NaN values result from the chosen IML\n" +
+			"(or that interpolated from the chosen probability)\n" +
+			"never being exceeded.";
 
-/*
+		/*
         results = "Disaggregation Result:\n\n\tMbar = " + Mbar + "\n\tDbar = " +
               Dbar + "\n\tEbar = " + Ebar + "\n\n\tMmode = " + M_mode3D +
               "\n\tDmode = " + D_mode3D + "\n\tEmode = " + E_mode3D;
-*/
+		 */
 
-    return results;
+		return results;
 
-  }
-
-
-  /**
-   * Returns the Bin Data in the String format
-   * @return String
-   * @throws RemoteException
-   */
-  public String getBinData() throws java.rmi.RemoteException {
-
-    DecimalFormat f1 = new DecimalFormat("0.00");
-    DecimalFormat f2 = new DecimalFormat("00.00");
-    DecimalFormat f3 = new DecimalFormat("000.00");
-    double totPercent, percent;
-
-    String binInfo = "Dist\tMag\tE�-2\t-2<E�-1\t-1<E�-0.5\t "+
-        "-0.5>E�0\t 0<E�0.5\t 0.5<E�1\t 1<E�2\t 2>E \n";
-    binInfo += "-----\t----\t------\t------\t-------\t" +
-        "-------\t-------\t-------\t-------\t------\n";
-        for (int i = 0; i < dist_center.length; ++i) {
-          for (int j = 0; j < mag_center.length; ++j) {
-            binInfo +=f3.format(dist_center[i])+" \t "+f1.format(mag_center[j])+" \t ";
-        String E_String ="";
-        totPercent = 0;
-        for (int k = 0; k < NUM_E; ++k) {
-          percent = pdf3D[i][j][k];
-          E_String += f2.format(percent)+" \t ";
-          totPercent += percent;
-        }
-        binInfo +=E_String+f2.format(totPercent)+"\n";
-      }
-    }
-    return binInfo;
-  }
+	}
 
 
-  private void setIndices() {
-    withinBounds= true;
-    iMag=-1;
-    iDist=-1;
-    
-    // Get mag bin
-    for(int i=0;i<mag_center.length;i++) 
-    	if(mag>=mag_binEdges[i] && mag<mag_binEdges[i+1]) {
-    		iMag = i;
-    		break;
-    	}
-    
-    // Get the dist bin
-    for(int i=0;i<dist_center.length;i++) 
-    	if(dist>=dist_binEdges[i] && dist<dist_binEdges[i+1]) {
-    		iDist = i;
-    		break;
-    	}
-    		
-    if (epsilon <= -2)
-      iEpsilon = 0;
-    else if (epsilon > -2 && epsilon <= -1)
-      iEpsilon = 1;
-    else if (epsilon > -1 && epsilon <= -0.5)
-      iEpsilon = 2;
-    else if (epsilon > -0.5 && epsilon <= 0)
-      iEpsilon = 3;
-    else if (epsilon > 0 && epsilon <= 0.5)
-      iEpsilon = 4;
-    else if (epsilon > 0.5 && epsilon <= 1.0)
-      iEpsilon = 5;
-    else if (epsilon > 1.0 && epsilon <= 2.0)
-      iEpsilon = 6;
-    else if (epsilon > 2.0)
-      iEpsilon = 7;
-    
-    if( iMag == -1) withinBounds= false;
-    if( iDist == -1) withinBounds = false;
+	/**
+	 * Returns the Bin Data in the String format
+	 * @return String
+	 * @throws RemoteException
+	 */
+	public String getBinData() throws java.rmi.RemoteException {
 
-  }
+		DecimalFormat f1 = new DecimalFormat("0.00");
+		DecimalFormat f2 = new DecimalFormat("00.00");
+		DecimalFormat f3 = new DecimalFormat("000.00");
+		double totPercent, percent;
+
+		String binInfo = "Dist\tMag\tE�-2\t-2<E�-1\t-1<E�-0.5\t "+
+		"-0.5>E�0\t 0<E�0.5\t 0.5<E�1\t 1<E�2\t 2>E \n";
+		binInfo += "-----\t----\t------\t------\t-------\t" +
+		"-------\t-------\t-------\t-------\t------\n";
+		for (int i = 0; i < dist_center.length; ++i) {
+			for (int j = 0; j < mag_center.length; ++j) {
+				binInfo +=f3.format(dist_center[i])+" \t "+f1.format(mag_center[j])+" \t ";
+				String E_String ="";
+				totPercent = 0;
+				for (int k = 0; k < NUM_E; ++k) {
+					percent = pdf3D[i][j][k];
+					E_String += f2.format(percent)+" \t ";
+					totPercent += percent;
+				}
+				binInfo +=E_String+f2.format(totPercent)+"\n";
+			}
+		}
+		return binInfo;
+	}
 
 
-  /**
-   * Gets the Epsilon range String based on the index of the epsilon
-   * @param iEpsilon int
-   * @return String
-   */
-  private String getEpsilonRange(int iEpsilon){
+	private void setIndices() {
+		withinBounds= true;
+		iMag=-1;
+		iDist=-1;
 
-    switch (iEpsilon){
-      case 0:
-        return "Emode <= -2";
-      case 1:
-        return "-2 < Emode <= -1";
-      case 2:
-        return "-1 < Emode <= -0.5";
-      case 3:
-        return "-0.5 < Emode <= 0.0";
-      case 4:
-        return "0.0 < Emode <= 0.5";
-      case 5:
-        return "0.5 < Emode <= 1.0";
-      case 6:
-        return "1.0 < Emode <= 2.0";
-      case 7:
-        return "2.0 < Emode ";
-      default:
-        return "Incorrect Index";
-    }
-  }
+		// Get mag bin
+		for(int i=0;i<mag_center.length;i++) 
+			if(mag>=mag_binEdges[i] && mag<mag_binEdges[i+1]) {
+				iMag = i;
+				break;
+			}
 
-  /**
-   * Gets the plot image for the Disaggregation
-   * @param metadata String
-   * @return String
-   */
-  public String getDisaggregationPlotUsingServlet(String metadata) throws java.
-      rmi.RemoteException {
-    ArrayList gmtScriptLines = createGMTScriptForDisaggregationPlot();
-    disaggregationPlotImgWebAddr = openServletConnection(gmtScriptLines, metadata);
-    return disaggregationPlotImgWebAddr;
-  }
+		// Get the dist bin
+		for(int i=0;i<dist_center.length;i++) 
+			if(dist>=dist_binEdges[i] && dist<dist_binEdges[i+1]) {
+				iDist = i;
+				break;
+			}
 
+		if (epsilon <= -2)
+			iEpsilon = 0;
+		else if (epsilon > -2 && epsilon <= -1)
+			iEpsilon = 1;
+		else if (epsilon > -1 && epsilon <= -0.5)
+			iEpsilon = 2;
+		else if (epsilon > -0.5 && epsilon <= 0)
+			iEpsilon = 3;
+		else if (epsilon > 0 && epsilon <= 0.5)
+			iEpsilon = 4;
+		else if (epsilon > 0.5 && epsilon <= 1.0)
+			iEpsilon = 5;
+		else if (epsilon > 1.0 && epsilon <= 2.0)
+			iEpsilon = 6;
+		else if (epsilon > 2.0)
+			iEpsilon = 7;
 
+		if( iMag == -1) withinBounds= false;
+		if( iDist == -1) withinBounds = false;
 
-  /**
-   * Creates the GMT_Script lines
-   */
-  private ArrayList createGMTScriptForDisaggregationPlot(){
-
-    double x_axis_length = 4.5; // in inches
-    double y_axis_length = 4.0; // in inches
-    double z_axis_length = 2.5; // in inches
-
-    int numTicksToDrawForZAxis = 5;
-    // compute z-axis tick spacing & max z value
-    double z_tick = Math.ceil(this.maxContrEpsilonForGMT_Plot/numTicksToDrawForZAxis);
-    double maxZVal = z_tick * numTicksToDrawForZAxis;
-    ArrayList gmtScriptLines = new ArrayList();
-// System.out.println(maxContrEpsilonForDisaggrPlot+"\t"+z_grid+"\t"+maxZVal);
-
-    float min_dist = (float) dist_binEdges[0];
-    float max_dist = (float) dist_binEdges[dist_binEdges.length-1];
-    float min_mag = (float) mag_binEdges[0];
-    float max_mag = (float) mag_binEdges[mag_binEdges.length-1];
-
-    double totDist = dist_binEdges[dist_binEdges.length-1]-dist_binEdges[0];
-    double x_tick;
-    if(totDist<115) x_tick = 10;
-    else if (totDist<225) x_tick = 20;
-    else if (totDist<335) x_tick = 30;
-    else if (totDist<445) x_tick = 40;
-    else x_tick = 50;
-    
-    double distBinWidthToInches = x_axis_length/totDist;
-    
-    
-    double totMag = mag_binEdges[mag_binEdges.length-1]-mag_binEdges[0];
-    double y_tick;
-    if(totMag<5) y_tick = 0.5;
-    else y_tick = 1.0;
-    
-    double magBinWidthToInches = y_axis_length/totMag;
-    
-
-    try{
-    String region = "-R"+min_dist+"/"+max_dist+"/"+min_mag+"/"+max_mag+"/"+0+"/"+maxZVal;
-    String projection = "-JX"+x_axis_length+"i/"+y_axis_length+"i";
-    String viewAngle = "-E150/30";
-    String boxPenWidth = "-W0.5p";  // pen width for drawing boxes
-    String verticalScaling = "-JZ"+z_axis_length+"i";
-    String gmt_const_comands = "gmtset PAGE_COLOR 180/180/180 \n gmtset X_ORIGIN 1.0i \n"+
-        "gmtset Y_ORIGIN 2.0i\n";
-    String img_ps_file = "DisaggregationPlot.ps";
-
-    String axisBoundaryTicksBounds = "-B"+x_tick+":\"Rupture Distance (km)\":"+"/"+y_tick+":Magnitude:"+
-        "/"+z_tick+":%Contribution:"+"wSnEZ";
-    String gridLines = "cat << END > temp_segments";
-    ArrayList segLineList = new ArrayList();
-    segLineList.add(gridLines);
-    //creating the grid lines on Z axis.
- //System.out.println(z_tick+"   "+maxZVal+"   "+maxContrEpsilonForDisaggrPlot);
-    for (double k = z_tick; k <= maxZVal; k += z_tick) {
-      segLineList.add(">\n" +min_dist+"  "+ min_mag+" "+k);
-      segLineList.add(min_dist+"  "+max_mag+"  "+k);
-      segLineList.add(">\n" +min_dist+"  "+ max_mag+"  "+k);
-      segLineList.add(+max_dist+"   "+max_mag+"  "+k);
-    }
-    segLineList.add(">\n" + min_dist +"   "+ max_mag+"  " + 0);
-    segLineList.add( min_dist + "  "+max_mag + "  " + maxZVal);
-    segLineList.add(">\n"+ max_dist + "  "+ max_mag + " "  + 0);
-    segLineList.add(  + max_dist + "  " +max_mag+ " "+ maxZVal);
-    segLineList.add("END\n");
-
-    //creating the GMT_Script for the plot
-    gmtScriptLines.add(gmt_const_comands);
-    gmtScriptLines.addAll(segLineList);
-    gmtScriptLines.add("psxyz temp_segments -P "+
-                       region+" -M  " +projection +"  "+verticalScaling+" -K -G0/0/0 "+
-                       viewAngle + "  "+boxPenWidth+"  "+axisBoundaryTicksBounds +" >  "+img_ps_file);
-
-    float contribution, base, top;
-    for (int i = 0; i < dist_center.length; ++i) {
-      for (int j = mag_center.length - 1; j >= 0; --j) {   // ordering here is important
-
-    	double box_x_width = (dist_binEdges[i+1]- dist_binEdges[i])*distBinWidthToInches - 0.05; // lst term leaves some space
-    	double box_y_width = (mag_binEdges[j+1]- mag_binEdges[j])*magBinWidthToInches - 0.05;
-    	String symbol = " -So"+box_x_width+"i/"+box_y_width+"ib";
-
-        base = 0;
-        top = 0;
-        for (int k = 0; k < NUM_E; ++k) {
-          contribution = (float) pdf3D[i][j][k];
-          top = base + contribution;
-          if (contribution > 0.0) {
-            gmtScriptLines.add("echo " + "\"" + dist_center[i] + " " + mag_center[j] + " " + top +
-                               "\"" +
-                               " > junk_data ; psxyz junk_data "
-                               + "-P " + region + " " + projection + " " +
-                               verticalScaling + symbol + base +
-                               " -K -O " + epsilonColors[k] + "  " +
-                               viewAngle +
-                               "  " + boxPenWidth + " >> " + img_ps_file);
-            base = top;
-          }
-
-        }
-      }
-    }
+	}
 
 
-    // add the legend boxes
-    // 1st legend box has origin offset in Y by -2 inches (and X by minus some too)
-    gmtScriptLines.add("echo " + "\"" + dist_binEdges[dist_binEdges.length-1] + " " + mag_binEdges[0] + " " + (0.8*z_tick) +
-                       "\"" + " > junk_data ; psxyz junk_data " + "-P -Y-1.25i -X-4.2i " +
-                       region + " " +
-                       projection + " " + verticalScaling + " -So0.3ib0 " +
-                       " -K -O " +
-                       epsilonColors[0] + "  " + viewAngle + "  " + boxPenWidth +
-                       " >> " + img_ps_file);
+	/**
+	 * Gets the Epsilon range String based on the index of the epsilon
+	 * @param iEpsilon int
+	 * @return String
+	 */
+	private String getEpsilonRange(int iEpsilon){
 
-    // each now has origin offset in the X direction
-    for (int k = 1; k < NUM_E; ++k) {
-      gmtScriptLines.add("echo " + "\"" + dist_binEdges[dist_binEdges.length-1] + " " + mag_binEdges[0] + " " + (0.8*z_tick) +
-                         "\"" + " > junk_data ; psxyz junk_data " + "-P -X0.9i " +
-                         region + " " +
-                         projection + " " + verticalScaling + " -So0.3ib0 " + "0" +
-                         " -K -O " +
-                         epsilonColors[k] + "  " + viewAngle + "  " + boxPenWidth +
-                         " >> " + img_ps_file);
-    }
+		switch (iEpsilon){
+		case 0:
+			return "Emode <= -2";
+		case 1:
+			return "-2 < Emode <= -1";
+		case 2:
+			return "-1 < Emode <= -0.5";
+		case 3:
+			return "-0.5 < Emode <= 0.0";
+		case 4:
+			return "0.0 < Emode <= 0.5";
+		case 5:
+			return "0.5 < Emode <= 1.0";
+		case 6:
+			return "1.0 < Emode <= 2.0";
+		case 7:
+			return "2.0 < Emode ";
+		default:
+			return "Incorrect Index";
+		}
+	}
 
-
-    gmtScriptLines.add("echo " + "\"0.0 0.75 13 0.0 12 CB e<-2\" > temp_label");
-    gmtScriptLines.add("echo " + "\"0.9 0.75 13 0.0 12 CB -2<e<-1\" >> temp_label");
-    gmtScriptLines.add("echo " + "\"1.8 0.75 13 0.0 12 CB -1<e<-0.5\" >> temp_label");
-    gmtScriptLines.add("echo " + "\"2.7 0.75 13 0.0 12 CB -0.5<e<0\" >> temp_label");
-    gmtScriptLines.add("echo " + "\"3.6 0.75 13 0.0 12 CB 0<e<0.5\" >> temp_label");
-    gmtScriptLines.add("echo " + "\"4.5 0.75 13 0.0 12 CB 0.5<e<1\" >> temp_label");
-    gmtScriptLines.add("echo " + "\"5.4 0.75 13 0.0 12 CB 1<e<2\" >> temp_label");
-    gmtScriptLines.add("echo " + "\"6.3 0.75 13 0.0 12 CB 2<e\" >> temp_label");
-    gmtScriptLines.add("pstext temp_label -R0/8.5/0/11 -N -Jx1i -X-2.45 -P -O >> " + img_ps_file);
-
-    gmtScriptLines.add("cat "+img_ps_file+ " |"+ "gs -sDEVICE=jpeg -sOutputFile=temp.jpg"+" -");
-    gmtScriptLines.add("ps2pdf "+img_ps_file+"  "+DISAGGREGATION_PLOT_PDF_NAME);
-    gmtScriptLines.add("convert -crop 0x0 temp.jpg "+DISAGGREGATION_PLOT_IMG_NAME);
-    gmtScriptLines.add("rm junk_data temp.jpg temp_segments");
-    }catch(Exception e){
-      e.printStackTrace();
-    }
-
-    return gmtScriptLines;
-  }
-
-
-  /**
-   * sets up the connection with the servlet on the server (gravity.usc.edu)
-   */
-  private String openServletConnection(ArrayList gmtFileLines,
-                                       String metadata) throws RuntimeException{
-
-    String webaddr=null;
-    try{
-
-      if(D) System.out.println("starting to make connection with servlet");
-      URL gmtPlotServlet = new
-                             URL("http://gravity.usc.edu/OpenSHA/servlet/DisaggregationPlotServlet");
+	/**
+	 * Gets the plot image for the Disaggregation
+	 * @param metadata String
+	 * @return String
+	 */
+	public String getDisaggregationPlotUsingServlet(String metadata) throws java.
+	rmi.RemoteException {
+		DisaggregationPlotData data = new DisaggregationPlotData(mag_center, mag_binEdges, dist_center, dist_binEdges,
+				maxContrEpsilonForGMT_Plot, NUM_E, pdf3D);
+		disaggregationPlotImgWebAddr = openServletConnection(data, metadata);
+		return disaggregationPlotImgWebAddr;
+	}
 
 
-      URLConnection servletConnection = gmtPlotServlet.openConnection();
-      if(D) System.out.println("connection established");
 
-      // inform the connection that we will send output and accept input
-      servletConnection.setDoInput(true);
-      servletConnection.setDoOutput(true);
+	/**
+	 * Creates the GMT_Script lines
+	 */
+	public static ArrayList<String> createGMTScriptForDisaggregationPlot(DisaggregationPlotData data){
 
-      // Don't use a cached version of URL connection.
-      servletConnection.setUseCaches (false);
-      servletConnection.setDefaultUseCaches (false);
-      // Specify the content type that we will send binary data
-      servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
+		double x_axis_length = 4.5; // in inches
+		double y_axis_length = 4.0; // in inches
+		double z_axis_length = 2.5; // in inches
 
-      ObjectOutputStream outputToServlet = new
-          ObjectOutputStream(servletConnection.getOutputStream());
+		int numTicksToDrawForZAxis = 5;
+		// compute z-axis tick spacing & max z value
+		double z_tick = Math.ceil(data.getMaxContrEpsilonForGMT_Plot()/numTicksToDrawForZAxis);
+		double maxZVal = z_tick * numTicksToDrawForZAxis;
+		ArrayList gmtScriptLines = new ArrayList();
+		// System.out.println(maxContrEpsilonForDisaggrPlot+"\t"+z_grid+"\t"+maxZVal);
+		
+		double dist_binEdges[] = data.getDist_binEdges();
+		double mag_binEdges[] = data.getMag_binEdges();
+		double dist_center[] = data.getDist_center();
+		double mag_center[] = data.getMag_center();
+		
+		int numE = data.getNUM_E();
+		
+		double pdf3D[][][] = data.getPdf3D();
+		
+//		data.get
 
+		float min_dist = (float) dist_binEdges[0];
+		float max_dist = (float) dist_binEdges[dist_binEdges.length-1];
+		float min_mag = (float) mag_binEdges[0];
+		float max_mag = (float) mag_binEdges[mag_binEdges.length-1];
 
-      //sending the ArrayList of the gmt Script Lines
-      outputToServlet.writeObject(gmtFileLines);
-      //sending the contents of the Metadata file to the server.
-      outputToServlet.writeObject(metadata);
+		double totDist = dist_binEdges[dist_binEdges.length-1]-dist_binEdges[0];
+		double x_tick;
+		if(totDist<115) x_tick = 10;
+		else if (totDist<225) x_tick = 20;
+		else if (totDist<335) x_tick = 30;
+		else if (totDist<445) x_tick = 40;
+		else x_tick = 50;
 
-
-      outputToServlet.flush();
-      outputToServlet.close();
-
-      // Receive the "actual webaddress of all the gmt related files"
-     // from the servlet after it has received all the data
-      ObjectInputStream inputToServlet = new
-          ObjectInputStream(servletConnection.getInputStream());
-
-      Object messageFromServlet = inputToServlet.readObject();
-      inputToServlet.close();
-      if(messageFromServlet instanceof String){
-        webaddr = (String) messageFromServlet;
-        if (D) System.out.println("Receiving the Input from the Servlet:" +
-                                  webaddr);
-      }
-      else
-        throw (RuntimeException)messageFromServlet;
-    }catch(RuntimeException e){
-      e.printStackTrace();
-     throw new RuntimeException(e.getMessage());
-    }catch (Exception e) {
-      e.printStackTrace();
-      throw new RuntimeException("Server is down , please try again later");
-    }
-    return webaddr;
-  }
+		double distBinWidthToInches = x_axis_length/totDist;
 
 
-  /**
-   * Sets the number of sources to be shown in the Disaggregation.
-   * @param numSources int
-   * @throws RemoteException
-   */
-  public void setNumSourcestoShow(int numSources) throws RemoteException {
-    numSourcesToShow = numSources;
-  }
+		double totMag = mag_binEdges[mag_binEdges.length-1]-mag_binEdges[0];
+		double y_tick;
+		if(totMag<5) y_tick = 0.5;
+		else y_tick = 1.0;
+
+		double magBinWidthToInches = y_axis_length/totMag;
+
+
+		try{
+			String region = "-R"+min_dist+"/"+max_dist+"/"+min_mag+"/"+max_mag+"/"+0+"/"+maxZVal;
+			String projection = "-JX"+x_axis_length+"i/"+y_axis_length+"i";
+			String viewAngle = "-E150/30";
+			String boxPenWidth = "-W0.5p";  // pen width for drawing boxes
+			String verticalScaling = "-JZ"+z_axis_length+"i";
+			String gmt_const_comands = "gmtset PAGE_COLOR 180/180/180 \n gmtset X_ORIGIN 1.0i \n"+
+			"gmtset Y_ORIGIN 2.0i\n";
+			String img_ps_file = "DisaggregationPlot.ps";
+
+			String axisBoundaryTicksBounds = "-B"+x_tick+":\"Rupture Distance (km)\":"+"/"+y_tick+":Magnitude:"+
+			"/"+z_tick+":%Contribution:"+"wSnEZ";
+			String gridLines = "cat << END > temp_segments";
+			ArrayList segLineList = new ArrayList();
+			segLineList.add(gridLines);
+			//creating the grid lines on Z axis.
+			//System.out.println(z_tick+"   "+maxZVal+"   "+maxContrEpsilonForDisaggrPlot);
+			for (double k = z_tick; k <= maxZVal; k += z_tick) {
+				segLineList.add(">\n" +min_dist+"  "+ min_mag+" "+k);
+				segLineList.add(min_dist+"  "+max_mag+"  "+k);
+				segLineList.add(">\n" +min_dist+"  "+ max_mag+"  "+k);
+				segLineList.add(+max_dist+"   "+max_mag+"  "+k);
+			}
+			segLineList.add(">\n" + min_dist +"   "+ max_mag+"  " + 0);
+			segLineList.add( min_dist + "  "+max_mag + "  " + maxZVal);
+			segLineList.add(">\n"+ max_dist + "  "+ max_mag + " "  + 0);
+			segLineList.add(  + max_dist + "  " +max_mag+ " "+ maxZVal);
+			segLineList.add("END\n");
+
+			//creating the GMT_Script for the plot
+			gmtScriptLines.add(gmt_const_comands);
+			gmtScriptLines.addAll(segLineList);
+			gmtScriptLines.add("psxyz temp_segments -P "+
+					region+" -M  " +projection +"  "+verticalScaling+" -K -G0/0/0 "+
+					viewAngle + "  "+boxPenWidth+"  "+axisBoundaryTicksBounds +" >  "+img_ps_file);
+
+			float contribution, base, top;
+			for (int i = 0; i < dist_center.length; ++i) {
+				for (int j = mag_center.length - 1; j >= 0; --j) {   // ordering here is important
+
+					double box_x_width = (dist_binEdges[i+1]- dist_binEdges[i])*distBinWidthToInches - 0.05; // lst term leaves some space
+					double box_y_width = (mag_binEdges[j+1]- mag_binEdges[j])*magBinWidthToInches - 0.05;
+					String symbol = " -So"+box_x_width+"i/"+box_y_width+"ib";
+
+					base = 0;
+					top = 0;
+					for (int k = 0; k < numE; ++k) {
+						contribution = (float) pdf3D[i][j][k];
+						top = base + contribution;
+						if (contribution > 0.0) {
+							gmtScriptLines.add("echo " + "\"" + dist_center[i] + " " + mag_center[j] + " " + top +
+									"\"" +
+									" > junk_data ; psxyz junk_data "
+									+ "-P " + region + " " + projection + " " +
+									verticalScaling + symbol + base +
+									" -K -O " + epsilonColors[k] + "  " +
+									viewAngle +
+									"  " + boxPenWidth + " >> " + img_ps_file);
+							base = top;
+						}
+
+					}
+				}
+			}
+
+
+			// add the legend boxes
+			// 1st legend box has origin offset in Y by -2 inches (and X by minus some too)
+			gmtScriptLines.add("echo " + "\"" + dist_binEdges[dist_binEdges.length-1] + " " + mag_binEdges[0] + " " + (0.8*z_tick) +
+					"\"" + " > junk_data ; psxyz junk_data " + "-P -Y-1.25i -X-4.2i " +
+					region + " " +
+					projection + " " + verticalScaling + " -So0.3ib0 " +
+					" -K -O " +
+					epsilonColors[0] + "  " + viewAngle + "  " + boxPenWidth +
+					" >> " + img_ps_file);
+
+			// each now has origin offset in the X direction
+			for (int k = 1; k < numE; ++k) {
+				gmtScriptLines.add("echo " + "\"" + dist_binEdges[dist_binEdges.length-1] + " " + mag_binEdges[0] + " " + (0.8*z_tick) +
+						"\"" + " > junk_data ; psxyz junk_data " + "-P -X0.9i " +
+						region + " " +
+						projection + " " + verticalScaling + " -So0.3ib0 " + "0" +
+						" -K -O " +
+						epsilonColors[k] + "  " + viewAngle + "  " + boxPenWidth +
+						" >> " + img_ps_file);
+			}
+
+
+			gmtScriptLines.add("echo " + "\"0.0 0.75 13 0.0 12 CB e<-2\" > temp_label");
+			gmtScriptLines.add("echo " + "\"0.9 0.75 13 0.0 12 CB -2<e<-1\" >> temp_label");
+			gmtScriptLines.add("echo " + "\"1.8 0.75 13 0.0 12 CB -1<e<-0.5\" >> temp_label");
+			gmtScriptLines.add("echo " + "\"2.7 0.75 13 0.0 12 CB -0.5<e<0\" >> temp_label");
+			gmtScriptLines.add("echo " + "\"3.6 0.75 13 0.0 12 CB 0<e<0.5\" >> temp_label");
+			gmtScriptLines.add("echo " + "\"4.5 0.75 13 0.0 12 CB 0.5<e<1\" >> temp_label");
+			gmtScriptLines.add("echo " + "\"5.4 0.75 13 0.0 12 CB 1<e<2\" >> temp_label");
+			gmtScriptLines.add("echo " + "\"6.3 0.75 13 0.0 12 CB 2<e\" >> temp_label");
+			gmtScriptLines.add("pstext temp_label -R0/8.5/0/11 -N -Jx1i -X-2.45 -P -O >> " + img_ps_file);
+
+			gmtScriptLines.add("cat "+img_ps_file+ " |"+ "gs -sDEVICE=jpeg -sOutputFile=temp.jpg"+" -");
+			gmtScriptLines.add("ps2pdf "+img_ps_file+"  "+DISAGGREGATION_PLOT_PDF_NAME);
+			gmtScriptLines.add("convert -crop 0x0 temp.jpg "+DISAGGREGATION_PLOT_IMG_NAME);
+			gmtScriptLines.add("rm junk_data temp.jpg temp_segments");
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+
+		return gmtScriptLines;
+	}
+
+
+	/**
+	 * sets up the connection with the servlet on the server (gravity.usc.edu)
+	 */
+	private String openServletConnection(DisaggregationPlotData data,
+			String metadata) throws RuntimeException{
+
+		String webaddr=null;
+		try{
+
+			if(D) System.out.println("starting to make connection with servlet");
+			URL gmtPlotServlet = new URL(OPENSHA_SERVLET_URL);
+
+
+			URLConnection servletConnection = gmtPlotServlet.openConnection();
+			if(D) System.out.println("connection established");
+
+			// inform the connection that we will send output and accept input
+			servletConnection.setDoInput(true);
+			servletConnection.setDoOutput(true);
+
+			// Don't use a cached version of URL connection.
+			servletConnection.setUseCaches (false);
+			servletConnection.setDefaultUseCaches (false);
+			// Specify the content type that we will send binary data
+			servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
+
+			ObjectOutputStream outputToServlet = new
+			ObjectOutputStream(servletConnection.getOutputStream());
+
+
+			//sending the disagg data
+			outputToServlet.writeObject(data);
+			//sending the contents of the Metadata file to the server.
+			outputToServlet.writeObject(metadata);
+
+
+			outputToServlet.flush();
+			outputToServlet.close();
+
+			// Receive the "actual webaddress of all the gmt related files"
+			// from the servlet after it has received all the data
+			ObjectInputStream inputToServlet = new
+			ObjectInputStream(servletConnection.getInputStream());
+
+			Object messageFromServlet = inputToServlet.readObject();
+			inputToServlet.close();
+			if(messageFromServlet instanceof String){
+				webaddr = (String) messageFromServlet;
+				if (D) System.out.println("Receiving the Input from the Servlet:" +
+						webaddr);
+			}
+			else
+				throw (RuntimeException)messageFromServlet;
+		}catch(RuntimeException e){
+			e.printStackTrace();
+			throw new RuntimeException(e.getMessage());
+		}catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException("Server is down , please try again later");
+		}
+		return webaddr;
+	}
+
+
+	/**
+	 * Sets the number of sources to be shown in the Disaggregation.
+	 * @param numSources int
+	 * @throws RemoteException
+	 */
+	public void setNumSourcestoShow(int numSources) throws RemoteException {
+		numSourcesToShow = numSources;
+	}
 
 }

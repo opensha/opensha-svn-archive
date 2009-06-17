@@ -52,7 +52,7 @@ extends HttpServlet {
 
 	/*			opensha.usc.edu paths and URLs			*/
 	private static final String OPENSHA_GMT_URL_PATH = "http://opensha.usc.edu/";
-	private static final String OPENSHA_FILE_PATH = "/usr/local/tomcat/default/webapps/OpenSHA/";
+	public static final String OPENSHA_FILE_PATH = "/usr/local/tomcat/default/webapps/OpenSHA/";
 	
 	/*			gravity.usc.edu paths and URLs			*/
 	private static final String GRAVITY_GMT_URL_PATH = "http://gravity.usc.edu/gmtWS/";

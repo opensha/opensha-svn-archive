@@ -5,9 +5,12 @@ import java.util.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
+import org.opensha.commons.mapping.servlet.GMT_MapGeneratorServlet;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
 import org.opensha.commons.util.SystemPropertiesUtils;
+import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
+import org.opensha.sha.calc.disaggregation.DisaggregationPlotData;
 
 
 /**
@@ -22,9 +25,8 @@ import org.opensha.commons.util.SystemPropertiesUtils;
 public class DisaggregationPlotServlet
     extends HttpServlet {
 
-  private static final String GMT_URL_PATH = "http://gravity.usc.edu/gmtWS/";
-  private final static String FILE_PATH =
-      "/opt/install/apache-tomcat-5.5.20/webapps/gmtWS/";
+  private static final String GMT_URL_PATH = "http://opensha.usc.edu/";
+  private final static String FILE_PATH = GMT_MapGeneratorServlet.OPENSHA_FILE_PATH;
   private final static String GMT_DATA_DIR = "gmtData/";
   private final static String GMT_SCRIPT_FILE = "gmtScript.txt";
   private final static String METADATA_FILE_NAME = "metadata.txt";
@@ -71,7 +73,8 @@ public class DisaggregationPlotServlet
       String gmtScriptFile = newDir + "/" + this.GMT_SCRIPT_FILE;
 
       //gets the object for the GMT_MapGenerator script
-      ArrayList gmtMapScript = (ArrayList) inputFromApplet.readObject();
+      DisaggregationPlotData data = (DisaggregationPlotData)inputFromApplet.readObject();
+      ArrayList<String> gmtMapScript = DisaggregationCalculator.createGMTScriptForDisaggregationPlot(data);
 
       //Metadata content: Map Info
       String metadata = (String) inputFromApplet.readObject();
@@ -103,7 +106,7 @@ public class DisaggregationPlotServlet
       FileUtils.createZipFile(newDir);
       //URL path to folder where all GMT related files and map data file for this
       //calculations reside.
-      String mapImagePath = this.GMT_URL_PATH + this.GMT_DATA_DIR +
+      String mapImagePath = GMT_URL_PATH + GMT_DATA_DIR +
                                  currentMilliSec + SystemPropertiesUtils.getSystemFileSeparator();
       //returns the URL to the folder where map image resides
       outputToApplet.writeObject(mapImagePath);
