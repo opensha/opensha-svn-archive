@@ -1,12 +1,14 @@
 package org.opensha.sha.calc.disaggregation;
 
+import java.io.Serializable;
+
 /**
  * Class represents data required to make a Disaggregation plot
  * 
  * @author kevin
  *
  */
-public class DisaggregationPlotData {
+public class DisaggregationPlotData implements Serializable {
 	
 	private double maxContrEpsilonForGMT_Plot;
 
