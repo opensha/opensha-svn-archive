@@ -1,29 +1,32 @@
 package org.opensha.sha.gui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.applet.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.util.*;
-import java.io.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.SystemColor;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.Thread;
 import java.net.URL;
+import java.util.ArrayList;
 
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.Timer;
-//import javax.help.*;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
 
-import org.opensha.sha.gui.beans.*;
-import org.opensha.sha.imr.*;
-import org.opensha.sha.imr.event.AttenuationRelationshipChangeEvent;
-import org.opensha.sha.imr.event.AttenuationRelationshipChangeListener;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.earthquake.EqkRupForecast;
-
-
-import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.commons.data.Site;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
@@ -37,15 +40,28 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.commons.util.SystemPropertiesUtils;
-import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.sha.gui.controls.*;
-import org.opensha.sha.gui.infoTools.*;
 import org.opensha.sha.calc.ScenarioShakeMapCalculator;
-import org.opensha.sha.calc.ScenarioShakeMapCalculator;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.gui.beans.AttenuationRelationshipGuiBean;
+import org.opensha.sha.gui.beans.AttenuationRelationshipSiteParamsRegionAPI;
+import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
+import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
+import org.opensha.sha.gui.beans.MapGuiBean;
+import org.opensha.sha.gui.beans.SitesInGriddedRectangularRegionGuiBean;
+import org.opensha.sha.gui.controls.CalcOptionControl;
+import org.opensha.sha.gui.controls.CalculationSettingsControlPanel;
+import org.opensha.sha.gui.controls.CalculationSettingsControlPanelAPI;
+import org.opensha.sha.gui.controls.GenerateHazusControlPanelForSingleMultipleIMRs;
+import org.opensha.sha.gui.controls.IM_EventSetCEA_ControlPanel;
+import org.opensha.sha.gui.controls.PuenteHillsScenarioControlPanelUsingEqkRuptureCreation;
+import org.opensha.sha.gui.controls.RegionsOfInterestControlPanel;
+import org.opensha.sha.gui.controls.SanAndreasScenarioControlPanel;
+import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
+import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
+import org.opensha.sha.gui.infoTools.IMT_Info;
+import org.opensha.sha.imr.event.AttenuationRelationshipChangeEvent;
+import org.opensha.sha.imr.event.AttenuationRelationshipChangeListener;
 
 /**
  * <p>Title: ScenarioShakeMapApp</p>
