@@ -675,6 +675,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 						symbols.addSymbol(sym, loc.getDepth());
 					}
 				}
+				map.setSymbolSet(symbols);
 				
 //				// make the file in the script:
 //				gmtLines.add(COMMAND_PATH+"cat << END > "+EQK_RUP_XYZ_FILE_NAME);

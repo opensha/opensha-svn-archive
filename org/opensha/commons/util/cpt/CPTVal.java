@@ -1,11 +1,12 @@
 package org.opensha.commons.util.cpt;
 
 import java.awt.Color;
+import java.io.Serializable;
 
 import org.dom4j.Element;
 
 
-public class CPTVal implements Comparable<CPTVal> {
+public class CPTVal implements Comparable<CPTVal>, Serializable {
 	/**
 	 * In general this information determines the indicator color associated
 	 * with a value with a certain range.
@@ -17,6 +18,8 @@ public class CPTVal implements Comparable<CPTVal> {
 	public float start;
 	public float end;
 
+	public CPTVal() {}
+	
 	/**
 	 *
 	 * @param start =
