@@ -1,12 +1,15 @@
 package org.opensha.commons.mapping.gmt;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.GeographicRegionAPI;
 import org.opensha.commons.data.region.RectangularGeographicRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.mapping.gmt.elements.CoastAttributes;
+import org.opensha.commons.mapping.gmt.elements.PSXYPolygon;
+import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.util.cpt.CPT;
 
@@ -65,6 +68,9 @@ public class GMT_Map implements Serializable {
 	private String xyzFileName = GMT_MapGenerator.DEFAULT_XYZ_FILE_NAME;
 	
 	private String gmtScriptFileName = GMT_MapGenerator.DEFAULT_GMT_SCRIPT_NAME;
+	
+	private ArrayList<PSXYSymbol> xySymbols = new ArrayList<PSXYSymbol>();
+	private ArrayList<PSXYPolygon> xyLines = new ArrayList<PSXYPolygon>();
 	
 	public GMT_Map(RectangularGeographicRegion region, XYZ_DataSetAPI griddedData,
 			double griddedDataInc, String cptFile) {
@@ -257,6 +263,30 @@ public class GMT_Map implements Serializable {
 
 	public void setGmtScriptFileName(String gmtScriptFileName) {
 		this.gmtScriptFileName = gmtScriptFileName;
+	}
+
+	public ArrayList<PSXYSymbol> getSymbols() {
+		return xySymbols;
+	}
+
+	public void setSymbols(ArrayList<PSXYSymbol> xySymbols) {
+		this.xySymbols = xySymbols;
+	}
+	
+	public void addSymbol(PSXYSymbol symbol) {
+		this.xySymbols.add(symbol);
+	}
+
+	public ArrayList<PSXYPolygon> getPolys() {
+		return xyLines;
+	}
+
+	public void setPolys(ArrayList<PSXYPolygon> xyLines) {
+		this.xyLines = xyLines;
+	}
+	
+	public void addPolys(PSXYPolygon line) {
+		this.xyLines.add(line);
 	}
 
 }

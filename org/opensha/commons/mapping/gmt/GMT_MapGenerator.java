@@ -1,6 +1,7 @@
 package org.opensha.commons.mapping.gmt;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -27,6 +28,7 @@ import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.mapping.gmt.GMT_Map.HighwayFile;
 import org.opensha.commons.mapping.gmt.elements.CoastAttributes;
+import org.opensha.commons.mapping.gmt.elements.PSXYPolygon;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.mapping.gmt.raster.RasterExtractor;
 import org.opensha.commons.param.BooleanParameter;
@@ -485,17 +487,28 @@ public class GMT_MapGenerator implements Serializable{
 	public String makeMapUsingServlet(XYZ_DataSetAPI xyzDataSet,
 			String scaleLabel, String metadata, String dirName)
 	throws GMT_MapException,RuntimeException{
+		GMT_Map map = getGMTMapSpecification(xyzDataSet);
+		map.setCustomLabel(scaleLabel);
+		
+		return this.makeMapUsingServlet(map, metadata, dirName);
+	}
+	
+	/**
+	 * This generates GMT map for the given XYZ dataset and for the current parameter setting,
+	 * using the GMT Servlet on the SCEC server (the map is made on the SCEC server).
+	 *
+	 * @param xyzDataSet
+	 * @param scaleLabel - a string for the label (with no spaces!)
+	 * @return - the name of the jpg file
+	 */
+	public String makeMapUsingServlet(GMT_Map map, String metadata, String dirName)
+	throws GMT_MapException,RuntimeException{
 
 		// Set paths for the SCEC server (where the Servlet is)
 		GMT_PATH = OPENSHA_GMT_PATH;
 		GS_PATH = OPENSHA_GS_PATH;
 		PS2PDF_PATH = OPENSHA_PS2PDF_PATH;
 		CONVERT_PATH = OPENSHA_CONVERT_PATH;
-
-		// The color scale label
-		SCALE_LABEL = scaleLabel;
-		
-		GMT_Map map = getGMTMapSpecification(xyzDataSet);
 
 		this.xyzDataSet = xyzDataSet;
 
@@ -1181,7 +1194,7 @@ public class GMT_MapGenerator implements Serializable{
 		return gmtCommandLines;
 	}
 	
-	private static String getGMTColorString(Color color) {
+	public static String getGMTColorString(Color color) {
 		return color.getRed() + "/" + color.getGreen() + "/" + color.getBlue();
 	}
 	
@@ -1403,6 +1416,30 @@ public class GMT_MapGenerator implements Serializable{
 //		// This adds intermediate commands
 //		addIntermediateGMT_ScriptLines(gmtCommandLines);
 //
+		ArrayList<PSXYPolygon> poys = map.getPolys();
+		if (poys != null && poys.size() > 0) {
+			gmtCommandLines.add("");
+			gmtCommandLines.add("# Lines/Polygons");
+			String polyFile = "polys.xy";
+			gmtCommandLines.add("${COMMAND_PATH}cat  << END > " + polyFile);
+			for (int i=0; i<poys.size(); i++) {
+				PSXYPolygon poly = poys.get(i);
+				if (!poly.isValid())
+					throw new GMT_MapException("Polygons must have at least 2 points");
+				String sep = "> " + poly.getPenString();
+				if (poly.size() > 2) {
+					sep += " " + poly.getFillString();
+				}
+				gmtCommandLines.add(sep);
+				for (Point2D point : poly.getPoints()) {
+					gmtCommandLines.add(point.getX() + "\t" + point.getY());
+				}
+			}
+			gmtCommandLines.add("END");
+			gmtCommandLines.add("${GMT_PATH}psxy " + region + projWdth +" -K -O -M >> " + PS_FILE_NAME);
+//			rmFiles.add(polyFile);
+		}
+		
 		// set some defaults
 		gmtCommandLines.add("# Set GMT map property defaults");
 		commandLine="${GMT_PATH}gmtset BASEMAP_FRAME_RGB 255/255/255 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
