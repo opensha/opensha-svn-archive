@@ -3,7 +3,6 @@ package org.opensha.commons.mapping.gmt.elements;
 import java.awt.Color;
 import java.util.ArrayList;
 
-import org.opensha.commons.mapping.gmt.elements.PSXYSymbol.Symbol;
 import org.opensha.commons.util.cpt.CPT;
 
 public class PSXYSymbolSet extends PSXYElement {
@@ -13,6 +12,7 @@ public class PSXYSymbolSet extends PSXYElement {
 	private ArrayList<Double> vals;
 	
 	public PSXYSymbolSet() {
+		super(0, null, null);
 		symbols = new ArrayList<PSXYSymbol>();
 		vals = new ArrayList<Double>();
 	}
