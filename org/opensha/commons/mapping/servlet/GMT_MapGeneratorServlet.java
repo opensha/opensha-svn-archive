@@ -186,9 +186,9 @@ extends HttpServlet {
 			outputToApplet.writeObject(mapImagePath);
 			outputToApplet.close();
 
-		}catch (Exception e) {
+		}catch (Throwable t) {
 			//sending the error message back to the application
-			outputToApplet.writeObject(new RuntimeException(e));
+			outputToApplet.writeObject(new RuntimeException(t));
 			outputToApplet.close();
 		}
 	}

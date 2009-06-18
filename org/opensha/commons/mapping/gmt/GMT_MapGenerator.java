@@ -1210,7 +1210,7 @@ public class GMT_MapGenerator implements Serializable{
 	 */
 	public ArrayList<String> getGMT_ScriptLines(GMT_Map map, String dir) throws GMT_MapException{
 		
-		System.out.println("Generating map for dir: " + dir + " (" + map.getPolys().size() + " polys)");
+		System.out.println("Generating map for dir: " + dir);
 		
 		if (!dir.endsWith(File.separator))
 			dir += File.separator;
@@ -1439,8 +1439,6 @@ public class GMT_MapGenerator implements Serializable{
 			gmtCommandLines.add("END");
 			gmtCommandLines.add("${GMT_PATH}psxy " + region + projWdth +" -K -O -M >> " + PS_FILE_NAME);
 //			rmFiles.add(polyFile);
-		} else {
-			System.out.println("Map has no polygons...skipping.");
 		}
 		
 		// set some defaults
