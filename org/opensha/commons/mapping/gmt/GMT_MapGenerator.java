@@ -510,7 +510,7 @@ public class GMT_MapGenerator implements Serializable{
 		PS2PDF_PATH = OPENSHA_PS2PDF_PATH;
 		CONVERT_PATH = OPENSHA_CONVERT_PATH;
 
-		this.xyzDataSet = xyzDataSet;
+		this.xyzDataSet = map.getGriddedData();
 
 		// take the log(z) values if necessary (and change label)
 		checkForLogPlot();

@@ -18,7 +18,7 @@ public class GMT_Map implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 3365240959132801705L;
 
 	private RectangularGeographicRegion region;
 	
