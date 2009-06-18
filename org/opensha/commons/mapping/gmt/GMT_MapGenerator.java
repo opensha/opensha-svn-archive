@@ -1439,6 +1439,8 @@ public class GMT_MapGenerator implements Serializable{
 			gmtCommandLines.add("END");
 			gmtCommandLines.add("${GMT_PATH}psxy " + region + projWdth +" -K -O -M >> " + PS_FILE_NAME);
 //			rmFiles.add(polyFile);
+		} else {
+			System.out.println("Map has no polygons...skipping.");
 		}
 		
 		// set some defaults
