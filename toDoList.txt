@@ -5,29 +5,60 @@
 BROADER ISSUES:
 --------------
 
-Remove the use of "*" in import statements (to make refactoring easier)
 
-See if param API method "getType()" is needed anymore.
-
-Clean up as many warnings as possible
+Revise Event Set Data Calculator
 
 Need to port servlets and RMI stuff from gravity.usc.edu to opensha.usc.edu.
 
-Revise Event Set Data Calculator - talk to Ned when ready
+Fix j-unit tests for broken AttenuationRelationships (believed to be a rounding issue in the previous verification files).
+
+Implement simulator fault model in SCEC VDO (with just outline of rectangular elements shown)
 
 On-line short course
 
-Fix j-unit tests for broken AttenuationRelationships (believed to be a rounding issue in the previous verification files).
+Go through main calculators as a group
 
-Move the PropagationEffect parameters in sha.param to sha.imr.param.PropagationEffectParams; 
-also add defining of these to the abstract AttenuationRelationship class (rather than in
-subclasses of AttenuationRelationship)?
+Develop strategy for instantiation of model components for each type of calculation from XML files 
+(this involves looking at calculators, GUI beans, control panels, and model components).  
+See discussion of "Solve Our MetaData Issues" below for related issues.  Refine/review 
+toXMLMetadata(Element root)  &  fromXMLMetadata(Element root) implementations
+
+Clarify declarations of IntensityMeasureRelationship, IntensityMeasureRelationshipAPI, ScalarIntensityMeasureRelationship, and AttenuationRelationship, especially in calculators
+
+Develop a complete set of Junit tests for the entire project (that at least tests whether any important changes have occurred).
+
+Need to review the new site translator class (what Kevin put together)
+
+Evaluate Kevin's implementation of site class for region web services
 
 Check that Parameter classes and APIs are being sensibly subclassed (Peter mentioned some redundant inheritances?)
 
-Clean the Application build process
+Rebuild the parameter editor browser GUI (org.opensha.commons.param.editor.demo.ParameterApplet), 
+which allows one to visually see the GUI interface for every parameter we've implemented 
+(e.g., useful for newcomers).  The parameters implemented in this previous version didn't 
+choose very good names for the examples (you could get better examples just by adopting values 
+where it is presently used somewhere in our code).  What do you think about updating/improving this?  
+It would be a good starting point for discussions on how to improve these editors (something Peter 
+has discussed).  I guess we also need an equivalent demo for parameters inside the sha package.
 
-Develop a complete set of Junit tests for the entire project (that at least tests whether any important changes have occurred).
+Remove the use of "*" in import statements (to make refactoring easier)
+
+Hazard curves from stochastic event sets
+
+See if param API method "getType()" is needed anymore.
+
+Clean up as many Eclipse warnings as possible
+
+IntensityMeasureRelationship defines intensity measure as: protected ParameterAPI im;
+yet elsewhere we assume its a DependentParameterAPI, such as in the method:
+IntensityMeasureRelationship.setIntensityMeasure(ParameterAPI intensityMeasure)
+(where it's cast to DependentParameterAPI).  So far this hasn't been a problem because 
+all thus-far implemented IMs are DependentParameterAPIs.  Fix this either by changing
+the definition of im or putting and if statement before castings.  We could either 
+change the definition of im to be a DependentParameterAPI, or put an if statement 
+before sections where we currently assume it's a DependentParameterAPI.
+
+Clean the Application build process
 
 Take "API" out of filenames
 
@@ -46,17 +77,14 @@ Clean up contents of org.opensha.sha.gui.infoTools
 
 Figure out if commons.webservices (new location) is being used, and if so, what to do with it (e.g., are there security issues?) - Kevin will report back on this.
 
-Implement stochastic event sets in hazard curve calculator?
-
-Move common parameters (including IMTs) out of abstract IMR and into a sub-directory (easier to find this way?)?
-
-Develop strategy for instantiation of model components for each type of calculation from XML files (this involves looking at calculators, GUI beans, control panels, and model components).  See discussion of "Solve Our MetaData Issues" below for related issues.
-
 Look into using triangular surfaces (or at least change API to accommodate these later)?
 
 Implement system for managing development (TRAC?); also update instructions on how to access code.
 
-Create capability to associate IMRs to specific source types in the calculations (this will require discussions with GEM and NSHMP).  Ned's intitial tests on adding such fields to EqkRupture does not significantly increase memory requirements.  Possibilities:
+Create capability to associate IMRs to specific source types in the calculations 
+(this will require discussions with GEM and NSHMP).  Ned's intitial tests on 
+adding such fields to EqkRupture does not significantly increase memory requirements.  
+Possibilities:
 
 	Subduction Interface
 	Subduction IntraSlab
@@ -71,12 +99,6 @@ ERF		-extend API to include getting max and min magnitude, and the various types
 		sources generated (to check for compatibility with each chosen IMR)
 
 Update topo files, and include global coverage (see milner email on April 3, 2009); do this when the item just above is done.
-
-Need to review the new site translator class (what Kevin put together)
-
-Evaluate Kevin's implementation of site class for region web services
-
-Revise Event set data calculator (see emails), and consolidate versions into one dir (or get rid of old versions)
 
 Codebase
 	�	Extract tools to scec-commons or eq-commons (domain? org.scec.commons.[ui | 
@@ -137,8 +159,6 @@ HazardSpectrumApp crashes if source and site are more than the "Max Source-Site 
 Distance Calculations : Approx Horizontal Distance(getApproxHorzDistance()) calculator does not calculate the correct distance if longitude is > 0. But Horizontal Distance(getHorzDistance()) always calculate the accurate distance. (Nitin tested using main() method in RelativeLocation class, one can just run the RelativeLocation class and will get to know the difference).  HAS THIS BEEN FIXED?
 
 Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.  DID NITIN DO THIS?
-
-Site Translator needs to be fixed to handle the soft Soil case for Choi and Stewart model.
 
 Hazus PSHA dataset calculator - GUI-based app?
 
