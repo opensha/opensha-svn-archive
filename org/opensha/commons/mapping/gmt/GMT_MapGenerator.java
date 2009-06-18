@@ -1416,14 +1416,15 @@ public class GMT_MapGenerator implements Serializable{
 //		// This adds intermediate commands
 //		addIntermediateGMT_ScriptLines(gmtCommandLines);
 //
-		ArrayList<PSXYPolygon> poys = map.getPolys();
-		if (poys != null && poys.size() > 0) {
+		ArrayList<PSXYPolygon> polys = map.getPolys();
+		if (polys != null && polys.size() > 0) {
+			System.out.println("Map has " + polys.size() + " polygons!");
 			gmtCommandLines.add("");
 			gmtCommandLines.add("# Lines/Polygons");
 			String polyFile = "polys.xy";
 			gmtCommandLines.add("${COMMAND_PATH}cat  << END > " + polyFile);
-			for (int i=0; i<poys.size(); i++) {
-				PSXYPolygon poly = poys.get(i);
+			for (int i=0; i<polys.size(); i++) {
+				PSXYPolygon poly = polys.get(i);
 				if (!poly.isValid())
 					throw new GMT_MapException("Polygons must have at least 2 points");
 				String sep = "> " + poly.getPenString();
