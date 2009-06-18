@@ -28,7 +28,7 @@ public abstract class PSXYElement implements Serializable {
 		if (penWidth <= 0)
 			return "-W-";
 		
-		return "-W" + penWidth + "i" + "/" + GMT_MapGenerator.getGMTColorString(penColor);
+		return "-W" + penWidth + "p" + "/" + GMT_MapGenerator.getGMTColorString(penColor);
 	}
 	
 	public String getFillString() {
