@@ -1502,7 +1502,7 @@ public class GMT_MapGenerator implements Serializable{
 			if (symSet.getPenColor() != null)
 				penStr = " " + symSet.getPenString();
 			gmtCommandLines.add("${GMT_PATH}psxy " + symbolFile + " -C" + symbolCPTFile + penStr +
-					" " + region + projWdth + " -K -O >> " + PS_FILE_NAME);
+					" -S " + region + projWdth + " -K -O >> " + PS_FILE_NAME);
 		}
 		
 		// set some defaults
