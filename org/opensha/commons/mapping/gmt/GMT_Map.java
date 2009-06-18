@@ -15,6 +15,11 @@ import org.opensha.commons.util.cpt.CPT;
 
 public class GMT_Map implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private RectangularGeographicRegion region;
 	
 	private String cptFile = null;
