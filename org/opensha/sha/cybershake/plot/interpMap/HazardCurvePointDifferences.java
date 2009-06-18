@@ -75,22 +75,49 @@ public class HazardCurvePointDifferences {
 		String labelsFile = null;
 		String types = "";
 		
+		int imTypeID = 21;
+		
+		boolean isProbAt_IML = false;
+		double level = 0.0004;
+		
 		if (args.length == 0) {
 			System.err.println("WARNING: Running from debug mode!");
 			compFile = "/home/kevin/CyberShake/baseMaps/cb2008/cb2008_base_map_2percent_hiRes_0.005.txt";
 			outFile = "/home/kevin/CyberShake/interpolatedDiffMap/diffs.txt";
 			labelsFile = "/home/kevin/CyberShake/interpolatedDiffMap/markers.txt";
-		} else if (args.length == 3 || args.length == 4) {
+		} else if (args.length >= 3 && args.length <= 7) {
 			compFile = args[0];
 			outFile = args[1];
 			labelsFile = args[2];
-			if (args.length == 4) {
-				types = args[3];
+			imTypeID = Integer.parseInt(args[3]);
+			if (args.length == 5) {
+				types = args[4];
+			} else if (args.length == 6) {
+				isProbAt_IML = Boolean.parseBoolean(args[4]);
+				level = Double.parseDouble(args[5]);
+			} else if (args.length == 7) {
+				types = args[4];
+				isProbAt_IML = Boolean.parseBoolean(args[5]);
+				level = Double.parseDouble(args[6]);
 			}
 		} else {
-			System.err.println("USAGE: HazardCurvePointDifferences base_map_file outFile labelsFile [types]");
+			System.err.println("USAGE: HazardCurvePointDifferences base_map_file outFile labelsFile imTypeID [types] " +
+					"[isProbAt_IML level]");
 			System.exit(1);
 		}
+		
+		System.out.println("*****************************");
+		System.out.println("Basemap: " + compFile);
+		System.out.println("Diff output: " + outFile);
+		System.out.println("Labels: " + labelsFile);
+		System.out.println("IM Type ID: " + imTypeID);
+		System.out.println("Types: " + types);
+		if (isProbAt_IML) {
+			System.out.println("Prob of exceeding IML of:  " + level);
+		} else {
+			System.out.println("IML at Prob of: " + level);
+		}
+		System.out.println("*****************************\n");
 		
 		ArrayList<Integer> typeIDs = null;
 		
@@ -105,10 +132,7 @@ public class HazardCurvePointDifferences {
 		}
 		
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
-		HazardCurveFetcher fetcher = new HazardCurveFetcher(db, null, 3, 5, 21);
-		
-		boolean isProbAt_IML = false;
-		double level = 0.0004;
+		HazardCurveFetcher fetcher = new HazardCurveFetcher(db, null, 3, 5, imTypeID);
 		
 		HazardCurvePointDifferences diff = new HazardCurvePointDifferences(fetcher, compFile, typeIDs);
 		

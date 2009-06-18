@@ -666,6 +666,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 						DataPoint2D pt = new DataPoint2D(loc.getLongitude(), loc.getLatitude());
 						Color color = blend.blend(smallColor, bigColor, (float)((loc.getDepth() - dep1) / (dep2-dep1)));
 						PSXYSymbol sym = new PSXYSymbol(pt, PSXYSymbol.Symbol.CIRCLE, 0.04, 0, null, color);
+						map.addSymbol(sym);
 					}
 				}
 				

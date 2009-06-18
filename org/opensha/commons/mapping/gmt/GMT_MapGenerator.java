@@ -1451,7 +1451,7 @@ public class GMT_MapGenerator implements Serializable{
 			gmtCommandLines.add("# Symbols");
 			for (int i=0; i<symbols.size(); i++) {
 				PSXYSymbol symbol = symbols.get(i);
-				DataPoint2D point = symbol.getPt();
+				DataPoint2D point = symbol.getPoint();
 				gmtCommandLines.add("echo " + point.getX() + " " + point.getY() + " | ${GMT_PATH}psxy "
 						+ symbol.getSymbolString() + " " + region + projWdth + " -K -O >> " + PS_FILE_NAME);
 			}

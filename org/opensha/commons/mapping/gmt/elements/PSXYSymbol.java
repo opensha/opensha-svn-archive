@@ -73,11 +73,11 @@ public class PSXYSymbol extends PSXYElement {
 		this.width = width;
 	}
 
-	public DataPoint2D getPt() {
+	public DataPoint2D getPoint() {
 		return pt;
 	}
 
-	public void setPt(DataPoint2D pt) {
+	public void setPoint(DataPoint2D pt) {
 		this.pt = pt;
 	}
 
