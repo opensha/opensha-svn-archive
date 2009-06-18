@@ -30,6 +30,7 @@ import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.mapping.gmt.GMT_Map.HighwayFile;
 import org.opensha.commons.mapping.gmt.elements.CoastAttributes;
 import org.opensha.commons.mapping.gmt.elements.PSXYPolygon;
+import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.mapping.gmt.raster.RasterExtractor;
 import org.opensha.commons.param.BooleanParameter;
@@ -1441,6 +1442,19 @@ public class GMT_MapGenerator implements Serializable{
 			gmtCommandLines.add("${GMT_PATH}psxy " + polyFile + " " + region + projWdth
 								+" -K -O -M >> " + PS_FILE_NAME);
 //			rmFiles.add(polyFile);
+		}
+		
+		ArrayList<PSXYSymbol> symbols = map.getSymbols();
+		if (symbols != null && symbols.size() > 0) {
+			System.out.println("Map has " + symbols.size() + " symbols!");
+			gmtCommandLines.add("");
+			gmtCommandLines.add("# Symbols");
+			for (int i=0; i<symbols.size(); i++) {
+				PSXYSymbol symbol = symbols.get(i);
+				DataPoint2D point = symbol.getPt();
+				gmtCommandLines.add("echo " + point.getX() + " " + point.getY() + " | ${GMT_PATH}psxy "
+						+ symbol.getSymbolString() + " " + region + projWdth + " -K -O >> " + PS_FILE_NAME);
+			}
 		}
 		
 		// set some defaults

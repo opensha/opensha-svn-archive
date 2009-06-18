@@ -2,6 +2,8 @@ package org.opensha.commons.mapping.gmt.elements;
 
 import java.awt.Color;
 
+import org.opensha.commons.data.DataPoint2D;
+
 public class PSXYSymbol extends PSXYElement {
 	
 	public enum Symbol {
@@ -28,14 +30,31 @@ public class PSXYSymbol extends PSXYElement {
 	
 	private Symbol symbol;
 	
-	public PSXYSymbol(Symbol symbol) {
+	private double width;
+	
+	private DataPoint2D pt;
+	
+	/**
+	 * No-arg constructor for serialization
+	 */
+	public PSXYSymbol() {};
+	
+	public PSXYSymbol(DataPoint2D pt, Symbol symbol, double width) {
 		super();
 		this.symbol = symbol;
+		this.width = width;
+		this.pt = pt;
 	}
 	
-	public PSXYSymbol(Symbol symbol, double penWidth, Color penColor, Color fillColor) {
+	public PSXYSymbol(DataPoint2D pt, Symbol symbol, double width, double penWidth, Color penColor, Color fillColor) {
 		super(penWidth, penColor, fillColor);
 		this.symbol = symbol;
+		this.width = width;
+		this.pt = pt;
+	}
+	
+	public String getSymbolString() {
+		return "-S" + symbol.val() + width + "i";
 	}
 
 	public Symbol getSymbol() {
@@ -44,6 +63,22 @@ public class PSXYSymbol extends PSXYElement {
 
 	public void setSymbol(Symbol symbol) {
 		this.symbol = symbol;
+	}
+
+	public double getWidth() {
+		return width;
+	}
+
+	public void setWidth(double width) {
+		this.width = width;
+	}
+
+	public DataPoint2D getPt() {
+		return pt;
+	}
+
+	public void setPt(DataPoint2D pt) {
+		this.pt = pt;
 	}
 
 }
