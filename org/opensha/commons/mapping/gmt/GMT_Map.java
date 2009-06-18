@@ -10,6 +10,7 @@ import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.mapping.gmt.elements.CoastAttributes;
 import org.opensha.commons.mapping.gmt.elements.PSXYPolygon;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
+import org.opensha.commons.mapping.gmt.elements.PSXYSymbolSet;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.util.cpt.CPT;
 
@@ -76,6 +77,7 @@ public class GMT_Map implements Serializable {
 	
 	private ArrayList<PSXYSymbol> xySymbols = new ArrayList<PSXYSymbol>();
 	private ArrayList<PSXYPolygon> xyLines = new ArrayList<PSXYPolygon>();
+	private PSXYSymbolSet xySymbolSet = null;
 	
 	public GMT_Map(RectangularGeographicRegion region, XYZ_DataSetAPI griddedData,
 			double griddedDataInc, String cptFile) {
@@ -292,6 +294,14 @@ public class GMT_Map implements Serializable {
 	
 	public void addPolys(PSXYPolygon line) {
 		this.xyLines.add(line);
+	}
+
+	public PSXYSymbolSet getSymbolSet() {
+		return xySymbolSet;
+	}
+
+	public void setSymbolSet(PSXYSymbolSet xySymbolSet) {
+		this.xySymbolSet = xySymbolSet;
 	}
 
 }

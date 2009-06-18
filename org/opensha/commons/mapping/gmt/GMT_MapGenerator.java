@@ -31,6 +31,7 @@ import org.opensha.commons.mapping.gmt.GMT_Map.HighwayFile;
 import org.opensha.commons.mapping.gmt.elements.CoastAttributes;
 import org.opensha.commons.mapping.gmt.elements.PSXYPolygon;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
+import org.opensha.commons.mapping.gmt.elements.PSXYSymbolSet;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.mapping.gmt.raster.RasterExtractor;
 import org.opensha.commons.param.BooleanParameter;
@@ -1473,6 +1474,35 @@ public class GMT_MapGenerator implements Serializable{
 				line += " " + region + projWdth + " -K -O >> " + PS_FILE_NAME;
 				gmtCommandLines.add(line);
 			}
+		}
+		
+		if (map.getSymbolSet() != null) {
+			PSXYSymbolSet symSet = map.getSymbolSet();
+			System.out.println("Map has a symbol set!");
+			gmtCommandLines.add("");
+			gmtCommandLines.add("# Symbol set");
+			String symbolCPTFile = "symbol_set.cpt";
+			gmtCommandLines.add("${COMMAND_PATH}cat  << END > " + symbolCPTFile);
+			gmtCommandLines.add(symSet.getCpt().toString());
+			gmtCommandLines.add("END");
+			String symbolFile = "symbol_set.xy";
+			gmtCommandLines.add("${COMMAND_PATH}cat  << END > " + symbolFile);
+			symbols = symSet.getSymbols();
+			ArrayList<Double> vals = symSet.getVals();
+			for (int i=0; i<symbols.size(); i++) {
+				PSXYSymbol symbol = symbols.get(i);
+				double val = vals.get(i);
+				DataPoint2D point = symbol.getPoint();
+				String line = point.getX() + "\t" + point.getY() + "\t" + val + "\t"
+						+ symbol.getSymbol().val() + symbol.getWidth() + "i";
+				gmtCommandLines.add(line);
+			}
+			gmtCommandLines.add("END");
+			String penStr = "";
+			if (symSet.getPenColor() != null)
+				penStr = " " + symSet.getPenString();
+			gmtCommandLines.add("${GMT_PATH}psxy " + symbolFile + " -C" + symbolCPTFile + penStr +
+					" " + region + projWdth + " -K -O >> " + PS_FILE_NAME);
 		}
 		
 		// set some defaults

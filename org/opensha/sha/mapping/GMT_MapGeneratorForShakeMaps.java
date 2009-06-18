@@ -18,10 +18,13 @@ import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.elements.PSXYPolygon;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
+import org.opensha.commons.mapping.gmt.elements.PSXYSymbolSet;
 import org.opensha.commons.param.BooleanParameter;
 import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.util.RunScript;
+import org.opensha.commons.util.cpt.CPT;
+import org.opensha.commons.util.cpt.CPTVal;
 import org.opensha.commons.util.cpt.LinearBlender;
 
 import org.opensha.sha.earthquake.EqkRupture;
@@ -658,15 +661,18 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 				LinearBlender blend = new LinearBlender();
 				Color bigColor = new Color(20, 20, 20);
 				Color smallColor = new Color(235, 235, 235);
-				double dep1 = surface.getLocation(0,0).getDepth();
-				double dep2 = surface.getLocation(surface.getNumRows()-1,0).getDepth();
+				float dep1 = (float)surface.getLocation(0,0).getDepth();
+				float dep2 = (float)surface.getLocation(surface.getNumRows()-1,0).getDepth();
+				CPT cpt = new CPT();
+				cpt.setCPTVal(new CPTVal(dep1, smallColor, dep2, bigColor));
+				PSXYSymbolSet symbols = new PSXYSymbolSet();
+				symbols.setCpt(cpt);
 				for(r=surface.getNumRows()-1;r>=0;r--) {   // reverse order so upper points plot over lower points
 					for(c=0;c<surface.getNumCols()-1;c++) {
 						loc = surface.getLocation(r,c);
 						DataPoint2D pt = new DataPoint2D(loc.getLongitude(), loc.getLatitude());
-						Color color = blend.blend(smallColor, bigColor, (float)((loc.getDepth() - dep1) / (dep2-dep1)));
-						PSXYSymbol sym = new PSXYSymbol(pt, PSXYSymbol.Symbol.CIRCLE, 0.04, 0, null, color);
-						map.addSymbol(sym);
+						PSXYSymbol sym = new PSXYSymbol(pt, PSXYSymbol.Symbol.CIRCLE, 0.04);
+						symbols.addSymbol(sym, loc.getDepth());
 					}
 				}
 				
