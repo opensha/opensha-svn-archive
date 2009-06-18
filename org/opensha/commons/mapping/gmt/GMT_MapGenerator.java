@@ -1449,13 +1449,26 @@ public class GMT_MapGenerator implements Serializable{
 			System.out.println("Map has " + symbols.size() + " symbols!");
 			gmtCommandLines.add("");
 			gmtCommandLines.add("# Symbols");
+			String symbolFile = "symbols.xy";
+			gmtCommandLines.add("${COMMAND_PATH}cat  << END > " + symbolFile);
 			for (int i=0; i<symbols.size(); i++) {
 				PSXYSymbol symbol = symbols.get(i);
+				String sep = "> " + symbol.getFillString() + " " + symbol.getSymbolString();
+				if (symbol.getPenColor() != null)
+					sep += " " + symbol.getPenString();
+				gmtCommandLines.add(sep);
 				DataPoint2D point = symbol.getPoint();
-				gmtCommandLines.add("echo " + point.getX() + " " + point.getY() + " | ${GMT_PATH}psxy "
-						+ symbol.getSymbolString() + " " + symbol.getFillString() + " " + symbol.getPenString()
-						+ " " + region + projWdth + " -K -O >> " + PS_FILE_NAME);
+				gmtCommandLines.add(point.getX() + "\t" + point.getY());
 			}
+			gmtCommandLines.add("END");
+//			for (int i=0; i<symbols.size(); i++) {
+//				PSXYSymbol symbol = symbols.get(i);
+//				DataPoint2D point = symbol.getPoint();
+//				gmtCommandLines.add("echo " + point.getX() + " " + point.getY() + " | ${GMT_PATH}psxy "
+//						+ symbol.getSymbolString() + " " + symbol.getFillString() + " " + symbol.getPenString()
+//						+ " " + region + projWdth + " -K -O >> " + PS_FILE_NAME);
+//			}
+			gmtCommandLines.add("${GMT_PATH}psxy " + symbolFile + " " + region + projWdth + " -K -O >> " + PS_FILE_NAME);
 		}
 		
 		// set some defaults
