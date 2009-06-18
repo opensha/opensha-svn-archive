@@ -69,7 +69,7 @@ public class PSXYPolygon extends PSXYElement {
 	 * @author kevin
 	 *
 	 */
-	private class PSXYPoint2D extends Point2D.Double implements Serializable {
+	public class PSXYPoint2D extends Point2D.Double implements Serializable {
 		public PSXYPoint2D() {};
 		public PSXYPoint2D(Point2D point) {
 			super(point.getX(), point.getY());
