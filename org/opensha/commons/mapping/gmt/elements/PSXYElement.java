@@ -1,10 +1,11 @@
 package org.opensha.commons.mapping.gmt.elements;
 
 import java.awt.Color;
+import java.io.Serializable;
 
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 
-public abstract class PSXYElement {
+public abstract class PSXYElement implements Serializable {
 	
 	private double penWidth = 1d;
 	private Color penColor = Color.BLACK;
