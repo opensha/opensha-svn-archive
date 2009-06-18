@@ -20,6 +20,7 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.calc.ArcsecondConverter;
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
+import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.commons.data.region.GeographicRegionAPI;
@@ -1432,7 +1433,7 @@ public class GMT_MapGenerator implements Serializable{
 					sep += " " + poly.getFillString();
 				}
 				gmtCommandLines.add(sep);
-				for (Point2D point : poly.getPoints()) {
+				for (DataPoint2D point : poly.getPoints()) {
 					gmtCommandLines.add(point.getX() + "\t" + point.getY());
 				}
 			}
