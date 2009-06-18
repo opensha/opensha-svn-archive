@@ -1453,12 +1453,12 @@ public class GMT_MapGenerator implements Serializable{
 			gmtCommandLines.add("${COMMAND_PATH}cat  << END > " + symbolFile);
 			for (int i=0; i<symbols.size(); i++) {
 				PSXYSymbol symbol = symbols.get(i);
-				String sep = "> " + symbol.getFillString() + " " + symbol.getSymbolString();
-				if (symbol.getPenColor() != null)
-					sep += " " + symbol.getPenString();
-				gmtCommandLines.add(sep);
 				DataPoint2D point = symbol.getPoint();
-				gmtCommandLines.add(point.getX() + "\t" + point.getY());
+				String line = point.getX() + "\t" + point.getY() + "\t0";
+				line += symbol.getSymbolString() + "\t" + symbol.getFillString();
+				if (symbol.getPenColor() != null)
+					line += "\t" + symbol.getPenString();
+				gmtCommandLines.add(line);
 			}
 			gmtCommandLines.add("END");
 //			for (int i=0; i<symbols.size(); i++) {
