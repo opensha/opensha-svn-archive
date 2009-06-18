@@ -1210,7 +1210,7 @@ public class GMT_MapGenerator implements Serializable{
 	 */
 	public ArrayList<String> getGMT_ScriptLines(GMT_Map map, String dir) throws GMT_MapException{
 		
-		System.out.println("Generating map for dir: " + dir);
+		System.out.println("Generating map for dir: " + dir + " (" + map.getPolys().size() + " polys)");
 		
 		if (!dir.endsWith(File.separator))
 			dir += File.separator;
