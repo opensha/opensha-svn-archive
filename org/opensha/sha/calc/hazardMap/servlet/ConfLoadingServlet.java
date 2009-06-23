@@ -43,6 +43,14 @@ public abstract class ConfLoadingServlet extends HttpServlet {
 		out.flush();
 		out.close();
 	}
+	
+	protected void fail(ObjectOutputStream out, Exception e) throws IOException {
+		debug("Failing: " + e.getMessage());
+		out.writeObject(new Boolean(false));
+		out.writeObject(e);
+		out.flush();
+		out.close();
+	}
 
 	//Process the HTTP Post request
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

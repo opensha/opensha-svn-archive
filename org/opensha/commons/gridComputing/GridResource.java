@@ -31,7 +31,7 @@ public abstract class GridResource implements XMLSaveable, Serializable {
 			if (!mainDir.endsWith(File.separator))
 				mainDir += File.separator;
 		} else
-			mainDir = "org/opensha/gridComputing/defaults/";
+			mainDir = "org/opensha/commons/gridComputing/defaults/";
 		String outDir;
 		
 		// write the defaults
@@ -42,20 +42,26 @@ public abstract class GridResource implements XMLSaveable, Serializable {
 			ResourceProvider rp = ResourceProvider.HPC();
 			rp.writeToFile(outDir + "1hpc.xml");
 			
+			rp = ResourceProvider.HPC_SCEC_QUEUE();
+			rp.writeToFile(outDir + "1hpc_scec.xml");
+			
 			rp = ResourceProvider.DYNAMIC();
 			rp.writeToFile(outDir + "3dynamic.xml");
 			
 			rp = ResourceProvider.ABE_NO_GLIDE_INS();
 			rp.setName("Abe (NCSA/TeraGrid)");
 			rp.writeToFile(outDir + "2abe.xml");
+			rp = ResourceProvider.ABE_GLIDE_INS();
+			rp.setName("Abe WITH GLIDE INS (NCSA/TeraGrid)");
+			rp.writeToFile(outDir + "4abe_glide.xml");
 			
-			rp = ResourceProvider.STEELE_GLIDE_INS();
-			rp.setName("Steel (Purdue/TeraGrid)");
-			rp.writeToFile(outDir + "5steele.xml");
-			
-			rp = ResourceProvider.STEELE_NO_GLIDE_INS();
-			rp.setName("Steel WITH GLIDE INS (Purdue/TeraGrid)");
-			rp.writeToFile(outDir + "6steele_glide_in.xml");
+//			rp = ResourceProvider.STEELE_GLIDE_INS();
+//			rp.setName("Steel (Purdue/TeraGrid)");
+//			rp.writeToFile(outDir + "5steele.xml");
+//			
+//			rp = ResourceProvider.STEELE_NO_GLIDE_INS();
+//			rp.setName("Steel WITH GLIDE INS (Purdue/TeraGrid)");
+//			rp.writeToFile(outDir + "6steele_glide_in.xml");
 			
 			// SUBMIT
 			outDir = mainDir + XMLPresetLoader.DEFAULT_SUBMIT_SUBDIR + "/";

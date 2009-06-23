@@ -1,10 +1,16 @@
 package org.opensha.sha.calc.hazardMap;
 
+import java.io.IOException;
+
+import org.dom4j.Document;
 import org.dom4j.Element;
 import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.RELM_TestingRegion;
+import org.opensha.commons.util.XMLUtils;
 
-public class NamedGeographicRegion extends GeographicRegion {
+public class NamedGeographicRegion extends GeographicRegion implements NamedObjectAPI {
 
 	private String name;
 
@@ -36,5 +42,13 @@ public class NamedGeographicRegion extends GeographicRegion {
 		String name = geographicElement.attributeValue("name");
 		
 		return new NamedGeographicRegion(region.getRegionOutline(), name);
+	}
+	
+	public static void main(String args[]) throws IOException {
+		NamedGeographicRegion region = new NamedGeographicRegion(new RELM_TestingRegion().getRegionOutline(), "Relm!");
+		Document doc = XMLUtils.createDocumentWithRoot();
+		Element root = doc.getRootElement();
+		region.toXMLMetadata(root);
+		XMLUtils.writeDocumentToFile("region.xml", doc);
 	}
 }

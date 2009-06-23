@@ -7,10 +7,15 @@ import org.dom4j.Element;
 
 public class ResourceProvider extends GridResource {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String XML_METADATA_NAME = "ResourceProvider";
 	
 	/**
-	 * Preset for running on HPC as kmilner
+	 * Preset for running on HPC as tara3d
 	 * @return
 	 */
 	public static final ResourceProvider HPC() {
@@ -23,6 +28,13 @@ public class ResourceProvider extends GridResource {
 		HPC.addSuggestedQueue("scec");
 		HPC.addSuggestedQueue("quick");
 		return HPC;
+	}
+	
+	public static final ResourceProvider HPC_SCEC_QUEUE() {
+		ResourceProvider hpc = HPC();
+		hpc.setName("HPC (USC - SCEC queue)");
+		hpc.getGlobusRSL().setQueue("scec");
+		return hpc;
 	}
 	
 	private static String ABE_HOST = "grid-abe.ncsa.teragrid.org";
