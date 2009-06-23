@@ -285,7 +285,7 @@ public class StringParameter
     }
 
 
-	public boolean setValueFromXMLMetadata(Element el) {
+	public boolean setIndividualParamValueFromXML(Element el) {
 		this.setValue(el.attributeValue("value"));
 		return true;
 	}

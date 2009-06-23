@@ -34,6 +34,7 @@ import org.opensha.commons.util.FileNameComparator;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
 import org.opensha.commons.util.XMLUtils;
+import org.opensha.sha.calc.hazardMap.grid.MetadataHazardMapCalculator;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.gui.servlets.siteEffect.BasinDepthClass;
 import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
@@ -268,7 +269,7 @@ public class HazardMapJobCreator {
 		String arguments;
 		
 		String javaArgs = "-cp " + rp.getStoragePath() + "/" + job.getJobID()
-				+ "/opensha_gridHazMapGenerator.jar org.opensha.sha.calc.GridMetadataHazardMapCalculator "
+				+ "/opensha_gridHazMapGenerator.jar " + MetadataHazardMapCalculator.class.getName()+ " "
 				+ start + " " + endStr + " " + job.getConfigFileName() + " " + cvmFileName;
 		
 		if (rp.isGridUniverse()) {

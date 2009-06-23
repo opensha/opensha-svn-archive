@@ -189,7 +189,7 @@ public class DistRupMinusJB_OverRupParameter
     }
 
 
-	public boolean setValueFromXMLMetadata(Element el) {
+	public boolean setIndividualParamValueFromXML(Element el) {
 		// TODO Auto-generated method stub
 		return false;
 	}

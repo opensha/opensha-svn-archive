@@ -135,6 +135,15 @@ public interface ParameterAPI<E> extends NamedObjectAPI, Comparable, XMLSaveable
      * @return
      */
     public boolean setValueFromXMLMetadata(Element el);
+    
+    /**
+     * Method for saving this parameter to XML with the specified element name
+     * instead of the default.
+     * @param root
+     * @param elementName
+     * @return
+     */
+    public Element toXMLMetadata(Element root, String elementName);
 
 
      /** Needs to be called by subclasses when field change fails due to constraint problems. */

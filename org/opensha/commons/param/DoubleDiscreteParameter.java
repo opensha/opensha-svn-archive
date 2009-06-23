@@ -331,9 +331,14 @@ implements DependentParameterAPI<Double>, ParameterAPI<Double>
 		return param;
 	}
 
-	public boolean setValueFromXMLMetadata(Element el) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean setIndividualParamValueFromXML(Element el) {
+		try {
+			Double val = Double.parseDouble(el.attributeValue("value"));
+			this.setValue(val);
+			return true;
+		} catch (NumberFormatException e) {
+			return false;
+		}
 	}
 
 

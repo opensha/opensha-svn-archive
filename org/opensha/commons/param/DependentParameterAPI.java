@@ -24,7 +24,7 @@ import org.opensha.commons.exceptions.ParameterException;
  */
 public interface DependentParameterAPI<E> extends ParameterAPI<E> {
 	
-	public static final String XML_DEPENDENT_PARAMS_NAME = "DependentParameters";
+	public static final String XML_INDEPENDENT_PARAMS_NAME = "IndependentParameters";
 
     /**
      * Returns an iterator of all indepenedent parameters this parameter

@@ -422,7 +422,7 @@ implements DependentParameterAPI<Integer>, ParameterAPI<Integer>
 	}
 
 
-	public boolean setValueFromXMLMetadata(Element el) {
+	public boolean setIndividualParamValueFromXML(Element el) {
 		try {
 			int val = Integer.parseInt(el.attributeValue("value"));
 			this.setValue(val);

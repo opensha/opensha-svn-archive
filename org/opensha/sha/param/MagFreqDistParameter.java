@@ -1036,7 +1036,7 @@ implements java.io.Serializable
 	public StringConstraint getGaussianDistSetAllButOptions() { return this.gdSetAllButOptions; }
 
 
-	public boolean setValueFromXMLMetadata(Element el) {
+	public boolean setIndividualParamValueFromXML(Element el) {
 		// TODO Auto-generated method stub
 		return false;
 	}

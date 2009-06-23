@@ -264,7 +264,7 @@ implements DependentParameterAPI<ArrayList<String>>, ParameterAPI<ArrayList<Stri
 	}
 
 
-	public boolean setValueFromXMLMetadata(Element el) {
+	public boolean setIndividualParamValueFromXML(Element el) {
 		return false;
 	}
 

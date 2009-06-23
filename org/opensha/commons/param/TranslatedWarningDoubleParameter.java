@@ -700,6 +700,10 @@ public class TranslatedWarningDoubleParameter
     }
 
 	public Element toXMLMetadata(Element root) {
+		return toXMLMetadata(root, ParameterAPI.XML_METADATA_NAME);
+	}
+	
+	public Element toXMLMetadata(Element root, String elementName) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -839,7 +839,7 @@ java.io.Serializable{
 		return type;
 	}
 
-	public boolean setValueFromXMLMetadata(Element el) {
+	public boolean setIndividualParamValueFromXML(Element el) {
 		// TODO Auto-generated method stub
 		return false;
 	}

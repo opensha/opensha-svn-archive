@@ -217,7 +217,7 @@ public class DistanceSeisParameter
 
     }
 
-	public boolean setValueFromXMLMetadata(Element el) {
+	public boolean setIndividualParamValueFromXML(Element el) {
 		// TODO Auto-generated method stub
 		return false;
 	}

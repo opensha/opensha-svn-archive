@@ -1,10 +1,10 @@
 package scratchJavaDevelopers.kevin.XMLSaver;
 
+import java.awt.BorderLayout;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
@@ -13,38 +13,47 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.opensha.commons.util.FakeParameterListener;
-import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
+import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.IntensityMeasureRelationship;
-import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
 public class AttenRelSaver extends XMLSaver implements IMR_GuiBeanAPI {
 	
 	private IMR_GuiBean bean;
+	private IMT_GuiBean imtBean;
 	
 	public AttenRelSaver() {
 		super();
 		bean = createIMR_GUI_Bean();
+		ScalarIntensityMeasureRelationshipAPI imr = bean.getSelectedIMR_Instance();
+		imtBean = new IMT_GuiBean(imr, imr.getSupportedIntensityMeasuresIterator());
 		super.init();
 	}
 	
 	private IMR_GuiBean createIMR_GUI_Bean() {
 		return new IMR_GuiBean(this);
 	}
+	
+	public ScalarIntensityMeasureRelationshipAPI getSelectedAttenRel() {
+		return bean.getSelectedIMR_Instance();
+	}
 
 	@Override
 	public JPanel getPanel() {
-		return bean;
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.add(bean, BorderLayout.CENTER);
+		panel.add(imtBean, BorderLayout.SOUTH);
+		return panel;
 	}
 
 	@Override
 	public Element getXML(Element root) {
 		AttenuationRelationship attenRel = (AttenuationRelationship)bean.getSelectedIMR_Instance();
-		attenRel.setIntensityMeasure(SA_Param.NAME);
+		attenRel.setIntensityMeasure(imtBean.getIntensityMeasure());
 		
 		return attenRel.toXMLMetadata(root);
 	}
@@ -67,7 +76,8 @@ public class AttenRelSaver extends XMLSaver implements IMR_GuiBeanAPI {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		new AttenRelSaver();
+		AttenRelSaver saver = new AttenRelSaver();
+		saver.setVisible(true);
 		
 //		CY_2008_AttenRel cy08 = new CY_2008_AttenRel(new FakeParameterListener());
 //		

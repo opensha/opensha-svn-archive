@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -23,6 +24,12 @@ public abstract class XMLSaver extends JFrame implements ActionListener {
 	JPanel buttonPanel = new JPanel();
 	
 	JButton saveButton = new JButton("Save To XML");
+	
+	String fileName = "output.xml";
+	
+	boolean hideOnSave = false;
+	
+	JDialog diag = null;
 
 	public XMLSaver() {
 		super();
@@ -43,7 +50,15 @@ public abstract class XMLSaver extends JFrame implements ActionListener {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setLocationRelativeTo(null);
 		this.setSize(500, 700);
-		this.setVisible(true);
+	}
+	
+	public JDialog getAsDialog() {
+		if (diag == null) {
+			diag = new JDialog();
+			diag.setContentPane(main);
+			diag.setSize(500, 700);
+		}
+		return diag;
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -52,11 +67,24 @@ public abstract class XMLSaver extends JFrame implements ActionListener {
 			Element el = getXML(doc.getRootElement());
 			
 			try {
-				XMLUtils.writeDocumentToFile("output.xml", doc);
+				XMLUtils.writeDocumentToFile(fileName, doc);
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
+			if (hideOnSave) {
+				this.setVisible(false);
+				if (diag != null)
+					diag.setVisible(false);
+			}
 		}
+	}
+	
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+	
+	public void setHideOnSave(boolean hide) {
+		this.hideOnSave = hide;
 	}
 	
 	public abstract Element getXML(Element root);

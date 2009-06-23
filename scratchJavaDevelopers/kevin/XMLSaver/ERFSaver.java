@@ -119,6 +119,7 @@ public class ERFSaver extends XMLSaver {
 	 */
 	public static void main(String[] args) {
 		ERFSaver saver = new ERFSaver();
+		saver.setVisible(true);
 	}
 
 }

@@ -486,7 +486,11 @@ ParameterAPI<E>, java.io.Serializable
 	public abstract Object clone();
 
 	public Element toXMLMetadata(Element root) {
-		Element xml = root.addElement(Parameter.XML_METADATA_NAME);
+		return toXMLMetadata(root, Parameter.XML_METADATA_NAME);
+	}
+	
+	public Element toXMLMetadata(Element root, String elementName) {
+		Element xml = root.addElement(elementName);
 		xml.addAttribute("name", getName());
 		xml.addAttribute("type", getType());
 		xml.addAttribute("units", getUnits());
@@ -499,7 +503,7 @@ ParameterAPI<E>, java.io.Serializable
 			DependentParameterAPI<E> param = (DependentParameterAPI<E>)this;
 			int num = param.getNumIndependentParameters();
 			if (num > 0) {
-				Element dependent = xml.addElement(DependentParameterAPI.XML_DEPENDENT_PARAMS_NAME);
+				Element dependent = xml.addElement(DependentParameterAPI.XML_INDEPENDENT_PARAMS_NAME);
 				ListIterator<ParameterAPI> it = (ListIterator<ParameterAPI>)param.getIndependentParametersIterator();
 				while (it.hasNext()) {
 					dependent = it.next().toXMLMetadata(dependent);

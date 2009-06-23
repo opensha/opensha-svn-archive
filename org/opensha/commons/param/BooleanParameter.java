@@ -84,7 +84,7 @@ implements  java.io.Serializable{
 	/**
 	 * Parses the XML element for a boolean value
 	 */
-	public boolean setValueFromXMLMetadata(Element el) {
+	public boolean setIndividualParamValueFromXML(Element el) {
 		this.setValue(Boolean.parseBoolean(el.attributeValue("value")));
 		return true;
 	}

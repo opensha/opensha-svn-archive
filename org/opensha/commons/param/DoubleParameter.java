@@ -450,7 +450,7 @@ implements DependentParameterAPI<Double>, ParameterAPI<Double>
 	/**
 	 * Parses the given XML element for a double value and sets it
 	 */
-	public boolean setValueFromXMLMetadata(Element el) {
+	public boolean setIndividualParamValueFromXML(Element el) {
 		try {
 			Double val = Double.parseDouble(el.attributeValue("value"));
 			this.setValue(val);
