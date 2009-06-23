@@ -88,7 +88,18 @@ public class BJF_1997_test extends TestCase implements ParameterChangeWarningLis
 
   public static void main (String[] args)
   {
-   junit.swingui.TestRunner.run(BJF_1997_test.class);
+//   junit.swingui.TestRunner.run(BJF_1997_test.class);
+	  BJF_1997_test test = new BJF_1997_test("BJF 1997 Test");
+	  test.setUp();
+	  
+	  boolean result = test.attenRelChecker.readResultFile("/tmp/BJF1997.txt");
+	  
+	  if (result)
+		  System.out.println("SUCCES!");
+	  else
+		  System.out.println("FAILURE!");
+	  
+	  test.tearDown();
   }
 
 }
