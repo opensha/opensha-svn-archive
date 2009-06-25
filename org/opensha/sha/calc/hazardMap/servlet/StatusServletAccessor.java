@@ -7,6 +7,7 @@ import java.net.URLConnection;
 import java.text.ParseException;
 import java.util.ArrayList;
 
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.sha.calc.hazardMap.CalculationStatus;
 
 public class StatusServletAccessor extends ServletAccessor {
@@ -76,6 +77,74 @@ public class StatusServletAccessor extends ServletAccessor {
 		inputFromServlet.close();
 		
 		return ids;
+	}
+	
+	/**
+	 * Gets a list of datasets with at least 1 hazard curve completed
+	 * 
+	 * @return
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	public ArrayList<DatasetID> getCurveDatasetIDs() throws IOException, ClassNotFoundException {
+		URLConnection servletConnection = this.openServletConnection(false);
+		
+		ObjectOutputStream outputToServlet = new
+		ObjectOutputStream(servletConnection.getOutputStream());
+
+		// send the operation to servlet
+		System.out.println("Sending Operation...");
+		outputToServlet.writeObject(StatusServlet.OP_GET_DATASETS_WITH_CURVES_LIST);
+		
+		ObjectInputStream inputFromServlet = new
+		ObjectInputStream(servletConnection.getInputStream());
+		
+		System.out.println("Getting dataset ids...");
+		Object idObj = inputFromServlet.readObject();
+		
+		if (idObj instanceof Boolean) {
+			String message = (String)inputFromServlet.readObject();
+			
+			throw new RuntimeException("ID List Request Failed: " + message);
+		}
+		
+		ArrayList<DatasetID> ids = (ArrayList<DatasetID>)idObj;
+		
+		inputFromServlet.close();
+		
+		return ids;
+	}
+	
+	public EvenlyGriddedGeographicRegion getRegion(String id) throws IOException, ClassNotFoundException {
+		URLConnection servletConnection = this.openServletConnection(false);
+		
+		ObjectOutputStream outputToServlet = new
+		ObjectOutputStream(servletConnection.getOutputStream());
+
+		// send the operation to servlet
+		System.out.println("Sending Operation...");
+		outputToServlet.writeObject(StatusServlet.OP_GET_DATASET_REGION);
+		
+		System.out.println("Sending ID...");
+		outputToServlet.writeObject(id);
+		
+		ObjectInputStream inputFromServlet = new
+		ObjectInputStream(servletConnection.getInputStream());
+		
+		System.out.println("Getting status...");
+		Object regionObj = inputFromServlet.readObject();
+		
+		if (regionObj instanceof Boolean) {
+			String message = (String)inputFromServlet.readObject();
+			
+			throw new RuntimeException("Status Request Failed: " + message);
+		}
+		
+		EvenlyGriddedGeographicRegion region = (EvenlyGriddedGeographicRegion)regionObj;
+		
+		inputFromServlet.close();
+		
+		return region;
 	}
 
 	/**

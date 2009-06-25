@@ -21,8 +21,11 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.gridComputing.StorageHost;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.hazardMap.CalculationStatus;
 import org.opensha.sha.calc.hazardMap.HazardMapJob;
 import org.opensha.sha.calc.hazardMap.HazardMapJobCreator;
@@ -33,6 +36,8 @@ public class StatusServlet extends ConfLoadingServlet {
 	public static final String WORKFLOW_LOG_DIR = "/home/aftershock/opensha/hazmaps/logs";
 	
 	public static final String OP_GET_DATASET_LIST = "Get Dataset List";
+	public static final String OP_GET_DATASETS_WITH_CURVES_LIST = "Get Completed Dataset List";
+	public static final String OP_GET_DATASET_REGION = "Get Completed Dataset List";
 	public static final String OP_GET_STATUS = "Get Status";
 	
 	public static final String STATUS_WORKFLOW_BEGIN = "Workflow Execution Has Begun";
@@ -71,6 +76,9 @@ public class StatusServlet extends ConfLoadingServlet {
 			} else if (functionDesired.equals(OP_GET_DATASET_LIST)) {
 				debug("Handling LIST Operation");
 				handleList(in, out);
+			} else if (functionDesired.equals(OP_GET_DATASETS_WITH_CURVES_LIST)) {
+				debug("Handling curves LIST Operation");
+				handleCompletedList(in, out);
 			} else {
 				fail(out, "Unknown request: " + functionDesired);
 				return;
@@ -219,9 +227,90 @@ public class StatusServlet extends ConfLoadingServlet {
 		debug("Done handling dataset list");
 	}
 	
+	private void handleCompletedList(ObjectInputStream in, ObjectOutputStream out) throws IOException, ClassNotFoundException {
+		StorageHost storage = this.confLoader.getPresets().getStorageHosts().get(0);
+		
+		String dirName = storage.getPath();
+		
+		debug("Loading IDs for directory: " + dirName);
+		
+		File dirFile = new File(dirName);
+		
+		File dirList[] = dirFile.listFiles();
+		
+		ArrayList<DatasetID> datasets = new ArrayList<DatasetID>();
+		
+		for (File mapDir : dirList) {
+			if (!mapDir.isDirectory())
+				continue;
+			String datasetID = mapDir.getName();
+			if (datasetID.equals("."))
+				continue;
+			if (datasetID.equals(".."))
+				continue;
+			
+			String xmlFileName = mapDir.getAbsolutePath() + File.separator + datasetID + ".xml";
+			File xmlFile = new File(xmlFileName);
+			
+			if (!xmlFile.exists())
+				continue;
+			
+			debug("Loading id/name from: " + xmlFileName);
+			String id[] = null;
+			try {
+				id = loadJobIDFromXML(xmlFileName);
+			} catch (Exception e) {
+				e.printStackTrace();
+				continue;
+			}
+			
+			if (!id[0].equals(datasetID)) {
+				debug("Dataset ID's don't match!!!!");
+				debug("From DirName: " + datasetID);
+				debug("From XML: " + id[0]);
+				continue;
+			}
+			
+			// now check for curves
+			try {
+				File curvesDir = new File(mapDir.getAbsolutePath() + File.separator + "curves");
+				if (!curvesDir.exists())
+					continue;
+				File subDirs[] = curvesDir.listFiles();
+				boolean good = false;
+				// this checks to make sure that it has at least 1 curve by checking that the
+				// curves dir has a subdirectory that's not '.' or '..' (thus the longer than 2
+				// check)
+				for (File curveSubDir : subDirs) {
+					if (curveSubDir.length() > 2) {
+						good = true;
+						break;
+					}
+				}
+				if (!good)
+					continue;
+			} catch (Exception e) {
+				continue;
+			}
+			
+			debug("Found dataset: " + datasetID);
+			datasets.add(new DatasetID(id[0], id[1], true, true));
+		}
+		
+		debug("Sorting dataset IDs...");
+		Collections.sort(datasets);
+		
+		debug("Sending dataset IDs...");
+		out.writeObject(datasets);
+		
+		out.flush();
+		out.close();
+		
+		debug("Done handling datasets with curves list");
+	}	
+	
 	private String[] loadJobIDFromXML(String file) throws MalformedURLException, DocumentException {
-		SAXReader reader = new SAXReader();
-		Document document = reader.read(new File(file));
+		Document document = XMLUtils.loadDocument(file);
 		
 		Element root = document.getRootElement();
 		
@@ -233,6 +322,39 @@ public class StatusServlet extends ConfLoadingServlet {
 		String ret[] = {id, name};
 		
 		return ret;
+	}
+	
+	private void handleGetRegion(ObjectInputStream in, ObjectOutputStream out) throws IOException, ClassNotFoundException {
+		StorageHost storage = this.confLoader.getPresets().getStorageHosts().get(0);
+		
+		String dirName = storage.getPath();
+		
+		// read the dataset id
+		String id = (String)in.readObject();
+		
+		String datasetPath = dirName + File.separator + id + File.separator;
+		String xmlPath = datasetPath + id + ".xml";
+		
+		File xmlFile = new File(xmlPath);
+		if (!xmlFile.exists())
+			fail(out, "Dataset XML file doesn't exist!");
+		
+		EvenlyGriddedGeographicRegion region = null;
+		
+		try {
+			Document doc = XMLUtils.loadDocument(xmlPath);
+			Element root = doc.getRootElement();
+			Element regionEl = root.element(EvenlyGriddedGeographicRegion.XML_METADATA_NAME);
+			region = EvenlyGriddedGeographicRegion.fromXMLMetadata(regionEl);
+		} catch (Exception e) {
+			fail(out, "Error parsing dataset XML!");
+		}
+		
+		debug("Sending region...");
+		out.writeObject(region);
+		
+		out.flush();
+		out.close();
 	}
 	
 	private void handleStatus(ObjectInputStream in, ObjectOutputStream out) throws IOException, ClassNotFoundException {
