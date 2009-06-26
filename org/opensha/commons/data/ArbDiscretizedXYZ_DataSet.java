@@ -1,10 +1,13 @@
 package org.opensha.commons.data;
 
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import org.jfree.data.xy.XYZDataset;
+import org.opensha.commons.util.FileUtils;
 
 /**
  * <p>Title: ArbDiscretizedXYZ_DataSet</p>
@@ -26,7 +29,11 @@ public class ArbDiscretizedXYZ_DataSet implements XYZ_DataSetAPI,java.io.Seriali
 	/**
 	 * Default class constructor
 	 */
-	public ArbDiscretizedXYZ_DataSet(){};
+	public ArbDiscretizedXYZ_DataSet(){
+		xValues = new ArrayList<Double>();
+		yValues = new ArrayList<Double>();
+		zValues = new ArrayList<Double>();
+	};
 	/**
 	 * constructor that takes the xVals,yVals and zVals as the argument
 	 * @param xVals = ArrayList containing the xValues
@@ -187,6 +194,36 @@ public class ArbDiscretizedXYZ_DataSet implements XYZ_DataSetAPI,java.io.Seriali
 			fw.write(xData.get(i) + "\t" + yData.get(i) + "\t" + zData.get(i) + "\n");
 		}
 		fw.close();
+	}
+	
+	public static ArbDiscretizedXYZ_DataSet loadXYZFile(String fileName) throws FileNotFoundException, IOException {
+		ArrayList<String> lines = FileUtils.loadFile(fileName);
+		
+		ArbDiscretizedXYZ_DataSet xyz = new ArbDiscretizedXYZ_DataSet();
+		
+		for (String line : lines) {
+			if (line.startsWith("#"))
+				continue;
+			if (line.length() < 2)
+				continue;
+			StringTokenizer tok = new StringTokenizer(line);
+			if (tok.countTokens() != 3)
+				continue;
+			
+			double x = Double.parseDouble(tok.nextToken());
+			double y = Double.parseDouble(tok.nextToken());
+			double z = Double.parseDouble(tok.nextToken());
+			
+			xyz.addValue(x, y, z);
+		}
+		
+		return xyz;
+	}
+	
+	public void addValue(double xVal, double yVal, double zVal) {
+		this.xValues.add(xVal);
+		this.yValues.add(yVal);
+		this.zValues.add(zVal);
 	}
 
 }

@@ -48,4 +48,6 @@ public interface XYZ_DataSetAPI extends java.io.Serializable{
 
   //returns true if size ArrayList for X,Y and Z dataset values is equal else return false
   public boolean checkXYZ_NumVals();
+  
+  public void addValue(double xVal, double yVal, double zVal);
 }
