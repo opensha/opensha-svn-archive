@@ -13,6 +13,11 @@
       <Parameter name="Flag for Vs30 value." type="ConstrainedStringParameter" units="" value="Inferred"/>
       <Parameter name="Depth to Vs = 1.0 km/sec" type="DoubleParameter" units="" value="1000.0"/>
     </SiteParameters>
-    <IntensityMeasure Type="SA" SAPeriod="3.0" SADamping="5.0"/>
+    <IntensityMeasure name="SA" type="ConstrainedDoubleParameter" units="g" value="0.5">
+      <IndependentParameters>
+        <Parameter name="SA Period" type="ConstrainedDoubleDiscreteParameter" units="sec" value="3.0"/>
+        <Parameter name="SA Damping" type="ConstrainedDoubleDiscreteParameter" units=" % " value="5.0"/>
+      </IndependentParameters>
+    </IntensityMeasure>
   </IMR>
 </OpenSHA>

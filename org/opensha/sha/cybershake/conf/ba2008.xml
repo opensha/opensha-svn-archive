@@ -11,6 +11,11 @@
     <SiteParameters>
       <Parameter name="Vs30" type="ConstrainedDoubleParameter" units="m/sec" value="760.0"/>
     </SiteParameters>
-    <IntensityMeasure Type="SA" SAPeriod="1.0" SADamping="5.0"/>
+    <IntensityMeasure name="SA" type="ConstrainedDoubleParameter" units="g" value="0.5">
+      <IndependentParameters>
+        <Parameter name="SA Period" type="ConstrainedDoubleDiscreteParameter" units="sec" value="3.0"/>
+        <Parameter name="SA Damping" type="ConstrainedDoubleDiscreteParameter" units=" % " value="5.0"/>
+      </IndependentParameters>
+    </IntensityMeasure>
   </IMR>
 </OpenSHA>
