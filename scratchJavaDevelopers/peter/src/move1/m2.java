@@ -1,4 +1,4 @@
-package scratchJavaDevelopers.peter.tmp.move1;
+package scratchJavaDevelopers.peter.src.move1;
 
 /**
  * Add comments here
