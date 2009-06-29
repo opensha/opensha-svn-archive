@@ -49,11 +49,7 @@ public class ManagementServletAccessor extends ServletAccessor {
 		
 		Object obj = inputFromServlet.readObject();
 		
-		if (obj instanceof Boolean) {
-			String message = (String)inputFromServlet.readObject();
-			
-			throw new RuntimeException("Resource List Request Failed: " + message);
-		}
+		checkHandleError("Resource List Request Failed: ", obj, inputFromServlet);
 		
 		GridResourcesList list = (GridResourcesList)obj;
 		

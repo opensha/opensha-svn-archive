@@ -80,6 +80,10 @@ public class OptionPanel extends JPanel implements ActionListener {
 		this.add(bottomPanel, BorderLayout.SOUTH);
 	}
 	
+	public JPanel getButtonPanel() {
+		return buttonPanel;
+	}
+	
 	public void setBackEnabled(boolean enabled) {
 		backButton.setEnabled(enabled);
 	}

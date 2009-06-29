@@ -578,7 +578,8 @@ public class PlotMapFromXMLHazardDataSetApp extends JApplet implements Parameter
 			
 			try {
 				if (!(new File(outFile).exists())) { // if the file hasn't already been created
-					MakeXYZFromHazardMapDir maker = new MakeXYZFromHazardMapDir(localDir + "/curves", isProbAt_IML, value, outFile, false, true);
+					MakeXYZFromHazardMapDir maker = new MakeXYZFromHazardMapDir(localDir + "/curves", false, true);
+					maker.writeXYZFile(isProbAt_IML, value, outFile);
 				}
 				makeLocalMap(outFile);
 			} catch (IOException e1) {

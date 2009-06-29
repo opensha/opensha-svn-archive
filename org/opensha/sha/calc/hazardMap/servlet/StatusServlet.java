@@ -37,7 +37,7 @@ public class StatusServlet extends ConfLoadingServlet {
 	
 	public static final String OP_GET_DATASET_LIST = "Get Dataset List";
 	public static final String OP_GET_DATASETS_WITH_CURVES_LIST = "Get Completed Dataset List";
-	public static final String OP_GET_DATASET_REGION = "Get Completed Dataset List";
+	public static final String OP_GET_DATASET_REGION = "Get Dataset Region";
 	public static final String OP_GET_STATUS = "Get Status";
 	
 	public static final String STATUS_WORKFLOW_BEGIN = "Workflow Execution Has Begun";
@@ -79,6 +79,9 @@ public class StatusServlet extends ConfLoadingServlet {
 			} else if (functionDesired.equals(OP_GET_DATASETS_WITH_CURVES_LIST)) {
 				debug("Handling curves LIST Operation");
 				handleCompletedList(in, out);
+			} else if (functionDesired.equals(OP_GET_DATASET_REGION)) {
+				debug("Handling curves LIST Operation");
+				handleGetRegion(in, out);
 			} else {
 				fail(out, "Unknown request: " + functionDesired);
 				return;
@@ -276,19 +279,23 @@ public class StatusServlet extends ConfLoadingServlet {
 				File curvesDir = new File(mapDir.getAbsolutePath() + File.separator + "curves");
 				if (!curvesDir.exists())
 					continue;
-				File subDirs[] = curvesDir.listFiles();
-				boolean good = false;
-				// this checks to make sure that it has at least 1 curve by checking that the
-				// curves dir has a subdirectory that's not '.' or '..' (thus the longer than 2
-				// check)
-				for (File curveSubDir : subDirs) {
-					if (curveSubDir.length() > 2) {
-						good = true;
-						break;
+				boolean checkHasSubdirs = false;
+				
+				if (checkHasSubdirs) {
+					File subDirs[] = curvesDir.listFiles();
+					boolean good = false;
+					// this checks to make sure that it has at least 1 curve by checking that the
+					// curves dir has a subdirectory that's not '.' or '..' (thus the longer than 2
+					// check)
+					for (File curveSubDir : subDirs) {
+						if (curveSubDir.length() > 2) {
+							good = true;
+							break;
+						}
 					}
+					if (!good)
+						continue;
 				}
-				if (!good)
-					continue;
 			} catch (Exception e) {
 				continue;
 			}

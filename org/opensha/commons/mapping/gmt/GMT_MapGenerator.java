@@ -70,9 +70,9 @@ public class GMT_MapGenerator implements Serializable{
 	protected String METADATA_FILE_NAME = DEFAULT_METADATA_FILE_NAME;
 	protected final static String DEFAULT_PS_FILE_NAME = "map.ps";
 	protected String PS_FILE_NAME = DEFAULT_PS_FILE_NAME;
-	protected final static String DEFAULT_JPG_FILE_NAME = "map.jpg";
+	public final static String DEFAULT_JPG_FILE_NAME = "map.jpg";
 	protected String JPG_FILE_NAME = DEFAULT_JPG_FILE_NAME;
-	protected final static String DEFAULT_PNG_FILE_NAME = "map.png";
+	public final static String DEFAULT_PNG_FILE_NAME = "map.png";
 	protected String PNG_FILE_NAME = DEFAULT_PNG_FILE_NAME;
 	protected final static String DEFAULT_PDF_FILE_NAME = "map.pdf";
 	protected String PDF_FILE_NAME = DEFAULT_PDF_FILE_NAME;

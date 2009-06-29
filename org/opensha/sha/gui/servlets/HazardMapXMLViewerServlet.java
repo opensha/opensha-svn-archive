@@ -78,7 +78,8 @@ public class HazardMapXMLViewerServlet  extends HttpServlet {
 
 				try {
 					if (!(new File(outFile).exists())) { // if the file hasn't already been created
-						MakeXYZFromHazardMapDir maker = new MakeXYZFromHazardMapDir(localDir + "/curves", isProbAt_IML, value, outFile, false, true);
+						MakeXYZFromHazardMapDir maker = new MakeXYZFromHazardMapDir(localDir + "/curves", false, true);
+						maker.writeXYZFile(isProbAt_IML, value, outFile);
 					}
 					XYZ_DataSetAPI xyzData = null;
 					if(outFile != null){

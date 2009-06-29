@@ -1511,6 +1511,8 @@ public class HazardMapJobCreator {
 
 			fw.write("#!/bin/sh" + "\n");
 			fw.write("" + "\n");
+			fw.write("umask u=rwx,g=rx,o=rx" + "\n");
+			fw.write("" + "\n");
 			fw.write("/bin/echo SHELL: $SHELL" + "\n");
 			fw.write("/bin/echo DATE: `date`" + "\n");
 			fw.write("/bin/echo ARCH: `uname -a`" + "\n");

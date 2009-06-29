@@ -54,6 +54,23 @@ public class FileUtils {
 	FileNotFoundException,
 	IOException
 	{
+		return loadFile(fileName, true);
+	}
+	
+	/**
+	 * Loads in each line to a text file into an ArrayList ( i.e. a vector ). Each
+	 * element in the ArrayList represents one line from the file.
+	 *
+	 * @param fileName                  File to load in
+	 * @return                          ArrayList each element one line from the file
+	 * @throws FileNotFoundException    If the filename doesn't exist
+	 * @throws IOException              Unable to read from the file
+	 */
+	public static ArrayList<String> loadFile(String fileName, boolean skipBlankLines)
+	throws
+	FileNotFoundException,
+	IOException
+	{
 
 		// Debugging
 		String S = C + ": loadFile(): ";
@@ -80,7 +97,7 @@ public class FileUtils {
 
 					if(str != null) {
 						//omit the blank line
-						if(str.trim().equals(""))
+						if(skipBlankLines && str.trim().equals(""))
 							continue;
 
 						list.add(str);

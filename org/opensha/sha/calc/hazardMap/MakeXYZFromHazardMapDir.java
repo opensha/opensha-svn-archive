@@ -11,7 +11,9 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.StringTokenizer;
 
+import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.Location;
+import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
@@ -20,13 +22,45 @@ import org.opensha.commons.util.FileUtils;
 public class MakeXYZFromHazardMapDir {
 	
 	public static int WRITES_UNTIL_FLUSH = 1000;
+	
+	private boolean latFirst;
+	private boolean sort;
+	private String dirName;
 
-	public MakeXYZFromHazardMapDir(String dirName, boolean isProbAt_IML, double val, String outFileName, boolean sort, boolean latFirst) throws IOException {
+	public MakeXYZFromHazardMapDir(String dirName, boolean sort, boolean latFirst) {
+		this.dirName = dirName;
+		this.latFirst = latFirst;
+		this.sort = sort;
+	}
+	
+	public void writeXYZFile(boolean isProbAt_IML, double level, String fileName) throws IOException {
+		parseFiles(isProbAt_IML, level, fileName, false);
+	}
+	
+	public XYZ_DataSetAPI getXYZDataset(boolean isProbAt_IML, double level) throws IOException {
+		return parseFiles(isProbAt_IML, level, null, false);
+	}
+	
+	public XYZ_DataSetAPI getXYZDataset(boolean isProbAt_IML, double level, String fileName) throws IOException {
+		return parseFiles(isProbAt_IML, level, fileName, true);
+	}
+	
+	private XYZ_DataSetAPI parseFiles(boolean isProbAt_IML, double level, String fileName,
+			boolean forceLoad) throws IOException {
 		// get and list the dir
+		System.out.println("Generating XYZ dataset for dir: " + dirName);
 		File masterDir = new File(dirName);
 		File[] dirList=masterDir.listFiles();
 		
-		BufferedWriter out = new BufferedWriter(new FileWriter(outFileName));
+		BufferedWriter out = null;
+		ArbDiscretizedXYZ_DataSet xyz = null;
+		
+		if (fileName != null && fileName.length() > 0) {
+			out = new BufferedWriter(new FileWriter(fileName));
+		}
+		if (out == null || forceLoad) {
+			xyz = new ArbDiscretizedXYZ_DataSet();
+		}
 		
 		int count = 0;
 		
@@ -46,21 +80,28 @@ public class MakeXYZFromHazardMapDir {
 				for(File file : subDirList) {
 					//only taking the files into consideration
 					if(file.isFile()){
-						String fileName = file.getName();
+						String curveFileName = file.getName();
 						//files that ends with ".txt"
-						if(fileName.endsWith(".txt")){
-							Location loc = decodeFileName(fileName);
+						if(curveFileName.endsWith(".txt")){
+							Location loc = decodeFileName(curveFileName);
 							if (loc != null) {
 								double latVal = loc.getLatitude();
 								double lonVal = loc.getLongitude();
 								//System.out.println("Lat: " + latVal + " Lon: " + lonVal);
 								// handle the file
-								double writeVal = handleFile(file.getAbsolutePath(), isProbAt_IML, val);
+								double writeVal = handleFile(file.getAbsolutePath(), isProbAt_IML, level);
 //								out.write(latVal + "\t" + lonVal + "\t" + writeVal + "\n");
-								if (latFirst)
-									out.write(latVal + "     " + lonVal + "     " + writeVal + "\n");
-								else
-									out.write(lonVal + "     " + latVal + "     " + writeVal + "\n");
+								if (latFirst) {
+									if (out != null)
+										out.write(latVal + "     " + lonVal + "     " + writeVal + "\n");
+									if (xyz != null)
+										xyz.addValue(latVal, lonVal, writeVal);
+								} else {
+									if (out != null)
+										out.write(lonVal + "     " + latVal + "     " + writeVal + "\n");
+									if (xyz != null)
+										xyz.addValue(lonVal, latVal, writeVal);
+								}
 								
 								if (latVal < minLat)
 									minLat = latVal;
@@ -71,7 +112,7 @@ public class MakeXYZFromHazardMapDir {
 								else if (lonVal > maxLon)
 									maxLon = lonVal;
 								
-								if (count % MakeXYZFromHazardMapDir.WRITES_UNTIL_FLUSH == 0) {
+								if (out != null && count % MakeXYZFromHazardMapDir.WRITES_UNTIL_FLUSH == 0) {
 									System.out.println("Processed " + count + " curves");
 									out.flush();
 								}
@@ -85,10 +126,13 @@ public class MakeXYZFromHazardMapDir {
 			
 		}
 		
-		out.close();
+		if (out != null)
+			out.close();
 		System.out.println("DONE");
 		System.out.println("MinLat: " + minLat + " MaxLat: " + maxLat + " MinLon: " + minLon + " MaxLon " + maxLon);
 		System.out.println(count + " curves processed!");
+		
+		return xyz;
 	}
 	
 	/**
@@ -200,7 +244,8 @@ public class MakeXYZFromHazardMapDir {
 			double level = 0.002;		// 10% in 50
 //			double level = 0.0004;		// 	2% in 50
 			boolean latFirst = true;
-			MakeXYZFromHazardMapDir maker = new MakeXYZFromHazardMapDir(curveDir, isProbAt_IML, level, outfile, false, latFirst);
+			MakeXYZFromHazardMapDir maker = new MakeXYZFromHazardMapDir(curveDir, false, latFirst);
+			maker.writeXYZFile(isProbAt_IML, level, outfile);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

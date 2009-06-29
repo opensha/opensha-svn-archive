@@ -61,7 +61,7 @@ public class AttenRelResultsChecker {
 	private double tolerence = .01; //default value for the tolerence
 
 	private final static String parameterSetString = "SetParameter";
-	private final static String getParamValString = "GetValue";
+	public final static String getParamValString = "GetValue";
 	private final static String intensitySetString = "SetIntensityMeasure";
 
 
@@ -135,7 +135,7 @@ public class AttenRelResultsChecker {
 	 * settings with the result in the file.
 	 */
 	public boolean readResultFile(){
-		return readResultFile(null);
+		return readResultFile(resultFile + "_new.txt");
 	}
 
 	/**
@@ -273,6 +273,9 @@ public class AttenRelResultsChecker {
 						failedParamsSetting += "\tOpenSHA value for: "+"\""+yControlName+"\" = "+yAxisParamValFromSHA;
 						failedParamsSetting += ",\tbut it should be : "+ yAxisParamVal+"\n";
 
+						// this line has the old rounding error we found
+//						if (outBuff != null) outBuff.append(getParamValString + "(\"" + st + "\") = " + decimalFormat.format(yAxisParamValFromSHA) + "\n");
+						// this line makes files without the rounding error
 						if (outBuff != null) outBuff.append(getParamValString + "(\"" + st + "\") = " + decimalFormat.format(orignNoRoundSHAVal) + "\n");
 						
 						//compare the computed result using SHA with the target result for the defined set of parameters

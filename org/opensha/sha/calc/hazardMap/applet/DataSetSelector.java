@@ -16,12 +16,13 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.sha.calc.hazardMap.servlet.DatasetID;
 import org.opensha.sha.calc.hazardMap.servlet.StatusServletAccessor;
 
 public class DataSetSelector extends JPanel implements ActionListener, StepActivatedListener, ListSelectionListener {
 	
-	StatusServletAccessor statusAccessor = new StatusServletAccessor(StatusServletAccessor.SERVLET_URL);
+	private StatusServletAccessor statusAccessor = new StatusServletAccessor(StatusServletAccessor.SERVLET_URL);
 	
 	ArrayList<DatasetID> datasets = null;
 	
@@ -38,8 +39,16 @@ public class DataSetSelector extends JPanel implements ActionListener, StepActiv
 	
 	boolean status = true;
 	
+	private boolean curvesOnly;
+	
 	public DataSetSelector() {
+		this(false);
+	}
+	
+	public DataSetSelector(boolean curvesOnly) {
 		super(new BorderLayout());
+		
+		this.curvesOnly = curvesOnly;
 		
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		list.setLayoutOrientation(JList.VERTICAL);
@@ -61,7 +70,10 @@ public class DataSetSelector extends JPanel implements ActionListener, StepActiv
 	
 	private void loadDatasets() {
 		try {
-			datasets = statusAccessor.getDatasetIDs();
+			if (curvesOnly)
+				datasets = statusAccessor.getCurveDatasetIDs();
+			else
+				datasets = statusAccessor.getDatasetIDs();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -126,5 +138,18 @@ public class DataSetSelector extends JPanel implements ActionListener, StepActiv
 		int index = this.list.getSelectedIndex();
 		
 		this.step.getStepsPanel().setNextEnabled(index >= 0);
+	}
+	
+	public EvenlyGriddedGeographicRegionAPI getSelectedDatasetRegion() {
+		try {
+			return this.statusAccessor.getRegion(this.getSelectedID().getID());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

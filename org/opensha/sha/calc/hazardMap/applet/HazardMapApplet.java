@@ -33,6 +33,7 @@ public class HazardMapApplet extends JApplet implements OptionPanelListener, Loa
 	
 	CreateDataManager creator = null;
 	StatusCheckManager status = null;
+	MapManager maps = null;
 	
 	OptionPanel initialOptionPanel;
 	
@@ -41,6 +42,9 @@ public class HazardMapApplet extends JApplet implements OptionPanelListener, Loa
 	JPanel mainPanel = new JPanel(cl);
 	
 	DataSetSelector selector = null;
+	
+	public static final int DEFAULT_WIDTH = 750;
+	public static final int DEFAULT_HIGHT = 650;
 	
 	public HazardMapApplet() {
 		super();
@@ -84,6 +88,7 @@ public class HazardMapApplet extends JApplet implements OptionPanelListener, Loa
 			this.loadStatusOption();
 		} else if (option.equals(PLOT_RETRIEVE_OPTION)) {
 			System.out.println("Selected Plot Option");
+			this.loadMapOption();
 		}
 	}
 	
@@ -109,6 +114,18 @@ public class HazardMapApplet extends JApplet implements OptionPanelListener, Loa
 		cl.show(mainPanel, STATUS_OPTION);
 		
 		System.out.println("Done loading Status Option!");
+	}
+	
+	protected void loadMapOption() {
+		if (maps == null) {
+			maps = new MapManager(this);
+			
+			this.add(maps.getPanel(), PLOT_RETRIEVE_OPTION);
+		}
+		
+		cl.show(mainPanel, PLOT_RETRIEVE_OPTION);
+		
+		System.out.println("Done loading Map Option!");
 	}
 	
 	public void loadStep() {

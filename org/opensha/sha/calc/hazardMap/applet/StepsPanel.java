@@ -140,6 +140,10 @@ public class StepsPanel extends JPanel implements ActionListener {
 		
 		step.setActivated();
 	}
+	
+	public void loadNextStep() {
+		this.loadStep(this.currentStepIndex + 1);
+	}
 
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();

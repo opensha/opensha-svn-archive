@@ -37,11 +37,7 @@ public class StatusServletAccessor extends ServletAccessor {
 		System.out.println("Getting status...");
 		Object statusObj = inputFromServlet.readObject();
 		
-		if (statusObj instanceof Boolean) {
-			String message = (String)inputFromServlet.readObject();
-			
-			throw new RuntimeException("Status Request Failed: " + message);
-		}
+		checkHandleError("Status Request Failed: ", statusObj, inputFromServlet);
 		
 		CalculationStatus status = (CalculationStatus)statusObj;
 		
@@ -66,11 +62,7 @@ public class StatusServletAccessor extends ServletAccessor {
 		System.out.println("Getting dataset ids...");
 		Object idObj = inputFromServlet.readObject();
 		
-		if (idObj instanceof Boolean) {
-			String message = (String)inputFromServlet.readObject();
-			
-			throw new RuntimeException("ID List Request Failed: " + message);
-		}
+		checkHandleError("ID List Request Failed: ", idObj, inputFromServlet);
 		
 		ArrayList<DatasetID> ids = (ArrayList<DatasetID>)idObj;
 		
@@ -102,11 +94,7 @@ public class StatusServletAccessor extends ServletAccessor {
 		System.out.println("Getting dataset ids...");
 		Object idObj = inputFromServlet.readObject();
 		
-		if (idObj instanceof Boolean) {
-			String message = (String)inputFromServlet.readObject();
-			
-			throw new RuntimeException("ID List Request Failed: " + message);
-		}
+		checkHandleError("ID List Request Failed: ", idObj, inputFromServlet);
 		
 		ArrayList<DatasetID> ids = (ArrayList<DatasetID>)idObj;
 		
@@ -134,11 +122,7 @@ public class StatusServletAccessor extends ServletAccessor {
 		System.out.println("Getting status...");
 		Object regionObj = inputFromServlet.readObject();
 		
-		if (regionObj instanceof Boolean) {
-			String message = (String)inputFromServlet.readObject();
-			
-			throw new RuntimeException("Status Request Failed: " + message);
-		}
+		checkHandleError("Region Request Failed: ", regionObj, inputFromServlet);
 		
 		EvenlyGriddedGeographicRegion region = (EvenlyGriddedGeographicRegion)regionObj;
 		

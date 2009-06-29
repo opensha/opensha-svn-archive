@@ -6,6 +6,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 
 import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.util.FileUtils;
@@ -75,10 +76,6 @@ extends HttpServlet {
 
 		//string that decides the name of the output gmt files
 		String outFile = null;
-		//gets the current time in milliseconds to be the new director for each user
-		String currentMilliSec = "" + System.currentTimeMillis();
-		//Name of the directory in which we are storing all the gmt data for the user
-		String newDir = null;
 
 		try {
 			//all the user gmt stuff will be stored in this directory
@@ -94,32 +91,6 @@ extends HttpServlet {
 
 			//receiving the name of the input directory
 			String dirName = (String) inputFromApplet.readObject();
-			if (dirName != null) {
-				File f = new File(dirName);
-				int fileCounter = 1;
-				//checking if the directory already exists then add
-				while (f.exists()) {
-					String tempDirName = dirName + fileCounter;
-					f = new File(tempDirName);
-					++fileCounter;
-				}
-				newDir = FILE_PATH + GMT_DATA_DIR + f.getName();
-			}
-			else {
-				dirName = currentMilliSec;
-				newDir = FILE_PATH + GMT_DATA_DIR + currentMilliSec;
-			}
-
-			//create a gmt directory for each user in which all his gmt files will be stored
-			boolean success = (new File(newDir)).mkdir();
-			//reading the gmtScript file that user sent as the attachment and create
-			//a new gmt script inside the directory created for the user.
-			//The new gmt script file created also has one minor modification
-			//at the top of the gmt script file I am adding the "cd ... " command so
-			//that it should pick all the gmt related files from the directory cretade for the user.
-			//reading the gmt script file sent by user as te attchment
-
-			String gmtScriptFile = newDir + "/" + GMT_SCRIPT_FILE;
 
 			//gets the object for the GMT_MapGenerator script
 			GMT_Map map = (GMT_Map)inputFromApplet.readObject();
@@ -130,58 +101,8 @@ extends HttpServlet {
 			//Name of the Metadata file
 			String metadataFileName = (String) inputFromApplet.readObject();
 			
-			ArrayList<String> gmtMapScript = gmt.getGMT_ScriptLines(map, newDir);
-
-			//creating a new gmt script for the user and writing it ot the directory created for the user
-			FileWriter fw = new FileWriter(gmtScriptFile);
-			BufferedWriter bw = new BufferedWriter(fw);
-			int size = gmtMapScript.size();
-			for (int i = 0; i < size; ++i) {
-				bw.write( (String) gmtMapScript.get(i) + "\n");
-			}
-			bw.close();
-
-			// I use the new File().getName() here to  make sure the filename isn't a relative path
-			// that could overwrite something important, like "../../myfile"
-			String metadataFile = newDir + "/" + new File(metadataFileName).getName();
-			//creating the metadata (map Info) file in the new directory created for user
-			fw = new FileWriter(metadataFile);
-			bw = new BufferedWriter(fw);
-			bw.write(" " + (String) metadata + "\n");
-			bw.close();
-
-			//creating the XYZ file from the XYZ file from the XYZ dataSet
-			ArrayList<Double> xVals = map.getGriddedData().getX_DataSet();
-			ArrayList<Double> yVals = map.getGriddedData().getY_DataSet();
-			ArrayList<Double> zVals = map.getGriddedData().getZ_DataSet();
-			//file follows the convention lat, lon and Z value
-			if (map.getGriddedData().checkXYZ_NumVals()) {
-				size = xVals.size();
-				fw = new FileWriter(newDir + "/" + new File(map.getXyzFileName()).getName());
-				bw = new BufferedWriter(fw);
-				for (int i = 0; i < size; ++i) {
-					//System.out.println(xVals.get(i)+" "+yVals.get(i)+" "+zVals.get(i)+"\n");
-					bw.write(xVals.get(i) + " " + yVals.get(i) + " " + zVals.get(i) +
-					"\n");
-				}
-				bw.close();
-			}
-			else {
-				throw new RuntimeException(
-						"X, Y and Z dataset does not have equal size");
-			}
-
-			//running the gmtScript file
-			String[] command = {
-					"sh", "-c", "/bin/bash " + gmtScriptFile};
-			RunScript.runScript(command);
-
-			//create the Zip file for all the files generated
-			FileUtils.createZipFile(newDir);
-			//URL path to folder where all GMT related files and map data file for this
-			//calculations reside.
-			String mapImagePath = GMT_URL_PATH + GMT_DATA_DIR +
-			dirName + SystemPropertiesUtils.getSystemFileSeparator();
+			String mapImagePath = createMap(gmt, map, dirName, metadata, metadataFileName);
+			
 			//returns the URL to the folder where map image resides
 			outputToApplet.writeObject(mapImagePath);
 			outputToApplet.close();
@@ -192,11 +113,101 @@ extends HttpServlet {
 			outputToApplet.close();
 		}
 	}
+	
 	//Process the HTTP Post request
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws
 	ServletException, IOException {
 		// call the doPost method
 		doGet(request, response);
+	}
+	
+	public static String createMap(GMT_MapGenerator gmt, GMT_Map map, String plotDirName, String metadata,
+			String metadataFileName) throws IOException, GMT_MapException {
+		//Name of the directory in which we are storing all the gmt data for the user
+		String newDir = null;
+		//gets the current time in milliseconds to be the new director for each user
+		String currentMilliSec = "" + System.currentTimeMillis();
+		if (plotDirName != null) {
+			File f = new File(plotDirName);
+			int fileCounter = 1;
+			//checking if the directory already exists then add
+			while (f.exists()) {
+				String tempDirName = plotDirName + fileCounter;
+				f = new File(tempDirName);
+				++fileCounter;
+			}
+			newDir = FILE_PATH + GMT_DATA_DIR + f.getName();
+		}
+		else {
+			plotDirName = currentMilliSec;
+			newDir = FILE_PATH + GMT_DATA_DIR + currentMilliSec;
+		}
+
+		//create a gmt directory for each user in which all his gmt files will be stored
+		boolean success = (new File(newDir)).mkdir();
+		//reading the gmtScript file that user sent as the attachment and create
+		//a new gmt script inside the directory created for the user.
+		//The new gmt script file created also has one minor modification
+		//at the top of the gmt script file I am adding the "cd ... " command so
+		//that it should pick all the gmt related files from the directory cretade for the user.
+		//reading the gmt script file sent by user as te attchment
+
+		String gmtScriptFile = newDir + "/" + GMT_SCRIPT_FILE;
+		
+		ArrayList<String> gmtMapScript = gmt.getGMT_ScriptLines(map, newDir);
+
+		//creating a new gmt script for the user and writing it ot the directory created for the user
+		FileWriter fw = new FileWriter(gmtScriptFile);
+		BufferedWriter bw = new BufferedWriter(fw);
+		int size = gmtMapScript.size();
+		for (int i = 0; i < size; ++i) {
+			bw.write( (String) gmtMapScript.get(i) + "\n");
+		}
+		bw.close();
+
+		// I use the new File().getName() here to  make sure the filename isn't a relative path
+		// that could overwrite something important, like "../../myfile"
+		String metadataFile = newDir + "/" + new File(metadataFileName).getName();
+		//creating the metadata (map Info) file in the new directory created for user
+		fw = new FileWriter(metadataFile);
+		bw = new BufferedWriter(fw);
+		bw.write(" " + (String) metadata + "\n");
+		bw.close();
+
+		//creating the XYZ file from the XYZ file from the XYZ dataSet
+		ArrayList<Double> xVals = map.getGriddedData().getX_DataSet();
+		ArrayList<Double> yVals = map.getGriddedData().getY_DataSet();
+		ArrayList<Double> zVals = map.getGriddedData().getZ_DataSet();
+		//file follows the convention lat, lon and Z value
+		if (map.getGriddedData().checkXYZ_NumVals()) {
+			size = xVals.size();
+			fw = new FileWriter(newDir + "/" + new File(map.getXyzFileName()).getName());
+			bw = new BufferedWriter(fw);
+			for (int i = 0; i < size; ++i) {
+				//System.out.println(xVals.get(i)+" "+yVals.get(i)+" "+zVals.get(i)+"\n");
+				bw.write(xVals.get(i) + " " + yVals.get(i) + " " + zVals.get(i) +
+				"\n");
+			}
+			bw.close();
+		}
+		else {
+			throw new RuntimeException(
+					"X, Y and Z dataset does not have equal size");
+		}
+
+		//running the gmtScript file
+		String[] command = {
+				"sh", "-c", "/bin/bash " + gmtScriptFile};
+		RunScript.runScript(command);
+
+		//create the Zip file for all the files generated
+		FileUtils.createZipFile(newDir);
+		//URL path to folder where all GMT related files and map data file for this
+		//calculations reside.
+		String mapImagePath = GMT_URL_PATH + GMT_DATA_DIR +
+		plotDirName + SystemPropertiesUtils.getSystemFileSeparator();
+		
+		return mapImagePath;
 	}
 
 }

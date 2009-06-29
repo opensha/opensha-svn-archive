@@ -26,6 +26,10 @@ public class Step {
 		return title;
 	}
 	
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	
 	public void setActivated() {
 		for (StepActivatedListener listener : listeners) {
 			listener.stepActivated(this);

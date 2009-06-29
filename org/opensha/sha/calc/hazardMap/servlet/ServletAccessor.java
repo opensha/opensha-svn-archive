@@ -1,6 +1,7 @@
 package org.opensha.sha.calc.hazardMap.servlet;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -31,5 +32,20 @@ public abstract class ServletAccessor {
 		servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
 		
 		return servletConnection;
+	}
+	
+	public void checkHandleError(String message, Object obj, ObjectInputStream inputFromServlet) throws IOException, ClassNotFoundException {
+		if (obj instanceof Boolean) {
+			Object errorObj = inputFromServlet.readObject();
+			if (errorObj instanceof Exception) {
+				Exception e = (Exception)errorObj;
+				
+				throw new RuntimeException(e);
+			} else {
+				String error = (String)errorObj;
+				
+				throw new RuntimeException(message + error);
+			}
+		}
 	}
 }
