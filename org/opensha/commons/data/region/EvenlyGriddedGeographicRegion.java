@@ -40,11 +40,16 @@ import java.io.FileWriter;
 
 public class EvenlyGriddedGeographicRegion
     extends GeographicRegion implements EvenlyGriddedGeographicRegionAPI {
-  private final static String C = "EvenlyGriddedGeographicRegion";
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5127752828778691148L;
+private final static String C = "EvenlyGriddedGeographicRegion";
   private final static boolean D = false;
   
   public final static String XML_METADATA_NAME = "evenlyGriddedGeographicRegion";
   public final static String XML_METADATA_GRID_SPACING_NAME = "gridSpacing";
+  public final static String XML_METADATA_NUM_POINTS_NAME = "numPoints";
 
   protected double gridSpacing;
 
@@ -582,6 +587,7 @@ public class EvenlyGriddedGeographicRegion
   public Element toXMLMetadata(Element root) {
 	  Element xml = root.addElement(EvenlyGriddedGeographicRegion.XML_METADATA_NAME);
 	  xml.addAttribute(EvenlyGriddedGeographicRegion.XML_METADATA_GRID_SPACING_NAME, this.getGridSpacing()+"");
+	  xml.addAttribute(EvenlyGriddedGeographicRegion.XML_METADATA_NUM_POINTS_NAME, this.getNumGridLocs()+"");
 	  xml = super.toXMLMetadata(xml);
 	  
 	  return root;
