@@ -120,8 +120,9 @@ public class PlotServlet extends ConfLoadingServlet {
 						// if we're here then it's an overwrite if needed.
 						String xmlFile = storage.getPath() + File.separator + id + File.separator + id + ".xml";
 						int num = getNumPointsFromXML(xmlFile);
-						if (num > xyz.getX_DataSet().size()) {
-							debug("Incomplete dataset...regenerating XYZ file!");
+						if (num <= 0 || num > xyz.getX_DataSet().size()) {
+							debug("Incomplete dataset...regenerating XYZ file! " +
+									"(have " + xyz.getX_DataSet().size() + " expecting " + num + ")");
 							maker = new MakeXYZFromHazardMapDir(curveDirName, false, true);
 						}
 					}
