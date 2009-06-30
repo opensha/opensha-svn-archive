@@ -15,7 +15,7 @@ public class PlotServletAccessor extends ServletAccessor {
 		super(SERVLET_URL);
 	}
 	
-	public String getMap(String datasetID, GMT_Map map, boolean isProbAt_IML, double level, boolean overwrite)
+	public String getMap(String datasetID, GMT_Map map, boolean isProbAt_IML, double level, String overwriteMode)
 				throws IOException, ClassNotFoundException {
 		URLConnection servletConnection = this.openServletConnection(false);
 		
@@ -36,7 +36,7 @@ public class PlotServletAccessor extends ServletAccessor {
 		outputToServlet.writeObject(new Double(level));
 		
 		System.out.println("Sending overwrite...");
-		outputToServlet.writeObject(new Boolean(overwrite));
+		outputToServlet.writeObject(overwriteMode);
 		
 		System.out.println("Sending GMT_Map...");
 		outputToServlet.writeObject(map);

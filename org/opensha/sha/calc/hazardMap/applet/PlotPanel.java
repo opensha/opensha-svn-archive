@@ -14,6 +14,7 @@ import org.opensha.commons.gui.beans.GriddedRegionGUIBean;
 import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
+import org.opensha.sha.calc.hazardMap.servlet.PlotServlet;
 import org.opensha.sha.calc.hazardMap.servlet.PlotServletAccessor;
 import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
@@ -86,7 +87,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 			GMT_Map map = mapBean.getGMTObject().getGMTMapSpecification(null);
 			boolean isProbAt_IML = imlProbGuiBean.isProbAt_IML();
 			double level = imlProbGuiBean.getIML_Prob();
-			boolean overwrite = true; // hardcoded for now
+			String overwrite = PlotServlet.PLOT_OVERWRITE_IF_INCOMPLETE; // hardcoded for now
 			
 			try {
 				String mapURL = plotAccessor.getMap(datasetID, map, isProbAt_IML, level, overwrite);

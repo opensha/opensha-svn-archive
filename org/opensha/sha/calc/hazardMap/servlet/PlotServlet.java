@@ -4,26 +4,37 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.MalformedURLException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dom4j.Attribute;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.gridComputing.StorageHost;
 import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.servlet.GMT_MapGeneratorServlet;
+import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.hazardMap.MakeXYZFromHazardMapDir;
 
 public class PlotServlet extends ConfLoadingServlet {
 	
-//	public static final String XYZ_FILES_DIR = "/scratch/opensha/xyzDatasets/";
-	public static final String XYZ_FILES_DIR = "/home/scec-01/opensha/xyzDatasets/";
+	public static final String XYZ_FILES_DIR = "/scratch/opensha/xyzDatasets/";
+//	public static final String XYZ_FILES_DIR = "/home/scec-01/opensha/xyzDatasets/";
 	
 	public static final String OP_PLOT = "Plot";
 	public static final String OP_RETRIEVE = "Retrieve Data";
+	
+	public static final String PLOT_OVERWRITE_ALWAYS = "Always Overwrite";
+	public static final String PLOT_OVERWRITE_NEVER = "Never Overwrite";
+	public static final String PLOT_OVERWRITE_IF_INCOMPLETE = "Overwrite if Incomplete";
 	
 	private GMT_MapGenerator gmt;
 	
@@ -36,7 +47,7 @@ public class PlotServlet extends ConfLoadingServlet {
 	 * * operation (String)
 	 * * isProbAt_IML (Boolean)
 	 * * level (Double)
-	 * * overwrite (Boolean)
+	 * * overwrite setting (String from PLOT_OVERWRITE_*)
 	 * * If Map:
 	 * ** map specification (GMT_Map)
 	 * Server ==> Client:
@@ -66,7 +77,9 @@ public class PlotServlet extends ConfLoadingServlet {
 			boolean isProbAt_IML = (Boolean)in.readObject();
 			double level = (Double)in.readObject();
 			
-			boolean overwrite = (Boolean)in.readObject();
+			String overwriteMode = (String)in.readObject();
+			boolean isOverwriteAlways = overwriteMode.equals(PLOT_OVERWRITE_ALWAYS);
+			boolean isOverwriteNever = overwriteMode.equals(PLOT_OVERWRITE_NEVER);
 			
 			GMT_Map map = null;
 			
@@ -97,13 +110,25 @@ public class PlotServlet extends ConfLoadingServlet {
 				curveXYZFile += "_" + level + ".txt";
 				
 				File curveXYZFileFile = new File(curveXYZFile);
-				XYZ_DataSetAPI xyz;
-				if (!curveXYZFileFile.exists() || overwrite) {
-					MakeXYZFromHazardMapDir maker = new MakeXYZFromHazardMapDir(curveDirName, false, true);
-					xyz = maker.getXYZDataset(isProbAt_IML, level, curveXYZFile);
+				XYZ_DataSetAPI xyz = null;
+				MakeXYZFromHazardMapDir maker = null;
+				if (!curveXYZFileFile.exists() || isOverwriteAlways) {
+					maker = new MakeXYZFromHazardMapDir(curveDirName, false, true);
 				} else {
 					xyz = ArbDiscretizedXYZ_DataSet.loadXYZFile(curveXYZFile);
+					if (!isOverwriteNever) {
+						// if we're here then it's an overwrite if needed.
+						String xmlFile = storage.getPath() + File.separator + id + File.separator + id + ".xml";
+						int num = getNumPointsFromXML(xmlFile);
+						if (num > xyz.getX_DataSet().size()) {
+							debug("Incomplete dataset...regenerating XYZ file!");
+							maker = new MakeXYZFromHazardMapDir(curveDirName, false, true);
+						}
+					}
 				}
+				
+				if (maker != null) // this means we don't have a dataset or we are overwriting it
+					xyz = maker.getXYZDataset(isProbAt_IML, level, curveXYZFile);
 				
 				if (map == null) {
 					// they just want the data, no plot
@@ -125,6 +150,30 @@ public class PlotServlet extends ConfLoadingServlet {
 		} catch (ClassNotFoundException e) {
 			fail(out, "ClassNotFoundException: " + e.getMessage());
 			return;
+		}
+	}
+	
+	private int getNumPointsFromXML(String xmlFile) {
+		try {
+			Document doc = XMLUtils.loadDocument(xmlFile);
+			Element root = doc.getRootElement();
+			
+			Element regionEl = root.element(EvenlyGriddedGeographicRegion.XML_METADATA_NAME);
+			Attribute numAtt = regionEl.attribute(EvenlyGriddedGeographicRegion.XML_METADATA_NUM_POINTS_NAME);
+			
+			if (numAtt != null)
+				return Integer.parseInt(numAtt.getValue());
+			
+			EvenlyGriddedGeographicRegion region = EvenlyGriddedGeographicRegion.fromXMLMetadata(regionEl);
+			return region.getNumGridLocs();
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return -1;
+		} catch (DocumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return -1;
 		}
 	}
 
