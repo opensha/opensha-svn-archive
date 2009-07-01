@@ -454,7 +454,7 @@ NamedObjectAPI, ParameterChangeListener {
 		double depth = surface.getLocation(0, 0).getDepth();
 		rupTopDepthParam.setValue(depth);
 		
-		dipParam.setValue(surface.getAveDip());
+		dipParam.setValueIgnoreWarning(surface.getAveDip());
 
 		// this means line sources will have zero width
 		rupWidthParam.setValue(surface.getSurfaceWidth());

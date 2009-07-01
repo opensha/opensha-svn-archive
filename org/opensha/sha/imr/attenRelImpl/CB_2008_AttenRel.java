@@ -447,7 +447,7 @@ public class CB_2008_AttenRel
 	  double depth = surface.getLocation(0, 0).getDepth();
 	  rupTopDepthParam.setValue(depth);
 	  
-	  dipParam.setValue(surface.getAveDip());
+	  dipParam.setValueIgnoreWarning(surface.getAveDip());
 	  
 //	  setFaultTypeFromRake(eqkRupture.getAveRake());
 	  this.eqkRupture = eqkRupture;
