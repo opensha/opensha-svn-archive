@@ -59,14 +59,14 @@ import org.opensha.sha.param.*;
  * <LI>distanceRupParam - closest distance to fault surface  
  * <LI>siteTypeParam - "A-Strong Rock", "B-Rock", "C-Shallow Soil", "D-Deep or soft soil"
  * <LI>fltTypeParam - Style of faulting
- * <LI>componentParam - Component of shaking (either geometric mean or largest horizontal (not yet implemented))
+ * <LI>componentParam - Component of shaking (either geometric mean (not yet implemented) or largest horizontal )
  * <LI>stdDevTypeParam - The type of standard deviation
  * <LI>Also have not yet implemented source type - crustal or subduction - waiting on Ned (2 Jul 09)
  * </UL></p>
  * 
  *<p>
  *
- * Verification - Not performed as at 1 June 2009
+ * Verification - Compared with a Matlab implementation 2 July 2009
  * 
  *</p>
  *
@@ -94,7 +94,7 @@ public class McVerryetal_2000_AttenRel
   // URL Info String
   private final static String URL_INFO_STRING = "http://www.opensha.org/documentation/modelsImplemented/attenRel/McVerryetal_2000.html";
 
-  // coefficients: 
+  // coefficients: these are for the larger horizontal component
   //Note unlike the NGA equations period=-1 here gives the 'primed' coefficients
   double[] period= {    -1.0,      0.0,    0.075,      0.1,      0.2,      0.3,      0.4,      0.5,     0.75,      1.0,      1.5,      2.0,      3.0};
   double[] C1=     { 0.28815,   0.1813,  1.36561,  1.77717,  1.39535,  0.44591,  0.01645,  0.14826, -0.21246, -0.10451, -0.48665, -0.77433, -1.30916}; 
@@ -162,8 +162,8 @@ public class McVerryetal_2000_AttenRel
 
   // change component default from that of parent
   //Currently the above coefficients are for the (unrotated) geometric mean - will include larger horizontal later
-  public final static String COMPONENT_GEOMEAN = ComponentParam.COMPONENT_RANDOM_HORZ;
-  //public final static String COMPONENT_LARGERHORIZ = COMPONENT_GREATER_OF_TWO_HORZ;
+  //public final static String COMPONENT_GEOMEAN = ComponentParam.COMPONENT_RANDOM_HORZ;
+  public final static String COMPONENT_LARGERHORIZ = ComponentParam.COMPONENT_GREATER_OF_TWO_HORZ;
  
   // for issuing warnings:
   private transient ParameterChangeWarningListener warningListener = null;
