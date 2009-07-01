@@ -124,16 +124,16 @@ SetParameter("Magnitude") = 7.5
 SetParameter("Std Dev Type") = "Total (Mag Dependent)"
 
 SetParameter("SA Period") = 0.00
-GetValue("Std. Dev.") = 0.480000
+GetValue("Std. Dev.") = 0.479583
 
 SetParameter("SA Period") = 0.30
-GetValue("Std. Dev.") = 0.540000
+GetValue("Std. Dev.") = 0.538516
 
 SetParameter("SA Period") = 1.00
-GetValue("Std. Dev.") = 0.550000
+GetValue("Std. Dev.") = 0.547723
 
 SetParameter("SA Period") = 3.00
-GetValue("Std. Dev.") = 0.640000
+GetValue("Std. Dev.") = 0.640312
 
 
 
@@ -176,13 +176,13 @@ SetParameter("Magnitude") = 7.5
 SetParameter("Std Dev Type") = "Intra-Event (Mag Dependent)"
 
 SetParameter("SA Period") = 0.00
-GetValue("Std. Dev.") = 0.421307
+GetValue("Std. Dev.") = 0.420833
 
 SetParameter("SA Period") = 0.30
-GetValue("Std. Dev.") = 0.473286
+GetValue("Std. Dev.") = 0.471593
 
 SetParameter("SA Period") = 1.00
-GetValue("Std. Dev.") = 0.504083
+GetValue("Std. Dev.") = 0.501597
 
 SetParameter("SA Period") = 3.00
 GetValue("Std. Dev.") = 0.565685
@@ -227,16 +227,16 @@ SetIntensityMeasure(SA)
 SetParameter("Std Dev Type") = "Total"
 
 SetParameter("SA Period") = 0.00
-GetValue("Std. Dev.") = 0.520000
+GetValue("Std. Dev.") = 0.523259
 
 SetParameter("SA Period") = 0.30
-GetValue("Std. Dev.") = 0.590000
+GetValue("Std. Dev.") = 0.590339
 
 SetParameter("SA Period") = 1.00
-GetValue("Std. Dev.") = 0.570000
+GetValue("Std. Dev.") = 0.573847
 
 SetParameter("SA Period") = 3.00
-GetValue("Std. Dev.") = 0.600000
+GetValue("Std. Dev.") = 0.600333
 
 
 SetIntensityMeasure(SA)
