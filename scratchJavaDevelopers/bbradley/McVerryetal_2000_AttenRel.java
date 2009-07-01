@@ -170,7 +170,7 @@ public class McVerryetal_2000_AttenRel
   // change component default from that of parent
   //Currently the above coefficients are for the (unrotated) geometric mean - will include larger horizontal later
   public final static String COMPONENT_GEOMEAN = ComponentParam.COMPONENT_RANDOM_HORZ;
-  //public final static String COMPONENT_LARGERHORIZ = COMPONENT_LARGER;
+  //public final static String COMPONENT_LARGERHORIZ = COMPONENT_GREATER_OF_TWO_HORZ;
  
   // for issuing warnings:
   private transient ParameterChangeWarningListener warningListener = null;

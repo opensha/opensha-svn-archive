@@ -3,7 +3,7 @@
   import org.opensha.commons.data.Location;
   import org.opensha.commons.data.Site;
   import org.opensha.sha.earthquake.*;
-import org.opensha.sha.faultSurface.*;
+  import org.opensha.sha.faultSurface.*;
   /**
    * This tests DistJB numerical precision with respect to the f_hngR term.  Looks OK now.
    * @param args
