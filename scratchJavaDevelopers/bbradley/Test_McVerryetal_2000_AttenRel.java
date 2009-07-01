@@ -38,6 +38,7 @@
 			  attenRel.setSite(site);
 //		      System.out.print((float)dist+"\t");
 			  attenRel.getMean();
+			  attenRel.getStdDev();
 		  }
 	  }
 	  

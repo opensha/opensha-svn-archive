@@ -29,6 +29,7 @@ import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
@@ -58,8 +59,9 @@ import org.opensha.sha.param.*;
  * <LI>distanceRupParam - closest distance to fault surface  
  * <LI>siteTypeParam - "A-Strong Rock", "B-Rock", "C-Shallow Soil", "D-Deep or soft soil"
  * <LI>fltTypeParam - Style of faulting
- * <LI>componentParam - Component of shaking (either geometric mean or largest horizontal)
+ * <LI>componentParam - Component of shaking (either geometric mean or largest horizontal (not yet implemented))
  * <LI>stdDevTypeParam - The type of standard deviation
+ * <LI>Also have not yet implemented source type - crustal or subduction - waiting on Ned (2 Jul 09)
  * </UL></p>
  * 
  *<p>
@@ -117,21 +119,12 @@ public class McVerryetal_2000_AttenRel
   double[] C33AS=  {    0.26,     0.26,     0.26,     0.26,     0.26,    0.198,    0.154,    0.119,    0.057,    0.013,   -0.049,   -0.049,   -0.156}; 
   double[] C43=    {-0.31769, -0.29648, -0.29648, -0.43854, -0.29906, -0.05184,  0.20301,  0.37026,  0.73517,  0.87764,  0.75438,  0.75438,  0.61545}; 
   double[] C46=    {-0.03279, -0.03301, -0.03452, -0.03595, -0.03853, -0.03604, -0.03364,  -0.0326, -0.02877, -0.02561, -0.02034, -0.02034, -0.01673}; 
-  double[] sigma6= {  0.4865,   0.5281,   0.5398,   0.5703,   0.5505,   0.5627,    0.568,   0.5562,   0.5629,   0.5394,   0.5394,   0.5701}; 
-  double[] sigSlope={-0.1261,   -0.097,  -0.0673,  -0.0243,  -0.0861,  -0.1405,  -0.1444,  -0.0932,  -0.0749,  -0.0056,  -0.0056,   0.0934};
-  double[] tau=    {  0.2687,   0.3217,   0.3088,	0.2726,	  0.2112,   0.2005,   0.1476,   0.1794,   0.2053,   0.2411,   0.2411,   0.2406};
+  double[] sigma6= {     0.0,   0.4865,   0.5281,   0.5398,   0.5703,   0.5505,   0.5627,    0.568,   0.5562,   0.5629,   0.5394,   0.5394,   0.5701}; 
+  double[] sigSlope={    0.0,  -0.1261,   -0.097,  -0.0673,  -0.0243,  -0.0861,  -0.1405,  -0.1444,  -0.0932,  -0.0749,  -0.0056,  -0.0056,   0.0934};
+  double[] tau=    {     0.0,   0.2687,   0.3217,   0.3088,	  0.2726,	0.2112,   0.2005,   0.1476,   0.1794,   0.2053,   0.2411,   0.2411,   0.2406};
   
   
-  /*double a1 = 0.03;  // g
-  double pgalow=0.06; // g
-  double a2 = 0.09; // g
-  double v1 = 180; // m/s
-  double v2 = 300; // m/s
-  double v_ref = 760; // m/s
-  double m_ref = 4.5;
-  double r_ref = 1; //km
-  */
-  private HashMap indexFromPerHashMap;
+   private HashMap indexFromPerHashMap;
 
   private int iper;
   private double rRup, mag;
@@ -156,7 +149,7 @@ public class McVerryetal_2000_AttenRel
   public final static String SITE_TYPE_B = "B-Rock";
   public final static String SITE_TYPE_C = "C-Shallow-Soil";
   public final static String SITE_TYPE_D = "D-Soft-or-Deep-Soil";
-  public final static String SITE_TYPE_DEFAULT = SITE_TYPE_C;
+  public final static String SITE_TYPE_DEFAULT = SITE_TYPE_A;
 
   
   // style of faulting options
@@ -260,9 +253,13 @@ public class McVerryetal_2000_AttenRel
                                    "The Intensity Measusre Parameter has not been set yet, unable to process."
           );
     }
-
-    iper = ( (Integer) indexFromPerHashMap.get(saPeriodParam.getValue())).
-       intValue();
+    if (im.getName().equalsIgnoreCase(PGA_Param.NAME)) {
+        iper = 1;
+      }
+    else {
+        iper = ( (Integer) indexFromPerHashMap.get(saPeriodParam.getValue())).
+            intValue();
+      }
 
     parameterChange = true;
     intensityMeasureChanged = false;
@@ -284,7 +281,6 @@ public class McVerryetal_2000_AttenRel
 		  setCoeffIndex(); // intensityMeasureChanged is set to false in this method
 	  }
 	  
-	  // remember that pga4nl term uses coeff index 0
 	  double pga = Math.exp(getMean(0, siteTypeParam, rRup, mag, fltType));
 	  double pga_prime = Math.exp(getMean(1, siteTypeParam, rRup, mag, fltType));
 	  double sa_prime = Math.exp(getMean(iper, siteTypeParam, rRup, mag, fltType));
@@ -530,14 +526,11 @@ public class McVerryetal_2000_AttenRel
     //allocate dummy fault variables
     if(fltType.equals(FLT_TYPE_NORMAL)) {
     	 CN=-1.0;
-    	 CR=0.0;
     }
     else if(fltType.equals(FLT_TYPE_REVERSE)) {
-    	 CN=0.0;
          CR=1.0;
     }
     else if(fltType.equals(FLT_TYPE_REVERSE_OBLIQUE)) {
-    	 CN=0.0;
          CR=0.5;
     }
     else if(fltType.equals(FLT_TYPE_INTERFACE)) {
@@ -569,7 +562,7 @@ public class McVerryetal_2000_AttenRel
   }
 
   public double getStdDev(int iper, String stdDevType) {
-	  
+  
 	if(stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE)) {
 		return 0.0;
 	}
