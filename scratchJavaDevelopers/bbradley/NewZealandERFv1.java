@@ -91,7 +91,7 @@ public class NewZealandERFv1 extends EqkRupForecast {
 		timeSpan.addParameterChangeListener(this);
 		timeSpan.setDuration(50);
 		
-		createFaultSurfaces();
+		//createFaultSurfaces();
 		//createBackRegion();
 		initAdjParams();
 	}
