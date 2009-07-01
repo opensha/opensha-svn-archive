@@ -2,6 +2,8 @@ package scratchJavaDevelopers.matt.calc;
 
 import java.util.GregorianCalendar;
 
+
+
 /**
  * <p>Title: </p>
  *
@@ -29,7 +31,7 @@ public class RegionDefaults {
   public static String TEST_Path = "data/mattg_test";
   
   //input files
-  public static String cubeFilePath =  TEST_Path + "/merge.nts";
+  public static String cubeFilePath =  TEST_Path + "/merge_NZ.nts"; //"/merge.nts", merge_synthNZ
   public static String backgroundHazardPath = TEST_Path +  "/STEP_backGround.txt";
   //BACKGROUND_RATES_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/step/AllCal96ModelDaily.txt";
   
@@ -52,10 +54,21 @@ public class RegionDefaults {
   public static GregorianCalendar forecastStartTime;  // set this if startForecastAtCurrentTime is False
   public static double daysFromQDM_Cat = 7;
 
-  public static double searchLatMin = 32.0;
-  public static double searchLatMax = 42.2;
-  public static double searchLongMin = -124.6;
-  public static double searchLongMax = -112;
+  //California
+  public final static double searchLatMin_CF = 32.0;
+  public  final static double searchLatMax_CF = 42.2;
+  public  final static double searchLongMin_CF = -124.6;
+  public  final static double searchLongMax_CF = -112;
+  //nz 
+  public final static double searchLatMin_NZ = -49;
+  public  final static double searchLatMax_NZ = -32;
+  public  final static double searchLongMin_NZ = 164;
+  public  final static double searchLongMax_NZ = 184; //-176
+  
+  public static double searchLatMin = searchLatMin_NZ;
+  public static double searchLatMax = searchLatMax_NZ;
+  public static double searchLongMin = searchLongMin_NZ;
+  public static double searchLongMax = searchLongMax_NZ;
 
   public static double gridSpacing = 0.1;
 
@@ -80,5 +93,19 @@ public class RegionDefaults {
   public static final double RAKE=0.0;
   public static final double DIP=90.0;
   
+  /**
+   * define the search boundary
+   * used to switch regions (e.g. California, NZ)
+ * @param minLat
+ * @param maxLat
+ * @param minLon
+ * @param maxLon
+ */
+public static  synchronized void setBoundary(double minLat, double maxLat, double minLon, double maxLon){
+	  searchLatMin = minLat;
+	  searchLatMax = maxLat;
+	  searchLongMin = minLon;
+	  searchLongMax = maxLon;
+  }
   
 }
