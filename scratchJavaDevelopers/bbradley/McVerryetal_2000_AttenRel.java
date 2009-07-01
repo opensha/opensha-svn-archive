@@ -288,7 +288,7 @@ public class McVerryetal_2000_AttenRel
 	  double pga = Math.exp(getMean(0, siteTypeParam, rRup, mag, fltType));
 	  double pga_prime = Math.exp(getMean(1, siteTypeParam, rRup, mag, fltType));
 	  double sa_prime = Math.exp(getMean(iper, siteTypeParam, rRup, mag, fltType));
-	  return (sa_prime*pga/pga_prime);
+	  return Math.log(sa_prime*pga/pga_prime);
   }
 
   /**
