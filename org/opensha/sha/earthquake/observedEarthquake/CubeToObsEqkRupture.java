@@ -1,14 +1,15 @@
 package org.opensha.sha.earthquake.observedEarthquake;
 
-import java.util.ArrayList;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.util.FileUtils;
 
-import java.io.FileWriter;
+import scratchJavaDevelopers.matt.calc.RegionDefaults;
 
 
 /**
@@ -30,10 +31,10 @@ public class CubeToObsEqkRupture {
   private ObsEqkRupList eqkRupList;
 
   //define the region for which we have to collect the events
-  private static final double MIN_LAT = 32.0;
-  private static final double MAX_LAT = 42.2;
-  private static final double MIN_LON = -124.6;
-  private static final double MAX_LON = -112.0;
+  private  double MIN_LAT = RegionDefaults.searchLatMin;//32.0;
+  private  double MAX_LAT = RegionDefaults.searchLatMax;//42.2;
+  private  double MIN_LON = RegionDefaults.searchLongMin;//-124.6;
+  private  double MAX_LON = RegionDefaults.searchLongMax;//-112.0;
 
 
   public CubeToObsEqkRupture(String eventFile) throws FileNotFoundException,
