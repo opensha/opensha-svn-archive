@@ -49,7 +49,7 @@ public class STEP_main {
 
 	private static RegionDefaults rDefs;
 	private static GregorianCalendar currentTime;
-	private final static String BACKGROUND_RATES_FILE_NAME = RegionDefaults.TEST_Path + "/AllCal96ModelDaily.txt";
+	private final static String BACKGROUND_RATES_FILE_NAME = RegionDefaults.TEST_Path + "/NZdailyRates.txt"; //AllCal96ModelDaily.txt
 	private BackGroundRatesGrid bgGrid = null;
 	private ArrayList<PointEqkSource> sourceList;
 	private DecimalFormat locFormat = new DecimalFormat("0.0000");
@@ -291,7 +291,7 @@ public class STEP_main {
 					
 					//see if the event already in the list ??????
 					if(isObsEqkRupEventEqual(mainshockModel.getMainShock(), newEvent)){//this event is already in the list
-						logger.info(">>> same event");
+						//logger.info(">>> same event");
 						continue loop1;
 					}
 					
