@@ -54,7 +54,7 @@ extends GeographicRegion implements EvenlyGriddedGeographicRegionAPI {
 	 * explicitly specify the precision of the grid coordinates (gridSpacing = 0.1
 	 * is not suitable for coordinates which need precision of two decimal points, e.g. NZ)
 	 */
-	protected static double gridPrecision;
+	protected static double gridPrecision = 0.01;
 
 	// this makes the first lat and lon grid points nice in that niceMinLat/gridSpacing
 	// is an integer and the point is within the polygon
