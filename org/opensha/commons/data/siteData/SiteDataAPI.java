@@ -30,7 +30,7 @@ public interface SiteDataAPI<Element> extends NamedObjectAPI, XMLSaveable {
 	/* ************ Site Data Types ************ */
 	
 	/**
-	 * Vs 30 data type - Shear Wave velocity at 30 meter depth (m/sec)
+	 * Vs 30 data type - Average Shear-Wave velocity in the upper 30 meters of a site (m/sec)
 	 */
 	public static final String TYPE_VS30 = "Vs30";
 	/**
