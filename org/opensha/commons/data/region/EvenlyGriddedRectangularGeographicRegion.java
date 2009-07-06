@@ -76,7 +76,6 @@ extends EvenlyGriddedGeographicRegion {
 				"; numLonGridPoints=" + numLonGridPoints);
 	}
 
-
 	/**
 	 * Class constructor that accepts the minLat, maxLat,minLon,maxLon,grid spacing
 	 * and EvenlyGriddedGeographicRegionAPI,for creating the list of locations
@@ -116,10 +115,6 @@ extends EvenlyGriddedGeographicRegion {
 	/**
 	 * It samples out the grids location points based on the grid spacing(in degrees)
 	 * chosen.
-	 * 
-	 * !! note: gridPrecision is used to replace gridSpacing
-	 * to explicitly specify the precision of grid coordinates
-	 * 
 	 * @param degrees: sets the grid spacing
 	 */
 	public void setGridSpacing(double gridSpacing){
@@ -127,10 +122,10 @@ extends EvenlyGriddedGeographicRegion {
 
 		//getting the nice Min Lat and Lon , so that each Lat-Lon is a perfect
 		//multiple of gridSpacing
-		niceMinLat = Math.ceil(minLat/gridPrecision)*gridPrecision;
-		niceMinLon = Math.ceil(minLon/gridPrecision)*gridPrecision;
-		niceMaxLat = Math.floor(maxLat/gridPrecision)*gridPrecision;
-		niceMaxLon = Math.floor(maxLon/gridPrecision)*gridPrecision;
+		niceMinLat = Math.ceil(minLat/gridSpacing)*gridSpacing;
+		niceMinLon = Math.ceil(minLon/gridSpacing)*gridSpacing;
+		niceMaxLat = Math.floor(maxLat/gridSpacing)*gridSpacing;
+		niceMaxLon = Math.floor(maxLon/gridSpacing)*gridSpacing;
 
 		numLatGridPoints = (int)Math.rint((niceMaxLat - niceMinLat)/gridSpacing)+1;
 		numLonGridPoints = (int)Math.rint((niceMaxLon - niceMinLon)/gridSpacing)+1;

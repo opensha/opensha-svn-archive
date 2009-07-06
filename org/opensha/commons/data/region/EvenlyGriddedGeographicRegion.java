@@ -1,12 +1,12 @@
 package org.opensha.commons.data.region;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.ListIterator;
 
 import org.dom4j.Element;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.exceptions.RegionConstraintException;
-
 
 
 /**
@@ -49,12 +49,6 @@ extends GeographicRegion implements EvenlyGriddedGeographicRegionAPI {
 	public final static String XML_METADATA_NUM_POINTS_NAME = "numPoints";
 
 	protected double gridSpacing;
-	//
-	/**
-	 * explicitly specify the precision of the grid coordinates (gridSpacing = 0.1
-	 * is not suitable for coordinates which need precision of two decimal points, e.g. NZ)
-	 */
-	protected static double gridPrecision = 0.01;
 
 	// this makes the first lat and lon grid points nice in that niceMinLat/gridSpacing
 	// is an integer and the point is within the polygon
@@ -74,7 +68,6 @@ extends GeographicRegion implements EvenlyGriddedGeographicRegionAPI {
 
 	//List for storing each for a given latitude
 	private ArrayList lonsPerLatList;
-
 
 	/**
 	 * Class default constructor
@@ -227,28 +220,18 @@ extends GeographicRegion implements EvenlyGriddedGeographicRegionAPI {
 
 
 
-	public static void setGridPrecision(double gridPrecision) {
-		EvenlyGriddedGeographicRegion.gridPrecision = gridPrecision;
-	}
-
 	/**
 	 * It samples out the grids location points based on the grid spacing(in degrees)
 	 * chosen.
-	 * 
-	 *  !! note: gridPrecision is used to replace gridSpacing
-	 * to explicitly specify the precision of grid coordinates
-	 * 
-	 * @param gridPrecision 
 	 * @param degrees: sets the grid spacing
 	 * @see EvenlyGriddedGeographicRegionAPI.setGridSpacing(double)
 	 */
-	public void setGridSpacing(double degrees ) {
+	public void setGridSpacing(double degrees) {
 		gridSpacing = degrees;
-
-		niceMinLat = Math.ceil(minLat / gridPrecision) * gridPrecision;
-		niceMinLon = Math.ceil(minLon / gridPrecision) * gridPrecision;
-		niceMaxLat = Math.floor(maxLat / gridPrecision) * gridPrecision;
-		niceMaxLon = Math.floor(maxLon / gridPrecision) * gridPrecision;
+		niceMinLat = Math.ceil(minLat / gridSpacing) * gridSpacing;
+		niceMinLon = Math.ceil(minLon / gridSpacing) * gridSpacing;
+		niceMaxLat = Math.floor(maxLat / gridSpacing) * gridSpacing;
+		niceMaxLon = Math.floor(maxLon / gridSpacing) * gridSpacing;
 		//System.out.println("niceMinLat="+niceMinLat+",niceMinLon="+niceMinLon+",niceMaxLat="+niceMaxLat+",niceMaxLon="+
 		//	niceMaxLon+",gridSpacing="+gridSpacing);
 		//this function creates a Lon Array for each gridLat. It also creates a
@@ -456,7 +439,7 @@ extends GeographicRegion implements EvenlyGriddedGeographicRegionAPI {
 
 		double lat = Math.round(loc.getLatitude()/gridSpacing)*gridSpacing;
 		double lon = Math.round(loc.getLongitude()/gridSpacing)*gridSpacing;
-//		double lon = loc.getLongitude();
+		//    double lon = loc.getLongitude();
 
 		//throw exception if location is outside the region lat bounds.
 		if (!isLocationInside(new Location(lat,lon)))
