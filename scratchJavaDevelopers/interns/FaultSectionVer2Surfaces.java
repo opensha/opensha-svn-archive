@@ -20,11 +20,20 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 
 	private final static double DEFAULT_GRID_SPACING = 1.0;
 	private double gridSpacing = DEFAULT_GRID_SPACING;
-	private final FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
-	private final PrefFaultSectionDataDB_DAO faultSectionPrefDataDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
+	private FaultSectionVer2_DB_DAO faultSectionDAO = null;
+	private PrefFaultSectionDataDB_DAO faultSectionPrefDataDAO = null;
 	private static ArrayList faultSectionsSummary=null;
 	
 	public FaultSectionVer2Surfaces() {
+		this(null);
+	}
+	
+	public FaultSectionVer2Surfaces(DB_AccessAPI db) {
+		if (db == null) {
+			db = DB_AccessAPI.dbConnection;
+		}
+		faultSectionDAO = new FaultSectionVer2_DB_DAO(db);
+		faultSectionPrefDataDAO = new PrefFaultSectionDataDB_DAO(db);
 		if(faultSectionsSummary==null) {
 			cacheFaultSectionPrefData();
 		}

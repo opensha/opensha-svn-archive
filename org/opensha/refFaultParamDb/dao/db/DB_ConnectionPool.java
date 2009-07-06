@@ -52,9 +52,10 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
       Properties p = new Properties();
       try {
         String fileSeparator = org.opensha.commons.util.SystemPropertiesUtils.getSystemFileSeparator();
-        FileInputStream  inpStream =  new FileInputStream("org"+fileSeparator+
-            "opensha"+fileSeparator+"refFaultParamDb"+fileSeparator+"dao"+fileSeparator+
-            "db"+fileSeparator+"DB_AccessProp.dat");
+        InputStream  inpStream = this.getClass().getResourceAsStream("/org"+fileSeparator+
+                "opensha"+fileSeparator+"refFaultParamDb"+fileSeparator+"dao"+fileSeparator+
+                "db"+fileSeparator+"DB_AccessProp.dat");
+//        FileInputStream  inpStream =  new FileInputStream();
         p.load(inpStream);
         inpStream.close();
         String dbDriver = (String) p.get("dbDriver");
