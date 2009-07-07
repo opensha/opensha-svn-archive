@@ -364,6 +364,9 @@ public class McVerryetal_2000_AttenRel
     pgaParam.setValueAsDefault();
     stdDevTypeParam.setValueAsDefault();
     componentParam.setValueAsDefault();
+    //componentParam.setValue(COMPONENT_GEOMEAN);
+    //componentParam.setValue(COMPONENT_LARGERHORIZ);
+    
 
     mag = ( (Double) magParam.getValue()).doubleValue();
     fltType = (String) fltTypeParam.getValue();
