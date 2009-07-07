@@ -363,12 +363,12 @@ public class McVerryetal_2000_AttenRel
     saDampingParam.setValueAsDefault();
     pgaParam.setValueAsDefault();
     stdDevTypeParam.setValueAsDefault();
-//    componentParam.setValueAsDefault();
+    componentParam.setValueAsDefault();
 
     mag = ( (Double) magParam.getValue()).doubleValue();
     fltType = (String) fltTypeParam.getValue();
     stdDevType = (String) stdDevTypeParam.getValue();
-//    component = (String) componentParam.getValue();
+    component = (String) componentParam.getValue();
   }
 
   /**
