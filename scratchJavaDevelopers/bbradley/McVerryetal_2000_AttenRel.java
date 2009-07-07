@@ -386,13 +386,13 @@ public class McVerryetal_2000_AttenRel
     meanIndependentParams.addParameter(siteTypeParam);
     meanIndependentParams.addParameter(magParam);
     meanIndependentParams.addParameter(fltTypeParam);
-//    meanIndependentParams.addParameter(componentParam);
+    meanIndependentParams.addParameter(componentParam);
 
     // params that the stdDev depends upon
     stdDevIndependentParams.clear();
     stdDevIndependentParams.addParameterList(meanIndependentParams);
     stdDevIndependentParams.addParameter(stdDevTypeParam);
-//    stdDevIndependentParams.addParameter(componentParam);
+    stdDevIndependentParams.addParameter(componentParam);
 
     // params that the exceed. prob. depends upon
     exceedProbIndependentParams.clear();
