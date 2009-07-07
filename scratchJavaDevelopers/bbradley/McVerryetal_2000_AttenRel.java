@@ -124,31 +124,31 @@ public class McVerryetal_2000_AttenRel
   double[] sigSlope_lh={    0.0,  -0.1261,   -0.097,  -0.0673,  -0.0243,  -0.0861,  -0.1405,  -0.1444,  -0.0932,  -0.0749,  -0.0056,  -0.0056,   0.0934};
   double[] tau_lh=    {     0.0,   0.2687,   0.3217,   0.3088,	 0.2726,   0.2112,   0.2005,   0.1476,   0.1794,   0.2053,   0.2411,   0.2411,   0.2406};
   // coefficients: these are for the (unrotated) geometric mean component (i.e. _gm subscript)
-  double[] C1_gm=     { 0.14274,  0.07713,  1.22050,  1.53365,  1.22565,  0.21124, -0.10541, -0.14260, -0.65968, -0.51404, -0.95399, -1.24167, -1.56570}; 
-  double[] C3AS_gm=   {     0.0,      0.0,     0.03,    0.028,  -0.0138,   -0.036,  -0.0518,  -0.0635,  -0.0862,   -0.102,    -0.12,    -0.12, -0.17260}; 
-  double C4AS_gm=   -0.144;
-  double[] C5_gm=     {-0.00989, -0.00898, -0.00914, -0.00903, -0.00975, -0.01032, -0.00941, -0.00878, -0.00802, -0.00647, -0.00713, -0.00713, -0.00623}; 
-  double C6AS_gm=   0.17;
-  double[] C8_gm=     {-0.68744, -0.73728, -0.93059, -0.96506, -0.75855, -0.52400, -0.50802, -0.52214, -0.47264, -0.58672, -0.49268, -0.49268, -0.52257}; 
-  double[] C10AS_gm=  {     5.6,      5.6,     5.58,      5.5,      5.1,      4.8,     4.52,      4.3,      3.9,      3.7,     3.55,     3.55,      3.5}; 
-  double[]C11_gm=     { 8.57343,  8.08611,  8.69303,  9.30400, 10.41628,  9.21783,   8.0115,  7.87495,  7.26785,  6.98741,  6.77543,  6.48775,  5.05424}; 
-  double C12y_gm=   1.414;
-  double[] C13y_gm=   {     0.0,      0.0,      0.0,  -0.0011,  -0.0027,  -0.0036,  -0.0043,  -0.0048,  -0.0057,  -0.0064,  -0.0073,  -0.0073,  -0.0089}; 
-  double[] C15_gm=    {  -2.552,   -2.552,   -2.707,   -2.655,   -2.528,   -2.454,   -2.401,    -2.36,   -2.286,   -2.234,    -2.16,    -2.16,   -2.033}; 
-  double[] C17_gm=    {-2.56592, -2.49894, -2.55903, -2.61372, -2.70038, -2.47356, -2.30457, -2.31991, -2.28460, -2.28256, -2.27895, -2.27895, -2.05560}; 
-  double C18y_gm=   1.7818;
-  double C19y_gm=   0.554;
-  double[] C20_gm=    { 0.01545,   0.0159,  0.01821,  0.01737,  0.01531,  0.01304,  0.01426,  0.01277,  0.01055,  0.00927,  0.00748,  0.00748, -0.00273}; 
-  double[] C24_gm=    {-0.49963, -0.43223, -0.52504, -0.61452, -0.65966, -0.56604, -0.33169, -0.24374, -0.01583,  0.02009, -0.07051, -0.07051, -0.23967}; 
-  double[] C29_gm=    { 0.27315,  0.38730,  0.27879,  0.28619,  0.34064,  0.53213,  0.63272,  0.58809,  0.50708,  0.33002,  0.07445,  0.07445,  0.09869}; 
-  double[] C30AS_gm=  {   -0.23,    -0.23,    -0.28,    -0.28,   -0.245,   -0.195,    -0.16,   -0.121,    -0.05,      0.0,     0.04,     0.04,     0.04}; 
-  double C32_gm=    -0.2;
-  double[] C33AS_gm=  {    0.26,     0.26,     0.26,     0.26,     0.26,    0.198,    0.154,    0.119,    0.057,    0.013,   -0.049,   -0.049,   -0.156}; 
-  double[] C43_gm=    {-0.33716, -0.31036, -0.49068, -0.46604, -0.31282, -0.07565,  0.17615,  0.34775,  0.72380,  0.89239,  0.77743,  0.77743,  0.60938}; 
-  double[] C46_gm=    {-0.03255,  -0.0325, -0.03441, -0.03594, -0.03823, -0.03535, -0.03354, -0.03211, -0.02857,   -0.025, -0.02008, -0.02008, -0.01587}; 
-  double[] sigma6_gm= {  0.4871,   0.5099,   0.5297,   0.5401,   0.5599,   0.5456,   0.5556,   0.5658,   0.5611,   0.5573,   0.5419,   0.5419,   0.5809}; 
-  double[] sigSlope_gm={-0.1011,  -0.0259,  -0.0703,  -0.0292,   0.0172,  -0.0566,  -0.1064,  -0.1123,  -0.0836,  -0.0620,   0.0385,   0.0385,   0.1403};
-  double[] tau_gm=    {  0.2677,   0.2469,   0.3139,   0.3017,   0.2583,   0.1967,   0.1802,   0.1440,   0.1871,   0.2073,   0.2405,   0.2405,   0.2053};
+//  double[] C1_gm=     { 0.14274,  0.07713,  1.22050,  1.53365,  1.22565,  0.21124, -0.10541, -0.14260, -0.65968, -0.51404, -0.95399, -1.24167, -1.56570}; 
+//  double[] C3AS_gm=   {     0.0,      0.0,     0.03,    0.028,  -0.0138,   -0.036,  -0.0518,  -0.0635,  -0.0862,   -0.102,    -0.12,    -0.12, -0.17260}; 
+//  double C4AS_gm=   -0.144;
+//  double[] C5_gm=     {-0.00989, -0.00898, -0.00914, -0.00903, -0.00975, -0.01032, -0.00941, -0.00878, -0.00802, -0.00647, -0.00713, -0.00713, -0.00623}; 
+//  double C6AS_gm=   0.17;
+//  double[] C8_gm=     {-0.68744, -0.73728, -0.93059, -0.96506, -0.75855, -0.52400, -0.50802, -0.52214, -0.47264, -0.58672, -0.49268, -0.49268, -0.52257}; 
+//  double[] C10AS_gm=  {     5.6,      5.6,     5.58,      5.5,      5.1,      4.8,     4.52,      4.3,      3.9,      3.7,     3.55,     3.55,      3.5}; 
+//  double[]C11_gm=     { 8.57343,  8.08611,  8.69303,  9.30400, 10.41628,  9.21783,   8.0115,  7.87495,  7.26785,  6.98741,  6.77543,  6.48775,  5.05424}; 
+//  double C12y_gm=   1.414;
+//  double[] C13y_gm=   {     0.0,      0.0,      0.0,  -0.0011,  -0.0027,  -0.0036,  -0.0043,  -0.0048,  -0.0057,  -0.0064,  -0.0073,  -0.0073,  -0.0089}; 
+//  double[] C15_gm=    {  -2.552,   -2.552,   -2.707,   -2.655,   -2.528,   -2.454,   -2.401,    -2.36,   -2.286,   -2.234,    -2.16,    -2.16,   -2.033}; 
+//  double[] C17_gm=    {-2.56592, -2.49894, -2.55903, -2.61372, -2.70038, -2.47356, -2.30457, -2.31991, -2.28460, -2.28256, -2.27895, -2.27895, -2.05560}; 
+//  double C18y_gm=   1.7818;
+//  double C19y_gm=   0.554;
+//  double[] C20_gm=    { 0.01545,   0.0159,  0.01821,  0.01737,  0.01531,  0.01304,  0.01426,  0.01277,  0.01055,  0.00927,  0.00748,  0.00748, -0.00273}; 
+//  double[] C24_gm=    {-0.49963, -0.43223, -0.52504, -0.61452, -0.65966, -0.56604, -0.33169, -0.24374, -0.01583,  0.02009, -0.07051, -0.07051, -0.23967}; 
+//  double[] C29_gm=    { 0.27315,  0.38730,  0.27879,  0.28619,  0.34064,  0.53213,  0.63272,  0.58809,  0.50708,  0.33002,  0.07445,  0.07445,  0.09869}; 
+//  double[] C30AS_gm=  {   -0.23,    -0.23,    -0.28,    -0.28,   -0.245,   -0.195,    -0.16,   -0.121,    -0.05,      0.0,     0.04,     0.04,     0.04}; 
+//  double C32_gm=    -0.2;
+//  double[] C33AS_gm=  {    0.26,     0.26,     0.26,     0.26,     0.26,    0.198,    0.154,    0.119,    0.057,    0.013,   -0.049,   -0.049,   -0.156}; 
+//  double[] C43_gm=    {-0.33716, -0.31036, -0.49068, -0.46604, -0.31282, -0.07565,  0.17615,  0.34775,  0.72380,  0.89239,  0.77743,  0.77743,  0.60938}; 
+//  double[] C46_gm=    {-0.03255,  -0.0325, -0.03441, -0.03594, -0.03823, -0.03535, -0.03354, -0.03211, -0.02857,   -0.025, -0.02008, -0.02008, -0.01587}; 
+//  double[] sigma6_gm= {  0.4871,   0.5099,   0.5297,   0.5401,   0.5599,   0.5456,   0.5556,   0.5658,   0.5611,   0.5573,   0.5419,   0.5419,   0.5809}; 
+//  double[] sigSlope_gm={-0.1011,  -0.0259,  -0.0703,  -0.0292,   0.0172,  -0.0566,  -0.1064,  -0.1123,  -0.0836,  -0.0620,   0.0385,   0.0385,   0.1403};
+//  double[] tau_gm=    {  0.2677,   0.2469,   0.3139,   0.3017,   0.2583,   0.1967,   0.1802,   0.1440,   0.1871,   0.2073,   0.2405,   0.2405,   0.2053};
   
    private HashMap indexFromPerHashMap;
 
@@ -188,7 +188,7 @@ public class McVerryetal_2000_AttenRel
 
   // change component default from that of parent
   //Currently the above coefficients are for the (unrotated) geometric mean - will include larger horizontal later
-  public final static String COMPONENT_GEOMEAN = ComponentParam.COMPONENT_AVE_HORZ;
+//  public final static String COMPONENT_GEOMEAN = ComponentParam.COMPONENT_AVE_HORZ;
   public final static String COMPONENT_LARGERHORIZ = ComponentParam.COMPONENT_GREATER_OF_TWO_HORZ;
  
   // for issuing warnings:
@@ -364,12 +364,12 @@ public class McVerryetal_2000_AttenRel
     saDampingParam.setValueAsDefault();
     pgaParam.setValueAsDefault();
     stdDevTypeParam.setValueAsDefault();
-    componentParam.setValueAsDefault();
+//    componentParam.setValueAsDefault();
 
     mag = ( (Double) magParam.getValue()).doubleValue();
     fltType = (String) fltTypeParam.getValue();
     stdDevType = (String) stdDevTypeParam.getValue();
-    component = (String) componentParam.getValue();
+//    component = (String) componentParam.getValue();
   }
 
   /**
@@ -387,17 +387,17 @@ public class McVerryetal_2000_AttenRel
     meanIndependentParams.addParameter(siteTypeParam);
     meanIndependentParams.addParameter(magParam);
     meanIndependentParams.addParameter(fltTypeParam);
-    meanIndependentParams.addParameter(componentParam);
+//    meanIndependentParams.addParameter(componentParam);
 
     // params that the stdDev depends upon
     stdDevIndependentParams.clear();
     stdDevIndependentParams.addParameterList(meanIndependentParams);
     stdDevIndependentParams.addParameter(stdDevTypeParam);
-    stdDevIndependentParams.addParameter(componentParam);
+//    stdDevIndependentParams.addParameter(componentParam);
 
     // params that the exceed. prob. depends upon
     exceedProbIndependentParams.clear();
-    exceedProbIndependentParams.addParameterList(meanIndependentParams);
+//    exceedProbIndependentParams.addParameterList(meanIndependentParams);
     exceedProbIndependentParams.addParameterList(stdDevIndependentParams);
     exceedProbIndependentParams.addParameter(sigmaTruncTypeParam);
     exceedProbIndependentParams.addParameter(sigmaTruncLevelParam);
@@ -510,7 +510,7 @@ public class McVerryetal_2000_AttenRel
 	    // the Component Parameter
 	    StringConstraint componentConstraint = new StringConstraint();
 	    componentConstraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
-	    componentConstraint.addString(ComponentParam.COMPONENT_GREATER_OF_TWO_HORZ);
+//	    componentConstraint.addString(ComponentParam.COMPONENT_GREATER_OF_TWO_HORZ);
 	    componentParam = new ComponentParam(componentConstraint,ComponentParam.COMPONENT_AVE_HORZ);
 	    
 	    // the stdDevType Parameter
@@ -580,17 +580,17 @@ public class McVerryetal_2000_AttenRel
 	}
 
     //Key attenuation code
-    if(component.equals(COMPONENT_GEOMEAN)) {
+//    if(component.equals(COMPONENT_GEOMEAN)) {
     	//Crustal attenuation relation
-        lnSA_AB=C1_gm[iper]+C4AS_gm*(mag-6.)+C3AS_gm[iper]*Math.pow(8.5-mag,2)+C5_gm[iper]*rRup+(C8_gm[iper]+C6AS_gm*(mag-6.))*Math.log(Math.sqrt(Math.pow(rRup,2.)+Math.pow(C10AS_gm[iper],2.)))+C46_gm[iper]*rVol+C32_gm*CN+C33AS_gm[iper]*CR;
+//        lnSA_AB=C1_gm[iper]+C4AS_gm*(mag-6.)+C3AS_gm[iper]*Math.pow(8.5-mag,2)+C5_gm[iper]*rRup+(C8_gm[iper]+C6AS_gm*(mag-6.))*Math.log(Math.sqrt(Math.pow(rRup,2.)+Math.pow(C10AS_gm[iper],2.)))+C46_gm[iper]*rVol+C32_gm*CN+C33AS_gm[iper]*CR;
         
         //Subduction attenuation relation
         //lnSA_AB=C11_gm[iper]+(C12y_gm+(C15_gm[iper]-C17_gm[iper])*C19y_gm)*(mag-6)+C13y_gm[iper]*Math.pow(10-mag,3.)+C17_gm[iper]*Math.log(rRup+C18y_gm*Math.exp(C19y_gm*mag))+C20[iper]*hc+C24_gm[iper]*SI+C46_gm[iper]*rVol*(1-DS);
         
         //site terms
-        lnSA_CD=lnSA_AB+C29_gm[iper]*deltaC+(C30AS_gm[iper]*Math.log(Math.exp(lnSA_AB)+0.03)+C43_gm[iper])*deltaD;
-    }
-    else {    //i.e. component.equals(COMPONENT_LARGERHORIZ)
+//        lnSA_CD=lnSA_AB+C29_gm[iper]*deltaC+(C30AS_gm[iper]*Math.log(Math.exp(lnSA_AB)+0.03)+C43_gm[iper])*deltaD;
+//    }
+//    else {    //i.e. component.equals(COMPONENT_LARGERHORIZ)
     	//Crustal attenuation relation
         lnSA_AB=C1_lh[iper]+C4AS_lh*(mag-6.)+C3AS_lh[iper]*Math.pow(8.5-mag,2)+C5_lh[iper]*rRup+(C8_lh[iper]+C6AS_lh*(mag-6.))*Math.log(Math.sqrt(Math.pow(rRup,2.)+Math.pow(C10AS_lh[iper],2.)))+C46_lh[iper]*rVol+C32_lh*CN+C33AS_lh[iper]*CR;
         
@@ -599,7 +599,7 @@ public class McVerryetal_2000_AttenRel
         
         //site terms
         lnSA_CD=lnSA_AB+C29_lh[iper]*deltaC+(C30AS_lh[iper]*Math.log(Math.exp(lnSA_AB)+0.03)+C43_lh[iper])*deltaD;
-    }
+//    }
     
     double lnSA = lnSA_CD;
     
@@ -613,39 +613,39 @@ public class McVerryetal_2000_AttenRel
 	}
 	else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTER)) {
 		double sigmaInter;
-		if(component.equals(COMPONENT_GEOMEAN)) {
-			sigmaInter = tau_gm[iper];
-		}
-		else {
+//		if(component.equals(COMPONENT_GEOMEAN)) {
+//			sigmaInter = tau_gm[iper];
+//		}
+//		else {
 			sigmaInter = tau_lh[iper];
-		}
+//		}
 		return (sigmaInter);
 	}
 	else {   
 		double sigmaIntra;
 		if (mag <=5.0) {
-			if(component.equals(COMPONENT_GEOMEAN)) {
-				sigmaIntra=sigma6_gm[iper]-sigSlope_gm[iper];
-			}
-			else {
+//			if(component.equals(COMPONENT_GEOMEAN)) {
+//				sigmaIntra=sigma6_gm[iper]-sigSlope_gm[iper];
+//			}
+//			else {
 				sigmaIntra=sigma6_lh[iper]-sigSlope_lh[iper];
-			}
+//			}
 		}
 		else if (mag >=7.0) {
-			if(component.equals(COMPONENT_GEOMEAN)) {
-				sigmaIntra=sigma6_gm[iper]+sigSlope_gm[iper];
-			}
-			else {
+//			if(component.equals(COMPONENT_GEOMEAN)) {
+//				sigmaIntra=sigma6_gm[iper]+sigSlope_gm[iper];
+//			}
+//			else {
 				sigmaIntra=sigma6_lh[iper]+sigSlope_lh[iper];
-			}
+//			}
 		}
 		else {
-			if(component.equals(COMPONENT_GEOMEAN)) {
-				sigmaIntra=sigma6_gm[iper]+sigSlope_gm[iper]*(mag-6.);
-			}
-			else {
+//			if(component.equals(COMPONENT_GEOMEAN)) {
+//				sigmaIntra=sigma6_gm[iper]+sigSlope_gm[iper]*(mag-6.);
+//			}
+//			else {
 				sigmaIntra=sigma6_lh[iper]+sigSlope_lh[iper]*(mag-6.);
-			}
+//			}
 		}
 		
 		if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTRA)) {
@@ -653,12 +653,12 @@ public class McVerryetal_2000_AttenRel
 		}
 		else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL)) {
 			double sigmaInter;
-			if(component.equals(COMPONENT_GEOMEAN)) {
-				sigmaInter = tau_gm[iper];
-			}
-			else {
+//			if(component.equals(COMPONENT_GEOMEAN)) {
+//				sigmaInter = tau_gm[iper];
+//			}
+//			else {
 				sigmaInter = tau_lh[iper];
-			}
+//			}
 			double sigmaTotal = Math.sqrt(Math.pow(sigmaIntra,2.)+Math.pow(sigmaInter,2.));
 			return (sigmaTotal);
 		}
