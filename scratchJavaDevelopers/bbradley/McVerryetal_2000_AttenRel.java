@@ -364,8 +364,6 @@ public class McVerryetal_2000_AttenRel
     pgaParam.setValueAsDefault();
     stdDevTypeParam.setValueAsDefault();
     componentParam.setValueAsDefault();
-    //componentParam.setValue(COMPONENT_GEOMEAN);
-    //componentParam.setValue(COMPONENT_LARGERHORIZ);
     
 
     mag = ( (Double) magParam.getValue()).doubleValue();
@@ -513,7 +511,10 @@ public class McVerryetal_2000_AttenRel
 	    StringConstraint componentConstraint = new StringConstraint();
 	    componentConstraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
 	    componentConstraint.addString(ComponentParam.COMPONENT_GREATER_OF_TWO_HORZ);
-	    componentParam = new ComponentParam(componentConstraint,ComponentParam.COMPONENT_AVE_HORZ);
+	    componentConstraint.setNonEditable();
+	    componentParam = new ComponentParam(componentConstraint,ComponentParam.COMPONENT_GREATER_OF_TWO_HORZ);
+	    //componentParam.setValue(COMPONENT_GEOMEAN);
+	    //componentParam.setValue(COMPONENT_LARGERHORIZ);
 	    
 	    // the stdDevType Parameter
 	    StringConstraint stdDevTypeConstraint = new StringConstraint();
@@ -582,7 +583,7 @@ public class McVerryetal_2000_AttenRel
 	}
 
     //Key attenuation code
-    if(component.equals(COMPONENT_GEOMEAN)) {
+    if(component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
     	//Crustal attenuation relation
         lnSA_AB=C1_gm[iper]+C4AS_gm*(mag-6.)+C3AS_gm[iper]*Math.pow(8.5-mag,2)+C5_gm[iper]*rRup+(C8_gm[iper]+C6AS_gm*(mag-6.))*Math.log(Math.sqrt(Math.pow(rRup,2.)+Math.pow(C10AS_gm[iper],2.)))+C46_gm[iper]*rVol+C32_gm*CN+C33AS_gm[iper]*CR;
         
@@ -615,7 +616,7 @@ public class McVerryetal_2000_AttenRel
 	}
 	else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTER)) {
 		double sigmaInter;
-		if(component.equals(COMPONENT_GEOMEAN)) {
+		if(component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
 			sigmaInter = tau_gm[iper];
 		}
 		else {
@@ -626,7 +627,7 @@ public class McVerryetal_2000_AttenRel
 	else {   
 		double sigmaIntra;
 		if (mag <=5.0) {
-			if(component.equals(COMPONENT_GEOMEAN)) {
+			if(component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
 				sigmaIntra=sigma6_gm[iper]-sigSlope_gm[iper];
 			}
 			else {
@@ -634,7 +635,7 @@ public class McVerryetal_2000_AttenRel
 			}
 		}
 		else if (mag >=7.0) {
-			if(component.equals(COMPONENT_GEOMEAN)) {
+			if(component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
 				sigmaIntra=sigma6_gm[iper]+sigSlope_gm[iper];
 			}
 			else {
@@ -642,7 +643,7 @@ public class McVerryetal_2000_AttenRel
 			}
 		}
 		else {
-			if(component.equals(COMPONENT_GEOMEAN)) {
+			if(component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
 				sigmaIntra=sigma6_gm[iper]+sigSlope_gm[iper]*(mag-6.);
 			}
 			else {
@@ -655,7 +656,7 @@ public class McVerryetal_2000_AttenRel
 		}
 		else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL)) {
 			double sigmaInter;
-			if(component.equals(COMPONENT_GEOMEAN)) {
+			if(component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
 				sigmaInter = tau_gm[iper];
 			}
 			else {
@@ -690,7 +691,7 @@ public class McVerryetal_2000_AttenRel
 		  stdDevType = (String) val;
 	  }
 	  else if (pName.equals(ComponentParam.NAME)) {
-		  component = (String)componentParam.getValue();
+		  component = (String) val;
 	  }
 	  else if (pName.equals(PeriodParam.NAME)) {
 		  intensityMeasureChanged = true;
@@ -705,6 +706,7 @@ public class McVerryetal_2000_AttenRel
     magParam.removeParameterChangeListener(this);
     fltTypeParam.removeParameterChangeListener(this);
     stdDevTypeParam.removeParameterChangeListener(this);
+    componentParam.removeParameterChangeListener(this);
     saPeriodParam.removeParameterChangeListener(this);
 
     this.initParameterEventListeners();
@@ -721,6 +723,7 @@ public class McVerryetal_2000_AttenRel
     magParam.addParameterChangeListener(this);
     fltTypeParam.addParameterChangeListener(this);
     stdDevTypeParam.addParameterChangeListener(this);
+    componentParam.addParameterChangeListener(this);
     saPeriodParam.addParameterChangeListener(this);
   }
 
