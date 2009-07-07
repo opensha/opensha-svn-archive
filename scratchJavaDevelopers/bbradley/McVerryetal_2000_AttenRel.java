@@ -187,8 +187,7 @@ public class McVerryetal_2000_AttenRel
   public final static String FLT_TYPE_DEEP_SLAB = "Subduction-Deep-Slab";
 
   // change component default from that of parent
-  //Currently the above coefficients are for the (unrotated) geometric mean - will include larger horizontal later
-//  public final static String COMPONENT_GEOMEAN = ComponentParam.COMPONENT_AVE_HORZ;
+  public final static String COMPONENT_GEOMEAN = ComponentParam.COMPONENT_AVE_HORZ;
   public final static String COMPONENT_LARGERHORIZ = ComponentParam.COMPONENT_GREATER_OF_TWO_HORZ;
  
   // for issuing warnings:
