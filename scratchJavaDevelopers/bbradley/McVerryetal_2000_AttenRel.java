@@ -396,7 +396,7 @@ public class McVerryetal_2000_AttenRel
 
     // params that the exceed. prob. depends upon
     exceedProbIndependentParams.clear();
-//    exceedProbIndependentParams.addParameterList(meanIndependentParams);
+    exceedProbIndependentParams.addParameterList(meanIndependentParams);
     exceedProbIndependentParams.addParameterList(stdDevIndependentParams);
     exceedProbIndependentParams.addParameter(sigmaTruncTypeParam);
     exceedProbIndependentParams.addParameter(sigmaTruncLevelParam);
@@ -509,7 +509,7 @@ public class McVerryetal_2000_AttenRel
 	    // the Component Parameter
 	    StringConstraint componentConstraint = new StringConstraint();
 	    componentConstraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
-//	    componentConstraint.addString(ComponentParam.COMPONENT_GREATER_OF_TWO_HORZ);
+	    componentConstraint.addString(ComponentParam.COMPONENT_GREATER_OF_TWO_HORZ);
 	    componentParam = new ComponentParam(componentConstraint,ComponentParam.COMPONENT_AVE_HORZ);
 	    
 	    // the stdDevType Parameter
@@ -579,17 +579,17 @@ public class McVerryetal_2000_AttenRel
 	}
 
     //Key attenuation code
-//    if(component.equals(COMPONENT_GEOMEAN)) {
+    if(component.equals(COMPONENT_GEOMEAN)) {
     	//Crustal attenuation relation
-//        lnSA_AB=C1_gm[iper]+C4AS_gm*(mag-6.)+C3AS_gm[iper]*Math.pow(8.5-mag,2)+C5_gm[iper]*rRup+(C8_gm[iper]+C6AS_gm*(mag-6.))*Math.log(Math.sqrt(Math.pow(rRup,2.)+Math.pow(C10AS_gm[iper],2.)))+C46_gm[iper]*rVol+C32_gm*CN+C33AS_gm[iper]*CR;
+        lnSA_AB=C1_gm[iper]+C4AS_gm*(mag-6.)+C3AS_gm[iper]*Math.pow(8.5-mag,2)+C5_gm[iper]*rRup+(C8_gm[iper]+C6AS_gm*(mag-6.))*Math.log(Math.sqrt(Math.pow(rRup,2.)+Math.pow(C10AS_gm[iper],2.)))+C46_gm[iper]*rVol+C32_gm*CN+C33AS_gm[iper]*CR;
         
         //Subduction attenuation relation
         //lnSA_AB=C11_gm[iper]+(C12y_gm+(C15_gm[iper]-C17_gm[iper])*C19y_gm)*(mag-6)+C13y_gm[iper]*Math.pow(10-mag,3.)+C17_gm[iper]*Math.log(rRup+C18y_gm*Math.exp(C19y_gm*mag))+C20[iper]*hc+C24_gm[iper]*SI+C46_gm[iper]*rVol*(1-DS);
         
         //site terms
-//        lnSA_CD=lnSA_AB+C29_gm[iper]*deltaC+(C30AS_gm[iper]*Math.log(Math.exp(lnSA_AB)+0.03)+C43_gm[iper])*deltaD;
-//    }
-//    else {    //i.e. component.equals(COMPONENT_LARGERHORIZ)
+        lnSA_CD=lnSA_AB+C29_gm[iper]*deltaC+(C30AS_gm[iper]*Math.log(Math.exp(lnSA_AB)+0.03)+C43_gm[iper])*deltaD;
+    }
+    else {    //i.e. component.equals(COMPONENT_LARGERHORIZ)
     	//Crustal attenuation relation
         lnSA_AB=C1_lh[iper]+C4AS_lh*(mag-6.)+C3AS_lh[iper]*Math.pow(8.5-mag,2)+C5_lh[iper]*rRup+(C8_lh[iper]+C6AS_lh*(mag-6.))*Math.log(Math.sqrt(Math.pow(rRup,2.)+Math.pow(C10AS_lh[iper],2.)))+C46_lh[iper]*rVol+C32_lh*CN+C33AS_lh[iper]*CR;
         
@@ -598,7 +598,7 @@ public class McVerryetal_2000_AttenRel
         
         //site terms
         lnSA_CD=lnSA_AB+C29_lh[iper]*deltaC+(C30AS_lh[iper]*Math.log(Math.exp(lnSA_AB)+0.03)+C43_lh[iper])*deltaD;
-//    }
+    }
     
     double lnSA = lnSA_CD;
     
@@ -612,39 +612,39 @@ public class McVerryetal_2000_AttenRel
 	}
 	else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTER)) {
 		double sigmaInter;
-//		if(component.equals(COMPONENT_GEOMEAN)) {
-//			sigmaInter = tau_gm[iper];
-//		}
-//		else {
+		if(component.equals(COMPONENT_GEOMEAN)) {
+			sigmaInter = tau_gm[iper];
+		}
+		else {
 			sigmaInter = tau_lh[iper];
-//		}
+		}
 		return (sigmaInter);
 	}
 	else {   
 		double sigmaIntra;
 		if (mag <=5.0) {
-//			if(component.equals(COMPONENT_GEOMEAN)) {
-//				sigmaIntra=sigma6_gm[iper]-sigSlope_gm[iper];
-//			}
-//			else {
+			if(component.equals(COMPONENT_GEOMEAN)) {
+				sigmaIntra=sigma6_gm[iper]-sigSlope_gm[iper];
+			}
+			else {
 				sigmaIntra=sigma6_lh[iper]-sigSlope_lh[iper];
-//			}
+			}
 		}
 		else if (mag >=7.0) {
-//			if(component.equals(COMPONENT_GEOMEAN)) {
-//				sigmaIntra=sigma6_gm[iper]+sigSlope_gm[iper];
-//			}
-//			else {
+			if(component.equals(COMPONENT_GEOMEAN)) {
+				sigmaIntra=sigma6_gm[iper]+sigSlope_gm[iper];
+			}
+			else {
 				sigmaIntra=sigma6_lh[iper]+sigSlope_lh[iper];
-//			}
+			}
 		}
 		else {
-//			if(component.equals(COMPONENT_GEOMEAN)) {
-//				sigmaIntra=sigma6_gm[iper]+sigSlope_gm[iper]*(mag-6.);
-//			}
-//			else {
+			if(component.equals(COMPONENT_GEOMEAN)) {
+				sigmaIntra=sigma6_gm[iper]+sigSlope_gm[iper]*(mag-6.);
+			}
+			else {
 				sigmaIntra=sigma6_lh[iper]+sigSlope_lh[iper]*(mag-6.);
-//			}
+			}
 		}
 		
 		if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTRA)) {
@@ -652,12 +652,12 @@ public class McVerryetal_2000_AttenRel
 		}
 		else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL)) {
 			double sigmaInter;
-//			if(component.equals(COMPONENT_GEOMEAN)) {
-//				sigmaInter = tau_gm[iper];
-//			}
-//			else {
+			if(component.equals(COMPONENT_GEOMEAN)) {
+				sigmaInter = tau_gm[iper];
+			}
+			else {
 				sigmaInter = tau_lh[iper];
-//			}
+			}
 			double sigmaTotal = Math.sqrt(Math.pow(sigmaIntra,2.)+Math.pow(sigmaInter,2.));
 			return (sigmaTotal);
 		}
@@ -680,9 +680,6 @@ public class McVerryetal_2000_AttenRel
 	  if (pName.equals(DistanceRupParameter.NAME)) {
 		  rRup = ( (Double) val).doubleValue();
 	  }
-	  //else if (pName.equals(Vs30_Param.NAME)) {
-		//  vs30 = ( (Double) val).doubleValue();
-	  //}
 	  else if (pName.equals(magParam.NAME)) {
 		  mag = ( (Double) val).doubleValue();
 	  }
