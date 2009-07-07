@@ -392,7 +392,7 @@ public class McVerryetal_2000_AttenRel
     stdDevIndependentParams.clear();
     stdDevIndependentParams.addParameterList(meanIndependentParams);
     stdDevIndependentParams.addParameter(stdDevTypeParam);
-    stdDevIndependentParams.addParameter(componentParam);
+//    stdDevIndependentParams.addParameter(componentParam);
 
     // params that the exceed. prob. depends upon
     exceedProbIndependentParams.clear();
