@@ -393,11 +393,9 @@ public class McVerryetal_2000_AttenRel
     stdDevIndependentParams.clear();
     stdDevIndependentParams.addParameterList(meanIndependentParams);
     stdDevIndependentParams.addParameter(stdDevTypeParam);
-//    stdDevIndependentParams.addParameter(componentParam);
 
     // params that the exceed. prob. depends upon
     exceedProbIndependentParams.clear();
-    exceedProbIndependentParams.addParameterList(meanIndependentParams);
     exceedProbIndependentParams.addParameterList(stdDevIndependentParams);
     exceedProbIndependentParams.addParameter(sigmaTruncTypeParam);
     exceedProbIndependentParams.addParameter(sigmaTruncLevelParam);
@@ -512,9 +510,7 @@ public class McVerryetal_2000_AttenRel
 	    componentConstraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
 	    componentConstraint.addString(ComponentParam.COMPONENT_GREATER_OF_TWO_HORZ);
 	    componentConstraint.setNonEditable();
-	    componentParam = new ComponentParam(componentConstraint,ComponentParam.COMPONENT_GREATER_OF_TWO_HORZ);
-	    //componentParam.setValue(COMPONENT_GEOMEAN);
-	    //componentParam.setValue(COMPONENT_LARGERHORIZ);
+	    componentParam = new ComponentParam(componentConstraint,ComponentParam.COMPONENT_AVE_HORZ);
 	    
 	    // the stdDevType Parameter
 	    StringConstraint stdDevTypeConstraint = new StringConstraint();
@@ -555,7 +551,7 @@ public class McVerryetal_2000_AttenRel
     double CN=0.0, CR=0.0, SI=0.0, DS=0.0, deltaC=0.0, deltaD=0.0;
     String siteType = siteTypeParam.getValue().toString();
     double lnSA_AB,lnSA_CD;
-    double rVol=0.0, hc=0.0;  // need to change value of rVol and Hc 
+    double rVol=0.0, hc=0.0;  // need to change value of rVol and Hc in future
     
     //allocate dummy fault variables
     if(fltType.equals(FLT_TYPE_NORMAL)) {
