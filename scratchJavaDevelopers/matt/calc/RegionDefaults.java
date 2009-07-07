@@ -30,10 +30,14 @@ public class RegionDefaults {
   
   public static String TEST_Path = "data/mattg_test";
   
+  public static int REGION_CF = 0;
+  public static int REGION_NZ = 1;
+  
+  
   //input files
   public static String cubeFilePath =  TEST_Path + "/merge_NZ.nts"; //"/merge.nts", merge_synthNZ
-  public static String backgroundHazardPath = TEST_Path +  "/STEP_backGround.txt";
-  //BACKGROUND_RATES_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/step/AllCal96ModelDaily.txt";
+  public static String backgroundHazardPath = TEST_Path +  "/STEP_NZHazProb.txt"; //STEP_NZHazProb.txt STEP_backGround
+  public static String BACKGROUND_RATES_FILE_NAME =  TEST_Path +  "/NZdailyRates.txt"; //AllCal96ModelDaily.txt;//"org/opensha/sha/earthquake/rupForecastImpl/step/AllCal96ModelDaily.txt";
   
   //output files
   public static String outputHazardPath = TEST_Path + "/STEP_Probs.txt"; 
@@ -60,10 +64,10 @@ public class RegionDefaults {
   public  final static double searchLongMin_CF = -124.6;
   public  final static double searchLongMax_CF = -112;
   //nz 
-  public final static double searchLatMin_NZ = -49;
-  public  final static double searchLatMax_NZ = -32;
-  public  final static double searchLongMin_NZ = 164;
-  public  final static double searchLongMax_NZ = 184; //-176
+  public final static double searchLatMin_NZ = -47.95;
+  public  final static double searchLatMax_NZ = -34.05;
+  public  final static double searchLongMin_NZ = 164.05;
+  public  final static double searchLongMax_NZ = 179.95; //-176
   
   public static double searchLatMin = searchLatMin_NZ;
   public static double searchLatMax = searchLatMax_NZ;
@@ -71,6 +75,9 @@ public class RegionDefaults {
   public static double searchLongMax = searchLongMax_NZ;
 
   public static double gridSpacing = 0.1;
+  public static double gridPrecisionCF = 0.1;
+  public static double gridPrecisionNZ = 0.01d;
+  public static double gridPrecision  = gridPrecisionNZ;
 
   public static double addToMc = 0.02;
 
@@ -107,5 +114,33 @@ public static  synchronized void setBoundary(double minLat, double maxLat, doubl
 	  searchLongMin = minLon;
 	  searchLongMax = maxLon;
   }
+
+/**
+ * set region default to CF or NZ
+*/
+public static  synchronized void setRegion(int regionNum){
+	if(regionNum == REGION_CF){
+		   cubeFilePath =  TEST_Path + "/merge.nts"; //"/merge.nts", merge_synthNZ
+		   backgroundHazardPath = TEST_Path +  "/STEP_backGround.txt"; //STEP_NZHazProb.txt STEP_backGround
+		   BACKGROUND_RATES_FILE_NAME =  TEST_Path +  "/AllCal96ModelDaily.txt"; //AllCal96ModelDaily.txt;//"org/opensha/sha/earthquake/rupForecastImpl/step/AllCal96ModelDaily.txt";
+	
+		   gridPrecision  = gridPrecisionCF;
+		   
+		   setBoundary(RegionDefaults.searchLatMin_CF, RegionDefaults.searchLatMax_CF,
+					RegionDefaults.searchLongMin_CF, RegionDefaults.searchLongMax_CF);
+		   
+	}else if(regionNum == REGION_NZ){
+		   cubeFilePath =  TEST_Path + "/merge_NZ.nts"; //"/merge.nts", merge_synthNZ
+		   backgroundHazardPath = TEST_Path +  "/STEP_NZHazProb.txt"; //STEP_NZHazProb.txt STEP_backGround
+		   BACKGROUND_RATES_FILE_NAME =  TEST_Path +  "/NZdailyRates.txt"; //AllCal96ModelDaily.txt;//"org/opensha/sha/earthquake/rupForecastImpl/step/AllCal96ModelDaily.txt";
+		   
+		   gridPrecision  = gridPrecisionNZ;
+		   
+		   setBoundary(RegionDefaults.searchLatMin_NZ, RegionDefaults.searchLatMax_NZ,
+					RegionDefaults.searchLongMin_NZ, RegionDefaults.searchLongMax_NZ);
+		   
+	}
+}
+
   
 }

@@ -2,34 +2,31 @@ package scratchJavaDevelopers.matt.calc;
 
 
 
-import org.opensha.sha.earthquake.ProbEqkRupture;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.ListIterator;
+import java.util.TimeZone;
 
-import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
-import org.opensha.sha.earthquake.griddedForecast.STEP_CombineForecastModels;
-
-import org.opensha.sha.earthquake.observedEarthquake.CubeToObsEqkRupture;
-import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
-import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
-
-import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
-
-import org.opensha.sha.magdist.IncrementalMagFreqDist;
-
-//tested
+import org.apache.log4j.Logger;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.util.FileUtils;
-
-//tested
-
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.FileNotFoundException;
-import java.text.DecimalFormat;
-import java.util.*;
-
-import org.apache.log4j.Logger;
+import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
+import org.opensha.sha.earthquake.griddedForecast.STEP_CombineForecastModels;
+import org.opensha.sha.earthquake.observedEarthquake.CubeToObsEqkRupture;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
+import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 
 /**
@@ -49,13 +46,14 @@ public class STEP_main {
 
 	private static RegionDefaults rDefs;
 	private static GregorianCalendar currentTime;
-	private final static String BACKGROUND_RATES_FILE_NAME = RegionDefaults.TEST_Path + "/NZdailyRates.txt"; //AllCal96ModelDaily.txt
-	private BackGroundRatesGrid bgGrid = null;
-	private ArrayList<PointEqkSource> sourceList;
+	//private final static String BACKGROUND_RATES_FILE_NAME = RegionDefaults.BACKGROUND_RATES_FILE_NAME;//RegionDefaults.TEST_Path + "/NZdailyRates.txt"; //AllCal96ModelDaily.txt
+	
 	private DecimalFormat locFormat = new DecimalFormat("0.0000");
 
 	private String eventsFilePath = RegionDefaults.cubeFilePath;
-	private String bgRatesFilePath = BACKGROUND_RATES_FILE_NAME;
+	private String bgRatesFilePath = RegionDefaults.BACKGROUND_RATES_FILE_NAME;
+	
+	//private Comparator <HypoMagFreqDistAtLoc> locationComparator;
 	//public static final String STEP_AFTERSHOCK_OBJECT_FILE = RegionDefaults.STEP_AftershockObjectFile;
 
 	/**
@@ -65,16 +63,29 @@ public class STEP_main {
 	 * ?? 1. any reason for using a static ???
 	 * 
 	 */
-	private static ArrayList <STEP_CombineForecastModels> STEP_AftershockForecastList;// =  new ArrayList <STEP_CombineForecastModels> ();
-
+	private static ArrayList <STEP_CombineForecastModels> STEP_AftershockForecastList;// for EQ event 
+	private BackGroundRatesGrid bgGrid = null;
+	private ArrayList<PointEqkSource> sourceList; //for each bg grid
+	
+	
 	//read from serialized file
     static{
+    	    RegionDefaults.setRegion(RegionDefaults.REGION_NZ);
 			readSTEP_AftershockForecastListFromFile();
 		}
 
 	public STEP_main() {
 		// System.out.println("11111");
 		// calc_STEP();
+//		locationComparator = new Comparator <HypoMagFreqDistAtLoc>  (){
+//			public int compare(HypoMagFreqDistAtLoc hyp1, HypoMagFreqDistAtLoc hyp2) {	
+//				//Location loc1 = hyp1.getLocation(), loc2 = hyp2.getLocation();
+//				if(hyp2.getLocation().getLatitude() == hyp1.getLocation().getLatitude()){
+//						return (int)(100*hyp1.getLocation().getLongitude() -100*hyp2.getLocation().getLongitude()) ;//					
+//				}
+//				return (int)(100*hyp1.getLocation().getLatitude() -100*hyp2.getLocation().getLatitude()) ;//	
+//			}		
+//		};
 	}
 
 
@@ -135,8 +146,17 @@ public class STEP_main {
 		/**
 		 * 2. load background rates/grid list
 		 * BackgroundRatesList
+		 * 
+		 * this list is different from <code>bgGrid.getMagDistList();</code>
+		 * with the values init to 0 ????
+		 * which is used for later forcast
 		 */    
-		ArrayList<HypoMagFreqDistAtLoc> hypList = loadBgGrid();
+		HashMap<String,HypoMagFreqDistAtLoc> hypList = loadBgGrid();	
+		//log("hypList>>" + hypList.size());
+		
+//		for(HypoMagFreqDistAtLoc hypoMagFrq :hypList){
+//			log("hypoMagFrq >>" + hypoMagFrq.getLocation());
+//		}
 
 		System.out.println("Read background rates");
 
@@ -152,12 +172,14 @@ public class STEP_main {
 		 * 4. Next loop over the list of all forecast model objects and create
 		 *    a forecast for each object
 		 */
-		processForcasts(hypList );   
+		processForcasts(hypList );  
+		
 
 		/**
 		 * 5. results output
 		 */
-		createRateFile(bgGrid);
+		createRateFile(bgGrid);//rates for bgGrid only
+		
 		createStepSources(hypList);//add to sourceList
 		//not sure what this file is for
 		createRateFile(sourceList,RegionDefaults.outputSTEP_Rates );
@@ -173,15 +195,15 @@ public class STEP_main {
 
 
 
+
 	/**
-	 * @param hypList -- 
+	 * @param hypList
 	 */
-	public void processForcasts(ArrayList<HypoMagFreqDistAtLoc> hypList) {
+	public void processForcasts(HashMap<String,HypoMagFreqDistAtLoc> hypList) {
 		int numAftershockModels = STEP_AftershockForecastList.size();
 
 		logger.info("processForcasts0 numAftershockModels  " + numAftershockModels);
-
-		//System.out.println("Number of Aftershock Models ="+numAftershockModels);
+	
 		STEP_CombineForecastModels forecastModel;
 
 		synchronized(bgGrid) {//lock bgGrid
@@ -223,24 +245,35 @@ public class STEP_main {
 					}
 					//System.out.println("Total Forecast " +t_seqSumOver4); 
 				}
-
-
+                
+				
+				/**
+				 * make sure the locations invilved equals to each other
+				 */
 				for(int k=0;k<bgRegionSize;++k){
 					bgLoc = bgLocList.getLocationAt(k);
+					//log("bgLoc=" + bgLoc);
 					// ListIterator seqIt = forecastModel.getAfterShockZone().getGridLocationsIterator();
-					for(int g=0;g<asZoneSize;++g){
+					for(int g=0;g < asZoneSize;++g){
 						seqLoc = aftershockZoneList.getLocationAt(g);
+						//log(">>>> bgLoc == " + bgLoc.getLatitude() + "," + bgLoc.getLongitude()  + " seqLoc=" + seqLoc.getLatitude() + "," + seqLoc.getLongitude());
 						if (seqLoc != null){
-							if (bgLoc.equalsLocation(seqLoc)){
+							if (bgGrid.checkLocaionEquals(bgLoc, seqLoc, RegionDefaults.gridPrecision)){//location check 1
+								//log(">>>> bgLoc == seqLoc");
 								seqDistAtLoc = forecastModel.getHypoMagFreqDistAtLoc(g);
-								bgDistAtLoc = bgGrid.getHypoMagFreqDistAtLoc(k);
+								//bgDistAtLoc = bgGrid.getHypoMagFreqDistAtLoc(k); ///?????? check location
+								bgDistAtLoc = bgGrid.getHypoMagFreqDistAtLocation(bgLoc); ///?????? check location
+								//log("bgDistAtLoc=" + bgDistAtLoc.getLocation() + " bgLoc=" + bgLoc);
 								bgSumOver5 = bgDistAtLoc.getFirstMagFreqDist().getCumRate(RegionDefaults.minCompareMag);
 								seqSumOver5 = seqDistAtLoc.getFirstMagFreqDist().getCumRate(RegionDefaults.minCompareMag);;
 								if (seqSumOver5 > bgSumOver5) {
-									HypoMagFreqDistAtLoc hypoMagDistAtLoc= hypList.get(k);
-									Location loc= hypoMagDistAtLoc.getLocation();
-									hypList.set(k, new HypoMagFreqDistAtLoc(seqDistAtLoc.getFirstMagFreqDist(),loc));
-									bgGrid.setMagFreqDistAtLoc(seqDistAtLoc.getFirstMagFreqDist(),k);
+									HypoMagFreqDistAtLoc hypoMagDistAtLoc= hypList.get(bgGrid.getKey4Location(bgLoc)); //?????? check location matches!!!!
+									//Location loc= hypoMagDistAtLoc.getLocation();
+									//make sure they are the same location
+									//log("hypoMagDistAtLoc=" + loc + " bgLoc=" + bgLoc);
+									hypList.put(bgGrid.getKey4Location(bgLoc), new HypoMagFreqDistAtLoc(seqDistAtLoc.getFirstMagFreqDist(),bgLoc));
+									//bgGrid.setMagFreqDistAtLoc(seqDistAtLoc.getFirstMagFreqDist(),k); //check location???
+									bgGrid.setMagFreqDistAtLocation(seqDistAtLoc.getFirstMagFreqDist(),bgLoc); //check location???
 									// record the index of this aftershock sequence in an array in
 									// the background so we know to save the sequence (or should it just be archived somehow now?)
 									bgGrid.setSeqIndAtNode(k,modelLoop);
@@ -382,11 +415,15 @@ public class STEP_main {
 	}
 
 
-	public ArrayList<HypoMagFreqDistAtLoc>  loadBgGrid() {
-		bgGrid = new BackGroundRatesGrid(bgRatesFilePath);
-		//System.out.println("Number of BG locs = "+
-		//bgGrid.getEvenlyGriddedGeographicRegion().getNumGridLocs());
-		return  initHypoMagFreqDistForBGGrid(bgGrid);
+	public HashMap<String,HypoMagFreqDistAtLoc>  loadBgGrid() {
+		bgGrid = new BackGroundRatesGrid(bgRatesFilePath );		
+		//print result
+//		log("Number of BG locs = " + bgGrid.getEvenlyGriddedGeographicRegion().getNumGridLocs());
+//		for(Location loc :bgGrid.getEvenlyGriddedGeographicRegion().getGridLocationsList()){
+//			log("bgGrid loc=" + loc);
+//		}
+		
+		return  initStepHypoMagFreqDistForBGGrid(bgGrid);
 
 	}
 
@@ -435,8 +472,8 @@ public class STEP_main {
 			e.printStackTrace();
 		}
 		System.out.println("NumSources = "+size);
-		for(int i=0;i<size;++i){
-			PointEqkSource source = sourcelist.get(i);
+		for(PointEqkSource source:sourcelist){
+			//PointEqkSource source = sourcelist.get(i);
 			Location loc = source.getLocation();
 			int numRuptures = source.getNumRuptures();
 			for(int j=0;j<numRuptures;++j){
@@ -460,7 +497,11 @@ public class STEP_main {
 	}
 
 
-	private void createStepSources(ArrayList<HypoMagFreqDistAtLoc> hypoMagDist){
+	/**
+	 * convert  hypoMagDist list to PointEqkSource list
+	 * @param hypoMagDist
+	 */
+	private void createStepSources(HashMap<String,HypoMagFreqDistAtLoc> hypoMagDist){
 		System.out.println("Creating STEP sources");
 		if(sourceList == null){
 			sourceList = new ArrayList<PointEqkSource>();
@@ -470,8 +511,8 @@ public class STEP_main {
 		int size = hypoMagDist.size();
 		System.out.println("NumSources in hypList = "+size);
 		synchronized(sourceList){
-			for(int i=0;i<size;++i){
-				HypoMagFreqDistAtLoc hypoLocMagDist = hypoMagDist.get(i);
+			for(HypoMagFreqDistAtLoc hypoLocMagDist : hypoMagDist.values()){
+				//HypoMagFreqDistAtLoc hypoLocMagDist = hypoMagDist.get(i);
 				Location loc = hypoLocMagDist.getLocation();
 				IncrementalMagFreqDist magDist = hypoLocMagDist.getFirstMagFreqDist();
 				double rate = magDist.getY(0);
@@ -482,34 +523,47 @@ public class STEP_main {
 					PointEqkSource source = new PointEqkSource(loc,magDist,
 							RegionDefaults.forecastLengthDays,RegionDefaults.RAKE,
 							RegionDefaults.DIP,RegionDefaults.minForecastMag);
+					//log("source loc=" + source.getLocation());
 					sourceList.add(source);     
 				}
 			}
 		}
+		log("sourceList >>" + sourceList.size());
 	}
 
 	/**
+	 * init all HypForecastMagDist value to 0 in stepHypForecastList
 	 * @param bgGrid -- backgroud rates
 	 * @return
 	 */
-	private ArrayList<HypoMagFreqDistAtLoc> initHypoMagFreqDistForBGGrid(BackGroundRatesGrid bgGrid){
-		ArrayList<HypoMagFreqDistAtLoc> hypForecastList = bgGrid.getMagDistList();
-		ArrayList<HypoMagFreqDistAtLoc> stepHypForecastList = new ArrayList <HypoMagFreqDistAtLoc>();
+	private HashMap<String,HypoMagFreqDistAtLoc>  initStepHypoMagFreqDistForBGGrid(BackGroundRatesGrid bgGrid){
+		HashMap<String,HypoMagFreqDistAtLoc> hypForecastList = bgGrid.getMagDistMap();//this has been read from the gris file
+		HashMap<String,HypoMagFreqDistAtLoc>  stepHypForecastList = new HashMap<String,HypoMagFreqDistAtLoc> ();
 		int size = hypForecastList.size();
 		//System.out.println("Size of BG magDist list = "+size);
-		for(int i=0;i<size;++i){
-			HypoMagFreqDistAtLoc hypForcast = hypForecastList.get(i);
+		for(HypoMagFreqDistAtLoc hypForcast: hypForecastList.values()){
+			//HypoMagFreqDistAtLoc hypForcast = hypForecastList.get(i);
 			Location loc = hypForcast.getLocation();
+			//log("hypForcast loc" + loc);
 			IncrementalMagFreqDist magDist = hypForcast.getFirstMagFreqDist();
-			IncrementalMagFreqDist HypForecastMagDist = new IncrementalMagFreqDist(magDist.getMinX(),
+			IncrementalMagFreqDist hypForecastMagDist = new IncrementalMagFreqDist(magDist.getMinX(),
 					magDist.getNum(),magDist.getDelta());
-			for(int j=0;j<HypForecastMagDist.getNum();++j)
-				HypForecastMagDist.set(j, 0.0);
-			stepHypForecastList.add(new HypoMagFreqDistAtLoc(HypForecastMagDist,loc));
+			
+			for(int j=0;j<hypForecastMagDist.getNum();++j)
+				hypForecastMagDist.set(j, 0.0);
+			
+			stepHypForecastList.put(bgGrid.getKey4Location(loc), new HypoMagFreqDistAtLoc(hypForecastMagDist,loc));
 		}
 		return stepHypForecastList;
 	}
 
+	/**
+	 * write the HypoMagFreqDistAtLoc from bggrid to file
+	 * this is those read from the input file: (NZdailyRates.txt)
+	 * whats the output file used for???
+	 * 
+	 * @param bggrid
+	 */
 	private void createRateFile(BackGroundRatesGrid bggrid){
 		Location bgLoc;
 		HypoMagFreqDistAtLoc bgDistAtLoc;
@@ -517,19 +571,27 @@ public class STEP_main {
 
 		try{
 			FileWriter fr = new FileWriter(RegionDefaults.outputAftershockRatePath);
-
-			LocationList bgLocList = bgGrid.getEvenlyGriddedGeographicRegion().getGridLocationsList();
+			LocationList bgLocList = bggrid.getEvenlyGriddedGeographicRegion().getGridLocationsList();			
 			int bgRegionSize = bgLocList.size();
-			for(int k=0;k<bgRegionSize;++k){
+			log("bgRegionSize " + bgRegionSize);
+			//int hypoMagFreqDistSize = bggrid.getHypoMagFreqDist().size();
+			//log("hypoMagFreqDistSize " + hypoMagFreqDistSize);
+			//SitesInGriddedRectangularRegion region = (SitesInGriddedRectangularRegion)bgGrid.getEvenlyGriddedGeographicRegion();
+			for(int k=0;k <  bgRegionSize ;++k){
 				bgLoc = bgLocList.getLocationAt(k);
-				bgDistAtLoc = bgGrid.getHypoMagFreqDistAtLoc(k);
-				bgSumOver5 = bgDistAtLoc.getFirstMagFreqDist().getCumRate(RegionDefaults.minCompareMag);  
-
-				fr.write(locFormat.format(bgLoc.getLatitude())+"    "+locFormat.format(bgLoc.getLongitude())+"      "+bgSumOver5+"\n");
+				//get the hypoMag for the location				
+				bgDistAtLoc = bggrid.getHypoMagFreqDistAtLocation(bgLoc); //k
+				//bgDistAtLoc = bgGrid.getHypoMagFreqDistAtLoc(index);
+				//log("bgLoc=" + bgLoc + " bgDistAtLoc=" + bgDistAtLoc.getLocation());
+				if(bgDistAtLoc != null){
+					bgSumOver5 = bgDistAtLoc.getFirstMagFreqDist().getCumRate(RegionDefaults.minCompareMag); 
+					fr.write(locFormat.format(bgLoc.getLatitude())+"    "+locFormat.format(bgLoc.getLongitude())+"      "+bgSumOver5+"\n");
+				}
 			}
 			fr.close();
 		}catch(IOException ee){
 			ee.printStackTrace();
+		
 		}    
 
 	}
@@ -546,7 +608,12 @@ public class STEP_main {
     public static  void   readSTEP_AftershockForecastListFromFile( ){		
 		//stepAftershockList
     	try{
-    		STEP_AftershockForecastList = (ArrayList<STEP_CombineForecastModels>) FileUtils.loadObject(RegionDefaults.STEP_AftershockObjectFile);
+    		File sourceFile = new File(RegionDefaults.STEP_AftershockObjectFile);
+    		if(sourceFile.exists()){    		
+    		  STEP_AftershockForecastList = (ArrayList<STEP_CombineForecastModels>) FileUtils.loadObject(RegionDefaults.STEP_AftershockObjectFile);
+    		}else{
+    			logger.error("error STEP_AftershockObjectFile not exist!!"   );
+    		}
     		if(STEP_AftershockForecastList == null)
     		    STEP_AftershockForecastList =  new ArrayList <STEP_CombineForecastModels> ();
     	} catch ( Exception ex) {
@@ -609,7 +676,10 @@ public class STEP_main {
 	    return true;
 	  }
 	
-
+	public static  void log(String string) {
+		logger.info(string);
+		
+	}
 
 }
 

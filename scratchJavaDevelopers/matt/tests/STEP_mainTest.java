@@ -2,6 +2,7 @@ package scratchJavaDevelopers.matt.tests;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -68,8 +69,7 @@ public class STEP_mainTest extends TestCase {
 	public void testLoadEventslander() {
 		stepmain.setEventsFilePath(cubeFilePath_TEST_1);
 		//this event are for california
-		RegionDefaults.setBoundary(RegionDefaults.searchLatMin_CF, RegionDefaults.searchLatMax_CF,
-				RegionDefaults.searchLongMin_CF, RegionDefaults.searchLongMax_CF);
+		RegionDefaults.setRegion(RegionDefaults.REGION_CF);
 		//double strike1=  -1.0;
 		try {
 			//set test event file path
@@ -86,7 +86,7 @@ public class STEP_mainTest extends TestCase {
 				if(index++ == 0){
 					assertTrue(newEvent.getMag() == 7.3);
 				}
-				log("newEvent " + newEvent.getInfo());
+				//log("newEvent " + newEvent.getInfo());
 			}
 			assertTrue(index == 3538);
 		}
@@ -110,7 +110,7 @@ public class STEP_mainTest extends TestCase {
 		//double strike1=  -1.0;
 		try {
 			//2. test load background
-			ArrayList<HypoMagFreqDistAtLoc> hypList = stepmain.loadBgGrid();
+			HashMap<String,HypoMagFreqDistAtLoc> hypList = stepmain.loadBgGrid();
 
 			//log("grid " + stepmain.getBgGrid().getHypoMagFreqDist().size());
 			log("hypList " + hypList.size());
@@ -200,7 +200,7 @@ public class STEP_mainTest extends TestCase {
 	 * this need be run after eq events, bgGrid loaded, and aftershock processed
 	 * @return
 	 */
-	private void tstProcessForcast(ArrayList<HypoMagFreqDistAtLoc> hypList) {
+	private void tstProcessForcast(HashMap<String,HypoMagFreqDistAtLoc>  hypList) {
 		//double strike1=  -1.0;
 		try {
 			//assertTrue(true);
@@ -214,7 +214,7 @@ public class STEP_mainTest extends TestCase {
 	}
 
 
-	private void tstHypoMagFreqDist(ArrayList<HypoMagFreqDistAtLoc> hypList, boolean init) {
+	private void tstHypoMagFreqDist(HashMap<String,HypoMagFreqDistAtLoc>  hypList, boolean init) {
 		LocationList bgLocList = stepmain.getBgGrid().getEvenlyGriddedGeographicRegion().getGridLocationsList();
 		ArrayList<HypoMagFreqDistAtLoc> hypForecastList = stepmain.getBgGrid().getMagDistList();
 
@@ -228,15 +228,15 @@ public class STEP_mainTest extends TestCase {
 
 		for(int k=0;k < bgRegionSize;++k){
 			Location bgLoc = bgLocList.getLocationAt(k);		    	 
-			//log("loc index " + k);
-			//log("bgLoc " + bgLoc.toString());		    	
+			log("loc index " + k);
+			log("bgLoc " + bgLoc.toString());		    	
 			HypoMagFreqDistAtLoc hypoMagDistAtLoc= hypList.get(k);
 			HypoMagFreqDistAtLoc hypoMagDistAtLocBG= hypForecastList.get(k);
 
 			Location hyploc= hypoMagDistAtLoc.getLocation();
-			// log("hyploc " + hyploc.toString());
+			 log("hyploc " + hyploc.toString());
 			//3. test locations equal
-			assertEquals(hyploc, bgLoc);	
+			assertEquals("HypoMagFreqDistAtLoc and bgLocation must be the same", hyploc, bgLoc);	
 			//4.test mag freq value
 			double maxFreqVal = getMaxHypoMagFreqDistVal(hypoMagDistAtLoc );
 			if(init){//at init state all  freq value is 0

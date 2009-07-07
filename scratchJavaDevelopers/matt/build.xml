@@ -63,6 +63,12 @@
             <classpath refid="classpath"/>
         </javac>       
         
+    	<copy todir="${dir.classes}">
+			<fileset dir="${dir.src}/" >
+	            <include name="data/"/>
+	        </fileset>
+    		<fileset dir="${dir.src}" includes="log4j.properties"/>
+		 </copy>
     </target>
 
    <target name="package"
@@ -79,14 +85,10 @@
 	<!-- <fileset dir="${dir.src}" includes="data/mattg_test/"/> -->	
 	<target name="unit_test" depends="compile" description="unit tests  ">	
 		<copy todir="${dir.classes}">
-			<fileset dir="${dir.src}" includes="log4j.properties"/>
+			
 			<fileset dir="${dir.src}" includes="org/opensha/sha/earthquake/rupForecastImpl/step/AllCal96ModelDaily.txt"/>
 		 </copy>
-		<copy todir=".">
-			<fileset dir="${dir.src}/" >
-	            <include name="data/"/>
-	        </fileset>
-		 </copy>
+		
 		
 		<junit printsummary="true">
 			<formatter type="plain" usefile="false"/>

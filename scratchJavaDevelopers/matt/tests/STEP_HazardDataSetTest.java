@@ -7,9 +7,9 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.imr.AttenuationRelationship;
 
+import scratchJavaDevelopers.matt.calc.RegionDefaults;
 import scratchJavaDevelopers.matt.calc.STEP_HazardDataSet;
 import scratchJavaDevelopers.matt.calc.STEP_main;
 
@@ -105,7 +105,7 @@ public class STEP_HazardDataSetTest  extends TestCase {
 		//logger.info("testCalcStepProbValues " );
 		SitesInGriddedRectangularRegion region = step_HazardDataSet.getDefaultRegion();//
 		//logger.info("region.getNumGridLocs " + region.getNumGridLocs());
-		double[] bgVals = step_HazardDataSet.getBGVals(region.getNumGridLocs(),step_HazardDataSet.STEP_BG_FILE_NAME);
+		double[] bgVals = step_HazardDataSet.getBGVals(region , RegionDefaults.backgroundHazardPath);
 		double[] stepBothProbVals = step_HazardDataSet.calcStepProbValues(region);
 		//logger.info("stepBothProbVals "  + stepBothProbVals.length);		
 		int num = stepBothProbVals.length;
@@ -120,11 +120,11 @@ public class STEP_HazardDataSetTest  extends TestCase {
 		}
 	}
 	
-	public void testSTEP_AftershockForecastListFromFile(){
+	//public void testSTEP_AftershockForecastListFromFile(){
 	  //stepAftershockList
 	  //Object stepAftershockListObj = step_HazardDataSet.readSTEP_AftershockForecastListFromFile();
 	  //logger.info("stepAftershockListObj " + stepAftershockListObj.getClass());
-	}
+	//}
 
 
 }

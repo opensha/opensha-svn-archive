@@ -1,10 +1,10 @@
 package scratchJavaDevelopers.matt.calc;
 
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
@@ -12,21 +12,16 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
-import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.WarningParameterAPI;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.step.STEP_BackSiesDataAdditionObject;
-import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
-import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.depricated.BA_2006_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
@@ -39,8 +34,8 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	private boolean willSiteClass = true;
 	//private boolean willSiteClass = false;
 	private AttenuationRelationship attenRel;
-	public static final String STEP_BG_FILE_NAME = RegionDefaults.backgroundHazardPath;
-	private static final String STEP_HAZARD_OUT_FILE_NAME = RegionDefaults.outputHazardPath;
+	//public  String STEP_BG_FILE_NAME = RegionDefaults.backgroundHazardPath;
+	//private static final String STEP_HAZARD_OUT_FILE_NAME = RegionDefaults.outputHazardPath;
 	public static final double IML_VALUE = Math.log(0.126);
 	private static final double SA_PERIOD = 1;
 	public static final String STEP_AFTERSHOCK_OBJECT_FILE = RegionDefaults.STEP_AftershockObjectFile;
@@ -86,43 +81,55 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 
 		//3.
 		SitesInGriddedRectangularRegion region = getDefaultRegion();//
-
+//		System.out.println("getNumGridLocs=" + region.getNumGridLocs());	
+//		for(Location loc:region.getGridLocationsList()){
+//			System.out.println("loc=" +loc.getLatitude() + "," + loc.getLongitude());
+//		}
 		
 		//4. calc probability values
 		double[] stepBothProbVals = calcStepProbValues(region);
 		
 		//5. output
 		createFile(stepBothProbVals,region);
+		
 		//5.1. backup aftershocks
 		ArrayList stepAftershockList= stepMain.getSTEP_AftershockForecastList();
-		//saving the STEP_Aftershock list object to the file
+		//saving the STEP_Aftershock list object to the file, why not do it in stepMain?
 		synchronized(stepAftershockList){
 			FileUtils.saveObjectInFile(STEP_AFTERSHOCK_OBJECT_FILE, stepAftershockList);
 		}
 	}
 
 
+	/**
+	 * 
+	 */
 	public void runStepmain() {
 		stepMain = new STEP_main();
 		//1. step main
-		stepMain.calc_STEP();
-		
+		stepMain.calc_STEP();		
 	}
 
+	/**
+	 * @return
+	 */
 	public SitesInGriddedRectangularRegion getDefaultRegion() {
 		try {
 			//?? slightly different from the RegionDefaults, 32.5,42.2,-124.8,-112.4,0.1
 			return new SitesInGriddedRectangularRegion(RegionDefaults.searchLatMin, RegionDefaults.searchLatMax,
 					RegionDefaults.searchLongMin, RegionDefaults.searchLongMax,
 					RegionDefaults.gridSpacing);
-		} catch (RegionConstraintException e) {
-			// TODO Auto-generated catch block
+		} catch (RegionConstraintException e) {			
 			e.printStackTrace();
 		}
 		return null;
 	}
 
-	public double[] calcStepProbValues(SitesInGriddedRectangularRegion region ) {	
+	/**
+	 * @param region
+	 * @return
+	 */
+	public double[] calcStepProbValues(SitesInGriddedRectangularRegion region ) {
 		region.addSiteParams(attenRel.getSiteParamsIterator());
 		//getting the Attenuation Site Parameters Liat
 		ListIterator it = attenRel.getSiteParamsIterator();
@@ -141,8 +148,9 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 			region.setDefaultSiteParams(defaultSiteParams);
 			region.setSiteParamsForRegionFromServlet(true);
 		}
-
-		double[] bgVals = getBGVals(region.getNumGridLocs(),STEP_BG_FILE_NAME);
+		//read background hazard values from file
+		double[] bgVals = getBGVals(region,RegionDefaults.backgroundHazardPath);
+		//get hazards values from new events
 		double[] probVal = this.getProbVals(attenRel, region, stepMain.getSourceList());
 		//combining the backgound and Addon dataSet and wrinting the result to the file
 		STEP_BackSiesDataAdditionObject addStepData = new STEP_BackSiesDataAdditionObject();
@@ -150,6 +158,9 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 
 	}
 
+	/**
+	 * 
+	 */
 	public void createShakeMapAttenRelInstance(){
 		// make the imr
 		//attenRel = new ShakeMap_2003_AttenRel(this);
@@ -158,8 +169,8 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 		//attenRel.setIntensityMeasure(((ShakeMap_2003_AttenRel)attenRel).PGA_Param.NAME);
 		//attenRel.setIntensityMeasure(((ShakeMap_2003_AttenRel)attenRel).SA_Param.NAME, SA_PERIOD);
 		attenRel.setParamDefaults();
-	      attenRel.setIntensityMeasure(SA_Param.NAME);
-	      attenRel.getParameter(PeriodParam.NAME).setValue(SA_PERIOD);
+	    attenRel.setIntensityMeasure(SA_Param.NAME);
+	    attenRel.getParameter(PeriodParam.NAME).setValue(SA_PERIOD);
 //		attenRel.setIntensityMeasure(((BA_2006_AttenRel)attenRel).SA_Param.NAME, SA_PERIOD);
 
 	}
@@ -178,11 +189,11 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 		int numLocations = locList.size();
 
 		try{
-			FileWriter fr = new FileWriter(STEP_HAZARD_OUT_FILE_NAME);
+			FileWriter fr = new FileWriter(RegionDefaults.outputHazardPath);
 			for(int i=0;i<numLocations;++i){
 				Location loc = locList.getLocationAt(i);
 				// System.out.println("Size of the Prob ArrayList is:"+size);
-				fr.write(locFormat.format(loc.getLatitude())+"    "+locFormat.format(loc.getLongitude())+"      "+convertToProb(probVals[i])+"\n");
+				fr.write(locFormat.format(loc.getLatitude())+"    " + locFormat.format(loc.getLongitude())+"      "+convertToProb(probVals[i])+"\n");
 			}
 			fr.close();
 		}catch(IOException ee){
@@ -197,28 +208,50 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	/**
 	 * returns the prob for the file( fileName)
 	 * 
+	 * !! need consider the order of the records--location should match those
+	 * in grid loactions and the hypMagFreqLocs in SETP_main
+	 * 
 	 * @param fileName : Name of the file from which we collect the values
 	 */
-	public double[] getBGVals(int numSites,String fileName){
-		double[] vals = new double[numSites];
+	public double[] getBGVals(SitesInGriddedRectangularRegion region,String fileName){
+		BackGroundRatesGrid bgGrid = stepMain.getBgGrid();
+		STEP_main.log("numSites =" + region.getNumGridLocs() + " fileName=" + fileName);		
+		double[] vals = new double[region.getNumGridLocs()];	
+		 HashMap<String,Double> valuesMap = new  HashMap<String,Double>();
 		try{
 			ArrayList fileLines = FileUtils.loadFile(fileName);
 			ListIterator it = fileLines.listIterator();
-			int i=0;
+			//STEP_main.log("fileLines.size() =" + fileLines.size());
+			//int i=0;
 			while(it.hasNext()){
+				//if(i >= numSites) break;
 				StringTokenizer st = new StringTokenizer((String)it.next());
-				st.nextToken();
-				st.nextToken();
+				String latstr =st.nextToken().trim();
+				String lonstr =st.nextToken().trim();
 				String val =st.nextToken().trim();
+				// get lat and lon
+				double lon =  Double.parseDouble(lonstr );
+				double lat =  Double.parseDouble(latstr);
+				//STEP_main.log("lat =" + lat + " lon=" + lon);
+				Location loc = new Location(lat,lon,BackGroundRatesGrid.DEPTH);
 				double temp =0;
 				if(!val.equalsIgnoreCase("NaN")){
 					temp=(new Double(val)).doubleValue();
-					vals[i++] = convertToRate(temp);
-				}
-				else{
+					//vals[i++] = convertToRate(temp);
+					//vals[index] = convertToRate(temp);
+				} else{
 					temp=(new Double(Double.NaN)).doubleValue();
-					vals[i++] = convertToRate(temp);
+					//vals[i++] = convertToRate(temp);
+					//vals[index] = convertToRate(temp);
 				}
+				valuesMap.put(bgGrid.getKey4Location(loc), temp);
+				
+			}
+			//convert to an array in the order of the region grids locations
+			for(int i = 0; i < region.getNumGridLocs(); i++){
+				Location loc = region.getGridLocation(i);
+				vals[i] = valuesMap.get(bgGrid.getKey4Location(loc));
+				STEP_main.log(">> vals[" + i + "] =" + vals[i]  );
 			}
 		}catch(Exception e){
 			e.printStackTrace();
@@ -227,15 +260,21 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	}
 
 
+	/**
+	 * @param prob
+	 * @return
+	 */
 	private double convertToRate(double prob){
 		return (-1*Math.log(1-prob)/RegionDefaults.forecastLengthDays);
 	}
+	
 	/**
 	 * HazardCurve Calculator for the STEP
 	 * @param imr : ShakeMap_2003_AttenRel for the STEP Calculation
 	 * @param region
 	 * @param eqkRupForecast : STEP Forecast
 	 * @returns the ArrayList of Probability values for the given region
+	 *           --in the same order of the region grids
 	 */
 	public double[] getProbVals(AttenuationRelationship imr,SitesInGriddedRectangularRegion region,
 			ArrayList sourceList){
@@ -258,8 +297,8 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 			int numSourcesSkipped =0;
 			long startCalcTime = System.currentTimeMillis();
 
-
-			for(int j=0;j<numSites;++j){
+			for(int j=0; j< numSites;++j){
+				sourceUsed = false;
 				double hazVal =1;
 				double condProb =0;
 				Site site = region.getSite(j);
@@ -274,10 +313,8 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 
 				// loop over sources
 				for(i=0;i < numSources ;i++) {
-
 					// get the ith source
 					ProbEqkSource source = (ProbEqkSource)sourceList.get(i);
-
 					// compute it's distance from the site and skip if it's too far away
 					distance = source.getMinDistance(region.getSite(j));
 					if(distance > MAX_DISTANCE){
@@ -285,7 +322,6 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 						//update progress bar for skipped ruptures
 						continue;
 					}
-
 					// indicate that a source has been used
 					sourceUsed = true;
 					hazVal *= (1.0 - imr.getTotExceedProbability((PointEqkSource)source,IML_VALUE));
@@ -295,11 +331,10 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 				if(sourceUsed) {
 					//System.out.println("HazVal:"+hazVal);
 					hazVal = 1-hazVal;
-				}
-				else
+				} else {
 					hazVal = 0.0;
+				}
 				//System.out.println("HazVal: "+hazVal);
-
 				probVals[j]=this.convertToRate(hazVal);
 			}
 		}catch(Exception e){
