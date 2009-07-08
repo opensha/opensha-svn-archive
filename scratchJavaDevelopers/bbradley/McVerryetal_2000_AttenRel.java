@@ -574,7 +574,7 @@ public class McVerryetal_2000_AttenRel
     if(siteType.equals(SITE_TYPE_C)) {
     	deltaC=1.0;
     }
-    else if(siteType.equals(SITE_TYPE_C)) {
+    else if(siteType.equals(SITE_TYPE_D)) {
 	   	deltaD=1.0;
 	}
 
