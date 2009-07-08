@@ -14,7 +14,7 @@ import java.rmi.Naming;
 
 public class RegisterRemoteDisaggregationCalcFactory {
 
-  public final static String registrationName = "rmi://gravity.usc.edu:1099/DisaggregationCalc_FactoryServer";
+  public final static String registrationName = "rmi://opensha.usc.edu:1099/DisaggregationCalc_FactoryServer";
 
 
    public static void main(String[] args) {

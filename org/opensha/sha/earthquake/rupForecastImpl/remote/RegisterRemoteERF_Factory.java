@@ -12,7 +12,7 @@ import java.rmi.Naming;
  * @version 1.0
  */
 public class RegisterRemoteERF_Factory {
- public final static String registrationName = "rmi://gravity.usc.edu:1099/ERF_FactoryServer";
+ public final static String registrationName = "rmi://opensha.usc.edu:1099/ERF_FactoryServer";
  public static void main(String[] args) {
    try {
      // register the ERF Factory with the naming service
