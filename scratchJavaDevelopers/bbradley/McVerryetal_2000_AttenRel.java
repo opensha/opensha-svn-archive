@@ -439,7 +439,7 @@ public class McVerryetal_2000_AttenRel
 	    constraint.addString(FLT_TYPE_INTERFACE);
 	    constraint.addString(FLT_TYPE_DEEP_SLAB);
 	    constraint.setNonEditable();
-	    fltTypeParam = new FaultTypeParam(constraint,FLT_TYPE_STRIKE_SLIP);
+	    fltTypeParam = new FaultTypeParam(constraint,FLT_TYPE_REVERSE);
 
 	    eqkRuptureParams.clear();
 	    eqkRuptureParams.addParameter(magParam);
