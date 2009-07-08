@@ -1081,7 +1081,7 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast  {
 		SitesInGriddedRectangularRegion region;
 		try {	
 			//set the grid precision first
-			SitesInGriddedRectangularRegion.setGridPrecision(RegionDefaults.gridPrecision);
+//			SitesInGriddedRectangularRegion.setGridPrecision(RegionDefaults.gridPrecision);
 			region = new  SitesInGriddedRectangularRegion(RegionDefaults.searchLatMin,
 					RegionDefaults.searchLatMax,
 					RegionDefaults.searchLongMin,RegionDefaults.searchLongMax,
