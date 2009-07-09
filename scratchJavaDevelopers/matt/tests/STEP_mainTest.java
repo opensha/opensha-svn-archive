@@ -14,6 +14,7 @@ import org.opensha.commons.data.LocationList;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
+import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratchJavaDevelopers.matt.calc.RegionDefaults;
@@ -33,7 +34,7 @@ import scratchJavaDevelopers.matt.calc.STEP_main;
  *
  */
 public class STEP_mainTest extends TestCase {
-	public static String cubeFilePath_TEST =  RegionDefaults.TEST_Path + "/merge_test.nts";
+	public static String cubeFilePath_TEST =  RegionDefaults.TEST_Path + "/events_nz_test.nts";
 	public static String cubeFilePath_TEST_1 =  RegionDefaults.TEST_Path + "/merge_landers.nts";
 
 	private static Logger logger = Logger.getLogger(STEP_mainTest.class);
@@ -44,13 +45,14 @@ public class STEP_mainTest extends TestCase {
 	}
 
 	protected void setUp() {
-		File datadir = new File(RegionDefaults.TEST_Path);
-		log("data dir  "  + datadir.getAbsolutePath() );
+		RegionDefaults.setRegion(RegionDefaults.REGION_NZ);		
+		//File datadir = new File(RegionDefaults.TEST_Path);
+		//log("data dir  "  + datadir.getAbsolutePath() );
 		stepmain = new STEP_main();
-		stepmain.setEventsFilePath(RegionDefaults.cubeFilePath);
+		stepmain.setEventsFilePath(cubeFilePath_TEST);
+		//stepmain.setEventsFilePath(RegionDefaults.cubeFilePath);
 		//set boundary to nz
-		RegionDefaults.setBoundary(RegionDefaults.searchLatMin_NZ, RegionDefaults.searchLatMax_NZ,
-				RegionDefaults.searchLongMin_NZ, RegionDefaults.searchLongMax_NZ);
+		
 	}
 
 	public static  void log(String string) {
@@ -66,10 +68,10 @@ public class STEP_mainTest extends TestCase {
 	 * merge_landers.nts has 3538 events in it with the first one being a M7.3  event.
 	 * 
 	 */
-	public void testLoadEventslander() {
-		stepmain.setEventsFilePath(cubeFilePath_TEST_1);
+	public void testLoadEvents() {		
 		//this event are for california
 		RegionDefaults.setRegion(RegionDefaults.REGION_CF);
+		stepmain.setEventsFilePath(cubeFilePath_TEST_1);
 		//double strike1=  -1.0;
 		try {
 			//set test event file path
@@ -98,6 +100,18 @@ public class STEP_mainTest extends TestCase {
 		
 	}
 
+	
+	/**
+	 * test the loadBgGrid method
+	 */
+	public void testLoadBgGrid() {
+		ArrayList<HypoMagFreqDistAtLoc> hypList = stepmain.loadBgGrid();
+		assertEquals("eqkRupList.size is 22400", 22400, hypList.size()   );
+		//check locations
+		assertHypoMagFreqDist(hypList, true);
+	}
+	
+	
 	/**
 	 * test all the load process functions as in the 
 	 * calc_STEP method in the STEP_main class
@@ -105,19 +119,16 @@ public class STEP_mainTest extends TestCase {
 	 * to do separate test for each method in STEP_main
 	 */
 	public void testCalc_STEP() {
-		//1. load events
-		ObsEqkRupList newObsEqkRuptureList = tstLoadEvents();
 		//double strike1=  -1.0;
 		try {
+			
+			ObsEqkRupList   newObsEqkRuptureList = stepmain.loadNewEvents();
+			
 			//2. test load background
-			HashMap<String,HypoMagFreqDistAtLoc> hypList = stepmain.loadBgGrid();
-
-			//log("grid " + stepmain.getBgGrid().getHypoMagFreqDist().size());
-			log("hypList " + hypList.size());
-			//test size
-			assertTrue("hypList should not be empty", hypList.size() > 0);
+			ArrayList<HypoMagFreqDistAtLoc> hypList = stepmain.loadBgGrid();
+		
 			//hypList just initialized
-			tstHypoMagFreqDist(hypList, true);
+			assertHypoMagFreqDist(hypList, true);
 
 			//3. test process aftershocks
 			tstProcessAfterShocks(newObsEqkRuptureList);
@@ -125,7 +136,7 @@ public class STEP_mainTest extends TestCase {
 			//4.test forcasting
 			tstProcessForcast(hypList);
 			//test Mag Freq again, and freq value may be >0
-			tstHypoMagFreqDist(hypList , false);
+			assertHypoMagFreqDist(hypList , false);
 
 		}
 		catch(Exception e)
@@ -135,38 +146,32 @@ public class STEP_mainTest extends TestCase {
 		}
 	}
 
-	/**
-	 *  merge.nts is the input catalog as defined in RegionDefaults.  
-	 *  This has only one M6.7 event in it.  
-	 * load new events
-	 * this can be tested separately
-	 * @return
-	 */
-	private ObsEqkRupList tstLoadEvents() {
-		//double strike1=  -1.0;
-		try {
-			//set test event file path
-			//stepmain.setEventsFilePath(cubeFilePathassert);			
-			ObsEqkRupList   eqkRupList = stepmain.loadNewEvents();
-			assertEquals("eqkRupList should have 3538 item",3538, eqkRupList.size() );
-			//assertTrue("Should throw Exception with strike : " + strike1,false);
-			ListIterator <ObsEqkRupture> newIt = eqkRupList.listIterator ();
-			ObsEqkRupture newEvent;
-			int index = 0;
-			while (newIt.hasNext()) {
-				newEvent = (ObsEqkRupture) newIt.next();
-				if(index++ == 0){
-					assertTrue(newEvent.getMag() == 7.3);
-				}
-			}
-			return eqkRupList;
+    //createStepSources
+	public void testCreateStepSources() {
+		ArrayList<HypoMagFreqDistAtLoc> hypList = stepmain.loadBgGrid();	
+		ObsEqkRupList   newObsEqkRuptureList = stepmain.loadNewEvents();		
+		stepmain.processAfterShocks(stepmain.getCurrentTime(), newObsEqkRuptureList);
+		stepmain.processForcasts(hypList );			
+		stepmain.createStepSources(hypList);
+		ArrayList<PointEqkSource> sourceList = stepmain.getSourceList();
+		assertTrue("sourceList smaller than hypList", sourceList.size() <=  hypList.size());
+		log("sourceList " + sourceList.size());
+		for(PointEqkSource src:sourceList){
+			assertTrue("sourceList smaller than hypList", src.getRupture(0).getProbability() > 0d);
 		}
-		catch(Exception e)
-		{
-			// System.err.println("Exception thrown as Expected:  "+e);
-			e.printStackTrace();
-		}
-		return null;
+		
+	}
+	
+	//isObsEqkRupEventEqual
+	public void testIsObsEqkRupEventEqual() {
+		ObsEqkRupList   newObsEqkRuptureList = stepmain.loadNewEvents();
+		
+		assertTrue("event 1 & 2 equal",  stepmain.isObsEqkRupEventEqual(newObsEqkRuptureList.getObsEqkRuptureAt(0), newObsEqkRuptureList.getObsEqkRuptureAt(1)));
+		
+		assertFalse("event 1 & 3 not equal", 
+				stepmain.isObsEqkRupEventEqual(newObsEqkRuptureList.getObsEqkRuptureAt(0), newObsEqkRuptureList.getObsEqkRuptureAt(2)));
+		
+		
 	}
 
 	/**
@@ -179,14 +184,14 @@ public class STEP_mainTest extends TestCase {
 		try {
 			List stepAfterShocks = stepmain.getSTEP_AftershockForecastList();
 			int numBefore = stepAfterShocks.size();
-			log("1 stepAfterShocks " + stepAfterShocks.size());
+			//log("1 numBefore " + numBefore);
 
 			stepmain.processAfterShocks(stepmain.getCurrentTime(), newObsEqkRuptureList);
 			stepAfterShocks = stepmain.getSTEP_AftershockForecastList();
 			int numAfter = stepAfterShocks.size();
-			log("2 stepAfterShocks " + stepAfterShocks.size());
+			//log("2 numAfter " + numAfter);
 
-			assertTrue("should be more stepAfterShocks after processing", numAfter >= numBefore);
+			assertTrue("should be more stepAfterShocks after processing", numAfter > numBefore);
 		}
 		catch(Exception e)
 		{
@@ -200,7 +205,7 @@ public class STEP_mainTest extends TestCase {
 	 * this need be run after eq events, bgGrid loaded, and aftershock processed
 	 * @return
 	 */
-	private void tstProcessForcast(HashMap<String,HypoMagFreqDistAtLoc>  hypList) {
+	private void tstProcessForcast(ArrayList<HypoMagFreqDistAtLoc>  hypList) {
 		//double strike1=  -1.0;
 		try {
 			//assertTrue(true);
@@ -214,7 +219,11 @@ public class STEP_mainTest extends TestCase {
 	}
 
 
-	private void tstHypoMagFreqDist(HashMap<String,HypoMagFreqDistAtLoc>  hypList, boolean init) {
+	/**
+	 * @param hypList
+	 * @param init
+	 */
+	private void assertHypoMagFreqDist(ArrayList<HypoMagFreqDistAtLoc>  hypList, boolean init) {
 		LocationList bgLocList = stepmain.getBgGrid().getEvenlyGriddedGeographicRegion().getGridLocationsList();
 		ArrayList<HypoMagFreqDistAtLoc> hypForecastList = stepmain.getBgGrid().getMagDistList();
 
@@ -224,25 +233,26 @@ public class STEP_mainTest extends TestCase {
 		// int asZoneSize = aftershockZoneList.size();
 		log("bgRegionSize " + bgRegionSize);
 		//2. test locations size
-		assertTrue(hypList.size() >= bgRegionSize);
+		assertEquals( "hypList has same size as bgLocList", bgRegionSize, hypList.size());
 
 		for(int k=0;k < bgRegionSize;++k){
 			Location bgLoc = bgLocList.getLocationAt(k);		    	 
-			log("loc index " + k);
-			log("bgLoc " + bgLoc.toString());		    	
+			//log("loc index " + k);
+			//log("bgLoc " + bgLoc.toString());		    	
 			HypoMagFreqDistAtLoc hypoMagDistAtLoc= hypList.get(k);
-			HypoMagFreqDistAtLoc hypoMagDistAtLocBG= hypForecastList.get(k);
-
-			Location hyploc= hypoMagDistAtLoc.getLocation();
-			 log("hyploc " + hyploc.toString());
-			//3. test locations equal
-			assertEquals("HypoMagFreqDistAtLoc and bgLocation must be the same", hyploc, bgLoc);	
-			//4.test mag freq value
-			double maxFreqVal = getMaxHypoMagFreqDistVal(hypoMagDistAtLoc );
-			if(init){//at init state all  freq value is 0
-				assertTrue(maxFreqVal == 0d);
-			}else{//value no longer 0, as some events added
-				assertTrue(maxFreqVal >= 0d);
+			if(hypoMagDistAtLoc != null){
+				Location hyploc= hypoMagDistAtLoc.getLocation();
+				 //log("hyploc " + hyploc.toString());
+				//3. test locations equal
+				assertEquals("HypoMagFreqDistAtLoc and bgLocation must be the same", hyploc, bgLoc);	
+				//4.test mag freq value
+				double maxFreqVal = getMaxHypoMagFreqDistVal(hypoMagDistAtLoc );
+				//log("maxFreqVal " + maxFreqVal);
+				if(init){//at init state all  freq value is 0
+					assertEquals(0d, maxFreqVal );
+				}else{//value no longer 0, as some events added
+					assertTrue(maxFreqVal >= 0d);
+				}
 			}
 		} 
 
@@ -258,13 +268,9 @@ public class STEP_mainTest extends TestCase {
 				double val = magFreqDist.getY(index);
 				if(val > maxVal){
 					maxVal = val;
-					//log("num " + num + " magindex " + index + " mag " + mag);
-					//log("val " + val);
 				}
-				//initial value = 0
-				// assertTrue(val == value);
 			}					  
-		}
+		}	
 		return maxVal;		
 	}
 }

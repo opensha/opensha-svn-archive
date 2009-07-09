@@ -79,7 +79,7 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 		//2. 
 		createShakeMapAttenRelInstance();
 
-		//3.
+		//3.why not use the region of STEP_main.bgGrid???
 		SitesInGriddedRectangularRegion region = getDefaultRegion();//
 //		System.out.println("getNumGridLocs=" + region.getNumGridLocs());	
 //		for(Location loc:region.getGridLocationsList()){
@@ -90,7 +90,7 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 		double[] stepBothProbVals = calcStepProbValues(region);
 		
 		//5. output
-		createFile(stepBothProbVals,region);
+		saveProbValues2File(stepBothProbVals,region);
 		
 		//5.1. backup aftershocks
 		ArrayList stepAftershockList= stepMain.getSTEP_AftershockForecastList();
@@ -115,7 +115,6 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	 */
 	public SitesInGriddedRectangularRegion getDefaultRegion() {
 		try {
-			//?? slightly different from the RegionDefaults, 32.5,42.2,-124.8,-112.4,0.1
 			return new SitesInGriddedRectangularRegion(RegionDefaults.searchLatMin, RegionDefaults.searchLatMax,
 					RegionDefaults.searchLongMin, RegionDefaults.searchLongMax,
 					RegionDefaults.gridSpacing);
@@ -149,9 +148,9 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 			region.setSiteParamsForRegionFromServlet(true);
 		}
 		//read background hazard values from file
-		double[] bgVals = getBGVals(region,RegionDefaults.backgroundHazardPath);
+		double[] bgVals = loadBgProbValues(region,RegionDefaults.backgroundHazardPath);
 		//get hazards values from new events
-		double[] probVal = this.getProbVals(attenRel, region, stepMain.getSourceList());
+		double[] probVal = this.clacProbVals(attenRel, region, stepMain.getSourceList());
 		//combining the backgound and Addon dataSet and wrinting the result to the file
 		STEP_BackSiesDataAdditionObject addStepData = new STEP_BackSiesDataAdditionObject();
 		return  addStepData.addDataSet(bgVals,probVal);
@@ -183,7 +182,7 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	 * @param probVals : Probablity values ArrayList for each Lat and Lon
 	 * @param fileName : File to create
 	 */
-	private void createFile(double[] probVals,SitesInGriddedRectangularRegion region){
+	private void saveProbValues2File(double[] probVals,SitesInGriddedRectangularRegion region){
 		int size = probVals.length;
 		LocationList locList = region.getGridLocationsList();
 		int numLocations = locList.size();
@@ -208,12 +207,12 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	/**
 	 * returns the prob for the file( fileName)
 	 * 
-	 * !! need consider the order of the records--location should match those
-	 * in grid loactions and the hypMagFreqLocs in SETP_main
+	 * number and order of locations should match those
+	 * in grid loactions and the hypMagFreqAtLocs in SETP_main
 	 * 
 	 * @param fileName : Name of the file from which we collect the values
 	 */
-	public double[] getBGVals(SitesInGriddedRectangularRegion region,String fileName){
+	public double[] loadBgProbValues(SitesInGriddedRectangularRegion region,String fileName){
 		BackGroundRatesGrid bgGrid = stepMain.getBgGrid();
 		STEP_main.log("numSites =" + region.getNumGridLocs() + " fileName=" + fileName);		
 		double[] vals = new double[region.getNumGridLocs()];	
@@ -245,13 +244,12 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 					//vals[index] = convertToRate(temp);
 				}
 				valuesMap.put(bgGrid.getKey4Location(loc), temp);
-				
 			}
 			//convert to an array in the order of the region grids locations
 			for(int i = 0; i < region.getNumGridLocs(); i++){
 				Location loc = region.getGridLocation(i);
 				vals[i] = valuesMap.get(bgGrid.getKey4Location(loc));
-				STEP_main.log(">> vals[" + i + "] =" + vals[i]  );
+				//STEP_main.log(">> vals[" + i + "] =" + vals[i]  );
 			}
 		}catch(Exception e){
 			e.printStackTrace();
@@ -276,7 +274,7 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	 * @returns the ArrayList of Probability values for the given region
 	 *           --in the same order of the region grids
 	 */
-	public double[] getProbVals(AttenuationRelationship imr,SitesInGriddedRectangularRegion region,
+	public double[] clacProbVals(AttenuationRelationship imr,SitesInGriddedRectangularRegion region,
 			ArrayList sourceList){
 
 		double[] probVals = new double[region.getNumGridLocs()];
