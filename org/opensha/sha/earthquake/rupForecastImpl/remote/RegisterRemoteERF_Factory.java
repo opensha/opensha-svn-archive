@@ -20,6 +20,7 @@ public class RegisterRemoteERF_Factory {
      RemoteERF_FactoryAPI erfServer = new RemoteERF_FactoryImpl();
      Naming.rebind(registrationName, erfServer);
      System.out.println("Registered ERF Factory Server as " + registrationName);
+     System.out.println("CWD: " + System.getProperty("user.dir"));
    }
    catch (Exception e) {
      System.out.println("exception in starting server");
