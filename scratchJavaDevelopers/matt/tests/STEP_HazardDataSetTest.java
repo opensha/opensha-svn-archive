@@ -105,7 +105,7 @@ public class STEP_HazardDataSetTest  extends TestCase {
 		//logger.info("testCalcStepProbValues " );
 		SitesInGriddedRectangularRegion region = step_HazardDataSet.getDefaultRegion();//
 		//logger.info("region.getNumGridLocs " + region.getNumGridLocs());
-		double[] bgVals = step_HazardDataSet.getBGVals(region , RegionDefaults.backgroundHazardPath);
+//		double[] bgVals = step_HazardDataSet.getBGVals(region , RegionDefaults.backgroundHazardPath);
 		double[] stepBothProbVals = step_HazardDataSet.calcStepProbValues(region);
 		//logger.info("stepBothProbVals "  + stepBothProbVals.length);		
 		int num = stepBothProbVals.length;
