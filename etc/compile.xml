@@ -50,6 +50,52 @@
 		<delete dir="${tmpdest}" failonerror="yes" verbose="no" />
 	</target>
 
+	<target name="resource">
+		<copy todir="${dest}/etc/img" overwrite="true">
+			<fileset dir="${src}/etc/img"/>
+		</copy>
 
+		<!--			ERF Resources				-->
+		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/" overwrite="true">
+			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/">
+				<include name="Frankel02/**"/>
+				<include name="Frankel96/**"/>
+				<include name="step/**"/>
+				<include name="WG02/singleIterationWithModes.OpenSHA.30yr.txt"/>
+				<include name="WGCEP_UCERF1/**"/>
+				<include name="YuccaMountain/**"/>
+				<include name="NSHMP_CEUS08/inputFiles/*.txt"/>
+			</fileset>
+		</copy>
+
+		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data" overwrite="true">
+			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data">
+				<include name="**/*.txt" />
+				<include name="**/*.xml" />
+				<include name="**/*.xls" />
+			</fileset>
+		</copy>
+
+		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/griddedSeis" overwrite="true">
+			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/griddedSeis">
+				<include name="**/*.txt" />
+				<include name="**/*.asc" />
+			</fileset>
+		</copy>
+
+		<!--			IMR Resources				-->
+		<copy todir="${dest}/org/opensha/sha/imr/attenRelImpl/" overwrite="true">
+			<fileset dir="${src}/org/opensha/sha/imr/attenRelImpl/">
+				<include name="**/*.txt" />
+			</fileset>
+		</copy>
+
+		<!--			Other Resources				-->
+		<copy todir="${dest}/org/opensha/refFaultParamDb/dao/db/" overwrite="true">
+			<fileset dir="${src}/org/opensha/refFaultParamDb/dao/db/">
+				<include name="*.dat" />
+			</fileset>
+		</copy>
+	</target>
 
 </project>
