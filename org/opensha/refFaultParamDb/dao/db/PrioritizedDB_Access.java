@@ -23,14 +23,14 @@ public class PrioritizedDB_Access implements DB_AccessAPI {
 	public static ArrayList<DB_AccessAPI> createDefaultAccessors() {
 		ArrayList<DB_AccessAPI> accessors = new ArrayList<DB_AccessAPI>();
 		// first priority is a direct connection
-//		try {
-//			accessors.add(new DB_ConnectionPool());
-//		} catch (Throwable t) {
-//			t.printStackTrace();
-//		}
+		try {
+			accessors.add(new DB_ConnectionPool());
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
 		// if that doesn't work we'll try the servlet to get around firewall issues
 		try {
-			accessors.add(DB_AccessAPI.dbConnection);
+			accessors.add(new ServerDB_Access());
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
@@ -54,7 +54,7 @@ public class PrioritizedDB_Access implements DB_AccessAPI {
 			}
 		}
 		if (dbAccess == null) {
-			throw new RuntimeException("No valid DB Accessors!");
+			throw new RuntimeException("No valid DB Accessors! (0/" + accessors.size() + " successful)");
 		}
 	}
 	
