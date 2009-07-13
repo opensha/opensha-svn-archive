@@ -77,7 +77,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
   private EqkRupForecastBaseAPI eqkRupForecast;
 
 
-  public EqkRupSelectorGuiBean(EqkRupForecastBaseAPI erf,ArrayList erfClassNames )throws InvocationTargetException{
+  public EqkRupSelectorGuiBean(EqkRupForecastBaseAPI erf, ArrayList<String> erfClassNames )throws InvocationTargetException{
     eqkRupturePanelFromERF = new EqkRuptureFromERFSelectorPanel(erf, erfClassNames);
     eqkRupForecast = erf;
     supportedERF_Classes = erfClassNames;

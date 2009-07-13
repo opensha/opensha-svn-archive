@@ -43,14 +43,15 @@ public class EvenlyGriddedRegionToKML {
 	
 	public static void main(String args[]) {
 		
-		LocationList corners = new LocationList();
-		corners.addLocation(new Location(34.19, -116.60));
-		corners.addLocation(new Location(35.33, -118.75));
-		corners.addLocation(new Location(34.13, -119.63));
-		corners.addLocation(new Location(33.00, -117.50));
-		EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(corners, 0.35);
+//		LocationList corners = new LocationList();
+//		corners.addLocation(new Location(34.19, -116.60));
+//		corners.addLocation(new Location(35.33, -118.75));
+//		corners.addLocation(new Location(34.13, -119.63));
+//		corners.addLocation(new Location(33.00, -117.50));
+//		EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(RegionSaver.createCyberShakeRegion().getRegionOutline(), 0.108);
+		EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(RegionSaver.createCyberShakeRegion().getRegionOutline(), 0.216);
 		
-		String fileName = "locs.kml";
+		String fileName = "/var/www/kml/locs_20.kml";
 		
 		try {
 			EvenlyGriddedRegionToKML grid2kml = new EvenlyGriddedRegionToKML(region, fileName);

@@ -15,25 +15,28 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_TestingRegion;
 import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
+import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
+import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
+import org.opensha.util.interpolation.BicubicInterpolation2D;
 
 public class NewWillsMap {
 	
 //	public static final String BIN_FILE = "/home/scec-00/kmilner/wills/out.bin";
 	public static final String BIN_FILE = "/home/kevin/OpenSHA/siteClass/out.bin";
 	
+	public static boolean bicubic = true;
+	
 	public static final int nx = 49867;
 	public static final int ny = 44016;
 	
-	public static final int short_bits = 2;
-	public static final long sizeOfX = nx * short_bits;
+	public static final int maxx = nx - 1;
+	public static final int maxy = ny - 1;
 	
 	public static final double spacing = 0.00021967246502752;
 	
-	public static final double xll_corner = -124.52997177169;
-	public static final double yll_corner = 32.441345502265;
+	public static final double minLon = -124.52997177169;
+	public static final double minLat = 32.441345502265;
 	// yul = yll + size * ny
-	public static final double yul_corner = yll_corner + spacing * ny;
-	public static final double xur_corner = xll_corner + spacing * nx;
 	
 	EvenlyGriddedGeographicRegion region;
 	
@@ -41,10 +44,10 @@ public class NewWillsMap {
 	
 	public NewWillsMap(EvenlyGriddedGeographicRegion region) {
 		this.region = region;
-		System.out.println("XLL: " + xll_corner);
-		System.out.println("YLL: " + yll_corner);
-		System.out.println("YUL: " + yul_corner);
-		System.out.println("XUR: " + xur_corner);
+//		System.out.println("XLL: " + xll_corner);
+//		System.out.println("YLL: " + yll_corner);
+//		System.out.println("YUL: " + yul_corner);
+//		System.out.println("XUR: " + xur_corner);
 	}
 	
 	private void calcOld() {
@@ -75,12 +78,127 @@ public class NewWillsMap {
 		System.out.println(val + " seconds");
 	}
 	
+	private static double calcBicubic(RandomAccessFile file, GeolocatedRectangularBinaryMesh2DCalculator calc, byte[] recordBuffer, ShortBuffer shortBuff, Location loc) throws IOException {
+		long index[] = calc.calcClosestLocationIndices(loc.getLatitude(), loc.getLongitude());
+		
+		boolean debug = true;
+		
+		Location indexLoc = calc.getLocationForPoint(index[0], index[1]);
+		
+		// true if my point is north of the mesh point
+		boolean above = loc.getLatitude() > indexLoc.getLatitude();
+		// true if my point is east of the mesh point
+		boolean right = loc.getLongitude() > indexLoc.getLongitude();
+		
+		int startY;
+		if (above)
+			startY = (int)index[1] - 1;
+		else
+			startY = (int)index[1] - 2;
+		
+		int startX;
+		if (right)
+			startX = (int)index[0] - 1;
+		else
+			startX = (int)index[0] - 2;
+		
+		double mat[][] = new double[4][4];
+		
+		String debugStr = "";
+		if (debug) {
+			debugStr += "***** LOC: " + loc;
+			debugStr += "\n***** INDEX LOC: " + indexLoc + "\n\n";
+		}
+		
+		boolean diff = false;
+		double firstVal = Double.MIN_VALUE; 
+		for (int x=0; x<4; x++) {
+			for (int y=0; y<4; y++) {
+				double val = getValAtPt(file, calc, recordBuffer, shortBuff, startX + x, startY + y);
+				if (firstVal == Double.MIN_VALUE)
+					firstVal = val;
+				else if (firstVal != val)
+					diff = true;
+				mat[x][y] = val;
+				if (debug)
+					debugStr += val + " ";
+			}
+			if (debug) {
+				debugStr += "\n\n";
+			}
+		}
+		
+		if (!diff)
+			return firstVal;
+		
+		// now do a no-nan sweep
+		for (int x=0; x<4; x++) {
+			for (int y=0; y<4; y++) {
+				double val = mat[x][y];
+				if (val < 0) {
+					return -9999;
+				}
+			}
+		}
+		
+		BicubicInterpolation2D interp = new BicubicInterpolation2D(mat);
+		
+		double yDiff;
+		if (above)
+			yDiff = (loc.getLatitude() - indexLoc.getLatitude()) / spacing;
+		else
+			yDiff = (indexLoc.getLatitude() - loc.getLatitude()) / spacing;
+		
+		double xDiff;
+		if (right)
+			xDiff = (loc.getLongitude() - indexLoc.getLongitude()) / spacing;
+		else
+			xDiff = (indexLoc.getLongitude() - loc.getLongitude()) / spacing;
+		
+		if (debug)
+			System.out.println(debugStr + xDiff + " " + yDiff);
+		
+		double retVal = interp.eval(xDiff, yDiff);
+		
+		if (debug)
+			System.out.println("Ret Val: " + retVal + "\n\n");
+		
+		return retVal;
+	}
+	
+	private static int getValAtPt(RandomAccessFile file, GeolocatedRectangularBinaryMesh2DCalculator calc, byte[] recordBuffer, ShortBuffer shortBuff, int x, int y) throws IOException {
+		if (x < 0)
+			x = 0;
+		else if (x > maxx)
+			x = maxx;
+		if (y < 0)
+			y = 0;
+		else if (y > maxy)
+			y = maxy;
+		
+		long seek = calc.calcFileIndex(x, y);
+		
+		file.seek(seek);
+		file.read(recordBuffer);
+		return shortBuff.get(0);
+	}
+	
 	private void calcNew() throws IOException {
-//		FileWriter fw = new FileWriter("/tmp/newXYZ.txt");
+		boolean writeXYZ = true;
+		FileWriter fw = null;
+		
+		if (writeXYZ)
+			fw = new FileWriter("/tmp/newXYZ.txt");
 		
 		int num = region.getNumGridLocs();
 		
 		RandomAccessFile file = new RandomAccessFile(new File(BIN_FILE), "r");
+		
+		GeolocatedRectangularBinaryMesh2DCalculator calc = new GeolocatedRectangularBinaryMesh2DCalculator(
+				BinaryMesh2DCalculator.TYPE_SHORT,nx, ny, minLat, minLon, spacing);
+		
+		calc.setStartBottom(false);
+		calc.setStartLeft(true);
 		
 		long start = System.currentTimeMillis();
 		int setVals = 0;
@@ -96,56 +214,48 @@ public class NewWillsMap {
 		for (int i=0; i<num; i++) {
 			Location loc = region.getGridLocation(i);
 			
-			if (loc.getLatitude() < yll_corner || loc.getLatitude() > yul_corner || loc.getLongitude() < xll_corner
-					|| loc.getLongitude() > xur_corner) {
+			if (loc.getLatitude() < calc.getMinLat() || loc.getLatitude() > calc.getMaxLat()
+					|| loc.getLongitude() < calc.getMinLon() || loc.getLongitude() > calc.getMaxLon()) {
 //				if (i % modVal == 0)
 //					System.out.println("Skipping " + i + " for: " + loc.toString());
 				continue;
 			}
 			
-			long seek = getFilePosition(loc.getLatitude(), loc.getLongitude());
-			if (seek - prevSeek < 0)
-				negSeeks++;
-			else
-				posSeeks++;
-			prevSeek = seek;
-//			if (i % modVal == 0) {
-//				System.out.println("Seeking " + i + " to " + seek + " for " + loc.toString() + " pos: " + posSeeks + ", neg: " + negSeeks);
-//			}
-//			System.out.println("Seeking to " + seek);
+			double val;
 			
-			file.seek(seek);
-			file.read(recordBuffer);
-			int val = shortBuff.get(0);
+			if (bicubic) {
+				val = calcBicubic(file, calc, recordBuffer, shortBuff, loc);
+			} else {
+				long seek = calc.calcClosestLocationFileIndex(loc.getLatitude(), loc.getLongitude());
+				if (seek - prevSeek < 0)
+					negSeeks++;
+				else
+					posSeeks++;
+				prevSeek = seek;
+//				if (i % modVal == 0) {
+//					System.out.println("Seeking " + i + " to " + seek + " for " + loc.toString() + " pos: " + posSeeks + ", neg: " + negSeeks);
+//				}
+//				System.out.println("Seeking to " + seek);
+				
+				file.seek(seek);
+				file.read(recordBuffer);
+				val = shortBuff.get(0);
+			}
 			
 //			System.out.println(val);
 			if (val > 0) {
 				setVals++;
 //				fw.write(loc.getLongitude() + " " + loc.getLatitude() + " " + val + "\n");
-//				fw.write(loc.getLatitude() + " " + loc.getLongitude() + " " + val + "\n");
+				if (writeXYZ)
+					fw.write(loc.getLatitude() + " " + loc.getLongitude() + " " + val + "\n");
 			}
 //			System.out.println("Read: " + val);
 		}
 		long time = System.currentTimeMillis() - start;
 		System.out.println("Set " + setVals + "/" + num + " pos: " + posSeeks + ", neg: " + negSeeks);
 		printTime(time);
-//		fw.close();
-	}
-	
-	public static long getFilePosition(double lat, double lon) {
-		long x = getX(lon);
-		long y = getY(lat);
-		
-		long pos = (y * sizeOfX) + x * short_bits;
-		return pos;
-	}
-	
-	public static long getX(double lon) {
-		return (long)((lon - xll_corner) / spacing + 0.5);
-	}
-	
-	public static long getY(double lat) {
-		return (long)((yul_corner - lat) / spacing + 0.5);
+		if (writeXYZ)
+			fw.close();
 	}
 
 	/**

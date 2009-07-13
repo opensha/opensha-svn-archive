@@ -111,8 +111,15 @@ import org.opensha.commons.param.event.TimeSpanChangeListener;
  * @version    1.0
  */
 public class TimeSpan implements ParameterChangeListener, Serializable {
+	
+	
 
-    /** The name of this class, used for debug statements */
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1567318877618681307L;
+
+	/** The name of this class, used for debug statements */
     protected final static String C = "TimeSpan";
     
     public final static String XML_METADATA_NAME = "TimeSpan";

@@ -1694,7 +1694,7 @@ public class HazardCurveServerModeApplication extends JFrame
     if (erfGuiBean == null) {
       try {
         // create the ERF Gui Bean object
-        ArrayList erf_Classes = new ArrayList();
+        ArrayList<String> erf_Classes = new ArrayList<String>();
         //adding the RMI based ERF's to the application
         erf_Classes.add(RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME);
         erf_Classes.add(RMI_WGCEP_UCERF1_ERF_CLASS_NAME);
@@ -1712,7 +1712,7 @@ public class HazardCurveServerModeApplication extends JFrame
         erf_Classes.add(RMI_POINT2MULT_VSS_ERF_LIST_CLASS_NAME);
 
         erfGuiBean = new ERF_GuiBean(erf_Classes);
-        erfGuiBean.getParameter(erfGuiBean.ERF_PARAM_NAME).
+        erfGuiBean.getParameter(ERF_GuiBean.ERF_PARAM_NAME).
             addParameterChangeListener(this);
       }
       catch (InvocationTargetException e) {
@@ -1755,7 +1755,7 @@ public class HazardCurveServerModeApplication extends JFrame
     }
     if(erfRupSelectorGuiBean == null){
       // create the ERF Gui Bean object
-      ArrayList erf_Classes = new ArrayList();
+      ArrayList<String> erf_Classes = new ArrayList<String>();
 
       /**
        *  The object class names for all the supported Eqk Rup Forecasts
