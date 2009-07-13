@@ -45,7 +45,7 @@ public class GouletEtAl_2006_AttenRel extends BC_2004_AttenRel {
 //      (Math.pow(Math.exp(asRockStdDev),2)-Math.pow(tau, 2))+Math.pow(stdDevAF,2)+Math.pow(tau,2);
 	  double stdDev = Math.pow((bVal*Math.exp(asRockMean))/(Math.exp(asRockMean)+cVal)+1, 2)*
 	                  (Math.pow((asRockStdDev),2))+Math.pow(stdDevAF,2);
-		System.out.println("asRockMean="+asRockMean+"  asRockStdDev="+asRockStdDev+"  StdDev="+stdDev);
+//		System.out.println("asRockMean="+asRockMean+"  asRockStdDev="+asRockStdDev+"  StdDev="+stdDev);
 //	  return Math.sqrt(stdDev-0.3*0.3);
 	  return Math.sqrt(stdDev);
   }
