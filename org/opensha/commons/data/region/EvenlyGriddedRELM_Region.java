@@ -4,12 +4,11 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.util.FileUtils;
 
-import scratchJavaDevelopers.vipin.relm.CreateRELM_GriddedRegion;
+//import scratch.vipin.relm.*;
 
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
-import scratchJavaDevelopers.vipin.relm.*;
 
 /**
  * <p>Title: EvenlyGriddedRELM_Region.java </p>
