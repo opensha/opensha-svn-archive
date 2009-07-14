@@ -4,7 +4,7 @@ import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 
 import org.opensha.sha.earthquake.observedEarthquake.*;
 
-import scratchJavaDevelopers.matt.calc.SortAftershocks_Calc;
+import scratch.matt.calc.SortAftershocks_Calc;
 
 
 /**

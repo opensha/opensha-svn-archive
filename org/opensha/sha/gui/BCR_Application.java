@@ -64,11 +64,11 @@ import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
-import scratchJavaDevelopers.martinez.BenefitCostCalculator;
-import scratchJavaDevelopers.martinez.EALCalculator;
-import scratchJavaDevelopers.martinez.VulnerabilityModels.VulnerabilityModel;
-import scratchJavaDevelopers.martinez.beans.BenefitCostBean;
-import scratchJavaDevelopers.martinez.beans.GuiBeanAPI;
+import scratch.martinez.BenefitCostCalculator;
+import scratch.martinez.EALCalculator;
+import scratch.martinez.VulnerabilityModels.VulnerabilityModel;
+import scratch.martinez.beans.BenefitCostBean;
+import scratch.martinez.beans.GuiBeanAPI;
 
 
 

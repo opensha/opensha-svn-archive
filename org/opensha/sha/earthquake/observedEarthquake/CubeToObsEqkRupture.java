@@ -9,7 +9,7 @@ import java.util.GregorianCalendar;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.util.FileUtils;
 
-import scratchJavaDevelopers.matt.calc.RegionDefaults;
+import scratch.matt.calc.RegionDefaults;
 
 
 /**

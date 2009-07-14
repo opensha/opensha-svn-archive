@@ -70,8 +70,8 @@ import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.util.SiteTranslator;
 
-import scratchJavaDevelopers.kevin.XMLSaver.AttenRelSaver;
-import scratchJavaDevelopers.kevin.XMLSaver.ERFSaver;
+import scratch.kevin.XMLSaver.AttenRelSaver;
+import scratch.kevin.XMLSaver.ERFSaver;
 
 public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	

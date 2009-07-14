@@ -28,7 +28,7 @@ import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 import org.opensha.nshmp.sha.data.api.DataGeneratorAPI_UHS;
 import org.opensha.nshmp.util.GlobalConstants;
 
-import scratchJavaDevelopers.martinez.util.BatchProgress;
+import scratch.martinez.util.BatchProgress;
 
 /**
  * <p>Title: DataGenerator_UHS</p>

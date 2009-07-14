@@ -91,12 +91,12 @@ import org.opensha.sha.gui.beans.TimeSpanGuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBeanAPI;
 import org.opensha.sha.gui.beans.EqkRuptureFromERFSelectorPanel;
 
-import scratchJavaDevelopers.martinez.BenefitCostCalculator;
-import scratchJavaDevelopers.martinez.EALCalculator;
-import scratchJavaDevelopers.martinez.LossCurveCalculator;
-import scratchJavaDevelopers.martinez.VulnerabilityModels.VulnerabilityModel;
-import scratchJavaDevelopers.martinez.beans.GuiBeanAPI;
-import scratchJavaDevelopers.martinez.beans.VulnerabilityBean;
+import scratch.martinez.BenefitCostCalculator;
+import scratch.martinez.EALCalculator;
+import scratch.martinez.LossCurveCalculator;
+import scratch.martinez.VulnerabilityModels.VulnerabilityModel;
+import scratch.martinez.beans.GuiBeanAPI;
+import scratch.martinez.beans.VulnerabilityBean;
 
 
 

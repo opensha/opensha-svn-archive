@@ -35,8 +35,8 @@ import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.imr.AttenuationRelationship;
 
-import scratchJavaDevelopers.kevin.XMLSaver.AttenRelSaver;
-import scratchJavaDevelopers.kevin.XMLSaver.ERFSaver;
+import scratch.kevin.XMLSaver.AttenRelSaver;
+import scratch.kevin.XMLSaver.ERFSaver;
 
 public class HazardCurveGUI extends JFrame implements ActionListener, ListSelectionListener {
 	

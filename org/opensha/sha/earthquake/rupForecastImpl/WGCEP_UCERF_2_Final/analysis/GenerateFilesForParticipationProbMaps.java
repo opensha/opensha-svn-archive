@@ -25,7 +25,7 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
-import scratchJavaDevelopers.vipin.relm.RELM_ERF_ToGriddedHypoMagFreqDistForecast;
+import scratch.vipin.relm.RELM_ERF_ToGriddedHypoMagFreqDistForecast;
 
 /**
  * It generates the files from making Probability Participation Maps for UCERF2 report.

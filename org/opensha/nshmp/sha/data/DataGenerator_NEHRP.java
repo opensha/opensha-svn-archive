@@ -27,8 +27,8 @@ import org.opensha.nshmp.sha.data.api.DataGeneratorAPI_NEHRP;
 import org.opensha.nshmp.sha.data.calc.FaFvCalc;
 import org.opensha.nshmp.util.GlobalConstants;
 
-import scratchJavaDevelopers.martinez.beans.BatchLocationBean;
-import scratchJavaDevelopers.martinez.util.BatchProgress;
+import scratch.martinez.beans.BatchLocationBean;
+import scratch.martinez.util.BatchProgress;
 
 /**
  * <p>Title: DataGenerator_NEHRP</p>

@@ -27,7 +27,7 @@ import org.opensha.nshmp.sha.calc.HazardCurveCalculator;
 import org.opensha.nshmp.sha.data.api.DataGeneratorAPI_HazardCurves;
 import org.opensha.nshmp.util.GlobalConstants;
 
-import scratchJavaDevelopers.martinez.util.BatchProgress;
+import scratch.martinez.util.BatchProgress;
 
 /**
  * <p>Title: DataGenerator_HazardCurves</p>

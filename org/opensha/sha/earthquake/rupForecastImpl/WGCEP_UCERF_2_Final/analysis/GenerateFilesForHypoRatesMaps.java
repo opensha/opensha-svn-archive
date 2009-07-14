@@ -14,7 +14,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_Adjustable
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 
-import scratchJavaDevelopers.vipin.relm.RELM_ERF_ToGriddedHypoMagFreqDistForecast;
+import scratch.vipin.relm.RELM_ERF_ToGriddedHypoMagFreqDistForecast;
 
 /**
  * This class generates Statewide Rates files that are used to plot Statewide maps.

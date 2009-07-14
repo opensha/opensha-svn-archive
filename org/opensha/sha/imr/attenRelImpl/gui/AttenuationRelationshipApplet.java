@@ -37,9 +37,9 @@ import org.opensha.sha.gui.infoTools.*;
 import org.opensha.sha.imr.attenRelImpl.*;
 import org.opensha.sha.imr.attenRelImpl.depricated.*;
 
-import scratchJavaDevelopers.christine.attenRelImpl.BS_2003b_AttenRel;
-import scratchJavaDevelopers.christine.attenRelImpl.GouletEtAl_2010_AttenRel;
-import scratchJavaDevelopers.jennie.attenRelImpl.ToroEtAl_1997_AttenRel;
+import scratch.christine.attenRelImpl.BS_2003b_AttenRel;
+import scratch.christine.attenRelImpl.GouletEtAl_2010_AttenRel;
+import scratch.jennie.attenRelImpl.ToroEtAl_1997_AttenRel;
 
 import javax.help.*;
 import javax.help.CSH.DisplayHelpFromSource;

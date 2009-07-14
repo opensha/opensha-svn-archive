@@ -24,7 +24,7 @@ import org.opensha.nshmp.sha.data.calc.FaFvCalc;
 import org.opensha.nshmp.sha.data.calc.ResidentialSiteCalc;
 import org.opensha.nshmp.util.GlobalConstants;
 
-import scratchJavaDevelopers.martinez.util.BatchProgress;
+import scratch.martinez.util.BatchProgress;
 
 
 
