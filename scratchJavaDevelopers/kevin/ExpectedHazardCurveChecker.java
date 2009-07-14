@@ -11,10 +11,11 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.StringTokenizer;
 
+import junk.HazardMapCalcServlet;
+
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.util.FileUtils;
 
-import unusedArchive.HazardMapCalcServlet;
 
 public class ExpectedHazardCurveChecker {
 	

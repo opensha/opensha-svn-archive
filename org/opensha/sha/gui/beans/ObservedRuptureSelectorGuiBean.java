@@ -32,9 +32,10 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 
-import unusedArchive.nga.EqkRuptureFromNGA;
 
 import java.awt.*;
+
+import junk.nga.EqkRuptureFromNGA;
 
 
 /**
