@@ -43,7 +43,7 @@
 	<classpathentry kind="lib" path="scratchJavaDevelopers/ISTI/isti.util.jar"/>
 	<classpathentry kind="lib" path="lib/DBConnection.jar" sourcepath="/HazardApps/src"/>
 	<classpathentry kind="lib" path="lib/USGSUtils.jar"/>
-	<classpathentry kind="lib" path="lib/commons-cli-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/BrowserLauncher2-1_3.jar"/>
+	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
 	<classpathentry kind="output" path="classes/"/>
 </classpath>
