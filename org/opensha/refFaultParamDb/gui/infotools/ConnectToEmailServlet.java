@@ -5,6 +5,8 @@ import java.net.URLConnection;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 
+import org.opensha.refFaultParamDb.servlets.RefFaultDB_UpdateEmailServlet;
+
 /**
  * <p>Title: ConnectToEmailServlet.java </p>
  * <p>Description: Connect to email servlet to email whenever an addition/deletion/update
@@ -16,7 +18,6 @@ import java.io.ObjectInputStream;
  */
 
 public class ConnectToEmailServlet {
-  private final static String SERVLET_ADDRESS = "http://gravity.usc.edu:8080/UCERF/servlet/EmailServlet";
 
   /**
    * Send email to database curator whenever a data is addded/removed/updated
@@ -26,7 +27,7 @@ public class ConnectToEmailServlet {
    */
   public final static void sendEmail(String message) {
     try {
-      URL emailServlet = new URL(SERVLET_ADDRESS);
+      URL emailServlet = new URL(RefFaultDB_UpdateEmailServlet.SERVLET_ADDRESS);
 
       URLConnection servletConnection = emailServlet.openConnection();
 

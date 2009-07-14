@@ -6,6 +6,8 @@ import java.awt.event.ActionListener;
 import org.opensha.refFaultParamDb.dao.db.ContributorDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import java.awt.event.ActionEvent;
+
+import org.opensha.refFaultParamDb.servlets.UserAccountInfoServlet;
 import org.opensha.refFaultParamDb.vo.Contributor;
 import java.net.URL;
 import java.net.URLConnection;
@@ -33,7 +35,6 @@ public class GetAccountInfo extends JFrame implements ActionListener {
   private final static String MSG_EMAIL_MISSING = "Email address is missing";
   private final static String MSG_INVALID_EMAIL = "Invalid email address";
   private final static String MSG_SUCCESS = "Account Info emailed successfully";
-  private final static String SERVLET_ADDRESS = "http://gravity.usc.edu:8080/UCERF/servlet/UserAccountInfoServlet";
   private ContributorDB_DAO contributorDAO = new ContributorDB_DAO(DB_AccessAPI.dbConnection);
 
   public GetAccountInfo() {
@@ -111,7 +112,7 @@ public class GetAccountInfo extends JFrame implements ActionListener {
   */
  private void sendEmail(String message, String emailTo) {
    try {
-     URL emailServlet = new URL(SERVLET_ADDRESS);
+     URL emailServlet = new URL(UserAccountInfoServlet.SERVLET_ADDRESS);
 
      URLConnection servletConnection = emailServlet.openConnection();
 
