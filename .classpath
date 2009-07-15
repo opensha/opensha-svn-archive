@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="dev"/>
+	<classpathentry excluding="**/_nobuild/*" kind="src" path="dev"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="lib/xsdlib.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xmlParserAPIs.jar"/>
@@ -46,5 +46,6 @@
 	<classpathentry kind="lib" path="lib/BrowserLauncher2-1_3.jar"/>
 	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang-2.4.jar"/>
+	<classpathentry kind="lib" path="dev/scratch/ISTI/isti.util.jar"/>
 	<classpathentry kind="output" path="classes/"/>
 </classpath>

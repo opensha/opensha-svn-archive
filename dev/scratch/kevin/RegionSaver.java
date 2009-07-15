@@ -1,0 +1,60 @@
+package scratch.kevin;
+
+import java.io.IOException;
+import java.util.ArrayList;
+
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.region.EvenlyGriddedNoCalRegion;
+import org.opensha.commons.data.region.EvenlyGriddedSoCalRegion;
+import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.RELM_CollectionRegion;
+import org.opensha.commons.data.region.RELM_TestingRegion;
+import org.opensha.sha.calc.hazardMap.NamedGeographicRegion;
+import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.XMLUtils;
+
+public class RegionSaver {
+	
+	public static void saveRegion(GeographicRegion region, String fileName, String name) throws IOException {
+		region = new NamedGeographicRegion(region.getRegionOutline(), name);
+		
+		Document doc = XMLUtils.createDocumentWithRoot();
+		
+		Element root = doc.getRootElement();
+		
+		region.toXMLMetadata(root);
+		
+		XMLUtils.writeDocumentToFile(fileName, doc);
+		
+		for (String line : (ArrayList<String>)FileUtils.loadFile(fileName)) {
+			System.out.println(line);
+		}
+	}
+	
+	public static GeographicRegion createCyberShakeRegion() {
+		LocationList locs = new LocationList();
+		
+		locs.addLocation(new Location(35.08, -118.75));
+		locs.addLocation(new Location(34.19, -116.85));
+		locs.addLocation(new Location(33.25, -117.50));
+		locs.addLocation(new Location(34.13, -119.38));
+		
+		return new GeographicRegion(locs);
+	}
+
+	/**
+	 * @param args
+	 * @throws IOException 
+	 */
+	public static void main(String[] args) throws IOException {
+		saveRegion(new RELM_CollectionRegion(), "/tmp/02_relm_coll.xml", "RELM Collection Region");
+		saveRegion(new RELM_TestingRegion(), "/tmp/01_relm_test.xml", "RELM Testing Region");
+		saveRegion(new EvenlyGriddedSoCalRegion(), "/tmp/03_so_cal.xml", "Southern California Region");
+		saveRegion(new EvenlyGriddedNoCalRegion(), "/tmp/04_nor_cal.xml", "Northern California Region");
+		
+		saveRegion(createCyberShakeRegion(), "/tmp/05_cybershake.xml", "CyberShake Map Region");
+	}
+}

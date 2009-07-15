@@ -17,7 +17,7 @@ import org.opensha.commons.data.region.EvenlyGriddedRELM_TestingRegion;
 import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
 import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
-import org.opensha.util.interpolation.BicubicInterpolation2D;
+import org.opensha.commons.util.interp.BicubicInterpolation2D;
 
 public class NewWillsMap {
 	
