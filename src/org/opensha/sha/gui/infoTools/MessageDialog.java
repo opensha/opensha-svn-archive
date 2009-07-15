@@ -22,7 +22,7 @@ public class MessageDialog
 
 
   JPanel panel1 = new JPanel();
-  private JLabel imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("error_icon.png")));
+  private JLabel imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("icons/error_icon.png")));
   JButton okButton = new JButton();
   JButton cancelButton = new JButton();
   JEditorPane messageEditor = new JEditorPane();

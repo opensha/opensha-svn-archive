@@ -50,7 +50,7 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
   JToolBar jToolBar = new JToolBar();
 
   JButton saveButton = new JButton();
-  ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("saveFile.jpg"));
+  ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("icons/saveFile.jpg"));
 
 
   private BorderLayout borderLayout1 = new BorderLayout();

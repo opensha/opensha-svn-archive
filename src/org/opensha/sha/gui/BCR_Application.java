@@ -117,9 +117,9 @@ public class BCR_Application extends JFrame
   protected Site_GuiBean siteGuiBean;
 
 
-  private JLabel openshaImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("PoweredByOpenSHA_Agua.jpg")));
-  private JLabel usgsImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("usgs_resrisk.gif")));
-  private JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("AgoraOpenRisk.jpg")));
+  private JLabel openshaImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("logos/PoweredByOpenSHA_Agua.jpg")));
+  private JLabel usgsImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("logos/usgs_resrisk.gif")));
+  private JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("logos/AgoraOpenRisk.jpg")));
 
 
   // Strings for control pick list

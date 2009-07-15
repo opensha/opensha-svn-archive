@@ -17,7 +17,7 @@ public class ImageUtils {
   /**
    * this is the path where images will be put into
    */
-  private static final String imagePath = "/etc/img/";
+  private static final String imagePath = "/resources/images/";
 
 
   /**

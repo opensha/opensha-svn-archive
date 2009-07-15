@@ -244,9 +244,9 @@ public class LossEstimationApplication extends JFrame
 
 
 
-  private JLabel openshaImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("PoweredByOpenSHA_Agua.jpg")));
-  private JLabel usgsImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("tempResRisk2.gif")));
-  private JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("AgoraOpenRisk.jpg")));
+  private JLabel openshaImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("logos/PoweredByOpenSHA_Agua.jpg")));
+  private JLabel usgsImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("logos/usgs_resrisk.gif")));
+  private JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("logos/AgoraOpenRisk.jpg")));
 
   //static string for the OPENSHA website
   private final static String OPENSHA_WEBSITE="http://www.OpenSHA.org";
@@ -296,13 +296,13 @@ public class LossEstimationApplication extends JFrame
   JToolBar jToolBar = new JToolBar();
 
   JButton closeButton = new JButton();
-  ImageIcon closeFileImage = new ImageIcon(ImageUtils.loadImage("closeFile.png"));
+  ImageIcon closeFileImage = new ImageIcon(ImageUtils.loadImage("icons/closeFile.png"));
 
   JButton printButton = new JButton();
-  ImageIcon printFileImage = new ImageIcon(ImageUtils.loadImage("printFile.jpg"));
+  ImageIcon printFileImage = new ImageIcon(ImageUtils.loadImage("icons/printFile.jpg"));
 
   JButton saveButton = new JButton();
-  ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("saveFile.jpg"));
+  ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("icons/saveFile.jpg"));
 
 
 

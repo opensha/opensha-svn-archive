@@ -109,7 +109,7 @@ public class HazusDataSetCalcApp extends JFrame
 
 
   //images for the OpenSHA
-  private final static String POWERED_BY_IMAGE = "PoweredByOpenSHA_Agua.jpg";
+  private final static String POWERED_BY_IMAGE = "logos/PoweredByOpenSHA_Agua.jpg";
 
 
 

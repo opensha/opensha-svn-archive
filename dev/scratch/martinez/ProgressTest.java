@@ -61,7 +61,7 @@ public class ProgressTest {
 		if(progress == null) {
 			JPanel pPanel = new JPanel(new GridBagLayout());
 			pPanel.add(new JLabel(new ImageIcon(
-					ImageUtils.loadImage("usgs_logoonly.gif")
+					ImageUtils.loadImage("logos/usgs_logoonly.gif")
 			)));
 			progress = new ProgressBar(app, "Progress Meter", "Loading...",
 					pPanel, 0);

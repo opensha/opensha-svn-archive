@@ -158,13 +158,13 @@ public class LossCurveApplication extends JFrame {
 		mainBottomContent.add(btnCalc, 0);
 		mainBottomContent.add(btnClear, 1);
 		mainBottomContent.add(new JLabel(new ImageIcon(
-				ImageUtils.loadImage("PoweredByOpenSHA_Agua.jpg")
+				ImageUtils.loadImage("logos/PoweredByOpenSHA_Agua.jpg")
 			)), 2);
 		mainBottomContent.add(new JLabel(new ImageIcon(
-				ImageUtils.loadImage("AgoraOpenRisk.jpg")
+				ImageUtils.loadImage("logos/AgoraOpenRisk.jpg")
 			)), 3);
 		mainBottomContent.add(new JLabel(new ImageIcon(
-				ImageUtils.loadImage("usgs_resrisk.gif")
+				ImageUtils.loadImage("logos/usgs_resrisk.gif")
 			)), 4);
 		
 		appSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, 
@@ -288,11 +288,11 @@ public class LossCurveApplication extends JFrame {
 		JFrame splash = new JFrame();
 		creditPanel = new JPanel(new FlowLayout());
 		JLabel openshaImgLabel = new JLabel(new ImageIcon(
-				ImageUtils.loadImage("PoweredByOpenSHA_Agua.jpg")));
+				ImageUtils.loadImage("logos/PoweredByOpenSHA_Agua.jpg")));
 		JLabel usgsImgLabel = new JLabel(new ImageIcon(
-				ImageUtils.loadImage("usgs_resrisk.gif")));
+				ImageUtils.loadImage("logos/usgs_resrisk.gif")));
 		JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(
-				ImageUtils.loadImage("AgoraOpenRisk.jpg")));
+				ImageUtils.loadImage("logos/AgoraOpenRisk.jpg")));
 		creditPanel.add(openshaImgLabel);
 		creditPanel.add(usgsImgLabel);
 		creditPanel.add(riskAgoraImgLabel);

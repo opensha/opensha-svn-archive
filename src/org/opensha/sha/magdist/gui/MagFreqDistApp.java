@@ -121,15 +121,15 @@ public class MagFreqDistApp
   private JToolBar jToolBar = new JToolBar();
 
   private JButton closeButton = new JButton();
-  private ImageIcon closeFileImage = new ImageIcon(ImageUtils.loadImage("closeFile.png"));
+  private ImageIcon closeFileImage = new ImageIcon(ImageUtils.loadImage("icons/closeFile.png"));
 
   private JButton printButton = new JButton();
-  private ImageIcon printFileImage = new ImageIcon(ImageUtils.loadImage("printFile.jpg"));
+  private ImageIcon printFileImage = new ImageIcon(ImageUtils.loadImage("icons/printFile.jpg"));
 
   private  JButton saveButton = new JButton();
-  ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("saveFile.jpg"));
+  ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("icons/saveFile.jpg"));
 
-  private final static String POWERED_BY_IMAGE = "PoweredByOpenSHA_Agua.jpg";
+  private final static String POWERED_BY_IMAGE = "logos/PoweredByOpenSHA_Agua.jpg";
 
   private JLabel imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
   private JButton clearButton = new JButton();

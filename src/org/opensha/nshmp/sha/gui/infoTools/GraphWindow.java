@@ -58,13 +58,13 @@ public class GraphWindow
   JToolBar jToolBar = new JToolBar();
 
   JButton closeButton = new JButton();
-  ImageIcon closeFileImage = new ImageIcon(ImageUtils.loadImage("closeFile.png"));
+  ImageIcon closeFileImage = new ImageIcon(ImageUtils.loadImage("icons/closeFile.png"));
 
   JButton printButton = new JButton();
-  ImageIcon printFileImage = new ImageIcon(ImageUtils.loadImage("printFile.jpg"));
+  ImageIcon printFileImage = new ImageIcon(ImageUtils.loadImage("icons/printFile.jpg"));
 
   JButton saveButton = new JButton();
-  ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("saveFile.jpg"));
+  ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("icons/saveFile.jpg"));
 
   private final static int W = 650;
   private final static int H = 730;

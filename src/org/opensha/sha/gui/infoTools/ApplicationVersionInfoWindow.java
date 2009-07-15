@@ -84,7 +84,7 @@ public class ApplicationVersionInfoWindow
     this.getContentPane().setLayout(borderLayout2);
     msgPanel.setLayout(gridBagLayout2);
     msgPane.setBackground(SystemColor.window);
-    imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("info_icon.jpg")));
+    imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("icons/info_icon.jpg")));
     msgPane.setBorder(border2);
     versionUpdateText.getViewport().setBackground(SystemColor.desktop);
     versionUpdateText.setBorder(border5);

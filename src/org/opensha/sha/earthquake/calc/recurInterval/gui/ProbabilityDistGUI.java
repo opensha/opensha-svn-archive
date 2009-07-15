@@ -74,7 +74,7 @@ ParameterChangeListener{
 	private ButtonControlPanel buttonControlPanel;
 
 	private GridBagLayout gridBagLayout1 = new GridBagLayout();
-	private final static String POWERED_BY_IMAGE = "PoweredByOpenSHA_Agua.jpg";
+	private final static String POWERED_BY_IMAGE = "logos/PoweredByOpenSHA_Agua.jpg";
 
 	private static final String PROB_DIST_PARAM_NAME = "Probability Distribution";
 	private StringParameter probDistParam;
@@ -204,13 +204,13 @@ ParameterChangeListener{
 		JToolBar jToolBar = new JToolBar();
 
 		JButton closeButton = new JButton();
-		ImageIcon closeFileImage = new ImageIcon(ImageUtils.loadImage("closeFile.png"));
+		ImageIcon closeFileImage = new ImageIcon(ImageUtils.loadImage("icons/closeFile.png"));
 
 		JButton printButton = new JButton();
-		ImageIcon printFileImage = new ImageIcon(ImageUtils.loadImage("printFile.jpg"));
+		ImageIcon printFileImage = new ImageIcon(ImageUtils.loadImage("icons/printFile.jpg"));
 
 		JButton saveButton = new JButton();
-		ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("saveFile.jpg"));
+		ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("icons/saveFile.jpg"));
 
 		closeButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {

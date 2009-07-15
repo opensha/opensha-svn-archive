@@ -109,7 +109,7 @@ public class AttenuationRelationshipApplet extends JFrame
 
     //images for the OpenSHA
     private final static String FRAME_ICON_NAME = "openSHA_Aqua_sm.gif";
-    protected final static String POWERED_BY_IMAGE = "PoweredByOpenSHA_Agua.jpg";
+    protected final static String POWERED_BY_IMAGE = "logos/PoweredByOpenSHA_Agua.jpg";
 
     //static string for the OPENSHA website
     private final static String OPENSHA_WEBSITE="http://www.OpenSHA.org";
@@ -176,13 +176,13 @@ public class AttenuationRelationshipApplet extends JFrame
     JToolBar jToolBar = new JToolBar();
 
     JButton closeButton = new JButton();
-    ImageIcon closeFileImage = new ImageIcon(ImageUtils.loadImage("closeFile.png"));
+    ImageIcon closeFileImage = new ImageIcon(ImageUtils.loadImage("icons/closeFile.png"));
 
     JButton printButton = new JButton();
-    ImageIcon printFileImage = new ImageIcon(ImageUtils.loadImage("printFile.jpg"));
+    ImageIcon printFileImage = new ImageIcon(ImageUtils.loadImage("icons/printFile.jpg"));
 
     JButton saveButton = new JButton();
-    ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("saveFile.jpg"));
+    ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("icons/saveFile.jpg"));
 
     JMenuItem helpLaunchMenu = new JMenuItem();
 

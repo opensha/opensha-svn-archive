@@ -165,7 +165,7 @@ public class PlotCurvesFromHazardDataSetApp extends JApplet
 
 
   //images for the OpenSHA
-   private final static String POWERED_BY_IMAGE = "PoweredByOpenSHA_Agua.jpg";
+   private final static String POWERED_BY_IMAGE = "logos/PoweredByOpenSHA_Agua.jpg";
 
   //static string for the OPENSHA website
   private final static String OPENSHA_WEBSITE="http://www.OpenSHA.org";

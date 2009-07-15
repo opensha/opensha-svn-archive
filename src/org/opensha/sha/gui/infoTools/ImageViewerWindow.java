@@ -48,7 +48,7 @@ public class ImageViewerWindow extends JFrame implements HyperlinkListener{
   JToolBar jToolBar = new JToolBar();
 
   JButton saveButton = new JButton();
-  ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("saveFile.jpg"));
+  ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("icons/saveFile.jpg"));
 
   private String mapInfoAsHTML,mapInfoAsString;
   private BorderLayout borderLayout1 = new BorderLayout();

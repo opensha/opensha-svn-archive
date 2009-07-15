@@ -34,8 +34,8 @@ public final class GlobalConstants {
 	public final static String registrationName =
       "rmi://gravity.usc.edu:1099/USGS_HazardDataCalc_FactoryServer";
 
-  private final static String USGS_LOGO = "usgslogo.gif";
-	private final static String USGS_LOGO_ONLY = "usgs_logoonly.gif";
+  private final static String USGS_LOGO = "logos/usgslogo.gif";
+	private final static String USGS_LOGO_ONLY = "logos/usgs_logoonly.gif";
   public final static ImageIcon USGS_LOGO_ICON = new ImageIcon(ImageUtils.loadImage(USGS_LOGO));
 	public final static ImageIcon USGS_LOGO_ONLY_ICON = new
 		ImageIcon(ImageUtils.loadImage(USGS_LOGO_ONLY));

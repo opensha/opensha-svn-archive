@@ -80,13 +80,13 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 	protected JToolBar jToolBar = new JToolBar();
 
 	protected JButton closeButton = new JButton();
-	protected ImageIcon closeFileImage = new ImageIcon(ImageUtils.loadImage("closeFile.png"));
+	protected ImageIcon closeFileImage = new ImageIcon(ImageUtils.loadImage("icons/closeFile.png"));
 
 	protected JButton printButton = new JButton();
-	protected ImageIcon printFileImage = new ImageIcon(ImageUtils.loadImage("printFile.jpg"));
+	protected ImageIcon printFileImage = new ImageIcon(ImageUtils.loadImage("icons/printFile.jpg"));
 
 	protected JButton saveButton = new JButton();
-	protected ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("saveFile.jpg"));
+	protected ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("icons/saveFile.jpg"));
 
 
 	/**

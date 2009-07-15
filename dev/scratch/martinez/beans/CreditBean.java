@@ -36,13 +36,13 @@ import org.opensha.commons.util.ImageUtils;
 public class CreditBean implements GuiBeanAPI {
 	
 	/** A known available image to use for credit purposes */
-	public static final String USGS = "usgslogo.JPG";
+	public static final String USGS = "logos/usgslogo.gif";
 	/** A known available image to use for credit purposes */
-	public static final String USGS_RES = "usgs_resrisk.gif";
+	public static final String USGS_RES = "logos/usgs_resrisk.gif";
 	/** A known available image to use for credit purposes */
-	public static final String AGORA = "AgoraOpenRisk.jpg";
+	public static final String AGORA = "logos/AgoraOpenRisk.jpg";
 	/** A known available image to use for credit purposes */
-	public static final String OPENSHA = "PoweredByOpenSHA_Agua.jpg";
+	public static final String OPENSHA = "logos/PoweredByOpenSHA_Agua.jpg";
 	
 	private JButton button = null;
 	private String buttonText = "";
