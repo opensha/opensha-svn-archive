@@ -5,12 +5,14 @@
 	<property name="dest" value="../classes" />
 	<property name="tmpdest" value="../classes.temp" />
 	<property name="src" value="../src/" />
+	<property name="dev" value="../dev/" />
 
 	<target name="compile">
 		<javac debug="true" deprecation="false" optimize="true" destdir="${tmpdest}" nowarn="true" source="1.5" target="1.5" failonerror="yes" verbose="no" fork="yes" memoryInitialSize="512m" memoryMaximumSize="1024m">
 
 			<src path="${src}" />
-			<include name="../dev/scratch/**" />
+			<src path="${dev}" />
+			<include name="scratch/**" />
 			<include name="org/**" />
 			<include name="com/**" />
 			<include name="nnls/**" />
