@@ -1,4 +1,4 @@
-package org.opensha.sha.calc.IM_EventSetCalc_v01;
+package org.opensha.sha.calc.IM_EventSet.v01;
 
 
 import java.io.IOException;

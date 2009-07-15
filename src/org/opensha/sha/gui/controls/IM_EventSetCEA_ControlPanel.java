@@ -4,7 +4,7 @@ package org.opensha.sha.gui.controls;
 import java.util.*;
 
 import org.opensha.sha.gui.beans.*;
-import org.opensha.sha.calc.IM_EventSetCalc_v01.IM_EventSetScenarioForCEA;
+import org.opensha.sha.calc.IM_EventSet.v01.IM_EventSetScenarioForCEA;
 import org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 

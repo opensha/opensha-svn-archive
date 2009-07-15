@@ -1,4 +1,4 @@
-package org.opensha.sha.calc.IM_EventSetCalc_v02;
+package org.opensha.sha.calc.IM_EventSet.v02;
 
 
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.
