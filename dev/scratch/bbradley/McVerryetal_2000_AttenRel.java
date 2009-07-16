@@ -160,7 +160,7 @@ public class McVerryetal_2000_AttenRel
   private PropagationEffect propagationEffect;
 
   protected final static Double MAG_WARN_MIN = new Double(5.0);
-  protected final static Double MAG_WARN_MAX = new Double(8.0);
+  protected final static Double MAG_WARN_MAX = new Double(8.5);
   protected final static Double DISTANCE_RUP_WARN_MIN = new Double(0.0);
   protected final static Double DISTANCE_RUP_WARN_MAX = new Double(400.0);
   
@@ -685,6 +685,9 @@ public class McVerryetal_2000_AttenRel
 	  }
 	  else if (pName.equals(StdDevTypeParam.NAME)) {
 		  stdDevType = (String) val;
+	  }
+	  else if (pName.equals(FaultTypeParam.NAME)) {
+		  fltType = (String)fltTypeParam.getValue();
 	  }
 	  else if (pName.equals(ComponentParam.NAME)) {
 		  component = (String) val;
