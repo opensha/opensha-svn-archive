@@ -27,7 +27,7 @@ public class LaunchHelpFromMenu {
        HelpSet hs = null;
        try {
     	   	//URL url = HelpSet.findHelpSet(cl, helpSetFileName);
-    	   URL url = this.getClass().getResource("/"+helpSetFileName);
+    	   URL url = this.getClass().getResource(helpSetFileName);
     	   //System.out.println("URL ="+url);
     	   	//URL url = new URL(helpSetFileName);
          hs = new HelpSet(null, url);
