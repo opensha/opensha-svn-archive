@@ -89,7 +89,7 @@ public class McVerryetal_2000_AttenRel
   private static final long serialVersionUID = 1234567890987654353L;
 
   // Name of IMR
-  public final static String NAME = "McVerry et al (2000)";
+  public final static String NAME = "McVerry et al (2000) - unverified";
   
   // URL Info String
   private final static String URL_INFO_STRING = "http://www.opensha.org/documentation/modelsImplemented/attenRel/McVerryetal_2000.html";
@@ -159,8 +159,8 @@ public class McVerryetal_2000_AttenRel
   
   private PropagationEffect propagationEffect;
 
-  protected final static Double MAG_WARN_MIN = new Double(5);
-  protected final static Double MAG_WARN_MAX = new Double(7.5);
+  protected final static Double MAG_WARN_MIN = new Double(5.0);
+  protected final static Double MAG_WARN_MAX = new Double(8.0);
   protected final static Double DISTANCE_RUP_WARN_MIN = new Double(0.0);
   protected final static Double DISTANCE_RUP_WARN_MAX = new Double(400.0);
   
