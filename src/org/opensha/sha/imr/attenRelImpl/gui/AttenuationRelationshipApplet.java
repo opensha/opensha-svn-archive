@@ -788,7 +788,8 @@ public class AttenuationRelationshipApplet extends JFrame
 
     private void createHelpMenu(){
 	    LaunchHelpFromMenu helpMenu = new LaunchHelpFromMenu();
-	    hb = helpMenu.createHelpMenu("etc/AttenuationRelationshipAppHelpDocuments/shaHelp.xml");
+	    hb = helpMenu.createHelpMenu(
+	    		"/resources/help/AttenuationRelationshipApplet/shaHelp.xml");
 	    displaySource = new javax.help.CSH.DisplayHelpFromSource(hb);
 	    helpLaunchMenu.addActionListener(displaySource);
     }
