@@ -17,6 +17,8 @@ import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 
+import scratch.bbradley.NewZealandERFv1;
+
 /**
  * <p>Title: HazardCurveLocalModeApplication</p>
  * <p>Description: This application is extension of HazardCurveApplication, where
@@ -56,7 +58,8 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
   public final static String YUCCA_MOUNTAIN_ERF_LIST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.YuccaMountain.YuccaMountainERF_List";
   public final static String CYBERSHAKE_ERF_LIST_CLASS_NAME="org.opensha.sha.cybershake.openshaAPIs.CyberShakeERF";
   public final static String CYBERSHAKE_ERF_WRAPPER_LIST_CLASS_NAME="org.opensha.sha.cybershake.openshaAPIs.CyberShakeUCERFWrapper_ERF";
-  
+  public final static String NZ_ERFv1_CLASS_NAME="scratch.bbradley.NewZealandERFv1";
+
   protected final static String appURL = "http://www.opensha.org/applications/hazCurvApp/HazardCurveApp.jar";
 
   /**
@@ -139,6 +142,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
       erf_Classes.add(POINT2MULT_VSS_ERF_LIST_CLASS_NAME);
 //      erf_Classes.add(CYBERSHAKE_ERF_LIST_CLASS_NAME);
 //      erf_Classes.add(CYBERSHAKE_ERF_WRAPPER_LIST_CLASS_NAME);
+      erf_Classes.add(NZ_ERFv1_CLASS_NAME);
       
       try {
         erfGuiBean = new ERF_GuiBean(erf_Classes);
