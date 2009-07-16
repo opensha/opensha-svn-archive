@@ -19,7 +19,7 @@
 		  faultTrace.addLocation(loc2);	  
 		  StirlingGriddedSurface surface = new StirlingGriddedSurface(faultTrace, 45.0,0,10,1);
 		  EqkRupture rup = new EqkRupture();
-		  rup.setMag(7);
+		  rup.setMag(7.8);
 		  rup.setAveRake(90);
 		  rup.setRuptureSurface(surface);
 	  

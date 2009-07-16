@@ -40,13 +40,13 @@ public class NewZealandERFv1 extends EqkRupForecast {
 	private static String  C = new String("NZ_ERF");
 	private boolean D = false;
 	// name of this ERF
-	public final static String NAME = new String("NewZealand_ERF");
+	public final static String NAME = new String("NewZealand_ERF - unverified");
 
 
 //	private final static String FAULT_SOURCE_FILENAME = "org/opensha/sha/earthquake/rupForecastImpl/NewZealand/NZ_FLTmodel.txt";
 //	private final static String BG_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/NewZealand/NZ_BKmodel.txt";
-	private final static String FAULT_SOURCE_FILENAME = "scratchJavaDevelopers/bbradley/NZ_FLTmodeldraft.txt";
-	private final static String BG_FILE_NAME = "scratchJavaDevelopers/bbradley/NZ_BKmodeldraft.txt";
+	private final static String FAULT_SOURCE_FILENAME = "scratch/bbradley/NZ_FLTmodeldraft.txt";
+	private final static String BG_FILE_NAME = "scratch/bbradley/NZ_BKmodeldraft.txt";
 	
 	// Min/Max/Num Mags for Mag Freq Dist for making fault sources
 	private final static double MIN_MAG = 5.0;
