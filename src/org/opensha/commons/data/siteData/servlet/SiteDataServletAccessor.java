@@ -101,7 +101,7 @@ public class SiteDataServletAccessor<Element> {
 	
 	protected URLConnection openServletConnection() throws IOException {
 		URL servlet = new URL(url);
-		System.out.println("Connecting to: " + url + " ...");
+//		System.out.println("Connecting to: " + url + " ...");
 		URLConnection servletConnection = servlet.openConnection();
 		
 		// inform the connection that we will send output and accept input
