@@ -46,12 +46,12 @@ public class SiteDataServletAccessor<Element> {
 			int tot = locs.size();
 			for (LocationList partialLocs : locs.split(maxLocsPerRequest)) {
 				float frac = (float)done / (float)tot * 100f;
-				System.out.println("Requesting " + partialLocs.size() + " values (" + frac + " % done)");
+//				System.out.println("Requesting " + partialLocs.size() + " values (" + frac + " % done)");
 				result.addAll((ArrayList<Element>)getResult(partialLocs));
 				done += partialLocs.size();
 			}
 		} else {
-			System.out.println("Requesting " + locs.size() + " values");
+//			System.out.println("Requesting " + locs.size() + " values");
 			result = (ArrayList<Element>)getResult(locs);
 		}
 		
