@@ -1,6 +1,8 @@
 package org.opensha.sha.calc.IM_EventSet.v03;
 
 
+import org.opensha.sha.calc.IM_EventSet.v03.outputImpl.HAZ01Writer;
+import org.opensha.sha.calc.IM_EventSet.v03.outputImpl.OriginalModWriter;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.
 Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
@@ -17,6 +19,8 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 
 import java.util.*;
+import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.io.*;
 
 import org.opensha.sha.util.SiteTranslator;
@@ -168,11 +172,17 @@ implements ParameterChangeWarningListener {
 		}
 	}
 
-	protected void parseFile() throws FileNotFoundException,IOException{
+	public void parseFile() throws FileNotFoundException,IOException{
 
 		ArrayList<String> fileLines = null;
+		
+		logger.log(Level.INFO, "Parsing input file: " + inputFileName);
 
 		fileLines = FileUtils.loadFile(inputFileName);
+		
+		if (fileLines.size() == 0) {
+			throw new RuntimeException("Input file empty or doesn't exist! " + inputFileName);
+		}
 
 		int j = 0;
 		int numIMRdone=0;
@@ -264,30 +274,30 @@ implements ParameterChangeWarningListener {
 		userDataVals.add(dataVals);
 	}
 	
-	/**
-	 * Sets the IMT from the string specification
-	 * 
-	 * @param imtLine
-	 * @param attenRel
-	 */
-	public static String getIMTForLine(String imtLine) {
-		StringTokenizer st = new StringTokenizer(imtLine);
-		int numTokens = st.countTokens();
-		String imt = st.nextToken().trim();
-		if (numTokens == 2) {
-			// this is SA
-			double period = Double.parseDouble(st.nextToken().trim());
-			int per10int = (int)(period * 10d + 0.5);
-			String per10str = per10int + "";
-			if (per10str.length() < 2)
-				per10str = "0" + per10str;
-//			DependentParameterAPI imtParam = (DependentParameterAPI)attenRel.getIntensityMeasure();
-//			imtParam.getIndependentParameter(PeriodParam.NAME).setValue(period);
-			imt += per10str;
-		}
-		System.out.println(imtLine + " => " + imt);
-		return imt;
-	}
+//	/**
+//	 * Sets the IMT from the string specification
+//	 * 
+//	 * @param imtLine
+//	 * @param attenRel
+//	 */
+//	public static String getIMTForLine(String imtLine) {
+//		StringTokenizer st = new StringTokenizer(imtLine);
+//		int numTokens = st.countTokens();
+//		String imt = st.nextToken().trim();
+//		if (numTokens == 2) {
+//			// this is SA
+//			double period = Double.parseDouble(st.nextToken().trim());
+//			int per10int = (int)(period * 10d + 0.5);
+//			String per10str = per10int + "";
+//			if (per10str.length() < 2)
+//				per10str = "0" + per10str;
+////			DependentParameterAPI imtParam = (DependentParameterAPI)attenRel.getIntensityMeasure();
+////			imtParam.getIndependentParameter(PeriodParam.NAME).setValue(period);
+//			imt += per10str;
+//		}
+//		System.out.println(imtLine + " => " + imt);
+//		return imt;
+//	}
 
 	/**
 	 * Gets the suported IMTs as String
@@ -296,7 +306,7 @@ implements ParameterChangeWarningListener {
 	private void setIMT(String line){
 		if(supportedIMTs == null)
 			supportedIMTs = new ArrayList<String>();
-		this.supportedIMTs.add(getIMTForLine(line.trim()));
+		this.supportedIMTs.add(line.trim());
 	}
 
 
@@ -369,7 +379,8 @@ implements ParameterChangeWarningListener {
 	}
 
 	private void getERF(String line){
-		String erfName = line.trim(); 
+		String erfName = line.trim();
+		logger.log(Level.FINE, "Attempting to identify ERF from name: " + erfName);
 		if(erfName.equals(Frankel02_AdjustableEqkRupForecast.NAME))
 			createFrankel02Forecast();
 		else if (erfName.equals(WGCEP_UCERF1_EqkRupForecast.NAME))
@@ -384,6 +395,7 @@ implements ParameterChangeWarningListener {
 	 * Creating the instance of the Frankel02 forecast
 	 */
 	private void createFrankel02Forecast(){
+		logger.log(Level.FINE, "Creating Frankel02 ERF");
 		forecast = new Frankel02_AdjustableEqkRupForecast();
 	}
 
@@ -391,6 +403,7 @@ implements ParameterChangeWarningListener {
 	 * Creating the instance of the UCERF1 Forecast
 	 */
 	private void createUCERF1_Forecast(){
+		logger.log(Level.FINE, "Creating UCERF1 ERF");
 		forecast = new WGCEP_UCERF1_EqkRupForecast();
 		forecast.getAdjustableParameterList().getParameter(
 				WGCEP_UCERF1_EqkRupForecast.TIME_DEPENDENT_PARAM_NAME).setValue(new Boolean(false));
@@ -400,13 +413,14 @@ implements ParameterChangeWarningListener {
 	 * Creating the instance of the UCERF2 - Single Branch Forecast
 	 */
 	private void createMeanUCERF2_Forecast(){
+		logger.log(Level.FINE, "Creating UCERF2 ERF");
 		forecast = new MeanUCERF2();
 		forecast.getAdjustableParameterList().getParameter(
 				UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_POISSON);
 	}
 
 	private void toApplyBackGroud(String toApply){
-
+		logger.log(Level.FINE, "Setting ERF background seismicity value: " + toApply);
 		forecast.getAdjustableParameterList().getParameter(
 				Frankel02_AdjustableEqkRupForecast.
 				BACK_SEIS_NAME).setValue(toApply);
@@ -424,6 +438,7 @@ implements ParameterChangeWarningListener {
 	}
 
 	private void setRupOffset(double rupOffset){
+		logger.log(Level.FINE, "Setting ERF rupture offset: " + rupOffset);
 		forecast.getAdjustableParameterList().getParameter(
 				Frankel02_AdjustableEqkRupForecast.
 				RUP_OFFSET_PARAM_NAME).setValue(new Double(rupOffset));
@@ -435,7 +450,7 @@ implements ParameterChangeWarningListener {
 	 * Creates the directory to put the mean and sigma files.
 	 * @throws IOException 
 	 */
-	protected void getMeanSigma() throws IOException {
+	public void getMeanSigma() throws IOException {
 		getMeanSigma(false);
 	}
 	
@@ -444,16 +459,18 @@ implements ParameterChangeWarningListener {
 	 * Creates the directory to put the mean and sigma files.
 	 * @throws IOException 
 	 */
-	protected void getMeanSigma(boolean haz01) throws IOException {
+	public void getMeanSigma(boolean haz01) throws IOException {
 
 		int numIMRs = chosenAttenuationsList.size();
 		File file = new File(dirName);
 		file.mkdirs();
+		IM_EventSetOutputWriter writer = null;
 		if (haz01) {
-			this.writeHAZ01A(forecast, chosenAttenuationsList, supportedIMTs);
+			writer = new HAZ01Writer(this);
 		} else {
-			this.writeOriginalFileSet(forecast, chosenAttenuationsList, supportedIMTs);
+			writer = new OriginalModWriter(this);
 		}
+		writer.writeFiles(forecast, chosenAttenuationsList, supportedIMTs);
 	}
 
 	/**
@@ -473,7 +490,7 @@ implements ParameterChangeWarningListener {
 	}
 	
 	private static void printUsage() {
-		System.out.println("Usage :\n\t"+"java -jar <jarfileName> [--HAZ01] <inputFileName> <output directory name>\n\n");
+		System.out.println("Usage :\n\t"+"java -jar <jarfileName> [--HAZ01] [--d] <inputFileName> <output directory name>\n\n");
 		System.out.println("jarfileName : Name of the executable jar file, by default it is IM_EventSetCalc.jar");
 		System.out.println("--HAZ01 : Optional parameter to specify using the HAZ01 output file format instead of the default");
 		System.out.println("inputFileName :Name of the input file"+
@@ -484,18 +501,39 @@ implements ParameterChangeWarningListener {
 
 	public static void main(String[] args) {
 		boolean haz01 = false;
+		
+		ArrayList<String> parsedArgs = new ArrayList<String>();
+		
+		Level level = Level.WARNING;
+		
+		for (String arg : args) {
+			if (arg.trim().toLowerCase().equals("--haz01"))
+				haz01 = true;
+			else if (arg.trim().toLowerCase().equals("--d"))
+				level = Level.INFO;
+			else if (arg.trim().toLowerCase().equals("--dd"))
+				level = Level.FINE;
+			else if (arg.trim().toLowerCase().equals("--ddd"))
+				level = Level.ALL;
+			else if (arg.trim().toLowerCase().equals("--q"))
+				level = Level.OFF;
+			else
+				parsedArgs.add(arg);
+		}
+		
+		initLogger(level);
 
 		IM_EventSetCalc_v3_0_ASCII calc = null;
-		if (args.length == 2) {
-			calc = new IM_EventSetCalc_v3_0_ASCII(args[0],args[1]);
-		} else if (args.length == 3) {
-			if (args[0].trim().toLowerCase().equals("--haz01"))
-				haz01 = true;
-			else {
-				System.out.println("Unknown option: " + args[0]);
-				printUsage();
-			}
-			calc = new IM_EventSetCalc_v3_0_ASCII(args[1],args[2]);
+		if (parsedArgs.size() == 2) {
+			calc = new IM_EventSetCalc_v3_0_ASCII(parsedArgs.get(0),parsedArgs.get(1));
+//		} else if (args.length == 3) {
+//			if (args[0].trim().toLowerCase().equals("--haz01"))
+//				haz01 = true;
+//			else {
+//				System.out.println("Unknown option: " + args[0]);
+//				printUsage();
+//			}
+//			calc = new IM_EventSetCalc_v3_0_ASCII(args[1],args[2]);
 		} else {
 			printUsage();
 		}
@@ -504,7 +542,8 @@ implements ParameterChangeWarningListener {
 			calc.parseFile();
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+			logger.log(Level.INFO, "Error parsing input file!", ex);
+//			ex.printStackTrace();
 			System.exit(1);
 		}
 

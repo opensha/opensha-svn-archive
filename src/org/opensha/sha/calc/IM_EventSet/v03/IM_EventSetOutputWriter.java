@@ -1,0 +1,220 @@
+package org.opensha.sha.calc.IM_EventSet.v03;
+
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.ListIterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.opensha.commons.calc.RelativeLocation;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.Site;
+import org.opensha.commons.data.siteData.SiteDataValue;
+import org.opensha.commons.param.DependentParameterAPI;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.util.SiteTranslator;
+
+public abstract class IM_EventSetOutputWriter {
+	
+	protected static Logger logger = IM_EventSetCalc_v3_0.logger;
+	
+	protected IM_EventSetCalc_v3_0 calc;
+	private static SiteTranslator siteTrans = new SiteTranslator();
+	
+	private float sourceCutOffDistance = 0;
+	private Site siteForSourceCutOff = null;
+	
+	public static final DecimalFormat meanSigmaFormat = new DecimalFormat("0.####");
+	public static final DecimalFormat distFormat = new DecimalFormat("0.###");
+	
+	public IM_EventSetOutputWriter(IM_EventSetCalc_v3_0 calc) {
+		this.calc = calc;
+	}
+	
+	public abstract void writeFiles(ArrayList<EqkRupForecastAPI> erfs, ArrayList<AttenuationRelationship> attenRels,
+			ArrayList<String> imts) throws IOException;
+	
+	public void writeFiles(EqkRupForecastAPI erf, ArrayList<AttenuationRelationship> attenRels,
+			ArrayList<String> imts) throws IOException {
+		ArrayList<EqkRupForecastAPI> erfs = new ArrayList<EqkRupForecastAPI>();
+		erfs.add(erf);
+		writeFiles(erfs, attenRels, imts);
+	}
+	
+	/**
+	 * Sets the IMT from the string specification
+	 * 
+	 * @param imtLine
+	 * @param attenRel
+	 */
+	public static void setIMTFromString(String imtStr, AttenuationRelationship attenRel) {
+		String imt = imtStr.trim();
+		if ((imt.startsWith("SA") || imt.startsWith("SD"))) {
+			logger.log(Level.FINE, "Parsing IMT with Period: " + imt);
+			// this is SA/SD
+			double period = Double.parseDouble(imt.substring(3)) / 10;
+			String theIMT = imt.substring(0, 2);
+			attenRel.setIntensityMeasure(theIMT);
+			DependentParameterAPI imtParam = (DependentParameterAPI)attenRel.getIntensityMeasure();
+			imtParam.getIndependentParameter(PeriodParam.NAME).setValue(period);
+			logger.log(Level.FINEST, "Parsed IMT with Period: " + imt + " => " + theIMT + ", period: " + period);
+//			System.out.println("imtstr: " + imt + ", " + attenRel.getIntensityMeasure().getName()
+//						+ ": " + attenRel.getParameter(PeriodParam.NAME).getValue());
+		} else {
+			logger.log(Level.FINE, "Setting IMT  from String");
+			attenRel.setIntensityMeasure(imt);
+		}
+	}
+	
+	/**
+	 * Gets all of the default site params from the attenuation relationship
+	 * 
+	 * @param attenRel
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	protected ArrayList<ParameterAPI> getDefaultSiteParams(AttenuationRelationship attenRel) {
+		logger.log(Level.FINE, "Storing default IMR site related params.");
+		ListIterator<ParameterAPI> siteParamsIt = attenRel.getSiteParamsIterator();
+		ArrayList<ParameterAPI> defaultSiteParams = new ArrayList<ParameterAPI>();
+
+		while (siteParamsIt.hasNext()) {
+			defaultSiteParams.add((ParameterAPI) siteParamsIt.next().clone());
+		}
+
+		return defaultSiteParams;
+	}
+
+	/**
+	 * Sets the site params for the given Attenuation Relationship to the value in the given params.
+	 * @param attenRel
+	 * @param defaultSiteParams
+	 */
+	@SuppressWarnings("unchecked")
+	protected void setSiteParams(AttenuationRelationship attenRel, ArrayList<ParameterAPI> defaultSiteParams) {
+		logger.log(Level.FINE, "Restoring default IMR site related params.");
+		for (ParameterAPI param : defaultSiteParams) {
+			ParameterAPI attenParam = attenRel.getParameter(param.getName());
+			attenParam.setValue(param.getValue());
+		}
+	}
+
+	/**
+	 * This goes through each site and makes sure that it has a parameter for each site
+	 * param from the Attenuation Relationship. It then tries to set that parameter from
+	 * its own data values, and if it can't, uses the attenuation relationship's default.
+	 * 
+	 * @param attenRel
+	 * @return
+	 */
+	protected ArrayList<Site> getInitializedSites(AttenuationRelationship attenRel) {
+		logger.log(Level.FINE, "Retrieving and setting Site related params for IMR");
+		// get the list of sites
+		ArrayList<Site> sites = this.calc.getSites();
+		ArrayList<ArrayList<SiteDataValue<?>>> sitesData = this.calc.getSitesData();
+
+		// we need to make sure that the site has parameters for this atten rel
+		ListIterator<ParameterAPI> siteParamsIt = attenRel.getSiteParamsIterator();
+		while (siteParamsIt.hasNext()) {
+			ParameterAPI attenParam = siteParamsIt.next();
+			for (int i=0; i<sites.size(); i++) {
+				Site site = sites.get(i);
+				ArrayList<SiteDataValue<?>> siteData = sitesData.get(i);
+				ParameterAPI siteParam;
+				if (site.containsParameter(attenParam.getName())) {
+					siteParam = site.getParameter(attenParam.getName());
+				} else {
+					siteParam = (ParameterAPI)attenParam.clone();
+					site.addParameter(siteParam);
+				}
+				// now try to set this parameter from the site data
+				boolean success = siteTrans.setParameterValue(siteParam, siteData);
+				// if we couldn't set it from our data, use the atten rel's default
+				if (!success)
+					siteParam.setValue(attenParam.getValue());
+			}
+		}
+//		for (int i=0; i<sites.size(); i++) {
+//			Site site = sites.get(i);
+//			ArrayList<SiteDataValue<?>> siteData = sitesData.get(i);
+//			printSiteParams(site, siteData);
+//		}
+		return sites;
+	}
+	
+	private float getSourceCutOffDistance() {
+		if (sourceCutOffDistance == 0) {
+			createSiteList();
+		}
+		return sourceCutOffDistance;
+	}
+	
+	private Site getSiteForSourceCutOff() {
+		if (siteForSourceCutOff == null) {
+			createSiteList();
+		}
+		return siteForSourceCutOff;
+	}
+	
+	/**
+	 * This method finds the location at the middle of the region encompassing all of
+	 * the sites and gets a cutoff distance such that all ruptures within 200 km of any
+	 * site are included in the output.
+	 */
+	protected void createSiteList() {
+		logger.log(Level.FINE, "Calculating source cutoff site and distance");
+		//gets the min lat, lon and max lat, lon from given set of locations.
+		double minLon = Double.MAX_VALUE;
+		double maxLon = Double.NEGATIVE_INFINITY;
+		double minLat = Double.MAX_VALUE;
+		double maxLat = Double.NEGATIVE_INFINITY;
+		int numSites = calc.getNumSites();
+		for (int i = 0; i < numSites; ++i) {
+
+			Location loc = calc.getSiteLocation(i);
+			double lon = loc.getLongitude();
+			double lat = loc.getLatitude();
+			if (lon > maxLon)
+				maxLon = lon;
+			if (lon < minLon)
+				minLon = lon;
+			if (lat > maxLat)
+				maxLat = lat;
+			if (lat < minLat)
+				minLat = lat;
+		}
+		double middleLon = (minLon + maxLon) / 2;
+		double middleLat = (minLat + maxLat) / 2;
+
+		//getting the source-site cuttoff distance
+		sourceCutOffDistance = (float)RelativeLocation.getHorzDistance(middleLat, middleLon,
+				minLat, minLon) + IM_EventSetCalc_v3_0.MIN_SOURCE_DIST;
+		siteForSourceCutOff = new Site(new Location(middleLat, middleLon));
+
+		return;
+	}
+	
+	/**
+	 * This method checks if the source is within 200 KM of any site
+	 * 
+	 * @param source
+	 * @return
+	 */
+	public boolean shouldIncludeSource(ProbEqkSource source) {
+		float sourceCutOffDistance = getSourceCutOffDistance();
+		Site siteForSourceCutOff = getSiteForSourceCutOff();
+		
+		double sourceDistFromSite = source.getMinDistance(siteForSourceCutOff);
+		if (sourceDistFromSite > sourceCutOffDistance) {
+			logger.log(Level.FINEST, "Source outside of cutoff distance, skipping");
+			return false;
+		}
+		return true;
+	}
+
+}

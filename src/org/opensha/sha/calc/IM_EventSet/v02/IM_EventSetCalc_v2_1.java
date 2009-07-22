@@ -160,7 +160,7 @@ implements ParameterChangeWarningListener {
 		dirName = outDir ;
 	}
 
-	protected void parseFile() throws FileNotFoundException,IOException{
+	public void parseFile() throws FileNotFoundException,IOException{
 
 		ArrayList fileLines = null;
 
@@ -398,7 +398,7 @@ implements ParameterChangeWarningListener {
 	 * Starting with the Mean and Sigma calculation.
 	 * Creates the directory to put the mean and sigma files.
 	 */
-	protected void getMeanSigma() {
+	public void getMeanSigma() {
 
 		int numIMRs = chosenAttenuationsList.size();
 		File file = new File(dirName);
@@ -463,7 +463,7 @@ implements ParameterChangeWarningListener {
 	 * Creates a location using the given locations to find source cut-off disance.
 	 * @return
 	 */
-	protected void createSiteList() {
+	public void createSiteList() {
 		//gets the min lat, lon and max lat, lon from given set of locations.
 		double minLon = Double.MAX_VALUE;
 		double maxLon = Double.NEGATIVE_INFINITY;
