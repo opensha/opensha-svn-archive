@@ -310,6 +310,7 @@ public class NewZealandERFv1 extends EqkRupForecast {
 	public void updateForecast() {
 		// make sure something has changed
 		if(parameterChangeFlag) {
+			allSources = new ArrayList<ProbEqkSource>();
 			mkFaultSources();
 			String bgVal = (String)backSeisParam.getValue();
 			if(bgVal.equals(BACK_SEIS_INCLUDE)){
