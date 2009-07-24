@@ -65,10 +65,10 @@ public interface ParameterEditorAPI {
     /** Not sure what this is used for. */
     public String[] getTags();
 
-    /** Sets the parameter that is stored internally for this GUI widget to edit */
+    /** Returns the parameter that is stored internally that this GUI widget is editing */
     public ParameterAPI getParameter();
 
-    /** Returns the parameter that is stored internally that this GUI widget is editing */
+    /** Sets the parameter that is stored internally for this GUI widget to edit */
     public void setParameter( ParameterAPI model );
 
 
