@@ -35,7 +35,7 @@ import org.opensha.sha.gui.infoTools.ConnectToCVM;
  * @version 1.0
  */
 
-public class SitesInGriddedRectangularRegion extends EvenlyGriddedRectangularGeographicRegion
+public class SitesInGriddedRectangularRegion extends EvenlyGriddedGeographicRegion
 implements SitesInGriddedRegionAPI,Serializable{
 
 	//Debug parameter

@@ -33,8 +33,9 @@ import java.io.*;
  * @author : Nitin Gupta
  * @created: July 30,2005
  * @version 1.0
+ * TODO retire; all functionality moved to EvenlyGriddedGeographicRegion
  */
-
+@Deprecated
 public class EvenlyGriddedSausageGeographicRegion
     extends EvenlyGriddedGeographicRegion
                         {
@@ -83,37 +84,41 @@ public class EvenlyGriddedSausageGeographicRegion
    * location for this Evenly Gridded Geographic Region.
    */
   public EvenlyGriddedSausageGeographicRegion(LocationList locList, double radius, double gridSpacing) {
-    createEvenlyGriddedSausageGeographicRegion(locList,radius,gridSpacing) ;
+    //createEvenlyGriddedSausageGeographicRegion(locList,radius,gridSpacing) ;
+	  super(locList, radius, gridSpacing);
+	    this.radius = radius;
+	    setGridSpacing(gridSpacing);
+
   }
 
 
-  /**
-   * Class constructor that accepts the list of locations as corner points on the
-   * line around which sausage region is to be created, radius,grid spacing
-   * and EvenlyGriddedGeographicRegionAPI,for creating the list of locations
-   * in this region from passed in EvenlyGriddedGeographicRegionAPI,
-   * for creation of a EvenlyGriddedSausageGeographicRegion.
-   *
-   * This method is helpful as avoid creating same location more then once and just
-   * refer to the location object in the passed in EvenlyGriddedGeographicRegionAPI.
-   *
-   * This class constructor allows the user to create list of locations for this
-   * EvenlyGriddedGeographic object from passed in EvenlyGriddedGeographicRegionAPI.
-   * Please refer to EvenlyGriddedGeographicRegionAPI for more details.
-   *
-   * @param locList LocationList : Locations of the end points on the lines
-   * @param radius double Maximum distance for which locations in this sausage
-   * region are to be considered.
-   * @param gridSpacing double Grid Spacing in degrees
-   * @param region EvenlyGriddedGeographicRegionAPI
-   * @see EvenlyGriddedGeographicRegionAPI.createRegionLocationsList(EvenlyGriddedGeographicRegionAPI)
-   * @see EvenlyGriddedGeographicRegionAPI
-   */
-  public EvenlyGriddedSausageGeographicRegion(LocationList locList, double radius, double gridSpacing,
-      EvenlyGriddedGeographicRegionAPI region) {
-    this(locList,radius,gridSpacing);
-    createRegionLocationsList(region);
-  }
+//  /**
+//   * Class constructor that accepts the list of locations as corner points on the
+//   * line around which sausage region is to be created, radius,grid spacing
+//   * and EvenlyGriddedGeographicRegionAPI,for creating the list of locations
+//   * in this region from passed in EvenlyGriddedGeographicRegionAPI,
+//   * for creation of a EvenlyGriddedSausageGeographicRegion.
+//   *
+//   * This method is helpful as avoid creating same location more then once and just
+//   * refer to the location object in the passed in EvenlyGriddedGeographicRegionAPI.
+//   *
+//   * This class constructor allows the user to create list of locations for this
+//   * EvenlyGriddedGeographic object from passed in EvenlyGriddedGeographicRegionAPI.
+//   * Please refer to EvenlyGriddedGeographicRegionAPI for more details.
+//   *
+//   * @param locList LocationList : Locations of the end points on the lines
+//   * @param radius double Maximum distance for which locations in this sausage
+//   * region are to be considered.
+//   * @param gridSpacing double Grid Spacing in degrees
+//   * @param region EvenlyGriddedGeographicRegionAPI
+//   * @see EvenlyGriddedGeographicRegionAPI.createRegionLocationsList(EvenlyGriddedGeographicRegionAPI)
+//   * @see EvenlyGriddedGeographicRegionAPI
+//   */
+//  public EvenlyGriddedSausageGeographicRegion(LocationList locList, double radius, double gridSpacing,
+//      EvenlyGriddedGeographicRegionAPI region) {
+//    this(locList,radius,gridSpacing);
+//    createRegionLocationsList(region);
+//  }
 
 
 
@@ -128,14 +133,14 @@ public class EvenlyGriddedSausageGeographicRegion
    * locationlist
    * @param gridSpacing double
    */
-  public void createEvenlyGriddedSausageGeographicRegion(LocationList locList,
-                                                double radius,
-                                                double gridSpacing) {
-    this.locList = locList;
-    setMinMaxLatLon();
-    this.radius = radius;
-    setGridSpacing(gridSpacing);
-  }
+//  public void createEvenlyGriddedSausageGeographicRegion(LocationList locList,
+//                                                double radius,
+//                                                double gridSpacing) {
+//    //this.locList = locList;
+//    //setMinMaxLatLon();
+//    this.radius = radius;
+//    setGridSpacing(gridSpacing);
+//  }
 
 
   /**
@@ -185,36 +190,36 @@ public class EvenlyGriddedSausageGeographicRegion
    * @param degrees: sets the grid spacing
    * @see EvenlyGriddedGeographicRegionAPI.setGridSpacing(double)
    */
-  protected void setMinMaxLatLon(){
-    ListIterator it=locList.listIterator();
-    Location l = (Location) it.next();
-    minLat=l.getLatitude();
-    minLon=l.getLongitude();
-    maxLat=l.getLatitude();
-    maxLon=l.getLongitude();
-    //in addition to getting the min/max lat/Lon it gets the locations for these.
-    while(it.hasNext()){
-      l=(Location)it.next();
-      if(l.getLatitude()< minLat){
-        minLat = l.getLatitude();
-        minLatLon = l.getLongitude();
-      }
-      if(l.getLatitude()> maxLat){
-        maxLat = l.getLatitude();
-        maxLatLon = l.getLongitude();
-      }
-      if(l.getLongitude()<minLon){
-        minLon = l.getLongitude();
-        minLonLat = l.getLatitude();
-      }
-      if(l.getLongitude()>maxLon){
-        maxLon = l.getLongitude();
-        maxLonLat = l.getLatitude();
-      }
-    }
-
-    if(D) System.out.println(C +": minLat="+minLat+"; maxLat="+maxLat+"; minLon="+minLon+"; maxLon="+maxLon);
-  }
+//  protected void setMinMaxLatLon(){
+//    ListIterator it=locList.listIterator();
+//    Location l = (Location) it.next();
+//    minLat=l.getLatitude();
+//    minLon=l.getLongitude();
+//    maxLat=l.getLatitude();
+//    maxLon=l.getLongitude();
+//    //in addition to getting the min/max lat/Lon it gets the locations for these.
+//    while(it.hasNext()){
+//      l=(Location)it.next();
+//      if(l.getLatitude()< minLat){
+//        minLat = l.getLatitude();
+//        minLatLon = l.getLongitude();
+//      }
+//      if(l.getLatitude()> maxLat){
+//        maxLat = l.getLatitude();
+//        maxLatLon = l.getLongitude();
+//      }
+//      if(l.getLongitude()<minLon){
+//        minLon = l.getLongitude();
+//        minLonLat = l.getLatitude();
+//      }
+//      if(l.getLongitude()>maxLon){
+//        maxLon = l.getLongitude();
+//        maxLonLat = l.getLatitude();
+//      }
+//    }
+//
+//    if(D) System.out.println(C +": minLat="+minLat+"; maxLat="+maxLat+"; minLon="+minLon+"; maxLon="+maxLon);
+//  }
 
 
   /**
@@ -273,10 +278,10 @@ public class EvenlyGriddedSausageGeographicRegion
     this.gridSpacing=gridSpacing;
     if(D)
       System.out.println("gridSpacing="+gridSpacing);
-    niceMinLat = Math.ceil(minLat/gridSpacing)*gridSpacing;
-    niceMinLon = Math.ceil(minLon/gridSpacing)*gridSpacing;
-    niceMaxLat = Math.floor(maxLat/gridSpacing)*gridSpacing;
-    niceMaxLon = Math.floor(maxLon/gridSpacing)*gridSpacing;
+    niceMinLat = Math.ceil(getMinLat()/gridSpacing)*gridSpacing;
+    niceMinLon = Math.ceil(getMinLon()/gridSpacing)*gridSpacing;
+    niceMaxLat = Math.floor(getMaxLat()/gridSpacing)*gridSpacing;
+    niceMaxLon = Math.floor(getMaxLon()/gridSpacing)*gridSpacing;
 
     //getting the nice Lat/Lon for the locations at min/max lat/lon.
     minLatLon = Math.ceil(minLatLon/gridSpacing)*gridSpacing;
@@ -349,7 +354,7 @@ public class EvenlyGriddedSausageGeographicRegion
    * @return boolean
    */
   public boolean isLocationInside(Location loc){
-    if(locList.getMinHorzDistToLine(loc) > radius) return false;
+    if(getRegionOutline().getMinHorzDistToLine(loc) > radius) return false;
     return true;
    }
 
@@ -393,7 +398,7 @@ public class EvenlyGriddedSausageGeographicRegion
     locList.addLocation(new Location(33.0,-119.0));
     locList.addLocation(new Location(32.7,-119.4));
     locList.addLocation(new Location(33.5,-120.0));
-    EvenlyGriddedSausageGeographicRegion gridReg = new EvenlyGriddedSausageGeographicRegion(locList,111,0.02);
+    EvenlyGriddedGeographicRegion gridReg = new EvenlyGriddedGeographicRegion(locList,111,0.02);
 
     try {
       FileWriter fw = new FileWriter("SausageRegionFile.txt");

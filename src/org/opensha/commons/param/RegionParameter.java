@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 import org.dom4j.Element;
+import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.region.RectangularGeographicRegion;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
@@ -20,7 +21,7 @@ import org.opensha.commons.param.editor.RegionParameterEditor;
  * @version 1.0
  */
 
-public class RegionParameter extends DependentParameter<RectangularGeographicRegion>
+public class RegionParameter extends DependentParameter<GeographicRegion>
 implements java.io.Serializable{
 
 
@@ -55,7 +56,7 @@ implements java.io.Serializable{
 	protected ParameterAPI maxLonParam;
 
 	//location object, value of this parameter
-	private RectangularGeographicRegion region;
+	private GeographicRegion region;
 
 
 	//location parameterlist parameter name static declaration
@@ -82,7 +83,7 @@ implements java.io.Serializable{
 	 * @param locationList ArrayList : List of allowed locations
 	 * @param value Location : Parameter value, should be one of the allowed location
 	 */
-	public RegionParameter(String name, RectangularGeographicRegion value) throws
+	public RegionParameter(String name, GeographicRegion value) throws
 	ConstraintException {
 		super(name, null, null, value);
 		region = value;
@@ -91,20 +92,20 @@ implements java.io.Serializable{
 
 	public RegionParameter(String name, String units,
 			double minLat, double maxLat, double minLon, double maxLon) throws ConstraintException, RegionConstraintException {
-		super(name, null, units, new RectangularGeographicRegion(minLat, maxLat, minLon, maxLon));
-		region = (RectangularGeographicRegion)value;
+		super(name, null, units, new GeographicRegion(minLat, maxLat, minLon, maxLon));
+		region = (GeographicRegion)value;
 		setupParams(region);
 	}
 
 
-	public void setupParams(RectangularGeographicRegion value) {
+	public void setupParams(GeographicRegion value) {
 		if (value == null) {
-			try {
-				value = new RectangularGeographicRegion((Double)minLat.getValue(), (Double)maxLat.getValue(), (Double)minLon.getValue(), (Double)maxLon.getValue());
-			} catch (RegionConstraintException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			try {
+				value = new GeographicRegion((Double)minLat.getValue(), (Double)maxLat.getValue(), (Double)minLon.getValue(), (Double)maxLon.getValue());
+//			} catch (RegionConstraintException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 		}
 
 		ParameterList paramList = new ParameterList();
@@ -160,7 +161,7 @@ implements java.io.Serializable{
 	 * Sets the location parameter with updated location value
 	 * @param loc Location
 	 */
-	public void setValue(RectangularGeographicRegion reg){
+	public void setValue(GeographicRegion reg){
 		minLat.setValue(reg.getMinLat());
 		maxLat.setValue(reg.getMaxLat());
 		minLon.setValue(reg.getMinLon());
@@ -249,8 +250,8 @@ implements java.io.Serializable{
 		if ( (this.value == null) && (param.value == null))return 0;
 		int result = 0;
 
-		RectangularGeographicRegion n1 = this.getValue();
-		RectangularGeographicRegion n2 = param.getValue();
+		GeographicRegion n1 = this.getValue();
+		GeographicRegion n2 = param.getValue();
 
 		if (n1.equals(n2))
 			return 0;
@@ -294,7 +295,7 @@ implements java.io.Serializable{
 
 		if (value != null)
 			param = new RegionParameter(name,
-					(RectangularGeographicRegion) value);
+					(GeographicRegion) value);
 		else
 			param = new RegionParameter(name);
 		param.editable = true;

@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_TestingRegion;
 import org.opensha.commons.data.region.RELM_CollectionRegion;
@@ -166,7 +167,7 @@ public class WriteRELM_FileFromGriddedHypoMFD_Forecast {
      fw.write(FORECAST_DURATION_NAME+duration+","+durationUnits+"\n");
      // write the data lines
      fw.write(BEGIN_FORECAST+"\n");
-     EvenlyGriddedGeographicRegionAPI region  = griddedHypoMFD.getEvenlyGriddedGeographicRegion();
+     EvenlyGriddedGeographicRegion region  = griddedHypoMFD.getEvenlyGriddedGeographicRegion();
      int numLocs  = region.getNumGridLocs();
      double mag1, mag2; 
      double rate;

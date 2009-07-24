@@ -2,6 +2,7 @@ package scratch.vipin.relm;
 
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
 import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_TestingRegion;
 import org.opensha.commons.exceptions.DataPoint2DException;
@@ -39,7 +40,7 @@ public class ReadRELM_FileIntoGriddedHypoMFD_Forecast extends GriddedHypoMagFreq
   * @return
   */
  public ReadRELM_FileIntoGriddedHypoMFD_Forecast(String inputFileName,
-                                                 EvenlyGriddedGeographicRegionAPI griddedRegion,
+                                                 EvenlyGriddedGeographicRegion griddedRegion,
                                                  double minMag,
                                                  double maxMag,
                                                  int numMagBins,

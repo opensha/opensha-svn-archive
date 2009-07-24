@@ -66,7 +66,7 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
    */
   public void makeMap(double mag, String dirName, boolean isAdjustLatLon, double adjustmentVal) {
     XYZ_DataSetAPI xyzData = getRELM_XYZ_DataAboveMag(mag, isAdjustLatLon, adjustmentVal);
-    EvenlyGriddedGeographicRegionAPI region  = griddedHypoMFD.getEvenlyGriddedGeographicRegion();
+    EvenlyGriddedGeographicRegion region  = griddedHypoMFD.getEvenlyGriddedGeographicRegion();
     // make GMT_MapGenerator to make the map
     GMT_MapGenerator mapGenerator = new GMT_MapGenerator();
 

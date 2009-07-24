@@ -9,6 +9,7 @@ import java.io.IOException;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.gui.beans.GriddedRegionGUIBean;
 import org.opensha.commons.mapping.gmt.GMT_Map;
@@ -66,7 +67,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 		this.add(leftPanel, BorderLayout.WEST);
 	}
 	
-	public void setRegion(EvenlyGriddedGeographicRegionAPI region) {
+	public void setRegion(EvenlyGriddedGeographicRegion region) {
 		if (region == null)
 			return;
 		regionBean.setFromGriddedRegion(region);

@@ -5,6 +5,7 @@ import java.io.*;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 
@@ -73,7 +74,7 @@ public final class BasinDepthClass {
       RegionConstraintException {
 
     locations = new ArrayList();
-    EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
+    EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
 
     ListIterator it= region.getGridLocationsIterator();
     while(it.hasNext())

@@ -7,6 +7,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.EvenlyGriddedNoCalRegion;
 import org.opensha.commons.data.region.EvenlyGriddedSoCalRegion;
 import org.opensha.commons.data.region.GeographicRegion;
@@ -42,7 +43,7 @@ public class RegionSaver {
 		locs.addLocation(new Location(33.25, -117.50));
 		locs.addLocation(new Location(34.13, -119.38));
 		
-		return new GeographicRegion(locs);
+		return new GeographicRegion(locs, BorderType.MERCATOR_LINEAR);
 	}
 
 	/**

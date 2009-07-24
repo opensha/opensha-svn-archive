@@ -22,7 +22,9 @@ import org.opensha.commons.calc.ArcsecondConverter;
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
+import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.region.GeographicRegionAPI;
 import org.opensha.commons.data.region.RectangularGeographicRegion;
 import org.opensha.commons.exceptions.GMT_MapException;
@@ -412,13 +414,13 @@ public class GMT_MapGenerator implements Serializable{
 	}
 	
 	public GMT_Map getGMTMapSpecification(XYZ_DataSetAPI xyzData) {
-		RectangularGeographicRegion region;
-		try {
-			region = new RectangularGeographicRegion(minLatParam.getValue(),
+		GeographicRegion region;
+//		try {
+			region = new GeographicRegion(minLatParam.getValue(),
 					maxLatParam.getValue(), minLonParam.getValue(), maxLonParam.getValue());
-		} catch (RegionConstraintException e) {
-			throw new RuntimeException(e);
-		}
+//		} catch (RegionConstraintException e) {
+//			throw new RuntimeException(e);
+//		}
 		GMT_Map map = new GMT_Map(region, xyzData, gridSpacingParam.getValue(), cptFileParam.getValue());
 		
 		CoastAttributes coast = null;
@@ -917,7 +919,7 @@ public class GMT_MapGenerator implements Serializable{
 
 	}
 
-	public EvenlyGriddedRectangularGeographicRegion getEvenlyGriddedGeographicRegion() throws RegionConstraintException {
+	public EvenlyGriddedGeographicRegion getEvenlyGriddedGeographicRegion() throws RegionConstraintException {
 		// Get the limits and discretization of the map
 		double minLat = ((Double) minLatParam.getValue()).doubleValue();
 		double maxLat = ((Double) maxLatParam.getValue()).doubleValue();
@@ -925,7 +927,7 @@ public class GMT_MapGenerator implements Serializable{
 		double maxLon = ((Double) maxLonParam.getValue()).doubleValue();
 		double gridSpacing = ((Double) gridSpacingParam.getValue()).doubleValue();
 
-		return new EvenlyGriddedRectangularGeographicRegion(minLat, maxLat, minLon, maxLon, gridSpacing);
+		return new EvenlyGriddedGeographicRegion(minLat, maxLat, minLon, maxLon, gridSpacing);
 	}
 
 	/**
@@ -1263,7 +1265,7 @@ public class GMT_MapGenerator implements Serializable{
 
 		// hard-code check that lat & lon bounds are in the region where we have topography:
 		// this is only temporary until we have worldwide topo data
-		if(topoIntenFile != null && !map.getTopoResolution().region().isRegionInside(map.getRegion()))
+		if(topoIntenFile != null && !map.getTopoResolution().region().contains(map.getRegion()))
 			throw new GMT_MapException("Topography not available for the chosen region; please select \"" +
 					TOPO_RESOLUTION_NONE + "\" for the " + TOPO_RESOLUTION_PARAM_NAME + " parameter");
 

@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 
 
@@ -26,7 +27,7 @@ import org.opensha.sha.faultSurface.SimpleFaultData;
  */
 public class SmoothKVal_Calc {
   private  STEP_AftershockForecast aftershockModel;
-  private  EvenlyGriddedGeographicRegionAPI aftershockZone;
+  private  EvenlyGriddedGeographicRegion aftershockZone;
   private double global_aVal, global_bVal, global_Mc, mainshockMag, numInd;
   private double seq_kVal;
   private ObsEqkRupture mainshock;

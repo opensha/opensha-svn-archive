@@ -100,8 +100,9 @@ import org.opensha.commons.metadata.XMLSaveable;
  * @created: March 5,2003
  * @version 1.0
  */
-
-public interface EvenlyGriddedGeographicRegionAPI extends GeographicRegionAPI,java.io.Serializable,XMLSaveable{
+@Deprecated
+public interface EvenlyGriddedGeographicRegionAPI extends 
+		GeographicRegionAPI, java.io.Serializable,XMLSaveable{
 
 
 
@@ -183,68 +184,68 @@ public interface EvenlyGriddedGeographicRegionAPI extends GeographicRegionAPI,ja
    */
   public int getNearestLocationIndex(Location loc);
 
-  /**
-   * Returns the nearest location in the gridded region to the provided Location.
-   * This method will create the list of locations for the
-   * region if not already exists then find the nearest location. By following
-   * this approach we are improving performance on memory cost.
-   * @param loc Location Location to which we have to find the nearest location.
-   * @return Location Nearest Location. Returns null if location is outside the regional bounds.
-   */
-  public Location getNearestLocation(Location loc);
+//  /**
+//   * Returns the nearest location in the gridded region to the provided Location.
+//   * This method will create the list of locations for the
+//   * region if not already exists then find the nearest location. By following
+//   * this approach we are improving performance on memory cost.
+//   * @param loc Location Location to which we have to find the nearest location.
+//   * @return Location Nearest Location. Returns null if location is outside the regional bounds.
+//   */
+//  public Location getNearestLocation(Location loc);
 
-  /**
-   * Returns the nearest location in the gridded region to the provided location.
-   * This method will create a new location object every time this function is called.
-   * It improves the memory utilization as location for the gridded region are not
-   * created. This function gets the nearest location to the given location
-   * on the fly.
-   * @param loc Location Location to which we have to find the nearest location.
-   * @return Location Nearest Location. Returns null if location is outside the regional bounds.
-   */
-  public Location getNearestLocationClone(Location loc);
+//  /**
+//   * Returns the nearest location in the gridded region to the provided location.
+//   * This method will create a new location object every time this function is called.
+//   * It improves the memory utilization as location for the gridded region are not
+//   * created. This function gets the nearest location to the given location
+//   * on the fly.
+//   * @param loc Location Location to which we have to find the nearest location.
+//   * @return Location Nearest Location. Returns null if location is outside the regional bounds.
+//   */
+//  public Location getNearestLocationClone(Location loc);
 
-  /**
-   * Returns the location in the gridded region to the provided location.
-   * This method will create a new location object every time this function is called.
-   * It improves the memory utilization as location for the gridded region are not
-   * created. This function gets the location to the given location
-   * on the fly.
-   * @param index int location index in the region.
-   * @return Location at the given index. Returns null if invalid index.
-   */
-  public Location getGridLocationClone(int index);
+//  /**
+//   * Returns the location in the gridded region to the provided location.
+//   * This method will create a new location object every time this function is called.
+//   * It improves the memory utilization as location for the gridded region are not
+//   * created. This function gets the location to the given location
+//   * on the fly.
+//   * @param index int location index in the region.
+//   * @return Location at the given index. Returns null if invalid index.
+//   */
+//  public Location getGridLocationClone(int index);
 
-  /**
-   * Clears the Region LocationList so as to make it empty. Once this function is
-   * called it will remove the list of locations in the region.
-   */
-  public void clearRegionLocations();
+//  /**
+//   * Clears the Region LocationList so as to make it empty. Once this function is
+//   * called it will remove the list of locations in the region.
+//   */
+//  public void clearRegionLocations();
 
-  /**
-   * This gets the nearest location at the given index corresponding to the location in the
-   * given EvenlyGriddedGeographicRegionAPI region.
-   * @param index int index of the called EvenlyGriddedGeographicRegionAPI
-   * @param region EvenlyGriddedGeographicRegionAPI given index will be mapped to a
-   * location in this region.
-   * @return Location Returns the nearest location in the region for the index in the Region
-   * on which this function is called. Returns null if invalid index is provided.
-   */
-  public Location getNearestGridLocation(int index,
-                                  EvenlyGriddedGeographicRegionAPI region) ;
+//  /**
+//   * This gets the nearest location at the given index corresponding to the location in the
+//   * given EvenlyGriddedGeographicRegionAPI region.
+//   * @param index int index of the called EvenlyGriddedGeographicRegionAPI
+//   * @param region EvenlyGriddedGeographicRegionAPI given index will be mapped to a
+//   * location in this region.
+//   * @return Location Returns the nearest location in the region for the index in the Region
+//   * on which this function is called. Returns null if invalid index is provided.
+//   */
+//  public Location getNearestGridLocation(int index,
+//                                  EvenlyGriddedGeographicRegionAPI region) ;
 
-  /**
-   * This gets the index of the nearest location at the given index
-   * corresponding to the location in the given EvenlyGriddedGeographicRegionAPI region.
-   * @param index int index of the called EvenlyGriddedGeographicRegionAPI
-   * @param region EvenlyGriddedGeographicRegionAPI given index will be mapped to a
-   * location in this region.
-   * @return int  Returns the nearest location index in the region for the index in the Region
-   * on which this function is called. Returns -1 if invalid index is provided.
-   */
-
-  public int getNearestGridLocationIndex(int index,
-                                  EvenlyGriddedGeographicRegionAPI region) ;
+//  /**
+//   * This gets the index of the nearest location at the given index
+//   * corresponding to the location in the given EvenlyGriddedGeographicRegionAPI region.
+//   * @param index int index of the called EvenlyGriddedGeographicRegionAPI
+//   * @param region EvenlyGriddedGeographicRegionAPI given index will be mapped to a
+//   * location in this region.
+//   * @return int  Returns the nearest location index in the region for the index in the Region
+//   * on which this function is called. Returns -1 if invalid index is provided.
+//   */
+//
+//  public int getNearestGridLocationIndex(int index,
+//                                  EvenlyGriddedGeographicRegionAPI region) ;
 
   /**
    * This function allows the user to create list of location in the region from
@@ -287,7 +288,7 @@ public interface EvenlyGriddedGeographicRegionAPI extends GeographicRegionAPI,ja
    * </B>
 
    */
-  public LocationList createRegionLocationsList(EvenlyGriddedGeographicRegionAPI region);
+  public LocationList createRegionLocationsList(EvenlyGriddedGeographicRegion region);
 
 }
 

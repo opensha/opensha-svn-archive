@@ -6,6 +6,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.region.RELM_TestingRegion;
 import org.opensha.commons.util.XMLUtils;
@@ -15,7 +16,7 @@ public class NamedGeographicRegion extends GeographicRegion implements NamedObje
 	private String name;
 
 	public NamedGeographicRegion(LocationList outline, String name) {
-		super(outline);
+		super(outline, BorderType.MERCATOR_LINEAR);
 
 		this.name = name;
 	}
@@ -25,7 +26,7 @@ public class NamedGeographicRegion extends GeographicRegion implements NamedObje
 	}
 
 	public Element toXMLMetadata(Element root) {
-		GeographicRegion region = new GeographicRegion(this.getRegionOutline());
+		GeographicRegion region = new GeographicRegion(this.getRegionOutline(), BorderType.MERCATOR_LINEAR);
 		
 		root = region.toXMLMetadata(root);
 		

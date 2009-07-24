@@ -6,6 +6,7 @@ import java.util.Vector;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.region.RectangularGeographicRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.nshmp.sha.data.HazardDataMinerServletMode;
@@ -71,15 +72,15 @@ public class NSHMPHazardBean extends AbstractHazardBean {
 	private static NSHMPHazardBean instance = null;
 	
 	// Region Bounds for the Possible Regions
-	protected static RectangularGeographicRegion STATES_REGION      = null;
-	protected static RectangularGeographicRegion ALASKA_REGION      = null;
-	protected static RectangularGeographicRegion HAWAII_REGION      = null;
-	protected static RectangularGeographicRegion PUERTO_RICO_REGION = null;
-	protected static RectangularGeographicRegion CULEBRA_REGION     = null;
-	protected static RectangularGeographicRegion ST_CROIX_REGION    = null;
-	protected static RectangularGeographicRegion ST_JOHN_REGION     = null;
-	protected static RectangularGeographicRegion ST_THOMAS_REGION   = null;
-	protected static RectangularGeographicRegion VIEQUES_REGION     = null;
+	protected static GeographicRegion STATES_REGION      = null;
+	protected static GeographicRegion ALASKA_REGION      = null;
+	protected static GeographicRegion HAWAII_REGION      = null;
+	protected static GeographicRegion PUERTO_RICO_REGION = null;
+	protected static GeographicRegion CULEBRA_REGION     = null;
+	protected static GeographicRegion ST_CROIX_REGION    = null;
+	protected static GeographicRegion ST_JOHN_REGION     = null;
+	protected static GeographicRegion ST_THOMAS_REGION   = null;
+	protected static GeographicRegion VIEQUES_REGION     = null;
 	
 	//---------------------------- Instance Members ---------------------------//
 
@@ -131,26 +132,26 @@ public class NSHMPHazardBean extends AbstractHazardBean {
 	 * the very first time this class is accessed in any way.
 	 */
 	static {
-		try {
+//		try {
 			/* Initialize all the geographic regions for user later. */
-			STATES_REGION = new RectangularGeographicRegion(24.7, 50, -125, -65);
-			ALASKA_REGION = new RectangularGeographicRegion(48, 72, -200, -125);
-			HAWAII_REGION = new RectangularGeographicRegion(18, 23, -161, -154);
+			STATES_REGION = new GeographicRegion(24.7, 50, -125, -65);
+			ALASKA_REGION = new GeographicRegion(48, 72, -200, -125);
+			HAWAII_REGION = new GeographicRegion(18, 23, -161, -154);
 			PUERTO_RICO_REGION =
-				new RectangularGeographicRegion(17.89, 18.55, -67.36, -65.47);
+				new GeographicRegion(17.89, 18.55, -67.36, -65.47);
 			CULEBRA_REGION = 
-				new RectangularGeographicRegion(17.67, 17.8, -64.93, -64.54);
+				new GeographicRegion(17.67, 17.8, -64.93, -64.54);
 			ST_CROIX_REGION = 
-				new RectangularGeographicRegion(18.27, 18.36, -65.39, -65.21);
+				new GeographicRegion(18.27, 18.36, -65.39, -65.21);
 			ST_JOHN_REGION = 
-				new RectangularGeographicRegion(18.29, 18.38, -64.85, -64.65);
+				new GeographicRegion(18.29, 18.38, -64.85, -64.65);
 			ST_THOMAS_REGION = 
-				new RectangularGeographicRegion(18.26, 18.43, -65.10, -64.80);
+				new GeographicRegion(18.26, 18.43, -65.10, -64.80);
 			VIEQUES_REGION = 
-				new RectangularGeographicRegion(18.07, 18.17, -65.6, -65.25);
-		} catch (RegionConstraintException rcx) {
-			rcx.printStackTrace();
-		}
+				new GeographicRegion(18.07, 18.17, -65.6, -65.25);
+//		} catch (RegionConstraintException rcx) {
+//			rcx.printStackTrace();
+//		}
 	}
 	
 	//---------------------------------------------------------------------------

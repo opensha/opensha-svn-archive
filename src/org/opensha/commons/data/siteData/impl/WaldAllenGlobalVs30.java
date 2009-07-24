@@ -7,6 +7,7 @@ import org.opensha.commons.calc.ArcsecondConverter;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.region.RectangularGeographicRegion;
@@ -363,7 +364,7 @@ public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements Par
 		System.out.println(data.getValue(new Location(34, -118)));
 		System.out.println(data.getValue(new Location(34, -10)));
 		
-		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(32, 35, -121, -117, 0.01);
+		EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(32, 35, -121, -117, 0.01);
 //		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(-60, 60, -180, 180, 1);
 		
 		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();

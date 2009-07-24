@@ -23,6 +23,9 @@ import org.opensha.commons.metadata.XMLSaveable;
  * @author     Sid Hellman, Steven W. Rock
  * @created    February 26, 2002
  * @version    1.0
+ * 
+ * TODO should do all error checking... any instantiated Location should be valid
+ * TODO why hashCode overriden; improve equals
  */
 
 public class Location implements java.io.Serializable, XMLSaveable {
@@ -170,18 +173,13 @@ public class Location implements java.io.Serializable, XMLSaveable {
     }
 
 
-    /**
-     * Creates a new copy Location with all its values set to this locations values.
-     * Since it is a clone, we can modify the copy without affecting the original.
-     */
-    public Object clone(){
-
-        Location loc = new Location();
-        loc.setDepth( this.depth );
-        loc.setLatitude( this.latitude );
-        loc.setLongitude( this.longitude );
+    @Override
+    public Location clone(){
+    	Location loc = new Location();
+        loc.setDepth(depth );
+        loc.setLatitude(latitude);
+        loc.setLongitude(longitude);
         return loc;
-
     }
 
     // private final static char TAB = '\t';

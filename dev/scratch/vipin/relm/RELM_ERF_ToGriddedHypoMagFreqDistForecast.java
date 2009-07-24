@@ -4,6 +4,7 @@ import org.opensha.sha.earthquake.calc.ERF2GriddedSeisRatesCalc;
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.exceptions.DataPoint2DException;
 import org.opensha.sha.earthquake.EqkRupForecast;
@@ -59,7 +60,7 @@ public class RELM_ERF_ToGriddedHypoMagFreqDistForecast  extends GriddedHypoMagFr
    *
    */
   public RELM_ERF_ToGriddedHypoMagFreqDistForecast(EqkRupForecast eqkRupForecast,
-                                              EvenlyGriddedGeographicRegionAPI griddedRegion,
+                                              EvenlyGriddedGeographicRegion griddedRegion,
                                               double minMag,
                                               double maxMag,
                                               int numMagBins,

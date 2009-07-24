@@ -10,8 +10,10 @@ import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.region.CircularGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedCircularGeographicRegion;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.EvenlyGriddedSausageGeographicRegion;
+import org.opensha.commons.data.region.GeographicRegion;
 
 
 import org.opensha.sha.earthquake.observedEarthquake.*;
@@ -63,7 +65,7 @@ public class STEP_CombineForecastModels
   private SpatialAfterHypoMagFreqDistForecast spaElement = null;
   private HypoMagFreqDistAtLoc combinedForecast[];
   //private double sampleSizeAIC;
-  private EvenlyGriddedGeographicRegionAPI aftershockZone;
+  private EvenlyGriddedGeographicRegion aftershockZone;
   private boolean existSeqElement = false, existSpaElement = false; 
   private boolean usedInForecast = false;
   
@@ -184,7 +186,7 @@ public class STEP_CombineForecastModels
 			  // gridSearchRadius is the radius used for calculating the Reasenberg & Jones params
 			  double radius = this.spaElement.getGridSearchRadius();
 			  ObsEqkRupList gridEvents;
-			  CircularGeographicRegion nodeRegion = new CircularGeographicRegion(this.region.getGridLocation(gLoop),radius);
+			  GeographicRegion nodeRegion = new GeographicRegion(this.region.getGridLocation(gLoop),radius);
 			  gridEvents = this.afterShocks.getObsEqkRupsInside(nodeRegion);
 			  
 			  // get the smoothed generic k val for the grid node
@@ -400,7 +402,7 @@ public class STEP_CombineForecastModels
       ObsEqkRupture mainshock = this.getMainShock();
       Location mainshockLocation = mainshock.getHypocenterLocation();
       this.aftershockZone =
-          new EvenlyGriddedCircularGeographicRegion(mainshockLocation,
+          new EvenlyGriddedGeographicRegion(mainshockLocation,
           zoneRadius, RegionDefaults.gridSpacing);
       this.aftershockZone.createRegionLocationsList(backgroundRatesGrid.region);
        this.region = this.aftershockZone;
@@ -424,7 +426,7 @@ public class STEP_CombineForecastModels
    */
 
   public void calcTypeII_AfterShockZone(ObsEqkRupList aftershockList,
-                                        EvenlyGriddedGeographicRegionAPI
+                                        EvenlyGriddedGeographicRegion
                                         backGroundRatesGrid) {
     if (hasExternalFaultModel) {
       // This needs to be set up to read an external fault model.
@@ -432,7 +434,7 @@ public class STEP_CombineForecastModels
     else {
       STEP_TypeIIAftershockZone_Calc typeIIcalc = new
           STEP_TypeIIAftershockZone_Calc(aftershockList, this);
-      EvenlyGriddedSausageGeographicRegion typeII_Zone = typeIIcalc.
+      EvenlyGriddedGeographicRegion typeII_Zone = typeIIcalc.
           get_TypeIIAftershockZone();
       typeII_Zone.createRegionLocationsList(backGroundRatesGrid); 
       this.region = typeII_Zone;

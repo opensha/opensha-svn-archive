@@ -5,6 +5,7 @@ import java.io.*;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 
@@ -82,7 +83,7 @@ public final class WillsSiteClass {
 			RegionConstraintException {
 
 		locations = new ArrayList<Location>();
-		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
+		EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
 		//System.out.println("Number of Grid Locations:"+region.getNumGridLocs());
 		for (Location loc : region.getGridLocationsList())
 			locations.add(loc);

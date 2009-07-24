@@ -2,7 +2,9 @@ package org.opensha.commons.gui.beans;
 
 import javax.swing.JPanel;
 
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
+import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.region.GeographicRegionAPI;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.DoubleParameter;
@@ -72,12 +74,12 @@ public class GriddedRegionGUIBean extends ParameterListEditor {
 		return gridSpacingParam.getValue();
 	}
 	
-	public void setFromGriddedRegion(EvenlyGriddedGeographicRegionAPI region) {
+	public void setFromGriddedRegion(EvenlyGriddedGeographicRegion region) {
 		setFromGeographicRegion(region);
 		gridSpacingParam.setValue(region.getGridSpacing());
 	}
 	
-	public void setFromGeographicRegion(GeographicRegionAPI region) {
+	public void setFromGeographicRegion(GeographicRegion region) {
 		minLatParam.setValue(region.getMinLat());
 		maxLatParam.setValue(region.getMaxLat());
 		minLonParam.setValue(region.getMinLon());

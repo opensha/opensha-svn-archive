@@ -1,5 +1,7 @@
 package org.opensha.commons.calc;
 
+import static java.lang.Math.PI;
+
 import org.opensha.commons.data.Direction;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
@@ -33,18 +35,163 @@ import org.opensha.commons.data.LocationList;
  * @author     Steven W. Rock
  * @created    February 26, 2002
  * @version    1.0
+ * 
+ * TODO rename to GeographicUtils or GeoTools or similar after region merge
  */
 
 public final class RelativeLocation {
 
+    /** Conversion multiplier for degrees to radians */
+    private static final double TO_RAD = Math.toRadians(1.0);
+
+    /** Conversion multiplier for radians to degrees */
+    private static final double TO_DEG = Math.toDegrees(1.0);
+    
+    /** Convenience constant for 2 * PI */
+    private static final double TWOPI = 2*PI;
+
+    /**
+     * The Authalic mean radius (A<subscript>r</subscript>) of the earth 
+     * [6371.005 km] (see <a href="http://en.wikipedia.org/wiki/Earth_radius" 
+     * target="_blank">Wikipedia</a>).
+     */
+    public static final double EARTH_MEAN_RADIUS = 6371.005;
+
+    /**
+     * The equatorial radius of the earth [6378.135 km]
+     * (see <a href="http://en.wikipedia.org/wiki/Earth_radius" 
+     * target="_blank">Wikipedia</a>).
+     */
+    public static final double EARTH_EQUATORIAL_RADIUS = 6378.135; 
+    
+    /**
+     * The polar radius of the earth [6356.750 km]
+     * (see <a href="http://en.wikipedia.org/wiki/Earth_radius" 
+     * target="_blank">Wikipedia</a>).
+     */
+    public static final double EARTH_POLAR_RADIUS = 6356.750;
 
 
-    /** Class name used for debbuging */
-    public final static String C = "RelativeLocation";
-    /** if true print out debugging statements */
-    protected final static boolean D = false;
+    /**
+     * Calculates the angle between two {@link Location} objects using the 
+     * <a href="http://en.wikipedia.org/wiki/Haversine_formula" target="_blank">
+     * Haversine</a> formula. This method properly handles values spanning
+     * &#177;180&#176;.
+     * 
+     * @param p1 the first location point
+     * @param p2 the second location point
+     * @return the angle between the points
+     */
+    public final double angle(Location p1, Location p2) {
+        final double dLat = p1.getLatitude() - p2.getLatitude();
+        final double dlon = p1.getLongitude() - p2.getLongitude();
+        // half length of chord connecting points
+        final double c = (Math.sin(dLat/2.0) * Math.sin(dLat/2.0)) + 
+                   Math.cos(p1.getLatitude()) * Math.cos(p2.getLatitude()) * 
+                   Math.sin(dlon/2.0) * Math.sin(dlon/2.0);
+        // angle
+        return 2.0 * Math.atan2(Math.sqrt(c), Math.sqrt(1-c));
+    }
+    
+    /**
+     * Calculates the great circle surface distance between two {@link Location}
+     * objects.
+     * 
+     * @param p1 the first location point
+     * @param p2 the second location point
+     * @return the distance between the points
+     */
+    public final double surfaceDistance(Location p1, Location p2) {
+        return EARTH_MEAN_RADIUS * angle(p1,p2);
+    }
 
+    /**
+     * Calculates the distance in three dimensions between two {@link Location}
+     * objects. Method returns the straight line distance taking into account
+     * the depths of the points.
+     * 
+     * @param p1 the first location point
+     * @param p2 the second location point
+     * @return the distance between the points
+     */
+    public final double linearDistance(Location p1, Location p2) {
+        final double alpha = angle(p1,p2);
+        final double R1 = EARTH_MEAN_RADIUS - p1.getDepth();
+        final double R2 = EARTH_MEAN_RADIUS - p2.getDepth();
+        final double B = R1 * Math.sin(alpha);
+        final double C = R2 - R1 * Math.cos(alpha);
+        return Math.sqrt(B*B + C*C);
+    }
 
+    /**
+     * Computes the initial azimuth (bearing) when moving from one
+     * {@link Location} to another. See 
+     * <a href="http://williams.best.vwh.net/avform.htm#Crs">
+     * Aviation Formulary</a> for formulation. For back azimuth, 
+     * reverse the <code>Location</code> arguments.
+     * 
+     * @param p1 first location point
+     * @param p2 second location point
+     * @return the azimuth (bearing) from p1 to p2
+     */
+    public static double azimuth(Location p1, Location p2) {
+        
+        double lat1 = p1.getLatitude() * TO_RAD;
+        double lon1 = p1.getLongitude() * TO_RAD;
+        double lat2 = p2.getLatitude() * TO_RAD;
+        double lon2 = p2.getLongitude() * TO_RAD;
+        
+        // check the poles - EPS a small number ~ machine precision
+        if (Math.cos(lat1) < 0.000000000001) {
+            return Math.toDegrees((lat1 > 0) ? PI : TWOPI); // N : S pole
+        }
+        
+        // for starting points other than the poles:
+        double dLon = lon1-lon2;
+        double cosLat2 = Math.cos(lat2);
+        double azRad = Math.atan2(
+                Math.sin(dLon) * cosLat2,
+                Math.cos(lat1) * Math.sin(lat2) - 
+                Math.sin(lat1) * cosLat2 * Math.cos(dLon)) % TWOPI;
+        
+        return azRad * TO_DEG;
+    }
+
+    /**
+     * Computes a {@link Location} given an origin point, bearing, and distance.
+     * See <a href="http://williams.best.vwh.net/avform.htm#LL">
+     * Aviation Formulary</a> for formulation.
+     * 
+     * @param origin or starting location point
+     * @param bearing away from origin
+     * @param distance along bearing
+     * @return the end location 
+     */
+    public static Location location(
+    		Location origin, double bearing, double distance) {
+    	
+    	double lat1 = origin.getLatitude() * TO_RAD;
+    	double lon1 = origin.getLongitude() * TO_RAD;
+    	double b = bearing * TO_RAD;
+    	double d = distance / EARTH_MEAN_RADIUS; // angular distance
+    	
+    	double lat2 = Math.asin(
+    			Math.sin(lat1) * Math.cos(d) +
+    			Math.cos(lat1) * Math.sin(d) * Math.cos(b));
+    	
+        double dlon = Math.atan2(
+        		Math.sin(b) * Math.sin(d) * Math.cos(lat1),
+        		Math.cos(d) - Math.sin(lat1) * Math.sin(lat2));
+        
+        double lon2 = ( (lon1 - dlon + PI) % TWOPI ) - PI;
+        
+        return new Location(lat2 * TO_DEG, lon2 * TO_DEG);
+    }
+    
+    
+    ////////////////////////////////////
+    
+    
     /** Earth radius constant */
     public final static int R = 6367;
 
@@ -763,21 +910,21 @@ public final class RelativeLocation {
 
      * @return       Description of the Return Value
      **/
-    public static double latLonDistance( double lat1, double lon1, double lat2, double lon2 ) {
-
-        double deltaLon = Math.toRadians( lon2 ) - Math.toRadians( lon1 );
-        double deltaLat = Math.toRadians( lat2 ) - Math.toRadians( lat1 );
-
-        double sin2DeltaLat = Math.pow( Math.sin( deltaLat / 2 ), 2 );
-        double sin2DeltaLon = Math.pow( Math.sin( deltaLon / 2 ), 2 );
-        double cosLat1 = Math.cos( Math.toRadians( lat1 ) );
-        double cosLat2 = Math.cos( Math.toRadians( lat2 ) );
-
-        double a = sin2DeltaLat + cosLat1 * cosLat2 * sin2DeltaLon;
-        double b = getMin( 1, Math.sqrt( a ) );
-        double c = 2 * Math.asin( b );
-        return R * c;
-    }
+//    public static double latLonDistance( double lat1, double lon1, double lat2, double lon2 ) {
+//
+//        double deltaLon = Math.toRadians( lon2 ) - Math.toRadians( lon1 );
+//        double deltaLat = Math.toRadians( lat2 ) - Math.toRadians( lat1 );
+//
+//        double sin2DeltaLat = Math.pow( Math.sin( deltaLat / 2 ), 2 );
+//        double sin2DeltaLon = Math.pow( Math.sin( deltaLon / 2 ), 2 );
+//        double cosLat1 = Math.cos( Math.toRadians( lat1 ) );
+//        double cosLat2 = Math.cos( Math.toRadians( lat2 ) );
+//
+//        double a = sin2DeltaLat + cosLat1 * cosLat2 * sin2DeltaLon;
+//        double b = getMin( 1, Math.sqrt( a ) );
+//        double c = 2 * Math.asin( b );
+//        return R * c;
+//    }
 
     /**
      * This is an alternate version where the line is evenly discretized at 0.1 km spacing

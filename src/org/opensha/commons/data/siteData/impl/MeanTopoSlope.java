@@ -3,6 +3,7 @@ package org.opensha.commons.data.siteData.impl;
 import java.io.IOException;
 
 import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.siteData.AbstractSiteData;
@@ -89,7 +90,7 @@ public class MeanTopoSlope extends AbstractSiteData<Double> {
 		return calc.getMeanSlope(loc, radius, gridSpacing);
 	}
 	
-	public Double getValue(EvenlyGriddedGeographicRegionAPI region) throws IOException {
+	public Double getValue(EvenlyGriddedGeographicRegion region) throws IOException {
 		return calc.getMeanSlope(region);
 	}
 

@@ -11,6 +11,7 @@ import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
 import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
@@ -1228,7 +1229,7 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast  {
 		}
 	}
 
-	public void setBackGroundRegion(EvenlyGriddedGeographicRegionAPI backGroundRegion){
+	public void setBackGroundRegion(EvenlyGriddedGeographicRegion backGroundRegion){
 		this.region = backGroundRegion;
 	}
 

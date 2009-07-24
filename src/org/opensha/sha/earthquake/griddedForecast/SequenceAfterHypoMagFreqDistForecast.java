@@ -3,6 +3,7 @@ package org.opensha.sha.earthquake.griddedForecast;
 import scratch.matt.calc.*;
 
 import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 
 import org.opensha.sha.earthquake.observedEarthquake.*;
@@ -36,10 +37,10 @@ public class SequenceAfterHypoMagFreqDistForecast
   private double dayStart, dayEnd;
   private ArrayList gridMagForecast;
   private HypoMagFreqDistAtLoc magDistLoc;
-  private EvenlyGriddedGeographicRegionAPI aftershockZone;
+  private EvenlyGriddedGeographicRegion aftershockZone;
   
   public SequenceAfterHypoMagFreqDistForecast(ObsEqkRupture mainshock,
-                                              EvenlyGriddedGeographicRegionAPI
+                                              EvenlyGriddedGeographicRegion
                                               aftershockZone,
                                               ObsEqkRupList aftershocks) {
     /**

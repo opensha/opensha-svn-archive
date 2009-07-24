@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.EvenlyGriddedCircularGeographicRegion;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.impl.SRTM30PlusTopoSlope;
@@ -22,8 +23,8 @@ public class MeanTopoSlopeCalculator {
 		this.topoSlopeProvider = topoSlopeProvider;
 	}
 	
-	private EvenlyGriddedGeographicRegionAPI createRegionAroundSite(Location loc, double radius, double gridSpacing) {
-		return new EvenlyGriddedCircularGeographicRegion(loc, radius, gridSpacing);
+	private EvenlyGriddedGeographicRegion createRegionAroundSite(Location loc, double radius, double gridSpacing) {
+		return new EvenlyGriddedGeographicRegion(loc, radius, gridSpacing);
 	}
 	
 	/**
@@ -36,12 +37,12 @@ public class MeanTopoSlopeCalculator {
 	 * @throws IOException
 	 */
 	public double getMeanSlope(Location loc, double radius, double gridSpacing) throws IOException {
-		EvenlyGriddedGeographicRegionAPI region = createRegionAroundSite(loc, radius, gridSpacing);
+		EvenlyGriddedGeographicRegion region = createRegionAroundSite(loc, radius, gridSpacing);
 		
 		return getMeanSlope(region);
 	}
 	
-	public double getMeanSlope(EvenlyGriddedGeographicRegionAPI region) throws IOException {
+	public double getMeanSlope(EvenlyGriddedGeographicRegion region) throws IOException {
 		return getMeanSlope(region.getGridLocationsList());
 	}
 	

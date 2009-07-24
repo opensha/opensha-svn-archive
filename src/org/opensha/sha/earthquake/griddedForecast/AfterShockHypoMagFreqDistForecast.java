@@ -1,5 +1,6 @@
 package org.opensha.sha.earthquake.griddedForecast;
 
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 
 import org.opensha.sha.earthquake.observedEarthquake.*;
@@ -45,7 +46,7 @@ public abstract class AfterShockHypoMagFreqDistForecast
    * Allows the user to set the AfterShockZone as EvelyGriddedGeographicRegion.
    * @return EvenlyGriddedGeographicRegionAPI AfterShockZone.
    */
-  public EvenlyGriddedGeographicRegionAPI getAfterShockZone() {
+  public EvenlyGriddedGeographicRegion getAfterShockZone() {
     return region;
   }
 

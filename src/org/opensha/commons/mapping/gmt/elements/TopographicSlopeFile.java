@@ -1,5 +1,6 @@
 package org.opensha.commons.mapping.gmt.elements;
 
+import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.region.RectangularGeographicRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.mapping.gmt.GMT_Map;
@@ -12,8 +13,8 @@ public enum TopographicSlopeFile {
 	
 	private final int resolution;
 	private final String fileName;
-	private final RectangularGeographicRegion region;
-	TopographicSlopeFile(int resolution, String fileName, RectangularGeographicRegion region) {
+	private final GeographicRegion region;
+	TopographicSlopeFile(int resolution, String fileName, GeographicRegion region) {
 		this.resolution = resolution;
 		this.fileName = fileName;
 		this.region = region;
@@ -21,5 +22,5 @@ public enum TopographicSlopeFile {
 	
 	public int resolution() { return resolution; }
 	public String fileName() { return fileName; }
-	public RectangularGeographicRegion region() { return region; }
+	public GeographicRegion region() { return region; }
 }

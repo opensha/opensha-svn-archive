@@ -2,6 +2,7 @@ package org.opensha.sha.earthquake.griddedForecast;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.exceptions.DataPoint2DException;
@@ -44,7 +45,7 @@ public abstract  class GriddedHypoMagFreqDistForecast
 
 
   //EvenlyGriddedGeographicAPI region
-  protected EvenlyGriddedGeographicRegionAPI region;
+  protected EvenlyGriddedGeographicRegion region;
 
 
   private ArrayList listenerList = new ArrayList();
@@ -65,7 +66,7 @@ public abstract  class GriddedHypoMagFreqDistForecast
    * Gets the EvenlyGriddedGeographic Region
    * @return EvenlyGriddedGeographicRegionAPI
    */
-  public EvenlyGriddedGeographicRegionAPI getEvenlyGriddedGeographicRegion(){
+  public EvenlyGriddedGeographicRegion getEvenlyGriddedGeographicRegion(){
     return region;
   }
 

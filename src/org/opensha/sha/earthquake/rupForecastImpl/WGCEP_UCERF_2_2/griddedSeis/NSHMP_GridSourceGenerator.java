@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Point2Vert_SS_FaultPoisSource;
@@ -55,7 +56,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	private double maxFromMaxMagFiles;
 	
 	  public NSHMP_GridSourceGenerator() {
-		  	getLocationList();
+		  	LocationList locList = getLocationList();
 		    
 		    // trim the western edge of the RELM region where NSHMP area doesn't get to
 		    // (so we don't have to filter out zero rate bins in the RELM region)

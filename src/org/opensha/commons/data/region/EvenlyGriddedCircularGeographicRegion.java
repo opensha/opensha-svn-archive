@@ -28,6 +28,8 @@ import org.opensha.commons.data.LocationList;
  * @version 1.0
  *
  * @see EvenlyGriddedGeographicRegionAPI
+ * 
+ * TODO retire; all functionality migrated to all purpuse EGGR
  */
 
 public class EvenlyGriddedCircularGeographicRegion
@@ -59,41 +61,41 @@ public class EvenlyGriddedCircularGeographicRegion
     Location tempLoc;
     Direction dir;
 
-    //set min and max lat and lons
-    dir = new Direction(0, radius, 180, 0);
-    tempLoc = RelativeLocation.getLocation(centerLoc, dir);
-    super.minLat = tempLoc.getLatitude();
-    dir = new Direction(0, radius, 0, 180);
-    tempLoc = RelativeLocation.getLocation(centerLoc, dir);
-    super.maxLat = tempLoc.getLatitude();
-    dir = new Direction(0, radius, 270, 90);
-    tempLoc = RelativeLocation.getLocation(centerLoc, dir);
-    super.minLon = tempLoc.getLongitude();
-    dir = new Direction(0, radius, 90, 270);
-    tempLoc = RelativeLocation.getLocation(centerLoc, dir);
-    super.maxLon = tempLoc.getLongitude();
-
-    if (minLon > maxLon)throw new RuntimeException(
-        "Problem in CircularGeographicRegion" +
-        "related to crossing the zero lat boundary");
-
-    if (D) {
-      System.out.println("minLat = " + minLat + ";  maxLat = " + maxLat +
-                         ";  minLon = " + minLon + ";  maxLon = " + maxLon);
-      double dist;
-      dist = RelativeLocation.getHorzDistance(minLat,
-                                              circleCenterLocation.getLongitude(),
-                                              maxLat,
-                                              circleCenterLocation.getLongitude());
-      System.out.println("computed horz diameter = " + dist + "; circleRadius = " +
-                         circleRadius);
-      dist = RelativeLocation.getHorzDistance(circleCenterLocation.getLatitude(),
-                                              minLon,
-                                              circleCenterLocation.getLatitude(),
-                                              maxLon);
-      System.out.println("computed vert diameter = " + dist + "; circleRadius = " +
-                         circleRadius);
-    }
+//    //set min and max lat and lons
+//    dir = new Direction(0, radius, 180, 0);
+//    tempLoc = RelativeLocation.getLocation(centerLoc, dir);
+//    super.getMinLat() = tempLoc.getLatitude();
+//    dir = new Direction(0, radius, 0, 180);
+//    tempLoc = RelativeLocation.getLocation(centerLoc, dir);
+//    super.maxLat = tempLoc.getLatitude();
+//    dir = new Direction(0, radius, 270, 90);
+//    tempLoc = RelativeLocation.getLocation(centerLoc, dir);
+//    super.minLon = tempLoc.getLongitude();
+//    dir = new Direction(0, radius, 90, 270);
+//    tempLoc = RelativeLocation.getLocation(centerLoc, dir);
+//    super.maxLon = tempLoc.getLongitude();
+//
+//    if (minLon > maxLon)throw new RuntimeException(
+//        "Problem in CircularGeographicRegion" +
+//        "related to crossing the zero lat boundary");
+//
+//    if (D) {
+//      System.out.println("minLat = " + minLat + ";  maxLat = " + maxLat +
+//                         ";  minLon = " + minLon + ";  maxLon = " + maxLon);
+//      double dist;
+//      dist = RelativeLocation.getHorzDistance(minLat,
+//                                              circleCenterLocation.getLongitude(),
+//                                              maxLat,
+//                                              circleCenterLocation.getLongitude());
+//      System.out.println("computed horz diameter = " + dist + "; circleRadius = " +
+//                         circleRadius);
+//      dist = RelativeLocation.getHorzDistance(circleCenterLocation.getLatitude(),
+//                                              minLon,
+//                                              circleCenterLocation.getLatitude(),
+//                                              maxLon);
+//      System.out.println("computed vert diameter = " + dist + "; circleRadius = " +
+//                         circleRadius);
+//    }
 
     // make the region outline (locList)
     makeRegionOutline(10.0);
@@ -122,11 +124,11 @@ public class EvenlyGriddedCircularGeographicRegion
    * @see EvenlyGriddedGeographicRegionAPI.createRegionLocationsList(EvenlyGriddedGeographicRegionAPI)
    * @see EvenlyGriddedGeographicRegionAPI
    */
-  public EvenlyGriddedCircularGeographicRegion(Location centerLoc, double radius, double gridSpacing,
-      EvenlyGriddedGeographicRegionAPI region) {
-    this(centerLoc,radius,gridSpacing);
-    createRegionLocationsList(region);
-  }
+//  public EvenlyGriddedCircularGeographicRegion(Location centerLoc, double radius, double gridSpacing,
+//      EvenlyGriddedGeographicRegionAPI region) {
+//    this(centerLoc,radius,gridSpacing);
+//    createRegionLocationsList(region);
+//  }
 
 
 
@@ -156,20 +158,20 @@ public class EvenlyGriddedCircularGeographicRegion
    * @param degreeIncrement - difference in azimuth (from the center) between neighboring points
    */
   protected void makeRegionOutline(double degreeIncrement) {
-    locList = new LocationList();
-    Direction tempDir;
-    for(double deg = 0; deg<360; deg += degreeIncrement) {
-      tempDir = new Direction(0.0,circleRadius,deg,180-deg);
-      locList.addLocation(RelativeLocation.getLocation(circleCenterLocation,tempDir));
-    }
-    if(D) {
-      Location tempLoc;
-      System.out.println("Region outline:");
-      for(int i = 0; i < locList.size(); i++) {
-        tempLoc = locList.getLocationAt(i);
-        System.out.println(tempLoc.getLatitude()+"  "+tempLoc.getLongitude());
-      }
-    }
+//    locList = new LocationList();
+//    Direction tempDir;
+//    for(double deg = 0; deg<360; deg += degreeIncrement) {
+//      tempDir = new Direction(0.0,circleRadius,deg,180-deg);
+//      locList.addLocation(RelativeLocation.getLocation(circleCenterLocation,tempDir));
+//    }
+//    if(D) {
+//      Location tempLoc;
+//      System.out.println("Region outline:");
+//      for(int i = 0; i < locList.size(); i++) {
+//        tempLoc = locList.getLocationAt(i);
+//        System.out.println(tempLoc.getLatitude()+"  "+tempLoc.getLongitude());
+//      }
+//    }
   }
 
 

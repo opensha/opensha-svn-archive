@@ -6,6 +6,7 @@ import org.opensha.sha.earthquake.griddedForecast.*;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.EvenlyGriddedCircularGeographicRegion;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.EvenlyGriddedSausageGeographicRegion;
 
@@ -43,11 +44,11 @@ public class GenericAfterHypoMagFreqDistForecast
   //private double dayStart, dayEnd;
   private ArrayList gridMagForecast;
   private HypoMagFreqDistAtLoc magDistLoc;
-  private EvenlyGriddedCircularGeographicRegion castCircularRegion;
-  private EvenlyGriddedSausageGeographicRegion castSausageRegion;
+//  private EvenlyGriddedCircularGeographicRegion castCircularRegion;
+//  private EvenlyGriddedSausageGeographicRegion castSausageRegion;
 
   public GenericAfterHypoMagFreqDistForecast
-      (ObsEqkRupture mainshock, EvenlyGriddedGeographicRegionAPI aftershockZone,
+      (ObsEqkRupture mainshock, EvenlyGriddedGeographicRegion aftershockZone,
        double[] kScaler) {
 
     /**
@@ -55,10 +56,10 @@ public class GenericAfterHypoMagFreqDistForecast
      */
     this.setMainShock(mainshock);
     this.region = aftershockZone;
-    if(region instanceof EvenlyGriddedCircularGeographicRegion)
-    	castCircularRegion = (EvenlyGriddedCircularGeographicRegion)this.region;
-    if(region instanceof EvenlyGriddedSausageGeographicRegion)
-    	castSausageRegion = (EvenlyGriddedSausageGeographicRegion)this.region;
+//    if(region instanceof EvenlyGriddedCircularGeographicRegion)
+//    	castCircularRegion = (EvenlyGriddedCircularGeographicRegion)this.region;
+//    if(region instanceof EvenlyGriddedSausageGeographicRegion)
+//    	castSausageRegion = (EvenlyGriddedSausageGeographicRegion)this.region;
     
     
     numGridLocs = aftershockZone.getNumGridLocs();
@@ -317,12 +318,13 @@ public void setNumGridLocs() {
   }
   
   public Location getLocInGrid(int ithLocation){
-	  if(region instanceof EvenlyGriddedCircularGeographicRegion)
-	    	return this.castCircularRegion.getGridLocation(ithLocation);
-	  else if(region instanceof EvenlyGriddedSausageGeographicRegion)
-		  	return this.castSausageRegion.getGridLocation(ithLocation);
-	  else
-		  return null; // WHAT SHOULD I DO HERE?
+	  return region.getGridLocation(ithLocation);
+//	  if(region instanceof EvenlyGriddedCircularGeographicRegion)
+//	    	return this.castCircularRegion.getGridLocation(ithLocation);
+//	  else if(region instanceof EvenlyGriddedSausageGeographicRegion)
+//		  	return this.castSausageRegion.getGridLocation(ithLocation);
+//	  else
+//		  return null; // WHAT SHOULD I DO HERE?
 	  
   }
 
