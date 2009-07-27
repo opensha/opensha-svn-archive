@@ -297,10 +297,10 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 * gets the iterator of all the sites
 	 *
 	 * @return
-	 */
-	public Iterator<Site> getAllSites() {
-		return gridRegion.getSitesIterator();
-	}
+	 */ // not currently used TODO clean
+//	public Iterator<Site> getAllSites() {
+//		return gridRegion.getSitesIterator();
+//	}
 
 
 	/**

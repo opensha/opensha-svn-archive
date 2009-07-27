@@ -34,8 +34,8 @@ public interface SitesInGriddedRegionAPI extends EvenlyGriddedGeographicRegionAP
   /**
    * Files get the site information from.
    */
-  public static final String WILLS_SITE_CLASS_FILE = "cvmfiles/usgs_cgs_geology_60s_mod.txt";
-  public static final String BASIN_DEPTH_FILE = "cvmfiles/basindepth_OpenSHA.txt";
+  //public static final String WILLS_SITE_CLASS_FILE = "cvmfiles/usgs_cgs_geology_60s_mod.txt";
+  //public static final String BASIN_DEPTH_FILE = "cvmfiles/basindepth_OpenSHA.txt";
 
 
   /**
@@ -63,8 +63,8 @@ public interface SitesInGriddedRegionAPI extends EvenlyGriddedGeographicRegionAP
   * This function craetes the iterator of all the site within that region and
   * return its iterator
   * @return
-  */
- public Iterator getSitesIterator();
+  */ // not currently used
+ //public Iterator getSitesIterator();
 
 
  /**

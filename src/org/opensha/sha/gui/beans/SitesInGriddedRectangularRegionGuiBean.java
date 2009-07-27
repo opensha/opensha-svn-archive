@@ -251,10 +251,10 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 * gets the iterator of all the sites
 	 *
 	 * @return
-	 */
-	public Iterator getAllSites() {
-		return gridRectRegion.getSitesIterator();
-	}
+	 */ // not currently used
+//	public Iterator getAllSites() {
+//		return gridRectRegion.getSitesIterator();
+//	}
 
 
 	/**

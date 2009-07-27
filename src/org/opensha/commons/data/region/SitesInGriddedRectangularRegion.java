@@ -258,24 +258,24 @@ implements SitesInGriddedRegionAPI,Serializable{
 	 * return its iterator
 	 * @return
 	 */
-	public Iterator getSitesIterator(){
-		ArrayList sitesVector=new ArrayList();
-		//get the iterator of all the locations within that region
-		ListIterator it=this.getGridLocationsIterator();
-		//get the iterator for all the site types
-		ListIterator siteParamsIt = site.getParametersIterator();
-		while(it.hasNext()){
-			//create the site object and add it to tbe ArrayList List
-			Site newSite = new Site((Location)it.next());
-			while(siteParamsIt.hasNext()){
-				ParameterAPI tempParam = (ParameterAPI)siteParamsIt.next();
-				if(!newSite.containsParameter(tempParam))
-					newSite.addParameter(tempParam);
-			}
-			sitesVector.add(newSite);
-		}
-		return sitesVector.iterator();
-	}
+//	public Iterator getSitesIterator(){
+//		ArrayList sitesVector=new ArrayList();
+//		//get the iterator of all the locations within that region
+//		ListIterator it=this.getGridLocationsIterator();
+//		//get the iterator for all the site types
+//		ListIterator siteParamsIt = site.getParametersIterator();
+//		while(it.hasNext()){
+//			//create the site object and add it to tbe ArrayList List
+//			Site newSite = new Site((Location)it.next());
+//			while(siteParamsIt.hasNext()){
+//				ParameterAPI tempParam = (ParameterAPI)siteParamsIt.next();
+//				if(!newSite.containsParameter(tempParam))
+//					newSite.addParameter(tempParam);
+//			}
+//			sitesVector.add(newSite);
+//		}
+//		return sitesVector.iterator();
+//	}
 
 
 
