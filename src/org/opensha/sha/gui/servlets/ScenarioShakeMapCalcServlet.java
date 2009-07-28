@@ -9,6 +9,7 @@ import javax.servlet.http.*;
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.ParameterAPI;
@@ -86,8 +87,8 @@ public class ScenarioShakeMapCalcServlet
 
       //gets the selected region object form the application
       String griddedRegionFile = (String) inputFromApplication.readObject();
-      SitesInGriddedRectangularRegion griddedRegion = (
-          SitesInGriddedRectangularRegion) FileUtils.loadObject(
+      SitesInGriddedRegion griddedRegion = (
+    		  SitesInGriddedRegion) FileUtils.loadObject(
           griddedRegionFile);
 
       //gets the selected EqkRupture object form the application
@@ -186,7 +187,7 @@ public class ScenarioShakeMapCalcServlet
    */
   private XYZ_DataSetAPI getXYZDataForPGV(ArrayList selectedIMRs,
                                           ArrayList selectedWts,
-                                          SitesInGriddedRectangularRegion
+                                          SitesInGriddedRegion
                                           region, EqkRupture rupture,
                                           boolean isProbAtIML, double value,
                                           ScenarioShakeMapCalculator calc) throws

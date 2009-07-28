@@ -20,7 +20,7 @@ import java.util.ListIterator;
  * 
  * TODO retire; base functionality now in EGGR
  */
-
+@Deprecated
 public class EvenlyGriddedRectangularGeographicRegion extends EvenlyGriddedGeographicRegion {
 
 

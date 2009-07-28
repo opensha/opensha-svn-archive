@@ -75,7 +75,7 @@ public class HazardMapPortionCalculator {
 	private boolean skipPoints = false;
 	private int skipFactor = 10;
 	
-	private SitesInGriddedRegionAPI sites;
+	private SitesInGriddedRegion sites;
 	
 	private EqkRupForecastAPI erf;
 	private ScalarIntensityMeasureRelationshipAPI imr;
@@ -94,7 +94,7 @@ public class HazardMapPortionCalculator {
 	 * @param maxDistance - maximum source distance for calculation
 	 * @param outputDir - directory to store results (or empty string for current working directory)
 	 */
-	public HazardMapPortionCalculator(SitesInGriddedRegionAPI sites, EqkRupForecastAPI erf,
+	public HazardMapPortionCalculator(SitesInGriddedRegion sites, EqkRupForecastAPI erf,
 			ScalarIntensityMeasureRelationshipAPI imr, ArbitrarilyDiscretizedFunc hazFunction,
 			SiteDataValueListList siteDataValues, double maxDistance, String outputDir) {
 		this.sites = sites;
@@ -150,7 +150,7 @@ public class HazardMapPortionCalculator {
 			calc.setMaxSourceDistance(maxDistance);
 			
 			// total number of sites for the entire map
-		    numSites = sites.getNumGridLocs();
+		    numSites = sites.getRegion().getNumGridLocs();
 		    // number of points on the hazard curve
 			int numPoints = hazFunction.getNum();
 			
@@ -215,8 +215,8 @@ public class HazardMapPortionCalculator {
 							ArrayList<SiteDataValue<?>> datas = siteDataValues.getDataList(cvmIndex);
 							if (siteDataValues.hasLocations()) {
 								Location newLoc = siteDataValues.getDataLocation(cvmIndex);
-								if (Math.abs(loc.getLatitude() - newLoc.getLatitude()) >= sites.getGridSpacing()) {
-									if (Math.abs(loc.getLongitude() - newLoc.getLongitude()) >= sites.getGridSpacing()) {
+								if (Math.abs(loc.getLatitude() - newLoc.getLatitude()) >= sites.getRegion().getGridSpacing()) {
+									if (Math.abs(loc.getLongitude() - newLoc.getLongitude()) >= sites.getRegion().getGridSpacing()) {
 										System.err.println("WARNING: CVM data is for the WRONG LOCATION! (index: " + j + ")");
 										System.err.println("CVM Location: " + newLoc + " REAL Location: " + loc);
 									}

@@ -14,6 +14,7 @@ import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.imr.*;
 
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
@@ -440,7 +441,7 @@ public class HazusDataSetCalcApp extends JFrame
      hazusCalc.setMaxSourceDistance(maxDistance.doubleValue());
      String dirName = datasetIdText.getText().trim();
      ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
-     SitesInGriddedRectangularRegion griddedSites = sitesGuiBean.getGriddedRegionSite();
+     SitesInGriddedRegion griddedSites = sitesGuiBean.getGriddedRegionSite();
      EqkRupForecast eqkRupForecast = (EqkRupForecast) erfGuiBean.getSelectedERF();
      step =0;
      hazusCalc.getHazardMapCurves(dirName,griddedSites,imr,eqkRupForecast,this.getParametersInfo());

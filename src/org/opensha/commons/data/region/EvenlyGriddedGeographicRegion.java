@@ -93,6 +93,7 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 		setGridSpacing(spacing);
 	}
 
+	// TODO add constructor to initialize with  GeoRegion (would want a copy of the border)
 	/**
 	 * Class default constructor
 	 */
@@ -615,6 +616,7 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 		return niceMaxLon;
 	}
 
+	// TODO need to make sure this is writing properly before reintegration
 	public Element toXMLMetadata(Element root) {
 		Element xml = root.addElement(EvenlyGriddedGeographicRegion.XML_METADATA_NAME);
 		xml.addAttribute(EvenlyGriddedGeographicRegion.XML_METADATA_GRID_SPACING_NAME, this.getGridSpacing()+"");
@@ -624,6 +626,7 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 		return root;
 	}
 
+	// TODO need to make sure this is initializing properly before reintegration
 	public static EvenlyGriddedGeographicRegion fromXMLMetadata(Element root) {
 		double gridSpacing = Double.parseDouble(root.attribute(EvenlyGriddedGeographicRegion.XML_METADATA_GRID_SPACING_NAME).getValue());
 		GeographicRegion geoRegion = GeographicRegion.fromXMLMetadata(root.element(GeographicRegion.XML_METADATA_NAME));

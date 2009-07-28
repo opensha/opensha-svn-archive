@@ -224,7 +224,7 @@ public class STEP_mainTest extends TestCase {
 	 * @param init
 	 */
 	private void assertHypoMagFreqDist(ArrayList<HypoMagFreqDistAtLoc>  hypList, boolean init) {
-		LocationList bgLocList = stepmain.getBgGrid().getEvenlyGriddedGeographicRegion().getGridLocationsList();
+		LocationList bgLocList = stepmain.getBgGrid().getRegion().getGridLocationsList();
 		ArrayList<HypoMagFreqDistAtLoc> hypForecastList = stepmain.getBgGrid().getMagDistList();
 
 		//LocationList aftershockZoneList = forecastModel.getAfterShockZone().getGridLocationsList();

@@ -10,6 +10,7 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.DependentParameter;
@@ -78,10 +79,10 @@ public class ScenarioShakeMapCalculator {
    * @returns the XYZ_DataSetAPI  : ArbDiscretized XYZ dataset
    */
   public XYZ_DataSetAPI getScenarioShakeMapData(ArrayList selectedAttenRels, ArrayList attenRelWts,
-      SitesInGriddedRectangularRegion griddedRegionSites,EqkRupture rupture,
+		  SitesInGriddedRegion sites,EqkRupture rupture,
       boolean isProbAtIML,double value) throws ParameterException, RegionConstraintException {
 
-    numSites = griddedRegionSites.getNumGridLocs();
+    numSites = sites.getRegion().getNumGridLocs();
 
     //instance of the XYZ dataSet.
     XYZ_DataSetAPI xyzDataSet =null;
@@ -168,7 +169,7 @@ public class ScenarioShakeMapCalculator {
       //for each site initializing it to 0.0
       attenRelsAvgValForSite = 0.0;
       //getting one site at a time
-      Site site = griddedRegionSites.getSite(k);
+      Site site = sites.getSite(k);
 
       //setting the site in the PropagationEffect
       propagationEffect.setSite(site);
@@ -208,8 +209,8 @@ public class ScenarioShakeMapCalculator {
 		}
     }
     //updating the Z Values for the XYZ data after averaging the values for all selected attenuations.
-    xyzDataSet = new ArbDiscretizedXYZ_DataSet(getSitesLat(griddedRegionSites),
-        getSitesLon(griddedRegionSites),sumZVals);
+    xyzDataSet = new ArbDiscretizedXYZ_DataSet(getSitesLat(sites),
+        getSitesLon(sites),sumZVals);
     return xyzDataSet;
   }
 
@@ -331,9 +332,9 @@ public class ScenarioShakeMapCalculator {
    * @param griddedRegionSites
    * @return
    */
-  private ArrayList getSitesLat(SitesInGriddedRectangularRegion griddedRegionSites){
+  private ArrayList getSitesLat(SitesInGriddedRegion sites){
     //getting the gridded Locations list iterator
-    ListIterator it= griddedRegionSites.getGridLocationsIterator();
+    ListIterator it= sites.getRegion().getGridLocationsIterator();
 
     //Adding the Latitudes to the ArrayLists for lats
     ArrayList sitesLat = new ArrayList();
@@ -347,10 +348,10 @@ public class ScenarioShakeMapCalculator {
    * @param griddedRegionSites
    * @return
    */
-  private ArrayList getSitesLon(SitesInGriddedRectangularRegion griddedRegionSites){
+  private ArrayList getSitesLon(SitesInGriddedRegion sites){
     //getting the gridded Locations list iterator
      //iterating over the locations iterator in the reverse order to get the Longitudes.
-    ListIterator it= griddedRegionSites.getGridLocationsIterator();
+    ListIterator it= sites.getRegion().getGridLocationsIterator();
     //Adding the Longitudes to the ArrayLists for lons
     ArrayList sitesLon = new ArrayList();
     while(it.hasNext())

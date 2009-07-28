@@ -178,7 +178,7 @@ public class STEP_CombineForecastModels
 		  //int gLoop = 0;
 		  
 		  // is this correct to be iterating over region, an EvenlyGriddedAPI??
-		  ListIterator gridIt = this.region.getGridLocationsIterator();
+		  ListIterator gridIt = getRegion().getGridLocationsIterator();
 		  
 		  //while ( gridIt.hasNext() ){
 		  for (int gLoop = 0; gLoop < numGridNodes; gLoop++){
@@ -186,7 +186,7 @@ public class STEP_CombineForecastModels
 			  // gridSearchRadius is the radius used for calculating the Reasenberg & Jones params
 			  double radius = this.spaElement.getGridSearchRadius();
 			  ObsEqkRupList gridEvents;
-			  GeographicRegion nodeRegion = new GeographicRegion(this.region.getGridLocation(gLoop),radius);
+			  GeographicRegion nodeRegion = new GeographicRegion(getRegion().getGridLocation(gLoop),radius);
 			  gridEvents = this.afterShocks.getObsEqkRupsInside(nodeRegion);
 			  
 			  // get the smoothed generic k val for the grid node
@@ -404,8 +404,8 @@ public class STEP_CombineForecastModels
       this.aftershockZone =
           new EvenlyGriddedGeographicRegion(mainshockLocation,
           zoneRadius, RegionDefaults.gridSpacing);
-      this.aftershockZone.createRegionLocationsList(backgroundRatesGrid.region);
-       this.region = this.aftershockZone;
+      this.aftershockZone.createRegionLocationsList(backgroundRatesGrid.getRegion());
+       setRegion(aftershockZone);
        this.useCircularRegion = true;
       
       // make a fault that is only a single point.
@@ -437,7 +437,8 @@ public class STEP_CombineForecastModels
       EvenlyGriddedGeographicRegion typeII_Zone = typeIIcalc.
           get_TypeIIAftershockZone();
       typeII_Zone.createRegionLocationsList(backGroundRatesGrid); 
-      this.region = typeII_Zone;
+      setRegion(typeII_Zone);
+      //this.region = typeII_Zone;
       this.useSausageRegion = true;
      
       LocationList faultPoints = typeIIcalc.getTypeIIFaultModel();

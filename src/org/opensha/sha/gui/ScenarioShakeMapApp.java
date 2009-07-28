@@ -29,6 +29,7 @@ import javax.swing.border.EtchedBorder;
 
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
@@ -123,7 +124,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 
 
 	//store the site values for each site in the griddded region
-	protected SitesInGriddedRectangularRegion griddedRegionSites;
+	protected SitesInGriddedRegion griddedRegionSites;
 
 	//stores the IML or Prob selection and their value for which we want to compute the
 	//scenario shake map. Value we get from the respective guibeans.

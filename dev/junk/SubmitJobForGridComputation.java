@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.Iterator;
 
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.util.RunScript;
 
 /**
@@ -109,7 +110,7 @@ public class SubmitJobForGridComputation {
                                      double maxDistance,
                                      String outputDir,
                                      String remoteMachineSubdirName,
-                                     SitesInGriddedRectangularRegion griddedSites,
+                                     SitesInGriddedRegion sites,
                                      String emailAddr) {
     if (!outputDir.endsWith("/"))
       outputDir = outputDir + "/";
@@ -170,7 +171,7 @@ public class SubmitJobForGridComputation {
       //create shell script to ftp hazard curve tar file from remote machine
       // to local machine and then untar them on the local machine
       ftpCurvesFromRemoteMachine(outputDir, remoteDir,
-                                 griddedSites.getNumGridLocs(),
+                                 sites.getRegion().getNumGridLocs(),
                                  emailAddr,
                                  remoteMachineSubdirName);
 
@@ -183,7 +184,7 @@ public class SubmitJobForGridComputation {
                                      regionFileName, xValuesFileName,
                                      maxDistance,
                                      outputDir+SUBMIT_FILES_DIR, remoteDir,
-                                     griddedSites);
+                                     sites);
       Iterator it = list.iterator();
       int i=0;
       while(it.hasNext()) {
@@ -303,9 +304,9 @@ public class SubmitJobForGridComputation {
                                      String xValuesFileName,
                                      double maxDistance,
                                      String outputDir, String remoteDir,
-                                     SitesInGriddedRectangularRegion griddedSites) {
+                                     SitesInGriddedRegion sites) {
 
-    int numSites = griddedSites.getNumGridLocs(); // num grid locs
+    int numSites = sites.getRegion().getNumGridLocs(); // num grid locs
     int endSite = 0;
     int startSite = 0;
 

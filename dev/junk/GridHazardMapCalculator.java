@@ -11,6 +11,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
@@ -91,7 +92,7 @@ public void getHazardMapCurves(String[] args, int startSiteIndex,
                                 int endSiteIndex) {
    try{
      // load the objects from the file
-     SitesInGriddedRectangularRegion griddedSites = (SitesInGriddedRectangularRegion)FileUtils.loadObject(args[2]);
+	   SitesInGriddedRegion sites = (SitesInGriddedRegion)FileUtils.loadObject(args[2]);
      EqkRupForecast eqkRupForecast = (EqkRupForecast)FileUtils.loadObject(args[3]);
      ScalarIntensityMeasureRelationshipAPI imr = (ScalarIntensityMeasureRelationshipAPI)FileUtils.loadObject(args[4]);
 
@@ -124,11 +125,11 @@ public void getHazardMapCurves(String[] args, int startSiteIndex,
      // now run the hazard map calculations
      HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();
      hazCurveCalc.setMaxSourceDistance(this.MAX_DISTANCE);
-     int numSites = griddedSites.getNumGridLocs();
+     int numSites = sites.getRegion().getNumGridLocs();
      int numPoints = xValues.length;
      Site site;
      for(int j=startSiteIndex;j<numSites && j<endSiteIndex;++j){
-       site = griddedSites.getSite(j);
+       site = sites.getSite(j);
        // make and initialize the haz function
        ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
        initX_Values(hazFunction,xValues);

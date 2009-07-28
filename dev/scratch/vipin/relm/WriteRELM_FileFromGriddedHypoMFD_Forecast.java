@@ -167,7 +167,7 @@ public class WriteRELM_FileFromGriddedHypoMFD_Forecast {
      fw.write(FORECAST_DURATION_NAME+duration+","+durationUnits+"\n");
      // write the data lines
      fw.write(BEGIN_FORECAST+"\n");
-     EvenlyGriddedGeographicRegion region  = griddedHypoMFD.getEvenlyGriddedGeographicRegion();
+     EvenlyGriddedGeographicRegion region  = griddedHypoMFD.getRegion();
      int numLocs  = region.getNumGridLocs();
      double mag1, mag2; 
      double rate;

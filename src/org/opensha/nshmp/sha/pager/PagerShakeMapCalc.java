@@ -7,7 +7,9 @@ import java.io.*;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
@@ -47,7 +49,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
   /**
    * Parameters from the input file
    */
-  private SitesInGriddedRectangularRegion region; //Geographic Region
+  private SitesInGriddedRegion sites; //Geographic Region
   private EqkRupture rupture; //EqkRupture
   private ScalarIntensityMeasureRelationshipAPI attenRel; //Attenunation Relationship to be used.
   private boolean imlAtProb; //checks what to plot IML_At_Prob or Prob_At_IML
@@ -173,14 +175,16 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
       System.exit(0);
     }
 
-    try {
-      region = new SitesInGriddedRectangularRegion(minLat, maxLat, minLon,
+//    try {
+  	  EvenlyGriddedGeographicRegion eggr = 
+		  new EvenlyGriddedGeographicRegion(minLat, maxLat, minLon,
           maxLon, gridSpacing);
-    }
-    catch (RegionConstraintException ex) {
-      System.out.println(ex.getMessage());
-      System.exit(0);
-    }
+      sites = new SitesInGriddedRegion(eggr);
+//    }
+//    catch (RegionConstraintException ex) {
+//      System.out.println(ex.getMessage());
+//      System.exit(0);
+//    }
   }
   
   private void getRupture(String str){
@@ -362,9 +366,9 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
    * Gets the wills site class for the given sites
    */
   private void getSiteParamsForRegion() {
-    region.addSiteParams(attenRel.getSiteParamsIterator());
+    sites.addSiteParams(attenRel.getSiteParamsIterator());
     //getting Wills Site Class
-    region.setSiteParamsForRegionFromServlet(false);
+    sites.setSiteParamsForRegionFromServlet(false);
     //getting the Attenuation Site Parameters Liat
     ListIterator it = attenRel.getSiteParamsIterator();
     //creating the list of default Site Parameters, so that site parameter values can be filled in
@@ -379,7 +383,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
       siteTrans.setParameterValue(tempParam, defaultSiteType, Double.NaN);
       defaultSiteParams.add(tempParam);
     }
-    region.setDefaultSiteParams(defaultSiteParams);
+    sites.setDefaultSiteParams(defaultSiteParams);
   }
 
   /**
@@ -408,7 +412,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
     attenRelsSupported.add(attenRel);
     ArrayList attenRelWts = new ArrayList();
     attenRelWts.add(new Double(1.0));
-    XYZ_DataSetAPI xyzDataSet = calc.getScenarioShakeMapData(attenRelsSupported,attenRelWts,region,rupture,!imlAtProb,imlProbVal);
+    XYZ_DataSetAPI xyzDataSet = calc.getScenarioShakeMapData(attenRelsSupported,attenRelWts,sites,rupture,!imlAtProb,imlProbVal);
     //if the IMT is log supported then take the exponential of the Value if IML @ Prob
     if (IMT_Info.isIMT_LogNormalDist(attenRel.getIntensityMeasure().getName()) && imlAtProb) {
       ArrayList zVals = xyzDataSet.getZ_DataSet();
@@ -450,10 +454,10 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
       mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.LOG_PLOT_NAME).
           setValue(new Boolean(false));
       mapGuiBean.setVisible(false);
-      double minLat = region.getMinLat();
-      double maxLat = region.getMaxLat();
-      double minLon = region.getMinLon();
-      double maxLon = region.getMaxLon();
+      double minLat = sites.getRegion().getMinLat();
+      double maxLat = sites.getRegion().getMaxLat();
+      double minLon = sites.getRegion().getMinLon();
+      double maxLon = sites.getRegion().getMaxLon();
       //checking if region bounds are within the range of the topographic file
       //else don't show any topography in the Scenario shakemaps
       if (maxLat > 43 || minLat < 32 || minLon < -126 || maxLon > -115) {
@@ -462,7 +466,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
                 GMT_MapGenerator.TOPO_RESOLUTION_NONE);
       }
       mapGuiBean.setRegionParams(minLat, maxLat, minLon, maxLon,
-                                 region.getGridSpacing());
+    		  sites.getRegion().getGridSpacing());
       String label = "";
       if (imlAtProb)
         label = imt;
@@ -515,10 +519,10 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
     return imrMetadata +imtMetadata+
         "<br><br>Region Info: <br>\n" +
         "----------------<br>\n" +
-        "Min Lat = "+region.getMinLat()+"<br>\n"+
-        "Max Lat = "+region.getMaxLat()+"<br>\n"+
-        "Min Lon = "+region.getMinLon()+"<br>\n"+
-        "Max Lon = "+region.getMaxLon()+"<br>\n"+
+        "Min Lat = "+sites.getRegion().getMinLat()+"<br>\n"+
+        "Max Lat = "+sites.getRegion().getMaxLat()+"<br>\n"+
+        "Min Lon = "+sites.getRegion().getMinLon()+"<br>\n"+
+        "Max Lon = "+sites.getRegion().getMaxLon()+"<br>\n"+
         "Default Wills Site Class Value = "+defaultSiteType+"<br>"+
         "\n" +
         "<br> Rupture Info: <br>\n"+

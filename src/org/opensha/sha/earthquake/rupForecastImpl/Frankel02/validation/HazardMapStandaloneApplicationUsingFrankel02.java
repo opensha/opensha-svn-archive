@@ -18,7 +18,9 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.ParameterList;
@@ -54,7 +56,7 @@ public class HazardMapStandaloneApplicationUsingFrankel02
 
 
   //store the site values for each site in the griddded region
-  private SitesInGriddedRectangularRegion griddedRegionSites;
+  private SitesInGriddedRegion griddedRegionSites;
 
   //gets the instance of the selected AttenuationRelationship
   private AttenuationRelationship attenRel;
@@ -128,8 +130,10 @@ public class HazardMapStandaloneApplicationUsingFrankel02
   private void initGriddedRegionGuiBean() throws RegionConstraintException {
 
     //make the Gridded Region object
-    griddedRegionSites = new SitesInGriddedRectangularRegion(MIN_LAT, MAX_LAT, MIN_LON,
-        MAX_LON, GRID_SPACING);
+	  EvenlyGriddedGeographicRegion eggr = 
+		  new EvenlyGriddedGeographicRegion(
+				  MIN_LAT, MAX_LAT, MIN_LON,MAX_LON, GRID_SPACING);
+    griddedRegionSites = new SitesInGriddedRegion(eggr);
 
     griddedRegionSites.addSiteParams(attenRel.getSiteParamsIterator());
     griddedRegionSites.setSameSiteParams();

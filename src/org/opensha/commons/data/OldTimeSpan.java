@@ -19,6 +19,7 @@ import org.opensha.commons.exceptions.InvalidRangeException;
  * @created    February 20, 2002
  * @version    1.0
  */
+@Deprecated
 public class OldTimeSpan extends GregorianCalendar {
 
     /** The name of this class, used for debug statements */

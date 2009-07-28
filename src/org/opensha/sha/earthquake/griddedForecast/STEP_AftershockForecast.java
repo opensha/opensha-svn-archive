@@ -38,7 +38,8 @@ public class STEP_AftershockForecast
    * @param aftershockZone EvenlyGriddedGeographicRegionAPI
    */
   public void setAfterShockZone(EvenlyGriddedGeographicRegion aftershockZone) {
-    this.region = aftershockZone;
+	  setRegion(aftershockZone);
+    //this.region = aftershockZone;
   }
 
   /**

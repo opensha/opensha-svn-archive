@@ -201,7 +201,7 @@ class ERF_ToGriddedParticipationRatesMFD_Forecast  extends GriddedHypoMagFreqDis
 	                                              int numMagBins,
 	                                              double duration) {
 	    this.eqkRupForecast = eqkRupForecast;
-	    this.region = griddedRegion;
+	    setRegion(griddedRegion);
 
 	    SummedMagFreqDist[] summedMFDs  =  calcMFD_ForGriddedRegion(minMag, maxMag, numMagBins, duration);
 	    // make HypoMagFreqDist for each location in the region
@@ -240,7 +240,7 @@ class ERF_ToGriddedParticipationRatesMFD_Forecast  extends GriddedHypoMagFreqDis
 
 	    int numSources = eqkRupForecast.getNumSources();
 
-	    int numLocations = region.getNumGridLocs();
+	    int numLocations = getRegion().getNumGridLocs();
 	    SummedMagFreqDist[] summedMFDs = new SummedMagFreqDist[numLocations];
 	   
 	    for(int i=0; i<numLocations; ++i) summedMFDs[i] = new SummedMagFreqDist(minMag, maxMag, numMagBins);
@@ -265,7 +265,7 @@ class ERF_ToGriddedParticipationRatesMFD_Forecast  extends GriddedHypoMagFreqDis
 	        while (it.hasNext()) {
 	          Location ptLoc = (Location) it.next();
 	          //returns -1 if location not in the region
-	          locIndex = region.getNearestLocationIndex(ptLoc);
+	          locIndex = getRegion().getNearestLocationIndex(ptLoc);
 	          if(locIndices.contains(locIndex) || locIndex<0) continue;
 //	          if(Math.abs(region.getGridLocation(locIndex).getLatitude()-33.3)<1e-6 && 
 //	        		  Math.abs(region.getGridLocation(locIndex).getLongitude()+116.1)<1e-6)

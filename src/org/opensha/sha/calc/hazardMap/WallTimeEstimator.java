@@ -4,6 +4,7 @@ import java.rmi.RemoteException;
 import java.util.Random;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegionAPI;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.sha.calc.HazardCurveCalculator;
@@ -14,8 +15,8 @@ import org.opensha.sha.imr.AttenuationRelationship;
 public class WallTimeEstimator {
 	
 	public static double calcTimePerCurve(EqkRupForecast erf, AttenuationRelationship attenRel,
-			SitesInGriddedRegionAPI sites, ArbitrarilyDiscretizedFunc hazFunction, int numSamples) {
-		int numLocs = sites.getNumGridLocs();
+			SitesInGriddedRegion sites, ArbitrarilyDiscretizedFunc hazFunction, int numSamples) {
+		int numLocs = sites.getRegion().getNumGridLocs();
 		erf.updateForecast();
 		if (numLocs < numSamples) {
 			numSamples = numLocs;

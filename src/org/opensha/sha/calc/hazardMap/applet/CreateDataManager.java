@@ -22,7 +22,9 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegionAPI;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
@@ -324,9 +326,10 @@ public class CreateDataManager extends StepManager implements AttenuationRelatio
 		
 		// ***** Region
 		System.out.println("Saving Site/Region info");
-		SitesInGriddedRegionAPI griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
-
-		root = griddedRegionSites.toXMLMetadata(root);
+		SitesInGriddedRegion griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
+		EvenlyGriddedGeographicRegion eggr = griddedRegionSites.getRegion();
+		
+		root = eggr.toXMLMetadata(root);
 		
 		// ***** Site Data
 		if (sitesGuiBean.isUseSiteData()) {

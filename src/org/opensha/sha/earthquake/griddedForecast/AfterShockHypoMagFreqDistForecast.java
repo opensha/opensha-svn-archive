@@ -47,7 +47,7 @@ public abstract class AfterShockHypoMagFreqDistForecast
    * @return EvenlyGriddedGeographicRegionAPI AfterShockZone.
    */
   public EvenlyGriddedGeographicRegion getAfterShockZone() {
-    return region;
+    return getRegion();
   }
 
   /**

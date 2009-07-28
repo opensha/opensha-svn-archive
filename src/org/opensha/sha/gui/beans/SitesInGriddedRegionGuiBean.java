@@ -16,6 +16,7 @@ import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedNoCalRegion;
 import org.opensha.commons.data.region.EvenlyGriddedSoCalRegion;
 import org.opensha.commons.data.region.RELM_CollectionRegion;
@@ -106,7 +107,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	private SiteTranslator siteTrans = new SiteTranslator();
 
 	//instance of class EvenlyGriddedRectangularGeographicRegion
-	private SitesInGriddedRegionAPI gridRegion;
+	private SitesInGriddedRegion gridRegion;
 
 	public final static String RECTANGULAR_NAME = "Rectangular Region";
 	public final static String CUSTOM_NAME = "Custom Region";
@@ -309,7 +310,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 * @return
 	 */
 	public Iterator<Site> getSitesClone() {
-		ListIterator lIt=gridRegion.getGridLocationsIterator();
+		ListIterator lIt=gridRegion.getRegion().getGridLocationsIterator();
 		ArrayList newSiteVector=new ArrayList();
 		while(lIt.hasNext())
 			newSiteVector.add(new Site((Location)lIt.next()));
@@ -397,8 +398,8 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 			e.printStackTrace();
 		}
 		if (gridRegion != null) {
-			numSites.setValue(gridRegion.getNumGridLocs());
-			LocationList locs = gridRegion.getRegionOutline();
+			numSites.setValue(gridRegion.getRegion().getNumGridLocs());
+			LocationList locs = gridRegion.getRegion().getRegionOutline();
 			for (int i=0; i<locs.size(); i++) {
 				Location loc = locs.getLocationAt(i);
 				System.out.println(loc.getLatitude() + " " + loc.getLongitude());
@@ -470,13 +471,18 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 			double minLongitude=((Double)minLon.getValue()).doubleValue();
 			double maxLongitude=((Double)maxLon.getValue()).doubleValue();
 			//checkLatLonParamValues();
-			gridRegion= new SitesInGriddedRectangularRegion(minLatitude,
+			  EvenlyGriddedGeographicRegion eggr = 
+				  new EvenlyGriddedGeographicRegion(minLatitude,
 					maxLatitude,minLongitude,maxLongitude,
 					gridSpacingD);
+			gridRegion= new SitesInGriddedRegion(eggr);
 		} else {
 			for (NamedGeographicRegion region : presets) {
 				if (name.equals(region.getName())) {
-					gridRegion = new SitesInGriddedRegion(region.getRegionOutline(), gridSpacingD);
+					EvenlyGriddedGeographicRegion eggr = 
+						new EvenlyGriddedGeographicRegion(
+								region.getRegionOutline(), gridSpacingD);
+					gridRegion = new SitesInGriddedRegion(eggr);
 					break;
 				}
 			}
@@ -496,7 +502,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 *
 	 * @return the object for the SitesInGriddedRectangularRegion class
 	 */
-	public SitesInGriddedRegionAPI getGriddedRegionSite() throws RuntimeException, RegionConstraintException {
+	public SitesInGriddedRegion getGriddedRegionSite() throws RuntimeException, RegionConstraintException {
 
 		updateGriddedSiteParams();
 

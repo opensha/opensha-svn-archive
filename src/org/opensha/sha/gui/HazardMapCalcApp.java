@@ -23,9 +23,11 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegionAPI;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
@@ -96,7 +98,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 	private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
 	//store the site values for each site in the griddded region
-	private SitesInGriddedRectangularRegion griddedRegionSites;
+	private SitesInGriddedRegion griddedRegionSites;
 
 	//gets the instance of the selected AttenuationRelationship
 	private AttenuationRelationship attenRel;
@@ -721,9 +723,10 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 			calcProgress.setProgressMessage("Saving Region");
 			calcProgress.updateProgress(2, steps);
 
-			SitesInGriddedRegionAPI griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
-
-			root = griddedRegionSites.toXMLMetadata(root);
+			SitesInGriddedRegion griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
+			EvenlyGriddedGeographicRegion eggr = griddedRegionSites.getRegion();
+			
+			root = eggr.toXMLMetadata(root);
 			
 			calcProgress.setProgressMessage("Saving Discretized Function");
 			calcProgress.updateProgress(3, steps);
@@ -892,7 +895,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 	/**
 	 * sets up the connection with the servlet on the server (gravity.usc.edu)
 	 */
-	private void sendParametersToServlet(SitesInGriddedRectangularRegion regionSites,
+	private void sendParametersToServlet(SitesInGriddedRegion regionSites,
 			ScalarIntensityMeasureRelationshipAPI imr,
 			String eqkRupForecastLocation) {
 

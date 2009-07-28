@@ -37,7 +37,7 @@ import org.opensha.sha.earthquake.EqkRupture;
  * \u00B1180\u00B0.
  * 
  * @author Peter Powers
- * @version $Id:$
+ * @version $Id$
  * 
  */
 public class GeographicRegion implements java.io.Serializable, XMLSaveable {
@@ -140,7 +140,8 @@ public class GeographicRegion implements java.io.Serializable, XMLSaveable {
 	 * 
 	 * @param center of the circle
 	 * @param radius of the circle
-	 * @throws IllegalArgumentException if 0 <= <code>radius</code> < 1000 km
+	 * @throws IllegalArgumentException if 0 \u2264 <code>radius</code> 
+	 * 		\u003C 1000 km
 	 * @throws NullPointerException if <code>center</code> is null
 	 */
 	public GeographicRegion(Location center, double radius) {

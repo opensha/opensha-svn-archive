@@ -48,7 +48,8 @@ public class SpatialAfterHypoMagFreqDistForecast
      * initialise the aftershock zone and mainshock for this model
      */
     this.setMainShock(mainshock);
-    this.region = aftershockZone;
+    setRegion(aftershockZone);
+    //this.region = aftershockZone;
     this.aftershocks = aftershocks;
     this.aftershockZone = aftershockZone;
 
@@ -225,7 +226,7 @@ public class SpatialAfterHypoMagFreqDistForecast
       IncrementalMagFreqDist[] dist = new IncrementalMagFreqDist[1];
       dist[0] = GR_Dist;
       Location gridLoc;
-      gridLoc = this.region.getGridLocation(gridIndex);
+      gridLoc = getRegion().getGridLocation(gridIndex);
       magDistLoc = new HypoMagFreqDistAtLoc(dist,gridLoc);
       return magDistLoc;
     //}

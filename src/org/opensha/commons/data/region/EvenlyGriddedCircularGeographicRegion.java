@@ -31,7 +31,7 @@ import org.opensha.commons.data.LocationList;
  * 
  * TODO retire; all functionality migrated to all purpuse EGGR
  */
-
+@Deprecated
 public class EvenlyGriddedCircularGeographicRegion
     extends EvenlyGriddedGeographicRegion{
 

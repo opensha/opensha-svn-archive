@@ -13,6 +13,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.ParameterException;
@@ -100,11 +101,13 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
       fw.write("Time to instantiate ShakeMap attenuationRelationship :"+(currentTime - startTime)+"\n");
       //make the Gridded Region object
       LocationList locList = createCaliforniaPolygonBoundaryLocationList();
-      SitesInGriddedRegion region = new SitesInGriddedRegion(locList,GRID_SPACING);
+      EvenlyGriddedGeographicRegion eggr = 
+    	  new EvenlyGriddedGeographicRegion(locList,GRID_SPACING);
+      SitesInGriddedRegion sites = new SitesInGriddedRegion(eggr);
       //SitesInGriddedRectangularRegion region = new SitesInGriddedRectangularRegion(this.MIN_LAT,this.MAX_LAT,
       //  this.MIN_LON,this.MAX_LON,this.GRID_SPACING);
 
-      region.addSiteParams(attenRel.getSiteParamsIterator());
+      sites.addSiteParams(attenRel.getSiteParamsIterator());
       //getting the Attenuation Site Parameters Liat
       ListIterator it = attenRel.getSiteParamsIterator();
       //creating the list of default Site Parameters, so that site parameter values can be filled in
@@ -118,19 +121,19 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
         siteTrans.setParameterValue(tempParam,siteTrans.WILLS_DE,Double.NaN);
         defaultSiteParams.add(tempParam);
       }
-      region.setDefaultSiteParams(defaultSiteParams);
+      sites.setDefaultSiteParams(defaultSiteParams);
       currentTime = System.currentTimeMillis();
       fw.write("Time to create Region Object :"+(currentTime - startTime)+"\n");
 
-      numSites = region.getNumGridLocs();
+      numSites = sites.getRegion().getNumGridLocs();
       latVals = new double[numSites];
       lonVals = new double[numSites];
 
       //adding the numSites to the lat and Lon ArrayList
       for(int i=0;i<numSites;++i){
 
-        latVals[i]=(new Double(format.format(region.getSite(i).getLocation().getLatitude()))).doubleValue();
-        lonVals[i]=(new Double(format.format(region.getSite(i).getLocation().getLongitude()))).doubleValue();
+        latVals[i]=(new Double(format.format(sites.getSite(i).getLocation().getLatitude()))).doubleValue();
+        lonVals[i]=(new Double(format.format(sites.getSite(i).getLocation().getLongitude()))).doubleValue();
       }
       currentTime = System.currentTimeMillis();
       fw.write("Time to create Lat and Lon ArrayList :"+(currentTime - startTime)+"\n");
@@ -146,7 +149,7 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
       //if file does not already exists then create it.
       else{
         try{
-         ArrayList siteVals = ConnectToCVM.getWillsSiteTypeFromCVM(region.getGridLocationsList());
+         ArrayList siteVals = ConnectToCVM.getWillsSiteTypeFromCVM(sites.getRegion().getGridLocationsList());
          int size = siteVals.size();
          willSiteClassVals = new String[size];
          for(int i=0;i<size;++i)
@@ -161,7 +164,7 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
         fw.write("Time to read  and create Site Value File :"+(currentTime - startTime)+"\n");
       }
       //sending the Array for the Wills Site class to the region class
-      region.setSiteParamsForRegion(willSiteClassVals,null);
+      sites.setSiteParamsForRegion(willSiteClassVals,null);
       willSiteClassVals =null;
 
       //MetaData String
@@ -170,11 +173,11 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
                         "\t"+"Intensity Measure Type: "+ attenRel.getIntensityMeasure().getName()+"\n"+
                         "\n\n"+
                         "Region Info: \n"+
-                        "\t"+"MinLat: "+region.getMinLat()+"\n"+
-                        "\t"+"MaxLat: "+region.getMaxLat()+"\n"+
-                        "\t"+"MinLon: "+region.getMinLon()+"\n"+
-                        "\t"+"MaxLon: "+region.getMaxLon()+"\n"+
-                        "\t"+"GridSpacing: "+region.getGridSpacing()+"\n"+
+                        "\t"+"MinLat: "+sites.getRegion().getMinLat()+"\n"+
+                        "\t"+"MaxLat: "+sites.getRegion().getMaxLat()+"\n"+
+                        "\t"+"MinLon: "+sites.getRegion().getMinLon()+"\n"+
+                        "\t"+"MaxLon: "+sites.getRegion().getMaxLon()+"\n"+
+                        "\t"+"GridSpacing: "+sites.getRegion().getGridSpacing()+"\n"+
                         "\t"+"Site Params: "+attenRel.getParameter(attenRel.WILLS_SITE_NAME).getName()+ " = "+attenRel.getParameter(attenRel.WILLS_SITE_NAME).getValue().toString()+"\n"+
                         "\n\n"+
                         "Forecast Info: \n"+
@@ -232,7 +235,7 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
         else{
           currentTime = System.currentTimeMillis();
           fw.write("Starting with calculation for addon probablities :"+(currentTime - startTime)+"\n");
-          stepAddonProbVals = getProbVals_faster(fw,attenRel,region,(EqkRupForecast)forecast);
+          stepAddonProbVals = getProbVals_faster(fw,attenRel,sites,(EqkRupForecast)forecast);
           createFile(stepAddonProbVals,this.STEP_DIR+stepDirName+this.STEP_ADDON_FILE_SUFFIX);
           //creating the metadata file for the STEP addon probabilities
           String stepFile = this.STEP_ADDON_FILE_SUFFIX.substring(0,STEP_ADDON_FILE_SUFFIX.indexOf("."));
@@ -1338,7 +1341,7 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
    * @param eqkRupForecast : STEP Forecast
    * @returns the ArrayList of Probability values for the given region
    */
-  private ArrayList getProbVals(ShakeMap_2003_AttenRel imr,SitesInGriddedRectangularRegion region,
+  private ArrayList getProbVals(ShakeMap_2003_AttenRel imr,SitesInGriddedRegion sites,
                                      EqkRupForecast eqkRupForecast) throws
       RegionConstraintException, ParameterException {
 
@@ -1356,11 +1359,11 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
     // (e.g., all could be outside MAX_DISTANCE)
     boolean sourceUsed = false;
 
-    int numSites = region.getNumGridLocs();
+    int numSites = sites.getRegion().getNumGridLocs();
     for(int j=0;j<numSites;++j){
       double hazVal =1;
       double condProb =0;
-      imr.setSite(region.getSite(j));
+      imr.setSite(sites.getSite(j));
       //adding the wills site class value for each site
       String willSiteClass = willSiteClassVals[j];
       //only add the wills value if we have a value available for that site else leave default "D"
@@ -1376,7 +1379,7 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
         ProbEqkSource source = eqkRupForecast.getSource(i);
 
         // compute it's distance from the site and skip if it's too far away
-        distance = source.getMinDistance(region.getSite(j));
+        distance = source.getMinDistance(sites.getSite(j));
         if(distance > MAX_DISTANCE)
           //update progress bar for skipped ruptures
           continue;
@@ -1430,7 +1433,7 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
    * @param eqkRupForecast : STEP Forecast
    * @returns the ArrayList of Probability values for the given region
    */
-  private double[] getProbVals_faster(FileWriter fw,ShakeMap_2003_AttenRel imr,SitesInGriddedRegion region,
+  private double[] getProbVals_faster(FileWriter fw,ShakeMap_2003_AttenRel imr,SitesInGriddedRegion sites,
                                      EqkRupForecast eqkRupForecast){
 
     double[] probVals = new double[numSites];
@@ -1448,7 +1451,7 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
       // (e.g., all could be outside MAX_DISTANCE)
       boolean sourceUsed = false;
 
-      int numSites = region.getNumGridLocs();
+      int numSites = sites.getRegion().getNumGridLocs();
       fw.write("NumSites: "+numSites+"\n");
       int numSourcesSkipped =0;
       long startCalcTime = System.currentTimeMillis();
@@ -1458,7 +1461,7 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
       for(int j=0;j<numSites;++j){
         double hazVal =1;
         double condProb =0;
-        Site site = region.getSite(j);
+        Site site = sites.getSite(j);
         imr.setSite(site);
         //adding the wills site class value for each site
        // String willSiteClass = willSiteClassVals[j];
@@ -1475,7 +1478,7 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
           ProbEqkSource source = eqkRupForecast.getSource(i);
 
           // compute it's distance from the site and skip if it's too far away
-          distance = source.getMinDistance(region.getSite(j));
+          distance = source.getMinDistance(sites.getSite(j));
           if(distance > MAX_DISTANCE){
             ++numSourcesSkipped;
             //update progress bar for skipped ruptures

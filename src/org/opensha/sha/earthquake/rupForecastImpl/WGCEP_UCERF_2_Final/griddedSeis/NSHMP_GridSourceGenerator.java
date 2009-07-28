@@ -455,6 +455,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		double[] gridVals = new double[getNumGridLocs()];
 		for(int i=0;i<gridVals.length;i++) {
 			int aValIndex = aValIndexForLocIndex[i];
+			System.out.println("val: " + i);
 			if(aValIndex != -1) {  // ignore the RELM locs outside the NSHMP region
 				gridVals[i] = allGridVals[aValIndex];
 				if(addToSumOfAllAvals) sumOfAllAvals[i]+=gridVals[i];

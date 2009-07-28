@@ -55,7 +55,7 @@ public class GenericAfterHypoMagFreqDistForecast
      * initialise the aftershock zone and mainshock for this model
      */
     this.setMainShock(mainshock);
-    this.region = aftershockZone;
+    setRegion(aftershockZone);
 //    if(region instanceof EvenlyGriddedCircularGeographicRegion)
 //    	castCircularRegion = (EvenlyGriddedCircularGeographicRegion)this.region;
 //    if(region instanceof EvenlyGriddedSausageGeographicRegion)
@@ -95,7 +95,7 @@ public class GenericAfterHypoMagFreqDistForecast
 
 
 public void setNumGridLocs() {
-	 numGridLocs = this.region.getNumGridLocs();
+	 numGridLocs = getRegion().getNumGridLocs();
 }
 
 
@@ -246,7 +246,7 @@ public void setNumGridLocs() {
       dist[0] = GR_Dist;
       Location gridLoc;
       
-      gridLoc = this.region.getGridLocation(gridIndex);
+      gridLoc = getRegion().getGridLocation(gridIndex);
       magDistLoc = new HypoMagFreqDistAtLoc(dist,
           gridLoc);
       return magDistLoc;
@@ -318,7 +318,7 @@ public void setNumGridLocs() {
   }
   
   public Location getLocInGrid(int ithLocation){
-	  return region.getGridLocation(ithLocation);
+	  return getRegion().getGridLocation(ithLocation);
 //	  if(region instanceof EvenlyGriddedCircularGeographicRegion)
 //	    	return this.castCircularRegion.getGridLocation(ithLocation);
 //	  else if(region instanceof EvenlyGriddedSausageGeographicRegion)

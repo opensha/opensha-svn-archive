@@ -127,16 +127,20 @@ public class MetadataHazardMapCalculator implements ParameterChangeWarningListen
 		
 		Element regionElement = root.element(EvenlyGriddedGeographicRegion.XML_METADATA_NAME);
 		EvenlyGriddedGeographicRegion region = EvenlyGriddedGeographicRegion.fromXMLMetadata(regionElement);
-		SitesInGriddedRegionAPI sites = null;
-		if (region.isRectangular()) {
-			try {
-				sites = new SitesInGriddedRectangularRegion(region, region.getGridSpacing());
-			} catch (RegionConstraintException e) {
-				sites = new SitesInGriddedRegion(region.getRegionOutline(), region.getGridSpacing());
-			}
-		} else {
-			sites = new SitesInGriddedRegion(region.getRegionOutline(), region.getGridSpacing());
-		}
+		SitesInGriddedRegion sites = new SitesInGriddedRegion(region);
+		
+		// TODO revisit to ensure proper functioning
+		
+//		if (region.isRectangular()) {
+//			try {
+//				
+//				sites = new SitesInGriddedRegion(region, region.getGridSpacing());
+//			} catch (RegionConstraintException e) {
+//				sites = new SitesInGriddedRegion(region.getRegionOutline(), region.getGridSpacing());
+//			}
+//		} else {
+//			sites = new SitesInGriddedRegion(region.getRegionOutline(), region.getGridSpacing());
+//		}
 
 		// max cutoff distance for calculator
 //		Element calcParams = root.element("calculationParameters");

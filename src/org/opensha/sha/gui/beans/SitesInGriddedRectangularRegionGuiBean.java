@@ -15,7 +15,9 @@ import java.awt.event.*;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValueList;
@@ -113,7 +115,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	private OrderedSiteDataProviderList defaultProviderList = null;
 
 	//instance of class EvenlyGriddedRectangularGeographicRegion
-	private SitesInGriddedRectangularRegion gridRectRegion;
+	private SitesInGriddedRegion sites;
 
 	/**
 	 * constuctor which builds up mapping between IMRs and their related sites
@@ -193,7 +195,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		}
 		//adding the Site Params to the ArrayList, so that we can add those later if we want to.
 		siteParams = siteTempVector;
-		gridRectRegion.addSiteParams(siteTempVector.iterator());
+		sites.addSiteParams(siteTempVector.iterator());
 		setSiteParamsVisible();
 	}
 
@@ -216,7 +218,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 				v.add(cloneParam);
 			}
 		}
-		gridRectRegion.addSiteParams(v.iterator());
+		sites.addSiteParams(v.iterator());
 		setSiteParamsVisible();
 	}
 
@@ -239,7 +241,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 				parameterList.removeParameter(paramName);
 		}
 		//removing the existing sites Params from the gridded Region sites
-		gridRectRegion.removeSiteParams();
+		sites.removeSiteParams();
 
 		// now add all the new params
 		addSiteParams(it);
@@ -263,7 +265,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 * @return
 	 */
 	public Iterator getSitesClone() {
-		ListIterator lIt=gridRectRegion.getGridLocationsIterator();
+		ListIterator lIt=sites.getRegion().getGridLocationsIterator();
 		ArrayList newSiteVector=new ArrayList();
 		while(lIt.hasNext())
 			newSiteVector.add(new Site((Location)lIt.next()));
@@ -296,7 +298,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		Iterator it = siteParams.iterator();
 		while(it.hasNext())
 			v.add((ParameterAPI)it.next());
-		gridRectRegion.addSiteParams(v.iterator());
+		sites.addSiteParams(v.iterator());
 	}
 
 
@@ -363,9 +365,12 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		double minLongitude=((Double)minLon.getValue()).doubleValue();
 		double maxLongitude=((Double)maxLon.getValue()).doubleValue();
 		//checkLatLonParamValues();
-		gridRectRegion= new SitesInGriddedRectangularRegion(minLatitude,
-				maxLatitude,minLongitude,maxLongitude,
-				((Double)gridSpacing.getValue()).doubleValue());
+		EvenlyGriddedGeographicRegion eggr = 
+			new EvenlyGriddedGeographicRegion(
+					minLatitude,maxLatitude,
+					minLongitude,maxLongitude,
+					((Double)gridSpacing.getValue()).doubleValue());
+		sites= new SitesInGriddedRegion(eggr);
 	}
 
 
@@ -373,12 +378,12 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 *
 	 * @return the object for the SitesInGriddedRectangularRegion class
 	 */
-	public SitesInGriddedRectangularRegion getGriddedRegionSite() throws RuntimeException, RegionConstraintException {
+	public SitesInGriddedRegion getGriddedRegionSite() throws RuntimeException, RegionConstraintException {
 
 		updateGriddedSiteParams();
 		if(((String)siteParam.getValue()).equals(SET_ALL_SITES))
 			//if the site params does not need to be set from the CVM
-			gridRectRegion.setSameSiteParams();
+			sites.setSameSiteParams();
 
 		//if the site Params needs to be set from the WILLS Site type and SCEC basin depth
 		else{
@@ -393,9 +398,9 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 				tempParam.setValue(parameterList.getParameter(this.DEFAULT+tempParam.getName()).getValue());
 				defaultSiteParams.add(tempParam);
 			}
-			gridRectRegion.setDefaultSiteParams(defaultSiteParams);
+			sites.setDefaultSiteParams(defaultSiteParams);
 		}
-		return gridRectRegion;
+		return sites;
 	}
 
 
@@ -514,7 +519,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 			}
 		}
 		try {
-			gridRectRegion.setSiteParamsForRegion(dataProviders);
+			sites.setSiteParamsForRegion(dataProviders);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -566,8 +571,8 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 				} else {
 					dataProviders = defaultProviderList;
 				}
-				gridRectRegion.setSiteParamsForRegion(dataProviders);
-				valsList = gridRectRegion.getSiteDataValueLists();
+				sites.setSiteParamsForRegion(dataProviders);
+				valsList = sites.getSiteDataValueLists();
 			} else {
 				valsList = new ArrayList<SiteDataValueList<?>>();
 			}

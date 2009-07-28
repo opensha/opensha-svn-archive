@@ -8,6 +8,7 @@ import java.io.Serializable;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.commons.metadata.XMLSaveable;
 
 
 import org.opensha.sha.util.*;
@@ -27,10 +28,13 @@ import org.opensha.sha.gui.infoTools.ConnectToCVM;
  * @created : March 15,2003
  * @version 1.0
  */
+// extends EvenlyGriddedGeographicRegionAPI
+@Deprecated
+public interface SitesInGriddedRegionAPI extends java.io.Serializable {
 
-public interface SitesInGriddedRegionAPI extends EvenlyGriddedGeographicRegionAPI{
 
-
+	public EvenlyGriddedGeographicRegion getRegion();
+	
   /**
    * Files get the site information from.
    */

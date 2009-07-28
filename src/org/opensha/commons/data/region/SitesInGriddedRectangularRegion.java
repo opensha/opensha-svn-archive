@@ -4,8 +4,6 @@ import java.util.*;
 import java.io.IOException;
 import java.io.Serializable;
 
-
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
@@ -17,9 +15,7 @@ import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.ParameterAPI;
 
-
 import org.opensha.sha.util.*;
-import org.opensha.sha.gui.infoTools.ConnectToCVM;
 
 /**
  * <p>Title: SitesInGriddedRectangularRegion</p>
@@ -34,38 +30,35 @@ import org.opensha.sha.gui.infoTools.ConnectToCVM;
  * @created : March 15,2003
  * @version 1.0
  */
-
+//implements SitesInGriddedRegionAPI
+@Deprecated
 public class SitesInGriddedRectangularRegion extends EvenlyGriddedGeographicRegion
-implements SitesInGriddedRegionAPI,Serializable{
+implements Serializable {
 
 	//Debug parameter
 	public static final boolean D= false;
 
-
 	//definition for the Siet Object
 	Site site = new Site();
 
+	ArrayList<SiteDataValueList<?>> siteDataValueLists = null;
 
 	//set the same site type for each site
 	private boolean setSameSiteParams = true;
 	
-	ArrayList<SiteDataValueList<?>> siteDataValueLists = null;
-
 	//ArrayList that contains the default Values for the Site parameters if CVM do not cover that site
 	private ArrayList defaultSiteParams;
 
 	//Instance of the site TransLator class
 	SiteTranslator siteTranslator = new SiteTranslator();
 
-
-
 	/**
-	 * class constructor
 	 * @param minLat
 	 * @param maxLat
 	 * @param minLon
 	 * @param maxLon
 	 * @param gridSpacing
+	 * @throws RegionConstraintException
 	 */
 	public SitesInGriddedRectangularRegion(double minLat,double maxLat,double minLon,double maxLon,
 			double gridSpacing) throws

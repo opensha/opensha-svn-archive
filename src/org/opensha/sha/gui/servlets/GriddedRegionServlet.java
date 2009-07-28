@@ -7,7 +7,9 @@ import java.io.*;
 import java.util.*;
 
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.ParameterAPI;
@@ -59,7 +61,7 @@ public class GriddedRegionServlet extends HttpServlet {
 			ArrayList<SiteDataValueList<?>> dataVals = (ArrayList<SiteDataValueList<?>>)inputFromApplet.readObject();
 
 			//creates a gridded Region Object
-			SitesInGriddedRectangularRegion griddedRegion = setRegionFromParamList(paramList,siteParams,dataVals);
+			SitesInGriddedRegion griddedRegion = setRegionFromParamList(paramList,siteParams,dataVals);
 
 			String regionFileWithAbsolutePath = FILE_PATH+REGION_DATA_DIR+regionFileName;
 
@@ -89,7 +91,7 @@ public class GriddedRegionServlet extends HttpServlet {
 	 * @param griddedRegion
 	 * @param regionFileWithAbsolutePath
 	 */
-	private void createGriddedRegionFile(SitesInGriddedRectangularRegion griddedRegion,String regionFileWithAbsolutePath){
+	private void createGriddedRegionFile(SitesInGriddedRegion griddedRegion,String regionFileWithAbsolutePath){
 		FileUtils.saveObjectInFile(regionFileWithAbsolutePath,griddedRegion);
 	}
 
@@ -102,13 +104,14 @@ public class GriddedRegionServlet extends HttpServlet {
 	 * return the GriddedRegion Object.
 	 * @param dataVals 
 	 */
-	private SitesInGriddedRectangularRegion setRegionFromParamList(ParameterList paramList,ArrayList siteParams, ArrayList<SiteDataValueList<?>> dataVals) throws RegionConstraintException {
+	private SitesInGriddedRegion setRegionFromParamList(ParameterList paramList,ArrayList siteParams, ArrayList<SiteDataValueList<?>> dataVals) throws RegionConstraintException {
 		double minLat = ((Double)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.MIN_LATITUDE).getValue()).doubleValue();
 		double maxLat = ((Double)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.MAX_LATITUDE).getValue()).doubleValue();
 		double minLon = ((Double)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.MIN_LONGITUDE).getValue()).doubleValue();
 		double maxLon = ((Double)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.MAX_LONGITUDE).getValue()).doubleValue();
 		double gridSpacing = ((Double)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.GRID_SPACING).getValue()).doubleValue();
-		SitesInGriddedRectangularRegion gridRectRegion  = new SitesInGriddedRectangularRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
+		EvenlyGriddedGeographicRegion eggr = new EvenlyGriddedGeographicRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
+		SitesInGriddedRegion gridRectRegion  = new SitesInGriddedRegion(eggr);
 		String regionSitesParamVal = (String)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.SITE_PARAM_NAME).getValue();
 
 		//adding the site params to the gridded region object
@@ -140,7 +143,7 @@ public class GriddedRegionServlet extends HttpServlet {
 	 * set the Site Params from the CVM
 	 * @param dataVals 
 	 */
-	private void setSiteParamsFromCVM(SitesInGriddedRectangularRegion gridRectRegion,String siteParamVal, ArrayList<SiteDataValueList<?>> dataVals){
+	private void setSiteParamsFromCVM(SitesInGriddedRegion gridRectRegion,String siteParamVal, ArrayList<SiteDataValueList<?>> dataVals){
 
 		if(siteParamVal.equals(SitesInGriddedRectangularRegionGuiBean.SET_SITES_USING_SCEC_CVM)) {
 			System.out.println("USING CVM");
