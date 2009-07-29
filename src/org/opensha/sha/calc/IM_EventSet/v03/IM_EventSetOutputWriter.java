@@ -31,6 +31,7 @@ public abstract class IM_EventSetOutputWriter {
 	
 	public static final DecimalFormat meanSigmaFormat = new DecimalFormat("0.####");
 	public static final DecimalFormat distFormat = new DecimalFormat("0.###");
+	public static final DecimalFormat rateFormat = new DecimalFormat("###0E0");
 	
 	public IM_EventSetOutputWriter(IM_EventSetCalc_v3_0 calc) {
 		this.calc = calc;

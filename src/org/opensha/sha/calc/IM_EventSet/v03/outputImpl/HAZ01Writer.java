@@ -190,6 +190,8 @@ public class HAZ01Writer extends IM_EventSetOutputWriter {
 		for (int sourceID=0; sourceID<numSources; sourceID++) {
 			ProbEqkSource source = erf.getSource(sourceID);
 			logger.log(Level.FINEST, "Writing portion for Source: " + sourceID);
+			String sourceName = source.getName();
+			sourceName = sourceName.replaceAll(",", "");
 			if (!shouldIncludeSource(source))
 				continue;
 			for (int rupID=0; rupID<source.getNumRuptures(); rupID++) {
@@ -197,7 +199,7 @@ public class HAZ01Writer extends IM_EventSetOutputWriter {
 				ProbEqkRupture rup = source.getRupture(rupID);
 				double rate = rup.getMeanAnnualRate(duration);
 				String line = lineID + "," + erfName + "," + sourceID + "," + rupID + ","
-							+ meanSigmaFormat.format(rate) + ","+ (float)rup.getMag() + "," + source.getName();
+							+ rateFormat.format(rate) + ","+ (float)rup.getMag() + "," + sourceName;
 				fw.write(line + "\n");
 			}
 		}
