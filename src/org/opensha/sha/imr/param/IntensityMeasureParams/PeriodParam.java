@@ -1,5 +1,7 @@
 package org.opensha.sha.imr.param.IntensityMeasureParams;
 
+import java.util.ArrayList;
+
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.DoubleDiscreteConstraint;
 import org.opensha.commons.param.DoubleDiscreteParameter;
@@ -39,5 +41,16 @@ public class PeriodParam extends DoubleDiscreteParameter {
 	 * @param peroidList
 	 */
 	public PeriodParam(DoubleDiscreteConstraint peroidList) { this(peroidList,1.0,false);}
+	
+	/**
+	 * Helper method to quickly get the supported periods.
+	 * 
+	 * @return
+	 */
+	public ArrayList<Double> getSupportedPeriods() {
+		DoubleDiscreteConstraint constr = (DoubleDiscreteConstraint) getConstraint();
+		ArrayList<Double> periods = constr.getAllowedDoubles();
+		return periods;
+	}
 
 }

@@ -568,12 +568,20 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 	 * @return : Selected IMR instance
 	 */
 	public ScalarIntensityMeasureRelationshipAPI getSelectedIMR_Instance() {
-		ScalarIntensityMeasureRelationshipAPI imr = null;
 		String selectedIMR = getSelectedIMR_Name();
+		return getIMR_Instance(selectedIMR);
+	}
+	
+	/**
+	 * This method will return the instance of selected IMR
+	 * @return : Selected IMR instance
+	 */
+	public ScalarIntensityMeasureRelationshipAPI getIMR_Instance(String name) {
+		ScalarIntensityMeasureRelationshipAPI imr = null;
 		int size = supportedAttenRels.size();
 		for(int i=0; i<size ; ++i) {
 			imr = (ScalarIntensityMeasureRelationshipAPI)supportedAttenRels.get(i);
-			if(imr.getName().equalsIgnoreCase(selectedIMR))
+			if(imr.getName().equalsIgnoreCase(name))
 				break;
 		}
 		return imr;

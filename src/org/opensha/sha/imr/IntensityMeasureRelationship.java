@@ -508,7 +508,8 @@ implements IntensityMeasureRelationshipAPI {
 			siteParamsElement = param.toXMLMetadata(siteParamsElement);
 		}
 		ParameterAPI imt = this.getIntensityMeasure();
-		imt.toXMLMetadata(xml, IntensityMeasureRelationship.XML_METADATA_IMT_NAME);
+		if (imt != null)
+			imt.toXMLMetadata(xml, IntensityMeasureRelationship.XML_METADATA_IMT_NAME);
 		//	  ParameterAPI period = this.getParameter(PeriodParam.NAME);
 		//	  if (period != null)
 		//		  imtElem.addAttribute(PeriodParam.NAME.replaceAll(" ", ""), period.getValue().toString());
@@ -575,15 +576,17 @@ implements IntensityMeasureRelationshipAPI {
 
 		// set IMT
 		Element imtElem = root.element(IntensityMeasureRelationship.XML_METADATA_IMT_NAME);
-		String imtName = imtElem.attributeValue("name");
+		if (imtElem != null) {
+			String imtName = imtElem.attributeValue("name");
 
-		System.out.println("IMT Name: " + imtName);
+			System.out.println("IMT Name: " + imtName);
 
-		imr.setIntensityMeasure(imtName);
+			imr.setIntensityMeasure(imtName);
 
-		ParameterAPI<?> imt = imr.getIntensityMeasure();
+			ParameterAPI<?> imt = imr.getIntensityMeasure();
 
-		imt.setValueFromXMLMetadata(imtElem);
+			imt.setValueFromXMLMetadata(imtElem);
+		}
 
 		//	  if (imtElem != null) {
 		//		  imr.setIntensityMeasure(imtElem.attribute("Type").getValue());

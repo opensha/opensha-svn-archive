@@ -15,7 +15,7 @@ import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.util.SiteTranslator;
 
@@ -23,7 +23,7 @@ public abstract class IM_EventSetOutputWriter {
 	
 	protected static Logger logger = IM_EventSetCalc_v3_0.logger;
 	
-	protected IM_EventSetCalc_v3_0 calc;
+	protected IM_EventSetCalc_v3_0_API calc;
 	private static SiteTranslator siteTrans = new SiteTranslator();
 	
 	private float sourceCutOffDistance = 0;
@@ -31,20 +31,62 @@ public abstract class IM_EventSetOutputWriter {
 	
 	public static final DecimalFormat meanSigmaFormat = new DecimalFormat("0.####");
 	public static final DecimalFormat distFormat = new DecimalFormat("0.###");
-	public static final DecimalFormat rateFormat = new DecimalFormat("###0E0");
+	public static final DecimalFormat rateFormat = new DecimalFormat("####0E0");
 	
-	public IM_EventSetOutputWriter(IM_EventSetCalc_v3_0 calc) {
+	public IM_EventSetOutputWriter(IM_EventSetCalc_v3_0_API calc) {
 		this.calc = calc;
 	}
 	
-	public abstract void writeFiles(ArrayList<EqkRupForecastAPI> erfs, ArrayList<AttenuationRelationship> attenRels,
+	public abstract void writeFiles(ArrayList<EqkRupForecastAPI> erfs, ArrayList<ScalarIntensityMeasureRelationshipAPI> attenRels,
 			ArrayList<String> imts) throws IOException;
 	
-	public void writeFiles(EqkRupForecastAPI erf, ArrayList<AttenuationRelationship> attenRels,
+	public void writeFiles(EqkRupForecastAPI erf, ArrayList<ScalarIntensityMeasureRelationshipAPI> attenRels,
 			ArrayList<String> imts) throws IOException {
 		ArrayList<EqkRupForecastAPI> erfs = new ArrayList<EqkRupForecastAPI>();
 		erfs.add(erf);
 		writeFiles(erfs, attenRels, imts);
+	}
+	
+	public abstract String getName();
+	
+	public static String getHAZ01IMTString(ParameterAPI<?> param) {
+		String imt = param.getName();
+		
+		if (param instanceof DependentParameterAPI) {
+			DependentParameterAPI<?> depParam = (DependentParameterAPI<?>)param;
+			ListIterator<ParameterAPI<?>> it = depParam.getIndependentParametersIterator();
+			while (it.hasNext()) {
+				ParameterAPI<?> dep = it.next();
+				if (dep.getName().equals(PeriodParam.NAME)) {
+					double period = (Double)dep.getValue();
+					int p10 = (int)(period * 10.0 + 0.5);
+					String p10Str = p10 + "";
+					if (p10Str.length() < 2)
+						p10Str = "0" + p10Str;
+					imt += p10Str;
+					break;
+				}
+			}
+		}
+		return imt;
+	}
+	
+	public static String getRegularIMTString(ParameterAPI<?> param) {
+		String imt = param.getName();
+		
+		if (param instanceof DependentParameterAPI) {
+			DependentParameterAPI<?> depParam = (DependentParameterAPI<?>)param;
+			ListIterator<ParameterAPI<?>> it = depParam.getIndependentParametersIterator();
+			while (it.hasNext()) {
+				ParameterAPI<?> dep = it.next();
+				if (dep.getName().equals(PeriodParam.NAME)) {
+					double period = (Double)dep.getValue();
+					imt += " " + (float)period;
+					break;
+				}
+			}
+		}
+		return imt;
 	}
 	
 	/**
@@ -53,17 +95,28 @@ public abstract class IM_EventSetOutputWriter {
 	 * @param imtLine
 	 * @param attenRel
 	 */
-	public static void setIMTFromString(String imtStr, AttenuationRelationship attenRel) {
+	public static void setIMTFromString(String imtStr, ScalarIntensityMeasureRelationshipAPI attenRel) {
 		String imt = imtStr.trim();
 		if ((imt.startsWith("SA") || imt.startsWith("SD"))) {
 			logger.log(Level.FINE, "Parsing IMT with Period: " + imt);
 			// this is SA/SD
-			double period = Double.parseDouble(imt.substring(3)) / 10;
+			String perSt = imt.substring(2);
 			String theIMT = imt.substring(0, 2);
+			double period;
+			if (perSt.startsWith(" ") || perSt.startsWith("\t")) {
+				// this is a 'SA period' format IMT
+				logger.log(Level.FINEST, "Split into IMT: " + theIMT + ", Period portion: " + perSt);
+				period = Double.parseDouble(perSt.trim());
+				
+			} else {
+				// this is a HAZ01 style IMT
+				logger.log(Level.FINEST, "Split into IMT: " + theIMT + ", Period portion (HAZ01 style): " + perSt);
+				period = Double.parseDouble(perSt) / 10;
+			}
 			attenRel.setIntensityMeasure(theIMT);
 			DependentParameterAPI imtParam = (DependentParameterAPI)attenRel.getIntensityMeasure();
 			imtParam.getIndependentParameter(PeriodParam.NAME).setValue(period);
-			logger.log(Level.FINEST, "Parsed IMT with Period: " + imt + " => " + theIMT + ", period: " + period);
+			logger.log(Level.FINE, "Parsed IMT with Period: " + imt + " => " + theIMT + ", period: " + period);
 //			System.out.println("imtstr: " + imt + ", " + attenRel.getIntensityMeasure().getName()
 //						+ ": " + attenRel.getParameter(PeriodParam.NAME).getValue());
 		} else {
@@ -79,7 +132,7 @@ public abstract class IM_EventSetOutputWriter {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	protected ArrayList<ParameterAPI> getDefaultSiteParams(AttenuationRelationship attenRel) {
+	protected ArrayList<ParameterAPI> getDefaultSiteParams(ScalarIntensityMeasureRelationshipAPI attenRel) {
 		logger.log(Level.FINE, "Storing default IMR site related params.");
 		ListIterator<ParameterAPI> siteParamsIt = attenRel.getSiteParamsIterator();
 		ArrayList<ParameterAPI> defaultSiteParams = new ArrayList<ParameterAPI>();
@@ -97,7 +150,7 @@ public abstract class IM_EventSetOutputWriter {
 	 * @param defaultSiteParams
 	 */
 	@SuppressWarnings("unchecked")
-	protected void setSiteParams(AttenuationRelationship attenRel, ArrayList<ParameterAPI> defaultSiteParams) {
+	protected void setSiteParams(ScalarIntensityMeasureRelationshipAPI attenRel, ArrayList<ParameterAPI> defaultSiteParams) {
 		logger.log(Level.FINE, "Restoring default IMR site related params.");
 		for (ParameterAPI param : defaultSiteParams) {
 			ParameterAPI attenParam = attenRel.getParameter(param.getName());
@@ -113,7 +166,7 @@ public abstract class IM_EventSetOutputWriter {
 	 * @param attenRel
 	 * @return
 	 */
-	protected ArrayList<Site> getInitializedSites(AttenuationRelationship attenRel) {
+	protected ArrayList<Site> getInitializedSites(ScalarIntensityMeasureRelationshipAPI attenRel) {
 		logger.log(Level.FINE, "Retrieving and setting Site related params for IMR");
 		// get the list of sites
 		ArrayList<Site> sites = this.calc.getSites();
@@ -216,6 +269,12 @@ public abstract class IM_EventSetOutputWriter {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return getName();
 	}
 
 }

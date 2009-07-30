@@ -54,5 +54,23 @@ public class SA_Param extends WarningDoubleParameter {
 		setDefaultValue(defaultPGA);
 		setNonEditable();
 	}
+	
+	/**
+	 * Helper method to quickly get the period param
+	 * 
+	 * @return
+	 */
+	public PeriodParam getPeriodParam() {
+		return (PeriodParam) this.getIndependentParameter(PeriodParam.NAME);
+	}
+	
+	/**
+	 * Helper method to quickly get the damping param
+	 * 
+	 * @return
+	 */
+	public DampingParam getDampingParam() {
+		return (DampingParam) this.getIndependentParameter(DampingParam.NAME);
+	}
 
 }

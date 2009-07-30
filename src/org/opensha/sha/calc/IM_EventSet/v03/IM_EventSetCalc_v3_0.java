@@ -36,7 +36,7 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.util.SiteTranslator;
 
-public abstract class IM_EventSetCalc_v3_0 {
+public abstract class IM_EventSetCalc_v3_0 implements IM_EventSetCalc_v3_0_API {
 	
 	public static Logger logger = Logger.getLogger("IMv3Log");
 	
@@ -65,46 +65,6 @@ public abstract class IM_EventSetCalc_v3_0 {
 
 	}
 
-	/*			ABSTRACT METHODS			*/
-
-	/**
-	 * Returns the number of sites for the calculation
-	 * 
-	 * @return
-	 */
-	public abstract int getNumSites();
-
-	/**
-	 * Returns the Location of the ith site.
-	 * 
-	 * @param i
-	 * @return
-	 */
-	public abstract Location getSiteLocation(int i);
-
-	/**
-	 * Returns the ordered site data provider list, or null to not use site data providers
-	 * 
-	 * @return
-	 */
-	public abstract OrderedSiteDataProviderList getSiteDataProviders();
-
-	/**
-	 * Returns the user specified (in the input file) site data values for the site
-	 * or null to try to use site data providers
-	 * 
-	 * @param i
-	 * @return
-	 */
-	public abstract ArrayList<SiteDataValue<?>> getUserSiteDataValues(int i);
-
-	/**
-	 * Returns the output directory for all results
-	 * 
-	 * @return
-	 */
-	public abstract File getOutputDir();
-
 	public final ArrayList<Site> getSites() {
 		if (sites == null) {
 			logger.log(Level.FINE, "Generating site list");
@@ -116,35 +76,31 @@ public abstract class IM_EventSetCalc_v3_0 {
 		}
 		return sites;
 	}
+	
+	public static ArrayList<ArrayList<SiteDataValue<?>>> getSitesData(IM_EventSetCalc_v3_0_API calc) {
+		ArrayList<ArrayList<SiteDataValue<?>>> sitesData = new ArrayList<ArrayList<SiteDataValue<?>>>();
+		ArrayList<Site> sites = calc.getSites();
+		OrderedSiteDataProviderList providers = calc.getSiteDataProviders();
+		for (int i=0; i<sites.size(); i++) {
+			Site site = sites.get(i);
+			ArrayList<SiteDataValue<?>> dataVals = calc.getUserSiteDataValues(i);
+			if (dataVals == null) {
+				dataVals = new ArrayList<SiteDataValue<?>>();
+			}
+			if (providers != null) {
+				ArrayList<SiteDataValue<?>> provData = providers.getAllAvailableData(site.getLocation());
+				if (provData != null)
+					dataVals.addAll(provData);
+			}
+			sitesData.add(dataVals);
+		}
+		return sitesData;
+	}
 
-	/**
-	 * This initializes the site data values for each site.
-	 * 
-	 * If there is user specified data for the specific site, that is given top
-	 * priority. If there are also site data providers available, those will
-	 * be used (but given lower priority than any user values).
-	 * 
-	 * @return
-	 */
 	public final ArrayList<ArrayList<SiteDataValue<?>>> getSitesData() {
 		if (sitesData == null) {
 			logger.log(Level.FINE, "Generating site data providers lists");
-			sitesData = new ArrayList<ArrayList<SiteDataValue<?>>>();
-			ArrayList<Site> sites = getSites();
-			OrderedSiteDataProviderList providers = getSiteDataProviders();
-			for (int i=0; i<sites.size(); i++) {
-				Site site = sites.get(i);
-				ArrayList<SiteDataValue<?>> dataVals = getUserSiteDataValues(i);
-				if (dataVals == null) {
-					dataVals = new ArrayList<SiteDataValue<?>>();
-				}
-				if (providers != null) {
-					ArrayList<SiteDataValue<?>> provData = providers.getAllAvailableData(site.getLocation());
-					if (provData != null)
-						dataVals.addAll(provData);
-				}
-				sitesData.add(dataVals);
-			}
+			sitesData = getSitesData(this);
 		}
 
 		return sitesData;

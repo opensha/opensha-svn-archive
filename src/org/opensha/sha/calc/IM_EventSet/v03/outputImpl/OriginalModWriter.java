@@ -4,33 +4,35 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetCalc_v3_0;
+import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetCalc_v3_0_API;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 
 public class OriginalModWriter extends IM_EventSetOutputWriter {
+	public static final String NAME = "OpenSHA Format Writer";
 	
 	File outputDir;
 
-	public OriginalModWriter(IM_EventSetCalc_v3_0 calc) {
+	public OriginalModWriter(IM_EventSetCalc_v3_0_API calc) {
 		super(calc);
 	}
 
 	@Override
 	public void writeFiles(ArrayList<EqkRupForecastAPI> erfs,
-			ArrayList<AttenuationRelationship> attenRels, ArrayList<String> imts)
+			ArrayList<ScalarIntensityMeasureRelationshipAPI> attenRels, ArrayList<String> imts)
 			throws IOException {
 		logger.log(Level.INFO, "Writing old format files files");
 		outputDir = null;
@@ -49,7 +51,7 @@ public class OriginalModWriter extends IM_EventSetOutputWriter {
 			this.writeOriginalRupDistFile(erf);
 			int numIMTs = imts.size();
 			for (int i = 0; i < attenRels.size(); ++i) {
-				AttenuationRelationship attenRel = attenRels.get(i);
+				ScalarIntensityMeasureRelationshipAPI attenRel = attenRels.get(i);
 				for (int j = 0; j < numIMTs; ++j) {
 					this.writeOriginalMeanSigmaFiles(erf, attenRel, imts.get(j));
 				}
@@ -66,7 +68,7 @@ public class OriginalModWriter extends IM_EventSetOutputWriter {
 	 * @param attenRel
 	 * @throws IOException
 	 */
-	private void writeOriginalMeanSigmaFiles(EqkRupForecastAPI erf, AttenuationRelationship attenRel, String imt) throws IOException {
+	private void writeOriginalMeanSigmaFiles(EqkRupForecastAPI erf, ScalarIntensityMeasureRelationshipAPI attenRel, String imt) throws IOException {
 		setIMTFromString(imt, attenRel);
 		logger.log(Level.INFO, "Writing Mean/Sigma file for " + attenRel.getShortName() + ", " + imt);
 		ArrayList<ParameterAPI> defaultSiteParams = getDefaultSiteParams(attenRel);
@@ -78,7 +80,15 @@ public class OriginalModWriter extends IM_EventSetOutputWriter {
 									stdDevParam.isAllowed(StdDevTypeParam.STD_DEV_TYPE_INTRA);
 		
 		ParameterAPI<?> im = attenRel.getIntensityMeasure();
-		String fname = attenRel.getShortName() + "_" + imt + ".txt";
+		String fname = attenRel.getShortName();
+		StringTokenizer imtTok = new StringTokenizer(imt);
+		if (imtTok.countTokens() > 1) {
+			while (imtTok.hasMoreTokens())
+				fname += "_" + imtTok.nextToken();
+			fname += ".txt";
+		} else {
+			fname += "_" + imt + ".txt";
+		}
 		
 		FileWriter fw = new FileWriter(outputDir.getAbsolutePath() + File.separator + fname);
 
@@ -191,6 +201,10 @@ public class OriginalModWriter extends IM_EventSetOutputWriter {
 			}
 		}
 		fw.close();
+	}
+	
+	public String getName() {
+		return NAME;
 	}
 
 }

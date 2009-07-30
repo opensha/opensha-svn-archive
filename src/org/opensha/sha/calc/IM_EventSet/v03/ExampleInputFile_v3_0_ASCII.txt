@@ -23,8 +23,11 @@ Exclude
 3
 # One the next N lines, identify the N attenuation 
 # relationships from the following options
-# (first three are latest but not final NGAs):
-# (CHANGE THESE TO NAMES LISTED IN GUI)
+# (first four are final NGAs):
+# "Campbell & Bozorgnia (2008)"
+# "Boore & Atkinson (2008)"
+# "Abrahamson & Silva (2008)"
+# "Chiou & Youngs (2008)"
 # "Boore & Atkinson (2006)"
 # "Chiou & Youngs (2006)"
 # "Campbell & Bozorgnia (2006)"
@@ -43,25 +46,29 @@ Exclude
 # "Goulet Et. Al. (2006)"
 # Click links at bottom of following link for some details:
 # http://www.opensha.org/documentation/glossary/AttenuationRelationship.html
-Boore & Atkinson (2006)
-Chiou & Youngs (2006)
-Campbell & Bozorgnia (2006)
+Boore & Atkinson (2008)
+Chiou & Youngs (2008)
+Campbell & Bozorgnia (2008)
 #
 # Next, first choose the number of Intensity Measure Types to consider 
 # in this calculation, and then specify those Intensity Measure Types.  
 #
 # Currently the following are supported: "PGA", "PGV", "SA", and "MMI".  
 #
-# If "SA" is chosen, then  give the period as well (e.g., "SA10" for 10 second, and "SA02" for 0.2 second).
+# If "SA" is chosen, then  give the period as well in one of the following formats
+# (format will be automatically detected):
+#		HAZO1: SAxy where x.y is the period (e.g., "SA10" for 1 second, and "SA02" for 0.2 seconds).
+#		Regular: SA period (e.g., "SA 1.0" for 1 second, "SA 0.2" for 0.2 seconds)
 # The code will throw and exception (show an error message) if the chosen 
 # intensity-measure type is not supported by the chosen attenuation 
 # relationship (the html documentation given above lists those that are supported)
 # 
 # Number of IMTs for which computation needs to be done
-2
+3
 # Identify those IMT's:
 PGA
 SA02
+SA 1.0
 # 
 # Next, give the number of sites and then the lat, lon, and  
 # Vs30 (m/sec) or Wills site classification for each. If no Vs30 is given, then it will 

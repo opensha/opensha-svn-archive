@@ -4,6 +4,7 @@ import java.util.*;
 import java.lang.reflect.*;
 
 import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
 /**
  * <p>Title: AtteuationRelationshipsInstance </p>
@@ -130,8 +131,8 @@ public class AttenuationRelationshipsInstance {
 	 *
 	 */
 
-	public ArrayList createIMRClassInstance( org.opensha.commons.param.event.ParameterChangeWarningListener listener){
-		ArrayList<AttenuationRelationship> AttenRelObjects = new ArrayList<AttenuationRelationship>();
+	public ArrayList<ScalarIntensityMeasureRelationshipAPI> createIMRClassInstance( org.opensha.commons.param.event.ParameterChangeWarningListener listener){
+		ArrayList<ScalarIntensityMeasureRelationshipAPI> AttenRelObjects = new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
 		String S = C + ": createIMRClassInstance(): ";
 		int size = supportedAttenRelClasses.size();
 		for(int i=0;i< size;++i){

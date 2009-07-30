@@ -79,15 +79,14 @@ public class ParameterListEditor extends LabeledBoxPanel {
     public ParameterListEditor(ParameterList paramList) {
 
         super();
-        parameterList = paramList;
-        // Build package names search path
-        addParameters();
+        setParameterList(paramList);
 
     }
 
     /** Sets the parameterList. Simple javabean method */
     public void setParameterList( ParameterList paramList ) {
     	parameterList = paramList;
+    	editorPanel.removeAll();
     	addParameters();
     }
 
@@ -266,6 +265,7 @@ public class ParameterListEditor extends LabeledBoxPanel {
             counter++;
             //}
         }
+        editorPanel.validate();
 
     }
 

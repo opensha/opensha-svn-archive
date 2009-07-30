@@ -12,26 +12,28 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetCalc_v3_0;
+import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetCalc_v3_0_API;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 public class HAZ01Writer extends IM_EventSetOutputWriter {
+	
+	public static final String NAME = "HAZ01 Format Writer";
 
-	public HAZ01Writer(IM_EventSetCalc_v3_0 calc) {
+	public HAZ01Writer(IM_EventSetCalc_v3_0_API calc) {
 		super(calc);
 	}
 
 	@Override
 	public void writeFiles(ArrayList<EqkRupForecastAPI> erfs,
-			ArrayList<AttenuationRelationship> attenRels, ArrayList<String> imts) throws IOException {
+			ArrayList<ScalarIntensityMeasureRelationshipAPI> attenRels, ArrayList<String> imts) throws IOException {
 		logger.log(Level.INFO, "Writing HAZ01 files");
 		// TODO Auto-generated method stub
 		String fileA = this.calc.getOutputDir().getAbsolutePath() + File.separator + "haz01a.txt";
@@ -70,7 +72,7 @@ public class HAZ01Writer extends IM_EventSetOutputWriter {
 			erfstr += erf.getName();
 		}
 		String attenrelstr = null;
-		for (AttenuationRelationship attenRel : attenRels) {
+		for (ScalarIntensityMeasureRelationshipAPI attenRel : attenRels) {
 			if (attenrelstr == null)
 				attenrelstr = "";
 			else
@@ -87,7 +89,7 @@ public class HAZ01Writer extends IM_EventSetOutputWriter {
 			EqkRupForecastAPI erf = erfs.get(erfID);
 			logger.log(Level.INFO, "Updating forecast for ERF: " + erf.getName());
 			erf.updateForecast();
-			for (AttenuationRelationship attenRel : attenRels) {
+			for (ScalarIntensityMeasureRelationshipAPI attenRel : attenRels) {
 //				logger.log(Level.FINEST, "Writing portion for IMR: " + attenRel.getName());
 				for (String imt : imts) {
 //					logger.log(Level.FINEST, "Writing portion for IMT: " + imt);
@@ -103,7 +105,7 @@ public class HAZ01Writer extends IM_EventSetOutputWriter {
 	}
 	
 	private int writeHAZ01A_Part(FileWriter fw, int lineID, String imt, String erfName,
-				EqkRupForecastAPI erf, AttenuationRelationship attenRel) throws IOException {
+				EqkRupForecastAPI erf, ScalarIntensityMeasureRelationshipAPI attenRel) throws IOException {
 		logger.log(Level.INFO, "Writing HAZ01A portion for ERF: " + erf.getName() + ", IMR: " + attenRel.getShortName()
 				+ ", IMT: " + imt);
 //		System.out.println("Writing portion of file for erf: " +  erf.getName() +
@@ -129,7 +131,7 @@ public class HAZ01Writer extends IM_EventSetOutputWriter {
 			logger.log(Level.FINEST, "Writing portion for site: " + siteID);
 			Site site = sites.get(siteID);
 			
-			HAZ01ASegment haz01a = new HAZ01ASegment(erfName, siteID, gmpe, imt);
+			HAZ01ASegment haz01a = new HAZ01ASegment(erfName, siteID, gmpe, getHAZ01IMTString(attenRel.getIntensityMeasure()));
 			
 			float vs30 = -1;
 			try {
@@ -204,6 +206,10 @@ public class HAZ01Writer extends IM_EventSetOutputWriter {
 			}
 		}
 		return lineID;
+	}
+	
+	public String getName() {
+		return NAME;
 	}
 
 }

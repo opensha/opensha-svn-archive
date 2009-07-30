@@ -67,7 +67,7 @@ implements ParameterChangeWarningListener {
 	protected EqkRupForecastAPI forecast;
 
 	//supported Attenuations
-	protected ArrayList<AttenuationRelationship> chosenAttenuationsList;
+	protected ArrayList<ScalarIntensityMeasureRelationshipAPI> chosenAttenuationsList;
 
 	//some static IMT names
 	protected ArrayList<String> supportedIMTs;
@@ -316,7 +316,7 @@ implements ParameterChangeWarningListener {
 	 */
 	private void setIMR(String str) {
 		if(chosenAttenuationsList == null)
-			chosenAttenuationsList = new ArrayList<AttenuationRelationship>();
+			chosenAttenuationsList = new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
 		String imrName = str.trim();
 		//System.out.println(imrName);
 		//System.out.println(imNames.get(1));
@@ -556,27 +556,22 @@ implements ParameterChangeWarningListener {
 		System.exit(0);
 	}
 
-	@Override
 	public int getNumSites() {
 		return locList.size();
 	}
 
-	@Override
 	public File getOutputDir() {
 		return outputDir;
 	}
 
-	@Override
 	public OrderedSiteDataProviderList getSiteDataProviders() {
 		return providers;
 	}
 
-	@Override
 	public Location getSiteLocation(int i) {
 		return locList.getLocationAt(i);
 	}
 
-	@Override
 	public ArrayList<SiteDataValue<?>> getUserSiteDataValues(int i) {
 		return userDataVals.get(i);
 	}
