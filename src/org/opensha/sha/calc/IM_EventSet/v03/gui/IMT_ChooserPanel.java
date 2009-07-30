@@ -172,13 +172,14 @@ public class IMT_ChooserPanel extends NamesListPanel implements ParameterChangeL
 			ParameterAPI<?> periodParam = imtGuiBean.getParameterList().getParameter(PeriodParam.NAME);
 			periodParam.addParameterChangeListener(this);
 		}
+		System.out.println("ParamChange!!!!!!!!!");
 		addButton.setEnabled(shouldEnableAddButton());
 	}
 	
 	public ArrayList<String> getIMTStrings() {
 		ArrayList<String> strings = new ArrayList<String>();
 		for (ParameterAPI<?> param : imts) {
-			strings.add(IM_EventSetOutputWriter.getHAZ01IMTString(param));
+			strings.add(IM_EventSetOutputWriter.getRegularIMTString(param));
 		}
 		return strings;
 	}
