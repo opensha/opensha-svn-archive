@@ -66,7 +66,7 @@ public class IM_EventSetCalculation implements XMLSaveable {
 		// Sites
 		Element sitesEl = el.addElement(XML_SITES_NAME);
 		for (int i=0; i<sites.size(); i++) {
-			Element siteEl = el.addElement(XML_SITE_NAME);
+			Element siteEl = sitesEl.addElement(XML_SITE_NAME);
 			Location loc = sites.get(i);
 			loc.toXMLMetadata(siteEl);
 			ArrayList<SiteDataValue<?>> siteDatas = sitesData.get(i);
