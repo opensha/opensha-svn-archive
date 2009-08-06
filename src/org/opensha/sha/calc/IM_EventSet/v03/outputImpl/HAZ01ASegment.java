@@ -163,7 +163,8 @@ public class HAZ01ASegment {
 			curSeg.addRecord(sourceID, rupID, vs30, dist, mean, stdDev, interStdDev);
 		}
 		
-		segs.add(curSeg);
+		if (curSeg != null)
+			segs.add(curSeg);
 		
 		return segs;
 	}

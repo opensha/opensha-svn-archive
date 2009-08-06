@@ -20,7 +20,10 @@ import javax.swing.JTabbedPane;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.opensha.commons.data.Location;
+import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataValue;
+import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
+import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetCalculation;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
@@ -39,6 +42,7 @@ public class IM_EventSetGUI extends JFrame implements ActionListener {
 	private ERF_GuiBean erfGuiBean = null;
 	private IMR_ChooserPanel imrChooser = null;
 	private IMT_ChooserPanel imtChooser = null;
+	private OrderedSiteDataGUIBean dataBean = null;
 	
 	private JTabbedPane tabbedPane;
 	
@@ -61,6 +65,14 @@ public class IM_EventSetGUI extends JFrame implements ActionListener {
 		imtChooser = new IMT_ChooserPanel();
 		imrChooser = new IMR_ChooserPanel(imtChooser);
 		
+		OrderedSiteDataProviderList providers = OrderedSiteDataProviderList.createSiteDataProviderDefaults();
+		for (int i=0; i<providers.size(); i++) {
+			if (!providers.getProvider(i).getName().equals(WillsMap2006.NAME))
+				providers.setEnabled(i, false);
+		}
+		
+		dataBean = new OrderedSiteDataGUIBean(providers);
+		
 		imPanel.setLayout(new BoxLayout(imPanel, BoxLayout.X_AXIS));
 		imPanel.add(imrChooser);
 		imPanel.add(imtChooser);
@@ -73,6 +85,7 @@ public class IM_EventSetGUI extends JFrame implements ActionListener {
 		
 		tabbedPane.addTab("Sites/ERF", siteERFPanel);
 		tabbedPane.addTab("IMRs/IMTs", imPanel);
+		tabbedPane.addTab("Site Data Providers", dataBean);
 		
 		JPanel mainPanel = new JPanel(new BorderLayout());
 		
@@ -182,7 +195,7 @@ public class IM_EventSetGUI extends JFrame implements ActionListener {
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File outputDir = outputChooser.getSelectedFile();
 				GUICalcAPI_Impl calc = new GUICalcAPI_Impl(locs, dataLists,
-						outputDir, null);
+						outputDir, dataBean.getProviderList());
 				IM_EventSetOutputWriter writer;
 				String writerName = (String) outputWriterChooser.getSelectedItem();
 				if (writerName.equals(OriginalModWriter.NAME))

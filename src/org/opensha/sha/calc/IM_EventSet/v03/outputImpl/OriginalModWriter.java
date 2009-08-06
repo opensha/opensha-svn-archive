@@ -57,6 +57,7 @@ public class OriginalModWriter extends IM_EventSetOutputWriter {
 				}
 			}
 		}
+		logger.log(Level.INFO, "Done writing files.");
 	}
 	
 	/**
@@ -121,7 +122,7 @@ public class OriginalModWriter extends IM_EventSetOutputWriter {
 			}
 		}
 		fw.close();
-
+		logger.log(Level.INFO, "Done writing " + fname);
 		// restore the default site params for the atten rel
 		setSiteParams(attenRel, defaultSiteParams);
 	}

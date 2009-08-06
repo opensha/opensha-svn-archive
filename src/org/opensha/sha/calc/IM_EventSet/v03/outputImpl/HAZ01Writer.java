@@ -26,6 +26,9 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 public class HAZ01Writer extends IM_EventSetOutputWriter {
 	
 	public static final String NAME = "HAZ01 Format Writer";
+	
+	public static final String HAZ01A_FILE_NAME = "haz01a.txt";
+	public static final String HAZ01B_FILE_NAME = "haz01b.txt";
 
 	public HAZ01Writer(IM_EventSetCalc_v3_0_API calc) {
 		super(calc);
@@ -36,8 +39,8 @@ public class HAZ01Writer extends IM_EventSetOutputWriter {
 			ArrayList<ScalarIntensityMeasureRelationshipAPI> attenRels, ArrayList<String> imts) throws IOException {
 		logger.log(Level.INFO, "Writing HAZ01 files");
 		// TODO Auto-generated method stub
-		String fileA = this.calc.getOutputDir().getAbsolutePath() + File.separator + "haz01a.txt";
-		String fileB = this.calc.getOutputDir().getAbsolutePath() + File.separator + "haz01b.txt";
+		String fileA = this.calc.getOutputDir().getAbsolutePath() + File.separator + HAZ01A_FILE_NAME;
+		String fileB = this.calc.getOutputDir().getAbsolutePath() + File.separator + HAZ01B_FILE_NAME;
 		logger.log(Level.FINE, "Opening HAZ01A file for writing: " + fileA);
 		FileWriter fwA = new FileWriter(fileA);
 		logger.log(Level.FINE, "Opening HAZ01B file for writing: " + fileB);
@@ -102,6 +105,7 @@ public class HAZ01Writer extends IM_EventSetOutputWriter {
 		}
 		fwA.close();
 		fwB.close();
+		logger.log(Level.INFO, "Done writing HAZ01 files.");
 	}
 	
 	private int writeHAZ01A_Part(FileWriter fw, int lineID, String imt, String erfName,
@@ -168,7 +172,7 @@ public class HAZ01Writer extends IM_EventSetOutputWriter {
 				}
 			}
 		}
-
+		logger.log(Level.INFO, "Done with portion");
 		// restore the default site params for the atten rel
 		setSiteParams(attenRel, defaultSiteParams);
 		return lineID;

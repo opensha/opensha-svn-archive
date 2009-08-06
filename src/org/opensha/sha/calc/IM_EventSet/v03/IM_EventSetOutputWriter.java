@@ -47,6 +47,15 @@ public abstract class IM_EventSetOutputWriter {
 		writeFiles(erfs, attenRels, imts);
 	}
 	
+	public void writeFiles(EqkRupForecastAPI erf, ScalarIntensityMeasureRelationshipAPI imr,
+			String imt) throws IOException {
+		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
+		imrs.add(imr);
+		ArrayList<String> imts = new ArrayList<String>();
+		imts.add(imt);
+		writeFiles(erf, imrs, imts);
+	}
+	
 	public abstract String getName();
 	
 	public static String getHAZ01IMTString(ParameterAPI<?> param) {

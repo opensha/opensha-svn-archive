@@ -26,6 +26,11 @@ public class IM_EventSetTest extends TestCase {
 	private File ver3DirFile = null;
 	
 	public IM_EventSetTest() {
+		outputDir = getTempDir();
+		System.out.println("outputDir: " + outputDir.getAbsolutePath());
+	}
+	
+	public static File getTempDir() {
 		File tempDir;
 		try {
 			tempDir = File.createTempFile("asdf", "fdsa").getParentFile();
@@ -33,8 +38,7 @@ public class IM_EventSetTest extends TestCase {
 			e.printStackTrace();
 			tempDir = new File("/tmp");
 		}
-		outputDir = new File(tempDir.getAbsolutePath() + File.separator + "imEventSetTest");
-		System.out.println("outputDir: " + outputDir.getAbsolutePath());
+		return new File(tempDir.getAbsolutePath() + File.separator + "imEventSetTest");
 	}
 	
 	private File getVer2DirFile() {
