@@ -13,6 +13,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
@@ -102,7 +103,7 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
       //make the Gridded Region object
       LocationList locList = createCaliforniaPolygonBoundaryLocationList();
       EvenlyGriddedGeographicRegion eggr = 
-    	  new EvenlyGriddedGeographicRegion(locList,GRID_SPACING);
+    	  new EvenlyGriddedGeographicRegion(locList, BorderType.MERCATOR_LINEAR,GRID_SPACING);
       SitesInGriddedRegion sites = new SitesInGriddedRegion(eggr);
       //SitesInGriddedRectangularRegion region = new SitesInGriddedRectangularRegion(this.MIN_LAT,this.MAX_LAT,
       //  this.MIN_LON,this.MAX_LON,this.GRID_SPACING);

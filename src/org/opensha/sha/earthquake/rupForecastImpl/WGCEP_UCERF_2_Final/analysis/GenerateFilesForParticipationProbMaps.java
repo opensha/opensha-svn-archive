@@ -10,6 +10,7 @@ import java.util.ListIterator;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_TestingRegion;
@@ -47,7 +48,7 @@ public class GenerateFilesForParticipationProbMaps {
 		double mags[] = { 5.0, 6.0, 6.5, 6.7, 7.1, 7.2, 7.5, 7.7, 8.0};
 
 		// Region
-		EvenlyGriddedRELM_TestingRegion evenlyGriddedRegion  = new EvenlyGriddedRELM_TestingRegion();
+		CaliforniaRegions.RELM_TESTING_GRIDDED evenlyGriddedRegion  = new CaliforniaRegions.RELM_TESTING_GRIDDED();
 
 		// UCERF 2
 		MeanUCERF2 meanUCERF2 = new MeanUCERF2();

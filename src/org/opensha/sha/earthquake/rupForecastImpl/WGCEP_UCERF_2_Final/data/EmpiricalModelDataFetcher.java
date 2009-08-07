@@ -8,6 +8,7 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.util.FileUtils;
 
@@ -38,9 +39,9 @@ public class EmpiricalModelDataFetcher  implements java.io.Serializable {
 				String line = fileLines.get(i);
 				if(line.startsWith("#")) continue; // ignore comment lines
 				if(line.startsWith("-")) {
-					 region = new GeographicRegion();
+					 //region = new GeographicRegion();
 					 String regionName = line.substring(1).trim(); 
-					 region.setName(regionName);
+					 //region.setName(regionName);
 					 ++i;
 					 StringTokenizer rateTokenizer = new StringTokenizer(fileLines.get(i),",");
 					 rates.add(Double.parseDouble(rateTokenizer.nextToken()));
@@ -55,9 +56,14 @@ public class EmpiricalModelDataFetcher  implements java.io.Serializable {
 						 double longitude = Double.parseDouble(locTokenizer.nextToken());
 						 locList.addLocation(new Location(latitude, longitude));
 					 }
-					 if(locList.size()!=0)
-						 region.createGeographicRegion(locList);
-					 geographicRegionList.add(region);
+					 if(locList.size()!=0) {
+						 region = new GeographicRegion(
+								 locList,BorderType.MERCATOR_LINEAR);
+						 region.setName(regionName);
+						 //region.createGeographicRegion(locList);
+						 geographicRegionList.add(region);
+					 }
+					//geographicRegionList.add(region);
 				}
 			}
 		} catch(Exception e) {

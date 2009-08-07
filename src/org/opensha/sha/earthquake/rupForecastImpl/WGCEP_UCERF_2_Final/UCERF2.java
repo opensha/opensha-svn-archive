@@ -32,6 +32,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.commons.data.region.EvenlyGriddedWG02_Region;
 import org.opensha.commons.data.region.GeographicRegion;
@@ -412,7 +413,7 @@ public class UCERF2 extends EqkRupForecast {
 
 	// 
 	private double[] totalRelativeGriddedRates;
-	private EvenlyGriddedRELM_Region region = new EvenlyGriddedRELM_Region();
+	private CaliforniaRegions.RELM_GRIDDED region = new CaliforniaRegions.RELM_GRIDDED();
 
 	// A and B faults fetcher
 	private A_FaultsFetcher aFaultsFetcher = new A_FaultsFetcher();
@@ -1663,7 +1664,7 @@ public class UCERF2 extends EqkRupForecast {
 			double minMag, GeographicRegion region) {
 		String faultName = segmentedSrcGenerator.getFaultSegmentData().getFaultName();
 		if(faultName.equals("N. San Andreas")
-				&& region instanceof EvenlyGriddedWG02_Region) 
+				&& region instanceof CaliforniaRegions.WG02_GRIDDED) 
 			return (1-segmentedSrcGenerator.getApproxTotFaultProb(minMag, null));
 		else return 1-segmentedSrcGenerator.getApproxTotFaultProb(minMag, region);
 
@@ -1682,7 +1683,7 @@ public class UCERF2 extends EqkRupForecast {
 			double minMag, GeographicRegion region) {
 		String faultName = unsegmentedSrc.getFaultSegmentData().getFaultName();
 		if((faultName.equals("San Gregorio Connected") || faultName.equals("N. San Andreas"))
-				&& (region instanceof EvenlyGriddedWG02_Region)) 
+				&& (region instanceof CaliforniaRegions.WG02_GRIDDED)) 
 			return (1-unsegmentedSrc.computeApproxTotalProbAbove(minMag, null));
 		else return 1-unsegmentedSrc.computeApproxTotalProbAbove(minMag, region);
 

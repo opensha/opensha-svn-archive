@@ -16,6 +16,8 @@ import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.region.BorderType;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedNoCalRegion;
 import org.opensha.commons.data.region.EvenlyGriddedSoCalRegion;
@@ -191,10 +193,20 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	public static ArrayList<NamedGeographicRegion> generateDefaultRegions() {
 		ArrayList<NamedGeographicRegion> regions = new ArrayList<NamedGeographicRegion>();
 
-		regions.add(new NamedGeographicRegion(new RELM_TestingRegion().getRegionOutline(), RELM_TESTING_NAME));
-		regions.add(new NamedGeographicRegion(new RELM_CollectionRegion().getRegionOutline(), RELM_COLLECTION_NAME));
-		regions.add(new NamedGeographicRegion(new EvenlyGriddedSoCalRegion().getRegionOutline(), SO_CAL_NAME));
-		regions.add(new NamedGeographicRegion(new EvenlyGriddedNoCalRegion().getRegionOutline(), NO_CAL_NAME));
+		// TODO these are circular see namedGeoRegion
+		
+		regions.add(new NamedGeographicRegion(
+				new CaliforniaRegions.RELM_TESTING().getRegionOutline(),
+				RELM_TESTING_NAME));
+		regions.add(new NamedGeographicRegion(
+				new CaliforniaRegions.RELM_COLLECTION().getRegionOutline(),
+				RELM_COLLECTION_NAME));
+		regions.add(new NamedGeographicRegion(
+				new CaliforniaRegions.RELM_SOCAL().getRegionOutline(),
+				SO_CAL_NAME));
+		regions.add(new NamedGeographicRegion(
+				new CaliforniaRegions.RELM_NOCAL().getRegionOutline(),
+				NO_CAL_NAME));
 
 		return regions;
 	}
@@ -481,7 +493,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 				if (name.equals(region.getName())) {
 					EvenlyGriddedGeographicRegion eggr = 
 						new EvenlyGriddedGeographicRegion(
-								region.getRegionOutline(), gridSpacingD);
+								region.getRegionOutline(), BorderType.MERCATOR_LINEAR, gridSpacingD);
 					gridRegion = new SitesInGriddedRegion(eggr);
 					break;
 				}

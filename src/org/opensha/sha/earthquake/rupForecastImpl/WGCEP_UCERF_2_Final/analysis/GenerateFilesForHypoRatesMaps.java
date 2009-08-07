@@ -7,6 +7,7 @@ import java.io.FileWriter;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_TestingRegion;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
@@ -33,7 +34,7 @@ public class GenerateFilesForHypoRatesMaps {
 		String probModel = UCERF2.PROB_MODEL_POISSON;
 
 		// region to view the rates
-		EvenlyGriddedRELM_TestingRegion evenlyGriddedRegion  = new EvenlyGriddedRELM_TestingRegion();
+		CaliforniaRegions.RELM_TESTING_GRIDDED evenlyGriddedRegion  = new CaliforniaRegions.RELM_TESTING_GRIDDED();
 /*
 	Location locOfInterest = new Location(37,-121.4);
 	int indexOfInterest = evenlyGriddedRegion.getNearestLocationIndex(locOfInterest);

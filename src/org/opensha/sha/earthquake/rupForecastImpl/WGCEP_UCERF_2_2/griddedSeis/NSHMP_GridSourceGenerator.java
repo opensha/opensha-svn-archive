@@ -11,7 +11,11 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.region.BorderType;
+import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
+import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Point2Vert_SS_FaultPoisSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UCERF2;
@@ -32,7 +36,9 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
  * @author Ned Field & Vipin Gupta
  *
  */
-public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
+public class NSHMP_GridSourceGenerator {
+
+	private EvenlyGriddedGeographicRegion region;
 
 	private final static String PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/griddedSeis/";
 	private final static String LAT_LON_FILENAME = PATH + "LonsLats.txt";
@@ -56,7 +62,9 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	private double maxFromMaxMagFiles;
 	
 	  public NSHMP_GridSourceGenerator() {
-		  	LocationList locList = getLocationList();
+		  GeographicRegion gr = new CaliforniaRegions.RELM_GRIDDED();
+			
+		  LocationList locList = gr.getRegionOutline();
 		    
 		    // trim the western edge of the RELM region where NSHMP area doesn't get to
 		    // (so we don't have to filter out zero rate bins in the RELM region)
@@ -64,9 +72,10 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		    		if(locList.getLocationAt(i).getLongitude() < -125.001)
 		    			locList.getLocationAt(i).setLongitude(-125.0);
 		    }
-		    
+		    region  = new EvenlyGriddedGeographicRegion(
+		    		locList, BorderType.MERCATOR_LINEAR, 0.1);
 		    // make polygon from the location list
-		    createEvenlyGriddedGeographicRegion(locList, GRID_SPACING);
+		    //createEvenlyGriddedGeographicRegion(locList, GRID_SPACING);
 
 		    setA_ValIndexForLocIndex();
 		    //System.out.println("numAvals="+numAvals+"; numLocs="+getNumGridLocs());
@@ -87,6 +96,9 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		    
 	}
 	 
+	  public EvenlyGriddedGeographicRegion getGriddedRegion() {
+		  return region;
+	  }
 	  
 	 /**
 	  * Get all gridded sources
@@ -117,7 +129,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	 public ProbEqkSource getGriddedSource(int srcIndex, boolean includeC_Zones, double duration, 
 			 boolean applyBulgeReduction, boolean applyMaxMagGrid) {
 		 SummedMagFreqDist mfdAtLoc = getTotMFD_atLoc(srcIndex,  includeC_Zones, applyBulgeReduction,  applyMaxMagGrid);
-		 return new Point2Vert_SS_FaultPoisSource(this.getGridLocation(srcIndex), mfdAtLoc, null, duration, 10.0);
+		 return new Point2Vert_SS_FaultPoisSource(region.getGridLocation(srcIndex), mfdAtLoc, null, duration, 10.0);
 	 }
 	 
 	 
@@ -127,7 +139,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	  * @return
 	  */
 	 public int getNumSources() {
-		 return this.getNumGridLocs();
+		 return region.getNumGridLocs();
 	 }
 	
 	
@@ -138,7 +150,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	 *
 	 */
 	private void setA_ValIndexForLocIndex() {
-		aValIndexForLocIndex = new int[getNumGridLocs()];
+		aValIndexForLocIndex = new int[region.getNumGridLocs()];
 		//initialize values to -1 (bogus index) because not all RELM locs have a corresponding line in the grid file
 		for(int i=0;i<aValIndexForLocIndex.length;i++)
 			aValIndexForLocIndex[i] = -1;
@@ -159,8 +171,8 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 				lon = Double.parseDouble(tokenizer.nextToken());
 				lat = Double.parseDouble(tokenizer.nextToken());
 				loc = new Location(lat, lon);
-				if(this.isLocationInside(loc))
-					aValIndexForLocIndex[this.getNearestLocationIndex(loc)] = fileIndex;
+				if(region.isLocationInside(loc))
+					aValIndexForLocIndex[region.getNearestLocationIndex(loc)] = fileIndex;
 				latlonLine = regionFileBufferedReader.readLine();
 				fileIndex += 1;
 				numAvals += 1;
@@ -275,7 +287,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		}
 		
 		//now keep only the ones in the RELM region
-		double[] gridVals = new double[getNumGridLocs()];
+		double[] gridVals = new double[region.getNumGridLocs()];
 		for(int i=0;i<gridVals.length;i++) {
 			int aValIndex = aValIndexForLocIndex[i];
 			if(aValIndex != -1) {  // ignore the RELM locs outside the NSHMP region
@@ -353,7 +365,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		// create summed MFD
 		int numMags = (int)Math.round((UCERF2.MAX_MAG-UCERF2.MIN_MAG)/DELTA_MAG) + 1;
 		SummedMagFreqDist totMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, numMags);
-		int numLocs = getNumGridLocs();
+		int numLocs = region.getNumGridLocs();
 		for(int locIndex=0; locIndex<numLocs; ++locIndex)
 			totMFD.addResampledMagFreqDist(getTotMFD_atLoc( locIndex,  includeC_zones, 
 					 applyBulgeReduction,  applyMaxMagGrid), true);

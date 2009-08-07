@@ -31,6 +31,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.commons.exceptions.FaultException;
 import org.opensha.commons.param.BooleanParameter;
@@ -274,7 +275,7 @@ public class EqkRateModel2_Backup extends EqkRupForecast {
 	
 	// 
 	private double[] totalRelativeGriddedRates;
-	private EvenlyGriddedRELM_Region region = new EvenlyGriddedRELM_Region();
+	private CaliforniaRegions.RELM_GRIDDED region = new CaliforniaRegions.RELM_GRIDDED();
 	
 	
 	// char mag sigma >=0 and <=1
