@@ -5,6 +5,8 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.region.BorderType;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.region.RELM_TestingRegion;
@@ -176,14 +178,17 @@ public class HardcodedHazardMapCalculator implements ParameterChangeWarningListe
 		long start = System.currentTimeMillis();
 
 		// create site object
-		GeographicRegion region = new RELM_TestingRegion();
+		//GeographicRegion region = new RELM_TestingRegion();
 //		GeographicRegion region = new EvenlyGriddedCaliforniaRegion();
 //		GeographicRegion region = new EvenlyGriddedSoCalRegion();
 
-		double gridSpacing = 0.1;
+		//double gridSpacing = 0.1;
 
-		EvenlyGriddedGeographicRegion eggr = new EvenlyGriddedGeographicRegion(
-				region.getRegionOutline(), gridSpacing);
+//		EvenlyGriddedGeographicRegion eggr = new EvenlyGriddedGeographicRegion(
+//				region.getRegionOutline(), BorderType.MERCATOR_LINEAR, gridSpacing);
+		EvenlyGriddedGeographicRegion eggr = 
+			new CaliforniaRegions.RELM_TESTING_GRIDDED();
+		
 		SitesInGriddedRegion sites = new SitesInGriddedRegion(eggr);
 
 //		SitesInGriddedRegionAPI sites = null;

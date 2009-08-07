@@ -26,6 +26,7 @@ import org.opensha.commons.metadata.XMLSaveable;
  * 
  * TODO should do all error checking... any instantiated Location should be valid
  * TODO why hashCode overriden; improve equals
+ * TODO default values should be 0, not NaN; revisit if this causes problems
  */
 
 public class Location implements java.io.Serializable, XMLSaveable {
@@ -44,13 +45,13 @@ public class Location implements java.io.Serializable, XMLSaveable {
     protected final static boolean D = false;
 
     /** depth below the surface */
-    protected double depth=Double.NaN;
+    protected double depth = 0; // TODO clean; all were NaN
 
     /** Location Latitude */
-    protected double latitude=Double.NaN;
+    protected double latitude = 0;
 
     /** Location longitude */
-    protected double longitude=Double.NaN;
+    protected double longitude = 0;
 
 
 
@@ -182,34 +183,38 @@ public class Location implements java.io.Serializable, XMLSaveable {
         return loc;
     }
 
-    // private final static char TAB = '\t';
-    /** Prints out all field names and values. useful for debugging. */
-    public String toString() {
-
-      StringBuffer b = new StringBuffer();
-      //b.append(C);
-      //b.append('\n');
-      //b.append(" : ");
-
-
-      //b.append("latitude = ");
-        b.append(latLonFormat.format(latitude)+","+latLonFormat.format(longitude)+","+latLonFormat.format(depth));
-        //b.append(latitude+","+longitude+","+depth);
-      //b.append('\n');
-
-      /*
-               b.append(" : ");
-
-               b.append("longitude = ");
-               b.append(longitude);
-               //b.append('\n');
-               b.append(" : ");
-
-               b.append("depth = ");
-               b.append(depth);
-       */
-      return b.toString();
-
+    /**
+     * Returns this <code>Location</code> formatted as a "lat,lon,depth"
+     * <code>String</code>.
+     * @return the <code>String</code> representation of this 
+     * 		<code>Location</code>.
+     */
+    @Override
+	public String toString() {
+    	StringBuffer b = new StringBuffer();
+    	b.append(latLonFormat.format(latitude));
+    	b.append(",");
+    	b.append(latLonFormat.format(longitude));
+    	b.append(",");
+    	b.append(latLonFormat.format(depth));
+    	return b.toString();
+    }
+    
+    /**
+     * Returns this <code>Location</code> formatted as a "lon,lat,depth"
+     * <code>String</code> for use in KML documents. This differs from
+     * {@link Location#toString()} in that the output lat-lon order are 
+     * reversed.
+     * @return the location as a <code>String</code> for use with KML markup
+     */
+    public String toKML() {
+    	StringBuffer b = new StringBuffer();
+    	b.append(latLonFormat.format(longitude));
+    	b.append(",");
+    	b.append(latLonFormat.format(latitude));
+    	b.append(",");
+    	b.append(latLonFormat.format(depth));
+    	return b.toString();    	
     }
 
     /**

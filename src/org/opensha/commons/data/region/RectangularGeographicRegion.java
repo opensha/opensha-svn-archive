@@ -39,8 +39,8 @@ public class RectangularGeographicRegion extends GeographicRegion {
 	/**
 	 * default constructor
 	 */
-	public RectangularGeographicRegion(double minLat,double maxLat,double minLon,
-			double maxLon) {
+//	public RectangularGeographicRegion(double minLat,double maxLat,double minLon,
+//			double maxLon) {
 
 //		//sets the class variable
 //		super.minLat=minLat;
@@ -63,7 +63,7 @@ public class RectangularGeographicRegion extends GeographicRegion {
 //		locList.addLocation(new Location(minLat,maxLon));
 //		locList.addLocation(new Location(maxLat,maxLon));
 //		locList.addLocation(new Location(maxLat,minLon));
-	}
+//	}
 
 
 

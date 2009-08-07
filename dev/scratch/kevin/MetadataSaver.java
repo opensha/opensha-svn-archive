@@ -9,6 +9,8 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.data.region.BorderType;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.commons.data.region.GeographicRegion;
@@ -56,9 +58,10 @@ public class MetadataSaver implements ParameterChangeWarningListener {
 		imr.getParameter(PeriodParam.NAME).setValue(new
                 Double(0.5));
 		
-		GeographicRegion region = new RELM_TestingRegion();
-		EvenlyGriddedGeographicRegion gridded = new EvenlyGriddedGeographicRegion(region.getRegionOutline(), 0.1);
-		
+		//GeographicRegion region = new RELM_TestingRegion();
+		//EvenlyGriddedGeographicRegion gridded = new EvenlyGriddedGeographicRegion(region.getRegionOutline(), BorderType.MERCATOR_LINEAR, 0.1);
+		EvenlyGriddedGeographicRegion gridded = 
+			new CaliforniaRegions.RELM_TESTING_GRIDDED();
 //		GeographicRegion gridded = null;
 //		try {
 //			gridded = new EvenlyGriddedRectangularGeographicRegion(33.5, 34.8, -120.0, -116.0, 0.02);

@@ -4,6 +4,7 @@ import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
@@ -165,7 +166,7 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
    
    try {
      // region to view the rates
-     EvenlyGriddedRELM_TestingRegion evenlyGriddedRegion  = new EvenlyGriddedRELM_TestingRegion();
+	   CaliforniaRegions.RELM_TESTING_GRIDDED evenlyGriddedRegion  = new CaliforniaRegions.RELM_TESTING_GRIDDED();
      // min mag, maxMag, These are Centers of first and last bin
      double minMag=5.0, maxMag=9.00;
      int numMag = 41; // number of Mag bins

@@ -12,6 +12,7 @@ import java.nio.ShortBuffer;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_TestingRegion;
 import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
@@ -263,8 +264,12 @@ public class NewWillsMap {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		EvenlyGriddedGeographicRegion region = new EvenlyGriddedRELM_TestingRegion();
-		region.setGridSpacing(0.02);
+		EvenlyGriddedGeographicRegion region = 
+			new EvenlyGriddedGeographicRegion(
+					new CaliforniaRegions.RELM_TESTING(),
+					0.02);
+		//EvenlyGriddedGeographicRegion region = new EvenlyGriddedRELM_TestingRegion();
+		//region.setGridSpacing(0.02);
 		
 		NewWillsMap wills = new NewWillsMap(region);
 		

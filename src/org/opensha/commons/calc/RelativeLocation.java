@@ -37,6 +37,7 @@ import org.opensha.commons.data.LocationList;
  * @version    1.0
  * 
  * TODO rename to GeographicUtils or GeoTools or similar after region merge
+ * TODO should Location store lat lon internally in radians
  */
 
 public final class RelativeLocation {
@@ -82,9 +83,9 @@ public final class RelativeLocation {
      * @param p2 the second location point
      * @return the angle between the points
      */
-    public final double angle(Location p1, Location p2) {
-        final double dLat = p1.getLatitude() - p2.getLatitude();
-        final double dlon = p1.getLongitude() - p2.getLongitude();
+    public static final double angle(Location p1, Location p2) {
+        final double dLat = (p1.getLatitude() - p2.getLatitude()) * TO_RAD;
+        final double dlon = (p1.getLongitude() - p2.getLongitude()) * TO_RAD;
         // half length of chord connecting points
         final double c = (Math.sin(dLat/2.0) * Math.sin(dLat/2.0)) + 
                    Math.cos(p1.getLatitude()) * Math.cos(p2.getLatitude()) * 
@@ -101,7 +102,7 @@ public final class RelativeLocation {
      * @param p2 the second location point
      * @return the distance between the points
      */
-    public final double surfaceDistance(Location p1, Location p2) {
+    public static final double surfaceDistance(Location p1, Location p2) {
         return EARTH_MEAN_RADIUS * angle(p1,p2);
     }
 
@@ -114,7 +115,7 @@ public final class RelativeLocation {
      * @param p2 the second location point
      * @return the distance between the points
      */
-    public final double linearDistance(Location p1, Location p2) {
+    public static final double linearDistance(Location p1, Location p2) {
         final double alpha = angle(p1,p2);
         final double R1 = EARTH_MEAN_RADIUS - p1.getDepth();
         final double R2 = EARTH_MEAN_RADIUS - p2.getDepth();
@@ -127,7 +128,7 @@ public final class RelativeLocation {
      * Computes the initial azimuth (bearing) when moving from one
      * {@link Location} to another. See 
      * <a href="http://williams.best.vwh.net/avform.htm#Crs">
-     * Aviation Formulary</a> for formulation. For back azimuth, 
+     * Aviation Formulary</a> for source. For back azimuth, 
      * reverse the <code>Location</code> arguments.
      * 
      * @param p1 first location point
@@ -143,7 +144,7 @@ public final class RelativeLocation {
         
         // check the poles - EPS a small number ~ machine precision
         if (Math.cos(lat1) < 0.000000000001) {
-            return Math.toDegrees((lat1 > 0) ? PI : TWOPI); // N : S pole
+            return ((lat1 > 0) ? PI : TWOPI) * TO_DEG; // N : S pole
         }
         
         // for starting points other than the poles:
@@ -160,7 +161,7 @@ public final class RelativeLocation {
     /**
      * Computes a {@link Location} given an origin point, bearing, and distance.
      * See <a href="http://williams.best.vwh.net/avform.htm#LL">
-     * Aviation Formulary</a> for formulation.
+     * Aviation Formulary</a> for source.
      * 
      * @param origin or starting location point
      * @param bearing away from origin

@@ -37,12 +37,12 @@ public class CircularGeographicRegion extends GeographicRegion {
    * @param centerLoc - the location of the circle center
    * @param radius - radius of the region (km)
    */
-  public CircularGeographicRegion(Location centerLoc, double radius) {
-
-    this.circleCenterLocation = centerLoc;
-    this.circleRadius = radius;
-    Location tempLoc;
-    Direction dir;
+//  public CircularGeographicRegion(Location centerLoc, double radius) {
+//
+//    this.circleCenterLocation = centerLoc;
+//    this.circleRadius = radius;
+//    Location tempLoc;
+//    Direction dir;
 
     //set min and max lat and lons
 //    dir = new Direction(0,radius,180,0);
@@ -71,8 +71,8 @@ public class CircularGeographicRegion extends GeographicRegion {
 //    }
 
     // make the region outline (locList)
-    makeRegionOutline(10.0);
-  }
+//    makeRegionOutline(10.0);
+//  }
 
 
   /**

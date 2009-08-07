@@ -4,7 +4,6 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.util.FileUtils;
 
-//import scratch.vipin.relm.*;
 
 import java.io.FileWriter;
 import java.util.ArrayList;
@@ -19,7 +18,7 @@ import java.util.StringTokenizer;
  * @author not attributable
  * @version 1.0
  */
-
+@Deprecated
 public class EvenlyGriddedRELM_Region extends EvenlyGriddedGeographicRegion {
   protected final static double GRID_SPACING = 0.1;
 
@@ -29,7 +28,7 @@ public class EvenlyGriddedRELM_Region extends EvenlyGriddedGeographicRegion {
      */
     LocationList locList = getLocationList();
     // make polygon from the location list
-    createEvenlyGriddedGeographicRegion(locList, GRID_SPACING);
+    //createEvenlyGriddedGeographicRegion(locList, GRID_SPACING);
   }
 
   /**
@@ -275,7 +274,7 @@ public class EvenlyGriddedRELM_Region extends EvenlyGriddedGeographicRegion {
   }
   
   public static void main(String []args) {
-	  EvenlyGriddedRELM_Region relmCollectionRegion = new EvenlyGriddedRELM_Region();
+	  CaliforniaRegions.RELM_GRIDDED relmCollectionRegion = new CaliforniaRegions.RELM_GRIDDED();
 		try {
 			FileWriter fw = new FileWriter("EvenlyGriddedRELM_Region.txt");
 			for(int i=0; i<relmCollectionRegion.getNumGridLocs(); ++i) {
