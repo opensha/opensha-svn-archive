@@ -1,4 +1,4 @@
-package scratch.kevin.XMLSaver;
+package org.opensha.sha.cybershake.gui.util;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -16,6 +16,13 @@ import org.opensha.sha.calc.hazardMap.applet.Loadable;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 
+
+/**
+ * This is a class for quickly saving an XML representation of an ERF
+ * 
+ * @author kevin
+ *
+ */
 public class ERFSaver extends XMLSaver {
 	
 	/**

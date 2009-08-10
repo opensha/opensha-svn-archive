@@ -1,4 +1,4 @@
-package scratch.kevin.XMLSaver;
+package org.opensha.sha.cybershake.gui.util;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -14,7 +14,14 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.opensha.commons.util.XMLUtils;
 
-
+/**
+ * Common parent class for a JFrame where a gui bean is shown, then saved to XML.
+ * 
+ * Useful for saving Attenuation Relationships or ERFs to XML.
+ * 
+ * @author kevin
+ *
+ */
 public abstract class XMLSaver extends JFrame implements ActionListener {
 	
 	JPanel beanPanel;

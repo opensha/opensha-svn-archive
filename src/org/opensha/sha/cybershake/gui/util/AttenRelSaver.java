@@ -1,4 +1,4 @@
-package scratch.kevin.XMLSaver;
+package org.opensha.sha.cybershake.gui.util;
 
 import java.awt.BorderLayout;
 import java.io.File;
@@ -21,6 +21,13 @@ import org.opensha.sha.imr.IntensityMeasureRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
+
+/**
+ * This is a class for quickly saving an XML representation of an Attenuation Relationship.
+ * 
+ * @author kevin
+ *
+ */
 public class AttenRelSaver extends XMLSaver implements IMR_GuiBeanAPI {
 	
 	private IMR_GuiBean bean;

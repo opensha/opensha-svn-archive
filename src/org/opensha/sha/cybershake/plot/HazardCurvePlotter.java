@@ -57,6 +57,8 @@ import org.opensha.sha.cybershake.db.PeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.db.Runs2DB;
 import org.opensha.sha.cybershake.db.SiteInfo2DB;
 import org.opensha.sha.cybershake.gui.CyberShakeDBManagementApp;
+import org.opensha.sha.cybershake.gui.util.AttenRelSaver;
+import org.opensha.sha.cybershake.gui.util.ERFSaver;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.gui.infoTools.GraphPanelAPI;
@@ -70,8 +72,6 @@ import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.util.SiteTranslator;
 
-import scratch.kevin.XMLSaver.AttenRelSaver;
-import scratch.kevin.XMLSaver.ERFSaver;
 
 public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	
