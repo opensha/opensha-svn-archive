@@ -44,7 +44,7 @@ public class EvenlyGriddedSausageGeographicRegion
 
 
   //This array store number of locations below a given latitude
-  //protected int[] locsBelowLat; //TODO  !!! commented as there is the same field in parent class
+  //protected int[] locsBelowLat; //TODO  !!! commented as it is already declared in super class, and causes errors otherwsise
 
   //List for storing each lon for a given latitude
   protected ArrayList lonsPerLatList;
@@ -137,7 +137,7 @@ public class EvenlyGriddedSausageGeographicRegion
     setGridSpacing(gridSpacing);
     //
     
-    System.out.println("createEvenlyGriddedSausageGeographicRegion locsBelowLat= " + this.locsBelowLat);
+    //System.out.println("createEvenlyGriddedSausageGeographicRegion locsBelowLat= " + this.locsBelowLat);
   }
 
 
