@@ -38,7 +38,10 @@ public class IM_EventSetTest extends TestCase {
 			e.printStackTrace();
 			tempDir = new File("/tmp");
 		}
-		return new File(tempDir.getAbsolutePath() + File.separator + "imEventSetTest");
+		tempDir = new File(tempDir.getAbsolutePath() + File.separator + "imEventSetTest");
+		if (!tempDir.exists())
+			tempDir.mkdir();
+		return tempDir;
 	}
 	
 	private File getVer2DirFile() {
