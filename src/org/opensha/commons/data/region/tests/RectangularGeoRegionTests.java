@@ -52,7 +52,9 @@ public class RectangularGeoRegionTests extends TestCase
 
      GeographicRegion geoReg = null;
 //    try {
-      geoReg = new GeographicRegion(x, y, z, za);
+      geoReg = new GeographicRegion(
+    		  new Location(x, z),
+    		  new Location(y, za));
 //    }
 //    catch (RegionConstraintException ex) {
 //      ex.printStackTrace();

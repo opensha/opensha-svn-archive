@@ -7,6 +7,8 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 
 /**
+ * 
+ * 
  *  <b>Title:</b> RelativeLocation<p>
  *
  *  <b>Description:</b>
@@ -29,17 +31,18 @@ import org.opensha.commons.data.LocationList;
  *  <LI>http://www.geog.fu-berlin.de:/cgi-bin/man2html/usr/local/man/man1/geod.1#index
  *  </UL>
  *  <p>
- *
- *  SWR: Note: Depth = - vertical distance<p>
- *
- * @author     Steven W. Rock
- * @created    February 26, 2002
- * @version    1.0
- * 
  * TODO rename to GeographicUtils or GeoTools or similar after region merge
  * TODO should Location store lat lon internally in radians
+ *
+ * @author Steven W. Rock
+ * @author Peter Powers
+ * @version $Id:$
+ * @see <a href="http://williams.best.vwh.net/avform.htm#Dist"
+ * 		target="_blank">Aviation Formulary</a>
+ * @see <a href="http://www.movable-type.co.uk/scripts/latlong.html"
+ * 		target="_blank">Moveable Type Scripts</a>
+ * 
  */
-
 public final class RelativeLocation {
 
     /** Conversion multiplier for degrees to radians */
@@ -77,20 +80,24 @@ public final class RelativeLocation {
      * Calculates the angle between two {@link Location} objects using the 
      * <a href="http://en.wikipedia.org/wiki/Haversine_formula" target="_blank">
      * Haversine</a> formula. This method properly handles values spanning
-     * &#177;180&#176;.
+     * &#177;180&#176;. See 
+     * <a href="http://williams.best.vwh.net/avform.htm#Dist">
+     * Aviation Formulary</a> for source.
      * 
      * @param p1 the first location point
      * @param p2 the second location point
      * @return the angle between the points
      */
-    public static final double angle(Location p1, Location p2) {
-        final double dLat = (p1.getLatitude() - p2.getLatitude()) * TO_RAD;
-        final double dlon = (p1.getLongitude() - p2.getLongitude()) * TO_RAD;
+    public static double angle(Location p1, Location p2) {
+    	double sinDlatBy2 = Math.sin(
+        		(p2.getLatitude() - p1.getLatitude()) * TO_RAD / 2.0);
+        double sinDlonBy2 = Math.sin(
+        		(p2.getLongitude() - p1.getLongitude()) * TO_RAD / 2.0);
+        double cosLatP1 = Math.cos(p1.getLatitude() * TO_RAD);
+        double cosLatP2 = Math.cos(p2.getLatitude() * TO_RAD);
         // half length of chord connecting points
-        final double c = (Math.sin(dLat/2.0) * Math.sin(dLat/2.0)) + 
-                   Math.cos(p1.getLatitude()) * Math.cos(p2.getLatitude()) * 
-                   Math.sin(dlon/2.0) * Math.sin(dlon/2.0);
-        // angle
+        double c = (sinDlatBy2 * sinDlatBy2) + 
+        		   (cosLatP1 * cosLatP2 * sinDlonBy2 * sinDlonBy2);
         return 2.0 * Math.atan2(Math.sqrt(c), Math.sqrt(1-c));
     }
     
@@ -100,9 +107,9 @@ public final class RelativeLocation {
      * 
      * @param p1 the first location point
      * @param p2 the second location point
-     * @return the distance between the points
+     * @return the distance between the points in km
      */
-    public static final double surfaceDistance(Location p1, Location p2) {
+    public static double surfaceDistance(Location p1, Location p2) {
         return EARTH_MEAN_RADIUS * angle(p1,p2);
     }
 
@@ -115,12 +122,12 @@ public final class RelativeLocation {
      * @param p2 the second location point
      * @return the distance between the points
      */
-    public static final double linearDistance(Location p1, Location p2) {
-        final double alpha = angle(p1,p2);
-        final double R1 = EARTH_MEAN_RADIUS - p1.getDepth();
-        final double R2 = EARTH_MEAN_RADIUS - p2.getDepth();
-        final double B = R1 * Math.sin(alpha);
-        final double C = R2 - R1 * Math.cos(alpha);
+    public static double linearDistance(Location p1, Location p2) {
+        double alpha = angle(p1,p2);
+        double R1 = EARTH_MEAN_RADIUS - p1.getDepth();
+        double R2 = EARTH_MEAN_RADIUS - p2.getDepth();
+        double B = R1 * Math.sin(alpha);
+        double C = R2 - R1 * Math.cos(alpha);
         return Math.sqrt(B*B + C*C);
     }
 
@@ -640,17 +647,28 @@ public final class RelativeLocation {
 
     public static void main( String argv[] ) {
 
-    	Location line_loc1 = new Location (0.250405,0.0,5.0);
-    	Location line_loc2 = new Location (9.250495,-0.0,5.0);
-    	Location loc = new Location (0.9,0.0225,0.0);
-    	System.out.println(RelativeLocation.getApproxHorzDistToLine(loc, line_loc1, line_loc2));
+//    	Location line_loc1 = new Location (0.250405,0.0,5.0);
+//    	Location line_loc2 = new Location (9.250495,-0.0,5.0);
+//    	Location loc = new Location (0.9,0.0225,0.0);
+//    	System.out.println(RelativeLocation.getApproxHorzDistToLine(loc, line_loc1, line_loc2));
+//    	
+//    	
+//    	loc = new Location(0.8999999999999999,0.0225,0.0);
+//    	line_loc1 = new Location(0.25040500405004046,0.0,5.0);
+//    	line_loc2 = new Location(9.25049500495005,-2.2242586363405688E-15,5.0);
+//    	System.out.println(RelativeLocation.getApproxHorzDistToLine(loc, line_loc1, line_loc2));
+    	     	
     	
+    	Location L1 = new Location(35.0,-123.0);
+    	Location L2 = new Location(35.155243,-123.917579);
+    	Location L3 = new Location(35.300824,-122.831149);
     	
-    	loc = new Location(0.8999999999999999,0.0225,0.0);
-    	line_loc1 = new Location(0.25040500405004046,0.0,5.0);
-    	line_loc2 = new Location(9.25049500495005,-2.2242586363405688E-15,5.0);
-    	System.out.println(RelativeLocation.getApproxHorzDistToLine(loc, line_loc1, line_loc2));
-    	     		
+    	Location L4 = new Location(35.0,-120.0);
+    	Location L5 = new Location(35.155243,-123.917579);
+    	Location L6 = new Location(35.300824,-122.831149);
+    	
+    	//System.out.println(dist);
+    	
 //    	System.out.println(RelativeLocation.getApproxHorzDistToLine(loc, line_loc2, line_loc1));
     	// 3.199187934236039
     	

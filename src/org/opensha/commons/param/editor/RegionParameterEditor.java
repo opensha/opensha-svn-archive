@@ -7,6 +7,7 @@ import javax.swing.*;
 
 
 
+import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.region.RectangularGeographicRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
@@ -155,8 +156,9 @@ public class RegionParameterEditor
     if(parameterChangeFlag){
     	GeographicRegion region;
 //		try {
-			region = new GeographicRegion(param.getMinLatitude(), param.getMaxLatitude(), param.getMinLongitude(),
-					param.getMaxLongitude());
+			region = new GeographicRegion(
+					new Location(param.getMinLatitude(), param.getMinLongitude()),
+					new Location(param.getMaxLatitude(), param.getMaxLongitude()));
 			param.setValue(region);
 //		} catch (RegionConstraintException e1) {
 //			JOptionPane.showMessageDialog(this, e1.getMessage());

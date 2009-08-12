@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 import org.dom4j.Element;
+import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.region.RectangularGeographicRegion;
 import org.opensha.commons.exceptions.ConstraintException;
@@ -92,7 +93,9 @@ implements java.io.Serializable{
 
 	public RegionParameter(String name, String units,
 			double minLat, double maxLat, double minLon, double maxLon) throws ConstraintException, RegionConstraintException {
-		super(name, null, units, new GeographicRegion(minLat, maxLat, minLon, maxLon));
+		super(name, null, units, new GeographicRegion(
+				new Location(minLat,minLon),
+				new Location(maxLat, maxLon)));
 		region = (GeographicRegion)value;
 		setupParams(region);
 	}
@@ -101,7 +104,9 @@ implements java.io.Serializable{
 	public void setupParams(GeographicRegion value) {
 		if (value == null) {
 //			try {
-				value = new GeographicRegion((Double)minLat.getValue(), (Double)maxLat.getValue(), (Double)minLon.getValue(), (Double)maxLon.getValue());
+				value = new GeographicRegion(
+						new Location((Double)minLat.getValue(), (Double)minLon.getValue()),
+						new Location((Double)maxLat.getValue(), (Double)maxLon.getValue()));
 //			} catch (RegionConstraintException e) {
 //				// TODO Auto-generated catch block
 //				e.printStackTrace();

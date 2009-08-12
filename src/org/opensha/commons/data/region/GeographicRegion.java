@@ -5,6 +5,7 @@ import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
+import java.io.Serializable;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.dom4j.Element;
@@ -28,23 +29,28 @@ import com.sun.tools.javac.resources.javac;
  * wishes to define a geographic region that represents a rectangle in a
  * Mercator projection, {@link BorderType#MERCATOR_LINEAR} should be used,
  * otherwise, the border will follow a {@link BorderType#GREAT_CIRCLE} between
- * two points.<br/>
- * <br/>
- * Over small distances, great circle paths are approximately the same as
- * linear, Mercator paths. Over longer distances, great circles are a 
+ * two points. Over small distances, great circle paths are approximately the 
+ * same as linear, Mercator paths. Over longer distances, great circles are a 
  * better representation of a line on a globe. Internally, great circles
- * are approximated by multple line segments that have a maximum length of 
- * 100km.<br/>
+ * are approximated by multple straight line segments that have a maximum
+ * length of 100km.<br/>
  * <br/>
+ * 
+ * TODO make border immutable; collection.unmodifiablelist; make LocatioList 
+ * extend arrayList, not wrap it. Perhaps when initing border, create new list
+ * of immutable location objects and make the list itself immutable.
+ * 
  * <b>Note:</b> The current implementation does not support regions that are
- * intended to span \u00B1180&deg;. Any such regions will end up wrapping the
- * long way around the earth.
+ * intended to span &#177;180&deg;. Any such regions will wrap the
+ * long way around the earth and results are undefined. This also applies to
+ * regions that encircle either pole.
  * 
  * @author Peter Powers
  * @version $Id$
  * @see Area
  */
-public class GeographicRegion implements java.io.Serializable, XMLSaveable, NamedObjectAPI {
+public class GeographicRegion implements 
+		Serializable, XMLSaveable, NamedObjectAPI {
 
 	private static final long serialVersionUID = 1L;
 
@@ -76,27 +82,23 @@ public class GeographicRegion implements java.io.Serializable, XMLSaveable, Name
 
 	
 	/**
-	 * Initializes a <code>Region</code> from a pair of latitude and a pair of
-	 * longitude values. When viewed in a Mercator projection, the region
-	 * will be a rectangle. Input longitude values will be normalized to
-	 * \u00B1180&deg;. Input latitude values outside the range \u00B190&deg;
-	 * will throw an exception. If either both latitude or both longitude
-	 * values are the same, an exception is thrown.
+	 * Initializes a <code>Region</code> from a pair of <code>Location
+	 * </code>s. When viewed in a Mercator projection, the region
+	 * will be a rectangle. If either both latitude or both longitude
+	 * values in the <code>Location</code>s are the same, an exception
+	 * is thrown.
 	 * 
-	 * @param lat1 the first latitude value
-	 * @param lat2 the second latitude value
-	 * @param lon1 the first longitude value
-	 * @param lon2 the second longitude value
-	 * @throws IllegalArgumentException if both lats or lons are the same, or
-	 * 		if lat is outside the range \u00B190&deg;
+	 * @param loc1 the first <code>Location</code>
+	 * @param loc2 the second <code>Location</code>
+	 * @throws IllegalArgumentException if the latitude or longitude values
+	 * 		in the <code>Location</code>s provided are the same
 	 */
-	public GeographicRegion(
-			double lat1, double lat2, 
-			double lon1, double lon2) {
-		// TODO validate inputs
-		// lat1 = validateLat(lat1)
-		// lon1 = validateLon(lon1)
-		// etc...
+	public GeographicRegion(Location loc1, Location loc2) {
+		double lat1 = loc1.getLatitude();
+		double lat2 = loc2.getLatitude();
+		double lon1 = loc1.getLongitude();
+		double lon2 = loc2.getLongitude();
+		
 		if (lat1 == lat2 || lon1 == lon2) {
 			throw new IllegalArgumentException(
 					"Input lats or lons cannot be the same");
@@ -121,13 +123,18 @@ public class GeographicRegion implements java.io.Serializable, XMLSaveable, Name
 	 * <code>Location</code> at the end of the list.
 	 * 
 	 * @param border <code>Locations</code>
-	 * @param type the {@link BorderType} to use when initializing
-	 * @throws NullPointerException if the border is null
+	 * @param type the {@link BorderType} to use when initializing; 
+	 * 		a <code>null</code> value defaults to 
+	 * 		<code>BorderType.MERCATOR_LINEAR</code>
+	 * @throws IllegalArgumentException if the border does not have at least
+	 * 		3 points
 	 */
 	public GeographicRegion(LocationList border, BorderType type) {
-		if (border == null || type == null) {
-			throw new NullPointerException();
+		if (border.size() < 3) {
+			throw new IllegalArgumentException(
+					"Border must have at least 3 vertices");
 		}
+		if (type == null) type = BorderType.MERCATOR_LINEAR;
 		initBorderedRegion(border, type);
 	}
 
@@ -138,9 +145,9 @@ public class GeographicRegion implements java.io.Serializable, XMLSaveable, Name
 	 * 
 	 * @param center of the circle
 	 * @param radius of the circle
-	 * @throws IllegalArgumentException if 0 \u2264 <code>radius</code> 
-	 * 		\u003C 1000 km
-	 * @throws NullPointerException if <code>center</code> is null
+	 * @throws IllegalArgumentException if <code>radius</code> &#8804; 0 or 
+	 * 		<code>radius</code> &#62; 1000 km
+	 * @throws NullPointerException if <code>center</code> is <code>null</code>
 	 */
 	public GeographicRegion(Location center, double radius) {
 		if (radius <= 0 || radius > 1000) {
@@ -157,7 +164,7 @@ public class GeographicRegion implements java.io.Serializable, XMLSaveable, Name
 	 * 
 	 * @param line at center of buffered region
 	 * @param buffer distance from line
-	 * @throws NullPointerException if <code>line</code> is null
+	 * @throws NullPointerException if <code>line</code> is <code>null</code>
 	 */
 	public GeographicRegion(LocationList line, double buffer) {
 		if (buffer <= 0 || buffer > 500) {
@@ -195,71 +202,6 @@ public class GeographicRegion implements java.io.Serializable, XMLSaveable, Name
 		
 	}
 	
-	/*
-	 * Initialize a region from a list of border locations. Internal
-	 * java.awt.geom.Area is generated from the border.
-	 */
-	private void initBorderedRegion(LocationList border, BorderType type) {
-		if (type.equals(BorderType.GREAT_CIRCLE)) {
-			LocationList newLocs = new LocationList();
-			// process each border pair
-			Location start = border.getLocationAt(0);
-			newLocs.addLocation(start);
-			for (int i=1; i<border.size(); i++) {
-				Location end = border.getLocationAt(i);
-				double distance = RelativeLocation.surfaceDistance(start, end);
-				// subdivide as necessary
-				while (distance > GC_SEGMENT) {
-					// find new Loc GC_SEGMENT away from start
-					double az = RelativeLocation.azimuth(start, end);
-					Location segLoc = RelativeLocation.location(
-							start, az, GC_SEGMENT);
-					newLocs.addLocation(segLoc);
-					start = segLoc;
-					distance = RelativeLocation.surfaceDistance(start, end);
-				}
-				start = end;
-			}
-			
-		} else {
-			this.border = border;
-			// TODO break long great circles into smaller segments and test
-		}
-		area = createArea(this.border);
-	}
-	
-	/*
-	 * Initialize a circular region by creating an circular border of shorter
-	 * straight line segments. Internal java.awt.geom.Area is generated from 
-	 * the border.
-	 */
-	private void initCircularRegion(Location center, double radius) {
-		border = createLocationCircle(center, radius);
-		area = createArea(this.border);
-	}
-	
-	/*
-	 * Initialize a buffered region by creating box areas of 2x buffer width 
-	 * around each line segment and circle areas around each vertex and union
-	 * all of them. The border is then be derived from the Area.
-	 */
-	private void initBufferedRegion(LocationList line, double buffer) {
-		// init an empty Area
-		area = new Area();
-		// for each point segment, create a circle area
-		Location prevLoc = null;
-		for (Location loc: line) {
-			// starting out only want to create circle area for first point
-			if (area.isEmpty()) {
-				area.add(createArea(createLocationCircle(loc, buffer)));
-				continue;
-			}
-			area.add(createArea(createLocationBox(prevLoc, loc, buffer)));
-			area.add(createArea(createLocationCircle(loc, buffer)));
-			prevLoc = loc;
-		}
-		border = createBorder(area);
-	}
 	
 	/**
 	 * Creates a Geographic with the given list of locations.
@@ -267,18 +209,18 @@ public class GeographicRegion implements java.io.Serializable, XMLSaveable, Name
 	 * @param locs LocationList
 	 * TODO rename and make private; kill
 	 */
-	@Deprecated
-	public void createGeographicRegion(LocationList locs) {
-		border = locs;
-
-		// calls the private method of the class to precompute the min..max lat
-		// & lon.
-		//setMinMaxLatLon();
-
-		// create the polygon used for determining whether points are inside
-		area = createArea(border);
-
-	}
+//	@Deprecated
+//	public void createGeographicRegion(LocationList locs) {
+//		border = locs;
+//
+//		// calls the private method of the class to precompute the min..max lat
+//		// & lon.
+//		//setMinMaxLatLon();
+//
+//		// create the polygon used for determining whether points are inside
+//		area = createArea(border);
+//
+//	}
 
 	/**
 	 * Returns whether the given location is inside this region following the
@@ -302,7 +244,8 @@ public class GeographicRegion implements java.io.Serializable, XMLSaveable, Name
 	/**
 	 * Tests whether another region is entirely contained within this region.
 	 * @param region to check
-	 * @return true if this contains the <code>region</code>; false otherwise
+	 * @return <code>true</code> if this contains the <code>region</code>; 
+	 * 		<code>false</code> otherwise
 	 */
 	public boolean contains(GeographicRegion region) {
 		Area areaUnion = (Area) area.clone();
@@ -313,7 +256,7 @@ public class GeographicRegion implements java.io.Serializable, XMLSaveable, Name
 	/**
 	 * Returns whether this region is rectangular in shape when represented in
 	 * a Mercator projection.
-	 * @return true if rectangular, false otherwise
+	 * @return <code>true</code> if rectangular, <code>false</code> otherwise
 	 */
 	public boolean isRectangular() {
 		return area.isRectangular();
@@ -549,9 +492,96 @@ public class GeographicRegion implements java.io.Serializable, XMLSaveable, Name
 	 * 		-90&deg; to +90&deg; latitude
 	 */
 	public static GeographicRegion getGlobalRegion() {
-		return new GeographicRegion(-90, 90, -180, 180);
+		return new GeographicRegion(
+				new Location(-90, -180),
+				new Location( 90,  180));
 	}
 	
+	/*
+	 * Initialize a region from a list of border locations. Internal
+	 * java.awt.geom.Area is generated from the border.
+	 */
+	private void initBorderedRegion(LocationList border, BorderType type) {
+		
+		// TODO copy border into immutable border
+		
+		// first remove last point in list if it is the same as
+		// the first point
+		int lastIndex = border.size()-1;
+		if (border.getLocationAt(lastIndex).equalsLocation(
+				border.getLocationAt(0))) {
+			border.remove(lastIndex);
+		}
+		
+		if (type.equals(BorderType.GREAT_CIRCLE)) {
+			LocationList gcBorder = new LocationList();
+			// process each border pair [start end]; so that the entire
+			// border is traversed, set the first 'start' Location as the
+			// last point in the gcBorder
+			Location start = border.getLocationAt(border.size()-1);
+			for (int i=0; i<border.size(); i++) {
+				gcBorder.addLocation(start);
+				Location end = border.getLocationAt(i);
+				double distance = RelativeLocation.surfaceDistance(start, end);
+				// subdivide as necessary
+//				System.out.println("Vertex: " + i + "  Dist: " + distance); TODO clean
+				while (distance > GC_SEGMENT) {
+					// find new Location, GC_SEGMENT km away from start
+					double az = RelativeLocation.azimuth(start, end);
+					Location segLoc = RelativeLocation.location(
+							start, az, GC_SEGMENT);
+					gcBorder.addLocation(segLoc);
+					start = segLoc;
+					distance = RelativeLocation.surfaceDistance(start, end);
+//					System.out.println("             P1: " + start); TODO clean
+//					System.out.println("             P2: " + end);
+//					System.out.println("           Dist: " + distance + "  Az: " + az);
+				}
+				start = end;
+			}
+			this.border = gcBorder;
+		} else {
+			this.border = border;
+			// TODO break long great circles into smaller segments and test
+			// TODO gc processing need to return to start point; ensure that input
+			// border has start popint
+		}
+		area = createArea(this.border);
+	}
+	
+	/*
+	 * Initialize a circular region by creating an circular border of shorter
+	 * straight line segments. Internal java.awt.geom.Area is generated from 
+	 * the border.
+	 */
+	private void initCircularRegion(Location center, double radius) {
+		border = createLocationCircle(center, radius);
+		area = createArea(this.border);
+	}
+	
+	/*
+	 * Initialize a buffered region by creating box areas of 2x buffer width 
+	 * around each line segment and circle areas around each vertex and union
+	 * all of them. The border is then be derived from the Area.
+	 */
+	private void initBufferedRegion(LocationList line, double buffer) {
+		// init an empty Area
+		area = new Area();
+		// for each point segment, create a circle area
+		Location prevLoc = null;
+		for (Location loc: line) {
+			// starting out only want to create circle area for first point
+			if (area.isEmpty()) {
+				area.add(createArea(createLocationCircle(loc, buffer)));
+				continue;
+			}
+			area.add(createArea(createLocationBox(prevLoc, loc, buffer)));
+			area.add(createArea(createLocationCircle(loc, buffer)));
+			prevLoc = loc;
+		}
+		border = createBorder(area);
+	}
+
 	/*
 	 * Creates a LocationList border from a java.awt.geom.Area
 	 */

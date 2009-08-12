@@ -14,6 +14,7 @@ import org.dom4j.io.XMLWriter;
 import org.dom4j.tree.DefaultElement;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedWG02_Region;
@@ -33,18 +34,27 @@ public class KML {
 	
 	//private static final String FILE_NAME = "test.kml";
 	
-	// style references
-	private static final String BORDER_STYLE = "grid_border";
-	private static final String NODE_STYLE = "grid_node";
-	
 	// TODO centralize commonly used constants
 	private static final String NL = SystemUtils.LINE_SEPARATOR;
 	
-	// read document
+	public enum Style {
+		BORDER,
+		BORDER_VERTEX,
+		GRID_NODE;
+	}
 	
+	public enum Color {
+		ORANGE("FF16B4FF"),
+		BLUE("FFFF8153"),
+		RED("FF150CFF");
+		private String hex;
+		private Color(String hex) {this.hex = hex;}
+		public String getHex() {return hex;} 
+	}
 	
 	// write region
-	public static void regionToKML(GeographicRegion region, String filename) {
+	public static void regionToKML(
+			GeographicRegion region, String filename, Color c) {
 		String kmlFileName = filename + ".kml";
 		Document doc = DocumentHelper.createDocument();
 		Element root = new DefaultElement(
@@ -56,8 +66,9 @@ public class KML {
 		Element e_doc_name = e_doc.addElement("name");
 		e_doc_name.addText(kmlFileName);
 		
-		addBorderStyle(e_doc);
-		addNodeStyle(e_doc);
+		addBorderStyle(e_doc, c);
+		addBorderVertexStyle(e_doc);
+		addGridNodeStyle(e_doc, c);
 		
 		Element e_folder = e_doc.addElement("Folder");
 		Element e_folder_name = e_folder.addElement("name");
@@ -66,9 +77,12 @@ public class KML {
 		e_open.addText("1");
 		
 		addBorder(e_folder, region);
+		addPoints(e_folder, "Border Nodes", region.getRegionOutline(), 
+				Style.BORDER_VERTEX);
 		
 		if (region instanceof EvenlyGriddedGeographicRegion) {
-			addNodes(e_folder, (EvenlyGriddedGeographicRegion) region);
+			addPoints(e_folder, "Grid Nodes", ((EvenlyGriddedGeographicRegion) 
+					region).getGridLocationsList(), Style.GRID_NODE);
 		}
 
 		String tmpFile = "/Users/pliny/Desktop/sha_kml/" + kmlFileName;
@@ -92,7 +106,7 @@ public class KML {
 		Element e_name = e_placemark.addElement("name");
 		e_name.addText("Border");
 		Element e_style = e_placemark.addElement("styleUrl");
-		e_style.addText("#" + BORDER_STYLE);
+		e_style.addText("#" + Style.BORDER.toString());
 		Element e_poly = e_placemark.addElement("Polygon");
 		Element e_tessellate = e_poly.addElement("tessellate");
 		e_tessellate.addText("1");
@@ -107,6 +121,7 @@ public class KML {
 	private static String parseBorderCoords(GeographicRegion region) {
 		LocationList ll = region.getRegionOutline();
 		StringBuffer sb = new StringBuffer(NL);
+		System.out.println("parseBorderCoords: "); // TODO clean
 		for (Location loc: ll) {
 			sb.append(loc.toKML() + NL);
 			System.out.println(loc.toKML()); // TODO clean
@@ -119,22 +134,22 @@ public class KML {
 	}
 	
 	// node placemarks
-	private static Element addNodes(Element e, 
-			EvenlyGriddedGeographicRegion region) {
+	private static Element addPoints(
+			Element e, String folderName,
+			LocationList locations, Style style) {
 		Element e_folder = e.addElement("Folder");
 		Element e_folder_name = e_folder.addElement("name");
-		e_folder_name.addText("nodes");
+		e_folder_name.addText(folderName);
 		Element e_open = e_folder.addElement("open");
 		e_open.addText("0");
 		// loop nodes
-		LocationList ll = region.getGridLocationsList();
-		for (Location loc: ll) {
+		for (Location loc: locations) {
 			Element e_placemark = e_folder.addElement("Placemark");
 			Element e_style = e_placemark.addElement("styleUrl");
-			e_style.addText("#" + NODE_STYLE);
+			e_style.addText("#" + style.toString());
 			Element e_poly = e_placemark.addElement("Point");
 			Element e_coord = e_poly.addElement("coordinates");
-			System.out.println(loc.toKML()); // TODO clean
+			//System.out.println(loc.toKML()); // TODO clean
 			e_coord.addText(loc.toKML());
 		}
 		return e;
@@ -174,28 +189,14 @@ public class KML {
 //</Folder>
 
 	// border style elements
-	private static Element addBorderStyle(Element e) {
+	private static Element addBorderStyle(Element e, Color c) {
 		Element e_style = e.addElement("Style");
-		e_style.addAttribute("id", BORDER_STYLE);
-		
-		// icon style
-		Element e_iconStyle = e_style.addElement("IconStyle");
-		Element e_scale = e_iconStyle.addElement("scale");
-		e_scale.addText("1.1");
-		Element e_icon = e_iconStyle.addElement("Icon");
-		Element e_href = e_icon.addElement("href");
-		e_href.addText(
-			"http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png");
-		Element e_hotSpot = e_iconStyle.addElement("hotSpot"); 
-		e_hotSpot.addAttribute("x", "20");
-		e_hotSpot.addAttribute("y", "2");
-		e_hotSpot.addAttribute("xunits", "pixels");
-		e_hotSpot.addAttribute("yunits", "pixels");
-		
+		e_style.addAttribute("id", Style.BORDER.toString());
+				
 		// line style
 		Element e_lineStyle = e_style.addElement("LineStyle");
 		Element e_color = e_lineStyle.addElement("color");
-		e_color.addText("ff16b4ff");
+		e_color.addText(c.getHex());
 		Element e_width = e_lineStyle.addElement("width");
 		e_width.addText("3");
 		
@@ -208,17 +209,35 @@ public class KML {
 		return e;
 	}
 	
-	// node style elements
-	private static Element addNodeStyle(Element e) {
+	// border vertex style elements
+	private static Element addBorderVertexStyle(Element e) {
 		Element e_style = e.addElement("Style");
-		e_style.addAttribute("id", NODE_STYLE);
+		e_style.addAttribute("id", Style.BORDER_VERTEX.toString());
 		
 		// icon style
 		Element e_iconStyle = e_style.addElement("IconStyle");
 		Element e_color = e_iconStyle.addElement("color");
-		e_color.addText("ff16b4ff");
+		e_color.addText(Color.RED.getHex());
 		Element e_scale = e_iconStyle.addElement("scale");
-		e_scale.addText("0.8");
+		e_scale.addText("0.6");
+		Element e_icon = e_iconStyle.addElement("Icon");
+		Element e_href = e_icon.addElement("href");
+		e_href.addText(
+			"http://maps.google.com/mapfiles/kml/shapes/open-diamond.png");
+		return e;
+	}
+
+	// node style elements
+	private static Element addGridNodeStyle(Element e, Color c) {
+		Element e_style = e.addElement("Style");
+		e_style.addAttribute("id", Style.GRID_NODE.toString());
+		
+		// icon style
+		Element e_iconStyle = e_style.addElement("IconStyle");
+		Element e_color = e_iconStyle.addElement("color");
+		e_color.addText(c.getHex());
+		Element e_scale = e_iconStyle.addElement("scale");
+		e_scale.addText("0.6");
 		Element e_icon = e_iconStyle.addElement("Icon");
 		Element e_href = e_icon.addElement("href");
 		e_href.addText(
@@ -233,28 +252,55 @@ public class KML {
 //	}
 
 	public static void main(String[] args) {
+
+//		EvenlyGriddedGeographicRegion relm_gr = new CaliforniaRegions.RELM_TESTING_GRIDDED();
 //		KML.regionToKML(
-//				DefinedRegion.RELM.getRegion(), 
-//				DefinedRegion.RELM.name());
-//		KML.regionToKML(
-//				DefinedRegion.RELM_TESTING.getRegion(), 
-//				DefinedRegion.RELM_TESTING.name());
-//		KML.regionToKML(
-//				DefinedRegion.RELM_COLLECTION.getRegion(), 
-//				DefinedRegion.RELM_COLLECTION.name());
-//		KML.regionToKML(
-//				DefinedRegion.RELM_NOCAL.getRegion(), 
-//				DefinedRegion.RELM_NOCAL.name());
-//		KML.regionToKML(
-//				DefinedRegion.WG02.getRegion(), 
-//				DefinedRegion.WG02.name());
-		GeographicRegion gr = new CaliforniaRegions.RELM_TESTING();
-		EvenlyGriddedGeographicRegion eggr = new EvenlyGriddedGeographicRegion(gr, 0.4);
-		KML.regionToKML(
-				eggr, 
-				"RELM");
+//				relm_gr,
+//				"RELM_TEST",
+//				Color.ORANGE);
 		
-//		KML.regionToKML(new EvenlyGriddedWG07_LA_Box_Region());
-//		KML.regionToKML(new EvenlyGriddedWG02_Region());
+//		EvenlyGriddedGeographicRegion eggr1 = new CaliforniaRegions.WG02_GRIDDED();
+//		KML.regionToKML(
+//				eggr1, 
+//				"WG02",
+//				Color.ORANGE);
+//
+//		EvenlyGriddedGeographicRegion eggr2 = new CaliforniaRegions.WG07_GRIDDED();
+//		KML.regionToKML(
+//				eggr2, 
+//				"WG07",
+//				Color.ORANGE);
+		
+		// test mercator/great-circle resion
+		EvenlyGriddedGeographicRegion eggr3 = new EvenlyGriddedGeographicRegion(
+				new Location(35,-125),
+				new Location(45,-90),
+				0.5);
+		KML.regionToKML(
+				eggr3, 
+				"TEST1_box",
+				Color.ORANGE);
+		
+		LocationList ll = new LocationList();
+		ll.addLocation(new Location(35,-125));
+		ll.addLocation(new Location(35,-90));
+		ll.addLocation(new Location(45,-90));
+		ll.addLocation(new Location(45,-125));
+		
+		EvenlyGriddedGeographicRegion eggr4 = new EvenlyGriddedGeographicRegion(
+				ll,BorderType.MERCATOR_LINEAR,0.5);
+		KML.regionToKML(
+				eggr4, 
+				"TEST1_loclist_lin",
+				Color.ORANGE);
+		
+		EvenlyGriddedGeographicRegion eggr5 = new EvenlyGriddedGeographicRegion(
+				ll,BorderType.GREAT_CIRCLE,0.5);
+		KML.regionToKML(
+				eggr5, 
+				"TEST1_loclist_gc",
+				Color.ORANGE);
+		
+
 	}
 }

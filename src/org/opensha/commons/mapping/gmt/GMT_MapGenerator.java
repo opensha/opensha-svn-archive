@@ -21,6 +21,7 @@ import java.util.StringTokenizer;
 import org.opensha.commons.calc.ArcsecondConverter;
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.DataPoint2D;
+import org.opensha.commons.data.Location;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
@@ -416,8 +417,11 @@ public class GMT_MapGenerator implements Serializable{
 	public GMT_Map getGMTMapSpecification(XYZ_DataSetAPI xyzData) {
 		GeographicRegion region;
 //		try {
-			region = new GeographicRegion(minLatParam.getValue(),
-					maxLatParam.getValue(), minLonParam.getValue(), maxLonParam.getValue());
+//			region = new GeographicRegion(minLatParam.getValue(),
+//					maxLatParam.getValue(), minLonParam.getValue(), maxLonParam.getValue());
+			region = new GeographicRegion(
+		    		new Location(minLatParam.getValue(), minLonParam.getValue()),
+		    		new Location(maxLatParam.getValue(), maxLonParam.getValue()));
 //		} catch (RegionConstraintException e) {
 //			throw new RuntimeException(e);
 //		}
@@ -927,7 +931,11 @@ public class GMT_MapGenerator implements Serializable{
 		double maxLon = ((Double) maxLonParam.getValue()).doubleValue();
 		double gridSpacing = ((Double) gridSpacingParam.getValue()).doubleValue();
 
-		return new EvenlyGriddedGeographicRegion(minLat, maxLat, minLon, maxLon, gridSpacing);
+		//return new EvenlyGriddedGeographicRegion(minLat, maxLat, minLon, maxLon, gridSpacing);
+		return new EvenlyGriddedGeographicRegion(
+	    		new Location(minLat, minLon),
+	    		new Location(maxLat, maxLon),
+	    		gridSpacing);
 	}
 
 	/**

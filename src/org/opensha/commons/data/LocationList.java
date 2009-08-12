@@ -27,6 +27,7 @@ import org.opensha.commons.metadata.XMLSaveable;
  * object oriented programming. The internal complexity of an object
  * should not be exposed. There is no need for calling classes to know this
  * information so it keeps the API simpler.<p>
+ * 
  *
  * @author     Steven W. Rock
  * @created    February 26, 2002
@@ -133,7 +134,10 @@ public class LocationList implements java.io.Serializable, XMLSaveable, Iterable
     /**  Removes all Locations from this list */
     public void clear() { locations.clear(); }
 
-
+    public void remove(int index) {
+    	locations.remove(index);
+    }
+    
     /**
      * Reverses the order of Locations. Has the
      * effect of reversing the Iterator.

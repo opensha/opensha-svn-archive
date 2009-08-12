@@ -197,7 +197,9 @@ public class GeolocatedRectangularBinaryMesh2DCalculator extends
 	
 	public GeographicRegion getApplicableRegion() {
 //		try {
-			return new GeographicRegion(minLat, maxLat, minLon, maxLon);
+			return new GeographicRegion(
+					new Location(minLat,minLon),
+					new Location(maxLat,maxLon));
 //		} catch (RegionConstraintException e) {
 //			e.printStackTrace();
 //			return null;

@@ -364,7 +364,11 @@ public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements Par
 		System.out.println(data.getValue(new Location(34, -118)));
 		System.out.println(data.getValue(new Location(34, -10)));
 		
-		EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(32, 35, -121, -117, 0.01);
+		EvenlyGriddedGeographicRegion region = 
+			new EvenlyGriddedGeographicRegion(
+					new Location(32, -121),
+					new Location(35, -117),
+					0.01);
 //		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(-60, 60, -180, 180, 1);
 		
 		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();

@@ -134,22 +134,55 @@ public class NSHMPHazardBean extends AbstractHazardBean {
 	static {
 //		try {
 			/* Initialize all the geographic regions for user later. */
-			STATES_REGION = new GeographicRegion(24.7, 50, -125, -65);
-			ALASKA_REGION = new GeographicRegion(48, 72, -200, -125);
-			HAWAII_REGION = new GeographicRegion(18, 23, -161, -154);
+			//STATES_REGION = new GeographicRegion(24.7, 50, -125, -65);
+			STATES_REGION = new GeographicRegion(
+					new Location(24.7, -125),
+					new Location(50, -65));
+			//ALASKA_REGION = new GeographicRegion(48, 72, -200, -125);
+			ALASKA_REGION = new GeographicRegion(
+					new Location(48, -200),
+					new Location(72, -125));
+			//HAWAII_REGION = new GeographicRegion(18, 23, -161, -154);
+			HAWAII_REGION = new GeographicRegion(
+					new Location(18, -161),
+					new Location(23, -154));
+//			PUERTO_RICO_REGION =
+//				new GeographicRegion(17.89, 18.55, -67.36, -65.47);
 			PUERTO_RICO_REGION =
-				new GeographicRegion(17.89, 18.55, -67.36, -65.47);
+				new GeographicRegion(
+						new Location(17.89, -67.36),
+						new Location(18.55, -65.47));
+//			CULEBRA_REGION = 
+//				new GeographicRegion(17.67, 17.8, -64.93, -64.54);
 			CULEBRA_REGION = 
-				new GeographicRegion(17.67, 17.8, -64.93, -64.54);
+				new GeographicRegion(
+						new Location(17.67, -64.93),
+						new Location(17.8, -64.54));
+//			ST_CROIX_REGION = 
+//				new GeographicRegion(18.27, 18.36, -65.39, -65.21);
 			ST_CROIX_REGION = 
-				new GeographicRegion(18.27, 18.36, -65.39, -65.21);
+				new GeographicRegion(
+						new Location(18.27, -65.39),
+						new Location(18.36, -65.21));
+//			ST_JOHN_REGION = 
+//				new GeographicRegion(18.29, 18.38, -64.85, -64.65);
 			ST_JOHN_REGION = 
-				new GeographicRegion(18.29, 18.38, -64.85, -64.65);
+				new GeographicRegion(
+						new Location(18.29, -64.85),
+						new Location(18.38, -64.65));
+//			ST_THOMAS_REGION = 
+//				new GeographicRegion(18.26, 18.43, -65.10, -64.80);
 			ST_THOMAS_REGION = 
-				new GeographicRegion(18.26, 18.43, -65.10, -64.80);
+				new GeographicRegion(
+						new Location(18.26, -65.10),
+						new Location(18.43, -64.80));
+//			VIEQUES_REGION = 
+//				new GeographicRegion(18.07, 18.17, -65.6, -65.25);
 			VIEQUES_REGION = 
-				new GeographicRegion(18.07, 18.17, -65.6, -65.25);
-//		} catch (RegionConstraintException rcx) {
+				new GeographicRegion(
+						new Location(18.07, -65.6),
+						new Location(18.17, -65.25));
+//		} ca//		} catch (RegionConstraintException rcx) {
 //			rcx.printStackTrace();
 //		}
 	}

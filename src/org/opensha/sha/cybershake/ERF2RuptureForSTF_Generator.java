@@ -330,7 +330,9 @@ public class ERF2RuptureForSTF_Generator {
         }
       }
     }
-    return new GeographicRegion(minLat, maxLat, minLon, maxLon);
+    return new GeographicRegion(
+    		new Location(minLat, minLon),
+    		new Location(maxLat, maxLon));
   }
 
   /**

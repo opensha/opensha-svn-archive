@@ -79,7 +79,10 @@ public class SRTM30TopoSlope extends AbstractSiteData<Double> {
 		calc.setStartLeft(true);
 		
 //		try {
-			region = new GeographicRegion(-60, 90, -180, 180);
+			//region = new GeographicRegion(-60, 90, -180, 180);
+			region = new GeographicRegion(
+					new Location(-60, -180),
+					new Location(90, 180));
 //		} catch (RegionConstraintException e) {
 //			e.printStackTrace();
 //		}
@@ -156,7 +159,11 @@ public class SRTM30TopoSlope extends AbstractSiteData<Double> {
 		System.out.println(data.getValue(new Location(34, -118)));
 		System.out.println(data.getValue(new Location(32, -118)));
 		
-		EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(32, 35, -121, -115, 0.02);
+		//EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(32, 35, -121, -115, 0.02);
+		EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(
+				new Location(32, -121),
+				new Location(25, 115),
+				0.02);
 //		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(-60, 60, -180, 180, 1);
 //		
 		SiteDataToXYZ.writeXYZ(data, region, "/tmp/topo_slope.txt");

@@ -1084,13 +1084,19 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast  {
 //		try {	
 			//set the grid precision first
 //			SitesInGriddedRectangularRegion.setGridPrecision(RegionDefaults.gridPrecision);
+//			EvenlyGriddedGeographicRegion eggr = 
+//				new EvenlyGriddedGeographicRegion(
+//						RegionDefaults.searchLatMin,
+//						RegionDefaults.searchLatMax,
+//						RegionDefaults.searchLongMin,
+//						RegionDefaults.searchLongMax,
+//						RegionDefaults.gridSpacing);
 			EvenlyGriddedGeographicRegion eggr = 
 				new EvenlyGriddedGeographicRegion(
-						RegionDefaults.searchLatMin,
-						RegionDefaults.searchLatMax,
-						RegionDefaults.searchLongMin,
-						RegionDefaults.searchLongMax,
+						new Location(RegionDefaults.searchLatMin,RegionDefaults.searchLongMin),
+						new Location(RegionDefaults.searchLatMax,RegionDefaults.searchLongMax),
 						RegionDefaults.gridSpacing);
+			
 			sites = new  SitesInGriddedRegion(eggr);
 			this.setBackGroundRegion(sites.getRegion());
 			

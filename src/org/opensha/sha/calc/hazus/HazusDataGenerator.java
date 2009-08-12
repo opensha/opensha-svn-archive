@@ -13,6 +13,7 @@ import org.opensha.sha.util.SiteTranslator;
 
 
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.*;
+import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
@@ -135,9 +136,13 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
 
  private void createRegion() throws RegionConstraintException{
 	 //	make the Gridded Region object
-	  EvenlyGriddedGeographicRegion eggr = 
-		  new EvenlyGriddedGeographicRegion(
-				  MIN_LAT, MAX_LAT, MIN_LON,MAX_LON, GRID_SPACING);
+//	  EvenlyGriddedGeographicRegion eggr = 
+//		  new EvenlyGriddedGeographicRegion(
+//				  MIN_LAT, MAX_LAT, MIN_LON,MAX_LON, GRID_SPACING);
+	  EvenlyGriddedGeographicRegion eggr = new EvenlyGriddedGeographicRegion(
+	    		new Location(MIN_LAT, MIN_LON),
+	    		new Location(MAX_LAT, MAX_LON),
+	    		GRID_SPACING);
 	 sites = new SitesInGriddedRegion(eggr);
  }
 

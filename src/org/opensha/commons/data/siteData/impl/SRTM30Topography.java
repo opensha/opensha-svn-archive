@@ -79,7 +79,9 @@ public class SRTM30Topography extends AbstractSiteData<Double> {
 		calc.setStartLeft(true);
 		
 //		try {
-			region = new GeographicRegion(-60, 90, -180, 180);
+			region = new GeographicRegion(
+					new Location(-60, -180),
+					new Location(90, 180));
 //		} catch (RegionConstraintException e) {
 //			e.printStackTrace();
 //		}
@@ -157,8 +159,12 @@ public class SRTM30Topography extends AbstractSiteData<Double> {
 		System.out.println(data.getValue(new Location(37.630173, -119.032681)));
 		
 //		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(32, 35, -121, -115, 0.02);
-		EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(-60, 60, -180, 180, 1);
-		
+		//EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(-60, 60, -180, 180, 1);
+		EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(
+				new Location(-60, -180),
+				new Location(90, 180),
+				1);
+
 		SiteDataToXYZ.writeXYZ(data, region, "/tmp/topo2.txt");
 	}
 }

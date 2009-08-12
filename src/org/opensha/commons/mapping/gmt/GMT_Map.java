@@ -3,6 +3,7 @@ package org.opensha.commons.mapping.gmt;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import org.opensha.commons.data.Location;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.region.GeographicRegionAPI;
@@ -50,7 +51,9 @@ public class GMT_Map implements Serializable {
 	public static GeographicRegion ca_topo_region;
 	static {
 //		try {
-			ca_topo_region  = new GeographicRegion(32, 43, -126, -115);
+			ca_topo_region  = new GeographicRegion(
+					new Location(32, -126),
+					new Location(43, -115));
 //		} catch (RegionConstraintException e) {
 //			e.printStackTrace();
 //		}

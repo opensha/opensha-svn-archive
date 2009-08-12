@@ -52,7 +52,9 @@ public class WillsMap2000 extends AbstractSiteData<String> {
 		super();
 		this.useServlet = useServlet;
 //		try {
-			applicableRegion = new GeographicRegion(minLat, maxLat, minLon, maxLon);
+			applicableRegion = new GeographicRegion(
+					new Location(minLat, minLon),
+					new Location(maxLat, maxLon));
 //		} catch (RegionConstraintException e) {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();

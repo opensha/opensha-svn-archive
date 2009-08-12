@@ -181,7 +181,11 @@ public class WillsMap2006 extends AbstractSiteData<Double> {
 		
 		WillsMap2006 map = new WillsMap2006();
 		
-		EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(37, 38.5, -122.75, -121.5, 0.01);
+		EvenlyGriddedGeographicRegion region = 
+			new EvenlyGriddedGeographicRegion(
+					new Location(37, -122.75),
+					new Location(38.5, -121.5),
+					0.01);
 		
 		SiteDataToXYZ.writeXYZ(map, region, "/tmp/wills.txt");
 		

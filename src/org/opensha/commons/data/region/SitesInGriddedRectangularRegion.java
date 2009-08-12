@@ -4,6 +4,7 @@ import java.util.*;
 import java.io.IOException;
 import java.io.Serializable;
 
+import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
@@ -63,13 +64,13 @@ implements Serializable {
 	public SitesInGriddedRectangularRegion(double minLat,double maxLat,double minLon,double maxLon,
 			double gridSpacing) throws
 			RegionConstraintException {
-		super(minLat,maxLat,minLon,maxLon,gridSpacing);
+		super(new Location(minLat,minLon), new Location(maxLat,maxLon),gridSpacing);
 	}
 
 	public SitesInGriddedRectangularRegion(GeographicRegion geo,
 			double gridSpacing) throws
 			RegionConstraintException {
-		super(geo.getMinLat(), geo.getMaxLat(), geo.getMinLon(), geo.getMaxLon(), gridSpacing);
+		this(geo.getMinLat(), geo.getMaxLat(), geo.getMinLon(), geo.getMaxLon(), gridSpacing);
 	}
 
 

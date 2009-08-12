@@ -176,9 +176,13 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
     }
 
 //    try {
-  	  EvenlyGriddedGeographicRegion eggr = 
-		  new EvenlyGriddedGeographicRegion(minLat, maxLat, minLon,
-          maxLon, gridSpacing);
+//  	  EvenlyGriddedGeographicRegion eggr = 
+//		  new EvenlyGriddedGeographicRegion(minLat, maxLat, minLon,
+//          maxLon, gridSpacing);
+    EvenlyGriddedGeographicRegion eggr = new EvenlyGriddedGeographicRegion(
+    		new Location(minLat, minLon),
+    		new Location(maxLat, maxLon),
+    		gridSpacing);
       sites = new SitesInGriddedRegion(eggr);
 //    }
 //    catch (RegionConstraintException ex) {

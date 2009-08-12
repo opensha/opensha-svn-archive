@@ -174,8 +174,11 @@ public class IML_Calc_Cybershake extends MedianCalc_Cybershake {
 		  try{
 			  ArrayList willsSiteVals =ConnectToCVM.getWillsSiteTypeFromCVM(-121, -113.943965, 31.082920, 36.621696, .016667);
 			  ArrayList basinVals = ConnectToCVM.getBasinDepthFromCVM(-121, -113.943965, 31.082920, 36.621696, .016667);
-			  EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(31.082920, 36.621696,
-					  -121, -113.943965,.016667);
+			  EvenlyGriddedGeographicRegion region = 
+				  new EvenlyGriddedGeographicRegion(
+						  new Location(31.082920, -121),
+						  new Location(36.621696, -113.943965),
+						  .016667);
 			  int numLocs = locList.size();
 			  basinDepthVals = new ArrayList();
 			  willsSiteClassVals = new ArrayList();

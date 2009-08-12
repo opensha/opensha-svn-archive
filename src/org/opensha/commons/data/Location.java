@@ -1,6 +1,8 @@
 package org.opensha.commons.data;
 import java.text.DecimalFormat;
 
+import javax.naming.OperationNotSupportedException;
+
 import org.dom4j.Element;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.metadata.XMLSaveable;
@@ -27,6 +29,8 @@ import org.opensha.commons.metadata.XMLSaveable;
  * TODO should do all error checking... any instantiated Location should be valid
  * TODO why hashCode overriden; improve equals
  * TODO default values should be 0, not NaN; revisit if this causes problems
+ * TODO class should be immutable; create sublass MutableLocation that
+ * 		has set() methods
  */
 
 public class Location implements java.io.Serializable, XMLSaveable {
@@ -80,6 +84,7 @@ public class Location implements java.io.Serializable, XMLSaveable {
      * @param  lat                        latitude value
      * @param  lon                        longitude value
      * @exception  InvalidRangeException  thrown if lat or lon are invalid values
+     * TODO modify error checking
      */
     public Location( double lat, double lon )
              throws InvalidRangeException {
@@ -287,6 +292,69 @@ public class Location implements java.io.Serializable, XMLSaveable {
         loc = new Location(44,30,0);
       }
       System.out.println("time = "+ (System.currentTimeMillis()-time));
+    }
+    
+    /**
+     * Returns an unmodifiable <code>Location</code>. Attempts to 
+     * <code>set...()</code> values result in an
+     * <code>OperationNotSupportedException</code>.
+     * 
+     * @param lat the <code>Location</code> latitude value 
+     * @param lon the <code>Location</code> longitude value 
+     * @return an unmodifiable <code>Location</code>
+     * @throws IllegalArgumentException if lat value is outside
+     * 		the range \u00B190\u00B0
+     */
+    public static Location immutableLocation(double lat, double lon) {
+    	return immutableLocation(lat, lon, 0);
+    }
+
+    /**
+     * Returns an unmodifiable <code>Location</code>. Attempts to 
+     * <code>set...()</code> values result in an
+     * <code>OperationNotSupportedException</code>.
+     * 
+     * @param lat the <code>Location</code> latitude value 
+     * @param lon the <code>Location</code> longitude value 
+     * @param depth the <code>Location</code> depth value 
+     * @return an unmodifiable <code>Location</code>
+     * @throws IllegalArgumentException if lat value is outside
+     * 		the range \u00B190\u00B0
+     */
+    public static Location immutableLocation(
+    		double lat, double lon, double depth) {
+    	return new ImmutableLocation(lat, lon, depth);
+    }
+    
+    /**
+     * Returns an unmodifiable copy of the passed-in <code>Location</code>. 
+     * Attempts to <code>set...()</code> values result in an
+     * <code>OperationNotSupportedException</code>.
+     * 
+     * @param loc the <code>Location</code> to copy as unmodifiable 
+     * @return an unmodifiable <code>Location</code>
+     */
+    public static Location immutableLocation(Location loc) {
+    	return immutableLocation(
+    			loc.getLatitude(), loc.getLongitude(),loc.getDepth());
+    }
+    
+    /* Package private unmodifiable Location. */
+    static class ImmutableLocation extends Location {
+    	ImmutableLocation(double lat, double lon, double depth) {
+    		super(lat, lon, depth);
+    	}
+    	public void setLatitude() { 
+    		throw new UnsupportedOperationException();
+    	}
+    	public void setLongitude() { 
+    		throw new UnsupportedOperationException();
+    	}
+    	public void setDepth() { 
+    		throw new UnsupportedOperationException();
+    	}
+    	
+    	
     }
 
 }

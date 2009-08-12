@@ -69,6 +69,7 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 	private double[] lonNodeEdges;
 	private double[] latNodeEdges;
 
+	// Location at lower left corner of region bounding rect
 	private Location anchor;
 	
 	// lookup array for grid nodes; has length of master grid spanning
@@ -109,25 +110,19 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 	/**
 	 * Initializes a gridded region from a pair of latitude and a pair of
 	 * longitude values. When viewed in a Mercator projection, the region
-	 * will be a rectangle. Input longitude values will be normalized to
-	 * \u00B1180\u00B0. Input latitude values outside the range \u00B190\u00B0
-	 * will throw an exception. If either both latitude or both longitude
+	 * will be a rectangle. If either both latitude or both longitude
 	 * values are the same, an exception is thrown.
 	 * 
-	 * @param lat1 the first latitude value
-	 * @param lat2 the second latitude value
-	 * @param lon1 the first longitude value
-	 * @param lon2 the second longitude value
+	 * @param loc1 the first <code>Location</code>
+	 * @param loc2 the second <code>Location</code>
 	 * @param spacing of grid nodes
-	 * @throws IllegalArgumentException if both lats or lons are the same, or
-	 * 		if lat is outside the range \u00B190\u00B0
-	 * @see GeographicRegion#GeographicRegion(double, double, double, double)
+	 * @throws IllegalArgumentException if the latitude or longitude values
+	 * 		in the <code>Location</code>s provided are the same
+	 * @see GeographicRegion#GeographicRegion(Location, Location)
 	 */
 	public EvenlyGriddedGeographicRegion(
-			double lat1, double lat2, 
-			double lon1, double lon2, 
-			double spacing) {
-		super(lat1, lat2, lon1, lon2);
+			Location loc1, Location loc2, double spacing) {
+		super(loc1, loc2);
 		this.spacing = spacing;
 		initLatLonArrays();
 		initNodes();
@@ -149,6 +144,11 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 		super(border, type);
 		this.spacing = spacing;
 		initLatLonArrays();
+		// TODO clean
+//		System.out.println("lonLen: " + lonNodes.length);
+//		System.out.println("latLen: " + latNodes.length);
+//		System.out.println("lonBinLen: " + lonNodeEdges.length);
+//		System.out.println("latBinLen: " + latNodeEdges.length);
 		initNodes();
 	}
 
@@ -819,7 +819,10 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 			double minLon = geoRegion.getMinLon();
 			double maxLon = geoRegion.getMaxLon();
 //			try {
-				return new EvenlyGriddedGeographicRegion(minLat, maxLat, minLon, maxLon, gridSpacing);
+				return new EvenlyGriddedGeographicRegion(
+						new Location(minLat, minLon),
+						new Location(maxLat, maxLon),
+						gridSpacing);
 //			} catch (RegionConstraintException e) {
 //				return new EvenlyGriddedGeographicRegion(outline, gridSpacing);
 //			}
@@ -854,18 +857,20 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 		int numGridPoints = lonNodes.length * latNodes.length;
 		gridIndices = new int[numGridPoints];
 		nodeList = new LocationList();
-		Location dummy = new Location();
+		// utility Location
+		Location dummy = new Location(); // TODO one example of need for mutable Location
 		int idx = 0;
 		for (double lat:latNodes) {
 			for (double lon:lonNodes) {
 				dummy.setLatitude(lat);
 				dummy.setLongitude(lon);
 				if (isLocationInside(dummy)) {
-					gridIndices[idx] = idx++;
 					nodeList.addLocation(dummy.clone());
+					gridIndices[idx] = idx++;
+				} else {
+					gridIndices[idx] = -1;
 				}
-				gridIndices[idx] = isLocationInside(dummy) ? idx++ : -1;
-				
+				//System.out.println(idx); // TODO clean
 			}
 		}
 		nodeCount = idx;
@@ -952,7 +957,7 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 //		int index3 = region.getNearestLocationIndex(new Location(36.1, -114.5)); 
 //		//int index1 = region.getNearestLocationIndex(new Location(36.099999999999994, -122.7)); // 3118
 //		//int index2 = region.getNearestLocationIndex(new Location(36.099999999999994, -114.6)); // 3199
-//		System.out.println(index1+","+index2+","+index3);\
+//		//em.out.println(index1+","+index2+","+index3);\
 		
 //		LocationList LL1 = new LocationList();
 //		LL1.addLocation(new Location(39.97,-117.62));
