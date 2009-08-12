@@ -7,6 +7,7 @@ import java.io.*;
 import java.util.*;
 
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
+import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
@@ -110,7 +111,11 @@ public class GriddedRegionServlet extends HttpServlet {
 		double minLon = ((Double)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.MIN_LONGITUDE).getValue()).doubleValue();
 		double maxLon = ((Double)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.MAX_LONGITUDE).getValue()).doubleValue();
 		double gridSpacing = ((Double)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.GRID_SPACING).getValue()).doubleValue();
-		EvenlyGriddedGeographicRegion eggr = new EvenlyGriddedGeographicRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
+		//EvenlyGriddedGeographicRegion eggr = new EvenlyGriddedGeographicRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
+		EvenlyGriddedGeographicRegion eggr = new EvenlyGriddedGeographicRegion(
+	    		new Location(minLat, minLon),
+	    		new Location(maxLat, maxLon),
+	    		gridSpacing);
 		SitesInGriddedRegion gridRectRegion  = new SitesInGriddedRegion(eggr);
 		String regionSitesParamVal = (String)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.SITE_PARAM_NAME).getValue();
 

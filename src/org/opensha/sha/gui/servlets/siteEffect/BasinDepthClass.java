@@ -74,7 +74,11 @@ public final class BasinDepthClass {
       RegionConstraintException {
 
     locations = new ArrayList();
-    EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
+    //EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
+    EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(
+    		new Location(minLat, minLon),
+    		new Location(maxLat, maxLon),
+    		gridSpacing);
 
     ListIterator it= region.getGridLocationsIterator();
     while(it.hasNext())

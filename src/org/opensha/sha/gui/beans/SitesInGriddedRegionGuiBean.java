@@ -484,9 +484,10 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 			double maxLongitude=((Double)maxLon.getValue()).doubleValue();
 			//checkLatLonParamValues();
 			  EvenlyGriddedGeographicRegion eggr = 
-				  new EvenlyGriddedGeographicRegion(minLatitude,
-					maxLatitude,minLongitude,maxLongitude,
-					gridSpacingD);
+				  new EvenlyGriddedGeographicRegion(
+						  new Location(minLatitude,minLongitude),
+						  new Location(maxLatitude,maxLongitude),
+						  gridSpacingD);
 			gridRegion= new SitesInGriddedRegion(eggr);
 		} else {
 			for (NamedGeographicRegion region : presets) {

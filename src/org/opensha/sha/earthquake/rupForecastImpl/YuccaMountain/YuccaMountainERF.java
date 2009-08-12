@@ -128,8 +128,12 @@ public class YuccaMountainERF extends EqkRupForecast{
 			double maxLon = Double.parseDouble(st.nextToken().trim());
 			double gridSpacing = Double.parseDouble(st.nextToken().trim());
 //			try {
-				backgroundRegion = new EvenlyGriddedGeographicRegion(minLat, 
-						maxLat, minLon, maxLon, gridSpacing);
+//				backgroundRegion = new EvenlyGriddedGeographicRegion(minLat, 
+//						maxLat, minLon, maxLon, gridSpacing);
+			    backgroundRegion = new EvenlyGriddedGeographicRegion(
+			    		new Location(minLat, minLon),
+			    		new Location(maxLat, maxLon),
+			    		gridSpacing);
 //			} catch (RegionConstraintException e) {
 //				// TODO Auto-generated catch block
 //				e.printStackTrace();

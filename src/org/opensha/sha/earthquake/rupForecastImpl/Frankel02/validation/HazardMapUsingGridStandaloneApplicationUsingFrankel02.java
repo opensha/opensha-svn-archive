@@ -15,6 +15,7 @@ import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 
+import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
@@ -129,9 +130,13 @@ public class HazardMapUsingGridStandaloneApplicationUsingFrankel02
   private void initGriddedRegionGuiBean() throws RegionConstraintException {
 
     //make the Gridded Region object
-	  EvenlyGriddedGeographicRegion eggr = 
-		  new EvenlyGriddedGeographicRegion(
-				  MIN_LAT, MAX_LAT, MIN_LON,MAX_LON, GRID_SPACING);
+//	  EvenlyGriddedGeographicRegion eggr = 
+//		  new EvenlyGriddedGeographicRegion(
+//				  MIN_LAT, MAX_LAT, MIN_LON,MAX_LON, GRID_SPACING);
+	  EvenlyGriddedGeographicRegion eggr = new EvenlyGriddedGeographicRegion(
+	    		new Location(MIN_LAT, MIN_LON),
+	    		new Location(MAX_LAT, MAX_LON),
+	    		GRID_SPACING);
     griddedRegionSites = new SitesInGriddedRegion(eggr);
 
     griddedRegionSites.addSiteParams(attenRel.getSiteParamsIterator());
