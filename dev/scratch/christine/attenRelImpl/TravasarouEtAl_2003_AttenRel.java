@@ -20,6 +20,9 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.commons.param.WarningDoubleParameter;
 
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+
+
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
@@ -96,9 +99,9 @@ public class TravasarouEtAl_2003_AttenRel
   public final static String SITE_TYPE_D = "SGS Class D";
   public final static String SITE_TYPE_DEFAULT = SITE_TYPE_C;
   
-  private final static String IA_PARAM_NAME = "IA";
-  private final static String IA_PARAM_UNITS = "m/s";
-  private final static String IA_PARAM_INFO = "Arias Intensity";
+//  private final static String IA_PARAM_NAME = "IA";
+//  private final static String IA_PARAM_UNITS = "m/s";
+//  private final static String IA_PARAM_INFO = "Arias Intensity";
 
   
   // Model coefficients:
@@ -114,8 +117,8 @@ public class TravasarouEtAl_2003_AttenRel
   double f1= -0.166;
   double f2= 0.512;
    
-  private double rrup, mag, f_rv, f_nm, s_c, s_d, IA_Param;
-  private IA_Param iaParam;
+  private double rrup, mag, f_rv, f_nm, s_c, s_d;
+//  private IA_Param iaParam;
   double median;
 //  double median = 0.0;
   private boolean parameterChange;
@@ -130,11 +133,11 @@ public class TravasarouEtAl_2003_AttenRel
   //CG Need to change Rrup warning min value to 0.1 km, as per Travasaou et al's paper 
   protected final static Double DISTANCE_RUP_WARN_MIN = new Double(0.0);
   protected final static Double DISTANCE_RUP_WARN_MAX = new Double(250.0);
-  protected final static Double IA_PARAM_MIN = new Double(Math.log(1.0));
-  protected final static Double IA_PARAM_MAX = new Double(100.0);
-  protected final static Double IA_PARAM_WARN_MIN = new Double(Math.log(1.0));
-  protected final static Double IA_PARAM_WARN_MAX = new Double(Math.log(100.0));
-  protected final static Double IA_PARAM_DEFAULT = new Double(1.0);
+//  protected final static Double IA_PARAM_MIN = new Double(Math.log(1.0));
+//  protected final static Double IA_PARAM_MAX = new Double(100.0);
+//  protected final static Double IA_PARAM_WARN_MIN = new Double(Math.log(1.0));
+//  protected final static Double IA_PARAM_WARN_MAX = new Double(Math.log(100.0));
+//  protected final static Double IA_PARAM_DEFAULT = new Double(1.0);
  
   // for issuing warnings:
   private transient ParameterChangeWarningListener warningListener = null;
@@ -171,40 +174,40 @@ public class TravasarouEtAl_2003_AttenRel
    * @author goulet (aug 2009) - modified based on PGA_Param from field
    *
    */
-  private class IA_Param extends WarningDoubleParameter {
-
-  	/**
-  	 * This uses the supplied warning constraint and default (both in natural-log space).
-  	 * The parameter is left as non editable
-  	 * @param warningConstraint
-  	 * @param defaultIa
-  	 */
-  	private IA_Param(DoubleConstraint warningConstraint, double defaultIA) {
-  		super(IA_PARAM_NAME, new DoubleConstraint(IA_PARAM_MIN, IA_PARAM_MAX), IA_PARAM_UNITS);
-  		getConstraint().setNonEditable();
-  	    this.setInfo(IA_PARAM_INFO);
-  	    setWarningConstraint(warningConstraint);
-  	    setDefaultValue(defaultIA);
-  	    setNonEditable();
-  	}
-  	
-  	/**
-  	 * This uses the DEFAULT_WARN_MIN and DEFAULT_WARN_MAX fields to set the
-  	 * warning constraint, and sets the default as Math.log(1.0) (the natural
-  	 * log of 1.0).
-  	 * The parameter is left as non editable
-  	 */
-  	private IA_Param() {
-  		super(IA_PARAM_NAME, new DoubleConstraint(IA_PARAM_WARN_MIN, IA_PARAM_WARN_MAX), IA_PARAM_UNITS);
-  		getConstraint().setNonEditable();
-  	    setInfo(IA_PARAM_INFO);
-  	    DoubleConstraint warn2 = new DoubleConstraint(IA_PARAM_WARN_MIN, IA_PARAM_WARN_MAX);
-  	    warn2.setNonEditable();
-  	    setWarningConstraint(warn2);
-  	    setDefaultValue(Math.log(1.0));
-  	    setNonEditable();
-  	}
-  }
+//  private class IA_Param extends WarningDoubleParameter {
+//
+//  	/**
+//  	 * This uses the supplied warning constraint and default (both in natural-log space).
+//  	 * The parameter is left as non editable
+//  	 * @param warningConstraint
+//  	 * @param defaultIa
+//  	 */
+//  	private IA_Param(DoubleConstraint warningConstraint, double defaultIA) {
+//  		super(IA_PARAM_NAME, new DoubleConstraint(IA_PARAM_MIN, IA_PARAM_MAX), IA_PARAM_UNITS);
+//  		getConstraint().setNonEditable();
+//  	    this.setInfo(IA_PARAM_INFO);
+//  	    setWarningConstraint(warningConstraint);
+//  	    setDefaultValue(defaultIA);
+//  	    setNonEditable();
+//  	}
+//  	
+//  	/**
+//  	 * This uses the DEFAULT_WARN_MIN and DEFAULT_WARN_MAX fields to set the
+//  	 * warning constraint, and sets the default as Math.log(1.0) (the natural
+//  	 * log of 1.0).
+//  	 * The parameter is left as non editable
+//  	 */
+//  	private IA_Param() {
+//  		super(IA_PARAM_NAME, new DoubleConstraint(IA_PARAM_WARN_MIN, IA_PARAM_WARN_MAX), IA_PARAM_UNITS);
+//  		getConstraint().setNonEditable();
+//  	    setInfo(IA_PARAM_INFO);
+//  	    DoubleConstraint warn2 = new DoubleConstraint(IA_PARAM_WARN_MIN, IA_PARAM_WARN_MAX);
+//  	    warn2.setNonEditable();
+//  	    setWarningConstraint(warn2);
+//  	    setDefaultValue(Math.log(1.0));
+//  	    setNonEditable();
+//  	}
+//  }
 
   
   
@@ -405,7 +408,7 @@ public class TravasarouEtAl_2003_AttenRel
 		}
 		  double lnmedian = getMean(rrup, mag, f_nm, f_rv, s_c, s_d);
 		  double median = Math.exp(lnmedian);
-		    System.out.println("Inside getStdDev median= "+median+", mag = "+mag +", s_c=" +s_c+", s_d=" +s_d);
+//		    System.out.println("Inside getStdDev median= "+median+", mag = "+mag +", s_c=" +s_c+", s_d=" +s_d);
 
     return getStdDev(rrup, mag, s_c, s_d, median);
 
@@ -422,7 +425,8 @@ public class TravasarouEtAl_2003_AttenRel
 	fltTypeParam.setValueAsDefault();
     distanceRupParam.setValueAsDefault();
     magParam.setValueAsDefault();
-    iaParam.setValueAsDefault();
+    pgaParam.setValueAsDefault();
+//    iaParam.setValueAsDefault();
     stdDevTypeParam.setValueAsDefault();
 
 /////CG    mag = ( (Double) magParam.getValue()).doubleValue();
@@ -534,16 +538,27 @@ public class TravasarouEtAl_2003_AttenRel
    */
   protected void initSupportedIntensityMeasureParams() {
 
-	//  Create Ia Parameter (IaParam):
-	iaParam = new IA_Param();
-	iaParam.setNonEditable();
+		//  Create PGA Parameter (pgaParam):
+		pgaParam = new PGA_Param();
+		pgaParam.setNonEditable();
 
-    // Add the warning listeners:
-    iaParam.addParameterChangeWarningListener(warningListener);
-   
-    // Put parameters in the supportedIMParams list:
-    supportedIMParams.clear();
-    supportedIMParams.addParameter(iaParam);
+	    pgaParam.addParameterChangeWarningListener(warningListener);
+
+	    // Put parameters in the supportedIMParams list:
+	    supportedIMParams.clear();
+	    supportedIMParams.addParameter(pgaParam);
+
+		
+//  //  Create Ia Parameter (IaParam):
+//	iaParam = new IA_Param();
+//	iaParam.setNonEditable();
+//
+//    // Add the warning listeners:
+//    iaParam.addParameterChangeWarningListener(warningListener);
+//   
+//    // Put parameters in the supportedIMParams list:
+//    supportedIMParams.clear();
+//    supportedIMParams.addParameter(iaParam);
    
   }
 
@@ -616,7 +631,8 @@ public class TravasarouEtAl_2003_AttenRel
 
 	  
 	  sigmatot = Math.sqrt(sigma*sigma+tau*tau);
-	  
+//	  sigmatot=0.6;
+//	  System.out.println("sigmatot= "+sigmatot); 
 	    	return sigmatot ;
   }
 
