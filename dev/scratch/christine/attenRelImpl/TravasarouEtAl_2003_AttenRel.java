@@ -6,6 +6,7 @@ import java.util.*;
 
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.DoubleConstraint;
@@ -114,13 +115,19 @@ public class TravasarouEtAl_2003_AttenRel
   double f2= 0.512;
    
   private double rrup, mag, f_rv, f_nm, s_c, s_d, IA_Param;
-  IA_Param iaParam;
-  double median = 0.0;
+  private IA_Param iaParam;
+  double median;
+//  double median = 0.0;
   private boolean parameterChange;
+  
+	private HashMap indexFromPerHashMap;
 
-  protected final static Double MAG_WARN_MIN = new Double(4.7);
-  protected final static Double MAG_WARN_MAX = new Double(7.6);
-  //CG Need to change Rrup warning min value to 0.1 km 
+	private PropagationEffect propagationEffect;
+
+ //CG Need to change mag warnings to min 4.7, max=7.6, as per Travasaou et al's paper 
+  protected final static Double MAG_WARN_MIN = new Double(4.0);
+  protected final static Double MAG_WARN_MAX = new Double(8.5);
+  //CG Need to change Rrup warning min value to 0.1 km, as per Travasaou et al's paper 
   protected final static Double DISTANCE_RUP_WARN_MIN = new Double(0.0);
   protected final static Double DISTANCE_RUP_WARN_MAX = new Double(250.0);
   protected final static Double IA_PARAM_MIN = new Double(Math.log(1.0));
@@ -128,7 +135,6 @@ public class TravasarouEtAl_2003_AttenRel
   protected final static Double IA_PARAM_WARN_MIN = new Double(Math.log(1.0));
   protected final static Double IA_PARAM_WARN_MAX = new Double(Math.log(100.0));
   protected final static Double IA_PARAM_DEFAULT = new Double(1.0);
-
  
   // for issuing warnings:
   private transient ParameterChangeWarningListener warningListener = null;
@@ -280,8 +286,6 @@ public class TravasarouEtAl_2003_AttenRel
     // set the distance param
     propEffect.setParamValue(distanceRupParam);
 
-    // now the hanging wall param
-    int numPts = eqkRupture.getRuptureSurface().getNumCols();
   }
 
   /**
@@ -301,14 +305,55 @@ public class TravasarouEtAl_2003_AttenRel
    * @return    The mean value
    */
   public double getMean() {
+	  String fltType, siteType;
 	  
+	    try {
+	        mag = ( (Double) magParam.getValue()).doubleValue();
+	        rrup = ( (Double) distanceRupParam.getValue()).doubleValue();
+	        fltType = fltTypeParam.getValue().toString();
+	        siteType = siteTypeParam.getValue().toString();
+	    }
+	    catch (NullPointerException e) {
+	        throw new IMRException(C + ": getMean(): " + ERR);
+	    }
+
+	  	  
 	  // check if distance is beyond the user specified max
 	  if (rrup > USER_MAX_DISTANCE) {
 		  return VERY_SMALL_MEAN;
 	  }
 	  
-	  double median = getMean(rrup, mag, f_nm, f_rv, s_c, s_d);
+		if (fltType.equals(FLT_TYPE_NORMAL)) {
+			f_rv = 0 ;
+			f_nm = 1;
+		}
+		else if (fltType.equals(FLT_TYPE_REVERSE)) {
+			f_rv = 1;
+			f_nm = 0;
+		}
+		else {
+			f_rv = 0;
+			f_nm = 0;
+		}
+
+		if (siteType.equals(SITE_TYPE_B)) {
+			s_c = 0;
+			s_d = 0;
+		}
+		else if (siteType.equals(SITE_TYPE_C)) {
+			s_c = 1;
+			s_d = 0;
+		}
+		else {
+			s_c = 0;
+			s_d = 1;
+		}
+		
 	  
+	  
+	  double median = getMean(rrup, mag, f_nm, f_rv, s_c, s_d);
+//		System.out.println("Inside getMean mag = "+mag +", f_nm = "+f_nm+", f_rv=" +f_rv+ ", s_c=" +s_c+", s_d=" +s_d);
+
 	  
 	  return median;
  }
@@ -317,7 +362,53 @@ public class TravasarouEtAl_2003_AttenRel
    * @return    The stdDev value
    */
   public double getStdDev() {
+	  String fltType, siteType;
+	  
+	    try {
+	        mag = ( (Double) magParam.getValue()).doubleValue();
+	        rrup = ( (Double) distanceRupParam.getValue()).doubleValue();
+	        fltType = fltTypeParam.getValue().toString();
+	        siteType = siteTypeParam.getValue().toString();
+	    }
+	    catch (NullPointerException e) {
+	        throw new IMRException(C + ": getStdDev(): " + ERR);
+	    }
+	  
+		  // check if distance is beyond the user specified max
+		  if (rrup > USER_MAX_DISTANCE) {
+			  return VERY_SMALL_MEAN;
+		  }
+		  
+			if (fltType.equals(FLT_TYPE_NORMAL)) {
+				f_rv = 0 ;
+				f_nm = 1;
+			}
+			else if (fltType.equals(FLT_TYPE_REVERSE)) {
+				f_rv = 1;
+				f_nm = 0;
+			}
+			else {
+				f_rv = 0;
+				f_nm = 0;
+			}
+			if (siteType.equals(SITE_TYPE_B)) {
+			s_c = 0;
+			s_d = 0;
+		}
+		else if (siteType.equals(SITE_TYPE_C)) {
+			s_c = 1;
+			s_d = 0;
+		}
+		else {
+			s_c = 0;
+			s_d = 1;
+		}
+		  double lnmedian = getMean(rrup, mag, f_nm, f_rv, s_c, s_d);
+		  double median = Math.exp(lnmedian);
+		    System.out.println("Inside getStdDev median= "+median+", mag = "+mag +", s_c=" +s_c+", s_d=" +s_d);
+
     return getStdDev(rrup, mag, s_c, s_d, median);
+
   }
   
   
@@ -328,9 +419,10 @@ public class TravasarouEtAl_2003_AttenRel
   public void setParamDefaults() {
 
     siteTypeParam.setValue(SITE_TYPE_DEFAULT);
+	fltTypeParam.setValueAsDefault();
     distanceRupParam.setValueAsDefault();
     magParam.setValueAsDefault();
-//    iaParam.setValueAsDefault();
+    iaParam.setValueAsDefault();
     stdDevTypeParam.setValueAsDefault();
 
 /////CG    mag = ( (Double) magParam.getValue()).doubleValue();
