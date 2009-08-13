@@ -92,6 +92,12 @@ public class TravasarouEtAl_2003_AttenRel
   public final static String SITE_TYPE_D = "SGS Class D";
   public final static String SITE_TYPE_DEFAULT = SITE_TYPE_C;
   
+  private final static String IA_PARAM_NAME = "IA";
+  private final static String IA_PARAM_UNITS = "m/s";
+  private final static String IA_PARAM_INFO = "Arias Intensity";
+
+
+  
   // coefficients:
   double c1= 2.800;
   double c2= -1.981;
@@ -105,7 +111,8 @@ public class TravasarouEtAl_2003_AttenRel
   double f1= -0.166;
   double f2= 0.512;
    
-  private double rrup, mag, f_rv, f_nm, s_c, s_d;
+  private double rrup, mag, f_rv, f_nm, s_c, s_d, IA_Param;
+IA_Param iaParam;
   double median = 0.0;
   private boolean parameterChange;
 
@@ -113,7 +120,12 @@ public class TravasarouEtAl_2003_AttenRel
   protected final static Double MAG_WARN_MAX = new Double(7.6);
   protected final static Double DISTANCE_RUP_WARN_MIN = new Double(0.1);
   protected final static Double DISTANCE_RUP_WARN_MAX = new Double(250.0);
-  
+  protected final static Double IA_PARAM_MIN = new Double(Math.log(1.0));
+  protected final static Double IA_PARAM_MAX = new Double(100.0);
+  protected final static Double IA_PARAM_WARN_MIN = new Double(Math.log(1.0));
+  protected final static Double IA_PARAM_WARN_MAX = new Double(Math.log(100.0));
+  protected final static Double IA_PARAM_DEFAULT = new Double(Math.log(1.0));
+
  
   // for issuing warnings:
   private transient ParameterChangeWarningListener warningListener = null;
@@ -153,14 +165,6 @@ public class TravasarouEtAl_2003_AttenRel
    */
   private class IA_Param extends WarningDoubleParameter {
 
-  	private final static String NAME = "IA";
-  	private final static String UNITS = "m/s";
-  	private final static String INFO = "Arias Intensity";
-  	private final static Double MIN = new Double(Math.log(1.0));
-  	private final static Double MAX = new Double(100.0);
-  	private final static Double DEFAULT_WARN_MIN = new Double(Math.log(1.0));
-  	private final static Double DEFAULT_WARN_MAX = new Double(Math.log(100));
-
 
   	/**
   	 * This uses the supplied warning constraint and default (both in natural-log space).
@@ -169,9 +173,9 @@ public class TravasarouEtAl_2003_AttenRel
   	 * @param defaultIa
   	 */
   	private IA_Param(DoubleConstraint warningConstraint, double defaultIA) {
-  		super(NAME, new DoubleConstraint(MIN, MAX), UNITS);
+  		super(IA_PARAM_NAME, new DoubleConstraint(IA_PARAM_MIN, IA_PARAM_MAX), IA_PARAM_UNITS);
   		getConstraint().setNonEditable();
-  	    this.setInfo(INFO);
+  	    this.setInfo(IA_PARAM_INFO);
   	    setWarningConstraint(warningConstraint);
   	    setDefaultValue(defaultIA);
   	    setNonEditable();
@@ -184,10 +188,10 @@ public class TravasarouEtAl_2003_AttenRel
   	 * The parameter is left as non editable
   	 */
   	private IA_Param() {
-  		super(NAME, new DoubleConstraint(MIN, MAX), UNITS);
+  		super(IA_PARAM_NAME, new DoubleConstraint(IA_PARAM_WARN_MIN, IA_PARAM_WARN_MAX), IA_PARAM_UNITS);
   		getConstraint().setNonEditable();
-  	    setInfo(INFO);
-  	    DoubleConstraint warn2 = new DoubleConstraint(DEFAULT_WARN_MIN, DEFAULT_WARN_MAX);
+  	    setInfo(IA_PARAM_INFO);
+  	    DoubleConstraint warn2 = new DoubleConstraint(IA_PARAM_WARN_MIN, IA_PARAM_WARN_MAX);
   	    warn2.setNonEditable();
   	    setWarningConstraint(warn2);
   	    setDefaultValue(Math.log(1.0));
@@ -325,7 +329,7 @@ public class TravasarouEtAl_2003_AttenRel
     siteTypeParam.setValue(SITE_TYPE_DEFAULT);
     distanceRupParam.setValueAsDefault();
     magParam.setValueAsDefault();
-    iaParam.setValueAsDefault();
+//    iaParam.setValueAsDefault();
     stdDevTypeParam.setValueAsDefault();
 
 /////CG    mag = ( (Double) magParam.getValue()).doubleValue();
