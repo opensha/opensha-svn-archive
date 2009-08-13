@@ -74,8 +74,11 @@ public class TravasarouEtAl_2003_AttenRel
 
   // Name of IMR
   public final static String NAME = "Travasarou et al. (2003)";
-//style of faulting options
-  public final static String FLT_TYPE_REVERSE = "Reverse";
+
+  /**
+   * Style of faulting option
+   */
+  public final static String FLT_TYPE_REVERSE = "Reverse/Rev. Oblique";
   public final static String FLT_TYPE_NORMAL = "Normal";
   public final static String FLT_TYPE_STRIKESLIP = "Strike-slip";
   public final static String FLT_TYPE_DEFAULT = FLT_TYPE_STRIKESLIP;
@@ -96,9 +99,8 @@ public class TravasarouEtAl_2003_AttenRel
   private final static String IA_PARAM_UNITS = "m/s";
   private final static String IA_PARAM_INFO = "Arias Intensity";
 
-
   
-  // coefficients:
+  // Model coefficients:
   double c1= 2.800;
   double c2= -1.981;
   double c3= 20.72;
@@ -112,19 +114,20 @@ public class TravasarouEtAl_2003_AttenRel
   double f2= 0.512;
    
   private double rrup, mag, f_rv, f_nm, s_c, s_d, IA_Param;
-IA_Param iaParam;
+  IA_Param iaParam;
   double median = 0.0;
   private boolean parameterChange;
 
   protected final static Double MAG_WARN_MIN = new Double(4.7);
   protected final static Double MAG_WARN_MAX = new Double(7.6);
-  protected final static Double DISTANCE_RUP_WARN_MIN = new Double(0.1);
+  //CG Need to change Rrup warning min value to 0.1 km 
+  protected final static Double DISTANCE_RUP_WARN_MIN = new Double(0.0);
   protected final static Double DISTANCE_RUP_WARN_MAX = new Double(250.0);
   protected final static Double IA_PARAM_MIN = new Double(Math.log(1.0));
   protected final static Double IA_PARAM_MAX = new Double(100.0);
   protected final static Double IA_PARAM_WARN_MIN = new Double(Math.log(1.0));
   protected final static Double IA_PARAM_WARN_MAX = new Double(Math.log(100.0));
-  protected final static Double IA_PARAM_DEFAULT = new Double(Math.log(1.0));
+  protected final static Double IA_PARAM_DEFAULT = new Double(1.0);
 
  
   // for issuing warnings:
@@ -133,8 +136,7 @@ IA_Param iaParam;
   
   /**
    * SiteTypeParam, a StringParameter for representing different
-   * soil types. The default must
-   * also be specified in the constructor.
+   * soil types. The default must also be specified in the constructor.
    * See constructors for info on editability and default values.
    */
 
@@ -164,7 +166,6 @@ IA_Param iaParam;
    *
    */
   private class IA_Param extends WarningDoubleParameter {
-
 
   	/**
   	 * This uses the supplied warning constraint and default (both in natural-log space).
@@ -585,14 +586,14 @@ IA_Param iaParam;
 				f_nm = 0;
 			}
 			else {
-				f_rv =0 ;
+				f_rv = 0;
 				f_nm = 0;
 			}
 		}
 		else if (pName.equals(SiteTypeParam.NAME)) {
 			String siteType = (String)siteTypeParam.getValue();
 			if (siteType.equals(SITE_TYPE_B)) {
-				s_c = 0 ;
+				s_c = 0;
 				s_d = 0;
 			}
 			else if (siteType.equals(SITE_TYPE_C)) {
@@ -600,7 +601,7 @@ IA_Param iaParam;
 				s_d = 0;
 			}
 			else {
-				s_c = 0 ;
+				s_c = 0;
 				s_d = 1;
 			}
 		}
