@@ -79,10 +79,11 @@ public class GeographicRegion implements
 	public final static String XML_METADATA_OUTLINE_NAME = "OutlineLocations";
 
 	// name for this region TODO possibly kill
-	private String name;
+	private String name = "Unnamed Region";
 
 	/**
 	 * TODO delete default empty constructor; has about 8 dependencies
+	 * ACTUALLY, make private or package private; used by intersect(r1,r2)
 	 */
 	public GeographicRegion() {
 	}
@@ -518,6 +519,20 @@ public class GeographicRegion implements
 //		String s =
 //			new ToStringBuilder(vertex).append(vertex).toString();
 		System.out.println("-180\u00B0");
+	}
+	
+	// TODO keep at this
+	public static GeographicRegion intersect(
+			GeographicRegion region1,
+			GeographicRegion region2) {
+		Area newArea = (Area) region1.area.clone();
+		newArea.intersect(region2.area);
+		if (newArea.isEmpty()) {
+			throw new IllegalArgumentException(
+					"The two input Regions do not intersect");
+		}
+		
+		return null;
 	}
 	
 	/**

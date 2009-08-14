@@ -29,8 +29,13 @@ public class GriddedSubRegion extends EvenlyGriddedGeographicRegion {
 	public GriddedSubRegion(
 			GeographicRegion region,
 			EvenlyGriddedGeographicRegion parent) {
+		
+//		super(regionCheck(region), )
 		if (parent == null || region == null) {
 			throw new NullPointerException();
-		} //else if (checkRegion())
+		}
+		
+//		private static
+		//else if (checkRegion())
 	}
 }
