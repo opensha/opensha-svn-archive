@@ -51,10 +51,10 @@ public class STEP_CombineForecastModels
   private double zoneRadius;
   private double gridSpacing;
   private GregorianCalendar forecastEndTime, currentTime;
-  private ArrayList griddedMagFreqDistForecast;
   private boolean isStatic = false, isPrimary = true,
       isSecondary = false, useSeqAndSpatial = false;
-  //private ObsEqkRupList newAftershocksInZone;
+  private ArrayList griddedMagFreqDistForecast;
+//private ObsEqkRupList newAftershocksInZone;
   //private RegionDefaults rDefs;
   private TimeSpan timeSpan;
   private double daysSinceMainshockStart, daysSinceMainshockEnd;
@@ -403,7 +403,7 @@ public class STEP_CombineForecastModels
       Location mainshockLocation = mainshock.getHypocenterLocation();
       this.aftershockZone =
           new EvenlyGriddedGeographicRegion(mainshockLocation,
-          zoneRadius, RegionDefaults.gridSpacing);
+          zoneRadius, RegionDefaults.gridSpacing, new Location(0,0));
       this.aftershockZone.createRegionLocationsList(backgroundRatesGrid.getRegion());
        setRegion(aftershockZone);
        this.useCircularRegion = true;
