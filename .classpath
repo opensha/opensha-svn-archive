@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry excluding="**/_nobuild/*" kind="src" path="dev"/>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
 	<classpathentry exported="true" kind="lib" path="lib/xsdlib.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xmlParserAPIs.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xml-apis.jar"/>
@@ -55,5 +56,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="dev/scratch/ISTI/isti.util.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="classes/"/>
 </classpath>
