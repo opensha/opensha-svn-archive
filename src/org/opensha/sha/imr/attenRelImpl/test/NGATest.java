@@ -17,7 +17,7 @@ public abstract class NGATest extends TestCase implements ParameterChangeWarning
 	
 	public NGATest(String arg0, String dir) {
 		super(arg0);
-		this.dir = dir;
+		this.dir = "src" + File.separator + dir;
 	}
 	
 	/**

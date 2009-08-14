@@ -328,6 +328,7 @@ public class BA_2008_AttenRel
     pgaParam.setValueAsDefault();
     pgvParam.setValueAsDefault();
     stdDevTypeParam.setValueAsDefault();
+    componentParam.setValueAsDefault();
 
     vs30 = ( (Double) vs30Param.getValue()).doubleValue(); 
     rjb = ( (Double) distanceJBParam.getValue()).doubleValue();

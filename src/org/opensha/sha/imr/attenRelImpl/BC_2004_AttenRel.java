@@ -298,6 +298,7 @@ public class BC_2004_AttenRel
 	        as_1997_attenRel.SITE_TYPE_ROCK);
 	    as_1997_attenRel.getParameter(ComponentParam.NAME).setValue(
 	        ComponentParam.COMPONENT_AVE_HORZ);
+	    componentParam.setValueAsDefault();
   }
   
   
