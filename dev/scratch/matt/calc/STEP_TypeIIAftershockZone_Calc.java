@@ -117,7 +117,7 @@ public class STEP_TypeIIAftershockZone_Calc {
    */
   public void CreateAftershockZoneDef() {
 	  EvenlyGriddedGeographicRegion typeIIAftershockZone =
-        new EvenlyGriddedGeographicRegion(faultSegments,zoneRadius,gridSpacing);
+        new EvenlyGriddedGeographicRegion(faultSegments,zoneRadius,gridSpacing, new Location(0,0));
     /**
      * The rest will have to be filled in for a "Sausage" Geographic
      * Region on a SausageGeographicRegion is defined.

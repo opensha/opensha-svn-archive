@@ -26,7 +26,8 @@ public class SiteDataToXYZ {
 	public static void writeXYZ(SiteDataAPI<?> data, double gridSpacing,
 			String fileName) throws IOException {
 		EvenlyGriddedGeographicRegion region =
-				new EvenlyGriddedGeographicRegion(data.getApplicableRegion().getRegionOutline(), BorderType.MERCATOR_LINEAR, gridSpacing);
+				new EvenlyGriddedGeographicRegion(
+						data.getApplicableRegion().getRegionOutline(), BorderType.MERCATOR_LINEAR, gridSpacing, new Location(0,0));
 		writeXYZ(data, region, fileName, true);
 	}
 	

@@ -487,14 +487,16 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 				  new EvenlyGriddedGeographicRegion(
 						  new Location(minLatitude,minLongitude),
 						  new Location(maxLatitude,maxLongitude),
-						  gridSpacingD);
+						  gridSpacingD, new Location(0,0));
 			gridRegion= new SitesInGriddedRegion(eggr);
 		} else {
 			for (NamedGeographicRegion region : presets) {
 				if (name.equals(region.getName())) {
 					EvenlyGriddedGeographicRegion eggr = 
 						new EvenlyGriddedGeographicRegion(
-								region.getRegionOutline(), BorderType.MERCATOR_LINEAR, gridSpacingD);
+								region.getRegionOutline(), 
+								BorderType.MERCATOR_LINEAR, 
+								gridSpacingD, new Location(0,0));
 					gridRegion = new SitesInGriddedRegion(eggr);
 					break;
 				}

@@ -24,7 +24,7 @@ public class MeanTopoSlopeCalculator {
 	}
 	
 	private EvenlyGriddedGeographicRegion createRegionAroundSite(Location loc, double radius, double gridSpacing) {
-		return new EvenlyGriddedGeographicRegion(loc, radius, gridSpacing);
+		return new EvenlyGriddedGeographicRegion(loc, radius, gridSpacing, new Location(0,0));
 	}
 	
 	/**

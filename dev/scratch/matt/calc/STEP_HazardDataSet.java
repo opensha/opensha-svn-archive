@@ -121,7 +121,7 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 			  new EvenlyGriddedGeographicRegion(
 					  new Location(RegionDefaults.searchLatMin, RegionDefaults.searchLongMin),
 					  new Location(RegionDefaults.searchLatMax, RegionDefaults.searchLongMax),
-					  RegionDefaults.gridSpacing);
+					  RegionDefaults.gridSpacing, new Location(0,0));
 			return new SitesInGriddedRegion(eggr);
 //		} catch (RegionConstraintException e) {			
 //			e.printStackTrace();

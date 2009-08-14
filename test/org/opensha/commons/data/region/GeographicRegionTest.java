@@ -26,6 +26,9 @@ public class GeographicRegionTest {
 	private GeographicRegion rectRegion3;
 	
 	
+	// TODO need to test immutability of border
+	// TODO need to test great circle implementation using contains
+	
 	
 	@Before
 	public void setUp() throws Exception {
@@ -53,29 +56,35 @@ public class GeographicRegionTest {
 	}
 
 	@Test
-	public final void testGeographicRegionDoubleDoubleDoubleDouble() {
-		fail("Not yet implemented");
+	public final void testGeographicRegionLocationLocation() {
+		fail("Not yet implemented: null arguments");
+		fail("Not yet implemented: same lat-lon arguments");
 	}
 
 	@Test
 	public final void testGeographicRegionLocationListBorderType() {
+		fail("Not yet implemented: null LocList");
 		// too short a LocationList
 		try {
 			GeographicRegion gr = new GeographicRegion(shorty, null);
 			fail("IllegalArgumentException not caught");
 		} catch (IllegalArgumentException iae) {}
+		
+		fail("Not yet implemented: default to MERCATOR_LINEAR");
 		// defaulting to MERCATOR_LINEAR border
-		GeographicRegion gr = new GeographicRegion(shorty, null);
+		//GeographicRegion gr = new GeographicRegion(shorty, null);
 	}
 
 	@Test
 	public final void testGeographicRegionLocationDouble() {
-		fail("Not yet implemented");
+		fail("Not yet implemented: circle radius range");
+		fail("Not yet implemented: null center");
 	}
 
 	@Test
 	public final void testGeographicRegionLocationListDouble() {
-		fail("Not yet implemented");
+		fail("Not yet implemented: test buffer range limit");
+		fail("Not yet implemented: test line null");
 	}
 
 	@Test

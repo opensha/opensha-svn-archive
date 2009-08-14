@@ -163,7 +163,7 @@ public class SRTM30TopoSlope extends AbstractSiteData<Double> {
 		EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(
 				new Location(32, -121),
 				new Location(25, 115),
-				0.02);
+				0.02, new Location(0,0));
 //		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(-60, 60, -180, 180, 1);
 //		
 		SiteDataToXYZ.writeXYZ(data, region, "/tmp/topo_slope.txt");

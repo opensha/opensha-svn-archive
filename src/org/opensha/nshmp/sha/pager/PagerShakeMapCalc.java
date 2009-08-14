@@ -182,7 +182,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
     EvenlyGriddedGeographicRegion eggr = new EvenlyGriddedGeographicRegion(
     		new Location(minLat, minLon),
     		new Location(maxLat, maxLon),
-    		gridSpacing);
+    		gridSpacing, new Location(0,0));
       sites = new SitesInGriddedRegion(eggr);
 //    }
 //    catch (RegionConstraintException ex) {

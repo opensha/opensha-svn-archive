@@ -267,7 +267,8 @@ public class NewWillsMap {
 		EvenlyGriddedGeographicRegion region = 
 			new EvenlyGriddedGeographicRegion(
 					new CaliforniaRegions.RELM_TESTING(),
-					0.02);
+					0.02,
+					new Location(0,0));
 		//EvenlyGriddedGeographicRegion region = new EvenlyGriddedRELM_TestingRegion();
 		//region.setGridSpacing(0.02);
 		

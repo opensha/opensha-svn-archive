@@ -103,7 +103,9 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
       //make the Gridded Region object
       LocationList locList = createCaliforniaPolygonBoundaryLocationList();
       EvenlyGriddedGeographicRegion eggr = 
-    	  new EvenlyGriddedGeographicRegion(locList, BorderType.MERCATOR_LINEAR,GRID_SPACING);
+    	  new EvenlyGriddedGeographicRegion(
+    			  locList, BorderType.MERCATOR_LINEAR,GRID_SPACING,
+    			  new Location(0,0));
       SitesInGriddedRegion sites = new SitesInGriddedRegion(eggr);
       //SitesInGriddedRectangularRegion region = new SitesInGriddedRectangularRegion(this.MIN_LAT,this.MAX_LAT,
       //  this.MIN_LON,this.MAX_LON,this.GRID_SPACING);

@@ -50,7 +50,12 @@ public class EvenlyGriddedRegionToKML {
 //		corners.addLocation(new Location(34.13, -119.63));
 //		corners.addLocation(new Location(33.00, -117.50));
 //		EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(RegionSaver.createCyberShakeRegion().getRegionOutline(), 0.108);
-		EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(RegionSaver.createCyberShakeRegion().getRegionOutline(), BorderType.MERCATOR_LINEAR, 0.216);
+		EvenlyGriddedGeographicRegion region = 
+			new EvenlyGriddedGeographicRegion(
+					RegionSaver.createCyberShakeRegion().getRegionOutline(), 
+					BorderType.MERCATOR_LINEAR, 
+					0.216,
+					new Location(0,0));
 		
 		String fileName = "/var/www/kml/locs_20.kml";
 		

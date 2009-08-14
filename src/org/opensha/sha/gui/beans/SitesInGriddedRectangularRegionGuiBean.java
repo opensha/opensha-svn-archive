@@ -369,7 +369,8 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 			new EvenlyGriddedGeographicRegion(
 					new Location(minLatitude,minLongitude),
 					new Location(maxLatitude,maxLongitude),
-					((Double)gridSpacing.getValue()).doubleValue());
+					((Double)gridSpacing.getValue()).doubleValue(), 
+					new Location(0,0));
 		sites= new SitesInGriddedRegion(eggr);
 	}
 

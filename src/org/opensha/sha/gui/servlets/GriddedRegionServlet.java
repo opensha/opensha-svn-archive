@@ -115,7 +115,7 @@ public class GriddedRegionServlet extends HttpServlet {
 		EvenlyGriddedGeographicRegion eggr = new EvenlyGriddedGeographicRegion(
 	    		new Location(minLat, minLon),
 	    		new Location(maxLat, maxLon),
-	    		gridSpacing);
+	    		gridSpacing, new Location(0,0));
 		SitesInGriddedRegion gridRectRegion  = new SitesInGriddedRegion(eggr);
 		String regionSitesParamVal = (String)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.SITE_PARAM_NAME).getValue();
 

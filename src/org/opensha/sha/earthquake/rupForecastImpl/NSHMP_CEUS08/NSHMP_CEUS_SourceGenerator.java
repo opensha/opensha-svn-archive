@@ -73,7 +73,7 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedGeographicRegion {
 	public NSHMP_CEUS_SourceGenerator() throws RegionConstraintException {
 			super(new Location(24.6, -115),
 					new Location(50, -65),
-					0.1);
+					0.1, new Location(0,0));
 
 
 		// lat range: 24.6 to 50.0

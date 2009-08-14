@@ -93,7 +93,7 @@ public class STEP_DamageState implements ParameterChangeWarningListener{
 			  new EvenlyGriddedGeographicRegion(
 					  new Location(32.5,-124.8),
 					  new Location(42.2,-112.4),
-					  0.1);
+					  0.1, new Location(0,0));
 		  sites = new SitesInGriddedRegion(eggr);
 //	} catch (RegionConstraintException e) {
 //		// TODO Auto-generated catch block

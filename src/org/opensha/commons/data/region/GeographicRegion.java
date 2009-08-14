@@ -1,6 +1,5 @@
 package org.opensha.commons.data.region;
 
-import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
@@ -8,6 +7,7 @@ import java.awt.geom.PathIterator;
 import java.io.Serializable;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.math.util.MathUtils;
 import org.dom4j.Element;
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
@@ -16,21 +16,19 @@ import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.sha.earthquake.EqkRupture;
 
-import com.sun.tools.javac.resources.javac;
-
 /**
  * A <code>Region</code> is a polygonal area on the surface of the earth. The
- * vertices of each region are stored internally as latitude-longitude
- * coordinate pairs in an {@link java.awt.geom.Area}, facilitating operations
- * such as union, intersect, and contains. Insidedness rules follow those
- * defined in the {@link java.awt.Shape} interface.<br/>
+ * vertices comprising the border of each region are stored internally as 
+ * latitude-longitude coordinate pairs in an {@link java.awt.geom.Area}, 
+ * facilitating operations such as union, intersect, and contains. Insidedness
+ * rules follow those defined in the {@link java.awt.Shape} interface.<br/>
  * <br/>
  * Some constructors require the specification of a {@link BorderType}. If one
  * wishes to define a geographic region that represents a rectangle in a
  * Mercator projection, {@link BorderType#MERCATOR_LINEAR} should be used,
  * otherwise, the border will follow a {@link BorderType#GREAT_CIRCLE} between
  * two points. Over small distances, great circle paths are approximately the 
- * same as linear, Mercator paths. Over longer distances, great circles are a 
+ * same as linear, Mercator paths. Over longer distances, a great circle is a
  * better representation of a line on a globe. Internally, great circles
  * are approximated by multple straight line segments that have a maximum
  * length of 100km.<br/>
@@ -39,7 +37,7 @@ import com.sun.tools.javac.resources.javac;
  * TODO make border immutable; collection.unmodifiablelist; make LocatioList 
  * extend arrayList, not wrap it. Perhaps when initing border, create new list
  * of immutable location objects and make the list itself immutable.
- * 
+ * <br/><br/>
  * <b>Note:</b> The current implementation does not support regions that are
  * intended to span &#177;180&deg;. Any such regions will wrap the
  * long way around the earth and results are undefined. This also applies to
@@ -48,15 +46,19 @@ import com.sun.tools.javac.resources.javac;
  * @author Peter Powers
  * @version $Id$
  * @see Area
+ * @see BorderType
  */
 public class GeographicRegion implements 
 		Serializable, XMLSaveable, NamedObjectAPI {
 
 	private static final long serialVersionUID = 1L;
 
-	// TODO does this even need to be stored; perhaps for persistence
-	// can't set easily with buffered region
-	// starting point is NOT repeated
+	// although border vertices can be accessed by path-iterating over
+	// area, an immutable list is stored for convenience
+	//private List<Location> border;
+	// TODO implement LocationList  AL subclass changes to 
+	// facilitate unmodifiable list creation.
+	// TODO need to make copy of provided borders/LocLists
 	private LocationList border;
 	
 	// Internal representation of region
@@ -67,6 +69,11 @@ public class GeographicRegion implements
 	
 	// Default segment length for great circle splitting: 100km
 	private static final double GC_SEGMENT = 100;
+	
+	// used when 'cleaning' decimal values that have been subject to
+	// machine rounding error or changes imposed by java.awt.geom classes;
+	// 5 decimal places in degrees is meter-scale precision
+	private static final int DECIMAL_SCALE = 5;
 	
 	public final static String XML_METADATA_NAME = "GeographicRegion";
 	public final static String XML_METADATA_OUTLINE_NAME = "OutlineLocations";
@@ -92,8 +99,15 @@ public class GeographicRegion implements
 	 * @param loc2 the second <code>Location</code>
 	 * @throws IllegalArgumentException if the latitude or longitude values
 	 * 		in the <code>Location</code>s provided are the same
+	 * @throws NullPointerException if either <code>Location</code> argument
+	 * 		is <code>null</code>
 	 */
 	public GeographicRegion(Location loc1, Location loc2) {
+		
+		if (loc1 == null || loc2 == null) {
+			throw new NullPointerException();
+		}
+		
 		double lat1 = loc1.getLatitude();
 		double lat2 = loc2.getLatitude();
 		double lon1 = loc1.getLongitude();
@@ -126,15 +140,20 @@ public class GeographicRegion implements
 	 * @param type the {@link BorderType} to use when initializing; 
 	 * 		a <code>null</code> value defaults to 
 	 * 		<code>BorderType.MERCATOR_LINEAR</code>
-	 * @throws IllegalArgumentException if the border does not have at least
-	 * 		3 points
+	 * @throws IllegalArgumentException if the <code>border</code> does not 
+	 * 		have at least 3 points
+	 * @thrown NullPointerException if the <code>border</code> is 
+	 * 		<code>null</code>
 	 */
 	public GeographicRegion(LocationList border, BorderType type) {
-		if (border.size() < 3) {
+		if (border == null) {
+			throw new NullPointerException();
+		} else if (border.size() < 3) {
 			throw new IllegalArgumentException(
 					"Border must have at least 3 vertices");
+		} else if (type == null) {
+			type = BorderType.MERCATOR_LINEAR;
 		}
-		if (type == null) type = BorderType.MERCATOR_LINEAR;
 		initBorderedRegion(border, type);
 	}
 
@@ -145,8 +164,8 @@ public class GeographicRegion implements
 	 * 
 	 * @param center of the circle
 	 * @param radius of the circle
-	 * @throws IllegalArgumentException if <code>radius</code> &#8804; 0 or 
-	 * 		<code>radius</code> &#62; 1000 km
+	 * @throws IllegalArgumentException if <code>radius</code> is outside the
+	 * 		range 0 km &lt; <code>radius</code> &le; 1000 km
 	 * @throws NullPointerException if <code>center</code> is <code>null</code>
 	 */
 	public GeographicRegion(Location center, double radius) {
@@ -165,6 +184,8 @@ public class GeographicRegion implements
 	 * @param line at center of buffered region
 	 * @param buffer distance from line
 	 * @throws NullPointerException if <code>line</code> is <code>null</code>
+	 * @throws IllegalArgumentException if <code>buffer</code> is outside the
+	 * 		range 0 km &lt; <code>buffer</code> &le; 500 km
 	 */
 	public GeographicRegion(LocationList line, double buffer) {
 		if (buffer <= 0 || buffer > 500) {
@@ -175,7 +196,6 @@ public class GeographicRegion implements
 		}
 		initBufferedRegion(line, buffer);
 	}
-	
 	
 	/**
 	 * Initializes a <code>Region</code> with another <code>Region</code>.
@@ -188,12 +208,11 @@ public class GeographicRegion implements
 		this(region.getRegionOutline(), BorderType.MERCATOR_LINEAR);
 	}
 	
-	
 	/**
 	 * Initializes a <code>Region</code> around an earthquake rupture.
-	 * 
-	 * TODO build me
-	 * TODO is there any kind of Rupture in OpenSHA that is not an EQ Rupture
+	 * <br/>
+	 * TODO build me<br/>
+	 * TODO is there any kind of Rupture in OpenSHA that is not an EQ Rupture<br/>
 	 * 
 	 * @param rupture
 	 * @param buffer
@@ -201,7 +220,6 @@ public class GeographicRegion implements
 	public GeographicRegion(EqkRupture rupture, double buffer) {
 		
 	}
-	
 	
 	/**
 	 * Creates a Geographic with the given list of locations.
@@ -262,13 +280,23 @@ public class GeographicRegion implements
 		return area.isRectangular();
 	}
 	
-	
+	/*
+	 * Meter scale precision is imposed on the min-max methods below. For
+	 * whatever reason, values used to create an Area are altered more than 
+	 * typical rounding error on retrieval: -125.4000015258789 vs -125.4.
+	 * This may be to facilitate correct results for insidedness testing.
+	 * Alternatively, these methods could be updated to query the location
+	 * list, requiring changes to the LocationList class to quickly return
+	 * min-max values.
+	 */
+
 	/**
 	 * Returns the minimum latitude in this region's border.
 	 * @return the minimum latitude
 	 */
 	public double getMinLat() {
-		return area.getBounds2D().getMinY();
+		double val = area.getBounds2D().getMinY();
+		return MathUtils.round(val, DECIMAL_SCALE);
 	}
 
 	/**
@@ -276,7 +304,8 @@ public class GeographicRegion implements
 	 * @return the maximum latitude
 	 */
 	public double getMaxLat() {
-		return area.getBounds2D().getMaxY();
+		double val = area.getBounds2D().getMaxY();
+		return MathUtils.round(val, DECIMAL_SCALE);
 	}
 
 	/**
@@ -284,7 +313,8 @@ public class GeographicRegion implements
 	 * @return the minimum longitude
 	 */
 	public double getMinLon() {
-		return area.getBounds2D().getMinX();
+		double val = area.getBounds2D().getMinX();
+		return MathUtils.round(val, DECIMAL_SCALE);
 	}
 
 	/**
@@ -292,7 +322,8 @@ public class GeographicRegion implements
 	 * @return the maximum longitude
 	 */
 	public double getMaxLon() {
-		return area.getBounds2D().getMaxX();
+		double val = area.getBounds2D().getMaxX();
+		return MathUtils.round(val, DECIMAL_SCALE);
 	}
 
 
@@ -314,8 +345,11 @@ public class GeographicRegion implements
 
 
 	/**
-	 * Returns the list of locations that make up the border of this region.
-	 * @return the border <code>LocationList</code> 
+	 * Returns an unmodifiable <code>java.util.List</code> view of the
+	 * internal <code>LocationList</code> of points that decribe the border
+	 * of this region. Note that the <code>Location</code>s in the list
+	 * are also immutable.
+	 * @return the border <code>LocationList</code> TODO fix when changed
 	 */
 	public LocationList getRegionOutline() {
 		return border;
@@ -487,9 +521,9 @@ public class GeographicRegion implements
 	}
 	
 	/**
-	 * Convenience method to return a region spanning thhe entire globe.
-	 * @return a region extending from -180&deg; to +180&deg; longitude and
-	 * 		-90&deg; to +90&deg; latitude
+	 * Convenience method to return a region spanning the entire globe.
+	 * @return a region extending from -180&#176; to +180&#176; longitude and
+	 * 		-90&#176; to +90&#176; latitude
 	 */
 	public static GeographicRegion getGlobalRegion() {
 		return new GeographicRegion(
@@ -502,8 +536,6 @@ public class GeographicRegion implements
 	 * java.awt.geom.Area is generated from the border.
 	 */
 	private void initBorderedRegion(LocationList border, BorderType type) {
-		
-		// TODO copy border into immutable border
 		
 		// first remove last point in list if it is the same as
 		// the first point
@@ -539,14 +571,18 @@ public class GeographicRegion implements
 				}
 				start = end;
 			}
-			this.border = gcBorder;
+			//this.border = Collections.unmodifiableList(gcBorder); TODO uncomment
+			this.border = gcBorder; // TODO comment
 		} else {
 			this.border = border;
+			//this.border = Collections.unmodifiableList(gcBorder); TODO uncomment
 			// TODO break long great circles into smaller segments and test
 			// TODO gc processing need to return to start point; ensure that input
+			// TODO make copy and then wrap unmodifiable
 			// border has start popint
 		}
 		area = createArea(this.border);
+		createBorder(area); // TODO delete
 	}
 	
 	/*
@@ -573,6 +609,7 @@ public class GeographicRegion implements
 			// starting out only want to create circle area for first point
 			if (area.isEmpty()) {
 				area.add(createArea(createLocationCircle(loc, buffer)));
+				prevLoc = loc;
 				continue;
 			}
 			area.add(createArea(createLocationBox(prevLoc, loc, buffer)));
@@ -592,16 +629,20 @@ public class GeographicRegion implements
 		double[] vertex = new double[6];
 		while (!pi.isDone()) {
 			int type = pi.currentSegment(vertex);
-			double lon = vertex[1];
-			double lat = vertex[2];
+			// impose meter scale precision; for whatever reason, values
+			// used to create an Area are altered more than typical
+			// rounding error on retrieval: -125.4000015258789 vs -125.4
+			double lon = MathUtils.round(vertex[0], DECIMAL_SCALE);
+			double lat = MathUtils.round(vertex[1], DECIMAL_SCALE);
 			// skip the final closing segment which just repeats
 			// the previous vertex but indicates SEG_CLOSE
 			if (type != PathIterator.SEG_CLOSE) {
-				ll.addLocation(new Location(lat,lon));
+				ll.addLocation(Location.immutableLocation(lat,lon));
 			}
 			pi.next();
 		}
 		return ll;
+		//return Collections.unmodifiableList(ll); TODO uncomment
 	}
 	
 	/*
@@ -638,9 +679,13 @@ public class GeographicRegion implements
 		
 		LocationList ll = new LocationList();
 	    for (double angle=0; angle<360; angle += WEDGE_WIDTH) {
-	    	ll.addLocation(RelativeLocation.location(center, angle, radius));
+	    	ll.addLocation(
+	    			Location.immutableLocation(
+	    					RelativeLocation.location(
+	    							center, angle, radius)));
 	    }
 	    return ll;
+		//return Collections.unmodifiableList(ll); TODO uncomment
 	}
 	
 	/*
@@ -667,6 +712,7 @@ public class GeographicRegion implements
 		ll.addLocation(RelativeLocation.location(p2, az21 + 90, distance));
 		
 		return ll;
+		//return Collections.unmodifiableList(ll); TODO uncomment
 	}
 
 }

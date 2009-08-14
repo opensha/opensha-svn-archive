@@ -78,7 +78,7 @@ public final class BasinDepthClass {
     EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(
     		new Location(minLat, minLon),
     		new Location(maxLat, maxLon),
-    		gridSpacing);
+    		gridSpacing, new Location(0,0));
 
     ListIterator it= region.getGridLocationsIterator();
     while(it.hasNext())

@@ -368,7 +368,7 @@ public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements Par
 			new EvenlyGriddedGeographicRegion(
 					new Location(32, -121),
 					new Location(35, -117),
-					0.01);
+					0.01, new Location(0,0));
 //		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(-60, 60, -180, 180, 1);
 		
 		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();

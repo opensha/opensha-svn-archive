@@ -178,7 +178,7 @@ public class IML_Calc_Cybershake extends MedianCalc_Cybershake {
 				  new EvenlyGriddedGeographicRegion(
 						  new Location(31.082920, -121),
 						  new Location(36.621696, -113.943965),
-						  .016667);
+						  .016667, new Location(0,0));
 			  int numLocs = locList.size();
 			  basinDepthVals = new ArrayList();
 			  willsSiteClassVals = new ArrayList();

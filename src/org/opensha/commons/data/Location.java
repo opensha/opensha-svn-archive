@@ -9,6 +9,8 @@ import org.opensha.commons.metadata.XMLSaveable;
 
 
 /**
+ * 
+ * Static methods are provided to create unmodifiable <code>Location</code>s.
  * <b>Title:</b> Location <p>
  *
  * <b>Description:</b> This class represents a physical geographic location
@@ -35,7 +37,7 @@ import org.opensha.commons.metadata.XMLSaveable;
 
 public class Location implements java.io.Serializable, XMLSaveable {
 
-	private static final long serialVersionUID = 0xCE5BF55;
+	private static final long serialVersionUID = 1L;
 	
     /** Class name used for debugging strings  */
     protected final static String C = "Location";

@@ -64,7 +64,7 @@ implements Serializable {
 	public SitesInGriddedRectangularRegion(double minLat,double maxLat,double minLon,double maxLon,
 			double gridSpacing) throws
 			RegionConstraintException {
-		super(new Location(minLat,minLon), new Location(maxLat,maxLon),gridSpacing);
+		super(new Location(minLat,minLon), new Location(maxLat,maxLon),gridSpacing, new Location(0,0));
 	}
 
 	public SitesInGriddedRectangularRegion(GeographicRegion geo,

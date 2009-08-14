@@ -163,7 +163,7 @@ public class SRTM30Topography extends AbstractSiteData<Double> {
 		EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(
 				new Location(-60, -180),
 				new Location(90, 180),
-				1);
+				1, new Location(0,0));
 
 		SiteDataToXYZ.writeXYZ(data, region, "/tmp/topo2.txt");
 	}

@@ -138,7 +138,7 @@ public class HazardMapStandaloneApplicationUsingFrankel02
 		  new EvenlyGriddedGeographicRegion(
 	    		new Location(MIN_LAT, MIN_LON),
 	    		new Location(MAX_LAT, MAX_LON),
-	    		GRID_SPACING);    
+	    		GRID_SPACING, new Location(0,0));    
 	  griddedRegionSites = new SitesInGriddedRegion(eggr);
 
     griddedRegionSites.addSiteParams(attenRel.getSiteParamsIterator());

@@ -88,7 +88,7 @@ public final class WillsSiteClass {
 		EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(
 	    		new Location(minLat, minLon),
 	    		new Location(maxLat, maxLon),
-	    		gridSpacing);		
+	    		gridSpacing, new Location(0,0));		
 		//System.out.println("Number of Grid Locations:"+region.getNumGridLocs());
 		for (Location loc : region.getGridLocationsList())
 			locations.add(loc);

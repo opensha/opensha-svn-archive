@@ -935,7 +935,7 @@ public class GMT_MapGenerator implements Serializable{
 		return new EvenlyGriddedGeographicRegion(
 	    		new Location(minLat, minLon),
 	    		new Location(maxLat, maxLon),
-	    		gridSpacing);
+	    		gridSpacing, new Location(0,0));
 	}
 
 	/**

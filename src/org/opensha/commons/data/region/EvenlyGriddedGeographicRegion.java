@@ -15,6 +15,7 @@ import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.metadata.XMLSaveable;
 
 import com.sun.servicetag.UnauthorizedAccessException;
+import com.sun.xml.rpc.processor.util.CanonicalModelWriter.GetNameComparator;
 
 
 /**
@@ -22,20 +23,36 @@ import com.sun.servicetag.UnauthorizedAccessException;
  * discretized in latitude and longitude. Each node in a gridded region
  * represents a small area that is an equal number of degrees in width and
  * height and is identified by a unique <code>Location</code> at the geographic
- * (lat-lon) center of the node.<br/>
+ * (lat-lon) center of the node. <img style="padding: 30px 40px; float: right;" 
+ * src="{@docRoot}/img/gridded_regions_border.jpg"/> In the adjacent figure,
+ * the heavy black line marks the border of the <code>Region</code> . The 
+ * light gray dots mark the <code>Location</code>s of nodes outside the region,
+ * and black dots those inside the region. The dashed grey line marks the
+ * border, inside which, a <code>Location</code> will be associated with a
+ * grid node. See {@link 
+ * EvenlyGriddedGeographicRegion#getNearestLocationIndex(Location)} 
+ * for more details on rules governing whether a grid node is inside a region
+ * and whether a <code>Location</code> will be associated with a grid node.<br/>
  * <br/>
  * A <code>GriddedRegion</code> may be initialized several ways (e.g. as a
  * circle, an area of uniform degree-width and -height, or a buffer around
- * a linear feature). The <code>Location</code>s of the grid nodes are stored
+ * a linear feature). See individual constructors for illustrative examples.
+ * The <code>Location</code>s of the grid nodes are stored
  * internally in order of increasing longitude then latitude starting with
- * the node at the lowest latitude in the region.
- * 
- * (add fig)
- * 
- * A <code>GriddedRegion</code> also provides methods to associate any
- * <code>Location</code> with the closest grid node. See 
- * {@link EvenlyGriddedGeographicRegion#getNearestLocationIndex(Location)} for
- * more details.<br/>
+ * the node at the lowest latitude and longitude in the region.<br/>
+ * <br/>
+ * To ensure grid nodes fall on specific lat-lon values, all constructors
+ * take an anchor <code>Location</code> argument. This location can be
+ * anywhere in- or outside the region to be gridded. If the grid were to extend
+ * to the anchor location, the anchor would coincide with a grid node.  For
+ * example, given a grid spacing of 1&deg; and an anchor <code>Location</code>
+ * of 22.1&deg;N -134.7&deg;W, grid nodes within any region will fall at
+ * whole valued latitudes + 0.1&deg; and longitudes - 0.7&deg;. If an anchor
+ * <code>Location</code> is <code>null</code>, it is automatically set as
+ * the Location defined by the minimum latitude and longitude of the region's
+ * border.<br/>
+ * <br/>
+ * TODO rename to GriddedRegion
  * <br/>
  * 
  * @author Nitin Gupta
@@ -43,10 +60,6 @@ import com.sun.servicetag.UnauthorizedAccessException;
  * @author Peter Powers
  * @version $Id$
  * @see GeographicRegion
- * 
- * TODO rename to GriddedRegion
- * QUESTION Would there ever be a need for gridded regions where the gridding
- * 		axes are not parallel to lines of lat-lon
  */
 
 public class EvenlyGriddedGeographicRegion extends GeographicRegion {
@@ -56,7 +69,8 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 //	private final static boolean D = false;
 
 	public final static String XML_METADATA_NAME = "evenlyGriddedGeographicRegion";
-	public final static String XML_METADATA_GRID_SPACING_NAME = "gridSpacing";
+	public final static String XML_METADATA_GRID_SPACING_NAME = "spacing";
+	public final static String XML_METADATA_ANCHOR_NAME = "anchor";
 	public final static String XML_METADATA_NUM_POINTS_NAME = "numPoints";
 
 	
@@ -108,103 +122,152 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 //	private ArrayList lonsPerLatList;
 
 	/**
-	 * Initializes a gridded region from a pair of latitude and a pair of
-	 * longitude values. When viewed in a Mercator projection, the region
-	 * will be a rectangle. If either both latitude or both longitude
+	 * Initializes a <code>GriddedRegion</code> from a pair of latitude and a 
+	 * pair of longitude values. When viewed in a Mercator projection, the 
+	 * region will be a rectangle. If either both latitude or both longitude
 	 * values are the same, an exception is thrown.
 	 * 
 	 * @param loc1 the first <code>Location</code>
 	 * @param loc2 the second <code>Location</code>
 	 * @param spacing of grid nodes
+	 * @param anchor <code>Location</code> for grid; may be <code>null</code>
 	 * @throws IllegalArgumentException if the latitude or longitude values
-	 * 		in the <code>Location</code>s provided are the same
+	 * 		in the <code>Location</code>s provided are the same or 
+	 * 		<code>spacing</code> is outside the range 0&deg; &lt; <code>spacing
+	 * 		</code> &le; 5&deg;
+	 * @throws NullPointerException if either <code>Location</code> argument
+	 * 		is <code>null</code>
 	 * @see GeographicRegion#GeographicRegion(Location, Location)
 	 */
 	public EvenlyGriddedGeographicRegion(
-			Location loc1, Location loc2, double spacing) {
+			Location loc1, 
+			Location loc2, 
+			double spacing, 
+			Location anchor) {
 		super(loc1, loc2);
-		this.spacing = spacing;
-		initLatLonArrays();
-		initNodes();
+		initGrid(spacing, anchor);
 	}
 
 	/**
-	 * Initializes a gridded region from a list of border locations. The 
-	 * border type specifies whether lat-lon values are treated as points in an
-	 * orthogonal coordinate system or as connecting great circles.
+	 * Initializes a <code>GriddedRegion</code> from a list of border locations.
+	 * The border type specifies whether lat-lon values are treated as points
+	 * in an orthogonal coordinate system or as connecting great circles.
 	 * 
 	 * @param border Locations
 	 * @param type the {@link BorderType} to use when initializing
 	 * @param spacing of grid nodes
-	 * @throws NullPointerException if the border is null
+	 * @param anchor <code>Location</code> for grid; may be <code>null</code>
+	 * @throws IllegalArgumentException if the <code>border</code> does not 
+	 * 		have at least 3 points, <code>radius</code> is outside the
+	 * 		range 0 km &lt; <code>radius</code> &le; 1000 km, or <code>spacing
+	 * 		</code> is outside the range 0&deg; &lt; <code>spacing
+	 * 		</code> &le; 5&deg;
+	 * @throws NullPointerException if the <code>border</code> is 
+	 * 		<code>null</code>
 	 * @see GeographicRegion#GeographicRegion(LocationList, BorderType)
 	 */
 	public EvenlyGriddedGeographicRegion(
-			LocationList border, BorderType type, double spacing) {
+			LocationList border, 
+			BorderType type, 
+			double spacing, 
+			Location anchor) {
 		super(border, type);
-		this.spacing = spacing;
-		initLatLonArrays();
-		// TODO clean
-//		System.out.println("lonLen: " + lonNodes.length);
-//		System.out.println("latLen: " + latNodes.length);
-//		System.out.println("lonBinLen: " + lonNodeEdges.length);
-//		System.out.println("latBinLen: " + latNodeEdges.length);
-		initNodes();
+		initGrid(spacing, anchor);
 	}
-
+	
 	/**
-	 * Initializes a circular gridded region. Internally, the centerpoint and
-	 * radius are used to create a circular region composed of straight line
-	 * segments that span 10\u00B0 wedges.
+	 * Initializes a circular <code>GriddedRegion</code>. Internally,
+	 * the centerpoint and radius are used to create a circular region
+	 * composed of straight line segments that span 10&deg; wedges. 
+	 * <img style="padding: 30px 40px; float: right;" 
+	 * src="{@docRoot}/img/gridded_regions_circle.jpg"/> In 
+	 * the adjacent figure, the heavy black line marks the border of the 
+	 * <code>Region</code>. The light gray dots mark the <code>Location</code>s
+	 * of nodes outside the region, and black dots those inside the region.
+	 * The dashed grey line marks the border, inside which, a 
+	 * <code>Location</code> will be associated with a grid node. See {@link 
+	 * EvenlyGriddedGeographicRegion#getNearestLocationIndex(Location)} 
+	 * for more details on rules governing whether a grid node is inside
+	 * a region and whether a <code>Location</code> will be associated 
+	 * with a grid node.<br/>
+	 * <br/>
 	 * 
 	 * @param center of the circle
 	 * @param radius of the circle
 	 * @param spacing of grid nodes
-	 * @throws IllegalArgumentException if 0 \u2264 <code>radius</code> 
-	 * 		\u003C 1000 km
+	 * @param anchor <code>Location</code> for grid; may be <code>null</code>
+	 * @throws IllegalArgumentException if <code>radius</code> is outside the
+	 * 		range 0 km &lt; <code>radius</code> &le; 1000 km or <code>spacing
+	 * 		</code> is outside the range 0&deg; &lt; <code>spacing</code> 
+	 * 		&le; 5&deg;
 	 * @throws NullPointerException if <code>center</code> is null
 	 * @see GeographicRegion#GeographicRegion(Location, double)
 	 */
 	public EvenlyGriddedGeographicRegion(
-			Location center, double radius, double spacing) {
+			Location center, 
+			double radius, 
+			double spacing, 
+			Location anchor) {
 		super(center, radius);
-		this.spacing = spacing;
-		initLatLonArrays();
-		initNodes();
+		initGrid(spacing, anchor);
 	}
 
 	/**
-	 * Initializes a gridded region as a buffered area around a line.
+	 * Initializes a <code>GriddedRegion</code> as a buffered area around a
+	 * line. In the adjacent figure, the heavy black line marks the border of 
+	 * the <code>Region</code>. <img style="padding: 30px 40px; float: right;" 
+	 * src="{@docRoot}/img/gridded_regions_buffer.jpg"/> The light gray 
+	 * dots mark the <code>Location</code>s of nodes
+	 * outside the region, and black dots those inside the region.
+	 * The dashed grey line marks the border, inside which, a 
+	 * <code>Location</code> will be associated with a grid node. See {@link 
+	 * EvenlyGriddedGeographicRegion#getNearestLocationIndex(Location)} 
+	 * for more details on rules governing whether a grid node is inside
+	 * a region and whether a <code>Location</code> will be associated 
+	 * with a grid node.<br/><br/>
+	 * <br/>
 	 * 
 	 * @param line at center of buffered region
 	 * @param buffer distance from line
 	 * @param spacing of grid nodes
+	 * @param anchor <code>Location</code> for grid; may be <code>null</code>
 	 * @throws NullPointerException if <code>line</code> is null
+	 * @throws IllegalArgumentException if <code>buffer</code> is outside the
+	 * 		range 0 km &lt; <code>buffer</code> &le; 500 km or <code>spacing
+	 * 		</code> is outside the range 0&deg; &lt; <code>spacing</code> 
+	 * 		&le; 5&deg;
 	 * @see GeographicRegion#GeographicRegion(LocationList, double)
 	 */
 	public EvenlyGriddedGeographicRegion(
-			LocationList line, double buffer, double spacing) {
+			LocationList line, 
+			double buffer, 
+			double spacing, 
+			Location anchor) {
 		super(line, buffer);
-		this.spacing = spacing;
-		initLatLonArrays();
-		initNodes();
+		initGrid(spacing, anchor);
 	}
 	
 	/**
-	 * Initializes a gridded region with a <code>GeographicRegion</code>.
+	 * Initializes a <code>GriddedRegion</code> with a 
+	 * <code>GeographicRegion</code>.
 	 * 
 	 * @param region to use as border for new gridded region
 	 * @param spacing of grid nodes
+	 * @param anchor <code>Location</code> for grid; may be <code>null</code>
+	 * @throws IllegalArgumentException if <code>spacing
+	 * 		</code> is outside the range 0&deg; &lt; <code>spacing</code> 
+	 * 		&le; 5&deg;
+	 * @throws NullPointerException if <code>region</code> is <code>null</code>
+	 * @see GeographicRegion#GeographicRegion(GeographicRegion)
 	 */
 	public EvenlyGriddedGeographicRegion(
 			GeographicRegion region, 
-			double spacing) {
-		
+			double spacing,
+			Location anchor) {
 		super(region.getRegionOutline(), BorderType.MERCATOR_LINEAR);
-		this.spacing = spacing;
-		initLatLonArrays();
-		initNodes();
+		initGrid(spacing, anchor);
 	}
+
 
 	// TODO add constructor to initialize with  GeoRegion (would want a copy of the border)
 	/**
@@ -368,23 +431,25 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 
 
 
-//	/*
-//	 * Sets the gid node spacing value and triggers the creation of internal
-//	 * arrays used for node lookup and location storage. TODO not
-//	 */
-//	private void setGridSpacing(double spacing) {
-//		this.spacing = spacing;
-//		initLatLonArray();
-//	}
-
 	/**
 	 * Returns the grid node spacing for this region.
 	 * @return the grid node spacing (in degrees)
+	 * TODO rename getSpacing()
 	 */
 	public double getGridSpacing() {
 		return spacing;
 	}
 
+	/**
+	 * Returns whether this region contains any grid nodes. If a regions
+	 * dimensions are smaller than the grid spacing, it may be empty.
+	 * @return <code>true</code> if region has no grid nodes; 
+	 * 		<code>false</code> otherwise
+	 */
+	public boolean isEmpty() {
+		return nodeCount == 0;
+	}
+	
 	/**
 	 * Returns the total number of grid nodes in this region.
 	 * @return the number of grid nodes
@@ -801,6 +866,8 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 	public Element toXMLMetadata(Element root) {
 		Element xml = root.addElement(EvenlyGriddedGeographicRegion.XML_METADATA_NAME);
 		xml.addAttribute(EvenlyGriddedGeographicRegion.XML_METADATA_GRID_SPACING_NAME, this.getGridSpacing()+"");
+		Element xml_anchor = root.addElement(EvenlyGriddedGeographicRegion.XML_METADATA_ANCHOR_NAME);
+		xml = anchor.toXMLMetadata(xml_anchor);
 		xml.addAttribute(EvenlyGriddedGeographicRegion.XML_METADATA_NUM_POINTS_NAME, this.getNumGridLocs()+"");
 		xml = super.toXMLMetadata(xml);
 
@@ -812,23 +879,25 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 		double gridSpacing = Double.parseDouble(root.attribute(EvenlyGriddedGeographicRegion.XML_METADATA_GRID_SPACING_NAME).getValue());
 		GeographicRegion geoRegion = GeographicRegion.fromXMLMetadata(root.element(GeographicRegion.XML_METADATA_NAME));
 		LocationList outline = geoRegion.getRegionOutline();
+		Location xml_anchor = Location.fromXMLMetadata(root.element(XML_METADATA_ANCHOR_NAME).element(Location.XML_METADATA_NAME));
 
-		if (geoRegion.isRectangular()) {
-			double minLat = geoRegion.getMinLat();
-			double maxLat = geoRegion.getMaxLat();
-			double minLon = geoRegion.getMinLon();
-			double maxLon = geoRegion.getMaxLon();
+//		if (geoRegion.isRectangular()) {
+//			double minLat = geoRegion.getMinLat();
+//			double maxLat = geoRegion.getMaxLat();
+//			double minLon = geoRegion.getMinLon();
+//			double maxLon = geoRegion.getMaxLon();
 //			try {
-				return new EvenlyGriddedGeographicRegion(
-						new Location(minLat, minLon),
-						new Location(maxLat, maxLon),
-						gridSpacing);
+//				return new EvenlyGriddedGeographicRegion(
+//						new Location(minLat, minLon),
+//						new Location(maxLat, maxLon),
+//						gridSpacing);
 //			} catch (RegionConstraintException e) {
 //				return new EvenlyGriddedGeographicRegion(outline, gridSpacing);
 //			}
-		}
+//		}
 
-		return new EvenlyGriddedGeographicRegion(outline,BorderType.MERCATOR_LINEAR, gridSpacing);
+		return new EvenlyGriddedGeographicRegion(
+				outline,BorderType.MERCATOR_LINEAR, gridSpacing, xml_anchor);
 	}
 
 	/*
@@ -849,6 +918,53 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 		return (idx < -1) ? (-idx - 2) : (idx == edgeVals.length-1) ? -1 : idx;
 	}
 
+	/* grid setup */
+	private void initGrid(double spacing, Location anchor) {
+		setSpacing(spacing);
+		setAnchor(anchor);
+		initLatLonArrays();
+		initNodes();
+	}
+
+	/* Sets the gid node spacing. */
+	private void setSpacing(double spacing) {
+		if (spacing <= 0 || spacing > 5) {
+			throw new IllegalArgumentException(
+					"Grid spacing must be in the range " + 
+					"0\u00B0 \u003E S \u2265 5\u00B0");
+		}
+		this.spacing = spacing;
+	}
+
+	/*
+	 * Sets the grid anchor value. If null, the anchor is the min lat and lon 
+	 * of the region. If not null, the Location provided is adjusted to be the
+	 * lower left corner (min lat-lon) of the region bounding grid. If the
+	 * region grid extended infinitely, both the input and adjusted anchor
+	 * Locations would coincide with grid nodes.
+	 */
+	private void setAnchor(Location anchor) {
+		if (anchor == null) {
+			this.anchor = Location.immutableLocation(getMinLat(), getMinLon());
+		} else {
+			double newLat = computeAnchor(
+					getMinLat(), anchor.getLatitude(), spacing);
+			double newLon = computeAnchor(
+					getMinLon(), anchor.getLongitude(), spacing);
+			this.anchor = Location.immutableLocation(newLat, newLon);
+		}
+	}
+
+	/* Computes adjusted anchor values */
+	private static double computeAnchor(
+			double min, double anchor, double spacing) {
+		double delta = anchor - min;
+		double num_div = Math.floor(delta/spacing);
+		double offset = delta - num_div*spacing;
+		double newAnchor = min + offset;
+		return (newAnchor < min) ? newAnchor + spacing : newAnchor;
+	}
+
 	/*
 	 * Initilize the grid index array; a LocationList is not built until
 	 * explicitely requested.
@@ -858,7 +974,7 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 		gridIndices = new int[numGridPoints];
 		nodeList = new LocationList();
 		// utility Location
-		Location dummy = new Location(); // TODO one example of need for mutable Location
+		Location dummy = new Location();
 		int idx = 0;
 		for (double lat:latNodes) {
 			for (double lon:lonNodes) {
@@ -878,10 +994,21 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 
 	/* Initialize internal grid node center and edge arrays */
 	private void initLatLonArrays() {
-		lonNodes = initNodeCenters(getMinLon(), getMaxLon(), spacing);
-		latNodes = initNodeCenters(getMinLat(), getMaxLat(), spacing);
+		lonNodes = initNodeCenters(anchor.getLongitude(), getMaxLon(), spacing);
+		latNodes = initNodeCenters(anchor.getLatitude(), getMaxLat(), spacing);
 		lonNodeEdges = initNodeEdges(getMinLon(), getMaxLon(), spacing);
 		latNodeEdges = initNodeEdges(getMinLat(), getMaxLat(), spacing);
+		
+		// TODO clean
+//		ToStringBuilder tsb = new ToStringBuilder(lonNodes);
+//		System.out.println(tsb.append(lonNodes).toString());
+//		tsb = new ToStringBuilder(latNodes);
+//		System.out.println(tsb.append(latNodes).toString());
+//		tsb = new ToStringBuilder(lonNodeEdges);
+//		System.out.println(tsb.append(lonNodeEdges).toString());
+//		tsb = new ToStringBuilder(latNodeEdges);
+//		System.out.println(tsb.append(latNodeEdges).toString());
+
 	}
 
 	/*
@@ -914,24 +1041,48 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 			double startVal, int count, double interval) {
 		 
 		double[] values = new double[count];
-		double val = startVal;
-		// store 'clean' values that do not reflect realities of
-		// decimal precision, e.g. 34.5 vs. 34.499999999997, by forcing
-		// meter-scale rounding precision.
 		int scale = 5;
+		double val = startVal;
 		for (int i=0; i<count; i++) {
-			startVal = MathUtils.round(startVal, scale);
-			values[i] = val;
+			// store 'clean' values that do not reflect realities of
+			// decimal precision, e.g. 34.5 vs. 34.499999999997, by forcing
+			// meter-scale rounding precision.
+			values[i] = MathUtils.round(val, scale);
 			val += interval;
 		}
 		return values;
 	}
 
+	
+//	static double adjustAnchor(double min, double anchor, double spacing) {
+//		double newAnchor = min + (anchor - min) % spacing;
+//		return (newAnchor < min) ? newAnchor + spacing : newAnchor;
+//	}
+	
 	/*
 	 * Main method to run the this class and produce a file with
 	 * evenly gridded location.
 	 */
 	public static void main(String[] args) {
+		double anchorLat = -34.67;
+		double anchorLon = 45.71;
+
+//		double anchorLat = 22.6;
+//		double anchorLon = -122.2;
+
+		double minLat = 20;
+		double minLon = 20;
+		
+		double spacing = 0.2;
+		
+		// expecting 20.07 20.11
+//		double startLat = adjustAnchor(minLat,anchorLat,spacing);
+//		double startLon = adjustAnchor(minLon,anchorLon,spacing);
+		
+			
+//		System.out.println(startLat);
+//		System.out.println(startLon);
+		
 		/*LocationList locList = new LocationList();
     locList.addLocation(new Location(37.19, -120.61, 0.0));
     locList.addLocation(new Location(36.43, -122.09, 0.0));

@@ -73,7 +73,7 @@ public class NSHMP_GridSourceGenerator {
 		    			locList.getLocationAt(i).setLongitude(-125.0);
 		    }
 		    region  = new EvenlyGriddedGeographicRegion(
-		    		locList, BorderType.MERCATOR_LINEAR, 0.1);
+		    		locList, BorderType.MERCATOR_LINEAR, 0.1, new Location(0,0));
 		    // make polygon from the location list
 		    //createEvenlyGriddedGeographicRegion(locList, GRID_SPACING);
 
