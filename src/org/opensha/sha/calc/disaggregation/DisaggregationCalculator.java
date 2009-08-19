@@ -14,6 +14,8 @@ import java.util.Collections;
 import java.util.HashMap;
 
 import org.opensha.commons.data.Site;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.WarningParameterAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -177,7 +179,13 @@ implements DisaggregationCalculatorAPI{
 		imr.setUserMaxDistance(MAX_DISTANCE);
 
 		// set iml in imr
-		imr.setIntensityMeasureLevel(new Double(iml));
+		ParameterAPI im = imr.getIntensityMeasure();
+		if (im instanceof WarningParameterAPI) {
+			WarningParameterAPI warnIM = (WarningParameterAPI)im;
+			warnIM.setValueIgnoreWarning(new Double(iml));
+		} else {
+			im.setValue(new Double(iml));
+		}
 
 		// get total number of sources
 		int numSources = eqkRupForecast.getNumSources();
