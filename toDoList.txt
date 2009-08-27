@@ -6,30 +6,79 @@ BROADER ISSUES:
 --------------
 
 
-Revise Event Set Data Calculator
+GEM ERF Input file formats
 
-Need to port servlets and RMI stuff from gravity.usc.edu to opensha.usc.edu.
+Investigate Performance Issues:
 
-Fix j-unit tests for broken AttenuationRelationships (believed to be a rounding issue in the previous verification files).
+	Define speed vs accuracy tests (GEM_TestERF; PEER test case 10; GEM custom tests)
 
-Implement simulator fault model in SCEC VDO (with just outline of rectangular elements shown)
+	Try possible performance enhancements
 
-On-line short course
+		mag-distance filter
+		num IMLs in x-axis of curve
+		mag bin width
+		grid discretization
+		Hazard map avoiding full curve calculator
+		adaptive grid spacing (wouldn't work for event sets)
+		pointSource --> IMR calcs (wouldn't work for event sets)
+		Smart event filtering
 
-Go through main calculators as a group
+
+Go through main calculators as a group.  Map/UML of each calculator/application
 
 Develop strategy for instantiation of model components for each type of calculation from XML files 
 (this involves looking at calculators, GUI beans, control panels, and model components).  
 See discussion of "Solve Our MetaData Issues" below for related issues.  Refine/review 
 toXMLMetadata(Element root)  &  fromXMLMetadata(Element root) implementations
 
-Clarify declarations of IntensityMeasureRelationship, IntensityMeasureRelationshipAPI, ScalarIntensityMeasureRelationship, and AttenuationRelationship, especially in calculators
-
-Develop a complete set of Junit tests for the entire project (that at least tests whether any important changes have occurred).
+Implement PEER tests as JUnit.
 
 Need to review the new site translator class (what Kevin put together)
 
 Evaluate Kevin's implementation of site class for region web services
+
+Hazard curves from stochastic event sets
+
+Look into using triangular surfaces (or at least change API to accommodate these later)?
+Create capability to associate IMRs to specific source types in the calculations 
+(this will require discussions with GEM and NSHMP).  Ned's intitial tests on 
+adding such fields to EqkRupture does not significantly increase memory requirements.  
+Possibilities:
+
+	Subduction Interface
+	Subduction IntraSlab
+	Shallow Crustal in Active Tectonic Regions
+	Shallow Crustal in Stable Tectonic Regions
+
+ProbEqkSource	Define field to declare what type of source it is
+		(e.g., subduction zone vs normal vs reverse ...) and add to API.
+		Ned will work on what the various options should be.
+
+ERF		-extend API to include getting max and min magnitude, and the various types of
+		sources generated (to check for compatibility with each chosen IMR)
+
+Update topo files, and include global coverage (see milner email on April 3, 2009); do this when the item just above is done.
+
+
+
+
+
+
+Event Set Data Calculator  - update web site description; more test?; gui/xml version?; versioning for reference?
+
+Distance Calculations : Approx Horizontal Distance(getApproxHorzDistance()) calculator does not calculate the correct distance if longitude is > 0. But Horizontal Distance(getHorzDistance()) always calculate the accurate distance. (Nitin tested using main() method in RelativeLocation class, one can just run the RelativeLocation class and will get to know the difference).  HAS THIS BEEN FIXED?
+
+Continue porting servlets and RMI stuff from gravity.usc.edu to opensha.usc.edu.
+
+On-line short course
+
+Fix bug in AS08 w/ respect to point sources
+
+Geographic disaggregation
+
+Clarify declarations of IntensityMeasureRelationship, IntensityMeasureRelationshipAPI, ScalarIntensityMeasureRelationship, and AttenuationRelationship, especially in calculators
+
+Develop a complete set of Junit tests for the entire project (that at least tests whether any important changes have occurred).
 
 Check that Parameter classes and APIs are being sensibly subclassed (Peter mentioned some redundant inheritances?)
 
@@ -42,8 +91,6 @@ It would be a good starting point for discussions on how to improve these editor
 has discussed).  I guess we also need an equivalent demo for parameters inside the sha package.
 
 Remove the use of "*" in import statements (to make refactoring easier)
-
-Hazard curves from stochastic event sets
 
 See if param API method "getType()" is needed anymore.
 
@@ -75,61 +122,28 @@ Figure out where to put org.opensha.refFaultParamDb
 
 Clean up contents of org.opensha.sha.gui.infoTools
 
-Figure out if commons.webservices (new location) is being used, and if so, what to do with it (e.g., are there security issues?) - Kevin will report back on this.
+Implement system for managing development (TRAC?)
 
-Look into using triangular surfaces (or at least change API to accommodate these later)?
+Also update instructions on how to access code.
 
-Implement system for managing development (TRAC?); also update instructions on how to access code.
-
-Create capability to associate IMRs to specific source types in the calculations 
-(this will require discussions with GEM and NSHMP).  Ned's intitial tests on 
-adding such fields to EqkRupture does not significantly increase memory requirements.  
-Possibilities:
-
-	Subduction Interface
-	Subduction IntraSlab
-	Shallow Crustal in Active Tectonic Regions
-	Shallow Crustal in Stable Tectonic Regions
-
-ProbEqkSource	Define field to declare what type of source it is
-		(e.g., subduction zone vs normal vs reverse ...) and add to API.
-		Ned will work on what the various options should be.
-
-ERF		-extend API to include getting max and min magnitude, and the various types of
-		sources generated (to check for compatibility with each chosen IMR)
-
-Update topo files, and include global coverage (see milner email on April 3, 2009); do this when the item just above is done.
+Review allowed values for location fields, and whether using radians rather than degrees for internal storage would be more efficient.
 
 Codebase
-	�	Extract tools to scec-commons or eq-commons (domain? org.scec.commons.[ui | 
-		math |  calc | utils | io]); Extract db connections to common util class??
-	�	Review parameter framework
 	�	Revise exception handling
 	�	Use enums where applicable (e.g. fault_type and std_dev in IMR) - Peter will 
 		explain and propose something
 	�	Clear out Sys.out.println and use of C & D for naming/debugging ... use logging 
 		with warn levels.  Peter will propose something
-	�	Improve common editors (e.g. string, double, editors); handle warning param better.
 	�	Survey other custom editors for possible improvements (e.g. Rupture Editor)
 	�	Move to Java WebStart and/or bundled applications
 	�	Better integration of threading and use of wait-cursor
 	�	Persistence framework that does not require explicit read/write XML in each class
-	�	Code Formatting - 4 space indent
 	�	Use correct modifiers (public protected private (e.g. HazardCurveCalculator)
-	�	Alternative to nnls in more recent math package
 	�	Upgrade to JFreeChart current version; buy dev guide.
-	�	Evaluate move to Maven for build process (jar files etc)
-	�	Define potential broader structure for OpenSHA OpenRisk commons.
-
-Documentation
-	�	Map/UML of each calculator/application
-	�	Leave no public method uncommented
-	�	Check, edit, or provide explicit description of major class hierarchies (e.g. IMR-AttRel, ERF)
-	�	No black boxes
 
 Web
 	�	Requirements for content of user site (e.g. demos, tutorial, any technical documentation?)
-	�	Use Drupal, Django, or other for user site?
+	�	Use Drupal for user site?
 	�	Better user/download tracking
 
 Other notes
@@ -156,8 +170,6 @@ Our PEER PSHA verification applications are broken (remove, or should we update 
 
 HazardSpectrumApp crashes if source and site are more than the "Max Source-Site Distance" value (try defaults with point-source ERF).
 
-Distance Calculations : Approx Horizontal Distance(getApproxHorzDistance()) calculator does not calculate the correct distance if longitude is > 0. But Horizontal Distance(getHorzDistance()) always calculate the accurate distance. (Nitin tested using main() method in RelativeLocation class, one can just run the RelativeLocation class and will get to know the difference).  HAS THIS BEEN FIXED?
-
 Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.  DID NITIN DO THIS?
 
 Hazus PSHA dataset calculator - GUI-based app?
@@ -180,13 +192,13 @@ Implement the attenuation relationship desired by UCLA.  This will require allow
 
 Work on html-based help documentation.
 
-Revisit PEER results plotter (& data submission tool?); implement tests as JUnit.
+Revisit PEER results plotter (& data submission tool?); 
 
 Implement color schemes at (including option for the visually impaired):
 
 	http://geography.uoregon.edu/datagraphics/color_scales.htm
 
-Add faults to GMT plotting options.
+Revise faults in GMT plotting options.
 
 add site translation for SEA_1999_AttenRel
 
@@ -217,8 +229,6 @@ Allow choosing of multiple ERFs (e.g., hand built ERF_EpistemicList)
 
 DisaggregationCalculator is similar to HazardCurveCalculator; should the two be combined?
 
-IMT_GuiBean - the loop over independent parameters of the chosen IMT can presently deal only with DoubleDiscreteParameter objects (rather than any parameter type).  Should we generalize this?
-
 Decide how to handle rake=NaN in each IMR (can rake-NaN in an EarthquakeRupture object?).
 
 Decide on and implement a licensing agreement.
@@ -237,68 +247,7 @@ AttenRelApp:
 JFreechart problem: If the the upperBound and lowerBound of the axis are the same then JFreechart only adds a small increment to axis range, so because of this in our AttenuationRelaitonshipApp when we choose the BJF attenRel and on Y-Axis choose the Std. Dev. we get same values for all X-values. In other words, our lowerBound and upperBound are the same. JFrechart does provide a method to handle and specify minimum range between the Upperbound and LowerBound of the axis but we can't just add a number to specify the range.
 
 
-
-********* OLD STUFF (NO LONGER NEEDED?) ****************
---------------------------------------------------------
-
-Patti comments
----------------
-I really like the application and I have a few suggestions in regard to the
-output files format.
-   It would be useful to define EventIDs from the sourceID and rupture ID
-   pairs. The EventID can be defined in the Src-Rup Metadata file and then
-   used in the Mean and Sigma file instead of repeating the SrcID and
-   RuptID
-   I would prefer to keep the 'mean sigma file' as lean as possible as if
-   there are many sites and many events, the size of the file can grow
-   substantially
-   Provide the option to write the rupture distance file, as with many
-   sites this may not be used
-   Provide the option to enter a threshold for the IMT to keep in the
-   output files, so all the EventID-SiteID pairs with an IMT value lower
-   than the threshold won't show up in the file
-   Write the Mean Sigma file as follows:
-
-            EventID_i   SiteID_i    Mean(Event_i, Site_i)
-SD(Event_i, Site_i)
-----------------------
-
-Keith Comments
-------------------
-Second, using commas and quotes within a source name does not affect one's
-ability to use CSV format. Commas can appear within a text string, because
-the string doesn't end until the second double-quotes is encountered.
-Double-quotes can appear _within_ a text string as long as the double-quote
-is doubled, i.e., "". Two double-quotes appearing within a text string are
-treated as a literal double-quote, rather than as the end of the text
-string. (Try opening "test.csv" in Excel.)
-
-Third, regarding "C," what I mean is that the output file could have the
-following field list: 
-
-SourceID
-RuptureID
-SiteID
-AttenID
-IMT
-Mean
-Stdev
-
-Thus, one record refers to combination of source ID, rupture ID, site ID,
-and AttenID, and gives the one Mean IM and the one Stdev IM value for that
-combination. Where the current output has one line for 3 sites, the proposed
-format would have three lines. Where the current output has 12 files (4
-attenuation relationships x 3 intensity measure types), the proposed format
-would have one file. If you'd like the schema files for the tables I have
-created form your output files, I can email them. I don't know if you would
-find them useful. 
------------------------------
-
-
-Cybershake Scatter plotter
-
-
-Implement (has Matt done much of this???):
+STEP Implementation (has Matt done much of this???):
 
 	CubeObsEqkRuptureGeneratior - makes ObsEqkRupture(s) from a String (of list of Strings)
 
@@ -316,6 +265,14 @@ Implement (has Matt done much of this???):
 		 as double[] objects for maximum efficiency and flexibility)
 
 	Other classes .................. (once done tell ned and he'll update STEP doc)
+
+
+
+********* OLD STUFF (NO LONGER NEEDED?) ****************
+--------------------------------------------------------
+
+
+Cybershake Scatter plotter
 
 
 
