@@ -381,10 +381,18 @@ public class EvenlyGriddedCircularGeographicRegion
    * evenly gridded location.
    */
   public static void main(String[] args) {
-    EvenlyGriddedCircularGeographicRegion gridReg = new EvenlyGriddedCircularGeographicRegion(new Location(34,-122,0),111,0.02);
+    EvenlyGriddedCircularGeographicRegion gridReg = new EvenlyGriddedCircularGeographicRegion(new Location(38,-122,0),100,0.02);
+    LocationList outlineList = gridReg.getRegionOutline();
+    // check diameter of circle:
+    int numLocs = outlineList.size();
+    for(int i=0; i<numLocs/2; i++)
+    	System.out.println(i+"\t"+RelativeLocation.getHorzDistance(outlineList.getLocationAt(i), outlineList.getLocationAt(i+numLocs/2)));
+
+    // write outline
     try {
       FileWriter fw = new FileWriter("CircularRegionFile.txt");
-      ListIterator it = gridReg.getGridLocationsIterator();
+      ListIterator it = gridReg.getRegionOutline().listIterator();
+//      ListIterator it = gridReg.getGridLocationsIterator();
       while(it.hasNext()){
         Location loc = (Location)it.next();
         fw.write(loc.toString()+"\n");
