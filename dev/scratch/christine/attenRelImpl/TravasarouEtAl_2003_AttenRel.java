@@ -20,14 +20,13 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.commons.param.WarningDoubleParameter;
 
-import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
-
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
-//import org.opensha.sha.imr.param.IntensityMeasureParams.IA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.IA_Param;
+//import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.param.*;
@@ -47,7 +46,7 @@ import org.opensha.sha.param.*;
  * <UL>
  * <LI>magParam - moment Magnitude
  * <LI>distanceRupParam - closest distance to surface projection of fault
- * <LI>siteTypeParam - Site class as defined as SGS in Travasarou et al. (2003), Table II (B, C or D).
+ * <LI>siteTypeParam - Site class as defined as "SGS" in Travasarou et al. (2003), Table II (B, C or D).
  * <LI>fltTypeParam - Style of faulting
  * <LI>stdDevTypeParam - The type of standard deviation
 
@@ -79,6 +78,50 @@ public class TravasarouEtAl_2003_AttenRel
   // Name of IMR
   public final static String NAME = "Travasarou et al. (2003)";
 
+  // URL Info String
+  private final static String URL_INFO_STRING = "http://www.opensha.org/documentation/modelsImplemented/attenRel/T_2003.html";
+
+  // Model coefficients:
+  double c1= 2.800;
+  double c2= -1.981;
+  double c3= 20.72;
+  double c4= -1.703;
+  double h= 8.78;
+  double s11= 0.454;
+  double s12= 0.101;
+  double s21= 0.479;
+  double s22= 0.334;
+  double f1= -0.166;
+  double f2= 0.512;
+  
+  private HashMap indexFromPerHashMap;
+ 
+   
+  private double rrup, mag, f_rv, f_nm, s_c, s_d;
+  private IA_Param iaParam;
+  double median;
+// TODO add stddevtypes in the code
+//  private String stdDevType;
+  private boolean parameterChange;
+  String fltType, siteType;
+  
+// CG commented below 2009-08-13 - not in BA08!!?
+//	private PropagationEffect propagationEffect;
+
+ //CG Need to change mag warnings to min 4.7, max=7.6, as per Travasaou et al's paper 
+  protected final static Double MAG_WARN_MIN = new Double(4.0);
+  protected final static Double MAG_WARN_MAX = new Double(8.5);
+  //CG Need to change Rrup warning min value to 0.1 km, as per Travasaou et al's paper 
+  protected final static Double DISTANCE_RUP_WARN_MIN = new Double(0.0);
+  protected final static Double DISTANCE_RUP_WARN_MAX = new Double(250.0);
+//  protected final static Double PGA_PARAM_MAX = new Double(100.0);
+  protected final static Double IA_PARAM_MIN = new Double(Math.log(1.0));
+  protected final static Double IA_PARAM_MAX = new Double(100.0);
+  protected final static Double IA_PARAM_WARN_MIN = new Double(Math.log(1.0));
+  protected final static Double IA_PARAM_WARN_MAX = new Double(Math.log(100.0));
+  protected final static Double IA_PARAM_DEFAULT = new Double(1.0);
+ 
+
   /**
    * Style of faulting option
    */
@@ -99,46 +142,11 @@ public class TravasarouEtAl_2003_AttenRel
   public final static String SITE_TYPE_D = "SGS Class D";
   public final static String SITE_TYPE_DEFAULT = SITE_TYPE_C;
   
-//  private final static String IA_PARAM_NAME = "IA";
-//  private final static String IA_PARAM_UNITS = "m/s";
-//  private final static String IA_PARAM_INFO = "Arias Intensity";
+  private final static String IA_PARAM_NAME = "IA";
+  private final static String IA_PARAM_UNITS = "m/s";
+  private final static String IA_PARAM_INFO = "Arias Intensity";
 
-  
-  // Model coefficients:
-  double c1= 2.800;
-  double c2= -1.981;
-  double c3= 20.72;
-  double c4= -1.703;
-  double h= 8.78;
-  double s11= 0.454;
-  double s12= 0.101;
-  double s21= 0.479;
-  double s22= 0.334;
-  double f1= -0.166;
-  double f2= 0.512;
-   
-  private double rrup, mag, f_rv, f_nm, s_c, s_d;
-//  private IA_Param iaParam;
-  double median;
-//  double median = 0.0;
-  private boolean parameterChange;
-  
-	private HashMap indexFromPerHashMap;
 
-	private PropagationEffect propagationEffect;
-
- //CG Need to change mag warnings to min 4.7, max=7.6, as per Travasaou et al's paper 
-  protected final static Double MAG_WARN_MIN = new Double(4.0);
-  protected final static Double MAG_WARN_MAX = new Double(8.5);
-  //CG Need to change Rrup warning min value to 0.1 km, as per Travasaou et al's paper 
-  protected final static Double DISTANCE_RUP_WARN_MIN = new Double(0.0);
-  protected final static Double DISTANCE_RUP_WARN_MAX = new Double(250.0);
-//  protected final static Double IA_PARAM_MIN = new Double(Math.log(1.0));
-//  protected final static Double IA_PARAM_MAX = new Double(100.0);
-//  protected final static Double IA_PARAM_WARN_MIN = new Double(Math.log(1.0));
-//  protected final static Double IA_PARAM_WARN_MAX = new Double(Math.log(100.0));
-//  protected final static Double IA_PARAM_DEFAULT = new Double(1.0);
- 
   // for issuing warnings:
   private transient ParameterChangeWarningListener warningListener = null;
 
@@ -221,7 +229,8 @@ public class TravasarouEtAl_2003_AttenRel
     this.warningListener = warningListener;
 
     initSupportedIntensityMeasureParams();
- 
+    indexFromPerHashMap = new HashMap();
+    
     initEqkRuptureParams();
     initPropagationEffectParams();
     initSiteParams();
@@ -229,7 +238,7 @@ public class TravasarouEtAl_2003_AttenRel
 
     initIndependentParamLists(); // This must be called after the above
     initParameterEventListeners(); //add the change listeners to the parameters
-
+    
   }
 
   /**
@@ -266,31 +275,7 @@ public class TravasarouEtAl_2003_AttenRel
 
 	  }
 
-  /**
-   * This sets the site and eqkRupture, and the related parameters,
-   *  from the propEffect object passed in. Warning constrains are ingored.
-   * @param propEffect
-   * @throws ParameterException Thrown if the Site object doesn't contain a
-   * Vs30 parameter
-   * @throws InvalidRangeException thrown if rake is out of bounds
-   */
-  public void setPropagationEffect(PropagationEffect propEffect) throws
-      ParameterException, InvalidRangeException {
-
-    this.site = propEffect.getSite();
-    this.eqkRupture = propEffect.getEqkRupture();
-
-    // set the local site-type param
-    siteTypeParam.setValue((String)site.getParameter(SITE_TYPE_NAME).getValue());
-
-    // set the eqkRupture params
-    magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
-
-    // set the distance param
-    propEffect.setParamValue(distanceRupParam);
-
-  }
-
+ 
   /**
    * This sets the propagation-effect parameter (distanceRupParam) based on the 
    * current site and eqkRupture.
@@ -354,18 +339,18 @@ public class TravasarouEtAl_2003_AttenRel
 		
 	  
 	  
-	  double median = getMean(rrup, mag, f_nm, f_rv, s_c, s_d);
+	  double lnmedian = getMean(rrup, mag, f_nm, f_rv, s_c, s_d);
 //		System.out.println("Inside getMean mag = "+mag +", f_nm = "+f_nm+", f_rv=" +f_rv+ ", s_c=" +s_c+", s_d=" +s_d);
 
 	  
-	  return median;
+	  return lnmedian;
  }
 
   /**
    * @return    The stdDev value
    */
   public double getStdDev() {
-	  String fltType, siteType;
+//	  String fltType, siteType;
 	  
 	    try {
 	        mag = ( (Double) magParam.getValue()).doubleValue();
@@ -395,20 +380,20 @@ public class TravasarouEtAl_2003_AttenRel
 				f_nm = 0;
 			}
 			if (siteType.equals(SITE_TYPE_B)) {
-			s_c = 0;
-			s_d = 0;
-		}
-		else if (siteType.equals(SITE_TYPE_C)) {
-			s_c = 1;
-			s_d = 0;
-		}
-		else {
-			s_c = 0;
-			s_d = 1;
+				s_c = 0;
+				s_d = 0;
+			}
+			else if (siteType.equals(SITE_TYPE_C)) {
+				s_c = 1;
+				s_d = 0;
+			}
+			else {
+				s_c = 0;
+				s_d = 1;
 		}
 		  double lnmedian = getMean(rrup, mag, f_nm, f_rv, s_c, s_d);
 		  double median = Math.exp(lnmedian);
-//		    System.out.println("Inside getStdDev median= "+median+", mag = "+mag +", s_c=" +s_c+", s_d=" +s_d);
+//	    System.out.println("mag = "+mag +", rrup= " +rrup+ ", median= "+median);
 
     return getStdDev(rrup, mag, s_c, s_d, median);
 
@@ -421,15 +406,20 @@ public class TravasarouEtAl_2003_AttenRel
    */
   public void setParamDefaults() {
 
+//    siteTypeParam.setValueAsDefault();
     siteTypeParam.setValue(SITE_TYPE_DEFAULT);
 	fltTypeParam.setValueAsDefault();
     distanceRupParam.setValueAsDefault();
     magParam.setValueAsDefault();
-    pgaParam.setValueAsDefault();
-//    iaParam.setValueAsDefault();
+//    pgaParam.setValueAsDefault();
+    iaParam.setValueAsDefault();
     stdDevTypeParam.setValueAsDefault();
 
-/////CG    mag = ( (Double) magParam.getValue()).doubleValue();
+    siteType = (String) siteTypeParam.getValue();
+    rrup = ( (Double) distanceRupParam.getValue()).doubleValue();
+    mag = ( (Double) magParam.getValue()).doubleValue();
+    fltType = (String) fltTypeParam.getValue();
+//TODO add this    stdDevType = (String) stdDevTypeParam.getValue();
   }
 
   /**
@@ -456,13 +446,16 @@ public class TravasarouEtAl_2003_AttenRel
 
 	    // params that the exceed. prob. depends upon
 	    exceedProbIndependentParams.clear();
-	    exceedProbIndependentParams.addParameter(distanceRupParam);
-	    exceedProbIndependentParams.addParameter(siteTypeParam);
-	    exceedProbIndependentParams.addParameter(magParam);
-	    exceedProbIndependentParams.addParameter(fltTypeParam);
+//	    exceedProbIndependentParams.addParameter(distanceRupParam);
+//	    exceedProbIndependentParams.addParameter(siteTypeParam);
+//	    exceedProbIndependentParams.addParameter(magParam);
+//	    exceedProbIndependentParams.addParameter(fltTypeParam);
+//	    exceedProbIndependentParams.addParameter(this.sigmaTruncTypeParam);
+//	    exceedProbIndependentParams.addParameter(this.sigmaTruncLevelParam);
+	    exceedProbIndependentParams.addParameterList(meanIndependentParams);
 	    exceedProbIndependentParams.addParameter(stdDevTypeParam);
-	    exceedProbIndependentParams.addParameter(this.sigmaTruncTypeParam);
-	    exceedProbIndependentParams.addParameter(this.sigmaTruncLevelParam);
+	    exceedProbIndependentParams.addParameter(sigmaTruncTypeParam);
+	    exceedProbIndependentParams.addParameter(sigmaTruncLevelParam);
 
 	    // params that the IML at exceed. prob. depends upon
 	    imlAtExceedProbIndependentParams.addParameterList(
@@ -471,7 +464,34 @@ public class TravasarouEtAl_2003_AttenRel
   }
 
   
-  
+  /**
+   * This sets the site and eqkRupture, and the related parameters,
+   *  from the propEffect object passed in. Warning constrains are ingored.
+   * @param propEffect
+   * @throws ParameterException Thrown if the Site object doesn't contain a
+   * Vs30 parameter
+   * @throws InvalidRangeException thrown if rake is out of bounds
+   */
+  public void setPropagationEffect(PropagationEffect propEffect) throws
+      ParameterException, InvalidRangeException {
+
+    this.site = propEffect.getSite();
+    this.eqkRupture = propEffect.getEqkRupture();
+
+    // set the local site-type param
+    // CG not sure this line below is correct. Should it be:
+    //     siteTypeParam.setValue((String)site.getParameter(siteTypeParam.NAME).getValue());
+
+    siteTypeParam.setValue((String)site.getParameter(SITE_TYPE_NAME).getValue());
+
+    // set the eqkRupture params
+    magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
+
+    // set the distance param
+    propEffect.setParamValue(distanceRupParam);
+
+  }
+
   
   /**
    *  Creates the Site-Type parameter and adds it to the siteParams list.
@@ -538,30 +558,35 @@ public class TravasarouEtAl_2003_AttenRel
    */
   protected void initSupportedIntensityMeasureParams() {
 
-		//  Create PGA Parameter (pgaParam):
-		pgaParam = new PGA_Param();
-		pgaParam.setNonEditable();
-
-	    pgaParam.addParameterChangeWarningListener(warningListener);
-
-	    // Put parameters in the supportedIMParams list:
-	    supportedIMParams.clear();
-	    supportedIMParams.addParameter(pgaParam);
+//		//  Create PGA Parameter (pgaParam):
+//		pgaParam = new PGA_Param();
+//		pgaParam.setNonEditable();
+//
+//	    // Add the warning listeners:
+//	    pgaParam.addParameterChangeWarningListener(warningListener);
+//
+//	    // Put parameters in the supportedIMParams list:
+//	    supportedIMParams.clear();
+//	    supportedIMParams.addParameter(pgaParam);
 
 		
-//  //  Create Ia Parameter (IaParam):
-//	iaParam = new IA_Param();
-//	iaParam.setNonEditable();
-//
-//    // Add the warning listeners:
-//    iaParam.addParameterChangeWarningListener(warningListener);
-//   
-//    // Put parameters in the supportedIMParams list:
-//    supportedIMParams.clear();
-//    supportedIMParams.addParameter(iaParam);
+  //  Create Ia Parameter (IaParam):
+	iaParam = new IA_Param();
+	iaParam.setNonEditable();
+
+    // Add the warning listeners:
+    iaParam.addParameterChangeWarningListener(warningListener);
+   
+    // Put parameters in the supportedIMParams list:
+    supportedIMParams.clear();
+    supportedIMParams.addParameter(iaParam);
    
   }
-
+  
+  /**
+   *  Creates other Parameters that the mean or stdDev depends upon,
+   *  such as the Component or StdDevType parameters.
+   */
   protected void initOtherParams() {
 
 	    // init other params defined in parent class
@@ -619,7 +644,18 @@ public class TravasarouEtAl_2003_AttenRel
 		  sig2 = 0.73;
 	  }
 	  
+/** 
+ * Recommendation to limit tau for lower- and upper-bound mag; see text below Eq.15
+ */
+	  if(mag<4.7) {
+		  tau=0.611;
+	  }
+	  else if (mag>7.6) {
+		  tau = 0.475;
+	  }
+	  else {
 	  tau = 0.611 - 0.047*(mag - 4.7);
+	  }
 	  
 	  if(median<= 0.013) {
 		  sigma = sig1;
@@ -633,43 +669,12 @@ public class TravasarouEtAl_2003_AttenRel
 	  sigmatot = Math.sqrt(sigma*sigma+tau*tau);
 //	  sigmatot=0.6;
 //	  System.out.println("sigmatot= "+sigmatot); 
+	    System.out.println("sc, sd="+s_c+", "+s_d+", mag = "+mag +", rrup= " +rrup+ ", median= "+median+", sigtot= "+sigmatot);
+
 	    	return sigmatot ;
   }
 
- 
-  
-  
-  /**
-   * Allows to reset the change listeners on the parameters
-   */
-  public void resetParameterEventListeners(){
-    distanceRupParam.removeParameterChangeListener(this);
-    siteTypeParam.removeParameterChangeListener(this);
-    magParam.removeParameterChangeListener(this);
- 
-    this.initParameterEventListeners();
-  }
-
-  /**
-   * Adds the parameter change listeners. This allows to listen to when-ever the
-   * parameter is changed.
-   */
-  protected void initParameterEventListeners() {
-
-    distanceRupParam.addParameterChangeListener(this);
-    siteTypeParam.addParameterChangeListener(this);
-    magParam.addParameterChangeListener(this);
-  }
-
-  /**
-   * 
-   * @throws MalformedURLException if returned URL is not a valid URL.
-   * @returns the URL to the AttenuationRelationship document on the Web.
-   */
-  public URL getAttenuationRelationshipURL() throws MalformedURLException{
-	  return new URL("http://www.opensha.org/documentation/modelsImplemented/attenRel/T_2003.html");
-  }
-
+   
 	/**
 	 * This listens for parameter changes and updates the primitive parameters accordingly
 	 * @param e ParameterChangeEvent
@@ -683,42 +688,84 @@ public class TravasarouEtAl_2003_AttenRel
 		if (pName.equals(magParam.NAME)) {
 			mag = ( (Double) val).doubleValue();
 		}
-		else if (pName.equals(FaultTypeParam.NAME)) {
-			String fltType = (String)fltTypeParam.getValue();
-			if (fltType.equals(FLT_TYPE_NORMAL)) {
-				f_rv = 0 ;
-				f_nm = 1;
-			}
-			else if (fltType.equals(FLT_TYPE_REVERSE)) {
-				f_rv = 1;
-				f_nm = 0;
-			}
-			else {
-				f_rv = 0;
-				f_nm = 0;
-			}
-		}
-		else if (pName.equals(SiteTypeParam.NAME)) {
-			String siteType = (String)siteTypeParam.getValue();
-			if (siteType.equals(SITE_TYPE_B)) {
-				s_c = 0;
-				s_d = 0;
-			}
-			else if (siteType.equals(SITE_TYPE_C)) {
-				s_c = 1;
-				s_d = 0;
-			}
-			else {
-				s_c = 0;
-				s_d = 1;
-			}
-		}
+//		else if (pName.equals(FaultTypeParam.NAME)) {
+//			String fltType = (String)fltTypeParam.getValue();
+//			if (fltType.equals(FLT_TYPE_NORMAL)) {
+//				f_rv = 0 ;
+//				f_nm = 1;
+//			}
+//			else if (fltType.equals(FLT_TYPE_REVERSE)) {
+//				f_rv = 1;
+//				f_nm = 0;
+//			}
+//			else {
+//				f_rv = 0;
+//				f_nm = 0;
+//			}
+//		}
+//		else if (pName.equals(SiteTypeParam.NAME)) {
+//			String siteType = (String)siteTypeParam.getValue();
+//			if (siteType.equals(SITE_TYPE_B)) {
+//				s_c = 0;
+//				s_d = 0;
+//			}
+//			else if (siteType.equals(SITE_TYPE_C)) {
+//				s_c = 1;
+//				s_d = 0;
+//			}
+//			else {
+//				s_c = 0;
+//				s_d = 1;
+//			}
+//		}
 		else if (pName.equals(DistanceRupParameter.NAME)) {
 			rrup = ( (Double) val).doubleValue();
 		}
+	    else if (pName.equals(FaultTypeParam.NAME)) {
+	        fltType = (String)fltTypeParam.getValue();
+	    }
+	    else if (pName.equals(SiteTypeParam.NAME)) {
+	        siteType = (String)siteTypeParam.getValue();
+	    }
 //		else if (pName.equals(StdDevTypeParam.NAME)) {
 //			stdDevType = (String) val;
 //		}
 	}
+	
+	/**
+	   * Allows to reset the change listeners on the parameters
+	   */
+	  public void resetParameterEventListeners(){
+	    distanceRupParam.removeParameterChangeListener(this);
+	    siteTypeParam.removeParameterChangeListener(this);
+	    fltTypeParam.removeParameterChangeListener(this);
+	    magParam.removeParameterChangeListener(this);
+	 
+	    this.initParameterEventListeners();
+	  }
+
+	
+	/**
+	   * Adds the parameter change listeners. This allows to listen to when-ever the
+	   * parameter is changed.
+	   */
+	  protected void initParameterEventListeners() {
+
+	    distanceRupParam.addParameterChangeListener(this);
+	    siteTypeParam.addParameterChangeListener(this);
+	    fltTypeParam.addParameterChangeListener(this);
+	    magParam.addParameterChangeListener(this);
+	  }
+	
+ /**
+ * This provides a URL where more info on this model can be obtained
+ * @throws MalformedURLException if returned URL is not a valid URL.
+ * @returns the URL to the AttenuationRelationship document on the Web.
+ */
+	  public URL getInfoURL() throws MalformedURLException{
+		  return new URL(URL_INFO_STRING);
+	  }
+
+	  
 }
  
