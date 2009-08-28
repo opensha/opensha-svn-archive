@@ -12,8 +12,10 @@ import java.util.ArrayList;
 import javax.swing.*;
 
 import org.opensha.commons.data.ValueWeight;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.commons.param.ArbitrarilyDiscretizedFuncParameter;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.DoubleDiscreteConstraint;
 import org.opensha.commons.param.DoubleDiscreteParameter;
@@ -198,6 +200,7 @@ public class ParameterApplet
         list.addParameter(makeDoubleValueWeightParameter());
         list.addParameter( makeLocationParameter());
         list.addParameter( makeRegionParameter());
+        list.addParameter(makeArbitrarilyDiscretizedFuncParameter());
         return list;
     }
 
@@ -250,6 +253,18 @@ public class ParameterApplet
       ParameterListParameter param = new ParameterListParameter("Parameter List",paramList);
       return param;
     }
+    
+    /** Makes a parameter example of this type */
+    private ParameterAPI makeArbitrarilyDiscretizedFuncParameter() {
+    	ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+        func.setName("test func");
+        func.set(20.0, 5.0);
+        func.set(40.0, 6.0);
+        func.set(60.0, 7.0);
+        return new ArbitrarilyDiscretizedFuncParameter("ArbitrarilyDiscretizedFuncParameter", func);
+    }
+
+     
 
     /** Makes a parameter example of this type */
     private ParameterAPI makeConstrainedDoubleDiscreteParameter() {
