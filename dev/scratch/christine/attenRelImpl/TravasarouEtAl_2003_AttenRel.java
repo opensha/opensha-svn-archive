@@ -32,7 +32,7 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.param.*;
 
 /**
- * <b>Title:</b> TravasarouEtAl_2003_AttenRel<p>
+ * <b>Title:</b>  TravasarouEtAl_2003_AttenRel<p>
  *
  * <b>Description:</b> This implements the Attenuation Relationship
  * developed by Travasarou et al. (2003) for Arias Intensity, as described in 
@@ -105,9 +105,10 @@ public class TravasarouEtAl_2003_AttenRel
   private boolean parameterChange;
   String fltType, siteType;
   
-// CG commented below 2009-08-13 - not in BA08!!?
+// CG commented below 2 009-08-13 - not in BA08!!?
 //	private PropagationEffect propagationEffect;
 
+  
  //CG Need to change mag warnings to min 4.7, max=7.6, as per Travasaou et al's paper 
   protected final static Double MAG_WARN_MIN = new Double(4.0);
   protected final static Double MAG_WARN_MAX = new Double(8.5);
