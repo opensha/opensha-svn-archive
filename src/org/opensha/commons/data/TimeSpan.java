@@ -8,6 +8,7 @@ import java.util.EventObject;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.TimeZone;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;
@@ -920,7 +921,8 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
         millisecond = START_MILLISECOND_DEFAULT.intValue();
 
       // now make the calendar
-      startTimeCal = new GregorianCalendar();
+      startTimeCal = new GregorianCalendar();//
+      startTimeCal.setTimeZone(TimeZone.getTimeZone("GMT"));//TODO pls check, set to use same time zone
       // make this throw exceptions for bogus values (rather than fixing them  )
       startTimeCal.setLenient(false);
       startTimeCal.set(Calendar.ERA, GregorianCalendar.AD);
