@@ -206,11 +206,12 @@ public class GMT_MapGenerator implements Serializable{
 	public final static String TOPO_RESOLUTION_PARAM_NAME = "Topo Resolution";
 	private final static String TOPO_RESOLUTION_PARAM_UNITS = "arc-sec";
 	private final static String TOPO_RESOLUTION_PARAM_INFO = "Resolution of the shaded relief";
-	private final static String TOPO_RESOLUTION_03 = "03";
-	private final static String TOPO_RESOLUTION_06 = "06";
-	private final static String TOPO_RESOLUTION_18 = "18";
-	private final static String TOPO_RESOLUTION_30 = "30";
-	protected final static String TOPO_RESOLUTION_PARAM_DEFAULT = TOPO_RESOLUTION_30;
+	private final static String TOPO_RESOLUTION_03_CA = "03 sec California";
+	private final static String TOPO_RESOLUTION_06_CA = "06 sec California";
+	private final static String TOPO_RESOLUTION_18_CA = "18 sec California";
+	private final static String TOPO_RESOLUTION_30_CA = "30 sec California";
+	private final static String TOPO_RESOLUTION_30_GLOBAL = "30 sec Global";
+	protected final static String TOPO_RESOLUTION_PARAM_DEFAULT = TOPO_RESOLUTION_30_GLOBAL;
 	public final static String TOPO_RESOLUTION_NONE = "No Topo";
 	StringParameter topoResolutionParam;
 
@@ -299,10 +300,11 @@ public class GMT_MapGenerator implements Serializable{
 		colorScaleMaxParam.setInfo(COLOR_SCALE_MAX_PARAM_INFO);
 
 		StringConstraint topoResolutionConstraint = new StringConstraint();
-		topoResolutionConstraint.addString( TOPO_RESOLUTION_03 );
-		topoResolutionConstraint.addString( TOPO_RESOLUTION_06 );
-		topoResolutionConstraint.addString( TOPO_RESOLUTION_18 );
-		topoResolutionConstraint.addString( TOPO_RESOLUTION_30 );
+		topoResolutionConstraint.addString( TOPO_RESOLUTION_30_GLOBAL );
+		topoResolutionConstraint.addString( TOPO_RESOLUTION_30_CA );
+		topoResolutionConstraint.addString( TOPO_RESOLUTION_18_CA );
+		topoResolutionConstraint.addString( TOPO_RESOLUTION_06_CA );
+		topoResolutionConstraint.addString( TOPO_RESOLUTION_03_CA );
 		topoResolutionConstraint.addString( TOPO_RESOLUTION_NONE );
 		topoResolutionParam = new StringParameter( TOPO_RESOLUTION_PARAM_NAME, topoResolutionConstraint,TOPO_RESOLUTION_PARAM_UNITS, TOPO_RESOLUTION_PARAM_DEFAULT );
 		topoResolutionParam.setInfo( TOPO_RESOLUTION_PARAM_INFO );
@@ -460,13 +462,15 @@ public class GMT_MapGenerator implements Serializable{
 		
 		map.setRescaleCPT(true);
 		
-		if (topoResolutionParam.getValue().equals(TOPO_RESOLUTION_03)) {
+		if (topoResolutionParam.getValue().equals(TOPO_RESOLUTION_03_CA)) {
 			map.setTopoResolution(TopographicSlopeFile.CA_THREE);
-		} else if (topoResolutionParam.getValue().equals(TOPO_RESOLUTION_06)) {
+		} else if (topoResolutionParam.getValue().equals(TOPO_RESOLUTION_06_CA)) {
 			map.setTopoResolution(TopographicSlopeFile.CA_SIX);
-		} else if (topoResolutionParam.getValue().equals(TOPO_RESOLUTION_18)) {
+		} else if (topoResolutionParam.getValue().equals(TOPO_RESOLUTION_18_CA)) {
 			map.setTopoResolution(TopographicSlopeFile.CA_EIGHTEEN);
-		} else if (topoResolutionParam.getValue().equals(TOPO_RESOLUTION_30)) {
+		} else if (topoResolutionParam.getValue().equals(TOPO_RESOLUTION_30_CA)) {
+			map.setTopoResolution(TopographicSlopeFile.CA_THIRTY);
+		} else if (topoResolutionParam.getValue().equals(TOPO_RESOLUTION_30_GLOBAL)) {
 			map.setTopoResolution(TopographicSlopeFile.SRTM_30_PLUS);
 		} else {
 			map.setTopoResolution(null);
