@@ -13,6 +13,8 @@ import javax.imageio.ImageIO;
 
 import org.opensha.commons.util.FileUtils;
 
+import com.lowagie.text.pdf.PdfReader;
+
 public class RasterExtractor {
 	
 	String psFileName;
@@ -36,6 +38,7 @@ public class RasterExtractor {
 		boolean colorimage = false;
 		
 		boolean ascii85 = false;
+		boolean lzwDecode = false;
 		
 		int width = 0;
 		int height = 0;
@@ -69,6 +72,8 @@ public class RasterExtractor {
 					colorimage = true;
 					continue;
 				} else if (line.contains("ASCII85Decode")) {
+					
+					lzwDecode = line.contains("LZWDecode");
 					
 					int depth = 0;
 					
@@ -131,6 +136,7 @@ public class RasterExtractor {
 		
 		System.out.println("Done reading...converting.");
 		
+		
 		if (ascii85) {
 			InputStream is = new ByteArrayInputStream(asciiImage.getBytes("UTF-8"));
 			ASCII85InputStream ais = new ASCII85InputStream(is);
@@ -139,10 +145,14 @@ public class RasterExtractor {
 			
 			while (!ais.isEndReached()) {
 				if (byteCount < expected) {
-					bytes[byteCount] = (byte) ais.read();
+					int data = ais.read();
+					bytes[byteCount] = (byte) data;
 					byteCount++;
 				} else
 					break;
+			}
+			if (lzwDecode) {
+				bytes = PdfReader.LZWDecode(bytes);
 			}
 		}
 		
