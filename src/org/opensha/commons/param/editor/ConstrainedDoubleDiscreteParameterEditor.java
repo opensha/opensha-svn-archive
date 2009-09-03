@@ -179,8 +179,9 @@ public class ConstrainedDoubleDiscreteParameterEditor
             }
 
             if(strs.size() > 1){
-
-                valueEditor = new JComboBox(strs);
+            	JComboBox jcb = new JComboBox(strs);
+            	jcb.setMaximumRowCount(32);
+                valueEditor = jcb;
                 valueEditor.setPreferredSize(JCOMBO_DIM);
                 //valueEditor.setBackground(this.BACK_COLOR);
                 valueEditor.setMinimumSize(JCOMBO_DIM);

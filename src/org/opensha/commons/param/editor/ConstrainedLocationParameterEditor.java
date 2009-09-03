@@ -178,8 +178,9 @@ public class ConstrainedLocationParameterEditor
             }
 
             if(strs.size() > 1){
-
-                valueEditor = new JComboBox(strs);
+            	JComboBox jcb = new JComboBox(strs);
+            	jcb.setMaximumRowCount(32);
+                valueEditor = jcb;
                 valueEditor.setPreferredSize(JCOMBO_DIM);
                 valueEditor.setMinimumSize(JCOMBO_DIM);
                 valueEditor.setFont(JCOMBO_FONT);

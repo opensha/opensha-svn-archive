@@ -85,6 +85,7 @@ ActionListener, ItemListener{
 
 	private void makeAutoWeightsParamAndEditor() {
 		autoWeightComboBox = new JComboBox();
+		autoWeightComboBox.setMaximumRowCount(32);
 		autoWeightComboBox.addItem(AUTO_WEIGHTS_PARAM_NAME);
 		autoWeightComboBox.addItem(EQUAL_WEIGHTS);
 		autoWeightComboBox.addItem(ZERO_WEIGHT);

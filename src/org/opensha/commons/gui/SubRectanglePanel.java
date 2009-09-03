@@ -8,10 +8,13 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 
 import javax.swing.BorderFactory;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 
 import org.opensha.commons.param.editor.IntegerTextField;
 
@@ -34,6 +37,9 @@ import org.opensha.commons.param.editor.IntegerTextField;
  *
  * @author Steven W. Rock
  * @version 1.0
+ * 
+ * TODO deprecate??
+ * 
  */
 
 public class SubRectanglePanel extends JPanel{
@@ -307,6 +313,13 @@ public class SubRectanglePanel extends JPanel{
 
     }
 
+    /** Tester function to see the border in action. Shows usage for this class. */
+    public static void main( String[] args ) {
+        JFrame frame = new JFrame( "SubRectanglePanel" );
+        frame.getContentPane().add( new SubRectanglePanel(20, 50, 10, 70) );
+        frame.setBounds( 0, 0, 300, 150 );
+        frame.setVisible( true );
+    }
 
 
 }

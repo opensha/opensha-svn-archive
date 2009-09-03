@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import java.awt.Toolkit;
 
 import org.opensha.commons.util.FileUtils;
@@ -175,7 +176,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 		}
 		erfPanel.removeAll();
 		erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-				GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+				GridBagConstraints.CENTER,GridBagConstraints.BOTH, new Insets(0,0,0,0), 0, 0 ));
 		erfPanel.updateUI();
 	}
 

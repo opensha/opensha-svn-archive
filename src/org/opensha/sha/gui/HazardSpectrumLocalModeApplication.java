@@ -2,6 +2,7 @@ package org.opensha.sha.gui;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -140,7 +141,7 @@ public class HazardSpectrumLocalModeApplication
      imrGuiBean.getSelectedIMR_Instance().setIntensityMeasure(this.SA_NAME);
      // show this gui bean the JPanel
      imrPanel.add(this.imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+         GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0,0,0,0), 0, 0 ));
      imrPanel.updateUI();
   }
 
@@ -388,7 +389,7 @@ public class HazardSpectrumLocalModeApplication
                       new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
                                              GridBagConstraints.CENTER,
                                              GridBagConstraints.BOTH,
-                                             defaultInsets, 0, 0));
+                                             new Insets(0,0,0,0), 0, 0));
   }
 
   /**

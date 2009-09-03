@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.rmi.RemoteException;
 
 import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 
 import java.io.*;
 
@@ -141,22 +143,6 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	protected final static String PROBABILISTIC = "Probabilistic";
 	protected final static String DETERMINISTIC = "Deterministic";
 
-	// instances of the GUI Beans which will be shown in this applet
-	protected ERF_GuiBean erfGuiBean;
-	protected IMR_GuiBean imrGuiBean;
-	private IMT_GuiBean imtGuiBean;
-	protected Site_GuiBean siteGuiBean;
-	protected EqkRupSelectorGuiBean erfRupSelectorGuiBean;
-
-	// instance for the ButtonControlPanel
-	ButtonControlPanel buttonControlPanel;
-
-	// instance of the GraphPanel (window that shows all the plots)
-	GraphPanel graphPanel;
-
-	// instance of the GraphWindow to pop up when the user wants to "Peel-Off"
-	// curves;
-	GraphWindow graphWindow;
 
 	// X and Y Axis when plotting tha Curves Name
 	protected String xAxisName;
@@ -198,7 +184,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	private boolean yLog = false;
 
 	// default insets
-	protected Insets defaultInsets = new Insets(4, 4, 4, 4);
+	protected Insets defaultInsets = new Insets(4, 4, 4, 4); ///TODO remove
 
 	/**
 	 * List of ArbitrarilyDiscretized functions and Weighted funstions
@@ -251,9 +237,6 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	// PEER Test Cases
 	protected String TITLE = new String("Hazard Curves");
 
-	private final static String POWERED_BY_IMAGE = "logos/PoweredByOpenSHA_Agua.jpg";
-
-	// JSplitPane contentSplitPane = new JSplitPane();
 
 	// accessible components
 	private JMenuItem saveMenuItem;
@@ -272,20 +255,22 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	protected JComboBox controlComboBox; // TODO make private
 	private JComboBox probDeterComboBox;
 
-	private JPanel plotPanel = new JPanel();
-	private JSplitPane contentSplitPane;
-	
+	private JPanel plotPanel;
+	private JPanel sitePanel;
 	protected JPanel imrPanel; // TODO make private
 	protected JPanel imtPanel; // TODO make private
+	protected JPanel erfPanel; // TODO make private
 	
-	private JSplitPane imrSplitPane;
+	private GraphPanel graphPanel; // actual plot panel
+	private GraphWindow graphWindow; // "Peel-Off" plot window
+	private ButtonControlPanel buttonControlPanel;
 
-	JPanel sitePanel = new JPanel();
-	JSplitPane controlsSplit = new JSplitPane();
-	JTabbedPane paramsTabbedPane = new JTabbedPane();
-	
-	
-	protected JPanel erfPanel = new JPanel();
+	protected ERF_GuiBean erfGuiBean;
+	protected IMR_GuiBean imrGuiBean;
+	private IMT_GuiBean imtGuiBean;
+	protected Site_GuiBean siteGuiBean;
+	protected EqkRupSelectorGuiBean erfRupSelectorGuiBean;
+
 	
 
 	// instances of various calculators
@@ -304,6 +289,8 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	
 	
 
+	private final static String POWERED_BY_IMAGE = 
+			"logos/PoweredByOpenSHA_Agua.jpg";
 	private JLabel imgLabel = new JLabel(new ImageIcon(
 			ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
 
@@ -347,12 +334,15 @@ public class HazardCurveServerModeApplication extends JFrame implements
 			// initialize the GUI components
 			startAppProgressClass = new CalcProgressBar("Starting Application",
 					"Initializing Application .. Please Wait");
+			
 			jbInit();
 
-			// initialize the various GUI beans
 			initIMR_GuiBean();
 			initIMT_GuiBean();
 			initSiteGuiBean();
+
+
+			// initialize the various GUI beans
 			try {
 				initERF_GuiBean();
 			} catch (RuntimeException e) {
@@ -377,13 +367,9 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		//((JPanel) getContentPane()).updateUI();
 	}
 
-	private Border border5;
-
 	// Component initialization TODO should be private
 	protected void jbInit() throws Exception {
 
-		border5 = BorderFactory.createLineBorder(SystemColor.controlText, 1);
-		
 		// ======== init menu bar ========
 		JMenuBar menuBar = new JMenuBar();
 		JMenu fileMenu = new JMenu("File");
@@ -397,6 +383,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		closeMenuItem.addActionListener(this);
 		fileMenu.add(closeMenuItem);
 		menuBar.add(fileMenu);
+		
 		
 		// ======== init toolbar ========
 		JToolBar toolbar = new JToolBar();
@@ -416,6 +403,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		saveButton.setToolTipText("Save Graph as image");
 		saveButton.addActionListener(this);
 		toolbar.add(saveButton);
+		
 		
 		// ======== button panel ========
 		JPanel buttonPanel = new JPanel();
@@ -462,60 +450,62 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		graphPanel = new GraphPanel(this);
 
 
+		// ======== param panels ========
+		plotPanel = new JPanel(new GridBagLayout());
+		Border b = BorderFactory.createCompoundBorder(
+				new LineBorder(plotPanel.getBackground(), 6),
+				new LineBorder(Color.gray));
+		plotPanel.setBackground(Color.white);
+		plotPanel.setBorder(b);
+		
+		
+		// IMR, IMT & Site panel
 		imrPanel = new JPanel(new GridBagLayout());
-		imrPanel.setBackground(Color.white);
 
 		imtPanel = new JPanel(new GridBagLayout());
-		imtPanel.setBackground(Color.white);
 
-		plotPanel.setLayout(new GridBagLayout());
-		plotPanel.setBackground(Color.white);
-		plotPanel.setBorder(border5);
+		JSplitPane imrImtSplitPane = new JSplitPane(
+				JSplitPane.VERTICAL_SPLIT, true, imrPanel, imtPanel);
+		imrImtSplitPane.setResizeWeight(0.5);
+		imrImtSplitPane.setBorder(null);
 		
-		
-		
-		JSplitPane imrSplitPane = new JSplitPane(
-			JSplitPane.VERTICAL_SPLIT, true, imrPanel, imtPanel);
-		imrSplitPane.setResizeWeight(0.5);
-		imrSplitPane.setBorder(null);
-
-		sitePanel.setLayout(new GridBagLayout());
+		sitePanel = new JPanel(new GridBagLayout());
+		//sitePanel.setBorder(BorderFactory.createEmptyBorder()); TODO clean
 		sitePanel.setBackground(Color.white);
-		erfPanel.setLayout(new GridBagLayout());
-		// erfPanel.setBackground(Color.white);
-		// erfPanel.setBorder(border2);
-		// erfPanel.setMaximumSize(new Dimension(2147483647, 10000));
-		// erfPanel.setMinimumSize(new Dimension(2, 300));
-		// erfPanel.setPreferredSize(new Dimension(2, 300));
-		// erfPanel.setOpaque(false);
 		
-		contentSplitPane = new JSplitPane(
+		JSplitPane imrImtSiteSplitPane = new JSplitPane(
+				JSplitPane.HORIZONTAL_SPLIT, true, imrImtSplitPane, sitePanel);
+		imrImtSiteSplitPane.setResizeWeight(0.5);
+		imrImtSiteSplitPane.setDividerLocation(0.5); //TODO revisit
+		imrImtSiteSplitPane.setBorder(null);
+		
+		// ERF panel
+		erfPanel = new JPanel(new GridBagLayout());
+		
+		// tabbed
+		JTabbedPane paramsTabbedPane = new JTabbedPane();
+		paramsTabbedPane.add(imrImtSiteSplitPane, "IMR, IMT & Site");
+		paramsTabbedPane.add(erfPanel, "ERF & Time Span");		
+		
+		// ======== content area ========
+		JSplitPane contentSplitPane = new JSplitPane(
 				JSplitPane.HORIZONTAL_SPLIT, true, plotPanel, paramsTabbedPane);
 		contentSplitPane.setResizeWeight(1.0);
+		contentSplitPane.setDividerLocation(0.5); //TODO revisit
 		contentSplitPane.setBorder(null);
-		//contentSplitPane.setDividerLocation(0.6); TODO revisit
-		
-		imrSplitPane.add(imrPanel, JSplitPane.TOP);
-		imrSplitPane.add(imtPanel, JSplitPane.BOTTOM);
-		
-		controlsSplit.add(imrSplitPane, JSplitPane.LEFT);
-		paramsTabbedPane.add(controlsSplit, "IMR, IMT & Site");
-		controlsSplit.add(sitePanel, JSplitPane.RIGHT);
-		paramsTabbedPane.add(erfPanel, "ERF & Time Span");
-		imrSplitPane.setDividerLocation(300);
 
-		controlsSplit.setDividerLocation(230);
+		Container content = getContentPane();
+		content.setLayout(new BorderLayout());
+		content.add(toolbar, BorderLayout.NORTH);
+		content.add(contentSplitPane, BorderLayout.CENTER);
+		content.add(buttonPanel, BorderLayout.SOUTH);
 		
-		
-//		JSplitPane contentSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-//		contentSplitPane.setBorder(null);
-//		contentSplitPane.add(chartSplit, JSplitPane.TOP);
-//		contentSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
+
 		
 		// erfPanel.setLayout(new GridBagLayout());
-		erfPanel.validate();
-		erfPanel.repaint();
-		contentSplitPane.setDividerLocation(590);
+//		erfPanel.validate();
+//		erfPanel.repaint();
+//		contentSplitPane.setDividerLocation(590);
 		
 //		JPanel contentPanel = new JPanel(new GridBagLayout());
 //		contentPanel.add(contentSplitPane, new GridBagConstraints(
@@ -527,11 +517,6 @@ public class HazardCurveServerModeApplication extends JFrame implements
 //				243, 231));
 
 		// assemble frame
-		Container content = getContentPane();
-		content.setLayout(new BorderLayout());
-		content.add(toolbar, BorderLayout.NORTH);
-		content.add(contentSplitPane, BorderLayout.CENTER);
-		content.add(buttonPanel, BorderLayout.SOUTH);
 
 		// frame setup
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -622,6 +607,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 
 	// static initializer for setting look & feel
 	static {
+		System.setProperty("apple.laf.useScreenMenuBar", "true");
 		String osName = System.getProperty("os.name");
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -930,7 +916,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		graphPanel.removeChartAndMetadata();
 		plotPanel.removeAll();
 		functionList.clear();
-		contentSplitPane.repaint();
+		repaint();
 	}
 
 	/**
@@ -1598,9 +1584,9 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter()
 				.addParameterChangeListener(this);
 		// show this gui bean the JPanel
-		imrPanel.add(this.imrGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0,
+		imrPanel.add(imrGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0,
 				1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-				defaultInsets, 0, 0));
+				new Insets(0,0,0,0), 0, 0));
 		//imrPanel.updateUI();
 	}
 
@@ -1618,7 +1604,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		imtPanel.setLayout(new GridBagLayout());
 		imtPanel.add(imtGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-				defaultInsets, 0, 0));
+				new Insets(0,0,0,0), 0, 0));
 		//imtPanel.updateUI();
 
 	}
@@ -1635,9 +1621,9 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		siteGuiBean = new Site_GuiBean();
 		siteGuiBean.addSiteParams(imr.getSiteParamsIterator());
 		// show the sitebean in JPanel
-		sitePanel.add(this.siteGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0,
+		sitePanel.add(siteGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0,
 				1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-				defaultInsets, 0, 0));
+				new Insets(0,0,0,0), 0, 0));
 		//sitePanel.updateUI();
 
 	}
@@ -1690,7 +1676,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		erfPanel.removeAll();
 //		erfPanel.add(erfGuiBean, BorderLayout.CENTER);
 		 erfPanel.add(erfGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
-		 GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0,
+		 GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0,0,0,0), 0,
 		 0));
 
 		 // TODO delete; not sure why needed, ui shouldn't have changed from launch

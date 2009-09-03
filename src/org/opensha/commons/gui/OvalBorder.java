@@ -31,6 +31,8 @@ import javax.swing.border.EmptyBorder;
  * @author     Steven W. Rock
  * @created    February 20, 2002
  * @version    1.0
+ * 
+ * TODO deprecate or fix and use... main() test looks like crap
  */
 
 public class OvalBorder implements Border {
