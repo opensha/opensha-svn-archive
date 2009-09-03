@@ -18,6 +18,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.rupForecastImpl.GriddedRegionPoissonEqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.GEM.TestGEM_ERF;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -77,7 +78,7 @@ public class computeHazard implements Runnable {
 	private void loopDoRange(int start, int end){
 		
 		System.out.println("started loopDoRange"+"\t"+start+"\t"+end);
-		
+/*		
     	// intensity measure level
 	    ArbitrarilyDiscretizedFunc hc = new ArbitrarilyDiscretizedFunc();
 	    hc.set(0.00010,1);
@@ -132,6 +133,30 @@ public class computeHazard implements Runnable {
 		hc.set(7.94328,1);
 		hc.set(10.0,1);	
 	    for(int in=0;in<hc.getNum();in++) hc.set(Math.log(hc.getX(in)), hc.getY(in));
+*/	    
+/*	 */   
+	    ArbitrarilyDiscretizedFunc hc = new ArbitrarilyDiscretizedFunc();
+	    hc.set(0.0050,1);
+//	    hc.set(0.0070,1);
+//	    hc.set(0.0098,1);
+//	    hc.set(0.0137,1);
+//	    hc.set(0.0192,1);
+//	    hc.set(0.0269,1);
+//	    hc.set(0.0376,1);
+//	    hc.set(0.0527,1);
+//	    hc.set(0.0738,1);
+//	    hc.set(0.103,1);
+//	    hc.set(0.145,1);
+//	    hc.set(0.203,1);
+//	    hc.set(0.284,1);
+//	    hc.set(0.397,1);
+//	    hc.set(0.556,1);
+//	    hc.set(0.778,1);
+//	    hc.set(1.09,1);
+//	    hc.set(1.52,1);
+//	    hc.set(2.13,1);
+	    for(int in=0;in<hc.getNum();in++) hc.set(Math.log(hc.getX(in)), hc.getY(in));
+    
 	    
 	    // attenuation relationship (Abrahmson and Silva 1997)
         AS_1997_AttenRel as_1997;
@@ -154,6 +179,10 @@ public class computeHazard implements Runnable {
 		// probability value for computing PGA
 		double prob_level = 0.1;
 		
+		// ERF
+		TestGEM_ERF sszERF = new TestGEM_ERF();
+		
+/*		
 		// ERF 
 		SeismicZoneERF sszERF = null;
 		
@@ -198,13 +227,14 @@ public class computeHazard implements Runnable {
 			sszERF.addSource(sszEqkSource);
 			ntotrup = ntotrup+sszEqkSource.getNumRuptures();
 		}
+*/
 		
 		long origStartTime = System.currentTimeMillis();
 		
 				
 		// loop over sites where to compute hazard
-//		for(int i=start; i<end;i+=1){
-		for(int i=start; i<=start;i+=1){
+		for(int i=start; i<end;i+=1){
+//		for(int i=26; i<=26;i+=1){
 			
 			
 			// start timing
@@ -222,7 +252,7 @@ public class computeHazard implements Runnable {
 		        }
 			}
 			
-			System.out.println("starting hazard calc");
+//			System.out.println("starting hazard calc");
 				        
     		// perform hazard calculation
 		    try {
@@ -235,7 +265,7 @@ public class computeHazard implements Runnable {
                 	pga[i] = 0;
                 }
                 else{
-				pga[i] = Math.exp(hc.getFirstInterpolatedX(prob_level));
+//				pga[i] = Math.exp(hc.getFirstInterpolatedX(prob_level));
                 }
     			// start timing
     			long endTime = System.currentTimeMillis();

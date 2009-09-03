@@ -40,7 +40,7 @@ public class computeHazardMultiThreading {
             for (int j=0;j<npgaLon;j++) {
 	    	hazSite.add(ii,new Site(new Location(latmin+delta*i,lonmin+delta*j)));
 	    	ii = ii+1;
-	    }
+            }
         }
         
         // number of threads
@@ -64,7 +64,7 @@ public class computeHazardMultiThreading {
         //String outputFilePath = "/Users/damianomonelli/Documents/GEM/openSHA/SEA/SEAssz_pga2.dat";
         //String outputFilePath = "/Users/damianomonelli/Documents/GEM/openSHA/ComputationTime/SEAssz_pga.dat";
 //        String outputFilePath = "/home/damiano/Test/results/SEA/SEAssz_PGA01.dat";
-        String outputFilePath = "/Users/field/workspace/OpenSHA/dev/scratch/ned/GEM_speed/SEAssz_PGA01.dat";
+        String outputFilePath = "/Users/field/workspace/OpenSHA/dev/scratch/ned/GEM_speed/SEAssz_PGA01.txt";
         try {
             FileOutputStream oOutFIS = new FileOutputStream(outputFilePath);
             BufferedOutputStream oOutBIS = new BufferedOutputStream(oOutFIS);
