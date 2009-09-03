@@ -5,12 +5,16 @@
 BROADER ISSUES:
 --------------
 
-
 GEM ERF Input file formats
+
+	Marco will create actual file examples
+	Ned will implement or review the general ERF
+
+Hazard curves from stochastic event sets
 
 Investigate Performance Issues:
 
-	Define speed vs accuracy tests (GEM_TestERF; PEER test case 10; GEM custom tests)
+	Define speed vs accuracy tests (GEM_TestERF; PEER test case 10; GEM custom tests?)
 
 	Try possible performance enhancements
 
@@ -18,12 +22,12 @@ Investigate Performance Issues:
 		num IMLs in x-axis of curve
 		mag bin width
 		grid discretization
-		Hazard map avoiding full curve calculator
 		adaptive grid spacing (wouldn't work for event sets)
 		pointSource --> IMR calcs (wouldn't work for event sets)
 		Smart event filtering
 
-
+Hazard map avoiding full curve calculator
+		
 Go through main calculators as a group.  Map/UML of each calculator/application
 
 Develop strategy for instantiation of model components for each type of calculation from XML files 
@@ -31,15 +35,14 @@ Develop strategy for instantiation of model components for each type of calculat
 See discussion of "Solve Our MetaData Issues" below for related issues.  Refine/review 
 toXMLMetadata(Element root)  &  fromXMLMetadata(Element root) implementations
 
-Implement PEER tests as JUnit.
-
 Need to review the new site translator class (what Kevin put together)
 
 Evaluate Kevin's implementation of site class for region web services
 
-Hazard curves from stochastic event sets
+Implement PEER tests as JUnit.
 
 Look into using triangular surfaces (or at least change API to accommodate these later)?
+
 Create capability to associate IMRs to specific source types in the calculations 
 (this will require discussions with GEM and NSHMP).  Ned's intitial tests on 
 adding such fields to EqkRupture does not significantly increase memory requirements.  
@@ -49,6 +52,9 @@ Possibilities:
 	Subduction IntraSlab
 	Shallow Crustal in Active Tectonic Regions
 	Shallow Crustal in Stable Tectonic Regions
+	Volcanic Regions
+
+
 
 ProbEqkSource	Define field to declare what type of source it is
 		(e.g., subduction zone vs normal vs reverse ...) and add to API.
