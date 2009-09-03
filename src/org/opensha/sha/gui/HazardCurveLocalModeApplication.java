@@ -60,6 +60,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 	public final static String CYBERSHAKE_ERF_LIST_CLASS_NAME="org.opensha.sha.cybershake.openshaAPIs.CyberShakeERF";
 	public final static String CYBERSHAKE_ERF_WRAPPER_LIST_CLASS_NAME="org.opensha.sha.cybershake.openshaAPIs.CyberShakeUCERFWrapper_ERF";
 	public final static String NZ_ERFv1_CLASS_NAME="scratch.bbradley.NewZealandERFv1";
+	public final static String GEM_TEST_ERF_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.GEM.TestGEM_ERF";
 
 	protected final static String appURL = "http://www.opensha.org/applications/hazCurvApp/HazardCurveApp.jar";
 
@@ -112,6 +113,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 		ArrayList<String> erf_Classes = new ArrayList<String>();
 
 		//adding the client based ERF's to the application
+		erf_Classes.add(GEM_TEST_ERF_CLASS_NAME);
 		erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
 		erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
 		erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
