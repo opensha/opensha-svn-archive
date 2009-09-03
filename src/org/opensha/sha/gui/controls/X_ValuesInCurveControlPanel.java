@@ -170,23 +170,21 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     function.set(.001,1);
     function.set(.01,1);
     function.set(.05,1);
-    function.set(.15,1);
     function.set(.1,1);
+    function.set(.15,1);
     function.set(.2,1);
     function.set(.25,1);
     function.set(.3,1);
+    function.set(.35,1);
     function.set(.4,1);
+    function.set(.45,1);
     function.set(.5,1);
+    function.set(.55,1);
     function.set(.6,1);
     function.set(.7,1);
     function.set(.8,1);
     function.set(.9,1);
     function.set(1.0,1);
-    function.set(1.1,1);
-    function.set(1.2,1);
-    function.set(1.3,1);
-    function.set(1.4,1);
-    function.set(1.5,1);
   }
 
 
