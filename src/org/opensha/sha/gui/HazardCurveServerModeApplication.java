@@ -384,7 +384,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 
 		border5 = BorderFactory.createLineBorder(SystemColor.controlText, 1);
 		
-		// init menu bar
+		// ======== init menu bar ========
 		JMenuBar menuBar = new JMenuBar();
 		JMenu fileMenu = new JMenu("File");
 		saveMenuItem = new JMenuItem("Save");
@@ -398,7 +398,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		fileMenu.add(closeMenuItem);
 		menuBar.add(fileMenu);
 		
-		// init toolbar
+		// ======== init toolbar ========
 		JToolBar toolbar = new JToolBar();
 		toolbar.setFloatable(false);
 		closeButton = new JButton(new ImageIcon(
@@ -417,7 +417,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		saveButton.addActionListener(this);
 		toolbar.add(saveButton);
 		
-		// button panel
+		// ======== button panel ========
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setMinimumSize(new Dimension(600, 100));
 		buttonPanel.setPreferredSize(new Dimension(600, 100));
