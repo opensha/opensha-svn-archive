@@ -174,10 +174,10 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 				erfGuiBean.setERF(eqkRupForecast);
 			}
 		}
-		erfPanel.removeAll();
-		erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-				GridBagConstraints.CENTER,GridBagConstraints.BOTH, new Insets(0,0,0,0), 0, 0 ));
-		erfPanel.updateUI();
+//		erfPanel.removeAll(); TODO clean
+//		erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+//				GridBagConstraints.CENTER,GridBagConstraints.BOTH, new Insets(0,0,0,0), 0, 0 ));
+//		erfPanel.updateUI();
 	}
 
 
@@ -225,11 +225,11 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 		}
 		else
 			erfRupSelectorGuiBean.setEqkRupForecastModel(erf);
-		erfPanel.removeAll();
-		//erfGuiBean = null;
-		erfPanel.add(erfRupSelectorGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-				GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-		erfPanel.updateUI();
+//		erfPanel.removeAll(); TODO clean
+//		//erfGuiBean = null;
+//		erfPanel.add(erfRupSelectorGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+//				GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+//		erfPanel.updateUI();
 	}
 
 	/**

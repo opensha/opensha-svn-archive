@@ -3,6 +3,7 @@ package org.opensha.sha.gui.infoTools;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -78,7 +79,7 @@ import com.lowagie.text.pdf.PdfWriter;
  * @version 1.0
  */
 
-public class GraphPanel extends JPanel {
+public class GraphPanel extends JSplitPane {
 
 
 
@@ -94,17 +95,17 @@ public class GraphPanel extends JPanel {
 
   private SimpleAttributeSet setLegend;
 
-  private BorderLayout borderLayout1 = new BorderLayout();
-  private JSplitPane chartSplitPane = new JSplitPane();
-  private JScrollPane metadataScrollPane = new JScrollPane();
-  private JPanel chartPane = new JPanel();
+  // accessible components
+  private JSplitPane chartSplitPane;
+  private JPanel chartPane;
+  private JTextPane metadataText;
+  private JScrollPane dataScrollPane;
+  private JTextArea dataTextArea;
+  private ChartPanel chartPanel;
 
   // these are coordinates and size of the circles visible in the plot
   private final static double SIZE = 3;
   private final static double DELTA = SIZE / 2.0;
-
-
-  private Insets plotInsets = new Insets( 4, 4, 4, 4 );
 
   //dataset to handover the data to JFreechart
   private DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
@@ -118,9 +119,6 @@ public class GraphPanel extends JPanel {
    * for Y-log, 0 values will be converted to this small value
    */
   private double Y_MIN_VAL = 1e-16;
-
-  //graph chart panel
-  private ChartPanel chartPanel;
 
 
   private XYPlot plot;
@@ -142,21 +140,11 @@ public class GraphPanel extends JPanel {
   GraphPanelAPI application;
 
 
-  JTextPane metadataText = new JTextPane();
 
   //List of PlotCurveCharacterstics for each curve
   //that we plot which include the line color,line width.
   private ArrayList curvePlottingCharacterstics = new ArrayList();
-
-  /**
-   * adding scroll pane for showing data
-   */
-  private JScrollPane dataScrollPane = new JScrollPane();
-
-  // text area to show the data values
-  private JTextArea pointsTextArea = new JTextArea();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
-
+  
   //This ArrayList stores the legend for various
   private ArrayList legendString;
 
@@ -165,7 +153,11 @@ public class GraphPanel extends JPanel {
    * @param api : Application instance
    */
   public GraphPanel(GraphPanelAPI api) {
-    data.setFunctions(this.totalProbFuncs);
+	  super(JSplitPane.VERTICAL_SPLIT, true);
+	  setResizeWeight(1);
+	  setBorder(null);
+	  
+	  data.setFunctions(this.totalProbFuncs);
     // for Y-log, convert 0 values in Y axis to this small value, it just sets the minimum
     //value
     data.setConvertZeroToMin(true,Y_MIN_VAL);
@@ -183,27 +175,30 @@ public class GraphPanel extends JPanel {
    * Function to add GUI component to Graphpanel class
    * @throws Exception
    */
-  void jbInit() throws Exception {
-    this.setLayout(borderLayout1);
-    chartSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    metadataText.setEditable(false);
-    chartPane.setLayout(gridBagLayout1);
-    add(chartSplitPane, BorderLayout.CENTER);
-    chartSplitPane.add(metadataScrollPane, JSplitPane.BOTTOM);
-    metadataScrollPane.getViewport().add(metadataText, null);
-    chartSplitPane.add(chartPane,JSplitPane.TOP);
-    chartSplitPane.setDividerLocation(450);
+	void jbInit() throws Exception {
+		
+		dataTextArea = new JTextArea(NO_PLOT_MSG);
+		//dataTextArea.setBorder(BorderFactory.createEtchedBorder());
+		dataTextArea.setLineWrap(true);
 
-    // for showing the data on click of "show data" button
-    pointsTextArea.setBorder( BorderFactory.createEtchedBorder() );
-    pointsTextArea.setText( NO_PLOT_MSG );
-    pointsTextArea.setLineWrap(true);
-    dataScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-    dataScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-    dataScrollPane.setBorder( BorderFactory.createEtchedBorder() );
-    dataScrollPane.getViewport().add( pointsTextArea, null );
-  }
+		dataScrollPane = new JScrollPane();
+		//dataScrollPane.setBorder(BorderFactory.createEtchedBorder());
+		dataScrollPane.getViewport().add(dataTextArea, null);
 
+		chartPane = new JPanel(new BorderLayout());
+		
+		metadataText = new JTextPane();
+		metadataText.setEditable(false);
+		JScrollPane metadataScrollPane = new JScrollPane();
+		metadataScrollPane.getViewport().add(metadataText);
+		Dimension d = new Dimension(200,200);
+		metadataScrollPane.setMinimumSize(d);
+		metadataScrollPane.setPreferredSize(d);
+
+		setTopComponent(chartPane);
+		setBottomComponent(metadataScrollPane);
+
+	}
 
 
   /**
@@ -730,7 +725,7 @@ public class GraphPanel extends JPanel {
       yAxis1 = yAxis;
 
     //setting the info in the
-    pointsTextArea.setText(this.showDataInWindow(funcList,xAxisName,yAxisName));
+    dataTextArea.setText(this.showDataInWindow(funcList,xAxisName,yAxisName));
     return ;
   }
 
@@ -809,7 +804,7 @@ public class GraphPanel extends JPanel {
    * @param metadata
    */
   public void setMetadata(String metadata){
-   pointsTextArea.setText(metadata);
+   dataTextArea.setText(metadata);
   }
 
 
@@ -820,7 +815,7 @@ public class GraphPanel extends JPanel {
     chartPane.removeAll();
     chartPanel = null;
     metadataText.setText("");
-    pointsTextArea.setText(this.NO_PLOT_MSG);
+    dataTextArea.setText(this.NO_PLOT_MSG);
     curvePlottingCharacterstics.clear();
   }
 
@@ -837,8 +832,9 @@ public class GraphPanel extends JPanel {
     	  buttonControlPanel.setToggleButtonText( "Show Plot" );
       graphOn = false;
 
-      chartPane.add(dataScrollPane,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-          , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
+      chartPane.add(dataScrollPane, BorderLayout.CENTER);
+//      chartPane.add(dataScrollPane,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+//          , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
     }
     else {
       //showing the Plot window, if not null
@@ -847,12 +843,15 @@ public class GraphPanel extends JPanel {
     	  buttonControlPanel.setToggleButtonText("Show Data");
       // panel added here
       if(chartPanel !=null) {
-        chartPane.add(chartPanel,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-          , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
+    	  chartPane.add(chartPanel, BorderLayout.CENTER);
+//        chartPane.add(chartPanel,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0 TODO clean
+//          , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
 
+      } else {
+    	  chartPane.add(dataScrollPane, BorderLayout.CENTER);
+//    	  chartPane.add(dataScrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+//    	          , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
       }
-      else chartPane.add(dataScrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-          , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
 
     }
     return ;
@@ -997,7 +996,7 @@ public class GraphPanel extends JPanel {
       saveAsPDF(fileName);
     //chartPanel.doSaveAs();
     else
-      DataUtil.save(fileName, pointsTextArea.getText());
+      DataUtil.save(fileName, dataTextArea.getText());
   }
   
   /**
@@ -1100,7 +1099,7 @@ public class GraphPanel extends JPanel {
       if (pjob != null) {
         Graphics pg = pjob.getGraphics();
         if (pg != null) {
-          DataUtil.print(pjob, pg, pointsTextArea.getText());
+          DataUtil.print(pjob, pg, dataTextArea.getText());
           pg.dispose();
         }
         pjob.end();
@@ -1143,6 +1142,7 @@ public class GraphPanel extends JPanel {
     return null;
   }
 
+  // TODO this is only called by a scratch file
   public void setSplitLocation(int l) {
 	  chartSplitPane.setDividerLocation(l);
   }

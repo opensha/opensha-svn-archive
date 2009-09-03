@@ -96,10 +96,10 @@ public class CEA_HazardCurveLocalModeApp extends HazardCurveServerModeApplicatio
         erfGuiBean.setERF(eqkRupForecast);
       }
     }
-    erfPanel.removeAll();
-    erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-        GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-    erfPanel.updateUI();
+//    erfPanel.removeAll(); TODO clean
+//    erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+//        GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+//    erfPanel.updateUI();
   }
 
 
@@ -137,11 +137,11 @@ public class CEA_HazardCurveLocalModeApp extends HazardCurveServerModeApplicatio
     }
     else
       erfRupSelectorGuiBean.setEqkRupForecastModel(erf);
-   erfPanel.removeAll();
-   //erfGuiBean = null;
-   erfPanel.add(erfRupSelectorGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-   erfPanel.updateUI();
+//   erfPanel.removeAll(); TODO clean
+//   //erfGuiBean = null;
+//   erfPanel.add(erfRupSelectorGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+//                GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+//   erfPanel.updateUI();
   }
 
   /**
@@ -196,9 +196,9 @@ public class CEA_HazardCurveLocalModeApp extends HazardCurveServerModeApplicatio
      imrGuiBean = new IMR_GuiBean(this, classNames);
      imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
      // show this gui bean the JPanel
-     imrPanel.add(this.imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-     imrPanel.updateUI();
+//     imrPanel.add(this.imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+//         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+//     imrPanel.updateUI(); TODO clean
   }
 
   public static void main(String[] args) {

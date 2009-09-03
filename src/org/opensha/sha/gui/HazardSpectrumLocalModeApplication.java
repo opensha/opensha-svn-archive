@@ -140,9 +140,9 @@ public class HazardSpectrumLocalModeApplication
      //sets the Intensity measure for the IMR
      imrGuiBean.getSelectedIMR_Instance().setIntensityMeasure(this.SA_NAME);
      // show this gui bean the JPanel
-     imrPanel.add(this.imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-         GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0,0,0,0), 0, 0 ));
-     imrPanel.updateUI();
+//     imrPanel.add(this.imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+//         GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0,0,0,0), 0, 0 ));
+//     imrPanel.updateUI(); TODO clean
   }
 
 
@@ -151,12 +151,10 @@ public class HazardSpectrumLocalModeApplication
     try {
 
       // initialize the control pick list
-      initControlList();
+      //initControlList();
       //initialise the list to make selection whether to show ERF_GUIBean or ERF_RupSelectorGuiBean
-      initProbOrDeterList();
+      //initProbOrDeterList();
       startAppProgressClass = new CalcProgressBar("Starting Application", "Initializing Application .. Please Wait");
-      // initialize the GUI components
-      jbInit();
 
       // initialize the various GUI beans
       initIMR_GuiBean();
@@ -172,6 +170,12 @@ public class HazardSpectrumLocalModeApplication
         e.printStackTrace();
         System.exit(0);
       }
+
+      // initialize the GUI components
+      jbInit();
+      
+      setImtPanel(imlProbGuiBean); // swap iml panel
+
     }
     catch (Exception e) {
       ExceptionWindow bugWindow = new ExceptionWindow(this, e,
@@ -385,11 +389,11 @@ public class HazardSpectrumLocalModeApplication
    */
   private void initImlProb_GuiBean() {
     imlProbGuiBean = new IMLorProbSelectorGuiBean();
-    this.imtPanel.add(imlProbGuiBean,
-                      new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
-                                             GridBagConstraints.CENTER,
-                                             GridBagConstraints.BOTH,
-                                             new Insets(0,0,0,0), 0, 0));
+//    this.imtPanel.add(imlProbGuiBean, TODO clean
+//                      new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
+//                                             GridBagConstraints.CENTER,
+//                                             GridBagConstraints.BOTH,
+//                                             new Insets(0,0,0,0), 0, 0));
   }
 
   /**
