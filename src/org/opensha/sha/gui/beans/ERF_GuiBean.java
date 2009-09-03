@@ -17,6 +17,7 @@ import org.opensha.sha.param.SimpleFaultParameter;
 import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
 import org.opensha.sha.param.editor.SimpleFaultParameterEditor;
 import java.awt.*;
+
 import javax.swing.*;
 
 import org.opensha.sha.earthquake.EqkRupForecast;
@@ -72,9 +73,7 @@ ParameterChangeListener{
 	//TimeSpanGui Bean
 	private TimeSpanGuiBean timeSpanGuiBean;
 	private JScrollPane erfScrollPane = new JScrollPane();
-	private GridBagLayout gridBagLayout1 = new GridBagLayout();
 	private JPanel erfAndTimespanPanel = new JPanel();
-	private GridBagLayout gridBagLayout2 = new GridBagLayout();
 
 	//checks to see if this a new ERF instance has been given by application to this Gui Bean.
 	private boolean isNewERF_Instance;
@@ -239,8 +238,13 @@ ParameterChangeListener{
 		listEditor = new ParameterListEditor(parameterList);
 
 		// show the ERF gui Bean in JPanel
-		erfAndTimespanPanel.add(listEditor, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 4, 4, 4, 4 ), 0, 0 ));
+		erfAndTimespanPanel.add(listEditor, 
+				new GridBagConstraints(
+						0, 0, 1, 1, 1.0, 1.0,
+						GridBagConstraints.CENTER, 
+						GridBagConstraints.BOTH, 
+						new Insets(4,4,4,4),
+						0, 0));
 
 		// now make the editor based on the paramter list
 		listEditor.setTitle(ERF_EDITOR_TITLE);
@@ -263,19 +267,19 @@ ParameterChangeListener{
 
 	//adds the TimeSpan panel to the Gui depending on Timespan from EqkRupForecast.
 	private void createTimeSpanPanel(){
-		if (timeSpanGuiBean == null)
+		if (timeSpanGuiBean == null) {
 			// create the TimeSpan Gui Bean object
 			timeSpanGuiBean = new TimeSpanGuiBean(eqkRupForecast.getTimeSpan());
-		else
+		} else {
 			erfAndTimespanPanel.remove(timeSpanGuiBean);
+		}
 		//adding the Timespan Gui panel to the ERF Gui Bean
 		timeSpanGuiBean.setTimeSpan(eqkRupForecast.getTimeSpan());
 		erfAndTimespanPanel.add(timeSpanGuiBean,
 				new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0,
 						GridBagConstraints.CENTER,
 						GridBagConstraints.BOTH,
-						new Insets(4, 4, 4, 4), 0, 0));
-
+						new Insets(0,0,0,0), 0, 0));
 	}
 
 
@@ -620,10 +624,11 @@ ParameterChangeListener{
 
 
 	private void jbInit() throws Exception {
-		this.setLayout(gridBagLayout1);
-		erfAndTimespanPanel.setLayout(gridBagLayout2);
-		this.add(erfScrollPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+		setLayout(new GridBagLayout());
+		erfAndTimespanPanel.setLayout(new GridBagLayout());
+		add(erfScrollPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
 				,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 6, 4, 5),0, 0));
+//		add(erfScrollPane,  BorderLayout.CENTER);
 		erfScrollPane.getViewport().add(erfAndTimespanPanel, null);
 	}
 

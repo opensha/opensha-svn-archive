@@ -483,7 +483,7 @@ public class HazardSpectrumLocalModeApplication
   /**
    * this function is called to draw the graph
    */
-  protected void addButton() {
+  protected void calculate() {
     setButtonsEnable(false);
     // do not show warning messages in IMR gui bean. this is needed
     // so that warning messages for site parameters are not shown when Add graph is clicked
