@@ -205,12 +205,12 @@ public class GMT_MapGenerator implements Serializable{
 	// shaded relief resolution
 	public final static String TOPO_RESOLUTION_PARAM_NAME = "Topo Resolution";
 	private final static String TOPO_RESOLUTION_PARAM_UNITS = "arc-sec";
-	protected final static String TOPO_RESOLUTION_PARAM_DEFAULT = "18";
 	private final static String TOPO_RESOLUTION_PARAM_INFO = "Resolution of the shaded relief";
 	private final static String TOPO_RESOLUTION_03 = "03";
 	private final static String TOPO_RESOLUTION_06 = "06";
 	private final static String TOPO_RESOLUTION_18 = "18";
 	private final static String TOPO_RESOLUTION_30 = "30";
+	protected final static String TOPO_RESOLUTION_PARAM_DEFAULT = TOPO_RESOLUTION_30;
 	public final static String TOPO_RESOLUTION_NONE = "No Topo";
 	StringParameter topoResolutionParam;
 
@@ -467,7 +467,7 @@ public class GMT_MapGenerator implements Serializable{
 		} else if (topoResolutionParam.getValue().equals(TOPO_RESOLUTION_18)) {
 			map.setTopoResolution(TopographicSlopeFile.CA_EIGHTEEN);
 		} else if (topoResolutionParam.getValue().equals(TOPO_RESOLUTION_30)) {
-			map.setTopoResolution(TopographicSlopeFile.CA_THIRTY);
+			map.setTopoResolution(TopographicSlopeFile.SRTM_30_PLUS);
 		} else {
 			map.setTopoResolution(null);
 		}
