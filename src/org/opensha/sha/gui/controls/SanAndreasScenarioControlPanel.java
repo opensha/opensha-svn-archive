@@ -274,6 +274,8 @@ public class SanAndreasScenarioControlPanel {
     regionGuiBean.getParameterList().getParameter(regionGuiBean.MAX_LONGITUDE).setValue(new Double(-115));
     regionGuiBean.getParameterList().getParameter(regionGuiBean.GRID_SPACING).setValue(new Double(.02));
     regionGuiBean.getParameterList().getParameter(regionGuiBean.SITE_PARAM_NAME).setValue(SitesInGriddedRectangularRegionGuiBean.USE_SITE_DATA);
+    
+    regionGuiBean.refreshParamEditor();
 
 
     // Set some of the mapping params:
