@@ -351,7 +351,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 
 			jbInit();
 
-
+			computeButton.requestFocusInWindow();
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -412,6 +412,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		buttonPanel.setLayout(flowLayout1);
 		computeButton = new JButton("Compute");
 		computeButton.addActionListener(this);
+		computeButton.setDefaultCapable(true);
 		cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(this);
 		cancelButton.setEnabled(false);
@@ -442,8 +443,8 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		buttonPanel.add(clearButton, 4);
 		buttonPanel.add(peelButton, 5);
 		buttonPanel.add(progressCheckBox, 6);
-		buttonPanel.add(buttonControlPanel, 7);
-		buttonPanel.add(imgLabel, 8);
+		//buttonPanel.add(buttonControlPanel, 7);
+		buttonPanel.add(imgLabel, 7);
 
 		
 		// creating the Object the GraphPaenl class
@@ -457,6 +458,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		emptyPlotPanel = new JPanel();
 		emptyPlotPanel.setBorder(new LineBorder(Color.gray));
 		emptyPlotPanel.setBackground(Color.white);
+		plotPanel.add(buttonControlPanel, BorderLayout.PAGE_END);
 		plotPanel.add(emptyPlotPanel, BorderLayout.CENTER);
 		
 		// IMR, IMT & Site panel
@@ -539,6 +541,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		setTitle("Hazard Curve Application (" + getAppVersion() + " )");
 		setSize(1100, 770);
 		setJMenuBar(menuBar);
+		getRootPane().setDefaultButton(computeButton);
 		
 	}
 
@@ -573,6 +576,12 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		}
 	}
 
+	/* implementation KLUDGY to set focus on compute button*/
+	public void setVisible(boolean visible) {
+		super.setVisible(visible);
+		computeButton.requestFocusInWindow();
+	}
+	
 	/**
 	 * Provided to allow subclasses to substitute the IMT panel.
 	 */
@@ -660,7 +669,9 @@ public class HazardCurveServerModeApplication extends JFrame implements
 
 	// checks if the user has plot the data window or plot window
 	public void togglePlot() {
-		plotPanel.removeAll();
+//		plotPanel.removeAll();
+		plotPanel.remove(graphPanel);
+		plotPanel.remove(emptyPlotPanel);
 		graphPanel.togglePlot(buttonControlPanel);
 		plotPanel.add(graphPanel, BorderLayout.CENTER);
 //		plotPanel.add(graphPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
@@ -944,7 +955,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 
 	private void clearPlot() {
 		graphPanel.removeChartAndMetadata();
-		plotPanel.removeAll();
+		plotPanel.remove(graphPanel);
 		plotPanel.add(emptyPlotPanel, BorderLayout.CENTER);
 		functionList.clear();
 		validate();

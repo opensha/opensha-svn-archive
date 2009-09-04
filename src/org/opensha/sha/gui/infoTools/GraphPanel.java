@@ -96,7 +96,7 @@ public class GraphPanel extends JSplitPane {
   private SimpleAttributeSet setLegend;
 
   // accessible components
-  private JSplitPane chartSplitPane;
+  //private JSplitPane chartSplitPane;
   private JPanel chartPane;
   private JTextPane metadataText;
   private JScrollPane dataScrollPane;
@@ -107,6 +107,8 @@ public class GraphPanel extends JSplitPane {
   private final static double SIZE = 3;
   private final static double DELTA = SIZE / 2.0;
 
+  private static Dimension minPanelSize = new Dimension(320,120);
+	
   //dataset to handover the data to JFreechart
   private DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
   //list containing Discretized function set
@@ -186,14 +188,18 @@ public class GraphPanel extends JSplitPane {
 		dataScrollPane.getViewport().add(dataTextArea, null);
 
 		chartPane = new JPanel(new BorderLayout());
+		chartPane.setMinimumSize(minPanelSize);
+		chartPane.setPreferredSize(minPanelSize);
 		
 		metadataText = new JTextPane();
 		metadataText.setEditable(false);
 		JScrollPane metadataScrollPane = new JScrollPane();
 		metadataScrollPane.getViewport().add(metadataText);
-		Dimension d = new Dimension(200,200);
-		metadataScrollPane.setMinimumSize(d);
-		metadataScrollPane.setPreferredSize(d);
+		metadataScrollPane.setMinimumSize(minPanelSize);
+		metadataScrollPane.setPreferredSize(minPanelSize);
+		metadataScrollPane.setBorder(
+				BorderFactory.createLineBorder(Color.gray,1));
+	    
 
 		setTopComponent(chartPane);
 		setBottomComponent(metadataScrollPane);
@@ -600,7 +606,8 @@ public class GraphPanel extends JSplitPane {
     // Put into a panel
     chartPanel = new ChartPanel(chart, true, true, true, true, false);
 
-    chartPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
+    //chartPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) ); TODO clean
+    chartPanel.setBorder(BorderFactory.createLineBorder(Color.gray,1));
     chartPanel.setMouseZoomable(true);
     chartPanel.setDisplayToolTips(true);
     chartPanel.setHorizontalAxisTrace(false);
@@ -1142,10 +1149,6 @@ public class GraphPanel extends JSplitPane {
     return null;
   }
 
-  // TODO this is only called by a scratch file
-  public void setSplitLocation(int l) {
-	  chartSplitPane.setDividerLocation(l);
-  }
   
   public ChartPanel getCartPanel() {
 	  return this.chartPanel;

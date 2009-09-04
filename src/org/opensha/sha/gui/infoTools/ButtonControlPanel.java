@@ -3,11 +3,15 @@ package org.opensha.sha.gui.infoTools;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
@@ -26,8 +30,13 @@ import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanelAPI;
  */
 
 public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanelAPI,
-PlotColorAndLineTypeSelectorControlPanelAPI, PlotControllerAPI{
-	private JCheckBox jCheckxlog = new JCheckBox();
+		PlotColorAndLineTypeSelectorControlPanelAPI, PlotControllerAPI,
+		ActionListener {
+
+//	JButton button = new JButton();
+//	  button.putClientProperty("JButton.buttonType", style);
+//	  button.putClientProperty("JButton.segmentPosition", position);
+	  
 
 
 	// message string to be dispalayed if user chooses Axis Scale
@@ -38,9 +47,12 @@ PlotColorAndLineTypeSelectorControlPanelAPI, PlotControllerAPI{
 
 	//stores the instance of the application using this ButtonControlPanel
 	ButtonControlPanelAPI application;
-	private JCheckBox jCheckylog = new JCheckBox();
-	private JButton setAxisButton = new JButton();
-	private JButton toggleButton = new JButton();
+	
+	private JCheckBox jCheckylog;
+	private JCheckBox jCheckxlog;
+	private JButton setAxisButton;
+	private JButton toggleButton;
+	private JButton plotPrefsButton;
 
 	//Axis Range control panel object (creates the instance for the AxisLimitsControl)
 	private AxisLimitsControlPanel axisControlPanel;
@@ -50,103 +62,81 @@ PlotColorAndLineTypeSelectorControlPanelAPI, PlotControllerAPI{
 
 	//boolean to check if axis range is auto or custom
 	private boolean customAxis = false;
-	private JButton plotPrefsButton = new JButton();
-	private FlowLayout flowLayout1 = new FlowLayout();
 	private int plotLabelFontSize=12, axisLabelFontSize=12, tickLabelFontSize=10;
 
 	public ButtonControlPanel(ButtonControlPanelAPI api) {
 		application = api;
-		try {
-			jbInit();
-		}
-		catch(Exception ex) {
-			ex.printStackTrace();
-		}
+		initUI();
 	}
-	void jbInit() throws Exception {
-		jCheckxlog.setText("X Log");
-		jCheckxlog.setFont(new java.awt.Font("Dialog", 1, 11));
-		this.setLayout(flowLayout1);
-		this.setDoubleBuffered(false);
-		this.setMinimumSize(new Dimension(0, 0));
-		this.setPreferredSize(new Dimension(500, 36));
-		jCheckxlog.addItemListener(new java.awt.event.ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
-				jCheckxlog_itemStateChanged(e);
-			}
-		});
-		jCheckylog.setText("Y Log");
-		jCheckylog.addItemListener(new java.awt.event.ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
-				jCheckylog_itemStateChanged(e);
-			}
-		});
-		jCheckylog.setFont(new java.awt.Font("Dialog", 1, 11));
-		setAxisButton.setText("Set Axis");
-		setAxisButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				setAxisButton_actionPerformed(e);
-			}
-		});
-		toggleButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				toggleButton_actionPerformed(e);
-			}
-		});
-		toggleButton.setText("Show Data");
-		/*toggleButton.setMaximumSize(new Dimension(1100, 26));
-    toggleButton.setMinimumSize(new Dimension(90, 26));
-    toggleButton.setPreferredSize(new Dimension(106, 26));
-    toggleButton.setToolTipText("");*/
+	
+	private void initUI() {
+		BoxLayout layout = new BoxLayout(this, BoxLayout.LINE_AXIS);
+		setLayout(layout);
+		setDoubleBuffered(false);
+		setMinimumSize(new Dimension(0, 0));
+		setPreferredSize(new Dimension(500, 36));
 
-		plotPrefsButton.setText("Plot Prefs");
-		plotPrefsButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				plotPrefsButton_actionPerformed(e);
-			}
-		});
-		this.add(plotPrefsButton, 0);
-		this.add(toggleButton, 1);
-		this.add(setAxisButton, 2);
-		this.add(jCheckylog, 3);
-		this.add(jCheckxlog, 4);
+		JLabel logScale  = new JLabel("Log scale: ");
+		
+		jCheckxlog = new JCheckBox("X");
+		jCheckxlog.addActionListener(this);
+		
+		jCheckylog = new JCheckBox("Y");
+		jCheckylog.addActionListener(this);
+		
+		plotPrefsButton = new JButton("Plot Prefs");
+		plotPrefsButton.addActionListener(this);
+		plotPrefsButton.putClientProperty("JButton.buttonType", "segmentedTextured");
+		plotPrefsButton.putClientProperty("JButton.segmentPosition", "first");
+		
+		toggleButton = new JButton("Show Data");
+		toggleButton.addActionListener(this);
+		toggleButton.putClientProperty("JButton.buttonType", "segmentedTextured");
+		toggleButton.putClientProperty("JButton.segmentPosition", "middle");
+
+		setAxisButton = new JButton("Set Axis");
+		setAxisButton.addActionListener(this);
+		setAxisButton.putClientProperty("JButton.buttonType", "segmentedTextured");
+		setAxisButton.putClientProperty("JButton.segmentPosition", "last");
+
+		add(Box.createHorizontalGlue());
+		add(plotPrefsButton);
+		add(toggleButton);
+		add(setAxisButton);
+		add(Box.createHorizontalGlue());
+		add(logScale);
+		add(jCheckxlog);
+		add(jCheckylog);
+		add(Box.createHorizontalGlue());
 	}
 
 
+	/* implementation */
+	public void actionPerformed(ActionEvent e) {
+		Object src = e.getSource();
+		if (src.equals(jCheckxlog)) {
+			application.setX_Log(jCheckxlog.isSelected());
+		} else if (src.equals(jCheckylog)) {
+			application.setY_Log(jCheckylog.isSelected());
+		} else if (src.equals(setAxisButton)) {
+			setAxisAction();
+		} else if (src.equals(toggleButton)) {
+			application.togglePlot();
+		} else if (src.equals(plotPrefsButton)) {
+			plotPrefsAction();
+		}
+	}
 
 	/**
-	 *
-	 * @param text: Sets the text for the Toggle Button to either
-	 * "Show Plot" or "Show Data"
+	 * Sets the text for the toggle button.
+	 * @param text to set
 	 */
 	public  void setToggleButtonText(String text){
 		toggleButton.setText(text);
 	}
 
-
-	/**
-	 * Action method when yLog is selected or deselected
-	 * @param e : ActionEvent
-	 */
-	void jCheckylog_itemStateChanged(ItemEvent e) {
-		application.setY_Log(jCheckylog.isSelected());
-	}
-
-	/**
-	 * Action method when xLog is selected or deselected
-	 * @param e : ActionEvent
-	 */
-	void jCheckxlog_itemStateChanged(ItemEvent e) {
-		application.setX_Log(jCheckxlog.isSelected());
-	}
-
-	//Action method when the "Toggle Plot" is pressed
-	void toggleButton_actionPerformed(ActionEvent e) {
-		application.togglePlot();
-	}
-
 	//Action method when the "Set Axis Range" button is pressed.
-	void setAxisButton_actionPerformed(ActionEvent e) {
+	private void setAxisAction() {
 		Range xAxisRange = application.getX_AxisRange();
 		Range yAxisRange = application.getY_AxisRange();
 		if(xAxisRange==null || yAxisRange==null) {
@@ -249,7 +239,7 @@ PlotColorAndLineTypeSelectorControlPanelAPI, PlotControllerAPI{
 	 * If button to set the plot Prefernces is "clicked" by user.
 	 * @param e
 	 */
-	void plotPrefsButton_actionPerformed(ActionEvent e) {
+	private void plotPrefsAction() {
 		ArrayList plotFeatures = application.getPlottingFeatures();
 		if(plotControl == null) {
 			plotControl = new PlotColorAndLineTypeSelectorControlPanel(this,plotFeatures);
