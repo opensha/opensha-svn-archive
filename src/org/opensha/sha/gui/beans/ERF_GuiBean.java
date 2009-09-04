@@ -2,6 +2,7 @@ package org.opensha.sha.gui.beans;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.ListIterator;
 
@@ -44,7 +45,7 @@ import org.opensha.commons.param.event.ParameterChangeListener;
  */
 
 public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
-ParameterChangeListener{
+		ParameterChangeListener{
 
 	private final static String C = "ERF_GuiBean";
 
@@ -72,8 +73,8 @@ ParameterChangeListener{
 
 	//TimeSpanGui Bean
 	private TimeSpanGuiBean timeSpanGuiBean;
-	private JScrollPane erfScrollPane = new JScrollPane();
-	private JPanel erfAndTimespanPanel = new JPanel();
+	//private JScrollPane erfScrollPane;
+	private JPanel erfAndTimespanPanel;
 
 	//checks to see if this a new ERF instance has been given by application to this Gui Bean.
 	private boolean isNewERF_Instance;
@@ -89,8 +90,9 @@ ParameterChangeListener{
 		catch(Exception e) {
 			e.printStackTrace();
 		}
-		// save the classs names of ERFs to be shown
-		this.erfClasses = erfClassNames;
+		// save the class names of ERFs to be shown\
+		Collections.sort(erfClassNames);
+		erfClasses = erfClassNames;
 
 		// create the instance of ERFs
 		init_erf_IndParamListAndEditor();
@@ -238,13 +240,14 @@ ParameterChangeListener{
 		listEditor = new ParameterListEditor(parameterList);
 
 		// show the ERF gui Bean in JPanel
-		erfAndTimespanPanel.add(listEditor, 
-				new GridBagConstraints(
-						0, 0, 1, 1, 1.0, 1.0,
-						GridBagConstraints.CENTER, 
-						GridBagConstraints.BOTH, 
-						new Insets(4,4,4,4),
-						0, 0));
+		erfAndTimespanPanel.add(listEditor, BorderLayout.CENTER);
+//		erfAndTimespanPanel.add(listEditor, 
+//				new GridBagConstraints(
+//						0, 0, 1, 1, 1.0, 1.0,
+//						GridBagConstraints.CENTER, 
+//						GridBagConstraints.BOTH, 
+//						new Insets(4,4,4,4),
+//						0, 0));
 
 		// now make the editor based on the paramter list
 		listEditor.setTitle(ERF_EDITOR_TITLE);
@@ -253,11 +256,12 @@ ParameterChangeListener{
 		// this is hard coding for increasing the IMR font
 		// the colors used here are from ParameterEditor
 		JPanel panel = listEditor.getParameterEditor(this.ERF_PARAM_NAME).getOuterPanel();
-		TitledBorder titledBorder1 = new TitledBorder(BorderFactory.createLineBorder(new Color( 80, 80, 140 ),3),"");
+		TitledBorder titledBorder1 = new TitledBorder(
+				BorderFactory.createLineBorder(
+						new Color( 80, 80, 140 ),3),ERF_PARAM_NAME);
 		titledBorder1.setTitleColor(new Color( 80, 80, 140 ));
 		Font DEFAULT_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 13 );
 		titledBorder1.setTitleFont(DEFAULT_LABEL_FONT);
-		titledBorder1.setTitle(ERF_PARAM_NAME);
 		Border border1 = BorderFactory.createCompoundBorder(titledBorder1,BorderFactory.createEmptyBorder(0,0,3,0));
 		panel.setBorder(border1);
 		createTimeSpanPanel();
@@ -270,16 +274,20 @@ ParameterChangeListener{
 		if (timeSpanGuiBean == null) {
 			// create the TimeSpan Gui Bean object
 			timeSpanGuiBean = new TimeSpanGuiBean(eqkRupForecast.getTimeSpan());
+			timeSpanGuiBean.setBorder(
+					BorderFactory.createEmptyBorder(8, 0, 0, 0));
 		} else {
 			erfAndTimespanPanel.remove(timeSpanGuiBean);
 		}
 		//adding the Timespan Gui panel to the ERF Gui Bean
 		timeSpanGuiBean.setTimeSpan(eqkRupForecast.getTimeSpan());
-		erfAndTimespanPanel.add(timeSpanGuiBean,
-				new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0,
-						GridBagConstraints.CENTER,
-						GridBagConstraints.BOTH,
-						new Insets(0,0,0,0), 0, 0));
+		
+		erfAndTimespanPanel.add(timeSpanGuiBean, BorderLayout.PAGE_END);
+//		erfAndTimespanPanel.add(timeSpanGuiBean, TODO clean
+//				new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0,
+//						GridBagConstraints.CENTER,
+//						GridBagConstraints.BOTH,
+//						new Insets(0,0,0,0), 0, 0));
 	}
 
 
@@ -624,12 +632,22 @@ ParameterChangeListener{
 
 
 	private void jbInit() throws Exception {
-		setLayout(new GridBagLayout());
-		erfAndTimespanPanel.setLayout(new GridBagLayout());
-		add(erfScrollPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-				,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 6, 4, 5),0, 0));
-//		add(erfScrollPane,  BorderLayout.CENTER);
-		erfScrollPane.getViewport().add(erfAndTimespanPanel, null);
+		
+		//setLayout(new GridBagLayout());
+		setLayout(new BorderLayout());
+		setOpaque(false);
+		//erfAndTimespanPanel.setLayout(new BorderLayout());
+//		add(erfScrollPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+//				,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 6, 4, 5),0, 0));
+		erfAndTimespanPanel = new JPanel(new BorderLayout());
+		erfAndTimespanPanel.setBorder(BorderFactory.createEmptyBorder(0,0,0,4));
+		erfAndTimespanPanel.setOpaque(false);
+		JScrollPane erfScrollPane = new JScrollPane(erfAndTimespanPanel);
+		erfScrollPane.setBorder(null);
+		erfScrollPane.setOpaque(false);
+		add(erfScrollPane,  BorderLayout.CENTER);
+		
+		//erfScrollPane.getViewport().add(erfAndTimespanPanel, null);
 	}
 
 }

@@ -72,13 +72,13 @@ public class TimeSpanGuiBean extends JPanel {
 			editor.setTitle(TIMESPAN_EDITOR_TITLE);
 			this.add(editor, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
 					GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-					new Insets(4, 4, 4, 4), 0, 0));
+					new Insets(0, 0, 0, 0), 0, 0));
 			this.validate();
 			this.repaint();
 		} else {
 			this.add(timespanEditor, new GridBagConstraints(0, 0, 1, 1,
 					1.0, 1.0, GridBagConstraints.CENTER,
-					GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
+					GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 
 		}
 	}

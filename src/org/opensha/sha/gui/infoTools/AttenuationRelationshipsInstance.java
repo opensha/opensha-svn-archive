@@ -101,6 +101,8 @@ public class AttenuationRelationshipsInstance {
 		
 		// OTHER
 //		supportedAttenRelClasses.add(CyberShake_CLASS_NAME);
+		
+		Collections.sort(supportedAttenRelClasses);
 	}
 
 	/**

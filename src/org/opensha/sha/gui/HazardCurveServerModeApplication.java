@@ -492,7 +492,12 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		paramsTabbedPane = new JTabbedPane();
 		paramsTabbedPane.setBorder(BorderFactory.createEmptyBorder(8,0,0,4));
 		paramsTabbedPane.add(imrImtSiteSplitPane, "IMR, IMT & Site");
-		paramsTabbedPane.add(erfGuiBean, "ERF & Time Span");		
+		erfGuiBean.setBorder(BorderFactory.createEmptyBorder(2,8,8,4));
+		paramsTabbedPane.add(erfGuiBean, "ERF & Time Span");
+		
+		paramsTabbedPane.setMinimumSize(new Dimension(400,100));
+		paramsTabbedPane.setPreferredSize(new Dimension(550,100));
+
 		
 		// ======== content area ========
 		JSplitPane contentSplitPane = new JSplitPane(
@@ -501,6 +506,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		contentSplitPane.setResizeWeight(1.0);
 		//contentSplitPane.setDividerLocation(0.5); //TODO revisit
 		contentSplitPane.setBorder(null);
+		//contentSplitPane.setDividerLocation(550);
 
 		Container content = getContentPane();
 		content.setLayout(new BorderLayout());
@@ -624,6 +630,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		HazardCurveServerModeApplication applet = new HazardCurveServerModeApplication();
 		applet.checkAppVersion();
 		applet.init();
+		applet.pack();
 		applet.setVisible(true);
 	}
 

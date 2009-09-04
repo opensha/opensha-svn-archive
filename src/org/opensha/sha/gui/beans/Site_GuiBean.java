@@ -74,6 +74,9 @@ public class Site_GuiBean extends JPanel implements ParameterChangeListener,
 	 */
 	public Site_GuiBean() {
 
+		setMinimumSize(new Dimension(160,100));
+		setPreferredSize(new Dimension(240,100));
+		
 		// add the longitude and latitude paramters
 		parameterList.addParameter(longitude);
 		parameterList.addParameter(latitude);
