@@ -143,7 +143,7 @@ public class GraphPane extends JPanel
 		}
 
 		graphPanel = new GraphPanel(this);
-		graphPanel.setSplitLocation(350);
+		graphPanel.setDividerLocation(350);
 		drawGraph();
 	}
 
