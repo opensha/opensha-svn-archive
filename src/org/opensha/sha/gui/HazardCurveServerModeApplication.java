@@ -1262,9 +1262,6 @@ public class HazardCurveServerModeApplication extends JFrame implements
 			double maxZAxis = disaggregationControlPanel.getZAxisMax();
 			double imlVal = 0, probVal = 0;
 			try {
-				if (distanceControlPanel != null)
-					disaggCalc.setMaxSourceDistance(distanceControlPanel
-							.getDistance());
 				if (disaggregationControlPanel.isCustomDistBinning()) {
 					double distBins[] = disaggregationControlPanel
 							.getCustomBinEdges();
@@ -1331,7 +1328,8 @@ public class HazardCurveServerModeApplication extends JFrame implements
 				}
 
 				disaggSuccessFlag = disaggCalc.disaggregate(Math.log(imlVal),
-						site, imr, (EqkRupForecast) forecast);
+						site, imr, (EqkRupForecast) forecast,
+						this.calc.getMaxSourceDistance(), calc.getMagDistCutoffFunc());
 				disaggCalc.setMaxZAxisForPlot(maxZAxis);
 				disaggregationString = disaggCalc.getMeanAndModeInfo();
 			} catch (WarningException warningException) {
