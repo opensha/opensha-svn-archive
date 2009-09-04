@@ -4,19 +4,37 @@ package org.opensha.sha.calc;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
+import java.util.EventListener;
+import java.util.ListIterator;
 
+import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.param.ArbitrarilyDiscretizedFuncParameter;
+import org.opensha.commons.param.BooleanParameter;
+import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.event.ParameterChangeWarningEvent;
+import org.opensha.commons.param.event.ParameterChangeWarningListener;
 
 import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 import org.opensha.sha.earthquake.*;
+import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast;
+
+import com.lowagie.text.pdf.hyphenation.TernaryTree.Iterator;
 
 
 /**
  * <p>Title: HazardCurveCalculator </p>
  * <p>Description: This class calculates the Hazard curve based on the
- * input parameters imr, site and eqkRupforecast</p>
+ * input parameters imr, site and eqkRupforecast or eqkRupture (for 
+ * probabilistic or deterministic, respectively)</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author : Ned Field & Nitin Gupta & Vipin Gupta
@@ -25,52 +43,123 @@ import org.opensha.sha.earthquake.*;
  */
 
 public class HazardCurveCalculator extends UnicastRemoteObject
-    implements HazardCurveCalculatorAPI{
+    implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 
   protected final static String C = "HazardCurveCalculator";
   protected final static boolean D = false;
 
+  //Info for parameter that sets the maximum distance considered
+  private DoubleParameter maxDistanceParam;
+  public final String MAX_DISTANCE_PARAM_NAME = "Maximum Distance";
+  public final String MAX_DISTANCE_PARAM_UNITS = "km";
+  public final String MAX_DISTANCE_PARAM_INFO = "Earthquake Ruptures beyond this distance are ignored";
+  public final double MAX_DISTANCE_PARAM_MIN = 0;
+  public final double MAX_DISTANCE_PARAM_MAX = 40000;
+  public final static Double MAX_DISTANCE_DEFAULT = new Double(200);
+  
+  //Info for parameter tells whether to apply a magnitude-dependent distance cutoff
+  private BooleanParameter includeMagDistFilterParam;
+  public final String INCLUDE_MAG_DIST_FILTER_PARAM_NAME = "Use Mag-Distance Filter?";
+  public final String INCLUDE_MAG_DIST_FILTER_PARAM_INFO = "This specifies whether to apply the magnitude-distance filter";
+  public final boolean INCLUDE_MAG_DIST_FILTER_PARAM_DEFAULT = true;
 
-  /* maximum permitted distance between fault and site to consider source in
-  hazard analysis for that site; this default value is to allow all PEER test
-  cases to pass through
-  */
-  public final static double MAX_DISTANCE_DEFAULT = 200;
-  protected double MAX_DISTANCE = MAX_DISTANCE_DEFAULT;
+  //Info for parameter that specifies a magnitude-dependent distance cutoff
+  // (distance on x-axis and mag on y-axis)
+  private ArbitrarilyDiscretizedFuncParameter magDistCutoffParam;
+  public final String MAG_DIST_CUTOFF_PARAM_NAME = "Mag-Dist Cutoff Function";
+  public final String MAG_DIST_CUTOFF_PARAM_INFO = "Distance cutoff is a function of mag (the function here, linearly interpolated)";
+  double[] defaultCutoffMags =  {0, 5.25,  5.75, 6.25,  6.75, 7.25,  9};
+  double[] defaultCutoffDists = {0, 25,    40,   60,    80,   100,   500};
+  
+  private ParameterList adjustableParams;
 
+  // misc counting and index variables
   protected int currRuptures = -1;
   protected int totRuptures=0;
-
-  //index to keep track how many sources have been traversed
   protected int sourceIndex;
-  // get total number of sources
   protected int numSources;
 
+  
   /**
    * creates the HazardCurveCalculator object
    *
    * @throws java.rmi.RemoteException
-   * @throws IOException
    */
-  public HazardCurveCalculator()
-      throws java.rmi.RemoteException {}
+  public HazardCurveCalculator() throws java.rmi.RemoteException {
+	  
+	  // Create adjustable parameters and add to list
+	  
+	  // Max Distance Parameter
+	  maxDistanceParam = new DoubleParameter(MAX_DISTANCE_PARAM_NAME, MAX_DISTANCE_PARAM_MIN, 
+			  MAX_DISTANCE_PARAM_MAX, MAX_DISTANCE_PARAM_UNITS, MAX_DISTANCE_DEFAULT);
+	  maxDistanceParam.setInfo(MAX_DISTANCE_PARAM_INFO);
+
+	  // Include Mag-Distance Filter Parameter
+	  includeMagDistFilterParam = new BooleanParameter(INCLUDE_MAG_DIST_FILTER_PARAM_NAME,INCLUDE_MAG_DIST_FILTER_PARAM_DEFAULT);
+	  includeMagDistFilterParam.setInfo(INCLUDE_MAG_DIST_FILTER_PARAM_INFO);
+	  
+	  // Mag-Distance Cutoff Parameter
+	  ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+	  func.setName("mag-dist function");
+	  for(int i=0; i<defaultCutoffMags.length;i++)
+		  func.set(defaultCutoffDists[i], defaultCutoffMags[i]);
+	  magDistCutoffParam = new ArbitrarilyDiscretizedFuncParameter(MAG_DIST_CUTOFF_PARAM_NAME,func);
+	  magDistCutoffParam.setInfo(MAG_DIST_CUTOFF_PARAM_INFO);
+
+      adjustableParams = new ParameterList();
+	  adjustableParams.addParameter(maxDistanceParam);
+	  adjustableParams.addParameter(includeMagDistFilterParam);
+	  adjustableParams.addParameter(magDistCutoffParam);
+	  
+  }
 
 
   /**
-   * This sets the maximum distance of sources to be considered in the calculation
-   * (as determined by the getMinDistance(Site) method of ProbEqkSource subclasses).
-   * Sources more than this distance away are ignored.
+   * This sets the maximum distance of sources to be considered in the calculation.
+   * Sources more than this distance away are ignored.  This is simply a direct
+   * way of setting the parameter.
    * Default value is 250 km.
    *
    * @param distance: the maximum distance in km
    */
   public void setMaxSourceDistance(double distance) throws java.rmi.RemoteException{
-    MAX_DISTANCE = distance;
+	  maxDistanceParam.setValue(distance);
   }
-
+  
+  /**
+   * This is a direct way of getting the distance cutoff from that parameter
+   */
+  public double getMaxSourceDistance() throws java.rmi.RemoteException { 
+	  return maxDistanceParam.getValue().doubleValue(); 
+  }
+  
+  /**
+   * This sets the mag-dist filter function (distance on x-axis and 
+   * mag on y-axis), and also sets the value of includeMagDistFilterParam 
+   * as true.
+   * @param magDistfunc
+   */
+  public void setMagDistCutoffFunc(ArbitrarilyDiscretizedFunc magDistfunc)  throws java.rmi.RemoteException{
+	  includeMagDistFilterParam.setValue(true);
+	  magDistCutoffParam.setValue(magDistfunc);
+  }
+  
+  /**
+   * This gets the mag-dist filter function (distance on x-axis and 
+   * mag on y-axis), returning null if the includeMagDistFilterParam
+   * has been set to false.
+   */
+  public ArbitrarilyDiscretizedFunc getMagDistCutoffFunc()  throws java.rmi.RemoteException{
+	  if(includeMagDistFilterParam.getValue())
+		  return magDistCutoffParam.getValue();
+	  else
+		  return null;
+  }
+  	
 
 	/**
-	 * Returns the Annualized Rates for the Hazard Curves 
+	 * This returns the annualized-rate function for the hazard curve
+	 * and duration passed in.
 	 * @param hazFunction Discretized Hazard Function
 	 * @return DiscretizedFuncAPI Annualized Rate Curve
 	 */
@@ -84,11 +173,15 @@ public class HazardCurveCalculator extends UnicastRemoteObject
 		  return annualizedRateFunc;
 	  }
   
-
+	  
   /**
-   * This function computes a hazard curve for the given Site, IMR, and ERF.  The curve
-   * in place in the passed in hazFunction (with the X-axis values being the IMLs for which
-   * exceedance probabilites are desired).
+   * This function computes a hazard curve for the given Site, IMR, ERF, and 
+   * discretized function, where the latter supplies the x-axis values (the IMLs) for the 
+   * computation, and the result (probability) is placed in the y-axis values of this function.
+   * This always applies a source and rupture distance cutoff using the value of the
+   * maxDistanceParam parameter (set to a very high value if you don't want this).  It also 
+   * applies a magnitude-dependent distance cutoff on the sources if the value of 
+   * includeMagDistFilterParam is "true" and using the function in magDistCutoffParam.
    * @param hazFunction: This function is where the hazard curve is placed
    * @param site: site object
    * @param imr: selected IMR object
@@ -96,13 +189,14 @@ public class HazardCurveCalculator extends UnicastRemoteObject
    * @return
    */
   public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI hazFunction,
-                             Site site, ScalarIntensityMeasureRelationshipAPI imr, EqkRupForecastAPI eqkRupForecast)
-  throws java.rmi.RemoteException{
+                             Site site, ScalarIntensityMeasureRelationshipAPI imr, 
+                             EqkRupForecastAPI eqkRupForecast)
+  							throws java.rmi.RemoteException{
 
     this.currRuptures = -1;
-
+    
     /* this determines how the calucations are done (doing it the way it's outlined
-    in the paper SRL gives probs greater than 1 if the total rate of events for the
+    in our original SRL paper gives probs greater than 1 if the total rate of events for the
     source exceeds 1.0, even if the rates of individual ruptures are << 1).
     */
     boolean poissonSource = false;
@@ -115,34 +209,39 @@ public class HazardCurveCalculator extends UnicastRemoteObject
     //parameter changes.
     ((AttenuationRelationship)imr).resetParameterEventListeners();
 
-    //System.out.println("hazFunction: "+hazFunction.toString());
-
     // declare some varibles used in the calculation
     double qkProb, distance;
     int k;
 
     // get the number of points
     int numPoints = hazFunction.getNum();
-
+    
+    // define distance filtering stuff
+    double maxDistance = maxDistanceParam.getValue();
+    boolean includeMagDistFilter = includeMagDistFilterParam.getValue();
+    double magThresh=0.0;
+    
     // set the maximum distance in the attenuation relationship
-    // (Note- other types of IMRs may not have this method so we should really check type here)
-    imr.setUserMaxDistance(MAX_DISTANCE);
+    imr.setUserMaxDistance(maxDistance);
 
     // get total number of sources
     numSources = eqkRupForecast.getNumSources();
     //System.out.println("Number of Sources: "+numSources);
     //System.out.println("ERF info: "+ eqkRupForecast.getClass().getName());
+    
+        
     // compute the total number of ruptures for updating the progress bar
     totRuptures = 0;
     sourceIndex =0;
     for(sourceIndex=0;sourceIndex<numSources;++sourceIndex)
       totRuptures+=eqkRupForecast.getSource(sourceIndex).getNumRuptures();
+//    System.out.println("Total number of ruptures:"+ totRuptures);
 
-    //System.out.println("Total number of ruptures:"+ totRuptures);
-
-
+ 
     // init the current rupture number (also for progress bar)
     currRuptures = 0;
+    int numRupRejected =0;
+
 
     // initialize the hazard function to 1.0
     initDiscretizeValues(hazFunction, 1.0);
@@ -151,7 +250,7 @@ public class HazardCurveCalculator extends UnicastRemoteObject
     imr.setSite(site);
 
     // this boolean will tell us whether a source was actually used
-    // (e.g., all could be outside MAX_DISTANCE)
+    // (e.g., all sources could be outside MAX_DISTANCE, leading to numerical problems)
     boolean sourceUsed = false;
 
     if (D) System.out.println(C+": starting hazard curve calculation");
@@ -159,75 +258,82 @@ public class HazardCurveCalculator extends UnicastRemoteObject
     // loop over sources
     for(sourceIndex=0;sourceIndex < numSources ;sourceIndex++) {
 
-      // get the ith source
-      ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
+    	// get the ith source
+    	ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
 
-      // compute the source's distance from the site and skip if it's too far away
-      distance = source.getMinDistance(site);
-      if(distance > MAX_DISTANCE) {
-        //update progress bar for skipped ruptures
-        /*
-        if(source.getRupture(0).getRuptureSurface().getNumCols() != 1) throw new RuntimeException("prob");
-        System.out.println("rejected "+
-        (float)source.getRupture(0).getRuptureSurface().getLocation(0,0).getLongitude()+"  "+
-        (float)source.getRupture(0).getRuptureSurface().getLocation(0,0).getLatitude());
-        */
-        currRuptures += source.getNumRuptures();
-        continue;
-      }
+    	// compute the source's distance from the site and skip if it's too far away
+    	distance = source.getMinDistance(site);
 
-      // indicate that a source has been used
-      sourceUsed = true;
+    	// apply distance cutoff to source
+    	if(distance > maxDistance) {
+    		currRuptures += source.getNumRuptures();  //update progress bar for skipped ruptures
+    		continue;
+    	}
 
-      // determine whether it's poissonian
-      poissonSource = source.isSourcePoissonian();
+    	// get magThreshold if we're to use the mag-dist cutoff filter
+    	if(includeMagDistFilter) {
+    		magThresh = magDistCutoffParam.getValue().getInterpolatedY(distance);
+    	}
 
-      // initialize the source hazard function to 0.0 if it's a non-poisson source
-      if(!poissonSource)
-        initDiscretizeValues(sourceHazFunc, 0.0);
+    	// determine whether it's poissonian (calcs depend on this)
+    	poissonSource = source.isSourcePoissonian();
 
-      // get the number of ruptures for the current source
-      int numRuptures = source.getNumRuptures();
+    	// initialize the source hazard function to 0.0 if it's a non-poisson source
+    	if(!poissonSource)
+    		initDiscretizeValues(sourceHazFunc, 0.0);
 
-      // loop over these ruptures
-      for(int n=0; n < numRuptures ; n++,++currRuptures) {
+    	// get the number of ruptures for the current source
+    	int numRuptures = source.getNumRuptures();
 
-        EqkRupture rupture = source.getRupture(n);
-        // get the rupture probability
-        qkProb = ((ProbEqkRupture)rupture).getProbability();
+    	// loop over these ruptures
+    	for(int n=0; n < numRuptures ; n++,++currRuptures) {
 
-        // set the EqkRup in the IMR
-        imr.setEqkRupture(rupture);
+    		EqkRupture rupture = source.getRupture(n);
+    		
+    		// get the rupture probability
+    		qkProb = ((ProbEqkRupture)rupture).getProbability();
 
-        // get the conditional probability of exceedance from the IMR
-        condProbFunc=(ArbitrarilyDiscretizedFunc)imr.getExceedProbabilities(condProbFunc);
+    		// apply magThreshold if we're to use the mag-dist cutoff filter
+    		if(includeMagDistFilter && rupture.getMag() < magThresh) {
+    			numRupRejected += 1;
+    			continue;
+    		}
+
+        	// indicate that a source has been used (put here because of above filter)
+        	sourceUsed = true;
+    		
+    		// set the EqkRup in the IMR
+    		imr.setEqkRupture(rupture);
+
+    		// get the conditional probability of exceedance from the IMR
+    		condProbFunc=(ArbitrarilyDiscretizedFunc)imr.getExceedProbabilities(condProbFunc);
 
 
-        // For poisson source
-        if(poissonSource) {
-          /* First make sure the probability isn't 1.0 (or too close); otherwise rates are
-             infinite and all IMLs will be exceeded (because of ergodic assumption).  This
-             can happen if the number of expected events (over the timespan) exceeds ~37,
-             because at this point 1.0-Math.exp(-num) = 1.0 by numerical precision (and thus,
-             an infinite number of events).  The number 30 used in the check below provides a
-             safe margin.
-          */
-          if(Math.log(1.0-qkProb) < -30.0)
-            throw new RuntimeException("Error: The probability for this ProbEqkRupture ("+qkProb+
-                                      ") is too high for a Possion source (~infinite number of events)");
+    		// For poisson source
+    		if(poissonSource) {
+    			/* First make sure the probability isn't 1.0 (or too close); otherwise rates are
+             	infinite and all IMLs will be exceeded (because of ergodic assumption).  This
+             	can happen if the number of expected events (over the timespan) exceeds ~37,
+             	because at this point 1.0-Math.exp(-num) = 1.0 by numerical precision (and thus,
+             	an infinite number of events).  The number 30 used in the check below provides a
+             	safe margin.
+    			 */
+    			if(Math.log(1.0-qkProb) < -30.0)
+    				throw new RuntimeException("Error: The probability for this ProbEqkRupture ("+qkProb+
+    				") is too high for a Possion source (~infinite number of events)");
 
-          for(k=0;k<numPoints;k++)
-            hazFunction.set(k,hazFunction.getY(k)*Math.pow(1-qkProb,condProbFunc.getY(k)));
-        }
-        // For non-Poissin source
-        else
-          for(k=0;k<numPoints;k++)
-            sourceHazFunc.set(k,sourceHazFunc.getY(k) + qkProb*condProbFunc.getY(k));
-      }
-      // for non-poisson source:
-      if(!poissonSource)
-        for(k=0;k<numPoints;k++)
-          hazFunction.set(k,hazFunction.getY(k)*(1-sourceHazFunc.getY(k)));
+    			for(k=0;k<numPoints;k++)
+    				hazFunction.set(k,hazFunction.getY(k)*Math.pow(1-qkProb,condProbFunc.getY(k)));
+    		}
+    		// For non-Poissin source
+    		else
+    			for(k=0;k<numPoints;k++)
+    				sourceHazFunc.set(k,sourceHazFunc.getY(k) + qkProb*condProbFunc.getY(k));
+    	}
+    	// for non-poisson source:
+    	if(!poissonSource)
+    		for(k=0;k<numPoints;k++)
+    			hazFunction.set(k,hazFunction.getY(k)*(1-sourceHazFunc.getY(k)));
     }
 
     int i;
@@ -236,56 +342,156 @@ public class HazardCurveCalculator extends UnicastRemoteObject
       for(i=0;i<numPoints;++i)
         hazFunction.set(i,1-hazFunction.getY(i));
     else
-      for(i=0;i<numPoints;++i)
-        hazFunction.set(i,0.0);
+    	this.initDiscretizeValues(hazFunction, 0.0);
+    
     if (D) System.out.println(C+"hazFunction.toString"+hazFunction.toString());
+    
+// System.out.println("numRupRejected="+numRupRejected);
+    
     return hazFunction;
-// double tempVal = -1.0*Math.log(1.0-hazFunction.getY(1));
-// System.out.println(tempVal);
   }
 
 
+
   /**
-   * This function computes a deterministic exceedance curve for the given Site, IMR, and ProbEqkrupture.  The curve
-   * in place in the passed in hazFunction (with the X-axis values being the IMLs for which
-   * exceedance probabilites are desired).
+   * This function computes a hazard curve for the given Site, IMR, and event set
+   * (eqkRupList), where it is assumed that each of the events occur (probability 
+   * of each is 1.0). The passed in discretized function supplies the x-axis values 
+   * (the IMLs) for the computation, and the result (probability) is placed in the 
+   * y-axis values of this function. This always applies a rupture distance 
+   * cutoff using the value of the maxDistanceParam parameter (set to a very high 
+   * value if you don't want this).  This does not (yet?) apply the magnitude-dependent 
+   * distance cutoff represented by includeMagDistFilterParam and magDistCutoffParam.
    * @param hazFunction: This function is where the hazard curve is placed
+   * @param site: site object
+   * @param imr: selected IMR object
+   * @param eqkRupForecast: selected Earthquake rup forecast
+   * @return
+   */
+  public DiscretizedFuncAPI getEventSetHazardCurve(DiscretizedFuncAPI hazFunction,
+		  Site site, ScalarIntensityMeasureRelationshipAPI imr, 
+		  ArrayList<EqkRupture> eqkRupList)
+  throws java.rmi.RemoteException{
+
+	  this.currRuptures = -1;
+
+	  ArbitrarilyDiscretizedFunc condProbFunc = (ArbitrarilyDiscretizedFunc) hazFunction.deepClone();
+
+	  //resetting the Parameter change Listeners on the AttenuationRelationship
+	  //parameters. This allows the Server version of our application to listen to the
+	  //parameter changes.
+	  ((AttenuationRelationship)imr).resetParameterEventListeners();
+
+	  // declare some varibles used in the calculation
+	  double distance;
+	  int k;
+
+	  // get the number of points
+	  int numPoints = hazFunction.getNum();
+
+	  // define distance filtering stuff
+	  double maxDistance = maxDistanceParam.getValue();
+	  boolean includeMagDistFilter = includeMagDistFilterParam.getValue();
+
+	  // set the maximum distance in the attenuation relationship
+	  imr.setUserMaxDistance(maxDistance);
+
+	  totRuptures = eqkRupList.size();
+
+	  // init the current rupture number (also for progress bar)
+	  currRuptures = 0;
+	  int numRupRejected =0;
+
+	  // initialize the hazard function to 1.0 (initial total non-exceedance probability)
+	  initDiscretizeValues(hazFunction, 1.0);
+
+	  // set the Site in IMR
+	  imr.setSite(site);
+
+	  if (D) System.out.println(C+": starting hazard curve calculation");
+	  
+//	  System.out.println("totRuptures="+totRuptures);
+
+	  // loop over ruptures
+	  for(int n=0; n < totRuptures ; n++,++currRuptures) {
+
+		  EqkRupture rupture = eqkRupList.get(n);
+
+		  /*
+    		// apply mag-dist cutoff filter
+    		if(includeMagDistFilter) {
+    			//distance=??; // NEED TO COMPUTE THIS DISTANCE
+     			if(rupture.getMag() < magDistCutoffParam.getValue().getInterpolatedY(distance) {
+    			numRupRejected += 1;
+    			continue;
+    		}
+		   */
+
+		  // set the EqkRup in the IMR
+		  imr.setEqkRupture(rupture);
+
+		  // get the conditional probability of exceedance from the IMR
+		  condProbFunc=(ArbitrarilyDiscretizedFunc)imr.getExceedProbabilities(condProbFunc);
+		  
+		  // multiply this into the total non-exceedance probability
+		  // (get the product of all non-eceedance probabilities)
+		  for(k=0;k<numPoints;k++) 
+				  hazFunction.set(k,hazFunction.getY(k)*(1.0-condProbFunc.getY(k)));
+
+	  }
+
+//	  System.out.println(C+"hazFunction.toString"+hazFunction.toString());
+	
+	  // now convert from total non-exceed prob to total exceed prob
+	  for(int i=0;i<numPoints;++i)
+			 hazFunction.set(i,1.0-hazFunction.getY(i));
+
+//	  System.out.println(C+"hazFunction.toString"+hazFunction.toString());
+
+//	  System.out.println("numRupRejected="+numRupRejected);
+
+	  return hazFunction;
+  }
+
+
+  
+  
+  /**
+   * This computes the "deterministic" exceedance curve for the given Site, IMR, and ProbEqkrupture
+   * (conditioned on the event actually occurring).  The hazFunction passed in provides the x-axis
+   * values (the IMLs) and the result (probability) is placed in the y-axis values of this function.
+   * @param hazFunction: This function is where the deterministic hazard curve is placed
    * @param site: site object
    * @param imr: selected IMR object
    * @param rupture: Single Earthquake Rupture
    * @return
    */
-  public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI
-      hazFunction,
-      Site site, ScalarIntensityMeasureRelationshipAPI imr, EqkRupture rupture) throws
-      java.rmi.RemoteException {
+  public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI hazFunction,
+		  Site site, ScalarIntensityMeasureRelationshipAPI imr, EqkRupture rupture) throws
+		  java.rmi.RemoteException {
 
 
-    //resetting the Parameter change Listeners on the AttenuationRelationship
-    //parameters. This allows the Server version of our application to listen to the
-    //parameter changes.
-    ( (AttenuationRelationship) imr).resetParameterEventListeners();
+	  // resetting the Parameter change Listeners on the AttenuationRelationship parameters,
+	  // allowing the Server version of our application to listen to the parameter changes.
+	  ( (AttenuationRelationship) imr).resetParameterEventListeners();
 
-    //System.out.println("hazFunction: "+hazFunction.toString());
+	  // set the Site in IMR
+	  imr.setSite(site);
 
-    // set the Site in IMR
-    imr.setSite(site);
+	  if (D) System.out.println(C + ": starting hazard curve calculation");
 
-    if (D) System.out.println(C + ": starting hazard curve calculation");
+	  // set the EqkRup in the IMR
+	  imr.setEqkRupture(rupture);
 
-    // set the EqkRup in the IMR
-    imr.setEqkRupture(rupture);
+	  // get the conditional probability of exceedance from the IMR
+	  hazFunction = (ArbitrarilyDiscretizedFunc) imr.getExceedProbabilities(hazFunction);
 
-    // get the conditional probability of exceedance from the IMR
-    hazFunction = (ArbitrarilyDiscretizedFunc) imr.getExceedProbabilities(
-      hazFunction);
-
-
-    if (D) System.out.println(C + "hazFunction.toString" + hazFunction.toString());
-    return hazFunction;
-    // double tempVal = -1.0*Math.log(1.0-hazFunction.getY(1));
-    // System.out.println(tempVal);
+	  if (D) System.out.println(C + "hazFunction.toString" + hazFunction.toString());
+	  
+	  return hazFunction;
   }
+  
+  
 
   /**
    *
@@ -323,9 +529,101 @@ public class HazardCurveCalculator extends UnicastRemoteObject
     for(int i=0;i<num;++i)
       arb.set(i,val);
   }
+  
+  /**
+  *
+  * @returns the adjustable ParameterList
+  */
+ public ParameterList getAdjustableParameterList()  throws java.rmi.RemoteException{
+   return this.adjustableParams;
+ }
+
+ /**
+  * get the adjustable parameters
+  *
+  * @return
+  */
+ public ListIterator getAdjustableParamsIterator()  throws java.rmi.RemoteException{
+   return adjustableParams.getParametersIterator();
+ }
+ 
+ /**
+  * This tests whether the average over many curves from getEventSetCurve
+  * equals what is given by getHazardCurve.
+  */
+ public void testEventSetHazardCurve(int numIterations) {
+	 // set distance filter large since these are handled slightly differently in each calc
+	 maxDistanceParam.setValue(300);
+	 // do not apply mag-dist fileter
+	 includeMagDistFilterParam.setValue(false);
+	 
+	 DiscretizedFuncAPI hazFunction;
+     ScalarIntensityMeasureRelationshipAPI imr = new BJF_1997_AttenRel(this); 
+     imr.setParamDefaults();
+     imr.setIntensityMeasure("PGA");
+     
+     Site site = new Site();
+     ListIterator it = imr.getSiteParamsIterator();
+     while(it.hasNext())
+    	 site.addParameter((ParameterAPI)it.next());
+     site.setLocation(new Location(34,-118));
+     
+     EqkRupForecast eqkRupForecast = new Frankel96_EqkRupForecast();
+     eqkRupForecast.updateForecast();
+     
+	 ArbitrarilyDiscretizedFunc hazCurve = new ArbitrarilyDiscretizedFunc();
+	 hazCurve.set(-3.,1);  // log(0.001)
+	 hazCurve.set(-2.,1);
+	 hazCurve.set(-1.,1);
+	 hazCurve.set(1.,1);
+	 hazCurve.set(2.,1);   // log(10)
+	 
+	 hazCurve.setName("Hazard Curve");
+	 
+	 try {
+		this.getHazardCurve(hazCurve, site, imr, eqkRupForecast);
+	} catch (RemoteException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	
+	System.out.println(hazCurve.toString());
+	
+	ArbitrarilyDiscretizedFunc aveCurve = hazCurve.deepClone();
+	this.initDiscretizeValues(aveCurve, 0.0);
+	ArbitrarilyDiscretizedFunc curve = hazCurve.deepClone();
+	for(int i=0; i<numIterations;i++) {
+		try {
+			getEventSetHazardCurve(curve, site, imr, eqkRupForecast.drawRandomEventSet());
+			for(int x=0; x<curve.getNum();x++) aveCurve.set(x, aveCurve.getY(x)+curve.getY(x));
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	for(int x=0; x<curve.getNum();x++) aveCurve.set(x, aveCurve.getY(x)/numIterations);
+ 
+	aveCurve.setName("Ave from "+numIterations+" event sets");
+	System.out.println(aveCurve.toString());
+
+ }
+ 
+ // added this and the associated API implementation to instantiate BJF_1997_AttenRel in the above
+ public void parameterChangeWarning( ParameterChangeWarningEvent event ) {};
+
 
   // this is temporary for testing purposes
   public static void main(String[] args) {
+	  HazardCurveCalculator calc;
+	try {
+		calc = new HazardCurveCalculator();
+		calc.testEventSetHazardCurve(1000);
+	} catch (RemoteException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	  
+	/*
     double temp1, temp2, temp3, temp4;
     boolean OK;
     for(double n=1; n<2;n += 0.02) {
@@ -336,6 +634,7 @@ public class HazardCurveCalculator extends UnicastRemoteObject
       OK = temp1<=30;
       System.out.println((float)n+"\t"+temp1+"\t"+temp2+"\t"+temp3+"\t"+temp4+"\t"+OK);
     }
+    */
   }
 }
 

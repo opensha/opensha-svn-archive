@@ -1,9 +1,12 @@
 package org.opensha.sha.calc;
 
 import java.rmi.Remote;
+import java.util.ListIterator;
 
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.earthquake.EqkRupture;
@@ -17,6 +20,20 @@ import org.opensha.sha.earthquake.EqkRupture;
  */
 
 public interface HazardCurveCalculatorAPI extends Remote{
+	
+	  /**
+	  *
+	  * @returns the adjustable ParameterList
+	  */
+	 public ParameterList getAdjustableParameterList()  throws java.rmi.RemoteException;
+
+	 /**
+	  * get the adjustable parameters
+	  *
+	  * @return
+	  */
+	 public ListIterator getAdjustableParamsIterator()  throws java.rmi.RemoteException;
+
 
   /**
    * This sets the maximum distance of sources to be considered in the calculation
@@ -27,6 +44,19 @@ public interface HazardCurveCalculatorAPI extends Remote{
    * @param distance: the maximum distance in km
    */
   public void setMaxSourceDistance(double distance) throws java.rmi.RemoteException;
+  
+  public double getMaxSourceDistance()  throws java.rmi.RemoteException;
+  
+  /**
+   * This sets the mag-dist filter function, and also sets 
+   * the value of includeMagDistFilterParam as true
+   * @param magDistfunc
+   */
+  public void setMagDistCutoffFunc(ArbitrarilyDiscretizedFunc magDistfunc)  throws java.rmi.RemoteException;
+ 
+  
+  public ArbitrarilyDiscretizedFunc getMagDistCutoffFunc()  throws java.rmi.RemoteException;
+
 
 
 	/**
