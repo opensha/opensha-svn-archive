@@ -67,29 +67,21 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 
 	public final static String DEFAULT = "Default  ";
 
-
-	// min and max limits of lat and lon for which CVM can work
-	private static final double MIN_CVM_LAT = 32.0;
-	private static final double MAX_CVM_LAT = 36.0;
-	private static final double MIN_CVM_LON = -121.0;
-	private static final double MAX_CVM_LON = -114.0;
-
-
 	// title for site paramter panel
 	public final static String GRIDDED_SITE_PARAMS = "Set Gridded Region Params";
 
 	//Site Params ArrayList
-	ArrayList siteParams ;
+	ArrayList<ParameterAPI<?>> siteParams ;
 
 	//Static String for setting the site Params
 	public final static String SET_ALL_SITES = "Apply same site parameter(s) to all locations";
 	public final static String USE_SITE_DATA = "Use site data providers";
-	// these are kept for compatability
+	// these are kept for compatibility
 	public final static String SET_SITE_USING_WILLS_SITE_TYPE = "Use the CGS Preliminary Site Conditions Map of CA (web service)";
 	public final static String SET_SITES_USING_SCEC_CVM = "Use both CGS Map and SCEC Basin Depth (web services)";
 
 	/**
-	 * Longitude and Latitude paramerts to be added to the site params list
+	 * Longitude and Latitude parameters to be added to the site params list
 	 */
 	private DoubleParameter minLon = new DoubleParameter(MIN_LONGITUDE,
 			new Double(-360), new Double(360),new Double(-119.5));
@@ -295,7 +287,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		//becuase all the sites will be having the same site Parameter
 		Iterator it = siteParams.iterator();
 		while(it.hasNext())
-			v.add((ParameterAPI)it.next());
+			v.add(((ParameterAPI)it.next()).clone());
 		gridRectRegion.addSiteParams(v.iterator());
 	}
 
@@ -374,11 +366,17 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 * @return the object for the SitesInGriddedRectangularRegion class
 	 */
 	public SitesInGriddedRectangularRegion getGriddedRegionSite() throws RuntimeException, RegionConstraintException {
-
 		updateGriddedSiteParams();
-		if(((String)siteParam.getValue()).equals(SET_ALL_SITES))
+		if(((String)siteParam.getValue()).equals(SET_ALL_SITES)) {
 			//if the site params does not need to be set from the CVM
 			gridRectRegion.setSameSiteParams();
+//			Site site = gridRectRegion.getSite(0);
+//			ListIterator<ParameterAPI> it = site.getParametersIterator();
+//			while (it.hasNext()) {
+//				ParameterAPI param = it.next();
+//				param.setValue(parameterList.getParameter(param.getName()).getValue());
+//			}
+		}
 
 		//if the site Params needs to be set from the WILLS Site type and SCEC basin depth
 		else{
@@ -465,7 +463,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		
 		if (dataGuiBean != null) {
 			OrderedSiteDataProviderList list = dataGuiBean.getProviderList();
-			list.enableOnlyFirstForEachType();
+//			list.enableOnlyFirstForEachType();
 			System.out.println(list);
 			dataGuiBean.refreshAll();
 			System.out.println(list);
@@ -477,6 +475,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		editorPanel.validate();
 		editorPanel.repaint();
 		setTitle(GRIDDED_SITE_PARAMS);
+		this.refreshParamEditor();
 	}
 
 	/**

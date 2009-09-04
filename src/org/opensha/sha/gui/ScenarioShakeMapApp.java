@@ -32,6 +32,7 @@ import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
+import org.opensha.commons.data.siteData.impl.WaldAllenGlobalVs30;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
@@ -474,10 +475,16 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 
 	protected void initSiteDataGuiBean() {
 		OrderedSiteDataProviderList provs = OrderedSiteDataProviderList.createSiteDataProviderDefaults();
-		// just leave CVM and Wills 2006 enabled
+		// just leave CVM, Global Vs30, and Wills 2006 enabled
 		for (int i=0; i<provs.size(); i++) {
 			String name = provs.getProvider(i).getName();
-			if (!(name.equals(CVM4BasinDepth.NAME)  || name.equals(WillsMap2006.NAME)))
+			if (name.equals(CVM4BasinDepth.NAME))
+				provs.setEnabled(i, true);
+			else if (name.equals(WillsMap2006.NAME))
+				provs.setEnabled(i, true);
+			else if (name.equals(WaldAllenGlobalVs30.NAME))
+				provs.setEnabled(i, true);
+			else
 				provs.setEnabled(i, false);
 		}
 		siteDataGUIBean = new OrderedSiteDataGUIBean(provs);
