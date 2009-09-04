@@ -65,7 +65,7 @@ ERF		-extend API to include getting max and min magnitude, and the various types
 
 Update topo files, and include global coverage (see milner email on April 3, 2009); do this when the item just above is done.
 
-
+Clean up control panels (make subdirs, and change names that are unclear, like CalcOptionControl)
 
 
 
