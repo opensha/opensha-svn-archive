@@ -3,6 +3,7 @@ package org.opensha.sha.gui.infoTools;
 import java.util.*;
 import java.lang.reflect.*;
 
+import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
@@ -144,15 +145,20 @@ public class AttenuationRelationshipsInstance {
 	 *
 	 */
 
-	public ArrayList<ScalarIntensityMeasureRelationshipAPI> createIMRClassInstance( org.opensha.commons.param.event.ParameterChangeWarningListener listener){
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> AttenRelObjects = new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
+	public ArrayList<ScalarIntensityMeasureRelationshipAPI> 
+			createIMRClassInstance(ParameterChangeWarningListener listener){
+		
+		ArrayList<ScalarIntensityMeasureRelationshipAPI> AttenRelObjects = 
+			new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
 		String S = C + ": createIMRClassInstance(): ";
 		int size = supportedAttenRelClasses.size();
+		
 		for(int i=0;i< size;++i){
-			Object obj = this.createIMRClassInstance(listener, supportedAttenRelClasses.get(i));
+			Object obj = createIMRClassInstance(listener, supportedAttenRelClasses.get(i));
 			AttenRelObjects.add((AttenuationRelationship)obj);
 		}
-		//     Collections.sort(AttenRelObjects, new ClassNameComparator());
+		
+		Collections.sort(AttenRelObjects, new ImrComparator());
 		return AttenRelObjects;
 	}
 
@@ -203,6 +209,16 @@ public class AttenuationRelationshipsInstance {
 		} catch ( InstantiationException e ) {
 			System.out.println(S + e.toString());
 			throw new RuntimeException( S + e.toString() );
+		}
+	}
+
+	private static class ImrComparator implements 
+			Comparator<ScalarIntensityMeasureRelationshipAPI> {
+
+		public int compare(
+				ScalarIntensityMeasureRelationshipAPI imr1,
+				ScalarIntensityMeasureRelationshipAPI imr2) {
+			return imr1.getName().compareToIgnoreCase(imr2.getName());
 		}
 	}
 
