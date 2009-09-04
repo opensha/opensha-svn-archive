@@ -61,6 +61,12 @@ public interface EqkRupForecastAPI extends EqkRupForecastBaseAPI{
       * @returns the ProbEqkRupture object for the ithSource and nth rupture
       */
      public ProbEqkRupture getRupture(int iSource,int nRupture);
+     
+     /**
+      * This draws a random event set.
+      * @return
+      */
+     public ArrayList<EqkRupture> drawRandomEventSet();
 
 
 }

@@ -15,6 +15,7 @@ import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.param.ArbitrarilyDiscretizedFuncParameter;
 import org.opensha.commons.param.BooleanParameter;
 import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.IntegerParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringConstraint;
@@ -71,6 +72,15 @@ public class HazardCurveCalculator extends UnicastRemoteObject
   double[] defaultCutoffMags =  {0, 5.25,  5.75, 6.25,  6.75, 7.25,  9};
   double[] defaultCutoffDists = {0, 25,    40,   60,    80,   100,   500};
   
+  //Info for parameter that sets the maximum distance considered
+  private IntegerParameter numStochEventSetRealizationsParam;
+  public final String NUM_STOCH_EVENT_SETS_PARAM_NAME = "Num Event Sets";
+  public final String NUM_STOCH_EVENT_SETS_PARAM_INFO = "Number of stochastic event sets for those types of calculations";
+  public final int NUM_STOCH_EVENT_SETS_PARAM_MIN = 1;
+  public final int NUM_STOCH_EVENT_SETS_PARAM_MAX = Integer.MAX_VALUE;
+  public final static Integer NUM_STOCH_EVENT_SETS_PARAM_DEFAULT = new Integer(1);
+
+  
   private ParameterList adjustableParams;
 
   // misc counting and index variables
@@ -105,11 +115,17 @@ public class HazardCurveCalculator extends UnicastRemoteObject
 		  func.set(defaultCutoffDists[i], defaultCutoffMags[i]);
 	  magDistCutoffParam = new ArbitrarilyDiscretizedFuncParameter(MAG_DIST_CUTOFF_PARAM_NAME,func);
 	  magDistCutoffParam.setInfo(MAG_DIST_CUTOFF_PARAM_INFO);
+	  
+	  // Max Distance Parameter
+	  numStochEventSetRealizationsParam = new IntegerParameter(NUM_STOCH_EVENT_SETS_PARAM_NAME, NUM_STOCH_EVENT_SETS_PARAM_MIN, 
+			  NUM_STOCH_EVENT_SETS_PARAM_MAX, NUM_STOCH_EVENT_SETS_PARAM_DEFAULT);
+	  numStochEventSetRealizationsParam.setInfo(NUM_STOCH_EVENT_SETS_PARAM_INFO);
 
       adjustableParams = new ParameterList();
 	  adjustableParams.addParameter(maxDistanceParam);
 	  adjustableParams.addParameter(includeMagDistFilterParam);
 	  adjustableParams.addParameter(magDistCutoffParam);
+	  adjustableParams.addParameter(numStochEventSetRealizationsParam);
 	  
   }
 
@@ -351,6 +367,43 @@ public class HazardCurveCalculator extends UnicastRemoteObject
     return hazFunction;
   }
 
+  
+  /**
+   * This function computes an average hazard curve from a number of stochastic event sets
+   * for the given Site, IMR, eqkRupForecast, where the number of event-set realizations
+   * is specified as the value in numStochEventSetRealizationsParam. The passed in 
+   * discretized function supplies the x-axis values (the IMLs) 
+   * for the computation, and the result (probability) is placed in the 
+   * y-axis values of this function. This always applies a rupture distance 
+   * cutoff using the value of the maxDistanceParam parameter (set to a very high 
+   * value if you don't want this).  This does not (yet?) apply the magnitude-dependent 
+   * distance cutoff represented by includeMagDistFilterParam and magDistCutoffParam.
+   * @param hazFunction: This function is where the hazard curve is placed
+   * @param site: site object
+   * @param imr: selected IMR object
+   * @param eqkRupForecast: selected Earthquake rup forecast
+   * @return
+   */
+  public DiscretizedFuncAPI getAverageEventSetHazardCurve(DiscretizedFuncAPI hazFunction,
+		  Site site, ScalarIntensityMeasureRelationshipAPI imr, 
+		  EqkRupForecastAPI eqkRupForecast)
+  		throws java.rmi.RemoteException{
+	  
+	  int numEventSets = numStochEventSetRealizationsParam.getValue();
+	  DiscretizedFuncAPI hazCurve;
+	  hazCurve = hazFunction.deepClone();
+	  initDiscretizeValues(hazFunction, 0);
+	  int numPts=hazCurve.getNum();
+	  for(int i=0;i<numEventSets;i++) {
+		  getEventSetHazardCurve( hazCurve,site, imr, eqkRupForecast.drawRandomEventSet());
+		  for(int x=0; x<numPts; x++)
+			  hazFunction.set(x, hazFunction.getY(x)+hazCurve.getY(x));
+	  }
+	  for(int x=0; x<numPts; x++)
+		  hazFunction.set(x, hazFunction.getY(x)/numEventSets);
+	  return hazFunction;
+  }
+
 
 
   /**
@@ -556,8 +609,8 @@ public class HazardCurveCalculator extends UnicastRemoteObject
 	 maxDistanceParam.setValue(300);
 	 // do not apply mag-dist fileter
 	 includeMagDistFilterParam.setValue(false);
+	 numStochEventSetRealizationsParam.setValue(numIterations);
 	 
-	 DiscretizedFuncAPI hazFunction;
      ScalarIntensityMeasureRelationshipAPI imr = new BJF_1997_AttenRel(this); 
      imr.setParamDefaults();
      imr.setIntensityMeasure("PGA");
@@ -590,6 +643,14 @@ public class HazardCurveCalculator extends UnicastRemoteObject
 	System.out.println(hazCurve.toString());
 	
 	ArbitrarilyDiscretizedFunc aveCurve = hazCurve.deepClone();
+	try {
+		getAverageEventSetHazardCurve(aveCurve,site, imr,eqkRupForecast);
+	} catch (RemoteException e1) {
+		// TODO Auto-generated catch block
+		e1.printStackTrace();
+	}
+	
+	/*
 	this.initDiscretizeValues(aveCurve, 0.0);
 	ArbitrarilyDiscretizedFunc curve = hazCurve.deepClone();
 	for(int i=0; i<numIterations;i++) {
@@ -602,6 +663,7 @@ public class HazardCurveCalculator extends UnicastRemoteObject
 		}
 	}
 	for(int x=0; x<curve.getNum();x++) aveCurve.set(x, aveCurve.getY(x)/numIterations);
+	*/
  
 	aveCurve.setName("Ave from "+numIterations+" event sets");
 	System.out.println(aveCurve.toString());
