@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashMap;
 
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.WarningParameterAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
@@ -46,9 +47,6 @@ implements DisaggregationCalculatorAPI{
 	protected final static boolean D = false;
 
 
-	// maximum permitted distance between fault and site to consider source in hazard analysis for that site
-	protected double MAX_DISTANCE = HazardCurveCalculator.MAX_DISTANCE_DEFAULT;
-	
 	public static final String OPENSHA_SERVLET_URL = "http://opensha.usc.edu:8080/OpenSHA/DisaggregationPlotServlet";
 
 	// disaggregation stuff
@@ -91,19 +89,6 @@ implements DisaggregationCalculatorAPI{
 	//Address to the disaggregation plot img
 	private String disaggregationPlotImgWebAddr;
 
-	/**
-	 * This sets the maximum distance of sources to be considered in the calculation
-	 * (as determined by the getMinDistance(Site) method of ProbEqkSource subclasses).
-	 * Sources more than this distance away are ignored.
-	 * Default value is 250 km.
-	 *
-	 * @param distance: the maximum distance in km
-	 */
-	public void setMaxSourceDistance(double distance) throws java.rmi.RemoteException{
-		MAX_DISTANCE = distance;
-	}
-
-
 	static String[] epsilonColors = {
 			"-G215/38/3",
 			"-G252/94/62",
@@ -126,6 +111,8 @@ implements DisaggregationCalculatorAPI{
 		//set defaults
 		setMagRange(5, 9, 0.5);
 		setDistanceRange(5, 11, 10);
+		
+		//Create adjustable parameters
 	}
 
 
@@ -143,8 +130,9 @@ implements DisaggregationCalculatorAPI{
 	 */
 	public boolean disaggregate(double iml, Site site,
 			ScalarIntensityMeasureRelationshipAPI imr,
-			EqkRupForecast eqkRupForecast) throws java.rmi.
-			RemoteException {
+			EqkRupForecast eqkRupForecast,
+			double maxDist, ArbitrarilyDiscretizedFunc magDistFilter) 
+			throws java.rmi.RemoteException {
 
 		double rate, condProb;
 
@@ -174,9 +162,15 @@ implements DisaggregationCalculatorAPI{
 		//parameter changes.
 		( (AttenuationRelationship) imr).resetParameterEventListeners();
 
+
+		boolean includeMagDistFilter;
+		if(magDistFilter == null ) includeMagDistFilter=false;
+		else includeMagDistFilter=true;
+		double magThresh=0.0;
+		
 		// set the maximum distance in the attenuation relationship
 		// (Note- other types of IMRs may not have this method so we should really check type here)
-		imr.setUserMaxDistance(MAX_DISTANCE);
+		imr.setUserMaxDistance(maxDist);
 
 		// set iml in imr
 		ParameterAPI im = imr.getIntensityMeasure();
@@ -223,6 +217,10 @@ implements DisaggregationCalculatorAPI{
 					pdf3D[i][j][k] = 0;
 
 		int testNum = 0;
+		
+	    int numRupRejected =0;
+
+		
 		for (int i = 0; i < numSources; i++) {
 
 			double sourceRate = 0;
@@ -234,10 +232,17 @@ implements DisaggregationCalculatorAPI{
 
 			// check the distance of the source
 			double distance = source.getMinDistance(site);
-			if (distance > MAX_DISTANCE) {
+			if (distance > maxDist) {
 				currRuptures += numRuptures;
 				continue;
 			}
+
+			// get magThreshold if we're to use the mag-dist cutoff filter
+			if(includeMagDistFilter) {
+				magThresh = magDistFilter.getInterpolatedY(distance);
+			}
+			
+
 
 			if (numSourcesToShow > 0)
 				sourceDissaggMap.put(sourceName, new ArrayList());
@@ -249,14 +254,15 @@ implements DisaggregationCalculatorAPI{
 				ProbEqkRupture rupture = source.getRupture(n);
 
 				double qkProb = rupture.getProbability();
+				
+			     // apply magThreshold if we're to use the mag-dist cutoff filter
+		        if(includeMagDistFilter && rupture.getMag() < magThresh) {
+		        	numRupRejected+=1;
+		        	continue;
+		        }
 
 				// set the rupture in the imr
-				try {
-					imr.setEqkRupture(rupture);
-				}
-				catch (Exception ex) {
-					System.out.println("Parameter change warning caught");
-				}
+				imr.setEqkRupture(rupture);
 
 				// get the cond prob
 				condProb = imr.getExceedProbability();
@@ -443,6 +449,7 @@ implements DisaggregationCalculatorAPI{
 				"; binNum = " + modeEpsilonBin);
 		//if( D ) System.out.println(S + "EpsMode = "  + E_mode3D + "; binNum = " + modeEpsilonBin);
 
+System.out.println("numRupRejected="+numRupRejected);
 
 		return true;
 	}

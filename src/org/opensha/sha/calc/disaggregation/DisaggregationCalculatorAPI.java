@@ -3,6 +3,7 @@ package org.opensha.sha.calc.disaggregation;
 import java.rmi.Remote;
 
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
@@ -18,17 +19,6 @@ import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
  * @version 1.0
  */
 public interface DisaggregationCalculatorAPI extends Remote{
-
-  /**
-   * This sets the maximum distance of sources to be considered in the calculation
-   * (as determined by the getMinDistance(Site) method of ProbEqkSource subclasses).
-   * Sources more than this distance away are ignored.
-   * Default value is 250 km.
-   *
-   * @param distance: the maximum distance in km
-   */
-  public void setMaxSourceDistance(double distance) throws java.rmi.
-      RemoteException;
 
   /**
    * Sets the Max Z Axis Range value fro the plotting purposes
@@ -51,8 +41,9 @@ public interface DisaggregationCalculatorAPI extends Remote{
    */
   public boolean disaggregate(double iml, Site site,
                               ScalarIntensityMeasureRelationshipAPI imr,
-                              EqkRupForecast eqkRupForecast) throws java.rmi.
-      RemoteException;
+                              EqkRupForecast eqkRupForecast,
+                              double maxDist,ArbitrarilyDiscretizedFunc 
+                              magDistFilter) throws java.rmi.RemoteException;
 
   /**
    * Sets the number of sources to be shown in the Disaggregation.
