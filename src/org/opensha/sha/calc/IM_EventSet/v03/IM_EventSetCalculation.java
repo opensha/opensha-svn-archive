@@ -1,12 +1,23 @@
 package org.opensha.sha.calc.IM_EventSet.v03;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.opensha.commons.data.Location;
+import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
+import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.metadata.XMLSaveable;
+import org.opensha.commons.util.XMLUtils;
+import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.imr.IntensityMeasureRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
 public class IM_EventSetCalculation implements XMLSaveable {
@@ -25,15 +36,17 @@ public class IM_EventSetCalculation implements XMLSaveable {
 	private ArrayList<EqkRupForecastAPI> erfs;
 	private ArrayList<ScalarIntensityMeasureRelationshipAPI> attenRels;
 	private ArrayList<String> imts;
+	private OrderedSiteDataProviderList providers;
 	
 	public IM_EventSetCalculation(ArrayList<Location> sites, ArrayList<ArrayList<SiteDataValue<?>>> sitesData,
 			ArrayList<EqkRupForecastAPI> erfs, ArrayList<ScalarIntensityMeasureRelationshipAPI> attenRels,
-			ArrayList<String> imts) {
+			ArrayList<String> imts, OrderedSiteDataProviderList providers) {
 		this.sites = sites;
 		this.sitesData = sitesData;
 		this.erfs = erfs;
 		this.attenRels = attenRels;
 		this.imts = imts;
+		this.providers = providers;
 	}
 
 	public Element toXMLMetadata(Element root) {
@@ -78,7 +91,89 @@ public class IM_EventSetCalculation implements XMLSaveable {
 			}
 		}
 		
+		// Providers
+		providers.toXMLMetadata(el);
+		
 		return root;
+	}
+	
+	public static IM_EventSetCalculation fromXMLMetadata(Element eventSetEl) {
+		// ERFs
+		Element erfsEl = eventSetEl.element(XML_ERFS_NAME);
+		Iterator<Element> erfElIt = erfsEl.elementIterator();
+		ArrayList<EqkRupForecastAPI> erfs = new ArrayList<EqkRupForecastAPI>();
+		while (erfElIt.hasNext()) {
+			Element erfEl = erfElIt.next();
+			try {
+				EqkRupForecastAPI erf = EqkRupForecast.fromXMLMetadata(erfEl);
+				erfs.add(erf);
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		// IMRs
+		Element imrsEl = eventSetEl.element(XML_IMRS_NAME);
+		Iterator<Element> imrElIt = imrsEl.elementIterator();
+		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
+		while (imrElIt.hasNext()) {
+			Element imrEl = imrElIt.next();
+			try {
+				ScalarIntensityMeasureRelationshipAPI imr = (ScalarIntensityMeasureRelationshipAPI) IntensityMeasureRelationship.fromXMLMetadata(imrEl, null);
+				imrs.add(imr);
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		// IMTs
+		Element imtsEl = eventSetEl.element(XML_IMTS_NAME);
+		Iterator<Element> imtElIt = imtsEl.elementIterator();
+		ArrayList<String> imts = new ArrayList<String>();
+		while (imtElIt.hasNext()) {
+			Element imtEl = imtElIt.next();
+			String imt = imtEl.attributeValue("value");
+			imts.add(imt);
+		}
+		
+		// Sites
+		Element sitesEl = eventSetEl.element(XML_SITES_NAME);
+		Iterator<Element> siteElIt = sitesEl.elementIterator();
+		ArrayList<Location> sites = new ArrayList<Location>();
+		ArrayList<ArrayList<SiteDataValue<?>>> sitesData = new ArrayList<ArrayList<SiteDataValue<?>>>();
+		while (siteElIt.hasNext()) {
+			Element siteEl = siteElIt.next();
+			Element locEl = siteEl.element(Location.XML_METADATA_NAME);
+			Location loc = Location.fromXMLMetadata(locEl);
+			ArrayList<SiteDataValue<?>> siteData = new ArrayList<SiteDataValue<?>>();
+			Element dataEl = siteEl.element(XML_SITE_DATA_VALS_NAME);
+			if (dataEl != null) {
+				Iterator<Element> dataIt = dataEl.elementIterator();
+				while (dataIt.hasNext()) {
+					Element valEl = dataIt.next();
+					SiteDataValue<?> val = SiteDataValue.fromXMLMetadata(valEl);
+					siteData.add(val);
+				}
+			}
+			sites.add(loc);
+			sitesData.add(siteData);
+		}
+		
+		// Data Providers
+		Element providersEl = eventSetEl.element(OrderedSiteDataProviderList.XML_METADATA_NAME);
+		OrderedSiteDataProviderList providers = null;
+		if (providersEl != null) {
+			try {
+				providers = OrderedSiteDataProviderList.fromXMLMetadata(providersEl);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		return new IM_EventSetCalculation(sites, sitesData, erfs, imrs, imts, providers);
 	}
 
 	public ArrayList<Location> getSites() {
@@ -99,6 +194,38 @@ public class IM_EventSetCalculation implements XMLSaveable {
 
 	public ArrayList<String> getIMTs() {
 		return imts;
+	}
+	
+	public OrderedSiteDataProviderList getProviders() {
+		return providers;
+	}
+	
+	public static void main(String args[]) throws MalformedURLException, DocumentException {
+		Document doc = XMLUtils.loadDocument("/tmp/im.xml");
+		Element eventSetEl = doc.getRootElement().element(XML_METADATA_NAME);
+		IM_EventSetCalculation calc = fromXMLMetadata(eventSetEl);
+		
+		for (EqkRupForecastAPI erf : calc.getErfs()) {
+			System.out.println("Loaded ERF: " + erf.getName());
+		}
+		for (ScalarIntensityMeasureRelationshipAPI imr : calc.getIMRs()) {
+			System.out.println("Loaded IMR: " + imr.getName());
+		}
+		for (String imt : calc.getIMTs()) {
+			System.out.println("Loaded IMT: " + imt);
+		} 
+		for (int i=0; i<calc.getSites().size(); i++) {
+			Location loc = calc.getSites().get(i);
+			System.out.println("Loaded site: " + loc.getLatitude() + "," + loc.getLongitude());
+			ArrayList<SiteDataValue<?>> siteData = calc.getSitesData().get(i);
+			for (SiteDataValue<?> val : siteData) {
+				System.out.println("\t" + val.getDataType() + ": " + val.getValue() +
+						" (" + val.getDataMeasurementType() + ")");
+			}
+		}
+		for (SiteDataAPI<?> provider : calc.getProviders()) {
+			System.out.println("Loaded Site Data Provider: " + provider.getName());
+		}
 	}
 
 }

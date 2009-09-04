@@ -7,6 +7,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.ListModel;
+import javax.swing.event.ListSelectionEvent;
 
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
@@ -140,6 +141,28 @@ public class IMR_ChooserPanel extends NamesListPanel implements IMR_GuiBeanAPI, 
 		updateIMTs();
 	}
 	
+	public void clear() {
+		namesList.setListData(new Object[0]);
+		updateIMTs();
+	}
+	
+	public void setForIMRS(ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs) {
+		this.clear();
+		String names[] = new String[imrs.size()];
+		for (int i=0; i<imrs.size(); i++) {
+			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
+			ScalarIntensityMeasureRelationshipAPI myIMR = imrGuiBean.getIMR_Instance(imr.getName());
+			ListIterator<ParameterAPI> paramIt = myIMR.getOtherParamsIterator();
+			while (paramIt.hasNext()) {
+				ParameterAPI param = paramIt.next();
+				param.setValue(imr.getParameter(param.getName()).getValue());
+			}
+			names[i] = imr.getName();
+		}
+		this.namesList.setListData(names);
+		this.imrGuiBean.refreshParamEditor();
+	}
+	
 	public ArrayList<ScalarIntensityMeasureRelationshipAPI> getSelectedIMRs() {
 		ListModel model = namesList.getModel();
 		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
@@ -159,5 +182,16 @@ public class IMR_ChooserPanel extends NamesListPanel implements IMR_GuiBeanAPI, 
 	public boolean shouldEnableAddButton() {
 		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 		return shouldEnableAddButton(imr);
+	}
+
+	@Override
+	public void valueChanged(ListSelectionEvent e) {
+		int index = this.namesList.getSelectedIndex();
+		if (index >= 0) {
+			String name = this.imrGuiBean.getSupportedIMRs().get(index).getName();
+			imrGuiBean.getParameterList().getParameter(IMR_GuiBean.IMR_PARAM_NAME).setValue(name);
+			imrGuiBean.refreshParamEditor();
+		}
+		super.valueChanged(e);
 	}
 }

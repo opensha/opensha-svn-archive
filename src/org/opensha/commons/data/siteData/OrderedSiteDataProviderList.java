@@ -509,7 +509,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 	 * Makes a shallow copy of this OrderedSiteDataProviderList
 	 */
 	@Override
-	public Object clone() {
+	public OrderedSiteDataProviderList clone() {
 		ArrayList<SiteDataAPI<?>> list = (ArrayList<SiteDataAPI<?>>)this.providers.clone();
 		
 		OrderedSiteDataProviderList newList = new OrderedSiteDataProviderList(list);
@@ -591,6 +591,32 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 		}
 		
 		return list;
+	}
+	
+	/**
+	 * This will merge a new list with the current list. If duplicates are found, the settings
+	 * from the new list will be used (parameters, as well as enabled state).
+	 * 
+	 * @param newList
+	 */
+	public void mergeWith(OrderedSiteDataProviderList newList) {
+		ArrayList<SiteDataAPI<?>> toAdd = new ArrayList<SiteDataAPI<?>>();
+		
+		for (int j=0; j<newList.size(); j++) {
+			SiteDataAPI<?> newProv = newList.getProvider(j);
+			boolean shouldAdd = true;
+			for (int i=0; i<this.size(); i++) {
+				SiteDataAPI<?> curProv = this.getProvider(i);
+				if (curProv.getName().equals(newProv.getName())) {
+					this.set(i, newProv);
+					shouldAdd = false;
+					this.setEnabled(i, newList.isEnabled(j));
+					break;
+				}
+			}
+			if (shouldAdd)
+				this.add(newProv);
+		}
 	}
 	
 	public static void main(String args[]) throws IOException {

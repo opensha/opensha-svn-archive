@@ -126,7 +126,7 @@ public class SitesPanel extends JPanel implements ListSelectionListener, ActionL
 		removeDataButton.setEnabled(enable);
 	}
 	
-	private void addSite(Location loc, ArrayList<SiteDataValue<?>> data) {
+	protected void addSite(Location loc, ArrayList<SiteDataValue<?>> data) {
 		this.locs.add(loc);
 		if (data == null) {
 			data = new ArrayList<SiteDataValue<?>>();
@@ -137,6 +137,12 @@ public class SitesPanel extends JPanel implements ListSelectionListener, ActionL
 	
 	private void addSiteDataValue(int i, SiteDataValue<?> val) {
 		this.dataLists.get(i).add(val);
+	}
+	
+	public void clear() {
+		locs.clear();
+		dataLists.clear();
+		this.rebuildSiteList();
 	}
 	
 	private void removeSite(int i) {

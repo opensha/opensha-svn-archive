@@ -2,6 +2,7 @@ package org.opensha.sha.calc.IM_EventSet.v03.gui;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
+import java.util.StringTokenizer;
 
 import javax.swing.JFrame;
 import javax.swing.ListModel;
@@ -172,7 +173,7 @@ public class IMT_ChooserPanel extends NamesListPanel implements ParameterChangeL
 			ParameterAPI<?> periodParam = imtGuiBean.getParameterList().getParameter(PeriodParam.NAME);
 			periodParam.addParameterChangeListener(this);
 		}
-		System.out.println("ParamChange!!!!!!!!!");
+//		System.out.println("ParamChange!!!!!!!!!");
 		addButton.setEnabled(shouldEnableAddButton());
 	}
 	
@@ -182,6 +183,22 @@ public class IMT_ChooserPanel extends NamesListPanel implements ParameterChangeL
 			strings.add(IM_EventSetOutputWriter.getRegularIMTString(param));
 		}
 		return strings;
+	}
+	
+	public void setIMTs(ArrayList<String> imts) {
+		for (String imt : imts) {
+			StringTokenizer tok = new StringTokenizer(imt.trim());
+			String imtName = tok.nextToken();
+			
+			this.imtGuiBean.getParameterList();
+			this.imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME);
+			this.imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(imtName);
+			if (tok.hasMoreTokens()) {
+				Double period = Double.parseDouble(tok.nextToken());
+				this.imtGuiBean.getParameterList().getParameter(PeriodParam.NAME).setValue(period);
+			}
+			this.addButton_actionPerformed();
+		}
 	}
 
 }

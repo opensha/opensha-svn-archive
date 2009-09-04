@@ -49,13 +49,11 @@ public class AttenuationRelationshipsInstance {
 	public final static String McVerryetal_2000_CLASS_NAME="scratch.bbradley.McVerryetal_2000_AttenRel";
     
 	//arrayList to store the supported AttenRel Class Names with their full package structure.
-	ArrayList<String> supportedAttenRelClasses = new ArrayList<String>();
-
-	/**
-	 * class default constructor
-	 */
-	public AttenuationRelationshipsInstance(){
-
+	private ArrayList<String> supportedAttenRelClasses;
+	
+	public static ArrayList<String> getDefaultIMRClassNames() {
+		ArrayList<String> supportedAttenRelClasses = new ArrayList<String>();
+		
 		//adds all the AttenRel classes to the ArrayList
 		// ******** ORDER THEM BY YEAR, NEWEST FIRST ********
 		// 2009
@@ -101,8 +99,21 @@ public class AttenuationRelationshipsInstance {
 		
 		// OTHER
 //		supportedAttenRelClasses.add(CyberShake_CLASS_NAME);
-		
-		Collections.sort(supportedAttenRelClasses);
+		return supportedAttenRelClasses;
+	}
+
+	/**
+	 * class default constructor
+	 */
+	public AttenuationRelationshipsInstance(){
+		this(getDefaultIMRClassNames());
+	}
+	
+	/**
+	 * constructor for giving your own custom class names
+	 */
+	public AttenuationRelationshipsInstance(ArrayList<String> classNames){
+		setIMR_ClassNames(classNames);
 	}
 
 	/**

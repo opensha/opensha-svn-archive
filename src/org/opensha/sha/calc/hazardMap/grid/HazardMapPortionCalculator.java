@@ -353,6 +353,8 @@ public class HazardMapPortionCalculator {
 				}
 				String outFileName = prefix + lat + "_" + lon + ".txt";
 				
+				ArbitrarilyDiscretizedFunc hazFunction = this.hazFunction.deepClone();
+				
 				// check to see if the file exists...like for a repair run
 				File outFileFile = new File(outFileName);
 				if (outFileFile.exists()) {

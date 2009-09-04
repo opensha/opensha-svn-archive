@@ -3,6 +3,7 @@ package org.opensha.commons.data.siteData.impl;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.dom4j.Element;
 import org.opensha.commons.calc.ArcsecondConverter;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
@@ -391,5 +392,17 @@ public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements Par
 		System.out.println("Plus Slope: " + spdata.getValue(loc));
 		System.out.println("Plus Elevation: " + tpdata.getValue(loc));
 		System.out.println("Vs30: " + data.getValue(loc));
+	}
+	
+//	@Override
+//	protected Element addXMLParameters(Element paramsEl) {
+//		paramsEl.addAttribute("useServlet", this.useServlet + "");
+//		paramsEl.addAttribute("fileName", this.fileName);
+//		paramsEl.addAttribute("type", this.type);
+//		return super.addXMLParameters(paramsEl);
+//	}
+	
+	public static WaldAllenGlobalVs30 fromXMLParams(org.dom4j.Element paramsElem) throws IOException {
+		return new WaldAllenGlobalVs30();
 	}
 }

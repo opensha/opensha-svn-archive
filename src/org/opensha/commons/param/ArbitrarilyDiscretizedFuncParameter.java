@@ -3,7 +3,6 @@ package org.opensha.commons.param;
 import org.dom4j.Element;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.exceptions.EditableException;
-import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.editor.ArbitrarilyDiscretizedFuncParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditor;
 
@@ -173,8 +172,17 @@ implements java.io.Serializable{
 	}
 
 	public boolean setIndividualParamValueFromXML(Element el) {
-		// TODO Auto-generated method stub
-		return false;
+		try {
+			Element valEl = el.element(XML_COMPLEX_VAL_EL_NAME);
+			Element funcEl = valEl.element(ArbitrarilyDiscretizedFunc.XML_METADATA_NAME);
+			ArbitrarilyDiscretizedFunc func = ArbitrarilyDiscretizedFunc.fromXMLMetadata(funcEl);
+			this.setValue(func);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		return true;
 	}
 
 	public ParameterEditor getEditor() {

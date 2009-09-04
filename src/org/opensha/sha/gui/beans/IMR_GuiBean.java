@@ -62,12 +62,12 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 	public final static String IMR_EDITOR_TITLE =  "Set IMR";
 
 	//saves the IMR objects, to the parameters related to an IMR.
-	private ArrayList supportedAttenRels ;
+	private ArrayList<ScalarIntensityMeasureRelationshipAPI> supportedAttenRels ;
 	// this flag is needed else messages are shown twice on focus lost
 	private boolean inParameterChangeWarning = false;
 
 	//instance of the class to create the objects of the AttenuationRelationships dynamically.
-	private AttenuationRelationshipsInstance attenRelInstances = new AttenuationRelationshipsInstance();
+	private AttenuationRelationshipsInstance attenRelInstances;
 
 	//instance of the application using IMR_GuiBean
 	private IMR_GuiBeanAPI application;
@@ -80,10 +80,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 	 * @param classNames
 	 */
 	public IMR_GuiBean(IMR_GuiBeanAPI api) {
-		application  = api;
-		supportedAttenRels = attenRelInstances.createIMRClassInstance(this);
-		parameterList = new ParameterList();
-		init_imrParamListAndEditor();
+		this(api, AttenuationRelationshipsInstance.getDefaultIMRClassNames());
 	}
 
 	/**
@@ -92,9 +89,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 	 * @param classNames
 	 */
 	public IMR_GuiBean(IMR_GuiBeanAPI api, ArrayList<String> classNames) {
-		application  = api;
-		attenRelInstances.setIMR_ClassNames(classNames);
-		supportedAttenRels = attenRelInstances.createIMRClassInstance(this);
+		init(api, classNames);
 		parameterList = new ParameterList();
 		init_imrParamListAndEditor();
 	}
@@ -106,14 +101,17 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 	 */
 	public IMR_GuiBean(IMR_GuiBeanAPI api,String currentIMT,
 			String retroIMT,double currentPeriod,double retroPeriod) {
+		init(api, AttenuationRelationshipsInstance.getDefaultIMRClassNames());
+		setIMRParamListAndEditor(currentIMT ,retroIMT, currentPeriod,retroPeriod);
+	}
+	
+	private void init(IMR_GuiBeanAPI api, ArrayList<String> classNames) {
 		application  = api;
+		attenRelInstances = new AttenuationRelationshipsInstance(classNames);
 		supportedAttenRels = attenRelInstances.createIMRClassInstance(this);
-		int numSupportedAttenRels = supportedAttenRels.size();
-		for(int i=0;i<numSupportedAttenRels;++i){
-			ScalarIntensityMeasureRelationshipAPI imr = (ScalarIntensityMeasureRelationshipAPI )supportedAttenRels.get(i);
+		for (ScalarIntensityMeasureRelationshipAPI imr : supportedAttenRels) {
 			imr.setParamDefaults();
 		}
-		setIMRParamListAndEditor(currentIMT ,retroIMT, currentPeriod,retroPeriod);
 	}
 
 
@@ -592,7 +590,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 	 *
 	 * @return
 	 */
-	public ArrayList getSupportedIMRs() {
+	public ArrayList<ScalarIntensityMeasureRelationshipAPI> getSupportedIMRs() {
 		return supportedAttenRels;
 	}
 	

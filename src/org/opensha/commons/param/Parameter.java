@@ -7,6 +7,7 @@ import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 
 /**
@@ -43,6 +44,7 @@ ParameterAPI<E>, java.io.Serializable
 	protected final static String C = "Parameter";
 	public final static String XML_GROUP_METADATA_NAME = "Parameters";
 	public final static String XML_METADATA_NAME = "Parameter";
+	public final static String XML_COMPLEX_VAL_EL_NAME = "ComplexValue";
 	/** If true print out debug statements. */
 	protected final static boolean D = false;
 
@@ -497,8 +499,14 @@ ParameterAPI<E>, java.io.Serializable
 		Object val = getValue();
 		if (val == null)
 			xml.addAttribute("value", "");
-		else
-			xml.addAttribute("value", val.toString());
+		else {
+			if (val instanceof XMLSaveable) {
+				Element valEl = xml.addElement(XML_COMPLEX_VAL_EL_NAME);
+				((XMLSaveable)val).toXMLMetadata(valEl);
+			} else {
+				xml.addAttribute("value", val.toString());
+			}
+		}
 		if (this instanceof DependentParameterAPI) {
 			DependentParameterAPI<E> param = (DependentParameterAPI<E>)this;
 			int num = param.getNumIndependentParameters();

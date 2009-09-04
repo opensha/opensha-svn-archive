@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
@@ -18,18 +19,26 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.opensha.commons.data.Location;
+import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
+import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
+import org.opensha.commons.exceptions.ConstraintException;
+import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetCalculation;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
 import org.opensha.sha.calc.IM_EventSet.v03.outputImpl.HAZ01Writer;
 import org.opensha.sha.calc.IM_EventSet.v03.outputImpl.OriginalModWriter;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.gui.HazardCurveLocalModeApplication;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
@@ -51,7 +60,9 @@ public class IM_EventSetGUI extends JFrame implements ActionListener {
 	
 	private JButton calcButton = new JButton("Start Calculation");
 	private JButton saveButton = new JButton("Save Calculation Settings");
+	private JButton loadButton = new JButton("Load Calculation Settings");
 	
+	private JFileChooser openChooser;
 	private JFileChooser saveChooser;
 	private JFileChooser outputChooser;
 	
@@ -101,9 +112,11 @@ public class IM_EventSetGUI extends JFrame implements ActionListener {
 		bottomPanel.add(outputWriterChooserPanel);
 		bottomPanel.add(calcButton);
 		bottomPanel.add(saveButton);
+		bottomPanel.add(loadButton);
 //		bottomPanel.add(bar);
 		calcButton.addActionListener(this);
 		saveButton.addActionListener(this);
+		loadButton.addActionListener(this);
 		
 		mainPanel.add(tabbedPane, BorderLayout.CENTER);
 		mainPanel.add(bottomPanel, BorderLayout.SOUTH);
@@ -137,7 +150,41 @@ public class IM_EventSetGUI extends JFrame implements ActionListener {
 		ArrayList<Location> locs = sitesPanel.getLocs();
 		ArrayList<ArrayList<SiteDataValue<?>>> vals = sitesPanel.getDataLists();
 		
-		return new IM_EventSetCalculation(locs, vals, erfs, imrs, imts);
+		OrderedSiteDataProviderList providers = this.dataBean.getProviderList().clone();
+		providers.removeDisabledProviders();
+		
+		return new IM_EventSetCalculation(locs, vals, erfs, imrs, imts, providers);
+	}
+	
+	private boolean isReadyForCalc(ArrayList<Location> locs, ArrayList<ArrayList<SiteDataValue<?>>> dataLists,
+			EqkRupForecastAPI erf, ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs, ArrayList<String> imts) {
+		
+		if (locs.size() < 1) {
+			JOptionPane.showMessageDialog(this, "You must add at least 1 site!", "No Sites Selected!",
+					JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		if (locs.size() != dataLists.size()) {
+			JOptionPane.showMessageDialog(this, "Internal error: Site data lists not same size as site list!",
+					"Internal error", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		if (erf == null) {
+			JOptionPane.showMessageDialog(this, "Error instantiating ERF!", "Error with ERF!",
+					JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		if (imrs.size() < 1) {
+			JOptionPane.showMessageDialog(this, "You must add at least 1 IMR!", "No IMRs Selected!",
+					JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		if (imts.size() < 1) {
+			JOptionPane.showMessageDialog(this, "You must add at least 1 IMT!", "No IMTs Selected!",
+					JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		return true;
 	}
 	
 	public void actionPerformed(ActionEvent e) {
@@ -155,31 +202,8 @@ public class IM_EventSetGUI extends JFrame implements ActionListener {
 				imrs = imrChooser.getSelectedIMRs();
 				imts = imtChooser.getIMTStrings();
 				
-				if (locs.size() < 1) {
-					JOptionPane.showMessageDialog(this, "You must add at least 1 site!", "No Sites Selected!",
-							JOptionPane.ERROR_MESSAGE);
+				if (!isReadyForCalc(locs, dataLists, erf, imrs, imts))
 					return;
-				}
-				if (locs.size() != dataLists.size()) {
-					JOptionPane.showMessageDialog(this, "Internal error: Site data lists not same size as site list!",
-							"Internal error", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				if (erf == null) {
-					JOptionPane.showMessageDialog(this, "Error instantiating ERF!", "Error with ERF!",
-							JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				if (imrs.size() < 1) {
-					JOptionPane.showMessageDialog(this, "You must add at least 1 IMR!", "No IMRs Selected!",
-							JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				if (imts.size() < 1) {
-					JOptionPane.showMessageDialog(this, "You must add at least 1 IMT!", "No IMTs Selected!",
-							JOptionPane.ERROR_MESSAGE);
-					return;
-				}
 			} catch (Exception e2) {
 				e2.printStackTrace();
 				JOptionPane.showMessageDialog(this, e2.getMessage(), "Exception Preparing Calculation",
@@ -224,7 +248,7 @@ public class IM_EventSetGUI extends JFrame implements ActionListener {
 		} else if (e.getSource().equals(saveButton)) {
 			if (saveChooser == null)
 				saveChooser = new JFileChooser(cwd);
-			int returnVal = saveChooser.showOpenDialog(this);
+			int returnVal = saveChooser.showSaveDialog(this);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				IM_EventSetCalculation calc = getEventSetCalc();
 				File file = saveChooser.getSelectedFile();
@@ -234,6 +258,72 @@ public class IM_EventSetGUI extends JFrame implements ActionListener {
 				try {
 					XMLUtils.writeDocumentToFile(file.getAbsolutePath(), doc);
 				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		} else if (e.getSource().equals(loadButton)) {
+			if (openChooser == null)
+				openChooser = new JFileChooser(cwd);
+			int returnVal = openChooser.showOpenDialog(this);
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = openChooser.getSelectedFile();
+				Document doc = null;
+				try {
+					doc = XMLUtils.loadDocument(file.getAbsolutePath());
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+					JOptionPane.showMessageDialog(this, "Error loading XML file:\n" + e1.getMessage(),
+							"Error loading XML!", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				try {
+					Element eventSetEl = doc.getRootElement().element(IM_EventSetCalculation.XML_METADATA_NAME);
+					IM_EventSetCalculation calc = IM_EventSetCalculation.fromXMLMetadata(eventSetEl);
+					
+					// sites
+					this.sitesPanel.clear();
+					ArrayList<Location> sites = calc.getSites();
+					ArrayList<ArrayList<SiteDataValue<?>>> sitesData = calc.getSitesData();
+					for (int i=0; i<calc.getSites().size(); i++) {
+						this.sitesPanel.addSite(sites.get(i), sitesData.get(i));
+					}
+					
+					// erf
+					ArrayList<EqkRupForecastAPI> erfs = calc.getErfs();
+					if (erfs.size() > 0) {
+						EqkRupForecastAPI erf = erfs.get(0);
+						this.erfGuiBean.getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(erf.getName());
+						EqkRupForecastBaseAPI myERF = erfGuiBean.getSelectedERF_Instance();
+						for (ParameterAPI myParam : myERF.getAdjustableParameterList()) {
+							for (ParameterAPI xmlParam : erf.getAdjustableParameterList()) {
+								if (myParam.getName().equals(xmlParam.getName())) {
+									myParam.setValue(xmlParam.getValue());
+								}
+							}
+						}
+						TimeSpan timeSpan = erf.getTimeSpan();
+						myERF.setTimeSpan(timeSpan);
+						erfGuiBean.getERFParameterListEditor().refreshParamEditor();
+						erfGuiBean.getSelectedERFTimespanGuiBean().setTimeSpan(timeSpan);
+					}
+					
+					// imrs
+					ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = calc.getIMRs();
+					imrChooser.setForIMRS(imrs);
+					
+					// imts
+					imtChooser.setIMRs(imrChooser.getSelectedIMRs());
+					imtChooser.setIMTs(calc.getIMTs());
+					
+					// site data providers
+					OrderedSiteDataProviderList provs = calc.getProviders();
+					OrderedSiteDataProviderList defaultProvs = dataBean.getProviderList();
+					defaultProvs.mergeWith(provs);
+					if (provs != null)
+						dataBean.setProviderList(defaultProvs);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}

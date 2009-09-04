@@ -309,27 +309,9 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
 	  // add params
 	  System.out.println("Setting params...");
 	  Element paramsElement = root.element(Parameter.XML_GROUP_METADATA_NAME);
-	  ListIterator paramIt = erf.getAdjustableParameterList().getParametersIterator();
-	  while (paramIt.hasNext()) {
-		  Parameter param = (Parameter)paramIt.next();
-		  System.out.println("Setting param " + param.getName());
-		  Iterator<Element> it = paramsElement.elementIterator();
-		  while (it.hasNext()) {
-			  Element el = it.next();
-			  if (param.getName().equals(el.attribute("name").getValue())) {
-				  System.out.println("Found a match!");
-				  if (param.setValueFromXMLMetadata(el)) {
-					  System.out.println("Parameter set successfully!");
-				  } else {
-					  System.out.println("Parameter could not be set from XML!");
-					  System.out.println("It is possible that the parameter type doesn't yet support loading from XML");
-				  }
-			  }
-		  }
-	  }
+	  ParameterList.setParamsInListFromXML(erf.getAdjustableParameterList(), paramsElement);
 	  
 	  erf.setTimeSpan(TimeSpan.fromXMLMetadata(root.element("TimeSpan")));
-	  
 	  return erf;
   }
   

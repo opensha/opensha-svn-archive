@@ -74,7 +74,7 @@ public class SiteDataValue<Element> implements XMLSaveable {
 	}
 	
 	public static SiteDataValue<?> fromXMLMetadata(org.dom4j.Element dataElem) {
-		String dataType = dataElem.attributeValue("dataType");
+		String dataType = dataElem.attributeValue("type");
 		String measurementType = dataElem.attributeValue("measurementType");
 		
 		org.dom4j.Element valEl = dataElem.element("Value");
@@ -86,7 +86,7 @@ public class SiteDataValue<Element> implements XMLSaveable {
 		if (strAtt != null) {
 			val = strAtt.getValue();
 		} else if (doubAtt != null) {
-			val = Double.parseDouble(strAtt.getValue());
+			val = Double.parseDouble(doubAtt.getValue());
 		} else {
 			throw new RuntimeException("Type '" + dataType + "' unknown, cannot load from XML!");
 		}

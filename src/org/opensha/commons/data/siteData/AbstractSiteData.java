@@ -10,6 +10,7 @@ import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.siteData.impl.CVM2BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.USGSBayAreaBasinDepth;
+import org.opensha.commons.data.siteData.impl.WaldAllenGlobalVs30;
 import org.opensha.commons.data.siteData.impl.WillsMap2000;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.param.DoubleParameter;
@@ -280,6 +281,8 @@ public abstract class AbstractSiteData<Element> implements SiteDataAPI<Element> 
 			provider = WillsMap2006.fromXMLParams(paramsEl);
 		} else if (name.equals(USGSBayAreaBasinDepth.NAME)) {
 			provider = USGSBayAreaBasinDepth.fromXMLParams(paramsEl);
+		} else if (name.equals(WaldAllenGlobalVs30.NAME)) {
+			provider = WaldAllenGlobalVs30.fromXMLParams(paramsEl);
 		} else {
 			throw new RuntimeException("Cannot load Site Data Provider '" + name + "' from XML!");
 		}

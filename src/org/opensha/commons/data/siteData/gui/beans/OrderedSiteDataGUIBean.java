@@ -68,7 +68,6 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 		super(new BorderLayout());
 		
 		this.attenRel = attenRel;
-		this.list = list;
 		
 		cellRenderer = new SiteDataCellRenderer(list.size());
 		
@@ -79,10 +78,8 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 		dataList.setCellRenderer(cellRenderer);
 		
 		dataList.setSelectedIndex(-1);
-		currentData = list.getProvider(0);
 		
-		updateList();
-		updateDataGUI();
+		setProviderList(list);
 		
 		JPanel northPanel = new JPanel();
 		northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.Y_AXIS));
@@ -138,6 +135,15 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 		
 		this.add(selectorPanel, BorderLayout.NORTH);
 		this.add(dataPanel, BorderLayout.CENTER);
+	}
+	
+	public void setProviderList(OrderedSiteDataProviderList list) {
+		this.list = list;
+		
+		currentData = list.getProvider(0);
+		
+		updateList();
+		updateDataGUI();
 	}
 	
 	public void refreshAll() {
