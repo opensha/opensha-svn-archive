@@ -142,6 +142,11 @@ public class HazardCurveCalculator extends UnicastRemoteObject
 	  maxDistanceParam.setValue(distance);
   }
   
+  
+  public void setNumStochEventSetRealizations(int numRealizations) {
+	  numStochEventSetRealizationsParam.setValue(numRealizations);
+  }
+  
   /**
    * This is a direct way of getting the distance cutoff from that parameter
    */
@@ -159,6 +164,11 @@ public class HazardCurveCalculator extends UnicastRemoteObject
 	  includeMagDistFilterParam.setValue(true);
 	  magDistCutoffParam.setValue(magDistfunc);
   }
+  
+  public void setIncludeMagDistCutoff(boolean include)  throws java.rmi.RemoteException{
+	  this.includeMagDistFilterParam.setValue(include);
+  }
+
   
   /**
    * This gets the mag-dist filter function (distance on x-axis and 

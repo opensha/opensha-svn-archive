@@ -3,6 +3,8 @@ package org.opensha.sha.gui.controls;
 import java.awt.*;
 import javax.swing.JFrame;
 
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.sha.gui.controls.CalculationSettingsControlPanelAPI;
@@ -50,6 +52,10 @@ public class CalculationSettingsControlPanel extends JFrame {
     this.getContentPane().setLayout(new GridBagLayout());
     this.getContentPane().add(editor,new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
+  }
+  
+  public Object getParameterValue(String paramName) {
+	  return paramList.getValue(paramName);
   }
 
 

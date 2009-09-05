@@ -815,6 +815,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 * own machine.
 	 */
 	protected void createCalcInstance() {
+System.out.println("createCalcInstance()");
 		if (!isDeterministicCurve)
 			calc = (new RemoteHazardCurveClient()).getRemoteHazardCurveCalc();
 		else if (calc == null && isDeterministicCurve) {
@@ -1098,7 +1099,45 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 * function is called when add Graph is clicked
 	 */
 	protected void computeHazardCurve() {
+		
+		// set parameters in calc because the originals 
+		// (put into control panel) may not be in the current calc object
+		if(calcParamsControl != null){
+			Object maxDist = calcParamsControl.getParameterValue(HazardCurveCalculator.MAX_DISTANCE_PARAM_NAME);
+			try {
+				calc.setMaxSourceDistance(((Double)maxDist).doubleValue());
+			} catch (RemoteException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+			Object numIt = calcParamsControl.getParameterValue(HazardCurveCalculator.NUM_STOCH_EVENT_SETS_PARAM_NAME);
+			try {
+				calc.setNumStochEventSetRealizations(((Integer)numIt).intValue());
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
+			Object magDistFilter = calcParamsControl.getParameterValue(HazardCurveCalculator.MAG_DIST_CUTOFF_PARAM_NAME);
+			try {
+				calc.setMagDistCutoffFunc((ArbitrarilyDiscretizedFunc)magDistFilter);
+			} catch (RemoteException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+			// Must do this one after the above because it sets this to true
+			Object includeMagDistFilter = calcParamsControl.getParameterValue(HazardCurveCalculator.INCLUDE_MAG_DIST_FILTER_PARAM_NAME);
+			try {
+				calc.setIncludeMagDistCutoff(((Boolean)includeMagDistFilter).booleanValue());
+			} catch (RemoteException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}	
+		}
+		
+		
 		// starting the calculation
 		isHazardCalcDone = false;
 
@@ -1973,6 +2012,8 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 * initialize the calculations parameters control panel.
 	 */
 	protected void initCalcParamsControl(){
+System.out.println("initCalcParamsControl()");
+
 		if(calcParamsControl == null)
 			calcParamsControl = new CalculationSettingsControlPanel(this,this);
 
