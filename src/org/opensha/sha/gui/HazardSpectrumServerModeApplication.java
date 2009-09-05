@@ -194,9 +194,9 @@ public class HazardSpectrumServerModeApplication
    */
   protected void createCalcInstance() {
     try{
-    if (calc == null && isProbCurve)
+    if (calc == null && isProbabilisticCurve)
       calc = (new RemoteResponseSpectrumClient()).getRemoteSpectrumCalc();
-    else if(calc == null && !isProbCurve)
+    else if(calc == null && !isProbabilisticCurve)
       calc = new SpectrumCalculator();
     }catch (Exception ex) {
         ExceptionWindow bugWindow = new ExceptionWindow(this,

@@ -19,7 +19,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
-
+import org.opensha.sha.calc.HazardCurveCalculator;
 
 
 import org.opensha.sha.gui.beans.*;
@@ -102,7 +102,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
   private Site_GuiBean siteGuiBean;
   private ERF_GuiBean erfGuiBean;
   private TimeSpanGuiBean timeSpanGuiBean;
-  private SetMinSourceSiteDistanceControlPanel distanceControlPanel;
+  CalculationSettingsControlPanelAPI application;
 
   //Stores the test case,
   private String selectedTest;
@@ -144,7 +144,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
                                IMT_GuiBean imtGuiBean,
                                ERF_GuiBean erfGuiBean,
                                TimeSpanGuiBean timeSpanGuiBean,
-                               SetMinSourceSiteDistanceControlPanel distanceControlPanel){
+                               CalculationSettingsControlPanelAPI application){
 
     this.api = api;
     if (D) System.out.println(C+" Constructor: starting initializeFaultData()");
@@ -163,7 +163,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
     this.imtGuiBean = imtGuiBean;
     this.erfGuiBean = erfGuiBean;
     this.timeSpanGuiBean = timeSpanGuiBean;
-    this.distanceControlPanel = distanceControlPanel;
+    this.application = application;
 
     if (D) System.out.println(C+" Constructor: starting initializeTestsAndSites()");
     // fill the combo box with tests and sites
@@ -267,7 +267,8 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
     ParameterList siteParams = siteGuiBean.getParameterListEditor().getParameterList();
 
     // set the distance in control panel
-    distanceControlPanel.setDistance(MAX_DISTANCE);
+    application.getCalcAdjustableParams().getParameter(HazardCurveCalculator.MAX_DISTANCE_PARAM_NAME).setValue(MAX_DISTANCE);
+    application.getCalcAdjustableParams().getParameter(HazardCurveCalculator.INCLUDE_MAG_DIST_FILTER_PARAM_NAME).setValue(false);
 
     //if set-1 PEER test case is selected
     if(selectedSet.equalsIgnoreCase(PEER_TESTS_SET_ONE))

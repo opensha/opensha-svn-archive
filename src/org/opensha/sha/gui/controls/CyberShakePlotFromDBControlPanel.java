@@ -49,6 +49,7 @@ import org.opensha.sha.cybershake.db.Runs2DB;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
+import org.opensha.sha.gui.HazardCurveServerModeApplication;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBeanAPI;
@@ -441,11 +442,14 @@ extends JFrame implements ParameterChangeListener {
 	 */
 	private void makeParamVisible() {
 		String curveType = (String)curveTypeSelectorParam.getValue();
-		if(curveType.equals(PROB_CURVE))
+		if(curveType.equals(PROB_CURVE)) {
 			this.isDeterministic = false;
-		else
+			application.setCurveType(HazardCurveServerModeApplication.PROBABILISTIC);
+		}
+		else {
 			this.isDeterministic = true;
-		application.setCurveType(isDeterministic);
+			application.setCurveType(HazardCurveServerModeApplication.DETERMINISTIC);
+		}
 		listEditor.getParameterEditor(SRC_INDEX_PARAM).setVisible(isDeterministic);
 		listEditor.getParameterEditor(RUP_INDEX_PARAM).setVisible(isDeterministic);
 	}

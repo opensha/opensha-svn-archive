@@ -1,6 +1,7 @@
 package org.opensha.sha.calc;
 
 import java.rmi.Remote;
+import java.util.ArrayList;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.Site;
@@ -25,7 +26,7 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	  *
 	  * @returns the adjustable ParameterList
 	  */
-	 public ParameterList getAdjustableParameterList()  throws java.rmi.RemoteException;
+	 public ParameterList getAdjustableParams()  throws java.rmi.RemoteException;
 
 	 /**
 	  * get the adjustable parameters
@@ -111,5 +112,48 @@ public interface HazardCurveCalculatorAPI extends Remote{
    * @throws java.rmi.RemoteException
    */
   public void stopCalc() throws java.rmi.RemoteException;
+  
+  /**
+   * This function computes an average hazard curve from a number of stochastic event sets
+   * for the given Site, IMR, eqkRupForecast, where the number of event-set realizations
+   * is specified as the value in numStochEventSetRealizationsParam. The passed in 
+   * discretized function supplies the x-axis values (the IMLs) 
+   * for the computation, and the result (probability) is placed in the 
+   * y-axis values of this function. This always applies a rupture distance 
+   * cutoff using the value of the maxDistanceParam parameter (set to a very high 
+   * value if you don't want this).  This does not (yet?) apply the magnitude-dependent 
+   * distance cutoff represented by includeMagDistFilterParam and magDistCutoffParam.
+   * @param hazFunction: This function is where the hazard curve is placed
+   * @param site: site object
+   * @param imr: selected IMR object
+   * @param eqkRupForecast: selected Earthquake rup forecast
+   * @return
+   */
+  public DiscretizedFuncAPI getAverageEventSetHazardCurve(DiscretizedFuncAPI hazFunction,
+		  Site site, ScalarIntensityMeasureRelationshipAPI imr, 
+		  EqkRupForecastAPI eqkRupForecast)
+  		throws java.rmi.RemoteException;
+  
+  /**
+   * This function computes a hazard curve for the given Site, IMR, and event set
+   * (eqkRupList), where it is assumed that each of the events occur (probability 
+   * of each is 1.0). The passed in discretized function supplies the x-axis values 
+   * (the IMLs) for the computation, and the result (probability) is placed in the 
+   * y-axis values of this function. This always applies a rupture distance 
+   * cutoff using the value of the maxDistanceParam parameter (set to a very high 
+   * value if you don't want this).  This does not (yet?) apply the magnitude-dependent 
+   * distance cutoff represented by includeMagDistFilterParam and magDistCutoffParam.
+   * @param hazFunction: This function is where the hazard curve is placed
+   * @param site: site object
+   * @param imr: selected IMR object
+   * @param eqkRupForecast: selected Earthquake rup forecast
+   * @param updateCurrRuptures: tells whether to update current ruptures (for the getCurrRuptures() method used for progress bars)
+   * @return
+   */
+  public DiscretizedFuncAPI getEventSetHazardCurve(DiscretizedFuncAPI hazFunction,
+		  Site site, ScalarIntensityMeasureRelationshipAPI imr, 
+		  ArrayList<EqkRupture> eqkRupList, boolean updateCurrRuptures)
+  throws java.rmi.RemoteException;
+
 
 }

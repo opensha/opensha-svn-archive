@@ -225,12 +225,12 @@ public class HazardSpectrumLocalModeApplication
     numERFsInEpistemicList = 0;
     EqkRupForecastBaseAPI forecast = null;
     EqkRupture rupture = null;
-    if (!this.isProbCurve)
+    if (!this.isProbabilisticCurve)
       rupture = this.erfRupSelectorGuiBean.getRupture();
 
     // get the selected forecast model
     try {
-      if (this.isProbCurve) {
+      if (this.isProbabilisticCurve) {
         // whether to show progress bar in case of update forecast
         erfGuiBean.showProgressBar(this.progressCheckBox.isSelected());
         //get the selected ERF instance
@@ -279,7 +279,7 @@ public class HazardSpectrumLocalModeApplication
     }
     xAxisName = X_AXIS_LABEL;
 
-    if (forecast instanceof ERF_EpistemicList && isProbCurve) {
+    if (forecast instanceof ERF_EpistemicList && isProbabilisticCurve) {
       //if add on top get the name of ERF List forecast
       if (addData)
         prevSelectedERF_List = forecast.getName();
@@ -307,22 +307,9 @@ public class HazardSpectrumLocalModeApplication
     this.isEqkList = false;
     // calculate the hazard curve
     try {
-      if (distanceControlPanel != null)
-        calc.setMaxSourceDistance(
-            distanceControlPanel.getDistance());
-    }
-    catch (Exception e) {
-      setButtonsEnable(true);
-      ExceptionWindow bugWindow = new ExceptionWindow(this, e,
-          getParametersInfoAsString());
-      bugWindow.setVisible(true);
-      bugWindow.pack();
-      e.printStackTrace();
-    }
-    try {
       // calculate the hazard curve
       try {
-        if (isProbCurve){
+        if (isProbabilisticCurve){
           if(probAtIML)
             hazFunction = (DiscretizedFuncAPI) calc.getSpectrumCurve(
                 site, imr, (EqkRupForecastAPI) forecast,
@@ -401,7 +388,7 @@ public class HazardSpectrumLocalModeApplication
    */
   protected void initControlList() {
     controlComboBox.addItem(CONTROL_PANELS);
-    controlComboBox.addItem(DISTANCE_CONTROL);
+    controlComboBox.addItem(CALC_PARAMS_CONTROL);
     controlComboBox.addItem(SITES_OF_INTEREST_CONTROL);
     controlComboBox.addItem(CVM_CONTROL);
     controlComboBox.addItem(PLOTTING_OPTION);
@@ -599,19 +586,6 @@ public class HazardSpectrumLocalModeApplication
       return;
     }
 
-    try {
-      // calculate the hazard curve
-      if (distanceControlPanel != null)
-        calc.setMaxSourceDistance(distanceControlPanel.getDistance());
-    }
-    catch (Exception e) {
-      setButtonsEnable(true);
-      ExceptionWindow bugWindow = new ExceptionWindow(this, e,
-          getParametersInfoAsString());
-      bugWindow.setVisible(true);
-      bugWindow.pack();
-      e.printStackTrace();
-    }
 
     DiscretizedFuncList hazardFuncList = new DiscretizedFuncList();
     for (int i = 0; i < numERFsInEpistemicList; ++i) {
@@ -723,18 +697,13 @@ public class HazardSpectrumLocalModeApplication
    */
   public String getMapParametersInfoAsHTML() {
     String imrMetadata;
-    if (this.isProbCurve) //if Probabilistic calculation then only add the metadata
+    if (this.isProbabilisticCurve) //if Probabilistic calculation then only add the metadata
       //for visible parameters
       imrMetadata = imrGuiBean.getVisibleParametersCloned().
           getParameterListMetadataString();
     else //if deterministic calculations then add all IMR params metadata.
       imrMetadata = imrGuiBean.getSelectedIMR_Instance().getAllParamMetadata();
 
-    double maxSourceSiteDistance;
-    if (distanceControlPanel != null)
-      maxSourceSiteDistance = distanceControlPanel.getDistance();
-    else
-      maxSourceSiteDistance = HazardCurveCalculator.MAX_DISTANCE_DEFAULT;
 
     return "<br>" + "IMR Param List:" + "<br>" +
         "---------------" + "<br>" +
@@ -755,7 +724,7 @@ public class HazardSpectrumLocalModeApplication
         "--------------------" + "<br>" +
         erfGuiBean.getSelectedERFTimespanGuiBean().
         getParameterListMetadataString() + "<br><br>" +
-        "Max. Source-Site Distance = " + maxSourceSiteDistance;
+        getCalcParamMetadataString();
   }
 
   //Main method

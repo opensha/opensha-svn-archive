@@ -51,7 +51,7 @@ public class HazardCurveCalculator extends UnicastRemoteObject
 
   //Info for parameter that sets the maximum distance considered
   private DoubleParameter maxDistanceParam;
-  public final String MAX_DISTANCE_PARAM_NAME = "Maximum Distance";
+  public final static String MAX_DISTANCE_PARAM_NAME = "Maximum Distance";
   public final String MAX_DISTANCE_PARAM_UNITS = "km";
   public final String MAX_DISTANCE_PARAM_INFO = "Earthquake Ruptures beyond this distance are ignored";
   public final double MAX_DISTANCE_PARAM_MIN = 0;
@@ -60,21 +60,21 @@ public class HazardCurveCalculator extends UnicastRemoteObject
   
   //Info for parameter tells whether to apply a magnitude-dependent distance cutoff
   private BooleanParameter includeMagDistFilterParam;
-  public final String INCLUDE_MAG_DIST_FILTER_PARAM_NAME = "Use Mag-Distance Filter?";
+  public final static String INCLUDE_MAG_DIST_FILTER_PARAM_NAME = "Use Mag-Distance Filter?";
   public final String INCLUDE_MAG_DIST_FILTER_PARAM_INFO = "This specifies whether to apply the magnitude-distance filter";
-  public final boolean INCLUDE_MAG_DIST_FILTER_PARAM_DEFAULT = true;
+  public final boolean INCLUDE_MAG_DIST_FILTER_PARAM_DEFAULT = false;
 
   //Info for parameter that specifies a magnitude-dependent distance cutoff
   // (distance on x-axis and mag on y-axis)
   private ArbitrarilyDiscretizedFuncParameter magDistCutoffParam;
-  public final String MAG_DIST_CUTOFF_PARAM_NAME = "Mag-Dist Cutoff Function";
+  public final static String MAG_DIST_CUTOFF_PARAM_NAME = "Mag-Dist Cutoff Function";
   public final String MAG_DIST_CUTOFF_PARAM_INFO = "Distance cutoff is a function of mag (the function here, linearly interpolated)";
   double[] defaultCutoffMags =  {0, 5.25,  5.75, 6.25,  6.75, 7.25,  9};
   double[] defaultCutoffDists = {0, 25,    40,   60,    80,   100,   500};
   
   //Info for parameter that sets the maximum distance considered
   private IntegerParameter numStochEventSetRealizationsParam;
-  public final String NUM_STOCH_EVENT_SETS_PARAM_NAME = "Num Event Sets";
+  public final static String NUM_STOCH_EVENT_SETS_PARAM_NAME = "Num Event Sets";
   public final String NUM_STOCH_EVENT_SETS_PARAM_INFO = "Number of stochastic event sets for those types of calculations";
   public final int NUM_STOCH_EVENT_SETS_PARAM_MIN = 1;
   public final int NUM_STOCH_EVENT_SETS_PARAM_MAX = Integer.MAX_VALUE;
@@ -123,9 +123,9 @@ public class HazardCurveCalculator extends UnicastRemoteObject
 
       adjustableParams = new ParameterList();
 	  adjustableParams.addParameter(maxDistanceParam);
+	  adjustableParams.addParameter(numStochEventSetRealizationsParam);
 	  adjustableParams.addParameter(includeMagDistFilterParam);
 	  adjustableParams.addParameter(magDistCutoffParam);
-	  adjustableParams.addParameter(numStochEventSetRealizationsParam);
 	  
   }
 
@@ -390,12 +390,17 @@ public class HazardCurveCalculator extends UnicastRemoteObject
   		throws java.rmi.RemoteException{
 	  
 	  int numEventSets = numStochEventSetRealizationsParam.getValue();
+System.out.println("numEventSets="+numEventSets);
 	  DiscretizedFuncAPI hazCurve;
 	  hazCurve = hazFunction.deepClone();
 	  initDiscretizeValues(hazFunction, 0);
 	  int numPts=hazCurve.getNum();
-	  for(int i=0;i<numEventSets;i++) {
-		  getEventSetHazardCurve( hazCurve,site, imr, eqkRupForecast.drawRandomEventSet());
+	  // for progress bar
+	  currRuptures=0;
+	  totRuptures=numEventSets;
+	  
+	  for(int i=0;i<numEventSets;i++,currRuptures++) {
+		  getEventSetHazardCurve( hazCurve,site, imr, eqkRupForecast.drawRandomEventSet(), false);
 		  for(int x=0; x<numPts; x++)
 			  hazFunction.set(x, hazFunction.getY(x)+hazCurve.getY(x));
 	  }
@@ -419,15 +424,15 @@ public class HazardCurveCalculator extends UnicastRemoteObject
    * @param site: site object
    * @param imr: selected IMR object
    * @param eqkRupForecast: selected Earthquake rup forecast
+   * @param updateCurrRuptures: tells whether to update current ruptures (for the getCurrRuptures() method used for progress bars)
    * @return
    */
   public DiscretizedFuncAPI getEventSetHazardCurve(DiscretizedFuncAPI hazFunction,
 		  Site site, ScalarIntensityMeasureRelationshipAPI imr, 
-		  ArrayList<EqkRupture> eqkRupList)
+		  ArrayList<EqkRupture> eqkRupList, boolean updateCurrRuptures)
   throws java.rmi.RemoteException{
 
-	  this.currRuptures = -1;
-
+	  
 	  ArbitrarilyDiscretizedFunc condProbFunc = (ArbitrarilyDiscretizedFunc) hazFunction.deepClone();
 
 	  //resetting the Parameter change Listeners on the AttenuationRelationship
@@ -449,10 +454,13 @@ public class HazardCurveCalculator extends UnicastRemoteObject
 	  // set the maximum distance in the attenuation relationship
 	  imr.setUserMaxDistance(maxDistance);
 
-	  totRuptures = eqkRupList.size();
+	  int totRups = eqkRupList.size();
+	  // progress bar stuff
+	  if(updateCurrRuptures) {
+		  totRuptures = totRups;
+		  currRuptures = 0;
+	  }
 
-	  // init the current rupture number (also for progress bar)
-	  currRuptures = 0;
 	  int numRupRejected =0;
 
 	  // initialize the hazard function to 1.0 (initial total non-exceedance probability)
@@ -466,7 +474,9 @@ public class HazardCurveCalculator extends UnicastRemoteObject
 //	  System.out.println("totRuptures="+totRuptures);
 
 	  // loop over ruptures
-	  for(int n=0; n < totRuptures ; n++,++currRuptures) {
+	  for(int n=0; n < totRups ; n++) {
+		  
+		  if(updateCurrRuptures)++currRuptures;
 
 		  EqkRupture rupture = eqkRupList.get(n);
 
@@ -587,7 +597,7 @@ public class HazardCurveCalculator extends UnicastRemoteObject
   *
   * @returns the adjustable ParameterList
   */
- public ParameterList getAdjustableParameterList()  throws java.rmi.RemoteException{
+ public ParameterList getAdjustableParams()  throws java.rmi.RemoteException{
    return this.adjustableParams;
  }
 

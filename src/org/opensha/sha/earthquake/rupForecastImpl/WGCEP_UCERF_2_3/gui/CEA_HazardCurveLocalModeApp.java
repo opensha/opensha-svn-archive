@@ -171,7 +171,7 @@ public class CEA_HazardCurveLocalModeApp extends HazardCurveServerModeApplicatio
   protected void initControlList() {
     controlComboBox.addItem(CONTROL_PANELS);
     controlComboBox.addItem(DISAGGREGATION_CONTROL);
-    controlComboBox.addItem(DISTANCE_CONTROL);
+    controlComboBox.addItem(CALC_PARAMS_CONTROL);
     controlComboBox.addItem(SITES_OF_INTEREST_CONTROL);
     controlComboBox.addItem(CVM_CONTROL);
     controlComboBox.addItem(X_VALUES_CONTROL);

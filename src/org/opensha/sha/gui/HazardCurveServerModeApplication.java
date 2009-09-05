@@ -20,6 +20,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.commons.exceptions.WarningException;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
@@ -35,6 +36,8 @@ import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
 import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
+import org.opensha.sha.gui.controls.CalculationSettingsControlPanel;
+import org.opensha.sha.gui.controls.CalculationSettingsControlPanelAPI;
 import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
 import org.opensha.sha.gui.controls.CyberShakeSiteSetterControlPanel;
 import org.opensha.sha.gui.controls.DisaggregationControlPanel;
@@ -112,7 +115,8 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		ERF_EpistemicListControlPanelAPI, X_ValuesInCurveControlPanelAPI,
 		PEER_TestCaseSelectorControlPanelAPI, ButtonControlPanelAPI,
 		GraphPanelAPI, GraphWindowAPI, XY_ValuesControlPanelAPI,
-		CyberShakePlotControlPanelAPI, IMR_GuiBeanAPI, ActionListener {
+		CyberShakePlotControlPanelAPI, IMR_GuiBeanAPI, 
+		CalculationSettingsControlPanelAPI, ActionListener {
 
 	/**
 	 * Name of the class
@@ -141,8 +145,9 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	public final static String RMI_WGCEP_UCERF1_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WGCEP_UCERF1_EqkRupForecastClient";
 
 	// Strings for choosing ERFGuiBean or ERF_RupSelectorGUIBean
-	protected final static String PROBABILISTIC = "Probabilistic";
-	protected final static String DETERMINISTIC = "Deterministic";
+	public final static String PROBABILISTIC = "Probabilistic";
+	public final static String DETERMINISTIC = "Deterministic";
+	public final static String STOCHASTIC = "Stochastic Event Sets";
 
 
 	// X and Y Axis when plotting tha Curves Name
@@ -154,7 +159,8 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	private final static String PEER_TEST_CONTROL = "PEER Test Case Selector";
 	protected final static String DISAGGREGATION_CONTROL = "Disaggregation";
 	protected final static String EPISTEMIC_CONTROL = "Epistemic List Control";
-	protected final static String DISTANCE_CONTROL = "Max Source-Site Distance";
+//	protected final static String DISTANCE_CONTROL = "Max Source-Site Distance";
+	protected final static String CALC_PARAMS_CONTROL = "Calculation Settings";
 	protected final static String SITES_OF_INTEREST_CONTROL = "Sites of Interest";
 	protected final static String CVM_CONTROL = "Set Site Params from Web Services";
 	protected final static String X_VALUES_CONTROL = "Set X values for Hazard Curve Calc.";
@@ -170,7 +176,8 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	protected PEER_TestCaseSelectorControlPanel peerTestsControlPanel;
 	protected DisaggregationControlPanel disaggregationControlPanel;
 	protected ERF_EpistemicListControlPanel epistemicControlPanel;
-	protected SetMinSourceSiteDistanceControlPanel distanceControlPanel;
+//	protected SetMinSourceSiteDistanceControlPanel distanceControlPanel;
+	protected CalculationSettingsControlPanel calcParamsControl;
 	protected SitesOfInterestControlPanel sitesOfInterest;
 	protected SiteDataControlPanel cvmControlPanel;
 	protected X_ValuesInCurveControlPanel xValuesPanel;
@@ -232,8 +239,10 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	protected boolean disaggregationFlag = false;
 	private String disaggregationString;
 
-	// checks if Deterministic or Probabilistic Calculations
-	protected boolean isProbCurve = true;
+	// These keep track of which type of calculation is chosen (only one should be true at any time);
+	protected boolean isProbabilisticCurve = true;
+	protected boolean isDeterministicCurve = false;
+	protected boolean isStochasticCurve = false;
 
 	// PEER Test Cases
 	protected String TITLE = new String("Hazard Curves");
@@ -806,9 +815,9 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 * own machine.
 	 */
 	protected void createCalcInstance() {
-		if (isProbCurve)
+		if (!isDeterministicCurve)
 			calc = (new RemoteHazardCurveClient()).getRemoteHazardCurveCalc();
-		else if (calc == null && !isProbCurve) {
+		else if (calc == null && isDeterministicCurve) {
 			try {
 				calc = new HazardCurveCalculator();
 			} catch (Exception ex) {
@@ -1095,12 +1104,13 @@ public class HazardCurveServerModeApplication extends JFrame implements
 
 		EqkRupForecastBaseAPI forecast = null;
 		ProbEqkRupture rupture = null;
-		if (!this.isProbCurve)
+		
+		if (isDeterministicCurve)
 			rupture = (ProbEqkRupture) this.erfRupSelectorGuiBean.getRupture();
 
 		// get the selected forecast model
 		try {
-			if (this.isProbCurve) {
+			if (!isDeterministicCurve) {
 				// whether to show progress bar in case of update forecast
 				erfGuiBean.showProgressBar(this.progressCheckBox.isSelected());
 				// get the selected ERF instance
@@ -1143,7 +1153,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		// check whether this forecast is a Forecast List
 		// if this is forecast list , handle it differently
 		boolean isEqkForecastList = false;
-		if (forecast instanceof ERF_EpistemicList && isProbCurve) {
+		if (forecast instanceof ERF_EpistemicList && !isDeterministicCurve) {
 			// if add on top get the name of ERF List forecast
 			if (addData)
 				prevSelectedERF_List = forecast.getName();
@@ -1173,17 +1183,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		// this is not a eqk list
 		this.isEqkList = false;
 		// calculate the hazard curve
-		try {
-			if (distanceControlPanel != null)
-				calc.setMaxSourceDistance(distanceControlPanel.getDistance());
-		} catch (Exception e) {
-			setButtonsEnable(true);
-			ExceptionWindow bugWindow = new ExceptionWindow(this, e,
-					getParametersInfoAsString());
-			bugWindow.setVisible(true);
-			bugWindow.pack();
-			e.printStackTrace();
-		}
+		
 		// initialize the values in condProbfunc with log values as passed in
 		// hazFunction
 		// intialize the hazard function
@@ -1195,11 +1195,15 @@ public class HazardCurveServerModeApplication extends JFrame implements
 			// eqkRupForecast =
 			// (EqkRupForecastAPI)FileUtils.loadObject("erf.obj");
 			try {
-				if (isProbCurve)
+				if (isProbabilisticCurve)
 					hazFunction = (ArbitrarilyDiscretizedFunc) calc
 							.getHazardCurve(hazFunction, site, imr,
 									(EqkRupForecastAPI) forecast);
-				else {
+				else if (isStochasticCurve)
+					hazFunction = (ArbitrarilyDiscretizedFunc) calc.
+					getAverageEventSetHazardCurve(hazFunction, site, imr,
+									(EqkRupForecastAPI) forecast);
+				else { // deterministic
 					progressCheckBox.setSelected(false);
 					progressCheckBox.setEnabled(false);
 					hazFunction = (ArbitrarilyDiscretizedFunc) calc
@@ -1235,9 +1239,17 @@ public class HazardCurveServerModeApplication extends JFrame implements
 
 		isHazardCalcDone = true;
 		disaggregationString = null;
-		// checking the disAggregation flag and probability curve is being
-		// plotted.
-		if (disaggregationFlag && isProbCurve) {
+		
+		// Disaggregation with stochastic event sets not yet supported
+		if (disaggregationFlag && isStochasticCurve) {
+			JOptionPane.showMessageDialog(this,
+					"Disaggregation not yet supported with stochastic event-set calculations",
+					"Input Error", JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
+		
+		// checking the disAggregation flag and probability curve is being plotted
+		if (disaggregationFlag && isProbabilisticCurve) {
 			if (this.progressCheckBox.isSelected()) {
 				disaggProgressClass = new CalcProgressBar(
 						"Disaggregation Calc Status",
@@ -1491,18 +1503,6 @@ public class HazardCurveServerModeApplication extends JFrame implements
 			return;
 		}
 
-		try {
-			// calculate the hazard curve
-			if (distanceControlPanel != null)
-				calc.setMaxSourceDistance(distanceControlPanel.getDistance());
-		} catch (Exception e) {
-			setButtonsEnable(true);
-			ExceptionWindow bugWindow = new ExceptionWindow(this, e,
-					getParametersInfoAsString());
-			bugWindow.setVisible(true);
-			bugWindow.pack();
-			e.printStackTrace();
-		}
 
 		DiscretizedFuncList hazardFuncList = new DiscretizedFuncList();
 		for (int i = 0; i < numERFsInEpistemicList; ++i) {
@@ -1515,9 +1515,14 @@ public class HazardCurveServerModeApplication extends JFrame implements
 			try {
 				try {
 					// calculate the hazard curve
-					hazFunction = (ArbitrarilyDiscretizedFunc) calc
-							.getHazardCurve(hazFunction, site, imr, erfList
-									.getERF(i));
+					if(isProbabilisticCurve)
+						hazFunction = (ArbitrarilyDiscretizedFunc) calc
+							.getHazardCurve(hazFunction, site, imr, erfList.getERF(i));
+					else if(isStochasticCurve) // it's stochastic
+						hazFunction = (ArbitrarilyDiscretizedFunc) calc
+							.getAverageEventSetHazardCurve(hazFunction, site, imr, erfList.getERF(i));
+					else
+						throw new RuntimeException("Can't disaggregate with deterministic calculations");
 					// System.out.println("Num points:"
 					// +hazFunction.toString());
 				} catch (Exception e) {
@@ -1587,13 +1592,39 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 * @param e
 	 */
 	protected void probDeterSelectionChange() {
-		String selectedControl = 
-			this.probDeterComboBox.getSelectedItem().toString();
+		
+		//Set previous type
+		String prevTypeCalc;
+		if(isProbabilisticCurve) 
+			prevTypeCalc = this.PROBABILISTIC;
+		else if(isDeterministicCurve)
+			prevTypeCalc = this.DETERMINISTIC;
+		else
+			prevTypeCalc = this.STOCHASTIC;
+		
+		// set new type
+		String selectedControl = probDeterComboBox.getSelectedItem().toString();
+		if (selectedControl.equalsIgnoreCase(PROBABILISTIC)) {
+				isProbabilisticCurve = true;
+				isStochasticCurve=false;
+				isDeterministicCurve=false;
+		} 
+		else if (selectedControl.equalsIgnoreCase(STOCHASTIC)) {
+				isProbabilisticCurve = false;
+				isStochasticCurve=true;
+				isDeterministicCurve=false;
+		} 
+		else if (selectedControl.equalsIgnoreCase(DETERMINISTIC)) {
+				isProbabilisticCurve = false;
+				isStochasticCurve=false;
+				isDeterministicCurve=true;
+		}
 
-		if (selectedControl.equalsIgnoreCase(this.PROBABILISTIC)) {
+		// Update ERF GUI Beans
+		
+		// If it's changed FROM Deterministic
+		if (prevTypeCalc.equalsIgnoreCase(DETERMINISTIC)) {
 			try {
-				initERF_GuiBean();
-				isProbCurve = true;
 				paramsTabbedPane.remove(1);		
 				paramsTabbedPane.add(erfGuiBean, "ERF & Time Span");		
 			} catch (RuntimeException ee) {
@@ -1602,10 +1633,11 @@ public class HazardCurveServerModeApplication extends JFrame implements
 						"Internet Connection Problem", JOptionPane.OK_OPTION);
 				System.exit(0);
 			}
-		} else if (selectedControl.equalsIgnoreCase(this.DETERMINISTIC)) {
+		} 
+		// If it's changed TO Deterministic
+		else if (selectedControl.equalsIgnoreCase(DETERMINISTIC)) {
 			try {
 				initERFSelector_GuiBean();
-				isProbCurve = false;
 				paramsTabbedPane.remove(1);		
 				paramsTabbedPane.add(erfRupSelectorGuiBean, "ERF & Time Span");		
 			} catch (RuntimeException ee) {
@@ -1782,7 +1814,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		controlComboBox.addItem(CONTROL_PANELS);
 		controlComboBox.addItem(PEER_TEST_CONTROL);
 		controlComboBox.addItem(DISAGGREGATION_CONTROL);
-		controlComboBox.addItem(DISTANCE_CONTROL);
+		controlComboBox.addItem(CALC_PARAMS_CONTROL);
 		controlComboBox.addItem(SITES_OF_INTEREST_CONTROL);
 		controlComboBox.addItem(CVM_CONTROL);
 		controlComboBox.addItem(X_VALUES_CONTROL);
@@ -1804,8 +1836,8 @@ public class HazardCurveServerModeApplication extends JFrame implements
 			initDisaggregationControl();
 		else if (selectedControl.equalsIgnoreCase(this.EPISTEMIC_CONTROL))
 			initEpistemicControl();
-		else if (selectedControl.equalsIgnoreCase(this.DISTANCE_CONTROL))
-			initDistanceControl();
+		else if (selectedControl.equalsIgnoreCase(this.CALC_PARAMS_CONTROL))
+			initCalcParamsControl();
 		else if (selectedControl
 				.equalsIgnoreCase(this.SITES_OF_INTEREST_CONTROL))
 			initSitesOfInterestControl();
@@ -1876,14 +1908,13 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 * when user seletes "Run all PEER Tests Cases" from the control pick list
 	 */
 	private void initRunALL_PEER_TestCases() {
-		if (distanceControlPanel == null)
-			distanceControlPanel = new SetMinSourceSiteDistanceControlPanel(
-					this);
+		if(calcParamsControl == null)
+			calcParamsControl = new CalculationSettingsControlPanel(this,this);
 		if (peerTestsControlPanel == null)
 			peerTestsControlPanel = new PEER_TestCaseSelectorControlPanel(this,
 					this, imrGuiBean, siteGuiBean, imtGuiBean, erfGuiBean,
 					erfGuiBean.getSelectedERFTimespanGuiBean(),
-					this.distanceControlPanel);
+					this);
 		if (runAllPeerTestsCP == null)
 			runAllPeerTestsCP = new RunAll_PEER_TestCasesControlPanel(this);
 		runAllPeerTestsCP.setVisible(true);
@@ -1904,14 +1935,13 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		// its instance
 		// distance control panel is needed here so that distance can be set for
 		// PEER cases
-		if (distanceControlPanel == null)
-			distanceControlPanel = new SetMinSourceSiteDistanceControlPanel(
-					this);
+		if(calcParamsControl == null)
+			calcParamsControl = new CalculationSettingsControlPanel(this,this);
 		if (peerTestsControlPanel == null)
 			peerTestsControlPanel = new PEER_TestCaseSelectorControlPanel(this,
 					this, imrGuiBean, siteGuiBean, imtGuiBean, erfGuiBean,
 					erfGuiBean.getSelectedERFTimespanGuiBean(),
-					this.distanceControlPanel);
+					this);
 		peerTestsControlPanel.setPEER_XValues();
 		peerTestsControlPanel.pack();
 		peerTestsControlPanel.setVisible(true);
@@ -1940,17 +1970,41 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	}
 
 	/**
-	 * Initialize the Min Source and site distance control. This function is
-	 * called when user selects "Source Site Distance Control" from controls
-	 * pick list
+	 * initialize the calculations parameters control panel.
 	 */
-	private void initDistanceControl() {
-		if (this.distanceControlPanel == null)
-			distanceControlPanel = new SetMinSourceSiteDistanceControlPanel(
-					this);
-		distanceControlPanel.pack();
-		distanceControlPanel.setVisible(true);
+	protected void initCalcParamsControl(){
+		if(calcParamsControl == null)
+			calcParamsControl = new CalculationSettingsControlPanel(this,this);
+
+		calcParamsControl.setVisible(true);
 	}
+	
+	/**
+	 *
+	 * @throws RemoteException 
+	 * @returns the Adjustable parameters for the ScenarioShakeMap calculator
+	 */
+	public ParameterList getCalcAdjustableParams(){
+			try {
+				return calc.getAdjustableParams();
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
+	}
+
+
+	/**
+	 *
+	 * @returns the Metadata string for the Calculation Settings Adjustable Params
+	 */
+	public String getCalcParamMetadataString(){
+		return getCalcAdjustableParams().getParameterListMetadataString();
+	}
+
+
+
 
 	/**
 	 * 
@@ -2012,6 +2066,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	protected void initProbOrDeterList() {
 		this.probDeterComboBox.addItem(PROBABILISTIC);
 		this.probDeterComboBox.addItem(DETERMINISTIC);
+		this.probDeterComboBox.addItem(STOCHASTIC);
 	}
 
 	/**
@@ -2304,7 +2359,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 */
 	public String getMapParametersInfoAsHTML() {
 		String imrMetadata;
-		if (this.isProbCurve) // if Probabilistic calculation then only add the
+		if (!isDeterministicCurve) // if Probabilistic calculation then only add the
 								// metadata
 			// for visible parameters
 			imrMetadata = imrGuiBean.getVisibleParametersCloned()
@@ -2314,14 +2369,10 @@ public class HazardCurveServerModeApplication extends JFrame implements
 			imrMetadata = imrGuiBean.getSelectedIMR_Instance()
 					.getAllParamMetadata();
 
-		double maxSourceSiteDistance;
-		if (distanceControlPanel != null)
-			maxSourceSiteDistance = distanceControlPanel.getDistance();
-		else
-			maxSourceSiteDistance = HazardCurveCalculator.MAX_DISTANCE_DEFAULT;
+		String calcType = probDeterComboBox.getSelectedItem().toString();
 
-		return "<br>" + "IMR Param List:" + "<br>" + "---------------" + "<br>"
-				+ imrMetadata
+		return "<br>" + "Cacluation Type = " + calcType
+				+ "<br><br>" + "IMR Param List:" + "<br>" + "---------------" + "<br>"+ imrMetadata
 				+ "<br><br>"
 				+ "Site Param List: "
 				+ "<br>"
@@ -2350,8 +2401,13 @@ public class HazardCurveServerModeApplication extends JFrame implements
 				+ "--------------------"
 				+ "<br>"
 				+ erfGuiBean.getSelectedERFTimespanGuiBean()
-						.getParameterListMetadataString() + "<br><br>"
-				+ "Max. Source-Site Distance = " + maxSourceSiteDistance;
+						.getParameterListMetadataString() 
+				+ "<br><br>"
+				+ "Calculation Settings: "
+				+ "<br>"
+				+ "--------------------"
+				+ "<br>"
+				+ getCalcParamMetadataString();
 
 	}
 
@@ -2518,11 +2574,14 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 *            boolean :If deterministic calculation then make the applicaton
 	 *            to plot deterministic curves.
 	 */
-	public void setCurveType(boolean isDeterministic) {
-		if (!isDeterministic)
+	public void setCurveType(String calcType) {
+		if (calcType.equals(PROBABILISTIC))
 			probDeterComboBox.setSelectedItem(PROBABILISTIC);
-		else
+		else if (calcType.equals(DETERMINISTIC))
 			probDeterComboBox.setSelectedItem(DETERMINISTIC);
+		else if (calcType.equals(STOCHASTIC))
+			probDeterComboBox.setSelectedItem(STOCHASTIC);
+		else throw new RuntimeException("Calculation Type Not Supported");
 	}
 
 	/**

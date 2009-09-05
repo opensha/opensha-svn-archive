@@ -12,6 +12,7 @@ import java.util.*;
 
 
 
+import org.opensha.sha.gui.HazardCurveServerModeApplication;
 import org.opensha.sha.gui.servlets.CyberShakeHazardDataSelectorServlet;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -209,11 +210,15 @@ public class CyberShakePlotControlPanel
    */
   private void makeParamVisible() {
     String curveType = (String)curveTypeSelectorParam.getValue();
-    if(curveType.equals(PROB_CURVE))
+    if(curveType.equals(PROB_CURVE)) {
       this.isDeterministic = false;
-    else
+      application.setCurveType(HazardCurveServerModeApplication.PROBABILISTIC);
+    }
+    else {
       this.isDeterministic = true;
-    application.setCurveType(isDeterministic);
+      application.setCurveType(HazardCurveServerModeApplication.DETERMINISTIC);
+    }
+    
     listEditor.getParameterEditor(SRC_INDEX_PARAM).setVisible(isDeterministic);
     listEditor.getParameterEditor(RUP_INDEX_PARAM).setVisible(isDeterministic);
   }
