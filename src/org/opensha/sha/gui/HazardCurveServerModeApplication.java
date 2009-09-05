@@ -425,10 +425,20 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(this);
 		cancelButton.setEnabled(false);
+		
+		
 		clearButton = new JButton("Clear Plot");
 		clearButton.addActionListener(this);
+		clearButton.putClientProperty("JButton.buttonType", "segmentedTextured");
+		clearButton.putClientProperty("JButton.segmentPosition", "first");
+		clearButton.putClientProperty("JComponent.sizeVariant","small");
+		
 		peelButton = new JButton("Peel Off");
 		peelButton.addActionListener(this);
+		peelButton.putClientProperty("JButton.buttonType", "segmentedTextured");
+		peelButton.putClientProperty("JButton.segmentPosition", "last");
+		peelButton.putClientProperty("JComponent.sizeVariant","small");
+		
 		// TODO progress should always be shown if a calculation is
 		// going to take longer that a few seconds; delete and add timer?
 		progressCheckBox = new JCheckBox("Show Progress Bar");
@@ -444,16 +454,20 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		probDeterComboBox.addActionListener(this);
 		
 		buttonControlPanel = new ButtonControlPanel(this);
-
+		// we know the button cp has a box layout so add clear and peel to it
+		buttonControlPanel.add(clearButton);
+		buttonControlPanel.add(peelButton);
+		buttonControlPanel.add(Box.createHorizontalGlue());
+		
 		buttonPanel.add(probDeterComboBox, 0);
 		buttonPanel.add(controlComboBox, 1);
 		buttonPanel.add(computeButton, 2);
 		buttonPanel.add(cancelButton, 3);
-		buttonPanel.add(clearButton, 4);
-		buttonPanel.add(peelButton, 5);
-		buttonPanel.add(progressCheckBox, 6);
+		//buttonPanel.add(clearButton, 4);
+		//buttonPanel.add(peelButton, 5);
+		buttonPanel.add(progressCheckBox, 4);
 		//buttonPanel.add(buttonControlPanel, 7);
-		buttonPanel.add(imgLabel, 7);
+		buttonPanel.add(imgLabel, 5);
 
 		
 		// creating the Object the GraphPaenl class

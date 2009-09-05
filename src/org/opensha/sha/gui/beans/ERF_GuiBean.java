@@ -274,6 +274,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 		if (timeSpanGuiBean == null) {
 			// create the TimeSpan Gui Bean object
 			timeSpanGuiBean = new TimeSpanGuiBean(eqkRupForecast.getTimeSpan());
+			timeSpanGuiBean.setOpaque(false);
 			timeSpanGuiBean.setBorder(
 					BorderFactory.createEmptyBorder(8, 0, 0, 0));
 		} else {
@@ -642,9 +643,12 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 		erfAndTimespanPanel = new JPanel(new BorderLayout());
 		erfAndTimespanPanel.setBorder(BorderFactory.createEmptyBorder(0,0,0,4));
 		erfAndTimespanPanel.setOpaque(false);
+
 		JScrollPane erfScrollPane = new JScrollPane(erfAndTimespanPanel);
 		erfScrollPane.setBorder(null);
 		erfScrollPane.setOpaque(false);
+		erfScrollPane.getViewport().setOpaque(false);
+		//erfScrollPane.setBackground(Color.orange);
 		add(erfScrollPane,  BorderLayout.CENTER);
 		
 		//erfScrollPane.getViewport().add(erfAndTimespanPanel, null);

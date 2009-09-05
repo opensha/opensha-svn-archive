@@ -77,27 +77,33 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
 		setPreferredSize(new Dimension(500, 36));
 
 		JLabel logScale  = new JLabel("Log scale: ");
+		logScale.putClientProperty("JComponent.sizeVariant","small");
 		
 		jCheckxlog = new JCheckBox("X");
 		jCheckxlog.addActionListener(this);
+		jCheckxlog.putClientProperty("JComponent.sizeVariant","small");
 		
 		jCheckylog = new JCheckBox("Y");
 		jCheckylog.addActionListener(this);
+		jCheckylog.putClientProperty("JComponent.sizeVariant","small");
 		
 		plotPrefsButton = new JButton("Plot Prefs");
 		plotPrefsButton.addActionListener(this);
 		plotPrefsButton.putClientProperty("JButton.buttonType", "segmentedTextured");
 		plotPrefsButton.putClientProperty("JButton.segmentPosition", "first");
-		
+		plotPrefsButton.putClientProperty("JComponent.sizeVariant","small");
+				
 		toggleButton = new JButton("Show Data");
 		toggleButton.addActionListener(this);
 		toggleButton.putClientProperty("JButton.buttonType", "segmentedTextured");
 		toggleButton.putClientProperty("JButton.segmentPosition", "middle");
+		toggleButton.putClientProperty("JComponent.sizeVariant","small");
 
 		setAxisButton = new JButton("Set Axis");
 		setAxisButton.addActionListener(this);
 		setAxisButton.putClientProperty("JButton.buttonType", "segmentedTextured");
 		setAxisButton.putClientProperty("JButton.segmentPosition", "last");
+		setAxisButton.putClientProperty("JComponent.sizeVariant","small");
 
 		add(Box.createHorizontalGlue());
 		add(plotPrefsButton);
