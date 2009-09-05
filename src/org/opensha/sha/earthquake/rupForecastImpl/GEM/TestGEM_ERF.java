@@ -22,6 +22,7 @@ import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.magdist.SingleMagFreqDist;
 
 public class TestGEM_ERF extends EqkRupForecast{
 
@@ -116,7 +117,7 @@ public class TestGEM_ERF extends EqkRupForecast{
 		  double aveDip=50;
 		  double downDipWidth=19.58;
 		  double depthToTop=0;
-		  double charMag=7.43;
+		  double charMag=7.5;
 		  double charRate=8.3516453E-5;	//
 		  double rake=90;
 		  double faultGridSpacing=1;
@@ -127,10 +128,12 @@ public class TestGEM_ERF extends EqkRupForecast{
 		  // Compute a gridded fault surface 
 		  StirlingGriddedSurface surf = new StirlingGriddedSurface(trace,aveDip,depthToTop,lowerDepth,faultGridSpacing);
 		  
-		  double prob = 1-Math.exp(-timeSpan.getDuration()*charRate);
+		  SingleMagFreqDist mfd = new SingleMagFreqDist(charMag,1,0.1);
+		  mfd.scaleToCumRate(0, charRate);
+//		  double prob = 1-Math.exp(-timeSpan.getDuration()*charRate);
 
 		  // Create a FaultRuptureSource object
-		  FaultRuptureSource source = new FaultRuptureSource(charMag, surf, rake, prob);
+		  FaultRuptureSource source = new FaultRuptureSource(mfd, surf, rake, timeSpan.getDuration());
 		  source.setName("Example Fault Source");
 
 		  // Add source to the source list
