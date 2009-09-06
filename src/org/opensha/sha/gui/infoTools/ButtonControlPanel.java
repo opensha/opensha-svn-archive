@@ -1,5 +1,6 @@
 package org.opensha.sha.gui.infoTools;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -7,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -48,6 +50,9 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
 	//stores the instance of the application using this ButtonControlPanel
 	ButtonControlPanelAPI application;
 	
+	private JPanel buttonPanel;
+	private JPanel checkboxPanel;
+	
 	private JCheckBox jCheckylog;
 	private JCheckBox jCheckxlog;
 	private JButton setAxisButton;
@@ -70,22 +75,10 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
 	}
 	
 	private void initUI() {
-		BoxLayout layout = new BoxLayout(this, BoxLayout.LINE_AXIS);
-		setLayout(layout);
-		setDoubleBuffered(false);
-		setMinimumSize(new Dimension(0, 0));
-		setPreferredSize(new Dimension(500, 36));
-
-		JLabel logScale  = new JLabel("Log scale: ");
-		logScale.putClientProperty("JComponent.sizeVariant","small");
-		
-		jCheckxlog = new JCheckBox("X");
-		jCheckxlog.addActionListener(this);
-		jCheckxlog.putClientProperty("JComponent.sizeVariant","small");
-		
-		jCheckylog = new JCheckBox("Y");
-		jCheckylog.addActionListener(this);
-		jCheckylog.putClientProperty("JComponent.sizeVariant","small");
+		setLayout(new BorderLayout());
+		setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+//		setMinimumSize(new Dimension(0, 100)); TODO clean
+//		setPreferredSize(new Dimension(500, 100));		
 		
 		plotPrefsButton = new JButton("Plot Prefs");
 		plotPrefsButton.addActionListener(this);
@@ -105,15 +98,37 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
 		setAxisButton.putClientProperty("JButton.segmentPosition", "last");
 		setAxisButton.putClientProperty("JComponent.sizeVariant","small");
 
-		add(Box.createHorizontalGlue());
-		add(plotPrefsButton);
-		add(toggleButton);
-		add(setAxisButton);
-		add(Box.createHorizontalGlue());
-		add(logScale);
-		add(jCheckxlog);
-		add(jCheckylog);
-		add(Box.createHorizontalGlue());
+		buttonPanel = new JPanel();
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
+		
+		buttonPanel.add(Box.createHorizontalGlue());
+		buttonPanel.add(plotPrefsButton);
+		buttonPanel.add(toggleButton);
+		buttonPanel.add(setAxisButton);
+		buttonPanel.add(Box.createHorizontalGlue());
+		
+		JLabel logScale  = new JLabel("Log scale: ");
+		logScale.putClientProperty("JComponent.sizeVariant","small");
+		
+		jCheckxlog = new JCheckBox("X");
+		jCheckxlog.addActionListener(this);
+		jCheckxlog.putClientProperty("JComponent.sizeVariant","small");
+		
+		jCheckylog = new JCheckBox("Y");
+		jCheckylog.addActionListener(this);
+		jCheckylog.putClientProperty("JComponent.sizeVariant","small");
+		
+		checkboxPanel = new JPanel();
+		checkboxPanel.setLayout(new BoxLayout(checkboxPanel, BoxLayout.LINE_AXIS));
+		
+		checkboxPanel.add(Box.createHorizontalGlue());
+		checkboxPanel.add(logScale);
+		checkboxPanel.add(jCheckxlog);
+		checkboxPanel.add(jCheckylog);
+		checkboxPanel.add(Box.createHorizontalGlue());
+		
+		add(buttonPanel, BorderLayout.CENTER);
+		add(checkboxPanel, BorderLayout.PAGE_END);
 	}
 
 
@@ -133,6 +148,24 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
 		}
 	}
 
+	/**
+	 * Returns the panel containing buttons so that oter items may be added.
+	 * Panel has a <code>BoxLayout</code>.
+	 * @return the button panel
+	 */
+	public JPanel getButtonRow() {
+		return buttonPanel;
+	}
+	
+	/**
+	 * Returns the panel containing checkboxes so that oter items may be added.
+	 * Panel has a <code>BoxLayout</code>.
+	 * @return the checkbox panel
+	 */
+	public JPanel getCheckboxRow() {
+		return checkboxPanel;
+	}
+	
 	/**
 	 * Sets the text for the toggle button.
 	 * @param text to set
