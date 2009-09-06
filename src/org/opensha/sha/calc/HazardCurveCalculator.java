@@ -219,7 +219,11 @@ public class HazardCurveCalculator extends UnicastRemoteObject
                              EqkRupForecastAPI eqkRupForecast)
   							throws java.rmi.RemoteException{
 
-    this.currRuptures = -1;
+	  System.out.println("Haz Curv Calc: maxDistanceParam.getValue()="+maxDistanceParam.getValue().toString());
+	  System.out.println("Haz Curv Calc: includeMagDistFilterParam.getValue()="+includeMagDistFilterParam.getValue().toString());
+	  System.out.println("Haz Curv Calc: magDistCutoffParam.getValue()="+magDistCutoffParam.getValue().toString());
+
+	  this.currRuptures = -1;
     
     /* this determines how the calucations are done (doing it the way it's outlined
     in our original SRL paper gives probs greater than 1 if the total rate of events for the

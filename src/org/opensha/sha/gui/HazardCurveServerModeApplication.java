@@ -1145,6 +1145,7 @@ System.out.println("createCalcInstance()");
 			Object includeMagDistFilter = calcParamsControl.getParameterValue(HazardCurveCalculator.INCLUDE_MAG_DIST_FILTER_PARAM_NAME);
 			try {
 				calc.setIncludeMagDistCutoff(((Boolean)includeMagDistFilter).booleanValue());
+System.out.println("includeMagDistFilter="+includeMagDistFilter);
 			} catch (RemoteException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -2026,7 +2027,7 @@ System.out.println("createCalcInstance()");
 	 * initialize the calculations parameters control panel.
 	 */
 	protected void initCalcParamsControl(){
-System.out.println("initCalcParamsControl()");
+//System.out.println("initCalcParamsControl()");
 
 		if(calcParamsControl == null)
 			calcParamsControl = new CalculationSettingsControlPanel(this,this);
