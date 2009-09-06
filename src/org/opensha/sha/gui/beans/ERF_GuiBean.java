@@ -91,7 +91,6 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 			e.printStackTrace();
 		}
 		// save the class names of ERFs to be shown\
-		Collections.sort(erfClassNames);
 		erfClasses = erfClassNames;
 
 		// create the instance of ERFs
@@ -178,7 +177,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 			if(name !=null) erfNamesVector.add(name);
 			else erfFailed.add(erfClass);
 		}
-
+		
 		//removing the erf's from the erfClasses ArrayList which could not be instantiated
 		if(erfFailed.size() >0){
 			int size =erfFailed.size();

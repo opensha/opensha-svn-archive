@@ -570,6 +570,15 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 		return getIMR_Instance(selectedIMR);
 	}
 	
+//	/**
+//	 * Setds the selected IMR.
+//	 */
+//	public void setSelectedIMR_Instance(
+//			) {
+//		String selectedIMR = getSelectedIMR_Name();
+//		return getIMR_Instance(selectedIMR);
+//	}
+
 	/**
 	 * This method will return the instance of selected IMR
 	 * @return : Selected IMR instance

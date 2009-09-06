@@ -54,6 +54,7 @@ import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanel;
 import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
 import org.opensha.sha.gui.controls.PlottingOptionControl;
 import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
+import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
@@ -63,6 +64,7 @@ import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculatorAPI;
@@ -197,7 +199,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	/**
 	 * List of ArbitrarilyDiscretized functions and Weighted funstions
 	 */
-	protected ArrayList functionList = new ArrayList();
+	protected ArrayList<Object> functionList = new ArrayList<Object>();
 
 	// holds the ArbitrarilyDiscretizedFunc
 	protected ArbitrarilyDiscretizedFunc function;
@@ -426,8 +428,10 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		};
 		buttonPanel.setBorder(BorderFactory.createEmptyBorder(12, 24, 12, 40));
 		buttonPanel.setBackground(bg);
-		JLabel logo = new JLabel(new ImageIcon(
+		JLabel shaLogo = new JLabel(new ImageIcon(
 				ImageUtils.loadImage("logos/cat_icon_64.png")));
+		JLabel gemLogo = new JLabel(new ImageIcon(
+				ImageUtils.loadImage("logos/gem_icon_64.png")));
 
 		JLabel calcTypeLabel = new JLabel("Calculation type:");
 		JLabel cpLabel = new JLabel("Control panel:");
@@ -464,42 +468,47 @@ public class HazardCurveServerModeApplication extends JFrame implements
 				GridBagConstraints.NONE, 
 				new Insets(0,0,0,0),0,0);
 		
+		// ---- row 1 ----
 		gbc.gridheight = 2;
 		gbc.weightx = 0.0;
-		buttonPanel.add(logo, gbc);
+		buttonPanel.add(gemLogo, gbc);
 		
-		gbc.gridx = 1;
+		gbc.gridx += 1;
+		buttonPanel.add(shaLogo, gbc);
+		
+		gbc.gridx += 1;
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.weightx = 1.0;
 		buttonPanel.add(progressCheckBox, gbc);
 
-		gbc.gridx = 2;
+		gbc.gridx += 1;
 		gbc.gridheight = 1;
 		gbc.anchor = GridBagConstraints.LINE_END;
 		gbc.weightx = 0.0;
 		buttonPanel.add(calcTypeLabel, gbc);
 		
-		gbc.gridx = 3;
+		gbc.gridx += 1;
 		gbc.anchor = GridBagConstraints.LINE_START;
 		buttonPanel.add(probDeterComboBox, gbc);
 		
-		gbc.gridx = 4;
+		gbc.gridx += 1;
 		gbc.weightx = 1.0;
 		gbc.gridheight = 2;
 		gbc.anchor = GridBagConstraints.LINE_END;
 		buttonPanel.add(cancelButton, gbc);
 		
-		gbc.gridx = 5;
+		gbc.gridx += 1;
 		gbc.weightx = 0.0;
 		buttonPanel.add(computeButton, gbc);
 
-		gbc.gridx = 2;
+		// ---- row 2 ----
+		gbc.gridx = 3;
 		gbc.gridy = 1;
 		gbc.gridheight = 1;
 		gbc.anchor = GridBagConstraints.LINE_END;
 		buttonPanel.add(cpLabel, gbc);
 		
-		gbc.gridx = 3;
+		gbc.gridx += 1;
 		gbc.anchor = GridBagConstraints.LINE_START;
 		buttonPanel.add(controlComboBox, gbc);
 		
@@ -561,10 +570,12 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		imrImtSplitPane = new JSplitPane(
 				JSplitPane.VERTICAL_SPLIT, true, 
 				imrGuiBean, imtGuiBean);
-		imrImtSplitPane.setResizeWeight(0.5);
+		imrImtSplitPane.setResizeWeight(0.6);
 		imrImtSplitPane.setBorder(null);
 		imrImtSplitPane.setOpaque(false);
-		
+		imrImtSplitPane.setMinimumSize(new Dimension(180,100));
+		imrImtSplitPane.setPreferredSize(new Dimension(250,100));
+
 		//sitePanel = new JPanel(new GridBagLayout());
 		//sitePanel.setBorder(BorderFactory.createEmptyBorder()); TODO clean
 		//sitePanel.setBackground(Color.white);
@@ -589,8 +600,8 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		erfGuiBean.setBorder(BorderFactory.createEmptyBorder(2,8,8,4));
 		paramsTabbedPane.add(erfGuiBean, "ERF & Time Span");
 		
-		paramsTabbedPane.setMinimumSize(new Dimension(400,100));
-		paramsTabbedPane.setPreferredSize(new Dimension(550,100));
+		paramsTabbedPane.setMinimumSize(new Dimension(320,100));
+		paramsTabbedPane.setPreferredSize(new Dimension(480,100));
 
 		
 		// ======== content area ========
@@ -627,13 +638,23 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		// assemble frame
 
 		// frame setup
-		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-		setLocation((dim.width - getSize().width) / 2, 0);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("Hazard Curve Application (" + getAppVersion() + " )");
-		setSize(1100, 770);
+		setSize(1000, 720);
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		int xPos = (dim.width - getWidth()) / 2;
+		setLocation(xPos, 0);
 		setJMenuBar(menuBar);
 		getRootPane().setDefaultButton(computeButton);
+		
+		//post build param setting -- WTF doen't this work; site gets updated but not the IMR bean
+//		imrGuiBean.getParameterList().getParameter(
+//				IMR_GuiBean.IMR_PARAM_NAME).setValue(
+//						CB_2008_AttenRel.NAME); TODO revisit
+		/// Soooo KLUDGY ... just forcing the editor to change seems to update site as well.
+		((JComboBox) imrGuiBean.getParameterList().getParameter(
+				IMR_GuiBean.IMR_PARAM_NAME).getEditor().
+				getValueEditor()).setSelectedIndex(9);
 		
 	}
 
@@ -1759,10 +1780,9 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		imrGuiBean = new IMR_GuiBean(this);
 		imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter()
 				.addParameterChangeListener(this);
-		// show this gui bean the JPanel
 //		imrPanel.add(imrGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0,
 //				1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-//				new Insets(0,0,0,0), 0, 0));
+//				new Insets(0,0,0,0), 0, 0)); TODO clean
 		//imrPanel.updateUI();
 	}
 
@@ -1777,7 +1797,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		// create the IMT Gui Bean object
 		imtGuiBean = new IMT_GuiBean(imr, imr
 				.getSupportedIntensityMeasuresIterator());
-//		imtPanel.setLayout(new GridBagLayout());
+//		imtPanel.setLayout(new GridBagLayout()); TODO clean
 //		imtPanel.add(imtGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
 //				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
 //				new Insets(0,0,0,0), 0, 0));
@@ -2214,7 +2234,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	public void setArbitraryDiscretizedFuncInList(
 			ArbitrarilyDiscretizedFunc function) {
 		functionList.add(function);
-		ArrayList plotFeaturesList = getPlottingFeatures();
+		ArrayList<PlotCurveCharacterstics> plotFeaturesList = getPlottingFeatures();
 		plotFeaturesList.add(new PlotCurveCharacterstics(
 				PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
 				Color.BLACK, 4.0, 1));
@@ -2517,7 +2537,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 * @returns the List for all the ArbitrarilyDiscretizedFunctions and
 	 *          Weighted Function list.
 	 */
-	public ArrayList getCurveFunctionList() {
+	public ArrayList<Object> getCurveFunctionList() {
 		return functionList;
 	}
 
@@ -2538,7 +2558,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 *          plotting the curve like plot line color , its width and line
 	 *          type.
 	 */
-	public ArrayList getPlottingFeatures() {
+	public ArrayList<PlotCurveCharacterstics> getPlottingFeatures() {
 		return graphPanel.getCurvePlottingCharacterstic();
 	}
 
@@ -2660,7 +2680,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 */
 	public void addCybershakeCurveData(DiscretizedFuncAPI function) {
 		functionList.add(function);
-		ArrayList plotFeaturesList = getPlottingFeatures();
+		ArrayList<PlotCurveCharacterstics> plotFeaturesList = getPlottingFeatures();
 		plotFeaturesList.add(new PlotCurveCharacterstics(
 				PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES,
 				Color.BLACK, 1.0, 1));
@@ -2690,9 +2710,9 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 * 
 	 * @return ArrayList
 	 */
-	public ArrayList getIML_Values() {
+	public ArrayList<Double> getIML_Values() {
 
-		ArrayList imlList = new ArrayList();
+		ArrayList<Double> imlList = new ArrayList<Double>();
 		ArbitrarilyDiscretizedFunc func = null;
 		if (function != null)
 			func = function;
