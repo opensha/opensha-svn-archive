@@ -455,9 +455,9 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		
 		buttonControlPanel = new ButtonControlPanel(this);
 		// we know the button cp has a box layout so add clear and peel to it
-		buttonControlPanel.add(clearButton);
-		buttonControlPanel.add(peelButton);
-		buttonControlPanel.add(Box.createHorizontalGlue());
+		buttonControlPanel.getButtonRow().add(clearButton);
+		buttonControlPanel.getButtonRow().add(peelButton);
+		buttonControlPanel.getButtonRow().add(Box.createHorizontalGlue());
 		
 		buttonPanel.add(probDeterComboBox, 0);
 		buttonPanel.add(controlComboBox, 1);
