@@ -128,8 +128,8 @@ public class TestGEM_ERF extends EqkRupForecast{
 		  // Compute a gridded fault surface 
 		  StirlingGriddedSurface surf = new StirlingGriddedSurface(trace,aveDip,depthToTop,lowerDepth,faultGridSpacing);
 		  
-		  SingleMagFreqDist mfd = new SingleMagFreqDist(charMag,1,0.1);
-		  mfd.scaleToCumRate(0, charRate);
+		  SingleMagFreqDist mfd = new SingleMagFreqDist(charMag,2,0.1);
+		  mfd.setMagAndRate(charMag, charRate);
 //		  double prob = 1-Math.exp(-timeSpan.getDuration()*charRate);
 
 		  // Create a FaultRuptureSource object
