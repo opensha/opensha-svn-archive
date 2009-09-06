@@ -829,12 +829,23 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 * own machine.
 	 */
 	protected void createCalcInstance() {
-System.out.println("createCalcInstance()");
-		if (!isDeterministicCurve)
+//System.out.println("createCalcInstance()");
+		if (!isDeterministicCurve){
 			calc = (new RemoteHazardCurveClient()).getRemoteHazardCurveCalc();
+			if(this.calcParamsControl != null)
+				try {
+					calc.setAdjustableParams(calcParamsControl.getAdjustableCalcParams());
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+//System.out.println("Created new calc from ServeModeApp using getRemoteHazardCurveCalc()");
+		}
 		else if (calc == null && isDeterministicCurve) {
 			try {
 				calc = new HazardCurveCalculator();
+				calc.setAdjustableParams(calcParamsControl.getAdjustableCalcParams());
+//System.out.println("Created new calc from ServeModeApp when isDeterministicCurve=true");
 			} catch (Exception ex) {
 				ExceptionWindow bugWindow = new ExceptionWindow(this, ex, this
 						.getParametersInfoAsString());
@@ -845,6 +856,8 @@ System.out.println("createCalcInstance()");
 		if (disaggregationFlag)
 			disaggCalc = (new RemoteDisaggregationCalcClient())
 					.getRemoteDisaggregationCalc();
+		
+
 	}
 
 	/**
@@ -1107,51 +1120,13 @@ System.out.println("createCalcInstance()");
 		buttonControlPanel.setEnabled(b);
 		progressCheckBox.setEnabled(b);
 	}
+	
 
 	/**
 	 * Gets the probabilities functiion based on selected parameters this
 	 * function is called when add Graph is clicked
 	 */
 	protected void computeHazardCurve() {
-		
-		// set parameters in calc because the originals 
-		// (put into control panel) may not be in the current calc object
-		if(calcParamsControl != null){
-			Object maxDist = calcParamsControl.getParameterValue(HazardCurveCalculator.MAX_DISTANCE_PARAM_NAME);
-			try {
-				calc.setMaxSourceDistance(((Double)maxDist).doubleValue());
-			} catch (RemoteException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			
-			Object numIt = calcParamsControl.getParameterValue(HazardCurveCalculator.NUM_STOCH_EVENT_SETS_PARAM_NAME);
-			try {
-				calc.setNumStochEventSetRealizations(((Integer)numIt).intValue());
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			Object magDistFilter = calcParamsControl.getParameterValue(HazardCurveCalculator.MAG_DIST_CUTOFF_PARAM_NAME);
-			try {
-				calc.setMagDistCutoffFunc((ArbitrarilyDiscretizedFunc)magDistFilter);
-			} catch (RemoteException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			
-			// Must do this one after the above because it sets this to true
-			Object includeMagDistFilter = calcParamsControl.getParameterValue(HazardCurveCalculator.INCLUDE_MAG_DIST_FILTER_PARAM_NAME);
-			try {
-				calc.setIncludeMagDistCutoff(((Boolean)includeMagDistFilter).booleanValue());
-System.out.println("includeMagDistFilter="+includeMagDistFilter);
-			} catch (RemoteException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}	
-		}
-		
 		
 		// starting the calculation
 		isHazardCalcDone = false;
@@ -1299,6 +1274,7 @@ System.out.println("includeMagDistFilter="+includeMagDistFilter);
 			JOptionPane.showMessageDialog(this,
 					"Disaggregation not yet supported with stochastic event-set calculations",
 					"Input Error", JOptionPane.INFORMATION_MESSAGE);
+			setButtonsEnable(true);
 			return;
 		}
 		

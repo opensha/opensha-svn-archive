@@ -47,7 +47,7 @@ public class CalculationSettingsControlPanel extends JFrame {
     }
   }
   private void jbInit() throws Exception {
-    this.setSize(250,180);
+    this.setSize(350,500);
     this.setTitle("Calculation Settings");
     this.getContentPane().setLayout(new GridBagLayout());
     this.getContentPane().add(editor,new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
@@ -56,6 +56,10 @@ public class CalculationSettingsControlPanel extends JFrame {
   
   public Object getParameterValue(String paramName) {
 	  return paramList.getValue(paramName);
+  }
+  
+  public ParameterList getAdjustableCalcParams() {
+	  return paramList;
   }
 
 

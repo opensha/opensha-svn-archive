@@ -220,8 +220,10 @@ public class HazardCurveCalculator extends UnicastRemoteObject
   							throws java.rmi.RemoteException{
 
 	  System.out.println("Haz Curv Calc: maxDistanceParam.getValue()="+maxDistanceParam.getValue().toString());
+	  System.out.println("Haz Curv Calc: numStochEventSetRealizationsParam.getValue()="+numStochEventSetRealizationsParam.getValue().toString());
 	  System.out.println("Haz Curv Calc: includeMagDistFilterParam.getValue()="+includeMagDistFilterParam.getValue().toString());
-	  System.out.println("Haz Curv Calc: magDistCutoffParam.getValue()="+magDistCutoffParam.getValue().toString());
+	  if(includeMagDistFilterParam.getValue())
+		  System.out.println("Haz Curv Calc: magDistCutoffParam.getValue()="+magDistCutoffParam.getValue().toString());
 
 	  this.currRuptures = -1;
     
@@ -403,18 +405,26 @@ public class HazardCurveCalculator extends UnicastRemoteObject
 		  EqkRupForecastAPI eqkRupForecast)
   		throws java.rmi.RemoteException{
 	  
+	  System.out.println("Haz Curv Calc: maxDistanceParam.getValue()="+maxDistanceParam.getValue().toString());
+	  System.out.println("Haz Curv Calc: numStochEventSetRealizationsParam.getValue()="+numStochEventSetRealizationsParam.getValue().toString());
+	  System.out.println("Haz Curv Calc: includeMagDistFilterParam.getValue()="+includeMagDistFilterParam.getValue().toString());
+	  if(includeMagDistFilterParam.getValue())
+		  System.out.println("Haz Curv Calc: magDistCutoffParam.getValue()="+magDistCutoffParam.getValue().toString());
+
 	  int numEventSets = numStochEventSetRealizationsParam.getValue();
-System.out.println("numEventSets="+numEventSets);
 	  DiscretizedFuncAPI hazCurve;
 	  hazCurve = hazFunction.deepClone();
 	  initDiscretizeValues(hazFunction, 0);
 	  int numPts=hazCurve.getNum();
 	  // for progress bar
 	  currRuptures=0;
-	  totRuptures=numEventSets;
+//	  totRuptures=numEventSets;
 	  
-	  for(int i=0;i<numEventSets;i++,currRuptures++) {
-		  getEventSetHazardCurve( hazCurve,site, imr, eqkRupForecast.drawRandomEventSet(), false);
+	  for(int i=0;i<numEventSets;i++) {
+		  ArrayList<EqkRupture> events = eqkRupForecast.drawRandomEventSet();
+		  if(i==0) totRuptures = events.size()*numEventSets; // this is an approximate total number of events
+		  currRuptures+=events.size();
+		  getEventSetHazardCurve( hazCurve,site, imr, events, false);
 		  for(int x=0; x<numPts; x++)
 			  hazFunction.set(x, hazFunction.getY(x)+hazCurve.getY(x));
 	  }
@@ -547,6 +557,12 @@ System.out.println("numEventSets="+numEventSets);
 		  Site site, ScalarIntensityMeasureRelationshipAPI imr, EqkRupture rupture) throws
 		  java.rmi.RemoteException {
 
+	  System.out.println("Haz Curv Calc: maxDistanceParam.getValue()="+maxDistanceParam.getValue().toString());
+	  System.out.println("Haz Curv Calc: numStochEventSetRealizationsParam.getValue()="+numStochEventSetRealizationsParam.getValue().toString());
+	  System.out.println("Haz Curv Calc: includeMagDistFilterParam.getValue()="+includeMagDistFilterParam.getValue().toString());
+	  if(includeMagDistFilterParam.getValue())
+		  System.out.println("Haz Curv Calc: magDistCutoffParam.getValue()="+magDistCutoffParam.getValue().toString());
+
 
 	  // resetting the Parameter change Listeners on the AttenuationRelationship parameters,
 	  // allowing the Server version of our application to listen to the parameter changes.
@@ -615,6 +631,21 @@ System.out.println("numEventSets="+numEventSets);
    return this.adjustableParams;
  }
 
+ 
+ /**
+ *
+ * @returns This was created so new instances of this calculator could be
+ * given pointers to a set of parameter that already exist.
+ */
+public void setAdjustableParams(ParameterList paramList)  throws java.rmi.RemoteException{
+  this.adjustableParams = paramList;
+  this.maxDistanceParam= (DoubleParameter)paramList.getParameter(this.MAX_DISTANCE_PARAM_NAME);
+  this.numStochEventSetRealizationsParam= (IntegerParameter)paramList.getParameter(NUM_STOCH_EVENT_SETS_PARAM_NAME);
+  this.includeMagDistFilterParam= (BooleanParameter)paramList.getParameter(INCLUDE_MAG_DIST_FILTER_PARAM_NAME);
+  this.magDistCutoffParam= (ArbitrarilyDiscretizedFuncParameter)paramList.getParameter(MAG_DIST_CUTOFF_PARAM_NAME);
+}
+
+ 
  /**
   * get the adjustable parameters
   *

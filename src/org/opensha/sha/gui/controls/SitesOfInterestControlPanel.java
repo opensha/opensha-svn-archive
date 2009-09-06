@@ -39,9 +39,14 @@ public class SitesOfInterestControlPanel extends JFrame {
       /*
       * add interesting sites
       */
+      
+      //GEM test site
+      this.sitesComboBox.addItem("GEM test site");
+      latVector.add(new Double(40.0));
+      lonVector.add(new Double(70.0));
 
       // los angeles
-      this.sitesComboBox.addItem("Los Angeles Civic Center");
+      sitesComboBox.addItem("Los Angeles Civic Center");
       latVector.add(new Double(34.055));
       lonVector.add(new Double(-118.2467));
 

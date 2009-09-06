@@ -133,12 +133,7 @@ implements DisaggregationCalculatorAPI{
 			EqkRupForecast eqkRupForecast,
 			double maxDist, ArbitrarilyDiscretizedFunc magDistFilter) 
 			throws java.rmi.RemoteException {
-/*
-		if(magDistFilter==null)
-			System.out.println("Disagg: magDistFilter=null");
-		else
-			System.out.println("Disagg: magDistFilter="+magDistFilter.toString());
-*/	
+
 		double rate, condProb;
 
 		DecimalFormat f1 = new DecimalFormat("000000");
@@ -244,7 +239,6 @@ implements DisaggregationCalculatorAPI{
 
 			// get magThreshold if we're to use the mag-dist cutoff filter
 			if(includeMagDistFilter) {
-System.out.println("Mag-Dist Filter on is disagg");
 				magThresh = magDistFilter.getInterpolatedY(distance);
 			}
 			

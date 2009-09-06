@@ -1,6 +1,7 @@
 package org.opensha.sha.gui;
 
 
+import java.rmi.RemoteException;
 import java.util.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
@@ -9,6 +10,7 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.Toolkit;
 
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.calc.HazardCurveCalculator;
@@ -241,8 +243,12 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 	 */
 	protected void createCalcInstance(){
 		try{
-			if(calc == null)
+			if(calc == null) {
 				calc = new HazardCurveCalculator();
+				if(this.calcParamsControl != null)
+					calc.setAdjustableParams(calcParamsControl.getAdjustableCalcParams());
+//System.out.println("Created new calc from LocalModeApp");
+			}
 			if(disaggregationFlag)
 				if(disaggCalc == null)
 					disaggCalc = new DisaggregationCalculator();
@@ -253,6 +259,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 			bugWindow.pack();
 			//     e.printStackTrace();
 		}
+		
 	}
 
 	public static void main(String[] args) {

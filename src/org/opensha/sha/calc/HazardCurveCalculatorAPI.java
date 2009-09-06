@@ -60,6 +60,13 @@ public interface HazardCurveCalculatorAPI extends Remote{
   public void setIncludeMagDistCutoff(boolean include)  throws java.rmi.RemoteException;
   
   public ArbitrarilyDiscretizedFunc getMagDistCutoffFunc()  throws java.rmi.RemoteException;
+  
+  /**
+  *
+  * @returns This was created so new instances of this calculator could be
+  * given pointers to a set of parameter that already exist.
+  */
+ public void setAdjustableParams(ParameterList paramList)  throws java.rmi.RemoteException;
 
 
 
