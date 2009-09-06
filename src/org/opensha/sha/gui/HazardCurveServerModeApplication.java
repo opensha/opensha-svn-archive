@@ -155,7 +155,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	protected String yAxisName;
 
 	// Strings for control pick list
-	protected final static String CONTROL_PANELS = "Control Panels";
+	protected final static String CONTROL_PANELS = "Select";
 	private final static String PEER_TEST_CONTROL = "PEER Test Case Selector";
 	protected final static String DISAGGREGATION_CONTROL = "Disaggregation";
 	protected final static String EPISTEMIC_CONTROL = "Epistemic List Control";
@@ -302,10 +302,10 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	
 	
 
-	private final static String POWERED_BY_IMAGE = 
-			"logos/PoweredByOpenSHA_Agua.jpg";
-	private JLabel imgLabel = new JLabel(new ImageIcon(
-			ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
+//	private final static String POWERED_BY_IMAGE = TODO clean
+//			"logos/PoweredByOpenSHA_Agua.jpg";
+//	private JLabel imgLabel = new JLabel(new ImageIcon(
+//			ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
 
 	// maintains which ERFList was previously selected
 	protected String prevSelectedERF_List = null;
@@ -413,18 +413,99 @@ public class HazardCurveServerModeApplication extends JFrame implements
 //		saveButton.addActionListener(this);
 //		toolbar.add(saveButton);
 		
+		Color bg = new Color(220,220,220);
 		
 		// ======== button panel ========
-		JPanel buttonPanel = new JPanel();
-		buttonPanel.setMinimumSize(new Dimension(600, 100));
-		buttonPanel.setPreferredSize(new Dimension(600, 100));
-		buttonPanel.setLayout(flowLayout1);
-		computeButton = new JButton("Compute");
-		computeButton.addActionListener(this);
-		computeButton.setDefaultCapable(true);
+		JPanel buttonPanel = new JPanel(new GridBagLayout()) {
+			@Override
+			public void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				g.setColor(Color.gray);
+				g.drawLine(0, 0, getWidth(), 0);
+			}
+		};
+		buttonPanel.setBorder(BorderFactory.createEmptyBorder(12, 24, 12, 40));
+		buttonPanel.setBackground(bg);
+		JLabel logo = new JLabel(new ImageIcon(
+				ImageUtils.loadImage("logos/cat_icon_64.png")));
+
+		JLabel calcTypeLabel = new JLabel("Calculation type:");
+		JLabel cpLabel = new JLabel("Control panel:");
+		
+		controlComboBox = new JComboBox();
+		initControlList();
+		controlComboBox.addActionListener(this);
+		controlComboBox.setMaximumRowCount(32);
+		Dimension cbSize = new Dimension(200,26);
+		controlComboBox.setPreferredSize(cbSize);
+
+		progressCheckBox = new JCheckBox("Show Progress Bar");
+		progressCheckBox.setSelected(true);
+
+		probDeterComboBox = new JComboBox();
+		initProbOrDeterList();
+		probDeterComboBox.addActionListener(this);
+		probDeterComboBox.setPreferredSize(cbSize);
+
 		cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(this);
 		cancelButton.setEnabled(false);
+		
+		computeButton = new JButton("Compute");
+		computeButton.addActionListener(this);
+		computeButton.setDefaultCapable(true);
+		
+		//buttonPanel.setMinimumSize(new Dimension(600, 100));
+		//buttonPanel.setPreferredSize(new Dimension(600, 100));
+		//buttonPanel.setLayout(flowLayout1);
+		GridBagConstraints gbc = new GridBagConstraints(
+				0, 0, 1, 1, 1.0, 1.0, 
+				GridBagConstraints.LINE_START, 
+				GridBagConstraints.NONE, 
+				new Insets(0,0,0,0),0,0);
+		
+		gbc.gridheight = 2;
+		gbc.weightx = 0.0;
+		buttonPanel.add(logo, gbc);
+		
+		gbc.gridx = 1;
+		gbc.anchor = GridBagConstraints.CENTER;
+		gbc.weightx = 1.0;
+		buttonPanel.add(progressCheckBox, gbc);
+
+		gbc.gridx = 2;
+		gbc.gridheight = 1;
+		gbc.anchor = GridBagConstraints.LINE_END;
+		gbc.weightx = 0.0;
+		buttonPanel.add(calcTypeLabel, gbc);
+		
+		gbc.gridx = 3;
+		gbc.anchor = GridBagConstraints.LINE_START;
+		buttonPanel.add(probDeterComboBox, gbc);
+		
+		gbc.gridx = 4;
+		gbc.weightx = 1.0;
+		gbc.gridheight = 2;
+		gbc.anchor = GridBagConstraints.LINE_END;
+		buttonPanel.add(cancelButton, gbc);
+		
+		gbc.gridx = 5;
+		gbc.weightx = 0.0;
+		buttonPanel.add(computeButton, gbc);
+
+		gbc.gridx = 2;
+		gbc.gridy = 1;
+		gbc.gridheight = 1;
+		gbc.anchor = GridBagConstraints.LINE_END;
+		buttonPanel.add(cpLabel, gbc);
+		
+		gbc.gridx = 3;
+		gbc.anchor = GridBagConstraints.LINE_START;
+		buttonPanel.add(controlComboBox, gbc);
+		
+		
+		
+		
 		
 		
 		clearButton = new JButton("Clear Plot");
@@ -438,36 +519,24 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		peelButton.putClientProperty("JButton.buttonType", "segmentedTextured");
 		peelButton.putClientProperty("JButton.segmentPosition", "last");
 		peelButton.putClientProperty("JComponent.sizeVariant","small");
-		
-		// TODO progress should always be shown if a calculation is
-		// going to take longer that a few seconds; delete and add timer?
-		progressCheckBox = new JCheckBox("Show Progress Bar");
-		progressCheckBox.setSelected(true);
-		
-		controlComboBox = new JComboBox();
-		initControlList();
-		controlComboBox.addActionListener(this);
-		controlComboBox.setMaximumRowCount(32);
-		
-		probDeterComboBox = new JComboBox();
-		initProbOrDeterList();
-		probDeterComboBox.addActionListener(this);
-		
+				
 		buttonControlPanel = new ButtonControlPanel(this);
 		// we know the button cp has a box layout so add clear and peel to it
+		buttonControlPanel.getButtonRow().remove(4); // getting rid of horizontal glue
+		buttonControlPanel.getButtonRow().add(Box.createHorizontalStrut(10));
 		buttonControlPanel.getButtonRow().add(clearButton);
 		buttonControlPanel.getButtonRow().add(peelButton);
 		buttonControlPanel.getButtonRow().add(Box.createHorizontalGlue());
 		
-		buttonPanel.add(probDeterComboBox, 0);
-		buttonPanel.add(controlComboBox, 1);
-		buttonPanel.add(computeButton, 2);
-		buttonPanel.add(cancelButton, 3);
-		//buttonPanel.add(clearButton, 4);
-		//buttonPanel.add(peelButton, 5);
-		buttonPanel.add(progressCheckBox, 4);
-		//buttonPanel.add(buttonControlPanel, 7);
-		buttonPanel.add(imgLabel, 5);
+//		buttonPanel.add(probDeterComboBox, 0);
+//		buttonPanel.add(controlComboBox, 1);
+//		buttonPanel.add(computeButton, 2);
+//		buttonPanel.add(cancelButton, 3);
+//		//buttonPanel.add(clearButton, 4);
+//		//buttonPanel.add(peelButton, 5);
+//		buttonPanel.add(progressCheckBox, 4);
+//		//buttonPanel.add(buttonControlPanel, 7);
+//		buttonPanel.add(imgLabel, 5);
 
 		
 		// creating the Object the GraphPaenl class

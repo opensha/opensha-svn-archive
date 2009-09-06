@@ -76,7 +76,7 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
 	
 	private void initUI() {
 		setLayout(new BorderLayout());
-		setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+		setBorder(BorderFactory.createEmptyBorder(8,4,0,4));
 //		setMinimumSize(new Dimension(0, 100)); TODO clean
 //		setPreferredSize(new Dimension(500, 100));		
 		
