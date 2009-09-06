@@ -47,6 +47,13 @@ public class RegionsOfInterestControlPanel extends JFrame {
       * add interesting regions
       */
 
+      
+      regionsComboBox.addItem("GEM Test Region");
+      minLatVector.add(new Double(35));
+      maxLatVector.add(new Double(45));
+      minLonVector.add(new Double(65));
+      maxLonVector.add(new Double(85));
+
       regionsComboBox.addItem("SF Bay Area");
       minLatVector.add(new Double(36.5500));
       maxLatVector.add(new Double(39.6167));
@@ -64,12 +71,6 @@ public class RegionsOfInterestControlPanel extends JFrame {
       maxLatVector.add(new Double(36.539133));
       minLonVector.add(new Double(-121.844633));
       maxLonVector.add(new Double(-119.361300));
-      
-      regionsComboBox.addItem("GEM Test Region");
-      minLatVector.add(new Double(35));
-      maxLatVector.add(new Double(45));
-      minLonVector.add(new Double(65));
-      maxLonVector.add(new Double(85));
 
 
       jbInit();
