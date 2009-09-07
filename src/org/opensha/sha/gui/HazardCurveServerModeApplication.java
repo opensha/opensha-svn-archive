@@ -519,17 +519,20 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		
 		clearButton = new JButton("Clear Plot");
 		clearButton.addActionListener(this);
+		clearButton.setEnabled(false);
 		clearButton.putClientProperty("JButton.buttonType", "segmentedTextured");
 		clearButton.putClientProperty("JButton.segmentPosition", "first");
 		clearButton.putClientProperty("JComponent.sizeVariant","small");
 		
 		peelButton = new JButton("Peel Off");
 		peelButton.addActionListener(this);
+		peelButton.setEnabled(false);
 		peelButton.putClientProperty("JButton.buttonType", "segmentedTextured");
 		peelButton.putClientProperty("JButton.segmentPosition", "last");
 		peelButton.putClientProperty("JComponent.sizeVariant","small");
 				
 		buttonControlPanel = new ButtonControlPanel(this);
+		buttonControlPanel.setEnabled(false);
 		// we know the button cp has a box layout so add clear and peel to it
 		buttonControlPanel.getButtonRow().remove(4); // getting rid of horizontal glue
 		buttonControlPanel.getButtonRow().add(Box.createHorizontalStrut(10));
@@ -790,6 +793,10 @@ public class HazardCurveServerModeApplication extends JFrame implements
 //		plotPanel.add(graphPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
 //				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
 //						0, 0, 0, 0), 0, 0));
+		clearButton.setEnabled(true);
+		peelButton.setEnabled(true);
+		buttonControlPanel.setEnabled(true);
+		
 		plotPanel.validate();
 		plotPanel.repaint();
 	}
@@ -1085,6 +1092,9 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		plotPanel.remove(graphPanel);
 		plotPanel.add(emptyPlotPanel, BorderLayout.CENTER);
 		functionList.clear();
+		clearButton.setEnabled(false);
+		peelButton.setEnabled(false);
+		buttonControlPanel.setEnabled(false);
 		validate();
 		repaint();
 	}
@@ -2550,6 +2560,9 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		graphWindow = new GraphWindow(this);
 		clearPlot();
 		graphWindow.setVisible(true);
+		clearButton.setEnabled(false);
+		peelButton.setEnabled(false);
+		buttonControlPanel.setEnabled(false);
 	}
 
 	/**
