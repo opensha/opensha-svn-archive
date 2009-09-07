@@ -653,8 +653,8 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		//post build param setting -- WTF doen't this work; site gets updated but not the IMR bean
 //		imrGuiBean.getParameterList().getParameter(
 //				IMR_GuiBean.IMR_PARAM_NAME).setValue(
-//						CB_2008_AttenRel.NAME); TODO revisit
-		/// Soooo KLUDGY ... just forcing the editor to change seems to update site as well.
+//						CB_2008_AttenRel.NAME); //TODO revisit
+//		/// Soooo KLUDGY ... just forcing the editor to change seems to update site as well. Wrong
 		((JComboBox) imrGuiBean.getParameterList().getParameter(
 				IMR_GuiBean.IMR_PARAM_NAME).getEditor().
 				getValueEditor()).setSelectedIndex(9);

@@ -268,5 +268,6 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 		applet.init();
 		applet.setTitle("Hazard Curve Local mode Application "+"("+getAppVersion()+")" );
 		applet.setVisible(true);
+		applet.createCalcInstance();
 	}
 }
