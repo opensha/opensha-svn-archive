@@ -27,8 +27,12 @@ Investigate Performance Issues:
 		Smart event filtering
 
 Hazard map avoiding full curve calculator
+
+Fix offset in global GMT topo intensity file (email from Kevin on 9/3/09)
 		
 Go through main calculators as a group.  Map/UML of each calculator/application
+
+Post instructions for building stand-alone GUIs on our web site?
 
 Develop strategy for instantiation of model components for each type of calculation from XML files 
 (this involves looking at calculators, GUI beans, control panels, and model components).  
