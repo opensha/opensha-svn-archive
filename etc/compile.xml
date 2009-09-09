@@ -53,8 +53,8 @@
 	</target>
 
 	<target name="resource">
-		<copy todir="${dest}/etc/img" overwrite="true">
-			<fileset dir="${src}/etc/img"/>
+		<copy todir="${dest}/resources/images" overwrite="true">
+			<fileset dir="${src}/resources/images"/>
 		</copy>
 
 		<!--			ERF Resources				-->
@@ -70,6 +70,12 @@
 			</fileset>
 		</copy>
 
+		<copy todir="${dest}/scratch/bbradley" overwrite="true">
+			<fileset dir="${dev}/scratch/bbradley">
+				<include name="**/*.txt" />
+			</fileset>
+		</copy>
+
 		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data" overwrite="true">
 			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data">
 				<include name="**/*.txt" />
@@ -82,6 +88,12 @@
 			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/griddedSeis">
 				<include name="**/*.txt" />
 				<include name="**/*.asc" />
+			</fileset>
+		</copy>
+
+		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/GEM" overwrite="true">
+			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/GEM">
+				<include name="**/*.txt" />
 			</fileset>
 		</copy>
 
