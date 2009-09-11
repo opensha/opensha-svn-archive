@@ -99,6 +99,7 @@ extends HttpServlet {
 
 		}catch (Throwable t) {
 			//sending the error message back to the application
+			t.printStackTrace();
 			outputToApplet.writeObject(new RuntimeException(t));
 			outputToApplet.close();
 		}
