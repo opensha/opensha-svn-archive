@@ -182,14 +182,14 @@ extends HttpServlet {
 			//file follows the convention lat, lon and Z value
 			if (map.getGriddedData().checkXYZ_NumVals()) {
 				size = xVals.size();
-				fw = new FileWriter(newDir + "/" + new File(map.getXyzFileName()).getName());
-				bw = new BufferedWriter(fw);
+				FileWriter fw2 = new FileWriter(newDir + "/" + new File(map.getXyzFileName()).getName());
+				BufferedWriter bw2 = new BufferedWriter(fw2);
 				for (int j = 0; j < size; ++j) {
 					//System.out.println(xVals.get(i)+" "+yVals.get(i)+" "+zVals.get(i)+"\n");
-					bw.write(xVals.get(j) + " " + yVals.get(j) + " " + zVals.get(j) +
+					bw2.write(xVals.get(j) + " " + yVals.get(j) + " " + zVals.get(j) +
 					"\n");
 				}
-				bw.close();
+				bw2.close();
 			}
 			else {
 				throw new RuntimeException(
