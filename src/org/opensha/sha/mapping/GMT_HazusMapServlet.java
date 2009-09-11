@@ -1,4 +1,4 @@
-package org.opensha.commons.mapping.servlet;
+package org.opensha.sha.mapping;
 
 import java.io.*;
 import java.util.*;
@@ -12,31 +12,21 @@ import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
 import org.opensha.commons.util.SystemPropertiesUtils;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
 
 
 /**
- * <p>Title: GMT_MapGeneratorServlet </p>
+ * <p>Title: GMT_HazusMapServlet </p>
  * <p>Description: this servlet runs the GMT script based on the parameters and generates the
  * image file and returns that back to the calling application applet </p>
  * 
- * ****** ORIGINAL VERSION - <b>VERY</b> insecure *******
  * This is the order of operations:
  * Client ==> Server:
  * * directory name (String), or null for auto dirname
- * * GMT script (ArrayList<String>)
- * * XYZ Dataset (XYZ_DatasetAPI)
- * * Filename for XYZ Dataset (String)
- * * Metadata (String)
- * * Metadata filename (String)
- * Server ==> Client:
- * * IMG path **OR** error message
- * 
- * * ****** NEW VERSION - more secure *******
- * This is the order of operations:
- * Client ==> Server:
- * * directory name (String), or null for auto dirname
- * * GMT Map specification (GMT_Map)
+ * * GMT Map specification array (GMT_Map[4])
  * * Metadata (String)
  * * Metadata filename (String)
  * Server ==> Client:
@@ -48,7 +38,7 @@ import org.opensha.commons.util.SystemPropertiesUtils;
  * @version 1.0
  */
 
-public class GMT_MapGeneratorServlet
+public class GMT_HazusMapServlet
 extends HttpServlet {
 
 	/*			opensha.usc.edu paths and URLs			*/
@@ -93,7 +83,7 @@ extends HttpServlet {
 			String dirName = (String) inputFromApplet.readObject();
 
 			//gets the object for the GMT_MapGenerator script
-			GMT_Map map = (GMT_Map)inputFromApplet.readObject();
+			GMT_Map map[] = (GMT_Map[])inputFromApplet.readObject();
 
 			//Metadata content: Map Info
 			String metadata = (String) inputFromApplet.readObject();
@@ -121,7 +111,7 @@ extends HttpServlet {
 		doGet(request, response);
 	}
 	
-	public static String createMap(GMT_MapGenerator gmt, GMT_Map map, String plotDirName, String metadata,
+	public static String createMap(GMT_MapGenerator gmt, GMT_Map maps[], String plotDirName, String metadata,
 			String metadataFileName) throws IOException, GMT_MapException {
 		//Name of the directory in which we are storing all the gmt data for the user
 		String newDir = null;
@@ -154,16 +144,63 @@ extends HttpServlet {
 
 		String gmtScriptFile = newDir + "/" + GMT_SCRIPT_FILE;
 		
-		ArrayList<String> gmtMapScript = gmt.getGMT_ScriptLines(map, newDir);
-
 		//creating a new gmt script for the user and writing it ot the directory created for the user
 		FileWriter fw = new FileWriter(gmtScriptFile);
 		BufferedWriter bw = new BufferedWriter(fw);
-		int size = gmtMapScript.size();
-		for (int i = 0; i < size; ++i) {
-			bw.write( (String) gmtMapScript.get(i) + "\n");
+		
+		for (int i=0; i<4; i++) {
+			GMT_Map map = maps[4];
+			String imt;
+			String hazusPrefix;
+			if (i == 0) {
+				imt = SA_Param.NAME;
+				hazusPrefix = GMT_MapGeneratorForShakeMaps.SA_03;
+			} else if (i == 1) {
+				imt = SA_Param.NAME;
+				hazusPrefix = GMT_MapGeneratorForShakeMaps.SA_10;
+			} else if (i == 2) {
+				imt = PGA_Param.NAME;
+				hazusPrefix = GMT_MapGeneratorForShakeMaps.PGA;
+			} else { // i == 3
+				imt = PGV_Param.NAME;
+				hazusPrefix = GMT_MapGeneratorForShakeMaps.PGV;
+			}
+			ArrayList<String> gmtMapScript = gmt.getGMT_ScriptLines(map, newDir);
+			
+			GMT_MapGeneratorForShakeMaps.addHAZUS_Lines(gmtMapScript, map, imt, hazusPrefix);
+			
+			int size = gmtMapScript.size();
+			for (int j = 0; j < size; ++j) {
+				bw.write( (String) gmtMapScript.get(j) + "\n");
+			}
+			
+			//creating the XYZ file from the XYZ file from the XYZ dataSet
+			ArrayList<Double> xVals = map.getGriddedData().getX_DataSet();
+			ArrayList<Double> yVals = map.getGriddedData().getY_DataSet();
+			ArrayList<Double> zVals = map.getGriddedData().getZ_DataSet();
+			//file follows the convention lat, lon and Z value
+			if (map.getGriddedData().checkXYZ_NumVals()) {
+				size = xVals.size();
+				fw = new FileWriter(newDir + "/" + new File(map.getXyzFileName()).getName());
+				bw = new BufferedWriter(fw);
+				for (int j = 0; j < size; ++j) {
+					//System.out.println(xVals.get(i)+" "+yVals.get(i)+" "+zVals.get(i)+"\n");
+					bw.write(xVals.get(j) + " " + yVals.get(j) + " " + zVals.get(j) +
+					"\n");
+				}
+				bw.close();
+			}
+			else {
+				throw new RuntimeException(
+						"X, Y and Z dataset does not have equal size");
+			}
 		}
 		bw.close();
+		
+		//running the gmtScript file
+		String[] command = {
+				"sh", "-c", "/bin/bash " + gmtScriptFile};
+		RunScript.runScript(command);
 
 		// I use the new File().getName() here to  make sure the filename isn't a relative path
 		// that could overwrite something important, like "../../myfile"
@@ -173,32 +210,6 @@ extends HttpServlet {
 		bw = new BufferedWriter(fw);
 		bw.write(" " + (String) metadata + "\n");
 		bw.close();
-
-		//creating the XYZ file from the XYZ file from the XYZ dataSet
-		ArrayList<Double> xVals = map.getGriddedData().getX_DataSet();
-		ArrayList<Double> yVals = map.getGriddedData().getY_DataSet();
-		ArrayList<Double> zVals = map.getGriddedData().getZ_DataSet();
-		//file follows the convention lat, lon and Z value
-		if (map.getGriddedData().checkXYZ_NumVals()) {
-			size = xVals.size();
-			fw = new FileWriter(newDir + "/" + new File(map.getXyzFileName()).getName());
-			bw = new BufferedWriter(fw);
-			for (int i = 0; i < size; ++i) {
-				//System.out.println(xVals.get(i)+" "+yVals.get(i)+" "+zVals.get(i)+"\n");
-				bw.write(xVals.get(i) + " " + yVals.get(i) + " " + zVals.get(i) +
-				"\n");
-			}
-			bw.close();
-		}
-		else {
-			throw new RuntimeException(
-					"X, Y and Z dataset does not have equal size");
-		}
-
-		//running the gmtScript file
-		String[] command = {
-				"sh", "-c", "/bin/bash " + gmtScriptFile};
-		RunScript.runScript(command);
 
 		//create the Zip file for all the files generated
 		FileUtils.createZipFile(newDir);

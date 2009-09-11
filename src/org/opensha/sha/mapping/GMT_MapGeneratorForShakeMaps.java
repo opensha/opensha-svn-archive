@@ -48,6 +48,8 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 	 * Name of the class
 	 */
 	protected final static String C = "GMT_MapGeneratorForShakeMaps";
+	
+	public static final String OPENSHA_HAZUS_SERVLET_URL = "http://opensha.usc.edu:8080/OpenSHA_dev/GMT_HazusMapServlet";
 
 	// for debug purpose
 	protected final static boolean D = false;
@@ -59,10 +61,10 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 	private String HAZUS_FILE_PREFIX = DEFAULT_HAZUS_FILE_PREFIX;
 
 	//Defintion of the static String used as the prefixes before the file names for hazus.
-	private final static String SA_10 ="sa10";
-	private final static String SA_03 ="sa03";
-	private final static String PGA ="pga";
-	private final static String PGV ="pgv";
+	public final static String SA_10 ="sa10";
+	public final static String SA_03 ="sa03";
+	public final static String PGA ="pga";
+	public final static String PGV ="pgv";
 
 	private EqkRupture eqkRup;
 
@@ -228,24 +230,24 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 		GS_PATH="/usr/local/bin/gs";
 		PS2PDF_PATH = "/usr/local/bin/ps2pdf";
 		CONVERT_PATH="/usr/bin/convert";
-
-		ArrayList gmtLines = new ArrayList();
+		
+		GMT_Map maps[] = new GMT_Map[4];
 
 		// Do 0.3-sec SA first
 		imt="SA";
 		SCALE_LABEL = SA_03;
 		xyzDataSet = sa03DataSet;
 		setFileNames(SCALE_LABEL);
+		maps[0] = getGMTMapSpecification(xyzDataSet);
 		String sa_03Image = this.JPG_FILE_NAME;
-		gmtLines.addAll(getGMT_ScriptLines());
 
 		// Do 1.0-sec SA
 		imt="SA";
 		SCALE_LABEL = SA_10;
 		xyzDataSet = sa10DataSet;
 		setFileNames(SCALE_LABEL);
+		maps[1] = getGMTMapSpecification(xyzDataSet);
 		String sa_10Image = this.JPG_FILE_NAME;
-		gmtLines.addAll(getGMT_ScriptLines());
 
 		// PGA
 		imt="PGA";
@@ -253,7 +255,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 		xyzDataSet = pgaDataSet;
 		setFileNames(SCALE_LABEL);
 		String pgaImage = this.JPG_FILE_NAME;
-		gmtLines.addAll(getGMT_ScriptLines());
+		maps[2] = getGMTMapSpecification(xyzDataSet);
 
 		// Do 0.3-sec SA first
 		imt="PGV";
@@ -261,13 +263,13 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 		xyzDataSet = pgvDataSet;
 		setFileNames(SCALE_LABEL);
 		String pgvImage = this.JPG_FILE_NAME;
-		gmtLines.addAll(getGMT_ScriptLines());
+		maps[3] = getGMTMapSpecification(xyzDataSet);
 
 
 		String img[] = new String[4];
 		try{
 			imgWebAddr = this.openServletConnection(sa03DataSet, sa10DataSet, pgaDataSet,
-					pgvDataSet, gmtLines, metadata, dirName);
+					pgvDataSet, maps, metadata, dirName);
 			img[0] = new String(imgWebAddr + sa_03Image);
 			img[1] = new String(imgWebAddr + sa_10Image);
 			img[2] = new String(imgWebAddr + pgaImage);
@@ -297,17 +299,16 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 	 */
 	protected String openServletConnection(XYZ_DataSetAPI sa03_xyzDataVals,
 			XYZ_DataSetAPI sa10_xyzDataVals, XYZ_DataSetAPI pga_xyzDataVals,
-			XYZ_DataSetAPI pgv_xyzDataVals, ArrayList gmtFileLines,String metadata,String dirName) throws RuntimeException{
+			XYZ_DataSetAPI pgv_xyzDataVals, GMT_Map maps[],String metadata,String dirName) throws RuntimeException{
 
 		String webaddr=null;
 		try{
 
 			if(D) System.out.println("starting to make connection with servlet");
-			URL hazusAndMapServlet = new
-			URL("http://gravity.usc.edu/OpenSHA/servlet/HazusAndGMT_MapsGeneratorServlet");
+			URL gmtMapServlet = new URL(OPENSHA_HAZUS_SERVLET_URL);
 
 
-			URLConnection servletConnection = hazusAndMapServlet.openConnection();
+			URLConnection servletConnection = gmtMapServlet.openConnection();
 			if(D) System.out.println("connection established");
 
 			// inform the connection that we will send output and accept input
@@ -320,63 +321,20 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 			// Specify the content type that we will send binary data
 			servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
 
-
 			ObjectOutputStream outputToServlet = new
 			ObjectOutputStream(servletConnection.getOutputStream());
 
 			//sending the directory name to the servlet
 			outputToServlet.writeObject(dirName);
 
-
-			//sending the ArrayList of the Script Lines to be executed on the server
-			outputToServlet.writeObject(gmtFileLines);
-			gmtFileLines = null;
-
-
-			//as all the dataset have the same X and Y values so just send them once
-			//but as Z data differ for all dataset so send them seperately.
-			ArrayList xValues = sa03_xyzDataVals.getX_DataSet();
-
-			//sending the X and Y values for all the datasets.
-			outputToServlet.writeObject(xValues);
-			xValues = null;
-			ArrayList yValues = sa03_xyzDataVals.getY_DataSet();
-			outputToServlet.writeObject(yValues);
-			yValues=null;
-
-
-
-			//sending the static String as IMT names to be prefixed before the names of the
-			//the files when generating the files for the Hazus.
-			outputToServlet.writeObject(SA_03);
-			outputToServlet.writeObject(SA_10);
-			outputToServlet.writeObject(PGA);
-			outputToServlet.writeObject(PGV);
-
-			//sending the xyz file name to the servlet
-			outputToServlet.writeObject(DEFAULT_XYZ_FILE_NAME);
+			//sending the map specification
+			outputToServlet.writeObject(maps);
 
 			//sending the contents of the Metadata file to the server.
 			outputToServlet.writeObject(metadata);
 
 			//sending the name of the MetadataFile to the server.
-			outputToServlet.writeObject(METADATA_FILE_NAME);
-
-			//sending the contents of the SA-0.3sec Z values set to the servlet
-			outputToServlet.writeObject(sa03_xyzDataVals.getZ_DataSet());
-			sa03_xyzDataVals=null;
-
-			//sending the contents of the SA-1.0sec Z values set to the servlet
-			outputToServlet.writeObject(sa10_xyzDataVals.getZ_DataSet());
-			sa10_xyzDataVals = null;
-
-			//sending the contents of the PGA Z values set to the servlet
-			outputToServlet.writeObject(pga_xyzDataVals.getZ_DataSet());
-			pga_xyzDataVals =null;
-
-			//sending the contents of the PGV Z values set to the servlet
-			outputToServlet.writeObject(pgv_xyzDataVals.getZ_DataSet());
-			pgv_xyzDataVals = null;
+			outputToServlet.writeObject(DEFAULT_METADATA_FILE_NAME);
 
 			outputToServlet.flush();
 			outputToServlet.close();
@@ -386,10 +344,17 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 			ObjectInputStream inputToServlet = new
 			ObjectInputStream(servletConnection.getInputStream());
 
-			webaddr=inputToServlet.readObject().toString();
-			if(D) System.out.println("Receiving the Input from the Servlet:"+webaddr);
+			Object messageFromServlet = inputToServlet.readObject();
 			inputToServlet.close();
-
+			if(messageFromServlet instanceof String){
+				webaddr = (String) messageFromServlet;
+				if (D) System.out.println("Receiving the Input from the Servlet:" +
+						webaddr);
+			}
+			else
+				throw (RuntimeException)messageFromServlet;
+		}catch(RuntimeException e){
+			throw new RuntimeException(e);
 		}catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException("Server is down , please try again later");
@@ -495,6 +460,56 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 		return super.makeMapUsingWebServer(xyzDataSet, imtString, metadata);
 	}
 
+	public static void addHAZUS_Lines(ArrayList<String> gmtCommandLines, GMT_Map map, String imt, String hazusPrefix) {
+		// stop here is log was selected
+		if(map.isLogPlot())
+			throw new RuntimeException("You cannot make Hazus Shapefiles with log-plot selected!");
+
+		String HAZUS_SHAPE_FILE_GENERATOR = "/usr/scec/hazus/shapefilegenerator/contour";
+		// Get the limits and discretization of the map
+		double minLat = map.getRegion().getMinLat();
+		double maxTempLat = map.getRegion().getMaxLat();
+		double minLon = map.getRegion().getMinLon();
+		double maxTempLon = map.getRegion().getMaxLon();
+		double gridSpacing = map.getGriddedDataInc();
+
+		// adjust the max lat and lon to be an exact increment (needed for xyz2grd)
+		double maxLat = Math.rint(((maxTempLat-minLat)/gridSpacing))*gridSpacing +minLat;
+		double maxLon = Math.rint(((maxTempLon-minLon)/gridSpacing))*gridSpacing +minLon;
+
+		//redefing the region for proper discretization of the region required by the GMT
+		String region = " -R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat+" ";
+//		String imt = map.get
+		String commandLine;
+		//if the selected IMT is SA
+		if(imt.equals(SA_Param.NAME)){
+			commandLine = "${GMT_PATH}xyz2grd "+map.getXyzFileName()+" -Gtemp.grd=1 "+
+			"-I"+gridSpacing+region+" -D/degree/degree/amp/=/=/= -: -H0 -V";
+			gmtCommandLines.add(commandLine+"\n");
+			commandLine = HAZUS_SHAPE_FILE_GENERATOR+" -g temp.grd -C 0.04 -f 0.02 -Z 1.0 -T4 -o "+hazusPrefix;
+			gmtCommandLines.add(commandLine+"\n");
+		}
+		//if the selected IMT is PGA
+		else if(imt.equals(PGA_Param.NAME)){
+			commandLine = "${GMT_PATH}xyz2grd "+map.getXyzFileName()+" -Gtemp.grd=1 "+
+			"-I"+gridSpacing+region+" -D/degree/degree/amp/=/=/= -: -H0 -V";
+			gmtCommandLines.add(commandLine+"\n");
+			commandLine = HAZUS_SHAPE_FILE_GENERATOR+" -g temp.grd -C 0.04 -f 0.02 -Z 1.0 -T4 -o "+hazusPrefix;
+			gmtCommandLines.add(commandLine+"\n");
+		}
+		//if the selected IMT is PGV
+		else if(imt.equals(PGV_Param.NAME)){
+			commandLine = "${GMT_PATH}xyz2grd "+map.getXyzFileName()+" -Gtemp.grd=1 "+
+			"-I"+gridSpacing+region+" -D/degree/degree/amp/=/=/= -: -H0 -V";
+			gmtCommandLines.add(commandLine+"\n");
+			commandLine = HAZUS_SHAPE_FILE_GENERATOR+" -g temp.grd -C 4.0 -f 2.0 -Z 0.3937 -T4 -o "+hazusPrefix;
+			gmtCommandLines.add(commandLine+"\n");
+		}
+		else
+			throw new RuntimeException("IMT not supported to generate Shape File");
+		commandLine = COMMAND_PATH+"rm temp.grd";
+		gmtCommandLines.add(commandLine+"\n");
+	}
 
 	/**
 	 * Function adds script lines  to generate Hazus Shape files if that option has been selected.

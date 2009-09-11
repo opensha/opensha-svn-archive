@@ -72,6 +72,10 @@ public class GMT_Map implements Serializable {
 	private boolean logPlot = false;
 	
 	private String xyzFileName = GMT_MapGenerator.DEFAULT_XYZ_FILE_NAME;
+	private String psFileName = GMT_MapGenerator.DEFAULT_PS_FILE_NAME;
+	private String pdfFileName = GMT_MapGenerator.DEFAULT_PDF_FILE_NAME;
+	private String pngFileName = GMT_MapGenerator.DEFAULT_PNG_FILE_NAME;
+	private String jpgFileName = GMT_MapGenerator.DEFAULT_JPG_FILE_NAME;
 	
 	private String gmtScriptFileName = GMT_MapGenerator.DEFAULT_GMT_SCRIPT_NAME;
 	
@@ -262,6 +266,38 @@ public class GMT_Map implements Serializable {
 
 	public void setXyzFileName(String xyzFileName) {
 		this.xyzFileName = xyzFileName;
+	}
+	
+	public String getPSFileName() {
+		return psFileName;
+	}
+
+	public void setPSFileName(String psFileName) {
+		this.psFileName = psFileName;
+	}
+	
+	public String getPDFFileName() {
+		return pdfFileName;
+	}
+
+	public void setPDFFileName(String psFileName) {
+		this.pdfFileName = pdfFileName;
+	}
+	
+	public String getPNGFileName() {
+		return pngFileName;
+	}
+
+	public void setPNGFileName(String pngFileName) {
+		this.pngFileName = pngFileName;
+	}
+	
+	public String getJPGFileName() {
+		return jpgFileName;
+	}
+
+	public void setJPGFileName(String jpgFileName) {
+		this.jpgFileName = jpgFileName;
 	}
 
 	public String getGmtScriptFileName() {

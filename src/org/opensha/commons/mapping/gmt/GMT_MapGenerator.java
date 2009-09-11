@@ -423,6 +423,12 @@ public class GMT_MapGenerator implements Serializable{
 		}
 		GMT_Map map = new GMT_Map(region, xyzData, gridSpacingParam.getValue(), cptFileParam.getValue());
 		
+		map.setXyzFileName(XYZ_FILE_NAME);
+		map.setPSFileName(PS_FILE_NAME);
+		map.setPDFFileName(PDF_FILE_NAME);
+		map.setPNGFileName(PNG_FILE_NAME);
+		map.setJPGFileName(JPG_FILE_NAME);
+		
 		CoastAttributes coast = null;
 		if (coastParam.getValue().equals(COAST_DRAW)) {
 			coast = new CoastAttributes(4.0);
@@ -1345,6 +1351,8 @@ public class GMT_MapGenerator implements Serializable{
 			gmtCommandLines.add(commandLine);
 			cptFile = tempCPT;
 		}
+		
+		String psFileName = map.getPSFileName();
 
 		// set some defaults
 		gmtCommandLines.add("# Set GMT paper/font defaults");
@@ -1357,7 +1365,7 @@ public class GMT_MapGenerator implements Serializable{
 		// generate the image depending on whether topo relief is desired
 		if (map.getTopoResolution() == null) {
 			gmtCommandLines.add("# Plot the gridded data");
-			commandLine="${GMT_PATH}grdimage "+ grdFileName + xOff + yOff + projWdth + " -C"+tempFilePrefix+".cpt "+gmtSmoothOption+" -K -E"+dpi+ region + " > " + PS_FILE_NAME;
+			commandLine="${GMT_PATH}grdimage "+ grdFileName + xOff + yOff + projWdth + " -C"+tempFilePrefix+".cpt "+gmtSmoothOption+" -K -E"+dpi+ region + " > " + psFileName;
 			gmtCommandLines.add(commandLine+"\n");
 		}
 		else {
@@ -1385,7 +1393,7 @@ public class GMT_MapGenerator implements Serializable{
 			gmtCommandLines.add(commandLine);
 			gmtCommandLines.add("# Plot the gridded data with topographic shading");
 			commandLine="${GMT_PATH}grdimage "+hiResFile+" " + xOff + yOff + projWdth +
-			" -I"+tempFilePrefix+"Inten.grd -C"+tempFilePrefix+".cpt "+ gmtSmoothOption +"-K -E"+dpi+ region + " > " + PS_FILE_NAME;
+			" -I"+tempFilePrefix+"Inten.grd -C"+tempFilePrefix+".cpt "+ gmtSmoothOption +"-K -E"+dpi+ region + " > " + psFileName;
 			gmtCommandLines.add(commandLine);
 		}
 		
@@ -1395,7 +1403,7 @@ public class GMT_MapGenerator implements Serializable{
 		if (map.getHighwayFile() != null) {
 			gmtCommandLines.add("# Add highways to plot");
 			commandLine="${GMT_PATH}psxy  "+region + projWdth + " -K -O -W5/125/125/125 -: -Ms "
-						+ SCEC_GMT_DATA_PATH + map.getHighwayFile().fileName() + " >> " + PS_FILE_NAME;
+						+ SCEC_GMT_DATA_PATH + map.getHighwayFile().fileName() + " >> " + psFileName;
 			gmtCommandLines.add(commandLine);
 		}
 
@@ -1414,7 +1422,7 @@ public class GMT_MapGenerator implements Serializable{
 			
 			gmtCommandLines.add("# Draw coastline");
 			commandLine="${GMT_PATH}pscoast "+region + projWdth + " -K -O " + lineColor + 
-						" -P " + fillColor + " -Dh -N2 >> " + PS_FILE_NAME;
+						" -P " + fillColor + " -Dh -N2 >> " + psFileName;
 			gmtCommandLines.add(commandLine);
 		}
 		
@@ -1445,7 +1453,7 @@ public class GMT_MapGenerator implements Serializable{
 			}
 			gmtCommandLines.add("END");
 			gmtCommandLines.add("${GMT_PATH}psxy " + polyFile + " " + region + projWdth
-								+" -K -O -M >> " + PS_FILE_NAME);
+								+" -K -O -M >> " + psFileName);
 //			rmFiles.add(polyFile);
 		}
 		
@@ -1475,7 +1483,7 @@ public class GMT_MapGenerator implements Serializable{
 							+ symbol.getSymbolString() + " " + symbol.getFillString();
 				if (symbol.getPenColor() != null)
 					line += " " + symbol.getPenString();
-				line += " " + region + projWdth + " -K -O >> " + PS_FILE_NAME;
+				line += " " + region + projWdth + " -K -O >> " + psFileName;
 				gmtCommandLines.add(line);
 			}
 		}
@@ -1506,7 +1514,7 @@ public class GMT_MapGenerator implements Serializable{
 			if (symSet.getPenColor() != null)
 				penStr = " " + symSet.getPenString();
 			gmtCommandLines.add("${GMT_PATH}psxy " + symbolFile + " -C" + symbolCPTFile + penStr +
-					" -S " + region + projWdth + " -K -O >> " + PS_FILE_NAME);
+					" -S " + region + projWdth + " -K -O >> " + psFileName);
 		}
 		
 		// set some defaults
@@ -1523,7 +1531,7 @@ public class GMT_MapGenerator implements Serializable{
 			scaleLabel = " ";
 		scaleLabel = stripFormatLabel(scaleLabel);
 		gmtCommandLines.add("# Colorbar/label");
-		commandLine="${GMT_PATH}psscale -Ba"+tickInc+":"+scaleLabel+": -D3.25i/-0.5i/6i/0.3ih -C"+tempFilePrefix+".cpt -O -K -N70 >> " + PS_FILE_NAME;
+		commandLine="${GMT_PATH}psscale -Ba"+tickInc+":"+scaleLabel+": -D3.25i/-0.5i/6i/0.3ih -C"+tempFilePrefix+".cpt -O -K -N70 >> " + psFileName;
 		gmtCommandLines.add(commandLine);
 
 		// add the basemap
@@ -1532,7 +1540,7 @@ public class GMT_MapGenerator implements Serializable{
 		double niceTick = getNiceMapTickInterval(minLat, maxLat, minLon, maxLon);
 		gmtCommandLines.add("# Map frame and KM scale label");
 		commandLine="${GMT_PATH}psbasemap -B"+niceTick+"/"+niceTick+"eWNs " + projWdth +region+
-		" -Lfx"+kmScaleXoffset+"i/0.5i/"+minLat+"/"+niceKmLength+" -O >> " + PS_FILE_NAME;
+		" -Lfx"+kmScaleXoffset+"i/0.5i/"+minLat+"/"+niceKmLength+" -O >> " + psFileName;
 		gmtCommandLines.add(commandLine);
 		
 		gmtCommandLines.add("");
@@ -1541,6 +1549,9 @@ public class GMT_MapGenerator implements Serializable{
 		// boolean to switch between purely using convert for the ps conversion, 
 		// and using gs.
 		boolean use_gs_raster = true;
+		
+		String jpgFileName = map.getJPGFileName();
+		String pngFileName = map.getPNGFileName();
 
 		int heightInPixels = (int) ((11.0 - yOffset + 2.0) * (double) dpi);
 		String convertArgs = "-crop 595x"+heightInPixels+"+0+0";
@@ -1551,22 +1562,22 @@ public class GMT_MapGenerator implements Serializable{
 		}
 		if (use_gs_raster) {
 			int jpeg_quality= 90;
-			gmtCommandLines.add("${COMMAND_PATH}cat "+ PS_FILE_NAME + " | "+GS_PATH+" -sDEVICE=jpeg " + 
-					" -dJPEGQ="+jpeg_quality+" -sOutputFile="+JPG_FILE_NAME+" -");
-			gmtCommandLines.add("${COMMAND_PATH}cat "+ PS_FILE_NAME + " | "+GS_PATH+" -sDEVICE=png16m " + 
-					" -sOutputFile="+PNG_FILE_NAME+" -");
+			gmtCommandLines.add("${COMMAND_PATH}cat "+ psFileName + " | "+GS_PATH+" -sDEVICE=jpeg " + 
+					" -dJPEGQ="+jpeg_quality+" -sOutputFile="+jpgFileName+" -");
+			gmtCommandLines.add("${COMMAND_PATH}cat "+ psFileName + " | "+GS_PATH+" -sDEVICE=png16m " + 
+					" -sOutputFile="+pngFileName+" -");
 
-			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + JPG_FILE_NAME + " " + JPG_FILE_NAME);
-			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + PNG_FILE_NAME + " " + PNG_FILE_NAME);
+			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + jpgFileName + " " + jpgFileName);
+			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + pngFileName + " " + pngFileName);
 		} else {
 			convertArgs = "-density " + dpi + " " + convertArgs;
 
 			// add a command line to convert the ps file to a jpg file - using convert
-			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + PS_FILE_NAME + " " + JPG_FILE_NAME);
-			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + PS_FILE_NAME + " " + PNG_FILE_NAME);
+			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + psFileName + " " + jpgFileName);
+			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + psFileName + " " + pngFileName);
 		}
 		
-		commandLine = "${PS2PDF_PATH}  "+PS_FILE_NAME+"  "+PDF_FILE_NAME;
+		commandLine = "${PS2PDF_PATH}  "+psFileName+"  "+map.getPDFFileName();
 		gmtCommandLines.add(commandLine);
 
 		boolean googleearth = false;
@@ -1576,7 +1587,7 @@ public class GMT_MapGenerator implements Serializable{
 		if (googleearth) {
 			gmtCommandLines.add("## Google earth files ##");
 			System.out.println("Making Google Earth files!");
-			String gEarth_psFileName = "gEarth_" + PS_FILE_NAME;
+			String gEarth_psFileName = "gEarth_" + psFileName;
 			rmFiles.add(gEarth_psFileName);
 			String gEarth_proj = " -JQ180/"+plotWdth+"i ";
 			String gEarth_kmz_name = "./map.kmz";
@@ -1609,11 +1620,11 @@ public class GMT_MapGenerator implements Serializable{
 		//resize the image if desired
 		//		if (imageWidth != IMAGE_WIDTH_DEFAULT.doubleValue()) {
 		//			int wdth = (int)(imageWidth*(double)dpi);
-		//			commandLine = "${CONVERT_PATH} -filter Lanczos -geometry "+wdth+" temp2.jpg "+JPG_FILE_NAME;
+		//			commandLine = "${CONVERT_PATH} -filter Lanczos -geometry "+wdth+" temp2.jpg "+jpgFileName;
 		//			gmtCommandLines.add(commandLine+"\n");
 		//		}
 		//		else {
-		//			commandLine = "${COMMAND_PATH}mv temp2.jpg "+JPG_FILE_NAME;
+		//			commandLine = "${COMMAND_PATH}mv temp2.jpg "+jpgFileName;
 		//			gmtCommandLines.add(commandLine+"\n");
 		//		}
 
