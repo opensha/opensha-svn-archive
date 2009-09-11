@@ -150,7 +150,7 @@ extends HttpServlet {
 		BufferedWriter bw = new BufferedWriter(fw);
 		
 		for (int i=0; i<4; i++) {
-			GMT_Map map = maps[4];
+			GMT_Map map = maps[i];
 			String imt;
 			String hazusPrefix;
 			if (i == 0) {

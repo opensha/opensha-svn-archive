@@ -463,7 +463,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 		if(map.isLogPlot())
 			throw new RuntimeException("You cannot make Hazus Shapefiles with log-plot selected!");
 
-		String HAZUS_SHAPE_FILE_GENERATOR = "/usr/scec/hazus/shapefilegenerator/contour";
+		String HAZUS_SHAPE_FILE_GENERATOR = "/home/scec-01/opensha/hazus/shapefilegenerator/contour";
 		// Get the limits and discretization of the map
 		double minLat = map.getRegion().getMinLat();
 		double maxTempLat = map.getRegion().getMaxLat();
