@@ -114,7 +114,7 @@ public class TravasarouEtAl_2003_AttenRel
   protected final static Double MAG_WARN_MAX = new Double(8.5);
   //CG Need to change Rrup warning min value to 0.1 km, as per Travasaou et al's paper 
   protected final static Double DISTANCE_RUP_WARN_MIN = new Double(0.0);
-  protected final static Double DISTANCE_RUP_WARN_MAX = new Double(250.0);
+  protected final static Double DISTANCE_RUP_WARN_MAX = new Double(200.0);
 //  protected final static Double PGA_PARAM_MAX = new Double(100.0);
   protected final static Double IA_PARAM_MIN = new Double(Math.log(1.0));
   protected final static Double IA_PARAM_MAX = new Double(100.0);
@@ -288,64 +288,64 @@ public class TravasarouEtAl_2003_AttenRel
       distanceRupParam.setValue(eqkRupture, site);
     }
   }
- 
+
   /**
    * Calculates the mean of the exceedance probability distribution. <p>
    * @return    The mean value
    */
   public double getMean() {
 	  String fltType, siteType;
-	  
-	    try {
-	        mag = ( (Double) magParam.getValue()).doubleValue();
-	        rrup = ( (Double) distanceRupParam.getValue()).doubleValue();
-	        fltType = fltTypeParam.getValue().toString();
-	        siteType = siteTypeParam.getValue().toString();
-	    }
-	    catch (NullPointerException e) {
-	        throw new IMRException(C + ": getMean(): " + ERR);
-	    }
 
-	  	  
+	  try {
+		  mag = ( (Double) magParam.getValue()).doubleValue();
+		  rrup = ( (Double) distanceRupParam.getValue()).doubleValue();
+		  fltType = fltTypeParam.getValue().toString();
+		  siteType = siteTypeParam.getValue().toString();
+	  }
+	  catch (NullPointerException e) {
+		  throw new IMRException(C + ": getMean(): " + ERR);
+	  }
+
+
 	  // check if distance is beyond the user specified max
 	  if (rrup > USER_MAX_DISTANCE) {
 		  return VERY_SMALL_MEAN;
 	  }
-	  
-		if (fltType.equals(FLT_TYPE_NORMAL)) {
-			f_rv = 0 ;
-			f_nm = 1;
-		}
-		else if (fltType.equals(FLT_TYPE_REVERSE)) {
-			f_rv = 1;
-			f_nm = 0;
-		}
-		else {
-			f_rv = 0;
-			f_nm = 0;
-		}
 
-		if (siteType.equals(SITE_TYPE_B)) {
-			s_c = 0;
-			s_d = 0;
-		}
-		else if (siteType.equals(SITE_TYPE_C)) {
-			s_c = 1;
-			s_d = 0;
-		}
-		else {
-			s_c = 0;
-			s_d = 1;
-		}
-		
-	  
-	  
-	  double lnmedian = getMean(rrup, mag, f_nm, f_rv, s_c, s_d);
-//		System.out.println("Inside getMean mag = "+mag +", f_nm = "+f_nm+", f_rv=" +f_rv+ ", s_c=" +s_c+", s_d=" +s_d);
+	  if (fltType.equals(FLT_TYPE_NORMAL)) {
+		  f_rv = 0 ;
+		  f_nm = 1;
+	  }
+	  else if (fltType.equals(FLT_TYPE_REVERSE)) {
+		  f_rv = 1;
+		  f_nm = 0;
+	  }
+	  else {
+		  f_rv = 0;
+		  f_nm = 0;
+	  }
 
-	  
-	  return lnmedian;
- }
+	  if (siteType.equals(SITE_TYPE_B)) {
+		  s_c = 0;
+		  s_d = 0;
+	  }
+	  else if (siteType.equals(SITE_TYPE_C)) {
+		  s_c = 1;
+		  s_d = 0;
+	  }
+	  else {
+		  s_c = 0;
+		  s_d = 1;
+	  }
+
+
+
+	  double mean = getMean(rrup, mag, f_nm, f_rv, s_c, s_d);
+	  //		System.out.println("Inside getMean mag = "+mag +", f_nm = "+f_nm+", f_rv=" +f_rv+ ", s_c=" +s_c+", s_d=" +s_d);
+
+
+	  return mean;
+  }
 
   /**
    * @return    The stdDev value
@@ -353,21 +353,17 @@ public class TravasarouEtAl_2003_AttenRel
   public double getStdDev() {
 //	  String fltType, siteType;
 	  
-	    try {
+//	    try {
 	        mag = ( (Double) magParam.getValue()).doubleValue();
 	        rrup = ( (Double) distanceRupParam.getValue()).doubleValue();
 	        fltType = fltTypeParam.getValue().toString();
 	        siteType = siteTypeParam.getValue().toString();
-	    }
-	    catch (NullPointerException e) {
-	        throw new IMRException(C + ": getStdDev(): " + ERR);
-	    }
-	  
-		  // check if distance is beyond the user specified max
-		  if (rrup > USER_MAX_DISTANCE) {
-			  return VERY_SMALL_MEAN;
-		  }
-		  
+//	    }
+//	    catch (NullPointerException e) {
+//	        throw new IMRException(C + ": getStdDev(): " + ERR);
+//	    }
+
+			  
 			if (fltType.equals(FLT_TYPE_NORMAL)) {
 				f_rv = 0 ;
 				f_nm = 1;
@@ -391,12 +387,18 @@ public class TravasarouEtAl_2003_AttenRel
 			else {
 				s_c = 0;
 				s_d = 1;
-		}
-		  double lnmedian = getMean(rrup, mag, f_nm, f_rv, s_c, s_d);
-		  double median = Math.exp(lnmedian);
+	     	}
+
+	        
+		  // check if distance is beyond the user specified max
+		  if (rrup > USER_MAX_DISTANCE) {
+			  return VERY_SMALL_MEAN;
+		  }
+		  double mean = getMean(rrup, mag, f_nm, f_rv, s_c, s_d);
+//		  double median = Math.exp(mean);
 //	    System.out.println("mag = "+mag +", rrup= " +rrup+ ", median= "+median);
 
-    return getStdDev(rrup, mag, s_c, s_d, median);
+    return getStdDev(rrup, mag, s_c, s_d, mean);
 
   }
   
@@ -442,19 +444,11 @@ public class TravasarouEtAl_2003_AttenRel
 	    // params that the stdDev depends upon
 	    stdDevIndependentParams.clear();
 	    stdDevIndependentParams.addParameter(stdDevTypeParam);
-	    stdDevIndependentParams.addParameter(siteTypeParam);
-	    stdDevIndependentParams.addParameter(magParam);
+	    stdDevIndependentParams.addParameterList(meanIndependentParams);
 
 	    // params that the exceed. prob. depends upon
 	    exceedProbIndependentParams.clear();
-//	    exceedProbIndependentParams.addParameter(distanceRupParam);
-//	    exceedProbIndependentParams.addParameter(siteTypeParam);
-//	    exceedProbIndependentParams.addParameter(magParam);
-//	    exceedProbIndependentParams.addParameter(fltTypeParam);
-//	    exceedProbIndependentParams.addParameter(this.sigmaTruncTypeParam);
-//	    exceedProbIndependentParams.addParameter(this.sigmaTruncLevelParam);
-	    exceedProbIndependentParams.addParameterList(meanIndependentParams);
-	    exceedProbIndependentParams.addParameter(stdDevTypeParam);
+	    exceedProbIndependentParams.addParameterList(stdDevIndependentParams);
 	    exceedProbIndependentParams.addParameter(sigmaTruncTypeParam);
 	    exceedProbIndependentParams.addParameter(sigmaTruncLevelParam);
 
@@ -627,12 +621,17 @@ public class TravasarouEtAl_2003_AttenRel
 	
 	lnY = c1 + c2*(mag-6.0) + c3*Math.log(mag/6.0)+c4*Math.log(Math.sqrt(rrup*rrup + h*h)) + (s11+s12*(mag-6.0))*s_c + (s21 + s22*(mag-6.0))*s_d +f1*f_nm + f2* f_rv;
 	  
+   System.out.println("lnY,"+lnY);
+
+	
     return lnY;
   }
 
-  public double getStdDev(double rrup, double mag, double s_c, double s_d, double median) {
+  public double getStdDev(double rrup, double mag, double s_c, double s_d, double mean) {
 	  
-	  double sig1, sig2, tau, sigma, sigmatot;
+	  double sig1, sig2, tau, sigma, sigmatot, median;
+	  
+	  median=Math.exp(mean);
 	  
 	  if(s_c == 0 && s_d == 0) {
 		  sig1 = 1.18;
@@ -670,7 +669,7 @@ public class TravasarouEtAl_2003_AttenRel
 	  sigmatot = Math.sqrt(sigma*sigma+tau*tau);
 //	  sigmatot=0.6;
 //	  System.out.println("sigmatot= "+sigmatot); 
-	    System.out.println("sc, sd="+s_c+", "+s_d+", mag = "+mag +", rrup= " +rrup+ ", median= "+median+", sigtot= "+sigmatot);
+	    System.out.println("sc,"+s_c+" sd=, "+s_d+", mag = "+mag +", rrup= " +rrup+ ", median= "+median+", mean= "+mean+", sigma="+sigma+" tau="+tau+" sigtot="+sigmatot);
 
 	    	return sigmatot ;
   }
