@@ -24,6 +24,8 @@ public class CaliforniaRegions {
 	
 	private static Location anchor = new Location(0,0);
 	
+	private CaliforniaRegions() {};
+	
 	/** 
 	 * Gridded region used in the Regional Earthquake Likelihood 
 	 * Models (RELM) project. Grid spacing is 0.1&deg;.

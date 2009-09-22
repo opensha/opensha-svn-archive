@@ -1,10 +1,13 @@
 package org.opensha.commons.data.region;
+import static org.opensha.commons.calc.RelativeLocation.PI_BY_2;
+import static org.opensha.commons.calc.RelativeLocation.TO_RAD;
 
 import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
 import java.io.Serializable;
+import java.text.DecimalFormat;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.math.util.MathUtils;
@@ -70,11 +73,6 @@ public class GeographicRegion implements
 	// Default segment length for great circle splitting: 100km
 	private static final double GC_SEGMENT = 100;
 	
-	// used when 'cleaning' decimal values that have been subject to
-	// machine rounding error or changes imposed by java.awt.geom classes;
-	// 5 decimal places in degrees is meter-scale precision
-	private static final int DECIMAL_SCALE = 5;
-	
 	public final static String XML_METADATA_NAME = "GeographicRegion";
 	public final static String XML_METADATA_OUTLINE_NAME = "OutlineLocations";
 
@@ -94,7 +92,14 @@ public class GeographicRegion implements
 	 * </code>s. When viewed in a Mercator projection, the region
 	 * will be a rectangle. If either both latitude or both longitude
 	 * values in the <code>Location</code>s are the same, an exception
-	 * is thrown.
+	 * is thrown.<br/>
+	 * <br/>
+	 * <b>Note:</b> Internally, a very small value (~1m) is added to the
+	 * maximum latitude and longitude of the locations provided. This
+	 * ensures that calls to {@link GeographicRegion#isLocationInside(Location)} 
+	 * for any <code>Location</code> on the north or east border of the region 
+	 * will return <code>true</code>. See also the rules governing insidedness
+	 * in the {@link Shape} interface.
 	 * 
 	 * @param loc1 the first <code>Location</code>
 	 * @param loc2 the second <code>Location</code>
@@ -120,12 +125,17 @@ public class GeographicRegion implements
 		}
 
 		LocationList ll = new LocationList();
-		double lat = Math.min(lat1,lat2);
-		ll.addLocation(new Location(lat, lon1));
-		ll.addLocation(new Location(lat, lon2));
-		lat = Math.max(lat1,lat2);
-		ll.addLocation(new Location(lat, lon2));
-		ll.addLocation(new Location(lat, lon1));
+		double offset = 0.00001; // in degrees ~1m
+		// NOTE: see notes at LL_PRECISION
+		// TODO: increase value with move to jdk6
+		double minLat = Math.min(lat1,lat2);
+		double minLon = Math.min(lon1,lon2);
+		double maxLat = Math.max(lat1,lat2) + offset;
+		double maxLon = Math.max(lon1,lon2) + offset;
+		ll.addLocation(new Location(minLat, minLon));
+		ll.addLocation(new Location(minLat, maxLon));
+		ll.addLocation(new Location(maxLat, maxLon));
+		ll.addLocation(new Location(maxLat, minLon));
 		
 		initBorderedRegion(ll, BorderType.MERCATOR_LINEAR);
 	}
@@ -143,7 +153,7 @@ public class GeographicRegion implements
 	 * 		<code>BorderType.MERCATOR_LINEAR</code>
 	 * @throws IllegalArgumentException if the <code>border</code> does not 
 	 * 		have at least 3 points
-	 * @thrown NullPointerException if the <code>border</code> is 
+	 * @throws NullPointerException if the <code>border</code> is 
 	 * 		<code>null</code>
 	 */
 	public GeographicRegion(LocationList border, BorderType type) {
@@ -194,6 +204,9 @@ public class GeographicRegion implements
 					"Buffer is out of [0 500] km range");
 		} else if (line == null) {
 			throw new NullPointerException();
+		} else if (line.size() == 0) {
+			throw new IllegalArgumentException(
+					"LocationList argument is empty");
 		}
 		initBufferedRegion(line, buffer);
 	}
@@ -288,7 +301,7 @@ public class GeographicRegion implements
 	 * This may be to facilitate correct results for insidedness testing.
 	 * Alternatively, these methods could be updated to query the location
 	 * list, requiring changes to the LocationList class to quickly return
-	 * min-max values.
+	 * min-max values. 
 	 */
 
 	/**
@@ -297,7 +310,7 @@ public class GeographicRegion implements
 	 */
 	public double getMinLat() {
 		double val = area.getBounds2D().getMinY();
-		return MathUtils.round(val, DECIMAL_SCALE);
+		return MathUtils.round(val, RelativeLocation.LL_PRECISION);
 	}
 
 	/**
@@ -306,7 +319,7 @@ public class GeographicRegion implements
 	 */
 	public double getMaxLat() {
 		double val = area.getBounds2D().getMaxY();
-		return MathUtils.round(val, DECIMAL_SCALE);
+		return MathUtils.round(val, RelativeLocation.LL_PRECISION);
 	}
 
 	/**
@@ -315,7 +328,7 @@ public class GeographicRegion implements
 	 */
 	public double getMinLon() {
 		double val = area.getBounds2D().getMinX();
-		return MathUtils.round(val, DECIMAL_SCALE);
+		return MathUtils.round(val, RelativeLocation.LL_PRECISION);
 	}
 
 	/**
@@ -324,7 +337,7 @@ public class GeographicRegion implements
 	 */
 	public double getMaxLon() {
 		double val = area.getBounds2D().getMaxX();
-		return MathUtils.round(val, DECIMAL_SCALE);
+		return MathUtils.round(val, RelativeLocation.LL_PRECISION);
 	}
 
 
@@ -504,46 +517,93 @@ public class GeographicRegion implements
 //		System.out.println(new GeographicRegion(new LocationList(), null));
 //	}
 
+//	public Area getArea() {
+//		return area;
+//	}
 	public static void main(String[] args) {
-		LocationList ll = new LocationList();
-		ll.addLocation(new Location(40, -120));
-		ll.addLocation(new Location(44, -120));
-		ll.addLocation(new Location(44, -115));
-		ll.addLocation(new Location(40, -115));
-		System.out.println("-180\u00B0");
+//		double tmp = 5.64352783407;
+//		Location loc = new Location(tmp,tmp,0);
+//		System.out.println(loc);
+//		
+//		DecimalFormat fmt1 = new DecimalFormat("0.0######");
+//		DecimalFormat fmt2 = new DecimalFormat("0.0#####");
+//		DecimalFormat fmt3 = new DecimalFormat("0.0####");
+//		System.out.println(MathUtils.round(tmp, RelativeLocation.LL_PRECISION));
+//		System.out.println(fmt1.format(tmp));
+//		System.out.println(fmt2.format(tmp));
+//		System.out.println(fmt3.format(tmp));
+//		System.out.println((float) tmp);
 		
-		Area ar =createArea(ll);
-		System.out.println("-180\u00B0");
-		LocationList ll2 = createBorder(ar);
-		
-//		String s =
-//			new ToStringBuilder(vertex).append(vertex).toString();
-		System.out.println("-180\u00B0");
+//		LocationList ll = new LocationList();
+//		ll.addLocation(new Location(40, -120));
+//		ll.addLocation(new Location(44, -120));
+//		ll.addLocation(new Location(44, -115));
+//		ll.addLocation(new Location(40, -115));
+//		System.out.println("-180\u00B0");
+//		
+//		Area ar =createArea(ll);
+//		System.out.println("-180\u00B0");
+//		LocationList ll2 = createBorder(ar);
+//		
+////		String s =
+////			new ToStringBuilder(vertex).append(vertex).toString();
+//		System.out.println("-180\u00B0");
 	}
 	
-	// TODO keep at this
+	/**
+	 * Returns the intersection of two regions. If the regions do not overlap,
+	 * the method returns <code>null</code>.
+	 * 
+	 * @param r1 the first region
+	 * @param r2 the second region
+	 * @return a new regions defined by the intersection of <code>r1</code> 
+	 * 		and <code>r2</code> or <code>null</code> if they do not overlap
+	 */
 	public static GeographicRegion intersect(
-			GeographicRegion region1,
-			GeographicRegion region2) {
-		Area newArea = (Area) region1.area.clone();
-		newArea.intersect(region2.area);
-		if (newArea.isEmpty()) {
-			throw new IllegalArgumentException(
-					"The two input Regions do not intersect");
-		}
-		
-		return null;
+			GeographicRegion r1,
+			GeographicRegion r2) {
+		Area newArea = (Area) r1.area.clone();
+		newArea.intersect(r2.area);
+		if (newArea.isEmpty()) return null;
+		GeographicRegion newRegion = new GeographicRegion();
+		newRegion.area = newArea;
+		newRegion.border = GeographicRegion.createBorder(newArea, true);
+		return newRegion;
 	}
-	
+
+	/**
+	 * Returns the union of two regions. If the regions do not overlap,
+	 * the method returns <code>null</code>.
+	 * 
+	 * @param r1 the first region
+	 * @param r2 the second region
+	 * @return a new region defined by the union of <code>r1</code> 
+	 * 		and <code>r2</code> or <code>null</code> if they do not overlap
+	 */
+	public static GeographicRegion union(
+			GeographicRegion r1,
+			GeographicRegion r2) {
+		Area newArea = (Area) r1.area.clone();
+		newArea.add(r2.area);
+		if (!newArea.isSingular()) return null;
+		GeographicRegion newRegion = new GeographicRegion();
+		newRegion.area = newArea;
+		newRegion.border = GeographicRegion.createBorder(newArea, true);
+		return newRegion;
+	}
+
 	/**
 	 * Convenience method to return a region spanning the entire globe.
 	 * @return a region extending from -180&#176; to +180&#176; longitude and
 	 * 		-90&#176; to +90&#176; latitude
 	 */
 	public static GeographicRegion getGlobalRegion() {
-		return new GeographicRegion(
-				new Location(-90, -180),
-				new Location( 90,  180));
+		LocationList gll = new LocationList();
+		gll.addLocation(new Location(-90, -180));
+		gll.addLocation(new Location(-90, 180));
+		gll.addLocation(new Location(90, 180));
+		gll.addLocation(new Location(90, -180));
+		return new GeographicRegion(gll, BorderType.MERCATOR_LINEAR);
 	}
 	
 	/*
@@ -574,15 +634,15 @@ public class GeographicRegion implements
 //				System.out.println("Vertex: " + i + "  Dist: " + distance); TODO clean
 				while (distance > GC_SEGMENT) {
 					// find new Location, GC_SEGMENT km away from start
-					double az = RelativeLocation.azimuth(start, end);
+					double azRad = RelativeLocation.azimuthRad(start, end);
 					Location segLoc = RelativeLocation.location(
-							start, az, GC_SEGMENT);
+							start, azRad, GC_SEGMENT);
 					gcBorder.addLocation(segLoc);
 					start = segLoc;
 					distance = RelativeLocation.surfaceDistance(start, end);
-//					System.out.println("             P1: " + start); TODO clean
+//					System.out.println("             P1: " + start); //TODO clean
 //					System.out.println("             P2: " + end);
-//					System.out.println("           Dist: " + distance + "  Az: " + az);
+//					System.out.println("           Dist: " + distance + "  Az: " + azRad);
 				}
 				start = end;
 			}
@@ -597,7 +657,6 @@ public class GeographicRegion implements
 			// border has start popint
 		}
 		area = createArea(this.border);
-		createBorder(area); // TODO delete
 	}
 	
 	/*
@@ -631,24 +690,28 @@ public class GeographicRegion implements
 			area.add(createArea(createLocationCircle(loc, buffer)));
 			prevLoc = loc;
 		}
-		border = createBorder(area);
+		border = createBorder(area, true);
 	}
 
-	/*
-	 * Creates a LocationList border from a java.awt.geom.Area
+	/* 
+	 * Creates a LocationList border from a java.awt.geom.Area. The clean
+	 * flag is used to post-process list to remove repeated identical
+	 * locations, which are common after intersect and union operations.
 	 */
-	private static LocationList createBorder(Area area) {
+	private static LocationList createBorder(Area area, boolean clean) {
 		PathIterator pi = area.getPathIterator(null);
 		LocationList ll = new LocationList();
 		// placeholder vertex for path iteration
 		double[] vertex = new double[6];
 		while (!pi.isDone()) {
 			int type = pi.currentSegment(vertex);
-			// impose meter scale precision; for whatever reason, values
-			// used to create an Area are altered more than typical
-			// rounding error on retrieval: -125.4000015258789 vs -125.4
-			double lon = MathUtils.round(vertex[0], DECIMAL_SCALE);
-			double lat = MathUtils.round(vertex[1], DECIMAL_SCALE);
+			// impose meter scale precision; narrowing conversions that occur
+			// when creating an area from a GeneralPath (only uses floats)
+			// have strange effects on values on retreival:
+			//  -125.4000015258789 vs -125.4
+			// NOTE: see notes with LL_PRECISION
+			double lon = MathUtils.round(vertex[0], RelativeLocation.LL_PRECISION);
+			double lat = MathUtils.round(vertex[1], RelativeLocation.LL_PRECISION);
 			// skip the final closing segment which just repeats
 			// the previous vertex but indicates SEG_CLOSE
 			if (type != PathIterator.SEG_CLOSE) {
@@ -656,12 +719,24 @@ public class GeographicRegion implements
 			}
 			pi.next();
 		}
+		
+		if (clean) {
+			LocationList llClean = new LocationList();
+			Location prev = ll.getLocationAt(ll.size()-1);
+			for (Location loc:ll) {
+				if (loc.equals(prev)) continue;
+				llClean.addLocation(loc);
+				prev = loc;
+			}
+			ll = llClean;
+		}
 		return ll;
 		//return Collections.unmodifiableList(ll); TODO uncomment
 	}
 	
 	/*
 	 * Creates a java.awt.geom.Area from a LocationList border
+	 * NOTE: see notes with LL_PRECISION
 	 */
 	private static Area createArea(LocationList border) {
 		
@@ -671,8 +746,10 @@ public class GeographicRegion implements
 		
 		boolean starting = true;
 		for (Location loc: border) {
+			//System.out.println(loc.getLatitude() + " " + loc.getLongitude());
 			float lat = (float) loc.getLatitude();
 			float lon = (float) loc.getLongitude();
+			//System.out.println(lat+ " " + lon); TODO clean
 			// if just starting, then moveTo
 			if (starting) {
 				path.moveTo(lon, lat);
@@ -697,7 +774,7 @@ public class GeographicRegion implements
 	    	ll.addLocation(
 	    			Location.immutableLocation(
 	    					RelativeLocation.location(
-	    							center, angle, radius)));
+	    							center, angle * TO_RAD, radius)));
 	    }
 	    return ll;
 		//return Collections.unmodifiableList(ll); TODO uncomment
@@ -712,19 +789,19 @@ public class GeographicRegion implements
 			Location p1, Location p2, double distance) {
 		
 		// get the azimuth and back-azimuth between the points
-		double az12 = RelativeLocation.azimuth(p1, p2);
-		double az21 = RelativeLocation.azimuth(p2, p1); // back azimuth
+		double az12 = RelativeLocation.azimuthRad(p1, p2);
+		double az21 = RelativeLocation.azimuthRad(p2, p1); // back azimuth
 		
 		// add the four corners
 		LocationList ll = new LocationList();
 		// corner 1 is azimuth p1 to p2 - 90 from p1
-		ll.addLocation(RelativeLocation.location(p1, az12 - 90, distance));
+		ll.addLocation(RelativeLocation.location(p1, az12-PI_BY_2, distance));
 		// corner 2 is azimuth p1 to p2 + 90 from p1
-		ll.addLocation(RelativeLocation.location(p1, az12 + 90, distance));
+		ll.addLocation(RelativeLocation.location(p1, az12+PI_BY_2, distance));
 		// corner 3 is azimuth p2 to p1 - 90 from p2
-		ll.addLocation(RelativeLocation.location(p2, az21 - 90, distance));
+		ll.addLocation(RelativeLocation.location(p2, az21-PI_BY_2, distance));
 		// corner 4 is azimuth p2 to p1 + 90 from p2
-		ll.addLocation(RelativeLocation.location(p2, az21 + 90, distance));
+		ll.addLocation(RelativeLocation.location(p2, az21+PI_BY_2, distance));
 		
 		return ll;
 		//return Collections.unmodifiableList(ll); TODO uncomment

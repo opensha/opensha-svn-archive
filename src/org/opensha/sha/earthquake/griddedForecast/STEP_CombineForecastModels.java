@@ -401,10 +401,16 @@ public class STEP_CombineForecastModels
     else {
       ObsEqkRupture mainshock = this.getMainShock();
       Location mainshockLocation = mainshock.getHypocenterLocation();
-      this.aftershockZone =
-          new EvenlyGriddedGeographicRegion(mainshockLocation,
-          zoneRadius, RegionDefaults.gridSpacing, new Location(0,0));
-      this.aftershockZone.createRegionLocationsList(backgroundRatesGrid.getRegion());
+//      this.aftershockZone = new EvenlyGriddedGeographicRegion(
+//    		  mainshockLocation, zoneRadius, RegionDefaults.gridSpacing, new Location(0,0));
+//      this.aftershockZone.createRegionLocationsList(backgroundRatesGrid.getRegion());
+      
+      // NOTE: baishan this may not be working right; replaces above code
+      GeographicRegion asZoneGR = new GeographicRegion(mainshockLocation, zoneRadius);
+      aftershockZone = backgroundRatesGrid.getRegion().subRegion(asZoneGR);
+      // end NOTE
+      
+      
        setRegion(aftershockZone);
        this.useCircularRegion = true;
       
@@ -432,11 +438,15 @@ public class STEP_CombineForecastModels
       // This needs to be set up to read an external fault model.
     }
     else {
-      STEP_TypeIIAftershockZone_Calc typeIIcalc = new
-          STEP_TypeIIAftershockZone_Calc(aftershockList, this);
-      EvenlyGriddedGeographicRegion typeII_Zone = typeIIcalc.
-          get_TypeIIAftershockZone();
-      typeII_Zone.createRegionLocationsList(backGroundRatesGrid); 
+      STEP_TypeIIAftershockZone_Calc typeIIcalc = new STEP_TypeIIAftershockZone_Calc(aftershockList, this);
+      //EvenlyGriddedGeographicRegion typeII_Zone = typeIIcalc.get_TypeIIAftershockZone();
+      //typeII_Zone.createRegionLocationsList(backGroundRatesGrid); 
+
+      // NOTE: baishan this may not be working right; replaces above code
+      EvenlyGriddedGeographicRegion typeII_Zone = 
+    	  backGroundRatesGrid.subRegion(typeIIcalc.get_TypeIIAftershockZone());
+      // end NOTE
+      
       setRegion(typeII_Zone);
       //this.region = typeII_Zone;
       this.useSausageRegion = true;

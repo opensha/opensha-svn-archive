@@ -13,11 +13,16 @@ package org.opensha.commons.data.region;
  * the black dots those inside the parent region, and pink dots those within
  * the sub-regions.
  * 
+ * TODO rewrite; the Location referencing may be wrong and unnecessary
+ * 
  * @author Peter Powers
  * @version $Id:$
  */
+@Deprecated
 public class GriddedSubRegion extends EvenlyGriddedGeographicRegion {
 
+	// TODO determine whther this reference is necessary; what are the use
+	// cases for a SubRegion?
 	private EvenlyGriddedGeographicRegion parent;
 	
 	/**
@@ -29,11 +34,12 @@ public class GriddedSubRegion extends EvenlyGriddedGeographicRegion {
 	public GriddedSubRegion(
 			GeographicRegion region,
 			EvenlyGriddedGeographicRegion parent) {
-		
-//		super(regionCheck(region), )
 		if (parent == null || region == null) {
 			throw new NullPointerException();
 		}
+		
+		//super(intersect(region), parent.getSpacing(), parent.getAnchor());
+
 		
 //		private static
 		//else if (checkRegion())

@@ -255,14 +255,40 @@ public class RegionUtils {
 
 	public static void main(String[] args) {
 
+		
 		// visual verification tests for GeographiRegionTest
-		GeographicRegion gr;
+		EvenlyGriddedGeographicRegion eggr;
 		
-		Location L1 = new Location(32,112);
-		Location L3 = new Location(34,118);
-		gr = new GeographicRegion(L1,L3);
-		RegionUtils.regionToKML(gr, "RegionLocLoc", Color.ORANGE);
-		
+		// nocal
+		eggr = new CaliforniaRegions.RELM_NOCAL_GRIDDED();
+		regionToKML(eggr, "ver_NoCal_new", Color.ORANGE);
+		// relm
+		eggr = new CaliforniaRegions.RELM_GRIDDED();
+		regionToKML(eggr, "ver_RELM_new", Color.ORANGE);
+		// relm_testing
+		eggr = new CaliforniaRegions.RELM_TESTING_GRIDDED();
+		regionToKML(eggr, "ver_RELM_testing_new", Color.ORANGE);
+		// socal
+		eggr = new CaliforniaRegions.RELM_SOCAL_GRIDDED();
+		regionToKML(eggr, "ver_SoCal_new", Color.ORANGE);
+		// wg02
+		eggr = new CaliforniaRegions.WG02_GRIDDED();
+		regionToKML(eggr, "ver_WG02_new", Color.ORANGE);
+		// wg07
+		eggr = new CaliforniaRegions.WG07_GRIDDED();
+		regionToKML(eggr, "ver_WG07_new", Color.ORANGE);
+		// relm_collect
+		eggr = new CaliforniaRegions.RELM_COLLECTION_GRIDDED();
+		regionToKML(eggr, "ver_RELM_collect_new", Color.ORANGE);
+
+//		// visual verification tests for GeographiRegionTest
+//		GeographicRegion gr;
+//		
+//		Location L1 = new Location(32,112);
+//		Location L3 = new Location(34,118);
+//		gr = new GeographicRegion(L1,L3);
+//		RegionUtils.regionToKML(gr, "RegionLocLoc", Color.ORANGE);
+//		
 		
 //		EvenlyGriddedGeographicRegion rect_gr = 
 //			new EvenlyGriddedGeographicRegion(

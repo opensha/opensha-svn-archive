@@ -3,7 +3,12 @@ package org.opensha.commons.data.region;
 import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
+import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.NoSuchElementException;
+
+import javax.naming.OperationNotSupportedException;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.math.util.MathUtils;
@@ -62,7 +67,8 @@ import com.sun.xml.rpc.processor.util.CanonicalModelWriter.GetNameComparator;
  * @see GeographicRegion
  */
 
-public class EvenlyGriddedGeographicRegion extends GeographicRegion {
+public class EvenlyGriddedGeographicRegion extends GeographicRegion
+		implements Iterable<Location> {
 
 	private static final long serialVersionUID = 1L;
 //	private final static String C = "EvenlyGriddedGeographicRegion";
@@ -91,6 +97,7 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 	// all valid nodes point to position in nodeList; gridIndices increase
 	// across and then up
 	private int[] gridIndices;
+	private BitSet validIndices;
 	
 	// list of nodes
 	private LocationList nodeList;
@@ -122,10 +129,16 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 //	private ArrayList lonsPerLatList;
 
 	/**
-	 * Initializes a <code>GriddedRegion</code> from a pair of latitude and a 
-	 * pair of longitude values. When viewed in a Mercator projection, the 
+	 * Initializes a <code>GriddedRegion</code> from a pair of <code>
+	 * Location</code>s. When viewed in a Mercator projection, the 
 	 * region will be a rectangle. If either both latitude or both longitude
-	 * values are the same, an exception is thrown.
+	 * values are the same, an exception is thrown.<br/>
+	 * <br/>
+	 * <b>Note:</b> In an exception to the rules of insidedness defined
+	 * in the {@link Shape} interface, <code>Location</code>s that fall on
+	 * northern or eastern borders of this region are considered inside. See 
+	 * {@link GeographicRegion#GeographicRegion(Location, Location)} for
+	 * implementation details.
 	 * 
 	 * @param loc1 the first <code>Location</code>
 	 * @param loc2 the second <code>Location</code>
@@ -430,6 +443,9 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 //	}
 
 
+//	public Location getAnchor() {
+//		return anchor;
+//	}
 
 	/**
 	 * Returns the grid node spacing for this region.
@@ -459,7 +475,28 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 		return nodeCount;
 	}
 
-
+	/**
+	 * Creates a new <code>GriddedRegion</code> from this (the parent) and 
+	 * another <code>Region</code>. The border of the new region is the 
+	 * intersection of the borders of the parent and the passed-in region.
+	 * The new region also inherits the grid spacing and node-alignment of 
+	 * the parent. The method returns <code>null</code> if the new gridded 
+	 * region is devoid of grid nodes or if the two regions do not overlap.
+	 * 
+	 * @param region to use as border for sub-region
+	 * @return a new GriddedRegion
+	 */
+	public EvenlyGriddedGeographicRegion subRegion(GeographicRegion region) {
+		GeographicRegion newRegion = GeographicRegion.intersect(this, region);
+		System.out.println(this);
+		System.out.println(region);
+		System.out.println(newRegion);
+		if (newRegion == null) return null;
+		EvenlyGriddedGeographicRegion newGriddedRegion = 
+			new EvenlyGriddedGeographicRegion(newRegion, spacing, anchor);
+		return (newGriddedRegion.isEmpty()) ? null : newGriddedRegion;
+	}
+	
 	/**
 	 * Returns the iterator.
 	 * TODO kill; users can get this once they've gotten the location list
@@ -470,7 +507,7 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 	}
 
 	/**
-	 * Returns the locations of all the nodes in teh region as a
+	 * Returns the locations of all the nodes in the region as a
 	 * <code>LocationList</code>.
 	 * @return a list of all the node locations in the region.
 	 * TODO rename to getNodeList
@@ -573,8 +610,12 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 	/**
 	 * Returns the <code>Location</code> at a given index.
 	 * 
-	 * TODO rename getNode or getLocation
+	 * TODO rename getNode or getLocation or locationForIndex; reimplement to populate 
+	 * reusable Location
 	 * TODO InvalidRangeException should be retired in favor of default IndexOutOfBounds
+	 * 
+	 * This method is intended for random access of nodes in this gridded
+	 * region; to cycle over all nodes, iterate over the region.
 	 * 
 	 * @param index of location to retrieve
 	 * @return the <code>Location</code> or <code>null</code> if index is
@@ -955,7 +996,7 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 		}
 	}
 
-	/* Computes adjusted anchor values */
+	/* Computes adjusted anchor values. */
 	private static double computeAnchor(
 			double min, double anchor, double spacing) {
 		double delta = anchor - min;
@@ -966,8 +1007,11 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 	}
 
 	/*
-	 * Initilize the grid index array; a LocationList is not built until
-	 * explicitely requested.
+	 * Initilize the grid index array.
+	 * TODO do away with storing loc list; most requests for the grid
+	 * location list pass it off to some other method that expects and
+	 * then iterates over a LocationList. Such methods should be reconfigured
+	 * to accept Iterable<Location> 
 	 */
 	private void initNodes() {
 		int numGridPoints = lonNodes.length * latNodes.length;
@@ -1064,16 +1108,16 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 	 * evenly gridded location.
 	 */
 	public static void main(String[] args) {
-		double anchorLat = -34.67;
-		double anchorLon = 45.71;
-
-//		double anchorLat = 22.6;
-//		double anchorLon = -122.2;
-
-		double minLat = 20;
-		double minLon = 20;
-		
-		double spacing = 0.2;
+//		double anchorLat = -34.67;
+//		double anchorLon = 45.71;
+//
+////		double anchorLat = 22.6;
+////		double anchorLon = -122.2;
+//
+//		double minLat = 20;
+//		double minLon = 20;
+//		
+//		double spacing = 0.2;
 		
 		// expecting 20.07 20.11
 //		double startLat = adjustAnchor(minLat,anchorLat,spacing);
@@ -1150,7 +1194,55 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion {
 //		Location pp = new Location(40.16,-117.44);
 //		System.out.println((int)Math.rint((pp.getLatitude() - eggr1.niceMinLat)/eggr1.gridSpacing));
 //		System.out.println(new ToStringBuilder(eggr1.locsBelowLat).append(eggr1.locsBelowLat).toString());
+		BitSet bs = new BitSet(17);
+		bs.set(3, 8);
+		bs.set(12, 15);
+		bs.set(0);
+		//bs.set(17);
+		System.out.println(bs.get(15)); // false
+		System.out.println(bs.get(14)); // true
+		System.out.println(bs.get(17)); // true
+		System.out.println(bs.cardinality());  // 8
+		System.out.println(bs.size()); // 17
+		System.out.println(bs.length()); //15 
+		System.out.println(bs.nextSetBit(0));
 }
+
+	/* implementation: iterator traverses bitset of valid nodes */
+	public Iterator<Location> iterator() {
+		
+		Iterator<Location> it = new Iterator<Location>() {
+			
+			private Location loc = new Location();
+			private int idx = 0;
+			private int lastIdx = nodeCount - 1;
+			private int latIdx,lonIdx;
+			
+			/* implementation */
+			public boolean hasNext() {
+				return idx < lastIdx;
+			}
+			
+			/* implementation */
+			public Location next() {
+				idx = validIndices.nextSetBit(idx);
+				if (idx == -1) throw new NoSuchElementException();
+				latIdx = idx / lonNodes.length;
+				lonIdx = idx % lonNodes.length;
+				loc.setLatitude(latNodes[latIdx]);
+				loc.setLongitude(lonNodes[lonIdx]);
+				idx += 1;
+				return loc;
+			}
+			
+			/* implementation */
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+			
+		};
+		return it;
+	}
 
 	
 }
