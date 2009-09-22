@@ -4,17 +4,17 @@ import org.jfree.date.RelativeDayOfWeekRule;
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
 
-import scratch.peter.org.gavaghan.geodesy.Ellipsoid;
-import scratch.peter.org.gavaghan.geodesy.GeodeticCalculator;
-import scratch.peter.org.gavaghan.geodesy.GeodeticCurve;
-import scratch.peter.org.gavaghan.geodesy.GlobalCoordinates;
+//import scratch.peter.org.gavaghan.geodesy.Ellipsoid;
+//import scratch.peter.org.gavaghan.geodesy.GeodeticCalculator;
+//import scratch.peter.org.gavaghan.geodesy.GeodeticCurve;
+//import scratch.peter.org.gavaghan.geodesy.GlobalCoordinates;
 
 public class DistanceTest {
 
 	// creating reference points
 	public static void main(String[] args) {
 		
-		GeodeticCalculator calc = new GeodeticCalculator();
+/*		GeodeticCalculator calc = new GeodeticCalculator();
 		GeodeticCurve curve; 
 		GlobalCoordinates cStart = new GlobalCoordinates(0,0);
 		GlobalCoordinates cEnd = new GlobalCoordinates(0,0);
@@ -81,7 +81,7 @@ public class DistanceTest {
 				lEnd.setLatitude(lat);
 				lEnd.setLongitude(lon);
 			}
-		}
+		}*/
 	}
 
 }
