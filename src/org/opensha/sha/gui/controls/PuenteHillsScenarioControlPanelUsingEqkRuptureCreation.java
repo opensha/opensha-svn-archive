@@ -36,48 +36,48 @@ import org.opensha.sha.faultSurface.FaultTrace;
 
 public class PuenteHillsScenarioControlPanelUsingEqkRuptureCreation {
 
-  //for debugging
-  protected final static boolean D = false;
+	//for debugging
+	protected final static boolean D = false;
 
 
-  private EqkRupSelectorGuiBean erfGuiBean;
-  private AttenuationRelationshipGuiBean imrGuiBean;
-  private SitesInGriddedRectangularRegionGuiBean regionGuiBean;
-  private MapGuiBean mapGuiBean;
+	private EqkRupSelectorGuiBean erfGuiBean;
+	private AttenuationRelationshipGuiBean imrGuiBean;
+	private SitesInGriddedRectangularRegionGuiBean regionGuiBean;
+	private MapGuiBean mapGuiBean;
 
-  private FaultTrace faultTrace;
-  private double aveDipDir;
+	private FaultTrace faultTrace;
+	private double aveDipDir;
 
-  //default magnitude.
-  private double magnitude = 7.1;
+	//default magnitude.
+	private double magnitude = 7.1;
 
-  /**
-   * Accepts 3 params for the EqkRupSelectorGuiBean, AttenuationRelationshipGuiBean, SitesInGriddedRectangularRegionGuiBean
-   * from the applet.
-   * @param erfGuiBean
-   * @param imrGuiBean
-   * @param regionGuiBean
-   * @param MapGuiBean
-   */
-  public PuenteHillsScenarioControlPanelUsingEqkRuptureCreation(EqkRupSelectorGuiBean erfGuiBean,
-      AttenuationRelationshipGuiBean imrGuiBean, SitesInGriddedRectangularRegionGuiBean regionGuiBean,
-      MapGuiBean mapGuiBean) {
-    //getting the instance for variuos GuiBeans from the applet required to set the
-    //default values for the Params for the Puente Hills Scenario.
-    this.erfGuiBean = erfGuiBean;
-    this.imrGuiBean = imrGuiBean;
-    this.regionGuiBean = regionGuiBean;
-    this.mapGuiBean = mapGuiBean;
-    mkFaultTrace();
-  }
+	/**
+	 * Accepts 3 params for the EqkRupSelectorGuiBean, AttenuationRelationshipGuiBean, SitesInGriddedRectangularRegionGuiBean
+	 * from the applet.
+	 * @param erfGuiBean
+	 * @param imrGuiBean
+	 * @param regionGuiBean
+	 * @param MapGuiBean
+	 */
+	public PuenteHillsScenarioControlPanelUsingEqkRuptureCreation(EqkRupSelectorGuiBean erfGuiBean,
+			AttenuationRelationshipGuiBean imrGuiBean, SitesInGriddedRectangularRegionGuiBean regionGuiBean,
+			MapGuiBean mapGuiBean) {
+		//getting the instance for variuos GuiBeans from the applet required to set the
+		//default values for the Params for the Puente Hills Scenario.
+		this.erfGuiBean = erfGuiBean;
+		this.imrGuiBean = imrGuiBean;
+		this.regionGuiBean = regionGuiBean;
+		this.mapGuiBean = mapGuiBean;
+		mkFaultTrace();
+	}
 
-  /**
-   * This make the faultTrace from the segment-data sent by Andreas Plesch via
-   * email on 3/10/04:
-   */
-  private void mkFaultTrace() {
+	/**
+	 * This make the faultTrace from the segment-data sent by Andreas Plesch via
+	 * email on 3/10/04:
+	 */
+	private void mkFaultTrace() {
 
-    /* Original Segment Data from Andreas Plesch via email on 3/10/04:
+		/* Original Segment Data from Andreas Plesch via email on 3/10/04:
 
     LA_lon  LA_lat  LA_depth
     -118.12273      33.97087 -2979.44
@@ -96,278 +96,279 @@ public class PuenteHillsScenarioControlPanelUsingEqkRuptureCreation {
     -118.13920      33.90885 -2750
     -118.14720      34.11061 -15068.3
     -118.01795      34.10093 -14479.3
-    */
+		 */
 
-    Location loc1, loc2, loc3;
-    Location finalLoc1, finalLoc2, finalLoc3, finalLoc4 , tempLoc1, tempLoc2, tempLoc3, tempLoc4;
-    Direction dir1, dir2;
-    double hDist,vDist, dip;
-    aveDipDir = 0;
+		Location loc1, loc2, loc3;
+		Location finalLoc1, finalLoc2, finalLoc3, finalLoc4 , tempLoc1, tempLoc2, tempLoc3, tempLoc4;
+		Direction dir1, dir2;
+		double hDist,vDist, dip;
+		aveDipDir = 0;
 
-    // find the points at 5 and 17 km depths by projecting each edge down
-    // also find the final fault trace (by averaging intermediate points)
-    // and the ave-dip direction.
+		// find the points at 5 and 17 km depths by projecting each edge down
+		// also find the final fault trace (by averaging intermediate points)
+		// and the ave-dip direction.
 
-    // LA Segment:
-    if (D) System.out.println("\nLA Segment:");
-    if (D) System.out.println("LA_lon2  LA_lat2  LA_depth2");
+		// LA Segment:
+		if (D) System.out.println("\nLA Segment:");
+		if (D) System.out.println("LA_lon2  LA_lat2  LA_depth2");
 
-    loc1 = new Location(33.97087, -118.12273, 2.97944);
-    loc2 = new Location(34.15721, -118.04988, 14.5327);
-    dir1 = RelativeLocation.getDirection(loc1, loc2);
-    dip = Math.tan(dir1.getVertDistance()/dir1.getHorzDistance());
-    vDist = loc1.getDepth()-5.0;
-    hDist = vDist/Math.atan(dip);
-    aveDipDir += dir1.getAzimuth();
-    dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
-    loc3 = RelativeLocation.getLocation(loc1,dir2);
-    if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
-    tempLoc4 = loc3;
-    vDist = loc1.getDepth()-17.0;
-    hDist = vDist/Math.atan(dip);
-    dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
-    loc3 = RelativeLocation.getLocation(loc1,dir2);
-    if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
+		loc1 = new Location(33.97087, -118.12273, 2.97944);
+		loc2 = new Location(34.15721, -118.04988, 14.5327);
+		dir1 = RelativeLocation.getDirection(loc1, loc2);
+		dip = Math.tan(dir1.getVertDistance()/dir1.getHorzDistance());
+		vDist = loc1.getDepth()-5.0;
+		hDist = vDist/Math.atan(dip);
+		aveDipDir += dir1.getAzimuth();
+		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
+		loc3 = RelativeLocation.getLocation(loc1,dir2);
+		if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
+		tempLoc4 = loc3;
+		vDist = loc1.getDepth()-17.0;
+		hDist = vDist/Math.atan(dip);
+		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
+		loc3 = RelativeLocation.getLocation(loc1,dir2);
+		if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
 
-    loc1 = new Location(34.03440, -118.33585, 2.36339);
-    loc2 = new Location(34.23723, -118.25737, 14.9653);
-    dir1 = RelativeLocation.getDirection(loc1, loc2);
-    dip = Math.tan(dir1.getVertDistance()/dir1.getHorzDistance());
-    vDist = loc1.getDepth()-5.0;
-    hDist = vDist/Math.atan(dip);
-    aveDipDir += dir1.getAzimuth();
-    dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
-    loc3 = RelativeLocation.getLocation(loc1,dir2);
-    if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
-    finalLoc4 = loc3;
-    vDist = loc1.getDepth()-17.0;
-    hDist = vDist/Math.atan(dip);
-    dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
-    loc3 = RelativeLocation.getLocation(loc1,dir2);
-    if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
+		loc1 = new Location(34.03440, -118.33585, 2.36339);
+		loc2 = new Location(34.23723, -118.25737, 14.9653);
+		dir1 = RelativeLocation.getDirection(loc1, loc2);
+		dip = Math.tan(dir1.getVertDistance()/dir1.getHorzDistance());
+		vDist = loc1.getDepth()-5.0;
+		hDist = vDist/Math.atan(dip);
+		aveDipDir += dir1.getAzimuth();
+		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
+		loc3 = RelativeLocation.getLocation(loc1,dir2);
+		if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
+		finalLoc4 = loc3;
+		vDist = loc1.getDepth()-17.0;
+		hDist = vDist/Math.atan(dip);
+		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
+		loc3 = RelativeLocation.getLocation(loc1,dir2);
+		if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
 
-    // CH Segment:
-   if (D) System.out.println("\nCH Segment:");
-   if (D) System.out.println("CH_lon2  CH_lat2  CH_depth2");
+		// CH Segment:
+		if (D) System.out.println("\nCH Segment:");
+		if (D) System.out.println("CH_lon2  CH_lat2  CH_depth2");
 
-   loc1 = new Location(33.89952, -117.86819, 2.500);
-   loc2 = new Location(34.13627, -117.86678, 15.4746);
-   dir1 = RelativeLocation.getDirection(loc1, loc2);
-   dip = Math.tan(dir1.getVertDistance()/dir1.getHorzDistance());
-   vDist = loc1.getDepth()-5.0;
-   hDist = vDist/Math.atan(dip);
-   aveDipDir += dir1.getAzimuth();
-   dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
-   loc3 = RelativeLocation.getLocation(loc1,dir2);
-   if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
-   finalLoc1 = loc3;
-   vDist = loc1.getDepth()-17.0;
-   hDist = vDist/Math.atan(dip);
-   dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
-   loc3 = RelativeLocation.getLocation(loc1,dir2);
-   if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
+		loc1 = new Location(33.89952, -117.86819, 2.500);
+		loc2 = new Location(34.13627, -117.86678, 15.4746);
+		dir1 = RelativeLocation.getDirection(loc1, loc2);
+		dip = Math.tan(dir1.getVertDistance()/dir1.getHorzDistance());
+		vDist = loc1.getDepth()-5.0;
+		hDist = vDist/Math.atan(dip);
+		aveDipDir += dir1.getAzimuth();
+		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
+		loc3 = RelativeLocation.getLocation(loc1,dir2);
+		if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
+		finalLoc1 = loc3;
+		vDist = loc1.getDepth()-17.0;
+		hDist = vDist/Math.atan(dip);
+		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
+		loc3 = RelativeLocation.getLocation(loc1,dir2);
+		if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
 
-   loc1 = new Location(33.89454, -118.04441, 3.44082);
-   loc2 = new Location(34.09232, -118.04490, 14.485);
-   dir1 = RelativeLocation.getDirection(loc1, loc2);
-   dip = Math.tan(dir1.getVertDistance()/dir1.getHorzDistance());
-   vDist = loc1.getDepth()-5.0;
-   hDist = vDist/Math.atan(dip);
-   aveDipDir += dir1.getAzimuth();
-   dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
-   loc3 = RelativeLocation.getLocation(loc1,dir2);
-   if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
-   tempLoc1 = loc3;
-   vDist = loc1.getDepth()-17.0;
-   hDist = vDist/Math.atan(dip);
-   dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
-   loc3 = RelativeLocation.getLocation(loc1,dir2);
-   if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
-
-
-
-
-    // SF Segment:
-    if (D) System.out.println("\nSF Segment:");
-    if (D) System.out.println("SF_lon2  SF_lat2  SF_depth2");
-
-    loc1 = new Location(33.93282, -118.01871, 3.000);
-    loc2 = new Location(34.10093, -118.01795, 14.4793);
-    dir1 = RelativeLocation.getDirection(loc1, loc2);
-    dip = Math.tan(dir1.getVertDistance()/dir1.getHorzDistance());
-    vDist = loc1.getDepth()-5.0;
-    hDist = vDist/Math.atan(dip);
-    aveDipDir += dir1.getAzimuth();
-    dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
-    loc3 = RelativeLocation.getLocation(loc1,dir2);
-    if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
-    tempLoc2 = loc3;
-    vDist = loc1.getDepth()-17.0;
-    hDist = vDist/Math.atan(dip);
-    dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
-    loc3 = RelativeLocation.getLocation(loc1,dir2);
-    if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
-
-    loc1 = new Location(33.90885, -118.13920, 2.750);
-    loc2 = new Location(34.11061, -118.14720, 15.0683);
-    dir1 = RelativeLocation.getDirection(loc1, loc2);
-    dip = Math.tan(dir1.getVertDistance()/dir1.getHorzDistance());
-    vDist = loc1.getDepth()-5.0;
-    hDist = vDist/Math.atan(dip);
-    aveDipDir += dir1.getAzimuth();
-    dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
-    loc3 = RelativeLocation.getLocation(loc1,dir2);
-    if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
-    tempLoc3 = loc3;
-    vDist = loc1.getDepth()-17.0;
-    hDist = vDist/Math.atan(dip);
-    dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
-    loc3 = RelativeLocation.getLocation(loc1,dir2);
-    if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
-
-    finalLoc2 = new Location((tempLoc1.getLatitude()+tempLoc2.getLatitude())/2,
-                             (tempLoc1.getLongitude()+tempLoc2.getLongitude())/2,
-                             (tempLoc1.getDepth()+tempLoc2.getDepth())/2);
-    finalLoc3 = new Location((tempLoc3.getLatitude()+tempLoc4.getLatitude())/2,
-                             (tempLoc3.getLongitude()+tempLoc4.getLongitude())/2,
-                             (tempLoc3.getDepth()+tempLoc4.getDepth())/2);
-
-    if (D) System.out.println("\nFinal Fault Trace:");
-    if (D) System.out.println("final_tr_lat final_tr_lon final_tr_depth");
-    if (D) System.out.println((float)finalLoc1.getLatitude()+" "+(float)finalLoc1.getLongitude()+" "+(float)finalLoc1.getDepth());
-    if (D) System.out.println((float)finalLoc2.getLatitude()+" "+(float)finalLoc2.getLongitude()+" "+(float)finalLoc2.getDepth());
-    if (D) System.out.println((float)finalLoc3.getLatitude()+" "+(float)finalLoc3.getLongitude()+" "+(float)finalLoc3.getDepth());
-    if (D) System.out.println((float)finalLoc4.getLatitude()+" "+(float)finalLoc4.getLongitude()+" "+(float)finalLoc4.getDepth());
-
-    faultTrace = new FaultTrace("Puente Hills Fault Trace");
-    faultTrace.addLocation(finalLoc1);
-    faultTrace.addLocation(finalLoc2);
-    faultTrace.addLocation(finalLoc3);
-    faultTrace.addLocation(finalLoc4);
-
-    aveDipDir /= 6;
-
-    if (D) System.out.println("\nAveDipDir = "+aveDipDir);
-
-    if (D) System.out.println("\n Trace Length = "+faultTrace.getTraceLength());
-
-    FaultTrace tempTr = new FaultTrace("");
-    tempTr.addLocation(finalLoc1);
-    tempTr.addLocation(finalLoc2);
-    if (D) System.out.println("\n new-merged CH seg Length = "+tempTr.getTraceLength());
-    tempTr = new FaultTrace("");
-    tempTr.addLocation(finalLoc2);
-    tempTr.addLocation(finalLoc3);
-    if (D) System.out.println("\n new-merged SF seg Length = "+tempTr.getTraceLength());
-    tempTr = new FaultTrace("");
-    tempTr.addLocation(finalLoc3);
-    tempTr.addLocation(finalLoc4);
-    if (D) System.out.println("\n new-merged LA seg Length = "+tempTr.getTraceLength());
-
-    tempTr = new FaultTrace("");
-    tempTr.addLocation(finalLoc1);
-    tempTr.addLocation(tempLoc1);
-    if (D) System.out.println("\n new CH seg Length = "+tempTr.getTraceLength());
-    tempTr = new FaultTrace("");
-    tempTr.addLocation(tempLoc2);
-    tempTr.addLocation(tempLoc3);
-    if (D) System.out.println("\n new SF seg Length = "+tempTr.getTraceLength());
-    tempTr = new FaultTrace("");
-    tempTr.addLocation(tempLoc4);
-    tempTr.addLocation(finalLoc4);
-    if (D) System.out.println("\n new LA seg Length = "+tempTr.getTraceLength());
-  }
+		loc1 = new Location(33.89454, -118.04441, 3.44082);
+		loc2 = new Location(34.09232, -118.04490, 14.485);
+		dir1 = RelativeLocation.getDirection(loc1, loc2);
+		dip = Math.tan(dir1.getVertDistance()/dir1.getHorzDistance());
+		vDist = loc1.getDepth()-5.0;
+		hDist = vDist/Math.atan(dip);
+		aveDipDir += dir1.getAzimuth();
+		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
+		loc3 = RelativeLocation.getLocation(loc1,dir2);
+		if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
+		tempLoc1 = loc3;
+		vDist = loc1.getDepth()-17.0;
+		hDist = vDist/Math.atan(dip);
+		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
+		loc3 = RelativeLocation.getLocation(loc1,dir2);
+		if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
 
 
 
 
-  /**
-   * Sets the default Parameters in the Application for the Puente Hill Scenario
-   */
-  public void setParamsForPuenteHillsScenario(){
-    //making the ERF Gui Bean Adjustable Param not visible to the user, becuase
-    //this control panel will set the values by itself.
-    //This is done in the EqkRupSelectorGuiBean
-    ParameterEditor paramEditor = erfGuiBean.getParameterEditor(erfGuiBean.RUPTURE_SELECTOR_PARAM_NAME);
-    paramEditor.setValue(erfGuiBean.CREATE_RUPTURE);
-    paramEditor.refreshParamEditor();
-    EqkRuptureCreationPanel erfPanel= (EqkRuptureCreationPanel)erfGuiBean.getEqkRuptureSelectorPanel();
+		// SF Segment:
+		if (D) System.out.println("\nSF Segment:");
+		if (D) System.out.println("SF_lon2  SF_lat2  SF_depth2");
 
-    //changing the ERF to SimpleFaultERF
-    paramEditor = erfPanel.getParameterEditor(erfPanel.SRC_TYP_PARAM_NAME);
-    paramEditor.setValue(erfPanel.FINITE_SRC_NAME);
-    paramEditor.refreshParamEditor();
+		loc1 = new Location(33.93282, -118.01871, 3.000);
+		loc2 = new Location(34.10093, -118.01795, 14.4793);
+		dir1 = RelativeLocation.getDirection(loc1, loc2);
+		dip = Math.tan(dir1.getVertDistance()/dir1.getHorzDistance());
+		vDist = loc1.getDepth()-5.0;
+		hDist = vDist/Math.atan(dip);
+		aveDipDir += dir1.getAzimuth();
+		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
+		loc3 = RelativeLocation.getLocation(loc1,dir2);
+		if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
+		tempLoc2 = loc3;
+		vDist = loc1.getDepth()-17.0;
+		hDist = vDist/Math.atan(dip);
+		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
+		loc3 = RelativeLocation.getLocation(loc1,dir2);
+		if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
+
+		loc1 = new Location(33.90885, -118.13920, 2.750);
+		loc2 = new Location(34.11061, -118.14720, 15.0683);
+		dir1 = RelativeLocation.getDirection(loc1, loc2);
+		dip = Math.tan(dir1.getVertDistance()/dir1.getHorzDistance());
+		vDist = loc1.getDepth()-5.0;
+		hDist = vDist/Math.atan(dip);
+		aveDipDir += dir1.getAzimuth();
+		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
+		loc3 = RelativeLocation.getLocation(loc1,dir2);
+		if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
+		tempLoc3 = loc3;
+		vDist = loc1.getDepth()-17.0;
+		hDist = vDist/Math.atan(dip);
+		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
+		loc3 = RelativeLocation.getLocation(loc1,dir2);
+		if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
+
+		finalLoc2 = new Location((tempLoc1.getLatitude()+tempLoc2.getLatitude())/2,
+				(tempLoc1.getLongitude()+tempLoc2.getLongitude())/2,
+				(tempLoc1.getDepth()+tempLoc2.getDepth())/2);
+		finalLoc3 = new Location((tempLoc3.getLatitude()+tempLoc4.getLatitude())/2,
+				(tempLoc3.getLongitude()+tempLoc4.getLongitude())/2,
+				(tempLoc3.getDepth()+tempLoc4.getDepth())/2);
+
+		if (D) System.out.println("\nFinal Fault Trace:");
+		if (D) System.out.println("final_tr_lat final_tr_lon final_tr_depth");
+		if (D) System.out.println((float)finalLoc1.getLatitude()+" "+(float)finalLoc1.getLongitude()+" "+(float)finalLoc1.getDepth());
+		if (D) System.out.println((float)finalLoc2.getLatitude()+" "+(float)finalLoc2.getLongitude()+" "+(float)finalLoc2.getDepth());
+		if (D) System.out.println((float)finalLoc3.getLatitude()+" "+(float)finalLoc3.getLongitude()+" "+(float)finalLoc3.getDepth());
+		if (D) System.out.println((float)finalLoc4.getLatitude()+" "+(float)finalLoc4.getLongitude()+" "+(float)finalLoc4.getDepth());
+
+		faultTrace = new FaultTrace("Puente Hills Fault Trace");
+		faultTrace.addLocation(finalLoc1);
+		faultTrace.addLocation(finalLoc2);
+		faultTrace.addLocation(finalLoc3);
+		faultTrace.addLocation(finalLoc4);
+
+		aveDipDir /= 6;
+
+		if (D) System.out.println("\nAveDipDir = "+aveDipDir);
+
+		if (D) System.out.println("\n Trace Length = "+faultTrace.getTraceLength());
+
+		FaultTrace tempTr = new FaultTrace("");
+		tempTr.addLocation(finalLoc1);
+		tempTr.addLocation(finalLoc2);
+		if (D) System.out.println("\n new-merged CH seg Length = "+tempTr.getTraceLength());
+		tempTr = new FaultTrace("");
+		tempTr.addLocation(finalLoc2);
+		tempTr.addLocation(finalLoc3);
+		if (D) System.out.println("\n new-merged SF seg Length = "+tempTr.getTraceLength());
+		tempTr = new FaultTrace("");
+		tempTr.addLocation(finalLoc3);
+		tempTr.addLocation(finalLoc4);
+		if (D) System.out.println("\n new-merged LA seg Length = "+tempTr.getTraceLength());
+
+		tempTr = new FaultTrace("");
+		tempTr.addLocation(finalLoc1);
+		tempTr.addLocation(tempLoc1);
+		if (D) System.out.println("\n new CH seg Length = "+tempTr.getTraceLength());
+		tempTr = new FaultTrace("");
+		tempTr.addLocation(tempLoc2);
+		tempTr.addLocation(tempLoc3);
+		if (D) System.out.println("\n new SF seg Length = "+tempTr.getTraceLength());
+		tempTr = new FaultTrace("");
+		tempTr.addLocation(tempLoc4);
+		tempTr.addLocation(finalLoc4);
+		if (D) System.out.println("\n new LA seg Length = "+tempTr.getTraceLength());
+	}
 
 
-    // Set rake value to 90 degrees
-    erfPanel.getParameter(erfPanel.RAKE_PARAM_NAME).setValue(new Double(90));
 
 
-    double dip = 27;
-    double depth1=5, depth2=17;
+	/**
+	 * Sets the default Parameters in the Application for the Puente Hill Scenario
+	 */
+	public void setParamsForPuenteHillsScenario(){
+		//making the ERF Gui Bean Adjustable Param not visible to the user, becuase
+		//this control panel will set the values by itself.
+		//This is done in the EqkRupSelectorGuiBean
+		ParameterEditor paramEditor = erfGuiBean.getParameterEditor(EqkRupSelectorGuiBean.RUPTURE_SELECTOR_PARAM_NAME);
+		paramEditor.setValue(EqkRupSelectorGuiBean.CREATE_RUPTURE);
+		paramEditor.refreshParamEditor();
+		EqkRuptureCreationPanel erfPanel= (EqkRuptureCreationPanel)erfGuiBean.getEqkRuptureSelectorPanel();
 
-    //getting the instance for the SimpleFaultParameterEditorPanel from the GuiBean to adjust the fault Params
-    SimpleFaultParameterEditorPanel faultPanel= ((SimpleFaultParameterEditor)erfPanel.getParameterEditor(erfPanel.FAULT_PARAM_NAME)).getParameterEditorPanel();
-    //creating the Lat vector for the SimpleFaultParameter
-
-    ArrayList lats = new ArrayList();
-    ArrayList lons = new ArrayList();
-    for(int i = 0; i<faultTrace.getNumLocations(); i++) {
-      lats.add(new Double(faultTrace.getLocationAt(i).getLatitude()));
-      lons.add(new Double(faultTrace.getLocationAt(i).getLongitude()));
-    }
-
-    //creating the dip vector for the SimpleFaultParameter
-    ArrayList dips = new ArrayList();
-    dips.add(new Double(dip));
-
-    //creating the depth vector for the SimpleFaultParameter
-    ArrayList depths = new ArrayList();
-    depths.add(new Double(depth1));
-    depths.add(new Double(depth2));
-
-    //setting the FaultParameterEditor with the default values for Puente Hills Scenario
-    faultPanel.setAll(((SimpleFaultParameter)faultPanel.getParameter()).DEFAULT_GRID_SPACING,lats,
-                      lons,dips,depths,((SimpleFaultParameter)faultPanel.getParameter()).STIRLING);
-
-    // set the average dip direction
-    // use default which is perp to ave strike.
-//    faultPanel.setDipDirection(aveDipDir);
-
-    //updaing the faultParameter to update the faultSurface
-    faultPanel.setEvenlyGriddedSurfaceFromParams();
-
-    erfPanel.getParameter(erfPanel.MAG_PARAM_NAME).setValue(new Double(magnitude));
-    erfPanel.getParameterListEditor().refreshParamEditor();
+		//changing the ERF to SimpleFaultERF
+		paramEditor = erfPanel.getParameterEditor(EqkRuptureCreationPanel.SRC_TYP_PARAM_NAME);
+		paramEditor.setValue(EqkRuptureCreationPanel.FINITE_SRC_NAME);
+		paramEditor.refreshParamEditor();
 
 
-    //checking if the single AttenRel is selected
-    boolean isSingleAttenRelSelected =imrGuiBean.isSingleAttenRelTypeSelected();
-    //if single attenRel gui is not selected then toggle to the single attenRel gui Panel
-    if(!isSingleAttenRelSelected)
-      imrGuiBean.toggleBetweenSingleAndMultipleAttenRelGuiSelection();
-    // Set the imt as PGA
-    ParameterListEditor editor = imrGuiBean.getIntensityMeasureParamEditor();
-    editor.getParameterList().getParameter(imrGuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);
-    editor.refreshParamEditor();
-    //Updating the IMR Gui Bean with the ShakeMap attenuation relationship
-    imrGuiBean.setIMR_Selected(ShakeMap_2003_AttenRel.NAME);
-    imrGuiBean.getSelectedIMR_Instance().getParameter(ComponentParam.NAME).setValue(ComponentParam.COMPONENT_AVE_HORZ);
-    imrGuiBean.getSingleAttenRelParamListEditor().refreshParamEditor();
-
-    //Updating the SitesInGriddedRectangularRegionGuiBean with the Puente Hills resion setting
-    regionGuiBean.getParameterList().getParameter(regionGuiBean.MIN_LATITUDE).setValue(new Double(33.2));
-    regionGuiBean.getParameterList().getParameter(regionGuiBean.MAX_LATITUDE).setValue(new Double(35.0));
-    regionGuiBean.getParameterList().getParameter(regionGuiBean.MIN_LONGITUDE).setValue(new Double(-119.5));
-    regionGuiBean.getParameterList().getParameter(regionGuiBean.MAX_LONGITUDE).setValue(new Double(-116.18));
-//    regionGuiBean.getParameterList().getParameter(regionGuiBean.GRID_SPACING).setValue(new Double(.1));
-    regionGuiBean.getParameterList().getParameter(regionGuiBean.GRID_SPACING).setValue(new Double(.016667));
-    regionGuiBean.getParameterList().getParameter(regionGuiBean.SITE_PARAM_NAME).setValue(SitesInGriddedRectangularRegionGuiBean.USE_SITE_DATA);
+		// Set rake value to 90 degrees
+		erfPanel.getParameter(EqkRuptureCreationPanel.RAKE_PARAM_NAME).setValue(new Double(90));
 
 
-    // Set some of the mapping params:
-    mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.GMT_WEBSERVICE_NAME).setValue(new Boolean(true));
-    mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.LOG_PLOT_NAME).setValue(new Boolean(false));
-    mapGuiBean.refreshParamEditor();
-  }
+		double dip = 27;
+		double depth1=5, depth2=17;
+
+		//getting the instance for the SimpleFaultParameterEditorPanel from the GuiBean to adjust the fault Params
+		SimpleFaultParameterEditorPanel faultPanel= ((SimpleFaultParameterEditor)erfPanel.getParameterEditor(erfPanel.FAULT_PARAM_NAME)).getParameterEditorPanel();
+		//creating the Lat vector for the SimpleFaultParameter
+
+		ArrayList<Double> lats = new ArrayList<Double>();
+		ArrayList<Double> lons = new ArrayList<Double>();
+		for(int i = 0; i<faultTrace.getNumLocations(); i++) {
+			lats.add(new Double(faultTrace.getLocationAt(i).getLatitude()));
+			lons.add(new Double(faultTrace.getLocationAt(i).getLongitude()));
+		}
+
+		//creating the dip vector for the SimpleFaultParameter
+		ArrayList<Double> dips = new ArrayList<Double>();
+		dips.add(new Double(dip));
+
+		//creating the depth vector for the SimpleFaultParameter
+		ArrayList<Double> depths = new ArrayList<Double>();
+		depths.add(new Double(depth1));
+		depths.add(new Double(depth2));
+
+		//setting the FaultParameterEditor with the default values for Puente Hills Scenario
+		faultPanel.setAll(((SimpleFaultParameter)faultPanel.getParameter()).DEFAULT_GRID_SPACING,lats,
+				lons,dips,depths,((SimpleFaultParameter)faultPanel.getParameter()).STIRLING);
+
+		// set the average dip direction
+		// use default which is perp to ave strike.
+		//    faultPanel.setDipDirection(aveDipDir);
+
+		//updaing the faultParameter to update the faultSurface
+		faultPanel.setEvenlyGriddedSurfaceFromParams();
+
+		erfPanel.getParameter(EqkRuptureCreationPanel.MAG_PARAM_NAME).setValue(new Double(magnitude));
+		erfPanel.getParameterListEditor().refreshParamEditor();
+
+
+		//checking if the single AttenRel is selected
+		boolean isSingleAttenRelSelected =imrGuiBean.isSingleAttenRelTypeSelected();
+		//if single attenRel gui is not selected then toggle to the single attenRel gui Panel
+		if(!isSingleAttenRelSelected)
+			imrGuiBean.toggleBetweenSingleAndMultipleAttenRelGuiSelection();
+		// Set the imt as PGA
+		ParameterListEditor editor = imrGuiBean.getIntensityMeasureParamEditor();
+		editor.getParameterList().getParameter(AttenuationRelationshipGuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);
+		editor.refreshParamEditor();
+		//Updating the IMR Gui Bean with the ShakeMap attenuation relationship
+		imrGuiBean.setIMR_Selected(ShakeMap_2003_AttenRel.NAME);
+		imrGuiBean.getSelectedIMR_Instance().getParameter(ComponentParam.NAME).setValue(ComponentParam.COMPONENT_AVE_HORZ);
+		imrGuiBean.getSingleAttenRelParamListEditor().refreshParamEditor();
+
+		//Updating the SitesInGriddedRectangularRegionGuiBean with the Puente Hills resion setting
+		regionGuiBean.getParameterList().getParameter(SitesInGriddedRectangularRegionGuiBean.MIN_LATITUDE).setValue(new Double(33.2));
+		regionGuiBean.getParameterList().getParameter(SitesInGriddedRectangularRegionGuiBean.MAX_LATITUDE).setValue(new Double(35.0));
+		regionGuiBean.getParameterList().getParameter(SitesInGriddedRectangularRegionGuiBean.MIN_LONGITUDE).setValue(new Double(-119.5));
+		regionGuiBean.getParameterList().getParameter(SitesInGriddedRectangularRegionGuiBean.MAX_LONGITUDE).setValue(new Double(-116.18));
+		//    regionGuiBean.getParameterList().getParameter(regionGuiBean.GRID_SPACING).setValue(new Double(.1));
+		regionGuiBean.getParameterList().getParameter(SitesInGriddedRectangularRegionGuiBean.GRID_SPACING).setValue(new Double(.016667));
+		regionGuiBean.getParameterList().getParameter(SitesInGriddedRectangularRegionGuiBean.SITE_PARAM_NAME).setValue(SitesInGriddedRectangularRegionGuiBean.USE_SITE_DATA);
+
+
+		// Set some of the mapping params:
+		mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.GMT_WEBSERVICE_NAME).setValue(new Boolean(true));
+		mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.LOG_PLOT_NAME).setValue(new Boolean(false));
+		mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME).setValue(GMT_MapGenerator.COLOR_SCALE_MODE_FROMDATA);
+		mapGuiBean.refreshParamEditor();
+	}
 }

@@ -296,14 +296,14 @@ public class PuenteHillsScenarioControlPanel {
     //making the ERF Gui Bean Adjustable Param not visible to the user, becuase
     //this control panel will set the values by itself.
     //This is done in the EqkRupSelectorGuiBean
-    ParameterEditor paramEditor = erfGuiBean.getParameterEditor(erfGuiBean.RUPTURE_SELECTOR_PARAM_NAME);
-    paramEditor.setValue(erfGuiBean.RUPTURE_FROM_EXISTING_ERF);
+    ParameterEditor paramEditor = erfGuiBean.getParameterEditor(EqkRupSelectorGuiBean.RUPTURE_SELECTOR_PARAM_NAME);
+    paramEditor.setValue(EqkRupSelectorGuiBean.RUPTURE_FROM_EXISTING_ERF);
     paramEditor.refreshParamEditor();
     EqkRuptureFromERFSelectorPanel erfPanel= (EqkRuptureFromERFSelectorPanel)erfGuiBean.getEqkRuptureSelectorPanel();
     erfPanel.showAllParamsForForecast(false);
 
     //changing the ERF to SimpleFaultERF
-    paramEditor = erfPanel.getParameterEditor(erfPanel.ERF_PARAM_NAME);
+    paramEditor = erfPanel.getParameterEditor(EqkRuptureFromERFSelectorPanel.ERF_PARAM_NAME);
     paramEditor.setValue(PoissonFaultERF.NAME);
     paramEditor.refreshParamEditor();
 
@@ -322,24 +322,24 @@ public class PuenteHillsScenarioControlPanel {
     SimpleFaultParameterEditorPanel faultPanel= erfParamGuiBean.getSimpleFaultParamEditor().getParameterEditorPanel();
     //creating the Lat vector for the SimpleFaultParameter
 
-    ArrayList lats = new ArrayList();
-    ArrayList lons = new ArrayList();
+    ArrayList<Double> lats = new ArrayList<Double>();
+    ArrayList<Double> lons = new ArrayList<Double>();
     for(int i = 0; i<faultTrace.getNumLocations(); i++) {
       lats.add(new Double(faultTrace.getLocationAt(i).getLatitude()));
       lons.add(new Double(faultTrace.getLocationAt(i).getLongitude()));
     }
 
     //creating the dip vector for the SimpleFaultParameter
-    ArrayList dips = new ArrayList();
+    ArrayList<Double> dips = new ArrayList<Double>();
     dips.add(new Double(dip));
 
     //creating the depth vector for the SimpleFaultParameter
-    ArrayList depths = new ArrayList();
+    ArrayList<Double> depths = new ArrayList<Double>();
     depths.add(new Double(depth1));
     depths.add(new Double(depth2));
 
     //setting the FaultParameterEditor with the default values for Puente Hills Scenario
-    faultPanel.setAll(((SimpleFaultParameter)faultPanel.getParameter()).DEFAULT_GRID_SPACING,lats,
+    faultPanel.setAll(SimpleFaultParameter.DEFAULT_GRID_SPACING,lats,
                       lons,dips,depths,((SimpleFaultParameter)faultPanel.getParameter()).STIRLING);
 
     // set the average dip direction
@@ -386,6 +386,7 @@ public class PuenteHillsScenarioControlPanel {
     // Set some of the mapping params:
     mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.GMT_WEBSERVICE_NAME).setValue(new Boolean(true));
     mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.LOG_PLOT_NAME).setValue(new Boolean(false));
+    mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME).setValue(GMT_MapGenerator.COLOR_SCALE_MODE_FROMDATA);
     mapGuiBean.refreshParamEditor();
   }
 
