@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
+import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
 import org.opensha.commons.gui.LabeledBoxPanel;
@@ -46,228 +47,214 @@ import org.opensha.commons.param.ParameterList;
 
 public class ParameterListEditor extends LabeledBoxPanel {
 
-    /** Class name for debugging. */
-    protected final static String C = "ParameterListEditor";
-    /** If true print out debug statements. */
-    protected final static boolean D = false;
+	/** Class name for debugging. */
+	protected final static String C = "ParameterListEditor";
+	/** If true print out debug statements. */
+	protected final static boolean D = false;
 
 
-    /** The internal list of parameters that this editor will allow modification on. */
-    protected ParameterList parameterList;
+	/** The internal list of parameters that this editor will allow modification on. */
+	protected ParameterList parameterList;
 
 
-    /** List of all individual editors, one for each parameter in the parameter list */
-    /** Both the parameterEditor and parameterName maintain the same ordering of the
-     *  parameters. parametersEditor store the editor for each parameter name stored
-     *  in the  parameterName variable at the same index.*/
-    protected ArrayList<ParameterEditor> parameterEditors = new ArrayList<ParameterEditor>();
-    protected ArrayList<String> parametersName = new ArrayList<String>();
+	/** List of all individual editors, one for each parameter in the parameter list */
+	/** Both the parameterEditor and parameterName maintain the same ordering of the
+	 *  parameters. parametersEditor store the editor for each parameter name stored
+	 *  in the  parameterName variable at the same index.*/
+	protected ArrayList<ParameterEditor> parameterEditors = new ArrayList<ParameterEditor>();
+	protected ArrayList<String> parametersName = new ArrayList<String>();
 
-    /** Calls super() to configure the GUI */
-    public ParameterListEditor() {
-        super();
-        this.setLayout( new GridBagLayout());
-    }
+	/** Calls super() to configure the GUI */
+	public ParameterListEditor() {
+		super();
+		this.setLayout(new GridBagLayout());
+	}
 
-    /**
-     * Constructor for the ParameterListEditor object, calls
-     * super() to initialize the GUI. The model Parameter List
-     * is set, the search paths configured, then all Parameter
-     * Editors are initialized with the parameters, and added
-     * to the GUI in a scrolling list. <p>
-     */
-    public ParameterListEditor(ParameterList paramList) {
+	/**
+	 * Constructor for the ParameterListEditor object, calls
+	 * super() to initialize the GUI. The model Parameter List
+	 * is set, the search paths configured, then all Parameter
+	 * Editors are initialized with the parameters, and added
+	 * to the GUI in a scrolling list. <p>
+	 */
+	public ParameterListEditor(ParameterList paramList) {
 
-        super();
-        setParameterList(paramList);
+		this();
+		setParameterList(paramList);
 
-    }
+	}
 
-    /** Sets the parameterList. Simple javabean method */
-    public void setParameterList( ParameterList paramList ) {
-    	parameterList = paramList;
-    	editorPanel.removeAll();
-    	addParameters();
-    }
+	/** Sets the parameterList. Simple javabean method */
+	public void setParameterList( ParameterList paramList ) {
+		parameterList = paramList;
+		addParameters();
+	}
 
-    /** gets the parameterList. Simple javabean method */
-    public ParameterList getParameterList() { return parameterList; }
+	/** gets the parameterList. Simple javabean method */
+	public ParameterList getParameterList() { return parameterList; }
 
-    /**
-     *  Hides or shows one of the ParameterEditors in the ParameterList. setting
-     *  the boolean parameter to true shows the panel, setting it to false hides
-     *  the panel. Note, all editors are accesable by parameter name. <p>
-     *
-     * @param  parameterName  The parameter editor to toggle on or off.
-     * @param  visible      The boolean flag. If true editor is visible.
-     */
-    public void setParameterVisible( String parameterName, boolean visible ) {
+	/**
+	 *  Hides or shows one of the ParameterEditors in the ParameterList. setting
+	 *  the boolean parameter to true shows the panel, setting it to false hides
+	 *  the panel. Note, all editors are accesable by parameter name. <p>
+	 *
+	 * @param  parameterName  The parameter editor to toggle on or off.
+	 * @param  visible      The boolean flag. If true editor is visible.
+	 */
+	public void setParameterVisible( String parameterName, boolean visible ) {
 
-        parameterName = parameterList.getParameterName( parameterName );
-        int index = getIndexOf(parameterName);
-        if ( index != -1 ) {
-            ParameterEditor editor = parameterEditors.get(index);
-            editor.setVisible( visible );
-        }
+		parameterName = parameterList.getParameterName( parameterName );
+		int index = getIndexOf(parameterName);
+		if ( index != -1 ) {
+			ParameterEditor editor = parameterEditors.get(index);
+			editor.setVisible( visible );
+		}
 
-    }
+	}
 
-    /**
-     * It enables/disables the paramaters in this editor according to whether user is allowed to
-     * fill in the values.
-     */
-    public void setEnabled(boolean isEnabled) {
-      for(int i=0; i<parameterEditors.size(); ++i)
-        parameterEditors.get(i).getPanel().setEnabled(isEnabled);
-    }
-
-
-    /**
-     *
-     * @param paramName
-     * @returns the index of the parameter Name in the ArrayList
-     */
-    private int getIndexOf(String paramName){
-      int size =  parametersName.size();
-      for(int i=0;i<size;++i){
-        if(((String)parametersName.get(i)).equals(paramName))
-          return i;
-      }
-      return -1;
-    }
-
-    /**
-     * Returns ParameterList of all parameters that have their
-     * GUI editors currently visible.
-     */
-    public ParameterList getVisibleParameters() {
-
-        ParameterList visibles = new ParameterList();
-
-        Iterator<ParameterEditor> it = parameterEditors.iterator();
-        while ( it.hasNext() ) {
-
-            ParameterEditor editor = it.next();
-            if ( editor.isVisible() ) {
-                ParameterAPI param = ( ParameterAPI ) editor.getParameter();
-                visibles.addParameter( param );
-            }
-        }
-        return visibles;
-    }
+	/**
+	 * It enables/disables the paramaters in this editor according to whether user is allowed to
+	 * fill in the values.
+	 */
+	public void setEnabled(boolean isEnabled) {
+		for(int i=0; i<parameterEditors.size(); ++i)
+			parameterEditors.get(i).getPanel().setEnabled(isEnabled);
+	}
 
 
-    /**
-     * Returns cloned ParameterList of all parameters that have their
-     * GUI editors currently visible
-     */
-    public ParameterList getVisibleParametersCloned(){
-      return (ParameterList)getVisibleParameters().clone();
-    }
+	/**
+	 *
+	 * @param paramName
+	 * @returns the index of the parameter Name in the ArrayList
+	 */
+	private int getIndexOf(String paramName){
+		int size =  parametersName.size();
+		for(int i=0;i<size;++i){
+			if(((String)parametersName.get(i)).equals(paramName))
+				return i;
+		}
+		return -1;
+	}
 
+	/**
+	 * Returns ParameterList of all parameters that have their
+	 * GUI editors currently visible.
+	 */
+	public ParameterList getVisibleParameters() {
+
+		ParameterList visibles = new ParameterList();
+
+		Iterator<ParameterEditor> it = parameterEditors.iterator();
+		while ( it.hasNext() ) {
+
+			ParameterEditor editor = it.next();
+			if ( editor.isVisible() ) {
+				ParameterAPI param = ( ParameterAPI ) editor.getParameter();
+				visibles.addParameter( param );
+			}
+		}
+		return visibles;
+	}
+
+
+	/**
+	 * Returns cloned ParameterList of all parameters that have their
+	 * GUI editors currently visible
+	 */
+	public ParameterList getVisibleParametersCloned(){
+		return (ParameterList)getVisibleParameters().clone();
+	}
 
 
 
-    /**
-     *  Gets the parameterEditor attribute of the ParameterListEditor object
-     *
-     * @param  parameterName               The Parameter editor to look up.
-     * @return                             Returns the found ParameterEditor for the named parameter
-     * @exception  NoSuchElementException  Thrown if the named parameter doesn't exist.
-     */
-    public ParameterEditor getParameterEditor( String parameterName ) throws NoSuchElementException {
 
-      parameterName = parameterList.getParameterName( parameterName );
-      int index = getIndexOf(parameterName);
-      if ( index != -1 ) {
-        ParameterEditor editor = parameterEditors.get(index);
-        return editor;
-      }
-      else
-        throw new NoSuchElementException( "No ParameterEditor exist named " + parameterName );
+	/**
+	 *  Gets the parameterEditor attribute of the ParameterListEditor object
+	 *
+	 * @param  parameterName               The Parameter editor to look up.
+	 * @return                             Returns the found ParameterEditor for the named parameter
+	 * @exception  NoSuchElementException  Thrown if the named parameter doesn't exist.
+	 */
+	public ParameterEditor getParameterEditor( String parameterName ) throws NoSuchElementException {
 
-    }
+		parameterName = parameterList.getParameterName( parameterName );
+		int index = getIndexOf(parameterName);
+		if ( index != -1 ) {
+			ParameterEditor editor = parameterEditors.get(index);
+			return editor;
+		}
+		else
+			throw new NoSuchElementException( "No ParameterEditor exist named " + parameterName );
 
-
-    /**
-     * Proxy to each parameter editor. THe lsit of editors is iterated over, calling the
-     * same function. <p>
-     *
-     * Updates the paramter editor with the parameter value. Used when
-     * the parameter is set for the first time, or changed by a background
-     * process independently of the GUI. This could occur with a ParameterChangeFail
-     * event.
-     */
-    public void refreshParamEditor() {
-        Iterator<ParameterEditor> it = parameterEditors.iterator();
-        while ( it.hasNext() ) {
-            ParameterEditor editor = it.next();
-            editor.refreshParamEditor();
-        }
-    }
-
-    /**
-     * Searches for the named parameter editor, then replaces the parameter
-     * it is currently editing.
-     * @param parameterName : Name of the parameter that is being removed
-     * @param param : New parameter that is replacing the old parameter
-     */
-    public void replaceParameterForEditor( String parameterName, ParameterAPI param ) {
-
-      parameterName = this.parameterList.getParameterName( parameterName );
-      int index = getIndexOf(parameterName);
-      if ( index != -1 ) {
-        ParameterEditor editor = parameterEditors.get(index);
-        editor.setParameter( param );
-        parameterList.removeParameter( parameterName );
-        parameterList.addParameter( param );
-      }
-
-    }
+	}
 
 
-    /**
-     * VERY IMPORTANT setup function. This is where all the parameter editors
-     * are dynamcally created based by parameter getType() function. It uses
-     * the ParameterEditorFactory to create the editors. THe search path is
-     * set for the factory, each ParameterEditor is created, and then added
-     * as a JPanel ( base class of all Editors ) to this list GUI scrolling list.
-     */
-    protected void addParameters() {
+	/**
+	 * Proxy to each parameter editor. THe lsit of editors is iterated over, calling the
+	 * same function. <p>
+	 *
+	 * Updates the paramter editor with the parameter value. Used when
+	 * the parameter is set for the first time, or changed by a background
+	 * process independently of the GUI. This could occur with a ParameterChangeFail
+	 * event.
+	 */
+	public void refreshParamEditor() {
+		Iterator<ParameterEditor> it = parameterEditors.iterator();
+		while ( it.hasNext() ) {
+			ParameterEditor editor = it.next();
+			editor.refreshParamEditor();
+		}
+	}
 
-        if ( parameterList == null )
-            return;
+	/**
+	 * Searches for the named parameter editor, then replaces the parameter
+	 * it is currently editing.
+	 * @param parameterName : Name of the parameter that is being removed
+	 * @param param : New parameter that is replacing the old parameter
+	 */
+	public void replaceParameterForEditor( String parameterName, ParameterAPI param ) {
 
-        ListIterator it = parameterList.getParameterNamesIterator();
-        int counter = 0;
-        //boolean first = true;
+		parameterName = this.parameterList.getParameterName( parameterName );
+		int index = getIndexOf(parameterName);
+		if ( index != -1 ) {
+			ParameterEditor editor = parameterEditors.get(index);
+			editor.setParameter( param );
+			parameterList.removeParameter( parameterName );
+			parameterList.addParameter( param );
+		}
 
-        parameterEditors.clear();
-       // editorPanel.setLayout(new VerticalFlowLayout());
-        editorPanel.setLayout(GBL);
-        while ( it.hasNext() ) {
+	}
 
-            Object obj1 = it.next();
-            String name = ( String ) obj1;
-
-            ParameterAPI param = parameterList.getParameter( name );
-
-            // if(obj instanceof ParameterAPI){
-            //ParameterAPI param = (ParameterAPI)obj;
-            ParameterEditor paramEdit = param.getEditor();
-            if (paramEdit == null)
-            	throw new RuntimeException("No parameter editor exists for type: " + param.getType() + " (" + param.getClass().getName() + ")");
-            parametersName.add(counter,name);
-            parameterEditors.add(counter,paramEdit );
-            editorPanel.add(paramEdit);
-            editorPanel.add(paramEdit, new GridBagConstraints( 0, counter, 0,1, 1.0, 1.0
-                    , GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets( 4, 4, 4, 4 ), 0, 0 ) );
-            counter++;
-            //}
-        }
-        editorPanel.validate();
-
-    }
+	/**
+	 * VERY IMPORTANT setup function. This is where all the parameter editors
+	 * are dynamcally created based by parameter getType() function. It uses
+	 * the ParameterEditorFactory to create the editors. THe search path is
+	 * set for the factory, each ParameterEditor is created, and then added
+	 * as a JPanel ( base class of all Editors ) to this list GUI scrolling list.
+	 */
+	protected void addParameters() {
+		editorPanel.removeAll();
+		
+		if ( parameterList == null )
+			return;
+		
+		parametersName.clear();
+		parameterEditors.clear();
+		
+		int counter = 0;
+		
+		for (ParameterAPI<?> param : parameterList) {
+			ParameterEditor paramEdit = param.getEditor();
+			paramEdit.setVisible(true);
+			if (paramEdit == null)
+				throw new RuntimeException("No parameter editor exists for type: " + param.getType() + " (" + param.getClass().getName() + ")");
+			parametersName.add(param.getName());
+			parameterEditors.add(paramEdit );
+			editorPanel.add(paramEdit, new GridBagConstraints( 0, counter, 0,1, 1.0, 1.0
+					, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets( 4, 4, 4, 4 ), 0, 0 ) );
+			counter++;
+		}
+	}
 
 
 }

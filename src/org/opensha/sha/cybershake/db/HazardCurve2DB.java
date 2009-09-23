@@ -579,7 +579,7 @@ public class HazardCurve2DB {
 		long startTime = System.currentTimeMillis();
 		String sql = "SELECT I.IM_Type_ID,I.IM_Type_Measure,I.IM_Type_Value,I.Units from IM_Types I JOIN (";
 		sql += "SELECT distinct IM_Type_ID from " + TABLE_NAME + " WHERE Run_ID=" + runID;
-		sql += ") A ON A.IM_Type_ID=I.IM_Type_ID";
+		sql += ") A ON A.IM_Type_ID=I.IM_Type_ID ORDER BY I.IM_Type_ID";
 		
 //		System.out.println(sql);
 		

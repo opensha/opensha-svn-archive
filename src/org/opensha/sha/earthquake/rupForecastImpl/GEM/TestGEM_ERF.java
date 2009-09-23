@@ -91,7 +91,7 @@ public class TestGEM_ERF extends EqkRupForecast{
 		    	allSources.addAll(getFaultSources());
 		    	
 		    	// add source zones
-		    	String SSZfname = "./testSrcZonesData.txt";
+		    	String SSZfname = "testSrcZonesData.txt";
 
 		    	allSources.addAll(getSourceZoneSources(SSZfname));
 		    }
