@@ -5,10 +5,12 @@ import java.rmi.Remote;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import java.util.ArrayList;
+import java.util.ListIterator;
 
 public interface SpectrumCalculatorAPI extends Remote{
   /**
@@ -85,4 +87,28 @@ public interface SpectrumCalculatorAPI extends Remote{
    * @param distance: the maximum distance in km
    */
   public void setMaxSourceDistance(double distance) throws RemoteException;
+  
+  public double getMaxSourceDistance()  throws java.rmi.RemoteException;
+
+  /**
+  *
+  * @returns This was created so new instances of this calculator could be
+  * given pointers to a set of parameter that already exist.
+  */
+ public void setAdjustableParams(ParameterList paramList)  throws java.rmi.RemoteException;
+
+  
+  /**
+  *
+  * @returns the adjustable ParameterList
+  */
+ public ParameterList getAdjustableParams()  throws java.rmi.RemoteException;
+
+ /**
+  * get the adjustable parameters
+  *
+  * @return
+  */
+ public ListIterator getAdjustableParamsIterator()  throws java.rmi.RemoteException;
+
 }

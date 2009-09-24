@@ -7,6 +7,11 @@ import java.util.*;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.param.ArbitrarilyDiscretizedFuncParameter;
+import org.opensha.commons.param.BooleanParameter;
+import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.IntegerParameter;
+import org.opensha.commons.param.ParameterList;
 
 
 import org.opensha.sha.earthquake.*;
@@ -30,14 +35,18 @@ public class SpectrumCalculator extends UnicastRemoteObject
 
   protected final static String C = "SpectrumCalculator";
   protected final static boolean D = false;
+  
+  //Info for parameter that sets the maximum distance considered
+  private DoubleParameter maxDistanceParam;
+  public final static String MAX_DISTANCE_PARAM_NAME = "Maximum Distance";
+  public final String MAX_DISTANCE_PARAM_UNITS = "km";
+  public final String MAX_DISTANCE_PARAM_INFO = "Earthquake Ruptures beyond this distance are ignored";
+  public final double MAX_DISTANCE_PARAM_MIN = 0;
+  public final double MAX_DISTANCE_PARAM_MAX = 40000;
+  public final static Double MAX_DISTANCE_DEFAULT = new Double(200);
+  
+  private ParameterList adjustableParams;
 
-  /*
-   maximum permitted distance between fault and site to consider source in
-   hazard analysis for that site; this default value is to allow all PEER test
-   cases to pass through
-   */
-  public final static double MAX_DISTANCE_DEFAULT = 200;
-  protected double MAX_DISTANCE = MAX_DISTANCE_DEFAULT;
 
   protected int currRuptures = -1;
   protected int totRuptures = 0;
@@ -53,20 +62,68 @@ public class SpectrumCalculator extends UnicastRemoteObject
    *
    * @throws RemoteException
    */
-  public SpectrumCalculator() throws RemoteException {}
+  public SpectrumCalculator() throws RemoteException {
+	  
+	  // Create adjustable parameters and add to list
+	  
+	  // Max Distance Parameter
+	  maxDistanceParam = new DoubleParameter(MAX_DISTANCE_PARAM_NAME, MAX_DISTANCE_PARAM_MIN, 
+			  MAX_DISTANCE_PARAM_MAX, MAX_DISTANCE_PARAM_UNITS, MAX_DISTANCE_DEFAULT);
+	  maxDistanceParam.setInfo(MAX_DISTANCE_PARAM_INFO);
 
-
-  /**
-   * This sets the maximum distance of sources to be considered in the calculation
-   * (as determined by the getMinDistance(Site) method of ProbEqkSource subclasses).
-   * Sources more than this distance away are ignored.
-   * Default value is 250 km.
-   *
-   * @param distance: the maximum distance in km
-   */
-  public void setMaxSourceDistance(double distance) throws java.rmi.RemoteException{
-    MAX_DISTANCE = distance;
+      adjustableParams = new ParameterList();
+	  adjustableParams.addParameter(maxDistanceParam);
   }
+  
+  /**
+  *
+  * @returns the adjustable ParameterList
+  */
+ public ParameterList getAdjustableParams()  throws java.rmi.RemoteException{
+   return this.adjustableParams;
+ }
+
+ 
+ /**
+ *
+ * @returns This was created so new instances of this calculator could be
+ * given pointers to a set of parameter that already exist.
+ */
+public void setAdjustableParams(ParameterList paramList)  throws java.rmi.RemoteException{
+  this.adjustableParams = paramList;
+  this.maxDistanceParam= (DoubleParameter)paramList.getParameter(this.MAX_DISTANCE_PARAM_NAME);
+}
+
+/**
+ * This is a direct way of getting the distance cutoff from that parameter
+ */
+public double getMaxSourceDistance() throws java.rmi.RemoteException { 
+	  return maxDistanceParam.getValue().doubleValue(); 
+}
+
+ 
+ /**
+  * get the adjustable parameters
+  *
+  * @return
+  */
+ public ListIterator getAdjustableParamsIterator()  throws java.rmi.RemoteException{
+   return adjustableParams.getParametersIterator();
+ }
+
+
+
+ /**
+  * This sets the maximum distance of sources to be considered in the calculation.
+  * Sources more than this distance away are ignored.  This is simply a direct
+  * way of setting the parameter.
+  * Default value is 250 km.
+  *
+  * @param distance: the maximum distance in km
+  */
+ public void setMaxSourceDistance(double distance) throws java.rmi.RemoteException{
+	  maxDistanceParam.setValue(distance);
+ }
 
   /**
    * This function computes a spectrum curve for all SA Period supported
@@ -123,10 +180,12 @@ public class SpectrumCalculator extends UnicastRemoteObject
 
     // get the number of points
     int numPoints = tempSpecFunc.getNum();
+    
+    double maxDistance = maxDistanceParam.getValue();
 
     // set the maximum distance in the attenuation relationship
     // (Note- other types of IMRs may not have this method so we should really check type here)
-    imr.setUserMaxDistance(MAX_DISTANCE);
+    imr.setUserMaxDistance(maxDistance);
 
     // get total number of sources
     numSources = eqkRupForecast.getNumSources();
@@ -164,7 +223,7 @@ public class SpectrumCalculator extends UnicastRemoteObject
 
       // compute the source's distance from the site and skip if it's too far away
       distance = source.getMinDistance(site);
-      if (distance > MAX_DISTANCE) {
+      if (distance > maxDistance) {
         //update progress bar for skipped ruptures
         /*
                  if(source.getRupture(0).getRuptureSurface().getNumCols() != 1) throw new RuntimeException("prob");
@@ -346,11 +405,12 @@ public class SpectrumCalculator extends UnicastRemoteObject
      // declare some varibles used in the calculation
      double qkProb, distance;
      int k;
-
+     
+     double maxDistance = maxDistanceParam.getValue();
 
      // set the maximum distance in the attenuation relationship
      // (Note- other types of IMRs may not have this method so we should really check type here)
-     imr.setUserMaxDistance(MAX_DISTANCE);
+     imr.setUserMaxDistance(maxDistance);
 
 
 
@@ -392,7 +452,7 @@ public class SpectrumCalculator extends UnicastRemoteObject
 
        // compute the source's distance from the site and skip if it's too far away
        distance = source.getMinDistance(site);
-       if(distance > MAX_DISTANCE) {
+       if(distance > maxDistance) {
          //update progress bar for skipped ruptures
          /*
          if(source.getRupture(0).getRuptureSurface().getNumCols() != 1) throw new RuntimeException("prob");

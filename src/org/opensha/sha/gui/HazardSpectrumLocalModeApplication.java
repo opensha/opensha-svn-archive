@@ -20,6 +20,7 @@ import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.DoubleDiscreteParameter;
 import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
@@ -91,6 +92,22 @@ public class HazardSpectrumLocalModeApplication
   public static String getAppVersion(){
     return version;
   }
+  
+	/**
+	 *
+	 * @throws RemoteException 
+	 * @returns the Adjustable parameters for the ScenarioShakeMap calculator
+	 */
+	public ParameterList getCalcAdjustableParams(){
+			try {
+				return calc.getAdjustableParams();
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
+	}
+
 
   
   
@@ -198,8 +215,12 @@ public class HazardSpectrumLocalModeApplication
    */
   protected void createCalcInstance(){
     try{
-      if(calc == null)
+      if(calc == null) {
         calc = new SpectrumCalculator();
+		if(this.calcParamsControl != null)
+			calc.setAdjustableParams(calcParamsControl.getAdjustableCalcParams());
+      }
+
       /*if(disaggregationFlag)
         if(disaggCalc == null)
           disaggCalc = new DisaggregationCalculator();*/

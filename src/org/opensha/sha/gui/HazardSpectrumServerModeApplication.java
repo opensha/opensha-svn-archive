@@ -9,6 +9,8 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
+
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import java.lang.reflect.InvocationTargetException;
@@ -193,17 +195,27 @@ public class HazardSpectrumServerModeApplication
    * calculations are performed on the user's own machine.
    */
   protected void createCalcInstance() {
-    try{
-    if (calc == null && isProbabilisticCurve)
-      calc = (new RemoteResponseSpectrumClient()).getRemoteSpectrumCalc();
-    else if(calc == null && !isProbabilisticCurve)
-      calc = new SpectrumCalculator();
-    }catch (Exception ex) {
-        ExceptionWindow bugWindow = new ExceptionWindow(this,
-            ex, this.getParametersInfoAsString());
-        bugWindow.setVisible(true);
-        bugWindow.pack();
-      }
+	  try{
+		  if (calc == null && isProbabilisticCurve) {
+			  calc = (new RemoteResponseSpectrumClient()).getRemoteSpectrumCalc();
+			  if(this.calcParamsControl != null)
+				  try {
+					  calc.setAdjustableParams(calcParamsControl.getAdjustableCalcParams());
+				  } catch (RemoteException e) {
+					  // TODO Auto-generated catch block
+					  e.printStackTrace();
+				  }
+		  }
+		  else if(calc == null && !isProbabilisticCurve) {
+			  calc = new SpectrumCalculator();
+			  calc.setAdjustableParams(calcParamsControl.getAdjustableCalcParams());
+		  }
+	  }catch (Exception ex) {
+		  ExceptionWindow bugWindow = new ExceptionWindow(this,
+				  ex, this.getParametersInfoAsString());
+		  bugWindow.setVisible(true);
+		  bugWindow.pack();
+	  }
   }
 
   public static void main(String[] args) {
