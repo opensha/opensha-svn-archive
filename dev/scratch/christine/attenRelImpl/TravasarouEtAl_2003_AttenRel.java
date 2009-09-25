@@ -116,12 +116,7 @@ public class TravasarouEtAl_2003_AttenRel
   protected final static Double DISTANCE_RUP_WARN_MIN = new Double(0.0);
   protected final static Double DISTANCE_RUP_WARN_MAX = new Double(200.0);
 //  protected final static Double PGA_PARAM_MAX = new Double(100.0);
-  protected final static Double IA_PARAM_MIN = new Double(Math.log(1.0));
-  protected final static Double IA_PARAM_MAX = new Double(100.0);
-  protected final static Double IA_PARAM_WARN_MIN = new Double(Math.log(1.0));
-  protected final static Double IA_PARAM_WARN_MAX = new Double(Math.log(100.0));
-  protected final static Double IA_PARAM_DEFAULT = new Double(1.0);
- 
+
 
   /**
    * Style of faulting option

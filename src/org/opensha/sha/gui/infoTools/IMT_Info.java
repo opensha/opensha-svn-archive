@@ -57,7 +57,7 @@ public final class IMT_Info {
   public final static double DEFAULT_MMI = 7.0;
 
 //Default values for the IA
-  public final static double MIN_IA = .01;
+  public final static double MIN_IA = .0001;
   public final static double MAX_IA = 1000;
   public final static double NUM_IA = 51;
   public final static double DEFAULT_IA = 0.1;
