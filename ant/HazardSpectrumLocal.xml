@@ -32,10 +32,10 @@
 	<target name="pack">
 		<manifest file="${build}/MANIFEST.MF">
 			<attribute name="Main-Class" 
-				       value="org.opensha.sha.gui.HazardCurveLocalModeApplication" />
+				       value="org.opensha.sha.gui.HazardSpectrumLocalModeApplication" />
 			<attribute name="Built-By" value="${user.name}" />
 		</manifest>
-		<jar destfile="${dist}/HazardCurveApp.jar"
+		<jar destfile="${dist}/HazardSpectrumLocalModeApp.jar"
 		     basedir="${build}"
 		     manifest="${build}/MANIFEST.MF">
 			<include name="at/**" />
@@ -71,7 +71,7 @@
 			<src path="${src}" />
 			<src path="${dev}" />
 			<!-- spcifying the main() class compiles all dependencies -->
-			<include name="org/opensha/sha/gui/HazardCurveLocalModeApplication.java" />
+			<include name="org/opensha/sha/gui/HazardSpectrumLocalModeApplication.java" />
 			<!-- paths to hard-coded classes -->
 			<include name="org/opensha/sha/earthquake/rupForecastImpl/**" />
 			<include name="org/opensha/sha/cybershake/openshaAPIs/**" />

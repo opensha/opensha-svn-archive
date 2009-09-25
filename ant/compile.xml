@@ -1,0 +1,176 @@
+
+
+<project basedir="." default="build" name="Compile">
+
+	<property name="build" value="../classes" />
+	<property name="tmpdest" value="../classes.temp" />
+	<property name="src" value="../src/" />
+	<property name="dev" value="../dev/" />
+	<property name="lib.dir" value="../lib" />
+
+	<target name="compile">
+		<javac debug="true" deprecation="false" optimize="true" destdir="${tmpdest}" nowarn="true" source="1.5" target="1.5" failonerror="yes" verbose="no" fork="yes" memoryInitialSize="512m" memoryMaximumSize="1024m">
+
+			<src path="${src}" />
+			<src path="${dev}" />
+			<include name="scratch/**" />
+			<include name="org/**" />
+			<include name="com/**" />
+			<include name="nnls/**" />
+			<exclude name="**/_nobuild/**" />
+		</javac>
+	</target>
+
+	<target name="init">
+		<mkdir dir="${tmpdest}" />
+	</target>
+
+	<target name="precompilecleanup">
+		<delete dir="${tmpdest}" failonerror="yes" verbose="no" />
+	</target>
+
+	<target name="build" depends="precompilecleanup,init,compile">
+		<delete dir="${build}" failonerror="yes" verbose="no" />
+
+		<move todir="${build}">
+			<fileset dir="${tmpdest}" />
+		</move>
+
+		<delete dir="${tmpdest}" failonerror="yes" verbose="no" />
+	</target>
+
+	<target name="jar" depends="precompilecleanup,init,compile">
+		<jar destfile="OpenSHA_classes_only.jar" basedir="${build}">
+			<!-- <include name="org/**"/>
+			<include name="etc/**"/>
+			<include name="com/**"/>
+			<include name="campbell_2006_coeff.txt"/>
+			<include name="campbell_2008_coeff.txt"/>
+			<include name="nnls/**"/>
+			<include name="oracle/**"/>
+			<include name="scratchJavaDevelopers/**"/> -->
+		</jar>
+		<delete dir="${tmpdest}" failonerror="yes" verbose="no" />
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+		These targets are for copying resources            
+	 - - - - - - - - - - - - - - - - - -->
+
+	<target name="resource.erfs.main">
+		<copy todir="${build}/org/opensha/sha/earthquake/rupForecastImpl/"
+				      overwrite="true">
+			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/">
+				<include name="Frankel02/**" />
+				<exclude name="Frankel02/**/*.java" />
+				<include name="Frankel96/**" />
+				<exclude name="Frankel96/**/*.java" />
+				<include name="WG02/singleIterationWithModes.OpenSHA.30yr.txt" />
+				<include name="WGCEP_UCERF1/**" />
+				<exclude name="WGCEP_UCERF1/**/*.java" />
+				<include name="step/*.txt" />
+				<include name="YuccaMountain/*.txt" />
+			</fileset>
+		</copy>
+
+		<copy todir="${build}/scratch/bbradley" overwrite="true">
+			<fileset dir="${dev}/scratch/bbradley">
+				<include name="**/*.txt" />
+			</fileset>
+		</copy>
+
+		<copy todir="${build}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data" overwrite="true">
+			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data">
+				<include name="**/*.txt" />
+				<include name="**/*.xml" />
+				<include name="**/*.xls" />
+			</fileset>
+		</copy>
+
+		<copy todir="${build}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/griddedSeis" overwrite="true">
+			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/griddedSeis">
+				<include name="**/*.txt" />
+				<include name="**/*.asc" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="resource.erfs.dev">
+		<!-- This is for ERFs that we won't include in our regular apps because they are under
+		development -->
+		<copy todir="${build}/org/opensha/sha/earthquake/rupForecastImpl/GEM" overwrite="true">
+			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/GEM">
+				<include name="**/*.txt" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="resource.erfs.aux">
+		<!-- This is for ERFs that we won't include in our regular apps because they require
+		too much data, but may be useful to someone. -->
+		<copy todir="${build}/org/opensha/sha/earthquake/rupForecastImpl/NSHMP_CEUS08/" overwrite="true">
+			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/NSHMP_CEUS08/">
+				<include name="inputFiles/*.txt"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="resource.imrs">
+		<copy todir="${build}/org/opensha/sha/imr/attenRelImpl/" overwrite="true">
+			<fileset dir="${src}/org/opensha/sha/imr/attenRelImpl/">
+				<include name="**/*.txt" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="resource.misc.required">
+		<!-- Put things in here that are required by lots of our apps, but don't
+		fit into another category well -->
+
+		<copy todir="${build}/resources/images" overwrite="true">
+			<fileset dir="${src}/resources/images"/>
+		</copy>
+
+		<copy todir="${build}/org/opensha/refFaultParamDb/dao/db/" overwrite="true">
+			<fileset dir="${src}/org/opensha/refFaultParamDb/dao/db/">
+				<include name="*.dat" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="resource.hazard.apps">
+		<!--			ERF Resources				-->
+		<antcall target="resource.erfs.main" />
+
+		<!--			IMR Resources				-->
+		<antcall target="resource.imrs" />
+
+		<!--			Other Resources				-->
+		<antcall target="resource.misc.required" />
+	</target>
+
+	<target name="resource.all">
+		<antcall target="resource.hazard.apps" />
+
+		<antcall target="resource.erfs.dev" />
+		<antcall target="resource.erfs.aux" />
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+	These targets are for unjar-ing lib files        
+	 - - - - - - - - - - - - - - - - - -->
+	
+	<target name="unjar.libs.common">
+		<unjar src="${lib.dir}/itext-1.3.jar" dest="${build}" />
+		<unjar src="${lib.dir}/jpedal.jar" dest="${build}" />
+		<unjar src="${lib.dir}/jcommon-1.0.5.jar" dest="${build}" />
+		<unjar src="${lib.dir}/jfreechart-1.0.2.jar" dest="${build}" />
+		<unjar src="${lib.dir}/mysql-connector-java-3.1.6-bin.jar"
+			       dest="${build}" />
+		<unjar src="${lib.dir}/dom4j.jar" dest="${build}" />
+		<unjar src="${lib.dir}/poi-2.5.1-final-20040804.jar" dest="${build}" />
+		<unjar src="${lib.dir}/f2jutil.jar" dest="${build}" />
+		<unjar src="${lib.dir}/BrowserLauncher2-1_3.jar" dest="${build}" />
+	</target>
+
+</project>

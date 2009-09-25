@@ -22,8 +22,8 @@
           target: build.app
          ================================= -->
 	<target name="build.app" depends="init, compile, copy, pack" />
-	
-	
+
+
 	<!-- - - - - - - - - - - - - - - - - - 
           target: pack
           
@@ -32,10 +32,10 @@
 	<target name="pack">
 		<manifest file="${build}/MANIFEST.MF">
 			<attribute name="Main-Class" 
-				       value="org.opensha.sha.gui.HazardCurveLocalModeApplication" />
+				       value="org.opensha.sha.gui.ScenarioShakeMapLocalModeCalcApp" />
 			<attribute name="Built-By" value="${user.name}" />
 		</manifest>
-		<jar destfile="${dist}/HazardCurveApp.jar"
+		<jar destfile="${dist}/ScenarioShakeMapLocalCalcApp.jar"
 		     basedir="${build}"
 		     manifest="${build}/MANIFEST.MF">
 			<include name="at/**" />
@@ -45,16 +45,17 @@
 			<include name="org/**" />
 			<include name="resources/**" />
 		</jar>
-		<antcall target="clean.build.dir"></antcall>
+		<antcall target="clean.build.dir">
+		</antcall>
 	</target>
-	
+
 	<!-- - - - - - - - - - - - - - - - - - 
           target: compile                      
          - - - - - - - - - - - - - - - - - -->
-    <target name="compile">
-        <antcall target="compile.java" />
-        <antcall target="compile.rmi" />
-    </target>
+	<target name="compile">
+		<antcall target="compile.java" />
+		<antcall target="compile.rmi" />
+	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
           target: compile.java
@@ -70,17 +71,18 @@
 			</classpath>
 			<src path="${src}" />
 			<src path="${dev}" />
-			<!-- spcifying the main() class compiles all dependencies -->
-			<include name="org/opensha/sha/gui/HazardCurveLocalModeApplication.java" />
-			<!-- paths to hard-coded classes -->
-			<include name="org/opensha/sha/earthquake/rupForecastImpl/**" />
-			<include name="org/opensha/sha/cybershake/openshaAPIs/**" />
 			<include name="org/opensha/sha/imr/attenRelImpl/**" />
 			<exclude name="org/opensha/sha/imr/attenRelImpl/gui/**" />
 			<exclude name="org/opensha/sha/imr/attenRelImpl/test/**" />
+			<include name="org/opensha/sha/gui/ScenarioShakeMapLocalModeCalcApp.java" />
+			<include name="org/opensha/sha/param/**" />
+			<include name="org/opensha/param/**" />
+			<include name="org/opensha/sha/earthquake/**" />
+			<include name="org/opensha/sha/calc/ScenarioShakeMapCalculator.java" />
+			<include name="scratch/bbradley/**" />
 		</javac>
 	</target>
-	
+
 	<!-- - - - - - - - - - - - - - - - - - 
           target: compile.rmi
          - - - - - - - - - - - - - - - - - -->
@@ -96,24 +98,24 @@
 			<include name="org/opensha/sha/calc/HazardCurveCalculator.class" />
 		</rmic>
 	</target>
-	
+
 	<!-- - - - - - - - - - - - - - - - - - 
           target: copy                      
           
           Copies resources and unpacks required libs.
          - - - - - - - - - - - - - - - - - -->
-    <target name="copy">
-        <antcall target="copy.resources" />
-        <antcall target="unjar.libs" />
-    </target>
-	
+	<target name="copy">
+		<antcall target="copy.resources" />
+		<antcall target="unjar.libs" />
+	</target>
+
 	<!-- - - - - - - - - - - - - - - - - - 
           target: copy.resources
          - - - - - - - - - - - - - - - - - -->
 	<target name="copy.resources">
 		<ant antfile="compile.xml" target="resource.hazard.apps"/>
 	</target>
-	
+
 	<!-- - - - - - - - - - - - - - - - - - 
           target: unjar.libs
           
@@ -132,7 +134,7 @@
 		<!-- clean build dir if it wasn't cleaned-->
 		<antcall target="clean.build.dir" />
 	</target>
-	
+
 	<!-- - - - - - - - - - - - - - - - - - 
           target: clean.build.dir                      
          - - - - - - - - - - - - - - - - - -->
