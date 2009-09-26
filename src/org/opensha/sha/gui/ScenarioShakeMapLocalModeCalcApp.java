@@ -59,7 +59,7 @@ public class ScenarioShakeMapLocalModeCalcApp
     /**
      *  The object class names for all the supported Eqk Rup Forecasts
      */
-    erf_Classes.add(GEM_TEST_ERF_CLASS_NAME);
+//    erf_Classes.add(GEM_TEST_ERF_CLASS_NAME);
     erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
     erf_Classes.add(WGCEP_MEAN_UCERF2_CLASS_NAME);
     erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);

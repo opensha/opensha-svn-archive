@@ -265,7 +265,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	private JButton peelButton;
 	protected JCheckBox progressCheckBox; // TODO make private
 	protected JComboBox controlComboBox; // TODO make private
-	private JComboBox probDeterComboBox;
+	protected JComboBox probDeterComboBox;
 
 	private JPanel plotPanel;
 	private JPanel emptyPlotPanel;
@@ -326,7 +326,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	boolean addData = true;
 	private FlowLayout flowLayout1 = new FlowLayout();
 
-	protected final static String version = "0.0.18";
+	protected final static String version = "0.0.19";
 
 	protected final static String versionURL = "http://www.opensha.org/applications/hazCurvApp/HazardCurveApp_Version.txt";
 	protected final static String appURL = "http://www.opensha.org/applications/hazCurvApp/HazardCurveServerModeApp.jar";
@@ -2131,7 +2131,10 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 * @returns the Metadata string for the Calculation Settings Adjustable Params
 	 */
 	public String getCalcParamMetadataString(){
-		return getCalcAdjustableParams().getParameterListMetadataString();
+		ParameterList params = getCalcAdjustableParams();
+		if (params == null)
+			return "";
+		return params.getParameterListMetadataString();
 	}
 
 

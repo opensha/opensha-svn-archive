@@ -1,0 +1,19 @@
+
+
+<project basedir="." default="build.all" name="MultiAppBuilder">
+
+	<target name="build.all">
+		<antcall target="build.local" />
+		<antcall target="build.server" />
+	</target>
+
+	<target name="build.local">
+		<ant antfile="HazardCurveLocal.xml" target="build.app"/>
+		<ant antfile="HazardSpectrumLocal.xml" target="build.app"/>
+		<ant antfile="ScenarioShakemapLocal.xml" target="build.app"/>
+	</target>
+	
+	<target name="build.server">
+	</target>
+
+</project>

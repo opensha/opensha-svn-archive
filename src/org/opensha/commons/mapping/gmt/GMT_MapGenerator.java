@@ -174,7 +174,7 @@ public class GMT_MapGenerator implements Serializable{
 	public final static String COLOR_SCALE_MODE_INFO = "Set manually or from max/min of the data";
 	public final static String COLOR_SCALE_MODE_MANUALLY = "Manually";
 	public final static String COLOR_SCALE_MODE_FROMDATA = "From Data";
-	public final static String COLOR_SCALE_MODE_DEFAULT = COLOR_SCALE_MODE_MANUALLY;
+	public final static String COLOR_SCALE_MODE_DEFAULT = COLOR_SCALE_MODE_FROMDATA;
 	StringParameter colorScaleModeParam;
 
 	// for color scale limits
