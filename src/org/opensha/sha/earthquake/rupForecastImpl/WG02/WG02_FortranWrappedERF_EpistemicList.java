@@ -54,7 +54,7 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList{
   /**
    * Static variable for input file name
    */
-  private final static String WG02_CODE_PATH ="/usr/local/tomcat/default/webapps/OpenSHA/wg99/wg99_src_v27";
+  private final static String WG02_CODE_PATH ="/usr/local/tomcat/default/webapps/OpenSHA/wg99/wg99_src_v27/";
   // this is the old path on gravity
 //  private final static String WG02_CODE_PATH ="/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/wg99/wg99_src_v27/";
   private final static String WG02_INPUT_FILE ="base_OpenSHA.inp";   // the templet WG02-code input file modified for OpenSHA purposes
