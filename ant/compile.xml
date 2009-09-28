@@ -203,5 +203,9 @@
 			<include name="org/opensha/sha/calc/SpectrumCalculator.class" />
 		</rmic>
 	</target>
+	
+	<target name="rmi.all">
+		<antcall target="rmi.all" />
+	</target>
 
 </project>
