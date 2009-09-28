@@ -7,6 +7,6 @@ resource=${2-0}
 
 $ant -f compile.xml -lib ../lib:../dev/scratch/ISTI/isti.util.jar
 if [[ $resource -eq 1 ]];then
-	$ant -f compile.xml resource
+	$ant -f compile.xml resource.all
 fi
 exit $?
