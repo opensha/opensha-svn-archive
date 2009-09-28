@@ -205,7 +205,7 @@
 	</target>
 	
 	<target name="rmi.all">
-		<antcall target="rmi.all" />
+		<antcall target="rmi.hazard.spectrum" />
 	</target>
 
 </project>
