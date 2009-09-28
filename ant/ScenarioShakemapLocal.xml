@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project basedir="." default="build.app" name="HazardCurveLocal">
+<project basedir="." default="build.app" name="ScenarioShakemapLocal">
 	<description>
         Builds the HazardCurveLocal mode application as a launchable jar.
     </description>
@@ -87,16 +87,7 @@
           target: compile.rmi
          - - - - - - - - - - - - - - - - - -->
 	<target name="compile.rmi">
-		<rmic base="${build}">
-			<include name="org/opensha/sha/earthquake/rupForecastImpl/remote/RemoteERF_ListFactoryImpl.class" />
-			<include name="org/opensha/sha/earthquake/rupForecastImpl/remote/RemoteEqkRupForecast_Impl.class" />
-			<include name="org/opensha/sha/earthquake/rupForecastImpl/remote/RemoteERF_ListImpl.class" />
-			<include name="org/opensha/sha/earthquake/rupForecastImpl/remote/RemoteERF_FactoryImpl.class" />
-			<include name="org/opensha/sha/calc/remoteCalc/RemoteHazardCurveFactoryImpl.class" />
-			<include name="org/opensha/sha/calc/remoteCalc/RemoteDisaggregationCalcFactoryImpl.class" />
-			<include name="org/opensha/sha/calc/disaggregation/DisaggregationCalculator.class" />
-			<include name="org/opensha/sha/calc/HazardCurveCalculator.class" />
-		</rmic>
+		<!-- No RMI needed for local mode -->
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 

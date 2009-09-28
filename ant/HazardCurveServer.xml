@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project basedir="." default="build.app" name="HazardCurveLocal">
+<project basedir="." default="build.app" name="HazardCurveServer">
 	<description>
         Builds the HazardCurveLocal mode application as a launchable jar.
     </description>
@@ -11,8 +11,6 @@
 	<property name="src" value="../src" />
 	<property name="dev" value="../dev" />
 	<property name="lib.dir" value="../lib" />
-	<property name="antlib.dir" value="lib" />
-		
 
 	<path id="library.classpath">
 		<fileset dir="${lib.dir}">
@@ -24,8 +22,8 @@
           target: build.app
          ================================= -->
 	<target name="build.app" depends="init, compile, copy, pack" />
-
-
+	
+	
 	<!-- - - - - - - - - - - - - - - - - - 
           target: pack
           
@@ -34,10 +32,10 @@
 	<target name="pack">
 		<manifest file="${build}/MANIFEST.MF">
 			<attribute name="Main-Class" 
-				       value="org.opensha.sha.gui.HazardCurveLocalModeApplication" />
+				       value="org.opensha.sha.gui.HazardCurveServerModeApplication" />
 			<attribute name="Built-By" value="${user.name}" />
 		</manifest>
-		<jar destfile="${dist}/HazardCurveApp.jar"
+		<jar destfile="${dist}/HazardCurveServerModeApp.jar"
 		     basedir="${build}"
 		     manifest="${build}/MANIFEST.MF">
 			<include name="at/**" />
@@ -48,17 +46,16 @@
 			<include name="scratch/**" />
 			<include name="resources/**" />
 		</jar>
-		<antcall target="clean.build.dir">
-		</antcall>
+		<antcall target="clean.build.dir"></antcall>
 	</target>
-
+	
 	<!-- - - - - - - - - - - - - - - - - - 
           target: compile                      
          - - - - - - - - - - - - - - - - - -->
-	<target name="compile">
-		<antcall target="compile.java" />
-		<antcall target="compile.rmi" />
-	</target>
+    <target name="compile">
+        <antcall target="compile.java" />
+        <antcall target="compile.rmi" />
+    </target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
           target: compile.java
@@ -75,7 +72,7 @@
 			<src path="${src}" />
 			<src path="${dev}" />
 			<!-- spcifying the main() class compiles all dependencies -->
-			<include name="org/opensha/sha/gui/HazardCurveLocalModeApplication.java" />
+			<include name="org/opensha/sha/gui/HazardCurveServerModeApplication.java" />
 			<!-- paths to hard-coded classes -->
 			<include name="org/opensha/sha/earthquake/rupForecastImpl/**" />
 			<include name="org/opensha/sha/cybershake/openshaAPIs/**" />
@@ -85,31 +82,31 @@
 			<exclude name="org/opensha/sha/imr/attenRelImpl/test/**" />
 		</javac>
 	</target>
-
+	
 	<!-- - - - - - - - - - - - - - - - - - 
           target: compile.rmi
          - - - - - - - - - - - - - - - - - -->
 	<target name="compile.rmi">
 		<ant antfile="compile.xml" target="rmi.hazard.curve"/>
 	</target>
-
+	
 	<!-- - - - - - - - - - - - - - - - - - 
           target: copy                      
           
           Copies resources and unpacks required libs.
          - - - - - - - - - - - - - - - - - -->
-	<target name="copy">
-		<antcall target="copy.resources" />
-		<antcall target="unjar.libs" />
-	</target>
-
+    <target name="copy">
+        <antcall target="copy.resources" />
+        <antcall target="unjar.libs" />
+    </target>
+	
 	<!-- - - - - - - - - - - - - - - - - - 
           target: copy.resources
          - - - - - - - - - - - - - - - - - -->
 	<target name="copy.resources">
 		<ant antfile="compile.xml" target="resource.hazard.apps"/>
 	</target>
-
+	
 	<!-- - - - - - - - - - - - - - - - - - 
           target: unjar.libs
           
@@ -128,7 +125,7 @@
 		<!-- clean build dir if it wasn't cleaned-->
 		<antcall target="clean.build.dir" />
 	</target>
-
+	
 	<!-- - - - - - - - - - - - - - - - - - 
           target: clean.build.dir                      
          - - - - - - - - - - - - - - - - - -->
@@ -136,28 +133,6 @@
 		<delete includeemptydirs="true">
 			<fileset dir="${build}" includes="**/*"/>
 		</delete>
-	</target>
-
-	<path id= "svnant.cp" >
-		<fileset dir= "${antlib.dir}/svnant-1.3.0" >
-			<include name= "*.jar" />
-		</fileset>
-	</path>
-
-	<typedef resource="org/tigris/subversion/svnant/svnantlib.xml" 
-		     classpathref="svnant.cp" />
-	
-	<target name="testSVNAnt">
-	     <svn>
-	         <wcVersion path= ".." prefix="svn."/>
-	     </svn>
-
-	</target>
-	
-	<target name="yourmom" depends="testSVNAnt">
-	     <echo message= "Subversion repository url: ${svn.repository.url}" />
-	     <echo message= "Subversion repository version: ${svn.revision.max}" />
-		
 	</target>
 
 </project>
