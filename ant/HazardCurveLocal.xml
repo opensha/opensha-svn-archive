@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!-- $Id$ -->
+
 <project basedir="." default="build.app" name="HazardCurveLocal">
 	<description>
         Builds the HazardCurveLocal mode application as a launchable jar.
