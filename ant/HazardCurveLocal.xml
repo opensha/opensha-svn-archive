@@ -142,18 +142,4 @@
 		</delete>
 	</target>
 
-
-<!--
-	<target name="test">
-		
-		<propertyfile file="${antlib.dir}/build.version"
-		              comment="OpensHA version file. Do NOT edit!">
-			<entry key="build.number" type="int" default="0" operation="+" />
-		</propertyfile>
-	
-		<echo message="Release number: test-${major.version}.${minor.version}.${build.number}.${svn.revision.max}" />
-
-
-	</target>
--->
 </project>
