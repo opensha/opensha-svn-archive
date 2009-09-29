@@ -1,5 +1,7 @@
 package org.opensha.nshmp.sha.nico;
 
+import java.net.MalformedURLException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -104,7 +106,13 @@ public class MeanSigmaCalcWithSiteEffectsProvided extends MeanSigmaCalc{
     }
     catch (RemoteException ex) {
       ex.printStackTrace();
-    }
+    } catch (MalformedURLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (NotBoundException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
     calc.createAttenuationRelationObjects();
     calc.getMeanSigma();
   }

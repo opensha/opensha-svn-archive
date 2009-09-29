@@ -1,5 +1,7 @@
 package org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases;
 
+import java.net.MalformedURLException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
 import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_NonPlanarFaultForecastClient;
@@ -39,7 +41,13 @@ public class PEER_LogicTreeServerBasedERF_List extends PEER_LogicTreeERF_List {
       return forecast;
     }catch(RemoteException e){
       e.printStackTrace();
-    }
+    } catch (MalformedURLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (NotBoundException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
     return null;
   }
 

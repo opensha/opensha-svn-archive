@@ -16,6 +16,8 @@ import java.util.*;
 import java.io.*;
 import org.opensha.sha.util.SiteTranslator;
 
+import java.net.MalformedURLException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
 import org.opensha.commons.calc.RelativeLocation;
@@ -89,8 +91,10 @@ public class MeanSigmaCalc
 
   /**
    * Creating the instance of the Frankel02 forecast
+ * @throws NotBoundException 
+ * @throws MalformedURLException 
    */
-  protected void createFrankel02Forecast() throws RemoteException{
+  protected void createFrankel02Forecast() throws RemoteException, MalformedURLException, NotBoundException{
     frankelForecast = new Frankel02_AdjustableEqkRupForecastClient();
     frankelForecast.getAdjustableParameterList().getParameter(Frankel02_AdjustableEqkRupForecast.
         BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_EXCLUDE);
@@ -418,7 +422,13 @@ public class MeanSigmaCalc
     }
     catch (RemoteException ex) {
       ex.printStackTrace();
-    }
+    } catch (MalformedURLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (NotBoundException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
     calc.createAttenuationRelationObjects();
     calc.getSiteParamsForRegion();
     calc.getMeanSigma();

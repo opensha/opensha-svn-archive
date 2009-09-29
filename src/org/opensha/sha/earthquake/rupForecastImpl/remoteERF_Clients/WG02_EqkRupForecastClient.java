@@ -1,6 +1,8 @@
 package org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients;
 
 import java.util.*;
+import java.net.MalformedURLException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
 import org.opensha.commons.data.TimeSpan;
@@ -24,8 +26,10 @@ public class WG02_EqkRupForecastClient extends RemoteERF_Client {
   /**
    * Class default constructor
    * @throws java.rmi.RemoteException
+ * @throws NotBoundException 
+ * @throws MalformedURLException 
    */
-  public WG02_EqkRupForecastClient() throws java.rmi.RemoteException{
+  public WG02_EqkRupForecastClient() throws java.rmi.RemoteException, MalformedURLException, NotBoundException{
     getRemoteERF(className,remoteRegistrationName);
   }
 

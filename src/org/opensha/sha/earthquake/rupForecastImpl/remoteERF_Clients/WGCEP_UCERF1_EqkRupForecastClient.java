@@ -1,5 +1,8 @@
 package org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients;
 
+import java.net.MalformedURLException;
+import java.rmi.NotBoundException;
+
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RegisterRemoteERF_Factory;
 
@@ -15,7 +18,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.remote.RegisterRemoteERF_Facto
 
 public class WGCEP_UCERF1_EqkRupForecastClient extends RemoteERF_Client {
 
-  public WGCEP_UCERF1_EqkRupForecastClient() throws java.rmi.RemoteException{
+  public WGCEP_UCERF1_EqkRupForecastClient() throws java.rmi.RemoteException, MalformedURLException, NotBoundException{
     String className = "org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast";
     String remoteRegistrationName = RegisterRemoteERF_Factory.registrationName;
     getRemoteERF(className,remoteRegistrationName);
