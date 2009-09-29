@@ -45,7 +45,9 @@ public class NewZealandERFv1 extends EqkRupForecast {
 
 //	private final static String FAULT_SOURCE_FILENAME = "org/opensha/sha/earthquake/rupForecastImpl/NewZealand/NZ_FLTmodel.txt";
 //	private final static String BG_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/NewZealand/NZ_BKmodel.txt";
-	private final static String FAULT_SOURCE_FILENAME = "scratch/bbradley/NZ_FLTmodeldraft.txt";
+//	private final static String FAULT_SOURCE_FILENAME = "scratch/bbradley/NZ_FLTmodeldraft.txt";
+//	private final static String BG_FILE_NAME = "scratch/bbradley/NZ_BKmodeldraft.txt";
+	private final static String FAULT_SOURCE_FILENAME = "scratch/bbradley/NZ_FLTmodel0909.txt";
 	private final static String BG_FILE_NAME = "scratch/bbradley/NZ_BKmodeldraft.txt";
 	
 	// Min/Max/Num Mags for Mag Freq Dist for making fault sources
