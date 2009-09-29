@@ -5,14 +5,15 @@
         Builds the HazardCurveLocal mode application as a launchable jar.
     </description>
 
+	<import file="include/utils.xml"/>
+	
 	<!-- global properties -->
+	<property name="app.name" value="HazardCurveApp" />
 	<property name="build" value="../build" />
 	<property name="dist" value="../dist" />
 	<property name="src" value="../src" />
 	<property name="dev" value="../dev" />
 	<property name="lib.dir" value="../lib" />
-	<property name="antlib.dir" value="lib" />
-		
 
 	<path id="library.classpath">
 		<fileset dir="${lib.dir}">
@@ -20,24 +21,28 @@
 		</fileset>
 	</path>
 
+
 	<!-- ================================= 
           target: build.app
          ================================= -->
 	<target name="build.app" depends="init, compile, copy, pack" />
 
-
+	
 	<!-- - - - - - - - - - - - - - - - - - 
           target: pack
           
           Creates manifest and jar; cleans up build dir.                     
          - - - - - - - - - - - - - - - - - -->
 	<target name="pack">
+		<!-- build manifest -->
 		<manifest file="${build}/MANIFEST.MF">
 			<attribute name="Main-Class" 
 				       value="org.opensha.sha.gui.HazardCurveLocalModeApplication" />
 			<attribute name="Built-By" value="${user.name}" />
 		</manifest>
-		<jar destfile="${dist}/HazardCurveApp.jar"
+		<!-- set version number -->
+		<runtarget target="set.app.version" />
+		<jar destfile="${dist}/${app.name}-${app.version}.jar"
 		     basedir="${build}"
 		     manifest="${build}/MANIFEST.MF">
 			<include name="at/**" />
@@ -48,8 +53,7 @@
 			<include name="scratch/**" />
 			<include name="resources/**" />
 		</jar>
-		<antcall target="clean.build.dir">
-		</antcall>
+		<antcall target="clean.build.dir" />
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
@@ -138,26 +142,18 @@
 		</delete>
 	</target>
 
-	<path id= "svnant.cp" >
-		<fileset dir= "${antlib.dir}/svnant-1.3.0" >
-			<include name= "*.jar" />
-		</fileset>
-	</path>
 
-	<typedef resource="org/tigris/subversion/svnant/svnantlib.xml" 
-		     classpathref="svnant.cp" />
-	
-	<target name="testSVNAnt">
-	     <svn>
-	         <wcVersion path= ".." prefix="svn."/>
-	     </svn>
-
-	</target>
-	
-	<target name="yourmom" depends="testSVNAnt">
-	     <echo message= "Subversion repository url: ${svn.repository.url}" />
-	     <echo message= "Subversion repository version: ${svn.revision.max}" />
+<!--
+	<target name="test">
 		
-	</target>
+		<propertyfile file="${antlib.dir}/build.version"
+		              comment="OpensHA version file. Do NOT edit!">
+			<entry key="build.number" type="int" default="0" operation="+" />
+		</propertyfile>
+	
+		<echo message="Release number: test-${major.version}.${minor.version}.${build.number}.${svn.revision.max}" />
 
+
+	</target>
+-->
 </project>

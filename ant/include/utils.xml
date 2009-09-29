@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- This file includes additional and shared tasks and properties -->
+
+<project basedir="." name="buildutils">
+	
+	<dirname property="imported.basedir" file="${ant.file.buildutils}"/>
+	<property name="antlib.dir" value="${imported.basedir}/../lib" />
+	<property name="include.dir" value="${imported.basedir}/../include" />
+
+
+	<!-- svnant tasks -->
+	<typedef resource="org/tigris/subversion/svnant/svnantlib.xml">
+		<classpath>
+			<fileset dir= "${antlib.dir}/svnant-1.3.0" >
+				<include name= "*.jar" />
+			</fileset>
+		</classpath>
+	</typedef>
+
+
+	<!-- ant-contrib tasks -->
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
+		<classpath>
+			<pathelement location="${antlib.dir}/ant-contrib-1.0b3/ant-contrib-1.0b3.jar" />
+		</classpath>
+	</taskdef>
+
+	
+	<!-- versioning properties:
+			app.version 
+		 
+		 versioning targets:
+		 	set.app.version			: assembles app version values
+		 	update.major.version	: increments major version
+		 	update.minor.version	: increments minor version
+		 	update.build.number		: increments build
+	-->
+	<property name="prop.file.name" value="${include.dir}/build.version" />
+	<property name="prop.file.comment" value="OpensHA version file. Do NOT edit!" />
+	<property file="${prop.file.name}" />
+	<!--<var name="app.version" value="test" />-->
+	<target name="set.app.version">
+		<svn>
+			<wcVersion path=".." prefix="svn." />
+		</svn>
+		<var name="app.version" value="${major.version}.${minor.version}.${build.number}-${svn.revision.max}"/>
+	</target>
+	<target name="update.major.version">
+		<propertyfile file="${prop.file.name}" comment="${prop.file.comment}">
+			<entry key="major.version" type="int" default="0" operation="+" />
+			<entry key="minor.version" type="int" value="0" />
+			<entry key="build.number" type="int" value="0" />
+		</propertyfile>
+	</target>
+	<target name="update.minor.version">
+		<propertyfile file="${prop.file.name}" comment="${prop.file.comment}">
+			<entry key="minor.version" type="int" default="0" operation="+" />
+			<entry key="build.number" type="int" value="0" />
+		</propertyfile>
+	</target>
+	<target name="update.build.number">
+		<propertyfile file="${prop.file.name}" comment="${prop.file.comment}">
+			<entry key="build.number" type="int" default="0" operation="+" />
+		</propertyfile>
+	</target>
+
+</project>
