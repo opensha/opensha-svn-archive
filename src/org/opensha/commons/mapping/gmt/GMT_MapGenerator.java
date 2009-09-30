@@ -93,9 +93,9 @@ public class GMT_MapGenerator implements Serializable{
 	public static final String OPENSHA_PS2PDF_PATH = "/usr/bin/ps2pdf";
 	public static final String OPENSHA_CONVERT_PATH="/usr/bin/convert";
 	public static final String OPENSHA_GMT_DATA_PATH = "/export/opensha/data/gmt/";
-	public static final String OPENSHA_SERVLET_URL = "http://opensha.usc.edu:8080/OpenSHA_dev/GMT_MapGeneratorServlet";
+	public static final String OPENSHA_SERVLET_URL = "http://opensha.usc.edu:8080/OpenSHA/GMT_MapGeneratorServlet";
 	public static final String OPENSHA_JAVA_PATH = "/usr/java/1.5.0_10/bin/java";
-	public static final String OPENSHA_CLASSPATH = "/usr/local/tomcat/default/webapps/OpenSHA_dev/WEB-INF/classes";
+	public static final String OPENSHA_CLASSPATH = "/usr/local/tomcat/default/webapps/OpenSHA/WEB-INF/classes";
 
 	/*				gravity.usc.edu paths				*/
 	public static final String GRAVITY_GMT_PATH="/opt/install/gmt/bin/";

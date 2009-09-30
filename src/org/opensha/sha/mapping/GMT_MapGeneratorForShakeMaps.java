@@ -49,7 +49,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 	 */
 	protected final static String C = "GMT_MapGeneratorForShakeMaps";
 	
-	public static final String OPENSHA_HAZUS_SERVLET_URL = "http://opensha.usc.edu:8080/OpenSHA_dev/GMT_HazusMapServlet";
+	public static final String OPENSHA_HAZUS_SERVLET_URL = "http://opensha.usc.edu:8080/OpenSHA/GMT_HazusMapServlet";
 
 	// for debug purpose
 	protected final static boolean D = false;
