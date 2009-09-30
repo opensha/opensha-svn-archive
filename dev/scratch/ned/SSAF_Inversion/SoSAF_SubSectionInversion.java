@@ -26,6 +26,7 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.calc.nnls.NNLSWrapper;
 import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.ValueWeight;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -52,6 +53,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
 /**
  * This class does an inversion for the rate of events in an unsegmented model:
@@ -65,7 +67,7 @@ import org.opensha.sha.faultSurface.FaultTrace;
 public class SoSAF_SubSectionInversion {
 //	private final static String SEG_RATE_FILE_NAME = "scratchJavaDevelopers/ned/SSAF_Inversion/Appendix_C_Table7_Modified.xls";
 	private final static String SEG_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data/Appendix_C_Table7_091807.xls";
-	public final static String ROOT_PATH = "/Users/field/workspace/OpenSHA/scratchJavaDevelopers/ned/SSAF_Inversion/";
+	public final static String ROOT_PATH = "/Users/field/workspace/OpenSHA/dev/scratch/ned/SSAF_Inversion/";
 
 
 	private boolean D = true;
@@ -189,6 +191,93 @@ public class SoSAF_SubSectionInversion {
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * This plots the fault sub-sections in GMT
+	 * @param dirName
+	 */
+	public void writeAndPlotSubSectionsInGMT(String dirName) {
+		try{
+
+			// make the directories
+			String subdirName1 = this.ROOT_PATH+dirName +"/GMT_sections_plot";
+			String subdirName2 = this.ROOT_PATH+dirName +"/GMT_sections_plot/data";
+			File file1 = new File(subdirName1);
+			file1.mkdirs();
+			File file2 = new File(subdirName2);
+			file2.mkdirs();
+			
+			// make GMT script file
+			String gmtScriptName = subdirName1+"/gmtscript.txt";
+			String fullTraceDataName = subdirName1+"/fullTraceDataName.txt";
+			FileWriter fw2 = new FileWriter(gmtScriptName);
+			BufferedWriter br2 = new BufferedWriter(fw2);
+			FileWriter fw3 = new FileWriter(fullTraceDataName);
+			BufferedWriter br3 = new BufferedWriter(fw3);
+
+			// Initial GMT settings
+			String region="-R-121/-115/32.5/36";
+			String filename=subdirName1+"/map_SSAF.ps";
+			String viewAngle="-E210/25";
+			br2.write("cat                                     << END                  > "+subdirName1+"/map.cpt\n");
+			br2.write("-100   200     200     200     1600     200     200     200\n");
+			br2.write("END\n");
+			br2.write("cat                                     << END                  > "+subdirName1+"/slipRate.cpt\n");
+			br2.write("0   255     255     255     35     255     0     0\n");
+			br2.write("END\n");
+			br2.write("/sw/bin/grdcut /usr/scec/data/gmt/calTopo18.grd -G"+subdirName1+"/topo.grd "+region+"\n");
+			br2.write("/sw/bin/grdcut /usr/scec/data/gmt/calTopoInten18.grd -G"+subdirName1+"/inten.grd "+region+"\n");
+			br2.write("/sw/bin/grdview "+subdirName1+"/topo.grd "+viewAngle+" "+region+" -JM3.75i -P -I"+subdirName1+"/inten.grd -C"+subdirName1+"/map.cpt -Qi300 -K -Z0.0 > "+filename+"\n");
+			br2.write("/sw/bin/gmtset PAGE_COLOR 255/255/255\n");
+			br2.write("/sw/bin/pscoast -S163/212/245 "+viewAngle+" "+region+"  -JM3.75i -P -N2 -N1  -K -O -W3/0/0/0 -Dh >> "+filename+"\n");
+
+			// Write out files for making GMT plots of subsections
+			double lastLat=0;
+			for(int s=0; s<subSectionList.size();s++) {
+				FaultSectionPrefData sectData = subSectionList.get(s);
+				StirlingGriddedSurface surface = new StirlingGriddedSurface(sectData.getFaultTrace(), sectData.getAveDip(),
+						sectData.getAveUpperDepth(), sectData.getAveLowerDepth(), 1.0);
+				LocationList perimLocs = surface.getSurfacePerimeterLocsList();
+				String datafilename;
+				if(s<10) datafilename = subdirName2+"/section_0"+s+".txt";
+				else	 datafilename = subdirName2+"/section_"+s+".txt";
+				int colorInten = 255 - 255*Math.round((float)sectData.getAveLongTermSlipRate())/35;
+//				br2.write("/sw/bin/psxyz "+viewAngle+"  "+region+" -JM3.75i -P -K -O -W1/0/0/0 -L  -Jz0.03 -G"+colorInten+"/"+colorInten+"/255  -:  "+datafilename+"  >> "+filename+"\n");
+				br2.write("/sw/bin/psxyz "+viewAngle+"  "+region+" -JM3.75i -P -K -O -W1/0/0/0 -L  -Jz0.015 -G255/"+colorInten+"/"+colorInten+"  -:  "+datafilename+"  >> "+filename+"\n");
+				// now create the data file
+				FileWriter fw1 = new FileWriter(datafilename);
+				BufferedWriter br1 = new BufferedWriter(fw1);
+				String line;
+//System.out.println(s+"\t"+Math.round(sectData.getAveLongTermSlipRate()));
+				for(int l = 0; l < perimLocs.size(); l += 1) {
+					Location loc = perimLocs.getLocationAt(l);
+					line = new String((float)loc.getLatitude()+"\t"+(float)loc.getLongitude()+"\t"+(float)-loc.getDepth()+"\n");
+					br1.write(line);
+					double thisLat = loc.getLatitude();
+					if(loc.getDepth() == 0 && thisLat != lastLat) br3.write(line);
+					lastLat = thisLat;
+				}
+				br1.close();
+			}
+			
+			// add final script lines
+			
+			br2.write("/sw/bin/psxyz "+viewAngle+"  "+region+" -JM3.75i -P -K -O -W3/0/0/0 -Jz0.015  -:  "+fullTraceDataName+"  >> "+filename+"\n");
+//			br2.write("/sw/bin/psxyz "+viewAngle+"  "+region+" -JM3.75i -P -K -O -W3/0/0/0 -Jz0.03  -:  "+fullTraceDataName+"  >> "+filename+"\n");
+			br2.write("/sw/bin/psscale -Ba5:SlipRate: -D3i/5i/2i/0.1ih -C"+subdirName1+"/slipRate.cpt -O -K -P -N70 >> "+filename+"\n");
+			br2.write("/sw/bin/psbasemap "+viewAngle+" -B1.0/1.0EwNs -JM3.75i -P "+region+" -Lf-120/33/33/60 -O >> "+filename+"\n");
+			br2.close();
+			br3.close();
+		    String[] command ={"sh","-c","sh "+gmtScriptName};
+		    RunScript.runScript(command);
+
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+	}
+	
+	
 
 	/**
 	 * This writes the segPartMFDs to a file and, optionally, makes a GMT plot of the
@@ -454,6 +543,7 @@ public class SoSAF_SubSectionInversion {
 					(float)subSectionList.get(s).getAveLongTermSlipRate()+"\t"+
 					(float)subSectionList.get(s).getAseismicSlipFactor());
 */
+				
 		
 		// get the RupInSeg Matrix for the given number of segments
 		num_seg = subSectionList.size();
@@ -880,7 +970,16 @@ public class SoSAF_SubSectionInversion {
 		for(int i=0; i<faultSectionIds.size(); ++i) {
 			FaultSectionPrefData faultSectionPrefData = 
 				deformationModelPrefDB.getFaultSectionPrefData(deformationModelId, faultSectionIds.get(i));
-			subSectionList.addAll(faultSectionPrefData.getSubSectionsList(this.maxSubsectionLength));
+			ArrayList list = faultSectionPrefData.getSubSectionsList(this.maxSubsectionLength);
+			// check to see if we need to reverse order the sections
+			FaultTrace tr = faultSectionPrefData.getFaultTrace();
+			double latFirst = tr.getLocationAt(0).getLatitude();
+			double latLast = tr.getLocationAt(tr.getNumLocations()-1).getLatitude();
+			if(latFirst>latLast)
+				subSectionList.addAll(list);
+			else // reverse order
+				for(int j=list.size()-1;j>=0;j--)
+					subSectionList.add((FaultSectionPrefData) list.get(j));
 			// compute & write the number of subsections for this section
 			numSubSections[i] = subSectionList.size()-lastNum;
  //System.out.println(faultSectionPrefData.getSectionName()+"\t"+numSubSections[i]);
@@ -2156,7 +2255,6 @@ public class SoSAF_SubSectionInversion {
 		double grConstraintBvalue = 1;
 		double grConstraintRateScaleFactor = 0.89;  // for case where b=1
 
-
 		soSAF_SubSections.doInversion(maxSubsectionLength,numSegForSmallestRups,deformationModel,
 				slipModelType, magAreaRel, relativeSegRateWt, relative_aPrioriRupWt, 
 				relative_smoothnessWt, wtedInversion, minRupRate, applyProbVisible, moRateReduction,
@@ -2171,13 +2269,14 @@ public class SoSAF_SubSectionInversion {
 //		soSAF_SubSections.plotHistograms();
 
 		
-		String dirName = "test";
+		String dirName = "Fig2_Data";
 	    File file = new File(soSAF_SubSections.ROOT_PATH+dirName);
 	    file.mkdirs();
 	    soSAF_SubSections.plotStuff(dirName);
 		soSAF_SubSections.plotOrWriteSegPartMFDs(dirName, true);
 		soSAF_SubSections.writeAndPlotNonZeroRateRups(dirName, true);
 		soSAF_SubSections.writeAndPlotRupRatesByEndPoints(dirName, true);
+		soSAF_SubSections.writeAndPlotSubSectionsInGMT(dirName);
 
 
 	/*
