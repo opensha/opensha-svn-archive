@@ -83,7 +83,7 @@ extends HttpServlet {
 			String dirName = (String) inputFromApplet.readObject();
 
 			//gets the object for the GMT_MapGenerator script
-			GMT_Map map[] = (GMT_Map[])inputFromApplet.readObject();
+			GMT_Map maps[] = (GMT_Map[])inputFromApplet.readObject();
 
 			//Metadata content: Map Info
 			String metadata = (String) inputFromApplet.readObject();
@@ -91,7 +91,7 @@ extends HttpServlet {
 			//Name of the Metadata file
 			String metadataFileName = (String) inputFromApplet.readObject();
 			
-			String mapImagePath = createMap(gmt, map, dirName, metadata, metadataFileName);
+			String mapImagePath = createMap(gmt, maps, dirName, metadata, metadataFileName);
 			
 			//returns the URL to the folder where map image resides
 			outputToApplet.writeObject(mapImagePath);
@@ -149,6 +149,7 @@ extends HttpServlet {
 		FileWriter fw = new FileWriter(gmtScriptFile);
 		BufferedWriter bw = new BufferedWriter(fw);
 		
+		ArrayList<String> hazusFileNames = new ArrayList<String>();
 		for (int i=0; i<4; i++) {
 			GMT_Map map = maps[i];
 			String imt;
@@ -167,6 +168,10 @@ extends HttpServlet {
 				hazusPrefix = GMT_MapGeneratorForShakeMaps.PGV;
 			}
 			ArrayList<String> gmtMapScript = gmt.getGMT_ScriptLines(map, newDir);
+			
+			hazusFileNames.add(hazusPrefix + ".shp");
+			hazusFileNames.add(hazusPrefix + ".shx");
+			hazusFileNames.add(hazusPrefix + ".dbf");
 			
 			GMT_MapGeneratorForShakeMaps.addHAZUS_Lines(gmtMapScript, map, imt, hazusPrefix);
 			
@@ -196,6 +201,7 @@ extends HttpServlet {
 						"X, Y and Z dataset does not have equal size");
 			}
 		}
+		
 		bw.close();
 		
 		//running the gmtScript file
@@ -212,8 +218,13 @@ extends HttpServlet {
 		bw.write(" " + (String) metadata + "\n");
 		bw.close();
 
-		//create the Zip file for all the files generated
+		// create the Zip file for all the files generated
 		FileUtils.createZipFile(newDir);
+		
+		// create a HAZUS zip file
+		String hazusZipName = newDir + "/HAZUS.zip";
+		FileUtils.createZipFile(hazusZipName, newDir, hazusFileNames);
+		
 		//URL path to folder where all GMT related files and map data file for this
 		//calculations reside.
 		String mapImagePath = GMT_URL_PATH + GMT_DATA_DIR +
