@@ -15,6 +15,8 @@ public class DisaggregationSourceRuptureInfo {
   private double eventRate;
   private double mag;
   private double distance;
+  private double epsilon;
+  private double rake;
   private int id;
 
   public DisaggregationSourceRuptureInfo(String name, double rate, int id) {
@@ -42,6 +44,16 @@ public class DisaggregationSourceRuptureInfo {
     this.id = id;
     this.eventRate = eventRate;
   }
+  
+  public DisaggregationSourceRuptureInfo(String name, double eventRate, int id,double mag,double distance, double epsilon, double rake) {
+	this.name = name;
+	this.id = id;
+	this.eventRate = eventRate;
+	this.mag = mag;
+	this.distance = distance;
+	this.epsilon = epsilon;
+	this.rake = rake;
+}
 
   public int getId(){
     return id;
@@ -65,6 +77,14 @@ public class DisaggregationSourceRuptureInfo {
   }
 
   public double getDistance(){
-    return distance;
+	    return distance;
+  }
+  
+  public double getEpsilon(){
+	    return epsilon;
+  }
+  
+  public double getAveRake(){
+	    return rake;
   }
 }

@@ -62,6 +62,8 @@ implements DisaggregationCalculatorAPI{
 
 	private int iMag, iDist, iEpsilon;
 	private double mag, dist, epsilon;
+	//additional parameters for the conditional IM approach
+	private double rake;
 	private boolean withinBounds;
 
 	private double Mbar, Dbar, Ebar;
@@ -80,6 +82,8 @@ implements DisaggregationCalculatorAPI{
 
 	//stores the source Disagg info
 	private String sourceDisaggInfo;
+	//stores the rutpure Disagg info - for the conditional Im approach
+	private String ruptureDisaggInfo;
 
 	//Disaggregation Plot Img Name
 	public static final String DISAGGREGATION_PLOT_NAME = "DisaggregationPlot";
@@ -138,6 +142,7 @@ implements DisaggregationCalculatorAPI{
 
 		DecimalFormat f1 = new DecimalFormat("000000");
 		DecimalFormat f2 = new DecimalFormat("00.00");
+		DecimalFormat f4 = new DecimalFormat("00.0000");
 
 		pdf3D = new double[dist_center.length][mag_center.length][NUM_E];
 
@@ -151,11 +156,16 @@ implements DisaggregationCalculatorAPI{
 
 		//    if( D )System.out.println(S + "deltaMag = " + deltaMag + "; deltaDist = " + deltaDist + "; deltaE = " + deltaE);
 		ArrayList disaggSourceList = null;
+		ArrayList disaggRuptureList = null;
 		DisaggregationSourceRuptureComparator srcRupComparator = null;
+		DisaggregationRuptureComparator rupComparator = null;
 		if (this.numSourcesToShow > 0) {
 			disaggSourceList = new ArrayList();
+			disaggRuptureList = new ArrayList();
 			srcRupComparator = new
 			DisaggregationSourceRuptureComparator();
+			rupComparator = new
+			DisaggregationRuptureComparator();
 		}
 		//resetting the Parameter change Listeners on the AttenuationRelationship
 		//parameters. This allows the Server version of our application to listen to the
@@ -276,6 +286,8 @@ implements DisaggregationCalculatorAPI{
 				distRup.setValue(rupture, site);
 				dist = ( (Double) distRup.getValue()).doubleValue();
 				mag = rupture.getMag();
+				//additional rupture parameters for the conditional IM approach
+				rake = rupture.getAveRake();
 
 				// get the equiv. Poisson rate over the time interval (not annualized)
 				rate = -condProb * Math.log(1 - qkProb);
@@ -338,6 +350,7 @@ implements DisaggregationCalculatorAPI{
             ( (ArrayList) sourceDissaggMap.get(sourceName)).add(rupInfo);
           }*/
 
+
 			}
 			if (numSourcesToShow > 0) {
 				// sort the ruptures in this source according to contribution
@@ -374,7 +387,32 @@ implements DisaggregationCalculatorAPI{
 				"\t" + disaggInfo.getName() + "\n";
 				//System.out.println(f2.format(100*disaggInfo.getRate()/totalRate));
 			}
+			
+			//carry out same sorting of disaggRuptureList
+			Collections.sort(disaggRuptureList, rupComparator);
+			// make a string of the sorted list info
+			ruptureDisaggInfo =
+				"Rupture#\t% Contribution\tTotExceedRate\tRuptureMag\tSourceSiteDistance\tGroundMotionEpsilon\tRuptureRake\tSourceName\n";
+			int sizeRupture = disaggRuptureList.size();
+			if (sizeRupture > numSourcesToShow)
+				sizeRupture = numSourcesToShow;
+			// overide to only give the top 100 sources (otherwise can be to big and cause crash)
+			for (int i = 0; i < size; ++i) {
+				DisaggregationSourceRuptureInfo disaggInfo = (
+						DisaggregationSourceRuptureInfo)
+						disaggRuptureList.get(i);
+				ruptureDisaggInfo += f1.format(disaggInfo.getId()) + "\t" +
+				f4.format(100*disaggInfo.getEventRate()/totalRate) +
+				"\t" + (float) disaggInfo.getEventRate() +
+				"\t" + (float) disaggInfo.getMag() +
+				"\t" + (float) disaggInfo.getDistance() +
+				"\t" + (float) disaggInfo.getEpsilon() +
+				"\t" + (float) disaggInfo.getAveRake() +
+				"\t" + disaggInfo.getName() + "\n";
+				//System.out.println(f3.format(100*disaggInfo.getEventRate()/totalRate));
+			}
 		}
+		System.out.println(ruptureDisaggInfo);
 		/*try {
       FileWriter fw = new FileWriter("Source_Rupture_OpenSHA.txt");
       String sourceRupDisaggregationInfo =

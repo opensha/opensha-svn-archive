@@ -40,6 +40,7 @@ import org.opensha.sha.imr.attenRelImpl.depricated.*;
 import scratch.christine.attenRelImpl.BS_2003b_AttenRel;
 import scratch.christine.attenRelImpl.GouletEtAl_2010_AttenRel;
 import scratch.jennie.attenRelImpl.ToroEtAl_1997_AttenRel;
+import scratch.bbradley.McVerryetal_2000_AttenRelv1;
 
 import javax.help.*;
 import javax.help.CSH.DisplayHelpFromSource;
@@ -219,7 +220,7 @@ public class AttenuationRelationshipApplet extends JFrame
     protected final static String AS_2008_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel";
     protected final static String GOULET_2010_CLASS_NAME="scratchJavaDevelopers.christine.attenRelImpl.GouletEtAl_2010_AttenRel";
     protected final static String BS_2003b_CLASS_NAME="scratchJavaDevelopers.christine.attenRelImpl.BS_2003b_AttenRel";
-    protected final static String McVerryetal_2000_CLASS_NAME="scratch.bbradley.McVerryetal_2000_AttenRel";
+    protected final static String McVerryetal_2000_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.McVerryetal_2000_AttenRel";
     /**
      *  ArrayList that maps picklist attenRel string names to the real fully qualified
      *  class names
@@ -281,6 +282,8 @@ public class AttenuationRelationshipApplet extends JFrame
 //    	attenRelClasses.add(GOULET_2010_CLASS_NAME);
     	imNames.add(BS_2003b_AttenRel.NAME);
     	attenRelClasses.add(BS_2003b_CLASS_NAME);
+    	imNames.add(McVerryetal_2000_AttenRel.NAME);
+    	attenRelClasses.add(McVerryetal_2000_CLASS_NAME);
 
     	//imNames.add( DAHLE_NAME, DAHLE_CLASS_NAME );
 
