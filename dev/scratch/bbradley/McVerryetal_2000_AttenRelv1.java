@@ -77,7 +77,7 @@ import org.opensha.sha.param.*;
  */
 
 
-public class McVerryetal_2000_AttenRel
+public class McVerryetal_2000_AttenRelv1
     extends AttenuationRelationship implements
     ScalarIntensityMeasureRelationshipAPI,
     NamedObjectAPI, ParameterChangeListener {
@@ -196,7 +196,7 @@ public class McVerryetal_2000_AttenRel
   /**
    *  This initializes several ParameterList objects.
    */
-  public McVerryetal_2000_AttenRel(ParameterChangeWarningListener
+  public McVerryetal_2000_AttenRelv1(ParameterChangeWarningListener
                                     warningListener) {
 
     super();

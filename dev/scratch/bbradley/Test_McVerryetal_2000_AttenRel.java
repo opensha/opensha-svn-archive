@@ -23,7 +23,7 @@
 		  rup.setAveRake(90);
 		  rup.setRuptureSurface(surface);
 	  
-		  McVerryetal_2000_AttenRel attenRel = new McVerryetal_2000_AttenRel(null);
+		  McVerryetal_2000_AttenRelv1 attenRel = new McVerryetal_2000_AttenRelv1(null);
 		  attenRel.setParamDefaults();
 		  attenRel.setIntensityMeasure("PGA");
 		  attenRel.setEqkRupture(rup);
