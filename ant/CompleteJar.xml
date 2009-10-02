@@ -1,0 +1,29 @@
+
+
+<project basedir="." default="jar.full.dist" name="Compile">
+
+	<property name="build" value="../build" />
+	<property name="tmpdest" value="${build}" />
+	<property name="dist" value="../dist" />
+	<property name="src" value="../src/" />
+	<property name="dev" value="../dev/" />
+	<property name="lib.dir" value="../lib" />
+	
+	<target name="pre.jar" depends="">
+		<ant antfile="compile.xml" target="pre.jar"/>
+	</target>
+
+	<target name="jar.classes.only" depends="pre.jar">
+		<jar destfile="${dist}/OpenSHA_classes_only.jar" basedir="${build}" />
+		<delete dir="${tmpdest}" failonerror="yes" verbose="no" />
+	</target>
+	
+	<target name="jar.full.dist" depends="pre.jar">
+		<ant antfile="compile.xml" target="unjar.libs.common"/>
+		<ant antfile="compile.xml" target="resource.all"/>
+		<delete dir="${tmpdest}/META-INF" failonerror="yes" verbose="no" />
+		<jar destfile="${dist}/OpenSHA_complete.jar" basedir="${build}" />
+		<!-- <delete dir="${tmpdest}" failonerror="yes" verbose="no" /> -->
+	</target>
+	
+</project>

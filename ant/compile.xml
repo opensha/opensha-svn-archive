@@ -4,6 +4,7 @@
 
 	<property name="build" value="../classes" />
 	<property name="tmpdest" value="../classes.temp" />
+	<property name="dist" value="../dist" />
 	<property name="src" value="../src/" />
 	<property name="dev" value="../dev/" />
 	<property name="lib.dir" value="../lib" />
@@ -38,19 +39,8 @@
 
 		<delete dir="${tmpdest}" failonerror="yes" verbose="no" />
 	</target>
-
-	<target name="jar" depends="precompilecleanup,init,compile">
-		<jar destfile="OpenSHA_classes_only.jar" basedir="${build}">
-			<!-- <include name="org/**"/>
-			<include name="etc/**"/>
-			<include name="com/**"/>
-			<include name="campbell_2006_coeff.txt"/>
-			<include name="campbell_2008_coeff.txt"/>
-			<include name="nnls/**"/>
-			<include name="oracle/**"/>
-			<include name="scratchJavaDevelopers/**"/> -->
-		</jar>
-		<delete dir="${tmpdest}" failonerror="yes" verbose="no" />
+	
+	<target name="pre.jar" depends="precompilecleanup,init,compile,rmi.all">
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
