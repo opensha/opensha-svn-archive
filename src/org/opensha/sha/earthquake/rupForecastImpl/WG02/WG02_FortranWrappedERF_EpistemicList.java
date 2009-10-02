@@ -300,8 +300,8 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList{
        RunScript.runScript(command);
        //command[2]="rm "+WG02_CODE_PATH+"*.out*";
        //RunScript.runScript(command);
-       command[2]="rm "+WG02_CODE_PATH+dirName+"/wg02.sh";
-       RunScript.runScript(command);
+//       command[2]="rm "+WG02_CODE_PATH+dirName+"/wg02.sh";
+//       RunScript.runScript(command);
      }catch(Exception e){
        e.printStackTrace();
      }
