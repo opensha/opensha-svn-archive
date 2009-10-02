@@ -282,10 +282,14 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList{
        bw.close();
 
        //Command to be executed for the WG-02
-       String wg02_Command="wg99_main  "+ dirName+"/"+WG02_OPENSHA_INPUT_FILE;
+       String wg02_Command="./wg99_main  "+ dirName+"/"+WG02_OPENSHA_INPUT_FILE;
        //creating the shell script  file to run the WG-02 code
        fw= new FileWriter(WG02_CODE_PATH+dirName+"/"+"wg02.sh");
        bw=new BufferedWriter(fw);
+       bw.write("#!/bin/bash\n");
+       bw.write("\n");
+       bw.write("set -o errexit\n");
+       bw.write("\n");
        bw.write("cd "+WG02_CODE_PATH+"\n");
        bw.write(wg02_Command+"\n");
        bw.write("mv "+INPUT_FILE_NAME_1+" "+WG02_CODE_PATH+dirName+"/.");
