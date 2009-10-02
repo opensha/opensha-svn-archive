@@ -142,7 +142,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 		erf_Classes.add(YUCCA_MOUNTAIN_CLASS_NAME);
 		erf_Classes.add(YUCCA_MOUNTAIN_ERF_LIST_CLASS_NAME);
 		
-//		erf_Classes.add(GEM_TEST_ERF_CLASS_NAME);
+		erf_Classes.add(GEM_TEST_ERF_CLASS_NAME);
 		//      erf_Classes.add(CYBERSHAKE_ERF_LIST_CLASS_NAME);
 		//      erf_Classes.add(CYBERSHAKE_ERF_WRAPPER_LIST_CLASS_NAME);
 		erf_Classes.add(NZ_ERF0909_CLASS_NAME);
