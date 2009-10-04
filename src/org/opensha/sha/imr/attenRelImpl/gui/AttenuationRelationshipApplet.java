@@ -40,7 +40,7 @@ import org.opensha.sha.imr.attenRelImpl.depricated.*;
 import scratch.christine.attenRelImpl.BS_2003b_AttenRel;
 import scratch.christine.attenRelImpl.GouletEtAl_2010_AttenRel;
 import scratch.jennie.attenRelImpl.ToroEtAl_1997_AttenRel;
-import scratch.bbradley.McVerryetal_2000_AttenRelv1;
+
 
 import javax.help.*;
 import javax.help.CSH.DisplayHelpFromSource;
