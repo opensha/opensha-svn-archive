@@ -12,6 +12,6 @@ package scratch.peter;
 public class Test {
 
   public Test() {
-	  //sdfg
+	  //sdf
   }
 }
