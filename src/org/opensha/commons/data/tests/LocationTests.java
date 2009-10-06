@@ -242,7 +242,7 @@ public class LocationTests extends TestCase {
 
   public void testClone() {
 
-    Object objectRet = location.clone();
+    Object objectRet = location.copy();
     boolean booleanRet = location.equals(objectRet);
     assertTrue( booleanRet );
 

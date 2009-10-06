@@ -180,7 +180,7 @@ public class Site extends ParameterList implements NamedObjectAPI,Serializable {
 
         Site site = new Site();
         site.setName( this.getName() );
-        site.setLocation( (Location)this.location.clone() );
+        site.setLocation(location.copy());
 
         if( this.size() < 1 ) return site;
 

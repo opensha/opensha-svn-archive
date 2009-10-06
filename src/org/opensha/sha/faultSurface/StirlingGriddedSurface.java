@@ -238,7 +238,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
             else
                 topLocation = traceLocation;
 
-            setLocation(0, ith_col, (Location)topLocation.clone());
+            setLocation(0, ith_col, topLocation.copy());
             if( D ) System.out.println(S + "(x,y) topLocation = (0, " + ith_col + ") " + topLocation );
 
             // Loop over each row - calculating location at depth along the fault trace
@@ -254,7 +254,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
                 dir = new Direction(vDistance, hDistance, aveDipDirection, 0);
 
                 Location depthLocation = RelativeLocation.getLocation( topLocation, dir );
-                setLocation(ith_row, ith_col, (Location)depthLocation.clone());
+                setLocation(ith_row, ith_col, depthLocation.copy());
                 if( D ) System.out.println(S + "(x,y) depthLocation = (" + ith_row + ", " + ith_col + ") " + depthLocation );
 
                 ith_row++;

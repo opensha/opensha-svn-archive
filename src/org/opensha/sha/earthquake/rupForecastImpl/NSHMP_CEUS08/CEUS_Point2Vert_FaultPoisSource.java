@@ -214,7 +214,7 @@ public class CEUS_Point2Vert_FaultPoisSource extends ProbEqkSource implements ja
 
     double depth = 5.0;
     // make the point surface
-    Location newLoc = (Location)loc.clone();
+    Location newLoc = loc.copy();
     
     newLoc.setDepth(depth); // Point source at 1 km depth
     ptSurface = new PointSurface(newLoc);

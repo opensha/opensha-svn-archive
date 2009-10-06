@@ -204,7 +204,7 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
 
     double depth = 1.0;
     // make the point surface
-    Location newLoc = (Location)loc.clone();
+    Location newLoc = loc.copy();
     
     newLoc.setDepth(depth); // Point source at 1 km depth
     ptSurface = new PointSurface(newLoc);

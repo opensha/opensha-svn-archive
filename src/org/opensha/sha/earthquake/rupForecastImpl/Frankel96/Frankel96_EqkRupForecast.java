@@ -292,7 +292,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast{
               catch( NumberFormatException e){ throw ERR; }
 
               Location loc = new Location(lat, lon, upperSeismoDepth);
-              faultTrace.addLocation( (Location)loc.clone());
+              faultTrace.addLocation(loc.copy());
           }
 
          // reverse data ordering if dip negative, make positive and reverse trace order

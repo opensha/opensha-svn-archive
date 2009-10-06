@@ -125,15 +125,15 @@ public class SimpleFaultData  implements java.io.Serializable {
     			}
     			//  remove any loc that is within 1km of its neighbor
             	//  as per Ned's email on Feb 7, 2007 at 5:53 AM
-        		if(distance2>1 && distance1>1) combinedFaultTrace.addLocation((Location)faultTrace.getLocationAt(0).clone());
+        		if(distance2>1 && distance1>1) combinedFaultTrace.addLocation(faultTrace.getLocationAt(0).copy());
         		// add the fault Trace locations to combined trace
         		for(int locIndex=1; locIndex<numLocations; ++locIndex) 
-        			combinedFaultTrace.addLocation((Location)faultTrace.getLocationAt(locIndex).clone());
+        			combinedFaultTrace.addLocation(faultTrace.getLocationAt(locIndex).copy());
        
     		} else { // if this is first fault section, add all points in fault trace
 //    			 add the fault Trace locations to combined trace
         		for(int locIndex=0; locIndex<numLocations; ++locIndex) 
-        			combinedFaultTrace.addLocation((Location)faultTrace.getLocationAt(locIndex).clone());
+        			combinedFaultTrace.addLocation(faultTrace.getLocationAt(locIndex).copy());
     		}
     		
     		double length = faultTrace.getTraceLength();

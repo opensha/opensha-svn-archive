@@ -226,8 +226,7 @@ public class Location implements java.io.Serializable, XMLSaveable {
 
 
     // TODO javadoc deep copy
-    @Override
-    public Location clone(){
+    public Location copy() {
     	Location loc = new Location(getLatitude(), getLongitude(), getDepth());
         return loc;
     }

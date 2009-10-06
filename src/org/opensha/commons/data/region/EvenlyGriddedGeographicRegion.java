@@ -1029,7 +1029,7 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
 				dummy.setLatitude(lat);
 				dummy.setLongitude(lon);
 				if (isLocationInside(dummy)) {
-					nodeList.addLocation(dummy.clone());
+					nodeList.addLocation(dummy.copy());
 					gridIndices[grid_idx] = node_idx++;
 				} else {
 					gridIndices[grid_idx] = -1;

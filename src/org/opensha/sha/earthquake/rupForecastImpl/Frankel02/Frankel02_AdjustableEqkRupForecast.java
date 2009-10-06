@@ -791,7 +791,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
         lat = new Double(st.nextToken()).doubleValue();
         lon = new Double(st.nextToken()).doubleValue();
         Location loc = new Location(lat, lon, upperSeismoDepth);
-        faultTrace.addLocation( (Location)loc.clone());
+        faultTrace.addLocation(loc.copy());
       }
 
       // reverse data ordering if dip negative (and make the dip positive)

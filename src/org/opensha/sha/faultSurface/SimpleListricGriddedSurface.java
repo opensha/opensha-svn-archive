@@ -209,7 +209,7 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
             // location on the trace
             Location topLocation = RelativeLocation.getLocation( location1, dir  );
 
-            setLocation(0, ith_col, (Location)topLocation.clone());
+            setLocation(0, ith_col, topLocation.copy());
             if( D ) System.out.println(S + "(x,y) topLocation = (0, " + ith_col + ") " + topLocation );
 
             // Loop over each row - calculating location at depth along the fault trace
@@ -227,7 +227,7 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
                                               + "; vDist = " + dir.getVertDistance() );
 
                 Location nextLocation = RelativeLocation.getLocation( lastLocation, dir );
-                setLocation(ith_row, ith_col, (Location)nextLocation.clone());
+                setLocation(ith_row, ith_col, nextLocation.copy());
 
                 if( D ) System.out.println(S + "(x,y) nextLocation = (" + ith_row + ", " + ith_col + ") " + nextLocation );
 
