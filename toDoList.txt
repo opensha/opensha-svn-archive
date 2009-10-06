@@ -5,27 +5,28 @@
 BROADER ISSUES:
 --------------
 
-Web sites to Wiki
+Convert web sites to Drupal Wiki; start with WGCEP - Peter's going to try it out.
 
-Decide on and implement a licensing agreement.
+Peter has decided on Apache software license ASL2.0; he will implement it soon.
 
-ERF GUI bean bug - Kevin will work on
+WG02 Fortan code is not working - Kevin will talk to Okaya
 
-Fix bug in AS08 w/ respect to point sources - ned will deal with this
-
-Continue porting servlets and RMI stuff from gravity.usc.edu to opensha.usc.edu - HAZUS file generation first.  - Kevin will work on this.
+Continue porting servlets and RMI stuff from gravity.usc.edu to opensha.usc.edu - Only shakeMap calc remains to be done.  - Kevin will work on this.
 
 Fix offset in global GMT topo intensity file (email from Kevin on 9/3/09) - Kevin will deal with this
 
 Go through main calculators as a group.  Map/UML of each calculator/application.
 
-
-
-Develop strategy for instantiation of model components for each type of calculation from XML files.  In so doing we will likely revise the implementation of our GUIs in order to make things most efficient (e.g., in terms of showing metadata from a calculation, saving the state of an application, and avoiding redundant calcs if already done and saved in a database (the latter two have yet to be done)).   This will involve first looking at our calculators (the various elements needed for the various calculations), and then considering how these relate to our GUI beans and control panels.  This will also involve reviewing Kevin's toXMLMetadata(Element root)  &  fromXMLMetadata(Element root) implementations (these should be our starting point).
-
-Post instructions for building stand-alone GUIs on our web site?
-
-Redo PEER tests;Implement PEER tests as JUnit. - Peter will do this
+Develop strategy for instantiation of model components for each type of 
+calculation from XML files.  In so doing we will likely revise the implementation 
+of our GUIs in order to make things most efficient (e.g., in terms of showing metadata 
+from a calculation, saving the state of an application, and avoiding redundant calcs 
+if already done and saved in a database (the latter two have yet to be done)).   
+This will involve first looking at our calculators (the various elements needed 
+for the various calculations), and then considering how these relate to our GUI 
+beans and control panels.  This will also involve reviewing Kevin's 
+toXMLMetadata(Element root)  &  fromXMLMetadata(Element root) implementations (these 
+should be our starting point).
 
 Create capability to associate IMRs to specific source types in the calculations 
 (this will require discussions with GEM and NSHMP).  Ned's intitial tests on 
@@ -45,10 +46,15 @@ ProbEqkSource	Define field to declare what type of source it is
 ERF		-extend API to include getting max and min magnitude, and the various types of
 		sources generated (to check for compatibility with each chosen IMR)
 
+Distance Calculations : Approx Horizontal Distance(getApproxHorzDistance()) calculator 
+does not calculate the correct distance if longitude is > 0. But Horizontal 
+Distance(getHorzDistance()) always calculate the accurate distance. (Nitin tested 
+using main() method in RelativeLocation class, one can just run the RelativeLocation 
+class and will get to know the difference).  HAS THIS BEEN FIXED?
 
-Distance Calculations : Approx Horizontal Distance(getApproxHorzDistance()) calculator does not calculate the correct distance if longitude is > 0. But Horizontal Distance(getHorzDistance()) always calculate the accurate distance. (Nitin tested using main() method in RelativeLocation class, one can just run the RelativeLocation class and will get to know the difference).  HAS THIS BEEN FIXED?
+Post instructions for building stand-alone GUIs on our web site?
 
-
+Redo PEER tests;Implement PEER tests as JUnit. - Peter will do this
 
 GEM ERF Input file formats
 
@@ -115,6 +121,8 @@ change the definition of im to be a DependentParameterAPI, or put an if statemen
 before sections where we currently assume it's a DependentParameterAPI.
 
 Clean the Application build process
+
+Clean the etc dir
 
 Take "API" out of filenames
 
