@@ -37,16 +37,16 @@
          - - - - - - - - - - - - - - - - - -->
 	<target name="pack">
 		<!-- build manifest -->
-		<manifest file="${build}/MANIFEST.MF">
-			<attribute name="Main-Class" 
-				       value="org.opensha.sha.gui.HazardCurveLocalModeApplication" />
-			<attribute name="Built-By" value="${user.name}" />
-		</manifest>
 		<!-- set version number -->
 		<runtarget target="set.app.version" />
-		<jar destfile="${dist}/${app.name}-${app.version}.jar"
-		     basedir="${build}"
-		     manifest="${build}/MANIFEST.MF">
+		<jar destfile="${dist}/${app.name}-${app.version}.jar" 
+			 basedir="${build}">
+			<manifest>
+				<attribute name="Main-Class" 
+					       value="org.opensha.sha.gui.HazardCurveLocalModeApplication" />
+				<attribute name="Version" value="1.0"/>
+				<attribute name="Built-By" value="${user.name}" />
+			</manifest>
 			<include name="at/**" />
 			<include name="com/**" />
 			<include name="edu/**" />
