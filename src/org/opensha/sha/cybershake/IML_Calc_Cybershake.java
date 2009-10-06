@@ -11,6 +11,7 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.SystemPropertiesUtils;
@@ -173,8 +174,11 @@ public class IML_Calc_Cybershake extends MedianCalc_Cybershake {
 		  try{
 			  ArrayList willsSiteVals =ConnectToCVM.getWillsSiteTypeFromCVM(-121, -113.943965, 31.082920, 36.621696, .016667);
 			  ArrayList basinVals = ConnectToCVM.getBasinDepthFromCVM(-121, -113.943965, 31.082920, 36.621696, .016667);
-			  EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(31.082920, 36.621696,
-					  -121, -113.943965,.016667);
+			  EvenlyGriddedGeographicRegion region = 
+				  new EvenlyGriddedGeographicRegion(
+						  new Location(31.082920, -121),
+						  new Location(36.621696, -113.943965),
+						  .016667, new Location(0,0));
 			  int numLocs = locList.size();
 			  basinDepthVals = new ArrayList();
 			  willsSiteClassVals = new ArrayList();

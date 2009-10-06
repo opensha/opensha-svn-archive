@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.gridComputing.GridResourcesList;
 import org.opensha.commons.gridComputing.ResourceProvider;
 import org.opensha.commons.gridComputing.ResourceProviderEditor;
@@ -75,7 +76,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	SiteTranslator siteTrans = new SiteTranslator();
 
 	//instance of class EvenlyGriddedRectangularGeographicRegion
-	private SitesInGriddedRectangularRegion gridRectRegion;
+	private SitesInGriddedRegion gridRectRegion;
 	
 	public GridParametersGuiBean(GridResourcesList resources) {
 		this.init(resources);

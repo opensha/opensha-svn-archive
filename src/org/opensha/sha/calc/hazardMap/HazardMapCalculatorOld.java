@@ -16,6 +16,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 
 import org.opensha.sha.imr.*;
 import org.opensha.sha.calc.HazardCurveCalculator;
@@ -81,7 +82,7 @@ public class HazardMapCalculatorOld {
      * @return
    */
   public void getHazardMapCurves(boolean imtLogFlag, double [] xValues,
-                                 SitesInGriddedRectangularRegion griddedSites,
+		  SitesInGriddedRegion griddedSites,
                                  ScalarIntensityMeasureRelationshipAPI imr,
                                  EqkRupForecast eqkRupForecast,
                                  String mapParametersInfo) {
@@ -121,7 +122,7 @@ public class HazardMapCalculatorOld {
    * @return
    */
   public void getHazardMapCurves(String dirName, boolean imtLogFlag, double [] xValues,
-                                 SitesInGriddedRectangularRegion griddedSites,
+		  SitesInGriddedRegion griddedSites,
                                  ScalarIntensityMeasureRelationshipAPI imr,
                                  EqkRupForecast eqkRupForecast,
                                  String mapParametersInfo, String email) {
@@ -148,20 +149,20 @@ public class HazardMapCalculatorOld {
    * @param mapParametersInfo
    */
   private void calculate( boolean imtLogFlag, double [] xValues,
-                                  SitesInGriddedRectangularRegion griddedSites,
+		  SitesInGriddedRegion sites,
                                   ScalarIntensityMeasureRelationshipAPI imr,
                                   EqkRupForecast eqkRupForecast,
                                  String mapParametersInfo, String email) {
     Site site;
     this.xLogFlag = imtLogFlag;
-    int numSites = griddedSites.getNumGridLocs();
+    int numSites = sites.getRegion().getNumGridLocs();
     try{
       HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();
       //hazCurveCalc.showProgressBar(false);
 
       int numPoints = xValues.length;
       for(int j=0;j<numSites;++j){
-        site = griddedSites.getSite(j);
+        site = sites.getSite(j);
         // make and initialize the haz function
         ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
         this.initX_Values(hazFunction,xValues);
@@ -189,9 +190,9 @@ public class HazardMapCalculatorOld {
       fr.write(mapParametersInfo+"\n");
       fr.close();
       fr=new FileWriter(DATASETS_PATH+newDir+"/sites.txt");
-      fr.write(griddedSites.getMinLat()+" "+griddedSites.getMaxLat()+" "+
-               griddedSites.getGridSpacing()+"\n"+griddedSites.getMinLon()+" "+
-               griddedSites.getMaxLon()+" "+ griddedSites.getGridSpacing()+"\n");
+      fr.write(sites.getRegion().getMinLat()+" "+sites.getRegion().getMaxLat()+" "+
+    		  sites.getRegion().getGridSpacing()+"\n"+sites.getRegion().getMinLon()+" "+
+               sites.getRegion().getMaxLon()+" "+ sites.getRegion().getGridSpacing()+"\n");
       fr.close();
       if(email !=null || !email.equals("")){
         HazardMapCalcPostProcessing mapPostProcessing = new HazardMapCalcPostProcessing(numSites,

@@ -7,7 +7,9 @@ import org.opensha.sha.earthquake.observedEarthquake.*;
 import org.opensha.sha.earthquake.griddedForecast.*;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.EvenlyGriddedCircularGeographicRegion;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.EvenlyGriddedSausageGeographicRegion;
 import org.opensha.commons.data.region.GeographicRegion;
@@ -23,38 +25,40 @@ import java.io.FileNotFoundException;
 public class CountObsInGrid {
 	
 	private int numGridNodes;
-	private EvenlyGriddedGeographicRegionAPI region;
+	private EvenlyGriddedGeographicRegion region;
 	private int[] numObsInGrid;
 	private ObsEqkRupList obsEvents;
-	private EvenlyGriddedCircularGeographicRegion castCircularRegion;
-	private EvenlyGriddedSausageGeographicRegion castSausageRegion;
-	private boolean useCircle = false, useSausage = false;
+//	private EvenlyGriddedCircularGeographicRegion castCircularRegion;
+//	private EvenlyGriddedSausageGeographicRegion castSausageRegion;
+//	private boolean useCircle = false, useSausage = false;
 
-	public CountObsInGrid(ObsEqkRupList obsEvents, EvenlyGriddedGeographicRegionAPI region){
+	public CountObsInGrid(ObsEqkRupList obsEvents, EvenlyGriddedGeographicRegion region){
 		
 		this.obsEvents = obsEvents;
 		this.region = region;
-		if(region instanceof EvenlyGriddedCircularGeographicRegion){
-	    	this.castCircularRegion = (EvenlyGriddedCircularGeographicRegion)this.region;
-	    	this.useCircle = true;
-	    	this.numGridNodes = castCircularRegion.getNumGridLocs();
-		}
-		else {
-	    	this.castSausageRegion = (EvenlyGriddedSausageGeographicRegion)this.region;
-		    this.useSausage = true;
-		    this.numGridNodes = castSausageRegion.getNumGridLocs();
-		}
+		// not necessary -- all gridded regions behave the same regardless of shape
+//		if(region instanceof EvenlyGriddedCircularGeographicRegion){
+//	    	this.castCircularRegion = (EvenlyGriddedCircularGeographicRegion)this.region;
+//	    	this.useCircle = true;
+//	    	this.numGridNodes = castCircularRegion.getNumGridLocs();
+//		}
+//		else {
+//	    	this.castSausageRegion = (EvenlyGriddedSausageGeographicRegion)this.region;
+//		    this.useSausage = true;
+//		    this.numGridNodes = castSausageRegion.getNumGridLocs();
+//		}
+		this.numGridNodes = this.region.getNumGridLocs();
     	this.numObsInGrid = new int[numGridNodes];
 	    
     	countEventsInCell();
 	}
 	
-	public int getNumGridnodes(){
-		if (useCircle)
-			return this.castCircularRegion.getNumGridLocs();
-		else //if is sausage
-			return this.castSausageRegion.getNumGridLocs();
-	}
+//	public int getNumGridnodes(){
+//		if (useCircle)
+//			return this.castCircularRegion.getNumGridLocs();
+//		else //if is sausage
+//			return this.castSausageRegion.getNumGridLocs();
+//	}
 	
 	/**
 	 * getNumObsInGridList
@@ -84,10 +88,11 @@ public class CountObsInGrid {
 		cellLoc = new LocationList();
 		int gLoop = 0;
 		while ( gLoop < numGridNodes ){
-			if (useCircle)
-				gridCenter = this.castCircularRegion.getGridLocation(gLoop);
-			else
-				gridCenter = this.castSausageRegion.getGridLocation(gLoop);
+			gridCenter = this.region.getGridLocation(gLoop);
+//			if (useCircle)
+//				gridCenter = this.castCircularRegion.getGridLocation(gLoop);
+//			else
+//				gridCenter = this.castSausageRegion.getGridLocation(gLoop);
 			gLat = gridCenter.getLatitude();
 			gLong = gridCenter.getLongitude();
 			//create a Location for each corner of the cell
@@ -103,7 +108,7 @@ public class CountObsInGrid {
 			gridCorner4 = new Location(gLat + RegionDefaults.gridSpacing/2,gLong - RegionDefaults.gridSpacing/2);
 			cellLoc.addLocationAt(gridCorner4,3);
 			//this creates a GeographicRegion that is the cell for Loc gLoop
-			GeographicRegion gridRegion = new GeographicRegion(cellLoc);
+			GeographicRegion gridRegion = new GeographicRegion(cellLoc, BorderType.MERCATOR_LINEAR);
 			
 		    // find ObsEqkRupList of events w/in this grid cell
 			cellEvents = obsEvents.getObsEqkRupsInside(gridRegion);

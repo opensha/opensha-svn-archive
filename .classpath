@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry excluding="**/_nobuild/*" kind="src" path="dev"/>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
 	<classpathentry exported="true" kind="lib" path="lib/xsdlib.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xmlParserAPIs.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xml-apis.jar"/>
@@ -16,7 +17,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/namespace.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mail.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/log4j-1.2.4.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/junit.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jta-spec1_0_1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jpedal.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jh.jar"/>
@@ -39,13 +39,23 @@
 	<classpathentry exported="true" kind="lib" path="lib/nnls.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/Jama-1.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mysql-connector-java-3.1.6-bin.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-math-1.1.jar" sourcepath="/Users/emartinez/Desktop/src/Gamma.java"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-math-1.1.jar" sourcepath="/Users/emartinez/Desktop/src/Gamma.java">
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/math/api-1.2/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/commons-codec-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/DBConnection.jar" sourcepath="/HazardApps/src"/>
 	<classpathentry kind="lib" path="lib/USGSUtils.jar"/>
 	<classpathentry kind="lib" path="lib/BrowserLauncher2-1_3.jar"/>
 	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
-	<classpathentry kind="lib" path="lib/commons-lang-2.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang-2.4.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/lang/api-release/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="dev/scratch/ISTI/isti.util.jar"/>
+	<classpathentry kind="lib" path="lib/junit-4.5.jar"/>
+	<classpathentry kind="lib" path="lib/junit.jar"/>
 	<classpathentry kind="output" path="classes/"/>
 </classpath>

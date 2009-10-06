@@ -27,6 +27,7 @@ import org.opensha.commons.metadata.XMLSaveable;
  * object oriented programming. The internal complexity of an object
  * should not be exposed. There is no need for calling classes to know this
  * information so it keeps the API simpler.<p>
+ * 
  *
  * @author     Steven W. Rock
  * @created    February 26, 2002
@@ -133,7 +134,10 @@ public class LocationList implements java.io.Serializable, XMLSaveable, Iterable
     /**  Removes all Locations from this list */
     public void clear() { locations.clear(); }
 
-
+    public void remove(int index) {
+    	locations.remove(index);
+    }
+    
     /**
      * Reverses the order of Locations. Has the
      * effect of reversing the Iterator.
@@ -200,35 +204,47 @@ public class LocationList implements java.io.Serializable, XMLSaveable, Iterable
      * @param obj LocationList Obj
      * @return 0 if both object are same else return -1
      */
-    public int compareTo(Object obj){
 
-      boolean compareFlag = true;
-      if (! (obj instanceof LocationList)) {
-        throw new ClassCastException(C +
-                                     "Object not a LocationList, unable to compare");
-      }
+	public int compareTo(Object obj) {
 
-      LocationList locList = (LocationList) obj;
+		boolean compareFlag = true;
+		if (!(obj instanceof LocationList)) {
+			throw new ClassCastException(C
+					+ "Object not a LocationList, unable to compare");
+		}
 
-      ListIterator it = locList.listIterator();
-      ListIterator it1 = listIterator();
+		LocationList locList = (LocationList) obj;
 
-      if (size() != locList.size())
-        return -1;
+		ListIterator it = locList.listIterator();
+		ListIterator it1 = listIterator();
 
-      while (it.hasNext()) {
-        Location loc = (Location) it.next();
-        Location loc1 = (Location) it1.next();
-        compareFlag =loc1.equals(loc);
-        if(compareFlag == false)
-          break;
-      }
+		if (size() != locList.size()) {
+			return -1;
+		}
+		
+		Location loc = null;
+		Location loc1 = null;
+		while (it.hasNext()) {
+			loc = (Location) it.next();
+			loc1 = (Location) it1.next();
+			compareFlag = loc.equals(loc1);
+			if (compareFlag == false) {
+				break;
+			}
+		}
 
-      if(!compareFlag)
-        return -1;
+		if (!compareFlag) {
+			return -1;
+		}
 
-      return 0;
-    }
+		return 0;
+	}
+    
+//    // TODO should also override hashcode
+//    @Override
+//	public boolean equals(Object obj) {
+//    	return compareTo(obj) == 0;
+//    }
 
 
     /**
@@ -251,9 +267,10 @@ public class LocationList implements java.io.Serializable, XMLSaveable, Iterable
     public double getMinHorzDistToLine(Location loc) {
       double min = Double.MAX_VALUE, temp;
 
+      // TODO this should loop over the points and then only solve at the segment ??
       // loop over each line segment
       for(int i = 1; i < size(); i++) {
-        temp = RelativeLocation.getApproxHorzDistToLine(loc,getLocationAt(i-1),getLocationAt(i));
+        temp = RelativeLocation.getApproxHorzDistToLine(getLocationAt(i-1),getLocationAt(i),loc);
         if (temp < min) min = temp;
       }
       return min;

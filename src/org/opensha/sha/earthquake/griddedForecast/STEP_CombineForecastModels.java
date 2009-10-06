@@ -10,8 +10,10 @@ import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.region.CircularGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedCircularGeographicRegion;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.EvenlyGriddedSausageGeographicRegion;
+import org.opensha.commons.data.region.GeographicRegion;
 
 
 import org.opensha.sha.earthquake.observedEarthquake.*;
@@ -49,10 +51,10 @@ public class STEP_CombineForecastModels
   private double zoneRadius;
   private double gridSpacing;
   private GregorianCalendar forecastEndTime, currentTime;
-  private ArrayList griddedMagFreqDistForecast;
   private boolean isStatic = false, isPrimary = true,
       isSecondary = false, useSeqAndSpatial = false;
-  //private ObsEqkRupList newAftershocksInZone;
+  private ArrayList griddedMagFreqDistForecast;
+//private ObsEqkRupList newAftershocksInZone;
   //private RegionDefaults rDefs;
   private TimeSpan timeSpan;
   private double daysSinceMainshockStart, daysSinceMainshockEnd;
@@ -63,7 +65,7 @@ public class STEP_CombineForecastModels
   private SpatialAfterHypoMagFreqDistForecast spaElement = null;
   private HypoMagFreqDistAtLoc combinedForecast[];
   //private double sampleSizeAIC;
-  private EvenlyGriddedGeographicRegionAPI aftershockZone;
+  private EvenlyGriddedGeographicRegion aftershockZone;
   private boolean existSeqElement = false, existSpaElement = false; 
   private boolean usedInForecast = false;
   
@@ -176,7 +178,7 @@ public class STEP_CombineForecastModels
 		  //int gLoop = 0;
 		  
 		  // is this correct to be iterating over region, an EvenlyGriddedAPI??
-		  ListIterator gridIt = this.region.getGridLocationsIterator();
+		  ListIterator gridIt = getRegion().getGridLocationsIterator();
 		  
 		  //while ( gridIt.hasNext() ){
 		  for (int gLoop = 0; gLoop < numGridNodes; gLoop++){
@@ -184,7 +186,7 @@ public class STEP_CombineForecastModels
 			  // gridSearchRadius is the radius used for calculating the Reasenberg & Jones params
 			  double radius = this.spaElement.getGridSearchRadius();
 			  ObsEqkRupList gridEvents;
-			  CircularGeographicRegion nodeRegion = new CircularGeographicRegion(this.region.getGridLocation(gLoop),radius);
+			  GeographicRegion nodeRegion = new GeographicRegion(getRegion().getGridLocation(gLoop),radius);
 			  gridEvents = this.afterShocks.getObsEqkRupsInside(nodeRegion);
 			  
 			  // get the smoothed generic k val for the grid node
@@ -399,11 +401,17 @@ public class STEP_CombineForecastModels
     else {
       ObsEqkRupture mainshock = this.getMainShock();
       Location mainshockLocation = mainshock.getHypocenterLocation();
-      this.aftershockZone =
-          new EvenlyGriddedCircularGeographicRegion(mainshockLocation,
-          zoneRadius, RegionDefaults.gridSpacing);
-      this.aftershockZone.createRegionLocationsList(backgroundRatesGrid.region);
-       this.region = this.aftershockZone;
+//      this.aftershockZone = new EvenlyGriddedGeographicRegion(
+//    		  mainshockLocation, zoneRadius, RegionDefaults.gridSpacing, new Location(0,0));
+//      this.aftershockZone.createRegionLocationsList(backgroundRatesGrid.getRegion());
+      
+      // NOTE: baishan this may not be working right; replaces above code
+      GeographicRegion asZoneGR = new GeographicRegion(mainshockLocation, zoneRadius);
+      aftershockZone = backgroundRatesGrid.getRegion().subRegion(asZoneGR);
+      // end NOTE
+      
+      
+       setRegion(aftershockZone);
        this.useCircularRegion = true;
       
       // make a fault that is only a single point.
@@ -424,18 +432,23 @@ public class STEP_CombineForecastModels
    */
 
   public void calcTypeII_AfterShockZone(ObsEqkRupList aftershockList,
-                                        EvenlyGriddedGeographicRegionAPI
+                                        EvenlyGriddedGeographicRegion
                                         backGroundRatesGrid) {
     if (hasExternalFaultModel) {
       // This needs to be set up to read an external fault model.
     }
     else {
-      STEP_TypeIIAftershockZone_Calc typeIIcalc = new
-          STEP_TypeIIAftershockZone_Calc(aftershockList, this);
-      EvenlyGriddedSausageGeographicRegion typeII_Zone = typeIIcalc.
-          get_TypeIIAftershockZone();
-      typeII_Zone.createRegionLocationsList(backGroundRatesGrid); 
-      this.region = typeII_Zone;
+      STEP_TypeIIAftershockZone_Calc typeIIcalc = new STEP_TypeIIAftershockZone_Calc(aftershockList, this);
+      //EvenlyGriddedGeographicRegion typeII_Zone = typeIIcalc.get_TypeIIAftershockZone();
+      //typeII_Zone.createRegionLocationsList(backGroundRatesGrid); 
+
+      // NOTE: baishan this may not be working right; replaces above code
+      EvenlyGriddedGeographicRegion typeII_Zone = 
+    	  backGroundRatesGrid.subRegion(typeIIcalc.get_TypeIIAftershockZone());
+      // end NOTE
+      
+      setRegion(typeII_Zone);
+      //this.region = typeII_Zone;
       this.useSausageRegion = true;
      
       LocationList faultPoints = typeIIcalc.getTypeIIFaultModel();

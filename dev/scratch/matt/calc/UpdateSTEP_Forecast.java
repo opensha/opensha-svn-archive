@@ -1,5 +1,6 @@
 package scratch.matt.calc;
 
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.param.DoubleParameter;
 
@@ -23,7 +24,7 @@ public class UpdateSTEP_Forecast {
   private GenericAfterHypoMagFreqDistForecast forecastModelGen;
   private SequenceAfterHypoMagFreqDistForecast forecastModelSeq;
   private SpatialAfterHypoMagFreqDistForecast forecastModelSpa;
-  private EvenlyGriddedGeographicRegionAPI backgroundRatesGrid;
+  private EvenlyGriddedGeographicRegion backgroundRatesGrid;
   private STEP_CombineForecastModels sequenceModel;
   private boolean useSeqAndSpat, gridIsUpdated = false;
   private static int numGridNodes;
@@ -195,7 +196,7 @@ public void updateAIC_CombinedModelForecast(){
    * if the background needs to be changed - this also recalculates the
    * aftershock zone if necessary.
    */
-  public void setBackGroundGrid(EvenlyGriddedGeographicRegionAPI backgroundRatesGrid) {
+  public void setBackGroundGrid(EvenlyGriddedGeographicRegion backgroundRatesGrid) {
 	  this.backgroundRatesGrid = backgroundRatesGrid;
 	  // forecastModelGen.calcTypeI_AftershockZone(backgroundRatesGrid);
 	  updateAftershockZone();
@@ -204,7 +205,7 @@ public void updateAIC_CombinedModelForecast(){
   /**
    * getBackGroundGrid
    */
-  public EvenlyGriddedGeographicRegionAPI getBackGroundGrid() {
+  public EvenlyGriddedGeographicRegion getBackGroundGrid() {
 	  return this.backgroundRatesGrid;
   }
   

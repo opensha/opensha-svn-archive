@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.gui.GraphWindowAPI_Impl;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UCERF2;
@@ -179,7 +180,7 @@ public class NSHMP_GridFileReader {
 	 */
 	private GutenbergRichterMagFreqDist getMFD_InsideRELM_Region(String fileName, double bValue, double mMin, double mMax, double weight) {
 		// RELM region 
-		EvenlyGriddedRELM_Region region = new EvenlyGriddedRELM_Region();
+		CaliforniaRegions.RELM_GRIDDED region = new CaliforniaRegions.RELM_GRIDDED();
 		try { 
 			// Region filename
 			FileReader regionFileReader = new FileReader(LAT_LON_FILENAME); 
@@ -251,7 +252,7 @@ public class NSHMP_GridFileReader {
 			bValue, double mMin, String mMaxFilename, double weight, 
 			boolean applyBulgeReduction) {
 		// RELM region 
-		EvenlyGriddedRELM_Region region = new EvenlyGriddedRELM_Region();
+		CaliforniaRegions.RELM_GRIDDED region = new CaliforniaRegions.RELM_GRIDDED();
 		SummedMagFreqDist summedMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
 		try { 
 			// Region filename

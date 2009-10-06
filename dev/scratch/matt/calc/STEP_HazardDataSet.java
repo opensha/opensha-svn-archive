@@ -11,7 +11,9 @@ import java.util.StringTokenizer;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.WarningParameterAPI;
@@ -80,7 +82,7 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 		createShakeMapAttenRelInstance();
 
 		//3.why not use the region of STEP_main.bgGrid???
-		SitesInGriddedRectangularRegion region = getDefaultRegion();//
+		SitesInGriddedRegion region = getDefaultRegion();//
 //		System.out.println("getNumGridLocs=" + region.getNumGridLocs());	
 //		for(Location loc:region.getGridLocationsList()){
 //			System.out.println("loc=" +loc.getLatitude() + "," + loc.getLongitude());
@@ -113,22 +115,25 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	/**
 	 * @return
 	 */
-	public SitesInGriddedRectangularRegion getDefaultRegion() {
-		try {
-			return new SitesInGriddedRectangularRegion(RegionDefaults.searchLatMin, RegionDefaults.searchLatMax,
-					RegionDefaults.searchLongMin, RegionDefaults.searchLongMax,
-					RegionDefaults.gridSpacing);
-		} catch (RegionConstraintException e) {			
-			e.printStackTrace();
-		}
-		return null;
+	public SitesInGriddedRegion getDefaultRegion() {
+//		try {
+		  EvenlyGriddedGeographicRegion eggr = 
+			  new EvenlyGriddedGeographicRegion(
+					  new Location(RegionDefaults.searchLatMin, RegionDefaults.searchLongMin),
+					  new Location(RegionDefaults.searchLatMax, RegionDefaults.searchLongMax),
+					  RegionDefaults.gridSpacing, new Location(0,0));
+			return new SitesInGriddedRegion(eggr);
+//		} catch (RegionConstraintException e) {			
+//			e.printStackTrace();
+//		}
+		//return null;
 	}
 
 	/**
 	 * @param region
 	 * @return
 	 */
-	public double[] calcStepProbValues(SitesInGriddedRectangularRegion region ) {
+	public double[] calcStepProbValues(SitesInGriddedRegion region ) {
 		region.addSiteParams(attenRel.getSiteParamsIterator());
 		//getting the Attenuation Site Parameters Liat
 		ListIterator it = attenRel.getSiteParamsIterator();
@@ -182,9 +187,9 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	 * @param probVals : Probablity values ArrayList for each Lat and Lon
 	 * @param fileName : File to create
 	 */
-	private void saveProbValues2File(double[] probVals,SitesInGriddedRectangularRegion region){
+	private void saveProbValues2File(double[] probVals,SitesInGriddedRegion sites){
 		int size = probVals.length;
-		LocationList locList = region.getGridLocationsList();
+		LocationList locList = sites.getRegion().getGridLocationsList();
 		int numLocations = locList.size();
 
 		try{
@@ -212,10 +217,10 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	 * 
 	 * @param fileName : Name of the file from which we collect the values
 	 */
-	public double[] loadBgProbValues(SitesInGriddedRectangularRegion region,String fileName){
+	public double[] loadBgProbValues(SitesInGriddedRegion sites,String fileName){
 		BackGroundRatesGrid bgGrid = stepMain.getBgGrid();
-		STEP_main.log("numSites =" + region.getNumGridLocs() + " fileName=" + fileName);		
-		double[] vals = new double[region.getNumGridLocs()];	
+		STEP_main.log("numSites =" + sites.getRegion().getNumGridLocs() + " fileName=" + fileName);		
+		double[] vals = new double[sites.getRegion().getNumGridLocs()];	
 		 HashMap<String,Double> valuesMap = new  HashMap<String,Double>();
 		try{
 			ArrayList fileLines = FileUtils.loadFile(fileName);
@@ -246,8 +251,8 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 				valuesMap.put(bgGrid.getKey4Location(loc), temp);
 			}
 			//convert to an array in the order of the region grids locations
-			for(int i = 0; i < region.getNumGridLocs(); i++){
-				Location loc = region.getGridLocation(i);
+			for(int i = 0; i < sites.getRegion().getNumGridLocs(); i++){
+				Location loc = sites.getRegion().getGridLocation(i);
 				vals[i] = valuesMap.get(bgGrid.getKey4Location(loc));
 				//STEP_main.log(">> vals[" + i + "] =" + vals[i]  );
 			}
@@ -269,15 +274,15 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	/**
 	 * HazardCurve Calculator for the STEP
 	 * @param imr : ShakeMap_2003_AttenRel for the STEP Calculation
-	 * @param region
+	 * @param sites
 	 * @param eqkRupForecast : STEP Forecast
 	 * @returns the ArrayList of Probability values for the given region
 	 *           --in the same order of the region grids
 	 */
-	public double[] clacProbVals(AttenuationRelationship imr,SitesInGriddedRectangularRegion region,
+	public double[] clacProbVals(AttenuationRelationship imr,SitesInGriddedRegion sites,
 			ArrayList sourceList){
 
-		double[] probVals = new double[region.getNumGridLocs()];
+		double[] probVals = new double[sites.getRegion().getNumGridLocs()];
 		double MAX_DISTANCE = 500;
 
 		// declare some varibles used in the calculation
@@ -291,7 +296,7 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 			// (e.g., all could be outside MAX_DISTANCE)
 			boolean sourceUsed = false;
 
-			int numSites = region.getNumGridLocs();
+			int numSites = sites.getRegion().getNumGridLocs();
 			int numSourcesSkipped =0;
 			long startCalcTime = System.currentTimeMillis();
 
@@ -299,7 +304,7 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 				sourceUsed = false;
 				double hazVal =1;
 				double condProb =0;
-				Site site = region.getSite(j);
+				Site site = sites.getSite(j);
 				imr.setSite(site);
 				//adding the wills site class value for each site
 				// String willSiteClass = willSiteClassVals[j];
@@ -314,7 +319,7 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 					// get the ith source
 					ProbEqkSource source = (ProbEqkSource)sourceList.get(i);
 					// compute it's distance from the site and skip if it's too far away
-					distance = source.getMinDistance(region.getSite(j));
+					distance = source.getMinDistance(sites.getSite(j));
 					if(distance > MAX_DISTANCE){
 						++numSourcesSkipped;
 						//update progress bar for skipped ruptures

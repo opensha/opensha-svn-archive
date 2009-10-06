@@ -9,6 +9,7 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.commons.util.FileUtils;
 
@@ -22,7 +23,7 @@ import org.opensha.commons.util.FileUtils;
  */
 public class MakeNonCA_File {
 	private final static String PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/NearCA_NSHMP/";
-	private EvenlyGriddedRELM_Region relmRegion = new EvenlyGriddedRELM_Region();
+	private CaliforniaRegions.RELM_GRIDDED relmRegion = new CaliforniaRegions.RELM_GRIDDED();
 	private final static String OUT_FILE = "NonCA_Faults.txt";
 
 	public MakeNonCA_File() {

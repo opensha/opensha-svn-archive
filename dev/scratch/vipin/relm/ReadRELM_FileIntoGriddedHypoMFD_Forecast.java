@@ -2,6 +2,7 @@ package scratch.vipin.relm;
 
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
 import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_TestingRegion;
 import org.opensha.commons.exceptions.DataPoint2DException;
@@ -39,13 +40,13 @@ public class ReadRELM_FileIntoGriddedHypoMFD_Forecast extends GriddedHypoMagFreq
   * @return
   */
  public ReadRELM_FileIntoGriddedHypoMFD_Forecast(String inputFileName,
-                                                 EvenlyGriddedGeographicRegionAPI griddedRegion,
+                                                 EvenlyGriddedGeographicRegion griddedRegion,
                                                  double minMag,
                                                  double maxMag,
                                                  int numMagBins,
                                                  boolean useMask,
                                                  boolean adjustLatLon) {
-    this.region = griddedRegion;
+    setRegion(griddedRegion);
     this.inputFileName = inputFileName;
    // make HypoMagFreqDist for each location in the region
    magFreqDistForLocations = new HypoMagFreqDistAtLoc[this.getNumHypoLocs()];
@@ -124,7 +125,7 @@ public class ReadRELM_FileIntoGriddedHypoMFD_Forecast extends GriddedHypoMagFreq
         if(mag>6.5 || (6.5-mag<0.005)) totRate6_5+=rate;
         if(mag>8 || (8-mag<0.005)) totRate8+=rate;
         if(mag>8.05 || (8.05-mag<0.005)) totRate8_05+=rate;
-        locIndex = this.region.getNearestLocationIndex(new Location(lat,lon));
+        locIndex = getRegion().getNearestLocationIndex(new Location(lat,lon));
         //continue if location not in the region
         if (locIndex >= 0)  {
           IncrementalMagFreqDist incrMagFreqDist = magFreqDistForLocations[locIndex].getMagFreqDist()[0];

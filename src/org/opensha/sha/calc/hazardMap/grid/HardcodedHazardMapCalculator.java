@@ -5,6 +5,9 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.region.BorderType;
+import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.region.RELM_TestingRegion;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
@@ -41,7 +44,7 @@ public class HardcodedHazardMapCalculator implements ParameterChangeWarningListe
 	boolean skipPoints = false;
 	int skipFactor = 10;
 
-	SitesInGriddedRegionAPI sites;
+	SitesInGriddedRegion sites;
 	int startIndex;
 	int endIndex;
 	boolean debug;
@@ -61,7 +64,7 @@ public class HardcodedHazardMapCalculator implements ParameterChangeWarningListe
 	 * @param debug - flag to enable debugging mode. if true, the timer and graph window will be enabled
 	 * 		if hard coded in.
 	 */
-	public HardcodedHazardMapCalculator(SitesInGriddedRegionAPI sites, int startIndex, int endIndex, boolean debug) {
+	public HardcodedHazardMapCalculator(SitesInGriddedRegion sites, int startIndex, int endIndex, boolean debug) {
 		this.sites = sites;
 		this.startIndex = startIndex;
 		this.endIndex = endIndex;
@@ -175,13 +178,18 @@ public class HardcodedHazardMapCalculator implements ParameterChangeWarningListe
 		long start = System.currentTimeMillis();
 
 		// create site object
-		GeographicRegion region = new RELM_TestingRegion();
+		//GeographicRegion region = new RELM_TestingRegion();
 //		GeographicRegion region = new EvenlyGriddedCaliforniaRegion();
 //		GeographicRegion region = new EvenlyGriddedSoCalRegion();
 
-		double gridSpacing = 0.1;
+		//double gridSpacing = 0.1;
 
-		SitesInGriddedRegionAPI sites = new SitesInGriddedRegion(region.getRegionOutline(), gridSpacing);
+//		EvenlyGriddedGeographicRegion eggr = new EvenlyGriddedGeographicRegion(
+//				region.getRegionOutline(), BorderType.MERCATOR_LINEAR, gridSpacing);
+		EvenlyGriddedGeographicRegion eggr = 
+			new CaliforniaRegions.RELM_TESTING_GRIDDED();
+		
+		SitesInGriddedRegion sites = new SitesInGriddedRegion(eggr);
 
 //		SitesInGriddedRegionAPI sites = null;
 //		try {
@@ -242,7 +250,7 @@ public class HardcodedHazardMapCalculator implements ParameterChangeWarningListe
 			// hard coded indices
 			int startIndex = 0;
 			int endIndex = 10;
-			System.out.println("Doing sites " + startIndex + " to " + endIndex + " of " + sites.getNumGridLocs());
+			System.out.println("Doing sites " + startIndex + " to " + endIndex + " of " + sites.getRegion().getNumGridLocs());
 			try {
 				System.err.println("RUNNING FROM DEBUG MODE!");
 				// run the calculator with debugging enabled

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.ListIterator;
 import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.region.GeographicRegionAPI;
 import org.opensha.commons.exceptions.InvalidRangeException;
 
@@ -157,7 +158,7 @@ public class ObsEqkRupList implements java.io.Serializable{
    * @returns the subset of total observed events as ObsEqkRupList list
    * inside a given region.
    */
-  public ObsEqkRupList getObsEqkRupsInside(GeographicRegionAPI region) {
+  public ObsEqkRupList getObsEqkRupsInside(GeographicRegion region) {
     ObsEqkRupList obsEventList = new ObsEqkRupList();
     int size = size();
     for (int i = 0; i < size; ++i) {
@@ -176,7 +177,7 @@ public class ObsEqkRupList implements java.io.Serializable{
    * @returns the subset of total observed events as ObsEqkRupList list
    * outside a given region.
    */
-  public ObsEqkRupList getObsEqkRupsOutside(GeographicRegionAPI region) {
+  public ObsEqkRupList getObsEqkRupsOutside(GeographicRegion region) {
     ObsEqkRupList obsEventList = new ObsEqkRupList();
     int size = size();
     for (int i = 0; i < size; ++i) {

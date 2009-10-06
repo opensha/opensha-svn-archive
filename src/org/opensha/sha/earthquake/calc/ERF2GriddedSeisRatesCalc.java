@@ -7,6 +7,7 @@ import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.GeographicRegion;
 
@@ -60,7 +61,7 @@ public class ERF2GriddedSeisRatesCalc {
   private DecimalFormat magFormat = new DecimalFormat("0.00");
 
   private EqkRupForecastAPI eqkRupForecast;
-  private EvenlyGriddedGeographicRegionAPI region;
+  private EvenlyGriddedGeographicRegion region;
 
   /**
    * default class Constructor.
@@ -97,7 +98,7 @@ public class ERF2GriddedSeisRatesCalc {
    */
   public ArrayList calcMFD_ForGriddedRegion(double minMag, double maxMag,
                                             int numMagBins, EqkRupForecastAPI eqkRupForecast,
-                                            EvenlyGriddedGeographicRegionAPI region,
+                                            EvenlyGriddedGeographicRegion region,
                                             double duration) {
     double delta = (maxMag-minMag)/(numMagBins-1);
     ArrayList cumMFDList  = calcCumMFD_ForGriddedRegion(minMag-delta, eqkRupForecast, region);
@@ -200,7 +201,7 @@ for(int m=0;m<testFunc.getNum();m++)
    */
   public ArrayList calcCumMFD_ForGriddedRegion(double minMag,
       EqkRupForecastAPI eqkRupForecast,
-      EvenlyGriddedGeographicRegionAPI region) {
+      EvenlyGriddedGeographicRegion region) {
     minMagnitude = minMag;
 
     this.eqkRupForecast = eqkRupForecast;
@@ -258,7 +259,7 @@ for(int m=0;m<testFunc.getNum();m++)
    */
   public double[] getTotalSeisRateAtEachLocationInRegion(double minMag,
       EqkRupForecastAPI eqkRupForecast,
-      EvenlyGriddedGeographicRegionAPI region) {
+      EvenlyGriddedGeographicRegion region) {
     minMagnitude = minMag;
 
     this.eqkRupForecast = eqkRupForecast;

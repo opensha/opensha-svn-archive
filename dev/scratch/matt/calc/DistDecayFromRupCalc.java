@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 
 
@@ -29,7 +30,7 @@ public final class DistDecayFromRupCalc {
   }
 
   public static double[] getDensity(FaultTrace faultTrace,
-                             EvenlyGriddedGeographicRegionAPI aftershockZone) {
+                             EvenlyGriddedGeographicRegion aftershockZone) {
     double[] nodePerc = null;
     double sumInvDist = 0;
 
@@ -69,7 +70,7 @@ public final class DistDecayFromRupCalc {
    * be assigned to each grid node.
    */
   public static double[] getDensity(ObsEqkRupture mainshock,
-                             EvenlyGriddedGeographicRegionAPI aftershockZone) {
+                             EvenlyGriddedGeographicRegion aftershockZone) {
     Location pointRupture;
     Location gLoc;
     double[] nodePerc = null;

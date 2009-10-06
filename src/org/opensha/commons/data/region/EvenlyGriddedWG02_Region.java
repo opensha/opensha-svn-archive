@@ -13,6 +13,7 @@ import org.opensha.commons.data.LocationList;
  * @author vipingupta
  *
  */
+@Deprecated
 public class EvenlyGriddedWG02_Region extends EvenlyGriddedGeographicRegion {
 	protected final static double GRID_SPACING = 0.1;
 
@@ -22,7 +23,7 @@ public class EvenlyGriddedWG02_Region extends EvenlyGriddedGeographicRegion {
 		 */
 		LocationList locList = getLocationList();
 		// make polygon from the location list
-		createEvenlyGriddedGeographicRegion(locList, GRID_SPACING);
+		//createEvenlyGriddedGeographicRegion(locList, GRID_SPACING);
 	}
 
 	/**

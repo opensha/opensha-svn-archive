@@ -16,6 +16,7 @@ import org.opensha.sha.imr.*;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -73,7 +74,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
   private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
   //store the site values for each site in the griddded region
-  private SitesInGriddedRectangularRegion griddedRegionSites;
+  private SitesInGriddedRegion griddedRegionSites;
 
   //gets the instance of the selected AttenuationRelationship
   private AttenuationRelationship attenRel;
@@ -655,7 +656,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
        String eqkRupForecastLocation =  erfGuiBean.saveSelectedERF();
        // this function will get the selected IMT parameter and set it in IMT
        imtGuiBean.setIMT();
-       SitesInGriddedRectangularRegion griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
+       SitesInGriddedRegion griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
        step =3;
        sendParametersToServlet(griddedRegionSites, imr, eqkRupForecastLocation);
        step =0;
@@ -732,7 +733,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
  /**
   * sets up the connection with the servlet on the server (gravity.usc.edu)
   */
- private void sendParametersToServlet(SitesInGriddedRectangularRegion regionSites,
+ private void sendParametersToServlet(SitesInGriddedRegion regionSites,
                                        ScalarIntensityMeasureRelationshipAPI imr,
                                        String eqkRupForecastLocation) {
 

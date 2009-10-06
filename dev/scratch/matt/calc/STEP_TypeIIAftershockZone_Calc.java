@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedSausageGeographicRegion;
 
 
@@ -24,7 +25,7 @@ import org.opensha.sha.earthquake.observedEarthquake.*;
  */
 public class STEP_TypeIIAftershockZone_Calc {
   //private ObsEqkRupList newObsEventsList;
-  private EvenlyGriddedSausageGeographicRegion typeIIAftershockZone;
+  private EvenlyGriddedGeographicRegion typeIIAftershockZone;
   private LocationList faultSegments;
   private double zoneRadius, gridSpacing;
 
@@ -115,8 +116,8 @@ public class STEP_TypeIIAftershockZone_Calc {
    * CreateAftershockZoneDef
    */
   public void CreateAftershockZoneDef() {
-    EvenlyGriddedSausageGeographicRegion typeIIAftershockZone =
-        new EvenlyGriddedSausageGeographicRegion(faultSegments,zoneRadius,gridSpacing);
+	  EvenlyGriddedGeographicRegion typeIIAftershockZone =
+        new EvenlyGriddedGeographicRegion(faultSegments,zoneRadius,gridSpacing, new Location(0,0));
     /**
      * The rest will have to be filled in for a "Sausage" Geographic
      * Region on a SausageGeographicRegion is defined.
@@ -128,7 +129,7 @@ public class STEP_TypeIIAftershockZone_Calc {
    * This needs to be changed to return a sausage region once
    * this type of region is defined.
    */
-  public EvenlyGriddedSausageGeographicRegion get_TypeIIAftershockZone() {
+  public EvenlyGriddedGeographicRegion get_TypeIIAftershockZone() {
     return typeIIAftershockZone;
   }
 

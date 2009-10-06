@@ -15,6 +15,7 @@ import org.opensha.commons.data.LocationList;
  * @author ned field
  *
  */
+@Deprecated
 public class EvenlyGriddedWG07_LA_Box_Region extends EvenlyGriddedGeographicRegion {
 	private final static boolean D = true;
 	protected final static double GRID_SPACING = 0.1;
@@ -29,7 +30,7 @@ public class EvenlyGriddedWG07_LA_Box_Region extends EvenlyGriddedGeographicRegi
 
 		LocationList locList = getLocationList();
 		// make polygon from the location list
-		createEvenlyGriddedGeographicRegion(locList, GRID_SPACING);
+		//createEvenlyGriddedGeographicRegion(locList, GRID_SPACING);
 		
 		if(D)
 			for(int l=0; l<locList.size();l++)
@@ -112,6 +113,6 @@ public class EvenlyGriddedWG07_LA_Box_Region extends EvenlyGriddedGeographicRegi
 	}
 	
 	public static void main(String[] args) {
-		EvenlyGriddedWG07_LA_Box_Region la_box = new EvenlyGriddedWG07_LA_Box_Region();
+		CaliforniaRegions.WG07_GRIDDED la_box = new CaliforniaRegions.WG07_GRIDDED();
 	}
 }

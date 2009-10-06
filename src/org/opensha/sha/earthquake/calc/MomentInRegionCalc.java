@@ -8,6 +8,7 @@ import java.util.Iterator;
 import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -62,7 +63,7 @@ public class MomentInRegionCalc {
 		locList1.addLocation(new Location(45, -122));
 		locList1.addLocation(new Location(41.75, -119.025));
 		locList1.addLocation(new Location(37.25, -124.025));
-		GeographicRegion region1 = new GeographicRegion(locList1);
+		GeographicRegion region1 = new GeographicRegion(locList1, BorderType.MERCATOR_LINEAR);
 		
 //		REGION 2
 		LocationList locList2 = new LocationList();
@@ -70,7 +71,7 @@ public class MomentInRegionCalc {
 		locList2.addLocation(new Location(41.75, -119.025));
 		locList2.addLocation(new Location(41, -118.35));
 		locList2.addLocation(new Location(36.5, -123.35));
-		GeographicRegion region2 = new GeographicRegion(locList2);
+		GeographicRegion region2 = new GeographicRegion(locList2, BorderType.MERCATOR_LINEAR);
 
 //		REGION 3
 		LocationList locList3 = new LocationList();
@@ -78,7 +79,7 @@ public class MomentInRegionCalc {
 		locList3.addLocation(new Location(41, -118.35));
 		locList3.addLocation(new Location(39.5, -117));
 		locList3.addLocation(new Location(35, -122));
-		GeographicRegion region3 = new GeographicRegion(locList3);
+		GeographicRegion region3 = new GeographicRegion(locList3, BorderType.MERCATOR_LINEAR);
 
 //		REGION 4
 		LocationList locList4 = new LocationList();
@@ -86,7 +87,7 @@ public class MomentInRegionCalc {
 		locList4.addLocation(new Location(39.5, -117));
 		locList4.addLocation(new Location(37.5, -115.2));
 		locList4.addLocation(new Location(33, -120.2));
-		GeographicRegion region4 = new GeographicRegion(locList4);
+		GeographicRegion region4 = new GeographicRegion(locList4, BorderType.MERCATOR_LINEAR);
 
 //		REGION 5
 		LocationList locList5 = new LocationList();
@@ -94,7 +95,7 @@ public class MomentInRegionCalc {
 		locList5.addLocation(new Location(37.5, -115.2));
 		locList5.addLocation(new Location(36.75, -114.525));
 		locList5.addLocation(new Location(32.25, -119.525));
-		GeographicRegion region5 = new GeographicRegion(locList5);
+		GeographicRegion region5 = new GeographicRegion(locList5, BorderType.MERCATOR_LINEAR);
 
 //		REGION 6
 		LocationList locList6 = new LocationList();
@@ -102,7 +103,7 @@ public class MomentInRegionCalc {
 		locList6.addLocation(new Location(36.75, -114.525));
 		locList6.addLocation(new Location(34, -112));
 		locList6.addLocation(new Location(29.5, -117));
-		GeographicRegion region6 = new GeographicRegion(locList6);
+		GeographicRegion region6 = new GeographicRegion(locList6, BorderType.MERCATOR_LINEAR);
 
 		
 		// ERF

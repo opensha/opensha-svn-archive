@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 
 /**
@@ -25,7 +26,8 @@ public class SiteDataToXYZ {
 	public static void writeXYZ(SiteDataAPI<?> data, double gridSpacing,
 			String fileName) throws IOException {
 		EvenlyGriddedGeographicRegion region =
-				new EvenlyGriddedGeographicRegion(data.getApplicableRegion().getRegionOutline(), gridSpacing);
+				new EvenlyGriddedGeographicRegion(
+						data.getApplicableRegion().getRegionOutline(), BorderType.MERCATOR_LINEAR, gridSpacing, new Location(0,0));
 		writeXYZ(data, region, fileName, true);
 	}
 	

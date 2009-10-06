@@ -1,6 +1,7 @@
 package org.opensha.sha.earthquake.griddedForecast;
 
 import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 
 import org.opensha.sha.faultSurface.SimpleFaultData;
@@ -36,8 +37,9 @@ public class STEP_AftershockForecast
    * This sets the aftershock zone
    * @param aftershockZone EvenlyGriddedGeographicRegionAPI
    */
-  public void setAfterShockZone(EvenlyGriddedGeographicRegionAPI aftershockZone) {
-    this.region = aftershockZone;
+  public void setAfterShockZone(EvenlyGriddedGeographicRegion aftershockZone) {
+	  setRegion(aftershockZone);
+    //this.region = aftershockZone;
   }
 
   /**

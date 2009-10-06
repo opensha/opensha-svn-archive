@@ -4,8 +4,6 @@ import java.util.*;
 import java.io.IOException;
 import java.io.Serializable;
 
-
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
@@ -17,9 +15,7 @@ import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.ParameterAPI;
 
-
 import org.opensha.sha.util.*;
-import org.opensha.sha.gui.infoTools.ConnectToCVM;
 
 /**
  * <p>Title: SitesInGriddedRegion</p>
@@ -34,9 +30,9 @@ import org.opensha.sha.gui.infoTools.ConnectToCVM;
  * @created : March 15,2003
  * @version 1.0
  */
-
-public class SitesInGriddedRegion extends EvenlyGriddedGeographicRegion
-implements SitesInGriddedRegionAPI,Serializable{
+// implements SitesInGriddedRegionAPI
+// extends EvenlyGriddedGeographicRegion
+public class SitesInGriddedRegion implements Serializable {
 
 	//Debug parameter
 	public static final boolean D= false;
@@ -54,37 +50,31 @@ implements SitesInGriddedRegionAPI,Serializable{
 
 	//Instance of the site TransLator class
 	SiteTranslator siteTranslator = new SiteTranslator();
+	
+	private EvenlyGriddedGeographicRegion region;
 
-	/**
-	 *class constructor
-	 * @param minLat
-	 * @param maxLat
-	 * @param minLon
-	 * @param maxLon
-	 * @param gridSpacing
-	 */
-	public SitesInGriddedRegion(LocationList locList,
-			double gridSpacing) {
-		super(locList,gridSpacing);
+	public SitesInGriddedRegion(EvenlyGriddedGeographicRegion region) {
+		this.region = region;
 	}
+	
+	public EvenlyGriddedGeographicRegion getRegion() {
+		return region;
+	}
+//	public SitesInGriddedRegion(LocationList locList, double gridSpacing) {
+//		super(locList,gridSpacing);
+//	}
 
-	public void setSiteParamsForRegion(OrderedSiteDataProviderList providers) throws IOException {
-		setSameSiteParams = false;
-		//getting the list of Locations in the region
-		LocationList locList = getGridLocationsList();
-		
-		siteDataValueLists = new ArrayList<SiteDataValueList<?>>();
-		
-		for (int i=0; i<providers.size(); i++) {
-			if (!providers.isEnabled(i)) {
-				continue;
-			}
-			SiteDataAPI<?> provider = providers.getProvider(i);
-			
-			ArrayList<?> vals = provider.getValues(locList);
-			siteDataValueLists.add(new SiteDataValueList(vals, provider));
-		}
-	}
+//	public SitesInGriddedRegion(double minLat,double maxLat,double minLon,double maxLon,
+//			double gridSpacing) throws
+//			RegionConstraintException {
+//		super(minLat,maxLat,minLon,maxLon,gridSpacing);
+//	}
+
+//	public SitesInGriddedRegion(GeographicRegion geo,
+//			double gridSpacing) throws
+//			RegionConstraintException {
+//		super(geo.getMinLat(), geo.getMaxLat(), geo.getMinLon(), geo.getMaxLon(), gridSpacing);
+//	}
 
 	/**
 	 * Gets the list for Site Params for region from application called this function.
@@ -127,7 +117,32 @@ implements SitesInGriddedRegionAPI,Serializable{
 		}
 	}
 
-
+	public void setSiteParamsForRegion(OrderedSiteDataProviderList providers) throws IOException {
+		setSameSiteParams = false;
+		//getting the list of Locations in the region
+		LocationList locList = region.getGridLocationsList();
+		
+		siteDataValueLists = new ArrayList<SiteDataValueList<?>>();
+		
+		for (int i=0; i<providers.size(); i++) {
+			if (!providers.isEnabled(i)) {
+				continue;
+			}
+			SiteDataAPI<?> provider = providers.getProvider(i);
+			
+			ArrayList<?> vals = provider.getValues(locList);
+			siteDataValueLists.add(new SiteDataValueList(vals, provider));
+		}
+	}
+	
+	public void setSiteDataValueLists(ArrayList<SiteDataValueList<?>> siteDataValueLists) {
+		setSameSiteParams = false;
+		this.siteDataValueLists = siteDataValueLists;
+	}
+	
+	public ArrayList<SiteDataValueList<?>> getSiteDataValueLists() {
+		return siteDataValueLists;
+	}
 
 	/**
 	 * Gets the list for Site Params for region from servlet hosted at web server.
@@ -167,11 +182,16 @@ implements SitesInGriddedRegionAPI,Serializable{
 
 	/**
 	 * Gets the site at specified index.
+	 * 
+	 * NOTE (IMP) : This class translates the willsSiteClass values to the site parameters of the AttenuationsRelationships.
+	 * If it fails to translate any site parameters , either becuase there is no Wills class value for a given site or any other 
+	 * reason, it then uses the default value provided by the user for that parameter or any other site parameter for that 
+	 * AttenuationRelationship.
 	 * @param index
 	 * @returns site at the index
 	 */
 	public Site getSite(int index) throws RegionConstraintException {
-		site.setLocation(getGridLocation(index));
+		site.setLocation(region.getGridLocation(index));
 		String siteInfo=null;
 		if(!setSameSiteParams){
 			//getting the Site Parameters Iterator
@@ -233,24 +253,24 @@ implements SitesInGriddedRegionAPI,Serializable{
 	 * return its iterator
 	 * @return
 	 */
-	public Iterator getSitesIterator(){
-		ArrayList sitesVector=new ArrayList();
-		//get the iterator of all the locations within that region
-		ListIterator it=this.getGridLocationsIterator();
-		//get the iterator for all the site types
-		ListIterator siteParamsIt = site.getParametersIterator();
-		while(it.hasNext()){
-			//create the site object and add it to tbe ArrayList List
-			Site newSite = new Site((Location)it.next());
-			while(siteParamsIt.hasNext()){
-				ParameterAPI tempParam = (ParameterAPI)siteParamsIt.next();
-				if(!newSite.containsParameter(tempParam))
-					newSite.addParameter(tempParam);
-			}
-			sitesVector.add(newSite);
-		}
-		return sitesVector.iterator();
-	}
+//	public Iterator getSitesIterator(){
+//		ArrayList sitesVector=new ArrayList();
+//		//get the iterator of all the locations within that region
+//		ListIterator it=this.getGridLocationsIterator();
+//		//get the iterator for all the site types
+//		ListIterator siteParamsIt = site.getParametersIterator();
+//		while(it.hasNext()){
+//			//create the site object and add it to tbe ArrayList List
+//			Site newSite = new Site((Location)it.next());
+//			while(siteParamsIt.hasNext()){
+//				ParameterAPI tempParam = (ParameterAPI)siteParamsIt.next();
+//				if(!newSite.containsParameter(tempParam))
+//					newSite.addParameter(tempParam);
+//			}
+//			sitesVector.add(newSite);
+//		}
+//		return sitesVector.iterator();
+//	}
 
 
 
@@ -272,6 +292,7 @@ implements SitesInGriddedRegionAPI,Serializable{
 	 * Sets the default Site Parameters in case CVM don't cover the regions
 	 * @param defaultSiteParamsIt : Iterator for the Site Params and their Values
 	 */
+	// TODO revisit set to make copy of params; probably ok
 	public void setDefaultSiteParams(ArrayList defaultSiteParams){
 		//this.defaultSiteParams = defaultSiteParams;
 		if (this.defaultSiteParams != null)

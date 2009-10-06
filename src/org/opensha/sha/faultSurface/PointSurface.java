@@ -321,9 +321,13 @@ public class PointSurface extends Location implements EvenlyGriddedSurfaceAPI {
              throws ArrayIndexOutOfBoundsException {
         if ( row == 0 && column == 0 ) {
 
-            this.latitude = Double.NaN;
-            this.longitude = Double.NaN;
-            this.depth = Double.NaN;
+        	setLatitude(0);
+        	setLongitude(0);
+        	setDepth(0);
+//            this.latitude = Double.NaN;
+//            this.longitude = Double.NaN;
+//            this.depth = Double.NaN;
+        	
         } else {
             throw new ArrayIndexOutOfBoundsException( "PointSurface can only have one point, i.e. x=0, y=0." );
         }

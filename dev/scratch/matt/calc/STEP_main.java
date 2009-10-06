@@ -17,7 +17,9 @@ import java.util.TimeZone;
 import org.apache.log4j.Logger;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
@@ -91,8 +93,8 @@ public class STEP_main {
 	 * Returns the Gridded Region applicable for STEP forecast
 	 * @return
 	 */
-	public SitesInGriddedRectangularRegion getGriddedRegion(){
-		return (SitesInGriddedRectangularRegion)bgGrid.getEvenlyGriddedGeographicRegion();
+	public EvenlyGriddedGeographicRegion getGriddedRegion(){
+		return bgGrid.getRegion();
 	}
 
 
@@ -212,7 +214,7 @@ public class STEP_main {
 				//IncrementalMagFreqDist seqDist, bgDist;
 				double bgSumOver5, seqSumOver5;
 
-				LocationList bgLocList = bgGrid.getEvenlyGriddedGeographicRegion().getGridLocationsList();
+				LocationList bgLocList = bgGrid.getRegion().getGridLocationsList();
 				int bgRegionSize = bgLocList.size();
 				LocationList aftershockZoneList = forecastModel.getAfterShockZone().getGridLocationsList();
 				int asZoneSize = aftershockZoneList.size();
@@ -549,7 +551,7 @@ public class STEP_main {
 
 		try{
 			FileWriter fr = new FileWriter(RegionDefaults.outputAftershockRatePath);
-			LocationList bgLocList = bggrid.getEvenlyGriddedGeographicRegion().getGridLocationsList();			
+			LocationList bgLocList = bggrid.getRegion().getGridLocationsList();			
 			int bgRegionSize = bgLocList.size();
 			log("bgRegionSize " + bgRegionSize);
 			//int hypoMagFreqDistSize = bggrid.getHypoMagFreqDist().size();

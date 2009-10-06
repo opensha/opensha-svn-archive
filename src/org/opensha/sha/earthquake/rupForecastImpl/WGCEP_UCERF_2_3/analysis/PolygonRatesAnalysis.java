@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -31,7 +32,7 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 public class PolygonRatesAnalysis {
 
 	private UCERF2 ucerf2;
-	private EvenlyGriddedRELM_Region relmRegion = new EvenlyGriddedRELM_Region();
+	private CaliforniaRegions.RELM_GRIDDED relmRegion = new CaliforniaRegions.RELM_GRIDDED();
 	private EmpiricalModelDataFetcher empiricalModelFetcher = new EmpiricalModelDataFetcher();
 	private ERF2GriddedSeisRatesCalc erf2GriddedSeisRatesCalc = new ERF2GriddedSeisRatesCalc(); 
 	private final static double MIN_MAG = 5.0;
@@ -209,7 +210,7 @@ public class PolygonRatesAnalysis {
 		for(int i=0; i<area1new_agrid.length; ++i) {
 			if(area1new_agrid[i]==0) continue; // if the rate is 0 at this location
 			++totPointsInRELM_Region;
-			Location loc = nshmpGridSrcGen.getGridLocation(i);
+			Location loc = nshmpGridSrcGen.getGriddedRegion().getGridLocation(i);
 			for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
 				GeographicRegion polygon = empiricalModelFetcher.getRegion(regionIndex);
 				if(polygon.getRegionOutline()==null) continue;

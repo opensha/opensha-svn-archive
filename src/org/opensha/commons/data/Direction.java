@@ -17,6 +17,9 @@ import org.opensha.commons.param.DoubleParameter;
  * <li>back azimuth
  * </ul>
  *
+ *TODO - this class should accept location and bearing. when queried for backAzimuth
+ *it should then be calcualted, not on init. THis whole class is confused.
+ *
  * Thses fields uniquely describe the vector between any two points on or within
  * the surface of the earth.<p>
  *
@@ -62,7 +65,8 @@ public class Direction {
 
      */
     public Direction() {
-
+    	// TODO fix THIS IS WRONG and NOT a good assumption to make
+    	// back azimuth is dependent on location
         this.azimuth.setValue( new Double(180) );
         this.backAzimuth.setValue( new Double(0) );
         this.horzDistance = 0;

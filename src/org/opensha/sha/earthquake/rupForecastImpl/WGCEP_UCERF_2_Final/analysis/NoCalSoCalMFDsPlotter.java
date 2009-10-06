@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.EvenlyGriddedNoCalRegion;
 import org.opensha.commons.data.region.EvenlyGriddedSoCalRegion;
 import org.opensha.commons.data.region.GeographicRegion;
@@ -113,8 +114,8 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 	 * @return
 	 */
 	protected  ArrayList<EvenlyDiscretizedFunc> getObsCumMFD(UCERF2 ucerf2) {
-		if(region instanceof EvenlyGriddedNoCalRegion) return ucerf2.getObsCumNoCalMFD();
-		else if (region instanceof EvenlyGriddedSoCalRegion) return ucerf2.getObsCumSoCalMFD();
+		if(region instanceof CaliforniaRegions.RELM_NOCAL_GRIDDED) return ucerf2.getObsCumNoCalMFD();
+		else if (region instanceof CaliforniaRegions.RELM_SOCAL_GRIDDED) return ucerf2.getObsCumSoCalMFD();
 		else if (region == null ) return super.getObsCumMFD(ucerf2);
 		else throw new RuntimeException("Unsupported region");
 	}
@@ -154,8 +155,8 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 	 * @return
 	 */
 	protected  ArrayList<ArbitrarilyDiscretizedFunc> getObsIncrMFD(UCERF2 ucerf2) {
-		if(region instanceof EvenlyGriddedNoCalRegion) return ucerf2.getObsIncrNoCalMFD();
-		else if (region instanceof EvenlyGriddedSoCalRegion) return ucerf2.getObsIncrSoCalMFD();
+		if(region instanceof CaliforniaRegions.RELM_NOCAL_GRIDDED) return ucerf2.getObsIncrNoCalMFD();
+		else if (region instanceof CaliforniaRegions.RELM_SOCAL_GRIDDED) return ucerf2.getObsIncrSoCalMFD();
 		else throw new RuntimeException("Unsupported region");
 	}
 	
@@ -299,7 +300,7 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 		//NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new EvenlyGriddedNoCalRegion());
 		//plotter.generateMFDsData(NoCalSoCalMFDsPlotter.NO_CAL_PATH);
 		//plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.NO_CAL_PATH);
-		NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new EvenlyGriddedSoCalRegion());
+		NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new CaliforniaRegions.RELM_SOCAL_GRIDDED());
 		plotter.generateMFDsData(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
 		//plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
 	}

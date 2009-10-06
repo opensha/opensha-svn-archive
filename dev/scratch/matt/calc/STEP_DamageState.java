@@ -13,6 +13,7 @@ import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
@@ -86,16 +87,21 @@ public class STEP_DamageState implements ParameterChangeWarningListener{
 	  STEP_main stepMain = new STEP_main();
 	  System.out.println(" DS STEP earthquake rates are done.");
 	  createShakeMapAttenRelInstance();
-	  SitesInGriddedRectangularRegion region = null;
-	try {
-		region = new SitesInGriddedRectangularRegion(32.5,42.2,-124.8,-112.4,0.1);
-	} catch (RegionConstraintException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
+	  SitesInGriddedRegion sites = null;
+//	try {
+		  EvenlyGriddedGeographicRegion eggr = 
+			  new EvenlyGriddedGeographicRegion(
+					  new Location(32.5,-124.8),
+					  new Location(42.2,-112.4),
+					  0.1, new Location(0,0));
+		  sites = new SitesInGriddedRegion(eggr);
+//	} catch (RegionConstraintException e) {
+//		// TODO Auto-generated catch block
+//		e.printStackTrace();
+//	}
 	  
 	  
-	  region.addSiteParams(attenRel.getSiteParamsIterator());
+		  sites.addSiteParams(attenRel.getSiteParamsIterator());
 	  //getting the Attenuation Site Parameters Liat
       ListIterator it = attenRel.getSiteParamsIterator();
       //creating the list of default Site Parameters, so that site parameter values can be filled in
@@ -110,8 +116,8 @@ public class STEP_DamageState implements ParameterChangeWarningListener{
         defaultSiteParams.add(tempParam);
       }
       if(willSiteClass){
-    	  region.setDefaultSiteParams(defaultSiteParams);
-    	  region.setSiteParamsForRegionFromServlet(true);
+    	  sites.setDefaultSiteParams(defaultSiteParams);
+    	  sites.setSiteParamsForRegionFromServlet(true);
       }
       
       // create the list of im levels for the hazard curve.
@@ -121,14 +127,14 @@ public class STEP_DamageState implements ParameterChangeWarningListener{
 	      //System.out.println("probCurve init: "+probCurve.getY(i)+" "+i);
 	  }
 	  
-      double[] bgVals = getBGVals(region.getNumGridLocs(),STEP_BG_FILE_NAME);
-      double[] probVal = this.getProbVals(attenRel, region, stepMain.getSourceList(), probCurve);
+      double[] bgVals = getBGVals(sites.getRegion().getNumGridLocs(),STEP_BG_FILE_NAME);
+      double[] probVal = this.getProbVals(attenRel, sites, stepMain.getSourceList(), probCurve);
 
       //combining the backgound and Addon dataSet and wrinting the result to the file
       STEP_BackSiesDataAdditionObject addStepData = new STEP_BackSiesDataAdditionObject();
       double[] stepBothProbVals = addStepData.addDataSet(bgVals,probVal);
-      createFile(stepBothProbVals,region);
-      createHazCurveFile(hazCurveList, region);
+      createFile(stepBothProbVals,sites);
+      createHazCurveFile(hazCurveList, sites);
       ArrayList stepAftershockList= stepMain.getSTEP_AftershockForecastList();
       //saving the STEP_Aftershock list object to the file
       FileUtils.saveObjectInFile(STEP_AFTERSHOCK_OBJECT_FILE, stepAftershockList);
@@ -157,9 +163,9 @@ public class STEP_DamageState implements ParameterChangeWarningListener{
 	   * @param probVals : Probablity values ArrayList for each Lat and Lon
 	   * @param fileName : File to create
 	   */
-	  private void createFile(double[] probVals,SitesInGriddedRectangularRegion region){
+	  private void createFile(double[] probVals,SitesInGriddedRegion sites){
 	    int size = probVals.length;
-	    LocationList locList = region.getGridLocationsList();
+	    LocationList locList = sites.getRegion().getGridLocationsList();
 	    int numLocations = locList.size();
 	    
 	    try{
@@ -181,9 +187,9 @@ public class STEP_DamageState implements ParameterChangeWarningListener{
 	   * @param probVals : Probablity values ArrayList for each Lat and Lon
 	   * @param fileName : File to create
 	   */
-	  private void createHazCurveFile(double[][] hazCurveList,SitesInGriddedRectangularRegion region){
+	  private void createHazCurveFile(double[][] hazCurveList,SitesInGriddedRegion sites){
 	    int size = hazCurveList.length;
-	    LocationList locList = region.getGridLocationsList();
+	    LocationList locList = sites.getRegion().getGridLocationsList();
 	    int numLocations = locList.size();
 	    
 	    try{
@@ -248,10 +254,10 @@ public class STEP_DamageState implements ParameterChangeWarningListener{
 	   * @param eqkRupForecast : STEP Forecast
 	   * @returns the ArrayList of Probability values for the given region
 	   */
-	  private double[] getProbVals(AttenuationRelationship imr,SitesInGriddedRectangularRegion region,
+	  private double[] getProbVals(AttenuationRelationship imr,SitesInGriddedRegion sites,
 	                                     ArrayList sourceList, ArbitrarilyDiscretizedFunc probCurve){
 
-	    double[] probVals = new double[region.getNumGridLocs()];
+	    double[] probVals = new double[sites.getRegion().getNumGridLocs()];
 	    double MAX_DISTANCE = 500;
 	    double invProb;
 	   
@@ -270,7 +276,7 @@ public class STEP_DamageState implements ParameterChangeWarningListener{
 	      // (e.g., all could be outside MAX_DISTANCE)
 	      boolean sourceUsed = false;
 
-	      int numSites = region.getNumGridLocs();
+	      int numSites = sites.getRegion().getNumGridLocs();
 	      int numSourcesSkipped =0;
 	      long startCalcTime = System.currentTimeMillis();
 	      hazCurveList = new double[numSites][20];
@@ -283,7 +289,7 @@ public class STEP_DamageState implements ParameterChangeWarningListener{
 	        double condProb =0;
 	        for(int d=0;d<NUM_LEVELS;++d)
 		    	  totInvProb[d] = 1.0;
-	        Site site = region.getSite(j);
+	        Site site = sites.getSite(j);
 	        imr.setSite(site);
 	        //adding the wills site class value for each site
 	       // String willSiteClass = willSiteClassVals[j];
@@ -300,7 +306,7 @@ public class STEP_DamageState implements ParameterChangeWarningListener{
 	          ProbEqkSource source = (ProbEqkSource)sourceList.get(i);
 
 	          // compute it's distance from the site and skip if it's too far away
-	          distance = source.getMinDistance(region.getSite(j));
+	          distance = source.getMinDistance(sites.getSite(j));
 	          if(distance > MAX_DISTANCE){
 	            ++numSourcesSkipped;
 	            //update progress bar for skipped ruptures

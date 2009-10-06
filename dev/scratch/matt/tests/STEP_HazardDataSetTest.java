@@ -6,6 +6,7 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
 
@@ -103,13 +104,13 @@ public class STEP_HazardDataSetTest  extends TestCase {
 	 */
 	public void testCalcStepProbValues() {
 		//logger.info("testCalcStepProbValues " );
-		SitesInGriddedRectangularRegion region = step_HazardDataSet.getDefaultRegion();//
+		SitesInGriddedRegion sites = step_HazardDataSet.getDefaultRegion();//
 		//logger.info("region.getNumGridLocs " + region.getNumGridLocs());
 //		double[] bgVals = step_HazardDataSet.getBGVals(region , RegionDefaults.backgroundHazardPath);
-		double[] stepBothProbVals = step_HazardDataSet.calcStepProbValues(region);
+		double[] stepBothProbVals = step_HazardDataSet.calcStepProbValues(sites);
 		//logger.info("stepBothProbVals "  + stepBothProbVals.length);		
 		int num = stepBothProbVals.length;
-		assertTrue(num == region.getNumGridLocs());
+		assertTrue(num == sites.getRegion().getNumGridLocs());
 		for(int i = 0 ; i < num; i++){
 			double totalVal = stepBothProbVals[i];
 			double bgVal = stepBothProbVals[i];

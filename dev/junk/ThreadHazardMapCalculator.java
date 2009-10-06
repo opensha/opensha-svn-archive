@@ -12,6 +12,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
 import org.opensha.sha.earthquake.EqkRupForecast;
@@ -79,9 +80,9 @@ public class ThreadHazardMapCalculator {
   public void getHazardMapCurves(String[] args) {
     try{
 
-      SitesInGriddedRectangularRegion griddedSites = (SitesInGriddedRectangularRegion)FileUtils.loadObject(args[1]);
+    	SitesInGriddedRegion sites = (SitesInGriddedRegion)FileUtils.loadObject(args[1]);
       int numOfProcs = Integer.parseInt(args[5]);
-      int numSites = griddedSites.getNumGridLocs();
+      int numSites = sites.getRegion().getNumGridLocs();
       //dividing the number of sites on each processor based on the number of processor
       //requested from the server.
       int sitesPerProcessor = (int)(numSites/numOfProcs+1);

@@ -4,6 +4,7 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.CircularGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
+import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import java.util.*;
 
@@ -28,14 +29,14 @@ public class ReasenbergJonesGriddedParms_Calc {
 
 
 // the first constructor must be used if a non-fixed c value is to be used and then useFixed_cValue must be set to false
-  public ReasenbergJonesGriddedParms_Calc(EvenlyGriddedGeographicRegionAPI
+  public ReasenbergJonesGriddedParms_Calc(EvenlyGriddedGeographicRegion
                                           gridNodes, ObsEqkRupList eventList,
                                           boolean useFixed_cValue) {
     setGriddedMags(gridNodes, eventList);
     setUseFixed_cVal(useFixed_cValue);
   }
 
-  public ReasenbergJonesGriddedParms_Calc(EvenlyGriddedGeographicRegionAPI
+  public ReasenbergJonesGriddedParms_Calc(EvenlyGriddedGeographicRegion
                                           gridNodes, ObsEqkRupList eventList) {
     setGriddedMags(gridNodes, eventList);
   }
@@ -118,7 +119,7 @@ public class ReasenbergJonesGriddedParms_Calc {
    * calculate the Reasenberg & Jones parms (a,b,p,c,k) on the evenly gridded region grid.
    *
    */
-  public void setGriddedMags(EvenlyGriddedGeographicRegionAPI gridNodes,
+  public void setGriddedMags(EvenlyGriddedGeographicRegion gridNodes,
                              ObsEqkRupList eventList) {
     calc_RJParmsOnGrid(gridNodes, eventList);
   }
@@ -126,7 +127,7 @@ public class ReasenbergJonesGriddedParms_Calc {
   /**
    * calc_RJParmsOnGrid
    */
-  private void calc_RJParmsOnGrid(EvenlyGriddedGeographicRegionAPI gridNodes,
+  private void calc_RJParmsOnGrid(EvenlyGriddedGeographicRegion gridNodes,
                                   ObsEqkRupList eventList){
     ListIterator gridIt = gridNodes.getGridLocationsIterator();
     int numNodes = gridNodes.getNumGridLocs();
@@ -157,8 +158,8 @@ public class ReasenbergJonesGriddedParms_Calc {
 
 
     while (gridIt.hasNext()) {
-      CircularGeographicRegion gridRegion =
-          new CircularGeographicRegion((Location)gridIt.next(),this.searchRadius);
+      GeographicRegion gridRegion =
+          new GeographicRegion((Location)gridIt.next(),this.searchRadius);
       ObsEqkRupList regionList = eventList.getObsEqkRupsInside(gridRegion);
 
       // Calculate the completeness of the events selected for the node and remove

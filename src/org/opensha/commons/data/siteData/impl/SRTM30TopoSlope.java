@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import org.opensha.commons.calc.ArcsecondConverter;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.region.RectangularGeographicRegion;
@@ -77,11 +78,14 @@ public class SRTM30TopoSlope extends AbstractSiteData<Double> {
 		calc.setStartBottom(true);
 		calc.setStartLeft(true);
 		
-		try {
-			region = new RectangularGeographicRegion(-60, 90, -180, 180);
-		} catch (RegionConstraintException e) {
-			e.printStackTrace();
-		}
+//		try {
+			//region = new GeographicRegion(-60, 90, -180, 180);
+			region = new GeographicRegion(
+					new Location(-60, -180),
+					new Location(90, 180));
+//		} catch (RegionConstraintException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	public GeographicRegion getApplicableRegion() {
@@ -155,7 +159,11 @@ public class SRTM30TopoSlope extends AbstractSiteData<Double> {
 		System.out.println(data.getValue(new Location(34, -118)));
 		System.out.println(data.getValue(new Location(32, -118)));
 		
-		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(32, 35, -121, -115, 0.02);
+		//EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(32, 35, -121, -115, 0.02);
+		EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(
+				new Location(32, -121),
+				new Location(25, 115),
+				0.02, new Location(0,0));
 //		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(-60, 60, -180, 180, 1);
 //		
 		SiteDataToXYZ.writeXYZ(data, region, "/tmp/topo_slope.txt");

@@ -51,12 +51,14 @@ public class WillsMap2000 extends AbstractSiteData<String> {
 	public WillsMap2000(boolean useServlet) {
 		super();
 		this.useServlet = useServlet;
-		try {
-			applicableRegion = new RectangularGeographicRegion(minLat, maxLat, minLon, maxLon);
-		} catch (RegionConstraintException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+			applicableRegion = new GeographicRegion(
+					new Location(minLat, minLon),
+					new Location(maxLat, maxLon));
+//		} catch (RegionConstraintException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		if (useServlet) {
 			servlet = new SiteDataServletAccessor<String>(SERVLET_URL);
 			servlet.setMaxLocsPerRequest(10000);

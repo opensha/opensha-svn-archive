@@ -1324,15 +1324,15 @@ public class HazardCurveServerModeApplication extends JFrame implements
 			// eqkRupForecast =
 			// (EqkRupForecastAPI)FileUtils.loadObject("erf.obj");
 			try {
-				if (isProbabilisticCurve)
+				if (isProbabilisticCurve) {
 					hazFunction = (ArbitrarilyDiscretizedFunc) calc
 							.getHazardCurve(hazFunction, site, imr,
 									(EqkRupForecastAPI) forecast);
-				else if (isStochasticCurve)
+				} else if (isStochasticCurve) {
 					hazFunction = (ArbitrarilyDiscretizedFunc) calc.
 					getAverageEventSetHazardCurve(hazFunction, site, imr,
 									(EqkRupForecastAPI) forecast);
-				else { // deterministic
+				} else { // deterministic
 					progressCheckBox.setSelected(false);
 					progressCheckBox.setEnabled(false);
 					hazFunction = (ArbitrarilyDiscretizedFunc) calc

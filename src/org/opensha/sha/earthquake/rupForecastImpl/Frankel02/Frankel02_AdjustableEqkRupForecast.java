@@ -15,6 +15,7 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.commons.data.region.RELM_TestingRegion;
 import org.opensha.commons.exceptions.FaultException;
@@ -1183,7 +1184,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 //	   makeGridSources("shear4_OpenSHA", 1.0, null, 0.0);
 	   
 //	   RELM_TestingRegion relmRegion = new RELM_TestingRegion();
-	   EvenlyGriddedRELM_Region relmRegion = new EvenlyGriddedRELM_Region();
+	   CaliforniaRegions.RELM_GRIDDED relmRegion = new CaliforniaRegions.RELM_GRIDDED();
 	   Point2Vert_SS_FaultPoisSource ptSrc;
 	   SummedMagFreqDist summedDist = new SummedMagFreqDist(5.05,31,0.1);
 	   ListIterator it = frankelBackgrSeisSources.listIterator();
@@ -1214,7 +1215,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 	     frankCast.setParameter(BACK_SEIS_NAME, BACK_SEIS_INCLUDE);
 	     frankCast.setParameter(BACK_SEIS_RUP_NAME, BACK_SEIS_RUP_POINT);
 	     frankCast.updateForecast();
-	     EvenlyGriddedRELM_Region region = new EvenlyGriddedRELM_Region();
+	     CaliforniaRegions.RELM_GRIDDED region = new CaliforniaRegions.RELM_GRIDDED();
 	     
 	     double minMag = 4.0, maxMag=9.0; 
 	     int num=101;

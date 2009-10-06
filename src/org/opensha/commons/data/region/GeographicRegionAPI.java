@@ -15,6 +15,7 @@ import java.util.ListIterator;
  * @author Nitin Gupta
  * @version 1.0
  */
+@Deprecated
 public interface GeographicRegionAPI extends XMLSaveable {
 
     /**
@@ -67,13 +68,13 @@ public interface GeographicRegionAPI extends XMLSaveable {
      *
      * @return the LocationList size
      */
-    public int getNumRegionOutlineLocations();
+    //public int getNumRegionOutlineLocations();
 
     /**
      *
      * @returns the ListIterator to the LocationList
      */
-    public ListIterator getRegionOutlineIterator();
+    //public ListIterator getRegionOutlineIterator();
 
 
     /**

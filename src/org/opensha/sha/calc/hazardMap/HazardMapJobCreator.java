@@ -18,6 +18,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegionAPI;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataAPI;
@@ -112,7 +113,7 @@ public class HazardMapJobCreator {
 	SubmitHost submitHost;
 	HazardMapCalculationParameters calcParams;
 
-	SitesInGriddedRegionAPI sites;
+	SitesInGriddedRegion sites;
 
 	int startIndex;
 	int endIndex;
@@ -142,12 +143,12 @@ public class HazardMapJobCreator {
 	
 	private OrderedSiteDataProviderList siteDataList;
 
-	public HazardMapJobCreator(String outputDir, SitesInGriddedRegionAPI sites,
+	public HazardMapJobCreator(String outputDir, SitesInGriddedRegion sites,
 				HazardMapJob job, OrderedSiteDataProviderList siteDataList) {
-		this(outputDir, sites, 0, sites.getNumGridLocs() - 1, job, siteDataList);
+		this(outputDir, sites, 0, sites.getRegion().getNumGridLocs() - 1, job, siteDataList);
 	}
 
-	public HazardMapJobCreator(String outputDir, SitesInGriddedRegionAPI sites, int startIndex, int endIndex,
+	public HazardMapJobCreator(String outputDir, SitesInGriddedRegion sites, int startIndex, int endIndex,
 				HazardMapJob job, OrderedSiteDataProviderList siteDataList) {
 		this.job = job;
 		this.siteDataList = siteDataList;
@@ -172,8 +173,8 @@ public class HazardMapJobCreator {
 //		this.globusscheduler = rp_host + "/" + rp_batchScheduler;
 	}
 	
-	public static int calcNameLength(SitesInGriddedRegionAPI sites) {
-		String maxSite = (sites.getNumGridLocs() - 1) + "";
+	public static int calcNameLength(SitesInGriddedRegion sites) {
+		String maxSite = (sites.getRegion().getNumGridLocs() - 1) + "";
 		return maxSite.length();
 	}
 
@@ -364,7 +365,7 @@ public class HazardMapJobCreator {
 	}
 
 	public void createJobs(boolean stageOut) throws IOException {
-		System.out.println("Creating jobs for " + sites.getNumGridLocs() + " sites!");
+		System.out.println("Creating jobs for " + sites.getRegion().getNumGridLocs() + " sites!");
 
 		File outDir = new File(outputDir);
 		if (!outDir.exists())
@@ -400,8 +401,8 @@ public class HazardMapJobCreator {
 		System.out.println("Total Job Time: " + seconds + " seconds = " + minsStr + " mins");
 		System.out.println("Time Per Job: " + new DecimalFormat(	"###.##").format(duration / (double)jobs / 1000d) + " seconds");
 
-		double estimatedMins = (mins / (double)jobs) * (double)sites.getNumGridLocs() / (double)calcParams.getSitesPerJob();
-		System.out.println("Estimated time (based on current, " + sites.getNumGridLocs() + " curves): " + new DecimalFormat(	"###.##").format(estimatedMins) + " mins");
+		double estimatedMins = (mins / (double)jobs) * (double)sites.getRegion().getNumGridLocs() / (double)calcParams.getSitesPerJob();
+		System.out.println("Estimated time (based on current, " + sites.getRegion().getNumGridLocs() + " curves): " + new DecimalFormat(	"###.##").format(estimatedMins) + " mins");
 		estimatedMins = (mins / (double)jobs) * 200000d / (double)calcParams.getSitesPerJob();
 		System.out.println("Estimated time (based on 200,000 curves): " + new DecimalFormat(	"###.##").format(estimatedMins) + " mins");
 	}
@@ -878,7 +879,7 @@ public class HazardMapJobCreator {
 			str.append("# This Job creates the direcory on the compute resource where all input files\n");
 			str.append("# and curves will be stored\n");
 			str.append("Job create_dir mkdir.sub\n");
-			str.append("Script PRE create_dir " + createLogShellScript("mkdir", STATUS_WORKFLOW_BEGIN + this.sites.getNumGridLocs()) + "\n");
+			str.append("Script PRE create_dir " + createLogShellScript("mkdir", STATUS_WORKFLOW_BEGIN + this.sites.getRegion().getNumGridLocs()) + "\n");
 			str.append("RETRY create_dir " + NUM_JOB_RETRIES + "\n");
 			str.append("\n");
 			str.append("\n");

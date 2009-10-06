@@ -2,6 +2,8 @@ package org.opensha.commons.data;
 
 import java.util.Comparator;
 
+import org.opensha.commons.calc.RelativeLocation;
+
 /**
  * <p>Title: EqkRuptureMagComparator</p>
  *
@@ -43,12 +45,12 @@ public class LocationComparator
    */
   public int compare(Object object1, Object object2) {
     Location loc1 = (Location) object1;
-    double loc1Lat = Double.parseDouble(Location.latLonFormat.format(loc1.getLatitude()));
-    double loc1Lon = Double.parseDouble(Location.latLonFormat.format(loc1.getLongitude()));
+    double loc1Lat = Double.parseDouble(RelativeLocation.LL_FORMAT.format(loc1.getLatitude()));
+    double loc1Lon = Double.parseDouble(RelativeLocation.LL_FORMAT.format(loc1.getLongitude()));
 
     Location loc2 = (Location) object2;
-    double loc2Lat = Double.parseDouble(Location.latLonFormat.format(loc2.getLatitude()));
-    double loc2Lon = Double.parseDouble(Location.latLonFormat.format(loc2.getLongitude()));
+    double loc2Lat = Double.parseDouble(RelativeLocation.LL_FORMAT.format(loc2.getLatitude()));
+    double loc2Lon = Double.parseDouble(RelativeLocation.LL_FORMAT.format(loc2.getLongitude()));
 
     if(loc1Lat < loc2Lat)
       return -1;

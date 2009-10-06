@@ -3,7 +3,9 @@ package org.opensha.commons.mapping.gmt;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import org.opensha.commons.data.Location;
 import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.region.GeographicRegionAPI;
 import org.opensha.commons.data.region.RectangularGeographicRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
@@ -21,7 +23,7 @@ public class GMT_Map implements Serializable {
 	 */
 	private static final long serialVersionUID = 3365240959132801705L;
 
-	private RectangularGeographicRegion region;
+	private GeographicRegion region;
 	
 	private String cptFile = null;
 	private CPT cpt = null;
@@ -46,13 +48,15 @@ public class GMT_Map implements Serializable {
 	}
 	private HighwayFile highwayFile = null;
 	
-	public static RectangularGeographicRegion ca_topo_region;
+	public static GeographicRegion ca_topo_region;
 	static {
-		try {
-			ca_topo_region  = new RectangularGeographicRegion(32, 43, -126, -115);
-		} catch (RegionConstraintException e) {
-			e.printStackTrace();
-		}
+//		try {
+			ca_topo_region  = new GeographicRegion(
+					new Location(32, -126),
+					new Location(43, -115));
+//		} catch (RegionConstraintException e) {
+//			e.printStackTrace();
+//		}
 	}
 	private TopographicSlopeFile topoResolution = null;
 	
@@ -83,13 +87,13 @@ public class GMT_Map implements Serializable {
 	private ArrayList<PSXYPolygon> xyLines = new ArrayList<PSXYPolygon>();
 	private PSXYSymbolSet xySymbolSet = null;
 	
-	public GMT_Map(RectangularGeographicRegion region, XYZ_DataSetAPI griddedData,
+	public GMT_Map(GeographicRegion region, XYZ_DataSetAPI griddedData,
 			double griddedDataInc, String cptFile) {
 		this.region = region;
 		setGriddedData(griddedData, griddedDataInc, cptFile);
 	}
 	
-	public GMT_Map(RectangularGeographicRegion region, XYZ_DataSetAPI griddedData,
+	public GMT_Map(GeographicRegion region, XYZ_DataSetAPI griddedData,
 			double griddedDataInc, CPT cpt) {
 		this.region = region;
 		setGriddedData(griddedData, griddedDataInc, cpt);
@@ -123,11 +127,11 @@ public class GMT_Map implements Serializable {
 		this.cpt = cpt;
 	}
 
-	public RectangularGeographicRegion getRegion() {
+	public GeographicRegion getRegion() {
 		return region;
 	}
 
-	public void setRegion(RectangularGeographicRegion region) {
+	public void setRegion(GeographicRegion region) {
 		this.region = region;
 	}
 

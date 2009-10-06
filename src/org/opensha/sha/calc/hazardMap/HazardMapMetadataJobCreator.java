@@ -67,12 +67,12 @@ public class HazardMapMetadataJobCreator {
 		// get the root element
 		Element root = metadata.getRootElement();
 		// load the sites from metadata
-		SitesInGriddedRegionAPI sites = this.loadSites(root);
+		SitesInGriddedRegion sites = this.loadSites(root);
 		// load the job params from metadata
 		HazardMapJob job = this.loadJob(root, startDAG, endDAG, sites);
 		// get and create the output directory (and subdirs)
 		String outputDir = this.createDirs(job, restart, debug);
-		System.out.println("Loaded " + sites.getNumGridLocs() + " sites!");
+		System.out.println("Loaded " + sites.getRegion().getNumGridLocs() + " sites!");
 		// save the ERF to a file if needed
 		if (job.getCalcParams().isSerializeERF()) {
 			this.saveERF(root, job, outputDir);
@@ -180,7 +180,7 @@ public class HazardMapMetadataJobCreator {
 	 * @param jobElem
 	 * @return
 	 */
-	private HazardMapJob loadJob(Element root, int start, int end, SitesInGriddedRegionAPI sites) {
+	private HazardMapJob loadJob(Element root, int start, int end, SitesInGriddedRegion sites) {
 
 		this.updateProgressMessage("Loading Job");
 
@@ -261,20 +261,20 @@ public class HazardMapMetadataJobCreator {
 		return outputDir;
 	}
 
-	private SitesInGriddedRegionAPI loadSites(Element root) {
+	private SitesInGriddedRegion loadSites(Element root) {
 		this.updateProgressMessage("Loading Sites");
 		Element regionElement = root.element(EvenlyGriddedGeographicRegion.XML_METADATA_NAME);
 		EvenlyGriddedGeographicRegion region = EvenlyGriddedGeographicRegion.fromXMLMetadata(regionElement);
-		SitesInGriddedRegionAPI sites = null;
-		if (region.isRectangular()) {
-			try {
-				sites = new SitesInGriddedRectangularRegion(region, region.getGridSpacing());
-			} catch (RegionConstraintException e) {
-				sites = new SitesInGriddedRegion(region.getRegionOutline(), region.getGridSpacing());
-			}
-		} else {
-			sites = new SitesInGriddedRegion(region.getRegionOutline(), region.getGridSpacing());
-		}
+		SitesInGriddedRegion sites = new SitesInGriddedRegion(region);
+//		if (region.isRectangular()) {
+//			try {
+//				sites = new SitesInGriddedRegion(region, region.getGridSpacing());
+//			} catch (RegionConstraintException e) {
+//				sites = new SitesInGriddedRegion(region.getRegionOutline(), region.getGridSpacing());
+//			}
+//		} else {
+//			sites = new SitesInGriddedRegion(region.getRegionOutline(), region.getGridSpacing());
+//		}
 
 		return sites;
 	}

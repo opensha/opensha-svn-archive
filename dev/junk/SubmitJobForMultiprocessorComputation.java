@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.Iterator;
 
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
 //import org.opensha.cme.SRBDrop.SRBDrop;
@@ -73,7 +74,7 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
     if (!outputDir.endsWith("/"))
       outputDir = outputDir + "/";
 
-    SitesInGriddedRectangularRegion griddedSites = (SitesInGriddedRectangularRegion)FileUtils.loadObject(outputDir+regionFileName);
+    SitesInGriddedRegion sites = (SitesInGriddedRegion)FileUtils.loadObject(outputDir+regionFileName);
 
     //creating the directory for arranging the hazard map data files in a
     //organized manner.
@@ -141,7 +142,7 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
       //create shell script to ftp hazard curve tar file from remote machine
       // to local machine and then untar them on the local machine
       ftpCurvesFromRemoteMachine(outputDir, remoteDir,
-                                 griddedSites.getNumGridLocs(),
+                                 sites.getRegion().getNumGridLocs(),
                                  emailAddr,
                                  remoteMachineSubdirName);
 

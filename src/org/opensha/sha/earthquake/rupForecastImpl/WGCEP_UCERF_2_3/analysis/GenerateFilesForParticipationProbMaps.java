@@ -10,6 +10,8 @@ import java.util.ListIterator;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_TestingRegion;
 import org.opensha.sha.earthquake.EqkRupForecast;
@@ -46,7 +48,7 @@ public class GenerateFilesForParticipationProbMaps {
 		double mags[] = { 5.0, 6.0, 6.5, 6.7, 7.1, 7.2, 7.5, 7.7, 8.0};
 
 		// Region
-		EvenlyGriddedRELM_TestingRegion evenlyGriddedRegion  = new EvenlyGriddedRELM_TestingRegion();
+		CaliforniaRegions.RELM_TESTING_GRIDDED evenlyGriddedRegion  = new CaliforniaRegions.RELM_TESTING_GRIDDED();
 
 		// UCERF 2
 		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
@@ -194,13 +196,13 @@ class ERF_ToGriddedParticipationRatesMFD_Forecast  extends GriddedHypoMagFreqDis
 	   *
 	   */
 	  public ERF_ToGriddedParticipationRatesMFD_Forecast(EqkRupForecast eqkRupForecast,
-	                                              EvenlyGriddedGeographicRegionAPI griddedRegion,
+	                                              EvenlyGriddedGeographicRegion griddedRegion,
 	                                              double minMag,
 	                                              double maxMag,
 	                                              int numMagBins,
 	                                              double duration) {
 	    this.eqkRupForecast = eqkRupForecast;
-	    this.region = griddedRegion;
+	    setRegion(griddedRegion);
 
 	    SummedMagFreqDist[] summedMFDs  =  calcMFD_ForGriddedRegion(minMag, maxMag, numMagBins, duration);
 	    // make HypoMagFreqDist for each location in the region
@@ -239,7 +241,7 @@ class ERF_ToGriddedParticipationRatesMFD_Forecast  extends GriddedHypoMagFreqDis
 
 	    int numSources = eqkRupForecast.getNumSources();
 
-	    int numLocations = region.getNumGridLocs();
+	    int numLocations = getRegion().getNumGridLocs();
 	    SummedMagFreqDist[] summedMFDs = new SummedMagFreqDist[numLocations];
 	   
 	    for(int i=0; i<numLocations; ++i) summedMFDs[i] = new SummedMagFreqDist(minMag, maxMag, numMagBins);
@@ -264,7 +266,7 @@ class ERF_ToGriddedParticipationRatesMFD_Forecast  extends GriddedHypoMagFreqDis
 	        while (it.hasNext()) {
 	          Location ptLoc = (Location) it.next();
 	          //returns -1 if location not in the region
-	          locIndex = region.getNearestLocationIndex(ptLoc);
+	          locIndex = getRegion().getNearestLocationIndex(ptLoc);
 	          if(locIndices.contains(locIndex) || locIndex<0) continue;
 //	          if(Math.abs(region.getGridLocation(locIndex).getLatitude()-33.3)<1e-6 && 
 //	        		  Math.abs(region.getGridLocation(locIndex).getLongitude()+116.1)<1e-6)

@@ -5,6 +5,7 @@ import java.util.*;
 import scratch.matt.calc.*;
 
 import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 
 import org.opensha.sha.earthquake.observedEarthquake.*;
@@ -31,7 +32,7 @@ public class SpatialAfterHypoMagFreqDistForecast
   public MaxLikeOmori_Calc omoriCalc;
   private ArrayList rjParms;
   private ReasenbergJonesGriddedParms_Calc rjcalc;
-  private EvenlyGriddedGeographicRegionAPI aftershockZone;
+  private EvenlyGriddedGeographicRegion aftershockZone;
   private ObsEqkRupList aftershocks;
   private double dayStart, dayEnd;
   private ArrayList gridMagForecast;
@@ -39,7 +40,7 @@ public class SpatialAfterHypoMagFreqDistForecast
   private double searchRadius;
 
   public SpatialAfterHypoMagFreqDistForecast(ObsEqkRupture mainshock,
-                                             EvenlyGriddedGeographicRegionAPI
+                                             EvenlyGriddedGeographicRegion
                                              aftershockZone,
                                              ObsEqkRupList aftershocks) {
 
@@ -47,7 +48,8 @@ public class SpatialAfterHypoMagFreqDistForecast
      * initialise the aftershock zone and mainshock for this model
      */
     this.setMainShock(mainshock);
-    this.region = aftershockZone;
+    setRegion(aftershockZone);
+    //this.region = aftershockZone;
     this.aftershocks = aftershocks;
     this.aftershockZone = aftershockZone;
 
@@ -224,7 +226,7 @@ public class SpatialAfterHypoMagFreqDistForecast
       IncrementalMagFreqDist[] dist = new IncrementalMagFreqDist[1];
       dist[0] = GR_Dist;
       Location gridLoc;
-      gridLoc = this.region.getGridLocation(gridIndex);
+      gridLoc = getRegion().getGridLocation(gridIndex);
       magDistLoc = new HypoMagFreqDistAtLoc(dist,gridLoc);
       return magDistLoc;
     //}

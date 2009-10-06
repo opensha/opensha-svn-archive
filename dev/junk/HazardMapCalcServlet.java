@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.util.FileUtils;
 
 import org.opensha.sha.imr.*;
@@ -48,7 +49,7 @@ public class HazardMapCalcServlet extends HttpServlet {
           getInputStream());
 
       //get the sites for which this needs to be calculated
-      SitesInGriddedRectangularRegion sites = (SitesInGriddedRectangularRegion) inputFromApplet.
+      SitesInGriddedRegion sites = (SitesInGriddedRegion) inputFromApplet.
                                    readObject();
       //get the selected IMR
       ScalarIntensityMeasureRelationshipAPI imr = (ScalarIntensityMeasureRelationshipAPI)
@@ -103,8 +104,8 @@ public class HazardMapCalcServlet extends HttpServlet {
 
       // write site information in sites file
       FileWriter fwSites = new FileWriter(newDir+this.SITES_FILE_NAME);
-      fwSites.write(sites.getMinLat()+" "+sites.getMaxLat()+" "+sites.getGridSpacing()+"\n");
-      fwSites.write(sites.getMinLon()+" "+sites.getMaxLon()+" "+sites.getGridSpacing()+"\n");
+      fwSites.write(sites.getRegion().getMinLat()+" "+sites.getRegion().getMaxLat()+" "+sites.getRegion().getGridSpacing()+"\n");
+      fwSites.write(sites.getRegion().getMinLon()+" "+sites.getRegion().getMaxLon()+" "+sites.getRegion().getGridSpacing()+"\n");
       fwSites.close();
 
 

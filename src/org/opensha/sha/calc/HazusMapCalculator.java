@@ -11,6 +11,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.param.DoubleDiscreteParameter;
 
@@ -98,7 +99,7 @@ public class HazusMapCalculator {
      * @param mapParametersInfo  : Parameters in String form used to generate the map
      * @return
    */
-  public void getHazardMapCurves(SitesInGriddedRectangularRegion griddedSites,
+  public void getHazardMapCurves(SitesInGriddedRegion sites,
                                  ScalarIntensityMeasureRelationshipAPI imr,
                                  EqkRupForecast eqkRupForecast,
                                  String mapParametersInfo) {
@@ -126,14 +127,14 @@ public class HazusMapCalculator {
       fr.write(mapParametersInfo+"\n");
       fr.close();
       fr=new FileWriter(newDir+"/sites.dat");
-      fr.write(griddedSites.getMinLat()+" "+griddedSites.getMaxLat()+" "+
-               griddedSites.getGridSpacing()+"\n"+griddedSites.getMinLon()+" "+
-               griddedSites.getMaxLon()+" "+ griddedSites.getGridSpacing()+"\n");
+      fr.write(sites.getRegion().getMinLat()+" "+sites.getRegion().getMaxLat()+" "+
+    		  sites.getRegion().getGridSpacing()+"\n"+sites.getRegion().getMinLon()+" "+
+    		  sites.getRegion().getMaxLon()+" "+ sites.getRegion().getGridSpacing()+"\n");
       fr.close();
     }catch(IOException ee){
       ee.printStackTrace();
     }
-    calculate(griddedSites, imr, eqkRupForecast);
+    calculate(sites, imr, eqkRupForecast);
   }
 
   /**
@@ -151,7 +152,7 @@ public class HazusMapCalculator {
    * @return
    */
   public void getHazardMapCurves(String dirName,
-                                 SitesInGriddedRectangularRegion griddedSites,
+		  SitesInGriddedRegion sites,
                                  ScalarIntensityMeasureRelationshipAPI imr,
                                  EqkRupForecast eqkRupForecast,
                                  String mapParametersInfo) {
@@ -179,16 +180,16 @@ public class HazusMapCalculator {
       fr.write(mapParametersInfo+"\n");
       fr.close();
       fr=new FileWriter(newDir+"/sites.dat");
-      fr.write(griddedSites.getMinLat()+" "+griddedSites.getMaxLat()+" "+
-               griddedSites.getGridSpacing()+"\n"+griddedSites.getMinLon()+" "+
-               griddedSites.getMaxLon()+" "+ griddedSites.getGridSpacing()+"\n");
+      fr.write(sites.getRegion().getMinLat()+" "+sites.getRegion().getMaxLat()+" "+
+    		  sites.getRegion().getGridSpacing()+"\n"+sites.getRegion().getMinLon()+" "+
+    		  sites.getRegion().getMaxLon()+" "+ sites.getRegion().getGridSpacing()+"\n");
       fr.close();
     }catch(IOException ee){
       ee.printStackTrace();
     }
 
 
-    calculate(griddedSites, imr, eqkRupForecast);
+    calculate(sites, imr, eqkRupForecast);
   }
 
 
@@ -200,13 +201,13 @@ public class HazusMapCalculator {
    * @param eqkRupForecast
    *
    */
-  private void calculate( SitesInGriddedRectangularRegion griddedSites,
+  private void calculate( SitesInGriddedRegion sites,
                           ScalarIntensityMeasureRelationshipAPI imr,
                           EqkRupForecast eqkRupForecast) {
 
     try{
 
-       int numSites = griddedSites.getNumGridLocs();
+       int numSites = sites.getRegion().getNumGridLocs();
        duration = eqkRupForecast.getTimeSpan().getDuration();
        FileWriter[] fw = new FileWriter[returnPd.length];
        for(int j=0;j<returnPd.length;++j){
@@ -222,7 +223,7 @@ public class HazusMapCalculator {
        //parameter changes.
        ( (AttenuationRelationship) imr).resetParameterEventListeners();
        for(int i=0;i<numSites;++i){
-    	      Site site = griddedSites.getSite(i);
+    	      Site site = sites.getSite(i);
     	      imr.setSite(site);
 
     	      DiscretizedFuncAPI[] hazardFunc = getSiteHazardCurve(site,

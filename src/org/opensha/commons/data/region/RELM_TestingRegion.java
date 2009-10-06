@@ -12,11 +12,12 @@ import org.opensha.commons.data.LocationList;
  * @author vipingupta
  *
  */
+@Deprecated
 public class RELM_TestingRegion extends GeographicRegion {
 
-	public RELM_TestingRegion() {
-		createGeographicRegion(getLocationList());
-	}
+//	public RELM_TestingRegion() {
+//		createGeographicRegion(getLocationList());
+//	}
 	
 	/**
 	   * Location list which forms the outline of the ploygon for RELM region

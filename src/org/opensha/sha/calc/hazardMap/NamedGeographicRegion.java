@@ -6,16 +6,20 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.region.BorderType;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.region.RELM_TestingRegion;
 import org.opensha.commons.util.XMLUtils;
 
+// TODO this is in an odd location and shouldn't necessarily exits.
+// Region or GriddedRegion should implement Named interface
 public class NamedGeographicRegion extends GeographicRegion implements NamedObjectAPI {
 
 	private String name;
 
 	public NamedGeographicRegion(LocationList outline, String name) {
-		super(outline);
+		super(outline, BorderType.MERCATOR_LINEAR);
 
 		this.name = name;
 	}
@@ -25,7 +29,7 @@ public class NamedGeographicRegion extends GeographicRegion implements NamedObje
 	}
 
 	public Element toXMLMetadata(Element root) {
-		GeographicRegion region = new GeographicRegion(this.getRegionOutline());
+		GeographicRegion region = new GeographicRegion(this.getRegionOutline(), BorderType.MERCATOR_LINEAR);
 		
 		root = region.toXMLMetadata(root);
 		
@@ -44,11 +48,16 @@ public class NamedGeographicRegion extends GeographicRegion implements NamedObje
 		return new NamedGeographicRegion(region.getRegionOutline(), name);
 	}
 	
-	public static void main(String args[]) throws IOException {
-		NamedGeographicRegion region = new NamedGeographicRegion(new RELM_TestingRegion().getRegionOutline(), "Relm!");
+	public static void main(String args[]) {
+		NamedGeographicRegion region = new NamedGeographicRegion(
+				new CaliforniaRegions.RELM_TESTING().getRegionOutline(), "Relm!");
 		Document doc = XMLUtils.createDocumentWithRoot();
 		Element root = doc.getRootElement();
 		region.toXMLMetadata(root);
+		try {
 		XMLUtils.writeDocumentToFile("region.xml", doc);
+		} catch( IOException ioe) {
+			ioe.printStackTrace();
+		}
 	}
 }

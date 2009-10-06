@@ -8,6 +8,7 @@ import java.io.Serializable;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.commons.metadata.XMLSaveable;
 
 
 import org.opensha.sha.util.*;
@@ -27,15 +28,18 @@ import org.opensha.sha.gui.infoTools.ConnectToCVM;
  * @created : March 15,2003
  * @version 1.0
  */
+// extends EvenlyGriddedGeographicRegionAPI
+@Deprecated
+public interface SitesInGriddedRegionAPI extends java.io.Serializable {
 
-public interface SitesInGriddedRegionAPI extends EvenlyGriddedGeographicRegionAPI{
 
-
+	public EvenlyGriddedGeographicRegion getRegion();
+	
   /**
    * Files get the site information from.
    */
-  public static final String WILLS_SITE_CLASS_FILE = "cvmfiles/usgs_cgs_geology_60s_mod.txt";
-  public static final String BASIN_DEPTH_FILE = "cvmfiles/basindepth_OpenSHA.txt";
+  //public static final String WILLS_SITE_CLASS_FILE = "cvmfiles/usgs_cgs_geology_60s_mod.txt";
+  //public static final String BASIN_DEPTH_FILE = "cvmfiles/basindepth_OpenSHA.txt";
 
 
   /**
@@ -63,8 +67,8 @@ public interface SitesInGriddedRegionAPI extends EvenlyGriddedGeographicRegionAP
   * This function craetes the iterator of all the site within that region and
   * return its iterator
   * @return
-  */
- public Iterator getSitesIterator();
+  */ // not currently used
+ //public Iterator getSitesIterator();
 
 
  /**

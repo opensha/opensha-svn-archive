@@ -3,6 +3,7 @@ package org.opensha.sha.earthquake.griddedForecast;
 import scratch.matt.calc.*;
 
 import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 
 import org.opensha.sha.earthquake.observedEarthquake.*;
@@ -36,17 +37,18 @@ public class SequenceAfterHypoMagFreqDistForecast
   private double dayStart, dayEnd;
   private ArrayList gridMagForecast;
   private HypoMagFreqDistAtLoc magDistLoc;
-  private EvenlyGriddedGeographicRegionAPI aftershockZone;
+  private EvenlyGriddedGeographicRegion aftershockZone;
   
   public SequenceAfterHypoMagFreqDistForecast(ObsEqkRupture mainshock,
-                                              EvenlyGriddedGeographicRegionAPI
+                                              EvenlyGriddedGeographicRegion
                                               aftershockZone,
                                               ObsEqkRupList aftershocks) {
     /**
      * initialise the aftershock zone and mainshock for this model
      */
     this.setMainShock(mainshock);
-    this.region = aftershockZone;
+    setRegion(aftershockZone);
+    //this.region = aftershockZone;
     this.afterShocks = aftershocks;
     this.aftershockZone = aftershockZone;
 
@@ -96,7 +98,7 @@ public class SequenceAfterHypoMagFreqDistForecast
    * fillGridWithParms
    */
   public void fillGridWithSeqParms() {
-	numGridLocs =  this.region.getNumGridLocs();
+	numGridLocs =  getRegion().getNumGridLocs();
 	  grid_Seq_aVal = new double[numGridLocs];
 	  grid_Seq_bVal = new double[numGridLocs];
 	  grid_Seq_cVal = new double[numGridLocs];
@@ -213,7 +215,7 @@ public class SequenceAfterHypoMagFreqDistForecast
       IncrementalMagFreqDist[] dist = new IncrementalMagFreqDist[1];
       dist[0] = GR_Dist;
       Location gridLoc;
-      gridLoc = this.region.getGridLocation(gridIndex);
+      gridLoc = getRegion().getGridLocation(gridIndex);
       magDistLoc = new HypoMagFreqDistAtLoc(dist,
           gridLoc);
       return magDistLoc;

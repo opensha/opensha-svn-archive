@@ -10,12 +10,13 @@ import org.opensha.commons.data.Location;
  * @author vipingupta
  *
  */
+@Deprecated
 public class EvenlyGriddedRELM_TestingRegion extends EvenlyGriddedGeographicRegion {
 	 private final static double GRID_SPACING = 0.10;
 
 	  public EvenlyGriddedRELM_TestingRegion() {
 		RELM_TestingRegion relmTestingRegion = new RELM_TestingRegion();
 	    // make polygon from the location list
-	    createEvenlyGriddedGeographicRegion(relmTestingRegion.getRegionOutline(), GRID_SPACING);
+	    //createEvenlyGriddedGeographicRegion(relmTestingRegion.getRegionOutline(), GRID_SPACING);
 	  }
 }

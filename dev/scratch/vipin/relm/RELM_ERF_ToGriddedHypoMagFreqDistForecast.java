@@ -4,6 +4,7 @@ import org.opensha.sha.earthquake.calc.ERF2GriddedSeisRatesCalc;
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.exceptions.DataPoint2DException;
 import org.opensha.sha.earthquake.EqkRupForecast;
@@ -59,17 +60,18 @@ public class RELM_ERF_ToGriddedHypoMagFreqDistForecast  extends GriddedHypoMagFr
    *
    */
   public RELM_ERF_ToGriddedHypoMagFreqDistForecast(EqkRupForecast eqkRupForecast,
-                                              EvenlyGriddedGeographicRegionAPI griddedRegion,
+                                              EvenlyGriddedGeographicRegion griddedRegion,
                                               double minMag,
                                               double maxMag,
                                               int numMagBins,
                                               double duration) {
     this.eqkRupForecast = eqkRupForecast;
-    this.region = griddedRegion;
+    setRegion(griddedRegion);
+//    this.region = griddedRegion;
 
     ERF2GriddedSeisRatesCalc erfToGriddedSeisRatesCalc = new ERF2GriddedSeisRatesCalc();
     ArrayList incrementalMFD_List  = erfToGriddedSeisRatesCalc.calcMFD_ForGriddedRegion(minMag, maxMag, numMagBins,
-        eqkRupForecast, region, duration);
+        eqkRupForecast, getRegion(), duration);
     // make HypoMagFreqDist for each location in the region
     magFreqDistForLocations = new HypoMagFreqDistAtLoc[this.getNumHypoLocs()];
     for(int i=0; i<magFreqDistForLocations.length; ++i ) {

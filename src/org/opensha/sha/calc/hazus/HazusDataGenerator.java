@@ -13,7 +13,10 @@ import org.opensha.sha.util.SiteTranslator;
 
 
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.*;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.WarningParameterAPI;
@@ -44,7 +47,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
 
   private Frankel02_AdjustableEqkRupForecast forecast;
   private USGS_Combined_2004_AttenRel attenRel;
-  private SitesInGriddedRectangularRegion region;
+  private SitesInGriddedRegion sites;
 
   public HazusDataGenerator() throws RegionConstraintException {
 
@@ -60,11 +63,11 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
                       "IMR Name: "+attenRel.getName()+"\n"+
                       "\t"+"Site Name: "+ Vs30_Param.NAME+"\n"+
                       "Region Info: "+
-                      "\t MIN LAT: "+region.getMinLat()+" MAX LAT:"+region.getMaxLat()+
-                      " MIN LON: "+region.getMinLon()+" MAX LON: "+region.getMaxLon()+
-                      " Grid Spacing: "+region.getGridSpacing()+"\n";
+                      "\t MIN LAT: "+sites.getRegion().getMinLat()+" MAX LAT:"+sites.getRegion().getMaxLat()+
+                      " MIN LON: "+sites.getRegion().getMinLon()+" MAX LON: "+sites.getRegion().getMaxLon()+
+                      " Grid Spacing: "+sites.getRegion().getGridSpacing()+"\n";
     //doing ofr PGA
-    calc.getHazardMapCurves(region,attenRel,forecast,metaData);
+    calc.getHazardMapCurves(sites,attenRel,forecast,metaData);
   }
 
 
@@ -82,7 +85,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
    * Gets the wills site class for the given sites
    */
   private void getSiteParamsForRegion() {
-    region.addSiteParams(attenRel.getSiteParamsIterator());
+    sites.addSiteParams(attenRel.getSiteParamsIterator());
     //getting Wills Site Class
     //region.setSiteParamsForRegionFromServlet(true);
     //getting the Attenuation Site Parameters Liat
@@ -99,7 +102,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
       siteTrans.setParameterValue(tempParam, SiteTranslator.WILLS_DE, Double.NaN);
       defaultSiteParams.add(tempParam);
     }
-    region.setDefaultSiteParams(defaultSiteParams);
+    sites.setDefaultSiteParams(defaultSiteParams);
   }
 
   private void createERF_Instance(){
@@ -133,8 +136,14 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
 
  private void createRegion() throws RegionConstraintException{
 	 //	make the Gridded Region object
-	 region = new SitesInGriddedRectangularRegion(MIN_LAT, MAX_LAT, MIN_LON,
-	        MAX_LON, GRID_SPACING);
+//	  EvenlyGriddedGeographicRegion eggr = 
+//		  new EvenlyGriddedGeographicRegion(
+//				  MIN_LAT, MAX_LAT, MIN_LON,MAX_LON, GRID_SPACING);
+	  EvenlyGriddedGeographicRegion eggr = new EvenlyGriddedGeographicRegion(
+	    		new Location(MIN_LAT, MIN_LON),
+	    		new Location(MAX_LAT, MAX_LON),
+	    		GRID_SPACING, new Location(0,0));
+	 sites = new SitesInGriddedRegion(eggr);
  }
 
 

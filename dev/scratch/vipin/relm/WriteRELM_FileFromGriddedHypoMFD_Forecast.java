@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_TestingRegion;
 import org.opensha.commons.data.region.RELM_CollectionRegion;
@@ -166,7 +168,7 @@ public class WriteRELM_FileFromGriddedHypoMFD_Forecast {
      fw.write(FORECAST_DURATION_NAME+duration+","+durationUnits+"\n");
      // write the data lines
      fw.write(BEGIN_FORECAST+"\n");
-     EvenlyGriddedGeographicRegionAPI region  = griddedHypoMFD.getEvenlyGriddedGeographicRegion();
+     EvenlyGriddedGeographicRegion region  = griddedHypoMFD.getRegion();
      int numLocs  = region.getNumGridLocs();
      double mag1, mag2; 
      double rate;
@@ -262,7 +264,7 @@ public class WriteRELM_FileFromGriddedHypoMFD_Forecast {
    */
   public static void main(String[] args) {
 	  // region to view the rates
-	  EvenlyGriddedRELM_TestingRegion evenlyGriddedRegion  = new EvenlyGriddedRELM_TestingRegion();
+	  CaliforniaRegions.RELM_TESTING_GRIDDED evenlyGriddedRegion  = new CaliforniaRegions.RELM_TESTING_GRIDDED();
 	   /* EqkRupForecast eqkRupForecast = new Frankel02_AdjustableEqkRupForecast();
 	    // include background sources as point sources
 	    eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.RUP_OFFSET_PARAM_NAME,

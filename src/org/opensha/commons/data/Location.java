@@ -1,12 +1,20 @@
 package org.opensha.commons.data;
+import static org.opensha.commons.calc.RelativeLocation.TO_RAD;
+import static org.opensha.commons.calc.RelativeLocation.TO_DEG;
+import static org.opensha.commons.calc.RelativeLocation.LL_PRECISION;
+
 import java.text.DecimalFormat;
 
+import org.apache.commons.math.util.MathUtils;
 import org.dom4j.Element;
+import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.metadata.XMLSaveable;
 
 
 /**
+ * 
+ * Static methods are provided to create unmodifiable <code>Location</code>s.
  * <b>Title:</b> Location <p>
  *
  * <b>Description:</b> This class represents a physical geographic location
@@ -23,11 +31,17 @@ import org.opensha.commons.metadata.XMLSaveable;
  * @author     Sid Hellman, Steven W. Rock
  * @created    February 26, 2002
  * @version    1.0
+ * 
+ * TODO should do all error checking... any instantiated Location should be valid
+ * TODO why hashCode overriden; improve equals
+ * TODO default values should be 0, not NaN; revisit if this causes problems
+ * TODO class should be immutable; create sublass MutableLocation that
+ * 		has set() methods
  */
 
 public class Location implements java.io.Serializable, XMLSaveable {
 
-	private static final long serialVersionUID = 0xCE5BF55;
+	private static final long serialVersionUID = 1L;
 	
     /** Class name used for debugging strings  */
     protected final static String C = "Location";
@@ -40,18 +54,11 @@ public class Location implements java.io.Serializable, XMLSaveable {
     /**  Boolean for debugging, if true debugging statements printed out */
     protected final static boolean D = false;
 
-    /** depth below the surface */
-    protected double depth=Double.NaN;
+    private double lat = 0;
+    private double lon = 0;
+    private double depth = 0; // TODO clean; all were NaN
 
-    /** Location Latitude */
-    protected double latitude=Double.NaN;
-
-    /** Location longitude */
-    protected double longitude=Double.NaN;
-
-
-
-    //maximum Latitude
+    //maximum Latitude TODO move to GEOCALC along with validators
     public static final double MAX_LAT = 90.0;
     //minimum latitude
     public static final double MIN_LAT = -90.0;
@@ -63,8 +70,12 @@ public class Location implements java.io.Serializable, XMLSaveable {
     public static final double MIN_DEPTH =0.0;
 
 
-    public final static DecimalFormat latLonFormat = new DecimalFormat("0.0#####");
-
+    // this is meter scale precision and perhaps should be defined elsewhere 
+    // NOTE: see also notes at GeographicRegion.DECIMAL_SCALE
+    // TODO make private and delete LocationComparator class
+    //public final static DecimalFormat latLonFormat = new DecimalFormat("0.0####");
+ 
+    // TODO delete LocationComparator class
 
     /** No-Arg Constructor for the Location object. Currently does nothing. */
     public Location() { }
@@ -76,6 +87,7 @@ public class Location implements java.io.Serializable, XMLSaveable {
      * @param  lat                        latitude value
      * @param  lon                        longitude value
      * @exception  InvalidRangeException  thrown if lat or lon are invalid values
+     * TODO modify error checking
      */
     public Location( double lat, double lon )
              throws InvalidRangeException {
@@ -93,45 +105,89 @@ public class Location implements java.io.Serializable, XMLSaveable {
      */
     public Location( double lat, double lon, double depth )
              throws InvalidRangeException {
-        String S = C + ": Constructor2(): ";
+        //String S = C + ": Constructor2(): ";
 
-        validateLatitude( lat, S );
-        validateLongitude( lon, S );
+        //validateLatitude( lat, S ); TODO clean
+        //validateLongitude( lon, S );
         //validateDepth( depth, S );
-
-        this.latitude = lat;
-        this.longitude = lon;
-        this.depth = depth;
+    	setLatitude(lat);
+        setLongitude(lon);
+        setDepth(depth);
+//        this.latitude = lat;
+//        this.longitude = lon;
+//        this.depth = depth;
     }
 
+	/**
+	 * Sets the depth. Values should be positive down.
+	 * @param depth to set in km
+	 */
+	public void setDepth(double depth) {
+		this.depth = depth;
+	}
 
-    /** Sets the depth */
-    public void setDepth( double depth ) { this.depth = depth; }
+	/** 
+	 * Sets the latitude. Exception thrown if invalid value. 
+	 * @param lat latitude to set
+	 * @throws InvalidRangeException */ // TODO shorten method name
+	public void setLatitude(double lat) throws InvalidRangeException {
+		validateLatitude(lat, C + ": setLatitude(): ");
+		this.lat = lat * TO_RAD;
+		//this.latitude = latitude;
+	}
 
-    /** Sets the latitude. Exception thrown if invalid value. */
-    public void setLatitude( double latitude ) throws InvalidRangeException {
-        validateLatitude( latitude, C + ": setLatitude(): " );
-        this.latitude = latitude;
-    }
+	/** 
+	 * Sets the longitude. Exception thrown if invalid value. 
+	 * @param lon longitude to set
+	 * @throws InvalidRangeException
+	 */
+	public void setLongitude(double lon) throws InvalidRangeException {
+		validateLongitude(lon, C + ": setLongitude(): ");
+		this.lon = lon * TO_RAD;
+		//this.longitude = longitude;
+	}
 
-    /** Sets the longitude. Exception thrown if invalid value. */
-    public void setLongitude( double longitude ) throws InvalidRangeException {
-        validateLongitude( longitude, C + ": setLongitude(): " );
-        this.longitude = longitude;
-    }
+	/**
+	 * Returns the depth of this location.
+	 * @return the location depth in km
+	 */
+	public double getDepth() {
+		return MathUtils.round(depth, LL_PRECISION);
+	}
 
+	/** 
+	 * Returns the latitude of this location.
+	 * @return the location latitude in decimal degrees
+	 */
+	public double getLatitude() {
+		return MathUtils.round(lat * TO_DEG, LL_PRECISION);
+	}
 
-    /** Returns the depth of this location. */
-    public double getDepth() { return depth; }
+	/** 
+	 * Returns the longitude of this location. 
+	 * @return the location longitude in decimal degrees
+	 */
+	public double getLongitude() {
+		return MathUtils.round(lon * TO_DEG, LL_PRECISION);
+	}
 
-    /** Returns the latitude of this location. */
-    public double getLatitude() { return latitude; }
+	/** 
+	 * Returns the latitude of this location.
+	 * @return the location latitude in decimal degrees
+	 */
+	public double getLatRad() {
+		return lat;
+	}
 
-    /** Returns the longitude of this location. */
-    public double getLongitude() { return longitude; }
+	/** 
+	 * Returns the longitude of this location. 
+	 * @return the location longitude in decimal degrees
+	 */
+	public double getLonRad() {
+		return lon;
+	}
 
-
-    /**
+	/**
      * Checks that latitude is -90 <= lat <= 90.
      *
      * @param  lat                        The latitude to check.
@@ -139,7 +195,6 @@ public class Location implements java.io.Serializable, XMLSaveable {
      * @exception  InvalidRangeException  Thrown if latitude not in the appropiate range.
      */
     protected static void validateLatitude( double lat, String S ) throws InvalidRangeException {
-
         if ( lat < MIN_LAT ) throw new InvalidRangeException( S + "Latitude cannot be less than -90" );
         else if ( lat > MAX_LAT ) throw new InvalidRangeException( S + "Latitude cannot be greater than 90" );
     }
@@ -170,48 +225,55 @@ public class Location implements java.io.Serializable, XMLSaveable {
     }
 
 
-    /**
-     * Creates a new copy Location with all its values set to this locations values.
-     * Since it is a clone, we can modify the copy without affecting the original.
-     */
-    public Object clone(){
-
-        Location loc = new Location();
-        loc.setDepth( this.depth );
-        loc.setLatitude( this.latitude );
-        loc.setLongitude( this.longitude );
+    // TODO javadoc deep copy
+    @Override
+    public Location clone(){
+    	Location loc = new Location(getLatitude(), getLongitude(), getDepth());
         return loc;
-
     }
 
-    // private final static char TAB = '\t';
-    /** Prints out all field names and values. useful for debugging. */
-    public String toString() {
-
-      StringBuffer b = new StringBuffer();
-      //b.append(C);
-      //b.append('\n');
-      //b.append(" : ");
-
-
-      //b.append("latitude = ");
-        b.append(latLonFormat.format(latitude)+","+latLonFormat.format(longitude)+","+latLonFormat.format(depth));
-        //b.append(latitude+","+longitude+","+depth);
-      //b.append('\n');
-
-      /*
-               b.append(" : ");
-
-               b.append("longitude = ");
-               b.append(longitude);
-               //b.append('\n');
-               b.append(" : ");
-
-               b.append("depth = ");
-               b.append(depth);
-       */
-      return b.toString();
-
+    /**
+     * Returns this <code>Location</code> formatted as a "lat,lon,depth"
+     * <code>String</code>.
+     * @return the <code>String</code> representation of this 
+     * 		<code>Location</code>.
+     */
+    @Override
+	public String toString() {
+    	StringBuffer b = new StringBuffer();
+//    	b.append(RelativeLocation.LL_FORMAT.format(getLatitude()));
+//    	b.append(",");
+//    	b.append(RelativeLocation.LL_FORMAT.format(getLongitude()));
+//    	b.append(",");
+//    	b.append(RelativeLocation.LL_FORMAT.format(getDepth()));
+    	b.append(getLatitude());
+    	b.append(",");
+    	b.append(getLongitude());
+    	b.append(",");
+    	b.append(getDepth());
+    	return b.toString();
+    }
+    
+    /**
+     * Returns this <code>Location</code> formatted as a "lon,lat,depth"
+     * <code>String</code> for use in KML documents. This differs from
+     * {@link Location#toString()} in that the output lat-lon order are 
+     * reversed.
+     * @return the location as a <code>String</code> for use with KML markup
+     */
+    public String toKML() {
+    	StringBuffer b = new StringBuffer();
+//    	b.append(RelativeLocation.LL_FORMAT.format(getLongitude()));
+//    	b.append(",");
+//    	b.append(RelativeLocation.LL_FORMAT.format(getLatitude()));
+//    	b.append(",");
+//    	b.append(RelativeLocation.LL_FORMAT.format(getDepth()));
+    	b.append(getLongitude());
+    	b.append(",");
+    	b.append(getLatitude());
+    	b.append(",");
+    	b.append(getDepth());
+    	return b.toString();    	
     }
 
     /**
@@ -219,51 +281,45 @@ public class Location implements java.io.Serializable, XMLSaveable {
      * @param loc Location
      * @return boolean
      */
-    public boolean equalsLocation(Location loc) {
+	public boolean equalsLocation(Location loc) {
+		// NOTE: Was Location comparison being done by floats because the
+		// polygon class was being used internally? In any event, GeneralPath 
+		// is currently used to define Region borders and it too only
+		// takes floats. This is complicating test writing (e.g. comparison
+		// to coordinates stored by generated files such as kml); the precision
+		// and rounding rules of the formatter in toString() are providing
+		// more consistently identical values for Locations that should be the
+		// same and has been substituted.
+		// TODO We may be able to revert to a numeric comparison if and when 
+		// JDK 1.6+ is adopted; all old awt.geom classes that are float 
+		// dependent must be modified to their double-based versions.
+		// e.g. GeneralPath to Path2D.Double
 
-      if ( (float)this.latitude != (float) loc.latitude)return false;
-      if ( (float)this.longitude != (float) loc.longitude)return false;
-      if ( (float)this.depth != (float) loc.depth)return false;
+		// old
+//		if ((float) getLatitude() != (float) loc.getLatitude()) return false;
+//		if ((float) getLongitude() != (float) loc.getLongitude()) return false;
+//		if ((float) getDepth() != (float) loc.getDepth()) return false;
+//		return true;
+		
+		return toString().equals(loc.toString());
+	}
 
-      return true;
-    }
-
-    /**
-     * Checks if the passed object (obj) is similar to the object locationObject
-     * on which this function was called.
-     * Indicates whether some other object is "equal to" this one.
-     * The equals method implements an equivalence relation  on non-null object references:
-     * It is reflexive: for any non-null reference value  x, x.equals(x) should return  true.
-     * It is symmetric: for any non-null reference values  x and y, x.equals(y)  should return true if and only if  y.equals(x) returns true.
-     * It is transitive: for any non-null reference values  x, y, and z, if  x.equals(y) returns true and  y.equals(z) returns true, then  x.equals(z) should return true.
-     * It is consistent: for any non-null reference values  x and y, multiple invocations of  x.equals(y) consistently return true  or consistently return false, provided no  information used in equals comparisons on the  objects is modified.
-     * For any non-null reference value x,  x.equals(null) should return false.
-     * The equals method for class Object implements the most discriminating possible equivalence relation on objects; that is, for any non-null reference values x and  y, this method returns true if and only  if x and y refer to the same object  (x == y has the value true).
-     *Note that it is generally necessary to override the hashCode  method whenever this method is overridden, so as to maintain the  general contract for the hashCode method, which states  that equal objects must have equal hash codes
-     * @param obj Object the reference object with which to compare
-     * @return boolean true if this object is the same as the obj  argument; false otherwise.
-     */
-    public boolean equals(Object obj){
+    @Override
+	public boolean equals(Object obj){
         if(obj instanceof Location) return equalsLocation( (Location)obj );
         return false;
     }
 
-
-    /**
-     * This method has been implemented to override the Object's implementation
-     * of hashcode. So 2 location objects are equal only if equals() method return
-     * true and int value returned from hashcode method are equal.
-     * @return int
-     */
-    public int hashCode() {
-      return (int)(latitude+longitude+depth);
+    @Override
+	public int hashCode() {
+    	return (int) ((lat+lon+depth) * 1000);
     }
     
     public Element toXMLMetadata(Element root) {
     	Element xml = root.addElement(Location.XML_METADATA_NAME);
-    	xml.addAttribute(Location.XML_METADATA_LATITUDE, this.getLatitude() + "");
-    	xml.addAttribute(Location.XML_METADATA_LONGITUDE, this.getLongitude() + "");
-    	xml.addAttribute(Location.XML_METADATA_DEPTH, this.getDepth() + "");
+    	xml.addAttribute(Location.XML_METADATA_LATITUDE, getLatitude() + "");
+    	xml.addAttribute(Location.XML_METADATA_LONGITUDE, getLongitude() + "");
+    	xml.addAttribute(Location.XML_METADATA_DEPTH, getDepth() + "");
     	
     	return root;
     }
@@ -284,6 +340,67 @@ public class Location implements java.io.Serializable, XMLSaveable {
         loc = new Location(44,30,0);
       }
       System.out.println("time = "+ (System.currentTimeMillis()-time));
+    }
+    
+    /**
+     * Returns an unmodifiable <code>Location</code>. Attempts to 
+     * <code>set...()</code> values result in an
+     * <code>OperationNotSupportedException</code>.
+     * 
+     * @param lat the <code>Location</code> latitude value 
+     * @param lon the <code>Location</code> longitude value 
+     * @return an unmodifiable <code>Location</code>
+     * @throws IllegalArgumentException if lat value is outside
+     * 		the range \u00B190\u00B0
+     */
+    public static Location immutableLocation(double lat, double lon) {
+    	return immutableLocation(lat, lon, 0);
+    }
+
+    /**
+     * Returns an unmodifiable <code>Location</code>. Attempts to 
+     * <code>set...()</code> values result in an
+     * <code>OperationNotSupportedException</code>.
+     * 
+     * @param lat the <code>Location</code> latitude value 
+     * @param lon the <code>Location</code> longitude value 
+     * @param depth the <code>Location</code> depth value 
+     * @return an unmodifiable <code>Location</code>
+     * @throws IllegalArgumentException if lat value is outside
+     * 		the range \u00B190\u00B0
+     */
+    public static Location immutableLocation(
+    		double lat, double lon, double depth) {
+    	return new ImmutableLocation(lat, lon, depth);
+    }
+    
+    /**
+     * Returns an unmodifiable copy of the passed-in <code>Location</code>. 
+     * Attempts to <code>set...()</code> values result in an
+     * <code>OperationNotSupportedException</code>.
+     * 
+     * @param loc the <code>Location</code> to copy as unmodifiable 
+     * @return an unmodifiable <code>Location</code>
+     */
+    public static Location immutableLocation(Location loc) {
+    	return immutableLocation(
+    			loc.getLatitude(), loc.getLongitude(),loc.getDepth());
+    }
+    
+    /* Package private unmodifiable Location. */
+    static class ImmutableLocation extends Location {
+    	ImmutableLocation(double lat, double lon, double depth) {
+    		super(lat, lon, depth);
+    	}
+    	public void setLatitude() { 
+    		throw new UnsupportedOperationException();
+    	}
+    	public void setLongitude() { 
+    		throw new UnsupportedOperationException();
+    	}
+    	public void setDepth() { 
+    		throw new UnsupportedOperationException();
+    	}
     }
 
 }

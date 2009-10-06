@@ -7,6 +7,7 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
@@ -60,7 +61,7 @@ public class YuccaMountainERF extends EqkRupForecast{
 
 	private ArrayList<ProbEqkSource> allSources;
 	private GutenbergRichterMagFreqDist backgroundMagDist;
-	private EvenlyGriddedGeographicRegionAPI backgroundRegion;
+	private EvenlyGriddedGeographicRegion backgroundRegion;
 
 	public YuccaMountainERF(){
 
@@ -126,13 +127,17 @@ public class YuccaMountainERF extends EqkRupForecast{
 			double minLon = Double.parseDouble(st.nextToken().trim());
 			double maxLon = Double.parseDouble(st.nextToken().trim());
 			double gridSpacing = Double.parseDouble(st.nextToken().trim());
-			try {
-				backgroundRegion = new EvenlyGriddedRectangularGeographicRegion(minLat, 
-						maxLat, minLon, maxLon, gridSpacing);
-			} catch (RegionConstraintException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			try {
+//				backgroundRegion = new EvenlyGriddedGeographicRegion(minLat, 
+//						maxLat, minLon, maxLon, gridSpacing);
+			    backgroundRegion = new EvenlyGriddedGeographicRegion(
+			    		new Location(minLat, minLon),
+			    		new Location(maxLat, maxLon),
+			    		gridSpacing, new Location(0,0));
+//			} catch (RegionConstraintException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 
 
 		}catch(IOException e){

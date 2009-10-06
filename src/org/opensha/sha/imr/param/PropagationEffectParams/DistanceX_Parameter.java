@@ -16,6 +16,7 @@ import org.opensha.commons.data.Direction;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.DoubleConstraint;
@@ -44,7 +45,7 @@ public class DistanceX_Parameter
     /** Class name used in debug strings */
     protected final static String C = "DistanceJBParameter";
     /** If true debug statements are printed out */
-    protected final static boolean D = false;
+    protected final static boolean D = true;
     
     /** Hardcoded name */
     public final static String NAME = "DistanceX";
@@ -185,7 +186,7 @@ public class DistanceX_Parameter
     				}
     			}
 
-    			GeographicRegion polygon = new GeographicRegion(locsForRegion);
+    			GeographicRegion polygon = new GeographicRegion(locsForRegion, BorderType.MERCATOR_LINEAR);
     			boolean isInside = polygon.isLocationInside(siteLoc);
 
     			double distToExtendedTrace = locsForExtendedTrace.getMinHorzDistToLine(siteLoc);

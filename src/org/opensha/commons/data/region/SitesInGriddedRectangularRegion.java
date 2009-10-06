@@ -4,7 +4,6 @@ import java.util.*;
 import java.io.IOException;
 import java.io.Serializable;
 
-
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
@@ -17,9 +16,7 @@ import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.ParameterAPI;
 
-
 import org.opensha.sha.util.*;
-import org.opensha.sha.gui.infoTools.ConnectToCVM;
 
 /**
  * <p>Title: SitesInGriddedRectangularRegion</p>
@@ -34,49 +31,46 @@ import org.opensha.sha.gui.infoTools.ConnectToCVM;
  * @created : March 15,2003
  * @version 1.0
  */
-
-public class SitesInGriddedRectangularRegion extends EvenlyGriddedRectangularGeographicRegion
-implements SitesInGriddedRegionAPI,Serializable{
+//implements SitesInGriddedRegionAPI
+@Deprecated
+public class SitesInGriddedRectangularRegion extends EvenlyGriddedGeographicRegion
+implements Serializable {
 
 	//Debug parameter
 	public static final boolean D= false;
 
-
 	//definition for the Siet Object
 	Site site = new Site();
 
+	ArrayList<SiteDataValueList<?>> siteDataValueLists = null;
 
 	//set the same site type for each site
 	private boolean setSameSiteParams = true;
 	
-	ArrayList<SiteDataValueList<?>> siteDataValueLists = null;
-
 	//ArrayList that contains the default Values for the Site parameters if CVM do not cover that site
 	private ArrayList defaultSiteParams;
 
 	//Instance of the site TransLator class
 	SiteTranslator siteTranslator = new SiteTranslator();
 
-
-
 	/**
-	 * class constructor
 	 * @param minLat
 	 * @param maxLat
 	 * @param minLon
 	 * @param maxLon
 	 * @param gridSpacing
+	 * @throws RegionConstraintException
 	 */
 	public SitesInGriddedRectangularRegion(double minLat,double maxLat,double minLon,double maxLon,
 			double gridSpacing) throws
 			RegionConstraintException {
-		super(minLat,maxLat,minLon,maxLon,gridSpacing);
+		super(new Location(minLat,minLon), new Location(maxLat,maxLon),gridSpacing, new Location(0,0));
 	}
 
 	public SitesInGriddedRectangularRegion(GeographicRegion geo,
 			double gridSpacing) throws
 			RegionConstraintException {
-		super(geo.getMinLat(), geo.getMaxLat(), geo.getMinLon(), geo.getMaxLon(), gridSpacing);
+		this(geo.getMinLat(), geo.getMaxLat(), geo.getMinLon(), geo.getMaxLon(), gridSpacing);
 	}
 
 
@@ -258,24 +252,24 @@ implements SitesInGriddedRegionAPI,Serializable{
 	 * return its iterator
 	 * @return
 	 */
-	public Iterator getSitesIterator(){
-		ArrayList sitesVector=new ArrayList();
-		//get the iterator of all the locations within that region
-		ListIterator it=this.getGridLocationsIterator();
-		//get the iterator for all the site types
-		ListIterator siteParamsIt = site.getParametersIterator();
-		while(it.hasNext()){
-			//create the site object and add it to tbe ArrayList List
-			Site newSite = new Site((Location)it.next());
-			while(siteParamsIt.hasNext()){
-				ParameterAPI tempParam = (ParameterAPI)siteParamsIt.next();
-				if(!newSite.containsParameter(tempParam))
-					newSite.addParameter(tempParam);
-			}
-			sitesVector.add(newSite);
-		}
-		return sitesVector.iterator();
-	}
+//	public Iterator getSitesIterator(){
+//		ArrayList sitesVector=new ArrayList();
+//		//get the iterator of all the locations within that region
+//		ListIterator it=this.getGridLocationsIterator();
+//		//get the iterator for all the site types
+//		ListIterator siteParamsIt = site.getParametersIterator();
+//		while(it.hasNext()){
+//			//create the site object and add it to tbe ArrayList List
+//			Site newSite = new Site((Location)it.next());
+//			while(siteParamsIt.hasNext()){
+//				ParameterAPI tempParam = (ParameterAPI)siteParamsIt.next();
+//				if(!newSite.containsParameter(tempParam))
+//					newSite.addParameter(tempParam);
+//			}
+//			sitesVector.add(newSite);
+//		}
+//		return sitesVector.iterator();
+//	}
 
 
 

@@ -11,8 +11,10 @@ import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
 import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
@@ -108,7 +110,7 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast  {
 	public void initSeqIndices()
 	{
 		if(seqIndAtNode == null)
-			seqIndAtNode = new double[region.getNumGridLocs()];
+			seqIndAtNode = new double[getRegion().getNumGridLocs()];
 		logger.info((new StringBuilder()).append("seqIndAtNode ").append(seqIndAtNode.length).toString());
 		Arrays.fill(seqIndAtNode, -1D);
 	}
@@ -1078,20 +1080,30 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast  {
   
 	   */
 
-		SitesInGriddedRectangularRegion region;
-		try {	
+		SitesInGriddedRegion sites;
+//		try {	
 			//set the grid precision first
 //			SitesInGriddedRectangularRegion.setGridPrecision(RegionDefaults.gridPrecision);
-			region = new  SitesInGriddedRectangularRegion(RegionDefaults.searchLatMin,
-					RegionDefaults.searchLatMax,
-					RegionDefaults.searchLongMin,RegionDefaults.searchLongMax,
-					RegionDefaults.gridSpacing );
-			this.setBackGroundRegion(region);
+//			EvenlyGriddedGeographicRegion eggr = 
+//				new EvenlyGriddedGeographicRegion(
+//						RegionDefaults.searchLatMin,
+//						RegionDefaults.searchLatMax,
+//						RegionDefaults.searchLongMin,
+//						RegionDefaults.searchLongMax,
+//						RegionDefaults.gridSpacing);
+			EvenlyGriddedGeographicRegion eggr = 
+				new EvenlyGriddedGeographicRegion(
+						new Location(RegionDefaults.searchLatMin,RegionDefaults.searchLongMin),
+						new Location(RegionDefaults.searchLatMax,RegionDefaults.searchLongMax),
+						RegionDefaults.gridSpacing, new Location(0,0));
 			
-		} catch (RegionConstraintException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			sites = new  SitesInGriddedRegion(eggr);
+			this.setBackGroundRegion(sites.getRegion());
+			
+//		} catch (RegionConstraintException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 
 		/*locList.addLocation(new Location(42.009655,-124.407951));
 		   locList.addLocation(new Location(42.2,-114.130432));
@@ -1131,7 +1143,7 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast  {
 			backgroundRatesFileAlreadyRead = true;
 		}
 		
-		SitesInGriddedRectangularRegion region = (SitesInGriddedRectangularRegion)this.getEvenlyGriddedGeographicRegion();
+		//SitesInGriddedRectangularRegion region = (SitesInGriddedRectangularRegion)this.getEvenlyGriddedGeographicRegion();
         	
 		//HypoMagFreqDistAtLoc [] hypoMagFreqDistArray = new HypoMagFreqDistAtLoc[region.getNumGridLocs()];
 		hypoMagFreqDist = new ArrayList <HypoMagFreqDistAtLoc>();
@@ -1228,8 +1240,9 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast  {
 		}
 	}
 
-	public void setBackGroundRegion(EvenlyGriddedGeographicRegionAPI backGroundRegion){
-		this.region = backGroundRegion;
+	public void setBackGroundRegion(EvenlyGriddedGeographicRegion backGroundRegion){
+		setRegion(backGroundRegion);
+//		this.region = backGroundRegion;
 	}
 
 	/**

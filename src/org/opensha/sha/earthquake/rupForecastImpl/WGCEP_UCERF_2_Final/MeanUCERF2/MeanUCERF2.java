@@ -22,6 +22,7 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.ValueWeight;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.commons.param.BooleanParameter;
 import org.opensha.commons.param.DoubleParameter;
@@ -121,7 +122,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 	private final static int START_TIME_MAX = 2107;
 
 	// 
-	private EvenlyGriddedRELM_Region region = new EvenlyGriddedRELM_Region();
+	private CaliforniaRegions.RELM_GRIDDED region = new CaliforniaRegions.RELM_GRIDDED();
 
 	private EmpiricalModel empiricalModel = new EmpiricalModel();
 

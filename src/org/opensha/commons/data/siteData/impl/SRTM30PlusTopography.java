@@ -77,7 +77,7 @@ public class SRTM30PlusTopography extends AbstractSiteData<Double> {
 		calc.setStartBottom(false);
 		calc.setStartLeft(true);
 		
-		region = RectangularGeographicRegion.createEntireGlobeRegion();
+		region = GeographicRegion.getGlobalRegion();
 	}
 
 	public GeographicRegion getApplicableRegion() {

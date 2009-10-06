@@ -8,7 +8,9 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
@@ -186,7 +188,9 @@ public class BackGroundRatesGridTest  extends TestCase {
 	private void assertBgGridLocations(BackGroundRatesGrid bgGrid ) {
 		List<HypoMagFreqDistAtLoc>  hypoMagFreqDistAtLoc = bgGrid.getHypoMagFreqDist();		
 		//check grid locations
-		SitesInGriddedRectangularRegion region  = (SitesInGriddedRectangularRegion)bgGrid.getEvenlyGriddedGeographicRegion();
+		
+		EvenlyGriddedGeographicRegion region = bgGrid.getRegion();
+		//SitesInGriddedRegion sites  = (SitesInGriddedRegion) bgGrid.getRegion();
 		//logger.info("hypoMagFreqDistAtLoc.size()=" +  hypoMagFreqDistAtLoc.size() + " region locs=" + region.getNumGridLocs());
 		
 		assertEquals("number of locations in hypoMagFreqDistAtLoc should match grid locations",

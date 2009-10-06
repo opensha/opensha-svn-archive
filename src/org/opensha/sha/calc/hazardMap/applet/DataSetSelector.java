@@ -16,6 +16,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.sha.calc.hazardMap.servlet.DatasetID;
 import org.opensha.sha.calc.hazardMap.servlet.StatusServletAccessor;
@@ -140,7 +141,7 @@ public class DataSetSelector extends JPanel implements ActionListener, StepActiv
 		this.step.getStepsPanel().setNextEnabled(index >= 0);
 	}
 	
-	public EvenlyGriddedGeographicRegionAPI getSelectedDatasetRegion() {
+	public EvenlyGriddedGeographicRegion getSelectedDatasetRegion() {
 		try {
 			return this.statusAccessor.getRegion(this.getSelectedID().getID());
 		} catch (IOException e) {
