@@ -105,7 +105,13 @@
     <mkdir dir="${dest}"/>
   </target>
   <target name="jarfile" depends="precompilecleanup,init,make,package,unjarfiles">
-    <jar destfile="AttenRelApp.jar" basedir="${dest}" manifest="AttenRelWebBased_MANIFEST.MF">
+    <jar destfile="AttenRelApp.jar" basedir="${dest}">
+					<manifest>
+						<attribute name="Main-Class" 
+							       value="org.opensha.sha.imr.attenRelImpl.gui.AttenuationRelationshipWebBasedApplet" />
+						<attribute name="Version" value="1.0"/>
+						<attribute name="Built-By" value="${user.name}" />
+					</manifest>
       <include name="org/**"/>
       <include name="com/lowagie/**"/>
       <include name="com/keypoint/**"/>

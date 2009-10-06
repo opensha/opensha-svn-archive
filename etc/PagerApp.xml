@@ -117,7 +117,13 @@
     <unjar src="${Required.Libraries.home}/itext-1.3.jar" dest="${dest}" />
   </target>
   <target name="jarfile" depends="precompilecleanup,init,make,package,unjarfiles">
-    <jar destfile="PagerShakeMapCalc.jar" basedir="${dest}" manifest="Pager_MANIFEST.MF">
+    <jar destfile="PagerShakeMapCalc.jar" basedir="${dest}">
+		<manifest>
+			<attribute name="Main-Class" 
+			       value="org.opensha.nshmp.sha.pager.PagerShakeMapCalc" />
+			<attribute name="Version" value="1.0"/>
+			<attribute name="Built-By" value="${user.name}" />
+		</manifest>
       <include name="org/**"/>
     	<include name="etc/**"/>
       <include name="com/**"/>

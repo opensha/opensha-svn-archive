@@ -130,7 +130,14 @@
     <mkdir dir="${dest}"/>
   </target>
   <target name="jarfile" depends="precompilecleanup,init,make,package">
-    <jar destfile="IM_EventSetCalc_v2_1.jar" basedir="${dest}" manifest="IM_EventSetCalc_MANIFEST_v02.MF">
+    <jar destfile="IM_EventSetCalc_v2_1.jar" basedir="${dest}">
+			<manifest>
+				<attribute name="Main-Class" 
+				       value="org.opensha.sha.calc.IM_EventSetCalc_v02.IM_EventSetCalc_v2_1" />
+				<attribute name="Class-Path" value="lib/ojdbc14.jar lib/sdoapi.jar lib/poi-2.5.1-final-20040804.jar lib/f2jutil.jar" />
+				<attribute name="Version" value="1.0"/>
+				<attribute name="Built-By" value="${user.name}" />
+			</manifest>
       <include name="org/**"/>
       <include name="etc/**"/>
       <include name="nnls/**"/>

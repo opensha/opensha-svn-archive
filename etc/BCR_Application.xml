@@ -147,7 +147,13 @@
     <mkdir dir="${dest}"/>
   </target>
   <target name="jarfile" depends="precompilecleanup,init,make,rmi,package">
-    <jar destfile="BCR_Application.jar" basedir="${dest}" manifest="BCR_App_MANIFEST.MF">
+    <jar destfile="BCR_Application.jar" basedir="${dest}">
+		<manifest>
+			<attribute name="Main-Class" 
+				       value="org.opensha.sha.gui.BCR_Application" />
+			<attribute name="Version" value="1.0"/>
+			<attribute name="Built-By" value="${user.name}" />
+		</manifest>
       <include name="org/**"/>
       <include name="scratchJavaDevelopers/martinez/**"/>
       <include name="etc/**"/>

@@ -212,7 +212,13 @@
 		<mkdir dir="${dest}"/>
 	</target>
 	<target name="jarfile" depends="precompilecleanup,init,make,rmi,package,unjarfiles">
-		<jar destfile="LossCurveApp.jar" basedir="${dest}" manifest="LossCurveLocalMode_MANIFEST.MF">
+		<jar destfile="LossCurveApp.jar" basedir="${dest}">
+			<manifest>
+				<attribute name="Main-Class" 
+				       value="org.opensha.sha.gui.LossEstimationApplication" />
+				<attribute name="Version" value="1.0"/>
+				<attribute name="Built-By" value="${user.name}" />
+			</manifest>
 			<include name="org/**"/>
 			<include name="scratchJavaDevelopers/martinez/**"/>
 			<include name="com/**"/>

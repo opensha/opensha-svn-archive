@@ -1,4 +1,0 @@
-Manifest-Version: 1.0
-Class-Path:  lib/ojdbc14.jar lib/sdoapi.jar lib/poi-2.5.1-final-20040804.jar lib/f2jutil.jar
-Main-Class: org.opensha.sha.calc.IM_EventSetCalc_v02.IM_EventSetCalc_v2_1
-

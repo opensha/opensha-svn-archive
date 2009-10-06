@@ -160,7 +160,13 @@
 		<unjar src="${Required.Libraries.home}/BrowserLauncher2-1_3.jar" dest="${dest}" />
 	</target>
 	<target name="jarfile" depends="precompilecleanup,init,make,rmi,package,unjarfiles">
-		<jar destfile="HazardCurveServerModeApp.jar" basedir="${dest}" manifest="HazCurveServerMode_MANIFEST.MF">
+		<jar destfile="HazardCurveServerModeApp.jar" basedir="${dest}">
+			<manifest>
+				<attribute name="Main-Class" 
+				       value="org.opensha.sha.gui.HazardCurveServerModeApplication" />
+				<attribute name="Version" value="1.0"/>
+				<attribute name="Built-By" value="${user.name}" />
+			</manifest>
 			<include name="org/**" />
 			<include name="com/**" />
 			<include name="etc/**" />

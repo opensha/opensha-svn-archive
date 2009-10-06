@@ -147,7 +147,13 @@
 		<unjar src="${Required.Libraries.home}/BrowserLauncher2-1_3.jar" dest="${dest}" />
 	</target>
 	<target name="jarfile" depends="precompilecleanup,init,make,rmi,package,unjarfiles">
-		<jar destfile="ScenarioShakeMapApp.jar" basedir="${dest}" manifest="ScenarioShakeMap_MANIFEST.MF">
+		<jar destfile="ScenarioShakeMapApp.jar" basedir="${dest}">
+			<manifest>
+				<attribute name="Main-Class" 
+				       value="org.opensha.sha.gui.ScenarioShakeMapApp" />
+				<attribute name="Version" value="1.0"/>
+				<attribute name="Built-By" value="${user.name}" />
+			</manifest>
 			<include name="org/**"/>
 			<include name="etc/**"/>
 			<include name="com/**"/>

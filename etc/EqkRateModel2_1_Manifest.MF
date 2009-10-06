@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-Class-Path:  lib/rowset.jar  lib/ojdbc14.jar lib/sdoapi.jar lib/itext-1.3.jar lib/poi-2.5.1-final-20040804.jar lib/nnls.jar lib/f2jutil.jar lib/jfreechart-1.0.2.jar lib/jcommon-1.0.5.jar
-Main-Class: org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.gui.EqkRateModel2_ERF_GUI
-
-

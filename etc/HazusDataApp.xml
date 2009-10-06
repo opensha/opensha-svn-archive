@@ -106,7 +106,13 @@
     <mkdir dir="${dest}"/>
   </target>
   <target name="jarfile" depends="precompilecleanup,init,make">
-    <jar destfile="HazusDataApp.jar" basedir="${dest}" manifest="HazusData_MANIFEST.MF">
+    <jar destfile="HazusDataApp.jar" basedir="${dest}">
+		<manifest>
+			<attribute name="Main-Class" 
+			       value="org.opensha.sha.hazus.HazusDataGenerator" />
+			<attribute name="Version" value="1.0"/>
+			<attribute name="Built-By" value="${user.name}" />
+		</manifest>
       <include name="org/**"/>
     </jar>
   </target>

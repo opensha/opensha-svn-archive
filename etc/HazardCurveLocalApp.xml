@@ -201,7 +201,13 @@
 		<mkdir dir="${dest}"/>
 	</target>
 	<target name="jarfile" depends="precompilecleanup,init,make,rmi,package,unjarfiles">
-		<jar destfile="HazardCurveApp.jar" basedir="${dest}" manifest="HazCurve_MANIFEST.MF">
+		<jar destfile="HazardCurveApp.jar" basedir="${dest}">
+			<manifest>
+				<attribute name="Main-Class" 
+				       value="org.opensha.sha.gui.HazardCurveLocalModeApplication" />
+				<attribute name="Version" value="1.0"/>
+				<attribute name="Built-By" value="${user.name}" />
+			</manifest>
 			<include name="org/**"/>
 			<include name="com/**"/>
 			<include name="etc/**"/>

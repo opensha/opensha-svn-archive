@@ -151,7 +151,13 @@
     <mkdir dir="${dest}"/>
   </target>
   <target name="jarfile" depends="precompilecleanup,init,make,rmi,package">
-    <jar destfile="NSHMP_HazardApp.jar" basedir="${dest}" manifest="NSHMP_HazardApp_MANIFEST.MF">
+    <jar destfile="NSHMP_HazardApp.jar" basedir="${dest}">
+		<manifest>
+			<attribute name="Main-Class" 
+			       value="org.opensha.nshmp.sha.gui.ProbabilisticHazardGui" />
+			<attribute name="Version" value="1.0"/>
+			<attribute name="Built-By" value="${user.name}" />
+		</manifest>
       <include name="org/**"/>
       <include name="com/**"/>
       <include name="img/**"/>
