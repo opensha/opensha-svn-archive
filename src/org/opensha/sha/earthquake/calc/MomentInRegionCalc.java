@@ -12,7 +12,7 @@ import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UCERF2;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 
 /**
  * It calculates scalar moment in a region for a given ERF

@@ -28,8 +28,8 @@ import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.magdist.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.*;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.EqkRateModel2_ERF;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_0.A_Faults.gui.WG02_RuptureModelsGraphWindowAPI_Impl;
+//import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.EqkRateModel2_ERF;
+//import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_0.A_Faults.gui.WG02_RuptureModelsGraphWindowAPI_Impl;
 import org.opensha.sha.earthquake.rupForecastImpl.*;
 import java.io.FileWriter;
 import java.util.EventObject;
@@ -1298,11 +1298,16 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 	    	 func = totalSummedMFD.getCumRateDist();
 	    	 func.setInfo("NSHMP-2002 Total Cum MFD for all events");
 	    	 funcs.add(func);
-	    	 EqkRateModel2_ERF eqkRateModel2 = new EqkRateModel2_ERF();
-	    	 funcs.addAll(eqkRateModel2.getObsCumMFD(false));
-	    	 funcs.add(eqkRateModel2.getObsBestFitCumMFD(false));
-
-	    	 WG02_RuptureModelsGraphWindowAPI_Impl graphwindow = new WG02_RuptureModelsGraphWindowAPI_Impl(funcs, "Mag", "Rate", "Rates");
+	    	 
+	    	 // TODO plot should NOT be working; commented out four lines below
+	    	 // when archiving UCERF2_0-1-2 which these lines are dependent on;
+	    	 // also commented import statements
+	    	 
+//	    	 EqkRateModel2_ERF eqkRateModel2 = new EqkRateModel2_ERF();
+//	    	 funcs.addAll(eqkRateModel2.getObsCumMFD(false));
+//	    	 funcs.add(eqkRateModel2.getObsBestFitCumMFD(false));
+//
+//	    	 WG02_RuptureModelsGraphWindowAPI_Impl graphwindow = new WG02_RuptureModelsGraphWindowAPI_Impl(funcs, "Mag", "Rate", "Rates");
 	     }
 	     return totalSummedMFD;
    }
