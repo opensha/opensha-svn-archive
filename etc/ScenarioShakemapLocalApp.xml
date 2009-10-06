@@ -10,7 +10,8 @@
 	<property name="jdk.home" value="/usr/lib/jvm/jdk1.6.0_03" />
 	<property name="dest" value="../classes.ant" />
 	<property name="Required.Libraries.home" value="../lib" />
-	<property name="src" value="../" />
+	<property name="src" value="../src/" />
+	<property name="dev" value="../dev/" />
 	<property name="rmic" value="${jdk.home}/bin/rmic" />
 	<path id="project.class.path">
 		<pathelement location="${dest}" />
@@ -82,6 +83,7 @@
 		<javac debug="true" deprecation="false" optimize="true" destdir="${dest}" nowarn="false" source="1.5" target="1.5" failonerror="yes" verbose="no" fork="yes" memoryInitialSize="512m" memoryMaximumSize="1024m" classpath="${dest}:${Required.Libraries.home}">
 			<classpath refid="project.class.path" />
 			<src path="${src}" />
+			<src path="${dev}" />
 			<include name="org/opensha/sha/imr/attenRelImpl/**" />
 			<exclude name="org/opensha/sha/imr/attenRelImpl/gui/**" />
 			<exclude name="org/opensha/sha/imr/attenRelImpl/test/**" />
@@ -90,13 +92,13 @@
 			<include name="org/opensha/param/**" />
 			<include name="org/opensha/sha/earthquake/**" />
 			<include name="org/opensha/sha/calc/ScenarioShakeMapCalculator.java" />
+			<include name="scratch/bbradley/**" />
 		</javac>
 	</target>
 	<target name="resource">
-		<copy todir="${dest}/etc/img" overwrite="true">
-			<fileset dir="${src}/etc/img" />
+		<copy todir="${dest}/resources/images" overwrite="true">
+			<fileset dir="${src}/resources/images"/>
 		</copy>
-
 		<!--			ERF Resources				-->
 		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/" overwrite="true">
 			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/">
@@ -124,6 +126,13 @@
 				<include name="**/*.asc" />
 			</fileset>
 		</copy>
+
+		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/GEM" overwrite="true">
+			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/GEM">
+				<include name="**/*.txt" />
+			</fileset>
+		</copy>
+
 
 		<!--			IMR Resources				-->
 		<copy todir="${dest}/org/opensha/sha/imr/attenRelImpl/" overwrite="true">
@@ -153,10 +162,11 @@
 			<include name="com/**" />
 			<include name="nnls/**"/>
 			<include name="oracle/**"/>
-			<include name="scratchJavaDevelopers/**"/>
+			<include name="scratch/**"/>
 			<include name="edu/**"/>
 			<include name="at/**"/>
 			<include name="net/**"/>
+			<include name="resources/**"/>
 		</jar>
 	</target>
 	<target name="precompilecleanup">
