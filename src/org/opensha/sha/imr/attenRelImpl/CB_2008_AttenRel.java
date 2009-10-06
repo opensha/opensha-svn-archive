@@ -487,8 +487,10 @@ public class CB_2008_AttenRel
 //    	System.out.println(propagationEffect.getParamValue(distanceRupParam.NAME));
     	distanceRupParam.setValueIgnoreWarning(propagationEffect.getParamValue(distanceRupParam.NAME)); // this sets rRup too
     	double dist_jb = ((Double)propagationEffect.getParamValue(DistanceJBParameter.NAME)).doubleValue();
-    	double dRupMinusJB_OverRup = (rRup-dist_jb)/rRup;
-    	distRupMinusJB_OverRupParam.setValueIgnoreWarning(dRupMinusJB_OverRup);
+    	if(rRup == 0)
+    		distRupMinusJB_OverRupParam.setValueIgnoreWarning(0.0);
+    	else
+    		distRupMinusJB_OverRupParam.setValueIgnoreWarning((rRup-dist_jb)/rRup);
     }
   }
 
