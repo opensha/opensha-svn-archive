@@ -177,7 +177,7 @@ NamedObjectAPI, ParameterChangeListener {
 	protected final static Double DIP_WARN_MAX = new Double(90.0);
 	protected final static Double RUP_TOP_WARN_MIN = new Double(0.0);
 	protected final static Double RUP_TOP_WARN_MAX = new Double(15.0);
-	protected final static Double RUP_WIDTH_WARN_MIN = new Double(0.1);
+	protected final static Double RUP_WIDTH_WARN_MIN = new Double(0.0);
 	protected final static Double RUP_WIDTH_WARN_MAX = new Double(100.0);
 
 
