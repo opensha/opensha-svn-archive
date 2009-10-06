@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project basedir="." default="build.app" name="HazardCurveServer">
+<project basedir="." default="build.app" name="ScenarioShakemapServer">
 	<description>
         Builds the HazardCurveLocal mode application as a launchable jar.
     </description>
@@ -32,10 +32,10 @@
 	<target name="pack">
 		<manifest file="${build}/MANIFEST.MF">
 			<attribute name="Main-Class" 
-				       value="org.opensha.sha.gui.HazardCurveServerModeApplication" />
+				       value="org.opensha.sha.gui.ScenarioShakeMapApp" />
 			<attribute name="Built-By" value="${user.name}" />
 		</manifest>
-		<jar destfile="${dist}/HazardCurveServerModeApp.jar"
+		<jar destfile="${dist}/ScenarioShakeMapApp.jar"
 		     basedir="${build}"
 		     manifest="${build}/MANIFEST.MF">
 			<include name="at/**" />
@@ -72,7 +72,7 @@
 			<src path="${src}" />
 			<src path="${dev}" />
 			<!-- spcifying the main() class compiles all dependencies -->
-			<include name="org/opensha/sha/gui/HazardCurveServerModeApplication.java" />
+			<include name="org/opensha/sha/gui/ScenarioShakeMapApp.java" />
 			<!-- paths to hard-coded classes -->
 			<include name="org/opensha/sha/earthquake/rupForecastImpl/**" />
 			<include name="org/opensha/sha/cybershake/openshaAPIs/**" />

@@ -127,16 +127,20 @@
 			</fileset>
 		</copy>
 	</target>
-
-	<target name="resource.hazard.apps">
-		<!--			ERF Resources				-->
-		<antcall target="resource.erfs.main" />
-
+	
+	<target name="resource.hazard.apps.server">
 		<!--			IMR Resources				-->
 		<antcall target="resource.imrs" />
 
 		<!--			Other Resources				-->
 		<antcall target="resource.misc.required" />
+	</target>
+
+	<target name="resource.hazard.apps">
+		<!--			ERF Resources				-->
+		<antcall target="resource.erfs.main" />
+		
+		<antcall target="resource.hazard.apps.server" />
 	</target>
 
 	<target name="resource.all">
