@@ -202,7 +202,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		saveMFDsToFile(path+B_FAULTS_GR_MFD_FILENAME, this.bFaultGRMFDsList);
 		saveMFDsToFile(path+NON_CA_B_FAULTS_MFD_FILENAME, this.nonCA_B_FaultsMFDsList);
 		saveMFDsToFile(path+TOT_MFD_FILENAME, this.totMFDsList);
-		saveMFDToFile(path+NSHMP_02_MFD_FILENAME, Frankel02_AdjustableEqkRupForecast.getTotalMFD_InsideRELM_region(false));
+		saveMFDToFile(path+NSHMP_02_MFD_FILENAME, Frankel02_AdjustableEqkRupForecast.getTotalMFD_InsideRELM_region());
 		// write metadata excel sheet
 		try {
 			FileOutputStream fileOut = new FileOutputStream(path+METADATA_EXCEL_SHEET);

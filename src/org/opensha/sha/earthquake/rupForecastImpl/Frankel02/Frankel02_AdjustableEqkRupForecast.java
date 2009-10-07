@@ -1,38 +1,38 @@
-  package org.opensha.sha.earthquake.rupForecastImpl.Frankel02;
+package org.opensha.sha.earthquake.rupForecastImpl.Frankel02;
 
-import java.util.ArrayList;
-import java.util.ListIterator;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
-
+import java.util.ListIterator;
+import java.util.StringTokenizer;
 
 import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
-import org.opensha.commons.data.region.RELM_TestingRegion;
 import org.opensha.commons.exceptions.FaultException;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.util.FileUtils;
-
-import org.opensha.sha.faultSurface.*;
-import org.opensha.sha.magdist.*;
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.*;
-//import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.EqkRateModel2_ERF;
-//import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_0.A_Faults.gui.WG02_RuptureModelsGraphWindowAPI_Impl;
-import org.opensha.sha.earthquake.rupForecastImpl.*;
-import java.io.FileWriter;
-import java.util.EventObject;
+import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.FrankelGriddedSurface;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
+import org.opensha.sha.magdist.GaussianMagFreqDist;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.sha.magdist.SingleMagFreqDist;
+import org.opensha.sha.magdist.SummedMagFreqDist;
 
 
 /**
@@ -1208,7 +1208,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
     * 
     * @return
     */
-   public static IncrementalMagFreqDist getTotalMFD_InsideRELM_region(boolean plot) {
+   public static IncrementalMagFreqDist getTotalMFD_InsideRELM_region() {
 	   // **********  This computes and plots MFD for the different souce types ******************
 	   
 	     Frankel02_AdjustableEqkRupForecast frankCast = new Frankel02_AdjustableEqkRupForecast();
@@ -1284,31 +1284,27 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 //	     System.out.println("Total:");
 //	     System.out.println(totalSummedMFD.getCumRateDist().toString());
 	     
-	     if(plot) {
-	    	 ArrayList funcs = new ArrayList();
-	    	 EvenlyDiscretizedFunc func = charSummedMFD.getCumRateDist();
-	    	 func.setInfo("NSHMP-2002 Total Cum MFD for all characteristic events on A & B faults");
-	    	 funcs.add(func);
-	    	 func = grSummedMFD.getCumRateDist();
-	    	 func.setInfo("NSHMP-2002 Total Cum MFD for all GR events on B faults");
-	    	 funcs.add(func);
-	    	 func = backSummedMFD.getCumRateDist();
-	    	 func.setInfo("NSHMP-2002 Total Cum MFD for background & C-zone events");
-	    	 funcs.add(func);
-	    	 func = totalSummedMFD.getCumRateDist();
-	    	 func.setInfo("NSHMP-2002 Total Cum MFD for all events");
-	    	 funcs.add(func);
-	    	 
-	    	 // TODO plot should NOT be working; commented out four lines below
-	    	 // when archiving UCERF2_0-1-2 which these lines are dependent on;
-	    	 // also commented import statements
-	    	 
+//	     if(plot) {
+//	    	 ArrayList funcs = new ArrayList();
+//	    	 EvenlyDiscretizedFunc func = charSummedMFD.getCumRateDist();
+//	    	 func.setInfo("NSHMP-2002 Total Cum MFD for all characteristic events on A & B faults");
+//	    	 funcs.add(func);
+//	    	 func = grSummedMFD.getCumRateDist();
+//	    	 func.setInfo("NSHMP-2002 Total Cum MFD for all GR events on B faults");
+//	    	 funcs.add(func);
+//	    	 func = backSummedMFD.getCumRateDist();
+//	    	 func.setInfo("NSHMP-2002 Total Cum MFD for background & C-zone events");
+//	    	 funcs.add(func);
+//	    	 func = totalSummedMFD.getCumRateDist();
+//	    	 func.setInfo("NSHMP-2002 Total Cum MFD for all events");
+//	    	 funcs.add(func);
+//	    	 	    	 
 //	    	 EqkRateModel2_ERF eqkRateModel2 = new EqkRateModel2_ERF();
 //	    	 funcs.addAll(eqkRateModel2.getObsCumMFD(false));
 //	    	 funcs.add(eqkRateModel2.getObsBestFitCumMFD(false));
 //
 //	    	 WG02_RuptureModelsGraphWindowAPI_Impl graphwindow = new WG02_RuptureModelsGraphWindowAPI_Impl(funcs, "Mag", "Rate", "Rates");
-	     }
+//	     }
 	     return totalSummedMFD;
    }
 
