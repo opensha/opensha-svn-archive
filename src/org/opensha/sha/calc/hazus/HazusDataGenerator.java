@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.Location;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.ParameterAPI;
@@ -129,10 +129,10 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
 
  private void createRegion() throws RegionConstraintException{
 	 //	make the Gridded Region object
-//	  EvenlyGriddedGeographicRegion eggr = 
-//		  new EvenlyGriddedGeographicRegion(
+//	  GriddedRegion eggr = 
+//		  new GriddedRegion(
 //				  MIN_LAT, MAX_LAT, MIN_LON,MAX_LON, GRID_SPACING);
-	  EvenlyGriddedGeographicRegion eggr = new EvenlyGriddedGeographicRegion(
+	  GriddedRegion eggr = new GriddedRegion(
 	    		new Location(MIN_LAT, MIN_LON),
 	    		new Location(MAX_LAT, MAX_LON),
 	    		GRID_SPACING, new Location(0,0));

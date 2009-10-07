@@ -12,7 +12,7 @@ import java.util.StringTokenizer;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
@@ -32,7 +32,7 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
  * @author Ned Field
  *
  */
-public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedGeographicRegion {
+public class NSHMP_CEUS_SourceGenerator extends GriddedRegion {
 
 	private final static WC1994_MagLengthRelationship magLenRel = new WC1994_MagLengthRelationship();
 

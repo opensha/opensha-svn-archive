@@ -8,7 +8,7 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 
 
@@ -85,9 +85,9 @@ public final class WillsSiteClass {
 			RegionConstraintException {
 
 		locations = new ArrayList<Location>();
-//		EvenlyGriddedGeographicRegion region = 
-//			new EvenlyGriddedGeographicRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
-		EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(
+//		GriddedRegion region = 
+//			new GriddedRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
+		GriddedRegion region = new GriddedRegion(
 	    		new Location(minLat, minLon),
 	    		new Location(maxLat, maxLon),
 	    		gridSpacing, new Location(0,0));		

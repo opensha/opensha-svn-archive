@@ -14,7 +14,7 @@ import javax.swing.JOptionPane;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataAPI;
@@ -354,8 +354,8 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		double minLongitude=((Double)minLon.getValue()).doubleValue();
 		double maxLongitude=((Double)maxLon.getValue()).doubleValue();
 		//checkLatLonParamValues();
-		EvenlyGriddedGeographicRegion eggr = 
-			new EvenlyGriddedGeographicRegion(
+		GriddedRegion eggr = 
+			new GriddedRegion(
 					new Location(minLatitude,minLongitude),
 					new Location(maxLatitude,maxLongitude),
 					((Double)gridSpacing.getValue()).doubleValue(), 

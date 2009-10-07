@@ -6,7 +6,7 @@ import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.exceptions.DataPoint2DException;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
@@ -56,7 +56,7 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
    */
   public void makeMap(double mag, String dirName, boolean isAdjustLatLon, double adjustmentVal) {
     XYZ_DataSetAPI xyzData = getRELM_XYZ_DataAboveMag(mag, isAdjustLatLon, adjustmentVal);
-    EvenlyGriddedGeographicRegion region  = griddedHypoMFD.getRegion();
+    GriddedRegion region  = griddedHypoMFD.getRegion();
     // make GMT_MapGenerator to make the map
     GMT_MapGenerator mapGenerator = new GMT_MapGenerator();
 

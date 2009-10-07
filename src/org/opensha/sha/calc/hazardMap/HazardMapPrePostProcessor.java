@@ -13,7 +13,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.MailUtil;
 import org.opensha.sha.calc.hazardMap.grid.MetadataHazardMapCalculator;
@@ -27,8 +27,8 @@ public class HazardMapPrePostProcessor {
 	public static final String POST_PROCESS = "POST";
 
 	public HazardMapPrePostProcessor(Element root, boolean pre) {
-		Element regionElement = root.element(EvenlyGriddedGeographicRegion.XML_METADATA_NAME);
-		EvenlyGriddedGeographicRegion region = EvenlyGriddedGeographicRegion.fromXMLMetadata(regionElement);
+		Element regionElement = root.element(GriddedRegion.XML_METADATA_NAME);
+		GriddedRegion region = GriddedRegion.fromXMLMetadata(regionElement);
 
 		HazardMapJob job = HazardMapJob.fromXMLMetadata(root.element(HazardMapJob.XML_METADATA_NAME));
 
@@ -92,7 +92,7 @@ public class HazardMapPrePostProcessor {
 
 	}
 
-	private String getPostProcessMessage(HazardMapJob job, EvenlyGriddedGeographicRegion region) {
+	private String getPostProcessMessage(HazardMapJob job, GriddedRegion region) {
 		File masterDir = new File("curves/");
 		File[] dirList=masterDir.listFiles();
 
@@ -213,7 +213,7 @@ public class HazardMapPrePostProcessor {
 		return mailMessage;
 	}
 
-	private String getPreProcessMessage(HazardMapJob job, EvenlyGriddedGeographicRegion region) {
+	private String getPreProcessMessage(HazardMapJob job, GriddedRegion region) {
 		// get the start time
 		long startTime = System.currentTimeMillis();
 

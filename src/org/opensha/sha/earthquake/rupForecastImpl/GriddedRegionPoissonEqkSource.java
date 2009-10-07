@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.Region;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -33,7 +33,7 @@ public class GriddedRegionPoissonEqkSource extends ProbEqkSource implements java
   private boolean D = false;
 
   private IncrementalMagFreqDist magFreqDist;
-  private EvenlyGriddedGeographicRegion region;
+  private GriddedRegion region;
   private double aveDip=Double.NaN;
   private double aveRake=Double.NaN;
   private double duration;
@@ -51,7 +51,7 @@ public class GriddedRegionPoissonEqkSource extends ProbEqkSource implements java
    * to consider from the magFreqDist in making the source (those below are ingored).
    *
    */
-  public GriddedRegionPoissonEqkSource(EvenlyGriddedGeographicRegion region, IncrementalMagFreqDist
+  public GriddedRegionPoissonEqkSource(GriddedRegion region, IncrementalMagFreqDist
                                        magFreqDist,double duration,double aveRake, double aveDip,
                                        double minMag){
     this.region =region;
@@ -79,7 +79,7 @@ public class GriddedRegionPoissonEqkSource extends ProbEqkSource implements java
    * zero (magnitudes from magFreqDist below are ignored in making the source)
    *
    */
-  public GriddedRegionPoissonEqkSource(EvenlyGriddedGeographicRegion region, IncrementalMagFreqDist
+  public GriddedRegionPoissonEqkSource(GriddedRegion region, IncrementalMagFreqDist
                                        magFreqDist, double duration, double aveRake, double aveDip){
 
     this( region,  magFreqDist, duration, aveRake,  aveDip, 0.0);
@@ -194,7 +194,7 @@ public class GriddedRegionPoissonEqkSource extends ProbEqkSource implements java
    * This gets the region
    * @return region
    */
-  public EvenlyGriddedGeographicRegion getRegion(){
+  public GriddedRegion getRegion(){
     return region;
   }
 

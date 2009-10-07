@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.opensha.commons.data.Location;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.exceptions.RegionConstraintException;
@@ -115,8 +115,8 @@ public class GriddedRegionServlet extends HttpServlet {
 		double minLon = ((Double)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.MIN_LONGITUDE).getValue()).doubleValue();
 		double maxLon = ((Double)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.MAX_LONGITUDE).getValue()).doubleValue();
 		double gridSpacing = ((Double)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.GRID_SPACING).getValue()).doubleValue();
-		//EvenlyGriddedGeographicRegion eggr = new EvenlyGriddedGeographicRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
-		EvenlyGriddedGeographicRegion eggr = new EvenlyGriddedGeographicRegion(
+		//GriddedRegion eggr = new GriddedRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
+		GriddedRegion eggr = new GriddedRegion(
 	    		new Location(minLat, minLon),
 	    		new Location(maxLat, maxLon),
 	    		gridSpacing, new Location(0,0));

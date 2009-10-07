@@ -12,7 +12,7 @@ import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.DoubleParameter;
@@ -469,8 +469,8 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 			double minLongitude=((Double)minLon.getValue()).doubleValue();
 			double maxLongitude=((Double)maxLon.getValue()).doubleValue();
 			//checkLatLonParamValues();
-			  EvenlyGriddedGeographicRegion eggr = 
-				  new EvenlyGriddedGeographicRegion(
+			  GriddedRegion eggr = 
+				  new GriddedRegion(
 						  new Location(minLatitude,minLongitude),
 						  new Location(maxLatitude,maxLongitude),
 						  gridSpacingD, new Location(0,0));
@@ -478,8 +478,8 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		} else {
 			for (NamedGeographicRegion region : presets) {
 				if (name.equals(region.getName())) {
-					EvenlyGriddedGeographicRegion eggr = 
-						new EvenlyGriddedGeographicRegion(
+					GriddedRegion eggr = 
+						new GriddedRegion(
 								region.getRegionOutline(), 
 								BorderType.MERCATOR_LINEAR, 
 								gridSpacingD, new Location(0,0));

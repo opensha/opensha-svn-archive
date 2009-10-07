@@ -4,7 +4,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.Frankel02.validation;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
@@ -121,11 +121,11 @@ public class HazardMapStandaloneApplicationUsingFrankel02
   private void initGriddedRegionGuiBean() throws RegionConstraintException {
 
     //make the Gridded Region object
-//	  EvenlyGriddedGeographicRegion eggr = 
-//		  new EvenlyGriddedGeographicRegion(
+//	  GriddedRegion eggr = 
+//		  new GriddedRegion(
 //				  MIN_LAT, MAX_LAT, MIN_LON,MAX_LON, GRID_SPACING);
-	  EvenlyGriddedGeographicRegion eggr = 
-		  new EvenlyGriddedGeographicRegion(
+	  GriddedRegion eggr = 
+		  new GriddedRegion(
 	    		new Location(MIN_LAT, MIN_LON),
 	    		new Location(MAX_LAT, MAX_LON),
 	    		GRID_SPACING, new Location(0,0));    

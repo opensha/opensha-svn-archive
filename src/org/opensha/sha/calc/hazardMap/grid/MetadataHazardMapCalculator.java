@@ -14,7 +14,7 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.siteData.SiteDataValueListList;
 import org.opensha.commons.gridComputing.GridJob;
@@ -114,8 +114,8 @@ public class MetadataHazardMapCalculator implements ParameterChangeWarningListen
 			System.out.println("Took " + getTime(start_erf) + " seconds to load ERF.");
 		}
 		
-		Element regionElement = root.element(EvenlyGriddedGeographicRegion.XML_METADATA_NAME);
-		EvenlyGriddedGeographicRegion region = EvenlyGriddedGeographicRegion.fromXMLMetadata(regionElement);
+		Element regionElement = root.element(GriddedRegion.XML_METADATA_NAME);
+		GriddedRegion region = GriddedRegion.fromXMLMetadata(regionElement);
 		SitesInGriddedRegion sites = new SitesInGriddedRegion(region);
 		
 		// TODO revisit to ensure proper functioning

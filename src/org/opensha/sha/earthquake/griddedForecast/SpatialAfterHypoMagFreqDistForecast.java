@@ -3,7 +3,7 @@ package org.opensha.sha.earthquake.griddedForecast;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.Location;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -34,7 +34,7 @@ public class SpatialAfterHypoMagFreqDistForecast
   public MaxLikeOmori_Calc omoriCalc;
   private ArrayList rjParms;
   private ReasenbergJonesGriddedParms_Calc rjcalc;
-  private EvenlyGriddedGeographicRegion aftershockZone;
+  private GriddedRegion aftershockZone;
   private ObsEqkRupList aftershocks;
   private double dayStart, dayEnd;
   private ArrayList gridMagForecast;
@@ -42,7 +42,7 @@ public class SpatialAfterHypoMagFreqDistForecast
   private double searchRadius;
 
   public SpatialAfterHypoMagFreqDistForecast(ObsEqkRupture mainshock,
-                                             EvenlyGriddedGeographicRegion
+                                             GriddedRegion
                                              aftershockZone,
                                              ObsEqkRupList aftershocks) {
 

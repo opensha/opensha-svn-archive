@@ -1,7 +1,7 @@
 package org.opensha.sha.earthquake.region;
 
 import org.opensha.commons.data.LocationList;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 
@@ -25,7 +25,7 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
  * @version 1.0
  */
 public class EvenlyGriddedGeographicRegionAroundEqkRupture
-    extends EvenlyGriddedGeographicRegion {
+    extends GriddedRegion {
 
 
     /**

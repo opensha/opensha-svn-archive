@@ -18,7 +18,7 @@ import javax.swing.event.ListSelectionListener;
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.Region;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataAPI;
@@ -109,7 +109,7 @@ public class SiteDataMapApplet extends Applet implements ActionListener, ListSel
 		ArrayList<SiteDataAPI<?>> providers = dataBean.getSelectedProviders();
 		ArrayList<SiteDataValueList<Double>> valListList = new ArrayList<SiteDataValueList<Double>>();
 		
-		EvenlyGriddedGeographicRegion region = mapBean.getEvenlyGriddedGeographicRegion();
+		GriddedRegion region = mapBean.getEvenlyGriddedGeographicRegion();
 		LocationList locs = region.getGridLocationsList();
 
 		String meta = "Combined map from the following providers (sorted by priority):\n\n";
@@ -156,7 +156,7 @@ public class SiteDataMapApplet extends Applet implements ActionListener, ListSel
 					if (label.length() > 20)
 						label = doubProvider.getDataType();
 					
-					EvenlyGriddedGeographicRegion region = mapBean.getEvenlyGriddedGeographicRegion();
+					GriddedRegion region = mapBean.getEvenlyGriddedGeographicRegion();
 					LocationList locs = region.getGridLocationsList();
 					ArrayList<Double> zVals = doubProvider.getValues(locs);
 					

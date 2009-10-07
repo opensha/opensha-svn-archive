@@ -1,6 +1,6 @@
 package scratch.matt.calc;
 
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.sha.earthquake.griddedForecast.GenericAfterHypoMagFreqDistForecast;
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
@@ -26,7 +26,7 @@ public class UpdateSTEP_Forecast {
   private GenericAfterHypoMagFreqDistForecast forecastModelGen;
   private SequenceAfterHypoMagFreqDistForecast forecastModelSeq;
   private SpatialAfterHypoMagFreqDistForecast forecastModelSpa;
-  private EvenlyGriddedGeographicRegion backgroundRatesGrid;
+  private GriddedRegion backgroundRatesGrid;
   private STEP_CombineForecastModels sequenceModel;
   private boolean useSeqAndSpat, gridIsUpdated = false;
   private static int numGridNodes;
@@ -198,7 +198,7 @@ public void updateAIC_CombinedModelForecast(){
    * if the background needs to be changed - this also recalculates the
    * aftershock zone if necessary.
    */
-  public void setBackGroundGrid(EvenlyGriddedGeographicRegion backgroundRatesGrid) {
+  public void setBackGroundGrid(GriddedRegion backgroundRatesGrid) {
 	  this.backgroundRatesGrid = backgroundRatesGrid;
 	  // forecastModelGen.calcTypeI_AftershockZone(backgroundRatesGrid);
 	  updateAftershockZone();
@@ -207,7 +207,7 @@ public void updateAIC_CombinedModelForecast(){
   /**
    * getBackGroundGrid
    */
-  public EvenlyGriddedGeographicRegion getBackGroundGrid() {
+  public GriddedRegion getBackGroundGrid() {
 	  return this.backgroundRatesGrid;
   }
   

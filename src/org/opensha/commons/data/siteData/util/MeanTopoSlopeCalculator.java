@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.impl.SRTM30PlusTopoSlope;
 
@@ -21,8 +21,8 @@ public class MeanTopoSlopeCalculator {
 		this.topoSlopeProvider = topoSlopeProvider;
 	}
 	
-	private EvenlyGriddedGeographicRegion createRegionAroundSite(Location loc, double radius, double gridSpacing) {
-		return new EvenlyGriddedGeographicRegion(loc, radius, gridSpacing, new Location(0,0));
+	private GriddedRegion createRegionAroundSite(Location loc, double radius, double gridSpacing) {
+		return new GriddedRegion(loc, radius, gridSpacing, new Location(0,0));
 	}
 	
 	/**
@@ -35,12 +35,12 @@ public class MeanTopoSlopeCalculator {
 	 * @throws IOException
 	 */
 	public double getMeanSlope(Location loc, double radius, double gridSpacing) throws IOException {
-		EvenlyGriddedGeographicRegion region = createRegionAroundSite(loc, radius, gridSpacing);
+		GriddedRegion region = createRegionAroundSite(loc, radius, gridSpacing);
 		
 		return getMeanSlope(region);
 	}
 	
-	public double getMeanSlope(EvenlyGriddedGeographicRegion region) throws IOException {
+	public double getMeanSlope(GriddedRegion region) throws IOException {
 		return getMeanSlope(region.getGridLocationsList());
 	}
 	

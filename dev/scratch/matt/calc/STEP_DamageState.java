@@ -11,7 +11,7 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.WarningParameterAPI;
@@ -81,8 +81,8 @@ public class STEP_DamageState implements ParameterChangeWarningListener{
 	  createShakeMapAttenRelInstance();
 	  SitesInGriddedRegion sites = null;
 //	try {
-		  EvenlyGriddedGeographicRegion eggr = 
-			  new EvenlyGriddedGeographicRegion(
+		  GriddedRegion eggr = 
+			  new GriddedRegion(
 					  new Location(32.5,-124.8),
 					  new Location(42.2,-112.4),
 					  0.1, new Location(0,0));

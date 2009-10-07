@@ -7,7 +7,7 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.util.FileUtils;
@@ -58,7 +58,7 @@ public class YuccaMountainERF extends EqkRupForecast{
 
 	private ArrayList<ProbEqkSource> allSources;
 	private GutenbergRichterMagFreqDist backgroundMagDist;
-	private EvenlyGriddedGeographicRegion backgroundRegion;
+	private GriddedRegion backgroundRegion;
 
 	public YuccaMountainERF(){
 
@@ -125,9 +125,9 @@ public class YuccaMountainERF extends EqkRupForecast{
 			double maxLon = Double.parseDouble(st.nextToken().trim());
 			double gridSpacing = Double.parseDouble(st.nextToken().trim());
 //			try {
-//				backgroundRegion = new EvenlyGriddedGeographicRegion(minLat, 
+//				backgroundRegion = new GriddedRegion(minLat, 
 //						maxLat, minLon, maxLon, gridSpacing);
-			    backgroundRegion = new EvenlyGriddedGeographicRegion(
+			    backgroundRegion = new GriddedRegion(
 			    		new Location(minLat, minLon),
 			    		new Location(maxLat, maxLon),
 			    		gridSpacing, new Location(0,0));

@@ -12,7 +12,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
@@ -213,7 +213,7 @@ public class computeHazard implements Runnable {
 		// loop over seismic zones
 		for(int ii=0;ii<ssz.getA().size();ii++){
 			// define polygon region
-			EvenlyGriddedGeographicRegion gr = new EvenlyGriddedGeographicRegion(ssz.getPoly().get(ii),gridspacing);
+			GriddedRegion gr = new GriddedRegion(ssz.getPoly().get(ii),gridspacing);
 			// define GR magnitude-frequency distribution
 			// number of magnitude values
 			int mnum = (int) Math.round((ssz.getMmax().get(ii)-ssz.getMmin().get(ii))/mbin)+1;

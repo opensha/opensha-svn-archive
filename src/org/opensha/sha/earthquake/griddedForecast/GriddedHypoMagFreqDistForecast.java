@@ -6,7 +6,7 @@ import java.util.ListIterator;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.Region;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -47,7 +47,7 @@ public abstract class GriddedHypoMagFreqDistForecast implements
 	protected boolean parameterChangeFlag = true;
 
 	// EvenlyGriddedGeographicAPI region
-	private EvenlyGriddedGeographicRegion region;
+	private GriddedRegion region;
 
 	private ArrayList listenerList = new ArrayList();
 
@@ -68,11 +68,11 @@ public abstract class GriddedHypoMagFreqDistForecast implements
 	 * 
 	 * @return EvenlyGriddedGeographicRegionAPI
 	 */
-	public EvenlyGriddedGeographicRegion getRegion() {
+	public GriddedRegion getRegion() {
 		return region;
 	}
 
-	public void setRegion(EvenlyGriddedGeographicRegion region) {
+	public void setRegion(GriddedRegion region) {
 		this.region = region;
 	}
 	

@@ -8,7 +8,7 @@ import java.util.ListIterator;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.Region;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -57,7 +57,7 @@ public class ERF2GriddedSeisRatesCalc {
   private DecimalFormat magFormat = new DecimalFormat("0.00");
 
   private EqkRupForecastAPI eqkRupForecast;
-  private EvenlyGriddedGeographicRegion region;
+  private GriddedRegion region;
 
   /**
    * default class Constructor.
@@ -94,7 +94,7 @@ public class ERF2GriddedSeisRatesCalc {
    */
   public ArrayList calcMFD_ForGriddedRegion(double minMag, double maxMag,
                                             int numMagBins, EqkRupForecastAPI eqkRupForecast,
-                                            EvenlyGriddedGeographicRegion region,
+                                            GriddedRegion region,
                                             double duration) {
     double delta = (maxMag-minMag)/(numMagBins-1);
     ArrayList cumMFDList  = calcCumMFD_ForGriddedRegion(minMag-delta, eqkRupForecast, region);
@@ -179,7 +179,7 @@ for(int m=0;m<testFunc.getNum();m++)
    * This function computes the rates above the given Magnitude for each rupture
    * location. Once computed , magnitude-rate distribution is stored for each
    * location on all ruptures in Eqk Rupture forecast model, if that lies within the
-   * provided EvenlyGriddedGeographicRegion.
+   * provided GriddedRegion.
    * Once all Mag-Rate distribution has been computed for each location within the
    * ERF, this function returns ArrayList that constitutes of
    * ArbitrarilyDiscretizedFunc object. This ArbitrarilyDiscretizedFunc for each location
@@ -189,7 +189,7 @@ for(int m=0;m<testFunc.getNum();m++)
    * @param region EvenlyGriddedGeographicRegionAPI Region within which ruptures
    * are to be considered.
    * @return ArrayList with values being ArbitrarilyDiscretizedFunc
-   * @see ArbitrarilyDiscretizedFunc, Location, EvenlyGriddedGeographicRegion,
+   * @see ArbitrarilyDiscretizedFunc, Location, GriddedRegion,
    * EvenlyGriddedGeographicRegionAPI, EvenlyGriddedRectangularGeographicRegion
    *
    * Note : We will have to think of returning the actual Mag-Freq dist. , which
@@ -197,7 +197,7 @@ for(int m=0;m<testFunc.getNum();m++)
    */
   public ArrayList calcCumMFD_ForGriddedRegion(double minMag,
       EqkRupForecastAPI eqkRupForecast,
-      EvenlyGriddedGeographicRegion region) {
+      GriddedRegion region) {
     minMagnitude = minMag;
 
     this.eqkRupForecast = eqkRupForecast;
@@ -250,12 +250,12 @@ for(int m=0;m<testFunc.getNum();m++)
    * @param region EvenlyGriddedGeographicRegionAPI
    * @return double[] with each element in the array being totalSeisRate for each
    * location in the region.
-   * @see Double, Location, EvenlyGriddedGeographicRegion,
+   * @see Double, Location, GriddedRegion,
    * EvenlyGriddedGeographicRegionAPI, EvenlyGriddedRectangularGeographicRegion
    */
   public double[] getTotalSeisRateAtEachLocationInRegion(double minMag,
       EqkRupForecastAPI eqkRupForecast,
-      EvenlyGriddedGeographicRegion region) {
+      GriddedRegion region) {
     minMagnitude = minMag;
 
     this.eqkRupForecast = eqkRupForecast;

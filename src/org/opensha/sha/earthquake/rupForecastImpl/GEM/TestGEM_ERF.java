@@ -11,7 +11,7 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.region.BorderType;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.RegionUtils;
 import org.opensha.commons.data.region.RegionUtils.Color;
 import org.opensha.commons.param.DoubleParameter;
@@ -189,12 +189,12 @@ public class TestGEM_ERF extends EqkRupForecast{
 		// make sources
 		for(int i=0;i<numSrces;i++){
 			// define polygon region
-			EvenlyGriddedGeographicRegion gr = 
-				new EvenlyGriddedGeographicRegion(
+			GriddedRegion gr = 
+				new GriddedRegion(
 						region[i], BorderType.MERCATOR_LINEAR, gridSpacing,
-						EvenlyGriddedGeographicRegion.ANCHOR_0_0);
+						GriddedRegion.ANCHOR_0_0);
 			RegionUtils.regionToKML(gr, "gem_gr_new", Color.RED);
-			//EvenlyGriddedGeographicRegion gr = new EvenlyGriddedGeographicRegion(region[i],gridSpacing);
+			//GriddedRegion gr = new GriddedRegion(region[i],gridSpacing);
 			// number of magnitude values
 			int mnum = (int) Math.round((mmax[i]-mmin[i])/magBinWidth)+1;
 			// GR Dist

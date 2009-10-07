@@ -16,7 +16,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.XYZ_DataSetAPI;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.gridComputing.StorageHost;
 import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
@@ -159,13 +159,13 @@ public class PlotServlet extends ConfLoadingServlet {
 			Document doc = XMLUtils.loadDocument(xmlFile);
 			Element root = doc.getRootElement();
 			
-			Element regionEl = root.element(EvenlyGriddedGeographicRegion.XML_METADATA_NAME);
-			Attribute numAtt = regionEl.attribute(EvenlyGriddedGeographicRegion.XML_METADATA_NUM_POINTS_NAME);
+			Element regionEl = root.element(GriddedRegion.XML_METADATA_NAME);
+			Attribute numAtt = regionEl.attribute(GriddedRegion.XML_METADATA_NUM_POINTS_NAME);
 			
 			if (numAtt != null)
 				return Integer.parseInt(numAtt.getValue());
 			
-			EvenlyGriddedGeographicRegion region = EvenlyGriddedGeographicRegion.fromXMLMetadata(regionEl);
+			GriddedRegion region = GriddedRegion.fromXMLMetadata(regionEl);
 			return region.getNumGridLocs();
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block

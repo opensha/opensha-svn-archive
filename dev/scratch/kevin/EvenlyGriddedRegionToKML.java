@@ -6,11 +6,11 @@ import java.io.IOException;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.BorderType;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 
 public class EvenlyGriddedRegionToKML {
 	
-	public EvenlyGriddedRegionToKML(EvenlyGriddedGeographicRegion region, String fileName) throws IOException {
+	public EvenlyGriddedRegionToKML(GriddedRegion region, String fileName) throws IOException {
 		FileWriter fw = new FileWriter(fileName);
 		
 		fw.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "\n");
@@ -49,9 +49,9 @@ public class EvenlyGriddedRegionToKML {
 //		corners.addLocation(new Location(35.33, -118.75));
 //		corners.addLocation(new Location(34.13, -119.63));
 //		corners.addLocation(new Location(33.00, -117.50));
-//		EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(RegionSaver.createCyberShakeRegion().getRegionOutline(), 0.108);
-		EvenlyGriddedGeographicRegion region = 
-			new EvenlyGriddedGeographicRegion(
+//		GriddedRegion region = new GriddedRegion(RegionSaver.createCyberShakeRegion().getRegionOutline(), 0.108);
+		GriddedRegion region = 
+			new GriddedRegion(
 					RegionSaver.createCyberShakeRegion().getRegionOutline(), 
 					BorderType.MERCATOR_LINEAR, 
 					0.216,

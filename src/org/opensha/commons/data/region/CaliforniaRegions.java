@@ -1,6 +1,6 @@
 package org.opensha.commons.data.region;
 
-import static org.opensha.commons.data.region.EvenlyGriddedGeographicRegion.ANCHOR_0_0;
+import static org.opensha.commons.data.region.GriddedRegion.ANCHOR_0_0;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,7 +17,7 @@ import org.opensha.commons.data.LocationList;
  * @author Peter Powers
  * @version $Id:$
  * @see Region
- * @see EvenlyGriddedGeographicRegion
+ * @see GriddedRegion
  */
 public class CaliforniaRegions {
 	
@@ -25,7 +25,7 @@ public class CaliforniaRegions {
 	// TODO RELM_NOCAL/SOCAL minimally used; revisit; clean
 	
 	public static void main(String[] args) {
-		EvenlyGriddedGeographicRegion rr = new RELM_GRIDDED();
+		GriddedRegion rr = new RELM_GRIDDED();
 		System.out.println(rr.getNumGridLocs());
 	}
 	
@@ -36,7 +36,7 @@ public class CaliforniaRegions {
 	 * Models (RELM) project. Grid spacing is 0.1&deg;.
 	 */
 	public static final class RELM_GRIDDED extends 
-			EvenlyGriddedGeographicRegion {
+			GriddedRegion {
 		/** New instance of region. */
 		public RELM_GRIDDED() {
 			super(readCoords("RELM.coords"), 
@@ -60,7 +60,7 @@ public class CaliforniaRegions {
 	 * Grid spacing is 0.1&deg;.
 	 */
 	public static final class RELM_TESTING_GRIDDED extends 
-			EvenlyGriddedGeographicRegion {
+			GriddedRegion {
 		/** New instance of region. */
 		public RELM_TESTING_GRIDDED() {
 			super(readCoords("RELM_testing.coords"), 
@@ -84,7 +84,7 @@ public class CaliforniaRegions {
 	 * Grid spacing is 0.1&deg;.
 	 */
 	public static final class RELM_COLLECTION_GRIDDED extends 
-			EvenlyGriddedGeographicRegion {
+			GriddedRegion {
 		/** New instance of region. */
 		public RELM_COLLECTION_GRIDDED() {
 			super(readCoords("RELM_collection.coords"), 
@@ -107,7 +107,7 @@ public class CaliforniaRegions {
 	 * Northern half of the gridded RELM region. Grid spacing is 0.1&deg;.
 	 */
 	public static final class RELM_NOCAL_GRIDDED extends 
-			EvenlyGriddedGeographicRegion {
+			GriddedRegion {
 		/** New instance of region. */
 		public RELM_NOCAL_GRIDDED() {
 			super(readCoords("RELM_NoCal.coords"), 
@@ -130,7 +130,7 @@ public class CaliforniaRegions {
 	 * Southern half of the gridded RELM region. Grid spacing is 0.1&deg;.
 	 */
 	public static final class RELM_SOCAL_GRIDDED extends 
-			EvenlyGriddedGeographicRegion {
+			GriddedRegion {
 		/** New instance of region. */
 		public RELM_SOCAL_GRIDDED() {
 			super(readCoords("RELM_SoCal.coords"), 
@@ -144,7 +144,7 @@ public class CaliforniaRegions {
 	 * Grid spacing is 0.1&deg;.
 	 */
 	public static final class WG02_GRIDDED extends 
-			EvenlyGriddedGeographicRegion {
+			GriddedRegion {
 		/** New instance of region. */
 		public WG02_GRIDDED() {
 			super(readCoords("WG02.coords"), 
@@ -161,7 +161,7 @@ public class CaliforniaRegions {
 	 * TODO this may not be necessary; no references
 	 */
 	public static final class WG07_GRIDDED extends 
-			EvenlyGriddedGeographicRegion {
+			GriddedRegion {
 		/** New instance of region. */
 		public WG07_GRIDDED() {
 			super(readCoords("WG07.coords"), 

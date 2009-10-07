@@ -31,7 +31,7 @@ import org.opensha.sha.util.*;
  * @version 1.0
  */
 // implements SitesInGriddedRegionAPI
-// extends EvenlyGriddedGeographicRegion
+// extends GriddedRegion
 public class SitesInGriddedRegion implements Serializable {
 
 	//Debug parameter
@@ -51,13 +51,13 @@ public class SitesInGriddedRegion implements Serializable {
 	//Instance of the site TransLator class
 	SiteTranslator siteTranslator = new SiteTranslator();
 	
-	private EvenlyGriddedGeographicRegion region;
+	private GriddedRegion region;
 
-	public SitesInGriddedRegion(EvenlyGriddedGeographicRegion region) {
+	public SitesInGriddedRegion(GriddedRegion region) {
 		this.region = region;
 	}
 	
-	public EvenlyGriddedGeographicRegion getRegion() {
+	public GriddedRegion getRegion() {
 		return region;
 	}
 //	public SitesInGriddedRegion(LocationList locList, double gridSpacing) {

@@ -13,7 +13,7 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.XYZ_DataSetAPI;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
@@ -177,10 +177,10 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
     }
 
 //    try {
-//  	  EvenlyGriddedGeographicRegion eggr = 
-//		  new EvenlyGriddedGeographicRegion(minLat, maxLat, minLon,
+//  	  GriddedRegion eggr = 
+//		  new GriddedRegion(minLat, maxLat, minLon,
 //          maxLon, gridSpacing);
-    EvenlyGriddedGeographicRegion eggr = new EvenlyGriddedGeographicRegion(
+    GriddedRegion eggr = new GriddedRegion(
     		new Location(minLat, minLon),
     		new Location(maxLat, maxLon),
     		gridSpacing, new Location(0,0));

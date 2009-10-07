@@ -65,7 +65,7 @@ public class EvenlyGriddedGeographicRegionTest {
 
 	@Test
 	public final void testSubRegion() {
-		EvenlyGriddedGeographicRegion eggr = new EvenlyGriddedGeographicRegion(
+		GriddedRegion eggr = new GriddedRegion(
 				GeographicRegionTest.circRegion, 0.5, null);
 		Region gr = GeographicRegionTest.lgRectMercRegion;
 		
@@ -75,7 +75,7 @@ public class EvenlyGriddedGeographicRegionTest {
 	public static void main(String[] args) {
 		
 		
-		EvenlyGriddedGeographicRegion sreg = new EvenlyGriddedGeographicRegion(
+		GriddedRegion sreg = new GriddedRegion(
 				GeographicRegionTest.lgRectMercRegion, 0.5, null);
 		Region gr = sreg.subRegion(GeographicRegionTest.circRegion);
 		RegionUtils.regionToKML(gr, "SubRegion_circRectSub", Color.RED);
@@ -90,7 +90,7 @@ public class EvenlyGriddedGeographicRegionTest {
 		// package. See below for code to generate gridded regions prior to
 		// package modification.
 
-		EvenlyGriddedGeographicRegion eggr;
+		GriddedRegion eggr;
 		
 		// nocal
 		eggr = new CaliforniaRegions.RELM_NOCAL_GRIDDED();

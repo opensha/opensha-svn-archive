@@ -8,7 +8,7 @@ import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
 import org.opensha.commons.data.Location;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
@@ -1078,15 +1078,15 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast  {
 //		try {	
 			//set the grid precision first
 //			SitesInGriddedRectangularRegion.setGridPrecision(RegionDefaults.gridPrecision);
-//			EvenlyGriddedGeographicRegion eggr = 
-//				new EvenlyGriddedGeographicRegion(
+//			GriddedRegion eggr = 
+//				new GriddedRegion(
 //						RegionDefaults.searchLatMin,
 //						RegionDefaults.searchLatMax,
 //						RegionDefaults.searchLongMin,
 //						RegionDefaults.searchLongMax,
 //						RegionDefaults.gridSpacing);
-			EvenlyGriddedGeographicRegion eggr = 
-				new EvenlyGriddedGeographicRegion(
+			GriddedRegion eggr = 
+				new GriddedRegion(
 						new Location(RegionDefaults.searchLatMin,RegionDefaults.searchLongMin),
 						new Location(RegionDefaults.searchLatMax,RegionDefaults.searchLongMax),
 						RegionDefaults.gridSpacing, new Location(0,0));
@@ -1234,7 +1234,7 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast  {
 		}
 	}
 
-	public void setBackGroundRegion(EvenlyGriddedGeographicRegion backGroundRegion){
+	public void setBackGroundRegion(GriddedRegion backGroundRegion){
 		setRegion(backGroundRegion);
 //		this.region = backGroundRegion;
 	}

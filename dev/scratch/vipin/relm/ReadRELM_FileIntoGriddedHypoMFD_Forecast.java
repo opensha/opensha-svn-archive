@@ -5,7 +5,7 @@ import java.io.FileReader;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Location;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.exceptions.DataPoint2DException;
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
@@ -37,7 +37,7 @@ public class ReadRELM_FileIntoGriddedHypoMFD_Forecast extends GriddedHypoMagFreq
   * @return
   */
  public ReadRELM_FileIntoGriddedHypoMFD_Forecast(String inputFileName,
-                                                 EvenlyGriddedGeographicRegion griddedRegion,
+                                                 GriddedRegion griddedRegion,
                                                  double minMag,
                                                  double maxMag,
                                                  int numMagBins,

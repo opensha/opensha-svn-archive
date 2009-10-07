@@ -13,7 +13,7 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.gridComputing.GridJob;
@@ -259,8 +259,8 @@ public class HazardMapMetadataJobCreator {
 
 	private SitesInGriddedRegion loadSites(Element root) {
 		this.updateProgressMessage("Loading Sites");
-		Element regionElement = root.element(EvenlyGriddedGeographicRegion.XML_METADATA_NAME);
-		EvenlyGriddedGeographicRegion region = EvenlyGriddedGeographicRegion.fromXMLMetadata(regionElement);
+		Element regionElement = root.element(GriddedRegion.XML_METADATA_NAME);
+		GriddedRegion region = GriddedRegion.fromXMLMetadata(regionElement);
 		SitesInGriddedRegion sites = new SitesInGriddedRegion(region);
 //		if (region.isRectangular()) {
 //			try {

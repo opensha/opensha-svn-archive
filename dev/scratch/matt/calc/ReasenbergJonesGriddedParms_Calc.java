@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.Location;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.Region;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 
@@ -29,14 +29,14 @@ public class ReasenbergJonesGriddedParms_Calc {
 
 
 // the first constructor must be used if a non-fixed c value is to be used and then useFixed_cValue must be set to false
-  public ReasenbergJonesGriddedParms_Calc(EvenlyGriddedGeographicRegion
+  public ReasenbergJonesGriddedParms_Calc(GriddedRegion
                                           gridNodes, ObsEqkRupList eventList,
                                           boolean useFixed_cValue) {
     setGriddedMags(gridNodes, eventList);
     setUseFixed_cVal(useFixed_cValue);
   }
 
-  public ReasenbergJonesGriddedParms_Calc(EvenlyGriddedGeographicRegion
+  public ReasenbergJonesGriddedParms_Calc(GriddedRegion
                                           gridNodes, ObsEqkRupList eventList) {
     setGriddedMags(gridNodes, eventList);
   }
@@ -119,7 +119,7 @@ public class ReasenbergJonesGriddedParms_Calc {
    * calculate the Reasenberg & Jones parms (a,b,p,c,k) on the evenly gridded region grid.
    *
    */
-  public void setGriddedMags(EvenlyGriddedGeographicRegion gridNodes,
+  public void setGriddedMags(GriddedRegion gridNodes,
                              ObsEqkRupList eventList) {
     calc_RJParmsOnGrid(gridNodes, eventList);
   }
@@ -127,7 +127,7 @@ public class ReasenbergJonesGriddedParms_Calc {
   /**
    * calc_RJParmsOnGrid
    */
-  private void calc_RJParmsOnGrid(EvenlyGriddedGeographicRegion gridNodes,
+  private void calc_RJParmsOnGrid(GriddedRegion gridNodes,
                                   ObsEqkRupList eventList){
     ListIterator gridIt = gridNodes.getGridLocationsIterator();
     int numNodes = gridNodes.getNumGridLocs();

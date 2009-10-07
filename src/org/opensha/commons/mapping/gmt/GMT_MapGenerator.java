@@ -22,7 +22,7 @@ import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.XYZ_DataSetAPI;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.Region;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.exceptions.RegionConstraintException;
@@ -928,7 +928,7 @@ public class GMT_MapGenerator implements Serializable{
 
 	}
 
-	public EvenlyGriddedGeographicRegion getEvenlyGriddedGeographicRegion() throws RegionConstraintException {
+	public GriddedRegion getEvenlyGriddedGeographicRegion() throws RegionConstraintException {
 		// Get the limits and discretization of the map
 		double minLat = ((Double) minLatParam.getValue()).doubleValue();
 		double maxLat = ((Double) maxLatParam.getValue()).doubleValue();
@@ -936,8 +936,8 @@ public class GMT_MapGenerator implements Serializable{
 		double maxLon = ((Double) maxLonParam.getValue()).doubleValue();
 		double gridSpacing = ((Double) gridSpacingParam.getValue()).doubleValue();
 
-		//return new EvenlyGriddedGeographicRegion(minLat, maxLat, minLon, maxLon, gridSpacing);
-		return new EvenlyGriddedGeographicRegion(
+		//return new GriddedRegion(minLat, maxLat, minLon, maxLon, gridSpacing);
+		return new GriddedRegion(
 	    		new Location(minLat, minLon),
 	    		new Location(maxLat, maxLon),
 	    		gridSpacing, new Location(0,0));

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import org.opensha.commons.calc.ArcsecondConverter;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.Region;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.SiteDataToXYZ;
@@ -157,8 +157,8 @@ public class SRTM30TopoSlope extends AbstractSiteData<Double> {
 		System.out.println(data.getValue(new Location(34, -118)));
 		System.out.println(data.getValue(new Location(32, -118)));
 		
-		//EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(32, 35, -121, -115, 0.02);
-		EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(
+		//GriddedRegion region = new GriddedRegion(32, 35, -121, -115, 0.02);
+		GriddedRegion region = new GriddedRegion(
 				new Location(32, -121),
 				new Location(25, 115),
 				0.02, new Location(0,0));

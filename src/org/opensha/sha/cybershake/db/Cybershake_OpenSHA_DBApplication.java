@@ -7,7 +7,7 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.gui.UserAuthDialog;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
@@ -356,7 +356,7 @@ public class Cybershake_OpenSHA_DBApplication {
 		
 		///////////////// INSERT ERF //////////////////////
 		
-		EvenlyGriddedGeographicRegion region = null;
+		GriddedRegion region = null;
 		
 		// uncomment and modify if you only want to insert for a region
 //		LocationList corners = new LocationList();
@@ -365,7 +365,7 @@ public class Cybershake_OpenSHA_DBApplication {
 //		corners.addLocation(new Location(34.13, -119.63));
 //		corners.addLocation(new Location(33.00, -117.50));
 //		double gridSpacing = 0.2;
-//		region = new EvenlyGriddedGeographicRegion(corners, gridSpacing);
+//		region = new GriddedRegion(corners, gridSpacing);
 		
 		// this inserts it
 //		erfDB.insertForecaseInDB(erfDescription, region);

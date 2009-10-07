@@ -11,7 +11,7 @@ import java.util.StringTokenizer;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.Region;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -93,7 +93,7 @@ public class NSHMP_GridSourceGenerator {
 
 	}
 
-	public EvenlyGriddedGeographicRegion getGriddedRegion() {
+	public GriddedRegion getGriddedRegion() {
 		return region;
 	}
 	

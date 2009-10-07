@@ -6,7 +6,7 @@ package scratch.matt.calc;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.BorderType;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.Region;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 
@@ -18,14 +18,14 @@ import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 public class CountObsInGrid {
 	
 	private int numGridNodes;
-	private EvenlyGriddedGeographicRegion region;
+	private GriddedRegion region;
 	private int[] numObsInGrid;
 	private ObsEqkRupList obsEvents;
 //	private EvenlyGriddedCircularGeographicRegion castCircularRegion;
 //	private EvenlyGriddedSausageGeographicRegion castSausageRegion;
 //	private boolean useCircle = false, useSausage = false;
 
-	public CountObsInGrid(ObsEqkRupList obsEvents, EvenlyGriddedGeographicRegion region){
+	public CountObsInGrid(ObsEqkRupList obsEvents, GriddedRegion region){
 		
 		this.obsEvents = obsEvents;
 		this.region = region;

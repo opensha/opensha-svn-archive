@@ -17,7 +17,7 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.region.BorderType;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
@@ -104,8 +104,8 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       fw.write("Time to instantiate ShakeMap attenuationRelationship :"+(currentTime - startTime)+"\n");
       //make the Gridded Region object
       LocationList locList = createCaliforniaPolygonBoundaryLocationList();
-      EvenlyGriddedGeographicRegion eggr = 
-    	  new EvenlyGriddedGeographicRegion(
+      GriddedRegion eggr = 
+    	  new GriddedRegion(
     			  locList, BorderType.MERCATOR_LINEAR,GRID_SPACING, new Location(0,0));
       SitesInGriddedRegion sites = new SitesInGriddedRegion(eggr);
       //SitesInGriddedRectangularRegion region = new SitesInGriddedRectangularRegion(this.MIN_LAT,this.MAX_LAT,

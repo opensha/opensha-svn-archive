@@ -7,7 +7,7 @@ import org.opensha.commons.calc.ArcsecondConverter;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.Region;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.SiteDataAPI;
@@ -360,8 +360,8 @@ public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements Par
 		System.out.println(data.getValue(new Location(34, -118)));
 		System.out.println(data.getValue(new Location(34, -10)));
 		
-		EvenlyGriddedGeographicRegion region = 
-			new EvenlyGriddedGeographicRegion(
+		GriddedRegion region = 
+			new GriddedRegion(
 					new Location(32, -121),
 					new Location(35, -117),
 					0.01, new Location(0,0));

@@ -7,7 +7,7 @@ import java.net.URLConnection;
 import java.text.ParseException;
 import java.util.ArrayList;
 
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.sha.calc.hazardMap.CalculationStatus;
 
 public class StatusServletAccessor extends ServletAccessor {
@@ -103,7 +103,7 @@ public class StatusServletAccessor extends ServletAccessor {
 		return ids;
 	}
 	
-	public EvenlyGriddedGeographicRegion getRegion(String id) throws IOException, ClassNotFoundException {
+	public GriddedRegion getRegion(String id) throws IOException, ClassNotFoundException {
 		URLConnection servletConnection = this.openServletConnection(false);
 		
 		ObjectOutputStream outputToServlet = new
@@ -124,7 +124,7 @@ public class StatusServletAccessor extends ServletAccessor {
 		
 		checkHandleError("Region Request Failed: ", regionObj, inputFromServlet);
 		
-		EvenlyGriddedGeographicRegion region = (EvenlyGriddedGeographicRegion)regionObj;
+		GriddedRegion region = (GriddedRegion)regionObj;
 		
 		inputFromServlet.close();
 		

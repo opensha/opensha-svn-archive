@@ -4,7 +4,7 @@ import java.util.ListIterator;
 
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.sha.earthquake.griddedForecast.GenericAfterHypoMagFreqDistForecast;
 import org.opensha.sha.earthquake.griddedForecast.STEP_AftershockForecast;
 import org.opensha.sha.earthquake.griddedForecast.SequenceAfterHypoMagFreqDistForecast;
@@ -26,7 +26,7 @@ import org.opensha.sha.faultSurface.SimpleFaultData;
  */
 public class SmoothKVal_Calc {
   private  STEP_AftershockForecast aftershockModel;
-  private  EvenlyGriddedGeographicRegion aftershockZone;
+  private  GriddedRegion aftershockZone;
   private double global_aVal, global_bVal, global_Mc, mainshockMag, numInd;
   private double seq_kVal;
   private ObsEqkRupture mainshock;

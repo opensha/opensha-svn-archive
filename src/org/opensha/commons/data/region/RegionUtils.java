@@ -75,8 +75,8 @@ public class RegionUtils {
 		addPoints(e_folder, "Border Nodes", region.getRegionOutline(), 
 				Style.BORDER_VERTEX);
 		
-		if (region instanceof EvenlyGriddedGeographicRegion) {
-			addPoints(e_folder, "Grid Nodes", ((EvenlyGriddedGeographicRegion) 
+		if (region instanceof GriddedRegion) {
+			addPoints(e_folder, "Grid Nodes", ((GriddedRegion) 
 					region).getGridLocationsList(), Style.GRID_NODE);
 		}
 
@@ -257,7 +257,7 @@ public class RegionUtils {
 
 		
 		// visual verification tests for GeographiRegionTest
-		EvenlyGriddedGeographicRegion eggr;
+		GriddedRegion eggr;
 		
 		// nocal
 		eggr = new CaliforniaRegions.RELM_NOCAL_GRIDDED();
@@ -290,8 +290,8 @@ public class RegionUtils {
 //		RegionUtils.regionToKML(gr, "RegionLocLoc", Color.ORANGE);
 //		
 		
-//		EvenlyGriddedGeographicRegion rect_gr = 
-//			new EvenlyGriddedGeographicRegion(
+//		GriddedRegion rect_gr = 
+//			new GriddedRegion(
 //					new Location(40.0,-113),
 //					new Location(42.0,-117),
 //					0.2,null);
@@ -300,7 +300,7 @@ public class RegionUtils {
 //				"RECT_REGION2",
 //				Color.ORANGE);
 		
-//		EvenlyGriddedGeographicRegion relm_gr = new CaliforniaRegions.RELM_TESTING_GRIDDED();
+//		GriddedRegion relm_gr = new CaliforniaRegions.RELM_TESTING_GRIDDED();
 //		KML.regionToKML(
 //				relm_gr,
 //				"RELM_TESTanchor",
@@ -315,13 +315,13 @@ public class RegionUtils {
 //		System.out.println(relm_gr.getMaxLon());
 //		System.out.println(relm_gr.getMaxGridLon());
 
-//		EvenlyGriddedGeographicRegion eggr1 = new CaliforniaRegions.WG02_GRIDDED();
+//		GriddedRegion eggr1 = new CaliforniaRegions.WG02_GRIDDED();
 //		KML.regionToKML(
 //				eggr1, 
 //				"WG02anchor",
 //				Color.ORANGE);
 
-//		EvenlyGriddedGeographicRegion eggr2 = new CaliforniaRegions.WG07_GRIDDED();
+//		GriddedRegion eggr2 = new CaliforniaRegions.WG07_GRIDDED();
 //		KML.regionToKML(
 //				eggr2, 
 //				"WG07anchor",
@@ -331,7 +331,7 @@ public class RegionUtils {
 		
 		
 		// test mercator/great-circle region
-//		EvenlyGriddedGeographicRegion eggr3 = new EvenlyGriddedGeographicRegion(
+//		GriddedRegion eggr3 = new GriddedRegion(
 //				new Location(35,-125),
 //				new Location(45,-90),
 //				0.5);
@@ -347,15 +347,15 @@ public class RegionUtils {
 //		ll.addLocation(new Location(37,-109));
 //		ll.addLocation(new Location(41,-95));
 //		
-//		EvenlyGriddedGeographicRegion sausage = 
-//			new EvenlyGriddedGeographicRegion(ll,100,0.5,null);
+//		GriddedRegion sausage = 
+//			new GriddedRegion(ll,100,0.5,null);
 //		KML.regionToKML(
 //				sausage,
 //				"Sausage",
 //				Color.ORANGE);
 //
-//		EvenlyGriddedGeographicRegion sausageAnchor = 
-//			new EvenlyGriddedGeographicRegion(ll,100,0.5,new Location(0,0));
+//		GriddedRegion sausageAnchor = 
+//			new GriddedRegion(ll,100,0.5,new Location(0,0));
 //		KML.regionToKML(
 //				sausageAnchor,
 //				"SausageAnchor",
@@ -364,16 +364,16 @@ public class RegionUtils {
 		
 // CIRCLE
 //		Location loc = new Location(35, -125);
-//		EvenlyGriddedGeographicRegion circle =
-//				new EvenlyGriddedGeographicRegion(loc, 400, 0.2, null);
+//		GriddedRegion circle =
+//				new GriddedRegion(loc, 400, 0.2, null);
 //		KML.regionToKML(circle, "Circle", Color.ORANGE);
 //
-//		EvenlyGriddedGeographicRegion circleAnchor =
-//				new EvenlyGriddedGeographicRegion(loc, 400, 0.2, new Location(0,0));
+//		GriddedRegion circleAnchor =
+//				new GriddedRegion(loc, 400, 0.2, new Location(0,0));
 //		KML.regionToKML(circleAnchor, "CircleAnchor", Color.BLUE);
 
 //		
-//		EvenlyGriddedGeographicRegion eggr4 = new EvenlyGriddedGeographicRegion(
+//		GriddedRegion eggr4 = new GriddedRegion(
 //				ll,BorderType.MERCATOR_LINEAR,0.5);
 //		KML.regionToKML(
 //				eggr4, 
@@ -381,7 +381,7 @@ public class RegionUtils {
 //				Color.ORANGE);
 //		
 //		
-//		EvenlyGriddedGeographicRegion eggr5 = new EvenlyGriddedGeographicRegion(
+//		GriddedRegion eggr5 = new GriddedRegion(
 //				ll,BorderType.GREAT_CIRCLE,0.5);
 //		KML.regionToKML(
 //				eggr5, 

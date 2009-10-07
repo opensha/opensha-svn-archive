@@ -7,7 +7,7 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -159,7 +159,7 @@ public class WriteRELM_FileFromGriddedHypoMFD_Forecast {
      fw.write(FORECAST_DURATION_NAME+duration+","+durationUnits+"\n");
      // write the data lines
      fw.write(BEGIN_FORECAST+"\n");
-     EvenlyGriddedGeographicRegion region  = griddedHypoMFD.getRegion();
+     GriddedRegion region  = griddedHypoMFD.getRegion();
      int numLocs  = region.getNumGridLocs();
      double mag1, mag2; 
      double rate;

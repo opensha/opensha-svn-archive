@@ -9,7 +9,7 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.gridComputing.GridResources;
 import org.opensha.commons.gridComputing.ResourceProvider;
 import org.opensha.commons.gridComputing.StorageHost;
@@ -50,8 +50,8 @@ public class MetadataSaver implements ParameterChangeWarningListener {
                 Double(0.5));
 		
 		//Region region = new RELM_TestingRegion();
-		//EvenlyGriddedGeographicRegion gridded = new EvenlyGriddedGeographicRegion(region.getRegionOutline(), BorderType.MERCATOR_LINEAR, 0.1);
-		EvenlyGriddedGeographicRegion gridded = 
+		//GriddedRegion gridded = new GriddedRegion(region.getRegionOutline(), BorderType.MERCATOR_LINEAR, 0.1);
+		GriddedRegion gridded = 
 			new CaliforniaRegions.RELM_TESTING_GRIDDED();
 //		Region gridded = null;
 //		try {

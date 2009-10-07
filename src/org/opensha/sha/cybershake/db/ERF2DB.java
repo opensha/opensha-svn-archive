@@ -7,7 +7,7 @@ import java.util.ListIterator;
 
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.Region;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeEqkRupture;
@@ -615,7 +615,7 @@ public  class ERF2DB implements ERF2DBAPI{
 		this.insertSrcRupInDB(null, 0, 0);
 	}
 
-	private boolean isInsideCutoffForRegion(EvenlyGriddedGeographicRegion region, ProbEqkRupture rupture) {
+	private boolean isInsideCutoffForRegion(GriddedRegion region, ProbEqkRupture rupture) {
 
 		long startTime = System.currentTimeMillis();
 
@@ -644,7 +644,7 @@ public  class ERF2DB implements ERF2DBAPI{
 		return false;
 	}
 
-	public void insertSrcRupInDB(EvenlyGriddedGeographicRegion region, int startSource, int startRup){
+	public void insertSrcRupInDB(GriddedRegion region, int startSource, int startRup){
 		int numSources = eqkRupForecast.getNumSources();
 		int erfId = this.getInserted_ERF_ID(eqkRupForecast.getName());
 
@@ -675,7 +675,7 @@ public  class ERF2DB implements ERF2DBAPI{
 		}
 	}
 
-	public void insertAllRupsForSourceRegionInDB(EvenlyGriddedGeographicRegion region, EqkRupForecastAPI forecast, int erfID, int sourceID, boolean skipDuplicates) {
+	public void insertAllRupsForSourceRegionInDB(GriddedRegion region, EqkRupForecastAPI forecast, int erfID, int sourceID, boolean skipDuplicates) {
 		ProbEqkSource source  = (ProbEqkSource)forecast.getSource(sourceID);
 		int numRuptures = source.getNumRuptures();
 		SiteInfo2DB siteInfo = null;
@@ -799,7 +799,7 @@ public  class ERF2DB implements ERF2DBAPI{
 		return localStrike;
 	}	  
 
-	public void insertForecaseInDB(String erfDescription, EvenlyGriddedGeographicRegion region){
+	public void insertForecaseInDB(String erfDescription, GriddedRegion region){
 		int erfId = insertERFId(eqkRupForecast.getName(), erfDescription);
 
 		ListIterator it = eqkRupForecast.getAdjustableParamsIterator();

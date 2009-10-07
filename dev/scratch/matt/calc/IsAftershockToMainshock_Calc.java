@@ -1,7 +1,7 @@
 package scratch.matt.calc;
 
 import org.opensha.commons.data.Location;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.sha.earthquake.griddedForecast.STEP_CombineForecastModels;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 
@@ -54,7 +54,7 @@ public class IsAftershockToMainshock_Calc {
 	  }
 	  
     boolean isInZone;
-    EvenlyGriddedGeographicRegion aftershockZone;
+    GriddedRegion aftershockZone;
     aftershockZone = mainshockModel.getAfterShockZone();
     ObsEqkRupture mainshock = mainshockModel.getMainShock();
     Location newEventLoc = newEvent.getHypocenterLocation();

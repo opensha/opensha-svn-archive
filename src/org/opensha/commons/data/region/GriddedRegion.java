@@ -36,7 +36,7 @@ import com.sun.xml.rpc.processor.util.CanonicalModelWriter.GetNameComparator;
  * and black dots those inside the region. The dashed grey line marks the
  * border, inside which, a <code>Location</code> will be associated with a
  * grid node. See {@link 
- * EvenlyGriddedGeographicRegion#getNearestLocationIndex(Location)} 
+ * GriddedRegion#getNearestLocationIndex(Location)} 
  * for more details on rules governing whether a grid node is inside a region
  * and whether a <code>Location</code> will be associated with a grid node.<br/>
  * <br/>
@@ -68,11 +68,11 @@ import com.sun.xml.rpc.processor.util.CanonicalModelWriter.GetNameComparator;
  * @see Region
  */
 
-public class EvenlyGriddedGeographicRegion extends Region
+public class GriddedRegion extends Region
 		implements Iterable<Location> {
 
 	private static final long serialVersionUID = 1L;
-//	private final static String C = "EvenlyGriddedGeographicRegion";
+//	private final static String C = "GriddedRegion";
 //	private final static boolean D = false;
 
 	public final static String XML_METADATA_NAME = "evenlyGriddedGeographicRegion";
@@ -154,7 +154,7 @@ public class EvenlyGriddedGeographicRegion extends Region
 	 * 		is <code>null</code>
 	 * @see Region#GeographicRegion(Location, Location)
 	 */
-	public EvenlyGriddedGeographicRegion(
+	public GriddedRegion(
 			Location loc1, 
 			Location loc2, 
 			double spacing, 
@@ -181,7 +181,7 @@ public class EvenlyGriddedGeographicRegion extends Region
 	 * 		<code>null</code>
 	 * @see Region#GeographicRegion(LocationList, BorderType)
 	 */
-	public EvenlyGriddedGeographicRegion(
+	public GriddedRegion(
 			LocationList border, 
 			BorderType type, 
 			double spacing, 
@@ -201,7 +201,7 @@ public class EvenlyGriddedGeographicRegion extends Region
 	 * of nodes outside the region, and black dots those inside the region.
 	 * The dashed grey line marks the border, inside which, a 
 	 * <code>Location</code> will be associated with a grid node. See {@link 
-	 * EvenlyGriddedGeographicRegion#getNearestLocationIndex(Location)} 
+	 * GriddedRegion#getNearestLocationIndex(Location)} 
 	 * for more details on rules governing whether a grid node is inside
 	 * a region and whether a <code>Location</code> will be associated 
 	 * with a grid node.<br/>
@@ -218,7 +218,7 @@ public class EvenlyGriddedGeographicRegion extends Region
 	 * @throws NullPointerException if <code>center</code> is null
 	 * @see Region#GeographicRegion(Location, double)
 	 */
-	public EvenlyGriddedGeographicRegion(
+	public GriddedRegion(
 			Location center, 
 			double radius, 
 			double spacing, 
@@ -236,7 +236,7 @@ public class EvenlyGriddedGeographicRegion extends Region
 	 * outside the region, and black dots those inside the region.
 	 * The dashed grey line marks the border, inside which, a 
 	 * <code>Location</code> will be associated with a grid node. See {@link 
-	 * EvenlyGriddedGeographicRegion#getNearestLocationIndex(Location)} 
+	 * GriddedRegion#getNearestLocationIndex(Location)} 
 	 * for more details on rules governing whether a grid node is inside
 	 * a region and whether a <code>Location</code> will be associated 
 	 * with a grid node.<br/><br/>
@@ -253,7 +253,7 @@ public class EvenlyGriddedGeographicRegion extends Region
 	 * 		&le; 5&deg;
 	 * @see Region#GeographicRegion(LocationList, double)
 	 */
-	public EvenlyGriddedGeographicRegion(
+	public GriddedRegion(
 			LocationList line, 
 			double buffer, 
 			double spacing, 
@@ -275,7 +275,7 @@ public class EvenlyGriddedGeographicRegion extends Region
 	 * @throws NullPointerException if <code>region</code> is <code>null</code>
 	 * @see Region#GeographicRegion(Region)
 	 */
-	public EvenlyGriddedGeographicRegion(
+	public GriddedRegion(
 			Region region, 
 			double spacing,
 			Location anchor) {
@@ -289,7 +289,7 @@ public class EvenlyGriddedGeographicRegion extends Region
 	 * Class default constructor
 	 */
 	// TODO delete empty constructor
-	public EvenlyGriddedGeographicRegion(){}
+	public GriddedRegion(){}
 
 	/**
 	 * Class constructor that accepts the region boundary loactions and grid spacing for the
@@ -297,7 +297,7 @@ public class EvenlyGriddedGeographicRegion extends Region
 	 * @param locList LocationList Region boundary locations
 	 * @param gridSpacing double GridSpacing
 	 */
-//	public EvenlyGriddedGeographicRegion(LocationList locList, double gridSpacing) {
+//	public GriddedRegion(LocationList locList, double gridSpacing) {
 //		//sets the region min/max lat/lon aswell creates the region boundary.
 //		createEvenlyGriddedGeographicRegion(locList,gridSpacing);
 //	}
@@ -319,7 +319,7 @@ public class EvenlyGriddedGeographicRegion extends Region
 //	 * @see EvenlyGriddedGeographicRegionAPI.createRegionLocationsList(EvenlyGriddedGeographicRegionAPI)
 //	 * @see EvenlyGriddedGeographicRegionAPI
 //	 */
-//	public EvenlyGriddedGeographicRegion(LocationList locList, double gridSpacing,
+//	public GriddedRegion(LocationList locList, double gridSpacing,
 //			EvenlyGriddedGeographicRegionAPI region) {
 //		this(locList,gridSpacing);
 //		createRegionLocationsList(region);
@@ -359,7 +359,7 @@ public class EvenlyGriddedGeographicRegion extends Region
 	 * @see EvenlyGriddedGeographicRegionAPI
 	 */
 	// TODO headache -- subregion implementation
-//	public LocationList createRegionLocationsList(EvenlyGriddedGeographicRegion region){
+//	public LocationList createRegionLocationsList(GriddedRegion region){
 //		int numLocations = this.getNumGridLocs();
 //
 //		for(int i=0;i<numLocations;++i){
@@ -385,7 +385,7 @@ public class EvenlyGriddedGeographicRegion extends Region
 
 
 //	/**
-//	 * Creates a EvenlyGriddedGeographicRegion with the given locationlist and gridSpacing.
+//	 * Creates a GriddedRegion with the given locationlist and gridSpacing.
 //	 * @param locList LocationList creates the region  boundary using this location list.
 //	 * @param gridSpacing double
 //	 */
@@ -488,14 +488,14 @@ public class EvenlyGriddedGeographicRegion extends Region
 	 * @param region to use as border for sub-region
 	 * @return a new GriddedRegion
 	 */
-	public EvenlyGriddedGeographicRegion subRegion(Region region) {
+	public GriddedRegion subRegion(Region region) {
 		Region newRegion = Region.intersect(this, region);
 		System.out.println(this); //TODO clean
 		System.out.println(region);
 		System.out.println(newRegion);
 		if (newRegion == null) return null;
-		EvenlyGriddedGeographicRegion newGriddedRegion = 
-			new EvenlyGriddedGeographicRegion(newRegion, spacing, anchor);
+		GriddedRegion newGriddedRegion = 
+			new GriddedRegion(newRegion, spacing, anchor);
 		return (newGriddedRegion.isEmpty()) ? null : newGriddedRegion;
 	}
 	
@@ -909,19 +909,19 @@ public class EvenlyGriddedGeographicRegion extends Region
 
 	// TODO need to make sure this is writing properly before reintegration
 	public Element toXMLMetadata(Element root) {
-		Element xml = root.addElement(EvenlyGriddedGeographicRegion.XML_METADATA_NAME);
-		xml.addAttribute(EvenlyGriddedGeographicRegion.XML_METADATA_GRID_SPACING_NAME, this.getGridSpacing()+"");
-		Element xml_anchor = root.addElement(EvenlyGriddedGeographicRegion.XML_METADATA_ANCHOR_NAME);
+		Element xml = root.addElement(GriddedRegion.XML_METADATA_NAME);
+		xml.addAttribute(GriddedRegion.XML_METADATA_GRID_SPACING_NAME, this.getGridSpacing()+"");
+		Element xml_anchor = root.addElement(GriddedRegion.XML_METADATA_ANCHOR_NAME);
 		xml = anchor.toXMLMetadata(xml_anchor);
-		xml.addAttribute(EvenlyGriddedGeographicRegion.XML_METADATA_NUM_POINTS_NAME, this.getNumGridLocs()+"");
+		xml.addAttribute(GriddedRegion.XML_METADATA_NUM_POINTS_NAME, this.getNumGridLocs()+"");
 		xml = super.toXMLMetadata(xml);
 
 		return root;
 	}
 
 	// TODO need to make sure this is initializing properly before reintegration
-	public static EvenlyGriddedGeographicRegion fromXMLMetadata(Element root) {
-		double gridSpacing = Double.parseDouble(root.attribute(EvenlyGriddedGeographicRegion.XML_METADATA_GRID_SPACING_NAME).getValue());
+	public static GriddedRegion fromXMLMetadata(Element root) {
+		double gridSpacing = Double.parseDouble(root.attribute(GriddedRegion.XML_METADATA_GRID_SPACING_NAME).getValue());
 		Region geoRegion = Region.fromXMLMetadata(root.element(Region.XML_METADATA_NAME));
 		LocationList outline = geoRegion.getRegionOutline();
 		Location xml_anchor = Location.fromXMLMetadata(root.element(XML_METADATA_ANCHOR_NAME).element(Location.XML_METADATA_NAME));
@@ -932,16 +932,16 @@ public class EvenlyGriddedGeographicRegion extends Region
 //			double minLon = geoRegion.getMinLon();
 //			double maxLon = geoRegion.getMaxLon();
 //			try {
-//				return new EvenlyGriddedGeographicRegion(
+//				return new GriddedRegion(
 //						new Location(minLat, minLon),
 //						new Location(maxLat, maxLon),
 //						gridSpacing);
 //			} catch (RegionConstraintException e) {
-//				return new EvenlyGriddedGeographicRegion(outline, gridSpacing);
+//				return new GriddedRegion(outline, gridSpacing);
 //			}
 //		}
 
-		return new EvenlyGriddedGeographicRegion(
+		return new GriddedRegion(
 				outline,BorderType.MERCATOR_LINEAR, gridSpacing, xml_anchor);
 	}
 
@@ -1123,7 +1123,7 @@ public class EvenlyGriddedGeographicRegion extends Region
 		ll.addLocation(new Location(37.0,-124.6));
 		ll.addLocation(new Location(36.6,-125.0));
 		ll.addLocation(new Location(36.2,-125.0));
-		EvenlyGriddedGeographicRegion eggr = new EvenlyGriddedGeographicRegion(
+		GriddedRegion eggr = new GriddedRegion(
 				ll, null, 0.5, null);
 		
 		ToStringBuilder tsb = new ToStringBuilder(eggr.gridIndices).append(eggr.gridIndices);
@@ -1171,7 +1171,7 @@ public class EvenlyGriddedGeographicRegion extends Region
     locList.addLocation(new Location(36.43, -122.09, 0.0));
     locList.addLocation(new Location(38.23, -123.61, 0.0));
     locList.addLocation(new Location(39.02, -122.08, 0.0));
-    EvenlyGriddedGeographicRegion gridReg = new EvenlyGriddedGeographicRegion(
+    GriddedRegion gridReg = new GriddedRegion(
         locList, 0.05);
       try {
         FileWriter fw = new FileWriter("GeoRegionFile.txt");
@@ -1222,9 +1222,9 @@ public class EvenlyGriddedGeographicRegion extends Region
 //		LL3.addLocation(new Location(40.22,-117.5));
 //		LL3.addLocation(new Location(40.10,-117.62));
 //
-//		EvenlyGriddedGeographicRegion eggr1 = new EvenlyGriddedGeographicRegion(LL1,BorderType.MERCATOR_LINEAR,0.1);
-//		EvenlyGriddedGeographicRegion eggr2 = new EvenlyGriddedGeographicRegion(LL2,BorderType.MERCATOR_LINEAR,0.1);
-//		EvenlyGriddedGeographicRegion eggr3 = new EvenlyGriddedGeographicRegion(LL3,BorderType.MERCATOR_LINEAR,0.1);
+//		GriddedRegion eggr1 = new GriddedRegion(LL1,BorderType.MERCATOR_LINEAR,0.1);
+//		GriddedRegion eggr2 = new GriddedRegion(LL2,BorderType.MERCATOR_LINEAR,0.1);
+//		GriddedRegion eggr3 = new GriddedRegion(LL3,BorderType.MERCATOR_LINEAR,0.1);
 //		
 //		System.out.println(eggr1.getNearestLocationIndex(new Location(40.16,-117.44)));
 //		System.out.println(eggr2.getGridLocation(3));

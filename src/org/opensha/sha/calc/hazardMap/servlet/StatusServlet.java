@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.gridComputing.StorageHost;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.XMLUtils;
@@ -342,13 +342,13 @@ public class StatusServlet extends ConfLoadingServlet {
 		if (!xmlFile.exists())
 			fail(out, "Dataset XML file doesn't exist!");
 		
-		EvenlyGriddedGeographicRegion region = null;
+		GriddedRegion region = null;
 		
 		try {
 			Document doc = XMLUtils.loadDocument(xmlPath);
 			Element root = doc.getRootElement();
-			Element regionEl = root.element(EvenlyGriddedGeographicRegion.XML_METADATA_NAME);
-			region = EvenlyGriddedGeographicRegion.fromXMLMetadata(regionEl);
+			Element regionEl = root.element(GriddedRegion.XML_METADATA_NAME);
+			region = GriddedRegion.fromXMLMetadata(regionEl);
 		} catch (Exception e) {
 			fail(out, "Error parsing dataset XML!");
 		}

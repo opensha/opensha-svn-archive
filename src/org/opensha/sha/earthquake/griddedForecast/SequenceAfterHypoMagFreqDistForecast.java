@@ -3,7 +3,7 @@ package org.opensha.sha.earthquake.griddedForecast;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.Location;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -40,10 +40,10 @@ public class SequenceAfterHypoMagFreqDistForecast
   private double dayStart, dayEnd;
   private ArrayList gridMagForecast;
   private HypoMagFreqDistAtLoc magDistLoc;
-  private EvenlyGriddedGeographicRegion aftershockZone;
+  private GriddedRegion aftershockZone;
   
   public SequenceAfterHypoMagFreqDistForecast(ObsEqkRupture mainshock,
-                                              EvenlyGriddedGeographicRegion
+                                              GriddedRegion
                                               aftershockZone,
                                               ObsEqkRupList aftershocks) {
     /**

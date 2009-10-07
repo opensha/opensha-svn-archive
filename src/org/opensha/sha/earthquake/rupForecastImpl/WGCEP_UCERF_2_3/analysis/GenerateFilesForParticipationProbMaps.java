@@ -10,7 +10,7 @@ import java.util.ListIterator;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -189,7 +189,7 @@ class ERF_ToGriddedParticipationRatesMFD_Forecast  extends GriddedHypoMagFreqDis
 	   *
 	   */
 	  public ERF_ToGriddedParticipationRatesMFD_Forecast(EqkRupForecast eqkRupForecast,
-	                                              EvenlyGriddedGeographicRegion griddedRegion,
+	                                              GriddedRegion griddedRegion,
 	                                              double minMag,
 	                                              double maxMag,
 	                                              int numMagBins,

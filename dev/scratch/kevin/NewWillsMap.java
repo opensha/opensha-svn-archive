@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
 import org.opensha.commons.util.interp.BicubicInterpolation2D;
@@ -36,11 +36,11 @@ public class NewWillsMap {
 	public static final double minLat = 32.441345502265;
 	// yul = yll + size * ny
 	
-	EvenlyGriddedGeographicRegion region;
+	GriddedRegion region;
 	
 	String willsFileName = "/etc/cvmfiles/usgs_cgs_geology_60s_mod.txt";
 	
-	public NewWillsMap(EvenlyGriddedGeographicRegion region) {
+	public NewWillsMap(GriddedRegion region) {
 		this.region = region;
 //		System.out.println("XLL: " + xll_corner);
 //		System.out.println("YLL: " + yll_corner);
@@ -261,12 +261,12 @@ public class NewWillsMap {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		EvenlyGriddedGeographicRegion region = 
-			new EvenlyGriddedGeographicRegion(
+		GriddedRegion region = 
+			new GriddedRegion(
 					new CaliforniaRegions.RELM_TESTING(),
 					0.02,
 					new Location(0,0));
-		//EvenlyGriddedGeographicRegion region = new EvenlyGriddedRELM_TestingRegion();
+		//GriddedRegion region = new EvenlyGriddedRELM_TestingRegion();
 		//region.setGridSpacing(0.02);
 		
 		NewWillsMap wills = new NewWillsMap(region);

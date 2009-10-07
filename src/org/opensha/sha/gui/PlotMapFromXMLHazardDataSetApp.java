@@ -49,7 +49,7 @@ import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.XYZ_DataSetAPI;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.gridComputing.GridJob;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
@@ -89,11 +89,11 @@ public class PlotMapFromXMLHazardDataSetApp extends JApplet implements Parameter
 	ParameterListEditor sitesEditor;
 
 	Document localDoc = null;
-	EvenlyGriddedGeographicRegion localRegion = null;
+	GriddedRegion localRegion = null;
 	String localDir = "";
 
 	ArrayList<Document> serverDocs = new ArrayList<Document>();
-	ArrayList<EvenlyGriddedGeographicRegion> serverRegions = new ArrayList<EvenlyGriddedGeographicRegion>();
+	ArrayList<GriddedRegion> serverRegions = new ArrayList<GriddedRegion>();
 //	ArrayList<HazardMapJob> jobs = new ArrayList<HazardMapJob>();
 
 	// parameter names for min/max lat/lon and gridspacing
@@ -415,7 +415,7 @@ public class PlotMapFromXMLHazardDataSetApp extends JApplet implements Parameter
 //			HazardMapJob job = HazardMapJob.fromXMLMetadata(root.element(HazardMapJob.XML_METADATA_NAME));
 			Element jobElem = root.element("hazardMapJob");
 			String jobName = jobElem.attributeValue("jobName");
-			EvenlyGriddedGeographicRegion region = EvenlyGriddedGeographicRegion.fromXMLMetadata(root.element(EvenlyGriddedGeographicRegion.XML_METADATA_NAME));
+			GriddedRegion region = GriddedRegion.fromXMLMetadata(root.element(GriddedRegion.XML_METADATA_NAME));
 			serverRegions.add(region);
 //			jobs.add(job);
 			this.dataSetCombo.addItem(jobName);
@@ -451,7 +451,7 @@ public class PlotMapFromXMLHazardDataSetApp extends JApplet implements Parameter
 
 		String val = (String)fileSource.getValue();
 		System.out.println("File Source Val: " + val);
-		EvenlyGriddedGeographicRegion region = null;
+		GriddedRegion region = null;
 		if (val.equals(SOURCE_LOCAL)) {
 			if (localRegion == null)
 				return;
@@ -808,7 +808,7 @@ public class PlotMapFromXMLHazardDataSetApp extends JApplet implements Parameter
 			Document document = reader.read(file);
 			this.localDoc = document;
 			Element root = document.getRootElement();
-			EvenlyGriddedGeographicRegion region = EvenlyGriddedGeographicRegion.fromXMLMetadata(root.element(EvenlyGriddedGeographicRegion.XML_METADATA_NAME));
+			GriddedRegion region = GriddedRegion.fromXMLMetadata(root.element(GriddedRegion.XML_METADATA_NAME));
 			this.localRegion = region;
 			localFileField.setText(file.getAbsolutePath());
 			addDataInfo();

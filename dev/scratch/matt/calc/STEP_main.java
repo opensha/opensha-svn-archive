@@ -16,7 +16,7 @@ import java.util.TimeZone;
 import org.apache.log4j.Logger;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
@@ -90,7 +90,7 @@ public class STEP_main {
 	 * Returns the Gridded Region applicable for STEP forecast
 	 * @return
 	 */
-	public EvenlyGriddedGeographicRegion getGriddedRegion(){
+	public GriddedRegion getGriddedRegion(){
 		return bgGrid.getRegion();
 	}
 

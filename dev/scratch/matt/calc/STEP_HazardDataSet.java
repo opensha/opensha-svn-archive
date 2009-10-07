@@ -11,7 +11,7 @@ import java.util.StringTokenizer;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.WarningParameterAPI;
@@ -115,8 +115,8 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	 */
 	public SitesInGriddedRegion getDefaultRegion() {
 //		try {
-		  EvenlyGriddedGeographicRegion eggr = 
-			  new EvenlyGriddedGeographicRegion(
+		  GriddedRegion eggr = 
+			  new GriddedRegion(
 					  new Location(RegionDefaults.searchLatMin, RegionDefaults.searchLongMin),
 					  new Location(RegionDefaults.searchLatMax, RegionDefaults.searchLongMax),
 					  RegionDefaults.gridSpacing, new Location(0,0));

@@ -1856,8 +1856,8 @@ public class HazardMapJobCreator {
 //		logFile.mkdir();
 
 //		// load the region
-//		Element regionElement = root.element(EvenlyGriddedGeographicRegion.XML_METADATA_NAME);
-//		EvenlyGriddedGeographicRegion region = EvenlyGriddedGeographicRegion.fromXMLMetadata(regionElement);
+//		Element regionElement = root.element(GriddedRegion.XML_METADATA_NAME);
+//		GriddedRegion region = GriddedRegion.fromXMLMetadata(regionElement);
 //		SitesInGriddedRegionAPI sites = new SitesInGriddedRegion(region.getRegionOutline(), region.getGridSpacing());
 
 //		// see if the ERF needs to be created and saved

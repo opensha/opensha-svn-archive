@@ -43,7 +43,7 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.gridComputing.GridResources;
@@ -753,7 +753,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 			calcProgress.updateProgress(2, steps);
 
 			SitesInGriddedRegion griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
-			EvenlyGriddedGeographicRegion eggr = griddedRegionSites.getRegion();
+			GriddedRegion eggr = griddedRegionSites.getRegion();
 			
 			root = eggr.toXMLMetadata(root);
 			

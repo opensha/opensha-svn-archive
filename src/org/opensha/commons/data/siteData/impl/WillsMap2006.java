@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import org.dom4j.Element;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.Region;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.SiteDataToXYZ;
@@ -180,8 +180,8 @@ public class WillsMap2006 extends AbstractSiteData<Double> {
 		
 		WillsMap2006 map = new WillsMap2006();
 		
-		EvenlyGriddedGeographicRegion region = 
-			new EvenlyGriddedGeographicRegion(
+		GriddedRegion region = 
+			new GriddedRegion(
 					new Location(37, -122.75),
 					new Location(38.5, -121.5),
 					0.01, new Location(0,0));

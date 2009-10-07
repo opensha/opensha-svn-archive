@@ -6,7 +6,7 @@ import java.util.ListIterator;
 import javax.swing.JOptionPane;
 
 import org.opensha.commons.data.XYZ_DataSetAPI;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
@@ -168,7 +168,7 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
     }
   }
   
-  public EvenlyGriddedGeographicRegion getEvenlyGriddedGeographicRegion() throws RegionConstraintException {
+  public GriddedRegion getEvenlyGriddedGeographicRegion() throws RegionConstraintException {
 	  return gmtMap.getEvenlyGriddedGeographicRegion();
   }
 

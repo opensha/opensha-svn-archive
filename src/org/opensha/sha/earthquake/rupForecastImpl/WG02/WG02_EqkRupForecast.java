@@ -27,7 +27,7 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.region.BorderType;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.exceptions.FaultException;
 import org.opensha.commons.util.FileUtils;
 
@@ -209,8 +209,8 @@ public class WG02_EqkRupForecast extends EqkRupForecast{
       locList.addLocation(new Location(36.43, -122.09, 0.0));
       locList.addLocation(new Location(38.23, -123.61, 0.0));
       locList.addLocation(new Location(39.02, -122.08, 0.0));
-      EvenlyGriddedGeographicRegion gridReg = 
-    	  new EvenlyGriddedGeographicRegion(
+      GriddedRegion gridReg = 
+    	  new GriddedRegion(
     			  locList, BorderType.MERCATOR_LINEAR,0.1, new Location(0,0));
 //System.out.println("num background locs = "+gridReg.getNumGridLocs());
 
