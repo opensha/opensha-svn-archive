@@ -12,9 +12,6 @@ import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
 
-
-
-
 import scratch.martinez.VulnerabilityModels.VulnerabilityModel;
 
 /**

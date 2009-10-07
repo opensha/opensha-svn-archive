@@ -1,13 +1,15 @@
 package org.opensha.sha.gui.controls;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+
 import javax.swing.JFrame;
 
-import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterListEditor;
-import org.opensha.sha.gui.controls.CalculationSettingsControlPanelAPI;
 
 /**
  * <p>Title: CalculationSettingsControlPanel</p>

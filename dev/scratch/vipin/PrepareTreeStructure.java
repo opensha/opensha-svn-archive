@@ -1,17 +1,15 @@
 package scratch.vipin;
 
+import java.io.FileWriter;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.ArrayList;
 
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.exceptions.InvalidRangeException;
-
-import java.io.*;
-
-import java.text.DecimalFormat;
 
 /**
  * <p>Title: PrepareTreeStructure.java </p>

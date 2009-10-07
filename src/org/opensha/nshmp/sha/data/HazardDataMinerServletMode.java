@@ -1,22 +1,18 @@
 package org.opensha.nshmp.sha.data;
 
-import org.apache.commons.codec.binary.Base64;
-
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLConnection;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
+import org.apache.commons.codec.binary.Base64;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
-import org.opensha.nshmp.sha.calc.HazardDataCalc;
-import org.opensha.nshmp.util.GlobalConstants;
 import org.opensha.nshmp.util.AppProperties;
+import org.opensha.nshmp.util.GlobalConstants;
 
 /**
  * <p>Title:HazardDataMinerServletMode.java </p>

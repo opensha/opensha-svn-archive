@@ -2,22 +2,18 @@ package org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases;
 
 
 import java.util.ArrayList;
-import java.util.Iterator;
-
 
 import org.opensha.commons.calc.RelativeLocation;
-import org.opensha.commons.data.Direction;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.DoubleParameter;
-
-import org.opensha.sha.faultSurface.*;
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_CharEqkSource;
+import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.param.MagFreqDistParameter;
-import org.opensha.sha.magdist.*;
-import org.opensha.sha.earthquake.rupForecastImpl.*;
 
 
 /**

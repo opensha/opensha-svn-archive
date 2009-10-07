@@ -2,9 +2,8 @@ package org.opensha.sha.earthquake;
 
 
 import java.util.ArrayList;
-import java.util.ListIterator;
 import java.util.EventObject;
-
+import java.util.ListIterator;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;

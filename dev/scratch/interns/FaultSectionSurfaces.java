@@ -1,9 +1,8 @@
 package scratch.interns;
 
-import org.opensha.refFaultParamDb.vo.EstimateInstances;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
-
 import java.util.ArrayList;
+
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 
 /**
  * This  is the interface to access Fault Section Data. This interface is currently implemented  so as to get

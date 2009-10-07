@@ -1,18 +1,28 @@
 package org.opensha.refFaultParamDb.gui.login;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionListener;
-import org.opensha.refFaultParamDb.dao.db.ContributorDB_DAO;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
-
-import org.opensha.refFaultParamDb.servlets.UserAccountInfoServlet;
-import org.opensha.refFaultParamDb.vo.Contributor;
+import java.awt.event.ActionListener;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+
+import org.opensha.refFaultParamDb.dao.db.ContributorDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.servlets.UserAccountInfoServlet;
+import org.opensha.refFaultParamDb.vo.Contributor;
 
 /**
  * <p>Title: GetAccountInfo.java </p>

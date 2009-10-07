@@ -1,26 +1,16 @@
 package org.opensha.refFaultParamDb.gui.view;
 
-import java.awt.*;
-import javax.swing.JButton;
-
-import org.opensha.commons.data.estimate.Estimate;
-import org.opensha.commons.data.estimate.LogNormalEstimate;
-import org.opensha.commons.data.estimate.NormalEstimate;
-import org.opensha.commons.gui.LabeledBoxPanel;
-import org.opensha.commons.param.StringParameter;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 
 import javax.swing.JPanel;
-import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
+
+import org.opensha.commons.data.estimate.Estimate;
+import org.opensha.commons.gui.LabeledBoxPanel;
+import org.opensha.commons.param.StringParameter;
 import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
-import java.util.ArrayList;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-
-import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditSlipRate;
-
-import javax.swing.JDialog;
-import javax.swing.JFrame;
+import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
 import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 

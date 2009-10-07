@@ -1,12 +1,12 @@
 package junk.nga;
 
 
-import java.util.*;
+import java.util.ArrayList;
 
-import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.faultSurface.*;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
+import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 
 
 /**

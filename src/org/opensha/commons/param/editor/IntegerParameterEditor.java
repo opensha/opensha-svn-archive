@@ -1,7 +1,9 @@
 package org.opensha.commons.param.editor;
 
-import java.awt.event.*;
-import javax.swing.border.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.KeyEvent;
+
+import javax.swing.border.Border;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.WarningException;

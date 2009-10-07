@@ -10,7 +10,6 @@ import org.apache.commons.cli.MissingOptionException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 
 public class IM_EventSetCalc_v3_0_XML {
 	

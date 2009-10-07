@@ -1,11 +1,15 @@
 package org.opensha.refFaultParamDb.gui.addEdit.paleoSite;
 
-import javax.swing.*;
+import java.awt.Container;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-
-
-import java.awt.Container;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.JSplitPane;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.estimate.Estimate;
@@ -28,32 +32,27 @@ import org.opensha.commons.param.estimate.EstimateConstraint;
 import org.opensha.commons.param.estimate.EstimateParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-
-import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import org.opensha.refFaultParamDb.gui.*;
-import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
-
-import org.opensha.refFaultParamDb.dao.db.SiteTypeDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
-import org.opensha.refFaultParamDb.vo.SiteType;
-import org.opensha.refFaultParamDb.vo.Reference;
-import org.opensha.refFaultParamDb.dao.db.SiteRepresentationDB_DAO;
-import org.opensha.refFaultParamDb.vo.SiteRepresentation;
-import org.opensha.refFaultParamDb.vo.PaleoSite;
-import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
-import org.opensha.refFaultParamDb.dao.db.PaleoSiteDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
-import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
+import org.opensha.refFaultParamDb.dao.db.PaleoSiteDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.SiteRepresentationDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.SiteTypeDB_DAO;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
+import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionListener;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionSuccessEvent;
-import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.refFaultParamDb.gui.infotools.ConnectToEmailServlet;
+import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
+import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
+import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
+import org.opensha.refFaultParamDb.vo.PaleoSite;
 import org.opensha.refFaultParamDb.vo.PaleoSitePublication;
+import org.opensha.refFaultParamDb.vo.Reference;
+import org.opensha.refFaultParamDb.vo.SiteRepresentation;
+import org.opensha.refFaultParamDb.vo.SiteType;
 
 
 /**

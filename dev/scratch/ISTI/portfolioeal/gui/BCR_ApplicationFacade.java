@@ -1,9 +1,9 @@
 package scratch.ISTI.portfolioeal.gui;
 import org.opensha.commons.param.event.ParameterChangeEvent;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.gui.BCR_Application;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
 /**
  *	This class is a facade of the BCR_Application which limits the view of 

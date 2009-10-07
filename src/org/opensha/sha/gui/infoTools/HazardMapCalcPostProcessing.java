@@ -1,7 +1,7 @@
 package org.opensha.sha.gui.infoTools;
 
-import java.io.*;
-import sun.net.smtp.SmtpClient;
+import java.io.BufferedReader;
+import java.io.FileReader;
 
 import org.opensha.commons.util.MailUtil;
 

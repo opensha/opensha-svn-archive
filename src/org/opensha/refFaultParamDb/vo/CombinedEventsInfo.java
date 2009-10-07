@@ -1,9 +1,8 @@
 package org.opensha.refFaultParamDb.vo;
 
-import org.opensha.refFaultParamDb.data.TimeAPI;
-import org.opensha.commons.data.estimate.Estimate;
-
 import java.util.ArrayList;
+
+import org.opensha.refFaultParamDb.data.TimeAPI;
 
 /**
  * <p>Title: CombinedEventsInfo.java </p>

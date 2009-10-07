@@ -1,26 +1,22 @@
 package org.opensha.refFaultParamDb.gui;
 
-import java.awt.event.*;
-import javax.swing.border.*;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.awt.event.FocusEvent;
 
-
-import javax.swing.JTextArea;
+import javax.swing.BorderFactory;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
+import javax.swing.border.TitledBorder;
 
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.WarningException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ParameterEditor;
-
-import java.util.StringTokenizer;
-import javax.swing.JOptionPane;
-import javax.swing.BorderFactory;
-import javax.swing.SwingConstants;
-import java.awt.GridBagConstraints;
-import java.awt.Dimension;
-import java.awt.Insets;
 
 /**
  * <b>Title:</b> CommnetsParameterEditor<p>

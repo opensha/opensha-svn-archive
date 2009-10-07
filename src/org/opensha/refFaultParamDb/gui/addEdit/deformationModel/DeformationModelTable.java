@@ -14,7 +14,6 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
-import org.opensha.refFaultParamDb.gui.view.ViewFaultSection;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 
 /**

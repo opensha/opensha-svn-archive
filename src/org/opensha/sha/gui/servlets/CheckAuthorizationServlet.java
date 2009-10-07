@@ -1,11 +1,15 @@
 
 package org.opensha.sha.gui.servlets;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
+import java.io.ObjectOutputStream;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.opensha.sha.gui.servlets.user_auth_db.OpenSHA_UsersDBDAO;
 import org.opensha.sha.gui.servlets.user_auth_db.OpenSHA_UsersVO;
-import java.io.*;
 
 
 /**

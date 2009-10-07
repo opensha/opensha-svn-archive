@@ -3,27 +3,25 @@
  */
 package org.opensha.refFaultParamDb.gui.addEdit.deformationModel;
 
-import javax.swing.JFrame;
-import javax.swing.JButton;
-import javax.swing.JOptionPane;
-
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.editor.StringParameterEditor;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import org.opensha.refFaultParamDb.dao.db.FaultModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
-import org.opensha.refFaultParamDb.gui.infotools.ConnectToEmailServlet;
-import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
-import org.opensha.refFaultParamDb.vo.FaultModelSummary;
+import org.opensha.refFaultParamDb.dao.db.FaultModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
+import org.opensha.refFaultParamDb.vo.FaultModelSummary;
 
 /**
  * @author vipingupta

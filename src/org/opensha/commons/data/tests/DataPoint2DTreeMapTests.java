@@ -1,6 +1,6 @@
 package org.opensha.commons.data.tests;
 
-import junit.framework.*;
+import junit.framework.TestCase;
 
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.DataPoint2DTreeMap;

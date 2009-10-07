@@ -1,7 +1,7 @@
 package scratch.vipin;
 
-import java.util.ArrayList;
 import java.io.FileWriter;
+import java.util.ArrayList;
 
 /**
  * <p>Title: MergeRupturesFromMultiProcessor.java </p>

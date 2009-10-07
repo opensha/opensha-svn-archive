@@ -1,20 +1,35 @@
 package org.opensha.sha.magdist.gui;
 
-import java.awt.event.ActionListener;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.event.*;
 import java.util.ArrayList;
 
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JToolBar;
+import javax.swing.event.ChangeEvent;
 
-
-import org.opensha.sha.gui.infoTools.ButtonControlPanel;
-import org.opensha.sha.gui.infoTools.GraphPanel;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.*;
-import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.jfree.data.Range;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.StringConstraint;
@@ -24,20 +39,26 @@ import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.ImageUtils;
-import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
-import org.opensha.sha.magdist.SummedMagFreqDist;
-import org.jfree.data.Range;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.magdist.SingleMagFreqDist;
-import org.opensha.sha.magdist.YC_1985_CharMagFreqDist;
+import org.opensha.sha.gui.infoTools.ButtonControlPanel;
+import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
+import org.opensha.sha.gui.infoTools.GraphPanel;
+import org.opensha.sha.gui.infoTools.GraphPanelAPI;
+import org.opensha.sha.gui.infoTools.GraphWindow;
+import org.opensha.sha.gui.infoTools.GraphWindowAPI;
+import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.sha.magdist.SingleMagFreqDist;
+import org.opensha.sha.magdist.SummedMagFreqDist;
+import org.opensha.sha.magdist.YC_1985_CharMagFreqDist;
 import org.opensha.sha.param.MagFreqDistParameter;
-import org.opensha.sha.param.editor.MagDistParameterEditorAPI;
-import org.opensha.sha.param.editor.MagPDF_ParameterEditor;
 import org.opensha.sha.param.MagPDF_Parameter;
-
-import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
+import org.opensha.sha.param.editor.MagDistParameterEditorAPI;
+import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
+import org.opensha.sha.param.editor.MagPDF_ParameterEditor;
 /**
  * <p>Title:MagFreqDistApp </p>
  *

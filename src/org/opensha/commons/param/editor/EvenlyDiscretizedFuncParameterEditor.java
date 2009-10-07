@@ -1,28 +1,22 @@
 package org.opensha.commons.param.editor;
 
-import java.awt.event.*;
-import javax.swing.border.*;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.awt.event.FocusEvent;
+import java.util.StringTokenizer;
 
-
-import javax.swing.JTextArea;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.DataPoint2DException;
 import org.opensha.commons.param.EvenlyDiscretizedFuncParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-
-import java.util.StringTokenizer;
-import javax.swing.JOptionPane;
-import javax.swing.BorderFactory;
-import javax.swing.SwingConstants;
-import java.awt.GridBagConstraints;
-import java.awt.Dimension;
-import java.awt.Insets;
-import javax.swing.JLabel;
 
 /**
  * <b>Title:</b> EvenlyDiscretizedFuncParameterEditor<p>

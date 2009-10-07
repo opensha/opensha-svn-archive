@@ -1,7 +1,6 @@
 package org.opensha.refFaultParamDb.vo;
 
 import java.util.ArrayList;
-import org.opensha.refFaultParamDb.data.TimeAPI;
 
 /**
  * <p>Title: EventSequence.java </p>

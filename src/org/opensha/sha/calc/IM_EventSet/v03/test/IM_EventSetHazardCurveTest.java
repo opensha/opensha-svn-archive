@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
+import junit.framework.TestCase;
+
 import org.jfree.chart.ChartUtilities;
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.Location;
@@ -26,9 +28,6 @@ import org.opensha.sha.gui.infoTools.GraphPanelAPI;
 import org.opensha.sha.gui.infoTools.PlotControllerAPI;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
-import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
-
-import junit.framework.TestCase;
 
 public class IM_EventSetHazardCurveTest extends TestCase implements IM_EventSetCalc_v3_0_API, GraphPanelAPI, PlotControllerAPI {
 	

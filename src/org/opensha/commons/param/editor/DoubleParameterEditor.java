@@ -1,14 +1,14 @@
 package org.opensha.commons.param.editor;
 
-import java.awt.event.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.KeyEvent;
+
+import javax.swing.border.Border;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.WarningException;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterAPI;
-
-
-import javax.swing.border.*;
 
 /**
  * <b>Title:</b> DoubleParameterEditor<p>

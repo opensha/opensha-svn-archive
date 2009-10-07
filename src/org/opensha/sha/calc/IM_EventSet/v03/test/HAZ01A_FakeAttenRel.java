@@ -1,7 +1,6 @@
 package org.opensha.sha.calc.IM_EventSet.v03.test;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.opensha.sha.calc.IM_EventSet.v03.outputImpl.HAZ01ASegment;

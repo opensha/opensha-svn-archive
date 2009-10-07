@@ -8,12 +8,11 @@ import java.util.HashMap;
 
 import javax.swing.table.DefaultTableModel;
 
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
-import org.opensha.refFaultParamDb.vo.DeformationModel;
-import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
-import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 
 /**
  * 

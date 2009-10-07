@@ -2,7 +2,6 @@ package org.opensha.sha.cybershake.db;
 
 import java.util.ArrayList;
 
-import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 
 public interface ERF2DBAPI {

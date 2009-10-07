@@ -1,19 +1,16 @@
 package org.opensha.sha.gui.beans;
 
 
-import java.awt.event.ActionEvent;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.lang.reflect.InvocationTargetException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.ListIterator;
-import java.util.StringTokenizer;
 
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
-import javax.swing.*;
-import java.awt.*;
-
-import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
@@ -24,6 +21,8 @@ import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
+import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.earthquake.ProbEqkSource;
 
 
 /**

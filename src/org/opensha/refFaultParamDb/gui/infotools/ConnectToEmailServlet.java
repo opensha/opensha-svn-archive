@@ -1,9 +1,9 @@
 package org.opensha.refFaultParamDb.gui.infotools;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
 
 import org.opensha.refFaultParamDb.servlets.RefFaultDB_UpdateEmailServlet;
 

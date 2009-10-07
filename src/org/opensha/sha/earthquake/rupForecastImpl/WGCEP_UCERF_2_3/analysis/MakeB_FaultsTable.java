@@ -19,18 +19,11 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun
 import org.opensha.commons.data.Location;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_TypeB_EqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UnsegmentedSource;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.NonCA_FaultsFetcher;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.faultSurface.StirlingGriddedSurface;
-import org.opensha.sha.magdist.GaussianMagFreqDist;
-import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
-import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**
  *  This creates an excel sheet with B-Faults and various values associated with them.

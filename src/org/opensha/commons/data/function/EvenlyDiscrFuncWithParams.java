@@ -1,7 +1,5 @@
 package org.opensha.commons.data.function;
 
-import java.util.*;
-
 import org.opensha.commons.param.ParameterList;
 
 

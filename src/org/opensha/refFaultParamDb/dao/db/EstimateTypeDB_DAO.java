@@ -2,8 +2,9 @@ package org.opensha.refFaultParamDb.dao.db;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.opensha.refFaultParamDb.dao.exception.QueryException;
 import java.util.ArrayList;
+
+import org.opensha.refFaultParamDb.dao.exception.QueryException;
 import org.opensha.refFaultParamDb.vo.EstimateType;
 
 /**

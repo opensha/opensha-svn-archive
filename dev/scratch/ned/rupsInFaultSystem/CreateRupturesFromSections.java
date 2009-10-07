@@ -3,13 +3,13 @@ package scratch.ned.rupsInFaultSystem;
 import java.io.FileWriter;
 import java.util.ArrayList;
 
+import org.opensha.commons.calc.RelativeLocation;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
-import org.opensha.commons.calc.RelativeLocation;
-import org.opensha.commons.data.Location;
-import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 
 public class CreateRupturesFromSections {
 	

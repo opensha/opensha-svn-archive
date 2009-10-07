@@ -4,6 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import junit.framework.TestCase;
+
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.opensha.commons.param.ParameterAPI;
@@ -11,8 +13,6 @@ import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.imr.IntensityMeasureRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
-
-import junit.framework.TestCase;
 
 public class XMLSaveLoadTest extends TestCase {
 

@@ -1,4 +1,6 @@
 package org.opensha.commons.param.estimate;
+import java.util.ArrayList;
+
 import org.opensha.commons.data.estimate.DiscreteValueEstimate;
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.data.estimate.FractileListEstimate;
@@ -7,12 +9,8 @@ import org.opensha.commons.data.estimate.MinMaxPrefEstimate;
 import org.opensha.commons.data.estimate.NormalEstimate;
 import org.opensha.commons.data.estimate.PDF_Estimate;
 import org.opensha.commons.exceptions.EditableException;
-import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.ParameterConstraint;
 import org.opensha.commons.param.StringConstraint;
-
-
-import java.util.ArrayList;
 
 
 /**

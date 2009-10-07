@@ -1,15 +1,13 @@
 package org.opensha.sha.imr.attenRelImpl.test;
 
 
-import junit.framework.*;
-import java.util.*;
 import javax.swing.UIManager;
+
+import junit.framework.TestCase;
 
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
-
-
-import org.opensha.sha.imr.attenRelImpl.*;
+import org.opensha.sha.imr.attenRelImpl.SadighEtAl_1997_AttenRel;
 
 
 

@@ -1,19 +1,27 @@
 package org.opensha.sha.gui.infoTools;
 
-import java.awt.*;
-
-import javax.swing.*;
-
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.SystemColor;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import org.opensha.commons.util.ImageUtils;
-
-import javax.swing.border.Border;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JEditorPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.TitledBorder;
+import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
-import java.awt.Rectangle;
+import javax.swing.border.TitledBorder;
 
 /**
  * <p>Title: ApplicationDisclaimerWindow</p>

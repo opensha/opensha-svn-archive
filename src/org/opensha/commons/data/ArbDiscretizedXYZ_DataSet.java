@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.jfree.data.xy.XYZDataset;
 import org.opensha.commons.util.FileUtils;
 
 /**

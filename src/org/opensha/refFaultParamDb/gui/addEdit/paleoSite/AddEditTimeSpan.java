@@ -1,23 +1,18 @@
 package org.opensha.refFaultParamDb.gui.addEdit.paleoSite;
 
 
-import java.util.ArrayList;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 
-import org.opensha.commons.param.StringListParameter;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+
 import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.editor.ConstrainedStringListParameterEditor;
-
-import java.awt.*;
-import org.opensha.refFaultParamDb.gui.*;
-import javax.swing.*;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.data.TimeAPI;
-import org.opensha.refFaultParamDb.gui.event.DbAdditionListener;
-
-import org.opensha.refFaultParamDb.gui.event.DbAdditionSuccessEvent;
+import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
+import org.opensha.refFaultParamDb.gui.TimeGuiBean;
 
 /**
  * <p>Title: AddNewTimeSpan</p>

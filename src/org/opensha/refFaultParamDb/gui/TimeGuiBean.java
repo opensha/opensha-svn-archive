@@ -1,16 +1,10 @@
 package org.opensha.refFaultParamDb.gui;
-import javax.swing.JPanel;
-
-
-
-
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import java.util.ArrayList;
-import java.awt.*;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
-import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
-import org.opensha.refFaultParamDb.data.TimeAPI;
-import org.opensha.refFaultParamDb.data.ExactTime;
-import org.opensha.refFaultParamDb.data.TimeEstimate;
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
@@ -24,9 +18,10 @@ import org.opensha.commons.param.estimate.EstimateConstraint;
 import org.opensha.commons.param.estimate.EstimateParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-
-import java.util.GregorianCalendar;
-import java.util.Calendar;
+import org.opensha.refFaultParamDb.data.ExactTime;
+import org.opensha.refFaultParamDb.data.TimeAPI;
+import org.opensha.refFaultParamDb.data.TimeEstimate;
+import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 
 
 

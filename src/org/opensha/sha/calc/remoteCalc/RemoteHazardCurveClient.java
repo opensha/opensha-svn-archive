@@ -4,8 +4,9 @@ import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import org.opensha.sha.calc.HazardCurveCalculatorAPI;
+
 import org.opensha.sha.calc.HazardCurveCalculator;
+import org.opensha.sha.calc.HazardCurveCalculatorAPI;
 
 /**
  * <p>Title: RemoteHazardCurveClient</p>

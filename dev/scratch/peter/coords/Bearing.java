@@ -25,8 +25,6 @@ package scratch.peter.coords;
 
 
 
-import java.lang.Math;
-
 import org.opensha.commons.data.Location;
 
 

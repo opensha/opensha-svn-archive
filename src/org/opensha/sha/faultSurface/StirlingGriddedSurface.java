@@ -1,7 +1,8 @@
 package org.opensha.sha.faultSurface;
 
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
 
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Direction;

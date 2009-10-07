@@ -7,9 +7,7 @@ import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
 import java.io.Serializable;
-import java.text.DecimalFormat;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.math.util.MathUtils;
 import org.dom4j.Element;
 import org.opensha.commons.calc.RelativeLocation;

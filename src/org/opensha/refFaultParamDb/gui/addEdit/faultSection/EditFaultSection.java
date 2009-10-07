@@ -1,20 +1,22 @@
 package org.opensha.refFaultParamDb.gui.addEdit.faultSection;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
-import org.opensha.refFaultParamDb.gui.view.ViewFaultSection;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
-import org.opensha.refFaultParamDb.dao.db.SectionSourceDB_DAO;
-import org.opensha.refFaultParamDb.vo.FaultSectionData;
-import org.opensha.refFaultParamDb.vo.SectionSource;
-import org.opensha.refFaultParamDb.vo.EstimateInstances;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
+
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.param.DoubleParameter;
@@ -27,6 +29,14 @@ import org.opensha.commons.param.estimate.EstimateConstraint;
 import org.opensha.commons.param.estimate.EstimateParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
+import org.opensha.refFaultParamDb.dao.db.SectionSourceDB_DAO;
+import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
+import org.opensha.refFaultParamDb.gui.view.ViewFaultSection;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
+import org.opensha.refFaultParamDb.vo.FaultSectionData;
+import org.opensha.refFaultParamDb.vo.SectionSource;
 import org.opensha.sha.faultSurface.FaultTrace;
 
 /**

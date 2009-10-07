@@ -1,25 +1,28 @@
 package org.opensha.sha.gui.controls;
 
-import java.awt.*;
-import javax.swing.*;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.SystemColor;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.awt.event.*;
-import java.io.*;
-import java.net.URL;
-import java.net.URLConnection;
 
-import org.opensha.sha.gui.beans.IMR_GuiBean;
-import org.opensha.sha.gui.beans.Site_GuiBean;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
-import org.opensha.sha.util.SiteTranslator;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JTextPane;
+
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
-import org.opensha.commons.data.Site;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.util.SystemPropertiesUtils;
+import org.opensha.sha.gui.beans.IMR_GuiBean;
+import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
-import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.util.SiteTranslator;
 
 /**
  * <p>Title:SetSiteParamsFromWebServicesControlPanel </p>

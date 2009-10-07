@@ -1,20 +1,17 @@
 package org.opensha.sha.calc.IM_EventSet.v03.test;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import junit.framework.TestCase;
+
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.IM_EventSet.v02.IM_EventSetCalc_v2_1;
-import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetCalc_v3_0;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetCalc_v3_0_ASCII;
-import org.opensha.sha.calc.IM_EventSet.v03.outputImpl.HAZ01ASegment;
-
-import junit.framework.TestCase;
 
 public class IM_EventSetTest extends TestCase {
 	

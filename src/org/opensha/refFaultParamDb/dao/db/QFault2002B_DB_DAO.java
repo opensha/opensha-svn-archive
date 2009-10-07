@@ -3,8 +3,9 @@ package org.opensha.refFaultParamDb.dao.db;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import org.opensha.refFaultParamDb.vo.QFault2002B;
+
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
+import org.opensha.refFaultParamDb.vo.QFault2002B;
 
 /**
  * <p>Title: QFault2002B_DB_DAO.java </p>

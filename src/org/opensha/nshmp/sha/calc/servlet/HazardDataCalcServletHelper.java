@@ -1,11 +1,11 @@
 package org.opensha.nshmp.sha.calc.servlet;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
-import org.opensha.nshmp.sha.calc.HazardDataCalc;
+
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncList;
-
-import java.lang.reflect.Method;
+import org.opensha.nshmp.sha.calc.HazardDataCalc;
 
 /**
  * <p>Title: HazardDataCalcServletHelper.java </p>

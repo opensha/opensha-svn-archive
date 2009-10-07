@@ -1,24 +1,29 @@
 package org.opensha.refFaultParamDb.gui.addEdit.paleoSite;
 
-import java.awt.*;
-import javax.swing.*;
-import java.awt.event.ActionListener;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import org.opensha.refFaultParamDb.dao.db.TimeInstanceDB_DAO;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import org.opensha.refFaultParamDb.vo.CombinedEventsInfo;
-import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import org.opensha.refFaultParamDb.dao.db.EventSequenceDB_DAO;
-import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
+
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+
+import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.data.TimeAPI;
-import org.opensha.refFaultParamDb.vo.Reference;
-import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
-import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
-import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
-import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
 import org.opensha.refFaultParamDb.gui.infotools.ConnectToEmailServlet;
+import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
+import org.opensha.refFaultParamDb.vo.CombinedEventsInfo;
+import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
+import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
 import org.opensha.refFaultParamDb.vo.PaleoSitePublication;
+import org.opensha.refFaultParamDb.vo.Reference;
 
 /**
  * <p>Title: AddSiteInfo.java </p>

@@ -9,7 +9,12 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.util.ArrayList;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JApplet;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 import org.opensha.commons.data.ValueWeight;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -32,9 +37,7 @@ import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.WarningDoubleParameter;
 import org.opensha.commons.param.WarningIntegerParameter;
-import org.opensha.commons.param.editor.LocationParameterEditor;
 import org.opensha.commons.param.editor.ParameterListEditor;
-import org.opensha.commons.param.editor.ParameterListParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
@@ -42,7 +45,6 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.param.SimpleFaultParameter;
-import org.opensha.sha.param.editor.SimpleFaultParameterEditor;
 
 
 

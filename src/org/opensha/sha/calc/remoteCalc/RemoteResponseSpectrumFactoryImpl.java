@@ -1,10 +1,9 @@
 package org.opensha.sha.calc.remoteCalc;
 
-import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
-import org.opensha.sha.calc.SpectrumCalculatorAPI;
 import org.opensha.sha.calc.SpectrumCalculator;
+import org.opensha.sha.calc.SpectrumCalculatorAPI;
 
 /**
  * <p>Title: RemoteResponseSpectrumFactoryImpl</p>

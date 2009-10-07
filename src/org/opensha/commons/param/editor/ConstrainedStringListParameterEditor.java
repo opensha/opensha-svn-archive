@@ -1,20 +1,20 @@
 package org.opensha.commons.param.editor;
 
-import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.ListIterator;
+import java.util.Vector;
 
-import java.awt.event.*;
-import javax.swing.*;
+import javax.swing.JList;
+import javax.swing.JScrollPane;
+import javax.swing.ListModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.StringListConstraint;
 import org.opensha.commons.param.StringListParameter;
-
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.border.TitledBorder;
 
 /**
  * <b>Title:</b> ConstrainedStringParameterEditor<p>

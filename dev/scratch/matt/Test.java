@@ -1,9 +1,9 @@
 package scratch.matt;
 
-import org.opensha.commons.util.FileUtils;
-
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+
+import org.opensha.commons.util.FileUtils;
 
 /**
  * <p>Title: </p>

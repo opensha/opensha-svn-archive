@@ -1,8 +1,11 @@
 package org.opensha.sha.imr.attenRelImpl.test;
 
 
-import junit.framework.*;
 import javax.swing.UIManager;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 
 /**

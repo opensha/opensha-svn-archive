@@ -1,6 +1,5 @@
 package org.opensha.commons.data.siteData.servlet.impl;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.opensha.commons.data.siteData.impl.WillsMap2006;

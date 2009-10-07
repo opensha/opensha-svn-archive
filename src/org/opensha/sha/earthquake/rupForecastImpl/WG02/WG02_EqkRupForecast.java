@@ -1,27 +1,11 @@
 package org.opensha.sha.earthquake.rupForecastImpl.WG02;
 
-import java.util.ArrayList;
-import java.util.ListIterator;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
-import java.util.List;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.ListIterator;
+import java.util.StringTokenizer;
 
-
-
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.earthquake.rupForecastImpl.*;
-
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
-import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.faultSurface.StirlingGriddedSurface;
-import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
-
-
-import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
@@ -30,6 +14,14 @@ import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.exceptions.FaultException;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
+import org.opensha.sha.earthquake.rupForecastImpl.GriddedRegionPoissonEqkSource;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 /**
  * <p>Title: WG02_EqkRupForecast</p>

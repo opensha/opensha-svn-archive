@@ -1,9 +1,9 @@
 package scratch.jennie.attenRelImpl;
 
-import java.text.DecimalFormat;
-import java.util.*;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.ListIterator;
 
-import org.opensha.commons.calc.GaussianDistCalc;
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.Site;
@@ -12,27 +12,21 @@ import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.DoubleDiscreteParameter;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.WarningDoubleParameter;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
-
-
-
-
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.imr.*;
-import org.opensha.sha.imr.attenRelImpl.*;
+import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
-import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;

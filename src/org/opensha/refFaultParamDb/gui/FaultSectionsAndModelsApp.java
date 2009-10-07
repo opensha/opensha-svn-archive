@@ -6,13 +6,13 @@ package org.opensha.refFaultParamDb.gui;
 import java.awt.BorderLayout;
 
 import javax.swing.JFrame;
-import javax.swing.JTabbedPane;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 
-import org.opensha.refFaultParamDb.gui.view.FaultSectionsDistanceCalcGUI;
-import org.opensha.refFaultParamDb.gui.view.ViewFaultSection;
 import org.opensha.refFaultParamDb.gui.addEdit.deformationModel.EditDeformationModel;
 import org.opensha.refFaultParamDb.gui.addEdit.faultModel.AddEditFaultModel;
+import org.opensha.refFaultParamDb.gui.view.FaultSectionsDistanceCalcGUI;
+import org.opensha.refFaultParamDb.gui.view.ViewFaultSection;
 
 /**
  *  This class creates the GUI to allow the user to view/edit fault sections, fault models and deformation models

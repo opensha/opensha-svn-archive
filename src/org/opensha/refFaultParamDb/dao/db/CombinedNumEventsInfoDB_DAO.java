@@ -1,10 +1,11 @@
 package org.opensha.refFaultParamDb.dao.db;
 
-import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
-import java.sql.ResultSet;
+import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
 
 /**
  * <p>Title: CombinedNumEventsInfoDB_DAO.java </p>

@@ -5,11 +5,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.ListIterator;
 import java.util.NoSuchElementException;
-
-import javax.swing.BoxLayout;
-import javax.swing.JPanel;
 
 import org.opensha.commons.gui.LabeledBoxPanel;
 import org.opensha.commons.param.ParameterAPI;

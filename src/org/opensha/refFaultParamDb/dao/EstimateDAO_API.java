@@ -1,8 +1,10 @@
 package org.opensha.refFaultParamDb.dao;
 
 import org.opensha.commons.data.estimate.Estimate;
-import org.opensha.refFaultParamDb.dao.exception.*;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.exception.InsertException;
+import org.opensha.refFaultParamDb.dao.exception.QueryException;
+import org.opensha.refFaultParamDb.dao.exception.UpdateException;
 /**
  * <p>Title: NormalEstimateDAO_API.java </p>
  * <p>Description: Inserts/gets/delete normal estimates from the tables</p>

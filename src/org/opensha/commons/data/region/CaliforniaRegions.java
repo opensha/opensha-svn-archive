@@ -1,12 +1,9 @@
 package org.opensha.commons.data.region;
 
-import static org.opensha.commons.data.region.GriddedRegion.ANCHOR_0_0;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
-import org.apache.commons.math.util.MathUtils;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 

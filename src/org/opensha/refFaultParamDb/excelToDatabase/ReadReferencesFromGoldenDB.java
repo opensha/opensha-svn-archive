@@ -1,11 +1,12 @@
 package org.opensha.refFaultParamDb.excelToDatabase;
 
+import java.util.ArrayList;
+
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
-import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
-import org.opensha.refFaultParamDb.dao.db.ServerDB_Access;
 import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
-import java.util.ArrayList;
+import org.opensha.refFaultParamDb.dao.db.ServerDB_Access;
+import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.vo.Reference;
 
 /**

@@ -4,10 +4,10 @@ import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_NonPlanarFaultForecastClient;
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteEqkRupForecastAPI;
+import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
+import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteEqkRupForecastAPI;
+import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_NonPlanarFaultForecastClient;
 
 /**
  * <p>Title: PEER_LogicTreeServerBasedERF_List</p>

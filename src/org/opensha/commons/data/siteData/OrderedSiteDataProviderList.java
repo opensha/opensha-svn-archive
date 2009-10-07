@@ -10,7 +10,6 @@ import javax.swing.event.ChangeListener;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.opensha.commons.data.Location;
-import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.region.Region;
 import org.opensha.commons.data.siteData.impl.CVM2BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;

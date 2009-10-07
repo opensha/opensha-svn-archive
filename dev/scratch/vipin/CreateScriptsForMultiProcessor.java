@@ -1,8 +1,8 @@
 package scratch.vipin;
 
+import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.io.FileWriter;
 
 /**
  * <p>Title: CreateScriptsForMultiProcessor.java </p>

@@ -3,8 +3,8 @@ package org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients;
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 
-import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RegisterRemoteERF_Factory;
+import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
 
 /**
  * <p>Title: PEER_NonPlanarFaultForecastClient </p>

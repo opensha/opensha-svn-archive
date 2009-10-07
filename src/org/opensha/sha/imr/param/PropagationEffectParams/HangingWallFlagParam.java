@@ -1,8 +1,6 @@
 package org.opensha.sha.imr.param.PropagationEffectParams;
 
 import org.opensha.commons.param.BooleanParameter;
-import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.WarningDoubleParameter;
 
 /**
  * HangingWallFlagParam parameter - indicates whether a site is 

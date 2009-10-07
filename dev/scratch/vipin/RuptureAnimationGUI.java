@@ -1,16 +1,38 @@
 package scratch.vipin;
 
-import javax.swing.*;
-import java.awt.*;
-import java.io.FileReader;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
-
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.GriddedSurface;
-import org.opensha.sha.faultSurface.GriddedSurfaceAPI;
-
+import java.io.File;
+import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.JSplitPane;
+import javax.swing.UIManager;
+import javax.swing.border.EtchedBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.exceptions.InvalidRangeException;
@@ -20,23 +42,7 @@ import org.opensha.commons.param.editor.IntegerParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.FileUtils;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.ChartPanel;
-import javax.swing.border.TitledBorder;
-import javax.swing.border.EtchedBorder;
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ChangeEvent;
-import java.io.File;
-import java.net.URLConnection;
-import java.io.InputStreamReader;
-import java.io.InputStream;
+import org.opensha.sha.faultSurface.GriddedSurface;
 
 /**
  * <p>Title: Show all the ruptures as a animation using JFreechart</p>

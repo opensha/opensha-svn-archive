@@ -1,14 +1,13 @@
 package org.opensha.refFaultParamDb.excelToDatabase;
 
-import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
-import org.opensha.refFaultParamDb.dao.db.FaultSection2002DB_DAO;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import java.util.ArrayList;
-import org.opensha.refFaultParamDb.vo.FaultSection2002;
 import java.io.FileWriter;
+import java.util.ArrayList;
 
-import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.commons.data.Location;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.FaultSection2002DB_DAO;
+import org.opensha.refFaultParamDb.vo.FaultSection2002;
+import org.opensha.sha.faultSurface.FaultTrace;
 
 /**
  * <p>Title: Read2002FaultSections.java </p>

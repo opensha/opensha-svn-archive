@@ -1,8 +1,10 @@
 package org.opensha.sha.earthquake;
 
-import org.opensha.sha.earthquake.EqkRupForecast;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
-import java.io.*;
 
 
 

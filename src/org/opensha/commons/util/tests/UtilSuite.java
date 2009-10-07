@@ -1,6 +1,8 @@
 package org.opensha.commons.util.tests;
 
-import junit.framework.*;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 public class UtilSuite extends TestCase
 {

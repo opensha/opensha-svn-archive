@@ -15,16 +15,15 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.sha.calc.HazardCurveCalculator;
+import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
+import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
 import scratch.ISTI.portfolioeal.gui.PortfolioEALCalculatorView;
 import scratch.martinez.EALCalculator;
 import scratch.martinez.VulnerabilityModels.VulnerabilityModel;
-
-import org.opensha.sha.calc.HazardCurveCalculator;
-import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
 
 

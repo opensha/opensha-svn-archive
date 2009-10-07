@@ -9,43 +9,12 @@ import java.text.ParseException;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
-import javax.swing.text.*;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultCaret;
+import javax.swing.text.Document;
 
 import org.opensha.commons.param.editor.document.NumericPlainDocument;
-
-import java.lang.reflect.Method;
-
-import java.security.AccessController;
-
-import java.security.PrivilegedAction;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Enumeration;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import java.io.*;
-
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.datatransfer.*;
-import java.awt.im.InputMethodRequests;
-import java.awt.font.TextHitInfo;
-import java.awt.font.TextAttribute;
-
-import java.text.*;
-import java.text.AttributedCharacterIterator.Attribute;
-
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.plaf.*;
-
-import javax.accessibility.*;
 
 
 /**

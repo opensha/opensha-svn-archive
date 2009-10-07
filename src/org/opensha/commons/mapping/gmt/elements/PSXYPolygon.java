@@ -1,6 +1,5 @@
 package org.opensha.commons.mapping.gmt.elements;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.DataPoint2D;

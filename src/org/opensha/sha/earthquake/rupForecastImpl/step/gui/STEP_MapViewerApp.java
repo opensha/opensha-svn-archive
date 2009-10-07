@@ -1,28 +1,44 @@
 package org.opensha.sha.earthquake.rupForecastImpl.step.gui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.applet.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.util.Hashtable;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
+import java.awt.AWTEvent;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-
 import java.io.IOException;
-import java.io.BufferedReader;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.StringTokenizer;
 
-import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
-import org.opensha.sha.gui.beans.MapGuiBean;
+import javax.swing.JApplet;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
+
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
+import org.opensha.sha.gui.beans.MapGuiBean;
 
 
 /**

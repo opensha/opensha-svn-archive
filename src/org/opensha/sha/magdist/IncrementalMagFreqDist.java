@@ -2,7 +2,6 @@ package org.opensha.sha.magdist;
 
 
 import org.opensha.commons.calc.MomentMagCalc;
-import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.exceptions.DataPoint2DException;
 import org.opensha.commons.exceptions.DiscretizedFuncException;

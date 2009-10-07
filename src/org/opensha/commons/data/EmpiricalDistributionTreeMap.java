@@ -2,8 +2,6 @@ package org.opensha.commons.data;
 
 import java.util.Comparator;
 
-import org.opensha.commons.data.TreeMap.Entry;
-
 /**
  *  <b>Title:</b> EmpiricalDistributionTreeMap <p>
  *

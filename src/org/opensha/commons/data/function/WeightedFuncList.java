@@ -1,6 +1,6 @@
 package org.opensha.commons.data.function;
 
-import java.util.*;
+import java.util.ArrayList;
 
 import org.opensha.commons.calc.FractileCurveCalculator;
 

@@ -1,9 +1,5 @@
 package org.opensha.sha.earthquake.rupForecastImpl.GEM;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
@@ -15,7 +11,6 @@ import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.RegionUtils;
 import org.opensha.commons.data.region.RegionUtils.Color;
 import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -23,7 +18,6 @@ import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.GriddedRegionPoissonEqkSource;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
-import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.SingleMagFreqDist;
 

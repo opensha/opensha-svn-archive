@@ -1,12 +1,15 @@
 package org.opensha.refFaultParamDb.dao.db;
 
-import java.sql.SQLException;
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import org.opensha.refFaultParamDb.vo.Contributor;
-import org.opensha.refFaultParamDb.dao.exception.*;
 import java.security.MessageDigest;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Random;
+
+import org.opensha.refFaultParamDb.dao.exception.InsertException;
+import org.opensha.refFaultParamDb.dao.exception.QueryException;
+import org.opensha.refFaultParamDb.dao.exception.UpdateException;
+import org.opensha.refFaultParamDb.vo.Contributor;
 
 /**
  * <p>Title:ContributorDB_DAO.java</p>

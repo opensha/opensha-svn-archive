@@ -2,8 +2,6 @@ package org.opensha.sha.gui.controls;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 
-import java.util.ArrayList;
-
 /**
  * <p>Title: XY_ValuesControlPanelAPI</p>
  *

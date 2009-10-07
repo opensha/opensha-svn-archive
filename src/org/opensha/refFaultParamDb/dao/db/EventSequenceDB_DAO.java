@@ -1,14 +1,13 @@
 package org.opensha.refFaultParamDb.dao.db;
 
-import java.util.ArrayList;
-import org.opensha.refFaultParamDb.data.TimeAPI;
-import org.opensha.refFaultParamDb.dao.exception.InsertException;
-import java.sql.SQLException;
-import org.opensha.refFaultParamDb.vo.EventSequence;
-import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
-import org.opensha.refFaultParamDb.vo.PaleoEvent;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
+import org.opensha.refFaultParamDb.vo.EventSequence;
+import org.opensha.refFaultParamDb.vo.PaleoEvent;
 
 /**
  * <p>Title: EventSequenceDB_DAO.java </p>

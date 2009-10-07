@@ -1,13 +1,10 @@
 package org.opensha.commons.data;
-import static org.opensha.commons.calc.RelativeLocation.TO_RAD;
-import static org.opensha.commons.calc.RelativeLocation.TO_DEG;
 import static org.opensha.commons.calc.RelativeLocation.LL_PRECISION;
-
-import java.text.DecimalFormat;
+import static org.opensha.commons.calc.RelativeLocation.TO_DEG;
+import static org.opensha.commons.calc.RelativeLocation.TO_RAD;
 
 import org.apache.commons.math.util.MathUtils;
 import org.dom4j.Element;
-import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.metadata.XMLSaveable;
 

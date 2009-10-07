@@ -1,6 +1,5 @@
 package org.opensha.sha.earthquake.util;
 
-import java.io.File;
 import java.text.Collator;
 import java.util.Comparator;
 

@@ -1,10 +1,11 @@
 package org.opensha.refFaultParamDb.dao.db;
 
-import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
-import java.sql.SQLException;
-import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
+import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 
 /**

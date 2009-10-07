@@ -1,6 +1,7 @@
 package org.opensha.refFaultParamDb.data;
 
 import java.util.ArrayList;
+
 import org.opensha.refFaultParamDb.vo.Reference;
 
 /**

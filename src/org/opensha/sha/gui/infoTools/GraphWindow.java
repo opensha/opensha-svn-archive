@@ -1,17 +1,30 @@
 package org.opensha.sha.gui.infoTools;
 
-import java.awt.*;
-import javax.swing.*;
-import java.util.ArrayList;
-
-import org.jfree.chart.ChartUtilities;
-import org.jfree.data.Range;
-import org.opensha.commons.util.ImageUtils;
-
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.JToolBar;
+
+import org.jfree.data.Range;
+import org.opensha.commons.util.ImageUtils;
 
 /**
  * <p>Title: GraphWindow</p>

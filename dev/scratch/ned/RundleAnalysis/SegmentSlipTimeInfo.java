@@ -1,6 +1,9 @@
 package scratch.ned.RundleAnalysis;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * <p>Title: SegmentSlipTimeInfo</p>

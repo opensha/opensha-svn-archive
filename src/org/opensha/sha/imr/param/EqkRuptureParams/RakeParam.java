@@ -2,7 +2,6 @@ package org.opensha.sha.imr.param.EqkRuptureParams;
 
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.WarningDoubleParameter;
 
 /**
  * Rake Parameter, reserved for representing the average rake of the earthquake

@@ -1,24 +1,20 @@
 package org.opensha.sha.gui;
 
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
 import java.awt.Toolkit;
-
-import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
-import org.opensha.sha.gui.infoTools.ExceptionWindow;
-import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
-
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-import org.opensha.sha.gui.beans.ERF_GuiBean;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
 
-import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.SpectrumCalculator;
 import org.opensha.sha.calc.remoteCalc.RemoteResponseSpectrumClient;
+import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
+import org.opensha.sha.gui.beans.ERF_GuiBean;
+import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
+import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
+import org.opensha.sha.gui.infoTools.ExceptionWindow;
 
 /**
  * <p>Title: HazardSpectrumServerModeApplication </p>

@@ -1,8 +1,9 @@
 package org.opensha.refFaultParamDb.tests.dao.db;
 
 import junit.framework.TestCase;
-import org.opensha.refFaultParamDb.dao.db.SiteRepresentationDB_DAO;
+
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.SiteRepresentationDB_DAO;
 import org.opensha.refFaultParamDb.tests.AllTests;
 import org.opensha.refFaultParamDb.vo.SiteRepresentation;
 

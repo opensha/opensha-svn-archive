@@ -1,13 +1,13 @@
 package org.opensha.refFaultParamDb.gui.infotools;
 
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.text.DecimalFormat;
+
 import javax.swing.JPanel;
 
 import org.opensha.commons.gui.TitledBorderPanel;
-
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import java.text.DecimalFormat;
 
 /**
  * <p>Title: GUI_Utils.java </p>

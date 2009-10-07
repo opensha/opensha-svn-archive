@@ -23,7 +23,6 @@ import javax.swing.event.DocumentListener;
 
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.cybershake.db.CybershakeSite;
-import org.opensha.sha.cybershake.db.CybershakeSiteInfo2DB;
 import org.opensha.sha.cybershake.db.CybershakeSiteManager;
 import org.opensha.sha.cybershake.db.CybershakeSiteType;
 import org.opensha.sha.cybershake.db.DBAccess;

@@ -1,8 +1,12 @@
 package scratch.ISTI.portfolioeal.gui;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 import javax.swing.JPanel;
+
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 
 /**

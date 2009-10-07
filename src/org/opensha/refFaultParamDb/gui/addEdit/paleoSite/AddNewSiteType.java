@@ -1,24 +1,26 @@
 package org.opensha.refFaultParamDb.gui.addEdit.paleoSite;
 
-import javax.swing.*;
-
-import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.editor.ParameterListEditor;
-import org.opensha.commons.param.editor.StringParameterEditor;
-import java.awt.*;
-import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
-import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
-import java.awt.event.ActionListener;
+import java.awt.Container;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import org.opensha.refFaultParamDb.dao.db.SiteTypeDB_DAO;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.StringParameterEditor;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import org.opensha.refFaultParamDb.vo.SiteType;
-import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+import org.opensha.refFaultParamDb.dao.db.SiteTypeDB_DAO;
 import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
+import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
 import org.opensha.refFaultParamDb.gui.infotools.ConnectToEmailServlet;
+import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
+import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+import org.opensha.refFaultParamDb.vo.SiteType;
 
 /**
  * <p>Title: AddNewSiteType.java </p>

@@ -1,10 +1,10 @@
 package scratch.matt.calc;
 
-import org.opensha.sha.magdist.*;
+import java.util.ListIterator;
+
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
-import java.util.*;
-import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 
 

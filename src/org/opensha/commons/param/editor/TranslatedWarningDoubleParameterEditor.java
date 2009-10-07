@@ -1,16 +1,9 @@
 package org.opensha.commons.param.editor;
 
-import java.util.*;
-import java.awt.*;
-
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
-
+import javax.swing.border.Border;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.gui.SidesBorder;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.TranslatedWarningDoubleParameter;

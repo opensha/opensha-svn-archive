@@ -1,6 +1,6 @@
 package org.opensha.sha.imr.attenRelImpl.depricated;
 
-import java.util.*;
+import java.util.HashMap;
 
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
@@ -10,20 +10,15 @@ import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.DoubleDiscreteConstraint;
-import org.opensha.commons.param.DoubleDiscreteParameter;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.StringConstraint;
-import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
-
-
-
-
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.faultSurface.*;
-import org.opensha.sha.imr.*;
+import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.RakeParam;
@@ -37,7 +32,6 @@ import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistRupMinusJB_OverRupParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
-import org.opensha.sha.param.*;
 
 /**
  * <b>Title:</b> AS_2005_prelim_AttenRel<p>

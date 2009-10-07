@@ -2,8 +2,9 @@ package org.opensha.refFaultParamDb.excelToDatabase;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import org.opensha.refFaultParamDb.dao.db.FaultDB_DAO;
+
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.FaultDB_DAO;
 import org.opensha.refFaultParamDb.vo.Fault;
 
 /**

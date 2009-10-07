@@ -1,13 +1,12 @@
 package org.opensha.sha.gui.infoTools;
 
+import java.awt.Color;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.estimate.DiscreteValueEstimate;
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.data.function.DiscretizedFunc;
-
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import java.awt.Color;
 
 /**
  * <p>Title: EstimateViewer.java </p>

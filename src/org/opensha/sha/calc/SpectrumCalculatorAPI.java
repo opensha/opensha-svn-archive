@@ -1,16 +1,16 @@
 package org.opensha.sha.calc;
 
-import java.rmi.RemoteException;
 import java.rmi.Remote;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.ListIterator;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
-import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import java.util.ArrayList;
-import java.util.ListIterator;
+import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
 public interface SpectrumCalculatorAPI extends Remote{
   /**

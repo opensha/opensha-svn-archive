@@ -1,15 +1,10 @@
 package org.opensha.sha.param;
 
 
-import java.util.*;
+import java.util.ArrayList;
 
 import org.dom4j.Element;
-
-
-import org.opensha.sha.faultSurface.*;
-import org.opensha.sha.param.editor.SimpleFaultParameterEditor;
 import org.opensha.commons.data.Location;
-import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.IntegerParameter;
@@ -20,6 +15,12 @@ import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.FrankelGriddedSurface;
+import org.opensha.sha.faultSurface.SimpleListricGriddedSurface;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
+import org.opensha.sha.param.editor.SimpleFaultParameterEditor;
 
 
 /**

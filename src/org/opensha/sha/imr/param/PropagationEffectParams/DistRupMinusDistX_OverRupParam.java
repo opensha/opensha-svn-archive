@@ -1,8 +1,6 @@
 package org.opensha.sha.imr.param.PropagationEffectParams;
 
-import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.WarningDoubleParameter;
 
 /**
  * DistRupMinusDistX_OverRupParam - this represents distance X (relative to  

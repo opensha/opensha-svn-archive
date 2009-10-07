@@ -1,6 +1,10 @@
 package org.opensha.sha.imr.attenRelImpl.test;
 
-import java.util.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
@@ -27,11 +31,6 @@ import org.opensha.sha.imr.param.PropagationEffectParams.HangingWallFlagParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
-import org.opensha.sha.param.*;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 public class AS_2008_test extends NGATest {
 

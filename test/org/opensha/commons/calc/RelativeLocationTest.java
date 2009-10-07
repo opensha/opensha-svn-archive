@@ -1,7 +1,13 @@
 package org.opensha.commons.calc;
-import static org.opensha.commons.calc.RelativeLocation.*;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.opensha.commons.calc.RelativeLocation.angle;
+import static org.opensha.commons.calc.RelativeLocation.azimuth;
+import static org.opensha.commons.calc.RelativeLocation.azimuthRad;
+import static org.opensha.commons.calc.RelativeLocation.fastSurfaceDistance;
+import static org.opensha.commons.calc.RelativeLocation.linearDistance;
+import static org.opensha.commons.calc.RelativeLocation.surfaceDistance;
 
 import org.junit.Test;
 import org.opensha.commons.data.Location;

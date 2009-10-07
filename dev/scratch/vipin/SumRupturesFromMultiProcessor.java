@@ -1,9 +1,7 @@
 package scratch.vipin;
 
-import java.util.ArrayList;
-import java.io.FileWriter;
-import java.io.FileReader;
 import java.io.BufferedReader;
+import java.io.FileReader;
 
 /**
  * <p>Title: SumRupturesFromMultiProcessor.java </p>

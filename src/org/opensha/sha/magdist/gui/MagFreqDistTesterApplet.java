@@ -1,27 +1,51 @@
 package org.opensha.sha.magdist.gui;
 
-import java.util.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.net.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.text.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Paint;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.MouseEvent;
+import java.net.URL;
+import java.util.ArrayList;
 
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JApplet;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextPane;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
 
-import org.jfree.chart.*;
-import org.jfree.chart.axis.*;
-
-import org.jfree.data.*;
-import org.jfree.chart.labels.*;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.TickUnits;
+import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
-
-
-
-
-
-
-
+import org.jfree.data.Range;
 import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.OvalBorder;
@@ -30,13 +54,14 @@ import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.gui.plot.jfreechart.MyTickUnits;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.util.ImageUtils;
-
-
-
-
-import org.opensha.sha.magdist.*;
-import org.opensha.sha.param.*;
-import org.opensha.sha.param.editor.*;
+import org.opensha.sha.magdist.GaussianMagFreqDist;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.sha.magdist.SingleMagFreqDist;
+import org.opensha.sha.magdist.SummedMagFreqDist;
+import org.opensha.sha.magdist.YC_1985_CharMagFreqDist;
+import org.opensha.sha.param.MagFreqDistParameter;
+import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
 
 /**
  * <p>Title: MagFreqDistTesterApplet</p>

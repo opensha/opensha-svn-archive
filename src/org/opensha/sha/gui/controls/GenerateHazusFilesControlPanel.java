@@ -1,21 +1,29 @@
 package org.opensha.sha.gui.controls;
 
-import java.awt.*;
-import javax.swing.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.SystemColor;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 
-import org.opensha.sha.gui.beans.*;
-import org.opensha.sha.gui.controls.GenerateHazusFilesConrolPanelAPI;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTextPane;
+
+import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
+import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.sha.gui.beans.IMT_GuiBean;
+import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
-import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.commons.data.XYZ_DataSetAPI;
-
-import java.awt.event.*;
-import org.opensha.sha.gui.infoTools.CalcProgressBar;
 
 /**
  * <p>Title: GenerateHazusFilesControlPanel</p>

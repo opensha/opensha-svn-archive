@@ -1,9 +1,20 @@
 package org.opensha.commons.util.tests;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.applet.*;
-import javax.swing.*;
+import java.awt.AWTEvent;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.event.WindowEvent;
+
+import javax.swing.JApplet;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 /**
  * <p>Title: TestApplet</p>

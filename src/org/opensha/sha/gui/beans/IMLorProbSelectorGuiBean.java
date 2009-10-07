@@ -1,7 +1,6 @@
 package org.opensha.sha.gui.beans;
 
-import javax.swing.*;
-import java.util.*;
+import java.util.ArrayList;
 
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.DoubleParameter;
@@ -10,9 +9,6 @@ import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-
-
-
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.IntensityMeasureRelationship;
 

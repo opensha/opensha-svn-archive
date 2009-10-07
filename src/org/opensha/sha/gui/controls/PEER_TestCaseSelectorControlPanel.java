@@ -1,37 +1,47 @@
 package org.opensha.sha.gui.controls;
 
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
-import java.awt.event.*;
 
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 
-import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.*;
-import org.opensha.sha.gui.*;
-
-
-
-import org.opensha.sha.magdist.*;
-import org.opensha.sha.param.*;
-import org.opensha.sha.param.editor.*;
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.imr.*;
-import org.opensha.sha.imr.attenRelImpl.*;
-import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
-import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
-import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
-import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
-import org.opensha.sha.calc.HazardCurveCalculator;
-
-
-import org.opensha.sha.gui.beans.*;
-import org.opensha.sha.param.editor.gui.SimpleFaultParameterEditorPanel;
-import org.opensha.sha.gui.controls.SetMinSourceSiteDistanceControlPanel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.PEER_testsMagAreaRelationship;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.sha.earthquake.rupForecastImpl.*;
-import java.awt.*;
-import javax.swing.*;
+import org.opensha.sha.calc.HazardCurveCalculator;
+import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF;
+import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast;
+import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_LogicTreeERF_List;
+import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast;
+import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast;
+import org.opensha.sha.gui.beans.ERF_GuiBean;
+import org.opensha.sha.gui.beans.IMR_GuiBean;
+import org.opensha.sha.gui.beans.IMT_GuiBean;
+import org.opensha.sha.gui.beans.Site_GuiBean;
+import org.opensha.sha.gui.beans.TimeSpanGuiBean;
+import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.SadighEtAl_1997_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
+import org.opensha.sha.magdist.GaussianMagFreqDist;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.magdist.SingleMagFreqDist;
+import org.opensha.sha.magdist.YC_1985_CharMagFreqDist;
+import org.opensha.sha.param.MagFreqDistParameter;
+import org.opensha.sha.param.SimpleFaultParameter;
+import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
+import org.opensha.sha.param.editor.gui.SimpleFaultParameterEditorPanel;
 
 
 /**

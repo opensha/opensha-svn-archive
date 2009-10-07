@@ -1,28 +1,23 @@
 package org.opensha.refFaultParamDb.gui.addEdit.paleoSite;
 
-import javax.swing.*;
-
-
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import java.util.ArrayList;
-import java.awt.*;
 
-import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
-import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.gui.LabeledBoxPanel;
 import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.editor.ConstrainedStringListParameterEditor;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
-import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.editor.estimate.ConstrainedEstimateParameterEditor;
 import org.opensha.commons.param.estimate.EstimateConstraint;
 import org.opensha.commons.param.estimate.EstimateParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
+import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
 
 /**
  * <p>Title: AddEditCumDisplacement.java </p>

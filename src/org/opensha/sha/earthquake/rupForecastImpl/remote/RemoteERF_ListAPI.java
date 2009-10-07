@@ -1,15 +1,7 @@
 package org.opensha.sha.earthquake.rupForecastImpl.remote;
 
-import java.util.*;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
-
-import org.opensha.sha.earthquake.*;
-import org.opensha.commons.data.Location;
-import org.opensha.commons.data.TimeSpan;
-import org.opensha.commons.data.region.Region;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterList;
+import java.util.ArrayList;
 
 /**
  * <p>Title: RemoteERF_ListAPI</p>

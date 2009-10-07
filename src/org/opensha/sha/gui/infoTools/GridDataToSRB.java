@@ -1,6 +1,5 @@
 package org.opensha.sha.gui.infoTools;
 
-import java.io.*;
 
 
 /**

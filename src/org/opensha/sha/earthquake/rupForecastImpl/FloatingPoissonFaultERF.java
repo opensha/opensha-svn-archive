@@ -2,10 +2,6 @@ package org.opensha.sha.earthquake.rupForecastImpl;
 
 import java.util.ArrayList;
 
-
-
-import org.opensha.sha.param.*;
-import org.opensha.sha.magdist.*;
 import org.opensha.commons.calc.magScalingRelations.MagScalingRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.PEER_testsMagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
@@ -13,9 +9,18 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_Mag
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.StringParameter;
+import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
+import org.opensha.sha.magdist.GaussianMagFreqDist;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.sha.magdist.SingleMagFreqDist;
+import org.opensha.sha.magdist.SummedMagFreqDist;
+import org.opensha.sha.magdist.YC_1985_CharMagFreqDist;
+import org.opensha.sha.param.MagFreqDistParameter;
 import org.opensha.sha.param.SimpleFaultParameter;
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.faultSurface.*;
 
 
 /**

@@ -91,16 +91,15 @@
 
 package org.opensha.commons.gui.plot.jfreechart;
 
+import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.Insets;
+import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.awt.geom.Line2D;
 
 import org.jfree.chart.axis.AxisState;
 import org.jfree.chart.axis.NumberAxis;
@@ -113,7 +112,6 @@ import org.jfree.data.Range;
 import org.jfree.text.TextUtilities;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
-import org.jfree.ui.RefineryUtilities;
 import org.jfree.ui.TextAnchor;
 
 

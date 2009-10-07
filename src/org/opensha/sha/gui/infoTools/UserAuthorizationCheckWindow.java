@@ -1,14 +1,25 @@
 package org.opensha.sha.gui.infoTools;
-import java.awt.*;
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.ObjectInputStream;
+import java.net.URL;
+import java.net.URLConnection;
 
-import org.opensha.sha.gui.servlets.user_auth_db.OpenSHA_UsersDBDAO;
-import org.opensha.sha.gui.servlets.user_auth_db.OpenSHA_UsersVO;
-
-import java.net.*;
-import java.io.*;
-import java.net.*;
-import java.awt.event.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 /**
  * <p>Title: UserAuthorizationCheckWindow</p>

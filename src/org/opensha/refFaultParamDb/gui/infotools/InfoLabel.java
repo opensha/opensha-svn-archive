@@ -1,6 +1,8 @@
 package org.opensha.refFaultParamDb.gui.infotools;
-import javax.swing.JLabel;
 import java.awt.Color;
+import java.util.ArrayList;
+
+import javax.swing.JLabel;
 
 import org.opensha.commons.data.estimate.DiscretizedFuncEstimate;
 import org.opensha.commons.data.estimate.Estimate;
@@ -9,10 +11,9 @@ import org.opensha.commons.data.estimate.LogNormalEstimate;
 import org.opensha.commons.data.estimate.MinMaxPrefEstimate;
 import org.opensha.commons.data.estimate.NormalEstimate;
 import org.opensha.commons.data.function.DiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
-
-import org.opensha.refFaultParamDb.data.*;
-import java.util.ArrayList;
+import org.opensha.refFaultParamDb.data.ExactTime;
+import org.opensha.refFaultParamDb.data.TimeAPI;
+import org.opensha.refFaultParamDb.data.TimeEstimate;
 
 /**
  * <p>Title: InfoLabel.java </p>

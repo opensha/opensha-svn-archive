@@ -1,14 +1,28 @@
 package org.opensha.refFaultParamDb.dao.db;
 
-import java.io.*;
-import java.sql.*;
-import java.text.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLWarning;
+import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-import com.sun.rowset.CachedRowSetImpl;
 import java.util.Properties;
+
 import oracle.spatial.geometry.JGeometry;
 import oracle.sql.STRUCT;
-import java.util.ArrayList;
+
+import com.sun.rowset.CachedRowSetImpl;
 
 
 /**

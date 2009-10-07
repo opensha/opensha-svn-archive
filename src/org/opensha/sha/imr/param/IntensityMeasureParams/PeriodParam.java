@@ -2,10 +2,8 @@ package org.opensha.sha.imr.param.IntensityMeasureParams;
 
 import java.util.ArrayList;
 
-import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.DoubleDiscreteConstraint;
 import org.opensha.commons.param.DoubleDiscreteParameter;
-import org.opensha.commons.param.WarningDoubleParameter;
 
 /**
  * This represents Period for the Spectral Acceleration parameter (SA_Param).  

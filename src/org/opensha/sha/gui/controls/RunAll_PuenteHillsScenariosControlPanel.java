@@ -1,15 +1,22 @@
 package org.opensha.sha.gui.controls;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import org.opensha.commons.util.RunScript;
-import org.opensha.sha.gui.controls.*;
-import org.opensha.sha.imr.attenRelImpl.*;
-import org.opensha.sha.gui.beans.*;
-import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
-import org.opensha.sha.param.*;
+import org.opensha.sha.gui.beans.ERF_GuiBean;
+import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
+import org.opensha.sha.gui.beans.EqkRuptureFromERFSelectorPanel;
+import org.opensha.sha.gui.beans.IMR_GuiBean;
+import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.CB_2003_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.Field_2000_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.SadighEtAl_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 import org.opensha.sha.magdist.SingleMagFreqDist;
-import org.opensha.sha.gui.beans.*;
+import org.opensha.sha.param.MagFreqDistParameter;
+import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
 
 /**
  * <p>Title: RunAll_PuenteHillsScenariosControlPanel</p>

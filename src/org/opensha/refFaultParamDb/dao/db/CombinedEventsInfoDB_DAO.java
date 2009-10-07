@@ -1,16 +1,17 @@
 package org.opensha.refFaultParamDb.dao.db;
 
-import org.opensha.refFaultParamDb.vo.CombinedEventsInfo;
-import java.sql.SQLException;
-import org.opensha.refFaultParamDb.dao.exception.InsertException;
-import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
-import java.util.ArrayList;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
-import org.opensha.refFaultParamDb.vo.Reference;
+import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
-import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
+import org.opensha.refFaultParamDb.vo.CombinedEventsInfo;
 import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
+import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
+import org.opensha.refFaultParamDb.vo.Reference;
 
 /**
  * <p>Title: CombinedEventsInfoDB_DAO.java </p>

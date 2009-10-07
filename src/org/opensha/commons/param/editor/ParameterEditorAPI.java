@@ -1,15 +1,6 @@
 package org.opensha.commons.param.editor;
 
-import java.awt.Component;
-import java.beans.PropertyChangeListener;
-
-import javax.swing.JPanel;
-
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.event.ParameterChangeEvent;
-import org.opensha.commons.param.event.ParameterChangeFailEvent;
-import org.opensha.commons.param.event.ParameterChangeFailListener;
-import org.opensha.commons.param.event.ParameterChangeListener;
 
 /**
  * <b>Title:</b> ParameterEditorAPI<p>

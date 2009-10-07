@@ -1,9 +1,7 @@
 package org.opensha.sha.earthquake;
 
 import java.util.ArrayList;
-import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.sha.earthquake.*;
+
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteEqkRupForecastAPI;
 
 /**

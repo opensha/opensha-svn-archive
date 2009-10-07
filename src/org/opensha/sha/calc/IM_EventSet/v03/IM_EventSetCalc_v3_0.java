@@ -1,40 +1,13 @@
 package org.opensha.sha.calc.IM_EventSet.v03;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.ListIterator;
-import java.util.StringTokenizer;
-import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.opensha.commons.calc.RelativeLocation;
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataValue;
-import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
-import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
-import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
-import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
-import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
-import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
-import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
-import org.opensha.sha.util.SiteTranslator;
 
 public abstract class IM_EventSetCalc_v3_0 implements IM_EventSetCalc_v3_0_API {
 	

@@ -1,6 +1,5 @@
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.fileGen;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.Collator;

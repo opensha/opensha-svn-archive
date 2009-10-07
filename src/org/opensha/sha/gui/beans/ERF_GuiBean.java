@@ -1,30 +1,20 @@
 package org.opensha.sha.gui.beans;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.ListIterator;
 
+import javax.swing.BorderFactory;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
-
-import org.opensha.sha.earthquake.ERF_EpistemicList;
-import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
-import org.opensha.sha.gui.infoTools.CalcProgressBar;
-import org.opensha.sha.param.MagFreqDistParameter;
-import org.opensha.sha.param.SimpleFaultParameter;
-import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
-import org.opensha.sha.param.editor.SimpleFaultParameterEditor;
-import java.awt.*;
-
-import javax.swing.*;
-
-import org.opensha.sha.earthquake.EqkRupForecast;
-import java.util.EventObject;
-
-import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.ParameterList;
@@ -34,6 +24,13 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.sha.earthquake.ERF_EpistemicList;
+import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
+import org.opensha.sha.gui.infoTools.CalcProgressBar;
+import org.opensha.sha.param.MagFreqDistParameter;
+import org.opensha.sha.param.SimpleFaultParameter;
+import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
+import org.opensha.sha.param.editor.SimpleFaultParameterEditor;
 
 /**
  * <p>Title: ERF_GuiBean </p>

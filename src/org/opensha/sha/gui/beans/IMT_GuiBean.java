@@ -1,5 +1,9 @@
 package org.opensha.sha.gui.beans;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
+
 import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.DoubleDiscreteConstraint;
 import org.opensha.commons.param.DoubleDiscreteParameter;
@@ -9,14 +13,9 @@ import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-
-import org.opensha.sha.imr.*;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
-
-
-
-import java.util.*;
 
 /**
  * <p>Title: IMT_GuiBean </p>

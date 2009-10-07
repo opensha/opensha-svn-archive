@@ -11,8 +11,6 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.opensha.commons.data.Location;
-import org.opensha.commons.data.Site;
 import org.opensha.commons.param.BooleanParameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringConstraint;

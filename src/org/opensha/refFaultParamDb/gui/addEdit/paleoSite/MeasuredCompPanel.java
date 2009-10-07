@@ -1,18 +1,14 @@
 package org.opensha.refFaultParamDb.gui.addEdit.paleoSite;
 
-import javax.swing.JPanel;
-
-import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
-import org.opensha.commons.param.editor.DoubleParameterEditor;
-import org.opensha.commons.param.event.ParameterChangeEvent;
-import org.opensha.commons.param.event.ParameterChangeListener;
-import java.util.ArrayList;
-import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
-import java.util.HashMap;
+import java.util.ArrayList;
+
+import javax.swing.JPanel;
+
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 
 /**
  * <p>Title: SenseOfMotion_MeasuredCompPanel.java </p>

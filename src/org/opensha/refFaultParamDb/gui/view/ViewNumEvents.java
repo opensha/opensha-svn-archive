@@ -1,15 +1,17 @@
 package org.opensha.refFaultParamDb.gui.view;
 
 
-import java.awt.*;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 
-import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
+import javax.swing.JPanel;
+
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.gui.LabeledBoxPanel;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
-import javax.swing.JPanel;
+import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
 
 
 /**

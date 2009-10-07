@@ -1,10 +1,11 @@
 package org.opensha.refFaultParamDb.dao.db;
 
-import org.opensha.refFaultParamDb.vo.SiteRepresentation;
-import java.util.ArrayList;
-import java.sql.SQLException;
-import org.opensha.refFaultParamDb.dao.exception.*;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import org.opensha.refFaultParamDb.dao.exception.QueryException;
+import org.opensha.refFaultParamDb.vo.SiteRepresentation;
 
 /**
  * <p>Title: SiteRepresentationDB_DAO.java </p>

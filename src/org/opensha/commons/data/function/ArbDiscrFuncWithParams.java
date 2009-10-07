@@ -1,6 +1,7 @@
 package org.opensha.commons.data.function;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.Iterator;
 
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.DataPoint2DComparatorAPI;

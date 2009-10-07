@@ -1,24 +1,17 @@
 package org.opensha.nshmp.sha.nico;
 
 
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.
-    Frankel02_AdjustableEqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel02_AdjustableEqkRupForecastClient;
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.gui.infoTools.ConnectToCVM;
-import org.opensha.sha.imr.*;
-import org.opensha.sha.imr.attenRelImpl.*;
-import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
-import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
-import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
-
-import java.util.*;
-import java.io.*;
-import org.opensha.sha.util.SiteTranslator;
-
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.StringTokenizer;
 
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
@@ -30,8 +23,22 @@ import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.SystemPropertiesUtils;
-
-import java.text.DecimalFormat;
+import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
+import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel02_AdjustableEqkRupForecastClient;
+import org.opensha.sha.gui.infoTools.ConnectToCVM;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.CB_2003_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.SadighEtAl_1997_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.util.SiteTranslator;
 
 /**
  * <p>Title: MeanSigmaCalc</p>

@@ -1,8 +1,18 @@
 package org.opensha.sha.cybershake.db;
 
-import java.io.*;
-import java.sql.*;
-import java.text.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLWarning;
+import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.opensha.commons.gui.UserAuthDialog;

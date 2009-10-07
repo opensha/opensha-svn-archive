@@ -1,12 +1,19 @@
 package org.opensha.sha.gui.beans;
 
-import java.awt.event.ItemEvent;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.ListIterator;
-import java.util.StringTokenizer;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -14,32 +21,27 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.Timer;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
-import javax.swing.Timer;
-import java.awt.*;
 
 import org.opensha.commons.data.Location;
-import org.opensha.commons.param.IntegerConstraint;
 import org.opensha.commons.param.IntegerParameter;
 import org.opensha.commons.param.LocationParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.sha.gui.infoTools.CalcProgressBar;
-import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.earthquake.ProbEqkSource;
-import java.awt.event.ActionListener;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
+import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.gui.infoTools.CalcProgressBar;
 
 /**
  * <p>Title: EqkRuptureFromERFSelectorPanel</p>

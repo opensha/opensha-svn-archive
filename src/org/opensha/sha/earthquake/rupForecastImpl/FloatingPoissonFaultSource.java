@@ -3,8 +3,6 @@ package org.opensha.sha.earthquake.rupForecastImpl;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.opensha.sha.magdist.*;
-
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.MagLengthRelationship;
@@ -12,8 +10,12 @@ import org.opensha.commons.calc.magScalingRelations.MagScalingRelationship;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.faultSurface.*;
+import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.magdist.GaussianMagFreqDist;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 
 /**

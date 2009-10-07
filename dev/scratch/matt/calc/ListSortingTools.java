@@ -1,9 +1,10 @@
 package scratch.matt.calc;
 
-import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
-import java.util.ListIterator;
-import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import java.util.Arrays;
+import java.util.ListIterator;
+
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 
 
 /**

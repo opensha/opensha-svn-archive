@@ -1,13 +1,14 @@
 package org.opensha.refFaultParamDb.dao.db;
 
-import org.opensha.refFaultParamDb.vo.PaleoSitePublication;
-import java.sql.SQLException;
-import org.opensha.refFaultParamDb.dao.exception.InsertException;
-import java.util.ArrayList;
-import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+
+import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
+import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+import org.opensha.refFaultParamDb.vo.PaleoSitePublication;
 
 /**
  * <p>Title: PaleoSitePublicationsDB_DAO.java </p>

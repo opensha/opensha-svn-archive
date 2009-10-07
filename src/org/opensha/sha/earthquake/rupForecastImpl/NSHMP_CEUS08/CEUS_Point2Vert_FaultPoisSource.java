@@ -1,13 +1,7 @@
 package org.opensha.sha.earthquake.rupForecastImpl.NSHMP_CEUS08;
 
-import org.opensha.sha.magdist.*;
+import java.util.Iterator;
 
-
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.faultSurface.*;
-
-// temp for testing
-import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.calc.magScalingRelations.MagLengthRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
@@ -16,10 +10,14 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Random;
+import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.FrankelGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSubsetSurface;
+import org.opensha.sha.faultSurface.PointSurface;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 /**
  * <p>Title: Point2Vert_FaultPoisSource </p>

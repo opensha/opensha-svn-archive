@@ -1,16 +1,15 @@
 package org.opensha.sha.faultSurface;
 
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.ListIterator;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
-import org.opensha.commons.calc.RelativeLocation;
+
 import org.opensha.commons.data.Location;
 import org.opensha.commons.exceptions.FaultException;
 import org.opensha.commons.util.FaultUtils;
-
-import java.io.IOException;
 
 
 /**

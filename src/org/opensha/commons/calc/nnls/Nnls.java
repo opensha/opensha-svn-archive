@@ -1,7 +1,8 @@
 package org.opensha.commons.calc.nnls;
 
 
-import org.netlib.util.*;
+import org.netlib.util.doubleW;
+import org.netlib.util.intW;
 
 /**
  * This code was originally downloaded from http://www.imaging.robarts.ca/~cjones/software/,

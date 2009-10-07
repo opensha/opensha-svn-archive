@@ -1,8 +1,8 @@
 package org.opensha.commons.util.binFile.test;
 
-import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
-
 import junit.framework.TestCase;
+
+import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
 
 public class BinaryMesh2DTest extends TestCase {
 	

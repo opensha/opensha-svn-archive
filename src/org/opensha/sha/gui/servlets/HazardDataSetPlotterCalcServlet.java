@@ -1,15 +1,21 @@
 package org.opensha.sha.gui.servlets;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
-import org.opensha.commons.data.Location;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.opensha.commons.util.FileUtils;
-
-import org.opensha.sha.gui.servlets.*;
 
 /**
  * <p>Title: HazardDataSetPlotterCalcServlet  </p>

@@ -1,12 +1,15 @@
 package org.opensha.sha.param.editor;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ListIterator;
 
-
-
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
@@ -22,12 +25,14 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
-
-
-import org.opensha.sha.param.*;
-import org.opensha.sha.magdist.*;
-import org.opensha.sha.magdist.*;
+import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
+import org.opensha.sha.magdist.GaussianMagFreqDist;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.magdist.SingleMagFreqDist;
+import org.opensha.sha.magdist.SummedMagFreqDist;
+import org.opensha.sha.magdist.YC_1985_CharMagFreqDist;
 import org.opensha.sha.magdist.gui.MagFreqDistApp;
+import org.opensha.sha.param.MagFreqDistParameter;
 
 /**
  * <b>Title:</b> MagFreqDistParameterEditor<p>

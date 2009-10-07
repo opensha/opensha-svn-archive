@@ -1,9 +1,8 @@
 package org.opensha.refFaultParamDb.excelToDatabase;
 
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.ContributorDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
-import org.opensha.refFaultParamDb.vo.Contributor;
 
 /**
  * <p>Title: AddContributorForDatabase.java </p>

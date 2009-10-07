@@ -1,8 +1,8 @@
 package org.opensha.refFaultParamDb.gui.infotools;
 
-import org.opensha.refFaultParamDb.vo.Contributor;
 import org.opensha.refFaultParamDb.dao.db.ContributorDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.vo.Contributor;
 
 /**
  * <p>Title: SessionInfo.java </p>

@@ -1,26 +1,29 @@
 package org.opensha.refFaultParamDb.gui.addEdit.paleoSite;
 
-import javax.swing.*;
+import java.awt.Container;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import org.opensha.refFaultParamDb.gui.event.DbAdditionListener;
-import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
-import java.awt.*;
 import java.util.ArrayList;
-import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
-import org.opensha.refFaultParamDb.gui.event.DbAdditionSuccessEvent;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
+import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.SiteRepresentationDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.SiteTypeDB_DAO;
+import org.opensha.refFaultParamDb.gui.event.DbAdditionListener;
+import org.opensha.refFaultParamDb.gui.event.DbAdditionSuccessEvent;
+import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.gui.view.ViewAllReferences;
 import org.opensha.refFaultParamDb.vo.Reference;
-import org.opensha.refFaultParamDb.dao.db.SiteTypeDB_DAO;
-import org.opensha.refFaultParamDb.dao.db.SiteRepresentationDB_DAO;
-import org.opensha.refFaultParamDb.vo.SiteType;
 import org.opensha.refFaultParamDb.vo.SiteRepresentation;
+import org.opensha.refFaultParamDb.vo.SiteType;
 
 /**
  * <p>Title: ChooseReference.java </p>

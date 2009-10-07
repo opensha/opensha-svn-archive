@@ -1,13 +1,13 @@
 package org.opensha.sha.calc.IM_EventSet.v03.test;
 
+import junit.framework.TestCase;
+
 import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
-
-import junit.framework.TestCase;
 
 public class IMT_String_Test extends TestCase {
 	

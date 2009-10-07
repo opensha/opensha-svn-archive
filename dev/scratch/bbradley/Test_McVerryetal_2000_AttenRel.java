@@ -1,9 +1,10 @@
   package scratch.bbradley;
   
   import org.opensha.commons.data.Location;
-  import org.opensha.commons.data.Site;
-  import org.opensha.sha.earthquake.*;
-  import org.opensha.sha.faultSurface.*;
+import org.opensha.commons.data.Site;
+import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
   /**
    * This tests DistJB numerical precision with respect to the f_hngR term.  Looks OK now.
    * @param args

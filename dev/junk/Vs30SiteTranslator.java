@@ -1,15 +1,17 @@
 package junk;
 
-import java.util.ListIterator;
-
-import org.opensha.sha.imr.attenRelImpl.*;
-import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
-import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
-import org.opensha.commons.data.Site;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.WarningDoubleParameter;
-
-import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.CB_2003_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.CS_2005_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.Field_2000_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.SadighEtAl_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
+import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 
 

@@ -1,12 +1,17 @@
 package scratch.martinez;
 
-import javax.swing.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import scratch.martinez.beans.BenefitCostBean;
 import scratch.martinez.beans.GuiBeanAPI;
-
-import java.awt.*;
-import java.awt.event.*;
 
 /**
  * A testing aplication to see how the BenefitCostBean will look and gather information

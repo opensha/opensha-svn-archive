@@ -1,17 +1,48 @@
 package org.opensha.sha.imr.attenRelImpl.gui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.util.*;
-import java.net.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
 
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.text.*;
+import javax.help.HelpBroker;
+import javax.help.CSH.DisplayHelpFromSource;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.JToolBar;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
 
-import org.jfree.data.*;
-
+import org.jfree.data.Range;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.gui.OvalBorder;
@@ -26,24 +57,45 @@ import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.ImageUtils;
-
-
-
-
-
-
-import org.opensha.sha.gui.controls.*;
-import org.opensha.sha.gui.infoTools.*;
-import org.opensha.sha.imr.attenRelImpl.*;
-import org.opensha.sha.imr.attenRelImpl.depricated.*;
+import org.opensha.sha.gui.controls.AxisLimitsControlPanel;
+import org.opensha.sha.gui.controls.AxisLimitsControlPanelAPI;
+import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
+import org.opensha.sha.gui.controls.XY_ValuesControlPanel;
+import org.opensha.sha.gui.controls.XY_ValuesControlPanelAPI;
+import org.opensha.sha.gui.infoTools.ApplicationDisclaimerWindow;
+import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
+import org.opensha.sha.gui.infoTools.ButtonControlPanel;
+import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
+import org.opensha.sha.gui.infoTools.GraphPanel;
+import org.opensha.sha.gui.infoTools.GraphPanelAPI;
+import org.opensha.sha.gui.infoTools.GraphWindow;
+import org.opensha.sha.gui.infoTools.GraphWindowAPI;
+import org.opensha.sha.gui.infoTools.LaunchHelpFromMenu;
+import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.BC_2004_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.BS_2003_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.CB_2003_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.CS_2005_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.Field_2000_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.GouletEtAl_2006_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.McVerryetal_2000_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.SEA_1999_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.SadighEtAl_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.depricated.BA_2006_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.depricated.CB_2006_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.depricated.CY_2006_AttenRel;
 
 import scratch.christine.attenRelImpl.BS_2003b_AttenRel;
-import scratch.christine.attenRelImpl.GouletEtAl_2010_AttenRel;
 import scratch.jennie.attenRelImpl.ToroEtAl_1997_AttenRel;
-
-
-import javax.help.*;
-import javax.help.CSH.DisplayHelpFromSource;
 
 /**
  *  <b>Title:</b> AttenuationRelationshipApplet<br>

@@ -1,10 +1,9 @@
 package org.opensha.sha.calc.remoteCalc;
 
-import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
-import org.opensha.sha.calc.HazardCurveCalculatorAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
+import org.opensha.sha.calc.HazardCurveCalculatorAPI;
 
 /**
  * <p>Title: RemoteHazardCurveFactoryImpl</p>

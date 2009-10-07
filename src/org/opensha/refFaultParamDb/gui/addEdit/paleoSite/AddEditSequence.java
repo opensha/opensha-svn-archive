@@ -1,16 +1,18 @@
 package org.opensha.refFaultParamDb.gui.addEdit.paleoSite;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Iterator;
 
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.UIManager;
 
-
-
-
-import org.opensha.refFaultParamDb.gui.*;
-import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.commons.gui.LabeledBoxPanel;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterAPI;
@@ -22,10 +24,11 @@ import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.editor.StringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.refFaultParamDb.vo.EventSequence;
-import java.util.Iterator;
-import org.opensha.refFaultParamDb.dao.db.PaleoEventDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.PaleoEventDB_DAO;
+import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
+import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
+import org.opensha.refFaultParamDb.vo.EventSequence;
 import org.opensha.refFaultParamDb.vo.PaleoEvent;
 
 /**

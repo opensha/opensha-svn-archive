@@ -1,12 +1,11 @@
 package scratch.ned.GEM_speed;
 
-import java.io.FileInputStream;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.util.StringTokenizer;
 import java.util.ArrayList;
-import java.lang.Double;
+import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;

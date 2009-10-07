@@ -2,21 +2,21 @@ package org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases;
 
 
 import java.util.ArrayList;
-import java.util.Iterator;
-
-
 
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.PEER_testsMagAreaRelationship;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.StringParameter;
-
-import org.opensha.sha.faultSurface.*;
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.param.MagFreqDistParameter;
-import org.opensha.sha.magdist.*;
-import org.opensha.sha.earthquake.rupForecastImpl.*;
+import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfFromSimpleFaultData;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.FrankelGriddedSurface;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 
 /**

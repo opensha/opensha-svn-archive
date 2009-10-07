@@ -1,11 +1,15 @@
 package scratch.ned.WardAnalysis;
 
-import scratch.ned.RundleAnalysis.SegmentSlipTimeInfo;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 import org.opensha.commons.util.FileUtils;
 
-import java.util.*;
-import java.io.*;
+import scratch.ned.RundleAnalysis.SegmentSlipTimeInfo;
 
 /**
  * <p>Title: WardAnalysis</p>

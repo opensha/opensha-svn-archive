@@ -7,7 +7,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 
 public class ChooserDialog extends JFrame implements ActionListener {
 	

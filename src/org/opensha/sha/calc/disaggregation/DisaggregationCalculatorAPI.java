@@ -1,6 +1,7 @@
 package org.opensha.sha.calc.disaggregation;
 
 import java.rmi.Remote;
+import java.rmi.RemoteException;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;

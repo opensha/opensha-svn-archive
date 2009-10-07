@@ -15,8 +15,6 @@ import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.gui.beans.TimeSpanGuiBean;
 
 import scratch.martinez.LossCurveCalculator;
-import scratch.martinez.beans.GuiBeanAPI;
-import scratch.martinez.beans.VulnerabilityBean;
 
 public class LossCurveBean implements GuiBeanAPI {
 

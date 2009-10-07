@@ -1,13 +1,17 @@
 package org.opensha.sha.gui.beans;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.util.Iterator;
-import java.awt.*;
+
+import javax.swing.JEditorPane;
+import javax.swing.JPanel;
 
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterListEditor;
-import javax.swing.*;
 
 /**
  * Time span gui.

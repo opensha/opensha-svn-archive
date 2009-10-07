@@ -2,7 +2,8 @@ package org.opensha.commons.mapping.gmt.raster;
 
 //modified from: Copyright 2001, FreeHEP.
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * The ASCII85InputStream decodes ASCII base-85 encoded data.

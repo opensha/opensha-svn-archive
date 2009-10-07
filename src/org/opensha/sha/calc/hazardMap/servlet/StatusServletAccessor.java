@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URLConnection;
-import java.text.ParseException;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.region.GriddedRegion;

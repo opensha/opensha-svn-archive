@@ -1,8 +1,9 @@
 package junk;
 
 import java.util.ArrayList;
-import org.opensha.sha.gui.infoTools.ConnectToCVM;
+
 import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.sha.gui.infoTools.ConnectToCVM;
 
 /**
  * <p>Title: TestSiteTypeServlets</p>

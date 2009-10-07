@@ -1,16 +1,14 @@
 package org.opensha.sha.earthquake;
 
-import java.util.*;
+import java.util.ListIterator;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.FaultUtils;
-
-
-
-import org.opensha.sha.faultSurface.*;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.PointSurface;
 
 
 /**

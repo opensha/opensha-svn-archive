@@ -1,7 +1,5 @@
 package org.opensha.sha.calc.remoteCalc;
 
-import org.opensha.sha.calc.remoteCalc.RemoteHazardCurveFactoryAPI;
-import org.opensha.sha.calc.remoteCalc.RemoteHazardCurveFactoryImpl;
 import java.rmi.Naming;
 
 /**

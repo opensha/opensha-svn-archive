@@ -5,9 +5,8 @@ import java.util.ListIterator;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 
-import Jama.Matrix;
-
 import scratch.martinez.VulnerabilityModels.VulnerabilityModel;
+import Jama.Matrix;
 
 /**
  * <strong>Title</strong>: LossCurveCalculator<br />

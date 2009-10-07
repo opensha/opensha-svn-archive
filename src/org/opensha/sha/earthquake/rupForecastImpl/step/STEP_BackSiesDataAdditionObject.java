@@ -1,9 +1,5 @@
 package org.opensha.sha.earthquake.rupForecastImpl.step;
 
-import java.io.*;
-import javax.swing.JOptionPane;
-import java.util.*;
-import java.text.DecimalFormat;
 /**
  * <p>Title: STEP_BackSiesDataAdditionObject</p>
  * <p>Description: This Class adds the BackSies ERF dataset the Step ERF dataSet</p>

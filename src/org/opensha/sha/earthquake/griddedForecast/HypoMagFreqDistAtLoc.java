@@ -1,9 +1,8 @@
 package org.opensha.sha.earthquake.griddedForecast;
 
 import org.opensha.commons.data.Location;
-
-import org.opensha.sha.magdist.*;
-import org.opensha.sha.earthquake.*;
+import org.opensha.sha.earthquake.FocalMechanism;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**
  * <p>Title: HypoMagFreqDistAtLoc</p>

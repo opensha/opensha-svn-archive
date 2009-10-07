@@ -1,7 +1,6 @@
 package org.opensha.sha.gui.controls;
 
 
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 /**
  * <p>Title: PlotColorAndLineTypeSelectorControlPanelAPI</p>

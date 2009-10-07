@@ -1,8 +1,7 @@
 package org.opensha.sha.imr.param.PropagationEffectParams;
 
 import org.opensha.commons.data.Site;
-
-import org.opensha.sha.earthquake.*;
+import org.opensha.sha.earthquake.EqkRupture;
 
 /**
 * <p>Title: PropagationEffectParameterAPI</p>

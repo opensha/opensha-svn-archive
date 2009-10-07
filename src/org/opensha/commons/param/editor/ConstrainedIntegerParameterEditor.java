@@ -1,12 +1,11 @@
 package org.opensha.commons.param.editor;
 
+import java.awt.Color;
+
 import org.opensha.commons.param.IntegerConstraint;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.WarningParameterAPI;
 import org.opensha.commons.util.ParamUtils;
-
-
-import java.awt.*;
 
 
 /**

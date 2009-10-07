@@ -1,20 +1,19 @@
 package org.opensha.refFaultParamDb.gui.addEdit.paleoSite;
 
-import javax.swing.*;
-import java.awt.*;
-
-
-
-
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-import java.awt.event.*;
-import org.opensha.refFaultParamDb.gui.*;
-import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import org.opensha.refFaultParamDb.dao.db.PaleoEventDB_DAO;
-import org.opensha.refFaultParamDb.vo.PaleoEvent;
-import org.opensha.refFaultParamDb.vo.EstimateInstances;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.UIManager;
+
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.gui.LabeledBoxPanel;
@@ -30,16 +29,22 @@ import org.opensha.commons.param.estimate.EstimateConstraint;
 import org.opensha.commons.param.estimate.EstimateParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.refFaultParamDb.data.TimeAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.PaleoEventDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
+import org.opensha.refFaultParamDb.data.TimeAPI;
+import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
+import org.opensha.refFaultParamDb.gui.TimeGuiBean;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionListener;
-
 import org.opensha.refFaultParamDb.gui.event.DbAdditionSuccessEvent;
-import org.opensha.refFaultParamDb.gui.view.ViewAllReferences;
-import org.opensha.refFaultParamDb.vo.Reference;
 import org.opensha.refFaultParamDb.gui.infotools.ConnectToEmailServlet;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+import org.opensha.refFaultParamDb.gui.view.ViewAllReferences;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
+import org.opensha.refFaultParamDb.vo.PaleoEvent;
+import org.opensha.refFaultParamDb.vo.Reference;
 
 /**
  * <p>Title: AddEditIndividualEvent.java </p>

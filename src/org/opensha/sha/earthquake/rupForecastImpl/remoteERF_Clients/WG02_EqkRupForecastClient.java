@@ -1,13 +1,12 @@
 package org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients;
 
-import java.util.*;
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
+import java.util.ArrayList;
 
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RegisterRemoteERF_Factory;
+import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
 
 /**
  * <p>Title: WG02_EqkRupForecastClient </p>

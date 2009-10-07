@@ -1,50 +1,55 @@
 package org.opensha.sha.calc.IM_EventSet.v03;
 
 
-import org.opensha.sha.calc.IM_EventSet.v03.outputImpl.HAZ01Writer;
-import org.opensha.sha.calc.IM_EventSet.v03.outputImpl.OriginalModWriter;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.
-Frankel02_AdjustableEqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.gui.infoTools.ConnectToCVM;
-import org.opensha.sha.imr.*;
-import org.opensha.sha.imr.attenRelImpl.*;
-import org.opensha.sha.imr.attenRelImpl.depricated.*;
-import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
-import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
-import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
-
-import java.util.*;
-import java.util.logging.Handler;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
-import java.io.*;
 
-import org.opensha.sha.util.SiteTranslator;
-
-import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
-import org.opensha.commons.data.Site;
-import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValue;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.WarningParameterAPI;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.commons.util.SystemPropertiesUtils;
-
-import java.text.DecimalFormat;
-import java.lang.reflect.*;
-
-import javax.swing.UIManager;
+import org.opensha.sha.calc.IM_EventSet.v03.outputImpl.HAZ01Writer;
+import org.opensha.sha.calc.IM_EventSet.v03.outputImpl.OriginalModWriter;
+import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
+import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.BC_2004_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.BS_2003_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.CB_2003_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.CS_2005_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.Field_2000_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.GouletEtAl_2006_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.SEA_1999_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.SadighEtAl_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.depricated.BA_2006_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.depricated.CB_2006_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.depricated.CY_2006_AttenRel;
+import org.opensha.sha.util.SiteTranslator;
 
 
 

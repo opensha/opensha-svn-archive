@@ -1,14 +1,16 @@
 package org.opensha.sha.gui.infoTools;
 
 
-import java.util.*;
-import java.io.Serializable;
-import java.net.*;
-import java.io.*;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
 
-import org.opensha.sha.gui.servlets.siteEffect.*;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.sha.gui.servlets.siteEffect.BasinDepthClass;
+import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
 
 /**
  * <p>Title: ConnectToCVM</p>

@@ -1,7 +1,10 @@
 package org.opensha.sha.gui.infoTools;
 
-import java.util.*;
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.imr.AttenuationRelationship;

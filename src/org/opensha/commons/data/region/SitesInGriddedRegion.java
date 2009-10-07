@@ -1,8 +1,10 @@
 package org.opensha.commons.data.region;
 
-import java.util.*;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
 
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
@@ -14,8 +16,7 @@ import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.ParameterAPI;
-
-import org.opensha.sha.util.*;
+import org.opensha.sha.util.SiteTranslator;
 
 /**
  * <p>Title: SitesInGriddedRegion</p>

@@ -1,9 +1,10 @@
 package org.opensha.refFaultParamDb.gui.event;
 
-import javax.swing.JFrame;
 import java.awt.GraphicsConfiguration;
 import java.awt.HeadlessException;
 import java.util.ArrayList;
+
+import javax.swing.JFrame;
 
 /**
  * <p>Title: DbAdditionFrame.java </p>

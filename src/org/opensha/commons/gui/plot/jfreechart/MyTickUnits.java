@@ -1,8 +1,9 @@
 package org.opensha.commons.gui.plot.jfreechart;
 
-import org.jfree.chart.axis.TickUnits;
-import org.jfree.chart.axis.NumberTickUnit;
 import java.text.DecimalFormat;
+
+import org.jfree.chart.axis.NumberTickUnit;
+import org.jfree.chart.axis.TickUnits;
 
 /**
  * <p>Title: MyTickUnits</p>

@@ -1,17 +1,15 @@
 package org.opensha.sha.earthquake.rupForecastImpl.WG02;
 
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
-
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Direction;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
+import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
-
-import java.util.ArrayList;
 
 /**
  * <p>Title: WG02_CharEqkSource</p>

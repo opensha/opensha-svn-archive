@@ -4,9 +4,9 @@ import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 import java.util.ArrayList;
 
-import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RegisterRemoteERF_Factory;
+import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
 
 /**
  * <p>Title: SingleFaultRuptureERF_Client </p>

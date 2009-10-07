@@ -1,9 +1,6 @@
 package scratch.kevin;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.text.Collator;
 import java.util.ArrayList;
@@ -11,9 +8,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.StringTokenizer;
 
-import junk.HazardMapCalcServlet;
-
-import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.util.FileUtils;
 
 

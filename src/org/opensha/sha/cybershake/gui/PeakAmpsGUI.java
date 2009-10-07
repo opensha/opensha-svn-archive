@@ -16,10 +16,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.opensha.sha.cybershake.db.CybershakeHazardCurveRecord;
 import org.opensha.sha.cybershake.db.CybershakeRun;
 import org.opensha.sha.cybershake.db.DBAccess;
-import org.opensha.sha.cybershake.db.PeakAmplitudesFromDB;
 
 public class PeakAmpsGUI extends JFrame implements ActionListener, ListSelectionListener {
 

@@ -1,6 +1,9 @@
 package org.opensha.sha.imr.attenRelImpl.gui;
 
-import java.util.*;
+import java.util.HashMap;
+
+import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 
 /**
  *  <b>Title:</b> IMRGuiList<p>

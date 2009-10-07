@@ -1,11 +1,13 @@
 package org.opensha.sha.gui.beans;
 
 
-import java.util.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.util.ArrayList;
+import java.util.ListIterator;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
+import javax.swing.JPanel;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.param.BooleanParameter;
@@ -18,14 +20,10 @@ import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-
-
-
-
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.faultSurface.*;
-import org.opensha.sha.gui.infoTools.*;
-import org.opensha.sha.param.*;
+import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.PointSurface;
+import org.opensha.sha.param.SimpleFaultParameter;
 
 /**
  * <p>Title: EqkRuptureCreationPanel</p>

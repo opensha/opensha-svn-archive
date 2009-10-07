@@ -6,7 +6,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
@@ -19,19 +18,14 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
-import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
-import org.opensha.commons.exceptions.ConstraintException;
-import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetCalculation;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;

@@ -1,12 +1,18 @@
 package scratch.matt.calc;
 
-import org.opensha.commons.util.FileUtils;
-
-
-import java.util.*;
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.GregorianCalendar;
-import java.lang.String;
+import java.util.ListIterator;
+import java.util.StringTokenizer;
+import java.util.TimeZone;
+
+import org.opensha.commons.util.FileUtils;
 
 /**
  * <p>Title: </p>

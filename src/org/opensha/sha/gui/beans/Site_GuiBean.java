@@ -1,6 +1,14 @@
 package org.opensha.sha.gui.beans;
 
-import java.util.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.util.Iterator;
+
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
@@ -14,9 +22,6 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
-
-import java.awt.*;
-import javax.swing.*;
 
 /**
  * <p>

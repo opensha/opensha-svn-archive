@@ -1,7 +1,6 @@
 package org.opensha.refFaultParamDb.vo;
 
 import java.util.Date;
-import java.io.*;
 
 /**
  * <p>Title: QFault2002B.java </p>

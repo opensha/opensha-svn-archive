@@ -1,11 +1,11 @@
 package org.opensha.sha.gui;
 
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
@@ -23,12 +23,12 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
+import org.opensha.sha.calc.SpectrumCalculator;
+import org.opensha.sha.calc.SpectrumCalculatorAPI;
 import org.opensha.sha.earthquake.ERF_EpistemicList;
-import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMT_GuiBean;
@@ -41,13 +41,6 @@ import org.opensha.sha.gui.infoTools.WeightedFuncListforPlotting;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
-import org.opensha.sha.calc.HazardCurveCalculator;
-import org.opensha.sha.calc.SpectrumCalculator;
-import org.opensha.sha.calc.SpectrumCalculatorAPI;
-import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
-
-import java.net.URL;
-import java.rmi.RemoteException;
 
 /**
  * @author nitingupta

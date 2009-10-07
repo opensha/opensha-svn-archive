@@ -4,7 +4,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import org.opensha.commons.data.Location;
-import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.GriddedRegion;
 

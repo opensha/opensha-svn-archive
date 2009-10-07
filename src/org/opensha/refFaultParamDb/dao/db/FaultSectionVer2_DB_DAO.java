@@ -1,24 +1,22 @@
 package org.opensha.refFaultParamDb.dao.db;
 
-import org.opensha.refFaultParamDb.vo.EstimateInstances;
-import org.opensha.refFaultParamDb.vo.FaultSectionData;
-import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.opensha.refFaultParamDb.dao.exception.InsertException;
-import org.opensha.refFaultParamDb.dao.exception.QueryException;
-import org.opensha.refFaultParamDb.dao.exception.UpdateException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import oracle.spatial.geometry.JGeometry;
 
-import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.estimate.MinMaxPrefEstimate;
-
-import java.util.ArrayList;
-import java.util.HashMap;
+import org.opensha.refFaultParamDb.dao.exception.InsertException;
+import org.opensha.refFaultParamDb.dao.exception.QueryException;
+import org.opensha.refFaultParamDb.dao.exception.UpdateException;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
+import org.opensha.refFaultParamDb.vo.FaultSectionData;
+import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
+import org.opensha.sha.faultSurface.FaultTrace;
 
 /**
  * <p>Title: FaultSectionVer2_DB_DAO.java </p>

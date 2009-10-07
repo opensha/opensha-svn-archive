@@ -1,7 +1,6 @@
 package org.opensha.sha.earthquake.rupForecastImpl.remote;
 
 import java.rmi.Remote;
-import java.rmi.RemoteException;
 
 /**
  * <p>Title: RemoteERF_ListFactoryAPI </p>

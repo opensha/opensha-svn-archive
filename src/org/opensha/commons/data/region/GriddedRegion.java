@@ -1,15 +1,11 @@
 package org.opensha.commons.data.region;
 
 import java.awt.Shape;
-import java.awt.geom.PathIterator;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
-
-import javax.naming.OperationNotSupportedException;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.math.util.MathUtils;
@@ -17,11 +13,6 @@ import org.dom4j.Element;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.exceptions.InvalidRangeException;
-import org.opensha.commons.exceptions.RegionConstraintException;
-import org.opensha.commons.metadata.XMLSaveable;
-
-import com.sun.servicetag.UnauthorizedAccessException;
-import com.sun.xml.rpc.processor.util.CanonicalModelWriter.GetNameComparator;
 
 
 /**

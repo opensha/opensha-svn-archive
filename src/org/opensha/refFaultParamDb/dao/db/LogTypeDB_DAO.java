@@ -1,7 +1,8 @@
 package org.opensha.refFaultParamDb.dao.db;
 
-import java.sql.SQLException;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
 
 /**

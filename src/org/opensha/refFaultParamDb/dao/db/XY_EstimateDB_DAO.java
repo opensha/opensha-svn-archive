@@ -1,12 +1,13 @@
 package org.opensha.refFaultParamDb.dao.db;
 
 
-import org.opensha.refFaultParamDb.dao.exception.*;
-import java.sql.SQLException;
 import java.sql.ResultSet;
-import java.util.ArrayList;
+import java.sql.SQLException;
 
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.refFaultParamDb.dao.exception.InsertException;
+import org.opensha.refFaultParamDb.dao.exception.QueryException;
+import org.opensha.refFaultParamDb.dao.exception.UpdateException;
 /**
  * <p>Title: XY_EstimateDB_DAO.java </p>
  * <p>Description: </p>

@@ -2,7 +2,7 @@ package org.opensha.sha.imr;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ListIterator;
 
 import org.dom4j.Element;
 import org.opensha.commons.data.NamedObjectAPI;
@@ -11,11 +11,7 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-
-
-
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.param.*;
+import org.opensha.sha.earthquake.EqkRupture;
 
 /**
  *  <b>Title:</b> IntensityMeasureRelationshipAPI<br>

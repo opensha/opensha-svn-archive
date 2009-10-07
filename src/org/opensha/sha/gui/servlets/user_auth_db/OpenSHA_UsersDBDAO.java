@@ -1,13 +1,12 @@
 package org.opensha.sha.gui.servlets.user_auth_db;
 
 import java.io.IOException;
-import java.sql.*;
-
-import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
-import org.opensha.sha.gui.servlets.user_auth_db.OpenSHA_UsersVO;
-
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
+
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 /**
  * <p>Title: OpenSHA_UsersDBDAO.java </p>
  * <p>Description: This class will interact with MySQL database for users management

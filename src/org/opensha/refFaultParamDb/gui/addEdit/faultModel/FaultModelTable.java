@@ -1,17 +1,18 @@
 package org.opensha.refFaultParamDb.gui.addEdit.faultModel;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.BorderLayout;
 
-import javax.swing.JTable;
-import javax.swing.JFrame;
 import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
+
 import org.opensha.refFaultParamDb.gui.view.ViewFaultSection;
 
 

@@ -3,39 +3,38 @@
  */
 package org.opensha.refFaultParamDb.gui.view;
 
-import javax.swing.JFileChooser;
-import javax.swing.JPanel;
-import javax.swing.JButton;
-import javax.swing.JOptionPane;
-import javax.swing.ProgressMonitor;
-
-import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.Insets;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
-import org.opensha.refFaultParamDb.vo.FaultSectionData;
-import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
-import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
-import org.opensha.refFaultParamDb.gui.addEdit.faultSection.EditFaultSection;
-import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
-import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
+import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
+import org.opensha.refFaultParamDb.gui.addEdit.faultSection.EditFaultSection;
+import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
+import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
+import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+import org.opensha.refFaultParamDb.vo.FaultSectionData;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
+import org.opensha.sha.faultSurface.FaultTrace;
 
 
 /**

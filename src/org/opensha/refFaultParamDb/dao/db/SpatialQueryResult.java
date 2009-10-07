@@ -1,7 +1,8 @@
 package org.opensha.refFaultParamDb.dao.db;
 
-import com.sun.rowset.CachedRowSetImpl;
 import java.util.ArrayList;
+
+import com.sun.rowset.CachedRowSetImpl;
 
 /**
  * <p>Title: SpatialQueryResult.java </p>

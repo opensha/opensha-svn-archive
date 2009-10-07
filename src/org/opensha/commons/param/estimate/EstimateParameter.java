@@ -1,8 +1,8 @@
 package org.opensha.commons.param.estimate;
 
+import java.util.ArrayList;
+
 import org.dom4j.Element;
-
-
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.DependentParameter;
@@ -11,8 +11,6 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.estimate.ConstrainedEstimateParameterEditor;
-
-import java.util.ArrayList;
 
 
 

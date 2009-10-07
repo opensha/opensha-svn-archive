@@ -1,7 +1,9 @@
 package org.opensha.refFaultParamDb.dao.db;
 
-import com.sun.rowset.CachedRowSetImpl;
+import java.sql.SQLException;
 import java.util.ArrayList;
+
+import com.sun.rowset.CachedRowSetImpl;
 
 /**
  * <p>Title: DB_AccessAPI</p>

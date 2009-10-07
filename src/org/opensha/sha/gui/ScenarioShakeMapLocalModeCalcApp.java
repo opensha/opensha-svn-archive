@@ -3,16 +3,14 @@ package org.opensha.sha.gui;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.Toolkit;
-
-import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
-import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
-
-import java.util.ArrayList;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.util.ArrayList;
 
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
+import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
 
 /**
  * <p>Title: ScenarioShakeMapLocalModeCalcApplication</p>

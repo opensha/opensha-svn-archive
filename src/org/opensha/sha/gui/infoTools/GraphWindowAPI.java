@@ -1,10 +1,6 @@
 package org.opensha.sha.gui.infoTools;
 
-import java.awt.Color;
 import java.util.ArrayList;
-
-import org.opensha.commons.data.function.DiscretizedFuncList;
-import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 
 
 /**

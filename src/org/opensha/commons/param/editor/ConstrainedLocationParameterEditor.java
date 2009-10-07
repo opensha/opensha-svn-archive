@@ -1,11 +1,13 @@
 package org.opensha.commons.param.editor;
 
-import java.awt.*;
-import java.util.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.ListIterator;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
-import java.awt.event.*;
-import javax.swing.*;
-
+import javax.swing.JComboBox;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.exceptions.ConstraintException;

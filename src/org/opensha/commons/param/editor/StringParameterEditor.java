@@ -1,10 +1,10 @@
 package org.opensha.commons.param.editor;
 
-import java.awt.event.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.KeyEvent;
 
-import javax.swing.*;
-import javax.swing.border.*;
-
+import javax.swing.JTextField;
+import javax.swing.border.Border;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.WarningException;

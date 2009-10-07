@@ -1,9 +1,7 @@
 package org.opensha.commons.data.estimate;
 import org.opensha.commons.calc.GaussianDistCalc;
-import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 
 /**
  * <p>Title: NormalEstimate.java  </p>

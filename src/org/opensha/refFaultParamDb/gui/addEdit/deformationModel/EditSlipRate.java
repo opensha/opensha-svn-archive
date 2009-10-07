@@ -2,24 +2,23 @@ package org.opensha.refFaultParamDb.gui.addEdit.deformationModel;
 
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JButton;
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.param.editor.estimate.ConstrainedEstimateParameterEditor;
 import org.opensha.commons.param.estimate.EstimateConstraint;
 import org.opensha.commons.param.estimate.EstimateParameter;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
-import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 /**
  * Edit the slip rate for a fault section in the deformation model
  * 

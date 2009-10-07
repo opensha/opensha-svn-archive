@@ -1,5 +1,4 @@
 package org.opensha.refFaultParamDb.data;
-import java.util.GregorianCalendar;
 /**
  * <p>Title: ExactTime.java </p>
  * <p>Description: This class hold the exact time. This time can be a event time

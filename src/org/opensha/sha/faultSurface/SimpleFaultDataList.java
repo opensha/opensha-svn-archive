@@ -1,6 +1,8 @@
 package org.opensha.sha.faultSurface;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.ListIterator;
 
 import org.opensha.commons.exceptions.InvalidRangeException;
 

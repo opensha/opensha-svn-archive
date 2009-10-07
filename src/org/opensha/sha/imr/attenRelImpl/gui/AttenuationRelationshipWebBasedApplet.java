@@ -1,12 +1,19 @@
 package org.opensha.sha.imr.attenRelImpl.gui;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JSplitPane;
 
 import org.opensha.commons.util.ImageUtils;
-import org.opensha.sha.gui.infoTools.*;
+import org.opensha.sha.gui.infoTools.ButtonControlPanel;
+import org.opensha.sha.gui.infoTools.GraphPanel;
 
 
 /**

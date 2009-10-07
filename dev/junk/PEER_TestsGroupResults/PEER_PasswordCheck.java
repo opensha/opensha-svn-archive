@@ -1,13 +1,25 @@
 package junk.PEER_TestsGroupResults;
 
-import java.awt.*;
-import javax.swing.*;
-import java.util.ArrayList;
-import java.net.*;
-import java.io.*;
-import java.net.*;
-import java.awt.event.*;
-import javax.swing.border.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.URL;
+import java.net.URLConnection;
+
+import javax.swing.JApplet;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.SwingConstants;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
 
 /**
  * <p>Title: PEER_PasswordCheck</p>

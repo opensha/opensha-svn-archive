@@ -1,15 +1,17 @@
 package org.opensha.refFaultParamDb.dao.db;
 
-import java.sql.*;
-
-import com.sun.rowset.*;
-import java.net.URL;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
-import java.net.URLConnection;
-import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
-import java.util.ArrayList;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+
+import com.sun.rowset.CachedRowSetImpl;
 
 
 /**

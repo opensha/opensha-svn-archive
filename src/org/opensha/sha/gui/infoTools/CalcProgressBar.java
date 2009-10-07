@@ -2,11 +2,14 @@
 
 package org.opensha.sha.gui.infoTools;
 
-import javax.swing.*;
-import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Rectangle;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JProgressBar;
 
 /**
  * <p>Title: CalcProgressBar</p>

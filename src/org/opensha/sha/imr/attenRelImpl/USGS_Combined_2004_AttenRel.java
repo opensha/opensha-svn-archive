@@ -2,7 +2,8 @@ package org.opensha.sha.imr.attenRelImpl;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.Iterator;
+import java.util.ListIterator;
 
 import org.opensha.commons.calc.GaussianDistCalc;
 import org.opensha.commons.data.DataPoint2D;
@@ -12,24 +13,19 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.DoubleDiscreteConstraint;
-import org.opensha.commons.param.DoubleDiscreteParameter;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.StringConstraint;
-import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.WarningDoubleParameter;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
-
-
-
-
-
-import org.opensha.sha.earthquake.*;
+import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.faultSurface.PointSurface;
-import org.opensha.sha.imr.*;
-import org.opensha.sha.imr.attenRelImpl.calc.*;
+import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.PropagationEffect;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.attenRelImpl.calc.Borcherdt2004_SiteAmpCalc;
+import org.opensha.sha.imr.attenRelImpl.calc.Wald_MMI_Calc;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
@@ -40,7 +36,6 @@ import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
-import org.opensha.sha.param.*;
 
 /**
  * <b>Title:</b> USGS_Combined_2004_AttenRel<p>

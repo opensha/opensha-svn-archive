@@ -1,7 +1,6 @@
 package org.opensha.commons.param;
 
 import java.util.ArrayList;
-import java.util.ListIterator;
 
 import org.dom4j.Element;
 import org.opensha.commons.data.Location;

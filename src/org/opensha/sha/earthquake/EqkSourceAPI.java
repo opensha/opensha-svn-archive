@@ -1,7 +1,7 @@
 package org.opensha.sha.earthquake;
 
-import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.NamedObjectAPI;

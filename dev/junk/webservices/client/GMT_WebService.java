@@ -4,7 +4,6 @@
 
 package junk.webservices.client;
 
-import javax.xml.rpc.*;
 
 public interface GMT_WebService extends javax.xml.rpc.Service {
     public junk.webservices.client.GMT_WebServiceAPI getGMT_WebServiceAPIPort();

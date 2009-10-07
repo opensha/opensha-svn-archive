@@ -1,8 +1,7 @@
 package scratch.matt.calc;
 
-import java.util.*;
-import org.opensha.sha.earthquake.griddedForecast.AfterShockHypoMagFreqDistForecast;
-import org.opensha.sha.earthquake.observedEarthquake.*;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupListCalc;
 
 /**
  * <p>Title: </p>

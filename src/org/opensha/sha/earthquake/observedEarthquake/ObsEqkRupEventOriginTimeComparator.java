@@ -1,6 +1,6 @@
 package org.opensha.sha.earthquake.observedEarthquake;
 
-import java.util.*;
+import java.util.Comparator;
 
 /**
  * <p>Title: ObsEqkRupEventOriginTimeComparator</p>

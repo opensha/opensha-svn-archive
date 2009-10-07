@@ -1,10 +1,10 @@
 package org.opensha.commons.util.binFile.test;
 
+import junit.framework.TestCase;
+
 import org.opensha.commons.data.Location;
 import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
-
-import junit.framework.TestCase;
 
 public class GeolocatedBinaryMesh2DTest extends TestCase {
 	

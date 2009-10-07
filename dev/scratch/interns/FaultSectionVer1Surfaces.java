@@ -5,16 +5,18 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.StringTokenizer;
 import java.util.HashMap;
-
+import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.refFaultParamDb.vo.FaultSection2002;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
-
-import org.opensha.sha.faultSurface.*;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.FrankelGriddedSurface;
+import org.opensha.sha.faultSurface.SimpleFaultData;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
 /**
  * This class reads the Fault Section Ver 1 and provides API so that they can be viewed in Geo3D.

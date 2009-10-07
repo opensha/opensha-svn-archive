@@ -1,11 +1,11 @@
 package org.opensha.nshmp.sha.calc.remote;
 
-import java.rmi.*;
-import java.rmi.server.*;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 
-import org.opensha.nshmp.sha.calc.*;
-import org.opensha.nshmp.sha.calc.api.*;
-import org.opensha.nshmp.sha.calc.remote.api.*;
+import org.opensha.nshmp.sha.calc.HazardDataCalc;
+import org.opensha.nshmp.sha.calc.api.HazardDataCalcAPI;
+import org.opensha.nshmp.sha.calc.remote.api.RemoteHazardDataCalcFactoryAPI;
 
 /**
  * <p>Title: </p>

@@ -1,17 +1,15 @@
 package scratch.vipin;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.util.FileUtils;
-
-import java.util.StringTokenizer;
-import java.util.ArrayList;
-import java.io.FileWriter;
-
-import java.io.*;
 
 /**
  * <p>Title: FaultSections.java </p>

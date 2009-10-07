@@ -1,12 +1,10 @@
 package scratch.kevin.cybershake;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.sha.cybershake.db.CybershakeHazardCurveRecord;

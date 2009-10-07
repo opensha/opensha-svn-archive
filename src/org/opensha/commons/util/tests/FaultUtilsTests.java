@@ -1,6 +1,6 @@
 package org.opensha.commons.util.tests;
 
-import junit.framework.*;
+import junit.framework.TestCase;
 
 import org.opensha.commons.util.FaultUtils;
 

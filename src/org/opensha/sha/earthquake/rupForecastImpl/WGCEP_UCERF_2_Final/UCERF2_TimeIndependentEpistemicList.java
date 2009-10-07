@@ -2,7 +2,6 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final;
 
 
 import java.util.ArrayList;
-import java.util.EventObject;
 import java.util.Iterator;
 
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;

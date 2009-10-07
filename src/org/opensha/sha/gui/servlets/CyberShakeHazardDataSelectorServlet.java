@@ -1,20 +1,25 @@
 package org.opensha.sha.gui.servlets;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.StringTokenizer;
+import java.util.TreeSet;
+
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.io.*;
-import javax.servlet.ServletException;
-import java.util.StringTokenizer;
-import java.util.TreeSet;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
-import org.opensha.sha.gui.servlets.*;
 
 /**
  * <p>Title: CyberShakeHazardDataSelectorServlet</p>

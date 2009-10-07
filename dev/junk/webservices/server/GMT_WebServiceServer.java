@@ -1,7 +1,11 @@
 package junk.webservices.server;
 
-import javax.activation.*;
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+
+import javax.activation.DataHandler;
 
 import junk.webservices.GMT_WebServiceAPI;
 

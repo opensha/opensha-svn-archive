@@ -1,11 +1,12 @@
 package org.opensha.sha.faultSurface;
 
-import java.util.ListIterator;
 import java.util.ArrayList;
+import java.util.ListIterator;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.exceptions.InvalidRangeException;
+import org.opensha.commons.exceptions.LocationException;
 import org.opensha.commons.util.FaultUtils;
 
 

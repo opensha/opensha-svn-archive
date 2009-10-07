@@ -4,7 +4,6 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 
-
 import org.opensha.commons.data.ValueWeight;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.DoubleParameter;

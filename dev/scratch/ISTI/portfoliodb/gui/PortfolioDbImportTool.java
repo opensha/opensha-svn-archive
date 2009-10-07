@@ -14,16 +14,25 @@ import java.io.FileWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.sql.Connection;
-import javax.swing.*;
+
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingUtilities;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.JTableHeader;
+
+import scratch.ISTI.portfoliodb.PortfolioDatabase;
+
 import com.isti.util.DelimiterSeparatedValues;
 import com.isti.util.DelimiterSeparatedValuesTable;
 import com.isti.util.IstiFileFilter;
 import com.isti.util.ValueTableModel;
 import com.isti.util.gui.GuiUtilFns;
 import com.isti.util.gui.ValueJTableModel;
-
-import scratch.ISTI.portfoliodb.PortfolioDatabase;
 
 public class PortfolioDbImportTool
 {

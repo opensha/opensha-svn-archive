@@ -1,10 +1,10 @@
 package org.opensha.nshmp.param.editor;
 
+import javax.swing.JComboBox;
+
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
-
-import javax.swing.JComboBox;
 
 /**
  * <p>Title: EditableConstrainedStringParameterEditor.java </p>

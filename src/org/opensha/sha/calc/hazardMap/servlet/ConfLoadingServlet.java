@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.opensha.sha.calc.hazardMap.ConfLoader;
 import org.opensha.sha.calc.hazardMap.HazardMapJobCreator;
-import org.opensha.sha.calc.hazardMap.cron.CronConfLoader;
 
 public abstract class ConfLoadingServlet extends HttpServlet {
 	

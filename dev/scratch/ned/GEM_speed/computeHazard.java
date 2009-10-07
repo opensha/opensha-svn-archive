@@ -1,27 +1,19 @@
 package scratch.ned.GEM_speed;
 
-import java.io.FileInputStream;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.ListIterator;
-import java.util.Properties;
 
-import org.opensha.commons.data.Location;
-import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.calc.HazardCurveCalculator;
-import org.opensha.sha.earthquake.rupForecastImpl.GriddedRegionPoissonEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM.TestGEM_ERF;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
-import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 
 public class computeHazard implements Runnable {

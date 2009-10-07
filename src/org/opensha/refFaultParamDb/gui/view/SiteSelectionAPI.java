@@ -1,7 +1,7 @@
 package org.opensha.refFaultParamDb.gui.view;
 
-import org.opensha.refFaultParamDb.vo.PaleoSite;
 import org.opensha.refFaultParamDb.vo.CombinedEventsInfo;
+import org.opensha.refFaultParamDb.vo.PaleoSite;
 
 /**
  * <p>Title: SiteSelectionAPI.java </p>

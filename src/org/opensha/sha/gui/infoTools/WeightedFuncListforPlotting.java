@@ -1,8 +1,5 @@
 package org.opensha.sha.gui.infoTools;
 
-import java.util.*;
-import java.awt.Color;
-
 import org.opensha.commons.data.function.WeightedFuncList;
 
 

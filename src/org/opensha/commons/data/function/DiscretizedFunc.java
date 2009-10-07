@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.StringTokenizer;
 
 import org.dom4j.Element;
-
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.util.FileUtils;

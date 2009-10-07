@@ -1,7 +1,6 @@
 package org.opensha.commons.data.siteData;
 
 import org.dom4j.Attribute;
-import org.dom4j.Element;
 import org.opensha.commons.metadata.XMLSaveable;
 
 /**

@@ -1,9 +1,11 @@
 package org.opensha.commons.param.editor;
 
 
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+
+import javax.swing.JCheckBox;
+import javax.swing.border.Border;
 
 import org.opensha.commons.param.ParameterAPI;
 

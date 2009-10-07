@@ -1,9 +1,10 @@
 package scratch.ISTI.portfoliodb;
 
-import java.util.List;
 import java.util.ArrayList;
-import com.isti.util.VectorSet;
 import java.util.Collections;
+import java.util.List;
+
+import com.isti.util.VectorSet;
 
 /**
  * Mapping of CSV columns to database table/columns.

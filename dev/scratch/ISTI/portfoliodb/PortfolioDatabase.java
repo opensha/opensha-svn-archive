@@ -9,12 +9,11 @@ import java.io.Reader;
 import java.io.Writer;
 import java.sql.Connection;
 import java.sql.SQLException;
+
 import com.isti.util.DelimiterSeparatedValues;
 import com.isti.util.DelimiterSeparatedValuesTable;
 import com.isti.util.ValueTableModel;
 import com.isti.util.database.MySQLConnectionJDBC;
-
-import scratch.ISTI.portfoliodb.PortfolioAssetsTable;
 
 public class PortfolioDatabase
 {

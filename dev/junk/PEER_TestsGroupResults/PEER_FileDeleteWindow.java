@@ -1,12 +1,24 @@
 package junk.PEER_TestsGroupResults;
 
-import java.awt.*;
-import javax.swing.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Collections;
-import java.awt.event.*;
+import java.util.Iterator;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
+import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
 
 /**
  * <p>Title: PEER_FileDeleteWindow</p>

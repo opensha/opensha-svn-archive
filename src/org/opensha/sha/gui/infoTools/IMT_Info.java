@@ -4,13 +4,12 @@ import java.text.DecimalFormat;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.sha.imr.AttenuationRelationship;
-
-import org.opensha.sha.imr.attenRelImpl.*;
+import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.WC94_DisplMagRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.IA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
-import org.opensha.sha.imr.param.IntensityMeasureParams.IA_Param;
 /**
  * <p>Title: IMT_Info</p>
  * <p>Description: This class provides the default X values for the selected

@@ -1,20 +1,16 @@
 package org.opensha.sha.calc.IM_EventSet.v01;
 
 
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.
-    Frankel02_AdjustableEqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.gui.infoTools.ConnectToCVM;
-import org.opensha.sha.imr.*;
-import org.opensha.sha.imr.attenRelImpl.*;
-import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
-import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
-
-import java.util.*;
-import java.io.*;
-import org.opensha.sha.util.SiteTranslator;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.StringTokenizer;
 
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
@@ -27,9 +23,19 @@ import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.SystemPropertiesUtils;
-
-import java.text.DecimalFormat;
-import java.lang.reflect.*;
+import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
+import org.opensha.sha.gui.infoTools.ConnectToCVM;
+import org.opensha.sha.imr.PropagationEffect;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
+import org.opensha.sha.util.SiteTranslator;
 
 
 /**

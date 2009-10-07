@@ -1,14 +1,15 @@
 package org.opensha.refFaultParamDb.tests.dao.db;
 
-import junit.framework.*;
-import org.opensha.refFaultParamDb.dao.db.*;
-import org.opensha.refFaultParamDb.dao.exception.*;
-import org.opensha.refFaultParamDb.vo.*;
-import java.util.*;
-import java.sql.SQLException;
+import junit.framework.TestCase;
 
 import org.opensha.commons.data.estimate.NormalEstimate;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.EstimateInstancesDB_DAO;
+import org.opensha.refFaultParamDb.dao.exception.InsertException;
+import org.opensha.refFaultParamDb.dao.exception.QueryException;
+import org.opensha.refFaultParamDb.dao.exception.UpdateException;
 import org.opensha.refFaultParamDb.tests.AllTests;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
 /**
  *
  * <p>Title: TestNormalEstimateInstancesDB_DAO.java </p>

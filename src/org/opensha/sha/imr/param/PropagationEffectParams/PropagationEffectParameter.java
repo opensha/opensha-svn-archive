@@ -5,10 +5,7 @@ import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.editor.ParameterEditor;
-
-
-
-import org.opensha.sha.earthquake.*;
+import org.opensha.sha.earthquake.EqkRupture;
 
 /**
  * <b>Title:</b> PropagationEffectParameter<p>

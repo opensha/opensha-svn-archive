@@ -1,8 +1,6 @@
 package org.opensha.sha.imr.param.EqkRuptureParams;
 
 import org.opensha.commons.param.BooleanParameter;
-import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.WarningDoubleParameter;
 
 /**
  * Aftershock parameter, indicates whether or not an event is an aftershock.

@@ -9,8 +9,8 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
 
 /**

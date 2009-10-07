@@ -1,16 +1,14 @@
 package org.opensha.commons.gui.plot.jfreechart;
 
-import java.text.*;
-import java.util.*;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 
-import org.jfree.data.*;
 import org.jfree.data.general.DatasetChangeListener;
 import org.jfree.data.general.DatasetGroup;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.NamedObjectAPI;
-
-import org.opensha.sha.faultSurface.*;
+import org.opensha.sha.faultSurface.GriddedSurfaceAPI;
 
 /**
  * <b>Title:</b> GriddedSurfaceXYDataSet<p>

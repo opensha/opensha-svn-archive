@@ -1,7 +1,5 @@
 package org.opensha.sha.calc.remoteCalc;
 
-import org.opensha.sha.calc.remoteCalc.RemoteResponseSpectrumFactoryAPI;
-import org.opensha.sha.calc.remoteCalc.RemoteResponseSpectrumFactoryImpl;
 import java.rmi.Naming;
 
 /**

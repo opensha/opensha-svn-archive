@@ -1,32 +1,19 @@
 package org.opensha.refFaultParamDb.dao.db;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.sql.SQLException;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import oracle.spatial.geometry.JGeometry;
 
 import org.opensha.commons.data.Location;
-import org.opensha.commons.util.FileUtils;
-import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.refFaultParamDb.vo.PaleoSite;
-import org.opensha.refFaultParamDb.vo.Contributor;
-import org.opensha.refFaultParamDb.vo.SiteType;
-import org.opensha.refFaultParamDb.dao.exception.*;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
-
-import org.opensha.refFaultParamDb.dao.*;
-import java.sql.Date;
-import java.sql.Timestamp;
-import org.opensha.refFaultParamDb.vo.PaleoSiteSummary;
-import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
-import org.opensha.refFaultParamDb.vo.Reference;
-import oracle.spatial.geometry.JGeometry;
-import oracle.sql.STRUCT;
-import java.util.HashMap;
+import org.opensha.refFaultParamDb.dao.exception.InsertException;
+import org.opensha.refFaultParamDb.dao.exception.QueryException;
+import org.opensha.refFaultParamDb.dao.exception.UpdateException;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
+import org.opensha.refFaultParamDb.vo.PaleoSite;
 import org.opensha.refFaultParamDb.vo.PaleoSitePublication;
-import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
+import org.opensha.refFaultParamDb.vo.PaleoSiteSummary;
 
 /**
  * <p>Title: PaleoSiteDB_DAO.java </p>

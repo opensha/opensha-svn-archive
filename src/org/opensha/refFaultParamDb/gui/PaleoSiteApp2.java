@@ -1,12 +1,21 @@
 package org.opensha.refFaultParamDb.gui;
 
-import javax.swing.*;
-import java.awt.*;
-
-
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-import org.opensha.refFaultParamDb.data.*;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.UIManager;
+
 import org.opensha.commons.data.estimate.DiscreteValueEstimate;
 import org.opensha.commons.data.estimate.DiscretizedFuncEstimate;
 import org.opensha.commons.data.estimate.Estimate;
@@ -22,24 +31,29 @@ import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-
-
-
-import org.opensha.refFaultParamDb.gui.view.*;
-import org.opensha.refFaultParamDb.vo.PaleoSite;
 import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import org.opensha.refFaultParamDb.vo.CombinedEventsInfo;
-
-import org.opensha.refFaultParamDb.vo.Reference;
-import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
+import org.opensha.refFaultParamDb.data.ExactTime;
+import org.opensha.refFaultParamDb.data.TimeAPI;
+import org.opensha.refFaultParamDb.data.TimeEstimate;
+import org.opensha.refFaultParamDb.gui.view.SiteSelectionAPI;
+import org.opensha.refFaultParamDb.gui.view.ViewCumDisplacement;
+import org.opensha.refFaultParamDb.gui.view.ViewIndividualEvent;
+import org.opensha.refFaultParamDb.gui.view.ViewNumEvents;
+import org.opensha.refFaultParamDb.gui.view.ViewSequences;
+import org.opensha.refFaultParamDb.gui.view.ViewSiteCharacteristics;
+import org.opensha.refFaultParamDb.gui.view.ViewSlipRate;
+import org.opensha.refFaultParamDb.gui.view.ViewTimeSpan;
 import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
+import org.opensha.refFaultParamDb.vo.CombinedEventsInfo;
 import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
+import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.refFaultParamDb.vo.EventSequence;
 import org.opensha.refFaultParamDb.vo.PaleoEvent;
-import org.opensha.refFaultParamDb.vo.EstimateInstances;
+import org.opensha.refFaultParamDb.vo.PaleoSite;
+import org.opensha.refFaultParamDb.vo.Reference;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
-import java.text.DecimalFormat;
 
 /**
  * <p>Title: PaleoSiteApp2.java </p>

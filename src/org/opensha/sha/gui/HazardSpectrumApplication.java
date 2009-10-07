@@ -1,40 +1,41 @@
 package org.opensha.sha.gui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.applet.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.ListIterator;
-import java.net.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.SystemColor;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.ListIterator;
+
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JApplet;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.Timer;
+import javax.swing.UIManager;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
 
 import org.jfree.data.Range;
-
-
-
-
-
-
-
-
-import org.opensha.sha.gui.controls.*;
-import org.opensha.sha.gui.beans.*;
-import org.opensha.sha.gui.infoTools.*;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
-import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.attenRelImpl.WC94_DisplMagRel;
-import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
-import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.earthquake.ERF_EpistemicList;
-import org.opensha.sha.calc.HazardCurveCalculator;
-import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
-import org.opensha.commons.calc.FractileCurveCalculator;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
@@ -46,6 +47,41 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.ImageUtils;
+import org.opensha.sha.calc.HazardCurveCalculator;
+import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
+import org.opensha.sha.earthquake.ERF_EpistemicList;
+import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
+import org.opensha.sha.gui.beans.ERF_GuiBean;
+import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
+import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
+import org.opensha.sha.gui.beans.IMR_GuiBean;
+import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
+import org.opensha.sha.gui.beans.Site_GuiBean;
+import org.opensha.sha.gui.controls.AxisLimitsControlPanelAPI;
+import org.opensha.sha.gui.controls.DisaggregationControlPanel;
+import org.opensha.sha.gui.controls.DisaggregationControlPanelAPI;
+import org.opensha.sha.gui.controls.ERF_EpistemicListControlPanel;
+import org.opensha.sha.gui.controls.ERF_EpistemicListControlPanelAPI;
+import org.opensha.sha.gui.controls.PEER_TestCaseSelectorControlPanel;
+import org.opensha.sha.gui.controls.PlottingOptionControl;
+import org.opensha.sha.gui.controls.RunAll_PEER_TestCasesControlPanel;
+import org.opensha.sha.gui.controls.SetMinSourceSiteDistanceControlPanel;
+import org.opensha.sha.gui.controls.SetSiteParamsFromWebServicesControlPanel;
+import org.opensha.sha.gui.controls.SitesOfInterestControlPanel;
+import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanel;
+import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
+import org.opensha.sha.gui.infoTools.ButtonControlPanel;
+import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
+import org.opensha.sha.gui.infoTools.CalcProgressBar;
+import org.opensha.sha.gui.infoTools.GraphPanel;
+import org.opensha.sha.gui.infoTools.GraphPanelAPI;
+import org.opensha.sha.gui.infoTools.GraphWindow;
+import org.opensha.sha.gui.infoTools.GraphWindowAPI;
+import org.opensha.sha.gui.infoTools.IMT_Info;
+import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
 /**
  * <p>Title: HazardSpectrumApplication</p>

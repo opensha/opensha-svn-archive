@@ -3,9 +3,10 @@ package org.opensha.sha.imr;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
 
-import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.ConstraintException;
@@ -18,13 +19,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
-
-
-
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
-import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
-import org.opensha.sha.param.*;
+import org.opensha.sha.earthquake.EqkRupture;
 
 
 /**

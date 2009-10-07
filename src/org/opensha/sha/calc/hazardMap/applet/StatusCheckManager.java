@@ -1,9 +1,5 @@
 package org.opensha.sha.calc.hazardMap.applet;
 
-import java.awt.BorderLayout;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 public class StatusCheckManager extends StepManager {
 	

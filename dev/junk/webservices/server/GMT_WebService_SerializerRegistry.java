@@ -4,16 +4,24 @@
 
 package junk.webservices.server;
 
+import javax.xml.namespace.QName;
+import javax.xml.rpc.encoding.Deserializer;
+import javax.xml.rpc.encoding.Serializer;
+import javax.xml.rpc.encoding.TypeMapping;
+import javax.xml.rpc.encoding.TypeMappingRegistry;
+
 import com.sun.xml.rpc.client.BasicService;
-import com.sun.xml.rpc.encoding.*;
-import com.sun.xml.rpc.encoding.simpletype.*;
-import com.sun.xml.rpc.encoding.soap.*;
-import com.sun.xml.rpc.encoding.literal.*;
+import com.sun.xml.rpc.encoding.CombinedSerializer;
+import com.sun.xml.rpc.encoding.InternalEncodingConstants;
+import com.sun.xml.rpc.encoding.ObjectArraySerializer;
+import com.sun.xml.rpc.encoding.ReferenceableSerializerImpl;
+import com.sun.xml.rpc.encoding.SerializerConstants;
+import com.sun.xml.rpc.encoding.SingletonDeserializerFactory;
+import com.sun.xml.rpc.encoding.SingletonSerializerFactory;
+import com.sun.xml.rpc.encoding.soap.SOAP12Constants;
+import com.sun.xml.rpc.encoding.soap.SOAPConstants;
 import com.sun.xml.rpc.soap.SOAPVersion;
 import com.sun.xml.rpc.wsdl.document.schema.SchemaConstants;
-import javax.xml.rpc.*;
-import javax.xml.rpc.encoding.*;
-import javax.xml.namespace.QName;
 
 public class GMT_WebService_SerializerRegistry implements SerializerConstants {
     public GMT_WebService_SerializerRegistry() {

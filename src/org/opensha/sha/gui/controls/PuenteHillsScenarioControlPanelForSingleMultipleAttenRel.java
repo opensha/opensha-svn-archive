@@ -1,28 +1,30 @@
 package org.opensha.sha.gui.controls;
 
 
-import java.util.*;
+import java.util.ArrayList;
 
-import org.opensha.sha.gui.beans.*;
-import org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
-
-
-import org.opensha.sha.param.editor.gui.SimpleFaultParameterEditorPanel;
-import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
-import org.opensha.sha.param.*;
-import org.opensha.sha.magdist.SingleMagFreqDist;
-import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
-import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
-import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Direction;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF;
 import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.gui.beans.AttenuationRelationshipGuiBean;
+import org.opensha.sha.gui.beans.ERF_GuiBean;
+import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
+import org.opensha.sha.gui.beans.EqkRuptureFromERFSelectorPanel;
+import org.opensha.sha.gui.beans.MapGuiBean;
+import org.opensha.sha.gui.beans.SitesInGriddedRectangularRegionGuiBean;
+import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.magdist.SingleMagFreqDist;
+import org.opensha.sha.param.MagFreqDistParameter;
+import org.opensha.sha.param.SimpleFaultParameter;
+import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
+import org.opensha.sha.param.editor.gui.SimpleFaultParameterEditorPanel;
 
 /**
  * <p>Title: PuenteHillsScenarioTestControlPanel</p>

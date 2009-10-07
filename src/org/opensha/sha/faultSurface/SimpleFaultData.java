@@ -1,6 +1,6 @@
 package org.opensha.sha.faultSurface;
 
-import java.util.*;
+import java.util.ArrayList;
 
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;

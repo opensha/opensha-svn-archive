@@ -1,26 +1,19 @@
 package org.opensha.sha.gui.beans;
 
-import java.awt.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.net.*;
-import java.io.*;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 
-import java.awt.event.*;
-
-
-import org.opensha.sha.mapping.*;
-
-import org.opensha.sha.gui.infoTools.ImageViewerWindow;
+import javax.swing.JOptionPane;
 
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.util.FileUtils;
-
 import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.gui.infoTools.ImageViewerWindow;
+import org.opensha.sha.mapping.GMT_MapGeneratorForShakeMaps;
 
 /**
  * <p>Title: MapGuiBean</p>

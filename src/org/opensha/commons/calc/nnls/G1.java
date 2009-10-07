@@ -1,7 +1,8 @@
 package org.opensha.commons.calc.nnls;
 
 
-import org.netlib.util.*;
+import org.netlib.util.Dsign;
+import org.netlib.util.doubleW;
 
 
 class G1 {

@@ -1,9 +1,11 @@
 package org.opensha.refFaultParamDb.tests;
 
-import junit.framework.*;
-import java.sql.SQLException;
-import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 
 public class AllTests
     extends TestCase {

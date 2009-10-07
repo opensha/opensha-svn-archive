@@ -2,8 +2,6 @@ package org.opensha.commons.data.estimate;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 
-import java.text.DecimalFormat;
-
 /**
  * <p>Title: Estimate.java </p>
  * <p>Description: This is the abstract class for various types of estimates.

@@ -1,7 +1,8 @@
 package org.opensha.commons.calc.nnls;
 
 
-import org.netlib.util.*;
+import org.netlib.util.doubleW;
+import org.netlib.util.intW;
 
 /**  NNLS class is strictly a wrapper for the fortran->C->Java 
  *   nnls code.  Nothing else should be done here except 

@@ -1,12 +1,15 @@
 package org.opensha.refFaultParamDb.dao.db;
 
-import org.opensha.refFaultParamDb.dao.EstimateDAO_API;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.data.estimate.LogNormalEstimate;
-import org.opensha.refFaultParamDb.dao.exception.*;
-import java.sql.SQLException;
-import java.sql.ResultSet;
-import java.util.ArrayList;
+import org.opensha.refFaultParamDb.dao.EstimateDAO_API;
+import org.opensha.refFaultParamDb.dao.exception.InsertException;
+import org.opensha.refFaultParamDb.dao.exception.QueryException;
+import org.opensha.refFaultParamDb.dao.exception.UpdateException;
 /**
  * <p>Title: LogNormalEstimateDB_DAO.java </p>
  * <p>Description: </p>

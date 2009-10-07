@@ -1,9 +1,9 @@
 package org.opensha.sha.gui.infoTools;
 
 import java.net.URL;
+
 import javax.help.HelpBroker;
 import javax.help.HelpSet;
-import javax.swing.*;
 
 /**
  * <p>Title: LaunchHelpFromMenu</p>

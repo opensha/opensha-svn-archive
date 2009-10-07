@@ -2,9 +2,10 @@ package scratch.ISTI.portfoliodb.gui;
 
 import java.awt.Component;
 import java.sql.Connection;
-import com.isti.util.database.IstiConnectionInfoDialog;
 
 import scratch.ISTI.portfoliodb.PortfolioColumns;
+
+import com.isti.util.database.IstiConnectionInfoDialog;
 
 public class PortfolioDbConnectionInfoDialog extends IstiConnectionInfoDialog
 {

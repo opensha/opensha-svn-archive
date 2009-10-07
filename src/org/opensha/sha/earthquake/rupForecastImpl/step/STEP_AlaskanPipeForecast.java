@@ -1,25 +1,22 @@
 package org.opensha.sha.earthquake.rupForecastImpl.step;
 
-import java.util.ArrayList;
-import java.util.ListIterator;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.net.URL;
+import java.util.ListIterator;
+import java.util.StringTokenizer;
 
-
-
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.earthquake.rupForecastImpl.*;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**
  * <p>Title: STEP_EqkRupForecast</p>

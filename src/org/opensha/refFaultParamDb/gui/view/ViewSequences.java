@@ -1,26 +1,19 @@
 package org.opensha.refFaultParamDb.gui.view;
 
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.util.ArrayList;
+
 import org.opensha.commons.gui.LabeledBoxPanel;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
-import javax.swing.JButton;
-import java.util.ArrayList;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
 import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditSequence;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
-import org.opensha.refFaultParamDb.vo.PaleoSite;
-import org.opensha.refFaultParamDb.dao.db.EventSequenceDB_DAO;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
 import org.opensha.refFaultParamDb.vo.EventSequence;
-import org.opensha.refFaultParamDb.data.TimeAPI;
 import org.opensha.refFaultParamDb.vo.PaleoEvent;
-import org.opensha.refFaultParamDb.vo.Reference;
 
 /**
  * <p>Title: ViewSequences.java </p>

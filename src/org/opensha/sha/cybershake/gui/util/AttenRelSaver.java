@@ -19,7 +19,6 @@ import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.IntensityMeasureRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
-import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
 
 /**

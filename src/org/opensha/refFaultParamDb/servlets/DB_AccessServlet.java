@@ -1,27 +1,26 @@
 package org.opensha.refFaultParamDb.servlets;
 
-import javax.servlet.http.HttpServlet;
-import java.io.IOException;
-import javax.servlet.ServletException;
-import javax.servlet.ServletConfig;
-import java.util.Properties;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Properties;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ObjectInputStream;
 
+import org.opensha.refFaultParamDb.dao.db.ContributorDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
-import java.sql.SQLException;
-import com.sun.rowset.CachedRowSetImpl;
-import java.io.ObjectOutputStream;
-import java.util.HashMap;
-import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
-import java.util.Enumeration;
-import java.util.ArrayList;
 import org.opensha.refFaultParamDb.dao.db.SpatialQueryResult;
-import org.opensha.refFaultParamDb.dao.db.ContributorDB_DAO;
+import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
+
+import com.sun.rowset.CachedRowSetImpl;
 
 /**
  * <p>Title: DB_AccessServlet</p>

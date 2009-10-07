@@ -1,15 +1,14 @@
 package org.opensha.sha.mapping;
 
-import java.util.*;
-//import javax.activation.*;
-//import java.text.DecimalFormat;
-import java.net.*;
 import java.awt.Color;
-import java.awt.geom.Point2D;
-import java.io.*;
+import java.io.File;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Iterator;
 
-
-import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.XYZ_DataSetAPI;
@@ -26,10 +25,8 @@ import org.opensha.commons.util.RunScript;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.util.cpt.CPTVal;
 import org.opensha.commons.util.cpt.LinearBlender;
-
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.faultSurface.*;
-import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;

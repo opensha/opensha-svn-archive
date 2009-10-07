@@ -1,10 +1,12 @@
 package org.opensha.refFaultParamDb.excelToDatabase;
 
-import org.opensha.refFaultParamDb.dao.db.*;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.PaleoSiteDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
 import org.opensha.refFaultParamDb.vo.PaleoSite;
-import org.opensha.refFaultParamDb.vo.Reference;
 import org.opensha.refFaultParamDb.vo.PaleoSitePublication;
 
 /**

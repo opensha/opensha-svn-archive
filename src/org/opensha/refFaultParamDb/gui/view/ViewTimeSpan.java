@@ -1,22 +1,18 @@
 package org.opensha.refFaultParamDb.gui.view;
 
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.util.ArrayList;
+
+import javax.swing.JPanel;
+
 import org.opensha.commons.gui.LabeledBoxPanel;
 import org.opensha.commons.gui.TitledBorderPanel;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.refFaultParamDb.data.TimeAPI;
-import java.awt.*;
-import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
-import javax.swing.JPanel;
-import org.opensha.refFaultParamDb.gui.*;
+import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditNumEvents;
-import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditTimeSpan;
-
-import java.util.ArrayList;
+import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
 
 /**
  * <p>Title: ViewTimeSpan.java </p>

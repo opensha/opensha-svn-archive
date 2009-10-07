@@ -1,7 +1,16 @@
 package org.opensha.commons.param.editor.document;
 
-import java.text.*;
-import javax.swing.text.*;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.ParsePosition;
+
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.PlainDocument;
+
+import org.opensha.commons.param.editor.IntegerTextField;
+import org.opensha.commons.param.editor.NumericTextField;
 
 /**
  * <b>Title:</b> NumericPlainDocument<p>

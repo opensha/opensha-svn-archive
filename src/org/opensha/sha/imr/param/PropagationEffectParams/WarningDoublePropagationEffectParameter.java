@@ -1,6 +1,6 @@
 package org.opensha.sha.imr.param.PropagationEffectParams;
 
-import java.util.*;
+import java.util.ArrayList;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
@@ -18,10 +18,6 @@ import org.opensha.commons.param.editor.DoubleParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
-
-
-
-import org.opensha.sha.earthquake.*;
 
 /**
  * <b>Title:</b> WarningDoublePropagationEffectParameter<p>

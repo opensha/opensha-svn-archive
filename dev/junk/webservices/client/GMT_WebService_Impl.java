@@ -4,16 +4,12 @@
 
 package junk.webservices.client;
 
-import com.sun.xml.rpc.encoding.*;
-import com.sun.xml.rpc.client.ServiceExceptionImpl;
-import com.sun.xml.rpc.util.exception.*;
-import com.sun.xml.rpc.soap.SOAPVersion;
-import com.sun.xml.rpc.client.HandlerChainImpl;
-import javax.xml.rpc.*;
-import javax.xml.rpc.encoding.*;
-import javax.xml.rpc.handler.HandlerChain;
-import javax.xml.rpc.handler.HandlerInfo;
 import javax.xml.namespace.QName;
+import javax.xml.rpc.JAXRPCException;
+
+import com.sun.xml.rpc.client.HandlerChainImpl;
+import com.sun.xml.rpc.client.ServiceExceptionImpl;
+import com.sun.xml.rpc.util.exception.LocalizableExceptionAdapter;
 
 public class GMT_WebService_Impl extends com.sun.xml.rpc.client.BasicService implements GMT_WebService {
     private static final QName serviceName = new QName("http://gravity.usc.edu/gmt/ws/GMT_WS", "GMT_WebService");

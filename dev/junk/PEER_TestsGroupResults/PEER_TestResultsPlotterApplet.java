@@ -1,39 +1,50 @@
 package junk.PEER_TestsGroupResults;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Paint;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.io.DataInputStream;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.StringTokenizer;
-import java.awt.event.*;
-import java.applet.*;
-import java.net.*;
-import java.io.IOException;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.util.*;
-import java.lang.reflect.*;
-import java.io.*;
 
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JApplet;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
 
-
-import org.jfree.chart.*;
-import org.jfree.chart.renderer.*;
-import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
-import org.jfree.chart.axis.*;
-
-import org.jfree.data.*;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.LogarithmicAxis;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.TickUnits;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
-
-
-
-
-
-
-
-
-
-
-
-
+import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
+import org.jfree.data.Range;
 import org.opensha.commons.calc.FunctionListCalc;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -43,7 +54,8 @@ import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.gui.plot.jfreechart.MyTickUnits;
 import org.opensha.commons.util.ImageUtils;
-import org.opensha.sha.gui.controls.*;
+import org.opensha.sha.gui.controls.AxisLimitsControlPanel;
+import org.opensha.sha.gui.controls.AxisLimitsControlPanelAPI;
 
 
 

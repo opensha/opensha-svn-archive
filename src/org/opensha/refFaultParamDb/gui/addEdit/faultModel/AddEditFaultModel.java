@@ -3,37 +3,31 @@
  */
 package org.opensha.refFaultParamDb.gui.addEdit.faultModel;
 
-import java.util.ArrayList;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.util.ArrayList;
 
-import javax.swing.JFileChooser;
-import javax.swing.JPanel;
 import javax.swing.JButton;
-import javax.swing.JScrollPane;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.ProgressMonitor;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
-import org.opensha.refFaultParamDb.dao.db.FaultModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.FaultModelDB_DAO;
-import org.opensha.refFaultParamDb.gui.addEdit.faultModel.FaultModelTable;
+import org.opensha.refFaultParamDb.dao.db.FaultModelSummaryDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.gui.view.SectionInfoFileWriter;
 import org.opensha.refFaultParamDb.vo.FaultModelSummary;
-import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 
 
 /**

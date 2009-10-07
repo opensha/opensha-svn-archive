@@ -1,8 +1,5 @@
 package scratch.peter.coords;
 
-import org.jfree.date.RelativeDayOfWeekRule;
-import org.opensha.commons.calc.RelativeLocation;
-import org.opensha.commons.data.Location;
 
 //import scratch.peter.org.gavaghan.geodesy.Ellipsoid;
 //import scratch.peter.org.gavaghan.geodesy.GeodeticCalculator;

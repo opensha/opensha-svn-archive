@@ -1,16 +1,14 @@
 package org.opensha.sha.gui.controls;
 
+import java.util.ArrayList;
+
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
+import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
-import org.opensha.sha.gui.beans.ERF_GuiBean;
-import org.opensha.sha.gui.beans.TimeSpanGuiBean;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.sha.gui.infoTools.GraphPanel;
 

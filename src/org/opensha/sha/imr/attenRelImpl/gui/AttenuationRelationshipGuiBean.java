@@ -1,19 +1,14 @@
 package org.opensha.sha.imr.attenRelImpl.gui;
 
 
-import java.lang.reflect.*;
-import java.math.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.ListIterator;
 
-
-
-
-
-import org.opensha.sha.imr.*;
-import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
-import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.function.ArbDiscrFuncWithParams;
@@ -42,6 +37,11 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ParamUtils;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 
 
 

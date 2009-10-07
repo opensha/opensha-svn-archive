@@ -1,12 +1,9 @@
 package org.opensha.sha.param;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.ListIterator;
 
 import org.dom4j.Element;
-
-
-import org.opensha.sha.magdist.*;
-import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
@@ -21,6 +18,14 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
+import org.opensha.sha.magdist.GaussianMagFreqDist;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.sha.magdist.SingleMagFreqDist;
+import org.opensha.sha.magdist.SummedMagFreqDist;
+import org.opensha.sha.magdist.YC_1985_CharMagFreqDist;
+import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
 
 /**
  *  <b>Title:</b> MagFreqDistParameter<p>

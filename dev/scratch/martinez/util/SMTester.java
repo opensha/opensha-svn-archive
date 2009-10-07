@@ -1,10 +1,7 @@
 package scratch.martinez.util;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 import org.opensha.nshmp.sha.calc.SDSsS1Calculator;
-import org.opensha.nshmp.sha.calc.SMSsS1Calculator;
-import org.opensha.nshmp.sha.calc.SsS1Calculator;
 import org.opensha.nshmp.util.GlobalConstants;
 
 public class SMTester implements Runnable {

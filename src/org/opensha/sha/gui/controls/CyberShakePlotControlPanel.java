@@ -1,21 +1,29 @@
 package org.opensha.sha.gui.controls;
 
-import java.awt.*;
-import javax.swing.*;
-import java.net.URL;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
-import java.net.URLConnection;
-import java.util.*;
-
-
-
-
-
-import org.opensha.sha.gui.HazardCurveServerModeApplication;
-import org.opensha.sha.gui.servlets.CyberShakeHazardDataSelectorServlet;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.TreeSet;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
@@ -26,11 +34,17 @@ import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.sha.gui.beans.*;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
-import java.lang.reflect.*;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import java.text.DecimalFormat;
+import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
+import org.opensha.sha.gui.HazardCurveServerModeApplication;
+import org.opensha.sha.gui.beans.ERF_GuiBean;
+import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
+import org.opensha.sha.gui.beans.EqkRupSelectorGuiBeanAPI;
+import org.opensha.sha.gui.beans.EqkRuptureFromERFSelectorPanel;
+import org.opensha.sha.gui.beans.IMT_GuiBean;
+import org.opensha.sha.gui.beans.Site_GuiBean;
+import org.opensha.sha.gui.beans.TimeSpanGuiBean;
+import org.opensha.sha.gui.servlets.CyberShakeHazardDataSelectorServlet;
 
 /**
  * <p>Title: CyberShakeDeterministicPlotControlPanel </p>

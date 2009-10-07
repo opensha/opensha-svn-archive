@@ -1,17 +1,16 @@
  package org.opensha.sha.earthquake.rupForecastImpl.WG02;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.ListIterator;
-import java.util.ArrayList;
 import java.util.StringTokenizer;
-import java.io.*;
-import java.util.Iterator;
-import java.util.List;
 
-
-
-import org.opensha.commons.calc.MomentMagCalc;
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.exceptions.FaultException;
 import org.opensha.commons.param.DoubleParameter;
@@ -21,13 +20,9 @@ import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.TreeBranchWeightsParameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
-
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
-import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
-import org.opensha.sha.earthquake.rupForecastImpl.remote.*;
+import org.opensha.sha.earthquake.ERF_EpistemicList;
+import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteEqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_EqkRupForecastClient;
 
 /**

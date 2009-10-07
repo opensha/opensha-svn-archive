@@ -1,10 +1,14 @@
 package org.opensha.sha.gui.beans;
 
-import java.net.*;
-import java.io.*;
-import java.util.*;
-
-
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.StringTokenizer;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.param.DoubleConstraint;

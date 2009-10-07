@@ -1,7 +1,6 @@
 package org.opensha.refFaultParamDb.vo;
 
 import org.opensha.refFaultParamDb.data.TimeAPI;
-import java.util.ArrayList;
 
 /**
  * <p>Title: Timespan.java </p>

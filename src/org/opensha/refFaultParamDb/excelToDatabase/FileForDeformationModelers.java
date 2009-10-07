@@ -16,11 +16,11 @@ import org.opensha.refFaultParamDb.data.ExactTime;
 import org.opensha.refFaultParamDb.data.TimeAPI;
 import org.opensha.refFaultParamDb.data.TimeEstimate;
 import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
-import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
 import org.opensha.refFaultParamDb.vo.CombinedEventsInfo;
+import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
 import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
-import org.opensha.refFaultParamDb.vo.PaleoSite;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
+import org.opensha.refFaultParamDb.vo.PaleoSite;
 import org.opensha.refFaultParamDb.vo.PaleoSitePublication;
 import org.opensha.refFaultParamDb.vo.Reference;
 

@@ -1,12 +1,12 @@
 package scratch.vipin.relm;
 
-import java.io.FileReader;
 import java.io.BufferedReader;
-import java.util.StringTokenizer;
-import java.util.HashMap;
-import java.util.Collections;
-import java.util.ArrayList;
+import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.StringTokenizer;
 
 
 /**

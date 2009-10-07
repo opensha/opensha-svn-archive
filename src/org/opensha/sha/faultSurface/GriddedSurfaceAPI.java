@@ -1,6 +1,6 @@
 package org.opensha.sha.faultSurface;
 
-import java.util.*;
+import java.util.ListIterator;
 
 import org.opensha.commons.data.Container2DAPI;
 import org.opensha.commons.data.Location;

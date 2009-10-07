@@ -12,7 +12,6 @@ import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.exceptions.FaultException;
 import org.opensha.commons.param.DoubleParameter;

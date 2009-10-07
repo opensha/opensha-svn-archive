@@ -2,7 +2,7 @@ package org.opensha.sha.cybershake.db;
 
 
 
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel02. Frankel02_AdjustableEqkRupForecast;
+import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 
 
 /**

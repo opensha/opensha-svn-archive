@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -15,7 +14,6 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
@@ -23,8 +21,6 @@ import javax.swing.JTextField;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValue;
-import org.opensha.commons.exceptions.InvalidRangeException;
-import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.IM_EventSet.v03.SiteFileLoader;
 
 public class SiteImporterPanel extends JPanel implements ActionListener {

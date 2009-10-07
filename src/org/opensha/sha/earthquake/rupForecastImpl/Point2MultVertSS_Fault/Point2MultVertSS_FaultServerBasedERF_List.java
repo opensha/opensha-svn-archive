@@ -2,11 +2,11 @@ package org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault;
 
 import java.rmi.RemoteException;
 
-import org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_FaultSource;
 import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.SingleFaultRuptureERF_Client;
-import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteEqkRupForecastAPI;
+import org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_FaultSource;
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
+import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteEqkRupForecastAPI;
+import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.SingleFaultRuptureERF_Client;
 
 
 /**

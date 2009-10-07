@@ -1,26 +1,35 @@
 package org.opensha.sha.gui.controls;
 
-import java.awt.*;
-import javax.swing.*;
-import java.util.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.SystemColor;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextPane;
 import javax.swing.Timer;
 
-import org.opensha.sha.gui.beans.*;
-import org.opensha.sha.gui.controls.GenerateHazusFilesConrolPanelAPI;
+import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
+import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.sha.gui.ScenarioShakeMapApp;
+import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
-import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.commons.data.XYZ_DataSetAPI;
-import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.exceptions.RegionConstraintException;
-import org.opensha.sha.gui.infoTools.CalcProgressBar;
-
-import org.opensha.sha.gui.ScenarioShakeMapApp;
 
 /**
  * <p>Title: GenerateHazusControlPanelForSingleMultipleIMRs</p>

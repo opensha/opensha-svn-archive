@@ -4,7 +4,8 @@
 
 package junk.webservices.client;
 
-import com.sun.xml.rpc.encoding.*;
+import com.sun.xml.rpc.encoding.DeserializationException;
+import com.sun.xml.rpc.encoding.SOAPInstanceBuilder;
 import com.sun.xml.rpc.util.exception.LocalizableExceptionAdapter;
 
 public class GMT_WebServiceAPI_runGMT_Script_RequestStruct_SOAPBuilder implements SOAPInstanceBuilder {

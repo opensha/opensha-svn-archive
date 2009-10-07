@@ -1,41 +1,35 @@
 package org.opensha.sha.gui.beans;
 
 
-import java.awt.event.ActionEvent;
-import java.lang.reflect.InvocationTargetException;
-import java.text.DecimalFormat;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.ListIterator;
 import java.util.StringTokenizer;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
-import java.io.*;
+
+import junk.nga.EqkRuptureFromNGA;
 
 import org.opensha.commons.data.Location;
-import org.opensha.commons.param.IntegerParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.gui.infoTools.CalcProgressBar;
-
-
-import java.awt.*;
-
-import junk.nga.EqkRuptureFromNGA;
+import org.opensha.sha.earthquake.EqkRupture;
 
 
 /**

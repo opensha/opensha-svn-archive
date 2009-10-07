@@ -1,16 +1,16 @@
 package junk.nga;
 
-import java.util.*;
-import java.io.*;
-
-
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Direction;
 import org.opensha.commons.data.Location;
-import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.faultSurface.*;
-import org.opensha.sha.util.SiteTranslator;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.FrankelGriddedSurface;
+import org.opensha.sha.faultSurface.SimpleFaultData;
 
 /**
  * <p>Title: ReadNGA_DataFile</p>

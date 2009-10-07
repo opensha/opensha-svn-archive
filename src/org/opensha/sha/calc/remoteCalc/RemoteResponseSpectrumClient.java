@@ -4,8 +4,9 @@ import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import org.opensha.sha.calc.SpectrumCalculatorAPI;
+
 import org.opensha.sha.calc.SpectrumCalculator;
+import org.opensha.sha.calc.SpectrumCalculatorAPI;
 
 /**
  * <p>Title: RemoteResponseSpectrumClient</p>

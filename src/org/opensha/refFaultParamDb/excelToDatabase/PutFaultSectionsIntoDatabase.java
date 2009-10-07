@@ -1,22 +1,16 @@
 package org.opensha.refFaultParamDb.excelToDatabase;
 
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.StringTokenizer;
+
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import java.util.ArrayList;
-import java.util.HashMap;
-import org.opensha.refFaultParamDb.vo.FaultSectionData;
-import java.util.StringTokenizer;
-import org.opensha.refFaultParamDb.vo.EstimateInstances;
-import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-
-import java.io.FileInputStream;
-import java.io.FileWriter;
-
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.estimate.DiscreteValueEstimate;
@@ -25,6 +19,11 @@ import org.opensha.commons.data.estimate.MinMaxPrefEstimate;
 import org.opensha.commons.data.estimate.NormalEstimate;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
+import org.opensha.refFaultParamDb.vo.FaultSectionData;
+import org.opensha.sha.faultSurface.FaultTrace;
 
 /**
  * <p>Title: PutFaultSectionsIntoDatabase.java </p>

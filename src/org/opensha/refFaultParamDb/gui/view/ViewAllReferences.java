@@ -1,16 +1,27 @@
 package org.opensha.refFaultParamDb.gui.view;
 
-import javax.swing.*;
-import java.awt.*;
-import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import java.util.ArrayList;
-import org.opensha.refFaultParamDb.vo.Reference;
-import java.awt.event.ActionListener;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
+
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
+import org.opensha.refFaultParamDb.vo.Reference;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 
 /**

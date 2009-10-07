@@ -1,14 +1,17 @@
 package org.opensha.refFaultParamDb.gui.view;
 
-import javax.swing.*;
-
-
-
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.awt.event.*;
-import java.awt.*;
-import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
-import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 
 import org.opensha.commons.gui.LabeledBoxPanel;
 import org.opensha.commons.gui.TitledBorderPanel;
@@ -16,20 +19,23 @@ import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.PaleoSiteDB_DAO;
 import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditIndividualEvent;
 import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditSiteCharacteristics;
 import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddSiteInfo;
-import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
-import org.opensha.refFaultParamDb.dao.db.*;
-import org.opensha.refFaultParamDb.vo.PaleoSite;
-import org.opensha.refFaultParamDb.vo.PaleoSiteSummary;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionListener;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionSuccessEvent;
-import org.opensha.refFaultParamDb.vo.PaleoSitePublication;
-import org.opensha.refFaultParamDb.vo.CombinedEventsInfo;
+import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
+import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
+import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
-import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
+import org.opensha.refFaultParamDb.vo.CombinedEventsInfo;
 import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
+import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
+import org.opensha.refFaultParamDb.vo.PaleoSite;
+import org.opensha.refFaultParamDb.vo.PaleoSitePublication;
+import org.opensha.refFaultParamDb.vo.PaleoSiteSummary;
 
 /**
  * <p>Title: ViewPaleoSites.java </p>

@@ -1,10 +1,9 @@
 package org.opensha.sha.calc.IM_EventSet.v01;
 
 
-import java.io.IOException;
+import java.io.File;
 import java.io.FileNotFoundException;
-
-
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
@@ -12,8 +11,6 @@ import org.opensha.commons.calc.GaussianDistCalc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.SystemPropertiesUtils;
-
-import java.io.File;
 
 /**
  * <p>Title: IM_EventSetCalcTest</p>

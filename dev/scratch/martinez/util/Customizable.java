@@ -2,6 +2,8 @@ package scratch.martinez.util;
 
 import javax.swing.JComponent;
 
+import scratch.martinez.beans.PropertiesBean;
+
 /**
  * <strong>Title:</strong> Customizable<br />
  * <strong>Description:</strong>A public interface that makes a class customizable within the

@@ -1,12 +1,14 @@
 package org.opensha.refFaultParamDb.dao.db;
 
-import java.sql.SQLException;
 import java.sql.ResultSet;
-import org.opensha.refFaultParamDb.vo.FaultModelSummary;
-import org.opensha.refFaultParamDb.dao.exception.*;
-import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
-
+import java.sql.SQLException;
 import java.util.ArrayList;
+
+import org.opensha.refFaultParamDb.dao.exception.InsertException;
+import org.opensha.refFaultParamDb.dao.exception.QueryException;
+import org.opensha.refFaultParamDb.dao.exception.UpdateException;
+import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+import org.opensha.refFaultParamDb.vo.FaultModelSummary;
 
 /**
  * <p>Title: FaultModelDB_DAO.java </p>

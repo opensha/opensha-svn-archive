@@ -1,6 +1,12 @@
 package org.opensha.sha.imr.attenRelImpl.test.depricated;
 
-import java.util.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
+
+import junit.framework.TestCase;
 
 import org.opensha.commons.param.WarningDoubleParameter;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
@@ -18,13 +24,6 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistRupMinusJB_OverRupP
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.WarningDoublePropagationEffectParameter;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
-import org.opensha.sha.param.*;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.text.*;
-import junit.framework.TestCase;
 
 public class CY_2006_test extends TestCase implements ParameterChangeWarningListener{
 	

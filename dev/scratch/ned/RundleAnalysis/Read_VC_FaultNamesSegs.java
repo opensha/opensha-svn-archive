@@ -1,11 +1,12 @@
 package scratch.ned.RundleAnalysis;
 
 
-import org.opensha.commons.util.FileUtils;
-
-import java.util.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
+
+import org.opensha.commons.util.FileUtils;
 
 /**
  * <p>Title: Read_VC_FaultNamesSegs</p>

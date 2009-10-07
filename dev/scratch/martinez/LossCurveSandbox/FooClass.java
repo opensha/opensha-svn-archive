@@ -3,14 +3,9 @@ package scratch.martinez.LossCurveSandbox;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.Vector;
 
-import org.opensha.commons.data.Location;
-
 import scratch.martinez.LossCurveSandbox.beans.VulnerabilityBean;
-import scratch.martinez.LossCurveSandbox.calculators.SiteClassException;
-import scratch.martinez.LossCurveSandbox.calculators.WillsSiteClassCalculator;
 import scratch.martinez.LossCurveSandbox.vulnerability.VulnerabilityModel;
 
 public class FooClass {

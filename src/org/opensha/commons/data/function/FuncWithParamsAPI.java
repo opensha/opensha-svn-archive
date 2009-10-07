@@ -1,10 +1,6 @@
 package org.opensha.commons.data.function;
 
-import java.util.ListIterator;
-import java.util.Iterator;
-
-import org.opensha.commons.data.DataPoint2D;
-import org.opensha.commons.exceptions.DataPoint2DException;
+import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 
 /**

@@ -1,5 +1,4 @@
 package org.opensha.refFaultParamDb.vo;
-import java.util.Date;
 
 /**
  * <p>Title: EstimateType.java </p>

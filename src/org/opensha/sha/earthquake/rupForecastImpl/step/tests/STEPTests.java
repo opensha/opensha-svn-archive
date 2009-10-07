@@ -1,11 +1,11 @@
 package org.opensha.sha.earthquake.rupForecastImpl.step.tests;
 
-import org.opensha.sha.earthquake.rupForecastImpl.step.*;
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.earthquake.rupForecastImpl.*;
-import junit.framework.*;
+import junit.framework.TestCase;
 
 import org.opensha.commons.data.Location;
+import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast;
 
 
 /**

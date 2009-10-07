@@ -1,9 +1,7 @@
 package org.opensha.sha.imr.param.IntensityMeasureParams;
 
-import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.DoubleDiscreteConstraint;
 import org.opensha.commons.param.DoubleDiscreteParameter;
-import org.opensha.commons.param.WarningDoubleParameter;
 
 /**
  * This represents Damping for the Spectral Acceleration parameter (SA_Param).  

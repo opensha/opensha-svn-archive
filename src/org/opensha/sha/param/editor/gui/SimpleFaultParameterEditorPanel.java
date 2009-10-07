@@ -1,19 +1,15 @@
 package org.opensha.sha.param.editor.gui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.JButton;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.ListIterator;
+
 import javax.swing.JOptionPane;
 
-
-
-
-
-import org.opensha.sha.param.*;
-import org.opensha.sha.param.editor.*;
-import org.opensha.sha.faultSurface.*;
-import org.opensha.commons.data.Location;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.IntegerParameter;
 import org.opensha.commons.param.ParameterAPI;
@@ -31,6 +27,7 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.sha.param.SimpleFaultParameter;
 
 
 /**

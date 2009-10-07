@@ -1,7 +1,6 @@
 package org.opensha.sha.earthquake.rupForecastImpl.remote;
 
 import java.rmi.server.UnicastRemoteObject;
-import java.rmi.Naming;
 
 /**
  * <p>Title: RemoteERF_ListFactoryImpl </p>

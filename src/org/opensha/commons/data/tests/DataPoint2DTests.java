@@ -1,6 +1,4 @@
 package org.opensha.commons.data.tests;
-import junit.framework.Assert;
-
 import junit.framework.TestCase;
 
 import org.opensha.commons.data.DataPoint2D;

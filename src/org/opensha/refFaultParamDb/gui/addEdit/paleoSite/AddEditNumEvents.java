@@ -1,12 +1,11 @@
 package org.opensha.refFaultParamDb.gui.addEdit.paleoSite;
 
-import javax.swing.*;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 
+import javax.swing.JOptionPane;
 
-import java.util.ArrayList;
-import java.awt.*;
-import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
-import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
 import org.opensha.commons.data.estimate.IntegerEstimate;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
@@ -15,17 +14,13 @@ import org.opensha.commons.param.ArbitrarilyDiscretizedFuncParameter;
 import org.opensha.commons.param.IntegerParameter;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ArbitrarilyDiscretizedFuncParameterEditor;
-import org.opensha.commons.param.editor.ConstrainedStringListParameterEditor;
 import org.opensha.commons.param.editor.IntegerParameterEditor;
-import org.opensha.commons.param.editor.ParameterListEditor;
-import org.opensha.commons.param.editor.estimate.ConstrainedEstimateParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import org.opensha.refFaultParamDb.vo.EstimateInstances;
+import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
+import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
 
 /**
  * <p>Title: AddEditNumEvents.java </p>

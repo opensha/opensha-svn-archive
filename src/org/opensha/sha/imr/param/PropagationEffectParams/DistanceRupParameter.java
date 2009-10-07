@@ -1,21 +1,14 @@
 package org.opensha.sha.imr.param.PropagationEffectParams;
 
-import java.util.*;
+import java.util.ListIterator;
 
 import org.dom4j.Element;
-
-
-
-import org.opensha.sha.calc.*;
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.WarningParameterAPI;
-import org.opensha.commons.param.editor.ConstrainedDoubleParameterEditor;
-import org.opensha.commons.param.editor.DoubleParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditor;
 
 
 /**

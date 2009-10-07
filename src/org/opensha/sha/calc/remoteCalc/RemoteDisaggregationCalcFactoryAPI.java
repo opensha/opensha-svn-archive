@@ -1,8 +1,7 @@
 package org.opensha.sha.calc.remoteCalc;
 
 import java.rmi.Remote;
-import java.rmi.RemoteException;
-import org.opensha.sha.calc.*;
+
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculatorAPI;
 
 /**

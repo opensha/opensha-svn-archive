@@ -1,14 +1,20 @@
 package org.opensha.sha.gui.controls;
 
-import java.awt.*;
-import javax.swing.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.sha.gui.beans.SitesInGriddedRectangularRegionGuiBean;
 import org.opensha.sha.gui.beans.SitesInGriddedRegionGuiBean;
-
-import java.awt.event.*;
 /**
  * <p>Title: SitesOfInterest </p>
  * <p>Description: It displays a list of interesting sites which user can choose </p>

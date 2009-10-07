@@ -1,11 +1,22 @@
 package org.opensha.nshmp.sha.gui.infoTools;
 
-import java.awt.*;
-import javax.swing.*;
-import java.awt.event.*;
-//import java.awt.event.ItemListener;
-//import java.awt.event.ItemEvent;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.GregorianCalendar;
+
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.UIManager;
 
 /**
  * <p>Title: AddProjectNameDateWindow</p>

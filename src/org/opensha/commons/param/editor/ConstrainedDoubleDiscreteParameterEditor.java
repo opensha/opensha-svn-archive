@@ -1,17 +1,15 @@
 package org.opensha.commons.param.editor;
 
-import java.util.*;
-import java.awt.*;
-
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
-
+import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.ListIterator;
+import java.util.Vector;
+
+import javax.swing.JComboBox;
+import javax.swing.border.Border;
 
 import org.opensha.commons.exceptions.ConstraintException;
-import org.opensha.commons.gui.SidesBorder;
 import org.opensha.commons.param.DoubleDiscreteConstraint;
 import org.opensha.commons.param.DoubleDiscreteParameter;
 import org.opensha.commons.param.ParameterAPI;

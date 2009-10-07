@@ -1,8 +1,8 @@
 package org.opensha.nshmp.sha.calc.remote.api;
 
-import java.rmi.*;
+import java.rmi.Remote;
 
-import org.opensha.nshmp.sha.calc.api.*;
+import org.opensha.nshmp.sha.calc.api.HazardDataCalcAPI;
 
 /**
  * <p>Title: RemoteHazardDataCalcFactoryAPI</p>

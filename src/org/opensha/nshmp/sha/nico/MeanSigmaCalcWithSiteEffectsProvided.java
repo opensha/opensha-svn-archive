@@ -1,11 +1,11 @@
 package org.opensha.nshmp.sha.nico;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.io.FileNotFoundException;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.calc.RelativeLocation;
