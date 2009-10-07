@@ -11,7 +11,7 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.faultSurface.FaultTrace;
@@ -193,7 +193,7 @@ public class STEP_CombineForecastModels
 			  // gridSearchRadius is the radius used for calculating the Reasenberg & Jones params
 			  double radius = this.spaElement.getGridSearchRadius();
 			  ObsEqkRupList gridEvents;
-			  GeographicRegion nodeRegion = new GeographicRegion(getRegion().getGridLocation(gLoop),radius);
+			  Region nodeRegion = new Region(getRegion().getGridLocation(gLoop),radius);
 			  gridEvents = this.afterShocks.getObsEqkRupsInside(nodeRegion);
 			  
 			  // get the smoothed generic k val for the grid node
@@ -413,7 +413,7 @@ public class STEP_CombineForecastModels
 //      this.aftershockZone.createRegionLocationsList(backgroundRatesGrid.getRegion());
       
       // NOTE: baishan this may not be working right; replaces above code
-      GeographicRegion asZoneGR = new GeographicRegion(mainshockLocation, zoneRadius);
+      Region asZoneGR = new Region(mainshockLocation, zoneRadius);
       aftershockZone = backgroundRatesGrid.getRegion().subRegion(asZoneGR);
       // end NOTE
       

@@ -22,7 +22,7 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
 import org.opensha.commons.data.Location;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.DoubleParameter;
@@ -458,7 +458,7 @@ public class ProbHazCurvesGuiBean
    * Creating the location gui bean
    */
   private void createLocation() throws RegionConstraintException {
-	  GeographicRegion region = RegionUtil.getRegionConstraint(
+	  Region region = RegionUtil.getRegionConstraint(
         selectedRegion);
     if (region != null) {
       locationVisible = true;

@@ -7,7 +7,7 @@ import java.rmi.RemoteException;
 import org.opensha.sha.earthquake.*;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 

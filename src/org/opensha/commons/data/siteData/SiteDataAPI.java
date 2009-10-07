@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.NamedObjectAPI;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterListEditor;
@@ -69,9 +69,9 @@ public interface SiteDataAPI<Element> extends NamedObjectAPI, XMLSaveable {
 	
 	/**
 	 * This gives the applicable region for this data set.
-	 * @return GeographicRegion
+	 * @return Region
 	 */
-	public GeographicRegion getApplicableRegion();
+	public Region getApplicableRegion();
 	
 	/**
 	 * This gives the resolution of the dataset in degrees, or 0 for infinite resolution.

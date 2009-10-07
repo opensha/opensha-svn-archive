@@ -7,7 +7,7 @@ import java.util.Set;
 import org.dom4j.Element;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.SiteDataToXYZ;
 import org.opensha.commons.data.siteData.servlet.SiteDataServletAccessor;
@@ -27,7 +27,7 @@ public class WillsMap2000 extends AbstractSiteData<String> {
 	// approximate...
 	public static final double spacing = 0.01667;
 	
-	private GeographicRegion applicableRegion;
+	private Region applicableRegion;
 	
 	private String fileName = WillsSiteClass.WILLS_FILE;
 	
@@ -50,7 +50,7 @@ public class WillsMap2000 extends AbstractSiteData<String> {
 		super();
 		this.useServlet = useServlet;
 //		try {
-			applicableRegion = new GeographicRegion(
+			applicableRegion = new Region(
 					new Location(minLat, minLon),
 					new Location(maxLat, maxLon));
 //		} catch (RegionConstraintException e) {
@@ -63,7 +63,7 @@ public class WillsMap2000 extends AbstractSiteData<String> {
 		}
 	}
 
-	public GeographicRegion getApplicableRegion() {
+	public Region getApplicableRegion() {
 		return applicableRegion;
 	}
 

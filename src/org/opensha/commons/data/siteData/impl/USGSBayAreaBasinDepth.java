@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import org.dom4j.Element;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.SiteDataToXYZ;
 import org.opensha.commons.data.siteData.servlet.SiteDataServletAccessor;
@@ -104,7 +104,7 @@ public class USGSBayAreaBasinDepth extends AbstractSiteData<Double> {
 		this.paramList.addParameter(maxBasinDoubleParam);
 	}
 
-	public GeographicRegion getApplicableRegion() {
+	public Region getApplicableRegion() {
 		return calc.getApplicableRegion();
 	}
 

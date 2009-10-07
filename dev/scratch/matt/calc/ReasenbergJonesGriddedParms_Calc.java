@@ -5,7 +5,7 @@ import java.util.ListIterator;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 
 /**
@@ -158,8 +158,8 @@ public class ReasenbergJonesGriddedParms_Calc {
 
 
     while (gridIt.hasNext()) {
-      GeographicRegion gridRegion =
-          new GeographicRegion((Location)gridIt.next(),this.searchRadius);
+      Region gridRegion =
+          new Region((Location)gridIt.next(),this.searchRadius);
       ObsEqkRupList regionList = eventList.getObsEqkRupsInside(gridRegion);
 
       // Calculate the completeness of the events selected for the node and remove

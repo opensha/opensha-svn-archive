@@ -19,7 +19,7 @@ import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValueList;
@@ -186,7 +186,7 @@ public class SiteDataMapApplet extends Applet implements ActionListener, ListSel
 				System.out.println("No data provider selected!");
 				return;
 			}
-			GeographicRegion region = provider.getApplicableRegion();
+			Region region = provider.getApplicableRegion();
 			
 			ParameterList paramList = mapBean.getParameterList();
 			paramList.getParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME).setValue(new Double(region.getMinLat()));

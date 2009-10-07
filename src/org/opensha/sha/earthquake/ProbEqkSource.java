@@ -6,7 +6,7 @@ import java.util.Iterator;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
 /**
@@ -219,7 +219,7 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
    * 
    * @return
    */
-  public double computeApproxTotalProbAbove(double mag,GeographicRegion region) {
+  public double computeApproxTotalProbAbove(double mag,Region region) {
 	  double totProb=0;
 	  ProbEqkRupture tempRup;
 	  for(int i=0; i<getNumRuptures(); i++) {
@@ -238,7 +238,7 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
    * given mangitude
    * @return
    */
-  public double computeTotalProbAbove(double mag,GeographicRegion region) {
+  public double computeTotalProbAbove(double mag,Region region) {
 	  double totProb=0;
 	  ProbEqkRupture tempRup;
 	  for(int i=0; i<getNumRuptures(); i++) {
@@ -260,7 +260,7 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
    * @param region
    * @return
    */
-  private double getRupProbWithinRegion(ProbEqkRupture tempRup, GeographicRegion region) {
+  private double getRupProbWithinRegion(ProbEqkRupture tempRup, Region region) {
 	  int numLocsInside = 0;
 	  int totPoints = 0;
 	  if(region!=null) {
@@ -292,7 +292,7 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
    * @param region
    * @return
    */
-  private double getApproxRupProbWithinRegion(ProbEqkRupture tempRup, GeographicRegion region) {
+  private double getApproxRupProbWithinRegion(ProbEqkRupture tempRup, Region region) {
 	  int numLocsInside = 0;
 	  int totPoints = 0;
 	  if(region!=null) {

@@ -49,7 +49,7 @@ public class RegionUtils {
 	
 	// write region
 	public static void regionToKML(
-			GeographicRegion region, String filename, Color c) {
+			Region region, String filename, Color c) {
 		String kmlFileName = filename + ".kml";
 		Document doc = DocumentHelper.createDocument();
 		Element root = new DefaultElement(
@@ -103,7 +103,7 @@ public class RegionUtils {
 	}
 	
 	// border polygon
-	private static Element addBorder(Element e, GeographicRegion region) {
+	private static Element addBorder(Element e, Region region) {
 		Element e_placemark = e.addElement("Placemark");
 		Element e_name = e_placemark.addElement("name");
 		e_name.addText("Border");
@@ -120,7 +120,7 @@ public class RegionUtils {
 	}
 	
 	// create lat-lon data string
-	private static String parseBorderCoords(GeographicRegion region) {
+	private static String parseBorderCoords(Region region) {
 		LocationList ll = region.getRegionOutline();
 		StringBuffer sb = new StringBuffer(NL);
 		//System.out.println("parseBorderCoords: "); // TODO clean
@@ -282,11 +282,11 @@ public class RegionUtils {
 		regionToKML(eggr, "ver_RELM_collect_new", Color.ORANGE);
 
 //		// visual verification tests for GeographiRegionTest
-//		GeographicRegion gr;
+//		Region gr;
 //		
 //		Location L1 = new Location(32,112);
 //		Location L3 = new Location(34,118);
-//		gr = new GeographicRegion(L1,L3);
+//		gr = new Region(L1,L3);
 //		RegionUtils.regionToKML(gr, "RegionLocLoc", Color.ORANGE);
 //		
 		

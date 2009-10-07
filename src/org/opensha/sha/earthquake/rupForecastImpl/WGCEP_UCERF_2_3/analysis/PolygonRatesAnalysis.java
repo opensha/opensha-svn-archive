@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.calc.ERF2GriddedSeisRatesCalc;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
@@ -58,7 +58,7 @@ public class PolygonRatesAnalysis {
 		double rateInPoly;
 		double rateRestOfRegion = totRate;
 		for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
-			GeographicRegion polygon = empiricalModelFetcher.getRegion(regionIndex);
+			Region polygon = empiricalModelFetcher.getRegion(regionIndex);
 			if(polygon.getRegionOutline()==null) continue;
 			rateInPoly = erf2GriddedSeisRatesCalc.getTotalSeisRateInRegion(MIN_MAG, ucerf2, polygon);
 			rateRestOfRegion-=rateInPoly;
@@ -113,7 +113,7 @@ public class PolygonRatesAnalysis {
 		String header = "#FaultName, Index, RELM Region";
 		int numPolygons = empiricalModelFetcher.getNumRegions();
 		for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
-			GeographicRegion polygon = empiricalModelFetcher.getRegion(regionIndex);
+			Region polygon = empiricalModelFetcher.getRegion(regionIndex);
 			header+=","+polygon.getName();
 		}
 		header+="\n";
@@ -210,7 +210,7 @@ public class PolygonRatesAnalysis {
 			++totPointsInRELM_Region;
 			Location loc = nshmpGridSrcGen.getGriddedRegion().getGridLocation(i);
 			for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
-				GeographicRegion polygon = empiricalModelFetcher.getRegion(regionIndex);
+				Region polygon = empiricalModelFetcher.getRegion(regionIndex);
 				if(polygon.getRegionOutline()==null) continue;
 				if(polygon.isLocationInside(loc)) {
 					++pointInEachPolygon[regionIndex];
@@ -222,7 +222,7 @@ public class PolygonRatesAnalysis {
 				totPointsInRELM_Region/(float)totPointsInRELM_Region);	
 		int pointsOutsidePolygon = totPointsInRELM_Region;
 		for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
-			GeographicRegion polygon = empiricalModelFetcher.getRegion(regionIndex);
+			Region polygon = empiricalModelFetcher.getRegion(regionIndex);
 			pointsOutsidePolygon-=pointInEachPolygon[regionIndex];
 			if(polygon.getRegionOutline()!=null)
 				fw.write(","+pointInEachPolygon[regionIndex]/(float)totPointsInRELM_Region);
@@ -264,7 +264,7 @@ public class PolygonRatesAnalysis {
 			Location loc = surface.getLocation(0, ptIndex);
 			if(this.relmRegion.isLocationInside(loc)) ++totPointsInRELM_Region;
 			for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
-				GeographicRegion polygon = empiricalModelFetcher.getRegion(regionIndex);
+				Region polygon = empiricalModelFetcher.getRegion(regionIndex);
 				if(polygon.getRegionOutline()==null) continue;
 				if(polygon.isLocationInside(loc)) {
 					++pointInEachPolygon[regionIndex];

@@ -71,7 +71,7 @@ public class Location implements java.io.Serializable, XMLSaveable {
 
 
     // this is meter scale precision and perhaps should be defined elsewhere 
-    // NOTE: see also notes at GeographicRegion.DECIMAL_SCALE
+    // NOTE: see also notes at Region.DECIMAL_SCALE
     // TODO make private and delete LocationComparator class
     //public final static DecimalFormat latLonFormat = new DecimalFormat("0.0####");
  

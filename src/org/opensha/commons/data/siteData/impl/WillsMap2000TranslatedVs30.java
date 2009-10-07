@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.sha.util.SiteTranslator;
@@ -35,7 +35,7 @@ public class WillsMap2000TranslatedVs30 extends AbstractSiteData<Double> {
 		this.paramList.addParameter(maxVs30Param);
 	}
 
-	public GeographicRegion getApplicableRegion() {
+	public Region getApplicableRegion() {
 		return map.getApplicableRegion();
 	}
 

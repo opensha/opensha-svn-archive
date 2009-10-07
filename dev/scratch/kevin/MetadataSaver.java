@@ -49,11 +49,11 @@ public class MetadataSaver implements ParameterChangeWarningListener {
 		imr.getParameter(PeriodParam.NAME).setValue(new
                 Double(0.5));
 		
-		//GeographicRegion region = new RELM_TestingRegion();
+		//Region region = new RELM_TestingRegion();
 		//EvenlyGriddedGeographicRegion gridded = new EvenlyGriddedGeographicRegion(region.getRegionOutline(), BorderType.MERCATOR_LINEAR, 0.1);
 		EvenlyGriddedGeographicRegion gridded = 
 			new CaliforniaRegions.RELM_TESTING_GRIDDED();
-//		GeographicRegion gridded = null;
+//		Region gridded = null;
 //		try {
 //			gridded = new EvenlyGriddedRectangularGeographicRegion(33.5, 34.8, -120.0, -116.0, 0.02);
 //		} catch (RegionConstraintException e1) {

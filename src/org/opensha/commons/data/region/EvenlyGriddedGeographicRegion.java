@@ -65,10 +65,10 @@ import com.sun.xml.rpc.processor.util.CanonicalModelWriter.GetNameComparator;
  * @author Vipin Gupta 
  * @author Peter Powers
  * @version $Id$
- * @see GeographicRegion
+ * @see Region
  */
 
-public class EvenlyGriddedGeographicRegion extends GeographicRegion
+public class EvenlyGriddedGeographicRegion extends Region
 		implements Iterable<Location> {
 
 	private static final long serialVersionUID = 1L;
@@ -139,7 +139,7 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
 	 * <b>Note:</b> In an exception to the rules of insidedness defined
 	 * in the {@link Shape} interface, <code>Location</code>s that fall on
 	 * northern or eastern borders of this region are considered inside. See 
-	 * {@link GeographicRegion#GeographicRegion(Location, Location)} for
+	 * {@link Region#GeographicRegion(Location, Location)} for
 	 * implementation details.
 	 * 
 	 * @param loc1 the first <code>Location</code>
@@ -152,7 +152,7 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
 	 * 		</code> &le; 5&deg;
 	 * @throws NullPointerException if either <code>Location</code> argument
 	 * 		is <code>null</code>
-	 * @see GeographicRegion#GeographicRegion(Location, Location)
+	 * @see Region#GeographicRegion(Location, Location)
 	 */
 	public EvenlyGriddedGeographicRegion(
 			Location loc1, 
@@ -179,7 +179,7 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
 	 * 		range 0&deg; &lt; <code>spacing</code> &le; 5&deg;
 	 * @throws NullPointerException if the <code>border</code> is 
 	 * 		<code>null</code>
-	 * @see GeographicRegion#GeographicRegion(LocationList, BorderType)
+	 * @see Region#GeographicRegion(LocationList, BorderType)
 	 */
 	public EvenlyGriddedGeographicRegion(
 			LocationList border, 
@@ -216,7 +216,7 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
 	 * 		</code> is outside the range 0&deg; &lt; <code>spacing</code> 
 	 * 		&le; 5&deg;
 	 * @throws NullPointerException if <code>center</code> is null
-	 * @see GeographicRegion#GeographicRegion(Location, double)
+	 * @see Region#GeographicRegion(Location, double)
 	 */
 	public EvenlyGriddedGeographicRegion(
 			Location center, 
@@ -251,7 +251,7 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
 	 * 		range 0 km &lt; <code>buffer</code> &le; 500 km or <code>spacing
 	 * 		</code> is outside the range 0&deg; &lt; <code>spacing</code> 
 	 * 		&le; 5&deg;
-	 * @see GeographicRegion#GeographicRegion(LocationList, double)
+	 * @see Region#GeographicRegion(LocationList, double)
 	 */
 	public EvenlyGriddedGeographicRegion(
 			LocationList line, 
@@ -264,7 +264,7 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
 	
 	/**
 	 * Initializes a <code>GriddedRegion</code> with a 
-	 * <code>GeographicRegion</code>.
+	 * <code>Region</code>.
 	 * 
 	 * @param region to use as border for new gridded region
 	 * @param spacing of grid nodes
@@ -273,10 +273,10 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
 	 * 		</code> is outside the range 0&deg; &lt; <code>spacing</code> 
 	 * 		&le; 5&deg;
 	 * @throws NullPointerException if <code>region</code> is <code>null</code>
-	 * @see GeographicRegion#GeographicRegion(GeographicRegion)
+	 * @see Region#GeographicRegion(Region)
 	 */
 	public EvenlyGriddedGeographicRegion(
-			GeographicRegion region, 
+			Region region, 
 			double spacing,
 			Location anchor) {
 		super(region.getRegionOutline(), BorderType.MERCATOR_LINEAR);
@@ -488,8 +488,8 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
 	 * @param region to use as border for sub-region
 	 * @return a new GriddedRegion
 	 */
-	public EvenlyGriddedGeographicRegion subRegion(GeographicRegion region) {
-		GeographicRegion newRegion = GeographicRegion.intersect(this, region);
+	public EvenlyGriddedGeographicRegion subRegion(Region region) {
+		Region newRegion = Region.intersect(this, region);
 		System.out.println(this); //TODO clean
 		System.out.println(region);
 		System.out.println(newRegion);
@@ -922,7 +922,7 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
 	// TODO need to make sure this is initializing properly before reintegration
 	public static EvenlyGriddedGeographicRegion fromXMLMetadata(Element root) {
 		double gridSpacing = Double.parseDouble(root.attribute(EvenlyGriddedGeographicRegion.XML_METADATA_GRID_SPACING_NAME).getValue());
-		GeographicRegion geoRegion = GeographicRegion.fromXMLMetadata(root.element(GeographicRegion.XML_METADATA_NAME));
+		Region geoRegion = Region.fromXMLMetadata(root.element(Region.XML_METADATA_NAME));
 		LocationList outline = geoRegion.getRegionOutline();
 		Location xml_anchor = Location.fromXMLMetadata(root.element(XML_METADATA_ANCHOR_NAME).element(Location.XML_METADATA_NAME));
 

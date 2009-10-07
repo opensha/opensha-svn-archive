@@ -1,7 +1,7 @@
 package org.opensha.commons.util.binFile;
 
 import org.opensha.commons.data.Location;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 
 public class GeolocatedRectangularBinaryMesh2DCalculator extends
 		BinaryMesh2DCalculator {
@@ -193,9 +193,9 @@ public class GeolocatedRectangularBinaryMesh2DCalculator extends
 		this.startLeft = startLeft;
 	}
 	
-	public GeographicRegion getApplicableRegion() {
+	public Region getApplicableRegion() {
 //		try {
-			return new GeographicRegion(
+			return new Region(
 					new Location(minLat,minLon),
 					new Location(maxLat,maxLon));
 //		} catch (RegionConstraintException e) {

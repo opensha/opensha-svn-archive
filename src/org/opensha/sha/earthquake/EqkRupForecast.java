@@ -9,7 +9,7 @@ import java.util.ListIterator;
 import org.dom4j.Element;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.metadata.MetadataLoader;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.param.Parameter;
@@ -66,7 +66,7 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    * Get the region for which this forecast is applicable
    * @return : Geographic region object specifying the applicable region of forecast
    */
-  public GeographicRegion getApplicableRegion() {
+  public Region getApplicableRegion() {
     return null;
   }
 

@@ -9,13 +9,13 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 
 /**
  * 
- * TODO retire; nees constructor added to GeographicRegion
+ * TODO retire; nees constructor added to Region
  * 
  * 
  * <p>Title: EvenlyGriddedGeographicRegionAroundEqkRupture</p>
  *
  * <p>Description: This class allows to create a Evenly Gridded
- * GeographicRegion around a given EqkRupture.
+ * Region around a given EqkRupture.
  * It creates a polygon around the EqkRupture such that each point
  * on the polygon is ~radius from the edge of the horizontal projection of
  * the eqkRupture surface.

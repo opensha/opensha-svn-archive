@@ -63,7 +63,7 @@ import org.opensha.sha.earthquake.EqkRupture;
  * @see Area
  * @see BorderType
  */
-public class GeographicRegion implements 
+public class Region implements 
 		Serializable, XMLSaveable, NamedObjectAPI {
 
 	private static final long serialVersionUID = 1L;
@@ -85,7 +85,7 @@ public class GeographicRegion implements
 	// Default segment length for great circle splitting: 100km
 	private static final double GC_SEGMENT = 100;
 	
-	public final static String XML_METADATA_NAME = "GeographicRegion";
+	public final static String XML_METADATA_NAME = "Region";
 	public final static String XML_METADATA_OUTLINE_NAME = "OutlineLocations";
 
 	// name for this region TODO possibly kill
@@ -95,7 +95,7 @@ public class GeographicRegion implements
 	 * TODO delete default empty constructor; has about 8 dependencies
 	 * ACTUALLY, make private or package private; used by intersect(r1,r2)
 	 */
-	public GeographicRegion() {
+	public Region() {
 	}
 
 	
@@ -108,7 +108,7 @@ public class GeographicRegion implements
 	 * <br/>
 	 * <b>Note:</b> Internally, a very small value (~1m) is added to the
 	 * maximum latitude and longitude of the locations provided. This
-	 * ensures that calls to {@link GeographicRegion#isLocationInside(Location)} 
+	 * ensures that calls to {@link Region#isLocationInside(Location)} 
 	 * for any <code>Location</code> on the north or east border of the region 
 	 * will return <code>true</code>. See also the rules governing insidedness
 	 * in the {@link Shape} interface.
@@ -120,7 +120,7 @@ public class GeographicRegion implements
 	 * @throws NullPointerException if either <code>Location</code> argument
 	 * 		is <code>null</code>
 	 */
-	public GeographicRegion(Location loc1, Location loc2) {
+	public Region(Location loc1, Location loc2) {
 		
 		if (loc1 == null || loc2 == null) {
 			throw new NullPointerException();
@@ -168,7 +168,7 @@ public class GeographicRegion implements
 	 * @throws NullPointerException if the <code>border</code> is 
 	 * 		<code>null</code>
 	 */
-	public GeographicRegion(LocationList border, BorderType type) {
+	public Region(LocationList border, BorderType type) {
 		if (border == null) {
 			throw new NullPointerException();
 		} else if (border.size() < 3) {
@@ -191,7 +191,7 @@ public class GeographicRegion implements
 	 * 		range 0 km &lt; <code>radius</code> &le; 1000 km
 	 * @throws NullPointerException if <code>center</code> is <code>null</code>
 	 */
-	public GeographicRegion(Location center, double radius) {
+	public Region(Location center, double radius) {
 		if (radius <= 0 || radius > 1000) {
 			throw new IllegalArgumentException(
 					"Radius is out of [0 1000] km range");
@@ -210,7 +210,7 @@ public class GeographicRegion implements
 	 * @throws IllegalArgumentException if <code>buffer</code> is outside the
 	 * 		range 0 km &lt; <code>buffer</code> &le; 500 km
 	 */
-	public GeographicRegion(LocationList line, double buffer) {
+	public Region(LocationList line, double buffer) {
 		if (buffer <= 0 || buffer > 500) {
 			throw new IllegalArgumentException(
 					"Buffer is out of [0 500] km range");
@@ -230,7 +230,7 @@ public class GeographicRegion implements
 	 * 
 	 * @param region to use as border for new region
 	 */
-	public GeographicRegion(GeographicRegion region) {
+	public Region(Region region) {
 		this(region.getRegionOutline(), BorderType.MERCATOR_LINEAR);
 	}
 	
@@ -243,7 +243,7 @@ public class GeographicRegion implements
 	 * @param rupture
 	 * @param buffer
 	 */
-	public GeographicRegion(EqkRupture rupture, double buffer) {
+	public Region(EqkRupture rupture, double buffer) {
 		
 	}
 	
@@ -308,7 +308,7 @@ public class GeographicRegion implements
 	 * @return <code>true</code> if this contains the <code>region</code>; 
 	 * 		<code>false</code> otherwise
 	 */
-	public boolean contains(GeographicRegion region) {
+	public boolean contains(Region region) {
 		Area areaUnion = (Area) area.clone();
 		areaUnion.add(region.area);
 		return area.equals(areaUnion);
@@ -463,18 +463,18 @@ public class GeographicRegion implements
 	}
 
 	public Element toXMLMetadata(Element root) {
-		Element xml = root.addElement(GeographicRegion.XML_METADATA_NAME);
+		Element xml = root.addElement(Region.XML_METADATA_NAME);
 		LocationList list = this.getRegionOutline();
 		xml = list.toXMLMetadata(xml);
 		return root;
 	}
 
 	// TODO verify that that xml io is working
-	public static GeographicRegion fromXMLMetadata(Element geographicElement) {
+	public static Region fromXMLMetadata(Element geographicElement) {
 		LocationList list =
 				LocationList.fromXMLMetadata(geographicElement
 						.element(LocationList.XML_METADATA_NAME));
-		return new GeographicRegion(list, BorderType.MERCATOR_LINEAR);
+		return new Region(list, BorderType.MERCATOR_LINEAR);
 	}
 
 	// TODO update
@@ -516,7 +516,7 @@ public class GeographicRegion implements
 	@Override
 	public String toString() {
 		String str =
-				"GeographicRegion\n" + "\tMinimum Lat: " + this.getMinLat()
+				"Region\n" + "\tMinimum Lat: " + this.getMinLat()
 						+ "\n" + "\tMinimum Lon: " + this.getMinLon() + "\n"
 						+ "\tMaximum Lat: " + this.getMaxLat() + "\n"
 						+ "\tMaximum Lon: " + this.getMaxLon();
@@ -543,7 +543,7 @@ public class GeographicRegion implements
 //			pi.next();
 //		}
 //		System.out.println("\u00B1180&deg; \u00b1180&deg;");
-//		System.out.println(new GeographicRegion(new LocationList(), null));
+//		System.out.println(new Region(new LocationList(), null));
 //	}
 
 //	public Area getArea() {
@@ -588,15 +588,15 @@ public class GeographicRegion implements
 	 * @return a new regions defined by the intersection of <code>r1</code> 
 	 * 		and <code>r2</code> or <code>null</code> if they do not overlap
 	 */
-	public static GeographicRegion intersect(
-			GeographicRegion r1,
-			GeographicRegion r2) {
+	public static Region intersect(
+			Region r1,
+			Region r2) {
 		Area newArea = (Area) r1.area.clone();
 		newArea.intersect(r2.area);
 		if (newArea.isEmpty()) return null;
-		GeographicRegion newRegion = new GeographicRegion();
+		Region newRegion = new Region();
 		newRegion.area = newArea;
-		newRegion.border = GeographicRegion.createBorder(newArea, true);
+		newRegion.border = Region.createBorder(newArea, true);
 		return newRegion;
 	}
 
@@ -609,15 +609,15 @@ public class GeographicRegion implements
 	 * @return a new region defined by the union of <code>r1</code> 
 	 * 		and <code>r2</code> or <code>null</code> if they do not overlap
 	 */
-	public static GeographicRegion union(
-			GeographicRegion r1,
-			GeographicRegion r2) {
+	public static Region union(
+			Region r1,
+			Region r2) {
 		Area newArea = (Area) r1.area.clone();
 		newArea.add(r2.area);
 		if (!newArea.isSingular()) return null;
-		GeographicRegion newRegion = new GeographicRegion();
+		Region newRegion = new Region();
 		newRegion.area = newArea;
-		newRegion.border = GeographicRegion.createBorder(newArea, true);
+		newRegion.border = Region.createBorder(newArea, true);
 		return newRegion;
 	}
 
@@ -626,13 +626,13 @@ public class GeographicRegion implements
 	 * @return a region extending from -180&#176; to +180&#176; longitude and
 	 * 		-90&#176; to +90&#176; latitude
 	 */
-	public static GeographicRegion getGlobalRegion() {
+	public static Region getGlobalRegion() {
 		LocationList gll = new LocationList();
 		gll.addLocation(new Location(-90, -180));
 		gll.addLocation(new Location(-90, 180));
 		gll.addLocation(new Location(90, 180));
 		gll.addLocation(new Location(90, -180));
-		return new GeographicRegion(gll, BorderType.MERCATOR_LINEAR);
+		return new Region(gll, BorderType.MERCATOR_LINEAR);
 	}
 	
 	/*

@@ -16,7 +16,7 @@ import org.opensha.commons.data.LocationList;
  * 
  * @author Peter Powers
  * @version $Id:$
- * @see GeographicRegion
+ * @see Region
  * @see EvenlyGriddedGeographicRegion
  */
 public class CaliforniaRegions {
@@ -47,7 +47,7 @@ public class CaliforniaRegions {
 	/** 
 	 * A simplified representation of the RELM gridded region. 
 	 */
-	public static final class RELM_TESTING extends GeographicRegion {
+	public static final class RELM_TESTING extends Region {
 		/** New instance of region. */
 		public RELM_TESTING() {
 			super(readCoords("RELM_testing.coords"), 
@@ -71,7 +71,7 @@ public class CaliforniaRegions {
 	/** 
 	 * Expanded RELM region used to capture large external events.
 	 */
-	public static final class RELM_COLLECTION extends GeographicRegion {
+	public static final class RELM_COLLECTION extends Region {
 		/** New instance of region. */
 		public RELM_COLLECTION() {
 			super(readCoords("RELM_collection.coords"), 
@@ -95,7 +95,7 @@ public class CaliforniaRegions {
 	/** 
 	 * Northern half of the RELM region.
 	 */
-	public static final class RELM_NOCAL extends GeographicRegion {
+	public static final class RELM_NOCAL extends Region {
 		/** New instance of region. */
 		public RELM_NOCAL() {
 			super(readCoords("RELM_NoCal.coords"), 
@@ -118,7 +118,7 @@ public class CaliforniaRegions {
 	/** 
 	 * Southern half of the RELM region.
 	 */
-	public static final class RELM_SOCAL extends GeographicRegion {
+	public static final class RELM_SOCAL extends Region {
 		/** New instance of region. */
 		public RELM_SOCAL() {
 			super(readCoords("RELM_SoCal.coords"), 

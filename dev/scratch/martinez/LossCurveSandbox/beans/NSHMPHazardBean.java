@@ -6,7 +6,7 @@ import java.util.Vector;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.nshmp.sha.data.HazardDataMinerServletMode;
 import org.opensha.nshmp.util.GlobalConstants;
 
@@ -70,15 +70,15 @@ public class NSHMPHazardBean extends AbstractHazardBean {
 	private static NSHMPHazardBean instance = null;
 	
 	// Region Bounds for the Possible Regions
-	protected static GeographicRegion STATES_REGION      = null;
-	protected static GeographicRegion ALASKA_REGION      = null;
-	protected static GeographicRegion HAWAII_REGION      = null;
-	protected static GeographicRegion PUERTO_RICO_REGION = null;
-	protected static GeographicRegion CULEBRA_REGION     = null;
-	protected static GeographicRegion ST_CROIX_REGION    = null;
-	protected static GeographicRegion ST_JOHN_REGION     = null;
-	protected static GeographicRegion ST_THOMAS_REGION   = null;
-	protected static GeographicRegion VIEQUES_REGION     = null;
+	protected static Region STATES_REGION      = null;
+	protected static Region ALASKA_REGION      = null;
+	protected static Region HAWAII_REGION      = null;
+	protected static Region PUERTO_RICO_REGION = null;
+	protected static Region CULEBRA_REGION     = null;
+	protected static Region ST_CROIX_REGION    = null;
+	protected static Region ST_JOHN_REGION     = null;
+	protected static Region ST_THOMAS_REGION   = null;
+	protected static Region VIEQUES_REGION     = null;
 	
 	//---------------------------- Instance Members ---------------------------//
 
@@ -132,52 +132,52 @@ public class NSHMPHazardBean extends AbstractHazardBean {
 	static {
 //		try {
 			/* Initialize all the geographic regions for user later. */
-			//STATES_REGION = new GeographicRegion(24.7, 50, -125, -65);
-			STATES_REGION = new GeographicRegion(
+			//STATES_REGION = new Region(24.7, 50, -125, -65);
+			STATES_REGION = new Region(
 					new Location(24.7, -125),
 					new Location(50, -65));
-			//ALASKA_REGION = new GeographicRegion(48, 72, -200, -125);
-			ALASKA_REGION = new GeographicRegion(
+			//ALASKA_REGION = new Region(48, 72, -200, -125);
+			ALASKA_REGION = new Region(
 					new Location(48, -200),
 					new Location(72, -125));
-			//HAWAII_REGION = new GeographicRegion(18, 23, -161, -154);
-			HAWAII_REGION = new GeographicRegion(
+			//HAWAII_REGION = new Region(18, 23, -161, -154);
+			HAWAII_REGION = new Region(
 					new Location(18, -161),
 					new Location(23, -154));
 //			PUERTO_RICO_REGION =
-//				new GeographicRegion(17.89, 18.55, -67.36, -65.47);
+//				new Region(17.89, 18.55, -67.36, -65.47);
 			PUERTO_RICO_REGION =
-				new GeographicRegion(
+				new Region(
 						new Location(17.89, -67.36),
 						new Location(18.55, -65.47));
 //			CULEBRA_REGION = 
-//				new GeographicRegion(17.67, 17.8, -64.93, -64.54);
+//				new Region(17.67, 17.8, -64.93, -64.54);
 			CULEBRA_REGION = 
-				new GeographicRegion(
+				new Region(
 						new Location(17.67, -64.93),
 						new Location(17.8, -64.54));
 //			ST_CROIX_REGION = 
-//				new GeographicRegion(18.27, 18.36, -65.39, -65.21);
+//				new Region(18.27, 18.36, -65.39, -65.21);
 			ST_CROIX_REGION = 
-				new GeographicRegion(
+				new Region(
 						new Location(18.27, -65.39),
 						new Location(18.36, -65.21));
 //			ST_JOHN_REGION = 
-//				new GeographicRegion(18.29, 18.38, -64.85, -64.65);
+//				new Region(18.29, 18.38, -64.85, -64.65);
 			ST_JOHN_REGION = 
-				new GeographicRegion(
+				new Region(
 						new Location(18.29, -64.85),
 						new Location(18.38, -64.65));
 //			ST_THOMAS_REGION = 
-//				new GeographicRegion(18.26, 18.43, -65.10, -64.80);
+//				new Region(18.26, 18.43, -65.10, -64.80);
 			ST_THOMAS_REGION = 
-				new GeographicRegion(
+				new Region(
 						new Location(18.26, -65.10),
 						new Location(18.43, -64.80));
 //			VIEQUES_REGION = 
-//				new GeographicRegion(18.07, 18.17, -65.6, -65.25);
+//				new Region(18.07, 18.17, -65.6, -65.25);
 			VIEQUES_REGION = 
-				new GeographicRegion(
+				new Region(
 						new Location(18.07, -65.6),
 						new Location(18.17, -65.25));
 //		} ca//		} catch (RegionConstraintException rcx) {

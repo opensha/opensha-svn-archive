@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterListEditor;
@@ -103,7 +103,7 @@ public class CachedSiteDataWrapper<Element> implements SiteDataAPI<Element>, Par
 		return provider.getAdjustableParameterList();
 	}
 
-	public GeographicRegion getApplicableRegion() {
+	public Region getApplicableRegion() {
 		return provider.getApplicableRegion();
 	}
 

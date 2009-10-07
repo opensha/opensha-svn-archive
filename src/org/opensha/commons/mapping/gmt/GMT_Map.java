@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.XYZ_DataSetAPI;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.mapping.gmt.elements.CoastAttributes;
 import org.opensha.commons.mapping.gmt.elements.PSXYPolygon;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
@@ -20,7 +20,7 @@ public class GMT_Map implements Serializable {
 	 */
 	private static final long serialVersionUID = 3365240959132801705L;
 
-	private GeographicRegion region;
+	private Region region;
 	
 	private String cptFile = null;
 	private CPT cpt = null;
@@ -45,10 +45,10 @@ public class GMT_Map implements Serializable {
 	}
 	private HighwayFile highwayFile = null;
 	
-	public static GeographicRegion ca_topo_region;
+	public static Region ca_topo_region;
 	static {
 //		try {
-			ca_topo_region  = new GeographicRegion(
+			ca_topo_region  = new Region(
 					new Location(32, -126),
 					new Location(43, -115));
 //		} catch (RegionConstraintException e) {
@@ -84,13 +84,13 @@ public class GMT_Map implements Serializable {
 	private ArrayList<PSXYPolygon> xyLines = new ArrayList<PSXYPolygon>();
 	private PSXYSymbolSet xySymbolSet = null;
 	
-	public GMT_Map(GeographicRegion region, XYZ_DataSetAPI griddedData,
+	public GMT_Map(Region region, XYZ_DataSetAPI griddedData,
 			double griddedDataInc, String cptFile) {
 		this.region = region;
 		setGriddedData(griddedData, griddedDataInc, cptFile);
 	}
 	
-	public GMT_Map(GeographicRegion region, XYZ_DataSetAPI griddedData,
+	public GMT_Map(Region region, XYZ_DataSetAPI griddedData,
 			double griddedDataInc, CPT cpt) {
 		this.region = region;
 		setGriddedData(griddedData, griddedDataInc, cpt);
@@ -124,11 +124,11 @@ public class GMT_Map implements Serializable {
 		this.cpt = cpt;
 	}
 
-	public GeographicRegion getRegion() {
+	public Region getRegion() {
 		return region;
 	}
 
-	public void setRegion(GeographicRegion region) {
+	public void setRegion(Region region) {
 		this.region = region;
 	}
 

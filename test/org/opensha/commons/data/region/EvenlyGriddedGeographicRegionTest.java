@@ -67,7 +67,7 @@ public class EvenlyGriddedGeographicRegionTest {
 	public final void testSubRegion() {
 		EvenlyGriddedGeographicRegion eggr = new EvenlyGriddedGeographicRegion(
 				GeographicRegionTest.circRegion, 0.5, null);
-		GeographicRegion gr = GeographicRegionTest.lgRectMercRegion;
+		Region gr = GeographicRegionTest.lgRectMercRegion;
 		
 		fail("Not yet implemented");
 	}
@@ -77,7 +77,7 @@ public class EvenlyGriddedGeographicRegionTest {
 		
 		EvenlyGriddedGeographicRegion sreg = new EvenlyGriddedGeographicRegion(
 				GeographicRegionTest.lgRectMercRegion, 0.5, null);
-		GeographicRegion gr = sreg.subRegion(GeographicRegionTest.circRegion);
+		Region gr = sreg.subRegion(GeographicRegionTest.circRegion);
 		RegionUtils.regionToKML(gr, "SubRegion_circRectSub", Color.RED);
 		
 		

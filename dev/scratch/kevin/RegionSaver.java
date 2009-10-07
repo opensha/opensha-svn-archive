@@ -9,14 +9,14 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.hazardMap.NamedGeographicRegion;
 
 public class RegionSaver {
 	
-	public static void saveRegion(GeographicRegion region, String fileName, String name) throws IOException {
+	public static void saveRegion(Region region, String fileName, String name) throws IOException {
 		region = new NamedGeographicRegion(region.getRegionOutline(), name);
 		
 		Document doc = XMLUtils.createDocumentWithRoot();
@@ -32,7 +32,7 @@ public class RegionSaver {
 		}
 	}
 	
-	public static GeographicRegion createCyberShakeRegion() {
+	public static Region createCyberShakeRegion() {
 		LocationList locs = new LocationList();
 		
 		locs.addLocation(new Location(35.08, -118.75));
@@ -40,7 +40,7 @@ public class RegionSaver {
 		locs.addLocation(new Location(33.25, -117.50));
 		locs.addLocation(new Location(34.13, -119.38));
 		
-		return new GeographicRegion(locs, BorderType.MERCATOR_LINEAR);
+		return new Region(locs, BorderType.MERCATOR_LINEAR);
 	}
 
 	/**

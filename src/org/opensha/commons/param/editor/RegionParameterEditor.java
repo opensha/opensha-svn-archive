@@ -13,7 +13,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 
 import org.opensha.commons.data.Location;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.ParameterListParameter;
@@ -157,9 +157,9 @@ public class RegionParameterEditor
    */
   protected void button_actionPerformed(ActionEvent e) {
     if(parameterChangeFlag){
-    	GeographicRegion region;
+    	Region region;
 //		try {
-			region = new GeographicRegion(
+			region = new Region(
 					new Location(param.getMinLatitude(), param.getMinLongitude()),
 					new Location(param.getMaxLatitude(), param.getMaxLongitude()));
 			param.setValue(region);

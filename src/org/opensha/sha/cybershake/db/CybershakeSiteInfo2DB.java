@@ -9,7 +9,7 @@ import java.util.ListIterator;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -160,7 +160,7 @@ public class CybershakeSiteInfo2DB {
 			EqkRupForecastAPI eqkRupForecast, int erfId, int siteId,
 			double locLat, double locLon, boolean checkAddRup, String addLogFileName) {
 		Location loc = new Location(locLat, locLon);
-		GeographicRegion region = new GeographicRegion(loc,CUT_OFF_DISTANCE);
+		Region region = new Region(loc,CUT_OFF_DISTANCE);
 		int numSources = eqkRupForecast.getNumSources();
 		
 		ArrayList<int[]> newRups = new ArrayList<int[]>();
@@ -328,7 +328,7 @@ public class CybershakeSiteInfo2DB {
 			                                        double locLat,double locLon, boolean update){
 		
 		Location loc = new Location(locLat,locLon);
-		GeographicRegion region = new GeographicRegion(loc,CUT_OFF_DISTANCE);
+		Region region = new Region(loc,CUT_OFF_DISTANCE);
 		
 	    int numSources = eqkRupForecast.getNumSources();
 

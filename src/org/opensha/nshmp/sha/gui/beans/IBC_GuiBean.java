@@ -2,7 +2,7 @@ package org.opensha.nshmp.sha.gui.beans;
 
 import java.util.ArrayList;
 
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.nshmp.exceptions.AnalysisOptionNotSupportedException;
@@ -67,7 +67,7 @@ public class IBC_GuiBean
    *
    * @return RectangularGeographicRegion
    */
-  protected GeographicRegion getRegionConstraint() throws
+  protected Region getRegionConstraint() throws
       RegionConstraintException {
 
     if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES) ||

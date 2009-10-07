@@ -169,9 +169,9 @@ public class HardcodedHazardMapCalculator implements ParameterChangeWarningListe
 		long start = System.currentTimeMillis();
 
 		// create site object
-		//GeographicRegion region = new RELM_TestingRegion();
-//		GeographicRegion region = new EvenlyGriddedCaliforniaRegion();
-//		GeographicRegion region = new EvenlyGriddedSoCalRegion();
+		//Region region = new RELM_TestingRegion();
+//		Region region = new EvenlyGriddedCaliforniaRegion();
+//		Region region = new EvenlyGriddedSoCalRegion();
 
 		//double gridSpacing = 0.1;
 

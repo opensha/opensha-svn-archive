@@ -17,7 +17,7 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.region.BorderType;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.ParameterConstraintAPI;
@@ -186,7 +186,7 @@ public class DistanceX_Parameter
     				}
     			}
 
-    			GeographicRegion polygon = new GeographicRegion(locsForRegion, BorderType.MERCATOR_LINEAR);
+    			Region polygon = new Region(locsForRegion, BorderType.MERCATOR_LINEAR);
     			boolean isInside = polygon.isLocationInside(siteLoc);
 
     			double distToExtendedTrace = locsForExtendedTrace.getMinHorzDistToLine(siteLoc);

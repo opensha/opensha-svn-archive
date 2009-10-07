@@ -25,7 +25,7 @@ import org.opensha.commons.data.ValueWeight;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 
 //import cj.math.nnls.NNLSWrapper;
 
@@ -784,7 +784,7 @@ public class A_FaultSegmentedSourceGenerator {
 	/*
 	 * This returns the total probability of occurrence assuming independence among all the rupture sources
 	 */
-	public double getTotFaultProb(double mag, GeographicRegion region) {
+	public double getTotFaultProb(double mag, Region region) {
 		double totProbNoEvent = 1;
 		for(int i=0;i<num_rup;i++) totProbNoEvent *= (1.0-this.getRupSourceProbAboveMag(i, mag, region));
 		return 1.0 - totProbNoEvent;
@@ -794,7 +794,7 @@ public class A_FaultSegmentedSourceGenerator {
 	 * This returns the approximate total probability of occurrence assuming independence among all the rupture sources
 	 * It calls the computeApproxTotalProbAbove of ProbEqkSource (instead of computeTotalProbAbove method)
 	 */
-	public double getApproxTotFaultProb(double mag, GeographicRegion region) {
+	public double getApproxTotFaultProb(double mag, Region region) {
 		double totProbNoEvent = 1;
 		for(int i=0;i<num_rup;i++) totProbNoEvent *= (1.0-this.getRupSourceApproxProbAboveMag(i, mag, region));
 		return 1.0 - totProbNoEvent;
@@ -838,7 +838,7 @@ public class A_FaultSegmentedSourceGenerator {
 	 * @param ithRup
 	 * @return
 	 */
-	public double getRupSourceProbAboveMag(int ithRup, double mag, GeographicRegion region) { 
+	public double getRupSourceProbAboveMag(int ithRup, double mag, Region region) { 
 		if (!this.rupSrcMapping.containsKey(ithRup)) return 0;
 		int srcIndex = rupSrcMapping.get(ithRup);
 		return sourceList.get(srcIndex).computeTotalProbAbove(mag, region);
@@ -851,7 +851,7 @@ public class A_FaultSegmentedSourceGenerator {
 	 * @param ithRup
 	 * @return
 	 */
-	public double getRupSourceApproxProbAboveMag(int ithRup, double mag, GeographicRegion region) { 
+	public double getRupSourceApproxProbAboveMag(int ithRup, double mag, Region region) { 
 		if (!this.rupSrcMapping.containsKey(ithRup)) return 0;
 		int srcIndex = rupSrcMapping.get(ithRup);
 		return sourceList.get(srcIndex).computeApproxTotalProbAbove(mag, region);

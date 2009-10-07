@@ -7,7 +7,7 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 
 
@@ -89,7 +89,7 @@ public class CountObsInGrid {
 			gLat = gridCenter.getLatitude();
 			gLong = gridCenter.getLongitude();
 			//create a Location for each corner of the cell
-			// add the corner to a LocationList and create a GeographicRegion
+			// add the corner to a LocationList and create a Region
 			// so that we can see what events are inside the region.
 			gridCorner1 = new Location(gLat + RegionDefaults.gridSpacing/2,gLong + RegionDefaults.gridSpacing/2);
 			cellLoc.addLocationAt(gridCorner1,0);
@@ -100,8 +100,8 @@ public class CountObsInGrid {
 			cellLoc.addLocationAt(gridCorner3,2);
 			gridCorner4 = new Location(gLat + RegionDefaults.gridSpacing/2,gLong - RegionDefaults.gridSpacing/2);
 			cellLoc.addLocationAt(gridCorner4,3);
-			//this creates a GeographicRegion that is the cell for Loc gLoop
-			GeographicRegion gridRegion = new GeographicRegion(cellLoc, BorderType.MERCATOR_LINEAR);
+			//this creates a Region that is the cell for Loc gLoop
+			Region gridRegion = new Region(cellLoc, BorderType.MERCATOR_LINEAR);
 			
 		    // find ObsEqkRupList of events w/in this grid cell
 			cellEvents = obsEvents.getObsEqkRupsInside(gridRegion);

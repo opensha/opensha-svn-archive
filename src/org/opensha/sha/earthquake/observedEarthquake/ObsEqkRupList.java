@@ -6,7 +6,7 @@ import java.util.GregorianCalendar;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.Location;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.sha.earthquake.EqkRuptureMagComparator;
 
@@ -153,11 +153,11 @@ public class ObsEqkRupList implements java.io.Serializable{
 
   /**
    * Returns the list of the Observed events inside a given geographic region
-   * @param region GeographicRegion
+   * @param region Region
    * @returns the subset of total observed events as ObsEqkRupList list
    * inside a given region.
    */
-  public ObsEqkRupList getObsEqkRupsInside(GeographicRegion region) {
+  public ObsEqkRupList getObsEqkRupsInside(Region region) {
     ObsEqkRupList obsEventList = new ObsEqkRupList();
     int size = size();
     for (int i = 0; i < size; ++i) {
@@ -172,11 +172,11 @@ public class ObsEqkRupList implements java.io.Serializable{
 
   /**
    * Returns the list of the Observed events outside a given geographic region
-   * @param region GeographicRegion
+   * @param region Region
    * @returns the subset of total observed events as ObsEqkRupList list
    * outside a given region.
    */
-  public ObsEqkRupList getObsEqkRupsOutside(GeographicRegion region) {
+  public ObsEqkRupList getObsEqkRupsOutside(Region region) {
     ObsEqkRupList obsEventList = new ObsEqkRupList();
     int size = size();
     for (int i = 0; i < size; ++i) {

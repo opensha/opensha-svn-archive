@@ -9,7 +9,7 @@ import java.util.StringTokenizer;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.BorderType;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.util.FileUtils;
 
 /**
@@ -22,7 +22,7 @@ import org.opensha.commons.util.FileUtils;
  */
 public class EmpiricalModelDataFetcher  implements java.io.Serializable {
 	public static String FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/EmpiricalModelData.txt";
-	private ArrayList<GeographicRegion> geographicRegionList = new ArrayList<GeographicRegion>();
+	private ArrayList<Region> geographicRegionList = new ArrayList<Region>();
 	private ArrayList<Double> rates = new ArrayList<Double>();
 	private ArrayList<Double> stdDevs = new ArrayList<Double>();
 	
@@ -34,12 +34,12 @@ public class EmpiricalModelDataFetcher  implements java.io.Serializable {
 		try {
 			ArrayList<String> fileLines = FileUtils.loadJarFile(FILE_NAME);
 			int numLines = fileLines.size();
-			GeographicRegion region;
+			Region region;
 			for(int i=0; i<numLines; ++i) {
 				String line = fileLines.get(i);
 				if(line.startsWith("#")) continue; // ignore comment lines
 				if(line.startsWith("-")) {
-					 //region = new GeographicRegion();
+					 //region = new Region();
 					 String regionName = line.substring(1).trim(); 
 					 //region.setName(regionName);
 					 ++i;
@@ -57,7 +57,7 @@ public class EmpiricalModelDataFetcher  implements java.io.Serializable {
 						 locList.addLocation(new Location(latitude, longitude));
 					 }
 					 if(locList.size()!=0) {
-						 region = new GeographicRegion(
+						 region = new Region(
 								 locList,BorderType.MERCATOR_LINEAR);
 						 region.setName(regionName);
 						 //region.createGeographicRegion(locList);
@@ -86,7 +86,7 @@ public class EmpiricalModelDataFetcher  implements java.io.Serializable {
 	 * @param index
 	 * @return
 	 */
-	public GeographicRegion getRegion(int index) {
+	public Region getRegion(int index) {
 		return this.geographicRegionList.get(index);
 	}
 	

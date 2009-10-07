@@ -7,7 +7,7 @@ import java.util.ListIterator;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
@@ -80,7 +80,7 @@ public abstract class GriddedHypoMagFreqDistForecast implements
 			 * Get the region for which this forecast is applicable
 			 * @return : Geographic region object specifying the applicable region of forecast
 			 */
-	public GeographicRegion getApplicableRegion() {
+	public Region getApplicableRegion() {
 		return region;
 	}
 

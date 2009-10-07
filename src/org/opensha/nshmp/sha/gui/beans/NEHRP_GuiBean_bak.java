@@ -21,7 +21,7 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
 import org.opensha.commons.data.Location;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
@@ -451,7 +451,7 @@ public class NEHRP_GuiBean_bak
    * Creating the location gui bean
    */
   protected void createLocation() throws RegionConstraintException {
-	  GeographicRegion region = getRegionConstraint();
+	  Region region = getRegionConstraint();
 
     if (region != null) {
       //checking if Zip code is supported by the selected choice
@@ -480,7 +480,7 @@ public class NEHRP_GuiBean_bak
    *
    * @return RectangularGeographicRegion
    */
-  protected GeographicRegion getRegionConstraint() throws
+  protected Region getRegionConstraint() throws
       RegionConstraintException {
 
     if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES) ||

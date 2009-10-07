@@ -11,7 +11,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.NamedObjectAPI;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.data.siteData.impl.CVM2BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.MeanTopoSlope;
@@ -56,7 +56,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 				continue;
 			SiteDataAPI<?> data = providers.get(i);
 			
-			GeographicRegion region = data.getApplicableRegion();
+			Region region = data.getApplicableRegion();
 			// skip this one if the site's not in it's applicable region
 			if (data.hasDataForLocation(loc, checkValues)) {
 				return data;

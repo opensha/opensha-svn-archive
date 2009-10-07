@@ -4,7 +4,7 @@ import org.opensha.commons.data.Location;
 
 /**
  * A <code>BorderType</code> is required for the initialization of some 
- * <code>GeographicRegion</code>s.<br/>
+ * <code>Region</code>s.<br/>
  * <br/>
  * <img style="padding: 0px 80px; float: right;" 
  * src="{@docRoot}/img/border_differences.jpg"/>The adjacent figure shows that
@@ -17,19 +17,19 @@ import org.opensha.commons.data.Location;
  * 
  * @author Peter Powers
  * @version $Id:$
- * @see GeographicRegion
+ * @see Region
  * @see Location
  */
 public enum BorderType {
 
 	/** 
-	 * Defines a {@link GeographicRegion} border as following a straight
+	 * Defines a {@link Region} border as following a straight
 	 * line in a Mercator projection
 	 */
 	MERCATOR_LINEAR,
 	
 	/**
-	 * Defines a {@link GeographicRegion} border as following a great circle.
+	 * Defines a {@link Region} border as following a great circle.
 	 */
 	GREAT_CIRCLE;
 	

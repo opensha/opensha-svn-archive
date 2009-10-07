@@ -70,7 +70,7 @@ public class SitesInGriddedRegion implements Serializable {
 //		super(minLat,maxLat,minLon,maxLon,gridSpacing);
 //	}
 
-//	public SitesInGriddedRegion(GeographicRegion geo,
+//	public SitesInGriddedRegion(Region geo,
 //			double gridSpacing) throws
 //			RegionConstraintException {
 //		super(geo.getMinLat(), geo.getMaxLat(), geo.getMinLon(), geo.getMaxLon(), gridSpacing);

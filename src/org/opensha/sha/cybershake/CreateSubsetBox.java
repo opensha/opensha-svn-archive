@@ -8,20 +8,20 @@ import java.util.StringTokenizer;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.BorderType;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.util.FileUtils;
 
 
 public class CreateSubsetBox {
 
-	GeographicRegion region;
+	Region region;
 	public CreateSubsetBox(){
 		LocationList locList = new LocationList();
 		locList.addLocation(new Location(31.082920,-116.032285));
 		locList.addLocation(new Location(33.122341,-113.943965));
 		locList.addLocation(new Location(36.621696,-118.9511292));
 		locList.addLocation(new Location(34.5,-121));
-		region = new GeographicRegion(locList, BorderType.MERCATOR_LINEAR);
+		region = new Region(locList, BorderType.MERCATOR_LINEAR);
 		createSubsetFile();
 	}
 	

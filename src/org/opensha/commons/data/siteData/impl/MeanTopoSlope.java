@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.util.MeanTopoSlopeCalculator;
@@ -48,7 +48,7 @@ public class MeanTopoSlope extends AbstractSiteData<Double> {
 		this.paramList.addParameter(spacingParam);
 	}
 
-	public GeographicRegion getApplicableRegion() {
+	public Region getApplicableRegion() {
 		return topoSlopeProvider.getApplicableRegion();
 	}
 

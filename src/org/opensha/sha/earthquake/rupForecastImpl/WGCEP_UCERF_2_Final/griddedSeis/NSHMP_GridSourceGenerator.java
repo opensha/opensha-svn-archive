@@ -12,7 +12,7 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_Mag
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
@@ -526,7 +526,7 @@ public class NSHMP_GridSourceGenerator {
 	}
 
 
-	public IncrementalMagFreqDist getTotalC_ZoneMFD_InRegion(GeographicRegion region) {
+	public IncrementalMagFreqDist getTotalC_ZoneMFD_InRegion(Region region) {
 
 		// find max mag among all contributions
 		double maxMagAtLoc = C_ZONES_MAX_MAG-UCERF2.DELTA_MAG/2;
@@ -559,7 +559,7 @@ public class NSHMP_GridSourceGenerator {
 	 * @param applyMaxMagGrid
 	 * @return
 	 */
-	public SummedMagFreqDist getTotMFDForRegion(GeographicRegion region, boolean includeC_zones, 
+	public SummedMagFreqDist getTotMFDForRegion(Region region, boolean includeC_zones, 
 			boolean applyBulgeReduction, boolean applyMaxMagGrid, boolean includeFixedRakeSources) {
 
 		// create summed MFD

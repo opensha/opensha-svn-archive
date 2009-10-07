@@ -8,12 +8,12 @@ import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.util.XMLUtils;
 
 // TODO this is in an odd location and shouldn't necessarily exits.
 // Region or GriddedRegion should implement Named interface
-public class NamedGeographicRegion extends GeographicRegion implements NamedObjectAPI {
+public class NamedGeographicRegion extends Region implements NamedObjectAPI {
 
 	private String name;
 
@@ -28,7 +28,7 @@ public class NamedGeographicRegion extends GeographicRegion implements NamedObje
 	}
 
 	public Element toXMLMetadata(Element root) {
-		GeographicRegion region = new GeographicRegion(this.getRegionOutline(), BorderType.MERCATOR_LINEAR);
+		Region region = new Region(this.getRegionOutline(), BorderType.MERCATOR_LINEAR);
 		
 		root = region.toXMLMetadata(root);
 		
@@ -40,7 +40,7 @@ public class NamedGeographicRegion extends GeographicRegion implements NamedObje
 	}
 
 	public static NamedGeographicRegion fromXMLMetadata(Element geographicElement) {
-		GeographicRegion region = GeographicRegion.fromXMLMetadata(geographicElement);
+		Region region = Region.fromXMLMetadata(geographicElement);
 		
 		String name = geographicElement.attributeValue("name");
 		

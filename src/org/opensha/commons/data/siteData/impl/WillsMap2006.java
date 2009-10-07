@@ -12,7 +12,7 @@ import org.dom4j.Element;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.SiteDataToXYZ;
 import org.opensha.commons.data.siteData.servlet.SiteDataServletAccessor;
@@ -38,7 +38,7 @@ public class WillsMap2006 extends AbstractSiteData<Double> {
 	
 	public static final String SERVLET_URL = "http://opensha.usc.edu:8080/OpenSHA/SiteData/Wills2006";
 	
-	private GeographicRegion applicableRegion;
+	private Region applicableRegion;
 	
 	private RandomAccessFile file = null;
 	private String fileName = null;
@@ -87,7 +87,7 @@ public class WillsMap2006 extends AbstractSiteData<Double> {
 		this.paramList.addParameter(maxVs30Param);
 	}
 
-	public GeographicRegion getApplicableRegion() {
+	public Region getApplicableRegion() {
 		return applicableRegion;
 	}
 

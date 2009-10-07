@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
@@ -215,7 +215,7 @@ public class GriddedRegionPoissonEqkSource extends ProbEqkSource implements java
    * @return minimum distance
    */
    public  double getMinDistance(Site site) {
-     return ((GeographicRegion) region).getMinHorzDistToRegion(site.getLocation());
+     return ((Region) region).getMinHorzDistToRegion(site.getLocation());
   }
 
  /**

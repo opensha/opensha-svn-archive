@@ -11,7 +11,7 @@ import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.util.SystemPropertiesUtils;
@@ -55,7 +55,7 @@ public class ERF2RuptureForSTF_Generator {
   private double maxDepth;
 
   //to see if the rupture is within the circular distance of the given Site.
-  private GeographicRegion region;
+  private Region region;
   private final static double DEFAULT_GRID_SPACING_FOR_POINT_SURFACE = 1.0;
 
 
@@ -66,7 +66,7 @@ public class ERF2RuptureForSTF_Generator {
     this.site = site;
     this.distance = cuttOffDistance;
     region = new
-        GeographicRegion(site.getLocation(), distance);
+        Region(site.getLocation(), distance);
   }
 
   /**
@@ -275,7 +275,7 @@ public class ERF2RuptureForSTF_Generator {
    * provided distance.
    * @return RectangularGeographicRegion
    */
-  public GeographicRegion getSiteRegionBounds() throws
+  public Region getSiteRegionBounds() throws
       RegionConstraintException {
     int numSources = eqkRupForecast.getNumSources();
 
@@ -328,7 +328,7 @@ public class ERF2RuptureForSTF_Generator {
         }
       }
     }
-    return new GeographicRegion(
+    return new Region(
     		new Location(minLat, minLon),
     		new Location(maxLat, maxLon));
   }
@@ -421,7 +421,7 @@ public class ERF2RuptureForSTF_Generator {
 
       //calling the function to generate the rupture files with directory name.
       //calc.getEqkRupturesAsStringNearSite("Temp");
-      GeographicRegion region = null;
+      Region region = null;
       try {
         region = calc.getSiteRegionBounds();
         double maxDepth = calc.getMaxDepthForRuptureInRegionBounds();

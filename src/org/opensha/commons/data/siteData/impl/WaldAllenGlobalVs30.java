@@ -8,7 +8,7 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.exceptions.RegionConstraintException;
@@ -140,7 +140,7 @@ public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements Par
 		this.paramList.addParameter(maxVs30Param);
 	}
 
-	public GeographicRegion getApplicableRegion() {
+	public Region getApplicableRegion() {
 		return slopeProvider.getApplicableRegion();
 	}
 

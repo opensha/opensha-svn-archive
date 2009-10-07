@@ -8,7 +8,7 @@ import java.util.ListIterator;
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeEqkRupture;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeEvenlyGriddedSurface;
@@ -619,7 +619,7 @@ public  class ERF2DB implements ERF2DBAPI{
 
 		long startTime = System.currentTimeMillis();
 
-		GeographicRegion circular;
+		Region circular;
 
 		EvenlyGriddedSurfaceAPI rupSurface = new EvenlyGridCenteredSurface(rupture.getRuptureSurface());
 
@@ -632,7 +632,7 @@ public  class ERF2DB implements ERF2DBAPI{
 
 			for (int i=0; i<numLocs; i++) {
 				Location loc = region.getGridLocation(i);
-				circular = new GeographicRegion(loc, CybershakeSiteInfo2DB.CUT_OFF_DISTANCE);
+				circular = new Region(loc, CybershakeSiteInfo2DB.CUT_OFF_DISTANCE);
 
 				if (circular.isLocationInside(ptLoc)) {
 					System.out.println("Took " + ((System.currentTimeMillis() - startTime) / 1000d) + " secs to FIND...inserting rupture...");

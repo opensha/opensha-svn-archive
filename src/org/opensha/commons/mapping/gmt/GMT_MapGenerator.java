@@ -23,7 +23,7 @@ import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.mapping.gmt.GMT_Map.HighwayFile;
@@ -412,11 +412,11 @@ public class GMT_MapGenerator implements Serializable{
 	}
 	
 	public GMT_Map getGMTMapSpecification(XYZ_DataSetAPI xyzData) {
-		GeographicRegion region;
+		Region region;
 //		try {
-//			region = new GeographicRegion(minLatParam.getValue(),
+//			region = new Region(minLatParam.getValue(),
 //					maxLatParam.getValue(), minLonParam.getValue(), maxLonParam.getValue());
-			region = new GeographicRegion(
+			region = new Region(
 		    		new Location(minLatParam.getValue(), minLonParam.getValue()),
 		    		new Location(maxLatParam.getValue(), maxLonParam.getValue()));
 //		} catch (RegionConstraintException e) {

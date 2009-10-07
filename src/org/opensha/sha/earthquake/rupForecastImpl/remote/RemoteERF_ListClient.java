@@ -11,7 +11,7 @@ import org.opensha.sha.earthquake.*;
 
 
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -162,7 +162,7 @@ public class RemoteERF_ListClient extends ERF_EpistemicList implements
    * Get the region for which this forecast is applicable
    * @return : Geographic region object specifying the applicable region of forecast
    */
-  public GeographicRegion getApplicableRegion() {
+  public Region getApplicableRegion() {
     try{
       return erfListServer.getApplicableRegion();
     }catch(RemoteException e){

@@ -9,7 +9,7 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -273,13 +273,13 @@ for(int m=0;m<testFunc.getNum();m++)
    * Calcuated Rates depend on the ERF model instantiated by the user.
    * @param minMag double  : A magnitude above which rate needs to be returned
    * @param eqkRupForecast Earthquake Rupture Forecast Model
-   * @param region GeographicRegion : Region whose rates need to be returned
+   * @param region Region : Region whose rates need to be returned
    * @return double : Total Rate for the region
    */
 
   public double getTotalSeisRateInRegion(double minMag,
                                          EqkRupForecastAPI eqkRupForecast,
-                                         GeographicRegion region) {
+                                         Region region) {
     int numSources = eqkRupForecast.getNumSources();
 
     double totalRate = 0;
@@ -328,7 +328,7 @@ for(int m=0;m<testFunc.getNum();m++)
    * will considered within the provided region  for computing the Mag-Rate Dist.
    * @param eqkRupForecast EqkRupForecastAPI Earthquake Rupture Forecast from which
    * ruptures will computed.
-   * @param region GeographicRegion Region for which mag-rate distribution has to be
+   * @param region Region Region for which mag-rate distribution has to be
    * computed.
    * @return ArbDiscrEmpiricalDistFunc : Distribution function that holds X values
    * as the magnitude and Y values as the sies rate for corresponding magnitude within
@@ -339,7 +339,7 @@ for(int m=0;m<testFunc.getNum();m++)
    */
   public ArbDiscrEmpiricalDistFunc getMagRateDistForRegion(double minMag,
       EqkRupForecastAPI eqkRupForecast,
-      GeographicRegion region) {
+      Region region) {
     ArbDiscrEmpiricalDistFunc magRateDist = new ArbDiscrEmpiricalDistFunc();
     int numSources = eqkRupForecast.getNumSources();
     //Going over each and every source in the forecast
@@ -520,11 +520,11 @@ for(int m=0;m<testFunc.getNum();m++)
    * subclass.  Note that it is assumed that the forecast has been updated.
    * @param minMag double  : magnitude above which rate needs to be returned
    *
-   * @param region GeographicRegion : Region whose rates need to be returned
+   * @param region Region : Region whose rates need to be returned
    * @return double : Total Rate for the region
    */
   public double getTotalProbAbove(EqkRupForecastAPI eqkRupForecast,
-                                  double minMag, GeographicRegion region) {
+                                  double minMag, Region region) {
 
     int numSources = eqkRupForecast.getNumSources();
     int numRuptures;

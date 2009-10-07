@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
@@ -31,14 +31,14 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 	private final static double MAX_MAG = UCERF2.MAX_MAG-UCERF2.DELTA_MAG/2;
 	private final static int NUM_MAG = UCERF2.NUM_MAG;
 	
-	private GeographicRegion region;
+	private Region region;
 	IncrementalMagFreqDist aFaultsMFD, bFaultsMFD, nonCA_B_FaultsMFD, cZonesMFD, bckMFD;
 	
 	/**
 	 * Set the region for which MFDs need to be calculated
 	 * @param region
 	 */
-	public NoCalSoCalMFDsPlotter (GeographicRegion region) {
+	public NoCalSoCalMFDsPlotter (Region region) {
 		this.region = region;
 	}
 	

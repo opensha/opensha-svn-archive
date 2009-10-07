@@ -28,29 +28,29 @@ public class GeographicRegionTest {
 	// ===============================================================
 	
 	// octagonal region
-	static GeographicRegion octRegion;
+	static Region octRegion;
 	// small rect region (regionLocLoc)
-	static GeographicRegion smRectRegion;
+	static Region smRectRegion;
 	// large rect region (regionLocListBorderType)
-	static GeographicRegion lgRectMercRegion;
+	static Region lgRectMercRegion;
 	// large rect region (regionLocListBorderType)
-	static GeographicRegion lgRectGCRegion;
+	static Region lgRectGCRegion;
 	// buffered region (regionLocListDouble)
-	static GeographicRegion buffRegion;
+	static Region buffRegion;
 	// circular region (regionLocDouble)
-	static GeographicRegion circRegion;
+	static Region circRegion;
 	// cicle-lgRect intersect
-	static GeographicRegion circLgRectIntersect;
+	static Region circLgRectIntersect;
 	// cicle-lgRect union
-	static GeographicRegion circLgRectUnion;
+	static Region circLgRectUnion;
 	// smRect-lgRect intersect
-	static GeographicRegion smRectLgRectIntersect;
+	static Region smRectLgRectIntersect;
 	// smRect-lgRect union
-	static GeographicRegion smRectLgRectUnion;
+	static Region smRectLgRectUnion;
 	// circle-smRect intersect
-	static GeographicRegion circSmRectIntersect;
+	static Region circSmRectIntersect;
 	// circle-smRect union
-	static GeographicRegion circSmRectUnion;
+	static Region circSmRectUnion;
 	
 	
 	// static initializer is used for this test class because main(), which
@@ -66,37 +66,37 @@ public class GeographicRegionTest {
 		ll.addLocation(new Location(40,-115));
 		ll.addLocation(new Location(35,-120));
 		ll.addLocation(new Location(30,-120));
-		octRegion  = new GeographicRegion(ll, null);
+		octRegion  = new Region(ll, null);
 		
 		Location a = new Location(39,-117);
 		Location b = new Location(41,-113);
-		smRectRegion = new GeographicRegion(a,b);
+		smRectRegion = new Region(a,b);
 
 		ll = new LocationList();
 		ll.addLocation(new Location(35,-125));
 		ll.addLocation(new Location(35,-105));
 		ll.addLocation(new Location(45,-105));
 		ll.addLocation(new Location(45,-125));
-		lgRectMercRegion = new GeographicRegion(ll, BorderType.MERCATOR_LINEAR);
-		lgRectGCRegion = new GeographicRegion(ll, BorderType.GREAT_CIRCLE);
+		lgRectMercRegion = new Region(ll, BorderType.MERCATOR_LINEAR);
+		lgRectGCRegion = new Region(ll, BorderType.GREAT_CIRCLE);
 
 		Location center = new Location(35, -125);
-		circRegion = new GeographicRegion(center, 400);
+		circRegion = new Region(center, 400);
 		
 		ll = new LocationList();
 		ll.addLocation(new Location(35,-125));
 		ll.addLocation(new Location(42,-119));
 		ll.addLocation(new Location(40,-113));
 		ll.addLocation(new Location(45,-105));
-		buffRegion = new GeographicRegion(ll,100);
+		buffRegion = new Region(ll,100);
 		
 		// unions and intersections
-		circLgRectIntersect = GeographicRegion.intersect(lgRectMercRegion, circRegion);
-		circLgRectUnion = GeographicRegion.union(lgRectMercRegion, circRegion);
-		smRectLgRectIntersect = GeographicRegion.intersect(lgRectMercRegion, smRectRegion);
-		smRectLgRectUnion = GeographicRegion.union(lgRectMercRegion, smRectRegion);
-		circSmRectIntersect = GeographicRegion.intersect(circRegion, smRectRegion);
-		circSmRectUnion = GeographicRegion.intersect(circRegion, smRectRegion);
+		circLgRectIntersect = Region.intersect(lgRectMercRegion, circRegion);
+		circLgRectUnion = Region.union(lgRectMercRegion, circRegion);
+		smRectLgRectIntersect = Region.intersect(lgRectMercRegion, smRectRegion);
+		smRectLgRectUnion = Region.union(lgRectMercRegion, smRectRegion);
+		circSmRectIntersect = Region.intersect(circRegion, smRectRegion);
+		circSmRectUnion = Region.intersect(circRegion, smRectRegion);
 	}
 	
 	@Before
@@ -116,17 +116,17 @@ public class GeographicRegionTest {
 		Location L2 = new Location(32,118);
 		Location L3 = new Location(34,118);
 		try {
-			GeographicRegion gr = new GeographicRegion(L1,L2);
+			Region gr = new Region(L1,L2);
 			fail("Same lat values not caught");
 		} catch (IllegalArgumentException iae) {}
 		try {
-			GeographicRegion gr = new GeographicRegion(L2,L3);
+			Region gr = new Region(L2,L3);
 			fail("Same lon values not caught");
 		} catch (IllegalArgumentException iae) {}
 		try {
 			L1 = null;
 			L2 = null;
-			GeographicRegion gr = new GeographicRegion(L1,L2);
+			Region gr = new Region(L1,L2);
 			fail("Null argument not caught");
 		} catch (NullPointerException npe) {}
 		
@@ -142,7 +142,7 @@ public class GeographicRegionTest {
 		LocationList ll = new LocationList();
 		try {
 			ll = null;
-			GeographicRegion gr = new GeographicRegion(
+			Region gr = new Region(
 					ll, BorderType.MERCATOR_LINEAR);
 			fail("Null argument not caught");
 		} catch (NullPointerException npe) {}
@@ -152,14 +152,14 @@ public class GeographicRegionTest {
 		ll.addLocation(new Location(35,-125));
 		ll.addLocation(new Location(35,-75));
 		try {
-			GeographicRegion gr = new GeographicRegion(ll, null);
+			Region gr = new Region(ll, null);
 			fail("Location list too short  not caught");
 		} catch (IllegalArgumentException iae) {}
 		
 		// check that start point repeated at end of list is removed
 		ll.addLocation(new Location(45,-75));
 		ll.addLocation(new Location(35,-125));
-		GeographicRegion rectRegionStartRepeat = new GeographicRegion(ll, null);
+		Region rectRegionStartRepeat = new Region(ll, null);
 		assertTrue("Repeated start point not clipped",
 				rectRegionStartRepeat.getRegionOutline().size() == 3);
 		
@@ -178,17 +178,17 @@ public class GeographicRegionTest {
 		Location L1 = new Location();
 		try {
 			L1 = null;
-			GeographicRegion gr = new GeographicRegion(L1, 50);
+			Region gr = new Region(L1, 50);
 			fail("Null argument not caught");
 		} catch (NullPointerException npe) {}
 		try {
 			L1 = new Location();
-			GeographicRegion gr = new GeographicRegion(L1, 1001);
+			Region gr = new Region(L1, 1001);
 			fail("Radius too high not caught");
 		} catch (IllegalArgumentException iae) {}
 		try {
 			L1 = new Location();
-			GeographicRegion gr = new GeographicRegion(L1, 0);
+			Region gr = new Region(L1, 0);
 			fail("Radius too low not caught");
 		} catch (IllegalArgumentException iae) {}
 		
@@ -202,21 +202,21 @@ public class GeographicRegionTest {
 	public final void testGeographicRegionLocationListDouble() {
 		LocationList ll = new LocationList();
 		try {
-			GeographicRegion gr = new GeographicRegion(ll, 50);
+			Region gr = new Region(ll, 50);
 			fail("Empty location list not caught");
 		} catch (IllegalArgumentException iae) {}
 		ll.addLocation(new Location());
 		try {
-			GeographicRegion gr = new GeographicRegion(ll, 501);
+			Region gr = new Region(ll, 501);
 			fail("Buffer too high not caught");
 		} catch (IllegalArgumentException iae) {}
 		try {
-			GeographicRegion gr = new GeographicRegion(ll, 0);
+			Region gr = new Region(ll, 0);
 			fail("Buffer too low not caught");
 		} catch (IllegalArgumentException iae) {}
 		ll = null;
 		try {
-			GeographicRegion gr = new GeographicRegion(ll, 50);
+			Region gr = new Region(ll, 50);
 			fail("Null argument not caught");
 		} catch (NullPointerException npe) {}
 
@@ -252,7 +252,7 @@ public class GeographicRegionTest {
 		// also need to test that the small offset added to 'rectangular'
 		// regions leads to inclusion of points that fall on the north and
 		// east borders; also check points on the south and west to be safe
-		GeographicRegion rectRegionLocLoc = new GeographicRegion(
+		Region rectRegionLocLoc = new Region(
 				new Location(35,-105), new Location(45,-125));
 		Location containsEloc = new Location(40,-105);
 		Location containsNloc = new Location(45,-115);
@@ -292,7 +292,7 @@ public class GeographicRegionTest {
 
 	@Test
 	public final void testGetGlobalRegion() {
-		GeographicRegion global = GeographicRegion.getGlobalRegion();
+		Region global = Region.getGlobalRegion();
 		assertEquals(180, global.getMaxLon(), 0);
 		assertEquals(-180, global.getMinLon(), 0);
 		assertEquals(90, global.getMaxLat(), 0);
@@ -351,7 +351,7 @@ public class GeographicRegionTest {
 		// The code below was used to create KML files for visual verification
 		// of regions. The border vertices were then culled from the KML and 
 		// are stored in arrays (below) for use in this test class
-		GeographicRegion gr;
+		Region gr;
 		
 		// RECT
 		RegionUtils.regionToKML(smRectRegion, "RegionLocLoc", Color.ORANGE);

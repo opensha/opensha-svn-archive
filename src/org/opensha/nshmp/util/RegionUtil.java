@@ -3,7 +3,7 @@ package org.opensha.nshmp.util;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.Location;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.nshmp.exceptions.AnalysisOptionNotSupportedException;
 
@@ -78,62 +78,62 @@ public final class RegionUtil {
    *
    * @return RectangularGeographicRegion
    */
-  public static GeographicRegion getRegionConstraint(String
+  public static Region getRegionConstraint(String
       selectedGeographicRegion) throws RegionConstraintException {
 
     if (selectedGeographicRegion.equals(GlobalConstants.CONTER_48_STATES)) {
-      //return new GeographicRegion(24.7, 50, -125, -65);
-      return new GeographicRegion(
+      //return new Region(24.7, 50, -125, -65);
+      return new Region(
     		  new Location(24.7,-125),
     		  new Location(50, -65));
     }
     else if (selectedGeographicRegion.equals(GlobalConstants.ALASKA)) {
     	// TODO this must have problems, both in past and present
     	// implementations; spans dateline
-      //return new GeographicRegion(48, 72, -200, -125);
-      return new GeographicRegion(
+      //return new Region(48, 72, -200, -125);
+      return new Region(
     		  new Location(48, -200),
     		  new Location(72, -125));
     }
     else if (selectedGeographicRegion.equals(GlobalConstants.HAWAII)) {
-        //return new GeographicRegion(18, 23, -161, -154);
-        return new GeographicRegion(
+        //return new Region(18, 23, -161, -154);
+        return new Region(
       		  new Location(18, -161),
       		  new Location(23, -154));
     }
     else if (selectedGeographicRegion.equals(GlobalConstants.PUERTO_RICO)) {
-        //return new GeographicRegion(17.89, 18.55, -67.36, -65.47);
-        return new GeographicRegion(
+        //return new Region(17.89, 18.55, -67.36, -65.47);
+        return new Region(
         		  new Location(17.89, -67.36),
           		  new Location(18.55, -65.47));
     }
     else if (selectedGeographicRegion.equals(GlobalConstants.CULEBRA)) {
-      //return new GeographicRegion(18.27, 18.36, -65.39, -65.21);
-      return new GeographicRegion(
+      //return new Region(18.27, 18.36, -65.39, -65.21);
+      return new Region(
       		  new Location(18.27, -65.39),
       		  new Location(18.36, -65.21));
     }
     else if (selectedGeographicRegion.equals(GlobalConstants.ST_CROIX)) {
-      //return new GeographicRegion(17.67, 17.8, -64.93, -64.54);
-      return new GeographicRegion(
+      //return new Region(17.67, 17.8, -64.93, -64.54);
+      return new Region(
       		  new Location(17.67, -64.93),
       		  new Location(17.8, -64.54));
     }
     else if (selectedGeographicRegion.equals(GlobalConstants.ST_JOHN)) {
-      //return new GeographicRegion(18.29, 18.38, -64.85, -64.65);
-      return new GeographicRegion(
+      //return new Region(18.29, 18.38, -64.85, -64.65);
+      return new Region(
       		  new Location(18.29, -64.85),
       		  new Location(18.38, -64.65));
     }
     else if (selectedGeographicRegion.equals(GlobalConstants.ST_THOMAS)) {
-      //return new GeographicRegion(18.26, 18.43, -65.10, -64.80);
-      return new GeographicRegion(
+      //return new Region(18.26, 18.43, -65.10, -64.80);
+      return new Region(
       		  new Location(18.26, -65.10),
       		  new Location(18.43, -64.80));
     }
     else if (selectedGeographicRegion.equals(GlobalConstants.VIEQUES)) {
-      //return new GeographicRegion(18.07, 18.17, -65.6, -65.25);
-      return new GeographicRegion(
+      //return new Region(18.07, 18.17, -65.6, -65.25);
+      return new Region(
       		  new Location(18.07, -65.6),
       		  new Location(18.17, -65.25));
     }

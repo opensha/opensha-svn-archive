@@ -12,7 +12,7 @@ import org.opensha.commons.calc.ArcsecondConverter;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.servlet.SiteDataServletAccessor;
 import org.opensha.commons.exceptions.RegionConstraintException;
@@ -38,7 +38,7 @@ public class SRTM30PlusTopoSlope extends AbstractSiteData<Double> {
 	
 	private boolean useServlet;
 	
-	private GeographicRegion region;
+	private Region region;
 	
 	private RandomAccessFile file = null;
 	private byte[] recordBuffer = null;
@@ -75,10 +75,10 @@ public class SRTM30PlusTopoSlope extends AbstractSiteData<Double> {
 		calc.setStartBottom(true);
 		calc.setStartLeft(true);
 		
-		region = GeographicRegion.getGlobalRegion();
+		region = Region.getGlobalRegion();
 	}
 
-	public GeographicRegion getApplicableRegion() {
+	public Region getApplicableRegion() {
 		return region;
 	}
 

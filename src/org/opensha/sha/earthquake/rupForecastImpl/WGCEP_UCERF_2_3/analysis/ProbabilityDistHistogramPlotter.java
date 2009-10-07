@@ -18,7 +18,7 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.commons.data.region.GeographicRegion;
+import org.opensha.commons.data.region.Region;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 
@@ -98,7 +98,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 	 * @param minMag
 	 */
 	public void generateProbContributionsExcelSheet(boolean isTimeDependent, 
-			double duration, String fileName, GeographicRegion region) {
+			double duration, String fileName, Region region) {
 
 		if(ucerf2EpistemicList==null) { // UCERF epistemic list
 			if(isTimeDependent) ucerf2EpistemicList = new UCERF2_TimeDependentEpistemicList();
