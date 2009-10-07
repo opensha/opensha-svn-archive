@@ -23,7 +23,6 @@ import javax.swing.border.TitledBorder;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.GeographicRegion;
-import org.opensha.commons.data.region.RectangularGeographicRegion;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.DoubleParameter;
@@ -32,7 +31,6 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.editor.DoubleParameterEditor;
-import org.opensha.commons.param.editor.StringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.nshmp.exceptions.AnalysisOptionNotSupportedException;

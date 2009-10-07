@@ -14,18 +14,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
-import org.opensha.commons.data.region.SitesInGriddedRegionAPI;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
 import org.opensha.commons.exceptions.RegionConstraintException;
@@ -51,7 +47,6 @@ import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.beans.SitesInGriddedRegionGuiBean;
 import org.opensha.sha.gui.infoTools.IMT_Info;
-import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.IntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.event.AttenuationRelationshipChangeEvent;
 import org.opensha.sha.imr.event.AttenuationRelationshipChangeListener;

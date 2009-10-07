@@ -22,7 +22,6 @@ import javax.swing.border.TitledBorder;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.GeographicRegion;
-import org.opensha.commons.data.region.RectangularGeographicRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;

@@ -5,12 +5,10 @@ import java.util.ListIterator;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
 
-import scratch.matt.calc.RegionDefaults;
 import scratch.matt.calc.STEP_HazardDataSet;
 import scratch.matt.calc.STEP_main;
 

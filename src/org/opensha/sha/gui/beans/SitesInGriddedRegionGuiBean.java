@@ -1,31 +1,19 @@
 package org.opensha.sha.gui.beans;
 
-import java.util.*;
-import java.lang.reflect.*;
-import javax.swing.*;
-import java.net.*;
-import java.io.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
 
+import javax.swing.JOptionPane;
 
-
-
-
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedNoCalRegion;
-import org.opensha.commons.data.region.EvenlyGriddedSoCalRegion;
-import org.opensha.commons.data.region.RELM_CollectionRegion;
-import org.opensha.commons.data.region.RELM_TestingRegion;
-import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
-import org.opensha.commons.data.region.SitesInGriddedRegionAPI;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.IntegerParameter;
@@ -38,9 +26,7 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
-
 import org.opensha.sha.calc.hazardMap.NamedGeographicRegion;
-import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.util.SiteTranslator;
 
 

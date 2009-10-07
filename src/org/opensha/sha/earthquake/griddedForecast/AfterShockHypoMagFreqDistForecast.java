@@ -1,11 +1,8 @@
 package org.opensha.sha.earthquake.griddedForecast;
 
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
-
-import org.opensha.sha.earthquake.observedEarthquake.*;
-
-import scratch.matt.calc.SortAftershocks_Calc;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 
 
 /**

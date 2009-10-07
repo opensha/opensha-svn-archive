@@ -7,8 +7,6 @@ import java.util.Vector;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.GeographicRegion;
-import org.opensha.commons.data.region.RectangularGeographicRegion;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.nshmp.sha.data.HazardDataMinerServletMode;
 import org.opensha.nshmp.util.GlobalConstants;
 

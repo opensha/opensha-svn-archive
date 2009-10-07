@@ -19,7 +19,6 @@ import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataAPI;

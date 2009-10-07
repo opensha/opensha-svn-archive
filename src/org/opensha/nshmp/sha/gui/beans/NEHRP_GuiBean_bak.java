@@ -1,16 +1,27 @@
 package org.opensha.nshmp.sha.gui.beans;
 
-import java.rmi.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.ListIterator;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.GeographicRegion;
-import org.opensha.commons.data.region.RectangularGeographicRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
@@ -18,17 +29,17 @@ import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-
-
-
-
-
-import org.opensha.nshmp.exceptions.*;
-import org.opensha.nshmp.sha.data.*;
-import org.opensha.nshmp.sha.data.api.*;
-import org.opensha.nshmp.sha.gui.api.*;
-import org.opensha.nshmp.sha.gui.infoTools.*;
-import org.opensha.nshmp.util.*;
+import org.opensha.nshmp.exceptions.AnalysisOptionNotSupportedException;
+import org.opensha.nshmp.exceptions.LocationErrorException;
+import org.opensha.nshmp.exceptions.ZipCodeErrorException;
+import org.opensha.nshmp.sha.data.DataGenerator_NEHRP;
+import org.opensha.nshmp.sha.data.api.DataGeneratorAPI_NEHRP;
+import org.opensha.nshmp.sha.gui.api.ProbabilisticHazardApplicationAPI;
+import org.opensha.nshmp.sha.gui.infoTools.GraphWindow;
+import org.opensha.nshmp.sha.gui.infoTools.SiteCoefficientInfoWindow;
+import org.opensha.nshmp.util.GlobalConstants;
+import org.opensha.nshmp.util.LocationUtil;
+import org.opensha.nshmp.util.RegionUtil;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 
 /**

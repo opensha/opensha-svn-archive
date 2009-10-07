@@ -1,25 +1,23 @@
 package junk;
 
 
+import java.io.FileWriter;
+import java.lang.reflect.Constructor;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.lang.reflect.*;
 import java.util.ListIterator;
-
-import java.io.*;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
-import org.opensha.sha.calc.HazardCurveCalculator;
-import java.text.DecimalFormat;
 
 
 

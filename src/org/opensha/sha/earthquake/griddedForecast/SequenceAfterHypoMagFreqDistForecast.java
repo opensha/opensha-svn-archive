@@ -1,16 +1,19 @@
 package org.opensha.sha.earthquake.griddedForecast;
 
-import scratch.matt.calc.*;
+import java.util.ArrayList;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
-
-import org.opensha.sha.earthquake.observedEarthquake.*;
-import org.opensha.sha.faultSurface.SimpleFaultData;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
-import java.util.ArrayList;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
+
+import scratch.matt.calc.CompletenessMagCalc;
+import scratch.matt.calc.MaxLikeGR_Calc;
+import scratch.matt.calc.MaxLikeOmori_Calc;
+import scratch.matt.calc.OmoriRate_Calc;
+import scratch.matt.calc.RegionDefaults;
 
 /**
  * <p>Title: </p>

@@ -1,11 +1,9 @@
 package scratch.matt.calc;
 
-import java.util.*;
+import java.util.ListIterator;
+
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
-import org.opensha.commons.calc.RelativeLocation;
-import org.opensha.commons.data.Location;
-import org.opensha.commons.data.region.CircularGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 
 /**
@@ -93,7 +91,7 @@ public class MaxLikeGR_Calc {
    * calculate the a and b values on the evenly gridded region grid.
    *
    */
-  public static void setGriddedMags(EvenlyGriddedGeographicRegionAPI gridNodes, ObsEqkRupList eventList) {
+  public static void setGriddedMags(EvenlyGriddedGeographicRegion gridNodes, ObsEqkRupList eventList) {
     calc_GROnGrid(gridNodes, eventList);
   }
 
@@ -136,7 +134,7 @@ public class MaxLikeGR_Calc {
   /**
    * calc_GROnGrid
    */
-  private static void calc_GROnGrid(EvenlyGriddedGeographicRegionAPI gridNodes, ObsEqkRupList eventList){
+  private static void calc_GROnGrid(EvenlyGriddedGeographicRegion gridNodes, ObsEqkRupList eventList){
     ListIterator gridIt = gridNodes.getGridLocationsIterator();
     int numNodes = gridNodes.getNumGridLocs();
     //I DO THIS TWICE - ABOVE PUBLIC W/O THE SIZE DEC?!?!?!

@@ -1,14 +1,18 @@
 package org.opensha.sha.calc.IM_EventSet.v01;
 
 
-import java.util.*;
-import java.lang.reflect.*;
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.param.ParameterAPI;
@@ -17,17 +21,14 @@ import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
-import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.PropagationEffect;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.depricated.BA_2006_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.depricated.CB_2006_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
-
 import org.opensha.sha.param.SimpleFaultParameter;
 import org.opensha.sha.util.SiteTranslator;
 

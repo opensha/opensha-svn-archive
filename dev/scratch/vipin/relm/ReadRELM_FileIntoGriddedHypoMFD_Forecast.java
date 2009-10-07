@@ -1,18 +1,15 @@
 package scratch.vipin.relm;
 
-import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.StringTokenizer;
+
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
-import org.opensha.commons.data.region.EvenlyGriddedRELM_TestingRegion;
 import org.opensha.commons.exceptions.DataPoint2DException;
+import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.opensha.sha.magdist.SummedMagFreqDist;
-
-import java.io.FileReader;
-import java.io.BufferedReader;
-import java.util.StringTokenizer;
 
 
 /**

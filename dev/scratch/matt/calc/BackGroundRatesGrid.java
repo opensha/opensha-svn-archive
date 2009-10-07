@@ -1,10 +1,7 @@
 package scratch.matt.calc;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
@@ -12,10 +9,7 @@ import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
-import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;

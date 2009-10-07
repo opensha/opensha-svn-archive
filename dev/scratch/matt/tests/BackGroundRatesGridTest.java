@@ -1,16 +1,12 @@
 package scratch.matt.tests;
 
-import java.util.Iterator;
 import java.util.List;
 
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
-import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 

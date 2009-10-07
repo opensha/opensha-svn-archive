@@ -1,11 +1,12 @@
 package junk;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.DecimalFormat;
-import java.io.*;
-import java.util.LinkedList;
 import java.util.Iterator;
+import java.util.LinkedList;
 
-import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.util.RunScript;
 

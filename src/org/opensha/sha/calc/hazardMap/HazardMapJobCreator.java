@@ -19,14 +19,10 @@ import org.dom4j.Element;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
-import org.opensha.commons.data.region.SitesInGriddedRegionAPI;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataAPI;
-import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.data.siteData.SiteDataValueListList;
-import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
-import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.gridComputing.ResourceProvider;
 import org.opensha.commons.gridComputing.StorageHost;
@@ -36,9 +32,6 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.hazardMap.grid.MetadataHazardMapCalculator;
-import org.opensha.sha.gui.infoTools.ConnectToCVM;
-import org.opensha.sha.gui.servlets.siteEffect.BasinDepthClass;
-import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
 
 
 public class HazardMapJobCreator {

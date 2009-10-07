@@ -10,7 +10,6 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.gui.beans.GriddedRegionGUIBean;
 import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;

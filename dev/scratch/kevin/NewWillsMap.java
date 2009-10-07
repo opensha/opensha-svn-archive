@@ -1,8 +1,6 @@
 package scratch.kevin;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -14,11 +12,10 @@ import java.util.ArrayList;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedRELM_TestingRegion;
-import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
 import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
 import org.opensha.commons.util.interp.BicubicInterpolation2D;
+import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
 
 public class NewWillsMap {
 	

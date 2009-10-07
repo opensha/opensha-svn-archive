@@ -21,7 +21,7 @@ public class AllTests extends TestCase {
 
     suite.addTest(org.opensha.commons.util.tests.UtilSuite.suite());
     suite.addTest(org.opensha.commons.data.tests.DataSuite.suite());
-    suite.addTest(org.opensha.commons.data.region.tests.RegionSuite.suite());
+    //suite.addTest(org.opensha.commons.data.region.tests.RegionSuite.suite());
     suite.addTest(new TestSuite(org.opensha.sha.earthquake.rupForecastImpl.step.tests.STEPTests.class));
     return suite;
 

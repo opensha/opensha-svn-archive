@@ -1,14 +1,19 @@
 package org.opensha.nshmp.sha.pager;
 
 
-import java.util.*;
-import java.lang.reflect.*;
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.ListIterator;
+import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
@@ -19,20 +24,16 @@ import org.opensha.commons.param.WarningParameterAPI;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.sha.calc.ScenarioShakeMapCalculator;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
-import org.opensha.sha.imr.*;
-import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
-
-
-
-import org.opensha.sha.util.SiteTranslator;
-import org.opensha.sha.param.SimpleFaultParameter;
-import org.opensha.sha.calc.ScenarioShakeMapCalculator;
 import org.opensha.sha.gui.beans.MapGuiBean;
-
-import java.text.DecimalFormat;
 import org.opensha.sha.gui.infoTools.IMT_Info;
+import org.opensha.sha.imr.PropagationEffect;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.param.SimpleFaultParameter;
+import org.opensha.sha.util.SiteTranslator;
 
 
 /**

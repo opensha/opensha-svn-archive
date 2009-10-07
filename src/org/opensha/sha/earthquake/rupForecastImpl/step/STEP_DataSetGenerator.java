@@ -1,36 +1,38 @@
 package org.opensha.sha.earthquake.rupForecastImpl.step;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.ListIterator;
+import java.util.StringTokenizer;
 
-
-import org.opensha.sha.earthquake.rupForecastImpl.step.*;
-import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
-import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
-import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.WarningDoubleParameter;
 import org.opensha.commons.param.WarningParameterAPI;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.calc.hazardMap.HazardMapCalculatorOld;
-import org.opensha.sha.earthquake.*;
+import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
-
-
-
+import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.util.SiteTranslator;
 
 /**

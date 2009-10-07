@@ -6,11 +6,9 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.calc.ERF2GriddedSeisRatesCalc;

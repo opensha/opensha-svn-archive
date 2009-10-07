@@ -1,5 +1,6 @@
 package org.opensha.sha.earthquake;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.Iterator;
@@ -8,29 +9,15 @@ import java.util.ListIterator;
 import org.dom4j.Element;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
-import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.metadata.MetadataLoader;
 import org.opensha.commons.metadata.XMLSaveable;
-import org.opensha.commons.param.BooleanParameter;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.param.event.TimeSpanChangeListener;
-import java.util.HashMap;
-import java.util.Set;
-import java.lang.reflect.InvocationTargetException;
-import java.text.DecimalFormat;
-
-import org.opensha.sha.earthquake.calc.ERF2GriddedSeisRatesCalc;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
-import org.opensha.sha.imr.IntensityMeasureRelationship;
 
 
 

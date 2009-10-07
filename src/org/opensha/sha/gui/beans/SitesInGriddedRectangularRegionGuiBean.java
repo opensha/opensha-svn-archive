@@ -1,22 +1,20 @@
 package org.opensha.sha.gui.beans;
 
-import java.util.*;
-import java.lang.reflect.*;
-import javax.swing.*;
-import java.net.*;
-import java.io.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
 
+import javax.swing.JOptionPane;
 
-
-
-
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataAPI;
@@ -34,7 +32,6 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
-
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.util.SiteTranslator;
 

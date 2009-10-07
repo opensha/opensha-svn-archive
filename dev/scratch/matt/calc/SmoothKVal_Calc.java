@@ -1,15 +1,14 @@
 package scratch.matt.calc;
 
-import java.util.*;
+import java.util.ListIterator;
 
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
-
-
-import org.opensha.sha.earthquake.griddedForecast.*;
-import org.opensha.sha.earthquake.observedEarthquake.*;
+import org.opensha.sha.earthquake.griddedForecast.GenericAfterHypoMagFreqDistForecast;
+import org.opensha.sha.earthquake.griddedForecast.STEP_AftershockForecast;
+import org.opensha.sha.earthquake.griddedForecast.SequenceAfterHypoMagFreqDistForecast;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 

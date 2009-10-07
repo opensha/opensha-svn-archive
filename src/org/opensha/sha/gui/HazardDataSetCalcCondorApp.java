@@ -1,21 +1,40 @@
 package org.opensha.sha.gui;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.util.*;
-import java.io.*;
-import java.net.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.ListIterator;
+
+import javax.swing.ImageIcon;
+import javax.swing.JApplet;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 import javax.swing.Timer;
-
-
-import org.opensha.sha.gui.beans.*;
-import org.opensha.sha.imr.*;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
@@ -23,11 +42,23 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.ImageUtils;
-import org.opensha.sha.gui.controls.*;
-import org.opensha.sha.gui.infoTools.*;
-import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
+import org.opensha.sha.gui.beans.ERF_GuiBean;
+import org.opensha.sha.gui.beans.IMR_GuiBean;
+import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
+import org.opensha.sha.gui.beans.IMT_GuiBean;
+import org.opensha.sha.gui.beans.SitesInGriddedRectangularRegionGuiBean;
+import org.opensha.sha.gui.controls.RegionsOfInterestControlPanel;
+import org.opensha.sha.gui.controls.SetMinSourceSiteDistanceControlPanel;
+import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanel;
+import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
+import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
+import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
+import org.opensha.sha.gui.infoTools.IMT_Info;
+import org.opensha.sha.gui.infoTools.UserAuthorizationCheckWindow;
+import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
 /**
  * <p>Title: HazardDataSetCalcCondorApp</p>

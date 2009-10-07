@@ -2,11 +2,8 @@ package scratch.matt.calc;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
-
-
-import org.opensha.sha.earthquake.griddedForecast.*;
-import org.opensha.sha.earthquake.observedEarthquake.*;
+import org.opensha.sha.earthquake.griddedForecast.STEP_CombineForecastModels;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 
 /**
  * <p>Title: </p>

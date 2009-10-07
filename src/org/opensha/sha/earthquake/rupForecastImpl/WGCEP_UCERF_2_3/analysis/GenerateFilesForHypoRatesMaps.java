@@ -8,7 +8,6 @@ import java.io.FileWriter;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.data.region.EvenlyGriddedRELM_TestingRegion;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;

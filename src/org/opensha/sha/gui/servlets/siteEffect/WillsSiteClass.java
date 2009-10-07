@@ -1,12 +1,14 @@
 package org.opensha.sha.gui.servlets.siteEffect;
 
-import java.util.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 
 

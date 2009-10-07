@@ -2,25 +2,9 @@ package org.opensha.sha.earthquake.rupForecastImpl.Frankel02.validation;
 
 
 
-import java.util.ArrayList;
-import java.net.*;
-import java.io.*;
-
-import org.opensha.sha.imr.*;
-import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
-import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
-import org.opensha.sha.imr.param.OtherParams.ComponentParam;
-import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
-import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
-import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
-import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
-
-
 import org.opensha.commons.data.Location;
-import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
@@ -28,11 +12,17 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.WarningParameterAPI;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
-import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
-import org.opensha.sha.calc.HazardCurveCalculator;
-import org.opensha.sha.gui.infoTools.IMT_Info;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.calc.hazardMap.HazardMapCalculatorOld;
+import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
+import org.opensha.sha.gui.infoTools.IMT_Info;
+import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 /**
  * <p>Title: HazardMapStandaloneApplicationUsingFrankel02</p>

@@ -9,7 +9,6 @@ import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.GeographicRegion;
-import org.opensha.commons.data.region.RELM_TestingRegion;
 import org.opensha.commons.util.XMLUtils;
 
 // TODO this is in an odd location and shouldn't necessarily exits.

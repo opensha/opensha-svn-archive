@@ -8,11 +8,9 @@ import org.dom4j.Element;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.GeographicRegion;
-import org.opensha.commons.data.region.RectangularGeographicRegion;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.SiteDataToXYZ;
 import org.opensha.commons.data.siteData.servlet.SiteDataServletAccessor;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
 import org.opensha.sha.util.SiteTranslator;
 

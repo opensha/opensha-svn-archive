@@ -1,28 +1,19 @@
 package org.opensha.sha.calc.hazardMap.grid;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.GeographicRegion;
-import org.opensha.commons.data.region.RELM_TestingRegion;
-import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
-import org.opensha.commons.data.region.SitesInGriddedRegionAPI;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
 import org.opensha.sha.gui.infoTools.IMT_Info;
-import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
-import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 

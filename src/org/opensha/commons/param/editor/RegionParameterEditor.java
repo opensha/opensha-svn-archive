@@ -1,16 +1,19 @@
 package org.opensha.commons.param.editor;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ListIterator;
 
-
+import javax.swing.JButton;
+import javax.swing.JDialog;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.GeographicRegion;
-import org.opensha.commons.data.region.RectangularGeographicRegion;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.ParameterListParameter;

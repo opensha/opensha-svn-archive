@@ -1,18 +1,12 @@
 package org.opensha.commons.mapping.gmt.gui;
 
-import java.awt.*;
-import java.util.*;
-import javax.swing.*;
+import java.awt.GridBagLayout;
+import java.util.ListIterator;
 
-
-
-
-
-import org.opensha.sha.gui.infoTools.ImageViewerWindow;
+import javax.swing.JOptionPane;
 
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
@@ -21,7 +15,7 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.commons.util.FileUtils;
+import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 
 
 

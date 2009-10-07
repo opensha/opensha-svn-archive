@@ -1,24 +1,28 @@
 package org.opensha.sha.calc;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.DecimalFormat;
-import java.util.*;
-import java.net.*;
-import java.io.*;
+import java.util.ArrayList;
+import java.util.ListIterator;
 
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.XYZ_DataSetAPI;
-import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.sha.imr.*;
-import org.opensha.sha.earthquake.*;
+import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.PropagationEffect;
 
 
 /**

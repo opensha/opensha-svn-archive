@@ -6,24 +6,17 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
-import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.GeographicRegion;
-import org.opensha.commons.data.region.RELM_TestingRegion;
-import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
-import org.opensha.commons.data.region.SitesInGriddedRegionAPI;
 import org.opensha.commons.data.siteData.SiteDataValueListList;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.gridComputing.GridJob;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
@@ -31,12 +24,8 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.hazardMap.HazardMapCalculationParameters;
 import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
-import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 
 
 /**

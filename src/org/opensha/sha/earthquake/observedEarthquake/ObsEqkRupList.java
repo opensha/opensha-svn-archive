@@ -1,14 +1,13 @@
 package org.opensha.sha.earthquake.observedEarthquake;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.ListIterator;
+
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.GeographicRegion;
-import org.opensha.commons.data.region.GeographicRegionAPI;
 import org.opensha.commons.exceptions.InvalidRangeException;
-
-import java.util.Collections;
 import org.opensha.sha.earthquake.EqkRuptureMagComparator;
 
 /**

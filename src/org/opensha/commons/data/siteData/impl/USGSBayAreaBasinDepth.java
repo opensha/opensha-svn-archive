@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import org.dom4j.Element;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
-import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.SiteDataToXYZ;

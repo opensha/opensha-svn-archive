@@ -8,26 +8,19 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.Location;
-import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
-import org.opensha.commons.data.region.EvenlyGriddedRELM_TestingRegion;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.earthquake.calc.ERF2GriddedSeisRatesCalc;
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
-
-import scratch.vipin.relm.RELM_ERF_ToGriddedHypoMagFreqDistForecast;
 
 /**
  * It generates the files from making Probability Participation Maps for UCERF2 report.

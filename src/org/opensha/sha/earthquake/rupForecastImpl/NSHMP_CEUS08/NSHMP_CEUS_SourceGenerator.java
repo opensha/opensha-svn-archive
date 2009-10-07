@@ -9,17 +9,12 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.opensha.commons.calc.magScalingRelations.MagLengthRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UnsegmentedSource;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;

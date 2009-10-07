@@ -1,25 +1,32 @@
 package org.opensha.sha.earthquake.griddedForecast;
 
-import java.util.*;
-
-import scratch.matt.calc.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.ListIterator;
+import java.util.TimeZone;
 
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.commons.data.region.CircularGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedCircularGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
-import org.opensha.commons.data.region.EvenlyGriddedSausageGeographicRegion;
 import org.opensha.commons.data.region.GeographicRegion;
-
-
-import org.opensha.sha.earthquake.observedEarthquake.*;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.SimpleFaultData;
-import org.opensha.sha.magdist.*;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
+
+import scratch.matt.calc.AkaikeInformationCriterion;
+import scratch.matt.calc.BackGroundRatesGrid;
+import scratch.matt.calc.CalcAIC_Weights;
+import scratch.matt.calc.CompletenessMagCalc;
+import scratch.matt.calc.CountObsInGrid;
+import scratch.matt.calc.DistDecayFromRupCalc;
+import scratch.matt.calc.OgataLogLike_Calc;
+import scratch.matt.calc.RegionDefaults;
+import scratch.matt.calc.STEP_TypeIIAftershockZone_Calc;
 
 /**
  * <p>Title: </p>

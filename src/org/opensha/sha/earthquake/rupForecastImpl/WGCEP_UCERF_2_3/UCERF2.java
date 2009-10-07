@@ -4,20 +4,11 @@
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3;
 
 
-import java.io.File;
-import java.io.FileWriter;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.Iterator;
 
-import java.util.StringTokenizer;
-
-
-
-
 import org.opensha.commons.calc.FaultMomentCalc;
-import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_A_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
@@ -26,18 +17,13 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Shaw_2007_
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Somerville_2006_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WGCEP_2007_PowLaw_MagAreaRel;
 import org.opensha.commons.data.Location;
-import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.ValueWeight;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
-import org.opensha.commons.data.region.EvenlyGriddedWG02_Region;
 import org.opensha.commons.data.region.GeographicRegion;
-import org.opensha.commons.exceptions.FaultException;
 import org.opensha.commons.param.BooleanParameter;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterList;
@@ -45,32 +31,23 @@ import org.opensha.commons.param.ParameterListParameter;
 import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
-import org.opensha.commons.util.FileUtils;
-
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.A_Faults.A_FaultSegmentedSourceGenerator;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis.GenerateTestExcelSheets;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.A_FaultsFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.B_FaultsFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.EventRates;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.NonCA_FaultsFetcher;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.SegmentTimeDepData;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.UCERF1MfdReader;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.gui.A_FaultsMFD_Plotter;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.griddedSeis.NSHMP_GridSourceGenerator;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
-import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.faultSurface.FrankelGriddedSurface;
-import org.opensha.sha.faultSurface.StirlingGriddedSurface;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.magdist.*;
+import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.sha.magdist.SummedMagFreqDist;
+import org.opensha.sha.magdist.TaperedGR_MagFreqDist;
 
 
 /**

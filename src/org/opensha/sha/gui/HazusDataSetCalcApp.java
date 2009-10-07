@@ -1,31 +1,50 @@
 package org.opensha.sha.gui;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 import javax.swing.Timer;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
 
-
-import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.gui.beans.*;
-import org.opensha.sha.imr.*;
-
-import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.ImageUtils;
-import org.opensha.sha.gui.controls.*;
-import org.opensha.sha.gui.infoTools.*;
-
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazusMapCalculator;
-
+import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.gui.beans.ERF_GuiBean;
+import org.opensha.sha.gui.beans.IMR_GuiBean;
+import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
+import org.opensha.sha.gui.beans.SitesInGriddedRectangularRegionGuiBean;
+import org.opensha.sha.gui.controls.RegionsOfInterestControlPanel;
+import org.opensha.sha.gui.controls.SetMinSourceSiteDistanceControlPanel;
+import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
+import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
 /**
  * <p>Title: HuzusDataSetCalcApp</p>

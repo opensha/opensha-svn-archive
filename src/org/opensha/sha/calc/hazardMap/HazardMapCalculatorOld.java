@@ -1,27 +1,18 @@
 package org.opensha.sha.calc.hazardMap;
 
-import javax.swing.JFrame;
-import javax.swing.JProgressBar;
-import java.awt.Rectangle;
-import javax.swing.JOptionPane;
-import javax.swing.JLabel;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.DecimalFormat;
-import java.io.*;
-import java.util.Iterator;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
-
-import org.opensha.sha.imr.*;
 import org.opensha.sha.calc.HazardCurveCalculator;
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.gui.infoTools.*;
+import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.gui.infoTools.HazardMapCalcPostProcessing;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
 
 

@@ -1,8 +1,6 @@
 package org.opensha.commons.mapping.gmt.elements;
 
 import org.opensha.commons.data.region.GeographicRegion;
-import org.opensha.commons.data.region.RectangularGeographicRegion;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.mapping.gmt.GMT_Map;
 
 public enum TopographicSlopeFile {

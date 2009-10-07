@@ -5,9 +5,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
-import org.opensha.commons.data.region.EvenlyGriddedCircularGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.impl.SRTM30PlusTopoSlope;
 

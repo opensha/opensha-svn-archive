@@ -1,7 +1,6 @@
 package org.opensha.sha.calc.hazardMap.applet;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -17,7 +16,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.sha.calc.hazardMap.servlet.DatasetID;
 import org.opensha.sha.calc.hazardMap.servlet.StatusServletAccessor;
 

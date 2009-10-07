@@ -2,11 +2,6 @@ package scratch.matt.calc;
 
 import org.opensha.sha.earthquake.griddedForecast.STEP_AftershockForecast;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
-import org.opensha.commons.data.Location;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
-
-import java.util.ListIterator;
-import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 
 /**
  * <p>Title: </p>

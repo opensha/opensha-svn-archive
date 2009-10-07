@@ -1,19 +1,21 @@
 package junk;
 
 
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.ListIterator;
 
-import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.util.FileUtils;
-
-import org.opensha.sha.imr.*;
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.gui.infoTools.HazardMapSubmissionMethods;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
 
 /**

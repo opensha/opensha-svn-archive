@@ -1,25 +1,21 @@
 package org.opensha.sha.earthquake.calc;
 
-import java.util.*;
-import java.text.*;
+import java.io.FileWriter;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.ListIterator;
 
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.GeographicRegion;
-
-import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
-
-import java.io.*;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.
-    Frankel02_AdjustableEqkRupForecast;
+import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.opensha.sha.magdist.SummedMagFreqDist;
 
 
 /**

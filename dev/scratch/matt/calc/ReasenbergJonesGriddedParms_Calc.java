@@ -1,12 +1,12 @@
 package scratch.matt.calc;
 
+import java.util.ArrayList;
+import java.util.ListIterator;
+
 import org.opensha.commons.data.Location;
-import org.opensha.commons.data.region.CircularGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
-import java.util.*;
 
 /**
  * <p>Title: </p>

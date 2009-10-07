@@ -1,22 +1,13 @@
 package scratch.vipin.relm;
 
+import java.util.ArrayList;
+
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.calc.ERF2GriddedSeisRatesCalc;
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
-import org.opensha.commons.data.Location;
-import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
-import org.opensha.commons.exceptions.DataPoint2DException;
-import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.earthquake.ProbEqkRupture;
-
-import java.io.FileWriter;
-import java.util.ListIterator;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import java.util.ArrayList;
 
 /**
  * <p>Title: ERF_ToGriddedHypoMagFreqDistForecast.java </p>

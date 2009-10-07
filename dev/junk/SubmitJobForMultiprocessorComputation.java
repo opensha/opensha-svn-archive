@@ -1,15 +1,10 @@
 package junk;
 
-import java.text.DecimalFormat;
-import java.io.*;
-import java.util.LinkedList;
-import java.util.Iterator;
+import java.io.FileWriter;
 
-import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
-//import org.opensha.cme.SRBDrop.SRBDrop;
 
 /**
  * <p>Title: SubmitJobForMultiprocessorComputation</p>

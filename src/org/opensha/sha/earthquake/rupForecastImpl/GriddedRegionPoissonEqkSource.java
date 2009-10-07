@@ -1,20 +1,15 @@
 package org.opensha.sha.earthquake.rupForecastImpl;
 
-import org.opensha.sha.magdist.*;
+import java.util.ArrayList;
 
-
-
-import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.GeographicRegion;
-import org.opensha.sha.earthquake.*;
+import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
-
-import java.util.ArrayList;
-import java.util.Iterator;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 
 /**

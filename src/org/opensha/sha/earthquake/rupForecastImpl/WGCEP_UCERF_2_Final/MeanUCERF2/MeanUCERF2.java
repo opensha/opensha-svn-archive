@@ -4,17 +4,14 @@
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2;
 
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Iterator;
-
 
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
@@ -23,26 +20,22 @@ import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.ValueWeight;
 import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.commons.param.BooleanParameter;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
-import org.opensha.commons.util.FileUtils;
-
-
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkSourceAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.EmpiricalModel;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UnsegmentedSource;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.EmpiricalModel;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.A_Faults.A_FaultSegmentedSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.analysis.ParamOptions;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.A_FaultsFetcher;
@@ -50,10 +43,9 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.NonCA
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelSummaryFinal;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.NSHMP_GridSourceGenerator;
 import org.opensha.sha.earthquake.util.EqkSourceNameComparator;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
-import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
-import org.opensha.sha.magdist.*;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.sha.magdist.SummedMagFreqDist;
 
 
 

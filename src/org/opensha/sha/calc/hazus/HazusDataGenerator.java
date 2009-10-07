@@ -3,19 +3,8 @@ package org.opensha.sha.calc.hazus;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import org.opensha.sha.imr.attenRelImpl.*;
-import org.opensha.sha.imr.param.OtherParams.ComponentParam;
-import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
-import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
-import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
-import org.opensha.sha.imr.*;
-import org.opensha.sha.util.SiteTranslator;
-
-
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.*;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.ParameterAPI;
@@ -23,9 +12,13 @@ import org.opensha.commons.param.WarningParameterAPI;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.calc.HazusMapCalculator;
-import org.opensha.sha.earthquake.*;
-
-import org.opensha.sha.gui.infoTools.*;
+import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
+import org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
+import org.opensha.sha.util.SiteTranslator;
 
 
 /**

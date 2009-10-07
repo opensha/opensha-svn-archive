@@ -7,7 +7,6 @@ import java.util.ListIterator;
 
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
-import org.opensha.commons.data.region.CircularGeographicRegion;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.param.ParameterAPI;

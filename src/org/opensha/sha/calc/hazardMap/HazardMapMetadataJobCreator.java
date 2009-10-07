@@ -14,18 +14,14 @@ import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
-import org.opensha.commons.data.region.SitesInGriddedRegionAPI;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.gridComputing.GridJob;
 import org.opensha.commons.gridComputing.GridResources;
 import org.opensha.commons.gridComputing.ResourceProvider;
 import org.opensha.commons.gridComputing.StorageHost;
 import org.opensha.commons.gridComputing.SubmitHost;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.commons.util.RunScript;
 import org.opensha.sha.earthquake.EqkRupForecast;
 
 

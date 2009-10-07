@@ -9,14 +9,10 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.data.region.EvenlyGriddedNoCalRegion;
-import org.opensha.commons.data.region.EvenlyGriddedSoCalRegion;
 import org.opensha.commons.data.region.GeographicRegion;
-import org.opensha.commons.data.region.RELM_CollectionRegion;
-import org.opensha.commons.data.region.RELM_TestingRegion;
-import org.opensha.sha.calc.hazardMap.NamedGeographicRegion;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.XMLUtils;
+import org.opensha.sha.calc.hazardMap.NamedGeographicRegion;
 
 public class RegionSaver {
 	

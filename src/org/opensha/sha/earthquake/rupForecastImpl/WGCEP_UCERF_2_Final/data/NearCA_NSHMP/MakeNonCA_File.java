@@ -8,9 +8,7 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Location;
-import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.commons.util.FileUtils;
 
 /**

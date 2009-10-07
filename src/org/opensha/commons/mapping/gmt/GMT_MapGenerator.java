@@ -1,7 +1,6 @@
 package org.opensha.commons.mapping.gmt;
 
 import java.awt.Color;
-import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -24,10 +23,7 @@ import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.commons.data.region.GeographicRegion;
-import org.opensha.commons.data.region.GeographicRegionAPI;
-import org.opensha.commons.data.region.RectangularGeographicRegion;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.mapping.gmt.GMT_Map.HighwayFile;
@@ -36,7 +32,6 @@ import org.opensha.commons.mapping.gmt.elements.PSXYPolygon;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbolSet;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
-import org.opensha.commons.mapping.gmt.raster.RasterExtractor;
 import org.opensha.commons.param.BooleanParameter;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.IntegerParameter;

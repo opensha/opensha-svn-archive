@@ -28,7 +28,6 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
 import org.opensha.commons.data.XYZ_DataSetAPI;
-import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;

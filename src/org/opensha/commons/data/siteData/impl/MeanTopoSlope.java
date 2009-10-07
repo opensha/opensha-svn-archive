@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.SiteDataAPI;

@@ -1,11 +1,7 @@
 package org.opensha.commons.gui.beans;
 
-import javax.swing.JPanel;
-
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.GeographicRegion;
-import org.opensha.commons.data.region.GeographicRegionAPI;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterList;
