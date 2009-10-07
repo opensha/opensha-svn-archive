@@ -35,9 +35,9 @@ Possibilities:
 
 	Subduction Interface
 	Subduction IntraSlab
-	Shallow Crustal in Active Tectonic Regions
-	Shallow Crustal in Stable Tectonic Regions
-	Volcanic Regions
+	Active Shallow Crust
+	Stable Shallow Crust
+	Volcanic
 
 ProbEqkSource	Define field to declare what type of source it is
 		(e.g., subduction zone vs normal vs reverse ...) and add to API.

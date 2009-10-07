@@ -8,10 +8,14 @@ import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
-
+import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
 /**
  * <p>Title: ProbEqkSource</p>
- * <p>Description: Class for Probabilistic earthquake source</p>
+ * <p>Description: Class for Probabilistic earthquake source.
+ * Note that the tectonicRegionType must be one of the options given by the TYPE_* options in the class
+ * org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam, and the default here is the
+ * TYPE_ACTIVE_SHALLOW option in that class.  Subclasses must override this in the constructor,
+ *  or users can change the value using the setTectonicRegion() method here.</p>
  *
  * @author Ned Field, Nitin Gupta, Vipin Gupta
  * @date Aug 27, 2002
@@ -24,6 +28,9 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
    * Name of this class
    */
   protected String name = new String("ProbEqkSource");
+  
+  // This represents the tectonic region type for this source (as well as the default)
+  private String tectonicRegionType = TectonicRegionTypeParam.TYPE_ACTIVE_SHALLOW;
 
 
   /**
@@ -350,6 +357,22 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
 	  else
 		  throw new RuntimeException("drawRandomEqkRuptures(): Non poissonsources are not yet supported");
 	  return rupList;
+  }
+  
+  public String getTectonicRegionType() {
+	  return tectonicRegionType;
+  }
+  
+  /**
+   * This allows one to change the default tectonic-region type.  The value must be one of those
+   * defined by the TYPE_* fields of the class org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam.
+   * @param tectonicRegionType
+   */
+  protected void setTectonicRegionType(String tectonicRegionType) {
+	  if(TectonicRegionTypeParam.isTypePotentiallySupported(tectonicRegionType))
+		  this.tectonicRegionType=tectonicRegionType;
+	  else
+		  throw new RuntimeException("Type not supported");
   }
 
 

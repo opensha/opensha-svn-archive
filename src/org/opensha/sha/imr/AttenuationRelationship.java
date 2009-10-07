@@ -47,6 +47,7 @@ import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
+import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistRupMinusDistX_OverRupParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistRupMinusJB_OverRupParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
@@ -235,6 +236,7 @@ public abstract class AttenuationRelationship
   protected SigmaTruncTypeParam sigmaTruncTypeParam = null;
   protected SigmaTruncLevelParam sigmaTruncLevelParam = null;
   protected ComponentParam componentParam = null;
+  protected TectonicRegionTypeParam tectonicRegionTypeParam = null;
   
   /**
    * Earthquake Rupture related parameters
@@ -773,17 +775,23 @@ public abstract class AttenuationRelationship
    * in, or computed from, the site or eqkRutpure objects.  Note that this does not
    * include the exceedProbParam (which exceedance probability does not depend on).
    * sigmaTruncTypeParam and sigmaTruncLevelParam are instantiated here and added
-   * to the otherParams list (others should be implemented as desired in subclasses)
+   * to the otherParams list (others should be implemented as desired in subclasses).
+   * The tectonicRegionTypeParam is also instantiated here with default options 
+   * (TYPE_ACTIVE_SHALLOW); this should be overridden in subclass if other options 
+   * are desired (and you'll need use the replaceParameter method to change the one in the
+   * otherParams list).
    */
   protected void initOtherParams() {
 
 	  sigmaTruncTypeParam = new SigmaTruncTypeParam();
 	  sigmaTruncLevelParam = new SigmaTruncLevelParam();
-
+	  tectonicRegionTypeParam = new TectonicRegionTypeParam();
+	  
 	  // Put parameters in the otherParams list:
 	  otherParams.clear();
 	  otherParams.addParameter(sigmaTruncTypeParam);
 	  otherParams.addParameter(sigmaTruncLevelParam);
+	  otherParams.addParameter(tectonicRegionTypeParam);
   }
 
   /**

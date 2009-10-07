@@ -301,7 +301,7 @@ public class HazardCurveCalculator extends UnicastRemoteObject
     		currRuptures += source.getNumRuptures();  //update progress bar for skipped ruptures
     		continue;
     	}
-    	System.out.println(" dist: " + distance);
+    	//System.out.println(" dist: " + distance);
 
     	// get magThreshold if we're to use the mag-dist cutoff filter
     	if(includeMagDistFilter) {

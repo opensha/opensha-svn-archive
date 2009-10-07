@@ -79,5 +79,12 @@ public interface EqkSourceAPI extends NamedObjectAPI{
     * @return
     */
    public EvenlyGriddedSurfaceAPI getSourceSurface();
+   
+   /**
+    * This identifies the type of tectonic region the source is associate with.  
+    * This should return one of the TYPE_* variables defined in the class
+    * org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
+    */
+   public String getTectonicRegionType();
 
 }
