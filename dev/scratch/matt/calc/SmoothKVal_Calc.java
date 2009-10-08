@@ -1,5 +1,6 @@
 package scratch.matt.calc;
 
+import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.calc.RelativeLocation;
@@ -92,7 +93,7 @@ public class SmoothKVal_Calc {
       nodePerc = new double[numLocs];
 
       //get the iterator of all the locations within that region
-      ListIterator it = aftershockZone.getGridLocationsIterator();
+      Iterator<Location> it = aftershockZone.getNodeList().iterator();
       int ind = 0;
       int numFaultPoints = faultTrace.size();
       double totDistFromFault = 0;
@@ -100,7 +101,7 @@ public class SmoothKVal_Calc {
         nodeDistFromFault[ind++] = RelativeLocation.getApproxHorzDistToLine(
         		faultTrace.getLocationAt(0),
         		faultTrace.getLocationAt(numFaultPoints),
-        		(Location) it.next());
+        		it.next());
         totDistFromFault = totDistFromFault +
             Math.pow(nodeDistFromFault[ind - 1], 2.0);
       }

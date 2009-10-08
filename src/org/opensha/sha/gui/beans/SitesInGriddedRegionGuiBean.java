@@ -308,10 +308,10 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 * @return
 	 */
 	public Iterator<Site> getSitesClone() {
-		ListIterator lIt=gridRegion.getRegion().getGridLocationsIterator();
-		ArrayList newSiteVector=new ArrayList();
+		Iterator<Location> lIt = gridRegion.getRegion().getNodeList().iterator();
+		ArrayList<Site> newSiteVector=new ArrayList<Site>();
 		while(lIt.hasNext())
-			newSiteVector.add(new Site((Location)lIt.next()));
+			newSiteVector.add(new Site(lIt.next()));
 
 		ListIterator it  = parameterList.getParametersIterator();
 		// clone the paramters

@@ -8,6 +8,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
@@ -336,14 +337,14 @@ public class ScenarioShakeMapCalculator {
    * @param griddedRegionSites
    * @return
    */
-  private ArrayList getSitesLat(SitesInGriddedRegion sites){
+  private ArrayList<Double> getSitesLat(SitesInGriddedRegion sites){
     //getting the gridded Locations list iterator
-    ListIterator it= sites.getRegion().getGridLocationsIterator();
+    Iterator<Location> it = sites.getRegion().getNodeList().iterator();
 
     //Adding the Latitudes to the ArrayLists for lats
-    ArrayList sitesLat = new ArrayList();
+    ArrayList<Double> sitesLat = new ArrayList<Double>();
     while(it.hasNext())
-      sitesLat.add(new Double(((Location)it.next()).getLatitude()));
+      sitesLat.add(it.next().getLatitude());
    return  sitesLat;
   }
 
@@ -352,14 +353,14 @@ public class ScenarioShakeMapCalculator {
    * @param griddedRegionSites
    * @return
    */
-  private ArrayList getSitesLon(SitesInGriddedRegion sites){
+  private ArrayList<Double> getSitesLon(SitesInGriddedRegion sites){
     //getting the gridded Locations list iterator
      //iterating over the locations iterator in the reverse order to get the Longitudes.
-    ListIterator it= sites.getRegion().getGridLocationsIterator();
+    Iterator<Location> it = sites.getRegion().getNodeList().iterator();
     //Adding the Longitudes to the ArrayLists for lons
-    ArrayList sitesLon = new ArrayList();
+    ArrayList<Double> sitesLon = new ArrayList<Double>();
     while(it.hasNext())
-      sitesLon.add(new Double(((Location)it.next()).getLongitude()));
+      sitesLon.add(it.next().getLongitude());
     return sitesLon;
   }
 

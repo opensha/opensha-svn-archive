@@ -115,14 +115,14 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
         // Iterate over each Location in Fault Trace
         // Calculate distance, cumulativeDistance and azimuth for
         // each segment
-        ListIterator it = faultTrace.listIterator();
-        firstLoc = (Location)it.next();
+        Iterator<Location> it = faultTrace.iterator();
+        firstLoc = it.next();
         lastLoc = firstLoc;
         Location loc = null;
         Direction dir = null;
         while( it.hasNext() ){
 
-            loc = (Location)it.next();
+            loc = it.next();
             dir = RelativeLocation.getDirection(lastLoc, loc);
 
             double azimuth = dir.getAzimuth();
@@ -288,9 +288,9 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
         // check the faultTrace data
         if( faultTrace == null ) throw new FaultException(C + "Fault Trace is null");
 
-        ListIterator it=faultTrace.listIterator();
+        Iterator<Location> it = faultTrace.iterator();
         while(it.hasNext()) {
-          if(((Location)it.next()).getDepth() != depth){
+          if(it.next().getDepth() != depth){
             throw new FaultException(C + "All depths of faultTrace locations must be same as the first depth in the depths ArrayList");
           }
         }

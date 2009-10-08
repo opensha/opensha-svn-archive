@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.Location;
@@ -132,9 +133,9 @@ public abstract class EvenlyGriddedSurfFromSimpleFaultData
         if(depth > upperSeismogenicDepth)
                 throw new FaultException(C + "depth on faultTrace locations must be < upperSeisDepth");
 
-        ListIterator it=faultTrace.listIterator();
+        Iterator<Location> it = faultTrace.iterator();
         while(it.hasNext()) {
-          if(((Location)it.next()).getDepth() !=depth){
+          if(it.next().getDepth() != depth){
             throw new FaultException(C + ":All depth on faultTrace locations must be equal");
           }
         }

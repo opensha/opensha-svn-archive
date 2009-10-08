@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.calc.RelativeLocation;
@@ -400,7 +401,6 @@ public class ERF2RuptureForSTF_Generator {
     locList.addLocation(new Location(34.5895,-117.8481 ));//Lovejoy Buttes*/
 
 
-    ListIterator it = locList.listIterator();
     FileWriter fw = null;
     try {
       fw = new FileWriter("Sites_1_DistanceBounds_Cybershake.txt");
@@ -411,8 +411,9 @@ public class ERF2RuptureForSTF_Generator {
     double regionMinLat=Double.POSITIVE_INFINITY,regionMaxLat=Double.NEGATIVE_INFINITY,
     regionMinLon=Double.POSITIVE_INFINITY,regionMaxLon=Double.NEGATIVE_INFINITY;
     
+    Iterator<Location> it = locList.iterator();
     while (it.hasNext()) {
-      Location loc = (Location) it.next();
+      Location loc = it.next();
 
       //creating the Site object
       Site site = new Site(loc);

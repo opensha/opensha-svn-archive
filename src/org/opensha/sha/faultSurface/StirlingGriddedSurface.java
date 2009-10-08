@@ -144,14 +144,14 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
         // Iterate over each Location in Fault Trace
         // Calculate distance, cumulativeDistance and azimuth for
         // each segment
-        ListIterator it = faultTrace.listIterator();
-        firstLoc = (Location)it.next();
+        Iterator<Location> it = faultTrace.iterator();
+        firstLoc = it.next();
         lastLoc = firstLoc;
         Location loc = null;
         Direction dir = null;
         while( it.hasNext() ){
 
-            loc = (Location)it.next();
+            loc = it.next();
             dir = RelativeLocation.getDirection(lastLoc, loc);
 
             double azimuth = dir.getAzimuth();

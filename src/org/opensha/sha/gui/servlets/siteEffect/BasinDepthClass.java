@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
@@ -28,7 +29,7 @@ public final class BasinDepthClass {
 
 
   //ArrayList for computing the lat and lons for the given gridded region
-  ArrayList locations ;
+  ArrayList<Location> locations ;
   String basinDepthFile;
   boolean loadFromJar = false;
   /**
@@ -76,14 +77,14 @@ public final class BasinDepthClass {
                                       double maxLat, double gridSpacing) throws
       RegionConstraintException {
 
-    locations = new ArrayList();
+    locations = new ArrayList<Location>();
     //GriddedRegion region = new GriddedRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
     GriddedRegion region = new GriddedRegion(
     		new Location(minLat, minLon),
     		new Location(maxLat, maxLon),
     		gridSpacing, new Location(0,0));
 
-    ListIterator it= region.getGridLocationsIterator();
+    Iterator<Location> it = region.getNodeList().iterator();
     while(it.hasNext())
       locations.add(it.next());
   }

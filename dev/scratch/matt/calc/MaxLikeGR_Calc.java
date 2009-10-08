@@ -1,7 +1,9 @@
 package scratch.matt.calc;
 
+import java.util.Iterator;
 import java.util.ListIterator;
 
+import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
@@ -135,7 +137,7 @@ public class MaxLikeGR_Calc {
    * calc_GROnGrid
    */
   private static void calc_GROnGrid(GriddedRegion gridNodes, ObsEqkRupList eventList){
-    ListIterator gridIt = gridNodes.getGridLocationsIterator();
+	  Iterator<Location> gridIt = gridNodes.getNodeList().iterator();
     int numNodes = gridNodes.getNodeCount();
     //I DO THIS TWICE - ABOVE PUBLIC W/O THE SIZE DEC?!?!?!
     double[] grid_aVal = new double[numNodes];

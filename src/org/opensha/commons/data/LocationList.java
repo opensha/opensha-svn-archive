@@ -128,7 +128,7 @@ public class LocationList implements java.io.Serializable, XMLSaveable, Iterable
      *
      * @return    Description of the Return Value
      */
-    public ListIterator<Location> listIterator() { return locations.listIterator(); }
+    //public ListIterator<Location> listIterator() { return locations.listIterator(); }
 
 
     /**  Removes all Locations from this list */
@@ -167,16 +167,17 @@ public class LocationList implements java.io.Serializable, XMLSaveable, Iterable
 
     private final static String TAB = "  ";
     /** Helper debugging method that prints out all Locations in this list */
-    public String toString(){
+    @Override
+	public String toString(){
 
         StringBuffer b = new StringBuffer();
         b.append('\n');
         b.append(TAB + "Size = " + size());
 
-        ListIterator it = listIterator();
+        Iterator<Location> it = iterator();
         while( it.hasNext() ){
 
-            Location location = (Location)it.next();
+            Location location = it.next();
             b.append(TAB + location.toString());
         }
         return b.toString();
@@ -189,9 +190,9 @@ public class LocationList implements java.io.Serializable, XMLSaveable, Iterable
      */
     public double getHorzDistToClosestLocation(Location loc) {
       double min = Double.MAX_VALUE, temp;
-      Iterator it = this.listIterator();
+      Iterator<Location> it = iterator();
       while(it.hasNext()) {
-        temp = RelativeLocation.getHorzDistance(loc,(Location) it.next());
+        temp = RelativeLocation.getHorzDistance(loc,it.next());
         if (temp < min) min = temp;
       }
       return min;
@@ -215,8 +216,8 @@ public class LocationList implements java.io.Serializable, XMLSaveable, Iterable
 
 		LocationList locList = (LocationList) obj;
 
-		ListIterator it = locList.listIterator();
-		ListIterator it1 = listIterator();
+		Iterator<Location> it = locList.iterator();
+		Iterator<Location> it1 = iterator();
 
 		if (size() != locList.size()) {
 			return -1;
@@ -225,8 +226,8 @@ public class LocationList implements java.io.Serializable, XMLSaveable, Iterable
 		Location loc = null;
 		Location loc1 = null;
 		while (it.hasNext()) {
-			loc = (Location) it.next();
-			loc1 = (Location) it1.next();
+			loc = it.next();
+			loc1 = it1.next();
 			compareFlag = loc.equals(loc1);
 			if (compareFlag == false) {
 				break;
@@ -299,8 +300,9 @@ public class LocationList implements java.io.Serializable, XMLSaveable, Iterable
     	return locs;
     }
 
+	/* implementation */
 	public Iterator<Location> iterator() {
-		return this.listIterator();
+		return locations.iterator();
 	}
 	
 	public ArrayList<LocationList> split(int pieceSize) {

@@ -3,6 +3,7 @@ package org.opensha.sha.earthquake.griddedForecast;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.TimeZone;
 
@@ -185,7 +186,7 @@ public class STEP_CombineForecastModels
 		  //int gLoop = 0;
 		  
 		  // is this correct to be iterating over region, an EvenlyGriddedAPI??
-		  ListIterator gridIt = getRegion().getGridLocationsIterator();
+		  //Iterator<Location> gridIt = getRegion().getNodeList().iterator();
 		  
 		  //while ( gridIt.hasNext() ){
 		  for (int gLoop = 0; gLoop < numGridNodes; gLoop++){

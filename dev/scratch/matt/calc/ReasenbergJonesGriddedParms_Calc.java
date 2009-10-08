@@ -1,6 +1,7 @@
 package scratch.matt.calc;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.Location;
@@ -129,7 +130,7 @@ public class ReasenbergJonesGriddedParms_Calc {
    */
   private void calc_RJParmsOnGrid(GriddedRegion gridNodes,
                                   ObsEqkRupList eventList){
-    ListIterator gridIt = gridNodes.getGridLocationsIterator();
+    Iterator<Location> gridIt = gridNodes.getNodeList().iterator();
     int numNodes = gridNodes.getNodeCount();
     grid_aVal = new double[numNodes];
     grid_bVal = new double[numNodes];
@@ -138,7 +139,7 @@ public class ReasenbergJonesGriddedParms_Calc {
     grid_cVal = new double[numNodes];
     grid_Mc = new double[numNodes];
 
-    ListIterator eventIt = eventList.listIterator();
+    //ListIterator eventIt = eventList.listIterator();
     int numEvents = eventList.size();
     double[] eventDist = new double[numEvents];
     //double searchRadius;
@@ -159,7 +160,7 @@ public class ReasenbergJonesGriddedParms_Calc {
 
     while (gridIt.hasNext()) {
       Region gridRegion =
-          new Region((Location)gridIt.next(),this.searchRadius);
+          new Region(gridIt.next(),this.searchRadius);
       ObsEqkRupList regionList = eventList.getObsEqkRupsInside(gridRegion);
 
       // Calculate the completeness of the events selected for the node and remove

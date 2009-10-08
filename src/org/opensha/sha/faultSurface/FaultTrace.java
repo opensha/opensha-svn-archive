@@ -1,5 +1,6 @@
 package org.opensha.sha.faultSurface;
 
+import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.calc.RelativeLocation;
@@ -48,11 +49,11 @@ public class FaultTrace extends LocationList implements NamedObjectAPI {
      */
     public double getTraceLength() {
       double totLength = 0;
-      ListIterator it = this.listIterator();
-      Location lastLoc = (Location)it.next();
+      Iterator<Location> it = iterator();
+      Location lastLoc = it.next();
       Location loc = null;
       while( it.hasNext() ){
-        loc = (Location)it.next();
+        loc = it.next();
         totLength += RelativeLocation.getHorzDistance(lastLoc, loc);
         lastLoc = loc;
       }
@@ -65,12 +66,12 @@ public class FaultTrace extends LocationList implements NamedObjectAPI {
      */
     public double getAveStrike() {
       double totLength = 0, length=0;
-      ListIterator it = this.listIterator();
-      Location lastLoc = (Location)it.next();
+      Iterator<Location> it = iterator();
+      Location lastLoc = it.next();
       Location loc = null;
       double aveStrike=0;
       while( it.hasNext() ){
-        loc = (Location)it.next();
+        loc = it.next();
         length = RelativeLocation.getHorzDistance(lastLoc, loc);
         aveStrike += RelativeLocation.getAzimuth(lastLoc, loc) * length;
         totLength += length;

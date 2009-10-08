@@ -1,5 +1,6 @@
 package scratch.matt.calc;
 
+import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.calc.RelativeLocation;
@@ -38,14 +39,14 @@ public final class DistDecayFromRupCalc {
     nodePerc = new double[numLocs];
 
     //get the iterator of all the locations within that region
-    ListIterator zoneIT = aftershockZone.getGridLocationsIterator();
+    Iterator<Location> zoneIT = aftershockZone.getNodeList().iterator();
     int ind = 0;
     double totDistFromFault = 0;
 
     // get the summed squared distance to all nodes from the fault trace
     while (zoneIT.hasNext()) {
       nodeDistFromFault[ind++] =
-          faultTrace.getHorzDistToClosestLocation( (Location) zoneIT.next());
+          faultTrace.getHorzDistToClosestLocation( zoneIT.next());
       totDistFromFault = totDistFromFault +
           Math.pow(nodeDistFromFault[ind - 1], decayParam);
     }
@@ -74,7 +75,7 @@ public final class DistDecayFromRupCalc {
     double[] nodePerc = null;
 
     //get the iterator of all the locations within that region
-    ListIterator zoneIT = aftershockZone.getGridLocationsIterator();
+    Iterator<Location> zoneIT = aftershockZone.getNodeList().iterator();
     int ind = 0;
     double totDistFromFault = 0;
     double sumInvDist = 0;
@@ -89,8 +90,8 @@ public final class DistDecayFromRupCalc {
       pointRupture = mainshock.getHypocenterLocation();
       while (zoneIT.hasNext()) {
         nodeDistFromFault[ind++] =
-            RelativeLocation.getApproxHorzDistance(pointRupture,
-            (Location) zoneIT.next());
+            RelativeLocation.getApproxHorzDistance(
+            		pointRupture, zoneIT.next());
         totDistFromFault = totDistFromFault +
             Math.pow(nodeDistFromFault[ind - 1], decayParam);
       }
@@ -101,7 +102,7 @@ public final class DistDecayFromRupCalc {
       EvenlyGriddedSurfaceAPI ruptureSurface = mainshock.getRuptureSurface();
 
       while (zoneIT.hasNext()) {
-    	  gLoc = (Location) zoneIT.next();
+    	  gLoc = zoneIT.next();
     	  if (gLoc!=null){
     		  nodeDistFromFault[ind++] = getRupDist(ruptureSurface,gLoc);
                                         //      (Location) zoneIT.next());

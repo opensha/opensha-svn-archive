@@ -315,9 +315,10 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	 * TODO kill; users can get this once they've gotten the location list
 	 * @return an iterator
 	 */
-	public ListIterator<Location> getGridLocationsIterator() {
-		return nodeList.listIterator();
-	}
+//	public ListIterator<Location> getGridLocationsIterator() {
+//		return nodeList.listIterator();
+//	}
+	
 	/* implementation: iterator traverses bitset of valid nodes */
 	public Iterator<Location> iterator() {
 		
@@ -653,26 +654,28 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	 */
 	public static void main(String[] args) {
 		
-		//TODO use this as indexing test
-		LocationList ll = new LocationList();
-		ll.addLocation(new Location(35.0,-123.8));
-		ll.addLocation(new Location(35.0,-123.4));
-		ll.addLocation(new Location(35.4,-123.0));
-		ll.addLocation(new Location(35.8,-123.0));
-		ll.addLocation(new Location(37.0,-124.2));
-		ll.addLocation(new Location(37.0,-124.6));
-		ll.addLocation(new Location(36.6,-125.0));
-		ll.addLocation(new Location(36.2,-125.0));
-		GriddedRegion eggr = new GriddedRegion(
-				ll, null, 0.5, null);
 		
-		ToStringBuilder tsb = new ToStringBuilder(eggr.gridIndices).append(eggr.gridIndices);
-		System.out.println(tsb.toString());
 		
-		CaliforniaRegions.RELM_GRIDDED crg = new CaliforniaRegions.RELM_GRIDDED();
-		Location tmp = new Location(42.7,-125.2);
-		System.out.println(tmp);
-		System.out.println(crg.contains(tmp));
+//		//TODO use this as indexing test
+//		LocationList ll = new LocationList();
+//		ll.addLocation(new Location(35.0,-123.8));
+//		ll.addLocation(new Location(35.0,-123.4));
+//		ll.addLocation(new Location(35.4,-123.0));
+//		ll.addLocation(new Location(35.8,-123.0));
+//		ll.addLocation(new Location(37.0,-124.2));
+//		ll.addLocation(new Location(37.0,-124.6));
+//		ll.addLocation(new Location(36.6,-125.0));
+//		ll.addLocation(new Location(36.2,-125.0));
+//		GriddedRegion eggr = new GriddedRegion(
+//				ll, null, 0.5, null);
+//		
+//		ToStringBuilder tsb = new ToStringBuilder(eggr.gridIndices).append(eggr.gridIndices);
+//		System.out.println(tsb.toString());
+//		
+//		CaliforniaRegions.RELM_GRIDDED crg = new CaliforniaRegions.RELM_GRIDDED();
+//		Location tmp = new Location(42.7,-125.2);
+//		System.out.println(tmp);
+//		System.out.println(crg.contains(tmp));
 
 //		PathIterator pi = crg.area.getPathIterator(null);
 //		// an Area throws a double[] at a GeneralPath. The PathIterator provided
