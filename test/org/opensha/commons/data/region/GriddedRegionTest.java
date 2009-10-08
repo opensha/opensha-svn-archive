@@ -1,45 +1,87 @@
 package org.opensha.commons.data.region;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.RegionUtils.Color;
 
-public class EvenlyGriddedGeographicRegionTest {
+public class GriddedRegionTest {
 
-	@Before
-	public void setUp() throws Exception {
-	}
+	// octagonal region
+	static GriddedRegion octRegion;
 
-	@After
-	public void tearDown() throws Exception {
+	@BeforeClass
+	public static void setUp(){
+		LocationList ll = new LocationList();
+		ll.addLocation(new Location(25,-115));
+		ll.addLocation(new Location(25,-110));
+		ll.addLocation(new Location(30,-105));
+		ll.addLocation(new Location(35,-105));
+		ll.addLocation(new Location(40,-110));
+		ll.addLocation(new Location(40,-115));
+		ll.addLocation(new Location(35,-120));
+		ll.addLocation(new Location(30,-120));
+		octRegion  = new GriddedRegion(ll, null, 0.2, GriddedRegion.ANCHOR_0_0);
 	}
 
 	@Test
-	public final void testEvenlyGriddedGeographicRegionLocationLocationDouble() {
+	public final void testGriddedRegionLocationLocationDoubleLocation() {
 		
 		fail("Not yet implemented: test of set spacing");
 	}
 
 	@Test
-	public final void testEvenlyGriddedGeographicRegionLocationListBorderTypeDouble() {
+	public final void testGriddedRegionLocationListBorderTypeDoubleLocation() {
+		
+		// test serialization
+		try {
+			// write it
+			File objPersist = new File("test_serilaize.obj");
+			ObjectOutputStream out = new ObjectOutputStream(
+					new FileOutputStream(objPersist));
+	        out.writeObject(octRegion);
+	        out.close();
+	        // read it
+	        ObjectInputStream in = new ObjectInputStream(
+					new FileInputStream(objPersist));
+	        Region r_in = (Region) in.readObject();
+	        in.close();
+	        assertTrue(octRegion.equals(r_in));
+	        objPersist.delete();
+		} catch (IOException ioe) {
+			fail("Serialization Failed: " + ioe.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			fail("Deserialization Failed: " + cnfe.getMessage());
+		}
+
+		//fail("Not yet implemented");
+	}
+
+	@Test
+	public final void testGriddedRegionLocationDoubleDoubleLocation() {
 		fail("Not yet implemented");
 	}
 
 	@Test
-	public final void testEvenlyGriddedGeographicRegionLocationDoubleDouble() {
+	public final void testGriddedRegionLocationListDoubleDoubleLocation() {
 		fail("Not yet implemented");
 	}
 
 	@Test
-	public final void testEvenlyGriddedGeographicRegionLocationListDoubleDouble() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public final void testEvenlyGriddedGeographicRegionGeographicRegionDouble() {
+	public final void testGriddedRegionGeographicRegionDoubleLocation() {
 		fail("Not yet implemented");
 	}
 
@@ -66,8 +108,8 @@ public class EvenlyGriddedGeographicRegionTest {
 	@Test
 	public final void testSubRegion() {
 		GriddedRegion eggr = new GriddedRegion(
-				GeographicRegionTest.circRegion, 0.5, null);
-		Region gr = GeographicRegionTest.lgRectMercRegion;
+				RegionTest.circRegion, 0.5, null);
+		Region gr = RegionTest.lgRectMercRegion;
 		
 		fail("Not yet implemented");
 	}
@@ -76,8 +118,8 @@ public class EvenlyGriddedGeographicRegionTest {
 		
 		
 		GriddedRegion sreg = new GriddedRegion(
-				GeographicRegionTest.lgRectMercRegion, 0.5, null);
-		Region gr = sreg.subRegion(GeographicRegionTest.circRegion);
+				RegionTest.lgRectMercRegion, 0.5, null);
+		Region gr = sreg.subRegion(RegionTest.circRegion);
 		RegionUtils.regionToKML(gr, "SubRegion_circRectSub", Color.RED);
 		
 		

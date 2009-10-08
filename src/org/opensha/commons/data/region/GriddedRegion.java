@@ -49,7 +49,6 @@ import org.opensha.commons.exceptions.InvalidRangeException;
  * the Location defined by the minimum latitude and longitude of the region's
  * border.<br/>
  * <br/>
- * TODO rename to GriddedRegion
  * <br/>
  * 
  * @author Nitin Gupta
@@ -59,8 +58,7 @@ import org.opensha.commons.exceptions.InvalidRangeException;
  * @see Region
  */
 
-public class GriddedRegion extends Region
-		implements Iterable<Location> {
+public class GriddedRegion extends Region implements Iterable<Location> {
 
 	private static final long serialVersionUID = 1L;
 //	private final static String C = "GriddedRegion";
@@ -130,7 +128,7 @@ public class GriddedRegion extends Region
 	 * <b>Note:</b> In an exception to the rules of insidedness defined
 	 * in the {@link Shape} interface, <code>Location</code>s that fall on
 	 * northern or eastern borders of this region are considered inside. See 
-	 * {@link Region#GeographicRegion(Location, Location)} for
+	 * {@link Region#Region(Location, Location)} for
 	 * implementation details.
 	 * 
 	 * @param loc1 the first <code>Location</code>
@@ -143,7 +141,7 @@ public class GriddedRegion extends Region
 	 * 		</code> &le; 5&deg;
 	 * @throws NullPointerException if either <code>Location</code> argument
 	 * 		is <code>null</code>
-	 * @see Region#GeographicRegion(Location, Location)
+	 * @see Region#Region(Location, Location)
 	 */
 	public GriddedRegion(
 			Location loc1, 
@@ -170,7 +168,7 @@ public class GriddedRegion extends Region
 	 * 		range 0&deg; &lt; <code>spacing</code> &le; 5&deg;
 	 * @throws NullPointerException if the <code>border</code> is 
 	 * 		<code>null</code>
-	 * @see Region#GeographicRegion(LocationList, BorderType)
+	 * @see Region#Region(LocationList, BorderType)
 	 */
 	public GriddedRegion(
 			LocationList border, 
@@ -207,7 +205,7 @@ public class GriddedRegion extends Region
 	 * 		</code> is outside the range 0&deg; &lt; <code>spacing</code> 
 	 * 		&le; 5&deg;
 	 * @throws NullPointerException if <code>center</code> is null
-	 * @see Region#GeographicRegion(Location, double)
+	 * @see Region#Region(Location, double)
 	 */
 	public GriddedRegion(
 			Location center, 
@@ -242,7 +240,7 @@ public class GriddedRegion extends Region
 	 * 		range 0 km &lt; <code>buffer</code> &le; 500 km or <code>spacing
 	 * 		</code> is outside the range 0&deg; &lt; <code>spacing</code> 
 	 * 		&le; 5&deg;
-	 * @see Region#GeographicRegion(LocationList, double)
+	 * @see Region#Region(LocationList, double)
 	 */
 	public GriddedRegion(
 			LocationList line, 
@@ -264,7 +262,7 @@ public class GriddedRegion extends Region
 	 * 		</code> is outside the range 0&deg; &lt; <code>spacing</code> 
 	 * 		&le; 5&deg;
 	 * @throws NullPointerException if <code>region</code> is <code>null</code>
-	 * @see Region#GeographicRegion(Region)
+	 * @see Region#Region(Region)
 	 */
 	public GriddedRegion(
 			Region region, 
@@ -450,6 +448,15 @@ public class GriddedRegion extends Region
 	}
 
 	/**
+	 * Returns the total number of grid nodes in this region.
+	 * @return the number of grid nodes
+	 * TODO rename to getNodeCount; could get size of location list
+	 */
+	public int getNumGridLocs() {
+		return nodeCount;
+	}
+
+	/**
 	 * Returns whether this region contains any grid nodes. If a regions
 	 * dimensions are smaller than the grid spacing, it may be empty.
 	 * @return <code>true</code> if region has no grid nodes; 
@@ -459,13 +466,19 @@ public class GriddedRegion extends Region
 		return nodeCount == 0;
 	}
 	
-	/**
-	 * Returns the total number of grid nodes in this region.
-	 * @return the number of grid nodes
-	 * TODO rename to getNodeCount; could get size of location list
+    /**
+     * Returns whether this <code>GriddedRegion</code> and another are of equal 
+     * aerial extent and have the same set of grid nodes.
+     * 
+     * @param gr the <code>Region</code> to compare this <code>Region</code> to
+     * @return <code>true</code> if the two Regions are the same;
+     *		<code>false</code> otherwise.
 	 */
-	public int getNumGridLocs() {
-		return nodeCount;
+	public boolean equals(GriddedRegion gr) {
+		if (!super.equals(gr)) return false;
+		if (!anchor.equals(gr.anchor)) return false;
+		if (spacing != gr.spacing) return false;
+		return true;
 	}
 
 	/**

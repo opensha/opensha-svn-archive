@@ -6,6 +6,9 @@ import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import org.apache.commons.math.util.MathUtils;
@@ -302,6 +305,7 @@ public class Region implements
 
 	/**
 	 * Tests whether another region is entirely contained within this region.
+	 * 
 	 * @param region to check
 	 * @return <code>true</code> if this contains the <code>region</code>; 
 	 * 		<code>false</code> otherwise
@@ -315,10 +319,23 @@ public class Region implements
 	/**
 	 * Returns whether this region is rectangular in shape when represented in
 	 * a Mercator projection.
+	 * 
 	 * @return <code>true</code> if rectangular, <code>false</code> otherwise
 	 */
 	public boolean isRectangular() {
 		return area.isRectangular();
+	}
+	
+    /**
+     * Returns whether this <code>Region</code> and another are of equal 
+     * aerial extent.
+     * 
+     * @param r the <code>Region</code> to compare this <code>Region</code> to
+     * @return <code>true</code> if the two Regions are the same;
+     *		<code>false</code> otherwise.
+	 */
+	public boolean equals(Region r) {
+		return area.equals(r.area);
 	}
 	
 	/*
@@ -521,6 +538,7 @@ public class Region implements
 		return str;
 	}
 
+	
 //	public static void main(String[] args) {
 //		Area ar =
 //				new Area(new Polygon(
@@ -693,7 +711,7 @@ public class Region implements
 	 */
 	private void initCircularRegion(Location center, double radius) {
 		border = createLocationCircle(center, radius);
-		area = createArea(this.border);
+		area = createArea(border);
 	}
 	
 	/*
@@ -831,5 +849,17 @@ public class Region implements
 		return ll;
 		//return Collections.unmodifiableList(ll); TODO uncomment
 	}
+	
+	 private void writeObject(ObjectOutputStream os) throws IOException {
+		 os.writeObject(name);
+		 os.writeObject(border);
+	 }
+	 
+     private void readObject(ObjectInputStream is) throws IOException, 
+     		ClassNotFoundException {
+    	 name = (String)  is.readObject();
+    	 border = (LocationList) is.readObject();
+    	 area = createArea(border);
+     }
 
 }

@@ -6,15 +6,22 @@ import static org.junit.Assert.fail;
 
 import java.awt.geom.Area;
 import java.awt.geom.PathIterator;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.RegionUtils.Color;
 
-public class GeographicRegionTest {
+public class RegionTest {
 	
 	// TODO need to test immutability of border
 
@@ -54,11 +61,8 @@ public class GeographicRegionTest {
 	// circle-smRect union
 	static Region circSmRectUnion;
 	
-	
-	// static initializer is used for this test class because main(), which
-	// is used to generate kml files for visual verification of results and
-	// and as coordinate data source for tests
-	static {
+	@BeforeClass
+	public static void setUp() {
 		LocationList ll = new LocationList();
 		ll.addLocation(new Location(25,-115));
 		ll.addLocation(new Location(25,-110));
@@ -100,18 +104,9 @@ public class GeographicRegionTest {
 		circSmRectIntersect = Region.intersect(circRegion, smRectRegion);
 		circSmRectUnion = Region.intersect(circRegion, smRectRegion);
 	}
-	
-	@Before
-	public void setUp() throws Exception {
-		
-	}
-
-	@After
-	public void tearDown() throws Exception {
-	}
 
 	@Test
-	public final void testGeographicRegionLocationLocation() {
+	public final void testRegionLocationLocation() {
 		
 		// initialization tests
 		Location L1 = new Location(32,112);
@@ -136,10 +131,32 @@ public class GeographicRegionTest {
 		LocationList ll1 = smRectRegion.getRegionOutline();
 		LocationList ll2 = createLocList(regionLocLocDat);
 		assertTrue(ll1.compareTo(ll2) == 0);
+		
+		// test serialization
+		try {
+			// write it
+			File objPersist = new File("test_serilaize.obj");
+			ObjectOutputStream out = new ObjectOutputStream(
+					new FileOutputStream(objPersist));
+	        out.writeObject(octRegion);
+	        out.close();
+	        // read it
+	        ObjectInputStream in = new ObjectInputStream(
+					new FileInputStream(objPersist));
+	        Region r_in = (Region) in.readObject();
+	        in.close();
+	        assertTrue(octRegion.equals(r_in));
+	        objPersist.delete();
+		} catch (IOException ioe) {
+			fail("Serialization Failed: " + ioe.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			fail("Deserialization Failed: " + cnfe.getMessage());
+		}
+		
 	}
 
 	@Test
-	public final void testGeographicRegionLocationListBorderType() {
+	public final void testRegionLocationListBorderType() {
 		// null args
 		LocationList ll = new LocationList();
 		try {
@@ -176,7 +193,7 @@ public class GeographicRegionTest {
 	}
 
 	@Test
-	public final void testGeographicRegionLocationDouble() {
+	public final void testRegionLocationDouble() {
 		Location L1 = new Location();
 		try {
 			L1 = null;
@@ -201,7 +218,7 @@ public class GeographicRegionTest {
 	}
 
 	@Test
-	public final void testGeographicRegionLocationListDouble() {
+	public final void testRegionLocationListDouble() {
 		LocationList ll = new LocationList();
 		try {
 			Region gr = new Region(ll, 50);
@@ -229,7 +246,7 @@ public class GeographicRegionTest {
 	}
 
 	@Test
-	public final void testGeographicRegionGeographicRegion() {
+	public final void testRegionGeographicRegion() {
 		assertTrue("No test needed", true);
 	}
 
@@ -350,6 +367,10 @@ public class GeographicRegionTest {
 	}
 
 	public static void main(String[] args) {
+		
+		RegionTest rt = new RegionTest();
+		rt.setUp();
+		
 		// The code below was used to create KML files for visual verification
 		// of regions. The border vertices were then culled from the KML and 
 		// are stored in arrays (below) for use in this test class
@@ -373,6 +394,7 @@ public class GeographicRegionTest {
 		RegionUtils.regionToKML(circLgRectUnion,"RegionCircleRectUnion",Color.ORANGE);
 		RegionUtils.regionToKML(smRectLgRectIntersect,"RegionSmRectLgRectIntersect",Color.ORANGE); 
 		RegionUtils.regionToKML(smRectLgRectUnion,"RegionSmRectLgRectUnion",Color.ORANGE);
+		
 	}
 	
 	/* debugging utility method to read Area coordinates */
