@@ -38,7 +38,7 @@ public class EmpiricalModel  implements java.io.Serializable {
 	 private  double getCorrection(Location loc) {
 		 int numPolygons = empiricalModelDataFetcher.getNumRegions();
 		 for(int i=0; i<(numPolygons-1); ++i) { //loop over all empirical regions except rest of california
-			 if(empiricalModelDataFetcher.getRegion(i).isLocationInside(loc))
+			 if(empiricalModelDataFetcher.getRegion(i).contains(loc))
 				 return empiricalModelDataFetcher.getRate(i);
 		 }
 		 // return for rest of California

@@ -268,7 +268,7 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
 		  // get num surface points inside region
 		  Iterator locIt = tempRup.getRuptureSurface().getLocationsIterator();
 		  while(locIt.hasNext()) {
-			  if(region.isLocationInside((Location)locIt.next())) ++numLocsInside;
+			  if(region.contains((Location)locIt.next())) ++numLocsInside;
 			  ++totPoints;
 		  }
 	  } else {
@@ -302,13 +302,13 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
 		  Location loc1 = rupSurface.getLocation(0, 0);
 		  Location loc2 = rupSurface.getLocation(0, rupSurface.getNumCols()-1);
 		  // if both surface points are within region, rupture is considered within region
-		  if(region.isLocationInside(loc1) && region.isLocationInside(loc2)) {
+		  if(region.contains(loc1) && region.contains(loc2)) {
 			  numLocsInside=1;
 			  totPoints = numLocsInside;
 		  } else { // if both points are not within region, calculate rupProb
 			  Iterator locIt =	rupSurface.getColumnIterator(0);
 			  while(locIt.hasNext()) {
-				  if(region.isLocationInside((Location)locIt.next())) ++numLocsInside;
+				  if(region.contains((Location)locIt.next())) ++numLocsInside;
 				  ++totPoints;
 			  }
 		  }

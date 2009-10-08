@@ -1191,7 +1191,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 	   while(it.hasNext()) {
 		   ptSrc = (Point2Vert_SS_FaultPoisSource)it.next();
 		   // check whether point source is inside region (from rup surf since loc not saved)
-		   if (relmRegion.isLocationInside(ptSrc.getRupture(0).getRuptureSurface().getLocation(0, 0)))
+		   if (relmRegion.contains(ptSrc.getRupture(0).getRuptureSurface().getLocation(0, 0)))
 			   for(int rup=0; rup<ptSrc.getNumRuptures(); ++rup) {
 				   ProbEqkRupture rupture = ptSrc.getRupture(rup);
 				   summedDist.add(rupture.getMag(), -Math.log(1-rupture.getProbability())/duration);
@@ -1236,7 +1236,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 	    		 pointsInsideRegion=0;
 	    		 while(it.hasNext()) {
 	    			 ++totalRupPoints;
-	    			 if(region.isLocationInside((Location)it.next())) ++pointsInsideRegion;
+	    			 if(region.contains((Location)it.next())) ++pointsInsideRegion;
 	    		 }
 	    		 charSummedMFD.addResampledMagRate(rupture.getMag(), (double)pointsInsideRegion/(double)totalRupPoints * -Math.log(1-rupture.getProbability())/duration, true);
 	    	 }
@@ -1252,7 +1252,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 	    		 pointsInsideRegion=0;
 	    		 while(it.hasNext()) {
 	    			 ++totalRupPoints;
-	    			 if(region.isLocationInside((Location)it.next())) ++pointsInsideRegion;
+	    			 if(region.contains((Location)it.next())) ++pointsInsideRegion;
 	    		 }
 	    		 grSummedMFD.addResampledMagRate(rupture.getMag(),  (double)pointsInsideRegion/(double)totalRupPoints * -Math.log(1-rupture.getProbability())/duration, true);
 	    	 }
@@ -1265,7 +1265,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 	    	 ProbEqkSource source = (ProbEqkSource) frankCast.frankelBackgrSeisSources.get(i);
 	    	 for(int rup=0; rup<source.getNumRuptures(); ++rup) {
 	    		 ProbEqkRupture rupture = source.getRupture(rup);
-	    		 if (region.isLocationInside(rupture.getRuptureSurface().getLocation(0, 0)))
+	    		 if (region.contains(rupture.getRuptureSurface().getLocation(0, 0)))
 	    			 backSummedMFD.addResampledMagRate(rupture.getMag(), -backCorr*Math.log(1-rupture.getProbability())/duration, true);
 	    	 }
 	     }

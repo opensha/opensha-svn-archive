@@ -37,7 +37,7 @@ public class CreateSubsetBox {
 				double lat = Double.parseDouble(st.nextToken().trim());
 				double lon = Double.parseDouble(st.nextToken().trim());
 				Location loc = new Location(lat,lon);
-				if(region.isLocationInside(loc)){
+				if(region.contains(loc)){
 					fw.write((String)fileLines.get(i)+"\n");
 				}
 			}

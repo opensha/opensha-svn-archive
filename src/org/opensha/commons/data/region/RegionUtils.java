@@ -70,7 +70,7 @@ public class RegionUtils {
 		e_open.addText("1");
 		
 		addBorder(e_folder, region);
-		addPoints(e_folder, "Border Nodes", region.getRegionOutline(), 
+		addPoints(e_folder, "Border Nodes", region.getBorder(), 
 				Style.BORDER_VERTEX);
 		
 		if (region instanceof GriddedRegion) {
@@ -119,7 +119,7 @@ public class RegionUtils {
 	
 	// create lat-lon data string
 	private static String parseBorderCoords(Region region) {
-		LocationList ll = region.getRegionOutline();
+		LocationList ll = region.getBorder();
 		StringBuffer sb = new StringBuffer(NL);
 		//System.out.println("parseBorderCoords: "); // TODO clean
 		for (Location loc: ll) {

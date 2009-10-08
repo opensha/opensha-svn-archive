@@ -634,7 +634,7 @@ public  class ERF2DB implements ERF2DBAPI{
 				Location loc = region.getGridLocation(i);
 				circular = new Region(loc, CybershakeSiteInfo2DB.CUT_OFF_DISTANCE);
 
-				if (circular.isLocationInside(ptLoc)) {
+				if (circular.contains(ptLoc)) {
 					System.out.println("Took " + ((System.currentTimeMillis() - startTime) / 1000d) + " secs to FIND...inserting rupture...");
 					return true;
 				}

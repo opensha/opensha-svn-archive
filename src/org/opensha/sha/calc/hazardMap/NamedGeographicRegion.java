@@ -28,7 +28,7 @@ public class NamedGeographicRegion extends Region implements NamedObjectAPI {
 	}
 
 	public Element toXMLMetadata(Element root) {
-		Region region = new Region(this.getRegionOutline(), BorderType.MERCATOR_LINEAR);
+		Region region = new Region(this.getBorder(), BorderType.MERCATOR_LINEAR);
 		
 		root = region.toXMLMetadata(root);
 		
@@ -44,12 +44,12 @@ public class NamedGeographicRegion extends Region implements NamedObjectAPI {
 		
 		String name = geographicElement.attributeValue("name");
 		
-		return new NamedGeographicRegion(region.getRegionOutline(), name);
+		return new NamedGeographicRegion(region.getBorder(), name);
 	}
 	
 	public static void main(String args[]) {
 		NamedGeographicRegion region = new NamedGeographicRegion(
-				new CaliforniaRegions.RELM_TESTING().getRegionOutline(), "Relm!");
+				new CaliforniaRegions.RELM_TESTING().getBorder(), "Relm!");
 		Document doc = XMLUtils.createDocumentWithRoot();
 		Element root = doc.getRootElement();
 		region.toXMLMetadata(root);

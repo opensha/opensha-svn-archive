@@ -51,7 +51,7 @@ public class EvenlyGriddedRegionToKML {
 //		GriddedRegion region = new GriddedRegion(RegionSaver.createCyberShakeRegion().getRegionOutline(), 0.108);
 		GriddedRegion region = 
 			new GriddedRegion(
-					RegionSaver.createCyberShakeRegion().getRegionOutline(), 
+					RegionSaver.createCyberShakeRegion().getBorder(), 
 					BorderType.MERCATOR_LINEAR, 
 					0.216,
 					new Location(0,0));

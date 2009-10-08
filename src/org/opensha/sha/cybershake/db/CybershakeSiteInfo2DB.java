@@ -206,7 +206,7 @@ public class CybershakeSiteInfo2DB {
 				boolean log = addLogFileName != null && addLogFileName.length() > 0;
 				while (it.hasNext()) {
 					Location ptLoc = (Location) it.next();
-					if (region.isLocationInside(ptLoc)) {
+					if (region.contains(ptLoc)) {
 						if (Cybershake_OpenSHA_DBApplication.timer) {
 							System.out.println("Found one inside at " + (System.currentTimeMillis() - start) + " milliseconds");
 						}
@@ -362,7 +362,7 @@ public class CybershakeSiteInfo2DB {
 	        //within the provided distance range then include the rupture in the list.
 	        while (it.hasNext()) {
 	          Location ptLoc = (Location) it.next();
-	          if (region.isLocationInside(ptLoc)) {
+	          if (region.contains(ptLoc)) {
 	            rupInside = true;
 	            break;
 	          }

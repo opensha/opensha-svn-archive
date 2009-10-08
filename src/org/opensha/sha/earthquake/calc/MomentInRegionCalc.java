@@ -44,7 +44,7 @@ public class MomentInRegionCalc {
 				while(it.hasNext()) {
 					Location loc = (Location)it.next();
 					++totRupLocs;
-					if(region.isLocationInside(loc)) ++rupLocsInside;
+					if(region.contains(loc)) ++rupLocsInside;
 				}
 				totMoment = totMoment + rupMoment*((double)rupLocsInside)/totRupLocs;
 			}

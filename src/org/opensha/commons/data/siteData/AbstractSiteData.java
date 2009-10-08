@@ -110,7 +110,7 @@ public abstract class AbstractSiteData<Element> implements SiteDataAPI<Element> 
 	}
 	
 	public boolean hasDataForLocation(Location loc, boolean checkValid) {
-		if (this.getApplicableRegion().isLocationInside(loc)) {
+		if (this.getApplicableRegion().contains(loc)) {
 			if (checkValid) {
 				try {
 					Element val = this.getValue(loc);

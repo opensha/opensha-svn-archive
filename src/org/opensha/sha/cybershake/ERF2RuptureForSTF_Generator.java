@@ -99,7 +99,7 @@ public class ERF2RuptureForSTF_Generator {
         //within the provided distance range then include the rupture in the list.
         while (it.hasNext()) {
           Location ptLoc = (Location) it.next();
-          if (region.isLocationInside(ptLoc)) {
+          if (region.contains(ptLoc)) {
             probEqkList.add(rupture.clone());
             break;
           }
@@ -194,7 +194,7 @@ public class ERF2RuptureForSTF_Generator {
             Location ptLoc = (Location) lit.next();
             //if any location of the rupture is within the cutt-off distance of
             //the site then include that rupture.
-            if(region.isLocationInside(ptLoc)) {
+            if(region.contains(ptLoc)) {
               //writing the source rupture index for the Site in the Site file
               siteFw.write(sourceIndex+"    "+rupIndex+"    "+ (float)rupture.getProbability()+
                            "    "+(float)rupture.getMag()+"\n");
@@ -255,7 +255,7 @@ public class ERF2RuptureForSTF_Generator {
         //within the provided distance range then include the rupture in the list.
         while (it.hasNext()) {
           Location ptLoc = (Location) it.next();
-          if (region.isLocationInside(ptLoc)) {
+          if (region.contains(ptLoc)) {
             ArrayList rupIndicesList = (ArrayList) probRupIdentifierList.get(new
                 Integer(sourceIndex));
             rupIndicesList.add(new Integer(rupIndex));
@@ -304,7 +304,7 @@ public class ERF2RuptureForSTF_Generator {
         //within the provided distance range then include the rupture in the list.
         while (it.hasNext()) {
           Location ptLoc = (Location) it.next();
-          if (region.isLocationInside(ptLoc)) {
+          if (region.contains(ptLoc)) {
             rupInside = true;
             break;
           }

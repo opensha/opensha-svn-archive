@@ -19,7 +19,7 @@ import org.opensha.commons.exceptions.InvalidRangeException;
  * A <code>GriddedRegion</code> is a <code>Region</code> that has been evenly
  * discretized in latitude and longitude. Each node in a gridded region
  * represents a small area that is an equal number of degrees in width and
- * height and is identified by a unique <code>Location</code> at the geographic
+ * height and is identified by a unique {@link Location} at the geographic
  * (lat-lon) center of the node. <img style="padding: 30px 40px; float: right;" 
  * src="{@docRoot}/img/gridded_regions_border.jpg"/> In the adjacent figure,
  * the heavy black line marks the border of the <code>Region</code> . The 
@@ -61,8 +61,6 @@ import org.opensha.commons.exceptions.InvalidRangeException;
 public class GriddedRegion extends Region implements Iterable<Location> {
 
 	private static final long serialVersionUID = 1L;
-//	private final static String C = "GriddedRegion";
-//	private final static boolean D = false;
 
 	public final static String XML_METADATA_NAME = "evenlyGriddedGeographicRegion";
 	public final static String XML_METADATA_GRID_SPACING_NAME = "spacing";
@@ -96,28 +94,6 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	// dimensions
 	private double spacing;
 	private int nodeCount;
-
-	//----------------------
-	//protected double spacing;
-
-//	// this makes the first lat and lon grid points nice in that niceMinLat/gridSpacing
-//	// is an integer and the point is within the polygon
-//	protected double niceMinLat;
-//	protected double niceMinLon;
-//
-//	//this makes the last lat and Lon grid points nice so that niceMaxLat/gridSpacing
-//	// is an integer
-//	protected double niceMaxLat;
-//	protected double niceMaxLon;
-
-//	//list of of location in the given region
-//	protected LocationList gridLocsList;
-//
-//	//This array stores the number of locations below a given latitude
-//	protected int[] locsBelowLat;
-//
-//	//List for storing each for a given latitude
-//	private ArrayList lonsPerLatList;
 
 	/**
 	 * Initializes a <code>GriddedRegion</code> from a pair of <code>
@@ -268,7 +244,7 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 			Region region, 
 			double spacing,
 			Location anchor) {
-		super(region.getRegionOutline(), BorderType.MERCATOR_LINEAR);
+		super(region.getBorder(), BorderType.MERCATOR_LINEAR);
 		initGrid(spacing, anchor);
 	}
 
@@ -278,7 +254,7 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	 * Class default constructor
 	 */
 	// TODO delete empty constructor
-	public GriddedRegion(){}
+	//public GriddedRegion(){}
 
 	/**
 	 * Class constructor that accepts the region boundary loactions and grid spacing for the
@@ -927,7 +903,7 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	public static GriddedRegion fromXMLMetadata(Element root) {
 		double gridSpacing = Double.parseDouble(root.attribute(GriddedRegion.XML_METADATA_GRID_SPACING_NAME).getValue());
 		Region geoRegion = Region.fromXMLMetadata(root.element(Region.XML_METADATA_NAME));
-		LocationList outline = geoRegion.getRegionOutline();
+		LocationList outline = geoRegion.getBorder();
 		Location xml_anchor = Location.fromXMLMetadata(root.element(XML_METADATA_ANCHOR_NAME).element(Location.XML_METADATA_NAME));
 
 //		if (geoRegion.isRectangular()) {
@@ -1032,7 +1008,7 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 			for (double lon:lonNodes) {
 				dummy.setLatitude(lat);
 				dummy.setLongitude(lon);
-				if (isLocationInside(dummy)) {
+				if (contains(dummy)) {
 					nodeList.addLocation(dummy.copy());
 					gridIndices[grid_idx] = node_idx++;
 				} else {
@@ -1136,7 +1112,7 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 		CaliforniaRegions.RELM_GRIDDED crg = new CaliforniaRegions.RELM_GRIDDED();
 		Location tmp = new Location(42.7,-125.2);
 		System.out.println(tmp);
-		System.out.println(crg.isLocationInside(tmp));
+		System.out.println(crg.contains(tmp));
 
 //		PathIterator pi = crg.area.getPathIterator(null);
 //		// an Area throws a double[] at a GeneralPath. The PathIterator provided

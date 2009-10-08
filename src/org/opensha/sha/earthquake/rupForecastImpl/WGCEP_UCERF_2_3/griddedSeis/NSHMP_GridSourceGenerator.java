@@ -332,7 +332,7 @@ public class NSHMP_GridSourceGenerator {
 				lon = Double.parseDouble(tokenizer.nextToken());
 				lat = Double.parseDouble(tokenizer.nextToken());
 				loc = new Location(lat, lon);
-				if(region.isLocationInside(loc))
+				if(region.contains(loc))
 					aValIndexForLocIndex[region.getNearestLocationIndex(loc)] = fileIndex;
 				latlonLine = regionFileBufferedReader.readLine();
 				fileIndex += 1;
@@ -534,7 +534,7 @@ public class NSHMP_GridSourceGenerator {
 		SummedMagFreqDist mfdAtLoc = new SummedMagFreqDist(UCERF2.MIN_MAG, maxMagAtLoc, numMags);
 		int numLocs = this.region.getNumGridLocs();
 		for(int i=0; i<numLocs; i++)
-			if(region==null || region.isLocationInside(this.region.getGridLocation(i))) {
+			if(region==null || region.contains(this.region.getGridLocation(i))) {
 				mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, C_ZONES_MAX_MAG, area1new_agrid[i], B_VAL, false), true);
 				mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, C_ZONES_MAX_MAG, area2new_agrid[i], B_VAL, false), true);
 				mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, C_ZONES_MAX_MAG, area3new_agrid[i], B_VAL, false), true);
@@ -565,7 +565,7 @@ public class NSHMP_GridSourceGenerator {
 		SummedMagFreqDist totMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
 		int numLocs = this.region.getNumGridLocs();
 		for(int locIndex=0; locIndex<numLocs; ++locIndex)
-			if(region==null || region.isLocationInside(this.region.getGridLocation(locIndex)))
+			if(region==null || region.contains(this.region.getGridLocation(locIndex)))
 				totMFD.addResampledMagFreqDist(getTotMFD_atLoc( locIndex,  includeC_zones, 
 						applyBulgeReduction,  applyMaxMagGrid, includeFixedRakeSources, true), true);
 		return totMFD;

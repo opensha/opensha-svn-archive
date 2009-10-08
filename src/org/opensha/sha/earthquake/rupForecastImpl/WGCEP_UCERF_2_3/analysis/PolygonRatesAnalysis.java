@@ -59,7 +59,7 @@ public class PolygonRatesAnalysis {
 		double rateRestOfRegion = totRate;
 		for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
 			Region polygon = empiricalModelFetcher.getRegion(regionIndex);
-			if(polygon.getRegionOutline()==null) continue;
+			if(polygon.getBorder()==null) continue;
 			rateInPoly = erf2GriddedSeisRatesCalc.getTotalSeisRateInRegion(MIN_MAG, ucerf2, polygon);
 			rateRestOfRegion-=rateInPoly;
 			System.out.println("Rate in region "+polygon.getName()+" is\t\t"+rateInPoly);
@@ -211,8 +211,8 @@ public class PolygonRatesAnalysis {
 			Location loc = nshmpGridSrcGen.getGriddedRegion().getGridLocation(i);
 			for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
 				Region polygon = empiricalModelFetcher.getRegion(regionIndex);
-				if(polygon.getRegionOutline()==null) continue;
-				if(polygon.isLocationInside(loc)) {
+				if(polygon.getBorder()==null) continue;
+				if(polygon.contains(loc)) {
 					++pointInEachPolygon[regionIndex];
 					break;
 				}
@@ -224,7 +224,7 @@ public class PolygonRatesAnalysis {
 		for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
 			Region polygon = empiricalModelFetcher.getRegion(regionIndex);
 			pointsOutsidePolygon-=pointInEachPolygon[regionIndex];
-			if(polygon.getRegionOutline()!=null)
+			if(polygon.getBorder()!=null)
 				fw.write(","+pointInEachPolygon[regionIndex]/(float)totPointsInRELM_Region);
 		}
 		fw.write(","+pointsOutsidePolygon/(float)totPointsInRELM_Region+"\n");
@@ -262,11 +262,11 @@ public class PolygonRatesAnalysis {
 		// iterate over all surface point locations
 		for(int ptIndex=0; ptIndex<numPoints; ++ptIndex) {
 			Location loc = surface.getLocation(0, ptIndex);
-			if(this.relmRegion.isLocationInside(loc)) ++totPointsInRELM_Region;
+			if(this.relmRegion.contains(loc)) ++totPointsInRELM_Region;
 			for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
 				Region polygon = empiricalModelFetcher.getRegion(regionIndex);
-				if(polygon.getRegionOutline()==null) continue;
-				if(polygon.isLocationInside(loc)) {
+				if(polygon.getBorder()==null) continue;
+				if(polygon.contains(loc)) {
 					++pointInEachPolygon[regionIndex];
 					break;
 				}

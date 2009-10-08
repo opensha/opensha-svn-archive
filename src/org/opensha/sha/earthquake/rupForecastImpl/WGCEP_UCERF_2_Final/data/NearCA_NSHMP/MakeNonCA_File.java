@@ -69,7 +69,7 @@ public class MakeNonCA_File {
 					StringTokenizer tokenizer = new StringTokenizer(locLine);
 					latitude = Double.parseDouble(tokenizer.nextToken().trim());
 					longitude = Double.parseDouble(tokenizer.nextToken().trim());
-					if(relmRegion.isLocationInside(new Location(latitude, longitude)))  isFaultInsideRELM = true;
+					if(relmRegion.contains(new Location(latitude, longitude)))  isFaultInsideRELM = true;
 				}
 
 				if(!isFaultInsideRELM) continue; // if this fault does not lie in RELM region, then move to next fault

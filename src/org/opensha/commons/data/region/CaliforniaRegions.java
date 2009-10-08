@@ -21,10 +21,10 @@ public class CaliforniaRegions {
 	// TODO each should probably implement 'named' interface
 	// TODO RELM_NOCAL/SOCAL minimally used; revisit; clean
 	
-	public static void main(String[] args) {
-		GriddedRegion rr = new RELM_GRIDDED();
-		System.out.println(rr.getNumGridLocs());
-	}
+//	public static void main(String[] args) {
+//		GriddedRegion rr = new RELM_GRIDDED();
+//		System.out.println(rr.getNumGridLocs());
+//	}
 	
 	private CaliforniaRegions() {};
 	

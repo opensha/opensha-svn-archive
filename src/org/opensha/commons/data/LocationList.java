@@ -269,7 +269,7 @@ public class LocationList implements java.io.Serializable, XMLSaveable, Iterable
 
       // TODO this should loop over the points and then only solve at the segment ??
       // loop over each line segment
-      for(int i = 1; i < size(); i++) {
+      for(int i=1; i<size(); i++) {
         temp = RelativeLocation.getApproxHorzDistToLine(getLocationAt(i-1),getLocationAt(i),loc);
         if (temp < min) min = temp;
       }

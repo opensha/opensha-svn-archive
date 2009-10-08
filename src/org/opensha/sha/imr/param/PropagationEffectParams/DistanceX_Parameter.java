@@ -181,7 +181,7 @@ public class DistanceX_Parameter
     			}
 
     			Region polygon = new Region(locsForRegion, BorderType.MERCATOR_LINEAR);
-    			boolean isInside = polygon.isLocationInside(siteLoc);
+    			boolean isInside = polygon.contains(siteLoc);
 
     			double distToExtendedTrace = locsForExtendedTrace.getMinHorzDistToLine(siteLoc);
 

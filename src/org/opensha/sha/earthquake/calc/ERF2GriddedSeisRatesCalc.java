@@ -312,7 +312,7 @@ for(int m=0;m<testFunc.getNum();m++)
 
         while (it.hasNext()) {
           Location ptLoc = (Location) it.next();
-          if (!region.isLocationInside(ptLoc))
+          if (!region.contains(ptLoc))
             continue;
           totalRate += ptRate;
         }
@@ -372,7 +372,7 @@ for(int m=0;m<testFunc.getNum();m++)
         while (it.hasNext()) {
           Location ptLoc = (Location) it.next();
           //discard the pt location on the rupture if outside the region polygon
-          if (!region.isLocationInside(ptLoc))
+          if (!region.contains(ptLoc))
             continue;
           String ruptureMag = magFormat.format(mag);
           magRateDist.set(Double.parseDouble(ruptureMag), ptRate);
@@ -561,7 +561,7 @@ for(int m=0;m<testFunc.getNum();m++)
         while (it.hasNext()) {
           Location ptLoc = (Location) it.next();
           // jump out if not inside region
-          if (!region.isLocationInside(ptLoc))
+          if (!region.contains(ptLoc))
             continue;
 
           if (isSourcePoission)

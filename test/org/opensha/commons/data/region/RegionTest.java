@@ -128,7 +128,7 @@ public class RegionTest {
 		} catch (NullPointerException npe) {}
 		
 		// region creation tests
-		LocationList ll1 = smRectRegion.getRegionOutline();
+		LocationList ll1 = smRectRegion.getBorder();
 		LocationList ll2 = createLocList(regionLocLocDat);
 		assertTrue(ll1.compareTo(ll2) == 0);
 		
@@ -180,14 +180,14 @@ public class RegionTest {
 		ll.addLocation(new Location(35,-125));
 		Region rectRegionStartRepeat = new Region(ll, null);
 		assertTrue("Repeated start point not clipped",
-				rectRegionStartRepeat.getRegionOutline().size() == 3);
+				rectRegionStartRepeat.getBorder().size() == 3);
 		
 		// region creation test
-		LocationList ll1 = lgRectMercRegion.getRegionOutline();
+		LocationList ll1 = lgRectMercRegion.getBorder();
 		LocationList ll2 = createLocList(regionLocListMercatorDat);
 		assertTrue(ll1.compareTo(ll2) == 0);
 		
-		ll1 = lgRectGCRegion.getRegionOutline();
+		ll1 = lgRectGCRegion.getBorder();
 		ll2 = createLocList(regionLocListGreatCircleDat);
 		assertTrue(ll1.compareTo(ll2) == 0);
 	}
@@ -212,7 +212,7 @@ public class RegionTest {
 		} catch (IllegalArgumentException iae) {}
 		
 		// region creation test
-		LocationList ll1 = circRegion.getRegionOutline();
+		LocationList ll1 = circRegion.getBorder();
 		LocationList ll2 = createLocList(regionCircularDat);
 		assertTrue(ll1.compareTo(ll2) == 0);
 	}
@@ -240,7 +240,7 @@ public class RegionTest {
 		} catch (NullPointerException npe) {}
 
 		// region creation test
-		LocationList ll1 = buffRegion.getRegionOutline();
+		LocationList ll1 = buffRegion.getBorder();
 		LocationList ll2 = createLocList(regionBufferDat);
 		assertTrue(ll1.compareTo(ll2) == 0);
 	}
@@ -262,11 +262,11 @@ public class RegionTest {
 		Location containsLoc2 = new Location(45.1,-115); // top edge
 		
 		// mercator
-		assertTrue(lgRectMercRegion.isLocationInside(containsLoc1));
-		assertTrue(!lgRectMercRegion.isLocationInside(containsLoc2));
+		assertTrue(lgRectMercRegion.contains(containsLoc1));
+		assertTrue(!lgRectMercRegion.contains(containsLoc2));
 		// great circle
-		assertTrue(!lgRectGCRegion.isLocationInside(containsLoc1));
-		assertTrue(lgRectGCRegion.isLocationInside(containsLoc2));
+		assertTrue(!lgRectGCRegion.contains(containsLoc1));
+		assertTrue(lgRectGCRegion.contains(containsLoc2));
 
 		// also need to test that the small offset added to 'rectangular'
 		// regions leads to inclusion of points that fall on the north and
@@ -278,15 +278,15 @@ public class RegionTest {
 		Location containsSloc = new Location(35,-115);
 		Location containsWloc = new Location(40,-125);
 		
-		assertTrue(rectRegionLocLoc.isLocationInside(containsEloc));
-		assertTrue(rectRegionLocLoc.isLocationInside(containsNloc));
-		assertTrue(rectRegionLocLoc.isLocationInside(containsSloc));
-		assertTrue(rectRegionLocLoc.isLocationInside(containsWloc));
+		assertTrue(rectRegionLocLoc.contains(containsEloc));
+		assertTrue(rectRegionLocLoc.contains(containsNloc));
+		assertTrue(rectRegionLocLoc.contains(containsSloc));
+		assertTrue(rectRegionLocLoc.contains(containsWloc));
 
-		assertTrue(!lgRectMercRegion.isLocationInside(containsEloc));
-		assertTrue(!lgRectMercRegion.isLocationInside(containsNloc));
-		assertTrue(lgRectMercRegion.isLocationInside(containsSloc));
-		assertTrue(lgRectMercRegion.isLocationInside(containsWloc));
+		assertTrue(!lgRectMercRegion.contains(containsEloc));
+		assertTrue(!lgRectMercRegion.contains(containsNloc));
+		assertTrue(lgRectMercRegion.contains(containsSloc));
+		assertTrue(lgRectMercRegion.contains(containsWloc));
 	}
 
 	@Test
@@ -322,7 +322,7 @@ public class RegionTest {
 	public final void testIntersect() {
 		LocationList ll1, ll2;
 		// partial overlap
-		ll1 = circLgRectIntersect.getRegionOutline();
+		ll1 = circLgRectIntersect.getBorder();
 		ll2 = createLocList(regionCircRectIntersectDat);
 		assertTrue(ll1.compareTo(ll2) == 0);
 		// full overlap - this could be tested by matching a statically 
@@ -330,7 +330,7 @@ public class RegionTest {
 		// have a tendency to change the winding direction of border in which
 		// case LocatonList.compareTo(LocationList) will fail, even though
 		// the borders polygons are the same
-		ll1 = smRectLgRectIntersect.getRegionOutline();
+		ll1 = smRectLgRectIntersect.getBorder();
 		ll2 = createLocList(regionSmRectLgRectIntersectDat);
 		assertTrue(ll1.compareTo(ll2) == 0);
 		// no overlap
@@ -341,7 +341,7 @@ public class RegionTest {
 	public final void testUnion() {
 		LocationList ll1, ll2;
 		// partial overlap
-		ll1 = circLgRectUnion.getRegionOutline();
+		ll1 = circLgRectUnion.getBorder();
 		ll2 = createLocList(regionCircRectUnionDat);
 		assertTrue(ll1.compareTo(ll2) == 0);
 		// full overlap - this could be tested by matching a statically 
@@ -349,7 +349,7 @@ public class RegionTest {
 		// have a tendency to change the winding direction of border in which
 		// case LocatonList.compareTo(LocationList) will fail, even though
 		// the borders polygons are the same
-		ll1 = smRectLgRectUnion.getRegionOutline();
+		ll1 = smRectLgRectUnion.getBorder();
 		ll2 = createLocList(regionSmRectLgRectUnionDat);
 		assertTrue(ll1.compareTo(ll2) == 0);
 		// no overlap

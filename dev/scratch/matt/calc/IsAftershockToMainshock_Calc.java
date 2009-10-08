@@ -67,7 +67,7 @@ public class IsAftershockToMainshock_Calc {
 
     // if it is accepting look and see if this event fits
     else {
-      this.isInZone = aftershockZone.isLocationInside(newEventLoc);
+      this.isInZone = aftershockZone.contains(newEventLoc);
 
       if (this.isInZone) {
         //if ( (double) mainshock.getMag() > (double) newEvent.getMag()) {

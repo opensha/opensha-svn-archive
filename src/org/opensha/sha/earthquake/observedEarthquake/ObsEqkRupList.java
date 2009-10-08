@@ -163,7 +163,7 @@ public class ObsEqkRupList implements java.io.Serializable{
     for (int i = 0; i < size; ++i) {
       ObsEqkRupture eqkRup = (ObsEqkRupture) obsEqkList.get(i);
       Location loc = eqkRup.getHypocenterLocation();
-      if(region.isLocationInside(loc))
+      if(region.contains(loc))
         obsEventList.addObsEqkEvent(eqkRup);
     }
     return obsEventList;
@@ -182,7 +182,7 @@ public class ObsEqkRupList implements java.io.Serializable{
     for (int i = 0; i < size; ++i) {
       ObsEqkRupture eqkRup = (ObsEqkRupture) obsEqkList.get(i);
       Location loc = eqkRup.getHypocenterLocation();
-      if (!region.isLocationInside(loc))
+      if (!region.contains(loc))
         obsEventList.addObsEqkEvent(eqkRup);
     }
     return obsEventList;

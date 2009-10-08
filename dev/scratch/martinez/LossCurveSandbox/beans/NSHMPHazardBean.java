@@ -291,23 +291,23 @@ public class NSHMPHazardBean extends AbstractHazardBean {
 		// The region for the current location...
 		String regionName = null;
 		
-		if(STATES_REGION.isLocationInside(location)) {
+		if(STATES_REGION.contains(location)) {
 			regionName = GlobalConstants.CONTER_48_STATES;
-		} else if (ALASKA_REGION.isLocationInside(location)) {
+		} else if (ALASKA_REGION.contains(location)) {
 			regionName = GlobalConstants.ALASKA;
-		} else if (HAWAII_REGION.isLocationInside(location)) {
+		} else if (HAWAII_REGION.contains(location)) {
 			regionName = GlobalConstants.HAWAII;
-		} else if (PUERTO_RICO_REGION.isLocationInside(location)) {
+		} else if (PUERTO_RICO_REGION.contains(location)) {
 			regionName = GlobalConstants.PUERTO_RICO;
-		} else if (CULEBRA_REGION.isLocationInside(location)) {
+		} else if (CULEBRA_REGION.contains(location)) {
 			regionName = GlobalConstants.CULEBRA;
-		} else if (ST_CROIX_REGION.isLocationInside(location)) {
+		} else if (ST_CROIX_REGION.contains(location)) {
 			regionName = GlobalConstants.ST_CROIX;
-		} else if (ST_JOHN_REGION.isLocationInside(location)) {
+		} else if (ST_JOHN_REGION.contains(location)) {
 			regionName = GlobalConstants.ST_JOHN;
-		} else if (ST_THOMAS_REGION.isLocationInside(location)) {
+		} else if (ST_THOMAS_REGION.contains(location)) {
 			regionName = GlobalConstants.ST_THOMAS;
-		} else if (VIEQUES_REGION.isLocationInside(location)) {
+		} else if (VIEQUES_REGION.contains(location)) {
 			regionName = GlobalConstants.VIEQUES;
 		}
 		return  regionName;

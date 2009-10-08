@@ -60,7 +60,7 @@ public abstract class GriddedHypoMagFreqDistForecast implements
 	 *          else false
 	 */
 	public boolean isLocWithinApplicableRegion(Location loc) {
-		return region.isLocationInside(loc);
+		return region.contains(loc);
 	}
 
 	/**

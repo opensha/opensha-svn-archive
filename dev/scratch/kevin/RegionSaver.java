@@ -17,7 +17,7 @@ import org.opensha.sha.calc.hazardMap.NamedGeographicRegion;
 public class RegionSaver {
 	
 	public static void saveRegion(Region region, String fileName, String name) throws IOException {
-		region = new NamedGeographicRegion(region.getRegionOutline(), name);
+		region = new NamedGeographicRegion(region.getBorder(), name);
 		
 		Document doc = XMLUtils.createDocumentWithRoot();
 		

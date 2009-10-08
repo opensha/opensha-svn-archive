@@ -27,7 +27,7 @@ public class SiteDataToXYZ {
 			String fileName) throws IOException {
 		GriddedRegion region =
 				new GriddedRegion(
-						data.getApplicableRegion().getRegionOutline(), BorderType.MERCATOR_LINEAR, gridSpacing, new Location(0,0));
+						data.getApplicableRegion().getBorder(), BorderType.MERCATOR_LINEAR, gridSpacing, new Location(0,0));
 		writeXYZ(data, region, fileName, true);
 	}
 	

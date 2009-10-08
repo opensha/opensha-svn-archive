@@ -37,6 +37,7 @@ import org.opensha.sha.earthquake.EqkRupture;
  * are approximated by multple straight line segments that have a maximum
  * length of 100km.<br/>
  * <br/>
+ * 
  * NOTE: At present, a <code>GeneralPath</code> is used internally when 
  * initializing a region's border. As of Java5 a <code>GeneralPath</code>
  * may only be initialized with <code>float</code>s. However the
@@ -50,11 +51,12 @@ import org.opensha.sha.earthquake.EqkRupture;
  * higher precision <code>GeneralPath2D</code>.
 
  * 
- * TODO make border immutable; collection.unmodifiablelist; make LocatioList 
- * extend arrayList, not wrap it. Perhaps when initing border, create new list
- * of immutable location objects and make the list itself immutable.
+ * TODO make border immutable; collection.unmodifiablelist; make LocationList 
+ * extend arrayList (?), not wrap it. Perhaps when initing border, create new 
+ * list of immutable location objects and make the list itself immutable.
  * <br/><br/>
- * <b>Note:</b> The current implementation does not support regions that are
+ * 
+ * <b>NOTE:</b> The current implementation does not support regions that are
  * intended to span &#177;180&deg;. Any such regions will wrap the
  * long way around the earth and results are undefined. This also applies to
  * regions that encircle either pole.
@@ -64,17 +66,16 @@ import org.opensha.sha.earthquake.EqkRupture;
  * @see Area
  * @see BorderType
  */
-public class Region implements 
-		Serializable, XMLSaveable, NamedObjectAPI {
+public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 
+	// TODO implement LocationList as extends ArrayList to facilitate unmodifiable list creation?
+	// TODO need to make copy of provided borders/LocLists
+	// TODO possibly kill region name
+	
 	private static final long serialVersionUID = 1L;
 
 	// although border vertices can be accessed by path-iterating over
 	// area, an immutable list is stored for convenience
-	//private List<Location> border;
-	// TODO implement LocationList  AL subclass changes to 
-	// facilitate unmodifiable list creation.
-	// TODO need to make copy of provided borders/LocLists
 	private LocationList border;
 	
 	// Internal representation of region
@@ -89,15 +90,10 @@ public class Region implements
 	public final static String XML_METADATA_NAME = "Region";
 	public final static String XML_METADATA_OUTLINE_NAME = "OutlineLocations";
 
-	// name for this region TODO possibly kill
 	private String name = "Unnamed Region";
 
-	/**
-	 * TODO delete default empty constructor; has about 8 dependencies
-	 * ACTUALLY, make private or package private; used by intersect(r1,r2)
-	 */
-	public Region() {
-	}
+	/* empty constructor for internal use */
+	private Region() {}
 
 	
 	/**
@@ -109,7 +105,7 @@ public class Region implements
 	 * <br/>
 	 * <b>Note:</b> Internally, a very small value (~1m) is added to the
 	 * maximum latitude and longitude of the locations provided. This
-	 * ensures that calls to {@link Region#isLocationInside(Location)} 
+	 * ensures that calls to {@link Region#contains(Location)} 
 	 * for any <code>Location</code> on the north or east border of the region 
 	 * will return <code>true</code>. See also the rules governing insidedness
 	 * in the {@link Shape} interface.
@@ -232,49 +228,32 @@ public class Region implements
 	 * @param region to use as border for new region
 	 */
 	public Region(Region region) {
-		this(region.getRegionOutline(), BorderType.MERCATOR_LINEAR);
+		this(region.getBorder(), BorderType.MERCATOR_LINEAR);
 	}
 	
 	/**
 	 * Initializes a <code>Region</code> around an earthquake rupture.
 	 * <br/>
-	 * TODO build me<br/>
-	 * TODO is there any kind of Rupture in OpenSHA that is not an EQ Rupture<br/>
+	 * TODO Build me: Note that previous partial implementations created
+	 * a buffered region around the border of an earthquake rupture. If the
+	 * buffer radius was less than half the width of the rupture a donut
+	 * resulted.<br/>
 	 * 
-	 * @param rupture
-	 * @param buffer
+	 * @param rupture to use as basis for <code>Region</code>
+	 * @param buffer distance to extend region from rupture border
+	 * @throws Exception due to not being implemented yet
 	 */
-	public Region(EqkRupture rupture, double buffer) {
-		
+	public Region(EqkRupture rupture, double buffer) throws Exception {
+		throw new Exception("Unimplemented constructor -- build me");
 	}
 	
-	/**
-	 * Creates a Geographic with the given list of locations.
-	 * 
-	 * @param locs LocationList
-	 * TODO rename and make private; kill
-	 */
-//	@Deprecated
-//	public void createGeographicRegion(LocationList locs) {
-//		border = locs;
-//
-//		// calls the private method of the class to precompute the min..max lat
-//		// & lon.
-//		//setMinMaxLatLon();
-//
-//		// create the polygon used for determining whether points are inside
-//		area = createArea(border);
-//
-//	}
 
-	// TODO add notes reagrding loss of precision. 
-	// Internally, a GeneralPath is used to represent a region's border.
-	// Under JRE1.5, only <code>float</code>s are allowed
 	/**
 	 * Returns whether the given <code>Location</code> is inside this region.
 	 * The determination follows the rules of insidedness defined in the 
 	 * {@link Shape} interface.<br/>
 	 * <br/>
+	 * 
 	 * NOTE: At present, a <code>GeneralPath</code> is used internally when 
 	 * initializing a region's border. As of Java5 a <code>GeneralPath</code>
 	 * may only be initialized with <code>float</code>s. However the
@@ -287,19 +266,12 @@ public class Region implements
 	 * This issue will be resolved with a move to Java6 which includes the
 	 * higher precision <code>GeneralPath2D</code>.
 	 * 
-	 * TODO rename contains()
-	 * 
 	 * @param loc the <code>Location</code> to test
 	 * @return <code>true</code> if the <code>Location</code> is inside the 
 	 * 		region, <code>false</code> otherwise
 	 * @see java.awt.Shape
 	 */
-	public boolean isLocationInside(Location loc) {
-
-//		if (poly.contains( TODO clean
-//				(int) (location.getLatitude() * DEGREES_TO_INT_FACTOR),
-//				(int) (location.getLongitude() * DEGREES_TO_INT_FACTOR)))
-//			return true;
+	public boolean contains(Location loc) {
 		return area.contains(loc.getLongitude(), loc.getLatitude());
 	}
 
@@ -384,84 +356,38 @@ public class Region implements
 		return MathUtils.round(val, RelativeLocation.LL_PRECISION);
 	}
 
-
-//	/**
-//	 * 
-//	 * @return the LocationList size
-//	 */
-//	public int getNumRegionOutlineLocations() {
-//		return border.size();
-//	}
-
 	/**
-	 * 
-	 * @returns the ListIterator to the LocationList
-	 */
-//	public ListIterator getRegionOutlineIterator() {
-//		return border.listIterator();
-//	}
-
-
-	/**
-	 * Returns an unmodifiable <code>java.util.List</code> view of the
+	 * Returns an unmodifiable {@link java.util.List} view of the
 	 * internal <code>LocationList</code> of points that decribe the border
 	 * of this region. Note that the <code>Location</code>s in the list
 	 * are also immutable.
-	 * @return the border <code>LocationList</code> TODO fix when changed
+	 * 
+	 * @return the immutable border <code>LocationList</code>
 	 */
-	public LocationList getRegionOutline() {
+	public LocationList getBorder() {
 		return border;
 		// TODO rename to getBorder()
 	}
 
 	/**
-	 * this method finds the minLat,maxLat,minLon and maxLon.
-	 */
-//	protected void setMinMaxLatLon() {
-//		ListIterator it = getRegionOutlineIterator();
-//		Location l = (Location) it.next();
-//		getMin = l.getLatitude();
-//		minLon = l.getLongitude();
-//		maxLat = l.getLatitude();
-//		maxLon = l.getLongitude();
-//		while (it.hasNext()) {
-//			l = (Location) it.next();
-//			if (l.getLatitude() < minLat) minLat = l.getLatitude();
-//			if (l.getLatitude() > maxLat) maxLat = l.getLatitude();
-//			if (l.getLongitude() < minLon) minLon = l.getLongitude();
-//			if (l.getLongitude() > maxLon) maxLon = l.getLongitude();
-//		}
-
-//		if (D)
-//			System.out.println(C + ": minLat=" + minLat + "; maxLat=" + maxLat
-//					+ "; minLon=" + minLon + "; maxLon=" + maxLon);
-//	}
-
-	/**
-	 * This computes the minimum horizonatal distance (km) from the location the
-	 * region outline. Zero is returned if the given location is inside the
-	 * polygon. This distance is approximate in that it uses the
-	 * RelativeLocation.getApproxHorzDistToLine(*) method to compute the
-	 * distance to each line segment in the region outline.
+	 * Returns the minimum horizonatal distance (in km) between the border of
+	 * this <code>Region</code> and the <code>Location</code> specified. If the
+	 * given <code>Location</code> is inside the region, the method returns
+	 * 0. The distance algorithm used only works well at short distances
+	 * (e.g. &lteq; 250 km).
 	 * 
-	 * @return
-	 * TODO clean, update
+	 * @param loc the Location to compute a distance to
+	 * @return the minimum distance between this region and a point
+	 * @see RelativeLocation#getApproxHorzDistToLine(Location, Location, Location)
 	 */
-	public double getMinHorzDistToRegion(Location loc) {
-		if (isLocationInside(loc))
-			return 0.0;
-		else {
-			double min = border.getMinHorzDistToLine(loc);
-			// now check the segment defined by the last and first points
-			double temp =
-					RelativeLocation.getApproxHorzDistToLine(border
-							.getLocationAt(border.size() - 1), border
-							.getLocationAt(0), loc);
-			if (temp < min)
-				return temp;
-			else
-				return min;
-		}
+	public double distanceToLocation(Location loc) {
+		if (contains(loc)) return 0;
+		double min = border.getMinHorzDistToLine(loc);
+		// check the segment defined by the last and first points
+		double temp = RelativeLocation.getApproxHorzDistToLine(
+				border.getLocationAt(border.size() - 1),
+				border.getLocationAt(0), loc);
+		return (temp < min) ? temp : min;
 	}
 
 	/* implementation */
@@ -477,56 +403,23 @@ public class Region implements
 		this.name = name;
 	}
 
+	/* implementation */
 	public Element toXMLMetadata(Element root) {
 		Element xml = root.addElement(Region.XML_METADATA_NAME);
-		LocationList list = this.getRegionOutline();
-		xml = list.toXMLMetadata(xml);
+		xml = border.toXMLMetadata(xml);
 		return root;
 	}
-
-	// TODO verify that that xml io is working
-	public static Region fromXMLMetadata(Element geographicElement) {
-		LocationList list =
-				LocationList.fromXMLMetadata(geographicElement
-						.element(LocationList.XML_METADATA_NAME));
+	
+	/**
+	 * Initializes a new <code>Region</code> from stored metadata.
+	 * @param e metadata element
+	 * @return a <code>Region</code>
+	 */
+	public static Region fromXMLMetadata(Element e) {
+		LocationList list = LocationList.fromXMLMetadata(
+				e.element(LocationList.XML_METADATA_NAME));
 		return new Region(list, BorderType.MERCATOR_LINEAR);
 	}
-
-	// TODO update
-	// will return true if region is a rectangle with boundaries parallel to 
-	// lines of latitude and longitude when viewed using a Mercator
-	// projection, 
-//	public boolean isRectangular() {
-//		if (this.border.size() == 4) { // it might be a rectangular region
-//			int minLatHits = 0;
-//			int maxLatHits = 0;
-//			int minLonHits = 0;
-//			int maxLonHits = 0;
-//
-//			double minLat = this.getMinLat();
-//			double maxLat = this.getMaxLat();
-//			double minLon = this.getMinLon();
-//			double maxLon = this.getMaxLon();
-//
-//			for (int i = 0; i < 4; i++) {
-//				Location loc = border.getLocationAt(i);
-//				double lat = loc.getLatitude();
-//				double lon = loc.getLongitude();
-//				if (lat == minLat)
-//					minLatHits++;
-//				else if (lat == maxLat) maxLatHits++;
-//
-//				if (lon == minLon)
-//					minLonHits++;
-//				else if (lon == maxLon) maxLonHits++;
-//			}
-//			// it is a rectangular region if the location list contains exactly
-//			// 2 of each min/max lat/lon
-//			if (minLatHits == 2 && maxLatHits == 2 && minLonHits == 2
-//					&& maxLonHits == 2) return true;
-//		}
-//		return false;
-//	}
 
 	@Override
 	public String toString() {
@@ -536,63 +429,6 @@ public class Region implements
 						+ "\tMaximum Lat: " + this.getMaxLat() + "\n"
 						+ "\tMaximum Lon: " + this.getMaxLon();
 		return str;
-	}
-
-	
-//	public static void main(String[] args) {
-//		Area ar =
-//				new Area(new Polygon(
-//						new int[] { -120, -115, -115, -118, -121 }, new int[] {
-//								40, 40, 44, 48, 46 }, 5));
-//		PathIterator pi = ar.getPathIterator(null);
-//		double[] vertex = new double[6];
-//		while (!pi.isDone()) {
-//			int segType = pi.currentSegment(vertex);
-//			System.out.println(segType);
-//			// StringBuffer sb = new StringBuffer();
-//			for (double v : vertex) {
-//				String s =
-//						new ToStringBuilder(vertex).append(vertex).toString();
-//				System.out.println(s);
-//			}
-//			System.out.println("----");
-//			pi.next();
-//		}
-//		System.out.println("\u00B1180&deg; \u00b1180&deg;");
-//		System.out.println(new Region(new LocationList(), null));
-//	}
-
-//	public Area getArea() {
-//		return area;
-//	}
-	public static void main(String[] args) {
-//		double tmp = 5.64352783407;
-//		Location loc = new Location(tmp,tmp,0);
-//		System.out.println(loc);
-//		
-//		DecimalFormat fmt1 = new DecimalFormat("0.0######");
-//		DecimalFormat fmt2 = new DecimalFormat("0.0#####");
-//		DecimalFormat fmt3 = new DecimalFormat("0.0####");
-//		System.out.println(MathUtils.round(tmp, RelativeLocation.LL_PRECISION));
-//		System.out.println(fmt1.format(tmp));
-//		System.out.println(fmt2.format(tmp));
-//		System.out.println(fmt3.format(tmp));
-//		System.out.println((float) tmp);
-		
-//		LocationList ll = new LocationList();
-//		ll.addLocation(new Location(40, -120));
-//		ll.addLocation(new Location(44, -120));
-//		ll.addLocation(new Location(44, -115));
-//		ll.addLocation(new Location(40, -115));
-//		System.out.println("-180\u00B0");
-//		
-//		Area ar =createArea(ll);
-//		System.out.println("-180\u00B0");
-//		LocationList ll2 = createBorder(ar);
-//		
-////		String s =
-////			new ToStringBuilder(vertex).append(vertex).toString();
-//		System.out.println("-180\u00B0");
 	}
 	
 	/**
@@ -652,6 +488,32 @@ public class Region implements
 	}
 	
 	/*
+	 * Creates a java.awt.geom.Area from a LocationList border
+	 * NOTE: see notes with LL_PRECISION
+	 */
+	private static Area createArea(LocationList border) {
+		
+		GeneralPath path = new GeneralPath(
+				GeneralPath.WIND_EVEN_ODD,
+				border.size());
+		
+		boolean starting = true;
+		for (Location loc: border) {
+			float lat = (float) loc.getLatitude();
+			float lon = (float) loc.getLongitude();
+			// if just starting, then moveTo
+			if (starting) {
+				path.moveTo(lon, lat);
+				starting = false;
+				continue;
+			}
+			path.lineTo(lon, lat);
+		}
+		path.closePath();
+		return new Area(path);
+	}
+	
+	/*
 	 * Initialize a region from a list of border locations. Internal
 	 * java.awt.geom.Area is generated from the border.
 	 */
@@ -676,7 +538,6 @@ public class Region implements
 				Location end = border.getLocationAt(i);
 				double distance = RelativeLocation.surfaceDistance(start, end);
 				// subdivide as necessary
-//				System.out.println("Vertex: " + i + "  Dist: " + distance); TODO clean
 				while (distance > GC_SEGMENT) {
 					// find new Location, GC_SEGMENT km away from start
 					double azRad = RelativeLocation.azimuthRad(start, end);
@@ -685,21 +546,14 @@ public class Region implements
 					gcBorder.addLocation(segLoc);
 					start = segLoc;
 					distance = RelativeLocation.surfaceDistance(start, end);
-//					System.out.println("             P1: " + start); //TODO clean
-//					System.out.println("             P2: " + end);
-//					System.out.println("           Dist: " + distance + "  Az: " + azRad);
 				}
 				start = end;
 			}
-			//this.border = Collections.unmodifiableList(gcBorder); TODO uncomment
+			//this.border = Collections.unmodifiableList(gcBorder);
 			this.border = gcBorder; // TODO comment
 		} else {
 			this.border = border;
 			//this.border = Collections.unmodifiableList(gcBorder); TODO uncomment
-			// TODO break long great circles into smaller segments and test
-			// TODO gc processing need to return to start point; ensure that input
-			// TODO make copy and then wrap unmodifiable
-			// border has start popint
 		}
 		area = createArea(this.border);
 	}
@@ -780,32 +634,6 @@ public class Region implements
 	}
 	
 	/*
-	 * Creates a java.awt.geom.Area from a LocationList border
-	 * NOTE: see notes with LL_PRECISION
-	 */
-	private static Area createArea(LocationList border) {
-		
-		GeneralPath path = new GeneralPath(
-				GeneralPath.WIND_EVEN_ODD,
-				border.size());
-		
-		boolean starting = true;
-		for (Location loc: border) {
-			float lat = (float) loc.getLatitude();
-			float lon = (float) loc.getLongitude();
-			// if just starting, then moveTo
-			if (starting) {
-				path.moveTo(lon, lat);
-				starting = false;
-				continue;
-			}
-			path.lineTo(lon, lat);
-		}
-		path.closePath();
-		return new Area(path);
-	}
-	
-	/*
 	 * Utility method returns a LocationList that approximates the 
 	 * circle represented by the center location and radius provided.
 	 */
@@ -861,5 +689,30 @@ public class Region implements
     	 border = (LocationList) is.readObject();
     	 area = createArea(border);
      }
+
+     // TODO clean
+// 	NOTE: see notes with LL_PRECISION
+//	   hold onto and revisit precision testing until after move to jdk6
+//	public static void main(String[] args) {
+//		double tmp = 5.64352783407;
+//		Location loc = new Location(tmp,tmp,0);
+//		System.out.println(loc);
+//		
+//		DecimalFormat fmt1 = new DecimalFormat("0.0######");
+//		DecimalFormat fmt2 = new DecimalFormat("0.0#####");
+//		DecimalFormat fmt3 = new DecimalFormat("0.0####");
+//		System.out.println(MathUtils.round(tmp, RelativeLocation.LL_PRECISION));
+//		System.out.println(fmt1.format(tmp));
+//		System.out.println(fmt2.format(tmp));
+//		System.out.println(fmt3.format(tmp));
+//		System.out.println((float) tmp);
+		
+//		LocationList ll = new LocationList();
+//		ll.addLocation(new Location(40, -120));
+//		ll.addLocation(new Location(44, -120));
+//		ll.addLocation(new Location(44, -115));
+//		ll.addLocation(new Location(40, -115));
+//		
+//	}
 
 }

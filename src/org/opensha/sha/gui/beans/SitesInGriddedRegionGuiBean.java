@@ -182,16 +182,16 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		// TODO these are circular see namedGeoRegion
 		
 		regions.add(new NamedGeographicRegion(
-				new CaliforniaRegions.RELM_TESTING().getRegionOutline(),
+				new CaliforniaRegions.RELM_TESTING().getBorder(),
 				RELM_TESTING_NAME));
 		regions.add(new NamedGeographicRegion(
-				new CaliforniaRegions.RELM_COLLECTION().getRegionOutline(),
+				new CaliforniaRegions.RELM_COLLECTION().getBorder(),
 				RELM_COLLECTION_NAME));
 		regions.add(new NamedGeographicRegion(
-				new CaliforniaRegions.RELM_SOCAL().getRegionOutline(),
+				new CaliforniaRegions.RELM_SOCAL().getBorder(),
 				SO_CAL_NAME));
 		regions.add(new NamedGeographicRegion(
-				new CaliforniaRegions.RELM_NOCAL().getRegionOutline(),
+				new CaliforniaRegions.RELM_NOCAL().getBorder(),
 				NO_CAL_NAME));
 
 		return regions;
@@ -397,7 +397,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		}
 		if (gridRegion != null) {
 			numSites.setValue(gridRegion.getRegion().getNumGridLocs());
-			LocationList locs = gridRegion.getRegion().getRegionOutline();
+			LocationList locs = gridRegion.getRegion().getBorder();
 			for (int i=0; i<locs.size(); i++) {
 				Location loc = locs.getLocationAt(i);
 				System.out.println(loc.getLatitude() + " " + loc.getLongitude());
@@ -480,7 +480,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 				if (name.equals(region.getName())) {
 					GriddedRegion eggr = 
 						new GriddedRegion(
-								region.getRegionOutline(), 
+								region.getBorder(), 
 								BorderType.MERCATOR_LINEAR, 
 								gridSpacingD, new Location(0,0));
 					gridRegion = new SitesInGriddedRegion(eggr);
