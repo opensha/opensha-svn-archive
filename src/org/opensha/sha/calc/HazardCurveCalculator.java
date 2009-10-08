@@ -5,6 +5,7 @@ package org.opensha.sha.calc;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.Location;
@@ -28,6 +29,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupFore
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
+import org.opensha.sha.util.TectonicRegionType;
 
 
 /**
@@ -196,6 +198,16 @@ public class HazardCurveCalculator extends UnicastRemoteObject
 			  annualizedRateFunc.set(i, - Math.log(1-annualizedRateFunc.getY(i))/years);
 		  }
 		  return annualizedRateFunc;
+	  }
+	  
+	  
+	  public DiscretizedFuncAPI getHazardCurve(
+			  DiscretizedFuncAPI hazFunction,
+              Site site,
+              Hashtable<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap, 
+              EqkRupForecastAPI eqkRupForecast) throws java.rmi.RemoteException{
+		  
+		  return hazFunction;
 	  }
   
 	  

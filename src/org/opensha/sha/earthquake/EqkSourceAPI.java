@@ -6,6 +6,7 @@ import java.util.Iterator;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.util.TectonicRegionType;
 
 /**
  * <p>Title: EqkSourceAPI</p>
@@ -85,6 +86,6 @@ public interface EqkSourceAPI extends NamedObjectAPI{
     * This should return one of the TYPE_* variables defined in the class
     * org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
     */
-   public String getTectonicRegionType();
+   public TectonicRegionType getTectonicRegionType();
 
 }

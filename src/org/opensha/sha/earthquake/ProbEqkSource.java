@@ -9,6 +9,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.region.Region;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
+import org.opensha.sha.util.TectonicRegionType;
 /**
  * <p>Title: ProbEqkSource</p>
  * <p>Description: Class for Probabilistic earthquake source.
@@ -30,7 +31,7 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
   protected String name = new String("ProbEqkSource");
   
   // This represents the tectonic region type for this source (as well as the default)
-  private String tectonicRegionType = TectonicRegionTypeParam.TYPE_ACTIVE_SHALLOW;
+  private TectonicRegionType tectonicRegionType = TectonicRegionType.ACTIVE_SHALLOW;
 
 
   /**
@@ -359,20 +360,21 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
 	  return rupList;
   }
   
-  public String getTectonicRegionType() {
+  /**
+   * This gets the TectonicRegionType for this source
+   */
+  public TectonicRegionType getTectonicRegionType() {
 	  return tectonicRegionType;
   }
+  
   
   /**
    * This allows one to change the default tectonic-region type.  The value must be one of those
    * defined by the TYPE_* fields of the class org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam.
    * @param tectonicRegionType
    */
-  protected void setTectonicRegionType(String tectonicRegionType) {
-	  if(TectonicRegionTypeParam.isTypePotentiallySupported(tectonicRegionType))
+  protected void setTectonicRegionType(TectonicRegionType tectonicRegionType) {
 		  this.tectonicRegionType=tectonicRegionType;
-	  else
-		  throw new RuntimeException("Type not supported");
   }
 
 
