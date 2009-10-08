@@ -8,8 +8,6 @@ import org.opensha.commons.data.Direction;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 
-import com.sun.j3d.internal.Distance;
-
 /**
  * This class contains utility methods to operate on geographic location data.
  * <br>
