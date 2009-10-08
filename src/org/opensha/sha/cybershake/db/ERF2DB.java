@@ -625,13 +625,13 @@ public  class ERF2DB implements ERF2DBAPI{
 
 		ListIterator it = rupSurface.getAllByRowsIterator();
 
-		int numLocs = region.getNumGridLocs();
+		int numLocs = region.getNodeCount();
 
 		while (it.hasNext()) {
 			Location ptLoc = (Location) it.next();
 
 			for (int i=0; i<numLocs; i++) {
-				Location loc = region.getGridLocation(i);
+				Location loc = region.locationForIndex(i);
 				circular = new Region(loc, CybershakeSiteInfo2DB.CUT_OFF_DISTANCE);
 
 				if (circular.contains(ptLoc)) {

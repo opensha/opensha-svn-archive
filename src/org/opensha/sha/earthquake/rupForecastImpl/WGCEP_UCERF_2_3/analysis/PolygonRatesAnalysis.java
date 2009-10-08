@@ -208,7 +208,7 @@ public class PolygonRatesAnalysis {
 		for(int i=0; i<area1new_agrid.length; ++i) {
 			if(area1new_agrid[i]==0) continue; // if the rate is 0 at this location
 			++totPointsInRELM_Region;
-			Location loc = nshmpGridSrcGen.getGriddedRegion().getGridLocation(i);
+			Location loc = nshmpGridSrcGen.getGriddedRegion().locationForIndex(i);
 			for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
 				Region polygon = empiricalModelFetcher.getRegion(regionIndex);
 				if(polygon.getBorder()==null) continue;

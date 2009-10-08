@@ -127,7 +127,7 @@ public abstract class GriddedHypoMagFreqDistForecast implements
 	 *       method
 	 */
 	public int getNumHypoLocs() {
-		return region.getNumGridLocs();
+		return region.getNodeCount();
 	}
 
 	/**

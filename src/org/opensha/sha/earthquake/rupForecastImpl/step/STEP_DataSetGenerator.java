@@ -129,7 +129,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       currentTime = System.currentTimeMillis();
       fw.write("Time to create Region Object :"+(currentTime - startTime)+"\n");
 
-      numSites = sites.getRegion().getNumGridLocs();
+      numSites = sites.getRegion().getNodeCount();
       latVals = new double[numSites];
       lonVals = new double[numSites];
 
@@ -153,7 +153,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       //if file does not already exists then create it.
       else{
         try{
-         ArrayList siteVals = ConnectToCVM.getWillsSiteTypeFromCVM(sites.getRegion().getGridLocationsList());
+         ArrayList siteVals = ConnectToCVM.getWillsSiteTypeFromCVM(sites.getRegion().getNodeList());
          int size = siteVals.size();
          willSiteClassVals = new String[size];
          for(int i=0;i<size;++i)
@@ -181,7 +181,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
                         "\t"+"MaxLat: "+sites.getRegion().getMaxLat()+"\n"+
                         "\t"+"MinLon: "+sites.getRegion().getMinLon()+"\n"+
                         "\t"+"MaxLon: "+sites.getRegion().getMaxLon()+"\n"+
-                        "\t"+"GridSpacing: "+sites.getRegion().getGridSpacing()+"\n"+
+                        "\t"+"GridSpacing: "+sites.getRegion().getSpacing()+"\n"+
                         "\t"+"Site Params: "+attenRel.getParameter(attenRel.WILLS_SITE_NAME).getName()+ " = "+attenRel.getParameter(attenRel.WILLS_SITE_NAME).getValue().toString()+"\n"+
                         "\n\n"+
                         "Forecast Info: \n"+
@@ -1363,7 +1363,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     // (e.g., all could be outside MAX_DISTANCE)
     boolean sourceUsed = false;
 
-    int numSites = sites.getRegion().getNumGridLocs();
+    int numSites = sites.getRegion().getNodeCount();
     for(int j=0;j<numSites;++j){
       double hazVal =1;
       double condProb =0;
@@ -1455,7 +1455,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       // (e.g., all could be outside MAX_DISTANCE)
       boolean sourceUsed = false;
 
-      int numSites = sites.getRegion().getNumGridLocs();
+      int numSites = sites.getRegion().getNodeCount();
       fw.write("NumSites: "+numSites+"\n");
       int numSourcesSkipped =0;
       long startCalcTime = System.currentTimeMillis();

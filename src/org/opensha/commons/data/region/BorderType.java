@@ -3,8 +3,9 @@ package org.opensha.commons.data.region;
 import org.opensha.commons.data.Location;
 
 /**
- * A <code>BorderType</code> is required for the initialization of some 
- * <code>Region</code>s.<br/>
+ * A <code>BorderType</code> specifies how lines connecting two points on the
+ * earth's surface should be represented. A <code>BorderType</code> is required
+ * for the initialization of some <code>Region</code>s.<br/>
  * <br/>
  * <img style="padding: 0px 80px; float: right;" 
  * src="{@docRoot}/img/border_differences.jpg"/>The adjacent figure shows that

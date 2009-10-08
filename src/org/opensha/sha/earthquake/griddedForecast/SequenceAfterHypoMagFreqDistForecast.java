@@ -55,7 +55,7 @@ public class SequenceAfterHypoMagFreqDistForecast
     this.afterShocks = aftershocks;
     this.aftershockZone = aftershockZone;
 
-    numGridLocs = aftershockZone.getNumGridLocs();
+    numGridLocs = aftershockZone.getNodeCount();
     grid_Seq_aVal = new double[numGridLocs];
     grid_Seq_bVal = new double[numGridLocs];
     grid_Seq_cVal = new double[numGridLocs];
@@ -101,7 +101,7 @@ public class SequenceAfterHypoMagFreqDistForecast
    * fillGridWithParms
    */
   public void fillGridWithSeqParms() {
-	numGridLocs =  getRegion().getNumGridLocs();
+	numGridLocs =  getRegion().getNodeCount();
 	  grid_Seq_aVal = new double[numGridLocs];
 	  grid_Seq_bVal = new double[numGridLocs];
 	  grid_Seq_cVal = new double[numGridLocs];
@@ -218,7 +218,7 @@ public class SequenceAfterHypoMagFreqDistForecast
       IncrementalMagFreqDist[] dist = new IncrementalMagFreqDist[1];
       dist[0] = GR_Dist;
       Location gridLoc;
-      gridLoc = getRegion().getGridLocation(gridIndex);
+      gridLoc = getRegion().locationForIndex(gridIndex);
       magDistLoc = new HypoMagFreqDistAtLoc(dist,
           gridLoc);
       return magDistLoc;

@@ -136,7 +136,7 @@ public class MaxLikeGR_Calc {
    */
   private static void calc_GROnGrid(GriddedRegion gridNodes, ObsEqkRupList eventList){
     ListIterator gridIt = gridNodes.getGridLocationsIterator();
-    int numNodes = gridNodes.getNumGridLocs();
+    int numNodes = gridNodes.getNodeCount();
     //I DO THIS TWICE - ABOVE PUBLIC W/O THE SIZE DEC?!?!?!
     double[] grid_aVal = new double[numNodes];
     double[] grid_bVal = new double[numNodes];

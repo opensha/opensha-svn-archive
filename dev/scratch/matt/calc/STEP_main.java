@@ -211,9 +211,9 @@ public class STEP_main {
 				//IncrementalMagFreqDist seqDist, bgDist;
 				double bgSumOver5, seqSumOver5;
 
-				LocationList bgLocList = bgGrid.getRegion().getGridLocationsList();
+				LocationList bgLocList = bgGrid.getRegion().getNodeList();
 				int bgRegionSize = bgLocList.size();
-				LocationList aftershockZoneList = forecastModel.getAfterShockZone().getGridLocationsList();
+				LocationList aftershockZoneList = forecastModel.getAfterShockZone().getNodeList();
 				int asZoneSize = aftershockZoneList.size();
 
 
@@ -548,7 +548,7 @@ public class STEP_main {
 
 		try{
 			FileWriter fr = new FileWriter(RegionDefaults.outputAftershockRatePath);
-			LocationList bgLocList = bggrid.getRegion().getGridLocationsList();			
+			LocationList bgLocList = bggrid.getRegion().getNodeList();			
 			int bgRegionSize = bgLocList.size();
 			log("bgRegionSize " + bgRegionSize);
 			//int hypoMagFreqDistSize = bggrid.getHypoMagFreqDist().size();

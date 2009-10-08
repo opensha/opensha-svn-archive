@@ -108,7 +108,7 @@ public class STEP_HazardDataSetTest  extends TestCase {
 		double[] stepBothProbVals = step_HazardDataSet.calcStepProbValues(sites);
 		//logger.info("stepBothProbVals "  + stepBothProbVals.length);		
 		int num = stepBothProbVals.length;
-		assertTrue(num == sites.getRegion().getNumGridLocs());
+		assertTrue(num == sites.getRegion().getNodeCount());
 		for(int i = 0 ; i < num; i++){
 			double totalVal = stepBothProbVals[i];
 			double bgVal = stepBothProbVals[i];

@@ -396,7 +396,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 			e.printStackTrace();
 		}
 		if (gridRegion != null) {
-			numSites.setValue(gridRegion.getRegion().getNumGridLocs());
+			numSites.setValue(gridRegion.getRegion().getNodeCount());
 			LocationList locs = gridRegion.getRegion().getBorder();
 			for (int i=0; i<locs.size(); i++) {
 				Location loc = locs.getLocationAt(i);

@@ -68,7 +68,7 @@ public class HazardMapMetadataJobCreator {
 		HazardMapJob job = this.loadJob(root, startDAG, endDAG, sites);
 		// get and create the output directory (and subdirs)
 		String outputDir = this.createDirs(job, restart, debug);
-		System.out.println("Loaded " + sites.getRegion().getNumGridLocs() + " sites!");
+		System.out.println("Loaded " + sites.getRegion().getNodeCount() + " sites!");
 		// save the ERF to a file if needed
 		if (job.getCalcParams().isSerializeERF()) {
 			this.saveERF(root, job, outputDir);

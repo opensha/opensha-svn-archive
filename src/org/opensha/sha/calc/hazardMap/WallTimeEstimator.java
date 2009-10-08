@@ -15,7 +15,7 @@ public class WallTimeEstimator {
 	
 	public static double calcTimePerCurve(EqkRupForecast erf, AttenuationRelationship attenRel,
 			SitesInGriddedRegion sites, ArbitrarilyDiscretizedFunc hazFunction, int numSamples) {
-		int numLocs = sites.getRegion().getNumGridLocs();
+		int numLocs = sites.getRegion().getNodeCount();
 		erf.updateForecast();
 		if (numLocs < numSamples) {
 			numSamples = numLocs;

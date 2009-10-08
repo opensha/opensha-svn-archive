@@ -241,7 +241,7 @@ public class HardcodedHazardMapCalculator implements ParameterChangeWarningListe
 			// hard coded indices
 			int startIndex = 0;
 			int endIndex = 10;
-			System.out.println("Doing sites " + startIndex + " to " + endIndex + " of " + sites.getRegion().getNumGridLocs());
+			System.out.println("Doing sites " + startIndex + " to " + endIndex + " of " + sites.getRegion().getNodeCount());
 			try {
 				System.err.println("RUNNING FROM DEBUG MODE!");
 				// run the calculator with debugging enabled

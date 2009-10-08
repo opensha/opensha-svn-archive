@@ -160,10 +160,10 @@ public class WriteRELM_FileFromGriddedHypoMFD_Forecast {
      // write the data lines
      fw.write(BEGIN_FORECAST+"\n");
      GriddedRegion region  = griddedHypoMFD.getRegion();
-     int numLocs  = region.getNumGridLocs();
+     int numLocs  = region.getNodeCount();
      double mag1, mag2; 
      double rate;
-     double gridSpacing = region.getGridSpacing();
+     double gridSpacing = region.getSpacing();
      
      // READ THE TEMPLATE FILE
      FileReader fr = new FileReader(TEMPLATE_FILENAME);
@@ -204,13 +204,13 @@ public class WriteRELM_FileFromGriddedHypoMFD_Forecast {
          Location loc3 = new Location(lat2, lon1);
          Location loc4 = new Location(lat2, lon2);
          
-         HypoMagFreqDistAtLoc hypoMFD_AtLoc1 = griddedHypoMFD.getHypoMagFreqDistAtLoc(region.getNearestLocationIndex(loc1));
+         HypoMagFreqDistAtLoc hypoMFD_AtLoc1 = griddedHypoMFD.getHypoMagFreqDistAtLoc(region.indexForLocation(loc1));
          IncrementalMagFreqDist incrementalMFD1 = hypoMFD_AtLoc1.getMagFreqDist()[0];
-         HypoMagFreqDistAtLoc hypoMFD_AtLoc2 = griddedHypoMFD.getHypoMagFreqDistAtLoc(region.getNearestLocationIndex(loc2));
+         HypoMagFreqDistAtLoc hypoMFD_AtLoc2 = griddedHypoMFD.getHypoMagFreqDistAtLoc(region.indexForLocation(loc2));
          IncrementalMagFreqDist incrementalMFD2 = hypoMFD_AtLoc2.getMagFreqDist()[0];
-         HypoMagFreqDistAtLoc hypoMFD_AtLoc3 = griddedHypoMFD.getHypoMagFreqDistAtLoc(region.getNearestLocationIndex(loc3));
+         HypoMagFreqDistAtLoc hypoMFD_AtLoc3 = griddedHypoMFD.getHypoMagFreqDistAtLoc(region.indexForLocation(loc3));
          IncrementalMagFreqDist incrementalMFD3 = hypoMFD_AtLoc3.getMagFreqDist()[0];
-         HypoMagFreqDistAtLoc hypoMFD_AtLoc4 = griddedHypoMFD.getHypoMagFreqDistAtLoc(region.getNearestLocationIndex(loc4));
+         HypoMagFreqDistAtLoc hypoMFD_AtLoc4 = griddedHypoMFD.getHypoMagFreqDistAtLoc(region.indexForLocation(loc4));
          IncrementalMagFreqDist incrementalMFD4 = hypoMFD_AtLoc4.getMagFreqDist()[0];
          
          for(int j=0; j<incrementalMFD1.getNum(); ++j) {

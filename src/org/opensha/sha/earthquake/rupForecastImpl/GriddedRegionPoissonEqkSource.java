@@ -55,7 +55,7 @@ public class GriddedRegionPoissonEqkSource extends ProbEqkSource implements java
                                        magFreqDist,double duration,double aveRake, double aveDip,
                                        double minMag){
     this.region =region;
-    this.numLocs = region.getNumGridLocs();
+    this.numLocs = region.getNodeCount();
     this.duration=duration;
     this.aveRake=aveRake;
     this.aveDip=aveDip;
@@ -94,7 +94,7 @@ public class GriddedRegionPoissonEqkSource extends ProbEqkSource implements java
    * of this source
    */
    public LocationList getAllSourceLocs() {
-     return this.region.getGridLocationsList();
+     return this.region.getNodeList();
    }
    
    public EvenlyGriddedSurfaceAPI getSourceSurface() { throw new RuntimeException("method not supported (not sure what to return)"); }
@@ -147,7 +147,7 @@ public class GriddedRegionPoissonEqkSource extends ProbEqkSource implements java
 
     // set the location & aveDip
 
-    probEqkRupture.setPointSurface(region.getGridLocation(ithLoc), aveDip);
+    probEqkRupture.setPointSurface(region.locationForIndex(ithLoc), aveDip);
 
     // compute and set the probability
     double prob = 1.0 - Math.exp(-duration*((Double)rates.get(ithMag)).doubleValue());

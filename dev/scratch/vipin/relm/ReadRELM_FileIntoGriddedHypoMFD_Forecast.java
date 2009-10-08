@@ -52,7 +52,7 @@ public class ReadRELM_FileIntoGriddedHypoMFD_Forecast extends GriddedHypoMagFreq
      magFreqDist.setTolerance(magFreqDist.getDelta()/2);
      IncrementalMagFreqDist []magFreqDistArray = new IncrementalMagFreqDist[1];
      magFreqDistArray[0] = magFreqDist;
-     magFreqDistForLocations[i] = new HypoMagFreqDistAtLoc(magFreqDistArray,griddedRegion.getGridLocation(i));
+     magFreqDistForLocations[i] = new HypoMagFreqDistAtLoc(magFreqDistArray,griddedRegion.locationForIndex(i));
    }
    // read the file and calculate HypoMagFreqDist at each location
    calculateHypoMagFreqDistForEachLocation(useMask, adjustLatLon);
@@ -122,7 +122,7 @@ public class ReadRELM_FileIntoGriddedHypoMFD_Forecast extends GriddedHypoMagFreq
         if(mag>6.5 || (6.5-mag<0.005)) totRate6_5+=rate;
         if(mag>8 || (8-mag<0.005)) totRate8+=rate;
         if(mag>8.05 || (8.05-mag<0.005)) totRate8_05+=rate;
-        locIndex = getRegion().getNearestLocationIndex(new Location(lat,lon));
+        locIndex = getRegion().indexForLocation(new Location(lat,lon));
         //continue if location not in the region
         if (locIndex >= 0)  {
           IncrementalMagFreqDist incrMagFreqDist = magFreqDistForLocations[locIndex].getMagFreqDist()[0];

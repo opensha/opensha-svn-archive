@@ -130,7 +130,7 @@ public class ReasenbergJonesGriddedParms_Calc {
   private void calc_RJParmsOnGrid(GriddedRegion gridNodes,
                                   ObsEqkRupList eventList){
     ListIterator gridIt = gridNodes.getGridLocationsIterator();
-    int numNodes = gridNodes.getNumGridLocs();
+    int numNodes = gridNodes.getNodeCount();
     grid_aVal = new double[numNodes];
     grid_bVal = new double[numNodes];
     grid_pVal = new double[numNodes];

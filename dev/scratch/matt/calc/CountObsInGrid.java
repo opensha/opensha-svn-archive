@@ -40,7 +40,7 @@ public class CountObsInGrid {
 //		    this.useSausage = true;
 //		    this.numGridNodes = castSausageRegion.getNumGridLocs();
 //		}
-		this.numGridNodes = this.region.getNumGridLocs();
+		this.numGridNodes = this.region.getNodeCount();
     	this.numObsInGrid = new int[numGridNodes];
 	    
     	countEventsInCell();
@@ -81,7 +81,7 @@ public class CountObsInGrid {
 		cellLoc = new LocationList();
 		int gLoop = 0;
 		while ( gLoop < numGridNodes ){
-			gridCenter = this.region.getGridLocation(gLoop);
+			gridCenter = this.region.locationForIndex(gLoop);
 //			if (useCircle)
 //				gridCenter = this.castCircularRegion.getGridLocation(gLoop);
 //			else

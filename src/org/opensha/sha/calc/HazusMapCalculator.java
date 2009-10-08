@@ -128,8 +128,8 @@ public class HazusMapCalculator {
       fr.close();
       fr=new FileWriter(newDir+"/sites.dat");
       fr.write(sites.getRegion().getMinLat()+" "+sites.getRegion().getMaxLat()+" "+
-    		  sites.getRegion().getGridSpacing()+"\n"+sites.getRegion().getMinLon()+" "+
-    		  sites.getRegion().getMaxLon()+" "+ sites.getRegion().getGridSpacing()+"\n");
+    		  sites.getRegion().getSpacing()+"\n"+sites.getRegion().getMinLon()+" "+
+    		  sites.getRegion().getMaxLon()+" "+ sites.getRegion().getSpacing()+"\n");
       fr.close();
     }catch(IOException ee){
       ee.printStackTrace();
@@ -181,8 +181,8 @@ public class HazusMapCalculator {
       fr.close();
       fr=new FileWriter(newDir+"/sites.dat");
       fr.write(sites.getRegion().getMinLat()+" "+sites.getRegion().getMaxLat()+" "+
-    		  sites.getRegion().getGridSpacing()+"\n"+sites.getRegion().getMinLon()+" "+
-    		  sites.getRegion().getMaxLon()+" "+ sites.getRegion().getGridSpacing()+"\n");
+    		  sites.getRegion().getSpacing()+"\n"+sites.getRegion().getMinLon()+" "+
+    		  sites.getRegion().getMaxLon()+" "+ sites.getRegion().getSpacing()+"\n");
       fr.close();
     }catch(IOException ee){
       ee.printStackTrace();
@@ -207,7 +207,7 @@ public class HazusMapCalculator {
 
     try{
 
-       int numSites = sites.getRegion().getNumGridLocs();
+       int numSites = sites.getRegion().getNodeCount();
        duration = eqkRupForecast.getTimeSpan().getDuration();
        FileWriter[] fw = new FileWriter[returnPd.length];
        for(int j=0;j<returnPd.length;++j){

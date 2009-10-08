@@ -41,7 +41,7 @@ public class MeanTopoSlopeCalculator {
 	}
 	
 	public double getMeanSlope(GriddedRegion region) throws IOException {
-		return getMeanSlope(region.getGridLocationsList());
+		return getMeanSlope(region.getNodeList());
 	}
 	
 	public double getMeanSlope(LocationList locs) throws IOException {

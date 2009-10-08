@@ -150,7 +150,7 @@ public class UpdateSTEP_Forecast {
 public void updateGenericModelForecast() {
 	//first initialise the array that will contain the forecast
 	forecastModelGen.initNumGridInForecast();
-	int numGridLocs = sequenceModel.getAfterShockZone().getNumGridLocs();
+	int numGridLocs = sequenceModel.getAfterShockZone().getNodeCount();
 	int gLoop = 0;
 	while ( gLoop < numGridLocs) {
 		 genForecastAtLoc = forecastModelGen.calcHypoMagFreqDist(gLoop);
@@ -165,7 +165,7 @@ public void updateGenericModelForecast() {
 public void updateSequenceModelForecast() {
 	//first initialise the array that will contain the forecast
 	forecastModelSeq.initNumGridInForecast();
-	int numGridLocs = sequenceModel.getAfterShockZone().getNumGridLocs();
+	int numGridLocs = sequenceModel.getAfterShockZone().getNodeCount();
 	int gLoop = 0;
 	while ( gLoop < numGridLocs) {
 		 seqForecastAtLoc = forecastModelSeq.calcHypoMagFreqDistAtLoc(gLoop);
@@ -181,7 +181,7 @@ public void updateSequenceModelForecast() {
 public void updateSpatialModelForecast() {
 	//first initialise the array that will contain the forecast
 	forecastModelSpa.initNumGridInForecast();
-	int numGridLocs = sequenceModel.getAfterShockZone().getNumGridLocs();
+	int numGridLocs = sequenceModel.getAfterShockZone().getNodeCount();
 	int gLoop = 0;
 	while ( gLoop < numGridLocs) {
 		 spaForecastAtLoc = forecastModelSpa.calcHypoMagFreqDistAtLoc(gLoop);

@@ -471,7 +471,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
                 GMT_MapGenerator.TOPO_RESOLUTION_NONE);
       }
       mapGuiBean.setRegionParams(minLat, maxLat, minLon, maxLon,
-    		  sites.getRegion().getGridSpacing());
+    		  sites.getRegion().getSpacing());
       String label = "";
       if (imlAtProb)
         label = imt;

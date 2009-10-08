@@ -146,7 +146,7 @@ public class HazardMapCalculatorOld {
                                  String mapParametersInfo, String email) {
     Site site;
     this.xLogFlag = imtLogFlag;
-    int numSites = sites.getRegion().getNumGridLocs();
+    int numSites = sites.getRegion().getNodeCount();
     try{
       HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();
       //hazCurveCalc.showProgressBar(false);
@@ -182,8 +182,8 @@ public class HazardMapCalculatorOld {
       fr.close();
       fr=new FileWriter(DATASETS_PATH+newDir+"/sites.txt");
       fr.write(sites.getRegion().getMinLat()+" "+sites.getRegion().getMaxLat()+" "+
-    		  sites.getRegion().getGridSpacing()+"\n"+sites.getRegion().getMinLon()+" "+
-               sites.getRegion().getMaxLon()+" "+ sites.getRegion().getGridSpacing()+"\n");
+    		  sites.getRegion().getSpacing()+"\n"+sites.getRegion().getMinLon()+" "+
+               sites.getRegion().getMaxLon()+" "+ sites.getRegion().getSpacing()+"\n");
       fr.close();
       if(email !=null || !email.equals("")){
         HazardMapCalcPostProcessing mapPostProcessing = new HazardMapCalcPostProcessing(numSites,

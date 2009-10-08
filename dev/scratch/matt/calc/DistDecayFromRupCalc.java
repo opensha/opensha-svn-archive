@@ -32,7 +32,7 @@ public final class DistDecayFromRupCalc {
     double[] nodePerc = null;
     double sumInvDist = 0;
 
-    int numLocs = aftershockZone.getNumGridLocs();
+    int numLocs = aftershockZone.getNodeCount();
     double[] nodeDistFromFault = new double[numLocs];
     double[] invDist = new double[numLocs];
     nodePerc = new double[numLocs];
@@ -78,7 +78,7 @@ public final class DistDecayFromRupCalc {
     int ind = 0;
     double totDistFromFault = 0;
     double sumInvDist = 0;
-    int numLocs = aftershockZone.getNumGridLocs();
+    int numLocs = aftershockZone.getNodeCount();
     double[] nodeDistFromFault = new double[numLocs];
     double[] invDist = new double[numLocs];
     nodePerc = new double[numLocs];

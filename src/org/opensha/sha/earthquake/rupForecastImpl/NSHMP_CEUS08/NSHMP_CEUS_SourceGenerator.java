@@ -141,14 +141,14 @@ public class NSHMP_CEUS_SourceGenerator extends GriddedRegion {
 	 * @return
 	 */
 	public double[] readGridFile(String fileName) {
-		double[] allGridVals = new double[this.getNumGridLocs()];
+		double[] allGridVals = new double[this.getNodeCount()];
 //		System.out.println("    Working on "+fileName);
 		try { 
 //			System.out.println("Reading Input File: " + fileName);
 			InputStreamReader ratesFileReader = new InputStreamReader(getClass().getClassLoader().getResourceAsStream(fileName));
 			BufferedReader ratesFileBufferedReader = new BufferedReader(ratesFileReader);
 
-			for(int line=0;line<getNumGridLocs();line++) {
+			for(int line=0;line<getNodeCount();line++) {
 				String lineString = ratesFileBufferedReader.readLine();
 				StringTokenizer st = new StringTokenizer(lineString);
 				double lon = new Double(st.nextToken());
@@ -158,7 +158,7 @@ public class NSHMP_CEUS_SourceGenerator extends GriddedRegion {
 //				System.out.println("Lat: " + lat + " Lon: " + lon + " Val: " + val);
 
 				//find index of this location
-				int index = getNearestLocationIndex(new Location(lat,lon));
+				int index = indexForLocation(new Location(lat,lon));
 				
 				if(index == -1) {
 					System.err.println("Offending line: " + lineString);
@@ -377,7 +377,7 @@ public class NSHMP_CEUS_SourceGenerator extends GriddedRegion {
 	 */
 	private void mkLocIndexForSource() {
 		ArrayList<Integer>  tempArrayList = new ArrayList<Integer>();
-		for(int i=0; i<this.getNumGridLocs(); i++) {
+		for(int i=0; i<this.getNodeCount(); i++) {
 			if((adapt_cn_vals[i]+adapt_cy_vals[i]) > 0)
 				tempArrayList.add(new Integer(i));
 		}
@@ -405,13 +405,13 @@ public class NSHMP_CEUS_SourceGenerator extends GriddedRegion {
 				locIndex = locIndexForCharlSources[s];
 				ArbIncrementalMagFreqDist mfdAtLoc = getTotCharl_MFD_atLoc(locIndex);
 				if(type == 0) // point gridded source
-					CharlSources.add(new CEUS_Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfdAtLoc, magLenRel, charlestonStrike, 
+					CharlSources.add(new CEUS_Point2Vert_FaultPoisSource(this.locationForIndex(locIndex), mfdAtLoc, magLenRel, charlestonStrike, 
 							duration, 10, fracStrikeSlip,fracNormal,fracReverse));
 				else if (type == 1) // cross hair
-					CharlSources.add(new CEUS_Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfdAtLoc, magLenRel, charlestonStrike, 
+					CharlSources.add(new CEUS_Point2Vert_FaultPoisSource(this.locationForIndex(locIndex), mfdAtLoc, magLenRel, charlestonStrike, 
 							duration, ptSrcMagCutOff, fracStrikeSlip,fracNormal,fracReverse));
 				else // random strike
-					CharlSources.add(new CEUS_Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfdAtLoc, magLenRel, charlestonStrike, 
+					CharlSources.add(new CEUS_Point2Vert_FaultPoisSource(this.locationForIndex(locIndex), mfdAtLoc, magLenRel, charlestonStrike, 
 							duration, ptSrcMagCutOff, fracStrikeSlip,fracNormal,fracReverse));
 			}
 			return CharlSources;			
@@ -426,7 +426,7 @@ public class NSHMP_CEUS_SourceGenerator extends GriddedRegion {
 	private void mkLocIndexForCharlSources() {
 		ArrayList<Integer>  tempArrayList = new ArrayList<Integer>();
 		double rate;
-		for(int i=0; i<this.getNumGridLocs(); i++) {
+		for(int i=0; i<this.getNodeCount(); i++) {
 			rate = 	agrd_chrls3_6p8_vals[i] + agrd_chrls3_7p1_vals[i] + agrd_chrls3_7p3_vals[i] + agrd_chrls3_7p5_vals[i] +
 					charlnA_vals[i] + charlnB_vals[i] + charlnarrow_vals[i] + charnCagrid1008_vals[i];
 			if(rate > 0)
@@ -454,15 +454,15 @@ public class NSHMP_CEUS_SourceGenerator extends GriddedRegion {
 
 */
 			int num;
-			System.out.println("num Locs: "+getNumGridLocs());
-			num=0; for(int i=0; i<this.getNumGridLocs(); i++) if(agrd_chrls3_6p8_vals[i] > 0) num +=1;  System.out.println("char num: "+num);
-			num=0; for(int i=0; i<this.getNumGridLocs(); i++) if(agrd_chrls3_7p1_vals[i] > 0) num +=1;  System.out.println("char num: "+num);
-			num=0; for(int i=0; i<this.getNumGridLocs(); i++) if(agrd_chrls3_7p3_vals[i] > 0) num +=1;  System.out.println("char num: "+num);
-			num=0; for(int i=0; i<this.getNumGridLocs(); i++) if(agrd_chrls3_7p5_vals[i] > 0) num +=1;  System.out.println("char num: "+num);
-			num=0; for(int i=0; i<this.getNumGridLocs(); i++) if(charlnA_vals[i] > 0) num +=1;  System.out.println("char num: "+num);
-			num=0; for(int i=0; i<this.getNumGridLocs(); i++) if(charlnB_vals[i] > 0) num +=1;  System.out.println("char num: "+num);
-			num=0; for(int i=0; i<this.getNumGridLocs(); i++) if(charlnarrow_vals[i] > 0) num +=1;  System.out.println("char num: "+num);
-			num=0; for(int i=0; i<this.getNumGridLocs(); i++) if(charnCagrid1008_vals[i] > 0) num +=1;  System.out.println("char num: "+num);
+			System.out.println("num Locs: "+getNodeCount());
+			num=0; for(int i=0; i<this.getNodeCount(); i++) if(agrd_chrls3_6p8_vals[i] > 0) num +=1;  System.out.println("char num: "+num);
+			num=0; for(int i=0; i<this.getNodeCount(); i++) if(agrd_chrls3_7p1_vals[i] > 0) num +=1;  System.out.println("char num: "+num);
+			num=0; for(int i=0; i<this.getNodeCount(); i++) if(agrd_chrls3_7p3_vals[i] > 0) num +=1;  System.out.println("char num: "+num);
+			num=0; for(int i=0; i<this.getNodeCount(); i++) if(agrd_chrls3_7p5_vals[i] > 0) num +=1;  System.out.println("char num: "+num);
+			num=0; for(int i=0; i<this.getNodeCount(); i++) if(charlnA_vals[i] > 0) num +=1;  System.out.println("char num: "+num);
+			num=0; for(int i=0; i<this.getNodeCount(); i++) if(charlnB_vals[i] > 0) num +=1;  System.out.println("char num: "+num);
+			num=0; for(int i=0; i<this.getNodeCount(); i++) if(charlnarrow_vals[i] > 0) num +=1;  System.out.println("char num: "+num);
+			num=0; for(int i=0; i<this.getNodeCount(); i++) if(charnCagrid1008_vals[i] > 0) num +=1;  System.out.println("char num: "+num);
 			
 			/*
 			double m_min, m_max;
@@ -513,7 +513,7 @@ public class NSHMP_CEUS_SourceGenerator extends GriddedRegion {
 		public ProbEqkSource getRandomStrikeGriddedSource(int srcIndex, double duration) {
 			int locIndex = locIndexForSource[srcIndex];
 			ArbDiscrEmpiricalDistFunc mfdAtLoc = getTotMFD_atLoc(locIndex);
-			return new CEUS_Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfdAtLoc, magLenRel, duration, ptSrcMagCutOff,
+			return new CEUS_Point2Vert_FaultPoisSource(this.locationForIndex(locIndex), mfdAtLoc, magLenRel, duration, ptSrcMagCutOff,
 					fracStrikeSlip,fracNormal,fracReverse, false);
 		}
 
@@ -528,7 +528,7 @@ public class NSHMP_CEUS_SourceGenerator extends GriddedRegion {
 			int locIndex = locIndexForSource[srcIndex];
 			ArbDiscrEmpiricalDistFunc mfdAtLoc = getTotMFD_atLoc(locIndex);
 			double magCutoff = 10;
-			return new CEUS_Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfdAtLoc, magLenRel, duration, magCutoff,
+			return new CEUS_Point2Vert_FaultPoisSource(this.locationForIndex(locIndex), mfdAtLoc, magLenRel, duration, magCutoff,
 					fracStrikeSlip,fracNormal,fracReverse, false);
 		}
 
@@ -541,7 +541,7 @@ public class NSHMP_CEUS_SourceGenerator extends GriddedRegion {
 		public ProbEqkSource getCrosshairGriddedSource(int srcIndex, double duration) {
 			int locIndex = locIndexForSource[srcIndex];
 			ArbDiscrEmpiricalDistFunc mfdAtLoc = getTotMFD_atLoc(locIndex);
-			return new CEUS_Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfdAtLoc, magLenRel, duration, ptSrcMagCutOff,
+			return new CEUS_Point2Vert_FaultPoisSource(this.locationForIndex(locIndex), mfdAtLoc, magLenRel, duration, ptSrcMagCutOff,
 					fracStrikeSlip,fracNormal,fracReverse, true);
 		}
 

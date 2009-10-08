@@ -162,7 +162,7 @@ public class STEP_CombineForecastModels
 	  // first we must calculate the Ogata-Omori likelihood score at each
 	  // gridnode, for each model element created
 	  if (this.useSeqAndSpatial) {
-		  int numGridNodes = this.getAfterShockZone().getNumGridLocs();
+		  int numGridNodes = this.getAfterShockZone().getNodeCount();
 		
 		  combinedForecast = new HypoMagFreqDistAtLoc[numGridNodes];
 		  
@@ -193,7 +193,7 @@ public class STEP_CombineForecastModels
 			  // gridSearchRadius is the radius used for calculating the Reasenberg & Jones params
 			  double radius = this.spaElement.getGridSearchRadius();
 			  ObsEqkRupList gridEvents;
-			  Region nodeRegion = new Region(getRegion().getGridLocation(gLoop),radius);
+			  Region nodeRegion = new Region(getRegion().locationForIndex(gLoop),radius);
 			  gridEvents = this.afterShocks.getObsEqkRupsInside(nodeRegion);
 			  
 			  // get the smoothed generic k val for the grid node

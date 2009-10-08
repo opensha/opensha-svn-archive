@@ -172,7 +172,7 @@ public class SubmitJobForGridComputation {
       //create shell script to ftp hazard curve tar file from remote machine
       // to local machine and then untar them on the local machine
       ftpCurvesFromRemoteMachine(outputDir, remoteDir,
-                                 sites.getRegion().getNumGridLocs(),
+                                 sites.getRegion().getNodeCount(),
                                  emailAddr,
                                  remoteMachineSubdirName);
 
@@ -307,7 +307,7 @@ public class SubmitJobForGridComputation {
                                      String outputDir, String remoteDir,
                                      SitesInGriddedRegion sites) {
 
-    int numSites = sites.getRegion().getNumGridLocs(); // num grid locs
+    int numSites = sites.getRegion().getNodeCount(); // num grid locs
     int endSite = 0;
     int startSite = 0;
 

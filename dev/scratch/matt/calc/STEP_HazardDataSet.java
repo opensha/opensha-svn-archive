@@ -187,7 +187,7 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	 */
 	private void saveProbValues2File(double[] probVals,SitesInGriddedRegion sites){
 		int size = probVals.length;
-		LocationList locList = sites.getRegion().getGridLocationsList();
+		LocationList locList = sites.getRegion().getNodeList();
 		int numLocations = locList.size();
 
 		try{
@@ -217,8 +217,8 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	 */
 	public double[] loadBgProbValues(SitesInGriddedRegion sites,String fileName){
 		BackGroundRatesGrid bgGrid = stepMain.getBgGrid();
-		STEP_main.log("numSites =" + sites.getRegion().getNumGridLocs() + " fileName=" + fileName);		
-		double[] vals = new double[sites.getRegion().getNumGridLocs()];	
+		STEP_main.log("numSites =" + sites.getRegion().getNodeCount() + " fileName=" + fileName);		
+		double[] vals = new double[sites.getRegion().getNodeCount()];	
 		 HashMap<String,Double> valuesMap = new  HashMap<String,Double>();
 		try{
 			ArrayList fileLines = FileUtils.loadFile(fileName);
@@ -249,8 +249,8 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 				valuesMap.put(bgGrid.getKey4Location(loc), temp);
 			}
 			//convert to an array in the order of the region grids locations
-			for(int i = 0; i < sites.getRegion().getNumGridLocs(); i++){
-				Location loc = sites.getRegion().getGridLocation(i);
+			for(int i = 0; i < sites.getRegion().getNodeCount(); i++){
+				Location loc = sites.getRegion().locationForIndex(i);
 				vals[i] = valuesMap.get(bgGrid.getKey4Location(loc));
 				//STEP_main.log(">> vals[" + i + "] =" + vals[i]  );
 			}
@@ -280,7 +280,7 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	public double[] clacProbVals(AttenuationRelationship imr,SitesInGriddedRegion sites,
 			ArrayList sourceList){
 
-		double[] probVals = new double[sites.getRegion().getNumGridLocs()];
+		double[] probVals = new double[sites.getRegion().getNodeCount()];
 		double MAX_DISTANCE = 500;
 
 		// declare some varibles used in the calculation
@@ -294,7 +294,7 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 			// (e.g., all could be outside MAX_DISTANCE)
 			boolean sourceUsed = false;
 
-			int numSites = sites.getRegion().getNumGridLocs();
+			int numSites = sites.getRegion().getNodeCount();
 			int numSourcesSkipped =0;
 			long startCalcTime = System.currentTimeMillis();
 

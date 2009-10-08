@@ -166,7 +166,7 @@ public class PlotServlet extends ConfLoadingServlet {
 				return Integer.parseInt(numAtt.getValue());
 			
 			GriddedRegion region = GriddedRegion.fromXMLMetadata(regionEl);
-			return region.getNumGridLocs();
+			return region.getNodeCount();
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

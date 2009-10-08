@@ -34,7 +34,7 @@ public class SiteDataToXYZ {
 	public static void writeXYZ(SiteDataAPI<?> data, GriddedRegion region,
 			String fileName, boolean latFirst) throws IOException {
 		FileWriter fw = new FileWriter(fileName);
-		LocationList locs = region.getGridLocationsList();
+		LocationList locs = region.getNodeList();
 		ArrayList<?> vals = data.getValues(locs);
 		for (int i=0; i<locs.size(); i++) {
 			Location loc = locs.getLocationAt(i);

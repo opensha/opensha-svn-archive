@@ -190,9 +190,9 @@ public class BackGroundRatesGridTest  extends TestCase {
 		//logger.info("hypoMagFreqDistAtLoc.size()=" +  hypoMagFreqDistAtLoc.size() + " region locs=" + region.getNumGridLocs());
 		
 		assertEquals("number of locations in hypoMagFreqDistAtLoc should match grid locations",
-				region.getNumGridLocs(), hypoMagFreqDistAtLoc.size() );
-		for (int i = 0; i < region.getNumGridLocs(); i++){
-			Location loc = region.getGridLocation(i);
+				region.getNodeCount(), hypoMagFreqDistAtLoc.size() );
+		for (int i = 0; i < region.getNodeCount(); i++){
+			Location loc = region.locationForIndex(i);
 			if(hypoMagFreqDistAtLoc.get(i) != null){
 				assertEquals("locations in hypoMagFreqDistAtLoc should match grid locations", loc, hypoMagFreqDistAtLoc.get(i).getLocation());
 			}

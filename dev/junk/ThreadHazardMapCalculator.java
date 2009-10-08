@@ -70,7 +70,7 @@ public class ThreadHazardMapCalculator {
 
     	SitesInGriddedRegion sites = (SitesInGriddedRegion)FileUtils.loadObject(args[1]);
       int numOfProcs = Integer.parseInt(args[5]);
-      int numSites = sites.getRegion().getNumGridLocs();
+      int numSites = sites.getRegion().getNodeCount();
       //dividing the number of sites on each processor based on the number of processor
       //requested from the server.
       int sitesPerProcessor = (int)(numSites/numOfProcs+1);

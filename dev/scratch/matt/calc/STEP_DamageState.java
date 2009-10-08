@@ -119,7 +119,7 @@ public class STEP_DamageState implements ParameterChangeWarningListener{
 	      //System.out.println("probCurve init: "+probCurve.getY(i)+" "+i);
 	  }
 	  
-      double[] bgVals = getBGVals(sites.getRegion().getNumGridLocs(),STEP_BG_FILE_NAME);
+      double[] bgVals = getBGVals(sites.getRegion().getNodeCount(),STEP_BG_FILE_NAME);
       double[] probVal = this.getProbVals(attenRel, sites, stepMain.getSourceList(), probCurve);
 
       //combining the backgound and Addon dataSet and wrinting the result to the file
@@ -157,7 +157,7 @@ public class STEP_DamageState implements ParameterChangeWarningListener{
 	   */
 	  private void createFile(double[] probVals,SitesInGriddedRegion sites){
 	    int size = probVals.length;
-	    LocationList locList = sites.getRegion().getGridLocationsList();
+	    LocationList locList = sites.getRegion().getNodeList();
 	    int numLocations = locList.size();
 	    
 	    try{
@@ -181,7 +181,7 @@ public class STEP_DamageState implements ParameterChangeWarningListener{
 	   */
 	  private void createHazCurveFile(double[][] hazCurveList,SitesInGriddedRegion sites){
 	    int size = hazCurveList.length;
-	    LocationList locList = sites.getRegion().getGridLocationsList();
+	    LocationList locList = sites.getRegion().getNodeList();
 	    int numLocations = locList.size();
 	    
 	    try{
@@ -249,7 +249,7 @@ public class STEP_DamageState implements ParameterChangeWarningListener{
 	  private double[] getProbVals(AttenuationRelationship imr,SitesInGriddedRegion sites,
 	                                     ArrayList sourceList, ArbitrarilyDiscretizedFunc probCurve){
 
-	    double[] probVals = new double[sites.getRegion().getNumGridLocs()];
+	    double[] probVals = new double[sites.getRegion().getNodeCount()];
 	    double MAX_DISTANCE = 500;
 	    double invProb;
 	   
@@ -268,7 +268,7 @@ public class STEP_DamageState implements ParameterChangeWarningListener{
 	      // (e.g., all could be outside MAX_DISTANCE)
 	      boolean sourceUsed = false;
 
-	      int numSites = sites.getRegion().getNumGridLocs();
+	      int numSites = sites.getRegion().getNodeCount();
 	      int numSourcesSkipped =0;
 	      long startCalcTime = System.currentTimeMillis();
 	      hazCurveList = new double[numSites][20];

@@ -86,7 +86,7 @@ public class ScenarioShakeMapCalculator {
 		  SitesInGriddedRegion sites,EqkRupture rupture,
       boolean isProbAtIML,double value) throws ParameterException, RegionConstraintException {
 
-    numSites = sites.getRegion().getNumGridLocs();
+    numSites = sites.getRegion().getNodeCount();
 
     //instance of the XYZ dataSet.
     XYZ_DataSetAPI xyzDataSet =null;

@@ -137,7 +137,7 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
       //create shell script to ftp hazard curve tar file from remote machine
       // to local machine and then untar them on the local machine
       ftpCurvesFromRemoteMachine(outputDir, remoteDir,
-                                 sites.getRegion().getNumGridLocs(),
+                                 sites.getRegion().getNodeCount(),
                                  emailAddr,
                                  remoteMachineSubdirName);
 

@@ -228,7 +228,7 @@ public class SpatialAfterHypoMagFreqDistForecast
       IncrementalMagFreqDist[] dist = new IncrementalMagFreqDist[1];
       dist[0] = GR_Dist;
       Location gridLoc;
-      gridLoc = getRegion().getGridLocation(gridIndex);
+      gridLoc = getRegion().locationForIndex(gridIndex);
       magDistLoc = new HypoMagFreqDistAtLoc(dist,gridLoc);
       return magDistLoc;
     //}

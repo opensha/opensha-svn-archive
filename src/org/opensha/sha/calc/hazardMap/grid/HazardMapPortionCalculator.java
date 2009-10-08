@@ -121,7 +121,7 @@ public class HazardMapPortionCalculator {
 			calc.setMaxSourceDistance(maxDistance);
 			
 			// total number of sites for the entire map
-		    numSites = sites.getRegion().getNumGridLocs();
+		    numSites = sites.getRegion().getNodeCount();
 		    // number of points on the hazard curve
 			int numPoints = hazFunction.getNum();
 			
@@ -186,8 +186,8 @@ public class HazardMapPortionCalculator {
 							ArrayList<SiteDataValue<?>> datas = siteDataValues.getDataList(cvmIndex);
 							if (siteDataValues.hasLocations()) {
 								Location newLoc = siteDataValues.getDataLocation(cvmIndex);
-								if (Math.abs(loc.getLatitude() - newLoc.getLatitude()) >= sites.getRegion().getGridSpacing()) {
-									if (Math.abs(loc.getLongitude() - newLoc.getLongitude()) >= sites.getRegion().getGridSpacing()) {
+								if (Math.abs(loc.getLatitude() - newLoc.getLatitude()) >= sites.getRegion().getSpacing()) {
+									if (Math.abs(loc.getLongitude() - newLoc.getLongitude()) >= sites.getRegion().getSpacing()) {
 										System.err.println("WARNING: CVM data is for the WRONG LOCATION! (index: " + j + ")");
 										System.err.println("CVM Location: " + newLoc + " REAL Location: " + loc);
 									}

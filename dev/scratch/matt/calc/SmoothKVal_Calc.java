@@ -86,7 +86,7 @@ public class SmoothKVal_Calc {
     private void setNodePerc() {
       double sumInvDist = 0;
 
-      numLocs = aftershockZone.getNumGridLocs();
+      numLocs = aftershockZone.getNodeCount();
       double[] nodeDistFromFault = new double[numLocs];
       double[] invDist = new double[numLocs];
       nodePerc = new double[numLocs];

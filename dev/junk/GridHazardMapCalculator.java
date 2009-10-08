@@ -123,7 +123,7 @@ public void getHazardMapCurves(String[] args, int startSiteIndex,
      // now run the hazard map calculations
      HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();
      hazCurveCalc.setMaxSourceDistance(this.MAX_DISTANCE);
-     int numSites = sites.getRegion().getNumGridLocs();
+     int numSites = sites.getRegion().getNodeCount();
      int numPoints = xValues.length;
      Site site;
      for(int j=startSiteIndex;j<numSites && j<endSiteIndex;++j){

@@ -216,7 +216,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast{
         System.out.println("GR_cum_rate(M1)="+back_GR_dist.getCumRate(back_M1));
         System.out.println("GR_cum_rate(5.0)="+back_GR_dist.getCumRate(5.0));
         System.out.println("M2 in GR_dist ="+back_GR_dist.getMaxX());
-        System.out.println("num_back_grid_points="+gridReg.getNumGridLocs());
+        System.out.println("num_back_grid_points="+gridReg.getNodeCount());
       }
 
       // add this source later so it's at the end of the list

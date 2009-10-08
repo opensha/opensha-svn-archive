@@ -181,7 +181,7 @@ public class IML_Calc_Cybershake extends MedianCalc_Cybershake {
 			  basinDepthVals = new ArrayList();
 			  willsSiteClassVals = new ArrayList();
 			  for(int i=0;i<numLocs;++i){
-				  int index = region.getNearestLocationIndex(locList.getLocationAt(i));
+				  int index = region.indexForLocation(locList.getLocationAt(i));
 				  basinDepthVals.add(basinVals.get(index));
 				  String willsVal = (String)willsSiteVals.get(index);
 				  if(willsVal.equals("NA"))

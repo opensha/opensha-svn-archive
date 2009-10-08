@@ -18,9 +18,9 @@ public class EvenlyGriddedRegionToKML {
 		fw.write("    <name>OpenSHA Gridded Region</name>" + "\n");
 		fw.write("    <description>Open Seismic Hazard Analysis Evenly Gridded Region</description>" + "\n");
 		
-		int numLocs = region.getNumGridLocs();
+		int numLocs = region.getNodeCount();
 		for (int i=0; i<numLocs; i++) {
-			Location loc = region.getGridLocation(i);
+			Location loc = region.locationForIndex(i);
 			
 			fw.write("    <Placemark>" + "\n");
 			

@@ -104,7 +104,7 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast  {
 	public void initSeqIndices()
 	{
 		if(seqIndAtNode == null)
-			seqIndAtNode = new double[getRegion().getNumGridLocs()];
+			seqIndAtNode = new double[getRegion().getNodeCount()];
 		logger.info((new StringBuilder()).append("seqIndAtNode ").append(seqIndAtNode.length).toString());
 		Arrays.fill(seqIndAtNode, -1D);
 	}

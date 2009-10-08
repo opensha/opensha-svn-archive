@@ -75,7 +75,7 @@ public class RegionUtils {
 		
 		if (region instanceof GriddedRegion) {
 			addPoints(e_folder, "Grid Nodes", ((GriddedRegion) 
-					region).getGridLocationsList(), Style.GRID_NODE);
+					region).getNodeList(), Style.GRID_NODE);
 		}
 
 		// TODO absolutely need to create seom platform specific output directory

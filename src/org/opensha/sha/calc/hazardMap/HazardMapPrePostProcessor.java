@@ -188,7 +188,7 @@ public class HazardMapPrePostProcessor {
 
 		String mailMessage = "THIS IS A AUTOMATED GENERATED EMAIL. PLEASE DO NOT REPLY BACK TO THIS ADDRESS.\n\n\n"+
 		"Grid Computation complete\n"+
-		"Expected Num of Files="+region.getNumGridLocs()+"\n"+
+		"Expected Num of Files="+region.getNodeCount()+"\n"+
 		"Files Generated="+actualFiles+"\n"+
 		"Dataset Id="+job.getJobID()+"\n"+
 		"Simulation Start Time="+startTimeString+"\n"+
@@ -235,7 +235,7 @@ public class HazardMapPrePostProcessor {
 		"Run time will depend on the datasets chosen, number of sites,\n"+
 		"and availiability of the selected grid resource: " + job.getResources().getResourceProvider().getName()+"\n\n"+
 		"You will get another e-mail when the grid computation has completed.\n\n"+
-		"Expected Num of Files="+region.getNumGridLocs()+"\n"+
+		"Expected Num of Files="+region.getNodeCount()+"\n"+
 		"Dataset Id="+job.getJobID()+"\n"+
 		"Simulation Start Time="+startTimeString+"\n";
 

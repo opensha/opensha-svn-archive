@@ -69,7 +69,7 @@ public class RELM_ERF_ToGriddedHypoMagFreqDistForecast  extends GriddedHypoMagFr
       IncrementalMagFreqDist[] magFreqDistArray = new IncrementalMagFreqDist[1];
       magFreqDistArray[0] = (IncrementalMagFreqDist)incrementalMFD_List.get(i);
       magFreqDistArray[0].set(0, magFreqDistArray[0].getIncrRate(1)*1.2); //Ned conveyed this in an email dated Nov 14, 2006 at 7:13 AM
-      magFreqDistForLocations[i] = new HypoMagFreqDistAtLoc(magFreqDistArray,griddedRegion.getGridLocation(i));
+      magFreqDistForLocations[i] = new HypoMagFreqDistAtLoc(magFreqDistArray,griddedRegion.locationForIndex(i));
     }
     
   }

@@ -106,8 +106,8 @@ public class HazardMapCalcServlet extends HttpServlet {
 
       // write site information in sites file
       FileWriter fwSites = new FileWriter(newDir+this.SITES_FILE_NAME);
-      fwSites.write(sites.getRegion().getMinLat()+" "+sites.getRegion().getMaxLat()+" "+sites.getRegion().getGridSpacing()+"\n");
-      fwSites.write(sites.getRegion().getMinLon()+" "+sites.getRegion().getMaxLon()+" "+sites.getRegion().getGridSpacing()+"\n");
+      fwSites.write(sites.getRegion().getMinLat()+" "+sites.getRegion().getMaxLat()+" "+sites.getRegion().getSpacing()+"\n");
+      fwSites.write(sites.getRegion().getMinLon()+" "+sites.getRegion().getMaxLon()+" "+sites.getRegion().getSpacing()+"\n");
       fwSites.close();
 
 

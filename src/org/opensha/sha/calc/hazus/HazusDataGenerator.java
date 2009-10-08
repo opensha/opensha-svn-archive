@@ -58,7 +58,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
                       "Region Info: "+
                       "\t MIN LAT: "+sites.getRegion().getMinLat()+" MAX LAT:"+sites.getRegion().getMaxLat()+
                       " MIN LON: "+sites.getRegion().getMinLon()+" MAX LON: "+sites.getRegion().getMaxLon()+
-                      " Grid Spacing: "+sites.getRegion().getGridSpacing()+"\n";
+                      " Grid Spacing: "+sites.getRegion().getSpacing()+"\n";
     //doing ofr PGA
     calc.getHazardMapCurves(sites,attenRel,forecast,metaData);
   }

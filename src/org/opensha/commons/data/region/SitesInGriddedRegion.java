@@ -121,7 +121,7 @@ public class SitesInGriddedRegion implements Serializable {
 	public void setSiteParamsForRegion(OrderedSiteDataProviderList providers) throws IOException {
 		setSameSiteParams = false;
 		//getting the list of Locations in the region
-		LocationList locList = region.getGridLocationsList();
+		LocationList locList = region.getNodeList();
 		
 		siteDataValueLists = new ArrayList<SiteDataValueList<?>>();
 		
@@ -192,7 +192,7 @@ public class SitesInGriddedRegion implements Serializable {
 	 * @returns site at the index
 	 */
 	public Site getSite(int index) throws RegionConstraintException {
-		site.setLocation(region.getGridLocation(index));
+		site.setLocation(region.locationForIndex(index));
 		String siteInfo=null;
 		if(!setSameSiteParams){
 			//getting the Site Parameters Iterator

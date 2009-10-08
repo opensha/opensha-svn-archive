@@ -480,7 +480,7 @@ public class PlotMapFromXMLHazardDataSetApp extends JApplet implements Parameter
 				maxLon + "");
 
 		StringParameter gridSpacingParam = new StringParameter(GRIDSPACING_PARAM_NAME,
-				region.getGridSpacing() + "");
+				region.getSpacing() + "");
 
 
 		// add the params to the list
@@ -498,7 +498,7 @@ public class PlotMapFromXMLHazardDataSetApp extends JApplet implements Parameter
 		this.sitePanel.add(sitesEditor,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
 		// also set it in map gui bean
-		this.mapGuiBean.setRegionParams(minLat, maxLat, minLon, maxLon, region.getGridSpacing());
+		this.mapGuiBean.setRegionParams(minLat, maxLat, minLon, maxLon, region.getSpacing());
 		sitePanel.validate();
 		sitePanel.repaint();
 	}

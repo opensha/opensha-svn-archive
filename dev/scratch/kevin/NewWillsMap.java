@@ -49,7 +49,7 @@ public class NewWillsMap {
 	}
 	
 	private void calcOld() {
-		WillsSiteClass wills = new WillsSiteClass(region.getGridLocationsList(), willsFileName);
+		WillsSiteClass wills = new WillsSiteClass(region.getNodeList(), willsFileName);
 		wills.setLoadFromJar(true);
 		long start = System.currentTimeMillis();
 		ArrayList<String> vals = wills.getWillsSiteClass();
@@ -63,7 +63,7 @@ public class NewWillsMap {
 		}
 		printTime(time);
 		int setVals = 0;
-		int num = region.getGridLocationsList().size();
+		int num = region.getNodeList().size();
 		for (String val : vals) {
 			if (!(val.toLowerCase().contains("nan") || val.toLowerCase().contains("na")))
 				setVals++;
@@ -188,7 +188,7 @@ public class NewWillsMap {
 		if (writeXYZ)
 			fw = new FileWriter("/tmp/newXYZ.txt");
 		
-		int num = region.getNumGridLocs();
+		int num = region.getNodeCount();
 		
 		RandomAccessFile file = new RandomAccessFile(new File(BIN_FILE), "r");
 		
@@ -210,7 +210,7 @@ public class NewWillsMap {
 		record.order(ByteOrder.LITTLE_ENDIAN);
 		ShortBuffer shortBuff = record.asShortBuffer();
 		for (int i=0; i<num; i++) {
-			Location loc = region.getGridLocation(i);
+			Location loc = region.locationForIndex(i);
 			
 			if (loc.getLatitude() < calc.getMinLat() || loc.getLatitude() > calc.getMaxLat()
 					|| loc.getLongitude() < calc.getMinLon() || loc.getLongitude() > calc.getMaxLon()) {

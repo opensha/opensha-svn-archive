@@ -72,7 +72,7 @@ public class GriddedRegionGUIBean extends ParameterListEditor {
 	
 	public void setFromGriddedRegion(GriddedRegion region) {
 		setFromGeographicRegion(region);
-		gridSpacingParam.setValue(region.getGridSpacing());
+		gridSpacingParam.setValue(region.getSpacing());
 	}
 	
 	public void setFromGeographicRegion(Region region) {

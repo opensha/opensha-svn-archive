@@ -92,7 +92,7 @@ public final class WillsSiteClass {
 	    		new Location(maxLat, maxLon),
 	    		gridSpacing, new Location(0,0));		
 		//System.out.println("Number of Grid Locations:"+region.getNumGridLocs());
-		for (Location loc : region.getGridLocationsList())
+		for (Location loc : region.getNodeList())
 			locations.add(loc);
 	}
 

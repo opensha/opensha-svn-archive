@@ -204,7 +204,7 @@ class ERF_ToGriddedParticipationRatesMFD_Forecast  extends GriddedHypoMagFreqDis
 	    for(int i=0; i<magFreqDistForLocations.length; ++i ) {
 	      IncrementalMagFreqDist[] magFreqDistArray = new IncrementalMagFreqDist[1];
 	      magFreqDistArray[0] = summedMFDs[i];
-	      magFreqDistForLocations[i] = new HypoMagFreqDistAtLoc(magFreqDistArray,griddedRegion.getGridLocation(i));
+	      magFreqDistForLocations[i] = new HypoMagFreqDistAtLoc(magFreqDistArray,griddedRegion.locationForIndex(i));
 	    }
 	  }
 
@@ -235,7 +235,7 @@ class ERF_ToGriddedParticipationRatesMFD_Forecast  extends GriddedHypoMagFreqDis
 
 	    int numSources = eqkRupForecast.getNumSources();
 
-	    int numLocations = getRegion().getNumGridLocs();
+	    int numLocations = getRegion().getNodeCount();
 	    SummedMagFreqDist[] summedMFDs = new SummedMagFreqDist[numLocations];
 	   
 	    for(int i=0; i<numLocations; ++i) summedMFDs[i] = new SummedMagFreqDist(minMag, maxMag, numMagBins);
@@ -260,7 +260,7 @@ class ERF_ToGriddedParticipationRatesMFD_Forecast  extends GriddedHypoMagFreqDis
 	        while (it.hasNext()) {
 	          Location ptLoc = (Location) it.next();
 	          //returns -1 if location not in the region
-	          locIndex = getRegion().getNearestLocationIndex(ptLoc);
+	          locIndex = getRegion().indexForLocation(ptLoc);
 	          if(locIndices.contains(locIndex) || locIndex<0) continue;
 //	          if(Math.abs(region.getGridLocation(locIndex).getLatitude()-33.3)<1e-6 && 
 //	        		  Math.abs(region.getGridLocation(locIndex).getLongitude()+116.1)<1e-6)

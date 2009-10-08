@@ -401,7 +401,7 @@ for(int m=0;m<testFunc.getNum();m++)
 
     int numSources = eqkRupForecast.getNumSources();
 
-    int numLocations = region.getNumGridLocs();
+    int numLocations = region.getNodeCount();
 
     double[] rates = new double[numLocations];
     //Going over each and every source in the forecast
@@ -436,7 +436,7 @@ for(int m=0;m<testFunc.getNum();m++)
           int locIndex = 0;
           //if rupture location is outside the region bounds then keep continuing
           //it returns -1 if location onn rupture is outside the regio bounds
-          locIndex = region.getNearestLocationIndex(ptLoc);
+          locIndex = region.indexForLocation(ptLoc);
           if(locIndex < 0)
             continue;
           rates[locIndex] += ptRate;
@@ -453,7 +453,7 @@ for(int m=0;m<testFunc.getNum();m++)
 
     int numSources = eqkRupForecast.getNumSources();
 
-    int numLocations = region.getNumGridLocs();
+    int numLocations = region.getNodeCount();
     ArbDiscrEmpiricalDistFunc[] funcs = new ArbDiscrEmpiricalDistFunc[numLocations];
     for(int i=0; i<numLocations; ++i) funcs[i] = new ArbDiscrEmpiricalDistFunc();
     //Going over each and every source in the forecast
@@ -489,7 +489,7 @@ for(int m=0;m<testFunc.getNum();m++)
           int locIndex = 0;
 
           //returns -1 if location not in the region
-          locIndex = region.getNearestLocationIndex(ptLoc);
+          locIndex = region.indexForLocation(ptLoc);
           //continue if location not in the region
           if(locIndex < 0)
             continue;

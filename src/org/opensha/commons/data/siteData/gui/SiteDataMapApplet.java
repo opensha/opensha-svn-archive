@@ -110,7 +110,7 @@ public class SiteDataMapApplet extends Applet implements ActionListener, ListSel
 		ArrayList<SiteDataValueList<Double>> valListList = new ArrayList<SiteDataValueList<Double>>();
 		
 		GriddedRegion region = mapBean.getEvenlyGriddedGeographicRegion();
-		LocationList locs = region.getGridLocationsList();
+		LocationList locs = region.getNodeList();
 
 		String meta = "Combined map from the following providers (sorted by priority):\n\n";
 		for (int i=0; i<providers.size(); i++) {
@@ -157,7 +157,7 @@ public class SiteDataMapApplet extends Applet implements ActionListener, ListSel
 						label = doubProvider.getDataType();
 					
 					GriddedRegion region = mapBean.getEvenlyGriddedGeographicRegion();
-					LocationList locs = region.getGridLocationsList();
+					LocationList locs = region.getNodeList();
 					ArrayList<Double> zVals = doubProvider.getValues(locs);
 					
 					String meta = doubProvider.getName();

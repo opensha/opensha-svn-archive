@@ -136,10 +136,10 @@ public class NSHMP_GridSourceGenerator {
 	
 	public ArrayList<ProbEqkSource> getBrawleyFixedStrikeSources(double duration) {
 		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
-		for(int locIndex=0;locIndex<region.getNumGridLocs();locIndex++) {
+		for(int locIndex=0;locIndex<region.getNodeCount();locIndex++) {
 			if(agrd_brawly_out[locIndex] >0) {
 				GutenbergRichterMagFreqDist mfd = getMFD(5.0, 6.5, agrd_brawly_out[locIndex], B_VAL, false);
-				sources.add(new Point2Vert_FaultPoisSource(region.getGridLocation(locIndex), mfd, magLenRel, 157, duration, magCutOff, 0.5,0.5,0));
+				sources.add(new Point2Vert_FaultPoisSource(region.locationForIndex(locIndex), mfd, magLenRel, 157, duration, magCutOff, 0.5,0.5,0));
 			}
 		}
 		return sources;
@@ -147,10 +147,10 @@ public class NSHMP_GridSourceGenerator {
 
 	public ArrayList<ProbEqkSource> getMendosFixedStrikeSources(double duration) {
 		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
-		for(int locIndex=0;locIndex<region.getNumGridLocs();locIndex++) {
+		for(int locIndex=0;locIndex<region.getNodeCount();locIndex++) {
 			if(agrd_mendos_out[locIndex] >0) {
 				GutenbergRichterMagFreqDist mfd = getMFD(5.0, 7.3, agrd_mendos_out[locIndex], B_VAL, false);
-				sources.add(new Point2Vert_FaultPoisSource(region.getGridLocation(locIndex), mfd, magLenRel,90, duration, magCutOff, 0.5,0.0,0.5));
+				sources.add(new Point2Vert_FaultPoisSource(region.locationForIndex(locIndex), mfd, magLenRel,90, duration, magCutOff, 0.5,0.0,0.5));
 			}
 		}
 		return sources;
@@ -158,10 +158,10 @@ public class NSHMP_GridSourceGenerator {
 	
 	public ArrayList<ProbEqkSource> getCreepsFixedStrikeSources(double duration) {
 		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
-		for(int locIndex=0;locIndex<region.getNumGridLocs();locIndex++) {
+		for(int locIndex=0;locIndex<region.getNodeCount();locIndex++) {
 			if(agrd_creeps_out[locIndex] >0) {
 				GutenbergRichterMagFreqDist mfd = getMFD(5.0, 6, agrd_creeps_out[locIndex], B_VAL_CREEPING, false);
-				sources.add(new Point2Vert_FaultPoisSource(region.getGridLocation(locIndex), mfd, magLenRel,360-42.5, duration, magCutOff, 1.0,0.0,0.0));
+				sources.add(new Point2Vert_FaultPoisSource(region.locationForIndex(locIndex), mfd, magLenRel,360-42.5, duration, magCutOff, 1.0,0.0,0.0));
 			}
 		}
 		return sources;
@@ -169,10 +169,10 @@ public class NSHMP_GridSourceGenerator {
 
 	public ArrayList<ProbEqkSource> getArea1FixedStrikeSources(double duration) {
 		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
-		for(int locIndex=0;locIndex<region.getNumGridLocs();locIndex++) {
+		for(int locIndex=0;locIndex<region.getNodeCount();locIndex++) {
 			if(area1new_agrid[locIndex] >0) {
 				GutenbergRichterMagFreqDist mfd = getMFD(6.5, C_ZONES_MAX_MAG, area1new_agrid[locIndex], B_VAL, false);
-				sources.add(new Point2Vert_FaultPoisSource(region.getGridLocation(locIndex), mfd, magLenRel,360-35, duration, magCutOff, 1.0,0.0,0.0));
+				sources.add(new Point2Vert_FaultPoisSource(region.locationForIndex(locIndex), mfd, magLenRel,360-35, duration, magCutOff, 1.0,0.0,0.0));
 			}
 		}
 		return sources;
@@ -180,10 +180,10 @@ public class NSHMP_GridSourceGenerator {
 
 	public ArrayList<ProbEqkSource> getArea2FixedStrikeSources(double duration) {
 		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
-		for(int locIndex=0;locIndex<region.getNumGridLocs();locIndex++) {
+		for(int locIndex=0;locIndex<region.getNodeCount();locIndex++) {
 			if(area2new_agrid[locIndex] >0) {
 				GutenbergRichterMagFreqDist mfd = getMFD(6.5, C_ZONES_MAX_MAG, area2new_agrid[locIndex], B_VAL, false);
-				sources.add(new Point2Vert_FaultPoisSource(region.getGridLocation(locIndex), mfd, magLenRel,360-25, duration, magCutOff, 1.0,0.0,0.0));
+				sources.add(new Point2Vert_FaultPoisSource(region.locationForIndex(locIndex), mfd, magLenRel,360-25, duration, magCutOff, 1.0,0.0,0.0));
 			}
 		}
 		return sources;
@@ -191,10 +191,10 @@ public class NSHMP_GridSourceGenerator {
 	
 	public ArrayList<ProbEqkSource> getArea3FixedStrikeSources(double duration) {
 		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
-		for(int locIndex=0;locIndex<region.getNumGridLocs();locIndex++) {
+		for(int locIndex=0;locIndex<region.getNodeCount();locIndex++) {
 			if(area3new_agrid[locIndex] >0) {
 				GutenbergRichterMagFreqDist mfd = getMFD(6.5, C_ZONES_MAX_MAG, area3new_agrid[locIndex], B_VAL, false);
-				sources.add(new Point2Vert_FaultPoisSource(region.getGridLocation(locIndex), mfd, magLenRel, 360-45, duration, magCutOff, 1.0,0.0,0.0));
+				sources.add(new Point2Vert_FaultPoisSource(region.locationForIndex(locIndex), mfd, magLenRel, 360-45, duration, magCutOff, 1.0,0.0,0.0));
 			}
 		}
 		return sources;
@@ -202,10 +202,10 @@ public class NSHMP_GridSourceGenerator {
 
 	public ArrayList<ProbEqkSource> getArea4FixedStrikeSources(double duration) {
 		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
-		for(int locIndex=0;locIndex<region.getNumGridLocs();locIndex++) {
+		for(int locIndex=0;locIndex<region.getNodeCount();locIndex++) {
 			if(area4new_agrid[locIndex] >0) {
 				GutenbergRichterMagFreqDist mfd = getMFD(6.5, C_ZONES_MAX_MAG, area4new_agrid[locIndex], B_VAL, false);
-				sources.add(new Point2Vert_FaultPoisSource(region.getGridLocation(locIndex), mfd, magLenRel, 360-45, duration, magCutOff, 1.0,0.0,0.0));
+				sources.add(new Point2Vert_FaultPoisSource(region.locationForIndex(locIndex), mfd, magLenRel, 360-45, duration, magCutOff, 1.0,0.0,0.0));
 			}
 		}
 		return sources;
@@ -213,10 +213,10 @@ public class NSHMP_GridSourceGenerator {
 	
 	public ArrayList<ProbEqkSource> getMojaveFixedStrikeSources(double duration) {
 		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
-		for(int locIndex=0;locIndex<region.getNumGridLocs();locIndex++) {
+		for(int locIndex=0;locIndex<region.getNodeCount();locIndex++) {
 			if(mojave_agrid[locIndex] >0) {
 				GutenbergRichterMagFreqDist mfd = getMFD(6.5, C_ZONES_MAX_MAG, mojave_agrid[locIndex], B_VAL, false);
-				sources.add(new Point2Vert_FaultPoisSource(region.getGridLocation(locIndex), mfd, magLenRel, 360-47, duration, magCutOff, 1.0,0.0,0.0));
+				sources.add(new Point2Vert_FaultPoisSource(region.locationForIndex(locIndex), mfd, magLenRel, 360-47, duration, magCutOff, 1.0,0.0,0.0));
 			}
 		}
 		return sources;
@@ -224,10 +224,10 @@ public class NSHMP_GridSourceGenerator {
 
 	public ArrayList<ProbEqkSource> getSangregFixedStrikeSources(double duration) {
 		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
-		for(int locIndex=0;locIndex<region.getNumGridLocs();locIndex++) {
+		for(int locIndex=0;locIndex<region.getNodeCount();locIndex++) {
 			if(sangreg_agrid[locIndex] >0) {
 				GutenbergRichterMagFreqDist mfd = getMFD(6.5, C_ZONES_MAX_MAG, sangreg_agrid[locIndex], B_VAL, false);
-				sources.add(new Point2Vert_FaultPoisSource(region.getGridLocation(locIndex), mfd, magLenRel,360-67, duration, magCutOff, 1.0,0.0,0.0));
+				sources.add(new Point2Vert_FaultPoisSource(region.locationForIndex(locIndex), mfd, magLenRel,360-67, duration, magCutOff, 1.0,0.0,0.0));
 			}
 		}
 		return sources;
@@ -243,7 +243,7 @@ public class NSHMP_GridSourceGenerator {
 	 * @return
 	 */ 
 	public ArrayList<ProbEqkSource> getAllRandomStrikeGriddedSources(double duration) {
-		int numSources =  region.getNumGridLocs();
+		int numSources =  region.getNodeCount();
 		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
 		for(int i=0; i<numSources; ++i) {
 			sources.add(getRandomStrikeGriddedSource(i, duration));
@@ -259,7 +259,7 @@ public class NSHMP_GridSourceGenerator {
 	 * @return
 	 */ 
 	public ArrayList<ProbEqkSource> getAllCrosshairGriddedSources(double duration) {
-		int numSources =  region.getNumGridLocs();
+		int numSources =  region.getNodeCount();
 		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
 		for(int i=0; i<numSources; ++i) {
 			sources.add(this.getCrosshairGriddedSource(i, duration));
@@ -275,7 +275,7 @@ public class NSHMP_GridSourceGenerator {
 	 */
 	public ProbEqkSource getRandomStrikeGriddedSource(int srcIndex, double duration) {
 		SummedMagFreqDist mfdAtLoc = getTotMFD_atLoc(srcIndex,  false, true,  true, false, false);
-		return new Point2Vert_FaultPoisSource(region.getGridLocation(srcIndex), mfdAtLoc, magLenRel, duration, magCutOff,
+		return new Point2Vert_FaultPoisSource(region.locationForIndex(srcIndex), mfdAtLoc, magLenRel, duration, magCutOff,
 				fracStrikeSlip[srcIndex],fracNormal[srcIndex],fracReverse[srcIndex], false);
 	}
 	
@@ -289,7 +289,7 @@ public class NSHMP_GridSourceGenerator {
 		boolean includeDeeps = false;
 		//boolean includeDeeps = true;
 		SummedMagFreqDist mfdAtLoc = getTotMFD_atLoc(srcIndex,  false, true,  true, false, includeDeeps);
-		return new Point2Vert_FaultPoisSource(region.getGridLocation(srcIndex), mfdAtLoc, magLenRel, duration, magCutOff,
+		return new Point2Vert_FaultPoisSource(region.locationForIndex(srcIndex), mfdAtLoc, magLenRel, duration, magCutOff,
 				fracStrikeSlip[srcIndex],fracNormal[srcIndex],fracReverse[srcIndex], true);
 	}
 
@@ -300,7 +300,7 @@ public class NSHMP_GridSourceGenerator {
 	 * @return
 	 */
 	public int getNumSources() {
-		return region.getNumGridLocs();
+		return region.getNodeCount();
 	}
 
 
@@ -311,7 +311,7 @@ public class NSHMP_GridSourceGenerator {
 	 *
 	 */
 	private void setA_ValIndexForLocIndex() {
-		aValIndexForLocIndex = new int[region.getNumGridLocs()];
+		aValIndexForLocIndex = new int[region.getNodeCount()];
 		//initialize values to -1 (bogus index) because not all RELM locs have a corresponding line in the grid file
 		for(int i=0;i<aValIndexForLocIndex.length;i++)
 			aValIndexForLocIndex[i] = -1;
@@ -333,7 +333,7 @@ public class NSHMP_GridSourceGenerator {
 				lat = Double.parseDouble(tokenizer.nextToken());
 				loc = new Location(lat, lon);
 				if(region.contains(loc))
-					aValIndexForLocIndex[region.getNearestLocationIndex(loc)] = fileIndex;
+					aValIndexForLocIndex[region.indexForLocation(loc)] = fileIndex;
 				latlonLine = regionFileBufferedReader.readLine();
 				fileIndex += 1;
 				numAvals += 1;
@@ -459,7 +459,7 @@ public class NSHMP_GridSourceGenerator {
 		}
 
 		//now keep only the ones in the RELM region
-		double[] gridVals = new double[region.getNumGridLocs()];
+		double[] gridVals = new double[region.getNodeCount()];
 		for(int i=0;i<gridVals.length;i++) {
 			int aValIndex = aValIndexForLocIndex[i];
 			if(aValIndex != -1) {  // ignore the RELM locs outside the NSHMP region
@@ -532,9 +532,9 @@ public class NSHMP_GridSourceGenerator {
 		// create summed MFD
 		int numMags = (int)Math.round((maxMagAtLoc-UCERF2.MIN_MAG)/DELTA_MAG) + 1;
 		SummedMagFreqDist mfdAtLoc = new SummedMagFreqDist(UCERF2.MIN_MAG, maxMagAtLoc, numMags);
-		int numLocs = this.region.getNumGridLocs();
+		int numLocs = this.region.getNodeCount();
 		for(int i=0; i<numLocs; i++)
-			if(region==null || region.contains(this.region.getGridLocation(i))) {
+			if(region==null || region.contains(this.region.locationForIndex(i))) {
 				mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, C_ZONES_MAX_MAG, area1new_agrid[i], B_VAL, false), true);
 				mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, C_ZONES_MAX_MAG, area2new_agrid[i], B_VAL, false), true);
 				mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, C_ZONES_MAX_MAG, area3new_agrid[i], B_VAL, false), true);
@@ -563,9 +563,9 @@ public class NSHMP_GridSourceGenerator {
 
 		// create summed MFD
 		SummedMagFreqDist totMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
-		int numLocs = this.region.getNumGridLocs();
+		int numLocs = this.region.getNodeCount();
 		for(int locIndex=0; locIndex<numLocs; ++locIndex)
-			if(region==null || region.contains(this.region.getGridLocation(locIndex)))
+			if(region==null || region.contains(this.region.locationForIndex(locIndex)))
 				totMFD.addResampledMagFreqDist(getTotMFD_atLoc( locIndex,  includeC_zones, 
 						applyBulgeReduction,  applyMaxMagGrid, includeFixedRakeSources, true), true);
 		return totMFD;
@@ -637,7 +637,7 @@ public class NSHMP_GridSourceGenerator {
 	}
 	
 	public void writeNumSources() {
-		int numLocs = region.getNumGridLocs();
+		int numLocs = region.getNodeCount();
 		int num;
 		System.out.println("Total Num Locs = "+numLocs);
 		num=0;
@@ -682,12 +682,12 @@ public class NSHMP_GridSourceGenerator {
 	 * 
 	 */
 	private void getFocalMechFractions() {
-		fracStrikeSlip = new double[region.getNumGridLocs()];
-		fracNormal = new double[region.getNumGridLocs()];
-		fracReverse = new double[region.getNumGridLocs()];
+		fracStrikeSlip = new double[region.getNodeCount()];
+		fracNormal = new double[region.getNodeCount()];
+		fracReverse = new double[region.getNodeCount()];
 		
 		double ss_rate, n_rate, rv_rate;
-		for(int loc=0; loc<region.getNumGridLocs();loc++) {
+		for(int loc=0; loc<region.getNodeCount();loc++) {
 			
 			ss_rate = 0;
 			n_rate = 0;
