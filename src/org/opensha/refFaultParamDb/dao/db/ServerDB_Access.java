@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import org.opensha.commons.util.Preferences;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 
 import com.sun.rowset.CachedRowSetImpl;
@@ -28,7 +29,7 @@ public class ServerDB_Access     implements java.io.Serializable, DB_AccessAPI {
 	private static final boolean D = false;
 
 	// GRAVITY FOR JAVA 1.5
-	private final static String SERVLET_URL  = "http://opensha.usc.edu:8080/OpenSHA/Fault_DB_AccessServlet";
+	private final static String SERVLET_URL  = Preferences.OPENSHA_SERVLET_URL + "Fault_DB_AccessServlet";
 
 	// SCECDATA FOR JAVA 1.5
 	//private final static String SERVLET_URL  = "http://scecdata.usc.edu:8080/UCERF/servlet/DB_AccessServlet";

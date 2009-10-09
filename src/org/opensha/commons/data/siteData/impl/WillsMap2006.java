@@ -17,6 +17,7 @@ import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.SiteDataToXYZ;
 import org.opensha.commons.data.siteData.servlet.SiteDataServletAccessor;
 import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.commons.util.Preferences;
 import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
 
@@ -36,7 +37,7 @@ public class WillsMap2006 extends AbstractSiteData<Double> {
 	public static final String SERVER_BIN_FILE = "/export/opensha/data/siteData/wills2006.bin";
 	public static final String DEBUG_BIN_FILE = "/home/kevin/OpenSHA/siteClass/out.bin";
 	
-	public static final String SERVLET_URL = "http://opensha.usc.edu:8080/OpenSHA/SiteData/Wills2006";
+	public static final String SERVLET_URL = Preferences.OPENSHA_SERVLET_URL + "SiteData/Wills2006";
 	
 	private Region applicableRegion;
 	
