@@ -134,13 +134,15 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		}
 
 		LocationList ll = new LocationList();
-		double offset = 0.00001; // in degrees ~1m
 		// NOTE: see notes at LL_PRECISION
 		// TODO: increase value with move to jdk6
 		double minLat = Math.min(lat1,lat2);
 		double minLon = Math.min(lon1,lon2);
-		double maxLat = Math.max(lat1,lat2) + offset;
-		double maxLon = Math.max(lon1,lon2) + offset;
+		double maxLat = Math.max(lat1,lat2);
+		double maxLon = Math.max(lon1,lon2);
+		double offset = 0.00001; // in degrees ~1m
+		maxLat += (maxLat <= 90.0-offset) ? offset : 0.0;
+		maxLon += (maxLon <= 180.0-offset) ? offset : 0.0;
 		ll.addLocation(new Location(minLat, minLon));
 		ll.addLocation(new Location(minLat, maxLon));
 		ll.addLocation(new Location(maxLat, maxLon));
@@ -248,6 +250,14 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	}
 	
 
+	/*
+	 * Package-private method that allows contains to operate on 
+	 * unverified lat-lon values.
+	 */
+	boolean contains(double lat, double lon) {
+		return area.contains(lon, lat);
+	}
+	
 	/**
 	 * Returns whether the given <code>Location</code> is inside this region.
 	 * The determination follows the rules of insidedness defined in the 
@@ -272,7 +282,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 * @see java.awt.Shape
 	 */
 	public boolean contains(Location loc) {
-		return area.contains(loc.getLongitude(), loc.getLatitude());
+		return contains(loc.getLatitude(), loc.getLongitude());
 	}
 
 	/**

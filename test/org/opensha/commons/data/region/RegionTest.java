@@ -113,17 +113,17 @@ public class RegionTest {
 		Location L2 = new Location(32,118);
 		Location L3 = new Location(34,118);
 		try {
-			Region gr = new Region(L1,L2);
+			Region r = new Region(L1,L2);
 			fail("Same lat values not caught");
 		} catch (IllegalArgumentException iae) {}
 		try {
-			Region gr = new Region(L2,L3);
+			Region r = new Region(L2,L3);
 			fail("Same lon values not caught");
 		} catch (IllegalArgumentException iae) {}
 		try {
 			L1 = null;
 			L2 = null;
-			Region gr = new Region(L1,L2);
+			Region r = new Region(L1,L2);
 			fail("Null argument not caught");
 		} catch (NullPointerException npe) {}
 		
@@ -131,6 +131,35 @@ public class RegionTest {
 		LocationList ll1 = smRectRegion.getBorder();
 		LocationList ll2 = createLocList(regionLocLocDat);
 		assertTrue(ll1.compareTo(ll2) == 0);
+		
+		// test that addition of additional N and E offset for insidedness
+		// testing is not applied to borders at 90N and 180E
+		Location L4 = new Location(80,170);
+		Location L5 = new Location(90,170);
+		Location L6 = new Location(90,180);
+		Location L7 = new Location(80,180);
+		Region r1 = new Region(L4, L6);
+		LocationList locList1 = new LocationList();
+		locList1.addLocation(L4);
+		locList1.addLocation(L5);
+		locList1.addLocation(L6);
+		locList1.addLocation(L7);
+		Region r2 = new Region(locList1, BorderType.MERCATOR_LINEAR);
+		assertTrue(r1.equals(r2));
+		
+		// and is applied to other borders
+		Location L8 = new Location(80,170);
+		Location L9 = new Location(89,170);
+		Location L10 = new Location(89,179);
+		Location L11 = new Location(80,179);
+		Region r3 = new Region(L8, L10);
+		LocationList locList2 = new LocationList();
+		locList2.addLocation(L8);
+		locList2.addLocation(L9);
+		locList2.addLocation(L10);
+		locList2.addLocation(L11);
+		Region r4 = new Region(locList2, BorderType.MERCATOR_LINEAR);
+		assertTrue(!r3.equals(r4));
 		
 		// test serialization
 		try {

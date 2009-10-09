@@ -12,6 +12,7 @@ import org.apache.commons.math.util.MathUtils;
 import org.dom4j.Element;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.region.CaliforniaRegions.RELM_GRIDDED;
 import org.opensha.commons.exceptions.InvalidRangeException;
 
 
@@ -33,10 +34,12 @@ import org.opensha.commons.exceptions.InvalidRangeException;
  * <br/>
  * A <code>GriddedRegion</code> may be initialized several ways (e.g. as a
  * circle, an area of uniform degree-width and -height, or a buffer around
- * a linear feature). See individual constructors for illustrative examples.
+ * a linear feature). See constructor documentation for illustrative examples.
  * The <code>Location</code>s of the grid nodes are indexed
  * internally in order of increasing longitude then latitude starting with
- * the node at the lowest latitude and longitude in the region.<br/>
+ * the node at the lowest latitude and longitude in the region.
+ * <code>GriddedRegion</code>s are iterable as a shorthand for 
+ * <code>getNodeList().iterator()</code>.<br/>
  * <br/>
  * To ensure grid nodes fall on specific lat-lon values, all constructors
  * take an anchor <code>Location</code> argument. This location can be
@@ -49,6 +52,7 @@ import org.opensha.commons.exceptions.InvalidRangeException;
  * the Location defined by the minimum latitude and longitude of the region's
  * border.<br/>
  * <br/>
+ * 
  * <br/>
  * 
  * @author Nitin Gupta
@@ -86,14 +90,14 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	// all valid nodes point to position in nodeList; gridIndices increase
 	// across and then up
 	private int[] gridIndices;
-	private BitSet validIndices;
 	
 	// list of nodes
 	private LocationList nodeList;
 	
-	// dimensions
+	// grid data
 	private double spacing;
 	private int nodeCount;
+	private int gridSize;
 
 	/**
 	 * Initializes a <code>GriddedRegion</code> from a pair of <code>
@@ -295,9 +299,13 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	 * another <code>Region</code>. The border of the new region is the 
 	 * intersection of the borders of the parent and the passed-in region.
 	 * The new region also inherits the grid spacing and node-alignment of 
-	 * the parent. The method returns <code>null</code> if the new gridded 
-	 * region is devoid of grid nodes or if the two regions do not overlap.
-	 * 
+	 * the parent. <img style="padding: 30px 40px; float: right;" 
+	 * src="{@docRoot}/img/gridded_regions_sub.jpg"/>
+	 * The method returns <code>null</code> if the new gridded 
+	 * region is devoid of grid nodes or if the two regions do not overlap.<br/>
+	 * <br/>
+	 * <br/>
+	 * <br/>
 	 * @param region to use as border for sub-region
 	 * @return a new GriddedRegion
 	 */
@@ -309,50 +317,10 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 			new GriddedRegion(newRegion, spacing, anchor);
 		return (newGriddedRegion.isEmpty()) ? null : newGriddedRegion;
 	}
-	
-	/**
-	 * Returns the iterator.
-	 * TODO kill; users can get this once they've gotten the location list
-	 * @return an iterator
-	 */
-//	public ListIterator<Location> getGridLocationsIterator() {
-//		return nodeList.listIterator();
-//	}
-	
-	/* implementation: iterator traverses bitset of valid nodes */
-	public Iterator<Location> iterator() {
 		
-		Iterator<Location> it = new Iterator<Location>() {
-			
-			private Location loc = new Location();
-			private int idx = 0;
-			private int lastIdx = nodeCount - 1;
-			private int latIdx,lonIdx;
-			
-			/* implementation */
-			public boolean hasNext() {
-				return idx < lastIdx;
-			}
-			
-			/* implementation */
-			public Location next() {
-				idx = validIndices.nextSetBit(idx);
-				if (idx == -1) throw new NoSuchElementException();
-				latIdx = idx / lonNodes.length;
-				lonIdx = idx % lonNodes.length;
-				loc.setLatitude(latNodes[latIdx]);
-				loc.setLongitude(lonNodes[lonIdx]);
-				idx += 1;
-				return loc;
-			}
-			
-			/* implementation */
-			public void remove() {
-				throw new UnsupportedOperationException();
-			}
-			
-		};
-		return it;
+	/* implementation */
+	public Iterator<Location> iterator() {
+		return nodeList.iterator();
 	}
 
 	/**
@@ -557,26 +525,18 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 		return (newAnchor < min) ? newAnchor + spacing : newAnchor;
 	}
 
-	/*
-	 * Initilize the grid index array.
-	 * TODO do away with storing loc list; most requests for the grid
-	 * location list pass it off to some other method that expects and
-	 * then iterates over a LocationList. Such methods should be reconfigured
-	 * to accept Iterable<Location> 
-	 */
+	/* Initilize the grid index and Location arrays */
 	private void initNodes() {
-		int numGridPoints = lonNodes.length * latNodes.length;
-		gridIndices = new int[numGridPoints];
+		gridSize = lonNodes.length * latNodes.length;
+		gridIndices = new int[gridSize];
 		nodeList = new LocationList();
-		Location dummy = new Location(); // utility Location
 		int node_idx = 0;
 		int grid_idx = 0;
 		for (double lat:latNodes) {
 			for (double lon:lonNodes) {
-				dummy.setLatitude(lat);
-				dummy.setLongitude(lon);
-				if (contains(dummy)) {
-					nodeList.addLocation(dummy.copy());
+				System.out.println("yo");
+				if (contains(lat, lon)) {
+					nodeList.addLocation(new Location(lat, lon));
 					gridIndices[grid_idx] = node_idx++;
 				} else {
 					gridIndices[grid_idx] = -1;
@@ -654,9 +614,56 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	 */
 	public static void main(String[] args) {
 		
+//		// speed test
+//		RELM_GRIDDED rg = new RELM_GRIDDED();
+//		int numLoops = 100000;
+//		Location refLoc;
+//
+//		long start = System.currentTimeMillis();
+//		for (int i=0; i<numLoops; i++) {
+//			for (Location loc:rg) {
+//				refLoc = loc;
+//			}
+//		}
+//		long end = System.currentTimeMillis();
+//		System.out.println("it: " + (end-start));
+//		
+//		start = System.currentTimeMillis();
+//		for (int i=0; i<numLoops; i++) {
+//			for (Location loc:rg.getNodeList()) {
+//				refLoc = loc;
+//			}
+//		}
+//		end = System.currentTimeMillis();
+//		System.out.println("ll: " + (end-start));
+		
+		
+		// test that iterator is returning correct locations
+		// small octagon
+		LocationList ll = new LocationList();
+		ll.addLocation(new Location(32,-118));
+		ll.addLocation(new Location(32,-117));
+		ll.addLocation(new Location(33,-116));
+		ll.addLocation(new Location(34,-116));
+		ll.addLocation(new Location(35,-117));
+		ll.addLocation(new Location(35,-118));
+		ll.addLocation(new Location(34,-119));
+		ll.addLocation(new Location(33,-119));
+		GriddedRegion octGR = new GriddedRegion(ll, null, 0.5, GriddedRegion.ANCHOR_0_0);
+
+		for (Location loc:octGR) {
+			System.out.println(loc);
+		}
+		
+		System.out.println(octGR.getNodeList().size() + " pp\n");
+		
+		for (Location loc:octGR.getNodeList()) {
+			System.out.println(loc);
+		}
 		
 		
 //		//TODO use this as indexing test
+		// 
 //		LocationList ll = new LocationList();
 //		ll.addLocation(new Location(35.0,-123.8));
 //		ll.addLocation(new Location(35.0,-123.4));
