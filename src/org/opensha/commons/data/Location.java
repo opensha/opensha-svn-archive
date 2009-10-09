@@ -192,8 +192,10 @@ public class Location implements java.io.Serializable, XMLSaveable {
      * @exception  InvalidRangeException  Thrown if latitude not in the appropiate range.
      */
     protected static void validateLatitude( double lat, String S ) throws InvalidRangeException {
-        if ( lat < MIN_LAT ) throw new InvalidRangeException( S + "Latitude cannot be less than -90" );
-        else if ( lat > MAX_LAT ) throw new InvalidRangeException( S + "Latitude cannot be greater than 90" );
+        if ( lat < MIN_LAT ) throw new InvalidRangeException( S + "Latitude cannot be less than -90" +
+        		" (you supplied " + lat + ")");
+        else if ( lat > MAX_LAT ) throw new InvalidRangeException( S + "Latitude cannot be greater than 90" +
+        		" (you supplied " + lat + ")");
     }
 
 
@@ -205,8 +207,10 @@ public class Location implements java.io.Serializable, XMLSaveable {
      * @exception  InvalidRangeException  Thrown if longitude not in the appropiate range.
      */
     protected static void validateLongitude( double lon, String S ) throws InvalidRangeException {
-        if ( lon < MIN_LON )  throw new InvalidRangeException( S + "Longitude cannot be less than " + MIN_LON );
-        if ( lon > MAX_LON ) throw new InvalidRangeException( S + "Longitude cannot be greater than " + MAX_LON  );
+        if ( lon < MIN_LON )  throw new InvalidRangeException( S + "Longitude cannot be less than " + MIN_LON +
+        		" (you supplied " + lon + ")");
+        if ( lon > MAX_LON ) throw new InvalidRangeException( S + "Longitude cannot be greater than " + MAX_LON +
+        		" (you supplied " + lon + ")");
     }
 
 
