@@ -10,9 +10,6 @@ import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.USGSBayAreaBasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2000TranslatedVs30;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
-
-import com.sun.xml.internal.ws.protocol.soap.ServerMUTube;
-
 import junit.framework.TestCase;
 
 public class SiteDataProvidersTest extends TestCase {
