@@ -199,6 +199,13 @@ public interface ScalarIntensityMeasureRelationshipAPI
    * Allows to reset the change listeners on the parameters
    */
   public void resetParameterEventListeners();
+  
+  /**
+   * Tells whether the give tectonic region is supported
+   * @param tectRegionName
+   * @return
+   */
+  public boolean isTectonicRegionSupported(String tectRegionName);
 
   
 

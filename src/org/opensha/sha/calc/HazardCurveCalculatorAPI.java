@@ -2,6 +2,7 @@ package org.opensha.sha.calc;
 
 import java.rmi.Remote;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.Site;
@@ -11,6 +12,7 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.util.TectonicRegionType;
 
 
 /**
@@ -91,7 +93,32 @@ public interface HazardCurveCalculatorAPI extends Remote{
   public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI hazFunction,
                              Site site, ScalarIntensityMeasureRelationshipAPI imr, EqkRupForecastAPI eqkRupForecast)
       throws java.rmi.RemoteException ;
-
+  
+  /**
+   * This function computes a hazard curve for the given Site, imrMap, ERF, and 
+   * discretized function, where the latter supplies the x-axis values (the IMLs) for the 
+   * computation, and the result (probability) is placed in the y-axis values of this function.
+   * This always applies a source and rupture distance cutoff using the value of the
+   * maxDistanceParam parameter (set to a very high value if you don't want this).  It also 
+   * applies a magnitude-dependent distance cutoff on the sources if the value of 
+   * includeMagDistFilterParam is "true" and using the function in magDistCutoffParam.
+   * @param hazFunction: This function is where the hazard curve is placed
+   * @param site: site object
+   * @param imrMap: this Hashtable<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI> 
+   * specifies which IMR to use with each tectonic region.  If only one exists in the Hashtable 
+   * then the associated TectonicRegionType is ignored and this IRM is used with all sources.  
+   * If multiple IMRs exist, then we set the TectonicRegionTypeParameter in the IMR to the 
+   * associated value in case the IMR supports multiple TectonicRegionTypes.  If the IMR does not 
+   * support the assigned TectonicRegionType (which is allowed for flexibility) then we set the
+   * TectonicRegionTypeParameter to it's default value (since it may support more than one other type).
+   * @param eqkRupForecast: selected Earthquake rup forecast
+   * @return
+   */
+  public DiscretizedFuncAPI getHazardCurve(
+		  DiscretizedFuncAPI hazFunction,
+		  Site site,
+		  Hashtable<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap, 
+		  EqkRupForecastAPI eqkRupForecast) throws java.rmi.RemoteException;
 
 
   /**

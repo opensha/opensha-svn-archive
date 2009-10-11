@@ -14,6 +14,7 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.event.TimeSpanChangeListener;
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteEqkRupForecastAPI;
+import org.opensha.sha.util.TectonicRegionType;
 
 
 /**
@@ -255,6 +256,19 @@ public abstract class ERF_EpistemicList implements ERF_EpistemicListAPI,
   public RemoteEqkRupForecastAPI getRemoteERF(int index){
     return null;
   }
+  
+  /**
+   * This specifies what types of Tectonic Regions are included in the ERF.
+   * This default implementation includes only ACTIVE_SHALLOW, so it should 
+   * be overridden in subclasses if other types are used
+   * @return : ArrayList<TectonicRegionType>
+   */
+  public ArrayList<TectonicRegionType> getIncludedTectonicRegionTypes(){
+	  ArrayList<TectonicRegionType> list = new ArrayList<TectonicRegionType>();
+	  list.add(TectonicRegionType.ACTIVE_SHALLOW);
+	  return list;
+  }
+
 
 
 }

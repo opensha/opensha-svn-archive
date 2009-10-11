@@ -12,6 +12,7 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
+import org.opensha.sha.util.TectonicRegionType;
 
 /**
  * <p>
@@ -204,5 +205,18 @@ public abstract class GriddedHypoMagFreqDistForecast implements
 
 		}
 	}
+	
+	  /**
+	   * This specifies what types of Tectonic Regions are included in the ERF.
+	   * This default implementation includes only ACTIVE_SHALLOW, so it should 
+	   * be overridden in subclasses if other types are used
+	   * @return : ArrayList<TectonicRegionType>
+	   */
+	  public ArrayList<TectonicRegionType> getIncludedTectonicRegionTypes(){
+		  ArrayList<TectonicRegionType> list = new ArrayList<TectonicRegionType>();
+		  list.add(TectonicRegionType.ACTIVE_SHALLOW);
+		  return list;
+	  }
+
 
 }

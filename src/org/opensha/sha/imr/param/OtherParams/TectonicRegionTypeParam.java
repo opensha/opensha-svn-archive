@@ -19,7 +19,7 @@ import org.opensha.sha.util.TectonicRegionType;
 public class TectonicRegionTypeParam extends StringParameter {
 
 	public final static String NAME = "Tectonic Region";
-	public final static String INFO = "Type of Tectonic Region";
+	public final static String INFO = "Applicable Tectonic Region(s) - not strictly enforced";
 	
 	/**
 	 * This no-argument constructor defaults to only Active Shallow Crust, 

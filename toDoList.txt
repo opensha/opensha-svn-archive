@@ -28,23 +28,16 @@ beans and control panels.  This will also involve reviewing Kevin's
 toXMLMetadata(Element root)  &  fromXMLMetadata(Element root) implementations (these 
 should be our starting point).
 
-Create capability to associate IMRs to specific source types in the calculations 
-(this will require discussions with GEM and NSHMP).  Ned's intitial tests on 
-adding such fields to EqkRupture does not significantly increase memory requirements.  
-Possibilities:
+The ability to associate sources and imrs to TectonicRegionTypes has been added to the
+HazardCurveCalculator.  What remains to be done is:
 
-	Subduction Interface
-	Subduction IntraSlab
-	Active Shallow Crust
-	Stable Shallow Crust
-	Volcanic
-
-ProbEqkSource	Define field to declare what type of source it is
-		(e.g., subduction zone vs normal vs reverse ...) and add to API.
-		Ned will work on what the various options should be.
-
-ERF		-extend API to include getting max and min magnitude, and the various types of
-		sources generated (to check for compatibility with each chosen IMR)
+	Add option to GUI (or wait until we have command-line versions based on XML first?)
+	Do this for stochastic event sets (from the ERf we'll need a list for each TectonicRegionType)
+	Distance filters should now be tectonic-region dependent?
+	
+	Ned's Note - experiments show that adding a TectonicRegionType field to EqkRupture, and setting
+	this in sources and in the IMR.setEqkRupture(*) method does not increase computation
+	time or bloat memory.
 
 Distance Calculations : Approx Horizontal Distance(getApproxHorzDistance()) calculator 
 does not calculate the correct distance if longitude is > 0. But Horizontal 

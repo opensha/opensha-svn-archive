@@ -791,5 +791,14 @@ public abstract class AttenuationRelationship
    * Allows to reset the change listeners on the parameters
    */
   public void resetParameterEventListeners(){};
+  
+  /**
+   * Tells whether the give tectonic region is supported
+   * @param tectRegionName
+   * @return
+   */
+  public boolean isTectonicRegionSupported(String tectRegionName) {
+	  return tectonicRegionTypeParam.isAllowed(tectRegionName);
+  }
 
 }

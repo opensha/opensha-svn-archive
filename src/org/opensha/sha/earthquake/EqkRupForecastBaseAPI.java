@@ -1,6 +1,7 @@
 package org.opensha.sha.earthquake;
 
 
+import java.util.ArrayList;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.Location;
@@ -9,6 +10,7 @@ import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.region.Region;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.sha.util.TectonicRegionType;
 
 
 /**
@@ -95,7 +97,15 @@ public interface EqkRupForecastBaseAPI extends NamedObjectAPI{
    * Get the region for which this forecast is applicable
    * @return : Geographic region object specifying the applicable region of forecast
    */
-  public Region getApplicableRegion() ;
+  public Region getApplicableRegion();
+  
+
+  /**
+   * This specifies what types of Tectonic Regions are included in the ERF
+   * @return : ArrayList<TectonicRegionType>
+   */
+  public ArrayList<TectonicRegionType> getIncludedTectonicRegionTypes();
+
 
 
 }
