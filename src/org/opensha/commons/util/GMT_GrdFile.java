@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.Region;
 
 import ucar.ma2.Array;
 import ucar.ma2.Index;
@@ -36,6 +37,8 @@ public class GMT_GrdFile {
 	private Variable zVar;
 	
 	private static int singleShape[] = {1, 1};
+	
+	private Region region = null;
 	
 	/**
 	 * Load the given GRD file...it will be cached by default
@@ -182,6 +185,7 @@ public class GMT_GrdFile {
 	public void cacheZData() throws IOException {
 		if (zData == null) {
 			zData = zVar.read();
+			zInd = zData.getIndex();
 		}
 	}
 	
@@ -204,6 +208,57 @@ public class GMT_GrdFile {
 	public String getZName() {
 		return zVar.getName();
 	}
+	
+	/**
+	 * Returns the min longitude (X) value
+	 * 
+	 * @return
+	 */
+	public double getMinX() {
+		return getX(0);
+	}
+	
+	/**
+	 * Returns the max longitude (X) value
+	 * 
+	 * @return
+	 */
+	public double getMaxX() {
+		return getX(getNumX() - 1);
+	}
+	
+	/**
+	 * Returns the min latitude (X) value
+	 * 
+	 * @return
+	 */
+	public double getMinY() {
+		return getY(0);
+	}
+	
+	/**
+	 * Returns the max latitude (X) value
+	 * 
+	 * @return
+	 */
+	public double getMaxY() {
+		return getY(getNumY() - 1);
+	}
+	
+	/**
+	 * Returns the region for this GRD file
+	 * 
+	 * @return
+	 */
+	public Region getRegion() {
+		if (region == null) {
+			Location loc1 = new Location(getMinY(), getMinX());
+			Location loc2 = new Location(getMaxY(), getMaxX());
+			region = new Region(loc1, loc2);
+		}
+		
+		return region;
+	}
 
 	/**
 	 * @param args
@@ -211,24 +266,16 @@ public class GMT_GrdFile {
 	 * @throws InvalidRangeException 
 	 */
 	public static void main(String[] args) throws IOException, InvalidRangeException {
-		boolean cacheZ = true;
+		boolean cacheZ = true;	// if 'true', all Z values will be loaded up front. otherwise they will
+								// be loaded on demand (slower if you need a lot of the file)
 		GMT_GrdFile grd = new GMT_GrdFile("/tmp/sum_slab1.0_clip.grd", cacheZ);
+		
+		System.out.println("NumX: " + grd.getNumX() + " NumY: " + grd.getNumY());
+		System.out.println(grd.getRegion());
 		
 		int x = 1649;
 		int y = 146;
-		
 		System.out.println(grd.getLoc(x, y) + ": " + grd.getZ(x, y));
-		
-		FileWriter fw = new FileWriter("/tmp/slab.txt");
-		
-		for (x=0; x<grd.getNumX(); x++) {
-			for (y=0; y<grd.getNumY(); y++) {
-				Location loc = grd.getLoc(x, y);
-				double val = grd.getZ(x, y);
-				fw.write(loc.getLatitude() + "\t" + loc.getLongitude() + "\t" + val + "\n");
-			}
-		}
-		fw.close();
 	}
 
 }
