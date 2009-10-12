@@ -306,8 +306,8 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList{
        bw.write("\n");
        bw.write("cd "+WG02_CODE_PATH+"\n");
        bw.write(wg02_Command+"\n");
-       bw.write("mv "+INPUT_FILE_NAME_1+" "+WG02_CODE_PATH+dirName+"/.");
-       bw.write("mv "+INPUT_FILE_NAME_2+" "+WG02_CODE_PATH+dirName+"/.");
+       bw.write("mv "+INPUT_FILE_NAME_1+" "+WG02_CODE_PATH+dirName+"/.\n");
+       bw.write("mv "+INPUT_FILE_NAME_2+" "+WG02_CODE_PATH+dirName+"/.\n");
        bw.close();
        //command to be executed during the runtime.
        String[] command ={"sh","-c","sh "+ WG02_CODE_PATH+dirName+"/wg02.sh"};
