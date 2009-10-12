@@ -14,7 +14,7 @@ import java.io.InputStream;
  * so that the correct read(byte[], int, int) method is used.
  *
  * @author Mark Donszelmann
- * @version $Id: ASCII85InputStream.java,v 1.3 2001/11/22 14:54:58 duns Exp $
+ * @version $Id$
  */
 public class ASCII85InputStream extends InputStream {
 	
