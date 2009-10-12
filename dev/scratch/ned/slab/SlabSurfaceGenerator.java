@@ -14,8 +14,6 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 
-import sun.tools.tree.ThisExpression;
-
 public class SlabSurfaceGenerator extends EvenlyGriddedSurface {
 	
 	FaultTrace resampTopTrace, resampBottomTrace;
