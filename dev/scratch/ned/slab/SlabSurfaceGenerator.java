@@ -125,7 +125,12 @@ public class SlabSurfaceGenerator extends EvenlyGriddedSurface {
 	  }
 	  
 	  /**
-	   * 
+	   * This resamples the trace into num subsections of equal length 
+	   * (final number of points in trace is num+1).  However, note that
+	   * these subsections of are equal length on the original trace, and
+	   * that the final subsections will be less than that if there is curvature
+	   * in the original between the points (e.g., corners getting cut).
+	   * corners.
 	   * @param trace
 	   * @param num - number of subsections
 	   * @return
@@ -199,8 +204,6 @@ public class SlabSurfaceGenerator extends EvenlyGriddedSurface {
 		  ave /= resampTrace.size()-1;
 		  System.out.println("ave="+ave+"\tmin="+min+"\tmax="+max+"\tnum="+trace.size());
 
-
-		  
 		  return resampTrace;
 	  }
 	  
