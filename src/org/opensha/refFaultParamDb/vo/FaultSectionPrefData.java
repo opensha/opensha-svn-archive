@@ -10,8 +10,9 @@ import java.util.Iterator;
 import org.dom4j.Element;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.metadata.XMLSaveable;
-import org.opensha.sha.faultSurface.EqualLengthSubSectionsTrace;
+import org.opensha.sha.faultSurface.FaultTraceUtils;
 import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.FaultTraceUtils;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 
 /**
@@ -134,13 +135,12 @@ public class FaultSectionPrefData  implements java.io.Serializable, XMLSaveable,
 	 * @return
 	 */
 	public ArrayList getSubSectionsList(double maxSubSectionLen) {
-		EqualLengthSubSectionsTrace equalLengthSubsTrace = new EqualLengthSubSectionsTrace(this.faultTrace, maxSubSectionLen);
-		int numSubSections = equalLengthSubsTrace.getNumSubSections();
+		ArrayList<FaultTrace> equalLengthSubsTrace = FaultTraceUtils.getEqualLengthSubsectionTraces(this.faultTrace, maxSubSectionLen);
 		ArrayList<FaultSectionPrefData> subSectionList = new ArrayList<FaultSectionPrefData>();
-		for(int i=0; i<numSubSections; ++i) {
+		for(int i=0; i<equalLengthSubsTrace.size(); ++i) {
 			FaultSectionPrefData subSection = new FaultSectionPrefData();
 			subSection.setFaultSectionPrefData(this);
-			subSection.setFaultTrace(equalLengthSubsTrace.getSubSectionTrace(i));
+			subSection.setFaultTrace(equalLengthSubsTrace.get(i));
 			subSection.setSectionId(this.sectionId*1000+i);
 			subSectionList.add(subSection);
 			subSection.setSectionName(this.sectionName+" Subsection:"+(i+1));
