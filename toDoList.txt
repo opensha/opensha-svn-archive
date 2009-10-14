@@ -5,6 +5,29 @@
 BROADER ISSUES:
 --------------
 
+Develop strategy for instantiation of model components for each type of 
+calculation from XML files.  In so doing we will likely revise the implementation 
+of our GUIs in order to make things most efficient (e.g., in terms of showing metadata 
+from a calculation, saving the state of an application, and avoiding redundant calcs 
+if already done and saved in a database (the latter two have yet to be done)).   
+This will involve first looking at our calculators (the various elements needed 
+for the various calculations), and then considering how these relate to our GUI 
+beans and control panels.  This will also involve reviewing Kevin's 
+toXMLMetadata(Element root)  &  fromXMLMetadata(Element root) implementations (these 
+should be our starting point).  We also want to maintain remote calc capabilities.
+
+The ability to associate sources and imrs to TectonicRegionTypes has been added to the
+HazardCurveCalculator.  What remains to be done is:
+
+	Add option to GUI (or wait until we have command-line versions based on XML first?)
+	Do this for stochastic event sets (from the ERf we'll need a list for each TectonicRegionType)
+	Distance filters should now be tectonic-region dependent?
+	
+	Ned's Note - experiments show that adding a TectonicRegionType field to EqkRupture, and setting
+	this in sources and in the IMR.setEqkRupture(*) method does not increase computation
+	time or bloat memory.
+	
+	
 Convert web sites to Drupal Wiki; start with WGCEP - Peter's going to try it out.
 
 Peter has decided on Apache software license ASL2.0; he will implement it soon.
@@ -17,27 +40,7 @@ Fix offset in global GMT topo intensity file (email from Kevin on 9/3/09) - Kevi
 
 Go through main calculators as a group.  Map/UML of each calculator/application.
 
-Develop strategy for instantiation of model components for each type of 
-calculation from XML files.  In so doing we will likely revise the implementation 
-of our GUIs in order to make things most efficient (e.g., in terms of showing metadata 
-from a calculation, saving the state of an application, and avoiding redundant calcs 
-if already done and saved in a database (the latter two have yet to be done)).   
-This will involve first looking at our calculators (the various elements needed 
-for the various calculations), and then considering how these relate to our GUI 
-beans and control panels.  This will also involve reviewing Kevin's 
-toXMLMetadata(Element root)  &  fromXMLMetadata(Element root) implementations (these 
-should be our starting point).
 
-The ability to associate sources and imrs to TectonicRegionTypes has been added to the
-HazardCurveCalculator.  What remains to be done is:
-
-	Add option to GUI (or wait until we have command-line versions based on XML first?)
-	Do this for stochastic event sets (from the ERf we'll need a list for each TectonicRegionType)
-	Distance filters should now be tectonic-region dependent?
-	
-	Ned's Note - experiments show that adding a TectonicRegionType field to EqkRupture, and setting
-	this in sources and in the IMR.setEqkRupture(*) method does not increase computation
-	time or bloat memory.
 
 Distance Calculations : Approx Horizontal Distance(getApproxHorzDistance()) calculator 
 does not calculate the correct distance if longitude is > 0. But Horizontal 
