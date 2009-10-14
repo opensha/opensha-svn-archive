@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opensha.sha.faultSurface;
+package org.opensha.commons.util;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -12,6 +12,7 @@ import org.opensha.commons.data.Direction;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
@@ -168,7 +169,7 @@ public class FaultTraceUtils {
 	   */
 	  public static void plotTraces(ArrayList<FaultTrace> traces) {
 		  throw new RuntimeException("This doesn't work because our functions will reorder x-axis values to monotonically increase (and remove duplicates - someone should fix this)");
-		  ArrayList funcs = new ArrayList();
+		  /*ArrayList funcs = new ArrayList();
 			for(int t=0; t<traces.size();t++) {
 				FaultTrace trace = traces.get(t);
 				ArbitrarilyDiscretizedFunc traceFunc = new ArbitrarilyDiscretizedFunc();
@@ -185,7 +186,7 @@ public class FaultTraceUtils {
 			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 2));
 			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 1));
 			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 1));
-*/			graph.setPlottingFeatures(plotChars);
+			graph.setPlottingFeatures(plotChars);
 			graph.setX_AxisLabel("Longitude");
 			graph.setY_AxisLabel("Latitude");
 			graph.setTickLabelFontSize(12);
