@@ -16,7 +16,7 @@ import org.opensha.commons.util.GMT_GrdFile;
 import org.opensha.sha.faultSurface.ApproxEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.faultSurface.FaultTraceUtils;
+import org.opensha.commons.util.FaultTraceUtils;
 
 import ucar.ma2.InvalidRangeException;
 
