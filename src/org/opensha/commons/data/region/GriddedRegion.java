@@ -553,7 +553,6 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 		int grid_idx = 0;
 		for (double lat:latNodes) {
 			for (double lon:lonNodes) {
-				System.out.println("yo");
 				if (contains(lat, lon)) {
 					nodeList.addLocation(new Location(lat, lon));
 					gridIndices[grid_idx] = node_idx++;
