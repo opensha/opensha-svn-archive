@@ -1,6 +1,8 @@
 package org.opensha.commons.util;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import org.opensha.commons.data.Location;
@@ -58,7 +60,22 @@ public class GMT_GrdFile {
 	 * @throws IOException
 	 */
 	public GMT_GrdFile(String fileName, boolean cacheZ) throws IOException {
-		file = NetcdfFile.openInMemory(fileName);
+		this(NetcdfFile.open(fileName), cacheZ);
+	}
+	
+	/**
+	 * Load the given GRD file...it will be cached if cacheZ is true
+	 * 
+	 * @param fileName
+	 * @param cacheZ
+	 * @throws IOException
+	 */
+	public GMT_GrdFile(URI uri) throws IOException {
+		this(NetcdfFile.openInMemory(uri), true);
+	}
+	
+	public GMT_GrdFile(NetcdfFile file, boolean cacheZ) throws IOException {
+		this.file = file;
 		List<Dimension> dims = file.getDimensions();
 		xDim = dims.get(0).getLength();
 		yDim = dims.get(1).getLength();
@@ -202,6 +219,50 @@ public class GMT_GrdFile {
 		return (lat - minLat) / ySpacing;
 	}
 	
+	/**
+	 * Does a biliniear interpolation between surrounding points to retrieve a value at the specified
+	 * location. The given point should always be within the region boundary.
+	 * 
+	 * If one of the surrounding points is NaN, the resultant value will also be NaN.
+	 * 
+	 * @param loc
+	 * @return
+	 * @throws IOException
+	 * @throws InvalidRangeException
+	 */
+	public double getInterpolatedZ(Location loc) throws IOException, InvalidRangeException {
+		double ind[] = getFloatIndexes(loc);
+		
+		int x0 = (int)ind[1];
+		int y0 = (int)ind[0];
+		int x1 = x0 + 1;
+		int y1 = y0 + 1;
+		
+		float xfrac = (float) (ind[1] - x0);
+		float yfrac = (float) (ind[0] - y0);
+		
+		float s00 = (float) getZ(x0, y0);
+		float s01 = (float) getZ(x1, y0);
+		float s10 = (float) getZ(x0, y1);
+		float s11 = (float) getZ(x1, y1);
+		
+		float interp = interpolate(s00, s01, s10, s11, xfrac, yfrac);
+		
+		System.out.println(s00 + ", " + s01 + ", " + s10 + ", " + s11 + ": " + interp);
+		System.out.println(xfrac + ", " + yfrac);
+		
+		return interp;
+	}
+
+	private static float interpolate(float s00, float s01,
+			float s10, float s11,
+			float xfrac, float yfrac) {
+		float s0 = (s01 - s00)*xfrac + s00;
+		float s1 = (s11 - s10)*xfrac + s10;
+		return (s1 - s0)*yfrac + s0;
+	}
+
+
 	/**
 	 * Returns the closest point in the format (y,x)
 	 * 
@@ -359,11 +420,12 @@ public class GMT_GrdFile {
 	 * @param args
 	 * @throws IOException 
 	 * @throws InvalidRangeException 
+	 * @throws URISyntaxException 
 	 */
-	public static void main(String[] args) throws IOException, InvalidRangeException {
+	public static void main(String[] args) throws IOException, InvalidRangeException, URISyntaxException {
 		boolean cacheZ = true;	// if 'true', all Z values will be loaded up front. otherwise they will
 								// be loaded on demand (slower if you need a lot of the file)
-		GMT_GrdFile grd = new GMT_GrdFile("G:\\Downloads\\sum_slab1.0_clip.grd", cacheZ);
+		GMT_GrdFile grd = new GMT_GrdFile(new URI("http://geohazards.cr.usgs.gov/staffweb/ghayes/Site/Slab1.0_files/sum_slab1.0_clip.grd"));
 //		GMT_GrdFile grd = new GMT_GrdFile("/tmp/sum_slab1.0_clip.grd", cacheZ);
 		
 		System.out.println("NumX: " + grd.getNumX() + " NumY: " + grd.getNumY());
@@ -373,6 +435,9 @@ public class GMT_GrdFile {
 		int x = 1649;
 		int y = 146;
 		System.out.println(grd.getLoc(x, y) + ": " + grd.getZ(x, y));
+		Location newLoc = new Location(-8.804, 123.9);
+		System.out.println(newLoc + ": interp: " + grd.getInterpolatedZ(newLoc));
+		System.out.println(newLoc + ":  close: " + grd.getClosestZ(newLoc));
 	}
 
 }
