@@ -35,6 +35,10 @@ public class BulkCSCurveReplacer {
 	private HashMap<Integer, CybershakeIM> imMap = new HashMap<Integer, CybershakeIM>();
 	
 	public BulkCSCurveReplacer(DBAccess db) {
+		this(db, null);
+	}
+	
+	public BulkCSCurveReplacer(DBAccess db, ArrayList<Integer> runIDs) {
 		this.db = db;
 		this.amps2db = new PeakAmplitudesFromDB(db);
 		this.sites2db = new SiteInfo2DB(db);
@@ -46,6 +50,8 @@ public class BulkCSCurveReplacer {
 		curvesMap = new HashMap<Integer, ArrayList<DiscretizedFuncAPI>>();
 		
 		for (CybershakeRun run : ampRuns) {
+			if (runIDs != null && !runIDs.contains(run.getRunID()))
+				continue;
 			ampSites.add(sites2db.getSiteFromDB(run.getSiteID()));
 			ArrayList<CybershakeHazardCurveRecord> records = curve2db.getHazardCurveRecordsForRun(run.getRunID());
 			if (records != null && !records.isEmpty()) {
@@ -219,16 +225,31 @@ public class BulkCSCurveReplacer {
 		else
 			db = Cybershake_OpenSHA_DBApplication.db;
 		
-		BulkCSCurveReplacer bulk = new BulkCSCurveReplacer(db);
+		ArrayList<Integer> runs = new ArrayList<Integer>();
+		runs.add(228);
+		runs.add(229);
+		runs.add(230);
+		runs.add(231);
+		runs.add(234);
+		runs.add(236);
+		runs.add(237);
+		runs.add(238);
+		runs.add(239);
+		runs.add(245);
+		runs.add(247);
+		runs.add(249);
+		runs.add(336);
 		
-		String initialDir = "/home/kevin/CyberShake/curves/prePatch";
-		String newDir = "/home/kevin/CyberShake/curves/postPatch";
+		BulkCSCurveReplacer bulk = new BulkCSCurveReplacer(db, runs);
+		
+		String initialDir = "/home/kevin/CyberShake/curves/prePatchS";
+		String newDir = "/home/kevin/CyberShake/curves/postPatchS";
 		
 		bulk.writeAllCurvesToDir(initialDir);
 		bulk.recalculateAllCurves(newDir);
 		
 		if (doInsert) {
-			String doneDir = "/home/kevin/CyberShake/curves/patchedCurves";
+			String doneDir = "/home/kevin/CyberShake/curves/patchedCurvesS";
 			bulk.insertNewCurves(newDir, doneDir);
 		}
 		
