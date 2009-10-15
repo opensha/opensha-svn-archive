@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project basedir="." default="build.app" name="ScenarioShakemapServer">
+	<description>
+        Builds the HazardCurveLocal mode application as a launchable jar.
+    </description>
+
+	<!-- global properties -->
+	<property name="build" value="../build" />
+	<property name="dist" value="../dist" />
+	<property name="src" value="../src" />
+	<property name="dev" value="../dev" />
+	<property name="lib.dir" value="../lib" />
+
+	<path id="library.classpath">
+		<fileset dir="${lib.dir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<!-- ================================= 
+          target: build.app
+         ================================= -->
+	<target name="build.app" depends="init, compile, copy, pack" />
+	
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: pack
+          
+          Creates manifest and jar; cleans up build dir.                     
+         - - - - - - - - - - - - - - - - - -->
+	<target name="pack">
+		<manifest file="${build}/MANIFEST.MF">
+			<attribute name="Main-Class" 
+				       value="org.opensha.sha.gui.ScenarioShakeMapApp" />
+			<attribute name="Built-By" value="${user.name}" />
+		</manifest>
+		<jar destfile="${dist}/ScenarioShakeMapApp.jar"
+		     basedir="${build}"
+		     manifest="${build}/MANIFEST.MF">
+			<include name="at/**" />
+			<include name="com/**" />
+			<include name="edu/**" />
+			<include name="net/**" />
+			<include name="org/**" />
+			<include name="scratch/**" />
+			<include name="resources/**" />
+		</jar>
+		<antcall target="clean.build.dir"></antcall>
+	</target>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: compile                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="compile">
+        <antcall target="compile.java" />
+        <antcall target="compile.rmi" />
+    </target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: compile.java
+         - - - - - - - - - - - - - - - - - -->
+	<target name="compile.java">
+		<javac debug="true"
+		       debuglevel="lines,source"
+		       destdir="${build}"
+		       fork="yes">
+			<classpath>
+				<pathelement location="${build}"/>
+				<path refid="library.classpath" />
+			</classpath>
+			<src path="${src}" />
+			<src path="${dev}" />
+			<!-- spcifying the main() class compiles all dependencies -->
+			<include name="org/opensha/sha/gui/ScenarioShakeMapApp.java" />
+			<!-- paths to hard-coded classes -->
+			<include name="org/opensha/sha/earthquake/rupForecastImpl/**" />
+			<include name="org/opensha/sha/cybershake/openshaAPIs/**" />
+			<include name="org/opensha/sha/imr/attenRelImpl/**" />
+			<include name="scratch/christine/attenRelImpl/**" />
+			<exclude name="org/opensha/sha/imr/attenRelImpl/gui/**" />
+			<exclude name="org/opensha/sha/imr/attenRelImpl/test/**" />
+		</javac>
+	</target>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: compile.rmi
+         - - - - - - - - - - - - - - - - - -->
+	<target name="compile.rmi">
+		<ant antfile="compile.xml" target="rmi.hazard.curve"/>
+	</target>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: copy                      
+          
+          Copies resources and unpacks required libs.
+         - - - - - - - - - - - - - - - - - -->
+    <target name="copy">
+        <antcall target="copy.resources" />
+        <antcall target="unjar.libs" />
+    </target>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: copy.resources
+         - - - - - - - - - - - - - - - - - -->
+	<target name="copy.resources">
+		<ant antfile="compile.xml" target="resource.hazard.apps.server"/>
+	</target>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: unjar.libs
+          
+          Unpack necessary libs for inclusion in app.                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="unjar.libs">
+		<ant antfile="compile.xml" target="unjar.libs.common"/>
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: init                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="init">
+		<mkdir dir="${dist}" />
+		<mkdir dir="${build}" />
+		<!-- clean build dir if it wasn't cleaned-->
+		<antcall target="clean.build.dir" />
+	</target>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: clean.build.dir                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="clean.build.dir">
+		<delete includeemptydirs="true">
+			<fileset dir="${build}" includes="**/*"/>
+		</delete>
+	</target>
+
+</project>

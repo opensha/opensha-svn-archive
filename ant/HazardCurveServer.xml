@@ -104,7 +104,7 @@
           target: copy.resources
          - - - - - - - - - - - - - - - - - -->
 	<target name="copy.resources">
-		<ant antfile="compile.xml" target="resource.hazard.apps"/>
+		<ant antfile="compile.xml" target="resource.hazard.apps.server"/>
 	</target>
 	
 	<!-- - - - - - - - - - - - - - - - - - 

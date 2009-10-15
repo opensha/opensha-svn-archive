@@ -755,7 +755,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		HazardCurveServerModeApplication applet = new HazardCurveServerModeApplication();
 		applet.checkAppVersion();
 		applet.init();
-		applet.pack();
+//		applet.pack();
 		applet.setVisible(true);
 	}
 
