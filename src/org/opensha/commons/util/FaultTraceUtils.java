@@ -131,7 +131,7 @@ public class FaultTraceUtils {
 			  Location l = trace.getLocationAt(i);
 			  System.out.println(l.getLatitude()+"\t"+l.getLongitude()+"\t"+l.getDepth());
 		  }
-*/
+
 		  // write out each to check
 		  System.out.println("target resampInt="+resampInt+"\tnum sect="+num);
 		  System.out.println("RESAMPLED");

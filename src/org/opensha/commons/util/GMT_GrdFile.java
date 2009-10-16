@@ -185,6 +185,32 @@ public class GMT_GrdFile {
 	}
 	
 	/**
+	 * checks whether x index is valid
+	 * @param x
+	 * @return
+	 */
+	public boolean isValidX_index(int x){
+		if(x>0 && x<getNumX()){
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * checks whether y index is valid
+	 * @param y
+	 * @return
+	 */
+	public boolean isValidY_index(int y){
+		if(y>0 && y<getNumY()){
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	/**
 	 * Get the Location at the following X,Y indexes
 	 * 
 	 * @param x
@@ -218,6 +244,84 @@ public class GMT_GrdFile {
 		double minLat = getMinY();
 		return (lat - minLat) / ySpacing;
 	}
+	
+	/**
+	 * This computes a weight average of the z-values at the nearest four corners, 
+	 * ignoring any NaNs encountered, or using just two points if the loc is just
+	 * off the edge of the region.
+	 * @param loc
+	 * @return
+	 * @throws IOException
+	 * @throws InvalidRangeException
+	 */
+	public double getWtAveZ(Location loc) throws IOException, InvalidRangeException {
+		double ind[] = getFloatIndexes(loc);
+		
+		double x = ind[1];
+		double y = ind[0];
+		
+		int x0 = (int)ind[1];
+		int y0 = (int)ind[0];
+		int x1 = x0 + 1;
+		int y1 = y0 + 1;
+		
+		double z00=Double.NaN,z01=Double.NaN,z10=Double.NaN,z11=Double.NaN;
+		boolean v00=false, v01=false, v10=false, v11=false;
+		
+		if(isValidX_index(x0) && isValidY_index(y0)) {
+			v00=true;
+			z00 = getZ(x0, y0);
+		}
+		if(isValidX_index(x1) && isValidY_index(y0)) {
+			v10=true;
+			z10 = getZ(x1, y0);
+		}
+		if(isValidX_index(x0) && isValidY_index(y1)) {
+			v01=true;
+			z01 = getZ(x0, y1);
+		}
+		if(isValidX_index(x1) && isValidY_index(y1)) {
+			v11=true;
+			z11 = getZ(x1, y1);
+		}
+		
+		double d00 = Math.sqrt((x-x0)*(x-x0)+(y-y0)*(y-y0));
+		double d10 = Math.sqrt((x-x1)*(x-x1)+(y-y0)*(y-y0));
+		double d01 = Math.sqrt((x-x0)*(x-x0)+(y-y1)*(y-y1));
+		double d11 = Math.sqrt((x-x1)*(x-x1)+(y-y1)*(y-y1));
+		
+		double meanZ=0;
+		double wt=0;
+		
+		if(!Double.isNaN(z00) & v00) {
+			meanZ += z00*d00;
+			wt += d00;
+		}
+		if(!Double.isNaN(z10) && v10) {
+			meanZ += z10*d10;
+			wt += d10;
+		}
+		if(!Double.isNaN(z01) & v01) {
+			meanZ += z01*d01;
+			wt += d01;
+		}
+		if(!Double.isNaN(z11) & v11) {
+			meanZ += z11*d11;
+			wt += d11;
+		}
+		
+		meanZ /= wt;
+		
+//		if(!Double.isNaN(meanZ)) System.out.println(loc.getLongitude()+"\t"+loc.getLatitude());
+/*		
+		System.out.println("wt ave:");
+		System.out.println(x0 + ", " + x1 + ", " + x + ", " + y0 + ", " + y1 + ", " + y + "  (x0,x1,x,y0,y1,y)");
+		System.out.println(z00 + ", " + z01 + ", " + z10 + ", " + z11 + ": mean=" + meanZ);
+		System.out.println(d00 + ", " + d01 + ", " + d10 + ", " + d11 + ": wt=" + wt);
+*/	
+		return meanZ;
+	}
+
 	
 	/**
 	 * Does a biliniear interpolation between surrounding points to retrieve a value at the specified
