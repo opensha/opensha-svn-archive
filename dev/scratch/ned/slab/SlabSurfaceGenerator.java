@@ -3,6 +3,10 @@ package scratch.ned.slab;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.StringTokenizer;
@@ -22,6 +26,10 @@ import ucar.ma2.InvalidRangeException;
 
 /**
  * This class generates surfaces from the subduction-zone data at http://geohazards.cr.usgs.gov/staffweb/ghayes/Site/Slab1.0.html
+ * 
+ * Can't get the version that reads URLs directly to work
+ * 
+ * Some edge-point z-values get extrapolated because they're not within the grd file
  * @author field
  *
  */
@@ -85,11 +93,18 @@ public class SlabSurfaceGenerator {
 		  // open the surface grd data file (used for setting depths)
 		  GMT_GrdFile grdSurfData=null;
 		  try {
+//			grdSurfData = new GMT_GrdFile(new URI("http://geohazards.cr.usgs.gov/staffweb/ghayes/Site/Slab1.0_files/sam_slab1.0_clip.grd"));
+
 			grdSurfData = new GMT_GrdFile(grdSurfaceFilename, false);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		
+//		System.out.println(grdSurfData.getNumX()+"\t"+grdSurfData.getNumY());
 		  
 
 		// now set the surface locations
@@ -108,7 +123,8 @@ public class SlabSurfaceGenerator {
 				Location loc = RelativeLocation.getLocation(topLoc, dir);
 				double depth= 0;
 				try {
-					depth = -grdSurfData.getClosestZ(loc);  // notice the minus sign
+//					depth = -grdSurfData.getClosestZ(loc);  // notice the minus sign
+					depth = -grdSurfData.getWtAveZ(loc);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -116,19 +132,56 @@ public class SlabSurfaceGenerator {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				if(Double.isNaN(depth)) numNaN+=1;
+				if(Double.isNaN(depth)) {
+					numNaN+=1;
+//					System.out.println("row="+s+"\tcol="+i+"\t"+loc.getLongitude()+"\t"+loc.getLatitude());
+				}
 				loc.setDepth(depth);
 				surf.setLocation(s, i, loc);
 			}
 
 		}
+		
+		// Fix any NaNs on the edges by linear extrapolation
+		int nCols=surf.getNumCols();  // already have nRows
+		for(int r=0;r<nRows;r++){
+			if(Double.isNaN(surf.getLocation(r, 0).getDepth())){
+				double depth = 2*surf.getLocation(r, 1).getDepth() - surf.getLocation(r, 2).getDepth();
+				surf.getLocation(r, 0).setDepth(depth);
+			}
+			if(Double.isNaN(surf.getLocation(r, nCols-1).getDepth())){
+				double depth = 2*surf.getLocation(r, nCols-2).getDepth() - surf.getLocation(r, nCols-3).getDepth();
+				surf.getLocation(r, nCols-1).setDepth(depth);
+			}
+		}
+		for(int c=0;c<nCols;c++){
+			if(Double.isNaN(surf.getLocation(0, c).getDepth())){
+				double depth = 2*surf.getLocation(1, c).getDepth() - surf.getLocation(2, c).getDepth();
+				surf.getLocation(0, c).setDepth(depth);
+			}
+			if(Double.isNaN(surf.getLocation(nRows-1, c).getDepth())){
+				double depth = 2*surf.getLocation(nRows-2, c).getDepth() - surf.getLocation(nRows-3, c).getDepth();
+				surf.getLocation(nRows-1, c).setDepth(depth);
+			}
+		}
+		
+		//Check for any NaNs
+		Iterator<Location> it = surf.getLocationsIterator();
+		while (it.hasNext()) {
+			if(Double.isNaN(it.next().getDepth())) {
+				System.out.println("NaN encountered in SlabSurfaceGenerator");
+//				throw new RuntimeException("NaN encountered in SlabSurfaceGenerator");
+			}
+		}
+	
 
+		/*
 		  System.out.println("numRows="+surf.getNumRows());
 		  System.out.println("numCols="+surf.getNumCols());
 		  System.out.println("numPoints="+surf.getNumRows()*surf.getNumCols());
 		  System.out.println("numNaN="+numNaN);
 		  
-		  /*
+		  
 		  System.out.println("origTopTrace length = "+origTopTrace.getTraceLength());
 		  System.out.println("origBottomTrace length = "+origBottomTrace.getTraceLength());
 		  System.out.println("origTopTrace strike = "+origTopTrace.getStrikeDirection());
@@ -166,10 +219,15 @@ public class SlabSurfaceGenerator {
 	  }
 
 	  
-	 
+	 /**
+	  * This extracts the the top and bottom trace from Gavin's
+	  * clip file
+	  * @param fileName
+	  * @return
+	  */
 	  private ArrayList<FaultTrace> getTopAndBottomTrace(String fileName) {
-		  FaultTrace topTrace = new FaultTrace(fileName);
-		  FaultTrace bottomTrace = new FaultTrace(fileName);
+		  FaultTrace topTrace = new FaultTrace(fileName.toString());
+		  FaultTrace bottomTrace = new FaultTrace(fileName.toString());
 		  ArrayList<FaultTrace> traces = new ArrayList<FaultTrace>();
 		  
 		  boolean stillOnTopTrace = true;
@@ -216,7 +274,10 @@ public class SlabSurfaceGenerator {
 		  } catch (IOException e) {
 			  // TODO Auto-generated catch block
 			  e.printStackTrace();
-		  }
+		  } catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		  traces.add(topTrace);
 		  traces.add(bottomTrace);
 //System.out.println("last loc of bottom trace: "+bottomTrace.getLocationAt(bottomTrace.size()-1));
@@ -268,8 +329,26 @@ public class SlabSurfaceGenerator {
 				"dev/scratch/ned/slab/sam_slab1.0.clip.txt",
 				"dev/scratch/ned/slab/sam_slab1.0_clip.grd",
 				50);
-				
 		surf.writeXYZ_toFile("dev/scratch/ned/slab/surfXYZ.txt");
+		
+		/*
+		ApproxEvenlyGriddedSurface surf;
+		try {
+			surf = gen.getGriddedSurface(
+					new URL("http://geohazards.cr.usgs.gov/staffweb/ghayes/Site/Slab1.0_files/sum_slab1.0.clip"),
+					new URI("http://geohazards.cr.usgs.gov/staffweb/ghayes/Site/Slab1.0_files/sam_slab1.0_clip.grd"),
+					50);
+			System.out.println("DONE");
+			surf.writeXYZ_toFile("dev/scratch/ned/slab/surfXYZ.txt");
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		*/
+		
 	}
 
 }
