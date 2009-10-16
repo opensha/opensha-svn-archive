@@ -60,7 +60,11 @@ public class WarningDoubleParameter
     implements WarningParameterAPI<Double>
 {
 
-    /** Class name for debugging. */
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/** Class name for debugging. */
     protected final static String C = "WarningDoubleParameter";
     /** If true print out debug statements. */
     protected final static boolean D = false;
