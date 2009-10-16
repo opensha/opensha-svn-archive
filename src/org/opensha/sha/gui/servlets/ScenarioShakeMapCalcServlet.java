@@ -15,6 +15,7 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.Preferences;
 
 
 
@@ -39,9 +40,9 @@ import org.opensha.sha.param.*;
 public class ScenarioShakeMapCalcServlet
     extends HttpServlet implements ParameterChangeWarningListener {
 
+	public final static String SERVLET_URL = Preferences.OPENSHA_SERVLET_URL + "ScenarioShakeMapCalcServlet";
   //path on the server where all the object will be stored
-  private final static String FILE_PATH =
-      "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/MapCalculationSavedObjects/";
+  private final static String FILE_PATH = GriddedRegionServlet.FILE_PATH;
   private final static String XYZ_DATA_DIR = "xyzDataObject/";
 
   /**

@@ -15,6 +15,7 @@ import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.sha.gui.servlets.ScenarioShakeMapCalcServlet;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.AttenuationRelationship;
@@ -239,8 +240,7 @@ public class ScenarioShakeMapCalculator {
     try{
 
       if(D) System.out.println("starting to make connection with servlet");
-      URL scenarioshakeMapCalcServlet = new
-                             URL("http://gravity.usc.edu/OpenSHA/servlet/ScenarioShakeMapCalcServlet");
+      URL scenarioshakeMapCalcServlet = new URL(ScenarioShakeMapCalcServlet.SERVLET_URL);
 
 
       URLConnection servletConnection = scenarioshakeMapCalcServlet.openConnection();
