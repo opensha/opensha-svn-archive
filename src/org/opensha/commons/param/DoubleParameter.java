@@ -35,7 +35,7 @@ implements DependentParameterAPI<Double>, ParameterAPI<Double>
 	/** If true print out debug statements. */
 	protected final static boolean D = false;
 
-	private ParameterEditor paramEdit = null;
+	private transient ParameterEditor paramEdit = null;
 
 	/**
 	 *  No constraints specified, all values allowed. Sets the name of this

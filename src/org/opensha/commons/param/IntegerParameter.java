@@ -41,7 +41,7 @@ implements DependentParameterAPI<Integer>, ParameterAPI<Integer>
 	/** If true print out debug statements. */
 	protected final static boolean D = false;
 
-	private ParameterEditor paramEdit = null;
+	private transient ParameterEditor paramEdit = null;
 	
 	/**
 	 * Constructor with no constraints specified, all values are allowed.

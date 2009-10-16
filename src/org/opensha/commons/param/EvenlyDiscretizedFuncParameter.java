@@ -46,7 +46,7 @@ implements java.io.Serializable{
 
 	private ParameterList paramList;
 	
-	private EvenlyDiscretizedFuncParameterEditor paramEdit = null;
+	private transient ParameterEditor paramEdit = null;
 
 
 	/**

@@ -34,6 +34,7 @@ import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
 
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
+import org.opensha.sha.gui.servlets.GriddedRegionServlet;
 import org.opensha.sha.util.SiteTranslator;
 
 
@@ -573,8 +574,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 			
 
 			if(D) System.out.println("starting to make connection with servlet");
-			URL griddedRegionCalcServlet = new
-			URL("http://gravity.usc.edu/OpenSHA/servlet/GriddedRegionServlet");
+			URL griddedRegionCalcServlet = new URL(GriddedRegionServlet.SERVLET_URL);
 
 
 			URLConnection servletConnection = griddedRegionCalcServlet.openConnection();

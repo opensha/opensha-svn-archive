@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Insets;
+import java.io.Serializable;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -30,7 +31,7 @@ import javax.swing.border.EmptyBorder;
  * @version    1.0
  */
 
-public class SidesBorder implements Border {
+public class SidesBorder implements Border, Serializable {
 
     /** Top side of the border color */
     Color topColor = new Color( 120, 160, 100 );

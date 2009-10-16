@@ -6,7 +6,6 @@ import javax.servlet.http.*;
 import java.io.*;
 import java.util.*;
 
-import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.exceptions.RegionConstraintException;
@@ -27,7 +26,8 @@ public class GriddedRegionServlet extends HttpServlet {
 
 
 	//path on the server where all the object will be stored
-	private final static String FILE_PATH="/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/MapCalculationSavedObjects/";
+	public static final String SERVLET_URL = "http://opensha.usc.edu/OpenSHA/GriddedRegionServlet";
+	private final static String FILE_PATH="/scratch/opensha/MapCalculationSavedObjects/";
 	private final static String REGION_DATA_DIR ="regionObjects/" ;
 
 

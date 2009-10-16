@@ -45,7 +45,7 @@ extends PropagationEffectParameter
 implements WarningParameterAPI
 {
 
-	private ParameterEditor paramEdit = null;
+	private transient ParameterEditor paramEdit = null;
 
 	/** The warning constraint for this Parameter. */
 	protected DoubleConstraint warningConstraint = null;

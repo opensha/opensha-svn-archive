@@ -40,7 +40,7 @@ implements java.io.Serializable{
 	private final static String LON_PARAM_UNITS = "degrees";
 	private final static String DEPTH_PARAM_UNITS = "Kms";
 
-	private ParameterEditor paramEdit = null;
+	private transient ParameterEditor paramEdit = null;
 	
 	/**
 	 *  No constraints specified for this parameter. Sets the name of this

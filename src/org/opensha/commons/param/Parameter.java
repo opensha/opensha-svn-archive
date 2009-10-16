@@ -40,6 +40,10 @@ implements
 ParameterAPI<E>, java.io.Serializable
 {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/** Class name used for debug statements and building the parameter type for getType(). */
 	protected final static String C = "Parameter";
 	public final static String XML_GROUP_METADATA_NAME = "Parameters";

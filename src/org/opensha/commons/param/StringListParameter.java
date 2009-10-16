@@ -33,7 +33,7 @@ implements DependentParameterAPI<ArrayList<String>>, ParameterAPI<ArrayList<Stri
   /** Class name for debugging. */
   protected final static String C = "StringListParameter";
   
-  private ParameterEditor paramEdit = null;
+  private transient ParameterEditor paramEdit = null;
 
   /**
    * Constructor doesn't specify a constraint, all values allowed. This

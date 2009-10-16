@@ -59,7 +59,7 @@ public class IntegerPlainDocument extends PlainDocument{
     /** Largest allowed integer value by JVM. These can be changed to be more restrictive.  */
     protected int max = Integer.MAX_VALUE;
 
-    protected ParsePosition parsePos = new ParsePosition(0);
+    transient protected ParsePosition parsePos = new ParsePosition(0);
 
     /** Listener to be notified of insert errors, typically the text field */
     protected InsertErrorListener errorListener;
