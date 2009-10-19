@@ -67,7 +67,7 @@ public abstract class GriddedHypoMagFreqDistForecast implements
 	protected boolean parameterChangeFlag = true;
 
 	// EvenlyGriddedGeographicAPI region
-	private GriddedRegion region;
+	protected GriddedRegion region;
 
 	private ArrayList listenerList = new ArrayList();
 
