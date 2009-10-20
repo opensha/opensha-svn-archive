@@ -46,6 +46,8 @@ public class HazardMapXMLViewerServlet  extends HttpServlet {
 
 	//Process the HTTP Get request
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		System.out.println("HazardMapXMLViewerServlet: Handling GET");
 		try {
 
 			// get an input stream from the applet
@@ -102,9 +104,9 @@ public class HazardMapXMLViewerServlet  extends HttpServlet {
 					}
 					String mapLabel = getMapLabel(isProbAt_IML);
 					String jpgFileName  = map.makeMapUsingServlet(xyzData,mapLabel,metadata,null);
-			        ObjectOutputStream outputToApplet =new ObjectOutputStream(response.getOutputStream());
-			        outputToApplet.writeObject(jpgFileName);
-			        outputToApplet.close();
+					ObjectOutputStream outputToApplet =new ObjectOutputStream(response.getOutputStream());
+					outputToApplet.writeObject(jpgFileName);
+					outputToApplet.close();
 					return;
 				} catch (IOException e1) {
 					e1.printStackTrace();
@@ -123,49 +125,49 @@ public class HazardMapXMLViewerServlet  extends HttpServlet {
 			return;
 		}
 	}
-//
-//	boolean makeServerMap(String fileName, ArrayList gmtLines, String scriptName, String metadata) {
-//
-//		XYZ_DataSetAPI xyzData = null;
-//		if(fileName != null){
-//			ArrayList xVals = new ArrayList();
-//			ArrayList yVals = new ArrayList();
-//			ArrayList zVals = new ArrayList();
-//			try{
-//				ArrayList fileLines = fileLines = FileUtils.loadFile(fileName);
-//				ListIterator it = fileLines.listIterator();
-//				while(it.hasNext()){
-//					StringTokenizer st = new StringTokenizer((String)it.next());
-//					xVals.add(new Double(st.nextToken().trim()));
-//					yVals.add(new Double(st.nextToken().trim()));
-//					zVals.add(new Double(st.nextToken().trim()));
-//				}
-//				xyzData = new ArbDiscretizedXYZ_DataSet(xVals,yVals,zVals);
-//			}catch(Exception ee){
-//				ee.printStackTrace();
-//				return false;
-//			}
-//		}
-//		metadata = metadata + "\n\nYou can download the jpg or postscript files for:\n\t"+
-//		fileName+"\n\n"+
-//		"From (respectively):";
-//
-//		try{
-//			FileWriter fw = new FileWriter(scriptName);
-//			BufferedWriter br = new BufferedWriter(fw);
-//			for(int i=0;i<gmtLines.size();++i)
-//				br.write((String) gmtLines.get(i)+"\n");
-//			br.close();
-//		}catch(Exception e){
-//			e.printStackTrace();
-//			return false;
-//		}
-//		
-//		String[] command ={"sh","-c","sh "+scriptName};
-//	    RunScript.runScript(command);
-//
-//	    return true;
-//	}
+	//
+	//	boolean makeServerMap(String fileName, ArrayList gmtLines, String scriptName, String metadata) {
+	//
+	//		XYZ_DataSetAPI xyzData = null;
+	//		if(fileName != null){
+	//			ArrayList xVals = new ArrayList();
+	//			ArrayList yVals = new ArrayList();
+	//			ArrayList zVals = new ArrayList();
+	//			try{
+	//				ArrayList fileLines = fileLines = FileUtils.loadFile(fileName);
+	//				ListIterator it = fileLines.listIterator();
+	//				while(it.hasNext()){
+	//					StringTokenizer st = new StringTokenizer((String)it.next());
+	//					xVals.add(new Double(st.nextToken().trim()));
+	//					yVals.add(new Double(st.nextToken().trim()));
+	//					zVals.add(new Double(st.nextToken().trim()));
+	//				}
+	//				xyzData = new ArbDiscretizedXYZ_DataSet(xVals,yVals,zVals);
+	//			}catch(Exception ee){
+	//				ee.printStackTrace();
+	//				return false;
+	//			}
+	//		}
+	//		metadata = metadata + "\n\nYou can download the jpg or postscript files for:\n\t"+
+	//		fileName+"\n\n"+
+	//		"From (respectively):";
+	//
+	//		try{
+	//			FileWriter fw = new FileWriter(scriptName);
+	//			BufferedWriter br = new BufferedWriter(fw);
+	//			for(int i=0;i<gmtLines.size();++i)
+	//				br.write((String) gmtLines.get(i)+"\n");
+	//			br.close();
+	//		}catch(Exception e){
+	//			e.printStackTrace();
+	//			return false;
+	//		}
+	//		
+	//		String[] command ={"sh","-c","sh "+scriptName};
+	//	    RunScript.runScript(command);
+	//
+	//	    return true;
+	//	}
 
 	//Process the HTTP Post request
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

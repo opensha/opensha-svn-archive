@@ -34,6 +34,8 @@ public class GriddedRegionServlet extends HttpServlet {
 
 	//Process the HTTP Get request
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		System.out.println("GriddedRegionServlet: Handling GET");
 
 		//gets the current time in milliseconds to be the new file for the region object file
 		String regionFileName ="";

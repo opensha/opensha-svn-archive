@@ -13,6 +13,7 @@ import java.awt.event.*;
 import org.opensha.sha.mapping.*;
 
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
+import org.opensha.sha.gui.servlets.ScenarioShakeMapGeneratorServlet;
 
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.exceptions.GMT_MapException;
@@ -321,7 +322,7 @@ public class MapGuiBean extends GMT_MapGuiBean {
     try{
       if(D) System.out.println("starting to make connection with servlet");
       URL gmtMapServlet = new
-                          URL("http://gravity.usc.edu/OpenSHA/servlet/ScenarioShakeMapGeneratorServlet");
+                          URL(ScenarioShakeMapGeneratorServlet.SERVLET_URL);
 
 
       URLConnection servletConnection = gmtMapServlet.openConnection();
