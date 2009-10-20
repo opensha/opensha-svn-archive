@@ -10,6 +10,7 @@ import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.Preferences;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.mapping.GMT_MapGeneratorForShakeMaps;
 
@@ -25,6 +26,8 @@ import org.opensha.sha.mapping.GMT_MapGeneratorForShakeMaps;
  */
 
 public class ScenarioShakeMapForHazusGeneratorServlet extends HttpServlet {
+	
+	public static final String SERVLET_URL = Preferences.OPENSHA_SERVLET_URL + "ScenarioShakeMapForHazusGeneratorServlet";
 
 
 	//Process the HTTP Get request
