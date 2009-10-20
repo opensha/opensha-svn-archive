@@ -22,6 +22,8 @@ package org.opensha.commons.data.region;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
@@ -193,9 +195,8 @@ public class CaliforniaRegions {
 	private static LocationList readCoords(String filename) {
 		BufferedReader br;
 		try {
-			File f = new File(CaliforniaRegions.class.getResource(
-					"/resources/data/region/" + filename).toURI());
-			br = new BufferedReader(new FileReader(f));
+			InputStream is = CaliforniaRegions.class.getResourceAsStream("/resources/data/region/" + filename);
+			br = new BufferedReader(new InputStreamReader(is));
 			LocationList ll = new LocationList();
 			String[] vals;
 	        String s;
