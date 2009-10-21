@@ -32,6 +32,7 @@ import org.dom4j.Element;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.CaliforniaRegions.RELM_GRIDDED;
+import org.opensha.commons.data.region.RegionUtils.Color;
 import org.opensha.commons.exceptions.InvalidRangeException;
 
 
@@ -332,9 +333,10 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	public GriddedRegion subRegion(Region region) {
 		Region newRegion = Region.intersect(this, region);
 		if (newRegion == null) return null;
-		GriddedRegion newGriddedRegion = 
-			new GriddedRegion(newRegion, spacing, anchor);
-		return (newGriddedRegion.isEmpty()) ? null : newGriddedRegion;
+		return new GriddedRegion(newRegion, spacing, anchor);
+//		GriddedRegion newGriddedRegion = 
+//			new GriddedRegion(newRegion, spacing, anchor);
+//		return (newGriddedRegion.isEmpty()) ? null : newGriddedRegion;
 	}
 		
 	/* implementation */
@@ -569,18 +571,19 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	private void initLatLonArrays() {
 		lonNodes = initNodeCenters(anchor.getLongitude(), getMaxLon(), spacing);
 		latNodes = initNodeCenters(anchor.getLatitude(), getMaxLat(), spacing);
-		lonNodeEdges = initNodeEdges(getMinLon(), getMaxLon(), spacing);
-		latNodeEdges = initNodeEdges(getMinLat(), getMaxLat(), spacing);
+		lonNodeEdges = initNodeEdges(anchor.getLongitude(), getMaxLon(), spacing);
+		latNodeEdges = initNodeEdges(anchor.getLatitude(), getMaxLat(), spacing);
 		
 		// TODO clean
-//		ToStringBuilder tsb = new ToStringBuilder(lonNodes);
-//		System.out.println(tsb.append(lonNodes).toString());
-//		tsb = new ToStringBuilder(latNodes);
-//		System.out.println(tsb.append(latNodes).toString());
-//		tsb = new ToStringBuilder(lonNodeEdges);
-//		System.out.println(tsb.append(lonNodeEdges).toString());
-//		tsb = new ToStringBuilder(latNodeEdges);
-//		System.out.println(tsb.append(latNodeEdges).toString());
+		System.out.println(anchor);
+		ToStringBuilder tsb = new ToStringBuilder(lonNodes);
+		System.out.println(tsb.append(lonNodes).toString());
+		tsb = new ToStringBuilder(latNodes);
+		System.out.println(tsb.append(latNodes).toString());
+		tsb = new ToStringBuilder(lonNodeEdges);
+		System.out.println(tsb.append(lonNodeEdges).toString());
+		tsb = new ToStringBuilder(latNodeEdges);
+		System.out.println(tsb.append(latNodeEdges).toString());
 
 	}
 
@@ -606,6 +609,7 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 		int edgeCount = (int) Math.floor((max - min) / width) + 2;
 		// offset first bin edge half a binWidth
 		double firstEdgeVal = min - (width / 2);
+		System.out.println("FEV: " + firstEdgeVal);
 		return buildArray(firstEdgeVal, edgeCount, width);
 	}
 	
@@ -631,6 +635,38 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	 * evenly gridded location.
 	 */
 	public static void main(String[] args) {
+//		// sub region investigtation for Baishan - resulted in fix to 
+		// bug for lat edges
+//		LocationList ll = new LocationList();
+//		ll.addLocation(new Location(27,-118));
+//		ll.addLocation(new Location(27,-115));
+//		ll.addLocation(new Location(29,-115));
+//		ll.addLocation(new Location(29,-118));
+//		
+//		GriddedRegion gr1 = new GriddedRegion(ll, null, 0.5, ANCHOR_0_0);
+//		RegionUtils.regionToKML(gr1, "SubTestLarge", Color.RED);
+//		
+//		ll = new LocationList();
+//		ll.addLocation(new Location(27.3,-117.7));
+//		ll.addLocation(new Location(27.3,-116.3));
+//		ll.addLocation(new Location(27.7,-116.3));
+//		ll.addLocation(new Location(27.7,-117.7));
+//		
+//		GriddedRegion gr2 = new GriddedRegion(ll, null, 0.5, ANCHOR_0_0);
+//		RegionUtils.regionToKML(gr2, "SubTestSmall", Color.RED);
+//		
+//		ll = new LocationList();
+//		ll.addLocation(new Location(27.6,-117.3));
+//		ll.addLocation(new Location(27.6,-117.1));
+//		ll.addLocation(new Location(27.8,-117.1));
+//		ll.addLocation(new Location(27.8,-117.3));
+//		
+//		Region r = new Region(ll, null);
+//		GriddedRegion subr = gr1.subRegion(r);
+		
+		//RegionUtils.regionToKML(gr3, "SubTestEmpty", Color.RED);
+
+		
 		
 //		// speed test
 //		RELM_GRIDDED rg = new RELM_GRIDDED();
@@ -656,28 +692,28 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 //		System.out.println("ll: " + (end-start));
 		
 		
-		// test that iterator is returning correct locations
-		// small octagon
-		LocationList ll = new LocationList();
-		ll.addLocation(new Location(32,-118));
-		ll.addLocation(new Location(32,-117));
-		ll.addLocation(new Location(33,-116));
-		ll.addLocation(new Location(34,-116));
-		ll.addLocation(new Location(35,-117));
-		ll.addLocation(new Location(35,-118));
-		ll.addLocation(new Location(34,-119));
-		ll.addLocation(new Location(33,-119));
-		GriddedRegion octGR = new GriddedRegion(ll, null, 0.5, GriddedRegion.ANCHOR_0_0);
-
-		for (Location loc:octGR) {
-			System.out.println(loc);
-		}
-		
-		System.out.println(octGR.getNodeList().size() + " pp\n");
-		
-		for (Location loc:octGR.getNodeList()) {
-			System.out.println(loc);
-		}
+//		// test that iterator is returning correct locations
+//		// small octagon
+//		LocationList ll = new LocationList();
+//		ll.addLocation(new Location(32,-118));
+//		ll.addLocation(new Location(32,-117));
+//		ll.addLocation(new Location(33,-116));
+//		ll.addLocation(new Location(34,-116));
+//		ll.addLocation(new Location(35,-117));
+//		ll.addLocation(new Location(35,-118));
+//		ll.addLocation(new Location(34,-119));
+//		ll.addLocation(new Location(33,-119));
+//		GriddedRegion octGR = new GriddedRegion(ll, null, 0.5, GriddedRegion.ANCHOR_0_0);
+//
+//		for (Location loc:octGR) {
+//			System.out.println(loc);
+//		}
+//		
+//		System.out.println(octGR.getNodeList().size() + " pp\n");
+//		
+//		for (Location loc:octGR.getNodeList()) {
+//			System.out.println(loc);
+//		}
 		
 		
 //		//TODO use this as indexing test
