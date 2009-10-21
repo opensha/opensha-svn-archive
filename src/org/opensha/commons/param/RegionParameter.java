@@ -80,7 +80,7 @@ implements java.io.Serializable{
 	//location parameterlist parameter name static declaration
 	private final static String REGION_PARAMETER_LIST_PARAMETER_NAME = "Rectangular Region";
 
-	private ParameterEditor paramEdit = null;
+	private transient ParameterEditor paramEdit = null;
 	
 	/**
 	 * No constraints specified for this parameter. Sets the name of this

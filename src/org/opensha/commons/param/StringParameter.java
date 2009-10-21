@@ -61,7 +61,7 @@ public class StringParameter
     /** If true print out debug statements. */
     protected final static boolean D = false;
     
-    private ParameterEditor paramEdit = null;
+    private transient ParameterEditor paramEdit = null;
 
     /**
      * Constructor doesn't specify a constraint, all values allowed. This

@@ -50,7 +50,7 @@ implements java.io.Serializable{
 	protected final static String PARAM_TYPE ="ArbitrarilyDiscretizedFuncParameter";
 	private String xUnits="";
 
-	private ArbitrarilyDiscretizedFuncParameterEditor paramEdit = null;
+	private transient ParameterEditor paramEdit = null;
 
 	/**
 	 * No constraints specified, all values allowed. Sets the name and value.

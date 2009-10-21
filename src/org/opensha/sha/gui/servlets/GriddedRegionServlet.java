@@ -39,6 +39,7 @@ import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.Preferences;
 import org.opensha.sha.gui.beans.SitesInGriddedRectangularRegionGuiBean;
 
 /**
@@ -53,12 +54,15 @@ public class GriddedRegionServlet extends HttpServlet {
 
 
 	//path on the server where all the object will be stored
-	private final static String FILE_PATH="/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/MapCalculationSavedObjects/";
+	public static final String SERVLET_URL = Preferences.OPENSHA_SERVLET_URL + "GriddedRegionServlet";
+	protected final static String FILE_PATH="/scratch/opensha/MapCalculationSavedObjects/";
 	private final static String REGION_DATA_DIR ="regionObjects/" ;
 
 
 	//Process the HTTP Get request
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		System.out.println("GriddedRegionServlet: Handling GET");
 
 		//gets the current time in milliseconds to be the new file for the region object file
 		String regionFileName ="";

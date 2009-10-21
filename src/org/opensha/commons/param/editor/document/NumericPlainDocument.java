@@ -104,7 +104,7 @@ public class NumericPlainDocument extends PlainDocument
     protected String negativeSuffix;
     protected int negativeSuffixLen;
 
-    protected ParsePosition parsePos;
+    transient protected ParsePosition parsePos;
 
     /**
      * Local interface definition that listeners must implement to be notified

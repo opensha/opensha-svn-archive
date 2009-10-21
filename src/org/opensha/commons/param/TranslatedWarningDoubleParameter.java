@@ -119,7 +119,7 @@ public class TranslatedWarningDoubleParameter
     /** Internal reference to the wrapped parameter */
     protected WarningDoubleParameter param = null;
     
-    private ParameterEditor paramEdit = null;
+    private transient ParameterEditor paramEdit = null;
 
     /**
      * Allows setting the parameter upon construction. The translator defaults to

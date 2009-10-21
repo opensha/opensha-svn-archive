@@ -168,7 +168,7 @@ implements java.io.Serializable
 	 */
 	private ParameterList parameterList = new ParameterList();
 
-	private ParameterEditor paramEdit = null;
+	private transient ParameterEditor paramEdit = null;
 
 
 	/**

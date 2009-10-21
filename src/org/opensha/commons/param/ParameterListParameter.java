@@ -46,7 +46,7 @@ implements java.io.Serializable{
 
 	protected final static String PARAM_TYPE ="ParameterListParameter";
 
-	private ParameterEditor paramEdit = null;
+	private transient ParameterEditor paramEdit = null;
 
 	/**
 	 *  No constraints specified for this parameter. Sets the name of this

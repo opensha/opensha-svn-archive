@@ -25,7 +25,7 @@ public class MagDistStringParameter extends StringParameter {
     /** If true print out debug statements. */
     protected final static boolean D = false;
 
-    private ParameterEditor paramEdit = null;
+    private transient ParameterEditor paramEdit = null;
 
 	/**
 	 * @param name

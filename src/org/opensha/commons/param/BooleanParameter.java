@@ -43,7 +43,7 @@ implements  java.io.Serializable{
 
 	protected final static String PARAM_TYPE ="BooleanParameter";
 
-	private BooleanParameterEditor paramEdit;
+	private transient ParameterEditor paramEdit;
 
 	/**
 	 *  No constraints specified for this parameter. Sets the name of this

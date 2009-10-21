@@ -45,7 +45,7 @@ implements  java.io.Serializable{
 
 	private double tolerance = .01;
 	
-	private ParameterEditor paramEdit = null;
+	private transient ParameterEditor paramEdit = null;
 
 	/**
 	 *  No constraints specified for this parameter. Sets the name of this

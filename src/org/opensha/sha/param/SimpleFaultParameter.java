@@ -165,7 +165,7 @@ java.io.Serializable{
 	private ArrayList prevDepths;
 	private ArrayList prevDips;
 
-	private ParameterEditor paramEdit= null;
+	private transient ParameterEditor paramEdit= null;
 
 	/**
 	 *  No constraints specified for this parameter. Sets the name of this

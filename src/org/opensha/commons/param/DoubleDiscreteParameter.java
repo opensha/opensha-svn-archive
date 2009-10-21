@@ -54,7 +54,7 @@ implements DependentParameterAPI<Double>, ParameterAPI<Double>
 	/** If true print out debug statements. */
 	protected final static boolean D = false;
 
-	private ParameterEditor paramEdit = null;
+	private transient ParameterEditor paramEdit = null;
 
 	/**
 	 *  Constructor for the DoubleDiscreteParameter object. No constraints

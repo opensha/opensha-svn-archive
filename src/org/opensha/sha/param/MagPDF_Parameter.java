@@ -133,7 +133,7 @@ implements java.io.Serializable
 	//paramName
 	public static final String ARB_INCR_PARAM_NAME = " Arb. Incremental Mag Dist";
 	
-	private ParameterEditor paramEdit = null;
+	private transient ParameterEditor paramEdit = null;
 
 
 	/**

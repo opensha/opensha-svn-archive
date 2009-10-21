@@ -76,7 +76,7 @@ implements java.io.Serializable{
 	private final static String DECIMAL_DEGREES = "Decimal Degrees";
 	private final static String KMS = "kms";
 	
-	private ParameterEditor paramEdit = null;
+	private transient ParameterEditor paramEdit = null;
 	
 	/**
 	 * No constraints specified for this parameter. Sets the name of this

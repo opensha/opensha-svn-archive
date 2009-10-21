@@ -32,6 +32,8 @@ import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
+import org.opensha.sha.gui.servlets.ScenarioShakeMapForHazusGeneratorServlet;
+import org.opensha.sha.gui.servlets.ScenarioShakeMapGeneratorServlet;
 import org.opensha.sha.mapping.GMT_MapGeneratorForShakeMaps;
 
 /**
@@ -333,7 +335,7 @@ public class MapGuiBean extends GMT_MapGuiBean {
     try{
       if(D) System.out.println("starting to make connection with servlet");
       URL gmtMapServlet = new
-                          URL("http://gravity.usc.edu/OpenSHA/servlet/ScenarioShakeMapGeneratorServlet");
+                          URL(ScenarioShakeMapGeneratorServlet.SERVLET_URL);
 
 
       URLConnection servletConnection = gmtMapServlet.openConnection();
@@ -420,7 +422,7 @@ public class MapGuiBean extends GMT_MapGuiBean {
     try{
       if(D) System.out.println("starting to make connection with servlet");
       URL gmtMapServlet = new
-                          URL("http://gravity.usc.edu/OpenSHA/servlet/ScenarioShakeMapForHazusGeneratorServlet");
+                          URL(ScenarioShakeMapForHazusGeneratorServlet.SERVLET_URL);
 
 
       URLConnection servletConnection = gmtMapServlet.openConnection();
