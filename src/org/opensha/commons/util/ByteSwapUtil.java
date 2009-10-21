@@ -31,6 +31,7 @@ package org.opensha.commons.util;
  * @author not attributable
  * @version 1.0
  */
+@Deprecated // TODO replace with commons-io EndianUtils
 public final class ByteSwapUtil {
 
   /**
@@ -116,4 +117,30 @@ public final class ByteSwapUtil {
         b5 << 24 | b6 << 16 | b7 << 8 | b8 << 0;
   }
 
+  public static void main(String[] args) {
+	  
+//	  int tmp_i = 1234567890;
+//	  System.out.println(tmp_i);
+//	  System.out.println(swap(tmp_i));
+//	  System.out.println(EndianUtils.swapInteger(tmp_i));
+//	  
+//	  float tmp_f = 123.456789f;
+//	  System.out.println(tmp_f);
+//	  System.out.println(swap(tmp_f));
+//	  System.out.println(EndianUtils.swapFloat(tmp_f));
+//	  
+//	  short tmp_s = 1234;
+//	  System.out.println(tmp_s);
+//	  System.out.println(swap(tmp_s));
+//	  System.out.println(EndianUtils.swapShort(tmp_s));
+//	  
+//	  long tmp_l = 1234467890123456789L;
+//	  System.out.println(tmp_l);
+//	  System.out.println(swap(tmp_l));
+//	  System.out.println(EndianUtils.swapLong(tmp_l));
+	  
+	  
+	  
+	  
+  }
 }
