@@ -321,8 +321,9 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	 * The new region also inherits the grid spacing and node-alignment of 
 	 * the parent. <img style="padding: 30px 40px; float: right;" 
 	 * src="{@docRoot}/img/gridded_regions_sub.jpg"/>
-	 * The method returns <code>null</code> if the new gridded 
-	 * region is devoid of grid nodes or if the two regions do not overlap.<br/>
+	 * The method returns <code>null</code> if the two regions do not 
+	 * overlap. Note that the returned <code>GriddedRegion</code> may be
+	 * devoid of grid nodes.<br/>
 	 * <br/>
 	 * <br/>
 	 * <br/>
@@ -334,7 +335,7 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 		Region newRegion = Region.intersect(this, region);
 		if (newRegion == null) return null;
 		return new GriddedRegion(newRegion, spacing, anchor);
-//		GriddedRegion newGriddedRegion = 
+//		GriddedRegion newGriddedRegion = TODO clean
 //			new GriddedRegion(newRegion, spacing, anchor);
 //		return (newGriddedRegion.isEmpty()) ? null : newGriddedRegion;
 	}
@@ -574,16 +575,16 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 		lonNodeEdges = initNodeEdges(anchor.getLongitude(), getMaxLon(), spacing);
 		latNodeEdges = initNodeEdges(anchor.getLatitude(), getMaxLat(), spacing);
 		
-		// TODO clean
-		System.out.println(anchor);
-		ToStringBuilder tsb = new ToStringBuilder(lonNodes);
-		System.out.println(tsb.append(lonNodes).toString());
-		tsb = new ToStringBuilder(latNodes);
-		System.out.println(tsb.append(latNodes).toString());
-		tsb = new ToStringBuilder(lonNodeEdges);
-		System.out.println(tsb.append(lonNodeEdges).toString());
-		tsb = new ToStringBuilder(latNodeEdges);
-		System.out.println(tsb.append(latNodeEdges).toString());
+		// TODO clean - or add to some standard toString() output
+//		System.out.println(anchor);
+//		ToStringBuilder tsb = new ToStringBuilder(lonNodes);
+//		System.out.println(tsb.append(lonNodes).toString());
+//		tsb = new ToStringBuilder(latNodes);
+//		System.out.println(tsb.append(latNodes).toString());
+//		tsb = new ToStringBuilder(lonNodeEdges);
+//		System.out.println(tsb.append(lonNodeEdges).toString());
+//		tsb = new ToStringBuilder(latNodeEdges);
+//		System.out.println(tsb.append(latNodeEdges).toString());
 
 	}
 
@@ -609,7 +610,6 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 		int edgeCount = (int) Math.floor((max - min) / width) + 2;
 		// offset first bin edge half a binWidth
 		double firstEdgeVal = min - (width / 2);
-		System.out.println("FEV: " + firstEdgeVal);
 		return buildArray(firstEdgeVal, edgeCount, width);
 	}
 	
