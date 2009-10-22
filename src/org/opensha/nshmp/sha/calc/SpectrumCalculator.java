@@ -162,7 +162,8 @@ public class SpectrumCalculator {
             DataDisplayFormatter.createFunctionInfoString(funcList, siteClass);
         funcList.setInfo(info);
     } else {
-    	saTfunction.setName("RTE Spectrum Sa Vs T");
+    	saTfunction.setName("MCE_R Spectrum Sa Vs T");
+    	//saTfunction.setName("RTE Spectrum Sa Vs T");
 	    info +=
 	        DataDisplayFormatter.createFunctionInfoString(funcList, siteClass, true);
     }

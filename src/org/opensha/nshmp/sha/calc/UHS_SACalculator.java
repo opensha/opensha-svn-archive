@@ -138,7 +138,7 @@ public class UHS_SACalculator {
     function.setName(GlobalConstants.UNIFORM_HAZARD_SPECTRUM_NAME + " of " +
                      GlobalConstants.SA_Vs_T_GRAPH_NAME);
     ArbitrarilyDiscretizedFunc sdTFunction = calcSDTFunction(function);
-    gridSpacing = siteSaVals.getGridSpacing();
+    gridSpacing = (float) siteSaVals.getGridSpacing();
 
     DiscretizedFuncList funcList = new DiscretizedFuncList();
     funcList.add(sdTFunction);

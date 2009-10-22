@@ -44,7 +44,7 @@ public class SiteInterpolation {
   private float minLon;
   private float maxLat;
   private float maxLon;
-  private float gridSpacing;
+  private double gridSpacing;
   private int gridPointsPerLatitude;
   private float[] saPeriods;
   private int numPeriods;
@@ -53,8 +53,8 @@ public class SiteInterpolation {
   public ArbitrarilyDiscretizedFunc getPeriodValuesForLocation(String fileName,
       DataRecord record,
       double latitude, double longitude) {
-    float lat = 0;
-    float lon = 0;
+    double lat = 0.0;
+    double lon = 0.0;
     float[] saArray = null;
 
     getRegionBounds(record, fileName);
@@ -75,7 +75,7 @@ public class SiteInterpolation {
       int recNum2 = recNum1 + 1;
       float[] vals1 = getPeriodValues(record, fileName, recNum1);
       float[] vals2 = getPeriodValues(record, fileName, recNum2);
-      float flon = (float) (longitude - lon) / gridSpacing;
+      float flon = (float) (longitude - lon) / (float) gridSpacing;
       saArray = getPeriodValues(vals1, vals2, flon);
     }
     else if ( (longitude == minLon || longitude == maxLon) &&
@@ -86,7 +86,7 @@ public class SiteInterpolation {
       int recNum2 = recNum1 + gridPointsPerLatitude;
       float[] vals1 = getPeriodValues(record, fileName, recNum1);
       float[] vals2 = getPeriodValues(record, fileName, recNum2);
-      float flat = (float) (lat - latitude) / gridSpacing;
+      float flat = (float) (lat - latitude) / (float) gridSpacing;
       saArray = getPeriodValues(vals1, vals2, flat);
     }
     else if (latitude > minLat && latitude < maxLat &&
@@ -101,8 +101,8 @@ public class SiteInterpolation {
       float[] vals2 = getPeriodValues(record, fileName, recNum2);
       float[] vals3 = getPeriodValues(record, fileName, recNum3);
       float[] vals4 = getPeriodValues(record, fileName, recNum4);
-      float flon = (float) (longitude - lon) / gridSpacing;
-      float flat = (float) (lat - latitude) / gridSpacing;
+      float flon = (float) (longitude - lon) / (float) gridSpacing;
+      float flat = (float) (lat - latitude) / (float) gridSpacing;
       float[] periodVals1 = getPeriodValues(vals1, vals2, flon);
       float[] periodVals2 = getPeriodValues(vals3, vals4, flon);
       saArray = getPeriodValues(periodVals1, periodVals2, flat);
@@ -152,7 +152,7 @@ public class SiteInterpolation {
    * @param latitude double
    * @return float
    */
-  private float getNearestGridLat(double latitude) {
+  private double getNearestGridLat(double latitude) {
 
     String latGridVal = gridSpacingFormat.format(latitude / gridSpacing);
     double latVal = Math.ceil(Double.parseDouble(latGridVal));
@@ -186,7 +186,7 @@ public class SiteInterpolation {
    * @param lon float
    * @return int
    */
-  private int getRecordNumber(float lat, float lon) {
+  private int getRecordNumber(double lat, double lon) {
     String lonGridVal = gridSpacingFormat.format( (lon - minLon) / gridSpacing);
     String latGridVal = gridSpacingFormat.format( (maxLat - lat) / gridSpacing);
     int colIndex = (int) (Float.parseFloat(lonGridVal)) + 1;
@@ -200,7 +200,7 @@ public class SiteInterpolation {
    * @param longitude double
    * @return float
    */
-  private float getNearestGridLon(double longitude) {
+  private double getNearestGridLon(double longitude) {
     String lonGridVal = gridSpacingFormat.format(longitude / gridSpacing);
     double lonVal = Math.floor(Double.parseDouble(lonGridVal));
 
@@ -211,7 +211,7 @@ public class SiteInterpolation {
    * Returns the gridSpacing
    * @return float
    */
-  public float getGridSpacing() {
+  public double getGridSpacing() {
     return gridSpacing;
   }
 

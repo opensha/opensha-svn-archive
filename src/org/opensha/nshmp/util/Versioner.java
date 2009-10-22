@@ -34,7 +34,7 @@ public class Versioner {
 	private static final String CLIENT_VERSION = GlobalConstants.getCurrentVersion();
 
 	private static final String PATH = 
-		"http://gldplone.cr.usgs.gov/GroundMotionTool/version.html";
+		"http://geohazards.usgs.gov/GroundMotionTool/version.html";
 		
 	private static final String GET_CHANGES = 
 		"http://earthquake.usgs.gov/research/hazmaps/design/updates.php";

@@ -36,11 +36,12 @@ import org.opensha.commons.util.ImageUtils;
  * @version 1.0
  */
 public final class GlobalConstants {
-	public static final String VERSION = "Version: 5.0.9 - 10/06/2008";
+	public static final String VERSION = "Version: 5.0.9a - 10/21/2009";
 	
 	// Live application settings.  We use geohazards as a proxy to gldplone. If that breaks we "can" connect directly.
-	public static final String SERVLET_PATH = "http://geohazards.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
-	//public static final String SERVLET_PATH = "http://gldplone.cr.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
+	//public static final String SERVLET_PATH = "http://geohazards.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
+	public static final String SERVLET_PATH = "http://gldplone.cr.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
+	//public static final String SERVLET_PATH = "http://137.227.224.99/GroundMotionTool/servlet/HazardCalcServlet";
 	
 	// Development application settings.
 	//public static final String SERVLET_PATH = "http://geohazards.usgs.gov/GroundMotionDevel/servlet/HazardCalcDevel";
@@ -90,6 +91,7 @@ public final class GlobalConstants {
   public static final String ASCE_1998 = "1998 ASCE 7 Standard";
   public static final String ASCE_2002 = "2002 ASCE 7 Standard";
   public static final String ASCE_2005 = "2005 ASCE 7 Standard";
+  public static final String ASCE_2010 = "2010 ASCE 7 Standard";
   public static final String IBC_2000 = "2000 International Building Code";
   public static final String IBC_2003 = "2003 International Building Code";
   public static final String IBC_2004 = "2004 International Building Code - Supplement";
@@ -403,7 +405,7 @@ public final class GlobalConstants {
 
   //supported Spectra types
   public static final String MCE_GROUND_MOTION = "MCE Ground Motion";
-  public static final String RTE_GROUND_MOTION = "RTE Ground Motion";
+  public static final String RTE_GROUND_MOTION = "MCE_R Ground Motion";
   public static final String PE_10 = "10 % PE in 50 years";
   public static final String PE_5 = "5 % PE in 50 years";
   public static final String PE_2 = "2 % PE in 50 years";

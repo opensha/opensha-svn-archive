@@ -38,6 +38,10 @@ import org.opensha.nshmp.sha.calc.HazardDataCalc;
 public class HazardDataCalcServletHelper {
 	public Object getResult(String methodName, ArrayList objectsList) {
     boolean isCurrent = false;
+    System.out.println("Received requst: " + methodName);
+    for (int i = 0; i < objectsList.size(); i++) {
+    	System.out.println("   " + objectsList.get(i).toString());
+    }
 	 try {
       HazardDataCalc hazardDataCalc = new HazardDataCalc();
 	// Cycle these comments as you release new versions
@@ -46,8 +50,8 @@ public class HazardDataCalcServletHelper {
 		//if (methodName.endsWith("_V6") ) {
 		//if (methodName.endsWith("_V7") ) {
 		//if (methodName.endsWith("_V8") ) {
-		if (methodName.endsWith("_V9") ) {
-			methodName = methodName.substring(0, methodName.length() - 3);
+		if (methodName.endsWith("_V9a") ) {
+			methodName = methodName.substring(0, methodName.length() - 4);
 			isCurrent = true;
 		}
 

@@ -391,7 +391,7 @@ public class DataGenerator_NEHRP
     			.replaceAll("SMs", "SRs")
     			.replaceAll("SM1", "SR1")
     			.replaceAll("Spectral Response Accelerations SRs",
-    					"RTE Spectral Response Accelerations SRS")
+    					"MCE_R Spectral Response Accelerations SRS")
     		);
     }
 		
@@ -602,7 +602,8 @@ public class DataGenerator_NEHRP
    *
    */
   public void calculateMapSpectrum() throws RemoteException {
-	if (GlobalConstants.NEHRP_2009.equals(dataEdition)) {return;}
+	// For 2009 we don't care about Map Spectrum. Just skip.
+	// if (GlobalConstants.NEHRP_2009.equals(dataEdition)) {return;}
     HazardDataMinerAPI miner = new HazardDataMinerServletMode();
     DiscretizedFuncList functions = miner.getMapSpectrum(saFunction);
     addDataInfo(functions.getInfo());
@@ -733,6 +734,7 @@ public class DataGenerator_NEHRP
                                             mapSpectrumFunctions) {
 
 	int numFunctions = mapSpectrumFunctions.size();
+    System.err.printf("There are %d Map Spectra.\n", numFunctions);
 
     int i = 0;
     for (; i < numFunctions; ++i) {
@@ -742,9 +744,12 @@ public class DataGenerator_NEHRP
                                         MCE_SPECTRUM_SA_Vs_T_GRAPH)) {
         mapSpectrumSaTFunction = tempFunction;
         break;
+      } else {
+    	  System.err.printf("Function %d name: %s\n", i, tempFunction.getName());
       }
     }
 
+    System.err.printf("i = %d\n", i);
     ArbitrarilyDiscretizedFunc tempSDFunction = (ArbitrarilyDiscretizedFunc)
         mapSpectrumFunctions.get(1 - i);
 
@@ -773,18 +778,22 @@ public class DataGenerator_NEHRP
                                            smSpectrumFunctions) {
 
     int numFunctions = smSpectrumFunctions.size();
+    System.err.printf("There are %d SM Spectra.\n", numFunctions);
     int i = 0;
     for (; i < numFunctions; ++i) {
       ArbitrarilyDiscretizedFunc tempFunction = (ArbitrarilyDiscretizedFunc)
           smSpectrumFunctions.get(i);
       if (tempFunction.getName().equals(
     		  GlobalConstants.SITE_MODIFIED_SA_Vs_T_GRAPH) ||
-    	  tempFunction.getName().equals("RTE Spectrum Sa Vs T")) {
+    	  tempFunction.getName().equals("MCE_R Spectrum Sa Vs T")) {
         smSpectrumSaTFunction = tempFunction;
         break;
+      } else {
+    	  System.err.printf("Function %d name: %s\n", i, tempFunction.getName());
       }
     }
 
+    System.err.printf("i = %d\n", i);
     ArbitrarilyDiscretizedFunc tempSDFunction = (ArbitrarilyDiscretizedFunc)
         smSpectrumFunctions.get(1 - i);
     smSpectrumSaSdFunction = tempSDFunction.getYY_Function(

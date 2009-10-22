@@ -75,7 +75,7 @@ public class HazardCurveCalculator {
         fileName,
         record, latitude, longitude);
 
-    gridSpacing = siteSaVals.getGridSpacing();
+    gridSpacing = (float) siteSaVals.getGridSpacing();
     //set the info for the function being added
     String info = "";
     info += hazCurveType+ "\n";
