@@ -25,13 +25,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
+import org.opensha.commons.data.Location;
+
 /**
  * HashMap that loads and stores the values in a Generic Mapping Tools stle XYZ files.
  * 
  * @author kevin
  *
  */
-public class XYZHashMap extends HashMap<String, Double> {
+public class XYZHashMap extends HashMap<Location, Double> {
 
 	public XYZHashMap(String xyzFile) throws FileNotFoundException, IOException {
 		super();
@@ -52,17 +54,12 @@ public class XYZHashMap extends HashMap<String, Double> {
 	}
 	
 	public double get(double lat, double lon) {
-		String key = this.keyGen(lat, lon);
-		return this.get(key);
+		Location loc = new Location(lat, lon);
+		return this.get(loc);
 	}
 	
 	public void put(double lat, double lon, double val) {
-		String key = this.keyGen(lat, lon);
-		
-		this.put(key, val);
-	}
-	
-	private String keyGen(double lat, double lon) {
-		return lat + "_" + lon;
+		Location loc = new Location(lat, lon);
+		this.put(loc, val);
 	}
 }

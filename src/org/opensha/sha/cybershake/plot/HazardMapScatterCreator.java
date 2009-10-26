@@ -156,7 +156,7 @@ public class HazardMapScatterCreator {
 		return size * symbol.getScaleFactor();
 	}
 	
-	private static String getGMTColorString(Color color) {
+	public static String getGMTColorString(Color color) {
 		return "-G" + color.getRed() + "/" + color.getGreen() + "/" + color.getBlue();
 	}
 	

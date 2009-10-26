@@ -97,7 +97,7 @@ public class GMT_GrdFile {
 	
 	private double calcSpacing(Array data) {
 		long max = 100;
-		if (max < data.getSize())
+		if (max > data.getSize())
 			max = data.getSize();
 		double tot = 0;
 		int cnt = 0;
@@ -352,8 +352,8 @@ public class GMT_GrdFile {
 		
 		float interp = interpolate(s00, s01, s10, s11, xfrac, yfrac);
 		
-		System.out.println(s00 + ", " + s01 + ", " + s10 + ", " + s11 + ": " + interp);
-		System.out.println(xfrac + ", " + yfrac);
+//		System.out.println(s00 + ", " + s01 + ", " + s10 + ", " + s11 + ": " + interp);
+//		System.out.println(xfrac + ", " + yfrac);
 		
 		return interp;
 	}
