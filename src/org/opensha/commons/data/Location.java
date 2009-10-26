@@ -168,7 +168,8 @@ public class Location implements java.io.Serializable, XMLSaveable {
 	 * @return the location depth in km
 	 */
 	public double getDepth() {
-		return MathUtils.round(depth, LL_PRECISION);
+		return depth;
+//		return MathUtils.round(depth, LL_PRECISION); //TODO clean
 	}
 
 	/** 
