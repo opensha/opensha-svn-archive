@@ -95,8 +95,11 @@ public class SlabSurfaceGenerator {
 		  try {
 //			grdSurfData = new GMT_GrdFile(new URI("http://geohazards.cr.usgs.gov/staffweb/ghayes/Site/Slab1.0_files/sam_slab1.0_clip.grd"));
 
-			grdSurfData = new GMT_GrdFile(grdSurfaceFilename, false);
+			grdSurfData = new GMT_GrdFile(this.getClass().getResource("/"+grdSurfaceFilename).toURI());
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -231,7 +234,7 @@ public class SlabSurfaceGenerator {
 		  Location lastLoc=null;
 
 		  try {
-			  ArrayList<String> fileLines = FileUtils.loadFile(fileName);
+			  ArrayList<String> fileLines = FileUtils.loadFile(this.getClass().getResource("/"+fileName));
 			  StringTokenizer st;
 // System.out.println("first line of file: "+fileLines.get(0));
 // System.out.println("2nd to last line of file: "+fileLines.get(fileLines.size()-2));

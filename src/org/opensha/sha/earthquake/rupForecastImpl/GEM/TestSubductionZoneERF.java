@@ -20,31 +20,17 @@
 package org.opensha.sha.earthquake.rupForecastImpl.GEM;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import org.opensha.commons.calc.magScalingRelations.MagScalingRelationship;
-import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
-import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.PEER_testsMagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
-import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.IntegerParameter;
-import org.opensha.commons.param.StringParameter;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
 import org.opensha.sha.faultSurface.ApproxEvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
-import org.opensha.sha.magdist.GaussianMagFreqDist;
-import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
-import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.opensha.sha.magdist.SingleMagFreqDist;
-import org.opensha.sha.magdist.SummedMagFreqDist;
-import org.opensha.sha.magdist.YC_1985_CharMagFreqDist;
-import org.opensha.sha.param.MagFreqDistParameter;
-import org.opensha.sha.param.SimpleFaultParameter;
 
 import scratch.ned.slab.SlabSurfaceGenerator;
 
@@ -125,13 +111,13 @@ public class TestSubductionZoneERF extends EqkRupForecast{
 //    rupOffsetParam.addParameterChangeListener(this);
     slabGridSpacingParam.addParameterChangeListener(this);
     
-    clipFileNames.add("dev/scratch/ned/slab/slab1_usgs_data/sam_slab1.0.clip.txt");
-    clipFileNames.add("dev/scratch/ned/slab/slab1_usgs_data/sum_slab1.0.clip.txt");
-    clipFileNames.add("dev/scratch/ned/slab/slab1_usgs_data/kur_slab1.0.clip.txt");
+    clipFileNames.add("scratch/ned/slab/slab1_usgs_data/sam_slab1.0.clip.txt");
+    clipFileNames.add("scratch/ned/slab/slab1_usgs_data/sum_slab1.0.clip.txt");
+    clipFileNames.add("scratch/ned/slab/slab1_usgs_data/kur_slab1.0.clip.txt");
     
-    grdFileNames.add("dev/scratch/ned/slab/slab1_usgs_data/sam_slab1.0_clip.grd");
-    grdFileNames.add("dev/scratch/ned/slab/slab1_usgs_data/sum_slab1.0_clip.grd");
-    grdFileNames.add("dev/scratch/ned/slab/slab1_usgs_data/kur_slab1.0_clip.grd");
+    grdFileNames.add("scratch/ned/slab/slab1_usgs_data/sam_slab1.0_clip.grd");
+    grdFileNames.add("scratch/ned/slab/slab1_usgs_data/sum_slab1.0_clip.grd");
+    grdFileNames.add("scratch/ned/slab/slab1_usgs_data/kur_slab1.0_clip.grd");
     
   }
 
