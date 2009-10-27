@@ -34,8 +34,6 @@ Convert web sites to Drupal Wiki; start with WGCEP - Peter's going to try it out
 
 WG02 Fortan code is not working - Kevin will talk to Okaya
 
-Continue porting servlets and RMI stuff from gravity.usc.edu to opensha.usc.edu - Only shakeMap calc remains to be done.  - Kevin will work on this.
-
 Fix offset in global GMT topo intensity file (email from Kevin on 9/3/09) - Kevin will deal with this
 
 Map/UML of each calculator/application.
