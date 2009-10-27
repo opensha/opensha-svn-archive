@@ -148,7 +148,7 @@ implements java.io.Serializable{
 				new DoubleConstraint(Location.MIN_LON,Location.MAX_LON),
 				DECIMAL_DEGREES, lonValue);
 		depthParam = new DoubleParameter(depthParamName,
-				new DoubleConstraint(Location.MIN_DEPTH,50),
+				new DoubleConstraint(Location.MIN_DEPTH,1000),
 				KMS, depthValue);
 
 		ParameterList paramList = new ParameterList();
