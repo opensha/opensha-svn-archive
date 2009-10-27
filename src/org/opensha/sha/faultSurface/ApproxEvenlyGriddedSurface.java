@@ -14,8 +14,9 @@ import org.opensha.commons.data.Location;
  */
 public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 	
-	public ApproxEvenlyGriddedSurface(int numRows,int numCols) {
+	public ApproxEvenlyGriddedSurface(int numRows,int numCols, double aveGridSpacing) {
 		this.setNumRowsAndNumCols(numRows, numCols);
+		this.gridSpacing = aveGridSpacing;
 	}
 	
     /**
