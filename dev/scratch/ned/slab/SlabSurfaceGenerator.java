@@ -36,7 +36,7 @@ import ucar.ma2.InvalidRangeException;
 public class SlabSurfaceGenerator {
 	
 //	  public ApproxEvenlyGriddedSurface getGriddedSurface(String topTraceFilename, String bottomTraceFilename, String grdSurfaceFilename, double aveGridSpaceing) {
-		  public ApproxEvenlyGriddedSurface getGriddedSurface(String clipFilename, String grdSurfaceFilename, double aveGridSpaceing) {
+		  public ApproxEvenlyGriddedSurface getGriddedSurface(String clipFilename, String grdSurfaceFilename, double aveGridSpacing) {
 
 		  /**/
 		  ArrayList<FaultTrace> traces = this.getTopAndBottomTrace(clipFilename);
@@ -45,9 +45,6 @@ public class SlabSurfaceGenerator {
 
 //		  FaultTrace origTopTrace = readTraceFiles(topTraceFilename);
 //		  FaultTrace origBottomTrace = readTraceFiles(bottomTraceFilename);
-
-		  System.out.println("num pts in top trace:"+origTopTrace.getNumLocations());
-		  System.out.println("num pts in bottom trace:"+origBottomTrace.getNumLocations());
 
 		  
 		  // Reverse the order of the bottom trace
@@ -64,7 +61,7 @@ public class SlabSurfaceGenerator {
 		  
 		  // now compute num subsection of trace
 		  double aveTraceLength = (origTopTrace.getTraceLength()+origBottomTrace.getTraceLength())/2;
-		  int num = (int) Math.round(aveTraceLength/aveGridSpaceing);
+		  int num = (int) Math.round(aveTraceLength/aveGridSpacing);
 		  
 		  // get resampled traces
 		  FaultTrace resampTopTrace = FaultTraceUtils.resampleTrace(origTopTrace, num);
@@ -88,10 +85,10 @@ public class SlabSurfaceGenerator {
 			  aveDist += RelativeLocation.getHorzDistance(topLoc, botLoc);
 		  }
 		  aveDist /= resampTopTrace.size();
-		  int nRows = (int) Math.round(aveDist/aveGridSpaceing)+1;
+		  int nRows = (int) Math.round(aveDist/aveGridSpacing)+1;
 		  
 		  // create the surface object that will be returned
-		  ApproxEvenlyGriddedSurface surf = new ApproxEvenlyGriddedSurface(nRows, resampTopTrace.size(), aveGridSpaceing);
+		  ApproxEvenlyGriddedSurface surf = new ApproxEvenlyGriddedSurface(nRows, resampTopTrace.size(), aveGridSpacing);
 		  
 		  // open the surface grd data file (used for setting depths)
 		  GMT_GrdFile grdSurfData=null;
@@ -168,9 +165,8 @@ public class SlabSurfaceGenerator {
 		//Check for any NaNs
 		Iterator<Location> it = surf.getLocationsIterator();
 		while (it.hasNext()) {
-			Location loc = it.next();
-			if(Double.isNaN(loc.getDepth())) {
-				System.out.println("NaN encountered in SlabSurfaceGenerator at loc:"+loc.toString());
+			if(Double.isNaN(it.next().getDepth())) {
+				System.out.println("NaN encountered in SlabSurfaceGenerator");
 //				throw new RuntimeException("NaN encountered in SlabSurfaceGenerator");
 			}
 		}
@@ -320,15 +316,15 @@ public class SlabSurfaceGenerator {
 		SlabSurfaceGenerator gen = new SlabSurfaceGenerator();
 		/*
 		ApproxEvenlyGriddedSurface surf = gen.getGriddedSurface(
-				"dev/scratch/ned/slab/slab1_usgs_data/sam_slab1_topTrace.txt",
-				"dev/scratch/ned/slab/slab1_usgs_data/sam_slab1_bottomTrace.txt",
+				"dev/scratch/ned/slab/sam_slab1_topTrace.txt",
+				"dev/scratch/ned/slab/sam_slab1_bottomTrace.txt",
 				"dev/scratch/ned/slab/sam_slab1.0_clip.grd",
 				100);
 		*/
 		/**/
 		ApproxEvenlyGriddedSurface surf = gen.getGriddedSurface(
-				"dev/scratch/ned/slab/slab1_usgs_data/sam_slab1.0.clip.txt",
-				"dev/scratch/ned/slab/slab1_usgs_data/sam_slab1.0_clip.grd",
+				"dev/scratch/ned/slab/sam_slab1.0.clip.txt",
+				"dev/scratch/ned/slab/sam_slab1.0_clip.grd",
 				50);
 		surf.writeXYZ_toFile("dev/scratch/ned/slab/surfXYZ.txt");
 		
