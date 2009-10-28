@@ -200,8 +200,9 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements EvenlyGri
     public LocationList getLocationList() {
       LocationList locList = new LocationList();
       Iterator it = this.getLocationsIterator();
-      locList.addLocation((Location)it.next());
+      while(it.hasNext()) locList.addLocation((Location)it.next());
       return locList;
+
     }
 
     /** Proxy method that returns the number of rows in the main GriddedSurface. */
