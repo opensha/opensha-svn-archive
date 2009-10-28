@@ -16,6 +16,14 @@ beans and control panels.  This will also involve reviewing Kevin's
 toXMLMetadata(Element root)  &  fromXMLMetadata(Element root) implementations (these 
 should be our starting point).  We also want to maintain remote calc capabilities.
 
+Convert web sites to Drupal Wiki; start with WGCEP - Peter's going to try it out.
+
+Investigate upgrade to JFreeChart current version; buy dev guide
+
+Redo PEER tests;Implement PEER tests as JUnit. - Peter will do this
+
+Fix offset in global GMT topo intensity file (email from Kevin on 9/3/09) & document how this is done - Kevin will deal with this
+
 The ability to associate sources and imrs to TectonicRegionTypes has been added to the
 HazardCurveCalculator.  What remains to be done is:
 
@@ -30,11 +38,7 @@ HazardCurveCalculator.  What remains to be done is:
 	time or bloat memory.
 	
 	
-Convert web sites to Drupal Wiki; start with WGCEP - Peter's going to try it out.
-
 WG02 Fortan code is not working - Kevin will talk to Okaya
-
-Fix offset in global GMT topo intensity file (email from Kevin on 9/3/09) - Kevin will deal with this
 
 Map/UML of each calculator/application.
 
@@ -45,8 +49,6 @@ using main() method in RelativeLocation class, one can just run the RelativeLoca
 class and will get to know the difference).  HAS THIS BEEN FIXED?
 
 Post instructions for building stand-alone GUIs on our web site?
-
-Redo PEER tests;Implement PEER tests as JUnit. - Peter will do this
 
 GEM ERF Input file formats
 
@@ -148,7 +150,7 @@ Codebase
 	�	Better integration of threading and use of wait-cursor
 	�	Persistence framework that does not require explicit read/write XML in each class
 	�	Use correct modifiers (public protected private (e.g. HazardCurveCalculator)
-	�	Upgrade to JFreeChart current version; buy dev guide.
+	�	.
 
 Web
 	�	Requirements for content of user site (e.g. demos, tutorial, any technical documentation?)
