@@ -370,6 +370,15 @@ public class PointSurface extends Location implements EvenlyGriddedSurfaceAPI {
     public double getSurfaceWidth() {
       return 0;
     }
+    
+    /**
+     * This returns the surface area
+     * @return double
+     */
+    public double getSurfaceArea() {
+      return 0;
+    }
+
 
     /**
      * Returns the Surface Metadata with the following info:
@@ -426,5 +435,7 @@ public class PointSurface extends Location implements EvenlyGriddedSurfaceAPI {
     public double getGridSpacing() {
       return Double.NaN;
     }
+    
+
 
 }

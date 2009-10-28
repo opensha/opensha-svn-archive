@@ -39,7 +39,26 @@ public interface EvenlyGriddedSurfaceAPI extends GriddedSurfaceAPI {
      *
      * @return
      */
-    public  double getGridSpacing() ;
+    public  double getGridSpacing();
+    
+    /**
+     * This returns the total length of the surface in km
+     * @return double
+     */
+    public double getSurfaceLength();
+
+    /**
+     * This returns the surface width (down dip) in km
+     * @return double
+     */
+    public double getSurfaceWidth();
+    
+    /**
+     * This returns the surface area in km-sq
+     * @return double
+     */
+    public double getSurfaceArea();
+
 
 
 }

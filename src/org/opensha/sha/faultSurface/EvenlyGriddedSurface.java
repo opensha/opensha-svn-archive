@@ -356,7 +356,7 @@ public abstract class EvenlyGriddedSurface
 
 
     /**
-     * This returns the total length of the surface
+     * This returns the total length of the surface in km
      * @return double
      */
     public double getSurfaceLength() {
@@ -365,12 +365,22 @@ public abstract class EvenlyGriddedSurface
     }
 
     /**
-     * This returns the surface width (down dip)
+     * This returns the surface width (down dip) in km
      * @return double
      */
     public double getSurfaceWidth() {
       return getGridSpacing() * (getNumRows()-1);
     }
+    
+    /**
+     * This returns the surface area in km-sq
+     * @return double
+     */
+    public double getSurfaceArea() {
+      return getSurfaceWidth()*getSurfaceLength();
+    }
+    
+   
     
     /**
      * Calculate the minimum distance of this surface from user provided surface

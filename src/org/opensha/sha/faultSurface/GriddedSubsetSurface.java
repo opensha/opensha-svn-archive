@@ -329,5 +329,19 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements EvenlyGri
     public double getGridSpacing() {
       return ((EvenlyGriddedSurfaceAPI)data).getGridSpacing();
     }
+    
+    /**
+     * This returns the total length of the surface in km
+     * @return double
+     */
+    
+    /**
+     * This returns the surface area in km-sq
+     * @return double
+     */
+    public double getSurfaceArea() {
+      return getSurfaceWidth()*getSurfaceLength();
+    }
+
 
 }
