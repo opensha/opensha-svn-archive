@@ -20,16 +20,21 @@
 package org.opensha.sha.earthquake.rupForecastImpl.GEM;
 
 import java.util.ArrayList;
+import java.util.ListIterator;
 
 import org.opensha.commons.calc.magScalingRelations.MagScalingRelationship;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Somerville_2006_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.IntegerParameter;
 import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
 import org.opensha.sha.faultSurface.ApproxEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 
 import scratch.ned.slab.SlabSurfaceGenerator;
@@ -131,7 +136,7 @@ public class TestSubductionZoneERF extends EqkRupForecast{
 
      if(parameterChangeFlag) {
 
-       MagScalingRelationship magScalingRel = new WC1994_MagAreaRelationship();
+       MagScalingRelationship magScalingRel = new Somerville_2006_MagAreaRel();
        double aveGridSpaceing = slabGridSpacingParam.getValue().doubleValue();
        double sigma=0;
        double aspectRatio=1;
@@ -154,8 +159,8 @@ public class TestSubductionZoneERF extends EqkRupForecast{
     	   double magFloat = magScalingRel.getMedianMag(floatArea);
     	   System.out.println("totArea="+totArea+"\tmagMax="+magMax+"\tfloatArea="+floatArea+"\tmagFloat="+magFloat);
    	   
-    	   magMax = ((int)(10*magMax))/10;
-    	   magFloat = ((int)(10*magFloat))/10;
+    	   magMax = ((double)Math.round(10*magMax))/10.0;
+    	   magFloat = ((double)Math.round(10*magFloat))/10.0;
     	   
     	   System.out.println("rounded magMax="+magMax+"\trounded magFloat="+magFloat);
     	   
@@ -236,6 +241,21 @@ public class TestSubductionZoneERF extends EqkRupForecast{
 	public static void main(String[] args) {
 		TestSubductionZoneERF testERF = new TestSubductionZoneERF();
 		testERF.updateForecast();
+		for(int s=0;s<testERF.getNumSources();s++) {
+			ProbEqkSource src = testERF.getSource(s);
+			System.out.println("src "+s+"\t numRups="+src.getNumRuptures());
+			for(int r=0; r<src.getNumRuptures();r++) {
+				EvenlyGriddedSurfaceAPI surf = src.getRupture(r).getRuptureSurface();
+				ListIterator it = surf.getLocationsIterator();
+				int num=0;
+				while(it.hasNext()) {
+					num +=1;
+					it.next();
+				}
+				System.out.println("\trup "+r+"\t mag="+src.getRupture(r).getMag()+"\t numRows="+surf.getNumRows()+"\t numCos="+
+						surf.getNumCols()+"\t numLocsFromIterator="+num+"\t rupArea="+surf.getSurfaceArea());
+			}
+		}
 	}
 
 }
