@@ -20,6 +20,7 @@
 package org.opensha.sha.earthquake.rupForecastImpl.GEM;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.calc.magScalingRelations.MagScalingRelationship;
@@ -246,14 +247,15 @@ public class TestSubductionZoneERF extends EqkRupForecast{
 			System.out.println("src "+s+"\t numRups="+src.getNumRuptures());
 			for(int r=0; r<src.getNumRuptures();r++) {
 				EvenlyGriddedSurfaceAPI surf = src.getRupture(r).getRuptureSurface();
-				ListIterator it = surf.getLocationsIterator();
+				Iterator it = surf.getLocationsIterator();
 				int num=0;
 				while(it.hasNext()) {
 					num +=1;
 					it.next();
 				}
 				System.out.println("\trup "+r+"\t mag="+src.getRupture(r).getMag()+"\t numRows="+surf.getNumRows()+"\t numCos="+
-						surf.getNumCols()+"\t numLocsFromIterator="+num+"\t rupArea="+surf.getSurfaceArea());
+						surf.getNumCols()+"\t numLocsFromIterator="+num+"\t numLocsFromList="+surf.getLocationList().size()+
+						"\t rupArea="+surf.getSurfaceArea());
 			}
 		}
 	}
