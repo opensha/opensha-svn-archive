@@ -86,6 +86,7 @@ public class TestSubductionZoneERF extends EqkRupForecast{
   
   ArrayList<String> clipFileNames = new ArrayList<String>();
   ArrayList<String> grdFileNames = new ArrayList<String>();
+  ArrayList<String> sourceNames = new ArrayList<String>();
 
 
   /**
@@ -124,7 +125,11 @@ public class TestSubductionZoneERF extends EqkRupForecast{
     grdFileNames.add("scratch/ned/slab/slab1_usgs_data/sam_slab1.0_clip.grd");
     grdFileNames.add("scratch/ned/slab/slab1_usgs_data/sum_slab1.0_clip.grd");
     grdFileNames.add("scratch/ned/slab/slab1_usgs_data/kur_slab1.0_clip.grd");
-    
+ 
+    sourceNames.add("South American Subduction Zone");
+    sourceNames.add("Sumatra Subduction Zone");
+    sourceNames.add("Kuril Subduction Zone");
+
   }
 
 
@@ -178,10 +183,10 @@ public class TestSubductionZoneERF extends EqkRupForecast{
                    rupOffset,
                    rake, timeSpan.getDuration(), minMag);
     	   
-
+    	   src.setName(sourceNames.get(s));
     	   sources.add(src);
     	   
-   		System.out.println("numRuptures="+src.getNumRuptures());
+//   		System.out.println("numRuptures="+src.getNumRuptures());
 
     	   
        }
