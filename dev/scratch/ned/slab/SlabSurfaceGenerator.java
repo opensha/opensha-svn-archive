@@ -168,8 +168,10 @@ public class SlabSurfaceGenerator {
 		//Check for any NaNs
 		Iterator<Location> it = surf.getLocationsIterator();
 		while (it.hasNext()) {
-			if(Double.isNaN(it.next().getDepth())) {
-				System.out.println("NaN encountered in SlabSurfaceGenerator");
+			Location loc = it.next();
+			if(Double.isNaN(loc.getDepth())) {
+				System.out.println("NaN depth encountered in SlabSurfaceGenerator; changed value to 0.0");
+				loc.setDepth(0);
 //				throw new RuntimeException("NaN encountered in SlabSurfaceGenerator");
 			}
 		}
