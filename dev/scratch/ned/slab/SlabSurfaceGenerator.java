@@ -142,6 +142,7 @@ public class SlabSurfaceGenerator {
 
 		}
 		
+		
 		// Fix any NaNs on the edges by linear extrapolation
 		int nCols=surf.getNumCols();  // already have nRows
 		for(int r=0;r<nRows;r++){
