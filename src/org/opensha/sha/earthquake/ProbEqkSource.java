@@ -392,7 +392,7 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
    * defined by the TYPE_* fields of the class org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam.
    * @param tectonicRegionType
    */
-  protected void setTectonicRegionType(TectonicRegionType tectonicRegionType) {
+  public void setTectonicRegionType(TectonicRegionType tectonicRegionType) {
 		  this.tectonicRegionType=tectonicRegionType;
   }
 
