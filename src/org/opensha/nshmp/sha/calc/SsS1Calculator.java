@@ -394,11 +394,12 @@ public class SsS1Calculator {
 
 	public DiscretizedFuncList getSsS1FuncList(String edition, String region,
 			String zipCode) {
+		
 		DiscretizedFuncList funcList = new DiscretizedFuncList();
 		DataFileNameSelector fileSelector = new DataFileNameSelector();
 		String fileName = fileSelector.getFileName(edition);
 		BufferedReader bin = null;
-
+		
 		try {
 			bin = new BufferedReader(new FileReader(fileName));
 			// Ignore first 5 lines in file. This is header information.
@@ -414,11 +415,12 @@ public class SsS1Calculator {
 			for (int i = 1; i <= numPeriods; ++i) {
 				saPeriods[i - 1] = Float.parseFloat(tokens[i]);
 			}
-
+			
 			// Find the line of interest
 			while ((line = bin.readLine()) != null) {
 				tokens = line.split("\\s+");
 				if (tokens[0].equalsIgnoreCase(zipCode)) {
+					
 					// This is the line we want, parse the data and break.
 					ArbitrarilyDiscretizedFunc funcCen = new ArbitrarilyDiscretizedFunc();
 					ArbitrarilyDiscretizedFunc funcMax = new ArbitrarilyDiscretizedFunc();
@@ -447,14 +449,14 @@ public class SsS1Calculator {
 			} // END: while(line!=null)
 
 		} catch (IOException iox) {
-			/* Ignore for now. */
+			iox.printStackTrace(System.out);
 		} finally {
 			try {
 				bin.close();
-			} catch (Exception ex) {/* Ignore */
+			} catch (Exception ex) {
+				ex.printStackTrace(System.out);
 			}
 		}
-
 		return funcList;
 	}
 

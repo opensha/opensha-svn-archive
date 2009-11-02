@@ -38,10 +38,14 @@ import org.opensha.nshmp.sha.calc.HazardDataCalc;
 public class HazardDataCalcServletHelper {
 	public Object getResult(String methodName, ArrayList objectsList) {
     boolean isCurrent = false;
+    
+    // Just nice for logging and auditing. No functional use.
     System.out.println("Received requst: " + methodName);
     for (int i = 0; i < objectsList.size(); i++) {
     	System.out.println("   " + objectsList.get(i).toString());
     }
+    
+    
 	 try {
       HazardDataCalc hazardDataCalc = new HazardDataCalc();
 	// Cycle these comments as you release new versions
@@ -59,7 +63,7 @@ public class HazardDataCalcServletHelper {
           getClasses(objectsList));
 
 		if (isCurrent) {
-      	return method.invoke(hazardDataCalc, getObjects(objectsList));
+			return method.invoke(hazardDataCalc, getObjects(objectsList));
 		} else {
       	Object o =  method.invoke(hazardDataCalc, getObjects(objectsList));
 			if (o instanceof ArbitrarilyDiscretizedFunc) {
