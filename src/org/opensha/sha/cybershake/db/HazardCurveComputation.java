@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.sha.calc.RuptureProbabilityModifier;
 
 public class HazardCurveComputation {
 
@@ -16,6 +17,8 @@ public class HazardCurveComputation {
 	private SiteInfo2DBAPI siteDB;
 	private Runs2DB runs2db;
 	public static final double CONVERSION_TO_G = 980;
+	
+	private RuptureProbabilityModifier rupProbMod = null;
 
 	//	private ArrayList<ProgressListener> progressListeners = new ArrayList<ProgressListener>();
 
@@ -26,7 +29,9 @@ public class HazardCurveComputation {
 		runs2db = new Runs2DB(db);
 	}
 
-
+	public void setRupProbModifier(RuptureProbabilityModifier rupProbMod) {
+		this.rupProbMod = rupProbMod;
+	}
 
 	/**
 	 * 
@@ -116,7 +121,15 @@ public class HazardCurveComputation {
 			double imVal = peakAmplitudes.getIM_Value(runID, srcId, rupId, rupVarId, imType);
 			function.set(imVal/CONVERSION_TO_G,1);
 		}
-		setIMLProbs(imlVals,hazardFunc, function.getNormalizedCumDist(), qkProb);
+		if (rupProbMod == null) {
+			setIMLProbs(imlVals,hazardFunc, function.getNormalizedCumDist(), qkProb);
+		} else {
+			ArrayList<Double> rupProbs = new ArrayList<Double>();
+			for (int rupVarID=0; rupVarID<size; rupVarID++) {
+				rupProbs.add(rupProbMod.getModifiedProb(srcId, rupId, rupVarID, qkProb));
+			}
+			setIMLProbs(imlVals,hazardFunc, function.getNormalizedCumDist(), rupProbs);
+		}
 
 		for(int j=0; j<numIMLs; ++j) 
 			hazardFunc.set(hazardFunc.getX(j),(1-hazardFunc.getY(j)));
@@ -210,7 +223,15 @@ public class HazardCurveComputation {
 				//					double imVal = peakAmplitudes.getIM_Value(siteId, erfId, sgtVariation, rvid, srcId, rupId, rupVarId, imType);
 				//					function.set(imVal/CONVERSION_TO_G,1);
 				//				}
-				setIMLProbs(imlVals,hazardFunc, function.getNormalizedCumDist(), qkProb);
+				if (rupProbMod == null) {
+					setIMLProbs(imlVals,hazardFunc, function.getNormalizedCumDist(), qkProb);
+				} else {
+					ArrayList<Double> rupProbs = new ArrayList<Double>();
+					for (int rupVarID=0; rupVarID<imlVals.size(); rupVarID++) {
+						rupProbs.add(rupProbMod.getModifiedProb(srcId, rupId, rupVarID, qkProb));
+					}
+					setIMLProbs(imlVals,hazardFunc, function.getNormalizedCumDist(), rupProbs);
+				}
 			}
 		}
 
@@ -219,21 +240,36 @@ public class HazardCurveComputation {
 
 		return hazardFunc;
 	}
-
+	
 	public static DiscretizedFuncAPI setIMLProbs( ArrayList<Double> imlVals,DiscretizedFuncAPI hazFunc,
 			ArbitrarilyDiscretizedFunc normalizedFunc, double rupProb) {
 		// find prob. for each iml value
 		int numIMLs  = imlVals.size();
 		for(int i=0; i<numIMLs; ++i) {
-			double iml = (imlVals.get(i)).doubleValue();
-			double prob=0;
-			if(iml < normalizedFunc.getMinX()) prob = 0;
-			else if(iml > normalizedFunc.getMaxX()) prob = 1;
-			else prob = normalizedFunc.getInterpolatedY(iml);
-			//System.out.println(iml + "\t" + prob);
-			hazFunc.set(i, hazFunc.getY(i)*Math.pow(1-rupProb,1-prob));
+			setIMLProb(normalizedFunc, hazFunc, imlVals, rupProb, i);
 		}
 		return hazFunc;
+	}
+
+	public static DiscretizedFuncAPI setIMLProbs( ArrayList<Double> imlVals,DiscretizedFuncAPI hazFunc,
+			ArbitrarilyDiscretizedFunc normalizedFunc, ArrayList<Double> rupProbs) {
+		// find prob. for each iml value
+		int numIMLs  = imlVals.size();
+		for(int i=0; i<numIMLs; ++i) {
+			setIMLProb(normalizedFunc, hazFunc, imlVals, rupProbs.get(i), i);
+		}
+		return hazFunc;
+	}
+	
+	private static void setIMLProb(ArbitrarilyDiscretizedFunc normalizedFunc, DiscretizedFuncAPI hazFunc,
+			ArrayList<Double> imlVals, double rupProb, int i) {
+		double iml = imlVals.get(i);
+		double prob=0;
+		if(iml < normalizedFunc.getMinX()) prob = 0;
+		else if(iml > normalizedFunc.getMaxX()) prob = 1;
+		else prob = normalizedFunc.getInterpolatedY(iml);
+		//System.out.println(iml + "\t" + prob);
+		hazFunc.set(i, hazFunc.getY(i)*Math.pow(1-rupProb,1-prob));
 	}
 
 	public PeakAmplitudesFromDBAPI getPeakAmpsAccessor() {

@@ -1,14 +1,13 @@
 package scratch.kevin.cybershake;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.sha.calc.RuptureProbabilityModifier;
 import org.opensha.sha.cybershake.db.CybershakeHazardCurveRecord;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeRun;
@@ -28,6 +27,7 @@ public class BulkCSCurveReplacer {
 	private PeakAmplitudesFromDB amps2db;
 	private SiteInfo2DB sites2db;
 	private HazardCurve2DB curve2db;
+	private HazardCurveComputation calc;
 	
 	private ArrayList<CybershakeSite> ampSites;
 	private ArrayList<CybershakeRun> ampRuns;
@@ -36,11 +36,18 @@ public class BulkCSCurveReplacer {
 	
 	private HashMap<Integer, CybershakeIM> imMap = new HashMap<Integer, CybershakeIM>();
 	
+	private ArrayList<Integer> recalcIMs = null;
+	
 	public BulkCSCurveReplacer(DBAccess db) {
+		this(db, null);
+	}
+	
+	public BulkCSCurveReplacer(DBAccess db, ArrayList<Integer> runIDs) {
 		this.db = db;
 		this.amps2db = new PeakAmplitudesFromDB(db);
 		this.sites2db = new SiteInfo2DB(db);
 		this.curve2db = new HazardCurve2DB(db);
+		this.calc = new HazardCurveComputation(db);
 		
 		ampRuns = amps2db.getPeakAmpRuns();
 		ampSites = new ArrayList<CybershakeSite>();
@@ -48,6 +55,8 @@ public class BulkCSCurveReplacer {
 		curvesMap = new HashMap<Integer, ArrayList<DiscretizedFuncAPI>>();
 		
 		for (CybershakeRun run : ampRuns) {
+			if (runIDs != null && !runIDs.contains(run.getRunID()))
+				continue;
 			ampSites.add(sites2db.getSiteFromDB(run.getSiteID()));
 			ArrayList<CybershakeHazardCurveRecord> records = curve2db.getHazardCurveRecordsForRun(run.getRunID());
 			if (records != null && !records.isEmpty()) {
@@ -59,6 +68,14 @@ public class BulkCSCurveReplacer {
 				curvesMap.put(run.getRunID(), curves);
 			}
 		}
+	}
+	
+	public void setRupRpobModifier(RuptureProbabilityModifier rupProbMod) {
+		calc.setRupProbModifier(rupProbMod);
+	}
+	
+	public void setRecalcIMs(ArrayList<Integer> recalcIMs) {
+		this.recalcIMs = recalcIMs;
 	}
 	
 	public static String getFileName(int runID, int curveID) {
@@ -121,14 +138,16 @@ public class BulkCSCurveReplacer {
 		for (int i=0; i<func.getNum(); i++)
 			imVals.add(func.getX(i));
 		
-		HazardCurveComputation calc = new HazardCurveComputation(db);
-		
 		for (CybershakeRun run : ampRuns) {
 			ArrayList<CybershakeHazardCurveRecord> records = curveRecordsMap.get(new Integer(run.getRunID()));
 			if (records == null)
 				continue;
 			for (int i=0; i<records.size(); i++) {
 				CybershakeHazardCurveRecord record = records.get(i);
+				
+				// if we're only calculating for specific IM(s), skip if this doesn't match them
+				if (recalcIMs != null && !recalcIMs.contains(new Integer(record.getImTypeID())))
+					continue;
 				
 				String fileName = dir + getFileName(run.getRunID(), record.getCurveID());
 				File curveFile = new File(fileName);
@@ -221,16 +240,31 @@ public class BulkCSCurveReplacer {
 		else
 			db = Cybershake_OpenSHA_DBApplication.db;
 		
-		BulkCSCurveReplacer bulk = new BulkCSCurveReplacer(db);
+		ArrayList<Integer> runs = new ArrayList<Integer>();
+		runs.add(228);
+		runs.add(229);
+		runs.add(230);
+		runs.add(231);
+		runs.add(234);
+		runs.add(236);
+		runs.add(237);
+		runs.add(238);
+		runs.add(239);
+		runs.add(245);
+		runs.add(247);
+		runs.add(249);
+		runs.add(336);
 		
-		String initialDir = "/home/kevin/CyberShake/curves/prePatch";
-		String newDir = "/home/kevin/CyberShake/curves/postPatch";
+		BulkCSCurveReplacer bulk = new BulkCSCurveReplacer(db, runs);
+		
+		String initialDir = "/home/kevin/CyberShake/curves/prePatchS";
+		String newDir = "/home/kevin/CyberShake/curves/postPatchS";
 		
 		bulk.writeAllCurvesToDir(initialDir);
 		bulk.recalculateAllCurves(newDir);
 		
 		if (doInsert) {
-			String doneDir = "/home/kevin/CyberShake/curves/patchedCurves";
+			String doneDir = "/home/kevin/CyberShake/curves/patchedCurvesS";
 			bulk.insertNewCurves(newDir, doneDir);
 		}
 		
