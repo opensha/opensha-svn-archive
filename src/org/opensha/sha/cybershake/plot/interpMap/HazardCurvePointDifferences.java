@@ -21,33 +21,21 @@ import org.opensha.sha.cybershake.plot.HazardCurves2XYZ;
 public class HazardCurvePointDifferences {
 	
 	private XYZClosestPointFinder xyz;
-	private ArrayList<CybershakeSite> sites;
-	private HazardCurveFetcher fetcher;
-	private ArrayList<Integer> types;
+	private CyberShakeValueProvider provider;
 	
-	public HazardCurvePointDifferences(HazardCurveFetcher fetcher, String comparisonFile,
-			ArrayList<Integer> types) throws IOException {
-		this.fetcher = fetcher;
-		this.types = types;
+	public HazardCurvePointDifferences(CyberShakeValueProvider provider, String comparisonFile) throws IOException {
+		this.provider = provider;
 		xyz = new XYZClosestPointFinder(comparisonFile);
-		
-		sites = fetcher.getCurveSites();
 	}
 	
-	public ArrayList<Double> getSiteDifferenceValues(boolean isProbAt_IML, double level) {
-		ArrayList<Double> csVals = fetcher.getSiteValues(isProbAt_IML, level);
+	public ArrayList<Double> getSiteDifferenceValues() {
+		ArrayList<Double> csVals = provider.getVals();
+		ArrayList<CybershakeSite> sites = provider.getSites();
 		
 		ArrayList<Double> diff = new ArrayList<Double>();
 		
-		ArrayList<CybershakeSite> newSites = new ArrayList<CybershakeSite>();
-		
 		for (int i=0; i<sites.size(); i++) {
 			CybershakeSite site = sites.get(i);
-			
-			if (types != null && !types.contains(site.type_id))
-				continue;
-			
-			newSites.add(site);
 			
 			double csVal = csVals.get(i);
 			double compVal = xyz.getClosestVal(site.lat, site.lon);
@@ -55,18 +43,16 @@ public class HazardCurvePointDifferences {
 			diff.add(csVal - compVal);
 		}
 		
-		this.sites = newSites;
-		
 		return diff;
 	}
 	
-	public void writeXYZ(String fileName, boolean isProbAt_IML, double level) throws IOException {
-		ArrayList<Double> vals = getSiteDifferenceValues(isProbAt_IML, level);
-		HazardCurves2XYZ.writeXYZ(fileName, sites, vals, null);
+	public void writeXYZ(String fileName) throws IOException {
+		ArrayList<Double> vals = getSiteDifferenceValues();
+		HazardCurves2XYZ.writeXYZ(fileName, provider.getSites(), vals, null);
 	}
 	
 	public void writeLabelsFile(String labelsFile) throws IOException {
-		HazardCurves2XYZ.writeLabelsFile(labelsFile, sites);
+		HazardCurves2XYZ.writeLabelsFile(labelsFile, provider.getSites());
 	}
 	
 	public static void main(String args[]) throws IOException {
@@ -79,6 +65,8 @@ public class HazardCurvePointDifferences {
 		
 		boolean isProbAt_IML = false;
 		double level = 0.0004;
+		
+		String inputFile = null;
 		
 		if (args.length == 0) {
 			System.err.println("WARNING: Running from debug mode!");
@@ -122,21 +110,32 @@ public class HazardCurvePointDifferences {
 		ArrayList<Integer> typeIDs = null;
 		
 		if (types.length() > 0) {
-			ArrayList<String> idSplit = HazardCurvePlotter.commaSplit(types);
-			typeIDs = new ArrayList<Integer>();
-			for (String idStr : idSplit) {
-				int id = Integer.parseInt(idStr);
-				typeIDs.add(id);
-				System.out.println("Added site type: " + id);
+			if (types.startsWith("-F")) {
+				inputFile = types.substring(2);
+				types = "";
+			} else {
+				ArrayList<String> idSplit = HazardCurvePlotter.commaSplit(types);
+				typeIDs = new ArrayList<Integer>();
+				for (String idStr : idSplit) {
+					int id = Integer.parseInt(idStr);
+					typeIDs.add(id);
+					System.out.println("Added site type: " + id);
+				}
 			}
 		}
 		
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
-		HazardCurveFetcher fetcher = new HazardCurveFetcher(db, null, 3, 5, imTypeID);
+		CyberShakeValueProvider prov;
+		if (inputFile == null) {
+			prov = new CyberShakeValueProvider(inputFile);
+		} else {
+			DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+			HazardCurveFetcher fetcher = new HazardCurveFetcher(db, null, 3, 5, imTypeID);
+			
+			prov = new CyberShakeValueProvider(fetcher, typeIDs, isProbAt_IML, level);
+		}
+		HazardCurvePointDifferences diff = new HazardCurvePointDifferences(prov, compFile);
 		
-		HazardCurvePointDifferences diff = new HazardCurvePointDifferences(fetcher, compFile, typeIDs);
-		
-		diff.writeXYZ(outFile, isProbAt_IML, level);
+		diff.writeXYZ(outFile);
 		diff.writeLabelsFile(labelsFile);
 		
 		System.exit(0);
