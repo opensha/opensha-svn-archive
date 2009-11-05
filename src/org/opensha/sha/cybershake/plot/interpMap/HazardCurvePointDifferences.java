@@ -55,90 +55,96 @@ public class HazardCurvePointDifferences {
 		HazardCurves2XYZ.writeLabelsFile(labelsFile, provider.getSites());
 	}
 	
-	public static void main(String args[]) throws IOException {
-		String compFile = null;
-		String outFile = null;
-		String labelsFile = null;
-		String types = "";
-		
-		int imTypeID = 21;
-		
-		boolean isProbAt_IML = false;
-		double level = 0.0004;
-		
-		String inputFile = null;
-		
-		if (args.length == 0) {
-			System.err.println("WARNING: Running from debug mode!");
-			compFile = "/home/kevin/CyberShake/baseMaps/cb2008/cb2008_base_map_2percent_hiRes_0.005.txt";
-			outFile = "/home/kevin/CyberShake/interpolatedDiffMap/diffs.txt";
-			labelsFile = "/home/kevin/CyberShake/interpolatedDiffMap/markers.txt";
-		} else if (args.length >= 3 && args.length <= 7) {
-			compFile = args[0];
-			outFile = args[1];
-			labelsFile = args[2];
-			imTypeID = Integer.parseInt(args[3]);
-			if (args.length == 5) {
-				types = args[4];
-			} else if (args.length == 6) {
-				isProbAt_IML = Boolean.parseBoolean(args[4]);
-				level = Double.parseDouble(args[5]);
-			} else if (args.length == 7) {
-				types = args[4];
-				isProbAt_IML = Boolean.parseBoolean(args[5]);
-				level = Double.parseDouble(args[6]);
-			}
-		} else {
-			System.err.println("USAGE: HazardCurvePointDifferences base_map_file outFile labelsFile imTypeID [types] " +
-					"[isProbAt_IML level]");
-			System.exit(1);
-		}
-		
-		System.out.println("*****************************");
-		System.out.println("Basemap: " + compFile);
-		System.out.println("Diff output: " + outFile);
-		System.out.println("Labels: " + labelsFile);
-		System.out.println("IM Type ID: " + imTypeID);
-		System.out.println("Types: " + types);
-		if (isProbAt_IML) {
-			System.out.println("Prob of exceeding IML of:  " + level);
-		} else {
-			System.out.println("IML at Prob of: " + level);
-		}
-		System.out.println("*****************************\n");
-		
-		ArrayList<Integer> typeIDs = null;
-		
-		if (types.length() > 0) {
-			if (types.startsWith("-F")) {
-				inputFile = types.substring(2);
-				types = "";
+	public static void main(String args[]) {
+		try {
+			String compFile = null;
+			String outFile = null;
+			String labelsFile = null;
+			String types = "";
+			
+			int imTypeID = 21;
+			
+			boolean isProbAt_IML = false;
+			double level = 0.0004;
+			
+			String inputFile = null;
+			
+			if (args.length == 0) {
+				System.err.println("WARNING: Running from debug mode!");
+				compFile = "/home/kevin/CyberShake/baseMaps/cb2008/cb2008_base_map_2percent_hiRes_0.005.txt";
+				outFile = "/home/kevin/CyberShake/interpolatedDiffMap/diffs.txt";
+				labelsFile = "/home/kevin/CyberShake/interpolatedDiffMap/markers.txt";
+			} else if (args.length >= 3 && args.length <= 7) {
+				compFile = args[0];
+				outFile = args[1];
+				labelsFile = args[2];
+				imTypeID = Integer.parseInt(args[3]);
+				if (args.length == 5) {
+					types = args[4];
+				} else if (args.length == 6) {
+					isProbAt_IML = Boolean.parseBoolean(args[4]);
+					level = Double.parseDouble(args[5]);
+				} else if (args.length == 7) {
+					types = args[4];
+					isProbAt_IML = Boolean.parseBoolean(args[5]);
+					level = Double.parseDouble(args[6]);
+				}
 			} else {
-				ArrayList<String> idSplit = HazardCurvePlotter.commaSplit(types);
-				typeIDs = new ArrayList<Integer>();
-				for (String idStr : idSplit) {
-					int id = Integer.parseInt(idStr);
-					typeIDs.add(id);
-					System.out.println("Added site type: " + id);
+				System.err.println("USAGE: HazardCurvePointDifferences base_map_file outFile labelsFile imTypeID [types] " +
+						"[isProbAt_IML level]");
+				System.exit(1);
+			}
+			
+			System.out.println("*****************************");
+			System.out.println("Basemap: " + compFile);
+			System.out.println("Diff output: " + outFile);
+			System.out.println("Labels: " + labelsFile);
+			System.out.println("IM Type ID: " + imTypeID);
+			System.out.println("Types: " + types);
+			if (isProbAt_IML) {
+				System.out.println("Prob of exceeding IML of:  " + level);
+			} else {
+				System.out.println("IML at Prob of: " + level);
+			}
+			System.out.println("*****************************\n");
+			
+			ArrayList<Integer> typeIDs = null;
+			
+			if (types.length() > 0) {
+				if (types.startsWith("-F")) {
+					inputFile = types.substring(2);
+					types = "";
+				} else {
+					ArrayList<String> idSplit = HazardCurvePlotter.commaSplit(types);
+					typeIDs = new ArrayList<Integer>();
+					for (String idStr : idSplit) {
+						int id = Integer.parseInt(idStr);
+						typeIDs.add(id);
+						System.out.println("Added site type: " + id);
+					}
 				}
 			}
-		}
-		
-		CyberShakeValueProvider prov;
-		if (inputFile == null) {
-			prov = new CyberShakeValueProvider(inputFile);
-		} else {
-			DBAccess db = Cybershake_OpenSHA_DBApplication.db;
-			HazardCurveFetcher fetcher = new HazardCurveFetcher(db, null, 3, 5, imTypeID);
 			
-			prov = new CyberShakeValueProvider(fetcher, typeIDs, isProbAt_IML, level);
+			CyberShakeValueProvider prov;
+			if (inputFile == null) {
+				prov = new CyberShakeValueProvider(inputFile);
+			} else {
+				DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+				HazardCurveFetcher fetcher = new HazardCurveFetcher(db, null, 3, 5, imTypeID);
+				
+				prov = new CyberShakeValueProvider(fetcher, typeIDs, isProbAt_IML, level);
+			}
+			HazardCurvePointDifferences diff = new HazardCurvePointDifferences(prov, compFile);
+			
+			diff.writeXYZ(outFile);
+			diff.writeLabelsFile(labelsFile);
+			
+			System.exit(0);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.exit(1);
 		}
-		HazardCurvePointDifferences diff = new HazardCurvePointDifferences(prov, compFile);
-		
-		diff.writeXYZ(outFile);
-		diff.writeLabelsFile(labelsFile);
-		
-		System.exit(0);
 	}
 
 }

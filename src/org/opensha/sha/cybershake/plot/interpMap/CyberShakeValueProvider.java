@@ -20,6 +20,7 @@ public class CyberShakeValueProvider {
 		ArrayList<CybershakeSite> origSites = fetcher.getCurveSites();
 		
 		sites = new ArrayList<CybershakeSite>();
+		vals = new ArrayList<Double>();
 		
 		for (int i=0; i<origSites.size(); i++) {
 			CybershakeSite site = origSites.get(i);
