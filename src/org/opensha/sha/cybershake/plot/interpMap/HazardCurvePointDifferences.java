@@ -126,7 +126,7 @@ public class HazardCurvePointDifferences {
 			}
 			
 			CyberShakeValueProvider prov;
-			if (inputFile == null) {
+			if (inputFile != null) {
 				prov = new CyberShakeValueProvider(inputFile);
 			} else {
 				DBAccess db = Cybershake_OpenSHA_DBApplication.db;
