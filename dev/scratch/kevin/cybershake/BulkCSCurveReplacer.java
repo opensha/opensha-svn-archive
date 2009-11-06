@@ -7,7 +7,9 @@ import java.util.HashMap;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.sha.calc.RuptureProbabilityModifier;
+import org.opensha.sha.cybershake.calc.HazardCurveComputation;
+import org.opensha.sha.cybershake.calc.RuptureProbabilityModifier;
+import org.opensha.sha.cybershake.calc.RuptureVariationProbabilityModifier;
 import org.opensha.sha.cybershake.db.CybershakeHazardCurveRecord;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeRun;
@@ -15,7 +17,6 @@ import org.opensha.sha.cybershake.db.CybershakeSite;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.cybershake.db.HazardCurve2DB;
-import org.opensha.sha.cybershake.db.HazardCurveComputation;
 import org.opensha.sha.cybershake.db.PeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.db.SiteInfo2DB;
 import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
@@ -72,6 +73,10 @@ public class BulkCSCurveReplacer {
 	
 	public void setRupRpobModifier(RuptureProbabilityModifier rupProbMod) {
 		calc.setRupProbModifier(rupProbMod);
+	}
+	
+	public void setRupVarProbModifier(RuptureVariationProbabilityModifier rupVarProbMod) {
+		calc.setRupVarProbModifier(rupVarProbMod);
 	}
 	
 	public void setRecalcIMs(ArrayList<Integer> recalcIMs) {

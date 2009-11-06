@@ -1,4 +1,4 @@
-package org.opensha.sha.cybershake.db;
+package org.opensha.sha.cybershake.calc;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -6,7 +6,17 @@ import java.util.ArrayList;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.sha.calc.RuptureProbabilityModifier;
+import org.opensha.sha.cybershake.bombay.BombayBeachHazardCurveCalc;
+import org.opensha.sha.cybershake.db.CybershakeIM;
+import org.opensha.sha.cybershake.db.CybershakeRun;
+import org.opensha.sha.cybershake.db.DBAccess;
+import org.opensha.sha.cybershake.db.ERF2DB;
+import org.opensha.sha.cybershake.db.ERF2DBAPI;
+import org.opensha.sha.cybershake.db.PeakAmplitudesFromDB;
+import org.opensha.sha.cybershake.db.PeakAmplitudesFromDBAPI;
+import org.opensha.sha.cybershake.db.Runs2DB;
+import org.opensha.sha.cybershake.db.SiteInfo2DB;
+import org.opensha.sha.cybershake.db.SiteInfo2DBAPI;
 
 public class HazardCurveComputation {
 
@@ -19,6 +29,7 @@ public class HazardCurveComputation {
 	public static final double CONVERSION_TO_G = 980;
 	
 	private RuptureProbabilityModifier rupProbMod = null;
+	private RuptureVariationProbabilityModifier rupVarProbMod = null;
 
 	//	private ArrayList<ProgressListener> progressListeners = new ArrayList<ProgressListener>();
 
@@ -31,6 +42,10 @@ public class HazardCurveComputation {
 
 	public void setRupProbModifier(RuptureProbabilityModifier rupProbMod) {
 		this.rupProbMod = rupProbMod;
+	}
+	
+	public void setRupVarProbModifier(RuptureVariationProbabilityModifier rupVarProbMod) {
+		this.rupVarProbMod = rupVarProbMod;
 	}
 
 	/**
@@ -103,33 +118,26 @@ public class HazardCurveComputation {
 	 * @param rupId
 	 * @param imType
 	 */
-	public DiscretizedFuncAPI computeDeterministicCurve(ArrayList<Double> imlVals, CybershakeRun run,
+	public DiscretizedFuncAPI computeDeterministicCurve(ArrayList<Double> xVals, CybershakeRun run,
 			int srcId,int rupId,CybershakeIM imType){
 
 		DiscretizedFuncAPI hazardFunc = new ArbitrarilyDiscretizedFunc();
-		int numIMLs  = imlVals.size();
-		for(int i=0; i<numIMLs; ++i) hazardFunc.set((imlVals.get(i)).doubleValue(), 1.0);
+		int numIMLs  = xVals.size();
+		for(int i=0; i<numIMLs; ++i) hazardFunc.set((xVals.get(i)).doubleValue(), 1.0);
 
 		int runID = run.getRunID();
 
 		double qkProb = erfDB.getRuptureProb(run.getERFID(), srcId, rupId);
-		ArbDiscrEmpiricalDistFunc function = new ArbDiscrEmpiricalDistFunc();
-		ArrayList<Integer> rupVariations = peakAmplitudes.getRupVarationsForRupture(run.getERFID(), srcId, rupId);
-		int size = rupVariations.size();
-		for(int i=0;i<size;++i){
-			int rupVarId =  rupVariations.get(i);
-			double imVal = peakAmplitudes.getIM_Value(runID, srcId, rupId, rupVarId, imType);
-			function.set(imVal/CONVERSION_TO_G,1);
+		ArrayList<Double> imVals;
+		try {
+			imVals = peakAmplitudes.getIM_Values(runID, srcId, rupId, imType);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
 		}
-		if (rupProbMod == null) {
-			setIMLProbs(imlVals,hazardFunc, function.getNormalizedCumDist(), qkProb);
-		} else {
-			ArrayList<Double> rupProbs = new ArrayList<Double>();
-			for (int rupVarID=0; rupVarID<size; rupVarID++) {
-				rupProbs.add(rupProbMod.getModifiedProb(srcId, rupId, rupVarID, qkProb));
-			}
-			setIMLProbs(imlVals,hazardFunc, function.getNormalizedCumDist(), rupProbs);
-		}
+		if (rupProbMod != null)
+			qkProb = rupProbMod.getModifiedProb(srcId, rupId, qkProb);
+		handleRupture(xVals, imVals, hazardFunc, qkProb, srcId, rupId, rupVarProbMod);
 
 		for(int j=0; j<numIMLs; ++j) 
 			hazardFunc.set(hazardFunc.getX(j),(1-hazardFunc.getY(j)));
@@ -187,13 +195,13 @@ public class HazardCurveComputation {
 	 * @param erfName
 	 * @param imType
 	 */
-	public DiscretizedFuncAPI computeHazardCurve(ArrayList<Double> imlVals, CybershakeRun run, CybershakeIM imType){
+	public DiscretizedFuncAPI computeHazardCurve(ArrayList<Double> xVals, CybershakeRun run, CybershakeIM imType){
 		DiscretizedFuncAPI hazardFunc = new ArbitrarilyDiscretizedFunc();
 		int siteID = run.getSiteID();
 		int erfID = run.getERFID();
 		int runID = run.getRunID();
-		int numIMLs  = imlVals.size();
-		for(int i=0; i<numIMLs; ++i) hazardFunc.set((imlVals.get(i)).doubleValue(), 1.0);
+		int numIMLs  = xVals.size();
+		for(int i=0; i<numIMLs; ++i) hazardFunc.set((xVals.get(i)).doubleValue(), 1.0);
 
 		ArrayList<Integer> srcIdList = siteDB.getSrcIdsForSite(siteID, erfID);
 		int numSrcs = srcIdList.size();
@@ -206,32 +214,15 @@ public class HazardCurveComputation {
 			for(int rupIndex = 0;rupIndex<numRupSize;++rupIndex){
 				int rupId = rupIdList.get(rupIndex);
 				double qkProb = erfDB.getRuptureProb(erfID, srcId, rupId);
-				ArbDiscrEmpiricalDistFunc function = new ArbDiscrEmpiricalDistFunc();
 				ArrayList<Double> imVals;
 				try {
 					imVals = peakAmplitudes.getIM_Values(runID, srcId, rupId, imType);
 				} catch (SQLException e) {
 					return null;
 				}
-				for (double val : imVals) {
-					function.set(val/CONVERSION_TO_G,1);
-				}
-				//				ArrayList<Integer> rupVariations = peakAmplitudes.getRupVarationsForRupture(erfId, srcId, rupId);
-				//				int size = rupVariations.size();
-				//				for(int i=0;i<size;++i){
-				//					int rupVarId =  rupVariations.get(i);
-				//					double imVal = peakAmplitudes.getIM_Value(siteId, erfId, sgtVariation, rvid, srcId, rupId, rupVarId, imType);
-				//					function.set(imVal/CONVERSION_TO_G,1);
-				//				}
-				if (rupProbMod == null) {
-					setIMLProbs(imlVals,hazardFunc, function.getNormalizedCumDist(), qkProb);
-				} else {
-					ArrayList<Double> rupProbs = new ArrayList<Double>();
-					for (int rupVarID=0; rupVarID<imlVals.size(); rupVarID++) {
-						rupProbs.add(rupProbMod.getModifiedProb(srcId, rupId, rupVarID, qkProb));
-					}
-					setIMLProbs(imlVals,hazardFunc, function.getNormalizedCumDist(), rupProbs);
-				}
+				if (rupProbMod != null)
+					qkProb = rupProbMod.getModifiedProb(srcId, rupId, qkProb);
+				handleRupture(xVals, imVals, hazardFunc, qkProb, srcId, rupId, rupVarProbMod);
 			}
 		}
 
@@ -241,35 +232,65 @@ public class HazardCurveComputation {
 		return hazardFunc;
 	}
 	
+	private static void handleRupture(ArrayList<Double> xVals, ArrayList<Double> imVals,
+			DiscretizedFuncAPI hazardFunc, double qkProb,
+			int sourceID, int rupID, RuptureVariationProbabilityModifier rupProbVarMod) {
+		if (rupProbVarMod == null) {
+			// we don't have a rupture variation probability modifier
+			handleRupture(xVals, imVals, hazardFunc, qkProb);
+			return;
+		}
+		ArrayList<Integer> modRupIDs = rupProbVarMod.getModVariations(sourceID, rupID);
+		if (modRupIDs == null || modRupIDs.size() == 0) {
+			// we have a rup var prob mod, but it doesn't apply to this rupture
+			handleRupture(xVals, imVals, hazardFunc, qkProb);
+			return;
+		}
+		double modProb = rupProbVarMod.getModifiedProb(sourceID, rupID, qkProb);
+		if (modRupIDs.size() == imVals.size()) {
+			// we have a rup var prob mod and it is modifying EVERY RV...simple case
+			handleRupture(xVals, imVals, hazardFunc, modProb);
+			return;
+		}
+		// if we made it this far it's the complicated case (a mix of modified and unmodified)
+		ArrayList<Double> noModVals = new ArrayList<Double>();
+		ArrayList<Double> modVals = new ArrayList<Double>();
+		
+		for (int rvID=0; rvID<imVals.size(); rvID++) {
+			if (modRupIDs.contains(new Integer(rvID))) {
+//				System.out.println("ADDED A MOD PROB!!!");
+				modVals.add(imVals.get(rvID));
+			} else {
+				noModVals.add(imVals.get(rvID));
+			}
+		}
+		double modsToTotal = (double)modVals.size() / (double)imVals.size();
+		handleRupture(xVals, noModVals, hazardFunc, qkProb * (1-modsToTotal));
+		handleRupture(xVals, modVals, hazardFunc, modProb * modsToTotal);
+	}
+	
+	private static void handleRupture(ArrayList<Double> xVals, ArrayList<Double> imVals,
+			DiscretizedFuncAPI hazardFunc, double qkProb) {
+		ArbDiscrEmpiricalDistFunc function = new ArbDiscrEmpiricalDistFunc();
+		for (double val : imVals) {
+			function.set(val/CONVERSION_TO_G,1);
+		}
+		setIMLProbs(xVals,hazardFunc, function.getNormalizedCumDist(), qkProb);
+	}
+	
 	public static DiscretizedFuncAPI setIMLProbs( ArrayList<Double> imlVals,DiscretizedFuncAPI hazFunc,
 			ArbitrarilyDiscretizedFunc normalizedFunc, double rupProb) {
 		// find prob. for each iml value
 		int numIMLs  = imlVals.size();
 		for(int i=0; i<numIMLs; ++i) {
-			setIMLProb(normalizedFunc, hazFunc, imlVals, rupProb, i);
+			double iml = imlVals.get(i);
+			double prob=0;
+			if(iml < normalizedFunc.getMinX()) prob = 0;
+			else if(iml > normalizedFunc.getMaxX()) prob = 1;
+			else prob = normalizedFunc.getInterpolatedY(iml);
+			hazFunc.set(i, hazFunc.getY(i)*Math.pow(1-rupProb,1-prob));
 		}
 		return hazFunc;
-	}
-
-	public static DiscretizedFuncAPI setIMLProbs( ArrayList<Double> imlVals,DiscretizedFuncAPI hazFunc,
-			ArbitrarilyDiscretizedFunc normalizedFunc, ArrayList<Double> rupProbs) {
-		// find prob. for each iml value
-		int numIMLs  = imlVals.size();
-		for(int i=0; i<numIMLs; ++i) {
-			setIMLProb(normalizedFunc, hazFunc, imlVals, rupProbs.get(i), i);
-		}
-		return hazFunc;
-	}
-	
-	private static void setIMLProb(ArbitrarilyDiscretizedFunc normalizedFunc, DiscretizedFuncAPI hazFunc,
-			ArrayList<Double> imlVals, double rupProb, int i) {
-		double iml = imlVals.get(i);
-		double prob=0;
-		if(iml < normalizedFunc.getMinX()) prob = 0;
-		else if(iml > normalizedFunc.getMaxX()) prob = 1;
-		else prob = normalizedFunc.getInterpolatedY(iml);
-		//System.out.println(iml + "\t" + prob);
-		hazFunc.set(i, hazFunc.getY(i)*Math.pow(1-rupProb,1-prob));
 	}
 
 	public PeakAmplitudesFromDBAPI getPeakAmpsAccessor() {

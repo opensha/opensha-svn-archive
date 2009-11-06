@@ -15,13 +15,14 @@ import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.calc.RuptureProbabilityModifier;
+import org.opensha.sha.cybershake.calc.HazardCurveComputation;
+import org.opensha.sha.cybershake.calc.RuptureProbabilityModifier;
+import org.opensha.sha.cybershake.calc.RuptureVariationProbabilityModifier;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeRun;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.cybershake.db.ERF2DB;
-import org.opensha.sha.cybershake.db.HazardCurveComputation;
 import org.opensha.sha.cybershake.db.MeanUCERF2_ToDB;
 import org.opensha.sha.cybershake.db.PeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.db.SiteInfo2DB;
@@ -30,7 +31,7 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 
-public class BombayBeachHazardCurveCalc implements RuptureProbabilityModifier {
+public class BombayBeachHazardCurveCalc implements RuptureVariationProbabilityModifier {
 	
 	/** The location of the M4.8 event */
 	public static final Location BOMBAY_LOC = new Location(33.318333, -115.728333);
@@ -283,16 +284,16 @@ public class BombayBeachHazardCurveCalc implements RuptureProbabilityModifier {
 				if (rvs == null)
 					continue;
 				for (int rupVarID : rvs) {
-					double newProb = getModifiedProb(sourceID, rupID, rupVarID, origProb);
-					System.out.println("orig: " + origProb + ", mod: " + newProb);
-					if (origProb < minOrig)
-						minOrig = origProb;
-					if (origProb > maxOrig)
-						maxOrig = origProb;
-					if (newProb < maxNew)
-						minNew = newProb;
-					if (newProb > maxNew)
-						maxNew = newProb;
+//					double newProb = getModifiedProb(sourceID, rupID, rupVarID, origProb);
+//					System.out.println("orig: " + origProb + ", mod: " + newProb);
+//					if (origProb < minOrig)
+//						minOrig = origProb;
+//					if (origProb > maxOrig)
+//						maxOrig = origProb;
+//					if (newProb < maxNew)
+//						minNew = newProb;
+//					if (newProb > maxNew)
+//						maxNew = newProb;
 					break;
 				}
 			}
@@ -304,15 +305,14 @@ public class BombayBeachHazardCurveCalc implements RuptureProbabilityModifier {
 		System.out.println("Orig range: " + minOrig/365d + " => " + maxOrig/365d);
 		System.out.println("New range: " + minNew/365d + " => " + maxNew/365d);
 	}
-
-	public double getModifiedProb(int sourceID, int rupID, int rupVarID, double origProb) {
-		
-		ArrayList<Integer> rvs = rvMap.get(getKey(sourceID, rupID));
-		
-		if (rvs == null || !rvs.contains(new Integer(rupVarID)))
-			return origProb / 365d;
-		
-		return origProb * increaseMultFactor / 365d;
+	
+	public ArrayList<Integer> getModVariations(int sourceID, int rupID) {
+		return rvMap.get(getKey(sourceID, rupID));
+	}
+	
+	public double getModifiedProb(int sourceID, int rupID, double originalProb) {
+		return originalProb * increaseMultFactor;
+//		return originalProb;
 	}
 
 }

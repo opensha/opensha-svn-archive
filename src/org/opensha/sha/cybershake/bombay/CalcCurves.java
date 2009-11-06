@@ -3,7 +3,8 @@ package org.opensha.sha.cybershake.bombay;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.opensha.sha.calc.RuptureProbabilityModifier;
+import org.opensha.sha.cybershake.calc.RuptureProbabilityModifier;
+import org.opensha.sha.cybershake.calc.RuptureVariationProbabilityModifier;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;
 
@@ -21,8 +22,10 @@ public class CalcCurves {
 		calc.setRecalcIMs(ims);
 	}
 	
-	public void calc(String dir, RuptureProbabilityModifier rupProbMod) throws IOException {
+	public void calc(String dir, RuptureProbabilityModifier rupProbMod,
+			RuptureVariationProbabilityModifier rupVarProbMod) throws IOException {
 		calc.setRupRpobModifier(rupProbMod);
+		calc.setRupVarProbModifier(rupVarProbMod);
 		calc.recalculateAllCurves(dir);
 	}
 	
@@ -37,11 +40,13 @@ public class CalcCurves {
 			double increaseMultFactor = 1000;
 			
 			String origDir = baseDir + "origCurves/";
-			String modDir = baseDir + "modCurves/";
+			String modDir = baseDir + "modCurves_noMod/";
 			
-			calc.calc(origDir, new Div365ProbModifier());
+			Div365ProbModifier div365 = new Div365ProbModifier();
+			
+			calc.calc(origDir, div365, null);
 			BombayBeachHazardCurveCalc bombay = new BombayBeachHazardCurveCalc(db, increaseMultFactor);
-			calc.calc(modDir, bombay);
+			calc.calc(modDir, div365, bombay);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

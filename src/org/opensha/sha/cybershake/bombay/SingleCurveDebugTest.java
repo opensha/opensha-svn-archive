@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import org.jfree.chart.ChartUtilities;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.sha.cybershake.calc.HazardCurveComputation;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;
-import org.opensha.sha.cybershake.db.HazardCurveComputation;
 import org.opensha.sha.cybershake.db.PeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.plot.HazardCurvePlotCharacteristics;
 import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
@@ -48,21 +48,28 @@ public class SingleCurveDebugTest implements GraphPanelAPI, PlotControllerAPI {
 			imlVals.add(func.getX(i));
 		}
 		
-		int runID = 215;
+//		int runID = 517; // s435
+//		int runID = 215; // PTWN
+		int runID = 576; // s758
 		
 		CybershakeIM imType = new PeakAmplitudesFromDB(db).getIMForPeriod(3d, runID);
 		
 		calc.setRupProbModifier(div365);
-		DiscretizedFuncAPI origCurve = calc.computeHazardCurve(imlVals, 215, imType);
-		calc.setRupProbModifier(bombay);
-		DiscretizedFuncAPI modCurve = calc.computeHazardCurve(imlVals, 215, imType);
+		DiscretizedFuncAPI origCurve = calc.computeHazardCurve(imlVals, runID, imType);
+		ArbitrarilyDiscretizedFunc.writeSimpleFuncFile(origCurve, "/tmp/origCurve_"+runID+".txt");
+		
+		calc.setRupVarProbModifier(bombay);
+		DiscretizedFuncAPI modCurve = calc.computeHazardCurve(imlVals, runID, imType);
+		ArbitrarilyDiscretizedFunc.writeSimpleFuncFile(modCurve, "/tmp/modCurve_"+runID+".txt");
 		
 		SingleCurveDebugTest plot = new SingleCurveDebugTest();
 		
-		plot.plot(origCurve, modCurve);
+		plot.plot(origCurve, modCurve, "/tmp/test_curves_" + runID + ".png");
+		
+		System.exit(0);
 	}
 	
-	public void plot(DiscretizedFuncAPI origCurve, DiscretizedFuncAPI modCurve) throws IOException {
+	public void plot(DiscretizedFuncAPI origCurve, DiscretizedFuncAPI modCurve, String outFile) throws IOException {
 		ArrayList<DiscretizedFuncAPI> curves = new ArrayList<DiscretizedFuncAPI>();
 		curves.add(origCurve);
 		curves.add(modCurve);
@@ -82,25 +89,24 @@ public class SingleCurveDebugTest implements GraphPanelAPI, PlotControllerAPI {
 		this.gp.validate();
 		this.gp.repaint();
 		
-		String outFile = "/tmp/test_curves.png";
 		System.out.println("Saving PNG to: " + outFile);
 		ChartUtilities.saveChartAsPNG(new File(outFile), gp.getCartPanel().getChart(), 600, 500);
 	}
 
 	public double getMaxX() {
-		return 2;
+		return Double.parseDouble("1.0E1");
 	}
 
 	public double getMaxY() {
-		return 1;
+		return Double.parseDouble("1.0E0");
 	}
 
 	public double getMinX() {
-		return 0;
+		return Double.parseDouble("1.0E-4");
 	}
 
 	public double getMinY() {
-		return Double.parseDouble("1.0E-6");
+		return Double.parseDouble("1.0E-16");
 	}
 
 	public int getAxisLabelFontSize() {
