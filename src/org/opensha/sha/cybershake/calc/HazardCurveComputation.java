@@ -288,6 +288,8 @@ public class HazardCurveComputation {
 			if(iml < normalizedFunc.getMinX()) prob = 0;
 			else if(iml > normalizedFunc.getMaxX()) prob = 1;
 			else prob = normalizedFunc.getInterpolatedY(iml);
+//			else prob = normalizedFunc.getInterpolatedY_inLogYDomain(iml);
+//			else prob = normalizedFunc.getInterpolatedY_inLogXLogYDomain(iml);
 			hazFunc.set(i, hazFunc.getY(i)*Math.pow(1-rupProb,1-prob));
 		}
 		return hazFunc;

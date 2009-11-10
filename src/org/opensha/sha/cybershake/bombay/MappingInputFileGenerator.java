@@ -61,8 +61,11 @@ public class MappingInputFileGenerator {
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		MappingInputFileGenerator gen = new MappingInputFileGenerator(Cybershake_OpenSHA_DBApplication.db);
 		
-		boolean isProbAt_IML = false;
-		double level = 0.0004 / 365;
+//		boolean isProbAt_IML = false;
+//		double level = 0.0004 / 365;
+		
+		boolean isProbAt_IML = true;
+		double level = 0.5;
 		
 		String baseDir = "/home/kevin/CyberShake/bombay/";
 		
