@@ -39,6 +39,7 @@ import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -354,7 +355,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 	 *
 	 * @return ERF_API
 	 */
-	public EqkRupForecastBaseAPI getSelectedEqkRupForecastModel(){
+	public EqkRupForecastAPI getSelectedEqkRupForecastModel(){
 		return ((EqkRuptureFromERFSelectorPanel)eqkRupturePanel).getSelectedERF_Instance();
 	}
 
