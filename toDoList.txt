@@ -16,6 +16,8 @@ beans and control panels.  This will also involve reviewing Kevin's
 toXMLMetadata(Element root)  &  fromXMLMetadata(Element root) implementations (these 
 should be our starting point).  We also want to maintain remote calc capabilities.
 
+Multi IMR options on scenario shakemap calculator is not working properly in terms of only listing what IMRs support the chosen IMT.
+
 Convert web sites to Drupal Wiki; start with WGCEP - Peter's going to try it out.
 
 Investigate upgrade to JFreeChart current version; buy dev guide
@@ -24,8 +26,7 @@ Redo PEER tests;Implement PEER tests as JUnit. - Peter will do this
 
 Fix offset in global GMT topo intensity file (email from Kevin on 9/3/09) & document how this is done - Kevin will deal with this
 
-The ability to associate sources and imrs to TectonicRegionTypes has been added to the
-HazardCurveCalculator.  What remains to be done is:
+The ability to associate sources and imrs to TectonicRegionTypes has been added to the HazardCurveCalculator.  What remains to be done is:
 
 	Add option to GUI (or wait until we have command-line versions based on XML first?)
 	Do this for stochastic event sets (from the ERf we'll need a list for each TectonicRegionType)
@@ -174,8 +175,6 @@ Make email lists for the following (with on-line archives):
 
 MINOR ISSUES:
 ------------
-
-Multi IMR options on scenario shakemap calculator is not working properly in terms of only listing what IMRs support the chosen IMT.
 
 Our PEER PSHA verification applications are broken (remove, or should we update with final results)?
 
