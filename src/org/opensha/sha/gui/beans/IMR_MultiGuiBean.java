@@ -27,13 +27,12 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener 
 	private ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs;
 	
 	private ArrayList<TectonicRegionType> regions = null;
-	private ArrayList<IMR_ParamEditor> paramEdits = null;
+	private IMR_ParamEditor paramEdit = null;
 	private ArrayList<ShowHideButton> showHideButtons = null;
 	private ArrayList<ChooserComboBox> chooserBoxes = null;
 	
 	public IMR_MultiGuiBean(ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs) {
 		this.imrs = imrs;
-		
 		
 		initGUI();
 	}
@@ -42,6 +41,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener 
 		setLayout(new BoxLayout(editorPanel, BoxLayout.Y_AXIS));
 		singleIMRBox.setFont(new Font("My Font", Font.PLAIN, 10));
 		singleIMRBox.addActionListener(this);
+		paramEdit = new IMR_ParamEditor();
 		
 		rebuildGUI();
 	}
@@ -58,23 +58,17 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener 
 	 */
 	private void rebuildGUI(boolean refreshOnly) {
 		this.removeAll();
-		if (regions == null) {
+		if (regions == null || regions.size() <= 1) {
 			singleIMRBox.setSelected(true);
 		} else {
 			JPanel checkPanel = new JPanel();
 			checkPanel.setLayout(new BoxLayout(checkPanel, BoxLayout.X_AXIS));
 			checkPanel.add(singleIMRBox);
 			this.add(checkPanel);
-			if (regions.size() > 1) {
-				singleIMRBox.setEnabled(true);
-			} else {
-				singleIMRBox.setEnabled(false);
-				singleIMRBox.setSelected(true);
-			}
+			singleIMRBox.setEnabled(true);
 			singleIMRBox.setEnabled(regions.size() > 1);
 		}
 		if (!refreshOnly) {
-			paramEdits = new ArrayList<IMR_ParamEditor>();
 			chooserBoxes = new ArrayList<ChooserComboBox>();
 			showHideButtons = null;
 		}
@@ -83,51 +77,45 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener 
 				showHideButtons = new ArrayList<ShowHideButton>();
 			for (int i=0; i<regions.size(); i++) {
 				TectonicRegionType region = regions.get(i);
-				JLabel label = new JLabel(region.name());
+				JLabel label = new JLabel(region.toString());
 				this.add(wrapInPanel(label));
 				ChooserComboBox chooser;
-				IMR_ParamEditor editor;
 				ShowHideButton button;
 				if (refreshOnly) {
 					chooser = chooserBoxes.get(i);
-					editor = paramEdits.get(i);
 					button = showHideButtons.get(i);
 				} else {
 					chooser = new ChooserComboBox(i);
+					chooser.addActionListener(this);
 					chooserBoxes.add(chooser);
-					editor = null;
-					paramEdits.add(editor);
 					button = new ShowHideButton(i, false);
 					button.addActionListener(this);
 					showHideButtons.add(button);
 				}
 				
-				JPanel panel = new JPanel();
-				panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-				panel.add(wrapInPanel(chooser));
-				panel.add(button);
+//				JPanel panel = new JPanel();
+//				panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+				this.add(wrapInPanel(chooser));
+				this.add(wrapInPanel(button));
 				
-				this.add(wrapInPanel(panel));
+//				this.add(wrapInPanel(panel));
 				if (button.isShowing()) {
-					if (editor == null)
-						editor = new IMR_ParamEditor(imrs.get(chooser.getSelectedIndex()));
-					this.add(editor);
+					paramEdit.setIMR(imrs.get(chooser.getSelectedIndex()));
+					this.add(paramEdit);
 				}
 			}
 		} else {
 			ChooserComboBox chooser;
-			IMR_ParamEditor editor;
 			if (refreshOnly) {
 				chooser = chooserBoxes.get(0);
-				editor = paramEdits.get(0);
 			} else {
 				chooser = new ChooserComboBox(0);
+				chooser.addActionListener(this);
 				chooserBoxes.add(chooser);
-				editor = new IMR_ParamEditor(imrs.get(chooser.getSelectedIndex()));
-				paramEdits.add(editor);
 			}
 			this.add(wrapInPanel(chooser));
-			this.add(editor);
+			paramEdit.setIMR(imrs.get(chooser.getSelectedIndex()));
+			this.add(paramEdit);
 		}
 		this.validate();
 		this.paintAll(getGraphics());
@@ -140,12 +128,14 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener 
 	}
 	
 	public void setTectonicRegions(ArrayList<TectonicRegionType> regions) {
+		// we can refresh only if there are none or < 2 regions, and the check box isn't showing
+		boolean refreshOnly = (regions == null || regions.size() < 2) && !this.singleIMRBox.isAncestorOf(this);
 		this.regions = regions;
-		this.rebuildGUI();
+		this.rebuildGUI(refreshOnly);
 	}
 	
-	private static String showParamsTitle = "Params";
-	private static String hideParamsTitle = "Hide";
+	private static String showParamsTitle = "Edit IMR Params";
+	private static String hideParamsTitle = "Hide IMR Params";
 	private class ShowHideButton extends JButton {
 		
 		private int index;
@@ -211,6 +201,10 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener 
 			rebuildGUI(true);
 		} else if (source == singleIMRBox) {
 			rebuildGUI();
+		} else if (source instanceof ChooserComboBox) {
+			ChooserComboBox chooser = (ChooserComboBox)source;
+			paramEdit.setIMR(imrs.get(chooser.getSelectedIndex()));
+			paramEdit.validate();
 		}
 	}
 
