@@ -39,6 +39,7 @@ import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.sha.util.TectonicRegionType;
 
 /**
  * <p>Title: New Zealand Eqk Rup Forecast</p>
@@ -96,7 +97,7 @@ public class NewZealandERF0909 extends EqkRupForecast {
 
 	private ArrayList<ProbEqkSource> allSources = new ArrayList<ProbEqkSource>();
 
-
+	private ArrayList<TectonicRegionType> regions = new ArrayList<TectonicRegionType>();;
 
 	public NewZealandERF0909(){
 		/*
@@ -111,6 +112,9 @@ public class NewZealandERF0909 extends EqkRupForecast {
 		createFaultSurfaces();
 		createBackRegion();
 		initAdjParams();
+		
+		regions.add(TectonicRegionType.ACTIVE_SHALLOW);
+		regions.add(TectonicRegionType.SUBDUCTION_SLAB);
 	}
 
 
@@ -335,5 +339,11 @@ public class NewZealandERF0909 extends EqkRupForecast {
 			}
 		}
 		parameterChangeFlag = false;
+	}
+
+
+	@Override
+	public ArrayList<TectonicRegionType> getIncludedTectonicRegionTypes() {
+		return regions;
 	}
 }
