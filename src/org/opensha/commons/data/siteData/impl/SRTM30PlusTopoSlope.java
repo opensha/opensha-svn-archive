@@ -51,8 +51,8 @@ public class SRTM30PlusTopoSlope extends AbstractSiteData<Double> {
 	public static final int nx = 43200;
 	public static final int ny = 21600;
 	
-	public static final double minLon = 0;
-	public static final double minLat = -90;
+	public static final double minLon = 0 + (spacing / 2d);
+	public static final double minLat = -90 + (spacing / 2d);
 	
 	public static final String SERVLET_URL = Preferences.OPENSHA_SERVLET_URL + "SiteData/SRTM30_Plus_Slope";
 	

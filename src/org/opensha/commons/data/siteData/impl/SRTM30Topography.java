@@ -52,8 +52,8 @@ public class SRTM30Topography extends AbstractSiteData<Double> {
 	public static final int nx = 43200;
 	public static final int ny = 18000;
 	
-	public static final double minLon = -180;
-	public static final double minLat = -60;
+	public static final double minLon = -180 + (spacing / 2d);
+	public static final double minLat = -60 + (spacing / 2d);
 	
 	public static final String SERVLET_URL = Preferences.OPENSHA_SERVLET_URL + "SiteData/SRTM30";
 	
