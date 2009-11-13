@@ -42,6 +42,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener 
 		singleIMRBox.setFont(new Font("My Font", Font.PLAIN, 10));
 		singleIMRBox.addActionListener(this);
 		paramEdit = new IMR_ParamEditor();
+		this.setTitle("Set IMR");
 		
 		rebuildGUI();
 	}
