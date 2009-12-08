@@ -89,10 +89,10 @@ public class StringConstraint
     }
 
     /** Returns a cloned ArrayList of the allowed Strings. */
-    public ArrayList getAllowedStrings() { return ( ArrayList ) strings.clone(); }
+    public ArrayList<String> getAllowedStrings() { return ( ArrayList<String> ) strings.clone(); }
 
     /** Returns a cloned ArrayList of the allowed Strings. */
-    public ArrayList getAllowedValues() { return getAllowedStrings(); }
+    public ArrayList<String> getAllowedValues() { return getAllowedStrings(); }
 
 
     /**
