@@ -20,8 +20,12 @@
 package org.opensha.commons.data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.ListIterator;
 
+import org.dom4j.Element;
+import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 
@@ -54,10 +58,14 @@ import org.opensha.commons.param.ParameterList;
  * @version    1.0
  */
 
-public class Site extends ParameterList implements NamedObjectAPI,Serializable {
+public class Site extends ParameterList implements NamedObjectAPI,Serializable,XMLSaveable {
 
     /** Class name - used for debugging */
     protected final static String C = "Site";
+    
+    public static String XML_METADATA_NAME = "Site";
+    public static String XML_PARAMS_NAME = "SiteParams";
+    public static String XML_METADATA_LIST_NAME = "Sites";
 
     /** Boolean when set prints out debugging statements */
     protected final static boolean D = false;
@@ -213,5 +221,54 @@ public class Site extends ParameterList implements NamedObjectAPI,Serializable {
         return site;
 
     }
+
+	public Element toXMLMetadata(Element root) {
+		Element siteEl = root.addElement(XML_METADATA_NAME);
+		siteEl = getLocation().toXMLMetadata(siteEl);
+		Element paramsEl = siteEl.addElement(XML_PARAMS_NAME);
+		ListIterator<ParameterAPI> paramIt = getParametersIterator();
+		while (paramIt.hasNext()) {
+			ParameterAPI param = paramIt.next();
+			paramsEl = param.toXMLMetadata(paramsEl);
+		}
+		return root;
+	}
+	
+	public static Site fromXMLMetadata(Element siteEl, ArrayList<ParameterAPI> paramsToAdd) {
+		Element locEl = siteEl.element(Location.XML_METADATA_NAME);
+		Location loc = Location.fromXMLMetadata(locEl);
+		Site site = new Site(loc);
+		
+		for (ParameterAPI param : paramsToAdd) {
+			site.addParameter(param);
+		}
+		
+		Element paramsEl = siteEl.element(XML_PARAMS_NAME);
+		
+		ParameterList.setParamsInListFromXML(site, paramsEl);
+		
+		return site;
+	}
+	
+	public static Element writeSitesToXML(ArrayList<Site> sites, Element root) {
+		Element sitesEl = root.addElement(XML_METADATA_LIST_NAME);
+		for (Site site : sites) {
+			sitesEl = site.toXMLMetadata(sitesEl);
+		}
+		return root;
+	}
+	
+	public static ArrayList<Site> loadSitesFromXML(Element sitesEl, ArrayList<ParameterAPI> paramsToAdd) {
+		Iterator<Element> it = sitesEl.elementIterator(XML_METADATA_NAME);
+		
+		ArrayList<Site> sites = new ArrayList<Site>();
+		
+		while (it.hasNext()) {
+			Element siteEl = it.next();
+			sites.add(fromXMLMetadata(siteEl, paramsToAdd));
+		}
+		
+		return sites;
+	}
 
 }

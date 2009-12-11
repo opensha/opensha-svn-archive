@@ -24,9 +24,9 @@ package org.opensha.sha.calc;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.ListIterator;
+import java.util.Map;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
@@ -244,7 +244,8 @@ public class HazardCurveCalculator extends UnicastRemoteObject
   							throws java.rmi.RemoteException{
 		  
 		  // make hashtable with single IMR (so we can use the other method)
-		  Hashtable<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap = new Hashtable();
+		  Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap =
+			  new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
 		  imrMap.put(TectonicRegionType.ACTIVE_SHALLOW, imr);  // The type of tectonic region here is of no consequence (it just a dummy value)
 		  return getHazardCurve(hazFunction, site, imrMap, eqkRupForecast);
   	}
@@ -274,7 +275,7 @@ public class HazardCurveCalculator extends UnicastRemoteObject
 	  public DiscretizedFuncAPI getHazardCurve(
 			  DiscretizedFuncAPI hazFunction,
 			  Site site,
-			  Hashtable<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap, 
+			  Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap, 
 			  EqkRupForecastAPI eqkRupForecast) throws java.rmi.RemoteException{
 
 		  //	  System.out.println("Haz Curv Calc: maxDistanceParam.getValue()="+maxDistanceParam.getValue().toString());
