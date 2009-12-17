@@ -140,8 +140,9 @@ public class SsS1Calculator {
 		} else if (GlobalConstants.ALASKA.equals(selectedRegion)) {
 			gs = 0.05;
 		} else if (GlobalConstants.PUERTO_RICO.equals(selectedRegion)) {
-			gs = 0.05;
+			gs = 0.01;
 		}
+		System.err.printf("Grid spacing for %s is %f\n", selectedRegion, gs);
 		return gs;
 	}
 
