@@ -75,9 +75,14 @@ public class SsS1Calculator {
 	 * 08/11/2009 -- EMM: Changed query after discussing with Nico. See document
 	 * dated with this change log entry for details of other options.
 	 */
-	protected static final String STUB = "SELECT * FROM " +
+	/*protected static final String STUB = "SELECT * FROM " +
 		"hc_owner.HC_DATA_2008_VW WHERE ABS(LAT - ?) < ? AND " +
-		"ABS(LON - ?) < ? ORDER BY LAT DESC, LON ASC";
+		"ABS(LON - ?) < ? ORDER BY LAT DESC, LON ASC";*/
+	
+	// New view for production data. Initially used on development version.
+	protected static final String STUB = "SELECT * FROM " +
+	"hc_owner.PROD_HC_DATA_2008_VW WHERE ABS(LAT - ?) < ? AND " +
+	"ABS(LON - ?) < ? ORDER BY LAT DESC, LON ASC";
 	
 	protected static final String SSUH_COL = "SEC_0_2";
 	protected static final String S1UH_COL = "SEC_1_0";
@@ -134,7 +139,8 @@ public class SsS1Calculator {
 	public double getGridSpacing(String selectedRegion) {
 		double gs = 0.05; // Default
 		if (GlobalConstants.CONTER_48_STATES.equals(selectedRegion)) {
-			gs = 0.05;
+			gs = 0.01; // PROD_HC_DATA_2008_VW
+			//gs = 0.05; // HC_DATA_2008_VW
 		} else if (GlobalConstants.HAWAII.equals(selectedRegion)) {
 			gs = 0.02;
 		} else if (GlobalConstants.ALASKA.equals(selectedRegion)) {
@@ -164,9 +170,13 @@ public class SsS1Calculator {
 		if (selectedEdition.equals(GlobalConstants.NEHRP_2009)) {
 			try {
 				gridSpacing = getGridSpacing(selectedRegion);
+				System.out.printf("Setting latitutde to %f\n", latitude);
 				query.setDouble(1, latitude);
+				System.out.printf("Setting gridspacing(2) to %f\n", gridSpacing);
 				query.setDouble(2, gridSpacing);
+				System.out.printf("Setting longitude to %f\n", longitude);
 				query.setDouble(3, longitude);
+				System.out.printf("Setting gridspacing(4) to %f\n", gridSpacing);
 				query.setDouble(4, gridSpacing);
 				ResultSet results = query.executeQuery();
 				System.err.printf(
