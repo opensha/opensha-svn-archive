@@ -1552,7 +1552,7 @@ public class UCERF2 extends EqkRupForecast {
 	 * (from Table 21 of Appendix_I_v04.pdf sent by Karen via  email on 09/24/07).
 	 * @return
 	 */
-	public ArrayList<EvenlyDiscretizedFunc> getObsCumMFD(boolean includeAftershocks) {
+	public static ArrayList<EvenlyDiscretizedFunc> getObsCumMFD(boolean includeAftershocks) {
 		EvenlyDiscretizedFunc obsCumMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
 		EvenlyDiscretizedFunc obsCumLowMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
 		EvenlyDiscretizedFunc obsCumHighMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
