@@ -141,7 +141,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 	private NonCA_FaultsFetcher nonCA_B_Faultsfetcher = new NonCA_FaultsFetcher();
 
 	// whether we need to calculate MFDs for verification purposes
-	private boolean calcSummedMFDs = false;
+	private boolean calcSummedMFDs = true;
 	
 	
 	private final static String A_FAULTS_POISS_FILENAME= "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/MeanUCERF2/Segmented_5km_Poiss.txt";
@@ -342,6 +342,9 @@ public class MeanUCERF2 extends EqkRupForecast {
 	/* NOTE that Summed MFDs are only calculated when 
 	 calcSummedMFDs  flag is set to True*/
 	
+	/**
+	 * This includes the time dependence (if applied)
+	 */
 	private IncrementalMagFreqDist getTotal_B_FaultsMFD() {
 		return this.bFaultSummedMFD;
 	}
@@ -350,6 +353,9 @@ public class MeanUCERF2 extends EqkRupForecast {
 		return this.nonCA_B_FaultsSummedMFD;
 	}
 	
+	/**
+	 * This includes the time dependence (if applied)
+	 */
 	private IncrementalMagFreqDist getTotal_A_FaultsMFD() {
 		return this.aFaultSummedMFD;
 	}
@@ -364,7 +370,10 @@ public class MeanUCERF2 extends EqkRupForecast {
 	}
 
 
-	private IncrementalMagFreqDist getTotalMFD() {
+	/**
+	 * This includes the time dependence (if applied)
+	 */
+	public IncrementalMagFreqDist getTotalMFD() {
 		SummedMagFreqDist totalMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
 		totalMFD.addIncrementalMagFreqDist(bFaultSummedMFD);
 		totalMFD.addIncrementalMagFreqDist(aFaultSummedMFD);
