@@ -32,6 +32,7 @@ import java.io.Serializable;
 
 import org.apache.commons.math.util.MathUtils;
 import org.dom4j.Element;
+import org.jpedal.fonts.tt.Loca;
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
@@ -160,6 +161,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		double maxLat = Math.max(lat1,lat2);
 		double maxLon = Math.max(lon1,lon2);
 		double offset = 0.00001; // in degrees ~1m
+		// ternaries prevent exceedance of max lat-lon values 
 		maxLat += (maxLat <= 90.0-offset) ? offset : 0.0;
 		maxLon += (maxLon <= 180.0-offset) ? offset : 0.0;
 		ll.addLocation(new Location(minLat, minLon));
@@ -325,6 +327,10 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 */
 	public boolean isRectangular() {
 		return area.isRectangular();
+	}
+	
+	public void addInteriorRegion(Region region) {
+		
 	}
 	
     /**

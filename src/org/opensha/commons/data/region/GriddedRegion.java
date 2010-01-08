@@ -72,6 +72,7 @@ import org.opensha.commons.exceptions.InvalidRangeException;
  * the Location defined by the minimum latitude and longitude of the region's
  * border.<br/>
  * <br/>
+ * TODO check for self intersection
  * 
  * <br/>
  * 
@@ -318,26 +319,35 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	 * Creates a new <code>GriddedRegion</code> from this (the parent) and 
 	 * another <code>Region</code>. The border of the new region is the 
 	 * intersection of the borders of the parent and the passed-in region.
-	 * The new region also inherits the grid spacing and node-alignment of 
-	 * the parent. <img style="padding: 30px 40px; float: right;" 
+	 * <img style="padding: 30px 40px; float: right;" 
 	 * src="{@docRoot}/img/gridded_regions_sub.jpg"/>
-	 * The method returns <code>null</code> if the two regions do not 
-	 * overlap. Note that the returned <code>GriddedRegion</code> may be
+	 * The new region also inherits the grid spacing and node-alignment of 
+	 * the parent. The method returns <code>null</code> if the two regions do  
+	 * not overlap. Note that the returned <code>GriddedRegion</code> may be
 	 * devoid of grid nodes.<br/>
 	 * <br/>
-	 * <br/>
+	 * In some cases, a sub-region may be too small to contain any nodes
+	 * of the parent grid. For example it may
+	 * represent the area of influence of a small magnitude earthquake or
+	 * aftershock. If the closest point to the sub-region in the parent grid
+	 * is desired, then try:
+	 * <pre>
+	 * 		if (newGriddedRegion.isEmpty()) {
+	 * 			Location loc = locationForIndex(
+	 * 				indexForLocation(subRegionCentroid));
+	 * 		}
+	 * </pre>
 	 * <br/>
 	 * @param region to use as border for sub-region
-	 * @return a new GriddedRegion
+	 * @return a new GriddedRegion or <code>null</code> if the the sub-region
+	 *         does not intersect its parent (<code>this</code>)
+	 * @see GriddedRegion#isEmpty()
 	 */
 	// TODO wrtite tests
 	public GriddedRegion subRegion(Region region) {
 		Region newRegion = Region.intersect(this, region);
 		if (newRegion == null) return null;
 		return new GriddedRegion(newRegion, spacing, anchor);
-//		GriddedRegion newGriddedRegion = TODO clean
-//			new GriddedRegion(newRegion, spacing, anchor);
-//		return (newGriddedRegion.isEmpty()) ? null : newGriddedRegion;
 	}
 		
 	/* implementation */
