@@ -329,7 +329,11 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		return area.isRectangular();
 	}
 	
-	public void addInteriorRegion(Region region) {
+	/**
+	 * Adds an interior region (donut-hole)  
+	 * @param region
+	 */
+	public void knockOut(Region region) {
 		
 	}
 	
@@ -496,7 +500,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 * @return a new region defined by the union of <code>r1</code> 
 	 * 		and <code>r2</code> or <code>null</code> if they do not overlap
 	 */
-	public static Region union(
+	public static final Region union(
 			Region r1,
 			Region r2) {
 		Area newArea = (Area) r1.area.clone();
