@@ -577,10 +577,6 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 		}
 		nodeCount = node_idx;
 	}
-
-	public static Region intersect(Region r1,Region r2) {
-		return null;
-	}
 	
 	/* Initialize internal grid node center and edge arrays */
 	private void initLatLonArrays() {

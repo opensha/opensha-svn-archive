@@ -348,4 +348,31 @@ public class LocationList implements java.io.Serializable, XMLSaveable, Iterable
 		
 		return lists;
 	}
+	
+	/**
+	 * Returns an exact copy of this <code>LocationList</code>. This is a
+	 * deep copy.
+	 * 
+	 * TODO should change to clone and implement cloneable?
+	 * Location should also implement clone that way when copying locations
+	 * value range checking won't be required as it is now when each new
+	 * Location is initialized
+	 * 
+	 * @return a copy
+	 */
+	public LocationList copy() {
+		LocationList locList = new LocationList();
+		for (Location loc : locations) {
+			locList.addLocation(loc.copy());
+		}
+		return locList;
+	}
+	
+	public LocationList copyImmutable() {
+		LocationList locList = new LocationList();
+		for (Location loc : locations) {
+			locList.addLocation(Location.immutableLocation(loc));
+		}
+		return locList;
+	}
 }
