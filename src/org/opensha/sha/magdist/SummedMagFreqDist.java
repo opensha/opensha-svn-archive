@@ -184,7 +184,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
    
    
    /**
-    * This and adds the rate & mag passed in to the MFD after rounding to the nearest x-axis
+    * This adds the rate & mag passed in to the MFD after rounding to the nearest x-axis
     * value (ignoring those out of range).  If the preserveRates boolean is false, then the moment 
     * rate of the point is preserved (assuming it's in range).  Otherwise the rate of that point 
     * is preserved. Discretization of this MFD should  be same (or more densely discretized) than 
