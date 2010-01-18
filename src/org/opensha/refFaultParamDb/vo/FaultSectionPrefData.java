@@ -56,6 +56,27 @@ public class FaultSectionPrefData  implements java.io.Serializable, XMLSaveable,
 		dipDirection= faultSectionPrefData.getDipDirection();
 	}
 	
+	public String toString() {
+		String str = new String();
+		str += "sectionId = "+this.getSectionId()+"\n";
+		str += "sectionName = "+this.getSectionName()+"\n";
+		str += "shortName = "+this.getShortName()+"\n";
+		str += "aveLongTermSlipRate = "+this.getAveLongTermSlipRate()+"\n";
+		str += "slipRateStdDev = "+this.getSlipRateStdDev()+"\n";
+		str += "aveDip = "+this.getAveDip()+"\n";
+		str += "aveRake = "+this.getAveRake()+"\n";
+		str += "aveUpperDepth = "+this.getAveUpperDepth()+"\n";
+		str += "aveLowerDepth = "+this.getAveLowerDepth()+"\n";
+		str += "aseismicSlipFactor = "+this.getAseismicSlipFactor()+"\n";
+		str += "dipDirection = "+this.getDipDirection()+"\n";
+		str += "faultTrace:\n";
+			for(int i=0; i <this.getFaultTrace().size();i++) {
+				Location loc = this.getFaultTrace().getLocationAt(i);
+				str += "\t"+loc.getLatitude()+", "+loc.getLongitude()+", "+loc.getDepth()+"\n";
+			}
+		return str;
+	}
+	
 	public void setShortName(String shortName) {
 		this.shortName = shortName;
 	}
