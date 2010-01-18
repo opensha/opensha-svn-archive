@@ -123,6 +123,10 @@ public class LocationList implements java.io.Serializable, XMLSaveable, Iterable
      * @param  location  The feature to be added to the Location attribute
      */
     public void addLocation( Location location ) { locations.add(location); }
+    
+    public void addLocation(double lat, double lon, double depth) {
+    	addLocation(new Location(lat, lon, depth));
+    }
 
     /**
      * Inserts the location at the given index.
