@@ -60,7 +60,18 @@ public class URS_MeanUCERF2 extends MeanUCERF2 {
 		adjustableParams.addParameter(filterParam);
 		filterParam.addParameterChangeListener(this);
 		
+		// turn this off for speed, and because it's no longer accurate (haven't modified with the changed sources)
+		calcSummedMFDs  =false;
+		
+		// turn this off for speed
+		setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
+		
+		// I did the following once to get the original fault data
 		// printOrigFaultSectionData();
+		
+		// make the new fault section data
+		mkNewFaultSectionData();
+		
 	}
 	
 	/**
@@ -68,30 +79,117 @@ public class URS_MeanUCERF2 extends MeanUCERF2 {
 	 **/
 
 	public void updateForecast() {
-		super.updateForecast();
-		
-		// FILTER OUT DESIRED SOURCES
-		if(filterParam.getValue().booleanValue()) {
-			ArrayList<ProbEqkSource> newAllSources = new ArrayList<ProbEqkSource>();
+		if(this.parameterChangeFlag)  {
+
+			super.updateForecast();
+
 			String srcName;
-			for(int i=0;i<allSources.size();i++) {
-				srcName = allSources.get(i).getName();
-//				System.out.println(srcName);
-				if (!srcName.equals("Sierra Madre") &&
-					!srcName.equals("Sierra Madre (San Fernando)") &&
-					!srcName.equals("Sierra Madre Connected") &&
-					!srcName.equals("Santa Susana, alt 1") &&
-					!srcName.equals("Verdugo")){
-					
-						newAllSources.add(allSources.get(i));
+			double wt;
+
+			/*  This was added as a test (it keeps only the sources changed below)
+			System.out.println("updating forecast...");
+			ArrayList<ProbEqkSource> tempSources = new ArrayList<ProbEqkSource>();
+			for(int j=0;j<allSources.size();j++) {
+				srcName = allSources.get(j).getName();
+				if (srcName.equals("Sierra Madre") || srcName.equals("Sierra Madre (San Fernando)") ||
+						srcName.equals("Sierra Madre Connected") || srcName.equals("Santa Susana, alt 1") ||
+						srcName.equals("Verdugo")){
+					tempSources.add(allSources.get(j));
 				}
-				else {
-					System.out.println(srcName+" was filetered");
-				}			
 			}
-			
-			// OVERIDE THE SOURCE LIST
-			allSources = newAllSources;			
+			allSources = tempSources;
+			System.out.println("numSrces="+allSources.size());
+			*/
+
+
+
+			// FILTER OUT SOURCES
+			if(filterParam.getValue().booleanValue()) {
+				ArrayList<ProbEqkSource> newAllSources = new ArrayList<ProbEqkSource>();
+				ArrayList<UnsegmentedSource> newBFaultSources = new ArrayList<UnsegmentedSource>();
+				
+				// filter from allSources
+				for(int i=0;i<allSources.size();i++) {
+					srcName = allSources.get(i).getName();
+					//				System.out.println(srcName);
+					if (!srcName.equals("Sierra Madre") &&
+							!srcName.equals("Sierra Madre (San Fernando)") &&
+							!srcName.equals("Sierra Madre Connected") &&
+							!srcName.equals("Santa Susana, alt 1") &&
+							!srcName.equals("Verdugo")){
+
+						newAllSources.add(allSources.get(i));
+					}
+					else {
+						System.out.println(srcName+" was filetered from allSources");
+					}	
+				}
+				
+				//filter from bFaultSources
+				for(int i=0;i<bFaultSources.size();i++) {
+					srcName = bFaultSources.get(i).getName();
+					//				System.out.println(srcName);
+					if (!srcName.equals("Sierra Madre") &&
+							!srcName.equals("Sierra Madre (San Fernando)") &&
+							!srcName.equals("Sierra Madre Connected") &&
+							!srcName.equals("Santa Susana, alt 1") &&
+							!srcName.equals("Verdugo")){
+
+						newBFaultSources.add(bFaultSources.get(i));
+					}
+					else {
+						System.out.println(srcName+" was filetered from bFaultSources");
+					}	
+				}
+
+				// ADD NEW SOURCES
+				ArrayList<UnsegmentedSource> newSources = new ArrayList<UnsegmentedSource>();
+				// Santa Susana
+				ArrayList<FaultSectionPrefData> ss_Sections = new ArrayList<FaultSectionPrefData>();
+				ss_Sections.add(this.santaSusanaData);
+				wt = 0.5;  // only in one fault model
+				newSources.add(makeOrigSource(ss_Sections, wt, santaSusanaData.getSectionName()));
+
+				// Verdugo
+				ArrayList<FaultSectionPrefData> v_Sections = new ArrayList<FaultSectionPrefData>();
+				v_Sections.add(this.verdugoData);
+				wt = 1.0;  // it's in both fault models and has no connections
+				newSources.add(makeOrigSource(v_Sections, wt, verdugoData.getSectionName()));
+
+				// Sierra Madre
+				ArrayList<FaultSectionPrefData> sm_Sections = new ArrayList<FaultSectionPrefData>();
+				sm_Sections.add(this.sierraMadreData);
+				wt = 0.5;
+				newSources.add(makeOrigSource(sm_Sections, wt, sierraMadreData.getSectionName()));
+
+				// Sierra Madre (San Fernando)
+				ArrayList<FaultSectionPrefData> smsf_Sections = new ArrayList<FaultSectionPrefData>();
+				smsf_Sections.add(this.sierraMadreSanFernData);
+				wt = 0.5;
+				newSources.add(makeOrigSource(smsf_Sections, wt, sierraMadreSanFernData.getSectionName()));
+
+				// Sierra Madre Connected
+				ArrayList<FaultSectionPrefData> sm_con_Sections = new ArrayList<FaultSectionPrefData>();
+				sm_con_Sections.add(this.sierraMadreData);
+				sm_con_Sections.add(this.sierraMadreSanFernData);
+				wt = 0.5;
+				String newName = sierraMadreData.getSectionName() + " Cannected";
+				newSources.add(makeOrigSource(sm_con_Sections, wt, newName));
+				
+				// ADD THESE SOURCES TO THE NEW LISTS
+				newAllSources.addAll(newSources);
+				newBFaultSources.addAll(newSources);
+
+				// OVERIDE THE SOURCE LISTS WITH THE NEW ONE
+				allSources = newAllSources;		
+				bFaultSources = newBFaultSources;
+
+
+			}
+			/* this was just a check to make sure the sources were recreated correctly
+			for(int k=0;k<allSources.size();k++)
+				System.out.println(allSources.get(k).getName()+"\t"+allSources.get(k).computeTotalProb());
+			*/
 		}
 	}
 	
@@ -110,36 +208,29 @@ public class URS_MeanUCERF2 extends MeanUCERF2 {
 	}
 	
 	
-	protected void mkAndAddNewSources() {
+	protected UnsegmentedSource makeOrigSource(ArrayList<FaultSectionPrefData> sectionsInSource, double wt, String name) {
 		
+		// Get the various adjustable parameter settings
 		double rupOffset = ((Double)this.rupOffsetParam.getValue()).doubleValue();
 		double empiricalModelWt=0.0;
-		
 		String probModel = (String)this.probModelParam.getValue();
 		if(probModel.equals(UCERF2.PROB_MODEL_BPT) || probModel.equals(UCERF2.PROB_MODEL_POISSON) ) empiricalModelWt = 0;
 		else if(probModel.equals(UCERF2.PROB_MODEL_EMPIRICAL)) empiricalModelWt = 1;
 		else if(probModel.equals(PROB_MODEL_WGCEP_PREF_BLEND)) empiricalModelWt = 0.3;
-		
 		double duration = this.timeSpan.getDuration();
 		boolean ddwCorr = (Boolean)cybershakeDDW_CorrParam.getValue();
 		int floaterType = this.getFloaterType();
 		
-		double wt = 0.5;
-		
-		// put all the sections into one segment
-		// sectionToSegmentData = an ArrayList containing N ArrayLists (one for each segment)
 		ArrayList sectionToSegmentData = new ArrayList();
-		ArrayList sectionsInSegment = new ArrayList();
-		sectionsInSegment.add(santaSusanaData);
-		sectionToSegmentData.add(sectionsInSegment);
+		sectionToSegmentData.add(sectionsInSource);
+		// set the segment names and fault name (only one each; make is the same name)
 		String[] segNames = new String[1];
-		segNames[0] = santaSusanaData.getSectionName();
-		String faultName = santaSusanaData.getSectionName();
+		segNames[0] = name;
+		String faultName = name;
 		FaultSegmentData faultSegmentData = new  FaultSegmentData(sectionToSegmentData, segNames, true, faultName, null,null);
-
-		allSources.add(new UnsegmentedSource(faultSegmentData, 
-				empiricalModel,  rupOffset,  wt, 
-				empiricalModelWt, duration, ddwCorr, floaterType));
+		
+		return new UnsegmentedSource(faultSegmentData, empiricalModel,  rupOffset,  wt, 
+				empiricalModelWt, duration, ddwCorr, floaterType);
 	}
 	
 	
@@ -326,7 +417,7 @@ public class URS_MeanUCERF2 extends MeanUCERF2 {
 		verdugoData = new FaultSectionPrefData();
 		verdugoData.setSectionId(112);
 		verdugoData.setSectionName("Verdugo");
-		verdugoData.setAveLongTermSlipRate(5.0);
+		verdugoData.setAveLongTermSlipRate(0.5);
 		verdugoData.setSlipRateStdDev(0.0);
 		verdugoData.setAveDip(55.0);
 		verdugoData.setAveRake(90.0);
@@ -347,6 +438,7 @@ public class URS_MeanUCERF2 extends MeanUCERF2 {
 	}
 	
 	public void parameterChange(ParameterChangeEvent event) {
+		// System.out.println("parameter changed");
 		super.parameterChange(event);
 		if(!adjustableParams.containsParameter(filterParam.getName()))
 			adjustableParams.addParameter(filterParam);
@@ -369,8 +461,6 @@ public class URS_MeanUCERF2 extends MeanUCERF2 {
 	public static void main(String[] args) {
 		
 		URS_MeanUCERF2 meanUCERF2 = new URS_MeanUCERF2();
-		meanUCERF2.calcSummedMFDs  =false;
-		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
 		meanUCERF2.updateForecast();
 	}
 }
