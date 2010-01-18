@@ -584,7 +584,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 
 	 * @return
 	 */
-	private int getFloaterType() {
+	protected int getFloaterType() {
 		String floaterType = (String)floaterTypeParam.getValue();
 		if(floaterType.equalsIgnoreCase(UCERF2.FULL_DDW_FLOATER)) return UnsegmentedSource.FULL_DDW_FLOATER;
 		else if(floaterType.equalsIgnoreCase(UCERF2.STRIKE_AND_DOWNDIP_FLOATER)) return UnsegmentedSource.STRIKE_AND_DOWNDIP_FLOATER;
