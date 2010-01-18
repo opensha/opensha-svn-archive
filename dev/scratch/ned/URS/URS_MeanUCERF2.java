@@ -21,8 +21,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2
 
 
 /**
- * This was checked to make sure this is equal to the mean of what is returned from the 
- * UCERF2 Epistemic List.  
+ * This class filters out some of the sources in MeanUCERF2 and adds others back in.  
  * 
  * 
  * @author 
@@ -54,6 +53,7 @@ public class URS_MeanUCERF2 extends MeanUCERF2 {
 	public URS_MeanUCERF2() {
 		super();
 		
+		// this parameter toggles whether to apply the URS modifications
 		filterParam = new BooleanParameter(FILTER_PARAM_NAME);
 		filterParam.setInfo(FILTER_PARAM_INFO);
 		filterParam.setDefaultValue(FILTER_PARAM_DEFAULT);
@@ -69,7 +69,7 @@ public class URS_MeanUCERF2 extends MeanUCERF2 {
 		// I did the following once to get the original fault data
 		// printOrigFaultSectionData();
 		
-		// make the new fault section data
+		// make the new fault section data needed for URS modifications
 		mkNewFaultSectionData();
 		
 	}
@@ -86,7 +86,7 @@ public class URS_MeanUCERF2 extends MeanUCERF2 {
 			String srcName;
 			double wt;
 
-			/*  This was added as a test (it keeps only the sources changed below)
+			/*  This was added as a test (it keeps only the 5 sources changed below)
 			System.out.println("updating forecast...");
 			ArrayList<ProbEqkSource> tempSources = new ArrayList<ProbEqkSource>();
 			for(int j=0;j<allSources.size();j++) {
