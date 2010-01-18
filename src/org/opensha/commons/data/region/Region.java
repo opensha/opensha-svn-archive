@@ -21,9 +21,12 @@ package org.opensha.commons.data.region;
 import static org.opensha.commons.calc.RelativeLocation.PI_BY_2;
 import static org.opensha.commons.calc.RelativeLocation.TO_RAD;
 
+import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -195,15 +198,19 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 * @param type the {@link BorderType} to use when initializing; 
 	 * 		a <code>null</code> value defaults to 
 	 * 		<code>BorderType.MERCATOR_LINEAR</code>
-	 * @throws IllegalArgumentException if the <code>border</code> does not 
-	 * 		have at least 3 points
+	 * @throws IllegalArgumentException if the <code>border</code> defines a
+	 * 		<code>Region</code> that is empty or consists of more than a
+	 * 		single closed path.
 	 * @throws NullPointerException if the <code>border</code> is 
 	 * 		<code>null</code>
+	 * @throws IllegalArgumentException if the border
 	 */
 	public Region(LocationList border, BorderType type) {
 		if (border == null) {
 			throw new NullPointerException();
 		} else if (border.size() < 3) {
+			// quick check for empty; recheck on init
+			// because 3 points in a row are also empty
 			throw new IllegalArgumentException(
 					"Border must have at least 3 vertices");
 		} else if (type == null) {
@@ -611,7 +618,9 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	}
 
 	/*
-	 * Creates a java.awt.geom.Area from a LocationList border
+	 * Creates a java.awt.geom.Area from a LocationList border. This method 
+	 * throw exceptions if the generated Area is empty or not singular
+	 * 
 	 * NOTE: see notes with LL_PRECISION
 	 */
 	private static Area createArea(LocationList border) {
@@ -633,7 +642,17 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 			path.lineTo(lon, lat);
 		}
 		path.closePath();
-		return new Area(path);
+		Area area = new Area(path);
+		// final checks on area generated, this is redundant for some
+		// constructors that perform other checks on inputs
+		if (area.isEmpty()) {
+			throw new IllegalArgumentException(
+					"Area is empty");
+		} else if (!area.isSingular()) {
+			throw new IllegalArgumentException(
+					"Area is not a single closed path");
+		}
+		return area;
 	}
 	
 	/*
@@ -821,6 +840,14 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
     	 }
      }
 
+     public static void main(String[] args) {
+ 		Line2D line = new Line2D.Double(new Point(1, 1), new Point(2, 1));
+		Polygon poly = new Polygon(new int[]{1,4,3,2}, new int[]{1,1,1,1}, 4);
+		
+		Area testArea = new Area(poly);
+		System.out.println(testArea.isEmpty());
+
+     }
      // TODO clean
 // 	NOTE: see notes with LL_PRECISION
 //	   hold onto and revisit precision testing until after move to jdk6

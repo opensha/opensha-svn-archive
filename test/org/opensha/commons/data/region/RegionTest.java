@@ -216,7 +216,7 @@ public class RegionTest {
 		LocationList ll = new LocationList();
 		try {
 			ll = null;
-			Region gr = new Region(
+			Region r = new Region(
 					ll, BorderType.MERCATOR_LINEAR);
 			fail("Null argument not caught");
 		} catch (NullPointerException npe) {}
@@ -226,7 +226,7 @@ public class RegionTest {
 		ll.addLocation(new Location(35,-125));
 		ll.addLocation(new Location(35,-75));
 		try {
-			Region gr = new Region(ll, null);
+			Region r = new Region(ll, null);
 			fail("Location list too short  not caught");
 		} catch (IllegalArgumentException iae) {}
 		
@@ -236,7 +236,28 @@ public class RegionTest {
 		Region rectRegionStartRepeat = new Region(ll, null);
 		assertTrue("Repeated start point not clipped",
 				rectRegionStartRepeat.getBorder().size() == 3);
-		
+
+		// no-area location list
+		ll = new LocationList();
+		ll.addLocation(new Location(35,-125));
+		ll.addLocation(new Location(35,-124));
+		ll.addLocation(new Location(35,-123));
+		try {
+			Region r = new Region(ll, null);
+			fail("Empty Region not caught");
+		} catch (IllegalArgumentException iae) {}
+			
+		// non-singular location list
+		ll = new LocationList();
+		ll.addLocation(new Location(35,-125));
+		ll.addLocation(new Location(35,-124));
+		ll.addLocation(new Location(36,-125));
+		ll.addLocation(new Location(36,-124));
+		try {
+			Region r = new Region(ll, null);
+			fail("Non-singular Region not caught");
+		} catch (IllegalArgumentException iae) {}
+				
 		// region creation test
 		LocationList ll1 = lgRectMercRegion.getBorder();
 		LocationList ll2 = createLocList(regionLocListMercatorDat);
@@ -245,8 +266,6 @@ public class RegionTest {
 		ll1 = lgRectGCRegion.getBorder();
 		ll2 = createLocList(regionLocListGreatCircleDat);
 		assertTrue(ll1.compareTo(ll2) == 0);
-		
-		fail("LocList could have 3 points all in a line and be empty");
 	}
 
 	@Test
@@ -444,22 +463,9 @@ public class RegionTest {
 		assertTrue(octRegion.getInterior() == null);
 		assertTrue(interiorRegion.getInterior() != null);
 		assertTrue(interiorRegion.getInterior().compareTo(
-				smRectRegion.getBorder()) == 0);
-		// test immutability of locations tha make up border
-		try {
-			interiorRegion.getInterior().getLocationAt(0).setLatitude(0);
-			fail("unsupported operation not caught");
-		} catch (Exception e) {}
-		try {
-			interiorRegion.getInterior().getLocationAt(0).setLongitude(0);
-			fail("unsupported operation not caught");
-		} catch (Exception e) {}
-		try {
-			interiorRegion.getInterior().getLocationAt(0).setDepth(0);
-			fail("unsupported operation not caught");
-		} catch (Exception e) {}
+				smRectRegion.getBorder()) == 0);		
 		
-		//fail("Not yet implemented: immutability of border");
+		fail("Not yet implemented: immutability of border");
 	}
 	
 	@Test
@@ -467,34 +473,7 @@ public class RegionTest {
 		// test border is correct
 		assertTrue(octRegionList.compareTo(octRegion.getBorder()) == 0);
 		
-		// test immutability of locations that make up border; there are several
-		// ways to set the border internally so test each region type
-		try {
-			octRegion.getBorder().getLocationAt(0).setLatitude(0);
-			fail("unsupported operation not caught");
-		} catch (Exception e) {}
-		try {
-			smRectRegion.getBorder().getLocationAt(0).setLatitude(0);
-			fail("unsupported operation not caught");
-		} catch (Exception e) {}
-		try {
-			lgRectMercRegion.getBorder().getLocationAt(0).setLatitude(0);
-			fail("unsupported operation not caught");
-		} catch (Exception e) {}
-		try {
-			lgRectGCRegion.getBorder().getLocationAt(0).setLatitude(0);
-			fail("unsupported operation not caught");
-		} catch (Exception e) {}
-		try {
-			circRegion.getBorder().getLocationAt(0).setLatitude(0);
-			fail("unsupported operation not caught");
-		} catch (Exception e) {}
-		try {
-			buffRegion.getBorder().getLocationAt(0).setLatitude(0);
-			fail("unsupported operation not caught");
-		} catch (Exception e) {}
-		
-		//fail("Not yet implemented: immutability of border");
+		fail("Not yet implemented: immutability of border");
 	}
 
 	@Test
