@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -25,13 +26,13 @@ import org.opensha.sha.util.TectonicRegionType;
 public class HazardCurveSetCalculator {
 	
 	private EqkRupForecastAPI erf;
-	private ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps;
+	private List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps;
 	private CurveResultsArchiver archiver;
 	private CalculationSettings calcSettings;
 	private HazardCurveCalculator calc;
 	
 	public HazardCurveSetCalculator(EqkRupForecastAPI erf,
-			ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps,
+			List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps,
 			CurveResultsArchiver archiver,
 			CalculationSettings calcSettings) {
 		this.erf = erf;
@@ -48,7 +49,7 @@ public class HazardCurveSetCalculator {
 		erf.updateForecast();
 	}
 	
-	public void calculateCurves(ArrayList<Site> sites) throws IOException {
+	public void calculateCurves(List<Site> sites) throws IOException {
 		System.out.println("Calculating " + sites.size() + " hazard curves");
 		System.out.println("ERF: " + erf.getName());
 		System.out.println("Num IMR Maps: " + imrMaps.size());

@@ -93,8 +93,7 @@ public class DAG {
 		for (SubmitScriptForDAG script : scripts) {
 			if (script.hasComment()) {
 				String comment = script.getComment();
-				checkAddNewline(comment);
-				dag += comment;
+				dag += checkAddNewline(comment);
 			}
 			String fileName = script.getFileName();
 			if (fileName == null || fileName.length() <= 0)
@@ -115,8 +114,7 @@ public class DAG {
 		for (ParentChildRelationship relationship : relationships) {
 			if (relationship.hasComment()) {
 				String comment = relationship.getComment();
-				checkAddNewline(comment);
-				dag += comment;
+				dag += checkAddNewline(comment);
 			}
 			dag += "PARENT " + relationship.getParent().getJobName()
 					+ " CHILD " + relationship.getChild().getJobName() + "\n";

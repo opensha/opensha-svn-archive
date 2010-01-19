@@ -52,6 +52,9 @@ public class AsciiFileCurveArchiver implements CurveResultsArchiver {
 		if (binByLon) {
 			dir += loc.getLongitude() + File.separator;
 		}
+		File dirFile = new File(dir);
+		if (!dirFile.exists())
+			dirFile.mkdirs();
 		String outFileName = dir + formatLocation(loc) + "_" + meta.getShortLabel() + ".txt";
 		System.out.println("Writing '" + outFileName + "'");
 		DiscretizedFunc.writeSimpleFuncFile(curve, outFileName);

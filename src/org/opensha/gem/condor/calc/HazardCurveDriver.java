@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
@@ -40,9 +41,9 @@ import org.opensha.sha.util.TectonicRegionType;
  */
 public class HazardCurveDriver {
 	
-	private ArrayList<Site> sites;
+	private List<Site> sites;
 	private EqkRupForecastAPI erf;
-	private ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps;
+	private List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps;
 	private HazardCurveSetCalculator calc;
 	private CurveResultsArchiver archiver;
 	private CalculationSettings calcSettings;
@@ -85,6 +86,7 @@ public class HazardCurveDriver {
 			HazardCurveDriver driver = new HazardCurveDriver(doc);
 			
 			driver.startCalculation();
+			System.exit(0);
 		} catch (Throwable t) {
 			System.exit(1);
 			t.printStackTrace();

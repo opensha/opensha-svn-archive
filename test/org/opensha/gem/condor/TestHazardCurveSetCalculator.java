@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.param.DependentParameter;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.gem.condor.calc.HazardCurveDriver;
 import org.opensha.gem.condor.calc.HazardCurveSetCalculator;
@@ -46,9 +47,8 @@ public class TestHazardCurveSetCalculator extends TestCase {
 	
 	private String xmlFile;
 
-	@Before
-	public void setUp() throws Exception {
-		erf = new Frankel96_AdjustableEqkRupForecast();
+	public static ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> getIMRMaps() {
+		ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps;
 		imrMaps = new ArrayList<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>>();
 		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> map1 =
 			new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
@@ -72,6 +72,16 @@ public class TestHazardCurveSetCalculator extends TestCase {
 		
 		imrMaps.add(map1);
 		imrMaps.add(map2);
+		return imrMaps;
+	}
+	
+	@Before
+	public void setUp() throws Exception {
+		erf = new Frankel96_AdjustableEqkRupForecast();
+		
+		imrMaps = getIMRMaps();
+		
+		ScalarIntensityMeasureRelationshipAPI cb08 = imrMaps.get(0).get(TectonicRegionType.ACTIVE_SHALLOW);
 		
 		Location loc = new Location(34, -118);
 		
@@ -88,9 +98,7 @@ public class TestHazardCurveSetCalculator extends TestCase {
 		}
 		
 		calcSettings = new CalculationSettings(IMT_Info.getUSGS_SA_Function(), 200);
-		File tempDir = File.createTempFile("openSHA", "");
-		tempDir.delete();
-		tempDir.mkdir();
+		File tempDir = FileUtils.createTempDir();
 		archiver = new AsciiFileCurveArchiver(tempDir.getAbsolutePath(), false, false);
 		
 		CalculationInputsXMLFile inputs = new CalculationInputsXMLFile(erf, imrMaps, sites, calcSettings, archiver);

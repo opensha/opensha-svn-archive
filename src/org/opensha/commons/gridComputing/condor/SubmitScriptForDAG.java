@@ -28,9 +28,9 @@ public class SubmitScriptForDAG extends SubmitScript {
 		this.jobName = jobName;
 	}
 	
-	public SubmitScriptForDAG(String jobName, String exedutable, String arguments,
+	public SubmitScriptForDAG(String jobName, String executable, String arguments,
 			String remoteInitialDir, Universe universe, boolean outSubDirs) {
-		super(exedutable, arguments, remoteInitialDir, universe, jobName, outSubDirs);
+		super(executable, arguments, remoteInitialDir, universe, jobName, outSubDirs);
 		this.jobName = jobName;
 	}
 

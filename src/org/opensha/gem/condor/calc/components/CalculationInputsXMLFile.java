@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.gem.condor.dagGen.HazardDataSetDAGCreator;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.imr.IntensityMeasureRelationship;
@@ -24,14 +26,17 @@ import org.opensha.sha.util.TectonicRegionType;
 public class CalculationInputsXMLFile implements XMLSaveable {
 	
 	private EqkRupForecastAPI erf;
-	private ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps;
-	private ArrayList<Site> sites;
+	private List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps;
+	private List<Site> sites;
 	private CalculationSettings calcSettings;
 	private CurveResultsArchiver archiver;
 	
+	private boolean erfSerialized = false;
+	private String serializedERFFile;
+	
 	public CalculationInputsXMLFile(EqkRupForecastAPI erf,
-		ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps,
-		ArrayList<Site> sites,
+		List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps,
+		List<Site> sites,
 		CalculationSettings calcSettings,
 		CurveResultsArchiver archiver) {
 		this.erf = erf;
@@ -44,12 +49,24 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 	public EqkRupForecastAPI getERF() {
 		return erf;
 	}
+	
+	public void serializeERF(String odir) throws IOException {
+		erf.updateForecast();
+		FileUtils.saveObjectInFileThrow(serializedERFFile, erf);
+		String serializedERFFile = odir + HazardDataSetDAGCreator.ERF_SERIALIZED_FILE_NAME;
+		setSerialized(serializedERFFile);
+	}
+	
+	public void setSerialized(String serializedERFFile) {
+		erfSerialized = serializedERFFile != null;
+		this.serializedERFFile = serializedERFFile;
+	}
 
-	public ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> getIMRMaps() {
+	public List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> getIMRMaps() {
 		return imrMaps;
 	}
 
-	public ArrayList<Site> getSites() {
+	public List<Site> getSites() {
 		return sites;
 	}
 
@@ -65,6 +82,18 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		if (erf instanceof EqkRupForecast) {
 			EqkRupForecast newERF = (EqkRupForecast)erf;
 			root = newERF.toXMLMetadata(root);
+			if (erfSerialized) {
+				// load the erf element from metadata
+				Element erfElement = root.element(EqkRupForecast.XML_METADATA_NAME);
+
+				// rename the old erf to ERF_REF so that the params are preserved, but it is not used for calculation
+				root.add(erfElement.createCopy("ERF_REF"));
+				erfElement.detach();
+				
+				// create new ERF element and add to root
+				Element newERFElement = root.addElement(EqkRupForecast.XML_METADATA_NAME);
+				newERFElement.addAttribute("fileName", serializedERFFile);
+			}
 		} else {
 			throw new ClassCastException("Currently only EqkRupForecast subclasses can be saved" +
 			" to XML.");

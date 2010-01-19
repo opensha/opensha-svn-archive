@@ -22,6 +22,7 @@ package org.opensha.commons.data;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.dom4j.Element;
@@ -250,7 +251,7 @@ public class Site extends ParameterList implements NamedObjectAPI,Serializable,X
 		return site;
 	}
 	
-	public static Element writeSitesToXML(ArrayList<Site> sites, Element root) {
+	public static Element writeSitesToXML(List<Site> sites, Element root) {
 		Element sitesEl = root.addElement(XML_METADATA_LIST_NAME);
 		for (Site site : sites) {
 			sitesEl = site.toXMLMetadata(sitesEl);
