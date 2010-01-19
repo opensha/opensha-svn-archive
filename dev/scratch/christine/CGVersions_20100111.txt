@@ -11,10 +11,26 @@ sha.gui.controls.DisaggregationControlPanel
 - line 82, change boolean to true of false to show or not fault disag
 - line 91, change boolean to true of false to show or not bin rate disag
 sha.gui.infoTools.AttenuationRelationshipsInstance
-- line 100 or so, make sure hte default desired IMR is 10th in list
+- line 100 or so, make sure the default desired IMR is 10th in list
 - line 185 or so, comment the auto sort IMR: "Collections.sort(AttenRelObjects, new ImrComparator());"
 sha.gui.HazardCurveLocalModeApplication
 line 135 or so: put "erf_Classes.add(WGCEP_AVG_UCERF_2_CLASS_NAME);" as first line of block to make it default
+
+sha.earthquake.rupForecastImpl.WGCEP_UCERF2_Final.MeanUcerf2.MeanUcerf2.java
+- line 102 or so replace:
+		public final static String PROB_MODEL_WGCEP_PREF_BLEND = "WGCEP Preferred Blend";
+    	public final static String PROB_MODEL_DEFAULT = PROB_MODEL_WGCEP_PREF_BLEND;
+	with:
+		public final static String PROB_MODEL_WGCEP_PREF_BLEND = "WGCEP Preferred Blend";
+		//    public final static String PROB_MODEL_DEFAULT = PROB_MODEL_WGCEP_PREF_BLEND;
+		public final static String PROB_MODEL_POISSON = "Poisson";
+		public final static String PROB_MODEL_DEFAULT = PROB_MODEL_POISSON;
+		protected StringParameter probModelParam;
+- line 109 or so Change:
+	DURATION_DEFAULT = 50;
+	START_TIME_DEFAULT = 2009;
+	START_TIME_MIN = 2009;
+
 
 
 WORKSPACE - see notes in Excel for details on versions
