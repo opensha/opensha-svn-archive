@@ -30,7 +30,8 @@ sha.earthquake.rupForecastImpl.WGCEP_UCERF2_Final.MeanUcerf2.MeanUcerf2.java
 	DURATION_DEFAULT = 50;
 	START_TIME_DEFAULT = 2009;
 	START_TIME_MIN = 2009;
-
+sha.earthquake.rupForecastImpl.WGCEP_UCERF2_Final.Ucerf2.java
+- line 103 or so, change BACK_SEIS_DEFAULT to BACK_SEIS_EXCLUDE
 
 
 WORKSPACE - see notes in Excel for details on versions
