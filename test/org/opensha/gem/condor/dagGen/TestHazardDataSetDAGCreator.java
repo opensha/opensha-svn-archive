@@ -94,5 +94,11 @@ public class TestHazardDataSetDAGCreator extends TestCase {
 		dagCreator.setUniverse(Universe.SCHEDULER);
 		dagCreator.writeDAG(tempDir, 100, false);
 	}
+	
+	public static void main(String args[]) throws Exception {
+		TestHazardDataSetDAGCreator test = new TestHazardDataSetDAGCreator();
+		test.setUp();
+		test.testDAGCreation();
+	}
 
 }
