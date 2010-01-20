@@ -38,6 +38,8 @@ public class HazardDataSetDAGCreator {
 	private CurveResultsArchiver archiver;
 	private String javaExec;
 	private String jarFile;
+	
+	private String requirements = null;
 
 	private DecimalFormat curveIndexFormat;
 
@@ -108,7 +110,8 @@ public class HazardDataSetDAGCreator {
 			String arguments = " -classpath " + jarFile + " " + HazardCurveDriver.class.getName() + " " + xmlFile;
 			SubmitScriptForDAG job = new SubmitScriptForDAG(jobName, executable, arguments,
 					"/tmp", universe, true);
-
+			job.setRequirements(requirements);
+			
 			job.writeScriptInDir(odir);
 			job.setComment("Calculates curves " + startIndex + "->" + endIndex + ", inclusive");
 
@@ -181,16 +184,47 @@ public class HazardDataSetDAGCreator {
 		}
 	}
 	
+	public void setRequirements(String requirements) {
+		this.requirements = requirements;
+	}
+	
+	public String getRequirements() {
+		return requirements;
+	}
+	
+	public static void usage() {
+		System.err.println("USAGE: HazardDataSetDAGCreator [args] <Input XML> <Curves Per Job> <Calc Dir> <Java Path> <Jar Path>");
+		System.err.println("Valid args:");
+		System.err.println("\t--reqs <requirements>");
+		System.exit(2);
+	}
+	
 	public static void main(String args[]) {
-		if (args.length != 5) {
-			System.err.println("USAGE: HazardDataSetDAGCreator <Input XML> <Curves Per Job> <Calc Dir> <Java Path> <Jar Path>");
-			System.exit(2);
+		if (args.length < 5) {
+			usage();
 		}
-		String inputFile = args[0];
-		int curvesPerJob = Integer.parseInt(args[1]);
-		String calcDir = args[2];
-		String javaPath = args[3];
-		String jarPath = args[4];
+		int counter = 0;
+		String reqs = null;
+		if (args.length > 5) {
+			boolean isArg = true;
+			while (isArg) {
+				String arg = args[counter++];
+				if (arg.startsWith("--reqs")) {
+					reqs = args[counter++];
+				} else {
+					counter--;
+					isArg = false;
+				}
+			}
+		}
+		if (args.length - counter != 5)
+			usage();
+		
+		String inputFile = args[counter++];
+		int curvesPerJob = Integer.parseInt(args[counter++]);
+		String calcDir = args[counter++];
+		String javaPath = args[counter++];
+		String jarPath = args[counter++];
 		
 		try {
 			Document doc = XMLUtils.loadDocument(inputFile);
@@ -203,6 +237,7 @@ public class HazardDataSetDAGCreator {
 			((AsciiFileCurveArchiver)inputs.getArchiver()).setOutputDir(curvesDir);
 			
 			HazardDataSetDAGCreator dagCreator = new HazardDataSetDAGCreator(inputs, javaPath, jarPath);
+			dagCreator.setRequirements(reqs);
 			
 			File calcDirFile = new File(calcDir);
 			

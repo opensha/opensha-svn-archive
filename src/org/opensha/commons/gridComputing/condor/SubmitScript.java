@@ -46,6 +46,7 @@ public class SubmitScript {
 	
 	private String environment;
 	private String fileName = null;
+	private String requirements = null;
 	
 	private boolean transferExecutable = false;
 	
@@ -94,6 +95,8 @@ public class SubmitScript {
 			script += "arguments\t=\t" + arguments + "\n";
 		if (environment != null && environment.length() > 0)
 			script += "environment\t=\t" + environment + "\n";
+		if (requirements != null && requirements.length() > 0)
+			script += "requirements\t=\t" + requirements + "\n";
 		script += "notification\t=\tNEVER\n";
 		script += "copy_to_spool\t=\tfalse\n";
 		script += "log\t=\t" + logFile + "\n";
@@ -149,5 +152,13 @@ public class SubmitScript {
 	
 	public void setEnvironment(String environment) {
 		this.environment = environment;
+	}
+	
+	public void setRequirements(String requirements) {
+		this.requirements = requirements;
+	}
+	
+	public String getRequirements() {
+		return requirements;
 	}
 }
