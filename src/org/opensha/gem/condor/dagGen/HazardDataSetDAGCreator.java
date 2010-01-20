@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -200,7 +199,8 @@ public class HazardDataSetDAGCreator {
 			if (!calcDir.endsWith(File.separator))
 				calcDir += File.separator;
 			String curvesDir = calcDir + "curves";
-			AsciiFileCurveArchiver archiver = new AsciiFileCurveArchiver(curvesDir, true, false);
+			
+			((AsciiFileCurveArchiver)inputs.getArchiver()).setOutputDir(curvesDir);
 			
 			HazardDataSetDAGCreator dagCreator = new HazardDataSetDAGCreator(inputs, javaPath, jarPath);
 			
