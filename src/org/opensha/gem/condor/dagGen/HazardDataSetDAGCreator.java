@@ -122,8 +122,10 @@ public class HazardDataSetDAGCreator {
 
 		String dagFileName = odir + "main.dag";
 
+		System.out.println("Writing DAG: " + dagFileName);
 		dag.writeDag(dagFileName);
 		
+		System.out.println("Writing DAG submit script");
 		createSubmitDAGScript(odir, run);
 	}
 
@@ -239,6 +241,8 @@ public class HazardDataSetDAGCreator {
 			File calcDirFile = new File(calcDir);
 			
 			dagCreator.writeDAG(calcDirFile, curvesPerJob, false);
+			
+			System.out.println("DONE!");
 			
 			System.exit(0);
 		} catch (MalformedURLException e) {
