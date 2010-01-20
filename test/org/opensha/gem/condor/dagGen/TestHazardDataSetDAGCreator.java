@@ -54,7 +54,7 @@ public class TestHazardDataSetDAGCreator extends TestCase {
 		
 		ScalarIntensityMeasureRelationshipAPI cb08 = imrMaps.get(0).get(TectonicRegionType.ACTIVE_SHALLOW);
 		
-		GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED(0.1);
+		GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED(0.02);
 		
 		sites = new ArrayList<Site>();
 		for (Location loc : region) {
