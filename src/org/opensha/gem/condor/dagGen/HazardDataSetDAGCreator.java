@@ -3,12 +3,15 @@ package org.opensha.gem.condor.dagGen;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.gridComputing.condor.DAG;
 import org.opensha.commons.gridComputing.condor.SubmitScriptForDAG;
@@ -17,6 +20,7 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.gem.condor.calc.HazardCurveDriver;
+import org.opensha.gem.condor.calc.components.AsciiFileCurveArchiver;
 import org.opensha.gem.condor.calc.components.CalculationInputsXMLFile;
 import org.opensha.gem.condor.calc.components.CalculationSettings;
 import org.opensha.gem.condor.calc.components.CurveResultsArchiver;
@@ -175,6 +179,53 @@ public class HazardDataSetDAGCreator {
 			String errFile = scriptFileName + ".suberr";
 			int retVal = RunScript.runScript(new String[]{"sh", "-c", "sh "+scriptFileName}, outFile, errFile);
 			System.out.println("Command executed with status " + retVal);
+		}
+	}
+	
+	public static void main(String args[]) {
+		if (args.length != 5) {
+			System.err.println("USAGE: HazardDataSetDAGCreator <Input XML> <Curves Per Job> <Calc Dir> <Java Path> <Jar Path>");
+			System.exit(2);
+		}
+		String inputFile = args[0];
+		int curvesPerJob = Integer.parseInt(args[1]);
+		String calcDir = args[2];
+		String javaPath = args[3];
+		String jarPath = args[4];
+		
+		try {
+			Document doc = XMLUtils.loadDocument(inputFile);
+			CalculationInputsXMLFile inputs = CalculationInputsXMLFile.loadXML(doc);
+			
+			if (!calcDir.endsWith(File.separator))
+				calcDir += File.separator;
+			String curvesDir = calcDir + "curves";
+			AsciiFileCurveArchiver archiver = new AsciiFileCurveArchiver(curvesDir, true, false);
+			
+			HazardDataSetDAGCreator dagCreator = new HazardDataSetDAGCreator(inputs, javaPath, jarPath);
+			
+			File calcDirFile = new File(calcDir);
+			
+			dagCreator.setUniverse(Universe.SCHEDULER);
+			dagCreator.writeDAG(calcDirFile, curvesPerJob, false);
+			
+			System.exit(0);
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.exit(1);
+		} catch (DocumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.exit(1);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.exit(1);
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 }

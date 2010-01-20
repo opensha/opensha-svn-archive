@@ -54,7 +54,7 @@ public class TestHazardDataSetDAGCreator extends TestCase {
 		
 		ScalarIntensityMeasureRelationshipAPI cb08 = imrMaps.get(0).get(TectonicRegionType.ACTIVE_SHALLOW);
 		
-		GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED(0.5);
+		GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED(0.1);
 		
 		sites = new ArrayList<Site>();
 		for (Location loc : region) {
@@ -77,6 +77,8 @@ public class TestHazardDataSetDAGCreator extends TestCase {
 	
 	public void testDAGCreation() throws IOException {
 		CalculationInputsXMLFile inputs = new CalculationInputsXMLFile(erf, imrMaps, sites, calcSettings, archiver);
+		
+		XMLUtils.writeObjectToXMLAsRoot(inputs, tempDir.getAbsolutePath() + File.separator + "inputs.xml");
 		
 		String javaExec = "/usr/bin/java";
 		String pwd = System.getProperty("user.dir");
