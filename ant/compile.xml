@@ -25,6 +25,7 @@
 	<property name="dist" value="../dist" />
 	<property name="src" value="../src/" />
 	<property name="dev" value="../dev/" />
+	<property name="test" value="../test/" />
 	<property name="lib.dir" value="../lib" />
 
 	<path id="library.classpath">
@@ -42,6 +43,7 @@
 			</classpath>
 			<src path="${src}" />
 			<src path="${dev}" />
+			<src path="${test}" />
 			<include name="scratch/**" />
 			<include name="org/**" />
 			<include name="com/**" />
