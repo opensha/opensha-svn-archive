@@ -103,6 +103,8 @@ public class HazardDataSetDAGCreator {
 			int endIndex = startIndex + curvesPerJob - 1;
 			if (endIndex > numSites - 1)
 				endIndex = numSites - 1;
+			
+			System.out.println("Writing job for curves " + startIndex + " => " + endIndex);
 
 			String jobName = "Curves_" + curveIndexFormat.format(startIndex) + "_" + curveIndexFormat.format(endIndex);
 			String executable = javaExec;
