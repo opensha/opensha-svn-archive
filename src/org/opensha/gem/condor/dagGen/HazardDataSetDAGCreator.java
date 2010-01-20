@@ -200,6 +200,7 @@ public class HazardDataSetDAGCreator {
 	}
 	
 	public static void main(String args[]) {
+		System.out.println(HazardDataSetDAGCreator.class.getName() + ": starting up");
 		if (args.length < 5) {
 			usage();
 		}

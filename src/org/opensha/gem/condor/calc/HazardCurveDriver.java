@@ -3,27 +3,16 @@ package org.opensha.gem.condor.calc;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
 
-import org.dom4j.Attribute;
 import org.dom4j.Document;
-import org.dom4j.Element;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.XMLUtils;
-import org.opensha.gem.condor.calc.components.AsciiFileCurveArchiver;
 import org.opensha.gem.condor.calc.components.CalculationInputsXMLFile;
 import org.opensha.gem.condor.calc.components.CalculationSettings;
 import org.opensha.gem.condor.calc.components.CurveResultsArchiver;
-import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.imr.IntensityMeasureRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.util.TectonicRegionType;
 
@@ -72,6 +61,7 @@ public class HazardCurveDriver {
 	 * @param args
 	 */
 	public static void main(String args[]) {
+		System.out.println(HazardCurveDriver.class.getName() + ": starting up");
 		try {
 			if (args.length != 1) {
 				System.err.println("USAGE: HazardCurveDriver <XML File>");
@@ -88,8 +78,8 @@ public class HazardCurveDriver {
 			driver.startCalculation();
 			System.exit(0);
 		} catch (Throwable t) {
-			System.exit(1);
 			t.printStackTrace();
+			System.exit(1);
 		}
 	}
 
