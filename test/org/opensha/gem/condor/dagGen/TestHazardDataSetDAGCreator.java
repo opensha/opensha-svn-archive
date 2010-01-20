@@ -45,6 +45,8 @@ public class TestHazardDataSetDAGCreator extends TestCase {
 	private CalculationSettings calcSettings;
 	private CurveResultsArchiver archiver;
 	private File tempDir;
+	
+	public static double spacing = 0.1;
 
 	@Before
 	public void setUp() throws Exception {
@@ -54,7 +56,7 @@ public class TestHazardDataSetDAGCreator extends TestCase {
 		
 		ScalarIntensityMeasureRelationshipAPI cb08 = imrMaps.get(0).get(TectonicRegionType.ACTIVE_SHALLOW);
 		
-		GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED(0.02);
+		GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED(spacing);
 		
 		sites = new ArrayList<Site>();
 		for (Location loc : region) {
@@ -96,6 +98,10 @@ public class TestHazardDataSetDAGCreator extends TestCase {
 	}
 	
 	public static void main(String args[]) throws Exception {
+		if (args.length > 0) {
+			double spacing = Double.parseDouble(args[0]);
+			TestHazardDataSetDAGCreator.spacing = spacing;
+		}
 		TestHazardDataSetDAGCreator test = new TestHazardDataSetDAGCreator();
 		test.setUp();
 		test.testDAGCreation();
