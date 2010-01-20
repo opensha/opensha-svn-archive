@@ -230,12 +230,6 @@ public class HazardDataSetDAGCreator {
 			Document doc = XMLUtils.loadDocument(inputFile);
 			CalculationInputsXMLFile inputs = CalculationInputsXMLFile.loadXML(doc);
 			
-			if (!calcDir.endsWith(File.separator))
-				calcDir += File.separator;
-			String curvesDir = calcDir + "curves";
-			
-			((AsciiFileCurveArchiver)inputs.getArchiver()).setOutputDir(curvesDir);
-			
 			HazardDataSetDAGCreator dagCreator = new HazardDataSetDAGCreator(inputs, javaPath, jarPath);
 			dagCreator.setRequirements(reqs);
 			
