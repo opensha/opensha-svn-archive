@@ -206,7 +206,6 @@ public class HazardDataSetDAGCreator {
 			
 			File calcDirFile = new File(calcDir);
 			
-			dagCreator.setUniverse(Universe.SCHEDULER);
 			dagCreator.writeDAG(calcDirFile, curvesPerJob, false);
 			
 			System.exit(0);
