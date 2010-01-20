@@ -98,6 +98,8 @@ public class SubmitScript {
 		if (requirements != null && requirements.length() > 0)
 			script += "requirements\t=\t" + requirements + "\n";
 		script += "notification\t=\tNEVER\n";
+		script += "should_transfer_files\t=\tYES\n";
+		script += "when_to_transfer_output\t=\tON_EXIT\n";
 		script += "copy_to_spool\t=\tfalse\n";
 		script += "log\t=\t" + logFile + "\n";
 		script += "error\t=\t" + errFile + "\n";
