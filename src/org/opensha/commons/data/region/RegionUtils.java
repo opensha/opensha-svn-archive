@@ -206,6 +206,19 @@ public class RegionUtils {
 	//		</Point>
 	//	</Placemark>
 //</Folder>
+	
+//    <innerBoundaryIs>
+//    <LinearRing>
+//      <coordinates>
+//        -122.366212593918,37.81897719083808,30 
+//        -122.3654241733188,37.81929450992014,30 
+//        -122.3657048517827,37.81973175302663,30 
+//        -122.3664882465854,37.81940249291773,30 
+//        -122.366212593918,37.81897719083808,30 
+//      </coordinates>
+//    </LinearRing>
+//  </innerBoundaryIs>
+
 
 	// border style elements
 	private static Element addBorderStyle(Element e, Color c) {

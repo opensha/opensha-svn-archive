@@ -322,7 +322,7 @@ public class RegionTest {
 	}
 
 	@Test
-	public final void testRegionGeographicRegion() {
+	public final void testRegionRegion() {
 		circRegion.setName("Cicle Region");
 		Region newCircle = new Region(circRegion);
 		assertTrue(newCircle.equals(circRegion)); // just tests areas
@@ -337,6 +337,13 @@ public class RegionTest {
 				interiorRegion.getBorder()) == 0);
 		assertTrue(newInterior.getInterior().compareTo(
 				interiorRegion.getInterior()) == 0);
+		
+		// null case
+		try {
+			Region r1 = null;
+			Region r2 = new Region(r1);
+			fail("Null argument not caught");
+		} catch (NullPointerException npe) {}
 		
 		// re-test serialization to check region with interior
 		try {
@@ -361,6 +368,13 @@ public class RegionTest {
 		
 	}
 
+	@Test
+	public final void testRegionRegionRegion() {
+		assertTrue(
+				"Calls and tested by Region(Region) and setInterior()",
+				true);
+	}
+	
 	@Test
 	public final void testContainsLocation() {
 		
@@ -398,6 +412,8 @@ public class RegionTest {
 		assertTrue(!lgRectMercRegion.contains(containsNloc));
 		assertTrue(lgRectMercRegion.contains(containsSloc));
 		assertTrue(lgRectMercRegion.contains(containsWloc));
+		
+		//fail()
 	}
 	
 	@Test
@@ -606,13 +622,11 @@ public class RegionTest {
 
 	public static void main(String[] args) {
 		
-		RegionTest rt = new RegionTest();
-		rt.setUp();
+		RegionTest.setUp();
 		
 		// The code below was used to create KML files for visual verification
 		// of regions. The border vertices were then culled from the KML and 
 		// are stored in arrays (below) for use in this test class
-		Region gr;
 		
 		// RECT
 		RegionUtils.regionToKML(smRectRegion, "RegionLocLoc", Color.ORANGE);
@@ -633,11 +647,9 @@ public class RegionTest {
 		RegionUtils.regionToKML(smRectLgRectIntersect,"RegionSmRectLgRectIntersect",Color.ORANGE); 
 		RegionUtils.regionToKML(smRectLgRectUnion,"RegionSmRectLgRectUnion",Color.ORANGE);
 		
-		Line2D line = new Line2D.Double(new Point(1, 1), new Point(2, 1));
-		Polygon poly = new Polygon(new int[]{1,1,1,1}, new int[]{1,2,3,4}, 4);
+		// INTERIOR REGION
+		RegionUtils.regionToKML(interiorRegion,"RegionInterior",Color.ORANGE);
 		
-		Area testArea = new Area(poly);
-		System.out.println(testArea.isEmpty());
 	}
 	
 	/* debugging utility method to read Area coordinates */

@@ -20,6 +20,10 @@
 package org.opensha.commons.data.region;
 
 import java.awt.Shape;
+import java.awt.geom.Area;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Iterator;
@@ -253,10 +257,9 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	}
 	
 	/**
-	 * Initializes a <code>GriddedRegion</code> with a 
-	 * <code>Region</code>.
+	 * Initializes a <code>GriddedRegion</code> with a <code>Region</code>.
 	 * 
-	 * @param region to use as border for new gridded region
+	 * @param region to use as border for new <code>GriddedRegion</code>
 	 * @param spacing of grid nodes
 	 * @param anchor <code>Location</code> for grid; may be <code>null</code>
 	 * @throws IllegalArgumentException if <code>spacing
@@ -269,10 +272,42 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 			Region region, 
 			double spacing,
 			Location anchor) {
-		super(region.getBorder(), BorderType.MERCATOR_LINEAR);
+		super(region);
 		initGrid(spacing, anchor);
 	}
-
+	
+	/**
+	 * Initializes a <code>GriddedRegion</code> with one <code>Region</code>
+	 * that defines an outer boundary and a second that defines an inner
+	 * boundary or donut-hole.
+	 * 
+	 * @param outer the outer bounding <code>Region</code>
+	 * @param inner the inner bounding <code>Region</code>
+	 * @param spacing of grid nodes
+	 * @param anchor <code>Location</code> for grid; may be <code>null</code>
+	 * @throws IllegalArgumentException if <code>spacing
+	 * 		</code> is outside the range 0&deg; &lt; <code>spacing</code> 
+	 * 		&le; 5&deg;
+	 * @throws NullPointerException if either supplied <code>Region</code>
+	 * 		is null
+	 * @throws IllegalArgumentException if the inner <code>Region</code> is
+	 * 		not entirly contained within the outer <code>Region</code>
+	 * @throws IllegalArgumentException if the inner <code>Region</code> is
+	 * 		not singular (i.e. already has an interior itself)
+	 * @throws UnsupportedOperationException if the outer <code>Region</code>
+	 * 		already has an interior defined
+	 */
+	public GriddedRegion(
+			Region outer,
+			Region inner,
+			double spacing,
+			Location anchor) {
+		super(outer, inner);
+		initGrid(spacing, anchor);
+		
+		
+		// TODO test that exception gets caugth for exterior with preexisting interior
+	}
 
 	/**
 	 * Returns the grid node spacing for this region.
@@ -323,18 +358,20 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	 * src="{@docRoot}/img/gridded_regions_sub.jpg"/>
 	 * The new region also inherits the grid spacing and node-alignment of 
 	 * the parent. The method returns <code>null</code> if the two regions do  
-	 * not overlap. Note that the returned <code>GriddedRegion</code> may be
-	 * devoid of grid nodes.<br/>
+	 * not overlap.<br/>
 	 * <br/>
-	 * In some cases, a sub-region may be too small to contain any nodes
-	 * of the parent grid. For example it may
-	 * represent the area of influence of a small magnitude earthquake or
-	 * aftershock. If the closest point to the sub-region in the parent grid
-	 * is desired, then try:
+	 * Note that the returned <code>GriddedRegion</code> may be
+	 * devoid of grid nodes, e.g. in cases where the sub-region is too small to 
+	 * contain any nodes of the parent grid. Sucha asituation may arise if the
+	 * sub-region represents the area of influence of a small magnitude
+	 * earthquake or aftershock. If the closest point to the sub-region in 
+	 * the parent grid is desired, then compute the subRegionCentroid and use:
 	 * <pre>
 	 * 		if (newGriddedRegion.isEmpty()) {
-	 * 			Location loc = locationForIndex(
-	 * 				indexForLocation(subRegionCentroid));
+	 * 			int idx = indexForLocation(subRegionCentroid);
+	 * 			if (idx != -1) {
+	 * 				Location loc = locationForIndex(idx);
+	 * 			}
 	 * 		}
 	 * </pre>
 	 * <br/>
@@ -343,13 +380,30 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	 *         does not intersect its parent (<code>this</code>)
 	 * @see GriddedRegion#isEmpty()
 	 */
-	// TODO wrtite tests
 	public GriddedRegion subRegion(Region region) {
 		Region newRegion = Region.intersect(this, region);
 		if (newRegion == null) return null;
 		return new GriddedRegion(newRegion, spacing, anchor);
 	}
-		
+	
+	/**
+	 * Overridden to throw an <code>UnsupportedOperationException</code> 
+	 * exception when called. The border of a <code>GriddedRegion</code> may
+	 * only be set on initialization. To create a <code>GriddedRegion</code>
+	 * that has an interior (donut-hole), use
+	 * {@link GriddedRegion#GriddedRegion(Region, Region, double, Location)} 
+	 * alone or {@link GriddedRegion#GriddedRegion(Region, double, Location)}
+	 * with a <code>Region</code> that already has an interior defined.
+	 * 
+	 * @throws UnsupportedOperationException
+	 * @see {@link Region#setInterior(Region)}
+	 */
+	public void setInterior(Region region) {
+		throw new UnsupportedOperationException(
+				"A GriddedRegion may not have an interior Region set");
+	}
+	
+	
 	/* implementation */
 	public Iterator<Location> iterator() {
 		return nodeList.iterator();
@@ -522,8 +576,7 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	private void setSpacing(double spacing) {
 		if (spacing <= 0 || spacing > 5) {
 			throw new IllegalArgumentException(
-					"Grid spacing must be in the range " + 
-					"0\u00B0 \u003E S \u2265 5\u00B0");
+					"Grid spacing must be 0\u00B0 \u003E S \u2265 5\u00B0");
 		}
 		this.spacing = spacing;
 	}
@@ -640,6 +693,26 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 		return values;
 	}
 	
+//	 private void writeObject(ObjectOutputStream os) throws IOException {
+//		 
+//		 os.writeObject(name);
+//		 os.writeObject(border);
+//		 os.writeObject(interior);
+//	 }
+//	 
+//     private void readObject(ObjectInputStream is) throws IOException, 
+//     		ClassNotFoundException {
+//    	 name = (String)  is.readObject();
+//    	 border = (LocationList) is.readObject();
+//    	 interior = (LocationList) is.readObject();
+//    	 area = createArea(border);
+//    	 if (interior != null) {
+//    		 Area intArea = createArea(interior);
+//    		 area.subtract(intArea);
+//    	 }
+//     }
+
+
 	/*
 	 * Main method to run the this class and produce a file with
 	 * evenly gridded location.
@@ -862,6 +935,7 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 //		System.out.println(bs.length()); //15 
 //		System.out.println(bs.nextSetBit(0));
 		//TODO clean
+		
 }
 
 

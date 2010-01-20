@@ -80,7 +80,9 @@ import org.opensha.sha.earthquake.EqkRupture;
  * is that <code>isLocationInside()</code> may return <code>false</code> 
  * for some border Locations for which it should return <code>true</code>.
  * This issue will be resolved with a move to Java6 which includes the
- * higher precision <code>GeneralPath2D</code>.
+ * higher precision <code>GeneralPath2D</code>. The effect is that rectangular,
+ * lat-lon aligned regions will return false for contains for points on
+ * the south and west borders.
 
  * 
  * TODO return immutable borders collection.unmodifiablelist; make LocationList 
@@ -267,12 +269,12 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 * Creates an exact copy.
 	 * 
 	 * @param region to use as border for new <code>Region</code>
+	 * @throws NullPointerException if the supplied <code>Region</code> is null
 	 */
 	public Region(Region region) {
-		//this(region.getBorder(), BorderType.MERCATOR_LINEAR);
-		// TODO clean above
-		// clone/copy all properties of given region
-		// TODO change to clone() if LocList and Location implement Cloneable
+		if (region == null) {
+			throw new NullPointerException("Supplied Region is null");
+		}
 		this.name = region.name;
 		this.border = region.border.copyImmutable();
 		// internal regions
@@ -280,6 +282,26 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		if (region.interior != null) {
 			this.interior = region.interior.copyImmutable();
 		}
+	}
+	
+	/**
+	 * Initializes a <code>Region</code> using one <code>Region</code> as an 
+	 * outer boundary and a second as an inner boundary or donut-hole.
+	 * 
+	 * @param outer the outer bounding <code>Region</code>
+	 * @param inner the inner bounding <code>Region</code>
+	 * @throws NullPointerException if either supplied <code>Region</code>
+	 * 		is null
+	 * @throws IllegalArgumentException if the inner <code>Region</code> is
+	 * 		not entirly contained within the outer <code>Region</code>
+	 * @throws IllegalArgumentException if the inner <code>Region</code> is
+	 * 		not singular (i.e. already has an interior itself)
+	 * @throws UnsupportedOperationException if the outer <code>Region</code>
+	 * 		already has an interior defined
+	 */
+	public Region(Region outer, Region inner) {
+		this(outer);
+		setInterior(inner);
 	}
 	
 	/**
@@ -367,12 +389,14 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
  	 * no reference to the supplied <code>Region</code> is retained.
  	 * 
 	 * @param region to use as an interior or negative space
-	 * @throws NullPointerException if teh supplied <code>Region</code> is 
+	 * @throws NullPointerException if the supplied <code>Region</code> is 
 	 * 		<code>null</code>
 	 * @throws IllegalArgumentException if the supplied <code>Region</code> is
 	 * 		not entirly contained within this <code>Region</code>
-	 * @throws IllegalArgumentException if the supplied <code>Region</code> 
-	 * @throws UnsupportedOperationException if the supplied <code>Region</code>
+	 * @throws IllegalArgumentException if the supplied <code>Region</code> is
+	 * 		not singular (i.e. already has an interior itself)
+	 * @throws UnsupportedOperationException if <code>this</code>, the parent
+	 * 		<code>Region</code>, already has an interior defined
 	 */
 	public void setInterior(Region region) {
 		validateRegion(region); // test for singularity or null
@@ -622,6 +646,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 * throw exceptions if the generated Area is empty or not singular
 	 * 
 	 * NOTE: see notes with LL_PRECISION
+	 * TODO this needs to be revisited for GeneralPath2D
 	 */
 	private static Area createArea(LocationList border) {
 		
@@ -652,6 +677,9 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 			throw new IllegalArgumentException(
 					"Area is not a single closed path");
 		}
+		
+		// test remove
+		LocationList ll = Region.createBorder(area, false);
 		return area;
 	}
 	
@@ -822,13 +850,14 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		return ll;
 	}
 	
-	 private void writeObject(ObjectOutputStream os) throws IOException {
+	// Serialization methods required for Area
+	private void writeObject(ObjectOutputStream os) throws IOException {
 		 os.writeObject(name);
 		 os.writeObject(border);
 		 os.writeObject(interior);
-	 }
+	}
 	 
-     private void readObject(ObjectInputStream is) throws IOException, 
+    private void readObject(ObjectInputStream is) throws IOException, 
      		ClassNotFoundException {
     	 name = (String)  is.readObject();
     	 border = (LocationList) is.readObject();
@@ -838,16 +867,16 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
     		 Area intArea = createArea(interior);
     		 area.subtract(intArea);
     	 }
-     }
+    }
 
-     public static void main(String[] args) {
+    public static void main(String[] args) {
  		Line2D line = new Line2D.Double(new Point(1, 1), new Point(2, 1));
 		Polygon poly = new Polygon(new int[]{1,4,3,2}, new int[]{1,1,1,1}, 4);
 		
 		Area testArea = new Area(poly);
 		System.out.println(testArea.isEmpty());
 
-     }
+    }
      // TODO clean
 // 	NOTE: see notes with LL_PRECISION
 //	   hold onto and revisit precision testing until after move to jdk6
