@@ -33,6 +33,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.region.RegionUtils.Color;
+
+import com.lowagie.text.Anchor;
 
 
 public class GriddedRegionTest {
@@ -298,14 +301,13 @@ public class GriddedRegionTest {
 	
 	public static void main(String[] args) {
 		
-		
-		
-		
-		// TODO keep?
-//		GriddedRegion sreg = new GriddedRegion(
-//				RegionTest.lgRectMercRegion, 0.5, null);
-//		Region gr = sreg.subRegion(RegionTest.circRegion);
-//		RegionUtils.regionToKML(gr, "SubRegion_circRectSub", Color.RED);
+		RegionTest.setUp();
+		GriddedRegion interiorGR = new GriddedRegion(
+				RegionTest.interiorRegion, 2, null);
+		RegionUtils.regionToKML(
+				interiorGR,
+				"GriddedRegionInterior", 
+				Color.ORANGE);
 		
 		// =================================================================
 		// Create a gridded interior region
