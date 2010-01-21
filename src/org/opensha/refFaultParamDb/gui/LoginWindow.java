@@ -273,8 +273,8 @@ public class LoginWindow extends JFrame implements ActionListener {
     //LoginWindow loginWindow = new LoginWindow(args[0]);
 	  //LoginWindow loginWindow = new LoginWindow(ViewFaultSection.class.getName());
 	  //LoginWindow loginWindow = new LoginWindow(AddEditFaultModel.class.getName());
-	   LoginWindow loginWindow = new LoginWindow(FaultSectionsAndModelsApp.class.getName());
-	  // LoginWindow loginWindow = new LoginWindow(PaleoSiteApp2.class.getName());
+	   //LoginWindow loginWindow = new LoginWindow(FaultSectionsAndModelsApp.class.getName());
+	  LoginWindow loginWindow = new LoginWindow(PaleoSiteApp2.class.getName());
   }
 
 }
