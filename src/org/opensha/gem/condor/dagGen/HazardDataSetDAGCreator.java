@@ -202,7 +202,14 @@ public class HazardDataSetDAGCreator {
 		this.universe = universe;
 	}
 
-	public void createSubmitDAGScript(String odir, boolean run) throws IOException {
+	/**
+	 * Create a DAG submit script with common tuning parameters
+	 * 
+	 * @param odir
+	 * @param run
+	 * @throws IOException
+	 */
+	public static void createSubmitDAGScript(String odir, boolean run) throws IOException {
 		String scriptFileName = odir + "submit_DAG.sh";
 		FileWriter fw = new FileWriter(scriptFileName);
 		fw.write("#!/bin/bash\n");
