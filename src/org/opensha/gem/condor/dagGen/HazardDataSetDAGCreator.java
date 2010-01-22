@@ -19,7 +19,6 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.gem.condor.calc.HazardCurveDriver;
-import org.opensha.gem.condor.calc.components.AsciiFileCurveArchiver;
 import org.opensha.gem.condor.calc.components.CalculationInputsXMLFile;
 import org.opensha.gem.condor.calc.components.CalculationSettings;
 import org.opensha.gem.condor.calc.components.CurveResultsArchiver;
@@ -27,6 +26,17 @@ import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.util.TectonicRegionType;
 
+/**
+ * This class generates a simple Condor DAG for a given ERF, IMR Hash Map(s),
+ * and list of sites.
+ * 
+ * This DAG is meant to be run on a shared filesystem, where the output directory
+ * for DAG generation is also visible on the compute nodes/slots. It could be extended
+ * in the future to use Globus and GridFTP to get around this limitation.
+ * 
+ * @author kevin
+ *
+ */
 public class HazardDataSetDAGCreator {
 
 	public static final String ERF_SERIALIZED_FILE_NAME = "erf.obj";
@@ -49,11 +59,29 @@ public class HazardDataSetDAGCreator {
 	public static int DAGMAN_MAX_PRE = 3;
 	public static int DAGMAN_MAX_POST = 5;
 
+	/**
+	 * Convenience constructor for if you already have the inputs from an XML file.
+	 * 
+	 * @param inputs
+	 * @param javaExec
+	 * @param jarFile
+	 */
 	public HazardDataSetDAGCreator(CalculationInputsXMLFile inputs, String javaExec, String jarFile) {
 		this(inputs.getERF(), inputs.getIMRMaps(), inputs.getSites(), inputs.getCalcSettings(),
 				inputs.getArchiver(), javaExec, jarFile);
 	}
 
+	/**
+	 * Main constructor with objects/info necessary for hazard data set calculation.
+	 * 
+	 * @param erf - The ERF
+	 * @param imrMaps - A list of IMR/TectonicRegion hash maps
+	 * @param sites - The list of sites that need to be calculated. All site parameters should already be set
+	 * @param calcSettings - Some simple calculation settings (such as X values, cutoff distance)
+	 * @param archiver - The archiver used to store curves once calculated
+	 * @param javaExec - The path to the java executable
+	 * @param jarFile - The path to the jar file used for calculation.
+	 */
 	public HazardDataSetDAGCreator(EqkRupForecastAPI erf,
 			List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps,
 			List<Site> sites,
@@ -74,8 +102,17 @@ public class HazardDataSetDAGCreator {
 		this.jarFile = jarFile;
 	}
 
-	public void writeDAG(File outputDir, int curvesPerJob, boolean run) throws IOException {
-		if (curvesPerJob < 1)
+	/**
+	 * Writes the DAG to the specified output directory. It will the task into many small tasks
+	 * as specified by sitesPerJob. It can also be automatically submitted if the run is true.
+	 * 
+	 * @param outputDir
+	 * @param sitesPerJob
+	 * @param run
+	 * @throws IOException
+	 */
+	public void writeDAG(File outputDir, int sitesPerJob, boolean run) throws IOException {
+		if (sitesPerJob < 1)
 			throw new IllegalArgumentException("curvesPerJob must be >= 1");
 		// create the output dir
 		if (!outputDir.exists()) {
@@ -99,8 +136,8 @@ public class HazardDataSetDAGCreator {
 		new File(odir + "out").mkdir();
 		new File(odir + "err").mkdir();
 
-		for (int startIndex=0; startIndex<numSites; startIndex+=curvesPerJob) {
-			int endIndex = startIndex + curvesPerJob - 1;
+		for (int startIndex=0; startIndex<numSites; startIndex+=sitesPerJob) {
+			int endIndex = startIndex + sitesPerJob - 1;
 			if (endIndex > numSites - 1)
 				endIndex = numSites - 1;
 			
