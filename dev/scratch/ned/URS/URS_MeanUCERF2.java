@@ -143,30 +143,32 @@ public class URS_MeanUCERF2 extends MeanUCERF2 {
 				}
 
 				// ADD NEW SOURCES
+				
+				double fixMag = Double.NaN;
 				ArrayList<UnsegmentedSource> newSources = new ArrayList<UnsegmentedSource>();
 				// Santa Susana
 				ArrayList<FaultSectionPrefData> ss_Sections = new ArrayList<FaultSectionPrefData>();
 				ss_Sections.add(this.santaSusanaData);
 				wt = 0.5;  // only in one fault model
-				newSources.add(makeOrigSource(ss_Sections, wt, santaSusanaData.getSectionName()));
+				newSources.add(makeOrigSource(ss_Sections, wt, santaSusanaData.getSectionName(),fixMag));
 
 				// Verdugo
 				ArrayList<FaultSectionPrefData> v_Sections = new ArrayList<FaultSectionPrefData>();
 				v_Sections.add(this.verdugoData);
 				wt = 1.0;  // it's in both fault models and has no connections
-				newSources.add(makeOrigSource(v_Sections, wt, verdugoData.getSectionName()));
+				newSources.add(makeOrigSource(v_Sections, wt, verdugoData.getSectionName(),fixMag));
 
 				// Sierra Madre
 				ArrayList<FaultSectionPrefData> sm_Sections = new ArrayList<FaultSectionPrefData>();
 				sm_Sections.add(this.sierraMadreData);
 				wt = 0.5;
-				newSources.add(makeOrigSource(sm_Sections, wt, sierraMadreData.getSectionName()));
+				newSources.add(makeOrigSource(sm_Sections, wt, sierraMadreData.getSectionName(),fixMag));
 
 				// Sierra Madre (San Fernando)
 				ArrayList<FaultSectionPrefData> smsf_Sections = new ArrayList<FaultSectionPrefData>();
 				smsf_Sections.add(this.sierraMadreSanFernData);
 				wt = 0.5;
-				newSources.add(makeOrigSource(smsf_Sections, wt, sierraMadreSanFernData.getSectionName()));
+				newSources.add(makeOrigSource(smsf_Sections, wt, sierraMadreSanFernData.getSectionName(),fixMag));
 
 				// Sierra Madre Connected
 				ArrayList<FaultSectionPrefData> sm_con_Sections = new ArrayList<FaultSectionPrefData>();
@@ -174,7 +176,7 @@ public class URS_MeanUCERF2 extends MeanUCERF2 {
 				sm_con_Sections.add(this.sierraMadreSanFernData);
 				wt = 0.5;
 				String newName = sierraMadreData.getSectionName() + " Cannected";
-				newSources.add(makeOrigSource(sm_con_Sections, wt, newName));
+				newSources.add(makeOrigSource(sm_con_Sections, wt, newName, fixMag));
 				
 				// ADD THESE SOURCES TO THE NEW LISTS
 				newAllSources.addAll(newSources);
@@ -208,7 +210,7 @@ public class URS_MeanUCERF2 extends MeanUCERF2 {
 	}
 	
 	
-	protected UnsegmentedSource makeOrigSource(ArrayList<FaultSectionPrefData> sectionsInSource, double wt, String name) {
+	protected UnsegmentedSource makeOrigSource(ArrayList<FaultSectionPrefData> sectionsInSource, double wt, String name, double fixMag) {
 		
 		// Get the various adjustable parameter settings
 		double rupOffset = ((Double)this.rupOffsetParam.getValue()).doubleValue();
@@ -230,7 +232,7 @@ public class URS_MeanUCERF2 extends MeanUCERF2 {
 		FaultSegmentData faultSegmentData = new  FaultSegmentData(sectionToSegmentData, segNames, true, faultName, null,null);
 		
 		return new UnsegmentedSource(faultSegmentData, empiricalModel,  rupOffset,  wt, 
-				empiricalModelWt, duration, ddwCorr, floaterType);
+				empiricalModelWt, duration, ddwCorr, floaterType, fixMag);
 	}
 	
 	
