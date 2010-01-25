@@ -559,7 +559,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 			moRateList.set(i, newMoRate);
 			UnsegmentedSource unsegmentedSource = new UnsegmentedSource(faultSegmentList.get(i),  
 					empiricalModel, rupOffset, 0.0, 0.0,  0.1, empiricalModelWt,  
-					duration, moRateList.get(i), 0, ddwCorr, floaterType);
+					duration, moRateList.get(i), 0, ddwCorr, floaterType, Double.NaN);
 			aFaultUnsegmentedSources.add(unsegmentedSource);
 			//			System.out.println(source.getName());
 			if(calcSummedMFDs) {
@@ -900,7 +900,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 //			System.out.println("\t"+faultSegDataList.get(i).getFaultName()+"\t"+wt);
 			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), 
 					empiricalModel,  rupOffset,  wt, 
-					empiricalModelWt, duration, ddwCorr, floaterType));
+					empiricalModelWt, duration, ddwCorr, floaterType, Double.NaN));
 		}
 	}
 	
