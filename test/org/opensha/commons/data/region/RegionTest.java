@@ -103,8 +103,8 @@ public class RegionTest {
 		octRegionList.addLocation(new Location(30,-120));
 		octRegion  = new Region(octRegionList, null);
 		
-		Location a = new Location(39,-117);
-		Location b = new Location(41,-113);
+		Location a = new Location(39.01,-116.99);
+		Location b = new Location(40.99,-113.01);
 		smRectRegion1 = new Region(a,b);
 		
 		// offset from smRectRegion1; for testing interior overlap
@@ -123,7 +123,7 @@ public class RegionTest {
 		Location center = new Location(35, -125);
 		circRegion = new Region(center, 400);
 		Location smCenter = new Location(43, -110);
-		smCircRegion = new Region(smCenter, 50);
+		smCircRegion = new Region(smCenter, 100);
 		
 		ll = new LocationList();
 		ll.addLocation(new Location(35,-125));

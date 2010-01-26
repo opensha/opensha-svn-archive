@@ -298,7 +298,7 @@ public class GriddedRegionTest {
 		
 		RegionTest.setUp();
 		GriddedRegion interiorGR = new GriddedRegion(
-				RegionTest.interiorRegion, 2, null);
+				RegionTest.interiorRegion, 1, null);
 		RegionUtils.regionToKML(
 				interiorGR,
 				"GriddedRegionInterior", 
