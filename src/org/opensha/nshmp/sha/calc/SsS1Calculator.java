@@ -118,17 +118,17 @@ public class SsS1Calculator {
 		try {
 			conn = (new DBHazardConnection()).getConnection();
 			query = conn.prepareStatement(STUB);
-
-			if (query == null) { System.out.println("(C) Query is null? WTF?"); }
 		} catch (SQLException sqx) {
-			System.err.println("Error in constructor...");
+			System.err.println("Error in SsS1Calculator constructor...");
 			sqx.printStackTrace(System.err);
 		}
 	}
 
 	public void finalize() {
 		try {
-			conn.close();
+			if ( conn != null && ! conn.isClosed() ) {
+				conn.close();
+			}
 		} catch (SQLException sqx) {
 			System.err.println("Error closing SQL connection.");
 			sqx.printStackTrace(System.err);

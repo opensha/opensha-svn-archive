@@ -41,9 +41,8 @@ import org.opensha.commons.data.Location;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 import org.opensha.nshmp.sha.data.calc.FaFvCalc;
 import org.opensha.nshmp.sha.data.calc.ResidentialSiteCalc;
+import org.opensha.nshmp.util.BatchProgress;
 import org.opensha.nshmp.util.GlobalConstants;
-
-import scratch.martinez.util.BatchProgress;
 
 
 

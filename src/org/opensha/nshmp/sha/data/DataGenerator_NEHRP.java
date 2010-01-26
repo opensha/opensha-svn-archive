@@ -44,9 +44,8 @@ import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 import org.opensha.nshmp.sha.data.api.DataGeneratorAPI_NEHRP;
 import org.opensha.nshmp.sha.data.calc.FaFvCalc;
+import org.opensha.nshmp.util.BatchProgress;
 import org.opensha.nshmp.util.GlobalConstants;
-
-import scratch.martinez.util.BatchProgress;
 
 /**
  * <p>Title: DataGenerator_NEHRP</p>
