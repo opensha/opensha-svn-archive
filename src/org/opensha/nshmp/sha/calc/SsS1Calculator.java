@@ -65,24 +65,21 @@ public class SsS1Calculator {
 
 	protected Connection conn = null;
 	protected PreparedStatement query = null;
-	/*
-	protected static final String STUB = "SELECT * FROM hc_owner.HC_DATA_2008_VW "
-			+ "WHERE LAT >= ? AND LAT <= ? AND LON >= ? AND LON <= ?"
-			+ "ORDER BY LAT DESC, LON ASC";
-	*/
 	
-	/* 
-	 * 08/11/2009 -- EMM: Changed query after discussing with Nico. See document
-	 * dated with this change log entry for details of other options.
-	 */
-	/*protected static final String STUB = "SELECT * FROM " +
-		"hc_owner.HC_DATA_2008_VW WHERE ABS(LAT - ?) < ? AND " +
-		"ABS(LON - ?) < ? ORDER BY LAT DESC, LON ASC";*/
-	
-	// New view for production data. Initially used on development version.
-	protected static final String STUB = "SELECT * FROM " +
-	"hc_owner.PROD_HC_DATA_2008_VW WHERE ABS(LAT - ?) < ? AND " +
-	"ABS(LON - ?) < ? ORDER BY LAT DESC, LON ASC";
+	// Updated for speed. Uses range scanning.
+	protected static final String STUB = 
+		"SELECT " +
+			"* " +
+		"FROM " +
+			"hc_owner.PROD_HC_DATA_2008_VW " +
+		"WHERE " +
+			"LAT < ? + ? AND " +
+			"LAT > ? - ? AND " +
+			"LON < ? + ? AND " +
+			"LON > ? - ? " +
+		"ORDER BY " +
+			"LAT DESC, " +
+			"LON ASC";
 	
 	protected static final String SSUH_COL = "SEC_0_2";
 	protected static final String S1UH_COL = "SEC_1_0";
@@ -118,13 +115,23 @@ public class SsS1Calculator {
 	protected DecimalFormat latLonFormat = new DecimalFormat("0.0000##");
 
 	public SsS1Calculator() {
-		// For 2009 info deployments this is required, however currently this
-		// breaks things on ghscweb.
 		try {
 			conn = (new DBHazardConnection()).getConnection();
 			query = conn.prepareStatement(STUB);
+
+			if (query == null) { System.out.println("(C) Query is null? WTF?"); }
 		} catch (SQLException sqx) {
-			// Ignore for now.
+			System.err.println("Error in constructor...");
+			sqx.printStackTrace(System.err);
+		}
+	}
+
+	public void finalize() {
+		try {
+			conn.close();
+		} catch (SQLException sqx) {
+			System.err.println("Error closing SQL connection.");
+			sqx.printStackTrace(System.err);
 		}
 	}
 
@@ -140,7 +147,6 @@ public class SsS1Calculator {
 		double gs = 0.05; // Default
 		if (GlobalConstants.CONTER_48_STATES.equals(selectedRegion)) {
 			gs = 0.01; // PROD_HC_DATA_2008_VW
-			//gs = 0.05; // HC_DATA_2008_VW
 		} else if (GlobalConstants.HAWAII.equals(selectedRegion)) {
 			gs = 0.02;
 		} else if (GlobalConstants.ALASKA.equals(selectedRegion)) {
@@ -148,7 +154,6 @@ public class SsS1Calculator {
 		} else if (GlobalConstants.PUERTO_RICO.equals(selectedRegion)) {
 			gs = 0.01;
 		}
-		System.err.printf("Grid spacing for %s is %f\n", selectedRegion, gs);
 		return gs;
 	}
 
@@ -170,18 +175,19 @@ public class SsS1Calculator {
 		if (selectedEdition.equals(GlobalConstants.NEHRP_2009)) {
 			try {
 				gridSpacing = getGridSpacing(selectedRegion);
-				System.out.printf("Setting latitutde to %f\n", latitude);
+				
 				query.setDouble(1, latitude);
-				System.out.printf("Setting gridspacing(2) to %f\n", gridSpacing);
 				query.setDouble(2, gridSpacing);
-				System.out.printf("Setting longitude to %f\n", longitude);
-				query.setDouble(3, longitude);
-				System.out.printf("Setting gridspacing(4) to %f\n", gridSpacing);
+				query.setDouble(3, latitude);
 				query.setDouble(4, gridSpacing);
+				
+				query.setDouble(5, longitude);
+				query.setDouble(6, gridSpacing);
+				query.setDouble(7, longitude);
+				query.setDouble(8, gridSpacing);
+				
 				ResultSet results = query.executeQuery();
-				System.err.printf(
-						"Query values set to (respectively):  %f %f %f %f\n", 
-						latitude, gridSpacing, longitude, gridSpacing);
+
 				int numUsed = 0;
 				ArbitrarilyDiscretizedFunc[] r = new ArbitrarilyDiscretizedFunc[4];
 				while (results.next()) {
