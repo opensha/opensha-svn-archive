@@ -91,9 +91,11 @@ public class RegionUtils {
 		addBorder(e_folder, region);
 		addPoints(e_folder, "Border Nodes", region.getBorder(), 
 				Style.BORDER_VERTEX);
-		if (region.getInterior() != null) {
-			addPoints(e_folder, "Interior Nodes", region.getInterior(), 
-					Style.BORDER_VERTEX);
+		if (region.getInteriors() != null) {
+			for (LocationList interior : region.getInteriors()) {
+				addPoints(e_folder, "Interior Nodes", interior, 
+						Style.BORDER_VERTEX);
+			}
 		}
 		
 		if (region instanceof GriddedRegion) {
@@ -134,19 +136,13 @@ public class RegionUtils {
 		Element e_tessellate = e_poly.addElement("tessellate");
 		e_tessellate.addText("1");
 
-//		Element e_oBI = e_poly.addElement("outerBoundaryIs");
-//		Element e_LR = e_oBI.addElement("LinearRing");
-//		Element e_coord = e_LR.addElement("coordinates");
-//		e_coord.addText(parseBorderCoords(region));
-		
 		addPoly(e_poly, "outerBoundaryIs", region.getBorder());
-		if (region.getInterior() != null) {
-			addPoly(e_poly, "innerBoundaryIs", region.getInterior());
+		if (region.getInteriors() != null) {
+			for (LocationList interior : region.getInteriors()) {
+				addPoly(e_poly, "innerBoundaryIs", interior);
+			}
 		}
-//		Element e_oBI = e_poly.addElement("outerBoundaryIs");
-//		Element e_LR = e_oBI.addElement("LinearRing");
-//		Element e_coord = e_LR.addElement("coordinates");
-//		e_coord.addText(parseBorderCoords(region));
+
 		return e;
 	}
 	

@@ -277,39 +277,6 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	}
 	
 	/**
-	 * Initializes a <code>GriddedRegion</code> with one <code>Region</code>
-	 * that defines an outer boundary and a second that defines an inner
-	 * boundary or donut-hole.
-	 * 
-	 * @param outer the outer bounding <code>Region</code>
-	 * @param inner the inner bounding <code>Region</code>
-	 * @param spacing of grid nodes
-	 * @param anchor <code>Location</code> for grid; may be <code>null</code>
-	 * @throws IllegalArgumentException if <code>spacing
-	 * 		</code> is outside the range 0&deg; &lt; <code>spacing</code> 
-	 * 		&le; 5&deg;
-	 * @throws NullPointerException if either supplied <code>Region</code>
-	 * 		is null
-	 * @throws IllegalArgumentException if the inner <code>Region</code> is
-	 * 		not entirly contained within the outer <code>Region</code>
-	 * @throws IllegalArgumentException if the inner <code>Region</code> is
-	 * 		not singular (i.e. already has an interior itself)
-	 * @throws UnsupportedOperationException if the outer <code>Region</code>
-	 * 		already has an interior defined
-	 */
-	public GriddedRegion(
-			Region outer,
-			Region inner,
-			double spacing,
-			Location anchor) {
-		super(outer, inner);
-		initGrid(spacing, anchor);
-		
-		
-		// TODO test that exception gets caugth for exterior with preexisting interior
-	}
-
-	/**
 	 * Returns the grid node spacing for this region.
 	 * @return the grid node spacing (in degrees)
 	 */
@@ -388,17 +355,18 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	
 	/**
 	 * Overridden to throw an <code>UnsupportedOperationException</code> 
-	 * exception when called. The border of a <code>GriddedRegion</code> may
+	 * when called. The border of a <code>GriddedRegion</code> may
 	 * only be set on initialization. To create a <code>GriddedRegion</code>
-	 * that has an interior (donut-hole), use
-	 * {@link GriddedRegion#GriddedRegion(Region, Region, double, Location)} 
-	 * alone or {@link GriddedRegion#GriddedRegion(Region, double, Location)}
-	 * with a <code>Region</code> that already has an interior defined.
+	 * that has interiors (donut-holes), first create a <code>Region</code>
+	 * with the required border and interiors using 
+	 * {@link Region#addInterior(Region)} and then use it to initialize a 
+	 * <code>GriddedRegion</code>.
 	 * 
 	 * @throws UnsupportedOperationException
-	 * @see {@link Region#setInterior(Region)}
+	 * @see Region#addInterior(Region)
 	 */
-	public void setInterior(Region region) {
+	@Override
+	public void addInterior(Region region) {
 		throw new UnsupportedOperationException(
 				"A GriddedRegion may not have an interior Region set");
 	}

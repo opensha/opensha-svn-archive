@@ -32,7 +32,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.math.util.MathUtils;
 import org.dom4j.Element;
@@ -61,12 +63,10 @@ import org.opensha.sha.earthquake.EqkRupture;
  * great circles are approximated by multple straight line segments that have a
  * maximum length of 100km.<br/>
  * <br/>
- * A <code>Region</code> may also have exactly one interior (or negative) area.
+ * A <code>Region</code> may also have interior (or negative) areas.
  * Any call to {@link Region#contains(Location)} for a <code>Location</code>
- * within or on the border of this interior area will return <code>false</code>. 
- * Allowing only one interior area is fairly restrictive, but avoids complex 
- * geometry operations and associated bookkeeping. If required, this policy 
- * could be relaxed.<br/>
+ * within or on the border of such an interior area will return 
+ * <code>false</code>.<br/>
  * <br/>
  * 
  * 
@@ -113,7 +113,8 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	private LocationList border;
 	
 	// interior region; may remain null
-	private LocationList interior;
+	//private LocationList interior; TODO clean
+	private ArrayList<LocationList> interiors;
 	
 	// Internal representation of region
 	private Area area;
@@ -272,37 +273,43 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 * @throws NullPointerException if the supplied <code>Region</code> is null
 	 */
 	public Region(Region region) {
+		// don't use validateRegion() b/c we can accept 
+		// regions with interiors
 		if (region == null) {
 			throw new NullPointerException("Supplied Region is null");
 		}
 		this.name = region.name;
 		this.border = region.border.copyImmutable();
-		// internal regions
 		this.area = (Area) region.area.clone();
-		if (region.interior != null) {
-			this.interior = region.interior.copyImmutable();
+		// internal regions
+		if (region.interiors != null) {
+			interiors = new ArrayList<LocationList>();
+			for (LocationList interior : region.interiors) {
+				interiors.add(interior.copyImmutable());
+			}
 		}
 	}
 	
-	/**
-	 * Initializes a <code>Region</code> using one <code>Region</code> as an 
-	 * outer boundary and a second as an inner boundary or donut-hole.
-	 * 
-	 * @param outer the outer bounding <code>Region</code>
-	 * @param inner the inner bounding <code>Region</code>
-	 * @throws NullPointerException if either supplied <code>Region</code>
-	 * 		is null
-	 * @throws IllegalArgumentException if the inner <code>Region</code> is
-	 * 		not entirly contained within the outer <code>Region</code>
-	 * @throws IllegalArgumentException if the inner <code>Region</code> is
-	 * 		not singular (i.e. already has an interior itself)
-	 * @throws UnsupportedOperationException if the outer <code>Region</code>
-	 * 		already has an interior defined
-	 */
-	public Region(Region outer, Region inner) {
-		this(outer);
-		setInterior(inner);
-	}
+//	TODO clean
+//	/**
+//	 * Initializes a <code>Region</code> using one <code>Region</code> as an 
+//	 * outer boundary and a second as an inner boundary or donut-hole.
+//	 * 
+//	 * @param outer the outer bounding <code>Region</code>
+//	 * @param inner the inner bounding <code>Region</code>
+//	 * @throws NullPointerException if either supplied <code>Region</code>
+//	 * 		is null
+//	 * @throws IllegalArgumentException if the inner <code>Region</code> is
+//	 * 		not entirly contained within the outer <code>Region</code>
+//	 * @throws IllegalArgumentException if the inner <code>Region</code> is
+//	 * 		not singular (i.e. already has an interior itself)
+//	 * @throws UnsupportedOperationException if the outer <code>Region</code>
+//	 * 		already has an interior defined
+//	 */
+//	public Region(Region outer, Region inner) {
+//		this(outer);
+//		setInterior(inner);
+//	}
 	
 	/**
 	 * Initializes a <code>Region</code> around an earthquake rupture.
@@ -380,13 +387,49 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		return area.isRectangular();
 	}
 	
+//	/**
+//	 * Adds an interior (donut-hole) to this <code>Region</code>. Any call to
+// 	 * {@link Region#contains(Location)} for a <code>Location</code> within this 
+// 	 * interior area will return <code>false</code>. The interior
+// 	 * <code>Region</code> must lie entirely inside this <code>Region</code>.
+// 	 * Internally, the border of the supplied <code>Region</code> is copied and 
+// 	 * no reference to the supplied <code>Region</code> is retained.
+// 	 * 
+//	 * @param region to use as an interior or negative space
+//	 * @throws NullPointerException if the supplied <code>Region</code> is 
+//	 * 		<code>null</code>
+//	 * @throws IllegalArgumentException if the supplied <code>Region</code> is
+//	 * 		not entirly contained within this <code>Region</code>
+//	 * @throws IllegalArgumentException if the supplied <code>Region</code> is
+//	 * 		not singular (i.e. already has an interior itself)
+//	 * @throws UnsupportedOperationException if <code>this</code>, the parent
+//	 * 		<code>Region</code>, already has an interior defined
+//	 */
+//	public void setInterior(Region region) {
+//		validateRegion(region); // test for singularity or null
+//		if (interior != null) {
+//			throw new UnsupportedOperationException(
+//					"This region already has an interior defined");
+//		} else if (!contains(region)) {
+//			throw new IllegalArgumentException(
+//					"Region must completely contain supplied interior Region");
+//		}
+//			
+//		interior = region.border.copy();
+//		area.subtract(region.area);
+//	}
+	
+	// multiple interiors
+	// - each one must be inside border
+	// - each one may not overlap any other interior
 	/**
 	 * Adds an interior (donut-hole) to this <code>Region</code>. Any call to
  	 * {@link Region#contains(Location)} for a <code>Location</code> within this 
- 	 * interior area will return <code>false</code>. The interior
+ 	 * interior area will return <code>false</code>. Any interior
  	 * <code>Region</code> must lie entirely inside this <code>Region</code>.
- 	 * Internally, the border of the supplied <code>Region</code> is copied and 
- 	 * no reference to the supplied <code>Region</code> is retained.
+ 	 * Moreover, any interior may not overlap or enclose any existing interior
+ 	 * region. Internally, the border of the supplied <code>Region</code> is 
+ 	 * copied and no reference to the supplied <code>Region</code> is retained.
  	 * 
 	 * @param region to use as an interior or negative space
 	 * @throws NullPointerException if the supplied <code>Region</code> is 
@@ -395,43 +438,53 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 * 		not entirly contained within this <code>Region</code>
 	 * @throws IllegalArgumentException if the supplied <code>Region</code> is
 	 * 		not singular (i.e. already has an interior itself)
-	 * @throws UnsupportedOperationException if <code>this</code>, the parent
-	 * 		<code>Region</code>, already has an interior defined
+	 * @throws IllegalArgumentException if the supplied <code>Region</code>
+	 * 		overlaps any existing interior <code>Region</code>
 	 */
-	public void setInterior(Region region) {
+	public void addInterior(Region region) {
 		validateRegion(region); // test for singularity or null
-		if (interior != null) {
-			throw new UnsupportedOperationException(
-					"This region already has an interior defined");
-		} else if (!contains(region)) {
+		if (!contains(region)) {
 			throw new IllegalArgumentException(
 					"Region must completely contain supplied interior Region");
 		}
-			
-		interior = region.border.copy();
+		
+		// init interiors
+		if (interiors == null) interiors = new ArrayList<LocationList>();
+		
+		// ensure no overlap with existing interiors
+		LocationList newInterior = region.border.copy();
+		Area newArea = createArea(newInterior);
+		for (LocationList interior : interiors) {
+			Area existing = createArea(interior);
+			existing.intersect(newArea);
+			if (!existing.isEmpty()) {
+				throw new IllegalArgumentException(
+						"Supplied interior Region overlaps existing interiors");
+			}
+		}
+		interiors.add(newInterior);
+		//interiors.add(Collections.unmodifiableList(newInterior); TODO uncomment)
 		area.subtract(region.area);
 	}
 	
 	/**
 	 * Returns an unmodifiable {@link java.util.List} view of the
-	 * internal <code>LocationList</code> of points that decribe the interior
-	 * area of this <code>Region</code>, if it exists. Note that the
-	 * <code>Location</code>s in the list are also immutable. If no interior
+	 * internal <code>LocationList</code>s of points that decribe the 
+	 * interiors of this <code>Region</code>, if such exist. If no interior
 	 * is defined, the method returns <code>null</code>.
 	 * 
-	 * @return the immutable interior <code>LocationList</code> or 
-	 * 		<code>null</code> if it is undefined
+	 * @return a <code>List</code> the interior <code>LocationList</code>s or 
+	 * 		<code>null</code> if no interiors are defined
 	 */
-	public LocationList getInterior() {
-		// return Collections.unmodifiableList(interior); TODO uncomment
-		return interior;
+	public List<LocationList> getInteriors() {
+		return (interiors != null) ?
+				Collections.unmodifiableList(interiors) : null;
 	}
 	
 	/**
 	 * Returns an unmodifiable {@link java.util.List} view of the
 	 * internal <code>LocationList</code> of points that decribe the border
-	 * of this <code>Region</code>. Note that the <code>Location</code>s in the
-	 * list are also immutable.
+	 * of this <code>Region</code>.
 	 * 
 	 * @return the immutable border <code>LocationList</code>
 	 */
@@ -854,18 +907,21 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	private void writeObject(ObjectOutputStream os) throws IOException {
 		 os.writeObject(name);
 		 os.writeObject(border);
-		 os.writeObject(interior);
+		 os.writeObject(interiors);
 	}
 	 
-    private void readObject(ObjectInputStream is) throws IOException, 
+    @SuppressWarnings("unchecked")
+	private void readObject(ObjectInputStream is) throws IOException, 
      		ClassNotFoundException {
     	 name = (String)  is.readObject();
     	 border = (LocationList) is.readObject();
-    	 interior = (LocationList) is.readObject();
+    	 interiors = (ArrayList<LocationList>) is.readObject();
     	 area = createArea(border);
-    	 if (interior != null) {
-    		 Area intArea = createArea(interior);
-    		 area.subtract(intArea);
+    	 if (interiors != null) {
+    		 for (LocationList interior : interiors) {
+    			 Area intArea = createArea(interior);
+    			 area.subtract(intArea);
+    		 }
     	 }
     }
 

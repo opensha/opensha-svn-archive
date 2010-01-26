@@ -354,6 +354,7 @@ public class LocationList implements java.io.Serializable, XMLSaveable, Iterable
 	 * deep copy.
 	 * 
 	 * TODO should change to clone and implement cloneable?
+	 * MAKE CUSTOM CLONE THAT RETURNS LOCATIONLIST
 	 * Location should also implement clone that way when copying locations
 	 * value range checking won't be required as it is now when each new
 	 * Location is initialized
