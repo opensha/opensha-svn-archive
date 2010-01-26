@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.sha.gui;
+package org.opensha.sra.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -31,33 +31,31 @@ import java.awt.SystemColor;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JToolBar;
+import javax.swing.JTextArea;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 
-import org.jfree.data.Range;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
@@ -73,64 +71,43 @@ import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
 import org.opensha.sha.gui.beans.Site_GuiBean;
-import org.opensha.sha.gui.controls.PEER_TestCaseSelectorControlPanel;
-import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.controls.SetMinSourceSiteDistanceControlPanel;
 import org.opensha.sha.gui.controls.SetSiteParamsFromWebServicesControlPanel;
 import org.opensha.sha.gui.controls.SitesOfInterestControlPanel;
-import org.opensha.sha.gui.controls.XY_ValuesControlPanel;
-import org.opensha.sha.gui.controls.XY_ValuesControlPanelAPI;
-import org.opensha.sha.gui.infoTools.ButtonControlPanel;
-import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
+import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
-import org.opensha.sha.gui.infoTools.GraphPanel;
-import org.opensha.sha.gui.infoTools.GraphPanelAPI;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.IMT_Info;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
-import scratch.martinez.LossCurveCalculator;
-import scratch.martinez.VulnerabilityModels.VulnerabilityModel;
-import scratch.martinez.beans.GuiBeanAPI;
-import scratch.martinez.beans.VulnerabilityBean;
+import org.opensha.sra.calc.BenefitCostCalculator;
+import org.opensha.sra.calc.EALCalculator;
+import org.opensha.sra.vuln.AbstractVulnerability;
+import org.opensha.sra.gui.components.BenefitCostBean;
+import org.opensha.sra.gui.components.GuiBeanAPI;
 
 
 
 /**
- * <p>Title: HazardCurveServerModeApplication</p>
- * <p>Description: This application computes Hazard Curve for selected
- * AttenuationRelationship model , Site and Earthquake Rupture Forecast (ERF)model.
- * This computed Hazard curve is shown in a panel using JFreechart.
- * This application works with/without internet connection.  If user using this
- * application has network connection then it creates the instances of ERF on server
- * and make all calls to server for any forecast updation. All the computation
- * in this application is done using the server. Once the computations complete, it
- * returns back the result.
- * All the server client relationship has been established using RMI, which allows
- * to make simple calls to the server similar to if things are existing on user's
- * own machine.
- * If network connection is not available to user then it will create all the
- * objects on users local machine and do all computation there itself.</p>
+ * <p>Title: BCR_Application</p>
+ * <p>Description: </p>
  * @author Nitin Gupta and Vipin Gupta
- * Date : Sept 23 , 2002
+ * Date : Feb  , 2006
  * @version 1.0
  */
 
-public class LossEstimationApplication extends JFrame
-    implements Runnable,  ParameterChangeListener,
-    ButtonControlPanelAPI,GraphPanelAPI,GraphWindowAPI,XY_ValuesControlPanelAPI,
+public class BCR_Application extends JFrame
+    implements Runnable, ParameterChangeListener,
     IMR_GuiBeanAPI{
 
-  /**
+	private static final long serialVersionUID = 0x1B8589F;
+	/**
    * Name of the class
    */
-  private final static String C = "LossEstimationApplication";
-  // for debug purpose
+  private final static String C = "BCR_Application";
+  // for debug purpose 
   protected final static boolean D = false;
 
 
@@ -138,11 +115,9 @@ public class LossEstimationApplication extends JFrame
   /**
    *  The object class names for all the supported Eqk Rup Forecasts
    */
-  public final static String WGCEP_AVG_UCERF_2_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2";
   public final static String FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
   public final static String FRANKEL02_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
   public final static String WGCEP_UCERF1_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast";
-  public final static String WGCEP_UCERF_2_Final_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2";
   //public final static String STEP_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
   //public final static String STEP_ALASKA_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
   public final static String POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF";
@@ -153,83 +128,50 @@ public class LossEstimationApplication extends JFrame
 
 
 
- 
+
   // instances of the GUI Beans which will be shown in this applet
   protected ERF_GuiBean erfGuiBean;
   protected IMR_GuiBean imrGuiBean;
   protected Site_GuiBean siteGuiBean;
-  protected VulnerabilityBean vulnBean;
 
 
-
-  //instance for the ButtonControlPanel
-  ButtonControlPanel buttonControlPanel;
-
-  //instance of the GraphPanel (window that shows all the plots)
-  GraphPanel graphPanel;
-
-  //instance of the GraphWindow to pop up when the user wants to "Peel-Off" curves;
-  GraphWindow graphWindow;
-
-  //X and Y Axis  when plotting tha Curves Name
-  protected String xAxisName;
-  protected String yAxisName;
+  private JLabel openshaImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("logos/PoweredByOpenSHA_Agua.jpg")));
+  private JLabel usgsImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("logos/usgs_resrisk.gif")));
+  private JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("logos/AgoraOpenRisk.jpg")));
 
 
   // Strings for control pick list
   protected final static String CONTROL_PANELS = "Control Panels";
-
-  protected final static String DISTANCE_CONTROL = "Max Source-Site Distance";
+    protected final static String DISTANCE_CONTROL = "Max Source-Site Distance";
   protected final static String SITES_OF_INTEREST_CONTROL = "Sites of Interest";
   protected final static String CVM_CONTROL = "Set Site Params from Web Services";
 
-  protected final static String XY_Values_Control = "Set external XY dataset";
- 
 
   // objects for control panels
-  protected PEER_TestCaseSelectorControlPanel peerTestsControlPanel;
+
   protected SetMinSourceSiteDistanceControlPanel distanceControlPanel;
   protected SitesOfInterestControlPanel sitesOfInterest;
   protected SetSiteParamsFromWebServicesControlPanel cvmControlPanel;
-
-  protected XY_ValuesControlPanel xyPlotControl;
-
-
+  
   private Insets plotInsets = new Insets( 4, 10, 4, 4 );
 
   private Border border1;
 
 
-  //log flags declaration
-  private boolean xLog =false;
-  private boolean yLog =false;
 
   // default insets
   protected Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
   // height and width of the applet
   protected final static int W = 1100;
-  protected final static int H = 820;
-
-  /**
-   * List of ArbitrarilyDiscretized functions and Weighted funstions
-   */
-  protected ArrayList functionList = new ArrayList();
+  protected final static int H = 770;
 
 
-  /**
-   * these four values save the custom axis scale specified by user
-   */
-  private double minXValue;
-  private double maxXValue;
-  private  double minYValue;
-  private double maxYValue;
-  private boolean customAxis = false;
+  //holds the ArbitrarilyDiscretizedFunc
+  protected ArbitrarilyDiscretizedFunc function;
 
 
-
-  // PEER Test Cases
-  protected String TITLE = new String("Loss Curves");
+  protected String TITLE = new String("BCR Calculator");
 
 
   private JPanel jPanel1 = new JPanel();
@@ -245,12 +187,6 @@ public class LossEstimationApplication extends JFrame
 
 
 
-  private JLabel openshaImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("logos/PoweredByOpenSHA_Agua.jpg")));
-  private JLabel usgsImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("logos/usgs_resrisk.gif")));
-  private JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("logos/AgoraOpenRisk.jpg")));
-
-  //static string for the OPENSHA website
-  private final static String OPENSHA_WEBSITE="http://www.OpenSHA.org";
 
   JSplitPane topSplitPane = new JSplitPane();
   JButton clearButton = new JButton();
@@ -260,16 +196,27 @@ public class LossEstimationApplication extends JFrame
   JComboBox controlComboBox = new JComboBox();
   JSplitPane chartSplit = new JSplitPane();
   JPanel panel = new JPanel();
+  /**
+   * adding scroll pane for showing data
+   */
+  private JScrollPane dataScrollPane = new JScrollPane();
+
+  // text area to show the data values
+  private JTextArea pointsTextArea = new JTextArea();
+  
+  
   GridBagLayout gridBagLayout9 = new GridBagLayout();
   GridBagLayout gridBagLayout8 = new GridBagLayout();
   JSplitPane imrSplitPane = new JSplitPane();
   GridBagLayout gridBagLayout5 = new GridBagLayout();
 
-  JPanel sitePanel = new JPanel();
-  JPanel vulPanel = new JPanel();
+  JPanel erfTimespanPanel = new JPanel();
+  JPanel siteLocPanel = new JPanel();
   JSplitPane controlsSplit = new JSplitPane();
   JTabbedPane paramsTabbedPane = new JTabbedPane();
-  JPanel erfPanel = new JPanel();
+  JPanel structuralPanel = new JPanel();
+  private BenefitCostBean bcbean ;
+  private JPanel bcPanel;
   GridBagLayout gridBagLayout15 = new GridBagLayout();
   GridBagLayout gridBagLayout13 = new GridBagLayout();
   GridBagLayout gridBagLayout12 = new GridBagLayout();
@@ -279,35 +226,25 @@ public class LossEstimationApplication extends JFrame
 
   //instances of various calculators
   HazardCurveCalculatorAPI calc;
+
   CalcProgressBar progressClass;
+  
+  
+
   protected CalcProgressBar startAppProgressClass;
   //timer threads to show the progress of calculations
   Timer timer;
-   //calculation thead
+
+  //calculation thead
   Thread calcThread;
   //checks to see if HazardCurveCalculations are done
   boolean isHazardCalcDone= false;
-  private JButton peelOffButton = new JButton();
-  JMenuBar menuBar = new JMenuBar();
-  JMenu fileMenu = new JMenu();
-
-  JMenuItem fileExitMenu = new JMenuItem();
-  JMenuItem fileSaveMenu = new JMenuItem();
-  JMenuItem filePrintMenu = new JCheckBoxMenuItem();
-  JToolBar jToolBar = new JToolBar();
-
-  JButton closeButton = new JButton();
-  ImageIcon closeFileImage = new ImageIcon(ImageUtils.loadImage("icons/closeFile.png"));
-
-  JButton printButton = new JButton();
-  ImageIcon printFileImage = new ImageIcon(ImageUtils.loadImage("icons/printFile.jpg"));
-
-  JButton saveButton = new JButton();
-  ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("icons/saveFile.jpg"));
-
-
-
-
+ 
+  //counts the number of computation done till now
+  private int computationDisplayCount =0;
+  
+  private DecimalFormat bcrFormat = new DecimalFormat("0.00");
+ 
   /**this boolean keeps track when to plot the new data on top of other and when to
   *add to the existing data.
   * If it is true then add new data on top of existing data, but if it is false
@@ -317,15 +254,12 @@ public class LossEstimationApplication extends JFrame
   protected JButton cancelCalcButton = new JButton();
   private FlowLayout flowLayout1 = new FlowLayout();
 
-  protected final static String version = "0.0.12";
-
-  protected final static String versionURL = "http://www.opensha.org/applications/hazCurvApp/HazardCurveApp_Version.txt";
-  protected final static String appURL = "http://www.opensha.org/applications/hazCurvApp/HazardCurveServerModeApp.jar";
-  protected final static String versionUpdateInfoURL = "http://www.opensha.org/applications/hazCurvApp/versionUpdate.html";
 
 
+  //Construct the applet
+  public BCR_Application() {
 
-
+  }
   //Initialize the applet
   public void init() {
     try {
@@ -335,12 +269,10 @@ public class LossEstimationApplication extends JFrame
       // initialize the GUI components
       startAppProgressClass = new CalcProgressBar("Starting Application", "Initializing Application .. Please Wait");
       jbInit();
-      
-      
-      // initialize the various GUI beans
-      initVulnerabilityGuiBean();
+//    initialize the various GUI beans
+      initBenefitCostBean();
       initIMR_GuiBean();
-      this.initSiteGuiBean();
+      initSiteGuiBean();
       try{
         initERF_GuiBean();
       }catch(RuntimeException e){
@@ -352,11 +284,7 @@ public class LossEstimationApplication extends JFrame
       }
     }
     catch(Exception e) {
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e,"Exception occured while creating the GUI.\n"+
-          "No Parameters have been set");
-      bugWindow.setVisible(true);
-      bugWindow.pack();
-      //e.printStackTrace();
+     e.printStackTrace();
     }
     startAppProgressClass.dispose();
     ((JPanel)getContentPane()).updateUI();
@@ -375,74 +303,9 @@ public class LossEstimationApplication extends JFrame
 
     this.getContentPane().setLayout(borderLayout1);
 
-
-
-    fileMenu.setText("File");
-    fileExitMenu.setText("Exit");
-    fileSaveMenu.setText("Save");
-    filePrintMenu.setText("Print");
-
-    fileExitMenu.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        fileExitMenu_actionPerformed(e);
-      }
-    });
-
-    fileSaveMenu.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        fileSaveMenu_actionPerformed(e);
-      }
-    });
-
-    filePrintMenu.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        filePrintMenu_actionPerformed(e);
-      }
-    });
-
-    closeButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent actionEvent) {
-        closeButton_actionPerformed(actionEvent);
-      }
-    });
-    printButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent actionEvent) {
-        printButton_actionPerformed(actionEvent);
-      }
-    });
-    saveButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent actionEvent) {
-        saveButton_actionPerformed(actionEvent);
-      }
-    });
-
-
-    menuBar.add(fileMenu);
-    fileMenu.add(fileSaveMenu);
-    fileMenu.add(filePrintMenu);
-    fileMenu.add(fileExitMenu);
-
-    setJMenuBar(menuBar);
-    closeButton.setIcon(closeFileImage);
-    closeButton.setToolTipText("Exit Application");
-    Dimension d = closeButton.getSize();
-    jToolBar.add(closeButton);
-    printButton.setIcon(printFileImage);
-    printButton.setToolTipText("Print Graph");
-    printButton.setSize(d);
-    jToolBar.add(printButton);
-    saveButton.setIcon(saveFileImage);
-    saveButton.setToolTipText("Save Graph as image");
-    saveButton.setSize(d);
-    jToolBar.add(saveButton);
-    jToolBar.setFloatable(false);
-
-    this.getContentPane().add(jToolBar, BorderLayout.NORTH);
-
+    
     jPanel1.setLayout(gridBagLayout10);
 
-    //creating the Object the GraphPaenl class
-    graphPanel = new GraphPanel(this);
 
     jPanel1.setBackground(Color.white);
     jPanel1.setBorder(border4);
@@ -453,7 +316,7 @@ public class LossEstimationApplication extends JFrame
 
     topSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 
-    clearButton.setText("Clear Plot");
+    clearButton.setText("Clear Results");
     clearButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         clearButton_actionPerformed(e);
@@ -485,39 +348,31 @@ public class LossEstimationApplication extends JFrame
     panel.setBorder(border5);
     panel.setMinimumSize(new Dimension(0, 0));
     imrSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    imrSplitPane.setBottomComponent(imrPanel);
-    imrSplitPane.setTopComponent(vulPanel);
-
-    sitePanel.setLayout(gridBagLayout13);
-    sitePanel.setBackground(Color.white);
-    vulPanel.setLayout(gridBagLayout8);
-    vulPanel.setBackground(Color.white);
+    
+    dataScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    dataScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+    dataScrollPane.setBorder( BorderFactory.createEtchedBorder() );
+    dataScrollPane.getViewport().add( pointsTextArea, null );
+    pointsTextArea.setEditable(false);
+    pointsTextArea.setLineWrap(true);
+    panel.add(dataScrollPane,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+            , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
+    erfTimespanPanel.setLayout(gridBagLayout13);
+    erfTimespanPanel.setBackground(Color.white);
+    siteLocPanel.setLayout(gridBagLayout8);
+    siteLocPanel.setBackground(Color.white);
     controlsSplit.setDividerSize(5);
-    erfPanel.setLayout(gridBagLayout5);
-    erfPanel.setBackground(Color.white);
-    erfPanel.setBorder(border2);
-    erfPanel.setMaximumSize(new Dimension(2147483647, 10000));
-    erfPanel.setMinimumSize(new Dimension(2, 300));
-    erfPanel.setPreferredSize(new Dimension(2, 300));
+    structuralPanel.setLayout(gridBagLayout5);
+    structuralPanel.setBackground(Color.white);
+    structuralPanel.setBorder(border2);
+    structuralPanel.setMaximumSize(new Dimension(2147483647, 10000));
+    structuralPanel.setMinimumSize(new Dimension(2, 300));
+    structuralPanel.setPreferredSize(new Dimension(2, 300));
     imrPanel.setLayout(gridBagLayout15);
     imrPanel.setBackground(Color.white);
     chartSplit.setLeftComponent(panel);
     chartSplit.setRightComponent(paramsTabbedPane);
 
- 
-    peelOffButton.setText("Peel Off");
-    peelOffButton.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        peelOffButton_actionPerformed(e);
-      }
-    });
-
-
-    /*imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-      public void mouseClicked(MouseEvent e) {
-        imgLabel_mouseClicked(e);
-      }
-    });*/
     cancelCalcButton.setText("Cancel");
     cancelCalcButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -527,55 +382,52 @@ public class LossEstimationApplication extends JFrame
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
     jPanel1.add(topSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(11, 4, 5, 6), 243, 231));
-
-    //object for the ButtonControl Panel
-    buttonControlPanel = new ButtonControlPanel(this);
-
-
+    
     buttonPanel.add(controlComboBox, 0);
     buttonPanel.add(addButton, 1);
     buttonPanel.add(cancelCalcButton, 2);
     buttonPanel.add(clearButton, 3);
-    buttonPanel.add(peelOffButton, 4);
-    buttonPanel.add(progressCheckBox, 5);
-    buttonPanel.add(buttonControlPanel, 6);
-    buttonPanel.add(usgsImgLabel, 7);
-    buttonPanel.add(openshaImgLabel, 8);
-    buttonPanel.add(riskAgoraImgLabel,9);
-      //making the cancel button not visible until user has started to do the calculation
+    buttonPanel.add(progressCheckBox, 4);
+    buttonPanel.add(usgsImgLabel, 5);
+    buttonPanel.add(openshaImgLabel, 6);
+    buttonPanel.add(riskAgoraImgLabel,7);
+    
+
+    //making the cancel button not visible until user has started to do the calculation
     cancelCalcButton.setVisible(false);
 
     topSplitPane.add(chartSplit, JSplitPane.TOP);
     chartSplit.add(panel, JSplitPane.LEFT);
     chartSplit.add(paramsTabbedPane, JSplitPane.RIGHT);
-    imrSplitPane.add(vulPanel, JSplitPane.TOP);
-    imrSplitPane.add(imrPanel, JSplitPane.BOTTOM);
+    imrSplitPane.add(imrPanel, JSplitPane.TOP);
+    imrSplitPane.add(siteLocPanel, JSplitPane.BOTTOM);
     controlsSplit.add(imrSplitPane, JSplitPane.LEFT);
-    paramsTabbedPane.add(controlsSplit, "Vulnerabilty,IMR & Site");
-    controlsSplit.add(sitePanel, JSplitPane.RIGHT);
-    paramsTabbedPane.add(erfPanel, "ERF & Time Span");
+    controlsSplit.add(erfTimespanPanel, JSplitPane.RIGHT);
+    paramsTabbedPane.add(structuralPanel, "Set Structural Type");
+    
+    paramsTabbedPane.add(controlsSplit, "Set Hazard Curve");
     topSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
     topSplitPane.setDividerLocation(590);
-    imrSplitPane.setDividerLocation(100);
+    imrSplitPane.setDividerLocation(300);
 
     controlsSplit.setDividerLocation(230);
-    erfPanel.setLayout(gridBagLayout5);
-    erfPanel.validate();
-    erfPanel.repaint();
+    structuralPanel.setLayout(gridBagLayout5);
     chartSplit.setDividerLocation(590);
     this.setSize(W,H);
     Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
     this.setLocation((dim.width - this.getSize().width) / 2, 0);
     //EXIT_ON_CLOSE == 3
     this.setDefaultCloseOperation(3);
-    this.setTitle("Loss Estimation Curve Application ");
+    this.setTitle("BCR Application ");
 
   }
 
+
+
 	  //Main method
 	  public static void main(String[] args) {
-	    LossEstimationApplication applet = new LossEstimationApplication();
-	  
+	    BCR_Application applet = new BCR_Application();
+	    
 	    applet.init();
 	    applet.setVisible(true);
 	  }
@@ -590,36 +442,14 @@ public class LossEstimationApplication extends JFrame
 	    }
 	  }
 
-  /**
-   *  Adds a feature to the GraphPanel attribute of the EqkForecastApplet object
-   */
-  private void addGraphPanel() {
-
-      // Starting
-      String S = C + ": addGraphPanel(): ";
-      graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,TITLE,buttonControlPanel);
-      togglePlot();
-      //this.isIndividualCurves = false;
-   }
-
-   //checks if the user has plot the data window or plot window
-   public void togglePlot(){
-     panel.removeAll();
-     graphPanel.togglePlot(buttonControlPanel);
-     panel.add(graphPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-            , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-     panel.validate();
-     panel.repaint();
-   }
-
+ 
     /**
      * this function is called when Add Graph button is clicked
      * @param e
      */
     void addButton_actionPerformed(ActionEvent e) {
- 
+        cancelCalcButton.setVisible(true);
         addButton();
-
     }
 
 
@@ -636,7 +466,7 @@ public class LossEstimationApplication extends JFrame
         calcThread = null;
       }catch(Exception e){
         e.printStackTrace();
-        ExceptionWindow bugWindow = new ExceptionWindow(this,e,getParametersInfoAsString());
+        ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
         bugWindow.setVisible(true);
         bugWindow.pack();
       }
@@ -650,16 +480,14 @@ public class LossEstimationApplication extends JFrame
      * calculations are performed on the user's own machine.
      */
     protected void createCalcInstance(){
-        try {
+      try{
           calc = new HazardCurveCalculator();
         }
         catch (Exception ex) {
-          ExceptionWindow bugWindow = new ExceptionWindow(this,
-              ex, this.getParametersInfoAsString());
-          bugWindow.setVisible(true);
-          bugWindow.pack();
+          ex.printStackTrace();
         }
-     }
+      }
+ 
 
     /**
      * this function is called to draw the graph
@@ -674,7 +502,7 @@ public class LossEstimationApplication extends JFrame
           createCalcInstance();
       }catch(Exception e){
         setButtonsEnable(true);
-        ExceptionWindow bugWindow = new ExceptionWindow(this,e,getParametersInfoAsString());
+        ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
         bugWindow.setVisible(true);
         bugWindow.pack();
         e.printStackTrace();
@@ -697,26 +525,21 @@ public class LossEstimationApplication extends JFrame
                 }
                 if(!isHazardCalcDone && totCurCalculated)
                   progressClass.updateProgress(currRupture, totRupture);
+             
               
               if (isHazardCalcDone) {
                 timer.stop();
                 progressClass.dispose();
-                drawGraph();
               }
             }catch(Exception e){
-              //e.printStackTrace();
-              timer.stop();
-              setButtonsEnable(true);
-              ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e,getParametersInfoAsString());
-              bugWindow.setVisible(true);
-              bugWindow.pack();
+              e.printStackTrace();
             }
-          }
-        });
-       }
+           }
+          });
+        }
+
       else {
         this.computeHazardCurve();
-        this.drawGraph();
       }
     }
 
@@ -729,23 +552,7 @@ public class LossEstimationApplication extends JFrame
       return this;
     }
 
-    /**
-     * to draw the graph
-     */
-    protected void drawGraph() {
-      // you can show warning messages now
-     imrGuiBean.showWarningMessages(true);
-     addGraphPanel();
-    
-    }
 
-    /**
-     * plots the curves with defined color,line width and shape.
-     *
-     */
-    public void plotGraphUsingPlotPreferences(){
-      drawGraph();
-    }
 
 
   /**
@@ -754,66 +561,11 @@ public class LossEstimationApplication extends JFrame
    * @param e
    */
   void clearButton_actionPerformed(ActionEvent e) {
-    clearPlot(true);
+	  this.pointsTextArea.setText("");
+	  computationDisplayCount = 0;
   }
 
-  /**
-   *  Clears the plot screen of all traces
-   */
-  private void clearPlot(boolean clearFunctions) {
-
-    if ( D )
-      System.out.println( "Clearing plot area" );
-
-    int loc = this.chartSplit.getDividerLocation();
-    int newLoc = loc;
-
-    if( clearFunctions){
-      graphPanel.removeChartAndMetadata();
-      panel.removeAll();
-      functionList.clear();
-    }
-    customAxis = false;
-    chartSplit.setDividerLocation( newLoc );
-  }
-
-  /**
-   * sets the range for X and Y axis
-   * @param xMin : minimum value for X-axis
-   * @param xMax : maximum value for X-axis
-   * @param yMin : minimum value for Y-axis
-   * @param yMax : maximum value for Y-axis
-   *
-   */
-  public void setAxisRange(double xMin,double xMax, double yMin, double yMax) {
-    minXValue=xMin;
-    maxXValue=xMax;
-    minYValue=yMin;
-    maxYValue=yMax;
-    this.customAxis=true;
-    drawGraph();
-
-  }
-
-  /**
-   * set the auto range for the axis. This function is called
-   * from the AxisLimitControlPanel
-   */
-  public void setAutoRange() {
-    this.customAxis=false;
-    drawGraph();
-  }
-
-  /*void imgLabel_mouseClicked(MouseEvent e) {
-    try{
-      this.getAppletContext().showDocument(new URL(OPENSHA_WEBSITE), "new_peer_win");
-    }catch(java.net.MalformedURLException ee){
-      JOptionPane.showMessageDialog(this,new String("No Internet Connection Available"),
-                                    "Error Connecting to Internet",JOptionPane.OK_OPTION);
-      return;
-    }
-  }*/
-
+ 
 
   /**
    *  Any time a control paramater or independent paramater is changed
@@ -826,30 +578,38 @@ public class LossEstimationApplication extends JFrame
    */
   public void parameterChange( ParameterChangeEvent event ) {
 
-	    String S = C + ": parameterChange(): ";
-	    if ( D )  System.out.println( "\n" + S + "starting: " );
+    String S = C + ": parameterChange(): ";
+    if ( D )  System.out.println( "\n" + S + "starting: " );
 
-	    String name1 = event.getParameterName();
+    String name1 = event.getParameterName();
 
-	    // if IMR selection changed, update the site parameter list and supported IMT
-	    if ( name1.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
-	      ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
-	      siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
-	      siteGuiBean.validate();
-	      siteGuiBean.repaint();
-	      }
-	    if(name1.equalsIgnoreCase(vulnBean.getParameter().getName())){
-	     	VulnerabilityModel currentModel = vulnBean.getCurrentModel();
-	        String currentIMT = currentModel.getIMT();
-	        double currentPeriod = 0;
-	        if(currentIMT.equals(SA_Param.NAME))
-	        	currentPeriod = currentModel.getPeriod();
-	    	imrGuiBean.setIMRParamListAndEditor(currentIMT, currentIMT, currentPeriod, currentPeriod);
-	    	ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
-	    	siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
-	        siteGuiBean.validate();
-	        siteGuiBean.repaint();
-	    } 
+    // if IMR selection changed, update the site parameter list and supported IMT
+    if ( name1.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
+      ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+      siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
+      siteGuiBean.validate();
+      siteGuiBean.repaint();
+      }
+    if(name1.equalsIgnoreCase(bcbean.getCurrentVulnParam().getName())){
+     	AbstractVulnerability currentModel = bcbean.getVulnModel(bcbean.CURRENT);
+        String currentIMT = currentModel.getIMT();
+        double currentPeriod = 0;
+        if(currentIMT.equals(SA_Param.NAME))
+        	currentPeriod = currentModel.getPeriod();
+        
+        
+        AbstractVulnerability newModel = bcbean.getVulnModel(bcbean.RETRO);
+        String newIMT = newModel.getIMT();
+        double newPeriod = 0;
+        if(newIMT.equals(SA_Param.NAME))
+        	newPeriod = newModel.getPeriod();
+        
+    	imrGuiBean.setIMRParamListAndEditor(currentIMT, newIMT, currentPeriod, newPeriod);
+    	ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+    	siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
+        siteGuiBean.validate();
+        siteGuiBean.repaint();
+    }
   }
 
 
@@ -863,8 +623,7 @@ public class LossEstimationApplication extends JFrame
   protected void setButtonsEnable(boolean b){
     addButton.setEnabled(b);
     clearButton.setEnabled(b);
-    peelOffButton.setEnabled(b);
-    buttonControlPanel.setEnabled(b);
+    
     progressCheckBox.setEnabled(b);
   }
 
@@ -904,19 +663,36 @@ public class LossEstimationApplication extends JFrame
       timer.start();
     }
 
-    VulnerabilityModel currentModel = this.vulnBean.getCurrentModel();
+    AbstractVulnerability currentModel = bcbean.getVulnModel(bcbean.CURRENT);
     String currentIMT = currentModel.getIMT();
     double currentPeriod = 0;
     if(currentIMT.equals(SA_Param.NAME))
     	currentPeriod = currentModel.getPeriod();
     ArrayList<Double> currentIMLs = currentModel.getIMLVals();
     
+    AbstractVulnerability newModel = bcbean.getVulnModel(bcbean.RETRO);
+    String newIMT = newModel.getIMT();
+    double newPeriod = 0;
+    if(newIMT.equals(SA_Param.NAME))
+    	newPeriod = newModel.getPeriod();
+    ArrayList<Double> newIMLs = newModel.getIMLVals();
     
     // get the selected IMR
     ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 
     // make a site object to pass to IMR
     Site site = siteGuiBean.getSite();
+    LocationList locs = new LocationList();
+    Location loc = site.getLocation();
+    locs.addLocation(loc);
+//  getting the wills site class values from servlet
+    String siteClass="";
+    try {
+		ArrayList willsSiteClassList = ConnectToCVM.getWillsSiteTypeFromCVM(locs);
+		siteClass = (String)willsSiteClassList.get(0);
+	} catch (Exception e1) {
+		e1.printStackTrace();
+	}
 
      // calculate the hazard curve
     try {
@@ -925,7 +701,7 @@ public class LossEstimationApplication extends JFrame
     }
     catch (Exception e) {
       setButtonsEnable(true);
-      ExceptionWindow bugWindow = new ExceptionWindow(this, e,
+      ExceptionWindow bugWindow = new ExceptionWindow(this, e.getStackTrace(),
           getParametersInfoAsString());
       bugWindow.setVisible(true);
       bugWindow.pack();
@@ -933,41 +709,56 @@ public class LossEstimationApplication extends JFrame
     }
    
     ArbitrarilyDiscretizedFunc currentHazardCurve = calcHazardCurve(currentIMT,currentPeriod,currentIMLs,site,forecast,imr);
-    /*ArbitrarilyDiscretizedFunc currentAnnualizedRates= null;
+    ArbitrarilyDiscretizedFunc currentAnnualizedRates= null;
     try {
 		currentAnnualizedRates = 
 			(ArbitrarilyDiscretizedFunc)calc.getAnnualizedRates(currentHazardCurve, 
 					forecast.getTimeSpan().getDuration());
-		getAnnualizedPE(currentAnnualizedRates);
 	} catch (RemoteException e) {
-		e.printStackTrace();
-	}*/
-	LossCurveCalculator lCalc = new LossCurveCalculator();
-	ArbitrarilyDiscretizedFunc lossFunc = lCalc.getLossCurve(currentHazardCurve, vulnBean.getCurrentModel());
-	lossFunc.setInfo(this.getParametersInfoAsString());
-	lossFunc.setName(vulnBean.getCurrentModel().getDisplayName());
-	 // set the X-axis label
-    String imt = currentIMT;
-    xAxisName = "Fractional Loss";
-    yAxisName = "Prob. of Exceed.";
-
-	this.functionList.add(lossFunc);
+		
+	}
+    
+    ArbitrarilyDiscretizedFunc retroHazardCurve = calcHazardCurve(newIMT,newPeriod,newIMLs,site,forecast,imr);
+    ArbitrarilyDiscretizedFunc retroAnnualizedRates = null;
+    try {
+    	retroAnnualizedRates = 
+			(ArbitrarilyDiscretizedFunc)calc.getAnnualizedRates(retroHazardCurve, 
+					forecast.getTimeSpan().getDuration());
+	} catch (RemoteException e) {
+		
+	}
+    
+    EALCalculator currentCalc = new EALCalculator(currentAnnualizedRates,currentModel.getDFVals(),
+    		bcbean.getCurrentReplaceCost());
+    double currentEALVal = currentCalc.computeEAL();
+    EALCalculator retroCalc = new EALCalculator(retroAnnualizedRates,newModel.getDFVals(),bcbean.getRetroReplaceCost());
+    double newEALVal = retroCalc.computeEAL();
+    
+    BenefitCostCalculator bcCalc = new BenefitCostCalculator(currentEALVal,newEALVal,bcbean.getDiscountRate(),
+    		bcbean.getDesignLife(),bcbean.getRetroCost());
+    double bcr = bcCalc.computeBCR();
+    double benefit = bcCalc.computeBenefit();
+    double cost = bcCalc.computeCost();
     isHazardCalcDone = true;
+    displayData(siteClass,currentHazardCurve,retroHazardCurve,currentEALVal,newEALVal,bcr,benefit,cost);
     setButtonsEnable(true);
-
   }
-
-  /**
-   * Converts the Annualized Rate into Annualized Prob. exceed
-   * @param function
-   */
-  private void getAnnualizedPE(ArbitrarilyDiscretizedFunc function){
-	  int num = function.getNum();
-	  for(int i=0;i<num;++i){
-		  double rate = function.getY(i);
-		  double pe = 1-Math.exp(-1*rate);
-		  function.set(i,pe);
-	  }
+  
+  
+  private void displayData(String siteClass,ArbitrarilyDiscretizedFunc currentHazardCurve,ArbitrarilyDiscretizedFunc retroHazardCurve,
+		  double currentEALVal,double newEALVal,double bcr,double benefit,double cost){
+	  ++computationDisplayCount;
+	  String data = pointsTextArea.getText();
+	  if(computationDisplayCount !=1)
+		  data +="\n\n";
+	  data +="Benefit Cost Ratio Calculation # "+computationDisplayCount+"\n";
+	  data +="BCR Desc. = "+bcbean.getDescription()+"\n";
+	  data +="Site Class = "+siteClass+"\n";
+	  data +="Current EAL Val = "+currentEALVal+"\nRetrofitted EAL Val = "+newEALVal+"\n";
+	  data +="Benefit = $"+bcrFormat.format(benefit)+"\nBenefit Cost Ratio = "+bcr+"\n";
+	  data +="Curent Hazard Curve"+"\n"+currentHazardCurve.toString();
+	  data +="Retrofitted Hazard Curve"+"\n"+retroHazardCurve.toString()+"\n\n";
+	  pointsTextArea.setText(data);
   }
   
   private ArbitrarilyDiscretizedFunc calcHazardCurve(String imt, double period, ArrayList<Double> imls,
@@ -1006,6 +797,7 @@ public class LossEstimationApplication extends JFrame
 	    return hazFunction;
   }
 
+  
   /**
    * set x values in log space for Hazard Function to be passed to IMR
    * if the selected IMT are SA , PGA , PGV or FaultDispl
@@ -1027,78 +819,47 @@ public class LossEstimationApplication extends JFrame
   }  
   
   /**
-   * set x values back from the log space to the original linear values
-   * for Hazard Function after completion of the Hazard Calculations
-   * if the selected IMT are SA , PGA or PGV
-   * It accepts 1 parameters
-   *
-   * @param hazFunction :  this is the function with X values set
+   * Initialize the IMR Gui Bean
    */
-  private ArbitrarilyDiscretizedFunc toggleHazFuncLogValues(ArbitrarilyDiscretizedFunc hazFunc,ArrayList<Double> imls){
-    int numPoints = hazFunc.getNum();
-    DiscretizedFuncAPI tempFunc = hazFunc.deepClone();
-    hazFunc = new ArbitrarilyDiscretizedFunc();
-    // take log only if it is PGA, PGV ,SA or FaultDispl
-    for(int i=0;i<tempFunc.getNum();++i)
-    	hazFunc.set(imls.get(i),tempFunc.getY(i));
+  protected void initIMR_GuiBean() {
+
+	AbstractVulnerability currentModel = bcbean.getVulnModel(bcbean.CURRENT);
+    String currentIMT = currentModel.getIMT();
+    double currentPeriod = 0;
+    if(currentIMT.equals(SA_Param.NAME))
+    	currentPeriod = currentModel.getPeriod();
     
-	return hazFunc;
-  }
-
-
-
-    /**
-     * Initialize the IMR Gui Bean
-     */
-    protected void initIMR_GuiBean() {
-
-  	VulnerabilityModel currentModel = vulnBean.getCurrentModel();
-      String currentIMT = currentModel.getIMT();
-      double currentPeriod = 0;
-      if(currentIMT.equals(SA_Param.NAME))
-      	currentPeriod = currentModel.getPeriod();
-      
-       imrPanel.removeAll();
-       imrGuiBean = new IMR_GuiBean(this,currentIMT,currentIMT,currentPeriod,currentPeriod);
-       imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
-       // show this gui bean the JPanel
-       imrPanel.add(this.imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-           GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-       imrPanel.updateUI();
-    }
-
-  /**
-   * Initialize the Vulnerability Gui Bean
-   */
-  private void initVulnerabilityGuiBean() {
-
-     // create the Vulnerability Gui Bean object
-     vulnBean = new VulnerabilityBean();
-     vulnBean.getParameter().addParameterChangeListener(this);
-     vulPanel.setLayout(gridBagLayout8);
-     vulPanel.add((Component) vulnBean.getVisualization(GuiBeanAPI.APPLICATION),
-    		 new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
-                                                     GridBagConstraints.CENTER,
-                                                     GridBagConstraints.BOTH,
-                                                     defaultInsets, 0, 0));
-     vulPanel.updateUI();
-
+    
+    AbstractVulnerability newModel = bcbean.getVulnModel(bcbean.RETRO);
+    String newIMT = newModel.getIMT();
+    double newPeriod = 0;
+    if(newIMT.equals(SA_Param.NAME))
+    	newPeriod = newModel.getPeriod();
+    imrPanel.removeAll();
+     imrGuiBean = new IMR_GuiBean(this,currentIMT,newIMT,currentPeriod,newPeriod);
+     imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
+     // show this gui bean the JPanel
+     imrPanel.add(this.imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+     imrPanel.updateUI();
   }
 
   /**
    * Initialize the site gui bean
    */
-  protected void initSiteGuiBean() {
+  private void initSiteGuiBean() {
 
      // get the selected IMR
      ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
-     // create the Site Gui Bean object
+     // create the IMT Gui Bean object
      siteGuiBean = new Site_GuiBean();
      siteGuiBean.addSiteParams(imr.getSiteParamsIterator());
-     // show the sitebean in JPanel
-     sitePanel.add(this.siteGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
-         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0));
-     sitePanel.updateUI();
+     siteLocPanel.setLayout(gridBagLayout8);
+     siteLocPanel.add(siteGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
+                                                     GridBagConstraints.CENTER,
+                                                     GridBagConstraints.BOTH,
+                                                     defaultInsets, 0, 0));
+     siteLocPanel.updateUI();
 
   }
 
@@ -1115,10 +876,8 @@ public class LossEstimationApplication extends JFrame
         //adding the RMI based ERF's to the application
         //adding the client based ERF's to the application
         erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
-        erf_Classes.add(WGCEP_AVG_UCERF_2_CLASS_NAME);
         erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
-        erf_Classes.add(WGCEP_UCERF1_CLASS_NAME);
-        erf_Classes.add(WGCEP_UCERF_2_Final_CLASS_NAME);
+        erf_Classes.add(WGCEP_UCERF1_CLASS_NAME);        
         erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
         erf_Classes.add(SIMPLE_FAULT_ERF_CLASS_NAME);
         erf_Classes.add(POINT_SRC_FORECAST_CLASS_NAME);
@@ -1133,14 +892,28 @@ public class LossEstimationApplication extends JFrame
         //throw new RuntimeException("Connection to ERF's failed");
       }
     }
-    erfPanel.add(this.erfGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
+    erfTimespanPanel.add(this.erfGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
             GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0));
-    erfPanel.updateUI();
+    erfTimespanPanel.updateUI();
   }
 
 
-
-
+  /**
+   * Initialize the Benefit cost GUI bean
+   *
+   */
+  protected void initBenefitCostBean(){
+//	creates the instance of the BenefitCost bean
+	 bcbean = new BenefitCostBean();
+	 bcPanel = (JPanel) bcbean.getVisualization(GuiBeanAPI.APPLICATION);
+	 bcbean.getRetroVulnParam().addParameterChangeListener(this);
+	 bcbean.getCurrentVulnParam().addParameterChangeListener(this);	  
+	 structuralPanel.add(bcPanel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+	            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+	 structuralPanel.validate();
+	 structuralPanel.repaint();
+  }
+  
 
 
   /**
@@ -1148,10 +921,10 @@ public class LossEstimationApplication extends JFrame
    */
   protected void initControlList() {
     controlComboBox.addItem(CONTROL_PANELS);
+    
     controlComboBox.addItem(DISTANCE_CONTROL);
     controlComboBox.addItem(SITES_OF_INTEREST_CONTROL);
     controlComboBox.addItem(CVM_CONTROL);
-    controlComboBox.addItem(XY_Values_Control);
   }
 
   /**
@@ -1161,43 +934,22 @@ public class LossEstimationApplication extends JFrame
   void controlComboBox_actionPerformed(ActionEvent e) {
     if(controlComboBox.getItemCount()<=0) return;
     String selectedControl = controlComboBox.getSelectedItem().toString();
+   
     if(selectedControl.equalsIgnoreCase(this.DISTANCE_CONTROL))
       initDistanceControl();
     else if(selectedControl.equalsIgnoreCase(this.SITES_OF_INTEREST_CONTROL))
       initSitesOfInterestControl();
     else if(selectedControl.equalsIgnoreCase(this.CVM_CONTROL))
       initCVMControl();
-
-    else if(selectedControl.equalsIgnoreCase(XY_Values_Control))
-      this.initXYPlotSelectionControl();
-
+    
     controlComboBox.setSelectedItem(this.CONTROL_PANELS);
   }
 
 
 
 
-  /*
-   * This function allows user to specify the XY values to be added to the existing
-   * plot.
-   */
-  private void initXYPlotSelectionControl(){
-    if(xyPlotControl==null){
-      xyPlotControl = new XY_ValuesControlPanel(this,this);
-    }
-    xyPlotControl.setVisible(true);
-  }
 
-  /**
-   * Updates the IMT_GuiBean to reflect the chnaged IM for the selected AttenuationRelationship.
-   * This method is called from the IMR_GuiBean to update the application with the Attenuation's
-   * supported IMs.
-   *
-   */
-  public void updateIM() {
  
-  }
-
 
 
   /**
@@ -1211,6 +963,7 @@ public class LossEstimationApplication extends JFrame
     distanceControlPanel.pack();
     distanceControlPanel.setVisible(true);
   }
+
 
 
   /**
@@ -1238,163 +991,32 @@ public class LossEstimationApplication extends JFrame
 
 
 
+ 
   /**
+   * set x values back from the log space to the original linear values
+   * for Hazard Function after completion of the Hazard Calculations
+   * if the selected IMT are SA , PGA or PGV
+   * It accepts 1 parameters
    *
-   * @returns the Range for the X-Axis
+   * @param hazFunction :  this is the function with X values set
    */
-  public Range getX_AxisRange(){
-    return graphPanel.getX_AxisRange();
-  }
-
-  /**
-   *
-   * @returns the Range for the Y-Axis
-   */
-  public Range getY_AxisRange(){
-    return graphPanel.getY_AxisRange();
-  }
-
-
-
-  /**
-   * Sets ArbitraryDiscretizedFunc inside list containing all the functions.
-   * @param function ArbitrarilyDiscretizedFunc
-   */
-  public void setArbitraryDiscretizedFuncInList(ArbitrarilyDiscretizedFunc function){
-      functionList.add(function);
-      ArrayList plotFeaturesList = getPlottingFeatures();
-      plotFeaturesList.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
-          Color.BLACK,4.0,1));
-      addGraphPanel();
+  private ArbitrarilyDiscretizedFunc toggleHazFuncLogValues(ArbitrarilyDiscretizedFunc hazFunc,ArrayList<Double> imls){
+    int numPoints = hazFunc.getNum();
+    DiscretizedFuncAPI tempFunc = hazFunc.deepClone();
+    hazFunc = new ArbitrarilyDiscretizedFunc();
+    // take log only if it is PGA, PGV ,SA or FaultDispl
+    for(int i=0;i<tempFunc.getNum();++i)
+    	hazFunc.set(imls.get(i),tempFunc.getY(i));
+    
+	return hazFunc;
   }
 
 
 
-  /**
-   * tells the application if the xLog is selected
-   * @param xLog : boolean
-   */
-  public void setX_Log(boolean xLog){
-    this.xLog = xLog;
-    drawGraph();
-  }
 
-  /**
-   * tells the application if the yLog is selected
-   * @param yLog : boolean
-   */
-  public void setY_Log(boolean yLog){
-    this.yLog = yLog;
-    drawGraph();
-  }
+ 
 
-
-  /**
-   *
-   * @returns the boolean: Log for X-Axis Selected
-   */
-  public boolean getXLog(){
-    return xLog;
-  }
-
-  /**
-   *
-   * @returns the boolean: Log for Y-Axis Selected
-   */
-  public boolean getYLog(){
-    return yLog;
-  }
-
-  /**
-   *
-   * @returns boolean: Checks if Custom Axis is selected
-   */
-  public boolean isCustomAxis(){
-    return customAxis;
-  }
-
-  /**
-   *
-   * @returns the Min X-Axis Range Value, if custom Axis is choosen
-   */
-  public double getMinX(){
-    return minXValue;
-  }
-
-  /**
-   *
-   * @returns the Max X-Axis Range Value, if custom axis is choosen
-   */
-  public double getMaxX(){
-    return maxXValue;
-  }
-
-  /**
-   *
-   * @returns the Min Y-Axis Range Value, if custom axis is choosen
-   */
-  public double getMinY(){
-    return minYValue;
-  }
-
-  /**
-   *
-   * @returns the Max Y-Axis Range Value, if custom axis is choosen
-   */
-  public double getMaxY(){
-    return maxYValue;
-  }
-
-
-  /**
-   *
-   * @returns the X Axis Label
-   */
-  public String getXAxisLabel(){
-    return xAxisName;
-  }
-
-  /**
-   *
-   * @returns Y Axis Label
-   */
-  public String getYAxisLabel(){
-    return yAxisName;
-  }
-
-  /**
-   *
-   * @returns plot Title
-   */
-  public String getPlotLabel(){
-    return TITLE;
-  }
-
-
-  /**
-   *
-   * sets  X Axis Label
-   */
-  public void setXAxisLabel(String xAxisLabel){
-    xAxisName = xAxisLabel;
-  }
-
-  /**
-   *
-   * sets Y Axis Label
-   */
-  public void setYAxisLabel(String yAxisLabel){
-    yAxisName = yAxisLabel;
-  }
-
-  /**
-   *
-   * sets plot Title
-   */
-   public void setPlotLabel(String plotTitle){
-     TITLE = plotTitle;
-   }
-
+ 
   /**
    *
    * @returns the String containing the values selected for different parameters
@@ -1411,9 +1033,10 @@ public class LossEstimationApplication extends JFrame
    */
   public String getMapParametersInfoAsHTML(){
     String imrMetadata;
-      //for visible parameters
-      imrMetadata = imrGuiBean.getVisibleParametersCloned().getParameterListMetadataString();
- 
+    //if Probabilistic calculation then only add the metadata
+    //for visible parameters
+    imrMetadata = imrGuiBean.getVisibleParametersCloned().getParameterListMetadataString();
+   
     double maxSourceSiteDistance;
     if (distanceControlPanel != null)
       maxSourceSiteDistance = distanceControlPanel.getDistance();
@@ -1436,133 +1059,8 @@ public class LossEstimationApplication extends JFrame
         "Max. Source-Site Distance = "+maxSourceSiteDistance;
 
   }
-
- /**
-  *
-  * @returns the List for all the ArbitrarilyDiscretizedFunctions and Weighted Function list.
-  */
-  public ArrayList getCurveFunctionList(){
-    return functionList;
-  }
-
-
-
-  /**
-   * Actual method implementation of the "Peel-Off"
-   * This function peels off the window from the current plot and shows in a new
-   * window. The current plot just shows empty window.
-   */
-  protected void peelOffCurves(){
-    graphWindow = new GraphWindow(this);
-    clearPlot(true);
-    graphWindow.setVisible(true);
-  }
-
-
-
-  /**
-   * Action method to "Peel-Off" the curves graph window in a seperate window.
-   * This is called when the user presses the "Peel-Off" window.
-   * @param e
-   */
-  void peelOffButton_actionPerformed(ActionEvent e) {
-    peelOffCurves();
-  }
-
-  /**
-    *
-    * @returns the list PlotCurveCharacterstics that contain the info about
-    * plotting the curve like plot line color , its width and line type.
-    */
-  public ArrayList getPlottingFeatures(){
-    return graphPanel.getCurvePlottingCharacterstic();
-  }
-
-
-  /**
-   * File | Exit action performed.
-   *
-   * @param actionEvent ActionEvent
-   */
-  private void fileExitMenu_actionPerformed(ActionEvent actionEvent) {
-    close();
-  }
-
-  /**
-   *
-   */
-  private void close() {
-    int option = JOptionPane.showConfirmDialog(this,
-        "Do you really want to exit the application?\n" +
-                                               "You will loose all unsaved data.",
-                                               "Exit App",
-                                               JOptionPane.OK_CANCEL_OPTION);
-    if (option == JOptionPane.OK_OPTION)
-      System.exit(0);
-  }
-
-  /**
-   * File | Exit action performed.
-   *
-   * @param actionEvent ActionEvent
-   */
-  private void fileSaveMenu_actionPerformed(ActionEvent actionEvent) {
-    try {
-      save();
-    }
-    catch (IOException e) {
-      JOptionPane.showMessageDialog(this, e.getMessage(), "Save File Error",
-                                    JOptionPane.OK_OPTION);
-      return;
-    }
-  }
-
-  /**
-   * File | Exit action performed.
-   *
-   * @param actionEvent ActionEvent
-   */
-  private void filePrintMenu_actionPerformed(ActionEvent actionEvent) {
-    print();
-  }
-
-  /**
-   * Opens a file chooser and gives the user an opportunity to save the chart
-   * in PNG format.
-   *
-   * @throws IOException if there is an I/O error.
-   */
-  public void save() throws IOException {
-    graphPanel.save();
-  }
-
-  /**
-   * Creates a print job for the chart.
-   */
-  public void print() {
-    graphPanel.print(this);
-  }
-
-  public void closeButton_actionPerformed(ActionEvent actionEvent) {
-    close();
-  }
-
-  public void printButton_actionPerformed(ActionEvent actionEvent) {
-    print();
-  }
-
-  public void saveButton_actionPerformed(ActionEvent actionEvent) {
-    try {
-      save();
-    }
-    catch (IOException e) {
-      JOptionPane.showMessageDialog(this, e.getMessage(), "Save File Error",
-                                    JOptionPane.OK_OPTION);
-      return;
-    }
-  }
-
-
+  
+  
   /**
    * This function stops the hazard curve calculation if started, so that user does not
    * have to wait for the calculation to finish.
@@ -1590,7 +1088,7 @@ public class LossEstimationApplication extends JFrame
         calc.stopCalc();
         calc = null;
       }catch(RemoteException ee){
-        ExceptionWindow bugWindow = new ExceptionWindow(this,ee,getParametersInfoAsString());
+        ExceptionWindow bugWindow = new ExceptionWindow(this,ee.getStackTrace(),getParametersInfoAsString());
         bugWindow.setVisible(true);
         bugWindow.pack();
       }
@@ -1603,6 +1101,8 @@ public class LossEstimationApplication extends JFrame
 
 
  
+
+
   /**
    * This returns the Earthquake Forecast GuiBean which allows the the cybershake
    * control panel to set the forecast parameters from cybershake control panel,
@@ -1613,13 +1113,24 @@ public class LossEstimationApplication extends JFrame
 
   }
 
-
   /**
    * This returns the Site Guibean using which allows to set the site locations
    * in the OpenSHA application from cybershake control panel.
    */
   public Site_GuiBean getSiteGuiBeanInstance() {
     return siteGuiBean;
+  }
+
+
+
+  /**
+   * Updates the IMT_GuiBean to reflect the chnaged IM for the selected AttenuationRelationship.
+   * This method is called from the IMR_GuiBean to update the application with the Attenuation's
+   * supported IMs.
+   *
+   */
+  public void updateIM() {
+ 
   }
   
   /**
