@@ -155,11 +155,6 @@ public class GriddedRegionTest {
 	}
 
 	@Test
-	public void testGriddedRegionRegionRegionDoubleLocation() {
-		assertTrue("Covered by Region tests and first constructor", true);
-	}
-
-	@Test
 	public void testGetSpacing() {
 		assertTrue(octRegion.getSpacing() == 0.5);
 	}
@@ -207,7 +202,7 @@ public class GriddedRegionTest {
 		GriddedRegion gr1 = new GriddedRegion(RegionTest.circRegion, 0.5, null);
 		
 		// test no overlap returns null
-		GriddedRegion gr3 = gr1.subRegion(RegionTest.smRectRegion);
+		GriddedRegion gr3 = gr1.subRegion(RegionTest.smRectRegion1);
 		assertTrue(gr3 == null);
 		
 		// test an intersection that yields an ampty region
@@ -231,7 +226,7 @@ public class GriddedRegionTest {
 		Location l2 = new Location(5, 5);
 		GriddedRegion gr = new GriddedRegion(l1, l2, 0.1, null);
 		try {
-			octRegion.setInterior(gr);
+			octRegion.addInterior(gr);
 			fail("Unsupported Operation not caught");
 		} catch (UnsupportedOperationException uoe) {}
 	}
