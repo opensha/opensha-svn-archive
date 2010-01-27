@@ -22,7 +22,7 @@ import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
 
-import org.opensha.sra.vuln.AbstractVulnerability;
+import org.opensha.sra.vulnerability.AbstractVulnerability;
 
 /**
  * <strong>Title:</strong> BenefitCostBean<br />

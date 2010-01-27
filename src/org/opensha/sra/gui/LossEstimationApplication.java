@@ -95,7 +95,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
 import org.opensha.sra.calc.LossCurveCalculator;
-import org.opensha.sra.vuln.AbstractVulnerability;
+import org.opensha.sra.vulnerability.AbstractVulnerability;
 import org.opensha.sra.gui.components.GuiBeanAPI;
 import org.opensha.sra.gui.components.VulnerabilityBean;
 

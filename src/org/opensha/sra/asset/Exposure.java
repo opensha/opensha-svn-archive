@@ -1,11 +1,10 @@
-package org.opensha.sra;
+package org.opensha.sra.asset;
 
 import java.util.ArrayList;
 
-import org.opensha.sra.asset.Asset;
 
 /**
- * Add comments here
+ * NOTE: placeholder
  *
  * 
  * @author Peter Powers

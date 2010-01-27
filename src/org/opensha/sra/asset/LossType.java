@@ -1,7 +1,6 @@
 package org.opensha.sra.asset;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**

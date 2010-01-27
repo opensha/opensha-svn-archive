@@ -5,7 +5,8 @@ import java.util.ListIterator;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 
-import org.opensha.sra.vuln.AbstractVulnerability;
+import org.opensha.sra.vulnerability.AbstractVulnerability;
+
 import Jama.Matrix;
 
 /**
