@@ -143,10 +143,10 @@ public class UnsegmentedSource extends ProbEqkSource {
 	public UnsegmentedSource(FaultSegmentData segmentData,  EmpiricalModel empiricalModel, 
 			double rupOffset,double weight, 
 			double empiricalModelWeight, double duration, 
-			boolean applyCyberShakeDDW_Corr, int floaterType) {
+			boolean applyCyberShakeDDW_Corr, int floaterType, double fixMag) {
 		this(segmentData, empiricalModel, rupOffset, 0.8, 0.0, weight, 
 				empiricalModelWeight, duration, segmentData.getTotalMomentRate(),
-				0.67,  applyCyberShakeDDW_Corr, floaterType);
+				0.67,  applyCyberShakeDDW_Corr, floaterType, fixMag);
 		
 	}
 	
@@ -164,7 +164,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	public UnsegmentedSource(FaultSegmentData segmentData,  EmpiricalModel empiricalModel, 
 			double rupOffset, double b_valueGR_1, double b_valueGR_2,  double weight, 
 			double empiricalModelWeight, double duration, double moRate, 
-			double fractCharVsGR, boolean applyCyberShakeDDW_Corr, int floaterType) {
+			double fractCharVsGR, boolean applyCyberShakeDDW_Corr, int floaterType, double fixMag) {
 
 		this.isPoissonian = true;
 		empirical_weight = empiricalModelWeight;
@@ -181,12 +181,23 @@ public class UnsegmentedSource extends ProbEqkSource {
 		moRate = moRate*(1-moRateReduction); // this has been reduced by aseis
 		this.empiricalModel = empiricalModel;
 		
-			
-		double sourceMag1 = hb_MagAreaRel.getMedianMag(segmentData.getTotalArea()/1e6);  // this area is reduced by aseis if appropriate
+		double sourceMag1 = 0;
+		double sourceMag2 = 0;
+		
+		// get mags from M(A) relationships if fixMag is NaN
+		if(Double.isNaN(fixMag)) {
+			sourceMag1 = hb_MagAreaRel.getMedianMag(segmentData.getTotalArea()/1e6);  // this area is reduced by aseis if appropriate
+			sourceMag2 = ellB_magAreaRel.getMedianMag(segmentData.getTotalArea()/1e6);  // this area is reduced by aseis if appropriate			
+		}
+		else {
+			sourceMag1 = fixMag;
+			sourceMag2 = fixMag;
+		}
+		
+		// round to nice values
 		sourceMag1 = Math.round(sourceMag1/delta_mag) * delta_mag;
-		double sourceMag2 = ellB_magAreaRel.getMedianMag(segmentData.getTotalArea()/1e6);  // this area is reduced by aseis if appropriate
 		sourceMag2 = Math.round(sourceMag2/delta_mag) * delta_mag;
-
+		
 
 
 		//OVERRIDE VALUES FOR SAF CREEPING SECTION WITH NSHMP VALUES
