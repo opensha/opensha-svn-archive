@@ -668,14 +668,16 @@ public class BCR_Application extends JFrame
     double currentPeriod = 0;
     if(currentIMT.equals(SA_Param.NAME))
     	currentPeriod = currentModel.getPeriod();
-    ArrayList<Double> currentIMLs = currentModel.getIMLVals();
+//    ArrayList<Double> currentIMLs = currentModel.getIMLVals();
+    double[] currentIMLs = currentModel.getIMLValues();
     
     AbstractVulnerability newModel = bcbean.getVulnModel(bcbean.RETRO);
     String newIMT = newModel.getIMT();
     double newPeriod = 0;
     if(newIMT.equals(SA_Param.NAME))
     	newPeriod = newModel.getPeriod();
-    ArrayList<Double> newIMLs = newModel.getIMLVals();
+//    ArrayList<Double> newIMLs = newModel.getIMLVals();
+    double[] newIMLs = newModel.getIMLValues();
     
     // get the selected IMR
     ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
@@ -761,7 +763,9 @@ public class BCR_Application extends JFrame
 	  pointsTextArea.setText(data);
   }
   
-  private ArbitrarilyDiscretizedFunc calcHazardCurve(String imt, double period, ArrayList<Double> imls,
+//  private ArbitrarilyDiscretizedFunc calcHazardCurve(String imt, double period, ArrayList<Double> imls,
+//		  Site site,EqkRupForecastBaseAPI forecast,ScalarIntensityMeasureRelationshipAPI imr){
+  private ArbitrarilyDiscretizedFunc calcHazardCurve(String imt, double period, double[] imls,
 		  Site site,EqkRupForecastBaseAPI forecast,ScalarIntensityMeasureRelationshipAPI imr){
 	  // initialize the values in condProbfunc with log values as passed in hazFunction
 	    // intialize the hazard function
@@ -805,12 +809,13 @@ public class BCR_Application extends JFrame
    *
    * @param originalFunc :  this is the function with X values set
    */
-  private void initX_Values(DiscretizedFuncAPI arb,ArrayList<Double> imls, String imt){
+//  private void initX_Values(DiscretizedFuncAPI arb,ArrayList<Double> imls, String imt){
+  private void initX_Values(DiscretizedFuncAPI arb, double[] imls, String imt){
 
 	IMT_Info imtInfo = new IMT_Info();
     if (imtInfo.isIMT_LogNormalDist(imt)) {
-      for(int i=0;i<imls.size();++i)
-        arb.set(Math.log(imls.get(i)),1);
+      for(int i=0;i<imls.length;++i)
+        arb.set(Math.log(imls[i]),1);
 
       //System.out.println("11111111111HazFunction: "+arb.toString());
     }
@@ -1000,13 +1005,14 @@ public class BCR_Application extends JFrame
    *
    * @param hazFunction :  this is the function with X values set
    */
-  private ArbitrarilyDiscretizedFunc toggleHazFuncLogValues(ArbitrarilyDiscretizedFunc hazFunc,ArrayList<Double> imls){
+//  private ArbitrarilyDiscretizedFunc toggleHazFuncLogValues(ArbitrarilyDiscretizedFunc hazFunc,ArrayList<Double> imls){
+  private ArbitrarilyDiscretizedFunc toggleHazFuncLogValues(ArbitrarilyDiscretizedFunc hazFunc,double[] imls){
     int numPoints = hazFunc.getNum();
     DiscretizedFuncAPI tempFunc = hazFunc.deepClone();
     hazFunc = new ArbitrarilyDiscretizedFunc();
     // take log only if it is PGA, PGV ,SA or FaultDispl
     for(int i=0;i<tempFunc.getNum();++i)
-    	hazFunc.set(imls.get(i),tempFunc.getY(i));
+    	hazFunc.set(imls[i],tempFunc.getY(i));
     
 	return hazFunc;
   }
