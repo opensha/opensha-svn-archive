@@ -31,6 +31,7 @@ import org.opensha.commons.param.BooleanParameter;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.WarningDoubleParameter;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.TestUtils;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
 import org.opensha.sha.imr.param.EqkRuptureParams.AftershockParam;
@@ -225,7 +226,7 @@ public class CY_2008_test extends NGATest {
 						if(isMedian) openSHA_Val = Math.exp(cy_08.getMean());
 						else openSHA_Val = cy_08.getStdDev();
 						tested_Val = Double.parseDouble(st.nextToken().trim());
-						double result = this.compareResults(openSHA_Val, tested_Val);
+						double result = TestUtils.getPercentDiff(openSHA_Val, tested_Val);
 						if (result > discrep)
 							discrep = result;
 						if(result > tolerance){
@@ -257,7 +258,7 @@ public class CY_2008_test extends NGATest {
 					if(isMedian) openSHA_Val = Math.exp(cy_08.getMean());
 					else openSHA_Val = cy_08.getStdDev();
 					tested_Val = Double.parseDouble(st.nextToken().trim());
-					double result = this.compareResults(openSHA_Val, tested_Val);
+					double result = TestUtils.getPercentDiff(openSHA_Val, tested_Val);
 					if (result > discrep)
 						discrep = result;
 					if(result > tolerance){
@@ -288,7 +289,7 @@ public class CY_2008_test extends NGATest {
 					if(isMedian) openSHA_Val = Math.exp(cy_08.getMean());
 					else openSHA_Val = cy_08.getStdDev();
 					tested_Val = Double.parseDouble(st.nextToken().trim());
-					result = this.compareResults(openSHA_Val, tested_Val);
+					result = TestUtils.getPercentDiff(openSHA_Val, tested_Val);
 					if (result > discrep)
 						discrep = result;
 					if(result > tolerance){

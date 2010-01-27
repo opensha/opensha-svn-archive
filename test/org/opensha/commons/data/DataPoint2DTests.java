@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.data.tests;
+package org.opensha.commons.data;
 import junit.framework.TestCase;
 
 import org.opensha.commons.data.DataPoint2D;

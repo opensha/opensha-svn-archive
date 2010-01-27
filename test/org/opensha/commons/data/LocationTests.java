@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.data.tests;
+package org.opensha.commons.data;
 
 import junit.framework.TestCase;
 
@@ -204,7 +204,6 @@ public class LocationTests extends TestCase {
     }
   }
 
-  private final static char TAB = '\t';
   public void testToString() {
 
     location.setDepth( 10 );
@@ -214,8 +213,8 @@ public class LocationTests extends TestCase {
     //System.out.println( "Printing out toString(): " + stringRet );
 
     String testStr = new String();
-    testStr = "" + location.getLatitude() + TAB + location.getLongitude() +
-        TAB + location.getDepth();
+    testStr = "" + location.getLatitude() + "," + location.getLongitude() +
+        "," + location.getDepth();
     assertEquals(stringRet, testStr);
 
   }

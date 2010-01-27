@@ -36,7 +36,7 @@ public abstract class NGATest extends TestCase implements ParameterChangeWarning
 	
 	public NGATest(String arg0, String dir) {
 		super(arg0);
-		this.dir = "src" + File.separator + dir;
+		this.dir = "test" + File.separator + dir;
 	}
 	
 	/**
@@ -49,18 +49,6 @@ public abstract class NGATest extends TestCase implements ParameterChangeWarning
 	public abstract String getLastFailMetadata();
 	
 	public abstract String getLastFailLine();
-	
-	public double compareResults(double valFromSHA,
-			double targetVal){
-		//comparing each value we obtained after doing the IMR calc with the target result
-		//and making sure that values lies with the .01% range of the target values.
-		//comparing if the values lies within the actual tolerence range of the target result
-		double result = 0;
-		if(targetVal!=0)
-			result =(StrictMath.abs(valFromSHA-targetVal)/targetVal)*100;
-
-		return result;
-	}
 	
 	private ArrayList<File> getTestFiles() {
 		File f = new File(dir);

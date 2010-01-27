@@ -17,16 +17,16 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.data.tests;
+package org.opensha.commons.util;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class DataSuite extends TestCase
+public class UtilSuite extends TestCase
 {
 
-  public DataSuite(String s)
+    public UtilSuite(String s)
   {
       super(s);
   }
@@ -34,15 +34,12 @@ public class DataSuite extends TestCase
   public static Test suite()
   {
     TestSuite suite = new TestSuite();
-    suite.addTest(new TestSuite(DataPoint2DTests.class));
-    suite.addTest(new TestSuite(LocationTests.class));
-    suite.addTest(new TestSuite(DataPoint2DTreeMapTests.class));
-    suite.addTest(new TestSuite(TimeSpanTests.class));
+    suite.addTest(new TestSuite(FaultUtilsTests.class));
     return suite;
   }
 
   public static void main(String args[])
   {
-        junit.swingui.TestRunner.run(DataSuite.class);
+        junit.swingui.TestRunner.run(UtilSuite.class);
   }
 }
