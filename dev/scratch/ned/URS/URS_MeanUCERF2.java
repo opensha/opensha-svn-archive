@@ -20,6 +20,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2
 
 
 
+
 /**
  * This class filters out some of the sources in MeanUCERF2 and adds others back in.  
  * 
