@@ -11,7 +11,7 @@ public class GEMSubductionFaultSourceData extends GEMSourceData{
 	private FaultTrace topTrace;
 	private FaultTrace bottomTrace;
 	private double rake;
-	private EvenlyDiscretizedFunc mfd;	
+	private IncrementalMagFreqDist mfd;	
 	private boolean floatRuptureFlag;
 
 	
@@ -41,7 +41,7 @@ public class GEMSubductionFaultSourceData extends GEMSourceData{
 		return rake;
 	}
 
-	public EvenlyDiscretizedFunc getMfd() {
+	public IncrementalMagFreqDist getMfd() {
 		return mfd;
 	}
 	
