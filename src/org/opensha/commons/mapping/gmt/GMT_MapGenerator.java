@@ -1318,9 +1318,9 @@ public class GMT_MapGenerator implements Serializable{
 		gmtCommandLines.add("cd " + dir);
 		gmtCommandLines.add("");
 		gmtCommandLines.add("## ENV info");
-		gmtCommandLines.add("echo 'SHELL: $SHELL'");
-		gmtCommandLines.add("echo 'PATH: $PATH'");
-		gmtCommandLines.add("echo 'LD_LIBRARY_PATH: $LD_LIBRARY_PATH'");
+		gmtCommandLines.add("echo \"SHELL: $SHELL\"");
+		gmtCommandLines.add("echo \"PATH: $PATH\"");
+		gmtCommandLines.add("echo \"LD_LIBRARY_PATH: $LD_LIBRARY_PATH\"");
 		gmtCommandLines.add("");
 		gmtCommandLines.add("## path variables ##");
 		String gmtPath = GMT_PATH;
