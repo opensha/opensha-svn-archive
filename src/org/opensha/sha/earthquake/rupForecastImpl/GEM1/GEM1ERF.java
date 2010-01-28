@@ -37,6 +37,9 @@ import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.NewFloatingPoissonFaultSource;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMFaultSourceData;
+import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSubductionFaultSourceData;
+import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSourceData;
+import org.opensha.sha.faultSurface.ApproxEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
@@ -169,7 +172,7 @@ public class GEM1ERF extends EqkRupForecast{
 	 *
 	 * No argument constructor
 	 */
-	public GEM1ERF() {
+	public GEM1ERF(ArrayList<GEMSourceData> gemSourceDataList) {
 
 		// create the timespan object with start time and duration in years
 		timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
@@ -304,7 +307,7 @@ public class GEM1ERF extends EqkRupForecast{
 	}
 
 
-	protected NewFloatingPoissonFaultSource getFaultSourceFromData(GEMFaultSourceData gemFaultSourceData) {
+	protected ProbEqkSource mkSource(GEMFaultSourceData gemFaultSourceData) {
 		
 		StirlingGriddedSurface faultSurface = new StirlingGriddedSurface(
 				gemFaultSourceData.getTrace(),
@@ -326,6 +329,33 @@ public class GEM1ERF extends EqkRupForecast{
                 floaterTypeFlag,					// type of floater (0 for full DDW, 1 for floating both ways, and 2 for floating down center)
                 12.0);  						// mags >= to this forced to be full fault ruptures (set as high value for now)
 	}
+	
+	
+
+
+	protected ProbEqkSource mkSource(GEMSubductionFaultSourceData gemSubductFaultSourceData) {
+		
+		ApproxEvenlyGriddedSurface faultSurface = new ApproxEvenlyGriddedSurface(
+				gemSubductFaultSourceData.getTopTrace(),
+				gemSubductFaultSourceData.getBottomTrace(),
+                faultDiscrValue);
+		
+		
+		return new NewFloatingPoissonFaultSource(
+				gemSubductFaultSourceData.getMfd(),	//IncrementalMagFreqDist
+                faultSurface,					//EvenlyGriddedSurface			
+                magScalingRel,					// MagScalingRelationship
+                this.sigmaValue,				// sigma of the mag-scaling relationship
+                this.aspectRatioValue,			// floating rupture aspect ration (length/width)
+                this.rupOffsetValue,			// floating rupture offset
+                gemSubductFaultSourceData.getRake(),	// average rake of the ruptures
+                duration,						// duration of forecast
+                MINMAG,							// minimum mag considered (probs of those lower set to zero regardless of MFD)
+                floaterTypeFlag,					// type of floater (0 for full DDW, 1 for floating both ways, and 2 for floating down center)
+                12.0);  						// mags >= to this forced to be full fault ruptures (set as high value for now)
+	}
+	
+
 	
 
 	/**
