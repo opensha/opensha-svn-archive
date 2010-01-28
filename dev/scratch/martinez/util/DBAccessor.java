@@ -11,8 +11,9 @@ import java.util.TreeMap;
 
 import javax.swing.JFrame;
 
-import scratch.martinez.beans.ExceptionBean;
-import scratch.martinez.beans.GuiBeanAPI;
+import org.opensha.nshmp.sha.gui.beans.ExceptionBean;
+import org.opensha.nshmp.sha.gui.beans.GuiBeanAPI;
+
 
 /**
  * <strong>Title:</strong> DBAccessor<br />

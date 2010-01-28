@@ -32,22 +32,52 @@
 	<property name="dev" value="../dev" />
 	<property name="lib" value="../lib" />
 	
-	<property name="client.jar" value="NSHMP_HazardApp.jar"/>
+	<property name="client.jar" value="NSHMP_HazardApp"/>
 	<property name="server.jar" value="NSHMP_GroundMotionServer"/>
 
 	<!-- CLIENT References -->
 		
 	<patternset id="client.classes">
+		<include name="org/opensha/commons/**/*"/>
+		<include name="org/opensha/nshmp/**/*"/>
+		
+		<exclude name="org/opensha/commons/calc/**/*"/>
+		<exclude name="org/opensha/refFaultParamDb/**/*"/>
+		<exclude name="org/opensha/sha/**/*"/>
+		<exclude name="**/*Test*"/>
 	</patternset>
 	
 	<fileset dir="${lib}" id="client.libraries">
+		<include name="BrowserLauncher2-1_3.jar"/>
+		<include name="Jama-1.0.2.jar"/>
+		<include name="commons-codec-1.3.jar"/>
+		<include name="commons-math-1.1.jar"/>
+		<include name="dom4j.jar"/>
+		<include name="itext-1.3.jar"/>
+		<include name="jcommon-1.0.5.jar"/>
+		<include name="jfreechart-1.0.2.jar"/>
+		<include name="poi-2.5.1-final-20040804.jar"/>
 	</fileset>
 	
 	<patternset id="client.resources">
+		<include name="resources/images/icons/closeFile.png"/>
+		<include name="resources/images/icons/error_icon.png"/>
+		<include name="resources/images/icons/info_icon.jpg"/>
+		<include name="resources/images/icons/openFile.png"/>
+		<include name="resources/images/icons/printFile.jpg"/>
+		<include name="resources/images/icons/saveFile.jpg"/>
+		<include name="resources/images/logos/AgoraOpenRisk.jpg"/>
+		<include name="resources/images/logos/PoweredByOpenSHA_Agua.jpg"/>
+		<include name="resources/images/logos/usgs_logoonly.gif"/>
+		<include name="resources/images/logos/usgs_resrisk.gif"/>
+		<include name="resources/images/logos/usgslogo.gif"/>
 	</patternset>
 	
 	<path id="client.classpath">
 		<fileset refid="client.libraries" />
+		<fileset dir="${lib}">
+			<include name="*.jar"/>
+		</fileset>
 	</path>
 
 	
@@ -234,6 +264,7 @@
 		<jar jarfile="${dist}/${client.jar}.jar"
 				basedir="${build}" excludes="**/*Test*">
 			<manifest>
+				<attribute name="Main-Class" value="org.opensha.nshmp.sha.gui.ProbabilisticHazardGui"/>
 				<attribute name="Built-By" value="${user.name}" />
 			</manifest>
 			

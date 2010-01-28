@@ -10,8 +10,9 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import org.opensha.nshmp.sha.gui.beans.GuiBeanAPI;
+
 import scratch.martinez.beans.BenefitCostBean;
-import scratch.martinez.beans.GuiBeanAPI;
 
 /**
  * A testing aplication to see how the BenefitCostBean will look and gather information

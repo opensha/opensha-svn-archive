@@ -1,4 +1,4 @@
-package scratch.martinez.util;
+package org.opensha.nshmp.util;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,8 +14,8 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.opensha.nshmp.sha.gui.beans.ExceptionBean;
 
-import scratch.martinez.beans.ExceptionBean;
 
 public class BatchFileReader {
 	private HSSFWorkbook workbook = null;

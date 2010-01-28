@@ -69,7 +69,20 @@ public class SsS1Calculator {
 	// Updated for speed. Uses range scanning.
 	protected static final String STUB = 
 		"SELECT " +
-			"* " +
+			"LAT, " +
+			"LON, " +
+			
+			"SEC_0_0, " +
+			"SEC_0_2, " +
+			"SEC_1_0, " +
+			
+			"SEC_0_0_DET, " +
+			"SEC_0_2_DET, " +
+			"SEC_1_0_DET, " +
+			
+			/* "SEC_0_0_CR, " + // No CR data for 0_0 (PGA) */
+			"SEC_0_2_CR, " +
+			"SEC_1_0_CR " +
 		"FROM " +
 			"hc_owner.PROD_HC_DATA_2008_VW " +
 		"WHERE " +
@@ -81,10 +94,15 @@ public class SsS1Calculator {
 			"LAT DESC, " +
 			"LON ASC";
 	
+	protected static final String PGAUH_COL = "SEC_0_0";
 	protected static final String SSUH_COL = "SEC_0_2";
 	protected static final String S1UH_COL = "SEC_1_0";
+	
+	protected static final String PGADET_COL = "SEC_0_0_DET";
 	protected static final String SSDET_COL = "SEC_0_2_DET";
 	protected static final String S1DET_COL = "SEC_1_0_DET";
+	
+	// protected static final String PGACR_COL = "SEC_0_0_CR"; // Doesn't exist
 	protected static final String SSCR_COL = "SEC_0_2_CR";
 	protected static final String S1CR_COL = "SEC_1_0_CR";
 
@@ -96,6 +114,10 @@ public class SsS1Calculator {
 	protected static final int S1DET_IDX = 5;
 	protected static final int SSCR_IDX = 6;
 	protected static final int S1CR_IDX = 7;
+	
+	protected static final int PGA_IDX = 8;
+	protected static final int PGAUH_IDX = 9;
+	protected static final int PGADET_IDX = 10;
 
 	/**
 	 * Some static String for the data printing
@@ -206,6 +228,7 @@ public class SsS1Calculator {
 					ArbitrarilyDiscretizedFunc h = new ArbitrarilyDiscretizedFunc();
 					h.set(0.2, 0.0); // Place holder for Ss value
 					h.set(1.0, 0.0); // Place holder for S1 value
+					// Place holder for PGA value set below.
 					
 					// Hawaii has the 1.1 and 1.3 factors built into its raw
 					// data so does not need them applied here.
@@ -228,6 +251,11 @@ public class SsS1Calculator {
 					}
 					h.set((double) SSCR_IDX, results.getDouble(SSCR_COL));
 					h.set((double) S1CR_IDX, results.getDouble(S1CR_COL));
+					
+					h.set((double) PGA_IDX, 0.0); // Place holder for PGA
+					h.set((double) PGAUH_IDX, results.getDouble(PGAUH_COL));
+					h.set((double) PGADET_IDX, Math.max(0.6, (results
+							.getDouble(PGADET_COL)) * 1.8));
 					
 					r[numUsed++] = h;
 				}
@@ -269,9 +297,12 @@ public class SsS1Calculator {
 				double S1 = Math.min(function.getY(S1DET_IDX), function
 						.getY(S1UH_IDX)
 						* function.getY(S1CR_IDX));
+				double PGA = Math.min(function.getY(PGADET_IDX), function
+						.getY(PGAUH_IDX));
 
 				function.set(SS_IDX, Ss);
 				function.set(S1_IDX, S1);
+				function.set(PGA_IDX, PGA);
 
 				StringBuffer info = new StringBuffer(SsS1_TITLE + "\n");
 				info.append("By definition, Ss and S1 are for Site Class B\n");

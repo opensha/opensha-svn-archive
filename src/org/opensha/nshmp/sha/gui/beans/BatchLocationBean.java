@@ -1,4 +1,4 @@
-package scratch.martinez.beans;
+package org.opensha.nshmp.sha.gui.beans;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -33,8 +33,8 @@ import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.ImageUtils;
+import org.opensha.nshmp.util.BatchFileReader;
 
-import scratch.martinez.util.BatchFileReader;
 
 public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, ParameterChangeFailListener {
 	

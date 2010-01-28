@@ -24,11 +24,11 @@ import javax.swing.SwingConstants;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.nshmp.sha.gui.beans.GuiBeanAPI;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 
 import scratch.martinez.beans.CreditBean;
 import scratch.martinez.beans.GraphPane;
-import scratch.martinez.beans.GuiBeanAPI;
 import scratch.martinez.beans.HazardCurveBean;
 import scratch.martinez.beans.LossCurveBean;
 

@@ -1,4 +1,4 @@
-package scratch.martinez.beans;
+package org.opensha.nshmp.sha.gui.beans;
 
 /**
  * <strong>Title</strong>: GuiBeanAPI<br />

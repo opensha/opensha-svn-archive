@@ -62,8 +62,6 @@ import org.opensha.nshmp.util.LocationUtil;
 import org.opensha.nshmp.util.RegionUtil;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 
-import scratch.martinez.beans.BatchLocationBean;
-import scratch.martinez.beans.GuiBeanAPI;
 
 /**
  * <p>Title:NEHRP_GuiBean</p>

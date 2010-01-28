@@ -1,4 +1,4 @@
-package scratch.martinez.beans;
+package org.opensha.nshmp.sha.gui.beans;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -14,6 +14,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+
 
 /**
  * <strong>Title:</strong> ExceptionBean<br />
