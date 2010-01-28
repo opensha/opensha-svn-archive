@@ -103,6 +103,7 @@ public class GMT_MapGenerator implements Serializable{
 	protected String GS_PATH = OPENSHA_GS_PATH;
 	protected String CONVERT_PATH = OPENSHA_CONVERT_PATH;
 	protected String PS2PDF_PATH = OPENSHA_PS2PDF_PATH;
+	protected String NETCDF_LIB_PATH = OPENSHA_NETCDF_LIB_PATH;
 	protected static String COMMAND_PATH = "/bin/";
 
 	/*				opensha.usc.edu paths				*/
@@ -114,6 +115,7 @@ public class GMT_MapGenerator implements Serializable{
 	public static final String OPENSHA_SERVLET_URL = Preferences.OPENSHA_SERVLET_URL + "GMT_MapGeneratorServlet";
 	public static final String OPENSHA_JAVA_PATH = "/usr/java/1.5.0_10/bin/java";
 	public static final String OPENSHA_CLASSPATH = "/usr/local/tomcat/default/webapps/OpenSHA/WEB-INF/classes";
+	public static final String OPENSHA_NETCDF_LIB_PATH="/usr/local/netCDF/lib/";
 
 	/*				gravity.usc.edu paths				*/
 	public static final String GRAVITY_GMT_PATH="/opt/install/gmt/bin/";
@@ -1317,11 +1319,6 @@ public class GMT_MapGenerator implements Serializable{
 		gmtCommandLines.add("");
 		gmtCommandLines.add("cd " + dir);
 		gmtCommandLines.add("");
-		gmtCommandLines.add("## ENV info");
-		gmtCommandLines.add("echo \"SHELL: $SHELL\"");
-		gmtCommandLines.add("echo \"PATH: $PATH\"");
-		gmtCommandLines.add("echo \"LD_LIBRARY_PATH: $LD_LIBRARY_PATH\"");
-		gmtCommandLines.add("");
 		gmtCommandLines.add("## path variables ##");
 		String gmtPath = GMT_PATH;
 		if (gmtPath == null)
@@ -1339,6 +1336,18 @@ public class GMT_MapGenerator implements Serializable{
 		if (ps2pdfPath == null)
 			ps2pdfPath = "";
 		gmtCommandLines.add("PS2PDF_PATH='" + ps2pdfPath + "'");
+		String netCDFPath = NETCDF_LIB_PATH;
+		if (netCDFPath == null)
+			netCDFPath = "";
+		gmtCommandLines.add("NETCDF_LIB_PATH='" + netCDFPath + "'");
+		gmtCommandLines.add("");
+		gmtCommandLines.add("## ENV info");
+		gmtCommandLines.add("echo \"SHELL: $SHELL\"");
+		gmtCommandLines.add("echo \"PATH: $PATH\"");
+		gmtCommandLines.add("if [[ -d $NETCDF_LIB_PATH ]]");
+		gmtCommandLines.add("\texport LD_LIBRARY_PATH=$NETCDF_LIB_PATH:${LD_LIBRARY_PATH}");
+		gmtCommandLines.add("fi");
+		gmtCommandLines.add("echo \"LD_LIBRARY_PATH: $LD_LIBRARY_PATH\"");
 		gmtCommandLines.add("");
 		gmtCommandLines.add("## Plot Script ##");
 		gmtCommandLines.add("");
