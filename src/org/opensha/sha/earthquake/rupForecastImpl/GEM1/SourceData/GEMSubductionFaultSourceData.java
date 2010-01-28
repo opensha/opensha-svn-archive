@@ -17,7 +17,7 @@ public class GEMSubductionFaultSourceData extends GEMSourceData{
 	
 	// constructor.  TectonicRegionType defaults to SUBDUCTION_INTERFACE here.
 	public GEMSubductionFaultSourceData(FaultTrace TopTrace, FaultTrace BottomTrace, 
-			double rake, EvenlyDiscretizedFunc mfd, boolean floatRuptureFlag){
+			double rake, IncrementalMagFreqDist mfd, boolean floatRuptureFlag){
 		
 		this.topTrace = TopTrace;
 		this.bottomTrace = BottomTrace;

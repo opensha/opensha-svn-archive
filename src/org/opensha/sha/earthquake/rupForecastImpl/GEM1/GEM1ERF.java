@@ -45,8 +45,6 @@ import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
-import sun.tools.tree.ThisExpression;
-
 
 /**
  * <p>Title: 

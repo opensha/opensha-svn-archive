@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.tests;
+package org.opensha.commons.test;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
