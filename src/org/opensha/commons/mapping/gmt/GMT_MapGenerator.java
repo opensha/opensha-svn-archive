@@ -1344,7 +1344,7 @@ public class GMT_MapGenerator implements Serializable{
 		gmtCommandLines.add("## ENV info");
 		gmtCommandLines.add("echo \"SHELL: $SHELL\"");
 		gmtCommandLines.add("echo \"PATH: $PATH\"");
-		gmtCommandLines.add("if [[ -d $NETCDF_LIB_PATH ]]");
+		gmtCommandLines.add("if [[ -d $NETCDF_LIB_PATH ]];then");
 		gmtCommandLines.add("\texport LD_LIBRARY_PATH=$NETCDF_LIB_PATH:${LD_LIBRARY_PATH}");
 		gmtCommandLines.add("fi");
 		gmtCommandLines.add("echo \"LD_LIBRARY_PATH: $LD_LIBRARY_PATH\"");
