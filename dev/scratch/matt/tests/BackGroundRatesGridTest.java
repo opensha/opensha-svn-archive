@@ -94,7 +94,7 @@ public class BackGroundRatesGridTest  extends TestCase {
 		
 		//get MagFreqDistList for first location
 		HypoMagFreqDistAtLoc hypoMagFreqDistAtLoc0 = bgGrid1.getHypoMagFreqDistAtLoc(0);
-		IncrementalMagFreqDist[]  hypoMagFreqDist = hypoMagFreqDistAtLoc0.getMagFreqDist();
+		IncrementalMagFreqDist[]  hypoMagFreqDist = hypoMagFreqDistAtLoc0.getMagFreqDistList();
 		logger.info("hypoMagFreqDist.length " +  hypoMagFreqDist.length);
 		 //1. there is only 1 mag freq dist
 		assertEquals("hypoMagFreqDist has one record", 1,hypoMagFreqDist.length);	
@@ -148,7 +148,7 @@ public class BackGroundRatesGridTest  extends TestCase {
 		assertBgGridLocations(bgGrid3);
 		
 		HypoMagFreqDistAtLoc hypoMagFreqDistAtLoc0 = bgGrid3.getHypoMagFreqDistAtLoc(0);
-		IncrementalMagFreqDist[]  hypoMagFreqDist = hypoMagFreqDistAtLoc0.getMagFreqDist();
+		IncrementalMagFreqDist[]  hypoMagFreqDist = hypoMagFreqDistAtLoc0.getMagFreqDistList();
 		logger.info("hypoMagFreqDist.length " +  hypoMagFreqDist.length);
 		 //1. there is only 1 mag freq dist
 		assertEquals("hypoMagFreqDist has one record", 1,hypoMagFreqDist.length );	

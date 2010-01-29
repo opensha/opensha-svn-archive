@@ -257,7 +257,7 @@ public class STEP_mainTest extends TestCase {
 	}
 
 	private double getMaxHypoMagFreqDistVal(HypoMagFreqDistAtLoc hypoMagDistAtLoc ) {
-		IncrementalMagFreqDist[] magFreqDists = hypoMagDistAtLoc.getMagFreqDist();
+		IncrementalMagFreqDist[] magFreqDists = hypoMagDistAtLoc.getMagFreqDistList();
 		double maxVal = 0;
 		for(IncrementalMagFreqDist magFreqDist:magFreqDists){
 			int num = magFreqDist.getNum();
