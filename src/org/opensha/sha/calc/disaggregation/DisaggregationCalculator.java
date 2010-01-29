@@ -878,7 +878,7 @@ System.out.println("numRupRejected="+numRupRejected);
 						if (contribution > 0.0) {
 							gmtScriptLines.add("${COMMAND_PATH}echo " + "\"" + dist_center[i] + " " + mag_center[j] + " " + top +
 									"\"" +
-									" > junk_data ; ${GMT_PATH}psxyz junk_data "
+									" | ${GMT_PATH}psxyz "
 									+ "-P " + region + " " + projection + " " +
 									verticalScaling + symbol + base +
 									" -K -O " + epsilonColors[k] + "  " +
@@ -890,12 +890,13 @@ System.out.println("numRupRejected="+numRupRejected);
 					}
 				}
 			}
-
+			
+			gmtScriptLines.add("");
 			gmtScriptLines.add("${COMMAND_PATH}echo \"plotting legend\"");
 			// add the legend boxes
 			// 1st legend box has origin offset in Y by -2 inches (and X by minus some too)
 			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"" + dist_binEdges[dist_binEdges.length-1] + " " + mag_binEdges[0] + " " + (0.8*z_tick) +
-					"\"" + " > junk_data ; ${GMT_PATH}psxyz junk_data " + "-P -Y-1.25i -X-4.2i " +
+					"\"" + " | ${GMT_PATH}psxyz " + "-P -Y-1.25i -X-4.2i " +
 					region + " " +
 					projection + " " + verticalScaling + " -So0.3ib0 " +
 					" -K -O " +
@@ -905,7 +906,7 @@ System.out.println("numRupRejected="+numRupRejected);
 			// each now has origin offset in the X direction
 			for (int k = 1; k < numE; ++k) {
 				gmtScriptLines.add("${COMMAND_PATH}echo " + "\"" + dist_binEdges[dist_binEdges.length-1] + " " + mag_binEdges[0] + " " + (0.8*z_tick) +
-						"\"" + " > junk_data ; ${GMT_PATH}psxyz junk_data " + "-P -X0.9i " +
+						"\"" + " | ${GMT_PATH}psxyz " + "-P -X0.9i " +
 						region + " " +
 						projection + " " + verticalScaling + " -So0.3ib0 " + "0" +
 						" -K -O " +
@@ -925,12 +926,12 @@ System.out.println("numRupRejected="+numRupRejected);
 			// on gravity we used -X-2.45, but for some reason that puts stuff to the right
 			// on opensha.usc.edu
 			gmtScriptLines.add("${GMT_PATH}pstext temp_label -R0/8.5/0/11 -N -Jx1i -X-6.1 -P -O >> " + img_ps_file);
-
+			gmtScriptLines.add("");
 			gmtScriptLines.add("${COMMAND_PATH}echo \"converting postscript\"");
 			gmtScriptLines.add("${COMMAND_PATH}cat "+img_ps_file+ " |"+ "gs -sDEVICE=jpeg -sOutputFile=temp.jpg"+" -");
 			gmtScriptLines.add("${PS2PDF_PATH} "+img_ps_file+"  "+DISAGGREGATION_PLOT_PDF_NAME);
 			gmtScriptLines.add("${CONVERT_PATH} -crop 0x0 temp.jpg "+DISAGGREGATION_PLOT_IMG_NAME);
-			gmtScriptLines.add("${COMMAND_PATH}rm junk_data temp.jpg temp_segments");
+			gmtScriptLines.add("${COMMAND_PATH}rm temp.jpg temp_segments");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
