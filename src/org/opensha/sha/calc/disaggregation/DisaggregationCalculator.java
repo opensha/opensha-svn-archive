@@ -908,7 +908,7 @@ System.out.println("numRupRejected="+numRupRejected);
 				gmtScriptLines.add("${COMMAND_PATH}echo " + "\"" + dist_binEdges[dist_binEdges.length-1] + " " + mag_binEdges[0] + " " + (0.8*z_tick) +
 						"\"" + " | ${GMT_PATH}psxyz " + "-P -X0.9i " +
 						region + " " +
-						projection + " " + verticalScaling + " -So0.3ib0 " + "0" +
+						projection + " " + verticalScaling + " -So0.3ib0 " +
 						" -K -O " +
 						epsilonColors[k] + "  " + viewAngle + "  " + boxPenWidth +
 						" >> " + img_ps_file);
