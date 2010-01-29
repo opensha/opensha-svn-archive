@@ -5,7 +5,10 @@ import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSourceData;
 import org.opensha.sha.util.TectonicRegionType;
 
-
+/**
+ * Add another constructor that takes the info taken in the GEMAreaSourceData constructor and treat those
+ * area sources here (and remove GEMAreaSourceData).
+ */
 public class GEMGriddedAreaSourceData extends GEMSourceData {
  
 	// this holds a MagFreqDistsForFocalMechs for each location.
