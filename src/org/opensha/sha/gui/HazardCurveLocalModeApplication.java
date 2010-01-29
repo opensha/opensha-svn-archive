@@ -52,6 +52,7 @@ import org.opensha.sha.gui.infoTools.ExceptionWindow;
 public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplication {
 
 	//public final static String NSHMP08_CEUS_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.NSHMP_CEUS08.NSHMP08_CEUS_ERF";
+	public final static String GEM1_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1ERF";
 	public final static String FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
 	public final static String FRANKEL_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
 	public final static String FRANKEL02_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
@@ -70,6 +71,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 	//public final static String STEP_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
 	public final static String STEP_ALASKA_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
 	public final static String POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF";
+	public final static String NEW_POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.NewFloatingPoissonFaultERF";
 	public final static String SIMPLE_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF";
 	public final static String POINT_SRC_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.PointSourceERF";
 	public final static String POINT2MULT_VSS_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF";
@@ -135,6 +137,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 		ArrayList<String> erf_Classes = new ArrayList<String>();
 
 		//adding the client based ERF's to the application
+		erf_Classes.add(GEM1_FORECAST_CLASS_NAME);
 		erf_Classes.add(URS_AVG_UCERF_2_CLASS_NAME);
 		erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
 		erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
@@ -149,6 +152,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 		//erf_Classes.add(STEP_FORECAST_CLASS_NAME);
 		erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
 		erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
+		erf_Classes.add(NEW_POISSON_FAULT_ERF_CLASS_NAME);
 		erf_Classes.add(SIMPLE_FAULT_ERF_CLASS_NAME);
 		erf_Classes.add(POINT_SRC_FORECAST_CLASS_NAME);
 		erf_Classes.add(POINT2MULT_VSS_FORECAST_CLASS_NAME);
@@ -229,6 +233,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 			 *  The object class names for all the supported Eqk Rup Forecasts
 			 */
 			erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
+			erf_Classes.add(NEW_POISSON_FAULT_ERF_CLASS_NAME);
 			erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
 			erf_Classes.add(WGCEP_UCERF_2_CLASS_NAME);
 			erf_Classes.add(WGCEP_UCERF_2_EPISTEMIC_LIST_CLASS_NAME);
