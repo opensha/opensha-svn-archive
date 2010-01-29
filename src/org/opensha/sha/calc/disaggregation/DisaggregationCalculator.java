@@ -834,6 +834,7 @@ System.out.println("numRupRejected="+numRupRejected);
 
 			String axisBoundaryTicksBounds = "-B"+x_tick+":\"Rupture Distance (km)\":"+"/"+y_tick+":Magnitude:"+
 			"/"+z_tick+":%Contribution:"+"wSnEZ";
+			gmtScriptLines.add("${COMMAND_PATH}echo \"plotting axis\"");
 			gmtScriptLines.add("${COMMAND_PATH}cat << END > temp_segments");
 			//creating the grid lines on Z axis.
 			//System.out.println(z_tick+"   "+maxZVal+"   "+maxContrEpsilonForDisaggrPlot);
@@ -860,7 +861,9 @@ System.out.println("numRupRejected="+numRupRejected);
 					viewAngle + "  "+boxPenWidth+"  "+axisBoundaryTicksBounds +" >  "+img_ps_file);
 
 			float contribution, base, top;
+			gmtScriptLines.add("${COMMAND_PATH}echo \"plotting disagg\"");
 			for (int i = 0; i < dist_center.length; ++i) {
+				gmtScriptLines.add("${COMMAND_PATH}echo \"plotting dist bin " + i + "\"");
 				for (int j = mag_center.length - 1; j >= 0; --j) {   // ordering here is important
 
 					double box_x_width = (dist_binEdges[i+1]- dist_binEdges[i])*distBinWidthToInches - 0.05; // lst term leaves some space
@@ -888,7 +891,7 @@ System.out.println("numRupRejected="+numRupRejected);
 				}
 			}
 
-
+			gmtScriptLines.add("${COMMAND_PATH}echo \"plotting legend\"");
 			// add the legend boxes
 			// 1st legend box has origin offset in Y by -2 inches (and X by minus some too)
 			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"" + dist_binEdges[dist_binEdges.length-1] + " " + mag_binEdges[0] + " " + (0.8*z_tick) +
@@ -923,6 +926,7 @@ System.out.println("numRupRejected="+numRupRejected);
 			// on opensha.usc.edu
 			gmtScriptLines.add("${GMT_PATH}pstext temp_label -R0/8.5/0/11 -N -Jx1i -X-6.1 -P -O >> " + img_ps_file);
 
+			gmtScriptLines.add("${COMMAND_PATH}echo \"converting postscript\"");
 			gmtScriptLines.add("${COMMAND_PATH}cat "+img_ps_file+ " |"+ "gs -sDEVICE=jpeg -sOutputFile=temp.jpg"+" -");
 			gmtScriptLines.add("${PS2PDF_PATH} "+img_ps_file+"  "+DISAGGREGATION_PLOT_PDF_NAME);
 			gmtScriptLines.add("${CONVERT_PATH} -crop 0x0 temp.jpg "+DISAGGREGATION_PLOT_IMG_NAME);
