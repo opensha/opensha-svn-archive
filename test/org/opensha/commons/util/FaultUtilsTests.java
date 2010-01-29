@@ -19,34 +19,30 @@
 
 package org.opensha.commons.util;
 
-import junit.framework.TestCase;
-
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.util.FaultUtils;
 
 
 
-public class FaultUtilsTests extends TestCase {
+public class FaultUtilsTests {
 
-    public FaultUtilsTests(String s) {
-    super(s);
-  }
+	public FaultUtilsTests() {
+	}
 
-  protected void setUp() {
-  }
+	@Before
+	public void setUp() {
+	}
 
-  protected void tearDown() {
-  }
+	@After
+	public void tearDown() {
+	}
 
-  public void testAssertValidStrike() {
-    double strike1=  -1.0;
-    try {
-      FaultUtils.assertValidStrike(strike1);
-      assertTrue("Should throw Exception with strike : " + strike1,false);
-    }
-    catch(Exception e)
-    {
-      // System.err.println("Exception thrown as Expected:  "+e);
-      assertTrue(true);
-    }
-  }
+	@Test(expected=InvalidRangeException.class)
+	public void testAssertValidStrike() {
+		double strike1=  -1.0;
+		FaultUtils.assertValidStrike(strike1);
+	}
 }

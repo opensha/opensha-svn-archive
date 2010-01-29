@@ -19,9 +19,12 @@
 
 package org.opensha.sha.imr.attenRelImpl.test;
 
+import static org.junit.Assert.*;
+import java.io.IOException;
 
-import junit.framework.TestCase;
-
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel;
@@ -42,7 +45,7 @@ import org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel;
  * @author : Ned Field, Nitin Gupta & Vipin Gupta
  * @version 1.0
  */
-public class Campbell_1997_test extends TestCase implements ParameterChangeWarningListener {
+public class Campbell_1997_test implements ParameterChangeWarningListener {
 
 
 	Campbell_1997_AttenRel campbell_1997 = null;
@@ -55,27 +58,29 @@ public class Campbell_1997_test extends TestCase implements ParameterChangeWarni
 	 **/
 	private static String showParamsForTests = "fail"; //other option can be "both" to show all results
 
-	private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/test/AttenRelResultSetFiles/";
+	private static final String RESULT_SET_PATH = "/org/opensha/sha/imr/attenRelImpl/test/AttenRelResultSetFiles/";
 	private static final String Campbell_2003_RESULTS = RESULT_SET_PATH +"CB1997.txt";
 
 	//Instance of the class that does the actual comparison for the AttenuationRelationship classes
 	AttenRelResultsChecker attenRelChecker;
 
-	public Campbell_1997_test(final String name) {
-		super(name);
+	public Campbell_1997_test() {
 	}
 
-	protected void setUp() {
+	@Before
+	public void setUp() {
 		// create the instance of the Campbell_1997
 		campbell_1997 = new Campbell_1997_AttenRel(this);
 		attenRelChecker = new AttenRelResultsChecker(campbell_1997,Campbell_2003_RESULTS, tolerence);
 	}
 
-	protected void tearDown() {
+	@After
+	public void tearDown() {
 	}
 
 
-	public void testCampbell1997_Creation() {
+	@Test
+	public void testCampbell1997_Creation() throws IOException {
 
 		boolean result =attenRelChecker.readResultFile();
 
@@ -83,11 +88,11 @@ public class Campbell_1997_test extends TestCase implements ParameterChangeWarni
 		 * If any test for the Campbell-1997 failed
 		 */
 		if(result == false)
-			this.assertNull(attenRelChecker.getFailedTestParamsSettings(),attenRelChecker.getFailedTestParamsSettings());
+			assertNull(attenRelChecker.getFailedTestParamsSettings(),attenRelChecker.getFailedTestParamsSettings());
 
 		//if the all the succeeds and their is no fail for any test
 		else {
-			this.assertTrue("Campbell-1997 Test succeeded for all the test cases",result);
+			assertTrue("Campbell-1997 Test succeeded for all the test cases",result);
 		}
 	}
 
@@ -99,12 +104,13 @@ public class Campbell_1997_test extends TestCase implements ParameterChangeWarni
 	/**
 	 * Run the test case
 	 * @param args
+	 * @throws IOException 
 	 */
 
-	public static void main (String[] args)
+	public static void main (String[] args) throws IOException
 	{
 //		junit.swingui.TestRunner.run(Campbell_1997_test.class);
-		Campbell_1997_test test = new Campbell_1997_test("BJF 1997 Test");
+		Campbell_1997_test test = new Campbell_1997_test();
 		test.setUp();
 
 		boolean result = test.attenRelChecker.readResultFile("/tmp/CB1997.txt");

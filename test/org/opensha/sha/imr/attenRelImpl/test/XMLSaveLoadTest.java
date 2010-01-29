@@ -23,29 +23,31 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.junit.Before;
+import org.junit.Test;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.imr.IntensityMeasureRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
-public class XMLSaveLoadTest extends TestCase {
+public class XMLSaveLoadTest {
 
 	private AttenuationRelationshipsInstance attenRelInst;
 	
-	public XMLSaveLoadTest(String name) {
-		super(name);
+	public XMLSaveLoadTest() {
 	}
 
-	protected void setUp() throws Exception {
-		super.setUp();
+	@Before
+	public void setUp() {
 		attenRelInst = new AttenuationRelationshipsInstance();
 	}
 	
+	@Test
 	public void testIMRSaveLoad() throws InvocationTargetException {
 		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = attenRelInst.createIMRClassInstance(null);
 		

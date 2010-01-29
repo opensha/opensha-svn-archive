@@ -19,30 +19,22 @@
 
 package org.opensha.commons.data;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
-public class DataSuite extends TestCase
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+	DataPoint2DTests.class,
+	LocationTests.class,
+	DataPoint2DTreeMapTests.class,
+	TimeSpanTests.class
+})
+
+public class DataSuite
 {
 
-  public DataSuite(String s)
-  {
-      super(s);
-  }
-
-  public static Test suite()
-  {
-    TestSuite suite = new TestSuite();
-    suite.addTest(new TestSuite(DataPoint2DTests.class));
-    suite.addTest(new TestSuite(LocationTests.class));
-    suite.addTest(new TestSuite(DataPoint2DTreeMapTests.class));
-    suite.addTest(new TestSuite(TimeSpanTests.class));
-    return suite;
-  }
-
-  public static void main(String args[])
-  {
-        junit.swingui.TestRunner.run(DataSuite.class);
-  }
+	public static void main(String args[])
+	{
+		org.junit.runner.JUnitCore.runClasses(DataSuite.class);
+	}
 }

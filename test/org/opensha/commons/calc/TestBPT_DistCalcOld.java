@@ -1,12 +1,13 @@
 package org.opensha.commons.calc;
 
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
 import org.junit.Before;
+import org.junit.Test;
 import org.opensha.commons.util.TestUtils;
 
-public class TestBPT_DistCalcOld extends TestCase {
+public class TestBPT_DistCalcOld {
 
 	double timeSinceLast = 96;
 	double nYr = 30;
@@ -23,8 +24,8 @@ public class TestBPT_DistCalcOld extends TestCase {
 		}
 	}
 	
+	@Test
 	public void testStaticWG02() {
-		double p;
 		System.out.println("Test1: comparison with probs from WG02 code");
 		for(int i=0;i<rate.length;i++) {
 			double diff = TestUtils.getPercentDiff(static_prob[i], prob[i]);
@@ -32,6 +33,7 @@ public class TestBPT_DistCalcOld extends TestCase {
 		}
 	}
 	
+	@Test
 	public void testFastAgainstStatic() {
 		// Test2 (faster method based on pre-computed & saved function)
 		double p;
@@ -44,6 +46,7 @@ public class TestBPT_DistCalcOld extends TestCase {
 		}
 	}
 	
+	@Test
 	public void testDelta0_01() {
 		// Test2 (faster method based on pre-computed & saved function)
 		double p;

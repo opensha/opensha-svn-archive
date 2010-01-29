@@ -57,14 +57,14 @@ public class AS_2008_test extends NGATest {
 	private AS_2008_AttenRel as_2008 = null;
 
 	private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/test/AttenRelResultSetFiles/NGA_ModelsTestFiles/AS08/";
-	
+
 	private String failMetadata = "";
 	private String failLine = "";
 
 	private ArrayList<String> testDataLines;
 	public static void main(String[] args) {
-//		junit.swingui.TestRunner.run(AS_2008_test.class);
-		AS_2008_test test = new AS_2008_test("AS 2008");
+		//		junit.swingui.TestRunner.run(AS_2008_test.class);
+		AS_2008_test test = new AS_2008_test();
 		try {
 			test.runDiagnostics();
 		} catch (Exception e) {
@@ -73,11 +73,11 @@ public class AS_2008_test extends NGATest {
 		}
 	}
 
-	public AS_2008_test(String arg0) {
-		super(arg0, RESULT_SET_PATH);
+	public AS_2008_test() {
+		super(RESULT_SET_PATH);
 	}
 
-	protected void setUp() throws Exception {
+	public void setUp() {
 		super.setUp();
 		//create the instance of the CB_2006
 		as_2008 = new AS_2008_AttenRel(this);
@@ -85,13 +85,13 @@ public class AS_2008_test extends NGATest {
 		//testDataLines = FileUtils.loadFile(CB_2006_RESULTS);
 	}
 
-	protected void tearDown() throws Exception {
+	public void tearDown() {
 		super.tearDown();
 	}
-	
+
 	private String getOpenSHAParams(AttenuationRelationship attenRel) {
 		String str = "";
-		
+
 		str += "OpenSHA params:";
 		if (attenRel.getIntensityMeasure().getName().equals(SA_Param.NAME))
 			str += "\nSA period = " + attenRel.getParameter(PeriodParam.NAME).getValue();
@@ -110,18 +110,18 @@ public class AS_2008_test extends NGATest {
 		str += "\nDepthto1km/sec = " + attenRel.getParameter(DepthTo1pt0kmPerSecParam.NAME).getValue();
 		str += "\tHanging Wall Flag: = " + attenRel.getParameter(HangingWallFlagParam.NAME).getValue();
 		str += "\n";
-		
+
 		return str;
 	}
 
 	@Override
 	public double doSingleFileTest(File file) {
 		double discrep = 0;
-		
+
 		String fileName = file.getName();
-		
+
 		System.out.println("Testing file " + fileName);
-		
+
 		boolean isMedian = false;
 		String testValString = "Std Dev";
 		if(fileName.contains("MEDIAN"))  { // test mean
@@ -146,7 +146,7 @@ public class AS_2008_test extends NGATest {
 		String fltType = fileName.substring(index1-2, index1);
 		fltType.replaceAll("_", "");
 
-		
+
 		if(fileName.contains("SS.OUT") && !fileName.contains("SIGTU"))
 			as_2008.getParameter(FaultTypeParam.NAME).setValue(as_2008.FLT_TYPE_STRIKE_SLIP);
 		else if(fileName.contains("RV.OUT"))
@@ -157,20 +157,20 @@ public class AS_2008_test extends NGATest {
 			//throw new RuntimeException("Unknown Fault Type");
 			//				as_2008.getParameter(FaultTypeParam.NAME).setValue(as_2008.FLT_TYPE_UNKNOWN);
 			as_2008.getParameter(FaultTypeParam.NAME).setValueAsDefault();
-		
+
 		BooleanParameter hangingWallFlagParam = (BooleanParameter)as_2008.getParameter(HangingWallFlagParam.NAME);
 		if(fileName.contains("_FW"))
 			hangingWallFlagParam.setValue(false);
 		else
 			hangingWallFlagParam.setValue(true);
-		
+
 		AftershockParam aftershockParam = (AftershockParam)as_2008.getParameter(AftershockParam.NAME);
-		
+
 		if (fileName.contains("_AS_"))
 			aftershockParam.setValue(true);
 		else
 			aftershockParam.setValue(false);
-		
+
 		if (fileName.contains("SIGEST"))
 			as_2008.getParameter(Vs30_TypeParam.NAME).setValue(Vs30_TypeParam.VS30_TYPE_INFERRED);
 		else
@@ -195,22 +195,22 @@ public class AS_2008_test extends NGATest {
 
 					//Rrup is used for this one
 					double rRup = Double.parseDouble(st.nextToken().trim());
-					
+
 					dist_jb = Double.parseDouble(st.nextToken().trim());
-					
+
 					if (dist_jb==9.0){
 						dist_jb=10.0;
 					} else if (dist_jb==4.5){
 						dist_jb=5.0;
 					}
-					
+
 					as_2008.getParameter(DistanceRupParameter.NAME).setValue(rRup);
 					DistRupMinusJB_OverRupParameter distRupMinusJB_OverRupParam = (DistRupMinusJB_OverRupParameter)as_2008.getParameter(DistRupMinusJB_OverRupParameter.NAME);
-					
-					
+
+
 					double rx = Double.parseDouble(st.nextToken()); // R(x) ( Horizontal distance from top of rupture perpendicular to fault strike)
 					DoubleParameter distRupMinusDistX_OverRupParam = (DoubleParameter)as_2008.getParameter(DistRupMinusDistX_OverRupParam.NAME);
-					
+
 					if (rRup > 0) {
 						distRupMinusJB_OverRupParam.setValueIgnoreWarning((rRup-dist_jb)/rRup);
 						if(rx >= 0.0) {  // sign determines whether it's on the hanging wall (distX is always >= 0 in distRupMinusDistX_OverRupParam)
@@ -235,8 +235,8 @@ public class AS_2008_test extends NGATest {
 						as_2008.getParameter(RupWidthParam.NAME).setValue(new Double(RupWidthParam.MAX));
 					else
 						as_2008.getParameter(RupWidthParam.NAME).setValue(new Double(w));
-//					as_2008.getParameter(AS_2008_AttenRel.RUP_WIDTH_NAME).setValue(new Double(AS_2008_AttenRel.RUP_WIDTH_DEFAULT));
-					
+					//					as_2008.getParameter(AS_2008_AttenRel.RUP_WIDTH_NAME).setValue(new Double(AS_2008_AttenRel.RUP_WIDTH_DEFAULT));
+
 
 					double ztor = Double.parseDouble(st.nextToken()); // Ztor, depth of top
 					as_2008.getParameter(RupTopDepthParam.NAME).setValue(new Double(ztor));
@@ -267,7 +267,7 @@ public class AS_2008_test extends NGATest {
 							"  rrup = "+(float)rRup+"  rjb = "+(float)dist_jb+"\n\t"+ "FaultType = "+fltType+
 							"  rx = "+(float)rx+"  dip = "+(float)dip+"\n\t"+ "w = "+(float)w+
 							"  ztor = "+(float)ztor+"  vs30 = "+(float)vs30+"\n\t"+ "zsed = "+(float)zsed+
-//							"\n\tSet distRupMinusJB_OverRupParam = " + as_2008.getParameter(DistRupMinusJB_OverRupParameter.NAME).getValue() + 
+							//							"\n\tSet distRupMinusJB_OverRupParam = " + as_2008.getParameter(DistRupMinusJB_OverRupParameter.NAME).getValue() + 
 							"\n"+
 							testValString+" from OpenSHA = "+openSHA_Val+"  should be = "+tested_Val;
 							failLine = fileLine;
@@ -275,7 +275,7 @@ public class AS_2008_test extends NGATest {
 							failMetadata += "\nTest number= "+"("+j+"/"+numLines+")"+" failed for "+failedResultMetadata;
 							//							System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
 							failMetadata += "\n" + getOpenSHAParams(as_2008);
-							
+
 							return -1;
 						}
 					}
@@ -294,7 +294,7 @@ public class AS_2008_test extends NGATest {
 						"  rrup = "+(float)rRup+"  rjb = "+(float)dist_jb+"\n\t"+ "FaultType = "+fltType+
 						"  rx = "+(float)rx+"  dip = "+(float)dip+"\n\t"+ "w = "+(float)w+
 						"  ztor = "+(float)ztor+"  vs30 = "+(float)vs30+"\n\t"+ "zsed = "+(float)zsed+
-//						"\n\tSet distRupMinusJB_OverRupParam = " + as_2008.getParameter(DistRupMinusJB_OverRupParameter.NAME).getValue() + 
+						//						"\n\tSet distRupMinusJB_OverRupParam = " + as_2008.getParameter(DistRupMinusJB_OverRupParameter.NAME).getValue() + 
 						"\n"+
 						testValString+" from OpenSHA = "+openSHA_Val+"  should be = "+tested_Val;
 						failLine = fileLine;
@@ -302,7 +302,7 @@ public class AS_2008_test extends NGATest {
 						failMetadata += "\nTest number= "+"("+j+"/"+numLines+")"+" failed for "+failedResultMetadata;
 						//							System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
 						failMetadata += "\n" + getOpenSHAParams(as_2008);
-						
+
 						return -1;
 					};
 					as_2008.setIntensityMeasure(PGV_Param.NAME);
@@ -319,7 +319,7 @@ public class AS_2008_test extends NGATest {
 						"  rrup = "+(float)rRup+"  rjb = "+(float)dist_jb+"\n\t"+ "FaultType = "+fltType+
 						"  rx = "+(float)rx+"  dip = "+(float)dip+"\n\t"+ "w = "+(float)w+
 						"  ztor = "+(float)ztor+"  vs30 = "+(float)vs30+"\n\t"+ "zsed = "+(float)zsed+
-//						"\n\tSet distRupMinusJB_OverRupParam = " + as_2008.getParameter(DistRupMinusJB_OverRupParameter.NAME).getValue() + 
+						//						"\n\tSet distRupMinusJB_OverRupParam = " + as_2008.getParameter(DistRupMinusJB_OverRupParameter.NAME).getValue() + 
 						"\n"+
 						testValString+" from OpenSHA = "+openSHA_Val+"  should be = "+tested_Val;
 						failLine = fileLine;
@@ -327,10 +327,10 @@ public class AS_2008_test extends NGATest {
 						failMetadata += "\nTest number= "+"("+j+"/"+numLines+")"+" failed for "+failedResultMetadata;
 						//							System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
 						failMetadata += "\n" + getOpenSHAParams(as_2008);
-						
+
 						return -1;
 					}
-					
+
 				} catch (NumberFormatException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -361,11 +361,11 @@ public class AS_2008_test extends NGATest {
 		}
 		return discrep;
 	}
-	
+
 	public String getLastFailMetadata() {
 		return failMetadata;
 	}
-	
+
 	public String getLastFailLine() {
 		return failLine;
 	}

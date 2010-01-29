@@ -19,32 +19,20 @@
 
 package org.opensha.commons.test;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.opensha.commons.data.DataSuite;
+import org.opensha.commons.util.UtilSuite;
 
-public class AllTests extends TestCase {
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+	UtilSuite.class,
+	DataSuite.class
+})
 
-  public AllTests(String s) {
-    super(s);
-  }
-
-  public static void main (String[] args)
-  {
-    junit.swingui.TestRunner.run(AllTests.class);
-  }
-
-  public static Test suite() {
-    TestSuite suite = new TestSuite();
-
-    suite.addTest(org.opensha.commons.util.UtilSuite.suite());
-    suite.addTest(org.opensha.commons.data.DataSuite.suite());
-    //suite.addTest(org.opensha.commons.data.region.tests.RegionSuite.suite());
-    suite.addTest(new TestSuite(org.opensha.sha.earthquake.rupForecastImpl.step.tests.STEPTests.class));
-    return suite;
-
-    // Example of how to add a testSuite and an individual test class into this method
-    // suite.addTest(org.opensha.util.tests.UtilSuite.suite());
-    // suite.addTest(new TestSuite(org.opensha.util.tests.FaultUtilsTests.class));
-  }
+public class AllTests {
+	public static void main (String[] args)
+	{
+		org.junit.runner.JUnitCore.runClasses(AllTests.class);
+	}
 }

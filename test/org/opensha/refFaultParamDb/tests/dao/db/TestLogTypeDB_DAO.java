@@ -19,8 +19,11 @@
 
 package org.opensha.refFaultParamDb.tests.dao.db;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.LogTypeDB_DAO;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
@@ -34,44 +37,44 @@ import org.opensha.refFaultParamDb.tests.AllTests;
  * @author not attributable
  * @version 1.0
  */
-public class TestLogTypeDB_DAO extends TestCase {
-  private DB_AccessAPI dbConnection;
-  private LogTypeDB_DAO logTypeDB_DAO = null;
+public class TestLogTypeDB_DAO {
+	private DB_AccessAPI dbConnection;
+	private LogTypeDB_DAO logTypeDB_DAO = null;
 
-  public TestLogTypeDB_DAO(String name) {
-    super(name);
-    dbConnection = AllTests.dbConnection;
-  }
+	public TestLogTypeDB_DAO() {
+		dbConnection = AllTests.dbConnection;
+	}
 
-  protected void setUp() throws Exception {
-    super.setUp();
-    logTypeDB_DAO = new LogTypeDB_DAO(dbConnection);
-  }
+	@Before
+	public void setUp() throws Exception {
+		logTypeDB_DAO = new LogTypeDB_DAO(dbConnection);
+	}
 
-  protected void tearDown() throws Exception {
-    logTypeDB_DAO = null;
-    super.tearDown();
-  }
+	@After
+	public void tearDown() throws Exception {
+		logTypeDB_DAO = null;
+	}
 
+	@Test
+	public void testLogTypeDB_DAO() {
+		logTypeDB_DAO = new LogTypeDB_DAO(dbConnection);
+		assertNotNull("logTypeDB_DAO object should not be null",logTypeDB_DAO);
+	}
 
-  public void testLogTypeDB_DAO() {
-    logTypeDB_DAO = new LogTypeDB_DAO(dbConnection);
-    this.assertNotNull("logTypeDB_DAO object should not be null",logTypeDB_DAO);
-  }
-
-  public void testGetLogType() throws QueryException {
-    int actualReturn = logTypeDB_DAO.getLogTypeId("12");
-    assertEquals( -1, actualReturn);
-    actualReturn = logTypeDB_DAO.getLogTypeId("10");
-    assertEquals( 1, actualReturn);
-    actualReturn = logTypeDB_DAO.getLogTypeId("E");
-    assertEquals( 2, actualReturn);
-    actualReturn = logTypeDB_DAO.getLogTypeId("e");
-    assertEquals( -1, actualReturn);
-    String logBase = logTypeDB_DAO.getLogBase(1);
-    assertEquals("10",logBase);
-    logBase = logTypeDB_DAO.getLogBase(2);
-    assertEquals("E",logBase);
-  }
+	@Test
+	public void testGetLogType() throws QueryException {
+		int actualReturn = logTypeDB_DAO.getLogTypeId("12");
+		assertEquals( -1, actualReturn);
+		actualReturn = logTypeDB_DAO.getLogTypeId("10");
+		assertEquals( 1, actualReturn);
+		actualReturn = logTypeDB_DAO.getLogTypeId("E");
+		assertEquals( 2, actualReturn);
+		actualReturn = logTypeDB_DAO.getLogTypeId("e");
+		assertEquals( -1, actualReturn);
+		String logBase = logTypeDB_DAO.getLogBase(1);
+		assertEquals("10",logBase);
+		logBase = logTypeDB_DAO.getLogBase(2);
+		assertEquals("E",logBase);
+	}
 
 }

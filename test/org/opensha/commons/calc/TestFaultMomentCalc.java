@@ -1,50 +1,50 @@
 package org.opensha.commons.calc;
 
+import static org.junit.Assert.*;
+
+import org.junit.Test;
 import org.opensha.commons.util.TestUtils;
 
-import junit.framework.TestCase;
+public class TestFaultMomentCalc {
 
-public class TestFaultMomentCalc extends TestCase {
-
-	public TestFaultMomentCalc(String name) {
-		super(name);
+	public TestFaultMomentCalc() {
 	}
 
-	protected void setUp() throws Exception {
-		super.setUp();
-	}
-
+	@Test
 	public void testGetMoment() {
-		assertEquals(FaultMomentCalc.getMoment(1, 1), 3e10);
-		assertEquals(FaultMomentCalc.getMoment(1, 5), 1.5e11);
-		assertEquals(FaultMomentCalc.getMoment(10, 1), 3e11);
-		assertEquals(FaultMomentCalc.getMoment(10, 5), 1.5e12);
-		assertEquals(FaultMomentCalc.getMoment(100, 1), 3e12);
-		assertEquals(FaultMomentCalc.getMoment(100, 5), 1.5e13);
-	}
-
-	public void testGetSlip() {
-		assertEquals(FaultMomentCalc.getSlip(1, 3e10), 1d);
-		assertEquals(FaultMomentCalc.getSlip(1, 1.5e11), 5d);
-		assertEquals(FaultMomentCalc.getSlip(10, 3e11), 1d);
-		assertEquals(FaultMomentCalc.getSlip(10, 1.5e12), 5d);
-		assertEquals(FaultMomentCalc.getSlip(100, 3e12), 1d);
-		assertEquals(FaultMomentCalc.getSlip(100, 1.5e13), 5d);
+		assertTrue(FaultMomentCalc.getMoment(1, 1) == 3e10);
+		assertTrue(FaultMomentCalc.getMoment(1, 5) == 1.5e11);
+		assertTrue(FaultMomentCalc.getMoment(10, 1) == 3e11);
+		assertTrue(FaultMomentCalc.getMoment(10, 5) == 1.5e12);
+		assertTrue(FaultMomentCalc.getMoment(100, 1) == 3e12);
+		assertTrue(FaultMomentCalc.getMoment(100, 5) == 1.5e13);
 	}
 	
+	@Test
+	public void testGetSlip() {
+		assertTrue(FaultMomentCalc.getSlip(1, 3e10) == 1d);
+		assertTrue(FaultMomentCalc.getSlip(1, 1.5e11) == 5d);
+		assertTrue(FaultMomentCalc.getSlip(10, 3e11) == 1d);
+		assertTrue(FaultMomentCalc.getSlip(10, 1.5e12) == 5d);
+		assertTrue(FaultMomentCalc.getSlip(100, 3e12) == 1d);
+		assertTrue(FaultMomentCalc.getSlip(100, 1.5e13) == 5d);
+	}
+	
+	@Test
 	public void testSlipFromMoment() {
 		int tests = 0;
 		for (double area=1.0; area<10000d; area*=1.25) {
 			for (double slip=0.1; slip<10; slip+=0.1) {
 				double moment = FaultMomentCalc.getMoment(area, slip);
 				double calcSlip = FaultMomentCalc.getSlip(area, moment);
-				assertEquals((float)slip, (float)calcSlip);
+				assertTrue((float)slip == (float)calcSlip);
 				tests++;
 			}
 		}
 		System.out.println("Tested " + tests + " points");
 	}
 	
+	@Test
 	public void testMomentFromSlip() {
 		int tests = 0;
 		for (double area=1.0; area<10000d; area*=1.25) {

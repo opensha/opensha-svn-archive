@@ -18,8 +18,11 @@
  ******************************************************************************/
 
 package org.opensha.commons.data;
-import junit.framework.TestCase;
 
+import static org.junit.Assert.*;
+
+import org.junit.Before;
+import org.junit.Test;
 import org.opensha.commons.data.DataPoint2D;
 
 
@@ -45,7 +48,7 @@ import org.opensha.commons.data.DataPoint2D;
  * @version    1.0
  */
 
-public class DataPoint2DTests extends TestCase {
+public class DataPoint2DTests {
 
     /** First test DataPoint2D */
     public DataPoint2D d1;
@@ -63,15 +66,14 @@ public class DataPoint2DTests extends TestCase {
     /**
      *  Constructor for the DataPoint2DTestCase object.
      */
-    public DataPoint2DTests(String name) {
-        super( name );
-    }
+    public DataPoint2DTests() {}
 
 
     /**
      *  The JUnit setup method
      */
-    protected void setUp() {
+    @Before
+    public void setUp() {
         d1 = new DataPoint2D( 12.2,  11.3  );
         d3 = new DataPoint2D( 120.2 ,  111.3  );
         d2 = new DataPoint2D( 12.2, 11.3  );
@@ -82,6 +84,7 @@ public class DataPoint2DTests extends TestCase {
     /**
      *  A unit test for JUnit
      */
+    @Test
     public void testEquals()
     {
         assertNotNull( d1 );

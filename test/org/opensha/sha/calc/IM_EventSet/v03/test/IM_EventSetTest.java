@@ -26,13 +26,14 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
+import org.junit.Test;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.IM_EventSet.v02.IM_EventSetCalc_v2_1;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetCalc_v3_0_ASCII;
 
-public class IM_EventSetTest extends TestCase {
+public class IM_EventSetTest {
 	
 	public static double TOLERANCE = 0.05;
 	
@@ -82,6 +83,7 @@ public class IM_EventSetTest extends TestCase {
 		return ver3DirFile;
 	}
 	
+	@Test
 	public void testCB08_PGA() throws IOException {
 		File dir2 = getVer2DirFile();
 		File dir3 = getVer3DirFile();
@@ -91,6 +93,7 @@ public class IM_EventSetTest extends TestCase {
 		verifyFiles(PGA2, PGA3);
 	}
 	
+	@Test
 	public void testCB08_SA02() throws IOException {
 		File dir2 = getVer2DirFile();
 		File dir3 = getVer3DirFile();

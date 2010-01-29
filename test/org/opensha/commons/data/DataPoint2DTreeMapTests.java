@@ -19,8 +19,10 @@
 
 package org.opensha.commons.data;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
+import org.junit.Before;
+import org.junit.Test;
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.DataPoint2DTreeMap;
 
@@ -43,41 +45,43 @@ import org.opensha.commons.data.DataPoint2DTreeMap;
  * @author Steven W. Rock
  * @version 1.0
  */
-public class DataPoint2DTreeMapTests extends TestCase {
+public class DataPoint2DTreeMapTests {
 
     DataPoint2DTreeMap map = new DataPoint2DTreeMap();
     double tolerance = 0.001;
 
 
-    public DataPoint2DTreeMapTests(String s) { super(s); }
+    public DataPoint2DTreeMapTests() {}
 
-    protected void setUp() {
+    @Before
+    public void setUp() {
         map = new DataPoint2DTreeMap();
         map.setTolerance( tolerance );
     }
 
-    protected void tearDown() {}
-
+    @Test
     public void testClear() {
 
         map.clear();
         map.put( new DataPoint2D( 1.0, 2.0));
-        this.assertTrue( map.size() > 0 );
+        assertTrue( map.size() > 0 );
         map.clear();
         assertTrue( map.size() == 0 );
     }
 
+    @Test
     public void testPut() {
         DataPoint2D key1 =  new DataPoint2D( 1.0, 2.0 );
         map.put(key1);
     }
 
+    @Test
     public void testGetTolerance() {
         double doubleRet = map.getTolerance();
         assertTrue( tolerance == doubleRet);
     }
 
-
+    @Test
     public void testGet() {
 
         map.clear();
@@ -104,15 +108,17 @@ public class DataPoint2DTreeMapTests extends TestCase {
 
     }
 
+    @Test
     public void testGetMaxY() {
         double doubleRet = map.getMaxY();
     }
 
+    @Test
     public void testGetMinY() {
         double doubleRet = map.getMinY();
     }
 
-
+    @Test
     public void testSetTolerance() {
         double newTolerance1 =  tolerance;
         try {

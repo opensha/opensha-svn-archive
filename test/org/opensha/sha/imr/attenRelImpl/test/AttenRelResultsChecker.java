@@ -20,9 +20,11 @@
 package org.opensha.sha.imr.attenRelImpl.test;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -151,8 +153,9 @@ public class AttenRelResultsChecker {
 	 * Each test set corresponds to different parameters setting to get the target result.
 	 * That result set is like a benchMark for us to compare the SHA outputs for those parameters
 	 * settings with the result in the file.
+	 * @throws IOException 
 	 */
-	public boolean readResultFile(){
+	public boolean readResultFile() throws IOException{
 		return readResultFile(resultFile + "_new.txt");
 	}
 
@@ -164,161 +167,159 @@ public class AttenRelResultsChecker {
 	 * Each test set corresponds to different parameters setting to get the target result.
 	 * That result set is like a benchMark for us to compare the SHA outputs for those parameters
 	 * settings with the result in the file.
+	 * @throws IOException 
 	 */
-	public boolean readResultFile(String newOutFile){
+	public boolean readResultFile(String newOutFile) throws IOException{
 		boolean result = true;
-		
+
 		StringBuffer outBuff = null;
-		try{
-			if (newOutFile != null) {
-				outBuff = new StringBuffer();
-			}
-			//which file to read for the AttenREl testcase
-			FileReader fr = new FileReader(resultFile);
-			BufferedReader br = new BufferedReader(fr);
-			//read the first line in the file which is the name of the AttenuationRelationship and discard it
-			//becuase we do nothing with it currently
-			String str = br.readLine().trim();
-			if (outBuff != null) outBuff.append(str + "\n");
+		if (newOutFile != null) {
+			outBuff = new StringBuffer();
+		}
+		//which file to read for the AttenREl testcase
+//		FileReader fr = new FileReader(resultFile);
+//		BufferedReader br = new BufferedReader(fr);
+		BufferedReader br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream(resultFile)));
+		//read the first line in the file which is the name of the AttenuationRelationship and discard it
+		//becuase we do nothing with it currently
+		String str = br.readLine().trim();
+		if (outBuff != null) outBuff.append(str + "\n");
 
-			// reads the first line in the file
-			str = (br.readLine()).trim();
+		// reads the first line in the file
+		str = (br.readLine()).trim();
 
-			//keep reading the file until file pointer reaches the end of file.
-			while(str !=null){
-				str= str.trim();
-				//       System.out.println("Line Read: "+str);
-				//if the line contains nothing, just skip that line and read next
-				if(str.equalsIgnoreCase("")) {
-					str = br.readLine();
-					if (outBuff != null) outBuff.append("\n");
+		//keep reading the file until file pointer reaches the end of file.
+		while(str !=null){
+			str= str.trim();
+			//       System.out.println("Line Read: "+str);
+			//if the line contains nothing, just skip that line and read next
+			if(str.equalsIgnoreCase("")) {
+				str = br.readLine();
+				if (outBuff != null) outBuff.append("\n");
 				//if the line contains some data
-				} else {
-					// System.out.println("Line Read: "+str);
-					//if the String read is the Intensity Measure value in the file
-					if(str.trim().startsWith(intensitySetString)){
-						if (outBuff != null) outBuff.append(str + "\n");
-						//setting the imr parameters default value with the start of new test case
-						//set the defaults values for that AttenuationRelationship
-						imr.setParamDefaults();
-						String st = str.substring(str.indexOf("(")+1,str.indexOf(")")).trim();
-						imr.setIntensityMeasure(st);
-						intensityMeasureName = st;
+			} else {
+				// System.out.println("Line Read: "+str);
+				//if the String read is the Intensity Measure value in the file
+				if(str.trim().startsWith(intensitySetString)){
+					if (outBuff != null) outBuff.append(str + "\n");
+					//setting the imr parameters default value with the start of new test case
+					//set the defaults values for that AttenuationRelationship
+					imr.setParamDefaults();
+					String st = str.substring(str.indexOf("(")+1,str.indexOf(")")).trim();
+					imr.setIntensityMeasure(st);
+					intensityMeasureName = st;
 
-						ListIterator supportedIntensityMeasureIterator =imr.getSupportedIntensityMeasuresIterator();
-						//Adding the independent Parameters to the param List
-						while ( supportedIntensityMeasureIterator.hasNext() ) {
-							DependentParameterAPI param = ( DependentParameterAPI ) supportedIntensityMeasureIterator.next();
-							//System.out.println("Intensity Measure Param Name:"+param.getName());
-							if(param.getName().equalsIgnoreCase(intensityMeasureName)){
-								//adding the intensity measure parameter
-								if(!list.containsParameter(param))
-									list.addParameter(param);
-								Iterator it=param.getIndependentParametersIterator();
-								//adding the independent Params for the intensity Measure Param
-								while(it.hasNext()){
-									ParameterAPI  tempParam =(ParameterAPI)it.next();
-									if(!list.containsParameter(tempParam))
-										this.list.addParameter(tempParam);
-								}
+					ListIterator supportedIntensityMeasureIterator =imr.getSupportedIntensityMeasuresIterator();
+					//Adding the independent Parameters to the param List
+					while ( supportedIntensityMeasureIterator.hasNext() ) {
+						DependentParameterAPI param = ( DependentParameterAPI ) supportedIntensityMeasureIterator.next();
+						//System.out.println("Intensity Measure Param Name:"+param.getName());
+						if(param.getName().equalsIgnoreCase(intensityMeasureName)){
+							//adding the intensity measure parameter
+							if(!list.containsParameter(param))
+								list.addParameter(param);
+							Iterator it=param.getIndependentParametersIterator();
+							//adding the independent Params for the intensity Measure Param
+							while(it.hasNext()){
+								ParameterAPI  tempParam =(ParameterAPI)it.next();
+								if(!list.containsParameter(tempParam))
+									this.list.addParameter(tempParam);
 							}
 						}
-						//System.out.println("Intensity Measure Name: "+st);
-						++this.testCaseNumber;
-						failedParamsSetting = "\n\nTest Case Number: "+ testCaseNumber+"\n";
-						failedParamsSetting += "Intensity Measure Type: "+intensityMeasureName+"\n";
 					}
-
-					//if the String read is the Param name and its value from the file
-					else if(str.startsWith(parameterSetString)){
-						if (outBuff != null) outBuff.append(str + "\n");
-						//getting the parameterName
-						String paramName = str.substring(str.indexOf("\"")+1,str.indexOf("\")")).trim();
-
-						//getting teh parameter Value
-						String paramVal = str.substring(str.indexOf("=")+1).trim();
-						if(paramVal.startsWith("\""))
-							paramVal = paramVal.substring(paramVal.indexOf("\"")+1,paramVal.lastIndexOf("\"")).trim();
-
-						failedParamsSetting += "\t"+"\""+paramName+"\""+" = "+ paramVal+"\n";
-
-						//System.out.println("ParameterName: "+paramName);
-						//System.out.println("ParameterVal: "+paramVal);
-						//we only need to get the parameters whose names have been given in the
-						//file, result of the params will be set with the default values
-						ParameterAPI tempParam = list.getParameter(paramName);
-
-						//setting the value of the param based on which type it is: StringParameter,
-						//DoubleParameter,IntegerParameter or WarningDoublePropagationEffectParameter(special parameter for propagation)
-						if(tempParam instanceof StringParameter)
-							tempParam.setValue(paramVal);
-						if(tempParam instanceof DoubleParameter)
-							tempParam.setValue(new Double(paramVal));
-						if(tempParam instanceof IntegerParameter)
-							tempParam.setValue(new Integer(paramVal));
-						if(tempParam instanceof DoubleDiscreteParameter)
-							tempParam.setValue(new Double(paramVal));
-						if(tempParam instanceof WarningDoublePropagationEffectParameter) {
-							((WarningDoublePropagationEffectParameter)tempParam).setIgnoreWarning(true);
-							tempParam.setValue(new Double(paramVal));
-						}
-
-
-					}
-					else if(str.startsWith(getParamValString)){
-						//stores the int value for the selected Y-axis param
-						int yAxisValue =0;
-						String st = str.substring(str.indexOf("\"")+1,str.lastIndexOf("\"")).trim();
-						if(st.equalsIgnoreCase(Y_AXIS_MEDIAN))
-							yAxisValue = MEAN;
-						else if(st.equalsIgnoreCase(Y_AXIS_STD_DEV))
-							yAxisValue = STD_DEV;
-						else if(st.equalsIgnoreCase(Y_AXIS_EXCEED_PROB))
-							yAxisValue = EXCEED_PROB;
-						else if(st.equalsIgnoreCase(Y_AXIS_IML_AT_PROB))
-							yAxisValue = IML_AT_EXCEED_PROB;
-						//name and value for the Y-Control Parameter
-						this.yControlName = st;
-
-						//getting the value of the Y_Axis Param as specified in the file from the test cases
-						//which will be compared to the SHA value for the Y_Axis Param
-						double yAxisParamVal =new Double(str.substring(str.indexOf("=")+1).trim()).doubleValue();
-						decimalFormat.setMaximumFractionDigits(6);
-						failedParamsSetting += "GetValue For Param: "+"\""+yControlName+"\": "+"\n";
-						double yAxisParamValFromSHA =this.getCalculation(yAxisValue);
-						double orignNoRoundSHAVal = yAxisParamValFromSHA;
-						yAxisParamValFromSHA = Double.parseDouble(decimalFormat.format(yAxisParamValFromSHA));
-						failedParamsSetting += "\tOpenSHA value for: "+"\""+yControlName+"\" = "+yAxisParamValFromSHA;
-						failedParamsSetting += ",\tbut it should be : "+ yAxisParamVal+"\n";
-
-						// this line has the old rounding error we found
-//						if (outBuff != null) outBuff.append(getParamValString + "(\"" + st + "\") = " + decimalFormat.format(yAxisParamValFromSHA) + "\n");
-						// this line makes files without the rounding error
-						if (outBuff != null) outBuff.append(getParamValString + "(\"" + st + "\") = " + decimalFormat.format(orignNoRoundSHAVal) + "\n");
-						
-						//compare the computed result using SHA with the target result for the defined set of parameters
-						boolean tempRsult =compareResults(yAxisParamValFromSHA, yAxisParamVal);
-						//if the test was failure the add it to the test cases Vecotr that stores the values for  that failed
-						if(tempRsult == false) {
-							if (outBuff == null)
-								return tempRsult;
-							else
-								result = tempRsult;
-						}
-						//  this.testCaseNumberVector.add(new Integer(this.testCaseNumber));*/
-
-						//adding the Control Param names and Value to ArrayList for all the test cases
-						this.controlParamVector.add(this.getControlParametersValueForTest());
-						//adding the Independent Param names and Value to ArrayList for all the test cases
-						this.independentParamVector.add(this.getIndependentParametersValueForTest());
-					}
-					//reads the next line in the file
-					str = br.readLine();
+					//System.out.println("Intensity Measure Name: "+st);
+					++this.testCaseNumber;
+					failedParamsSetting = "\n\nTest Case Number: "+ testCaseNumber+"\n";
+					failedParamsSetting += "Intensity Measure Type: "+intensityMeasureName+"\n";
 				}
+
+				//if the String read is the Param name and its value from the file
+				else if(str.startsWith(parameterSetString)){
+					if (outBuff != null) outBuff.append(str + "\n");
+					//getting the parameterName
+					String paramName = str.substring(str.indexOf("\"")+1,str.indexOf("\")")).trim();
+
+					//getting teh parameter Value
+					String paramVal = str.substring(str.indexOf("=")+1).trim();
+					if(paramVal.startsWith("\""))
+						paramVal = paramVal.substring(paramVal.indexOf("\"")+1,paramVal.lastIndexOf("\"")).trim();
+
+					failedParamsSetting += "\t"+"\""+paramName+"\""+" = "+ paramVal+"\n";
+
+					//System.out.println("ParameterName: "+paramName);
+					//System.out.println("ParameterVal: "+paramVal);
+					//we only need to get the parameters whose names have been given in the
+					//file, result of the params will be set with the default values
+					ParameterAPI tempParam = list.getParameter(paramName);
+
+					//setting the value of the param based on which type it is: StringParameter,
+					//DoubleParameter,IntegerParameter or WarningDoublePropagationEffectParameter(special parameter for propagation)
+					if(tempParam instanceof StringParameter)
+						tempParam.setValue(paramVal);
+					if(tempParam instanceof DoubleParameter)
+						tempParam.setValue(new Double(paramVal));
+					if(tempParam instanceof IntegerParameter)
+						tempParam.setValue(new Integer(paramVal));
+					if(tempParam instanceof DoubleDiscreteParameter)
+						tempParam.setValue(new Double(paramVal));
+					if(tempParam instanceof WarningDoublePropagationEffectParameter) {
+						((WarningDoublePropagationEffectParameter)tempParam).setIgnoreWarning(true);
+						tempParam.setValue(new Double(paramVal));
+					}
+
+
+				}
+				else if(str.startsWith(getParamValString)){
+					//stores the int value for the selected Y-axis param
+					int yAxisValue =0;
+					String st = str.substring(str.indexOf("\"")+1,str.lastIndexOf("\"")).trim();
+					if(st.equalsIgnoreCase(Y_AXIS_MEDIAN))
+						yAxisValue = MEAN;
+					else if(st.equalsIgnoreCase(Y_AXIS_STD_DEV))
+						yAxisValue = STD_DEV;
+					else if(st.equalsIgnoreCase(Y_AXIS_EXCEED_PROB))
+						yAxisValue = EXCEED_PROB;
+					else if(st.equalsIgnoreCase(Y_AXIS_IML_AT_PROB))
+						yAxisValue = IML_AT_EXCEED_PROB;
+					//name and value for the Y-Control Parameter
+					this.yControlName = st;
+
+					//getting the value of the Y_Axis Param as specified in the file from the test cases
+					//which will be compared to the SHA value for the Y_Axis Param
+					double yAxisParamVal =new Double(str.substring(str.indexOf("=")+1).trim()).doubleValue();
+					decimalFormat.setMaximumFractionDigits(6);
+					failedParamsSetting += "GetValue For Param: "+"\""+yControlName+"\": "+"\n";
+					double yAxisParamValFromSHA =this.getCalculation(yAxisValue);
+					double orignNoRoundSHAVal = yAxisParamValFromSHA;
+					yAxisParamValFromSHA = Double.parseDouble(decimalFormat.format(yAxisParamValFromSHA));
+					failedParamsSetting += "\tOpenSHA value for: "+"\""+yControlName+"\" = "+yAxisParamValFromSHA;
+					failedParamsSetting += ",\tbut it should be : "+ yAxisParamVal+"\n";
+
+					// this line has the old rounding error we found
+					//						if (outBuff != null) outBuff.append(getParamValString + "(\"" + st + "\") = " + decimalFormat.format(yAxisParamValFromSHA) + "\n");
+					// this line makes files without the rounding error
+					if (outBuff != null) outBuff.append(getParamValString + "(\"" + st + "\") = " + decimalFormat.format(orignNoRoundSHAVal) + "\n");
+
+					//compare the computed result using SHA with the target result for the defined set of parameters
+					boolean tempRsult =compareResults(yAxisParamValFromSHA, yAxisParamVal);
+					//if the test was failure the add it to the test cases Vecotr that stores the values for  that failed
+					if(tempRsult == false) {
+						System.out.println("RESULT FALSE!!!!");
+						if (outBuff == null)
+							return tempRsult;
+						else
+							result = tempRsult;
+					}
+					//  this.testCaseNumberVector.add(new Integer(this.testCaseNumber));*/
+
+					//adding the Control Param names and Value to ArrayList for all the test cases
+					this.controlParamVector.add(this.getControlParametersValueForTest());
+					//adding the Independent Param names and Value to ArrayList for all the test cases
+					this.independentParamVector.add(this.getIndependentParametersValueForTest());
+				}
+				//reads the next line in the file
+				str = br.readLine();
 			}
-		}catch(Exception e){
-			e.printStackTrace();
-			return false;
 		}
 		if (!result && outBuff != null) {
 			FileWriter fw;
@@ -331,7 +332,7 @@ public class AttenRelResultsChecker {
 				e.printStackTrace();
 			}
 		}
-		
+
 		// test cases vector that contains the failed test number
 		//if the size of this vector is not zero then return false(to make sure that some test did failed)
 		/*if(this.testCaseNumberVector.size() >0)

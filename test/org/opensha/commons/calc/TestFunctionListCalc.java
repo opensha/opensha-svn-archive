@@ -1,19 +1,19 @@
 package org.opensha.commons.calc;
 
+import org.junit.Test;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncList;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
-public class TestFunctionListCalc extends TestCase {
+public class TestFunctionListCalc {
 	
 	private ArbitrarilyDiscretizedFunc func1 = new ArbitrarilyDiscretizedFunc();
 	private ArbitrarilyDiscretizedFunc func2 = new ArbitrarilyDiscretizedFunc();
 	private ArbitrarilyDiscretizedFunc func3 = new ArbitrarilyDiscretizedFunc();
 
-	public TestFunctionListCalc(String name) {
-		super(name);
+	public TestFunctionListCalc() {
 		
 		func1.set(1d, 5d);
 		func1.set(2d, 5d);
@@ -34,10 +34,7 @@ public class TestFunctionListCalc extends TestCase {
 		func3.set(5d, 5d);
 	}
 
-	protected void setUp() throws Exception {
-		super.setUp();
-	}
-	
+	@Test
 	public void testSum1_2() {
 		DiscretizedFuncList list = new DiscretizedFuncList();
 		list.add(func1);
@@ -46,10 +43,11 @@ public class TestFunctionListCalc extends TestCase {
 		DiscretizedFunc mean = FunctionListCalc.getMean(list);
 		
 		for (int i=0; i<5; i++) {
-			assertEquals(mean.getY(i), 7.5);
+			assertTrue(mean.getY(i) == 7.5);
 		}
 	}
 	
+	@Test
 	public void testSum1_2_3() {
 		DiscretizedFuncList list = new DiscretizedFuncList();
 		list.add(func1);
@@ -59,7 +57,7 @@ public class TestFunctionListCalc extends TestCase {
 		DiscretizedFunc mean = FunctionListCalc.getMean(list);
 		
 		for (int i=0; i<5; i++) {
-			assertEquals(mean.getY(i), (5 + 10 + i + 1) / 3d);
+			assertTrue(mean.getY(i) == (5 + 10 + i + 1) / 3d);
 		}
 	}
 

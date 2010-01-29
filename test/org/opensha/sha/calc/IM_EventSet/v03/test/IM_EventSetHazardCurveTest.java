@@ -24,9 +24,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
 import org.jfree.chart.ChartUtilities;
+import org.junit.Test;
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
@@ -48,7 +49,7 @@ import org.opensha.sha.gui.infoTools.PlotControllerAPI;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 
-public class IM_EventSetHazardCurveTest extends TestCase implements IM_EventSetCalc_v3_0_API, GraphPanelAPI, PlotControllerAPI {
+public class IM_EventSetHazardCurveTest implements IM_EventSetCalc_v3_0_API, GraphPanelAPI, PlotControllerAPI {
 	
 	public static final double TOL_PERCENT = 0.05;
 	
@@ -62,8 +63,7 @@ public class IM_EventSetHazardCurveTest extends TestCase implements IM_EventSetC
 	
 	String imt = "SA 1.0";
 
-	public IM_EventSetHazardCurveTest(String name) {
-		super(name);
+	public IM_EventSetHazardCurveTest() {
 		
 		outputDir = IM_EventSetTest.getTempDir();
 		erf = new Frankel96_AdjustableEqkRupForecast();
@@ -88,10 +88,6 @@ public class IM_EventSetHazardCurveTest extends TestCase implements IM_EventSetC
 		
 		gp = new GraphPanel(this);
 	}
-
-	protected void setUp() throws Exception {
-		super.setUp();
-	}
 	
 	private void runHAZ01A() throws IOException {
 		HAZ01Writer writer = new HAZ01Writer(this);
@@ -102,6 +98,7 @@ public class IM_EventSetHazardCurveTest extends TestCase implements IM_EventSetC
 		System.out.println("done.");
 	}
 	
+	@Test
 	public void testHazardCurve() throws IOException {
 		HazardCurveCalculator calc = new HazardCurveCalculator();
 		
@@ -151,7 +148,7 @@ public class IM_EventSetHazardCurveTest extends TestCase implements IM_EventSetC
 			DataPoint2D hPt = hCurve.get(i);
 			DataPoint2D rPt = realCurve.get(i);
 			
-			assertEquals(hPt.getX(), rPt.getX());
+			assertEquals(hPt.getX(), rPt.getX(), 0);
 			
 			System.out.println("Comparing point: " + i);
 			

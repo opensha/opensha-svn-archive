@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import org.junit.Before;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.BooleanParameter;
@@ -60,8 +61,8 @@ public class CY_2008_test extends NGATest {
 	private String failLine = "";
 	private String failMetadata = "";
 	
-	public CY_2008_test(String name) {
-		super(name, RESULT_SET_PATH);
+	public CY_2008_test() {
+		super(RESULT_SET_PATH);
 	}
 	
 	private static final boolean SA_ONLY = false;
@@ -69,7 +70,7 @@ public class CY_2008_test extends NGATest {
 	
 	public static void main(String[] args) {
 //		junit.swingui.TestRunner.run(AS_2008_test.class);
-		CY_2008_test test = new CY_2008_test("CY 2008");
+		CY_2008_test test = new CY_2008_test();
 		try {
 			test.runDiagnostics();
 		} catch (Exception e) {
@@ -78,7 +79,8 @@ public class CY_2008_test extends NGATest {
 		}
 	}
 	
-	protected void setUp() throws Exception {
+	@Before
+	public void setUp() {
 		super.setUp();
 		cy_08 = new CY_2008_AttenRel(this);
 		cy_08.setParamDefaults();

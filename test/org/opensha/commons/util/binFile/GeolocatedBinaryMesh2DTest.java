@@ -17,24 +17,20 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.util.binFile.test;
+package org.opensha.commons.util.binFile;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
+import org.junit.Test;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
 
-public class GeolocatedBinaryMesh2DTest extends TestCase {
+public class GeolocatedBinaryMesh2DTest {
 	
 	private boolean verbose = true;
 
-	public GeolocatedBinaryMesh2DTest(String name) {
-		super(name);
-	}
-
-	protected void setUp() throws Exception {
-		super.setUp();
+	public GeolocatedBinaryMesh2DTest() {
 	}
 	
 	private void doTestPoint(GeolocatedRectangularBinaryMesh2DCalculator calc, Location loc, long correctX, long correctY) {
@@ -52,6 +48,7 @@ public class GeolocatedBinaryMesh2DTest extends TestCase {
 		assertNull(ind);
 	}
 	
+	@Test
 	public void testCorners() {
 		if (verbose)
 			System.out.println("GLOBAL CORNERS");
@@ -106,6 +103,7 @@ public class GeolocatedBinaryMesh2DTest extends TestCase {
 //		assertTrue(ind[1] == 179);
 	}
 	
+	@Test
 	public void testRegional() {
 		if (verbose)
 			System.out.println("REGIONAL");

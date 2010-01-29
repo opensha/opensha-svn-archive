@@ -19,10 +19,12 @@
 
 package org.opensha.sha.imr.attenRelImpl.test;
 
+import static org.junit.Assert.*;
+
 import java.util.ListIterator;
 
-import junit.framework.TestCase;
-
+import org.junit.Before;
+import org.junit.Test;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.param.ParameterAPI;
@@ -58,7 +60,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
  * @author field
  *
  */
-public class NGA08_Site_EqkRup_Tests extends TestCase {
+public class NGA08_Site_EqkRup_Tests {
 	
 	private final static boolean D = false;
 	
@@ -91,13 +93,14 @@ public class NGA08_Site_EqkRup_Tests extends TestCase {
 	double kmToDeg = 360.0/40000.0;
 	double[] lats = {100*kmToDeg, 25*kmToDeg, 0.0, -25*kmToDeg, -100*kmToDeg};
 	double[] lons = {-20*kmToDeg, 2.5*kmToDeg, 20*kmToDeg};
-
-	
-	
-	
 	
 	public NGA08_Site_EqkRup_Tests() {
-		
+		System.out.println("Constructor");
+	}
+	
+	@Before
+	public void setUp() {
+		System.out.println("setUp");
 		// Create the test Earthquake Rupture
 		dip = 60;
 		upperSeisDepth = 5;
@@ -302,6 +305,7 @@ public class NGA08_Site_EqkRup_Tests extends TestCase {
 	/**
 	 * This tests AS 2008 as a JUnit test. It will be run by JUnit because the method starts with 'test'
 	 */
+	@Test
 	public void testAS08() {
 		assertTrue(doTest(as08));
 	}
@@ -309,6 +313,7 @@ public class NGA08_Site_EqkRup_Tests extends TestCase {
 	/**
 	 * This tests CB 2008 as a JUnit test. It will be run by JUnit because the method starts with 'test'
 	 */
+	@Test
 	public void testCB08() {
 		assertTrue(doTest(cb08));
 	}
@@ -316,6 +321,7 @@ public class NGA08_Site_EqkRup_Tests extends TestCase {
 	/**
 	 * This tests BA 2008 as a JUnit test. It will be run by JUnit because the method starts with 'test'
 	 */
+	@Test
 	public void testBA08() {
 		assertTrue(doTest(ba08));
 	}
@@ -323,6 +329,7 @@ public class NGA08_Site_EqkRup_Tests extends TestCase {
 	/**
 	 * This tests CY 2008 as a JUnit test. It will be run by JUnit because the method starts with 'test'
 	 */
+	@Test
 	public void testCY08() {
 		assertTrue(doTest(cy08));
 	}
@@ -529,6 +536,7 @@ public class NGA08_Site_EqkRup_Tests extends TestCase {
 	public static void main(String[] args) {
 		
 		NGA08_Site_EqkRup_Tests test = new NGA08_Site_EqkRup_Tests();
+		test.setUp();
 		test.runAllTests();
 	}
 

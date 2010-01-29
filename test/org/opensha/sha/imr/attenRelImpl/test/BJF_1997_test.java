@@ -20,8 +20,13 @@
 package org.opensha.sha.imr.attenRelImpl.test;
 
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
+import java.io.IOException;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
@@ -42,12 +47,12 @@ import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
  * @author : Ned Field, Nitin Gupta & Vipin Gupta
  * @version 1.0
  */
-public class BJF_1997_test extends TestCase implements ParameterChangeWarningListener {
+public class BJF_1997_test implements ParameterChangeWarningListener {
 
 
 	BJF_1997_AttenRel bjf_1997 = null;
 
-	private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/test/AttenRelResultSetFiles/";
+	private static final String RESULT_SET_PATH = "/org/opensha/sha/imr/attenRelImpl/test/AttenRelResultSetFiles/";
 	private static final String BOORE_1997_RESULTS = RESULT_SET_PATH +"BOORE.txt";
 
 	//Tolerence to check if the results fall within the range.
@@ -62,21 +67,22 @@ public class BJF_1997_test extends TestCase implements ParameterChangeWarningLis
 	AttenRelResultsChecker attenRelChecker;
 
 
-	public BJF_1997_test(final String name) {
-		super(name);
+	public BJF_1997_test() {
 	}
 
-	protected void setUp() {
+	@Before
+	public void setUp() {
 		// create the instance of the BJF_1997
 		bjf_1997 = new BJF_1997_AttenRel(this);
-		attenRelChecker = new AttenRelResultsChecker(bjf_1997,this.BOORE_1997_RESULTS,this.tolerence);
+		attenRelChecker = new AttenRelResultsChecker(bjf_1997,BOORE_1997_RESULTS,tolerence);
 	}
 
-	protected void tearDown() {
+	@After
+	public void tearDown() {
 	}
 
-
-	public void testBJF1997_Creation() {
+	@Test
+	public void testBJF1997_Creation() throws IOException {
 
 		boolean result =attenRelChecker.readResultFile();
 
@@ -84,11 +90,11 @@ public class BJF_1997_test extends TestCase implements ParameterChangeWarningLis
 		 * If any test for the BJF failed
 		 */
 		if(result == false)
-			this.assertNull(attenRelChecker.getFailedTestParamsSettings(),attenRelChecker.getFailedTestParamsSettings());
+			assertNull(attenRelChecker.getFailedTestParamsSettings(),attenRelChecker.getFailedTestParamsSettings());
 
 		//if the all the succeeds and their is no fail for any test
 		else {
-			this.assertTrue("BJF-1997 Test succeeded for all the test cases",result);
+			assertTrue("BJF-1997 Test succeeded for all the test cases",result);
 		}
 	}
 
@@ -100,12 +106,13 @@ public class BJF_1997_test extends TestCase implements ParameterChangeWarningLis
 	/**
 	 * Run the test case
 	 * @param args
+	 * @throws IOException 
 	 */
 
-	public static void main (String[] args)
+	public static void main (String[] args) throws IOException
 	{
-//		junit.swingui.TestRunner.run(BJF_1997_test.class);
-		BJF_1997_test test = new BJF_1997_test("BJF 1997 Test");
+		//		junit.swingui.TestRunner.run(BJF_1997_test.class);
+		BJF_1997_test test = new BJF_1997_test();
 		test.setUp();
 
 		boolean result = test.attenRelChecker.readResultFile("/tmp/BJF1997.txt");

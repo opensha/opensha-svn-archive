@@ -19,8 +19,11 @@
 
 package org.opensha.commons.data;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.opensha.commons.data.TimeSpan;
 
 
@@ -48,42 +51,43 @@ import org.opensha.commons.data.TimeSpan;
  * @version 1.0
  */
 
-public class TimeSpanTests extends TestCase
+public class TimeSpanTests
 {
 
-  public TimeSpanTests(String s)
-  {
-    super(s);
-  }
+	public TimeSpanTests() {
+	}
 
-  protected void setUp() {
-  }
+	@Before
+	public void setUp() {
+	}
 
-  protected void tearDown() {
-  }
+	@After
+	public void tearDown() {
+	}
 
-  public void testTimeSpan()
-  {
-    TimeSpan tSpan = new TimeSpan(TimeSpan.YEARS,TimeSpan.YEARS);
-    tSpan.setStartTime(1964);
-    assertEquals("Year doesn't Match",1964,tSpan.getStartTimeYear());
-    tSpan.setStartTimeConstraint("Start Year", 1980,2003);
-    tSpan.setStartTime(1984);
-    assertEquals("Start Time Doesn't Match",1984,tSpan.getStartTimeYear());
+	@Test
+	public void testTimeSpan()
+	{
+		TimeSpan tSpan = new TimeSpan(TimeSpan.YEARS,TimeSpan.YEARS);
+		tSpan.setStartTime(1964);
+		assertEquals("Year doesn't Match",1964,tSpan.getStartTimeYear());
+		tSpan.setStartTimeConstraint("Start Year", 1980,2003);
+		tSpan.setStartTime(1984);
+		assertEquals("Start Time Doesn't Match",1984,tSpan.getStartTimeYear());
 
-  }
+	}
 
-  public void testConstraintCheck()
-  {
-    TimeSpan tSpan = new TimeSpan(TimeSpan.YEARS,TimeSpan.YEARS);
-    try
-    {
-      tSpan.setStartTimeConstraint("Start Year", -10,2003);
-      fail("Should have thrown a constraint exception");
-    }
-    catch (Exception e)
-    {
-      assertTrue("Constraint Exception caught as expected",true);
-    }
-  }
+	public void testConstraintCheck()
+	{
+		TimeSpan tSpan = new TimeSpan(TimeSpan.YEARS,TimeSpan.YEARS);
+		try
+		{
+			tSpan.setStartTimeConstraint("Start Year", -10,2003);
+			fail("Should have thrown a constraint exception");
+		}
+		catch (Exception e)
+		{
+			assertTrue("Constraint Exception caught as expected",true);
+		}
+	}
 }
