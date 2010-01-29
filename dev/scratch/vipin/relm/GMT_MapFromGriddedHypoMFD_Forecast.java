@@ -126,7 +126,7 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
     	  xVals.add(new Double(loc.getLatitude())); 
     	  yVals.add(new Double(loc.getLongitude()));
       }
-      IncrementalMagFreqDist magFreqDist = hypoMagFreqDistAtLoc.getMagFreqDist()[0];
+      IncrementalMagFreqDist magFreqDist = hypoMagFreqDistAtLoc.getMagFreqDistList()[0];
       
       // rate above magnitude
       try {

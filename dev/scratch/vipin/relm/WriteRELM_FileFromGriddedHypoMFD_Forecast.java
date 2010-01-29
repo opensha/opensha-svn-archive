@@ -205,13 +205,13 @@ public class WriteRELM_FileFromGriddedHypoMFD_Forecast {
          Location loc4 = new Location(lat2, lon2);
          
          HypoMagFreqDistAtLoc hypoMFD_AtLoc1 = griddedHypoMFD.getHypoMagFreqDistAtLoc(region.indexForLocation(loc1));
-         IncrementalMagFreqDist incrementalMFD1 = hypoMFD_AtLoc1.getMagFreqDist()[0];
+         IncrementalMagFreqDist incrementalMFD1 = hypoMFD_AtLoc1.getMagFreqDistList()[0];
          HypoMagFreqDistAtLoc hypoMFD_AtLoc2 = griddedHypoMFD.getHypoMagFreqDistAtLoc(region.indexForLocation(loc2));
-         IncrementalMagFreqDist incrementalMFD2 = hypoMFD_AtLoc2.getMagFreqDist()[0];
+         IncrementalMagFreqDist incrementalMFD2 = hypoMFD_AtLoc2.getMagFreqDistList()[0];
          HypoMagFreqDistAtLoc hypoMFD_AtLoc3 = griddedHypoMFD.getHypoMagFreqDistAtLoc(region.indexForLocation(loc3));
-         IncrementalMagFreqDist incrementalMFD3 = hypoMFD_AtLoc3.getMagFreqDist()[0];
+         IncrementalMagFreqDist incrementalMFD3 = hypoMFD_AtLoc3.getMagFreqDistList()[0];
          HypoMagFreqDistAtLoc hypoMFD_AtLoc4 = griddedHypoMFD.getHypoMagFreqDistAtLoc(region.indexForLocation(loc4));
-         IncrementalMagFreqDist incrementalMFD4 = hypoMFD_AtLoc4.getMagFreqDist()[0];
+         IncrementalMagFreqDist incrementalMFD4 = hypoMFD_AtLoc4.getMagFreqDistList()[0];
          
          for(int j=0; j<incrementalMFD1.getNum(); ++j) {
              mag1  = incrementalMFD1.getX(j)-incrementalMFD1.getDelta()/2;
