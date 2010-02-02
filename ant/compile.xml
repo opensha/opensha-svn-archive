@@ -25,6 +25,7 @@
 	<property name="dist" value="../dist" />
 	<property name="src" value="../src/" />
 	<property name="dev" value="../dev/" />
+	<property name="test" value="../test/" />
 	<property name="lib.dir" value="../lib" />
 
 	<path id="library.classpath">
@@ -46,6 +47,18 @@
 			<include name="org/**" />
 			<include name="com/**" />
 			<include name="nnls/**" />
+			<exclude name="**/_nobuild/**" />
+		</javac>
+	</target>
+	
+	<target name="compile.tets" depends="">
+		<javac debug="true" deprecation="false" optimize="true" destdir="${build}" nowarn="true" source="1.5" target="1.5" failonerror="yes" verbose="no" fork="yes" memoryInitialSize="512m" memoryMaximumSize="1024m">
+			<classpath>
+				<pathelement location="${build}"/>
+				<path refid="library.classpath" />
+			</classpath>
+			<src path="${test}" />
+			<include name="org/**" />
 			<exclude name="**/_nobuild/**" />
 		</javac>
 	</target>
