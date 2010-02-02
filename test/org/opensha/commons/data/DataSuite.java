@@ -21,13 +21,19 @@ package org.opensha.commons.data;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import org.opensha.commons.data.region.GriddedRegionTest;
+import org.opensha.commons.data.region.RegionTest;
+import org.opensha.commons.data.siteData.SiteDataProvidersTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	DataPoint2DTests.class,
-	LocationTests.class,
 	DataPoint2DTreeMapTests.class,
-	TimeSpanTests.class
+	LocationTests.class,
+	TimeSpanTests.class,
+	GriddedRegionTest.class,
+	RegionTest.class,
+	SiteDataProvidersTest.class
 })
 
 public class DataSuite

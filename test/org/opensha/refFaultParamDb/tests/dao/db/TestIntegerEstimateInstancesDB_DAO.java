@@ -57,7 +57,7 @@ public class TestIntegerEstimateInstancesDB_DAO {
 	}
 
 	@Before
-	protected void tearDown() throws Exception {
+	public void tearDown() throws Exception {
 		estimateInstancesDB_DAO = null;
 	}
 
