@@ -73,8 +73,10 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  * value allows you to force full-fault ruptures for large mags.</p>
  * magScalingSigma is set by hand (rather than getting it from the magScalingRel) to
  * allow maximum flexibility (e.g., some relationships do not even give a sigma value).<p>
- * If magScalingSigma is non zero, then ?????????????????? three branches are considered for the Area or Lengths
- * values: median and +/-1.64sigma, with relative weights of 0.6, 0.2, and 0.2, respectively.<p>
+ * If magScalingSigma is non zero, then 25 branches from -3 to +3 sigma are considered 
+ * for the Area or Length values (this high number was implemented to match PEER test
+ * cases); the option for other numbers of branches should be added to speed things up
+ * if this feature will be widely used.<p>
  * 
  * To Do: 1) generalize makeFaultCornerLocs() to work better for large surfaces; 
  * 2) clarify documentation on magSigma branches
@@ -159,6 +161,7 @@ public class NewFloatingPoissonFaultSource extends ProbEqkSource {
       else {
     	  GaussianMagFreqDist gDist = new GaussianMagFreqDist(-3.0,3.0,25,0.0,1.0,1.0);
     	  gDist.scaleToCumRate(0, 1.0);  // normalize to make it a probability density
+    	  if(D) System.out.println("gDist:\n"+gDist.toString());
     	  for(int m=0; m<gDist.getNum(); m++) {
     		  addRupturesToList(magDist, faultSurface, magScalingRel, magScalingSigma,
                       rupAspectRatio, rupOffset, rake, minMag, gDist.getX(m), gDist.getY(m), 
@@ -316,14 +319,14 @@ public class NewFloatingPoissonFaultSource extends ProbEqkSource {
     	   			else
     	   				probEqkRupture.setRuptureSurface(faultSurface.getNthSubsetSurfaceCenteredDownDip(rupLen,rupWidth,rupOffset,r));
     				probEqkRupture.setMag(mag);
-    				prob = weight*(1.0 - Math.exp(-duration*rate/numRup));
+    				prob = (1.0 - Math.exp(-duration*weight*rate/numRup));
     				probEqkRupture.setProbability(prob);
     				ruptureList.add(probEqkRupture);
     			}
-    			if( D ) System.out.println(C+": ddw="+ddw+": mag="+mag+"; rupLen="+rupLen+"; rupWidth="+rupWidth+
+/*    			if( D ) System.out.println(C+": ddw="+ddw+": mag="+mag+"; rupLen="+rupLen+"; rupWidth="+rupWidth+
     					"; rate="+rate+"; timeSpan="+duration+"; numRup="+numRup+
     					"; weight="+weight+"; prob="+prob+"; floatTypeFlag="+floatTypeFlag);
-
+*/
 
     		}
     		// Apply full fault rupture
@@ -332,7 +335,7 @@ public class NewFloatingPoissonFaultSource extends ProbEqkSource {
 				probEqkRupture.setAveRake(rake);
 				probEqkRupture.setRuptureSurface(faultSurface);
 				probEqkRupture.setMag(mag);
-				prob = weight*(1.0 - Math.exp(-duration*rate));
+				prob = (1.0 - Math.exp(-duration*weight*rate));
 				probEqkRupture.setProbability(prob);
 				ruptureList.add(probEqkRupture);
     		}
