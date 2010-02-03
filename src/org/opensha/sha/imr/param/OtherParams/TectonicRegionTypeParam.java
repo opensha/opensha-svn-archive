@@ -64,9 +64,9 @@ public class TectonicRegionTypeParam extends StringParameter {
 	public TectonicRegionTypeParam(StringConstraint options, String defaultValue) {
 		super(NAME, options);
 		// check that options are supported
-		ArrayList strings = options.getAllowedStrings();
+		ArrayList<String> strings = options.getAllowedStrings();
 		for(int i=0; i< strings.size();i++)
-			if (TectonicRegionType.isValidType((String)strings.get(i))) throw new RuntimeException("Constraint type not supported by TectonicRegionTypeParam");
+			if (!TectonicRegionType.isValidType((String)strings.get(i))) throw new RuntimeException("Constraint type not supported by TectonicRegionTypeParam");
 	    setInfo(INFO);
 	    setDefaultValue(defaultValue);
 	    setNonEditable();
