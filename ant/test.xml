@@ -42,7 +42,7 @@
 		<delete dir="${reports}" failonerror="yes" verbose="no" />
 	</target>
 
-	<target name="pre.test.init">
+	<target name="pre.test.init" depends="pre.test.cleanup">
 		<mkdir dir="${junit}" />
 		<mkdir dir="${logs}" />
 		<mkdir dir="${reports}" />
