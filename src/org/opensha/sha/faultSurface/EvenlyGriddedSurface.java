@@ -201,8 +201,8 @@ public abstract class EvenlyGriddedSurface
       // there is only one subSurface
       if(nSubSurfaceAlong <=1) {
         nSubSurfaceAlong=1;
-        numSubSurfaceCols = numCols;
       }
+      if(numSubSurfaceCols > numCols) numSubSurfaceCols = numCols;
 
       // number of subSurfaces down fault width
       int nSubSurfaceDown =  (int)Math.floor((numRows-numSubSurfaceRows)/numSubSurfaceOffset +1);
@@ -210,8 +210,8 @@ public abstract class EvenlyGriddedSurface
       // one subSurface along width
       if(nSubSurfaceDown <=1) {
         nSubSurfaceDown=1;
-        numSubSurfaceRows = numRows;
       }
+      if(numSubSurfaceRows > numRows) numSubSurfaceRows = numRows;
 
       return getNthSubsetSurface(numSubSurfaceCols, numSubSurfaceRows, numSubSurfaceOffset, nSubSurfaceAlong, n);
    //     throw new RuntimeException("EvenlyGriddeddsurface:getNthSubsetSurface::Inavlid n value for subSurface");
@@ -255,7 +255,7 @@ public abstract class EvenlyGriddedSurface
                                                    int n) {
        return getNthSubsetSurface((int)Math.rint(subSurfaceLength/gridSpacing+1),
                                   (int)Math.rint(subSurfaceWidth/gridSpacing+1),
-                                  (int)Math.rint(subSurfaceOffset/gridSpacing), // should this have a +1?
+                                  (int)Math.rint(subSurfaceOffset/gridSpacing), 
                                   n);
     }
     
