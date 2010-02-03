@@ -70,4 +70,25 @@
 		</junit>    
 	</target>
 	
+	<target name="run.scheduled.tests" depends="compile.tets, pre.test.init">
+		<junit fork="yes" haltonfailure="true" 
+			failureproperty="tests.failed"
+			errorProperty="test.failed"
+			haltonerror="true"
+			dir="."
+			printsummary="yes">
+			<classpath>
+				<pathelement location="${build}"/>
+				<path refid="library.classpath" />
+			</classpath>
+			<formatter type="brief" usefile="false" />
+	     			<formatter type="xml" />
+				<batchtest fork="yes" todir="${logs}">
+				<fileset dir="../classes/">
+					<include name="org/opensha/commons/mapping/gmt/Test*" />
+				</fileset>
+			</batchtest>
+		</junit>    
+	</target>
+	
 </project>
