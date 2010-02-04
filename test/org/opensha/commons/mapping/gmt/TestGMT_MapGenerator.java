@@ -107,8 +107,8 @@ public class TestGMT_MapGenerator {
 		}
 		System.out.println("Out of " + (width * height) + " pixels, " +
 				"there are " + colors.size() + " unique colors.");
-//		int minUnique = 10000;
-		int minUnique = 30000; // temp test to fail
+		int minUnique = 10000;
+//		int minUnique = 30000; // temp test to fail
 		assertTrue("there should be at least " + minUnique + " unique colors", colors.size() > minUnique);
 	}
 
