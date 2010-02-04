@@ -18,7 +18,7 @@
     limitations under the License.
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
-<project basedir="." default="svn.build.run.common.tests" name="Test">
+<project basedir="." default="svn.build.run.common.tests" name="Cruise Control Build File">
 	
 	<target name="svn.update.build">
 		<ant antfile="compile.xml" target="svn.update"/>
@@ -26,7 +26,7 @@
 	</target>
 	
 	<target name="svn.build.run.common.tests" depends="svn.update.build">
-		<ant antfile="test.xml" target="svn.update.build"/>
+		<ant antfile="test.xml" target="run.common.tests"/>
 	</target>
 	
 	<target name="svn.build.run.scheduled.tests" depends="svn.update.build">
