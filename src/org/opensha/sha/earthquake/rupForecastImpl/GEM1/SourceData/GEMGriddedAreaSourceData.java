@@ -6,8 +6,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSourceData;
 import org.opensha.sha.util.TectonicRegionType;
 
 /**
- * Add another constructor that takes the info taken in the GEMAreaSourceData constructor and treat those
- * area sources here (and remove GEMAreaSourceData).
+ * make a subclass of this to deal with current GEMAreaSourceData constructor (and remove GEMAreaSourceData).
  */
 public class GEMGriddedAreaSourceData extends GEMSourceData {
  
