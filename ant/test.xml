@@ -33,11 +33,6 @@
 		<pathelement location="${dev}/scratch/ISTI/isti.util.jar"/>
 	</path>
 	
-	<target name="svn.update.build">
-		<ant antfile="compile.xml" target="svn.update"/>
-		<ant antfile="compile.xml" target="compile"/>
-	</target>
-	
 	<target name="compile.tets" depends="">
 		<ant antfile="compile.xml" target="compile.tets"/>
 	</target>
@@ -75,9 +70,6 @@
 		</junit>    
 	</target>
 	
-	<target name="svn.build.run.common.tests" depends="svn.update.build,run.scheduled.tests">
-	</target>
-	
 	<target name="run.scheduled.tests" depends="compile.tets, pre.test.init">
 		<junit fork="yes" haltonfailure="true" 
 			failureproperty="tests.failed"
@@ -97,9 +89,6 @@
 				</fileset>
 			</batchtest>
 		</junit>    
-	</target>
-	
-	<target name="svn.build.run.scheduled.tests" depends="svn.update.build,run.scheduled.tests">
 	</target>
 	
 </project>
