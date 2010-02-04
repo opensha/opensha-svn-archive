@@ -51,17 +51,17 @@ import org.opensha.sha.param.SimpleFaultParameter;
  * @version 1.0
  */
 
-public class NewFloatingPoissonFaultERF extends EqkRupForecast{
+public class OldFloatingPoissonFaultERF extends EqkRupForecast{
 
   //for Debug purposes
-  private static String  C = new String("New FloatingPoissonFaultERF");
+  private static String  C = new String("Old FloatingPoissonFaultERF");
   private boolean D = false;
 
   //name for this classs
-  public final static String  NAME = "New Floating Poisson Fault ERF";
+  public final static String  NAME = "Old Floating Poisson Fault ERF";
 
   // this is the source (only 1 for this ERF)
-  private NewFloatingPoissonFaultSource source;
+  private OldFloatingPoissonFaultSource source;
 
   //mag-freq dist parameter Name
   public final static String MAG_DIST_PARAM_NAME = "Mag Freq Dist";
@@ -111,21 +111,6 @@ public class NewFloatingPoissonFaultERF extends EqkRupForecast{
   private Double MIN_MAG_PARAM_MIN = new Double(0);
   private Double MIN_MAG_PARAM_MAX = new Double(10);
   private Double MIN_MAG_PARAM_DEFAULT = new Double(5);
-  
-	// Floater Type
-	public final static String FLOATER_TYPE_PARAM_NAME = "Floater Type";
-	public final static String FLOATER_TYPE_FULL_DDW = "Only along strike ( rupture full DDW)";
-	public final static String FLOATER_TYPE_ALONG_STRIKE_AND_DOWNDIP = "Along strike and down dip";
-	public final static String FLOATER_TYPE_CENTERED_DOWNDIP = "Along strike & centered down dip";
-	public final static String FLOATER_TYPE_PARAM_DEFAULT = FLOATER_TYPE_ALONG_STRIKE_AND_DOWNDIP;
-
-	  // min mag parameter stuff
-	  public final static String MAX_FLOAT_MAG_PARAM_NAME = "Max Floater Mag";
-	  private final static String MAX_FLOAT_MAG_PARAM_INFO = "This forces full-fault rupture for mags greater than or equal to this value";
-	  private Double MAX_FLOAT_MAG_PARAM_MIN = new Double(0);
-	  private Double MAX_FLOAT_MAG_PARAM_MAX = new Double(10);
-	  private Double MAX_FLOAT_MAG_PARAM_DEFAULT = new Double(10);
-
 
   // parameter declarations
   MagFreqDistParameter magDistParam;
@@ -136,14 +121,12 @@ public class NewFloatingPoissonFaultERF extends EqkRupForecast{
   DoubleParameter aspectRatioParam;
   DoubleParameter rakeParam;
   DoubleParameter minMagParam;
-  StringParameter floaterTypeParam;
-  DoubleParameter maxFloatMagParam;
 
 
   /**
    * Constructor for this source (no arguments)
    */
-  public NewFloatingPoissonFaultERF() {
+  public OldFloatingPoissonFaultERF() {
 
     // create the timespan object with start time and duration in years
     timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
@@ -195,19 +178,6 @@ public class NewFloatingPoissonFaultERF extends EqkRupForecast{
         MIN_MAG_PARAM_MAX,MIN_MAG_PARAM_DEFAULT);
     minMagParam.setInfo(MIN_MAG_PARAM_INFO);
 
-    // create the min mag param
-    maxFloatMagParam = new DoubleParameter(MAX_FLOAT_MAG_PARAM_NAME,MAX_FLOAT_MAG_PARAM_MIN,
-    		MAX_FLOAT_MAG_PARAM_MAX,MAX_FLOAT_MAG_PARAM_DEFAULT);
-    maxFloatMagParam.setInfo(MAX_FLOAT_MAG_PARAM_INFO);
-    
-	// Floater Type Param
-	ArrayList<String> floaterTypes = new ArrayList<String>();
-	floaterTypes.add(FLOATER_TYPE_FULL_DDW);
-	floaterTypes.add(FLOATER_TYPE_ALONG_STRIKE_AND_DOWNDIP);
-	floaterTypes.add(FLOATER_TYPE_CENTERED_DOWNDIP);
-	floaterTypeParam = new StringParameter(FLOATER_TYPE_PARAM_NAME, floaterTypes, FLOATER_TYPE_PARAM_DEFAULT);
-
-
     // add the adjustable parameters to the list
     adjustableParams.addParameter(rupOffsetParam);
     adjustableParams.addParameter(magScalingRelParam);
@@ -217,8 +187,6 @@ public class NewFloatingPoissonFaultERF extends EqkRupForecast{
     adjustableParams.addParameter(minMagParam);
     adjustableParams.addParameter(faultParam);
     adjustableParams.addParameter(magDistParam);
-    adjustableParams.addParameter(floaterTypeParam);
-    adjustableParams.addParameter(maxFloatMagParam);
 
     // register the parameters that need to be listened to
     rupOffsetParam.addParameterChangeListener(this);
@@ -229,8 +197,6 @@ public class NewFloatingPoissonFaultERF extends EqkRupForecast{
     minMagParam.addParameterChangeListener(this);
     faultParam.addParameterChangeListener(this);
     magDistParam.addParameterChangeListener(this);
-    floaterTypeParam.addParameterChangeListener(this);
-    maxFloatMagParam.addParameterChangeListener(this);
   }
 
 
@@ -258,20 +224,9 @@ public class NewFloatingPoissonFaultERF extends EqkRupForecast{
 
        if (D) System.out.println(S+"  "+magScalingRel.getName());
        
-       // set floater type flag
-       String floatType = floaterTypeParam.getValue();
-       int floatTypeFlag = -1;
-       if(floatType.equals(FLOATER_TYPE_FULL_DDW)) 
-    	   floatTypeFlag=0;
-       else if(floatType.equals(FLOATER_TYPE_ALONG_STRIKE_AND_DOWNDIP)) 
-    	   floatTypeFlag=1;
-       else 
-    	   floatTypeFlag=2;
-      
-       
 //       System.out.println(((EvenlyGriddedSurface) faultParam.getValue()).getSurfaceLength());
 
-       source = new NewFloatingPoissonFaultSource((IncrementalMagFreqDist) magDistParam.getValue(),
+       source = new OldFloatingPoissonFaultSource((IncrementalMagFreqDist) magDistParam.getValue(),
                                              (EvenlyGriddedSurface) faultParam.getValue(),
                                              (MagScalingRelationship) magScalingRel,
                                              ((Double) sigmaParam.getValue()).doubleValue(),
@@ -279,9 +234,7 @@ public class NewFloatingPoissonFaultERF extends EqkRupForecast{
                                              ((Double) rupOffsetParam.getValue()).doubleValue(),
                                              ((Double)rakeParam.getValue()).doubleValue(),
                                              timeSpan.getDuration(),
-                                             ((Double) minMagParam.getValue()).doubleValue(),
-                                             floatTypeFlag,
-                                             maxFloatMagParam.getValue().doubleValue());
+                                             ((Double) minMagParam.getValue()).doubleValue());
        parameterChangeFlag = false;
      }
 

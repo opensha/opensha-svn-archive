@@ -35,7 +35,7 @@ import org.opensha.commons.exceptions.FaultException;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.earthquake.rupForecastImpl.NewFloatingPoissonFaultSource;
+import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
 import org.opensha.sha.earthquake.rupForecastImpl.GriddedRegionPoissonEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
@@ -171,7 +171,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast{
 
     WG02_CharEqkSource wg02_source;
     GriddedRegionPoissonEqkSource backSource = null;
-    NewFloatingPoissonFaultSource grTailSource = null;
+    FloatingPoissonFaultSource grTailSource = null;
 
     WC1994_MagAreaRelationship magScalingRel = new WC1994_MagAreaRelationship();
 
@@ -347,7 +347,7 @@ System.out.println("Char_momentRate="+tempMoRate);
 
       // now create and add the GR tail source if it's needed
       if(grTailValue.equals(WG02_ERF_Epistemic_List.SEIS_INCLUDE)) {
-        grTailSource = new NewFloatingPoissonFaultSource(tail_GR_dist, faultSurface, magScalingRel,
+        grTailSource = new FloatingPoissonFaultSource(tail_GR_dist, faultSurface, magScalingRel,
                                   0.0, 1.0, rupOffset, rake, timeSpan.getDuration());
         grTailSource.setName(sourceName+"_tail");
         // add the source to the temporary list (temporary so it can be appended to the end of allSources later)

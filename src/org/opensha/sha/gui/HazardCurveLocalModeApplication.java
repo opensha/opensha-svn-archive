@@ -70,8 +70,8 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 	public final static String PEER_LOGIC_TREE_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_LogicTreeERF_List";
 	//public final static String STEP_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
 	public final static String STEP_ALASKA_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
+	public final static String OLD_POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.OldFloatingPoissonFaultERF";
 	public final static String POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF";
-	public final static String NEW_POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.NewFloatingPoissonFaultERF";
 	public final static String SIMPLE_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF";
 	public final static String POINT_SRC_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.PointSourceERF";
 	public final static String POINT2MULT_VSS_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF";
@@ -151,8 +151,8 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 		erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
 		//erf_Classes.add(STEP_FORECAST_CLASS_NAME);
 		erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
+		erf_Classes.add(OLD_POISSON_FAULT_ERF_CLASS_NAME);
 		erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
-		erf_Classes.add(NEW_POISSON_FAULT_ERF_CLASS_NAME);
 		erf_Classes.add(SIMPLE_FAULT_ERF_CLASS_NAME);
 		erf_Classes.add(POINT_SRC_FORECAST_CLASS_NAME);
 		erf_Classes.add(POINT2MULT_VSS_FORECAST_CLASS_NAME);
@@ -233,7 +233,6 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 			 *  The object class names for all the supported Eqk Rup Forecasts
 			 */
 			erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
-			erf_Classes.add(NEW_POISSON_FAULT_ERF_CLASS_NAME);
 			erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
 			erf_Classes.add(WGCEP_UCERF_2_CLASS_NAME);
 			erf_Classes.add(WGCEP_UCERF_2_EPISTEMIC_LIST_CLASS_NAME);

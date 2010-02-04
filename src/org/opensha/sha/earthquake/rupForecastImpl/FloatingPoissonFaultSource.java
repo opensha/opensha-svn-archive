@@ -41,21 +41,26 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  * <p>Title: FloatingPoissonFaultSource </p>
  * <p>Description: This implements a basic Poisson fault source for arbitrary: <p>
  * <UL>
- * <LI>magDist - any IncrementalMagFreqDist
+ * <LI>magDist - any IncrementalMagFreqDist (rate per year)
  * <LI>faultSurface - any EvenlyDiscretizedSurface
  * <LI>magScalingRel- any magLenthRelationship or magAreaRelalationship
  * <LI>magScalingSigma - the standard deviation of log(Length) or log(Area)
  * <LI>rupAspectRatio - the ratio of rupture length to rupture width (down-dip)
  * <LI>rupOffset - the amount by which ruptures are offset on the fault.
  * <LI>rake - that rake (in degrees) assigned to all ruptures.
- * <LI>timeSpan - the duration of the forecast (in same units as in the magFreqDist)
+ * <LI>minMag - the minimum magnitude to be considered from magDist (lower mags are ignored)
+ * <LI>floatTypeFlag - if = 0 full down-dip width ruptures; if = 1 float both along strike and down dip; 
+ *                        if = 2 float only along strike and centered down dip.
+ * <LI>fullFaultRupMagThresh - magnitudes greater than or equal to this value will be forced to rupture the entire fault
+ * <LI>duration - the duration of the forecast in years.
  * </UL><p>
- * Note that none of these input objects are saved internally (after construction) in
+ * 
+ * Note that few of these input objects are saved internally (after construction) in
  * order to conserve memory (this is why there are no associated get/set methods for each).<p>
- * The ruptures are placed uniformly across the fault surface (at rupOffset spacing), which
+ * The floatTypeFlag specifies the type of floaters as described above.  For floating,
+ * ruptures are placed uniformly across the fault surface (at rupOffset spacing), which
  * means there is a tapering of implied slip amounts at the ends of the fault.<p>
- * All magnitudes below 5.0 in the magDist are ignored in building the ruptures (unless
- * one uses the constructor that allows the "minMag" to be set by hand). <p>
+ * All magnitudes below minMag in the magDist are ignored in building the ruptures. <p>
  * Note that magScalingSigma can be either a MagAreaRelationship or a
  * MagLengthRelationship.  If a MagAreaRelationship is being used, and the rupture
  * width implied for a given magnitude exceeds the down-dip width of the faultSurface,
@@ -64,11 +69,17 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  * width implied by the rupAspectRatio exceeds the down-dip width, everything below
  * the bottom edge of the fault is simply cut off (ignored).  Thus, with a
  * MagLengthRelationship you can force rupture of the entire down-dip width by giving
- * rupAspecRatio a very small value.</p>
+ * rupAspecRatio a very small value (using floatTypeFlag=1).  The fullFaultRupMagThresh
+ * value allows you to force full-fault ruptures for large mags.</p>
  * magScalingSigma is set by hand (rather than getting it from the magScalingRel) to
  * allow maximum flexibility (e.g., some relationships do not even give a sigma value).<p>
- * If magScalingSigma is non zero, then three branches are considered for the Area or Lengths
- * values: median and +/-1.64sigma, with relative weights of 0.6, 0.2, and 0.2, respectively.<p>
+ * If magScalingSigma is non zero, then 25 branches from -3 to +3 sigma are considered 
+ * for the Area or Length values (this high number was implemented to match PEER test
+ * cases); the option for other numbers of branches should be added to speed things up
+ * if this feature will be widely used.<p>
+ * 
+ * To Do: 1) generalize makeFaultCornerLocs() to work better for large surfaces; 
+ * 2) clarify documentation on magSigma branches
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Ned Field
@@ -76,38 +87,41 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  * @version 1.0
  */
 
+
 public class FloatingPoissonFaultSource extends ProbEqkSource {
 
   //for Debug purposes
   private static String  C = new String("FloatingPoissonFaultSource");
-  private boolean D = false;
+  private boolean D = true;
 
   //name for this classs
   protected String  NAME = "Floating Poisson Fault Source";
 
   // private fields
-  private int totNumRups;
-  private ArrayList ruptureList;
-  private ArrayList faultCornerLocations = new ArrayList();   // used for the getMinDistance(Site) method
+  private ArrayList<ProbEqkRupture> ruptureList;
+  private ArrayList<Location> faultCornerLocations = new ArrayList<Location>();   // used for the getMinDistance(Site) method
   private double duration;
   private EvenlyGriddedSurface faultSurface;
+  
+  private double lastDuration = Double.NaN;
 
-  /* Note that none of the input objects are saved after the ruptureList is created
-     by the constructor.  This is deliberate to save memory.  A setName() method was
-     added here to enable users to give a unique identifier once created.
-  */
 
   /**
-   * This creates the Simple Poisson Fault Source.
+   * This creates the Simple Poisson Fault Source, where a variety floating options are given
+   * by the floatTypeFlag described below. All magnitudes below minMag are given a zero probability,
+   * and all those greater than or equal to fullFaultRupMagThresh are forced to rupture the entire fault.
    * @param magDist - any incremental mag. freq. dist. object
    * @param faultSurface - any EvenlyGriddedSurface representation of the fault
    * @param magScalingRel - any magAreaRelationship or magLengthRelationthip
    * @param magScalingSigma - uncertainty of the length(mag) or area(mag) relationship
    * @param rupAspectRatio - ratio of rupture length to rupture width
-   * @param rupOffset - amount of offset for floating ruptures
+   * @param rupOffset - amount of offset for floating ruptures in km
    * @param rake - average rake of the ruptures
    * @param duration - the timeSpan of interest in years (this is a Poissonian source)
    * @param minMag - the minimum magnitude to be considered from magDist (lower mags are ignored)
+   * @param floatTypeFlag - if = 0 full down-dip width ruptures; if = 1 float both along strike and down dip; 
+   *                        if = 2 float only along strike and centered down dip.
+   * @param fullFaultRupMagThresh - magnitudes greater than or equal to this value will be forced to rupture the entire fault
    */
   public FloatingPoissonFaultSource(IncrementalMagFreqDist magDist,
                                   EvenlyGriddedSurface faultSurface,
@@ -117,7 +131,9 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
                                   double rupOffset,
                                   double rake,
                                   double duration,
-                                  double minMag) {
+                                  double minMag,
+                                  int floatTypeFlag,
+                                  double fullFaultRupMagThresh) {
 
       this.duration = duration;
       this.faultSurface = faultSurface;
@@ -136,36 +152,47 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
       }
       // make a list of a subset of locations on the fault for use in the getMinDistance(site) method
       makeFaultCornerLocs(faultSurface);
-
+      
       // make the rupture list
-      ruptureList = new ArrayList();
+      ruptureList = new ArrayList<ProbEqkRupture>();
       if(magScalingSigma == 0.0)
-        addRupturesToList(magDist, faultSurface, magScalingRel, magScalingSigma, rupAspectRatio, rupOffset, rake, minMag, 0.0, 1.0);
+        addRupturesToList(magDist, faultSurface, magScalingRel, magScalingSigma, rupAspectRatio, rupOffset, 
+        		rake, minMag, 0.0, 1.0, floatTypeFlag, fullFaultRupMagThresh);
       else {
     	  GaussianMagFreqDist gDist = new GaussianMagFreqDist(-3.0,3.0,25,0.0,1.0,1.0);
-    	  gDist.scaleToCumRate(0, 1.0);
+    	  gDist.scaleToCumRate(0, 1.0);  // normalize to make it a probability density
+    	  if(D) System.out.println("gDist:\n"+gDist.toString());
     	  for(int m=0; m<gDist.getNum(); m++) {
     		  addRupturesToList(magDist, faultSurface, magScalingRel, magScalingSigma,
-                      rupAspectRatio, rupOffset, rake, minMag, gDist.getX(m), gDist.getY(m));
-//    		  System.out.println(m+"\t"+gDist.getX(m)+"\t"+gDist.getY(m));
+                      rupAspectRatio, rupOffset, rake, minMag, gDist.getX(m), gDist.getY(m), 
+                      floatTypeFlag, fullFaultRupMagThresh);
+    		  if(D) System.out.println(m+"\t"+gDist.getX(m)+"\t"+gDist.getY(m));
     	  }
-    	  
-//        The branch-tip weights (0.6, 0.2, and 0.2) for the mean, -1.64sigma, and +1.64sigma,
-//       respectively, are from WG99's Table 1.1
-    	  /*
-        addRupturesToList(magDist, faultSurface, magScalingRel, magScalingSigma,
-                          rupAspectRatio, rupOffset, rake, minMag, 0.0, 0.6);
-        addRupturesToList(magDist, faultSurface, magScalingRel,
-                          magScalingSigma, rupAspectRatio, rupOffset, rake, minMag, 1.64, 0.2);
-        addRupturesToList(magDist, faultSurface, magScalingRel,
-                          magScalingSigma, rupAspectRatio, rupOffset, rake, minMag, -1.64, 0.2);
-       */
       }
+      
+      lastDuration = duration;
+  }
+  
+  
+  /**
+   * This constructor sets floatTypeFlag=1 and fullFaultRupMagThresh = Double.MAX_VALUE.  Otherwise it's the same.
+   */
+  public FloatingPoissonFaultSource(IncrementalMagFreqDist magDist,
+          EvenlyGriddedSurface faultSurface,
+          MagScalingRelationship magScalingRel,
+          double magScalingSigma,
+          double rupAspectRatio,
+          double rupOffset,
+          double rake,
+          double duration,
+          double minMag) {
+	  this( magDist, faultSurface, magScalingRel,magScalingSigma,rupAspectRatio,rupOffset,rake,duration,minMag, 1,Double.MAX_VALUE);
   }
 
 
   /**
-   * Same as other constuctor, but where minMag defaults to 5.0.
+   * This constructor sets minMag=5, floatTypeFlag=1 and 
+   * fullFaultRupMagThresh = Double.MAX_VALUE.  Otherwise it's the same.
    */
   public FloatingPoissonFaultSource(IncrementalMagFreqDist magDist,
                                   EvenlyGriddedSurface faultSurface,
@@ -177,6 +204,21 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
                                   double duration) {
     this( magDist, faultSurface, magScalingRel,magScalingSigma,rupAspectRatio,rupOffset,rake,duration,5.0);
   }
+  
+  
+  /**
+   * This allows you to change the duration of the forecast
+   * @param newDuration
+   */
+  public void setDuration(double newDuration) {
+	  for(int r=0; r<ruptureList.size(); r++) {
+		  ProbEqkRupture rup = ruptureList.get(r);
+		  double rate = rup.getMeanAnnualRate(lastDuration);
+		  rup.setProbability(1.0 - Math.exp(-duration*rate));
+	  }
+	  lastDuration = newDuration;
+  }
+  
 
   /**
    * This computes the rupture length from the information supplied
@@ -218,58 +260,86 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
                              double rake,
                              double minMag,
                              double numSigma,
-                             double weight) {
+                             double weight,
+                             int floatTypeFlag,
+                             double fullFaultRupMagThresh) {
 
-    int numMags = magDist.getNum();  // Note that some of these may have zero rates!
 
     double rupLen;
     double rupWidth;
-    double numRup;
+    int numRup;
     double mag;
     double rate;
     double prob=Double.NaN;
 
-    // get down-dip width of fault (from first column)
-    Location loc1 = (Location) faultSurface.get(0,0);
-    Location loc2 = (Location) faultSurface.get(faultSurface.getNumRows()-1,0);
-    double ddw = RelativeLocation.getTotalDistance(loc1,loc2);
 
-    if( D ) System.out.println(C+": ddw="+ddw);
 
     if( D ) System.out.println(C+": magScalingSigma="+magScalingSigma);
+    
+    // loop over magnitudes
+    int numMags = magDist.getNum();
     for(int i=0;i<numMags;++i){
-      mag = magDist.getX(i);
-      // make sure it has a non-zero rate & the mag is >= minMag
-      if(magDist.getY(i) > 0 && mag >= minMag) {
+    	mag = magDist.getX(i);
+    	rate = magDist.getY(i);
+    	// make sure it has a non-zero rate & the mag is >= minMag
+    	if(rate > 10E-15 && mag >= minMag) {
 
-        rupLen = getRupLength(magScalingRel,magScalingSigma,numSigma,rupAspectRatio,mag);
-        rupWidth= rupLen/rupAspectRatio;
+    		// if floater
+    		if(mag < fullFaultRupMagThresh) {
+    		    // get down-dip width of fault
+    		    double ddw=faultSurface.getSurfaceWidth();
 
-        // if magScalingRel is a MagAreaRelationship, then rescale rupLen if rupWidth
-        // exceeds the down-dip width (don't do anything for MagLengthRelationship)
-        if(magScalingRel instanceof MagAreaRelationship  && rupWidth > ddw) {
-          rupLen *= rupWidth/ddw;
-          rupWidth = ddw;
-        }
-//System.out.println((float)mag+"\t"+(float)rupLen+"\t"+(float)rupWidth+"\t"+(float)(rupLen*rupWidth));
+    			rupLen = getRupLength(magScalingRel,magScalingSigma,numSigma,rupAspectRatio,mag);
+    			rupWidth= rupLen/rupAspectRatio;
 
-        numRup = faultSurface.getNumSubsetSurfaces(rupLen,rupWidth,rupOffset);
-//if(mag == 6.445)  System.out.println(rupLen+"\t"+rupWidth+"\t"+rupOffset+"\t"+mag+"\t"+numRup);
-        rate = magDist.getY(mag);
-        // Create the ruptures and add to the list
-        for(int r=0; r < numRup; ++r) {
-          probEqkRupture = new ProbEqkRupture();
-          probEqkRupture.setAveRake(rake);
-          probEqkRupture.setRuptureSurface(faultSurface.getNthSubsetSurface(rupLen,rupWidth,rupOffset,r));
-          probEqkRupture.setMag(mag);
-          prob = weight*(1.0 - Math.exp(-duration*rate/numRup));
-          probEqkRupture.setProbability(prob);
-          ruptureList.add(probEqkRupture);
-        }
-          if( D ) System.out.println(C+": mag="+mag+"; rupLen="+rupLen+"; rupWidth="+rupWidth+
-                                      "; rate="+rate+"; timeSpan="+duration+"; numRup="+numRup+
-                                      "; weight="+weight+"; prob="+prob);
-      }
+    			// if magScalingRel is a MagAreaRelationship, then rescale rupLen if rupWidth
+    			// exceeds the down-dip width (don't do anything for MagLengthRelationship)
+    			if(magScalingRel instanceof MagAreaRelationship  && rupWidth > ddw) {
+    				rupLen *= rupWidth/ddw;
+    				rupWidth = ddw;
+    			}
+    			
+    			// check if full down-dip rupture chosen
+    			if(floatTypeFlag==0)
+    				rupWidth = 2*ddw;  // factor of 2 more than ensures full ddw ruptures
+    			
+    			//System.out.println((float)mag+"\t"+(float)rupLen+"\t"+(float)rupWidth+"\t"+(float)(rupLen*rupWidth));
+
+    			// get number of ruptures depending on whether we're floating down the middle
+    			if(floatTypeFlag != 2)
+    				numRup = faultSurface.getNumSubsetSurfaces(rupLen,rupWidth,rupOffset);
+    			else
+    				numRup = faultSurface.getNumSubsetSurfacesAlongLength(rupLen, rupOffset);
+
+    			for(int r=0; r < numRup; ++r) {
+    				probEqkRupture = new ProbEqkRupture();
+    				probEqkRupture.setAveRake(rake);
+    	   			if(floatTypeFlag != 2)
+    	   			    probEqkRupture.setRuptureSurface(faultSurface.getNthSubsetSurface(rupLen,rupWidth,rupOffset,r));
+    	   			else
+    	   				probEqkRupture.setRuptureSurface(faultSurface.getNthSubsetSurfaceCenteredDownDip(rupLen,rupWidth,rupOffset,r));
+    				probEqkRupture.setMag(mag);
+    				prob = (1.0 - Math.exp(-duration*weight*rate/numRup));
+    				probEqkRupture.setProbability(prob);
+    				ruptureList.add(probEqkRupture);
+    			}
+/*    			if( D ) System.out.println(C+": ddw="+ddw+": mag="+mag+"; rupLen="+rupLen+"; rupWidth="+rupWidth+
+    					"; rate="+rate+"; timeSpan="+duration+"; numRup="+numRup+
+    					"; weight="+weight+"; prob="+prob+"; floatTypeFlag="+floatTypeFlag);
+*/
+
+    		}
+    		// Apply full fault rupture
+    		else {
+				probEqkRupture = new ProbEqkRupture();
+				probEqkRupture.setAveRake(rake);
+				probEqkRupture.setRuptureSurface(faultSurface);
+				probEqkRupture.setMag(mag);
+				prob = (1.0 - Math.exp(-duration*weight*rate));
+				probEqkRupture.setProbability(prob);
+				ruptureList.add(probEqkRupture);
+    		}
+    	}
     }
   }
 
@@ -323,18 +393,19 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
     /**
      * This makes the vector of fault corner location used by the getMinDistance(site)
      * method.
+     * This should be modified to more densely sample the surface if it's large
      * @param faultSurface
      */
     private void makeFaultCornerLocs(EvenlyGriddedSurface faultSurface) {
 
       int nRows = faultSurface.getNumRows();
       int nCols = faultSurface.getNumCols();
-      faultCornerLocations.add(faultSurface.get(0,0));
-      faultCornerLocations.add(faultSurface.get(0,(int)(nCols/2)));
-      faultCornerLocations.add(faultSurface.get(0,nCols-1));
-      faultCornerLocations.add(faultSurface.get(nRows-1,0));
-      faultCornerLocations.add(faultSurface.get(nRows-1,(int)(nCols/2)));
-      faultCornerLocations.add(faultSurface.get(nRows-1,nCols-1));
+      faultCornerLocations.add(faultSurface.getLocation(0,0));
+      faultCornerLocations.add(faultSurface.getLocation(0,(int)(nCols/2)));
+      faultCornerLocations.add(faultSurface.getLocation(0,nCols-1));
+      faultCornerLocations.add(faultSurface.getLocation(nRows-1,0));
+      faultCornerLocations.add(faultSurface.getLocation(nRows-1,(int)(nCols/2)));
+      faultCornerLocations.add(faultSurface.getLocation(nRows-1,nCols-1));
 
     }
 

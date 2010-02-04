@@ -35,7 +35,7 @@ import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.earthquake.rupForecastImpl.NewFloatingPoissonFaultSource;
+import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMFaultSourceData;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSubductionFaultSourceData;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSourceData;
@@ -314,7 +314,7 @@ public class GEM1ERF extends EqkRupForecast{
 				gemFaultSourceData.getSeismDepthUpp(),
                 faultDiscrValue);
 		
-		return new NewFloatingPoissonFaultSource(
+		return new FloatingPoissonFaultSource(
 				gemFaultSourceData.getMfd(),	//IncrementalMagFreqDist
                 faultSurface,					//EvenlyGriddedSurface			
                 magScalingRel,					// MagScalingRelationship
@@ -339,7 +339,7 @@ public class GEM1ERF extends EqkRupForecast{
                 faultDiscrValue);
 		
 		
-		return new NewFloatingPoissonFaultSource(
+		return new FloatingPoissonFaultSource(
 				gemSubductFaultSourceData.getMfd(),	//IncrementalMagFreqDist
                 faultSurface,					//EvenlyGriddedSurface			
                 magScalingRel,					// MagScalingRelationship
