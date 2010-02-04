@@ -89,6 +89,9 @@
 		<delete dir="${tmpdest}" failonerror="yes" verbose="no" />
 	</target>
 
+	<target name="svn.build" depends="svn.update,build">
+	</target>
+	
 	<target name="build" depends="precompilecleanup,init,compile,rmi.all">
 		<delete dir="${build}" failonerror="yes" verbose="no" />
 
