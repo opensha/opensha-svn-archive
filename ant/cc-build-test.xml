@@ -33,4 +33,12 @@
 		<ant antfile="test.xml" target="run.scheduled.tests"/>
 	</target>
 	
+	<target name="svn.build.run.daily.coverage" depends="svn.update.build">
+		<ant antfile="test.xml" target="run.scheduled.tests"/>
+	</target>
+	
+	<target name="svn.build.run.weekly.coverage" depends="svn.update.build">
+		<ant antfile="test.xml" target="run.scheduled.tests"/>
+	</target>
+	
 </project>
