@@ -34,11 +34,11 @@
 	</target>
 	
 	<target name="svn.build.run.daily.coverage" depends="svn.update.build">
-		<ant antfile="test.xml" target="run.scheduled.tests"/>
+		<ant antfile="test.xml" target="run.cobertura"/>
 	</target>
 	
 	<target name="svn.build.run.weekly.coverage" depends="svn.update.build">
-		<ant antfile="test.xml" target="run.scheduled.tests"/>
+		<ant antfile="test.xml" target="run.cobertura.weekly"/>
 	</target>
 	
 </project>
