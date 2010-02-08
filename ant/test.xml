@@ -182,7 +182,7 @@
 			failureproperty="tests.failed"
 			errorProperty="test.failed"
 			haltonerror="false"
-			dir="."
+			dir="${build}"
 			printsummary="yes">
 			
 			<!--
