@@ -55,7 +55,12 @@ import org.opensha.sha.param.SimpleFaultParameter;
 
 
 /**
- * <p>Title: 
+ * <p>Title: PointToLineSourceERF
+ * This is an ERF wrapper for PointToLineSource.  Only one mag-freq dist and focal mechanism is used 
+ * (the latter being created from adjustable params for rake, strike, and dip).  A random strike is
+ * applied if strike is null (or blank in the GUI).  See PointToLineSource for further description.
+ * Tests: I confirmed that averaging a bunch of hazard curves for random strikes equals the curve
+ * for a spoked source with numStrikes=45. 
  * @author Ned Field
  * Date : Feb , 2010
  * @version 1.0
@@ -123,7 +128,7 @@ public class PointToLineSourceERF extends EqkRupForecast{
 	// Mag-scaling relationship parameter stuff
 	public final static String MAG_SCALING_REL_PARAM_NAME = "Mag-Scaling Relationship";
 	private final static String MAG_SCALING_REL_PARAM_INFO = "Relationship to use for Area(Mag) or Area(Length) calculations";
-	private ArrayList magScalingRelOptions;
+	private ArrayList<String> magScalingRelOptions;
 
 	// magDepthParam stuff;
 	public final static String RUP_TOP_DEPTH_FUNC_PARAM_NAME = "Rup-Top Depth vs Mag";
@@ -184,7 +189,7 @@ public class PointToLineSourceERF extends EqkRupForecast{
 		locParam.setInfo(LOC_PARAM_INFO);
 
 		// make the magFreqDistParameter
-		ArrayList supportedMagDists=new ArrayList();
+		ArrayList<String> supportedMagDists=new ArrayList<String>();
 		supportedMagDists.add(GaussianMagFreqDist.NAME);
 		supportedMagDists.add(SingleMagFreqDist.NAME);
 		supportedMagDists.add(GutenbergRichterMagFreqDist.NAME);
@@ -222,7 +227,7 @@ public class PointToLineSourceERF extends EqkRupForecast{
 	                                             WC1994_MagAreaRelationship.NAME);
 	    magScalingRelParam.setInfo(MAG_SCALING_REL_PARAM_INFO);
 
-
+	    // create a default rup-top depth func and create the parameter
 		ArbitrarilyDiscretizedFunc discretizedFunc = new ArbitrarilyDiscretizedFunc();  // these are about NSHMP values
 		discretizedFunc.set(6.0, 5.0);
 		discretizedFunc.set(6.5, 5.0);
@@ -314,14 +319,11 @@ public class PointToLineSourceERF extends EqkRupForecast{
 	}
 
 
-
-
-
 	/**
 	 * update the source based on the parameters
 	 */
 	public void updateForecast(){
-System.out.println(this.adjustableParams.toString());
+		if (D) System.out.println(this.adjustableParams.toString());
 		Double strikeValue = strikeParam.getValue();
 		double strike;
 		// convert null strikes to NaN
@@ -329,7 +331,6 @@ System.out.println(this.adjustableParams.toString());
 			strike = Double.NaN;
 		else
 			strike = strikeValue;
-// System.out.println(magDistParam.getValue());
 		FocalMechanism focalMech = new FocalMechanism(strike, dipParam.getValue(), rakeParam.getValue());
 		HypoMagFreqDistAtLoc hypoMagFreqDistAtLoc = new HypoMagFreqDistAtLoc((IncrementalMagFreqDist)magDistParam.getValue(), 
 				locParam.getValue(), focalMech);
@@ -357,7 +358,6 @@ System.out.println(this.adjustableParams.toString());
 	}
 
 
-
 	private MagScalingRelationship getmagScalingRelationship(String magScName) {
 		if (magScName.equals(WC1994_MagAreaRelationship.NAME))
 			return new WC1994_MagAreaRelationship();
@@ -369,7 +369,7 @@ System.out.println(this.adjustableParams.toString());
 
 	
 	/**
-	 * Return the earhthquake source at index i.   Note that this returns a
+	 * Return the earthquake source at index i.   Note that this returns a
 	 * pointer to the source held internally, so that if any parameters
 	 * are changed, and this method is called again, the source obtained
 	 * by any previous call to this method will no longer be valid.
