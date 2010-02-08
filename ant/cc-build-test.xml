@@ -23,6 +23,7 @@
 	<target name="svn.update.build">
 		<ant antfile="compile.xml" target="svn.update"/>
 		<ant antfile="compile.xml" target="build"/>
+		<ant antfile="compile.xml" target="resource.all"/>
 	</target>
 	
 	<target name="svn.build.run.common.tests" depends="svn.update.build">
