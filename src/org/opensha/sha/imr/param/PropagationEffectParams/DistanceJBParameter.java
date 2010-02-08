@@ -137,19 +137,24 @@ implements WarningParameterAPI
 			double currentDistance;
 
 			EvenlyGriddedSurfaceAPI rupSurf = eqkRupture.getRuptureSurface();
-			ListIterator it = rupSurf.getLocationsIterator();
-			int numLocs=0;
+			
+			// get locations to iterate over depending on dip
+			ListIterator it;
+			if(rupSurf.getAveDip() > 89)
+				it = rupSurf.getColumnIterator(0);
+			else
+				it = rupSurf.getLocationsIterator();
+
 			while( it.hasNext() ){
 
 				loc2 = (Location) it.next();
 				currentDistance = RelativeLocation.getHorzDistance(loc1, loc2);
 				if( currentDistance < minDistance ) minDistance = currentDistance;
-				numLocs += 1;
-			}
+			}				
 
 			// fix distanceJB if needed
 			if(fix_dist_JB)
-				if(rupSurf.getNumCols() > 1 && rupSurf.getNumCols() > 1) {
+				if(rupSurf.getNumCols() > 1 && rupSurf.getNumRows() > 1) {
 					double d1, d2,min_dist;
 					loc1 = rupSurf.getLocation(0, 0);
 					loc2 = rupSurf.getLocation(1, 1);
