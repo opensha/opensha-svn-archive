@@ -129,6 +129,12 @@
 				<include name="**/*.class" />
 		    </fileset>
 		</cobertura-instrument>
+		<!--<property name="build.old" value="${build}" />
+		<property name="build" value="${cobertura.instrumented.dir}" />-->
+		<ant antfile="compile.xml" target="resource.all">
+			<property name="build" value="${cobertura.instrumented.dir}"/>
+		</ant>
+		<!--<property name="build" value="${build.old}" />-->
 	</target>
 	
 	<!-- This runs standard tests (the test suites) that can be executed quickly (every night) -->
