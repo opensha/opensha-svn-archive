@@ -25,29 +25,26 @@ import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**
  * <p>Title: PointEqkSource </p>
- * <p>Description: This makes a point source based on the following inputs:</p>
- * <UL>Location
- * <LI>IncrementalMagFreqDist and duration (or magnitude and probability)
- * <LI>average rake
- * <LI>average dip
- * <LI>minimum magnitude (if a mag.-freq. dist. has been given).
+ * <p>Description: This makes a point source based on the inputs of the various constructors:</p>
  * </UL><p>
  *
- * If an IncrementalMagFreqDist and duration have been given, then the source is
- * Poissonian and it is assumed that the duration units are the same
+ * If an IncrementalMagFreqDist (or HypoMagFreqDistAtLoc) and duration have been given, 
+ * then the source is Poissonian and it is assumed that the duration units are the same
  * as those for the rates in the IncrementalMagFreqDist.  Also, magnitudes below the minimum
- * are ignores, as are those with zero rates.  If magnitude/probability have
+ * are ignored, as are those with zero rates.  If magnitude/probability have
  * been given, the source has only one rupture and is not Poissonian.</p>
  *
  * @author Edward Field
- * @date Sep 2, 2002
  * @version 1.0
  */
 
@@ -65,7 +62,10 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
   private double minMag = Double.NaN;
 
   // to hold the non-zero mags and rates
-  private ArrayList mags, rates;
+  private ArrayList<Double> mags, rates, rakes, dips;
+  private boolean variableDepthRakeAndDip = false;
+  private ArbitrarilyDiscretizedFunc aveRupTopVersusMag;
+  private double defaultHypoDepth;
 
 
   /**
@@ -84,7 +84,7 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
     this.minMag=minMag;
 
     // set the magFreqDist
-    setMagFreqDist(magFreqDist);
+    setMagsAndRates(magFreqDist);
 
     isPoissonian = true;
 
@@ -107,6 +107,31 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
   public PointEqkSource(Location loc, IncrementalMagFreqDist magFreqDist,double duration,
                         double aveRake, double aveDip){
     this( loc,  magFreqDist, duration, aveRake,  aveDip, 0.0);
+
+  }
+
+  
+
+
+  /**
+   * This constructor takes a HypoMagFreqDistAtLoc object, depth as a function of mag (aveRupTopVersusMag), 
+   * and a default depth (defaultHypoDepth).  The depth of each point source is set according to the
+   * mag using the aveRupTopVersusMag function; if mag is below the minimum x value of this function,
+   * then defaultHypoDepth is applied.  Note that the depth value in HypoMagFreqDistAtLoc.getLocation()
+   * is ignored here (that location is cloned here and the depth is overwritten).  This sets the source as
+   * Poissonian
+   */
+  public PointEqkSource(HypoMagFreqDistAtLoc hypoMagFreqDistAtLoc,
+			ArbitrarilyDiscretizedFunc aveRupTopVersusMag, double defaultHypoDepth,
+			double duration, double minMag){
+    this.aveRupTopVersusMag = aveRupTopVersusMag;
+    this.defaultHypoDepth = defaultHypoDepth;
+    this.duration = duration;
+    this.minMag = minMag;
+    this.isPoissonian = true;
+    this.location = hypoMagFreqDistAtLoc.getLocation().copy();
+    this.setAll(hypoMagFreqDistAtLoc);
+    this.variableDepthRakeAndDip = true;
 
   }
 
@@ -152,11 +177,39 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
  public EvenlyGriddedSurfaceAPI getSourceSurface() { return probEqkRupture.getRuptureSurface(); }
 
 
+ /**
+  * This creates the lists of mags and non-zero rates (above minMag).
+  * @param magFreqDist
+  */
+ private void setAll(HypoMagFreqDistAtLoc hypoMagFreqDistAtLoc) {
+
+	 // make list of non-zero rates and mags (if mag >= minMag)
+	 mags = new ArrayList();
+	 rates = new ArrayList();
+	 rakes = new ArrayList();
+	 dips = new ArrayList();
+	 IncrementalMagFreqDist[] magFreqDists = hypoMagFreqDistAtLoc.getMagFreqDistList();
+	 FocalMechanism[] focalMechanisms = hypoMagFreqDistAtLoc.getFocalMechanismList();
+	 for (int i=0; i<magFreqDists.length; i++) {
+		 FocalMechanism focalMech = focalMechanisms[i];
+		 IncrementalMagFreqDist magFreqDist = magFreqDists[i];
+		 for (int m=0; m<magFreqDist.getNum(); m++){
+			 if(magFreqDist.getY(m) > 0 && magFreqDist.getX(m) >= minMag){
+				 mags.add(new Double(magFreqDist.getX(m)));
+				 rates.add(new Double(magFreqDist.getY(m)));
+				 rakes.add(new Double(focalMech.getRake()));
+				 dips.add(new Double(focalMech.getDip()));
+			 }
+		 }
+	 }
+ }
+
+
   /**
    * This creates the lists of mags and non-zero rates (above minMag).
    * @param magFreqDist
    */
-  private void setMagFreqDist(IncrementalMagFreqDist magFreqDist) {
+  private void setMagsAndRates(IncrementalMagFreqDist magFreqDist) {
 
     // make list of non-zero rates and mags (if mag >= minMag)
     //magsAndRates = new ArbitrarilyDiscretizedFunc();
@@ -187,13 +240,25 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
   public ProbEqkRupture getRupture(int nthRupture){
 
     // set the magnitude
-    //probEqkRupture.setMag(magsAndRates.getX(nthRupture));
-    probEqkRupture.setMag(((Double)mags.get(nthRupture)).doubleValue());
+	double mag = mags.get(nthRupture).doubleValue();
+    probEqkRupture.setMag(mag);
 
     // set the probability if it's Poissonian (otherwise this was already set)
     if(isPoissonian)
       probEqkRupture.setProbability(1 - Math.exp(-duration*((Double)rates.get(nthRupture)).doubleValue()));
 
+    // set the rake, depth, and dip if necessary
+    if(variableDepthRakeAndDip) {
+    	probEqkRupture.setAveRake(rakes.get(nthRupture).doubleValue());
+    	double depth;
+    	if(mag < this.aveRupTopVersusMag.getMinX())
+    		depth = this.defaultHypoDepth;
+    	else
+    		depth = aveRupTopVersusMag.getClosestY(mag);
+    	location.setDepth(depth);
+    	probEqkRupture.setPointSurface(location, dips.get(nthRupture).doubleValue());
+    }
+    
     // return the ProbEqkRupture
     return probEqkRupture;
   }
@@ -224,8 +289,12 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
    * @param loc
    */
   public void setLocation(Location loc) {
-    location = loc;
-    probEqkRupture.setPointSurface(location, aveDip);
+	  if(!variableDepthRakeAndDip) {
+		    location = loc;
+		    probEqkRupture.setPointSurface(location, aveDip);		  
+	  }
+	  else
+		  throw new RuntimeException(C+"-- Error - can't set Location when variableDepthRakeAndDip = true");
   }
 
   /**
