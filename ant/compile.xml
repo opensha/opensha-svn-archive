@@ -227,6 +227,16 @@
 		<antcall target="resource.erfs.dev" />
 		<antcall target="resource.erfs.aux" />
 	</target>
+	
+	<target name="resource.tests">
+		<copy todir="${build}"
+			      	overwrite="true">
+			<fileset dir="${test}">
+				<include name="**/*.txt" />
+				<include name="**/*.xml" />
+			</fileset>
+		</copy>
+	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
 	These targets are for unjar-ing lib files        

@@ -57,6 +57,10 @@
 	<target name="compile.tets" depends="">
 		<ant antfile="compile.xml" target="compile.tets"/>
 	</target>
+	
+	<target name="resource.tests" depends="">
+		<ant antfile="compile.xml" target="resource.tests"/>
+	</target>
 
 	<target name="pre.test.cleanup">
 		<delete dir="${logs}" failonerror="yes" verbose="no" />
@@ -91,7 +95,7 @@
 		</junit>    
 	</target>
 	
-	<target name="run.scheduled.tests" depends="compile.tets, pre.test.init">
+	<target name="run.scheduled.tests" depends="compile.tets, resource.tests, pre.test.init">
 		<junit fork="yes" haltonfailure="true" 
 			failureproperty="tests.failed"
 			errorProperty="test.failed"
@@ -245,11 +249,11 @@
 		</cobertura-merge>
 	</target>
 	
-	<target name="run.cobertura" depends="compile.tets, pre.test.init, cobertura.instrument,
+	<target name="run.cobertura" depends="compile.tets, resource.tests, pre.test.init, cobertura.instrument,
 			run.coverage.tests, cobertura.check.merge, cobertura.merge, cobertura.report">
 	</target>
 	
-	<target name="run.cobertura.weekly" depends="compile.tets, pre.test.init, cobertura.instrument,
+	<target name="run.cobertura.weekly" depends="compile.tets, resource.tests, pre.test.init, cobertura.instrument,
 			run.coverage.weekly.tests, cobertura.check.merge, cobertura.merge, cobertura.report">
 	</target>
 	
