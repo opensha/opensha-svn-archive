@@ -128,6 +128,12 @@ public class LocationList implements java.io.Serializable, XMLSaveable, Iterable
     	addLocation(new Location(lat, lon, depth));
     }
 
+    
+    public void addAllLocations(LocationList locList) {
+    	for(int i=0;i<locList.size();i++)
+    		addLocation(locList.getLocationAt(i));
+    }
+
     /**
      * Inserts the location at the given index.
      *
