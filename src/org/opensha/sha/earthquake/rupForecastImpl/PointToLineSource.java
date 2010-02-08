@@ -41,14 +41,13 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**
  * <p>Title: PointEqkSource </p>
- * <p>Description: This makes a point source based on the inputs of the various constructors:</p>
+ * <p>Description: This converts a point source to a line source as described in the constructors.
+ * If given magScalingRel is a mag-length relationship, then the rupture length is simply that
+ * computed from mag.  If magScalingRel is a mag-area relationship, then rupture length is the 
+ * computed area divided by the down-dip width, where the latter is computed as: 
+ * (lowerSeisDepth-aveRupTopVersusMag(mag))/sin(dip).</p>
  * </UL><p>
  *
- * If an IncrementalMagFreqDist (or HypoMagFreqDistAtLoc) and duration have been given, 
- * then the source is Poissonian and it is assumed that the duration units are the same
- * as those for the rates in the IncrementalMagFreqDist.  Also, magnitudes below the minimum
- * are ignored, as are those with zero rates.  If magnitude/probability have
- * been given, the source has only one rupture and is not Poissonian.</p>
  *
  * @author Edward Field
  * @version 1.0
@@ -58,7 +57,7 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 
 	//for Debug purposes
 	private static String  C = new String("PointToLineEqkSource");
-	private static String NAME = "Point-to-Line Eqk Source";
+	private static String NAME = "Point-to-Line Source";
 	private boolean D = false;
 
 	protected ArrayList<ProbEqkRupture> probEqkRuptureList;
@@ -74,9 +73,9 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 	 * and a default depth (defaultHypoDepth).  The depth of each point source is set according to the
 	 * mag using the aveRupTopVersusMag function; if mag is below the minimum x value of this function,
 	 * then defaultHypoDepth is applied.  Note that the depth value in HypoMagFreqDistAtLoc.getLocation()
-	 * is ignored here (that location is cloned and the depth is overwritten here).  This sets the source as
-	 * Poissonian.  The strike in each FocalMechanism of HypoMagFreqDistAtLoc is applied, or a random strike
-	 * is applied if this is NaN (a different random value is applied to each rupture).
+	 * is ignored here (that location is cloned and the depth is overwritten here).  The strike in each 
+	 * FocalMechanism of HypoMagFreqDistAtLoc is applied, or a random strike is applied if this is NaN 
+	 * (a different random value for each and every rupture).  This sets the source as Poissonian.  
 	 */
 	public PointToLineSource(HypoMagFreqDistAtLoc hypoMagFreqDistAtLoc,
 			ArbitrarilyDiscretizedFunc aveRupTopVersusMag, double defaultHypoDepth,
@@ -100,14 +99,11 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 
 
 	/**
-	 * This constructor takes a HypoMagFreqDistAtLoc object, depth as a function of mag (aveRupTopVersusMag), 
-	 * and a default depth (defaultHypoDepth).  The depth of each point source is set according to the
-	 * mag using the aveRupTopVersusMag function; if mag is below the minimum x value of this function,
-	 * then defaultHypoDepth is applied.  Note that the depth value in HypoMagFreqDistAtLoc.getLocation()
-	 * is ignored here (that location is cloned and the depth is overwritten here).  This sets the source as
-	 * Poissonian.  This constructor creates a number of line sources equally spaced in degrees using 
-	 * numStrikes and the firstStrike (e.g., numbStrike=2 and firstStrike=0 creates a cross-hair source
-	 * perfectly alligned NS and EW).
+	 * This constructor is the same as the other, but rather than using the given or a random strike,
+	 * this applies a spoked source where several strikes are applied with even spacing in azimuth.
+	 * numStrikes defines the number of strikes applied (e.g., numStrikes=2 would be a cross hair) and firstStrike
+	 * defines the azimuth of the first one (e.g., firstStrike=0 with numStrikes=2 would be a cross-hair source
+	 * that is perfectly aligned NS and EW).
 	 */
 	public PointToLineSource(HypoMagFreqDistAtLoc hypoMagFreqDistAtLoc,
 			ArbitrarilyDiscretizedFunc aveRupTopVersusMag, double defaultHypoDepth,
@@ -142,7 +138,18 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 
 
 
-
+	/**
+	 * This creates the ruptures and adds them to the list for the given inputs
+	 * @param magFreqDist
+	 * @param focalMech
+	 * @param aveRupTopVersusMag
+	 * @param defaultHypoDepth
+	 * @param magScalingRel
+	 * @param lowerSeisDepth
+	 * @param duration
+	 * @param minMag
+	 * @param weight
+	 */
 	private void mkAndAddRuptures(IncrementalMagFreqDist magFreqDist, 
 			FocalMechanism focalMech, ArbitrarilyDiscretizedFunc aveRupTopVersusMag, 
 			double defaultHypoDepth, MagScalingRelationship magScalingRel,
@@ -155,7 +162,6 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 			isStrikeRandom=true;
 		}
 
-//System.out.println("New Set");
 		for (int m=0; m<magFreqDist.getNum(); m++){
 			double mag = magFreqDist.getX(m);
 			double rate = magFreqDist.getY(m);
@@ -177,7 +183,7 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 				// get randome strike if needed
 				if(isStrikeRandom) {
 					strike = (Math.random()-0.5)*180.0;	// get a random strike between -90 and 90
-//System.out.println(strike);
+					//System.out.println(strike);
 				}
 				Direction dir = new Direction(0.0,rupLength/2,strike,Double.NaN);
 				Location loc1 = RelativeLocation.getLocation(loc,dir);
@@ -205,6 +211,18 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 		}
 	}
 
+	/**
+	 * This computes the rupture length.  If magScalingRel is a mag-length relationship, then
+	 * the length from mag is returned.  If magScalingRel is a mag-area relationship, then
+	 * length returned is the computed area divided by the down-dip width, where the latter
+	 * is computed as: (lowerSeisDepth-aveRupTopVersusMag(mag))/sin(dip).
+	 * @param mag
+	 * @param aveRupTopVersusMag
+	 * @param lowerSeisDepth
+	 * @param dip
+	 * @param magScalingRel
+	 * @return
+	 */
 	private double getRupLength(double mag, ArbitrarilyDiscretizedFunc aveRupTopVersusMag, 
 			double lowerSeisDepth, double dip, MagScalingRelationship magScalingRel) {
 
@@ -230,9 +248,6 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 	/**
 	 * It returns a list of all the locations which make up the surface for this
 	 * source.
-	 *
-	 * @return LocationList - List of all the locations which constitute the surface
-	 * of this source
 	 */
 	public LocationList getAllSourceLocs() {
 		LocationList locList = new LocationList();
@@ -242,6 +257,10 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 		return locList;
 	}
 
+	
+	/**
+	 * don't know what to return here (deprecate this method?)
+	 */
 	public EvenlyGriddedSurfaceAPI getSourceSurface() { 
 		throw new RuntimeException("Method not supported");
 	}
@@ -313,6 +332,6 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 	 * @return
 	 */
 	public String getName() {
-		return C;
+		return NAME;
 	}
 }
