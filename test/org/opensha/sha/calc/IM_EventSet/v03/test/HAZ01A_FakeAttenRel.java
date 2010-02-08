@@ -30,6 +30,8 @@ public class HAZ01A_FakeAttenRel extends AttenuationRelationship {
 	HAZ01ASegment segment;
 	HashMap<String, Integer> sourceRupIDMap;
 	
+	public HAZ01A_FakeAttenRel() {}
+	
 	public HAZ01A_FakeAttenRel(String fileName) throws IOException {
 		System.out.println("Loading HAZ01A file");
 		segment = HAZ01ASegment.loadHAZ01A(fileName).get(0);

@@ -28,6 +28,8 @@ public class HAZ01A_FakeRupture extends ProbEqkRupture {
 	int sourceID;
 	int rupID;
 	
+	public HAZ01A_FakeRupture() {}
+	
 	public HAZ01A_FakeRupture(ProbEqkRupture rup, int sourceID, int rupID) {
 		this(rup.getMag(), rup.getAveRake(), rup.getProbability(), rup.getRuptureSurface(),
 				rup.getHypocenterLocation(), sourceID, rupID);

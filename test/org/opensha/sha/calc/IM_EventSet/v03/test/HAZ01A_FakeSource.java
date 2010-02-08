@@ -32,6 +32,8 @@ public class HAZ01A_FakeSource extends ProbEqkSource {
 	private ArrayList<HAZ01A_FakeRupture> rups;
 	private ProbEqkSource source;
 	
+	public HAZ01A_FakeSource() {}
+	
 	public HAZ01A_FakeSource(ProbEqkSource source, int sourceID) {
 		rups = new ArrayList<HAZ01A_FakeRupture>();
 		this.source = source;

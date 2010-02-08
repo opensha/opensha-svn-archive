@@ -31,6 +31,8 @@ public class HAZ01A_FakeERF extends EqkRupForecast {
 	
 	public EqkRupForecastAPI erf;
 	
+	public HAZ01A_FakeERF() {}
+	
 	public HAZ01A_FakeERF(EqkRupForecastAPI erf) {
 		this.erf = erf;
 	}
