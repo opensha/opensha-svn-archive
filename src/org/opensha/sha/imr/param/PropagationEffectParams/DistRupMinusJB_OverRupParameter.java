@@ -28,6 +28,7 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 
 
 /**
@@ -128,7 +129,16 @@ public class DistRupMinusJB_OverRupParameter
             double minHorzDistance = Double.MAX_VALUE;
             double horzDist, vertDist, totalDist;
 
-            ListIterator it = eqkRupture.getRuptureSurface().getLocationsIterator();
+            EvenlyGriddedSurfaceAPI rupSurf = eqkRupture.getRuptureSurface();
+            
+			// get locations to iterate over depending on dip
+			ListIterator it;
+			if(rupSurf.getAveDip() > 89)
+				it = rupSurf.getColumnIterator(0);
+			else
+				it = rupSurf.getLocationsIterator();
+			
+
             while( it.hasNext() ){
 
                 Location loc2 = (Location) it.next();

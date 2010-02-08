@@ -28,6 +28,7 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 
 
 /**
@@ -128,19 +129,23 @@ implements WarningParameterAPI
 			Location loc1 = site.getLocation();
 			double minDistance = 999999;
 			double horzDist, vertDist, totalDist;
+			
+			EvenlyGriddedSurfaceAPI rupSurf = eqkRupture.getRuptureSurface();
+			
+			// get locations to iterate over depending on dip
+			ListIterator it;
+			if(rupSurf.getAveDip() > 89)
+				it = rupSurf.getColumnIterator(0);
+			else
+				it = rupSurf.getLocationsIterator();
 
-			ListIterator it = eqkRupture.getRuptureSurface().getLocationsIterator();
 			while( it.hasNext() ){
-
 				Location loc2 = (Location) it.next();
-
 				horzDist = RelativeLocation.getHorzDistance(loc1, loc2);
 				vertDist = RelativeLocation.getVertDistance(loc1, loc2);
-
 				totalDist = horzDist * horzDist + vertDist * vertDist;
 				if( totalDist < minDistance ) minDistance = totalDist;
-
-			}
+			}				
 
 			this.setValueIgnoreWarning( new Double( Math.pow ( minDistance , 0.5 ) ));
 
