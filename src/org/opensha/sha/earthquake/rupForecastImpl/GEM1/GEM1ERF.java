@@ -29,14 +29,19 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.PEER_tests
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
+import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.PointToLineSource;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMFaultSourceData;
+import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMGridSourceData;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSubductionFaultSourceData;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSourceData;
 import org.opensha.sha.faultSurface.ApproxEvenlyGriddedSurface;
@@ -64,6 +69,8 @@ public class GEM1ERF extends EqkRupForecast{
 	//for Debug purposes
 	private static String  C = new String("GEM1ERF");
 	private boolean D = false;
+	
+	protected ArrayList<GEMSourceData> gemSourceDataList;
 	
 	// some fixed parameters
 	final static double MINMAG = 0;   // this sets the minimum mag considered in the forecast (overriding that implied in the source data)
@@ -95,8 +102,9 @@ public class GEM1ERF extends EqkRupForecast{
 	// Treat background seis as point of finite ruptures parameter
 	public final static String BACK_SEIS_RUP_NAME = new String ("Treat Background Seismicity As");
 	public final static String BACK_SEIS_RUP_POINT = new String ("Point Sources");
-	public final static String BACK_SEIS_RUP_RANDOM_LINE = new String ("Random Line Source");
+	public final static String BACK_SEIS_RUP_LINE = new String ("Line Sources (random or given strike)");
 	public final static String BACK_SEIS_RUP_CROSS_HAIR = new String ("Cross Hair Line Sources");
+	public final static String BACK_SEIS_RUP_SPOKED = new String ("16 Spoked Line Sources");
 	public final static String BACK_SEIS_RUP_FINITE_SURF = new String ("Finite Dipping Sources");
 	StringParameter backSeisRupParam;
 
@@ -165,12 +173,21 @@ public class GEM1ERF extends EqkRupForecast{
 	StringParameter floaterTypeParam;
 
 
-
 	/**
 	 *
 	 * No argument constructor
 	 */
+	public GEM1ERF() {
+		this(null);
+	}
+
+
+	/**
+	 * This takes a gemSourceDataList
+	 */
 	public GEM1ERF(ArrayList<GEMSourceData> gemSourceDataList) {
+		
+		this.gemSourceDataList = gemSourceDataList;
 
 		// create the timespan object with start time and duration in years
 		timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
@@ -193,8 +210,9 @@ public class GEM1ERF extends EqkRupForecast{
 
 		ArrayList<String> backSeisRupOptionsStrings = new ArrayList<String>();
 		backSeisRupOptionsStrings.add(BACK_SEIS_RUP_POINT);
-		backSeisRupOptionsStrings.add(BACK_SEIS_RUP_RANDOM_LINE);
+		backSeisRupOptionsStrings.add(BACK_SEIS_RUP_LINE);
 		backSeisRupOptionsStrings.add(BACK_SEIS_RUP_CROSS_HAIR);
+		backSeisRupOptionsStrings.add(BACK_SEIS_RUP_SPOKED);
 		backSeisRupOptionsStrings.add(BACK_SEIS_RUP_FINITE_SURF);
 		backSeisRupParam = new StringParameter(BACK_SEIS_RUP_NAME, backSeisRupOptionsStrings,BACK_SEIS_RUP_POINT);
 
@@ -267,7 +285,9 @@ public class GEM1ERF extends EqkRupForecast{
 
 
 	/**
-	 * This put parameters in the ParameterList (depending on settings)
+	 * This put parameters in the ParameterList (depending on settings).
+	 * This could be smarter in terms of not showing parameters if certain
+	 * GEMSourceData subclasses are not passed in.
 	 */
 	private void createParamList() {
 
@@ -305,7 +325,7 @@ public class GEM1ERF extends EqkRupForecast{
 	}
 
 
-	protected ProbEqkSource mkSource(GEMFaultSourceData gemFaultSourceData) {
+	protected ProbEqkSource mkFaultSource(GEMFaultSourceData gemFaultSourceData) {
 		
 		StirlingGriddedSurface faultSurface = new StirlingGriddedSurface(
 				gemFaultSourceData.getTrace(),
@@ -331,7 +351,7 @@ public class GEM1ERF extends EqkRupForecast{
 	
 
 
-	protected ProbEqkSource mkSource(GEMSubductionFaultSourceData gemSubductFaultSourceData) {
+	protected ProbEqkSource mkSubductionSource(GEMSubductionFaultSourceData gemSubductFaultSourceData) {
 		
 		ApproxEvenlyGriddedSurface faultSurface = new ApproxEvenlyGriddedSurface(
 				gemSubductFaultSourceData.getTopTrace(),
@@ -354,6 +374,47 @@ public class GEM1ERF extends EqkRupForecast{
 	}
 	
 
+	protected ProbEqkSource mkGridSource(GEMGridSourceData gridSourceData) {
+		
+		if(backSeisRupValue.equals(BACK_SEIS_RUP_POINT)) {
+			return new PointEqkSource(gridSourceData.getHypoMagFreqDistAtLoc(),
+					gridSourceData.getAveRupTopVsMag(), 
+					gridSourceData.getAveHypoDepth(),
+					duration, MINMAG);
+		}
+		else if(backSeisRupValue.equals(BACK_SEIS_RUP_LINE)) {
+			return new PointToLineSource(gridSourceData.getHypoMagFreqDistAtLoc(),
+					gridSourceData.getAveRupTopVsMag(), 
+					gridSourceData.getAveHypoDepth(),
+					magScalingRelBackgr,
+					lowerSeisDepthValue, 
+					duration, MINMAG);
+		}
+		else if(backSeisRupValue.equals(BACK_SEIS_RUP_CROSS_HAIR)) {
+			return new PointToLineSource(gridSourceData.getHypoMagFreqDistAtLoc(),
+					gridSourceData.getAveRupTopVsMag(), 
+					gridSourceData.getAveHypoDepth(),
+					magScalingRelBackgr,
+					lowerSeisDepthValue, 
+					duration, MINMAG,
+					2, 0);
+		}
+		else if(backSeisRupValue.equals(BACK_SEIS_RUP_SPOKED)) {
+			return new PointToLineSource(gridSourceData.getHypoMagFreqDistAtLoc(),
+					gridSourceData.getAveRupTopVsMag(), 
+					gridSourceData.getAveHypoDepth(),
+					magScalingRelBackgr,
+					lowerSeisDepthValue, 
+					duration, MINMAG,
+					16, 0);
+		}
+		else if(backSeisRupValue.equals(BACK_SEIS_RUP_FINITE_SURF)) {
+			throw new RuntimeException(NAME+" - "+BACK_SEIS_RUP_FINITE_SURF+ " is not yet implemented");
+		}
+		else
+			throw new RuntimeException(NAME+" - Unsupported background rupture type");
+	}
+
 	
 
 	/**
@@ -363,7 +424,15 @@ public class GEM1ERF extends EqkRupForecast{
 	 */
 	public ProbEqkSource getSource(int iSource) {
 
-		return null;
+		GEMSourceData srcData = gemSourceDataList.get(iSource);
+		if(srcData instanceof GEMFaultSourceData)
+			return mkFaultSource((GEMFaultSourceData)srcData);
+		else if (srcData instanceof GEMSubductionFaultSourceData)
+			return mkSubductionSource((GEMSubductionFaultSourceData)srcData);
+		else if (srcData instanceof GEMGridSourceData)
+			return mkGridSource((GEMGridSourceData)srcData);
+		else
+			throw new RuntimeException(NAME+": "+srcData.getClass()+" not yet supported");
 	}
 
 	/**
@@ -372,9 +441,8 @@ public class GEM1ERF extends EqkRupForecast{
 	 * @return integer
 	 */
 	public int getNumSources(){
-		return 0;
+		return gemSourceDataList.size();
 	}
-
 
 	/**
 	 * Get the list of all earthquake sources.
@@ -382,10 +450,11 @@ public class GEM1ERF extends EqkRupForecast{
 	 * @return ArrayList of Prob Earthquake sources
 	 */
 	public ArrayList  getSourceList(){
-
-		return null;
+		ArrayList list = new ArrayList();
+		for(int s=0; s<this.getNumSources();s++)
+			list.add(getSource(s));
+		return list;
 	}
-
 
 	/**
 	 * Return the name for this class
@@ -395,7 +464,6 @@ public class GEM1ERF extends EqkRupForecast{
 	public String getName(){
 		return NAME;
 	}
-
 
 	/**
 	 * update the forecast
@@ -412,6 +480,7 @@ public class GEM1ERF extends EqkRupForecast{
 			backSeisRupValue = backSeisRupParam.getValue();
 			lowerSeisDepthValue = lowerSeisDepthParam.getValue();
 			magScalingRelBackgr = getmagScalingRelationship(magScalingRelBackgrParam.getValue());
+			
 			rupOffsetValue = rupOffsetParam.getValue();
 			faultDiscrValue = faultDiscrParam.getValue();
 			magScalingRel = getmagScalingRelationship(magScalingRelParam.getValue());
@@ -428,9 +497,7 @@ public class GEM1ERF extends EqkRupForecast{
 
 			parameterChangeFlag = false;
 		}
-
 	}
-
 
 	/**
 	 *  This acts on a parameter change event.

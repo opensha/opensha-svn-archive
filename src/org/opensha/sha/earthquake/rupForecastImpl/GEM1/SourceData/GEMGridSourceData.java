@@ -6,39 +6,37 @@ import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSourceData;
 import org.opensha.sha.util.TectonicRegionType;
 
 /**
- * make a subclass of this to deal with current GEMAreaSourceData constructor (and remove GEMAreaSourceData).
+ * This holds data for a grid source (single location).
  */
-public class GEMGriddedAreaSourceData extends GEMSourceData {
+public class GEMGridSourceData extends GEMSourceData {
  
-	// this holds a MagFreqDistsForFocalMechs for each location.
-	private HypoMagFreqDistAtLoc[] hypoMagFreqDistAtLocList;
-	// the following specifies the average depth to top of rupture as a function of
-	// magnitude, which will be obtained using the getInterpolatedY(mag) method.
+	// this holds the MagFreqDists, FocalMechs, and location.
+	private HypoMagFreqDistAtLoc hypoMagFreqDistAtLoc;
+	// the following specifies the average depth to top of rupture as a function of magnitude.
 	private ArbitrarilyDiscretizedFunc aveRupTopVsMag;
-	// the following will be used to locate point sources (i.e., for all mags lower than the minimum mag in aveRupTopVsMag)
+	// the following is used to locate small sources (i.e., for all mags lower than the minimum mag in aveRupTopVsMag)
 	private double aveHypoDepth;
 
 	/**
 	 * 
 	 */
-	public GEMGriddedAreaSourceData(String id, String name, TectonicRegionType tectReg, 
-			HypoMagFreqDistAtLoc[] hypoMagFreqDistAtLocList,
+	public GEMGridSourceData(String id, String name, TectonicRegionType tectReg, 
+			HypoMagFreqDistAtLoc hypoMagFreqDistAtLoc,
 			ArbitrarilyDiscretizedFunc aveRupTopVsMag, double aveHypoDepth) {
 		this.id = id;
 		this.name = name;
 		this.tectReg = tectReg;
-		this.hypoMagFreqDistAtLocList = hypoMagFreqDistAtLocList;
+		this.hypoMagFreqDistAtLoc = hypoMagFreqDistAtLoc;
 		this.aveRupTopVsMag = aveRupTopVsMag;
 		this.aveHypoDepth = aveHypoDepth;
-		
 	} 
 	
 	/**
 	 * 
 	 * @return
 	 */
-	public HypoMagFreqDistAtLoc[] getHypoMagFreqDistAtLocList(){
-		return this.hypoMagFreqDistAtLocList;
+	public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(){
+		return this.hypoMagFreqDistAtLoc;
 	}
 	
 	/**
