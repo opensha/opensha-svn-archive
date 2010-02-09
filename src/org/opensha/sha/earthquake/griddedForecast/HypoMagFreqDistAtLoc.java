@@ -74,6 +74,19 @@ public class HypoMagFreqDistAtLoc extends MagFreqDistsForFocalMechs implements j
   }
 
   /**
+   * Class constructor.
+   * This constructor allows user to give a single magDist and focalMechanism for a given location.
+   * @param magDist IncrementalMagFreqDist
+   * @param loc Location Location
+   * @param focalMechanism FocalMechanism
+   *
+   */
+  public HypoMagFreqDistAtLoc(IncrementalMagFreqDist magDist, Location loc, FocalMechanism focalMech) {
+	  super(magDist,focalMech);
+	  location = loc;
+  }
+
+  /**
    * Returns the Location at which MagFreqDist(s) is calculated.
    * @return Location
    */

@@ -33,8 +33,8 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  */
 public class MagFreqDistsForFocalMechs implements java.io.Serializable{
 
-  private IncrementalMagFreqDist[] magFreqDist=null;
-  private FocalMechanism[] focalMechanism = null;
+  protected IncrementalMagFreqDist[] magFreqDist=null;
+  protected FocalMechanism[] focalMechanism = null;
 
   /**
    * Class Constructor.
@@ -72,6 +72,27 @@ public class MagFreqDistsForFocalMechs implements java.io.Serializable{
     if(magDist.length != focalMechanism.length)
     	throw new RuntimeException("Error - array lengths differ");
   }
+  
+  
+  
+  /**
+   * Class constructor.
+   * This constructor allows user to give a single magFreqDist and focalMechanism.
+   * @param magDist IncrementalMagFreqDist
+   * @param focalMechanism FocalMechanism
+   *
+   */
+  public MagFreqDistsForFocalMechs(IncrementalMagFreqDist magDist, FocalMechanism focalMechanism) {
+	  IncrementalMagFreqDist[] magDistArray = new IncrementalMagFreqDist[1];
+	  magDistArray[0] = magDist;
+	  FocalMechanism[] focalMechanismArray = new FocalMechanism[1];
+	  focalMechanismArray[0]=focalMechanism;
+	  this.magFreqDist = magDistArray;
+	  this.focalMechanism = focalMechanismArray;
+  }
+ 
+  
+
 
 
   /**
