@@ -26,6 +26,11 @@ import org.opensha.commons.util.cpt.CPT;
 
 public class PSXYSymbolSet extends PSXYElement {
 	
+	/**
+	 * default serial version UID
+	 */
+	private static final long serialVersionUID = 1l;
+	
 	private CPT cpt;
 	private ArrayList<PSXYSymbol> symbols;
 	private ArrayList<Double> vals;

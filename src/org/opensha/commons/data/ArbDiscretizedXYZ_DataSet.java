@@ -40,6 +40,11 @@ import org.opensha.commons.util.FileUtils;
  */
 
 public class ArbDiscretizedXYZ_DataSet implements XYZ_DataSetAPI,java.io.Serializable{
+	
+	/**
+	 * default serial version UID
+	 */
+	private static final long serialVersionUID = 1l;
 
 	ArrayList<Double> xValues, yValues, zValues;
 

@@ -35,9 +35,9 @@ import org.opensha.commons.util.cpt.CPT;
 public class GMT_Map implements Serializable {
 	
 	/**
-	 * 
+	 * default serial version UID
 	 */
-	private static final long serialVersionUID = 3365240959132801705L;
+	private static final long serialVersionUID = 1l;
 
 	private Region region;
 	

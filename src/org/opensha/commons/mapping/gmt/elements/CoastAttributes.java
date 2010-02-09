@@ -23,6 +23,11 @@ import java.awt.Color;
 import java.io.Serializable;
 
 public class CoastAttributes implements Serializable {
+	/**
+	 * default serial version UID
+	 */
+	private static final long serialVersionUID = 1l;
+	
 	private Color fillColor = new Color(17, 73, 71);
 	
 	private Color lineColor = fillColor;
