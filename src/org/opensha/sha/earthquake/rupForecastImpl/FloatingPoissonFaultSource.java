@@ -92,7 +92,7 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
 
   //for Debug purposes
   private static String  C = new String("FloatingPoissonFaultSource");
-  private boolean D = true;
+  private boolean D = false;
 
   //name for this classs
   protected String  NAME = "Floating Poisson Fault Source";
