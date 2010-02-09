@@ -330,8 +330,8 @@ public class GEM1ERF extends EqkRupForecast{
 		StirlingGriddedSurface faultSurface = new StirlingGriddedSurface(
 				gemFaultSourceData.getTrace(),
 				gemFaultSourceData.getDip(),
-				gemFaultSourceData.getSeismDepthLow(),
 				gemFaultSourceData.getSeismDepthUpp(),
+				gemFaultSourceData.getSeismDepthLow(),
                 faultDiscrValue);
 		
 		return new FloatingPoissonFaultSource(
