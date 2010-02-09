@@ -150,6 +150,9 @@ public class IM_EventSetHazardCurveTest implements IM_EventSetCalc_v3_0_API, Gra
 			
 			assertEquals(hPt.getX(), rPt.getX(), 0);
 			
+			if (hPt.getX() >= 10.)
+				continue;
+			
 			System.out.println("Comparing point: " + i);
 			
 			System.out.println("\"Real\" point:\t" + rPt.getX() + ", " + rPt.getY());
