@@ -74,6 +74,8 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 	public final static String POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF";
 	public final static String SIMPLE_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF";
 	public final static String POINT_SRC_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.PointSourceERF";
+	public final static String POINT_SRC_TO_LINE_ERF_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.PointToLineSourceERF";
+	public final static String POINT_SRC_TO_LINE_ERF_LIST_TEST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.PointToLineSourceERF_ListTest";
 	public final static String POINT2MULT_VSS_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF";
 	public final static String POINT2MULT_VSS_ERF_LIST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF_List";
 	public final static String YUCCA_MOUNTAIN_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.YuccaMountain.YuccaMountainERF";
@@ -138,6 +140,8 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 
 		//adding the client based ERF's to the application
 		erf_Classes.add(GEM1_FORECAST_CLASS_NAME);
+		erf_Classes.add(POINT_SRC_TO_LINE_ERF_CLASS_NAME);
+		erf_Classes.add(POINT_SRC_TO_LINE_ERF_LIST_TEST_CLASS_NAME);
 		erf_Classes.add(URS_AVG_UCERF_2_CLASS_NAME);
 		erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
 		erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
