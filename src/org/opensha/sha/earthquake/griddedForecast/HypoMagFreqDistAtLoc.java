@@ -93,5 +93,6 @@ public class HypoMagFreqDistAtLoc extends MagFreqDistsForFocalMechs implements j
   public Location getLocation() {
     return location;
   }
+  
 
 }
