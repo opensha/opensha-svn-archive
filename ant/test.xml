@@ -73,7 +73,7 @@
 		<mkdir dir="${reports}" />
 	</target>
 	
-	<target name="run.common.tests" depends="compile.tets, pre.test.init">
+	<target name="run.common.tests" depends="compile.tets, resource.tests, pre.test.init">
 		<junit fork="yes" haltonfailure="false" 
 			failureproperty="tests.failed"
 			errorProperty="test.failed"
