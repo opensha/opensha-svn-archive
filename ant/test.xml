@@ -95,7 +95,7 @@
 		</junit>    
 	</target>
 	
-	<target name="run.scheduled.tests" depends="compile.tets, resource.tests, pre.test.init">
+	<target name="run.operational.tests" depends="compile.tets, resource.tests, pre.test.init">
 		<junit fork="yes" haltonfailure="true" 
 			failureproperty="tests.failed"
 			errorProperty="test.failed"
