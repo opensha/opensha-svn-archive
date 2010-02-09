@@ -132,6 +132,7 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
     this.location = hypoMagFreqDistAtLoc.getLocation().copy();
     this.setAll(hypoMagFreqDistAtLoc);
     this.variableDepthRakeAndDip = true;
+    probEqkRupture = new ProbEqkRupture();
 
   }
 
