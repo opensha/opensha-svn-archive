@@ -110,7 +110,8 @@
 	     			<formatter type="xml" />
 				<batchtest fork="yes" todir="${logs}">
 				<fileset dir="../classes/">
-					<include name="org/opensha/commons/mapping/gmt/Test*" />
+					<include name="org/opensha/sha/earthquake/rupForecastImpl/remoteERF_Clients/Test_RMI_ERFs_Operational*" />
+					<include name="org/opensha/commons/mapping/gmt/TestGMT_Operational*" />
 				</fileset>
 			</batchtest>
 		</junit>    
