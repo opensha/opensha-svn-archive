@@ -8,7 +8,7 @@ import org.opensha.sha.util.TectonicRegionType;
 /**
  * This holds data for a grid source (single location).
  */
-public class GEMGridSourceData extends GEMSourceData {
+public class GEMPointSourceData extends GEMSourceData {
  
 	// this holds the MagFreqDists, FocalMechs, and location.
 	private HypoMagFreqDistAtLoc hypoMagFreqDistAtLoc;
@@ -20,7 +20,7 @@ public class GEMGridSourceData extends GEMSourceData {
 	/**
 	 * 
 	 */
-	public GEMGridSourceData(String id, String name, TectonicRegionType tectReg, 
+	public GEMPointSourceData(String id, String name, TectonicRegionType tectReg, 
 			HypoMagFreqDistAtLoc hypoMagFreqDistAtLoc,
 			ArbitrarilyDiscretizedFunc aveRupTopVsMag, double aveHypoDepth) {
 		this.id = id;

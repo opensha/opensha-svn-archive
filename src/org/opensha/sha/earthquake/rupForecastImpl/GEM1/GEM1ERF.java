@@ -41,7 +41,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.PointToLineSource;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMFaultSourceData;
-import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMGridSourceData;
+import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMPointSourceData;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSubductionFaultSourceData;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSourceData;
 import org.opensha.sha.faultSurface.ApproxEvenlyGriddedSurface;
@@ -374,7 +374,7 @@ public class GEM1ERF extends EqkRupForecast{
 	}
 	
 
-	protected ProbEqkSource mkGridSource(GEMGridSourceData gridSourceData) {
+	protected ProbEqkSource mkGridSource(GEMPointSourceData gridSourceData) {
 		
 		if(backSeisRupValue.equals(BACK_SEIS_RUP_POINT)) {
 			return new PointEqkSource(gridSourceData.getHypoMagFreqDistAtLoc(),
@@ -429,8 +429,8 @@ public class GEM1ERF extends EqkRupForecast{
 			return mkFaultSource((GEMFaultSourceData)srcData);
 		else if (srcData instanceof GEMSubductionFaultSourceData)
 			return mkSubductionSource((GEMSubductionFaultSourceData)srcData);
-		else if (srcData instanceof GEMGridSourceData)
-			return mkGridSource((GEMGridSourceData)srcData);
+		else if (srcData instanceof GEMPointSourceData)
+			return mkGridSource((GEMPointSourceData)srcData);
 		else
 			throw new RuntimeException(NAME+": "+srcData.getClass()+" not yet supported");
 	}
