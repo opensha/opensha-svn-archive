@@ -10,7 +10,9 @@ import org.junit.runners.Suite;
 	TestBPT_DistCalcOld.class,
 	TestFaultMomentCalc.class,
 	TestFunctionListCalc.class,
-	TestGaussianDistCalc.class
+	TestGaussianDistCalc.class,
+	TestFractileCurveCalculator.class,
+	TestMomentMagCalc.class
 })
 
 public class CalcSuite
