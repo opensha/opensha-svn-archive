@@ -30,15 +30,19 @@ public class TestAdmin {
 		TestAdmin ta = new TestAdmin();
 		ArrayList<PeerTest> masterList = TestConfig.getSetOneDecriptors();
 		ArrayList<PeerTest> testList = new ArrayList<PeerTest>();
-		testList.add(masterList.get(0));
-		testList.add(masterList.get(1));
-		testList.add(masterList.get(2));
-		testList.add(masterList.get(3));
-		testList.add(masterList.get(4));
-		testList.add(masterList.get(5));
-		testList.add(masterList.get(6));
-		testList.add(masterList.get(7));
-		ta.runTests(testList);
+		System.out.println("NumTests: " + masterList.size());
+		int dec = 0;
+		testList.add(masterList.get(dec + 0));
+		testList.add(masterList.get(dec + 1));
+		testList.add(masterList.get(dec + 2));
+		testList.add(masterList.get(dec + 3));
+		testList.add(masterList.get(dec + 4));
+		testList.add(masterList.get(dec + 5));
+		testList.add(masterList.get(dec + 6));
+		testList.add(masterList.get(dec + 7));
+		testList.add(masterList.get(dec + 8));
+		testList.add(masterList.get(dec + 9));
+		ta.runTests(masterList);
 	}
 	
 	public void runtTest(PeerTest test) {
@@ -54,69 +58,88 @@ public class TestAdmin {
 	public void runTests(List<PeerTest> tests) {
 		String start = sdf.format(new Date(System.currentTimeMillis()));
 		
-		int numProc = Runtime.getRuntime().availableProcessors();
-		int numThreads = (numProc > 1) ? numProc - 1 : 1;
-		threads = new Thread[numThreads];
+//		int numProc = Runtime.getRuntime().availableProcessors();
+//		int numThreads = (numProc > 1) ? numProc - 1 : 1;
+//		threads = new Thread[numThreads];
+//		
+//		System.out.println("Running PEER test cases...");
+//		System.out.println("    Processors: " + numProc);
+//		System.out.println("   Max Threads: " + numThreads);
+//		System.out.println("    Start Time: " + start);
 		
-		System.out.println("Running PEER test cases...");
-		System.out.println("    Processors: " + numProc);
-		System.out.println("   Max Threads: " + numThreads);
-		System.out.println("    Start Time: " + start);
-		
-		for (PeerTest pt : tests) {
-
-			int idx = pollThreads();
-			while (idx == -1) {
-				try {
-					System.out.println("        -- sleeping");
-					Thread.sleep(2000);
-				} catch (InterruptedException ie) {
-					ie.printStackTrace();
-				}
-				idx = pollThreads();
-			}
+//		for (PeerTest pt : tests) {
+		for (int i=0; i<tests.size(); i++) {
+			PeerTest pt = tests.get(i);
+//			int idx = pollThreads();
+//			while (idx == -1) {
+//				try {
+//					System.out.println("        -- sleeping");
+//					Thread.sleep(2000);
+//				} catch (InterruptedException ie) {
+//					ie.printStackTrace();
+//				}
+//				idx = pollThreads();
+//			}
 			
-			System.out.println("      Starting: " + pt);
-			System.out.println("        thread: " + idx);
-			System.out.println("            at: " + 
-					sdf.format(new Date(System.currentTimeMillis())));
-			threads[idx] = new Thread(new TestRunner(pt));
-			threads[idx].start();
-		}
-
-		String end = sdf.format(new Date(System.currentTimeMillis()));
-		
-		// final poll
-		System.out.println("Finishing...");
-		while (!finished()) {
+			Thread t = new Thread(new TestRunner(pt));
+			System.out.println("      Starting: " + i + " " + pt);
+			t.start();
 			try {
-				Thread.sleep(10000);
+				Thread.sleep(2000);
+				if (t.isAlive()) {
+					t.interrupt();
+				}
+				
 			} catch (InterruptedException ie) {
 				ie.printStackTrace();
 			}
+			
+//			try {
+//				t.join(2000);
+//			} catch (InterruptedException ie) {
+//				ie.printStackTrace();
+//			}
+//			System.out.println("      Starting: " + pt);
+//			System.out.println("        thread: " + idx);
+//			System.out.println("            at: " + 
+//					sdf.format(new Date(System.currentTimeMillis())));
+//			threads[idx] = new Thread(new TestRunner(pt));
+//			threads[idx].start();
 		}
-		
-		System.out.println("      End Time: " + end);
+
+//		String end = sdf.format(new Date(System.currentTimeMillis()));
+//		
+//		// final poll
+//		System.out.println("Finishing...");
+//		while (!finished()) {
+//			try {
+//				Thread.sleep(10000);
+//			} catch (InterruptedException ie) {
+//				ie.printStackTrace();
+//			}
+//		}
+//		
+//		System.out.println("      End Time: " + end);
 	}
 	
 	// returns -1 if no Thread space available
-	private int pollThreads() {
-		System.out.println("        -- polling");
-		for (int i=0; i<threads.length; i++) {
-			if (threads[i] == null || !threads[i].isAlive()) {
-				return i;
-			}
-		}
-		return -1;
-	}
+//	private int pollThreads() {
+//		System.out.println("        -- polling");
+//		for (int i=0; i<threads.length; i++) {
+//			if (threads[i] == null || !threads[i].isAlive()) {
+//				return i;
+//			}
+//		}
+//		return -1;
+//	}
 	
 	
-	private boolean finished() {
-		for (int i=0; i<threads.length; i++) {
-			if (threads[i].isAlive()) return false;
-		}
-		return true;
-	}
+//	private boolean finished() {
+//		for (int i=0; i<threads.length; i++) {
+//			if (threads[i].isAlive()) return false;
+//		}
+//		return true;
+//	}
 
 	class TestRunner implements Runnable {
 		
@@ -150,6 +173,7 @@ public class TestAdmin {
 				peerFile.close();
 
 			} catch (Exception e) {
+				System.out.println("Failed: " + test);
 				e.printStackTrace();
 			}
 		}
