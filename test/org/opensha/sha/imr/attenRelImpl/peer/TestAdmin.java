@@ -29,9 +29,11 @@ public class TestAdmin {
 	public static void main(String[] args) {
 		TestAdmin ta = new TestAdmin();
 		ArrayList<PeerTest> masterList = TestConfig.getSetOneDecriptors();
+//		ta.runTests(masterList);
+		
+//		System.out.println("NumTests: " + masterList.size());
 		ArrayList<PeerTest> testList = new ArrayList<PeerTest>();
-		System.out.println("NumTests: " + masterList.size());
-		int dec = 0;
+		int dec = 20;
 		testList.add(masterList.get(dec + 0));
 		testList.add(masterList.get(dec + 1));
 		testList.add(masterList.get(dec + 2));
@@ -42,7 +44,12 @@ public class TestAdmin {
 		testList.add(masterList.get(dec + 7));
 		testList.add(masterList.get(dec + 8));
 		testList.add(masterList.get(dec + 9));
-		ta.runTests(masterList);
+		ta.runTests(testList);
+		
+//		int i=0;
+//		for (PeerTest pt : masterList) {
+//			System.out.println(i++ + " " + pt);
+//		}
 	}
 	
 	public void runtTest(PeerTest test) {
@@ -56,7 +63,7 @@ public class TestAdmin {
 	
 	
 	public void runTests(List<PeerTest> tests) {
-		String start = sdf.format(new Date(System.currentTimeMillis()));
+		//String start = sdf.format(new Date(System.currentTimeMillis()));
 		
 //		int numProc = Runtime.getRuntime().availableProcessors();
 //		int numThreads = (numProc > 1) ? numProc - 1 : 1;
@@ -84,15 +91,12 @@ public class TestAdmin {
 			Thread t = new Thread(new TestRunner(pt));
 			System.out.println("      Starting: " + i + " " + pt);
 			t.start();
-			try {
-				Thread.sleep(2000);
-				if (t.isAlive()) {
-					t.interrupt();
-				}
-				
-			} catch (InterruptedException ie) {
-				ie.printStackTrace();
-			}
+			
+//			try {
+//				t.join();				
+//			} catch (InterruptedException ie) {
+//				ie.printStackTrace();
+//			}
 			
 //			try {
 //				t.join(2000);
@@ -107,7 +111,7 @@ public class TestAdmin {
 //			threads[idx].start();
 		}
 
-//		String end = sdf.format(new Date(System.currentTimeMillis()));
+		//String end = sdf.format(new Date(System.currentTimeMillis()));
 //		
 //		// final poll
 //		System.out.println("Finishing...");
@@ -119,7 +123,7 @@ public class TestAdmin {
 //			}
 //		}
 //		
-//		System.out.println("      End Time: " + end);
+		//System.out.println("      End Time: " + end);
 	}
 	
 	// returns -1 if no Thread space available
