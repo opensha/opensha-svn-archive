@@ -6,13 +6,15 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
-import org.opensha.sha.imr.attenRelImpl.peer.TestConfig.PeerTest;
 
 public class TestAdmin {
 
@@ -24,31 +26,34 @@ public class TestAdmin {
 	}
 	
 	/**
+	 * 
+	 * 106 total tests in Set 1
+	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		TestAdmin ta = new TestAdmin();
 		ArrayList<PeerTest> masterList = TestConfig.getSetOneDecriptors();
-//		ta.runTests(masterList);
+		ta.runTests(masterList);
 		
-//		System.out.println("NumTests: " + masterList.size());
-		ArrayList<PeerTest> testList = new ArrayList<PeerTest>();
-		int dec = 90;
-		testList.add(masterList.get(dec + 0));
-		testList.add(masterList.get(dec + 1));
-		testList.add(masterList.get(dec + 2));
-		testList.add(masterList.get(dec + 3));
-		testList.add(masterList.get(dec + 4));
-		testList.add(masterList.get(dec + 5));
-		testList.add(masterList.get(dec + 6));
-		testList.add(masterList.get(dec + 7));
-		testList.add(masterList.get(dec + 8));
-		testList.add(masterList.get(dec + 9));
-		ta.runTests(testList);
+		//System.out.println("NumTests: " + masterList.size());
+//		ArrayList<PeerTest> testList = new ArrayList<PeerTest>();
+//		int dec = 0;
+//		testList.add(masterList.get(dec + 0));
+//		testList.add(masterList.get(dec + 1));
+//		testList.add(masterList.get(dec + 2));
+//		testList.add(masterList.get(dec + 3));
+//		testList.add(masterList.get(dec + 4));
+//		testList.add(masterList.get(dec + 5));
+//		testList.add(masterList.get(dec + 6));
+//		testList.add(masterList.get(dec + 7));
+//		testList.add(masterList.get(dec + 8));
+//		testList.add(masterList.get(dec + 9));
+//		ta.runTests(testList);
 		
 //		int i=0;
 //		for (PeerTest pt : masterList) {
-//			System.out.println(i++ + " " + pt);
+//			System.out.println(i++ + " " + pt); // 106 total
 //		}
 	}
 	
@@ -59,24 +64,32 @@ public class TestAdmin {
 	}
 
 	private Thread[] threads;
+	private ArrayList<Future<?>> futures;
 	private SimpleDateFormat sdf = new SimpleDateFormat();
 	
 	
 	public void runTests(List<PeerTest> tests) {
-		//String start = sdf.format(new Date(System.currentTimeMillis()));
+		
+		int numProc = Runtime.getRuntime().availableProcessors();
+		ExecutorService ex = Executors.newFixedThreadPool(numProc);
+		
+		
+		String start = sdf.format(new Date(System.currentTimeMillis()));
 		
 //		int numProc = Runtime.getRuntime().availableProcessors();
 //		int numThreads = (numProc > 1) ? numProc - 1 : 1;
 //		threads = new Thread[numThreads];
 //		
-//		System.out.println("Running PEER test cases...");
-//		System.out.println("    Processors: " + numProc);
-//		System.out.println("   Max Threads: " + numThreads);
-//		System.out.println("    Start Time: " + start);
+		System.out.println("Running PEER test cases...");
+		System.out.println("Processors: " + numProc);
+		System.out.println("Start Time: " + start);
 		
 //		for (PeerTest pt : tests) {
+		futures = new ArrayList<Future<?>>();
 		for (int i=0; i<tests.size(); i++) {
 			PeerTest pt = tests.get(i);
+			futures.add(ex.submit(new TestRunner(pt)));
+			
 //			int idx = pollThreads();
 //			while (idx == -1) {
 //				try {
@@ -88,9 +101,8 @@ public class TestAdmin {
 //				idx = pollThreads();
 //			}
 			
-			Thread t = new Thread(new TestRunner(pt));
-			System.out.println("      Starting: " + i + " " + pt);
-			t.start();
+			//Thread t = new Thread(new TestRunner(pt));
+			//t.start();
 			
 //			try {
 //				t.join();				
@@ -110,22 +122,33 @@ public class TestAdmin {
 //			threads[idx] = new Thread(new TestRunner(pt));
 //			threads[idx].start();
 		}
-
-		//String end = sdf.format(new Date(System.currentTimeMillis()));
+		ex.shutdown();
+		
+		//
 //		
 //		// final poll
 //		System.out.println("Finishing...");
-//		while (!finished()) {
-//			try {
-//				Thread.sleep(10000);
-//			} catch (InterruptedException ie) {
-//				ie.printStackTrace();
-//			}
-//		}
-//		
-		//System.out.println("      End Time: " + end);
+		//boolean working = true;
+		while (working()) {
+			try {
+				Thread.sleep(10000);
+			} catch (InterruptedException ie) {
+				ie.printStackTrace();
+			}
+		}
+		
+		String end = sdf.format(new Date(System.currentTimeMillis()));
+		System.out.println("  End Time: " + end);
+		System.exit(0);
 	}
 	
+	private boolean working() {
+		for (Future<?> f : futures) {
+			if (!f.isDone()) return true;
+		}
+		return false;
+		
+	}
 	// returns -1 if no Thread space available
 //	private int pollThreads() {
 //		System.out.println("        -- polling");
@@ -155,6 +178,10 @@ public class TestAdmin {
 
 
 		public void run() {
+			
+			long start = System.currentTimeMillis();
+			System.out.println("  Starting: " + test);
+			
 			try {
 				TestConfig tc = new TestConfig(test);
 				
@@ -177,9 +204,14 @@ public class TestAdmin {
 				peerFile.close();
 
 			} catch (Exception e) {
-				System.out.println("Failed: " + test);
+				System.out.println("    FAILED: " + test);
 				e.printStackTrace();
 			}
+			long end = System.currentTimeMillis();
+			int dtm = (int) ((end - start) / 1000 / 60);
+			int dts = (int) ((end - start) / 1000 % 60);
+			System.out.println(
+					"  Finished: " + test + " " + dtm + "m " + dts + "s");
 		}
 	}
 	
