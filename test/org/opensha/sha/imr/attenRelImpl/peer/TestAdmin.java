@@ -33,7 +33,7 @@ public class TestAdmin {
 		
 //		System.out.println("NumTests: " + masterList.size());
 		ArrayList<PeerTest> testList = new ArrayList<PeerTest>();
-		int dec = 20;
+		int dec = 90;
 		testList.add(masterList.get(dec + 0));
 		testList.add(masterList.get(dec + 1));
 		testList.add(masterList.get(dec + 2));
