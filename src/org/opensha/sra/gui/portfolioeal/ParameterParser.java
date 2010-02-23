@@ -1,4 +1,4 @@
-package scratch.ISTI.portfolioeal;
+package org.opensha.sra.gui.portfolioeal;
 
 /**
  * This class is used to parse the parameters from a csv portfolio file.  If you wish

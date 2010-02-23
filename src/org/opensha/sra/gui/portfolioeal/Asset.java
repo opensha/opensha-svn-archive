@@ -1,4 +1,4 @@
-package scratch.ISTI.portfolioeal;
+package org.opensha.sra.gui.portfolioeal;
 
 import java.lang.reflect.Constructor;
 import java.rmi.RemoteException;
@@ -16,12 +16,14 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.calc.HazardCurveCalculator;
+import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sra.gui.portfolioeal.gui.PortfolioEALCalculatorView;
+import org.opensha.sra.vulnerability.Vulnerability;
 
-import scratch.ISTI.portfolioeal.gui.PortfolioEALCalculatorView;
 import scratch.martinez.EALCalculator;
 import scratch.martinez.VulnerabilityModels.VulnerabilityModel;
 
@@ -158,15 +160,14 @@ public class Asset implements Cloneable {
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 */
-	private VulnerabilityModel getVulnModel() throws ClassNotFoundException,
+	private Vulnerability getVulnModel() throws ClassNotFoundException,
 													 InstantiationException,
 													 IllegalAccessException {
-		Class<?> c = null;
-		String temp = "scratchJavaDevelopers.martinez.VulnerabilityModels.CureeCaltech.";
-		String className = temp + (String) paramList.getParameter("VulnModel").getValue();
-		c = Class.forName( className );
-		VulnerabilityModel vulnModel = (VulnerabilityModel) c.newInstance();
-		return vulnModel;
+		String vulnName = (String) paramList.getParameter("VulnModel").getValue();
+		
+		System.out.println("looking for vuln: '" + vulnName + "'");
+		
+		return PortfolioEALCalculatorController.vulnerabilities.get(vulnName);
 	}
 	
 	/**
@@ -175,11 +176,12 @@ public class Asset implements Cloneable {
 	 * @param vulnModel The vulnerability model where the X values come fro
 	 * @return The reset hazard function
 	 */
-	private DiscretizedFuncAPI resetHazardXValues( DiscretizedFuncAPI hazFunction, VulnerabilityModel vulnModel ) {
+	private DiscretizedFuncAPI resetHazardXValues( DiscretizedFuncAPI hazFunction, Vulnerability vulnModel ) {
 	    DiscretizedFuncAPI tempFunc = hazFunction.deepClone();
 	    hazFunction = new ArbitrarilyDiscretizedFunc();
+	    double imlvals[] = vulnModel.getIMLValues();
 	    for( int i = 0; i < tempFunc.getNum(); ++i ) {
-	    	hazFunction.set(vulnModel.getIMLVals().get(i),tempFunc.getY(i));
+	    	hazFunction.set(imlvals[i],tempFunc.getY(i));
 	    }
 	    return hazFunction;
 	}
@@ -220,7 +222,7 @@ public class Asset implements Cloneable {
 		ArbitrarilyDiscretizedFunc annualizedRates = null;
 		
 		// The vulnerability model, which is hard coded for now
-		VulnerabilityModel vulnModel = null;
+		Vulnerability vulnModel = null;
 		
 		try {
 			vulnModel = getVulnModel();
@@ -231,12 +233,14 @@ public class Asset implements Cloneable {
 		}
 		
 		String imt = vulnModel.getIMT();
-		ArrayList<Double> imls = vulnModel.getIMLVals();
+		double imls[] = vulnModel.getIMLValues();
 		
 		// Sets the intensity measure for the imr instance
 		try {				
-			//((AttenuationRelationship)imr).setIntensityMeasure(imt, period);
-			((AttenuationRelationship)imr).setIntensityMeasure(imt);
+//			((AttenuationRelationship)imr).setIntensityMeasure(imt, period);
+			System.out.println("IMT: " + imt);
+			IM_EventSetOutputWriter.setIMTFromString(imt, imr);
+//			((AttenuationRelationship)imr).setIntensityMeasure(imt);
 		} catch( ParameterException e ) {
 			e.printStackTrace();
 			controller.calculationException( e.getMessage() );
@@ -244,8 +248,8 @@ public class Asset implements Cloneable {
 		
 		// Take the log of the x values of the hazard function
 		// Used to make calculations
-	    for( int i = 0; i < imls.size(); ++i ) {
-	    	hazFunction.set( Math.log( imls.get(i) ), 1 );
+	    for( int i = 0; i < imls.length; ++i ) {
+	    	hazFunction.set( Math.log( imls[i] ), 1 );
 	    }
 	    
 	    // Create a HazardCurveCalculator with a site, imr, and erf

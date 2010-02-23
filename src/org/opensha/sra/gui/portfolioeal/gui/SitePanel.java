@@ -1,4 +1,4 @@
-package scratch.ISTI.portfolioeal.gui;
+package org.opensha.sra.gui.portfolioeal.gui;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;

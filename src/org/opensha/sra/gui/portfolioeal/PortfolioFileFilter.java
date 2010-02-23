@@ -1,4 +1,4 @@
-package scratch.ISTI.portfolioeal;
+package org.opensha.sra.gui.portfolioeal;
 
 import java.io.File;
 

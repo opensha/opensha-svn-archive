@@ -1,4 +1,4 @@
-package scratch.ISTI.portfolioeal;
+package org.opensha.sra.gui.portfolioeal;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.ListIterator;
 
 import javax.swing.JComboBox;
@@ -15,10 +17,22 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import org.opensha.commons.data.Site;
+import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
+import org.opensha.sra.gui.portfolioeal.gui.PortfolioEALCalculatorView;
+import org.opensha.sra.vulnerability.Vulnerability;
+import org.opensha.sra.vulnerability.models.SimpleVulnerability;
+import org.opensha.sra.vulnerability.models.VulnFileReader;
+import org.opensha.sra.vulnerability.models.curee.caltech.CCLargeHouseImmediateOccupancy;
+import org.opensha.sra.vulnerability.models.curee.caltech.CCLargeHouseRigidDiaphram;
+import org.opensha.sra.vulnerability.models.curee.caltech.CCLargeHouseTypical;
+import org.opensha.sra.vulnerability.models.curee.caltech.CCLargeHouseWaistWall;
+import org.opensha.sra.vulnerability.models.curee.caltech.CCSmallHouseRetro;
+import org.opensha.sra.vulnerability.models.curee.caltech.CCSmallHouseTypical;
+import org.opensha.sra.vulnerability.models.curee.caltech.CCTownhouseLimitedDrift;
+import org.opensha.sra.vulnerability.models.curee.caltech.CCTownhouseTypical;
 
-import scratch.ISTI.portfolioeal.gui.PortfolioEALCalculatorView;
 
 import com.isti.util.gui.IstiFileChooser;
 
@@ -53,6 +67,51 @@ public class PortfolioEALCalculatorController implements ActionListener, ItemLis
 		view.setVisible(true);
 		startAppProgressClass.dispose();
 		EAL = 0.0;
+	}
+	
+	public static HashMap<String, Vulnerability> vulnerabilities;
+	
+	static {
+		vulnerabilities = new HashMap<String, Vulnerability>();
+		Vulnerability vuln;
+		
+		vuln = new CCLargeHouseImmediateOccupancy();
+		vulnerabilities.put(vuln.getShortName(), vuln);
+		
+		vuln = new CCLargeHouseRigidDiaphram();
+		vulnerabilities.put(vuln.getShortName(), vuln);
+		
+		vuln = new CCLargeHouseTypical();
+		vulnerabilities.put(vuln.getShortName(), vuln);
+		
+		vuln = new CCLargeHouseWaistWall();
+		vulnerabilities.put(vuln.getShortName(), vuln);
+		
+		vuln = new CCSmallHouseRetro();
+		vulnerabilities.put(vuln.getShortName(), vuln);
+		
+		vuln = new CCSmallHouseTypical();
+		vulnerabilities.put(vuln.getShortName(), vuln);
+		
+		vuln = new CCTownhouseLimitedDrift();
+		vulnerabilities.put(vuln.getShortName(), vuln);
+		
+		vuln = new CCTownhouseTypical();
+		vulnerabilities.put(vuln.getShortName(), vuln);
+		
+		File vulnFile = new File("/home/kevin/OpenSHA/openSRA/vuln/2010_02_23_vulns.txt");
+		
+		try {
+			ArrayList<SimpleVulnerability> fileVulns = VulnFileReader.readVUL06File(vulnFile);
+			System.out.println("Loaded " + fileVulns.size() + " vulns from " + vulnFile.getAbsolutePath());
+			for (SimpleVulnerability sVuln : fileVulns) {
+				vulnerabilities.put(sVuln.getShortName(), sVuln);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("Added " + vulnerabilities.size() + " vulnerabilities!");
 	}
 	
 	/**
@@ -110,6 +169,9 @@ public class PortfolioEALCalculatorController implements ActionListener, ItemLis
 		
 		// Get formatted output for the IMR
 		aString += formatOutput( view.getIMR().getIMRBean().getParameterList().getParametersIterator(), "Intesity Measure Relationship");
+		
+		// Get formatted output for the IMT
+		aString += formatOutput( ((DependentParameterAPI)view.getIMR().getIMRBean().getSelectedIMR_Instance().getIntensityMeasure()).getIndependentParametersIterator(), "Intesity Measure Type");
 		
 		// Get formatted output for the Site(s)
 		for( Site assetSite : portfolio.getSiteList()) {

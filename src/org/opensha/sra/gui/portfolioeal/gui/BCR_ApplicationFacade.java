@@ -1,4 +1,4 @@
-package scratch.ISTI.portfolioeal.gui;
+package org.opensha.sra.gui.portfolioeal.gui;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
