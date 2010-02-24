@@ -1286,7 +1286,7 @@ public class TestConfig {
 
 		desc1 = new ArrayList<PeerTest>();
 
-		// indices and sample run times in comments
+		// indices and any run times >1min in comments
 		desc1.add(new PeerTest(SET_1, CASE_1, SITE_1));  //   0
 		desc1.add(new PeerTest(SET_1, CASE_1, SITE_2));  //   1
 		desc1.add(new PeerTest(SET_1, CASE_1, SITE_3));  //   2

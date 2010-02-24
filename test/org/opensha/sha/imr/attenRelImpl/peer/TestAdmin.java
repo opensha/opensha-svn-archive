@@ -180,7 +180,7 @@ public class TestAdmin {
 		public void run() {
 			
 			long start = System.currentTimeMillis();
-			System.out.println("  Starting: " + test);
+			//System.out.println("  Starting: " + test);
 			
 			try {
 				TestConfig tc = new TestConfig(test);
