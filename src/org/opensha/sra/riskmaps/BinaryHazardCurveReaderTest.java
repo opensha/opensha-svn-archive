@@ -14,12 +14,19 @@ public class BinaryHazardCurveReaderTest {
 		
 		BinaryHazardCurveReader reader = new BinaryHazardCurveReader(filename);
 		
-		for ( int i = 0; i < 10; i++ ) {
-			ArbitrarilyDiscretizedFunc func = reader.nextCurve();
-			double [] loc = reader.currentLocation();
+		long start = System.currentTimeMillis();
+		int i = 0;
+		while ( reader.nextCurve() != null ) { i++; }
+		long end = System.currentTimeMillis();
+		
+		//for ( int i = 0; i < 10; i++ ) {
+			//ArbitrarilyDiscretizedFunc func = reader.nextCurve();
+			//double [] loc = reader.currentLocation();
 			
-			System.out.printf("Location: (%f, %f)\n", loc[0], loc[1]);
-			System.out.println(func);
-		}
+			//System.out.printf("Location: (%f, %f)\n", loc[0], loc[1]);
+			//System.out.println(func);
+		//}
+		
+		System.out.printf("Read %d curves in %d seconds.", i, (end - start) / 1000);
 	}
 }
