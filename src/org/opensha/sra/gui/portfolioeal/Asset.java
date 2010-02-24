@@ -24,7 +24,7 @@ import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sra.gui.portfolioeal.gui.PortfolioEALCalculatorView;
 import org.opensha.sra.vulnerability.Vulnerability;
 
-import scratch.martinez.EALCalculator;
+import org.opensha.sra.calc.EALCalculator;
 import scratch.martinez.VulnerabilityModels.VulnerabilityModel;
 
 
