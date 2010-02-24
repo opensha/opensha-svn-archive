@@ -106,12 +106,12 @@ public class EALCalculator {
 		ListIterator hXIter = hazFunc.getXValuesIterator();
 		ListIterator hYIter = hazFunc.getYValuesIterator();
 		ListIterator vXIter = vulnFunc.getXValuesIterator();
-		ListIterator vYIter = vulnFunc.getXValuesIterator();
+		ListIterator vYIter = vulnFunc.getYValuesIterator();
 		while(hXIter.hasNext() && hYIter.hasNext() && vXIter.hasNext() && vYIter.hasNext()) {
 			double hx = (Double) hXIter.next();
 			double hy = (Double) hYIter.next();
-			double vx = (Double) vYIter.next();
-			double vy = (Double) vXIter.next();
+			double vx = (Double) vXIter.next();
+			double vy = (Double) vYIter.next();
 			if(hx != vx)
 				throw new IllegalArgumentException("IML Values for hazFunc and vulnFunc must match!");
 			IML.add(hx);
@@ -153,7 +153,11 @@ public class EALCalculator {
 		double iml_cur, df_cur, mafe_cur;
 		double iml_pre, df_pre, mafe_pre;
 		double iml_delta, df_delta;
+		
 		double g = 0.0;
+		double a = 0.0;
+		double b = 0.0;
+		
 		double holder = 0.0;
 		
 		double R = 0.0;
@@ -173,7 +177,24 @@ public class EALCalculator {
 					
 			// Get the log-linear slope of the curve
 			g = (Math.log((mafe_cur/mafe_pre)) / iml_delta);
-					
+			
+/* Useful for debugging.
+			a = mafe_pre * (1.0 - Math.exp(g * iml_delta) );
+			b = (mafe_pre / iml_delta) * (Math.exp(g * iml_delta) * (iml_delta - (1.0/g)) + (1.0/g));
+
+			System.out.printf("%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t\n",
+					iml_cur,
+					mafe_cur,
+					df_cur,
+					df_delta,
+					g,
+					iml_delta,
+					a,
+					b,
+					(df_pre * a) - df_delta * b
+				);
+*/				
+			
 			holder = (df_pre*mafe_pre)*(1.0 - Math.exp( (g*iml_delta) ) );
 			holder -= ( 
 					( 
