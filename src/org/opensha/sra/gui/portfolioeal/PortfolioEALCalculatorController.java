@@ -5,7 +5,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -99,11 +101,25 @@ public class PortfolioEALCalculatorController implements ActionListener, ItemLis
 		vuln = new CCTownhouseTypical();
 		vulnerabilities.put(vuln.getShortName(), vuln);
 		
-		File vulnFile = new File("/home/kevin/OpenSHA/openSRA/vuln/2010_02_23_vulns.txt");
+		//String fileName = "/Users/emartinez/Desktop/2010_02_23_vulns.txt";
+		String fileName = "/resources/data/vulnerability_20100223_keith.txt";
+		File file = new File(fileName);
+		InputStream vulnFileInput = null;
+		
+		if ( file.exists() ) {
+			try {
+				vulnFileInput = new FileInputStream(file);
+			} catch (IOException iox) {
+				iox.printStackTrace(System.err);
+			}
+		} else {
+			vulnFileInput = PortfolioEALCalculatorController.class
+					.getResourceAsStream(fileName);
+		}
 		
 		try {
-			ArrayList<SimpleVulnerability> fileVulns = VulnFileReader.readVUL06File(vulnFile);
-			System.out.println("Loaded " + fileVulns.size() + " vulns from " + vulnFile.getAbsolutePath());
+			ArrayList<SimpleVulnerability> fileVulns = VulnFileReader.readVUL06File(vulnFileInput);
+			System.out.println("Loaded " + fileVulns.size() + " vulns from " + fileName);
 			for (SimpleVulnerability sVuln : fileVulns) {
 				vulnerabilities.put(sVuln.getShortName(), sVuln);
 			}
