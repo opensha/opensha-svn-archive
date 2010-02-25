@@ -451,10 +451,7 @@ public class TestConfig {
 		
 			// set offset and fault grid spacing (these were determined by trial and error)
 			double gridSpacing;
-			if (is(CASE_1) || 
-					is(CASE_2) || 
-					is(CASE_4) || 
-					is(CASE_9B) ) {
+			if (is(CASE_1) || is(CASE_2) || is(CASE_4) || is(CASE_9B) ) {
 				gridSpacing = 0.05;
 		   
 			} else if (is(CASE_3)) {
@@ -471,10 +468,7 @@ public class TestConfig {
 			if (is(CASE_9C) && is(SITE_7)) {
 				gridSpacing = 0.1;
 			}
-			if (is(CASE_2) && 
-					(is(SITE_1) || 
-							is(SITE_4) || 
-							is(SITE_6))) {
+			if (is(CASE_2) && (is(SITE_1) || is(SITE_4) || is(SITE_6))) {
 				gridSpacing = 0.025;
 			}
 
@@ -498,10 +492,7 @@ public class TestConfig {
 			}
 
 			// set the rake for all cases
-			if (is(CASE_4) ||
-					is(CASE_9A) ||
-					is(CASE_9B) ||
-					is(CASE_9C) ) {
+			if (is(CASE_4) || is(CASE_9A) || is(CASE_9B) || is(CASE_9C) ) {
 				erf.getParameter(FloatingPoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(90.0));
 			
 			} else {
@@ -511,10 +502,7 @@ public class TestConfig {
 			// set the Fault Parameter
 //			SimpleFaultParameterEditorPanel faultPanel = erfGuiBean.getSimpleFaultParamEditor().getParameterEditorPanel();
 			SimpleFaultParameter fault = (SimpleFaultParameter) erf.getParameter(FloatingPoissonFaultERF.FAULT_PARAM_NAME);
-			if (is(CASE_4) ||
-					is(CASE_9A) ||
-					is(CASE_9B) ||
-					is(CASE_9C) ) {
+			if (is(CASE_4) || is(CASE_9A) || is(CASE_9B) || is(CASE_9C) ) {
 //				faultPanel.setAll(gridSpacing,fault1and2_Lats,fault1and2_Lons,fault2_Dips,fault2_Depths,SimpleFaultParameter.STIRLING);
 				fault.setAll(gridSpacing,fault1and2_Lats,fault1and2_Lons,fault2_Dips,fault2_Depths,SimpleFaultParameter.STIRLING);
 			
@@ -544,7 +532,14 @@ public class TestConfig {
 			
 			} else {
 				erf.getParameter(PEER_AreaForecast.DEPTH_LOWER_PARAM_NAME).setValue(new Double(10));
-				erf.getParameter(PEER_AreaForecast.GRID_PARAM_NAME).setValue(new Double(0.25));   	 
+				
+				// NOTE Case_11 grid spacing had been set to 0.25 km which
+				// yields a better result, but which takes an exorbitant
+				// amount of time and can leead to uncaught OutOfMemoryErrors
+				// in multi-threaded test runs.
+				
+				//erf.getParameter(PEER_AreaForecast.GRID_PARAM_NAME).setValue(new Double(0.25));   	 
+				erf.getParameter(PEER_AreaForecast.GRID_PARAM_NAME).setValue(new Double(1.0));   	 
 			}
 		}
 		
@@ -554,6 +549,7 @@ public class TestConfig {
 		initMFD_Set1();
 		
 		erf.updateForecast();
+		
 		
 		// *********** set the Site latitude and longitude  *****************
 
@@ -1311,13 +1307,13 @@ public class TestConfig {
 		desc1.add(new PeerTest(SET_1, CASE_3, SITE_6));  //  19
 		desc1.add(new PeerTest(SET_1, CASE_3, SITE_7));  //  20
 
-		desc1.add(new PeerTest(SET_1, CASE_4, SITE_1));  //  21
-		desc1.add(new PeerTest(SET_1, CASE_4, SITE_2));  //  22
-		desc1.add(new PeerTest(SET_1, CASE_4, SITE_3));  //  23
-		desc1.add(new PeerTest(SET_1, CASE_4, SITE_4));  //  24
-		desc1.add(new PeerTest(SET_1, CASE_4, SITE_5));  //  25
-		desc1.add(new PeerTest(SET_1, CASE_4, SITE_6));  //  26
-		desc1.add(new PeerTest(SET_1, CASE_4, SITE_7));  //  27
+		desc1.add(new PeerTest(SET_1, CASE_4, SITE_1));  //  21 20m
+		desc1.add(new PeerTest(SET_1, CASE_4, SITE_2));  //  22 20m
+		desc1.add(new PeerTest(SET_1, CASE_4, SITE_3));  //  23 20m
+		desc1.add(new PeerTest(SET_1, CASE_4, SITE_4));  //  24 20m
+		desc1.add(new PeerTest(SET_1, CASE_4, SITE_5));  //  25 20m
+		desc1.add(new PeerTest(SET_1, CASE_4, SITE_6));  //  26 20m
+		desc1.add(new PeerTest(SET_1, CASE_4, SITE_7));  //  27 20m
 
 		desc1.add(new PeerTest(SET_1, CASE_5, SITE_1));  //  28
 		desc1.add(new PeerTest(SET_1, CASE_5, SITE_2));  //  29
@@ -1375,13 +1371,13 @@ public class TestConfig {
 		desc1.add(new PeerTest(SET_1, CASE_9A, SITE_6)); //  75
 		desc1.add(new PeerTest(SET_1, CASE_9A, SITE_7)); //  76
 
-		desc1.add(new PeerTest(SET_1, CASE_9B, SITE_1)); //  77
-		desc1.add(new PeerTest(SET_1, CASE_9B, SITE_2)); //  78
-		desc1.add(new PeerTest(SET_1, CASE_9B, SITE_3)); //  79
-		desc1.add(new PeerTest(SET_1, CASE_9B, SITE_4)); //  80
-		desc1.add(new PeerTest(SET_1, CASE_9B, SITE_5)); //  81
-		desc1.add(new PeerTest(SET_1, CASE_9B, SITE_6)); //  82
-		desc1.add(new PeerTest(SET_1, CASE_9B, SITE_7)); //  83
+		desc1.add(new PeerTest(SET_1, CASE_9B, SITE_1)); //  77 20m
+		desc1.add(new PeerTest(SET_1, CASE_9B, SITE_2)); //  78 20m
+		desc1.add(new PeerTest(SET_1, CASE_9B, SITE_3)); //  79 20m
+		desc1.add(new PeerTest(SET_1, CASE_9B, SITE_4)); //  80 20m
+		desc1.add(new PeerTest(SET_1, CASE_9B, SITE_5)); //  81 20m
+		desc1.add(new PeerTest(SET_1, CASE_9B, SITE_6)); //  82 20m
+		desc1.add(new PeerTest(SET_1, CASE_9B, SITE_7)); //  83 20m
 
 		desc1.add(new PeerTest(SET_1, CASE_9C, SITE_1)); //  84
 		desc1.add(new PeerTest(SET_1, CASE_9C, SITE_2)); //  85
