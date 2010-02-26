@@ -25,45 +25,21 @@ import static org.opensha.sha.imr.attenRelImpl.peer.TestSet.*;
 import static org.opensha.sha.imr.attenRelImpl.peer.TestCase.*;
 import static org.opensha.sha.imr.attenRelImpl.peer.TestSite.*;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
 import java.util.ArrayList;
-
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.PEER_testsMagAreaRelationship;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.sha.calc.HazardCurveCalculator;
-import org.opensha.sha.earthquake.ERF_EpistemicList;
 import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF;
 import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_LogicTreeERF_List;
 import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast;
-import org.opensha.sha.gui.beans.ERF_GuiBean;
-import org.opensha.sha.gui.beans.IMR_GuiBean;
-import org.opensha.sha.gui.beans.IMT_GuiBean;
-import org.opensha.sha.gui.beans.Site_GuiBean;
-import org.opensha.sha.gui.beans.TimeSpanGuiBean;
 import org.opensha.sha.gui.controls.CalculationSettingsControlPanelAPI;
-import org.opensha.sha.gui.controls.PEER_TestCaseSelectorControlPanelAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.IntensityMeasureRelationship;
-import org.opensha.sha.imr.IntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.SadighEtAl_1997_AttenRel;
@@ -77,10 +53,6 @@ import org.opensha.sha.magdist.SingleMagFreqDist;
 import org.opensha.sha.magdist.YC_1985_CharMagFreqDist;
 import org.opensha.sha.param.MagFreqDistParameter;
 import org.opensha.sha.param.SimpleFaultParameter;
-import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
-import org.opensha.sha.param.editor.gui.SimpleFaultParameterEditorPanel;
-
-import com.sun.jdi.connect.Connector.SelectedArgument;
 
 public class TestConfig {
 

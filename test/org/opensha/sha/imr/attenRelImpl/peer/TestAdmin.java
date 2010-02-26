@@ -1,40 +1,70 @@
 package org.opensha.sha.imr.attenRelImpl.peer;
 
+import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
+import java.text.DecimalFormat;
+import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.dom4j.Namespace;
+import org.dom4j.io.HTMLWriter;
+import org.dom4j.tree.DefaultElement;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
 
 /**
  * Administration class for PEER test cases. This class provides several methods
- * to run all or a subset of the test cases as well as reults comparison tools.
+ * to run all or a subset of the test cases as well as results comparison tools.
+ * 
+ * At the start of each test run, the temp directory, if such exists, used to 
+ * store results will be purged of any previous tests; any summary files will
+ * be preserved.
  *
  * @author Peter Powers
  * @version $Id:$
  */
 public class TestAdmin {
 
-	private static final String PEER_DIR = "tmp/PEER_TESTS/";
+	private static final String PEER_DIR_OUT = "tmp/PEER_test_results/";
 	private static final String PEER_FILE_SUFFIX = "-PGA_OpenSHA.txt";
 	
+	private static SimpleDateFormat sdf = new SimpleDateFormat();
+	private static SimpleDateFormat sdf_file = 
+		new SimpleDateFormat("yyyy_MM_dd-HH_mm");
+
+	private static Format deltaFormat = new DecimalFormat("0.0####");
+	private static double deltaThreshold = 0.000000001; // percent
+	
+	private ArrayList<Future<?>> futures;
+	private static Document resultSummary;
+
 	static {
-		File peerDir = new File(PEER_DIR);
+		File peerDir = new File(PEER_DIR_OUT);
 		peerDir.mkdirs();
 	}
 	
@@ -46,6 +76,15 @@ public class TestAdmin {
 //		runTests(95,98);
 //		runShortTests();
 		//runLongTests();
+
+		//File resultDir = new File(PEER_DIR_OUT);
+		
+//		evaluateResults("tmp/PEER_test_results_9-9-2009/", true);
+//		evaluateResults("tmp/PEER_test_results_2-25-2010/", true);
+		
+		evaluateResults("/Users/petrus/Desktop/PEER/PEER_TESTS_RESULTS/", true);
+		evaluateResults("/Users/petrus/Desktop/PEER/PEER_TESTS_SRC/", true);
+
 	}
 	
 	/**
@@ -111,9 +150,6 @@ public class TestAdmin {
 			list.add(masterList.get(i));
 		}
 	}
-
-	private ArrayList<Future<?>> futures;
-	private SimpleDateFormat sdf = new SimpleDateFormat();
 	
 	private void submit(List<PeerTest> tests) {
 		try {
@@ -145,6 +181,7 @@ public class TestAdmin {
 		}
 	}
 	
+	
 	private class TestRunner implements Runnable {
 		
 		private PeerTest test;
@@ -173,7 +210,7 @@ public class TestAdmin {
 				adf = TestConfig.functionFromLogX(adf);
 				
 				BufferedWriter br = new BufferedWriter(new FileWriter(
-						PEER_DIR + test + PEER_FILE_SUFFIX));
+						PEER_DIR_OUT + test + PEER_FILE_SUFFIX));
 				for (int j = 0; j < adf.getNum(); ++j) {
 					br.write(adf.get(j).getX() + "\t"
 							+ adf.get(j).getY() + "\n");
@@ -192,31 +229,266 @@ public class TestAdmin {
 		}
 	}
 	
-	public static void compareResults(File dir1, File dir2) {
+	
+	
+	/*
+	 * Compares results of a test run to previously generated result keys;
+	 * outputs summary into result directory
+	 */
+	private static void evaluateResults(String resultDirName, boolean display) {
 		
-		String[] filenames = dir1.list(new FilenameFilter() {
+		File resultDir = new File(resultDirName);
+		File[] results = getFileList(resultDir);
+		Arrays.sort(results, new TestFileComparator());
+		Map<String,File> keys = getKeyFileMap();
+		
+		Element e_body = initSummaryDocument();
+		e_body.addText("Result Source Dir: " + resultDir.getName());
+		e_body.addElement("br");
+		e_body.addElement("br");
+		
+		for (File file : results) {
+			processResult(file, keys.get(file.getName()), e_body);
+		}
+		
+		File summaryFile = writeSummaryFile(resultDirName);
+		try {
+			URI summaryURI = summaryFile.toURI();
+			if (display) {
+				Desktop.getDesktop().browse(summaryURI);
+			} else {
+				System.out.println(summaryURI);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	
+	// compute the % change between a result and a key
+	private static double computeDelta(double result, double key) {
+		double delta = (result - key) / key * 100;
+		return (Double.isNaN(delta) || delta < deltaThreshold) ? 0 : delta;
+	}
+	
+	
+	// compare results of one test to its key
+	private static void processResult(File result, File key, Element e) {
+		
+		String testName = StringUtils.stripEnd(
+				result.getName(), 
+				PEER_FILE_SUFFIX) + ": ";
+
+		e.addElement("strong").addText(testName);
+		
+		Element compTable = generateComparisonTable(result, key);
+		
+		Element status = e.addElement("span");
+		if (compTable == null) {
+			status.addAttribute("class", "pass");
+			status.addText("MATCH");
+			e.addElement("br");
+		} else {
+			status.addAttribute("class", "fail");
+			status.addText("ERROR");
+			e.addElement("br");
+			e.add(compTable);
+			e.addElement("br");
+		}
+	}
+	
+	
+	// generates a comparison table with deltas, if not significant
+	// deltas exsist, returns null
+	private static Element generateComparisonTable(File result, File key) {
+		Map<Double,Double> resultData = readFileData(result);
+		Map<Double,Double> keyData = readFileData(key);
+
+		boolean same = true;
+		
+		Element table =  new DefaultElement("table");
+		Element h_row = table.addElement("tr");
+		h_row.addElement("th").addText("PGA");
+		h_row.addElement("th").addText("P (result)");
+		h_row.addElement("th").addText("P (key)");
+		h_row.addElement("th").addText("Delta (%)");
+
+		for (Double xVal : resultData.keySet()) {
+			
+			double resultP = resultData.get(xVal);
+			double keyP = keyData.get(xVal);
+			double delta = computeDelta(resultP, keyP);
+			if (delta > deltaThreshold) same = false;
+
+			Element row = table.addElement("tr");
+			row.addElement("td").addText(Double.toString(xVal));
+			row.addElement("td").addText(Double.toString(resultP));
+			row.addElement("td").addText(Double.toString(keyP));
+			Element deltaElem = row.addElement("td").addText(
+					deltaFormat.format(delta));
+			if (delta > 1.0) {
+				deltaElem.addAttribute("class", "fail");
+			}
+		}
+		return (same) ? null : table;
+	}
+	
+	
+	// init the summary html document and return the body element for writing
+	private static Element initSummaryDocument() {
+		resultSummary = DocumentHelper.createDocument();
+		Element root = new DefaultElement(
+				"html", 
+				new Namespace("", "http://www.w3.org/1999/xhtml"));
+		resultSummary.add(root);
+		Element e_head = root.addElement("head");
+		e_head.addElement("title").addText("PEER Test Result Summary");
+		
+		Element e_style = e_head.addElement("style");
+		e_style.addAttribute("type", "text/css");
+		e_style.addText("body {");
+		e_style.addText("font-family: Monaco, monospace, Courier;");
+		e_style.addText("font-size: 12px;");
+		e_style.addText("}");
+		e_style.addText("td {");
+		e_style.addText("font-size: 12px;");
+		e_style.addText("padding: 0px 20px;");
+		e_style.addText("}");
+		e_style.addText("th {");
+		e_style.addText("font-size: 12px;");
+		e_style.addText("padding: 0px 20px;");
+		e_style.addText("}");
+		e_style.addText(".pass {");
+		e_style.addText("color: SteelBlue;");
+		e_style.addText("}");
+		e_style.addText(".fail {");
+		e_style.addText("color: Crimson;");
+		e_style.addText("}");
+		
+		Element e_body = root.addElement("body");
+		e_body.addAttribute("style", "font-family: Monaco, monospace, Courier");
+		String tstamp = sdf.format(new Date(System.currentTimeMillis()));
+		e_body.addElement("h2").addText("PEER Result Summary " + tstamp);		
+		return e_body;
+	}
+
+
+	// write out summary 
+	private static File writeSummaryFile(String outDir) {
+
+		String summaryTstamp = sdf_file.format(
+				new Date(System.currentTimeMillis()));
+		String summaryFilePath = 
+			outDir + "Summary-" + summaryTstamp + ".html";
+		File summaryFile = new File(summaryFilePath);
+		
+		try {
+			HTMLWriter writer = new HTMLWriter(new FileWriter(summaryFilePath));
+			writer.write(resultSummary);
+			writer.close();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+
+		return summaryFile;
+	}
+	
+	
+	// places pga-probability pairs into a sorted map
+	private static Map<Double,Double> readFileData(File f) {
+		TreeMap<Double,Double> data = new TreeMap<Double,Double>();
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(f));
+			String line = br.readLine();
+			while (line != null) {
+				String[] vals = StringUtils.split(line);
+				data.put(Double.valueOf(vals[0]), Double.valueOf(vals[1]));
+				line = br.readLine();
+			}
+			IOUtils.closeQuietly(br);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return data;
+	}
+	
+	
+	// scans a directory for PEER result files
+	private static File[] getFileList(File dir) {
+		File[] files = dir.listFiles(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
 				return (name.endsWith(PEER_FILE_SUFFIX)) ? true : false;
 			}
 		});
-		
+		return files;
 	}
 	
-	private static String fileSummary(File f1, File f2) {
+	
+	// creates a lookup table for PEER keys (correct results)
+	private static Map<String,File> getKeyFileMap() {
+		HashMap<String,File> map = new HashMap<String,File>();
 		try {
-			BufferedReader br1 = new BufferedReader(new FileReader(f1));
-			
-			BufferedReader br2 = new BufferedReader(new FileReader(f2));
-			
-		
-			br1.close();
-			br2.close();
-		} catch (FileNotFoundException fnfe) {
-			fnfe.printStackTrace();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
+			URL keyUrl = TestAdmin.class.getResource("keys");
+			File keyDir = new File(keyUrl.toURI());
+			File[] keys = getFileList(keyDir);			
+			for (File file : keys) {
+				map.put(file.getName(), file);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		return "shizzler";
+		return map;
+	}
+	
+	// special sorter so that Case10 does not immediately follow Case1
+	private static class TestFileComparator implements Comparator<File> {
+		
+		public int compare(File f1, File f2) {
+			
+			String[] f1s = StringUtils.split(
+					StringUtils.stripEnd(f1.getName(), ".txt"), "-");
+			String[] f2s = StringUtils.split(
+					StringUtils.stripEnd(f2.getName(), ".txt"), "-");
+			
+			String setNum1 = StringUtils.stripStart(f1s[0], "Set");
+			String setNum2 = StringUtils.stripStart(f2s[0], "Set");
+			String caseNum1 = StringUtils.stripStart(f1s[1], "Case");
+			String caseNum2 = StringUtils.stripStart(f2s[1], "Case");
+			String siteNum1 = StringUtils.stripStart(f1s[1], "Site");
+			String siteNum2 = StringUtils.stripStart(f2s[1], "Site");
+			
+			// set comparison
+			int setComp = setNum1.compareTo(setNum2);
+			if (setComp != 0) return setComp;
+			
+			// case comparison
+			Integer caseVal1 = 0;
+			String caseSuffix1 = "";
+			if (StringUtils.containsAny(caseNum1, "abc")) {
+				caseSuffix1 = StringUtils.right(caseNum1, 1);
+				caseVal1 = Integer.valueOf(StringUtils.chop(caseNum1));
+			} else {
+				caseVal1 = Integer.valueOf(caseNum1);
+			}
+			
+			Integer caseVal2 = 0;
+			String caseSuffix2 = "";
+			if (StringUtils.containsAny(caseNum2, "abc")) {
+				caseSuffix2 = StringUtils.right(caseNum2, 1);
+				caseVal2 = Integer.valueOf(StringUtils.chop(caseNum2));
+			} else {
+				caseVal2 = Integer.valueOf(caseNum2);
+			}
+			
+			int caseComp = caseVal1.compareTo(caseVal2);
+			if (caseComp != 0) return caseComp;
+			caseComp = caseSuffix1.compareTo(caseSuffix2);
+			if (caseComp != 0) return caseComp;
+			
+			// fall back to site comparison
+			return siteNum1.compareTo(siteNum2);
+		}
+		
 	}
 	
 }
