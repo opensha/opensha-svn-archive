@@ -58,22 +58,21 @@ public class TestAdmin {
 		new SimpleDateFormat("yyyy_MM_dd-HH_mm");
 
 	private static Format deltaFormat = new DecimalFormat("0.0####");
-	private static double deltaThreshold = 0.000000001; // percent
+	private static double deltaThreshold = 0.01; // percent
 	
 	private ArrayList<Future<?>> futures;
-	private static Document resultSummary;
+	private Document resultSummary;
 
-	static {
-		File peerDir = new File(PEER_DIR_OUT);
-		peerDir.mkdirs();
-	}
-	
 	/**
 	 * Tester.
 	 * @param args
 	 */
 	public static void main(String[] args) {
-//		runTests(95,98);
+		//runTests();
+		runTests(95,98);
+		evaluateResults(true);
+		
+		
 //		runShortTests();
 		//runLongTests();
 
@@ -82,9 +81,9 @@ public class TestAdmin {
 //		evaluateResults("tmp/PEER_test_results_9-9-2009/", true);
 //		evaluateResults("tmp/PEER_test_results_2-25-2010/", true);
 		
-		evaluateResults("/Users/petrus/Desktop/PEER/PEER_TESTS_RESULTS/", true);
-		evaluateResults("/Users/petrus/Desktop/PEER/PEER_TESTS_SRC/", true);
-
+//		evaluateResults("/Users/petrus/Desktop/PEER/PEER_TESTS_RESULTS/", true);
+		//evaluateResults("/Users/petrus/Desktop/PEER/PEER_TESTS_SRC/", true);
+		System.exit(0);
 	}
 	
 	/**
@@ -144,6 +143,16 @@ public class TestAdmin {
 		ta.submit(testList);
 	}
 	
+	// create or clean temp output directory
+	private void initOutputDir() {
+		File peerDir = new File(PEER_DIR_OUT);
+		peerDir.mkdirs();
+		File[] files = peerDir.listFiles(new PeerFileFilter());
+		for (File f : files) {
+			f.delete();
+		}
+	}
+	
 	private static void addRangeToList(ArrayList<PeerTest> list, int min, int max) {
 		ArrayList<PeerTest> masterList = TestConfig.getSetOneDecriptors();
 		for (int i=min; i<=max; i++) {
@@ -154,6 +163,8 @@ public class TestAdmin {
 	private void submit(List<PeerTest> tests) {
 		try {
 
+			initOutputDir();
+			
 			int numProc = Runtime.getRuntime().availableProcessors();
 			ExecutorService ex = Executors.newFixedThreadPool(numProc);
 
@@ -174,7 +185,6 @@ public class TestAdmin {
 			
 			String end = sdf.format(new Date(System.currentTimeMillis()));
 			System.out.println("  End Time: " + end);
-			System.exit(0);
 			
 		} catch (InterruptedException ie) {
 			ie.printStackTrace();
@@ -230,28 +240,34 @@ public class TestAdmin {
 	}
 	
 	
-	
-	/*
-	 * Compares results of a test run to previously generated result keys;
-	 * outputs summary into result directory
+	/**
+	 * Compares results of a test run stored in a specified directory to  
+	 * previously generated result keys. Summary is output to the result
+	 * directory and may optionally be displayed in a browser.
+	 * 
+	 * @param resultDirName to process
+	 * @param display in a browser, or not
 	 */
-	private static void evaluateResults(String resultDirName, boolean display) {
+	public static void evaluateResults(String resultDirName, boolean display) {
+		
+		TestAdmin ta = new TestAdmin();
 		
 		File resultDir = new File(resultDirName);
-		File[] results = getFileList(resultDir);
+		File[] results = ta.getFileList(resultDir);
 		Arrays.sort(results, new TestFileComparator());
-		Map<String,File> keys = getKeyFileMap();
+		Map<String,File> keys = ta.getKeyFileMap();
 		
-		Element e_body = initSummaryDocument();
+		
+		Element e_body = ta.initSummaryDocument();
 		e_body.addText("Result Source Dir: " + resultDir.getName());
 		e_body.addElement("br");
 		e_body.addElement("br");
 		
 		for (File file : results) {
-			processResult(file, keys.get(file.getName()), e_body);
+			ta.processResult(file, keys.get(file.getName()), e_body);
 		}
 		
-		File summaryFile = writeSummaryFile(resultDirName);
+		File summaryFile = ta.writeSummaryFile(resultDirName);
 		try {
 			URI summaryURI = summaryFile.toURI();
 			if (display) {
@@ -264,16 +280,26 @@ public class TestAdmin {
 		}
 	}
 	
+	/**
+	 * Compares results of a test run stored in the default tmp directory to
+	 * previously generated result keys. Summary is output to the result 
+	 * directory and may optionally be displayed in a browser.
+
+	 * @param display in a browser, or not
+	 */
+	public static void evaluateResults(boolean display) {
+		evaluateResults(PEER_DIR_OUT, display);
+	}
 	
 	// compute the % change between a result and a key
 	private static double computeDelta(double result, double key) {
 		double delta = (result - key) / key * 100;
-		return (Double.isNaN(delta) || delta < deltaThreshold) ? 0 : delta;
+		return (Double.isNaN(delta)) ? 0 : delta;
 	}
 	
 	
 	// compare results of one test to its key
-	private static void processResult(File result, File key, Element e) {
+	private void processResult(File result, File key, Element e) {
 		
 		String testName = StringUtils.stripEnd(
 				result.getName(), 
@@ -300,7 +326,7 @@ public class TestAdmin {
 	
 	// generates a comparison table with deltas, if not significant
 	// deltas exsist, returns null
-	private static Element generateComparisonTable(File result, File key) {
+	private Element generateComparisonTable(File result, File key) {
 		Map<Double,Double> resultData = readFileData(result);
 		Map<Double,Double> keyData = readFileData(key);
 
@@ -318,7 +344,8 @@ public class TestAdmin {
 			double resultP = resultData.get(xVal);
 			double keyP = keyData.get(xVal);
 			double delta = computeDelta(resultP, keyP);
-			if (delta > deltaThreshold) same = false;
+			double deltaAbs = Math.abs(delta);
+			if (deltaAbs > deltaThreshold) same = false;
 
 			Element row = table.addElement("tr");
 			row.addElement("td").addText(Double.toString(xVal));
@@ -326,7 +353,7 @@ public class TestAdmin {
 			row.addElement("td").addText(Double.toString(keyP));
 			Element deltaElem = row.addElement("td").addText(
 					deltaFormat.format(delta));
-			if (delta > 1.0) {
+			if (deltaAbs > 1.0) {
 				deltaElem.addAttribute("class", "fail");
 			}
 		}
@@ -335,7 +362,7 @@ public class TestAdmin {
 	
 	
 	// init the summary html document and return the body element for writing
-	private static Element initSummaryDocument() {
+	private Element initSummaryDocument() {
 		resultSummary = DocumentHelper.createDocument();
 		Element root = new DefaultElement(
 				"html", 
@@ -374,7 +401,7 @@ public class TestAdmin {
 
 
 	// write out summary 
-	private static File writeSummaryFile(String outDir) {
+	private File writeSummaryFile(String outDir) {
 
 		String summaryTstamp = sdf_file.format(
 				new Date(System.currentTimeMillis()));
@@ -395,7 +422,7 @@ public class TestAdmin {
 	
 	
 	// places pga-probability pairs into a sorted map
-	private static Map<Double,Double> readFileData(File f) {
+	private Map<Double,Double> readFileData(File f) {
 		TreeMap<Double,Double> data = new TreeMap<Double,Double>();
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(f));
@@ -414,18 +441,14 @@ public class TestAdmin {
 	
 	
 	// scans a directory for PEER result files
-	private static File[] getFileList(File dir) {
-		File[] files = dir.listFiles(new FilenameFilter() {
-			public boolean accept(File dir, String name) {
-				return (name.endsWith(PEER_FILE_SUFFIX)) ? true : false;
-			}
-		});
+	private File[] getFileList(File dir) {
+		File[] files = dir.listFiles(new PeerFileFilter());
 		return files;
 	}
 	
 	
 	// creates a lookup table for PEER keys (correct results)
-	private static Map<String,File> getKeyFileMap() {
+	private Map<String,File> getKeyFileMap() {
 		HashMap<String,File> map = new HashMap<String,File>();
 		try {
 			URL keyUrl = TestAdmin.class.getResource("keys");
@@ -441,7 +464,8 @@ public class TestAdmin {
 	}
 	
 	// special sorter so that Case10 does not immediately follow Case1
-	private static class TestFileComparator implements Comparator<File> {
+	// (preceeding Case2)
+	static class TestFileComparator implements Comparator<File> {
 		
 		public int compare(File f1, File f2) {
 			
@@ -488,7 +512,13 @@ public class TestAdmin {
 			// fall back to site comparison
 			return siteNum1.compareTo(siteNum2);
 		}
-		
 	}
-	
+
+	// selects test result files 
+	static class PeerFileFilter implements FilenameFilter {
+		public boolean accept(File dir, String name) {
+			return (name.endsWith(PEER_FILE_SUFFIX)) ? true : false;
+		}
+	}
+
 }

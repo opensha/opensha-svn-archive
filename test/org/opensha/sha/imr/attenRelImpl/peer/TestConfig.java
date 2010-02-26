@@ -38,7 +38,6 @@ import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF;
 import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast;
-import org.opensha.sha.gui.controls.CalculationSettingsControlPanelAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel;
@@ -60,19 +59,6 @@ public class TestConfig {
 	// hazard analysis for that site; this default value is to allow all PEER
 	// test cases to pass through
 	public static double MAX_DISTANCE = 300;
-
-	
-	// some of the universal parameter settings
-	//private double GRID_SPACING = 1.0;
-	//private String FAULT_TYPE = SimpleFaultParameter.STIRLING;
-
-	// various gui beans
-	//private IMT_GuiBean imtGuiBean;
-	//private IMR_GuiBean imrGuiBean;
-	//private Site_GuiBean siteGuiBean;
-	//private ERF_GuiBean erfGuiBean;
-	//private TimeSpanGuiBean timeSpanGuiBean;
-	CalculationSettingsControlPanelAPI application;
 	
 	private AttenuationRelationship imr;
 	private Site site;
@@ -84,10 +70,6 @@ public class TestConfig {
 	private TestSite selectedSite;
 	private TestSet selectedSet;
 	
-//	private JLabel jLabel2 = new JLabel();
-//	private JComboBox testCaseComboBox = new JComboBox();
-//	private GridBagLayout gridBagLayout1 = new GridBagLayout();
-
 	// Test set descriptors
 	private static ArrayList<PeerTest> desc1;
 	private static ArrayList<PeerTest> desc2;
@@ -105,12 +87,7 @@ public class TestConfig {
 	private ArrayList<Double> faultE_Dips;
 	private ArrayList<Double> faultE_Depths;
 
-	// Instance of the application implementing the
-	// PEER_TestCaseSelectorControlPanelAPI
-	//PEER_TestCaseSelectorControlPanelAPI api;
-
-	// Stores the X Values for generating the hazard curve using the PEER
-	// values.
+	// X Values for the PEER hazard curves
 	private static double[] xVals = {
 		0.001, 
 		0.01, 
@@ -131,13 +108,6 @@ public class TestConfig {
 		0.9, 
 		1.0 };
 
-	//ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();
-
-	public static void main(String[] args) {
-		SadighEtAl_1997_AttenRel sea = new SadighEtAl_1997_AttenRel(null);
-		System.out.println(sea.getParameter(SigmaTruncTypeParam.NAME).getValue());
-	}
-	
 	public TestConfig(PeerTest test) {
 		selectedSet = test.getSet();
 		selectedCase = test.getCase();
@@ -163,90 +133,6 @@ public class TestConfig {
 		return function;
 	}
 	
-//	public PEER_TestConfig(Component parent,
-//			PEER_TestCaseSelectorControlPanelAPI api,
-//			IMR_GuiBean imrGuiBean,
-//			Site_GuiBean siteGuiBean,
-//			IMT_GuiBean imtGuiBean,
-//			ERF_GuiBean erfGuiBean,
-//			TimeSpanGuiBean timeSpanGuiBean,
-//			CalculationSettingsControlPanelAPI application) {
-
-		//this.api = api;
-		// if (D)
-		// System.out.println(C+" Constructor: starting initializeFaultData()");
-		//initializeFaultData();
-
-//		try {
-//			jbInit();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-
-		// save the instances of the beans
-		//this.imrGuiBean = imrGuiBean;
-		//this.siteGuiBean = siteGuiBean;
-		//this.imtGuiBean = imtGuiBean;
-		//this.erfGuiBean = erfGuiBean;
-		//this.timeSpanGuiBean = timeSpanGuiBean;
-		//this.application = application;
-
-		
-		// if (D)
-		// System.out.println(C+" Constructor: starting initializeTestsAndSites()");
-		// fill the combo box with tests and sites
-		//initTestDescriptors();
-
-		// show the window at center of the parent component
-//		setLocation(parent.getX() + parent.getWidth() / 2, parent.getY()
-//				+ parent.getHeight() / 2);
-
-		// function to create the PEER supported X Values
-		//initFunctionVals();
-		// sets the PEER supported X values in the application
-//		this.setPEER_XValues();
-//	}
-
-//	private void jbInit() throws Exception {
-//		this.getContentPane().setLayout(gridBagLayout1);
-//		jLabel2.setForeground(Color.black);
-//		jLabel2.setText("Select Test and Site:");
-//		testCaseComboBox.addActionListener(new java.awt.event.ActionListener() {
-//			public void actionPerformed(ActionEvent e) {
-//				//testCaseComboBox_actionPerformed(e);
-//			}
-//		});
-//		this.setTitle("PEER Test Case Selector");
-//		this.getContentPane().add(
-//				jLabel2,
-//				new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-//						GridBagConstraints.WEST, GridBagConstraints.NONE,
-//						new Insets(15, 7, 2, 240), 22, 5));
-//		this.getContentPane().add(
-//				testCaseComboBox,
-//				new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0,
-//						GridBagConstraints.CENTER,
-//						GridBagConstraints.HORIZONTAL,
-//						new Insets(7, 145, 2, 13), 92, -1));
-//	}
-
-	/**
-	 * This method sets the X values for the hazard Curve to the PEER supported
-	 * X Values.
-	 */
-//	public void setPEER_XValues() {
-//		// sets X Value to the PEER supported x vlaues for the hazard curve
-//		api.setX_ValuesForHazardCurve(function);
-//	}
-
-	
-//	public void setTest(TestDescriptor test) {
-//		selectedSet = test.getSet();
-//		selectedCase = test.getCase();
-//		selectedSite = test.getSite();
-//		initTest();
-//	}
-
 	private void initTest() {
 		site = new Site();
 		if (is(SET_1)) {
@@ -254,40 +140,9 @@ public class TestConfig {
 		} else if (is(SET_2)) {
 			init_Set2();
 		}
-		// String S = C + ":setParams()";
-		// if (D) System.out.println(S+"::entering");
-
-		// Gets the siteParamList
-//		ParameterList siteParams =
-//				siteGuiBean.getParameterListEditor().getParameterList();
-		
-		
-		// set the distance in control panel
-//		application.getCalcAdjustableParams().getParameter(
-//				HazardCurveCalculator.MAX_DISTANCE_PARAM_NAME).setValue(
-//				MAX_DISTANCE);
-//		application.getCalcAdjustableParams().getParameter(
-//				HazardCurveCalculator.INCLUDE_MAG_DIST_FILTER_PARAM_NAME)
-//				.setValue(false);
-
-//		if (selectedSet.equals(SET_1)) {
-//			set_Set1Params(siteParams);
-			//set_Set1Params();
-//		} else if (selectedSet.equals(SET_2)) {
-//			set_Set2Params(siteParams);
-//			set_Set2Params();
-//		}
-
-		// refresh the editor according to parameter values
-		//imrGuiBean.refreshParamEditor();
-		//imtGuiBean.refreshParamEditor();
-		//siteGuiBean.getParameterListEditor().refreshParamEditor();
-		//erfGuiBean.getERFParameterListEditor().refreshParamEditor();
-		//timeSpanGuiBean.getParameterListEditor().refreshParamEditor();
 	}
 
 	// sets the parameter values for the selected test cases in Set-1
-//	private void set_Set1Params(ParameterList siteParams) {
 	private void init_Set1() {
 
 		// ******* Set the IMR, IMT, & Site-Related Parameters 
@@ -507,11 +362,11 @@ public class TestConfig {
 				
 				// NOTE Case_11 grid spacing had been set to 0.25 km which
 				// yields a better result, but which takes an exorbitant
-				// amount of time and can leead to uncaught OutOfMemoryErrors
+				// amount of time and can lead to uncaught OutOfMemoryErrors
 				// in multi-threaded test runs.
 				
 				//erf.getParameter(PEER_AreaForecast.GRID_PARAM_NAME).setValue(new Double(0.25));   	 
-				erf.getParameter(PEER_AreaForecast.GRID_PARAM_NAME).setValue(new Double(1.0));   	 
+				erf.getParameter(PEER_AreaForecast.GRID_PARAM_NAME).setValue(new Double(0.4));   	 
 			}
 		}
 		
