@@ -145,80 +145,50 @@ public class TestConfig {
 	// sets the parameter values for the selected test cases in Set-1
 	private void init_Set1() {
 
-		// ******* Set the IMR, IMT, & Site-Related Parameters 
-		// (except lat and lon) first ************
+		// *****************************************************
+		// ****** Set the IMR, IMT, & Site-Related Params ******
+		// ******          (except lat and lon)           ******
+		// *****************************************************
 		
 		// the following settings apply to most test cases; 
 		// these are subsequently overridded where needed below
-//		imrGuiBean.getParameterList().getParameter(IMR_GuiBean.IMR_PARAM_NAME).setValue(SadighEtAl_1997_AttenRel.NAME);
-//		imrGuiBean.getParameterList().getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE);
-//		imrGuiBean.getParameterList().getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_NONE);
-//		imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);
-//		siteParams.getParameter(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME).setValue(SadighEtAl_1997_AttenRel.SITE_TYPE_ROCK);
-
 		imr = new SadighEtAl_1997_AttenRel(null);
 		imr.setParamDefaults();
 		imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE);
 		imr.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_NONE);
 		imr.setIntensityMeasure(PGA_Param.NAME);
-		//imr.getParameter(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME).setValue(SadighEtAl_1997_AttenRel.SITE_TYPE_ROCK);
-
+		
 		site.addParameter(imr.getParameter(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME));
 		site.setValue(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME, SadighEtAl_1997_AttenRel.SITE_TYPE_ROCK);
 		
 		if (is(CASE_8A)) {
-//			imrGuiBean.getParameterList().getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE);
-//			imrGuiBean.getParameterList().getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
-//			imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);  // needed because IMT gets reset to SA afer the above
 			imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE);
 			imr.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
 			imr.setIntensityMeasure(PGA_Param.NAME);  // needed because IMT gets reset to SA afer the above
+			// NOTE: I don't think the above comment applies now that tests
+			// are not gui based -- powers
 		
 		} else if (is(CASE_8B)) {
-//			imrGuiBean.getParameterList().getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
-//			imrGuiBean.getParameterList().getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(2.0));
-//			imrGuiBean.getParameterList().getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
-//			imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);  // needed because IMT gets reset to SA afer the above
 			imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
 			imr.getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(2.0));
 			imr.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
 			imr.setIntensityMeasure(PGA_Param.NAME);  // needed because IMT gets reset to SA afer the above
 		
 		} else if (is(CASE_8C)) {
-//			imrGuiBean.getParameterList().getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
-//			imrGuiBean.getParameterList().getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0));
-//			imrGuiBean.getParameterList().getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
-//			imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);  // needed because IMT gets reset to SA afer the above
 			imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
 			imr.getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0));
 			imr.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
 			imr.setIntensityMeasure(PGA_Param.NAME);  // needed because IMT gets reset to SA afer the above
 		
 		} else if (is(CASE_9A)) {
-//			imrGuiBean.getParameterList().getParameter(IMR_GuiBean.IMR_PARAM_NAME).setValue(SadighEtAl_1997_AttenRel.NAME);
-//			imrGuiBean.getParameterList().getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
-//			imrGuiBean.getParameterList().getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0));
-//			imrGuiBean.getParameterList().getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
-//			imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);
-//			siteParams.getParameter(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME).setValue(SadighEtAl_1997_AttenRel.SITE_TYPE_ROCK);
 			imr = new SadighEtAl_1997_AttenRel(null);
 			imr.setParamDefaults();
 			imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
 			imr.getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0));
 			imr.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
 			imr.setIntensityMeasure(PGA_Param.NAME);
-			//imr.getParameter(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME).setValue(SadighEtAl_1997_AttenRel.SITE_TYPE_ROCK);
-
-			//site.addParameter(imr.getParameter(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME));
-			//site.setValue(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME, SadighEtAl_1997_AttenRel.SITE_TYPE_ROCK);
 
 		} else if (is(CASE_9B)){
-//			imrGuiBean.getParameterList().getParameter(IMR_GuiBean.IMR_PARAM_NAME).setValue(AS_1997_AttenRel.NAME);
-//			imrGuiBean.getParameterList().getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE);
-//			imrGuiBean.getParameterList().getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0)); // this shouldn't matter
-//			imrGuiBean.getParameterList().getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_NONE);
-//			imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);
-//			siteParams.getParameter(AS_1997_AttenRel.SITE_TYPE_NAME).setValue(AS_1997_AttenRel.SITE_TYPE_ROCK);
 			imr = new AS_1997_AttenRel(null);
 			imr.setParamDefaults();
 			imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE);
@@ -228,26 +198,14 @@ public class TestConfig {
 			
 			site.addParameter(imr.getParameter(AS_1997_AttenRel.SITE_TYPE_NAME));
 			site.setValue(AS_1997_AttenRel.SITE_TYPE_NAME, AS_1997_AttenRel.SITE_TYPE_ROCK);
-			
-			//site.addParameter(imr.getParameter(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME));
-			//site.setValue(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME, SadighEtAl_1997_AttenRel.SITE_TYPE_ROCK);
 
 		} else if (is(CASE_9C)){
-//			imrGuiBean.getParameterList().getParameter(IMR_GuiBean.IMR_PARAM_NAME).setValue(Campbell_1997_AttenRel.NAME);
-//			imrGuiBean.getParameterList().getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
-//			imrGuiBean.getParameterList().getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0));
-//			imrGuiBean.getParameterList().getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL_PGA_DEP);
-//			imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);
-//			siteGuiBean.getParameterListEditor().getParameterList().getParameter(Campbell_1997_AttenRel.SITE_TYPE_NAME).setValue(Campbell_1997_AttenRel.SITE_TYPE_SOFT_ROCK);
-//			siteParams.getParameter(Campbell_1997_AttenRel.BASIN_DEPTH_NAME).setValue(new Double(2.0));
 			imr = new Campbell_1997_AttenRel(null);
 			imr.setParamDefaults();
 			imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
 			imr.getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0));
 			imr.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL_PGA_DEP);
 			imr.setIntensityMeasure(PGA_Param.NAME);
-			//imr.getParameter(Campbell_1997_AttenRel.SITE_TYPE_NAME).setValue(Campbell_1997_AttenRel.SITE_TYPE_SOFT_ROCK);
-			//imr.getParameter(Campbell_1997_AttenRel.BASIN_DEPTH_NAME).setValue(new Double(2.0));
 			
 			site.addParameter(imr.getParameter(Campbell_1997_AttenRel.SITE_TYPE_NAME));
 			site.setValue(Campbell_1997_AttenRel.SITE_TYPE_NAME, Campbell_1997_AttenRel.SITE_TYPE_SOFT_ROCK);
@@ -255,25 +213,19 @@ public class TestConfig {
 			site.setValue(Campbell_1997_AttenRel.BASIN_DEPTH_NAME, new Double(2.0));
 
 		} else if (is(CASE_12)){
-//			imrGuiBean.getParameterList().getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
-//			imrGuiBean.getParameterList().getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0));
-//			imrGuiBean.getParameterList().getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
-//			imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);  // needed because IMT gets reset to SA afer the above
 			imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
 			imr.getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0));
 			imr.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
 			imr.setIntensityMeasure(PGA_Param.NAME);  // needed because IMT gets reset to SA afer the above
 		}
 
-
-		// *********** Now fill in the ERF parameters ************************
+		// *****************************************************
+		// ******         Set the ERF parameters         *******
+		// *****************************************************
 		
 		// if it's one of the "PEER fault" problems (cases 1-9 or 12)
-		
 		if (!is(CASE_10) && !is(CASE_11)) {
 
-			// set the ERF
-//			erfGuiBean.getERFParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(FloatingPoissonFaultERF.NAME);
 			erf = new FloatingPoissonFaultERF();
 		
 			// set offset and fault grid spacing (these were determined by trial and error)
@@ -288,7 +240,7 @@ public class TestConfig {
 				gridSpacing = 0.5;
 			}
 		
-			// set the special cases (improvements found by hand using GUI)
+			// set the special cases (improvements found by hand using GUI -NF)
 			if (is(CASE_8C) && is(SITE_5)) {
 				gridSpacing = 0.05;
 			}
@@ -300,12 +252,6 @@ public class TestConfig {
 			}
 
 			// set the common parameters like timespan
-//			erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.OFFSET_PARAM_NAME).setValue(new Double(gridSpacing));
-//			erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.MAG_SCALING_REL_PARAM_NAME).setValue(PEER_testsMagAreaRelationship.NAME);
-//			erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.SIGMA_PARAM_NAME).setValue(new Double(0));
-//			erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.ASPECT_RATIO_PARAM_NAME).setValue(new Double(2.0));
-//			erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.MIN_MAG_PARAM_NAME).setValue(new Double(5.0));
-//			timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
 			erf.getParameter(FloatingPoissonFaultERF.OFFSET_PARAM_NAME).setValue(new Double(gridSpacing));
 			erf.getParameter(FloatingPoissonFaultERF.MAG_SCALING_REL_PARAM_NAME).setValue(PEER_testsMagAreaRelationship.NAME);
 			erf.getParameter(FloatingPoissonFaultERF.SIGMA_PARAM_NAME).setValue(new Double(0));
@@ -327,14 +273,11 @@ public class TestConfig {
 			}
 
 			// set the Fault Parameter
-//			SimpleFaultParameterEditorPanel faultPanel = erfGuiBean.getSimpleFaultParamEditor().getParameterEditorPanel();
 			SimpleFaultParameter fault = (SimpleFaultParameter) erf.getParameter(FloatingPoissonFaultERF.FAULT_PARAM_NAME);
 			if (is(CASE_4) || is(CASE_9A) || is(CASE_9B) || is(CASE_9C) ) {
-//				faultPanel.setAll(gridSpacing,fault1and2_Lats,fault1and2_Lons,fault2_Dips,fault2_Depths,SimpleFaultParameter.STIRLING);
 				fault.setAll(gridSpacing,fault1and2_Lats,fault1and2_Lons,fault2_Dips,fault2_Depths,SimpleFaultParameter.STIRLING);
 			
 			} else {
-//				faultPanel.setAll(gridSpacing,fault1and2_Lats,fault1and2_Lons,fault1_Dips,fault1_Depths,SimpleFaultParameter.STIRLING);
 				fault.setAll(gridSpacing,fault1and2_Lats,fault1and2_Lons,fault1_Dips,fault1_Depths,SimpleFaultParameter.STIRLING);
 			}
 			
@@ -342,11 +285,6 @@ public class TestConfig {
 			
 		// it's an area ERF (case 10 or 11)
 		} else {
-//			erfGuiBean.getERFParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_AreaForecast.NAME);
-//			erfGuiBean.getERFParameterList().getParameter(PEER_AreaForecast.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
-//			erfGuiBean.getERFParameterList().getParameter(PEER_AreaForecast.DIP_PARAM_NAME).setValue(new Double(90));
-//			erfGuiBean.getERFParameterList().getParameter(PEER_AreaForecast.RAKE_PARAM_NAME).setValue(new Double(0));
-//			timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
 			erf = new PEER_AreaForecast();
 			erf.getParameter(PEER_AreaForecast.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
 			erf.getParameter(PEER_AreaForecast.DIP_PARAM_NAME).setValue(new Double(90));
@@ -366,84 +304,66 @@ public class TestConfig {
 				// in multi-threaded test runs.
 				
 				//erf.getParameter(PEER_AreaForecast.GRID_PARAM_NAME).setValue(new Double(0.25));   	 
-				erf.getParameter(PEER_AreaForecast.GRID_PARAM_NAME).setValue(new Double(0.4));   	 
+				erf.getParameter(PEER_AreaForecast.GRID_PARAM_NAME).setValue(new Double(1.0));   	 
 			}
 		}
 		
-		// set magFreqDist parameters using seperate method
-//		MagFreqDistParameterEditor magDistEditor = erfGuiBean.getMagDistEditor();
-//		setMagDistParams_Set1(magDistEditor);
+		// *****************************************************
+		// ****** Set the magFreqDist params separately  *******
+		// *****************************************************
 		initMFD_Set1();
-		
+
+		// and update
 		erf.updateForecast();
 		
 		
-		// *********** set the Site latitude and longitude  *****************
 
-		if (!is(CASE_10) && !is(CASE_11)) {
+		// *****************************************************
+		// ******           Set Site lat & lon           *******
+		// *****************************************************
 
-			// for fault site 1
+		if (!is(CASE_10) && !is(CASE_11)) { // for fault sites
+
 			if (is(SITE_1)) {
-//				siteGuiBean.getParameterListEditor().getParameterList().getParameter(Site_GuiBean.LATITUDE).setValue(new Double(38.113));
-//				siteParams.getParameter(Site_GuiBean.LONGITUDE).setValue(new Double(-122.0));
 				site.setLocation(new Location(38.113,-122.000));
 			
 			} else if (is(SITE_2)) {
-//				siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(38.113));
-//				siteParams.getParameter(Site_GuiBean.LONGITUDE).setValue(new Double(-122.114));
 				site.setLocation(new Location(38.113,-122.114));
 
 			} else if (is(SITE_3)) {
-//				siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(38.111));
-//				siteParams.getParameter(Site_GuiBean.LONGITUDE).setValue(new Double(-122.570));
 				site.setLocation(new Location(38.111,-122.570));
 
 			} else if (is(SITE_4)) {
-//				siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(38.000));
-//				siteParams.getParameter(Site_GuiBean.LONGITUDE).setValue(new Double(-122.0));
 				site.setLocation(new Location(38.000,-122.000));
 
 			} else if (is(SITE_5)) {
-//				siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(37.910));
-//				siteParams.getParameter(Site_GuiBean.LONGITUDE).setValue(new Double(-122.0));
 				site.setLocation(new Location(37.910,-122.000));
 
 			} else if (is(SITE_6)) {
-//				siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(38.225));
-//				siteParams.getParameter(Site_GuiBean.LONGITUDE).setValue(new Double(-122.0));
 				site.setLocation(new Location(38.225,-122.000));
 
 			} else if (is(SITE_7)) {
-//				siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(38.113));
-//				siteParams.getParameter(Site_GuiBean.LONGITUDE).setValue(new Double(-121.886));
 				site.setLocation(new Location(38.113,-121.886));
 			}
 			
 		} else { // for area sites
 
-			//siteParams.getParameter(Site_GuiBean.LONGITUDE).setValue(new Double(-122.0));
-			
 			if (is(SITE_1)) {
-//				siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(38.0));
 				site.setLocation(new Location(38.000,-122.000));
 			
 			} else if (is(SITE_2)) {
-//				siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(37.550));
 				site.setLocation(new Location(37.550,-122.000));
 
 			} else if (is(SITE_3)) {
-//				siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(37.099));
 				site.setLocation(new Location(37.099,-122.000));
 
 			} else if (is(SITE_4)) {
-//				siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(36.875));
 				site.setLocation(new Location(36.875,-122.000));
 			}
 		}
 	}
 
-	// Sets the default magdist values for set-1
-//	private void setMagDistParams_Set1(MagFreqDistParameterEditor magEditor) {
+	// Sets the default magdist values for Set-1
 	private void initMFD_Set1() {
 
 		// NOTE kinda klunky; each time the mfd is set, the fix and all_but
@@ -462,18 +382,11 @@ public class TestConfig {
 		}
 		
 		// these apply to most (overridden below where not)
-//		magEditor.getParameter(MagFreqDistParameter.MIN).setValue(new Double(6));
-//		magEditor.getParameter(MagFreqDistParameter.MAX).setValue(new Double(6.5));
-//		magEditor.getParameter(MagFreqDistParameter.NUM).setValue(new Integer(6));
 		plist.getParameter(MIN).setValue(new Double(6));
 		plist.getParameter(MAX).setValue(new Double(6.5));
 		plist.getParameter(NUM).setValue(new Integer(6));
 
 		if (is(CASE_1) || is(CASE_12)) {
-//			magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-//			magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
-//			magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(6.5));
-//			magEditor.getParameter(MagFreqDistParameter.MO_RATE).setValue(new Double(1.8e16));
 			plist.getParameter(DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
 			plist.getParameter(FIX).setConstraint(mfd.getSingleDistFixOptions());
 			plist.getParameter(SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
@@ -481,10 +394,6 @@ public class TestConfig {
 			plist.getParameter(MO_RATE).setValue(new Double(1.8e16));
 		
 		} else if (is(CASE_2)) {
-//			magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-//			magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
-//			magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(6.0));
-//			magEditor.getParameter(MagFreqDistParameter.MO_RATE).setValue(new Double(1.8e16));
 			plist.getParameter(DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
 			plist.getParameter(FIX).setConstraint(mfd.getSingleDistFixOptions());
 			plist.getParameter(SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
@@ -492,10 +401,6 @@ public class TestConfig {
 			plist.getParameter(MO_RATE).setValue(new Double(1.8e16));
 		
 		} else if (is(CASE_3)) {
-//			magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-//			magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
-//			magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(6.0));
-//			magEditor.getParameter(MagFreqDistParameter.MO_RATE).setValue(new Double(1.8e16));
 			plist.getParameter(DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
 			plist.getParameter(FIX).setConstraint(mfd.getSingleDistFixOptions());
 			plist.getParameter(SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
@@ -503,10 +408,6 @@ public class TestConfig {
 			plist.getParameter(MO_RATE).setValue(new Double(1.8e16));
 		
 		} else if (is(CASE_4)) {
-//			magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-//			magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
-//			magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(6.0));
-//			magEditor.getParameter(MagFreqDistParameter.MO_RATE).setValue(new Double(1.905e16));
 			plist.getParameter(DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
 			plist.getParameter(FIX).setConstraint(mfd.getSingleDistFixOptions());
 			plist.getParameter(SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
@@ -514,16 +415,6 @@ public class TestConfig {
 			plist.getParameter(MO_RATE).setValue(new Double(1.905e16));
 
 		} else if (is(CASE_5)) {
-//			magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
-//			magEditor.getParameter(MagFreqDistParameter.MIN).setValue(new Double(0.005));
-//			magEditor.getParameter(MagFreqDistParameter.MAX).setValue(new Double(9.995));
-//			magEditor.getParameter(MagFreqDistParameter.NUM).setValue(new Integer(1000));
-//			magEditor.getParameter(MagFreqDistParameter.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameter.TOT_CUM_RATE);
-//			magEditor.getParameter(MagFreqDistParameter.GR_MAG_LOWER).setValue(new Double(0.005));
-//			magEditor.getParameter(MagFreqDistParameter.GR_MAG_UPPER).setValue(new Double(6.495));
-//			magEditor.getParameter(MagFreqDistParameter.GR_BVALUE).setValue(new Double(0.9));
-//			magEditor.getParameter(MagFreqDistParameter.TOT_MO_RATE).setValue(new Double(1.8e16));
-//			magEditor.getParameter(MagFreqDistParameter.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameter.TOT_CUM_RATE);
 			plist.getParameter(DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
 			plist.getParameter(SET_ALL_PARAMS_BUT).setConstraint(mfd.getGRSetAllButOptions());
 			plist.getParameter(FIX).setConstraint(mfd.getGRFixOptions());
@@ -538,16 +429,6 @@ public class TestConfig {
 			plist.getParameter(SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameter.TOT_CUM_RATE);
 
 		} else if (is(CASE_6)) {
-//			magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(GaussianMagFreqDist.NAME);
-//			magEditor.getParameter(MagFreqDistParameter.MIN).setValue(new Double(0.005));
-//			magEditor.getParameter(MagFreqDistParameter.MAX).setValue(new Double(9.995));
-//			magEditor.getParameter(MagFreqDistParameter.NUM).setValue(new Integer(1000));
-//			magEditor.getParameter(MagFreqDistParameter.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameter.TOT_CUM_RATE);
-//			magEditor.getParameter(MagFreqDistParameter.TOT_MO_RATE).setValue(new Double(1.8e16));
-//			magEditor.getParameter(MagFreqDistParameter.STD_DEV).setValue(new Double(0.25));
-//			magEditor.getParameter(MagFreqDistParameter.MEAN).setValue(new Double(6.2));
-//			magEditor.getParameter(MagFreqDistParameter.TRUNCATION_REQ).setValue(MagFreqDistParameter.TRUNCATE_UPPER_ONLY);
-//			magEditor.getParameter(MagFreqDistParameter.TRUNCATE_NUM_OF_STD_DEV).setValue(new Double(1.19));
 			plist.getParameter(DISTRIBUTION_NAME).setValue(GaussianMagFreqDist.NAME);
 			plist.getParameter(SET_ALL_PARAMS_BUT).setConstraint(mfd.getGaussianDistSetAllButOptions());
 			plist.getParameter(MIN).setValue(new Double(0.005));
@@ -561,17 +442,6 @@ public class TestConfig {
 			plist.getParameter(TRUNCATE_NUM_OF_STD_DEV).setValue(new Double(1.19));
 
 		} else if (is(CASE_7)) {
-//			magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(YC_1985_CharMagFreqDist.NAME);
-//			magEditor.getParameter(MagFreqDistParameter.MIN).setValue(new Double(0.005));
-//			magEditor.getParameter(MagFreqDistParameter.MAX).setValue(new Double(10.005));
-//			magEditor.getParameter(MagFreqDistParameter.NUM).setValue(new Integer(1001));
-//			magEditor.getParameter(MagFreqDistParameter.GR_BVALUE).setValue(new Double(0.9));
-//			magEditor.getParameter(MagFreqDistParameter.YC_DELTA_MAG_CHAR).setValue(new Double(0.49));
-//			magEditor.getParameter(MagFreqDistParameter.YC_DELTA_MAG_PRIME).setValue(new Double(1.0));
-//			magEditor.getParameter(MagFreqDistParameter.GR_MAG_LOWER).setValue(new Double(0.005));
-//			magEditor.getParameter(MagFreqDistParameter.YC_MAG_PRIME).setValue(new Double(5.945));
-//			magEditor.getParameter(MagFreqDistParameter.GR_MAG_UPPER).setValue(new Double(6.445));
-//			magEditor.getParameter(MagFreqDistParameter.TOT_MO_RATE).setValue(new Double(1.8e16));
 			plist.getParameter(DISTRIBUTION_NAME).setValue(YC_1985_CharMagFreqDist.NAME);
 			plist.getParameter(SET_ALL_PARAMS_BUT).setConstraint(mfd.getYCSetAllButOptions());
 			plist.getParameter(MIN).setValue(new Double(0.005));
@@ -586,10 +456,6 @@ public class TestConfig {
 			plist.getParameter(TOT_MO_RATE).setValue(new Double(1.8e16));
 		
 		} else if (is(CASE_8A)) {
-//			magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-//			magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
-//			magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(6.0));
-//			magEditor.getParameter(MagFreqDistParameter.MO_RATE).setValue(new Double(1.8e16));
 			plist.getParameter(DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
 			plist.getParameter(FIX).setConstraint(mfd.getSingleDistFixOptions());
 			plist.getParameter(SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
@@ -597,10 +463,6 @@ public class TestConfig {
 			plist.getParameter(MO_RATE).setValue(new Double(1.8e16));
 		
 		} else if (is(CASE_8B)) {
-//			magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-//			magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
-//			magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(6.0));
-//			magEditor.getParameter(MagFreqDistParameter.MO_RATE).setValue(new Double(1.8e16));
 			plist.getParameter(DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
 			plist.getParameter(FIX).setConstraint(mfd.getSingleDistFixOptions());
 			plist.getParameter(SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
@@ -608,10 +470,6 @@ public class TestConfig {
 			plist.getParameter(MO_RATE).setValue(new Double(1.8e16));
 		
 		} else if (is(CASE_8C)) {
-//			magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-//			magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
-//			magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(6.0));
-//			magEditor.getParameter(MagFreqDistParameter.MO_RATE).setValue(new Double(1.8e16));
 			plist.getParameter(DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
 			plist.getParameter(FIX).setConstraint(mfd.getSingleDistFixOptions());
 			plist.getParameter(SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
@@ -619,10 +477,6 @@ public class TestConfig {
 			plist.getParameter(MO_RATE).setValue(new Double(1.8e16));
 		
 		} else if (is(CASE_9A)) {
-//			magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-//			magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
-//			magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(6.0));
-//			magEditor.getParameter(MagFreqDistParameter.MO_RATE).setValue(new Double(1.905e16));
 			plist.getParameter(DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
 			plist.getParameter(FIX).setConstraint(mfd.getSingleDistFixOptions());
 			plist.getParameter(SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
@@ -630,10 +484,6 @@ public class TestConfig {
 			plist.getParameter(MO_RATE).setValue(new Double(1.905e16));
 		
 		} else if (is(CASE_9B)) {
-//			magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-//			magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
-//			magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(6.0));
-//			magEditor.getParameter(MagFreqDistParameter.MO_RATE).setValue(new Double(1.905e16));
 			plist.getParameter(DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
 			plist.getParameter(FIX).setConstraint(mfd.getSingleDistFixOptions());
 			plist.getParameter(SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
@@ -641,10 +491,6 @@ public class TestConfig {
 			plist.getParameter(MO_RATE).setValue(new Double(1.905e16));
 		
 		} else if (is(CASE_9C)) {
-//			magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-//			magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
-//			magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(6.0));
-//			magEditor.getParameter(MagFreqDistParameter.MO_RATE).setValue(new Double(1.905e16));
 			plist.getParameter(DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
 			plist.getParameter(FIX).setConstraint(mfd.getSingleDistFixOptions());
 			plist.getParameter(SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
@@ -652,15 +498,6 @@ public class TestConfig {
 			plist.getParameter(MO_RATE).setValue(new Double(1.905e16));
 		
 		} else if (is(CASE_10)) {
-//			magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
-//			magEditor.getParameter(MagFreqDistParameter.MIN).setValue(new Double(0.05));
-//			magEditor.getParameter(MagFreqDistParameter.MAX).setValue(new Double(9.95));
-//			magEditor.getParameter(MagFreqDistParameter.NUM).setValue(new Integer(100));
-//			magEditor.getParameter(MagFreqDistParameter.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameter.TOT_MO_RATE);
-//			magEditor.getParameter(MagFreqDistParameter.GR_MAG_LOWER).setValue(new Double(5.05));
-//			magEditor.getParameter(MagFreqDistParameter.GR_MAG_UPPER).setValue(new Double(6.45));
-//			magEditor.getParameter(MagFreqDistParameter.GR_BVALUE).setValue(new Double(0.9));
-//			magEditor.getParameter(MagFreqDistParameter.TOT_CUM_RATE).setValue(new Double(.0395));
 			plist.getParameter(DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
 			plist.getParameter(SET_ALL_PARAMS_BUT).setConstraint(mfd.getGRSetAllButOptions());
 			plist.getParameter(FIX).setConstraint(mfd.getGRFixOptions());
@@ -674,15 +511,6 @@ public class TestConfig {
 			plist.getParameter(TOT_CUM_RATE).setValue(new Double(.0395));
 		
 		} else if (is(CASE_11)) {
-//			magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
-//			magEditor.getParameter(MagFreqDistParameter.MIN).setValue(new Double(0.05));
-//			magEditor.getParameter(MagFreqDistParameter.MAX).setValue(new Double(9.95));
-//			magEditor.getParameter(MagFreqDistParameter.NUM).setValue(new Integer(100));
-//			magEditor.getParameter(MagFreqDistParameter.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameter.TOT_MO_RATE);
-//			magEditor.getParameter(MagFreqDistParameter.GR_MAG_LOWER).setValue(new Double(5.05));
-//			magEditor.getParameter(MagFreqDistParameter.GR_MAG_UPPER).setValue(new Double(6.45));
-//			magEditor.getParameter(MagFreqDistParameter.GR_BVALUE).setValue(new Double(0.9));
-//			magEditor.getParameter(MagFreqDistParameter.TOT_CUM_RATE).setValue(new Double(.0395));
 			plist.getParameter(DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
 			plist.getParameter(SET_ALL_PARAMS_BUT).setConstraint(mfd.getGRSetAllButOptions());
 			plist.getParameter(FIX).setConstraint(mfd.getGRFixOptions());
@@ -696,110 +524,80 @@ public class TestConfig {
 			plist.getParameter(TOT_CUM_RATE).setValue(new Double(.0395));
 		}
 
-		// now have the editor create the magFreqDist
-//			magEditor.setMagDistFromParams();
+		// create the actual magFreqDist
 		mfd.setMagDist();
 	}
 
 	// sets the parameter values for the selected test cases in Set-2
-//	private void set_Set2Params(ParameterList siteParams) {
 	private void init_Set2() {
 		
-		// ******* Set the IMR, IMT, & Site-Related Parameters 
-		// (except lat and lon) first ************
+		// *****************************************************
+		// ****** Set the IMR, IMT, & Site-Related Params ******
+		// ******          (except lat and lon)           ******
+		// *****************************************************
 
-//		imrGuiBean.getParameterList().getParameter(IMR_GuiBean.IMR_PARAM_NAME).setValue(SadighEtAl_1997_AttenRel.NAME);
-//		imrGuiBean.getParameterList().getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE);
-//		imrGuiBean.getParameterList().getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_NONE);
-//		imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);
-//		siteParams.getParameter(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME).setValue(SadighEtAl_1997_AttenRel.SITE_TYPE_ROCK);
 		imr = new SadighEtAl_1997_AttenRel(null);
 		imr.setParamDefaults();
 		imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE);
 		imr.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_NONE);
 		imr.setIntensityMeasure(PGA_Param.NAME);
-		//imr.getParameter(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME).setValue(SadighEtAl_1997_AttenRel.SITE_TYPE_ROCK);
 
 		site.addParameter(imr.getParameter(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME));
 		site.setValue(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME, SadighEtAl_1997_AttenRel.SITE_TYPE_ROCK);
 
 		// change IMR sigma if it's Case 2
 		if (is(CASE_2) || is(CASE_5)){
-//			imrGuiBean.getParameterList().getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
-//			imrGuiBean.getParameterList().getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0));
-//			imrGuiBean.getParameterList().getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
 			imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
 			imr.getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0));
 			imr.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
 		}
 
-		// ********* set the site latitude and longitude ************
+		// *****************************************************
+		// ******           Set Site lat & lon           *******
+		// *****************************************************
+
 		if (is(CASE_1) || is(CASE_5)) {
 			
 			if (is(SITE_1) || is(SITE_4)) {
-//				siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(38.1126));
-//				siteParams.getParameter(Site_GuiBean.LONGITUDE).setValue(new Double(-121.8860));
 				site.setLocation(new Location(38.1126,-121.8860));
 			
 			} else if (is(SITE_2) || is(SITE_5)) {
-//				siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(38.1800));
-//				siteParams.getParameter(Site_GuiBean.LONGITUDE).setValue(new Double(-121.8860));
 				site.setLocation(new Location(38.1800,-121.8860));
 			
 			} else if (is(SITE_3) || is(SITE_6)) {
-//				siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(38.2696));
-//				siteParams.getParameter(Site_GuiBean.LONGITUDE).setValue(new Double(-122.1140));
 				site.setLocation(new Location(38.2696,-122.1140));
 			}
 		
 		} else if (is(CASE_2)) {
-			//siteParams.getParameter(Site_GuiBean.LONGITUDE).setValue(new Double(-122));
 			
 			if (is(SITE_1)) {
-//				siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(37.5495));
 				site.setLocation(new Location(37.5495,-122.000));
 			
 			} else if (is(SITE_2)) {
-//				siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(37.0990));
 				site.setLocation(new Location(37.0990,-122.000));
 		
 			} else if (is(SITE_3)) {
-//				siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(36.8737));
 				site.setLocation(new Location(36.8737,-122.000));
 			}
 		
 		} else { // all others have the same set of sites
 			
 			if (is(SITE_1)) {
-//				siteParams.getParameter(Site_GuiBean.LONGITUDE).setValue(new Double(-121.886));
-//				siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(38.1126));
 				site.setLocation(new Location(38.1126,-121.886));
 		
 			} else if (is(SITE_2)) {
-//				siteParams.getParameter(Site_GuiBean.LONGITUDE).setValue(new Double(-122.0));
-//				siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(38.2252));
 				site.setLocation(new Location(38.2252,-121.000));
 		
 			} else if (is(SITE_3)) {
-//				siteParams.getParameter(Site_GuiBean.LONGITUDE).setValue(new Double(-122.0));
-//				siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(38.0));
 				site.setLocation(new Location(38.000,-122.000));
 			}
 		}
 
-		// ************ Set the ERF parameters ********************
+		// *****************************************************
+		// ******         Set the ERF parameters         *******
+		// *****************************************************
 		
 		if (is(CASE_1)){
-//			erfGuiBean.getERFParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_NonPlanarFaultForecast.NAME);
-//			// add sigma for maglength(0-1)
-//			erfGuiBean.getERFParameterList().getParameter(PEER_NonPlanarFaultForecast.SIGMA_PARAM_NAME).setValue(new Double(0));
-//			timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
-//			erfGuiBean.getERFParameterList().getParameter(PEER_NonPlanarFaultForecast.GRID_PARAM_NAME).setValue(new Double(1.0));
-//			erfGuiBean.getERFParameterList().getParameter(PEER_NonPlanarFaultForecast.OFFSET_PARAM_NAME).setValue(new Double(1.0));
-//			erfGuiBean.getERFParameterList().getParameter(PEER_NonPlanarFaultForecast.GR_MAG_UPPER).setValue(new Double(6.95));
-//			erfGuiBean.getERFParameterList().getParameter(PEER_NonPlanarFaultForecast.SLIP_RATE_NAME).setValue(new Double(2.0));
-//			erfGuiBean.getERFParameterList().getParameter(PEER_NonPlanarFaultForecast.SEGMENTATION_NAME).setValue(PEER_NonPlanarFaultForecast.SEGMENTATION_NO);
-//			erfGuiBean.getERFParameterList().getParameter(PEER_NonPlanarFaultForecast.FAULT_MODEL_NAME).setValue(PEER_NonPlanarFaultForecast.FAULT_MODEL_STIRLING);
 			erf = new PEER_NonPlanarFaultForecast();
 			// add sigma for maglength(0-1)
 			erf.getParameter(PEER_NonPlanarFaultForecast.SIGMA_PARAM_NAME).setValue(new Double(0));
@@ -814,21 +612,13 @@ public class TestConfig {
 			// set the dip direction depending on the chosen
 			if (is(SITE_1) || is(SITE_2) || is(SITE_3)) {
 				
-//				erfGuiBean.getERFParameterList().getParameter(PEER_NonPlanarFaultForecast.DIP_DIRECTION_NAME).setValue(PEER_NonPlanarFaultForecast.DIP_DIRECTION_EAST);
 				erf.getParameter(PEER_NonPlanarFaultForecast.DIP_DIRECTION_NAME).setValue(PEER_NonPlanarFaultForecast.DIP_DIRECTION_EAST);
 
 			} else {
-//				erfGuiBean.getERFParameterList().getParameter(PEER_NonPlanarFaultForecast.DIP_DIRECTION_NAME).setValue(PEER_NonPlanarFaultForecast.DIP_DIRECTION_WEST);
 				erf.getParameter(PEER_NonPlanarFaultForecast.DIP_DIRECTION_NAME).setValue(PEER_NonPlanarFaultForecast.DIP_DIRECTION_WEST);
 			}
 			
 		} else if (is(CASE_2)) {
-//			erfGuiBean.getERFParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_MultiSourceForecast.NAME);
-//			erfGuiBean.getERFParameterList().getParameter(PEER_MultiSourceForecast.DEPTH_LOWER_PARAM_NAME).setValue(new Double(10));
-//			erfGuiBean.getERFParameterList().getParameter(PEER_MultiSourceForecast.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
-//			erfGuiBean.getERFParameterList().getParameter(PEER_MultiSourceForecast.GRID_PARAM_NAME).setValue(new Double(1.0));
-//			erfGuiBean.getERFParameterList().getParameter(PEER_MultiSourceForecast.OFFSET_PARAM_NAME).setValue(new Double(1.0));
-//			timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
 			erf = new PEER_MultiSourceForecast();
 			erf.getParameter(PEER_MultiSourceForecast.DEPTH_LOWER_PARAM_NAME).setValue(new Double(10));
 			erf.getParameter(PEER_MultiSourceForecast.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
@@ -838,14 +628,6 @@ public class TestConfig {
 		
 		} else if (is(CASE_3) || is(CASE_4) ) {
 
-//			erfGuiBean.getERFParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(FloatingPoissonFaultERF.NAME);
-//			erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
-//			erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.MAG_SCALING_REL_PARAM_NAME).setValue(PEER_testsMagAreaRelationship.NAME);
-//			erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.SIGMA_PARAM_NAME).setValue(new Double(0));
-//			erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.ASPECT_RATIO_PARAM_NAME).setValue(new Double(2.0));
-//			erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.MIN_MAG_PARAM_NAME).setValue(new Double(5.0));
-//			timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
-//			erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(0.0));
 			erf = new FloatingPoissonFaultERF();
 			erf.getParameter(FloatingPoissonFaultERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
 			erf.getParameter(FloatingPoissonFaultERF.MAG_SCALING_REL_PARAM_NAME).setValue(PEER_testsMagAreaRelationship.NAME);
@@ -856,21 +638,12 @@ public class TestConfig {
 			erf.getParameter(FloatingPoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(0.0));
 
 			// set the Fault Parameter
-//			SimpleFaultParameterEditorPanel faultPanel = erfGuiBean.getSimpleFaultParamEditor().getParameterEditorPanel();
-//			faultPanel.setAll(1.0,fault1and2_Lats,fault1and2_Lons,fault1_Dips,fault1_Depths,SimpleFaultParameter.STIRLING);
-//			faultPanel.setEvenlyGriddedSurfaceFromParams();
 			SimpleFaultParameter fault = (SimpleFaultParameter) erf.getParameter(FloatingPoissonFaultERF.FAULT_PARAM_NAME);
 			fault.setAll(1.0,fault1and2_Lats,fault1and2_Lons,fault1_Dips,fault1_Depths,SimpleFaultParameter.STIRLING);
 			fault.setEvenlyGriddedSurfaceFromParams();
 
 
 		} else if (is(CASE_5) ) {
-//			erfGuiBean.getERFParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_LogicTreeERF_List.NAME);
-//			erfGuiBean.getERFParameterList().getParameter(PEER_LogicTreeERF_List.FAULT_MODEL_NAME).setValue(PEER_LogicTreeERF_List.FAULT_MODEL_STIRLING);
-//			erfGuiBean.getERFParameterList().getParameter(PEER_LogicTreeERF_List.OFFSET_PARAM_NAME).setValue(new Double(1));
-//			erfGuiBean.getERFParameterList().getParameter(PEER_LogicTreeERF_List.GRID_PARAM_NAME).setValue(new Double(1));
-//			erfGuiBean.getERFParameterList().getParameter(PEER_LogicTreeERF_List.SIGMA_PARAM_NAME).setValue(new Double(0.0));
-//			timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
 
 			// NOTE Set2 Case5 disabled as PEER test runners are not 
 			// yet set up to handle epistemic lists
@@ -882,14 +655,6 @@ public class TestConfig {
 //			erf.getTimeSpan().setDuration(1.0);
 		
 		} else if (is(CASE_6)){
-//			erfGuiBean.getERFParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(FloatingPoissonFaultERF.NAME);
-//			erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
-//			erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.MAG_SCALING_REL_PARAM_NAME).setValue(PEER_testsMagAreaRelationship.NAME);
-//			erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.SIGMA_PARAM_NAME).setValue(new Double(0));
-//			erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.ASPECT_RATIO_PARAM_NAME).setValue(new Double(2.0));
-//			erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.MIN_MAG_PARAM_NAME).setValue(new Double(5.0));
-//			timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
-//			erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(0.0));
 			erf = new FloatingPoissonFaultERF();
 			erf.getParameter(FloatingPoissonFaultERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
 			erf.getParameter(FloatingPoissonFaultERF.MAG_SCALING_REL_PARAM_NAME).setValue(PEER_testsMagAreaRelationship.NAME);
@@ -900,26 +665,23 @@ public class TestConfig {
 			erf.getParameter(FloatingPoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(0.0));
 
 			// set the Fault Parameter
-//			SimpleFaultParameterEditorPanel faultPanel = erfGuiBean.getSimpleFaultParamEditor().getParameterEditorPanel();
-//			faultPanel.setAll(1.0,faultE_Lats,faultE_Lons,faultE_Dips,faultE_Depths,SimpleFaultParameter.STIRLING);
-//			faultPanel.setEvenlyGriddedSurfaceFromParams();
 			SimpleFaultParameter fault = (SimpleFaultParameter) erf.getParameter(FloatingPoissonFaultERF.FAULT_PARAM_NAME);
 			fault.setAll(1.0,faultE_Lats,faultE_Lons,faultE_Dips,faultE_Depths,SimpleFaultParameter.STIRLING);
 			fault.setEvenlyGriddedSurfaceFromParams();
 		}
 
 		
-		// now set the magFreqDist parameters (if there is one) using the separate method
-//		MagFreqDistParameterEditor magDistEditor = erfGuiBean.getMagDistEditor();
-//		if (magDistEditor !=null)  setMagDistParams_Set2(magDistEditor);
+		// *****************************************************
+		// ****** Set the magFreqDist params separately  *******
+		// *****************************************************
 		initMFD_Set2();
 		
+		// and update
 		erf.updateForecast();
 	}
 
-	// sets the default magdist values for the set 2
+	// sets the default magdist values for the Set-2
 	// (only cases 3, 4, and 6 have magFreqDist as an adjustable parameter)
-//	private void setMagDistParams_Set2(MagFreqDistParameterEditor magEditor) {
 	private void initMFD_Set2() {
 		
 		MagFreqDistParameter mfd;
@@ -927,81 +689,49 @@ public class TestConfig {
 			mfd = (MagFreqDistParameter) erf.getParameter(FloatingPoissonFaultERF.MAG_DIST_PARAM_NAME);
 			ParameterList plist = mfd.getAdjustableParams();
 		
-		if (is(CASE_3)) {
-//			magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(YC_1985_CharMagFreqDist.NAME);
-//			magEditor.getParameter(MagFreqDistParameter.MIN).setValue(new Double(0.0));
-//			magEditor.getParameter(MagFreqDistParameter.MAX).setValue(new Double(10));
-//			magEditor.getParameter(MagFreqDistParameter.NUM).setValue(new Integer(1001));
-//			magEditor.getParameter(MagFreqDistParameter.GR_BVALUE).setValue(new Double(0.9));
-//			magEditor.getParameter(MagFreqDistParameter.YC_DELTA_MAG_CHAR).setValue(new Double(.5));
-//			magEditor.getParameter(MagFreqDistParameter.YC_DELTA_MAG_PRIME).setValue(new Double(1.0));
-//			magEditor.getParameter(MagFreqDistParameter.GR_MAG_LOWER).setValue(new Double(0.01));
-//			magEditor.getParameter(MagFreqDistParameter.YC_MAG_PRIME).setValue(new Double(5.95));
-//			magEditor.getParameter(MagFreqDistParameter.GR_MAG_UPPER).setValue(new Double(6.45));
-//			magEditor.getParameter(MagFreqDistParameter.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameter.TOT_MO_RATE);
-//			magEditor.getParameter(MagFreqDistParameter.YC_TOT_CHAR_RATE).setValue(new Double(1e-3));
-			plist.getParameter(DISTRIBUTION_NAME).setValue(YC_1985_CharMagFreqDist.NAME);
-			plist.getParameter(SET_ALL_PARAMS_BUT).setConstraint(mfd.getYCSetAllButOptions());
-			plist.getParameter(MIN).setValue(new Double(0.0));
-			plist.getParameter(MAX).setValue(new Double(10));
-			plist.getParameter(NUM).setValue(new Integer(1001));
-			plist.getParameter(GR_BVALUE).setValue(new Double(0.9));
-			plist.getParameter(YC_DELTA_MAG_CHAR).setValue(new Double(.5));
-			plist.getParameter(YC_DELTA_MAG_PRIME).setValue(new Double(1.0));
-			plist.getParameter(GR_MAG_LOWER).setValue(new Double(0.01));
-			plist.getParameter(YC_MAG_PRIME).setValue(new Double(5.95));
-			plist.getParameter(GR_MAG_UPPER).setValue(new Double(6.45));
-			plist.getParameter(SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameter.TOT_MO_RATE);
-			plist.getParameter(YC_TOT_CHAR_RATE).setValue(new Double(1e-3));
-		
-		} else if (is(CASE_4)) {
-//			magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(GaussianMagFreqDist.NAME);
-//			magEditor.getParameter(MagFreqDistParameter.MIN).setValue(new Double(0.05));
-//			magEditor.getParameter(MagFreqDistParameter.MAX).setValue(new Double(9.95));
-//			magEditor.getParameter(MagFreqDistParameter.NUM).setValue(new Integer(100));
-//			magEditor.getParameter(MagFreqDistParameter.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameter.TOT_MO_RATE);
-//			magEditor.getParameter(MagFreqDistParameter.TOT_CUM_RATE).setValue(new Double(1e-3));
-//			magEditor.getParameter(MagFreqDistParameter.STD_DEV).setValue(new Double(0.25));
-//			magEditor.getParameter(MagFreqDistParameter.MEAN).setValue(new Double(6.2));
-//			magEditor.getParameter(MagFreqDistParameter.TRUNCATION_REQ).setValue(MagFreqDistParameter.TRUNCATE_UPPER_ONLY);
-//			magEditor.getParameter(MagFreqDistParameter.TRUNCATE_NUM_OF_STD_DEV).setValue(new Double(1.0));
-			plist.getParameter(DISTRIBUTION_NAME).setValue(GaussianMagFreqDist.NAME);
-			plist.getParameter(SET_ALL_PARAMS_BUT).setConstraint(mfd.getGaussianDistSetAllButOptions());
-			plist.getParameter(MIN).setValue(new Double(0.05));
-			plist.getParameter(MAX).setValue(new Double(9.95));
-			plist.getParameter(NUM).setValue(new Integer(100));
-			plist.getParameter(SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameter.TOT_MO_RATE);
-			plist.getParameter(TOT_CUM_RATE).setValue(new Double(1e-3));
-			plist.getParameter(STD_DEV).setValue(new Double(0.25));
-			plist.getParameter(MEAN).setValue(new Double(6.2));
-			plist.getParameter(TRUNCATION_REQ).setValue(MagFreqDistParameter.TRUNCATE_UPPER_ONLY);
-			plist.getParameter(TRUNCATE_NUM_OF_STD_DEV).setValue(new Double(1.0));
-		
-		} else if (is(CASE_6)) {
-//			magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
-//			magEditor.getParameter(MagFreqDistParameter.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameter.TOT_CUM_RATE);
-//			magEditor.getParameter(MagFreqDistParameter.MIN).setValue(new Double(0.05));
-//			magEditor.getParameter(MagFreqDistParameter.MAX).setValue(new Double(9.95));
-//			magEditor.getParameter(MagFreqDistParameter.NUM).setValue(new Integer(100));
-//			magEditor.getParameter(MagFreqDistParameter.GR_MAG_LOWER).setValue(new Double(0.05));
-//			magEditor.getParameter(MagFreqDistParameter.GR_MAG_UPPER).setValue(new Double(6.45));
-//			magEditor.getParameter(MagFreqDistParameter.GR_BVALUE).setValue(new Double(0.9));
-//			magEditor.getParameter(MagFreqDistParameter.TOT_MO_RATE).setValue(new Double(3.8055e16));
-			plist.getParameter(DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
-			plist.getParameter(SET_ALL_PARAMS_BUT).setConstraint(mfd.getGRSetAllButOptions());
-			plist.getParameter(FIX).setConstraint(mfd.getGRFixOptions());
-			plist.getParameter(SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameter.TOT_CUM_RATE);
-			plist.getParameter(MIN).setValue(new Double(0.05));
-			plist.getParameter(MAX).setValue(new Double(9.95));
-			plist.getParameter(NUM).setValue(new Integer(100));
-			plist.getParameter(GR_MAG_LOWER).setValue(new Double(0.05));
-			plist.getParameter(GR_MAG_UPPER).setValue(new Double(6.45));
-			plist.getParameter(GR_BVALUE).setValue(new Double(0.9));
-			plist.getParameter(TOT_MO_RATE).setValue(new Double(3.8055e16));
-		}
+			if (is(CASE_3)) {
+				plist.getParameter(DISTRIBUTION_NAME).setValue(YC_1985_CharMagFreqDist.NAME);
+				plist.getParameter(SET_ALL_PARAMS_BUT).setConstraint(mfd.getYCSetAllButOptions());
+				plist.getParameter(MIN).setValue(new Double(0.0));
+				plist.getParameter(MAX).setValue(new Double(10));
+				plist.getParameter(NUM).setValue(new Integer(1001));
+				plist.getParameter(GR_BVALUE).setValue(new Double(0.9));
+				plist.getParameter(YC_DELTA_MAG_CHAR).setValue(new Double(.5));
+				plist.getParameter(YC_DELTA_MAG_PRIME).setValue(new Double(1.0));
+				plist.getParameter(GR_MAG_LOWER).setValue(new Double(0.01));
+				plist.getParameter(YC_MAG_PRIME).setValue(new Double(5.95));
+				plist.getParameter(GR_MAG_UPPER).setValue(new Double(6.45));
+				plist.getParameter(SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameter.TOT_MO_RATE);
+				plist.getParameter(YC_TOT_CHAR_RATE).setValue(new Double(1e-3));
+			
+			} else if (is(CASE_4)) {
+				plist.getParameter(DISTRIBUTION_NAME).setValue(GaussianMagFreqDist.NAME);
+				plist.getParameter(SET_ALL_PARAMS_BUT).setConstraint(mfd.getGaussianDistSetAllButOptions());
+				plist.getParameter(MIN).setValue(new Double(0.05));
+				plist.getParameter(MAX).setValue(new Double(9.95));
+				plist.getParameter(NUM).setValue(new Integer(100));
+				plist.getParameter(SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameter.TOT_MO_RATE);
+				plist.getParameter(TOT_CUM_RATE).setValue(new Double(1e-3));
+				plist.getParameter(STD_DEV).setValue(new Double(0.25));
+				plist.getParameter(MEAN).setValue(new Double(6.2));
+				plist.getParameter(TRUNCATION_REQ).setValue(MagFreqDistParameter.TRUNCATE_UPPER_ONLY);
+				plist.getParameter(TRUNCATE_NUM_OF_STD_DEV).setValue(new Double(1.0));
+			
+			} else if (is(CASE_6)) {
+				plist.getParameter(DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
+				plist.getParameter(SET_ALL_PARAMS_BUT).setConstraint(mfd.getGRSetAllButOptions());
+				plist.getParameter(FIX).setConstraint(mfd.getGRFixOptions());
+				plist.getParameter(SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameter.TOT_CUM_RATE);
+				plist.getParameter(MIN).setValue(new Double(0.05));
+				plist.getParameter(MAX).setValue(new Double(9.95));
+				plist.getParameter(NUM).setValue(new Integer(100));
+				plist.getParameter(GR_MAG_LOWER).setValue(new Double(0.05));
+				plist.getParameter(GR_MAG_UPPER).setValue(new Double(6.45));
+				plist.getParameter(GR_BVALUE).setValue(new Double(0.9));
+				plist.getParameter(TOT_MO_RATE).setValue(new Double(3.8055e16));
+			}
 
-		// now have the editor create the magFreqDist
-//		magEditor.setMagDistFromParams();
+		// create the actual magFreqDist
 		mfd.setMagDist();
 		}
 	}
@@ -1058,34 +788,6 @@ public class TestConfig {
 		for (double val : xVals) {
 			function.set(Math.log(val), 1.0);
 		}
-		
-//		function.set(.001, 1);
-//		function.set(.01, 1);
-//		function.set(.05, 1);
-//		function.set(.1, 1);
-//		function.set(.15, 1);
-//		function.set(.2, 1);
-//		function.set(.25, 1);
-//		function.set(.3, 1);
-//		function.set(.35, 1);
-//		function.set(.4, 1);
-//		function.set(.45, 1);
-//		function.set(.5, 1);
-//		function.set(.55, 1);
-//		function.set(.6, 1);
-//		function.set(.7, 1);
-//		// function.set(.75,1);
-//		function.set(.8, 1);
-//		function.set(.9, 1);
-//		function.set(1.0, 1);
-//		// function.set(1.1,1);
-//		// function.set(1.2,1);
-//		// function.set(1.25,1);
-//		// function.set(1.3,1);
-//		// function.set(1.4,1);
-//		// function.set(1.5,1);
-		
-		
 	}
 
 	// revert function to non-log X values
