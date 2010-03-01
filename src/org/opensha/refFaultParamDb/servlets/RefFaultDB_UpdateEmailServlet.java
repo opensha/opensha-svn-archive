@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.opensha.commons.util.MailUtil;
-import org.opensha.commons.util.Preferences;
+import org.opensha.commons.util.ServletPrefs;
 
 /**
  * <p>Title: RefFaultDB_UpdateEmailServlet.java </p>
@@ -45,7 +45,7 @@ import org.opensha.commons.util.Preferences;
  */
 
 public class RefFaultDB_UpdateEmailServlet extends HttpServlet {
-	public final static String SERVLET_ADDRESS = Preferences.OPENSHA_SERVLET_URL + "Fault_DB_EmailServlet";
+	public final static String SERVLET_ADDRESS = ServletPrefs.OPENSHA_SERVLET_URL + "Fault_DB_EmailServlet";
 	
 	//static Strings to send the mails
 	private String emailTo, smtpHost, emailSubject, emailFrom, emailEnabled;

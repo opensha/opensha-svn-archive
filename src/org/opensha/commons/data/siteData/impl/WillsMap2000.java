@@ -30,7 +30,7 @@ import org.opensha.commons.data.region.Region;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.SiteDataToXYZ;
 import org.opensha.commons.data.siteData.servlet.SiteDataServletAccessor;
-import org.opensha.commons.util.Preferences;
+import org.opensha.commons.util.ServletPrefs;
 import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
 import org.opensha.sha.util.SiteTranslator;
 
@@ -53,7 +53,7 @@ public class WillsMap2000 extends AbstractSiteData<String> {
 	
 	private boolean useServlet;
 	
-	public static final String SERVLET_URL = Preferences.OPENSHA_SERVLET_URL + "SiteData/Wills2000";
+	public static final String SERVLET_URL = ServletPrefs.OPENSHA_SERVLET_URL + "SiteData/Wills2000";
 	
 	SiteDataServletAccessor<String> servlet = null;
 	

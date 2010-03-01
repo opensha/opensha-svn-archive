@@ -36,7 +36,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.WarningParameterAPI;
-import org.opensha.commons.util.Preferences;
+import org.opensha.commons.util.ServletPrefs;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -66,7 +66,7 @@ implements DisaggregationCalculatorAPI{
 	protected final static boolean D = false;
 
 
-	public static final String OPENSHA_SERVLET_URL = Preferences.OPENSHA_SERVLET_URL + "DisaggregationPlotServlet";
+	public static final String OPENSHA_SERVLET_URL = ServletPrefs.OPENSHA_SERVLET_URL + "DisaggregationPlotServlet";
 
 	// disaggregation stuff
 

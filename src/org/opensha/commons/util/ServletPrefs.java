@@ -19,7 +19,15 @@
 
 package org.opensha.commons.util;
 
-public class Preferences {
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class ServletPrefs {
+	
+	public static DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
 	
 	/**
 	 * This is the URL to the production OpenSHA servlets.
@@ -37,4 +45,17 @@ public class Preferences {
 	 * changes are being made that would break the currently released apps.
 	 */
 	public static final String OPENSHA_SERVLET_URL = OPENSHA_SERVLET_DEV_URL;
+	
+	public static void debug(String debugName, String message) {
+		String date = "[" + df.format(new Date()) + "]";
+		System.out.println(debugName + " " + date + ": " + message);
+	}
+	
+	public static void fail(ObjectOutputStream out, String debugName, String message) throws IOException {
+		debug(debugName, "Failing: " + message);
+		out.writeObject(new Boolean(false));
+		out.writeObject(message);
+		out.flush();
+		out.close();
+	}
 }
