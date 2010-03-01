@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 
+import org.opensha.sra.fragility.FragilityModel;
 import org.opensha.sra.vulnerability.AbstractVulnerability;
 
 import Jama.Matrix;
@@ -73,6 +75,43 @@ public class LossCurveCalculator {
 	}
 	
 	/**
+	 * 
+	 * @param hazFunc
+	 * @param fragilityFunc
+	 * @return
+	 */
+	public double getLossExceedance(ArbitrarilyDiscretizedFunc hazFunc,
+			ArbitrarilyDiscretizedFunc fragilityFunc) {
+		
+		int numIMLs = fragilityFunc.getNum();
+		
+//		System.out.println("numIMLs: " + numIMLs);
+		
+		if (numIMLs != hazFunc.getNum())
+			throw new IllegalArgumentException("X-Values must match for hazard curve and fragility curve.");
+		
+		Matrix hazMatrix = new Matrix(1, numIMLs);
+		Matrix fragMatrix = new Matrix(numIMLs, 1);
+		
+		ArrayList<Double> hazFuncVals = new ArrayList<Double>();
+		ListIterator<Double> iter = hazFunc.getYValuesIterator();
+		while (iter.hasNext())
+			hazFuncVals.add((Double) iter.next());
+		hazFuncVals = diffIt(hazFuncVals);
+		
+		for (int i=0; i<numIMLs; i++) {
+			hazMatrix.set(0, i, hazFuncVals.get(i));
+			fragMatrix.set(i, 0, fragilityFunc.getY(i));
+		}
+		
+		Matrix result = hazMatrix.times(fragMatrix);
+		
+//		System.out.println("rows: " + result.getRowDimension() + ", cols: " + result.getColumnDimension());
+		
+		return result.get(0, 0);
+	}
+	
+	/**
 	 * Differences the values stored in </code>vals</code> as follows:<br />
 	 * <pre>
 	 * 	rtn[i] = vals[i] - vals[i-1], for 1 < i < vals.length
@@ -88,6 +127,19 @@ public class LossCurveCalculator {
 			rtn.add( Math.abs( vals.get(i) - vals.get(i-1) ) );
 		rtn.add(vals.get(--i));
 		return rtn;
+	}
+	
+	public static void main(String args[]) {
+		ArbitrarilyDiscretizedFunc hazFunc = new ArbitrarilyDiscretizedFunc();
+		ArbitrarilyDiscretizedFunc fragilityFunc = new ArbitrarilyDiscretizedFunc();
+		
+		for (double x=0; x<3; x+=0.1) {
+			hazFunc.set(x, Math.random());
+			fragilityFunc.set(x, Math.random());
+		}
+		
+		LossCurveCalculator calc = new LossCurveCalculator();
+		calc.getLossExceedance(hazFunc, fragilityFunc);
 	}
 
 }
