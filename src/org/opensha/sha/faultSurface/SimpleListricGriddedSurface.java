@@ -235,7 +235,8 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
             // Loop over each row - calculating location at depth along the fault trace
             dip = ( (Double) dips.get(0) ).doubleValue();
             hDistance = gridSpacing * Math.cos( dip*PI_RADIANS );
-            vDistance = -gridSpacing * Math.sin( dip*PI_RADIANS );
+            vDistance = gridSpacing * Math.sin( dip*PI_RADIANS );
+            //vDistance = -gridSpacing * Math.sin( dip*PI_RADIANS );
             dir = new Direction(vDistance, hDistance, aveDipDirection, 0);
             int depthNum = 1;
             Location lastLocation = topLocation;
@@ -256,7 +257,8 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
                     ith_row != rows-1 ) {
                       dip = ( (Double) dips.get(depthNum) ).doubleValue();
                       hDistance = gridSpacing * Math.cos( dip*PI_RADIANS );
-                      vDistance = -gridSpacing * Math.sin( dip*PI_RADIANS );
+                      vDistance = gridSpacing * Math.sin( dip*PI_RADIANS );
+                      //vDistance = -gridSpacing * Math.sin( dip*PI_RADIANS );
                       dir = new Direction(vDistance, hDistance, aveDipDirection, 0);
                       depthNum++;
                 }
@@ -335,10 +337,37 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
      */
     public static void main(String[] args) {
 
+//         FaultTrace faultTrace = new FaultTrace("test");
+//         faultTrace.addLocation(new Location(38.22480, -122.0, 0.0));
+//         faultTrace.addLocation(new Location(38.00000, -122.0, 0.0));
+//         faultTrace.addLocation(new Location(37.80000, -122.2, 0.0));
+//
+//         ArrayList dips = new ArrayList();
+//         dips.add(new Double(60.0));
+//         dips.add(new Double(45.0));
+//
+//         ArrayList depths = new ArrayList();
+//         depths.add(new Double(0.0));
+//         depths.add(new Double(5.0));
+//         depths.add(new Double(10.0));
+//
+//         SimpleListricGriddedSurface test = new SimpleListricGriddedSurface(
+//                                        faultTrace,
+//                                        dips,
+//                                        depths,
+//                                        1.0 );
+//
+//
+//         Iterator it = test.getLocationsIterator();
+//         Location loc;
+//         while (it.hasNext()) {
+//            loc = (Location) it.next();
+//            System.out.println(loc.getLatitude() +"  "+loc.getLongitude()+"  "+loc.getDepth());
+//         }
+
          FaultTrace faultTrace = new FaultTrace("test");
-         faultTrace.addLocation(new Location(38.22480, -122.0, 0.0));
-         faultTrace.addLocation(new Location(38.00000, -122.0, 0.0));
-         faultTrace.addLocation(new Location(37.80000, -122.2, 0.0));
+         faultTrace.addLocation(new Location(20.0, -120.0, 0.0));
+         faultTrace.addLocation(new Location(20.2, -120.0, 0.0));
 
          ArrayList dips = new ArrayList();
          dips.add(new Double(60.0));
@@ -353,7 +382,7 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
                                         faultTrace,
                                         dips,
                                         depths,
-                                        1.0 );
+                                        5.0 );
 
 
          Iterator it = test.getLocationsIterator();

@@ -415,7 +415,8 @@ public final class RelativeLocation {
 		//
 		double newLat = getLatitude( horzDistance, azimuth, lat1, lon1 );
 		double newLon= getLongitude( horzDistance, azimuth, lat1, lon1 );
-		double newDepth = depth + -1*vertDistance;
+//		double newDepth = depth + -1*vertDistance;
+		double newDepth = depth + vertDistance;
 
 		//
 		Location newLoc = new Location(newLat, newLon, newDepth);

@@ -250,7 +250,8 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
             // get location at the top of the fault surface
             Location topLocation;
             if(traceLocation.getDepth() < upperSeismogenicDepth) {
-                vDistance = traceLocation.getDepth() - upperSeismogenicDepth;
+//                vDistance = traceLocation.getDepth() - upperSeismogenicDepth;
+                vDistance = upperSeismogenicDepth - traceLocation.getDepth();
                 hDistance = vDistance / Math.tan( avDipRadians );
                 dir = new Direction(vDistance, hDistance, aveDipDirection, 0);
                 topLocation = RelativeLocation.getLocation( traceLocation, dir );
@@ -269,7 +270,8 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
 
                 // Calculate location at depth and put into grid
                 hDistance = ith_row * gridSpacingCosAveDipRadians;
-                vDistance = -ith_row * gridSpacingSinAveDipRadians;
+//                vDistance = -ith_row * gridSpacingSinAveDipRadians;
+                vDistance = ith_row * gridSpacingSinAveDipRadians;
 
                 dir = new Direction(vDistance, hDistance, aveDipDirection, 0);
 
@@ -291,16 +293,37 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
      * @param args
      */
     public static void main(String args[]) {
-        double aveDip = 15;
-        double upperSeismogenicDepth = 9.1;
-        double lowerSeismogenicDepth =15.2;
-        double gridSpacing=1.0;
-        FaultTrace faultTrace = new FaultTrace("Great Valley 13");
-        // TO SEE THE POTENTIAL BUG IN THIS CLASS, CHANGE VALUE OF "faultTraceDepth" to 0
-        double faultTraceDepth = 0;
-        faultTrace.addLocation(new Location(36.3547, -120.358, faultTraceDepth));
-        faultTrace.addLocation(new Location(36.2671, -120.254, faultTraceDepth));
-        faultTrace.addLocation(new Location(36.1499, -120.114, faultTraceDepth));
+//        double aveDip = 15;
+//        double upperSeismogenicDepth = 9.1;
+//        double lowerSeismogenicDepth =15.2;
+//        double gridSpacing=1.0;
+//        FaultTrace faultTrace = new FaultTrace("Great Valley 13");
+//        // TO SEE THE POTENTIAL BUG IN THIS CLASS, CHANGE VALUE OF "faultTraceDepth" to 0
+//        double faultTraceDepth = 0;
+//        faultTrace.addLocation(new Location(36.3547, -120.358, faultTraceDepth));
+//        faultTrace.addLocation(new Location(36.2671, -120.254, faultTraceDepth));
+//        faultTrace.addLocation(new Location(36.1499, -120.114, faultTraceDepth));
+//        StirlingGriddedSurface griddedSurface = new StirlingGriddedSurface(faultTrace, aveDip,
+//        		upperSeismogenicDepth, lowerSeismogenicDepth, gridSpacing);
+//        System.out.println("******Fault Trace*********");
+//        System.out.println(faultTrace);
+//        Iterator it = griddedSurface.getLocationsIterator();
+//        System.out.println("*******Evenly Gridded Surface************");
+//        while(it.hasNext()){
+//            Location loc = (Location)it.next();
+//            System.out.println(loc.getLatitude()+","+loc.getLongitude()+","+loc.getDepth());
+//        }
+    	
+    	// for N-S strike and E dip, this setup showed that prior to fixing
+    	// RelativeLocation.getLocation() the grid of the fault actually
+    	// starts to the left of the trace, rather than to the right.
+        double aveDip = 30;
+        double upperSeismogenicDepth = 5;
+        double lowerSeismogenicDepth = 15;
+        double gridSpacing=5;
+        FaultTrace faultTrace = new FaultTrace("Test");
+        faultTrace.addLocation(new Location(20.0, -120, 0));
+        faultTrace.addLocation(new Location(20.2, -120, 0));
         StirlingGriddedSurface griddedSurface = new StirlingGriddedSurface(faultTrace, aveDip,
         		upperSeismogenicDepth, lowerSeismogenicDepth, gridSpacing);
         System.out.println("******Fault Trace*********");

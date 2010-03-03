@@ -30,6 +30,9 @@ import org.opensha.commons.metadata.XMLSaveable;
 
 /**
  * 
+ * Convention: depth is positive down, always. All utility methods assume this
+ * to be the case
+ * 
  * Static methods are provided to create unmodifiable <code>Location</code>s.
  * <b>Title:</b> Location <p>
  *

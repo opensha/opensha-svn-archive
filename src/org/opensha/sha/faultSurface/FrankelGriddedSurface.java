@@ -201,7 +201,8 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
             // get location at the top of the fault surface
             Location topLocation;
             if(traceLocation.getDepth() < upperSeismogenicDepth) {
-                vDistance = traceLocation.getDepth()-upperSeismogenicDepth;
+//                vDistance = traceLocation.getDepth()-upperSeismogenicDepth;
+                vDistance = upperSeismogenicDepth - traceLocation.getDepth();
                 hDistance = vDistance / Math.tan( avDipRadians );
                 dir = new Direction(vDistance, hDistance, segmentAzimuth[ segmentNumber - 1 ]+90, 0);
                 topLocation = RelativeLocation.getLocation( traceLocation, dir );
@@ -220,7 +221,8 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 
                 // Calculate location at depth and put into grid
                 hDistance = ith_row * gridSpacingCosAveDipRadians;
-                vDistance = -ith_row * gridSpacingSinAveDipRadians;
+                vDistance = ith_row * gridSpacingSinAveDipRadians;
+//                vDistance = -ith_row * gridSpacingSinAveDipRadians;
 
                 dir = new Direction(vDistance, hDistance, segmentAzimuth[ segmentNumber - 1 ]+90, 0);
 
@@ -237,5 +239,30 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 
     }
 
+
+    public static void main(String args[]) {
+
+    	// for N-S strike and E dip, this setup showed that prior to fixing
+    	// RelativeLocation.getLocation() the grid of the fault actually
+    	// starts to the left of the trace, rather than to the right.
+      double aveDip = 30;
+      double upperSeismogenicDepth = 5;
+      double lowerSeismogenicDepth = 15;
+      double gridSpacing=5;
+      FaultTrace faultTrace = new FaultTrace("Test");
+      faultTrace.addLocation(new Location(20.0, -120, 0));
+      faultTrace.addLocation(new Location(20.2, -120, 0));
+      FrankelGriddedSurface griddedSurface = new FrankelGriddedSurface(faultTrace, aveDip,
+      		upperSeismogenicDepth, lowerSeismogenicDepth, gridSpacing);
+      System.out.println("******Fault Trace*********");
+      System.out.println(faultTrace);
+      Iterator it = griddedSurface.getLocationsIterator();
+      System.out.println("*******Evenly Gridded Surface************");
+      while(it.hasNext()){
+          Location loc = (Location)it.next();
+          System.out.println(loc.getLatitude()+","+loc.getLongitude()+","+loc.getDepth());
+      }
+
+  }
 
 }
