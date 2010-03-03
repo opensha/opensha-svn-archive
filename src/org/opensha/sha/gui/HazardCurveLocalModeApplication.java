@@ -52,6 +52,7 @@ import org.opensha.sha.gui.infoTools.ExceptionWindow;
 public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplication {
 
 	//public final static String NSHMP08_CEUS_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.NSHMP_CEUS08.NSHMP08_CEUS_ERF";
+	public final static String GEM1_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1ERF";
 	public final static String FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
 	public final static String FRANKEL_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
 	public final static String FRANKEL02_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
@@ -69,9 +70,12 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 	public final static String PEER_LOGIC_TREE_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_LogicTreeERF_List";
 	//public final static String STEP_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
 	public final static String STEP_ALASKA_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
+	public final static String OLD_POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.OldFloatingPoissonFaultERF";
 	public final static String POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF";
 	public final static String SIMPLE_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF";
 	public final static String POINT_SRC_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.PointSourceERF";
+	public final static String POINT_SRC_TO_LINE_ERF_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.PointToLineSourceERF";
+	public final static String POINT_SRC_TO_LINE_ERF_LIST_TEST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.PointToLineSourceERF_ListTest";
 	public final static String POINT2MULT_VSS_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF";
 	public final static String POINT2MULT_VSS_ERF_LIST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF_List";
 	public final static String YUCCA_MOUNTAIN_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.YuccaMountain.YuccaMountainERF";
@@ -80,6 +84,9 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 	//public final static String CYBERSHAKE_ERF_WRAPPER_LIST_CLASS_NAME="org.opensha.sha.cybershake.openshaAPIs.CyberShakeUCERFWrapper_ERF";
 	public final static String NZ_ERF0909_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.NewZealand.NewZealandERF0909";
 	public final static String GEM_TEST_ERF_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.GEM.TestGEM_ERF";
+	
+	public final static String URS_AVG_UCERF_2_CLASS_NAME="scratch.ned.URS.URS_MeanUCERF2";
+
 
 	protected final static String appURL = "http://www.opensha.org/applications/hazCurvApp/HazardCurveApp.jar";
 
@@ -132,6 +139,10 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 		ArrayList<String> erf_Classes = new ArrayList<String>();
 
 		//adding the client based ERF's to the application
+		erf_Classes.add(GEM1_FORECAST_CLASS_NAME);
+		erf_Classes.add(POINT_SRC_TO_LINE_ERF_CLASS_NAME);
+		erf_Classes.add(POINT_SRC_TO_LINE_ERF_LIST_TEST_CLASS_NAME);
+		erf_Classes.add(URS_AVG_UCERF_2_CLASS_NAME);
 		erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
 		erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
 		erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
@@ -144,6 +155,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 		erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
 		//erf_Classes.add(STEP_FORECAST_CLASS_NAME);
 		erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
+		erf_Classes.add(OLD_POISSON_FAULT_ERF_CLASS_NAME);
 		erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
 		erf_Classes.add(SIMPLE_FAULT_ERF_CLASS_NAME);
 		erf_Classes.add(POINT_SRC_FORECAST_CLASS_NAME);
