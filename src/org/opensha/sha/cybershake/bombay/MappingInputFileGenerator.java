@@ -65,9 +65,10 @@ public class MappingInputFileGenerator {
 //		double level = 0.0004 / 365;
 		
 		boolean isProbAt_IML = true;
-		double level = 0.5;
+		double level = 0.2;
+//		double level = 0.5;
 		
-		String baseDir = "/home/kevin/CyberShake/bombay/";
+		String baseDir = "/home/kevin/CyberShake/parkfield/";
 		
 		String inputDir;
 		

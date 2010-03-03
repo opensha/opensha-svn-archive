@@ -35,7 +35,10 @@ public class BombayBeachHazardCurveCalc implements RuptureVariationProbabilityMo
 	
 	/** The location of the M4.8 event */
 	public static final Location BOMBAY_LOC = new Location(33.318333, -115.728333);
+	public static final Location PARKFIELD_LOC = new Location(35.815, -120.374);
 	public static final double MAX_DIST_KM = 10;
+	
+	private Location hypoLocation;
 	
 	private double increaseMultFactor;
 	
@@ -54,9 +57,10 @@ public class BombayBeachHazardCurveCalc implements RuptureVariationProbabilityMo
 	private PeakAmplitudesFromDB amps2db;
 	private DBAccess db;
 	
-	public BombayBeachHazardCurveCalc(DBAccess db, double increaseMultFactor) {
+	public BombayBeachHazardCurveCalc(DBAccess db, double increaseMultFactor, Location hypoLocation) {
 		this.db = db;
 		this.increaseMultFactor = increaseMultFactor;
+		this.hypoLocation = hypoLocation;
 		erf2db = new ERF2DB(db);
 		site2db = new SiteInfo2DB(db);
 		amps2db = new PeakAmplitudesFromDB(db);
@@ -100,7 +104,7 @@ public class BombayBeachHazardCurveCalc implements RuptureVariationProbabilityMo
 		for (int i=0; i<surface.getNumRows(); i++) {
 			for (int j=0; j<surface.getNumCols(); j++) {
 				Location loc = surface.getLocation(i, j);
-				double dist = RelativeLocation.getTotalDistance(BOMBAY_LOC, loc);
+				double dist = RelativeLocation.getTotalDistance(hypoLocation, loc);
 				if (dist < MAX_DIST_KM) {
 					return true;
 				}
@@ -125,7 +129,7 @@ public class BombayBeachHazardCurveCalc implements RuptureVariationProbabilityMo
 				Location loc = new Location(lat, lon);
 				tot++;
 				
-				double dist = RelativeLocation.getTotalDistance(loc, BOMBAY_LOC);
+				double dist = RelativeLocation.getTotalDistance(loc, hypoLocation);
 				if (dist < MAX_DIST_KM)
 					rvs.add(rvID);
 				
@@ -168,6 +172,25 @@ public class BombayBeachHazardCurveCalc implements RuptureVariationProbabilityMo
 					continue;
 				for (int rv : rvs) {
 					fw.write(sourceID + "\t" + rupID + "\t" + rv + "\n");
+				}
+			}
+		}
+		fw.close();
+	}
+	
+	public void writeSourceRupInfoFile(String fileName) throws IOException {
+		FileWriter fw = new FileWriter(fileName);
+		for (int i=0; i<sources.size(); i++) {
+			int sourceID = sources.get(i);
+			ArrayList<Integer> rupIDs = rups.get(i);
+			for (int rupID : rupIDs) {
+				ArrayList<Integer> rvs = rvMap.get(getKey(sourceID, rupID));
+				if (rvs == null)
+					continue;
+				double mag = ucerf.getSource(sourceID).getRupture(rupID).getMag();
+				double prob = ucerf.getSource(sourceID).getRupture(rupID).getProbability();
+				for (int rv : rvs) {
+					fw.write(sourceID + "\t" + rupID + "\t" + rv + "\t" + mag + "\t" + prob + "\n");
 				}
 			}
 		}
@@ -251,10 +274,12 @@ public class BombayBeachHazardCurveCalc implements RuptureVariationProbabilityMo
 		try {
 			DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 			
-			BombayBeachHazardCurveCalc calc = new BombayBeachHazardCurveCalc(db, 1000d);
+//			BombayBeachHazardCurveCalc calc = new BombayBeachHazardCurveCalc(db, 1000d, BOMBAY_LOC);
+			BombayBeachHazardCurveCalc calc = new BombayBeachHazardCurveCalc(db, 1000d, PARKFIELD_LOC);
 			
 			try {
-				calc.writeSourceRupFile("/home/kevin/CyberShake/bombay/rvs.txt");
+//				calc.writeSourceRupInfoFile("/home/kevin/CyberShake/bombay/rv_info.txt");
+				calc.writeSourceRupInfoFile("/home/kevin/CyberShake/parkfield/rv_info.txt");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

@@ -256,6 +256,12 @@ public class HazardCurveComputation {
 		ArrayList<Double> noModVals = new ArrayList<Double>();
 		ArrayList<Double> modVals = new ArrayList<Double>();
 		
+//		String modIDs = "";
+//		for (int modRupID : modRupIDs) {
+//			modIDs += " " + modRupID;
+//		}
+//		System.out.println("modRupIDs: " + modIDs);
+		
 		for (int rvID=0; rvID<imVals.size(); rvID++) {
 			if (modRupIDs.contains(new Integer(rvID))) {
 //				System.out.println("ADDED A MOD PROB!!!");
@@ -264,6 +270,10 @@ public class HazardCurveComputation {
 				noModVals.add(imVals.get(rvID));
 			}
 		}
+		if (modRupIDs.size() != modVals.size())
+			throw new IllegalStateException("modRupIDs = " + modRupIDs.size() + "!= modVals = " + modVals.size());
+//		System.out.println("src: " + sourceID + " rup: " + rupID + " " +
+//				"mod rvs: " + modRupIDs.size() + " modVals: " + modVals.size() + " imVals: " + imVals.size());
 		double modsToTotal = (double)modVals.size() / (double)imVals.size();
 		handleRupture(xVals, noModVals, hazardFunc, qkProb * (1-modsToTotal));
 		handleRupture(xVals, modVals, hazardFunc, modProb * modsToTotal);

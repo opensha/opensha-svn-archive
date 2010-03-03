@@ -144,6 +144,9 @@ public class BulkCSCurveReplacer {
 			imVals.add(func.getX(i));
 		
 		for (CybershakeRun run : ampRuns) {
+			if (run.getERFID() != 35)
+//				throw new RuntimeException("ERF ID IS NOT 35!!!!");
+				continue;
 			ArrayList<CybershakeHazardCurveRecord> records = curveRecordsMap.get(new Integer(run.getRunID()));
 			if (records == null)
 				continue;
@@ -183,6 +186,7 @@ public class BulkCSCurveReplacer {
 					imMap.put(record.getImTypeID(), im);
 				}
 				
+				System.out.println("Calculating curve: " + record);
 				long prev = System.currentTimeMillis();
 				DiscretizedFuncAPI curve = calc.computeHazardCurve(imVals, run, im);
 				double secs = ((double)(System.currentTimeMillis() - prev)) / 1000d;
