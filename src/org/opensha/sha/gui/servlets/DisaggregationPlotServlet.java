@@ -41,8 +41,6 @@ extends HttpServlet {
 		ObjectOutputStream outputToApplet = new ObjectOutputStream(response.
 				getOutputStream());
 
-		//string that decides the name of the output gmt files
-		String outFile = null;
 		//gets the current time in milliseconds to be the new director for each user
 		String currentMilliSec = "";
 		currentMilliSec += System.currentTimeMillis();
@@ -54,7 +52,7 @@ extends HttpServlet {
 			File mainDir = new File(FILE_PATH + GMT_DATA_DIR);
 			//create the main directory if it does not exist already
 			if (!mainDir.isDirectory()) {
-				boolean success = (new File(FILE_PATH + GMT_DATA_DIR)).mkdir();
+				(new File(FILE_PATH + GMT_DATA_DIR)).mkdir();
 			}
 
 			// get an input stream from the applet
@@ -64,7 +62,7 @@ extends HttpServlet {
 			newDir = FILE_PATH + GMT_DATA_DIR + currentMilliSec;
 
 			//create a gmt directory for each user in which all his gmt files will be stored
-			boolean success = (new File(newDir)).mkdir();
+			(new File(newDir)).mkdir();
 			//reading the gmtScript file that user sent as the attachment and create
 			//a new gmt script inside the directory created for the user.
 			//The new gmt script file created also has one minor modification
@@ -72,11 +70,11 @@ extends HttpServlet {
 			//that it should pick all the gmt related files from the directory cretade for the user.
 			//reading the gmt script file sent by user as te attchment
 
-			String gmtScriptFile = newDir + "/" + this.GMT_SCRIPT_FILE;
+			String gmtScriptFile = newDir + "/" + GMT_SCRIPT_FILE;
 
 			//gets the object for the GMT_MapGenerator script
 			DisaggregationPlotData data = (DisaggregationPlotData)inputFromApplet.readObject();
-			ArrayList<String> gmtMapScript = DisaggregationCalculator.createGMTScriptForDisaggregationPlot(data);
+			ArrayList<String> gmtMapScript = DisaggregationCalculator.createGMTScriptForDisaggregationPlot(data, newDir);
 
 			//Metadata content: Map Info
 			String metadata = (String) inputFromApplet.readObject();
@@ -84,7 +82,6 @@ extends HttpServlet {
 			//creating a new gmt script for the user and writing it ot the directory created for the user
 			FileWriter fw = new FileWriter(gmtScriptFile);
 			BufferedWriter bw = new BufferedWriter(fw);
-			bw.write("cd " + newDir + "/" + "\n");
 			int size = gmtMapScript.size();
 			for (int i = 0; i < size; ++i) {
 				bw.write( (String) gmtMapScript.get(i) + "\n");
