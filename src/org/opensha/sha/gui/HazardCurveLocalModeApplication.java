@@ -62,7 +62,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 	public final static String YUCCA_MOUNTAIN_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.YuccaMountain.YuccaMountainERF";
 	public final static String YUCCA_MOUNTAIN_ERF_LIST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.YuccaMountain.YuccaMountainERF_List";
 	//public final static String CYBERSHAKE_ERF_LIST_CLASS_NAME="org.opensha.sha.cybershake.openshaAPIs.CyberShakeERF";
-	//public final static String CYBERSHAKE_ERF_WRAPPER_LIST_CLASS_NAME="org.opensha.sha.cybershake.openshaAPIs.CyberShakeUCERFWrapper_ERF";
+	public final static String CYBERSHAKE_ERF_WRAPPER_LIST_CLASS_NAME="org.opensha.sha.cybershake.openshaAPIs.CyberShakeUCERFWrapper_ERF";
 	public final static String NZ_ERF0909_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.NewZealand.NewZealandERF0909";
 	public final static String GEM_TEST_ERF_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.GEM.TestGEM_ERF";
 
@@ -144,7 +144,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 		
 		erf_Classes.add(GEM_TEST_ERF_CLASS_NAME);
 		//      erf_Classes.add(CYBERSHAKE_ERF_LIST_CLASS_NAME);
-		//      erf_Classes.add(CYBERSHAKE_ERF_WRAPPER_LIST_CLASS_NAME);
+		      erf_Classes.add(CYBERSHAKE_ERF_WRAPPER_LIST_CLASS_NAME);
 		erf_Classes.add(NZ_ERF0909_CLASS_NAME);
 		
 		return erf_Classes;

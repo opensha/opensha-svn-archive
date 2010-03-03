@@ -99,7 +99,7 @@ public class AttenuationRelationshipsInstance {
 		supportedAttenRelClasses.add(SCEMY_1997_CLASS_NAME);
 		
 		// OTHER
-//		supportedAttenRelClasses.add(CyberShake_CLASS_NAME);
+		supportedAttenRelClasses.add(CyberShake_CLASS_NAME);
 		return supportedAttenRelClasses;
 	}
 
