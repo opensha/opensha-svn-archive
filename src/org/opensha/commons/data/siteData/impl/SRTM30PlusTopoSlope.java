@@ -35,7 +35,7 @@ import org.opensha.commons.data.region.Region;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.servlet.SiteDataServletAccessor;
 import org.opensha.commons.exceptions.RegionConstraintException;
-import org.opensha.commons.util.Preferences;
+import org.opensha.commons.util.ServletPrefs;
 import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
 
@@ -54,7 +54,7 @@ public class SRTM30PlusTopoSlope extends AbstractSiteData<Double> {
 	public static final double minLon = 0 + (spacing / 2d);
 	public static final double minLat = -90 + (spacing / 2d);
 	
-	public static final String SERVLET_URL = Preferences.OPENSHA_SERVLET_URL + "SiteData/SRTM30_Plus_Slope";
+	public static final String SERVLET_URL = ServletPrefs.OPENSHA_SERVLET_URL + "SiteData/SRTM30_Plus_Slope";
 	
 	private boolean useServlet;
 	

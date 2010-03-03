@@ -81,8 +81,13 @@ public class CaliforniaRegions {
 			GriddedRegion {
 		/** New instance of region. */
 		public RELM_TESTING_GRIDDED() {
+			this(0.1);
+		}
+		
+		/** New instance of region. */
+		public RELM_TESTING_GRIDDED(double spacing) {
 			super(readCoords("RELM_testing.coords"), 
-					BorderType.MERCATOR_LINEAR, 0.1, ANCHOR_0_0);
+					BorderType.MERCATOR_LINEAR, spacing, ANCHOR_0_0);
 		}
 	}
 

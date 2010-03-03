@@ -371,6 +371,14 @@ public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements Par
 	
 	public static void main(String args[]) throws IOException, RegionConstraintException {
 		WaldAllenGlobalVs30 data = new WaldAllenGlobalVs30();
+		data.setActiveCoefficients();
+//		data.setStableCoefficients();
+		double vs30 = data.getValue(new Location(34, -118));
+		LocationList locs = new LocationList();
+		locs.addLocation(new Location(34.1, -118));
+		locs.addLocation(new Location(34.2, -118));
+		locs.addLocation(new Location(34.3, -118));
+		ArrayList<Double> vs30Vals = data.getValues(locs);
 		SRTM30TopoSlope sdata = new SRTM30TopoSlope();
 		SRTM30PlusTopoSlope spdata = new SRTM30PlusTopoSlope();
 		SRTM30Topography tdata = new SRTM30Topography();

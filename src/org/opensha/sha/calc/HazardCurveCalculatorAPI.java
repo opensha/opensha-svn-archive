@@ -21,7 +21,7 @@ package org.opensha.sha.calc;
 
 import java.rmi.Remote;
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.Map;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.Site;
@@ -136,7 +136,7 @@ public interface HazardCurveCalculatorAPI extends Remote{
   public DiscretizedFuncAPI getHazardCurve(
 		  DiscretizedFuncAPI hazFunction,
 		  Site site,
-		  Hashtable<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap, 
+		  Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap, 
 		  EqkRupForecastAPI eqkRupForecast) throws java.rmi.RemoteException;
 
 

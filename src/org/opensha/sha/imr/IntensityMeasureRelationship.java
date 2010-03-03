@@ -39,6 +39,7 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
 
 
 /**
@@ -549,6 +550,8 @@ implements IntensityMeasureRelationshipAPI {
 		ListIterator paramIt = imr.getOtherParamsIterator();
 		while (paramIt.hasNext()) {
 			Parameter param = (Parameter)paramIt.next();
+			if (param.getName().equals(TectonicRegionTypeParam.NAME))
+				continue;
 			System.out.println("Setting param " + param.getName());
 			Iterator<Element> it = paramsElement.elementIterator();
 			while (it.hasNext()) {

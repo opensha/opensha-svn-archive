@@ -21,14 +21,20 @@ package org.opensha.commons.data.region;
 import static org.opensha.commons.calc.RelativeLocation.PI_BY_2;
 import static org.opensha.commons.calc.RelativeLocation.TO_RAD;
 
+import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.math.util.MathUtils;
 import org.dom4j.Element;
@@ -41,21 +47,28 @@ import org.opensha.sha.earthquake.EqkRupture;
 
 /**
  * A <code>Region</code> is a polygonal area on the surface of the earth. The
- * vertices comprising the border of each region are stored internally as 
- * latitude-longitude coordinate pairs in an {@link java.awt.geom.Area}, 
- * facilitating operations such as union, intersect, and contains. Insidedness
- * rules follow those defined in the {@link java.awt.Shape} interface.<br/>
+ * vertices comprising the border of each <code>Region</code> are stored  
+ * internally as latitude-longitude coordinate pairs in an 
+ * {@link java.awt.geom.Area}, facilitating operations such as union, intersect,
+ * and contains. Insidedness rules follow those defined in the 
+ * {@link java.awt.Shape} interface.<br/>
  * <br/>
  * Some constructors require the specification of a {@link BorderType}. If one
- * wishes to define a geographic region that represents a rectangle in a
- * Mercator projection, {@link BorderType#MERCATOR_LINEAR} should be used,
- * otherwise, the border will follow a {@link BorderType#GREAT_CIRCLE} between
- * two points. Over small distances, great circle paths are approximately the 
- * same as linear, Mercator paths. Over longer distances, a great circle is a
- * better representation of a line on a globe. Internally, great circles
- * are approximated by multple straight line segments that have a maximum
- * length of 100km.<br/>
+ * wishes to define a geographic <code>Region</code> that represents a 
+ * rectangle in a Mercator projection, {@link BorderType#MERCATOR_LINEAR} should
+ * be used, otherwise, the border will follow a {@link BorderType#GREAT_CIRCLE}
+ * between two points. Over small distances, great circle paths are 
+ * approximately the same as linear, Mercator paths. Over longer distances, a 
+ * great circle is a better representation of a line on a globe. Internally, 
+ * great circles are approximated by multple straight line segments that have a
+ * maximum length of 100km.<br/>
  * <br/>
+ * A <code>Region</code> may also have interior (or negative) areas.
+ * Any call to {@link Region#contains(Location)} for a <code>Location</code>
+ * within or on the border of such an interior area will return 
+ * <code>false</code>.<br/>
+ * <br/>
+ * 
  * 
  * NOTE: At present, a <code>GeneralPath</code> is used internally when 
  * initializing a region's border. As of Java5 a <code>GeneralPath</code>
@@ -67,10 +80,12 @@ import org.opensha.sha.earthquake.EqkRupture;
  * is that <code>isLocationInside()</code> may return <code>false</code> 
  * for some border Locations for which it should return <code>true</code>.
  * This issue will be resolved with a move to Java6 which includes the
- * higher precision <code>GeneralPath2D</code>.
+ * higher precision <code>GeneralPath2D</code>. The effect is that rectangular,
+ * lat-lon aligned regions will return false for contains for points on
+ * the south and west borders.
 
  * 
- * TODO make border immutable; collection.unmodifiablelist; make LocationList 
+ * TODO return immutable borders collection.unmodifiablelist; make LocationList 
  * extend arrayList (?), not wrap it. Perhaps when initing border, create new 
  * list of immutable location objects and make the list itself immutable.
  * <br/><br/>
@@ -97,6 +112,10 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	// area, an immutable list is stored for convenience
 	private LocationList border;
 	
+	// interior region; may remain null
+	//private LocationList interior; TODO clean
+	private ArrayList<LocationList> interiors;
+	
 	// Internal representation of region
 	private Area area;
 
@@ -117,7 +136,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	
 	/**
 	 * Initializes a <code>Region</code> from a pair of <code>Location
-	 * </code>s. When viewed in a Mercator projection, the region
+	 * </code>s. When viewed in a Mercator projection, the <code>Region</code>
 	 * will be a rectangle. If either both latitude or both longitude
 	 * values in the <code>Location</code>s are the same, an exception
 	 * is thrown.<br/>
@@ -160,6 +179,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		double maxLat = Math.max(lat1,lat2);
 		double maxLon = Math.max(lon1,lon2);
 		double offset = 0.00001; // in degrees ~1m
+		// ternaries prevent exceedance of max lat-lon values 
 		maxLat += (maxLat <= 90.0-offset) ? offset : 0.0;
 		maxLon += (maxLon <= 180.0-offset) ? offset : 0.0;
 		ll.addLocation(new Location(minLat, minLon));
@@ -181,15 +201,19 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 * @param type the {@link BorderType} to use when initializing; 
 	 * 		a <code>null</code> value defaults to 
 	 * 		<code>BorderType.MERCATOR_LINEAR</code>
-	 * @throws IllegalArgumentException if the <code>border</code> does not 
-	 * 		have at least 3 points
+	 * @throws IllegalArgumentException if the <code>border</code> defines a
+	 * 		<code>Region</code> that is empty or consists of more than a
+	 * 		single closed path.
 	 * @throws NullPointerException if the <code>border</code> is 
 	 * 		<code>null</code>
+	 * @throws IllegalArgumentException if the border
 	 */
 	public Region(LocationList border, BorderType type) {
 		if (border == null) {
 			throw new NullPointerException();
 		} else if (border.size() < 3) {
+			// quick check for empty; recheck on init
+			// because 3 points in a row are also empty
 			throw new IllegalArgumentException(
 					"Border must have at least 3 vertices");
 		} else if (type == null) {
@@ -222,7 +246,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	/**
 	 * Initializes a <code>Region</code> as a buffered area around a line.
 	 * 
-	 * @param line at center of buffered region
+	 * @param line at center of buffered <code>Region</code>
 	 * @param buffer distance from line
 	 * @throws NullPointerException if <code>line</code> is <code>null</code>
 	 * @throws IllegalArgumentException if <code>buffer</code> is outside the
@@ -243,14 +267,49 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	
 	/**
 	 * Initializes a <code>Region</code> with another <code>Region</code>.
-	 * Internally the border of the provided region is copied and used for
-	 * the new region.
+	 * Creates an exact copy.
 	 * 
-	 * @param region to use as border for new region
+	 * @param region to use as border for new <code>Region</code>
+	 * @throws NullPointerException if the supplied <code>Region</code> is null
 	 */
 	public Region(Region region) {
-		this(region.getBorder(), BorderType.MERCATOR_LINEAR);
+		// don't use validateRegion() b/c we can accept 
+		// regions with interiors
+		if (region == null) {
+			throw new NullPointerException("Supplied Region is null");
+		}
+		this.name = region.name;
+		this.border = region.border.copyImmutable();
+		this.area = (Area) region.area.clone();
+		// internal regions
+		if (region.interiors != null) {
+			interiors = new ArrayList<LocationList>();
+			for (LocationList interior : region.interiors) {
+				interiors.add(interior.copyImmutable());
+			}
+		}
 	}
+	
+//	TODO clean
+//	/**
+//	 * Initializes a <code>Region</code> using one <code>Region</code> as an 
+//	 * outer boundary and a second as an inner boundary or donut-hole.
+//	 * 
+//	 * @param outer the outer bounding <code>Region</code>
+//	 * @param inner the inner bounding <code>Region</code>
+//	 * @throws NullPointerException if either supplied <code>Region</code>
+//	 * 		is null
+//	 * @throws IllegalArgumentException if the inner <code>Region</code> is
+//	 * 		not entirly contained within the outer <code>Region</code>
+//	 * @throws IllegalArgumentException if the inner <code>Region</code> is
+//	 * 		not singular (i.e. already has an interior itself)
+//	 * @throws UnsupportedOperationException if the outer <code>Region</code>
+//	 * 		already has an interior defined
+//	 */
+//	public Region(Region outer, Region inner) {
+//		this(outer);
+//		setInterior(inner);
+//	}
 	
 	/**
 	 * Initializes a <code>Region</code> around an earthquake rupture.
@@ -278,9 +337,9 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	}
 	
 	/**
-	 * Returns whether the given <code>Location</code> is inside this region.
-	 * The determination follows the rules of insidedness defined in the 
-	 * {@link Shape} interface.<br/>
+	 * Returns whether the given <code>Location</code> is inside this 
+	 * <code>Region</code>. The determination follows the rules of insidedness
+	 * defined in the {@link Shape} interface.<br/>
 	 * <br/>
 	 * 
 	 * NOTE: At present, a <code>GeneralPath</code> is used internally when 
@@ -293,11 +352,11 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 * is that <code>isLocationInside()</code> may return <code>false</code> 
 	 * for some border Locations for which it should return <code>true</code>.
 	 * This issue will be resolved with a move to Java6 which includes the
-	 * higher precision <code>GeneralPath2D</code>.
+	 * higher precision <code>GeneralPath2D</code>. TODO update docs on J6
 	 * 
 	 * @param loc the <code>Location</code> to test
 	 * @return <code>true</code> if the <code>Location</code> is inside the 
-	 * 		region, <code>false</code> otherwise
+	 * 		Region, <code>false</code> otherwise
 	 * @see java.awt.Shape
 	 */
 	public boolean contains(Location loc) {
@@ -305,10 +364,11 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	}
 
 	/**
-	 * Tests whether another region is entirely contained within this region.
+	 * Tests whether another <code>Region</code> is entirely contained within
+	 * this <code>Region</code>.
 	 * 
 	 * @param region to check
-	 * @return <code>true</code> if this contains the <code>region</code>; 
+	 * @return <code>true</code> if this contains the <code>Region</code>; 
 	 * 		<code>false</code> otherwise
 	 */
 	public boolean contains(Region region) {
@@ -318,8 +378,8 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	}
 	
 	/**
-	 * Returns whether this region is rectangular in shape when represented in
-	 * a Mercator projection.
+	 * Returns whether this <code>Region</code> is rectangular in shape when 
+	 * represented in a Mercator projection.
 	 * 
 	 * @return <code>true</code> if rectangular, <code>false</code> otherwise
 	 */
@@ -327,12 +387,118 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		return area.isRectangular();
 	}
 	
+//	/**
+//	 * Adds an interior (donut-hole) to this <code>Region</code>. Any call to
+// 	 * {@link Region#contains(Location)} for a <code>Location</code> within this 
+// 	 * interior area will return <code>false</code>. The interior
+// 	 * <code>Region</code> must lie entirely inside this <code>Region</code>.
+// 	 * Internally, the border of the supplied <code>Region</code> is copied and 
+// 	 * no reference to the supplied <code>Region</code> is retained.
+// 	 * 
+//	 * @param region to use as an interior or negative space
+//	 * @throws NullPointerException if the supplied <code>Region</code> is 
+//	 * 		<code>null</code>
+//	 * @throws IllegalArgumentException if the supplied <code>Region</code> is
+//	 * 		not entirly contained within this <code>Region</code>
+//	 * @throws IllegalArgumentException if the supplied <code>Region</code> is
+//	 * 		not singular (i.e. already has an interior itself)
+//	 * @throws UnsupportedOperationException if <code>this</code>, the parent
+//	 * 		<code>Region</code>, already has an interior defined
+//	 */
+//	public void setInterior(Region region) {
+//		validateRegion(region); // test for singularity or null
+//		if (interior != null) {
+//			throw new UnsupportedOperationException(
+//					"This region already has an interior defined");
+//		} else if (!contains(region)) {
+//			throw new IllegalArgumentException(
+//					"Region must completely contain supplied interior Region");
+//		}
+//			
+//		interior = region.border.copy();
+//		area.subtract(region.area);
+//	}
+	
+	// multiple interiors
+	// - each one must be inside border
+	// - each one may not overlap any other interior
+	/**
+	 * Adds an interior (donut-hole) to this <code>Region</code>. Any call to
+ 	 * {@link Region#contains(Location)} for a <code>Location</code> within this 
+ 	 * interior area will return <code>false</code>. Any interior
+ 	 * <code>Region</code> must lie entirely inside this <code>Region</code>.
+ 	 * Moreover, any interior may not overlap or enclose any existing interior
+ 	 * region. Internally, the border of the supplied <code>Region</code> is 
+ 	 * copied and no reference to the supplied <code>Region</code> is retained.
+ 	 * 
+	 * @param region to use as an interior or negative space
+	 * @throws NullPointerException if the supplied <code>Region</code> is 
+	 * 		<code>null</code>
+	 * @throws IllegalArgumentException if the supplied <code>Region</code> is
+	 * 		not entirly contained within this <code>Region</code>
+	 * @throws IllegalArgumentException if the supplied <code>Region</code> is
+	 * 		not singular (i.e. already has an interior itself)
+	 * @throws IllegalArgumentException if the supplied <code>Region</code>
+	 * 		overlaps any existing interior <code>Region</code>
+	 */
+	public void addInterior(Region region) {
+		validateRegion(region); // test for singularity or null
+		if (!contains(region)) {
+			throw new IllegalArgumentException(
+					"Region must completely contain supplied interior Region");
+		}
+		
+		// init interiors
+		if (interiors == null) interiors = new ArrayList<LocationList>();
+		
+		// ensure no overlap with existing interiors
+		LocationList newInterior = region.border.copy();
+		Area newArea = createArea(newInterior);
+		for (LocationList interior : interiors) {
+			Area existing = createArea(interior);
+			existing.intersect(newArea);
+			if (!existing.isEmpty()) {
+				throw new IllegalArgumentException(
+						"Supplied interior Region overlaps existing interiors");
+			}
+		}
+		interiors.add(newInterior);
+		//interiors.add(Collections.unmodifiableList(newInterior); TODO uncomment)
+		area.subtract(region.area);
+	}
+	
+	/**
+	 * Returns an unmodifiable {@link java.util.List} view of the
+	 * internal <code>LocationList</code>s of points that decribe the 
+	 * interiors of this <code>Region</code>, if such exist. If no interior
+	 * is defined, the method returns <code>null</code>.
+	 * 
+	 * @return a <code>List</code> the interior <code>LocationList</code>s or 
+	 * 		<code>null</code> if no interiors are defined
+	 */
+	public List<LocationList> getInteriors() {
+		return (interiors != null) ?
+				Collections.unmodifiableList(interiors) : null;
+	}
+	
+	/**
+	 * Returns an unmodifiable {@link java.util.List} view of the
+	 * internal <code>LocationList</code> of points that decribe the border
+	 * of this <code>Region</code>.
+	 * 
+	 * @return the immutable border <code>LocationList</code>
+	 */
+	public LocationList getBorder() {
+		// return Collections.unmodifiableList(border); TODO uncomment
+		return border;
+	}
+
     /**
      * Returns whether this <code>Region</code> and another are of equal 
      * aerial extent.
      * 
      * @param r the <code>Region</code> to compare this <code>Region</code> to
-     * @return <code>true</code> if the two Regions are the same;
+     * @return <code>true</code> if the two <code>Region</code>s are the same;
      *		<code>false</code> otherwise.
 	 */
 	public boolean equals(Region r) {
@@ -350,7 +516,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 */
 
 	/**
-	 * Returns the minimum latitude in this region's border.
+	 * Returns the minimum latitude in this <code>Region</code>'s border.
 	 * @return the minimum latitude
 	 */
 	public double getMinLat() {
@@ -359,7 +525,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	}
 
 	/**
-	 * Returns the maximum latitude in this region's border.
+	 * Returns the maximum latitude in this <code>Region</code>'s border.
 	 * @return the maximum latitude
 	 */
 	public double getMaxLat() {
@@ -368,7 +534,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	}
 
 	/**
-	 * Returns the minimum longitude in this region's border.
+	 * Returns the minimum longitude in this <code>Region</code>'s border.
 	 * @return the minimum longitude
 	 */
 	public double getMinLon() {
@@ -377,7 +543,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	}
 
 	/**
-	 * Returns the maximum longitude in this region's border.
+	 * Returns the maximum longitude in this <code>Region</code>'s border.
 	 * @return the maximum longitude
 	 */
 	public double getMaxLon() {
@@ -386,27 +552,14 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	}
 
 	/**
-	 * Returns an unmodifiable {@link java.util.List} view of the
-	 * internal <code>LocationList</code> of points that decribe the border
-	 * of this region. Note that the <code>Location</code>s in the list
-	 * are also immutable.
-	 * 
-	 * @return the immutable border <code>LocationList</code>
-	 */
-	public LocationList getBorder() {
-		return border;
-		// TODO rename to getBorder()
-	}
-
-	/**
 	 * Returns the minimum horizonatal distance (in km) between the border of
 	 * this <code>Region</code> and the <code>Location</code> specified. If the
-	 * given <code>Location</code> is inside the region, the method returns
-	 * 0. The distance algorithm used only works well at short distances
+	 * given <code>Location</code> is inside the <code>Region</code>, the method
+	 * returns 0. The distance algorithm used only works well at short distances
 	 * (e.g. &lteq; 250 km).
 	 * 
 	 * @param loc the Location to compute a distance to
-	 * @return the minimum distance between this region and a point
+	 * @return the minimum distance between this <code>Region</code> and a point
 	 * @see RelativeLocation#getApproxHorzDistToLine(Location, Location, Location)
 	 */
 	public double distanceToLocation(Location loc) {
@@ -425,8 +578,8 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	}
 
 	/**
-	 * Set the name for this region.
-	 * @param name for the region
+	 * Set the name for this <code>Region</code>.
+	 * @param name for the <code>Region</code>
 	 */
 	public void setName(String name) {
 		this.name = name;
@@ -461,51 +614,10 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	}
 	
 	/**
-	 * Returns the intersection of two regions. If the regions do not overlap,
-	 * the method returns <code>null</code>.
-	 * 
-	 * @param r1 the first region
-	 * @param r2 the second region
-	 * @return a new regions defined by the intersection of <code>r1</code> 
-	 * 		and <code>r2</code> or <code>null</code> if they do not overlap
-	 */
-	public static Region intersect(
-			Region r1,
-			Region r2) {
-		Area newArea = (Area) r1.area.clone();
-		newArea.intersect(r2.area);
-		if (newArea.isEmpty()) return null;
-		Region newRegion = new Region();
-		newRegion.area = newArea;
-		newRegion.border = Region.createBorder(newArea, true);
-		return newRegion;
-	}
-
-	/**
-	 * Returns the union of two regions. If the regions do not overlap,
-	 * the method returns <code>null</code>.
-	 * 
-	 * @param r1 the first region
-	 * @param r2 the second region
-	 * @return a new region defined by the union of <code>r1</code> 
-	 * 		and <code>r2</code> or <code>null</code> if they do not overlap
-	 */
-	public static Region union(
-			Region r1,
-			Region r2) {
-		Area newArea = (Area) r1.area.clone();
-		newArea.add(r2.area);
-		if (!newArea.isSingular()) return null;
-		Region newRegion = new Region();
-		newRegion.area = newArea;
-		newRegion.border = Region.createBorder(newArea, true);
-		return newRegion;
-	}
-
-	/**
-	 * Convenience method to return a region spanning the entire globe.
-	 * @return a region extending from -180&#176; to +180&#176; longitude and
-	 * 		-90&#176; to +90&#176; latitude
+	 * Convenience method to return a <code>Region</code> spanning the entire 
+	 * globe.
+	 * @return a <code>Region</code> extending from -180&#176; to +180&#176; 
+	 * 		longitude and -90&#176; to +90&#176; latitude
 	 */
 	public static Region getGlobalRegion() {
 		LocationList gll = new LocationList();
@@ -516,9 +628,78 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		return new Region(gll, BorderType.MERCATOR_LINEAR);
 	}
 	
+	/**
+	 * Returns the intersection of two <code>Region</code>s. If the
+	 * <code>Region</code>s do not overlap, the method returns
+	 * <code>null</code>.
+	 * 
+	 * @param r1 the first <code>Region</code>
+	 * @param r2 the second <code>Region</code>
+	 * @return a new <code>Region</code> defined by the intersection of 
+	 * 		<code>r1</code> and <code>r2</code> or <code>null</code> if they 
+	 * 		do not overlap
+	 * @throws IllegalArgumentException if either supplied <code>Region</code>
+	 * 		is not a single closed <code>Region</code>
+	 * @thrown NullPointerException if either supplied <code>Region</code>
+	 * 		is <code>null</code>
+	 */
+	public static Region intersect(
+			Region r1,
+			Region r2) {
+		validateRegion(r1);
+		validateRegion(r2);
+		Area newArea = (Area) r1.area.clone();
+		newArea.intersect(r2.area);
+		if (newArea.isEmpty()) return null;
+		Region newRegion = new Region();
+		newRegion.area = newArea;
+		newRegion.border = Region.createBorder(newArea, true);
+		return newRegion;
+	}
+
+	/**
+	 * Returns the union of two <code>Region</code>s. If the 
+	 * <code>Region</code>s do not overlap, the method returns
+	 * <code>null</code>.
+	 * 
+	 * @param r1 the first <code>Region</code>
+	 * @param r2 the second <code>Region</code>
+	 * @return a new <code>Region</code> defined by the union of <code>r1</code> 
+	 * 		and <code>r2</code> or <code>null</code> if they do not overlap
+	 * @throws IllegalArgumentException if either supplied <code>Region</code>
+	 * 		is not a single closed <code>Region</code>
+	 * @thrown NullPointerException if either supplied <code>Region</code>
+	 * 		is <code>null</code>
+	 */
+	public static Region union(
+			Region r1,
+			Region r2) {
+		validateRegion(r1);
+		validateRegion(r2);
+		Area newArea = (Area) r1.area.clone();
+		newArea.add(r2.area);
+		if (!newArea.isSingular()) return null;
+		Region newRegion = new Region();
+		newRegion.area = newArea;
+		newRegion.border = Region.createBorder(newArea, true);
+		return newRegion;
+	}
+	
+	/* Validator for geometry operations */
+	private static void validateRegion(Region r) {
+		if (r == null) {
+			throw new NullPointerException("Supplied Region is null");
+		} else if (!r.area.isSingular()) {
+			throw new IllegalArgumentException("Region must be singular");
+		}
+	}
+
 	/*
-	 * Creates a java.awt.geom.Area from a LocationList border
+	 * Creates a java.awt.geom.Area from a LocationList border. This method 
+	 * throw exceptions if the generated Area is empty or not singular
+	 * 
 	 * NOTE: see notes with LL_PRECISION
+	 * TODO this needs to be revisited for GeneralPath2D
 	 */
 	private static Area createArea(LocationList border) {
 		
@@ -539,7 +720,20 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 			path.lineTo(lon, lat);
 		}
 		path.closePath();
-		return new Area(path);
+		Area area = new Area(path);
+		// final checks on area generated, this is redundant for some
+		// constructors that perform other checks on inputs
+		if (area.isEmpty()) {
+			throw new IllegalArgumentException(
+					"Area is empty");
+		} else if (!area.isSingular()) {
+			throw new IllegalArgumentException(
+					"Area is not a single closed path");
+		}
+		
+		// test remove
+		LocationList ll = Region.createBorder(area, false);
+		return area;
 	}
 	
 	/*
@@ -578,11 +772,9 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 				}
 				start = end;
 			}
-			//this.border = Collections.unmodifiableList(gcBorder);
-			this.border = gcBorder; // TODO comment
+			this.border = gcBorder.copyImmutable();
 		} else {
-			this.border = border;
-			//this.border = Collections.unmodifiableList(gcBorder); TODO uncomment
+			this.border = border.copyImmutable();
 		}
 		area = createArea(this.border);
 	}
@@ -659,7 +851,6 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 			ll = llClean;
 		}
 		return ll;
-		//return Collections.unmodifiableList(ll); TODO uncomment
 	}
 	
 	/*
@@ -669,6 +860,9 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	private static LocationList createLocationCircle(
 			Location center, double radius) {
 		
+		// NOTE: uses immutable Locations because this method may create
+		// LocationLists that may be used as borders
+		
 		LocationList ll = new LocationList();
 	    for (double angle=0; angle<360; angle += WEDGE_WIDTH) {
 	    	ll.addLocation(
@@ -677,7 +871,6 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	    							center, angle * TO_RAD, radius)));
 	    }
 	    return ll;
-		//return Collections.unmodifiableList(ll); TODO uncomment
 	}
 	
 	/*
@@ -687,6 +880,10 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 */
 	private static LocationList createLocationBox(
 			Location p1, Location p2, double distance) {
+		
+		// NOTE: doesn't require immutable Locations at this time as it is only
+		// called when building bufferred Regions (the border LocationList
+		// of a buffered region is created from its area using immutables)
 		
 		// get the azimuth and back-azimuth between the points
 		double az12 = RelativeLocation.azimuthRad(p1, p2);
@@ -704,21 +901,38 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		ll.addLocation(RelativeLocation.location(p2, az21+PI_BY_2, distance));
 		
 		return ll;
-		//return Collections.unmodifiableList(ll); TODO uncomment
 	}
 	
-	 private void writeObject(ObjectOutputStream os) throws IOException {
+	// Serialization methods required for Area
+	private void writeObject(ObjectOutputStream os) throws IOException {
 		 os.writeObject(name);
 		 os.writeObject(border);
-	 }
+		 os.writeObject(interiors);
+	}
 	 
-     private void readObject(ObjectInputStream is) throws IOException, 
+    @SuppressWarnings("unchecked")
+	private void readObject(ObjectInputStream is) throws IOException, 
      		ClassNotFoundException {
     	 name = (String)  is.readObject();
     	 border = (LocationList) is.readObject();
+    	 interiors = (ArrayList<LocationList>) is.readObject();
     	 area = createArea(border);
-     }
+    	 if (interiors != null) {
+    		 for (LocationList interior : interiors) {
+    			 Area intArea = createArea(interior);
+    			 area.subtract(intArea);
+    		 }
+    	 }
+    }
 
+    public static void main(String[] args) {
+ 		Line2D line = new Line2D.Double(new Point(1, 1), new Point(2, 1));
+		Polygon poly = new Polygon(new int[]{1,4,3,2}, new int[]{1,1,1,1}, 4);
+		
+		Area testArea = new Area(poly);
+		System.out.println(testArea.isEmpty());
+
+    }
      // TODO clean
 // 	NOTE: see notes with LL_PRECISION
 //	   hold onto and revisit precision testing until after move to jdk6

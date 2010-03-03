@@ -136,6 +136,25 @@ public class Location implements java.io.Serializable, XMLSaveable {
 //        this.longitude = lon;
 //        this.depth = depth;
     }
+    
+    /**
+     * Constructor that sets latitude, longitude, and (optionally) depth from
+     * an array of values. The array should be of order { latitude, longitude[, depth] }.
+     * 
+     * @param locVals
+     */
+    public Location(double[] locVals) {
+    	if (locVals.length < 2) {
+    		setLatitude(locVals[0]);
+    		setLongitude(locVals[1]);
+    		setDepth(0);
+    	} else if ( locVals.length > 3) {
+    		setLatitude(locVals[0]);
+    		setLongitude(locVals[1]);
+    		setDepth(locVals[2]);
+    	} else
+    		throw new IllegalArgumentException("location value array must be of size 2 or 3");
+    }
 
 	/**
 	 * Sets the depth. Values should be positive down.

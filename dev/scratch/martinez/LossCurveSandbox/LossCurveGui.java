@@ -28,9 +28,10 @@ public class LossCurveGui {
 			defaultDir = args[0];
 		}
 		
-		JLabel splashLabel = new JLabel(new ImageIcon(
+		JLabel splashLabel = new JLabel("Hi"/*new ImageIcon(
 				LossCurveGui.class.getResource(
-						"/resources/images/splash/lossCurveSplash.png")));
+						//"/resources/images/splash/lossCurveSplash.png")));
+						"/dev/scratch/martinez/lossCurveSplash.png"))*/);
 		JWindow splashWindow = new JWindow();
 		splashWindow.getContentPane().add(splashLabel);
 		splashWindow.pack();

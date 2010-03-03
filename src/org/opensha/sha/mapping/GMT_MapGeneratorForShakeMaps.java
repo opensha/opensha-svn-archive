@@ -40,7 +40,7 @@ import org.opensha.commons.mapping.gmt.elements.PSXYSymbolSet;
 import org.opensha.commons.param.BooleanParameter;
 import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.util.Preferences;
+import org.opensha.commons.util.ServletPrefs;
 import org.opensha.commons.util.RunScript;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.util.cpt.CPTVal;
@@ -66,7 +66,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 	 */
 	protected final static String C = "GMT_MapGeneratorForShakeMaps";
 	
-	public static final String OPENSHA_HAZUS_SERVLET_URL = Preferences.OPENSHA_SERVLET_URL + "GMT_HazusMapServlet";
+	public static final String OPENSHA_HAZUS_SERVLET_URL = ServletPrefs.OPENSHA_SERVLET_URL + "GMT_HazusMapServlet";
 
 	// for debug purpose
 	protected final static boolean D = false;

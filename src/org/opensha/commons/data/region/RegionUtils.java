@@ -91,6 +91,12 @@ public class RegionUtils {
 		addBorder(e_folder, region);
 		addPoints(e_folder, "Border Nodes", region.getBorder(), 
 				Style.BORDER_VERTEX);
+		if (region.getInteriors() != null) {
+			for (LocationList interior : region.getInteriors()) {
+				addPoints(e_folder, "Interior Nodes", interior, 
+						Style.BORDER_VERTEX);
+			}
+		}
 		
 		if (region instanceof GriddedRegion) {
 			addPoints(e_folder, "Grid Nodes", ((GriddedRegion) 
@@ -129,28 +135,54 @@ public class RegionUtils {
 		Element e_poly = e_placemark.addElement("Polygon");
 		Element e_tessellate = e_poly.addElement("tessellate");
 		e_tessellate.addText("1");
-		Element e_oBI = e_poly.addElement("outerBoundaryIs");
-		Element e_LR = e_oBI.addElement("LinearRing");
-		Element e_coord = e_LR.addElement("coordinates");
-		e_coord.addText(parseBorderCoords(region));
+
+		addPoly(e_poly, "outerBoundaryIs", region.getBorder());
+		if (region.getInteriors() != null) {
+			for (LocationList interior : region.getInteriors()) {
+				addPoly(e_poly, "innerBoundaryIs", interior);
+			}
+		}
+
 		return e;
 	}
 	
 	// create lat-lon data string
-	private static String parseBorderCoords(Region region) {
-		LocationList ll = region.getBorder();
+	private static Element addPoly(
+			Element e,
+			String polyName, 
+			LocationList locations) {
+		
+		Element e_BI = e.addElement(polyName);
+		Element e_LR = e_BI.addElement("LinearRing");
+		Element e_coord = e_LR.addElement("coordinates");
+		
 		StringBuffer sb = new StringBuffer(NL);
-		//System.out.println("parseBorderCoords: "); // TODO clean
-		for (Location loc: ll) {
+		for (Location loc: locations) {
 			sb.append(loc.toKML() + NL);
-			//System.out.println(loc.toKML()); // TODO clean
 		}
 		// region borders do not repeat the first
 		// vertex, but kml closed polygons do
-		sb.append(ll.getLocationAt(0).toKML() + NL);
-		//System.out.println("---"); // TODO clean
-		return sb.toString();
+		sb.append(locations.getLocationAt(0).toKML() + NL);
+		e_coord.addText(sb.toString());
+		
+		return e;
 	}
+	
+//	// create lat-lon data string
+//	private static String parseBorderCoords(Region region) {
+//		LocationList ll = region.getBorder();
+//		StringBuffer sb = new StringBuffer(NL);
+//		//System.out.println("parseBorderCoords: "); // TODO clean
+//		for (Location loc: ll) {
+//			sb.append(loc.toKML() + NL);
+//			//System.out.println(loc.toKML()); // TODO clean
+//		}
+//		// region borders do not repeat the first
+//		// vertex, but kml closed polygons do
+//		sb.append(ll.getLocationAt(0).toKML() + NL);
+//		//System.out.println("---"); // TODO clean
+//		return sb.toString();
+//	}
 	
 	// node placemarks
 	private static Element addPoints(
@@ -188,6 +220,20 @@ public class RegionUtils {
 	//-118.494013126698,34.12890715714403,0 -118.2726369206852,34.02666906748863,0 -117.9627114364491,34.07186823617815,0 -117.9620310910423,34.2668764027905,0 -118.3264939969918,34.39919060861001,0 -118.5320559633752,34.23801999324961,0 -118.494013126698,34.12890715714403,0 </coordinates>
 	//				</LinearRing>
 	//			</outerBoundaryIs>
+	
+//    <innerBoundaryIs>
+//    <LinearRing>
+//      <coordinates>
+//        -122.366212,37.818977,30
+//        -122.365424,37.819294,30
+//        -122.365704,37.819731,30
+//        -122.366488,37.819402,30
+//        -122.366212,37.818977,30
+//      </coordinates>
+//    </LinearRing>
+//  </innerBoundaryIs>
+
+	
 	//		</Polygon>
 	//	</Placemark>
 	//	<Placemark>
@@ -206,6 +252,19 @@ public class RegionUtils {
 	//		</Point>
 	//	</Placemark>
 //</Folder>
+	
+//    <innerBoundaryIs>
+//    <LinearRing>
+//      <coordinates>
+//        -122.366212593918,37.81897719083808,30 
+//        -122.3654241733188,37.81929450992014,30 
+//        -122.3657048517827,37.81973175302663,30 
+//        -122.3664882465854,37.81940249291773,30 
+//        -122.366212593918,37.81897719083808,30 
+//      </coordinates>
+//    </LinearRing>
+//  </innerBoundaryIs>
+
 
 	// border style elements
 	private static Element addBorderStyle(Element e, Color c) {

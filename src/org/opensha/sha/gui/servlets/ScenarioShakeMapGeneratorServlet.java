@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.commons.util.Preferences;
+import org.opensha.commons.util.ServletPrefs;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.mapping.GMT_MapGeneratorForShakeMaps;
 
@@ -48,7 +48,7 @@ import org.opensha.sha.mapping.GMT_MapGeneratorForShakeMaps;
 public class ScenarioShakeMapGeneratorServlet
 extends HttpServlet {
 	
-	public static final String SERVLET_URL = Preferences.OPENSHA_SERVLET_URL + "ScenarioShakeMapGeneratorServlet";
+	public static final String SERVLET_URL = ServletPrefs.OPENSHA_SERVLET_URL + "ScenarioShakeMapGeneratorServlet";
 
 	//Process the HTTP Get request
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws

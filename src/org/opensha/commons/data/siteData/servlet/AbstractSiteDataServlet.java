@@ -35,10 +35,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.util.ServletPrefs;
 
 public abstract class AbstractSiteDataServlet<Element> extends HttpServlet {
 	
-	public static DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
+//	public static DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
 	
 	public static String OP_GET_CLOSEST = "Get Closest Location";
 	
@@ -148,15 +149,10 @@ public abstract class AbstractSiteDataServlet<Element> extends HttpServlet {
 	}
 	
 	protected void fail(ObjectOutputStream out, String message) throws IOException {
-		debug("Failing: " + message);
-		out.writeObject(new Boolean(false));
-		out.writeObject(message);
-		out.flush();
-		out.close();
+		ServletPrefs.fail(out, debugName, message);
 	}
 	
 	protected void debug(String message) {
-		String date = "[" + df.format(new Date()) + "]";
-		System.out.println(debugName + " " + date + ": " + message);
+		ServletPrefs.debug(debugName, message);
 	}
 }

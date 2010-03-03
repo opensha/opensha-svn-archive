@@ -63,7 +63,6 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.ImageUtils;
 import org.opensha.commons.util.SystemPropertiesUtils;
-import org.opensha.nshmp.sha.gui.beans.GuiBeanAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
@@ -905,7 +904,7 @@ public class BCR_Application extends JFrame
   protected void initBenefitCostBean(){
 //	creates the instance of the BenefitCost bean
 	 bcbean = new BenefitCostBean();
-	 bcPanel = (JPanel) bcbean.getVisualization(GuiBeanAPI.APPLICATION);
+	 bcPanel = (JPanel) bcbean.getVisualization(org.opensha.sra.gui.components.GuiBeanAPI.APPLICATION);
 	 bcbean.getRetroVulnParam().addParameterChangeListener(this);
 	 bcbean.getCurrentVulnParam().addParameterChangeListener(this);	  
 	 structuralPanel.add(bcPanel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0

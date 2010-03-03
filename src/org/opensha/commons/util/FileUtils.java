@@ -345,6 +345,13 @@ public class FileUtils {
 		}catch(Exception e) { e.printStackTrace(); }
 		return null;
 	}
+	
+	public static File createTempDir() throws IOException {
+		File tempDir = File.createTempFile("openSHA", "temp");
+		tempDir.delete();
+		tempDir.mkdir();
+		return tempDir;
+	}
 
 }
 

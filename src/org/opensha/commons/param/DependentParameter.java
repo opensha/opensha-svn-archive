@@ -108,7 +108,7 @@ implements DependentParameterAPI<E>
 
 
 	/** Returns parameter from list if exist else throws exception */
-	public ParameterAPI<?> getIndependentParameter(String name) throws ParameterException {
+	public ParameterAPI getIndependentParameter(String name) throws ParameterException {
 
 		int index = getIndexOf(name);
 		if( index != -1 ) {
