@@ -95,7 +95,7 @@ public class GriddedRegionPoissonEqkSource extends ProbEqkSource implements java
   /**
    * Constructor specifying the region object, the IncrementalMagFreqDist
    * object, the duration, the average rake, and the dip.  This sets minMag to
-   * zero (magnitudes from magFreqDist below are ignored in making the source)
+   * zero (all magnitudes in magFreqDist are applied)
    *
    */
   public GriddedRegionPoissonEqkSource(GriddedRegion region, IncrementalMagFreqDist

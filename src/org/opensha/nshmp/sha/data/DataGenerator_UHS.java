@@ -45,9 +45,8 @@ import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 import org.opensha.nshmp.sha.data.api.DataGeneratorAPI_UHS;
+import org.opensha.nshmp.util.BatchProgress;
 import org.opensha.nshmp.util.GlobalConstants;
-
-import scratch.martinez.util.BatchProgress;
 
 /**
  * <p>Title: DataGenerator_UHS</p>

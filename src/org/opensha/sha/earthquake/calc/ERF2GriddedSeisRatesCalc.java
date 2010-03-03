@@ -39,6 +39,9 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**
  * <p>Title: ERF2GriddedSeisRatesCalc</p>
+ * 
+ * NOTE: THIS CLASS WILL BE REPLACED WITH ONE THAT DOES THESE THINGS MORE EFFICIENTLY 
+ * (SEE EMAIL FROM NED TO HIMSELF ON FEB 17, 2008).
  *
  * <p>Description: This class calculates the rates of Ekq Ruptures above a
  * given magnitude.

@@ -38,11 +38,11 @@ public class FractileCurveCalculator {
   // function list to save the curves
   private DiscretizedFuncList funcList;
   // save the relative weight of each curve
-  private ArrayList relativeWeights;
+  private ArrayList<Double> relativeWeights;
   // save the number of X values
   private int num;
   // vector to save the empirical distributions
-  private ArrayList empiricalDists;
+  private ArrayList<ArbDiscrEmpiricalDistFunc> empiricalDists;
 
   // Error Strings to be dispalyed
   private final static String ERROR_WEIGHTS =
@@ -59,7 +59,7 @@ public class FractileCurveCalculator {
    *  to contain Double values
    */
   public FractileCurveCalculator(DiscretizedFuncList functionList,
-                               ArrayList relativeWts) {
+                               ArrayList<Double> relativeWts) {
     set(functionList, relativeWts);
   }
 
@@ -82,7 +82,7 @@ public class FractileCurveCalculator {
    * be normalized (they don't have to sum to 1.0) - this normalization is taken care of internally.
    */
   public void set(DiscretizedFuncList functionList,
-                                 ArrayList relativeWts) {
+                                 ArrayList<Double> relativeWts) {
 
     // check that number of weights are equal to number of curves give
     if(functionList.size()!=relativeWts.size()) throw new RuntimeException(ERROR_WEIGHTS);
@@ -101,7 +101,7 @@ public class FractileCurveCalculator {
     this.num = numPoints;
 
     //ArrayList for saving empirical distributions
-    empiricalDists = new ArrayList();
+    empiricalDists = new ArrayList<ArbDiscrEmpiricalDistFunc>();
 
     // make a empirical dist for each X value
     for(int i=0; i<num; ++i) {

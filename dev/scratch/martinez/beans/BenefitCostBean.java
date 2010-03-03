@@ -21,6 +21,7 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.nshmp.sha.gui.beans.GuiBeanAPI;
 
 import scratch.martinez.VulnerabilityModels.VulnerabilityModel;
 

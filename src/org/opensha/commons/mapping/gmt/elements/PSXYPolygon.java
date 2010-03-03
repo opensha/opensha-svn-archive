@@ -27,6 +27,11 @@ import org.opensha.commons.data.LocationList;
 
 public class PSXYPolygon extends PSXYElement {
 	
+	/**
+	 * default serial version UID
+	 */
+	private static final long serialVersionUID = 1l;
+	
 	private ArrayList<DataPoint2D> points = new ArrayList<DataPoint2D>();;
 	
 	/**

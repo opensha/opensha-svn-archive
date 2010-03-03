@@ -38,13 +38,17 @@ import org.opensha.commons.util.ImageUtils;
 public final class GlobalConstants {
 	public static final String VERSION = "Version: 5.0.9a - 10/21/2009";
 	
-	// Live application settings.  We use geohazards as a proxy to gldplone. If that breaks we "can" connect directly.
+	// Live application settings.  We use geohazards as a proxy to ghscweb. If that breaks we "can" connect directly.
 	//public static final String SERVLET_PATH = "http://geohazards.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
-	public static final String SERVLET_PATH = "http://gldplone.cr.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
+	//public static final String SERVLET_PATH = "http://gldplone.cr.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
 	//public static final String SERVLET_PATH = "http://137.227.224.99/GroundMotionTool/servlet/HazardCalcServlet";
 	
-	// Development application settings.
+	// Development application settings.       
 	//public static final String SERVLET_PATH = "http://geohazards.usgs.gov/GroundMotionDevel/servlet/HazardCalcDevel";
+	
+	// Use this instead because the netcontinuum sucks terribly.
+	public static final String SERVLET_PATH = "http://137.227.224.99/GroundMotionDevel/servlet/HazardCalcDevel";
+	
 	//public static final String SERVLET_PATH = "http://gldplone.cr.usgs.gov/GroundMotionDevel/servlet/HazardCalcDevel";
 	
 	

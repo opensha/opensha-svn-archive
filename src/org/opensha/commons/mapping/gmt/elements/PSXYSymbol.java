@@ -25,6 +25,11 @@ import org.opensha.commons.data.DataPoint2D;
 
 public class PSXYSymbol extends PSXYElement {
 	
+	/**
+	 * default serial version UID
+	 */
+	private static final long serialVersionUID = 1l;
+	
 	public enum Symbol {
 		SQUARE ("s"),
 		DIAMOND ("d"),

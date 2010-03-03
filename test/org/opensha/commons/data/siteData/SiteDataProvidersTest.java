@@ -22,6 +22,7 @@ package org.opensha.commons.data.siteData;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.junit.Test;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.siteData.impl.CVM2BasinDepth;
@@ -29,9 +30,9 @@ import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.USGSBayAreaBasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2000TranslatedVs30;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
-public class SiteDataProvidersTest extends TestCase {
+public class SiteDataProvidersTest {
 	
 	private static final boolean D = true;
 	
@@ -44,8 +45,6 @@ public class SiteDataProvidersTest extends TestCase {
 	private LocationList locs = new LocationList();
 	
 	public SiteDataProvidersTest() {
-		super();
-		
 		locs.addLocation(loc1);
 		locs.addLocation(loc2);
 		locs.addLocation(loc3);
@@ -71,6 +70,7 @@ public class SiteDataProvidersTest extends TestCase {
 		}
 	}
 	
+	@Test
 	public void testCVM2() throws IOException {
 		CVM2BasinDepth prov = new CVM2BasinDepth();
 		
@@ -85,6 +85,7 @@ public class SiteDataProvidersTest extends TestCase {
 		testProv(prov, vals);
 	}
 	
+	@Test
 	public void testCVM4_2_5() throws IOException {
 		CVM4BasinDepth prov = new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5);
 		
@@ -99,6 +100,7 @@ public class SiteDataProvidersTest extends TestCase {
 		testProv(prov, vals);
 	}
 	
+	@Test
 	public void testCVM4_1_0() throws IOException {
 		CVM4BasinDepth prov = new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0);
 		
@@ -113,6 +115,7 @@ public class SiteDataProvidersTest extends TestCase {
 		testProv(prov, vals);
 	}
 	
+	@Test
 	public void testUSGSBayArea_2_5() throws IOException {
 		USGSBayAreaBasinDepth prov = new USGSBayAreaBasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5);
 		
@@ -127,6 +130,7 @@ public class SiteDataProvidersTest extends TestCase {
 		testProv(prov, vals);
 	}
 	
+	@Test
 	public void testUSGSBayArea_1_0() throws IOException {
 		USGSBayAreaBasinDepth prov = new USGSBayAreaBasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0);
 		
@@ -141,6 +145,7 @@ public class SiteDataProvidersTest extends TestCase {
 		testProv(prov, vals);
 	}
 	
+	@Test
 	public void testWills2006() throws IOException {
 		WillsMap2006 prov = new WillsMap2006();
 		
@@ -155,6 +160,7 @@ public class SiteDataProvidersTest extends TestCase {
 		testProv(prov, vals);
 	}
 	
+	@Test
 	public void testWills2000() throws IOException {
 		WillsMap2000TranslatedVs30 prov = new WillsMap2000TranslatedVs30();
 		

@@ -201,8 +201,8 @@ public abstract class EvenlyGriddedSurface
       // there is only one subSurface
       if(nSubSurfaceAlong <=1) {
         nSubSurfaceAlong=1;
-        numSubSurfaceCols = numCols;
       }
+      if(numSubSurfaceCols > numCols) numSubSurfaceCols = numCols;
 
       // number of subSurfaces down fault width
       int nSubSurfaceDown =  (int)Math.floor((numRows-numSubSurfaceRows)/numSubSurfaceOffset +1);
@@ -210,8 +210,8 @@ public abstract class EvenlyGriddedSurface
       // one subSurface along width
       if(nSubSurfaceDown <=1) {
         nSubSurfaceDown=1;
-        numSubSurfaceRows = numRows;
       }
+      if(numSubSurfaceRows > numRows) numSubSurfaceRows = numRows;
 
       return getNthSubsetSurface(numSubSurfaceCols, numSubSurfaceRows, numSubSurfaceOffset, nSubSurfaceAlong, n);
    //     throw new RuntimeException("EvenlyGriddeddsurface:getNthSubsetSurface::Inavlid n value for subSurface");
@@ -255,9 +255,58 @@ public abstract class EvenlyGriddedSurface
                                                    int n) {
        return getNthSubsetSurface((int)Math.rint(subSurfaceLength/gridSpacing+1),
                                   (int)Math.rint(subSurfaceWidth/gridSpacing+1),
-                                  (int)Math.rint(subSurfaceOffset/gridSpacing),
+                                  (int)Math.rint(subSurfaceOffset/gridSpacing), 
                                   n);
     }
+    
+    
+    /**
+     * Gets the Nth subSurface centered down dip on the surface. If surface is not perfectly centered,
+     * (numRows-numRowsInRup != even number), rupture is one grid increment closer to top then to bottom.
+     *
+     * @param subSurfaceLength  subsurface length in km
+     * @param subSurfaceWidth  subsurface width in km
+     * @param subSurfaceOffset offset in km
+     * @param n The index of the desired surface (from 0 to (getNumSubsetSurfaces - 1))
+     *
+     */
+    public GriddedSubsetSurface getNthSubsetSurfaceCenteredDownDip(double subSurfaceLength,
+                                                   double subSurfaceWidth,
+                                                   double subSurfaceOffset,
+                                                   int n) {
+    	
+        int numSubSurfaceCols =  (int)Math.rint(subSurfaceLength/gridSpacing+1);
+        int startCol = -1;
+        
+        // make sure it doesn't extend beyond the end
+        if(numSubSurfaceCols>numCols){
+        	numSubSurfaceCols=numCols;
+        	startCol=0;
+        }
+        else {
+            startCol = n * (int)Math.rint(subSurfaceOffset/gridSpacing);
+        }
+
+    	int numSubSurfaceRows = (int)Math.rint(subSurfaceWidth/gridSpacing+1);
+    	int startRow=-1;
+    	
+    	// make sure it doesn't extend beyone the end
+    	if(numSubSurfaceRows >= numRows){
+    		numSubSurfaceRows=numRows;
+    		startRow=0;
+    	}
+    	else {
+        	startRow = (int)Math.floor((numRows-numSubSurfaceRows)/2);  		
+    	}
+    	System.out.println("subSurfaceLength="+subSurfaceLength+", subSurfaceWidth="+subSurfaceWidth+", subSurfaceOffset="+
+    			subSurfaceOffset+", numRows="+numRows+", numCols="+numCols+", numSubSurfaceRows="+
+    			numSubSurfaceRows+", numSubSurfaceCols="+numSubSurfaceCols+", startRow="+startRow+", startCol="+startCol);
+       return (new GriddedSubsetSurface(numSubSurfaceRows,numSubSurfaceCols,startRow,startCol,this));
+    }
+   
+    
+    
+    
 
     /**
      * Get the subSurfaces on this fault
@@ -354,6 +403,29 @@ public abstract class EvenlyGriddedSurface
     }
 
 
+    
+    /**
+    * This computes the number of subset surfaces along the length only (not down dip)
+    * @param subSurfaceLength subSurface length in km
+    * @param subSurfaceOffset subSurface offset
+    * @return total number of subSurface along the fault
+    */
+   public int getNumSubsetSurfacesAlongLength(double subSurfaceLength,double subSurfaceOffset){
+     int lengthCols =  (int)Math.rint(subSurfaceLength/gridSpacing+1);
+     int offsetCols =   (int)Math.rint(subSurfaceOffset/gridSpacing);
+
+     // number of subSurfaces along the length of fault
+      int nSubSurfaceAlong = (int)Math.floor((numCols-lengthCols)/offsetCols +1);
+
+      // there is only one subSurface
+      if(nSubSurfaceAlong <=1) {
+        nSubSurfaceAlong=1;
+      }
+
+    return nSubSurfaceAlong;
+   }
+
+    
 
     /**
      * This returns the total length of the surface in km

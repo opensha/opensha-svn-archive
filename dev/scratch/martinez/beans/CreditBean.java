@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import org.opensha.commons.util.ImageUtils;
+import org.opensha.nshmp.sha.gui.beans.GuiBeanAPI;
 
 /**
  * This bean provides a simplified way to give credit to contributors of applications in a

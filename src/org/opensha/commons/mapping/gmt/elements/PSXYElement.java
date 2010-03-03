@@ -26,6 +26,11 @@ import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 
 public abstract class PSXYElement implements Serializable {
 	
+	/**
+	 * default serial version UID
+	 */
+	private static final long serialVersionUID = 1l;
+	
 	private double penWidth = 1d;
 	private Color penColor = Color.BLACK;
 	

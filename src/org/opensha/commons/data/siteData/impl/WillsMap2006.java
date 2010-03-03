@@ -206,20 +206,20 @@ public class WillsMap2006 extends AbstractSiteData<Double> {
 					new Location(38.5, -121.5),
 					0.01, new Location(0,0));
 		
-		SiteDataToXYZ.writeXYZ(map, region, "/tmp/wills.txt");
+//		SiteDataToXYZ.writeXYZ(map, region, "/tmp/wills.txt");
 		
 //		SiteDataServletAccessor<Double> serv = new SiteDataServletAccessor<Double>(SERVLET_URL);
 //		
-//		LocationList locs = new LocationList();
-//		locs.addLocation(new Location(34.01920, -118.28800));
-//		locs.addLocation(new Location(34.91920, -118.3200));
-//		locs.addLocation(new Location(34.781920, -118.88600));
-//		locs.addLocation(new Location(34.21920, -118.38600));
-//		locs.addLocation(new Location(34.61920, -118.18600));
-//		
-//		ArrayList<Double> vals = map.getValues(locs);
-//		for (double val : vals)
-//			System.out.println(val);
+		LocationList locs = new LocationList();
+		locs.addLocation(new Location(34.01920, -118.28800));
+		locs.addLocation(new Location(34.91920, -118.3200));
+		locs.addLocation(new Location(34.781920, -118.88600));
+		locs.addLocation(new Location(34.21920, -118.38600));
+		locs.addLocation(new Location(34.61920, -118.18600));
+		
+		ArrayList<Double> vals = map.getValues(locs);
+		for (double val : vals)
+			System.out.println(val);
 	}
 
 }

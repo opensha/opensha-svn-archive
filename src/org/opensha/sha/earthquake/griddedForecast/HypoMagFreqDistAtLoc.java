@@ -26,57 +26,64 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 /**
  * <p>Title: HypoMagFreqDistAtLoc</p>
  *
- * <p>Description: This allows user to get a Mag Freq. Distribution for a given location.
- * This is generally used for forecasting hypocenters.</p>
+ * <p>Description: This allows user to store a set of MagFreqDists and associate focal mechanims for a given
+ * location.</p>
  *
  * @author Nitin Gupta
  * @version 1.0
  */
-public class HypoMagFreqDistAtLoc implements java.io.Serializable{
+public class HypoMagFreqDistAtLoc extends MagFreqDistsForFocalMechs implements java.io.Serializable{
 
   private Location location;
-  private IncrementalMagFreqDist[] magFreqDist;
-  private FocalMechanism[] focalMechanism = null;
 
   /**
    * Class Constructor.
-   * In this case the no focalMechanism has been specified for the given location.
+   * In this case the no focalMechanisms are specified.
    * @param magDist IncrementalMagFreqDist[] list of MagFreqDist for the given location.
    * @param loc Location
    */
   public HypoMagFreqDistAtLoc(IncrementalMagFreqDist[] magDist, Location loc) {
-    magFreqDist = magDist;
-    location = loc;
+	  super(magDist);
+	  location = loc;
   }
   
   
   /**
    * Class Constructor.
-   * In this case the no focalMechanism has been specified for the given location.
+   * This is for passing in a single magFreqDist (don't have to create an array) and no focal mechanism.
    * @param magDist IncrementalMagFreqDist MagFreqDist for the given location.
    * @param loc Location
    */
   public HypoMagFreqDistAtLoc(IncrementalMagFreqDist magDist, Location loc) {
-    magFreqDist = new IncrementalMagFreqDist[1];
-    magFreqDist[0] = magDist; 
-    location = loc;
+	  super(magDist);
+	  location = loc;
   }
 
   /**
    * Class constructor.
-   * This constructor allows user to give a list of focalMechanisms for a given
-   * location.
-   * @param magDist IncrementalMagFreqDist[] list of magFreqDist, based on number
-   * of focal mechanism for a given location.
+   * This constructor allows user to give a list of focalMechanisms for a given location.
+   * @param magDist IncrementalMagFreqDist[] list of magFreqDist, same as number of focal mechanisms.
    * @param loc Location Location
    * @param focalMechanism FocalMechanism[] list of focal mechanism for a given location.
    *
    */
   public HypoMagFreqDistAtLoc(IncrementalMagFreqDist[] magDist, Location loc,
                               FocalMechanism[] focalMechanism) {
-    magFreqDist = magDist;
-    location = loc;
-    this.focalMechanism = focalMechanism;
+	  super(magDist, focalMechanism);
+	  location = loc;
+  }
+
+  /**
+   * Class constructor.
+   * This constructor allows user to give a single magDist and focalMechanism for a given location.
+   * @param magDist IncrementalMagFreqDist
+   * @param loc Location Location
+   * @param focalMechanism FocalMechanism
+   *
+   */
+  public HypoMagFreqDistAtLoc(IncrementalMagFreqDist magDist, Location loc, FocalMechanism focalMech) {
+	  super(magDist,focalMech);
+	  location = loc;
   }
 
   /**
@@ -86,31 +93,6 @@ public class HypoMagFreqDistAtLoc implements java.io.Serializable{
   public Location getLocation() {
     return location;
   }
-
-
-  /**
-   * Returns the list of Focal Mechanism.
-   * @return FocalMechanism[]
-   */
-  public FocalMechanism[] getFocalMechanism() {
-    return focalMechanism;
-  }
-
-  /**
-   * Returns the list of MagFreqDist for a given location.
-   * @return IncrementalMagFreqDist[]
-   */
-  public IncrementalMagFreqDist[] getMagFreqDist() {
-    return magFreqDist;
-  }
   
-  /**
-   * Returns the first MagFreqDist for a given location.
-   * This function can be used when there are no multiple MagFreqDist as no Focal Mechanism, 
-   * so just have one single MagFreqDist for a given location.
-   * @return IncrementalMagFreqDist
-   */
-  public IncrementalMagFreqDist getFirstMagFreqDist(){
-	return magFreqDist[0];
-  }
+
 }

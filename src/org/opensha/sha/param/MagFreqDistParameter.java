@@ -434,11 +434,11 @@ implements java.io.Serializable
 		/**
 		 * Make parameters for Gaussian distribution
 		 */
-		 DoubleParameter mean = new DoubleParameter(MEAN, new Double(8));
+		 DoubleParameter mean = new DoubleParameter(MEAN, new Double(6.6));
 		 DoubleParameter stdDev = new DoubleParameter(STD_DEV, 0, Double.POSITIVE_INFINITY, new Double(0.25));
 		 vStrings=new ArrayList();
-		 vStrings.add(TOT_CUM_RATE);
 		 vStrings.add(TOT_MO_RATE);
+		 vStrings.add(TOT_CUM_RATE);
 		 gdSetAllButOptions = new StringConstraint(vStrings);
 		 vStrings=new ArrayList();
 		 vStrings.add(NONE);

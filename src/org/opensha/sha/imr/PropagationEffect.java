@@ -296,8 +296,17 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
           if (rupSurf.getNumRows() == 1 && rupSurf.getLocation(0,0).getDepth() < seisDepth)
             projectToDepth = true;
 
-          ListIterator it = rupSurf.getLocationsIterator();
-          while( it.hasNext() ){
+			// get locations to iterate over depending on dip
+			ListIterator it;
+			if(rupSurf.getAveDip() > 89) {
+				it = rupSurf.getColumnIterator(0);
+				if (rupSurf.getLocation(0,0).getDepth() < seisDepth)
+					projectToDepth = true;
+			}
+			else
+				it = rupSurf.getLocationsIterator();
+
+			while( it.hasNext() ){
 
             loc2 = (Location) it.next();
 

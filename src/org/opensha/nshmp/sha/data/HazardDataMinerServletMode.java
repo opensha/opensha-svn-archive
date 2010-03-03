@@ -477,7 +477,7 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
      	}
      	
 	  // Modify the funcName to notify server that you have current version
-	  funcName = funcName + "_V9";
+	  funcName = funcName + "_V9a";
 	  
      // send the student object to the servlet using serialization
      ObjectOutputStream outputToServlet = new ObjectOutputStream(servletConnection.getOutputStream());

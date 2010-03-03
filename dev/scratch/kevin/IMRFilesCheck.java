@@ -8,7 +8,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.imr.attenRelImpl.test.AttenRelResultsChecker;
 
 public class IMRFilesCheck {
 	
@@ -36,7 +35,7 @@ public class IMRFilesCheck {
 			String line1 = lines1.get(i);
 			String line2 = lines2.get(i);
 			
-			if (!line1.startsWith(AttenRelResultsChecker.getParamValString))
+			if (!line1.startsWith("GetValue"))
 				continue;
 
 			String val1 = getValStrFromLine(line1);

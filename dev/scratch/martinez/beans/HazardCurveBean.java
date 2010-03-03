@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.nshmp.sha.gui.beans.GuiBeanAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;

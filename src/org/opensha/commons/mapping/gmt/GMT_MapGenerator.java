@@ -98,13 +98,6 @@ public class GMT_MapGenerator implements Serializable{
 
 	protected String SCALE_LABEL; // what's used to label the color scale
 
-	// paths to needed code
-	protected String GMT_PATH = OPENSHA_GMT_PATH;
-	protected String GS_PATH = OPENSHA_GS_PATH;
-	protected String CONVERT_PATH = OPENSHA_CONVERT_PATH;
-	protected String PS2PDF_PATH = OPENSHA_PS2PDF_PATH;
-	protected static String COMMAND_PATH = "/bin/";
-
 	/*				opensha.usc.edu paths				*/
 	public static final String OPENSHA_GMT_PATH="/usr/local/GMT4.2.1/bin/";
 	public static final String OPENSHA_GS_PATH="/usr/bin/gs";
@@ -114,6 +107,7 @@ public class GMT_MapGenerator implements Serializable{
 	public static final String OPENSHA_SERVLET_URL = ServletPrefs.OPENSHA_SERVLET_URL + "GMT_MapGeneratorServlet";
 	public static final String OPENSHA_JAVA_PATH = "/usr/java/1.5.0_10/bin/java";
 	public static final String OPENSHA_CLASSPATH = "/usr/local/tomcat/default/webapps/OpenSHA/WEB-INF/classes";
+	public static final String OPENSHA_NETCDF_LIB_PATH="/usr/local/netCDF/lib/";
 
 	/*				gravity.usc.edu paths				*/
 	public static final String GRAVITY_GMT_PATH="/opt/install/gmt/bin/";
@@ -130,6 +124,14 @@ public class GMT_MapGenerator implements Serializable{
 	private static String SERVLET_URL = OPENSHA_SERVLET_URL;
 	private static String JAVA_PATH = OPENSHA_JAVA_PATH;
 	private static String JAVA_CLASSPATH = OPENSHA_CLASSPATH;
+	
+	// paths to needed code
+	protected static String GMT_PATH = OPENSHA_GMT_PATH;
+	protected static String GS_PATH = OPENSHA_GS_PATH;
+	protected static String CONVERT_PATH = OPENSHA_CONVERT_PATH;
+	protected static String PS2PDF_PATH = OPENSHA_PS2PDF_PATH;
+	protected static String NETCDF_LIB_PATH = OPENSHA_NETCDF_LIB_PATH;
+	protected static String COMMAND_PATH = "/bin/";
 
 	protected XYZ_DataSetAPI xyzDataSet;
 
@@ -1243,6 +1245,42 @@ public class GMT_MapGenerator implements Serializable{
 		return "'" + label + "'";
 	}
 	
+	public static ArrayList<String> getGMTPathEnvLines() {
+		ArrayList<String> gmtCommandLines = new ArrayList<String>();
+		gmtCommandLines.add("## path variables ##");
+		String gmtPath = GMT_PATH;
+		if (gmtPath == null)
+			gmtPath = "";
+		gmtCommandLines.add("GMT_PATH='" + gmtPath + "'");
+		String convertPath = CONVERT_PATH;
+		if (convertPath == null)
+			convertPath = "";
+		gmtCommandLines.add("CONVERT_PATH='" + convertPath + "'");
+		String cmdPath = COMMAND_PATH;
+		if (cmdPath == null)
+			cmdPath = "";
+		gmtCommandLines.add("COMMAND_PATH='" + cmdPath + "'");
+		String ps2pdfPath = PS2PDF_PATH;
+		if (ps2pdfPath == null)
+			ps2pdfPath = "";
+		gmtCommandLines.add("PS2PDF_PATH='" + ps2pdfPath + "'");
+		String netCDFPath = NETCDF_LIB_PATH;
+		if (netCDFPath == null)
+			netCDFPath = "";
+		gmtCommandLines.add("NETCDF_LIB_PATH='" + netCDFPath + "'");
+		gmtCommandLines.add("");
+		gmtCommandLines.add("## ENV info");
+		gmtCommandLines.add("echo \"SHELL: $SHELL\"");
+		gmtCommandLines.add("echo \"PATH: $PATH\"");
+		gmtCommandLines.add("if [[ -d $NETCDF_LIB_PATH ]];then");
+		gmtCommandLines.add("\texport LD_LIBRARY_PATH=$NETCDF_LIB_PATH:${LD_LIBRARY_PATH}");
+		gmtCommandLines.add("fi");
+		gmtCommandLines.add("echo \"LD_LIBRARY_PATH: $LD_LIBRARY_PATH\"");
+		gmtCommandLines.add("");
+		
+		return gmtCommandLines;
+	}
+	
 	/**
 	 * This method generates a list of strings needed for the GMT script
 	 */
@@ -1317,24 +1355,7 @@ public class GMT_MapGenerator implements Serializable{
 		gmtCommandLines.add("");
 		gmtCommandLines.add("cd " + dir);
 		gmtCommandLines.add("");
-		gmtCommandLines.add("## path variables ##");
-		String gmtPath = GMT_PATH;
-		if (gmtPath == null)
-			gmtPath = "";
-		gmtCommandLines.add("GMT_PATH='" + gmtPath + "'");
-		String convertPath = CONVERT_PATH;
-		if (convertPath == null)
-			convertPath = "";
-		gmtCommandLines.add("CONVERT_PATH='" + convertPath + "'");
-		String cmdPath = COMMAND_PATH;
-		if (cmdPath == null)
-			cmdPath = "";
-		gmtCommandLines.add("COMMAND_PATH='" + cmdPath + "'");
-		String ps2pdfPath = PS2PDF_PATH;
-		if (ps2pdfPath == null)
-			ps2pdfPath = "";
-		gmtCommandLines.add("PS2PDF_PATH='" + ps2pdfPath + "'");
-		gmtCommandLines.add("");
+		gmtCommandLines.addAll(getGMTPathEnvLines());
 		gmtCommandLines.add("## Plot Script ##");
 		gmtCommandLines.add("");
 

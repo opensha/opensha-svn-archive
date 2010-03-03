@@ -7,7 +7,8 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
-import scratch.martinez.beans.ExceptionBean;
+import org.opensha.nshmp.sha.gui.beans.ExceptionBean;
+
 
 public class PropertyHandler {
 	private String prefsFile = "";

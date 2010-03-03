@@ -125,7 +125,7 @@ public class ReadRELM_FileIntoGriddedHypoMFD_Forecast extends GriddedHypoMagFreq
         locIndex = getRegion().indexForLocation(new Location(lat,lon));
         //continue if location not in the region
         if (locIndex >= 0)  {
-          IncrementalMagFreqDist incrMagFreqDist = magFreqDistForLocations[locIndex].getMagFreqDist()[0];
+          IncrementalMagFreqDist incrMagFreqDist = magFreqDistForLocations[locIndex].getMagFreqDistList()[0];
           try {
             int index = incrMagFreqDist.getXIndex(mag);
             incrMagFreqDist.set(mag, incrMagFreqDist.getY(index) + rate);

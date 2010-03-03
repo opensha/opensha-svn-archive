@@ -11,6 +11,8 @@ import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
 
+import org.opensha.nshmp.sha.gui.beans.GuiBeanAPI;
+
 import scratch.martinez.util.PropertyHandler;
 
 public class PropertiesBean implements GuiBeanAPI {

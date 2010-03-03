@@ -34,6 +34,7 @@ import java.util.HashMap;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.WarningParameterAPI;
 import org.opensha.commons.util.ServletPrefs;
@@ -762,7 +763,7 @@ System.out.println("numRupRejected="+numRupRejected);
 	/**
 	 * Creates the GMT_Script lines
 	 */
-	public static ArrayList<String> createGMTScriptForDisaggregationPlot(DisaggregationPlotData data){
+	public static ArrayList<String> createGMTScriptForDisaggregationPlot(DisaggregationPlotData data, String dir){
 
 		double x_axis_length = 4.5; // in inches
 		double y_axis_length = 4.0; // in inches
@@ -772,7 +773,7 @@ System.out.println("numRupRejected="+numRupRejected);
 		// compute z-axis tick spacing & max z value
 		double z_tick = Math.ceil(data.getMaxContrEpsilonForGMT_Plot()/numTicksToDrawForZAxis);
 		double maxZVal = z_tick * numTicksToDrawForZAxis;
-		ArrayList gmtScriptLines = new ArrayList();
+		ArrayList<String> gmtScriptLines = new ArrayList<String>();
 		// System.out.println(maxContrEpsilonForDisaggrPlot+"\t"+z_grid+"\t"+maxZVal);
 		
 		double dist_binEdges[] = data.getDist_binEdges();
@@ -809,7 +810,14 @@ System.out.println("numRupRejected="+numRupRejected);
 
 		double magBinWidthToInches = y_axis_length/totMag;
 
-
+		gmtScriptLines.add("#!/bin/bash");
+		gmtScriptLines.add("");
+		gmtScriptLines.add("cd " + dir);
+		gmtScriptLines.add("");
+		gmtScriptLines.addAll(GMT_MapGenerator.getGMTPathEnvLines());
+		gmtScriptLines.add("## Plot Script ##");
+		gmtScriptLines.add("");
+		
 		try{
 			String region = "-R"+min_dist+"/"+max_dist+"/"+min_mag+"/"+max_mag+"/"+0+"/"+maxZVal;
 			String projection = "-JX"+x_axis_length+"i/"+y_axis_length+"i";
@@ -818,38 +826,44 @@ System.out.println("numRupRejected="+numRupRejected);
 			String verticalScaling = "-JZ"+z_axis_length+"i";
 			// temporarily switching background color to 0/0/0 from 180/180/180 because anything
 			// that's not pure white comes out as pure black
-			String gmt_const_comands = "gmtset PAGE_COLOR 255/255/255 \n gmtset X_ORIGIN 1.0i \n"+
-			"gmtset Y_ORIGIN 2.0i\n";
+			gmtScriptLines.add("${GMT_PATH}gmtset PAGE_COLOR 255/255/255");
+			gmtScriptLines.add("${GMT_PATH}gmtset X_ORIGIN 1.0i");
+			gmtScriptLines.add("${GMT_PATH}gmtset Y_ORIGIN 2.0i");
+			gmtScriptLines.add("");
 			String img_ps_file = "DisaggregationPlot.ps";
 
 			String axisBoundaryTicksBounds = "-B"+x_tick+":\"Rupture Distance (km)\":"+"/"+y_tick+":Magnitude:"+
 			"/"+z_tick+":%Contribution:"+"wSnEZ";
-			String gridLines = "cat << END > temp_segments";
-			ArrayList segLineList = new ArrayList();
-			segLineList.add(gridLines);
+			gmtScriptLines.add("${COMMAND_PATH}echo \"plotting axis\"");
+			gmtScriptLines.add("${COMMAND_PATH}cat << END > temp_segments");
 			//creating the grid lines on Z axis.
 			//System.out.println(z_tick+"   "+maxZVal+"   "+maxContrEpsilonForDisaggrPlot);
 			for (double k = z_tick; k <= maxZVal; k += z_tick) {
-				segLineList.add(">\n" +min_dist+"  "+ min_mag+" "+k);
-				segLineList.add(min_dist+"  "+max_mag+"  "+k);
-				segLineList.add(">\n" +min_dist+"  "+ max_mag+"  "+k);
-				segLineList.add(+max_dist+"   "+max_mag+"  "+k);
+				gmtScriptLines.add(">");
+				gmtScriptLines.add(min_dist+"  "+ min_mag+" "+k);
+				gmtScriptLines.add(min_dist+"  "+max_mag+"  "+k);
+				gmtScriptLines.add(">");
+				gmtScriptLines.add(min_dist+"  "+ max_mag+"  "+k);
+				gmtScriptLines.add(+max_dist+"   "+max_mag+"  "+k);
 			}
-			segLineList.add(">\n" + min_dist +"   "+ max_mag+"  " + 0);
-			segLineList.add( min_dist + "  "+max_mag + "  " + maxZVal);
-			segLineList.add(">\n"+ max_dist + "  "+ max_mag + " "  + 0);
-			segLineList.add(  + max_dist + "  " +max_mag+ " "+ maxZVal);
-			segLineList.add("END\n");
+			gmtScriptLines.add(">");
+			gmtScriptLines.add(min_dist +"   "+ max_mag+"  " + 0);
+			gmtScriptLines.add( min_dist + "  "+max_mag + "  " + maxZVal);
+			gmtScriptLines.add(">");
+			gmtScriptLines.add(max_dist + "  "+ max_mag + " "  + 0);
+			gmtScriptLines.add(  + max_dist + "  " +max_mag+ " "+ maxZVal);
+			gmtScriptLines.add("END");
+			gmtScriptLines.add("");
 
 			//creating the GMT_Script for the plot
-			gmtScriptLines.add(gmt_const_comands);
-			gmtScriptLines.addAll(segLineList);
-			gmtScriptLines.add("psxyz temp_segments -P "+
+			gmtScriptLines.add("${GMT_PATH}psxyz temp_segments -P "+
 					region+" -M  " +projection +"  "+verticalScaling+" -K -G0/0/0 "+
 					viewAngle + "  "+boxPenWidth+"  "+axisBoundaryTicksBounds +" >  "+img_ps_file);
 
 			float contribution, base, top;
+			gmtScriptLines.add("${COMMAND_PATH}echo \"plotting disagg\"");
 			for (int i = 0; i < dist_center.length; ++i) {
+				gmtScriptLines.add("${COMMAND_PATH}echo \"plotting dist bin " + i + "\"");
 				for (int j = mag_center.length - 1; j >= 0; --j) {   // ordering here is important
 
 					double box_x_width = (dist_binEdges[i+1]- dist_binEdges[i])*distBinWidthToInches - 0.05; // lst term leaves some space
@@ -862,9 +876,9 @@ System.out.println("numRupRejected="+numRupRejected);
 						contribution = (float) pdf3D[i][j][k];
 						top = base + contribution;
 						if (contribution > 0.0) {
-							gmtScriptLines.add("echo " + "\"" + dist_center[i] + " " + mag_center[j] + " " + top +
+							gmtScriptLines.add("${COMMAND_PATH}echo " + "\"" + dist_center[i] + " " + mag_center[j] + " " + top +
 									"\"" +
-									" > junk_data ; psxyz junk_data "
+									" | ${GMT_PATH}psxyz "
 									+ "-P " + region + " " + projection + " " +
 									verticalScaling + symbol + base +
 									" -K -O " + epsilonColors[k] + "  " +
@@ -876,12 +890,13 @@ System.out.println("numRupRejected="+numRupRejected);
 					}
 				}
 			}
-
-
+			
+			gmtScriptLines.add("");
+			gmtScriptLines.add("${COMMAND_PATH}echo \"plotting legend\"");
 			// add the legend boxes
 			// 1st legend box has origin offset in Y by -2 inches (and X by minus some too)
-			gmtScriptLines.add("echo " + "\"" + dist_binEdges[dist_binEdges.length-1] + " " + mag_binEdges[0] + " " + (0.8*z_tick) +
-					"\"" + " > junk_data ; psxyz junk_data " + "-P -Y-1.25i -X-4.2i " +
+			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"" + dist_binEdges[dist_binEdges.length-1] + " " + mag_binEdges[0] + " " + (0.8*z_tick) +
+					"\"" + " | ${GMT_PATH}psxyz " + "-P -Y-1.25i -X-4.2i " +
 					region + " " +
 					projection + " " + verticalScaling + " -So0.3ib0 " +
 					" -K -O " +
@@ -890,32 +905,33 @@ System.out.println("numRupRejected="+numRupRejected);
 
 			// each now has origin offset in the X direction
 			for (int k = 1; k < numE; ++k) {
-				gmtScriptLines.add("echo " + "\"" + dist_binEdges[dist_binEdges.length-1] + " " + mag_binEdges[0] + " " + (0.8*z_tick) +
-						"\"" + " > junk_data ; psxyz junk_data " + "-P -X0.9i " +
+				gmtScriptLines.add("${COMMAND_PATH}echo " + "\"" + dist_binEdges[dist_binEdges.length-1] + " " + mag_binEdges[0] + " " + (0.8*z_tick) +
+						"\"" + " | ${GMT_PATH}psxyz " + "-P -X0.9i " +
 						region + " " +
-						projection + " " + verticalScaling + " -So0.3ib0 " + "0" +
+						projection + " " + verticalScaling + " -So0.3ib0 " +
 						" -K -O " +
 						epsilonColors[k] + "  " + viewAngle + "  " + boxPenWidth +
 						" >> " + img_ps_file);
 			}
 
 
-			gmtScriptLines.add("echo " + "\"0.0 0.75 13 0.0 12 CB e<-2\" > temp_label");
-			gmtScriptLines.add("echo " + "\"0.9 0.75 13 0.0 12 CB -2<e<-1\" >> temp_label");
-			gmtScriptLines.add("echo " + "\"1.8 0.75 13 0.0 12 CB -1<e<-0.5\" >> temp_label");
-			gmtScriptLines.add("echo " + "\"2.7 0.75 13 0.0 12 CB -0.5<e<0\" >> temp_label");
-			gmtScriptLines.add("echo " + "\"3.6 0.75 13 0.0 12 CB 0<e<0.5\" >> temp_label");
-			gmtScriptLines.add("echo " + "\"4.5 0.75 13 0.0 12 CB 0.5<e<1\" >> temp_label");
-			gmtScriptLines.add("echo " + "\"5.4 0.75 13 0.0 12 CB 1<e<2\" >> temp_label");
-			gmtScriptLines.add("echo " + "\"6.3 0.75 13 0.0 12 CB 2<e\" >> temp_label");
+			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"0.0 0.75 13 0.0 12 CB e<-2\" > temp_label");
+			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"0.9 0.75 13 0.0 12 CB -2<e<-1\" >> temp_label");
+			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"1.8 0.75 13 0.0 12 CB -1<e<-0.5\" >> temp_label");
+			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"2.7 0.75 13 0.0 12 CB -0.5<e<0\" >> temp_label");
+			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"3.6 0.75 13 0.0 12 CB 0<e<0.5\" >> temp_label");
+			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"4.5 0.75 13 0.0 12 CB 0.5<e<1\" >> temp_label");
+			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"5.4 0.75 13 0.0 12 CB 1<e<2\" >> temp_label");
+			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"6.3 0.75 13 0.0 12 CB 2<e\" >> temp_label");
 			// on gravity we used -X-2.45, but for some reason that puts stuff to the right
 			// on opensha.usc.edu
-			gmtScriptLines.add("pstext temp_label -R0/8.5/0/11 -N -Jx1i -X-6.1 -P -O >> " + img_ps_file);
-
-			gmtScriptLines.add("cat "+img_ps_file+ " |"+ "gs -sDEVICE=jpeg -sOutputFile=temp.jpg"+" -");
-			gmtScriptLines.add("ps2pdf "+img_ps_file+"  "+DISAGGREGATION_PLOT_PDF_NAME);
-			gmtScriptLines.add("convert -crop 0x0 temp.jpg "+DISAGGREGATION_PLOT_IMG_NAME);
-			gmtScriptLines.add("rm junk_data temp.jpg temp_segments");
+			gmtScriptLines.add("${GMT_PATH}pstext temp_label -R0/8.5/0/11 -N -Jx1i -X-6.1 -P -O >> " + img_ps_file);
+			gmtScriptLines.add("");
+			gmtScriptLines.add("${COMMAND_PATH}echo \"converting postscript\"");
+			gmtScriptLines.add("${COMMAND_PATH}cat "+img_ps_file+ " |"+ "gs -sDEVICE=jpeg -sOutputFile=temp.jpg"+" -");
+			gmtScriptLines.add("${PS2PDF_PATH} "+img_ps_file+"  "+DISAGGREGATION_PLOT_PDF_NAME);
+			gmtScriptLines.add("${CONVERT_PATH} -crop 0x0 temp.jpg "+DISAGGREGATION_PLOT_IMG_NAME);
+			gmtScriptLines.add("${COMMAND_PATH}rm temp.jpg temp_segments");
 		}catch(Exception e){
 			e.printStackTrace();
 		}

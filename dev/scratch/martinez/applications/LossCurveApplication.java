@@ -29,6 +29,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.ImageUtils;
+import org.opensha.nshmp.sha.gui.beans.GuiBeanAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
@@ -43,7 +44,6 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import scratch.martinez.LossCurveCalculator;
 import scratch.martinez.VulnerabilityModels.VulnerabilityModel;
 import scratch.martinez.beans.GraphPane;
-import scratch.martinez.beans.GuiBeanAPI;
 import scratch.martinez.beans.VulnerabilityBean;
 
 public class LossCurveApplication extends JFrame {

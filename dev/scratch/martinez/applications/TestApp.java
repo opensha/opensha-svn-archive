@@ -2,8 +2,9 @@ package scratch.martinez.applications;
 
 import java.util.ArrayList;
 
-import scratch.martinez.beans.ExceptionBean;
-import scratch.martinez.util.BatchFileReader;
+import org.opensha.nshmp.sha.gui.beans.ExceptionBean;
+import org.opensha.nshmp.util.BatchFileReader;
+
 
 public class TestApp {
 	/*public static void main(String[] args) {

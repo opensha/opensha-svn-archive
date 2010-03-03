@@ -54,6 +54,7 @@ public class GriddedRegionTest {
 
 	@BeforeClass
 	public static void setUp(){
+		RegionTest.setUp();
 		LocationList ll = new LocationList();
 		ll.addLocation(new Location(25,-115));
 		ll.addLocation(new Location(25,-110));

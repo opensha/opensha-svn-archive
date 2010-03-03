@@ -47,7 +47,10 @@ import org.dom4j.Element;
 
 public class CPT extends ArrayList<CPTVal> {
 
-	private static final long serialVersionUID = -7995830608800722887L;
+	/**
+	 * default serial version UID
+	 */
+	private static final long serialVersionUID = 1l;
 	private Color nanColor, belowMinColor, aboveMaxColor, gapColor;
 	public Blender blender;
 	

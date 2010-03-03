@@ -59,8 +59,8 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
  */
 public class MeanUCERF2 extends EqkRupForecast {
 	//for Debug purposes
-	private static String  C = new String("MeanUCERF2");
-	private boolean D = true;
+	protected static String  C = new String("MeanUCERF2");
+	protected boolean D = true;
 
 	// name of this ERF
 	public final static String NAME = new String("WGCEP (2007) UCERF2 - Single Branch");
@@ -69,83 +69,83 @@ public class MeanUCERF2 extends EqkRupForecast {
 
 
 	// various summed MFDs
-	private SummedMagFreqDist bFaultSummedMFD, aFaultSummedMFD;
-	private IncrementalMagFreqDist totBackgroundMFD, cZoneSummedMFD, nonCA_B_FaultsSummedMFD;
+	protected SummedMagFreqDist bFaultSummedMFD, aFaultSummedMFD;
+	protected IncrementalMagFreqDist totBackgroundMFD, cZoneSummedMFD, nonCA_B_FaultsSummedMFD;
 
 	// background seismicity inlcude/exclude param
 	public final static String BACK_SEIS_INFO = new String ("Background includes C Zones here");
-	private StringParameter backSeisParam;
+	protected StringParameter backSeisParam;
 
 	// background seismicity treated as param
-	private StringParameter backSeisRupParam;
+	protected StringParameter backSeisRupParam;
 
 	// For rupture offset length along fault parameter
 	public final static String RUP_OFFSET_PARAM_NAME ="Rupture Offset";
-	private Double DEFAULT_RUP_OFFSET_VAL= new Double(UCERF2.RUP_OFFSET);
-	private final static String RUP_OFFSET_PARAM_UNITS = "km";
-	private final static String RUP_OFFSET_PARAM_INFO = "Length of offset for floating ruptures";
+	protected Double DEFAULT_RUP_OFFSET_VAL= new Double(UCERF2.RUP_OFFSET);
+	protected final static String RUP_OFFSET_PARAM_UNITS = "km";
+	protected final static String RUP_OFFSET_PARAM_INFO = "Length of offset for floating ruptures";
 	public final static double RUP_OFFSET_PARAM_MIN = 1;
 	public final static double RUP_OFFSET_PARAM_MAX = 100;
-	private DoubleParameter rupOffsetParam;
+	protected DoubleParameter rupOffsetParam;
 	
 	// Floater Type param
-	private StringParameter floaterTypeParam;
+	protected StringParameter floaterTypeParam;
 	
 	// for Cybershake Correction
 	public final static String CYBERSHAKE_DDW_CORR_PARAM_NAME ="Apply CyberShake DDW Corr";
 	public final static Boolean CYBERSHAKE_DDW_CORR_PARAM_DEFAULT= new Boolean(false);
-	private final static String CYBERSHAKE_DDW_CORR_PARAM_INFO = "Apply Down Dip Width Correction";
-	private BooleanParameter cybershakeDDW_CorrParam;
+	protected final static String CYBERSHAKE_DDW_CORR_PARAM_INFO = "Apply Down Dip Width Correction";
+	protected BooleanParameter cybershakeDDW_CorrParam;
 
 	
 	// Probability Model Param
 	public final static String PROB_MODEL_WGCEP_PREF_BLEND = "WGCEP Preferred Blend";
 	public final static String PROB_MODEL_DEFAULT = PROB_MODEL_WGCEP_PREF_BLEND;
-	private StringParameter probModelParam;
+	protected StringParameter probModelParam;
 	
 	// Time duration
-	private final static double DURATION_DEFAULT = 30;
-	private final static double DURATION_MIN = 1;
-	private final static double DURATION_MAX = 100;
+	protected final static double DURATION_DEFAULT = 30;
+	protected final static double DURATION_MIN = 1;
+	protected final static double DURATION_MAX = 100;
 
 	//start time
-	private final static int START_TIME_DEFAULT = 2007;
-	private final static int START_TIME_MIN = 2007;
-	private final static int START_TIME_MAX = 2107;
+	protected final static int START_TIME_DEFAULT = 2007;
+	protected final static int START_TIME_MIN = 2007;
+	protected final static int START_TIME_MAX = 2107;
 
 	// 
-	private CaliforniaRegions.RELM_GRIDDED region = new CaliforniaRegions.RELM_GRIDDED();
+	protected CaliforniaRegions.RELM_GRIDDED region = new CaliforniaRegions.RELM_GRIDDED();
 
-	private EmpiricalModel empiricalModel = new EmpiricalModel();
+	protected EmpiricalModel empiricalModel = new EmpiricalModel();
 
 	
-	private ArrayList<UnsegmentedSource> bFaultSources;
-	private ArrayList<UnsegmentedSource> aFaultUnsegmentedSources;
-	private ArrayList<FaultRuptureSource> aFaultSegmentedSources;
-	private ArrayList<ProbEqkSource> nonCA_bFaultSources;
-	private ArrayList<ProbEqkSource> allSources;
+	protected ArrayList<UnsegmentedSource> bFaultSources;
+	protected ArrayList<UnsegmentedSource> aFaultUnsegmentedSources;
+	protected ArrayList<FaultRuptureSource> aFaultSegmentedSources;
+	protected ArrayList<ProbEqkSource> nonCA_bFaultSources;
+	protected ArrayList<ProbEqkSource> allSources;
 	
-	private ArrayList<String> aFaultsBranchParamNames; // parameters that are adjusted for A_Faults
-	private ArrayList<ParamOptions> aFaultsBranchParamValues; // paramter values and their weights for A_Faults
-	private int lastParamIndex;
+	protected ArrayList<String> aFaultsBranchParamNames; // parameters that are adjusted for A_Faults
+	protected ArrayList<ParamOptions> aFaultsBranchParamValues; // paramter values and their weights for A_Faults
+	protected int lastParamIndex;
 	
 	
-	private HashMap<String, SummedMagFreqDist> sourceMFDMapping;
-	private HashMap<String, Double> sourceRakeMapping;
-	private HashMap<String, StirlingGriddedSurface> sourceGriddedSurfaceMapping;
+	protected HashMap<String, SummedMagFreqDist> sourceMFDMapping;
+	protected HashMap<String, Double> sourceRakeMapping;
+	protected HashMap<String, StirlingGriddedSurface> sourceGriddedSurfaceMapping;
 
-	private NSHMP_GridSourceGenerator nshmp_gridSrcGen = new NSHMP_GridSourceGenerator();
-	private UCERF2 ucerf2 = new UCERF2();
-//	private DeformationModelSummaryDB_DAO defModelSummaryDAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
-	private DeformationModelSummaryFinal defModelSummaryFinal = new DeformationModelSummaryFinal();
-	private NonCA_FaultsFetcher nonCA_B_Faultsfetcher = new NonCA_FaultsFetcher();
+	protected NSHMP_GridSourceGenerator nshmp_gridSrcGen = new NSHMP_GridSourceGenerator();
+	protected UCERF2 ucerf2 = new UCERF2();
+//	protected DeformationModelSummaryDB_DAO defModelSummaryDAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
+	protected DeformationModelSummaryFinal defModelSummaryFinal = new DeformationModelSummaryFinal();
+	protected NonCA_FaultsFetcher nonCA_B_Faultsfetcher = new NonCA_FaultsFetcher();
 
 	// whether we need to calculate MFDs for verification purposes
-	private boolean calcSummedMFDs = false;
+	protected boolean calcSummedMFDs = false;
 	
 	
-	private final static String A_FAULTS_POISS_FILENAME= "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/MeanUCERF2/Segmented_5km_Poiss.txt";
-	private final static String A_FAULTS_EMPIRICAL_FILENAME= "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/MeanUCERF2/Segmented_5km_Emp.txt";
+	protected final static String A_FAULTS_POISS_FILENAME= "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/MeanUCERF2/Segmented_5km_Poiss.txt";
+	protected final static String A_FAULTS_EMPIRICAL_FILENAME= "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/MeanUCERF2/Segmented_5km_Emp.txt";
 
 	/**
 	 *
@@ -342,6 +342,9 @@ public class MeanUCERF2 extends EqkRupForecast {
 	/* NOTE that Summed MFDs are only calculated when 
 	 calcSummedMFDs  flag is set to True*/
 	
+	/**
+	 * This includes the time dependence (if applied)
+	 */
 	private IncrementalMagFreqDist getTotal_B_FaultsMFD() {
 		return this.bFaultSummedMFD;
 	}
@@ -350,6 +353,9 @@ public class MeanUCERF2 extends EqkRupForecast {
 		return this.nonCA_B_FaultsSummedMFD;
 	}
 	
+	/**
+	 * This includes the time dependence (if applied)
+	 */
 	private IncrementalMagFreqDist getTotal_A_FaultsMFD() {
 		return this.aFaultSummedMFD;
 	}
@@ -364,7 +370,10 @@ public class MeanUCERF2 extends EqkRupForecast {
 	}
 
 
-	private IncrementalMagFreqDist getTotalMFD() {
+	/**
+	 * This includes the time dependence (if applied)
+	 */
+	public IncrementalMagFreqDist getTotalMFD() {
 		SummedMagFreqDist totalMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
 		totalMFD.addIncrementalMagFreqDist(bFaultSummedMFD);
 		totalMFD.addIncrementalMagFreqDist(aFaultSummedMFD);
@@ -550,7 +559,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 			moRateList.set(i, newMoRate);
 			UnsegmentedSource unsegmentedSource = new UnsegmentedSource(faultSegmentList.get(i),  
 					empiricalModel, rupOffset, 0.0, 0.0,  0.1, empiricalModelWt,  
-					duration, moRateList.get(i), 0, ddwCorr, floaterType);
+					duration, moRateList.get(i), 0, ddwCorr, floaterType, Double.NaN);
 			aFaultUnsegmentedSources.add(unsegmentedSource);
 			//			System.out.println(source.getName());
 			if(calcSummedMFDs) {
@@ -575,7 +584,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 
 	 * @return
 	 */
-	private int getFloaterType() {
+	protected int getFloaterType() {
 		String floaterType = (String)floaterTypeParam.getValue();
 		if(floaterType.equalsIgnoreCase(UCERF2.FULL_DDW_FLOATER)) return UnsegmentedSource.FULL_DDW_FLOATER;
 		else if(floaterType.equalsIgnoreCase(UCERF2.STRIKE_AND_DOWNDIP_FLOATER)) return UnsegmentedSource.STRIKE_AND_DOWNDIP_FLOATER;
@@ -823,30 +832,37 @@ public class MeanUCERF2 extends EqkRupForecast {
 		boolean ddwCorr = (Boolean)cybershakeDDW_CorrParam.getValue();
 		int floaterType = this.getFloaterType();
 		
+//		System.out.println("getB_FaultsCommonConnOpts, wt="+wt);
 		ArrayList<FaultSegmentData> faultSegDataList = bFaultsFetcher.getB_FaultsCommonConnOpts();
 		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr, floaterType);
 		
 		wt=1.0;
+//		System.out.println("getB_FaultsCommonNoConnOpts, wt="+wt);
 		faultSegDataList  = bFaultsFetcher.getB_FaultsCommonNoConnOpts();
 		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr, floaterType);
 		
 		wt=0.25;
+//		System.out.println("getB_FaultsUniqueToF2_1ConnOpts, wt="+wt);
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_1ConnOpts();
 		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr, floaterType);
 		
 		wt=0.5;
+//		System.out.println("getB_FaultsUniqueToF2_1NoConnOpts, wt="+wt);
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_1NoConnOpts();
 		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr, floaterType);
 		
 		wt=0.25;
+//		System.out.println("getB_FaultsUniqueToF2_2ConnOpts, wt="+wt);
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_2ConnOpts();
 		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr, floaterType);
 		
 		wt=0.5;
+//		System.out.println("getB_FaultsUniqueToF2_2NoConnOpts, wt="+wt);
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_2NoConnOpts();
 		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr, floaterType);
 		
 		wt=0.75;
+//		System.out.println("getB_FaultsCommonWithUniqueConnOpts, wt="+wt);
 		faultSegDataList  = bFaultsFetcher.getB_FaultsCommonWithUniqueConnOpts();
 		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr, floaterType);
 		
@@ -881,10 +897,10 @@ public class MeanUCERF2 extends EqkRupForecast {
 			ArrayList<FaultSegmentData> faultSegDataList, boolean ddwCorr, int floaterType) {
 		for(int i=0; i<faultSegDataList.size(); ++i) {
 			if(faultSegDataList.get(i).getFaultName().equalsIgnoreCase("Mendocino")) continue;
-			//System.out.println(faultSegDataList.get(i).getFaultName()+"\t"+wt);
+//			System.out.println("\t"+faultSegDataList.get(i).getFaultName()+"\t"+wt);
 			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), 
 					empiricalModel,  rupOffset,  wt, 
-					empiricalModelWt, duration, ddwCorr, floaterType));
+					empiricalModelWt, duration, ddwCorr, floaterType, Double.NaN));
 		}
 	}
 	
@@ -1086,8 +1102,14 @@ public class MeanUCERF2 extends EqkRupForecast {
 
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
-		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
-		meanUCERF2.testResortedSources();
+		MeanUCERF2 meanFinalUCERF2 = new MeanUCERF2();
+		meanFinalUCERF2.calcSummedMFDs  =false;
+		meanFinalUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
+		meanFinalUCERF2.updateForecast();
+
+		
+//		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
+//		meanUCERF2.testResortedSources();
 		
 //		meanUCERF2.testFinalMeanUCERF2();
 		

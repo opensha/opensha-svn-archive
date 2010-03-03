@@ -44,9 +44,9 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  * rates), MagLengthRelationship, and duration, this creates a vertically dipping,
  * ProbEqkRupture for each magnitude (zero rates are not filtered out!).  Each finite
  * rupture is centered on the given Location.  A user-defined strike will be used if given,
- * otherwise an random stike will be computed and applied.  One can also specify a
- * magCutOff (magnitudes less than or equal to this will be treated as point sources).
- * This assumes that the duration
+ * otherwise an random stike will be computed and applied, or a cross-hair source can be
+ * applied (two perpendicular faults).  One can also specify a magCutOff (magnitudes less 
+ * than or equal to this will be treated as point sources). This assumes that the duration
  * units are the same as those for the rates in the IncrementalMagFreqDist.</p>
  *  * @author Edward Field
  * @date March 24, 2004
@@ -98,6 +98,9 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
    * @param strike - the strike of the finite SS fault
    * @param duration - the forecast duration
    * @param magCutOff - below (and eqaul) to this value a PointSurface will be applied
+   * @param fracStrikeSlip - 
+   * @param fracNormal - 
+   * @param fracReverse - 
    */
   public Point2Vert_FaultPoisSource(Location loc, IncrementalMagFreqDist magFreqDist,
                                        MagLengthRelationship magLengthRelationship,
@@ -121,12 +124,17 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
 
 
   /**
-    * The Constructor for the case where a random strike is computed (rather than assigned)
+    * The Constructor for the case where either a random strike is computed and applied, or
+    * a cross-hair source is applied (rather than assigned)
     * @param loc - the Location of the point source
     * @param magFreqDist - the mag-freq-dist for the point source
     * @param magLengthRelationship - A relationship for computing length from magnitude
     * @param duration - the forecast duration
     * @param magCutOff - below (and equal) to this value a PointSurface will be applied
+    * @param fracStrikeSlip - 
+    * @param fracNormal - 
+    * @param fracReverse - 
+    * @param isCrossHair - tells whether to apply random strike or cross-hair source
     */
    public Point2Vert_FaultPoisSource(Location loc, IncrementalMagFreqDist magFreqDist,
                                         MagLengthRelationship magLengthRelationship,
@@ -151,6 +159,9 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
     * @param magFreqDist
     * @param magLengthRelationship
     * @param duration
+    * @param fracStrikeSlip - 
+    * @param fracNormal - 
+    * @param fracReverse - 
     */
    public void setAll(Location loc, IncrementalMagFreqDist magFreqDist,
                       MagLengthRelationship magLengthRelationship,
@@ -174,6 +185,10 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
     * @param magLengthRelationship
     * @param strike
     * @param duration
+    * @param fracStrikeSlip - 
+    * @param fracNormal - 
+    * @param fracReverse - 
+    * 
     */
   public void setAll(Location loc, IncrementalMagFreqDist magFreqDist,
                      MagLengthRelationship magLengthRelationship,

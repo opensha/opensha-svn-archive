@@ -305,7 +305,18 @@ public class StringParameter
 
 
 	public boolean setIndividualParamValueFromXML(Element el) {
-		this.setValue(el.attributeValue("value"));
+		String val = el.attributeValue("value");
+		if (val.length() == 0) {
+			try {
+				this.setValue("");
+			} catch (ConstraintException e) {
+				System.err.println("Warning: could not set String Param to empty string from XML");
+			} catch (ParameterException e) {
+				System.err.println("Warning: could not set String Param to empty string from XML");
+			}
+		} else {
+			this.setValue(val);
+		}
 		return true;
 	}
 

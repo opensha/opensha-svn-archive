@@ -44,9 +44,8 @@ import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 import org.opensha.nshmp.sha.calc.HazardCurveCalculator;
 import org.opensha.nshmp.sha.data.api.DataGeneratorAPI_HazardCurves;
+import org.opensha.nshmp.util.BatchProgress;
 import org.opensha.nshmp.util.GlobalConstants;
-
-import scratch.martinez.util.BatchProgress;
 
 /**
  * <p>Title: DataGenerator_HazardCurves</p>
