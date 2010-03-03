@@ -13,7 +13,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 
 public class CyberShakeUCERFWrapper_ERF extends EqkRupForecast {
 	
-	public static final String ERF_XML_FILE = "org/opensha/sha/cybershake/conf/MeanUCERF.xml";
+	public static final String ERF_XML_FILE = "/org/opensha/sha/cybershake/conf/MeanUCERF.xml";
 	
 	public static final int ERF_ID = 35;
 	
@@ -26,7 +26,7 @@ public class CyberShakeUCERFWrapper_ERF extends EqkRupForecast {
 	private EqkRupForecast getERF() {
 		if (erf == null) {
 			try {
-				Document doc = XMLUtils.loadDocument(ERF_XML_FILE);
+				Document doc = XMLUtils.loadDocument(this.getClass().getResource(ERF_XML_FILE));
 				Element root = doc.getRootElement();
 				Element erfEl = root.element(XML_METADATA_NAME);
 				erf = EqkRupForecast.fromXMLMetadata(erfEl);
