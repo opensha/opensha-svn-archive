@@ -49,6 +49,10 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 	 */
 	public ApproxEvenlyGriddedSurface(FaultTrace upperFaultTrace,FaultTrace lowerFaultTrace, double aveGridSpacing) {
 
+		// verify not crossing
+		
+		// verify 
+		
 		this.gridSpacing = aveGridSpacing;
 
 		// check that the traces are both in the same order
@@ -102,7 +106,7 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 			Location botLoc = resampLowerTrace.getLocationAt(c);
 			Direction dir = RelativeLocation.getDirection(topLoc, botLoc);
 			double horzIncr = dir.getHorzDistance()/(nRows-1);
-			double vertIncr = -dir.getVertDistance()/(nRows-1);  // minus sign because vertDist is pos up and depth is pos down
+			double vertIncr = dir.getVertDistance()/(nRows-1);  // minus sign because vertDist is pos up and depth is pos down
 			dir.setHorzDistance(horzIncr);
 			dir.setVertDistance(vertIncr);
 			this.setLocation(0, c, topLoc);
@@ -142,7 +146,7 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 		Direction dir = RelativeLocation.getDirection(l1, l2);
 		System.out.println("Azimuth p1 to p2: " + dir.getAzimuth());
 		double horzIncr = dir.getHorzDistance()/numSubdivisions;
-		double vertIncr = -dir.getVertDistance()/numSubdivisions;  // minus sign because vertDist is pos up and depth is pos down
+		double vertIncr = dir.getVertDistance()/numSubdivisions;  // minus sign because vertDist is pos up and depth is pos down
 		dir.setHorzDistance(horzIncr);
 		dir.setVertDistance(vertIncr);
 		Location prevLoc = l1;
@@ -163,7 +167,7 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 		double numSubdivisions=100;
 		Direction dir = RelativeLocation.getDirection(l1, l2);
 		double horzIncr = dir.getHorzDistance()/numSubdivisions;
-		double vertIncr = -dir.getVertDistance()/numSubdivisions;  // minus sign because vertDist is pos up and depth is pos down
+		double vertIncr = dir.getVertDistance()/numSubdivisions;  // minus sign because vertDist is pos up and depth is pos down
 		dir.setHorzDistance(horzIncr);
 		dir.setVertDistance(vertIncr);
 		Location prevLoc = l1;

@@ -215,9 +215,9 @@ public final class RelativeLocation {
 	public static double azimuthRad(Location p1, Location p2) {
 		
 		double lat1 = p1.getLatRad();
-		double lon1 = p1.getLonRad();
+		//double lon1 = p1.getLonRad(); TODO clean
 		double lat2 = p2.getLatRad();
-		double lon2 = p2.getLonRad();
+		//double lon2 = p2.getLonRad();
 		
 		// check the poles using a small number ~ machine precision
 		if (Math.cos(lat1) < 0.000000000001) {
@@ -225,7 +225,7 @@ public final class RelativeLocation {
 		}
 		
 		// for starting points other than the poles:
-		double dLon = lon2-lon1;
+		double dLon = p2.getLonRad() - p1.getLonRad();
 		double cosLat2 = Math.cos(lat2);
 		double azRad = Math.atan2(
 				Math.sin(dLon) * cosLat2,
@@ -286,6 +286,61 @@ public final class RelativeLocation {
 	}
 	
 
+
+	//public static distance
+	
+	
+	/**
+	 * Computes the distance of a <code>Location</code> from a line 
+	 * (great-circle) using spherical geometry.
+	 * 
+	 * @param A the first Location on the line
+	 * @param B the second Location on the line
+	 * @param C the point of interest off the line
+	 * @return
+	 */
+	public static double crossTrackDist(
+			Location A, 
+			Location B, 
+			Location C) {
+		//XTD =asin(sin(dist_AD)*sin(crs_AD-crs_AB))
+		if (A.equalsLocation(B)) {
+			throw new IllegalArgumentException("Line endpoints are the same");
+		}
+		
+		return Math.asin(
+				Math.sin(angle(A,C)) * 
+				Math.sin(azimuthRad(A,C) - azimuthRad(A,B))) *
+				EARTH_RADIUS_MEAN;
+	}
+	
+	// (x0 - x1) * (y2 - y1) - (x2 - x1) * (y0 - y1)
+	public static double crossTrackDistFast(
+			Location A, 
+			Location B, 
+			Location C) {
+		return (A.getLatRad() - B.getLatRad()) * 
+			   (C.getLonRad() - B.getLonRad()) -
+			   (C.getLatRad() - B.getLatRad()) *
+			   (A.getLonRad() - B.getLonRad());
+//		return ((A.getLatitude() - B.getLatitude()) * 
+//				   (C.getLongitude() - B.getLongitude()) -
+//				   (C.getLatitude() - B.getLatitude()) *
+//				   (A.getLongitude() - B.getLongitude()));
+	}
+	
+	/**
+	 * Returns whether the supplied <code>Location</code> coincides with
+	 * one of the poles. Any supplied <code>Location</code>s that are very 
+	 * close (less than a mm) will return <code>true</code>.
+	 * 
+	 * @param loc <code>Location</code> to check
+	 * @return <code>true</code> if <code>loc</code> coincides with one of the
+	 *         earth's poles, <code>false</code> otherwise.
+	 */
+	public static boolean isPole(Location loc) {
+		return Math.cos(loc.getLatRad()) < 0.000000000001;
+	}
 	
 	////////////////////////////////////
 	
@@ -1261,57 +1316,64 @@ public final class RelativeLocation {
 	//}
 
 	/**
-	 * Computes the shortest distance between a point and a line.
+	 * Computes the shortest distance between a point and a line (great-circle).
 	 * Both the line and point are assumed to be at the earth's surface. This
-	 * is the true spherical trigonometric function for 'off-track distance'; 
+	 * is the true spherical geometric function for 'off-track distance'; 
 	 * See <a href="http://williams.best.vwh.net/avform.htm#XTE">
 	 * Aviation Formulary</a> for source. This method, though more accurate
-	 * over longer distances and line lengths, is almost 20x slower than
+	 * over longer distances and line lengths, is up to 20x slower than
 	 * {@link RelativeLocation#getApproxHorzDistToLine(
 	 * Location, Location, Location)}.
 	 * 
-	 * @param p1 the location of the first point defining a line
-	 * @param p2 the location of the second point defining a line
-	 * @param p3 the location for which the distance from the line will 
+	 * <br/>
+	 * The input <code>Location</code>s may all be the same without throwing
+	 * an exception.
+	 * 
+	 * @param p1 the first <code>Location</code> point on the line
+	 * @param p2 the second <code>Location</code> point on the line
+	 * @param p3 the <code>Location</code> point for which distance will 
 	 * 		be calculated
 	 * @return the shortest distance in km between the supplied point and line
 	 * @see RelativeLocation#distanceToLine(Location, Location, Location)
 	 */
 	public static double distanceToLine(Location p1, Location p2, Location p3) {
-		double d13 = surfaceDistance(p1, p3);	// distance p1 to p3
-		double d12 = surfaceDistance(p1, p2);	// distance p1 to p2
-		double ad13 = d13 / EARTH_RADIUS_MEAN; 	// angular distance
-		double az13 = azimuthRad(p1, p3);		// azimuth p1 to p3
-		double az12 = azimuthRad(p1, p2);		// azimuth p1 to p2
+		// angular distance
+		double ad13 = angle(p1, p3);
+		// delta azimuth p1 to p3 and azimuth p1 to p2
+		double Daz13az12 = azimuthRad(p1, p3) - azimuthRad(p1, p2);		
 		
-		// compute cross-track distance
-		double xtd = Math.asin( Math.sin(ad13) * 
-				Math.sin(az13 - az12)) * EARTH_RADIUS_MEAN;
-		// compute along-track distance
-		double atd = Math.acos( Math.cos(ad13) / 
-				Math.cos(xtd / EARTH_RADIUS_MEAN)) * EARTH_RADIUS_MEAN;
+		// cross-track distance (in radians)
+		double xtdRad = Math.asin( Math.sin(ad13) * Math.sin(Daz13az12));
+		// along-track distance (in km)
+		double atd = Math.acos( Math.cos(ad13) / Math.cos(xtdRad)) * 
+				EARTH_RADIUS_MEAN;
 		
 		// check if beyond p3
-		if (atd > d12) return fastSurfaceDistance(p2, p3); //TODO change to surfaceDistance()
+		if (atd > surfaceDistance(p1, p2)) return surfaceDistance(p2, p3);
 		// check if before p1
-		if (Math.cos(az13 - az12) < 0) return d13;
-		return xtd;
+		if (Math.cos(Daz13az12) < 0) return surfaceDistance(p1, p3);
+		return xtdRad * EARTH_RADIUS_MEAN;
 	}
 	
 	/**
 	 * Computes the shortest distance between a point and a line. Both the 
 	 * line and point are assumed to be at the earth's surface. This is a fast,
 	 * geometric, cartesion (flat-earth approximation) solution in which
-	 * longitude is scaled by the cosine of latitude, appropriate for short
-	 * line lengths (e.g. &lt;200 km).
+	 * longitude is scaled by the cosine of latitude, appropriate over short
+	 * distances (e.g. &lt;200 km). 
 	 * 
-	 * @param p1 first <code>Location</code> point on the line
-	 * @param p2 second <code>Location</code> point on the line
-	 * @param p3 <code>Location</code> point for which distance will 
+	 * <br/>
+	 * The input <code>Location</code>s may all be the same without throwing
+	 * an exception.
+	 * 
+	 * @param p1 the first <code>Location</code> point on the line
+	 * @param p2 the second <code>Location</code> point on the line
+	 * @param p3 the <code>Location</code> point for which distance will 
 	 * 		be calculated
-	 * @return the shortest distance from the point to the line in km
+	 * @return the shortest distance in km between the supplied point and line
 	 * @see RelativeLocation#distanceToLine(Location, Location, Location)
 	 */
+	// TODO rename to distanceToLineFast
 	public static double getApproxHorzDistToLine(
 			Location p1,
 			Location p2,
@@ -1383,10 +1445,48 @@ public final class RelativeLocation {
 	}
 	
 	public static void main(String[] args) {
-		Location l1 = new Location(38.91,93.14);
-		Location l2 = new Location(37.94,94.55);
-		Location l3 = new Location(40,70);
-		System.out.println(getApproxHorzDistToLine(l1,l2,l3));	
+//		Location l1 = new Location(38.91,93.14);
+//		Location l2 = new Location(37.94,94.55);
+//		Location l3 = new Location(40,70);
+		
+		Location l1 = new Location(33, 179);
+		Location l2 = new Location(33,177);
+//		Location l2 = new Location(34,-115);
+		Location l3 = new Location(34, 178);
+//		Location l3 = new Location(33.2,-115.2);
+		
+		
+		System.out.println(getApproxHorzDistToLine(l1,l2,l3));
+		System.out.println(distanceToLine(l1,l2,l3));
+
+		
+		
+		// SPEED TESTS
+		
+		
+//		Location l1 = new Location(32,-116);
+//		Location l2 = new Location(37,-115);
+//		Location l3 = new Location(34,-114);
+//		int numIter = 1000000;
+//		System.out.println("\nSPEED TEST -- distanceToLine()\n");
+//		for (int i=0; i < 5; i++) {
+//			long T = System.currentTimeMillis();
+//			for (int j=0; j<numIter; j++) {
+//				double d = getApproxHorzDistToLine(l1,l2,l3);
+//			}
+//			T = (System.currentTimeMillis() - T);
+//			System.out.println(" AHDTL: " + T);
+//		}
+//		System.out.println("");
+//		for (int i=0; i < 5; i++) {
+//			long T = System.currentTimeMillis();
+//			for (int j=0; j<numIter; j++) {
+//				double d = distanceToLine(l1,l2,l3);
+//			}
+//			T = (System.currentTimeMillis() - T);
+//			System.out.println("   DTL: " + T);
+//		}
+
 	}
 	
 }
