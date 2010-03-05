@@ -172,7 +172,7 @@ public class LocationList implements java.io.Serializable, XMLSaveable, Iterable
      * effect of reversing the Iterator.
      */
     public void reverse(){
-
+    	
         int size = locations.size();
         int reverseIndex = size - 1;
 

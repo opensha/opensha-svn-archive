@@ -25,10 +25,10 @@ import java.text.DecimalFormat;
 
 import org.opensha.commons.data.Direction;
 import org.opensha.commons.data.Location;
-import org.opensha.commons.data.LocationList;
 
 /**
- * This class contains utility methods to operate on geographic location data.
+ * This class contains static utility methods to operate on geographic
+ * <code>Location</code> data.
  * <br>
  * <br>
  * See: <a href="http://williams.best.vwh.net/avform.htm#Dist" target="_blank">
@@ -47,7 +47,26 @@ import org.opensha.commons.data.LocationList;
  * @see Location
  */
 public final class RelativeLocation {
+	
+	/*
+	 * Developer Notes: All experimental, exploratory and test methods were moved
+	 * to the RelativeLocationTest.java. On the basis of various experiments,
+	 * older methods to calculate distance were replaced with updated versions,
+	 * many of which leverage spherical geometry to produce more accurate
+	 * results. Some 'fast' versions were updated as well. All legacy
+	 * methods, however, are preserved in RelativeLocationTest.java where
+	 * comparison tests can be rerun.
+	 * 
+	 * Most methods take Locations exclusively as arguments. This alleviates
+	 * any error checking that must otherwise be performed on user supplied
+	 * lat-lon values. It also alleviates the need for expensive degree-radian
+	 * conversions by using radians, the native format for Locations,
+	 * exclusively.
+	 */
 
+	/* No instantiation allowed */
+	private RelativeLocation() {}
+	
 	/** Conversion multiplier for degrees to radians */
 	public static final double TO_RAD = Math.toRadians(1.0);
 
@@ -59,7 +78,6 @@ public final class RelativeLocation {
 	
 	/** Convenience constant for PI / 2 */
 	public static final double PI_BY_2 = PI/2;
-	
 
 	/**
 	 * The Authalic mean radius (A<subscript>r</subscript>) of the earth 
@@ -117,6 +135,19 @@ public final class RelativeLocation {
 	public static final DecimalFormat LL_FORMAT = new DecimalFormat("0.0####");
 
 	/**
+	 * <code>Enum</code> used indicate sidedness of points with
+	 * respect to a line.
+	 */
+	public enum Side {
+		/** Indicates a point is on the right side of a line. */
+		RIGHT,
+		/** Indicates a point is on the left side of a line. */
+		LEFT,
+		/** Indicates a point is on the a line. */
+		ON;
+	}
+
+	/**
 	 * Calculates the angle between two <code>Location</code>s using the 
 	 * <a href="http://en.wikipedia.org/wiki/Haversine_formula" target="_blank">
 	 * Haversine</a> formula. This method properly handles values spanning
@@ -144,8 +175,8 @@ public final class RelativeLocation {
 	 * <code>Location</code>s using the Haversine formula for 
 	 * computing the angle between two points.
 	 * 
-	 * @param p1 the first location point
-	 * @param p2 the second location point
+	 * @param p1 the first <code>Location</code> point
+	 * @param p2 the second <code>Location</code> point
 	 * @return the distance between the points in km
 	 * @see RelativeLocation#angle(Location, Location)
 	 */
@@ -170,6 +201,12 @@ public final class RelativeLocation {
 		double C = R2 - R1 * Math.cos(alpha);
 		return Math.sqrt(B*B + C*C);
 	}
+	
+	public static double linearDistanceFast(Location p1, Location p2) {
+		double h = surfaceDistanceFast(p1, p2);
+		double v = getVertDistance(p1, p2);
+		return Math.sqrt(h*h + v*v);
+	}
 
 	/**
 	 * Calculates approximate distance between two <code>Location</code>s. This
@@ -183,7 +220,7 @@ public final class RelativeLocation {
 	 * @param p2 the second location point
 	 * @return the distance between the points in km
 	 */
-	public static double fastSurfaceDistance(Location p1, Location p2) {
+	public static double surfaceDistanceFast(Location p1, Location p2) {
 		// modified from J. Zechar:
 		// calculates distance between two points, using formula
 		// as specifed by P. Shebalin via email 5.8.2004
@@ -220,7 +257,7 @@ public final class RelativeLocation {
 		//double lon2 = p2.getLonRad();
 		
 		// check the poles using a small number ~ machine precision
-		if (Math.cos(lat1) < 0.000000000001) {
+		if (isPole(p1)) {
 			return ((lat1 > 0) ? PI : 0); // N : S pole
 		}
 		
@@ -285,63 +322,6 @@ public final class RelativeLocation {
 		return new Location(lat2 * TO_DEG, lon2 * TO_DEG);
 	}
 	
-
-
-	//public static distance
-	
-	
-	/**
-	 * Computes the distance of a <code>Location</code> from a line 
-	 * (great-circle) using spherical geometry.
-	 * 
-	 * @param A the first Location on the line
-	 * @param B the second Location on the line
-	 * @param C the point of interest off the line
-	 * @return
-	 */
-	public static double crossTrackDist(
-			Location A, 
-			Location B, 
-			Location C) {
-		//XTD =asin(sin(dist_AD)*sin(crs_AD-crs_AB))
-		if (A.equalsLocation(B)) {
-			throw new IllegalArgumentException("Line endpoints are the same");
-		}
-		
-		return Math.asin(
-				Math.sin(angle(A,C)) * 
-				Math.sin(azimuthRad(A,C) - azimuthRad(A,B))) *
-				EARTH_RADIUS_MEAN;
-	}
-	
-	// (x0 - x1) * (y2 - y1) - (x2 - x1) * (y0 - y1)
-	public static double crossTrackDistFast(
-			Location A, 
-			Location B, 
-			Location C) {
-		return (A.getLatRad() - B.getLatRad()) * 
-			   (C.getLonRad() - B.getLonRad()) -
-			   (C.getLatRad() - B.getLatRad()) *
-			   (A.getLonRad() - B.getLonRad());
-//		return ((A.getLatitude() - B.getLatitude()) * 
-//				   (C.getLongitude() - B.getLongitude()) -
-//				   (C.getLatitude() - B.getLatitude()) *
-//				   (A.getLongitude() - B.getLongitude()));
-	}
-	
-	/**
-	 * Returns whether the supplied <code>Location</code> coincides with
-	 * one of the poles. Any supplied <code>Location</code>s that are very 
-	 * close (less than a mm) will return <code>true</code>.
-	 * 
-	 * @param loc <code>Location</code> to check
-	 * @return <code>true</code> if <code>loc</code> coincides with one of the
-	 *         earth's poles, <code>false</code> otherwise.
-	 */
-	public static boolean isPole(Location loc) {
-		return Math.cos(loc.getLatRad()) < 0.000000000001;
-	}
-	
 	////////////////////////////////////
 	
 	 /*
@@ -369,13 +349,6 @@ public final class RelativeLocation {
 
 	/** Degree to Km conversion at equator */
 	public final static double D_COEFF = 111.11;
-
-
-	/** Used for performance testing between two conversion models */
-	final static boolean SPEED_TEST = false;
-
-	/** private constructor guarentees it can never be instantiated */
-	private RelativeLocation() { }
 
 
 	/**
@@ -433,11 +406,17 @@ public final class RelativeLocation {
 
 
 
-	public static double getVertDistance(Location loc1, Location loc2) {
-
-		return  -1 * ( loc1.getDepth() - loc2.getDepth() );
+	/**
+	 * Returns the vertical separation between two <code>Location</code>s. The
+	 * returned value is not absolute and preserves the sign of the difference
+	 * between the points.
+	 * @param p1 the first <code>Location</code> point
+	 * @param p2 the first <code>Location</code> point
+	 * @return the vertical separation between the points
+	 */
+	public static double getVertDistance(Location p1, Location p2) {
+		return  p2.getDepth() - p1.getDepth();
 	}
-
 
 	/**
 	 *  Given a Location and a Direction object, this function calculates a
@@ -571,19 +550,6 @@ public final class RelativeLocation {
 		double newLon = ( phi0 + dlon ) / RADIANS_CONVERSION;
 		return newLon;
 
-	}
-
-
-	/**
-	 *  Internal helper method that returns the minimum of the two passed in values.
-	 *
-	 * @param  a  first value to compare
-	 * @param  b  second  value to compare
-	 * @return	a or b, whichever is smaller
-	 */
-	private static double getMin( double a, double b ) {
-		if ( a <= b ) return a;
-		else return b;
 	}
 
 
@@ -764,570 +730,21 @@ public final class RelativeLocation {
 		return baz;
 	}
 
-
-
-
-	/**
-	 * Converts the latitudes in Kms based on the gridSpacing
-	 * @return
-	 */
-
-	public static double getDeltaLatFromKm(double km) {
-
-	  //1 degree of Latitude is equal to 111.14kms.
-	  return km/111.14;
-	}
-
-	/**
-	 * As the earth is sperical, and does not have a constant radius for each longitude,
-	 * so we calculate the longitude spacing (in Kms) for ever latitude
-	 * @param lat= value of long for every lat according to gridSpacing
-	 * @return
-	 */
-	public static double getDeltaLonFromKm(double lat,double km){
-
-	  double radius = R * Math.cos(Math.toRadians(lat));
-	  double longDistVal = 2*Math.PI *radius /360;
-	  return km/longDistVal;
-	}
-
-
-	/**
-	 * Returns the radius of the earth at a given latitude (see <a 
-	 * href="http://en.wikipedia.org/wiki/Earth_radius#Authalic_radius" 
-	 * target="_blank">Wikipedia</a> for source).
-	 * 
-	 * @param lat the latitude in radians at which to compute the earth's radius
-	 * @return the radius for the latitude supplied
-	 */
-	public static double radiusAtLat(double lat) {
-		double cosL = Math.cos(lat);
-		double sinL = Math.sin(lat);
-		double C1 = cosL * EARTH_RADIUS_EQUATORIAL;
-		double C2 = C1 * EARTH_RADIUS_EQUATORIAL;
-		double C3 = sinL * EARTH_RADIUS_POLAR;
-		double C4 = C3 * EARTH_RADIUS_POLAR;
-		return Math.sqrt((C2*C2 + C4*C4) / (C1*C1 + C3*C3));
-	}
-
-	// create a locationlist between two points; points are discretized
-	// in longitude using 'lonInterval'; latitude intervals are whatever
-	// they need to be to get to L2
-	private static LocationList createLocList(
-			Location L1, Location L2, double lonInterval) {
-		int numPoints = (int) Math.floor(Math.abs(
-				L2.getLongitude() - L1.getLongitude()) / lonInterval);
-		double dLat = (L2.getLatitude() - L1.getLatitude()) / numPoints;
-		double dLon = (L1.getLongitude() - L2.getLongitude() < 0) ? 
-				lonInterval : -lonInterval;
-		LocationList ll = new LocationList();
-		double lat = L1.getLatitude();
-		double lon = L1.getLongitude();
-		for(int i=0; i<=numPoints; i++) {
-			//System.out.println(lat + " " + lon);
-			ll.addLocation(new Location(lat,lon));
-			lat += dLat;
-			lon += dLon;
-		}
-		return ll;
-	}
-
-	
-	public static void main2(String[] args) {
-		
-		// commented values are distances calculated using Vincenty formulae
-		
-		Location L1a = new Location(20,-10); // 8818.496 km
-		Location L1b = new Location(-20,60);
-		
-		Location L2a = new Location(90,10); // 4461.118 km
-		Location L2b = new Location(50,80);
-
-		Location L3a = new Location(-80,-30); // 3824.063 km
-		Location L3b = new Location(-50,20);
-		
-		Location L4a = new Location(-42,178); // 560.148 km
-		Location L4b = new Location(-38,-178);
-
-		Location L5a = new Location(5,-90); // 784.028 km
-		Location L5b = new Location(0,-85);
-
-		Location L6a = new Location(70,-40); // 1148.942 km
-		Location L6b = new Location(80,-50);
-
-		Location L7a = new Location(-30,80); // 1497.148 km
-		Location L7b = new Location(-20,90);
-		
-		Location L8a = new Location(70,70); // 234.662 km
-		Location L8b = new Location(72,72);
-
-		Location L9a = new Location(-20,120); // 305.532 km
-		Location L9b = new Location(-18,122);
-		
-//		LocationList llL1 = createLocList(L1a,L1b,0.2);
-//		LocationList llL2 = createLocList(L2a,L2b,0.2);
-//		LocationList llL3 = createLocList(L3a,L3b,0.2);
-//		LocationList llL4 = createLocList(L4a,L4b,356); // spans prime meridian
-		LocationList llL5 = createLocList(L5a,L5b,0.05);
-//		LocationList llL6 = createLocList(L6a,L6b,0.05);
-//		LocationList llL7 = createLocList(L7a,L7b,0.05);
-//		LocationList llL8 = createLocList(L8a,L8b,0.001);
-//		LocationList llL9 = createLocList(L9a,L9b,0.001);
-		
-		LocationList LLtoUse = llL5;
-		Location startPt = LLtoUse.getLocationAt(0);
-		for (int i = 1; i < LLtoUse.size(); i++) {
-			Location endPt = LLtoUse.getLocationAt(i);
-			double surfDist = surfaceDistance(startPt, endPt);
-			double fastSurfDist = fastSurfaceDistance(startPt, endPt);
-			double delta1 = fastSurfDist - surfDist;
-			double horizDist = getHorzDistance(startPt, endPt);
-			double approxDist = getApproxHorzDistance(startPt, endPt);
-			double delta2 = approxDist - horizDist;
-			double delta3 = fastSurfDist - approxDist;
-			String s = String.format(
-					"sd: %03.4f  fsd: %03.4f  d: %03.4f  " + 
-					"hd: %03.4f  ad: %03.4f  d: %03.4f  Df: %03.4f",
-					surfDist, fastSurfDist, delta1,
-					horizDist, approxDist, delta2, delta3);
-			System.out.println(s);
-		}
-		
-	}
-	
-	public static void main1(String[] args) {
-		
-		// VALUE GENERATION -- distanceToLine()
-		// ====================================
-		
-		Location L1 = new Location(32.6, 20.4);
-		Location L2 = new Location(32.4, 20);
-		Location L3 = new Location(32.2, 20.6);
-		Location L4 = new Location(32, 20.2);
-		
-		Location L5 = new Location(90, 0);
-		Location L6 = new Location(-90, 0);
-		
-		//     vd			sd			fsd			angle		az-rad		az-deg
-		// d51  6393.578 km	 6382.596	 6474.888	1.001818991	3.141592654	180.0
-		// d25  6415.757 km	 6404.835	 6493.824	1.005309649	0.0			  0.0
-		// d46 13543.818 km	13565.796	13707.303	2.129301687	3.141592654	180.0
-		// d63 13565.996 km	13588.035	13735.216	2.132792346	0.0			  0.0
-		
-		// d12 43.645957 km	43.6090311	43.6090864  0.006844919 4.179125015 239.44623
-		// d13 48.183337 km	48.2790582	48.2790921	0.007577932	2.741190313 157.05864
-		// d14 69.150258 km	69.3145862	69.3146382	0.010879690 3.417161139 195.78891
-		// d23 60.706703 km	60.6198752	60.6200022	0.009514959	1.943625801 111.36156
-		// d42 48.198212 km	48.2952067	48.2952403	0.007580467	5.883856933	337.12017
-		// d43 43.787840 km	43.7518411	43.7518956	0.006867335	1.035735858  59.34329
-		
-		Location p1 = L1;
-		Location p2 = L3;
-		System.out.println(surfaceDistance(p1, p2));
-		System.out.println(fastSurfaceDistance(p1, p2));
-		System.out.println(angle(p1,p2));
-		System.out.println(azimuthRad(p1, p2));
-		System.out.println(azimuth(p1, p2));
-		
-		System.out.println("----");
-		
-		Location L7 = new Location( 45.0, -20.0, 2);
-		Location L8 = new Location(-40.0, 20.0, 17);
-		Location L9 = new Location(-50.0, 20.0, 17);
-		
-		
-		//System.out.println(surfaceDistance(L7,L8));
-		System.out.println(linearDistance(L7,L8));
-		System.out.println(linearDistance(L7,L9));
-		
-//		System.out.println("----");
-//		double ad = getHorzDistance(L7, L9);
-//		double vd = getVertDistance(L7, L9);
-//		System.out.println(ad);
-//		System.out.println(Math.sqrt(ad*ad + vd*vd));
-//		System.out.println(getTotalDistance(L7, L9));
-		
-		
-		
-		/*
-		// SPEED TEST -- distanceToLine()
-		// ================================
-		// This is a long distance calculation
-		Location dtl1 = new Location(0, 0);
-		Location dtl2 = new Location(20, 20);
-		Location dtl3 = new Location(10, 10);
-		
-		// Demonstrates discrepancies between methods at long distances
-		System.out.println("\nVALUE COMPARISON -- distanceToLine()\n");
-		
-		System.out.println(getApproxHorzDistToLine(dtl1,dtl2,dtl3));
-		System.out.println(distanceToLine(dtl1,dtl2,dtl3));
-		
-		int numIter = 1000000;
-		 
-		System.out.println("\nSPEED TEST -- distanceToLine()\n");
-		for (int i=0; i < 5; i++) {
-			long T = System.currentTimeMillis();
-			for (int j=0; j<numIter; j++) {
-				double d = getApproxHorzDistToLine(dtl1,dtl2,dtl3);
-			}
-			T = (System.currentTimeMillis() - T);
-			System.out.println(" AHDTL: " + T);
-		}
-		System.out.println("");
-		for (int i=0; i < 5; i++) {
-			long T = System.currentTimeMillis();
-			for (int j=0; j<numIter; j++) {
-				double d = distanceToLine(dtl1,dtl2,dtl3);
-			}
-			T = (System.currentTimeMillis() - T);
-			System.out.println("   DTL: " + T);
-		}
-		*/
-	}
-	
-	public static void main3(String[] args) {
-		
-		Location L1 = new Location(20,-10); // 8818.496 km
-		Location L2 = new Location(-20,60);
-		int numIter = 10000000;
-		 
-		for (int i=0; i < 5; i++) {
-			long T = System.currentTimeMillis();
-			for (int j=0; j<numIter; j++) {
-				double surfDist = surfaceDistance(L1, L2);
-			}
-			T = (System.currentTimeMillis() - T);
-			System.out.println(" SD: " + T);
-		}
-		System.out.println("");
-		for (int i=0; i < 5; i++) {
-			long T = System.currentTimeMillis();
-			for (int j=0; j<numIter; j++) {
-				double surfDist = fastSurfaceDistance(L1, L2);
-			}
-			T = (System.currentTimeMillis() - T);
-			System.out.println("FSD: " + T);
-		}
-		System.out.println("");
-//		for (int i=0; i < 5; i++) {
-//			long T = System.currentTimeMillis();
-//			for (int j=0; j<numIter; j++) {
-//				double surfDist = getHorzDistance(L1, L2);
-//			}
-//			T = (System.currentTimeMillis() - T);
-//			System.out.println(" HD: " + T);
-//		}
-//		System.out.println("");
-		for (int i=0; i < 5; i++) {
-			long T = System.currentTimeMillis();
-			for (int j=0; j<numIter; j++) {
-				double surfDist = getApproxHorzDistance(L1, L2);
-			}
-			T = (System.currentTimeMillis() - T);
-			System.out.println(" AD: " + T);
-		}
-	}
-	
-	/**
-	 *  Purely a tester function. I like to put main() functions for unit testing
-	 *  java files. This is a convinient and quick test of the class, and shows
-	 *  exact examples on how to use this class.
-	 *
-	 *  Tests various examples of Locations and Directions to calculate the
-	 *  RelativeLocation and direction between points. This is mainly a test
-	 *  function
-	 *
-	 * @param  argv  Passed in command line arguments
-	 **/
-
-	//public static void main( String argv[] ) {
-
-//		Location line_loc1 = new Location (0.250405,0.0,5.0);
-//		Location line_loc2 = new Location (9.250495,-0.0,5.0);
-//		Location loc = new Location (0.9,0.0225,0.0);
-//		System.out.println(RelativeLocation.getApproxHorzDistToLine(loc, line_loc1, line_loc2));
-//		
-//		
-//		loc = new Location(0.8999999999999999,0.0225,0.0);
-//		line_loc1 = new Location(0.25040500405004046,0.0,5.0);
-//		line_loc2 = new Location(9.25049500495005,-2.2242586363405688E-15,5.0);
-//		System.out.println(RelativeLocation.getApproxHorzDistToLine(loc, line_loc1, line_loc2));
-			 	
-		
-//		Location L1 = new Location(35.0,-123.0);
-//		Location L2 = new Location(35.155243,-123.917579);
-//		Location L3 = new Location(35.300824,-122.831149);
-//		
-//		Location L4 = new Location(35.0,-120.0);
-//		Location L5 = new Location(35.155243,-123.917579);
-//		Location L6 = new Location(35.300824,-122.831149);
-		
-		//System.out.println(dist);
-		
-//		System.out.println(RelativeLocation.getApproxHorzDistToLine(loc, line_loc2, line_loc1));
-		// 3.199187934236039
-		
-		
-/*
-	  System.out.println("test1:");
-	  Location loc1 = new Location(34.5,-128,0);
-	  Location loc2 = new Location (33.3,-125,0);
-	  Location pt1 = new Location(35,-122,0);
-	  Location pt2 = new Location(35,238,0);
-	  //Location pt1 = new Location(34,-122,0);
-	  //Location pt2 = new Location(35,-122,0);
-
-	  //long t1, t2;
-	  //double junk;
-	  //t1 = System.currentTimeMillis();
-	  //for(int i=0; i < 1000000; i++) //junk = getApproxHorzDistance(pt1,pt2);
-	  //t2 = t1 - System.currentTimeMillis();
-	  //System.out.println("approx time = "+ t2);
-	  System.out.println("Horizontal distance1 = "+ getHorzDistance(loc1,pt1));
-	  System.out.println("Horizontal distance2 = "+ getHorzDistance(loc1,pt2));
-	  System.out.println("Approx. Horizontal distance1 = "+ getApproxHorzDistance(loc1,pt1));
-	  System.out.println("Approx. Horizontal distance2 = "+ getApproxHorzDistance(loc1,pt2));
-
-
-	  System.out.println("Approx. Horizontal distance Calc from loc1 to Line = "+ getApproxHorzDistToLine(pt1,loc1,loc2));
-	  System.out.println("Approx. Horizontal distance Calc from loc2 to Line = "+ getApproxHorzDistToLine(pt2,loc1,loc2));
-
-	  System.out.println("Approx. Horizontal distance(considering line is evenly discretized by 0.1km) from loc1 to Line = "+ getApproxHorzDistToLine_2(pt1,loc1,loc2));
-	  System.out.println("Approx. Horizontal distance(considering line is evenly discretized by 0.1km) from loc2 to Line = "+ getApproxHorzDistToLine_2(pt2,loc1,loc2));
-*/
-
-	  //t1 = System.currentTimeMillis();
-	  //for(int i=0; i < 1000000; i++) //junk = getHorzDistance(pt1,pt2);
-	  //t2 = t1 - System.currentTimeMillis();
-	  //System.out.println("time = "+ t2);
-
-/*
-	  System.out.println(getApproxHorzDistToLine(loc,pt1,pt2));
-	  System.out.println(getApproxHorzDistToLine_2(loc,pt1,pt2));
-	  System.out.println(getApproxHorzDistToLine(loc,pt2,pt1));
-	  System.out.println(getApproxHorzDistToLine_2(loc,pt2,pt1));
-
-	  System.out.println("test2:");
-	  loc = new Location(35.00001,-121,0);
-	  pt1 = new Location(34,-122,0);
-	  pt2 = new Location(35,-122,0);
-	  System.out.println(getApproxHorzDistToLine(loc,pt1,pt2));
-	  System.out.println(getApproxHorzDistToLine_2(loc,pt1,pt2));
-	  System.out.println(getApproxHorzDistToLine(loc,pt2,pt1));
-	  System.out.println(getApproxHorzDistToLine_2(loc,pt2,pt1));
-
-	  System.out.println("test3:");
-	  loc = new Location(33.9999,-121,0);
-	  pt1 = new Location(34,-122,0);
-	  pt2 = new Location(35,-122,0);
-	  System.out.println(getApproxHorzDistToLine(loc,pt1,pt2));
-	  System.out.println(getApproxHorzDistToLine_2(loc,pt1,pt2));
-	  System.out.println(getApproxHorzDistToLine(loc,pt2,pt1));
-	  System.out.println(getApproxHorzDistToLine_2(loc,pt2,pt1));
-
-	  System.out.println("test4:");
-	  loc = new Location(34,-121.5,0);
-	  pt1 = new Location(33,-122,0);
-	  pt2 = new Location(33,-121,0);
-	  System.out.println(getApproxHorzDistToLine(loc,pt1,pt2));
-	  System.out.println(getApproxHorzDistToLine_2(loc,pt1,pt2));
-	  System.out.println(getApproxHorzDistToLine(loc,pt2,pt1));
-	  System.out.println(getApproxHorzDistToLine_2(loc,pt2,pt1));
-
-	  System.out.println("test5:");
-	  loc = new Location(34,-122.00001,0);
-	  pt1 = new Location(33,-122,0);
-	  pt2 = new Location(33,-121,0);
-	  System.out.println(getApproxHorzDistToLine(loc,pt1,pt2));
-	  System.out.println(getApproxHorzDistToLine_2(loc,pt1,pt2));
-	  System.out.println(getApproxHorzDistToLine(loc,pt2,pt1));
-	  System.out.println(getApproxHorzDistToLine_2(loc,pt2,pt1));
-
-	  System.out.println("test6:");
-	  loc = new Location(34,-120.9999,0);
-	  pt1 = new Location(33,-122,0);
-	  pt2 = new Location(33,-121,0);
-	  System.out.println(getApproxHorzDistToLine(loc,pt1,pt2));
-	  System.out.println(getApproxHorzDistToLine_2(loc,pt1,pt2));
-	  System.out.println(getApproxHorzDistToLine(loc,pt2,pt1));
-	  System.out.println(getApproxHorzDistToLine_2(loc,pt2,pt1));
-
-	  System.out.println("test7:");
-	  loc = new Location(33.5,-122,0);
-	  pt1 = new Location(33,-122,0);
-	  pt2 = new Location(34,-121,0);
-	  System.out.println(getApproxHorzDistToLine(loc,pt1,pt2));
-	  System.out.println(getApproxHorzDistToLine_2(loc,pt1,pt2));
-	  System.out.println(getApproxHorzDistToLine(loc,pt2,pt1));
-	  System.out.println(getApproxHorzDistToLine_2(loc,pt2,pt1));
-
-	  System.out.println("test8:");
-	  loc = new Location(33.00001,-121,0);
-	  pt1 = new Location(33,-122,0);
-	  pt2 = new Location(34,-121,0);
-	  System.out.println(getApproxHorzDistToLine(loc,pt1,pt2));
-	  System.out.println(getApproxHorzDistToLine_2(loc,pt1,pt2));
-	  System.out.println(getApproxHorzDistToLine(loc,pt2,pt1));
-	  System.out.println(getApproxHorzDistToLine_2(loc,pt2,pt1));
-
-	  System.out.println("test9:");
-	  loc = new Location(32.9999,-121,0);
-	  pt1 = new Location(33,-122,0);
-	  pt2 = new Location(34,-121,0);
-	  System.out.println(getApproxHorzDistToLine(loc,pt1,pt2));
-	  System.out.println(getApproxHorzDistToLine_2(loc,pt1,pt2));
-	  System.out.println(getApproxHorzDistToLine(loc,pt2,pt1));
-	  System.out.println(getApproxHorzDistToLine_2(loc,pt2,pt1));
-
-	  System.out.println("test10:");
-	  loc = new Location(33.9999,-122,0);
-	  pt1 = new Location(33,-122,0);
-	  pt2 = new Location(34,-121,0);
-	  System.out.println(getApproxHorzDistToLine(loc,pt1,pt2));
-	  System.out.println(getApproxHorzDistToLine_2(loc,pt1,pt2));
-	  System.out.println(getApproxHorzDistToLine(loc,pt2,pt1));
-	  System.out.println(getApproxHorzDistToLine_2(loc,pt2,pt1));
-
-	  System.out.println("test11:");
-	  loc = new Location(34.00001,-122,0);
-	  pt1 = new Location(33,-122,0);
-	  pt2 = new Location(34,-121,0);
-	  System.out.println(getApproxHorzDistToLine(loc,pt1,pt2));
-	  System.out.println(getApproxHorzDistToLine_2(loc,pt1,pt2));
-	  System.out.println(getApproxHorzDistToLine(loc,pt2,pt1));
-	  System.out.println(getApproxHorzDistToLine_2(loc,pt2,pt1));
-*/
-
-/*
-	  System.out.println("Los Angeles Sement Length: = "+
-						 (float)RelativeLocation.getHorzDistance( 34.019965922, 118.308353340, 33.971013662, 118.122170045 ));
-	  System.out.println("Santa Fe Springs Sement Length: = "+
-						 (float)RelativeLocation.getHorzDistance( 33.905266010, 118.144918182, 33.929699246, 118.014078570 ));
-	  System.out.println("Coyote Hills Sement Length: = "+
-						 (float)RelativeLocation.getHorzDistance( 33.894579252, 118.044407949, 33.899509717, 117.868192971 ));
-
-
-/*
-	  System.out.println("Accurate HorzDist="+RelativeLocation.getHorzDistance( 33, -118, 35, -117.5 ));
-	  System.out.println("Approx HorzDist="+RelativeLocation.getApproxHorzDistance( 33, -118, 35, -117.5 ));
-
-	  System.out.println("Starting with accurate horz dist calcs");
-	  for(int i=0; i<10000000; i++)
-		RelativeLocation.getHorzDistance( 33, -118, 35, -117.5 );
-		System.out.println("Done with accurate horz dist calcs");
-	  System.out.println("Starting with approx horz dist calcs");
-	  for(int i=0; i<10000000; i++)
-		RelativeLocation.getApproxHorzDistance( 33, -118, 35, -117.5 );
-		System.out.println("Done with approx horz dist calcs");
-*/
-
-		/*String S = C + ": main(): ";
-
-		Location l1 = new Location(20, 20);
-		l1.setDepth(1);
-
-		Location l2 = new Location(20, 21);
-		l2.setDepth(2);
-
-		Location l3 = new Location(20, 40);
-		l3.setDepth(3);
-
-		Location l4 = new Location(20, 20);
-		l4.setDepth(4);
-
-		Location l5 = new Location(90, 90);
-		l5.setDepth(5);
-
-		System.out.println( S + "A(l1,l2): " + latLonDistance( l1.getLatitude(), l1.getLongitude(), l2.getLatitude(), l2.getLongitude() ) );
-		System.out.println( S + "B(l1,l2): " + getHorzDistance( l1.getLatitude(), l1.getLongitude(), l2.getLatitude(), l2.getLongitude() ) );
-
-
-		System.out.println( S + "A(l1,l3): " + latLonDistance( l1.getLatitude(), l1.getLongitude(), l3.getLatitude(), l3.getLongitude() ) );
-		System.out.println( S + "B(l1,l3): " + getHorzDistance( l1.getLatitude(), l1.getLongitude(), l3.getLatitude(), l3.getLongitude() ) );
-
-
-		System.out.println( S + "A(l1,l4): " + latLonDistance( l1.getLatitude(), l4.getLongitude(), l4.getLatitude(), l1.getLongitude() ) );
-		System.out.println( S + "B(l1,l4): " + getHorzDistance( l1.getLatitude(), l4.getLongitude(), l4.getLatitude(), l1.getLongitude() ) );
-
-
-		System.out.println( S + "A(l1,l5): " + latLonDistance( l1.getLatitude(), l5.getLongitude(), l5.getLatitude(), l5.getLongitude() ) );
-		System.out.println( S + "B(l1,l5): " + getHorzDistance( l1.getLatitude(), l5.getLongitude(), l5.getLatitude(), l5.getLongitude() ) );
-
-		for(int j = 50; j < 51; j++){
-		  for(int i = -360; i <= 0; i++){
-			System.out.println("j="+j+"i="+i+"distance="+latLonDistance(j, i, j+1, i+1));
-			System.out.println("j="+j+"i="+(i+360)+"distance="+latLonDistance(j, i+360, j+1, i+1));
-		  }
-		}
-*/
-
-	   /* if(SPEED_TEST){
-
-			//System.out.println( S + DateUtils.getDisplayTimeStamp() + ": latLonDistance");
-			for(int k = 0; k < 2; k++){
-				for(int j = -180; j < 180; j++){
-					for(int i = -90; i < 90; i++){
-						latLonDistance(i, j, i+1, j+1);
-					}
-				}
-			}
-			//System.out.println( S + DateUtils.getDisplayTimeStamp() + ": latLonDistanceDone");
-
-			//System.out.println( S + DateUtils.getDisplayTimeStamp() + ": getHorzDistance");
-			for(int k = 0; k < 2; k++){
-				for(int j = -180; j < 180; j++){
-					for(int i = -90; i < 90; i++){
-						getHorzDistance(i, j, i+1, j+1);
-					}
-				}
-			}
-			//System.out.println( S + DateUtils.getDisplayTimeStamp() + ": getHorzDistance");
-		}
-
-		System.out.println( S );
-		System.out.println( S );
-		System.out.println( S + l1.toString() );
-		System.out.println( S + l2.toString());
-		Direction d = RelativeLocation.getDirection(l1,l2);
-		System.out.println( S + d.toString());
-
-		System.out.println( S );
-		System.out.println( S );
-		System.out.println( S + l1.toString() );
-		System.out.println( S + l3.toString());
-		d = RelativeLocation.getDirection(l1,l3);
-		System.out.println( S + d.toString());
-
-		System.out.println( S );
-		System.out.println( S );
-		System.out.println( S + l1.toString() );
-		System.out.println( S + l4.toString());
-		d = RelativeLocation.getDirection(l1,l4);
-		System.out.println( S + d.toString());
-
-		System.out.println( S );
-		System.out.println( S );
-		System.out.println( S + l1.toString() );
-		System.out.println( S + l5.toString());
-		d = RelativeLocation.getDirection(l1,l5);
-		System.out.println( S + d.toString());*/
-
-	//}
-
 	/**
 	 * Computes the shortest distance between a point and a line (great-circle).
-	 * Both the line and point are assumed to be at the earth's surface. This
+	 * Both the line and point are assumed to be at the earth's surface; the 
+	 * depth component of each <code>Location</code> is ignored. This
 	 * is the true spherical geometric function for 'off-track distance'; 
 	 * See <a href="http://williams.best.vwh.net/avform.htm#XTE">
-	 * Aviation Formulary</a> for source. This method, though more accurate
-	 * over longer distances and line lengths, is up to 20x slower than
-	 * {@link RelativeLocation#getApproxHorzDistToLine(
-	 * Location, Location, Location)}.
-	 * 
+	 * Aviation Formulary</a> for source.<br/>
 	 * <br/>
-	 * The input <code>Location</code>s may all be the same without throwing
-	 * an exception.
+	 * This method, though more accurate over longer distances and 
+	 * line lengths, is up to 20x slower than
+	 * {@link RelativeLocation#getApproxHorzDistToLine(
+	 * Location, Location, Location)}. However, this method does return
+	 * accurate results for values spanning #177;180&#176;. Moreover, the
+	 * sign of the result indicates which side of the supplied line
+	 * <code>p3</code> is on.
 	 * 
 	 * @param p1 the first <code>Location</code> point on the line
 	 * @param p2 the second <code>Location</code> point on the line
@@ -1357,14 +774,14 @@ public final class RelativeLocation {
 	
 	/**
 	 * Computes the shortest distance between a point and a line. Both the 
-	 * line and point are assumed to be at the earth's surface. This is a fast,
+	 * line and point are assumed to be at the earth's surface; the depth
+	 * component of each <code>Location</code> is ignored. This is a fast,
 	 * geometric, cartesion (flat-earth approximation) solution in which
-	 * longitude is scaled by the cosine of latitude, appropriate over short
-	 * distances (e.g. &lt;200 km). 
-	 * 
+	 * longitude is scaled by the cosine of latitude; it is only appropriate 
+	 * for use over short distances (e.g. &lt;200 km).<br/>
 	 * <br/>
-	 * The input <code>Location</code>s may all be the same without throwing
-	 * an exception.
+	 * <b>Note:</b> This method does <i>NOT</i> support values spanning 
+	 * #177;180&#176;; results are not guaranteed.
 	 * 
 	 * @param p1 the first <code>Location</code> point on the line
 	 * @param p2 the second <code>Location</code> point on the line
@@ -1444,49 +861,107 @@ public final class RelativeLocation {
 		return dist * EARTH_RADIUS_MEAN;
 	}
 	
-	public static void main(String[] args) {
-//		Location l1 = new Location(38.91,93.14);
-//		Location l2 = new Location(37.94,94.55);
-//		Location l3 = new Location(40,70);
-		
-		Location l1 = new Location(33, 179);
-		Location l2 = new Location(33,177);
-//		Location l2 = new Location(34,-115);
-		Location l3 = new Location(34, 178);
-//		Location l3 = new Location(33.2,-115.2);
-		
-		
-		System.out.println(getApproxHorzDistToLine(l1,l2,l3));
-		System.out.println(distanceToLine(l1,l2,l3));
-
-		
-		
-		// SPEED TESTS
-		
-		
-//		Location l1 = new Location(32,-116);
-//		Location l2 = new Location(37,-115);
-//		Location l3 = new Location(34,-114);
-//		int numIter = 1000000;
-//		System.out.println("\nSPEED TEST -- distanceToLine()\n");
-//		for (int i=0; i < 5; i++) {
-//			long T = System.currentTimeMillis();
-//			for (int j=0; j<numIter; j++) {
-//				double d = getApproxHorzDistToLine(l1,l2,l3);
-//			}
-//			T = (System.currentTimeMillis() - T);
-//			System.out.println(" AHDTL: " + T);
-//		}
-//		System.out.println("");
-//		for (int i=0; i < 5; i++) {
-//			long T = System.currentTimeMillis();
-//			for (int j=0; j<numIter; j++) {
-//				double d = distanceToLine(l1,l2,l3);
-//			}
-//			T = (System.currentTimeMillis() - T);
-//			System.out.println("   DTL: " + T);
-//		}
-
+	/**
+	 * Returns the radius of the earth at the latitude of the supplied
+	 * <code>Location</code> (see <a 
+	 * href="http://en.wikipedia.org/wiki/Earth_radius#Authalic_radius" 
+	 * target="_blank">Wikipedia</a> for source).
+	 * 
+	 * @param p the <code>Location</code> at which to compute the earth's radius
+	 * @return the earth's radius at the supplied <code>Location</code>
+	 */
+	public static double radiusAtLocation(Location p) {
+		double cosL = Math.cos(p.getLatRad());
+		double sinL = Math.sin(p.getLatRad());
+		double C1 = cosL * EARTH_RADIUS_EQUATORIAL;
+		double C2 = C1 * EARTH_RADIUS_EQUATORIAL;
+		double C3 = sinL * EARTH_RADIUS_POLAR;
+		double C4 = C3 * EARTH_RADIUS_POLAR;
+		return Math.sqrt((C2*C2 + C4*C4) / (C1*C1 + C3*C3));
 	}
 	
+	/**
+	 * Returns the number of degrees of latitude per km at a given 
+	 * <code>Location</code>. This can be used to convert between km-based 
+	 * and degree-based grid spacing. The calculation takes into account
+	 * the shape of the earth (oblate spheroid) and scales the conversion
+	 * accordingly.
+	 * 
+	 * @param p the <code>Location</code> at which to conversion value
+	 * @return the number of decimal degrees latitude per km at a given
+	 * 		<code>Location</code>
+	 * @see RelativeLocation#radiusAtLocation(Location)
+	 */
+	public static double degreesLatPerKm(Location p) {
+		return TO_DEG / radiusAtLocation(p);
+	}
+
+	/**
+	 * Returns the number of degrees of longitude per km at a given 
+	 * <code>Location</code>. This can be used to convert between km-based
+	 * and degree-based grid spacing. The calculation scales the degrees
+	 * longitude per km at the equator by the cosine of the supplied
+	 * latitude.
+	 * 
+	 * @param p the <code>Location</code> at which to conversion value
+	 * @return the number of decimal degrees longitude per km at a given
+	 * 		<code>Location</code>
+	 */
+	public static double degreesLonPerKm(Location p) {
+		return TO_DEG / (EARTH_RADIUS_EQUATORIAL * Math.cos(p.getLatRad()));
+	}
+
+	public static double getDeltaLatFromKm(double km) {
+
+	  //1 degree of Latitude is equal to 111.14kms.
+	  return km/111.14;
+	}
+
+	/**
+	 * As the earth is sperical, and does not have a constant radius for each longitude,
+	 * so we calculate the longitude spacing (in Kms) for ever latitude
+	 * @param lat= value of long for every lat according to gridSpacing
+	 * @return
+	 */
+	public static double getDeltaLonFromKm(double lat,double km){
+
+	  double radius = R * Math.cos(Math.toRadians(lat));
+	  double longDistVal = 2*Math.PI *radius /360;
+	  return km/longDistVal;
+	}
+
+	/**
+	 * Returns whether the supplied <code>Location</code> coincides with
+	 * one of the poles. Any supplied <code>Location</code>s that are very 
+	 * close (less than a mm) will return <code>true</code>.
+	 * 
+	 * @param loc <code>Location</code> to check
+	 * @return <code>true</code> if <code>loc</code> coincides with one of the
+	 *         earth's poles, <code>false</code> otherwise.
+	 */
+	public static boolean isPole(Location loc) {
+		return Math.cos(loc.getLatRad()) < 0.000000000001;
+	}
+
+	public static void main(String[] args) {
+		
+		
+		Location L1 = new Location(0,0);
+		Location L2 = new Location(30,0);
+		Location L3 = new Location(45,0);
+		Location L4 = new Location(-60,0);
+		Location L5 = new Location(-90,0);
+		
+		Location L = L5;
+		
+		System.out.println("degLatPerKm " + degreesLatPerKm(L));
+		System.out.println("degLonPerKm " + degreesLonPerKm(L));
+		System.out.println("  gDeltaLat " + getDeltaLatFromKm(1));
+		System.out.println("  gDeltaLon " + getDeltaLonFromKm(L.getLatitude(), 1));
+		
+		System.out.println(Math.cos(Math.toRadians(90)));
+	}
+	
+	
+
 }
