@@ -401,7 +401,7 @@ public class RelativeLocationTest {
 		//             1M repeat runs showed the following comp
 		//             times:
 		//                
-		//             TD   getTotalDistance()			1190 ms
+		//             TD   getTotalDistanceOLD()		1190 ms
 		//             LD   getLinearDistance()			221  ms
 		//             LDF  getLinearDistanceFast()		3    ms
 		// ==========================================================
@@ -450,6 +450,48 @@ public class RelativeLocationTest {
 			System.out.println("SDF: " + T);
 		}
 
+		
+		
+		// ==========================================================
+		//    Azimuth Methods
+		//
+		//    Summary: New, spherical geometry azimuth methods are
+		//			   faster than existing methods.
+		//             1M repeat runs showed the following comp
+		//             times:
+		//                
+		//             gA   getAzimuthOLD()		1240 ms
+		//              A   azimuth()			348  ms
+		// ==========================================================
+
+		L1 = new Location(32, -117);
+		L2 = new Location(33, -115);
+		
+		System.out.println("getAzimuth(): " + 
+				getAzimuth(L1, L2));
+		for (int i=0; i < 5; i++) {
+			long T = System.currentTimeMillis();
+			double dist;
+			for (int j=0; j<numIter; j++) {
+				dist = getAzimuth(L1, L2);
+			}
+			T = (System.currentTimeMillis() - T);
+			System.out.println(" gA: " + T);
+		}
+
+		System.out.println("azimuth(): " + 
+				azimuth(L1, L2));
+		for (int i=0; i < 5; i++) {
+			long T = System.currentTimeMillis();
+			double dist;
+			for (int j=0; j<numIter; j++) {
+				dist = azimuth(L1, L2);
+			}
+			T = (System.currentTimeMillis() - T);
+			System.out.println("  A: " + T);
+		}
+
+		
 		
 		
 		// ==========================================================

@@ -805,8 +805,7 @@ public  class ERF2DB implements ERF2DBAPI{
 			for (int i = 0; i < numCols - 1; ++i) {
 				Location loc1 = surface.getLocation(0, i);
 				Location loc2 = surface.getLocation(0, i + 1);
-				double strike = RelativeLocation.getAzimuth(loc1.getLatitude(),
-						loc1.getLongitude(), loc2.getLatitude(), loc2.getLongitude());
+				double strike = RelativeLocation.getAzimuth(loc1, loc2);
 				localStrike[i] = strike;
 			}
 		}

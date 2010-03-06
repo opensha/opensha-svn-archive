@@ -663,7 +663,7 @@ public final class RelativeLocation {
 	 * @param lon2			   longitude of second point
 	 * @return				  angle between the two lat/lon locations
 	 */
-	public static double getAzimuth(
+	private static double getAzimuth(
 			double lat1, double lon1, double lat2, double lon2 ){
 
 		double xlat = lat1 * RADIANS_CONVERSION;
@@ -692,6 +692,8 @@ public final class RelativeLocation {
 	}
 
 	/**
+	 * OLD METHOD
+	 * 
 	 * Helper method that calculates the angle between two locations
 	 * on the earth.<p>
 	 *
@@ -699,7 +701,6 @@ public final class RelativeLocation {
 	 * @param loc2			   location of second point
 	 * @return				  angle between the two locations
 	 */
-
 	public static double getAzimuth( Location loc1, Location loc2 ){
 	  return getAzimuth( loc1.getLatitude(), loc1.getLongitude(),
 						 loc2.getLatitude(), loc2.getLongitude() );
@@ -708,6 +709,8 @@ public final class RelativeLocation {
 
 
 	/**
+	 * OLD METHOD
+	 * 
 	 * Helper method that calculates the angle between two locations
 	 * on the earth.<p>
 	 *
@@ -720,7 +723,8 @@ public final class RelativeLocation {
 	 * @param lon2			   longitude of second point
 	 * @return				  angle between the two lat/lon locations
 	 */
-	public static double getBackAzimuth( double lat1, double lon1, double lat2, double lon2 ){
+	private static double getBackAzimuth(
+			double lat1, double lon1, double lat2, double lon2 ){
 
 		double xlat = lat1 * RADIANS_CONVERSION;
 		double xlon = lon1 * RADIANS_CONVERSION;
@@ -898,6 +902,8 @@ public final class RelativeLocation {
 	}
 	
 	/**
+	 * TODO move to GeoTools
+	 * 
 	 * Returns the number of degrees of latitude per km at a given 
 	 * <code>Location</code>. This can be used to convert between km-based 
 	 * and degree-based grid spacing. The calculation takes into account
@@ -914,6 +920,8 @@ public final class RelativeLocation {
 	}
 
 	/**
+	 * TODO move to GeoTools
+	 * 
 	 * Returns the number of degrees of longitude per km at a given 
 	 * <code>Location</code>. This can be used to convert between km-based
 	 * and degree-based grid spacing. The calculation scales the degrees
@@ -935,13 +943,14 @@ public final class RelativeLocation {
 	}
 
 	/**
+	 * OLD METHOD
+	 * 
 	 * As the earth is sperical, and does not have a constant radius for each longitude,
 	 * so we calculate the longitude spacing (in Kms) for ever latitude
 	 * @param lat= value of long for every lat according to gridSpacing
 	 * @return
 	 */
 	public static double getDeltaLonFromKm(double lat,double km){
-
 	  double radius = R * Math.cos(Math.toRadians(lat));
 	  double longDistVal = 2*Math.PI *radius /360;
 	  return km/longDistVal;
@@ -962,21 +971,24 @@ public final class RelativeLocation {
 
 	public static void main(String[] args) {
 		
-		
-		Location L1 = new Location(0,0);
-		Location L2 = new Location(30,0);
-		Location L3 = new Location(45,0);
-		Location L4 = new Location(-60,0);
-		Location L5 = new Location(-90,0);
-		
-		Location L = L5;
-		
-		System.out.println("degLatPerKm " + degreesLatPerKm(L));
-		System.out.println("degLonPerKm " + degreesLonPerKm(L));
-		System.out.println("  gDeltaLat " + getDeltaLatFromKm(1));
-		System.out.println("  gDeltaLon " + getDeltaLonFromKm(L.getLatitude(), 1));
-		
-		System.out.println(Math.cos(Math.toRadians(90)));
+//		Location L1 = new Location(0,0);
+//		Location L2 = new Location(30,0);
+//		Location L3 = new Location(45,0);
+//		Location L4 = new Location(-60,0);
+//		Location L5 = new Location(-90,0);
+//		
+//		Location L = L5;
+//		
+//		System.out.println("degLatPerKm " + degreesLatPerKm(L));
+//		System.out.println("degLonPerKm " + degreesLonPerKm(L));
+//		System.out.println("  gDeltaLat " + getDeltaLatFromKm(1));
+//		System.out.println("  gDeltaLon " + getDeltaLonFromKm(L.getLatitude(), 1));
+//		System.out.println("---");
+//		System.out.println("degLatPerKm " + degreesLatPerKm(L) * D_COEFF);
+//		System.out.println("degLonPerKm " + degreesLonPerKm(L) * D_COEFF);
+//		System.out.println("  gDeltaLat " + getDeltaLatFromKm(1) * D_COEFF);
+//		System.out.println("  gDeltaLon " + getDeltaLonFromKm(L.getLatitude(), 1) * D_COEFF);
+
 	}
 	
 	
