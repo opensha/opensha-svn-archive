@@ -446,8 +446,9 @@ public class IM_EventSetCalc
     double middleLat = (minLat + maxLat) / 2;
 
     //getting the source-site cuttoff distance
-    sourceCutOffDistance = (float)RelativeLocation.getHorzDistance(middleLat, middleLon,
-        minLat, minLon) + MIN_DIST;
+    sourceCutOffDistance = (float) RelativeLocation.getHorzDistance(
+    		new Location(middleLat, middleLon),
+    		new Location(minLat, minLon)) + MIN_DIST;
     siteForSourceCutOff = new Site(new Location(middleLat, middleLon));
 
     return;

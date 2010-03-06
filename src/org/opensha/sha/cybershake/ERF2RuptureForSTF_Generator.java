@@ -449,10 +449,12 @@ public class ERF2RuptureForSTF_Generator {
         double maxLat = region.getMaxLat();
         double minLon = region.getMinLon();
         double maxLon = region.getMaxLon();
-        double distanceSWSE = RelativeLocation.getApproxHorzDistance(minLat,
-            minLon, minLat, maxLon);
-        double distanceNWSW = RelativeLocation.getApproxHorzDistance(minLat,
-            minLon, maxLat, minLon);
+        double distanceSWSE = RelativeLocation.getApproxHorzDistance(
+        		new Location(minLat,minLon),
+        		new Location(minLat, maxLon));
+        double distanceNWSW = RelativeLocation.getApproxHorzDistance(
+        		new Location(minLat,minLon),
+        		new Location(maxLat, minLon));
         if(regionMinLat > minLat)
         	regionMinLat = minLat;
         if(regionMaxLat < maxLat)

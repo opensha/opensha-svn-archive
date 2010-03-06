@@ -233,10 +233,12 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
 
       // Create the grid of locations in the circular area
       locationList = new LocationList();
-      for(double lat=LAT_TOP;lat >=LAT_BOTTOM; lat-=latDiff)
-        for(double lon=LONG_LEFT;lon <=LONG_RIGHT; lon+=longDiff)
-          if(RelativeLocation.getHorzDistance(LAT_CENTER,LONG_CENTER,lat,lon) <= MAX_DISTANCE)
-            for(double depth=depthUpper;depth<=depthLower;depth+=gridSpacing)
+      for (double lat=LAT_TOP;lat >=LAT_BOTTOM; lat-=latDiff)
+        for (double lon=LONG_LEFT;lon <=LONG_RIGHT; lon+=longDiff)
+          if (RelativeLocation.getHorzDistance(
+        		  new Location(LAT_CENTER,LONG_CENTER),
+        		  new Location(lat,lon)) <= MAX_DISTANCE)
+            for (double depth=depthUpper;depth<=depthLower;depth+=gridSpacing)
                 locationList.addLocation(new Location(lat,lon,depth));
 
       int numLocs = locationList.size();
