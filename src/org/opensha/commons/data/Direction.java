@@ -19,59 +19,42 @@
 
 package org.opensha.commons.data;
 
-import org.opensha.commons.param.DoubleParameter;
-
-
 /**
- *  <b>Title:</b> Direction<p>
+ * This class encapsulates information describing a vector between two
+ * <code>Location</code>s. This vector is defined by the bearing from
+ * a point p1 to a point p2, and also by the horizontal and vertical 
+ * separation between the points.<br/>
+ * <br/>
+ * <b>Note:</b> Although a <code>LocationVector</code> will function in any
+ * reference frame, the convention in seismology is for depth to be positive
+ * down.
  *
- *  <b>Description:</b> Basic JavaBean class that represents a distance vector
- *  between two Location objects<p>
- *
- * This class contains the fields:
- * <ul>
- * <li>vertical distance
- * <li>horizontal distance
- * <li>azimuth
- * <li>back azimuth
- * </ul>
- *
- *TODO - this class should accept location and bearing. when queried for backAzimuth
- *it should then be calcualted, not on init. THis whole class is confused.
- *
- * Thses fields uniquely describe the vector between any two points on or within
- * the surface of the earth.<p>
- *
- * This class is what is called a javabean class in Java. A Javabean class is really
- * a data container with fields, and corresponding getXXX() and setXXX() functions
- * matching the field names.<p>
- *
- * @author     Sid Hellman, Steven W. Rock
- * @created    February 26, 2002
- * @version    1.0
+ * @author Peter Powers
+ * @author Sid Hellman
+ * @author Steven W. Rock
+ * @version $Id:$
  */
-
+// TODO refactor to LocationVector
 public class Direction {
 
-    /** Class name used for debbuging */
-    protected final static String C = "Direction";
+	/*
+	 * Developer Notes: The previous incarnation of this class as 'Direction'
+	 * included back azimuth. By committing to provide a back azimuth, each
+	 * Direction was implicitely location dependent. Furthermore, the onus
+	 * was on the user to provide the correct value for back azimuth. There
+	 * were also instances where the back azimuth was incorrectly assumed to 
+	 * be the 180deg complement of azimuth. This property of the class has been
+	 * removed and users are directed in LocationUtils.azimuth() to simply 
+	 * reverse the points of interest if a back azimuth value is required.
+	 */
+	
+    private final static String C = "Direction";
+    private final static boolean D = false;
 
-    /** if true print out debugging statements */
-    protected final static boolean D = false;
-
-
-    /** Depth distance between two locations */
-    protected double vertDistance;
-
-    /** Mao view distance between two geographical locations on the Earth */
-    protected double horzDistance;
-
-    /** Direct angle between two locations measured with respect to (Ned, help me out here )*/
-    protected DoubleParameter azimuth = new DoubleParameter("azimuth");
-
-    /** SWR: Not clear */
-    protected DoubleParameter backAzimuth = new DoubleParameter("backAzimuth");
-
+    private double vDist;
+    private double hDist;
+    private double azimuth;
+    private double backAzimuth;
 
     /**
      *  No-Arg Constructor for the Direction object sets default values:
@@ -86,10 +69,10 @@ public class Direction {
     public Direction() {
     	// TODO fix THIS IS WRONG and NOT a good assumption to make
     	// back azimuth is dependent on location
-        this.azimuth.setValue( new Double(180) );
-        this.backAzimuth.setValue( new Double(0) );
-        this.horzDistance = 0;
-        this.vertDistance = 0;
+//        this.azimuth.setValue( new Double(180) );
+//        this.backAzimuth.setValue( new Double(0) );
+//        this.horzDistance = 0;
+//        this.vertDistance = 0;
 
     }
 
@@ -104,10 +87,12 @@ public class Direction {
      */
     public Direction( double vDist, double hDist, double az, double backAz ) {
 
-        this.azimuth.setValue( new Double(az) );
-        this.backAzimuth.setValue( new Double(backAz) );
-        this.horzDistance = hDist;
-        this.vertDistance = vDist;
+//        this.azimuth.setValue( new Double(az) );
+//        this.backAzimuth.setValue( new Double(backAz) );
+        this.hDist = hDist;
+        this.vDist = vDist;
+        this.azimuth = az;
+        this.backAzimuth = backAz;
     }
 
 
@@ -117,7 +102,7 @@ public class Direction {
      * @param  vertDistance  The new vertDistance value
      */
     public void setVertDistance( double vertDistance ) {
-        this.vertDistance = vertDistance;
+        this.vDist = vertDistance;
     }
 
 
@@ -127,7 +112,7 @@ public class Direction {
      * @param  horzDistance  The new horzDistance value
      */
     public void setHorzDistance( double horzDistance ) {
-        this.horzDistance = horzDistance;
+        this.hDist = horzDistance;
     }
 
 
@@ -138,7 +123,8 @@ public class Direction {
      * @exception  Exception  Description of the Exception
      */
     public void setAzimuth( double azimuth ) {
-        this.azimuth.setValue( new Double( azimuth ) );
+    	this.azimuth = azimuth;
+//        this.azimuth.setValue( new Double( azimuth ) );
     }
 
 
@@ -149,7 +135,8 @@ public class Direction {
      * @exception  Exception  Description of the Exception
      */
     public void setBackAzimuth( double backAzimuth ) {
-        this.backAzimuth.setValue( new Double( backAzimuth ) );
+    	this.backAzimuth = backAzimuth;
+//        this.backAzimuth.setValue( new Double( backAzimuth ) );
     }
 
 
@@ -159,7 +146,7 @@ public class Direction {
      * @return    The vertDistance value
      */
     public double getVertDistance() {
-        return vertDistance;
+        return vDist;
     }
 
 
@@ -169,7 +156,7 @@ public class Direction {
      * @return    The horzDistance value
      */
     public double getHorzDistance() {
-        return horzDistance;
+        return hDist;
     }
 
 
@@ -179,7 +166,8 @@ public class Direction {
      * @return    The azimuth value
      */
     public double getAzimuth() {
-        return ( ( Double ) azimuth.getValue() ).doubleValue();
+    	return azimuth;
+        //return ( ( Double ) azimuth.getValue() ).doubleValue();
     }
 
 
@@ -189,7 +177,8 @@ public class Direction {
      * @return    The backAzimuth value
      */
     public double getBackAzimuth() {
-        return ( ( Double ) backAzimuth.getValue() ).doubleValue();
+    	return backAzimuth;
+        //return ( ( Double ) backAzimuth.getValue() ).doubleValue();
     }
 
 
@@ -203,13 +192,13 @@ public class Direction {
         b.append(" : ");
 
         b.append("horzDistance = ");
-        b.append(horzDistance);
+        b.append(hDist);
         //b.append('\n');
         b.append(" : ");
 
 
         b.append("vertDistance = ");
-        b.append(vertDistance);
+        b.append(vDist);
         //b.append('\n');
         b.append(" : ");
 
@@ -236,9 +225,9 @@ public class Direction {
      */
     public boolean equalsDirection(Direction dir){
 
-        if(this.horzDistance != dir.horzDistance ) return false;
-        if(this.vertDistance != dir.vertDistance ) return false;
-        if(this.azimuth != dir.azimuth ) return false;
+        if(hDist != dir.hDist ) return false;
+        if(vDist != dir.vDist ) return false;
+        if(azimuth != dir.azimuth ) return false;
         if(this.backAzimuth != dir.backAzimuth ) return false;
 
         return true;
@@ -255,4 +244,5 @@ public class Direction {
         if(obj instanceof Direction) return equalsDirection( (Direction)obj );
         else return false;
     }
+    
 }
