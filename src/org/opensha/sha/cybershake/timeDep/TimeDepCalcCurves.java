@@ -2,9 +2,7 @@ package org.opensha.sha.cybershake.timeDep;
 
 import java.util.ArrayList;
 
-import org.opensha.sha.cybershake.bombay.BombayBeachHazardCurveCalc;
 import org.opensha.sha.cybershake.bombay.CalcCurves;
-import org.opensha.sha.cybershake.bombay.Div365ProbModifier;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;
 
@@ -24,7 +22,7 @@ public class TimeDepCalcCurves {
 			
 			String curveDir = baseDir + "curves/";
 			
-			TimeDependentRupProbMod probMod = new TimeDependentRupProbMod();
+			TimeDependentRupProbMod probMod = new TimeDependentRupProbMod(2010);
 			
 			calc.calc(curveDir, probMod, null);
 			db.destroy();

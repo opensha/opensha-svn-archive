@@ -61,21 +61,25 @@ public class MappingInputFileGenerator {
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		MappingInputFileGenerator gen = new MappingInputFileGenerator(Cybershake_OpenSHA_DBApplication.db);
 		
-//		boolean isProbAt_IML = false;
-//		double level = 0.0004 / 365;
+		boolean isProbAt_IML = false;
+		double level = 0.0004 / 365;
 		
-		boolean isProbAt_IML = true;
-		double level = 0.2;
+//		boolean isProbAt_IML = true;
+//		double level = 0.2;
 //		double level = 0.5;
 		
-		String baseDir = "/home/kevin/CyberShake/parkfield/";
+//		String baseDir = "/home/kevin/CyberShake/parkfield/";
+//		
+//		String inputDir;
+//		
+//		inputDir = baseDir + "origCurves";
+//		gen.writeFile(inputDir, inputDir + ".txt", isProbAt_IML, level);
+//		
+//		inputDir = baseDir + "modCurves";
+//		gen.writeFile(inputDir, inputDir + ".txt", isProbAt_IML, level);
 		
-		String inputDir;
-		
-		inputDir = baseDir + "origCurves";
-		gen.writeFile(inputDir, inputDir + ".txt", isProbAt_IML, level);
-		
-		inputDir = baseDir + "modCurves";
+//		String inputDir = "/home/kevin/CyberShake/timeDep/curves_1yr_bad";
+		String inputDir = "/home/kevin/CyberShake/timeDep/curves";
 		gen.writeFile(inputDir, inputDir + ".txt", isProbAt_IML, level);
 		
 		System.exit(0);

@@ -8,12 +8,12 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 
-public class CurveAverager {
+public class CurveMultiplier {
 	
-	private ArrayList<String> dirs;
+	private String inputDir;
 	private String outputDir;
 	
-	public CurveAverager(ArrayList<String> dirs, String outputDir) {
+	public CurveMultiplier(String inputDir, String outputDir) {
 		File outputDirFile = new File(outputDir);
 		
 		if (!outputDirFile.exists())
@@ -22,19 +22,17 @@ public class CurveAverager {
 		// make sure they all end in File.separator
 		if (!outputDir.endsWith(File.separator))
 			outputDir += File.separator;
-		for (int i=0; i<dirs.size(); i++) {
-			if (!dirs.get(i).endsWith(File.separator))
-				dirs.set(i, dirs.get(i) + File.separator);
-		}
+		if (!inputDir.endsWith(File.separator))
+			inputDir += File.separator;
 		
-		this.dirs = dirs;
+		this.inputDir = inputDir;
 		this.outputDir = outputDir;
 	}
 	
-	public void averageDirs() throws IOException {
+	public void multiplyCurves(double factor) throws IOException {
 		// we use the first curve dir to specify all of the points
 		
-		File masterDir = new File(dirs.get(0));
+		File masterDir = new File(inputDir);
 		File[] dirList = masterDir.listFiles();
 		
 		// for each file in the list
@@ -55,12 +53,9 @@ public class CurveAverager {
 							String relativePath = dir.getName() + File.separator + fileName;
 							System.out.println(relativePath);
 							
-							ArrayList<DiscretizedFuncAPI> funcs = new ArrayList<DiscretizedFuncAPI>();
-							for (String curveDir : dirs) {
-								funcs.add(ArbitrarilyDiscretizedFunc.loadFuncFromSimpleFile(curveDir + relativePath));
-							}
+							DiscretizedFuncAPI func = ArbitrarilyDiscretizedFunc.loadFuncFromSimpleFile(inputDir + relativePath);
 							
-							DiscretizedFuncAPI aveCurve = averageCurves(funcs);
+							DiscretizedFuncAPI aveCurve = multiplyCurve(func, factor);
 							
 							ArbitrarilyDiscretizedFunc.writeSimpleFuncFile(aveCurve, outputDir + relativePath);
 						}
@@ -70,37 +65,19 @@ public class CurveAverager {
 		}
 	}
 	
-	public static DiscretizedFuncAPI averageCurves(ArrayList<DiscretizedFuncAPI> curves) {
-		if (curves.size() < 2) {
-			throw new RuntimeException("At least 2 curves must be given to average.");
-		}
+	public static DiscretizedFuncAPI multiplyCurve(DiscretizedFuncAPI curve, double factor) {
+		ArbitrarilyDiscretizedFunc multFunc = new ArbitrarilyDiscretizedFunc();
 		
-		ArbitrarilyDiscretizedFunc aveFunc = new ArbitrarilyDiscretizedFunc();
-		
-		int numPoints = curves.get(0).getNum();
-		
-		// verify that they all have the same # of points
-		for (DiscretizedFuncAPI curve : curves) {
-			if (numPoints != curve.getNum())
-				throw new RuntimeException("All curves must have the same # of points!");
-		}
+		int numPoints = curve.getNum();
 		
 		for (int i=0; i<numPoints; i++) {
-			double x = curves.get(0).getX(i);
-			double y = 0;
+			double x = curve.getX(i);
+			double y = curve.getY(x) * factor;
 			
-			for (DiscretizedFuncAPI curve : curves) {
-				if (x != curve.getX(i))
-					throw new RuntimeException("X values on curve don't match!");
-				y += curve.getY(i);
-			}
-			
-			y /= (double)curves.size();
-			
-			aveFunc.set(x, y);
+			multFunc.set(x, y);
 		}
 		
-		return aveFunc;
+		return multFunc;
 	}
 
 	/**
