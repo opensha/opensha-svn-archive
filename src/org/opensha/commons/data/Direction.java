@@ -18,8 +18,6 @@
 
 package org.opensha.commons.data;
 
-import org.opensha.commons.calc.RelativeLocation;
-
 /**
  * This class encapsulates information describing a vector between two
  * <code>Location</code>s. This vector is defined by the azimuth (bearing) from
@@ -43,6 +41,7 @@ import org.opensha.commons.calc.RelativeLocation;
  * @version $Id$
  */
 // TODO refactor to LocationVector
+// TODO refactor horx vert method names
 public class Direction {
 
 	/*
@@ -50,7 +49,7 @@ public class Direction {
 	 * included back azimuth. There are (were) instances in OpenSHA where
 	 * this was taken to be the azimuth from point B to A (for an azimuth
 	 * from point A to B). As Back azimuth is generally defined, this interp
-	 * is incorrect. Back azimuth is simply the 180 degree complement of the
+	 * is incorrect. Back azimuth is the 180 degree complement of the
 	 * azimuth at an origin point. Under the assumed interpretation, each
 	 * Direction was implicitely Location dependent, but that information was
 	 * never stored as part of this class. Furthermore, the onus was on the 
@@ -58,13 +57,13 @@ public class Direction {
 	 * the class has been removed and users are directed in 
 	 * LocationUtils.azimuth() to simply reverse the points of interest if 
 	 * the bearing from B to A is required.
+	 * 
+	 * getBackAzimuth could be readded (with clear docs) if necessary
 	 */
 
 	private double azimuth;
 	private double vertical;
 	private double horizontal;
-
-	private double backAzimuth;
 
 	/**
 	 * Initializes a new <code>LocationVector</code> with azimuth and 
@@ -83,26 +82,6 @@ public class Direction {
 	public Direction(
 			double azimuth, double horizontal, double vertical) {
 		set(azimuth, horizontal, vertical);
-	}
-
-	/**
-	 * Initializes a new <code>LocationVector</code> with the supplied values.
-	 * Note that azimuth is expected to be supplied in <i>radians</i>.
-	 * 
-	 * @param vDist vertical component 
-	 * @param hDist horizontal component
-	 * @param azimuth angular component in <i>radians</i>
-	 * 
-	 * @param backAz back azimuth
-	 */
-	public Direction(double vDist, double hDist, double azimuth, double backAz) {
-
-		// this.azimuth.setValue( new Double(az) );
-		// this.backAzimuth.setValue( new Double(backAz) );
-		this.horizontal = hDist;
-		this.vertical = vDist;
-		this.azimuth = azimuth;
-		this.backAzimuth = backAz;
 	}
 
 	/**
@@ -149,7 +128,7 @@ public class Direction {
 
 	/**
 	 * Gets the vertical component of this <code>LocationVector</code>.
-	 * @return the vertical component value
+	 * @return the vertical component value in km
 	 */
 	public double getVertDistance() {
 		return vertical;
@@ -157,7 +136,7 @@ public class Direction {
 
 	/**
 	 * Sets the vertical component of this <code>LocationVector</code>.
-	 * @param vertical component value to set
+	 * @param vertical component value to set in km
 	 */
 	public void setVertDistance(double vertical) {
 		this.vertical = vertical;
@@ -165,7 +144,7 @@ public class Direction {
 
 	/**
 	 * Gets the horizontal component of this <code>LocationVector</code>.
-	 * @return the horizontal component value
+	 * @return the horizontal component value in km
 	 */
 	public double getHorzDistance() {
 		return horizontal;
@@ -173,35 +152,13 @@ public class Direction {
 
 	/**
 	 * Sets the horizontal component of this <code>LocationVector</code>.
-	 * @param horizontal component value to set
+	 * @param horizontal component value to set in km
 	 */
 	public void setHorzDistance(double horizontal) {
 		this.horizontal = horizontal;
 	}
 
-	/**
-	 * Sets the backAzimuth attribute of the Direction object
-	 * 
-	 * @param backAzimuth The new backAzimuth value
-	 * @exception Exception Description of the Exception
-	 */
-	public void setBackAzimuth(double backAzimuth) {
-		this.backAzimuth = backAzimuth;
-		// this.backAzimuth.setValue( new Double( backAzimuth ) );
-	}
-
-
-	/**
-	 * Gets the backAzimuth attribute of the Direction object
-	 * 
-	 * @return The backAzimuth value
-	 */
-	public double getBackAzimuth() {
-		return backAzimuth;
-		// return ( ( Double ) backAzimuth.getValue() ).doubleValue();
-	}
-
-	/** Debug printout of all the field values */
+	@Override
 	public String toString() {
 		StringBuffer b = new StringBuffer();
 		b.append(this.getClass().getSimpleName());
@@ -214,36 +171,16 @@ public class Direction {
 		return b.toString();
 	}
 
-	/**
-	 * Checks to see if another Direction object has the same field values. If
-	 * it does, they are considered equal.
-	 * 
-	 * @param dir
-	 * @return
-	 */
-	public boolean equalsDirection(Direction dir) {
-
-		if (horizontal != dir.horizontal) return false;
-		if (vertical != dir.vertical) return false;
-		if (azimuth != dir.azimuth) return false;
-		if (this.backAzimuth != dir.backAzimuth) return false;
-
-		return true;
-	}
-
-	/**
-	 * Calls equalsDirection(Direction dir) if passed in object is a Direction,
-	 * else returns false. A different class could never be considered equals,
-	 * like comparing apples to oranges.
-	 * 
-	 * @param obj
-	 * @return
-	 */
+	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Direction)
-			return equalsDirection((Direction) obj);
-		else
-			return false;
+		if (obj instanceof Direction) {
+			Direction dir = (Direction) obj;
+			if (horizontal != dir.horizontal) return false;
+			if (vertical != dir.vertical) return false;
+			if (azimuth != dir.azimuth) return false;
+			return true;
+		}
+		return false;
 	}
 
 }
