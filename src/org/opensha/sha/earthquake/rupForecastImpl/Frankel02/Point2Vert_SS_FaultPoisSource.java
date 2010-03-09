@@ -178,7 +178,9 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
       Location loc1, loc2;
       Direction dir;
       double halfLength = magLengthRelationship.getMedianLength(maxMag)/2.0;
-      loc1 = RelativeLocation.getLocation(loc,new Direction(0.0,halfLength,strike,Double.NaN));
+//      loc1 = RelativeLocation.getLocation(loc,new Direction(0.0,halfLength,strike,Double.NaN));
+      loc1 = RelativeLocation.getLocation(loc,
+    		  new Direction(strike, halfLength, 0.0));
       dir = RelativeLocation.getDirection(loc1,loc);
       dir.setHorzDistance(dir.getHorzDistance()*2.0);
       loc2 = RelativeLocation.getLocation(loc1,dir);

@@ -185,7 +185,8 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 					strike = (Math.random()-0.5)*180.0;	// get a random strike between -90 and 90
 					//System.out.println(strike);
 				}
-				Direction dir = new Direction(0.0,rupLength/2,strike,Double.NaN);
+//				Direction dir = new Direction(0.0,rupLength/2,strike,Double.NaN);
+				Direction dir = new Direction(strike, rupLength/2, 0.0);
 				Location loc1 = RelativeLocation.getLocation(loc,dir);
 				dir.setAzimuth(strike-180);
 				Location loc2 = RelativeLocation.getLocation(loc,dir);

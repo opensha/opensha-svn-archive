@@ -130,9 +130,11 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
     if (D) System.out.println("lon1\tlat1\tlon2\tlat2\tstike\toffSet");
     for(double strike=0; strike <180; strike+=deltaStrike) {
       for(double offSet=0; offSet < rupLength+deltaRupOffset/2.0; offSet += deltaRupOffset){
-        dir = new Direction(0.0,offSet,strike,Double.NaN);
+//        dir = new Direction(0.0,offSet,strike,Double.NaN);
+          dir = new Direction(strike, offSet, 0.0);
         loc1 = RelativeLocation.getLocation(loc,dir);
-        dir = new Direction(0.0,rupLength-offSet,strike+180,Double.NaN);
+//        dir = new Direction(0.0,rupLength-offSet,strike+180,Double.NaN);
+        dir = new Direction(strike+180, rupLength-offSet, 0.0);
         loc2 = RelativeLocation.getLocation(loc,dir);
         fltTrace = new FaultTrace(null);
         fltTrace.addLocation(loc1);

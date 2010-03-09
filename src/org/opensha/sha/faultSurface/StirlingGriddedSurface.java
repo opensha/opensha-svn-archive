@@ -242,7 +242,8 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
 
             // Calculate the grid location along fault trace and put into grid
             location1 = faultTrace.getLocationAt( segmentNumber - 1 );
-            dir = new Direction(0, distance, segmentAzimuth[ segmentNumber - 1 ], 0);
+//            dir = new Direction(0, distance, segmentAzimuth[ segmentNumber - 1 ], 0);
+            dir = new Direction(segmentAzimuth[ segmentNumber - 1 ], distance, 0);
 
             // location on the trace
             Location traceLocation = RelativeLocation.getLocation( location1, dir  );
@@ -253,7 +254,8 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
 //                vDistance = traceLocation.getDepth() - upperSeismogenicDepth;
                 vDistance = upperSeismogenicDepth - traceLocation.getDepth();
                 hDistance = vDistance / Math.tan( avDipRadians );
-                dir = new Direction(vDistance, hDistance, aveDipDirection, 0);
+//                dir = new Direction(vDistance, hDistance, aveDipDirection, 0);
+                dir = new Direction(aveDipDirection, hDistance, vDistance);
                 topLocation = RelativeLocation.getLocation( traceLocation, dir );
             }
             else
@@ -273,7 +275,8 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
 //                vDistance = -ith_row * gridSpacingSinAveDipRadians;
                 vDistance = ith_row * gridSpacingSinAveDipRadians;
 
-                dir = new Direction(vDistance, hDistance, aveDipDirection, 0);
+//                dir = new Direction(vDistance, hDistance, aveDipDirection, 0);
+                dir = new Direction(aveDipDirection, hDistance, vDistance);
 
                 Location depthLocation = RelativeLocation.getLocation( topLocation, dir );
                 setLocation(ith_row, ith_col, depthLocation.copy());

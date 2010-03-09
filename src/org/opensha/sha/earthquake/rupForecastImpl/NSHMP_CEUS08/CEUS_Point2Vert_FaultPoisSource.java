@@ -245,7 +245,9 @@ public class CEUS_Point2Vert_FaultPoisSource extends ProbEqkSource implements ja
       Direction dir;
       double halfLength = magLengthRelationship.getMedianLength(maxMag)/2.0;
       if(this.isCrossHair) strike = 0;
-      loc1 = RelativeLocation.getLocation(loc,new Direction(0.0,halfLength,strike,Double.NaN));
+//      loc1 = RelativeLocation.getLocation(loc,new Direction(0.0,halfLength,strike,Double.NaN));
+      loc1 = RelativeLocation.getLocation(loc,
+    		  new Direction(strike, halfLength, 0.0));
       dir = RelativeLocation.getDirection(loc1,loc);
       dir.setHorzDistance(dir.getHorzDistance()*2.0);
       loc2 = RelativeLocation.getLocation(loc1,dir);
@@ -257,7 +259,9 @@ public class CEUS_Point2Vert_FaultPoisSource extends ProbEqkSource implements ja
       // Make second surface for cross Hair option
       if(this.isCrossHair) {
     	  strike = 90;
-    	  loc1 = RelativeLocation.getLocation(loc,new Direction(0.0,halfLength,strike,Double.NaN));
+//    	  loc1 = RelativeLocation.getLocation(loc,new Direction(0.0,halfLength,strike,Double.NaN));
+          loc1 = RelativeLocation.getLocation(loc,
+        		  new Direction(strike, halfLength, 0.0));
     	  dir = RelativeLocation.getDirection(loc1,loc);
     	  dir.setHorzDistance(dir.getHorzDistance()*2.0);
     	  loc2 = RelativeLocation.getLocation(loc1,dir);

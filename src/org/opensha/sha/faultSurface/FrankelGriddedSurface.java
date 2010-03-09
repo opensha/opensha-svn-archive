@@ -193,7 +193,8 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 
             // Calculate the grid location along fault trace and put into grid
             location1 = faultTrace.getLocationAt( segmentNumber - 1 );
-            dir = new Direction(0, distance, segmentAzimuth[ segmentNumber - 1 ], 0);
+//            dir = new Direction(0, distance, segmentAzimuth[ segmentNumber - 1 ], 0);
+            dir = new Direction(segmentAzimuth[ segmentNumber - 1 ],  distance, 0);
 
             // location on the trace
             Location traceLocation = RelativeLocation.getLocation( location1, dir  );
@@ -204,7 +205,8 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 //                vDistance = traceLocation.getDepth()-upperSeismogenicDepth;
                 vDistance = upperSeismogenicDepth - traceLocation.getDepth();
                 hDistance = vDistance / Math.tan( avDipRadians );
-                dir = new Direction(vDistance, hDistance, segmentAzimuth[ segmentNumber - 1 ]+90, 0);
+//                dir = new Direction(vDistance, hDistance, segmentAzimuth[ segmentNumber - 1 ]+90, 0);
+                dir = new Direction(segmentAzimuth[ segmentNumber - 1 ]+90, hDistance, vDistance);
                 topLocation = RelativeLocation.getLocation( traceLocation, dir );
             }
             else
@@ -224,7 +226,8 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
                 vDistance = ith_row * gridSpacingSinAveDipRadians;
 //                vDistance = -ith_row * gridSpacingSinAveDipRadians;
 
-                dir = new Direction(vDistance, hDistance, segmentAzimuth[ segmentNumber - 1 ]+90, 0);
+//                dir = new Direction(vDistance, hDistance, segmentAzimuth[ segmentNumber - 1 ]+90, 0);
+                dir = new Direction(segmentAzimuth[ segmentNumber - 1 ]+90, hDistance, vDistance);
 
                 Location depthLocation = RelativeLocation.getLocation( topLocation, dir );
                 setLocation(ith_row, ith_col, depthLocation.copy());

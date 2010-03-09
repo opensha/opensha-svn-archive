@@ -224,7 +224,8 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
 
             // Calculate the grid location along fault trace and put into grid
             location1 = faultTrace.getLocationAt( segmentNumber - 1 );
-            dir = new Direction(0, distance, segmentAzimuth[ segmentNumber - 1 ], 0);
+//            dir = new Direction(0, distance, segmentAzimuth[ segmentNumber - 1 ], 0);
+            dir = new Direction(segmentAzimuth[ segmentNumber - 1 ], distance, 0);
 
             // location on the trace
             Location topLocation = RelativeLocation.getLocation( location1, dir  );
@@ -237,7 +238,8 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
             hDistance = gridSpacing * Math.cos( dip*PI_RADIANS );
             vDistance = gridSpacing * Math.sin( dip*PI_RADIANS );
             //vDistance = -gridSpacing * Math.sin( dip*PI_RADIANS );
-            dir = new Direction(vDistance, hDistance, aveDipDirection, 0);
+//            dir = new Direction(vDistance, hDistance, aveDipDirection, 0);
+            dir = new Direction(aveDipDirection, hDistance, vDistance);
             int depthNum = 1;
             Location lastLocation = topLocation;
             ith_row = 1;
@@ -259,7 +261,8 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
                       hDistance = gridSpacing * Math.cos( dip*PI_RADIANS );
                       vDistance = gridSpacing * Math.sin( dip*PI_RADIANS );
                       //vDistance = -gridSpacing * Math.sin( dip*PI_RADIANS );
-                      dir = new Direction(vDistance, hDistance, aveDipDirection, 0);
+//                      dir = new Direction(vDistance, hDistance, aveDipDirection, 0);
+                      dir = new Direction(aveDipDirection, hDistance, vDistance);
                       depthNum++;
                 }
                 lastLocation = nextLocation;

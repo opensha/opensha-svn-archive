@@ -1097,7 +1097,7 @@ public class RelativeLocationTest {
 
 		dir.setHorzDistance(horzDistance);
 		dir.setAzimuth(azimuth);
-		dir.setBackAzimuth(backAzimuth);
+		//dir.setBackAzimuth(backAzimuth); // deprecated in Direction
 		dir.setVertDistance(vertDistance);
 
 		return dir;

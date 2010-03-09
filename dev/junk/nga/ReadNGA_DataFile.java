@@ -101,7 +101,9 @@ public class ReadNGA_DataFile {
         //getting the down dip width
         double downDipWidth = Double.parseDouble(st.nextToken().trim());
 
-        Location otherLoc = RelativeLocation.getLocation(originLoc,new Direction(0.0,length,strike,0.0));
+//        Location otherLoc = RelativeLocation.getLocation(originLoc,new Direction(0.0,length,strike,0.0));
+        Location otherLoc = RelativeLocation.getLocation(originLoc,
+        		new Direction(strike, length, 0.0));
 
         FaultTrace fltTrace = new FaultTrace(null);
         fltTrace.addLocation(originLoc);
