@@ -56,17 +56,20 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 public class PointToLineSource extends ProbEqkSource implements java.io.Serializable{
 
 	//for Debug purposes
-	private static String  C = new String("PointToLineEqkSource");
-	private static String NAME = "Point-to-Line Source";
-	private boolean D = false;
+	protected static String  C = new String("PointToLineEqkSource");
+	protected static String NAME = "Point-to-Line Source";
+	protected boolean D = false;
 
 	protected ArrayList<ProbEqkRupture> probEqkRuptureList;
-	private ArrayList<Double> rates;
+	protected ArrayList<Double> rates;
 
-	private Location location;
-	private double duration=Double.NaN;
-	private double minMag = Double.NaN;
-	private double maxLength = 0;
+	protected Location location;
+	protected double duration=Double.NaN;
+	protected double minMag = Double.NaN;
+	protected double maxLength = 0;
+	
+	
+	public PointToLineSource() {}
 
 	/**
 	 * This constructor takes a HypoMagFreqDistAtLoc object, depth as a function of mag (aveRupTopVersusMag), 
@@ -92,7 +95,7 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 		IncrementalMagFreqDist[] magFreqDists = hypoMagFreqDistAtLoc.getMagFreqDistList();
 		FocalMechanism[] focalMechanisms = hypoMagFreqDistAtLoc.getFocalMechanismList();
 		for (int i=0; i<magFreqDists.length; i++) {
-			mkAndAddRuptures(magFreqDists[i], focalMechanisms[i], aveRupTopVersusMag, defaultHypoDepth, 
+			mkAndAddRuptures(location, magFreqDists[i], focalMechanisms[i], aveRupTopVersusMag, defaultHypoDepth, 
 					magScalingRel, lowerSeisDepth, duration, minMag, 1.0);
 		}
 	}
@@ -126,11 +129,11 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 		IncrementalMagFreqDist[] magFreqDists = hypoMagFreqDistAtLoc.getMagFreqDistList();
 		FocalMechanism[] focalMechanisms = hypoMagFreqDistAtLoc.getFocalMechanismList();
 		for (int i=0; i<magFreqDists.length; i++) {
-			FocalMechanism focalMech = focalMechanisms[i]; // COPY THIS
+			FocalMechanism focalMech = focalMechanisms[i].copy(); // COPY THIS
 			for(int s=0;s<numStrikes;s++) {
 				focalMech.setStrike(strike[s]);
 				double weight = 1.0/numStrikes;
-				mkAndAddRuptures(magFreqDists[i], focalMechanisms[i], aveRupTopVersusMag, defaultHypoDepth, 
+				mkAndAddRuptures(location, magFreqDists[i], focalMechanisms[i], aveRupTopVersusMag, defaultHypoDepth, 
 						magScalingRel, lowerSeisDepth, duration, minMag,weight);			  
 			}
 		}
@@ -150,7 +153,7 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 	 * @param minMag
 	 * @param weight
 	 */
-	private void mkAndAddRuptures(IncrementalMagFreqDist magFreqDist, 
+	protected void mkAndAddRuptures(Location location, IncrementalMagFreqDist magFreqDist, 
 			FocalMechanism focalMech, ArbitrarilyDiscretizedFunc aveRupTopVersusMag, 
 			double defaultHypoDepth, MagScalingRelationship magScalingRel,
 			double lowerSeisDepth, double duration, double minMag, double weight) {
