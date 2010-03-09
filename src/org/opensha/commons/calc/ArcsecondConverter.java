@@ -32,7 +32,7 @@ public class ArcsecondConverter {
 		double radians = StrictMath.toRadians(degrees);
 		return radians / RADIANS_PER_ARC_SECOND;
 	}
-
+ 
 	/**
 	 * @param args
 	 */
