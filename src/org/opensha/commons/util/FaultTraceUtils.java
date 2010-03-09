@@ -29,7 +29,8 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 public class FaultTraceUtils {
 	
 	/**
-	 * This subdivides the given fault trace into sub-traces that have the length as given (or less)
+	 * This subdivides the given fault trace into sub-traces that have the length as given (or less).
+	 * This assumes all fault trace points are at the same depth.
 	 * @param faultTrace 
 	 * @param maxSubSectionLen Maximum length of each subsection
 	 */
