@@ -52,6 +52,7 @@ public class CyberShakeValueProvider {
 			sites.add(site);
 			vals.add(val);
 		}
+		System.out.println("Loaded " + vals.size() + " vals from '" + inputFile + "'");
 	}
 	
 	public ArrayList<Double> getVals() {
