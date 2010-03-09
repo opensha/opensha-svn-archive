@@ -22,6 +22,7 @@ package org.opensha.commons.param;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
+import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
@@ -686,6 +687,19 @@ public class WarningDoubleParameter
      * WarningConstraintException if exceed recommened warnings.
      */
     public boolean isIgnoreWarning() { return ignoreWarning; }
+    
+    /**
+	 * Parses the given XML element for a double value and sets it
+	 */
+	public boolean setIndividualParamValueFromXML(Element el) {
+		try {
+			Double val = Double.parseDouble(el.attributeValue("value"));
+			this.setValueIgnoreWarning(val);
+			return true;
+		} catch (NumberFormatException e) {
+			return false;
+		}
+	}
 
 
 }
