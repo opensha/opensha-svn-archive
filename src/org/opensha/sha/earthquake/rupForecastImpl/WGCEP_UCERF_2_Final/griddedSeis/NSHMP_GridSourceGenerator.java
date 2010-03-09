@@ -5,6 +5,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSe
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
@@ -34,7 +35,7 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
  * @author Ned Field & Vipin Gupta
  *
  */
-public class NSHMP_GridSourceGenerator {
+public class NSHMP_GridSourceGenerator implements Serializable {
 
 	private CaliforniaRegions.RELM_GRIDDED region;
 
