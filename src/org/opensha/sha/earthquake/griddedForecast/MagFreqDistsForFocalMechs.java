@@ -26,7 +26,8 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 /**
  * <p>Title: HypoMagFreqDistAtLoc</p>
  *
- * <p>Description: This stores a list magFreqDists with associated a list of focal mechanisms.  </p>
+ * <p>Description: This stores a list magFreqDists with associated a list of focal mechanisms 
+ * (each must have the same number in the list unless the focal mech list is null).  </p>
  *
  * @author Ned Field
  * @version 1.0
