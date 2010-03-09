@@ -19,6 +19,8 @@
 
 package org.opensha.sha.earthquake;
 
+import org.opensha.commons.data.Location;
+
 /**
  * <p>Title: FocalMechanism</p>
  *
@@ -76,5 +78,10 @@ public class FocalMechanism {
     this.rake = rake;
     this.strike = strike;
   }
+  
+  public FocalMechanism copy() {
+	  return new FocalMechanism(strike,dip,rake);
+  }
+
 
 }
