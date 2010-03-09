@@ -40,22 +40,24 @@ import org.opensha.commons.data.Location;
  * TODO should Location store lat lon internally in radians
  * TODO should exceptions be thrown for separations large enough to produce
  * 		bad values in any of the 'fast' methods
+ * TODO pay attenstion to locaiton() in profiling; is degree-radians worth
+ * 		avoiding
  *
- * @author Steven W. Rock
  * @author Peter Powers
+ * @author Steven W. Rock
  * @version $Id$
  * @see Location
  */
 public final class RelativeLocation {
 	
 	/*
-	 * Developer Notes: All experimental, exploratory and test methods were moved
-	 * to the RelativeLocationTest.java. On the basis of various experiments,
-	 * older methods to calculate distance were replaced with updated versions,
-	 * many of which leverage spherical geometry to produce more accurate
-	 * results. Some 'fast' versions were updated as well. All legacy
-	 * methods, however, are preserved in RelativeLocationTest.java where
-	 * comparison tests can be rerun.
+	 * Developer Notes: All experimental, exploratory and test methods were 
+	 * moved to the RelativeLocationTest.java. On the basis of various 
+	 * experiments, older methods to calculate distance were replaced with 
+	 * updated versions, many of which leverage spherical geometry to yield
+	 * more accurate results. Some 'fast' versions were updated as well. All 
+	 * legacy methods, however, are preserved in RelativeLocationTest.java 
+	 * where comparison tests can be rerun. P.Powers 3-6-2010
 	 * 
 	 * Most methods take Locations exclusively as arguments. This alleviates
 	 * any error checking that must otherwise be performed on user supplied
@@ -175,15 +177,16 @@ public final class RelativeLocation {
 	 * <code>Location</code>s using the Haversine formula for 
 	 * computing the angle between two points. For a faster, but less
 	 * accurate implementation at large separations, see 
-	 * {@link #surfaceDistanceFast(Location, Location)}.
+	 * {@link #getApproxHorzDistance(Location, Location)}.
 	 * 
 	 * @param p1 the first <code>Location</code> point
 	 * @param p2 the second <code>Location</code> point
 	 * @return the distance between the points in km
 	 * @see #angle(Location, Location)
-	 * @see #surfaceDistanceFast(Location, Location)
+	 * @see #getApproxHorzDistance(Location, Location)
+	 * TODO refactor as horzDistance()
 	 */
-	public static double surfaceDistance(Location p1, Location p2) {
+	public static double getHorzDistance(Location p1, Location p2) {
 		return EARTH_RADIUS_MEAN * angle(p1,p2);
 	}
 	
@@ -197,15 +200,16 @@ public final class RelativeLocation {
 	 * <br/>
 	 * <b>Note:</b> This method does <i>NOT</i> support values spanning 
 	 * #177;180&#176; and fails where the numeric angle exceeds 180&#176;. Use
-	 * {@link #surfaceDistance(Location, Location)} in such
+	 * {@link #getHorzDistance(Location, Location)} in such
 	 * instances.
 	 * 
 	 * @param p1 the first <code>Location</code> point
 	 * @param p2 the second <code>Location</code> point
 	 * @return the distance between the points in km
-	 * @see #surfaceDistance(Location, Location)
+	 * @see #getHorzDistance(Location, Location)
+	 * TODO refactor as horzDistanceFast()
 	 */
-	public static double surfaceDistanceFast(Location p1, Location p2) {
+	public static double getApproxHorzDistance(Location p1, Location p2) {
 		// modified from J. Zechar:
 		// calculates distance between two points, using formula
 		// as specifed by P. Shebalin via email 5.8.2004
@@ -218,16 +222,28 @@ public final class RelativeLocation {
 	}
 
 	/**
+	 * Returns the vertical separation between two <code>Location</code>s. The
+	 * returned value is not absolute and preserves the sign of the difference
+	 * between the points.
+	 * @param p1 the first <code>Location</code> point
+	 * @param p2 the first <code>Location</code> point
+	 * @return the vertical separation between the points
+	 */
+	public static double getVertDistance(Location p1, Location p2) {
+		return  p2.getDepth() - p1.getDepth();
+	}
+
+	/**
 	 * Calculates the distance in three dimensions between two
 	 * <code>Location</code>s using spherical geometry. Method returns the 
 	 * straight line distance taking into account the depths of the points.
 	 * For a faster, but less accurate implementation at large separations,
-	 * see {@link #linearDistanceFast(Location, Location)}.
+	 * see {@link #getTotalDistance(Location, Location)}.
 	 * 
 	 * @param p1 the first <code>Location</code> point
 	 * @param p2 the second <code>Location</code> point
 	 * @return the distance in km between the points
-	 * @see #linearDistanceFast(Location, Location)
+	 * @see #getTotalDistance(Location, Location)
 	 */
 	public static double linearDistance(Location p1, Location p2) {
 		double alpha = angle(p1,p2);
@@ -255,500 +271,13 @@ public final class RelativeLocation {
 	 * @return the distance in km between the points
 	 * @see #linearDistance(Location, Location)
 	 */
-	public static double linearDistanceFast(Location p1, Location p2) {
-		double h = surfaceDistanceFast(p1, p2);
+	// TODO examine whether all uses of this method are appropriate or
+	// if more accurate linearDistance() shoul dbe used instead
+	// TODO refactor to linearDistanceFast()
+	public static double getTotalDistance(Location p1, Location p2) {
+		double h = getApproxHorzDistance(p1, p2);
 		double v = getVertDistance(p1, p2);
 		return Math.sqrt(h*h + v*v);
-	}
-
-	/**
-	 * Computes the initial azimuth (bearing) when moving from one
-	 * <code>Location</code> to another. See 
-	 * <a href="http://williams.best.vwh.net/avform.htm#Crs">
-	 * Aviation Formulary</a> for source. For back azimuth, 
-	 * reverse the <code>Location</code> arguments. Result is returned in
-	 * radians over the interval 0 to 2&pi;.<br/>
-	 * <br/>
-	 * <b>Note:</b> It is more efficient to use this method for computation 
-	 * because <code>Location</code>s store lat and lon in radians internally.
-	 * Use <code>azimuth(Location, Location)</code> for presentation.
-	 * 
-	 * @param p1 the first <code>Location</code> point
-	 * @param p2 the second <code>Location</code> point
-	 * @return the azimuth (bearing) from p1 to p2 in radians
-	 * @see #azimuth(Location, Location)
-	 */
-	public static double azimuthRad(Location p1, Location p2) {
-		
-		double lat1 = p1.getLatRad();
-		//double lon1 = p1.getLonRad(); TODO clean
-		double lat2 = p2.getLatRad();
-		//double lon2 = p2.getLonRad();
-		
-		// check the poles using a small number ~ machine precision
-		if (isPole(p1)) {
-			return ((lat1 > 0) ? PI : 0); // N : S pole
-		}
-		
-		// for starting points other than the poles:
-		double dLon = p2.getLonRad() - p1.getLonRad();
-		double cosLat2 = Math.cos(lat2);
-		double azRad = Math.atan2(
-				Math.sin(dLon) * cosLat2,
-				Math.cos(lat1) * Math.sin(lat2) - 
-				Math.sin(lat1) * cosLat2 * Math.cos(dLon));
-
-		return (azRad + TWOPI) % TWOPI;
-	}
-
-	/**
-	 * Computes the initial azimuth (bearing) when moving from one
-	 * {@link Location} to another in degrees. See 
-	 * <a href="http://williams.best.vwh.net/avform.htm#Crs">
-	 * Aviation Formulary</a> for source. For back azimuth, 
-	 * reverse the <code>Location</code> arguments. Result is returned in
-	 * decimal degrees over the interval 0&#176; to 360&#176;.
-	 * 
-	 * @param p1 the first <code>Location</code> point
-	 * @param p2 the second <code>Location</code> point
-	 * @return the azimuth (bearing) from p1 to p2 in decimal degrees
-	 * @see #azimuthRad(Location, Location)
-	 */
-	public static double azimuth(Location p1, Location p2) {
-		return azimuthRad(p1, p2) * TO_DEG;
-	}
-	
-	/**
-	 * Computes a <code>Location</code> given an origin point, bearing, and 
-	 * distance. See <a href="http://williams.best.vwh.net/avform.htm#LL">
-	 * Aviation Formulary</a> for source.
-	 * 
-	 * @param origin or starting location point
-	 * @param bearing in radians away from origin
-	 * @param distance along bearing
-	 * @return the end location 
-	 */
-	public static Location location(
-			Location origin, double bearing, double distance) {
-		double lat1 = origin.getLatRad();
-		double lon1 = origin.getLonRad();
-		double sinLat1 = Math.sin(lat1);
-		double cosLat1 = Math.cos(lat1);
-		double d = distance / EARTH_RADIUS_MEAN; // angular distance
-		double sinD = Math.sin(d);
-		double cosD = Math.cos(d);
-		
-		double lat2 = Math.asin(
-				sinLat1 * cosD +
-				cosLat1 * sinD * Math.cos(bearing));
-		
-		double lon2 = lon1 + Math.atan2(
-				Math.sin(bearing) * sinD * cosLat1,
-				cosD - sinLat1 * Math.sin(lat2));
-		
-		//double lon2 = ((lon1 + dlon + PI) % TWOPI ) - PI;
-		
-		return new Location(lat2 * TO_DEG, lon2 * TO_DEG);
-	}
-	
-	////////////////////////////////////
-	
-	 /*
-	  * OLD COMMENTS FROM CLASS
-	  * 
-	 *  These calculations are an adoption from Frankel's FORTRAN code. Perhaps
-	 *  a better code base that is more accurate is the geod.exe program from the
-	 *  USGS. This code incorporates the idea of ellipsiod models into the program.
-	 *  This code is written in c, and can certainly be adopted to java. The geod
-	 *  program is part of the Proj codebase. Here are some reference URLS:
-	 *
-	 *  <UL>
-	 *  <LI>http://kai.er.usgs.gov/intro/MAPGENdetails.html
-	 *  <LI>ftp://kai.er.usgs.gov/pub/Proj.4/
-	 *  <LI>http://www.geog.fu-berlin.de:/cgi-bin/man2html/usr/local/man/man1/geod.1#index
-	 *  </UL>
-	 *  <p>
-*/
-	
-	/** Earth radius constant */
-	public final static int R = 6367;
-
-	/** Radians to degrees conversion constant */
-	public final static double RADIANS_CONVERSION = Math.PI / 180;
-
-	/** Degree to Km conversion at equator */
-	public final static double D_COEFF = 111.11;
-
-
-	/**
-	 * OLD METHOD
-	 * 
-	 *  By passing in two Locations this calculator will determine the
-	 *  Distance object between them. The four fields calculated are:
-	 *
-	 * <uL>
-	 * <li>horzDistance
-	 * <li>azimuth
-	 * <li>backAzimuth
-	 * <li>vertDistance
-	 * </ul>
-	 *
-	 * @param  location1							First geographic location
-	 * @param  location2							Second geographic location
-	 * @return									  The direction, decomposition of the vector between two locations
-	 * @exception  UnsupportedOperationException	Thrown if the Locations contain bad data such as invalid latitudes
-	 * @see	 Distance							to see the field definitions
-	 */
-	public static Direction getDirection( Location location1, Location location2 ) throws UnsupportedOperationException {
-
-		Direction dir = new Direction();
-
-		double lat1 = location1.getLatitude();
-		double lon1 = location1.getLongitude();
-		double lat2 = location2.getLatitude();
-		double lon2 = location2.getLongitude();
-
-		double horzDistance = getHorzDistance(lat1, lon1, lat2, lon2);
-		double azimuth = getAzimuth(lat1, lon1, lat2, lon2);
-		double backAzimuth = getBackAzimuth(lat1, lon1, lat2, lon2);
-		double vertDistance = location2.getDepth() - location1.getDepth();
-
-		dir.setHorzDistance(horzDistance);
-		dir.setAzimuth(azimuth);
-		dir.setBackAzimuth(backAzimuth);
-		dir.setVertDistance(vertDistance);
-
-		return dir;
-	}
-
-	/**
-	 * OLD METHOD
-	 * 
-	 * This computes the total distance in km.
-	 */
-	public static double getTotalDistance(Location loc1, Location loc2) {
-		double hDist = getHorzDistance(loc1, loc2);
-		double vDist = getVertDistance(loc1, loc2);
-		return  Math.sqrt(hDist*hDist+vDist*vDist);
-	}
-
-	/**
-	 * Returns the vertical separation between two <code>Location</code>s. The
-	 * returned value is not absolute and preserves the sign of the difference
-	 * between the points.
-	 * @param p1 the first <code>Location</code> point
-	 * @param p2 the first <code>Location</code> point
-	 * @return the vertical separation between the points
-	 */
-	public static double getVertDistance(Location p1, Location p2) {
-		return  p2.getDepth() - p1.getDepth();
-	}
-
-	/**
-	 *  Given a Location and a Direction object, this function calculates a
-	 *  second Location the Direction points to (only the azimuth is used;
-	 * backAzimuth is ignored). The fields calculated for the
-	 *  second Location are:
-	 *
-	 * <uL>
-	 * <li>Lat
-	 * <li>Lon
-	 * <li>Depth
-	 * </ul>
-	 *
-	 * @param  location1							First geographic location
-	 * @param  direction							Direction object pointing to second Location
-	 * @return location2							The second location
-	 * @exception  UnsupportedOperationException	Thrown if the Location or Direction contain bad data such as invalid latitudes
-	 * @see	 Location							to see the field definitions
-	 */
-	public static Location getLocation( Location location, Direction direction ) throws UnsupportedOperationException {
-
-		double lat1 = location.getLatitude();
-		double lon1 = location.getLongitude();
-		double depth = location.getDepth();
-
-		double azimuth = direction.getAzimuth();
-		double horzDistance = direction.getHorzDistance();
-		double vertDistance = direction.getVertDistance();
-
-		//
-		double newLat = getLatitude( horzDistance, azimuth, lat1, lon1 );
-		double newLon= getLongitude( horzDistance, azimuth, lat1, lon1 );
-//		double newDepth = depth + -1*vertDistance;
-		double newDepth = depth + vertDistance;
-
-		//
-		Location newLoc = new Location(newLat, newLon, newDepth);
-		return newLoc;
-
-	}
-
-	/**
-	 * OLD METHOD
-	 * 
-	 * Internal helper method that calculates the latitude of a second location
-	 * given the input location and direction components
-	 *
-	 * @param delta			 Horizontal distance
-	 * @param azimuth		   angle towards new point
-	 * @param lat			   latitude of original point
-	 * @param lon			   longitude of original point
-	 * @return				  latitude of new point
-	 */
-	private static double getLatitude( 
-			double delta, double azimuth, double lat, double lon){
-
-		delta = ( delta / D_COEFF ) * RADIANS_CONVERSION;
-
-		double sdelt= Math.sin( delta );
-		double cdelt= Math.cos( delta );
-
-		double xlat = lat * RADIANS_CONVERSION;
-		//double xlon = lon * RADIANS_CONVERSION;
-
-		double az2 = azimuth * RADIANS_CONVERSION;
-
-		double st0 = Math.cos( xlat );
-		double ct0 = Math.sin( xlat );
-
-		//double phi0 = xlon;
-
-		double cz0 = Math.cos( az2 );
-		double ct1 = ( st0 * sdelt * cz0 ) + ( ct0 * cdelt );
-
-		double x = (st0 * cdelt ) - ( ct0 * sdelt * cz0 );
-		double y = sdelt * Math.sin( az2 );
-
-		double st1 =  Math.pow( ( ( x * x ) + ( y * y ) ), .5 );
-		//double dlon = Math.atan2( y, x );
-
-		double newLat = Math.atan2( ct1, st1 ) / RADIANS_CONVERSION;
-		return newLat;
-	}
-
-
-	/**
-	 * 
-	 * OLD METHOD
-	 * 
-	 * Internal helper method that calculates the longitude of a second location
-	 * given the input location and direction components
-	 *
-	 * @param delta			 Horizontal distance
-	 * @param azimuth		   angle towards new point
-	 * @param lat			   latitude of original point
-	 * @param lon			   longitude of original point
-	 * @return				  longitude of new point
-	 */
-	private static double getLongitude(
-			double delta, double azimuth, double lat, double lon){
-
-		delta = ( delta / D_COEFF ) * RADIANS_CONVERSION;
-
-		double sdelt= Math.sin( delta );
-		double cdelt= Math.cos( delta );
-
-		double xlat = lat * RADIANS_CONVERSION;
-		double xlon = lon * RADIANS_CONVERSION;
-
-		double az2 = azimuth * RADIANS_CONVERSION;
-
-		double st0 = Math.cos( xlat );
-		double ct0 = Math.sin( xlat );
-
-		double phi0 = xlon;
-
-		double cz0 = Math.cos( az2 );
-		// double ct1 = ( st0 * sdelt * cz0 ) + ( ct0 * cdelt );
-
-		double x = (st0 * cdelt ) - ( ct0 * sdelt * cz0 );
-		double y = sdelt * Math.sin( az2 );
-
-		//  double st1 =  Math.pow( ( ( x * x ) + ( y * y ) ), .5 );
-		double dlon = Math.atan2( y, x );
-
-		double newLon = ( phi0 + dlon ) / RADIANS_CONVERSION;
-		return newLon;
-	}
-
-
-	/**
-	 * OLD METHOD
-	 * 
-	 * This computes the approximate horizontal distance (in km) using
-	 * the standard cartesian coordinate transformation.  Not implemented 
-	 * correctly is lons straddle 360 or 0 degrees!
-	 */
-	private static double getApproxHorzDistance(
-			double lat1, double lon1, double lat2, double lon2 ){
-	  double d1 = (lat1-lat2)*111.111;
-	  double d2 = (lon1-lon2)*111.111*Math.cos(((lat1+lat2)/(2))*Math.PI/180);
-	  return Math.sqrt(d1*d1+d2*d2);
-	}
-
-	/**
-	 * OLD METHOD
-	 * 
-	 * Second way to calculate the distance between two points. Obtained 
-	 * off the internet, but forgot where now. When used in comparision with
-	 * the latLonDistance function you see they give practically the same 
-	 * values at the equator, and only start to diverge near the
-	 * poles, but still reasonable close to each other. Good for point 
-	 * of comparision.
-	 */
-	private static double getHorzDistance(
-			double lat1, double lon1, double lat2, double lon2 ){
-
-		double xlat = lat1 * RADIANS_CONVERSION;
-		double xlon = lon1 * RADIANS_CONVERSION;
-
-		double st0 = Math.cos( xlat );
-		double ct0 = Math.sin( xlat );
-
-		double phi0 = xlon;
-
-		xlat = lat2 * RADIANS_CONVERSION;
-		xlon = lon2 * RADIANS_CONVERSION;
-
-		double st1 = Math.cos(xlat);
-		double ct1 = Math.sin(xlat);
-
-
-		double sdlon = Math.sin( xlon - phi0);
-		double cdlon = Math.cos( xlon - phi0);
-
-		double cdelt = ( st0 * st1 * cdlon ) + ( ct0 * ct1 );
-
-		double x = ( st0 * ct1 ) - ( st1 * ct0 * cdlon );
-		double y = st1 * sdlon;
-
-		double sdelt=  Math.pow( ( ( x * x ) + ( y * y ) ), .5 );
-		double delta = Math.atan2( sdelt, cdelt ) / RADIANS_CONVERSION;
-
-		delta = delta * D_COEFF;
-
-		return delta;
-	}
-
-	/**
-	 * OLD METHOD
-	 */
-	public static double getApproxHorzDistance(Location loc1, Location loc2) {
-		return getApproxHorzDistance(
-				loc1.getLatitude(), loc1.getLongitude(), 
-				loc2.getLatitude(), loc2.getLongitude());
-	}
-
-
-	/**
-	 * OLD METHOD
-	 */
-	public static double getHorzDistance(Location loc1, Location loc2) {
-		return getHorzDistance(
-				loc1.getLatitude(), loc1.getLongitude(),
-				loc2.getLatitude(), loc2.getLongitude());
-	}
-
-	/**
-	 * OLD METHOD
-	 * 
-	 * Helper method that calculates the angle between two locations 
-	 * (value returned is between -180 and 180 degrees)
-	 * on the earth.<p>
-	 *
-	 * @param lat1			   latitude of first point
-	 * @param lon1			   longitude of first point
-	 * @param lat2			   latitude of second point
-	 * @param lon2			   longitude of second point
-	 * @return				  angle between the two lat/lon locations
-	 */
-	private static double getAzimuth(
-			double lat1, double lon1, double lat2, double lon2 ){
-
-		double xlat = lat1 * RADIANS_CONVERSION;
-		double xlon = lon1 * RADIANS_CONVERSION;
-
-		double st0 = Math.cos( xlat );
-		double ct0 = Math.sin( xlat );
-
-		double phi0 = xlon;
-
-		xlat = lat2 * RADIANS_CONVERSION;
-		xlon = lon2 * RADIANS_CONVERSION;
-
-		double st1 = Math.cos(xlat);
-		double ct1 = Math.sin(xlat);
-
-		double sdlon = Math.sin( xlon - phi0);
-		double cdlon = Math.cos( xlon - phi0);
-
-		double x = ( st0 * ct1 ) - ( st1 * ct0 * cdlon );
-		double y = st1 * sdlon;
-
-		double az = Math.atan2( y, x ) / RADIANS_CONVERSION;
-
-		return az;
-	}
-
-	/**
-	 * OLD METHOD
-	 * 
-	 * Helper method that calculates the angle between two locations
-	 * on the earth.<p>
-	 *
-	 * @param loc1			   location of first point
-	 * @param loc2			   location of second point
-	 * @return				  angle between the two locations
-	 */
-	public static double getAzimuth( Location loc1, Location loc2 ){
-	  return getAzimuth( loc1.getLatitude(), loc1.getLongitude(),
-						 loc2.getLatitude(), loc2.getLongitude() );
-	}
-
-
-
-	/**
-	 * OLD METHOD
-	 * 
-	 * Helper method that calculates the angle between two locations
-	 * on the earth.<p>
-	 *
-	 * Note: SWR: I'm not quite sure of the difference between azimuth and
-	 * back azimuth. Ned, you will have to fill in the details.
-	 *
-	 * @param lat1			   latitude of first point
-	 * @param lon1			   longitude of first point
-	 * @param lat2			   latitude of second point
-	 * @param lon2			   longitude of second point
-	 * @return				  angle between the two lat/lon locations
-	 */
-	private static double getBackAzimuth(
-			double lat1, double lon1, double lat2, double lon2 ){
-
-		double xlat = lat1 * RADIANS_CONVERSION;
-		double xlon = lon1 * RADIANS_CONVERSION;
-
-		double st0 = Math.cos( xlat );
-		double ct0 = Math.sin( xlat );
-
-		double phi0 = xlon;
-
-		xlat = lat2 * RADIANS_CONVERSION;
-		xlon = lon2 * RADIANS_CONVERSION;
-
-		double st1 = Math.cos(xlat);
-		double ct1 = Math.sin(xlat);
-
-		double sdlon = Math.sin( xlon - phi0);
-		double cdlon = Math.cos( xlon - phi0);
-
-		double x = ( st1 * ct0 ) - ( st0 * ct1 * cdlon );
-		double y = -sdlon * st0;
-
-		double baz = Math.atan2( y, x ) / RADIANS_CONVERSION;
-
-		return baz;
 	}
 
 	/**
@@ -787,9 +316,9 @@ public final class RelativeLocation {
 				EARTH_RADIUS_MEAN;
 		
 		// check if beyond p3
-		if (atd > surfaceDistance(p1, p2)) return surfaceDistance(p2, p3);
+		if (atd > getHorzDistance(p1, p2)) return getHorzDistance(p2, p3);
 		// check if before p1
-		if (Math.cos(Daz13az12) < 0) return surfaceDistance(p1, p3);
+		if (Math.cos(Daz13az12) < 0) return getHorzDistance(p1, p3);
 		return xtdRad * EARTH_RADIUS_MEAN;
 	}
 	
@@ -881,7 +410,173 @@ public final class RelativeLocation {
 		}
 		return dist * EARTH_RADIUS_MEAN;
 	}
+
+	/**
+	 * Computes the initial azimuth (bearing) when moving from one
+	 * <code>Location</code> to another. See 
+	 * <a href="http://williams.best.vwh.net/avform.htm#Crs">
+	 * Aviation Formulary</a> for source. For back azimuth, 
+	 * reverse the <code>Location</code> arguments. Result is returned in
+	 * radians over the interval 0 to 2&pi;.<br/>
+	 * <br/>
+	 * <b>Note:</b> It is more efficient to use this method for computation 
+	 * because <code>Location</code>s store lat and lon in radians internally.
+	 * Use {@link #azimuth(Location, Location)} for presentation.
+	 * 
+	 * @param p1 the first <code>Location</code> point
+	 * @param p2 the second <code>Location</code> point
+	 * @return the azimuth (bearing) from p1 to p2 in radians
+	 * @see #azimuth(Location, Location)
+	 */
+	public static double azimuthRad(Location p1, Location p2) {
+		
+		double lat1 = p1.getLatRad();
+		double lat2 = p2.getLatRad();
+		
+		// check the poles using a small number ~ machine precision
+		if (isPole(p1)) {
+			return ((lat1 > 0) ? PI : 0); // N : S pole
+		}
+		
+		// for starting points other than the poles:
+		double dLon = p2.getLonRad() - p1.getLonRad();
+		double cosLat2 = Math.cos(lat2);
+		double azRad = Math.atan2(
+				Math.sin(dLon) * cosLat2,
+				Math.cos(lat1) * Math.sin(lat2) - 
+				Math.sin(lat1) * cosLat2 * Math.cos(dLon));
+
+		return (azRad + TWOPI) % TWOPI;
+	}
+
+	/**
+	 * Computes the initial azimuth (bearing) when moving from one
+	 * {@link Location} to another in degrees. See 
+	 * <a href="http://williams.best.vwh.net/avform.htm#Crs">
+	 * Aviation Formulary</a> for source. For back azimuth, 
+	 * reverse the <code>Location</code> arguments. Result is returned in
+	 * decimal degrees over the interval 0&#176; to 360&#176;.
+	 * 
+	 * @param p1 the first <code>Location</code> point
+	 * @param p2 the second <code>Location</code> point
+	 * @return the azimuth (bearing) from p1 to p2 in decimal degrees
+	 * @see #azimuthRad(Location, Location)
+	 */
+	// TODO refactor to azimuth()
+	public static double getAzimuth(Location p1, Location p2) {
+		return azimuthRad(p1, p2) * TO_DEG;
+	}
 	
+	/**
+	 * Computes a <code>Location</code> given an origin point, bearing, and 
+	 * distance. See <a href="http://williams.best.vwh.net/avform.htm#LL">
+	 * Aviation Formulary</a> for source. Note that <code>azimuth</code> is
+	 * expected in <i>radians</i>.
+	 * 
+	 * @param p starting location point
+	 * @param azimuth (bearing) in <i>radians</i> away from origin
+	 * @param distance along bearing in km
+	 * @return the end location 
+	 */
+	public static Location location(
+			Location p, double azimuth, double distance) {
+		return location(
+				p.getLatRad(), p.getLonRad(), p.getDepth(),
+				azimuth, distance, 0);
+	}
+	
+	/**
+	 * Computes a <code>Location</code> given an origin point and a 
+	 * <code>LocationVector</code>. See 
+	 * <a href="http://williams.best.vwh.net/avform.htm#LL">
+	 * Aviation Formulary</a> for source.
+	 * 
+	 * @param p starting location point
+	 * @param d distance along bearing
+	 * @return the end location 
+	 */
+	public static Location getLocation(Location p, Direction d) {
+		return location(
+				p.getLatRad(), p.getLonRad(), p.getDepth(),
+				d.getAzimuth() * TO_RAD, d.getHorzDistance(), d.getVertDistance());
+	}
+	
+	/*
+	 * Internal helper; assumes lat, lon, and azimuth in radians,
+	 * and depth and dist in km
+	 */
+	private static Location location(
+			double lat, double lon, double depth, 
+			double az, double dH, double dV) {
+		
+		double sinLat1 = Math.sin(lat);
+		double cosLat1 = Math.cos(lat);
+		double ad = dH / EARTH_RADIUS_MEAN; // angular distance
+		double sinD = Math.sin(ad);
+		double cosD = Math.cos(ad);
+		
+		double lat2 = Math.asin(
+				sinLat1 * cosD +
+				cosLat1 * sinD * Math.cos(az));
+		
+		double lon2 = lon + Math.atan2(
+				Math.sin(az) * sinD * cosLat1,
+				cosD - sinLat1 * Math.sin(lat2));
+		
+		return new Location(
+				lat2 * TO_DEG,
+				lon2 * TO_DEG,
+				depth + dV);
+	}
+	
+
+	/**
+	 * Returns the <code>LocationVector</code> describing the move from one
+	 * <code>Location</code> to another.
+	 * 
+	 * @param p1 the first <code>Location</code> point
+	 * @param p2 the second <code>Location</code> point
+	 * @return the <code>LocationVector</code> from <code>p1</code> to
+	 * 		   <code>p2</code>
+	 */
+	public static Direction getDirection(Location p1, Location p2) {
+
+		// NOTE A 'fast' implementation of this method was tested 
+		// but no performance gain was realized P.Powers 3-5-2010
+		
+		// TODO Direction should store azimuth in radians
+		
+		Direction v = new Direction(
+				getAzimuth(p1, p2),
+				getHorzDistance(p1, p2),
+				getVertDistance(p1, p2));
+
+		return v;
+	}
+	
+	/**
+	 * Returns whether the supplied <code>Location</code> coincides with
+	 * one of the poles. Any supplied <code>Location</code>s that are very 
+	 * close (less than a mm) will return <code>true</code>.
+	 * 
+	 * @param loc <code>Location</code> to check
+	 * @return <code>true</code> if <code>loc</code> coincides with one of the
+	 * 		   earth's poles, <code>false</code> otherwise.
+	 */
+	public static boolean isPole(Location loc) {
+		return Math.cos(loc.getLatRad()) < 0.000000000001;
+	}
+
+
+	////////////////////////////////////
+	
+	 /* Methods below should be moved to GeoUtils */
+	  
+	/** Earth radius constant */
+	private final static int R = 6367;
+
+
+
 	/**
 	 * Returns the radius of the earth at the latitude of the supplied
 	 * <code>Location</code> (see <a 
@@ -937,9 +632,8 @@ public final class RelativeLocation {
 	}
 
 	public static double getDeltaLatFromKm(double km) {
-
-	  //1 degree of Latitude is equal to 111.14kms.
-	  return km/111.14;
+		//1 degree of Latitude is equal to 111.14kms.
+		return km/111.14;
 	}
 
 	/**
@@ -955,42 +649,5 @@ public final class RelativeLocation {
 	  double longDistVal = 2*Math.PI *radius /360;
 	  return km/longDistVal;
 	}
-
-	/**
-	 * Returns whether the supplied <code>Location</code> coincides with
-	 * one of the poles. Any supplied <code>Location</code>s that are very 
-	 * close (less than a mm) will return <code>true</code>.
-	 * 
-	 * @param loc <code>Location</code> to check
-	 * @return <code>true</code> if <code>loc</code> coincides with one of the
-	 *         earth's poles, <code>false</code> otherwise.
-	 */
-	public static boolean isPole(Location loc) {
-		return Math.cos(loc.getLatRad()) < 0.000000000001;
-	}
-
-	public static void main(String[] args) {
-		
-//		Location L1 = new Location(0,0);
-//		Location L2 = new Location(30,0);
-//		Location L3 = new Location(45,0);
-//		Location L4 = new Location(-60,0);
-//		Location L5 = new Location(-90,0);
-//		
-//		Location L = L5;
-//		
-//		System.out.println("degLatPerKm " + degreesLatPerKm(L));
-//		System.out.println("degLonPerKm " + degreesLonPerKm(L));
-//		System.out.println("  gDeltaLat " + getDeltaLatFromKm(1));
-//		System.out.println("  gDeltaLon " + getDeltaLonFromKm(L.getLatitude(), 1));
-//		System.out.println("---");
-//		System.out.println("degLatPerKm " + degreesLatPerKm(L) * D_COEFF);
-//		System.out.println("degLonPerKm " + degreesLonPerKm(L) * D_COEFF);
-//		System.out.println("  gDeltaLat " + getDeltaLatFromKm(1) * D_COEFF);
-//		System.out.println("  gDeltaLon " + getDeltaLonFromKm(L.getLatitude(), 1) * D_COEFF);
-
-	}
 	
-	
-
 }

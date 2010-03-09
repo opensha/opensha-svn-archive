@@ -22,9 +22,25 @@ package org.opensha.commons.calc;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.opensha.commons.calc.RelativeLocation.*;
+import static org.opensha.commons.calc.RelativeLocation.TO_RAD;
+import static org.opensha.commons.calc.RelativeLocation.angle;
+import static org.opensha.commons.calc.RelativeLocation.getVertDistance;
+import static org.opensha.commons.calc.RelativeLocation.getHorzDistance;
+import static org.opensha.commons.calc.RelativeLocation.getApproxHorzDistance;
+import static org.opensha.commons.calc.RelativeLocation.linearDistance;
+import static org.opensha.commons.calc.RelativeLocation.getTotalDistance;
+import static org.opensha.commons.calc.RelativeLocation.distanceToLine;
+import static org.opensha.commons.calc.RelativeLocation.getApproxHorzDistToLine;
+import static org.opensha.commons.calc.RelativeLocation.azimuthRad;
+import static org.opensha.commons.calc.RelativeLocation.getAzimuth;
+import static org.opensha.commons.calc.RelativeLocation.getDirection;
+import static org.opensha.commons.calc.RelativeLocation.getLocation;
+import static org.opensha.commons.calc.RelativeLocation.location;
+import static org.opensha.commons.calc.RelativeLocation.isPole;
 
+import java.util.Random;
 import org.junit.Test;
+import org.opensha.commons.data.Direction;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 
@@ -35,7 +51,7 @@ public class RelativeLocationTest {
 	Location L1 = new Location(32.6, 20.4);
 	Location L2 = new Location(32.4, 20);
 	Location L3 = new Location(32.2, 20.6);
-	Location L4 = new Location(32, 20.2);
+	Location L4 = new Location(32, 20.2, 10);
 	
 	// polar and long-distance, large-angle test points
 	Location L5 = new Location(90, 0);
@@ -106,33 +122,43 @@ public class RelativeLocationTest {
 	}
 
 	@Test
-	public final void testSurfaceDistance() {
-		assertEquals(  6382.596, surfaceDistance(L5,L1), ldD);
-		assertEquals(  6404.835, surfaceDistance(L2,L5), ldD);
-		assertEquals( 13565.796, surfaceDistance(L4,L6), ldD);
-		assertEquals( 13588.035, surfaceDistance(L6,L3), ldD);
-		assertEquals(43.6090311, surfaceDistance(L1,L2), sdD);
-		assertEquals(48.2790582, surfaceDistance(L1,L3), sdD);
-		assertEquals(69.3145862, surfaceDistance(L1,L4), sdD);
-		assertEquals(60.6198752, surfaceDistance(L2,L3), sdD);
-		assertEquals(48.2952067, surfaceDistance(L4,L2), sdD);
-		assertEquals(43.7518411, surfaceDistance(L4,L3), sdD);
+	public final void testHorzDistance() {
+		assertEquals(  6382.596, getHorzDistance(L5,L1), ldD);
+		assertEquals(  6404.835, getHorzDistance(L2,L5), ldD);
+		assertEquals( 13565.796, getHorzDistance(L4,L6), ldD);
+		assertEquals( 13588.035, getHorzDistance(L6,L3), ldD);
+		assertEquals(43.6090311, getHorzDistance(L1,L2), sdD);
+		assertEquals(48.2790582, getHorzDistance(L1,L3), sdD);
+		assertEquals(69.3145862, getHorzDistance(L1,L4), sdD);
+		assertEquals(60.6198752, getHorzDistance(L2,L3), sdD);
+		assertEquals(48.2952067, getHorzDistance(L4,L2), sdD);
+		assertEquals(43.7518411, getHorzDistance(L4,L3), sdD);
 	}
 
 	@Test
-	public final void testFastSurfaceDistance() {
-		assertEquals(  6474.888, surfaceDistanceFast(L5,L1), ldD);
-		assertEquals(  6493.824, surfaceDistanceFast(L2,L5), ldD);
-		assertEquals( 13707.303, surfaceDistanceFast(L4,L6), ldD);
-		assertEquals( 13735.216, surfaceDistanceFast(L6,L3), ldD);
-		assertEquals(43.6090864, surfaceDistanceFast(L1,L2), sdD);
-		assertEquals(48.2790921, surfaceDistanceFast(L1,L3), sdD);
-		assertEquals(69.3146382, surfaceDistanceFast(L1,L4), sdD);
-		assertEquals(60.6200022, surfaceDistanceFast(L2,L3), sdD);
-		assertEquals(48.2952403, surfaceDistanceFast(L4,L2), sdD);
-		assertEquals(43.7518956, surfaceDistanceFast(L4,L3), sdD);
+	public final void testHorzDistanceFast() {
+		assertEquals(  6474.888, getApproxHorzDistance(L5,L1), ldD);
+		assertEquals(  6493.824, getApproxHorzDistance(L2,L5), ldD);
+		assertEquals( 13707.303, getApproxHorzDistance(L4,L6), ldD);
+		assertEquals( 13735.216, getApproxHorzDistance(L6,L3), ldD);
+		assertEquals(43.6090864, getApproxHorzDistance(L1,L2), sdD);
+		assertEquals(48.2790921, getApproxHorzDistance(L1,L3), sdD);
+		assertEquals(69.3146382, getApproxHorzDistance(L1,L4), sdD);
+		assertEquals(60.6200022, getApproxHorzDistance(L2,L3), sdD);
+		assertEquals(48.2952403, getApproxHorzDistance(L4,L2), sdD);
+		assertEquals(43.7518956, getApproxHorzDistance(L4,L3), sdD);
 	}
 
+	@Test
+	public final void testVertDistance() {
+		Location L1 = new Location( 23,  -32,  2);
+		Location L2 = new Location(-12, -112, -2);
+		Location L3 = new Location(-34,   86, 10);
+		assertEquals(-4, getVertDistance(L1, L2), 0);
+		assertEquals( 8, getVertDistance(L1, L3), 0);
+		assertEquals(12, getVertDistance(L2, L3), 0);
+	}
+	
 	@Test
 	public final void testLinearDistance() {
 		double delta = 0.000000001;
@@ -141,7 +167,7 @@ public class RelativeLocationTest {
 		Location L1 = new Location(20.0, 20.0, 2);
 		Location L2 = new Location(20.1, 20.1, 2);
 		Location L3 = new Location(20.1, 20.1, 17);
-		double sd12 = surfaceDistance(L1,L2);	// 15.256270609
+		double sd12 = getHorzDistance(L1,L2);	// 15.256270609
 		double ld12 = linearDistance(L1,L2);	// 15.251477684
 		double ld13 = linearDistance(L1,L3);	// 21.378955649
 		
@@ -162,17 +188,47 @@ public class RelativeLocationTest {
 	}
 
 	@Test
+	public final void testLinearDistanceFast() {
+		double delta = 0.000000001;
+		
+		// small angles
+		Location L1 = new Location(20.0, 20.0, 2);
+		Location L2 = new Location(20.1, 20.1, 2);
+		Location L3 = new Location(20.1, 20.1, 17);
+		double ld12 = getTotalDistance(L1,L2);	// 15.256271986
+		double ld13 = getTotalDistance(L1,L3);	// 21.395182516
+		assertEquals(15.256271986, ld12, delta);
+		assertEquals(21.395182516, ld13, delta);
+	}
+	
+	@Test
+	public final void testDistanceToLine() {
+		assertEquals( 34.425229936, distanceToLine(L3,L2,L1), dtlD);
+		assertEquals(-34.425229936, distanceToLine(L2,L3,L1), dtlD);
+		assertEquals(-47.851004687, distanceToLine(L4,L3,L2), dtlD);
+		assertEquals( 30.205855981, distanceToLine(L4,L1,L3), dtlD);
+	}
+	
+	@Test
+	public final void testDistanceToLineFast() {
+		assertEquals(34.472999888, getApproxHorzDistToLine(L3,L2,L1), dtlD);
+		assertEquals(34.472999888, getApproxHorzDistToLine(L2,L3,L1), dtlD);
+		assertEquals(47.859144611, getApproxHorzDistToLine(L4,L3,L2), dtlD);
+		assertEquals(30.170948729, getApproxHorzDistToLine(L4,L1,L3), dtlD);
+	}
+
+	@Test
 	public final void testAzimuth() {
-		assertEquals(    180.0, azimuth(L5,L1), azdD);
-		assertEquals(      0.0, azimuth(L2,L5), azdD);
-		assertEquals(    180.0, azimuth(L4,L6), azdD);
-		assertEquals(      0.0, azimuth(L6,L3), azdD);
-		assertEquals(239.44623, azimuth(L1,L2), azdD);
-		assertEquals(157.05864, azimuth(L1,L3), azdD);
-		assertEquals(195.78891, azimuth(L1,L4), azdD);
-		assertEquals(111.36156, azimuth(L2,L3), azdD);
-		assertEquals(337.12017, azimuth(L4,L2), azdD);
-		assertEquals( 59.34329, azimuth(L4,L3), azdD);
+		assertEquals(    180.0, getAzimuth(L5,L1), azdD);
+		assertEquals(      0.0, getAzimuth(L2,L5), azdD);
+		assertEquals(    180.0, getAzimuth(L4,L6), azdD);
+		assertEquals(      0.0, getAzimuth(L6,L3), azdD);
+		assertEquals(239.44623, getAzimuth(L1,L2), azdD);
+		assertEquals(157.05864, getAzimuth(L1,L3), azdD);
+		assertEquals(195.78891, getAzimuth(L1,L4), azdD);
+		assertEquals(111.36156, getAzimuth(L2,L3), azdD);
+		assertEquals(337.12017, getAzimuth(L4,L2), azdD);
+		assertEquals( 59.34329, getAzimuth(L4,L3), azdD);
 	}
 
 	@Test
@@ -190,24 +246,52 @@ public class RelativeLocationTest {
 	}
 
 	@Test
-	public final void testLocation() {
-		fail("Not yet implemented");
+	public final void testLocationLocationDoubleDouble() {
+		Direction d = getDirection(L1,L2);
+		//TODO need to switch to getAzimuthRad
+		assertEquals(L2, location(
+				L1, d.getAzimuth()*TO_RAD, d.getHorzDistance()));
+		d = getDirection(L1,L3);
+		assertEquals(L3, location(
+				L1, d.getAzimuth()*TO_RAD, d.getHorzDistance()));
+		d = getDirection(L2,L3);
+		assertEquals(L3, location(
+				L2, d.getAzimuth()*TO_RAD, d.getHorzDistance()));
 	}
 	
 	@Test
-	public final void testDistanceToLine() {
-		assertEquals( 34.425229936, distanceToLine(L3,L2,L1), dtlD);
-		assertEquals(-34.425229936, distanceToLine(L2,L3,L1), dtlD);
-		assertEquals(-47.851004687, distanceToLine(L4,L3,L2), dtlD);
-		assertEquals( 30.205855981, distanceToLine(L4,L1,L3), dtlD);
+	public final void testLocationLocationDirection() {
+		assertEquals(L2, getLocation(L1, getDirection(L1,L2)));
+		assertEquals(L3, getLocation(L1, getDirection(L1,L3)));
+		assertEquals(L4, getLocation(L1, getDirection(L1,L4)));
+		assertEquals(L3, getLocation(L2, getDirection(L2,L3)));
+		assertEquals(L2, getLocation(L4, getDirection(L4,L2)));
+		assertEquals(L3, getLocation(L4, getDirection(L4,L3)));
 	}
 	
 	@Test
-	public final void testGetApproxHorzDistToLine() {
-		assertEquals(34.472999888, getApproxHorzDistToLine(L3,L2,L1), dtlD);
-		assertEquals(34.472999888, getApproxHorzDistToLine(L2,L3,L1), dtlD);
-		assertEquals(47.859144611, getApproxHorzDistToLine(L4,L3,L2), dtlD);
-		assertEquals(30.170948729, getApproxHorzDistToLine(L4,L1,L3), dtlD);
+	public final void testLocationVector() {
+		assertEquals(43.6090311, getDirection(L1,L2).getHorzDistance(), sdD);
+		assertEquals(48.2790582, getDirection(L1,L3).getHorzDistance(), sdD);
+		assertEquals(69.3145862, getDirection(L1,L4).getHorzDistance(), sdD);
+		assertEquals(60.6198752, getDirection(L2,L3).getHorzDistance(), sdD);
+		assertEquals(48.2952067, getDirection(L4,L2).getHorzDistance(), sdD);
+		assertEquals(43.7518411, getDirection(L4,L3).getHorzDistance(), sdD);
+
+		// TODO these will need to be replaced with azimuthRad()
+		assertEquals(239.44623, getDirection(L1,L2).getAzimuth(), azdD);
+		assertEquals(157.05864, getDirection(L1,L3).getAzimuth(), azdD);
+		assertEquals(195.78891, getDirection(L1,L4).getAzimuth(), azdD);
+		assertEquals(111.36156, getDirection(L2,L3).getAzimuth(), azdD);
+		assertEquals(337.12017, getDirection(L4,L2).getAzimuth(), azdD);
+		assertEquals( 59.34329, getDirection(L4,L3).getAzimuth(), azdD);
+
+		assertEquals(  0, getDirection(L1,L2).getVertDistance(), 0);
+		assertEquals(  0, getDirection(L1,L3).getVertDistance(), 0);
+		assertEquals( 10, getDirection(L1,L4).getVertDistance(), 0);
+		assertEquals(  0, getDirection(L2,L3).getVertDistance(), 0);
+		assertEquals(-10, getDirection(L4,L2).getVertDistance(), 0);
+		assertEquals(-10, getDirection(L4,L3).getVertDistance(), 0);
 	}
 	
 	@Test
@@ -221,15 +305,25 @@ public class RelativeLocationTest {
 	}
 	
 	/**
+	 * DEVELOPER NOTE
+	 * 
 	 * Test value generation along with various speed comparisons 
-	 * provided below.
-	 * @param args
+	 * provided below. Speed tests can be run with fixed or randomized
+	 * values; randomization generally only adds a set amount of time
+	 * to each test.
+	 * 
+	 * Internal methods marked with *OLD were removed intact from
+	 * RelativeLocation to preserve history and preserve ability to document
+	 * performance enhancements.
 	 */
 	public static void main(String[] args) {
-		
+				
 		// shared convenience fields
 		Location L1, L2, L3, L4, L5, L6;
 		int numIter = 1000000;
+		
+		// flag for using fixed (vs random) values in speed tests
+		boolean fixedVals = true;
 		
 		
 		
@@ -240,7 +334,7 @@ public class RelativeLocationTest {
 		L1 = new Location(32.6, 20.4);
 		L2 = new Location(32.4, 20);
 		L3 = new Location(32.2, 20.6);
-		L4 = new Location(32, 20.2);
+		L4 = new Location(32, 20.2, 10);
 		
 		L5 = new Location(90, 0);
 		L6 = new Location(-90, 0);
@@ -264,14 +358,14 @@ public class RelativeLocationTest {
 		// d432   47.859144611  -47.851004687
 		// d413   30.170948729   30.205855981
 		
-		Location p1 = L4;
-		Location p2 = L1;
+		Location p1 = L1;
+		Location p2 = L2;
 		Location p3 = L3;
-		System.out.println(surfaceDistance(p1, p2));
-		System.out.println(surfaceDistanceFast(p1, p2));
+		System.out.println(getHorzDistance(p1, p2));
+		System.out.println(getApproxHorzDistance(p1, p2));
 		System.out.println(angle(p1,p2));
 		System.out.println(azimuthRad(p1, p2));
-		System.out.println(azimuth(p1, p2));
+		System.out.println(getAzimuth(p1, p2));
 		System.out.println(getApproxHorzDistToLine(p1, p2, p3));
 		System.out.println(distanceToLine(p1, p2, p3));
 		
@@ -284,28 +378,44 @@ public class RelativeLocationTest {
 		//    Summary: the highly accurate Haversine based formula is 
 		//             much slower (up to 20x), but does not work
 		//			   accross dateline and does not indicate
-		//			   sidedness
+		//			   sidedness.
+		//             1M repeat runs showed the following comp
+		//             times for fixed location pairs:
+		//
+		//             AHDTL	getApproxHorzDistToLine()	100 ms
+		//             DTL		distanceToLine()			1600 ms
+		//
 		// ==========================================================
 		
 		L1 = new Location(32,-116);
 		L2 = new Location(37,-115);
 		L3 = new Location(34,-114);
 		
-		System.out.println("\nSPEED TEST -- distanceToLine()\n");
+		System.out.println("\nSPEED TEST -- Distance to Line\n");
+		System.out.println("getApproxHorzDistToLine(): " + 
+				getApproxHorzDistToLine(L1,L2,L3));
 		for (int i=0; i < 5; i++) {
 			long T = System.currentTimeMillis();
+			double d;
 			for (int j=0; j<numIter; j++) {
-				double d = RelativeLocation.getApproxHorzDistToLine(L1,L2,L3);
+				d = (fixedVals) ? 
+						getApproxHorzDistToLine(L1,L2,L3) :
+						getApproxHorzDistToLine(
+								randomLoc(),randomLoc(),randomLoc());
 			}
 			T = (System.currentTimeMillis() - T);
 			System.out.println(" AHDTL: " + T);
 		}
 		
-		System.out.println("");
+		System.out.println("distanceToLine(): " + 
+				distanceToLine(L1,L2,L3));
 		for (int i=0; i < 5; i++) {
 			long T = System.currentTimeMillis();
+			double d;
 			for (int j=0; j<numIter; j++) {
-				double d = RelativeLocation.distanceToLine(L1,L2,L3);
+				d = (fixedVals) ? 
+						distanceToLine(L1,L2,L3) :
+						distanceToLine(randomLoc(),randomLoc(),randomLoc());
 			}
 			T = (System.currentTimeMillis() - T);
 			System.out.println("   DTL: " + T);
@@ -321,12 +431,12 @@ public class RelativeLocationTest {
 		//             calculation have beeen shown to be much faster
 		//             than existing methods (e.g. getHorzDistance).
 		//             1M repeat runs showed the following comp
-		//             times:
+		//             times for fixed location pairs:
 		//                
-		//             HD   getHorizDistance()			1158 ms
-		//             AHD  getApproxHorzDistance()		820  ms
-		//             SD   surfaceDistance()			255  ms
-		//             SDF  surfaceDistanceFast()		3    ms
+		//             HD   getHorizDistanceOLD()		1285 ms
+		//             AHD  getApproxHorzDistanceOLD()	955  ms
+		//             SD   surfaceDistance()			230  ms
+		//             SDF  surfaceDistanceFast()		1    ms
 		// ==========================================================
 
 		// long pair ~9K km : discrepancies > 100km
@@ -341,52 +451,61 @@ public class RelativeLocationTest {
 		L1 = new Location(32.132,-117.21);
 		L2 = new Location(32.306, -117.105);
 		
-		System.out.println("getHorzDistance(): " + 
+		System.out.println("\nSPEED TEST -- Horizontal Distance\n");
+		System.out.println("getHorzDistanceOLD(): " + 
+				getHorzDistanceOLD(L1, L2));
+		for (int i=0; i < 5; i++) {
+			long T = System.currentTimeMillis();
+			double d;
+			for (int j=0; j<numIter; j++) {
+				d = (fixedVals) ? 
+						getHorzDistanceOLD(L1, L2) :
+						getHorzDistanceOLD(randomLoc(),randomLoc());
+			}
+			T = (System.currentTimeMillis() - T);
+			System.out.println("    HD: " + T);
+		}
+		
+		System.out.println("getApproxHorzDistanceOLD(): " + 
+				getApproxHorzDistanceOLD(L1, L2));
+		for (int i=0; i < 5; i++) {
+			long T = System.currentTimeMillis();
+			double d;
+			for (int j=0; j<numIter; j++) {
+				d = (fixedVals) ? 
+						getApproxHorzDistanceOLD(L1, L2) :
+						getApproxHorzDistanceOLD(randomLoc(),randomLoc());
+			}
+			T = (System.currentTimeMillis() - T);
+			System.out.println("    AD: " + T);
+		}
+
+		System.out.println("horzDistance(): " + 
 				getHorzDistance(L1, L2));
 		for (int i=0; i < 5; i++) {
 			long T = System.currentTimeMillis();
-			double surfDist;
+			double d;
 			for (int j=0; j<numIter; j++) {
-				surfDist = getHorzDistance(L1, L2);
+				d = (fixedVals) ? 
+						getHorzDistance(L1, L2) :
+						getHorzDistance(randomLoc(),randomLoc());
 			}
 			T = (System.currentTimeMillis() - T);
-			System.out.println(" HD: " + T);
+			System.out.println("    SD: " + T);
 		}
 		
-		System.out.println("getApproxHorzDistance(): " + 
+		System.out.println("horzDistanceFast(): " + 
 				getApproxHorzDistance(L1, L2));
 		for (int i=0; i < 5; i++) {
 			long T = System.currentTimeMillis();
-			double surfDist;
+			double d;
 			for (int j=0; j<numIter; j++) {
-				surfDist = getApproxHorzDistance(L1, L2);
+				d = (fixedVals) ? 
+						getApproxHorzDistance(L1, L2) :
+						getApproxHorzDistance(randomLoc(),randomLoc());
 			}
 			T = (System.currentTimeMillis() - T);
-			System.out.println(" AD: " + T);
-		}
-
-		System.out.println("surfaceDistance(): " + 
-				surfaceDistance(L1, L2));
-		for (int i=0; i < 5; i++) {
-			long T = System.currentTimeMillis();
-			double surfDist;
-			for (int j=0; j<numIter; j++) {
-				surfDist = surfaceDistance(L1, L2);
-			}
-			T = (System.currentTimeMillis() - T);
-			System.out.println(" SD: " + T);
-		}
-		
-		System.out.println("surfaceDistanceFast(): " + 
-				surfaceDistanceFast(L1, L2));
-		for (int i=0; i < 5; i++) {
-			long T = System.currentTimeMillis();
-			double surfDist;
-			for (int j=0; j<numIter; j++) {
-				surfDist = surfaceDistanceFast(L1, L2);
-			}
-			T = (System.currentTimeMillis() - T);
-			System.out.println("SDF: " + T);
+			System.out.println("   SDF: " + T);
 		}
 
 		
@@ -399,11 +518,11 @@ public class RelativeLocationTest {
 		//             calculation have beeen shown to be much faster
 		//             than existing methods (e.g. getHorzDistance).
 		//             1M repeat runs showed the following comp
-		//             times:
+		//             times for fixed location pairs:
 		//                
-		//             TD   getTotalDistanceOLD()		1190 ms
-		//             LD   getLinearDistance()			221  ms
-		//             LDF  getLinearDistanceFast()		3    ms
+		//             TD   getTotalDistanceOLD()		1300 ms
+		//             LD   linearDistance()			240  ms
+		//             LDF  linearDistanceFast()		1    ms
 		// ==========================================================
 
 		// mid pair ~250 km : discrepancies in 10s of meters
@@ -414,40 +533,47 @@ public class RelativeLocationTest {
 		// L1 = new Location(32.132,-117.21);
 		// L2 = new Location(32.306, -117.105);
 		
-		System.out.println("getTotalDistance(): " + 
-				getTotalDistance(L1, L2));
+		System.out.println("\nSPEED TEST -- Linear Distance\n");
+		System.out.println("getTotalDistanceOLD(): " + 
+				getTotalDistanceOLD(L1, L2));
 		for (int i=0; i < 5; i++) {
 			long T = System.currentTimeMillis();
-			double dist;
+			double d;
 			for (int j=0; j<numIter; j++) {
-				dist = getTotalDistance(L1, L2);
+				d = (fixedVals) ? 
+						getTotalDistanceOLD(L1, L2) :
+						getTotalDistanceOLD(randomLoc(),randomLoc());
 			}
 			T = (System.currentTimeMillis() - T);
-			System.out.println(" TD: " + T);
+			System.out.println("    TD: " + T);
 		}
 
 		System.out.println("linearDistance(): " + 
 				linearDistance(L1, L2));
 		for (int i=0; i < 5; i++) {
 			long T = System.currentTimeMillis();
-			double dist;
+			double d;
 			for (int j=0; j<numIter; j++) {
-				dist = linearDistance(L1, L2);
+				d = (fixedVals) ? 
+						linearDistance(L1, L2) :
+						linearDistance(randomLoc(),randomLoc());
 			}
 			T = (System.currentTimeMillis() - T);
-			System.out.println(" SD: " + T);
+			System.out.println("    SD: " + T);
 		}
 		
 		System.out.println("linearDistanceFast(): " + 
-				linearDistanceFast(L1, L2));
+				getTotalDistance(L1, L2));
 		for (int i=0; i < 5; i++) {
 			long T = System.currentTimeMillis();
-			double dist;
+			double d;
 			for (int j=0; j<numIter; j++) {
-				dist = linearDistanceFast(L1, L2);
+				d = (fixedVals) ? 
+						getTotalDistance(L1, L2) :
+						getTotalDistance(randomLoc(),randomLoc());
 			}
 			T = (System.currentTimeMillis() - T);
-			System.out.println("SDF: " + T);
+			System.out.println("   SDF: " + T);
 		}
 
 		
@@ -458,7 +584,7 @@ public class RelativeLocationTest {
 		//    Summary: New, spherical geometry azimuth methods are
 		//			   faster than existing methods.
 		//             1M repeat runs showed the following comp
-		//             times:
+		//             times for fixed location pairs:
 		//                
 		//             gA   getAzimuthOLD()		1240 ms
 		//              A   azimuth()			348  ms
@@ -467,37 +593,133 @@ public class RelativeLocationTest {
 		L1 = new Location(32, -117);
 		L2 = new Location(33, -115);
 		
-		System.out.println("getAzimuth(): " + 
-				getAzimuth(L1, L2));
+		System.out.println("\nSPEED TEST -- Azimuth\n");
+		System.out.println("getAzimuthOLD(): " + 
+				getAzimuthOLD(L1, L2));
 		for (int i=0; i < 5; i++) {
 			long T = System.currentTimeMillis();
-			double dist;
+			double d;
 			for (int j=0; j<numIter; j++) {
-				dist = getAzimuth(L1, L2);
+				d = (fixedVals) ? 
+						getAzimuthOLD(L1, L2) :
+						getAzimuthOLD(randomLoc(),randomLoc());
 			}
 			T = (System.currentTimeMillis() - T);
-			System.out.println(" gA: " + T);
+			System.out.println("    gA: " + T);
 		}
 
 		System.out.println("azimuth(): " + 
-				azimuth(L1, L2));
+				getAzimuth(L1, L2));
 		for (int i=0; i < 5; i++) {
 			long T = System.currentTimeMillis();
-			double dist;
+			double d;
 			for (int j=0; j<numIter; j++) {
-				dist = azimuth(L1, L2);
+				d = (fixedVals) ? 
+						getAzimuth(L1, L2) :
+						getAzimuth(randomLoc(),randomLoc());
 			}
 			T = (System.currentTimeMillis() - T);
-			System.out.println("  A: " + T);
+			System.out.println("     A: " + T);
 		}
 
 		
 		
 		
 		// ==========================================================
+		//    Vector Methods
+		//
+		//    Summary: New, spherical geometry direction methods are
+		//			   faster than existing methods. A test using
+		//			   horzDistanceFast instead of horzDistance 
+		//			   realized no speed gain.
+		//             1M repeat runs showed the following comp
+		//             times for fixed location pairs:
+		//                
+		//             gA   getDirectionOLD()		3700 ms
+		//              A   vector()				610  ms
+		// ==========================================================
+
+		L1 = new Location(32, -117);
+		L2 = new Location(33, -115);
+		
+		System.out.println("\nSPEED TEST -- Direction\n");
+		System.out.println("getDirectionOLD(): " + getDirectionOLD(L1, L2));
+		for (int i=0; i < 5; i++) {
+			long T = System.currentTimeMillis();
+			Direction d;
+			for (int j=0; j<numIter; j++) {
+				d = (fixedVals) ? 
+						getDirectionOLD(L1, L2) :
+						getDirectionOLD(randomLoc(),randomLoc());
+			}
+			T = (System.currentTimeMillis() - T);
+			System.out.println("     D: " + T);
+		}
+
+		System.out.println("vector(): " + getDirection(L1, L2));
+		for (int i=0; i < 5; i++) {
+			long T = System.currentTimeMillis();
+			Direction d;
+			for (int j=0; j<numIter; j++) {
+				d = (fixedVals) ? 
+						getDirection(L1, L2) :
+						getDirection(randomLoc(),randomLoc());
+			}
+			T = (System.currentTimeMillis() - T);
+			System.out.println("     V: " + T);
+		}
+
+
+		
+		// ==========================================================
+		//    Location Methods
+		//
+		//    Summary: New, spherical geometry direction methods are
+		//			   slightly faster than existing methods.
+		//             1M repeat runs showed the following comp
+		//             times for fixed location pairs:
+		//                
+		//             gL   getLocationOLD()		915  ms
+		//              L   location()				670  ms
+		// ==========================================================
+
+		L1 = new Location(32, -117);
+		L2 = new Location(33, -115);
+		Direction dir = new Direction(20,111,10);
+		System.out.println("\nSPEED TEST -- Location\n");
+		System.out.println("getLocationOLD(): " + getLocationOLD(L1, dir));
+		for (int i=0; i < 5; i++) {
+			long T = System.currentTimeMillis();
+			Location loc;
+			for (int j=0; j<numIter; j++) {
+				loc = (fixedVals) ? 
+						getLocationOLD(L1, dir) :
+						getLocationOLD(randomLoc(),dir);
+			}
+			T = (System.currentTimeMillis() - T);
+			System.out.println("    gL: " + T);
+		}
+
+		System.out.println("location(): " + getLocation(L1, dir));
+		for (int i=0; i < 5; i++) {
+			long T = System.currentTimeMillis();
+			Location loc;
+			for (int j=0; j<numIter; j++) {
+				loc = (fixedVals) ? 
+						getLocation(L1, dir) :
+						getLocation(randomLoc(),dir);
+			}
+			T = (System.currentTimeMillis() - T);
+			System.out.println("     L: " + T);
+		}
+
+		
+		
+		// ==========================================================
 		//    The following code may be used to explore how old and
 		//	  new distance caclulation methods compare and how
 		//	  results cary with distance
+		// ==========================================================
 
 		// commented values are accurate distances computed 
 		// using the Vincenty formula
@@ -543,16 +765,16 @@ public class RelativeLocationTest {
 		Location startPt = LLtoUse.getLocationAt(0);
 		for (int i = 1; i < LLtoUse.size(); i++) {
 			Location endPt = LLtoUse.getLocationAt(i);
-			double surfDist = surfaceDistance(startPt, endPt);
-			double fastSurfDist = surfaceDistanceFast(startPt, endPt);
+			double surfDist = getHorzDistance(startPt, endPt);
+			double fastSurfDist = getApproxHorzDistance(startPt, endPt);
 			double delta1 = fastSurfDist - surfDist;
-			double horizDist = getHorzDistance(startPt, endPt);
-			double approxDist = getApproxHorzDistance(startPt, endPt);
+			double horizDist = getHorzDistanceOLD(startPt, endPt);
+			double approxDist = getApproxHorzDistanceOLD(startPt, endPt);
 			double delta2 = approxDist - horizDist;
 			double delta3 = fastSurfDist - approxDist;
 			String s = String.format(
 					"sd: %03.4f  sdf: %03.4f  d: %03.4f  " + 
-					"hd: %03.4f  ad: %03.4f  d: %03.4f  Df: %03.4f",
+					"hdO: %03.4f  adO: %03.4f  d: %03.4f  Df: %03.4f",
 					surfDist, fastSurfDist, delta1,
 					horizDist, approxDist, delta2, delta3);
 			System.out.println(s);
@@ -584,6 +806,390 @@ public class RelativeLocationTest {
 		}
 		return ll;
 	}
+
+	// utility method to generate random locations within +/- 40deg lat and 
+	// +/- 40 deg lon
+	private static Random rand = new Random();
+	private static Location randomLoc() {
+		return new Location(randLatLon(), randLatLon());
+	}
+	private static double randLatLon() {
+		return (rand.nextDouble() * 80) - 40;
+	}
+	
+	// ==========================================================
+	// 					ARCHIVED METHODS
+	// ==========================================================
+
+	/** Earth radius constant */
+	private final static int R = 6367;
+
+	/** Radians to degrees conversion constant */
+	private final static double RADIANS_CONVERSION = Math.PI / 180;
+
+	/** Degree to Km conversion at equator */
+	private final static double D_COEFF = 111.11;
+
+	/**
+	 * OLD METHOD
+	 */
+	private static double getHorzDistanceOLD(Location loc1, Location loc2) {
+		return getHorzDistanceOLD(
+				loc1.getLatitude(), loc1.getLongitude(),
+				loc2.getLatitude(), loc2.getLongitude());
+	}
+	
+	/**
+	 * OLD METHOD
+	 * 
+	 * Second way to calculate the distance between two points. Obtained 
+	 * off the internet, but forgot where now. When used in comparision with
+	 * the latLonDistance function you see they give practically the same 
+	 * values at the equator, and only start to diverge near the
+	 * poles, but still reasonable close to each other. Good for point 
+	 * of comparision.
+	 */
+	private static double getHorzDistanceOLD(
+			double lat1, double lon1, double lat2, double lon2 ){
+
+		double xlat = lat1 * RADIANS_CONVERSION;
+		double xlon = lon1 * RADIANS_CONVERSION;
+
+		double st0 = Math.cos( xlat );
+		double ct0 = Math.sin( xlat );
+
+		double phi0 = xlon;
+
+		xlat = lat2 * RADIANS_CONVERSION;
+		xlon = lon2 * RADIANS_CONVERSION;
+
+		double st1 = Math.cos(xlat);
+		double ct1 = Math.sin(xlat);
+
+
+		double sdlon = Math.sin( xlon - phi0);
+		double cdlon = Math.cos( xlon - phi0);
+
+		double cdelt = ( st0 * st1 * cdlon ) + ( ct0 * ct1 );
+
+		double x = ( st0 * ct1 ) - ( st1 * ct0 * cdlon );
+		double y = st1 * sdlon;
+
+		double sdelt=  Math.pow( ( ( x * x ) + ( y * y ) ), .5 );
+		double delta = Math.atan2( sdelt, cdelt ) / RADIANS_CONVERSION;
+
+		delta = delta * D_COEFF;
+
+		return delta;
+	}
+	
+	/**
+	 * OLD METHOD
+	 */
+	private static double getApproxHorzDistanceOLD(
+			Location loc1, Location loc2) {
+		return getApproxHorzDistanceOLD(
+				loc1.getLatitude(), loc1.getLongitude(), 
+				loc2.getLatitude(), loc2.getLongitude());
+	}
+
+	/**
+	 * OLD METHOD
+	 * 
+	 * This computes the approximate horizontal distance (in km) using
+	 * the standard cartesian coordinate transformation.  Not implemented 
+	 * correctly is lons straddle 360 or 0 degrees!
+	 */
+	private static double getApproxHorzDistanceOLD(
+			double lat1, double lon1, double lat2, double lon2 ){
+	  double d1 = (lat1-lat2)*111.111;
+	  double d2 = (lon1-lon2)*111.111*Math.cos(((lat1+lat2)/(2))*Math.PI/180);
+	  return Math.sqrt(d1*d1+d2*d2);
+	}
+
+	/**
+	 * OLD METHOD
+	 * 
+	 * Helper method that calculates the angle between two locations
+	 * on the earth.<p>
+	 *
+	 * @param loc1			   location of first point
+	 * @param loc2			   location of second point
+	 * @return				  angle between the two locations
+	 */
+	private static double getAzimuthOLD( Location loc1, Location loc2 ){
+	  return getAzimuthOLD( loc1.getLatitude(), loc1.getLongitude(),
+						 loc2.getLatitude(), loc2.getLongitude() );
+	}
+
+	/**
+	 * OLD METHOD
+	 * 
+	 * Helper method that calculates the angle between two locations 
+	 * (value returned is between -180 and 180 degrees)
+	 * on the earth.<p>
+	 *
+	 * @param lat1			   latitude of first point
+	 * @param lon1			   longitude of first point
+	 * @param lat2			   latitude of second point
+	 * @param lon2			   longitude of second point
+	 * @return				  angle between the two lat/lon locations
+	 */
+	private static double getAzimuthOLD(
+			double lat1, double lon1, double lat2, double lon2 ){
+
+		double xlat = lat1 * RADIANS_CONVERSION;
+		double xlon = lon1 * RADIANS_CONVERSION;
+
+		double st0 = Math.cos( xlat );
+		double ct0 = Math.sin( xlat );
+
+		double phi0 = xlon;
+
+		xlat = lat2 * RADIANS_CONVERSION;
+		xlon = lon2 * RADIANS_CONVERSION;
+
+		double st1 = Math.cos(xlat);
+		double ct1 = Math.sin(xlat);
+
+		double sdlon = Math.sin( xlon - phi0);
+		double cdlon = Math.cos( xlon - phi0);
+
+		double x = ( st0 * ct1 ) - ( st1 * ct0 * cdlon );
+		double y = st1 * sdlon;
+
+		double az = Math.atan2( y, x ) / RADIANS_CONVERSION;
+
+		return az;
+	}
+
+	/**
+	 * OLD METHOD
+	 * 
+	 * Helper method that calculates the angle between two locations
+	 * on the earth.<p>
+	 *
+	 * Note: SWR: I'm not quite sure of the difference between azimuth and
+	 * back azimuth. Ned, you will have to fill in the details.
+	 *
+	 * @param lat1			   latitude of first point
+	 * @param lon1			   longitude of first point
+	 * @param lat2			   latitude of second point
+	 * @param lon2			   longitude of second point
+	 * @return				  angle between the two lat/lon locations
+	 */
+	private static double getBackAzimuthOLD(
+			double lat1, double lon1, double lat2, double lon2 ){
+
+		double xlat = lat1 * RADIANS_CONVERSION;
+		double xlon = lon1 * RADIANS_CONVERSION;
+
+		double st0 = Math.cos( xlat );
+		double ct0 = Math.sin( xlat );
+
+		double phi0 = xlon;
+
+		xlat = lat2 * RADIANS_CONVERSION;
+		xlon = lon2 * RADIANS_CONVERSION;
+
+		double st1 = Math.cos(xlat);
+		double ct1 = Math.sin(xlat);
+
+		double sdlon = Math.sin( xlon - phi0);
+		double cdlon = Math.cos( xlon - phi0);
+
+		double x = ( st1 * ct0 ) - ( st0 * ct1 * cdlon );
+		double y = -sdlon * st0;
+
+		double baz = Math.atan2( y, x ) / RADIANS_CONVERSION;
+
+		return baz;
+	}
+
+	/**
+	 * OLD METHOD
+	 * 
+	 * This computes the total distance in km.
+	 */
+	private static double getTotalDistanceOLD(Location loc1, Location loc2) {
+		double hDist = getHorzDistanceOLD(loc1, loc2);
+		double vDist = getVertDistance(loc1, loc2);
+		return  Math.sqrt(hDist*hDist+vDist*vDist);
+	}
+	
+	/**
+	 * OLD METHOD
+	 * 
+	 *  Given a Location and a Direction object, this function calculates a
+	 *  second Location the Direction points to (only the azimuth is used;
+	 * backAzimuth is ignored). The fields calculated for the
+	 *  second Location are:
+	 *
+	 * <uL>
+	 * <li>Lat
+	 * <li>Lon
+	 * <li>Depth
+	 * </ul>
+	 *
+	 * @param  location1	First geographic location
+	 * @param  direction	Direction object pointing to second Location
+	 * @return location2	The second location
+	 * @exception  UnsupportedOperationException	Thrown if the Location or 
+	 * 				Direction contain bad data such as invalid latitudes
+	 * @see	 Location		to see the field definitions
+	 */
+	private static Location getLocationOLD(
+			Location location, Direction direction) 
+			throws UnsupportedOperationException {
+
+		double lat1 = location.getLatitude();
+		double lon1 = location.getLongitude();
+		double depth = location.getDepth();
+
+		double azimuth = direction.getAzimuth();
+		double horzDistance = direction.getHorzDistance();
+		double vertDistance = direction.getVertDistance();
+
+		double newLat = getLatitudeOLD( horzDistance, azimuth, lat1, lon1 );
+		double newLon= getLongitudeOLD( horzDistance, azimuth, lat1, lon1 );
+		// double newDepth = depth + -1*vertDistance;
+		double newDepth = depth + vertDistance;
+
+		Location newLoc = new Location(newLat, newLon, newDepth);
+		return newLoc;
+	}
+
+	/**
+	 * OLD METHOD
+	 * 
+	 *  By passing in two Locations this calculator will determine the
+	 *  Distance object between them. The four fields calculated are:
+	 *
+	 * <uL>
+	 * <li>horzDistance
+	 * <li>azimuth
+	 * <li>backAzimuth
+	 * <li>vertDistance
+	 * </ul>
+	 *
+	 * @param  location1		First geographic location
+	 * @param  location2		Second geographic location
+	 * @return The direction, decomposition of the vector between two locations
+	 * @exception  UnsupportedOperationException
+	 * 		Thrown if the Locations contain bad data such as invalid latitudes
+	 * @see	 Distance			to see the field definitions
+	 */
+	private static Direction getDirectionOLD(
+			Location location1, Location location2) 
+			throws UnsupportedOperationException {
+
+		Direction dir = new Direction();
+
+		double lat1 = location1.getLatitude();
+		double lon1 = location1.getLongitude();
+		double lat2 = location2.getLatitude();
+		double lon2 = location2.getLongitude();
+
+		double horzDistance = getHorzDistanceOLD(location1, location2);
+		double azimuth = getAzimuthOLD(location1, location2);
+		double backAzimuth = getBackAzimuthOLD(lat1, lon1, lat2, lon2);
+		double vertDistance = location2.getDepth() - location1.getDepth();
+
+		dir.setHorzDistance(horzDistance);
+		dir.setAzimuth(azimuth);
+		dir.setBackAzimuth(backAzimuth);
+		dir.setVertDistance(vertDistance);
+
+		return dir;
+	}
+
+	/**
+	 * OLD METHOD
+	 * 
+	 * Internal helper method that calculates the latitude of a second location
+	 * given the input location and direction components
+	 *
+	 * @param delta			 Horizontal distance
+	 * @param azimuth		   angle towards new point
+	 * @param lat			   latitude of original point
+	 * @param lon			   longitude of original point
+	 * @return				  latitude of new point
+	 */
+	private static double getLatitudeOLD( 
+			double delta, double azimuth, double lat, double lon){
+
+		delta = ( delta / D_COEFF ) * RADIANS_CONVERSION;
+
+		double sdelt= Math.sin( delta );
+		double cdelt= Math.cos( delta );
+
+		double xlat = lat * RADIANS_CONVERSION;
+		//double xlon = lon * RADIANS_CONVERSION;
+
+		double az2 = azimuth * RADIANS_CONVERSION;
+
+		double st0 = Math.cos( xlat );
+		double ct0 = Math.sin( xlat );
+
+		//double phi0 = xlon;
+
+		double cz0 = Math.cos( az2 );
+		double ct1 = ( st0 * sdelt * cz0 ) + ( ct0 * cdelt );
+
+		double x = (st0 * cdelt ) - ( ct0 * sdelt * cz0 );
+		double y = sdelt * Math.sin( az2 );
+
+		double st1 =  Math.pow( ( ( x * x ) + ( y * y ) ), .5 );
+		//double dlon = Math.atan2( y, x );
+
+		double newLat = Math.atan2( ct1, st1 ) / RADIANS_CONVERSION;
+		return newLat;
+	}
+
+
+	/**
+	 * OLD METHOD
+	 * 
+	 * Internal helper method that calculates the longitude of a second location
+	 * given the input location and direction components
+	 *
+	 * @param delta			 Horizontal distance
+	 * @param azimuth		   angle towards new point
+	 * @param lat			   latitude of original point
+	 * @param lon			   longitude of original point
+	 * @return				  longitude of new point
+	 */
+	private static double getLongitudeOLD(
+			double delta, double azimuth, double lat, double lon){
+
+		delta = ( delta / D_COEFF ) * RADIANS_CONVERSION;
+
+		double sdelt= Math.sin( delta );
+		double cdelt= Math.cos( delta );
+
+		double xlat = lat * RADIANS_CONVERSION;
+		double xlon = lon * RADIANS_CONVERSION;
+
+		double az2 = azimuth * RADIANS_CONVERSION;
+
+		double st0 = Math.cos( xlat );
+		double ct0 = Math.sin( xlat );
+
+		double phi0 = xlon;
+
+		double cz0 = Math.cos( az2 );
+		// double ct1 = ( st0 * sdelt * cz0 ) + ( ct0 * cdelt );
+
+		double x = (st0 * cdelt ) - ( ct0 * sdelt * cz0 );
+		double y = sdelt * Math.sin( az2 );
+
+		//  double st1 =  Math.pow( ( ( x * x ) + ( y * y ) ), .5 );
+		double dlon = Math.atan2( y, x );
+
+		double newLon = ( phi0 + dlon ) / RADIANS_CONVERSION;
+		return newLon;
+	}
+
 
 
 }

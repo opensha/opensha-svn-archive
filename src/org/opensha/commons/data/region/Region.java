@@ -759,7 +759,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 			for (int i=0; i<border.size(); i++) {
 				gcBorder.addLocation(start);
 				Location end = border.getLocationAt(i);
-				double distance = RelativeLocation.surfaceDistance(start, end);
+				double distance = RelativeLocation.getHorzDistance(start, end);
 				// subdivide as necessary
 				while (distance > GC_SEGMENT) {
 					// find new Location, GC_SEGMENT km away from start
@@ -768,7 +768,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 							start, azRad, GC_SEGMENT);
 					gcBorder.addLocation(segLoc);
 					start = segLoc;
-					distance = RelativeLocation.surfaceDistance(start, end);
+					distance = RelativeLocation.getHorzDistance(start, end);
 				}
 				start = end;
 			}
