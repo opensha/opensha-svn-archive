@@ -1,6 +1,7 @@
 package org.opensha.gem.condor.calc.components;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DecimalFormat;
 
@@ -8,6 +9,7 @@ import org.dom4j.Element;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 
 /**
  * This class writes hazard curves to simple output files.
@@ -44,6 +46,12 @@ public class AsciiFileCurveArchiver implements CurveResultsArchiver {
 	}
 
 	public void archiveCurve(ArbitrarilyDiscretizedFunc curve, CurveMetadata meta) throws IOException {
+		String outFileName = getFileName(meta);
+		System.out.println("Writing '" + outFileName + "'");
+		DiscretizedFunc.writeSimpleFuncFile(curve, outFileName);
+	}
+	
+	private String getFileName(CurveMetadata meta) {
 		Location loc = meta.getSite().getLocation();
 		String dir = outputDir;
 		if (binByLat) {
@@ -55,9 +63,7 @@ public class AsciiFileCurveArchiver implements CurveResultsArchiver {
 		File dirFile = new File(dir);
 		if (!dirFile.exists())
 			dirFile.mkdirs();
-		String outFileName = dir + formatLocation(loc) + "_" + meta.getShortLabel() + ".txt";
-		System.out.println("Writing '" + outFileName + "'");
-		DiscretizedFunc.writeSimpleFuncFile(curve, outFileName);
+		return dir + formatLocation(loc) + "_" + meta.getShortLabel() + ".txt";
 	}
 	
 	public String getOutputDir() {
@@ -69,8 +75,8 @@ public class AsciiFileCurveArchiver implements CurveResultsArchiver {
 		File outputDirFile = new File(outputDir);
 		if (!outputDirFile.exists())
 			if (!outputDirFile.mkdir())
-				throw new IOException("Output directory could not be created: '" + outputDir + "'");
-		if (!outputDirFile.isDirectory())
+				System.err.println("WARNING: Output directory could not be created: '" + outputDir + "'");
+		else if (!outputDirFile.isDirectory())
 			throw new IOException("Output directory already exists and is not a directory: '" + outputDir + "'");
 	}
 	
@@ -96,4 +102,25 @@ public class AsciiFileCurveArchiver implements CurveResultsArchiver {
 		return new AsciiFileCurveArchiver(outputDir, binByLat, binByLon);
 	}
 
+	public boolean isCurveCalculated(CurveMetadata meta, ArbitrarilyDiscretizedFunc xVals) {
+		String outFileName = getFileName(meta);
+		File file = new File(outFileName);
+		if (file.exists()) {
+			try {
+				DiscretizedFuncAPI func = ArbitrarilyDiscretizedFunc.loadFuncFromSimpleFile(outFileName);
+				if (func.getNum() == xVals.getNum()) {
+					boolean match = true;
+					for (int i=0; i<func.getNum(); i++) {
+						if (func.getX(i) != xVals.getX(i)) {
+							match = false;
+							break;
+						}
+					}
+					return match;
+				}
+			} catch (Exception e) {}
+		}
+		return false;
+	}
+	
 }
