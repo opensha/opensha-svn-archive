@@ -26,10 +26,19 @@ import static org.opensha.commons.calc.RelativeLocation.TO_RAD;
 import org.apache.commons.math.util.MathUtils;
 import org.dom4j.Element;
 import org.opensha.commons.exceptions.InvalidRangeException;
+import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.metadata.XMLSaveable;
+
+import sun.tools.tree.ThisExpression;
 
 
 /**
+ * A <code>Location</code> represents a point with reference to the earth's
+ * ellipsoid. It is expressed in terms of latitude, longitude, and depth.
+ * As in seismology, the convention adopted in OpenSHA is for depth to be
+ * positive-down, always. All utility methods in this package assume this
+ * to be the case.<br/>
+ * <br/>
  * 
  * Convention: depth is positive down, always. All utility methods assume this
  * to be the case
@@ -78,6 +87,7 @@ public class Location implements java.io.Serializable, XMLSaveable {
     private double lon = 0;
     private double depth = 0; // TODO clean; all were NaN
 
+
     //maximum Latitude TODO move to GEOCALC along with validators
     public static final double MAX_LAT = 90.0;
     //minimum latitude
@@ -102,30 +112,28 @@ public class Location implements java.io.Serializable, XMLSaveable {
 
 
     /**
-     *  Constructor that sets latitude and longitude. Depth is defaulted to zero
-     *
-     * @param  lat                        latitude value
-     * @param  lon                        longitude value
-     * @exception  InvalidRangeException  thrown if lat or lon are invalid values
-     * TODO modify error checking
+     * Constructs a new <code>Location</code> with the supplied latitude and
+     * longitude and sets the depth to 0.
+     * 
+     * @param lat latitude to set
+     * @param lon longitude to set
+     * @throws IllegalArgumentException if any supplied values are out of range
+     * @see GeoTools
      */
-    public Location( double lat, double lon )
-             throws InvalidRangeException {
-        this( lat, lon, 0 );
+    public Location(double lat, double lon) {
+        this(lat, lon, 0);
     }
 
-
     /**
-     *  Constructor that sets latitude, longitude, and depth.
-     *
-     * @param  lat                        latitude value
-     * @param  lon                        longitude value
-     * @param  depth                      location depth
-     * @exception  InvalidRangeException  thrown if lat or lon are invalid values
+     * Constructs a new <code>Location</code> with the supplied latitude, 
+     * longitude depth values.
+     * 
+     * @param lat latitude to set
+     * @param lon longitude to set
+     * @throws IllegalArgumentException if any supplied values are out of range
+     * @see GeoTools
      */
-    public Location( double lat, double lon, double depth )
-             throws InvalidRangeException {
-        //String S = C + ": Constructor2(): ";
+    public Location(double lat, double lon, double depth) {
 
         //validateLatitude( lat, S ); TODO clean
         //validateLongitude( lon, S );
@@ -138,24 +146,6 @@ public class Location implements java.io.Serializable, XMLSaveable {
 //        this.depth = depth;
     }
     
-    /**
-     * Constructor that sets latitude, longitude, and (optionally) depth from
-     * an array of values. The array should be of order { latitude, longitude[, depth] }.
-     * 
-     * @param locVals
-     */
-    public Location(double[] locVals) {
-    	if (locVals.length < 2) {
-    		setLatitude(locVals[0]);
-    		setLongitude(locVals[1]);
-    		setDepth(0);
-    	} else if ( locVals.length > 3) {
-    		setLatitude(locVals[0]);
-    		setLongitude(locVals[1]);
-    		setDepth(locVals[2]);
-    	} else
-    		throw new IllegalArgumentException("location value array must be of size 2 or 3");
-    }
 
 	/**
 	 * Sets the depth. Values should be positive down.
