@@ -282,7 +282,9 @@ public class PoissonAreaSource extends PointToLineSource implements java.io.Seri
 	 * @return minimum distance
 	 */
 	public double getMinDistance(Site site) {
-		return reg.distanceToLocation(site.getLocation()) - maxLength/2.0;
+		double dist = reg.distanceToLocation(site.getLocation()) - maxLength/2.0;
+		if(dist < 0) dist=0;
+		return dist;
 	}
 
 }
