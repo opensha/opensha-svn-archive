@@ -133,7 +133,7 @@ public interface Container2DAPI extends NamedObjectAPI{
      * @param  row     The x coordinate of the cell.
      * @param  column  The y coordinate of the cell.
      */
-    public void delete( int row, int column );
+//    public void delete( int row, int column );
 
 
     /**

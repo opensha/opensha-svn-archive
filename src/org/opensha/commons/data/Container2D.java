@@ -313,13 +313,13 @@ public class Container2D implements Container2DAPI, Serializable, NamedObjectAPI
      * @param  row     The x coordinate of the cell.
      * @param  column  The y coordinate of the cell.
      */
-    public void delete( int row, int column ) {
-
-        String S = C + ": delete(): ";
-        checkBounds( row, column, S );
-        data[row * numCols + column] = null;
-
-    }
+//    public void delete( int row, int column ) {
+//
+//        String S = C + ": delete(): ";
+//        checkBounds( row, column, S );
+//        data[row * numCols + column] = null;
+//
+//    }
 
 
     /**

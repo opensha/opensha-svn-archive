@@ -337,21 +337,22 @@ public class PointSurface extends Location implements EvenlyGriddedSurfaceAPI {
      * @param  column         The column to get this Location from. Must be 0.
      * @exception  ArrayIndexOutOfBoundsException  Thrown if row or column is not zero.
      */
-    public void delete( int row, int column )
-             throws ArrayIndexOutOfBoundsException {
-        if ( row == 0 && column == 0 ) {
-
-        	setLatitude(0);
-        	setLongitude(0);
-        	setDepth(0);
-//            this.latitude = Double.NaN;
-//            this.longitude = Double.NaN;
-//            this.depth = Double.NaN;
-        	
-        } else {
-            throw new ArrayIndexOutOfBoundsException( "PointSurface can only have one point, i.e. x=0, y=0." );
-        }
-    }
+    /* implementation */
+//    public void delete( int row, int column )
+//             throws ArrayIndexOutOfBoundsException {
+//        if ( row == 0 && column == 0 ) {
+//
+//        	setLatitude(0);
+//        	setLongitude(0);
+//        	setDepth(0);
+////            this.latitude = Double.NaN;
+////            this.longitude = Double.NaN;
+////            this.depth = Double.NaN;
+//        	
+//        } else {
+//            throw new ArrayIndexOutOfBoundsException( "PointSurface can only have one point, i.e. x=0, y=0." );
+//        }
+//    }
 
     /**
      * This returns the total length of the surface

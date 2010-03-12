@@ -578,13 +578,13 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
      * @exception  java.lang.UnsupportedOperationException  Description of the
      *      Exception
      */
-    public void delete( int row, int column )
-             throws
-            ArrayIndexOutOfBoundsException,
-            java.lang.UnsupportedOperationException {
-
-        throw new java.lang.UnsupportedOperationException( "This function is not implemented in this subclass" );
-    }
+//    public void delete( int row, int column )
+//             throws
+//            ArrayIndexOutOfBoundsException,
+//            java.lang.UnsupportedOperationException {
+//
+//        throw new java.lang.UnsupportedOperationException( "This function is not implemented in this subclass" );
+//    }
 
 
     /**
