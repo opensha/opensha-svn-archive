@@ -25,226 +25,137 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.GeoTools;
 
+//@SuppressWarnings("all")
 public class LocationTests {
 
+	private static final double V = 10.0;
 	Location location;
 
 	@Before
 	public void setUp() throws Exception {
-		location = new Location(10,10,10);
+		location = new Location(V,V,V);
 	}
 
 	@Test
-	public void testEqualsLocation() {
-		Location loc =  new Location(10,10,10);
+	public final void testLocationDoubleDouble() {
+		Location loc = new Location(V,V);
+		assertEquals(loc.getLatitude(), V, 0);
+		assertEquals(loc.getLongitude(), V, 0);
+		assertEquals(loc.getDepth(), 0, 0);
+		
+		// exception catching
+		try {
+			loc = new Location(GeoTools.LAT_MAX + 0.1, 0);
+			fail("Illegal argument not caught");
+		} catch (IllegalArgumentException ignore) {}
+		try {
+			loc = new Location(GeoTools.LAT_MIN - 0.1, 0);
+			fail("Illegal argument not caught");
+		} catch (IllegalArgumentException ignore) {}
+		try {
+			loc = new Location(0, GeoTools.LON_MAX + 0.1);
+			fail("Illegal argument not caught");
+		} catch (IllegalArgumentException ignore) {}
+		try {
+			loc = new Location(0, GeoTools.LON_MIN - 0.1);
+			fail("Illegal argument not caught");
+		} catch (IllegalArgumentException ignore) {}
+	}
+	
+	@Test
+	public final void testLocationDoubleDoubleDouble() {
+		Location loc = new Location(V,V,V);
+		assertEquals(loc.getLatitude(), V, 0);
+		assertEquals(loc.getLongitude(), V, 0);
+		assertEquals(loc.getDepth(), V, 0);
+		
+		// exception catching (lat and lon tested above)
+		try {
+			loc = new Location(0, 0, GeoTools.DEPTH_MAX + 0.1);
+			fail("Illegal argument not caught");
+		} catch (IllegalArgumentException ignore) {}
+		try {
+			loc = new Location(0, 0, GeoTools.DEPTH_MIN - 0.1);
+			System.out.println(loc.getDepth());
+			fail("Illegal argument not caught");
+		} catch (IllegalArgumentException ignore) {}
+	}
+
+	@Test
+	public final void testGetDepth() {
+		assertEquals(location.getDepth(), 10, 0);
+	}
+
+	@Test
+	public final void testGetLatitude() {
+		assertEquals(location.getLatitude(), 10, 0);
+	}
+
+	@Test
+	public final void testGetLongitude() {
+		assertEquals(location.getLongitude(), 10, 0);
+	}
+
+	@Test
+	public final void testGetLatRad() {
+		assertEquals(location.getLatRad(), V * GeoTools.TO_RAD, 0);
+	}
+
+	@Test
+	public final void testGetLonRad() {
+		assertEquals(location.getLonRad(), V * GeoTools.TO_RAD, 0);
+	}
+
+	@Test
+	public final void testToKML() {
+		Location loc = new Location(20,30,10);
+		String s = loc.getLongitude() + "," + loc.getLatitude() + 
+		   "," + loc.getDepth();
+		assertEquals(loc.toKML(), s);
+	}
+
+	@Test
+	public final void testToString() {
+		Location loc = new Location(20,30,10);
+		String s = loc.getLatitude() + "," + loc.getLongitude() + 
+		   "," + loc.getDepth();
+		assertEquals(loc.toString(), s);
+	}
+
+	@Test
+	public final void testClone() {
+		Location copy = location.clone();
+		assertTrue(copy.getLatitude() == location.getLatitude());
+		assertTrue(copy.getLongitude() == location.getLongitude());
+		assertTrue(copy.getDepth() == location.getDepth());
+		assertEquals(copy, location);
+	}	
+
+	@Test
+	public final void testEquals() {
+		// same object
+		assertTrue(location.equals(location));
+		// different object type
+		assertTrue(!location.equals(new String("test")));
+		// same values
+		Location loc = new Location(V,V,V);
 		assertTrue(location.equals(loc));
-
-		loc =  new Location(10,20,10);
-		assertTrue(!location.equals(loc));
-
-		loc =  new Location(20,10,10);
-		assertTrue(!location.equals(loc));
-
-		loc =  new Location(10,10,20);
-		assertTrue(!location.equals(loc));
+		// different values
+		loc = new Location(V*2,-V*2,0);
+		assertTrue(!location.equals(loc));	
 	}
-
+	
 	@Test
-	public void testGetDepth() {
-		assertEquals(location.getDepth(), 10.0, 0);
-	}
+	public final void testHashCode() {
+		Location copy = location.clone();
+		assertTrue(copy.hashCode() == location.hashCode());
+		Location locA = new Location(45, 90, 25);
+		System.out.println(locA.hashCode());
+		Location locB = new Location(90, 45, 25);
+		System.out.println(locB.hashCode());
+		assertTrue(locA.hashCode() != locB.hashCode());
+	}	
 
-	@Test
-	public void testGetLatitude() {
-		assertEquals(location.getLatitude(), 10.0, 0);
-	}
-
-	@Test
-	public void testGetLongitude() {
-		assertEquals(location.getLongitude(), 10.0, 0);
-	}
-
-//	@Test
-//	public void testSetDepth() {
-//		double depth1 =   15.0;
-//		location.setDepth(depth1);
-//		double doubleRet = location.getDepth();
-//		assertTrue( doubleRet == 15.0 );
-//
-//		location.setDepth( 10.0 );
-//		doubleRet = location.getDepth();
-//		assertTrue( doubleRet == 10.0 );
-//	}
-
-//	@Test
-//	public void testSetLatitude() {
-//		double latitude1 =   15.0   /** @todo fill in non-null value */;
-//		double doubleRet;
-//		try {
-//			location.setLatitude(latitude1);
-//			doubleRet = location.getLatitude();
-//			assertTrue( doubleRet == 15.0 );
-//
-//			location.setLatitude( 10.0 );
-//			doubleRet = location.getLatitude();
-//			assertTrue( doubleRet == 10.0 );
-//		}
-//		catch(Exception e) {
-//			System.err.println("Exception thrown:  "+e);
-//		}
-//
-//
-//		latitude1 = -95.1;
-//		try {
-//			location.setLatitude(latitude1);
-//		}
-//		catch(Exception e) {
-//			doubleRet = location.getLatitude();
-//			assertTrue( doubleRet == 10.0 );
-//			//System.err.println("Successfully caught Exception thrown:  " + e);
-//		}
-//
-//
-//
-//		latitude1= 95.1;
-//		try {
-//			location.setLatitude(latitude1);
-//
-//		}
-//		catch(Exception e) {
-//			doubleRet = location.getLatitude();
-//			assertTrue( doubleRet == 10.0 );
-//			//System.err.println("Successfully caught Exception thrown:  " + e);
-//		}
-//	}
-
-//	@Test
-//	public void testSetLongitude() {
-//		double longitude1= 15.0 ;
-//		double doubleRet;
-//		try {
-//			location.setLongitude(longitude1);
-//			doubleRet = location.getLongitude();
-//			assertTrue( doubleRet == 15.0 );
-//
-//			location.setLongitude( 10.0 );
-//			doubleRet = location.getLongitude();
-//			assertTrue( doubleRet == 10.0 );
-//		}
-//		catch(Exception e) {
-//			System.err.println("Exception thrown:  "+e);
-//		}
-//
-//
-//		longitude1 = -181.1;
-//		try {
-//			location.setLongitude(longitude1);
-//		}
-//		catch(Exception e) {
-//			doubleRet = location.getLongitude();
-//			assertTrue( doubleRet == 10.0 );
-//			//System.err.println("Successfully caught Exception thrown:  " + e);
-//		}
-//
-//		longitude1 = 181.1;
-//		try {
-//			location.setLongitude(longitude1);
-//		}
-//		catch(Exception e) {
-//			doubleRet = location.getLongitude();
-//			assertTrue( doubleRet == 10.0 );
-//			//System.err.println("Successfully caught Exception thrown:  " + e);
-//		}
-//	}
-
-//	@Test
-//	public void testToString() {
-//
-//		location.setDepth( 10 );
-//		location.setLatitude( 10 );
-//		location.setLongitude( 10 );
-//		String stringRet = location.toString();
-//		//System.out.println( "Printing out toString(): " + stringRet );
-//
-//		String testStr = new String();
-//		testStr = "" + location.getLatitude() + "," + location.getLongitude() +
-//		"," + location.getDepth();
-//		assertEquals(stringRet, testStr);
-//
-//	}
-
-//	@Test
-//	public void testEquals() {
-//
-//		location.setDepth( 10 );
-//		location.setLatitude( 10 );
-//		location.setLongitude( 10 );
-//
-//		Location location1 = new Location();
-//		location1.setDepth( 10 );
-//		location1.setLatitude( 10 );
-//		location1.setLongitude( 10 );
-//
-//		boolean booleanRet = location.equals(location1);
-//		assertTrue( booleanRet );
-//
-//		location1.setDepth( 11 );
-//		booleanRet = location.equals(location1);
-//		assertTrue( !booleanRet );
-//
-//		location1.setDepth( 10 );
-//		booleanRet = location.equals(location1);
-//		assertTrue( booleanRet );
-//
-//		location1.setLatitude( 11 );
-//		booleanRet = location.equals(location1);
-//		assertTrue( !booleanRet );
-//
-//		location1.setLatitude( 10 );
-//		booleanRet = location.equals(location1);
-//		assertTrue( booleanRet );
-//
-//		location1.setLongitude( 11 );
-//		booleanRet = location.equals(location1);
-//		assertTrue( !booleanRet );
-//
-//		location1.setLongitude( 10 );
-//		booleanRet = location.equals(location1);
-//		assertTrue( booleanRet );
-//	}
-
-//	@Test
-//	public void testClone() {
-//
-//		Object objectRet = location.copy();
-//		boolean booleanRet = location.equals(objectRet);
-//		assertTrue( booleanRet );
-//
-//		Location location1 = (Location)objectRet;
-//
-//		location1.setDepth( 11 );
-//		booleanRet = location.equals(location1);
-//		assertTrue( !booleanRet );
-//
-//		location1.setDepth( 10 );
-//		booleanRet = location.equals(location1);
-//		assertTrue( booleanRet );
-//
-//		location1.setLatitude( 11 );
-//		booleanRet = location.equals(location1);
-//		assertTrue( !booleanRet );
-//
-//		location1.setLatitude( 10 );
-//		booleanRet = location.equals(location1);
-//		assertTrue( booleanRet );
-//
-//		location1.setLongitude( 11 );
-//		booleanRet = location.equals(location1);
-//		assertTrue( !booleanRet );
-//
-//		location1.setLongitude( 10 );
-//		booleanRet = location.equals(location1);
-//		assertTrue( booleanRet );
-//	}
 }
