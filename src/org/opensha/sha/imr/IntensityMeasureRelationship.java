@@ -463,6 +463,10 @@ implements IntensityMeasureRelationshipAPI {
 	public ListIterator<ParameterAPI> getOtherParamsIterator() {
 		return otherParams.getParametersIterator();
 	}
+	
+	public ParameterList getOtherParamsList() {
+		return otherParams;
+	}
 
 	/**
 	 *  Returns an iterator over all EqkRupture related parameters.

@@ -214,6 +214,17 @@ public interface IntensityMeasureRelationshipAPI
    * @return    Iterator for otherParameters
    */
   public ListIterator getOtherParamsIterator();
+  
+  /**
+   *  Returns an ParameterList of all other parameters.  Other parameters are those
+   *  that the exceedance probability depends upon, but that are not a
+   *  supported IMT (or one of their independent parameters) and are not contained
+   *  in, or computed from, the site or eqkRutpure objects.  Note that this does not
+   *  include the exceedProbParam (which exceedance probability does not depend on).
+   *
+   * @return    Iterator for otherParameters
+   */
+  public ParameterList getOtherParamsList();
 
   /**
    *  Returns an iterator over all earthquake-rupture related parameters.
