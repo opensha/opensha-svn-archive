@@ -37,7 +37,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 
 	private final static WC1994_MagLengthRelationship magLenRel = new WC1994_MagLengthRelationship();
 
-	private final static String PATH = "/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/griddedSeis/";
+	private final static String PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/griddedSeis/";
 	private final static String LAT_LON_FILENAME = PATH + "LonsLats.txt";
 
 	private int[] aValIndexForLocIndex;
