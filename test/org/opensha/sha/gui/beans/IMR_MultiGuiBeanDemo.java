@@ -11,7 +11,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.NewZealand.NewZealandERF0909;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
@@ -20,10 +19,10 @@ public class IMR_MultiGuiBeanDemo extends JPanel implements ActionListener {
 	
 	private JButton noERFButton = new JButton("No ERF");
 	private JButton frankelERFButton = new JButton("Frankel 96");
-	private JButton nzERFButton = new JButton("New Zealand");
+	private JButton multiERFButton = new JButton("Multi-Tect.");
 	
 	private Frankel96_AdjustableEqkRupForecast frankel = new Frankel96_AdjustableEqkRupForecast();
-	private NewZealandERF0909 nz = new NewZealandERF0909();
+	private MultiERFDummy multi = new MultiERFDummy();
 	
 	private IMR_MultiGuiBean bean;
 	
@@ -41,11 +40,11 @@ public class IMR_MultiGuiBeanDemo extends JPanel implements ActionListener {
 		buttons.setLayout(new BoxLayout(buttons, BoxLayout.X_AXIS));
 		buttons.add(noERFButton);
 		buttons.add(frankelERFButton);
-		buttons.add(nzERFButton);
+		buttons.add(multiERFButton);
 		
 		noERFButton.addActionListener(this);
 		frankelERFButton.addActionListener(this);
-		nzERFButton.addActionListener(this);
+		multiERFButton.addActionListener(this);
 		
 		this.add(buttons, BorderLayout.SOUTH);
 		
@@ -71,8 +70,8 @@ public class IMR_MultiGuiBeanDemo extends JPanel implements ActionListener {
 			bean.setTectonicRegions(null);
 		} else if (e.getSource() == frankelERFButton) {
 			bean.setTectonicRegions(frankel.getIncludedTectonicRegionTypes());
-		} else if (e.getSource() == nzERFButton) {
-			bean.setTectonicRegions(nz.getIncludedTectonicRegionTypes());
+		} else if (e.getSource() == multiERFButton) {
+			bean.setTectonicRegions(multi.getIncludedTectonicRegionTypes());
 		}
 	}
 
