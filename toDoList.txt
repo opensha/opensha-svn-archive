@@ -18,13 +18,9 @@ should be our starting point).  We also want to maintain remote calc capabilitie
 
 Multi IMR options on scenario shakemap calculator is not working properly in terms of only listing what IMRs support the chosen IMT.
 
-Convert web sites to Drupal Wiki; start with WGCEP - Peter's going to try it out.
-
 Investigate upgrade to JFreeChart current version; buy dev guide
 
-Redo PEER tests;Implement PEER tests as JUnit. - Peter will do this
-
-Fix offset in global GMT topo intensity file (email from Kevin on 9/3/09) & document how this is done - Kevin will deal with this
+Finish PEER test conversion to JUnit. (Keep test and app control panel in sync)
 
 The ability to associate sources and imrs to TectonicRegionTypes has been added to the HazardCurveCalculator.  What remains to be done is:
 
@@ -39,23 +35,15 @@ The ability to associate sources and imrs to TectonicRegionTypes has been added 
 	time or bloat memory.
 	
 	
-WG02 Fortan code is not working - Kevin will talk to Okaya
+Verify WG02 Fortan (since being made to work)
+	- need to compare to original calculations. 
 
-Map/UML of each calculator/application.
-
-Distance Calculations : Approx Horizontal Distance(getApproxHorzDistance()) calculator 
-does not calculate the correct distance if longitude is > 0. But Horizontal 
-Distance(getHorzDistance()) always calculate the accurate distance. (Nitin tested 
-using main() method in RelativeLocation class, one can just run the RelativeLocation 
-class and will get to know the difference).  HAS THIS BEEN FIXED?
-
-Post instructions for building stand-alone GUIs on our web site?
-
-GEM ERF Input file formats
-
-	Marco will create actual file examples
-	Ned will implement or review the general ERF
-
+Website:
+	Map/UML of each calculator/application.
+	Caluclator demos/tutorials
+	Post instructions for building stand-alone GUIs on our web site?
+	On-line short course
+	
 Investigate Performance Issues:
 
 	Define speed vs accuracy tests (GEM_TestERF; PEER test case 10; GEM custom tests?)
@@ -69,42 +57,28 @@ Investigate Performance Issues:
 		adaptive grid spacing (wouldn't work for event sets)
 		pointSource --> IMR calcs (wouldn't work for event sets)
 		Smart event filtering
-
-Hazard map avoiding full curve calculator
+		Hazard map avoiding full curve calculator
 		
 Need to review the new site translator class (what Kevin put together)
 
 Evaluate Kevin's implementation of site class for region web services
 
-Look into using triangular surfaces (or at least change API to accommodate these later)?
-
 Clean up control panels (make subdirs, and change names that are unclear, like CalcOptionControl)
 
-Event Set Data Calculator  - update web site description; more test?; gui/xml version?; versioning for reference?
-
-On-line short course
+Event Set Data Calculator  - more test?; gui/xml version?; versioning for reference?
 
 Geographic disaggregation
 
 Clarify declarations of IntensityMeasureRelationship, IntensityMeasureRelationshipAPI, ScalarIntensityMeasureRelationship, and AttenuationRelationship, especially in calculators
 
-Develop a complete set of Junit tests for the entire project (that at least tests whether any important changes have occurred).
-
-Check that Parameter classes and APIs are being sensibly subclassed (Peter mentioned some redundant inheritances?)
-
-Rebuild the parameter editor browser GUI (org.opensha.commons.param.editor.demo.ParameterApplet), 
-which allows one to visually see the GUI interface for every parameter we've implemented 
-(e.g., useful for newcomers).  The parameters implemented in this previous version didn't 
-choose very good names for the examples (you could get better examples just by adopting values 
-where it is presently used somewhere in our code).  What do you think about updating/improving this?  
-It would be a good starting point for discussions on how to improve these editors (something Peter 
-has discussed).  I guess we also need an equivalent demo for parameters inside the sha package.
-
-Remove the use of "*" in import statements (to make refactoring easier)
+JUnit JUnit JUnit.
+Clean up as many Eclipse warnings as possible
 
 See if param API method "getType()" is needed anymore.
 
-Clean up as many Eclipse warnings as possible
+Improvement on TreeMap?
+
+------
 
 IntensityMeasureRelationship defines intensity measure as: protected ParameterAPI im;
 yet elsewhere we assume its a DependentParameterAPI, such as in the method:
@@ -133,10 +107,6 @@ Merge contents of org.nshmp (new location) into the rest of the project.  Eric s
 Figure out where to put org.opensha.refFaultParamDb
 
 Clean up contents of org.opensha.sha.gui.infoTools
-
-Implement system for managing development (TRAC?)
-
-Also update instructions on how to access code.
 
 Review allowed values for location fields, and whether using radians rather than degrees for internal storage would be more efficient.
 
@@ -228,6 +198,7 @@ Implement getApplicableRegion() and isLocWithinApplicableRegion() methods in imp
 **************** LONG TERM (LOWER PRIORITY): ****************
 -------------------------------------------------------------
 
+Look into using triangular surfaces (or at least change API to accommodate these later)?
 
 Relax the single ERF instance at one time in the ERF and RupFroERF GUI beans if needed and memory is not an issue.
 
