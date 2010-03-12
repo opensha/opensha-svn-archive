@@ -26,6 +26,7 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.param.editor.ConstrainedLocationParameterEditor;
 import org.opensha.commons.param.editor.LocationParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditor;
@@ -142,13 +143,13 @@ implements java.io.Serializable{
 
 		super(locationParamName,constraint,null,null);
 		latParam = new DoubleParameter(latParamName,
-				new DoubleConstraint(Location.MIN_LAT,Location.MAX_LAT),
+				new DoubleConstraint(GeoTools.LAT_MIN,GeoTools.LAT_MAX),
 				DECIMAL_DEGREES, latValue);
 		lonParam = new DoubleParameter(lonParamName,
-				new DoubleConstraint(Location.MIN_LON,Location.MAX_LON),
+				new DoubleConstraint(GeoTools.LON_MIN,GeoTools.LON_MAX),
 				DECIMAL_DEGREES, lonValue);
 		depthParam = new DoubleParameter(depthParamName,
-				new DoubleConstraint(Location.MIN_DEPTH,1000),
+				new DoubleConstraint(GeoTools.DEPTH_MIN,1000),
 				KMS, depthValue);
 
 		ParameterList paramList = new ParameterList();
@@ -186,13 +187,13 @@ implements java.io.Serializable{
 
 		super(locationParamName,null,null,null);
 		latParam = new DoubleParameter(latParamName,
-				new DoubleConstraint(Location.MIN_LAT,Location.MAX_LAT),
+				new DoubleConstraint(GeoTools.LAT_MIN,GeoTools.LAT_MAX),
 				DECIMAL_DEGREES, latValue);
 		lonParam = new DoubleParameter(lonParamName,
-				new DoubleConstraint(Location.MIN_LON,Location.MAX_LON),
+				new DoubleConstraint(GeoTools.LON_MIN,GeoTools.LON_MAX),
 				DECIMAL_DEGREES, lonValue);
 		depthParam = new DoubleParameter(depthParamName,
-				new DoubleConstraint(Location.MIN_DEPTH,50),
+				new DoubleConstraint(GeoTools.DEPTH_MIN,50),
 				KMS, depthValue);
 
 		ParameterList paramList = new ParameterList();

@@ -20,6 +20,8 @@
 package org.opensha.commons.calc;
 
 import static java.lang.Math.PI;
+import static org.opensha.commons.geo.GeoTools.TO_DEG;
+import static org.opensha.commons.geo.GeoTools.TO_RAD;
 
 import java.text.DecimalFormat;
 
@@ -68,12 +70,6 @@ public final class RelativeLocation {
 
 	/* No instantiation allowed */
 	private RelativeLocation() {}
-	
-	/** Conversion multiplier for degrees to radians */
-	public static final double TO_RAD = Math.toRadians(1.0);
-
-	/** Conversion multiplier for radians to degrees */
-	public static final double TO_DEG = Math.toDegrees(1.0);
 	
 	/** Convenience constant for 2 * PI */
 	public static final double TWOPI = 2*PI;

@@ -152,7 +152,7 @@ public class Site extends ParameterList implements NamedObjectAPI,Serializable,X
     public boolean equalsSite(Site site){
 
         if( !name.equals( site.name ) ) return false;
-        if( !location.equalsLocation( site.location ) ) return false;
+        if( !location.equals( site.location ) ) return false;
 
         // Not same size, can't be equal
         if( this.size() != site.size() ) return false;
@@ -208,7 +208,7 @@ public class Site extends ParameterList implements NamedObjectAPI,Serializable,X
 
         Site site = new Site();
         site.setName( this.getName() );
-        site.setLocation(location.copy());
+        site.setLocation(location.clone());
 
         if( this.size() < 1 ) return site;
 

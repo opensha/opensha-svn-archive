@@ -285,19 +285,19 @@ public class RegionTest {
 
 	@Test
 	public final void testRegionLocationDouble() {
-		Location L1 = new Location();
+		Location L1 = new Location(0,0,0);
 		try {
 			L1 = null;
 			Region gr = new Region(L1, 50);
 			fail("Null argument not caught");
 		} catch (NullPointerException npe) {}
 		try {
-			L1 = new Location();
+			L1 = new Location(0,0,0);
 			Region gr = new Region(L1, 1001);
 			fail("Radius too high not caught");
 		} catch (IllegalArgumentException iae) {}
 		try {
-			L1 = new Location();
+			L1 = new Location(0,0,0);
 			Region gr = new Region(L1, 0);
 			fail("Radius too low not caught");
 		} catch (IllegalArgumentException iae) {}
@@ -315,7 +315,7 @@ public class RegionTest {
 			Region gr = new Region(ll, 50);
 			fail("Empty location list not caught");
 		} catch (IllegalArgumentException iae) {}
-		ll.addLocation(new Location());
+		ll.addLocation(new Location(0,0,0));
 		try {
 			Region gr = new Region(ll, 501);
 			fail("Buffer too high not caught");

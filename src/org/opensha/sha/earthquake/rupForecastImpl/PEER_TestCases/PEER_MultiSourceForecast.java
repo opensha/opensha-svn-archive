@@ -249,7 +249,7 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
       cumRate /= numLocs;
       dist_GR.scaleToCumRate((int) 0,cumRate);
 
-      pointPoissonEqkSource = new PointEqkSource(new Location(),
+      pointPoissonEqkSource = new PointEqkSource(new Location(0,0,0),
           dist_GR, timeSpan.getDuration(), RAKE, DIP);
 
       if (D) System.out.println(C+" updateForecast(): rake="+pointPoissonEqkSource.getRupture(0).getAveRake() +

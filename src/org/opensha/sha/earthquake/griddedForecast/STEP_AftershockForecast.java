@@ -170,7 +170,7 @@ public class STEP_AftershockForecast
 	  HypoMagFreqDistAtLoc locDist;
 	  int numLocs = this.griddedMagFreqDistForecast.length;
 	  int ithLoc = 0;
-	  while ((loc.equalsLocation(this.griddedMagFreqDistForecast[ithLoc].getLocation()) == false)
+	  while ((loc.equals(this.griddedMagFreqDistForecast[ithLoc].getLocation()) == false)
 	  	&& (ithLoc < numLocs)) {
 		  ithLoc++;
 	  }

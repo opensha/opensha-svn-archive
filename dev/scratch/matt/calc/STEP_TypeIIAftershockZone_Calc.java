@@ -47,7 +47,7 @@ public class STEP_TypeIIAftershockZone_Calc {
     double[] eLat = new double[numEvents];
     double[] eLong = new double[numEvents];
     ObsEqkRupture event = new ObsEqkRupture();
-    Location eLoc = new Location();
+    Location eLoc = new Location(0,0,0);
     LocationList latLongList = new LocationList();
 
     int ind = 0;

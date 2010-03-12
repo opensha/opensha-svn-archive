@@ -253,12 +253,12 @@ public class GriddedRegionTest {
 		Location l2 = new Location(15,15);
 		GriddedRegion gr1 = new GriddedRegion(l1,l2,1,null);
 		Location loc0 = gr1.locationForIndex(0);
-		assertTrue(loc0.equalsLocation(new Location(10,10)));
+		assertTrue(loc0.equals(new Location(10,10)));
 		Location l3 = new Location(10.1,10.1);
 		Location l4 = new Location(15,15);
 		GriddedRegion gr2 = new GriddedRegion(l3,l4,1,null);
 		loc0 = gr2.locationForIndex(0);
-		assertTrue(loc0.equalsLocation(new Location(11.1,11.1)));
+		assertTrue(loc0.equals(new Location(11.1,11.1)));
 	}
 
 	@Test
@@ -269,7 +269,7 @@ public class GriddedRegionTest {
 		Location l4 = new Location(11, 11);
 		GriddedRegion gr = new GriddedRegion(l1,l2,1,null);
 		Location result = gr.locationForIndex(gr.indexForLocation(l3));
-		assertTrue(result.equalsLocation(l4));
+		assertTrue(result.equals(l4));
 	}
 
 	@Test

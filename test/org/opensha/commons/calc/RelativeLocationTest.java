@@ -22,7 +22,7 @@ package org.opensha.commons.calc;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.opensha.commons.calc.RelativeLocation.TO_RAD;
+import static org.opensha.commons.geo.GeoTools.TO_RAD;
 import static org.opensha.commons.calc.RelativeLocation.angle;
 import static org.opensha.commons.calc.RelativeLocation.getVertDistance;
 import static org.opensha.commons.calc.RelativeLocation.getHorzDistance;

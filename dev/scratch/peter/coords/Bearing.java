@@ -326,7 +326,7 @@ public class Bearing {
         b.calculateBearing(pt1, pt2, b);
         System.out.println("Bearing from " + pt1 + " to " + pt2 + " = \n\t"
                            + b);
-        Location pt3 = new Location();
+        Location pt3 = new Location(0,0,0);
         pt3 = b.findPoint(pt1, b.getAngle(), b.getDistance(), pt3);
         System.out.println(
             "using first point, angle and distance, found second point at "

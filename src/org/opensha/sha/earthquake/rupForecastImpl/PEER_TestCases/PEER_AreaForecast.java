@@ -224,7 +224,7 @@ public class PEER_AreaForecast extends EqkRupForecast{
       double dip = ((Double) dipParam.getValue()).doubleValue();
 
       // Dip is hard wired at 90 degrees
-      pointPoissonEqkSource = new PointEqkSource(new Location(),
+      pointPoissonEqkSource = new PointEqkSource(new Location(0,0,0),
           dist, timeSpan.getDuration(), rake, dip);
 
       if (D) System.out.println(C+" updateForecast(): rake="+pointPoissonEqkSource.getRupture(0).getAveRake() +

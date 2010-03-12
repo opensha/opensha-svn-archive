@@ -38,16 +38,16 @@ public class LocationTests {
 	@Test
 	public void testEqualsLocation() {
 		Location loc =  new Location(10,10,10);
-		assertTrue(location.equalsLocation(loc));
+		assertTrue(location.equals(loc));
 
 		loc =  new Location(10,20,10);
-		assertTrue(!location.equalsLocation(loc));
+		assertTrue(!location.equals(loc));
 
 		loc =  new Location(20,10,10);
-		assertTrue(!location.equalsLocation(loc));
+		assertTrue(!location.equals(loc));
 
 		loc =  new Location(10,10,20);
-		assertTrue(!location.equalsLocation(loc));
+		assertTrue(!location.equals(loc));
 	}
 
 	@Test

@@ -18,8 +18,9 @@
  ******************************************************************************/
 
 package org.opensha.commons.data.region;
+
 import static org.opensha.commons.calc.RelativeLocation.PI_BY_2;
-import static org.opensha.commons.calc.RelativeLocation.TO_RAD;
+import static org.opensha.commons.geo.GeoTools.TO_RAD;
 
 import java.awt.Point;
 import java.awt.Polygon;
@@ -279,13 +280,13 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 			throw new NullPointerException("Supplied Region is null");
 		}
 		this.name = region.name;
-		this.border = region.border.copyImmutable();
+		this.border = region.border.copy();
 		this.area = (Area) region.area.clone();
 		// internal regions
 		if (region.interiors != null) {
 			interiors = new ArrayList<LocationList>();
 			for (LocationList interior : region.interiors) {
-				interiors.add(interior.copyImmutable());
+				interiors.add(interior.copy());
 			}
 		}
 	}
@@ -745,8 +746,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		// first remove last point in list if it is the same as
 		// the first point
 		int lastIndex = border.size()-1;
-		if (border.getLocationAt(lastIndex).equalsLocation(
-				border.getLocationAt(0))) {
+		if (border.getLocationAt(lastIndex).equals(border.getLocationAt(0))) {
 			border.remove(lastIndex);
 		}
 		
@@ -772,9 +772,9 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 				}
 				start = end;
 			}
-			this.border = gcBorder.copyImmutable();
+			this.border = gcBorder.copy();
 		} else {
-			this.border = border.copyImmutable();
+			this.border = border.copy();
 		}
 		area = createArea(this.border);
 	}
@@ -835,7 +835,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 			// skip the final closing segment which just repeats
 			// the previous vertex but indicates SEG_CLOSE
 			if (type != PathIterator.SEG_CLOSE) {
-				ll.addLocation(Location.immutableLocation(lat,lon));
+				ll.addLocation(new Location(lat,lon));
 			}
 			pi.next();
 		}
@@ -865,10 +865,8 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		
 		LocationList ll = new LocationList();
 	    for (double angle=0; angle<360; angle += WEDGE_WIDTH) {
-	    	ll.addLocation(
-	    			Location.immutableLocation(
-	    					RelativeLocation.location(
-	    							center, angle * TO_RAD, radius)));
+	    	ll.addLocation(RelativeLocation.location(
+	    			center, angle * TO_RAD, radius));
 	    }
 	    return ll;
 	}

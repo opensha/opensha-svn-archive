@@ -374,16 +374,9 @@ public class LocationList implements java.io.Serializable, XMLSaveable, Iterable
 	public LocationList copy() {
 		LocationList locList = new LocationList();
 		for (Location loc : locations) {
-			locList.addLocation(loc.copy());
+			locList.addLocation(loc.clone());
 		}
 		return locList;
 	}
 	
-	public LocationList copyImmutable() {
-		LocationList locList = new LocationList();
-		for (Location loc : locations) {
-			locList.addLocation(Location.immutableLocation(loc));
-		}
-		return locList;
-	}
 }

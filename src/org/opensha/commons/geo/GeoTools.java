@@ -62,7 +62,14 @@ public class GeoTools {
      */
     public static final double DEPTH_MAX = 700.0;
     
+    
+	/** Conversion multiplier for degrees to radians */
+	public static final double TO_RAD = Math.toRadians(1.0);
+
+	/** Conversion multiplier for radians to degrees */
+	public static final double TO_DEG = Math.toDegrees(1.0);
 	
+
     /**
      * Verifies that an array of latitude values fall within range of 
      * <code>LAT_MIN</code> and <code>LAT_MAX</code> (inclusive).

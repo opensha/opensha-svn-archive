@@ -129,7 +129,7 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
     this.duration = duration;
     this.minMag = minMag;
     this.isPoissonian = true;
-    this.location = hypoMagFreqDistAtLoc.getLocation().copy();
+    this.location = hypoMagFreqDistAtLoc.getLocation().clone();
     this.setAll(hypoMagFreqDistAtLoc);
     this.variableDepthRakeAndDip = true;
     probEqkRupture = new ProbEqkRupture();

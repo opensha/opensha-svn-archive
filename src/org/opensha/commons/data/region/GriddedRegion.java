@@ -96,7 +96,7 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	public final static String XML_METADATA_ANCHOR_NAME = "anchor";
 	public final static String XML_METADATA_NUM_POINTS_NAME = "numPoints";
 
-	public final static Location ANCHOR_0_0 = Location.immutableLocation(0,0);
+	public final static Location ANCHOR_0_0 = new Location(0,0);
 	
 	// the lat-lon arrays of node points
 	// TODO may not need the nodes if LocList is always initialized
@@ -558,13 +558,13 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	 */
 	private void setAnchor(Location anchor) {
 		if (anchor == null) {
-			this.anchor = Location.immutableLocation(getMinLat(), getMinLon());
+			this.anchor = new Location(getMinLat(), getMinLon());
 		} else {
 			double newLat = computeAnchor(
 					getMinLat(), anchor.getLatitude(), spacing);
 			double newLon = computeAnchor(
 					getMinLon(), anchor.getLongitude(), spacing);
-			this.anchor = Location.immutableLocation(newLat, newLon);
+			this.anchor = new Location(newLat, newLon);
 		}
 	}
 

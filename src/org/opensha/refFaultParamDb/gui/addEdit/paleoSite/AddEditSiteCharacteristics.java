@@ -35,6 +35,7 @@ import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.gui.LabeledBoxPanel;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.LocationParameter;
@@ -496,11 +497,11 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
       ParameterException, ConstraintException {
     //creating the Location parameterlist for the Site
     DoubleParameter siteLocLatParam = new DoubleParameter(LAT_PARAM_NAME,
-        Location.MIN_LAT,Location.MAX_LAT,LAT_LON_UNITS,new Double(loc.getLatitude()));
+    		GeoTools.LAT_MIN, GeoTools.LAT_MAX,LAT_LON_UNITS,new Double(loc.getLatitude()));
     DoubleParameter siteLocLonParam = new DoubleParameter(LON_PARAM_NAME,
-        Location.MIN_LON,Location.MAX_LON,LAT_LON_UNITS, new Double(loc.getLongitude()));
+    		GeoTools.LON_MIN,GeoTools.LON_MAX,LAT_LON_UNITS, new Double(loc.getLongitude()));
     DoubleParameter siteLocElevationParam = new DoubleParameter(ELEVATION_PARAM_NAME,
-        Location.MIN_DEPTH, Double.MAX_VALUE, ELEVATION_UNITS);
+    		GeoTools.DEPTH_MIN, GeoTools.DEPTH_MAX, ELEVATION_UNITS);
     // allow null value in elevation
     siteLocElevationParam.getConstraint().setNullAllowed(true);
     ParameterList siteLocParamList = new ParameterList();
