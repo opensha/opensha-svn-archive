@@ -16,7 +16,7 @@ import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 
-public class NewIMRTest extends JPanel implements ActionListener {
+public class IMR_MultiGuiBeanDemo extends JPanel implements ActionListener {
 	
 	private JButton noERFButton = new JButton("No ERF");
 	private JButton frankelERFButton = new JButton("Frankel 96");
@@ -27,7 +27,7 @@ public class NewIMRTest extends JPanel implements ActionListener {
 	
 	private IMR_MultiGuiBean bean;
 	
-	public NewIMRTest() {
+	public IMR_MultiGuiBeanDemo() {
 		super(new BorderLayout());
 		
 		ArrayList<ScalarIntensityMeasureRelationshipAPI> attenRels = new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
@@ -63,7 +63,7 @@ public class NewIMRTest extends JPanel implements ActionListener {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		new NewIMRTest();
+		new IMR_MultiGuiBeanDemo();
 	}
 
 	public void actionPerformed(ActionEvent e) {
