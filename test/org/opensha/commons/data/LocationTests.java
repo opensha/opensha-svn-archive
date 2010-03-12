@@ -65,17 +65,17 @@ public class LocationTests {
 		assertEquals(location.getLongitude(), 10.0, 0);
 	}
 
-	@Test
-	public void testSetDepth() {
-		double depth1 =   15.0;
-		location.setDepth(depth1);
-		double doubleRet = location.getDepth();
-		assertTrue( doubleRet == 15.0 );
-
-		location.setDepth( 10.0 );
-		doubleRet = location.getDepth();
-		assertTrue( doubleRet == 10.0 );
-	}
+//	@Test
+//	public void testSetDepth() {
+//		double depth1 =   15.0;
+//		location.setDepth(depth1);
+//		double doubleRet = location.getDepth();
+//		assertTrue( doubleRet == 15.0 );
+//
+//		location.setDepth( 10.0 );
+//		doubleRet = location.getDepth();
+//		assertTrue( doubleRet == 10.0 );
+//	}
 
 //	@Test
 //	public void testSetLatitude() {

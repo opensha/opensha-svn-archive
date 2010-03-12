@@ -231,9 +231,11 @@ public class CEUS_Point2Vert_FaultPoisSource extends ProbEqkSource implements ja
 
     double depth = 5.0;
     // make the point surface
-    Location newLoc = loc.copy();
+    //Location newLoc = loc.copy();
+    //newLoc.setDepth(depth); // Point source at 1 km depth
+    Location newLoc = new Location(
+    		loc.getLatitude(), loc.getLongitude(), depth);
     
-    newLoc.setDepth(depth); // Point source at 1 km depth
     ptSurface = new PointSurface(newLoc);
     ptSurface.setAveDip(aveDip);
     ptSurface.setAveStrike(strike);
@@ -370,11 +372,21 @@ public class CEUS_Point2Vert_FaultPoisSource extends ProbEqkSource implements ja
     	
     	// set the appropriate depth in the surface
     	if(finiteFault.getLocation(0, 0).getDepth()!=depth) {
-    		Iterator<Location> it = finiteFault.getLocationsIterator();
-    		while(it.hasNext()) {
-    			Location loc = it.next();
-    			loc.setDepth(depth);
+    		
+    		for (int i=0; i<finiteFault.getNumRows(); i++) {
+    			for (int j=0; j<finiteFault.getNumCols(); j++) {
+    				Location loc = finiteFault.getLocation(i, j);
+					loc = new Location(
+							loc.getLatitude(), loc.getLongitude(), depth);
+					finiteFault.set(i, j, loc);
+    			}
     		}
+
+//    		Iterator<Location> it = finiteFault.getLocationsIterator();
+//    		while(it.hasNext()) {
+//    			Location loc = it.next();
+//    			loc.setDepth(depth);
+//    		}
     	}
     	
     	if(magIndex == magFreqDist.getNum()-1) {

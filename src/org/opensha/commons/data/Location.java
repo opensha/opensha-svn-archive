@@ -23,14 +23,14 @@ import static org.opensha.commons.calc.RelativeLocation.LL_PRECISION;
 import static org.opensha.commons.calc.RelativeLocation.TO_DEG;
 import static org.opensha.commons.calc.RelativeLocation.TO_RAD;
 
+import java.awt.Color;
+import java.util.ArrayList;
+
 import org.apache.commons.math.util.MathUtils;
 import org.dom4j.Element;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.metadata.XMLSaveable;
-
-import sun.tools.tree.ThisExpression;
-
 
 /**
  * A <code>Location</code> represents a point with reference to the earth's
@@ -68,7 +68,7 @@ import sun.tools.tree.ThisExpression;
  * 		has set() methods
  */
 
-public class Location implements java.io.Serializable, XMLSaveable {
+public class Location implements java.io.Serializable, XMLSaveable, Cloneable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -130,88 +130,84 @@ public class Location implements java.io.Serializable, XMLSaveable {
      * 
      * @param lat latitude to set
      * @param lon longitude to set
+     * @param depth to set
      * @throws IllegalArgumentException if any supplied values are out of range
      * @see GeoTools
      */
     public Location(double lat, double lon, double depth) {
-
-        //validateLatitude( lat, S ); TODO clean
-        //validateLongitude( lon, S );
-        //validateDepth( depth, S );
-    	setLatitude(lat);
-        setLongitude(lon);
-        setDepth(depth);
-//        this.latitude = lat;
-//        this.longitude = lon;
-//        this.depth = depth;
+    	GeoTools.validateLat(lat);
+    	GeoTools.validateLon(lon);
+    	GeoTools.validateDepth(depth);
+        this.lat = lat * TO_RAD;
+        this.lon = lon * TO_RAD;
+        this.depth = depth;
     }
-    
 
-	/**
-	 * Sets the depth. Values should be positive down.
-	 * @param depth to set in km
-	 */
-	public void setDepth(double depth) {
-		this.depth = depth;
-	}
+//	/**
+//	 * Sets the depth. Values should be positive down.
+//	 * @param depth to set in km
+//	 */
+//	public void setDepth(double depth) {
+//		GeoTools.validateDepth(depth);
+//		this.depth = depth;
+//	}
 
 	/** 
 	 * Sets the latitude. Exception thrown if invalid value. 
 	 * @param lat latitude to set
 	 * @throws InvalidRangeException */ // TODO shorten method name
-	public void setLatitude(double lat) throws InvalidRangeException {
-		validateLatitude(lat, C + ": setLatitude(): ");
-		this.lat = lat * TO_RAD;
-		//this.latitude = latitude;
-	}
+//	public void setLatitude(double lat) throws InvalidRangeException {
+//		validateLatitude(lat, C + ": setLatitude(): ");
+//		this.lat = lat * TO_RAD;
+//		//this.latitude = latitude;
+//	}
 
 	/** 
 	 * Sets the longitude. Exception thrown if invalid value. 
 	 * @param lon longitude to set
 	 * @throws InvalidRangeException
 	 */
-	public void setLongitude(double lon) throws InvalidRangeException {
-		validateLongitude(lon, C + ": setLongitude(): ");
-		this.lon = lon * TO_RAD;
-		//this.longitude = longitude;
-	}
+//	public void setLongitude(double lon) throws InvalidRangeException {
+//		validateLongitude(lon, C + ": setLongitude(): ");
+//		this.lon = lon * TO_RAD;
+//		//this.longitude = longitude;
+//	}
 
 	/**
-	 * Returns the depth of this location.
-	 * @return the location depth in km
+	 * Returns the depth of this <code>Location</code>.
+	 * @return the <code>Location</code> depth in km
 	 */
 	public double getDepth() {
 		return depth;
-//		return MathUtils.round(depth, LL_PRECISION); //TODO clean
 	}
 
 	/** 
-	 * Returns the latitude of this location.
-	 * @return the location latitude in decimal degrees
+	 * Returns the latitude of this <code>Location</code>.
+	 * @return the <code>Location</code> latitude in decimal degrees
 	 */
 	public double getLatitude() {
 		return MathUtils.round(lat * TO_DEG, LL_PRECISION);
 	}
 
 	/** 
-	 * Returns the longitude of this location. 
-	 * @return the location longitude in decimal degrees
+	 * Returns the longitude of this <code>Location</code>. 
+	 * @return the <code>Location</code> longitude in decimal degrees
 	 */
 	public double getLongitude() {
 		return MathUtils.round(lon * TO_DEG, LL_PRECISION);
 	}
 
 	/** 
-	 * Returns the latitude of this location.
-	 * @return the location latitude in decimal degrees
+	 * Returns the latitude of this <code>Location</code>.
+	 * @return the <code>Location</code> latitude in radians
 	 */
 	public double getLatRad() {
 		return lat;
 	}
 
 	/** 
-	 * Returns the longitude of this location. 
-	 * @return the location longitude in decimal degrees
+	 * Returns the longitude of this <code>Location</code>. 
+	 * @return the <code>Location</code> longitude in radians
 	 */
 	public double getLonRad() {
 		return lon;
@@ -369,13 +365,39 @@ public class Location implements java.io.Serializable, XMLSaveable {
     }
 
     public static void main(String[] args) {
-      @SuppressWarnings("unused")
-	Location loc;
-      long time = System.currentTimeMillis();
-      for(int i=0; i < 10000;i++) {
-        loc = new Location(44,30,0);
-      }
-      System.out.println("time = "+ (System.currentTimeMillis()-time));
+      
+    	ArrayList<Location> locList = new ArrayList<Location>();
+    	locList.add(new Location(20,30,10));
+    	for (Location loc : locList) {
+    		loc = new Location(10,10,10);
+    	}
+    	//Location loc = locList.get(0);
+    	
+    	System.out.println(locList.get(0));
+//      loc1 = new Location(loc1.getLatitude(), loc1.getLongitude(), 5);
+//      System.out.println(loc1);
+    	
+//      long i1 = (long) Integer.MAX_VALUE;
+//      
+//      System.out.println(Integer.MAX_VALUE);
+//      System.out.println(i1*i1);
+//      System.out.println(Long.MAX_VALUE);
+      
+      
+//      Location loc = new Location();
+//      try {
+//      Location locopy = (Location) loc.clone();
+//      } catch (CloneNotSupportedException e) {
+//    	  e.printStackTrace();
+//      }
+      
+      
+//	Location loc;
+//      long time = System.currentTimeMillis();
+//      for(int i=0; i < 10000;i++) {
+//        loc = new Location(44,30,0);
+//      }
+//      System.out.println("time = "+ (System.currentTimeMillis()-time));
     }
     
     /**

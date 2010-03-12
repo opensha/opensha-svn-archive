@@ -162,7 +162,7 @@ public class SimpleFaultData  implements java.io.Serializable {
     		totArea+=area;
     		combinedUpperSeisDepth+=(area*simpleFaultDataList.get(i).getUpperSeismogenicDepth());
     		if(dip>0)
-    			combinedDip+=(area*dip);
+    			combinedDip += (area * dip);
     		else combinedDip+=(area*(dip+180));
     		//System.out.println(dip+","+area+","+combinedDip+","+totArea);
     	}
@@ -191,8 +191,18 @@ public class SimpleFaultData  implements java.io.Serializable {
     	simpleFaultData.setAveDip(dip);
     	double upperSeismogenicDepth = combinedUpperSeisDepth/totArea;
     	simpleFaultData.setUpperSeismogenicDepth(upperSeismogenicDepth);
-    	for(int locIndex=0; locIndex<combinedFaultTrace.getNumLocations(); ++locIndex)
-    		combinedFaultTrace.getLocationAt(locIndex).setDepth(simpleFaultData.getUpperSeismogenicDepth());
+    	
+    	for(int i=0; i<combinedFaultTrace.getNumLocations(); ++i) {
+    		//combinedFaultTrace.getLocationAt(i).setDepth(
+    		//		simpleFaultData.getUpperSeismogenicDepth());
+    		// replace trace Locations with depth corrected values
+    		Location old = combinedFaultTrace.getLocationAt(i);
+    		Location loc = new Location(
+    				old.getLatitude(), 
+    				old.getLongitude(),
+    				upperSeismogenicDepth);
+    		combinedFaultTrace.replaceLocationAt(loc, i);
+    	}
     	simpleFaultData.setLowerSeismogenicDepth((totArea/totLength)*Math.sin(dip*Math.PI/180)+upperSeismogenicDepth);
     	//System.out.println(simpleFaultData.getLowerSeismogenicDepth());
     	simpleFaultData.setFaultTrace(combinedFaultTrace);

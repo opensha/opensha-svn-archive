@@ -85,19 +85,23 @@ public class STEP_TypeIIAftershockZone_Calc {
 
     LocationList faultSegments = new LocationList();
     double topEventLat, topEventLong, bottomEventLat, bottomEventLong;
-    Location topEndPoint = new Location();
-    Location bottomEndPoint = new Location();
+    Location topEndPoint;
+    Location bottomEndPoint;
     if (latDiff > longDiff){
-      topEndPoint.setLatitude(maxLat_LatSort);
-      topEndPoint.setLongitude(maxLong_LatSort);
-      bottomEndPoint.setLatitude(minLat_LatSort);
-      bottomEndPoint.setLongitude(minLong_LatSort);
+    	topEndPoint = new Location(maxLat_LatSort, maxLong_LatSort);
+    	bottomEndPoint = new Location(minLat_LatSort, minLong_LatSort);
+//      topEndPoint.setLatitude(maxLat_LatSort);
+//      topEndPoint.setLongitude(maxLong_LatSort);
+//      bottomEndPoint.setLatitude(minLat_LatSort);
+//      bottomEndPoint.setLongitude(minLong_LatSort);
     }
     else {
-      topEndPoint.setLatitude(maxLat_LongSort);
-      topEndPoint.setLongitude(maxLong_LongSort);
-      bottomEndPoint.setLatitude(minLat_LongSort);
-      bottomEndPoint.setLongitude(minLong_LongSort);
+    	topEndPoint = new Location(maxLat_LongSort, maxLong_LongSort);
+    	bottomEndPoint = new Location(minLat_LongSort, minLong_LongSort);
+//      topEndPoint.setLatitude(maxLat_LongSort);
+//      topEndPoint.setLongitude(maxLong_LongSort);
+//      bottomEndPoint.setLatitude(minLat_LongSort);
+//      bottomEndPoint.setLongitude(minLong_LongSort);
     }
 
     /**

@@ -129,8 +129,11 @@ public class PoissonAreaSource extends PointToLineSource implements java.io.Seri
 				    		depth = defaultHypoDepth;
 				    	else
 				    		depth = aveRupTopVersusMag.getClosestY(mag);
-				    	loc.setDepth(depth);
-					    
+				    	//loc.setDepth(depth);
+				    	loc = new Location(
+					    		loc.getLatitude(), loc.getLongitude(), depth);
+				    	// Location 2 loops out; is above redundant?
+				    	
 					    // Set 
 						rup.setPointSurface(loc,focalMechanisms[i].getDip());
 						

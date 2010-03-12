@@ -75,7 +75,7 @@ public class BackGroundRatesGridTest  extends TestCase {
 	public void testGetKey4Location() {	
 		Location loc = new Location(-47.053333, 175.1011, 0d);
 		assertEquals("-4705_17510", bgGrid1.getKey4Location(loc));
-		loc.setLatitude(32.1555);
+		loc = new Location(32.1555, 175.1011, 0d);
 		assertEquals("3216_17510", bgGrid1.getKey4Location(loc));
 	}
 	

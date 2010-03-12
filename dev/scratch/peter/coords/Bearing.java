@@ -364,8 +364,7 @@ public class Bearing {
     public static Location findPoint(Location pt1, double az,
                                             double dist,
                                             Location result) {
-        return findPoint(pt1.getLatitude(), pt1.getLongitude(), az, dist,
-                         result);
+        return findPoint(pt1.getLatitude(), pt1.getLongitude(), az, dist);
     }
 
     /**
@@ -392,17 +391,19 @@ public class Bearing {
      * @return the position as a LatLonPointImpl
      */
     public static Location findPoint(double lat1, double lon1,
-                                            double az, double dist,
-                                            Location result) {
-        if (result == null) {
-            result = new Location();
-        }
+                                            double az, double dist) {
+//        if (result == null) {
+//            result = new Location();
+//        }
 
         if ((dist == 0)) {
-            result.setLatitude(lat1);
-            result.setLongitude(lon1);
-            return result;
+            return new Location(lat1, lon1);
+
+//            result.setLatitude(lat1);
+//            result.setLongitude(lon1);
+//            return result;
         }
+        
         // Algorithm from National Geodetic Survey, FORTRAN program "forward,"
         // subroutine "DIRCT1," by stephen j. frakes.
         // http://www.ngs.noaa.gov/TOOLS/Inv_Fwd/Inv_Fwd.html
@@ -474,9 +475,10 @@ public class Bearing {
         D     = ((E * CY * C + CZ) * SY * C + Y) * SA;
         GLON2 = GLON1 + X - (1. - C) * D * F;
         BAZ   = (Math.atan2(SA, BAZ) + Math.PI) * deg;
-        result.setLatitude(GLAT2 * deg);
-        result.setLongitude(GLON2 * deg);
-        return result;
+        return new Location(GLAT2 * deg, GLON2 * deg);
+//        result.setLatitude(GLAT2 * deg);
+//        result.setLongitude(GLON2 * deg);
+//        return result;
     }
 
 }

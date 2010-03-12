@@ -37,7 +37,11 @@ public class EEWScatterMaker {
 			// to deal with overlaps, just move the next (overlapping) one over a bit
 			for (Location prev : prevLocs) {
 				if (RelativeLocation.linearDistance(loc, prev) < 10) {
-					loc.setLongitude(loc.getLongitude() + 0.2);
+					loc = new Location(
+							loc.getLatitude(),
+							loc.getLongitude() + 0.2,
+							loc.getDepth());
+					//loc.setLongitude(loc.getLongitude() + 0.2);
 				}
 			}
 			prevLocs.add(loc);

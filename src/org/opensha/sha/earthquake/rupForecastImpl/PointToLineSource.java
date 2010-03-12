@@ -171,13 +171,16 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 			double prob = 1-Math.exp(-rate*weight*duration);
 			if(prob > 0 && mag >= minMag){
 				// set depth of rupture
-				Location loc = location.copy();
+				//Location loc = location.copy();
 				double depth;
 				if(mag < aveRupTopVersusMag.getMinX())
 					depth = defaultHypoDepth;
 				else
 					depth = aveRupTopVersusMag.getClosestY(mag);
-				loc.setDepth(depth);
+				Location loc = new Location(
+						location.getLatitude(),
+						location.getLongitude(),
+						depth);
 				// set rupture length
 				double rupLength = getRupLength(mag, aveRupTopVersusMag, lowerSeisDepth, dip, magScalingRel);
 

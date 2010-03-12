@@ -136,7 +136,9 @@ public class SlabSurfaceGenerator {
 					numNaN+=1;
 //					System.out.println("row="+s+"\tcol="+i+"\t"+loc.getLongitude()+"\t"+loc.getLatitude());
 				}
-				loc.setDepth(depth);
+				loc = new Location(
+						loc.getLatitude(), loc.getLongitude(), depth);
+				//loc.setDepth(depth);
 				surf.setLocation(s, i, loc);
 			}
 
@@ -148,34 +150,64 @@ public class SlabSurfaceGenerator {
 		for(int r=0;r<nRows;r++){
 			if(Double.isNaN(surf.getLocation(r, 0).getDepth())){
 				double depth = 2*surf.getLocation(r, 1).getDepth() - surf.getLocation(r, 2).getDepth();
-				surf.getLocation(r, 0).setDepth(depth);
+				Location loc = surf.getLocation(r, 0);
+				loc = new Location(
+						loc.getLatitude(), loc.getLongitude(), depth);
+				surf.setLocation(r, 0, loc);
+				//surf.getLocation(r, 0).setDepth(depth);
 			}
 			if(Double.isNaN(surf.getLocation(r, nCols-1).getDepth())){
 				double depth = 2*surf.getLocation(r, nCols-2).getDepth() - surf.getLocation(r, nCols-3).getDepth();
-				surf.getLocation(r, nCols-1).setDepth(depth);
+				Location loc = surf.getLocation(r, nCols-1);
+				loc = new Location(
+						loc.getLatitude(), loc.getLongitude(), depth);
+				surf.setLocation(r, nCols-1, loc);
+				//surf.getLocation(r, nCols-1).setDepth(depth);
 			}
 		}
 		for(int c=0;c<nCols;c++){
 			if(Double.isNaN(surf.getLocation(0, c).getDepth())){
 				double depth = 2*surf.getLocation(1, c).getDepth() - surf.getLocation(2, c).getDepth();
-				surf.getLocation(0, c).setDepth(depth);
+				Location loc = surf.getLocation(0, c);
+				loc = new Location(
+						loc.getLatitude(), loc.getLongitude(), depth);
+				surf.setLocation(0, c, loc);
+				//surf.getLocation(0, c).setDepth(depth);
 			}
 			if(Double.isNaN(surf.getLocation(nRows-1, c).getDepth())){
 				double depth = 2*surf.getLocation(nRows-2, c).getDepth() - surf.getLocation(nRows-3, c).getDepth();
-				surf.getLocation(nRows-1, c).setDepth(depth);
+				Location loc = surf.getLocation(nRows-1, c);
+				loc = new Location(
+						loc.getLatitude(), loc.getLongitude(), depth);
+				surf.setLocation(nRows-1, c, loc);
+				//surf.getLocation(nRows-1, c).setDepth(depth);
 			}
 		}
 		
 		//Check for any NaNs
-		Iterator<Location> it = surf.getLocationsIterator();
-		while (it.hasNext()) {
-			Location loc = it.next();
-			if(Double.isNaN(loc.getDepth())) {
-				System.out.println("NaN depth encountered in SlabSurfaceGenerator; changed value to 0.0");
-				loc.setDepth(0);
-//				throw new RuntimeException("NaN encountered in SlabSurfaceGenerator");
+		for (int i=0; i<surf.getNumRows(); i++) {
+			for (int j=0; j<surf.getNumCols(); j++) {
+				Location loc = surf.getLocation(i, j);
+				if(Double.isNaN(loc.getDepth())) {
+					System.out.println("NaN depth encountered in SlabSurfaceGenerator; changed value to 0.0");
+					loc = new Location(
+							loc.getLatitude(), loc.getLongitude(), 0);
+					surf.setLocation(i, j, loc);
+					// throw new RuntimeException("NaN encountered in SlabSurfaceGenerator");
+				}
 			}
 		}
+//		Iterator<Location> it = surf.getLocationsIterator();
+//		while (it.hasNext()) {
+//			Location loc = it.next();
+//			if(Double.isNaN(loc.getDepth())) {
+//				System.out.println("NaN depth encountered in SlabSurfaceGenerator; changed value to 0.0");
+//				loc = new Location(
+//						loc.getLatitude(), loc.getLongitude(), 0);
+//				loc.setDepth(0);
+//				// throw new RuntimeException("NaN encountered in SlabSurfaceGenerator");
+//			}
+//		}
 	
 
 		/*
