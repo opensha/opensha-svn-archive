@@ -429,7 +429,8 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
       if(tempMin < min) min = tempMin;
       return min;
      */
-     return RelativeLocation.getHorzDistance(site.getLocation(),ptSurface);
+     return RelativeLocation.getHorzDistance(
+    		 site.getLocation(),ptSurface.getLocation());
     }
 
  /**

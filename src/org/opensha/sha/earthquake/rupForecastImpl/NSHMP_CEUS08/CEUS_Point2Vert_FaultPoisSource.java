@@ -437,7 +437,8 @@ public class CEUS_Point2Vert_FaultPoisSource extends ProbEqkSource implements ja
       if(tempMin < min) min = tempMin;
       return min;
      */
-     return RelativeLocation.getHorzDistance(site.getLocation(),ptSurface);
+     return RelativeLocation.getHorzDistance(
+    		 site.getLocation(),ptSurface.getLocation());
     }
 
  /**

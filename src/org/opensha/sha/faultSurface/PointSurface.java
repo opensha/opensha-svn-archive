@@ -26,6 +26,7 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.LocationException;
+import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.util.FaultUtils;
 
 
@@ -52,9 +53,12 @@ import org.opensha.commons.util.FaultUtils;
  * @created    February 26, 2002
  * @version    1.0
  */
-public class PointSurface extends Location implements EvenlyGriddedSurfaceAPI {
+// TODO note in docs that class now wraps Location rather tan subclasses
+//public class PointSurface extends Location implements EvenlyGriddedSurfaceAPI {
+public class PointSurface implements EvenlyGriddedSurfaceAPI {
 
-
+	private Location location;
+	
     /**
      * The average strike of this surface on the Earth. Even though this is a
      * point source, an average strike can be assigned to it to assist with
@@ -73,7 +77,7 @@ public class PointSurface extends Location implements EvenlyGriddedSurfaceAPI {
     protected String name;
 
     /** Constructor for the PointSurface object - just calls super(). */
-    public PointSurface() { super(); }
+    //public PointSurface() { super(); }
 
 
     /**
@@ -85,7 +89,9 @@ public class PointSurface extends Location implements EvenlyGriddedSurfaceAPI {
      * @param  depth  depth below the earth for the Location of this point source.
      */
     public PointSurface( double lat, double lon, double depth ) {
-        super( lat, lon, depth );
+        //super( lat, lon, depth );
+    	// init a Locaiton to perform bounds checking of inputs
+    	this(new Location(lat, lon, depth));
     }
 
     /**
@@ -95,7 +101,7 @@ public class PointSurface extends Location implements EvenlyGriddedSurfaceAPI {
      * @param  loc    the Location object for this point source.
      */
     public PointSurface( Location loc ) {
-        super( loc.getLatitude(), loc.getLongitude(), loc.getDepth() );
+    	setLocation(loc);
     }
 
 
@@ -146,9 +152,30 @@ public class PointSurface extends Location implements EvenlyGriddedSurfaceAPI {
 
     /** Since this is a point source, the single Location can be set without indexes. Does a clone copy. */
     public void setLocation( Location location ) {
-        this.setLatitude( location.getLatitude() );
-        this.setLongitude( location.getLongitude() );
-        this.setDepth( location.getDepth() );
+    	this.location = location;
+//        lat = loc.getLatitude();
+//        lon = loc.getLongitude();
+//        depth = loc.getDepth();
+//        this.setLatitude( location.getLatitude() );
+//        this.setLongitude( location.getLongitude() );
+//        this.setDepth( location.getDepth() );
+    }
+//    public double getLatitude() { return lat; }
+//    public void setLatitude(double lat) {
+//    	GeoTools.validateLat(lat);
+//    	this.lat = lat;
+//    }
+//    public double getLongitude() { return lon; }
+//    public void setLongitude(double lon) {
+//    	GeoTools.validateLon(lon);
+//    	this.lon = lon;
+//    }
+    public double getDepth() { return location.getDepth(); }
+    public void setDepth(double depth) {
+    	location = new Location(
+    			location.getLatitude(), 
+    			location.getLongitude(),
+    			depth);
     }
 
 
@@ -188,7 +215,7 @@ public class PointSurface extends Location implements EvenlyGriddedSurfaceAPI {
     public double getAveDip() { return aveDip; }
 
     /** Returns a clone copy of the Location of this point source  */
-    public Location getLocation(){ return cloneLocation(); }
+    public Location getLocation(){ return location; }
 
 
     /**
@@ -209,8 +236,8 @@ public class PointSurface extends Location implements EvenlyGriddedSurfaceAPI {
     /** Does same thing as listIterator() in super Interface. Will contain only one Location */
     public ListIterator getLocationsIterator() {
 
-        ArrayList v = new ArrayList();
-        v.add( ( Location ) this );
+        ArrayList<Location> v = new ArrayList<Location>();
+        v.add(getLocation());
         return v.listIterator();
     }
 
@@ -221,7 +248,7 @@ public class PointSurface extends Location implements EvenlyGriddedSurfaceAPI {
      */
     public LocationList getLocationList() {
       LocationList locList = new LocationList();
-      locList.addLocation(this);
+      locList.addLocation(getLocation());
       return locList;
     }
 
@@ -273,16 +300,16 @@ public class PointSurface extends Location implements EvenlyGriddedSurfaceAPI {
 
 
     /** Make a clone ( copies all fields ) of the Location. */
-    protected Location cloneLocation() {
-
-        Location location = new Location(
-                this.getLatitude(),
-                this.getLongitude(),
-                this.getDepth()
-                 );
-
-        return location;
-    }
+//    protected Location cloneLocation() {
+//
+//        Location location = new Location(
+//                this.getLatitude(),
+//                this.getLongitude(),
+//                this.getDepth()
+//                 );
+//
+//        return location;
+//    }
 
 
     /** return getLocationsIterator() */
@@ -410,9 +437,9 @@ public class PointSurface extends Location implements EvenlyGriddedSurfaceAPI {
       surfaceMetadata += "1" + "\t";
       surfaceMetadata += "1" + "\n";
       surfaceMetadata += "#Surface locations (Lat Lon Depth) \n";
-      surfaceMetadata += (float) getLatitude() + "\t";
-      surfaceMetadata += (float) getLongitude() + "\t";
-      surfaceMetadata += (float) getDepth();
+      surfaceMetadata += (float) location.getLatitude() + "\t";
+      surfaceMetadata += (float) location.getLongitude() + "\t";
+      surfaceMetadata += (float) location.getDepth();
 
       return surfaceMetadata;
     }
