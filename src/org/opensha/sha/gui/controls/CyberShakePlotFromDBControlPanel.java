@@ -23,6 +23,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagLayout;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -92,10 +93,11 @@ import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
  * @version 1.0
  */
 public class CyberShakePlotFromDBControlPanel
-extends JFrame implements ParameterChangeListener {
+extends ControlPanel implements ParameterChangeListener {
 
+	public static final String NAME = "Plot Cybershake data";
+	
 	public static final String ERF_NAME = MeanUCERF2.NAME;
-
 
 	private static final boolean D = false;
 	public static final String SITE_SELECTOR_PARAM = "CyberShake Site";
@@ -161,7 +163,7 @@ extends JFrame implements ParameterChangeListener {
 	private ParameterList paramList;
 
 	//handle to the application using this control panel
-	private CyberShakePlotControlPanelAPI application;
+	private HazardCurveServerModeApplication application;
 	
 	double prevIMVal = 3;
 
@@ -203,26 +205,32 @@ extends JFrame implements ParameterChangeListener {
 	ArrayList<CybershakeERF> erfs;
 	ArrayList<String> erfNames;
 
-
-	public CyberShakePlotFromDBControlPanel(CyberShakePlotControlPanelAPI app) {
-		this.setTitle("Plot CyberShake Data");
-		application = app;
+	private JFrame frame;
+	
+	public CyberShakePlotFromDBControlPanel(HazardCurveServerModeApplication app) {
+		super(NAME);
+		this.application = app;
+	}
+	
+	public void doinit() {
+		frame = new JFrame();
+		frame.setTitle(NAME);
 		try {
 			jbInit();
 		}
 		catch (Exception exception) {
 			exception.printStackTrace();
 		}
-		this.pack();
-		Component parent = (Component)app;
+		frame.pack();
+		Component parent = (Component)application;
 		// show the window at center of the parent component
-		this.setLocation(parent.getX()+parent.getWidth()/2,
+		frame.setLocation(parent.getX()+parent.getWidth()/2,
 				parent.getY());
 //		hazCurve.addProgressListener(this);
 	}
 
 	private void jbInit() throws Exception {
-		getContentPane().setLayout(borderLayout1);
+		frame.getContentPane().setLayout(borderLayout1);
 		guiPanel.setLayout(new BorderLayout());
 		submitButton.setText("Plot Curve");
 		paramSettingButton.setText("Set Params for Comparison");
@@ -234,7 +242,7 @@ extends JFrame implements ParameterChangeListener {
 		controlPanelLabel.setText("Cybershake Hazard Data Plot Control");
 		//creating the Site and SA Period selection for the Cybershake control panel
 		initCyberShakeControlPanel();
-		this.getContentPane().add(guiPanel, java.awt.BorderLayout.CENTER);
+		frame.getContentPane().add(guiPanel, java.awt.BorderLayout.CENTER);
 		guiPanel.add(controlPanelLabel, BorderLayout.NORTH);
 		guiPanel.add(listEditor, BorderLayout.CENTER);
 		JPanel topButtonPanel = new JPanel();
@@ -279,7 +287,7 @@ extends JFrame implements ParameterChangeListener {
 			}
 		});
 		publishButton.setEnabled(false);
-		this.setSize(400,600);
+		frame.setSize(400,600);
 	}
 
 
@@ -630,7 +638,7 @@ extends JFrame implements ParameterChangeListener {
 				// the curve and the amps are both in the database, promt the user
 				String message = "A hazard curve already exists for these parameters.\nDo you wish to plot this curve (otherwise curve\n" +
 						"will be recalculated)?";
-				int response = JOptionPane.showConfirmDialog(this, message, "Plot Existing Curve?", JOptionPane.YES_NO_OPTION);
+				int response = JOptionPane.showConfirmDialog(frame, message, "Plot Existing Curve?", JOptionPane.YES_NO_OPTION);
 				if (response == JOptionPane.NO_OPTION) {
 					dbCurve = false;
 				}
@@ -681,7 +689,7 @@ extends JFrame implements ParameterChangeListener {
 
 		if(!imtSet)
 			return;
-		application.setX_ValuesForHazardCurve(createUSGS_PGA_Function());
+		application.setCurveXValues(createUSGS_PGA_Function());
 
 		if(isDeterministic)
 			setEqkSrcRupSelectorParams();
@@ -718,7 +726,7 @@ extends JFrame implements ParameterChangeListener {
 		
 		setSiteParams();
 		setEqkRupForecastParams();
-		application.setX_ValuesForHazardCurve(createUSGS_PGA_Function());
+		application.setCurveXValues(createUSGS_PGA_Function());
 		
 		ArrayList<PlotCurveCharacterstics> chars = application.getPlottingFeatures();
 		
@@ -803,7 +811,7 @@ extends JFrame implements ParameterChangeListener {
 			curveData = this.getHazardData(imlVals);
 //			calcProgress.setVisible(false);
 			if (curveData == null) {
-				JOptionPane.showMessageDialog(this,
+				JOptionPane.showMessageDialog(frame,
 						"There are no Peak Amplitudes in the database for the selected paremters.\n ");
 				return;
 			}
@@ -948,7 +956,7 @@ extends JFrame implements ParameterChangeListener {
 		double minSaVal = ((Double)allowedVals.get(0)).doubleValue();
 		double maxSaVal = ((Double)allowedVals.get(size -1)).doubleValue();
 		if ( (saPeriodVal < minSaVal) || (saPeriodVal > maxSaVal)) {
-			JOptionPane.showMessageDialog(this,
+			JOptionPane.showMessageDialog(frame,
 					"This attenuation does not support the SA Period\n " +
 					"selected in cybershake control panel. Either choose a \n different Attenuation " +
 			"Relationship or a different SA Period");
@@ -992,7 +1000,7 @@ extends JFrame implements ParameterChangeListener {
 		if (id >= 0) {
 			String message = "A hazard curve already exists for these parameters.\nOverwite curve? (otherwise curve curve will\n" +
 			"be added with original curve left untouched)?";
-			int response = JOptionPane.showConfirmDialog(this, message, "Overwrite Existing Curve?", JOptionPane.YES_NO_CANCEL_OPTION);
+			int response = JOptionPane.showConfirmDialog(frame, message, "Overwrite Existing Curve?", JOptionPane.YES_NO_CANCEL_OPTION);
 			if (response == JOptionPane.YES_OPTION) {
 				overwrite = true;
 			} else if (response == JOptionPane.CANCEL_OPTION) {
@@ -1003,7 +1011,7 @@ extends JFrame implements ParameterChangeListener {
 		String user, pass;
 		
 		if (prevPass.length() == 0 && prevUser.length() == 0) {
-			UserAuthDialog dialog = new UserAuthDialog(this, false);
+			UserAuthDialog dialog = new UserAuthDialog(frame, false);
 			
 			dialog.setVisible(true);
 			
@@ -1026,7 +1034,7 @@ extends JFrame implements ParameterChangeListener {
 			} catch (IOException e) {
 				e.printStackTrace();
 				
-				UserAuthDialog dialog = new UserAuthDialog(this, false);
+				UserAuthDialog dialog = new UserAuthDialog(frame, false);
 				
 				if (dialog.isCanceled())
 					return;
@@ -1134,6 +1142,11 @@ extends JFrame implements ParameterChangeListener {
 		function.set(7.94328,1);
 		function.set(10d,1d);
 		return function;
+	}
+
+	@Override
+	public Window getComponent() {
+		return frame;
 	}
 
 //	public void setProgressIndeterminate(boolean indeterminate) {

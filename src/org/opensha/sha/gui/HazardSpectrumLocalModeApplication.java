@@ -51,8 +51,13 @@ import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMT_GuiBean;
+import org.opensha.sha.gui.controls.CalculationSettingsControlPanel;
 import org.opensha.sha.gui.controls.ERF_EpistemicListControlPanel;
 import org.opensha.sha.gui.controls.PlottingOptionControl;
+import org.opensha.sha.gui.controls.SiteDataControlPanel;
+import org.opensha.sha.gui.controls.SitesOfInterestControlPanel;
+import org.opensha.sha.gui.controls.XY_ValuesControlPanel;
+import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanel;
 import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
@@ -423,12 +428,12 @@ extends HazardCurveLocalModeApplication {
 	 */
 	protected void initControlList() {
 		controlComboBox.addItem(CONTROL_PANELS);
-		controlComboBox.addItem(CALC_PARAMS_CONTROL);
-		controlComboBox.addItem(SITES_OF_INTEREST_CONTROL);
-		controlComboBox.addItem(CVM_CONTROL);
-		controlComboBox.addItem(PLOTTING_OPTION);
-		controlComboBox.addItem(X_VALUES_CONTROL);
-		controlComboBox.addItem(XY_Values_Control);
+		controlComboBox.addItem(CalculationSettingsControlPanel.NAME);
+		controlComboBox.addItem(SitesOfInterestControlPanel.NAME);
+		controlComboBox.addItem(SiteDataControlPanel.NAME);
+		controlComboBox.addItem(PlottingOptionControl.NAME);
+		controlComboBox.addItem(X_ValuesInCurveControlPanel.NAME);
+		controlComboBox.addItem(XY_ValuesControlPanel.NAME);
 	}
 
 

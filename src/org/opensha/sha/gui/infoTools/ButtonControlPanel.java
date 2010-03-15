@@ -204,10 +204,10 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
 		double minY=yAxisRange.getLowerBound();
 		double maxY=yAxisRange.getUpperBound();
 		if(customAxis) { // select the custom scale in the control window
-			if(axisControlPanel == null)
+			if(axisControlPanel == null) {
 				axisControlPanel=new AxisLimitsControlPanel(this, this,
 						AxisLimitsControlPanel.CUSTOM_SCALE, minX,maxX,minY,maxY);
-			else  axisControlPanel.setParams(AxisLimitsControlPanel.CUSTOM_SCALE,
+			} else  axisControlPanel.setParams(AxisLimitsControlPanel.CUSTOM_SCALE,
 					minX,maxX,minY,maxY);
 
 		}
@@ -218,8 +218,10 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
 			else  axisControlPanel.setParams(AxisLimitsControlPanel.AUTO_SCALE,
 					minX,maxX,minY,maxY);
 		}
-		axisControlPanel.pack();
-		axisControlPanel.setVisible(true);
+		if (!axisControlPanel.isInitialized())
+			axisControlPanel.init();
+		axisControlPanel.getComponent().pack();
+		axisControlPanel.getComponent().setVisible(true);
 	}
 
 

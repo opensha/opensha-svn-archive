@@ -20,6 +20,7 @@
 package org.opensha.sha.gui.controls;
 
 import java.awt.BorderLayout;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -45,10 +46,13 @@ import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.cybershake.db.ERF2DB;
 import org.opensha.sha.cybershake.db.PeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.param.CyberShakeERFSelectorParam;
+import org.opensha.sha.gui.HazardCurveServerModeApplication;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 
-public class CyberShakeSiteSetterControlPanel extends JFrame implements
+public class CyberShakeSiteSetterControlPanel extends ControlPanel implements
 		ParameterChangeListener, ActionListener {
+	
+	public static final String NAME = "CyberShake Sites";
 	
 	private DBAccess db;
 	private CybershakeSiteInfo2DB csSites;
@@ -81,14 +85,21 @@ public class CyberShakeSiteSetterControlPanel extends JFrame implements
 	private ArrayList<CybershakeSite> sites;
 	private ArrayList<String> siteNames;
 	
-	private CyberShakePlotControlPanelAPI app;
+	private Site_GuiBean siteGuiBean;
 	
 	private HashMap<String, CybershakeSite> siteNameIDMap;
 	
-	public CyberShakeSiteSetterControlPanel(CyberShakePlotControlPanelAPI app) {
-		super("Set Site for CyberShake Calculations");
+	private JFrame frame;
+	
+	public CyberShakeSiteSetterControlPanel(Site_GuiBean siteGuiBean) {
+		super(NAME);
 		
-		this.app = app;
+		this.siteGuiBean = siteGuiBean;
+	}
+	
+	public void doinit() {
+		frame = new JFrame();
+		frame.setTitle("Set Site for CyberShake Calculations");
 		
 		db = Cybershake_OpenSHA_DBApplication.db;
 		csSites = new CybershakeSiteInfo2DB(db);
@@ -109,7 +120,7 @@ public class CyberShakeSiteSetterControlPanel extends JFrame implements
 		erfParam = new CyberShakeERFSelectorParam(erf2db.getAllERFs());
 		erfParam.addParameterChangeListener(this);
 		
-		siteSelectionParam = new StringParameter(CyberShakePlotControlPanel.SITE_SELECTOR_PARAM);
+		siteSelectionParam = new StringParameter(CyberShakePlotFromDBControlPanel.SITE_SELECTOR_PARAM);
 		refreshSites();
 		
 		paramList.addParameter(allSitesParam);
@@ -128,8 +139,8 @@ public class CyberShakeSiteSetterControlPanel extends JFrame implements
 		
 		mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 		
-		this.setContentPane(mainPanel);
-		this.setSize(400, 600);
+		frame.setContentPane(mainPanel);
+		frame.setSize(400, 600);
 	}
 	
 	private void refreshSites() {
@@ -188,17 +199,21 @@ public class CyberShakeSiteSetterControlPanel extends JFrame implements
 
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == setButton) {
-			Site_GuiBean gui = app.getSiteGuiBeanInstance();
 			String name = (String)siteSelectionParam.getValue();
 			System.out.println("selected site: " + name);
 			CybershakeSite site = siteNameIDMap.get(name);
 //			gui.setSite(new Site(new Location(site.lat, site.lon)));
-			gui.getParameterListEditor().getParameterEditor(Site_GuiBean.LATITUDE).setValue(new Double(site.lat));
-			gui.getParameterListEditor().getParameterEditor(Site_GuiBean.LONGITUDE).setValue(new Double(site.lon));
-			gui.getParameterListEditor().refreshParamEditor();
+			siteGuiBean.getParameterListEditor().getParameterEditor(Site_GuiBean.LATITUDE).setValue(new Double(site.lat));
+			siteGuiBean.getParameterListEditor().getParameterEditor(Site_GuiBean.LONGITUDE).setValue(new Double(site.lon));
+			siteGuiBean.getParameterListEditor().refreshParamEditor();
 		} else if (e.getSource() == refreshButton) {
 			this.refreshSites();
 		}
+	}
+
+	@Override
+	public Window getComponent() {
+		return frame;
 	}
 
 }

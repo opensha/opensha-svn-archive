@@ -978,8 +978,8 @@ public class BCR_Application extends JFrame
   private void initSitesOfInterestControl() {
     if(this.sitesOfInterest==null)
       sitesOfInterest = new SitesOfInterestControlPanel(this, this.siteGuiBean);
-    sitesOfInterest.pack();
-    sitesOfInterest.setVisible(true);
+    sitesOfInterest.getComponent().pack();
+    sitesOfInterest.getComponent().setVisible(true);
   }
 
   /**

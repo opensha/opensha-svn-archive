@@ -21,6 +21,7 @@ package org.opensha.sha.gui.controls;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -43,8 +44,10 @@ import org.opensha.sha.imr.event.AttenuationRelationshipChangeEvent;
 import org.opensha.sha.imr.event.AttenuationRelationshipChangeListener;
 import org.opensha.sha.util.SiteTranslator;
 
-public class SiteDataControlPanel extends JFrame implements AttenuationRelationshipChangeListener,
+public class SiteDataControlPanel extends ControlPanel implements AttenuationRelationshipChangeListener,
 					ActionListener, ChangeListener {
+	
+	public static final String NAME = "Set Site Params from Web Services";
 	
 	private IMR_GuiBean imrGuiBean;
 	private Site_GuiBean siteGuiBean;
@@ -59,11 +62,17 @@ public class SiteDataControlPanel extends JFrame implements AttenuationRelations
 	
 	private SiteTranslator trans = null;
 	
+	private JFrame frame;
+	
 	public SiteDataControlPanel(Component parent, IMR_GuiBean imrGuiBean,
             Site_GuiBean siteGuiBean) {
+		super(NAME);
 		this.imrGuiBean = imrGuiBean;
 		this.siteGuiBean = siteGuiBean;
-		
+	}
+	
+	public void doinit() {
+		frame = new JFrame();
 		attenRel = imrGuiBean.getSelectedIMR_Instance();
 		imrGuiBean.addAttenuationRelationshipChangeListener(this);
 		
@@ -84,9 +93,9 @@ public class SiteDataControlPanel extends JFrame implements AttenuationRelations
 		enableButtons();
 		dataGuiBean.getProviderList().addChangeListener(this);
 		
-		this.setContentPane(mainPanel);
-		this.setSize(OrderedSiteDataGUIBean.width, 600);
-		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		frame.setContentPane(mainPanel);
+		frame.setSize(OrderedSiteDataGUIBean.width, 600);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	}
 
 	public void attenuationRelationshipChange(AttenuationRelationshipChangeEvent event) {
@@ -111,11 +120,11 @@ public class SiteDataControlPanel extends JFrame implements AttenuationRelations
 		trans.setAllSiteParams(imrGuiBean.getSelectedIMR_Instance(), data);
 		
 		this.siteGuiBean.getParameterListEditor().refreshParamEditor();
-		this.dispose();
+		frame.dispose();
 	}
 	
 	public void displayData(ArrayList<SiteDataValue<?>> datas) {
-		OrderedSiteDataGUIBean.showDataDisplayDialog(datas, this);
+		OrderedSiteDataGUIBean.showDataDisplayDialog(datas, frame);
 	}
 	
 	private ArrayList<SiteDataValue<?>> loadData() {
@@ -150,5 +159,10 @@ public class SiteDataControlPanel extends JFrame implements AttenuationRelations
 	public void stateChanged(ChangeEvent e) {
 		if (e.getSource() == dataGuiBean.getProviderList())
 			enableButtons();
+	}
+
+	@Override
+	public Window getComponent() {
+		return frame;
 	}
 }

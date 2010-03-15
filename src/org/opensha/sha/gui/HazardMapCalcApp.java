@@ -86,10 +86,10 @@ import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
 import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.beans.SitesInGriddedRegionGuiBean;
+import org.opensha.sha.gui.controls.CurveDisplayAppAPI;
 import org.opensha.sha.gui.controls.RegionsOfInterestControlPanel;
 import org.opensha.sha.gui.controls.SetMinSourceSiteDistanceControlPanel;
 import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanel;
-import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
 import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
@@ -118,7 +118,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
  */
 
 public class HazardMapCalcApp extends JApplet
-implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanAPI {
+implements ParameterChangeListener, CurveDisplayAppAPI, IMR_GuiBeanAPI {
 
 
 	/**
@@ -629,8 +629,8 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 			xValuesPanel = new X_ValuesInCurveControlPanel(this,this);
 		if(!useCustomX_Values) xValuesPanel.useDefaultX_Values();
 		else xValuesPanel.setX_Values(function);
-		xValuesPanel.pack();
-		xValuesPanel.setVisible(true);
+		xValuesPanel.getComponent().pack();
+		xValuesPanel.getComponent().setVisible(true);
 	}
 
 	/**
@@ -669,7 +669,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 	/**
 	 * This forces use of default X-axis values (according to the selected IMT)
 	 */
-	public void setX_ValuesForHazardCurve() {
+	public void setCurveXValues() {
 		useCustomX_Values = false;
 	}
 
@@ -678,7 +678,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 	 * Note that what's passed in is not cloned (the y-axis values will get modified).
 	 * @param func
 	 */
-	public void setX_ValuesForHazardCurve(ArbitrarilyDiscretizedFunc func) {
+	public void setCurveXValues(ArbitrarilyDiscretizedFunc func) {
 		useCustomX_Values = true;
 		function = func;
 	}
@@ -1092,4 +1092,6 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 		sitesGuiBean.validate();
 		sitesGuiBean.repaint();
 	}
+	@Override
+	public void addCurve(ArbitrarilyDiscretizedFunc function) {}
 }

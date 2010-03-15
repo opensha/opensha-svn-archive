@@ -24,6 +24,7 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Window;
 
 import javax.swing.JFrame;
 
@@ -39,49 +40,67 @@ import org.opensha.commons.param.editor.ParameterListEditor;
  * @version 1.0
  */
 
-public class CalculationSettingsControlPanel extends JFrame {
+public class CalculationSettingsControlPanel extends ControlPanel {
+	
+	public static final String NAME = "Calculation Settings";
 
-  //declaring the instance of the parameterlist and editor.
-  private ParameterList paramList;
-  private ParameterListEditor editor;
-  private BorderLayout borderLayout1 = new BorderLayout();
-  //instance of the class implementing PropagationEffectControlPanelAPI interface.
-  private CalculationSettingsControlPanelAPI application;
+	//declaring the instance of the parameterlist and editor.
+	private ParameterList paramList;
+	private ParameterListEditor editor;
+	private BorderLayout borderLayout1 = new BorderLayout();
+	//instance of the class implementing PropagationEffectControlPanelAPI interface.
+	private CalculationSettingsControlPanelAPI application;
+	
+	private JFrame frame;
+	
+	private Component parentComponent;
 
-  /**
-   *
-   * @param api : Instance of the class using this control panel and implmenting
-   * the CalculationSettingsControlPanelAPI.
-   */
-  public CalculationSettingsControlPanel(Component parentComponent,CalculationSettingsControlPanelAPI api) {
-    application = api;
-    paramList = api.getCalcAdjustableParams();
-    editor = new ParameterListEditor(paramList);
-    try {
-      // show the window at center of the parent component
-      setLocation(parentComponent.getX()+parentComponent.getWidth()/2,
-                     parentComponent.getY()+parentComponent.getHeight()/2);
-      jbInit();
-    }
-    catch(Exception e) {
-      e.printStackTrace();
-    }
-  }
-  private void jbInit() throws Exception {
-    this.setSize(350,500);
-    this.setTitle("Calculation Settings");
-    this.getContentPane().setLayout(new GridBagLayout());
-    this.getContentPane().add(editor,new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
-  }
-  
-  public Object getParameterValue(String paramName) {
-	  return paramList.getValue(paramName);
-  }
-  
-  public ParameterList getAdjustableCalcParams() {
-	  return paramList;
-  }
+	/**
+	 *
+	 * @param api : Instance of the class using this control panel and implmenting
+	 * the CalculationSettingsControlPanelAPI.
+	 */
+	public CalculationSettingsControlPanel(Component parentComponent,CalculationSettingsControlPanelAPI api) {
+		super(NAME);
+		application = api;
+		this.parentComponent = parentComponent;
+	}
+	
+	public void doinit() {
+		frame = new JFrame();
+		paramList = application.getCalcAdjustableParams();
+		editor = new ParameterListEditor(paramList);
+		try {
+			// show the window at center of the parent component
+			frame.setLocation(parentComponent.getX()+parentComponent.getWidth()/2,
+					parentComponent.getY()+parentComponent.getHeight()/2);
+			jbInit();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void jbInit() throws Exception {
+		frame.setSize(350,500);
+		frame.setTitle("Calculation Settings");
+		frame.getContentPane().setLayout(new GridBagLayout());
+		frame.getContentPane().add(editor,new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+				,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
+	}
+
+	public Object getParameterValue(String paramName) {
+		return paramList.getValue(paramName);
+	}
+
+	public ParameterList getAdjustableCalcParams() {
+		return paramList;
+	}
+
+	@Override
+	public Window getComponent() {
+		return frame;
+	}
 
 
 }

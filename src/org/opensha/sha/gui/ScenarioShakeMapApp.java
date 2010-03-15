@@ -1010,7 +1010,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 		if(calcParamsControl == null)
 			calcParamsControl = new CalculationSettingsControlPanel(this,this);
 
-		calcParamsControl.setVisible(true);
+		calcParamsControl.getComponent().setVisible(true);
 	}
 
 

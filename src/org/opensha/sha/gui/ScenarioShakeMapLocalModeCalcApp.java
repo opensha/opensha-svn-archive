@@ -65,13 +65,14 @@ public class ScenarioShakeMapLocalModeCalcApp
   public final static String WGCEP_UCERF1_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast";
   public final static String WGCEP_MEAN_UCERF2_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2";
   public final static String GEM_TEST_ERF_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.GEM.TestGEM_ERF";
+  public final static String TEST_SUBDUCTION_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.GEM.TestSubductionZoneERF";
 
   /**
    * Initialize the ERF Gui Bean
    */
   protected void initERFSelector_GuiBean() {
     // create the ERF Gui Bean object
-    ArrayList erf_Classes = new ArrayList();
+    ArrayList<String> erf_Classes = new ArrayList<String>();
 
     /**
      *  The object class names for all the supported Eqk Rup Forecasts
@@ -89,6 +90,7 @@ public class ScenarioShakeMapLocalModeCalcApp
     //   erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
     erf_Classes.add(WG02_ERF_CLASS_NAME);
     erf_Classes.add(WGCEP_UCERF1_CLASS_NAME);
+    erf_Classes.add(TEST_SUBDUCTION_CLASS_NAME);
 
     try {
       erfGuiBean = new EqkRupSelectorGuiBean(erf_Classes);

@@ -91,24 +91,21 @@ import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.gui.controls.CalculationSettingsControlPanel;
 import org.opensha.sha.gui.controls.CalculationSettingsControlPanelAPI;
-import org.opensha.sha.gui.controls.CyberShakePlotControlPanelAPI;
+import org.opensha.sha.gui.controls.ControlPanel;
+import org.opensha.sha.gui.controls.CurveDisplayAppAPI;
 import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
 import org.opensha.sha.gui.controls.CyberShakeSiteSetterControlPanel;
 import org.opensha.sha.gui.controls.DisaggregationControlPanel;
-import org.opensha.sha.gui.controls.DisaggregationControlPanelAPI;
 import org.opensha.sha.gui.controls.ERF_EpistemicListControlPanel;
 import org.opensha.sha.gui.controls.ERF_EpistemicListControlPanelAPI;
 import org.opensha.sha.gui.controls.PEER_TestCaseSelectorControlPanel;
-import org.opensha.sha.gui.controls.PEER_TestCaseSelectorControlPanelAPI;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.controls.PlottingOptionControl;
 import org.opensha.sha.gui.controls.RunAll_PEER_TestCasesControlPanel;
 import org.opensha.sha.gui.controls.SiteDataControlPanel;
 import org.opensha.sha.gui.controls.SitesOfInterestControlPanel;
 import org.opensha.sha.gui.controls.XY_ValuesControlPanel;
-import org.opensha.sha.gui.controls.XY_ValuesControlPanelAPI;
 import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanel;
-import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
 import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
@@ -149,11 +146,9 @@ import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
  */
 
 public class HazardCurveServerModeApplication extends JFrame implements
-		Runnable, ParameterChangeListener, DisaggregationControlPanelAPI,
-		ERF_EpistemicListControlPanelAPI, X_ValuesInCurveControlPanelAPI,
-		PEER_TestCaseSelectorControlPanelAPI, ButtonControlPanelAPI,
-		GraphPanelAPI, GraphWindowAPI, XY_ValuesControlPanelAPI,
-		CyberShakePlotControlPanelAPI, IMR_GuiBeanAPI, 
+		Runnable, ParameterChangeListener, ERF_EpistemicListControlPanelAPI,
+		CurveDisplayAppAPI, ButtonControlPanelAPI,
+		GraphPanelAPI, GraphWindowAPI, IMR_GuiBeanAPI, 
 		CalculationSettingsControlPanelAPI, ActionListener {
 
 	/**
@@ -194,21 +189,10 @@ public class HazardCurveServerModeApplication extends JFrame implements
 
 	// Strings for control pick list
 	protected final static String CONTROL_PANELS = "Select";
-	private final static String PEER_TEST_CONTROL = "PEER Test Case Selector";
-	protected final static String DISAGGREGATION_CONTROL = "Disaggregation";
 	protected final static String EPISTEMIC_CONTROL = "Epistemic List Control";
 //	protected final static String DISTANCE_CONTROL = "Max Source-Site Distance";
-	protected final static String CALC_PARAMS_CONTROL = "Calculation Settings";
-	protected final static String SITES_OF_INTEREST_CONTROL = "Sites of Interest";
-	protected final static String CVM_CONTROL = "Set Site Params from Web Services";
-	protected final static String X_VALUES_CONTROL = "Set X values for Hazard Curve Calc.";
-	private final static String RUN_ALL_PEER_TESTS = "Run all PEER Test Cases";
 	// private final static String MAP_CALC_CONTROL =
 	// "Select Map Calcution Method";
-	protected final static String PLOTTING_OPTION = "Set new dataset plotting option";
-	protected final static String XY_Values_Control = "Set external XY dataset";
-	private final static String PLOT_CYBERSHAKE_DATASET_CONTROL = "Plot Cybershake data";
-	private final static String CYBERSHAKE_SITE_CONTROL = "CyberShake Sites";
 
 	// objects for control panels
 	protected PEER_TestCaseSelectorControlPanel peerTestsControlPanel;
@@ -224,6 +208,8 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	protected XY_ValuesControlPanel xyPlotControl;
 	protected CyberShakePlotFromDBControlPanel cyberControlPanel;
 	protected CyberShakeSiteSetterControlPanel cyberSiteControlPanel;
+	
+	private ArrayList<ControlPanel> controlPanels;
 
 	// log flags declaration
 	private boolean xLog = false;
@@ -1976,174 +1962,67 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 * Initialize the items to be added to the control list
 	 */
 	protected void initControlList() {
+		controlPanels = new ArrayList<ControlPanel>();
+		
 		controlComboBox.addItem(CONTROL_PANELS);
-		controlComboBox.addItem(PEER_TEST_CONTROL);
-		controlComboBox.addItem(DISAGGREGATION_CONTROL);
-		controlComboBox.addItem(CALC_PARAMS_CONTROL);
-		controlComboBox.addItem(SITES_OF_INTEREST_CONTROL);
-		controlComboBox.addItem(CVM_CONTROL);
-		controlComboBox.addItem(X_VALUES_CONTROL);
-		controlComboBox.addItem(RUN_ALL_PEER_TESTS);
-		controlComboBox.addItem(PLOT_CYBERSHAKE_DATASET_CONTROL);
-		controlComboBox.addItem(CYBERSHAKE_SITE_CONTROL);
-		// this.controlComboBox.addItem(MAP_CALC_CONTROL);
-		controlComboBox.addItem(PLOTTING_OPTION);
-		controlComboBox.addItem(XY_Values_Control);
+		
+		/*		PEER Test Case Control			*/
+		controlComboBox.addItem(PEER_TestCaseSelectorControlPanel.NAME);
+		controlPanels.add(new PEER_TestCaseSelectorControlPanel(this,
+					this, imrGuiBean, siteGuiBean, imtGuiBean, erfGuiBean,
+					erfGuiBean.getSelectedERFTimespanGuiBean(),
+					this));
+		
+		/*		Disagg Control					*/
+		controlComboBox.addItem(DisaggregationControlPanel.NAME);
+		controlPanels.add(new DisaggregationControlPanel(this, this));
+		
+		/*		Calc Settings Control			*/
+		controlComboBox.addItem(CalculationSettingsControlPanel.NAME);
+		controlPanels.add(new CalculationSettingsControlPanel(this,this));
+		
+		/*		Sites Of Interest Control		*/
+		controlComboBox.addItem(SitesOfInterestControlPanel.NAME);
+		controlPanels.add(new SitesOfInterestControlPanel(this,
+					this.siteGuiBean));
+		
+		/*		Site Data Control				*/
+		controlComboBox.addItem(SiteDataControlPanel.NAME);
+		controlPanels.add(new SiteDataControlPanel(this, this.imrGuiBean,
+					this.siteGuiBean));
+		
+		/*		X Values Control				*/
+		controlComboBox.addItem(X_ValuesInCurveControlPanel.NAME);
+		controlPanels.add(xValuesPanel = new X_ValuesInCurveControlPanel(this, this));
+		
+		/*		All Peer Tests Control			*/
+		controlComboBox.addItem(RunAll_PEER_TestCasesControlPanel.NAME);
+		controlPanels.add(new RunAll_PEER_TestCasesControlPanel(this));
+		
+		/*		CyberShake Plot Control			*/
+		controlComboBox.addItem(CyberShakePlotFromDBControlPanel.NAME);
+		controlPanels.add(new CyberShakePlotFromDBControlPanel(this));
+		
+		/*		CyberShake Sites Control		*/
+		controlComboBox.addItem(CyberShakeSiteSetterControlPanel.NAME);
+		controlPanels.add(new CyberShakeSiteSetterControlPanel(this.siteGuiBean));
+		
+		/*		Plotting Prefs Control			*/
+		controlComboBox.addItem(PlottingOptionControl.NAME);
+		controlPanels.add(new PlottingOptionControl(this));
+		
+		/*		External XY Data Control		*/
+		controlComboBox.addItem(XY_ValuesControlPanel.NAME);
+		controlPanels.add(new XY_ValuesControlPanel(this, this));
 	}
 
 	private void selectControlPanel() {
 		if (controlComboBox.getItemCount() <= 0)
 			return;
 		String selectedControl = controlComboBox.getSelectedItem().toString();
-		if (selectedControl.equalsIgnoreCase(this.PEER_TEST_CONTROL))
-			initPEER_TestControl();
-		else if (selectedControl.equalsIgnoreCase(this.DISAGGREGATION_CONTROL))
-			initDisaggregationControl();
-		else if (selectedControl.equalsIgnoreCase(this.EPISTEMIC_CONTROL))
-			initEpistemicControl();
-		else if (selectedControl.equalsIgnoreCase(this.CALC_PARAMS_CONTROL))
-			initCalcParamsControl();
-		else if (selectedControl
-				.equalsIgnoreCase(this.SITES_OF_INTEREST_CONTROL))
-			initSitesOfInterestControl();
-		else if (selectedControl.equalsIgnoreCase(this.CVM_CONTROL))
-			initCVMControl();
-		else if (selectedControl.equalsIgnoreCase(this.X_VALUES_CONTROL))
-			initX_ValuesControl();
-		else if (selectedControl.equalsIgnoreCase(this.RUN_ALL_PEER_TESTS))
-			initRunALL_PEER_TestCases();
-		else if (selectedControl
-				.equalsIgnoreCase(PLOT_CYBERSHAKE_DATASET_CONTROL))
-			initCyberShakeDeterministicControlPanel();
-		else if (selectedControl.equalsIgnoreCase(CYBERSHAKE_SITE_CONTROL))
-			initCyberShakeSiteControlPanel();
-		else if (selectedControl.equalsIgnoreCase(PLOTTING_OPTION))
-			initPlotSelectionControl();
-		else if (selectedControl.equalsIgnoreCase(XY_Values_Control))
-			this.initXYPlotSelectionControl();
-
-		controlComboBox.setSelectedItem(this.CONTROL_PANELS);
-	}
-
-	/**
-	 * This function allows the user to select new data would be added to the
-	 * existing plot , if any.
-	 */
-	private void initPlotSelectionControl() {
-		if (plotOptionControl == null)
-			plotOptionControl = new PlottingOptionControl(this);
-		plotOptionControl.pack();
-		plotOptionControl.setVisible(true);
-
-	}
-
-	/*
-	 * This function allows user to specify the XY values to be added to the
-	 * existing plot.
-	 */
-	private void initXYPlotSelectionControl() {
-		if (xyPlotControl == null) {
-			xyPlotControl = new XY_ValuesControlPanel(this, this);
-		}
-		xyPlotControl.setVisible(true);
-	}
-
-	/**
-	 * This function allows the user to plot the Cybershake Deterministic curve
-	 * from the Cybershake hazard data set
-	 */
-	private void initCyberShakeDeterministicControlPanel() {
-		if (cyberControlPanel == null)
-			cyberControlPanel = new CyberShakePlotFromDBControlPanel(this);
-		cyberControlPanel.setVisible(true);
-	}
-
-	/**
-	 * This function allows the user to plot the Cybershake Deterministic curve
-	 * from the Cybershake hazard data set
-	 */
-	private void initCyberShakeSiteControlPanel() {
-		if (cyberSiteControlPanel == null)
-			cyberSiteControlPanel = new CyberShakeSiteSetterControlPanel(this);
-		cyberSiteControlPanel.setVisible(true);
-	}
-
-	/**
-	 * Initialises the Run All PEER Test Control Panel This function is called
-	 * when user seletes "Run all PEER Tests Cases" from the control pick list
-	 */
-	private void initRunALL_PEER_TestCases() {
-		if(calcParamsControl == null)
-			calcParamsControl = new CalculationSettingsControlPanel(this,this);
-		if (peerTestsControlPanel == null)
-			peerTestsControlPanel = new PEER_TestCaseSelectorControlPanel(this,
-					this, imrGuiBean, siteGuiBean, imtGuiBean, erfGuiBean,
-					erfGuiBean.getSelectedERFTimespanGuiBean(),
-					this);
-		if (runAllPeerTestsCP == null)
-			runAllPeerTestsCP = new RunAll_PEER_TestCasesControlPanel(this);
-		runAllPeerTestsCP.setVisible(true);
-		runAllPeerTestsCP.pack();
-	}
-
-	/**
-	 * Initialize the PEER Test control. This function is called when user
-	 * selects "Select Test and site" from controls pick list
-	 */
-	private void initPEER_TestControl() {
-		// creating the instance of the PEER_TestParamSetter class which is
-		// extended from the
-		// JComboBox, so it is like a control panel for creating the JComboBox
-		// containing the
-		// name of different sets and the test cases
-		// peerTestsParamSetter takes the instance of the hazardCurveGuiBean as
-		// its instance
-		// distance control panel is needed here so that distance can be set for
-		// PEER cases
-		if(calcParamsControl == null)
-			calcParamsControl = new CalculationSettingsControlPanel(this,this);
-		if (peerTestsControlPanel == null)
-			peerTestsControlPanel = new PEER_TestCaseSelectorControlPanel(this,
-					this, imrGuiBean, siteGuiBean, imtGuiBean, erfGuiBean,
-					erfGuiBean.getSelectedERFTimespanGuiBean(),
-					this);
-		peerTestsControlPanel.setPEER_XValues();
-		peerTestsControlPanel.pack();
-		peerTestsControlPanel.setVisible(true);
-	}
-
-	/**
-	 * Initialize the Disaggregation control. This function is called when user
-	 * selects "Disaggregation" from controls pick list
-	 */
-	private void initDisaggregationControl() {
-		if (this.disaggregationControlPanel == null)
-			disaggregationControlPanel = new DisaggregationControlPanel(this,
-					this);
-		disaggregationControlPanel.setVisible(true);
-	}
-
-	/**
-	 * Initialize the Epistemic list control. This function is called when user
-	 * selects "Epistemic List Control" from controls pick list
-	 */
-	private void initEpistemicControl() {
-		if (this.epistemicControlPanel == null)
-			epistemicControlPanel = new ERF_EpistemicListControlPanel(this,
-					this);
-		epistemicControlPanel.setVisible(true);
-	}
-
-	/**
-	 * initialize the calculations parameters control panel.
-	 */
-	protected void initCalcParamsControl(){
-//System.out.println("initCalcParamsControl()");
-
-		if(calcParamsControl == null)
-			calcParamsControl = new CalculationSettingsControlPanel(this,this);
-
-		calcParamsControl.setVisible(true);
+		showControlPanel(selectedControl);
+		
+		controlComboBox.setSelectedItem(CONTROL_PANELS);
 	}
 	
 	/**
@@ -2184,50 +2063,29 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		return imtGuiBean.getSelectedIMT();
 	}
 
-	/**
-	 * Initialize the Interesting sites control panel It will provide a pick
-	 * list of interesting sites
-	 */
-	private void initSitesOfInterestControl() {
-		if (this.sitesOfInterest == null)
-			sitesOfInterest = new SitesOfInterestControlPanel(this,
-					this.siteGuiBean);
-		sitesOfInterest.pack();
-		sitesOfInterest.setVisible(true);
-	}
-
-	/**
-	 * Initialize the Interesting sites control panel It will provide a pick
-	 * list of interesting sites
-	 */
-	private void initCVMControl() {
-		if (this.cvmControlPanel == null)
-			cvmControlPanel = new SiteDataControlPanel(this, this.imrGuiBean,
-					this.siteGuiBean);
-		cvmControlPanel.pack();
-		cvmControlPanel.setVisible(true);
-	}
-
 	public SiteDataControlPanel getCVMControl() {
 		if (this.cvmControlPanel == null)
 			cvmControlPanel = new SiteDataControlPanel(this, this.imrGuiBean,
 					this.siteGuiBean);
 		return cvmControlPanel;
 	}
-
-	/**
-	 * initialize the X values for the Hazard Curve control Panel It will enable
-	 * the user to set the X values
-	 */
-	private void initX_ValuesControl() {
-		if (xValuesPanel == null)
-			xValuesPanel = new X_ValuesInCurveControlPanel(this, this);
-		if (!useCustomX_Values)
-			xValuesPanel.useDefaultX_Values();
-		else
-			xValuesPanel.setX_Values(function);
-		xValuesPanel.pack();
-		xValuesPanel.setVisible(true);
+	
+	protected void showControlPanel(String controlName) {
+		for (ControlPanel control : controlPanels) {
+			if (control.getName().equals(controlName)) {
+				showControlPanel(control);
+				return;
+			}
+		}
+		throw new NullPointerException("Control Panel '" + controlName + "' not found!");
+	}
+	
+	protected void showControlPanel(ControlPanel control) {
+		if (!control.isInitialized()) {
+			control.init();
+		}
+		control.getComponent().setVisible(true);
+		control.getComponent().pack();
 	}
 
 	/**
@@ -2258,7 +2116,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	/**
 	 * This forces use of default X-axis values (according to the selected IMT)
 	 */
-	public void setX_ValuesForHazardCurve() {
+	public void setCurveXValues() {
 		useCustomX_Values = false;
 	}
 
@@ -2269,7 +2127,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 * 
 	 * @param func
 	 */
-	public void setX_ValuesForHazardCurve(ArbitrarilyDiscretizedFunc func) {
+	public void setCurveXValues(ArbitrarilyDiscretizedFunc func) {
 		useCustomX_Values = true;
 		function = func;
 	}
@@ -2280,7 +2138,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 * @param function
 	 *            ArbitrarilyDiscretizedFunc
 	 */
-	public void setArbitraryDiscretizedFuncInList(
+	public void addCurve (
 			ArbitrarilyDiscretizedFunc function) {
 		functionList.add(function);
 		ArrayList<PlotCurveCharacterstics> plotFeaturesList = getPlottingFeatures();

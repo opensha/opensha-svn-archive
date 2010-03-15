@@ -30,6 +30,13 @@ import org.opensha.sha.gui.HazardCurveServerModeApplication;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
+import org.opensha.sha.gui.controls.CalculationSettingsControlPanel;
+import org.opensha.sha.gui.controls.DisaggregationControlPanel;
+import org.opensha.sha.gui.controls.PlottingOptionControl;
+import org.opensha.sha.gui.controls.SiteDataControlPanel;
+import org.opensha.sha.gui.controls.SitesOfInterestControlPanel;
+import org.opensha.sha.gui.controls.XY_ValuesControlPanel;
+import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanel;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 
@@ -183,14 +190,14 @@ public class CEA_HazardCurveLocalModeApp extends HazardCurveServerModeApplicatio
    */
   protected void initControlList() {
     controlComboBox.addItem(CONTROL_PANELS);
-    controlComboBox.addItem(DISAGGREGATION_CONTROL);
-    controlComboBox.addItem(CALC_PARAMS_CONTROL);
-    controlComboBox.addItem(SITES_OF_INTEREST_CONTROL);
-    controlComboBox.addItem(CVM_CONTROL);
-    controlComboBox.addItem(X_VALUES_CONTROL);
+    controlComboBox.addItem(DisaggregationControlPanel.NAME);
+    controlComboBox.addItem(CalculationSettingsControlPanel.NAME);
+    controlComboBox.addItem(SitesOfInterestControlPanel.NAME);
+    controlComboBox.addItem(SiteDataControlPanel.NAME);
+    controlComboBox.addItem(X_ValuesInCurveControlPanel.NAME);
     //this.controlComboBox.addItem(MAP_CALC_CONTROL);
-    controlComboBox.addItem(PLOTTING_OPTION);
-    controlComboBox.addItem(XY_Values_Control);
+    controlComboBox.addItem(PlottingOptionControl.NAME);
+    controlComboBox.addItem(XY_ValuesControlPanel.NAME);
   }
   
   /**
