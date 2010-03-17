@@ -71,6 +71,7 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.ImageUtils;
+import org.opensha.commons.util.ListUtils;
 import org.opensha.commons.util.SystemPropertiesUtils;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
@@ -190,9 +191,6 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	// Strings for control pick list
 	protected final static String CONTROL_PANELS = "Select";
 	protected final static String EPISTEMIC_CONTROL = "Epistemic List Control";
-//	protected final static String DISTANCE_CONTROL = "Max Source-Site Distance";
-	// private final static String MAP_CALC_CONTROL =
-	// "Select Map Calcution Method";
 
 	// objects for control panels
 	protected PEER_TestCaseSelectorControlPanel peerTestsControlPanel;
@@ -206,8 +204,6 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	private RunAll_PEER_TestCasesControlPanel runAllPeerTestsCP;
 	protected PlottingOptionControl plotOptionControl;
 	protected XY_ValuesControlPanel xyPlotControl;
-	protected CyberShakePlotFromDBControlPanel cyberControlPanel;
-	protected CyberShakeSiteSetterControlPanel cyberSiteControlPanel;
 	
 	private ArrayList<ControlPanel> controlPanels;
 
@@ -1988,8 +1984,9 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		
 		/*		Site Data Control				*/
 		controlComboBox.addItem(SiteDataControlPanel.NAME);
-		controlPanels.add(new SiteDataControlPanel(this, this.imrGuiBean,
-					this.siteGuiBean));
+		cvmControlPanel = new SiteDataControlPanel(this, this.imrGuiBean,
+				this.siteGuiBean);
+		controlPanels.add(cvmControlPanel);
 		
 		/*		X Values Control				*/
 		controlComboBox.addItem(X_ValuesInCurveControlPanel.NAME);
@@ -2071,21 +2068,14 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	}
 	
 	protected void showControlPanel(String controlName) {
-		for (ControlPanel control : controlPanels) {
-			if (control.getName().equals(controlName)) {
-				showControlPanel(control);
-				return;
-			}
-		}
-		throw new NullPointerException("Control Panel '" + controlName + "' not found!");
+		ControlPanel control = (ControlPanel)ListUtils.getObjectByName(controlPanels, controlName);
+		if (control == null)
+			throw new NullPointerException("Control Panel '" + controlName + "' not found!");
+		showControlPanel(control);
 	}
 	
 	protected void showControlPanel(ControlPanel control) {
-		if (!control.isInitialized()) {
-			control.init();
-		}
-		control.getComponent().setVisible(true);
-		control.getComponent().pack();
+		control.showControlPanel();
 	}
 
 	/**

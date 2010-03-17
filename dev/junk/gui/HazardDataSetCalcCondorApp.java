@@ -543,8 +543,8 @@ implements ParameterChangeListener, IMR_GuiBeanAPI, Runnable, CurveDisplayAppAPI
 	private void initRegionsOfInterestControl() {
 		if(this.regionsOfInterest==null)
 			regionsOfInterest = new RegionsOfInterestControlPanel(this, this.sitesGuiBean);
-		regionsOfInterest.pack();
-		regionsOfInterest.setVisible(true);
+		regionsOfInterest.getComponent().pack();
+		regionsOfInterest.getComponent().setVisible(true);
 	}
 
 	/**

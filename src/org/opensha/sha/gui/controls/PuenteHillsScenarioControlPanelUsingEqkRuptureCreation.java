@@ -20,6 +20,7 @@
 package org.opensha.sha.gui.controls;
 
 
+import java.awt.Component;
 import java.util.ArrayList;
 
 import org.opensha.commons.calc.RelativeLocation;
@@ -50,7 +51,11 @@ import org.opensha.sha.param.editor.gui.SimpleFaultParameterEditorPanel;
  * @version 1.0
  */
 
-public class PuenteHillsScenarioControlPanelUsingEqkRuptureCreation {
+public class PuenteHillsScenarioControlPanelUsingEqkRuptureCreation extends ConfirmDialogControlPanel {
+
+	public static final String NAME = "Set Params for Puente Hills Scenario";
+	public static final String MESSAGE = "Are you sure to set the parameters"+
+							" for a Puente Hills scenario?";
 
 	//for debugging
 	protected final static boolean D = false;
@@ -77,13 +82,17 @@ public class PuenteHillsScenarioControlPanelUsingEqkRuptureCreation {
 	 */
 	public PuenteHillsScenarioControlPanelUsingEqkRuptureCreation(EqkRupSelectorGuiBean erfGuiBean,
 			AttenuationRelationshipGuiBean imrGuiBean, SitesInGriddedRectangularRegionGuiBean regionGuiBean,
-			MapGuiBean mapGuiBean) {
+			MapGuiBean mapGuiBean, Component parent) {
+		super(NAME, MESSAGE, parent);
 		//getting the instance for variuos GuiBeans from the applet required to set the
 		//default values for the Params for the Puente Hills Scenario.
 		this.erfGuiBean = erfGuiBean;
 		this.imrGuiBean = imrGuiBean;
 		this.regionGuiBean = regionGuiBean;
 		this.mapGuiBean = mapGuiBean;
+	}
+
+	public void doinit() {
 		mkFaultTrace();
 	}
 
@@ -93,8 +102,8 @@ public class PuenteHillsScenarioControlPanelUsingEqkRuptureCreation {
 	 */
 	private void mkFaultTrace() {
 
-		  // NOTE for commments on replaced lines below see:
-		  // org.opensha.sha.gui.controls.PuenteHillsScenarioControlPanel
+		// NOTE for commments on replaced lines below see:
+		// org.opensha.sha.gui.controls.PuenteHillsScenarioControlPanel
 
 		/* Original Segment Data from Andreas Plesch via email on 3/10/04:
 
@@ -135,22 +144,22 @@ public class PuenteHillsScenarioControlPanelUsingEqkRuptureCreation {
 		loc2 = new Location(34.15721, -118.04988, 14.5327);
 		dir1 = RelativeLocation.getDirection(loc1, loc2);
 		dip = Math.tan(dir1.getVertDistance()/dir1.getHorzDistance());
-//		vDist = loc1.getDepth()-5.0;
-	    vDist = 5.0 - loc1.getDepth();
+		//		vDist = loc1.getDepth()-5.0;
+		vDist = 5.0 - loc1.getDepth();
 		hDist = vDist/Math.atan(dip);
 		aveDipDir += dir1.getAzimuth();
-//		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
-//	    dir2 = new Direction(vDist, hDist,dir1.getAzimuth(),dir1.getBackAzimuth());
-	    dir2 = new Direction(dir1.getAzimuth(), hDist, vDist);
+		//		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
+		//	    dir2 = new Direction(vDist, hDist,dir1.getAzimuth(),dir1.getBackAzimuth());
+		dir2 = new Direction(dir1.getAzimuth(), hDist, vDist);
 		loc3 = RelativeLocation.getLocation(loc1,dir2);
 		if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
 		tempLoc4 = loc3;
-//		vDist = loc1.getDepth()-17.0;
-	    vDist = 17.0 - loc1.getDepth();
+		//		vDist = loc1.getDepth()-17.0;
+		vDist = 17.0 - loc1.getDepth();
 		hDist = vDist/Math.atan(dip);
-//		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
-//	    dir2 = new Direction(vDist, hDist,dir1.getAzimuth(),dir1.getBackAzimuth());
-	    dir2 = new Direction(dir1.getAzimuth(), hDist, vDist);
+		//		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
+		//	    dir2 = new Direction(vDist, hDist,dir1.getAzimuth(),dir1.getBackAzimuth());
+		dir2 = new Direction(dir1.getAzimuth(), hDist, vDist);
 		loc3 = RelativeLocation.getLocation(loc1,dir2);
 		if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
 
@@ -158,22 +167,22 @@ public class PuenteHillsScenarioControlPanelUsingEqkRuptureCreation {
 		loc2 = new Location(34.23723, -118.25737, 14.9653);
 		dir1 = RelativeLocation.getDirection(loc1, loc2);
 		dip = Math.tan(dir1.getVertDistance()/dir1.getHorzDistance());
-//		vDist = loc1.getDepth()-5.0;
-	    vDist = 5.0 - loc1.getDepth();
+		//		vDist = loc1.getDepth()-5.0;
+		vDist = 5.0 - loc1.getDepth();
 		hDist = vDist/Math.atan(dip);
 		aveDipDir += dir1.getAzimuth();
-//		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
-//	    dir2 = new Direction(vDist, hDist,dir1.getAzimuth(),dir1.getBackAzimuth());
-	    dir2 = new Direction(dir1.getAzimuth(), hDist, vDist);
+		//		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
+		//	    dir2 = new Direction(vDist, hDist,dir1.getAzimuth(),dir1.getBackAzimuth());
+		dir2 = new Direction(dir1.getAzimuth(), hDist, vDist);
 		loc3 = RelativeLocation.getLocation(loc1,dir2);
 		if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
 		finalLoc4 = loc3;
-//		vDist = loc1.getDepth()-17.0;
-	    vDist = 17.0 - loc1.getDepth();
+		//		vDist = loc1.getDepth()-17.0;
+		vDist = 17.0 - loc1.getDepth();
 		hDist = vDist/Math.atan(dip);
-//		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
-//	    dir2 = new Direction(vDist, hDist,dir1.getAzimuth(),dir1.getBackAzimuth());
-	    dir2 = new Direction(dir1.getAzimuth(), hDist, vDist);
+		//		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
+		//	    dir2 = new Direction(vDist, hDist,dir1.getAzimuth(),dir1.getBackAzimuth());
+		dir2 = new Direction(dir1.getAzimuth(), hDist, vDist);
 		loc3 = RelativeLocation.getLocation(loc1,dir2);
 		if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
 
@@ -185,22 +194,22 @@ public class PuenteHillsScenarioControlPanelUsingEqkRuptureCreation {
 		loc2 = new Location(34.13627, -117.86678, 15.4746);
 		dir1 = RelativeLocation.getDirection(loc1, loc2);
 		dip = Math.tan(dir1.getVertDistance()/dir1.getHorzDistance());
-//		vDist = loc1.getDepth()-5.0;
-	    vDist = 5.0 - loc1.getDepth();
+		//		vDist = loc1.getDepth()-5.0;
+		vDist = 5.0 - loc1.getDepth();
 		hDist = vDist/Math.atan(dip);
 		aveDipDir += dir1.getAzimuth();
-//		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
-//	    dir2 = new Direction(vDist, hDist,dir1.getAzimuth(),dir1.getBackAzimuth());
-	    dir2 = new Direction(dir1.getAzimuth(), hDist, vDist);
+		//		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
+		//	    dir2 = new Direction(vDist, hDist,dir1.getAzimuth(),dir1.getBackAzimuth());
+		dir2 = new Direction(dir1.getAzimuth(), hDist, vDist);
 		loc3 = RelativeLocation.getLocation(loc1,dir2);
 		if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
 		finalLoc1 = loc3;
-//		vDist = loc1.getDepth()-17.0;
-	    vDist = 17.0 - loc1.getDepth();
+		//		vDist = loc1.getDepth()-17.0;
+		vDist = 17.0 - loc1.getDepth();
 		hDist = vDist/Math.atan(dip);
-//		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
-//	    dir2 = new Direction(vDist, hDist,dir1.getAzimuth(),dir1.getBackAzimuth());
-	    dir2 = new Direction(dir1.getAzimuth(), hDist, vDist);
+		//		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
+		//	    dir2 = new Direction(vDist, hDist,dir1.getAzimuth(),dir1.getBackAzimuth());
+		dir2 = new Direction(dir1.getAzimuth(), hDist, vDist);
 		loc3 = RelativeLocation.getLocation(loc1,dir2);
 		if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
 
@@ -208,22 +217,22 @@ public class PuenteHillsScenarioControlPanelUsingEqkRuptureCreation {
 		loc2 = new Location(34.09232, -118.04490, 14.485);
 		dir1 = RelativeLocation.getDirection(loc1, loc2);
 		dip = Math.tan(dir1.getVertDistance()/dir1.getHorzDistance());
-//		vDist = loc1.getDepth()-5.0;
-	    vDist = 5.0 - loc1.getDepth();
+		//		vDist = loc1.getDepth()-5.0;
+		vDist = 5.0 - loc1.getDepth();
 		hDist = vDist/Math.atan(dip);
 		aveDipDir += dir1.getAzimuth();
-//		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
-//	    dir2 = new Direction(vDist, hDist,dir1.getAzimuth(),dir1.getBackAzimuth());
-	    dir2 = new Direction(dir1.getAzimuth(), hDist, vDist);
+		//		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
+		//	    dir2 = new Direction(vDist, hDist,dir1.getAzimuth(),dir1.getBackAzimuth());
+		dir2 = new Direction(dir1.getAzimuth(), hDist, vDist);
 		loc3 = RelativeLocation.getLocation(loc1,dir2);
 		if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
 		tempLoc1 = loc3;
-//		vDist = loc1.getDepth()-17.0;
-	    vDist = 17.0 - loc1.getDepth();
+		//		vDist = loc1.getDepth()-17.0;
+		vDist = 17.0 - loc1.getDepth();
 		hDist = vDist/Math.atan(dip);
-//		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
-//	    dir2 = new Direction(vDist, hDist,dir1.getAzimuth(),dir1.getBackAzimuth());
-	    dir2 = new Direction(dir1.getAzimuth(), hDist, vDist);
+		//		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
+		//	    dir2 = new Direction(vDist, hDist,dir1.getAzimuth(),dir1.getBackAzimuth());
+		dir2 = new Direction(dir1.getAzimuth(), hDist, vDist);
 		loc3 = RelativeLocation.getLocation(loc1,dir2);
 		if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
 
@@ -238,22 +247,22 @@ public class PuenteHillsScenarioControlPanelUsingEqkRuptureCreation {
 		loc2 = new Location(34.10093, -118.01795, 14.4793);
 		dir1 = RelativeLocation.getDirection(loc1, loc2);
 		dip = Math.tan(dir1.getVertDistance()/dir1.getHorzDistance());
-//		vDist = loc1.getDepth()-5.0;
-	    vDist = 5.0 - loc1.getDepth();
+		//		vDist = loc1.getDepth()-5.0;
+		vDist = 5.0 - loc1.getDepth();
 		hDist = vDist/Math.atan(dip);
 		aveDipDir += dir1.getAzimuth();
-//		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
-//	    dir2 = new Direction(vDist, hDist,dir1.getAzimuth(),dir1.getBackAzimuth());
-	    dir2 = new Direction(dir1.getAzimuth(), hDist, vDist);
+		//		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
+		//	    dir2 = new Direction(vDist, hDist,dir1.getAzimuth(),dir1.getBackAzimuth());
+		dir2 = new Direction(dir1.getAzimuth(), hDist, vDist);
 		loc3 = RelativeLocation.getLocation(loc1,dir2);
 		if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
 		tempLoc2 = loc3;
-//		vDist = loc1.getDepth()-17.0;
-	    vDist = 17.0 - loc1.getDepth();
+		//		vDist = loc1.getDepth()-17.0;
+		vDist = 17.0 - loc1.getDepth();
 		hDist = vDist/Math.atan(dip);
-//		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
-//	    dir2 = new Direction(vDist, hDist,dir1.getAzimuth(),dir1.getBackAzimuth());
-	    dir2 = new Direction(dir1.getAzimuth(), hDist, vDist);
+		//		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
+		//	    dir2 = new Direction(vDist, hDist,dir1.getAzimuth(),dir1.getBackAzimuth());
+		dir2 = new Direction(dir1.getAzimuth(), hDist, vDist);
 		loc3 = RelativeLocation.getLocation(loc1,dir2);
 		if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
 
@@ -261,22 +270,22 @@ public class PuenteHillsScenarioControlPanelUsingEqkRuptureCreation {
 		loc2 = new Location(34.11061, -118.14720, 15.0683);
 		dir1 = RelativeLocation.getDirection(loc1, loc2);
 		dip = Math.tan(dir1.getVertDistance()/dir1.getHorzDistance());
-//		vDist = loc1.getDepth()-5.0;
-	    vDist = 5.0 - loc1.getDepth();
+		//		vDist = loc1.getDepth()-5.0;
+		vDist = 5.0 - loc1.getDepth();
 		hDist = vDist/Math.atan(dip);
 		aveDipDir += dir1.getAzimuth();
-//		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
-//	    dir2 = new Direction(vDist, hDist,dir1.getAzimuth(),dir1.getBackAzimuth());
-	    dir2 = new Direction(dir1.getAzimuth(), hDist, vDist);
+		//		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
+		//	    dir2 = new Direction(vDist, hDist,dir1.getAzimuth(),dir1.getBackAzimuth());
+		dir2 = new Direction(dir1.getAzimuth(), hDist, vDist);
 		loc3 = RelativeLocation.getLocation(loc1,dir2);
 		if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
 		tempLoc3 = loc3;
-//		vDist = loc1.getDepth()-17.0;
-	    vDist = 17.0 - loc1.getDepth();
+		//		vDist = loc1.getDepth()-17.0;
+		vDist = 17.0 - loc1.getDepth();
 		hDist = vDist/Math.atan(dip);
-//		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
-//	    dir2 = new Direction(vDist, hDist,dir1.getAzimuth(),dir1.getBackAzimuth());
-	    dir2 = new Direction(dir1.getAzimuth(), hDist, vDist);
+		//		dir2 = new Direction(vDist, hDist,dir1.getBackAzimuth(),dir1.getAzimuth());
+		//	    dir2 = new Direction(vDist, hDist,dir1.getAzimuth(),dir1.getBackAzimuth());
+		dir2 = new Direction(dir1.getAzimuth(), hDist, vDist);
 		loc3 = RelativeLocation.getLocation(loc1,dir2);
 		if (D) System.out.println((float)loc3.getLongitude()+" "+(float)loc3.getLatitude()+" "+(float)loc3.getDepth());
 
@@ -339,7 +348,8 @@ public class PuenteHillsScenarioControlPanelUsingEqkRuptureCreation {
 	/**
 	 * Sets the default Parameters in the Application for the Puente Hill Scenario
 	 */
-	public void setParamsForPuenteHillsScenario(){
+	@Override
+	public void applyControl() {
 		//making the ERF Gui Bean Adjustable Param not visible to the user, becuase
 		//this control panel will set the values by itself.
 		//This is done in the EqkRupSelectorGuiBean

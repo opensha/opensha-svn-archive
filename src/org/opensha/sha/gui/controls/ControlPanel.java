@@ -4,6 +4,14 @@ import java.awt.Window;
 
 import org.opensha.commons.data.NamedObjectAPI;
 
+/**
+ * This is an abstract class representing a control panel to be included in one or more
+ * applications. Implementing classes should put all setup work in the <code>doinit</code>
+ * method, and return a GUI component to be displayed in the <code>getComponent</code> method.
+ * 
+ * @author kevin
+ *
+ */
 public abstract class ControlPanel implements NamedObjectAPI {
 	
 	private String name;
@@ -30,12 +38,20 @@ public abstract class ControlPanel implements NamedObjectAPI {
 		if (isInitialized())
 			return;
 		System.out.println(name + ": init()");
-		initialized = true;
 		doinit();
+		initialized = true;
 	}
 	
 	public String getName() {
 		return name;
+	}
+	
+	public void showControlPanel() {
+		if (!this.isInitialized()) {
+			this.init();
+		}
+		this.getComponent().setVisible(true);
+		this.getComponent().pack();
 	}
 
 }

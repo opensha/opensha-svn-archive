@@ -60,6 +60,7 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.ListUtils;
 import org.opensha.sha.calc.ScenarioShakeMapCalculator;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.gui.beans.AttenuationRelationshipGuiBean;
@@ -68,14 +69,26 @@ import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
 import org.opensha.sha.gui.beans.MapGuiBean;
 import org.opensha.sha.gui.beans.SitesInGriddedRectangularRegionGuiBean;
-import org.opensha.sha.gui.controls.CalcOptionControl;
+import org.opensha.sha.gui.controls.GMTMapCalcOptionControl;
 import org.opensha.sha.gui.controls.CalculationSettingsControlPanel;
 import org.opensha.sha.gui.controls.CalculationSettingsControlPanelAPI;
+import org.opensha.sha.gui.controls.ControlPanel;
+import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
+import org.opensha.sha.gui.controls.CyberShakeSiteSetterControlPanel;
+import org.opensha.sha.gui.controls.DisaggregationControlPanel;
 import org.opensha.sha.gui.controls.GenerateHazusControlPanelForSingleMultipleIMRs;
 import org.opensha.sha.gui.controls.IM_EventSetCEA_ControlPanel;
+import org.opensha.sha.gui.controls.PEER_TestCaseSelectorControlPanel;
+import org.opensha.sha.gui.controls.PlottingOptionControl;
+import org.opensha.sha.gui.controls.PuenteHillsScenarioControlPanel;
 import org.opensha.sha.gui.controls.PuenteHillsScenarioControlPanelUsingEqkRuptureCreation;
 import org.opensha.sha.gui.controls.RegionsOfInterestControlPanel;
+import org.opensha.sha.gui.controls.RunAll_PEER_TestCasesControlPanel;
 import org.opensha.sha.gui.controls.SanAndreasScenarioControlPanel;
+import org.opensha.sha.gui.controls.SiteDataControlPanel;
+import org.opensha.sha.gui.controls.SitesOfInterestControlPanel;
+import org.opensha.sha.gui.controls.XY_ValuesControlPanel;
+import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanel;
 import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
@@ -191,20 +204,8 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 
 	// Strings for control pick list
 	protected final static String CONTROL_PANELS = "Control Panels";
-	protected final static String REGIONS_OF_INTEREST_CONTROL = "Regions of Interest";
-	//private final static String PUENTE_HILLS_TEST_CONTROL = "Set Params for Puente Hills Test";
-	//protected final static String PUENTE_HILLS_CONTROL_OLD = "Set Params for Puente Hills Scenario (old)";
-	protected final static String PUENTE_HILLS_CONTROL =
-		"Set Params for Puente Hills Scenario";
-	protected final static String SAN_ANDREAS_CONTROL =
-		"Set Params for SAF Shakeout Quake Scenario";
-	protected final static String IM_EVENT_SET_SCENARIO_CONTROL = "Set Params for IMEvent Set Scenario";
-
-	protected final static String HAZUS_CONTROL = "Generate Hazus Shape files for Scenario";
-	//private final static String SF_BAY_CONTROL = "Set Params and generate shapefiles for SF Bay Area";
-	//private final static String RUN_ALL_CASES_FOR_PUENTE_HILLS = "Run all Puente Hills Scenarios";
-	private final static String MAP_CALC_CONTROL = "Select Map Calcution Method";
-	protected final static String CALC_PARAMS_CONTROL = "Calculation Settings";
+	
+	private ArrayList<ControlPanel> controlPanels;
 
 	// objects for control panels
 	protected RegionsOfInterestControlPanel regionsOfInterest;
@@ -213,7 +214,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 	protected IM_EventSetCEA_ControlPanel imSetScenarioControl;
 	//protected PuenteHillsScenarioControlPanelForSingleMultipleAttenRel puenteHillsControl;
 	protected GenerateHazusControlPanelForSingleMultipleIMRs hazusControl;
-	private CalcOptionControl calcControl;
+	private GMTMapCalcOptionControl calcControl;
 	protected CalculationSettingsControlPanel calcParamsControl;
 	//private SF_BayAreaScenarioControlPanel bayAreaControl;
 
@@ -281,8 +282,6 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 
 		}
 		try {
-			// initialize the control pick list
-			initControlList();
 			jbInit();
 		}
 		catch(Exception e) {
@@ -331,9 +330,10 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 			System.exit(0);
 			//return;
 		}
-
 		this.initImlProb_GuiBean();
 		this.initMapGuiBean();
+		// initialize the control pick list
+		initControlList();
 	}
 
 	/**
@@ -824,7 +824,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 		if (calcControl != null) {
 			String mapCalcOption = calcControl.getMapCalculationOption();
 			//checks if the user wants to do the calc. on his local system or on the server.
-			if (mapCalcOption.equals(CalcOptionControl.USE_LOCAL))
+			if (mapCalcOption.equals(GMTMapCalcOptionControl.USE_LOCAL))
 				calculationFromServer = false;
 			else
 				calculationFromServer = true;
@@ -961,18 +961,52 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 	 * Initialize the items to be added to the control list
 	 */
 	protected void initControlList() {
-		this.controlComboBox.addItem(CONTROL_PANELS);
-		this.controlComboBox.addItem(REGIONS_OF_INTEREST_CONTROL);
-		this.controlComboBox.addItem(HAZUS_CONTROL);
-		//this.controlComboBox.addItem(PUENTE_HILLS_TEST_CONTROL);
-		//this.controlComboBox.addItem(PUENTE_HILLS_CONTROL_OLD);
-		this.controlComboBox.addItem(PUENTE_HILLS_CONTROL);
-		this.controlComboBox.addItem(SAN_ANDREAS_CONTROL);
-		this.controlComboBox.addItem(IM_EVENT_SET_SCENARIO_CONTROL);
-		//this.controlComboBox.addItem(SF_BAY_CONTROL);
-		this.controlComboBox.addItem(MAP_CALC_CONTROL);
-		this.controlComboBox.addItem(CALC_PARAMS_CONTROL);
-		//this.controlComboBox.addItem(RUN_ALL_CASES_FOR_PUENTE_HILLS);
+		controlPanels = new ArrayList<ControlPanel>();
+		
+		controlComboBox.addItem(CONTROL_PANELS);
+		
+		/*		Regions of Interest Control		*/
+		controlComboBox.addItem(RegionsOfInterestControlPanel.NAME);
+		controlPanels.add(new RegionsOfInterestControlPanel(this, this.sitesGuiBean));
+		
+		/*		Hazus Control					*/
+		controlComboBox.addItem(GenerateHazusControlPanelForSingleMultipleIMRs.NAME);
+		controlPanels.add(new GenerateHazusControlPanelForSingleMultipleIMRs(this,this));
+		
+		/*		Puente Hills Control			*/
+		controlComboBox.addItem(PuenteHillsScenarioControlPanelUsingEqkRuptureCreation.NAME);
+		controlPanels.add(new PuenteHillsScenarioControlPanelUsingEqkRuptureCreation(erfGuiBean,imrGuiBean,
+						sitesGuiBean,mapGuiBean, this));
+		
+		/*		San Andreas Control				*/
+		controlComboBox.addItem(SanAndreasScenarioControlPanel.NAME);
+		controlPanels.add(new SanAndreasScenarioControlPanel(erfGuiBean,imrGuiBean,
+				sitesGuiBean,mapGuiBean, this));
+		
+		/*		IM Event Set Scen Control		*/
+		controlComboBox.addItem(IM_EventSetCEA_ControlPanel.NAME);
+		controlPanels.add(new IM_EventSetCEA_ControlPanel(erfGuiBean,imrGuiBean,
+				sitesGuiBean,mapGuiBean, this));
+		
+		/*		Map Calc Control				*/
+		// this really isn't applicable anymore
+//		controlComboBox.addItem(GMTMapCalcOptionControl.NAME);
+//		controlPanels.add(new GMTMapCalcOptionControl(this));
+		
+		/*		Calc Params Control				*/
+		controlComboBox.addItem(CalculationSettingsControlPanel.NAME);
+		controlPanels.add(new CalculationSettingsControlPanel(this,this));
+	}
+	
+	protected void showControlPanel(String controlName) {
+		ControlPanel control = (ControlPanel)ListUtils.getObjectByName(controlPanels, controlName);
+		if (control == null)
+			throw new NullPointerException("Control Panel '" + controlName + "' not found!");
+		showControlPanel(control);
+	}
+	
+	protected void showControlPanel(ControlPanel control) {
+		control.showControlPanel();
 	}
 
 	/**
@@ -980,151 +1014,15 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 	 * @param e
 	 */
 	protected void controlComboBox_actionPerformed(ActionEvent e) {
-		if(controlComboBox.getItemCount()<=0) return;
+		if (controlComboBox.getItemCount() <= 0)
+			return;
+		if (controlComboBox.getSelectedIndex() == 0)
+			return;
 		String selectedControl = controlComboBox.getSelectedItem().toString();
-		if(selectedControl.equalsIgnoreCase(this.REGIONS_OF_INTEREST_CONTROL))
-			initRegionsOfInterestControl();
-		else if(selectedControl.equalsIgnoreCase(this.HAZUS_CONTROL))
-			initHazusScenarioControl();
-		else if(selectedControl.equalsIgnoreCase(this.PUENTE_HILLS_CONTROL))
-			initPuenteHillsScenarioControl();
-		else if(selectedControl.equalsIgnoreCase(this.SAN_ANDREAS_CONTROL))
-			initSanAndreasScenarioControl();
-		else if(selectedControl.equalsIgnoreCase(this.IM_EVENT_SET_SCENARIO_CONTROL))
-			initIMEventSetScenarioControl();
-		//else if(selectedControl.equalsIgnoreCase(PUENTE_HILLS_CONTROL_OLD))
-		//initPuenteHillsScenarioControlOld();
-		//else if(selectedControl.equalsIgnoreCase(SF_BAY_CONTROL))
-		//initSF_BayAreaScenarioControl();
-		else if(selectedControl.equalsIgnoreCase(MAP_CALC_CONTROL))
-			initMapCalcMethodSelectionControl();
-		else if(selectedControl.equalsIgnoreCase(CALC_PARAMS_CONTROL))
-			initCalcParamsControl();
-		controlComboBox.setSelectedItem(this.CONTROL_PANELS);
+		showControlPanel(selectedControl);
+		
+		controlComboBox.setSelectedItem(CONTROL_PANELS);
 	}
-
-	/**
-	 * shows the Distance parameters in a seperate window.
-	 */
-	protected void initCalcParamsControl(){
-		if(calcParamsControl == null)
-			calcParamsControl = new CalculationSettingsControlPanel(this,this);
-
-		calcParamsControl.getComponent().setVisible(true);
-	}
-
-
-	/**
-	 * sets the parameter for the SF Bay Area Scenarios and loops through the list
-	 * that Paul provided to generate the Hazus Shapefiles and Scenario shakemap files.
-	 */
-	/*private void initSF_BayAreaScenarioControl(){
-    int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to set the Parameters to SF Bay Area Scenario?",
-                                    "SF Bay Area Control",JOptionPane.YES_NO_CANCEL_OPTION);
-    if(selectedOption == JOptionPane.OK_OPTION){
-      if(bayAreaControl == null){
-        if(hazusControl == null)
-          hazusControl = new GenerateHazusControlPanelForSingleMultipleIMRs(this,this);
-        bayAreaControl = new SF_BayAreaScenarioControlPanel(erfGuiBean,imrGuiBean,
-            sitesGuiBean,mapGuiBean,hazusControl);
-      }
-      bayAreaControl.setParamsForSF_BayAreaScenario();
-    }
-
-  }*/
-
-
-	/**
-	 * Initialize the Interesting regions control panel
-	 * It will provide a pick list of interesting regions
-	 */
-	protected void initRegionsOfInterestControl() {
-		if(this.regionsOfInterest==null)
-			regionsOfInterest = new RegionsOfInterestControlPanel(this, this.sitesGuiBean);
-		regionsOfInterest.pack();
-		regionsOfInterest.setVisible(true);
-	}
-
-	/**
-	 * Initialize the parameter settings for Puente Hills Scenario
-	 */
-	protected void initPuenteHillsScenarioControl() {
-		int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to set the parameters"+
-				" for a Puente Hills scenario?",
-				"Puente Hills Control Panel",JOptionPane.OK_CANCEL_OPTION);
-		if(selectedOption == JOptionPane.OK_OPTION){
-			if(puenteHillsControlUsingEqkRupture==null)
-				puenteHillsControlUsingEqkRupture = new PuenteHillsScenarioControlPanelUsingEqkRuptureCreation(erfGuiBean,imrGuiBean,
-						sitesGuiBean,mapGuiBean);
-			puenteHillsControlUsingEqkRupture.setParamsForPuenteHillsScenario();
-		}
-	}
-
-	/**
-	 * 
-	 * Initialize the parameter settings for San Andreas Scenario
-	 */
-	protected void initSanAndreasScenarioControl(){
-		int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to set the parameters"+
-				" for a San Andreas scenario?",
-				"San Andreas Control Panel",JOptionPane.OK_CANCEL_OPTION);
-		if(selectedOption == JOptionPane.OK_OPTION){
-			if(sanAndreasControlUsingEqkRupture==null)
-				sanAndreasControlUsingEqkRupture = new SanAndreasScenarioControlPanel(erfGuiBean,imrGuiBean,
-						sitesGuiBean,mapGuiBean);
-			sanAndreasControlUsingEqkRupture.setParamsForSanAndreasScenario();
-		}
-	}
-
-	/**
-	 * 
-	 * Initialize the parameter settings for IM EventSet Scenario
-	 */
-	protected void initIMEventSetScenarioControl(){
-		int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to set the parameters"+
-				" for a IMEvent Set scenario?",
-				"IM EventSet Scenario Control Panel",JOptionPane.OK_CANCEL_OPTION);
-		if(selectedOption == JOptionPane.OK_OPTION){
-			if(this.imSetScenarioControl==null)
-				imSetScenarioControl = new IM_EventSetCEA_ControlPanel(erfGuiBean,imrGuiBean,
-						sitesGuiBean,mapGuiBean);
-			imSetScenarioControl.setParamsForPuenteHillsScenario();
-		}
-	}
-
-	/**
-	 *Initialise the Control panel to generate the shapefiles for hazus input.
-	 */
-	protected void initHazusScenarioControl(){
-		if(hazusControl == null)
-			hazusControl = new GenerateHazusControlPanelForSingleMultipleIMRs(this,this);
-
-		hazusControl.setVisible(true);
-		hazusControl.pack();
-	}
-
-
-	private void initMapCalcMethodSelectionControl(){
-		if(calcControl ==  null)
-			calcControl = new CalcOptionControl(this);
-		calcControl.setVisible(true);
-		calcControl.pack();
-	}
-
-
-	/**
-	 * Initialize the parameter settings for Puente Hills Scenario
-	 */
-	/*protected void initPuenteHillsScenarioControlOld() {
-    int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to set the parameters for a Puente Hills scenario?",
-                                    "Puente Hills Control Panel (old)",JOptionPane.OK_CANCEL_OPTION);
-    if(selectedOption == JOptionPane.OK_OPTION){
-      if(puenteHillsControl==null)
-        puenteHillsControl = new PuenteHillsScenarioControlPanelForSingleMultipleAttenRel(erfGuiBean,imrGuiBean,
-                                                                sitesGuiBean,mapGuiBean);
-      puenteHillsControl.setParamsForPuenteHillsScenario();
-    }
-  }*/
 
 	/**
 	 *
