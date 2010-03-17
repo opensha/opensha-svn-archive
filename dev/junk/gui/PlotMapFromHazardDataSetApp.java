@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.sha.gui;
+package junk.gui;
 
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
