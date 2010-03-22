@@ -16,8 +16,6 @@ beans and control panels.  This will also involve reviewing Kevin's
 toXMLMetadata(Element root)  &  fromXMLMetadata(Element root) implementations (these 
 should be our starting point).  We also want to maintain remote calc capabilities.
 
-Multi IMR options on scenario shakemap calculator is not working properly in terms of only listing what IMRs support the chosen IMT.
-
 Investigate upgrade to JFreeChart current version; buy dev guide
 
 Finish PEER test conversion to JUnit. (Keep test and app control panel in sync)

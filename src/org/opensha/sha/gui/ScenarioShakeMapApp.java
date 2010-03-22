@@ -602,7 +602,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 		String name1 = event.getParameterName();
 
 
-		if(name1.equalsIgnoreCase(imrGuiBean.IMT_PARAM_NAME))
+		if(name1.equalsIgnoreCase(AttenuationRelationshipGuiBean.IMT_PARAM_NAME))
 			imlProbGuiBean.setIMLConstraintBasedOnSelectedIMT(imrGuiBean.getSelectedIMT());
 
 

@@ -91,7 +91,7 @@ import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 public class AttenuationRelationshipGuiBean extends JPanel  implements
 ActionListener,ItemListener,ParameterChangeListener,
 ParameterChangeWarningListener, ParameterChangeFailListener{
-	
+
 	private ArrayList<AttenuationRelationshipChangeListener> listeners = new ArrayList<AttenuationRelationshipChangeListener>();
 
 	private static final String C = "MultipleIMR_GuiBean";
@@ -369,7 +369,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 
 		// find & set the selectedIMR
 		ScalarIntensityMeasureRelationshipAPI imr = getSelectedIMR_Instance();
-		
+
 		fireAttenuationRelationshipChangedEvent(null, imr);
 
 		// getting the iterator of the Other Parameters for IMR
@@ -572,10 +572,12 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		String name1 = event.getParameterName();
 
 		// if IMT selection then update
-		if (name1.equalsIgnoreCase(this.IMT_PARAM_NAME)) {
+		if (name1.equalsIgnoreCase(IMT_PARAM_NAME)) {
 			updateIMT((String)event.getNewValue());
+//			System.out.println("New IMT: " + (String)event.getNewValue());
 			//update the AttenRels List supported by the choosen IM
 			getAttenRelsSupportedForSelectedIM();
+//			System.out.println("# IMRS: " + attenRelsSupportedForIM.size());
 			if(singleAttenRelSelected) {
 				selectedAttenRelName = (String)singleAttenRelParamList.getParameter(IMR_PARAM_NAME).getValue();
 			}
@@ -600,7 +602,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 			selectIMRsForChoosenIMT();
 		}
 		// if IMR parameter changes, then get the Gaussian truncation, etc from this selected IMR
-		if(name1.equalsIgnoreCase(this.IMR_PARAM_NAME)) {
+		if(name1.equalsIgnoreCase(IMR_PARAM_NAME)) {
 			initSingleAttenRelParamListAndEditor();
 			//sets the Site params based on the selected AttenRel model
 			application.setGriddedRegionSiteParams();
@@ -616,7 +618,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 	private void init_imtParamListAndEditor() {
 
 		imtParamList = new ParameterList();
-		
+
 		//vector to store all the IMT's supported by an IMR
 		ArrayList<String> imt=new ArrayList<String>();
 		imtParam = new ArrayList<ParameterAPI>();
@@ -626,10 +628,10 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 			//loop over each IMT and get their independent parameters
 			while ( it.hasNext() ) {
 				DependentParameterAPI param = it.next();
-				
+
 				String imtName = param.getName();
 				DoubleParameter param1 = null;
-				
+
 				//check to see if the IMT param already exists in the vector list,
 				//if so the get that parameter, else create new instance of the imt
 				//parameter.
@@ -645,7 +647,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 						throw new RuntimeException("IMT '" + imtName + "' already in list, but parameter not found!");
 					}
 				}
-				
+
 				if (param1 == null) {
 					param1=new DoubleParameter(param.getName(),(Double)param.getValue());
 					//add the dependent parameter only if it has not ben added before
@@ -653,31 +655,31 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 					imt.add(param.getName());
 				}
 
-//				//check to see if the IMT param already exists in the vector list,
-//				//if so the get that parameter, else create new instance of the imt
-//				//parameter.
-//				DoubleParameter param1;
-//				if(imt.contains(param.getName())){
-//					//           int index = imtParam.indexOf(param);
-//					int index = -1;
-//					for (ParameterAPI theParam : imtParam) {
-//						if (theParam.getName().equals(param.getName())) {
-//							index = imtParam.indexOf(theParam);
-//							break;
-//						}
-//					}
-//					//        	 for 
-//					if (index < 0)
-//						System.out.println("Duplicate? " + param.getName() + ", IMR: "
-//								+ ((AttenuationRelationshipAPI)attenRelsSupported.get(i)).getName());
-//					param1 = (DoubleParameter)imtParam.get(index);
-//				}
-//				else{
-//					param1=new DoubleParameter(param.getName(),(Double)param.getValue());
-//					//add the dependent parameter only if it has not ben added before
-//					imtParam.add(param1);
-//					imt.add(param.getName());
-//				}
+				//				//check to see if the IMT param already exists in the vector list,
+				//				//if so the get that parameter, else create new instance of the imt
+				//				//parameter.
+				//				DoubleParameter param1;
+				//				if(imt.contains(param.getName())){
+				//					//           int index = imtParam.indexOf(param);
+				//					int index = -1;
+				//					for (ParameterAPI theParam : imtParam) {
+				//						if (theParam.getName().equals(param.getName())) {
+				//							index = imtParam.indexOf(theParam);
+				//							break;
+				//						}
+				//					}
+				//					//        	 for 
+				//					if (index < 0)
+				//						System.out.println("Duplicate? " + param.getName() + ", IMR: "
+				//								+ ((AttenuationRelationshipAPI)attenRelsSupported.get(i)).getName());
+				//					param1 = (DoubleParameter)imtParam.get(index);
+				//				}
+				//				else{
+				//					param1=new DoubleParameter(param.getName(),(Double)param.getValue());
+				//					//add the dependent parameter only if it has not ben added before
+				//					imtParam.add(param1);
+				//					imt.add(param.getName());
+				//				}
 
 				// add all the independent parameters related to this IMT
 				// NOTE: this will only work for DoubleDiscrete independent parameters; it's not general!
@@ -1000,8 +1002,8 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 			break;
 		default:
 			param.setValueIgnoreWarning( e.getOldValue() );
-		if(D) System.out.println(S + "Not sure what you choose, not changing value.");
-		break;
+			if(D) System.out.println(S + "Not sure what you choose, not changing value.");
+			break;
 		}
 		inParameterChangeWarning = false;
 		if(D) System.out.println(S + "Ending");
@@ -1287,29 +1289,28 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 					attenRelCheckBox[i].setSelected(false);
 					attenRelCheckBox[i].setEnabled(false);
 				}
-				else{ //if selectedAttenRel supports IMT
-
-					//if there are previously selected AttenRels then iterate over those to
-					//keep the one previuosly selected.
-					if(size > 0){
-						for(int j=0;j < size;++j){
-							//Attenuation Relation at the index i supports the IMT then see
-							//if it was previously selected, if so then keep it selected
-							AttenuationRelationship attenRelTemp = (AttenuationRelationship)prevSelectedAttenRel.get(j);
-							if(attenRelTemp.getName().equals(((JCheckBox)attenRelCheckBox[i]).getText())){
-								attenRelCheckBox[i].setEnabled(true);
-								attenRelCheckBox[i].setSelected(true);
-
-								break;
-							}
-						}
-					}
-					else{
-						attenRelCheckBox[i].setEnabled(true);
-						attenRelCheckBox[i].setSelected(true);
-
-					}
+				//				else{ //if selectedAttenRel supports IMT
+				//
+				//					//if there are previously selected AttenRels then iterate over those to
+				//					//keep the one previuosly selected.
+				//					if(size > 0){
+				//						for(int j=0;j < size;++j){
+				//							//Attenuation Relation at the index i supports the IMT then see
+				//							//if it was previously selected, if so then keep it selected
+				//							AttenuationRelationship attenRelTemp = (AttenuationRelationship)prevSelectedAttenRel.get(j);
+				//							if(attenRelTemp.getName().equals(((JCheckBox)attenRelCheckBox[i]).getText())){
+				//								attenRelCheckBox[i].setEnabled(true);
+				//								attenRelCheckBox[i].setSelected(true);
+				//								System.out.println("Setting TRUE (sub-loop)");
+				//								break;
+				//							}
+				//						}
+				//					}
+				else{
+					attenRelCheckBox[i].setEnabled(true);
+					attenRelCheckBox[i].setSelected(true);
 				}
+				//				}
 			}
 		}
 		//add the changed gui components based the single or multiple selection
@@ -1421,6 +1422,8 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 			initSingleAttenRelParamListAndEditor();
 		}
 
+		imrPanel.validate();
+
 		//set the site params for the selected Atten Rels
 		application.setGriddedRegionSiteParams();
 	}
@@ -1436,20 +1439,20 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		validate();
 		repaint();
 	}
-	
+
 	public void addAttenuationRelationshipChangeListener(AttenuationRelationshipChangeListener listener) {
 		listeners.add(listener);
 	}
-	
+
 	public void removeAttenuationRelationshipChangeListener(AttenuationRelationshipChangeListener listener) {
 		listeners.remove(listener);
 	}
-	
+
 	public void fireAttenuationRelationshipChangedEvent(ScalarIntensityMeasureRelationshipAPI oldAttenRel, ScalarIntensityMeasureRelationshipAPI newAttenRel) {
 		if (listeners.size() == 0)
 			return;
 		AttenuationRelationshipChangeEvent event = new AttenuationRelationshipChangeEvent(this, oldAttenRel, newAttenRel);
-		
+
 		for (AttenuationRelationshipChangeListener listener : listeners) {
 			listener.attenuationRelationshipChange(event);
 		}
