@@ -487,9 +487,9 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		if (dataGuiBean != null) {
 			OrderedSiteDataProviderList list = dataGuiBean.getProviderList();
 //			list.enableOnlyFirstForEachType();
-			System.out.println(list);
+//			System.out.println(list);
 			dataGuiBean.refreshAll();
-			System.out.println(list);
+//			System.out.println(list);
 		}
 
 		//creating the ParameterList Editor with the updated ParameterList
