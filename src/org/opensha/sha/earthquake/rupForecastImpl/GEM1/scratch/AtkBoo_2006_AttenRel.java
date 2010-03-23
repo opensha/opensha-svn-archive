@@ -339,7 +339,7 @@ public class AtkBoo_2006_AttenRel extends AttenuationRelationship implements
 	private HashMap<Double,Integer> indexFromPerSoil;
 	private HashMap<Double,Integer> indexFromPerStressDrop;
 	
-	
+	private StressDropParam stressDropParam = null;
 	private int iper; // Period index
 	private double vs30, rrup, mag, stressDrop;
 	private String stdDevType, fltType;
