@@ -169,7 +169,7 @@
 			</fileset>
 		</copy>
 		<copy todir="${build}/org/opensha/gem/GEM1/data/nshmp/south_america" overwrite="true">
-			<fileset dir="${dev}/org/opensha/gem/GEM1/data/nshmp/south_america">
+			<fileset dir="${src}/org/opensha/gem/GEM1/data/nshmp/south_america">
 				<include name="**/*.in" />
 				<include name="**/*.out" />
 				<include name="**/*.char" />
