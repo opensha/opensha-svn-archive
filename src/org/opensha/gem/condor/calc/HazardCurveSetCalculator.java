@@ -66,6 +66,10 @@ public class HazardCurveSetCalculator {
 				System.out.println("Calculating curve(s) for site " + siteCount + "/" + sites.size()
 						+ " IMR Map " + imrMapCount + "/" + imrMaps.size());
 				CurveMetadata meta = new CurveMetadata(site, imrMap, "imrs" + imrMapCount);
+				if (archiver.isCurveCalculated(meta, calcSettings.getXValues())) {
+					System.out.println("Curve already calculated, skipping...");
+					continue;
+				}
 				ArbitrarilyDiscretizedFunc calcFunction;
 				boolean logSpace = calcSettings.isCalcInLogSpace();
 				if (logSpace)

@@ -23,4 +23,6 @@ public interface CurveResultsArchiver extends XMLSaveable {
 	 * @throws IOException 
 	 */
 	public void archiveCurve(ArbitrarilyDiscretizedFunc curve, CurveMetadata meta) throws IOException;
+	
+	public boolean isCurveCalculated(CurveMetadata meta, ArbitrarilyDiscretizedFunc xVals);
 }
