@@ -75,17 +75,20 @@ public class CalcInputsGenerator {
 		/*			Archiver			*/
 		boolean binByLat = true;
 		boolean binByLon = false;
-		String outputDir = "";		//TODO - fill this in
+		String outputDir = "/auto/scec-00/tera3d/opensha/gem/southAmerica";
+		File outDirFile = new File(outputDir);
+		if (!outDirFile.exists())
+			outDirFile.mkdir();
 		String curveOutputDir = outputDir + "/curves";
 		AsciiFileCurveArchiver archiver = new AsciiFileCurveArchiver(curveOutputDir, binByLat, binByLon);
 		
-		String javaExec = "";		//TODO - fill this in
-		String jarFile = "";		//TODO - fill this in
+		String javaExec = "/usr/bin/java";
+		String jarFile = "/home/scec-00/tera3d/opensha/gem/svn/dist/OpenSHA_complete.jar";
 		HazardDataSetDAGCreator dag = new HazardDataSetDAGCreator(modelERF, maps, sites, settings,
 				archiver, javaExec, jarFile);
 		
 		int sitesPerJob = 400;
-		dag.writeDAG(new File(outputDir), sitesPerJob, false);
+		dag.writeDAG(outDirFile, sitesPerJob, false);
 	}
 
 }
