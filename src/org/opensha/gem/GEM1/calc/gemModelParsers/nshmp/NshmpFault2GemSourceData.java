@@ -77,6 +77,7 @@ public class NshmpFault2GemSourceData extends GemFileParser {
 		{
 			inputfile = inputfile.substring(inputfile.lastIndexOf("./")+1);
 		}
+		System.out.println("Getting resource as stream: " + inputfile);
         BufferedReader oReader = new BufferedReader(new InputStreamReader(GemComputeHazardLogicTree.class.getResourceAsStream(inputfile)));
         
         String sRecord = null;
