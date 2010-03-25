@@ -1,11 +1,18 @@
 package org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData;
 
+import java.io.Serializable;
+
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSourceData;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.util.TectonicRegionType;
 
-public class GEMSubductionFaultSourceData extends GEMSourceData{
+public class GEMSubductionFaultSourceData extends GEMSourceData implements Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	
 	private FaultTrace topTrace;
 	private FaultTrace bottomTrace;

@@ -19,7 +19,7 @@
 
 package org.opensha.sha.earthquake;
 
-import org.opensha.commons.data.Location;
+import java.io.Serializable;
 
 /**
  * <p>Title: FocalMechanism</p>
@@ -28,60 +28,65 @@ import org.opensha.commons.data.Location;
  * @author Nitin Gupta
  * @version 1.0
  */
-public class FocalMechanism {
+public class FocalMechanism implements Serializable {
 
-  private double strike,dip,rake;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
-  /**
-   * Class default constructor
-   */
-  public FocalMechanism() {}
+	private double strike,dip,rake;
 
-  /**
-   *
-   * @param strike double
-   * @param dip double
-   * @param rake double
-   */
-  public FocalMechanism(double strike, double dip, double rake){
-    this.strike = strike;
-    this.rake = rake;
-    this.dip = dip;
-  }
+	/**
+	 * Class default constructor
+	 */
+	public FocalMechanism() {}
 
-  public double getDip() {
-    return dip;
-  }
+	/**
+	 *
+	 * @param strike double
+	 * @param dip double
+	 * @param rake double
+	 */
+	public FocalMechanism(double strike, double dip, double rake){
+		this.strike = strike;
+		this.rake = rake;
+		this.dip = dip;
+	}
 
-  public double getRake() {
-    return rake;
-  }
+	public double getDip() {
+		return dip;
+	}
 
-  public double getStrike() {
-    return strike;
-  }
+	public double getRake() {
+		return rake;
+	}
 
-  public void setDip(double dip) {
-    this.dip = dip;
-  }
+	public double getStrike() {
+		return strike;
+	}
 
-  public void setRake(double rake) {
-    this.rake = rake;
-  }
+	public void setDip(double dip) {
+		this.dip = dip;
+	}
 
-  public void setStrike(double strike) {
-    this.strike = strike;
-  }
+	public void setRake(double rake) {
+		this.rake = rake;
+	}
 
-  public void setFocalMechanism(double dip, double rake, double strike){
-    this.dip = dip;
-    this.rake = rake;
-    this.strike = strike;
-  }
-  
-  public FocalMechanism copy() {
-	  return new FocalMechanism(strike,dip,rake);
-  }
+	public void setStrike(double strike) {
+		this.strike = strike;
+	}
+
+	public void setFocalMechanism(double dip, double rake, double strike){
+		this.dip = dip;
+		this.rake = rake;
+		this.strike = strike;
+	}
+
+	public FocalMechanism copy() {
+		return new FocalMechanism(strike,dip,rake);
+	}
 
 
 }

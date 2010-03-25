@@ -1,5 +1,7 @@
 package org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData;
 
+import java.io.Serializable;
+
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSourceData;
@@ -8,8 +10,13 @@ import org.opensha.sha.util.TectonicRegionType;
 /**
  * This holds data for a grid source (single location).
  */
-public class GEMPointSourceData extends GEMSourceData {
+public class GEMPointSourceData extends GEMSourceData implements Serializable {
  
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	// this holds the MagFreqDists, FocalMechs, and location.
 	private HypoMagFreqDistAtLoc hypoMagFreqDistAtLoc;
 	// the following specifies the average depth to top of rupture as a function of magnitude.
