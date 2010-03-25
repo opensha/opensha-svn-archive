@@ -1,6 +1,5 @@
 package org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData;
 
-import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSourceData;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -24,8 +23,22 @@ public class GEMSubductionFaultSourceData extends GEMSourceData{
 		this.rake = rake;
 		this.mfd = mfd;
 		this.floatRuptureFlag = floatRuptureFlag;
-		
 		this.tectReg = TectonicRegionType.SUBDUCTION_INTERFACE;
+		
+	}
+	
+	// constructor.  TectonicRegionType defaults to SUBDUCTION_INTERFACE here.
+	public GEMSubductionFaultSourceData(String id, String name, TectonicRegionType tectReg,
+			FaultTrace TopTrace, FaultTrace BottomTrace, 
+			double rake, IncrementalMagFreqDist mfd, boolean floatRuptureFlag){
+		this.id = id;
+		this.name = name;
+		this.tectReg = tectReg;
+		this.topTrace = TopTrace;
+		this.bottomTrace = BottomTrace;
+		this.rake = rake;
+		this.mfd = mfd;
+		this.floatRuptureFlag = floatRuptureFlag;
 		
 	}
 
