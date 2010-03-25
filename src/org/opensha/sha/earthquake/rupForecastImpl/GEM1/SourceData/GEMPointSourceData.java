@@ -47,8 +47,6 @@ public class GEMPointSourceData extends GEMSourceData {
 		return this.aveRupTopVsMag;
 	}
 
-	
-	
 	/**
 	 * 
 	 * @return
