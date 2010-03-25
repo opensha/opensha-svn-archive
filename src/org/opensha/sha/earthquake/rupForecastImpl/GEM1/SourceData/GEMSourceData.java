@@ -18,6 +18,14 @@ public abstract class GEMSourceData {
 	
 	/**
 	 * 
+	 * @return
+	 */
+	public void setTectReg(TectonicRegionType tectReg) {
+		this.tectReg = tectReg;
+	}
+	
+	/**
+	 * 
 	 */
 	public String getID(){
 		return this.id;
