@@ -117,7 +117,7 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 				prevLoc = nextLoc;
 			}
 			double accuracyCheck = RelativeLocation.getTotalDistance(botLoc, this.getLocation(nRows-1,c));
-			System.out.println("Distance between actual and computed bottom point = "+(float)accuracyCheck);
+//			System.out.println("Distance between actual and computed bottom point = "+(float)accuracyCheck);
 			
 			//override last location
 			//this.setLocation(nRows-1, c, botLoc);

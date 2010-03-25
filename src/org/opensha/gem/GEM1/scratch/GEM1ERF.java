@@ -1,6 +1,7 @@
 package org.opensha.gem.GEM1.scratch;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
@@ -244,6 +245,8 @@ public class GEM1ERF extends EqkRupForecast {
 	public final static String SUB_FLOATER_TYPE_CENTERED_DOWNDIP = "Along strike & centered down dip";
 	public final static String SUB_FLOATER_TYPE_PARAM_DEFAULT = FLOATER_TYPE_ALONG_STRIKE_AND_DOWNDIP;
 	StringParameter sub_floaterTypeParam;
+	
+	private HashMap<Integer, ProbEqkSource> sourceCache = new HashMap<Integer, ProbEqkSource>();
 
 
 	/**
@@ -895,18 +898,22 @@ public class GEM1ERF extends EqkRupForecast {
 	 * @param iSource : index of the source needed
 	 */
 	public ProbEqkSource getSource(int iSource) {
-
-		GEMSourceData srcData = gemSourceDataList.get(iSource);
-		if(srcData instanceof GEMFaultSourceData)
-			return mkFaultSource((GEMFaultSourceData)srcData);
-		else if (srcData instanceof GEMSubductionFaultSourceData)
-			return mkSubductionSource((GEMSubductionFaultSourceData)srcData);
-		else if (srcData instanceof GEMPointSourceData)
-			return mkGridSource((GEMPointSourceData)srcData);
-		else if (srcData instanceof GEMAreaSourceData)
-			return mkAreaSource((GEMAreaSourceData)srcData);
-		else
-			throw new RuntimeException(NAME+": "+srcData.getClass()+" not yet supported");
+		ProbEqkSource source = sourceCache.get(new Integer(iSource));
+		if (source == null) {
+			GEMSourceData srcData = gemSourceDataList.get(iSource);
+			if(srcData instanceof GEMFaultSourceData)
+				source = mkFaultSource((GEMFaultSourceData)srcData);
+			else if (srcData instanceof GEMSubductionFaultSourceData)
+				source = mkSubductionSource((GEMSubductionFaultSourceData)srcData);
+			else if (srcData instanceof GEMPointSourceData)
+				source = mkGridSource((GEMPointSourceData)srcData);
+			else if (srcData instanceof GEMAreaSourceData)
+				source = mkAreaSource((GEMAreaSourceData)srcData);
+			else
+				throw new RuntimeException(NAME+": "+srcData.getClass()+" not yet supported");
+			sourceCache.put(new Integer(iSource), source);
+		}
+		return source;
 	}
 
 	/**

@@ -69,11 +69,15 @@ public class CalcInputsGenerator {
 			/*			Calc Settings		*/
 			CalculationSettings settings = new CalculationSettings(
 					CyberShakePlotFromDBControlPanel.createUSGS_PGA_Function(), 200d);
+			settings.setSerializeERF(true);
 			
 			/*			ERF					*/
 			NshmpSouthAmericaData model = new NshmpSouthAmericaData(latmin,latmax,lonmin,lonmax);
 			GEM1ERF modelERF = new GEM1ERF(model.getList(),new org.opensha.gem.GEM1.commons.CalculationSettings());
 			modelERF.updateForecast();
+			for (int i=0; i<modelERF.getNumSources(); i++)
+				modelERF.getSource(i);
+//			System.out.println("TRT 0: " + modelERF.getSource(0).getTectonicRegionType());
 //			System.exit(0);
 			
 			/*			Archiver			*/

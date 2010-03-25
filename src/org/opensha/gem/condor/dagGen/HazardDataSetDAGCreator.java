@@ -146,7 +146,7 @@ public class HazardDataSetDAGCreator {
 			String jobName = "Curves_" + curveIndexFormat.format(startIndex) + "_" + curveIndexFormat.format(endIndex);
 			String executable = javaExec;
 			String xmlFile = writeCurveJobXML(odir, startIndex, endIndex, jobName, serializedERFFile);
-			String arguments = " -classpath " + jarFile + " " + HazardCurveDriver.class.getName() + " " + xmlFile;
+			String arguments = "-Xmx2048M -classpath " + jarFile + " " + HazardCurveDriver.class.getName() + " " + xmlFile;
 			SubmitScriptForDAG job = new SubmitScriptForDAG(jobName, executable, arguments,
 					"/tmp", universe, true);
 			job.setRequirements(requirements);
