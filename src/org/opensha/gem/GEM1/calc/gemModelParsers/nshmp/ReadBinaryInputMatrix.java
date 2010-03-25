@@ -47,12 +47,12 @@ public class ReadBinaryInputMatrix {
 //		
 //	      DataInputStream data_in    = new DataInputStream (oFIS);
 		
-		String myClass = '/'+getClass().getName().replace('.', '/')+".class";
-		URL myClassURL = getClass().getResource(myClass);
-		if ("jar" == myClassURL.getProtocol())
-		{
-			filename = filename.substring(filename.lastIndexOf("./")+1);
-		}
+//		String myClass = '/'+getClass().getName().replace('.', '/')+".class";
+//		URL myClassURL = getClass().getResource(myClass);
+//		if ("jar" == myClassURL.getProtocol())
+//		{
+//			filename = filename.substring(filename.lastIndexOf("./")+1);
+//		}
         //BufferedReader oReader = new BufferedReader(new InputStreamReader(GemComputeHazardLogicTree.class.getResourceAsStream(filename)));
         
 		DataInputStream data_in    = new DataInputStream (GemComputeHazardLogicTree.class.getResourceAsStream(filename));
