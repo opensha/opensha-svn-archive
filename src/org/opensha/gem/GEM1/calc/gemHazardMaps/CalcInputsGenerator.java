@@ -25,77 +25,85 @@ import org.opensha.sha.util.TectonicRegionType;
 public class CalcInputsGenerator {
 	
 	public static void main(String args[]) throws IOException {
-		/*			GMPEs				 */
-		GemLogicTree<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> gmpeTree
-		= new GemGmpe().getGemLogicTree();
-		ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> maps =
-			new ArrayList<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>>();
-		maps.add(gmpeTree.getEBMap().get("1"));
-		maps.add(gmpeTree.getEBMap().get("2"));
-		
-		/*			Sites				*/
-		double latmin = -55;
-		double latmax = 15;
-		double lonmin = -85;
-		double lonmax = -30;
-		Location topLeft = new Location(latmax, lonmin);
-		Location bottomRight = new Location(latmin, lonmax);
+		try {
+			/*			GMPEs				 */
+			GemLogicTree<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> gmpeTree
+			= new GemGmpe().getGemLogicTree();
+			ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> maps =
+				new ArrayList<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>>();
+			maps.add(gmpeTree.getEBMap().get("1"));
+			maps.add(gmpeTree.getEBMap().get("2"));
+			
+			/*			Sites				*/
+			double latmin = -55;
+			double latmax = 15;
+			double lonmin = -85;
+			double lonmax = -30;
+			Location topLeft = new Location(latmax, lonmin);
+			Location bottomRight = new Location(latmin, lonmax);
 //		double spacing = 0.1;
-		double spacing = 1.0;
-		GriddedRegion region = new GriddedRegion(topLeft, bottomRight, spacing, topLeft);
-		ArrayList<Site> sites = new ArrayList<Site>();
-		for (Location loc : region.getNodeList()) {
-			Site site = new Site(loc);
-			// USE DEFAULT SITE VALUES!
-			for (HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> map : maps) {
-				for (TectonicRegionType tect : map.keySet()) {
-					ScalarIntensityMeasureRelationshipAPI imr = map.get(tect);
-					ListIterator<ParameterAPI> it = imr.getSiteParamsIterator();
-					while (it.hasNext()) {
-						ParameterAPI param = it.next();
-						try {
-							site.getParameter(param.getName());
-						} catch (ParameterException e) {
-							// if we want to assign custom vals here, we need to clone.
-							site.addParameter(param);
+			double spacing = 1.0;
+			GriddedRegion region = new GriddedRegion(topLeft, bottomRight, spacing, topLeft);
+			ArrayList<Site> sites = new ArrayList<Site>();
+			for (Location loc : region.getNodeList()) {
+				Site site = new Site(loc);
+				// USE DEFAULT SITE VALUES!
+				for (HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> map : maps) {
+					for (TectonicRegionType tect : map.keySet()) {
+						ScalarIntensityMeasureRelationshipAPI imr = map.get(tect);
+						ListIterator<ParameterAPI> it = imr.getSiteParamsIterator();
+						while (it.hasNext()) {
+							ParameterAPI param = it.next();
+							try {
+								site.getParameter(param.getName());
+							} catch (ParameterException e) {
+								// if we want to assign custom vals here, we need to clone.
+								site.addParameter(param);
+							}
 						}
 					}
 				}
+				sites.add(site);
 			}
-			sites.add(site);
+			
+			/*			Calc Settings		*/
+			CalculationSettings settings = new CalculationSettings(
+					CyberShakePlotFromDBControlPanel.createUSGS_PGA_Function(), 200d);
+			
+			/*			ERF					*/
+			NshmpSouthAmericaData model = new NshmpSouthAmericaData(latmin,latmax,lonmin,lonmax);
+			GEM1ERF modelERF = new GEM1ERF(model.getList(),new org.opensha.gem.GEM1.commons.CalculationSettings());
+			modelERF.updateForecast();
+//			System.exit(0);
+			
+			/*			Archiver			*/
+			boolean binByLat = true;
+			boolean binByLon = false;
+			String outputDir = "/home/scec-00/tera3d/opensha/gem/southAmerica";
+//			String outputDir = "/tmp/gem/southAmerica";
+			File outDirFile = new File(outputDir);
+			if (!outDirFile.exists())
+				outDirFile.mkdir();
+			String curveOutputDir = outputDir + "/curves";
+			AsciiFileCurveArchiver archiver = new AsciiFileCurveArchiver(curveOutputDir, binByLat, binByLon);
+			
+			String javaExec = "/usr/bin/java";
+			String jarFile = "/home/scec-00/tera3d/opensha/gem/svn/dist/OpenSHA_complete.jar";
+			HazardDataSetDAGCreator dag = new HazardDataSetDAGCreator(modelERF, maps, sites, settings,
+					archiver, javaExec, jarFile);
+			
+			int sitesPerJob;
+			if (spacing == 1.0)
+				sitesPerJob = 50;
+			else
+				sitesPerJob= 400;
+			dag.writeDAG(outDirFile, sitesPerJob, false);
+			System.exit(0);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.exit(1);
 		}
-		
-		/*			Calc Settings		*/
-		CalculationSettings settings = new CalculationSettings(
-				CyberShakePlotFromDBControlPanel.createUSGS_PGA_Function(), 200d);
-		
-		/*			ERF					*/
-		NshmpSouthAmericaData model = new NshmpSouthAmericaData(latmin,latmax,lonmin,lonmax);
-		GEM1ERF modelERF = new GEM1ERF(model.getList(),new org.opensha.gem.GEM1.commons.CalculationSettings());
-		modelERF.updateForecast();
-//		System.exit(0);
-		
-		/*			Archiver			*/
-		boolean binByLat = true;
-		boolean binByLon = false;
-		String outputDir = "/auto/scec-00/tera3d/opensha/gem/southAmerica";
-		File outDirFile = new File(outputDir);
-		if (!outDirFile.exists())
-			outDirFile.mkdir();
-		String curveOutputDir = outputDir + "/curves";
-		AsciiFileCurveArchiver archiver = new AsciiFileCurveArchiver(curveOutputDir, binByLat, binByLon);
-		
-		String javaExec = "/usr/bin/java";
-		String jarFile = "/home/scec-00/tera3d/opensha/gem/svn/dist/OpenSHA_complete.jar";
-		HazardDataSetDAGCreator dag = new HazardDataSetDAGCreator(modelERF, maps, sites, settings,
-				archiver, javaExec, jarFile);
-		
-		int sitesPerJob;
-		if (spacing == 1.0)
-			sitesPerJob = 50;
-		else
-			sitesPerJob= 400;
-		dag.writeDAG(outDirFile, sitesPerJob, false);
 	}
 
 }
