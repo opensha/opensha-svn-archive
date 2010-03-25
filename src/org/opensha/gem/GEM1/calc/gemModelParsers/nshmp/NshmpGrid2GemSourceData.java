@@ -260,7 +260,7 @@ public class NshmpGrid2GemSourceData extends GemFileParser {
 				st = new StringTokenizer(sRecord);
 				// read a value file name
 				aValFileName = st.nextToken();
-				aValFileName.replaceFirst("../../data/", "/org/opensha/gem/GEM1/data/");
+				aValFileName = aValFileName.replaceFirst("../../data/", "/org/opensha/gem/GEM1/data/");
 				System.out.println("a value matrix: "+aValFileName);
 				// read a value file
 				ReadBinaryInputMatrix aValMat = new ReadBinaryInputMatrix(aValFileName, bigEndian2LittleEndian);
