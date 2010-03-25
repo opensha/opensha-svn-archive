@@ -11,6 +11,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.ParameterAPI;
+import org.opensha.gem.GEM1.calc.gemHazardCalculator.GemComputeHazardLogicTree;
 import org.opensha.gem.GEM1.calc.gemLogicTree.GemLogicTree;
 import org.opensha.gem.GEM1.calc.gemLogicTree.gemLogicTreeImpl.gmpe.GemGmpe;
 import org.opensha.gem.GEM1.calc.gemModelData.nshmp.south_america.NshmpSouthAmericaData;
@@ -33,6 +34,9 @@ public class CalcInputsGenerator {
 				new ArrayList<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>>();
 			maps.add(gmpeTree.getEBMap().get("1"));
 			maps.add(gmpeTree.getEBMap().get("2"));
+			org.opensha.gem.GEM1.commons.CalculationSettings calcSet =
+				new org.opensha.gem.GEM1.commons.CalculationSettings();
+			GemComputeHazardLogicTree.setGmpeParams(gmpeTree, calcSet);
 			
 			/*			Sites				*/
 			double latmin = -55;
@@ -73,7 +77,7 @@ public class CalcInputsGenerator {
 			
 			/*			ERF					*/
 			NshmpSouthAmericaData model = new NshmpSouthAmericaData(latmin,latmax,lonmin,lonmax);
-			GEM1ERF modelERF = new GEM1ERF(model.getList(),new org.opensha.gem.GEM1.commons.CalculationSettings());
+			GEM1ERF modelERF = new GEM1ERF(model.getList(),calcSet);
 			modelERF.updateForecast();
 			for (int i=0; i<modelERF.getNumSources(); i++)
 				modelERF.getSource(i);

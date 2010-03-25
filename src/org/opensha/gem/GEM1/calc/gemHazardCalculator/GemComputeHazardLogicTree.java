@@ -57,7 +57,7 @@ public class GemComputeHazardLogicTree {
 		GEMHazardCurveRepositoryList hcRepList = new GEMHazardCurveRepositoryList();
 		
 		// Set Gmpe(s) parameters
-		setGmpeParams();
+		setGmpeParams(gmpeLT, calcSet);
 		
 		// Iterator over input model end branches
 		Set<String> modelLabels = ilt.getEBMap().keySet();
@@ -160,7 +160,7 @@ public class GemComputeHazardLogicTree {
 //		return hcRepList;
 //	}
 	
-	private void setGmpeParams(){
+	public static void setGmpeParams(GemLogicTree<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>> gmpeLT, CalculationSettings calcSet){
 		
 	    // loop over Gmpes logic tree end-branches
 		for(int ig=0;ig<gmpeLT.getEBMap().size();ig++){
