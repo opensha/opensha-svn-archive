@@ -13,7 +13,7 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class NshmpSouthAmericaFaultData extends GemFileParser{
 	
-	private String inDir = "../../data/nshmp/south_america/fault/";
+	private String inDir = "/org/opensha/gem/GEM1/data/nshmp/south_america/fault/";
 	
 	public NshmpSouthAmericaFaultData(double latmin, double latmax, double lonmin, double lonmax) throws FileNotFoundException{
 		

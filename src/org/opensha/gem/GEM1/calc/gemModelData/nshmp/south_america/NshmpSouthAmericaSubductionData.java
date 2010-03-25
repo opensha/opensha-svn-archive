@@ -13,7 +13,7 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class NshmpSouthAmericaSubductionData extends GemFileParser {
 	
-	private String inDir = "../../data/nshmp/south_america/subduction/";
+	private String inDir = "/org/opensha/gem/GEM1/data/nshmp/south_america/subduction/";
 	
 	public NshmpSouthAmericaSubductionData(double latmin, double latmax, double lonmin, double lonmax) throws IOException{
 		

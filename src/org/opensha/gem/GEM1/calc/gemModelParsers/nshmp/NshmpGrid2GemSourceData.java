@@ -60,12 +60,13 @@ public class NshmpGrid2GemSourceData extends GemFileParser {
 
 			srcDataList = new ArrayList<GEMSourceData>();
 			
-			String myClass = '/'+getClass().getName().replace('.', '/')+".class";
-			URL myClassURL = getClass().getResource(myClass);
-			if ("jar" == myClassURL.getProtocol())
-			{
-				inputFile = inputFile.substring(inputFile.lastIndexOf("./")+1);
-			}
+//			String myClass = '/'+getClass().getName().replace('.', '/')+".class";
+//			URL myClassURL = getClass().getResource(myClass);
+//			if ("jar" == myClassURL.getProtocol())
+//			{
+//				inputFile = inputFile.substring(inputFile.lastIndexOf("./")+1);
+//			}
+			System.out.println("Getting resource as stream: " + inputFile);
 	        BufferedReader oReader = new BufferedReader(new InputStreamReader(GemComputeHazardLogicTree.class.getResourceAsStream(inputFile)));
 	        
 	        

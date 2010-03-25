@@ -40,7 +40,8 @@ public class CalcInputsGenerator {
 		double lonmax = -30;
 		Location topLeft = new Location(latmax, lonmin);
 		Location bottomRight = new Location(latmin, lonmax);
-		double spacing = 0.1;
+//		double spacing = 0.1;
+		double spacing = 1.0;
 		GriddedRegion region = new GriddedRegion(topLeft, bottomRight, spacing, topLeft);
 		ArrayList<Site> sites = new ArrayList<Site>();
 		for (Location loc : region.getNodeList()) {
@@ -71,6 +72,8 @@ public class CalcInputsGenerator {
 		/*			ERF					*/
 		NshmpSouthAmericaData model = new NshmpSouthAmericaData(latmin,latmax,lonmin,lonmax);
 		GEM1ERF modelERF = new GEM1ERF(model.getList(),new org.opensha.gem.GEM1.commons.CalculationSettings());
+		modelERF.updateForecast();
+		System.exit(0);
 		
 		/*			Archiver			*/
 		boolean binByLat = true;
@@ -87,7 +90,11 @@ public class CalcInputsGenerator {
 		HazardDataSetDAGCreator dag = new HazardDataSetDAGCreator(modelERF, maps, sites, settings,
 				archiver, javaExec, jarFile);
 		
-		int sitesPerJob = 400;
+		int sitesPerJob;
+		if (spacing == 1.0)
+			sitesPerJob = 50;
+		else
+			sitesPerJob= 400;
 		dag.writeDAG(outDirFile, sitesPerJob, false);
 	}
 

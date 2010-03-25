@@ -62,12 +62,13 @@ public class NshmpSubduction2GemSourceData extends GemFileParser {
 		// and for cascadia faults with minimumaMag>=8.8
 		boolean floatRuptureFlag = true;
 		
-		String myClass = '/'+getClass().getName().replace('.', '/')+".class";
-		URL myClassURL = getClass().getResource(myClass);
-		if ("jar" == myClassURL.getProtocol())
-		{
-			inputfile = inputfile.substring(inputfile.lastIndexOf("./")+1);
-		}
+//		String myClass = '/'+getClass().getName().replace('.', '/')+".class";
+//		URL myClassURL = getClass().getResource(myClass);
+//		if ("jar" == myClassURL.getProtocol())
+//		{
+//			inputfile = inputfile.substring(inputfile.lastIndexOf("./")+1);
+//		}
+		System.out.println("Getting resource as stream: " + inputfile);
         BufferedReader oReader = new BufferedReader(new InputStreamReader(GemComputeHazardLogicTree.class.getResourceAsStream(inputfile)));
         
         
