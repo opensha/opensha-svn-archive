@@ -1,6 +1,5 @@
 package org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData;
 
-import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSourceData;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
