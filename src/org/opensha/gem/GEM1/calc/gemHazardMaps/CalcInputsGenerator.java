@@ -73,7 +73,7 @@ public class CalcInputsGenerator {
 		NshmpSouthAmericaData model = new NshmpSouthAmericaData(latmin,latmax,lonmin,lonmax);
 		GEM1ERF modelERF = new GEM1ERF(model.getList(),new org.opensha.gem.GEM1.commons.CalculationSettings());
 		modelERF.updateForecast();
-		System.exit(0);
+//		System.exit(0);
 		
 		/*			Archiver			*/
 		boolean binByLat = true;
