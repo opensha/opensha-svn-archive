@@ -54,6 +54,7 @@ public class AsciiFileCurveArchiver implements CurveResultsArchiver {
 	private String getFileName(CurveMetadata meta) {
 		Location loc = meta.getSite().getLocation();
 		String dir = outputDir;
+		dir += meta.getShortLabel() + File.separator;
 		if (binByLat) {
 			dir += loc.getLatitude() + File.separator;
 		}
@@ -63,7 +64,7 @@ public class AsciiFileCurveArchiver implements CurveResultsArchiver {
 		File dirFile = new File(dir);
 		if (!dirFile.exists())
 			dirFile.mkdirs();
-		return dir + formatLocation(loc) + "_" + meta.getShortLabel() + ".txt";
+		return dir + formatLocation(loc) + ".txt";
 	}
 	
 	public String getOutputDir() {

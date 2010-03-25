@@ -3,6 +3,7 @@ package org.opensha.gem.GEM1.calc.gemHazardMaps;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.ListIterator;
 
@@ -45,7 +46,7 @@ public class CalcInputsGenerator {
 			double lonmax = -30;
 			Location topLeft = new Location(latmax, lonmin);
 			Location bottomRight = new Location(latmin, lonmax);
-//		double spacing = 0.1;
+//			double spacing = 0.1;
 			double spacing = 1.0;
 			GriddedRegion region = new GriddedRegion(topLeft, bottomRight, spacing, topLeft);
 			ArrayList<Site> sites = new ArrayList<Site>();
@@ -69,6 +70,8 @@ public class CalcInputsGenerator {
 				}
 				sites.add(site);
 			}
+			// for load balancing
+			Collections.shuffle(sites);
 			
 			/*			Calc Settings		*/
 			CalculationSettings settings = new CalculationSettings(
