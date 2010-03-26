@@ -94,7 +94,7 @@ public class CalculationSettings {
 	private static double vs30AtkBoo = 760.0;
 	
     // intensity measure level list
-    private ArbitrarilyDiscretizedFunc imlList = new ArbitrarilyDiscretizedFunc();
+    private ArbitrarilyDiscretizedFunc imlList;
 	
     // default time span duration
     private static double TimeSpanDuration = 50.0;
@@ -105,6 +105,39 @@ public class CalculationSettings {
     // default minimum distance to source
     private static double max_dist_source = 200.0;
     
+    public static ArbitrarilyDiscretizedFunc getDefaultIMLVals() {
+    	ArbitrarilyDiscretizedFunc imlList = new ArbitrarilyDiscretizedFunc();
+    	imlList.set(0.005, 1.0);
+		imlList.set(0.007, 1.0);
+		imlList.set(0.0098, 1.0);
+		imlList.set(0.0137, 1.0);
+		imlList.set(0.0192, 1.0);
+		imlList.set(0.0269, 1.0);
+		imlList.set(0.0376, 1.0);
+		imlList.set(0.0527, 1.0);
+		imlList.set(0.0738, 1.0);
+		imlList.set(0.103, 1.0);
+		imlList.set(0.145, 1.0);
+		imlList.set(0.203, 1.0);
+		imlList.set(0.284, 1.0);
+		imlList.set(0.397, 1.0);
+		imlList.set(0.556, 1.0);
+		imlList.set(0.778, 1.0);
+		imlList.set(1.09, 1.0);
+		imlList.set(1.52, 1.0);
+		imlList.set(2.13, 1.0);
+		return imlList;
+    }
+    
+    public static ArbitrarilyDiscretizedFunc getDefaultLogIMLVals() {
+    	ArbitrarilyDiscretizedFunc imlList = getDefaultIMLVals();
+    	ArbitrarilyDiscretizedFunc imlLogList = new ArbitrarilyDiscretizedFunc();
+    	for (int i=0; i<imlList.getNum(); i++) {
+    		imlLogList.set(Math.log(imlList.getX(i)), 1.0);
+    	}
+    	return imlLogList;
+    }
+    
 	// the constructor set default values
 	public CalculationSettings() {
 		
@@ -113,25 +146,7 @@ public class CalculationSettings {
 		Out = new HashMap<String,Object>();
 		
 		// set intentity measure level list
-		imlList.set(Math.log(0.005), 1.0);
-		imlList.set(Math.log(0.007), 1.0);
-		imlList.set(Math.log(0.0098), 1.0);
-		imlList.set(Math.log(0.0137), 1.0);
-		imlList.set(Math.log(0.0192), 1.0);
-		imlList.set(Math.log(0.0269), 1.0);
-		imlList.set(Math.log(0.0376), 1.0);
-		imlList.set(Math.log(0.0527), 1.0);
-		imlList.set(Math.log(0.0738), 1.0);
-		imlList.set(Math.log(0.103), 1.0);
-		imlList.set(Math.log(0.145), 1.0);
-		imlList.set(Math.log(0.203), 1.0);
-		imlList.set(Math.log(0.284), 1.0);
-		imlList.set(Math.log(0.397), 1.0);
-		imlList.set(Math.log(0.556), 1.0);
-		imlList.set(Math.log(0.778), 1.0);
-		imlList.set(Math.log(1.09), 1.0);
-		imlList.set(Math.log(1.52), 1.0);
-		imlList.set(Math.log(2.13), 1.0);
+		imlList = getDefaultLogIMLVals();
 		
 		
 		//*********** calculation settings for ERF instantiation **********//

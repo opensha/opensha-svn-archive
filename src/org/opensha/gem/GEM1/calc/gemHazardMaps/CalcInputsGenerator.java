@@ -75,7 +75,7 @@ public class CalcInputsGenerator {
 			
 			/*			Calc Settings		*/
 			CalculationSettings settings = new CalculationSettings(
-					CyberShakePlotFromDBControlPanel.createUSGS_PGA_Function(), 200d);
+					org.opensha.gem.GEM1.commons.CalculationSettings.getDefaultIMLVals(), 200d);
 			settings.setSerializeERF(true);
 			
 			/*			ERF					*/
