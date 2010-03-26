@@ -107,7 +107,7 @@ public class CalcInputsGenerator {
 			if (spacing == 1.0)
 				sitesPerJob = 50;
 			else
-				sitesPerJob= 400;
+				sitesPerJob= 200;
 			dag.writeDAG(outDirFile, sitesPerJob, false);
 			System.exit(0);
 		} catch (Exception e) {
