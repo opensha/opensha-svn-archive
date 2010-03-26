@@ -18,11 +18,20 @@ public class NshmpSouthAmerica {
 		
 		
 		// region where to compute hazard
-	    double latmin = -18.0;
-	    double latmax = -18.0;
-	    double lonmin = -65.0;
-	    double lonmax = -65.0;
-	    double delta = 0.1;
+//	    double latmin = -18.0;
+//	    double latmax = -18.0;
+//	    double lonmin = -65.0;
+//	    double lonmax = -65.0;
+//	    double latmin = -36.2;
+//	    double latmax = -32.8;
+//	    double lonmin = -77.2;
+//	    double lonmax = -76.8;
+	    double latmin = -55;
+		double latmax = 15;
+		double lonmin = -85;
+		double lonmax = -30;
+//	    double delta = 0.1;
+	    double delta = 10.0;
 	    
 		// probability level for computing hazard map
 		double[] probLevel = new double[3];
@@ -35,8 +44,9 @@ public class NshmpSouthAmerica {
 	    
 		// output directory (on damiano's mac)
 	    // for US model
-		String outDir = "/Users/damianomonelli/Documents" +
-		"/GEM/USA_USGS/NSHM_2008/";
+//		String outDir = "/Users/damianomonelli/Documents" +
+//		"/GEM/USA_USGS/NSHM_2008/";
+		String outDir = "/tmp/gem_nshmp/";
 		
 		//outDir = "/home/damiano/results/";
 		
