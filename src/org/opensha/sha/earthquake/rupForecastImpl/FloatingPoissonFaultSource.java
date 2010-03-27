@@ -31,6 +31,8 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.data.region.BorderType;
+import org.opensha.commons.data.region.Region;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
@@ -102,7 +104,8 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
 
 	// private fields
 	private ArrayList<ProbEqkRupture> ruptureList;
-	private ArrayList<Location> faultCornerLocations = new ArrayList<Location>();   // used for the getMinDistance(Site) method
+	private Region sourceRegion;	// used for the getMinDistance(Site) method
+//	private ArrayList<Location> faultCornerLocations = new ArrayList<Location>();   // used for the getMinDistance(Site) method
 	private double duration;
 	private EvenlyGriddedSurface faultSurface;
 
@@ -154,7 +157,7 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
 
 		}
 		// make a list of a subset of locations on the fault for use in the getMinDistance(site) method
-		makeFaultCornerLocs(faultSurface);
+		mkApproxSourceSurface(faultSurface);
 
 		// make the rupture list
 		ruptureList = new ArrayList<ProbEqkRupture>();
@@ -371,43 +374,34 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
 
 
 	/**
-	 * This returns the shortest dist to either end of the fault trace, or to the
-	 * mid point of the fault trace (done also for the bottom edge of the fault).
+	 * This returns the shortest dist to the fault surface approximated as a region according
+	 * to the corners and mid-points along strike (both on top and bottom trace).
 	 * @param site
 	 * @return minimum distance in km
 	 */
 	public  double getMinDistance(Site site) {
 
-		double min = Double.MAX_VALUE;
-		double tempMin;
-
-		Iterator it = faultCornerLocations.iterator();
-
-		while(it.hasNext()) {
-			tempMin = RelativeLocation.getHorzDistance(site.getLocation(),(Location)it.next());
-			if(tempMin < min) min = tempMin;
-		}
-
-		return min;
+		return sourceRegion.distanceToLocation(site.getLocation());
 	}
 
 
 	/**
-	 * This makes the vector of fault corner location used by the getMinDistance(site)
-	 * method.
-	 * This should be modified to more densely sample the surface if it's large
+	 * This creates an approximation of the source surface, taking the end points and mid point along
+	 * strike (both on top and bottom trace).
 	 * @param faultSurface
 	 */
-	private void makeFaultCornerLocs(EvenlyGriddedSurface faultSurface) {
+	private void mkApproxSourceSurface(EvenlyGriddedSurface faultSurface) {
 
 		int nRows = faultSurface.getNumRows();
 		int nCols = faultSurface.getNumCols();
-		faultCornerLocations.add(faultSurface.getLocation(0,0));
-		faultCornerLocations.add(faultSurface.getLocation(0,(int)(nCols/2)));
-		faultCornerLocations.add(faultSurface.getLocation(0,nCols-1));
-		faultCornerLocations.add(faultSurface.getLocation(nRows-1,0));
-		faultCornerLocations.add(faultSurface.getLocation(nRows-1,(int)(nCols/2)));
-		faultCornerLocations.add(faultSurface.getLocation(nRows-1,nCols-1));
+		LocationList faultCornerLocations = new LocationList();
+		faultCornerLocations.addLocation(faultSurface.getLocation(0,0));
+		faultCornerLocations.addLocation(faultSurface.getLocation(0,(int)(nCols/2)));
+		faultCornerLocations.addLocation(faultSurface.getLocation(0,nCols-1));
+		faultCornerLocations.addLocation(faultSurface.getLocation(nRows-1,nCols-1));
+		faultCornerLocations.addLocation(faultSurface.getLocation(nRows-1,(int)(nCols/2)));
+		faultCornerLocations.addLocation(faultSurface.getLocation(nRows-1,0));
+		sourceRegion = new Region(faultCornerLocations,BorderType.GREAT_CIRCLE);
 
 	}
 
