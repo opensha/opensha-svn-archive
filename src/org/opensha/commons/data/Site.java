@@ -241,7 +241,7 @@ public class Site extends ParameterList implements NamedObjectAPI,Serializable,X
 		Site site = new Site(loc);
 		
 		for (ParameterAPI param : paramsToAdd) {
-			site.addParameter(param);
+			site.addParameter((ParameterAPI)param.clone());
 		}
 		
 		Element paramsEl = siteEl.element(XML_PARAMS_NAME);
