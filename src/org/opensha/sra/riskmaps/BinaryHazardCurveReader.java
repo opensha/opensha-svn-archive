@@ -5,7 +5,9 @@ import java.io.EOFException;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 
+import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.sra.riskmaps.func.DiscreteInterpExterpFunc;
 
 public class BinaryHazardCurveReader {
 	private DataInputStream reader = null;
@@ -37,11 +39,29 @@ public class BinaryHazardCurveReader {
 		return function;
 	}
 	
-	public double[] currentLocation() {
-		double [] loc = new double[2];
-		loc[0] = latitude;
-		loc[1] = longitude;
-		return loc;
+	public DiscreteInterpExterpFunc nextDiscreteCurve() throws Exception {
+		double xVals[] = new double[imlvals.size()];
+		double yVals[] = new double[imlvals.size()];
+		try {
+			latitude = reader.readDouble();
+			longitude = reader.readDouble();
+			for ( int i = 0; i < imlvals.size(); ++i ) {
+				xVals[i] = (double) imlvals.get(i);
+				yVals[i] = reader.readDouble();
+			}
+		} catch (EOFException eof) {
+			return null;
+		}
+		return new DiscreteInterpExterpFunc(xVals, yVals);
+	}
+	
+	public Location currentLocation() {
+		return new Location(latitude, longitude);
+	}
+	
+	public double[] currentLocationArray() {
+		double result[] = { latitude, longitude };
+		return result;
 	}
 	
 	public int getNumVals() {
