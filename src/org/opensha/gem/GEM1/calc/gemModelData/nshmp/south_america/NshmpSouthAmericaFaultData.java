@@ -24,8 +24,8 @@ public class NshmpSouthAmericaFaultData extends GemFileParser{
 		
 		// South America active tectonic faults
 		// the weights were told to me by Sthepen Harmsen
-		faultFile.put(inDir+"sam.fixed.char",0.5);
-		faultFile.put(inDir+"sam.fixed.gr",0.5);
+		faultFile.put(inDir+"sam.fixed.char_modified.txt",0.5);
+		faultFile.put(inDir+"sam.fixed.gr_modified.txt",0.5);
 		
 		// South America craton faults
 		faultFile.put(inDir+"sam.craton2.char",0.5);
@@ -38,7 +38,7 @@ public class NshmpSouthAmericaFaultData extends GemFileParser{
 			String key = iterFileName.next();
 			System.out.println("Processing file: "+key+", weight: "+faultFile.get(key));
 			NshmpFault2GemSourceData fm = null;
-			if(key.equalsIgnoreCase(inDir+"sam.fixed.char") ||  key.equalsIgnoreCase(inDir+"sam.fixed.gr")){
+			if(key.equalsIgnoreCase(inDir+"sam.fixed.char_modified.txt") ||  key.equalsIgnoreCase(inDir+"sam.fixed.gr_modified.txt")){
 				fm = new NshmpFault2GemSourceData(key,TectonicRegionType.ACTIVE_SHALLOW,faultFile.get(key),
 						latmin, latmax, lonmin, lonmax);
 			}
