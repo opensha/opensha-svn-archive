@@ -43,6 +43,7 @@ import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.region.RegionUtils.Color;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.sha.earthquake.EqkRupture;
 
@@ -95,6 +96,8 @@ import org.opensha.sha.earthquake.EqkRupture;
  * intended to span &#177;180&deg;. Any such regions will wrap the
  * long way around the earth and results are undefined. This also applies to
  * regions that encircle either pole.
+ * 
+ * 
  * 
  * @author Peter Powers
  * @version $Id$
@@ -430,7 +433,8 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
  	 * <code>Region</code> must lie entirely inside this <code>Region</code>.
  	 * Moreover, any interior may not overlap or enclose any existing interior
  	 * region. Internally, the border of the supplied <code>Region</code> is 
- 	 * copied and no reference to the supplied <code>Region</code> is retained.
+ 	 * copied and stored as an unmodifiable <code>List</code>. No reference to 
+ 	 * the supplied <code>Region</code> is retained.
  	 * 
 	 * @param region to use as an interior or negative space
 	 * @throws NullPointerException if the supplied <code>Region</code> is 
@@ -441,6 +445,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 * 		not singular (i.e. already has an interior itself)
 	 * @throws IllegalArgumentException if the supplied <code>Region</code>
 	 * 		overlaps any existing interior <code>Region</code>
+	 * @see Region#getInteriors()
 	 */
 	public void addInterior(Region region) {
 		validateRegion(region); // test for singularity or null
@@ -470,9 +475,9 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	
 	/**
 	 * Returns an unmodifiable {@link java.util.List} view of the
-	 * internal <code>LocationList</code>s of points that decribe the 
-	 * interiors of this <code>Region</code>, if such exist. If no interior
-	 * is defined, the method returns <code>null</code>.
+	 * internal <code>LocationList</code>s (also unmodifiable) of points that 
+	 * decribe the interiors of this <code>Region</code>, if such exist. If no 
+	 * interior is defined, the method returns <code>null</code>.
 	 * 
 	 * @return a <code>List</code> the interior <code>LocationList</code>s or 
 	 * 		<code>null</code> if no interiors are defined
@@ -502,6 +507,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
      * @return <code>true</code> if the two <code>Region</code>s are the same;
      *		<code>false</code> otherwise.
 	 */
+	// TODO override Object implementation
 	public boolean equals(Region r) {
 		return area.equals(r.area);
 	}
@@ -513,7 +519,8 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 * This may be to facilitate correct results for insidedness testing.
 	 * Alternatively, these methods could be updated to query the location
 	 * list, requiring changes to the LocationList class to quickly return
-	 * min-max values. 
+	 * min-max values.
+	 * TODO possibly delete
 	 */
 
 	/**
@@ -586,6 +593,16 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		this.name = name;
 	}
 
+	@Override
+	public String toString() {
+		String str =
+				"Region\n" + "\tMinimum Lat: " + this.getMinLat()
+						+ "\n" + "\tMinimum Lon: " + this.getMinLon() + "\n"
+						+ "\tMaximum Lat: " + this.getMaxLat() + "\n"
+						+ "\tMaximum Lon: " + this.getMaxLon();
+		return str;
+	}
+	
 	/* implementation */
 	public Element toXMLMetadata(Element root) {
 		Element xml = root.addElement(Region.XML_METADATA_NAME);
@@ -604,16 +621,6 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		return new Region(list, BorderType.MERCATOR_LINEAR);
 	}
 
-	@Override
-	public String toString() {
-		String str =
-				"Region\n" + "\tMinimum Lat: " + this.getMinLat()
-						+ "\n" + "\tMinimum Lon: " + this.getMinLon() + "\n"
-						+ "\tMaximum Lat: " + this.getMaxLat() + "\n"
-						+ "\tMaximum Lon: " + this.getMaxLon();
-		return str;
-	}
-	
 	/**
 	 * Convenience method to return a <code>Region</code> spanning the entire 
 	 * globe.
@@ -728,6 +735,8 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 			throw new IllegalArgumentException(
 					"Area is empty");
 		} else if (!area.isSingular()) {
+			RegionUtils.locListToKML(border, "S-Am_test-region", Color.RED);
+			
 			throw new IllegalArgumentException(
 					"Area is not a single closed path");
 		}

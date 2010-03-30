@@ -298,17 +298,23 @@ public class GriddedRegionTest {
 	public static void main(String[] args) {
 		
 		RegionTest.setUp();
+
+		// SMALL RECT - includes N and E border nodes due to added offset
+		GriddedRegion GR = new GriddedRegion(
+				RegionTest.smRectRegion2, 0.2, null);
+		RegionUtils.regionToKML(
+				GR,
+				"GriddedRegionLocLoc", 
+				Color.ORANGE);
+
+		// INTERIOR - created with lg loc loc rect and small loc loc rect 2
 		GriddedRegion interiorGR = new GriddedRegion(
 				RegionTest.interiorRegion, 1, null);
 		RegionUtils.regionToKML(
 				interiorGR,
 				"GriddedRegionInterior", 
 				Color.ORANGE);
-		
-		// =================================================================
-		// Create a gridded interior region
-		
-		
+				
 		
 		// =================================================================
 		// The code below will generate kml files for visual verification that

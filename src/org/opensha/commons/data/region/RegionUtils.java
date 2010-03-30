@@ -47,6 +47,8 @@ public class RegionUtils {
 	//private static final String FILE_NAME = "test.kml";
 	
 	// TODO centralize commonly used constants
+	// TODO need to be able to debug regions that throw errors
+	
 	private static final String NL = SystemUtils.LINE_SEPARATOR;
 	
 	public enum Style {
@@ -125,6 +127,54 @@ public class RegionUtils {
 		//Element e = new Elem
 	}
 	
+	// write region
+	public static void locListToKML(
+			LocationList locs, String filename, Color c) {
+		String kmlFileName = filename + ".kml";
+		Document doc = DocumentHelper.createDocument();
+		Element root = new DefaultElement(
+				"kml", 
+				new Namespace("", "http://www.opengis.net/kml/2.2"));
+		doc.add(root);
+		
+		Element e_doc = root.addElement("Document");
+		Element e_doc_name = e_doc.addElement("name");
+		e_doc_name.addText(kmlFileName);
+		
+		addBorderStyle(e_doc, c);
+		addBorderVertexStyle(e_doc);
+		addGridNodeStyle(e_doc, c);
+		
+		Element e_folder = e_doc.addElement("Folder");
+		Element e_folder_name = e_folder.addElement("name");
+		e_folder_name.addText("region");
+		Element e_open = e_folder.addElement("open");
+		e_open.addText("1");
+		
+		addLocationPoly(e_folder, locs);
+
+		// TODO absolutely need to create seom platform specific output directory
+		// that is not in project space (e.g. desktop, Decs and Settings);
+		
+		
+		String outDirName = "sha_kml/";
+		File outDir = new File(outDirName);
+		outDir.mkdirs();
+		String tmpFile = outDirName + kmlFileName;
+		
+		try {
+			//XMLUtils.writeDocumentToFile(tmpFile, doc);
+			XMLWriter writer;
+			OutputFormat format = new OutputFormat("\t", true);
+			writer = new XMLWriter(new FileWriter(tmpFile), format);
+			writer.write(doc);
+			writer.close();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+		//Element e = new Elem
+	}
+
 	// border polygon
 	private static Element addBorder(Element e, Region region) {
 		Element e_placemark = e.addElement("Placemark");
@@ -145,7 +195,22 @@ public class RegionUtils {
 
 		return e;
 	}
-	
+
+	// standalone location list
+	private static Element addLocationPoly(Element e, LocationList locs) {
+		Element e_placemark = e.addElement("Placemark");
+		Element e_name = e_placemark.addElement("name");
+		e_name.addText("Border");
+		Element e_style = e_placemark.addElement("styleUrl");
+		e_style.addText("#" + Style.BORDER.toString());
+		Element e_poly = e_placemark.addElement("Polygon");
+		Element e_tessellate = e_poly.addElement("tessellate");
+		e_tessellate.addText("1");
+
+		addPoly(e_poly, "outerBoundaryIs", locs);
+		return e;
+	}
+
 	// create lat-lon data string
 	private static Element addPoly(
 			Element e,

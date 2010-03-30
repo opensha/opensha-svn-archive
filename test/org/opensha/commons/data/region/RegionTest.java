@@ -64,6 +64,10 @@ public class RegionTest {
 	static Region smRectRegion1;
 	// small rect region (regionLocLoc)
 	static Region smRectRegion2;
+	// small rect region (regionLocLoc)
+	static Region smRectRegion3;
+	// large rect region (regionLocList)
+	static Region lgRectRegion;
 	// large rect region (regionLocListBorderType)
 	static Region lgRectMercRegion;
 	// large rect region (regionLocListBorderType)
@@ -86,9 +90,10 @@ public class RegionTest {
 	static Region circSmRectIntersect;
 	// circle-smRect union
 	static Region circSmRectUnion;
-	// interior region (smRectRegion added to lgRectMercRegion)
+	// interior region (smRectRegion3 added to lgRectRegion)
 	static Region interiorRegion;
 	// multi interior region
+	static Region multiInteriorRegion;
 	
 	@BeforeClass
 	public static void setUp() {
@@ -103,8 +108,8 @@ public class RegionTest {
 		octRegionList.addLocation(new Location(30,-120));
 		octRegion  = new Region(octRegionList, null);
 		
-		Location a = new Location(39.01,-116.99);
-		Location b = new Location(40.99,-113.01);
+		Location a = new Location(39,-117);
+		Location b = new Location(41,-113);
 		smRectRegion1 = new Region(a,b);
 		
 		// offset from smRectRegion1; for testing interior overlap
@@ -113,6 +118,17 @@ public class RegionTest {
 		smRectRegion2 = new Region(a,b);
 
 		LocationList ll = new LocationList();
+		ll.addLocation(new Location(40,-116));
+		ll.addLocation(new Location(40,-112));
+		ll.addLocation(new Location(42,-112));
+		ll.addLocation(new Location(42,-116));
+		smRectRegion3 = new Region(ll, BorderType.MERCATOR_LINEAR);
+
+		a = new Location(35,-125);
+		b = new Location(45,-105);
+		lgRectRegion = new Region(a,b);
+		
+		ll = new LocationList();
 		ll.addLocation(new Location(35,-125));
 		ll.addLocation(new Location(35,-105));
 		ll.addLocation(new Location(45,-105));
@@ -141,9 +157,11 @@ public class RegionTest {
 		circSmRectUnion = Region.intersect(circRegion, smRectRegion1);
 		
 		// interior
-		interiorRegion = new Region(lgRectMercRegion);
-		interiorRegion.addInterior(smRectRegion1);
+		interiorRegion = new Region(lgRectRegion);
+		interiorRegion.addInterior(smRectRegion3);
 		interiorRegion.addInterior(smCircRegion);
+//		interiorRegion2 = new Region(lgRectRegion); TODO clean
+//		interiorRegion2.addInterior(smRectRegion3);
 		
 	}
 
@@ -448,7 +466,7 @@ public class RegionTest {
 			octRegion.addInterior(null);
 			fail("Null argument not caught");
 		} catch (Exception e) {}
-		//exception - supplied has interior
+		//exception - supplied has interior (non-singular)
 		try {
 			octRegion.addInterior(interiorRegion);
 			fail("Illegal argument not caught");
@@ -470,17 +488,21 @@ public class RegionTest {
 		} catch (Exception e) {}
 		
 		
-		// test that interior area was set by checking insidedness
-		// center
-		assertTrue(!interiorRegion.contains(new Location(40, -115)));
-		// N edge
-		assertTrue(!interiorRegion.contains(new Location(41, -115)));
-		// E edge
-		assertTrue(!interiorRegion.contains(new Location(40, -113)));
-		// S edge
-		assertTrue(!interiorRegion.contains(new Location(39, -115)));
-		// W edge
-		assertTrue(!interiorRegion.contains(new Location(40, -117)));
+		// test that interior area was set by checking insidedness of
+		// rectangular interior.
+		assertTrue(!interiorRegion.contains(new Location(41, -114)));
+		// N edge - should include
+		assertTrue(interiorRegion.contains(new Location(42, -114)));
+		assertTrue(!interiorRegion.contains(new Location(41.9999, -114)));
+		// E edge - should include
+		assertTrue(interiorRegion.contains(new Location(41, -112)));
+		assertTrue(!interiorRegion.contains(new Location(41, -112.0001)));
+		// S edge - should NOT include
+		assertTrue(!interiorRegion.contains(new Location(40, -114)));
+		assertTrue(interiorRegion.contains(new Location(39.9999, -114)));
+		// W edge - should NOT include
+		assertTrue(!interiorRegion.contains(new Location(41, -116)));
+		assertTrue(interiorRegion.contains(new Location(41, -116.0001)));
 		// center of small circle
 		assertTrue(!interiorRegion.contains(new Location(43, -110)));
 		// check some other points that should still be inside
@@ -488,15 +510,16 @@ public class RegionTest {
 		assertTrue(interiorRegion.contains(new Location(40, -112)));
 		assertTrue(interiorRegion.contains(new Location(38, -115)));
 		assertTrue(interiorRegion.contains(new Location(40, -118)));
-		
+
 	}
 	
+	// TODO compareTo should be replaced with equals()
 	@Test
 	public final void testGetInteriors() {
 		assertTrue(octRegion.getInteriors() == null);
 		assertTrue(interiorRegion.getInteriors() != null);
 		assertTrue(interiorRegion.getInteriors().get(0).compareTo(
-				smRectRegion1.getBorder()) == 0);
+				smRectRegion3.getBorder()) == 0);
 		assertTrue(interiorRegion.getInteriors().get(1).compareTo(
 				smCircRegion.getBorder()) == 0);
 
@@ -512,6 +535,7 @@ public class RegionTest {
 	@Test
 	public final void testGetBorder() {
 		// test border is correct
+		// TODO use equals when implemented
 		assertTrue(octRegionList.compareTo(octRegion.getBorder()) == 0);
 		
 		fail("Not yet implemented: immutability of outer border");
@@ -602,6 +626,7 @@ public class RegionTest {
 		ll1 = smRectLgRectIntersect.getBorder();
 		ll2 = createLocList(regionSmRectLgRectIntersectDat);
 		assertTrue(ll1.compareTo(ll2) == 0);
+		
 		// no overlap
 		assertTrue(circSmRectIntersect == null);
 	}
@@ -648,7 +673,7 @@ public class RegionTest {
 	public static void main(String[] args) {
 		
 		RegionTest.setUp();
-		
+
 		// The code below was used to create KML files for visual verification
 		// of regions. The border vertices were then culled from the KML and 
 		// are stored in arrays (below) for use in this test class
