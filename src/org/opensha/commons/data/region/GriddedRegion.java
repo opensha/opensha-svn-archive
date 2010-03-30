@@ -36,7 +36,6 @@ import org.dom4j.Element;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.CaliforniaRegions.RELM_GRIDDED;
-import org.opensha.commons.data.region.RegionUtils.Color;
 import org.opensha.commons.exceptions.InvalidRangeException;
 
 

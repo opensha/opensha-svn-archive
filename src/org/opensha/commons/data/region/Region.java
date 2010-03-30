@@ -43,7 +43,6 @@ import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.NamedObjectAPI;
-import org.opensha.commons.data.region.RegionUtils.Color;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.sha.earthquake.EqkRupture;
 
@@ -391,41 +390,6 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		return area.isRectangular();
 	}
 	
-//	/**
-//	 * Adds an interior (donut-hole) to this <code>Region</code>. Any call to
-// 	 * {@link Region#contains(Location)} for a <code>Location</code> within this 
-// 	 * interior area will return <code>false</code>. The interior
-// 	 * <code>Region</code> must lie entirely inside this <code>Region</code>.
-// 	 * Internally, the border of the supplied <code>Region</code> is copied and 
-// 	 * no reference to the supplied <code>Region</code> is retained.
-// 	 * 
-//	 * @param region to use as an interior or negative space
-//	 * @throws NullPointerException if the supplied <code>Region</code> is 
-//	 * 		<code>null</code>
-//	 * @throws IllegalArgumentException if the supplied <code>Region</code> is
-//	 * 		not entirly contained within this <code>Region</code>
-//	 * @throws IllegalArgumentException if the supplied <code>Region</code> is
-//	 * 		not singular (i.e. already has an interior itself)
-//	 * @throws UnsupportedOperationException if <code>this</code>, the parent
-//	 * 		<code>Region</code>, already has an interior defined
-//	 */
-//	public void setInterior(Region region) {
-//		validateRegion(region); // test for singularity or null
-//		if (interior != null) {
-//			throw new UnsupportedOperationException(
-//					"This region already has an interior defined");
-//		} else if (!contains(region)) {
-//			throw new IllegalArgumentException(
-//					"Region must completely contain supplied interior Region");
-//		}
-//			
-//		interior = region.border.copy();
-//		area.subtract(region.area);
-//	}
-	
-	// multiple interiors
-	// - each one must be inside border
-	// - each one may not overlap any other interior
 	/**
 	 * Adds an interior (donut-hole) to this <code>Region</code>. Any call to
  	 * {@link Region#contains(Location)} for a <code>Location</code> within this 
@@ -736,9 +700,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		if (area.isEmpty()) {
 			throw new IllegalArgumentException(
 					"Area is empty");
-		} else if (!area.isSingular()) {
-			RegionUtils.locListToKML(border, "S-Am_test-region", Color.RED);
-			
+		} else if (!area.isSingular()) {			
 			throw new IllegalArgumentException(
 					"Area is not a single closed path");
 		}

@@ -22,6 +22,7 @@ package org.opensha.commons.data.region;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -33,7 +34,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
-import org.opensha.commons.data.region.RegionUtils.Color;
 
 import com.lowagie.text.Anchor;
 

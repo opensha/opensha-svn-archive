@@ -19,10 +19,12 @@
 
 package org.opensha.commons.data.region;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -56,16 +58,7 @@ public class RegionUtils {
 		BORDER_VERTEX,
 		GRID_NODE;
 	}
-	
-	public enum Color {
-		ORANGE("FF16B4FF"),
-		BLUE("FFFF8153"),
-		RED("FF150CFF");
-		private String hex;
-		private Color(String hex) {this.hex = hex;}
-		public String getHex() {return hex;} 
-	}
-	
+		
 	// write region
 	public static void regionToKML(
 			Region region, String filename, Color c) {
@@ -339,7 +332,7 @@ public class RegionUtils {
 		// line style
 		Element e_lineStyle = e_style.addElement("LineStyle");
 		Element e_color = e_lineStyle.addElement("color");
-		e_color.addText(c.getHex());
+		e_color.addText(colorToHex(c));
 		Element e_width = e_lineStyle.addElement("width");
 		e_width.addText("3");
 		
@@ -360,7 +353,7 @@ public class RegionUtils {
 		// icon style
 		Element e_iconStyle = e_style.addElement("IconStyle");
 		Element e_color = e_iconStyle.addElement("color");
-		e_color.addText(Color.RED.getHex());
+		e_color.addText(colorToHex(Color.RED));
 		Element e_scale = e_iconStyle.addElement("scale");
 		e_scale.addText("0.6");
 		Element e_icon = e_iconStyle.addElement("Icon");
@@ -378,7 +371,7 @@ public class RegionUtils {
 		// icon style
 		Element e_iconStyle = e_style.addElement("IconStyle");
 		Element e_color = e_iconStyle.addElement("color");
-		e_color.addText(c.getHex());
+		e_color.addText(colorToHex(c));
 		Element e_scale = e_iconStyle.addElement("scale");
 		e_scale.addText("0.6");
 		Element e_icon = e_iconStyle.addElement("Icon");
@@ -388,40 +381,27 @@ public class RegionUtils {
 		return e;
 	}
 	
+	// converts Color to KML compatible ABGR hex value
+	private static String colorToHex(Color c) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(toHex(c.getAlpha()));
+		sb.append(toHex(c.getBlue()));
+		sb.append(toHex(c.getGreen()));
+		sb.append(toHex(c.getRed()));
+		return sb.toString();
+	}
 	
+	// converts ints to hex values, padding single digits as necessary
+	private static String toHex(int i) {
+		return StringUtils.leftPad(Integer.toHexString(i), 2, '0');
+	}
 	
 //	private String convertLocations(LocationList ll) {
 //		
 //	}
 
 	public static void main(String[] args) {
-
 		
-		// visual verification tests for GeographiRegionTest
-		GriddedRegion eggr;
-		
-		// nocal
-		eggr = new CaliforniaRegions.RELM_NOCAL_GRIDDED();
-		regionToKML(eggr, "ver_NoCal_new", Color.ORANGE);
-		// relm
-		eggr = new CaliforniaRegions.RELM_GRIDDED();
-		regionToKML(eggr, "ver_RELM_new", Color.ORANGE);
-		// relm_testing
-		eggr = new CaliforniaRegions.RELM_TESTING_GRIDDED();
-		regionToKML(eggr, "ver_RELM_testing_new", Color.ORANGE);
-		// socal
-		eggr = new CaliforniaRegions.RELM_SOCAL_GRIDDED();
-		regionToKML(eggr, "ver_SoCal_new", Color.ORANGE);
-		// wg02
-		eggr = new CaliforniaRegions.WG02_GRIDDED();
-		regionToKML(eggr, "ver_WG02_new", Color.ORANGE);
-		// wg07
-		eggr = new CaliforniaRegions.WG07_GRIDDED();
-		regionToKML(eggr, "ver_WG07_new", Color.ORANGE);
-		// relm_collect
-		eggr = new CaliforniaRegions.RELM_COLLECTION_GRIDDED();
-		regionToKML(eggr, "ver_RELM_collect_new", Color.ORANGE);
-
 //		// visual verification tests for GeographiRegionTest
 //		Region gr;
 //		

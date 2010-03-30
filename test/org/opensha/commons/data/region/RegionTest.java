@@ -23,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.awt.Color;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.geom.Area;
@@ -40,7 +41,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
-import org.opensha.commons.data.region.RegionUtils.Color;
 
 public class RegionTest {
 	
@@ -681,24 +681,24 @@ public class RegionTest {
 		// RECT
 		RegionUtils.regionToKML(smRectRegion1, "RegionLocLoc", Color.ORANGE);
 		
-		// LOCATION LIST border - mercator and great circle
-		RegionUtils.regionToKML(lgRectMercRegion, "RegionLocListMercator", Color.ORANGE);
-		RegionUtils.regionToKML(lgRectGCRegion, "RegionLocListGreatCircle", Color.ORANGE);
-
-		// CIRCLE
-		RegionUtils.regionToKML(circRegion, "RegionLocDouble", Color.ORANGE);
-		
-		// BUFFER
-		RegionUtils.regionToKML(buffRegion,"RegionLocListDouble",Color.ORANGE);
-
-		// CIRCLE-RECT INTERSECT and UNION
-		RegionUtils.regionToKML(circLgRectIntersect,"RegionCircleRectIntersect",Color.ORANGE);
-		RegionUtils.regionToKML(circLgRectUnion,"RegionCircleRectUnion",Color.ORANGE);
-		RegionUtils.regionToKML(smRectLgRectIntersect,"RegionSmRectLgRectIntersect",Color.ORANGE); 
-		RegionUtils.regionToKML(smRectLgRectUnion,"RegionSmRectLgRectUnion",Color.ORANGE);
-		
-		// INTERIOR REGION
-		RegionUtils.regionToKML(interiorRegion,"RegionInterior",Color.ORANGE);
+//		// LOCATION LIST border - mercator and great circle
+//		RegionUtils.regionToKML(lgRectMercRegion, "RegionLocListMercator", Color.ORANGE);
+//		RegionUtils.regionToKML(lgRectGCRegion, "RegionLocListGreatCircle", Color.ORANGE);
+//
+//		// CIRCLE
+//		RegionUtils.regionToKML(circRegion, "RegionLocDouble", Color.ORANGE);
+//		
+//		// BUFFER
+//		RegionUtils.regionToKML(buffRegion,"RegionLocListDouble",Color.ORANGE);
+//
+//		// CIRCLE-RECT INTERSECT and UNION
+//		RegionUtils.regionToKML(circLgRectIntersect,"RegionCircleRectIntersect",Color.ORANGE);
+//		RegionUtils.regionToKML(circLgRectUnion,"RegionCircleRectUnion",Color.ORANGE);
+//		RegionUtils.regionToKML(smRectLgRectIntersect,"RegionSmRectLgRectIntersect",Color.ORANGE); 
+//		RegionUtils.regionToKML(smRectLgRectUnion,"RegionSmRectLgRectUnion",Color.ORANGE);
+//		
+//		// INTERIOR REGION
+//		RegionUtils.regionToKML(interiorRegion,"RegionInterior",Color.ORANGE);
 		
 	}
 	
