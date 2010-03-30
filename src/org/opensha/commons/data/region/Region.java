@@ -454,20 +454,22 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 					"Region must completely contain supplied interior Region");
 		}
 		
-		// init interiors
-		if (interiors == null) interiors = new ArrayList<LocationList>();
-		
-		// ensure no overlap with existing interiors
 		LocationList newInterior = region.border.copy();
+		// ensure no overlap with existing interiors
 		Area newArea = createArea(newInterior);
-		for (LocationList interior : interiors) {
-			Area existing = createArea(interior);
-			existing.intersect(newArea);
-			if (!existing.isEmpty()) {
-				throw new IllegalArgumentException(
-						"Supplied interior Region overlaps existing interiors");
+		if (interiors != null) {
+			for (LocationList interior : interiors) {
+				Area existing = createArea(interior);
+				existing.intersect(newArea);
+				if (!existing.isEmpty()) {
+					throw new IllegalArgumentException(
+							"Supplied interior Region overlaps existing interiors");
+				}
 			}
-		}
+		} else {
+			interiors = new ArrayList<LocationList>();
+		} // TODO test that interiors is still null after failed add
+			
 		interiors.add(newInterior);
 		//interiors.add(Collections.unmodifiableList(newInterior); TODO uncomment)
 		area.subtract(region.area);
