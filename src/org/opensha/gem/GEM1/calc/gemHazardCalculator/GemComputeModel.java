@@ -84,7 +84,7 @@ public class GemComputeModel {
 		String modelName = modelLogicTree.getModelName();
 		
 		this.dirName = outDir+"results_"+modelName+"_"+DateTime+"/";
-	    boolean success = (new File(dirName).mkdir());
+	    boolean success = (new File(dirName).mkdirs());
 	    if (!success) {
 	        // Directory creation failed
 	    	System.out.println("Creation of the directory failed!!");
