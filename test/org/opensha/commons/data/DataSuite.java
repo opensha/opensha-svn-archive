@@ -24,12 +24,13 @@ import org.junit.runners.Suite;
 import org.opensha.commons.data.region.GriddedRegionTest;
 import org.opensha.commons.data.region.RegionTest;
 import org.opensha.commons.data.siteData.SiteDataProvidersTest;
+import org.opensha.commons.geo.LocationTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	DataPoint2DTests.class,
 	DataPoint2DTreeMapTests.class,
-	LocationTests.class,
+	LocationTest.class,
 	TimeSpanTests.class,
 	GriddedRegionTest.class,
 	RegionTest.class,

@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.data;
+package org.opensha.commons.geo;
 
 import static org.junit.Assert.*;
 
@@ -27,7 +27,7 @@ import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.geo.Location;
 
 //@SuppressWarnings("all")
-public class LocationTests {
+public class LocationTest {
 
 	private static final double V = 10.0;
 	Location location;
