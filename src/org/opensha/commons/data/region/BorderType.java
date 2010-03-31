@@ -19,7 +19,7 @@
 
 package org.opensha.commons.data.region;
 
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 
 /**
  * A <code>BorderType</code> specifies how lines connecting two points on the

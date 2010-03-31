@@ -21,6 +21,8 @@ package org.opensha.commons.data;
 
 import java.util.ListIterator;
 
+import org.opensha.commons.geo.Location;
+
 
 /**
  *  <b>Title:</b> Container2DAPI<p>

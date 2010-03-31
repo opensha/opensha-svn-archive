@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import org.jfree.data.general.DatasetChangeListener;
 import org.jfree.data.general.DatasetGroup;
 import org.jfree.data.xy.DefaultXYDataset;
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.geo.Location;
 import org.opensha.sha.faultSurface.GriddedSurfaceAPI;
 
 /**

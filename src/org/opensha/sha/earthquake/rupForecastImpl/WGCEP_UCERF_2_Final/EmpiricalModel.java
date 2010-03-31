@@ -21,7 +21,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final;
 
 import java.util.Iterator;
 
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.EmpiricalModelDataFetcher;
 import org.opensha.sha.faultSurface.GriddedSurfaceAPI;
 

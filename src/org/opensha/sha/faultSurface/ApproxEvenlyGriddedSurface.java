@@ -10,7 +10,7 @@ import java.util.Iterator;
 
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Direction;
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.FaultTraceUtils;
 import org.opensha.commons.util.GMT_GrdFile;
 

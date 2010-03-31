@@ -3,11 +3,11 @@
  */
 package scratch.matt.calc;
 
-import org.opensha.commons.data.Location;
-import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.Region;
+import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 
 

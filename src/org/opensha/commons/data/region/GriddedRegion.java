@@ -33,10 +33,10 @@ import java.util.NoSuchElementException;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.math.util.MathUtils;
 import org.dom4j.Element;
-import org.opensha.commons.data.Location;
-import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.CaliforniaRegions.RELM_GRIDDED;
 import org.opensha.commons.exceptions.InvalidRangeException;
+import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 
 
 /**

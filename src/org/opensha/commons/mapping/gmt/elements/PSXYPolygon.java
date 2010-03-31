@@ -22,8 +22,8 @@ package org.opensha.commons.mapping.gmt.elements;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.DataPoint2D;
-import org.opensha.commons.data.Location;
-import org.opensha.commons.data.LocationList;
+import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 
 public class PSXYPolygon extends PSXYElement {
 	

@@ -22,8 +22,8 @@ package org.opensha.sha.earthquake;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.util.TectonicRegionType;
 

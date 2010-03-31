@@ -30,12 +30,12 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.GeoTools;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.gui.LabeledBoxPanel;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.LocationParameter;

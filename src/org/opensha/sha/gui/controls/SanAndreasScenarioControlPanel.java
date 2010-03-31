@@ -23,7 +23,7 @@ package org.opensha.sha.gui.controls;
 import java.awt.Component;
 import java.util.ArrayList;
 
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.ParameterListEditor;

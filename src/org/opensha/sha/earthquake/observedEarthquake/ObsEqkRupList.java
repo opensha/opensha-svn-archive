@@ -24,9 +24,9 @@ import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.Region;
 import org.opensha.commons.exceptions.InvalidRangeException;
+import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.EqkRuptureMagComparator;
 
 /**

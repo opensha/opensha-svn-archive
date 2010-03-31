@@ -9,9 +9,9 @@ import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.GriddedRegion;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
 import org.opensha.commons.util.interp.BicubicInterpolation2D;

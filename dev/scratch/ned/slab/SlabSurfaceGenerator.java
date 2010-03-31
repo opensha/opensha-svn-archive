@@ -13,8 +13,8 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Direction;
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.GMT_GrdFile;
 import org.opensha.sha.faultSurface.ApproxEvenlyGriddedSurface;

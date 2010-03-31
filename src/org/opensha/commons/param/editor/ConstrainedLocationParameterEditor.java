@@ -28,8 +28,8 @@ import java.util.Vector;
 
 import javax.swing.JComboBox;
 
-import org.opensha.commons.data.Location;
 import org.opensha.commons.exceptions.ConstraintException;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.LocationConstraint;
 import org.opensha.commons.param.LocationParameter;
 import org.opensha.commons.param.ParameterAPI;

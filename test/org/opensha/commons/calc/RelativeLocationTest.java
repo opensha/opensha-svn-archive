@@ -41,8 +41,8 @@ import static org.opensha.commons.calc.RelativeLocation.isPole;
 import java.util.Random;
 import org.junit.Test;
 import org.opensha.commons.data.Direction;
-import org.opensha.commons.data.Location;
-import org.opensha.commons.data.LocationList;
+import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 
 //@SuppressWarnings("all")
 public class RelativeLocationTest {

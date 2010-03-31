@@ -23,12 +23,12 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.opensha.commons.data.Location;
-import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.RegionUtils;
+import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.EqkRupForecast;

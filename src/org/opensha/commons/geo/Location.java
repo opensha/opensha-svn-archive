@@ -16,7 +16,7 @@
  * the License.
  ******************************************************************************/
 
-package org.opensha.commons.data;
+package org.opensha.commons.geo;
 
 import static org.opensha.commons.calc.RelativeLocation.LL_PRECISION;
 import static org.opensha.commons.geo.GeoTools.TO_DEG;
@@ -26,7 +26,6 @@ import java.io.Serializable;
 
 import org.apache.commons.math.util.MathUtils;
 import org.dom4j.Element;
-import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.metadata.XMLSaveable;
 
 /**

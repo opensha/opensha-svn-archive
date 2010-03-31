@@ -25,7 +25,7 @@ package scratch.peter.coords;
 
 
 
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 
 
 /**

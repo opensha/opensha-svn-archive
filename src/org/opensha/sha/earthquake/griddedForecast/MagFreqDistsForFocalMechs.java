@@ -19,7 +19,7 @@
 
 package org.opensha.sha.earthquake.griddedForecast;
 
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 

@@ -39,8 +39,8 @@ import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opensha.commons.data.Location;
-import org.opensha.commons.data.LocationList;
+import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 
 public class RegionTest {
 	

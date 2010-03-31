@@ -14,9 +14,9 @@ import java.util.ListIterator;
 import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
-import org.opensha.commons.data.Location;
-import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.GriddedRegion;
+import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;

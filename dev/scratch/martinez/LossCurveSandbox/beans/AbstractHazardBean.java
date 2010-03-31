@@ -2,8 +2,8 @@ package scratch.martinez.LossCurveSandbox.beans;
 
 import java.beans.PropertyVetoException;
 
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.geo.Location;
 
 /**
  * This abstract definition defines the minimum functionality required for a

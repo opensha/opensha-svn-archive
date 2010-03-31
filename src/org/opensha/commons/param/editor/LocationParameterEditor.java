@@ -31,7 +31,7 @@ import java.util.ListIterator;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.LocationParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;

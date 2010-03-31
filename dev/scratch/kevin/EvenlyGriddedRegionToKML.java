@@ -3,9 +3,9 @@ package scratch.kevin;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.GriddedRegion;
+import org.opensha.commons.geo.Location;
 
 public class EvenlyGriddedRegionToKML {
 	

@@ -22,10 +22,10 @@ package org.opensha.sha.calc.IM_EventSet.v03;
 import java.io.File;
 import java.util.ArrayList;
 
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataValue;
+import org.opensha.commons.geo.Location;
 
 public interface IM_EventSetCalc_v3_0_API {
 	

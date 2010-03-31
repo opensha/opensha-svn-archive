@@ -5,11 +5,11 @@ import java.util.ArrayList;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
-import org.opensha.commons.data.Location;
-import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.Region;
+import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.hazardMap.NamedGeographicRegion;

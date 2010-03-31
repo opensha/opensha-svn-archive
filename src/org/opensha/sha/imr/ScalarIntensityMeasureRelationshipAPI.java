@@ -21,10 +21,10 @@ package org.opensha.sha.imr;
 
 import java.util.ListIterator;
 
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.geo.Location;
 
 
 /**

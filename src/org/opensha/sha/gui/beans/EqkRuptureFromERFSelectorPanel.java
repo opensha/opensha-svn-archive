@@ -45,7 +45,7 @@ import javax.swing.Timer;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.IntegerParameter;
 import org.opensha.commons.param.LocationParameter;
 import org.opensha.commons.param.ParameterAPI;

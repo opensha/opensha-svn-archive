@@ -41,10 +41,10 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.exceptions.InvalidRangeException;
+import org.opensha.commons.geo.Location;
 
 public class SitesPanel extends JPanel implements ListSelectionListener, ActionListener {
 	

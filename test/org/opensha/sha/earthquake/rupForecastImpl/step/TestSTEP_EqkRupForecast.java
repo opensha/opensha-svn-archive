@@ -22,7 +22,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.step;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast;

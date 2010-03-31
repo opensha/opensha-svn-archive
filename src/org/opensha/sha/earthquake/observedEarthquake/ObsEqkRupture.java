@@ -21,7 +21,7 @@ package org.opensha.sha.earthquake.observedEarthquake;
 
 import java.util.GregorianCalendar;
 
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.PointSurface;
 

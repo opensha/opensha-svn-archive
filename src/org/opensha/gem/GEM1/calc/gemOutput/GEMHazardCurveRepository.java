@@ -2,9 +2,9 @@ package org.opensha.gem.GEM1.calc.gemOutput;
 
 import java.util.ArrayList;
 
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.geo.Location;
 
 public class GEMHazardCurveRepository extends GEMHazardResults {
 

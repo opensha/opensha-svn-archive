@@ -27,8 +27,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.Location;
 import org.opensha.commons.exceptions.FaultException;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.FaultUtils;
 
 

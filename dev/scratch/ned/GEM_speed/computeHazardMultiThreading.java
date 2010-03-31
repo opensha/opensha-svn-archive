@@ -6,8 +6,8 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.geo.Location;
 
 
 public class computeHazardMultiThreading {

@@ -7,10 +7,10 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.GriddedRegion;
+import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;

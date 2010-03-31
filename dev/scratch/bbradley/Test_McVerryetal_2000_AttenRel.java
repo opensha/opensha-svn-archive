@@ -1,7 +1,7 @@
   package scratch.bbradley;
   
-  import org.opensha.commons.data.Location;
-import org.opensha.commons.data.Site;
+  import org.opensha.commons.data.Site;
+import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;

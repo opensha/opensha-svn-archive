@@ -22,11 +22,11 @@ package org.opensha.commons.data.siteData.impl;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.opensha.commons.data.Location;
-import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.Region;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.exceptions.InvalidRangeException;
+import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.sha.util.SiteTranslator;
 
 public class WillsMap2000TranslatedVs30 extends AbstractSiteData<Double> {

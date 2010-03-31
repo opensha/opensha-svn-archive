@@ -23,10 +23,10 @@ package org.opensha.sha.earthquake;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.region.Region;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.util.TectonicRegionType;

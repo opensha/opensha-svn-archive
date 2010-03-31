@@ -1,6 +1,6 @@
 package junk.tsurf;
 
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 
 /**
  * <p>Title: Vertex</p>

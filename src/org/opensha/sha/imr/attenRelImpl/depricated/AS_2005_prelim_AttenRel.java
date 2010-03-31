@@ -22,11 +22,11 @@ package org.opensha.sha.imr.attenRelImpl.depricated;
 import java.util.HashMap;
 
 import org.opensha.commons.calc.RelativeLocation;
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.DoubleDiscreteConstraint;
 import org.opensha.commons.param.DoubleParameter;

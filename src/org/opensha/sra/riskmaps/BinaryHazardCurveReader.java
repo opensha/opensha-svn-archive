@@ -5,8 +5,8 @@ import java.io.EOFException;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.geo.Location;
 import org.opensha.sra.riskmaps.func.DiscreteInterpExterpFunc;
 
 public class BinaryHazardCurveReader {

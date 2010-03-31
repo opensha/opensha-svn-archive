@@ -5,7 +5,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.beans.VetoableChangeSupport;
 
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 
 import scratch.martinez.LossCurveSandbox.calculators.SiteClassCalculator;
 import scratch.martinez.LossCurveSandbox.ui.BeanEditorAPI;

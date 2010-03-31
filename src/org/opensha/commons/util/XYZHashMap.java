@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 
 /**
  * HashMap that loads and stores the values in a Generic Mapping Tools stle XYZ files.

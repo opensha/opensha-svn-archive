@@ -9,7 +9,7 @@ import java.util.TreeMap;
 
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.MomentMagCalc;
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 import org.opensha.sha.faultSurface.FaultTrace;
 
 /**

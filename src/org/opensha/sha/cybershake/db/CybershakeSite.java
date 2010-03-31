@@ -19,7 +19,7 @@
 
 package org.opensha.sha.cybershake.db;
 
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 
 public class CybershakeSite {
 	

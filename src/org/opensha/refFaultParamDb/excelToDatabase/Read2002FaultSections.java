@@ -22,7 +22,7 @@ package org.opensha.refFaultParamDb.excelToDatabase;
 import java.io.FileWriter;
 import java.util.ArrayList;
 
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.FaultSection2002DB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSection2002;

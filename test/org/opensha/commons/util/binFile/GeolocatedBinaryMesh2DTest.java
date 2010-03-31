@@ -22,7 +22,7 @@ package org.opensha.commons.util.binFile;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
 

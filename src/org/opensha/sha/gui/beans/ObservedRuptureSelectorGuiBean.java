@@ -41,7 +41,7 @@ import javax.swing.border.TitledBorder;
 
 import junk.nga.EqkRuptureFromNGA;
 
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringParameter;

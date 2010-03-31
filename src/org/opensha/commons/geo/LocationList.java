@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.data;
+package org.opensha.commons.geo;
 
 
 import java.util.ArrayList;

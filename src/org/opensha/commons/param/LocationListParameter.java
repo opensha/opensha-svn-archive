@@ -22,8 +22,8 @@ package org.opensha.commons.param;
 import java.util.ListIterator;
 
 import org.dom4j.Element;
-import org.opensha.commons.data.Location;
-import org.opensha.commons.data.LocationList;
+import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.param.editor.LocationParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditor;
 

@@ -6,10 +6,10 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 
 import org.dom4j.Element;
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.geo.Location;
 
 /**
  * This class writes hazard curves to simple output files.

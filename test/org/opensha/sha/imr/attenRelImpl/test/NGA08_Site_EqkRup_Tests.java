@@ -25,8 +25,8 @@ import java.util.ListIterator;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.FaultTrace;

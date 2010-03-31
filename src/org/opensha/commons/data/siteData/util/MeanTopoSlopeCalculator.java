@@ -22,11 +22,11 @@ package org.opensha.commons.data.siteData.util;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.opensha.commons.data.Location;
-import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.impl.SRTM30PlusTopoSlope;
+import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 
 public class MeanTopoSlopeCalculator {
 	

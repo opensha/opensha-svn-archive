@@ -22,7 +22,7 @@ package org.opensha.nshmp.sha.data.api;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 
 /**

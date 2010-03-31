@@ -26,8 +26,8 @@ import java.util.Iterator;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
-import org.opensha.commons.data.Location;
-import org.opensha.commons.data.LocationList;
+import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.util.XMLUtils;
 

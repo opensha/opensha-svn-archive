@@ -23,13 +23,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.junit.Test;
-import org.opensha.commons.data.Location;
-import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.siteData.impl.CVM2BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.USGSBayAreaBasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2000TranslatedVs30;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
+import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
+
 import static org.junit.Assert.*;
 
 public class TestSiteDataProviders_Operational {

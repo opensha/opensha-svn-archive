@@ -28,7 +28,7 @@ import java.util.ListIterator;
 
 import javax.swing.JPanel;
 
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.BooleanParameter;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.LocationParameter;

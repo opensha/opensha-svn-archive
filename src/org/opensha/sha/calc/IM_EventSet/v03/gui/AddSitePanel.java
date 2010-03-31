@@ -25,8 +25,8 @@ import javax.swing.BoxLayout;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.siteData.SiteDataValue;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterListEditor;

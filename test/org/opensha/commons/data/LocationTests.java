@@ -23,8 +23,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opensha.commons.data.Location;
 import org.opensha.commons.geo.GeoTools;
+import org.opensha.commons.geo.Location;
 
 //@SuppressWarnings("all")
 public class LocationTests {

@@ -21,9 +21,9 @@ package org.opensha.commons.param;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.Location;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
+import org.opensha.commons.geo.Location;
 
 /**
  * <b>Title:</b> LocationConstraint<p>

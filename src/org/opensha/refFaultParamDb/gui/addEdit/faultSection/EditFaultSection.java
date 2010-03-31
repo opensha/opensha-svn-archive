@@ -36,8 +36,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.estimate.Estimate;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedDoubleParameterEditor;

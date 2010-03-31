@@ -19,7 +19,7 @@
 
 package org.opensha.nshmp.util;
 
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 
 /**

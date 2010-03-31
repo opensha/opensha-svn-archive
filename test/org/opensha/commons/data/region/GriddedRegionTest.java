@@ -32,8 +32,8 @@ import java.io.ObjectOutputStream;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opensha.commons.data.Location;
-import org.opensha.commons.data.LocationList;
+import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 
 import com.lowagie.text.Anchor;
 

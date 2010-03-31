@@ -25,9 +25,9 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 import org.opensha.commons.calc.RelativeLocation;
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.Region;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeEqkRupture;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeEvenlyGriddedSurface;

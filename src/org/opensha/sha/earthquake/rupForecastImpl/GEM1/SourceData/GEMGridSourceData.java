@@ -1,6 +1,6 @@
 package org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData;
 
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSourceData;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 @Deprecated

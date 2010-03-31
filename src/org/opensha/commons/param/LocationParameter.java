@@ -22,11 +22,11 @@ package org.opensha.commons.param;
 import java.util.ArrayList;
 
 import org.dom4j.Element;
-import org.opensha.commons.data.Location;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.GeoTools;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.editor.ConstrainedLocationParameterEditor;
 import org.opensha.commons.param.editor.LocationParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditor;

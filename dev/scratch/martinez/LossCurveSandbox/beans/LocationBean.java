@@ -6,8 +6,8 @@ import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
 import java.beans.VetoableChangeSupport;
 
-import org.opensha.commons.data.Location;
 import org.opensha.commons.exceptions.InvalidRangeException;
+import org.opensha.commons.geo.Location;
 
 import scratch.martinez.LossCurveSandbox.ui.BeanEditorAPI;
 import scratch.martinez.LossCurveSandbox.ui.LocationBeanEditor;

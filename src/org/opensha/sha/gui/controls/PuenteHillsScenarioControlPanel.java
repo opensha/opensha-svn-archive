@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Direction;
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF;

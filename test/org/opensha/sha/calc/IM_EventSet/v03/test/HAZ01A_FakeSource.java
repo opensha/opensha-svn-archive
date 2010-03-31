@@ -21,8 +21,8 @@ package org.opensha.sha.calc.IM_EventSet.v03.test;
 
 import java.util.ArrayList;
 
-import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;

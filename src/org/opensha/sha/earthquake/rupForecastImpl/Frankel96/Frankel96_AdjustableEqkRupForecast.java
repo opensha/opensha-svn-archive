@@ -26,9 +26,9 @@ import java.util.ListIterator;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.calc.MomentMagCalc;
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.exceptions.FaultException;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.util.FileUtils;

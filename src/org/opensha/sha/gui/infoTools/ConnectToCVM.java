@@ -26,8 +26,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 
-import org.opensha.commons.data.LocationList;
 import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.sha.gui.servlets.siteEffect.BasinDepthClass;
 import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
 

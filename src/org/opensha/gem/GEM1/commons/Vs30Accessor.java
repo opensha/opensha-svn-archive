@@ -3,10 +3,10 @@ package org.opensha.gem.GEM1.commons;
 import java.io.IOException; 
 import java.util.ArrayList;
 
-import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.data.siteData.impl.WaldAllenGlobalVs30;
+import org.opensha.commons.geo.LocationList;
 
 public class Vs30Accessor {
 	

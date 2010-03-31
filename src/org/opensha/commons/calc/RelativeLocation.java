@@ -26,7 +26,7 @@ import static org.opensha.commons.geo.GeoTools.TO_RAD;
 import java.text.DecimalFormat;
 
 import org.opensha.commons.data.Direction;
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 
 /**
  * This class contains static utility methods to operate on geographic

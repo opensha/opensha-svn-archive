@@ -23,8 +23,8 @@ import java.util.ListIterator;
 
 import org.dom4j.Element;
 import org.opensha.commons.calc.RelativeLocation;
-import org.opensha.commons.data.Location;
 import org.opensha.commons.exceptions.ConstraintException;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.WarningParameterAPI;

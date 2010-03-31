@@ -23,7 +23,7 @@ package org.opensha.sha.param;
 import java.util.ArrayList;
 
 import org.dom4j.Element;
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.IntegerParameter;

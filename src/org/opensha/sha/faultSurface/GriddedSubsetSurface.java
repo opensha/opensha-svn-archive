@@ -25,10 +25,10 @@ import java.util.ListIterator;
 import org.opensha.commons.data.Container2D;
 import org.opensha.commons.data.Container2DAPI;
 import org.opensha.commons.data.ContainerSubset2D;
-import org.opensha.commons.data.Location;
-import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Window2D;
 import org.opensha.commons.exceptions.LocationException;
+import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 
 /**
  * <b>Title:</b> GriddedSubsetSurface<p>
@@ -86,7 +86,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements EvenlyGri
 
     /** Add a Location to the grid. This method throws UnsupportedOperationException as it is disabled. */
     public void setLocation( int row, int col,
-            org.opensha.commons.data.Location location ) {
+            org.opensha.commons.geo.Location location ) {
         throw new java.lang.UnsupportedOperationException( "This function is not implemented in this subclass" );
     }
 

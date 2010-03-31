@@ -37,9 +37,9 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValue;
+import org.opensha.commons.geo.Location;
 import org.opensha.sha.calc.IM_EventSet.v03.SiteFileLoader;
 
 public class SiteImporterPanel extends JPanel implements ActionListener {

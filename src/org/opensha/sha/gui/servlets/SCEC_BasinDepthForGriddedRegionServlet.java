@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.opensha.commons.data.LocationList;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.sha.gui.servlets.siteEffect.BasinDepthClass;
 
 /**

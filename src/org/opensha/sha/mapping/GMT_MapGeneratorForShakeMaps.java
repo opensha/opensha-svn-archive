@@ -29,9 +29,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.opensha.commons.data.DataPoint2D;
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.exceptions.GMT_MapException;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.elements.PSXYPolygon;

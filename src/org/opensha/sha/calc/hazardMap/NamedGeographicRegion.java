@@ -23,11 +23,11 @@ import java.io.IOException;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
-import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.region.BorderType;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.Region;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.util.XMLUtils;
 
 // TODO this is in an odd location and shouldn't necessarily exits.

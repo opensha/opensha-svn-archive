@@ -4,8 +4,8 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.calc.RelativeLocation;
-import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.GriddedRegion;
+import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.griddedForecast.GenericAfterHypoMagFreqDistForecast;
 import org.opensha.sha.earthquake.griddedForecast.STEP_AftershockForecast;
 import org.opensha.sha.earthquake.griddedForecast.SequenceAfterHypoMagFreqDistForecast;
