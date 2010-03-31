@@ -46,7 +46,8 @@ import org.opensha.commons.metadata.XMLSaveable;
  * @author Steven W. Rock
  * @version $Id$
  */
-public class Location implements Serializable, XMLSaveable, Cloneable {
+public class Location implements 
+		Serializable, XMLSaveable, Cloneable, Comparable<Location> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -200,6 +201,25 @@ public class Location implements Serializable, XMLSaveable, Cloneable {
 		return (int) (v^(v>>>32));
 	}
 
+	/**
+	 * Compares this <code>Location</code> to another and sorts first by 
+	 * latitude, then by longitude. When sorting a list of randomized but 
+	 * evenly spaced grid of <code>Location</code>s, the resultant ordering will
+	 * be left to right across rows of uniform latitude, ascending to the
+	 * leftmost next higher latitude at the end of each row (left-to-right,
+	 * bottom-to-top).
+	 * 
+	 * @param loc <code>Location</code> to compare <code>this</code> to
+	 * @return a negative integer, zero, or a positive integer if this 
+	 *         <code>Location</code> is less than, equal to, or greater than 
+	 *         the specified <code>Location</code>.
+	 */
+	@Override
+	public int compareTo(Location loc) {
+		double d = (lat == loc.lat) ? lon - loc.lon : lat - loc.lat;
+		return (d != 0) ? (d < 0) ? -1 : 1 : 0;
+	}
+	
 	public Element toXMLMetadata(Element root) {
 		Element xml = root.addElement(Location.XML_METADATA_NAME);
 		xml.addAttribute(Location.XML_METADATA_LATITUDE, getLatitude() + "");

@@ -21,6 +21,9 @@ package org.opensha.commons.geo;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.opensha.commons.geo.GeoTools;
@@ -151,10 +154,31 @@ public class LocationTest {
 		Location copy = location.clone();
 		assertTrue(copy.hashCode() == location.hashCode());
 		Location locA = new Location(45, 90, 25);
-		System.out.println(locA.hashCode());
 		Location locB = new Location(90, 45, 25);
-		System.out.println(locB.hashCode());
 		assertTrue(locA.hashCode() != locB.hashCode());
+	}	
+
+	@Test
+	public final void testCompareTo() {
+		ArrayList<Location> locList = new ArrayList<Location>();
+		Location l0 = new Location(20, -30);
+		locList.add(l0);
+		Location l1 = new Location(20, -50);
+		locList.add(l1);
+		Location l2 = new Location(-10, 10);
+		locList.add(l2);
+		Location l3 = new Location(-10, 30);
+		locList.add(l3);
+		Location l4 = new Location(40, 10);
+		locList.add(l4);
+		
+		Collections.sort(locList);
+		
+		assertTrue(locList.get(0) == l2);
+		assertTrue(locList.get(1) == l3);
+		assertTrue(locList.get(2) == l1);
+		assertTrue(locList.get(3) == l0);
+		assertTrue(locList.get(4) == l4);
 	}	
 
 }

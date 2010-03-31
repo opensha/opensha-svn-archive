@@ -114,7 +114,7 @@ public class LocationList implements java.io.Serializable, XMLSaveable, Iterable
      */
     @SuppressWarnings("unchecked")
 	public void sort(){
-      Collections.sort(locations, new LocationComparator());
+      Collections.sort(locations);
     }
 
     /**
