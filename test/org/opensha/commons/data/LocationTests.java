@@ -22,7 +22,6 @@ package org.opensha.commons.data;
 import static org.junit.Assert.*;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.geo.GeoTools;

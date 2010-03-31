@@ -39,17 +39,15 @@ import org.opensha.commons.metadata.XMLSaveable;
  * For computational cenvenience, latitude and longitude values are converted
  * and stored internally in radians. Special <code>get***Rad()</code> methods
  * are provided to access this native format. <br/>
- * <code>Location</code> instances are immutable. <br/>
+ * <br/>
+ * <code>Location</code> instances are immutable.
  * 
  * @author Peter Powers
  * @author Sid Hellman
  * @author Steven W. Rock
  * @version $Id$
- * 
- *          TODO should do all error checking... any instantiated Location
- *          should be valid
  */
-public class Location implements Serializable, XMLSaveable {
+public class Location implements Serializable, XMLSaveable, Cloneable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -67,6 +65,9 @@ public class Location implements Serializable, XMLSaveable {
 	// public final static DecimalFormat latLonFormat = new
 	// DecimalFormat("0.0####");
 
+	// for internal use by clone()
+	private Location() {}
+	
 	/**
 	 * Constructs a new <code>Location</code> with the supplied latitude and
 	 * longitude and sets the depth to 0.
@@ -174,39 +175,15 @@ public class Location implements Serializable, XMLSaveable {
 		b.append(getDepth());
 		return b.toString();
 	}
-
+	
 	@Override
 	public Location clone() {
-		return new Location(getLatitude(), getLongitude(), getDepth());
+		Location clone = new Location();
+		clone.lat = this.lat;
+		clone.lon = this.lon;
+		clone.depth = this.depth;
+		return clone;
 	}
-
-	/**
-	 * 
-	 * @param loc Location
-	 * @return boolean
-	 */
-	// /public boolean equalsLocation(Location loc) {
-	// NOTE: Was Location comparison being done by floats because the
-	// polygon class was being used internally? In any event, GeneralPath
-	// is currently used to define Region borders and it too only
-	// takes floats. This is complicating test writing (e.g. comparison
-	// to coordinates stored by generated files such as kml); the precision
-	// and rounding rules of the formatter in toString() are providing
-	// more consistently identical values for Locations that should be the
-	// same and has been substituted.
-	// TODO We may be able to revert to a numeric comparison if and when
-	// JDK 1.6+ is adopted; all old awt.geom classes that are float
-	// dependent must be modified to their double-based versions.
-	// e.g. GeneralPath to Path2D.Double
-
-	// old
-	// if ((float) getLatitude() != (float) loc.getLatitude()) return false;
-	// if ((float) getLongitude() != (float) loc.getLongitude()) return false;
-	// if ((float) getDepth() != (float) loc.getDepth()) return false;
-	// return true;
-
-	// return toString().equals(loc.toString());
-	// }
 
 	@Override
 	public boolean equals(Object obj) {
