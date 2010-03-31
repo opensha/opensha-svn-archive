@@ -434,7 +434,7 @@ public static FaultTrace getFaultTrace(String sectionName, double upperDepth, Ar
 	  int numPoints = faultSectionGeom.getNumPoints();
 	  double[] ordinatesArray = faultSectionGeom.getOrdinatesArray();
 	  for(int j=0; j<numPoints; ++j) {
-		  faultTrace.addLocation(new Location(ordinatesArray[2*j+1], ordinatesArray[2*j], upperDepth));
+		  faultTrace.add(new Location(ordinatesArray[2*j+1], ordinatesArray[2*j], upperDepth));
 	  }
 	return faultTrace;
 }
@@ -448,7 +448,7 @@ public static FaultTrace getFaultTrace(String sectionName, double upperDepth, Ar
     int numLocations = faultTrace.getNumLocations();
     Object[] coords = new Object[numLocations];
     for(int j=0; j<numLocations; ++j) {
-      Location loc= faultTrace.getLocationAt(j);
+      Location loc= faultTrace.get(j);
       double d[] = { loc.getLongitude(), loc.getLatitude()} ;
       coords[j] = d;
     }

@@ -144,7 +144,7 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
     Double lat = (Double) siteGuiBean.getParameterListEditor().getParameterList().
         getParameter(Site_GuiBean.LATITUDE).getValue();
     LocationList locList = new LocationList();
-    locList.addLocation(new Location(lat.doubleValue(), lon.doubleValue()));
+    locList.add(new Location(lat.doubleValue(), lon.doubleValue()));
 
     String willsClass = "NA";
     double basinDepth = Double.NaN;
@@ -215,7 +215,7 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
     Double lon = (Double)siteGuiBean.getParameterListEditor().getParameterList() .getParameter(Site_GuiBean.LONGITUDE).getValue();
     Double lat = (Double)siteGuiBean.getParameterListEditor().getParameterList() .getParameter(Site_GuiBean.LATITUDE).getValue();
     LocationList locList = new LocationList();
-    locList.addLocation(new Location(lat.doubleValue(),lon.doubleValue()));
+    locList.add(new Location(lat.doubleValue(),lon.doubleValue()));
     String willsClass = "NA";
     double basinDepth = Double.NaN;
     try{

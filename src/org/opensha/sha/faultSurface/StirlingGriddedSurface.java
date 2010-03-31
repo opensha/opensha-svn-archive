@@ -147,8 +147,8 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
 
        // Find ave dip direction (defined by end locations):
         if( Double.isNaN(aveDipDir) ) {
-          firstLoc = faultTrace.getLocationAt(0);
-          lastLoc = faultTrace.getLocationAt(faultTrace.getNumLocations() - 1);;
+          firstLoc = faultTrace.get(0);
+          lastLoc = faultTrace.get(faultTrace.getNumLocations() - 1);;
           Direction aveDir = RelativeLocation.getDirection(firstLoc, lastLoc);
           if (D) System.out.println("aveDir.getAzimuth(): = " + aveDir.getAzimuth());
           aveDipDirection = ( aveDir.getAzimuth() + 90 );
@@ -241,7 +241,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
             if( D ) System.out.println(S + "distanceFromLastSegPt " + distance );
 
             // Calculate the grid location along fault trace and put into grid
-            location1 = faultTrace.getLocationAt( segmentNumber - 1 );
+            location1 = faultTrace.get( segmentNumber - 1 );
 //            dir = new Direction(0, distance, segmentAzimuth[ segmentNumber - 1 ], 0);
             dir = new Direction(segmentAzimuth[ segmentNumber - 1 ], distance, 0);
 
@@ -325,8 +325,8 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
         double lowerSeismogenicDepth = 15;
         double gridSpacing=5;
         FaultTrace faultTrace = new FaultTrace("Test");
-        faultTrace.addLocation(new Location(20.0, -120, 0));
-        faultTrace.addLocation(new Location(20.2, -120, 0));
+        faultTrace.add(new Location(20.0, -120, 0));
+        faultTrace.add(new Location(20.2, -120, 0));
         StirlingGriddedSurface griddedSurface = new StirlingGriddedSurface(faultTrace, aveDip,
         		upperSeismogenicDepth, lowerSeismogenicDepth, gridSpacing);
         System.out.println("******Fault Trace*********");

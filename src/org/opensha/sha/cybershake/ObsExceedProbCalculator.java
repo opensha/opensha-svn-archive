@@ -336,7 +336,7 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
    */
   void setSiteParam() {
     LocationList locList = new LocationList();
-    locList.addLocation(new Location(loc.getLatitude(),loc.getLongitude()));
+    locList.add(new Location(loc.getLatitude(),loc.getLongitude()));
 
     // get the vs 30 and basin depth from cvm
     try {

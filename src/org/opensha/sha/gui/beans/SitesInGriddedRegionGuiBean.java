@@ -418,7 +418,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 			numSites.setValue(gridRegion.getRegion().getNodeCount());
 			LocationList locs = gridRegion.getRegion().getBorder();
 			for (int i=0; i<locs.size(); i++) {
-				Location loc = locs.getLocationAt(i);
+				Location loc = locs.get(i);
 				System.out.println(loc.getLatitude() + " " + loc.getLongitude());
 			}
 			return true;

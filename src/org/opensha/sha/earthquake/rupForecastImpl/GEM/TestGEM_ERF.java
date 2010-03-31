@@ -120,15 +120,15 @@ public class TestGEM_ERF extends EqkRupForecast{
 
 		  // Only one fault source for now (from a USGS Input file
 		  FaultTrace trace = new FaultTrace("Example fault trace");
-		  trace.addLocation(new Location(40.26392,75.81272));
-		  trace.addLocation(new Location(40.17707,75.74847));
-		  trace.addLocation(new Location(40.10844,75.69968));
-		  trace.addLocation(new Location(40.04114,75.58109));
-		  trace.addLocation(new Location(40.01505,75.57042));
-		  trace.addLocation(new Location(39.93080,75.45937));
-		  trace.addLocation(new Location(39.78529,75.35471));
-		  trace.addLocation(new Location(39.66522,75.30668));
-		  trace.addLocation(new Location(39.52629,75.20238));
+		  trace.add(new Location(40.26392,75.81272));
+		  trace.add(new Location(40.17707,75.74847));
+		  trace.add(new Location(40.10844,75.69968));
+		  trace.add(new Location(40.04114,75.58109));
+		  trace.add(new Location(40.01505,75.57042));
+		  trace.add(new Location(39.93080,75.45937));
+		  trace.add(new Location(39.78529,75.35471));
+		  trace.add(new Location(39.66522,75.30668));
+		  trace.add(new Location(39.52629,75.20238));
 
 		  double aveDip=50;
 		  double downDipWidth=19.58;
@@ -189,7 +189,7 @@ public class TestGEM_ERF extends EqkRupForecast{
 			while (st.hasMoreTokens()) {
 				double lat = Double.valueOf(st.nextToken());
 				double lon = Double.valueOf(st.nextToken());
-				polygon.addLocation(new Location(lat,lon));
+				polygon.add(new Location(lat,lon));
 			}
 			region[line] = polygon;
 		}

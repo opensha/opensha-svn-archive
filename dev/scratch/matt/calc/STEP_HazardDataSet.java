@@ -193,7 +193,7 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 		try{
 			FileWriter fr = new FileWriter(RegionDefaults.outputHazardPath);
 			for(int i=0;i<numLocations;++i){
-				Location loc = locList.getLocationAt(i);
+				Location loc = locList.get(i);
 				// System.out.println("Size of the Prob ArrayList is:"+size);
 				fr.write(locFormat.format(loc.getLatitude())+"    " + locFormat.format(loc.getLongitude())+"      "+convertToProb(probVals[i])+"\n");
 			}

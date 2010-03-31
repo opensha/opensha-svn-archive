@@ -135,8 +135,8 @@ public class GEMAreaSourceData extends GEMSourceData {
 		LocationList border = this.reg.getBorder();
 		for (int i = 0; i < border.size(); i++){
 			buf.write(String.format("%.4f %.4f ",
-					border.getLocationAt(i).getLongitude(),
-					border.getLocationAt(i).getLatitude()
+					border.get(i).getLongitude(),
+					border.get(i).getLatitude()
 					));
 		} 
 		buf.write(String.format("</%sposList>\n",prefix1));

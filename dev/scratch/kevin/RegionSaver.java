@@ -35,10 +35,10 @@ public class RegionSaver {
 	public static Region createCyberShakeRegion() {
 		LocationList locs = new LocationList();
 		
-		locs.addLocation(new Location(35.08, -118.75));
-		locs.addLocation(new Location(34.19, -116.85));
-		locs.addLocation(new Location(33.25, -117.50));
-		locs.addLocation(new Location(34.13, -119.38));
+		locs.add(new Location(35.08, -118.75));
+		locs.add(new Location(34.19, -116.85));
+		locs.add(new Location(33.25, -117.50));
+		locs.add(new Location(34.13, -119.38));
 		
 		return new Region(locs, BorderType.MERCATOR_LINEAR);
 	}

@@ -56,8 +56,8 @@ public class Location implements
 	public final static String XML_METADATA_LATITUDE = "Latitude";
 	public final static String XML_METADATA_DEPTH = "Depth";
 
-	private double lat;
-	private double lon;
+	public double lat;
+	public double lon;
 	private double depth;
 
 	// this is meter scale precision and perhaps should be defined elsewhere
@@ -189,7 +189,15 @@ public class Location implements
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
 		if (!(obj instanceof Location)) return false;
-		return toString().equals(obj.toString());
+		Location loc = (Location) obj;
+		// TODO revert to native when rounding is removed
+		if (getLatitude() != loc.getLatitude()) return false;
+		if (getLongitude() != loc.getLongitude()) return false;
+		if (getDepth() != loc.getDepth()) return false;
+//		if (lat != loc.lat) return false;
+//		if (lon != loc.lon) return false;
+//		if (depth != loc.depth) return false;
+		return true;
 	}
 
 	@Override

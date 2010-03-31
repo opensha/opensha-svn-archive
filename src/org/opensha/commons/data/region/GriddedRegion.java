@@ -398,7 +398,7 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	 */
 	public Location locationForIndex(int index) {
 		try {
-			return nodeList.getLocationAt(index);
+			return nodeList.get(index);
 		} catch (InvalidRangeException e) {
 			return null;
 		}
@@ -587,7 +587,7 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 		for (double lat:latNodes) {
 			for (double lon:lonNodes) {
 				if (contains(lat, lon)) {
-					nodeList.addLocation(new Location(lat, lon));
+					nodeList.add(new Location(lat, lon));
 					gridIndices[grid_idx] = node_idx++;
 				} else {
 					gridIndices[grid_idx] = -1;

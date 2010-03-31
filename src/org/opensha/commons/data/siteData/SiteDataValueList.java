@@ -101,7 +101,7 @@ public class SiteDataValueList<E> implements XMLSaveable, Serializable {
 	public Location getLocationAt(int index) {
 		if (locs == null)
 			return null;
-		return locs.getLocationAt(index);
+		return locs.get(index);
 	}
 
 	public ArrayList<E> getValues() {
@@ -110,7 +110,7 @@ public class SiteDataValueList<E> implements XMLSaveable, Serializable {
 	
 	public E getValueForLocation(Location loc) {
 		for (int i=0; i<locs.size(); i++) {
-			Location valLoc = locs.getLocationAt(i);
+			Location valLoc = locs.get(i);
 			if (loc.equals(valLoc))
 				return values.get(i);
 		}
@@ -292,17 +292,17 @@ public class SiteDataValueList<E> implements XMLSaveable, Serializable {
 		ArrayList<Double> vals = new ArrayList<Double>();
 		LocationList locs = new LocationList();
 		vals.add(new Double(0.5));
-		locs.addLocation(new Location(34, -120.6));
+		locs.add(new Location(34, -120.6));
 		vals.add(new Double(0.4));
-		locs.addLocation(new Location(34, -120.5));
+		locs.add(new Location(34, -120.5));
 		vals.add(new Double(0.3));
-		locs.addLocation(new Location(34, -120.4));
+		locs.add(new Location(34, -120.4));
 		vals.add(new Double(0.2));
-		locs.addLocation(new Location(34, -120.3));
+		locs.add(new Location(34, -120.3));
 		vals.add(new Double(0.1));
-		locs.addLocation(new Location(34, -120.2));
+		locs.add(new Location(34, -120.2));
 		vals.add(new Double(0.05));
-		locs.addLocation(new Location(34, -120.1));
+		locs.add(new Location(34, -120.1));
 		
 		SiteDataValueList<Double> list = new SiteDataValueList<Double>(SiteDataAPI.TYPE_VS30, "asdfas", vals, null, locs);
 		

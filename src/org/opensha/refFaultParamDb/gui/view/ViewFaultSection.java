@@ -469,7 +469,7 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 		ArrayList locsAsString = new ArrayList();
 		int numLocs = faultTrace.getNumLocations();
 		for(int i=0; i<numLocs; ++i) {
-			Location loc = faultTrace.getLocationAt(i);
+			Location loc = faultTrace.get(i);
 			locsAsString.add(loc.getLongitude()+","+loc.getLatitude());
 		}
 		

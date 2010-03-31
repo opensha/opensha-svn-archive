@@ -155,7 +155,7 @@ public class CommandLineHazardCurve implements ParameterChangeWarningListener {
 	   */
 	  private void setSiteParamsInIMR() {
 		  LocationList locList = new LocationList();
-		  locList.addLocation(new Location(siteCoords[0],siteCoords[1]));
+		  locList.add(new Location(siteCoords[0],siteCoords[1]));
 		  String willsClass = "NA";
 		  double basinDepth = Double.NaN;
 		  try{

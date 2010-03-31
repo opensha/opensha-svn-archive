@@ -131,7 +131,7 @@ public class FaultRuptureSource
     LocationList locList = new LocationList();
     Iterator it = ( (EvenlyGriddedSurface) getSourceSurface()).
         getAllByRowsIterator();
-    while (it.hasNext()) locList.addLocation( (Location) it.next());
+    while (it.hasNext()) locList.add( (Location) it.next());
     return locList;
   }
 

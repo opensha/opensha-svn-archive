@@ -153,8 +153,8 @@ public class PutFaultSectionsIntoDatabase {
 	  }
 	  // calculate dip direction from OpenSHA
 	  FaultTrace faultSectionTrace = faultSection.getFaultTrace();
-	  double dipDirectionFromOpenSHA = 90+RelativeLocation.getDirection(faultSectionTrace.getLocationAt(0),
-              faultSectionTrace.getLocationAt(faultSectionTrace.getNumLocations()-1)).getAzimuth();
+	  double dipDirectionFromOpenSHA = 90+RelativeLocation.getDirection(faultSectionTrace.get(0),
+              faultSectionTrace.get(faultSectionTrace.getNumLocations()-1)).getAzimuth();
 	  if(dipDirectionFromOpenSHA<0) dipDirectionFromOpenSHA+=360;
 	  else if(dipDirectionFromOpenSHA>360) dipDirectionFromOpenSHA-=360;
 	  faultSection.setDipDirection((float)dipDirectionFromOpenSHA);
@@ -206,7 +206,7 @@ public class PutFaultSectionsIntoDatabase {
           StringTokenizer tokenizer = new StringTokenizer(locString);
           lon = Double.parseDouble(tokenizer.nextToken());
           lat = Double.parseDouble(tokenizer.nextToken());
-          sectionTrace.addLocation(new Location(lat,lon));
+          sectionTrace.add(new Location(lat,lon));
           locString = ((String)faultSectionTraceLines.get(++nextTraceStartIndex)).trim();
         }
       }

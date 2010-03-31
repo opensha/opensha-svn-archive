@@ -98,22 +98,22 @@ public class SimpleFaultData  implements java.io.Serializable {
     	double minDist = Double.MAX_VALUE, distance;
     	boolean reverse = false;
     	ArrayList<Integer> reversedIndices = new ArrayList<Integer>();
-    	distance = RelativeLocation.getHorzDistance(faultTrace1.getLocationAt(0), faultTrace2.getLocationAt(0));
+    	distance = RelativeLocation.getHorzDistance(faultTrace1.get(0), faultTrace2.get(0));
     	if(distance<minDist) {
     		minDist = distance;
     		reverse=true;
     	}
-    	distance = RelativeLocation.getHorzDistance(faultTrace1.getLocationAt(0), faultTrace2.getLocationAt(faultTrace2.getNumLocations()-1));
+    	distance = RelativeLocation.getHorzDistance(faultTrace1.get(0), faultTrace2.get(faultTrace2.getNumLocations()-1));
     	if(distance<minDist) {
     		minDist = distance;
     		reverse=true;  
     	}
-    	distance = RelativeLocation.getHorzDistance(faultTrace1.getLocationAt(faultTrace1.getNumLocations()-1), faultTrace2.getLocationAt(0));
+    	distance = RelativeLocation.getHorzDistance(faultTrace1.get(faultTrace1.getNumLocations()-1), faultTrace2.get(0));
     	if(distance<minDist) {
     		minDist = distance;
     		reverse=false;
     	}
-    	distance = RelativeLocation.getHorzDistance(faultTrace1.getLocationAt(faultTrace1.getNumLocations()-1), faultTrace2.getLocationAt(faultTrace2.getNumLocations()-1));
+    	distance = RelativeLocation.getHorzDistance(faultTrace1.get(faultTrace1.getNumLocations()-1), faultTrace2.get(faultTrace2.getNumLocations()-1));
     	if(distance<minDist) {
     		minDist = distance;
     		reverse=false;
@@ -134,9 +134,9 @@ public class SimpleFaultData  implements java.io.Serializable {
     		int numLocations = faultTrace.getNumLocations();
     		if(i>0) { // check the ordering of point in this fault trace
     			FaultTrace prevFaultTrace = simpleFaultDataList.get(i-1).getFaultTrace();
-    			Location lastLoc = prevFaultTrace.getLocationAt(prevFaultTrace.getNumLocations()-1);
-    			double distance1 = RelativeLocation.getHorzDistance(lastLoc, faultTrace.getLocationAt(0));
-    			double distance2 = RelativeLocation.getHorzDistance(lastLoc, faultTrace.getLocationAt(faultTrace.getNumLocations()-1));
+    			Location lastLoc = prevFaultTrace.get(prevFaultTrace.getNumLocations()-1);
+    			double distance1 = RelativeLocation.getHorzDistance(lastLoc, faultTrace.get(0));
+    			double distance2 = RelativeLocation.getHorzDistance(lastLoc, faultTrace.get(faultTrace.getNumLocations()-1));
     			if(distance2<distance1) { // reverse this fault trace
     				faultTrace.reverse();
     				reversedIndices.add(i);
@@ -144,15 +144,15 @@ public class SimpleFaultData  implements java.io.Serializable {
     			}
     			//  remove any loc that is within 1km of its neighbor
             	//  as per Ned's email on Feb 7, 2007 at 5:53 AM
-        		if(distance2>1 && distance1>1) combinedFaultTrace.addLocation(faultTrace.getLocationAt(0).clone());
+        		if(distance2>1 && distance1>1) combinedFaultTrace.add(faultTrace.get(0).clone());
         		// add the fault Trace locations to combined trace
         		for(int locIndex=1; locIndex<numLocations; ++locIndex) 
-        			combinedFaultTrace.addLocation(faultTrace.getLocationAt(locIndex).clone());
+        			combinedFaultTrace.add(faultTrace.get(locIndex).clone());
        
     		} else { // if this is first fault section, add all points in fault trace
 //    			 add the fault Trace locations to combined trace
         		for(int locIndex=0; locIndex<numLocations; ++locIndex) 
-        			combinedFaultTrace.addLocation(faultTrace.getLocationAt(locIndex).clone());
+        			combinedFaultTrace.add(faultTrace.get(locIndex).clone());
     		}
     		
     		double length = faultTrace.getTraceLength();
@@ -196,12 +196,12 @@ public class SimpleFaultData  implements java.io.Serializable {
     		//combinedFaultTrace.getLocationAt(i).setDepth(
     		//		simpleFaultData.getUpperSeismogenicDepth());
     		// replace trace Locations with depth corrected values
-    		Location old = combinedFaultTrace.getLocationAt(i);
+    		Location old = combinedFaultTrace.get(i);
     		Location loc = new Location(
     				old.getLatitude(), 
     				old.getLongitude(),
     				upperSeismogenicDepth);
-    		combinedFaultTrace.replaceLocationAt(loc, i);
+    		combinedFaultTrace.set(i, loc);
     	}
     	simpleFaultData.setLowerSeismogenicDepth((totArea/totLength)*Math.sin(dip*Math.PI/180)+upperSeismogenicDepth);
     	//System.out.println(simpleFaultData.getLowerSeismogenicDepth());

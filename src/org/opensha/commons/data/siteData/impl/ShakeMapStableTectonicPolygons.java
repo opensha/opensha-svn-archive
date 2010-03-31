@@ -48,7 +48,7 @@ public class ShakeMapStableTectonicPolygons extends AbstractSiteData<Boolean> {
 				double lon = Double.parseDouble(tok.nextToken());
 				
 				Location loc = new Location(lat, lon);
-				locs.addLocation(loc);
+				locs.add(loc);
 				
 				if (tokens == 2) {
 					polys.add(new Region(locs, BorderType.MERCATOR_LINEAR));

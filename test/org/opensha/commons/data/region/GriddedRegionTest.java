@@ -56,14 +56,14 @@ public class GriddedRegionTest {
 	public static void setUp(){
 		RegionTest.setUp();
 		LocationList ll = new LocationList();
-		ll.addLocation(new Location(25,-115));
-		ll.addLocation(new Location(25,-110));
-		ll.addLocation(new Location(30,-105));
-		ll.addLocation(new Location(35,-105));
-		ll.addLocation(new Location(40,-110));
-		ll.addLocation(new Location(40,-115));
-		ll.addLocation(new Location(35,-120));
-		ll.addLocation(new Location(30,-120));
+		ll.add(new Location(25,-115));
+		ll.add(new Location(25,-110));
+		ll.add(new Location(30,-105));
+		ll.add(new Location(35,-105));
+		ll.add(new Location(40,-110));
+		ll.add(new Location(40,-115));
+		ll.add(new Location(35,-120));
+		ll.add(new Location(30,-120));
 		octRegion  = new GriddedRegion(ll, null, 0.5, GriddedRegion.ANCHOR_0_0);
 	}
 
@@ -188,10 +188,10 @@ public class GriddedRegionTest {
 		Location l5 = new Location(5, 5);
 		Location anchor = new Location (0.6, 0.6);
 		LocationList ll = new LocationList();
-		ll.addLocation(l1);
-		ll.addLocation(l2);
-		ll.addLocation(l3);
-		ll.addLocation(l4);
+		ll.add(l1);
+		ll.add(l2);
+		ll.add(l3);
+		ll.add(l4);
 		GriddedRegion gr1 = new GriddedRegion(l1, l5, 0.1, anchor);
 		GriddedRegion gr2 = new GriddedRegion(ll, null, 0.1, anchor);
 		assertTrue(gr1.equals(gr2));

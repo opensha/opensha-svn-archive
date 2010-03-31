@@ -46,7 +46,7 @@ public class MeanUCERF2_RandomEvents {
 		for(int r=0;r<rupList.size();r++){
 			EqkRupture rup = rupList.get(r);
 			LocationList locs = rup.getRuptureSurface().getLocationList();
-			Location loc = locs.getLocationAt((int)Math.floor(Math.random()*locs.size()));
+			Location loc = locs.get((int)Math.floor(Math.random()*locs.size()));
 			System.out.println((float)rup.getMag()+"\t"+(float)loc.getLatitude()+"\t"+
 					(float)loc.getLongitude()+"\t"+(float)loc.getDepth());
 		}

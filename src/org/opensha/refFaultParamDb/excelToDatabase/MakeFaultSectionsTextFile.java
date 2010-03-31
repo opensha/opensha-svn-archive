@@ -80,7 +80,7 @@ public class MakeFaultSectionsTextFile {
 	private void writeFaultTraceToFile(FileWriter fw, FaultTrace faultTrace) throws IOException {
 		fw.write(FaultSectionVer2_DB_DAO.FAULT_TRACE+"="+faultTrace.getNumLocations()+"\n");
 		for(int i=0; i<faultTrace.getNumLocations(); ++i) {
-			Location location = faultTrace.getLocationAt(i);
+			Location location = faultTrace.get(i);
 			fw.write(location.getLongitude()+"\t"+location.getLatitude()+"\n");
 		}
 	}

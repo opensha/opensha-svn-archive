@@ -51,7 +51,7 @@ public class SlabSurfaceGenerator {
 		  origBottomTrace.reverse();
 		  
 		  // Now check that Aki-Richards convention is adhered to (fault dips to right)
-		  double dipDir = RelativeLocation.getAzimuth(origTopTrace.getLocationAt(0), origBottomTrace.getLocationAt(0));
+		  double dipDir = RelativeLocation.getAzimuth(origTopTrace.get(0), origBottomTrace.get(0));
 		  double strikeDir = origTopTrace.getStrikeDirection();
 		  if((strikeDir-dipDir) <0 ||  (strikeDir-dipDir) > 180) {
 			  origTopTrace.reverse();
@@ -80,8 +80,8 @@ public class SlabSurfaceGenerator {
 		  // compute ave num columns
 		  double aveDist=0;
 		  for(int i=0; i<resampTopTrace.size(); i++) {
-			  Location topLoc = resampTopTrace.getLocationAt(i);
-			  Location botLoc = resampBottomTrace.getLocationAt(i);
+			  Location topLoc = resampTopTrace.get(i);
+			  Location botLoc = resampBottomTrace.get(i);
 			  aveDist += RelativeLocation.getHorzDistance(topLoc, botLoc);
 		  }
 		  aveDist /= resampTopTrace.size();
@@ -110,8 +110,8 @@ public class SlabSurfaceGenerator {
 		// now set the surface locations
 		int numNaN=0;
 		for(int i=0; i<resampTopTrace.size(); i++) {
-			Location topLoc = resampTopTrace.getLocationAt(i);
-			Location botLoc = resampBottomTrace.getLocationAt(i);
+			Location topLoc = resampTopTrace.get(i);
+			Location botLoc = resampBottomTrace.get(i);
 			double length = RelativeLocation.getHorzDistance(topLoc, botLoc);
 			double subSectLen = length/(nRows-1);
 			Direction dir = RelativeLocation.getDirection(topLoc, botLoc);
@@ -240,7 +240,7 @@ public class SlabSurfaceGenerator {
 				  st = new StringTokenizer( (String) fileLines.get(i));
 				  double lon = Double.parseDouble(st.nextToken());
 				  double lat = Double.parseDouble(st.nextToken());
-				  trace.addLocation(new Location(lat,lon,0.0));
+				  trace.add(new Location(lat,lon,0.0));
 			  }
 		  } catch (FileNotFoundException e) {
 			  // TODO Auto-generated catch block
@@ -280,7 +280,7 @@ public class SlabSurfaceGenerator {
 			  double lon = Double.parseDouble(st.nextToken());
 			  double lat = Double.parseDouble(st.nextToken());
 			  Location newLoc = new Location(lat,lon,0.0);
-			  topTrace.addLocation(newLoc);
+			  topTrace.add(newLoc);
 			  lastLoc = newLoc;
 			  double distThresh = 0;
 			  for(int i=fileLines.size()-3; i>=0; --i){ // skip the last point because it closes the polygon (1st point on the top trace)
@@ -294,13 +294,13 @@ public class SlabSurfaceGenerator {
 					  // check whether we've jumped to bottom trace
 					  if(RelativeLocation.getApproxHorzDistance(newLoc, lastLoc) > distThresh) {
 						  stillOnTopTrace = false;  // if distance is greater than 100 km, we've jumped to the bottom trace
-						  bottomTrace.addLocation(newLoc);
+						  bottomTrace.add(newLoc);
 					  }else {
-						  topTrace.addLocation(newLoc);
+						  topTrace.add(newLoc);
 						  lastLoc = newLoc;
 					  }
 				  }else{
-					  bottomTrace.addLocation(newLoc);
+					  bottomTrace.add(newLoc);
 				  }
 			  }
 		  } catch (FileNotFoundException e) {

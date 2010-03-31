@@ -36,10 +36,10 @@ public class CreateSubsetBox {
 	Region region;
 	public CreateSubsetBox(){
 		LocationList locList = new LocationList();
-		locList.addLocation(new Location(31.082920,-116.032285));
-		locList.addLocation(new Location(33.122341,-113.943965));
-		locList.addLocation(new Location(36.621696,-118.9511292));
-		locList.addLocation(new Location(34.5,-121));
+		locList.add(new Location(31.082920,-116.032285));
+		locList.add(new Location(33.122341,-113.943965));
+		locList.add(new Location(36.621696,-118.9511292));
+		locList.add(new Location(34.5,-121));
 		region = new Region(locList, BorderType.MERCATOR_LINEAR);
 		createSubsetFile();
 	}

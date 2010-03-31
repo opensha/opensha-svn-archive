@@ -964,7 +964,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 				System.out.println("# "+source.getName());
 				fw.write("# "+source.getName()+"\n");
 				for(int i=0;i<locList.size();i++) {
-					Location loc = locList.getLocationAt(i);
+					Location loc = locList.get(i);
 //					System.out.println((float)loc.getLatitude()+"\t"+(float)loc.getLongitude()+"\t"+(float)loc.getDepth());
 					fw.write((float)loc.getLatitude()+"\t"+(float)loc.getLongitude()+"\t"+(float)loc.getDepth()+"\n");
 				}

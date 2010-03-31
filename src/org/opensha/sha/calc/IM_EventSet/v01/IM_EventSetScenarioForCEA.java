@@ -157,7 +157,7 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 				if(lon > this.maxLon)
 					maxLon = lon;
 					
-				locList.addLocation(new Location(lat,lon));
+				locList.add(new Location(lat,lon));
 			}
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -301,7 +301,7 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 						attenRel.setIntensityMeasure(imt);
 						
 					for(int k=0;k<this.locList.size();++k){
-						Location loc = locList.getLocationAt(k);
+						Location loc = locList.get(k);
 						site.setLocation(loc);
 						setSiteParamsInIMR(attenRel,((Integer)vs30List.get(k)).intValue());
 						propEffect.setSite(site);

@@ -59,50 +59,50 @@ public class MomentInRegionCalc {
 		
 		//REGION 1
 		LocationList locList1 = new LocationList();
-		locList1.addLocation(new Location(40.5, -127));
-		locList1.addLocation(new Location(45, -122));
-		locList1.addLocation(new Location(41.75, -119.025));
-		locList1.addLocation(new Location(37.25, -124.025));
+		locList1.add(new Location(40.5, -127));
+		locList1.add(new Location(45, -122));
+		locList1.add(new Location(41.75, -119.025));
+		locList1.add(new Location(37.25, -124.025));
 		Region region1 = new Region(locList1, BorderType.MERCATOR_LINEAR);
 		
 //		REGION 2
 		LocationList locList2 = new LocationList();
-		locList2.addLocation(new Location(37.25, -124.025));
-		locList2.addLocation(new Location(41.75, -119.025));
-		locList2.addLocation(new Location(41, -118.35));
-		locList2.addLocation(new Location(36.5, -123.35));
+		locList2.add(new Location(37.25, -124.025));
+		locList2.add(new Location(41.75, -119.025));
+		locList2.add(new Location(41, -118.35));
+		locList2.add(new Location(36.5, -123.35));
 		Region region2 = new Region(locList2, BorderType.MERCATOR_LINEAR);
 
 //		REGION 3
 		LocationList locList3 = new LocationList();
-		locList3.addLocation(new Location(36.5, -123.35));
-		locList3.addLocation(new Location(41, -118.35));
-		locList3.addLocation(new Location(39.5, -117));
-		locList3.addLocation(new Location(35, -122));
+		locList3.add(new Location(36.5, -123.35));
+		locList3.add(new Location(41, -118.35));
+		locList3.add(new Location(39.5, -117));
+		locList3.add(new Location(35, -122));
 		Region region3 = new Region(locList3, BorderType.MERCATOR_LINEAR);
 
 //		REGION 4
 		LocationList locList4 = new LocationList();
-		locList4.addLocation(new Location(35, -122));
-		locList4.addLocation(new Location(39.5, -117));
-		locList4.addLocation(new Location(37.5, -115.2));
-		locList4.addLocation(new Location(33, -120.2));
+		locList4.add(new Location(35, -122));
+		locList4.add(new Location(39.5, -117));
+		locList4.add(new Location(37.5, -115.2));
+		locList4.add(new Location(33, -120.2));
 		Region region4 = new Region(locList4, BorderType.MERCATOR_LINEAR);
 
 //		REGION 5
 		LocationList locList5 = new LocationList();
-		locList5.addLocation(new Location(33, -120.2));
-		locList5.addLocation(new Location(37.5, -115.2));
-		locList5.addLocation(new Location(36.75, -114.525));
-		locList5.addLocation(new Location(32.25, -119.525));
+		locList5.add(new Location(33, -120.2));
+		locList5.add(new Location(37.5, -115.2));
+		locList5.add(new Location(36.75, -114.525));
+		locList5.add(new Location(32.25, -119.525));
 		Region region5 = new Region(locList5, BorderType.MERCATOR_LINEAR);
 
 //		REGION 6
 		LocationList locList6 = new LocationList();
-		locList6.addLocation(new Location(32.25, -119.525));
-		locList6.addLocation(new Location(36.75, -114.525));
-		locList6.addLocation(new Location(34, -112));
-		locList6.addLocation(new Location(29.5, -117));
+		locList6.add(new Location(32.25, -119.525));
+		locList6.add(new Location(36.75, -114.525));
+		locList6.add(new Location(34, -112));
+		locList6.add(new Location(29.5, -117));
 		Region region6 = new Region(locList6, BorderType.MERCATOR_LINEAR);
 
 		

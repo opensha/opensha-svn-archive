@@ -148,7 +148,7 @@ public abstract class EvenlyGriddedSurfFromSimpleFaultData
 
         if( gridSpacing == Double.NaN ) throw new FaultException(C + "invalid gridSpacing");
 
-        double depth = faultTrace.getLocationAt(0).getDepth();
+        double depth = faultTrace.get(0).getDepth();
         if(depth > upperSeismogenicDepth)
                 throw new FaultException(C + "depth on faultTrace locations must be < upperSeisDepth");
 

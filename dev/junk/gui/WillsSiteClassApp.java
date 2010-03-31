@@ -216,7 +216,7 @@ public class WillsSiteClassApp extends JApplet{
 	  				JOptionPane.ERROR_MESSAGE);
 	        return locs;
 	      }
-	      locs.addLocation(new Location(lat,lon));
+	      locs.add(new Location(lat,lon));
 	    }
 	    return locs;
   }

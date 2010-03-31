@@ -234,7 +234,7 @@ public class MeanSigmaCalc
         String trackNumber = st.nextToken();
         double lon = Double.parseDouble(st.nextToken());
         double lat = Double.parseDouble(st.nextToken());
-        locList.addLocation(new Location(lat,lon));
+        locList.add(new Location(lat,lon));
         locNameList.add(trackNumber);
         if(lon > maxLon)
           maxLon = lon;
@@ -324,7 +324,7 @@ public class MeanSigmaCalc
             setSiteParamsInIMR(imr, (String)willsClass.get(j));
             //this method added to the Attenuation Relationship allows to set the
             //Location in the site of the attenuation relationship
-            imr.setSiteLocation(locList.getLocationAt(j));
+            imr.setSiteLocation(locList.get(j));
             //setting different intensity measures for each site and writing those to the file.
             imr.setIntensityMeasure(PGA_Param.NAME);
 

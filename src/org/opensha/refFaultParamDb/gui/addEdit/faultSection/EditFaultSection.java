@@ -451,7 +451,7 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 			  StringTokenizer lineTokenizer = new StringTokenizer(line,",");
 			  lon = Double.parseDouble(lineTokenizer.nextToken().trim());
 			  lat = Double.parseDouble(lineTokenizer.nextToken().trim());
-			  faultTrace.addLocation(new Location(lat,lon));
+			  faultTrace.add(new Location(lat,lon));
 		  }
 	  }catch(Exception e) {
 			  throw new RuntimeException(MSG_FAULT_TRACE_FORMAT);
@@ -571,7 +571,7 @@ private void makeAseismicSlipParamAndEditor(ArrayList allowedEstimates) {
 	 faultTraceArea = new JTextArea();
 	 FaultTrace faultTrace = this.selectedFaultSection.getFaultTrace();
 	 for(int i=0; faultTrace!=null && i<faultTrace.getNumLocations(); ++i) {
-		 Location loc = faultTrace.getLocationAt(i);
+		 Location loc = faultTrace.get(i);
 		 faultTraceArea.append(loc.getLongitude()+","+loc.getLatitude()+"\n");
 	 }
  }

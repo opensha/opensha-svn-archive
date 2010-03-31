@@ -465,20 +465,20 @@ public class PrepareTreeStructure {
       String faultSectionName = (String)it.next();
       LocationList locList = (LocationList)faultTraceMapping.get(faultSectionName);
       ++numSubSections;
-      Node node = new Node(id++, faultSectionName, locList.getLocationAt(0));
+      Node node = new Node(id++, faultSectionName, locList.get(0));
       faultTree.put(faultSectionName, node);
       // discretization is 5km
       int i;
       for(i=DISCRETIZATION; i<locList.size(); i=i+DISCRETIZATION) {
     	 ++numSubSections;
-        Node newNode = new Node(id++, faultSectionName, locList.getLocationAt(i));
+        Node newNode = new Node(id++, faultSectionName, locList.get(i));
         node.setPrimaryLink(newNode);
         node = newNode;
       }
       // include the last point in the fault trace
       if((i-DISCRETIZATION)!=(locList.size()-1)) {
     	++numSubSections;
-        Node newNode = new Node(id++, faultSectionName, locList.getLocationAt(locList.size()-1));
+        Node newNode = new Node(id++, faultSectionName, locList.get(locList.size()-1));
         node.setPrimaryLink(newNode);
         node = newNode;
       }

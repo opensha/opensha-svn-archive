@@ -163,7 +163,7 @@ public class STEP_DamageState implements ParameterChangeWarningListener{
 	    try{
 		      FileWriter fr = new FileWriter(STEP_HAZARD_OUT_FILE_NAME);
 		      for(int i=0;i<numLocations;++i){
-		    	  Location loc = locList.getLocationAt(i);
+		    	  Location loc = locList.get(i);
 		    	  // System.out.println("Size of the Prob ArrayList is:"+size);
 		    	  fr.write(locFormat.format(loc.getLatitude())+"    "+locFormat.format(loc.getLongitude())+"      "+convertToProb(probVals[i])+"\n");
 		      }
@@ -187,7 +187,7 @@ public class STEP_DamageState implements ParameterChangeWarningListener{
 	    try{
 		      FileWriter fr = new FileWriter(STEP_HAZCURVE_OUT_FILE_NAME);
 		      for(int i=0;i<numLocations;++i){
-		    	  Location loc = locList.getLocationAt(i);
+		    	  Location loc = locList.get(i);
 		    	  // System.out.println("Size of the Prob ArrayList is:"+size);
 		    	  fr.write(locFormat.format(loc.getLatitude())+"    "+locFormat.format(loc.getLongitude()));
 		    	  for(int k=0;k<NUM_LEVELS;++k)

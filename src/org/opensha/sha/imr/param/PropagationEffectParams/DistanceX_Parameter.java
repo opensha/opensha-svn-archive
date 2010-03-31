@@ -172,29 +172,29 @@ public class DistanceX_Parameter
     			LocationList locsForExtendedTrace = new LocationList();
     			LocationList locsForRegion = new LocationList();
 
-    			locsForExtendedTrace.addLocation(projectedLoc1);
-    			locsForRegion.addLocation(projectedLoc1);
+    			locsForExtendedTrace.add(projectedLoc1);
+    			locsForRegion.add(projectedLoc1);
     			for(int c=0; c<rupSurf.getNumCols(); c++) {
-    				locsForExtendedTrace.addLocation(rupSurf.getLocation(0, c));
-    				locsForRegion.addLocation(rupSurf.getLocation(0, c));     	
+    				locsForExtendedTrace.add(rupSurf.getLocation(0, c));
+    				locsForRegion.add(rupSurf.getLocation(0, c));     	
     			}
-    			locsForExtendedTrace.addLocation(projectedLoc2);
-    			locsForRegion.addLocation(projectedLoc2);
+    			locsForExtendedTrace.add(projectedLoc2);
+    			locsForRegion.add(projectedLoc2);
 
     			// finish the region
-    			locsForRegion.addLocation(projectedLoc4);
-    			locsForRegion.addLocation(projectedLoc3);
+    			locsForRegion.add(projectedLoc4);
+    			locsForRegion.add(projectedLoc3);
 
     			// write these out if in debug mode
     			if(D) {
     				System.out.println("Projected Trace:");
     				for(int l=0; l<locsForExtendedTrace.size(); l++) {
-    					Location loc = locsForExtendedTrace.getLocationAt(l);
+    					Location loc = locsForExtendedTrace.get(l);
     					System.out.println(loc.getLatitude()+"\t"+ loc.getLongitude()+"\t"+ loc.getDepth());
     				}
     				System.out.println("Region:");
     				for(int l=0; l<locsForRegion.size(); l++) {
-    					Location loc = locsForRegion.getLocationAt(l);
+    					Location loc = locsForRegion.get(l);
     					System.out.println(loc.getLatitude()+"\t"+ loc.getLongitude()+"\t"+ loc.getDepth());
     				}
     			}

@@ -19,7 +19,7 @@ public class Vs30Accessor {
 	public SiteDataValueList<Double> getVs30(ArrayList<Site> sites) throws IOException {
 		LocationList locs = new LocationList();
 		for (Site site : sites) {
-			locs.addLocation(site.getLocation());
+			locs.add(site.getLocation());
 		}
 		return topoSlopeVs30.getAnnotatedValues(locs);
 	}

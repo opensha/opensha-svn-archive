@@ -185,10 +185,10 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		// ternaries prevent exceedance of max lat-lon values 
 		maxLat += (maxLat <= 90.0-offset) ? offset : 0.0;
 		maxLon += (maxLon <= 180.0-offset) ? offset : 0.0;
-		ll.addLocation(new Location(minLat, minLon));
-		ll.addLocation(new Location(minLat, maxLon));
-		ll.addLocation(new Location(maxLat, maxLon));
-		ll.addLocation(new Location(maxLat, minLon));
+		ll.add(new Location(minLat, minLon));
+		ll.add(new Location(minLat, maxLon));
+		ll.add(new Location(maxLat, maxLon));
+		ll.add(new Location(maxLat, minLon));
 		
 		initBorderedRegion(ll, BorderType.MERCATOR_LINEAR);
 	}
@@ -282,13 +282,13 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 			throw new NullPointerException("Supplied Region is null");
 		}
 		this.name = region.name;
-		this.border = region.border.copy();
+		this.border = region.border.clone();
 		this.area = (Area) region.area.clone();
 		// internal regions
 		if (region.interiors != null) {
 			interiors = new ArrayList<LocationList>();
 			for (LocationList interior : region.interiors) {
-				interiors.add(interior.copy());
+				interiors.add(interior.clone());
 			}
 		}
 	}
@@ -418,7 +418,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 					"Region must completely contain supplied interior Region");
 		}
 		
-		LocationList newInterior = region.border.copy();
+		LocationList newInterior = region.border.clone();
 		// ensure no overlap with existing interiors
 		Area newArea = createArea(newInterior);
 		if (interiors != null) {
@@ -541,8 +541,8 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		double min = border.getMinHorzDistToLine(loc);
 		// check the segment defined by the last and first points
 		double temp = RelativeLocation.getApproxHorzDistToLine(
-				border.getLocationAt(border.size() - 1),
-				border.getLocationAt(0), loc);
+				border.get(border.size() - 1),
+				border.get(0), loc);
 		return (temp < min) ? temp : min;
 	}
 
@@ -595,10 +595,10 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 */
 	public static Region getGlobalRegion() {
 		LocationList gll = new LocationList();
-		gll.addLocation(new Location(-90, -180));
-		gll.addLocation(new Location(-90, 180));
-		gll.addLocation(new Location(90, 180));
-		gll.addLocation(new Location(90, -180));
+		gll.add(new Location(-90, -180));
+		gll.add(new Location(-90, 180));
+		gll.add(new Location(90, 180));
+		gll.add(new Location(90, -180));
 		return new Region(gll, BorderType.MERCATOR_LINEAR);
 	}
 	
@@ -719,7 +719,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		// first remove last point in list if it is the same as
 		// the first point
 		int lastIndex = border.size()-1;
-		if (border.getLocationAt(lastIndex).equals(border.getLocationAt(0))) {
+		if (border.get(lastIndex).equals(border.get(0))) {
 			border.remove(lastIndex);
 		}
 		
@@ -728,10 +728,10 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 			// process each border pair [start end]; so that the entire
 			// border is traversed, set the first 'start' Location as the
 			// last point in the gcBorder
-			Location start = border.getLocationAt(border.size()-1);
+			Location start = border.get(border.size()-1);
 			for (int i=0; i<border.size(); i++) {
-				gcBorder.addLocation(start);
-				Location end = border.getLocationAt(i);
+				gcBorder.add(start);
+				Location end = border.get(i);
 				double distance = RelativeLocation.getHorzDistance(start, end);
 				// subdivide as necessary
 				while (distance > GC_SEGMENT) {
@@ -739,15 +739,15 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 					double azRad = RelativeLocation.azimuthRad(start, end);
 					Location segLoc = RelativeLocation.location(
 							start, azRad, GC_SEGMENT);
-					gcBorder.addLocation(segLoc);
+					gcBorder.add(segLoc);
 					start = segLoc;
 					distance = RelativeLocation.getHorzDistance(start, end);
 				}
 				start = end;
 			}
-			this.border = gcBorder.copy();
+			this.border = gcBorder.clone();
 		} else {
-			this.border = border.copy();
+			this.border = border.clone();
 		}
 		area = createArea(this.border);
 	}
@@ -808,17 +808,17 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 			// skip the final closing segment which just repeats
 			// the previous vertex but indicates SEG_CLOSE
 			if (type != PathIterator.SEG_CLOSE) {
-				ll.addLocation(new Location(lat,lon));
+				ll.add(new Location(lat,lon));
 			}
 			pi.next();
 		}
 		
 		if (clean) {
 			LocationList llClean = new LocationList();
-			Location prev = ll.getLocationAt(ll.size()-1);
+			Location prev = ll.get(ll.size()-1);
 			for (Location loc:ll) {
 				if (loc.equals(prev)) continue;
-				llClean.addLocation(loc);
+				llClean.add(loc);
 				prev = loc;
 			}
 			ll = llClean;
@@ -838,7 +838,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		
 		LocationList ll = new LocationList();
 	    for (double angle=0; angle<360; angle += WEDGE_WIDTH) {
-	    	ll.addLocation(RelativeLocation.location(
+	    	ll.add(RelativeLocation.location(
 	    			center, angle * TO_RAD, radius));
 	    }
 	    return ll;
@@ -863,13 +863,13 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		// add the four corners
 		LocationList ll = new LocationList();
 		// corner 1 is azimuth p1 to p2 - 90 from p1
-		ll.addLocation(RelativeLocation.location(p1, az12-PI_BY_2, distance));
+		ll.add(RelativeLocation.location(p1, az12-PI_BY_2, distance));
 		// corner 2 is azimuth p1 to p2 + 90 from p1
-		ll.addLocation(RelativeLocation.location(p1, az12+PI_BY_2, distance));
+		ll.add(RelativeLocation.location(p1, az12+PI_BY_2, distance));
 		// corner 3 is azimuth p2 to p1 - 90 from p2
-		ll.addLocation(RelativeLocation.location(p2, az21-PI_BY_2, distance));
+		ll.add(RelativeLocation.location(p2, az21-PI_BY_2, distance));
 		// corner 4 is azimuth p2 to p1 + 90 from p2
-		ll.addLocation(RelativeLocation.location(p2, az21+PI_BY_2, distance));
+		ll.add(RelativeLocation.location(p2, az21+PI_BY_2, distance));
 		
 		return ll;
 	}

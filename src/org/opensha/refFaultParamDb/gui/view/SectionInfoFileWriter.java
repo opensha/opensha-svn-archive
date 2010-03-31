@@ -110,7 +110,7 @@ public class SectionInfoFileWriter implements Runnable {
 			faultTrace.getNumLocations()+"\n";
 		// write all the point on the fault section trace
 		for(int i=0; i<faultTrace.getNumLocations(); ++i)
-			str+=(float)faultTrace.getLocationAt(i).getLatitude()+"\t"+(float)faultTrace.getLocationAt(i).getLongitude()+"\n";
+			str+=(float)faultTrace.get(i).getLatitude()+"\t"+(float)faultTrace.get(i).getLongitude()+"\n";
 		return str;
 	}
 	

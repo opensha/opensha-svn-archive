@@ -762,9 +762,9 @@ public class RelativeLocationTest {
 		// LocationList llL9 = createLocList(L9a,L9b,0.001);
 		
 		LocationList LLtoUse = llL5;
-		Location startPt = LLtoUse.getLocationAt(0);
+		Location startPt = LLtoUse.get(0);
 		for (int i = 1; i < LLtoUse.size(); i++) {
-			Location endPt = LLtoUse.getLocationAt(i);
+			Location endPt = LLtoUse.get(i);
 			double surfDist = getHorzDistance(startPt, endPt);
 			double fastSurfDist = getApproxHorzDistance(startPt, endPt);
 			double delta1 = fastSurfDist - surfDist;
@@ -800,7 +800,7 @@ public class RelativeLocationTest {
 		double lon = L1.getLongitude();
 		for(int i=0; i<=numPoints; i++) {
 			//System.out.println(lat + " " + lon);
-			ll.addLocation(new Location(lat,lon));
+			ll.add(new Location(lat,lon));
 			lat += dLat;
 			lon += dLon;
 		}

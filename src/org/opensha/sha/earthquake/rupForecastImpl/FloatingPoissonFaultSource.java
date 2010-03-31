@@ -395,12 +395,12 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
 		int nRows = faultSurface.getNumRows();
 		int nCols = faultSurface.getNumCols();
 		LocationList faultCornerLocations = new LocationList();
-		faultCornerLocations.addLocation(faultSurface.getLocation(0,0));
-		faultCornerLocations.addLocation(faultSurface.getLocation(0,(int)(nCols/2)));
-		faultCornerLocations.addLocation(faultSurface.getLocation(0,nCols-1));
-		faultCornerLocations.addLocation(faultSurface.getLocation(nRows-1,nCols-1));
-		faultCornerLocations.addLocation(faultSurface.getLocation(nRows-1,(int)(nCols/2)));
-		faultCornerLocations.addLocation(faultSurface.getLocation(nRows-1,0));
+		faultCornerLocations.add(faultSurface.getLocation(0,0));
+		faultCornerLocations.add(faultSurface.getLocation(0,(int)(nCols/2)));
+		faultCornerLocations.add(faultSurface.getLocation(0,nCols-1));
+		faultCornerLocations.add(faultSurface.getLocation(nRows-1,nCols-1));
+		faultCornerLocations.add(faultSurface.getLocation(nRows-1,(int)(nCols/2)));
+		faultCornerLocations.add(faultSurface.getLocation(nRows-1,0));
 		sourceRegion = new Region(faultCornerLocations,BorderType.GREAT_CIRCLE);
 
 	}

@@ -238,8 +238,8 @@ public class GemComputeModel {
 	    int ii = 0;
 	    for (int i=0; i < locLst.size(); i++){
 	    	for (int j=0; i < locLst.get(i).size(); j++){
-	    		double lon = locLst.get(i).getLocationAt(j).getLongitude();
-	    		double lat = locLst.get(i).getLocationAt(j).getLatitude();
+	    		double lon = locLst.get(i).get(j).getLongitude();
+	    		double lat = locLst.get(i).get(j).getLatitude();
 	    		hazSite.add(ii,new Site(new Location(lat,lon)));
 	    		ii += 1;
 	    	}

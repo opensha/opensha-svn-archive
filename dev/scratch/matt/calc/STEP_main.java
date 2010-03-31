@@ -234,11 +234,11 @@ public class STEP_main {
 				 * make sure the locations involved equal to each other
 				 */
 				for(int k=0;k<bgRegionSize;++k){
-					bgLoc = bgLocList.getLocationAt(k);
+					bgLoc = bgLocList.get(k);
 					//log("bgLoc=" + bgLoc);
 					// ListIterator seqIt = forecastModel.getAfterShockZone().getGridLocationsIterator();
 					for(int g=0;g < asZoneSize;++g){
-						seqLoc = aftershockZoneList.getLocationAt(g);
+						seqLoc = aftershockZoneList.get(g);
 						//log(">>>> bgLoc == " + bgLoc.getLatitude() + "," + bgLoc.getLongitude()  + " seqLoc=" + seqLoc.getLatitude() + "," + seqLoc.getLongitude());
 						if (seqLoc != null){
 							if (bgGrid.checkLocaionEquals(bgLoc, seqLoc, RegionDefaults.gridPrecision)){//location check 1
@@ -555,7 +555,7 @@ public class STEP_main {
 			//log("hypoMagFreqDistSize " + hypoMagFreqDistSize);
 			//SitesInGriddedRectangularRegion region = (SitesInGriddedRectangularRegion)bgGrid.getEvenlyGriddedGeographicRegion();
 			for(int k=0;k <  bgRegionSize ;++k){
-				bgLoc = bgLocList.getLocationAt(k);
+				bgLoc = bgLocList.get(k);
 				//get the hypoMag for the location				
 				bgDistAtLoc = bggrid.getHypoMagFreqDistAtLoc(k); //k
 				//bgDistAtLoc = bgGrid.getHypoMagFreqDistAtLoc(index);

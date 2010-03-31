@@ -458,7 +458,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		// Surface trace location list
 		surfaceLocList = new LocationList();
 		for(int col=0; col<numCols; ++col) 
-			surfaceLocList.addLocation(sourceSurface.getLocation(0, col));
+			surfaceLocList.add(sourceSurface.getLocation(0, col));
 		// original slip rate
 		//this.getOrigSlipRateAlongFault();
 		// uncorrected slip rate
@@ -543,8 +543,8 @@ public class UnsegmentedSource extends ProbEqkSource {
 			//if(this.segmentData.getFaultName().equalsIgnoreCase("S. San Andreas") && isSlipRateCorrection)
 			// System.out.println(rupIndex+","+rupture.getMag()+","+slipRate);
 			ArbitrarilyDiscretizedFunc magBasedFunc = magFuncMap.get(rupture.getMag());
-			int index1 = this.surfaceLocList.getLocationIndex(rupSurface.getLocation(0, 0));
-			int index2 = this.surfaceLocList.getLocationIndex(rupSurface.getLocation(0, rupSurface.getNumCols()-1));
+			int index1 = this.surfaceLocList.indexOf(rupSurface.getLocation(0, 0));
+			int index2 = this.surfaceLocList.indexOf(rupSurface.getLocation(0, rupSurface.getNumCols()-1));
 			for(int col=index1; col<=index2; ++col) { // update the slip rates for this rupture
 				slipRateFunc.set(col, slipRateFunc.getY(col)+slipRate);
 				magBasedFunc.set(col, magBasedFunc.getY(col)+slipRate);
@@ -1080,8 +1080,8 @@ public class UnsegmentedSource extends ProbEqkSource {
 		// All fault trace locations
 		strBuffer.append(faultTrace.getNumLocations()+"\n");
 		for(int locIndex=0; locIndex<faultTrace.getNumLocations(); ++locIndex)
-			strBuffer.append(faultTrace.getLocationAt(locIndex).getLatitude()+"\t"+
-					faultTrace.getLocationAt(locIndex).getLongitude()+"\n");
+			strBuffer.append(faultTrace.get(locIndex).getLatitude()+"\t"+
+					faultTrace.get(locIndex).getLongitude()+"\n");
 		return strBuffer.toString();
 	}
 
@@ -1119,8 +1119,8 @@ public class UnsegmentedSource extends ProbEqkSource {
 		// All fault trace locations
 		strBuffer.append(faultTrace.getNumLocations()+"\n");
 		for(int locIndex=0; locIndex<faultTrace.getNumLocations(); ++locIndex)
-			strBuffer.append(faultTrace.getLocationAt(locIndex).getLatitude()+"\t"+
-					faultTrace.getLocationAt(locIndex).getLongitude()+"\n");
+			strBuffer.append(faultTrace.get(locIndex).getLatitude()+"\t"+
+					faultTrace.get(locIndex).getLongitude()+"\n");
 		return strBuffer.toString();
 	}
 
@@ -1376,8 +1376,8 @@ public class UnsegmentedSource extends ProbEqkSource {
 	 */
 	public static void main(String[] args) {
 		FaultTrace fltTr = new FaultTrace("name");
-		fltTr.addLocation(new Location(33.0,-122,0));
-		fltTr.addLocation(new Location(34.0,-122,0));
+		fltTr.add(new Location(33.0,-122,0));
+		fltTr.add(new Location(34.0,-122,0));
 		FrankelGriddedSurface surface = new FrankelGriddedSurface(fltTr,90,0,10,1);
 
 		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(6.5,3,0.5,6.5,7.5,1.0e14,1.0);
@@ -1407,7 +1407,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	public LocationList getAllSourceLocs() {
 		LocationList locList = new LocationList();
 		Iterator it = this.surface.getAllByRowsIterator();
-		while(it.hasNext()) locList.addLocation((Location)it.next());
+		while(it.hasNext()) locList.add((Location)it.next());
 		return locList;
 	}
 

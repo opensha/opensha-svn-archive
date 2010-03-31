@@ -202,12 +202,12 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
 
     // make the fault traces for the fault sources.
     faultTraceB = new FaultTrace("Fault B");
-    faultTraceB.addLocation(faultB_loc1);
-    faultTraceB.addLocation(faultB_loc2);
+    faultTraceB.add(faultB_loc1);
+    faultTraceB.add(faultB_loc2);
 
     faultTraceC = new FaultTrace("Fault C");
-    faultTraceC.addLocation(faultC_loc1);
-    faultTraceC.addLocation(faultC_loc2);
+    faultTraceC.add(faultC_loc1);
+    faultTraceC.add(faultC_loc2);
   }
 
   /**
@@ -239,7 +239,7 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
         		  new Location(LAT_CENTER,LONG_CENTER),
         		  new Location(lat,lon)) <= MAX_DISTANCE)
             for (double depth=depthUpper;depth<=depthLower;depth+=gridSpacing)
-                locationList.addLocation(new Location(lat,lon,depth));
+                locationList.add(new Location(lat,lon,depth));
 
       int numLocs = locationList.size();
 
@@ -305,7 +305,7 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
     int numSrc = this.getNumSources();
 
     if(iSource < numSrc-2 && iSource >= 0) {
-      pointPoissonEqkSource.setLocation(locationList.getLocationAt(iSource));
+      pointPoissonEqkSource.setLocation(locationList.get(iSource));
       return pointPoissonEqkSource;
     }
     else if(iSource == numSrc-2)

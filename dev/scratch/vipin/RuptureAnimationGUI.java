@@ -240,7 +240,7 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener,
       ArrayList nodesList = rupture.getNodesList();
       LocationList locList = new LocationList();
       for (int i = 0; i < nodesList.size(); ++i)
-        locList.addLocation( ( (Node) nodesList.get(i)).getLoc());
+        locList.add( ( (Node) nodesList.get(i)).getLoc());
         // add the location list to be plotted in JFreeChart
       addLocationListToPlot(locList, faultSectionCounter);
       addRendererForRupture(faultSectionCounter); // add renderer to ruptures
@@ -333,7 +333,7 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener,
             StringTokenizer tokenizer = new StringTokenizer(line,",");
             lat = Double.parseDouble(tokenizer.nextToken());
             lon = Double.parseDouble(tokenizer.nextToken());
-            locList.addLocation(new Location(lat,lon,0.0));
+            locList.add(new Location(lat,lon,0.0));
           }
         }
         line=br.readLine();
@@ -362,7 +362,7 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener,
       InvalidRangeException, ClassCastException, ArrayIndexOutOfBoundsException {
     GriddedSurface griddedSurface = new GriddedSurface(1, locList.size());
     for (int i = 0; i < locList.size(); ++i)
-      griddedSurface.setLocation(0, i, locList.getLocationAt(i));
+      griddedSurface.setLocation(0, i, locList.get(i));
     GriddedSurfaceXYDataSet griddedDataSet = new GriddedSurfaceXYDataSet(griddedSurface);
     if(index==0) plot.setDataset(griddedDataSet);
     else plot.setDataset(index-1, griddedDataSet);

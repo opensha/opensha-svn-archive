@@ -292,7 +292,7 @@ public class MakeB_FaultsTable {
 					tokenizer = new StringTokenizer(line);
 					latitude = Double.parseDouble(tokenizer.nextToken());
 					longitude =Double.parseDouble(tokenizer.nextToken());
-					faultTrace.addLocation(new Location(latitude, longitude));
+					faultTrace.add(new Location(latitude, longitude));
 				}		
 				sourceLengthMapping.put(faultName, faultTrace.getTraceLength());
 				sourceAreaMapping.put(faultName, faultTrace.getTraceLength()*downDipWidth);

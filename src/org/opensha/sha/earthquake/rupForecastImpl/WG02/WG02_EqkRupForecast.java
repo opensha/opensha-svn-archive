@@ -216,10 +216,10 @@ public class WG02_EqkRupForecast extends EqkRupForecast{
       back_GR_dist.scaleToCumRate(back_M1,back_N);
 // System.out.println("background: M1="+back_M1+"; M2="+back_M2+"; deltaM="+back_deltaMag+"; num="+back_num);
       LocationList locList = new LocationList();
-      locList.addLocation(new Location(37.19, -120.61, 0.0));
-      locList.addLocation(new Location(36.43, -122.09, 0.0));
-      locList.addLocation(new Location(38.23, -123.61, 0.0));
-      locList.addLocation(new Location(39.02, -122.08, 0.0));
+      locList.add(new Location(37.19, -120.61, 0.0));
+      locList.add(new Location(36.43, -122.09, 0.0));
+      locList.add(new Location(38.23, -123.61, 0.0));
+      locList.add(new Location(39.02, -122.08, 0.0));
       GriddedRegion gridReg = 
     	  new GriddedRegion(
     			  locList, BorderType.MERCATOR_LINEAR,0.1, new Location(0,0));
@@ -264,7 +264,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast{
         st = new StringTokenizer(it.next().toString());
         lon = new Double(st.nextToken()).doubleValue();
         lat = new Double(st.nextToken()).doubleValue();
-        faultTrace.addLocation(new Location(lat,lon));
+        faultTrace.add(new Location(lat,lon));
       }
 
       // reverse the order of point if it's the Mt Diable fault

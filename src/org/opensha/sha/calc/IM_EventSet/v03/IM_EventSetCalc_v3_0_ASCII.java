@@ -275,7 +275,7 @@ implements ParameterChangeWarningListener {
 		double lat = Double.parseDouble(st.nextToken().trim());
 		double lon = Double.parseDouble(st.nextToken().trim());
 		Location loc = new Location(lat,lon);
-		locList.addLocation(loc);
+		locList.add(loc);
 		ArrayList<SiteDataValue<?>> dataVals = new ArrayList<SiteDataValue<?>>();
 		String dataVal = null;
 		if(tokens == 3){
@@ -593,7 +593,7 @@ implements ParameterChangeWarningListener {
 	}
 
 	public Location getSiteLocation(int i) {
-		return locList.getLocationAt(i);
+		return locList.get(i);
 	}
 
 	public ArrayList<SiteDataValue<?>> getUserSiteDataValues(int i) {

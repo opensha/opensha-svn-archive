@@ -74,7 +74,7 @@ public class MeanSigmaCalcWithSiteEffectsProvided extends MeanSigmaCalc{
         double lat = Double.parseDouble(st.nextToken());
         double lon = Double.parseDouble(st.nextToken());
         String siteClass = st.nextToken();
-        locList.addLocation(new Location(lat,lon));
+        locList.add(new Location(lat,lon));
         willsClass.add(siteClass);
         if(lon > maxLon)
           maxLon = lon;

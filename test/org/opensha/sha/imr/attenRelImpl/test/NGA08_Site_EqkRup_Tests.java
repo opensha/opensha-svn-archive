@@ -111,8 +111,8 @@ public class NGA08_Site_EqkRup_Tests {
 		Location faultLoc1 = new Location(faultLat1,0.0,5.0);
 		Location faultLoc2 = new Location(faultLat2,0.0,5.0);
 		FaultTrace trace = new FaultTrace("test trace");
-		trace.addLocation(faultLoc1);
-		trace.addLocation(faultLoc2);
+		trace.add(faultLoc1);
+		trace.add(faultLoc2);
 		StirlingGriddedSurface surface = new StirlingGriddedSurface(trace, dip, upperSeisDepth, lowerSeisDepth, 0.1);
 //		System.out.println(surface.toString());
 		eqkRup = new EqkRupture();

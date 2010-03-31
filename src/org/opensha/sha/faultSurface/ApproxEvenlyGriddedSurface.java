@@ -56,9 +56,9 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 		this.gridSpacing = aveGridSpacing;
 
 		// check that the traces are both in the same order
-		Location firstUpperLoc = upperFaultTrace.getLocationAt(0);
-		Location firstLowerLoc = lowerFaultTrace.getLocationAt(0);
-		Location lastLowerLoc = lowerFaultTrace.getLocationAt(lowerFaultTrace.size()-1);
+		Location firstUpperLoc = upperFaultTrace.get(0);
+		Location firstLowerLoc = lowerFaultTrace.get(0);
+		Location lastLowerLoc = lowerFaultTrace.get(lowerFaultTrace.size()-1);
 		double firstFirstDist = RelativeLocation.getApproxHorzDistance(firstUpperLoc, firstLowerLoc);
 		double firstLastDist = RelativeLocation.getApproxHorzDistance(firstUpperLoc, lastLowerLoc);
 		if(firstLastDist < firstFirstDist) {
@@ -67,7 +67,7 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 		}
 
 		// Now check that Aki-Richards convention is adhered to (fault dips to right)
-		double dipDir = RelativeLocation.getAzimuth(upperFaultTrace.getLocationAt(0), lowerFaultTrace.getLocationAt(0));
+		double dipDir = RelativeLocation.getAzimuth(upperFaultTrace.get(0), lowerFaultTrace.get(0));
 		double strikeDir = upperFaultTrace.getStrikeDirection();
 		if((strikeDir-dipDir) <0 ||  (strikeDir-dipDir) > 180) {
 			upperFaultTrace.reverse();
@@ -89,8 +89,8 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 		// compute ave num columns
 		double aveDist=0;
 		for(int i=0; i<resampUpperTrace.size(); i++) {
-			Location topLoc = resampUpperTrace.getLocationAt(i);
-			Location botLoc = resampLowerTrace.getLocationAt(i);
+			Location topLoc = resampUpperTrace.get(i);
+			Location botLoc = resampLowerTrace.get(i);
 			aveDist += RelativeLocation.getTotalDistance(topLoc, botLoc);
 		}
 		aveDist /= resampUpperTrace.size();
@@ -102,8 +102,8 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 
 		// now set the surface locations
 		for(int c=0; c<resampUpperTrace.size(); c++) {
-			Location topLoc = resampUpperTrace.getLocationAt(c);
-			Location botLoc = resampLowerTrace.getLocationAt(c);
+			Location topLoc = resampUpperTrace.get(c);
+			Location botLoc = resampLowerTrace.get(c);
 			Direction dir = RelativeLocation.getDirection(topLoc, botLoc);
 			double horzIncr = dir.getHorzDistance()/(nRows-1);
 			double vertIncr = dir.getVertDistance()/(nRows-1);  // minus sign because vertDist is pos up and depth is pos down
@@ -123,14 +123,14 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 			//this.setLocation(nRows-1, c, botLoc);
 		}
 		
-		Location loc1 = resampLowerTrace.getLocationAt(resampLowerTrace.size()-1);
+		Location loc1 = resampLowerTrace.get(resampLowerTrace.size()-1);
 		Location loc2 = this.getLocation(numRows-1, numCols-1);
 		System.out.println("DeltaLat = "+ (float)((loc1.getLatitude()-loc2.getLatitude())*111));
 		System.out.println("DeltaLon = "+ (float)((loc1.getLongitude()-loc2.getLongitude())*111));
 		System.out.println("DeltaDepth = "+ (float)(loc1.getDepth()-loc2.getDepth()));
 
-		System.out.println(resampLowerTrace.getLocationAt(resampLowerTrace.size()-1).toString());
-		System.out.println(resampUpperTrace.getLocationAt(resampLowerTrace.size()-1).toString());
+		System.out.println(resampLowerTrace.get(resampLowerTrace.size()-1).toString());
+		System.out.println(resampUpperTrace.get(resampLowerTrace.size()-1).toString());
 
 	}
 	

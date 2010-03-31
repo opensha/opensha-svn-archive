@@ -202,7 +202,7 @@ public  class B_FaultsFetcher extends FaultsFetcher  implements java.io.Serializ
 				int numFaultTraceLocations = faultTrace.getNumLocations();
 				double upperSeisDepth = surface.getUpperSeismogenicDepth();
 				for(int j=0; j<numFaultTraceLocations; ++j) {
-					Location loc = faultTrace.getLocationAt(j);
+					Location loc = faultTrace.get(j);
 					fwTrace.write(loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+upperSeisDepth+"\n");
 				}
 			}

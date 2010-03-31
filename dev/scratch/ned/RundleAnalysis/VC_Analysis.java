@@ -398,13 +398,13 @@ public class VC_Analysis {
         lon = (seg_x_west[j]-x0)/(111.111*lonCorr) + lon0;
         lat = (seg_y_west[j]-y0)/111.111 + lat0;
         loc = new Location(lat, lon);
-        fault.addLocation(loc);
+        fault.add(loc);
       }
       // get the last point
       lon = (seg_x_east[lastIndex[i]]-x0)/(111.111*lonCorr) + lon0;
       lat = (seg_y_east[lastIndex[i]]-y0)/111.111 + lat0;
       loc = new Location(lat, lon);
-      fault.addLocation(loc);
+      fault.add(loc);
       faultList.add(fault);
     }
   }
@@ -419,7 +419,7 @@ public class VC_Analysis {
       trace = (FaultTrace) faultList.get(i);
       fw.write(trace.getName()+"\t"+trace.getNumLocations()+"\n");
       for(int j=0; j<trace.getNumLocations();j++) {
-        tempLoc = trace.getLocationAt(j);
+        tempLoc = trace.get(j);
         fw.write((float)tempLoc.getLongitude()+"\t"+(float)tempLoc.getLatitude()+"\n");
       }
     }

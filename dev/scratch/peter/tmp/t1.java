@@ -135,7 +135,7 @@ public class t1 extends EqkRupForecast {
 		    				if (matcher.find()) lat = Double.valueOf(strarr[0]).doubleValue();
 		    				matcher = FLOATNUM.matcher(strarr[1]);
 		    				if (matcher.find()) lon = Double.valueOf(strarr[1]).doubleValue();	
-		    				locList.addLocation(new Location(lat,lon));
+		    				locList.add(new Location(lat,lon));
 			    		}
 			    	}
 			    	finally {

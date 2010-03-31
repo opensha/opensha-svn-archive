@@ -181,7 +181,7 @@ public class WillsSiteClassCalculator extends SiteClassCalculator {
 	private LocationList convertToLocationList(ArrayList<Location> locations) {
 		LocationList list = new LocationList();
 		for(int i = 0; i < locations.size(); ++i) {
-			list.addLocation(locations.get(i));
+			list.add(locations.get(i));
 		}
 		return list;
 	}

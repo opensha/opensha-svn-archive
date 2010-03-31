@@ -92,14 +92,14 @@ public class CountObsInGrid {
 			// add the corner to a LocationList and create a Region
 			// so that we can see what events are inside the region.
 			gridCorner1 = new Location(gLat + RegionDefaults.gridSpacing/2,gLong + RegionDefaults.gridSpacing/2);
-			cellLoc.addLocationAt(gridCorner1,0);
+			cellLoc.add(0,gridCorner1);
 			gridCorner2 = new Location(gLat - RegionDefaults.gridSpacing/2,gLong + RegionDefaults.gridSpacing/2);
 			
-			cellLoc.addLocationAt(gridCorner2,1);
+			cellLoc.add(1,gridCorner2);
 			gridCorner3 = new Location(gLat - RegionDefaults.gridSpacing/2,gLong - RegionDefaults.gridSpacing/2);
-			cellLoc.addLocationAt(gridCorner3,2);
+			cellLoc.add(2,gridCorner3);
 			gridCorner4 = new Location(gLat + RegionDefaults.gridSpacing/2,gLong - RegionDefaults.gridSpacing/2);
-			cellLoc.addLocationAt(gridCorner4,3);
+			cellLoc.add(3,gridCorner4);
 			//this creates a Region that is the cell for Loc gLoop
 			Region gridRegion = new Region(cellLoc, BorderType.MERCATOR_LINEAR);
 			

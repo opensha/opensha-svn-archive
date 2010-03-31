@@ -49,26 +49,26 @@ public class FaultTraceUtils {
 		int numLocs = faultTrace.getNumLocations();
 		int index=0;
 		subSectionTraceList = new ArrayList<FaultTrace>();
-		Location prevLoc = faultTrace.getLocationAt(index);
+		Location prevLoc = faultTrace.get(index);
 		while(index<numLocs && subSectionTraceList.size()<numSubSections) {
 			FaultTrace subSectionTrace = new FaultTrace(faultTrace.getName()+" "+(subSectionTraceList.size()+1));
 			subSectionTraceList.add(subSectionTrace);
-			subSectionTrace.addLocation(prevLoc);
+			subSectionTrace.add(prevLoc);
 			++index;
 			distance = 0;
 			while(true && index<faultTrace.getNumLocations()) {
-				Location nextLoc = faultTrace.getLocationAt(index);
+				Location nextLoc = faultTrace.get(index);
 				distLocs = RelativeLocation.getApproxHorzDistance(prevLoc, nextLoc);
 				distance+= distLocs;
 				if(distance<subSecLength) { // if sub section length is greater than distance, then get next point on trace
 					prevLoc = nextLoc;
-					subSectionTrace.addLocation(prevLoc);
+					subSectionTrace.add(prevLoc);
 					++index;
 				} else {
 					Direction direction = RelativeLocation.getDirection(prevLoc, nextLoc);
 					direction.setHorzDistance(subSecLength-(distance-distLocs));
 					prevLoc = RelativeLocation.getLocation(prevLoc, direction);
-					subSectionTrace.addLocation(prevLoc);
+					subSectionTrace.add(prevLoc);
 					--index;
 					break;
 				}
@@ -90,12 +90,12 @@ public class FaultTraceUtils {
 	  public static FaultTrace resampleTrace(FaultTrace trace, int num) {
 		  double resampInt = trace.getTraceLength()/num;
 		  FaultTrace resampTrace = new FaultTrace("resampled "+trace.getName());
-		  resampTrace.addLocation(trace.getLocationAt(0));  // add the first location
+		  resampTrace.add(trace.get(0));  // add the first location
 		  double remainingLength = resampInt;
-		  Location lastLoc = trace.getLocationAt(0);
+		  Location lastLoc = trace.get(0);
 		  int NextLocIndex = 1;
 		  while (NextLocIndex < trace.size()) {
-			  Location nextLoc = trace.getLocationAt(NextLocIndex);
+			  Location nextLoc = trace.get(NextLocIndex);
 			  double length = RelativeLocation.getTotalDistance(lastLoc, nextLoc);
 			  if (length > remainingLength) {
 				  	// set the point
@@ -103,7 +103,7 @@ public class FaultTraceUtils {
 				  dir.setHorzDistance(dir.getHorzDistance()*remainingLength/length);
 				  dir.setVertDistance(dir.getVertDistance()*remainingLength/length);
 				  Location loc = RelativeLocation.getLocation(lastLoc, dir);
-				  resampTrace.addLocation(loc);
+				  resampTrace.add(loc);
 				  lastLoc = loc;
 				  remainingLength = resampInt;
 				  // Next location stays the same
@@ -115,8 +115,8 @@ public class FaultTraceUtils {
 		  }
 		  
 		  // make sure we got the last one (might be missed because of numerical precision issues?)
-		  double dist = RelativeLocation.getTotalDistance(trace.getLocationAt(trace.size()-1), resampTrace.getLocationAt(resampTrace.size()-1));
-		  if (dist> resampInt/2) resampTrace.addLocation(trace.getLocationAt(trace.size()-1));
+		  double dist = RelativeLocation.getTotalDistance(trace.get(trace.size()-1), resampTrace.get(resampTrace.size()-1));
+		  if (dist> resampInt/2) resampTrace.add(trace.get(trace.size()-1));
 
 		  /* Debugging Stuff *****************/
 /*

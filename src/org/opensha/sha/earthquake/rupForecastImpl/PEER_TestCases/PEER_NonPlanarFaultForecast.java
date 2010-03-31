@@ -224,32 +224,32 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast{
 
     // make the fault traces
     faultTraceAll = new FaultTrace("Non Planar Fault");
-    faultTraceAll.addLocation(traceLoc1);
-    faultTraceAll.addLocation(traceLoc2);
-    faultTraceAll.addLocation(traceLoc3);
-    faultTraceAll.addLocation(traceLoc4);
-    faultTraceAll.addLocation(traceLoc5);
-    faultTraceAll.addLocation(traceLoc6);
+    faultTraceAll.add(traceLoc1);
+    faultTraceAll.add(traceLoc2);
+    faultTraceAll.add(traceLoc3);
+    faultTraceAll.add(traceLoc4);
+    faultTraceAll.add(traceLoc5);
+    faultTraceAll.add(traceLoc6);
 
     faultTraceE = new FaultTrace("Non Planar Fault");
-    faultTraceE.addLocation(traceLoc1);
-    faultTraceE.addLocation(traceLoc2);
+    faultTraceE.add(traceLoc1);
+    faultTraceE.add(traceLoc2);
 
     faultTraceD = new FaultTrace("Non Planar Fault");
-    faultTraceD.addLocation(traceLoc2);
-    faultTraceD.addLocation(traceLoc3);
+    faultTraceD.add(traceLoc2);
+    faultTraceD.add(traceLoc3);
 
     faultTraceC = new FaultTrace("Non Planar Fault");
-    faultTraceC.addLocation(traceLoc3);
-    faultTraceC.addLocation(traceLoc4);
+    faultTraceC.add(traceLoc3);
+    faultTraceC.add(traceLoc4);
 
     faultTraceB = new FaultTrace("Non Planar Fault");
-    faultTraceB.addLocation(traceLoc4);
-    faultTraceB.addLocation(traceLoc5);
+    faultTraceB.add(traceLoc4);
+    faultTraceB.add(traceLoc5);
 
     faultTraceA = new FaultTrace("Non Planar Fault");
-    faultTraceA.addLocation(traceLoc5);
-    faultTraceA.addLocation(traceLoc6);
+    faultTraceA.add(traceLoc5);
+    faultTraceA.add(traceLoc6);
 
 
   }

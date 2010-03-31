@@ -396,16 +396,16 @@ public class ERF2RuptureForSTF_Generator {
      * Site List for Cybershake
      */
 
-    locList.addLocation(new Location(34.019200, -118.28600)); //USC
-    locList.addLocation(new Location(34.148427 , -118.17119)); //PAS
-    locList.addLocation(new Location(34.052041, -118.25713)); //LADT
-    locList.addLocation(new Location(33.754944 , -118.22300)); //LBP
-    locList.addLocation(new Location(34.041823 , -118.06530)); //WNGC
-    locList.addLocation(new Location(33.754111 , -117.86778)); //SABD
-    locList.addLocation(new Location(34.064986 , -117.29201)); //SBSM
-    locList.addLocation(new Location(34.336030 , -118.50862));//FFI
-    locList.addLocation(new Location(34.054884 , -118.41302));//CCP
-    locList.addLocation(new Location(34.009092 , -118.48939));//SMCA 
+    locList.add(new Location(34.019200, -118.28600)); //USC
+    locList.add(new Location(34.148427 , -118.17119)); //PAS
+    locList.add(new Location(34.052041, -118.25713)); //LADT
+    locList.add(new Location(33.754944 , -118.22300)); //LBP
+    locList.add(new Location(34.041823 , -118.06530)); //WNGC
+    locList.add(new Location(33.754111 , -117.86778)); //SABD
+    locList.add(new Location(34.064986 , -117.29201)); //SBSM
+    locList.add(new Location(34.336030 , -118.50862));//FFI
+    locList.add(new Location(34.054884 , -118.41302));//CCP
+    locList.add(new Location(34.009092 , -118.48939));//SMCA 
 
     //2nd set of sites for Cybershake
     //locList.addLocation(new Location(34.1977, -118.3566)); //Burbank Airport

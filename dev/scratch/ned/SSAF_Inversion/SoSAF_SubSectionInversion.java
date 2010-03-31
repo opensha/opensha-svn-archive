@@ -232,7 +232,7 @@ public class SoSAF_SubSectionInversion {
 				String line;
 //System.out.println(s+"\t"+Math.round(sectData.getAveLongTermSlipRate()));
 				for(int l = 0; l < perimLocs.size(); l += 1) {
-					Location loc = perimLocs.getLocationAt(l);
+					Location loc = perimLocs.get(l);
 					line = new String((float)loc.getLatitude()+"\t"+(float)loc.getLongitude()+"\t"+(float)-loc.getDepth()+"\n");
 					br1.write(line);
 					double thisLat = loc.getLatitude();
@@ -955,8 +955,8 @@ public class SoSAF_SubSectionInversion {
 			ArrayList list = faultSectionPrefData.getSubSectionsList(this.maxSubsectionLength);
 			// check to see if we need to reverse order the sections
 			FaultTrace tr = faultSectionPrefData.getFaultTrace();
-			double latFirst = tr.getLocationAt(0).getLatitude();
-			double latLast = tr.getLocationAt(tr.getNumLocations()-1).getLatitude();
+			double latFirst = tr.get(0).getLatitude();
+			double latLast = tr.get(tr.getNumLocations()-1).getLatitude();
 			if(latFirst>latLast)
 				subSectionList.addAll(list);
 			else // reverse order

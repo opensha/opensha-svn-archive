@@ -177,7 +177,7 @@ public class GriddedSurface extends Container2D
   public LocationList getLocationList() {
     LocationList locList = new LocationList();
     Iterator it = this.getLocationsIterator();
-    while (it.hasNext()) locList.addLocation( (Location) it.next());
+    while (it.hasNext()) locList.add( (Location) it.next());
     return locList;
   }
 
@@ -206,10 +206,10 @@ public class GriddedSurface extends Container2D
   /** get a list of locations that constitutes the perimeter (forst row, last col, last row, and first col) */
   public LocationList getSurfacePerimeterLocsList() {
 	  LocationList locList = new LocationList();
-	  for(int c=0;c<getNumCols();c++) locList.addLocation(getLocation(0, c));
-	  for(int r=0;r<getNumRows();r++) locList.addLocation(getLocation(r, getNumCols()-1));
-	  for(int c=getNumCols()-1;c>=0;c--) locList.addLocation(getLocation(getNumRows()-1, c));
-	  for(int r=getNumRows()-1;r>=0;r--) locList.addLocation(getLocation(r, 0));
+	  for(int c=0;c<getNumCols();c++) locList.add(getLocation(0, c));
+	  for(int r=0;r<getNumRows();r++) locList.add(getLocation(r, getNumCols()-1));
+	  for(int c=getNumCols()-1;c>=0;c--) locList.add(getLocation(getNumRows()-1, c));
+	  for(int r=getNumRows()-1;r>=0;r--) locList.add(getLocation(r, 0));
 	  return locList;
   }
 

@@ -105,7 +105,7 @@ public class FaultTrace extends LocationList implements NamedObjectAPI {
      * @return
      */
     public double getStrikeDirection() {
-    	return RelativeLocation.getAzimuth(getLocationAt(0), getLocationAt(size()-1));
+    	return RelativeLocation.getAzimuth(get(0), get(size()-1));
      }
 
     
@@ -139,7 +139,7 @@ public class FaultTrace extends LocationList implements NamedObjectAPI {
 		double minFaultTraceDist = Double.POSITIVE_INFINITY;
 		double dist;
 		for(int i=0; i<faultTrace.getNumLocations(); ++i) {
-			dist = getMinHorzDistToLine(faultTrace.getLocationAt(i));
+			dist = getMinHorzDistToLine(faultTrace.get(i));
 			if(dist<minFaultTraceDist) minFaultTraceDist = dist;
 		}
 		return minFaultTraceDist;
@@ -149,7 +149,7 @@ public class FaultTrace extends LocationList implements NamedObjectAPI {
     private final static String TAB = "  ";
     public String toString(){
 
-        StringBuffer b = new StringBuffer(C);
+        StringBuffer b = new StringBuffer("FaultTrace");
         b.append('\n');
         b.append(TAB + "Name = " + faultName);
 

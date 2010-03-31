@@ -109,7 +109,7 @@ public class PoissonAreaSource extends PointToLineSource implements java.io.Seri
 		// Create the ruptures  
 		for (int i=0; i<magFreqDists.length; i++) {
 			for (int j=0; j<gridReg.getNodeCount(); j++){	
-				Location loc = gridReg.getNodeList().getLocationAt(j);
+				Location loc = gridReg.getNodeList().get(j);
 				for (int k=0; k < magFreqDistsScld.length; k++){
 					for (int w=0; w < magFreqDistsScld[k].getNum(); w++){
 						double mag = magFreqDistsScld[k].getX(w);
@@ -196,7 +196,7 @@ public class PoissonAreaSource extends PointToLineSource implements java.io.Seri
 		// Create the ruptures  
 		for (int i=0; i<magFreqDists.length; i++) {
 			for (int j=0; j<gridReg.getNodeCount(); j++){
-				Location loc = gridReg.getNodeList().getLocationAt(j);
+				Location loc = gridReg.getNodeList().get(j);
 				mkAndAddRuptures(loc,magFreqDists[i], focalMechanisms[i], aveRupTopVersusMag, 
 					defaultHypoDepth, magScalingRel, lowerSeisDepth, duration, minMag, weights[j]);
 			}
@@ -258,7 +258,7 @@ public class PoissonAreaSource extends PointToLineSource implements java.io.Seri
 		for (int i=0; i<magFreqDists.length; i++) {
 			FocalMechanism focalMech = focalMechanisms[i].copy(); // COPY THIS
 			for (int j=0; j<gridReg.getNodeCount(); j++){
-				Location loc = gridReg.getNodeList().getLocationAt(j);
+				Location loc = gridReg.getNodeList().get(j);
 				for(int s=0;s<numStrikes;s++) {
 					focalMech.setStrike(strike[s]);
 					mkAndAddRuptures(loc,magFreqDists[i], focalMechanisms[i], aveRupTopVersusMag, 

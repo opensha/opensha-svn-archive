@@ -260,8 +260,8 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
       dir.setHorzDistance(dir.getHorzDistance()*2.0);
       loc2 = RelativeLocation.getLocation(loc1,dir);
       FaultTrace fault = new FaultTrace("");
-      fault.addLocation(loc1);
-      fault.addLocation(loc2);
+      fault.add(loc1);
+      fault.add(loc2);
       finiteFaultSurface1 = new FrankelGriddedSurface(fault,aveDip,depth,depth,1.0);
     
       // Make second surface for cross Hair option
@@ -274,8 +274,8 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
     	  dir.setHorzDistance(dir.getHorzDistance()*2.0);
     	  loc2 = RelativeLocation.getLocation(loc1,dir);
     	  fault = new FaultTrace("");
-    	  fault.addLocation(loc1);
-    	  fault.addLocation(loc2);
+    	  fault.add(loc1);
+    	  fault.add(loc2);
     	  finiteFaultSurface2 = new FrankelGriddedSurface(fault,aveDip,depth,depth,1.0);
       }
 
@@ -298,10 +298,10 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
     
     if(this.finiteFaultSurface2!=null) { 
     	Iterator<Location> it = finiteFaultSurface2.getLocationsIterator();
-    	while(it.hasNext()) locList.addLocation(it.next());
+    	while(it.hasNext()) locList.add(it.next());
     }
     
-    if(ptSurface!=null) locList.addLocation(ptSurface.getLocation());
+    if(ptSurface!=null) locList.add(ptSurface.getLocation());
     return locList;
   }
 

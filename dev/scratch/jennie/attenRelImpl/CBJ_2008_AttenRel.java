@@ -1102,8 +1102,8 @@ public class CBJ_2008_AttenRel
 	  Location loc1 = new Location(-0.1, 0.0, 0);
 	  Location loc2 = new Location(+0.1, 0.0, 0);
 	  FaultTrace faultTrace = new FaultTrace("test");
-	  faultTrace.addLocation(loc1);
-	  faultTrace.addLocation(loc2);	  
+	  faultTrace.add(loc1);
+	  faultTrace.add(loc2);	  
 	  StirlingGriddedSurface surface = new StirlingGriddedSurface(faultTrace, 45.0,0,10,1);
 	  EqkRupture rup = new EqkRupture();
 	  rup.setMag(7);

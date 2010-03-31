@@ -504,7 +504,7 @@ public class HazardMapJobCreator {
 
 		for (int i=startIndex; i<=endIndex; i++) {
 			try {
-				locs.addLocation(sites.getSite(i).getLocation());
+				locs.add(sites.getSite(i).getLocation());
 			} catch (RegionConstraintException e) {
 				e.printStackTrace();
 			}

@@ -91,7 +91,7 @@ public class WillsMap2000 extends AbstractSiteData<String> {
 		if (useServlet)
 			return servlet.getClosestLocation(loc);
 		LocationList locs = new LocationList();
-		locs.addLocation(loc);
+		locs.add(loc);
 		WillsSiteClass wills = new WillsSiteClass(locs, WillsSiteClass.WILLS_FILE);
 		wills.getWillsSiteClass();
 		return wills.getLastLocation();
@@ -133,7 +133,7 @@ public class WillsMap2000 extends AbstractSiteData<String> {
 		if (useServlet)
 			return servlet.getValue(loc);
 		LocationList locs = new LocationList();
-		locs.addLocation(loc);
+		locs.add(loc);
 		return getValues(locs).get(0);
 	}
 

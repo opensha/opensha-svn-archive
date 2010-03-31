@@ -98,10 +98,10 @@ public class PuenteHillsFaultERF extends EqkRupForecast{
     */
 
     // for the simpler, merged version
-    faultTrace.addLocation(new Location(33.8995+latIncr,-117.868,5.0));
-    faultTrace.addLocation(new Location(33.9122+latIncr,-118.029,5.0));
-    faultTrace.addLocation(new Location(33.9381+latIncr,-118.133,5.0));
-    faultTrace.addLocation(new Location(34.0200+latIncr,-118.308,5.0));
+    faultTrace.add(new Location(33.8995+latIncr,-117.868,5.0));
+    faultTrace.add(new Location(33.9122+latIncr,-118.029,5.0));
+    faultTrace.add(new Location(33.9381+latIncr,-118.133,5.0));
+    faultTrace.add(new Location(34.0200+latIncr,-118.308,5.0));
 
     if(D) System.out.println(this.NAME+" num fault trace points = "+ faultTrace.size());
     // make it dip exactly north

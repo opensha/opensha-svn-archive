@@ -5,6 +5,8 @@ package scratch.ned.URS;
 
 
 import java.util.ArrayList;
+
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.BooleanParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
@@ -277,14 +279,14 @@ public class URS_MeanUCERF2 extends MeanUCERF2 {
 		santaSusanaData.setAseismicSlipFactor(0.0);
 		santaSusanaData.setDipDirection((float)8.9989805);
 		FaultTrace trace = new FaultTrace(null);
-		trace.addLocation(34.32418, -118.49553, 0.0);
-		trace.addLocation(34.30532, -118.52319, 0.0);
-		trace.addLocation(34.30029, -118.54583, 0.0);
-		trace.addLocation(34.32041, -118.58105, 0.0);
-		trace.addLocation(34.32292, -118.61626, 0.0);
-		trace.addLocation(34.33298, -118.63386, 0.0);
-		trace.addLocation(34.35059, -118.70806, 0.0);
-		trace.addLocation(34.35939, -118.76715, 0.0);
+		trace.add(new Location(34.32418, -118.49553, 0.0));
+		trace.add(new Location(34.30532, -118.52319, 0.0));
+		trace.add(new Location(34.30029, -118.54583, 0.0));
+		trace.add(new Location(34.32041, -118.58105, 0.0));
+		trace.add(new Location(34.32292, -118.61626, 0.0));
+		trace.add(new Location(34.33298, -118.63386, 0.0));
+		trace.add(new Location(34.35059, -118.70806, 0.0));
+		trace.add(new Location(34.35939, -118.76715, 0.0));
 		santaSusanaData.setFaultTrace(trace);
 		
 
@@ -332,24 +334,24 @@ public class URS_MeanUCERF2 extends MeanUCERF2 {
 		sierraMadreData.setAseismicSlipFactor(0.0);
 		sierraMadreData.setDipDirection((float)18.630968);
 		FaultTrace trace2 = new FaultTrace(null);
-		trace2.addLocation(34.1231, -117.74, 0.0);
-		trace2.addLocation(34.1219, -117.755, 0.0);
-		trace2.addLocation(34.1317, -117.769, 0.0);
-		trace2.addLocation(34.1305, -117.807, 0.0);
-		trace2.addLocation(34.1323, -117.818, 0.0);
-		trace2.addLocation(34.1587, -117.86, 0.0);
-		trace2.addLocation(34.147, -117.881, 0.0);
-		trace2.addLocation(34.1501, -117.94, 0.0);
-		trace2.addLocation(34.1611, -117.985, 0.0);
-		trace2.addLocation(34.1752, -118.003, 0.0);
-		trace2.addLocation(34.1758, -118.068, 0.0);
-		trace2.addLocation(34.201, -118.112, 0.0);
-		trace2.addLocation(34.2028, -118.149, 0.0);
-		trace2.addLocation(34.21074, -118.18902, 0.0);
-		trace2.addLocation(34.23489, -118.22268, 0.0);
-		trace2.addLocation(34.24946, -118.26234, 0.0);
-		trace2.addLocation(34.25849, -118.27932, 0.0);
-		trace2.addLocation(34.2751, -118.29, 0.0);
+		trace2.add(new Location(34.1231, -117.74, 0.0));
+		trace2.add(new Location(34.1219, -117.755, 0.0));
+		trace2.add(new Location(34.1317, -117.769, 0.0));
+		trace2.add(new Location(34.1305, -117.807, 0.0));
+		trace2.add(new Location(34.1323, -117.818, 0.0));
+		trace2.add(new Location(34.1587, -117.86, 0.0));
+		trace2.add(new Location(34.147, -117.881, 0.0));
+		trace2.add(new Location(34.1501, -117.94, 0.0));
+		trace2.add(new Location(34.1611, -117.985, 0.0));
+		trace2.add(new Location(34.1752, -118.003, 0.0));
+		trace2.add(new Location(34.1758, -118.068, 0.0));
+		trace2.add(new Location(34.201, -118.112, 0.0));
+		trace2.add(new Location(34.2028, -118.149, 0.0));
+		trace2.add(new Location(34.21074, -118.18902, 0.0));
+		trace2.add(new Location(34.23489, -118.22268, 0.0));
+		trace2.add(new Location(34.24946, -118.26234, 0.0));
+		trace2.add(new Location(34.25849, -118.27932, 0.0));
+		trace2.add(new Location(34.2751, -118.29, 0.0));
 		sierraMadreData.setFaultTrace(trace2);
 		
 
@@ -386,13 +388,13 @@ public class URS_MeanUCERF2 extends MeanUCERF2 {
 		sierraMadreSanFernData.setAseismicSlipFactor(0.0);
 		sierraMadreSanFernData.setDipDirection((float)9.279146);
 		FaultTrace trace3 = new FaultTrace(null);
-		trace3.addLocation(34.2782, -118.2951, 0.0);
-		trace3.addLocation(34.27452, -118.31963, 0.0);
-		trace3.addLocation(34.29046, -118.39563, 0.0);
-		trace3.addLocation(34.30394, -118.41894, 0.0);
-		trace3.addLocation(34.30272, -118.43365, 0.0);
-		trace3.addLocation(34.29291, -118.46185, 0.0);
-		trace3.addLocation(34.30272, -118.47778, 0.0);
+		trace3.add(new Location(34.2782, -118.2951, 0.0));
+		trace3.add(new Location(34.27452, -118.31963, 0.0));
+		trace3.add(new Location(34.29046, -118.39563, 0.0));
+		trace3.add(new Location(34.30394, -118.41894, 0.0));
+		trace3.add(new Location(34.30272, -118.43365, 0.0));
+		trace3.add(new Location(34.29291, -118.46185, 0.0));
+		trace3.add(new Location(34.30272, -118.47778, 0.0));
 		sierraMadreSanFernData.setFaultTrace(trace3);
 
 		
@@ -429,13 +431,13 @@ public class URS_MeanUCERF2 extends MeanUCERF2 {
 		verdugoData.setAseismicSlipFactor(0.0);
 		verdugoData.setDipDirection((float)30.52965);
 		FaultTrace trace4 = new FaultTrace(null);
-		trace4.addLocation(34.13131, -118.15357, 0.0);
-		trace4.addLocation(34.1496, -118.18648, 0.0);
-		trace4.addLocation(34.15508, -118.22854, 0.0);
-		trace4.addLocation(34.19714, -118.29071, 0.0);
-		trace4.addLocation(34.22274, -118.36569, 0.0);
-		trace4.addLocation(34.25383, -118.40775, 0.0);
-		trace4.addLocation(34.26115, -118.42055, 0.0);
+		trace4.add(new Location(34.13131, -118.15357, 0.0));
+		trace4.add(new Location(34.1496, -118.18648, 0.0));
+		trace4.add(new Location(34.15508, -118.22854, 0.0));
+		trace4.add(new Location(34.19714, -118.29071, 0.0));
+		trace4.add(new Location(34.22274, -118.36569, 0.0));
+		trace4.add(new Location(34.25383, -118.40775, 0.0));
+		trace4.add(new Location(34.26115, -118.42055, 0.0));
 		verdugoData.setFaultTrace(trace4);
 
 	}

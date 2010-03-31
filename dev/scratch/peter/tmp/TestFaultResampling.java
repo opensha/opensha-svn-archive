@@ -13,12 +13,12 @@ public class TestFaultResampling {
 		// taken from USGS subduction fault model (pa.sub100n.new.in)
 		FaultTrace trace = new FaultTrace("Panama");
 		
-		trace.addLocation(new Location(9.75,-82.91,10));
-		trace.addLocation(new Location(9.66,-82.79,10));
-		trace.addLocation(new Location(9.33,-82.25,7));
-		trace.addLocation(new Location(9.24,-80.05,35));
-		trace.addLocation(new Location(9.09,-79.10,48));
-		trace.addLocation(new Location(8.00,-77.00,37));
+		trace.add(new Location(9.75,-82.91,10));
+		trace.add(new Location(9.66,-82.79,10));
+		trace.add(new Location(9.33,-82.25,7));
+		trace.add(new Location(9.24,-80.05,35));
+		trace.add(new Location(9.09,-79.10,48));
+		trace.add(new Location(8.00,-77.00,37));
 		
     	// get resampled traces
 		FaultTrace resampTrace = FaultTraceUtils.resampleTrace(trace, 10);
@@ -26,13 +26,13 @@ public class TestFaultResampling {
 		  // write out each to check
 		  System.out.println("RESAMPLED");
 		  for(int i=0; i<resampTrace.size(); i++) {
-			  Location l = resampTrace.getLocationAt(i);
+			  Location l = resampTrace.get(i);
 			  System.out.println(l.getLatitude()+"\t"+l.getLongitude()+"\t"+l.getDepth());
 		  }
 
 		  System.out.println("ORIGINAL");
 		  for(int i=0; i<trace.size(); i++) {
-			  Location l = trace.getLocationAt(i);
+			  Location l = trace.get(i);
 			  System.out.println(l.getLatitude()+"\t"+l.getLongitude()+"\t"+l.getDepth());
 		  }
 	

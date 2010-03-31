@@ -152,7 +152,7 @@ public class DeformationModelFileWriter implements Runnable {
 		colIndex= 0;
 		row.createCell((short)colIndex).setCellValue(faultSectionPrefData.getSectionName());
 		++colIndex;
-		double strike = RelativeLocation.getDirection(faultTrace.getLocationAt(0), faultTrace.getLocationAt(numLocations-1)).getAzimuth();
+		double strike = RelativeLocation.getDirection(faultTrace.get(0), faultTrace.get(numLocations-1)).getAzimuth();
 		row.createCell((short)colIndex).setCellValue(strike);
 		++colIndex;
 		row.createCell((short)colIndex).setCellValue(getValue(faultSectionPrefData.getAveDip()));
@@ -176,7 +176,7 @@ public class DeformationModelFileWriter implements Runnable {
 		
 		row.createCell((short)colIndex).setCellValue(numLocations);
 		for(int i=0; i<numLocations; ++i) {
-			Location loc = faultTrace.getLocationAt(i);
+			Location loc = faultTrace.get(i);
 			++colIndex;
 			row.createCell((short)colIndex).setCellValue(loc.getLatitude());
 			++colIndex;
@@ -219,7 +219,7 @@ public class DeformationModelFileWriter implements Runnable {
 			faultTrace.getNumLocations()+"\n";
 		// write all the point on the fault section trace
 		for(int i=0; i<faultTrace.getNumLocations(); ++i)
-			str+=(float)faultTrace.getLocationAt(i).getLatitude()+"\t"+(float)faultTrace.getLocationAt(i).getLongitude()+"\n";
+			str+=(float)faultTrace.get(i).getLatitude()+"\t"+(float)faultTrace.get(i).getLongitude()+"\n";
 		return str;
 	}
 	

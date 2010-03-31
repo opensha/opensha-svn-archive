@@ -222,8 +222,8 @@ public class PutCombinedInfoIntoDatabase_FAD {
 					fadPaleoSite.setFaultSectionNameId(faultSectionSummary.getSectionName(), faultSectionSummary.getSectionId());
 
 					FaultSectionData faultSection = this.faultSectionDAO.getFaultSection(fadPaleoSite.getFaultSectionId());
-					Location loc1 = faultSection.getFaultTrace().getLocationAt(0);
-					Location loc2 = faultSection.getFaultTrace().getLocationAt(faultSection.getFaultTrace().getNumLocations()-1);
+					Location loc1 = faultSection.getFaultTrace().get(0);
+					Location loc2 = faultSection.getFaultTrace().get(faultSection.getFaultTrace().getNumLocations()-1);
 					fadPaleoSite.setSiteLat1((float)loc1.getLatitude());
 					fadPaleoSite.setSiteLat2((float)loc2.getLatitude());
 					fadPaleoSite.setSiteLon1((float)loc1.getLongitude());

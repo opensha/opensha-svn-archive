@@ -98,14 +98,14 @@ public class RegionTest {
 	@BeforeClass
 	public static void setUp() {
 		octRegionList = new LocationList();
-		octRegionList.addLocation(new Location(25,-115));
-		octRegionList.addLocation(new Location(25,-110));
-		octRegionList.addLocation(new Location(30,-105));
-		octRegionList.addLocation(new Location(35,-105));
-		octRegionList.addLocation(new Location(40,-110));
-		octRegionList.addLocation(new Location(40,-115));
-		octRegionList.addLocation(new Location(35,-120));
-		octRegionList.addLocation(new Location(30,-120));
+		octRegionList.add(new Location(25,-115));
+		octRegionList.add(new Location(25,-110));
+		octRegionList.add(new Location(30,-105));
+		octRegionList.add(new Location(35,-105));
+		octRegionList.add(new Location(40,-110));
+		octRegionList.add(new Location(40,-115));
+		octRegionList.add(new Location(35,-120));
+		octRegionList.add(new Location(30,-120));
 		octRegion  = new Region(octRegionList, null);
 		
 		Location a = new Location(39,-117);
@@ -118,10 +118,10 @@ public class RegionTest {
 		smRectRegion2 = new Region(a,b);
 
 		LocationList ll = new LocationList();
-		ll.addLocation(new Location(40,-116));
-		ll.addLocation(new Location(40,-112));
-		ll.addLocation(new Location(42,-112));
-		ll.addLocation(new Location(42,-116));
+		ll.add(new Location(40,-116));
+		ll.add(new Location(40,-112));
+		ll.add(new Location(42,-112));
+		ll.add(new Location(42,-116));
 		smRectRegion3 = new Region(ll, BorderType.MERCATOR_LINEAR);
 
 		a = new Location(35,-125);
@@ -129,10 +129,10 @@ public class RegionTest {
 		lgRectRegion = new Region(a,b);
 		
 		ll = new LocationList();
-		ll.addLocation(new Location(35,-125));
-		ll.addLocation(new Location(35,-105));
-		ll.addLocation(new Location(45,-105));
-		ll.addLocation(new Location(45,-125));
+		ll.add(new Location(35,-125));
+		ll.add(new Location(35,-105));
+		ll.add(new Location(45,-105));
+		ll.add(new Location(45,-125));
 		lgRectMercRegion = new Region(ll, BorderType.MERCATOR_LINEAR);
 		lgRectGCRegion = new Region(ll, BorderType.GREAT_CIRCLE);
 
@@ -142,10 +142,10 @@ public class RegionTest {
 		smCircRegion = new Region(smCenter, 100);
 		
 		ll = new LocationList();
-		ll.addLocation(new Location(35,-125));
-		ll.addLocation(new Location(42,-119));
-		ll.addLocation(new Location(40,-113));
-		ll.addLocation(new Location(45,-105));
+		ll.add(new Location(35,-125));
+		ll.add(new Location(42,-119));
+		ll.add(new Location(40,-113));
+		ll.add(new Location(45,-105));
 		buffRegion = new Region(ll,100);
 		
 		// unions and intersections
@@ -190,7 +190,7 @@ public class RegionTest {
 		// region creation tests
 		LocationList ll1 = smRectRegion1.getBorder();
 		LocationList ll2 = createLocList(regionLocLocDat);
-		assertTrue(ll1.compareTo(ll2) == 0);
+		assertTrue(ll1.equals(ll2));
 		
 		// test that addition of additional N and E offset for insidedness
 		// testing is not applied to borders at 90N and 180E
@@ -200,10 +200,10 @@ public class RegionTest {
 		Location L7 = new Location(80,180);
 		Region r1 = new Region(L4, L6);
 		LocationList locList1 = new LocationList();
-		locList1.addLocation(L4);
-		locList1.addLocation(L5);
-		locList1.addLocation(L6);
-		locList1.addLocation(L7);
+		locList1.add(L4);
+		locList1.add(L5);
+		locList1.add(L6);
+		locList1.add(L7);
 		Region r2 = new Region(locList1, BorderType.MERCATOR_LINEAR);
 		assertTrue(r1.equals(r2));
 		
@@ -214,10 +214,10 @@ public class RegionTest {
 		Location L11 = new Location(80,179);
 		Region r3 = new Region(L8, L10);
 		LocationList locList2 = new LocationList();
-		locList2.addLocation(L8);
-		locList2.addLocation(L9);
-		locList2.addLocation(L10);
-		locList2.addLocation(L11);
+		locList2.add(L8);
+		locList2.add(L9);
+		locList2.add(L10);
+		locList2.add(L11);
 		Region r4 = new Region(locList2, BorderType.MERCATOR_LINEAR);
 		assertTrue(!r3.equals(r4));
 		
@@ -256,25 +256,25 @@ public class RegionTest {
 		
 		// too short location list
 		ll = new LocationList();
-		ll.addLocation(new Location(35,-125));
-		ll.addLocation(new Location(35,-75));
+		ll.add(new Location(35,-125));
+		ll.add(new Location(35,-75));
 		try {
 			Region r = new Region(ll, null);
 			fail("Location list too short  not caught");
 		} catch (IllegalArgumentException iae) {}
 		
 		// check that start point repeated at end of list is removed
-		ll.addLocation(new Location(45,-75));
-		ll.addLocation(new Location(35,-125));
+		ll.add(new Location(45,-75));
+		ll.add(new Location(35,-125));
 		Region rectRegionStartRepeat = new Region(ll, null);
 		assertTrue("Repeated start point not clipped",
 				rectRegionStartRepeat.getBorder().size() == 3);
 
 		// no-area location list
 		ll = new LocationList();
-		ll.addLocation(new Location(35,-125));
-		ll.addLocation(new Location(35,-124));
-		ll.addLocation(new Location(35,-123));
+		ll.add(new Location(35,-125));
+		ll.add(new Location(35,-124));
+		ll.add(new Location(35,-123));
 		try {
 			Region r = new Region(ll, null);
 			fail("Empty Region not caught");
@@ -282,10 +282,10 @@ public class RegionTest {
 			
 		// non-singular location list
 		ll = new LocationList();
-		ll.addLocation(new Location(35,-125));
-		ll.addLocation(new Location(35,-124));
-		ll.addLocation(new Location(36,-125));
-		ll.addLocation(new Location(36,-124));
+		ll.add(new Location(35,-125));
+		ll.add(new Location(35,-124));
+		ll.add(new Location(36,-125));
+		ll.add(new Location(36,-124));
 		try {
 			Region r = new Region(ll, null);
 			fail("Non-singular Region not caught");
@@ -294,11 +294,11 @@ public class RegionTest {
 		// region creation test
 		LocationList ll1 = lgRectMercRegion.getBorder();
 		LocationList ll2 = createLocList(regionLocListMercatorDat);
-		assertTrue(ll1.compareTo(ll2) == 0);
+		assertTrue(ll1.equals(ll2));
 		
 		ll1 = lgRectGCRegion.getBorder();
 		ll2 = createLocList(regionLocListGreatCircleDat);
-		assertTrue(ll1.compareTo(ll2) == 0);
+		assertTrue(ll1.equals(ll2));
 	}
 
 	@Test
@@ -323,7 +323,7 @@ public class RegionTest {
 		// region creation test
 		LocationList ll1 = circRegion.getBorder();
 		LocationList ll2 = createLocList(regionCircularDat);
-		assertTrue(ll1.compareTo(ll2) == 0);
+		assertTrue(ll1.equals(ll2));
 	}
 
 	@Test
@@ -333,7 +333,7 @@ public class RegionTest {
 			Region gr = new Region(ll, 50);
 			fail("Empty location list not caught");
 		} catch (IllegalArgumentException iae) {}
-		ll.addLocation(new Location(0,0,0));
+		ll.add(new Location(0,0,0));
 		try {
 			Region gr = new Region(ll, 501);
 			fail("Buffer too high not caught");
@@ -351,7 +351,7 @@ public class RegionTest {
 		// region creation test
 		LocationList ll1 = buffRegion.getBorder();
 		LocationList ll2 = createLocList(regionBufferDat);
-		assertTrue(ll1.compareTo(ll2) == 0);
+		assertTrue(ll1.equals(ll2));
 	}
 
 	@Test
@@ -361,19 +361,16 @@ public class RegionTest {
 		assertTrue(newCircle.equals(circRegion)); // just tests areas
 		// also test transfer of name and border data
 		assertTrue(newCircle.getName().equals(circRegion.getName()));
-		assertTrue(newCircle.getBorder().compareTo(
-				circRegion.getBorder()) == 0);
+		assertTrue(newCircle.getBorder().equals(circRegion.getBorder()));
 		// test that interior gets transferred
 		Region newInterior = new Region(interiorRegion);
 		assertTrue(newInterior.equals(interiorRegion)); // just tests areas
-		assertTrue(newInterior.getBorder().compareTo(
-				interiorRegion.getBorder()) == 0);
+		assertTrue(newInterior.getBorder().equals(interiorRegion.getBorder()));
 		// test that locList interiors match
 		List<LocationList> newInteriors = newInterior.getInteriors();
 		List<LocationList> interiors = interiorRegion.getInteriors();
 		for (int i=0; i<newInteriors.size(); i++) {
-			assertTrue(newInteriors.get(i).compareTo(
-					interiors.get(i)) == 0);
+			assertTrue(newInteriors.get(i).equals(interiors.get(i)));
 		}
 		
 		// null case
@@ -518,10 +515,10 @@ public class RegionTest {
 	public final void testGetInteriors() {
 		assertTrue(octRegion.getInteriors() == null);
 		assertTrue(interiorRegion.getInteriors() != null);
-		assertTrue(interiorRegion.getInteriors().get(0).compareTo(
-				smRectRegion3.getBorder()) == 0);
-		assertTrue(interiorRegion.getInteriors().get(1).compareTo(
-				smCircRegion.getBorder()) == 0);
+		assertTrue(interiorRegion.getInteriors().get(0).equals(
+				smRectRegion3.getBorder()));
+		assertTrue(interiorRegion.getInteriors().get(1).equals(
+				smCircRegion.getBorder()));
 
 		// test immutability of List
 		try {
@@ -536,7 +533,7 @@ public class RegionTest {
 	public final void testGetBorder() {
 		// test border is correct
 		// TODO use equals when implemented
-		assertTrue(octRegionList.compareTo(octRegion.getBorder()) == 0);
+		assertTrue(octRegionList.equals(octRegion.getBorder()));
 		
 		fail("Not yet implemented: immutability of outer border");
 	}
@@ -617,7 +614,7 @@ public class RegionTest {
 		// partial overlap
 		ll1 = circLgRectIntersect.getBorder();
 		ll2 = createLocList(regionCircRectIntersectDat);
-		assertTrue(ll1.compareTo(ll2) == 0);
+		assertTrue(ll1.equals(ll2));
 		// full overlap - this could be tested by matching a statically 
 		// defined region using getRegionOutline(), however, Area operations
 		// have a tendency to change the winding direction of border in which
@@ -625,7 +622,7 @@ public class RegionTest {
 		// the borders polygons are the same
 		ll1 = smRectLgRectIntersect.getBorder();
 		ll2 = createLocList(regionSmRectLgRectIntersectDat);
-		assertTrue(ll1.compareTo(ll2) == 0);
+		assertTrue(ll1.equals(ll2));
 		
 		// no overlap
 		assertTrue(circSmRectIntersect == null);
@@ -647,7 +644,7 @@ public class RegionTest {
 		// partial overlap
 		ll1 = circLgRectUnion.getBorder();
 		ll2 = createLocList(regionCircRectUnionDat);
-		assertTrue(ll1.compareTo(ll2) == 0);
+		assertTrue(ll1.equals(ll2));
 		// full overlap - this could be tested by matching a statically 
 		// defined region using getRegionOutline(), however, Area operations
 		// have a tendency to change the winding direction of border in which
@@ -655,7 +652,7 @@ public class RegionTest {
 		// the borders polygons are the same
 		ll1 = smRectLgRectUnion.getBorder();
 		ll2 = createLocList(regionSmRectLgRectUnionDat);
-		assertTrue(ll1.compareTo(ll2) == 0);
+		assertTrue(ll1.equals(ll2));
 		// no overlap
 		assertTrue(circSmRectUnion == null);
 	}
@@ -665,7 +662,7 @@ public class RegionTest {
 		LocationList locList = new LocationList();
 		for (int i=0; i<data.length; i+=3) {
 			Location loc = new Location(data[i+1], data[i], data[i+2]);
-			locList.addLocation(loc);
+			locList.add(loc);
 		}
 		return locList;
 	}

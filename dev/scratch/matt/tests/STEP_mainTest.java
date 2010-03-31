@@ -234,7 +234,7 @@ public class STEP_mainTest extends TestCase {
 		assertEquals( "hypList has same size as bgLocList", bgRegionSize, hypList.size());
 
 		for(int k=0;k < bgRegionSize;++k){
-			Location bgLoc = bgLocList.getLocationAt(k);		    	 
+			Location bgLoc = bgLocList.get(k);		    	 
 			//log("loc index " + k);
 			//log("bgLoc " + bgLoc.toString());		    	
 			HypoMagFreqDistAtLoc hypoMagDistAtLoc= hypList.get(k);

@@ -63,7 +63,7 @@ public class CyberShakeProbEqkSource extends ProbEqkSource {
 		double minDistance = Double.MAX_VALUE;
 		
 		for (int i=0; i<locs.size(); i++) {
-			Location loc = locs.getLocationAt(i);
+			Location loc = locs.get(i);
 			
 			double dist = RelativeLocation.getHorzDistance(loc, site.getLocation());
 			

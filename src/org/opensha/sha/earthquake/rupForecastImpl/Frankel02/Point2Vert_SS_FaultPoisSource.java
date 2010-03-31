@@ -185,8 +185,8 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
       dir.setHorzDistance(dir.getHorzDistance()*2.0);
       loc2 = RelativeLocation.getLocation(loc1,dir);
       FaultTrace fault = new FaultTrace("");
-      fault.addLocation(loc1);
-      fault.addLocation(loc2);
+      fault.add(loc1);
+      fault.add(loc2);
       finiteFault = new FrankelGriddedSurface(fault,aveDip,loc.getDepth(),loc.getDepth(),1.0);
    }
   }

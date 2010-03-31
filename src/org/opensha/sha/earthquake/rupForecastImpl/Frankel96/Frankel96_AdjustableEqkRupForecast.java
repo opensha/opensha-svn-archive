@@ -338,7 +338,7 @@ public class Frankel96_AdjustableEqkRupForecast
         }
 
         Location loc = new Location(lat, lon, upperSeismoDepth);
-        faultTrace.addLocation(loc.clone());
+        faultTrace.add(loc.clone());
       }
 
       // reverse data ordering if dip negative, make positive and reverse trace order

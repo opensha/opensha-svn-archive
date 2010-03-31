@@ -56,7 +56,7 @@ public class SiteDataToXYZ {
 		LocationList locs = region.getNodeList();
 		ArrayList<?> vals = data.getValues(locs);
 		for (int i=0; i<locs.size(); i++) {
-			Location loc = locs.getLocationAt(i);
+			Location loc = locs.get(i);
 			String str;
 			if (latFirst)
 				str = loc.getLatitude() + "\t" + loc.getLongitude() + "\t";

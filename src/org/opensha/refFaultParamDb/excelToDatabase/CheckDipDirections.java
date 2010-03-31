@@ -28,8 +28,8 @@ public class CheckDipDirections {
 		for(int i=0; i<faultSectionPrefDataList.size(); ++i) {
 			FaultSectionPrefData faultSectionPrefData = faultSectionPrefDataList.get(i);
 			FaultTrace faultSectionTrace = faultSectionPrefData.getFaultTrace();
-			double dipDirectionFromOpenSHA = 90+RelativeLocation.getDirection(faultSectionTrace.getLocationAt(0),
-					faultSectionTrace.getLocationAt(faultSectionTrace.getNumLocations()-1)).getAzimuth();
+			double dipDirectionFromOpenSHA = 90+RelativeLocation.getDirection(faultSectionTrace.get(0),
+					faultSectionTrace.get(faultSectionTrace.getNumLocations()-1)).getAzimuth();
 			if(dipDirectionFromOpenSHA<0) dipDirectionFromOpenSHA+=360;
 			else if(dipDirectionFromOpenSHA>360) dipDirectionFromOpenSHA-=360;
 			System.out.println(faultSectionPrefData.getSectionId()+"\t"+dipDirectionFromOpenSHA+"\t"+faultSectionPrefData.getSectionName());

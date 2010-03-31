@@ -46,11 +46,11 @@ public class SiteDataProvidersTest {
 	private LocationList locs = new LocationList();
 	
 	public SiteDataProvidersTest() {
-		locs.addLocation(loc1);
-		locs.addLocation(loc2);
-		locs.addLocation(loc3);
-		locs.addLocation(loc4);
-		locs.addLocation(loc5);
+		locs.add(loc1);
+		locs.add(loc2);
+		locs.add(loc3);
+		locs.add(loc4);
+		locs.add(loc5);
 	}
 	
 	private void testProv(SiteDataAPI<?> prov, ArrayList<?> expectedVals) throws IOException {
@@ -61,7 +61,7 @@ public class SiteDataProvidersTest {
 			Object serverGroupVal = vals.get(i);
 			
 			// just to make sure that the server gives the save values individually as it does in a list
-			Object serverSingleVal = prov.getValue(locs.getLocationAt(i));
+			Object serverSingleVal = prov.getValue(locs.get(i));
 			
 			if (D) System.out.println(prov.getShortName() + " " + i + ", exp: " + expectedVal
 					+ ", single: " + serverSingleVal + ", group: " + serverGroupVal);

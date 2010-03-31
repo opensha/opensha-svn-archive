@@ -1023,7 +1023,7 @@ public class NshmpFault2GemSourceData extends GemFileParser {
 					
 					// from Ned mail 23/02/2010
 					// So, when you create the locations for the faultTrace, you need to set the depths as the upper seismogenic depth.
-					faultT.addLocation(new Location(lat,lon,depth0));
+					faultT.add(new Location(lat,lon,depth0));
 				}
 				
 				// if dip is negative take the absolute value of dip
@@ -1037,8 +1037,8 @@ public class NshmpFault2GemSourceData extends GemFileParser {
 				// loop over fault trace coordinates
 				// if one is inside the region of interest take it
 				for(int isp=0;isp<NSegPoints;isp++){
-					double faultTraceLat = faultT.getLocationAt(isp).getLatitude();
-					double faultTraceLon = faultT.getLocationAt(isp).getLongitude();
+					double faultTraceLat = faultT.get(isp).getLatitude();
+					double faultTraceLon = faultT.get(isp).getLongitude();
 					if(faultTraceLat>=latmin-borderThickness && faultTraceLat<=latmax+borderThickness &&
 							faultTraceLon>=lonmin-borderThickness && faultTraceLon<=lonmax+borderThickness){
 						includeSrc = true;

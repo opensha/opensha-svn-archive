@@ -161,48 +161,48 @@ public class SanAndreasScenarioControlPanel extends ConfirmDialogControlPanel {
 	private void mkFaultTrace() {
 		FaultTrace faultTrace1 =  new FaultTrace("San Andreas Fault Trace(Mojave S)");
 		//San Andreas (Mojave S)
-		faultTrace1.addLocation(new Location(34.698495,-118.508948));
-		faultTrace1.addLocation(new Location(34.547849,-118.103936));
-		faultTrace1.addLocation(new Location(34.402927,-117.753579));
-		faultTrace1.addLocation(new Location(34.3163,-117.549));
+		faultTrace1.add(new Location(34.698495,-118.508948));
+		faultTrace1.add(new Location(34.547849,-118.103936));
+		faultTrace1.add(new Location(34.402927,-117.753579));
+		faultTrace1.add(new Location(34.3163,-117.549));
 		SimpleFaultData faultData1 = new SimpleFaultData(90,13.1,0,faultTrace1);
 
 		//San Andreas (San Bernardino N)
 		FaultTrace faultTrace2 =  new FaultTrace("San Andreas (San Bernardino N)");
-		faultTrace2.addLocation(new Location(34.3163,-117.549));
-		faultTrace2.addLocation(new Location(34.2709,-117.451));
-		faultTrace2.addLocation(new Location(34.232843,-117.388692));
-		faultTrace2.addLocation(new Location(34.173137,-117.274161));
-		faultTrace2.addLocation(new Location(34.150027,-117.222023));
+		faultTrace2.add(new Location(34.3163,-117.549));
+		faultTrace2.add(new Location(34.2709,-117.451));
+		faultTrace2.add(new Location(34.232843,-117.388692));
+		faultTrace2.add(new Location(34.173137,-117.274161));
+		faultTrace2.add(new Location(34.150027,-117.222023));
 		SimpleFaultData faultData2 = new SimpleFaultData(90,12.8,0,faultTrace2);
 
 		//San Andreas (San Bernardino S)
 		FaultTrace faultTrace3 =  new FaultTrace("San Andreas (San Bernardino S)");
-		faultTrace3.addLocation(new Location(34.150027,-117.222023));
-		faultTrace3.addLocation(new Location(34.092795,-117.067674));
-		faultTrace3.addLocation(new Location(34.073768,-117.0139));
-		faultTrace3.addLocation(new Location(34.033837,-116.90235));
-		faultTrace3.addLocation(new Location(34.011347,-116.873541));
-		faultTrace3.addLocation(new Location(33.959114,-116.819795));
+		faultTrace3.add(new Location(34.150027,-117.222023));
+		faultTrace3.add(new Location(34.092795,-117.067674));
+		faultTrace3.add(new Location(34.073768,-117.0139));
+		faultTrace3.add(new Location(34.033837,-116.90235));
+		faultTrace3.add(new Location(34.011347,-116.873541));
+		faultTrace3.add(new Location(33.959114,-116.819795));
 		SimpleFaultData faultData3 = new SimpleFaultData(90,12.8,0,faultTrace3);
 
 		//San Andreas (San Gorgonio Pass-Garnet HIll)
 		FaultTrace faultTrace4 =  new FaultTrace("San Andreas (San Gorgonio Pass-Garnet HIll)");
-		faultTrace4.addLocation(new Location(33.78825,-116.24629));
-		faultTrace4.addLocation(new Location(33.848518,-116.383007));
-		faultTrace4.addLocation(new Location(33.848123,-116.426527));
-		faultTrace4.addLocation(new Location(33.884664,-116.516889));
-		faultTrace4.addLocation(new Location(33.907018,-116.584856));
-		faultTrace4.addLocation(new Location(33.917569,-116.623871));
-		faultTrace4.addLocation(new Location(33.944163,-116.685809));
-		faultTrace4.addLocation(new Location(33.937411,-116.778598));
-		faultTrace4.addLocation(new Location(33.953154,-116.801391));
+		faultTrace4.add(new Location(33.78825,-116.24629));
+		faultTrace4.add(new Location(33.848518,-116.383007));
+		faultTrace4.add(new Location(33.848123,-116.426527));
+		faultTrace4.add(new Location(33.884664,-116.516889));
+		faultTrace4.add(new Location(33.907018,-116.584856));
+		faultTrace4.add(new Location(33.917569,-116.623871));
+		faultTrace4.add(new Location(33.944163,-116.685809));
+		faultTrace4.add(new Location(33.937411,-116.778598));
+		faultTrace4.add(new Location(33.953154,-116.801391));
 		SimpleFaultData faultData4 = new SimpleFaultData(58,12.8,0,faultTrace4);
 
 		//San Andreas (Coachella) rev
 		FaultTrace faultTrace5 =  new FaultTrace("San Andreas (Coachella) rev");
-		faultTrace5.addLocation(new Location(33.78825,-116.24629));
-		faultTrace5.addLocation(new Location(33.35009,-115.71192));
+		faultTrace5.add(new Location(33.78825,-116.24629));
+		faultTrace5.add(new Location(33.35009,-115.71192));
 		SimpleFaultData faultData5 = new SimpleFaultData(90,11.1,0,faultTrace5);
 
 		ArrayList<SimpleFaultData> faultList = new ArrayList<SimpleFaultData>();
@@ -247,8 +247,8 @@ public class SanAndreasScenarioControlPanel extends ConfirmDialogControlPanel {
 		ArrayList lons = new ArrayList();
 		FaultTrace faultTrace = sanAndreasFaultData.getFaultTrace();
 		for(int i = 0; i<faultTrace.getNumLocations(); i++) {
-			lats.add(new Double(faultTrace.getLocationAt(i).getLatitude()));
-			lons.add(new Double(faultTrace.getLocationAt(i).getLongitude()));
+			lats.add(new Double(faultTrace.get(i).getLatitude()));
+			lons.add(new Double(faultTrace.get(i).getLongitude()));
 		}
 
 		//creating the dip vector for the SimpleFaultParameter

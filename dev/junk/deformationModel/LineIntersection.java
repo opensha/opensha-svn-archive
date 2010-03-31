@@ -55,13 +55,13 @@ public class LineIntersection {
 		Location eastLoc = new Location(line.getY1(), line.getX1());
 		double distance;
 		for(int i=1; i<faultTrace.getNumLocations(); ++i) {
-			Location loc = calculateIntersect(line, getLine2DFromLocations(faultTrace.getLocationAt(i-1),faultTrace.getLocationAt(i) ));
+			Location loc = calculateIntersect(line, getLine2DFromLocations(faultTrace.get(i-1),faultTrace.get(i) ));
 			if(loc==null) continue;
 			distance = RelativeLocation.getApproxHorzDistance(loc, eastLoc);
 			if(distance<minDistance) {
 				closestLoc = loc;
 				minDistance = distance;
-				strike = crossSectionStrike+90-RelativeLocation.getAzimuth(faultTrace.getLocationAt(i),faultTrace.getLocationAt(i-1));
+				strike = crossSectionStrike+90-RelativeLocation.getAzimuth(faultTrace.get(i),faultTrace.get(i-1));
 			}
 		}
 		return closestLoc;

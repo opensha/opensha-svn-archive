@@ -424,7 +424,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 				  double lat = Double.parseDouble(rs.getString("CS_Site_Lat"));	
 				  double lon = Double.parseDouble(rs.getString("CS_Site_Lon"));
 				  Location loc = new Location(lat,lon);
-				  siteLocationList.addLocation(loc);
+				  siteLocationList.add(loc);
 				  rs.next();
 				}
 				rs.close();

@@ -220,7 +220,7 @@ public class RegionUtils {
 		}
 		// region borders do not repeat the first
 		// vertex, but kml closed polygons do
-		sb.append(locations.getLocationAt(0).toKML() + NL);
+		sb.append(locations.get(0).toKML() + NL);
 		e_coord.addText(sb.toString());
 		
 		return e;

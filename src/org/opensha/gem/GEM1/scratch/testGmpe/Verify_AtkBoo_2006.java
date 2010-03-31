@@ -53,8 +53,8 @@ public class Verify_AtkBoo_2006 {
         
         // Create fault trace 
         FaultTrace ftrace = new FaultTrace("test");
-        ftrace.addLocation(new Location(45.00,10.00));
-        ftrace.addLocation(new Location(46.00,10.00));
+        ftrace.add(new Location(45.00,10.00));
+        ftrace.add(new Location(46.00,10.00));
         
         // Calculate magnitude from the fault trace 
         WC1994_MagLengthRelationship magLenRel = new WC1994_MagLengthRelationship();

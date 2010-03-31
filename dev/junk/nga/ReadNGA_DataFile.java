@@ -106,8 +106,8 @@ public class ReadNGA_DataFile {
         		new Direction(strike, length, 0.0));
 
         FaultTrace fltTrace = new FaultTrace(null);
-        fltTrace.addLocation(originLoc);
-        fltTrace.addLocation(otherLoc);
+        fltTrace.add(originLoc);
+        fltTrace.add(otherLoc);
 
         //converting the Dip(in deg.) to radians and then taking the Sin of it
         double sinOfAvDipRadians = Math.sin(Math.toRadians(dip));

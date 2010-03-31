@@ -137,7 +137,7 @@ public class NonCA_FaultsFetcher  implements java.io.Serializable {
 					tokenizer = new StringTokenizer(line);
 					latitude = Double.parseDouble(tokenizer.nextToken());
 					longitude =Double.parseDouble(tokenizer.nextToken());
-					faultTrace.addLocation(new Location(latitude, longitude));
+					faultTrace.add(new Location(latitude, longitude));
 				}
 				// surface
 				StirlingGriddedSurface surface = new StirlingGriddedSurface(faultTrace, dip, upperSeisDepth,

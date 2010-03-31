@@ -199,11 +199,11 @@ public class CVM2BasinDepth extends AbstractSiteData<Double> {
 		SiteDataToXYZ.writeXYZ(map, 0.01, "/tmp/basin.txt");
 		
 		LocationList locs = new LocationList();
-		locs.addLocation(new Location(34.01920, -118.28800));
-		locs.addLocation(new Location(34.91920, -118.3200));
-		locs.addLocation(new Location(34.781920, -118.88600));
-		locs.addLocation(new Location(34.21920, -118.38600));
-		locs.addLocation(new Location(34.61920, -118.18600));
+		locs.add(new Location(34.01920, -118.28800));
+		locs.add(new Location(34.91920, -118.3200));
+		locs.add(new Location(34.781920, -118.88600));
+		locs.add(new Location(34.21920, -118.38600));
+		locs.add(new Location(34.61920, -118.18600));
 		
 		ArrayList<Double> vals = map.getValues(locs);
 		for (double val : vals)

@@ -137,8 +137,8 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
         dir = new Direction(strike+180, rupLength-offSet, 0.0);
         loc2 = RelativeLocation.getLocation(loc,dir);
         fltTrace = new FaultTrace(null);
-        fltTrace.addLocation(loc1);
-        fltTrace.addLocation(loc2);
+        fltTrace.add(loc1);
+        fltTrace.add(loc2);
         faultTraces.add(fltTrace);
 /*        if (D) System.out.println((float)loc1.getLongitude()+"\t"+(float)loc1.getLatitude()+"\t" +
                                                (float)loc2.getLongitude()+"\t"+(float)loc2.getLatitude()+"\t" +
@@ -193,7 +193,7 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
       LocationList rupLocList = getRuptureSurface(i).getLocationList();
       // add all locations in a rupture to the master location list
       for(int j=0; j<rupLocList.size(); ++j)
-        locList.addLocation(rupLocList.getLocationAt(j));
+        locList.add(rupLocList.get(j));
     }
     return locList;
   }

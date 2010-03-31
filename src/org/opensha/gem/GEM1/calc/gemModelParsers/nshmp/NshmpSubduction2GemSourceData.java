@@ -304,7 +304,7 @@ public class NshmpSubduction2GemSourceData extends GemFileParser {
 				double lat = Double.valueOf(st.nextToken()).doubleValue();
 				double lon  = Double.valueOf(st.nextToken()).doubleValue();
 				double depth = Double.valueOf(st.nextToken()).doubleValue();
-				faultTopTrace.addLocation(new Location(lat,lon,depth));
+				faultTopTrace.add(new Location(lat,lon,depth));
 			}
 			
 			// number of fault bottom edge coordinates
@@ -320,15 +320,15 @@ public class NshmpSubduction2GemSourceData extends GemFileParser {
 				double lat = Double.valueOf(st.nextToken()).doubleValue();
 				double lon = Double.valueOf(st.nextToken()).doubleValue();
 				double depth = Double.valueOf(st.nextToken()).doubleValue();
-				faultBottomTrace.addLocation(new Location(lat,lon,depth));
+				faultBottomTrace.add(new Location(lat,lon,depth));
 			}
 			
 			boolean includeSrc = false;
 			// loop over top fault trace coordinates
 			// if one is inside the region of interest take it
 			for(int isp=0;isp<NTopCoord;isp++){
-				double faultTraceLat = faultTopTrace.getLocationAt(isp).getLatitude();
-				double faultTraceLon = faultTopTrace.getLocationAt(isp).getLongitude();
+				double faultTraceLat = faultTopTrace.get(isp).getLatitude();
+				double faultTraceLon = faultTopTrace.get(isp).getLongitude();
 				if(faultTraceLat>=latmin-borderThickness && faultTraceLat<=latmax+borderThickness &&
 						faultTraceLon>=lonmin-borderThickness && faultTraceLon<=lonmax+borderThickness){
 					includeSrc = true;

@@ -997,8 +997,8 @@ public class A_FaultSegmentedSourceGenerator {
 			// All fault trace locations
 			strBuffer.append(faultTrace.getNumLocations()+"\n");
 			for(int locIndex=0; locIndex<faultTrace.getNumLocations(); ++locIndex)
-				strBuffer.append(faultTrace.getLocationAt(locIndex).getLatitude()+"\t"+
-						faultTrace.getLocationAt(locIndex).getLongitude()+"\n");
+				strBuffer.append(faultTrace.get(locIndex).getLatitude()+"\t"+
+						faultTrace.get(locIndex).getLongitude()+"\n");
 			// this is to make sure things look good
 			if(localDebug){
 				System.out.println(getLongRupName(rupIndex)+"\t"+

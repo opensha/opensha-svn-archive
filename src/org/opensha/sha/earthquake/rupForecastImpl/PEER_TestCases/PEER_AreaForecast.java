@@ -202,7 +202,7 @@ public class PEER_AreaForecast extends EqkRupForecast{
         		  new Location(LAT_CENTER,LONG_CENTER),
         		  new Location(lat,lon)) <= MAX_DISTANCE)
             for (double depth=depthUpper;depth<=depthLower;depth+=gridSpacing)
-                locationList.addLocation(new Location(lat,lon,depth));
+                locationList.add(new Location(lat,lon,depth));
 
       int numLocs = locationList.size();
 
@@ -251,10 +251,10 @@ public class PEER_AreaForecast extends EqkRupForecast{
    */
   public ProbEqkSource getSource(int iSource) {
 
-    pointPoissonEqkSource.setLocation(locationList.getLocationAt(iSource));
+    pointPoissonEqkSource.setLocation(locationList.get(iSource));
     pointPoissonEqkSource.setDuration(timeSpan.getDuration());
 
-    if (D) System.out.println(iSource + "th source location: "+ locationList.getLocationAt(iSource).toString() +
+    if (D) System.out.println(iSource + "th source location: "+ locationList.get(iSource).toString() +
                               "; numRups="+pointPoissonEqkSource.getNumRuptures());
     if (D) System.out.println("                     rake="+pointPoissonEqkSource.getRupture(0).getAveRake() +
                               "; dip="+ pointPoissonEqkSource.getRupture(0).getRuptureSurface().getAveDip());

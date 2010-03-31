@@ -856,7 +856,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		
 		LocationList locList = new LocationList();
 		Location loc = new Location(csSite.lat, csSite.lon);
-		locList.addLocation(loc);
+		locList.add(loc);
 		
 		Site site = new Site(loc);
 		

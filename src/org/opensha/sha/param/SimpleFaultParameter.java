@@ -612,7 +612,7 @@ java.io.Serializable{
 				double lon = ((Double)lons.get(i)).doubleValue();
 				double depth = ((Double)depths.get(0)).doubleValue();
 				Location loc = new Location(lat,lon,depth);
-				fltTrace.addLocation(loc);
+				fltTrace.add(loc);
 			}
 			//this.fltTrace = fltTrace;
 

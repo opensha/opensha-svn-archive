@@ -298,10 +298,10 @@ public class PuenteHillsScenarioControlPanelForSingleMultipleAttenRel {
     if (D) System.out.println((float)finalLoc4.getLatitude()+" "+(float)finalLoc4.getLongitude()+" "+(float)finalLoc4.getDepth());
 
     faultTrace = new FaultTrace("Puente Hills Fault Trace");
-    faultTrace.addLocation(finalLoc1);
-    faultTrace.addLocation(finalLoc2);
-    faultTrace.addLocation(finalLoc3);
-    faultTrace.addLocation(finalLoc4);
+    faultTrace.add(finalLoc1);
+    faultTrace.add(finalLoc2);
+    faultTrace.add(finalLoc3);
+    faultTrace.add(finalLoc4);
 
     aveDipDir /= 6;
 
@@ -310,29 +310,29 @@ public class PuenteHillsScenarioControlPanelForSingleMultipleAttenRel {
     if (D) System.out.println("\n Trace Length = "+faultTrace.getTraceLength());
 
     FaultTrace tempTr = new FaultTrace("");
-    tempTr.addLocation(finalLoc1);
-    tempTr.addLocation(finalLoc2);
+    tempTr.add(finalLoc1);
+    tempTr.add(finalLoc2);
     if (D) System.out.println("\n new-merged CH seg Length = "+tempTr.getTraceLength());
     tempTr = new FaultTrace("");
-    tempTr.addLocation(finalLoc2);
-    tempTr.addLocation(finalLoc3);
+    tempTr.add(finalLoc2);
+    tempTr.add(finalLoc3);
     if (D) System.out.println("\n new-merged SF seg Length = "+tempTr.getTraceLength());
     tempTr = new FaultTrace("");
-    tempTr.addLocation(finalLoc3);
-    tempTr.addLocation(finalLoc4);
+    tempTr.add(finalLoc3);
+    tempTr.add(finalLoc4);
     if (D) System.out.println("\n new-merged LA seg Length = "+tempTr.getTraceLength());
 
     tempTr = new FaultTrace("");
-    tempTr.addLocation(finalLoc1);
-    tempTr.addLocation(tempLoc1);
+    tempTr.add(finalLoc1);
+    tempTr.add(tempLoc1);
     if (D) System.out.println("\n new CH seg Length = "+tempTr.getTraceLength());
     tempTr = new FaultTrace("");
-    tempTr.addLocation(tempLoc2);
-    tempTr.addLocation(tempLoc3);
+    tempTr.add(tempLoc2);
+    tempTr.add(tempLoc3);
     if (D) System.out.println("\n new SF seg Length = "+tempTr.getTraceLength());
     tempTr = new FaultTrace("");
-    tempTr.addLocation(tempLoc4);
-    tempTr.addLocation(finalLoc4);
+    tempTr.add(tempLoc4);
+    tempTr.add(finalLoc4);
     if (D) System.out.println("\n new LA seg Length = "+tempTr.getTraceLength());
   }
 
@@ -374,8 +374,8 @@ public class PuenteHillsScenarioControlPanelForSingleMultipleAttenRel {
     ArrayList lats = new ArrayList();
     ArrayList lons = new ArrayList();
     for(int i = 0; i<faultTrace.getNumLocations(); i++) {
-      lats.add(new Double(faultTrace.getLocationAt(i).getLatitude()));
-      lons.add(new Double(faultTrace.getLocationAt(i).getLongitude()));
+      lats.add(new Double(faultTrace.get(i).getLatitude()));
+      lons.add(new Double(faultTrace.get(i).getLongitude()));
     }
 
     //creating the dip vector for the SimpleFaultParameter

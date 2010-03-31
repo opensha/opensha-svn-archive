@@ -197,8 +197,8 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 				dir.setAzimuth(strike-180);
 				Location loc2 = RelativeLocation.getLocation(loc,dir);
 				FaultTrace fltTrace = new FaultTrace(null);
-				fltTrace.addLocation(loc1);
-				fltTrace.addLocation(loc2);
+				fltTrace.add(loc1);
+				fltTrace.add(loc2);
 
 				// make the surface
 				StirlingGriddedSurface surf = new StirlingGriddedSurface(fltTrace,dip,depth,depth,1.0);
@@ -259,7 +259,7 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 	public LocationList getAllSourceLocs() {
 		LocationList locList = new LocationList();
 		for(int r=0;r< getNumRuptures(); r++) {
-			locList.addAllLocations(probEqkRuptureList.get(r).getRuptureSurface().getLocationList());
+			locList.addAll(probEqkRuptureList.get(r).getRuptureSurface().getLocationList());
 		}
 		return locList;
 	}

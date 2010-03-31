@@ -85,7 +85,7 @@ public class FaultSections {
           if (lat > LAT_CUTOFF)
             lowerThanCutoff = false;
           depth = Double.parseDouble(tokenizer.nextToken());
-          locList.addLocation(new Location(lat, lon, depth));
+          locList.add(new Location(lat, lon, depth));
         }
       }
 
@@ -102,8 +102,8 @@ public class FaultSections {
       IOException {
     faultMap.put(faultName, locList);
     fw.write("#" + faultName + "\n");
-    fw.write(getLocationAsString(locList.getLocationAt(0)) + "\n");
-    fw.write(getLocationAsString(locList.getLocationAt(locList.size() - 1)) + "\n");
+    fw.write(getLocationAsString(locList.get(0)) + "\n");
+    fw.write(getLocationAsString(locList.get(locList.size() - 1)) + "\n");
   }
 
   private String getLocationAsString(Location loc) {

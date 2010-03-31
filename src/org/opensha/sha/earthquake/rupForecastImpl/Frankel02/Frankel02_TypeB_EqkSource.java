@@ -284,8 +284,8 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
    */
   public static void main(String[] args) {
     FaultTrace fltTr = new FaultTrace("name");
-    fltTr.addLocation(new Location(33.0,-122,0));
-    fltTr.addLocation(new Location(34.0,-122,0));
+    fltTr.add(new Location(33.0,-122,0));
+    fltTr.add(new Location(34.0,-122,0));
     FrankelGriddedSurface surface = new FrankelGriddedSurface(fltTr,90,0,10,1);
 
     GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(6.5,3,0.5,6.5,7.5,1.0e14,1.0);
@@ -315,7 +315,7 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
   public LocationList getAllSourceLocs() {
     LocationList locList = new LocationList();
     Iterator it = this.surface.getAllByRowsIterator();
-    while(it.hasNext()) locList.addLocation((Location)it.next());
+    while(it.hasNext()) locList.add((Location)it.next());
     return locList;
   }
 

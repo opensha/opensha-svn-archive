@@ -66,7 +66,7 @@ public class WriteSegLatLons {
 						FaultSectionPrefData prefFaultSectionData = (FaultSectionPrefData)prefFaultSectionList.get(prefFaultSectionId);
 						FaultTrace faultTrace = prefFaultSectionData.getFaultTrace();
 						for(int pt=0; pt<faultTrace.getNumLocations(); ++pt) {
-							Location loc = faultTrace.getLocationAt(pt);
+							Location loc = faultTrace.get(pt);
 							fw.write((float)loc.getLatitude()+"\t"+(float)loc.getLongitude()+"\t0\n");
 						}
 

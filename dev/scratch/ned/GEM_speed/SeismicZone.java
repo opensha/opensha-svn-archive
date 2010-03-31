@@ -99,7 +99,7 @@ public class SeismicZone {
             	while (st.hasMoreTokens()) {
             		LAT = Double.valueOf(st.nextToken());
             		LON = Double.valueOf(st.nextToken());
-            		POLY.addLocationAt(new Location(LAT.doubleValue(),LON.doubleValue()),i);
+            		POLY.add(i, new Location(LAT.doubleValue(),LON.doubleValue()));
                 	i = i+1;
                 }
             	a.add(is, A);

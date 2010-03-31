@@ -116,7 +116,7 @@ public abstract class AbstractSiteDataServlet<Element> extends HttpServlet {
 					Location loc = getLocation(pt);
 					if (loc == null)
 						fail(out, "Invalid location!");
-					locs.addLocation(loc);
+					locs.add(loc);
 				}
 				ArrayList<Element> e = data.getValues(locs);
 				out.writeObject(e);

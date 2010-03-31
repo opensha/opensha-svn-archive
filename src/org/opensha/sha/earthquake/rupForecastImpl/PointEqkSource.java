@@ -171,7 +171,7 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
    */
  public LocationList getAllSourceLocs() {
    LocationList locList = new LocationList();
-   locList.addLocation(this.location);
+   locList.add(this.location);
    return locList;
  }
  

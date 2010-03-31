@@ -104,12 +104,18 @@ implements java.io.Serializable{
 		LocationListParameter param = ( LocationListParameter ) obj;
 
 		if( ( this.value == null ) && ( param.value == null ) ) return 0;
-		int result = 0;
+		//int result = 0;
 
 		LocationList n1 = ( LocationList) this.getValue();
 		LocationList n2 = ( LocationList ) param.getValue();
+		
+		// TODO need to fix compareTo() up the Parameter heirarchy; it is often
+		// abused, being used as a stand-in for equals() returning 0 or -1 but
+		// never +1. wierd -ppowers
 
-		return n1.compareTo( n2 );
+		// return n1.compareTo( n2 );
+		
+		return (n1.equals(n2)) ? 0 : -1;
 	}
 
 
@@ -125,7 +131,7 @@ implements java.io.Serializable{
 		ListIterator it = locationParameters.getParametersIterator();
 		while(it.hasNext()){
 			LocationParameter locParam = (LocationParameter)it.next();
-			locList.addLocation((Location)locParam.getValue());
+			locList.add((Location)locParam.getValue());
 		}
 		setValue(locList);
 	}

@@ -686,7 +686,7 @@ public class BCR_Application extends JFrame
     Site site = siteGuiBean.getSite();
     LocationList locs = new LocationList();
     Location loc = site.getLocation();
-    locs.addLocation(loc);
+    locs.add(loc);
 //  getting the wills site class values from servlet
     String siteClass="";
     try {

@@ -272,14 +272,14 @@ implements ParameterChangeWarningListener {
 		double lat = Double.parseDouble(st.nextToken().trim());
 		double lon = Double.parseDouble(st.nextToken().trim());
 		Location loc = new Location(lat,lon);
-		locList.addLocation(loc);
+		locList.add(loc);
 		String willsClass="";
 		if(tokens == 3){
 			willsClass = st.nextToken().trim();
 		}
 		else if(tokens ==2){
 			LocationList siteLocListForWillsSiteClass = new LocationList();
-			siteLocListForWillsSiteClass.addLocation(loc);
+			siteLocListForWillsSiteClass.add(loc);
 			try{
 				willsClass = (String) ConnectToCVM.getWillsSiteTypeFromCVM(
 						siteLocListForWillsSiteClass).get(0);
@@ -513,7 +513,7 @@ implements ParameterChangeWarningListener {
 		int numSites = locList.size();
 		for (int i = 0; i < numSites; ++i) {
 
-			Location loc = (Location) locList.getLocationAt(i);
+			Location loc = (Location) locList.get(i);
 			double lon = loc.getLongitude();
 			double lat = loc.getLatitude();
 			if (lon > maxLon)
@@ -607,7 +607,7 @@ implements ParameterChangeWarningListener {
 						setSiteParamsInIMR(imr, (String) willsSiteClassVals.get(j));
 						//this method added to the Attenuation Relationship allows to set the
 						//Location in the site of the attenuation relationship
-						imr.setSiteLocation(locList.getLocationAt(j));
+						imr.setSiteLocation(locList.get(j));
 						//setting different intensity measures for each site and writing those to the file.
 						meanSigmaFile.write(format.format(imr.getMean()) + " ");
 						meanSigmaFile.write(format.format(imr.getStdDev()) + " ");
@@ -709,7 +709,7 @@ implements ParameterChangeWarningListener {
 						fwRup.write(sourceIndex + "  " + n+" ");
 						int numSites = locList.size();
 						for(int s=0 ; s<numSites ; ++s){
-							Location loc = locList.getLocationAt(s);
+							Location loc = locList.get(s);
 							Site site = new Site(loc);
 							PropagationEffect propEffect = new PropagationEffect(site,rupture);
 							double rupDist = ((Double)propEffect.getParamValue(DistanceRupParameter.NAME)).doubleValue();

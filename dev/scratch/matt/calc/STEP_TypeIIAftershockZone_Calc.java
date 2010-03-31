@@ -54,7 +54,7 @@ public class STEP_TypeIIAftershockZone_Calc {
     while (eventIt.hasNext()){
       event = (ObsEqkRupture)eventIt.next();
       eLoc = event.getHypocenterLocation();
-      latLongList.addLocation(eLoc);
+      latLongList.add(eLoc);
     }
 
     /**
@@ -108,10 +108,10 @@ public class STEP_TypeIIAftershockZone_Calc {
      * Create a two segment fault that passes thru the mainshock
      * using the extreme widths defined above
      */
-    faultSegments.addLocation(topEndPoint);
-    faultSegments.addLocation(mainshockLoc);
-    faultSegments.addLocation(mainshockLoc);
-    faultSegments.addLocation(bottomEndPoint);
+    faultSegments.add(topEndPoint);
+    faultSegments.add(mainshockLoc);
+    faultSegments.add(mainshockLoc);
+    faultSegments.add(bottomEndPoint);
   }
 
   /**

@@ -210,7 +210,7 @@ public class CaliforniaRegions {
 	        	double lat = Double.valueOf(vals[0]);
 	        	double lon = Double.valueOf(vals[1]);
 	        	Location loc = new Location(lat, lon);
-	        	ll.addLocation(loc);
+	        	ll.add(loc);
 	        }
 	        br.close();
 	        return ll;

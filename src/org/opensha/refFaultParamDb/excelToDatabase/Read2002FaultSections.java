@@ -59,7 +59,7 @@ public class Read2002FaultSections {
         int numFaultTraceLocations = faultTrace.getNumLocations();
         double upperSeisDepth = faultSection.getAveUpperSeisDepth();
         for(int j=0; j<numFaultTraceLocations; ++j) {
-          Location loc = faultTrace.getLocationAt(j);
+          Location loc = faultTrace.get(j);
           fwTrace.write(loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+upperSeisDepth+"\n");
         }
        // fwDip.write(faultSection.getSectionName()+","+faultSection.getAveDip()+"\n");

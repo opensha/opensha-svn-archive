@@ -248,7 +248,7 @@ public class PointSurface implements EvenlyGriddedSurfaceAPI {
      */
     public LocationList getLocationList() {
       LocationList locList = new LocationList();
-      locList.addLocation(getLocation());
+      locList.add(getLocation());
       return locList;
     }
 
@@ -448,7 +448,7 @@ public class PointSurface implements EvenlyGriddedSurfaceAPI {
     /** get a list of locations that constitutes the perimeter (forst row, last col, last row, and first col) */
     public LocationList getSurfacePerimeterLocsList() {
   	  LocationList locList = new LocationList();
-  	  locList.addLocation(this.getLocation());
+  	  locList.add(this.getLocation());
  	  return locList;
     }
 

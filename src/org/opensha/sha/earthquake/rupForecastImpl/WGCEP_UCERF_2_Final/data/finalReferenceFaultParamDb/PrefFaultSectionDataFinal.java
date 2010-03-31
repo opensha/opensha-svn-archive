@@ -106,8 +106,8 @@ public class PrefFaultSectionDataFinal implements Serializable {
 			FaultTrace fileTrace = fileFault.getFaultTrace();
 			
 			for (int j=0; j<dbTrace.getNumLocations(); j++) {
-				Location dbLoc = dbTrace.getLocationAt(j);
-				Location fileLoc = fileTrace.getLocationAt(j);
+				Location dbLoc = dbTrace.get(j);
+				Location fileLoc = fileTrace.get(j);
 				
 				if (!dbLoc.equals(fileLoc)) {
 					System.out.println("Loc on fault trace is bad!");

@@ -174,7 +174,7 @@ public class DeformationModelFileGenerator {
 				fw.write(trace.getNumLocations() + "\n");
 				
 				for (int i=0; i<trace.getNumLocations(); i++) {
-					Location loc = trace.getLocationAt(i);
+					Location loc = trace.get(i);
 					
 					fw.write(loc.getLatitude() + " " + loc.getLongitude() + "\n");
 				}

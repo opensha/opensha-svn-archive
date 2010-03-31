@@ -123,7 +123,7 @@ public class FaultSection2002DB_DAO {
        int numPoints = faultTraceGeom.getNumPoints();
        double[] ordinatesArray = faultTraceGeom.getOrdinatesArray();
        for(int j=0; j<numPoints; ++j) {
-        faultTrace.addLocation(new Location(ordinatesArray[2*j+1], ordinatesArray[2*j]));
+        faultTrace.add(new Location(ordinatesArray[2*j+1], ordinatesArray[2*j]));
        }
        faultSection.setFaultTrace(faultTrace);
        faultSectionList.add(faultSection);

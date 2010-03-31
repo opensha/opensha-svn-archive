@@ -150,8 +150,8 @@ System.out.println("maxJumpDist="+maxJumpDist);
 			int indexA_lastPoint = indexA_firstPoint+1;
 			endPointNames[indexA_firstPoint] = dataA.getSectionName() +" -- first";
 			endPointNames[indexA_lastPoint] = dataA.getSectionName() +" -- last";
-			Location locA_1st = dataA.getFaultTrace().getLocationAt(0);
-			Location locA_2nd = dataA.getFaultTrace().getLocationAt(dataA.getFaultTrace().size()-1);
+			Location locA_1st = dataA.getFaultTrace().get(0);
+			Location locA_2nd = dataA.getFaultTrace().get(dataA.getFaultTrace().size()-1);
 			endPointLocs[indexA_firstPoint] = locA_1st;
 			endPointLocs[indexA_lastPoint] = locA_2nd;
 //			System.out.println(endPointNames[indexA_firstPoint]+"\t"+endPointNames[indexA_lastPoint]);
@@ -160,8 +160,8 @@ System.out.println("maxJumpDist="+maxJumpDist);
 				FaultSectionPrefData dataB = allFaultSectionPrefData.get(b);
 				int indexB_firstPoint = 2*b;
 				int indexB_lastPoint = indexB_firstPoint+1;
-				Location locB_1st = dataB.getFaultTrace().getLocationAt(0);
-				Location locB_2nd = dataB.getFaultTrace().getLocationAt(dataB.getFaultTrace().size()-1);
+				Location locB_1st = dataB.getFaultTrace().get(0);
+				Location locB_2nd = dataB.getFaultTrace().get(dataB.getFaultTrace().size()-1);
 				sectionDistances[indexA_firstPoint][indexB_firstPoint] = RelativeLocation.getApproxHorzDistance(locA_1st, locB_1st);
 				sectionDistances[indexA_firstPoint][indexB_lastPoint] = RelativeLocation.getApproxHorzDistance(locA_1st, locB_2nd);
 				sectionDistances[indexA_lastPoint][indexB_firstPoint] = RelativeLocation.getApproxHorzDistance(locA_2nd, locB_1st);
@@ -473,7 +473,7 @@ System.out.println("sectionClusterList.size()="+sectionClusterList.size());
 			FaultTrace ft = allFaultSectionPrefData.get(sectIndex).getFaultTrace();
 			name += allFaultSectionPrefData.get(sectIndex).getSectionName() +"+";
 			for(int l=0; l<ft.size();l++) {
-				Location loc = ft.getLocationAt(l);
+				Location loc = ft.get(l);
 				func.set(loc.getLongitude(), loc.getLatitude());
 				if(loc.getLongitude()<minLon) minLon = loc.getLongitude();
 				if(loc.getLongitude()>maxLon) maxLon = loc.getLongitude();
@@ -550,7 +550,7 @@ System.out.println("sectionClusterList.size()="+sectionClusterList.size());
 		ft2_func.setName(ft2.getName());
 		double minLat=1000, maxLat=-1000, minLon=1000, maxLon=-1000;
 		for(int l=0; l<ft1.size();l++) {
-			Location loc = ft1.getLocationAt(l);
+			Location loc = ft1.get(l);
 			ft1_func.set(loc.getLongitude(), loc.getLatitude());
 			if(loc.getLongitude()<minLon) minLon = loc.getLongitude();
 			if(loc.getLongitude()>maxLon) maxLon = loc.getLongitude();
@@ -558,7 +558,7 @@ System.out.println("sectionClusterList.size()="+sectionClusterList.size());
 			if(loc.getLatitude()>maxLat) maxLat = loc.getLatitude();
 		}
 		for(int l=0; l<ft2.size();l++) {
-			Location loc = ft2.getLocationAt(l);
+			Location loc = ft2.get(l);
 			ft2_func.set(loc.getLongitude(), loc.getLatitude());
 			if(loc.getLongitude()<minLon) minLon = loc.getLongitude();
 			if(loc.getLongitude()>maxLon) maxLon = loc.getLongitude();

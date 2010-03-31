@@ -120,7 +120,7 @@ public class IML_Calc_Cybershake extends MedianCalc_Cybershake {
 	    double lat = Double.parseDouble(st.nextToken().trim());
 	    double lon = Double.parseDouble(st.nextToken().trim());
 	    Location loc = new Location(lat,lon);
-	    locList.addLocation(loc);
+	    locList.add(loc);
 	  }	
 
 	  
@@ -181,7 +181,7 @@ public class IML_Calc_Cybershake extends MedianCalc_Cybershake {
 			  basinDepthVals = new ArrayList();
 			  willsSiteClassVals = new ArrayList();
 			  for(int i=0;i<numLocs;++i){
-				  int index = region.indexForLocation(locList.getLocationAt(i));
+				  int index = region.indexForLocation(locList.get(i));
 				  basinDepthVals.add(basinVals.get(index));
 				  String willsVal = (String)willsSiteVals.get(index);
 				  if(willsVal.equals("NA"))
@@ -265,7 +265,7 @@ public class IML_Calc_Cybershake extends MedianCalc_Cybershake {
 	            setSiteParamsInIMR(imr, (String) willsSiteClassVals.get(j),(Double)basinDepthVals.get(j));
 	            //this method added to the Attenuation Relationship allows to set the
 	            //Location in the site of the attenuation relationship
-	            Location loc = (Location)locList.getLocationAt(j);
+	            Location loc = (Location)locList.get(j);
 	            imr.setSiteLocation(loc);
 	            double iml = Math.exp(imr.getIML_AtExceedProb());
 	            imlFile.write(format.format(loc.getLatitude())+"\t"+format.format(loc.getLongitude())+"\t"+format.format(iml)+"\n");

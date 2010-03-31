@@ -251,7 +251,7 @@ public class NewZealandERF0909 extends EqkRupForecast {
 					st = new StringTokenizer(location);
 					double lon = Double.parseDouble(st.nextToken().trim());
 					double lat = Double.parseDouble(st.nextToken().trim());
-					fltTrace.addLocation(new Location(lat,lon));
+					fltTrace.add(new Location(lat,lon));
 				}
 				--i;
 				EvenlyGriddedSurface surface = new StirlingGriddedSurface(fltTrace, dip,upperSeis,lowerSeis,DEFAULT_GRID_SPACING);

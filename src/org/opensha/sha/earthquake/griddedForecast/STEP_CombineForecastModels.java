@@ -483,9 +483,9 @@ public class STEP_CombineForecastModels
       // add the synthetic fault to the fault trace
       // do not add the 2nd element as it is the same as the 3rd (the mainshock location)
       FaultTrace fault_trace = new FaultTrace(faultName);
-      fault_trace.addLocation(faultPoints.getLocationAt(0));
-      fault_trace.addLocation(faultPoints.getLocationAt(1));
-      fault_trace.addLocation(faultPoints.getLocationAt(3));
+      fault_trace.add(faultPoints.get(0));
+      fault_trace.add(faultPoints.get(1));
+      fault_trace.add(faultPoints.get(3));
       //set_FaultSurface(fault_trace);
     }
   }
