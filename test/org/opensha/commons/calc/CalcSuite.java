@@ -2,11 +2,11 @@ package org.opensha.commons.calc;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.opensha.commons.geo.RelativeLocationTest;
+import org.opensha.commons.geo.LocationUtilsTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	RelativeLocationTest.class,
+	LocationUtilsTest.class,
 	TestArcsecondConverter.class,
 	TestBPT_DistCalcOld.class,
 	TestFaultMomentCalc.class,

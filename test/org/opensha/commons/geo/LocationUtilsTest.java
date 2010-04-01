@@ -44,7 +44,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 
 //@SuppressWarnings("all")
-public class RelativeLocationTest {
+public class LocationUtilsTest {
 	
 	// short-range, small-angle test points
 	Location L1 = new Location(32.6, 20.4);
