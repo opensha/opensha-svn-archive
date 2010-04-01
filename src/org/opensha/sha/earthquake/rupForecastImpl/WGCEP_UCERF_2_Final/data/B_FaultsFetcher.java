@@ -262,12 +262,12 @@ public  class B_FaultsFetcher extends FaultsFetcher  implements java.io.Serializ
 				
 				for(int j=i+1; j<preFaultSectionDataList.size(); ++j) {
 					FaultTrace faultTrace2 = preFaultSectionDataList.get(j).getFaultTrace();
-					minDist = RelativeLocation.getApproxHorzDistance(faultTrace1.getLocationAt(0), faultTrace2.getLocationAt(0));
-					distance = RelativeLocation.getApproxHorzDistance(faultTrace1.getLocationAt(0), faultTrace2.getLocationAt(faultTrace2.getNumLocations()-1));
+					minDist = LocationUtils.getApproxHorzDistance(faultTrace1.getLocationAt(0), faultTrace2.getLocationAt(0));
+					distance = LocationUtils.getApproxHorzDistance(faultTrace1.getLocationAt(0), faultTrace2.getLocationAt(faultTrace2.getNumLocations()-1));
 					if(distance<minDist) minDist = distance;
-					distance = RelativeLocation.getApproxHorzDistance(faultTrace1.getLocationAt(faultTrace1.getNumLocations()-1), faultTrace2.getLocationAt(0));
+					distance = LocationUtils.getApproxHorzDistance(faultTrace1.getLocationAt(faultTrace1.getNumLocations()-1), faultTrace2.getLocationAt(0));
 					if(distance<minDist) minDist = distance;
-					distance = RelativeLocation.getApproxHorzDistance(faultTrace1.getLocationAt(faultTrace1.getNumLocations()-1), faultTrace2.getLocationAt(faultTrace2.getNumLocations()-1));
+					distance = LocationUtils.getApproxHorzDistance(faultTrace1.getLocationAt(faultTrace1.getNumLocations()-1), faultTrace2.getLocationAt(faultTrace2.getNumLocations()-1));
 					if(distance<minDist) minDist = distance;
 					fw.write(preFaultSectionDataList.get(i).getSectionName()+";"+
 							preFaultSectionDataList.get(j).getSectionName()+";"+

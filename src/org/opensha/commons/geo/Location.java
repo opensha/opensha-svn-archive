@@ -20,7 +20,7 @@ package org.opensha.commons.geo;
 
 import static org.opensha.commons.geo.GeoTools.TO_DEG;
 import static org.opensha.commons.geo.GeoTools.TO_RAD;
-import static org.opensha.commons.geo.RelativeLocation.LL_PRECISION;
+import static org.opensha.commons.geo.LocationUtils.LL_PRECISION;
 
 import java.io.Serializable;
 

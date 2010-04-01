@@ -34,7 +34,7 @@ import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.DoubleDiscreteConstraint;
 import org.opensha.commons.param.StringConstraint;
@@ -347,17 +347,17 @@ public class AS_1997_AttenRel
     // now get the locations projected way down dip
     loc = surface.getLocation(0, numCols - 1);
     loc2 = surface.getLocation(surface.getNumRows() - 1, numCols - 1);
-    dir = RelativeLocation.getDirection(loc, loc2);
+    dir = LocationUtils.getDirection(loc, loc2);
     dir.setHorzDistance(100.0); // anything that makes rup dist > 25 km
-    loc3 = RelativeLocation.location(loc, dir);
+    loc3 = LocationUtils.location(loc, dir);
     xVals[numCols] = (int) (loc3.getLongitude() * toIntFactor);
     yVals[numCols] = (int) (loc3.getLatitude() * toIntFactor);
 
     loc = surface.getLocation(0, 0);
     loc2 = surface.getLocation(surface.getNumRows() - 1, 0);
-    dir = RelativeLocation.getDirection(loc, loc2);
+    dir = LocationUtils.getDirection(loc, loc2);
     dir.setHorzDistance(100.0); // anything that makes rup dist > 25 km
-    loc3 = RelativeLocation.location(loc, dir);
+    loc3 = LocationUtils.location(loc, dir);
     xVals[numCols + 1] = (int) (loc3.getLongitude() * toIntFactor);
     yVals[numCols + 1] = (int) (loc3.getLatitude() * toIntFactor);
 

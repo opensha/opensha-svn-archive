@@ -26,7 +26,7 @@ import java.util.ListIterator;
 import org.opensha.commons.data.Direction;
 import org.opensha.commons.exceptions.FaultException;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.util.FaultUtils;
 
 
@@ -124,7 +124,7 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
        // Find aveDipDirection (defined by end locations):
         Location firstLoc = faultTrace.get(0);
         Location lastLoc = faultTrace.get(faultTrace.getNumLocations() - 1);;
-        Direction aveDir = RelativeLocation.getDirection(firstLoc, lastLoc);
+        Direction aveDir = LocationUtils.getDirection(firstLoc, lastLoc);
         if(D) System.out.println("aveDir.getAzimuth(): = " + aveDir.getAzimuth());
         double aveDipDirection = ( aveDir.getAzimuth() + 90 );
 
@@ -142,7 +142,7 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
         while( it.hasNext() ){
 
             loc = it.next();
-            dir = RelativeLocation.getDirection(lastLoc, loc);
+            dir = LocationUtils.getDirection(lastLoc, loc);
 
             double azimuth = dir.getAzimuth();
             double distance = dir.getHorzDistance();
@@ -228,7 +228,7 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
             dir = new Direction(segmentAzimuth[ segmentNumber - 1 ], distance, 0);
 
             // location on the trace
-            Location topLocation = RelativeLocation.location( location1, dir  );
+            Location topLocation = LocationUtils.location( location1, dir  );
 
             setLocation(0, ith_col, topLocation.clone());
             if( D ) System.out.println(S + "(x,y) topLocation = (0, " + ith_col + ") " + topLocation );
@@ -249,7 +249,7 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
                 if( D ) System.out.println(S + "dip = " + dip + "; hDist = " + dir.getHorzDistance()
                                               + "; vDist = " + dir.getVertDistance() );
 
-                Location nextLocation = RelativeLocation.location( lastLocation, dir );
+                Location nextLocation = LocationUtils.location( lastLocation, dir );
                 setLocation(ith_row, ith_col, nextLocation.clone());
 
                 if( D ) System.out.println(S + "(x,y) nextLocation = (" + ith_row + ", " + ith_col + ") " + nextLocation );

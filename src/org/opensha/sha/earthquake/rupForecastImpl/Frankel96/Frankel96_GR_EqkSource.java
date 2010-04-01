@@ -24,7 +24,7 @@ import org.opensha.commons.data.Direction;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
@@ -206,16 +206,16 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
       double min;
 
       // get first location on fault trace
-      Direction dir = RelativeLocation.getDirection(site.getLocation(), (Location) surface.get(0,0));
+      Direction dir = LocationUtils.getDirection(site.getLocation(), (Location) surface.get(0,0));
       min = dir.getHorzDistance();
 
       // get last location on fault trace
-      dir = RelativeLocation.getDirection(site.getLocation(),(Location) surface.get(0,surface.getNumCols()-1));
+      dir = LocationUtils.getDirection(site.getLocation(),(Location) surface.get(0,surface.getNumCols()-1));
       if (min > dir.getHorzDistance())
           min = dir.getHorzDistance();
 
       // get mid location on fault trace
-      dir = RelativeLocation.getDirection(site.getLocation(),(Location) surface.get(0,(int) surface.getNumCols()/2));
+      dir = LocationUtils.getDirection(site.getLocation(),(Location) surface.get(0,(int) surface.getNumCols()/2));
       if (min > dir.getHorzDistance())
           min = dir.getHorzDistance();
 

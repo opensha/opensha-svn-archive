@@ -31,7 +31,7 @@ import org.opensha.commons.data.Direction;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
@@ -132,10 +132,10 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
       for(double offSet=0; offSet < rupLength+deltaRupOffset/2.0; offSet += deltaRupOffset){
 //        dir = new Direction(0.0,offSet,strike,Double.NaN);
           dir = new Direction(strike, offSet, 0.0);
-        loc1 = RelativeLocation.location(loc,dir);
+        loc1 = LocationUtils.location(loc,dir);
 //        dir = new Direction(0.0,rupLength-offSet,strike+180,Double.NaN);
         dir = new Direction(strike+180, rupLength-offSet, 0.0);
-        loc2 = RelativeLocation.location(loc,dir);
+        loc2 = LocationUtils.location(loc,dir);
         fltTrace = new FaultTrace(null);
         fltTrace.add(loc1);
         fltTrace.add(loc2);
@@ -209,7 +209,7 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
    * @return minimum distance
    */
    public  double getMinDistance(Site site) {
-     return RelativeLocation.horzDistance(site.getLocation(),loc) - rupLength;
+     return LocationUtils.horzDistance(site.getLocation(),loc) - rupLength;
     }
 
  /**

@@ -24,7 +24,7 @@ import java.util.ListIterator;
 import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.WarningParameterAPI;
@@ -148,7 +148,7 @@ implements WarningParameterAPI
 			while( it.hasNext() ){
 
 				loc2 = (Location) it.next();
-				currentDistance = RelativeLocation.horzDistance(loc1, loc2);
+				currentDistance = LocationUtils.horzDistance(loc1, loc2);
 				if( currentDistance < minDistance ) minDistance = currentDistance;
 			}				
 
@@ -158,10 +158,10 @@ implements WarningParameterAPI
 					double d1, d2,min_dist;
 					loc1 = rupSurf.getLocation(0, 0);
 					loc2 = rupSurf.getLocation(1, 1);
-					d1 = RelativeLocation.horzDistance(loc1,loc2);
+					d1 = LocationUtils.horzDistance(loc1,loc2);
 					loc1 = rupSurf.getLocation(0, 1);
 					loc2 = rupSurf.getLocation(1, 0);
-					d2 = RelativeLocation.horzDistance(loc1,loc2);
+					d2 = LocationUtils.horzDistance(loc1,loc2);
 					min_dist = Math.min(d1, d1)/2;
 					if(minDistance<=min_dist) minDistance = 0;
 				}

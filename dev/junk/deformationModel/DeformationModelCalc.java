@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
@@ -31,7 +31,7 @@ public class DeformationModelCalc {
 	 */
 	public DiscretizedFuncAPI getDistanceSlipFunc(Location eastLoc, Location westLoc) {
 		EvenlyDiscretizedFunc evenlyDiscFunc = new EvenlyDiscretizedFunc(0, 
-				RelativeLocation.horzDistanceFast(eastLoc, westLoc),
+				LocationUtils.horzDistanceFast(eastLoc, westLoc),
 				NUM);
 		double delta = evenlyDiscFunc.getDelta();
 		ArrayList faultSectionPrefDataList = prefFaultSectionDAO.getAllFaultSectionPrefData();

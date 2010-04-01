@@ -39,10 +39,10 @@ public class DistanceTest {
 			curve = calc.calculateGeodeticCurve(Ellipsoid.WGS84, cStart, cEnd);
 			double vd = curve.getEllipsoidalDistance() / 1000;
 
-			double surfDist = RelativeLocation.surfaceDistance(lStart, lEnd);
-			double fastSurfDist = RelativeLocation.fastSurfaceDistance(lStart, lEnd);
-			double horizDist = RelativeLocation.getHorzDistance(lStart, lEnd);
-			double approxDist = RelativeLocation.getApproxHorzDistance(lStart, lEnd);
+			double surfDist = LocationUtils.surfaceDistance(lStart, lEnd);
+			double fastSurfDist = LocationUtils.fastSurfaceDistance(lStart, lEnd);
+			double horizDist = LocationUtils.getHorzDistance(lStart, lEnd);
+			double approxDist = LocationUtils.getApproxHorzDistance(lStart, lEnd);
 
 			double d1 = surfDist - vd;
 			double d2 = fastSurfDist - vd;

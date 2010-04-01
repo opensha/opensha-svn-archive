@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.util.XYZHashMap;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.cybershake.plot.HazardMapScatterCreator;
@@ -36,7 +36,7 @@ public class EEWScatterMaker {
 			
 			// to deal with overlaps, just move the next (overlapping) one over a bit
 			for (Location prev : prevLocs) {
-				if (RelativeLocation.linearDistance(loc, prev) < 10) {
+				if (LocationUtils.linearDistance(loc, prev) < 10) {
 					loc = new Location(
 							loc.getLatitude(),
 							loc.getLongitude() + 0.2,

@@ -2,7 +2,7 @@ package scratch.peter.tmp;
 
 import org.opensha.commons.data.Direction;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.util.FaultTraceUtils;
 import org.opensha.sha.faultSurface.ApproxEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
@@ -73,7 +73,7 @@ public class TestSubductionFault {
 		for(int ii=0; ii<resampTopTrace.size(); ii++) {
 	        Location topLoc = resampTopTrace.get(ii);
 			Location botLoc = resampBottomTrace.get(ii);
-			aveDist += RelativeLocation.linearDistanceFast(topLoc, botLoc);
+			aveDist += LocationUtils.linearDistanceFast(topLoc, botLoc);
 		}
 		aveDist /= resampTopTrace.size();
 		int nRows = (int) Math.round(aveDist/aveSubFaultGridSpacing)+1;
@@ -87,18 +87,18 @@ public class TestSubductionFault {
 		for(int ii=0; ii<resampTopTrace.size(); ii++) {
 			Location topLoc = resampTopTrace.get(ii);
 			Location botLoc = resampBottomTrace.get(ii);
-			double horzLength = RelativeLocation.horzDistance(topLoc, botLoc);
-			double vertLength = RelativeLocation.vertDistance(topLoc, botLoc);
+			double horzLength = LocationUtils.horzDistance(topLoc, botLoc);
+			double vertLength = LocationUtils.vertDistance(topLoc, botLoc);
 			double subSecLenHoriz = horzLength/(nRows-1);
 			double subSecLenVert = vertLength/(nRows-1);
-			Direction dir = RelativeLocation.getDirection(topLoc, botLoc);
+			Direction dir = LocationUtils.getDirection(topLoc, botLoc);
 			System.out.println("Top trace node number: "+(ii+1));
 			for(int s=0; s< nRows; s++) {
 				double distHoriz = s*subSecLenHoriz;
 				double distVert = -s*subSecLenVert;
 				dir.setHorzDistance(distHoriz);
 				dir.setVertDistance(distVert);
-				Location loc = RelativeLocation.location(topLoc, dir);
+				Location loc = LocationUtils.location(topLoc, dir);
 				surf.setLocation(s, ii, loc);
 				indexLoc = indexLoc+1;
 				System.out.println("Location "+(s+1)+", lat: "+loc.getLatitude()+", lon: "+loc.getLongitude()+", depth: "+loc.getDepth());

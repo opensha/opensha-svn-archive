@@ -1841,9 +1841,9 @@ public class A_FaultSegmentedSourceGenerator {
 		FaultTrace faultTrace1 = new FaultTrace("trace1");
 		Location loc1 = new Location(0,0,0);
 		Direction dir = new Direction(0.0, 100, 0.0, 0.0);
-		Location loc2 = RelativeLocation.getLocation(loc1, dir);
+		Location loc2 = LocationUtils.getLocation(loc1, dir);
 		dir = new Direction(0.0, 50, 0.0, 0.0);
-		Location loc3 = RelativeLocation.getLocation(loc2, dir);
+		Location loc3 = LocationUtils.getLocation(loc2, dir);
 		faultTrace1.addLocation(loc1);
 		faultTrace1.addLocation(loc2);
 		System.out.println("faultTrace1 length = "+(float)faultTrace1.getTraceLength());

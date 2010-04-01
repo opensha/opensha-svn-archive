@@ -106,7 +106,7 @@ public class Direction {
 	 */
 	public double getAzimuth() {
 		return azimuth;
-//		return azimuth * RelativeLocation.TO_DEG;
+//		return azimuth * LocationUtils.TO_DEG;
 	}
 
 	/**

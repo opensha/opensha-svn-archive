@@ -25,7 +25,7 @@ import java.util.ListIterator;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 
 // Fix - Needs more comments
 
@@ -73,7 +73,7 @@ public class FaultTrace extends LocationList implements NamedObjectAPI {
       Location loc = null;
       while( it.hasNext() ){
         loc = it.next();
-        totLength += RelativeLocation.horzDistance(lastLoc, loc);
+        totLength += LocationUtils.horzDistance(lastLoc, loc);
         lastLoc = loc;
       }
       return totLength;
@@ -91,8 +91,8 @@ public class FaultTrace extends LocationList implements NamedObjectAPI {
       double aveStrike=0;
       while( it.hasNext() ){
         loc = it.next();
-        length = RelativeLocation.horzDistance(lastLoc, loc);
-        aveStrike += RelativeLocation.azimuth(lastLoc, loc) * length;
+        length = LocationUtils.horzDistance(lastLoc, loc);
+        aveStrike += LocationUtils.azimuth(lastLoc, loc) * length;
         totLength += length;
         lastLoc = loc;
       }
@@ -105,7 +105,7 @@ public class FaultTrace extends LocationList implements NamedObjectAPI {
      * @return
      */
     public double getStrikeDirection() {
-    	return RelativeLocation.azimuth(get(0), get(size()-1));
+    	return LocationUtils.azimuth(get(0), get(size()-1));
      }
 
     

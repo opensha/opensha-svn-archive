@@ -30,7 +30,7 @@ import java.util.StringTokenizer;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.util.FileUtils;
 
 /**
@@ -89,7 +89,7 @@ public class MeanSigmaCalcWithSiteEffectsProvided extends MeanSigmaCalc{
       double middleLat = (minLat + maxLat)/2;
 
       //getting the source-site cuttoff distance
-      sourceCutOffDistance = RelativeLocation.horzDistance(
+      sourceCutOffDistance = LocationUtils.horzDistance(
     		  new Location(middleLat,middleLon),
     		  new Location(minLat,minLon)) + MIN_DIST;
       siteForSourceCutOff = new Site(new Location(middleLat,middleLon));

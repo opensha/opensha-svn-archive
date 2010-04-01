@@ -26,7 +26,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.DoubleDiscreteConstraint;
 import org.opensha.commons.param.DoubleParameter;
@@ -317,18 +317,18 @@ public class AS_2005_prelim_AttenRel
       EvenlyGriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
       Location fltLoc1 = surface.getLocation(0, 0);
       Location fltLoc2 = surface.getLocation(0, surface.getNumCols() - 1);
-      double angle1 = RelativeLocation.azimuth(fltLoc1, fltLoc2);
+      double angle1 = LocationUtils.azimuth(fltLoc1, fltLoc2);
       double minDist = Double.MAX_VALUE, dist;
       int minDistLocIndex = -1;
       for (int i = 0; i < surface.getNumCols(); i++) {
-        dist = RelativeLocation.horzDistanceFast(site.getLocation(),
+        dist = LocationUtils.horzDistanceFast(site.getLocation(),
             surface.getLocation(0, i));
         if (dist < minDist) {
           minDist = dist;
           minDistLocIndex = i;
         }
       }
-      double angle2 = RelativeLocation.azimuth(surface.getLocation(0,
+      double angle2 = LocationUtils.azimuth(surface.getLocation(0,
           minDistLocIndex), site.getLocation());
       srcSiteAngleParam.setValue(angle2 - angle1);
 

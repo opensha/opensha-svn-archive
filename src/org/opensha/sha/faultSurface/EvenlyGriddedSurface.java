@@ -27,7 +27,7 @@ import org.opensha.commons.data.Container2D;
 import org.opensha.commons.exceptions.LocationException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 
 /**
  * <b>Title:</b> GriddedSurface<p>
@@ -469,7 +469,7 @@ public abstract class EvenlyGriddedSurface
     		Iterator it2 = surface.getLocationsIterator();
     		while(it2.hasNext()) { // iterate over all locations on the user provided surface
     			Location loc2 = (Location)it2.next();
-    			dist = RelativeLocation.horzDistanceFast(loc1, loc2);
+    			dist = LocationUtils.horzDistanceFast(loc1, loc2);
     			if(dist<min3dDist) min3dDist = dist;
     		}
     	}

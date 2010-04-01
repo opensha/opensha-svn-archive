@@ -23,7 +23,7 @@ import java.util.ListIterator;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.BooleanParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
@@ -311,13 +311,13 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
             loc2 = (Location) it.next();
 
             // get the vertical distance
-            vertDist = RelativeLocation.vertDistance(loc1, loc2);
+            vertDist = LocationUtils.vertDistance(loc1, loc2);
 
             // get the horizontal dist depending on desired accuracy
             if(APPROX_HORZ_DIST)
-              horzDist = RelativeLocation.horzDistanceFast(loc1, loc2);
+              horzDist = LocationUtils.horzDistanceFast(loc1, loc2);
             else
-              horzDist = RelativeLocation.horzDistance(loc1,loc2);
+              horzDist = LocationUtils.horzDistance(loc1,loc2);
 
             // make point source correction if desired
  
@@ -360,15 +360,15 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
         		  loc1 = rupSurf.getLocation(0, 0);
         		  loc2 = rupSurf.getLocation(1, 1);
                   if(APPROX_HORZ_DIST)
-                      d1 = RelativeLocation.horzDistanceFast(loc1, loc2);
+                      d1 = LocationUtils.horzDistanceFast(loc1, loc2);
                     else
-                      d1 = RelativeLocation.horzDistance(loc1,loc2);
+                      d1 = LocationUtils.horzDistance(loc1,loc2);
         		  loc1 = rupSurf.getLocation(0, 1);
         		  loc2 = rupSurf.getLocation(1, 0);
                   if(APPROX_HORZ_DIST)
-                      d2 = RelativeLocation.horzDistanceFast(loc1, loc2);
+                      d2 = LocationUtils.horzDistanceFast(loc1, loc2);
                     else
-                      d2 = RelativeLocation.horzDistance(loc1,loc2);
+                      d2 = LocationUtils.horzDistance(loc1,loc2);
                   min_dist = Math.min(d1, d1)/2;
                   if(distanceJB<=min_dist) distanceJB = 0;
         	  }

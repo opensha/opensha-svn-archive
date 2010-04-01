@@ -33,7 +33,7 @@ import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.DoubleDiscreteConstraint;
 import org.opensha.commons.param.DoubleParameter;
@@ -312,7 +312,7 @@ public class Abrahamson_2000_AttenRel
     double dist, closestDist = Double.MAX_VALUE;
     Location closestLoc = null;
     for (int c = 0; c < numTrPts; c++) {
-      dist = RelativeLocation.horzDistance(siteLoc, surface.getLocation(0, c));
+      dist = LocationUtils.horzDistance(siteLoc, surface.getLocation(0, c));
       if (dist < closestDist) {
         closestDist = dist;
         closestLoc = surface.getLocation(0, c);
@@ -320,9 +320,9 @@ public class Abrahamson_2000_AttenRel
     }
 
     // compute the distance between the closest point on the trace and the hypocenter
-    double s = RelativeLocation.horzDistance(closestLoc, hypLoc);
+    double s = LocationUtils.horzDistance(closestLoc, hypLoc);
     // get total length of rupture
-    double L = RelativeLocation.horzDistance(surface.getLocation(0, 0),
+    double L = LocationUtils.horzDistance(surface.getLocation(0, 0),
                                                 surface.getLocation(0,
         numTrPts - 1));
     double x = s / L;
@@ -338,12 +338,12 @@ public class Abrahamson_2000_AttenRel
     double angleDiff;
     if (s > 0.01) {
       Direction dir;
-      dir = RelativeLocation.getDirection(hypLoc, siteLoc);
+      dir = LocationUtils.getDirection(hypLoc, siteLoc);
       double angle1 = dir.getAzimuth();
       if (angle1 < 0) {
         angle1 += 360; // make it positive to avoid confusion
       }
-      dir = RelativeLocation.getDirection(hypLoc, closestLoc);
+      dir = LocationUtils.getDirection(hypLoc, closestLoc);
       double angle2 = dir.getAzimuth();
       if (angle2 < 0) {
         angle2 += 360; // make it positive to avoid confusion

@@ -51,15 +51,15 @@ import org.opensha.commons.data.Direction;
  * @version $Id$
  * @see Location
  */
-public final class RelativeLocation {
+public final class LocationUtils {
 	
 	/*
 	 * Developer Notes: All experimental, exploratory and test methods were 
-	 * moved to the RelativeLocationTest.java. On the basis of various 
+	 * moved to the LocationUtilsTest.java. On the basis of various 
 	 * experiments, older methods to calculate distance were replaced with 
 	 * updated versions, many of which leverage spherical geometry to yield
 	 * more accurate results. Some 'fast' versions were updated as well. All 
-	 * legacy methods, however, are preserved in RelativeLocationTest.java 
+	 * legacy methods, however, are preserved in LocationUtilsTest.java 
 	 * where comparison tests can be rerun. P.Powers 3-6-2010
 	 * 
 	 * Most methods take Locations exclusively as arguments. This alleviates
@@ -70,7 +70,7 @@ public final class RelativeLocation {
 	 */
 
 	/* No instantiation allowed */
-	private RelativeLocation() {}
+	private LocationUtils() {}
 	
 	// NOTE: This vlaue is used to 'clean' decimal values that have been 
 	// subject to narrowing conversions when creating border Areas. For

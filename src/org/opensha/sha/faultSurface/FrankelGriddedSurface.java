@@ -26,7 +26,7 @@ import java.util.ListIterator;
 import org.opensha.commons.data.Direction;
 import org.opensha.commons.exceptions.FaultException;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 
 
 
@@ -123,7 +123,7 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
         while( it.hasNext() ){
 
             loc = it.next();
-            dir = RelativeLocation.getDirection(lastLoc, loc);
+            dir = LocationUtils.getDirection(lastLoc, loc);
 
             double azimuth = dir.getAzimuth();
             double distance = dir.getHorzDistance();
@@ -197,7 +197,7 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
             dir = new Direction(segmentAzimuth[ segmentNumber - 1 ],  distance, 0);
 
             // location on the trace
-            Location traceLocation = RelativeLocation.location( location1, dir  );
+            Location traceLocation = LocationUtils.location( location1, dir  );
 
             // get location at the top of the fault surface
             Location topLocation;
@@ -207,7 +207,7 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
                 hDistance = vDistance / Math.tan( avDipRadians );
 //                dir = new Direction(vDistance, hDistance, segmentAzimuth[ segmentNumber - 1 ]+90, 0);
                 dir = new Direction(segmentAzimuth[ segmentNumber - 1 ]+90, hDistance, vDistance);
-                topLocation = RelativeLocation.location( traceLocation, dir );
+                topLocation = LocationUtils.location( traceLocation, dir );
             }
             else
                 topLocation = traceLocation;
@@ -229,7 +229,7 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 //                dir = new Direction(vDistance, hDistance, segmentAzimuth[ segmentNumber - 1 ]+90, 0);
                 dir = new Direction(segmentAzimuth[ segmentNumber - 1 ]+90, hDistance, vDistance);
 
-                Location depthLocation = RelativeLocation.location( topLocation, dir );
+                Location depthLocation = LocationUtils.location( topLocation, dir );
                 setLocation(ith_row, ith_col, depthLocation.clone());
                 if( D ) System.out.println(S + "(x,y) depthLocation = (" + ith_row + ", " + ith_col + ") " + depthLocation );
 
@@ -246,7 +246,7 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
     public static void main(String args[]) {
 
     	// for N-S strike and E dip, this setup showed that prior to fixing
-    	// RelativeLocation.getLocation() the grid of the fault actually
+    	// LocationUtils.getLocation() the grid of the fault actually
     	// starts to the left of the trace, rather than to the right.
       double aveDip = 30;
       double upperSeismogenicDepth = 5;

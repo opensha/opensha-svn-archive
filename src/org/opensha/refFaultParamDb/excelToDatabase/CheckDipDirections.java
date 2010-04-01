@@ -5,7 +5,7 @@ package org.opensha.refFaultParamDb.excelToDatabase;
 
 import java.util.ArrayList;
 
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
@@ -28,7 +28,7 @@ public class CheckDipDirections {
 		for(int i=0; i<faultSectionPrefDataList.size(); ++i) {
 			FaultSectionPrefData faultSectionPrefData = faultSectionPrefDataList.get(i);
 			FaultTrace faultSectionTrace = faultSectionPrefData.getFaultTrace();
-			double dipDirectionFromOpenSHA = 90+RelativeLocation.getDirection(faultSectionTrace.get(0),
+			double dipDirectionFromOpenSHA = 90+LocationUtils.getDirection(faultSectionTrace.get(0),
 					faultSectionTrace.get(faultSectionTrace.getNumLocations()-1)).getAzimuth();
 			if(dipDirectionFromOpenSHA<0) dipDirectionFromOpenSHA+=360;
 			else if(dipDirectionFromOpenSHA>360) dipDirectionFromOpenSHA-=360;

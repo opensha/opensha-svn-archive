@@ -25,7 +25,7 @@ import java.util.Iterator;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
@@ -286,7 +286,7 @@ public class FaultRuptureSource
     Iterator it = faultCornerLocations.iterator();
 
     while (it.hasNext()) {
-      tempMin = RelativeLocation.horzDistance(site.getLocation(),
+      tempMin = LocationUtils.horzDistance(site.getLocation(),
                                                  (Location) it.next());
       if (tempMin < min) min = tempMin;
     }

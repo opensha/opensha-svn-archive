@@ -24,7 +24,7 @@ import java.util.ListIterator;
 import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.WarningParameterAPI;
@@ -165,14 +165,14 @@ implements WarningParameterAPI
 				Location loc2 = (Location)it.next();
 				// ignore locations with depth less than siesDepth (unless projectToDepth=true):
 				if (loc2.getDepth() >= seisDepth) {
-					horzDist = RelativeLocation.horzDistance(loc1, loc2);
-					vertDist = RelativeLocation.vertDistance(loc1, loc2);
+					horzDist = LocationUtils.horzDistance(loc1, loc2);
+					vertDist = LocationUtils.vertDistance(loc1, loc2);
 					totalDist = horzDist * horzDist + vertDist * vertDist;
 					if( totalDist < minDistance )  minDistance = totalDist;
 				}
 				// put a zero-depth point source at the seisDepth
 				else if (projectToDepth) {
-					horzDist = RelativeLocation.horzDistance(loc1, loc2);
+					horzDist = LocationUtils.horzDistance(loc1, loc2);
 					totalDist = horzDist * horzDist + seisDepth * seisDepth;
 					if( totalDist < minDistance )  minDistance = totalDist;
 				}

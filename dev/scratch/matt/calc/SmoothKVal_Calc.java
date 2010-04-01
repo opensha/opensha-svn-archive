@@ -5,7 +5,7 @@ import java.util.ListIterator;
 
 import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.griddedForecast.GenericAfterHypoMagFreqDistForecast;
 import org.opensha.sha.earthquake.griddedForecast.STEP_AftershockForecast;
 import org.opensha.sha.earthquake.griddedForecast.SequenceAfterHypoMagFreqDistForecast;
@@ -98,7 +98,7 @@ public class SmoothKVal_Calc {
       int numFaultPoints = faultTrace.size();
       double totDistFromFault = 0;
       while (it.hasNext()) {
-        nodeDistFromFault[ind++] = RelativeLocation.distanceToLineFast(
+        nodeDistFromFault[ind++] = LocationUtils.distanceToLineFast(
         		faultTrace.get(0),
         		faultTrace.get(numFaultPoints),
         		it.next());

@@ -32,7 +32,7 @@ import org.opensha.commons.data.region.Region;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.util.SystemPropertiesUtils;
 import org.opensha.sha.earthquake.EqkRupForecast;
@@ -449,10 +449,10 @@ public class ERF2RuptureForSTF_Generator {
         double maxLat = region.getMaxLat();
         double minLon = region.getMinLon();
         double maxLon = region.getMaxLon();
-        double distanceSWSE = RelativeLocation.horzDistanceFast(
+        double distanceSWSE = LocationUtils.horzDistanceFast(
         		new Location(minLat,minLon),
         		new Location(minLat, maxLon));
-        double distanceNWSW = RelativeLocation.horzDistanceFast(
+        double distanceNWSW = LocationUtils.horzDistanceFast(
         		new Location(minLat,minLon),
         		new Location(maxLat, minLon));
         if(regionMinLat > minLat)
@@ -558,7 +558,7 @@ public class ERF2RuptureForSTF_Generator {
       for (int i = 0; i < numCols - 1; ++i) {
         Location loc1 = surface.getLocation(0, i);
         Location loc2 = surface.getLocation(0, i + 1);
-        double strike = RelativeLocation.azimuth(loc1, loc2);
+        double strike = LocationUtils.azimuth(loc1, loc2);
         localStrike[i] = strike;
       }
     }

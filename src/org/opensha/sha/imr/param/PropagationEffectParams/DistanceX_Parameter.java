@@ -27,7 +27,7 @@ import org.opensha.commons.data.region.Region;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.WarningParameterAPI;
@@ -152,22 +152,22 @@ public class DistanceX_Parameter
     			Location lastTraceLoc = rupSurf.getLocation(0, rupSurf.getNumCols()-1); 	// last trace point
 
     			// get point projected from first trace point in opposite direction of the ave trace
-    			Direction dir = RelativeLocation.getDirection(lastTraceLoc, firstTraceLoc); 		
+    			Direction dir = LocationUtils.getDirection(lastTraceLoc, firstTraceLoc); 		
     			dir.setHorzDistance(1000); // project to 1000 km
-    			Location projectedLoc1 = RelativeLocation.location(firstTraceLoc, dir);
+    			Location projectedLoc1 = LocationUtils.location(firstTraceLoc, dir);
 
 
     			// get point projected from last trace point in ave trace direction
     			dir.setAzimuth(dir.getAzimuth()+180);  // flip to ave trace dir
-    			Location projectedLoc2 = RelativeLocation.location(lastTraceLoc, dir);
+    			Location projectedLoc2 = LocationUtils.location(lastTraceLoc, dir);
 //System.out.println("HERE21 "+projectedLoc1+"\t"+projectedLoc2);
     			// point down dip by adding 90 degrees to the azimuth
     			dir.setAzimuth(dir.getAzimuth()+90);  // now point down dip
 
     			// get points projected in the down dip directions at the ends of the new trace
-    			Location projectedLoc3 = RelativeLocation.location(projectedLoc1, dir);
+    			Location projectedLoc3 = LocationUtils.location(projectedLoc1, dir);
 
-    			Location projectedLoc4 = RelativeLocation.location(projectedLoc2, dir);
+    			Location projectedLoc4 = LocationUtils.location(projectedLoc2, dir);
 
     			LocationList locsForExtendedTrace = new LocationList();
     			LocationList locsForRegion = new LocationList();

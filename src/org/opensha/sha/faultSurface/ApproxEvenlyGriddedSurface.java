@@ -10,7 +10,7 @@ import java.util.Iterator;
 
 import org.opensha.commons.data.Direction;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.util.FaultTraceUtils;
 import org.opensha.commons.util.GMT_GrdFile;
 
@@ -59,15 +59,15 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 		Location firstUpperLoc = upperFaultTrace.get(0);
 		Location firstLowerLoc = lowerFaultTrace.get(0);
 		Location lastLowerLoc = lowerFaultTrace.get(lowerFaultTrace.size()-1);
-		double firstFirstDist = RelativeLocation.horzDistanceFast(firstUpperLoc, firstLowerLoc);
-		double firstLastDist = RelativeLocation.horzDistanceFast(firstUpperLoc, lastLowerLoc);
+		double firstFirstDist = LocationUtils.horzDistanceFast(firstUpperLoc, firstLowerLoc);
+		double firstLastDist = LocationUtils.horzDistanceFast(firstUpperLoc, lastLowerLoc);
 		if(firstLastDist < firstFirstDist) {
 			lowerFaultTrace.reverse();
 			System.out.println("Needed to reversed lower trace to comply with upper trace");
 		}
 
 		// Now check that Aki-Richards convention is adhered to (fault dips to right)
-		double dipDir = RelativeLocation.azimuth(upperFaultTrace.get(0), lowerFaultTrace.get(0));
+		double dipDir = LocationUtils.azimuth(upperFaultTrace.get(0), lowerFaultTrace.get(0));
 		double strikeDir = upperFaultTrace.getStrikeDirection();
 		if((strikeDir-dipDir) <0 ||  (strikeDir-dipDir) > 180) {
 			upperFaultTrace.reverse();
@@ -91,7 +91,7 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 		for(int i=0; i<resampUpperTrace.size(); i++) {
 			Location topLoc = resampUpperTrace.get(i);
 			Location botLoc = resampLowerTrace.get(i);
-			aveDist += RelativeLocation.linearDistanceFast(topLoc, botLoc);
+			aveDist += LocationUtils.linearDistanceFast(topLoc, botLoc);
 		}
 		aveDist /= resampUpperTrace.size();
 		int nRows = (int) Math.round(aveDist/aveGridSpacing)+1;
@@ -104,7 +104,7 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 		for(int c=0; c<resampUpperTrace.size(); c++) {
 			Location topLoc = resampUpperTrace.get(c);
 			Location botLoc = resampLowerTrace.get(c);
-			Direction dir = RelativeLocation.getDirection(topLoc, botLoc);
+			Direction dir = LocationUtils.getDirection(topLoc, botLoc);
 			double horzIncr = dir.getHorzDistance()/(nRows-1);
 			double vertIncr = dir.getVertDistance()/(nRows-1);  // minus sign because vertDist is pos up and depth is pos down
 			dir.setHorzDistance(horzIncr);
@@ -112,11 +112,11 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 			this.setLocation(0, c, topLoc);
 			Location prevLoc = topLoc;
 			for(int r=1;r<nRows;r++) {
-				Location nextLoc = RelativeLocation.location(prevLoc, dir);
+				Location nextLoc = LocationUtils.location(prevLoc, dir);
 				this.setLocation(r,c, nextLoc);
 				prevLoc = nextLoc;
 			}
-			double accuracyCheck = RelativeLocation.linearDistanceFast(botLoc, this.getLocation(nRows-1,c));
+			double accuracyCheck = LocationUtils.linearDistanceFast(botLoc, this.getLocation(nRows-1,c));
 //			System.out.println("Distance between actual and computed bottom point = "+(float)accuracyCheck);
 			
 			//override last location
@@ -143,7 +143,7 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 //		Location topLoc = new Location(-34.36338,-71.32979,50.0);
 //		Location botLoc = new Location(-33.94507,-72.7105,10.0);
 		double numSubdivisions=100;
-		Direction dir = RelativeLocation.getDirection(l1, l2);
+		Direction dir = LocationUtils.getDirection(l1, l2);
 		System.out.println("Azimuth p1 to p2: " + dir.getAzimuth());
 		double horzIncr = dir.getHorzDistance()/numSubdivisions;
 		double vertIncr = dir.getVertDistance()/numSubdivisions;  // minus sign because vertDist is pos up and depth is pos down
@@ -151,10 +151,10 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 		dir.setVertDistance(vertIncr);
 		Location prevLoc = l1;
 		for(int r=0;r<numSubdivisions;r++) {
-			Location nextLoc = RelativeLocation.location(prevLoc, dir);
+			Location nextLoc = LocationUtils.location(prevLoc, dir);
 			prevLoc = nextLoc;
 		}
-		double accuracyCheck = RelativeLocation.linearDistanceFast(l2, prevLoc);
+		double accuracyCheck = LocationUtils.linearDistanceFast(l2, prevLoc);
 		System.out.println("Distance between actual and computed bottom point = "+(float)accuracyCheck);
 		System.out.println("DeltaLat = "+ (float)((l2.getLatitude()-prevLoc.getLatitude())*111));
 		System.out.println("DeltaLon = "+ (float)((l2.getLongitude()-prevLoc.getLongitude())*111));
@@ -165,18 +165,18 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 	public static void test2(Location l1, Location l2) {
 		System.out.println("TEST-2");
 		double numSubdivisions=100;
-		Direction dir = RelativeLocation.getDirection(l1, l2);
+		Direction dir = LocationUtils.getDirection(l1, l2);
 		double horzIncr = dir.getHorzDistance()/numSubdivisions;
 		double vertIncr = dir.getVertDistance()/numSubdivisions;  // minus sign because vertDist is pos up and depth is pos down
 		dir.setHorzDistance(horzIncr);
 		dir.setVertDistance(vertIncr);
 		Location prevLoc = l1;
 		for(int r=0;r<numSubdivisions;r++) {
-			Location nextLoc = RelativeLocation.location(prevLoc, dir);
+			Location nextLoc = LocationUtils.location(prevLoc, dir);
 			prevLoc = nextLoc;
-			dir.setAzimuth(RelativeLocation.azimuth(prevLoc, l2));
+			dir.setAzimuth(LocationUtils.azimuth(prevLoc, l2));
 		}
-		double accuracyCheck = RelativeLocation.linearDistanceFast(l2, prevLoc);
+		double accuracyCheck = LocationUtils.linearDistanceFast(l2, prevLoc);
 		System.out.println("Distance between actual and computed bottom point = "+(float)accuracyCheck);
 		System.out.println("DeltaLat = "+ (float)((l2.getLatitude()-prevLoc.getLatitude())*111));
 		System.out.println("DeltaLon = "+ (float)((l2.getLongitude()-prevLoc.getLongitude())*111));
@@ -225,7 +225,7 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 		int num = 0;
 		for(int r=0; r<numRows;r++)
 			for(int c=0; c<numCols-1; c++) {
-				aveDist += RelativeLocation.linearDistanceFast(getLocation(r, c), getLocation(r, c+1));
+				aveDist += LocationUtils.linearDistanceFast(getLocation(r, c), getLocation(r, c+1));
 				num +=1;
 			}
 		return aveDist/num;
@@ -241,7 +241,7 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 		int num = 0;
 		for(int c=0; c<numCols; c++)
 			for(int r=0; r<numRows-1;r++) {
-				aveDist += RelativeLocation.linearDistanceFast(getLocation(r, c), getLocation(r+1, c));
+				aveDist += LocationUtils.linearDistanceFast(getLocation(r, c), getLocation(r+1, c));
 				num +=1;
 			}
 		return aveDist/num;

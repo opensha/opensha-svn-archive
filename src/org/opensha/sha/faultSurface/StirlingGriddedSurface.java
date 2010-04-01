@@ -26,7 +26,7 @@ import java.util.ListIterator;
 import org.opensha.commons.data.Direction;
 import org.opensha.commons.exceptions.FaultException;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 
 
 
@@ -149,7 +149,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
         if( Double.isNaN(aveDipDir) ) {
           firstLoc = faultTrace.get(0);
           lastLoc = faultTrace.get(faultTrace.getNumLocations() - 1);;
-          Direction aveDir = RelativeLocation.getDirection(firstLoc, lastLoc);
+          Direction aveDir = LocationUtils.getDirection(firstLoc, lastLoc);
           if (D) System.out.println("aveDir.getAzimuth(): = " + aveDir.getAzimuth());
           aveDipDirection = ( aveDir.getAzimuth() + 90 );
         }
@@ -171,7 +171,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
         while( it.hasNext() ){
 
             loc = it.next();
-            dir = RelativeLocation.getDirection(lastLoc, loc);
+            dir = LocationUtils.getDirection(lastLoc, loc);
 
             double azimuth = dir.getAzimuth();
             double distance = dir.getHorzDistance();
@@ -246,7 +246,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
             dir = new Direction(segmentAzimuth[ segmentNumber - 1 ], distance, 0);
 
             // location on the trace
-            Location traceLocation = RelativeLocation.location( location1, dir  );
+            Location traceLocation = LocationUtils.location( location1, dir  );
 
             // get location at the top of the fault surface
             Location topLocation;
@@ -256,7 +256,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
                 hDistance = vDistance / Math.tan( avDipRadians );
 //                dir = new Direction(vDistance, hDistance, aveDipDirection, 0);
                 dir = new Direction(aveDipDirection, hDistance, vDistance);
-                topLocation = RelativeLocation.location( traceLocation, dir );
+                topLocation = LocationUtils.location( traceLocation, dir );
             }
             else
                 topLocation = traceLocation;
@@ -278,7 +278,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
 //                dir = new Direction(vDistance, hDistance, aveDipDirection, 0);
                 dir = new Direction(aveDipDirection, hDistance, vDistance);
 
-                Location depthLocation = RelativeLocation.location( topLocation, dir );
+                Location depthLocation = LocationUtils.location( topLocation, dir );
                 setLocation(ith_row, ith_col, depthLocation.clone());
                 if( D ) System.out.println(S + "(x,y) depthLocation = (" + ith_row + ", " + ith_col + ") " + depthLocation );
 
@@ -318,7 +318,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
 //        }
     	
     	// for N-S strike and E dip, this setup showed that prior to fixing
-    	// RelativeLocation.getLocation() the grid of the fault actually
+    	// LocationUtils.getLocation() the grid of the fault actually
     	// starts to the left of the trace, rather than to the right.
         double aveDip = 30;
         double upperSeismogenicDepth = 5;

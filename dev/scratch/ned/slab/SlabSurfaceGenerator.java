@@ -14,7 +14,7 @@ import java.util.StringTokenizer;
 import org.opensha.commons.data.Direction;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.GMT_GrdFile;
 import org.opensha.sha.faultSurface.ApproxEvenlyGriddedSurface;
@@ -51,7 +51,7 @@ public class SlabSurfaceGenerator {
 		  origBottomTrace.reverse();
 		  
 		  // Now check that Aki-Richards convention is adhered to (fault dips to right)
-		  double dipDir = RelativeLocation.azimuth(origTopTrace.get(0), origBottomTrace.get(0));
+		  double dipDir = LocationUtils.azimuth(origTopTrace.get(0), origBottomTrace.get(0));
 		  double strikeDir = origTopTrace.getStrikeDirection();
 		  if((strikeDir-dipDir) <0 ||  (strikeDir-dipDir) > 180) {
 			  origTopTrace.reverse();
@@ -82,7 +82,7 @@ public class SlabSurfaceGenerator {
 		  for(int i=0; i<resampTopTrace.size(); i++) {
 			  Location topLoc = resampTopTrace.get(i);
 			  Location botLoc = resampBottomTrace.get(i);
-			  aveDist += RelativeLocation.horzDistance(topLoc, botLoc);
+			  aveDist += LocationUtils.horzDistance(topLoc, botLoc);
 		  }
 		  aveDist /= resampTopTrace.size();
 		  int nRows = (int) Math.round(aveDist/aveGridSpacing)+1;
@@ -112,15 +112,15 @@ public class SlabSurfaceGenerator {
 		for(int i=0; i<resampTopTrace.size(); i++) {
 			Location topLoc = resampTopTrace.get(i);
 			Location botLoc = resampBottomTrace.get(i);
-			double length = RelativeLocation.horzDistance(topLoc, botLoc);
+			double length = LocationUtils.horzDistance(topLoc, botLoc);
 			double subSectLen = length/(nRows-1);
-			Direction dir = RelativeLocation.getDirection(topLoc, botLoc);
+			Direction dir = LocationUtils.getDirection(topLoc, botLoc);
 			//System.out.println("length1="+length+"\tlength2="+dir.getHorzDistance());
 			dir.setVertDistance(0.0);
 			for(int s=0; s< nRows; s++) {
 				double dist = s*subSectLen;
 				dir.setHorzDistance(dist);
-				Location loc = RelativeLocation.location(topLoc, dir);
+				Location loc = LocationUtils.location(topLoc, dir);
 				double depth= 0;
 				try {
 //					depth = -grdSurfData.getClosestZ(loc);  // notice the minus sign
@@ -288,11 +288,11 @@ public class SlabSurfaceGenerator {
 				  lon = Double.parseDouble(st.nextToken());
 				  lat = Double.parseDouble(st.nextToken());
 				  newLoc = new Location(lat,lon,0.0);
-				  if(i==fileLines.size()-3) distThresh = 3*RelativeLocation.horzDistanceFast(newLoc, lastLoc);  // assumes equal spacing on top
+				  if(i==fileLines.size()-3) distThresh = 3*LocationUtils.horzDistanceFast(newLoc, lastLoc);  // assumes equal spacing on top
 //System.out.println(fileLines.get(i)+"\t"+newLoc);
 				  if(stillOnTopTrace) {
 					  // check whether we've jumped to bottom trace
-					  if(RelativeLocation.horzDistanceFast(newLoc, lastLoc) > distThresh) {
+					  if(LocationUtils.horzDistanceFast(newLoc, lastLoc) > distThresh) {
 						  stillOnTopTrace = false;  // if distance is greater than 100 km, we've jumped to the bottom trace
 						  bottomTrace.add(newLoc);
 					  }else {

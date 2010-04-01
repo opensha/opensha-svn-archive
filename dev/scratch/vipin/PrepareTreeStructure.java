@@ -9,7 +9,7 @@ import java.util.Iterator;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 
 /**
  * <p>Title: PrepareTreeStructure.java </p>
@@ -169,7 +169,7 @@ public class PrepareTreeStructure {
       String  faultSectionName = (String) it.next();
       sortedSectionNames.add(faultSectionName);
       Location loc = ((Node)faultTree.get(faultSectionName)).getLoc();
-      double distance = RelativeLocation.horzDistanceFast(loc, LOCATION);
+      double distance = LocationUtils.horzDistanceFast(loc, LOCATION);
       if(distance<minDist) {
         minDist = distance;
         firstSectionName = faultSectionName;
@@ -185,7 +185,7 @@ public class PrepareTreeStructure {
       Location loc = ((Node)faultTree.get((String)sortedSectionNames.get(i))).getLoc();
       for(int j=i+1; j<sortedSectionNames.size(); ++j) {
         Location loc1 = ((Node)faultTree.get((String)sortedSectionNames.get(j))).getLoc();
-        double distance = RelativeLocation.horzDistanceFast(loc, loc1);
+        double distance = LocationUtils.horzDistanceFast(loc, loc1);
         if(distance<minDist) {
           minDist = distance;
           nextSectionName = (String)sortedSectionNames.get(j);
@@ -257,7 +257,7 @@ public class PrepareTreeStructure {
           // needed to remove duplicates
           doneSections.add(node.getFaultSectionName()+"_"+secNode.getFaultSectionName());
           // write nearby sections in 2 different file formats
-          dist = RelativeLocation.getApproxHorzDistance(node.
+          dist = LocationUtils.getApproxHorzDistance(node.
                                  getLoc(), secNode.getLoc()) ;
           fwNearBySections1.write(node.getFaultSectionName() + "\t" +
                                  getLocationAsString(node.getLoc())+"\t"+
@@ -415,7 +415,7 @@ public class PrepareTreeStructure {
       if(nextNode!=null && !nodesList.contains(nextNode)) {
         Location loc = nextNode.getLoc();
         nodesList.add(nextNode);
-        traverse(nextNode, nodesList, rupLen+(float)RelativeLocation.horzDistanceFast(loc, node.getLoc()));
+        traverse(nextNode, nodesList, rupLen+(float)LocationUtils.horzDistanceFast(loc, node.getLoc()));
         nodesList.remove(nextNode);
       }
       
@@ -430,7 +430,7 @@ public class PrepareTreeStructure {
         float dist = 0.0f;
         // calculate distance only if locations lie on same fault section
         if(node.getFaultSectionName().equalsIgnoreCase(nextNode.getFaultSectionName()))
-           dist = (float)RelativeLocation.horzDistanceFast(loc, node.getLoc());
+           dist = (float)LocationUtils.horzDistanceFast(loc, node.getLoc());
         traverse(nextNode, nodesList, rupLen+dist);
         nodesList.remove(nextNode);
       }
@@ -503,7 +503,7 @@ public class PrepareTreeStructure {
     while(node1!=null) {
       Node n = node2;
       while(n!=null) {
-        double currDistance = RelativeLocation.horzDistanceFast(node1.getLoc(), n.getLoc());
+        double currDistance = LocationUtils.horzDistanceFast(node1.getLoc(), n.getLoc());
         if(currDistance<=FAULT_JUMP_CUTOFF_DIST && currDistance<minDist) {
           minDist = currDistance;
           minNode1 = node1;

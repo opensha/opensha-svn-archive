@@ -12,7 +12,7 @@ import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.Region;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;

@@ -36,7 +36,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_TypeB_EqkSource;
@@ -909,7 +909,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		EvenlyGriddedSurface surface = this.getSourceSurface();
 		double minDist = Double.MAX_VALUE, dist;
 		for(int col=0; col < surface.getNumCols(); col++){
-			dist = RelativeLocation.horzDistanceFast(surface.getLocation(0,col), loc);
+			dist = LocationUtils.horzDistanceFast(surface.getLocation(0,col), loc);
 			if(dist <minDist) minDist = dist;
 		}
 		double distanceCutOff=minDist+0.001;  // add one meter to make sure we always get it
@@ -923,7 +923,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			Iterator it = rupture.getRuptureSurface().getLocationsIterator();
 			while(it.hasNext()) { // iterate over all locations in a rupture
 				Location surfaceLoc = (Location)it.next();
-				if(RelativeLocation.horzDistanceFast(surfaceLoc, loc)< distanceCutOff) {
+				if(LocationUtils.horzDistanceFast(surfaceLoc, loc)< distanceCutOff) {
 					double area = rupture.getRuptureSurface().getSurfaceLength()*rupture.getRuptureSurface().getSurfaceWidth();
 					double slip = FaultMomentCalc.getSlip(area*1e6,MomentMagCalc.getMoment(rupture.getMag()));
 					slipRate+= rupture.getMeanAnnualRate(this.duration)*slip;
@@ -952,7 +952,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		EvenlyGriddedSurface surface = this.getSourceSurface();
 		double minDist = Double.MAX_VALUE, dist;
 		for(int col=0; col < surface.getNumCols(); col++){
-			dist = RelativeLocation.horzDistanceFast(surface.getLocation(0,col), loc);
+			dist = LocationUtils.horzDistanceFast(surface.getLocation(0,col), loc);
 			if(dist <minDist) minDist = dist;
 		}
 		double distanceCutOff=minDist+0.001;  // add one meter to make sure we always get it
@@ -966,7 +966,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			Iterator it = rupture.getRuptureSurface().getLocationsIterator();
 			while(it.hasNext()) { // iterate over all locations in a rupture
 				Location surfaceLoc = (Location)it.next();
-				if(RelativeLocation.horzDistanceFast(surfaceLoc, loc)< distanceCutOff) {
+				if(LocationUtils.horzDistanceFast(surfaceLoc, loc)< distanceCutOff) {
 					rate+= rupture.getMeanAnnualRate(this.duration);
 					//System.out.println(this.segmentData.getFaultName()+","+rupIndex+","+
 					//	rupture.getMeanAnnualRate(this.duration));
@@ -994,7 +994,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		EvenlyGriddedSurface surface = this.getSourceSurface();
 		double minDist = Double.MAX_VALUE, dist;
 		for(int col=0; col < surface.getNumCols(); col++){
-			dist = RelativeLocation.horzDistanceFast(surface.getLocation(0,col), loc);
+			dist = LocationUtils.horzDistanceFast(surface.getLocation(0,col), loc);
 			if(dist <minDist) minDist = dist;
 		}
 		double distanceCutOff=minDist+0.001;  // add one meter to make sure we always get it
@@ -1008,7 +1008,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			Iterator it = rupture.getRuptureSurface().getLocationsIterator();
 			while(it.hasNext()) { // iterate over all locations in a rupture
 				Location surfaceLoc = (Location)it.next();
-				if(RelativeLocation.horzDistanceFast(surfaceLoc, loc)< distanceCutOff) {
+				if(LocationUtils.horzDistanceFast(surfaceLoc, loc)< distanceCutOff) {
 					rate+= rupture.getMeanAnnualRate(this.duration) * probVis;
 					//System.out.println(this.segmentData.getFaultName()+","+rupIndex+","+
 					//	rupture.getMeanAnnualRate(this.duration));
@@ -1376,16 +1376,16 @@ public class UnsegmentedSource extends ProbEqkSource {
 		double min;
 
 		// get first location on fault trace
-		Direction dir = RelativeLocation.getDirection(site.getLocation(), (Location) surface.get(0,0));
+		Direction dir = LocationUtils.getDirection(site.getLocation(), (Location) surface.get(0,0));
 		min = dir.getHorzDistance();
 
 		// get last location on fault trace
-		dir = RelativeLocation.getDirection(site.getLocation(),(Location) surface.get(0,surface.getNumCols()-1));
+		dir = LocationUtils.getDirection(site.getLocation(),(Location) surface.get(0,surface.getNumCols()-1));
 		if (min > dir.getHorzDistance())
 			min = dir.getHorzDistance();
 
 		// get mid location on fault trace
-		dir = RelativeLocation.getDirection(site.getLocation(),(Location) surface.get(0,(int) surface.getNumCols()/2));
+		dir = LocationUtils.getDirection(site.getLocation(),(Location) surface.get(0,(int) surface.getNumCols()/2));
 		if (min > dir.getHorzDistance())
 			min = dir.getHorzDistance();
 

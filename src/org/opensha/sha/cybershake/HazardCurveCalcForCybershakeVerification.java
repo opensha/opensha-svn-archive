@@ -30,7 +30,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -219,7 +219,7 @@ public class HazardCurveCalcForCybershakeVerification extends UnicastRemoteObjec
         boolean ruptureWithinDist = false;
         while(it.hasNext()){
           Location loc = (Location)it.next();
-          double dist = RelativeLocation.horzDistanceFast(siteLoc, loc);
+          double dist = LocationUtils.horzDistanceFast(siteLoc, loc);
           if(dist > MAX_DISTANCE)
             continue;
           else{

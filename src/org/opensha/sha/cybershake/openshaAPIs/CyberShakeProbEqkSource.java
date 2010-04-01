@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
@@ -65,7 +65,7 @@ public class CyberShakeProbEqkSource extends ProbEqkSource {
 		for (int i=0; i<locs.size(); i++) {
 			Location loc = locs.get(i);
 			
-			double dist = RelativeLocation.horzDistance(loc, site.getLocation());
+			double dist = LocationUtils.horzDistance(loc, site.getLocation());
 			
 			if (dist < minDistance) {
 				minDistance = dist;

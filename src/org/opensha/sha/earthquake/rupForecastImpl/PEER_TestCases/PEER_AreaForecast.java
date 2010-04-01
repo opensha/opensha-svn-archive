@@ -26,7 +26,7 @@ import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -193,8 +193,8 @@ public class PEER_AreaForecast extends EqkRupForecast{
 
       //gets the change in latitude for grid spacing specified
       Location gridCenter = new Location(LAT_CENTER, LONG_CENTER);
-//      double latDiff = RelativeLocation.getDeltaLatFromKm(gridSpacing);
-//      double longDiff= RelativeLocation.getDeltaLonFromKm(LAT_CENTER,gridSpacing);
+//      double latDiff = LocationUtils.getDeltaLatFromKm(gridSpacing);
+//      double longDiff= LocationUtils.getDeltaLonFromKm(LAT_CENTER,gridSpacing);
       double latDiff = GeoTools.degreesLatPerKm(gridCenter) * gridSpacing;
       double longDiff= GeoTools.degreesLonPerKm(gridCenter) * gridSpacing;
 
@@ -202,7 +202,7 @@ public class PEER_AreaForecast extends EqkRupForecast{
       locationList = new LocationList();
       for (double lat=LAT_TOP;lat >=LAT_BOTTOM; lat-=latDiff)
         for (double lon=LONG_LEFT;lon <=LONG_RIGHT; lon+=longDiff)
-          if (RelativeLocation.horzDistance(
+          if (LocationUtils.horzDistance(
         		  new Location(LAT_CENTER,LONG_CENTER),
         		  new Location(lat,lon)) <= MAX_DISTANCE)
             for (double depth=depthUpper;depth<=depthLower;depth+=gridSpacing)

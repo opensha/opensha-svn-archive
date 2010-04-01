@@ -42,7 +42,7 @@ import org.dom4j.Element;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.sha.earthquake.EqkRupture;
 
@@ -495,7 +495,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 */
 	public double getMinLat() {
 		double val = area.getBounds2D().getMinY();
-		return MathUtils.round(val, RelativeLocation.LL_PRECISION);
+		return MathUtils.round(val, LocationUtils.LL_PRECISION);
 	}
 
 	/**
@@ -504,7 +504,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 */
 	public double getMaxLat() {
 		double val = area.getBounds2D().getMaxY();
-		return MathUtils.round(val, RelativeLocation.LL_PRECISION);
+		return MathUtils.round(val, LocationUtils.LL_PRECISION);
 	}
 
 	/**
@@ -513,7 +513,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 */
 	public double getMinLon() {
 		double val = area.getBounds2D().getMinX();
-		return MathUtils.round(val, RelativeLocation.LL_PRECISION);
+		return MathUtils.round(val, LocationUtils.LL_PRECISION);
 	}
 
 	/**
@@ -522,7 +522,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 */
 	public double getMaxLon() {
 		double val = area.getBounds2D().getMaxX();
-		return MathUtils.round(val, RelativeLocation.LL_PRECISION);
+		return MathUtils.round(val, LocationUtils.LL_PRECISION);
 	}
 
 	/**
@@ -534,13 +534,13 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 * 
 	 * @param loc the Location to compute a distance to
 	 * @return the minimum distance between this <code>Region</code> and a point
-	 * @see RelativeLocation#distanceToLineFast(Location, Location, Location)
+	 * @see LocationUtils#distanceToLineFast(Location, Location, Location)
 	 */
 	public double distanceToLocation(Location loc) {
 		if (contains(loc)) return 0;
 		double min = border.minDistToLine(loc);
 		// check the segment defined by the last and first points
-		double temp = RelativeLocation.distanceToLineFast(
+		double temp = LocationUtils.distanceToLineFast(
 				border.get(border.size() - 1),
 				border.get(0), loc);
 		return (temp < min) ? temp : min;
@@ -732,16 +732,16 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 			for (int i=0; i<border.size(); i++) {
 				gcBorder.add(start);
 				Location end = border.get(i);
-				double distance = RelativeLocation.horzDistance(start, end);
+				double distance = LocationUtils.horzDistance(start, end);
 				// subdivide as necessary
 				while (distance > GC_SEGMENT) {
 					// find new Location, GC_SEGMENT km away from start
-					double azRad = RelativeLocation.azimuthRad(start, end);
-					Location segLoc = RelativeLocation.location(
+					double azRad = LocationUtils.azimuthRad(start, end);
+					Location segLoc = LocationUtils.location(
 							start, azRad, GC_SEGMENT);
 					gcBorder.add(segLoc);
 					start = segLoc;
-					distance = RelativeLocation.horzDistance(start, end);
+					distance = LocationUtils.horzDistance(start, end);
 				}
 				start = end;
 			}
@@ -803,8 +803,8 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 			// have strange effects on values on retreival:
 			//  -125.4000015258789 vs -125.4
 			// NOTE: see notes with LL_PRECISION
-			double lon = MathUtils.round(vertex[0], RelativeLocation.LL_PRECISION);
-			double lat = MathUtils.round(vertex[1], RelativeLocation.LL_PRECISION);
+			double lon = MathUtils.round(vertex[0], LocationUtils.LL_PRECISION);
+			double lat = MathUtils.round(vertex[1], LocationUtils.LL_PRECISION);
 			// skip the final closing segment which just repeats
 			// the previous vertex but indicates SEG_CLOSE
 			if (type != PathIterator.SEG_CLOSE) {
@@ -838,7 +838,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		
 		LocationList ll = new LocationList();
 	    for (double angle=0; angle<360; angle += WEDGE_WIDTH) {
-	    	ll.add(RelativeLocation.location(
+	    	ll.add(LocationUtils.location(
 	    			center, angle * TO_RAD, radius));
 	    }
 	    return ll;
@@ -857,19 +857,19 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		// of a buffered region is created from its area using immutables)
 		
 		// get the azimuth and back-azimuth between the points
-		double az12 = RelativeLocation.azimuthRad(p1, p2);
-		double az21 = RelativeLocation.azimuthRad(p2, p1); // back azimuth
+		double az12 = LocationUtils.azimuthRad(p1, p2);
+		double az21 = LocationUtils.azimuthRad(p2, p1); // back azimuth
 		
 		// add the four corners
 		LocationList ll = new LocationList();
 		// corner 1 is azimuth p1 to p2 - 90 from p1
-		ll.add(RelativeLocation.location(p1, az12-PI_BY_2, distance));
+		ll.add(LocationUtils.location(p1, az12-PI_BY_2, distance));
 		// corner 2 is azimuth p1 to p2 + 90 from p1
-		ll.add(RelativeLocation.location(p1, az12+PI_BY_2, distance));
+		ll.add(LocationUtils.location(p1, az12+PI_BY_2, distance));
 		// corner 3 is azimuth p2 to p1 - 90 from p2
-		ll.add(RelativeLocation.location(p2, az21-PI_BY_2, distance));
+		ll.add(LocationUtils.location(p2, az21-PI_BY_2, distance));
 		// corner 4 is azimuth p2 to p1 + 90 from p2
-		ll.add(RelativeLocation.location(p2, az21+PI_BY_2, distance));
+		ll.add(LocationUtils.location(p2, az21+PI_BY_2, distance));
 		
 		return ll;
 	}
@@ -915,7 +915,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 //		DecimalFormat fmt1 = new DecimalFormat("0.0######");
 //		DecimalFormat fmt2 = new DecimalFormat("0.0#####");
 //		DecimalFormat fmt3 = new DecimalFormat("0.0####");
-//		System.out.println(MathUtils.round(tmp, RelativeLocation.LL_PRECISION));
+//		System.out.println(MathUtils.round(tmp, LocationUtils.LL_PRECISION));
 //		System.out.println(fmt1.format(tmp));
 //		System.out.println(fmt2.format(tmp));
 //		System.out.println(fmt3.format(tmp));

@@ -12,7 +12,7 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelPrefDataDB_DAO;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
@@ -152,7 +152,7 @@ public class DeformationModelFileWriter implements Runnable {
 		colIndex= 0;
 		row.createCell((short)colIndex).setCellValue(faultSectionPrefData.getSectionName());
 		++colIndex;
-		double strike = RelativeLocation.getDirection(faultTrace.get(0), faultTrace.get(numLocations-1)).getAzimuth();
+		double strike = LocationUtils.getDirection(faultTrace.get(0), faultTrace.get(numLocations-1)).getAzimuth();
 		row.createCell((short)colIndex).setCellValue(strike);
 		++colIndex;
 		row.createCell((short)colIndex).setCellValue(getValue(faultSectionPrefData.getAveDip()));

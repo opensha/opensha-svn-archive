@@ -11,7 +11,7 @@ import org.opensha.commons.data.Direction;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
@@ -58,16 +58,16 @@ public class FaultTraceUtils {
 			distance = 0;
 			while(true && index<faultTrace.getNumLocations()) {
 				Location nextLoc = faultTrace.get(index);
-				distLocs = RelativeLocation.horzDistanceFast(prevLoc, nextLoc);
+				distLocs = LocationUtils.horzDistanceFast(prevLoc, nextLoc);
 				distance+= distLocs;
 				if(distance<subSecLength) { // if sub section length is greater than distance, then get next point on trace
 					prevLoc = nextLoc;
 					subSectionTrace.add(prevLoc);
 					++index;
 				} else {
-					Direction direction = RelativeLocation.getDirection(prevLoc, nextLoc);
+					Direction direction = LocationUtils.getDirection(prevLoc, nextLoc);
 					direction.setHorzDistance(subSecLength-(distance-distLocs));
-					prevLoc = RelativeLocation.location(prevLoc, direction);
+					prevLoc = LocationUtils.location(prevLoc, direction);
 					subSectionTrace.add(prevLoc);
 					--index;
 					break;
@@ -96,13 +96,13 @@ public class FaultTraceUtils {
 		  int NextLocIndex = 1;
 		  while (NextLocIndex < trace.size()) {
 			  Location nextLoc = trace.get(NextLocIndex);
-			  double length = RelativeLocation.linearDistanceFast(lastLoc, nextLoc);
+			  double length = LocationUtils.linearDistanceFast(lastLoc, nextLoc);
 			  if (length > remainingLength) {
 				  	// set the point
-				  Direction dir = RelativeLocation.getDirection(lastLoc, nextLoc);
+				  Direction dir = LocationUtils.getDirection(lastLoc, nextLoc);
 				  dir.setHorzDistance(dir.getHorzDistance()*remainingLength/length);
 				  dir.setVertDistance(dir.getVertDistance()*remainingLength/length);
-				  Location loc = RelativeLocation.location(lastLoc, dir);
+				  Location loc = LocationUtils.location(lastLoc, dir);
 				  resampTrace.add(loc);
 				  lastLoc = loc;
 				  remainingLength = resampInt;
@@ -115,7 +115,7 @@ public class FaultTraceUtils {
 		  }
 		  
 		  // make sure we got the last one (might be missed because of numerical precision issues?)
-		  double dist = RelativeLocation.linearDistanceFast(trace.get(trace.size()-1), resampTrace.get(resampTrace.size()-1));
+		  double dist = LocationUtils.linearDistanceFast(trace.get(trace.size()-1), resampTrace.get(resampTrace.size()-1));
 		  if (dist> resampInt/2) resampTrace.add(trace.get(trace.size()-1));
 
 		  /* Debugging Stuff *****************/
@@ -138,7 +138,7 @@ public class FaultTraceUtils {
 		  System.out.println("RESAMPLED");
 		  double ave=0, min=Double.MAX_VALUE, max=Double.MIN_VALUE;
 		  for(int i=1; i<resampTrace.size(); i++) {
-			  double d = RelativeLocation.getTotalDistance(resampTrace.getLocationAt(i-1), resampTrace.getLocationAt(i));
+			  double d = LocationUtils.getTotalDistance(resampTrace.getLocationAt(i-1), resampTrace.getLocationAt(i));
 			  ave +=d;
 			  if(d<min) min=d;
 			  if(d>max) max=d;
@@ -150,7 +150,7 @@ public class FaultTraceUtils {
 		  System.out.println("ORIGINAL");
 		  ave=0; min=Double.MAX_VALUE; max=Double.MIN_VALUE;
 		  for(int i=1; i<trace.size(); i++) {
-			  double d = RelativeLocation.getTotalDistance(trace.getLocationAt(i-1), trace.getLocationAt(i));
+			  double d = LocationUtils.getTotalDistance(trace.getLocationAt(i-1), trace.getLocationAt(i));
 			  ave +=d;
 			  if(d<min) min=d;
 			  if(d>max) max=d;

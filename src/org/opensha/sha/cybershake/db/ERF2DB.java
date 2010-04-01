@@ -27,7 +27,7 @@ import java.util.ListIterator;
 import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.Region;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeEqkRupture;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeEvenlyGriddedSurface;
@@ -805,7 +805,7 @@ public  class ERF2DB implements ERF2DBAPI{
 			for (int i = 0; i < numCols - 1; ++i) {
 				Location loc1 = surface.getLocation(0, i);
 				Location loc2 = surface.getLocation(0, i + 1);
-				double strike = RelativeLocation.azimuth(loc1, loc2);
+				double strike = LocationUtils.azimuth(loc1, loc2);
 				localStrike[i] = strike;
 			}
 		}

@@ -5,7 +5,7 @@ import java.util.ListIterator;
 
 import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.faultSurface.FaultTrace;
@@ -90,7 +90,7 @@ public final class DistDecayFromRupCalc {
       pointRupture = mainshock.getHypocenterLocation();
       while (zoneIT.hasNext()) {
         nodeDistFromFault[ind++] =
-            RelativeLocation.horzDistanceFast(
+            LocationUtils.horzDistanceFast(
             		pointRupture, zoneIT.next());
         totDistFromFault = totDistFromFault +
             Math.pow(nodeDistFromFault[ind - 1], decayParam);
@@ -140,7 +140,7 @@ public final class DistDecayFromRupCalc {
     double nodeDistFromRup, minDistFromRup = 0;
     ListIterator rupIT = ruptureSurface.listIterator();
     while (rupIT.hasNext()) {
-      nodeDistFromRup = RelativeLocation.horzDistanceFast(
+      nodeDistFromRup = LocationUtils.horzDistanceFast(
           (Location) (rupIT.next()), gridLoc);
       if (ind == 0) {
         minDistFromRup = nodeDistFromRup;

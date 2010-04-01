@@ -84,7 +84,7 @@
 	<!-- SERVER References -->
 	
 	<patternset id="server.classes">
-		<include name="org/opensha/commons/calc/RelativeLocation*"/>
+		<include name="org/opensha/commons/geo/LocationUtils*"/>
 		<include name="org/opensha/commons/data/ArbDiscretizedXYZ_DataSet*"/>
 		<include name="org/opensha/commons/data/Container2D*"/>
 		<include name="org/opensha/commons/data/Container2D$AllByColumnsIterator*"/>

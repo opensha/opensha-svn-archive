@@ -25,7 +25,7 @@ import org.opensha.commons.data.Direction;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
@@ -178,12 +178,12 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
       Location loc1, loc2;
       Direction dir;
       double halfLength = magLengthRelationship.getMedianLength(maxMag)/2.0;
-//      loc1 = RelativeLocation.getLocation(loc,new Direction(0.0,halfLength,strike,Double.NaN));
-      loc1 = RelativeLocation.location(loc,
+//      loc1 = LocationUtils.getLocation(loc,new Direction(0.0,halfLength,strike,Double.NaN));
+      loc1 = LocationUtils.location(loc,
     		  new Direction(strike, halfLength, 0.0));
-      dir = RelativeLocation.getDirection(loc1,loc);
+      dir = LocationUtils.getDirection(loc1,loc);
       dir.setHorzDistance(dir.getHorzDistance()*2.0);
-      loc2 = RelativeLocation.location(loc1,dir);
+      loc2 = LocationUtils.location(loc1,dir);
       FaultTrace fault = new FaultTrace("");
       fault.add(loc1);
       fault.add(loc2);
@@ -290,15 +290,15 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
       int nCols = surf.getNumCols();
 
       // find the minimum to the ends and the center)
-      tempMin = RelativeLocation.getHorzDistance(site.getLocation(),surf.getLocation(0,0));
+      tempMin = LocationUtils.getHorzDistance(site.getLocation(),surf.getLocation(0,0));
       if(tempMin < min) min = tempMin;
-      tempMin = RelativeLocation.getHorzDistance(site.getLocation(),surf.getLocation(0,(int)nCols/2));
+      tempMin = LocationUtils.getHorzDistance(site.getLocation(),surf.getLocation(0,(int)nCols/2));
       if(tempMin < min) min = tempMin;
-      tempMin = RelativeLocation.getHorzDistance(site.getLocation(),surf.getLocation(0,nCols-1));
+      tempMin = LocationUtils.getHorzDistance(site.getLocation(),surf.getLocation(0,nCols-1));
       if(tempMin < min) min = tempMin;
       return min;
      */
-     return RelativeLocation.horzDistance(
+     return LocationUtils.horzDistance(
     		 site.getLocation(),ptSurface.getLocation());
     }
 
@@ -331,7 +331,7 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
       rup = src.getRupture(r);
       loc1 = rup.getRuptureSurface().getLocation(0,0);
       loc2 = rup.getRuptureSurface().getLocation(0,rup.getRuptureSurface().getNumCols()-1);
-      length = RelativeLocation.horzDistance(loc1,loc2);
+      length = LocationUtils.horzDistance(loc1,loc2);
       aveLat = (loc1.getLatitude()+loc2.getLatitude())/2;
       aveLon = (loc1.getLongitude()+loc2.getLongitude())/2;
 //      System.out.println("\t"+(float)rup.getMag()+"\t"+loc1+"\t"+loc2);

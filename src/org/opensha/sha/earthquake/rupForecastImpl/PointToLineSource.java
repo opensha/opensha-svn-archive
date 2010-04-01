@@ -29,7 +29,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -193,9 +193,9 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 				}
 //				Direction dir = new Direction(0.0,rupLength/2,strike,Double.NaN);
 				Direction dir = new Direction(strike, rupLength/2, 0.0);
-				Location loc1 = RelativeLocation.location(loc,dir);
+				Location loc1 = LocationUtils.location(loc,dir);
 				dir.setAzimuth(strike-180);
-				Location loc2 = RelativeLocation.location(loc,dir);
+				Location loc2 = LocationUtils.location(loc,dir);
 				FaultTrace fltTrace = new FaultTrace(null);
 				fltTrace.add(loc1);
 				fltTrace.add(loc2);
@@ -330,7 +330,7 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 	 * @return minimum distance
 	 */
 	public  double getMinDistance(Site site) {
-		return RelativeLocation.horzDistance(site.getLocation(), location) - maxLength/2;
+		return LocationUtils.horzDistance(site.getLocation(), location) - maxLength/2;
 	}
 
 	/**

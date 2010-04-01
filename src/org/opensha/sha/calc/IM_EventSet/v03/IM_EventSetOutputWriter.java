@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.RelativeLocation;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
@@ -274,7 +274,7 @@ public abstract class IM_EventSetOutputWriter {
 		double middleLat = (minLat + maxLat) / 2;
 
 		//getting the source-site cuttoff distance
-		sourceCutOffDistance = (float) RelativeLocation.horzDistance(
+		sourceCutOffDistance = (float) LocationUtils.horzDistance(
 				new Location(middleLat, middleLon),
 				new Location(minLat, minLon)) + 
 				IM_EventSetCalc_v3_0.MIN_SOURCE_DIST;
