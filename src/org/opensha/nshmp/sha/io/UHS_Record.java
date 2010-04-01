@@ -22,7 +22,7 @@ package org.opensha.nshmp.sha.io;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import org.opensha.commons.util.ByteSwapUtil;
+import org.apache.commons.io.EndianUtils;
 import org.opensha.nshmp.util.GlobalConstants;
 
 
@@ -49,13 +49,20 @@ public class UHS_Record
     try {
       fin = new RandomAccessFile(fileName, "r");
       fin.seek( (recordNum - 1) * recordLength);
-      recordNumber = ByteSwapUtil.swap(fin.readInt());
-      latitude = ByteSwapUtil.swapIntToFloat(fin.readInt());
-      longitude = ByteSwapUtil.swapIntToFloat(fin.readInt());
-      uhsFex = ByteSwapUtil.swapIntToFloat(fin.readInt());
-      numValues = ByteSwapUtil.swap(fin.readShort());
+      //recordNumber = ByteSwapUtil.swap(fin.readInt());
+      recordNumber = EndianUtils.swapInteger(fin.readInt());
+      //latitude = ByteSwapUtil.swapIntToFloat(fin.readInt());
+      latitude = Float.intBitsToFloat(EndianUtils.swapInteger(fin.readInt()));
+      //longitude = ByteSwapUtil.swapIntToFloat(fin.readInt());
+      longitude = Float.intBitsToFloat(EndianUtils.swapInteger(fin.readInt()));
+      //uhsFex = ByteSwapUtil.swapIntToFloat(fin.readInt());
+      uhsFex = Float.intBitsToFloat(EndianUtils.swapInteger(fin.readInt()));
+      //numValues = ByteSwapUtil.swap(fin.readShort());
+      numValues = EndianUtils.swapShort(fin.readShort());
+      
       for (int i = 0; i < numValues; ++i) {
-        values[i] = ByteSwapUtil.swapIntToFloat(fin.readInt());
+        //values[i] = ByteSwapUtil.swapIntToFloat(fin.readInt());
+        values[i] = Float.intBitsToFloat(EndianUtils.swapInteger(fin.readInt()));
         values[i] /= GlobalConstants.DIVIDING_FACTOR_HUNDRED;
       }
       fin.close();
