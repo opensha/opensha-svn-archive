@@ -327,7 +327,7 @@ public final class RelativeLocation {
 	 * for use over short distances (e.g. &lt;200 km).<br/>
 	 * <br/>
 	 * <b>Note:</b> This method does <i>NOT</i> support values spanning 
-	 * #177;180&#176; and results for such input values are not guaranteed.
+	 * &#177;180&#176; and results for such input values are not guaranteed.
 	 * 
 	 * @param p1 the first <code>Location</code> point on the line
 	 * @param p2 the second <code>Location</code> point on the line

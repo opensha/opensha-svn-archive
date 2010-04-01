@@ -159,12 +159,15 @@ public class LocationList extends ArrayList<Location> implements Serializable,
 		return true;
 	}
 
-	// TODO possibly make each smaller to avoid int overrun
 	@Override
 	public int hashCode() {
 		int v = 0;
+		boolean add = true;
 		for (Location loc : this) {
-			v += loc.hashCode();
+			// make each smaller to avoid possible overrun of int
+			int locCode = loc.hashCode() / 1000;
+			v = (add) ? v + locCode : v - locCode;
+			add = !add;
 		}
 		return v;
 	}
