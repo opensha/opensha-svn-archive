@@ -17,25 +17,25 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.calc;
+package org.opensha.commons.geo;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.opensha.commons.geo.GeoTools.TO_RAD;
-import static org.opensha.commons.geo.RelativeLocation.angle;
-import static org.opensha.commons.geo.RelativeLocation.azimuth;
-import static org.opensha.commons.geo.RelativeLocation.azimuthRad;
-import static org.opensha.commons.geo.RelativeLocation.distanceToLine;
-import static org.opensha.commons.geo.RelativeLocation.distanceToLineFast;
-import static org.opensha.commons.geo.RelativeLocation.getDirection;
-import static org.opensha.commons.geo.RelativeLocation.horzDistance;
-import static org.opensha.commons.geo.RelativeLocation.horzDistanceFast;
-import static org.opensha.commons.geo.RelativeLocation.isPole;
-import static org.opensha.commons.geo.RelativeLocation.linearDistance;
-import static org.opensha.commons.geo.RelativeLocation.linearDistanceFast;
-import static org.opensha.commons.geo.RelativeLocation.location;
-import static org.opensha.commons.geo.RelativeLocation.vertDistance;
+import static org.opensha.commons.geo.LocationUtils.angle;
+import static org.opensha.commons.geo.LocationUtils.azimuth;
+import static org.opensha.commons.geo.LocationUtils.azimuthRad;
+import static org.opensha.commons.geo.LocationUtils.distanceToLine;
+import static org.opensha.commons.geo.LocationUtils.distanceToLineFast;
+import static org.opensha.commons.geo.LocationUtils.getDirection;
+import static org.opensha.commons.geo.LocationUtils.horzDistance;
+import static org.opensha.commons.geo.LocationUtils.horzDistanceFast;
+import static org.opensha.commons.geo.LocationUtils.isPole;
+import static org.opensha.commons.geo.LocationUtils.linearDistance;
+import static org.opensha.commons.geo.LocationUtils.linearDistanceFast;
+import static org.opensha.commons.geo.LocationUtils.location;
+import static org.opensha.commons.geo.LocationUtils.vertDistance;
 
 import java.util.Random;
 import org.junit.Test;
@@ -312,7 +312,7 @@ public class RelativeLocationTest {
 	 * to each test.
 	 * 
 	 * Internal methods marked with *OLD were removed intact from
-	 * RelativeLocation to preserve history and preserve ability to document
+	 * LocationUtils to preserve history and preserve ability to document
 	 * performance enhancements.
 	 */
 	public static void main(String[] args) {
