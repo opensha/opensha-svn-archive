@@ -19,7 +19,7 @@
 
 package org.opensha.commons.data.region;
 
-import static org.opensha.commons.calc.RelativeLocation.PI_BY_2;
+import static org.opensha.commons.geo.GeoTools.PI_BY_2;
 import static org.opensha.commons.geo.GeoTools.TO_RAD;
 
 import java.awt.Point;

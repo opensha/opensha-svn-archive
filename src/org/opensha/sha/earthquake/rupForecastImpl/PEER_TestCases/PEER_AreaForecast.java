@@ -24,6 +24,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.param.DoubleParameter;
@@ -191,8 +192,11 @@ public class PEER_AreaForecast extends EqkRupForecast{
           throw new RuntimeException("Upper Seis Depth must be � Lower Seis Depth");
 
       //gets the change in latitude for grid spacing specified
-      double latDiff = RelativeLocation.getDeltaLatFromKm(gridSpacing);
-      double longDiff= RelativeLocation.getDeltaLonFromKm(LAT_CENTER,gridSpacing);
+      Location gridCenter = new Location(LAT_CENTER, LONG_CENTER);
+//      double latDiff = RelativeLocation.getDeltaLatFromKm(gridSpacing);
+//      double longDiff= RelativeLocation.getDeltaLonFromKm(LAT_CENTER,gridSpacing);
+      double latDiff = GeoTools.degreesLatPerKm(gridCenter) * gridSpacing;
+      double longDiff= GeoTools.degreesLonPerKm(gridCenter) * gridSpacing;
 
       // Create the grid of locations in the circular area
       locationList = new LocationList();

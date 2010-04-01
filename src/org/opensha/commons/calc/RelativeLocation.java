@@ -20,8 +20,10 @@
 package org.opensha.commons.calc;
 
 import static java.lang.Math.PI;
+import static org.opensha.commons.geo.GeoTools.TWOPI;
 import static org.opensha.commons.geo.GeoTools.TO_DEG;
 import static org.opensha.commons.geo.GeoTools.TO_RAD;
+import static org.opensha.commons.geo.GeoTools.EARTH_RADIUS_MEAN;
 
 import java.text.DecimalFormat;
 
@@ -70,35 +72,6 @@ public final class RelativeLocation {
 
 	/* No instantiation allowed */
 	private RelativeLocation() {}
-	
-	/** Convenience constant for 2 * PI */
-	public static final double TWOPI = 2*PI;
-	
-	/** Convenience constant for PI / 2 */
-	public static final double PI_BY_2 = PI/2;
-
-	/**
-	 * The Authalic mean radius (A<subscript>r</subscript>) of the earth 
-	 * [6371.0072 km] (see <a 
-	 * href="http://en.wikipedia.org/wiki/Earth_radius#Authalic_radius" 
-	 * target="_blank">Wikipedia</a>).
-	 */
-	public static final double EARTH_RADIUS_MEAN = 6371.0072;
-
-	/**
-	 * The equatorial radius of the earth [6378.1370 km] (see 
-	 * <a href="http://en.wikipedia.org/wiki/Earth_radius#Equatorial_radius" 
-	 * target="_blank">Wikipedia</a>) as derived from the WGS-84 ellipsoid.
-	 */
-	public static final double EARTH_RADIUS_EQUATORIAL = 6378.1370; 
-	
-	/**
-	 * The polar radius of the earth [6356.7523 km] (see <a 
-	 * href="http://en.wikipedia.org/wiki/Earth_radius#Polar_radius" 
-	 * target="_blank">Wikipedia</a>) as derived from the WGS-84 ellipsoid.
-	 */
-	public static final double EARTH_RADIUS_POLAR = 6356.7523;
-	
 	
 	// NOTE: This vlaue is used to 'clean' decimal values that have been 
 	// subject to narrowing conversions when creating border Areas. For
@@ -561,89 +534,6 @@ public final class RelativeLocation {
 	 */
 	public static boolean isPole(Location loc) {
 		return Math.cos(loc.getLatRad()) < 0.000000000001;
-	}
-
-
-	////////////////////////////////////
-	
-	 /* Methods below should be moved to GeoUtils */
-	  
-	/** Earth radius constant */
-	private final static int R = 6367;
-
-
-
-	/**
-	 * Returns the radius of the earth at the latitude of the supplied
-	 * <code>Location</code> (see <a 
-	 * href="http://en.wikipedia.org/wiki/Earth_radius#Authalic_radius" 
-	 * target="_blank">Wikipedia</a> for source).
-	 * 
-	 * @param p the <code>Location</code> at which to compute the earth's radius
-	 * @return the earth's radius at the supplied <code>Location</code>
-	 */
-	public static double radiusAtLocation(Location p) {
-		double cosL = Math.cos(p.getLatRad());
-		double sinL = Math.sin(p.getLatRad());
-		double C1 = cosL * EARTH_RADIUS_EQUATORIAL;
-		double C2 = C1 * EARTH_RADIUS_EQUATORIAL;
-		double C3 = sinL * EARTH_RADIUS_POLAR;
-		double C4 = C3 * EARTH_RADIUS_POLAR;
-		return Math.sqrt((C2*C2 + C4*C4) / (C1*C1 + C3*C3));
-	}
-	
-	/**
-	 * TODO move to GeoTools
-	 * 
-	 * Returns the number of degrees of latitude per km at a given 
-	 * <code>Location</code>. This can be used to convert between km-based 
-	 * and degree-based grid spacing. The calculation takes into account
-	 * the shape of the earth (oblate spheroid) and scales the conversion
-	 * accordingly.
-	 * 
-	 * @param p the <code>Location</code> at which to conversion value
-	 * @return the number of decimal degrees latitude per km at a given
-	 * 		<code>Location</code>
-	 * @see RelativeLocation#radiusAtLocation(Location)
-	 */
-	public static double degreesLatPerKm(Location p) {
-		return TO_DEG / radiusAtLocation(p);
-	}
-
-	/**
-	 * TODO move to GeoTools
-	 * 
-	 * Returns the number of degrees of longitude per km at a given 
-	 * <code>Location</code>. This can be used to convert between km-based
-	 * and degree-based grid spacing. The calculation scales the degrees
-	 * longitude per km at the equator by the cosine of the supplied
-	 * latitude.
-	 * 
-	 * @param p the <code>Location</code> at which to conversion value
-	 * @return the number of decimal degrees longitude per km at a given
-	 * 		<code>Location</code>
-	 */
-	public static double degreesLonPerKm(Location p) {
-		return TO_DEG / (EARTH_RADIUS_EQUATORIAL * Math.cos(p.getLatRad()));
-	}
-
-	public static double getDeltaLatFromKm(double km) {
-		//1 degree of Latitude is equal to 111.14kms.
-		return km/111.14;
-	}
-
-	/**
-	 * OLD METHOD
-	 * 
-	 * As the earth is sperical, and does not have a constant radius for each longitude,
-	 * so we calculate the longitude spacing (in Kms) for ever latitude
-	 * @param lat= value of long for every lat according to gridSpacing
-	 * @return
-	 */
-	public static double getDeltaLonFromKm(double lat,double km){
-	  double radius = R * Math.cos(Math.toRadians(lat));
-	  double longDistVal = 2*Math.PI *radius /360;
-	  return km/longDistVal;
 	}
 	
 }
