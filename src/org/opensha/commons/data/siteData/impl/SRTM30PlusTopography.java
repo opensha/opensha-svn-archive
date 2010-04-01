@@ -27,11 +27,11 @@ import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 
-import org.opensha.commons.calc.ArcsecondConverter;
 import org.opensha.commons.data.region.Region;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.servlet.SiteDataServletAccessor;
 import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.util.ServletPrefs;
@@ -45,7 +45,7 @@ public class SRTM30PlusTopography extends AbstractSiteData<Double> {
 	
 	public static final double arcSecondSpacing = 30.0;
 	// for 30 arc seconds this is 0.008333333333333333
-	public static final double spacing = ArcsecondConverter.getDegrees(arcSecondSpacing);
+	public static final double spacing = GeoTools.secondsToDeg(arcSecondSpacing);
 	
 	public static final int nx = 43200;
 	public static final int ny = 21600;

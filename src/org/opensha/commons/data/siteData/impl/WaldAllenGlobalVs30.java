@@ -22,13 +22,13 @@ package org.opensha.commons.data.siteData.impl;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.opensha.commons.calc.ArcsecondConverter;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.Region;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.param.ArbitrarilyDiscretizedFuncParameter;
@@ -48,7 +48,7 @@ public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements Par
 	
 	public static final double arcSecondSpacing = 30.0;
 	// for 30 arc seconds this is 0.008333333333333333
-	public static final double spacing = ArcsecondConverter.getDegrees(arcSecondSpacing);
+	public static final double spacing = GeoTools.secondsToDeg(arcSecondSpacing);
 	
 	private StringParameter coeffPresetParam;
 	public static final String COEFF_SELECT_PARAM_NAME = "Region Type";

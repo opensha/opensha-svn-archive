@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
-import org.opensha.commons.calc.ArcsecondConverter;
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.XYZ_DataSetAPI;
@@ -44,6 +43,7 @@ import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.Region;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.mapping.gmt.GMT_Map.HighwayFile;
 import org.opensha.commons.mapping.gmt.elements.CoastAttributes;
@@ -1417,7 +1417,7 @@ public class GMT_MapGenerator implements Serializable{
 		else {
 			// redefine the region so that maxLat, minLat, and delta fall exactly on the topoIntenFile
 			TopographicSlopeFile topoFile = map.getTopoResolution();
-			gridSpacing = ArcsecondConverter.getDegrees(map.getTopoResolution().resolution());
+			gridSpacing = GeoTools.secondsToDeg(map.getTopoResolution().resolution());
 			double tempNum = Math.ceil((minLat-topoFile.region().getMinLat())/gridSpacing);
 			minLat = tempNum*gridSpacing+topoFile.region().getMinLat();
 			tempNum = Math.ceil((minLon-(topoFile.region().getMinLon()))/gridSpacing);

@@ -99,6 +99,9 @@ public class GeoTools {
 	/** Convenience constant for PI / 2 */
 	public static final double PI_BY_2 = PI/2;
 	
+	/** Convenience constant for radians per arcsecond. */
+	public static final double SECONDS_PER_DEGREE = 3600;
+	
 
     /**
      * Verifies that an array of latitude values fall within range of 
@@ -221,7 +224,24 @@ public class GeoTools {
 	public static double degreesLonPerKm(Location p) {
 		return TO_DEG / (EARTH_RADIUS_EQUATORIAL * Math.cos(p.getLatRad()));
 	}
-
+	
+	/**
+	 * Converts arcseconds to decimal degrees.
+	 * @param seconds value to convert
+	 * @return the equivalent number of decimal degrees
+	 */
+	public static double secondsToDeg(double seconds) {
+		return seconds / SECONDS_PER_DEGREE;
+	}
+	
+	/**
+	 * Converts decimal degrees to arcseconds.
+	 * @param degrees value to convert
+	 * @return the equivalent number of arcseconds
+	 */
+	public static double degreesToSec(double degrees) {
+		return degrees * SECONDS_PER_DEGREE;
+	}
 
 
 }

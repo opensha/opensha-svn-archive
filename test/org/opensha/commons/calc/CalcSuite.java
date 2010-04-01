@@ -7,7 +7,6 @@ import org.opensha.commons.geo.LocationUtilsTest;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	LocationUtilsTest.class,
-	TestArcsecondConverter.class,
 	TestBPT_DistCalcOld.class,
 	TestFaultMomentCalc.class,
 	TestFunctionListCalc.class,
