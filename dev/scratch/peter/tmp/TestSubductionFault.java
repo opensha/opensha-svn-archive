@@ -73,7 +73,7 @@ public class TestSubductionFault {
 		for(int ii=0; ii<resampTopTrace.size(); ii++) {
 	        Location topLoc = resampTopTrace.get(ii);
 			Location botLoc = resampBottomTrace.get(ii);
-			aveDist += RelativeLocation.getTotalDistance(topLoc, botLoc);
+			aveDist += RelativeLocation.linearDistanceFast(topLoc, botLoc);
 		}
 		aveDist /= resampTopTrace.size();
 		int nRows = (int) Math.round(aveDist/aveSubFaultGridSpacing)+1;
@@ -87,8 +87,8 @@ public class TestSubductionFault {
 		for(int ii=0; ii<resampTopTrace.size(); ii++) {
 			Location topLoc = resampTopTrace.get(ii);
 			Location botLoc = resampBottomTrace.get(ii);
-			double horzLength = RelativeLocation.getHorzDistance(topLoc, botLoc);
-			double vertLength = RelativeLocation.getVertDistance(topLoc, botLoc);
+			double horzLength = RelativeLocation.horzDistance(topLoc, botLoc);
+			double vertLength = RelativeLocation.vertDistance(topLoc, botLoc);
 			double subSecLenHoriz = horzLength/(nRows-1);
 			double subSecLenVert = vertLength/(nRows-1);
 			Direction dir = RelativeLocation.getDirection(topLoc, botLoc);
@@ -98,7 +98,7 @@ public class TestSubductionFault {
 				double distVert = -s*subSecLenVert;
 				dir.setHorzDistance(distHoriz);
 				dir.setVertDistance(distVert);
-				Location loc = RelativeLocation.getLocation(topLoc, dir);
+				Location loc = RelativeLocation.location(topLoc, dir);
 				surf.setLocation(s, ii, loc);
 				indexLoc = indexLoc+1;
 				System.out.println("Location "+(s+1)+", lat: "+loc.getLatitude()+", lon: "+loc.getLongitude()+", depth: "+loc.getDepth());

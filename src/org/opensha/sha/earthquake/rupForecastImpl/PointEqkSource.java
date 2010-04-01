@@ -325,7 +325,7 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
    * @return minimum distance
    */
    public  double getMinDistance(Site site) {
-      return RelativeLocation.getHorzDistance(site.getLocation(), location);
+      return RelativeLocation.horzDistance(site.getLocation(), location);
     }
 
  /**

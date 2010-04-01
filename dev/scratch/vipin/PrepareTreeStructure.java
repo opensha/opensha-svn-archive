@@ -169,7 +169,7 @@ public class PrepareTreeStructure {
       String  faultSectionName = (String) it.next();
       sortedSectionNames.add(faultSectionName);
       Location loc = ((Node)faultTree.get(faultSectionName)).getLoc();
-      double distance = RelativeLocation.getApproxHorzDistance(loc, LOCATION);
+      double distance = RelativeLocation.horzDistanceFast(loc, LOCATION);
       if(distance<minDist) {
         minDist = distance;
         firstSectionName = faultSectionName;
@@ -185,7 +185,7 @@ public class PrepareTreeStructure {
       Location loc = ((Node)faultTree.get((String)sortedSectionNames.get(i))).getLoc();
       for(int j=i+1; j<sortedSectionNames.size(); ++j) {
         Location loc1 = ((Node)faultTree.get((String)sortedSectionNames.get(j))).getLoc();
-        double distance = RelativeLocation.getApproxHorzDistance(loc, loc1);
+        double distance = RelativeLocation.horzDistanceFast(loc, loc1);
         if(distance<minDist) {
           minDist = distance;
           nextSectionName = (String)sortedSectionNames.get(j);
@@ -415,7 +415,7 @@ public class PrepareTreeStructure {
       if(nextNode!=null && !nodesList.contains(nextNode)) {
         Location loc = nextNode.getLoc();
         nodesList.add(nextNode);
-        traverse(nextNode, nodesList, rupLen+(float)RelativeLocation.getApproxHorzDistance(loc, node.getLoc()));
+        traverse(nextNode, nodesList, rupLen+(float)RelativeLocation.horzDistanceFast(loc, node.getLoc()));
         nodesList.remove(nextNode);
       }
       
@@ -430,7 +430,7 @@ public class PrepareTreeStructure {
         float dist = 0.0f;
         // calculate distance only if locations lie on same fault section
         if(node.getFaultSectionName().equalsIgnoreCase(nextNode.getFaultSectionName()))
-           dist = (float)RelativeLocation.getApproxHorzDistance(loc, node.getLoc());
+           dist = (float)RelativeLocation.horzDistanceFast(loc, node.getLoc());
         traverse(nextNode, nodesList, rupLen+dist);
         nodesList.remove(nextNode);
       }
@@ -503,7 +503,7 @@ public class PrepareTreeStructure {
     while(node1!=null) {
       Node n = node2;
       while(n!=null) {
-        double currDistance = RelativeLocation.getApproxHorzDistance(node1.getLoc(), n.getLoc());
+        double currDistance = RelativeLocation.horzDistanceFast(node1.getLoc(), n.getLoc());
         if(currDistance<=FAULT_JUMP_CUTOFF_DIST && currDistance<minDist) {
           minDist = currDistance;
           minNode1 = node1;

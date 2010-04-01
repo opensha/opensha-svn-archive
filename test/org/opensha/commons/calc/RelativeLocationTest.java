@@ -24,17 +24,17 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.opensha.commons.geo.GeoTools.TO_RAD;
 import static org.opensha.commons.calc.RelativeLocation.angle;
-import static org.opensha.commons.calc.RelativeLocation.getVertDistance;
-import static org.opensha.commons.calc.RelativeLocation.getHorzDistance;
-import static org.opensha.commons.calc.RelativeLocation.getApproxHorzDistance;
+import static org.opensha.commons.calc.RelativeLocation.vertDistance;
+import static org.opensha.commons.calc.RelativeLocation.horzDistance;
+import static org.opensha.commons.calc.RelativeLocation.horzDistanceFast;
 import static org.opensha.commons.calc.RelativeLocation.linearDistance;
-import static org.opensha.commons.calc.RelativeLocation.getTotalDistance;
+import static org.opensha.commons.calc.RelativeLocation.linearDistanceFast;
 import static org.opensha.commons.calc.RelativeLocation.distanceToLine;
-import static org.opensha.commons.calc.RelativeLocation.getApproxHorzDistToLine;
+import static org.opensha.commons.calc.RelativeLocation.distanceToLineFast;
 import static org.opensha.commons.calc.RelativeLocation.azimuthRad;
-import static org.opensha.commons.calc.RelativeLocation.getAzimuth;
+import static org.opensha.commons.calc.RelativeLocation.azimuth;
 import static org.opensha.commons.calc.RelativeLocation.getDirection;
-import static org.opensha.commons.calc.RelativeLocation.getLocation;
+import static org.opensha.commons.calc.RelativeLocation.location;
 import static org.opensha.commons.calc.RelativeLocation.location;
 import static org.opensha.commons.calc.RelativeLocation.isPole;
 
@@ -123,30 +123,30 @@ public class RelativeLocationTest {
 
 	@Test
 	public final void testHorzDistance() {
-		assertEquals(  6382.596, getHorzDistance(L5,L1), ldD);
-		assertEquals(  6404.835, getHorzDistance(L2,L5), ldD);
-		assertEquals( 13565.796, getHorzDistance(L4,L6), ldD);
-		assertEquals( 13588.035, getHorzDistance(L6,L3), ldD);
-		assertEquals(43.6090311, getHorzDistance(L1,L2), sdD);
-		assertEquals(48.2790582, getHorzDistance(L1,L3), sdD);
-		assertEquals(69.3145862, getHorzDistance(L1,L4), sdD);
-		assertEquals(60.6198752, getHorzDistance(L2,L3), sdD);
-		assertEquals(48.2952067, getHorzDistance(L4,L2), sdD);
-		assertEquals(43.7518411, getHorzDistance(L4,L3), sdD);
+		assertEquals(  6382.596, horzDistance(L5,L1), ldD);
+		assertEquals(  6404.835, horzDistance(L2,L5), ldD);
+		assertEquals( 13565.796, horzDistance(L4,L6), ldD);
+		assertEquals( 13588.035, horzDistance(L6,L3), ldD);
+		assertEquals(43.6090311, horzDistance(L1,L2), sdD);
+		assertEquals(48.2790582, horzDistance(L1,L3), sdD);
+		assertEquals(69.3145862, horzDistance(L1,L4), sdD);
+		assertEquals(60.6198752, horzDistance(L2,L3), sdD);
+		assertEquals(48.2952067, horzDistance(L4,L2), sdD);
+		assertEquals(43.7518411, horzDistance(L4,L3), sdD);
 	}
 
 	@Test
 	public final void testHorzDistanceFast() {
-		assertEquals(  6474.888, getApproxHorzDistance(L5,L1), ldD);
-		assertEquals(  6493.824, getApproxHorzDistance(L2,L5), ldD);
-		assertEquals( 13707.303, getApproxHorzDistance(L4,L6), ldD);
-		assertEquals( 13735.216, getApproxHorzDistance(L6,L3), ldD);
-		assertEquals(43.6090864, getApproxHorzDistance(L1,L2), sdD);
-		assertEquals(48.2790921, getApproxHorzDistance(L1,L3), sdD);
-		assertEquals(69.3146382, getApproxHorzDistance(L1,L4), sdD);
-		assertEquals(60.6200022, getApproxHorzDistance(L2,L3), sdD);
-		assertEquals(48.2952403, getApproxHorzDistance(L4,L2), sdD);
-		assertEquals(43.7518956, getApproxHorzDistance(L4,L3), sdD);
+		assertEquals(  6474.888, horzDistanceFast(L5,L1), ldD);
+		assertEquals(  6493.824, horzDistanceFast(L2,L5), ldD);
+		assertEquals( 13707.303, horzDistanceFast(L4,L6), ldD);
+		assertEquals( 13735.216, horzDistanceFast(L6,L3), ldD);
+		assertEquals(43.6090864, horzDistanceFast(L1,L2), sdD);
+		assertEquals(48.2790921, horzDistanceFast(L1,L3), sdD);
+		assertEquals(69.3146382, horzDistanceFast(L1,L4), sdD);
+		assertEquals(60.6200022, horzDistanceFast(L2,L3), sdD);
+		assertEquals(48.2952403, horzDistanceFast(L4,L2), sdD);
+		assertEquals(43.7518956, horzDistanceFast(L4,L3), sdD);
 	}
 
 	@Test
@@ -154,9 +154,9 @@ public class RelativeLocationTest {
 		Location L1 = new Location( 23,  -32,  2);
 		Location L2 = new Location(-12, -112, -2);
 		Location L3 = new Location(-34,   86, 10);
-		assertEquals(-4, getVertDistance(L1, L2), 0);
-		assertEquals( 8, getVertDistance(L1, L3), 0);
-		assertEquals(12, getVertDistance(L2, L3), 0);
+		assertEquals(-4, vertDistance(L1, L2), 0);
+		assertEquals( 8, vertDistance(L1, L3), 0);
+		assertEquals(12, vertDistance(L2, L3), 0);
 	}
 	
 	@Test
@@ -167,7 +167,7 @@ public class RelativeLocationTest {
 		Location L1 = new Location(20.0, 20.0, 2);
 		Location L2 = new Location(20.1, 20.1, 2);
 		Location L3 = new Location(20.1, 20.1, 17);
-		double sd12 = getHorzDistance(L1,L2);	// 15.256270609
+		double sd12 = horzDistance(L1,L2);	// 15.256270609
 		double ld12 = linearDistance(L1,L2);	// 15.251477684
 		double ld13 = linearDistance(L1,L3);	// 21.378955649
 		
@@ -195,8 +195,8 @@ public class RelativeLocationTest {
 		Location L1 = new Location(20.0, 20.0, 2);
 		Location L2 = new Location(20.1, 20.1, 2);
 		Location L3 = new Location(20.1, 20.1, 17);
-		double ld12 = getTotalDistance(L1,L2);	// 15.256271986
-		double ld13 = getTotalDistance(L1,L3);	// 21.395182516
+		double ld12 = linearDistanceFast(L1,L2);	// 15.256271986
+		double ld13 = linearDistanceFast(L1,L3);	// 21.395182516
 		assertEquals(15.256271986, ld12, delta);
 		assertEquals(21.395182516, ld13, delta);
 	}
@@ -211,24 +211,24 @@ public class RelativeLocationTest {
 	
 	@Test
 	public final void testDistanceToLineFast() {
-		assertEquals(34.472999888, getApproxHorzDistToLine(L3,L2,L1), dtlD);
-		assertEquals(34.472999888, getApproxHorzDistToLine(L2,L3,L1), dtlD);
-		assertEquals(47.859144611, getApproxHorzDistToLine(L4,L3,L2), dtlD);
-		assertEquals(30.170948729, getApproxHorzDistToLine(L4,L1,L3), dtlD);
+		assertEquals(34.472999888, distanceToLineFast(L3,L2,L1), dtlD);
+		assertEquals(34.472999888, distanceToLineFast(L2,L3,L1), dtlD);
+		assertEquals(47.859144611, distanceToLineFast(L4,L3,L2), dtlD);
+		assertEquals(30.170948729, distanceToLineFast(L4,L1,L3), dtlD);
 	}
 
 	@Test
 	public final void testAzimuth() {
-		assertEquals(    180.0, getAzimuth(L5,L1), azdD);
-		assertEquals(      0.0, getAzimuth(L2,L5), azdD);
-		assertEquals(    180.0, getAzimuth(L4,L6), azdD);
-		assertEquals(      0.0, getAzimuth(L6,L3), azdD);
-		assertEquals(239.44623, getAzimuth(L1,L2), azdD);
-		assertEquals(157.05864, getAzimuth(L1,L3), azdD);
-		assertEquals(195.78891, getAzimuth(L1,L4), azdD);
-		assertEquals(111.36156, getAzimuth(L2,L3), azdD);
-		assertEquals(337.12017, getAzimuth(L4,L2), azdD);
-		assertEquals( 59.34329, getAzimuth(L4,L3), azdD);
+		assertEquals(    180.0, azimuth(L5,L1), azdD);
+		assertEquals(      0.0, azimuth(L2,L5), azdD);
+		assertEquals(    180.0, azimuth(L4,L6), azdD);
+		assertEquals(      0.0, azimuth(L6,L3), azdD);
+		assertEquals(239.44623, azimuth(L1,L2), azdD);
+		assertEquals(157.05864, azimuth(L1,L3), azdD);
+		assertEquals(195.78891, azimuth(L1,L4), azdD);
+		assertEquals(111.36156, azimuth(L2,L3), azdD);
+		assertEquals(337.12017, azimuth(L4,L2), azdD);
+		assertEquals( 59.34329, azimuth(L4,L3), azdD);
 	}
 
 	@Test
@@ -261,12 +261,12 @@ public class RelativeLocationTest {
 	
 	@Test
 	public final void testLocationLocationDirection() {
-		assertEquals(L2, getLocation(L1, getDirection(L1,L2)));
-		assertEquals(L3, getLocation(L1, getDirection(L1,L3)));
-		assertEquals(L4, getLocation(L1, getDirection(L1,L4)));
-		assertEquals(L3, getLocation(L2, getDirection(L2,L3)));
-		assertEquals(L2, getLocation(L4, getDirection(L4,L2)));
-		assertEquals(L3, getLocation(L4, getDirection(L4,L3)));
+		assertEquals(L2, location(L1, getDirection(L1,L2)));
+		assertEquals(L3, location(L1, getDirection(L1,L3)));
+		assertEquals(L4, location(L1, getDirection(L1,L4)));
+		assertEquals(L3, location(L2, getDirection(L2,L3)));
+		assertEquals(L2, location(L4, getDirection(L4,L2)));
+		assertEquals(L3, location(L4, getDirection(L4,L3)));
 	}
 	
 	@Test
@@ -361,12 +361,12 @@ public class RelativeLocationTest {
 		Location p1 = L1;
 		Location p2 = L2;
 		Location p3 = L3;
-		System.out.println(getHorzDistance(p1, p2));
-		System.out.println(getApproxHorzDistance(p1, p2));
+		System.out.println(horzDistance(p1, p2));
+		System.out.println(horzDistanceFast(p1, p2));
 		System.out.println(angle(p1,p2));
 		System.out.println(azimuthRad(p1, p2));
-		System.out.println(getAzimuth(p1, p2));
-		System.out.println(getApproxHorzDistToLine(p1, p2, p3));
+		System.out.println(azimuth(p1, p2));
+		System.out.println(distanceToLineFast(p1, p2, p3));
 		System.out.println(distanceToLine(p1, p2, p3));
 		
 		
@@ -393,14 +393,14 @@ public class RelativeLocationTest {
 		
 		System.out.println("\nSPEED TEST -- Distance to Line\n");
 		System.out.println("getApproxHorzDistToLine(): " + 
-				getApproxHorzDistToLine(L1,L2,L3));
+				distanceToLineFast(L1,L2,L3));
 		for (int i=0; i < 5; i++) {
 			long T = System.currentTimeMillis();
 			double d;
 			for (int j=0; j<numIter; j++) {
 				d = (fixedVals) ? 
-						getApproxHorzDistToLine(L1,L2,L3) :
-						getApproxHorzDistToLine(
+						distanceToLineFast(L1,L2,L3) :
+						distanceToLineFast(
 								randomLoc(),randomLoc(),randomLoc());
 			}
 			T = (System.currentTimeMillis() - T);
@@ -481,28 +481,28 @@ public class RelativeLocationTest {
 		}
 
 		System.out.println("horzDistance(): " + 
-				getHorzDistance(L1, L2));
+				horzDistance(L1, L2));
 		for (int i=0; i < 5; i++) {
 			long T = System.currentTimeMillis();
 			double d;
 			for (int j=0; j<numIter; j++) {
 				d = (fixedVals) ? 
-						getHorzDistance(L1, L2) :
-						getHorzDistance(randomLoc(),randomLoc());
+						horzDistance(L1, L2) :
+						horzDistance(randomLoc(),randomLoc());
 			}
 			T = (System.currentTimeMillis() - T);
 			System.out.println("    SD: " + T);
 		}
 		
 		System.out.println("horzDistanceFast(): " + 
-				getApproxHorzDistance(L1, L2));
+				horzDistanceFast(L1, L2));
 		for (int i=0; i < 5; i++) {
 			long T = System.currentTimeMillis();
 			double d;
 			for (int j=0; j<numIter; j++) {
 				d = (fixedVals) ? 
-						getApproxHorzDistance(L1, L2) :
-						getApproxHorzDistance(randomLoc(),randomLoc());
+						horzDistanceFast(L1, L2) :
+						horzDistanceFast(randomLoc(),randomLoc());
 			}
 			T = (System.currentTimeMillis() - T);
 			System.out.println("   SDF: " + T);
@@ -563,14 +563,14 @@ public class RelativeLocationTest {
 		}
 		
 		System.out.println("linearDistanceFast(): " + 
-				getTotalDistance(L1, L2));
+				linearDistanceFast(L1, L2));
 		for (int i=0; i < 5; i++) {
 			long T = System.currentTimeMillis();
 			double d;
 			for (int j=0; j<numIter; j++) {
 				d = (fixedVals) ? 
-						getTotalDistance(L1, L2) :
-						getTotalDistance(randomLoc(),randomLoc());
+						linearDistanceFast(L1, L2) :
+						linearDistanceFast(randomLoc(),randomLoc());
 			}
 			T = (System.currentTimeMillis() - T);
 			System.out.println("   SDF: " + T);
@@ -609,14 +609,14 @@ public class RelativeLocationTest {
 		}
 
 		System.out.println("azimuth(): " + 
-				getAzimuth(L1, L2));
+				azimuth(L1, L2));
 		for (int i=0; i < 5; i++) {
 			long T = System.currentTimeMillis();
 			double d;
 			for (int j=0; j<numIter; j++) {
 				d = (fixedVals) ? 
-						getAzimuth(L1, L2) :
-						getAzimuth(randomLoc(),randomLoc());
+						azimuth(L1, L2) :
+						azimuth(randomLoc(),randomLoc());
 			}
 			T = (System.currentTimeMillis() - T);
 			System.out.println("     A: " + T);
@@ -700,14 +700,14 @@ public class RelativeLocationTest {
 			System.out.println("    gL: " + T);
 		}
 
-		System.out.println("location(): " + getLocation(L1, dir));
+		System.out.println("location(): " + location(L1, dir));
 		for (int i=0; i < 5; i++) {
 			long T = System.currentTimeMillis();
 			Location loc;
 			for (int j=0; j<numIter; j++) {
 				loc = (fixedVals) ? 
-						getLocation(L1, dir) :
-						getLocation(randomLoc(),dir);
+						location(L1, dir) :
+						location(randomLoc(),dir);
 			}
 			T = (System.currentTimeMillis() - T);
 			System.out.println("     L: " + T);
@@ -765,8 +765,8 @@ public class RelativeLocationTest {
 		Location startPt = LLtoUse.get(0);
 		for (int i = 1; i < LLtoUse.size(); i++) {
 			Location endPt = LLtoUse.get(i);
-			double surfDist = getHorzDistance(startPt, endPt);
-			double fastSurfDist = getApproxHorzDistance(startPt, endPt);
+			double surfDist = horzDistance(startPt, endPt);
+			double fastSurfDist = horzDistanceFast(startPt, endPt);
 			double delta1 = fastSurfDist - surfDist;
 			double horizDist = getHorzDistanceOLD(startPt, endPt);
 			double approxDist = getApproxHorzDistanceOLD(startPt, endPt);
@@ -1013,7 +1013,7 @@ public class RelativeLocationTest {
 	 */
 	private static double getTotalDistanceOLD(Location loc1, Location loc2) {
 		double hDist = getHorzDistanceOLD(loc1, loc2);
-		double vDist = getVertDistance(loc1, loc2);
+		double vDist = vertDistance(loc1, loc2);
 		return  Math.sqrt(hDist*hDist+vDist*vDist);
 	}
 	

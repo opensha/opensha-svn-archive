@@ -179,11 +179,11 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
       Direction dir;
       double halfLength = magLengthRelationship.getMedianLength(maxMag)/2.0;
 //      loc1 = RelativeLocation.getLocation(loc,new Direction(0.0,halfLength,strike,Double.NaN));
-      loc1 = RelativeLocation.getLocation(loc,
+      loc1 = RelativeLocation.location(loc,
     		  new Direction(strike, halfLength, 0.0));
       dir = RelativeLocation.getDirection(loc1,loc);
       dir.setHorzDistance(dir.getHorzDistance()*2.0);
-      loc2 = RelativeLocation.getLocation(loc1,dir);
+      loc2 = RelativeLocation.location(loc1,dir);
       FaultTrace fault = new FaultTrace("");
       fault.add(loc1);
       fault.add(loc2);
@@ -298,7 +298,7 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
       if(tempMin < min) min = tempMin;
       return min;
      */
-     return RelativeLocation.getHorzDistance(
+     return RelativeLocation.horzDistance(
     		 site.getLocation(),ptSurface.getLocation());
     }
 
@@ -331,7 +331,7 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
       rup = src.getRupture(r);
       loc1 = rup.getRuptureSurface().getLocation(0,0);
       loc2 = rup.getRuptureSurface().getLocation(0,rup.getRuptureSurface().getNumCols()-1);
-      length = RelativeLocation.getHorzDistance(loc1,loc2);
+      length = RelativeLocation.horzDistance(loc1,loc2);
       aveLat = (loc1.getLatitude()+loc2.getLatitude())/2;
       aveLon = (loc1.getLongitude()+loc2.getLongitude())/2;
 //      System.out.println("\t"+(float)rup.getMag()+"\t"+loc1+"\t"+loc2);

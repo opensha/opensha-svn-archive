@@ -202,7 +202,7 @@ public class PEER_AreaForecast extends EqkRupForecast{
       locationList = new LocationList();
       for (double lat=LAT_TOP;lat >=LAT_BOTTOM; lat-=latDiff)
         for (double lon=LONG_LEFT;lon <=LONG_RIGHT; lon+=longDiff)
-          if (RelativeLocation.getHorzDistance(
+          if (RelativeLocation.horzDistance(
         		  new Location(LAT_CENTER,LONG_CENTER),
         		  new Location(lat,lon)) <= MAX_DISTANCE)
             for (double depth=depthUpper;depth<=depthLower;depth+=gridSpacing)

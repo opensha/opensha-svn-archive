@@ -132,10 +132,10 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
       for(double offSet=0; offSet < rupLength+deltaRupOffset/2.0; offSet += deltaRupOffset){
 //        dir = new Direction(0.0,offSet,strike,Double.NaN);
           dir = new Direction(strike, offSet, 0.0);
-        loc1 = RelativeLocation.getLocation(loc,dir);
+        loc1 = RelativeLocation.location(loc,dir);
 //        dir = new Direction(0.0,rupLength-offSet,strike+180,Double.NaN);
         dir = new Direction(strike+180, rupLength-offSet, 0.0);
-        loc2 = RelativeLocation.getLocation(loc,dir);
+        loc2 = RelativeLocation.location(loc,dir);
         fltTrace = new FaultTrace(null);
         fltTrace.add(loc1);
         fltTrace.add(loc2);
@@ -209,7 +209,7 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
    * @return minimum distance
    */
    public  double getMinDistance(Site site) {
-     return RelativeLocation.getHorzDistance(site.getLocation(),loc) - rupLength;
+     return RelativeLocation.horzDistance(site.getLocation(),loc) - rupLength;
     }
 
  /**

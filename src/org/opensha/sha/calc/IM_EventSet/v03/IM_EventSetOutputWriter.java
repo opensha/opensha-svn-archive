@@ -274,7 +274,7 @@ public abstract class IM_EventSetOutputWriter {
 		double middleLat = (minLat + maxLat) / 2;
 
 		//getting the source-site cuttoff distance
-		sourceCutOffDistance = (float) RelativeLocation.getHorzDistance(
+		sourceCutOffDistance = (float) RelativeLocation.horzDistance(
 				new Location(middleLat, middleLon),
 				new Location(minLat, minLon)) + 
 				IM_EventSetCalc_v3_0.MIN_SOURCE_DIST;

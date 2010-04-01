@@ -834,22 +834,22 @@ public void setAdjustableParams(ParameterList paramList)  throws java.rmi.Remote
 		 
 		 // Loop over the left side of the rupture
 		 for (int i=0; i < rupSurf.getNumRows(); i++){
-			 double dis = RelativeLocation.getHorzDistance(loc,rupSurf.getLocation(i,0));
+			 double dis = RelativeLocation.horzDistance(loc,rupSurf.getLocation(i,0));
 			 if (minDis>dis)minDis=dis;
 		 }	 
 		// Loop over the bottom side of the rupture
 		 for (int i=0; i < rupSurf.getNumCols(); i++){
-			 double dis = RelativeLocation.getHorzDistance(loc,rupSurf.getLocation(rupSurf.getNumRows()-1,i));
+			 double dis = RelativeLocation.horzDistance(loc,rupSurf.getLocation(rupSurf.getNumRows()-1,i));
 			 if (minDis>dis)minDis=dis;
 		 } 
 		// Loop over the right side of the rupture
 		 for (int i=0; i < rupSurf.getNumRows(); i++){
-			 double dis = RelativeLocation.getHorzDistance(loc,rupSurf.getLocation(i,rupSurf.getNumCols()-1));
+			 double dis = RelativeLocation.horzDistance(loc,rupSurf.getLocation(i,rupSurf.getNumCols()-1));
 			 if (minDis>dis)minDis=dis;
 		 }
 		// Loop over the top side of the rupture
 		 for (int i=0; i < rupSurf.getNumCols(); i++){
-			 double dis = RelativeLocation.getHorzDistance(loc,rupSurf.getLocation(0,i));
+			 double dis = RelativeLocation.horzDistance(loc,rupSurf.getLocation(0,i));
 			 if (minDis>dis)minDis=dis;
 		 }
 		 return minDis;

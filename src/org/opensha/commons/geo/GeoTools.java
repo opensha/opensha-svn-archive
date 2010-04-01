@@ -20,11 +20,7 @@
 package org.opensha.commons.geo;
 
 import static java.lang.Math.PI;
-import static org.opensha.commons.geo.GeoTools.EARTH_RADIUS_EQUATORIAL;
-import static org.opensha.commons.geo.GeoTools.EARTH_RADIUS_POLAR;
-import static org.opensha.commons.geo.GeoTools.TO_DEG;
 
-import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.util.DataUtils;
 
 /**
@@ -205,7 +201,7 @@ public class GeoTools {
 	 * @param p the <code>Location</code> at which to conversion value
 	 * @return the number of decimal degrees latitude per km at a given
 	 * 		<code>Location</code>
-	 * @see GeoTools#radiusAtLocation(Location)
+	 * @see #radiusAtLocation(Location)
 	 */
 	public static double degreesLatPerKm(Location p) {
 		return TO_DEG / radiusAtLocation(p);

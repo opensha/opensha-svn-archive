@@ -286,7 +286,7 @@ public class FaultRuptureSource
     Iterator it = faultCornerLocations.iterator();
 
     while (it.hasNext()) {
-      tempMin = RelativeLocation.getHorzDistance(site.getLocation(),
+      tempMin = RelativeLocation.horzDistance(site.getLocation(),
                                                  (Location) it.next());
       if (tempMin < min) min = tempMin;
     }

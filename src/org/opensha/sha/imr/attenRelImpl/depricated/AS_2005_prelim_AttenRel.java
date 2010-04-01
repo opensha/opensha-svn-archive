@@ -317,18 +317,18 @@ public class AS_2005_prelim_AttenRel
       EvenlyGriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
       Location fltLoc1 = surface.getLocation(0, 0);
       Location fltLoc2 = surface.getLocation(0, surface.getNumCols() - 1);
-      double angle1 = RelativeLocation.getAzimuth(fltLoc1, fltLoc2);
+      double angle1 = RelativeLocation.azimuth(fltLoc1, fltLoc2);
       double minDist = Double.MAX_VALUE, dist;
       int minDistLocIndex = -1;
       for (int i = 0; i < surface.getNumCols(); i++) {
-        dist = RelativeLocation.getApproxHorzDistance(site.getLocation(),
+        dist = RelativeLocation.horzDistanceFast(site.getLocation(),
             surface.getLocation(0, i));
         if (dist < minDist) {
           minDist = dist;
           minDistLocIndex = i;
         }
       }
-      double angle2 = RelativeLocation.getAzimuth(surface.getLocation(0,
+      double angle2 = RelativeLocation.azimuth(surface.getLocation(0,
           minDistLocIndex), site.getLocation());
       srcSiteAngleParam.setValue(angle2 - angle1);
 

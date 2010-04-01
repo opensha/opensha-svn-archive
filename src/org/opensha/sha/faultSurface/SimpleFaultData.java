@@ -98,22 +98,22 @@ public class SimpleFaultData  implements java.io.Serializable {
     	double minDist = Double.MAX_VALUE, distance;
     	boolean reverse = false;
     	ArrayList<Integer> reversedIndices = new ArrayList<Integer>();
-    	distance = RelativeLocation.getHorzDistance(faultTrace1.get(0), faultTrace2.get(0));
+    	distance = RelativeLocation.horzDistance(faultTrace1.get(0), faultTrace2.get(0));
     	if(distance<minDist) {
     		minDist = distance;
     		reverse=true;
     	}
-    	distance = RelativeLocation.getHorzDistance(faultTrace1.get(0), faultTrace2.get(faultTrace2.getNumLocations()-1));
+    	distance = RelativeLocation.horzDistance(faultTrace1.get(0), faultTrace2.get(faultTrace2.getNumLocations()-1));
     	if(distance<minDist) {
     		minDist = distance;
     		reverse=true;  
     	}
-    	distance = RelativeLocation.getHorzDistance(faultTrace1.get(faultTrace1.getNumLocations()-1), faultTrace2.get(0));
+    	distance = RelativeLocation.horzDistance(faultTrace1.get(faultTrace1.getNumLocations()-1), faultTrace2.get(0));
     	if(distance<minDist) {
     		minDist = distance;
     		reverse=false;
     	}
-    	distance = RelativeLocation.getHorzDistance(faultTrace1.get(faultTrace1.getNumLocations()-1), faultTrace2.get(faultTrace2.getNumLocations()-1));
+    	distance = RelativeLocation.horzDistance(faultTrace1.get(faultTrace1.getNumLocations()-1), faultTrace2.get(faultTrace2.getNumLocations()-1));
     	if(distance<minDist) {
     		minDist = distance;
     		reverse=false;
@@ -135,8 +135,8 @@ public class SimpleFaultData  implements java.io.Serializable {
     		if(i>0) { // check the ordering of point in this fault trace
     			FaultTrace prevFaultTrace = simpleFaultDataList.get(i-1).getFaultTrace();
     			Location lastLoc = prevFaultTrace.get(prevFaultTrace.getNumLocations()-1);
-    			double distance1 = RelativeLocation.getHorzDistance(lastLoc, faultTrace.get(0));
-    			double distance2 = RelativeLocation.getHorzDistance(lastLoc, faultTrace.get(faultTrace.getNumLocations()-1));
+    			double distance1 = RelativeLocation.horzDistance(lastLoc, faultTrace.get(0));
+    			double distance2 = RelativeLocation.horzDistance(lastLoc, faultTrace.get(faultTrace.getNumLocations()-1));
     			if(distance2<distance1) { // reverse this fault trace
     				faultTrace.reverse();
     				reversedIndices.add(i);

@@ -148,7 +148,7 @@ implements WarningParameterAPI
 			while( it.hasNext() ){
 
 				loc2 = (Location) it.next();
-				currentDistance = RelativeLocation.getHorzDistance(loc1, loc2);
+				currentDistance = RelativeLocation.horzDistance(loc1, loc2);
 				if( currentDistance < minDistance ) minDistance = currentDistance;
 			}				
 
@@ -158,10 +158,10 @@ implements WarningParameterAPI
 					double d1, d2,min_dist;
 					loc1 = rupSurf.getLocation(0, 0);
 					loc2 = rupSurf.getLocation(1, 1);
-					d1 = RelativeLocation.getHorzDistance(loc1,loc2);
+					d1 = RelativeLocation.horzDistance(loc1,loc2);
 					loc1 = rupSurf.getLocation(0, 1);
 					loc2 = rupSurf.getLocation(1, 0);
-					d2 = RelativeLocation.getHorzDistance(loc1,loc2);
+					d2 = RelativeLocation.horzDistance(loc1,loc2);
 					min_dist = Math.min(d1, d1)/2;
 					if(minDistance<=min_dist) minDistance = 0;
 				}

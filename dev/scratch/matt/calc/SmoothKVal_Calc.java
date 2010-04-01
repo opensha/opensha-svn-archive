@@ -98,7 +98,7 @@ public class SmoothKVal_Calc {
       int numFaultPoints = faultTrace.size();
       double totDistFromFault = 0;
       while (it.hasNext()) {
-        nodeDistFromFault[ind++] = RelativeLocation.getApproxHorzDistToLine(
+        nodeDistFromFault[ind++] = RelativeLocation.distanceToLineFast(
         		faultTrace.get(0),
         		faultTrace.get(numFaultPoints),
         		it.next());

@@ -228,7 +228,7 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
             dir = new Direction(segmentAzimuth[ segmentNumber - 1 ], distance, 0);
 
             // location on the trace
-            Location topLocation = RelativeLocation.getLocation( location1, dir  );
+            Location topLocation = RelativeLocation.location( location1, dir  );
 
             setLocation(0, ith_col, topLocation.clone());
             if( D ) System.out.println(S + "(x,y) topLocation = (0, " + ith_col + ") " + topLocation );
@@ -249,7 +249,7 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
                 if( D ) System.out.println(S + "dip = " + dip + "; hDist = " + dir.getHorzDistance()
                                               + "; vDist = " + dir.getVertDistance() );
 
-                Location nextLocation = RelativeLocation.getLocation( lastLocation, dir );
+                Location nextLocation = RelativeLocation.location( lastLocation, dir );
                 setLocation(ith_row, ith_col, nextLocation.clone());
 
                 if( D ) System.out.println(S + "(x,y) nextLocation = (" + ith_row + ", " + ith_col + ") " + nextLocation );

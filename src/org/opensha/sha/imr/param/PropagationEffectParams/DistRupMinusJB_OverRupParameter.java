@@ -143,8 +143,8 @@ public class DistRupMinusJB_OverRupParameter
 
                 Location loc2 = (Location) it.next();
 
-                horzDist = RelativeLocation.getHorzDistance(loc1, loc2);
-                vertDist = RelativeLocation.getVertDistance(loc1, loc2);
+                horzDist = RelativeLocation.horzDistance(loc1, loc2);
+                vertDist = RelativeLocation.vertDistance(loc1, loc2);
 
                 totalDist = horzDist * horzDist + vertDist * vertDist;
                 if( totalDist < minRupDistance ) minRupDistance = totalDist;

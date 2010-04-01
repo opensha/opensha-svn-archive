@@ -248,11 +248,11 @@ public class CEUS_Point2Vert_FaultPoisSource extends ProbEqkSource implements ja
       double halfLength = magLengthRelationship.getMedianLength(maxMag)/2.0;
       if(this.isCrossHair) strike = 0;
 //      loc1 = RelativeLocation.getLocation(loc,new Direction(0.0,halfLength,strike,Double.NaN));
-      loc1 = RelativeLocation.getLocation(loc,
+      loc1 = RelativeLocation.location(loc,
     		  new Direction(strike, halfLength, 0.0));
       dir = RelativeLocation.getDirection(loc1,loc);
       dir.setHorzDistance(dir.getHorzDistance()*2.0);
-      loc2 = RelativeLocation.getLocation(loc1,dir);
+      loc2 = RelativeLocation.location(loc1,dir);
       FaultTrace fault = new FaultTrace("");
       fault.add(loc1);
       fault.add(loc2);
@@ -262,11 +262,11 @@ public class CEUS_Point2Vert_FaultPoisSource extends ProbEqkSource implements ja
       if(this.isCrossHair) {
     	  strike = 90;
 //    	  loc1 = RelativeLocation.getLocation(loc,new Direction(0.0,halfLength,strike,Double.NaN));
-          loc1 = RelativeLocation.getLocation(loc,
+          loc1 = RelativeLocation.location(loc,
         		  new Direction(strike, halfLength, 0.0));
     	  dir = RelativeLocation.getDirection(loc1,loc);
     	  dir.setHorzDistance(dir.getHorzDistance()*2.0);
-    	  loc2 = RelativeLocation.getLocation(loc1,dir);
+    	  loc2 = RelativeLocation.location(loc1,dir);
     	  fault = new FaultTrace("");
     	  fault.add(loc1);
     	  fault.add(loc2);
@@ -449,7 +449,7 @@ public class CEUS_Point2Vert_FaultPoisSource extends ProbEqkSource implements ja
       if(tempMin < min) min = tempMin;
       return min;
      */
-     return RelativeLocation.getHorzDistance(
+     return RelativeLocation.horzDistance(
     		 site.getLocation(),ptSurface.getLocation());
     }
 

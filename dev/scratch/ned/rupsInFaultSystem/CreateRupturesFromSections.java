@@ -162,10 +162,10 @@ System.out.println("maxJumpDist="+maxJumpDist);
 				int indexB_lastPoint = indexB_firstPoint+1;
 				Location locB_1st = dataB.getFaultTrace().get(0);
 				Location locB_2nd = dataB.getFaultTrace().get(dataB.getFaultTrace().size()-1);
-				sectionDistances[indexA_firstPoint][indexB_firstPoint] = RelativeLocation.getApproxHorzDistance(locA_1st, locB_1st);
-				sectionDistances[indexA_firstPoint][indexB_lastPoint] = RelativeLocation.getApproxHorzDistance(locA_1st, locB_2nd);
-				sectionDistances[indexA_lastPoint][indexB_firstPoint] = RelativeLocation.getApproxHorzDistance(locA_2nd, locB_1st);
-				sectionDistances[indexA_lastPoint][indexB_lastPoint] = RelativeLocation.getApproxHorzDistance(locA_2nd, locB_2nd);
+				sectionDistances[indexA_firstPoint][indexB_firstPoint] = RelativeLocation.horzDistanceFast(locA_1st, locB_1st);
+				sectionDistances[indexA_firstPoint][indexB_lastPoint] = RelativeLocation.horzDistanceFast(locA_1st, locB_2nd);
+				sectionDistances[indexA_lastPoint][indexB_firstPoint] = RelativeLocation.horzDistanceFast(locA_2nd, locB_1st);
+				sectionDistances[indexA_lastPoint][indexB_lastPoint] = RelativeLocation.horzDistanceFast(locA_2nd, locB_2nd);
 				
 				double dirA = dataA.getFaultTrace().getStrikeDirection();  // values are between -180 and 180
 				double dirB = dataB.getFaultTrace().getStrikeDirection();

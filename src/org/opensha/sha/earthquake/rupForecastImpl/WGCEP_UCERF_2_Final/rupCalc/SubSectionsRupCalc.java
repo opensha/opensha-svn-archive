@@ -196,13 +196,13 @@ public class SubSectionsRupCalc {
 		  int endIndex1 = trace1.getNumLocations()-1;
 		  FaultTrace trace2 = faultSectionPrefData2.getFaultTrace();
 		  int endIndex2 = trace2.getNumLocations()-1;
-		  if(RelativeLocation.getApproxHorzDistance(trace1.get(0), trace2.get(0))<=subSectionsCutoffDist) 
+		  if(RelativeLocation.horzDistanceFast(trace1.get(0), trace2.get(0))<=subSectionsCutoffDist) 
 			  return true;
-		  if(RelativeLocation.getApproxHorzDistance(trace1.get(0), trace2.get(endIndex2))<=subSectionsCutoffDist) 
+		  if(RelativeLocation.horzDistanceFast(trace1.get(0), trace2.get(endIndex2))<=subSectionsCutoffDist) 
 			  return true;
-		  if(RelativeLocation.getApproxHorzDistance(trace1.get(endIndex1), trace2.get(0))<=subSectionsCutoffDist) 
+		  if(RelativeLocation.horzDistanceFast(trace1.get(endIndex1), trace2.get(0))<=subSectionsCutoffDist) 
 			  return true;
-		  if(RelativeLocation.getApproxHorzDistance(trace1.get(endIndex1), trace2.get(endIndex2))<=subSectionsCutoffDist) 
+		  if(RelativeLocation.horzDistanceFast(trace1.get(endIndex1), trace2.get(endIndex2))<=subSectionsCutoffDist) 
 			  return true;
 		  return false;
 	  }

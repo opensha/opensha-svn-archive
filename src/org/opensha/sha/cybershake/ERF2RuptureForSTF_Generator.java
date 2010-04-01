@@ -449,10 +449,10 @@ public class ERF2RuptureForSTF_Generator {
         double maxLat = region.getMaxLat();
         double minLon = region.getMinLon();
         double maxLon = region.getMaxLon();
-        double distanceSWSE = RelativeLocation.getApproxHorzDistance(
+        double distanceSWSE = RelativeLocation.horzDistanceFast(
         		new Location(minLat,minLon),
         		new Location(minLat, maxLon));
-        double distanceNWSW = RelativeLocation.getApproxHorzDistance(
+        double distanceNWSW = RelativeLocation.horzDistanceFast(
         		new Location(minLat,minLon),
         		new Location(maxLat, minLon));
         if(regionMinLat > minLat)
@@ -558,7 +558,7 @@ public class ERF2RuptureForSTF_Generator {
       for (int i = 0; i < numCols - 1; ++i) {
         Location loc1 = surface.getLocation(0, i);
         Location loc2 = surface.getLocation(0, i + 1);
-        double strike = RelativeLocation.getAzimuth(loc1, loc2);
+        double strike = RelativeLocation.azimuth(loc1, loc2);
         localStrike[i] = strike;
       }
     }

@@ -93,19 +93,19 @@ public class LocationList extends ArrayList<Location> implements Serializable,
 	/**
 	 * Computes the horizontal surface distance (in km) to the closest point in 
 	 * this list from the supplied <code>Location</code>. This method uses 
-	 * {@link RelativeLocation#getHorzDistance(Location, Location)} to compute
+	 * {@link RelativeLocation#horzDistance(Location, Location)} to compute
 	 * the distance.
 	 * 
 	 * @param loc <code>Location</code> of interest
 	 * @return the distance to the closest point in this 
 	 *         <code>LocationList</code>
-	 * @see RelativeLocation#getHorzDistance(Location, Location)
+	 * @see RelativeLocation#horzDistance(Location, Location)
 	 */
 	public double minDistToLocation(Location loc) {
 		double min = Double.MAX_VALUE;
 		double dist = 0;
 		for (Location p : this) {
-			dist = RelativeLocation.getHorzDistance(loc, p);
+			dist = RelativeLocation.horzDistance(loc, p);
 			if (dist < min) min = dist;
 		}
 		return min;
@@ -115,7 +115,7 @@ public class LocationList extends ArrayList<Location> implements Serializable,
 	 * Computes the shortest horizontal distance (in km) from the supplied
 	 * <code>Location</code> to the line defined by connecting the points in 
 	 * this <code>LocationList</code>. This method uses 
-	 * {@link RelativeLocation#getApproxHorzDistToLine(Location, Location, Location)}
+	 * {@link RelativeLocation#distanceToLineFast(Location, Location, Location)}
 	 * and is inappropriate for for use at large separations (e.g. &gt;200 km).
 	 * 
 	 * @param loc <code>Location</code> of interest
@@ -126,7 +126,7 @@ public class LocationList extends ArrayList<Location> implements Serializable,
 		double min = Double.MAX_VALUE;
 		double dist = 0;
 		for (int i = 1; i < size(); i++) {
-			dist = RelativeLocation.getApproxHorzDistToLine(
+			dist = RelativeLocation.distanceToLineFast(
 					get(i - 1), get(i), loc);
 			if (dist < min) min = dist;
 		}

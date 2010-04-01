@@ -90,7 +90,7 @@ public final class DistDecayFromRupCalc {
       pointRupture = mainshock.getHypocenterLocation();
       while (zoneIT.hasNext()) {
         nodeDistFromFault[ind++] =
-            RelativeLocation.getApproxHorzDistance(
+            RelativeLocation.horzDistanceFast(
             		pointRupture, zoneIT.next());
         totDistFromFault = totDistFromFault +
             Math.pow(nodeDistFromFault[ind - 1], decayParam);
@@ -140,7 +140,7 @@ public final class DistDecayFromRupCalc {
     double nodeDistFromRup, minDistFromRup = 0;
     ListIterator rupIT = ruptureSurface.listIterator();
     while (rupIT.hasNext()) {
-      nodeDistFromRup = RelativeLocation.getApproxHorzDistance(
+      nodeDistFromRup = RelativeLocation.horzDistanceFast(
           (Location) (rupIT.next()), gridLoc);
       if (ind == 0) {
         minDistFromRup = nodeDistFromRup;

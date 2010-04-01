@@ -349,7 +349,7 @@ public class AS_1997_AttenRel
     loc2 = surface.getLocation(surface.getNumRows() - 1, numCols - 1);
     dir = RelativeLocation.getDirection(loc, loc2);
     dir.setHorzDistance(100.0); // anything that makes rup dist > 25 km
-    loc3 = RelativeLocation.getLocation(loc, dir);
+    loc3 = RelativeLocation.location(loc, dir);
     xVals[numCols] = (int) (loc3.getLongitude() * toIntFactor);
     yVals[numCols] = (int) (loc3.getLatitude() * toIntFactor);
 
@@ -357,7 +357,7 @@ public class AS_1997_AttenRel
     loc2 = surface.getLocation(surface.getNumRows() - 1, 0);
     dir = RelativeLocation.getDirection(loc, loc2);
     dir.setHorzDistance(100.0); // anything that makes rup dist > 25 km
-    loc3 = RelativeLocation.getLocation(loc, dir);
+    loc3 = RelativeLocation.location(loc, dir);
     xVals[numCols + 1] = (int) (loc3.getLongitude() * toIntFactor);
     yVals[numCols + 1] = (int) (loc3.getLatitude() * toIntFactor);
 

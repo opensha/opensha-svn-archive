@@ -165,14 +165,14 @@ implements WarningParameterAPI
 				Location loc2 = (Location)it.next();
 				// ignore locations with depth less than siesDepth (unless projectToDepth=true):
 				if (loc2.getDepth() >= seisDepth) {
-					horzDist = RelativeLocation.getHorzDistance(loc1, loc2);
-					vertDist = RelativeLocation.getVertDistance(loc1, loc2);
+					horzDist = RelativeLocation.horzDistance(loc1, loc2);
+					vertDist = RelativeLocation.vertDistance(loc1, loc2);
 					totalDist = horzDist * horzDist + vertDist * vertDist;
 					if( totalDist < minDistance )  minDistance = totalDist;
 				}
 				// put a zero-depth point source at the seisDepth
 				else if (projectToDepth) {
-					horzDist = RelativeLocation.getHorzDistance(loc1, loc2);
+					horzDist = RelativeLocation.horzDistance(loc1, loc2);
 					totalDist = horzDist * horzDist + seisDepth * seisDepth;
 					if( totalDist < minDistance )  minDistance = totalDist;
 				}

@@ -58,7 +58,7 @@ public class FaultTraceUtils {
 			distance = 0;
 			while(true && index<faultTrace.getNumLocations()) {
 				Location nextLoc = faultTrace.get(index);
-				distLocs = RelativeLocation.getApproxHorzDistance(prevLoc, nextLoc);
+				distLocs = RelativeLocation.horzDistanceFast(prevLoc, nextLoc);
 				distance+= distLocs;
 				if(distance<subSecLength) { // if sub section length is greater than distance, then get next point on trace
 					prevLoc = nextLoc;
@@ -67,7 +67,7 @@ public class FaultTraceUtils {
 				} else {
 					Direction direction = RelativeLocation.getDirection(prevLoc, nextLoc);
 					direction.setHorzDistance(subSecLength-(distance-distLocs));
-					prevLoc = RelativeLocation.getLocation(prevLoc, direction);
+					prevLoc = RelativeLocation.location(prevLoc, direction);
 					subSectionTrace.add(prevLoc);
 					--index;
 					break;
@@ -96,13 +96,13 @@ public class FaultTraceUtils {
 		  int NextLocIndex = 1;
 		  while (NextLocIndex < trace.size()) {
 			  Location nextLoc = trace.get(NextLocIndex);
-			  double length = RelativeLocation.getTotalDistance(lastLoc, nextLoc);
+			  double length = RelativeLocation.linearDistanceFast(lastLoc, nextLoc);
 			  if (length > remainingLength) {
 				  	// set the point
 				  Direction dir = RelativeLocation.getDirection(lastLoc, nextLoc);
 				  dir.setHorzDistance(dir.getHorzDistance()*remainingLength/length);
 				  dir.setVertDistance(dir.getVertDistance()*remainingLength/length);
-				  Location loc = RelativeLocation.getLocation(lastLoc, dir);
+				  Location loc = RelativeLocation.location(lastLoc, dir);
 				  resampTrace.add(loc);
 				  lastLoc = loc;
 				  remainingLength = resampInt;
@@ -115,7 +115,7 @@ public class FaultTraceUtils {
 		  }
 		  
 		  // make sure we got the last one (might be missed because of numerical precision issues?)
-		  double dist = RelativeLocation.getTotalDistance(trace.get(trace.size()-1), resampTrace.get(resampTrace.size()-1));
+		  double dist = RelativeLocation.linearDistanceFast(trace.get(trace.size()-1), resampTrace.get(resampTrace.size()-1));
 		  if (dist> resampInt/2) resampTrace.add(trace.get(trace.size()-1));
 
 		  /* Debugging Stuff *****************/

@@ -909,7 +909,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		EvenlyGriddedSurface surface = this.getSourceSurface();
 		double minDist = Double.MAX_VALUE, dist;
 		for(int col=0; col < surface.getNumCols(); col++){
-			dist = RelativeLocation.getApproxHorzDistance(surface.getLocation(0,col), loc);
+			dist = RelativeLocation.horzDistanceFast(surface.getLocation(0,col), loc);
 			if(dist <minDist) minDist = dist;
 		}
 		double distanceCutOff=minDist+0.001;  // add one meter to make sure we always get it
@@ -923,7 +923,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			Iterator it = rupture.getRuptureSurface().getLocationsIterator();
 			while(it.hasNext()) { // iterate over all locations in a rupture
 				Location surfaceLoc = (Location)it.next();
-				if(RelativeLocation.getApproxHorzDistance(surfaceLoc, loc)< distanceCutOff) {
+				if(RelativeLocation.horzDistanceFast(surfaceLoc, loc)< distanceCutOff) {
 					double area = rupture.getRuptureSurface().getSurfaceLength()*rupture.getRuptureSurface().getSurfaceWidth();
 					double slip = FaultMomentCalc.getSlip(area*1e6,MomentMagCalc.getMoment(rupture.getMag()));
 					slipRate+= rupture.getMeanAnnualRate(this.duration)*slip;
@@ -952,7 +952,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		EvenlyGriddedSurface surface = this.getSourceSurface();
 		double minDist = Double.MAX_VALUE, dist;
 		for(int col=0; col < surface.getNumCols(); col++){
-			dist = RelativeLocation.getApproxHorzDistance(surface.getLocation(0,col), loc);
+			dist = RelativeLocation.horzDistanceFast(surface.getLocation(0,col), loc);
 			if(dist <minDist) minDist = dist;
 		}
 		double distanceCutOff=minDist+0.001;  // add one meter to make sure we always get it
@@ -966,7 +966,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			Iterator it = rupture.getRuptureSurface().getLocationsIterator();
 			while(it.hasNext()) { // iterate over all locations in a rupture
 				Location surfaceLoc = (Location)it.next();
-				if(RelativeLocation.getApproxHorzDistance(surfaceLoc, loc)< distanceCutOff) {
+				if(RelativeLocation.horzDistanceFast(surfaceLoc, loc)< distanceCutOff) {
 					rate+= rupture.getMeanAnnualRate(this.duration);
 					//System.out.println(this.segmentData.getFaultName()+","+rupIndex+","+
 					//	rupture.getMeanAnnualRate(this.duration));
@@ -994,7 +994,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		EvenlyGriddedSurface surface = this.getSourceSurface();
 		double minDist = Double.MAX_VALUE, dist;
 		for(int col=0; col < surface.getNumCols(); col++){
-			dist = RelativeLocation.getApproxHorzDistance(surface.getLocation(0,col), loc);
+			dist = RelativeLocation.horzDistanceFast(surface.getLocation(0,col), loc);
 			if(dist <minDist) minDist = dist;
 		}
 		double distanceCutOff=minDist+0.001;  // add one meter to make sure we always get it
@@ -1008,7 +1008,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			Iterator it = rupture.getRuptureSurface().getLocationsIterator();
 			while(it.hasNext()) { // iterate over all locations in a rupture
 				Location surfaceLoc = (Location)it.next();
-				if(RelativeLocation.getApproxHorzDistance(surfaceLoc, loc)< distanceCutOff) {
+				if(RelativeLocation.horzDistanceFast(surfaceLoc, loc)< distanceCutOff) {
 					rate+= rupture.getMeanAnnualRate(this.duration) * probVis;
 					//System.out.println(this.segmentData.getFaultName()+","+rupIndex+","+
 					//	rupture.getMeanAnnualRate(this.duration));

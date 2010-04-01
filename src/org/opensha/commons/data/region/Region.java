@@ -534,13 +534,13 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 * 
 	 * @param loc the Location to compute a distance to
 	 * @return the minimum distance between this <code>Region</code> and a point
-	 * @see RelativeLocation#getApproxHorzDistToLine(Location, Location, Location)
+	 * @see RelativeLocation#distanceToLineFast(Location, Location, Location)
 	 */
 	public double distanceToLocation(Location loc) {
 		if (contains(loc)) return 0;
 		double min = border.minDistToLine(loc);
 		// check the segment defined by the last and first points
-		double temp = RelativeLocation.getApproxHorzDistToLine(
+		double temp = RelativeLocation.distanceToLineFast(
 				border.get(border.size() - 1),
 				border.get(0), loc);
 		return (temp < min) ? temp : min;
@@ -732,7 +732,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 			for (int i=0; i<border.size(); i++) {
 				gcBorder.add(start);
 				Location end = border.get(i);
-				double distance = RelativeLocation.getHorzDistance(start, end);
+				double distance = RelativeLocation.horzDistance(start, end);
 				// subdivide as necessary
 				while (distance > GC_SEGMENT) {
 					// find new Location, GC_SEGMENT km away from start
@@ -741,7 +741,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 							start, azRad, GC_SEGMENT);
 					gcBorder.add(segLoc);
 					start = segLoc;
-					distance = RelativeLocation.getHorzDistance(start, end);
+					distance = RelativeLocation.horzDistance(start, end);
 				}
 				start = end;
 			}

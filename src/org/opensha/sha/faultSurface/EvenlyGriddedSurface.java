@@ -469,7 +469,7 @@ public abstract class EvenlyGriddedSurface
     		Iterator it2 = surface.getLocationsIterator();
     		while(it2.hasNext()) { // iterate over all locations on the user provided surface
     			Location loc2 = (Location)it2.next();
-    			dist = RelativeLocation.getApproxHorzDistance(loc1, loc2);
+    			dist = RelativeLocation.horzDistanceFast(loc1, loc2);
     			if(dist<min3dDist) min3dDist = dist;
     		}
     	}

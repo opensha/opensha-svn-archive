@@ -529,7 +529,7 @@ implements ParameterChangeWarningListener {
 		double middleLat = (minLat + maxLat) / 2;
 
 		//getting the source-site cuttoff distance
-		sourceCutOffDistance = (float) RelativeLocation.getHorzDistance(
+		sourceCutOffDistance = (float) RelativeLocation.horzDistance(
 				new Location(middleLat, middleLon),
 				new Location(minLat, minLon)) + MIN_DIST;
 		siteForSourceCutOff = new Site(new Location(middleLat, middleLon));

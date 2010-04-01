@@ -197,7 +197,7 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
             dir = new Direction(segmentAzimuth[ segmentNumber - 1 ],  distance, 0);
 
             // location on the trace
-            Location traceLocation = RelativeLocation.getLocation( location1, dir  );
+            Location traceLocation = RelativeLocation.location( location1, dir  );
 
             // get location at the top of the fault surface
             Location topLocation;
@@ -207,7 +207,7 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
                 hDistance = vDistance / Math.tan( avDipRadians );
 //                dir = new Direction(vDistance, hDistance, segmentAzimuth[ segmentNumber - 1 ]+90, 0);
                 dir = new Direction(segmentAzimuth[ segmentNumber - 1 ]+90, hDistance, vDistance);
-                topLocation = RelativeLocation.getLocation( traceLocation, dir );
+                topLocation = RelativeLocation.location( traceLocation, dir );
             }
             else
                 topLocation = traceLocation;
@@ -229,7 +229,7 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 //                dir = new Direction(vDistance, hDistance, segmentAzimuth[ segmentNumber - 1 ]+90, 0);
                 dir = new Direction(segmentAzimuth[ segmentNumber - 1 ]+90, hDistance, vDistance);
 
-                Location depthLocation = RelativeLocation.getLocation( topLocation, dir );
+                Location depthLocation = RelativeLocation.location( topLocation, dir );
                 setLocation(ith_row, ith_col, depthLocation.clone());
                 if( D ) System.out.println(S + "(x,y) depthLocation = (" + ith_row + ", " + ith_col + ") " + depthLocation );
 

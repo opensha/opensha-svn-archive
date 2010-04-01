@@ -31,7 +31,7 @@ public class DeformationModelCalc {
 	 */
 	public DiscretizedFuncAPI getDistanceSlipFunc(Location eastLoc, Location westLoc) {
 		EvenlyDiscretizedFunc evenlyDiscFunc = new EvenlyDiscretizedFunc(0, 
-				RelativeLocation.getApproxHorzDistance(eastLoc, westLoc),
+				RelativeLocation.horzDistanceFast(eastLoc, westLoc),
 				NUM);
 		double delta = evenlyDiscFunc.getDelta();
 		ArrayList faultSectionPrefDataList = prefFaultSectionDAO.getAllFaultSectionPrefData();

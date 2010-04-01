@@ -146,16 +146,15 @@ public final class RelativeLocation {
 	 * <code>Location</code>s using the Haversine formula for 
 	 * computing the angle between two points. For a faster, but less
 	 * accurate implementation at large separations, see 
-	 * {@link #getApproxHorzDistance(Location, Location)}.
+	 * {@link #horzDistanceFast(Location, Location)}.
 	 * 
 	 * @param p1 the first <code>Location</code> point
 	 * @param p2 the second <code>Location</code> point
 	 * @return the distance between the points in km
 	 * @see #angle(Location, Location)
-	 * @see #getApproxHorzDistance(Location, Location)
-	 * TODO refactor as horzDistance()
+	 * @see #horzDistanceFast(Location, Location)
 	 */
-	public static double getHorzDistance(Location p1, Location p2) {
+	public static double horzDistance(Location p1, Location p2) {
 		return EARTH_RADIUS_MEAN * angle(p1,p2);
 	}
 	
@@ -169,16 +168,15 @@ public final class RelativeLocation {
 	 * <br/>
 	 * <b>Note:</b> This method does <i>NOT</i> support values spanning 
 	 * #177;180&#176; and fails where the numeric angle exceeds 180&#176;. Use
-	 * {@link #getHorzDistance(Location, Location)} in such
+	 * {@link #horzDistance(Location, Location)} in such
 	 * instances.
 	 * 
 	 * @param p1 the first <code>Location</code> point
 	 * @param p2 the second <code>Location</code> point
 	 * @return the distance between the points in km
-	 * @see #getHorzDistance(Location, Location)
-	 * TODO refactor as horzDistanceFast()
+	 * @see #horzDistance(Location, Location)
 	 */
-	public static double getApproxHorzDistance(Location p1, Location p2) {
+	public static double horzDistanceFast(Location p1, Location p2) {
 		// modified from J. Zechar:
 		// calculates distance between two points, using formula
 		// as specifed by P. Shebalin via email 5.8.2004
@@ -198,7 +196,7 @@ public final class RelativeLocation {
 	 * @param p2 the first <code>Location</code> point
 	 * @return the vertical separation between the points
 	 */
-	public static double getVertDistance(Location p1, Location p2) {
+	public static double vertDistance(Location p1, Location p2) {
 		return  p2.getDepth() - p1.getDepth();
 	}
 
@@ -207,12 +205,12 @@ public final class RelativeLocation {
 	 * <code>Location</code>s using spherical geometry. Method returns the 
 	 * straight line distance taking into account the depths of the points.
 	 * For a faster, but less accurate implementation at large separations,
-	 * see {@link #getTotalDistance(Location, Location)}.
+	 * see {@link #linearDistanceFast(Location, Location)}.
 	 * 
 	 * @param p1 the first <code>Location</code> point
 	 * @param p2 the second <code>Location</code> point
 	 * @return the distance in km between the points
-	 * @see #getTotalDistance(Location, Location)
+	 * @see #linearDistanceFast(Location, Location)
 	 */
 	public static double linearDistance(Location p1, Location p2) {
 		double alpha = angle(p1,p2);
@@ -241,11 +239,10 @@ public final class RelativeLocation {
 	 * @see #linearDistance(Location, Location)
 	 */
 	// TODO examine whether all uses of this method are appropriate or
-	// if more accurate linearDistance() shoul dbe used instead
-	// TODO refactor to linearDistanceFast()
-	public static double getTotalDistance(Location p1, Location p2) {
-		double h = getApproxHorzDistance(p1, p2);
-		double v = getVertDistance(p1, p2);
+	// if more accurate linearDistance() should be used instead
+	public static double linearDistanceFast(Location p1, Location p2) {
+		double h = horzDistanceFast(p1, p2);
+		double v = vertDistance(p1, p2);
 		return Math.sqrt(h*h + v*v);
 	}
 
@@ -259,8 +256,8 @@ public final class RelativeLocation {
 	 * <br/>
 	 * <b>Note:</b> This method, though more accurate over longer distances  
 	 * and line lengths, is up to 20x slower than
-	 * {@link RelativeLocation#getApproxHorzDistToLine(
-	 * Location, Location, Location)}. However, this method does return
+	 * {@link #distanceToLineFast(Location, Location, Location)}. 
+	 * However, this method does return
 	 * accurate results for values spanning #177;180&#176;. Moreover, the
 	 * sign of the result indicates which side of the supplied line
 	 * <code>p3</code> is on (right:[+] left:[-]).
@@ -270,7 +267,7 @@ public final class RelativeLocation {
 	 * @param p3 the <code>Location</code> point for which distance will 
 	 * 		be calculated
 	 * @return the shortest distance in km between the supplied point and line
-	 * @see #getApproxHorzDistToLine(Location, Location, Location)
+	 * @see #distanceToLineFast(Location, Location, Location)
 	 */
 	public static double distanceToLine(Location p1, Location p2, Location p3) {
 		// angular distance
@@ -285,9 +282,9 @@ public final class RelativeLocation {
 				EARTH_RADIUS_MEAN;
 		
 		// check if beyond p3
-		if (atd > getHorzDistance(p1, p2)) return getHorzDistance(p2, p3);
+		if (atd > horzDistance(p1, p2)) return horzDistance(p2, p3);
 		// check if before p1
-		if (Math.cos(Daz13az12) < 0) return getHorzDistance(p1, p3);
+		if (Math.cos(Daz13az12) < 0) return horzDistance(p1, p3);
 		return xtdRad * EARTH_RADIUS_MEAN;
 	}
 	
@@ -307,10 +304,9 @@ public final class RelativeLocation {
 	 * @param p3 the <code>Location</code> point for which distance will 
 	 * 		be calculated
 	 * @return the shortest distance in km between the supplied point and line
-	 * @see RelativeLocation#distanceToLine(Location, Location, Location)
+	 * @see #distanceToLine(Location, Location, Location)
 	 */
-	// TODO rename to distanceToLineFast
-	public static double getApproxHorzDistToLine(
+	public static double distanceToLineFast(
 			Location p1,
 			Location p2,
 			Location p3) {
@@ -431,8 +427,7 @@ public final class RelativeLocation {
 	 * @return the azimuth (bearing) from p1 to p2 in decimal degrees
 	 * @see #azimuthRad(Location, Location)
 	 */
-	// TODO refactor to azimuth()
-	public static double getAzimuth(Location p1, Location p2) {
+	public static double azimuth(Location p1, Location p2) {
 		return azimuthRad(p1, p2) * TO_DEG;
 	}
 	
@@ -464,10 +459,14 @@ public final class RelativeLocation {
 	 * @param d distance along bearing
 	 * @return the end location 
 	 */
-	public static Location getLocation(Location p, Direction d) {
+	public static Location location(Location p, Direction d) {
 		return location(
-				p.getLatRad(), p.getLonRad(), p.getDepth(),
-				d.getAzimuth() * TO_RAD, d.getHorzDistance(), d.getVertDistance());
+				p.getLatRad(), 
+				p.getLonRad(), 
+				p.getDepth(),
+				d.getAzimuth() * TO_RAD, 
+				d.getHorzDistance(), 
+				d.getVertDistance());
 	}
 	
 	/*
@@ -497,7 +496,6 @@ public final class RelativeLocation {
 				lon2 * TO_DEG,
 				depth + dV);
 	}
-	
 
 	/**
 	 * Returns the <code>LocationVector</code> describing the move from one
@@ -516,9 +514,9 @@ public final class RelativeLocation {
 		// TODO Direction should store azimuth in radians
 		
 		Direction v = new Direction(
-				getAzimuth(p1, p2),
-				getHorzDistance(p1, p2),
-				getVertDistance(p1, p2));
+				azimuth(p1, p2),
+				horzDistance(p1, p2),
+				vertDistance(p1, p2));
 
 		return v;
 	}

@@ -312,7 +312,7 @@ public class Abrahamson_2000_AttenRel
     double dist, closestDist = Double.MAX_VALUE;
     Location closestLoc = null;
     for (int c = 0; c < numTrPts; c++) {
-      dist = RelativeLocation.getHorzDistance(siteLoc, surface.getLocation(0, c));
+      dist = RelativeLocation.horzDistance(siteLoc, surface.getLocation(0, c));
       if (dist < closestDist) {
         closestDist = dist;
         closestLoc = surface.getLocation(0, c);
@@ -320,9 +320,9 @@ public class Abrahamson_2000_AttenRel
     }
 
     // compute the distance between the closest point on the trace and the hypocenter
-    double s = RelativeLocation.getHorzDistance(closestLoc, hypLoc);
+    double s = RelativeLocation.horzDistance(closestLoc, hypLoc);
     // get total length of rupture
-    double L = RelativeLocation.getHorzDistance(surface.getLocation(0, 0),
+    double L = RelativeLocation.horzDistance(surface.getLocation(0, 0),
                                                 surface.getLocation(0,
         numTrPts - 1));
     double x = s / L;

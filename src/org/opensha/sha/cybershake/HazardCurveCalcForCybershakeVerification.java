@@ -219,7 +219,7 @@ public class HazardCurveCalcForCybershakeVerification extends UnicastRemoteObjec
         boolean ruptureWithinDist = false;
         while(it.hasNext()){
           Location loc = (Location)it.next();
-          double dist = RelativeLocation.getApproxHorzDistance(siteLoc, loc);
+          double dist = RelativeLocation.horzDistanceFast(siteLoc, loc);
           if(dist > MAX_DISTANCE)
             continue;
           else{
