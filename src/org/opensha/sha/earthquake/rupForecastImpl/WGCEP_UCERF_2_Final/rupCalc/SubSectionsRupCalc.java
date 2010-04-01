@@ -21,8 +21,8 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.rupCalc;
 
 import java.util.ArrayList;
 
-import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.exceptions.InvalidRangeException;
+import org.opensha.commons.geo.RelativeLocation;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;

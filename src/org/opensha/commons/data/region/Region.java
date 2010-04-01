@@ -39,10 +39,10 @@ import java.util.List;
 
 import org.apache.commons.math.util.MathUtils;
 import org.dom4j.Element;
-import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.RelativeLocation;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.sha.earthquake.EqkRupture;
 

@@ -7,8 +7,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.RelativeLocation;
 import org.opensha.commons.util.XYZHashMap;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.cybershake.plot.HazardMapScatterCreator;

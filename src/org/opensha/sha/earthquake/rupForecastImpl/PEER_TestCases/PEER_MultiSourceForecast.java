@@ -23,12 +23,12 @@ package org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases;
 import java.util.ArrayList;
 
 import org.opensha.commons.calc.FaultMomentCalc;
-import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.PEER_testsMagAreaRelationship;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.RelativeLocation;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkSource;

@@ -20,7 +20,6 @@
 package org.opensha.sha.imr.param.PropagationEffectParams;
 
 import org.dom4j.Element;
-import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Direction;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.region.BorderType;
@@ -28,6 +27,7 @@ import org.opensha.commons.data.region.Region;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.RelativeLocation;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.WarningParameterAPI;

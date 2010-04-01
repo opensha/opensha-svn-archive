@@ -21,9 +21,9 @@ package org.opensha.sha.imr;
 
 import java.util.ListIterator;
 
-import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.RelativeLocation;
 import org.opensha.commons.param.BooleanParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;

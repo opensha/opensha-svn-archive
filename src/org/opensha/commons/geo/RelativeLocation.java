@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.calc;
+package org.opensha.commons.geo;
 
 import static java.lang.Math.PI;
 import static org.opensha.commons.geo.GeoTools.TWOPI;
@@ -28,7 +28,6 @@ import static org.opensha.commons.geo.GeoTools.EARTH_RADIUS_MEAN;
 import java.text.DecimalFormat;
 
 import org.opensha.commons.data.Direction;
-import org.opensha.commons.geo.Location;
 
 /**
  * This class contains static utility methods to operate on geographic

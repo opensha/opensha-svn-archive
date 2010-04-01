@@ -5,7 +5,7 @@ package org.opensha.refFaultParamDb.excelToDatabase;
 
 import java.util.ArrayList;
 
-import org.opensha.commons.calc.RelativeLocation;
+import org.opensha.commons.geo.RelativeLocation;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;

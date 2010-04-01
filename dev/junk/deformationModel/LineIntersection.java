@@ -6,8 +6,8 @@ package junk.deformationModel;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 
-import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.RelativeLocation;
 import org.opensha.sha.faultSurface.FaultTrace;
 
 /**

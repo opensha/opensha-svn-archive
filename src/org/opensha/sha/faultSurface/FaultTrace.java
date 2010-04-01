@@ -22,10 +22,10 @@ package org.opensha.sha.faultSurface;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.RelativeLocation;
 
 // Fix - Needs more comments
 

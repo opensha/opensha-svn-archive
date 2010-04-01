@@ -22,9 +22,9 @@ package org.opensha.sha.imr.param.PropagationEffectParams;
 import java.util.ListIterator;
 
 import org.dom4j.Element;
-import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.RelativeLocation;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.WarningParameterAPI;

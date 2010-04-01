@@ -8,7 +8,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opensha.commons.calc.RelativeLocation;
 
 public class LocationListTest {
 
