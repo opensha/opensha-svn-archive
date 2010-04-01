@@ -273,7 +273,7 @@ public class A_FaultsFetcher extends FaultsFetcher implements java.io.Serializab
 		for(int i=0; i<faultSectionIdList.size(); ++i) {
 			FaultSectionPrefData  prefFaultSectionData = faultSectionPrefDataFinal.getFaultSectionPrefData(faultSectionIdList.get(i));
 			//System.out.println(faultSectionIdList.get(i));
-			dist  = prefFaultSectionData.getFaultTrace().getMinHorzDistToLine(loc);
+			dist  = prefFaultSectionData.getFaultTrace().minDistToLine(loc);
 			//System.out.println(prefFaultSectionData.getSectionId()+":"+dist);
 			if(dist<minDist) {
 				minDist = dist;

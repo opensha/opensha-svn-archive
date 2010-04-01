@@ -1569,7 +1569,7 @@ public class SoSAF_SubSectionInversion_v3 {
 				Location loc = new Location(lat, lon);
 				for (int sectionIndex = 0; sectionIndex < subSectionList.size(); ++sectionIndex) {
 					dist = subSectionList.get(sectionIndex).getFaultTrace()
-							.getMinHorzDistToLine(loc);
+							.minDistToLine(loc);
 					if (dist < minDist) {
 						minDist = dist;
 						closestFaultSectionIndex = sectionIndex;

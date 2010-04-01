@@ -538,7 +538,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 */
 	public double distanceToLocation(Location loc) {
 		if (contains(loc)) return 0;
-		double min = border.getMinHorzDistToLine(loc);
+		double min = border.minDistToLine(loc);
 		// check the segment defined by the last and first points
 		double temp = RelativeLocation.getApproxHorzDistToLine(
 				border.get(border.size() - 1),

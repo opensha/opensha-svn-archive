@@ -139,7 +139,7 @@ public class FaultTrace extends LocationList implements NamedObjectAPI {
 		double minFaultTraceDist = Double.POSITIVE_INFINITY;
 		double dist;
 		for(int i=0; i<faultTrace.getNumLocations(); ++i) {
-			dist = getMinHorzDistToLine(faultTrace.get(i));
+			dist = minDistToLine(faultTrace.get(i));
 			if(dist<minFaultTraceDist) minFaultTraceDist = dist;
 		}
 		return minFaultTraceDist;

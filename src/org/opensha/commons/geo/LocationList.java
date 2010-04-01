@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 import org.dom4j.Element;
 import org.opensha.commons.calc.RelativeLocation;
@@ -53,23 +54,35 @@ public class LocationList extends ArrayList<Location> implements Serializable,
 		Collections.reverse(this);
 	}
 
-	public ArrayList<LocationList> split(int pieceSize) {
+	/**
+	 * Breaks this <code>LocationList</code> into multiple parts. If 
+	 * <code>size</code> is less than or equal to the size of this list, a
+	 * <code>List&lt;LocationList&gt;</code> containing only this 
+	 * <code>LocationList</code> is returned. The last element in the
+	 * <code>List&lt;LocationList&gt;</code> will be a <code>LocationList</code>
+	 * of <code>size</code> or fewer <code>Location</code>s.
+	 * 
+	 * @param size of the smaller lists
+	 * @return a <code>List&lt;LocationList&gt;</code> of smaller 
+	 *         <code>LocationList</code>s
+	 */
+	public List<LocationList> split(int size) {
 		ArrayList<LocationList> lists = new ArrayList<LocationList>();
 
 		// quickly handle the trivial case
-		if (pieceSize <= 0 || this.size() <= pieceSize) {
+		if (size <= 0 || size() <= size) {
 			lists.add(this);
 			return lists;
 		}
 
 		LocationList cur = new LocationList();
 
-		for (int i = 0; i < this.size(); i++) {
-			if (i % pieceSize == 0 && i > 0) {
+		for (int i = 0; i < size(); i++) {
+			if (i % size == 0 && i > 0) {
 				lists.add(cur);
 				cur = new LocationList();
 			}
-			cur.add(this.get(i));
+			cur.add(get(i));
 		}
 
 		if (cur.size() > 0) lists.add(cur);
@@ -78,41 +91,44 @@ public class LocationList extends ArrayList<Location> implements Serializable,
 	}
 
 	/**
-	 * This computes the distance (in km) between the given loc and the closest
-	 * point in the LocationList
+	 * Computes the horizontal surface distance (in km) to the closest point in 
+	 * this list from the supplied <code>Location</code>. This method uses 
+	 * {@link RelativeLocation#getHorzDistance(Location, Location)} to compute
+	 * the distance.
 	 * 
-	 * @param loc
-	 * @return
+	 * @param loc <code>Location</code> of interest
+	 * @return the distance to the closest point in this 
+	 *         <code>LocationList</code>
+	 * @see RelativeLocation#getHorzDistance(Location, Location)
 	 */
-	public double getHorzDistToClosestLocation(Location loc) {
-		double min = Double.MAX_VALUE, temp;
-		Iterator<Location> it = iterator();
-		while (it.hasNext()) {
-			temp = RelativeLocation.getHorzDistance(loc, it.next());
-			if (temp < min) min = temp;
+	public double minDistToLocation(Location loc) {
+		double min = Double.MAX_VALUE;
+		double dist = 0;
+		for (Location p : this) {
+			dist = RelativeLocation.getHorzDistance(loc, p);
+			if (dist < min) min = dist;
 		}
 		return min;
 	}
 
 	/**
-	 * This computes the shortest horizontal distance (in km) from the given loc
-	 * to any point on the line defined by connecting the points in this
-	 * location list. This is approximate in that it uses the
-	 * RelativeLocation.getApproxHorzDistToLine(*) method
+	 * Computes the shortest horizontal distance (in km) from the supplied
+	 * <code>Location</code> to the line defined by connecting the points in 
+	 * this <code>LocationList</code>. This method uses 
+	 * {@link RelativeLocation#getApproxHorzDistToLine(Location, Location, Location)}
+	 * and is inappropriate for for use at large separations (e.g. &gt;200 km).
 	 * 
-	 * @param loc
-	 * @return TODO cleanup
+	 * @param loc <code>Location</code> of interest
+	 * @return the shortest distance to the line defined by this
+	 *         <code>LocationList</code>
 	 */
-	public double getMinHorzDistToLine(Location loc) {
-		double min = Double.MAX_VALUE, temp;
-
-		// TODO this should loop over the points and then only solve at the
-		// segment ??
-		// loop over each line segment
+	public double minDistToLine(Location loc) {
+		double min = Double.MAX_VALUE;
+		double dist = 0;
 		for (int i = 1; i < size(); i++) {
-			temp = RelativeLocation.getApproxHorzDistToLine(get(i - 1), get(i),
-					loc);
-			if (temp < min) min = temp;
+			dist = RelativeLocation.getApproxHorzDistToLine(
+					get(i - 1), get(i), loc);
+			if (dist < min) min = dist;
 		}
 		return min;
 	}
@@ -183,7 +199,6 @@ public class LocationList extends ArrayList<Location> implements Serializable,
 				locs.add(Location.fromXMLMetadata(el));
 			}
 		}
-
 		return locs;
 	}
 

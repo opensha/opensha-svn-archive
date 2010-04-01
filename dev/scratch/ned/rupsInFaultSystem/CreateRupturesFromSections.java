@@ -201,7 +201,7 @@ System.out.println("maxJumpDist="+maxJumpDist);
 						if(j_isOdd && !sectionConnections.contains(j-1) && j-1 != i) {  // also make sure the other end point was not already obtained
 							int sectIndex = (int) Math.floor(j/2);
 							Location loc = endPointLocs[i];
-							double distToTrace = allFaultSectionPrefData.get(sectIndex).getFaultTrace().getMinHorzDistToLine(loc);
+							double distToTrace = allFaultSectionPrefData.get(sectIndex).getFaultTrace().minDistToLine(loc);
 							if(distToTrace < maxJumpDist) {
 								String sectName = allFaultSectionPrefData.get(sectIndex).getFaultTrace().getName();
 								System.out.println(endPointNames[i]+" is close ("+Math.round(distToTrace)+"k m) to the middle of trace "+sectName);

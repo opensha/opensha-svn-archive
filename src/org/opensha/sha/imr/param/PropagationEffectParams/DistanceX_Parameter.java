@@ -202,7 +202,7 @@ public class DistanceX_Parameter
     			Region polygon = new Region(locsForRegion, BorderType.MERCATOR_LINEAR);
     			boolean isInside = polygon.contains(siteLoc);
 
-    			double distToExtendedTrace = locsForExtendedTrace.getMinHorzDistToLine(siteLoc);
+    			double distToExtendedTrace = locsForExtendedTrace.minDistToLine(siteLoc);
 
     			if(isInside || distToExtendedTrace == 0.0) // zero values are always on the hanging wall
     				this.setValue(distToExtendedTrace);

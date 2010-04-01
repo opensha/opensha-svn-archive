@@ -46,7 +46,7 @@ public final class DistDecayFromRupCalc {
     // get the summed squared distance to all nodes from the fault trace
     while (zoneIT.hasNext()) {
       nodeDistFromFault[ind++] =
-          faultTrace.getHorzDistToClosestLocation( zoneIT.next());
+          faultTrace.minDistToLocation( zoneIT.next());
       totDistFromFault = totDistFromFault +
           Math.pow(nodeDistFromFault[ind - 1], decayParam);
     }
