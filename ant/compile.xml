@@ -173,7 +173,7 @@
 				<include name="**/*.in" />
 				<include name="**/*.out" />
 				<include name="**/*.char*" />
-				<include name="**/*.gr" />
+				<include name="**/*.gr*" />
 			</fileset>
 		</copy>
 	</target>
