@@ -1,5 +1,7 @@
 package org.opensha.commons.calc;
 
+import junk.bpt.TestBPT_DistCalcOld;
+
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.opensha.commons.geo.LocationUtilsTest;
@@ -7,7 +9,6 @@ import org.opensha.commons.geo.LocationUtilsTest;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	LocationUtilsTest.class,
-	TestBPT_DistCalcOld.class,
 	TestFaultMomentCalc.class,
 	TestFunctionListCalc.class,
 	TestGaussianDistCalc.class,

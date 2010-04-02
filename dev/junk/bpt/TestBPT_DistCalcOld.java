@@ -1,4 +1,4 @@
-package org.opensha.commons.calc;
+package junk.bpt;
 
 
 import static org.junit.Assert.*;

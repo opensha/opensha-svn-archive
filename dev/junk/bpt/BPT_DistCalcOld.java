@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.calc;
+package junk.bpt;
 
 //The following are needed only for the tests
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
