@@ -124,7 +124,7 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
        // Find aveDipDirection (defined by end locations):
         Location firstLoc = faultTrace.get(0);
         Location lastLoc = faultTrace.get(faultTrace.getNumLocations() - 1);;
-        LocationVector aveDir = LocationUtils.getDirection(firstLoc, lastLoc);
+        LocationVector aveDir = LocationUtils.vector(firstLoc, lastLoc);
         if(D) System.out.println("aveDir.getAzimuth(): = " + aveDir.getAzimuth());
         double aveDipDirection = ( aveDir.getAzimuth() + 90 );
 
@@ -142,7 +142,7 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
         while( it.hasNext() ){
 
             loc = it.next();
-            dir = LocationUtils.getDirection(lastLoc, loc);
+            dir = LocationUtils.vector(lastLoc, loc);
 
             double azimuth = dir.getAzimuth();
             double distance = dir.getHorzDistance();

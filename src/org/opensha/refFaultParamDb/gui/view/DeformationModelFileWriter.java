@@ -152,7 +152,7 @@ public class DeformationModelFileWriter implements Runnable {
 		colIndex= 0;
 		row.createCell((short)colIndex).setCellValue(faultSectionPrefData.getSectionName());
 		++colIndex;
-		double strike = LocationUtils.getDirection(faultTrace.get(0), faultTrace.get(numLocations-1)).getAzimuth();
+		double strike = LocationUtils.vector(faultTrace.get(0), faultTrace.get(numLocations-1)).getAzimuth();
 		row.createCell((short)colIndex).setCellValue(strike);
 		++colIndex;
 		row.createCell((short)colIndex).setCellValue(getValue(faultSectionPrefData.getAveDip()));

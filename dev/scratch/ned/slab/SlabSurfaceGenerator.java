@@ -114,7 +114,7 @@ public class SlabSurfaceGenerator {
 			Location botLoc = resampBottomTrace.get(i);
 			double length = LocationUtils.horzDistance(topLoc, botLoc);
 			double subSectLen = length/(nRows-1);
-			LocationVector dir = LocationUtils.getDirection(topLoc, botLoc);
+			LocationVector dir = LocationUtils.vector(topLoc, botLoc);
 			//System.out.println("length1="+length+"\tlength2="+dir.getHorzDistance());
 			dir.setVertDistance(0.0);
 			for(int s=0; s< nRows; s++) {

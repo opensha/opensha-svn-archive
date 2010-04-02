@@ -149,7 +149,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
         if( Double.isNaN(aveDipDir) ) {
           firstLoc = faultTrace.get(0);
           lastLoc = faultTrace.get(faultTrace.getNumLocations() - 1);;
-          LocationVector aveDir = LocationUtils.getDirection(firstLoc, lastLoc);
+          LocationVector aveDir = LocationUtils.vector(firstLoc, lastLoc);
           if (D) System.out.println("aveDir.getAzimuth(): = " + aveDir.getAzimuth());
           aveDipDirection = ( aveDir.getAzimuth() + 90 );
         }
@@ -171,7 +171,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
         while( it.hasNext() ){
 
             loc = it.next();
-            dir = LocationUtils.getDirection(lastLoc, loc);
+            dir = LocationUtils.vector(lastLoc, loc);
 
             double azimuth = dir.getAzimuth();
             double distance = dir.getHorzDistance();

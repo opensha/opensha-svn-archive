@@ -504,12 +504,10 @@ public final class LocationUtils {
 	 * @return the <code>LocationVector</code> from <code>p1</code> to
 	 * 		   <code>p2</code>
 	 */
-	public static LocationVector getDirection(Location p1, Location p2) {
+	public static LocationVector vector(Location p1, Location p2) {
 
 		// NOTE A 'fast' implementation of this method was tested 
 		// but no performance gain was realized P.Powers 3-5-2010
-		
-		// TODO LocationVector should store azimuth in radians
 		
 		LocationVector v = new LocationVector(
 				azimuth(p1, p2),

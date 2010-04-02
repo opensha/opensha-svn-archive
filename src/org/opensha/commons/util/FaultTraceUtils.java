@@ -65,7 +65,7 @@ public class FaultTraceUtils {
 					subSectionTrace.add(prevLoc);
 					++index;
 				} else {
-					LocationVector direction = LocationUtils.getDirection(prevLoc, nextLoc);
+					LocationVector direction = LocationUtils.vector(prevLoc, nextLoc);
 					direction.setHorzDistance(subSecLength-(distance-distLocs));
 					prevLoc = LocationUtils.location(prevLoc, direction);
 					subSectionTrace.add(prevLoc);
@@ -99,7 +99,7 @@ public class FaultTraceUtils {
 			  double length = LocationUtils.linearDistanceFast(lastLoc, nextLoc);
 			  if (length > remainingLength) {
 				  	// set the point
-				  LocationVector dir = LocationUtils.getDirection(lastLoc, nextLoc);
+				  LocationVector dir = LocationUtils.vector(lastLoc, nextLoc);
 				  dir.setHorzDistance(dir.getHorzDistance()*remainingLength/length);
 				  dir.setVertDistance(dir.getVertDistance()*remainingLength/length);
 				  Location loc = LocationUtils.location(lastLoc, dir);

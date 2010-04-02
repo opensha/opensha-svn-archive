@@ -91,7 +91,7 @@ public class TestSubductionFault {
 			double vertLength = LocationUtils.vertDistance(topLoc, botLoc);
 			double subSecLenHoriz = horzLength/(nRows-1);
 			double subSecLenVert = vertLength/(nRows-1);
-			LocationVector dir = LocationUtils.getDirection(topLoc, botLoc);
+			LocationVector dir = LocationUtils.vector(topLoc, botLoc);
 			System.out.println("Top trace node number: "+(ii+1));
 			for(int s=0; s< nRows; s++) {
 				double distHoriz = s*subSecLenHoriz;

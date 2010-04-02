@@ -153,7 +153,7 @@ public class PutFaultSectionsIntoDatabase {
 	  }
 	  // calculate dip direction from OpenSHA
 	  FaultTrace faultSectionTrace = faultSection.getFaultTrace();
-	  double dipDirectionFromOpenSHA = 90+LocationUtils.getDirection(faultSectionTrace.get(0),
+	  double dipDirectionFromOpenSHA = 90+LocationUtils.vector(faultSectionTrace.get(0),
               faultSectionTrace.get(faultSectionTrace.getNumLocations()-1)).getAzimuth();
 	  if(dipDirectionFromOpenSHA<0) dipDirectionFromOpenSHA+=360;
 	  else if(dipDirectionFromOpenSHA>360) dipDirectionFromOpenSHA-=360;

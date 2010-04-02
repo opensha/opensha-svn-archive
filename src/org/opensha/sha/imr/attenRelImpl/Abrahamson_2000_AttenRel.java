@@ -338,12 +338,12 @@ public class Abrahamson_2000_AttenRel
     double angleDiff;
     if (s > 0.01) {
       LocationVector dir;
-      dir = LocationUtils.getDirection(hypLoc, siteLoc);
+      dir = LocationUtils.vector(hypLoc, siteLoc);
       double angle1 = dir.getAzimuth();
       if (angle1 < 0) {
         angle1 += 360; // make it positive to avoid confusion
       }
-      dir = LocationUtils.getDirection(hypLoc, closestLoc);
+      dir = LocationUtils.vector(hypLoc, closestLoc);
       double angle2 = dir.getAzimuth();
       if (angle2 < 0) {
         angle2 += 360; // make it positive to avoid confusion

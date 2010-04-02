@@ -152,7 +152,7 @@ public class DistanceX_Parameter
     			Location lastTraceLoc = rupSurf.getLocation(0, rupSurf.getNumCols()-1); 	// last trace point
 
     			// get point projected from first trace point in opposite direction of the ave trace
-    			LocationVector dir = LocationUtils.getDirection(lastTraceLoc, firstTraceLoc); 		
+    			LocationVector dir = LocationUtils.vector(lastTraceLoc, firstTraceLoc); 		
     			dir.setHorzDistance(1000); // project to 1000 km
     			Location projectedLoc1 = LocationUtils.location(firstTraceLoc, dir);
 

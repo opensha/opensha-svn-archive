@@ -40,8 +40,8 @@ package org.opensha.commons.geo;
  * @author Steven W. Rock
  * @version $Id$
  */
-// TODO refactor to LocationVector
 // TODO refactor horx vert method names
+// TODO should store azimuth in radians
 public class LocationVector {
 
 	/*

@@ -28,7 +28,7 @@ import static org.opensha.commons.geo.LocationUtils.azimuth;
 import static org.opensha.commons.geo.LocationUtils.azimuthRad;
 import static org.opensha.commons.geo.LocationUtils.distanceToLine;
 import static org.opensha.commons.geo.LocationUtils.distanceToLineFast;
-import static org.opensha.commons.geo.LocationUtils.getDirection;
+import static org.opensha.commons.geo.LocationUtils.vector;
 import static org.opensha.commons.geo.LocationUtils.horzDistance;
 import static org.opensha.commons.geo.LocationUtils.horzDistanceFast;
 import static org.opensha.commons.geo.LocationUtils.isPole;
@@ -245,51 +245,51 @@ public class LocationUtilsTest {
 
 	@Test
 	public final void testLocationLocationDoubleDouble() {
-		LocationVector d = getDirection(L1,L2);
+		LocationVector d = vector(L1,L2);
 		//TODO need to switch to getAzimuthRad
 		assertEquals(L2, location(
 				L1, d.getAzimuth()*TO_RAD, d.getHorzDistance()));
-		d = getDirection(L1,L3);
+		d = vector(L1,L3);
 		assertEquals(L3, location(
 				L1, d.getAzimuth()*TO_RAD, d.getHorzDistance()));
-		d = getDirection(L2,L3);
+		d = vector(L2,L3);
 		assertEquals(L3, location(
 				L2, d.getAzimuth()*TO_RAD, d.getHorzDistance()));
 	}
 	
 	@Test
 	public final void testLocationLocationDirection() {
-		assertEquals(L2, location(L1, getDirection(L1,L2)));
-		assertEquals(L3, location(L1, getDirection(L1,L3)));
-		assertEquals(L4, location(L1, getDirection(L1,L4)));
-		assertEquals(L3, location(L2, getDirection(L2,L3)));
-		assertEquals(L2, location(L4, getDirection(L4,L2)));
-		assertEquals(L3, location(L4, getDirection(L4,L3)));
+		assertEquals(L2, location(L1, vector(L1,L2)));
+		assertEquals(L3, location(L1, vector(L1,L3)));
+		assertEquals(L4, location(L1, vector(L1,L4)));
+		assertEquals(L3, location(L2, vector(L2,L3)));
+		assertEquals(L2, location(L4, vector(L4,L2)));
+		assertEquals(L3, location(L4, vector(L4,L3)));
 	}
 	
 	@Test
 	public final void testLocationVector() {
-		assertEquals(43.6090311, getDirection(L1,L2).getHorzDistance(), sdD);
-		assertEquals(48.2790582, getDirection(L1,L3).getHorzDistance(), sdD);
-		assertEquals(69.3145862, getDirection(L1,L4).getHorzDistance(), sdD);
-		assertEquals(60.6198752, getDirection(L2,L3).getHorzDistance(), sdD);
-		assertEquals(48.2952067, getDirection(L4,L2).getHorzDistance(), sdD);
-		assertEquals(43.7518411, getDirection(L4,L3).getHorzDistance(), sdD);
+		assertEquals(43.6090311, vector(L1,L2).getHorzDistance(), sdD);
+		assertEquals(48.2790582, vector(L1,L3).getHorzDistance(), sdD);
+		assertEquals(69.3145862, vector(L1,L4).getHorzDistance(), sdD);
+		assertEquals(60.6198752, vector(L2,L3).getHorzDistance(), sdD);
+		assertEquals(48.2952067, vector(L4,L2).getHorzDistance(), sdD);
+		assertEquals(43.7518411, vector(L4,L3).getHorzDistance(), sdD);
 
 		// TODO these will need to be replaced with azimuthRad()
-		assertEquals(239.44623, getDirection(L1,L2).getAzimuth(), azdD);
-		assertEquals(157.05864, getDirection(L1,L3).getAzimuth(), azdD);
-		assertEquals(195.78891, getDirection(L1,L4).getAzimuth(), azdD);
-		assertEquals(111.36156, getDirection(L2,L3).getAzimuth(), azdD);
-		assertEquals(337.12017, getDirection(L4,L2).getAzimuth(), azdD);
-		assertEquals( 59.34329, getDirection(L4,L3).getAzimuth(), azdD);
+		assertEquals(239.44623, vector(L1,L2).getAzimuth(), azdD);
+		assertEquals(157.05864, vector(L1,L3).getAzimuth(), azdD);
+		assertEquals(195.78891, vector(L1,L4).getAzimuth(), azdD);
+		assertEquals(111.36156, vector(L2,L3).getAzimuth(), azdD);
+		assertEquals(337.12017, vector(L4,L2).getAzimuth(), azdD);
+		assertEquals( 59.34329, vector(L4,L3).getAzimuth(), azdD);
 
-		assertEquals(  0, getDirection(L1,L2).getVertDistance(), 0);
-		assertEquals(  0, getDirection(L1,L3).getVertDistance(), 0);
-		assertEquals( 10, getDirection(L1,L4).getVertDistance(), 0);
-		assertEquals(  0, getDirection(L2,L3).getVertDistance(), 0);
-		assertEquals(-10, getDirection(L4,L2).getVertDistance(), 0);
-		assertEquals(-10, getDirection(L4,L3).getVertDistance(), 0);
+		assertEquals(  0, vector(L1,L2).getVertDistance(), 0);
+		assertEquals(  0, vector(L1,L3).getVertDistance(), 0);
+		assertEquals( 10, vector(L1,L4).getVertDistance(), 0);
+		assertEquals(  0, vector(L2,L3).getVertDistance(), 0);
+		assertEquals(-10, vector(L4,L2).getVertDistance(), 0);
+		assertEquals(-10, vector(L4,L3).getVertDistance(), 0);
 	}
 	
 	@Test
@@ -654,14 +654,14 @@ public class LocationUtilsTest {
 			System.out.println("     D: " + T);
 		}
 
-		System.out.println("vector(): " + getDirection(L1, L2));
+		System.out.println("vector(): " + vector(L1, L2));
 		for (int i=0; i < 5; i++) {
 			long T = System.currentTimeMillis();
 			LocationVector d;
 			for (int j=0; j<numIter; j++) {
 				d = (fixedVals) ? 
-						getDirection(L1, L2) :
-						getDirection(randomLoc(),randomLoc());
+						vector(L1, L2) :
+						vector(randomLoc(),randomLoc());
 			}
 			T = (System.currentTimeMillis() - T);
 			System.out.println("     V: " + T);

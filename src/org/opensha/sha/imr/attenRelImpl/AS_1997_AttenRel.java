@@ -347,7 +347,7 @@ public class AS_1997_AttenRel
     // now get the locations projected way down dip
     loc = surface.getLocation(0, numCols - 1);
     loc2 = surface.getLocation(surface.getNumRows() - 1, numCols - 1);
-    dir = LocationUtils.getDirection(loc, loc2);
+    dir = LocationUtils.vector(loc, loc2);
     dir.setHorzDistance(100.0); // anything that makes rup dist > 25 km
     loc3 = LocationUtils.location(loc, dir);
     xVals[numCols] = (int) (loc3.getLongitude() * toIntFactor);
@@ -355,7 +355,7 @@ public class AS_1997_AttenRel
 
     loc = surface.getLocation(0, 0);
     loc2 = surface.getLocation(surface.getNumRows() - 1, 0);
-    dir = LocationUtils.getDirection(loc, loc2);
+    dir = LocationUtils.vector(loc, loc2);
     dir.setHorzDistance(100.0); // anything that makes rup dist > 25 km
     loc3 = LocationUtils.location(loc, dir);
     xVals[numCols + 1] = (int) (loc3.getLongitude() * toIntFactor);

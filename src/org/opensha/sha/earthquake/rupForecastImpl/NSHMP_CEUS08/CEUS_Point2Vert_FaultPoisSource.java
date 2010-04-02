@@ -250,7 +250,7 @@ public class CEUS_Point2Vert_FaultPoisSource extends ProbEqkSource implements ja
 //      loc1 = LocationUtils.getLocation(loc,new LocationVector(0.0,halfLength,strike,Double.NaN));
       loc1 = LocationUtils.location(loc,
     		  new LocationVector(strike, halfLength, 0.0));
-      dir = LocationUtils.getDirection(loc1,loc);
+      dir = LocationUtils.vector(loc1,loc);
       dir.setHorzDistance(dir.getHorzDistance()*2.0);
       loc2 = LocationUtils.location(loc1,dir);
       FaultTrace fault = new FaultTrace("");
@@ -264,7 +264,7 @@ public class CEUS_Point2Vert_FaultPoisSource extends ProbEqkSource implements ja
 //    	  loc1 = LocationUtils.getLocation(loc,new LocationVector(0.0,halfLength,strike,Double.NaN));
           loc1 = LocationUtils.location(loc,
         		  new LocationVector(strike, halfLength, 0.0));
-    	  dir = LocationUtils.getDirection(loc1,loc);
+    	  dir = LocationUtils.vector(loc1,loc);
     	  dir.setHorzDistance(dir.getHorzDistance()*2.0);
     	  loc2 = LocationUtils.location(loc1,dir);
     	  fault = new FaultTrace("");

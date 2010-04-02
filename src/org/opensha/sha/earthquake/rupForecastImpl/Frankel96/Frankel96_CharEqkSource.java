@@ -138,16 +138,16 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
       EvenlyGriddedSurface surface = (EvenlyGriddedSurface) probEqkRupture.getRuptureSurface();
 
       // get first location on fault trace
-      LocationVector dir = LocationUtils.getDirection(site.getLocation(),(Location) surface.get(0,0));
+      LocationVector dir = LocationUtils.vector(site.getLocation(),(Location) surface.get(0,0));
       min = dir.getHorzDistance();
 
       // get last location on fault trace
-      dir = LocationUtils.getDirection(site.getLocation(), (Location) surface.get(0,surface.getNumCols()-1));
+      dir = LocationUtils.vector(site.getLocation(), (Location) surface.get(0,surface.getNumCols()-1));
       if (min > dir.getHorzDistance())
           min = dir.getHorzDistance();
 
       // get mid location on fault trace
-      dir = LocationUtils.getDirection(site.getLocation(), (Location) surface.get(0,(int) surface.getNumCols()/2));
+      dir = LocationUtils.vector(site.getLocation(), (Location) surface.get(0,(int) surface.getNumCols()/2));
       if (min > dir.getHorzDistance())
           min = dir.getHorzDistance();
 

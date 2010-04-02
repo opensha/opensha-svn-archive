@@ -123,7 +123,7 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
         while( it.hasNext() ){
 
             loc = it.next();
-            dir = LocationUtils.getDirection(lastLoc, loc);
+            dir = LocationUtils.vector(lastLoc, loc);
 
             double azimuth = dir.getAzimuth();
             double distance = dir.getHorzDistance();
