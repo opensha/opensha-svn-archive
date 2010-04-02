@@ -137,7 +137,7 @@ public class SectionInfoFileWriter implements Runnable {
 			"#Ave Upper Seis Depth (km)\n"+
 			"#Ave Lower Seis Depth (km)\n"+
 			"#Ave Dip (degrees)\n"+
-			"#Ave Dip Direction\n"+
+			"#Ave Dip LocationVector\n"+
 			"#Ave Rake\n"+
 			"#Trace Length (derivative value) (km)\n"+
 			"#Num Trace Points\n"+

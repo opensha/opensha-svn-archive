@@ -1,6 +1,6 @@
 package scratch.peter.tmp;
 
-import org.opensha.commons.geo.Direction;
+import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.util.FaultTraceUtils;
@@ -91,7 +91,7 @@ public class TestSubductionFault {
 			double vertLength = LocationUtils.vertDistance(topLoc, botLoc);
 			double subSecLenHoriz = horzLength/(nRows-1);
 			double subSecLenVert = vertLength/(nRows-1);
-			Direction dir = LocationUtils.getDirection(topLoc, botLoc);
+			LocationVector dir = LocationUtils.getDirection(topLoc, botLoc);
 			System.out.println("Top trace node number: "+(ii+1));
 			for(int s=0; s< nRows; s++) {
 				double distHoriz = s*subSecLenHoriz;

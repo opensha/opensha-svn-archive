@@ -28,7 +28,7 @@ import org.opensha.commons.calc.magScalingRelations.MagScalingRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.geo.Direction;
+import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
@@ -119,7 +119,7 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
     double deltaRupOffset = rupLength/(double)(numRupAlong-1);  // this should be just less than maxDeltaRupOffset
     int numStrikes = (int) (180.0/deltaStrike);
     Location loc1, loc2;
-    Direction dir;
+    LocationVector dir;
     FaultTrace fltTrace;
 
     if(D) {
@@ -130,11 +130,11 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
     if (D) System.out.println("lon1\tlat1\tlon2\tlat2\tstike\toffSet");
     for(double strike=0; strike <180; strike+=deltaStrike) {
       for(double offSet=0; offSet < rupLength+deltaRupOffset/2.0; offSet += deltaRupOffset){
-//        dir = new Direction(0.0,offSet,strike,Double.NaN);
-          dir = new Direction(strike, offSet, 0.0);
+//        dir = new LocationVector(0.0,offSet,strike,Double.NaN);
+          dir = new LocationVector(strike, offSet, 0.0);
         loc1 = LocationUtils.location(loc,dir);
-//        dir = new Direction(0.0,rupLength-offSet,strike+180,Double.NaN);
-        dir = new Direction(strike+180, rupLength-offSet, 0.0);
+//        dir = new LocationVector(0.0,rupLength-offSet,strike+180,Double.NaN);
+        dir = new LocationVector(strike+180, rupLength-offSet, 0.0);
         loc2 = LocationUtils.location(loc,dir);
         fltTrace = new FaultTrace(null);
         fltTrace.add(loc1);

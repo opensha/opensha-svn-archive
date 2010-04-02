@@ -1840,9 +1840,9 @@ public class A_FaultSegmentedSourceGenerator {
 		sectData1.setAveRake(0);
 		FaultTrace faultTrace1 = new FaultTrace("trace1");
 		Location loc1 = new Location(0,0,0);
-		Direction dir = new Direction(0.0, 100, 0.0, 0.0);
+		LocationVector dir = new LocationVector(0.0, 100, 0.0, 0.0);
 		Location loc2 = LocationUtils.getLocation(loc1, dir);
-		dir = new Direction(0.0, 50, 0.0, 0.0);
+		dir = new LocationVector(0.0, 50, 0.0, 0.0);
 		Location loc3 = LocationUtils.getLocation(loc2, dir);
 		faultTrace1.addLocation(loc1);
 		faultTrace1.addLocation(loc2);

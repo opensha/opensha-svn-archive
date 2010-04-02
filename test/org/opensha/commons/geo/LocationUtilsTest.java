@@ -245,7 +245,7 @@ public class LocationUtilsTest {
 
 	@Test
 	public final void testLocationLocationDoubleDouble() {
-		Direction d = getDirection(L1,L2);
+		LocationVector d = getDirection(L1,L2);
 		//TODO need to switch to getAzimuthRad
 		assertEquals(L2, location(
 				L1, d.getAzimuth()*TO_RAD, d.getHorzDistance()));
@@ -640,11 +640,11 @@ public class LocationUtilsTest {
 		L1 = new Location(32, -117);
 		L2 = new Location(33, -115);
 		
-		System.out.println("\nSPEED TEST -- Direction\n");
+		System.out.println("\nSPEED TEST -- LocationVector\n");
 		System.out.println("getDirectionOLD(): " + getDirectionOLD(L1, L2));
 		for (int i=0; i < 5; i++) {
 			long T = System.currentTimeMillis();
-			Direction d;
+			LocationVector d;
 			for (int j=0; j<numIter; j++) {
 				d = (fixedVals) ? 
 						getDirectionOLD(L1, L2) :
@@ -657,7 +657,7 @@ public class LocationUtilsTest {
 		System.out.println("vector(): " + getDirection(L1, L2));
 		for (int i=0; i < 5; i++) {
 			long T = System.currentTimeMillis();
-			Direction d;
+			LocationVector d;
 			for (int j=0; j<numIter; j++) {
 				d = (fixedVals) ? 
 						getDirection(L1, L2) :
@@ -683,7 +683,7 @@ public class LocationUtilsTest {
 
 		L1 = new Location(32, -117);
 		L2 = new Location(33, -115);
-		Direction dir = new Direction(20,111,10);
+		LocationVector dir = new LocationVector(20,111,10);
 		System.out.println("\nSPEED TEST -- Location\n");
 		System.out.println("getLocationOLD(): " + getLocationOLD(L1, dir));
 		for (int i=0; i < 5; i++) {
@@ -1018,8 +1018,8 @@ public class LocationUtilsTest {
 	/**
 	 * OLD METHOD
 	 * 
-	 *  Given a Location and a Direction object, this function calculates a
-	 *  second Location the Direction points to (only the azimuth is used;
+	 *  Given a Location and a LocationVector object, this function calculates a
+	 *  second Location the LocationVector points to (only the azimuth is used;
 	 * backAzimuth is ignored). The fields calculated for the
 	 *  second Location are:
 	 *
@@ -1030,14 +1030,14 @@ public class LocationUtilsTest {
 	 * </ul>
 	 *
 	 * @param  location1	First geographic location
-	 * @param  direction	Direction object pointing to second Location
+	 * @param  direction	LocationVector object pointing to second Location
 	 * @return location2	The second location
 	 * @exception  UnsupportedOperationException	Thrown if the Location or 
-	 * 				Direction contain bad data such as invalid latitudes
+	 * 				LocationVector contain bad data such as invalid latitudes
 	 * @see	 Location		to see the field definitions
 	 */
 	private static Location getLocationOLD(
-			Location location, Direction direction) 
+			Location location, LocationVector direction) 
 			throws UnsupportedOperationException {
 
 		double lat1 = location.getLatitude();
@@ -1077,11 +1077,11 @@ public class LocationUtilsTest {
 	 * 		Thrown if the Locations contain bad data such as invalid latitudes
 	 * @see	 Distance			to see the field definitions
 	 */
-	private static Direction getDirectionOLD(
+	private static LocationVector getDirectionOLD(
 			Location location1, Location location2) 
 			throws UnsupportedOperationException {
 
-		Direction dir = new Direction();
+		LocationVector dir = new LocationVector();
 
 		double lat1 = location1.getLatitude();
 		double lon1 = location1.getLongitude();
@@ -1095,7 +1095,7 @@ public class LocationUtilsTest {
 
 		dir.setHorzDistance(horzDistance);
 		dir.setAzimuth(azimuth);
-		//dir.setBackAzimuth(backAzimuth); // deprecated in Direction
+		//dir.setBackAzimuth(backAzimuth); // deprecated in LocationVector
 		dir.setVertDistance(vertDistance);
 
 		return dir;

@@ -31,7 +31,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.geo.Direction;
+import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.DoubleConstraint;
@@ -337,7 +337,7 @@ public class Abrahamson_2000_AttenRel
     // (this avoids the undefined angle problem when hypLoc=closestLoc)
     double angleDiff;
     if (s > 0.01) {
-      Direction dir;
+      LocationVector dir;
       dir = LocationUtils.getDirection(hypLoc, siteLoc);
       double angle1 = dir.getAzimuth();
       if (angle1 < 0) {

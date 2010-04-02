@@ -42,16 +42,16 @@ package org.opensha.commons.geo;
  */
 // TODO refactor to LocationVector
 // TODO refactor horx vert method names
-public class Direction {
+public class LocationVector {
 
 	/*
-	 * Developer Notes: The previous incarnation of this class as 'Direction'
+	 * Developer Notes: The previous incarnation of this class as 'LocationVector'
 	 * included back azimuth. There are (were) instances in OpenSHA where
 	 * this was taken to be the azimuth from point B to A (for an azimuth
 	 * from point A to B). As Back azimuth is generally defined, this interp
 	 * is incorrect. Back azimuth is the 180 degree complement of the
 	 * azimuth at an origin point. Under the assumed interpretation, each
-	 * Direction was implicitely Location dependent, but that information was
+	 * LocationVector was implicitely Location dependent, but that information was
 	 * never stored as part of this class. Furthermore, the onus was on the 
 	 * user to provide the correct value for back azimuth. This property of 
 	 * the class has been removed and users are directed in 
@@ -69,7 +69,7 @@ public class Direction {
 	 * Initializes a new <code>LocationVector</code> with azimuth and 
 	 * horizontal and vertical components all initialized to 0.
 	 */
-	public Direction() {}
+	public LocationVector() {}
 
 	/**
 	 * Initializes a new <code>LocationVector</code> with the supplied values.
@@ -79,7 +79,7 @@ public class Direction {
 	 * @param horizontal component value to set
 	 * @param vertical component value to set
 	 */
-	public Direction(
+	public LocationVector(
 			double azimuth, double horizontal, double vertical) {
 		set(azimuth, horizontal, vertical);
 	}
@@ -173,8 +173,8 @@ public class Direction {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Direction) {
-			Direction dir = (Direction) obj;
+		if (obj instanceof LocationVector) {
+			LocationVector dir = (LocationVector) obj;
 			if (horizontal != dir.horizontal) return false;
 			if (vertical != dir.vertical) return false;
 			if (azimuth != dir.azimuth) return false;

@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Iterator;
 
-import org.opensha.commons.geo.Direction;
+import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.util.FaultTraceUtils;
@@ -104,7 +104,7 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 		for(int c=0; c<resampUpperTrace.size(); c++) {
 			Location topLoc = resampUpperTrace.get(c);
 			Location botLoc = resampLowerTrace.get(c);
-			Direction dir = LocationUtils.getDirection(topLoc, botLoc);
+			LocationVector dir = LocationUtils.getDirection(topLoc, botLoc);
 			double horzIncr = dir.getHorzDistance()/(nRows-1);
 			double vertIncr = dir.getVertDistance()/(nRows-1);  // minus sign because vertDist is pos up and depth is pos down
 			dir.setHorzDistance(horzIncr);
@@ -143,7 +143,7 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 //		Location topLoc = new Location(-34.36338,-71.32979,50.0);
 //		Location botLoc = new Location(-33.94507,-72.7105,10.0);
 		double numSubdivisions=100;
-		Direction dir = LocationUtils.getDirection(l1, l2);
+		LocationVector dir = LocationUtils.getDirection(l1, l2);
 		System.out.println("Azimuth p1 to p2: " + dir.getAzimuth());
 		double horzIncr = dir.getHorzDistance()/numSubdivisions;
 		double vertIncr = dir.getVertDistance()/numSubdivisions;  // minus sign because vertDist is pos up and depth is pos down
@@ -165,7 +165,7 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 	public static void test2(Location l1, Location l2) {
 		System.out.println("TEST-2");
 		double numSubdivisions=100;
-		Direction dir = LocationUtils.getDirection(l1, l2);
+		LocationVector dir = LocationUtils.getDirection(l1, l2);
 		double horzIncr = dir.getHorzDistance()/numSubdivisions;
 		double vertIncr = dir.getVertDistance()/numSubdivisions;  // minus sign because vertDist is pos up and depth is pos down
 		dir.setHorzDistance(horzIncr);

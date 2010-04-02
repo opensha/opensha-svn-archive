@@ -21,7 +21,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.Frankel96;
 
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.geo.Direction;
+import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
@@ -206,7 +206,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
       double min;
 
       // get first location on fault trace
-      Direction dir = LocationUtils.getDirection(site.getLocation(), (Location) surface.get(0,0));
+      LocationVector dir = LocationUtils.getDirection(site.getLocation(), (Location) surface.get(0,0));
       min = dir.getHorzDistance();
 
       // get last location on fault trace

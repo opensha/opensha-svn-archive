@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.commons.geo.Direction;
+import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.faultSurface.FaultTrace;
@@ -65,7 +65,7 @@ public class FaultTraceUtils {
 					subSectionTrace.add(prevLoc);
 					++index;
 				} else {
-					Direction direction = LocationUtils.getDirection(prevLoc, nextLoc);
+					LocationVector direction = LocationUtils.getDirection(prevLoc, nextLoc);
 					direction.setHorzDistance(subSecLength-(distance-distLocs));
 					prevLoc = LocationUtils.location(prevLoc, direction);
 					subSectionTrace.add(prevLoc);
@@ -99,7 +99,7 @@ public class FaultTraceUtils {
 			  double length = LocationUtils.linearDistanceFast(lastLoc, nextLoc);
 			  if (length > remainingLength) {
 				  	// set the point
-				  Direction dir = LocationUtils.getDirection(lastLoc, nextLoc);
+				  LocationVector dir = LocationUtils.getDirection(lastLoc, nextLoc);
 				  dir.setHorzDistance(dir.getHorzDistance()*remainingLength/length);
 				  dir.setVertDistance(dir.getVertDistance()*remainingLength/length);
 				  Location loc = LocationUtils.location(lastLoc, dir);

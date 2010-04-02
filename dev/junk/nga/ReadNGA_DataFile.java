@@ -5,7 +5,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.opensha.commons.geo.Direction;
+import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.faultSurface.FaultTrace;
@@ -101,9 +101,9 @@ public class ReadNGA_DataFile {
         //getting the down dip width
         double downDipWidth = Double.parseDouble(st.nextToken().trim());
 
-//        Location otherLoc = LocationUtils.getLocation(originLoc,new Direction(0.0,length,strike,0.0));
+//        Location otherLoc = LocationUtils.getLocation(originLoc,new LocationVector(0.0,length,strike,0.0));
         Location otherLoc = LocationUtils.location(originLoc,
-        		new Direction(strike, length, 0.0));
+        		new LocationVector(strike, length, 0.0));
 
         FaultTrace fltTrace = new FaultTrace(null);
         fltTrace.add(originLoc);

@@ -32,7 +32,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.geo.Direction;
+import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.DoubleConstraint;
@@ -336,7 +336,7 @@ public class AS_1997_AttenRel
     int[] yVals = new int[numCols + 2];
 
     Location loc, loc2, loc3;
-    Direction dir;
+    LocationVector dir;
 
     for (int c = 0; c < numCols; c++) {
       loc = surface.getLocation(0, c);

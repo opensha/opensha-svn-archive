@@ -26,7 +26,7 @@ import org.opensha.commons.calc.magScalingRelations.MagLengthRelationship;
 import org.opensha.commons.calc.magScalingRelations.MagScalingRelationship;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.geo.Direction;
+import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
@@ -191,8 +191,8 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 					strike = (Math.random()-0.5)*180.0;	// get a random strike between -90 and 90
 					//System.out.println(strike);
 				}
-//				Direction dir = new Direction(0.0,rupLength/2,strike,Double.NaN);
-				Direction dir = new Direction(strike, rupLength/2, 0.0);
+//				LocationVector dir = new LocationVector(0.0,rupLength/2,strike,Double.NaN);
+				LocationVector dir = new LocationVector(strike, rupLength/2, 0.0);
 				Location loc1 = LocationUtils.location(loc,dir);
 				dir.setAzimuth(strike-180);
 				Location loc2 = LocationUtils.location(loc,dir);

@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.exceptions.FaultException;
-import org.opensha.commons.geo.Direction;
+import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 
@@ -119,7 +119,7 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
         Location firstLoc = it.next();
         Location lastLoc = firstLoc;
         Location loc = null;
-        Direction dir = null;
+        LocationVector dir = null;
         while( it.hasNext() ){
 
             loc = it.next();
@@ -193,8 +193,8 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 
             // Calculate the grid location along fault trace and put into grid
             location1 = faultTrace.get( segmentNumber - 1 );
-//            dir = new Direction(0, distance, segmentAzimuth[ segmentNumber - 1 ], 0);
-            dir = new Direction(segmentAzimuth[ segmentNumber - 1 ],  distance, 0);
+//            dir = new LocationVector(0, distance, segmentAzimuth[ segmentNumber - 1 ], 0);
+            dir = new LocationVector(segmentAzimuth[ segmentNumber - 1 ],  distance, 0);
 
             // location on the trace
             Location traceLocation = LocationUtils.location( location1, dir  );
@@ -205,8 +205,8 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 //                vDistance = traceLocation.getDepth()-upperSeismogenicDepth;
                 vDistance = upperSeismogenicDepth - traceLocation.getDepth();
                 hDistance = vDistance / Math.tan( avDipRadians );
-//                dir = new Direction(vDistance, hDistance, segmentAzimuth[ segmentNumber - 1 ]+90, 0);
-                dir = new Direction(segmentAzimuth[ segmentNumber - 1 ]+90, hDistance, vDistance);
+//                dir = new LocationVector(vDistance, hDistance, segmentAzimuth[ segmentNumber - 1 ]+90, 0);
+                dir = new LocationVector(segmentAzimuth[ segmentNumber - 1 ]+90, hDistance, vDistance);
                 topLocation = LocationUtils.location( traceLocation, dir );
             }
             else
@@ -226,8 +226,8 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
                 vDistance = ith_row * gridSpacingSinAveDipRadians;
 //                vDistance = -ith_row * gridSpacingSinAveDipRadians;
 
-//                dir = new Direction(vDistance, hDistance, segmentAzimuth[ segmentNumber - 1 ]+90, 0);
-                dir = new Direction(segmentAzimuth[ segmentNumber - 1 ]+90, hDistance, vDistance);
+//                dir = new LocationVector(vDistance, hDistance, segmentAzimuth[ segmentNumber - 1 ]+90, 0);
+                dir = new LocationVector(segmentAzimuth[ segmentNumber - 1 ]+90, hDistance, vDistance);
 
                 Location depthLocation = LocationUtils.location( topLocation, dir );
                 setLocation(ith_row, ith_col, depthLocation.clone());

@@ -457,7 +457,7 @@ public final class LocationUtils {
 	 * @param d distance along bearing
 	 * @return the end location 
 	 */
-	public static Location location(Location p, Direction d) {
+	public static Location location(Location p, LocationVector d) {
 		return location(
 				p.getLatRad(), 
 				p.getLonRad(), 
@@ -504,14 +504,14 @@ public final class LocationUtils {
 	 * @return the <code>LocationVector</code> from <code>p1</code> to
 	 * 		   <code>p2</code>
 	 */
-	public static Direction getDirection(Location p1, Location p2) {
+	public static LocationVector getDirection(Location p1, Location p2) {
 
 		// NOTE A 'fast' implementation of this method was tested 
 		// but no performance gain was realized P.Powers 3-5-2010
 		
-		// TODO Direction should store azimuth in radians
+		// TODO LocationVector should store azimuth in radians
 		
-		Direction v = new Direction(
+		LocationVector v = new LocationVector(
 				azimuth(p1, p2),
 				horzDistance(p1, p2),
 				vertDistance(p1, p2));

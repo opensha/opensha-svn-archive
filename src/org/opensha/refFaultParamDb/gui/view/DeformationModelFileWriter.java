@@ -122,7 +122,7 @@ public class DeformationModelFileWriter implements Runnable {
 			row.createCell((short)colIndex).setCellValue("Section Name");
 			++colIndex;
 			
-			row.createCell((short)colIndex).setCellValue("Ave Strike -  Direction from the first to the last point on fault trace");
+			row.createCell((short)colIndex).setCellValue("Ave Strike -  LocationVector from the first to the last point on fault trace");
 			++colIndex;
 			row.createCell((short)colIndex).setCellValue("Dip (degrees)");
 			++colIndex;
@@ -246,7 +246,7 @@ public class DeformationModelFileWriter implements Runnable {
 			"#Ave Upper Seis Depth (km)\n"+
 			"#Ave Lower Seis Depth (km)\n"+
 			"#Ave Dip (degrees)\n"+
-			"#Ave Dip Direction\n"+
+			"#Ave Dip LocationVector\n"+
 			"#Ave Long Term Slip Rate\n"+
 			"#Ave Aseismic Slip Factor\n"+
 			"#Ave Rake\n"+

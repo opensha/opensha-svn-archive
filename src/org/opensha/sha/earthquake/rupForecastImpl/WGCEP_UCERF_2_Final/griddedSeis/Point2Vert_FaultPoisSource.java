@@ -24,7 +24,7 @@ import java.util.Iterator;
 import org.opensha.commons.calc.magScalingRelations.MagLengthRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.geo.Direction;
+import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
@@ -250,12 +250,12 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
     // make finite source if necessary
     if(maxMag > magCutOff) {
       Location loc1, loc2;
-      Direction dir;
+      LocationVector dir;
       double halfLength = magLengthRelationship.getMedianLength(maxMag)/2.0;
       if(this.isCrossHair) strike = 0;
-//      loc1 = LocationUtils.getLocation(loc,new Direction(0.0,halfLength,strike,Double.NaN));
+//      loc1 = LocationUtils.getLocation(loc,new LocationVector(0.0,halfLength,strike,Double.NaN));
       loc1 = LocationUtils.location(loc,
-    		  new Direction(strike, halfLength, 0.0));
+    		  new LocationVector(strike, halfLength, 0.0));
       dir = LocationUtils.getDirection(loc1,loc);
       dir.setHorzDistance(dir.getHorzDistance()*2.0);
       loc2 = LocationUtils.location(loc1,dir);
@@ -267,9 +267,9 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
       // Make second surface for cross Hair option
       if(this.isCrossHair) {
     	  strike = 90;
-//    	  loc1 = LocationUtils.getLocation(loc,new Direction(0.0,halfLength,strike,Double.NaN));
+//    	  loc1 = LocationUtils.getLocation(loc,new LocationVector(0.0,halfLength,strike,Double.NaN));
           loc1 = LocationUtils.location(loc,
-        		  new Direction(strike, halfLength, 0.0));
+        		  new LocationVector(strike, halfLength, 0.0));
           dir = LocationUtils.getDirection(loc1,loc);
     	  dir.setHorzDistance(dir.getHorzDistance()*2.0);
     	  loc2 = LocationUtils.location(loc1,dir);

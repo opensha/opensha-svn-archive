@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.exceptions.FaultException;
-import org.opensha.commons.geo.Direction;
+import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.util.FaultUtils;
@@ -124,7 +124,7 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
        // Find aveDipDirection (defined by end locations):
         Location firstLoc = faultTrace.get(0);
         Location lastLoc = faultTrace.get(faultTrace.getNumLocations() - 1);;
-        Direction aveDir = LocationUtils.getDirection(firstLoc, lastLoc);
+        LocationVector aveDir = LocationUtils.getDirection(firstLoc, lastLoc);
         if(D) System.out.println("aveDir.getAzimuth(): = " + aveDir.getAzimuth());
         double aveDipDirection = ( aveDir.getAzimuth() + 90 );
 
@@ -138,7 +138,7 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
         firstLoc = it.next();
         lastLoc = firstLoc;
         Location loc = null;
-        Direction dir = null;
+        LocationVector dir = null;
         while( it.hasNext() ){
 
             loc = it.next();
@@ -224,8 +224,8 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
 
             // Calculate the grid location along fault trace and put into grid
             location1 = faultTrace.get( segmentNumber - 1 );
-//            dir = new Direction(0, distance, segmentAzimuth[ segmentNumber - 1 ], 0);
-            dir = new Direction(segmentAzimuth[ segmentNumber - 1 ], distance, 0);
+//            dir = new LocationVector(0, distance, segmentAzimuth[ segmentNumber - 1 ], 0);
+            dir = new LocationVector(segmentAzimuth[ segmentNumber - 1 ], distance, 0);
 
             // location on the trace
             Location topLocation = LocationUtils.location( location1, dir  );
@@ -238,8 +238,8 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
             hDistance = gridSpacing * Math.cos( dip*PI_RADIANS );
             vDistance = gridSpacing * Math.sin( dip*PI_RADIANS );
             //vDistance = -gridSpacing * Math.sin( dip*PI_RADIANS );
-//            dir = new Direction(vDistance, hDistance, aveDipDirection, 0);
-            dir = new Direction(aveDipDirection, hDistance, vDistance);
+//            dir = new LocationVector(vDistance, hDistance, aveDipDirection, 0);
+            dir = new LocationVector(aveDipDirection, hDistance, vDistance);
             int depthNum = 1;
             Location lastLocation = topLocation;
             ith_row = 1;
@@ -261,8 +261,8 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
                       hDistance = gridSpacing * Math.cos( dip*PI_RADIANS );
                       vDistance = gridSpacing * Math.sin( dip*PI_RADIANS );
                       //vDistance = -gridSpacing * Math.sin( dip*PI_RADIANS );
-//                      dir = new Direction(vDistance, hDistance, aveDipDirection, 0);
-                      dir = new Direction(aveDipDirection, hDistance, vDistance);
+//                      dir = new LocationVector(vDistance, hDistance, aveDipDirection, 0);
+                      dir = new LocationVector(aveDipDirection, hDistance, vDistance);
                       depthNum++;
                 }
                 lastLocation = nextLocation;

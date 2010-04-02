@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.geo.Direction;
+import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.util.FileUtils;
@@ -114,7 +114,7 @@ public class SlabSurfaceGenerator {
 			Location botLoc = resampBottomTrace.get(i);
 			double length = LocationUtils.horzDistance(topLoc, botLoc);
 			double subSectLen = length/(nRows-1);
-			Direction dir = LocationUtils.getDirection(topLoc, botLoc);
+			LocationVector dir = LocationUtils.getDirection(topLoc, botLoc);
 			//System.out.println("length1="+length+"\tlength2="+dir.getHorzDistance());
 			dir.setVertDistance(0.0);
 			for(int s=0; s< nRows; s++) {

@@ -57,7 +57,7 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 	private InfoLabel slipRateLabel = new InfoLabel();
 	private final static String  DIP= "Ave Dip (degrees)";
 	private InfoLabel dipLabel = new InfoLabel();
-	private final static String  DIP_DIRECTION= "Dip Direction";
+	private final static String  DIP_DIRECTION= "Dip LocationVector";
 	private InfoLabel dipDirectionLabel = new InfoLabel();
 	private final static String  RAKE= "Ave Rake";
 	private InfoLabel rakeLabel = new InfoLabel();
@@ -441,7 +441,7 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 			dipEst = selectedFaultSection.getAveDipEst().getEstimate();
 		dipLabel.setTextAsHTML(dipEst, DIP, PROB);
 		
-		// Dip Direction Label
+		// Dip LocationVector Label
 		dipDirectionLabel.setTextAsHTML(DIP_DIRECTION, ""+selectedFaultSection.getDipDirection());
 		
 		// rake

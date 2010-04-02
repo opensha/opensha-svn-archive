@@ -113,7 +113,7 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
   private final static double DIP_MIN = Double.NEGATIVE_INFINITY;
   private final static double DIP_MAX = Double.POSITIVE_INFINITY;
   // dip direction
-  private final static String  DIP_DIRECTION= "Dip Direction";
+  private final static String  DIP_DIRECTION= "Dip LocationVector";
   private DoubleParameter dipDirectionParam;
   private final static double MIN_DIP_DIRECTION = 0;
   private final static double MAX_DIP_DIRECTION = 360;
@@ -282,7 +282,7 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
 		        new Insets(0, 0, 0, 0), 0, 0));
 	  
-	  // dip Direction
+	  // dip LocationVector
 	  float dipDirection = this.selectedFaultSection.getDipDirection();
 	  Double val;
 	  if(Double.isNaN(dipDirection)) val = null;
@@ -429,7 +429,7 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 	  float dipDirection;
 	  if(dipDirectionVal==null) dipDirection=Float.NaN;
 	  else dipDirection = dipDirectionVal.floatValue();
-	  //System.out.println("Dip Direction="+dipDirection);
+	  //System.out.println("Dip LocationVector="+dipDirection);
 	  selectedFaultSection.setDipDirection(dipDirection);
 	  //fault trace
 	  selectedFaultSection.setFaultTrace(getFaultTrace());

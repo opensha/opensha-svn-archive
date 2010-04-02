@@ -102,7 +102,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast{
   public final static Double GR_MAG_UPPER_DEFAULT = new Double(7.15);
 
   // dip direction parameter stuff
-  public final static String DIP_DIRECTION_NAME = new String ("Dip Direction");
+  public final static String DIP_DIRECTION_NAME = new String ("Dip LocationVector");
   public final static String DIP_DIRECTION_EAST = new String ("East");
   public final static String DIP_DIRECTION_WEST = new String ("West");
 

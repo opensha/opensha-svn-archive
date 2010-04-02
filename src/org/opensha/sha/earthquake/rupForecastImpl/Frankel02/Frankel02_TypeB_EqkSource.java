@@ -24,7 +24,7 @@ import java.util.Iterator;
 
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.geo.Direction;
+import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
@@ -252,7 +252,7 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
       double min;
 
       // get first location on fault trace
-      Direction dir = LocationUtils.getDirection(site.getLocation(), (Location) surface.get(0,0));
+      LocationVector dir = LocationUtils.getDirection(site.getLocation(), (Location) surface.get(0,0));
       min = dir.getHorzDistance();
 
       // get last location on fault trace
