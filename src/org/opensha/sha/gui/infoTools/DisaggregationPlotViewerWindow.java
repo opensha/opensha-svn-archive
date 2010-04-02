@@ -52,7 +52,7 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
 import org.jpedal.PdfDecoder;
-import org.opensha.commons.util.ImageUtils;
+import org.opensha.commons.util.FileUtils;
 
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -91,7 +91,7 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
   JToolBar jToolBar = new JToolBar();
 
   JButton saveButton = new JButton();
-  ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("icons/saveFile.jpg"));
+  ImageIcon saveFileImage = new ImageIcon(FileUtils.loadImage("icons/saveFile.jpg"));
 
 
   private BorderLayout borderLayout1 = new BorderLayout();

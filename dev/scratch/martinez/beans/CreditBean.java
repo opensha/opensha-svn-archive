@@ -15,7 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import org.opensha.commons.util.ImageUtils;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.nshmp.sha.gui.beans.GuiBeanAPI;
 
 /**
@@ -211,7 +211,7 @@ public class CreditBean implements GuiBeanAPI {
 	private JLabel createLabel(String imgName) {
 		JLabel label = null;
 		if(knownImages.contains(imgName))
-			label = new JLabel(new ImageIcon(ImageUtils.loadImage(imgName)));
+			label = new JLabel(new ImageIcon(FileUtils.loadImage(imgName)));
 		else
 			label = new JLabel(imgName, SwingConstants.CENTER);
 		return label;

@@ -32,7 +32,7 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.commons.util.ImageUtils;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.nshmp.util.BatchFileReader;
 
 
@@ -402,7 +402,7 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 			 * updateGuiParams() function */
 			
 			btnFileChooser = new JButton(new ImageIcon(
-					ImageUtils.loadImage("icons/openFile.png")));
+					FileUtils.loadImage("icons/openFile.png")));
 			btnFileChooser.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					btnFileChooser_actionPerformed();
@@ -410,7 +410,7 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 			});
 			
 			btnOutChooser = new JButton(new ImageIcon(
-					ImageUtils.loadImage("icons/openFile.png")));
+					FileUtils.loadImage("icons/openFile.png")));
 			btnOutChooser.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					btnOutChooser_actionPerformed();

@@ -35,7 +35,7 @@ import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.commons.util.ImageUtils;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.calc.recurInterval.BPT_DistCalc;
 import org.opensha.sha.earthquake.calc.recurInterval.EqkProbDistCalc;
 import org.opensha.sha.earthquake.calc.recurInterval.ExponentialDistCalc;
@@ -124,7 +124,7 @@ ParameterChangeListener{
 		buttonPanel.add(clearButton, 1);
 		buttonPanel.add(peelOffButton, 2);
 		buttonPanel.add(buttonControlPanel, 3);
-		JLabel imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage(POWERED_BY_IMAGE)));
+		JLabel imgLabel = new JLabel(new ImageIcon(FileUtils.loadImage(POWERED_BY_IMAGE)));
 
 		buttonPanel.add(imgLabel, 4);
 
@@ -204,13 +204,13 @@ ParameterChangeListener{
 		JToolBar jToolBar = new JToolBar();
 
 		JButton closeButton = new JButton();
-		ImageIcon closeFileImage = new ImageIcon(ImageUtils.loadImage("icons/closeFile.png"));
+		ImageIcon closeFileImage = new ImageIcon(FileUtils.loadImage("icons/closeFile.png"));
 
 		JButton printButton = new JButton();
-		ImageIcon printFileImage = new ImageIcon(ImageUtils.loadImage("icons/printFile.jpg"));
+		ImageIcon printFileImage = new ImageIcon(FileUtils.loadImage("icons/printFile.jpg"));
 
 		JButton saveButton = new JButton();
-		ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("icons/saveFile.jpg"));
+		ImageIcon saveFileImage = new ImageIcon(FileUtils.loadImage("icons/saveFile.jpg"));
 
 		closeButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {

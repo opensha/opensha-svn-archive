@@ -16,7 +16,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.opensha.commons.util.ImageUtils;
+import org.opensha.commons.util.FileUtils;
 
 import scratch.martinez.beans.ProgressBar;
 
@@ -61,7 +61,7 @@ public class ProgressTest {
 		if(progress == null) {
 			JPanel pPanel = new JPanel(new GridBagLayout());
 			pPanel.add(new JLabel(new ImageIcon(
-					ImageUtils.loadImage("logos/usgs_logoonly.gif")
+					FileUtils.loadImage("logos/usgs_logoonly.gif")
 			)));
 			progress = new ProgressBar(app, "Progress Meter", "Loading...",
 					pPanel, 0);

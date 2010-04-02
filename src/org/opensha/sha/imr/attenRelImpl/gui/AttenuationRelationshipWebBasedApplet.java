@@ -30,7 +30,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JSplitPane;
 
-import org.opensha.commons.util.ImageUtils;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.sha.gui.infoTools.GraphPanel;
 
@@ -144,7 +144,7 @@ public class AttenuationRelationshipWebBasedApplet
 
         //loading the OpenSHA Logo
         imgLabel.setText("");
-        imgLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
+        imgLabel.setIcon(new ImageIcon(FileUtils.loadImage(this.POWERED_BY_IMAGE)));
         
 	    xyDatasetButton.setText("Add Data Points");
 	    xyDatasetButton.addActionListener(new java.awt.event.ActionListener() {

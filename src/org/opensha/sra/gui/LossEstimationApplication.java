@@ -64,7 +64,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.commons.util.ImageUtils;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
@@ -245,9 +245,9 @@ IMR_GuiBeanAPI{
 
 
 
-	private JLabel openshaImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("logos/PoweredByOpenSHA_Agua.jpg")));
-	private JLabel usgsImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("logos/usgs_resrisk.gif")));
-	private JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("logos/AgoraOpenRisk.jpg")));
+	private JLabel openshaImgLabel = new JLabel(new ImageIcon(FileUtils.loadImage("logos/PoweredByOpenSHA_Agua.jpg")));
+	private JLabel usgsImgLabel = new JLabel(new ImageIcon(FileUtils.loadImage("logos/usgs_resrisk.gif")));
+	private JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(FileUtils.loadImage("logos/AgoraOpenRisk.jpg")));
 
 	//static string for the OPENSHA website
 	private final static String OPENSHA_WEBSITE="http://www.OpenSHA.org";
@@ -297,13 +297,13 @@ IMR_GuiBeanAPI{
 	JToolBar jToolBar = new JToolBar();
 
 	JButton closeButton = new JButton();
-	ImageIcon closeFileImage = new ImageIcon(ImageUtils.loadImage("icons/closeFile.png"));
+	ImageIcon closeFileImage = new ImageIcon(FileUtils.loadImage("icons/closeFile.png"));
 
 	JButton printButton = new JButton();
-	ImageIcon printFileImage = new ImageIcon(ImageUtils.loadImage("icons/printFile.jpg"));
+	ImageIcon printFileImage = new ImageIcon(FileUtils.loadImage("icons/printFile.jpg"));
 
 	JButton saveButton = new JButton();
-	ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("icons/saveFile.jpg"));
+	ImageIcon saveFileImage = new ImageIcon(FileUtils.loadImage("icons/saveFile.jpg"));
 
 
 

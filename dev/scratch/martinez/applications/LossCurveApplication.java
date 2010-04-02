@@ -28,7 +28,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
-import org.opensha.commons.util.ImageUtils;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.nshmp.sha.gui.beans.GuiBeanAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
@@ -162,13 +162,13 @@ public class LossCurveApplication extends JFrame {
 		mainBottomContent.add(btnCalc, 0);
 		mainBottomContent.add(btnClear, 1);
 		mainBottomContent.add(new JLabel(new ImageIcon(
-				ImageUtils.loadImage("logos/PoweredByOpenSHA_Agua.jpg")
+				FileUtils.loadImage("logos/PoweredByOpenSHA_Agua.jpg")
 			)), 2);
 		mainBottomContent.add(new JLabel(new ImageIcon(
-				ImageUtils.loadImage("logos/AgoraOpenRisk.jpg")
+				FileUtils.loadImage("logos/AgoraOpenRisk.jpg")
 			)), 3);
 		mainBottomContent.add(new JLabel(new ImageIcon(
-				ImageUtils.loadImage("logos/usgs_resrisk.gif")
+				FileUtils.loadImage("logos/usgs_resrisk.gif")
 			)), 4);
 		
 		appSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, 
@@ -292,11 +292,11 @@ public class LossCurveApplication extends JFrame {
 		JFrame splash = new JFrame();
 		creditPanel = new JPanel(new FlowLayout());
 		JLabel openshaImgLabel = new JLabel(new ImageIcon(
-				ImageUtils.loadImage("logos/PoweredByOpenSHA_Agua.jpg")));
+				FileUtils.loadImage("logos/PoweredByOpenSHA_Agua.jpg")));
 		JLabel usgsImgLabel = new JLabel(new ImageIcon(
-				ImageUtils.loadImage("logos/usgs_resrisk.gif")));
+				FileUtils.loadImage("logos/usgs_resrisk.gif")));
 		JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(
-				ImageUtils.loadImage("logos/AgoraOpenRisk.jpg")));
+				FileUtils.loadImage("logos/AgoraOpenRisk.jpg")));
 		creditPanel.add(openshaImgLabel);
 		creditPanel.add(usgsImgLabel);
 		creditPanel.add(riskAgoraImgLabel);

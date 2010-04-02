@@ -43,7 +43,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
 
 import org.jfree.data.Range;
-import org.opensha.commons.util.ImageUtils;
+import org.opensha.commons.util.FileUtils;
 
 /**
  * <p>Title: GraphWindow</p>
@@ -112,13 +112,13 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 	protected JToolBar jToolBar = new JToolBar();
 
 	protected JButton closeButton = new JButton();
-	protected ImageIcon closeFileImage = new ImageIcon(ImageUtils.loadImage("icons/closeFile.png"));
+	protected ImageIcon closeFileImage = new ImageIcon(FileUtils.loadImage("icons/closeFile.png"));
 
 	protected JButton printButton = new JButton();
-	protected ImageIcon printFileImage = new ImageIcon(ImageUtils.loadImage("icons/printFile.jpg"));
+	protected ImageIcon printFileImage = new ImageIcon(FileUtils.loadImage("icons/printFile.jpg"));
 
 	protected JButton saveButton = new JButton();
-	protected ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("icons/saveFile.jpg"));
+	protected ImageIcon saveFileImage = new ImageIcon(FileUtils.loadImage("icons/saveFile.jpg"));
 
 
 	/**

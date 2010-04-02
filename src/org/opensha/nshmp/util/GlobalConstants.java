@@ -24,7 +24,7 @@ import java.util.Properties;
 
 import javax.swing.ImageIcon;
 
-import org.opensha.commons.util.ImageUtils;
+import org.opensha.commons.util.FileUtils;
 
 /**
  * <p>Title: GlobalConstants</p>
@@ -60,9 +60,9 @@ public final class GlobalConstants {
 
   private final static String USGS_LOGO = "logos/usgslogo.gif";
 	private final static String USGS_LOGO_ONLY = "logos/usgs_logoonly.gif";
-  public final static ImageIcon USGS_LOGO_ICON = new ImageIcon(ImageUtils.loadImage(USGS_LOGO));
+  public final static ImageIcon USGS_LOGO_ICON = new ImageIcon(FileUtils.loadImage(USGS_LOGO));
 	public final static ImageIcon USGS_LOGO_ONLY_ICON = new
-		ImageIcon(ImageUtils.loadImage(USGS_LOGO_ONLY));
+		ImageIcon(FileUtils.loadImage(USGS_LOGO_ONLY));
 
   //static declaration for the supported geographic regions
   public static final String CONTER_48_STATES = "Conterminous 48 States";

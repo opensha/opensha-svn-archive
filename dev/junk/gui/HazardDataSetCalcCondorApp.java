@@ -61,7 +61,6 @@ import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.commons.util.ImageUtils;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
@@ -203,7 +202,7 @@ implements ParameterChangeListener, IMR_GuiBeanAPI, Runnable, CurveDisplayAppAPI
 	private CalcProgressBar calcProgress;
 	private JPanel dataPanel = new JPanel();
 	private JPanel imgPanel = new JPanel();
-	private JLabel imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
+	private JLabel imgLabel = new JLabel(new ImageIcon(FileUtils.loadImage(this.POWERED_BY_IMAGE)));
 	private JButton addButton = new JButton();
 	private JComboBox controlComboBox = new JComboBox();
 	private GridBagLayout gridBagLayout7 = new GridBagLayout();

@@ -38,7 +38,7 @@ import javax.swing.UIManager;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
-import org.opensha.commons.util.ImageUtils;
+import org.opensha.commons.util.FileUtils;
 
 /**
  * <p>Title: MessageDialog</p>
@@ -53,7 +53,7 @@ public class MessageDialog
 
 
   JPanel panel1 = new JPanel();
-  private JLabel imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("icons/error_icon.png")));
+  private JLabel imgLabel = new JLabel(new ImageIcon(FileUtils.loadImage("icons/error_icon.png")));
   JButton okButton = new JButton();
   JButton cancelButton = new JButton();
   JEditorPane messageEditor = new JEditorPane();

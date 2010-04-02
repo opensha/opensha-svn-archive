@@ -51,7 +51,7 @@ import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.commons.util.ImageUtils;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazusMapCalculator;
 import org.opensha.sha.earthquake.EqkRupForecast;
@@ -161,7 +161,7 @@ public class HazusDataSetCalcApp extends JFrame
   private CalcProgressBar calcProgress;
   private JPanel dataPanel = new JPanel();
   private JPanel imgPanel = new JPanel();
-  private JLabel imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
+  private JLabel imgLabel = new JLabel(new ImageIcon(FileUtils.loadImage(this.POWERED_BY_IMAGE)));
   private JButton addButton = new JButton();
   private JComboBox controlComboBox = new JComboBox();
   private GridBagLayout gridBagLayout7 = new GridBagLayout();

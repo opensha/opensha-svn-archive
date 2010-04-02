@@ -20,6 +20,8 @@
 package org.opensha.commons.util;
 
 
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -53,7 +55,7 @@ import org.apache.commons.lang.SystemUtils;
  * @author Steven W. Rock
  * @version 1.0
  */
-
+// TODO clean and test
 public class FileUtils {
 
 	/** Class name used for debug strings */
@@ -354,6 +356,23 @@ public class FileUtils {
 		tempDir.mkdir();
 		return tempDir;
 	}
+
+	/**
+	   * this method accepts the filename and loads the image from the jar file
+	   * @param fileName
+	   * @return
+	   */
+	  public static Image loadImage(String fileName) {
+	    String imageFileName = FileUtils.imagePath+fileName;
+	    java.net.URL url = FileUtils.class.getResource(imageFileName);
+	    Image img=Toolkit.getDefaultToolkit().getImage(url);
+	    return img;
+	  }
+
+	/**
+	   * this is the path where images will be put into
+	   */
+	  private static final String imagePath = "/resources/images/";
 
 }
 

@@ -41,7 +41,7 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.util.ImageUtils;
+import org.opensha.commons.util.FileUtils;
 
 
 
@@ -320,7 +320,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     directionsLabel.setForeground(new Color(80, 80, 133));
     directionsLabel.setHorizontalAlignment(SwingConstants.RIGHT);
     directionsLabel.setText("Click button and follow directions ");
-    imgLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
+    imgLabel.setIcon(new ImageIcon(FileUtils.loadImage(this.POWERED_BY_IMAGE)));
     imgLabel.setBounds(new Rectangle(196, 564, 238, 29));
     imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
       public void mouseClicked(MouseEvent e) {

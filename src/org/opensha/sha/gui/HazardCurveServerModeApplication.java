@@ -71,7 +71,6 @@ import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.commons.util.ImageUtils;
 import org.opensha.commons.util.ListUtils;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
@@ -447,9 +446,9 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		buttonPanel.setBorder(BorderFactory.createEmptyBorder(12, 24, 12, 40));
 		buttonPanel.setBackground(bg);
 		JLabel shaLogo = new JLabel(new ImageIcon(
-				ImageUtils.loadImage("logos/cat_icon_64.png")));
+				FileUtils.loadImage("logos/cat_icon_64.png")));
 		JLabel gemLogo = new JLabel(new ImageIcon(
-				ImageUtils.loadImage("logos/gem_icon_64.png")));
+				FileUtils.loadImage("logos/gem_icon_64.png")));
 
 		JLabel calcTypeLabel = new JLabel("Calculation type:");
 		JLabel cpLabel = new JLabel("Control panel:");

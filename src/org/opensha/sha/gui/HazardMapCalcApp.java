@@ -74,7 +74,6 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.commons.util.ImageUtils;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.hazardMap.HazardMapCalculationParameters;
 import org.opensha.sha.calc.hazardMap.HazardMapJob;
@@ -244,7 +243,7 @@ implements ParameterChangeListener, CurveDisplayAppAPI, IMR_GuiBeanAPI {
 	private CalcProgressBar calcProgress;
 	private JPanel dataPanel = new JPanel();
 	private JPanel imgPanel = new JPanel();
-	private JLabel imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
+	private JLabel imgLabel = new JLabel(new ImageIcon(FileUtils.loadImage(this.POWERED_BY_IMAGE)));
 	private JButton addButton = new JButton();
 	private JButton runButton = new JButton("Run!");
 	private JComboBox controlComboBox = new JComboBox();

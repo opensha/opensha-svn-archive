@@ -75,7 +75,6 @@ import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.commons.util.ImageUtils;
 import org.opensha.sha.gui.controls.AxisLimitsControlPanel;
 import org.opensha.sha.gui.controls.AxisLimitsControlPanelAPI;
 import org.opensha.sha.gui.controls.CurveDisplayAppAPI;
@@ -248,13 +247,13 @@ CurveDisplayAppAPI,GraphWindowAPI {
 	JToolBar jToolBar = new JToolBar();
 
 	JButton closeButton = new JButton();
-	ImageIcon closeFileImage = new ImageIcon(ImageUtils.loadImage("icons/closeFile.png"));
+	ImageIcon closeFileImage = new ImageIcon(FileUtils.loadImage("icons/closeFile.png"));
 
 	JButton printButton = new JButton();
-	ImageIcon printFileImage = new ImageIcon(ImageUtils.loadImage("icons/printFile.jpg"));
+	ImageIcon printFileImage = new ImageIcon(FileUtils.loadImage("icons/printFile.jpg"));
 
 	JButton saveButton = new JButton();
-	ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("icons/saveFile.jpg"));
+	ImageIcon saveFileImage = new ImageIcon(FileUtils.loadImage("icons/saveFile.jpg"));
 
 	JMenuItem helpLaunchMenu = new JMenuItem();
 
@@ -698,7 +697,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 
 		//loading the OpenSHA Logo
 		imgLabel.setText("");
-		imgLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
+		imgLabel.setIcon(new ImageIcon(FileUtils.loadImage(this.POWERED_BY_IMAGE)));
 
 		xyDatasetButton.setText("Add Data Points");
 		xyDatasetButton.addActionListener(new java.awt.event.ActionListener() {

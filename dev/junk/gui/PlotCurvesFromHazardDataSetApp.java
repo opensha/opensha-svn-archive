@@ -49,7 +49,7 @@ import javax.swing.border.Border;
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.util.ImageUtils;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.gui.beans.HazardDataSiteSelectionGuiBean;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
@@ -191,7 +191,7 @@ public class PlotCurvesFromHazardDataSetApp extends JApplet
   GridBagLayout gridBagLayout10 = new GridBagLayout();
   BorderLayout borderLayout1 = new BorderLayout();
   private JButton peelOffButton = new JButton();
-  private JLabel imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
+  private JLabel imgLabel = new JLabel(new ImageIcon(FileUtils.loadImage(this.POWERED_BY_IMAGE)));
   private FlowLayout flowLayout1 = new FlowLayout();
   private GridBagLayout gridBagLayout14 = new GridBagLayout();
 

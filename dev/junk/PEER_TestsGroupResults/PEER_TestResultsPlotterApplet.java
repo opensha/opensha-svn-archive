@@ -53,7 +53,7 @@ import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.gui.plot.jfreechart.MyTickUnits;
-import org.opensha.commons.util.ImageUtils;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.gui.controls.AxisLimitsControlPanel;
 import org.opensha.sha.gui.controls.AxisLimitsControlPanelAPI;
 
@@ -366,7 +366,7 @@ ActionListener {
 			}
 		});
 		powerLabel.setToolTipText("");
-		powerLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
+		powerLabel.setIcon(new ImageIcon(FileUtils.loadImage(this.POWERED_BY_IMAGE)));
 		axisScaleButton.setText("Set Axis Scale");
 		axisScaleButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {

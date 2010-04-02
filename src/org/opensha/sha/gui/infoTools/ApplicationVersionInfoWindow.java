@@ -43,7 +43,7 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
-import org.opensha.commons.util.ImageUtils;
+import org.opensha.commons.util.FileUtils;
 
 /**
  * <p>Title: ApplicationVersionInfoWindow</p>
@@ -117,7 +117,7 @@ public class ApplicationVersionInfoWindow
     this.getContentPane().setLayout(borderLayout2);
     msgPanel.setLayout(gridBagLayout2);
     msgPane.setBackground(SystemColor.window);
-    imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("icons/info_icon.jpg")));
+    imgLabel = new JLabel(new ImageIcon(FileUtils.loadImage("icons/info_icon.jpg")));
     msgPane.setBorder(border2);
     versionUpdateText.getViewport().setBackground(SystemColor.desktop);
     versionUpdateText.setBorder(border5);

@@ -51,7 +51,7 @@ import javax.swing.JToolBar;
 
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.util.ImageUtils;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.nshmp.util.GlobalConstants;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
@@ -77,13 +77,13 @@ public class GraphWindow
   JToolBar jToolBar = new JToolBar();
 
   JButton closeButton = new JButton();
-  ImageIcon closeFileImage = new ImageIcon(ImageUtils.loadImage("icons/closeFile.png"));
+  ImageIcon closeFileImage = new ImageIcon(FileUtils.loadImage("icons/closeFile.png"));
 
   JButton printButton = new JButton();
-  ImageIcon printFileImage = new ImageIcon(ImageUtils.loadImage("icons/printFile.jpg"));
+  ImageIcon printFileImage = new ImageIcon(FileUtils.loadImage("icons/printFile.jpg"));
 
   JButton saveButton = new JButton();
-  ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("icons/saveFile.jpg"));
+  ImageIcon saveFileImage = new ImageIcon(FileUtils.loadImage("icons/saveFile.jpg"));
 
   private final static int W = 650;
   private final static int H = 730;

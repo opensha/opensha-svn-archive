@@ -62,7 +62,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.commons.util.ImageUtils;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
@@ -135,9 +135,9 @@ public class BCR_Application extends JFrame
   protected Site_GuiBean siteGuiBean;
 
 
-  private JLabel openshaImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("logos/PoweredByOpenSHA_Agua.jpg")));
-  private JLabel usgsImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("logos/usgs_resrisk.gif")));
-  private JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("logos/AgoraOpenRisk.jpg")));
+  private JLabel openshaImgLabel = new JLabel(new ImageIcon(FileUtils.loadImage("logos/PoweredByOpenSHA_Agua.jpg")));
+  private JLabel usgsImgLabel = new JLabel(new ImageIcon(FileUtils.loadImage("logos/usgs_resrisk.gif")));
+  private JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(FileUtils.loadImage("logos/AgoraOpenRisk.jpg")));
 
 
   // Strings for control pick list
