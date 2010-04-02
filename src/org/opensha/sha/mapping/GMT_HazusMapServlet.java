@@ -32,12 +32,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.SystemUtils;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
-import org.opensha.commons.util.SystemPropertiesUtils;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
@@ -254,7 +254,7 @@ extends HttpServlet {
 		//URL path to folder where all GMT related files and map data file for this
 		//calculations reside.
 		String mapImagePath = GMT_URL_PATH + GMT_DATA_DIR +
-		plotDirName + SystemPropertiesUtils.getSystemFileSeparator();
+		plotDirName + SystemUtils.FILE_SEPARATOR;
 		
 		return mapImagePath;
 	}

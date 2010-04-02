@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang.SystemUtils;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -39,7 +40,6 @@ import org.opensha.commons.param.WarningParameterAPI;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.commons.util.SystemPropertiesUtils;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -400,7 +400,7 @@ public class MedianCalc_Cybershake
         String imtLine = (String) supportedIMTs.get(j);
         generateMedian(attenRel, imtLine,
                                  dirName +
-                                 SystemPropertiesUtils.getSystemFileSeparator());
+                                 SystemUtils.FILE_SEPARATOR);
       }
     }
   }
@@ -493,7 +493,7 @@ public class MedianCalc_Cybershake
       FileWriter medianFile;
 
       String fileNamePrefixCommon = dirName +
-          SystemPropertiesUtils.getSystemFileSeparator() + imr.getShortName();
+      SystemUtils.FILE_SEPARATOR + imr.getShortName();
 
       // opens the files for writing
       StringTokenizer st = new StringTokenizer(imtLine);

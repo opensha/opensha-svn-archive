@@ -9,11 +9,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang.SystemUtils;
 import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.commons.util.SystemPropertiesUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
@@ -231,7 +231,7 @@ public class IML_Calc_Cybershake extends MedianCalc_Cybershake {
 	      FileWriter imlFile;
 
 	      String fileNamePrefixCommon = dirName +
-	          SystemPropertiesUtils.getSystemFileSeparator() + imr.getShortName();
+	      SystemUtils.FILE_SEPARATOR + imr.getShortName();
 
 	      // opens the files for writing
 	      StringTokenizer st = new StringTokenizer(imtLine);

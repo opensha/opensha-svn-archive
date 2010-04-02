@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang.SystemUtils;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.geo.Location;
@@ -41,7 +42,6 @@ import org.opensha.commons.param.WarningParameterAPI;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.commons.util.SystemPropertiesUtils;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -446,11 +446,10 @@ implements ParameterChangeWarningListener {
 		file.mkdirs();
 		this.generateSrcRupMetadataFile(forecast,
 				dirName +
-				SystemPropertiesUtils.
-				getSystemFileSeparator());
+				SystemUtils.FILE_SEPARATOR);
 		this.generateRupSiteDistFile(forecast,
 				dirName +
-				SystemPropertiesUtils.getSystemFileSeparator());
+				SystemUtils.FILE_SEPARATOR);
 
 		int numIMTs = supportedIMTs.size();
 		for (int i = 0; i < numIMRs; ++i) {
@@ -460,8 +459,7 @@ implements ParameterChangeWarningListener {
 			for (int j = 0; j < numIMTs; ++j) {
 				String imtLine = (String) supportedIMTs.get(j);
 				generateMeanAndSigmaFile(attenRel, imtLine,
-						dirName +
-						SystemPropertiesUtils.getSystemFileSeparator());
+						dirName + SystemUtils.FILE_SEPARATOR);
 			}
 		}
 	}
@@ -559,7 +557,7 @@ implements ParameterChangeWarningListener {
 			FileWriter meanSigmaFile;
 
 			String fileNamePrefixCommon = dirName +
-			SystemPropertiesUtils.getSystemFileSeparator() + imr.getShortName();
+			SystemUtils.FILE_SEPARATOR + imr.getShortName();
 
 			// opens the files for writing
 			StringTokenizer st = new StringTokenizer(imtLine);

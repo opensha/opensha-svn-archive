@@ -57,6 +57,7 @@ import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 
+import org.apache.commons.lang.SystemUtils;
 import org.jfree.data.Range;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -64,7 +65,6 @@ import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.ImageUtils;
-import org.opensha.commons.util.SystemPropertiesUtils;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
@@ -1405,8 +1405,8 @@ IMR_GuiBeanAPI{
 	 * @returns the String containing the values selected for different parameters
 	 */
 	public String getParametersInfoAsString(){
-		String systemSpecificLineSeparator = SystemPropertiesUtils.getSystemLineSeparator();
-		return getMapParametersInfoAsHTML().replaceAll("<br>",systemSpecificLineSeparator);
+		return getMapParametersInfoAsHTML().replaceAll(
+				"<br>",SystemUtils.LINE_SEPARATOR);
 	}
 
 

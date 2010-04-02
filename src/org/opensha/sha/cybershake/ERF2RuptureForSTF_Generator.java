@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ListIterator;
 
+import org.apache.commons.lang.SystemUtils;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.region.Region;
 import org.opensha.commons.exceptions.RegionConstraintException;
@@ -34,7 +35,6 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.util.SystemPropertiesUtils;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -159,8 +159,8 @@ public class ERF2RuptureForSTF_Generator {
 
       String directoryPath = f.getAbsolutePath();
 
-      if(!directoryPath.endsWith(SystemPropertiesUtils.getSystemFileSeparator()))
-      directoryPath += SystemPropertiesUtils.getSystemFileSeparator();
+      if(!directoryPath.endsWith(SystemUtils.FILE_SEPARATOR))
+      directoryPath += SystemUtils.FILE_SEPARATOR;
       if(!f.exists() || !f.isDirectory()){
         f.mkdir();
 

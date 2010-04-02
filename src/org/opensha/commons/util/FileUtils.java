@@ -41,6 +41,8 @@ import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.lang.SystemUtils;
+
 
 /**
  * <b>Title:</b>FileUtils<p>
@@ -291,8 +293,8 @@ public class FileUtils {
 	public static void createZipFile(String filesPath){
 		int BUFFER = 8192;
 		String zipFileName = "allFiles.zip";
-		if(!filesPath.endsWith(SystemPropertiesUtils.getSystemFileSeparator()))
-			filesPath = filesPath+SystemPropertiesUtils.getSystemFileSeparator();
+		if(!filesPath.endsWith(SystemUtils.FILE_SEPARATOR))
+			filesPath = filesPath+SystemUtils.FILE_SEPARATOR;
 		try {
 			BufferedInputStream origin = null;
 			FileOutputStream dest = new

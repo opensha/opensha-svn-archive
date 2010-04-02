@@ -26,10 +26,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang.SystemUtils;
 import org.opensha.commons.calc.GaussianDistCalc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.commons.util.SystemPropertiesUtils;
 
 /**
  * <p>Title: IM_EventSetCalcTest</p>
@@ -90,7 +90,7 @@ public class IM_EventSetCalcTest{
     }
     fileLines = null;
 	if(first){
-	    fileLines = FileUtils.loadFile(dirName+SystemPropertiesUtils.getSystemFileSeparator()
+	    fileLines = FileUtils.loadFile(dirName+SystemUtils.FILE_SEPARATOR
                                            +"src_rup_metadata.txt");
 	    //getting the event rates for each rup from Src-Rup file
 	    for(int i=0;i<numEntries;++i){
@@ -113,7 +113,7 @@ public class IM_EventSetCalcTest{
     initArbFunction();
     try {
       File file = new File(dirName);
-      String absPath = file.getAbsolutePath()+SystemPropertiesUtils.getSystemFileSeparator();
+      String absPath = file.getAbsolutePath()+SystemUtils.FILE_SEPARATOR;
       File[] files = file.listFiles();
       int numFiles = files.length;
 

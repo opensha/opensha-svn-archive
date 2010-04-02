@@ -32,10 +32,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.SystemUtils;
 import org.opensha.commons.mapping.servlet.GMT_MapGeneratorServlet;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
-import org.opensha.commons.util.SystemPropertiesUtils;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
 import org.opensha.sha.calc.disaggregation.DisaggregationPlotData;
 
@@ -133,7 +133,7 @@ extends HttpServlet {
 			//URL path to folder where all GMT related files and map data file for this
 			//calculations reside.
 			String mapImagePath = GMT_URL_PATH + GMT_DATA_DIR +
-			currentMilliSec + SystemPropertiesUtils.getSystemFileSeparator();
+			currentMilliSec + SystemUtils.FILE_SEPARATOR;
 			//returns the URL to the folder where map image resides
 			outputToApplet.writeObject(mapImagePath);
 			outputToApplet.close();

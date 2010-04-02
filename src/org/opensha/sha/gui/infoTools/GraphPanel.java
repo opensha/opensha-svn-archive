@@ -49,6 +49,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
+import org.apache.commons.lang.SystemUtils;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
@@ -69,7 +70,6 @@ import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.gui.plot.jfreechart.JFreeLogarithmicAxis;
 import org.opensha.commons.gui.plot.jfreechart.MyTickUnits;
 import org.opensha.commons.util.DataUtil;
-import org.opensha.commons.util.SystemPropertiesUtils;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 
 import com.lowagie.text.Document;
@@ -669,7 +669,7 @@ public class GraphPanel extends JSplitPane {
           String listInfo = weightedList.getInfo();
 
           legend = new String(datasetName+"\n"+
-                              listInfo+SystemPropertiesUtils.getSystemLineSeparator());
+                              listInfo+SystemUtils.LINE_SEPARATOR);
           legendString.add(legend);
           StyleConstants.setForeground(setLegend,Color.black);
           doc.insertString(doc.getLength(),legend,setLegend);
@@ -682,7 +682,7 @@ public class GraphPanel extends JSplitPane {
             //getting the metadata for each individual curves and creating the legend string
             String listFunctionsInfo = weightedList.getFunctionTraceInfo();
 
-            legend = new String(listFunctionsInfo+SystemPropertiesUtils.getSystemLineSeparator());
+            legend = new String(listFunctionsInfo+SystemUtils.LINE_SEPARATOR);
             legendString.add(legend);
             Color color = ((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).getCurveColor();
             StyleConstants.setForeground(setLegend,color);
@@ -697,7 +697,7 @@ public class GraphPanel extends JSplitPane {
              //getting the fractile info for the weighted function list and adding that to the legend
             String fractileListInfo = weightedList.getFractileInfo();
 
-            legend = new String(fractileListInfo+SystemPropertiesUtils.getSystemLineSeparator());
+            legend = new String(fractileListInfo+SystemUtils.LINE_SEPARATOR);
             legendString.add(legend);
             Color color = ((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).getCurveColor();
             StyleConstants.setForeground(setLegend,color);
@@ -711,7 +711,7 @@ public class GraphPanel extends JSplitPane {
             //getting the fractileinfo and showing it as legend
             String meanInfo = weightedList.getMeanFunctionInfo();
 
-            legend = new String(meanInfo+SystemPropertiesUtils.getSystemLineSeparator());
+            legend = new String(meanInfo+SystemUtils.LINE_SEPARATOR);
             legendString.add(legend);
             Color color = ((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).getCurveColor();
             StyleConstants.setForeground(setLegend,color);
@@ -726,8 +726,8 @@ public class GraphPanel extends JSplitPane {
           String functionInfo = func.getInfo();
           String name = func.getName();
           legend = new String(datasetName+"\n"+
-                              name+"  "+SystemPropertiesUtils.getSystemLineSeparator()+
-                              functionInfo+SystemPropertiesUtils.getSystemLineSeparator());
+                              name+"  "+SystemUtils.LINE_SEPARATOR+
+                              functionInfo+SystemUtils.LINE_SEPARATOR);
           legendString.add(legend);
           Color color = ((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).getCurveColor();
           StyleConstants.setForeground(setLegend,color);

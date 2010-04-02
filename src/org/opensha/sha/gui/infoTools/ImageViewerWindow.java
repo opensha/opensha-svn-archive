@@ -48,8 +48,8 @@ import javax.swing.JToolBar;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
+import org.apache.commons.lang.SystemUtils;
 import org.opensha.commons.util.ImageUtils;
-import org.opensha.commons.util.SystemPropertiesUtils;
 
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -108,10 +108,10 @@ public class ImageViewerWindow extends JFrame implements HyperlinkListener{
   public ImageViewerWindow(String imageFileName,String mapInfoAsHTML,boolean gmtFromServer)
       throws RuntimeException{
     this.mapInfoAsHTML = mapInfoAsHTML;
-    String systemSpecificLineSeparator = SystemPropertiesUtils.getSystemLineSeparator();
-    this.mapInfoAsString = mapInfoAsHTML.replaceAll("<br>",systemSpecificLineSeparator);
+    String lf = SystemUtils.LINE_SEPARATOR;
+    this.mapInfoAsString = mapInfoAsHTML.replaceAll("<br>",lf);
     mapInfoAsString = mapInfoAsString.replaceAll("</br>","");
-    mapInfoAsString = mapInfoAsString.replaceAll("<p>",systemSpecificLineSeparator);
+    mapInfoAsString = mapInfoAsString.replaceAll("<p>",lf);
     mapInfoAsString = mapInfoAsString.replaceAll("</p>","");
     mapInfoAsString = mapInfoAsString.replaceAll("&nbsp;","  ");
     this.gmtFromServer = gmtFromServer;
@@ -138,10 +138,10 @@ public class ImageViewerWindow extends JFrame implements HyperlinkListener{
                            boolean gmtFromServer)
       throws RuntimeException{
     this.mapInfoAsHTML = mapInfo;
-    String systemSpecificLineSeparator = SystemPropertiesUtils.getSystemLineSeparator();
-    this.mapInfoAsString = mapInfoAsHTML.replaceAll("<br>",systemSpecificLineSeparator);
+    String lf = SystemUtils.LINE_SEPARATOR;
+    this.mapInfoAsString = mapInfoAsHTML.replaceAll("<br>",lf);
     mapInfoAsString = mapInfoAsString.replaceAll("</br>","");
-    mapInfoAsString = mapInfoAsString.replaceAll("<p>",systemSpecificLineSeparator);
+    mapInfoAsString = mapInfoAsString.replaceAll("<p>",lf);
     mapInfoAsString = mapInfoAsString.replaceAll("</p>","");
     mapInfoAsString = mapInfoAsString.replaceAll("&nbsp;","  ");
     this.gmtFromServer = gmtFromServer;

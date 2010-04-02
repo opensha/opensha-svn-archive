@@ -33,9 +33,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.SystemUtils;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
-import org.opensha.commons.util.SystemPropertiesUtils;
 
 
 /**
@@ -185,7 +185,7 @@ public class HazusAndGMT_MapsGeneratorServlet extends HttpServlet {
 			//URL path to folder where all GMT related files and map data file for this
 			//calculations reside.
 			String mapImagePath = this.GMT_URL_PATH + this.GMT_DATA_DIR +
-			dirName + SystemPropertiesUtils.getSystemFileSeparator();
+			dirName + SystemUtils.FILE_SEPARATOR;
 			//returns the URL to the folder where map image resides
 			outputToApplet.writeObject(mapImagePath);
 

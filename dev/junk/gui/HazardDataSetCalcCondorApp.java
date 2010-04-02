@@ -53,6 +53,7 @@ import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
+import org.apache.commons.lang.SystemUtils;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.ParameterException;
@@ -853,35 +854,35 @@ implements ParameterChangeListener, IMR_GuiBeanAPI, Runnable, CurveDisplayAppAPI
 	 * @returns the String containing the values selected for different parameters
 	 */
 	public String getParametersInfo() {
-		String systemSpecificLineSeparator = org.opensha.commons.util.SystemPropertiesUtils.getSystemLineSeparator();
-		String metadata = "IMR Param List:" + systemSpecificLineSeparator +
-		"---------------" + systemSpecificLineSeparator +
+		String lf = SystemUtils.LINE_SEPARATOR;
+		String metadata = "IMR Param List:" + lf +
+		"---------------" + lf +
 		this.imrGuiBean.getVisibleParametersCloned().
-		getParameterListMetadataString() + systemSpecificLineSeparator +
-		systemSpecificLineSeparator +
-		"Region Param List: " + systemSpecificLineSeparator +
-		"----------------" + systemSpecificLineSeparator +
+		getParameterListMetadataString() + lf +
+		lf +
+		"Region Param List: " + lf +
+		"----------------" + lf +
 		sitesGuiBean.getVisibleParametersCloned().
-		getParameterListMetadataString() + systemSpecificLineSeparator +
-		systemSpecificLineSeparator + "IMT Param List: " +
-		systemSpecificLineSeparator +
-		"---------------" + systemSpecificLineSeparator +
+		getParameterListMetadataString() + lf +
+		lf + "IMT Param List: " +
+		lf +
+		"---------------" + lf +
 		imtGuiBean.getVisibleParametersCloned().getParameterListMetadataString() +
-		systemSpecificLineSeparator +
-		systemSpecificLineSeparator + "Forecast Param List: " +
-		systemSpecificLineSeparator +
-		"--------------------" + systemSpecificLineSeparator +
+		lf +
+		lf + "Forecast Param List: " +
+		lf +
+		"--------------------" + lf +
 		erfGuiBean.getERFParameterList().getParameterListMetadataString() +
-		systemSpecificLineSeparator +
-		systemSpecificLineSeparator + "TimeSpan Param List: " +
-		systemSpecificLineSeparator +
-		"--------------------" + systemSpecificLineSeparator +
-		erfGuiBean.getSelectedERFTimespanGuiBean().getParameterListMetadataString() + systemSpecificLineSeparator+
-		systemSpecificLineSeparator + "Miscellaneous Metadata:"+
-		systemSpecificLineSeparator +
-		"--------------------" + systemSpecificLineSeparator+
-		"Maximum Site Source Distance = "+maxDistance+systemSpecificLineSeparator+
-		systemSpecificLineSeparator+
+		lf +
+		lf + "TimeSpan Param List: " +
+		lf +
+		"--------------------" + lf +
+		erfGuiBean.getSelectedERFTimespanGuiBean().getParameterListMetadataString() + lf+
+		lf + "Miscellaneous Metadata:"+
+		lf +
+		"--------------------" + lf+
+		"Maximum Site Source Distance = "+maxDistance+lf+
+		lf+
 		"X Values = ";
 
 		//getting the X values used to generate the metadata.

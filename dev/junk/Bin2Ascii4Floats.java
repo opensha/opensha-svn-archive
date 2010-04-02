@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.util;
+package junk;
 
 import java.io.DataInputStream;
 import java.io.FileInputStream;

@@ -46,6 +46,7 @@ import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
+import org.apache.commons.lang.SystemUtils;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -503,18 +504,18 @@ public class HazusDataSetCalcApp extends JFrame
   * @returns the String containing the values selected for different parameters
   */
  public String getParametersInfo() {
-   String systemSpecificLineSeparator = org.opensha.commons.util.SystemPropertiesUtils.getSystemLineSeparator();
+   String lf = SystemUtils.LINE_SEPARATOR;
    String metadata = 
        this.imrGuiBean.getVisibleParametersCloned().
-       getParameterListMetadataString() + systemSpecificLineSeparator +
-       systemSpecificLineSeparator +
+       getParameterListMetadataString() + lf +
+       lf +
        sitesGuiBean.getVisibleParametersCloned().
-       getParameterListMetadataString() + systemSpecificLineSeparator +
-       systemSpecificLineSeparator +
+       getParameterListMetadataString() + lf +
+       lf +
        erfGuiBean.getERFParameterList().getParameterListMetadataString() +
-       systemSpecificLineSeparator +
-       erfGuiBean.getSelectedERFTimespanGuiBean().getParameterListMetadataString() + systemSpecificLineSeparator+
-       systemSpecificLineSeparator +
+       lf +
+       erfGuiBean.getSelectedERFTimespanGuiBean().getParameterListMetadataString() + lf+
+       lf +
        "Maximum Site Source Distance = "+maxDistance;
 
  
