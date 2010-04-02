@@ -21,7 +21,7 @@ package org.opensha.sha.gui.controls;
 
 import java.util.ArrayList;
 
-import org.opensha.commons.data.Direction;
+import org.opensha.commons.geo.Direction;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;

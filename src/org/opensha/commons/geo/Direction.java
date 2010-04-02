@@ -16,7 +16,7 @@
  * the License.
  ******************************************************************************/
 
-package org.opensha.commons.data;
+package org.opensha.commons.geo;
 
 /**
  * This class encapsulates information describing a vector between two

@@ -39,7 +39,6 @@ import static org.opensha.commons.geo.LocationUtils.vertDistance;
 
 import java.util.Random;
 import org.junit.Test;
-import org.opensha.commons.data.Direction;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 

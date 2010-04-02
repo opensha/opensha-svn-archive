@@ -1,6 +1,6 @@
 package scratch.peter.tmp;
 
-import org.opensha.commons.data.Direction;
+import org.opensha.commons.geo.Direction;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.util.FaultTraceUtils;

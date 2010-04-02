@@ -27,7 +27,6 @@ import static org.opensha.commons.geo.GeoTools.EARTH_RADIUS_MEAN;
 
 import java.text.DecimalFormat;
 
-import org.opensha.commons.data.Direction;
 
 /**
  * This class contains static utility methods to operate on geographic

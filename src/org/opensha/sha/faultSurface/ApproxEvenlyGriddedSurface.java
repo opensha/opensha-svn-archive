@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Iterator;
 
-import org.opensha.commons.data.Direction;
+import org.opensha.commons.geo.Direction;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.util.FaultTraceUtils;

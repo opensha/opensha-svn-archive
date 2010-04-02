@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
-import org.opensha.commons.data.Direction;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.geo.Direction;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;

@@ -27,12 +27,12 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.TreeSet;
 
-import org.opensha.commons.data.Direction;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.geo.Direction;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.DoubleConstraint;
