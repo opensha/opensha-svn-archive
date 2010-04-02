@@ -172,7 +172,7 @@
 			<fileset dir="${src}/org/opensha/gem/GEM1/data/nshmp/south_america">
 				<include name="**/*.in" />
 				<include name="**/*.out" />
-				<include name="**/*.char" />
+				<include name="**/*.char*" />
 				<include name="**/*.gr" />
 			</fileset>
 		</copy>
