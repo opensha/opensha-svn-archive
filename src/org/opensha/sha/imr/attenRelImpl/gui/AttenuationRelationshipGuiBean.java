@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.ListIterator;
 
+import org.apache.commons.lang.StringUtils;
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.function.ArbDiscrFuncWithParams;
@@ -419,7 +420,7 @@ public class AttenuationRelationshipGuiBean
 
         // Determine if units should be added
         if ( (yAxisName.equals( Y_AXIS_V1 ) || yAxisName.equals( Y_AXIS_V4 ))
-             && !ClassUtils.isEmptyString( imUnits ) )
+             && StringUtils.isNotEmpty( imUnits ) )
             label += " (" + imUnits + ')';
 
         // All done
@@ -443,7 +444,7 @@ public class AttenuationRelationshipGuiBean
         // get the parameter, units, add to label string
         ParameterAPI param = attenRel.getParameter( xAxisName );
         String units = param.getUnits();
-        if ( !ClassUtils.isEmptyString( units ) )
+        if ( StringUtils.isNotEmpty( units ) )
             xAxisName += " (" + units + ')';
         return xAxisName;
     }

@@ -141,12 +141,4 @@ public class ClassUtils {
     }
 
 
-
-
-    /** Checks that a string is not null, or not equal to empty string "" */
-    public static boolean isEmptyString(String val){
-        if ( ( val == null ) || ( val.equals( "" ) ) ) return true;
-        else return false;
-    }
-
 }
