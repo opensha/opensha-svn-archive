@@ -1,6 +1,10 @@
 package org.opensha.commons.util;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class ArrayUtils {
 
@@ -138,5 +142,35 @@ public class ArrayUtils {
 			vals[j] = Math.abs(vals[j]);
 		}
 		return vals;
+	}
+	
+	
+	public static double[] merge2(double[] v1, double[] v2) {
+		int v1len = v1.length;
+		int v2len = v2.length;
+		double[] combo = new double[v1len + v2len];
+		System.arraycopy(v1, 0, combo, 0, v1len);
+		System.arraycopy(v2, 0, combo, v1len, v2len);
+		Double[] comboObj = org.apache.commons.lang.ArrayUtils.toObject(combo);
+		Set<Double> uniqueSet = new HashSet<Double>(Arrays.asList(comboObj));
+		Double[] uniqueArray = uniqueSet.toArray(new Double[uniqueSet.size()]);
+		double[] out = org.apache.commons.lang.ArrayUtils.toPrimitive(uniqueArray);
+		Arrays.sort(out);
+		return out;
+	}
+	
+	public static void main(String[] args) {
+		double[] aa = {1,6,4,5,12,9};
+		double[] bb = {8,6,4,2,0,4};
+		double[] mm = merge(aa,bb);
+		System.out.println(org.apache.commons.lang.ArrayUtils.toString(aa));
+		System.out.println(org.apache.commons.lang.ArrayUtils.toString(bb));
+		System.out.println(org.apache.commons.lang.ArrayUtils.toString(mm));
+		
+		
+		System.out.println(org.apache.commons.lang.ArrayUtils.toString(merge2(aa,bb)));
+		
+		
+		
 	}
 }
