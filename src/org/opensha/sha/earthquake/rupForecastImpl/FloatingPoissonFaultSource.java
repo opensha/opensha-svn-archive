@@ -37,6 +37,7 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.util.TectonicRegionType;
@@ -104,11 +105,15 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
 
 	// private fields
 	private ArrayList<ProbEqkRupture> ruptureList;
-	private Region sourceRegion;	// used for the getMinDistance(Site) method
+		
 //	private ArrayList<Location> faultCornerLocations = new ArrayList<Location>();   // used for the getMinDistance(Site) method
 	private double duration;
 	private EvenlyGriddedSurface faultSurface;
-
+	
+	// used for the getMinDistance(Site) method
+	private Region sourceRegion;
+	private LocationList sourceTrace;
+	
 	private double lastDuration = Double.NaN;
 
 
@@ -380,8 +385,11 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
 	 * @return minimum distance in km
 	 */
 	public  double getMinDistance(Site site) {
-
-		return sourceRegion.distanceToLocation(site.getLocation());
+		if (sourceRegion != null) {
+			return sourceRegion.distanceToLocation(site.getLocation());
+		} else {
+			return sourceTrace.minDistToLocation(site.getLocation());
+		}
 	}
 
 
@@ -401,7 +409,18 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
 		faultCornerLocations.add(faultSurface.getLocation(nRows-1,nCols-1));
 		faultCornerLocations.add(faultSurface.getLocation(nRows-1,(int)(nCols/2)));
 		faultCornerLocations.add(faultSurface.getLocation(nRows-1,0));
-		sourceRegion = new Region(faultCornerLocations,BorderType.GREAT_CIRCLE);
+		try {
+			sourceRegion = new Region(faultCornerLocations,BorderType.GREAT_CIRCLE);
+		} catch (IllegalArgumentException iae) {
+			System.out.println(
+					"FloatingPoissonFaultSource.mkApproxSourceSurface() " +
+					"reverting to fault trace: Needs validation");
+			Iterator it = faultSurface.getColumnIterator(0);
+			sourceTrace = new LocationList();
+			while (it.hasNext()) {
+				sourceTrace.add((Location) it.next());
+			}
+		}
 
 	}
 
