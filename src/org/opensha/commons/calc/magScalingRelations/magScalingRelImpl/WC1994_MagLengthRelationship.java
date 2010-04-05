@@ -71,7 +71,8 @@ public class WC1994_MagLengthRelationship extends MagLengthRelationship {
       if (Double.isNaN(rake))
         // apply the "All" case
         return  5.08 +1.16*Math.log(length)*lnToLog;
-      else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
+//      else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
+      else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 || rake <= -135))
         // strike slip
         return  5.16 + 1.12*Math.log(length)*lnToLog;
       else if (rake > 0)
@@ -93,7 +94,8 @@ public class WC1994_MagLengthRelationship extends MagLengthRelationship {
       if (Double.isNaN(rake))
         // apply the "All" case
         return  0.28;
-      else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
+//      else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
+      else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 || rake <= -135))
         // strike slip
         return  0.28;
       else if (rake > 0)
@@ -115,7 +117,8 @@ public class WC1994_MagLengthRelationship extends MagLengthRelationship {
       if  (Double.isNaN(rake))
           // their "All" case
           return Math.pow(10.0,-3.22+0.69*mag);
-      else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
+//      else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
+      else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 || rake <= -135))
           // strike slip
           return  Math.pow(10.0, -3.55 + 0.74*mag);
       else if (rake > 0)
@@ -139,8 +142,9 @@ public class WC1994_MagLengthRelationship extends MagLengthRelationship {
       if (Double.isNaN(rake))
         // apply the "All" case
         return  0.22;
-      else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
-        // strike slip
+//      else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
+      else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 || rake <= -135))
+      // strike slip
         return  0.23;
       else if (rake > 0)
         // thrust/reverse
