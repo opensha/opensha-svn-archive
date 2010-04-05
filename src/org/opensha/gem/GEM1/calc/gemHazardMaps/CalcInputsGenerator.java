@@ -71,7 +71,7 @@ public class CalcInputsGenerator {
 				sites.add(site);
 			}
 			// for load balancing
-//			Collections.shuffle(sites);
+			Collections.shuffle(sites);
 			
 			/*			Calc Settings		*/
 			CalculationSettings settings = new CalculationSettings(
