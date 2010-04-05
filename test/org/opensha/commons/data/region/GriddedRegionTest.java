@@ -298,6 +298,13 @@ public class GriddedRegionTest {
 	public static void main(String[] args) {
 		
 		RegionTest.setUp();
+		GriddedRegionTest.setUp();
+
+		//OCT
+		RegionUtils.regionToKML(
+				octRegion,
+				"GriddedRegionOct", 
+				Color.ORANGE);
 
 		// SMALL RECT - includes N and E border nodes due to added offset
 		GriddedRegion GR = new GriddedRegion(
