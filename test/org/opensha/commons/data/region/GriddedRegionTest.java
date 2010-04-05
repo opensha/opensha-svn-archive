@@ -303,7 +303,7 @@ public class GriddedRegionTest {
 		//OCT
 		RegionUtils.regionToKML(
 				octRegion,
-				"GriddedRegionOct", 
+				"GriddedRegionLocLoc", 
 				Color.ORANGE);
 
 		// SMALL RECT - includes N and E border nodes due to added offset
