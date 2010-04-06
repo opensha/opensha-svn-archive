@@ -13,7 +13,7 @@ import java.util.List;
  * @version $Id:$
  * @see LossType
  */
-public enum AssetType {
+public enum AssetCategory {
 
 	/** Building asset type. */
 	BUILDING(new LossType[] {LossType.REPAIR_COST}),
@@ -39,7 +39,7 @@ public enum AssetType {
 	
 	private List<LossType> lossTypes;
 	
-	private AssetType(LossType[] lossTypes) {
+	private AssetCategory(LossType[] lossTypes) {
 		this.lossTypes = new ArrayList<LossType>();
 		for (LossType lt : lossTypes) {
 			this.lossTypes.add(lt);

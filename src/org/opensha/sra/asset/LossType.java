@@ -14,42 +14,42 @@ import java.util.List;
  * 
  * @author Peter Powers
  * @version $Id:$
- * @see AssetType
+ * @see AssetCategory
  */
 public enum LossType {
 
 	/** Repair cost as a fraction of replacement cost. */
-	REPAIR_COST(new AssetType[] {AssetType.BUILDING, AssetType.CONTENTS}),
+	REPAIR_COST(new AssetCategory[] {AssetCategory.BUILDING, AssetCategory.CONTENTS}),
 	
 	/** Fraction of indoor occupants injured to HAZUS severity 1. */
-	HAZUS_1(new AssetType[] {AssetType.OCCUPANTS}),
+	HAZUS_1(new AssetCategory[] {AssetCategory.OCCUPANTS}),
 	
 	/** Fraction of indoor occupants injured to HAZUS severity 2. */
-	HAZUS_2(new AssetType[] {AssetType.OCCUPANTS}),
+	HAZUS_2(new AssetCategory[] {AssetCategory.OCCUPANTS}),
 	
 	/** Fraction of indoor occupants injured to HAZUS severity 3. */
-	HAZUS_3(new AssetType[] {AssetType.OCCUPANTS}),
+	HAZUS_3(new AssetCategory[] {AssetCategory.OCCUPANTS}),
 	
 	/** Fraction of indoor occupants injured to HAZUS severity 4. */
-	HAZUS_4(new AssetType[] {AssetType.OCCUPANTS}),
+	HAZUS_4(new AssetCategory[] {AssetCategory.OCCUPANTS}),
 	
 	/** Fraction of indoor occupants injured to ATC-13 severity 1. */
-	ATC_13_1(new AssetType[] {AssetType.OCCUPANTS}),
+	ATC_13_1(new AssetCategory[] {AssetCategory.OCCUPANTS}),
 	
 	/** Fraction of indoor occupants injured to ATC-13 severity 2. */
-	ATC_13_2(new AssetType[] {AssetType.OCCUPANTS}),
+	ATC_13_2(new AssetCategory[] {AssetCategory.OCCUPANTS}),
 	
 	/** Fraction of indoor occupants injured to ATC-13 severity 3. */
-	ATC_13_3(new AssetType[] {AssetType.OCCUPANTS}),
+	ATC_13_3(new AssetCategory[] {AssetCategory.OCCUPANTS}),
 	
 	/** Fraction of a year required to make facility operational. */
-	DOWN_TIME(new AssetType[] {AssetType.ECONOMIC});
+	DOWN_TIME(new AssetCategory[] {AssetCategory.ECONOMIC});
 	
-	private List<AssetType> assetTypes;
+	private List<AssetCategory> assetTypes;
 	
-	private LossType(AssetType[] assetTypes) {
-		this.assetTypes = new ArrayList<AssetType>();
-		for (AssetType at : assetTypes) {
+	private LossType(AssetCategory[] assetTypes) {
+		this.assetTypes = new ArrayList<AssetCategory>();
+		for (AssetCategory at : assetTypes) {
 			this.assetTypes.add(at);
 		}
 	}
@@ -60,7 +60,7 @@ public enum LossType {
 	 *  
 	 * @return a <code>Collection</code> of <code>AssetType</code>s
 	 */
-	public List<AssetType> getSupportedAssetTypes() {
+	public List<AssetCategory> getSupportedAssetTypes() {
 		return null;
 	}
 	

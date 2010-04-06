@@ -2,6 +2,7 @@ package org.opensha.sra.asset;
 import java.util.Currency;
 import java.util.HashMap;
 
+import org.opensha.commons.data.Site;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sra.vulnerability.Vulnerability;
 
@@ -24,15 +25,64 @@ import org.opensha.sra.vulnerability.Vulnerability;
  */
 public class Asset {
 
+	/**
+	 * Returns the ...
+	 * @return the
+	 */
+	public int getId() {
+		return id;
+	}
+	/**
+	 * Returns the ...
+	 * @return the
+	 */
+	public String getName() {
+		return name;
+	}
+	/**
+	 * Returns the ...
+	 * @return the
+	 */
+	public AssetCategory getType() {
+		return type;
+	}
+	/**
+	 * Returns the ...
+	 * @return the
+	 */
+	public Value getValue() {
+		return value;
+	}
+	/**
+	 * Returns the ...
+	 * @return the
+	 */
+	public Vulnerability getVulnerability() {
+		return vuln;
+	}
+	/**
+	 * Returns the ...
+	 * @return the
+	 */
+	public Site getSite() {
+		return site;
+	}
+	/**
+	 * Returns the ...
+	 * @return the
+	 */
+	public ParameterList getParams() {
+		return params;
+	}
 	private int id;
 	private String name;
-	private AssetType type;
+	private AssetCategory type;
 	private Value value;
-	private double valueYear;
-	private Currency valueCurrency;
+	private Vulnerability vuln;
+	private Site site;
 	private ParameterList params;
 	
-	private HashMap<Vulnerability, Double> vulnWeightMap;
-	private HashMap<Vulnerability, Double> fragWeightMap;
+	
+	// TODO multiple vulnerabilities with weights
 	
 }

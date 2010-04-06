@@ -18,4 +18,5 @@ package org.opensha.sra.asset;
  */
 public interface Value {
 
+	public int getValueBasisYear();
 }
