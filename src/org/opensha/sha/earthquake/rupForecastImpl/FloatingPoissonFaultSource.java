@@ -395,7 +395,9 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
 
 	/**
 	 * This creates an approximation of the source surface, taking the end points and mid point along
-	 * strike (both on top and bottom trace).
+	 * strike (both on top and bottom trace).  If region creation fails (e.g. due to vertical dip) 
+	 * a sourceTrace is created instead.
+	 * 
 	 * @param faultSurface
 	 */
 	private void mkApproxSourceSurface(EvenlyGriddedSurface faultSurface) {
