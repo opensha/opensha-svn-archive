@@ -30,7 +30,6 @@ import org.opensha.commons.param.WarningDoubleParameter;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.commons.util.TestUtils;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
@@ -51,6 +50,8 @@ import org.opensha.sha.imr.param.PropagationEffectParams.WarningDoublePropagatio
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
+
+import util.TestUtils;
 
 public class BA_2008_test extends NGATest implements ParameterChangeWarningListener{
 
@@ -199,7 +200,7 @@ public class BA_2008_test extends NGATest implements ParameterChangeWarningListe
 				if(isMedian) openSHA_Val = Math.exp(ba_2008.getMean());
 				else openSHA_Val = ba_2008.getStdDev();
 				tested_Val = Double.parseDouble(st.nextToken().trim());
-				double result = TestUtils.getPercentDiff(openSHA_Val, tested_Val);
+				double result = util.TestUtils.getPercentDiff(openSHA_Val, tested_Val);
 				if (result > discrep)
 					discrep = result;
 				if(result > tolerance){
@@ -222,7 +223,7 @@ public class BA_2008_test extends NGATest implements ParameterChangeWarningListe
 				if(isMedian) openSHA_Val = Math.exp(ba_2008.getMean());
 				else openSHA_Val = ba_2008.getStdDev();
 				tested_Val = Double.parseDouble(st.nextToken().trim());
-				result = TestUtils.getPercentDiff(openSHA_Val, tested_Val);
+				result = util.TestUtils.getPercentDiff(openSHA_Val, tested_Val);
 				if (result > discrep)
 					discrep = result;
 				if(result > tolerance){
