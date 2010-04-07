@@ -17,7 +17,6 @@ import org.opensha.gem.GEM1.commons.CalculationSettings;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
-import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.WarningDoublePropagationEffectParameter;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.util.TectonicRegionType;
