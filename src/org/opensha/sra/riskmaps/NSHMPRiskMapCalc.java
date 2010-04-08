@@ -1,5 +1,7 @@
 package org.opensha.sra.riskmaps;
 
+import java.util.ArrayList;
+
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.EvenlyDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -15,7 +17,7 @@ public class NSHMPRiskMapCalc {
 	public static final int ncols = 1201;
 	public static final int nrows = 509;
 	
-	private static boolean interp = true;
+	public static boolean interp = true;
 	
 	private BinaryHazardCurveReader curveReader;
 	private DiscreteInterpExterpFunc fragilityCurve;
@@ -23,6 +25,8 @@ public class NSHMPRiskMapCalc {
 	private static long interpTime = 0;
 	private static long calcTime = 0;
 	private static long fetchTime = 0;
+	
+	private ArrayList<Double> testVals = null;
 	
 	public NSHMPRiskMapCalc(BinaryHazardCurveReader curveReader, DiscreteInterpExterpFunc fragilityCurve) {
 		this.curveReader = curveReader;
@@ -159,9 +163,9 @@ public class NSHMPRiskMapCalc {
 //				System.out.println("Calculating site " + count);
 //				printTimes();
 //			}
-//			if (count == 10000) {
-//				break;
-//			}
+			if (testVals != null && count == 10000) {
+				break;
+			}
 			
 			/*			BEGIN CALC			*/
 			
@@ -181,6 +185,8 @@ public class NSHMPRiskMapCalc {
 //			System.out.println("X: " + loc[1] + " Y: " + loc[0] + " Z: " + val);
 			
 			result.addValue(loc[1], loc[0], val);
+			if (testVals != null && count < 10000)
+				testVals.add(val);
 			
 			count++;
 			
@@ -206,32 +212,41 @@ public class NSHMPRiskMapCalc {
 		
 		return afunc;
 	}
+	
+	public void setStoreTestVals() {
+		testVals = new ArrayList<Double>();
+	}
+	
+	public ArrayList<Double> getTestVals() {
+		return testVals;
+	}
 
 	/**
 	 * @param args
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
-		String curveFile = "/home/kevin/OpenSHA/nico/curve_input_file.bin";
+		if (args.length != 4) {
+			System.err.println("USAGE: NSHMPRiskMapCalc <hazard curve bin file>" +
+					" <fragility xml file> <damage state> <outfile>");
+			System.exit(2);
+		}
+		
+//		String curveFile = "/home/kevin/OpenSHA/nico/curve_input_file.bin";
+		String curveFile = args[0];
 		BinaryHazardCurveReader curveReader = new BinaryHazardCurveReader(curveFile);
 //		ArbitrarilyDiscretizedFunc fragilityCurve = new ArbitrarilyDiscretizedFunc();
 		
-		// temp random fragility function
-//		int total = 400;
-		int total = 100;
-//		int total = 20;
-		interp = total != 20;
-		double addAmount = 1.0/(total-1d);
-		double xVals[] = new double[total];
-		double yVals[] = new double[total];
-		int cnt = 0;
-		for (double x=0.0; x<=1.0; x+=addAmount) {
-//			fragilityCurve.set(x, Math.random());
-			xVals[cnt] = x;
-			yVals[cnt] = Math.random();
-			cnt++;
-		}
-		DiscreteInterpExterpFunc fragilityCurve = new DiscreteInterpExterpFunc(xVals, yVals);
+//		String fragFile = "/home/kevin/OpenSHA/nico/Fragility_C1H_High_2p0sec.xml";
+		String fragFile = args[1];
+		
+//		String damageState = "Slight";
+		String damageState = args[2];
+		
+		DiscreteInterpExterpFunc fragilityCurve = DiscreteInterpExterpFunc.fromArbDistFunc(
+				FragilityCurveReader.loadFunc(fragFile, damageState));
+		
+		interp = fragilityCurve.getXVals().length != 20;
 		
 		long start = System.currentTimeMillis();
 		NSHMPRiskMapCalc calc = new NSHMPRiskMapCalc(curveReader, fragilityCurve);
@@ -241,7 +256,10 @@ public class NSHMPRiskMapCalc {
 		
 		System.out.println("Took " + ((end - start) / 1000d) + " secs");
 		
-		result.writeXYZBinFile("/home/kevin/OpenSHA/nico/testData");
+//		String outputFile = "/home/kevin/OpenSHA/nico/testData";
+		String outputFile = args[3];
+		
+		result.writeXYZBinFile(outputFile);
 	}
 
 }
