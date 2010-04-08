@@ -1,7 +1,7 @@
 /**
  * 
  */
-package scratchJavaDevelopers.pagem.SSAF_Inversion_pagem;
+package scratch.ramses.SSAFInversion;
 
 import java.awt.Color;
 import java.io.BufferedWriter;
@@ -26,7 +26,7 @@ import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.calc.nnls.NNLSWrapper;
-import org.opensha.commons.data.Location;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.data.ValueWeight;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -1019,8 +1019,8 @@ public class SoSAF_SubSectionInversion_v3 {
 			ArrayList list = faultSectionPrefData.getSubSectionsList(this.maxSubsectionLength);
 			// check to see if we need to reverse order the sections
 			FaultTrace tr = faultSectionPrefData.getFaultTrace();
-			double latFirst = tr.getLocationAt(0).getLatitude();
-			double latLast = tr.getLocationAt(tr.getNumLocations()-1).getLatitude();
+			double latFirst = tr.get(0).getLatitude();
+			double latLast = tr.get(tr.getNumLocations()-1).getLatitude();
 			if(latFirst>latLast)
 				subSectionList.addAll(list);
 			else // reverse order
@@ -1597,7 +1597,7 @@ public class SoSAF_SubSectionInversion_v3 {
 				Location loc = new Location(lat, lon);
 				for (int sectionIndex = 0; sectionIndex < subSectionList.size(); ++sectionIndex) {
 					dist = subSectionList.get(sectionIndex).getFaultTrace()
-							.getMinHorzDistToLine(loc);
+							.minDistToLine(loc);
 					if (dist < minDist) {
 						minDist = dist;
 						closestFaultSectionIndex = sectionIndex;
