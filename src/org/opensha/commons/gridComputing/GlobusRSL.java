@@ -92,7 +92,7 @@ public class GlobusRSL implements XMLSaveable, Serializable {
 	}
 	
 	public String getValue(String name) {
-		for (String pair[] : pairs) {
+		for (String[] pair : pairs) {
 			if (pair[0].equals(name))
 				return pair[1];
 		}
@@ -102,7 +102,7 @@ public class GlobusRSL implements XMLSaveable, Serializable {
 	public String getRSLString() {
 		String rsl = "";
 		
-		for (String pair[] : pairs) {
+		for (String[] pair : pairs) {
 			rsl += "(" + pair[0] + "=" + pair[1] + ")";
 		}
 		
@@ -112,7 +112,7 @@ public class GlobusRSL implements XMLSaveable, Serializable {
 	public Element toXMLMetadata(Element root) {
 		Element xml = root.addElement(GlobusRSL.XML_METADATA_NAME);
 		
-		for (String pair[] : pairs) {
+		for (String[] pair : pairs) {
 			xml.addAttribute(pair[0], pair[1]);
 		}
 		

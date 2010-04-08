@@ -106,7 +106,7 @@ public class XYZClosestPointFinder {
 		double closest = Double.MAX_VALUE;
 		double closeVal = 0;
 		
-		for (double val[] : vals) {
+		for (double[] val : vals) {
 			double dist = Math.pow(val[0] - lat, 2) + Math.pow(val[1] - lon, 2);
 			if (dist < closest) {
 				closest = dist;

@@ -179,7 +179,7 @@ public class HazardCurvePlotCharacteristics implements XMLSaveable {
 	
 	public double getXMax(double period) {
 		int perInt = (int)(period * 100 + 0.5);
-		for (double perMax[] : periodDependantXMaxes) {
+		for (double[] perMax : periodDependantXMaxes) {
 			int perMatch = (int)(perMax[0] * 100 + 0.5);
 			if (perInt == perMatch) {
 				System.out.println("Matched xMax of " + perMax[1] + " with period=" + period);
@@ -347,7 +347,7 @@ public class HazardCurvePlotCharacteristics implements XMLSaveable {
 		
 		Element periodDepXMaxEl = el.addElement("PeriodDependentXMaxes");
 		
-		for (double depMax[] : this.periodDependantXMaxes) {
+		for (double[] depMax : this.periodDependantXMaxes) {
 			Element per = periodDepXMaxEl.addElement("PeriodDependentXMax");
 			
 			per.addAttribute("period", depMax[0] + "");
