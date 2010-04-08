@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package junk.gui;
+package org.opensha.sha.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
