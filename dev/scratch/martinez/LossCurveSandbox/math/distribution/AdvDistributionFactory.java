@@ -1,15 +1,23 @@
 package scratch.martinez.LossCurveSandbox.math.distribution;
 
 import org.apache.commons.math.distribution.BinomialDistribution;
+import org.apache.commons.math.distribution.BinomialDistributionImpl;
 import org.apache.commons.math.distribution.ChiSquaredDistribution;
-import org.apache.commons.math.distribution.DistributionFactoryImpl;
+import org.apache.commons.math.distribution.ChiSquaredDistributionImpl;
 import org.apache.commons.math.distribution.ExponentialDistribution;
+import org.apache.commons.math.distribution.ExponentialDistributionImpl;
 import org.apache.commons.math.distribution.FDistribution;
+import org.apache.commons.math.distribution.FDistributionImpl;
 import org.apache.commons.math.distribution.GammaDistribution;
+import org.apache.commons.math.distribution.GammaDistributionImpl;
 import org.apache.commons.math.distribution.HypergeometricDistribution;
+import org.apache.commons.math.distribution.HypergeometricDistributionImpl;
 import org.apache.commons.math.distribution.NormalDistribution;
+import org.apache.commons.math.distribution.NormalDistributionImpl;
 import org.apache.commons.math.distribution.PoissonDistribution;
+import org.apache.commons.math.distribution.PoissonDistributionImpl;
 import org.apache.commons.math.distribution.TDistribution;
+import org.apache.commons.math.distribution.TDistributionImpl;
 
 /**
  * An <code>AdvDistributionFactory</code> is a simple extension of the apache
@@ -25,7 +33,7 @@ import org.apache.commons.math.distribution.TDistribution;
  * Eric Martinez
  * </a>
  */
-public class AdvDistributionFactory extends DistributionFactoryImpl {
+public class AdvDistributionFactory {
 
 	/**
 	 * The constructor is made private such that instantiation should happen from
@@ -80,8 +88,11 @@ public class AdvDistributionFactory extends DistributionFactoryImpl {
 	 */
 	public BinomialDistribution createBinomialDistribution(
 			Integer numberOfTrials, Double probabilityOfSuccess) {
-		return super.createBinomialDistribution((int) numberOfTrials,
-				(double) probabilityOfSuccess);
+		return new BinomialDistributionImpl(
+				numberOfTrials,
+				probabilityOfSuccess);
+//		return super.createBinomialDistribution((int) numberOfTrials,
+//				(double) probabilityOfSuccess);
 	}
 	
 	/**
@@ -92,7 +103,8 @@ public class AdvDistributionFactory extends DistributionFactoryImpl {
 	 */
 	public ChiSquaredDistribution createChiSquareDistribution(
 			Double degreesOfFreedom) {
-		return super.createChiSquareDistribution((double) degreesOfFreedom);
+		return new ChiSquaredDistributionImpl(degreesOfFreedom);
+//		return super.createChiSquareDistribution((double) degreesOfFreedom);
 	}
 	
 	/**
@@ -103,7 +115,8 @@ public class AdvDistributionFactory extends DistributionFactoryImpl {
 	 */
 	public ExponentialDistribution createExponentialDistribution(
 			Double mean) {
-		return super.createExponentialDistribution((double) mean);
+		return new ExponentialDistributionImpl(mean);
+//		return super.createExponentialDistribution((double) mean);
 	}
 	
 	/**
@@ -114,8 +127,11 @@ public class AdvDistributionFactory extends DistributionFactoryImpl {
 	 */
 	public FDistribution createFDistribution(Double numeratorDegreesOfFreedom,
 			Double denominatorDegreesOfFreedom) {
-		return super.createFDistribution((double) numeratorDegreesOfFreedom,
-				(double) denominatorDegreesOfFreedom);
+		return new FDistributionImpl(
+				numeratorDegreesOfFreedom, 
+				denominatorDegreesOfFreedom);
+//		return super.createFDistribution((double) numeratorDegreesOfFreedom,
+//				(double) denominatorDegreesOfFreedom);
 	}
 	
 	/**
@@ -125,7 +141,8 @@ public class AdvDistributionFactory extends DistributionFactoryImpl {
 	 * This is done so we can inspect the class to find the required method.
 	 */
 	public GammaDistribution createGammaDistribution(Double alpha, Double beta) {
-		return super.createGammaDistribution((double) alpha, (double) beta);
+		return new GammaDistributionImpl(alpha, beta);
+//		return super.createGammaDistribution((double) alpha, (double) beta);
 	}
 	
 	/**
@@ -136,8 +153,12 @@ public class AdvDistributionFactory extends DistributionFactoryImpl {
 	 */
 	public HypergeometricDistribution createHypergeometricDistribution(
 			Integer populationSize, Integer numberOfSuccesses, Integer sampleSize){
-		return super.createHypergeometricDistribution((int) populationSize,
-				(int) numberOfSuccesses, (int) sampleSize);
+		return new HypergeometricDistributionImpl(
+				populationSize, 
+				numberOfSuccesses, 
+				sampleSize);
+//		return super.createHypergeometricDistribution((int) populationSize,
+//				(int) numberOfSuccesses, (int) sampleSize);
 	}
 	
 	/**
@@ -147,7 +168,8 @@ public class AdvDistributionFactory extends DistributionFactoryImpl {
 	 * This is done so we can inspect the class to find the required method.
 	 */
 	public NormalDistribution createNormalDistribution(Double mean, Double sd) {
-		return super.createNormalDistribution((double) mean, (double) sd);
+		return new NormalDistributionImpl(mean, sd);
+//		return super.createNormalDistribution((double) mean, (double) sd);
 	}
 	
 	/**
@@ -157,7 +179,8 @@ public class AdvDistributionFactory extends DistributionFactoryImpl {
 	 * This is done so we can inspect the class to find the required method.
 	 */
 	public PoissonDistribution createPoissonDistribution(Double lambda) {
-		return super.createPoissonDistribution((double) lambda);
+		return new PoissonDistributionImpl(lambda);
+//		return super.createPoissonDistribution((double) lambda );
 	}
 	
 	/**
@@ -167,6 +190,7 @@ public class AdvDistributionFactory extends DistributionFactoryImpl {
 	 * This is done so we can inspect the class to find the required method.
 	 */
 	public TDistribution createTDistribution(Double degreesOfFreedom) {
-		return super.createTDistribution((double) degreesOfFreedom);
+		return new TDistributionImpl(degreesOfFreedom);
+//		return super.createTDistribution((double) degreesOfFreedom);
 	}
 }

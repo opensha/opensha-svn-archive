@@ -26,6 +26,7 @@ import java.io.Serializable;
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.distribution.AbstractContinuousDistribution;
 import org.apache.commons.math.distribution.NormalDistribution;
+import org.apache.commons.math.distribution.NormalDistributionImpl;
 import org.apache.commons.math.special.Erf;
 
 /**
@@ -39,8 +40,8 @@ import org.apache.commons.math.special.Erf;
  * this class to compute normal distributions in log space.
  *
  */
-public class LogNormalDistribution extends AbstractContinuousDistribution
-		implements NormalDistribution, Serializable {
+public class LogNormalDistribution extends NormalDistributionImpl
+		implements Serializable {
 	 
 	/** Serializable version identifier */
 	private static final long serialVersionUID = 0x0180B68;
