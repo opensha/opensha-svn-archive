@@ -447,46 +447,46 @@ public class NshmpGrid2GemSourceData extends GemFileParser {
 								
 								//System.out.println(mfd);
 
-								if(iflt>2){ // apply magnitude conversion equation
-									
-									// compute new values of minimum and maximum magnitude
-									double minMagnitude = mfd.getMinX();
-									double maxMagnitude = mfd.getMaxX();
-									if(iflt==3) {// Johnston equation line 1124
-								        //if(iflt.eq.3) xmag=  1.14 + 0.24*xmag+0.0933*xmag*xmag
-										minMagnitude = 1.14 + 0.24*minMagnitude + 0.0933*minMagnitude*minMagnitude; 
-										maxMagnitude = 1.14 + 0.24*maxMagnitude + 0.0933*maxMagnitude*maxMagnitude;
-									}
-									else if(iflt==4){// Boore Atkinson line 1126
-										//if(iflt.eq.4) xmag=  2.715 - 0.277*xmag+0.127*xmag*xmag
-										minMagnitude = 2.715 - 0.277*minMagnitude + 0.127*minMagnitude*minMagnitude;
-										maxMagnitude = 2.715 - 0.277*maxMagnitude + 0.127*maxMagnitude*maxMagnitude;
-									}
-									
-									// compute mean magnitude
-									double meanMagnitude = 0.0;
-									for(int im=0;im<mfd.getNum();im++){
-	                                    double mag = mfd.getX(im);
-										if(iflt==3) {
-											meanMagnitude = meanMagnitude + (1.14 + 0.24*mag + 0.0933*mag*mag)*mfd.getIncrRate(im);
-										}
-										else if(iflt==4){
-											meanMagnitude = meanMagnitude+ (2.715 - 0.277*mag + 0.127*mag*mag)*mfd.getIncrRate(im);
-										}
-									}
-									meanMagnitude = meanMagnitude/mfd.getTotCumRate();
-									// recompute b value by using Aki's formula
-									bValue = Math.log10(Math.E)/(meanMagnitude-minMagnitude);
-									
-									
-									// number of magnitude values
-									int numMag = mfd.getNum();
-									
-									// redefine the magnitude frequency distribution conserving the total rate
-									// and using the new b value
-									double totCumRate = mfd.getTotCumRate();
-									mfd = new GutenbergRichterMagFreqDist(bValue, totCumRate, minMagnitude, maxMagnitude, numMag);
-								}
+//								if(iflt>2){ // apply magnitude conversion equation
+//									
+//									// compute new values of minimum and maximum magnitude
+//									double minMagnitude = mfd.getMinX();
+//									double maxMagnitude = mfd.getMaxX();
+//									if(iflt==3) {// Johnston equation line 1124
+//								        //if(iflt.eq.3) xmag=  1.14 + 0.24*xmag+0.0933*xmag*xmag
+//										minMagnitude = 1.14 + 0.24*minMagnitude + 0.0933*minMagnitude*minMagnitude; 
+//										maxMagnitude = 1.14 + 0.24*maxMagnitude + 0.0933*maxMagnitude*maxMagnitude;
+//									}
+//									else if(iflt==4){// Boore Atkinson line 1126
+//										//if(iflt.eq.4) xmag=  2.715 - 0.277*xmag+0.127*xmag*xmag
+//										minMagnitude = 2.715 - 0.277*minMagnitude + 0.127*minMagnitude*minMagnitude;
+//										maxMagnitude = 2.715 - 0.277*maxMagnitude + 0.127*maxMagnitude*maxMagnitude;
+//									}
+//									
+//									// compute mean magnitude
+//									double meanMagnitude = 0.0;
+//									for(int im=0;im<mfd.getNum();im++){
+//	                                    double mag = mfd.getX(im);
+//										if(iflt==3) {
+//											meanMagnitude = meanMagnitude + (1.14 + 0.24*mag + 0.0933*mag*mag)*mfd.getIncrRate(im);
+//										}
+//										else if(iflt==4){
+//											meanMagnitude = meanMagnitude+ (2.715 - 0.277*mag + 0.127*mag*mag)*mfd.getIncrRate(im);
+//										}
+//									}
+//									meanMagnitude = meanMagnitude/mfd.getTotCumRate();
+//									// recompute b value by using Aki's formula
+//									bValue = Math.log10(Math.E)/(meanMagnitude-minMagnitude);
+//									
+//									
+//									// number of magnitude values
+//									int numMag = mfd.getNum();
+//									
+//									// redefine the magnitude frequency distribution conserving the total rate
+//									// and using the new b value
+//									double totCumRate = mfd.getTotCumRate();
+//									mfd = new GutenbergRichterMagFreqDist(bValue, totCumRate, minMagnitude, maxMagnitude, numMag);
+//								}
 								
 								mfdList[ifm] = mfd;
 								
