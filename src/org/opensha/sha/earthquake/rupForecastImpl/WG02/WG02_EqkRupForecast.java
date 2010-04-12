@@ -226,7 +226,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast{
 //System.out.println("num background locs = "+gridReg.getNumGridLocs());
 
       backSource = new GriddedRegionPoissonEqkSource(gridReg, back_GR_dist, timeSpan.getDuration(),
-                                                     0.0, 90.0); // aveRake=0; aveDip=90
+                                                     0.0, 90.0, 0.0); // aveRake=0; aveDip=90; aveDepth=0
 
 
       if(D) {
