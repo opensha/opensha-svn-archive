@@ -232,7 +232,7 @@ public class ForecastML2GemSourceData extends GemFileParser{
 		            if((tetRegList = flinnEngdhalTectReg.get(regName))!=null){
 		            	// loop over regions and find if it is stable continental
 		            	for(int itr=0;itr<tetRegList.size();itr++){
-		            		if(tetRegList.get(itr).equalsIgnoreCase("stable continental")) 
+		            		if(tetRegList.get(itr).contains("stable")) 
 		            			tectRegType = TectonicRegionType.STABLE_SHALLOW;
 	            	    }
 		            }
