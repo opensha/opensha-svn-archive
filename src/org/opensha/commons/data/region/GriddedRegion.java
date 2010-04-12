@@ -76,6 +76,9 @@ import org.opensha.commons.geo.LocationList;
  * border.<br/>
  * <br/>
  * TODO check for self intersection
+ * TODO need to add the effect that rounding error has on contains operations: 
+ * users should create regions slightly larger than required if nodes at certain locations 'on' border are
+ * required. "The General Rule"
  * 
  * <br/>
  * 
@@ -386,10 +389,8 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	}
 	
 	/**
-	 * Returns the <code>Location</code> at a given grid index.
-	 * TODO InvalidRangeException should be retired in favor of default IndexOutOfBounds
-	 * 
-	 * This method is intended for random access of nodes in this gridded
+	 * Returns the <code>Location</code> at a given grid index. This  
+	 * method is intended for random access of nodes in this gridded
 	 * region; to cycle over all nodes, iterate over the region.
 	 * 
 	 * @param index of location to retrieve
@@ -399,7 +400,7 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	public Location locationForIndex(int index) {
 		try {
 			return nodeList.get(index);
-		} catch (InvalidRangeException e) {
+		} catch (IndexOutOfBoundsException e) {
 			return null;
 		}
 	}
