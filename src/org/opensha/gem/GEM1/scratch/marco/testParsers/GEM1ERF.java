@@ -15,7 +15,7 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.gem.GEM1.commons.CalculationSettings;
-import org.opensha.gem.GEM1.scratch.GriddedRegionPoissonEqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.GriddedRegionPoissonEqkSource;
 import org.opensha.gem.GEM1.util.SourceType;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkRupture;
