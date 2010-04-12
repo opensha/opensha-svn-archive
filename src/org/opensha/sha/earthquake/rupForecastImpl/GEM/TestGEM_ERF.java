@@ -213,7 +213,7 @@ public class TestGEM_ERF extends EqkRupForecast{
 			// GR Dist
 			GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(b[i],a[i],mmin[i],mmax[i],mnum);
 			// make the source
-			GriddedRegionPoissonEqkSource sszEqkSource = new GriddedRegionPoissonEqkSource(gr,grDist,timeSpan.getDuration(),0,90);
+			GriddedRegionPoissonEqkSource sszEqkSource = new GriddedRegionPoissonEqkSource(gr,grDist,timeSpan.getDuration(),0,90,0.0);
 			sources.add(sszEqkSource);
 		}
 		
