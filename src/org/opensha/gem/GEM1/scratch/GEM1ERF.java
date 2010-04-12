@@ -19,6 +19,7 @@ import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
+import org.opensha.sha.earthquake.rupForecastImpl.GriddedRegionPoissonEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.PointToLineSource;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMFaultSourceData;
