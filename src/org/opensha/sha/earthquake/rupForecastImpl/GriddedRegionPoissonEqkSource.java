@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.Region;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -55,6 +56,7 @@ public class GriddedRegionPoissonEqkSource extends ProbEqkSource implements java
   private GriddedRegion region;
   private double aveDip=Double.NaN;
   private double aveRake=Double.NaN;
+  private double aveDepth=Double.NaN;
   private double duration;
   int numLocs, numMags;
 
@@ -72,12 +74,13 @@ public class GriddedRegionPoissonEqkSource extends ProbEqkSource implements java
    */
   public GriddedRegionPoissonEqkSource(GriddedRegion region, IncrementalMagFreqDist
                                        magFreqDist,double duration,double aveRake, double aveDip,
-                                       double minMag){
+                                       double aveDepth, double minMag){
     this.region =region;
     this.numLocs = region.getNodeCount();
     this.duration=duration;
     this.aveRake=aveRake;
     this.aveDip=aveDip;
+    this.aveDepth = aveDepth;
     this.minMag=minMag;
 
     // set the magFreqDist
@@ -99,9 +102,9 @@ public class GriddedRegionPoissonEqkSource extends ProbEqkSource implements java
    *
    */
   public GriddedRegionPoissonEqkSource(GriddedRegion region, IncrementalMagFreqDist
-                                       magFreqDist, double duration, double aveRake, double aveDip){
+                                       magFreqDist, double duration, double aveRake, double aveDip,double aveDepth){
 
-    this( region,  magFreqDist, duration, aveRake,  aveDip, 0.0);
+    this( region,  magFreqDist, duration, aveRake,  aveDip, aveDepth,0.0);
 
   }
 
@@ -164,9 +167,14 @@ public class GriddedRegionPoissonEqkSource extends ProbEqkSource implements java
     // set the magnitude
     probEqkRupture.setMag(((Double)mags.get(ithMag)).doubleValue());
 
+    Location ithL = region.locationForIndex(ithLoc);
+    ithL = new Location(ithL.getLatitude(),ithL.getLongitude(),aveDepth);
+    
     // set the location & aveDip
-
-    probEqkRupture.setPointSurface(region.locationForIndex(ithLoc), aveDip);
+    probEqkRupture.setPointSurface(ithL, aveDip);
+   
+    // set hypocenter
+    //probEqkRupture.setHypocenterLocation(region.locationForIndex(ithLoc));
 
     // compute and set the probability
     double prob = 1.0 - Math.exp(-duration*((Double)rates.get(ithMag)).doubleValue());
