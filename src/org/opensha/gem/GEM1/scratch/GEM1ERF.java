@@ -77,7 +77,6 @@ public class GEM1ERF extends EqkRupForecast {
 	double sub_sigmaValue;
 	double sub_aspectRatioValue;
 	int sub_floaterTypeFlag;
-	double sub_duration;		// from the timeSpan
 
 	// THE REST IS FOR ALL THE ADJUSTABLE PARAMERS:
 	
@@ -759,7 +758,7 @@ public class GEM1ERF extends EqkRupForecast {
 	                this.sub_aspectRatioValue,			// floating rupture aspect ration (length/width)
 	                this.sub_rupOffsetValue,			// floating rupture offset
 	                gemSubductFaultSourceData.getRake(),	// average rake of the ruptures
-	                sub_duration,						// duration of forecast
+	                timeSpan.getDuration(),						// duration of forecast
 	                MINMAG,							// minimum mag considered (probs of those lower set to zero regardless of MFD)
 	                sub_floaterTypeFlag,					// type of floater (0 for full DDW, 1 for floating both ways, and 2 for floating down center)
 	                12.0);  						// mags >= to this forced to be full fault ruptures (set as high value for now)
@@ -775,7 +774,7 @@ public class GEM1ERF extends EqkRupForecast {
 	                this.sub_aspectRatioValue,			// floating rupture aspect ration (length/width)
 	                this.sub_rupOffsetValue,			// floating rupture offset
 	                gemSubductFaultSourceData.getRake(),	// average rake of the ruptures
-	                sub_duration,						// duration of forecast
+	                timeSpan.getDuration(),						// duration of forecast
 	                MINMAG,							// minimum mag considered (probs of those lower set to zero regardless of MFD)
 	                sub_floaterTypeFlag,					// type of floater (0 for full DDW, 1 for floating both ways, and 2 for floating down center)
 	                0.0);  						// mags >= to this forced to be full fault ruptures (set as high value for now)
@@ -999,7 +998,6 @@ public class GEM1ERF extends EqkRupForecast {
 				sub_floaterTypeFlag = 1;
 			else // (floaterTypeName.equals(this.FLOATER_TYPE_CENTERED_DOWNDIP)) 
 				sub_floaterTypeFlag = 2;
-			sub_duration = timeSpan.getDuration();
 			
 			
 
