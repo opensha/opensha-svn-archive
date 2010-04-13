@@ -769,8 +769,9 @@ public class GEM1ERF extends EqkRupForecast {
 	 */
 	public ProbEqkSource getSource(int iSource) {
 		ProbEqkSource source = null;
-		if (sourceCache !=  null)
+		if (sourceCache !=  null) {
 			source = sourceCache.get(new Integer(iSource));
+		}
 		if (source == null) {
 			GEMSourceData srcData = gemSourceDataList.get(iSource);
 			if(srcData instanceof GEMFaultSourceData)
@@ -783,7 +784,9 @@ public class GEM1ERF extends EqkRupForecast {
 				source = mkAreaSource((GEMAreaSourceData)srcData);
 			else
 				throw new RuntimeException(NAME+": "+srcData.getClass()+" not yet supported");
-			sourceCache.put(new Integer(iSource), source);
+			if (sourceCache != null)
+				System.out.println("Caching source " + iSource);
+				sourceCache.put(new Integer(iSource), source);
 		}
 		return source;
 	}
