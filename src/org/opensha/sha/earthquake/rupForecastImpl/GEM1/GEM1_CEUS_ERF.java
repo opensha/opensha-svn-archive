@@ -7,7 +7,7 @@ import org.opensha.gem.GEM1.commons.CalculationSettings;
 
 public class GEM1_CEUS_ERF extends GEM1ERF {
 	
-	public final static String NAME = "GEM1 US ERF";
+	public final static String NAME = "GEM1 CEUS ERF";
 	
 	private static double latmin = 24.6;
 	private static double latmax = 50.0;
