@@ -7,9 +7,9 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
+import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMAreaSourceData;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMFaultSourceData;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSourceData;
-import org.opensha.gem.GEM1.scratch.GEMAreaSourceData;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 public class GemFileParser {

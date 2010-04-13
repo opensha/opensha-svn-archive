@@ -9,7 +9,6 @@ import org.opensha.commons.data.region.Region;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.sha.earthquake.griddedForecast.MagFreqDistsForFocalMechs;
-import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSourceData;
 
 import org.opensha.sha.util.TectonicRegionType;
 
@@ -103,15 +102,13 @@ public class GEMAreaSourceData extends GEMSourceData {
 				
 				tmpArea = Math.pow(grdSpacing/360*2.0*Math.PI,2) * tmpRadius * 
 					Math.sin(Math.PI-tmpLatRad) * meanRadius; 
-				
-//				System.out.printf("%7.3f %7.3f %7.3f \n",tmpArea,tmpRadius,meanRadius);
-				
 				area += tmpArea;
 				oldLat = tmpLat;
 			} else {
 				area += tmpArea;
 			}
 		}
+		System.out.println("Area:"+area);
 		return area;
 		
 	}

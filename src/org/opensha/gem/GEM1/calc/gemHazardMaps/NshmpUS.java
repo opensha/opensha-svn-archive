@@ -6,8 +6,8 @@ import org.opensha.gem.GEM1.calc.gemHazardCalculator.GemComputeModel;
 import org.opensha.gem.GEM1.calc.gemLogicTree.gemLogicTreeImpl.gmpe.GemGmpe;
 import org.opensha.gem.GEM1.calc.gemModelData.nshmp.us.NshmpUsData;
 import org.opensha.gem.GEM1.commons.CalculationSettings;
-import org.opensha.gem.GEM1.scratch.GEM1ERF;
 import org.opensha.gem.GEM1.util.CpuParams;
+import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1ERF;
 import org.opensha.sha.util.TectonicRegionType;
 
 public class NshmpUS {

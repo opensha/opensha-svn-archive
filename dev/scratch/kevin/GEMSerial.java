@@ -4,9 +4,10 @@ import java.io.IOException;
 
 import org.opensha.commons.util.FileUtils;
 import org.opensha.gem.GEM1.calc.gemModelData.nshmp.south_america.NshmpSouthAmericaData;
-import org.opensha.gem.GEM1.scratch.GEM1ERF;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1ERF;
+import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1SouthAmericaERF;
 
 public class GEMSerial {
 	
@@ -28,7 +29,7 @@ public class GEMSerial {
 		double lonmin = -85;
 		double lonmax = -30;
 		NshmpSouthAmericaData model = new NshmpSouthAmericaData(latmin,latmax,lonmin,lonmax);
-		GEM1ERF modelERF = new GEM1ERF(model.getList(),new org.opensha.gem.GEM1.commons.CalculationSettings());
+		GEM1ERF modelERF = new GEM1SouthAmericaERF();
 		modelERF.updateForecast();
 		for (int i=0; i<modelERF.getNumSources(); i++)
 			modelERF.getSource(i);
