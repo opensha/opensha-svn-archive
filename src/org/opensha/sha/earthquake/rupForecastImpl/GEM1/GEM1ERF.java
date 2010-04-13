@@ -11,6 +11,7 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_Mag
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.region.GriddedRegion;
+import org.opensha.commons.param.BooleanParameter;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringParameter;
@@ -255,7 +256,13 @@ public class GEM1ERF extends EqkRupForecast {
 	public final static String SUB_FLOATER_TYPE_PARAM_DEFAULT = FLOATER_TYPE_ALONG_STRIKE_AND_DOWNDIP;
 	StringParameter sub_floaterTypeParam;
 	
-	private HashMap<Integer, ProbEqkSource> sourceCache = new HashMap<Integer, ProbEqkSource>();
+	
+	public final static String SOURCE_CACHE_PARAM_NAME = "Cache Sources";
+	public final static String SOURCE_CACHE_PARAM_INFO = "Enables caching of sources for faster repeated computations" +
+			" of nearby sites, but requires more memory";
+	public final static Boolean SOURCE_CACHE_PARAM_DEFAULT = false;
+	private BooleanParameter sourceCacheParam;
+	private HashMap<Integer, ProbEqkSource> sourceCache = null;
 
 
 	/**
@@ -431,6 +438,11 @@ public class GEM1ERF extends EqkRupForecast {
 		sub_floaterTypeParam = new StringParameter(SUB_FLOATER_TYPE_PARAM_NAME,sub_floaterTypeOptions,
 				SUB_FLOATER_TYPE_PARAM_DEFAULT);
 		sub_floaterTypeParam.setInfo(SUB_FLOATER_TYPE_PARAM_INFO);
+		
+		sourceCacheParam = new BooleanParameter(SOURCE_CACHE_PARAM_NAME, SOURCE_CACHE_PARAM_DEFAULT);
+		sourceCacheParam.setInfo(SOURCE_CACHE_PARAM_INFO);
+		if (sourceCacheParam.getValue())
+			sourceCache = new HashMap<Integer, ProbEqkSource>();
 
 		// Add adjustable parameters to the list
 		createParamList();
@@ -462,6 +474,7 @@ public class GEM1ERF extends EqkRupForecast {
 		sub_magScalingRelParam.addParameterChangeListener(this); // 19
 		// not sure - check later
 		sub_sigmaParam.addParameterChangeListener(this); // 20
+		sourceCacheParam.addParameterChangeListener(this);
 	}
 	
 	
@@ -488,6 +501,7 @@ public class GEM1ERF extends EqkRupForecast {
 		sub_sigmaParam.setValue((Double)calcSet.getErf().get(SourceType.SUBDUCTION_FAULT_SOURCE).get(GEM1ERF.SUB_SIGMA_PARAM_NAME));
 		sub_aspectRatioParam.setValue((Double)calcSet.getErf().get(SourceType.SUBDUCTION_FAULT_SOURCE).get(GEM1ERF.SUB_ASPECT_RATIO_PARAM_NAME));
 		sub_floaterTypeParam.setValue(calcSet.getErf().get(SourceType.SUBDUCTION_FAULT_SOURCE).get(GEM1ERF.SUB_FLOATER_TYPE_PARAM_NAME).toString());
+		sourceCacheParam.setValue(calcSet.isSourceCache());
 	}
 
 
@@ -529,6 +543,7 @@ public class GEM1ERF extends EqkRupForecast {
 		adjustableParams.addParameter(sub_floaterTypeParam);
 		adjustableParams.addParameter(sub_magScalingRelParam);
 		adjustableParams.addParameter(sub_sigmaParam);
+		adjustableParams.addParameter(sourceCacheParam);
 	}
 
 
@@ -752,7 +767,9 @@ public class GEM1ERF extends EqkRupForecast {
 	 * @param iSource : index of the source needed
 	 */
 	public ProbEqkSource getSource(int iSource) {
-		ProbEqkSource source = sourceCache.get(new Integer(iSource));
+		ProbEqkSource source = null;
+		if (sourceCache !=  null)
+			source = sourceCache.get(new Integer(iSource));
 		if (source == null) {
 			GEMSourceData srcData = gemSourceDataList.get(iSource);
 			if(srcData instanceof GEMFaultSourceData)
@@ -875,7 +892,17 @@ public class GEM1ERF extends EqkRupForecast {
 				paramName.equals(MAG_SCALING_REL_BACKGR_PARAM_NAME)){
 			createParamList();
 		}
-		parameterChangeFlag = true;
+		if (paramName.equals(SOURCE_CACHE_PARAM_NAME)) {
+			Boolean cache = (Boolean)event.getParameter().getValue();
+			if (cache) {
+				if (sourceCache == null)
+					sourceCache = new HashMap<Integer, ProbEqkSource>();
+			} else {
+				sourceCache = null;
+				System.gc();
+			}
+		} else
+			parameterChangeFlag = true;
 
 	}
 

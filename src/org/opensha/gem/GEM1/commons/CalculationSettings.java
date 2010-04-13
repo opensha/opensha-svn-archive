@@ -105,6 +105,9 @@ public class CalculationSettings {
     // default minimum distance to source
     private static double max_dist_source = 200.0;
     
+    // boolean to cache sources
+    private static boolean sourceCache = false;
+    
     public static ArbitrarilyDiscretizedFunc getDefaultIMLVals() {
     	ArbitrarilyDiscretizedFunc imlList = new ArbitrarilyDiscretizedFunc();
     	imlList.set(0.005, 1.0);
@@ -281,5 +284,11 @@ public class CalculationSettings {
 		Out = out;
 	}
 
-
+	public boolean isSourceCache() {
+		return sourceCache;
+	}
+	
+	public void setSourceCache(boolean cache) {
+		sourceCache = cache;
+	}
 }

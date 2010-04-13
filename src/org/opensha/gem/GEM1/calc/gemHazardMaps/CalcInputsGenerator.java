@@ -95,8 +95,10 @@ public class CalcInputsGenerator {
 //			GEM1ERF modelERF = new GEM1ERF(model.getList(),calcSet);
 			GEM1ERF modelERF = new GEM1_US_ERF(latmin,latmax,lonmin,lonmax,calcSet);
 			modelERF.updateForecast();
-			for (int i=0; i<modelERF.getNumSources(); i++)
-				modelERF.getSource(i);
+			if (calcSet.isSourceCache()) {
+				for (int i=0; i<modelERF.getNumSources(); i++)
+					modelERF.getSource(i);
+			}
 //			System.out.println("TRT 0: " + modelERF.getSource(0).getTectonicRegionType());
 //			System.exit(0);
 			
