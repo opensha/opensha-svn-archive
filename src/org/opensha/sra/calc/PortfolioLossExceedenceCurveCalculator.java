@@ -13,10 +13,16 @@ import org.opensha.sra.asset.Portfolio;
 import org.opensha.sra.vulnerability.Vulnerability;
 
 /**
- * Add comments here
+ * Portfolio loss calculator as described in:
+ * 
+ * "Portfolio Scenario Loss and Loss Exceedance Curve Calculator using Moment Matching"
+ * by Keith Porter, et al. 2010
+ * 
+ * and discussed by Keith Porter, Ned Field, Peter Powers, and Kevin Milner in Golden, CO
+ * April 2010.
  *
  * 
- * @author Peter Powers
+ * @author Peter Powers, Kevin Milner
  * @version $Id:$
  */
 public class PortfolioLossExceedenceCurveCalculator {
@@ -45,17 +51,19 @@ public class PortfolioLossExceedenceCurveCalculator {
 		double[] mDamage_lIntra = new double[n];
 		
 		// loop over assets
+		for (Asset asset : portfolio) {
 			// set mean low and high value array
+		}
 		// ---
 		
 		// std dev tests
 		
 		// loop over sources
 		
-		for (int i=0; i<erf.getNumSources(); i++) {
-			ProbEqkSource src = erf.getSource(i);
+		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
+			ProbEqkSource src = erf.getSource(sourceID);
 			
-			for (int j=0; j<src.getNumRuptures(); j++) {
+			for (int rupID=0; rupID<src.getNumRuptures(); rupID++) {
 				
 				for (int k=0; k<portfolio.size(); k++) {
 					
@@ -64,7 +72,7 @@ public class PortfolioLossExceedenceCurveCalculator {
 						
 					imr.setIntensityMeasure(vuln.getIMT());
 					imr.setSite(asset.getSite());
-					imr.setEqkRupture(src.getRupture(j));
+					imr.setEqkRupture(src.getRupture(rupID));
 					
 					double intraStd, interStd;
 					
