@@ -4,10 +4,12 @@ import java.io.IOException;
 
 import org.opensha.commons.util.FileUtils;
 import org.opensha.gem.GEM1.calc.gemModelData.nshmp.south_america.NshmpSouthAmericaData;
+import org.opensha.gem.GEM1.commons.CalculationSettings;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1SouthAmericaERF;
+import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1_CEUS_ERF;
 
 public class GEMSerial {
 	
@@ -24,25 +26,29 @@ public class GEMSerial {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		double latmin = -55;
-		double latmax = 15;
-		double lonmin = -85;
-		double lonmax = -30;
-		NshmpSouthAmericaData model = new NshmpSouthAmericaData(latmin,latmax,lonmin,lonmax);
-		GEM1ERF modelERF = new GEM1SouthAmericaERF();
+//		double latmin = -55;
+//		double latmax = 15;
+//		double lonmin = -85;
+//		double lonmax = -30;
+		double latmin = 24.6;
+	    double latmax = 50.0;
+	    double lonmin = -125.0;
+	    double lonmax = -65.0;
+//		NshmpSouthAmericaData model = new NshmpSouthAmericaData(latmin,latmax,lonmin,lonmax);
+//		GEM1ERF modelERF = new GEM1SouthAmericaERF();
+		GEM1ERF modelERF = new GEM1_CEUS_ERF(new CalculationSettings());
 		modelERF.updateForecast();
-		for (int i=0; i<modelERF.getNumSources(); i++)
-			modelERF.getSource(i);
+//		for (int i=0; i<modelERF.getNumSources(); i++)
+//			modelERF.getSource(i);
 		String fname = "/tmp/gemerf.obj";
 		System.out.println("*********** SAVING ************");
 		FileUtils.saveObjectInFile(fname, modelERF);
 		System.out.println("*********** LOADING ************");
 		EqkRupForecast fileERF = (EqkRupForecast)FileUtils.loadObject(fname);
-		System.out.println("Before serialization");
-		printERF(modelERF);
+//		System.out.println("Before serialization");
+//		printERF(modelERF);
 		System.out.println("Loaded from file");
 		printERF(fileERF);
-//		System.out.println("TRT 0: " + modelERF.getSource(0).getTectonicRegionType());
 	}
 
 }

@@ -21,7 +21,7 @@ import org.opensha.gem.condor.calc.components.CalculationSettings;
 import org.opensha.gem.condor.dagGen.HazardDataSetDAGCreator;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1SouthAmericaERF;
-import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1_US_ERF;
+import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1_CEUS_ERF;
 import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.util.TectonicRegionType;
@@ -88,12 +88,12 @@ public class CalcInputsGenerator {
 			/*			Calc Settings		*/
 			CalculationSettings settings = new CalculationSettings(
 					org.opensha.gem.GEM1.commons.CalculationSettings.getDefaultIMLVals(), 200d);
-			settings.setSerializeERF(true);
+			settings.setSerializeERF(false);
 			
 			/*			ERF					*/
 //			NshmpSouthAmericaData model = new NshmpSouthAmericaData(latmin,latmax,lonmin,lonmax);
 //			GEM1ERF modelERF = new GEM1ERF(model.getList(),calcSet);
-			GEM1ERF modelERF = new GEM1_US_ERF(latmin,latmax,lonmin,lonmax,calcSet);
+			GEM1ERF modelERF = new GEM1_CEUS_ERF(calcSet);
 			modelERF.updateForecast();
 			if (calcSet.isSourceCache()) {
 				for (int i=0; i<modelERF.getNumSources(); i++)
