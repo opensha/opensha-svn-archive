@@ -19,6 +19,11 @@ public class GEM1_US_ERF extends GEM1ERF {
 	}
 	
 	public GEM1_US_ERF(CalculationSettings calcSet) throws IOException {
+		this(latmin,latmax,lonmin,lonmax, calcSet);
+	}
+	
+	public GEM1_US_ERF(double latmin, double latmax, double lonmin, double lonmax,
+			CalculationSettings calcSet) throws IOException {
 		super(new NshmpUsData(latmin,latmax,lonmin,lonmax).getList(), calcSet);
 	}
 

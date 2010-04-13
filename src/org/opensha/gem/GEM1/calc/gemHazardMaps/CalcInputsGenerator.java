@@ -21,6 +21,7 @@ import org.opensha.gem.condor.calc.components.CalculationSettings;
 import org.opensha.gem.condor.dagGen.HazardDataSetDAGCreator;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1SouthAmericaERF;
+import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1_US_ERF;
 import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.util.TectonicRegionType;
@@ -41,14 +42,24 @@ public class CalcInputsGenerator {
 			GemComputeHazardLogicTree.setGmpeParams(gmpeTree, calcSet);
 			
 			/*			Sites				*/
-			double latmin = -55;
-			double latmax = 15;
-			double lonmin = -85;
-			double lonmax = -30;
+			// CEUS
+			String name = "ceus";
+			double latmin = 24.6;
+		    double latmax = 50.0;
+		    double lonmin = -125.0;
+		    double lonmax = -65.0;
+			
+		    // South America
+//		    String name = "southAmerica";
+//			double latmin = -55;
+//			double latmax = 15;
+//			double lonmin = -85;
+//			double lonmax = -30;
+		    
 			Location topLeft = new Location(latmax, lonmin);
 			Location bottomRight = new Location(latmin, lonmax);
-			double spacing = 0.1;
-//			double spacing = 1.0;
+//			double spacing = 0.1;
+			double spacing = 1.0;
 			GriddedRegion region = new GriddedRegion(topLeft, bottomRight, spacing, topLeft);
 			ArrayList<Site> sites = new ArrayList<Site>();
 			for (Location loc : region.getNodeList()) {
@@ -80,8 +91,9 @@ public class CalcInputsGenerator {
 			settings.setSerializeERF(true);
 			
 			/*			ERF					*/
-			NshmpSouthAmericaData model = new NshmpSouthAmericaData(latmin,latmax,lonmin,lonmax);
-			GEM1ERF modelERF = new GEM1ERF(model.getList(),calcSet);
+//			NshmpSouthAmericaData model = new NshmpSouthAmericaData(latmin,latmax,lonmin,lonmax);
+//			GEM1ERF modelERF = new GEM1ERF(model.getList(),calcSet);
+			GEM1ERF modelERF = new GEM1_US_ERF(latmin,latmax,lonmin,lonmax,calcSet);
 			modelERF.updateForecast();
 			for (int i=0; i<modelERF.getNumSources(); i++)
 				modelERF.getSource(i);
@@ -91,7 +103,7 @@ public class CalcInputsGenerator {
 			/*			Archiver			*/
 			boolean binByLat = true;
 			boolean binByLon = false;
-			String outputDir = "/home/scec-00/tera3d/opensha/gem/southAmerica";
+			String outputDir = "/home/scec-00/tera3d/opensha/gem/" + name;
 //			String outputDir = "/tmp/gem/southAmerica";
 			File outDirFile = new File(outputDir);
 			if (!outDirFile.exists())
