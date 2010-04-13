@@ -43,6 +43,7 @@ import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 	4) Revert commented out sections of mkGridSource method (and test efficiency there too)
 	5) See if new method getRupturesMag(*) is being used, and if so, should it go to parent class?
 	6) Remove source caching from getSource() method (Kevin added to handle serialization issue on HPCC)
+	   --note: just made it an adjustable parameter that defaults to off...should we still disable it? -Kevin
 
  * @author : 
  * @Date : 
