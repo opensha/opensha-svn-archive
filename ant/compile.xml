@@ -168,8 +168,20 @@
 				<include name="**/*.grd" />
 			</fileset>
 		</copy>
+		
+	</target>
+	
+	<target name="resource.erfs.gem">
 		<copy todir="${build}/org/opensha/gem/GEM1/data/nshmp/south_america" overwrite="true">
 			<fileset dir="${src}/org/opensha/gem/GEM1/data/nshmp/south_america">
+				<include name="**/*.in" />
+				<include name="**/*.out" />
+				<include name="**/*.char*" />
+				<include name="**/*.gr*" />
+			</fileset>
+		</copy>
+		<copy todir="${build}/org/opensha/gem/GEM1/data/nshmp/us" overwrite="true">
+			<fileset dir="${src}/org/opensha/gem/GEM1/data/nshmp/us">
 				<include name="**/*.in" />
 				<include name="**/*.out" />
 				<include name="**/*.char*" />
@@ -234,6 +246,7 @@
 		<antcall target="resource.hazard.apps" />
 
 		<antcall target="resource.erfs.dev" />
+		<antcall target="resource.erfs.gem" />
 		<antcall target="resource.erfs.aux" />
 	</target>
 	
