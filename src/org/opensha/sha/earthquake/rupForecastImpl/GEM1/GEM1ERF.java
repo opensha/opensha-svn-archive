@@ -784,9 +784,10 @@ public class GEM1ERF extends EqkRupForecast {
 				source = mkAreaSource((GEMAreaSourceData)srcData);
 			else
 				throw new RuntimeException(NAME+": "+srcData.getClass()+" not yet supported");
-			if (sourceCache != null)
+			if (sourceCache != null) {
 				System.out.println("Caching source " + iSource);
 				sourceCache.put(new Integer(iSource), source);
+			}
 		}
 		return source;
 	}
