@@ -186,6 +186,7 @@
 				<include name="**/*.out" />
 				<include name="**/*.char*" />
 				<include name="**/*.gr*" />
+				<include name="**/*.65" />
 			</fileset>
 		</copy>
 	</target>
