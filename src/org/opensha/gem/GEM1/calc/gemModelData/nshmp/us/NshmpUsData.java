@@ -8,6 +8,8 @@ import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSourceData;
 
 public class NshmpUsData  extends GemFileParser{
 	
+	public static final String dataDir = "/org/opensha/gem/GEM1/data/nshmp/us/";
+	
 	public NshmpUsData(double latmin, double latmax, double lonmin, double lonmax) throws FileNotFoundException{
 		
 		srcDataList = new ArrayList<GEMSourceData>();

@@ -13,7 +13,7 @@ import org.opensha.sha.util.TectonicRegionType;
 public class NshmpWusGridData  extends GemFileParser{
 	
 	// directory for grid seismicity files
-	private String inDir = "../../data/nshmp/us/wus/grid/";
+	private String inDir = NshmpUsData.dataDir + "wus/grid/";
 	
 	public NshmpWusGridData(double latmin, double latmax, double lonmin, double lonmax){
 		

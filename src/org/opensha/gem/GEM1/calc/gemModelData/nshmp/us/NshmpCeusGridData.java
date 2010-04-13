@@ -27,7 +27,7 @@ public class NshmpCeusGridData extends GemFileParser implements Serializable {
 
 	
 	// directory for grid seismicity files
-	private String inDir = "../../data/nshmp/us/ceus/grid/";
+	private String inDir = NshmpUsData.dataDir + "ceus/grid/";
 	
 	public NshmpCeusGridData(double latmin, double latmax, double lonmin, double lonmax){
 		
