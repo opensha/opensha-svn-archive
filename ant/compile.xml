@@ -172,7 +172,7 @@
 	</target>
 	
 	<target name="resource.erfs.gem">
-		<!-- This is for the GEM ERFs, which we may or may not include in our regular apps. -->
+		<!-- This is for the GEM ERFs...which we may or may not include in our regular apps. -->
 		<copy todir="${build}/org/opensha/gem/GEM1/data/nshmp/south_america" overwrite="true">
 			<fileset dir="${src}/org/opensha/gem/GEM1/data/nshmp/south_america">
 				<include name="**/*.in" />
