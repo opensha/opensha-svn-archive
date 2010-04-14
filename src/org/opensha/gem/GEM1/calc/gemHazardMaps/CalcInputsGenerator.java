@@ -58,8 +58,8 @@ public class CalcInputsGenerator {
 		    
 			Location topLeft = new Location(latmax, lonmin);
 			Location bottomRight = new Location(latmin, lonmax);
-//			double spacing = 0.1;
-			double spacing = 1.0;
+			double spacing = 0.1;
+//			double spacing = 1.0;
 			GriddedRegion region = new GriddedRegion(topLeft, bottomRight, spacing, topLeft);
 			ArrayList<Site> sites = new ArrayList<Site>();
 			for (Location loc : region.getNodeList()) {
@@ -122,7 +122,7 @@ public class CalcInputsGenerator {
 			if (spacing == 1.0)
 				sitesPerJob = 50;
 			else
-				sitesPerJob= 200;
+				sitesPerJob= 100;
 			dag.writeDAG(outDirFile, sitesPerJob, false);
 			System.exit(0);
 		} catch (Exception e) {
