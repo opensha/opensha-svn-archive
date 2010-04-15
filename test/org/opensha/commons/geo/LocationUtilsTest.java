@@ -36,11 +36,14 @@ import static org.opensha.commons.geo.LocationUtils.linearDistance;
 import static org.opensha.commons.geo.LocationUtils.linearDistanceFast;
 import static org.opensha.commons.geo.LocationUtils.location;
 import static org.opensha.commons.geo.LocationUtils.vertDistance;
+import static org.opensha.commons.geo.LocationUtils.areSimilar;
 
 import java.util.Random;
 import org.junit.Test;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+
+import util.TestUtils;
 
 //@SuppressWarnings("all")
 public class LocationUtilsTest {
@@ -105,6 +108,18 @@ public class LocationUtilsTest {
 //	public void tearDown() throws Exception {
 //	}
 
+	@Test
+	public final void testLocationUtils() {
+		// silly test of no arg private constructor
+		try {
+			Object obj = TestUtils.callPrivateNoArgConstructor(
+					LocationUtils.class);
+		} catch (Exception e) {
+			fail("Private no-arg constructor failed to initialize: " +
+					e.getMessage());
+		}
+	}
+	
 	@Test
 	public final void testAngle() {
 		assertEquals(1.001818991, angle(L5,L1), angleD);
@@ -247,24 +262,24 @@ public class LocationUtilsTest {
 	public final void testLocationLocationDoubleDouble() {
 		LocationVector d = vector(L1,L2);
 		//TODO need to switch to getAzimuthRad
-		assertEquals(L2, location(
-				L1, d.getAzimuth()*TO_RAD, d.getHorzDistance()));
+		assertTrue(areSimilar(L2, location(
+				L1, d.getAzimuth()*TO_RAD, d.getHorzDistance())));
 		d = vector(L1,L3);
-		assertEquals(L3, location(
-				L1, d.getAzimuth()*TO_RAD, d.getHorzDistance()));
+		assertTrue(areSimilar(L3, location(
+				L1, d.getAzimuth()*TO_RAD, d.getHorzDistance())));
 		d = vector(L2,L3);
-		assertEquals(L3, location(
-				L2, d.getAzimuth()*TO_RAD, d.getHorzDistance()));
+		assertTrue(areSimilar(L3, location(
+				L2, d.getAzimuth()*TO_RAD, d.getHorzDistance())));
 	}
 	
 	@Test
 	public final void testLocationLocationDirection() {
-		assertEquals(L2, location(L1, vector(L1,L2)));
-		assertEquals(L3, location(L1, vector(L1,L3)));
-		assertEquals(L4, location(L1, vector(L1,L4)));
-		assertEquals(L3, location(L2, vector(L2,L3)));
-		assertEquals(L2, location(L4, vector(L4,L2)));
-		assertEquals(L3, location(L4, vector(L4,L3)));
+		assertTrue(areSimilar(L2, location(L1, vector(L1,L2))));
+		assertTrue(areSimilar(L3, location(L1, vector(L1,L3))));
+		assertTrue(areSimilar(L4, location(L1, vector(L1,L4))));
+		assertTrue(areSimilar(L3, location(L2, vector(L2,L3))));
+		assertTrue(areSimilar(L2, location(L4, vector(L4,L2))));
+		assertTrue(areSimilar(L3, location(L4, vector(L4,L3))));
 	}
 	
 	@Test
@@ -301,6 +316,32 @@ public class LocationUtilsTest {
 		assertTrue(isPole(np));
 		assertTrue(!isPole(ll));
 	}
+	
+	@Test
+	public final void testAreSimilar() {
+		// NOTE the generic tolerance of 0.000000000001 in LocationUtils imposes
+		// different magnitude constraints on depth vs. lat lon
+		Location p1, p2;
+		// compare lats
+		p1 = new Location(30,0,0);
+		p2 = new Location(30.00000000001,0,0);
+		assertTrue(areSimilar(p1, p2));
+		p2 = new Location(30.0000000001,0,0);
+		assertTrue(!areSimilar(p1, p2));
+		// compare lons
+		p1 = new Location(0,-30.0,0);
+		p2 = new Location(0,-30.00000000001,0);
+		assertTrue(areSimilar(p1, p2));
+		p2 = new Location(0,-30.0000000001,0);
+		assertTrue(!areSimilar(p1, p2));
+		// compare depths
+		p1 = new Location(0,0,5.0);
+		p2 = new Location(0,0,5.0000000000001);
+		assertTrue(areSimilar(p1, p2));
+		p2 = new Location(0,0,5.000000000001);
+		assertTrue(!areSimilar(p1, p2));
+	}
+	
 	
 	/**
 	 * DEVELOPER NOTE

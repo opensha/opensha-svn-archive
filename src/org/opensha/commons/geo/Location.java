@@ -20,11 +20,9 @@ package org.opensha.commons.geo;
 
 import static org.opensha.commons.geo.GeoTools.TO_DEG;
 import static org.opensha.commons.geo.GeoTools.TO_RAD;
-import static org.opensha.commons.geo.LocationUtils.LL_PRECISION;
 
 import java.io.Serializable;
 
-import org.apache.commons.math.util.MathUtils;
 import org.dom4j.Element;
 import org.opensha.commons.metadata.XMLSaveable;
 
@@ -56,14 +54,9 @@ public class Location implements
 	public final static String XML_METADATA_LATITUDE = "Latitude";
 	public final static String XML_METADATA_DEPTH = "Depth";
 
-	public double lat;
-	public double lon;
+	private double lat;
+	private double lon;
 	private double depth;
-
-	// this is meter scale precision and perhaps should be defined elsewhere
-	// NOTE: see also notes at Region.DECIMAL_SCALE
-	// public final static DecimalFormat latLonFormat = new
-	// DecimalFormat("0.0####");
 
 	// for internal use by clone()
 	private Location() {}
@@ -115,7 +108,7 @@ public class Location implements
 	 * @return the <code>Location</code> latitude in decimal degrees
 	 */
 	public double getLatitude() {
-		return MathUtils.round(lat * TO_DEG, LL_PRECISION);
+		return lat * TO_DEG;
 	}
 
 	/**
@@ -124,7 +117,7 @@ public class Location implements
 	 * @return the <code>Location</code> longitude in decimal degrees
 	 */
 	public double getLongitude() {
-		return MathUtils.round(lon * TO_DEG, LL_PRECISION);
+		return lon * TO_DEG;
 	}
 
 	/**
@@ -154,7 +147,7 @@ public class Location implements
 	 * @return the location as a <code>String</code> for use with KML markup
 	 */
 	public String toKML() {
-		// TODO chack that reversed lat-lon order would be ok
+		// TODO check that reversed lat-lon order would be ok
 		// for toString() and retire this method
 		StringBuffer b = new StringBuffer();
 		b.append(getLongitude());
@@ -190,16 +183,17 @@ public class Location implements
 		if (this == obj) return true;
 		if (!(obj instanceof Location)) return false;
 		Location loc = (Location) obj;
-		// TODO revert to native when rounding is removed
+		// NOTE because rounding errors may give rise to very slight 
+		// differences in radian values that disappear when converting back 
+		// to decimal degrees, and because most Locations are initialized 
+		// with decimal degree values, equals() compares decimal degrees
+		// rather than the native radian values. ppowers 4/12/2010
 		if (getLatitude() != loc.getLatitude()) return false;
 		if (getLongitude() != loc.getLongitude()) return false;
 		if (getDepth() != loc.getDepth()) return false;
-//		if (lat != loc.lat) return false;
-//		if (lon != loc.lon) return false;
-//		if (depth != loc.depth) return false;
 		return true;
 	}
-
+	
 	@Override
 	public int hashCode() {
 		long latHash = Double.doubleToLongBits(lat);
@@ -212,9 +206,9 @@ public class Location implements
 	/**
 	 * Compares this <code>Location</code> to another and sorts first by 
 	 * latitude, then by longitude. When sorting a list of randomized but 
-	 * evenly spaced grid of <code>Location</code>s, the resultant ordering will
-	 * be left to right across rows of uniform latitude, ascending to the
-	 * leftmost next higher latitude at the end of each row (left-to-right,
+	 * evenly spaced grid of <code>Location</code>s, the resultant ordering 
+	 * will be left to right across rows of uniform latitude, ascending to 
+	 * the leftmost next higher latitude at the end of each row (left-to-right,
 	 * bottom-to-top).
 	 * 
 	 * @param loc <code>Location</code> to compare <code>this</code> to

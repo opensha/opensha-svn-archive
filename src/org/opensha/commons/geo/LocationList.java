@@ -19,11 +19,12 @@
 
 package org.opensha.commons.geo;
 
-import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import org.dom4j.Element;
 import org.opensha.commons.metadata.XMLSaveable;
@@ -38,8 +39,7 @@ import org.opensha.commons.metadata.XMLSaveable;
  * @author Steven W. Rock
  * @version $Id$
  */
-public class LocationList extends ArrayList<Location> implements Serializable,
-		XMLSaveable {
+public class LocationList extends ArrayList<Location> implements XMLSaveable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -133,6 +133,22 @@ public class LocationList extends ArrayList<Location> implements Serializable,
 	}
 
 	/**
+	 * Overriden to return a <code>LocationList</code> with a deep copy of the
+	 * <code>Location</code>s spanned by the requested range.
+	 * 
+	 * @return a deep copy of the range of <code>Location</code>s specified
+	 */
+	@Override
+	public LocationList subList(int fromIndex, int toIndex) {
+		List<Location> source = super.subList(fromIndex, toIndex);
+		LocationList subLocList = new LocationList();
+		for (Location loc : source) {
+			subLocList.add(loc.clone());
+		}
+		return subLocList;
+	}
+	
+	/**
 	 * Overriden to return a deep copy of this <code>LocationList</code>.
 	 * 
 	 * @return a deep copy of this list
@@ -203,5 +219,155 @@ public class LocationList extends ArrayList<Location> implements Serializable,
 		}
 		return locs;
 	}
+	
+	/**
+	 * Returns an unmodifiable view of this <code>LocationList</code>. Any 
+	 * calls to methods that would result in a change to this list will
+	 * throw an <code>UnsupportedOperationException</code>. Clones of an
+	 * unmodifiable <code>LocationList</code> (deep-copies) are editable.
+	 * 
+	 * @return an unmodifiable view of this list
+	 */
+	public LocationList unmodifiableList() {
+		return new UnmodifiableLocationList(this);
+	}
+	
+	private final static class UnmodifiableLocationList extends LocationList {
+		private static final long serialVersionUID = 1L;
 
+		final LocationList ll;
+
+		UnmodifiableLocationList(LocationList ll) { 
+			this.ll = ll;
+		}
+		
+		// Pass-through operations
+		
+		@Override
+		public LocationList clone()			{ return ll.clone(); }
+		@Override
+		public boolean contains(Object o) 	{ return ll.contains(o); }
+		@Override
+		public boolean containsAll(Collection<?> coll) {
+			return ll.containsAll(coll);
+		}
+		@Override
+		public boolean equals(Object o)		{ return ll.equals(o); }
+		@Override
+		public Location get(int index)		{ return ll.get(index); }
+		@Override
+		public int hashCode()				{ return ll.hashCode(); }
+		@Override
+		public int indexOf(Object o)		{ return ll.indexOf(o); }
+		@Override
+		public boolean isEmpty()			{ return ll.isEmpty(); }
+		@Override
+		public int lastIndexOf(Object o)	{ return ll.lastIndexOf(o); }
+		@Override
+		public int size()					{ return ll.size(); }
+		@Override
+		public Object[] toArray()			{ return ll.toArray(); }
+		@Override
+		public <T> T[] toArray(T[] a)		{ return ll.toArray(a); }
+		@Override
+		public String toString()			{ return ll.toString(); }
+		@Override
+		public LocationList subList(int fromIndex, int toIndex) {
+			return ll.subList(fromIndex, toIndex); 
+		}
+		
+		
+		// Unsupported operations
+		
+		@Override
+		public boolean add(Location e) {
+			throw new UnsupportedOperationException();
+		}
+		@Override
+		public void add(int index, Location element) {
+			throw new UnsupportedOperationException();
+		}
+		@Override
+		public boolean addAll(Collection<? extends Location> coll) {
+			throw new UnsupportedOperationException();
+		}
+		@Override
+		public boolean addAll(int index, Collection<? extends Location> coll) {
+			throw new UnsupportedOperationException();
+		}
+		@Override
+		public void clear() {
+			throw new UnsupportedOperationException();
+		}
+		@Override
+		public Location remove(int index) {
+			throw new UnsupportedOperationException();
+		}
+		@Override
+		public boolean remove(Object o) {
+			throw new UnsupportedOperationException();
+		}
+		@Override
+		public boolean removeAll(Collection<?> coll) {
+			throw new UnsupportedOperationException();
+		}
+		@Override
+		public boolean retainAll(Collection<?> coll) {
+			throw new UnsupportedOperationException();
+		}
+		@Override
+		public Location set(int index, Location element) {
+			throw new UnsupportedOperationException();
+		}
+		@Override
+		public Iterator<Location> iterator() {
+			return new Iterator<Location>() {
+				Iterator<? extends Location> it = ll.iterator();
+				@Override
+				public boolean hasNext() { return it.hasNext(); }
+				@Override
+				public Location next() { return it.next(); }
+				@Override
+				public void remove() {
+					throw new UnsupportedOperationException();
+				}
+			};
+		}
+		@Override
+		public ListIterator<Location> listIterator() {
+			return listIterator(0);
+		}
+		@Override
+		public ListIterator<Location> listIterator(final int index) {
+			return new ListIterator<Location>() {
+				ListIterator<? extends Location> it = ll.listIterator(index);
+				@Override
+				public boolean hasNext() { return it.hasNext(); }
+				@Override
+				public Location next() { return it.next(); }
+				@Override
+				public boolean hasPrevious() { return it.hasPrevious(); }
+				@Override
+				public Location previous() { return it.previous(); }
+				@Override
+				public int nextIndex() { return it.nextIndex(); }
+				@Override
+				public int previousIndex() { return it.previousIndex(); }
+				@Override
+				public void remove() {
+					throw new UnsupportedOperationException();
+				}
+				@Override
+				public void set(Location e) {
+					throw new UnsupportedOperationException();
+				}
+				@Override
+				public void add(Location e) {
+					throw new UnsupportedOperationException();
+				}
+			};
+		}
+	}
+
+    
 }

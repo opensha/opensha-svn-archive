@@ -24,7 +24,7 @@ package org.opensha.commons.geo;
  * a point p1 to a point p2, and also by the horizontal and vertical separation
  * between the points. Note that a <code>LocationVector</code> from point A
  * to point B is not the complement of that from point B to A. Although
- * the sign of the horizontal and vertical components will reverse, the azimuth
+ * the horizontal and vertical components will be the same, the azimuth
  * will likely change by some value other than 180&#176;.<br/>
  * <br/>
  * <b>Note:</b> Although a <code>LocationVector</code> will function in any

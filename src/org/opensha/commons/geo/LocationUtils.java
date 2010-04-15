@@ -25,25 +25,17 @@ import static org.opensha.commons.geo.GeoTools.TO_DEG;
 import static org.opensha.commons.geo.GeoTools.TO_RAD;
 import static org.opensha.commons.geo.GeoTools.EARTH_RADIUS_MEAN;
 
-import java.text.DecimalFormat;
+import org.apache.commons.math.util.MathUtils;
 
 
 /**
  * This class contains static utility methods to operate on geographic
- * <code>Location</code> data.
+ * <code>Location</code> data.<br>
  * <br>
- * <br>
- * See: <a href="http://williams.best.vwh.net/avform.htm#Dist" target="_blank">
+ * See: <a href="http://williams.best.vwh.net/avform.htm" target="_blank">
  * Aviation Formulary</a> for formulae implemented in this class as well as
  * <a href="http://www.movable-type.co.uk/scripts/latlong.html"
  * target="_blank">Moveable Type Scripts</a> for other implementations.
- * 
- * TODO rename to GeographicUtils or GeoTools or similar after region merge
- * TODO should Location store lat lon internally in radians
- * TODO should exceptions be thrown for separations large enough to produce
- * 		bad values in any of the 'fast' methods
- * TODO pay attenstion to locaiton() in profiling; is degree-radians worth
- * 		avoiding
  *
  * @author Peter Powers
  * @author Steven W. Rock
@@ -66,43 +58,14 @@ public final class LocationUtils {
 	 * lat-lon values. It also alleviates the need for expensive degree-radian
 	 * conversions by using radians, the native format for Locations,
 	 * exclusively.
+	 * 
+	 * TODO: Add log warnings when 'fast' methods are being used for points
+	 * that exceed some max separation.
 	 */
 
 	/* No instantiation allowed */
 	private LocationUtils() {}
 	
-	// NOTE: This vlaue is used to 'clean' decimal values that have been 
-	// subject to narrowing conversions when creating border Areas. For
-	// lat-lon values as high as 180, floats allow for 5 decimal places
-	// which equates to m-scale precision. In the case of a buffered region, 
-	// this precision loss carries over to the 'border' because it is the one
-	// type of region whose border is intialized from the area, not the
-	// other way around.
-	//
-	// If/when JRE 6 becomes standard requirement, new methods and classes 
-	// will alleviate the ned for thisnote and allow greater precision
-	// (sub-meter scale). Specifically:
-	//
-	// Region.createArea(LocationList) should be updated to use Path2D.Double()
-	//
-	// the offset in Region(Location, Location) should be decreased to some
-	// value that matches the precision of the Location toString() output
-	// format precision
-	//
-	// the Region test case data arrays will also have to be regenerated
-	//
-	// note also that with JRE6 Point2D.Double is serializable and DataPoint2D
-	// could be retired.
-	
-	/** The decimal precision imposed on latitude and longitude values. */
-	public static final int LL_PRECISION = 5;
-
-	/** 
-	 * The formatting imposed on latitude and longitude values to maintain
-	 * consistency with <code>LL_PRECISION</code>.
-	 */
-	public static final DecimalFormat LL_FORMAT = new DecimalFormat("0.0####");
-
 	/**
 	 * <code>Enum</code> used indicate sidedness of points with
 	 * respect to a line.
@@ -437,7 +400,7 @@ public final class LocationUtils {
 	 * 
 	 * @param p starting location point
 	 * @param azimuth (bearing) in <i>radians</i> away from origin
-	 * @param distance along bearing in km
+	 * @param distance (horizontal) along bearing in km
 	 * @return the end location 
 	 */
 	public static Location location(
@@ -517,17 +480,49 @@ public final class LocationUtils {
 		return v;
 	}
 	
+	/** 
+	 * Tolerance used for location comparisons; 0.000000000001 which in
+	 * decimal-degrees, radians, and km is comparable to micron-scale
+	 * precision.
+	 */
+	public static final double TOLERANCE = 0.000000000001;
+
 	/**
 	 * Returns whether the supplied <code>Location</code> coincides with
 	 * one of the poles. Any supplied <code>Location</code>s that are very 
 	 * close (less than a mm) will return <code>true</code>.
 	 * 
-	 * @param loc <code>Location</code> to check
+	 * @param p <code>Location</code> to check
 	 * @return <code>true</code> if <code>loc</code> coincides with one of the
 	 * 		   earth's poles, <code>false</code> otherwise.
 	 */
-	public static boolean isPole(Location loc) {
-		return Math.cos(loc.getLatRad()) < 0.000000000001;
+	public static boolean isPole(Location p) {
+		return Math.cos(p.getLatRad()) < TOLERANCE;
 	}
+	
+	/**
+	 * Returns <code>true</code> if the supplied <code>Location</code>s are
+	 * very, very close to one another. Internally, lat, lon, and depth values 
+	 * must be within <1mm of each other. 
+	 * 
+	 * @param p1 the first <code>Location</code> to compare
+	 * @param p2 the second <code>Location</code> to compare
+	 * @return <code>true</code> if the supplied <code>Location</code>s are
+	 *         very close, <code>false</code> otherwise.
+	 */
+	public static boolean areSimilar(Location p1, Location p2) {
+		if (!MathUtils.equals(p1.getLatRad(), p2.getLatRad(), TOLERANCE)) {
+			return false;
+		}
+		if (!MathUtils.equals(p1.getLonRad(), p2.getLonRad(), TOLERANCE)) {
+			return false;
+		}
+		if (!MathUtils.equals(p1.getDepth(), p2.getDepth(), TOLERANCE)) {
+			return false;
+		}
+		return true;
+	}
+	
+
 	
 }

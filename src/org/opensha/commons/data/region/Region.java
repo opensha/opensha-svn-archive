@@ -22,12 +22,9 @@ package org.opensha.commons.data.region;
 import static org.opensha.commons.geo.GeoTools.PI_BY_2;
 import static org.opensha.commons.geo.GeoTools.TO_RAD;
 
-import java.awt.Point;
-import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.geom.Area;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -37,14 +34,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.math.util.MathUtils;
 import org.dom4j.Element;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.metadata.XMLSaveable;
-import org.opensha.sha.earthquake.EqkRupture;
 
 /**
  * A <code>Region</code> is a polygonal area on the surface of the earth. The
@@ -69,33 +64,16 @@ import org.opensha.sha.earthquake.EqkRupture;
  * within or on the border of such an interior area will return 
  * <code>false</code>.<br/>
  * <br/>
- * 
- * 
- * NOTE: At present, a <code>GeneralPath</code> is used internally when 
- * initializing a region's border. As of Java5 a <code>GeneralPath</code>
- * may only be initialized with <code>float</code>s. However the
- * underlying <code>Area</code> that represents the region, upconverts
- * <code>float</code>s to <code>double</code>s. This conversion skews
- * border vertices slightly such that a border node initially defined
- * at -117.2 may be seen internally as -117.19999694824219. The end result
- * is that <code>isLocationInside()</code> may return <code>false</code> 
- * for some border Locations for which it should return <code>true</code>.
- * This issue will be resolved with a move to Java6 which includes the
- * higher precision <code>GeneralPath2D</code>. The effect is that rectangular,
- * lat-lon aligned regions will return false for contains for points on
- * the south and west borders.
-
- * 
- * TODO return immutable borders collection.unmodifiablelist; make LocationList 
- * extend arrayList (?), not wrap it. Perhaps when initing border, create new 
- * list of immutable location objects and make the list itself immutable.
- * <br/><br/>
- * 
- * <b>NOTE:</b> The current implementation does not support regions that are
- * intended to span &#177;180&deg;. Any such regions will wrap the
- * long way around the earth and results are undefined. This also applies to
- * regions that encircle either pole.
- * 
+ * <b><i>NOTE:</i></b> The current implementation does not support regions 
+ * that are intended to span &#177;180&deg;. Any such regions will wrap the
+ * long way around the earth and results are undefined. Regions that encircle 
+ * either pole are not supported either.<br/>
+ * <br/>
+ * <b><i>NOTE:</i></b> Due to rounding errors and the use of an {@link Area}
+ * internally to define a <code>Region</code>'s border, 
+ * {@link Region#contains(Location)} may not always return the expected result
+ * near a border. See {@link Region#contains(Location)} for further 
+ * details.<br/>
  * 
  * 
  * @author Peter Powers
@@ -105,18 +83,13 @@ import org.opensha.sha.earthquake.EqkRupture;
  */
 public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 
-	// TODO implement LocationList as extends ArrayList to facilitate unmodifiable list creation?
-	// TODO need to make copy of provided borders/LocLists
-	// TODO possibly kill region name
-	
 	private static final long serialVersionUID = 1L;
 
 	// although border vertices can be accessed by path-iterating over
 	// area, an immutable list is stored for convenience
 	private LocationList border;
 	
-	// interior region; may remain null
-	//private LocationList interior; TODO clean
+	// interior region list; may remain null
 	private ArrayList<LocationList> interiors;
 	
 	// Internal representation of region
@@ -175,13 +148,11 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		}
 
 		LocationList ll = new LocationList();
-		// NOTE: see notes at LL_PRECISION
-		// TODO: increase value with move to jdk6
 		double minLat = Math.min(lat1,lat2);
 		double minLon = Math.min(lon1,lon2);
 		double maxLat = Math.max(lat1,lat2);
 		double maxLon = Math.max(lon1,lon2);
-		double offset = 0.00001; // in degrees ~1m
+		double offset = LocationUtils.TOLERANCE;
 		// ternaries prevent exceedance of max lat-lon values 
 		maxLat += (maxLat <= 90.0-offset) ? offset : 0.0;
 		maxLon += (maxLon <= 180.0-offset) ? offset : 0.0;
@@ -292,70 +263,21 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 			}
 		}
 	}
-	
-//	TODO clean
-//	/**
-//	 * Initializes a <code>Region</code> using one <code>Region</code> as an 
-//	 * outer boundary and a second as an inner boundary or donut-hole.
-//	 * 
-//	 * @param outer the outer bounding <code>Region</code>
-//	 * @param inner the inner bounding <code>Region</code>
-//	 * @throws NullPointerException if either supplied <code>Region</code>
-//	 * 		is null
-//	 * @throws IllegalArgumentException if the inner <code>Region</code> is
-//	 * 		not entirly contained within the outer <code>Region</code>
-//	 * @throws IllegalArgumentException if the inner <code>Region</code> is
-//	 * 		not singular (i.e. already has an interior itself)
-//	 * @throws UnsupportedOperationException if the outer <code>Region</code>
-//	 * 		already has an interior defined
-//	 */
-//	public Region(Region outer, Region inner) {
-//		this(outer);
-//		setInterior(inner);
-//	}
-	
-	/**
-	 * Initializes a <code>Region</code> around an earthquake rupture.
-	 * <br/>
-	 * TODO Build me: Note that previous partial implementations created
-	 * a buffered region around the border of an earthquake rupture. If the
-	 * buffer radius was less than half the width of the rupture a donut
-	 * resulted.<br/>
-	 * 
-	 * @param rupture to use as basis for <code>Region</code>
-	 * @param buffer distance to extend region from rupture border
-	 * @throws Exception due to not being implemented yet
-	 */
-	public Region(EqkRupture rupture, double buffer) throws Exception {
-		throw new Exception("Unimplemented constructor -- build me");
-	}
-	
-
-	/*
-	 * Package-private method that allows contains to operate on 
-	 * unverified lat-lon values.
-	 */
-	boolean contains(double lat, double lon) {
-		return area.contains(lon, lat);
-	}
-	
+		
 	/**
 	 * Returns whether the given <code>Location</code> is inside this 
 	 * <code>Region</code>. The determination follows the rules of insidedness
 	 * defined in the {@link Shape} interface.<br/>
 	 * <br/>
-	 * 
-	 * NOTE: At present, a <code>GeneralPath</code> is used internally when 
-	 * initializing a region's border. As of Java5 a <code>GeneralPath</code>
-	 * may only be initialized with <code>float</code>s. However the
-	 * underlying <code>Area</code> that represents the region, upconverts
-	 * <code>float</code>s to <code>double</code>s. This conversion skews
-	 * border vertices slightly such that a border node initially defined
-	 * at -117.2 may be seen internally as -117.19999694824219. The end result
-	 * is that <code>isLocationInside()</code> may return <code>false</code> 
-	 * for some border Locations for which it should return <code>true</code>.
-	 * This issue will be resolved with a move to Java6 which includes the
-	 * higher precision <code>GeneralPath2D</code>. TODO update docs on J6
+	 * <b><i>NOTE</i></b>: By using an {@link Area} internally to manage this 
+	 * <code>Region</code>'s geometry, there are instances where rounding
+	 * errors may cause <code>contains(Location)</code> to yeild unexpected 
+	 * results. For instance, although a <code>Region</code>'s<br/>
+	 * southernmost point might be initially defined as 40.0&#176;, the internal
+	 * <code>Area</code> may return 40.0000000000001 on a call to 
+	 * <code>getMinLat()</code> and calls to 
+	 * <code>contains(new Location(40,*))</code> will return false.
+	 * <br/>
 	 * 
 	 * @param loc the <code>Location</code> to test
 	 * @return <code>true</code> if the <code>Location</code> is inside the 
@@ -363,7 +285,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 * @see java.awt.Shape
 	 */
 	public boolean contains(Location loc) {
-		return contains(loc.getLatitude(), loc.getLongitude());
+		return area.contains(loc.getLongitude(), loc.getLatitude());
 	}
 
 	/**
@@ -412,7 +334,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 * @see Region#getInteriors()
 	 */
 	public void addInterior(Region region) {
-		validateRegion(region); // test for singularity or null
+		validateRegion(region); // test for non-singularity or null
 		if (!contains(region)) {
 			throw new IllegalArgumentException(
 					"Region must completely contain supplied interior Region");
@@ -432,10 +354,9 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 			}
 		} else {
 			interiors = new ArrayList<LocationList>();
-		} // TODO test that interiors is still null after failed add
+		}
 			
-		interiors.add(newInterior);
-		//interiors.add(Collections.unmodifiableList(newInterior); TODO uncomment)
+		interiors.add(newInterior.unmodifiableList());
 		area.subtract(region.area);
 	}
 	
@@ -461,41 +382,55 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 * @return the immutable border <code>LocationList</code>
 	 */
 	public LocationList getBorder() {
-		// return Collections.unmodifiableList(border); TODO uncomment
-		return border;
+		return border.unmodifiableList();
 	}
 
-    /**
-     * Returns whether this <code>Region</code> and another are of equal 
-     * aerial extent.
-     * 
-     * @param r the <code>Region</code> to compare this <code>Region</code> to
-     * @return <code>true</code> if the two <code>Region</code>s are the same;
-     *		<code>false</code> otherwise.
+
+	/**
+	 * Compares the geometry of this <code>Region</code> to another and returns
+	 * <code>true</code> if they are the same, ignoring any differences in
+	 * name. Use <code>Region.equals(Object)</code> to include name comparison.
+	 * 
+	 * @param r the <code>Regions</code> to compare
+	 * @return <code>true</code> if this <code>Region</code> has the same 
+	 *         geometry as the supplied <code>Region</code>, <code>false</code>
+	 *         otherwise
+	 * @see Region#equals(Object)
 	 */
-	// TODO override Object implementation
-	public boolean equals(Region r) {
+	public boolean equalsRegion(Region r) {
+		// note that Area.equals() does not override Object.equals()
 		return area.equals(r.area);
 	}
 	
-	/*
-	 * Meter scale precision is imposed on the min-max methods below. For
-	 * whatever reason, values used to create an Area are altered more than 
-	 * typical rounding error on retrieval: -125.4000015258789 vs -125.4.
-	 * This may be to facilitate correct results for insidedness testing.
-	 * Alternatively, these methods could be updated to query the location
-	 * list, requiring changes to the LocationList class to quickly return
-	 * min-max values.
-	 * TODO possibly delete
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (!(obj instanceof Region)) return false;
+		Region r = (Region) obj;
+		if (!getName().equals(r.getName())) return false;
+		return equalsRegion(r);
+	}
+	
+	@Override
+	public int hashCode() {
+		return border.hashCode() ^ name.hashCode();
+	}
+	
+	/**
+	 * Returns an exact, independent copy of this <code>Region</code>.
+	 * @return a copy of this <code>Region</code>
 	 */
+	@Override
+	public Region clone() {
+		return new Region(this);
+	}
 
 	/**
 	 * Returns the minimum latitude in this <code>Region</code>'s border.
 	 * @return the minimum latitude
 	 */
 	public double getMinLat() {
-		double val = area.getBounds2D().getMinY();
-		return MathUtils.round(val, LocationUtils.LL_PRECISION);
+		return area.getBounds2D().getMinY();
 	}
 
 	/**
@@ -503,8 +438,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 * @return the maximum latitude
 	 */
 	public double getMaxLat() {
-		double val = area.getBounds2D().getMaxY();
-		return MathUtils.round(val, LocationUtils.LL_PRECISION);
+		return area.getBounds2D().getMaxY();
 	}
 
 	/**
@@ -512,8 +446,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 * @return the minimum longitude
 	 */
 	public double getMinLon() {
-		double val = area.getBounds2D().getMinX();
-		return MathUtils.round(val, LocationUtils.LL_PRECISION);
+		return area.getBounds2D().getMinX();
 	}
 
 	/**
@@ -521,8 +454,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 * @return the maximum longitude
 	 */
 	public double getMaxLon() {
-		double val = area.getBounds2D().getMaxX();
-		return MathUtils.round(val, LocationUtils.LL_PRECISION);
+		return area.getBounds2D().getMaxX();
 	}
 
 	/**
@@ -546,7 +478,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		return (temp < min) ? temp : min;
 	}
 
-	/* implementation */
+	@Override
 	public String getName() {
 		return name;
 	}
@@ -561,15 +493,15 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 
 	@Override
 	public String toString() {
-		String str =
-				"Region\n" + "\tMinimum Lat: " + this.getMinLat()
-						+ "\n" + "\tMinimum Lon: " + this.getMinLon() + "\n"
-						+ "\tMaximum Lat: " + this.getMaxLat() + "\n"
-						+ "\tMaximum Lon: " + this.getMaxLon();
+		String str = "Region\n" + 
+					 "\tMinimum Lat: " + this.getMinLat() + "\n" + 
+					 "\tMinimum Lon: " + this.getMinLon() + "\n" + 
+					 "\tMaximum Lat: " + this.getMaxLat() + "\n" +
+					 "\tMaximum Lon: " + this.getMaxLon();
 		return str;
 	}
 	
-	/* implementation */
+	@Override
 	public Element toXMLMetadata(Element root) {
 		Element xml = root.addElement(Region.XML_METADATA_NAME);
 		xml = border.toXMLMetadata(xml);
@@ -668,23 +600,20 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		}
 	}
 
-	/*
+	/* 
 	 * Creates a java.awt.geom.Area from a LocationList border. This method 
 	 * throw exceptions if the generated Area is empty or not singular
-	 * 
-	 * NOTE: see notes with LL_PRECISION
-	 * TODO this needs to be revisited for GeneralPath2D
 	 */
 	private static Area createArea(LocationList border) {
 		
-		GeneralPath path = new GeneralPath(
-				GeneralPath.WIND_EVEN_ODD,
+		Path2D path = new Path2D.Double(
+				Path2D.WIND_EVEN_ODD,
 				border.size());
 		
 		boolean starting = true;
 		for (Location loc: border) {
-			float lat = (float) loc.getLatitude();
-			float lon = (float) loc.getLongitude();
+			double lat = loc.getLatitude();
+			double lon = loc.getLongitude();
 			// if just starting, then moveTo
 			if (starting) {
 				path.moveTo(lon, lat);
@@ -704,9 +633,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 			throw new IllegalArgumentException(
 					"Area is not a single closed path");
 		}
-		
-		// test remove
-		LocationList ll = Region.createBorder(area, false);
+
 		return area;
 	}
 	
@@ -798,13 +725,8 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		double[] vertex = new double[6];
 		while (!pi.isDone()) {
 			int type = pi.currentSegment(vertex);
-			// impose meter scale precision; narrowing conversions that occur
-			// when creating an area from a GeneralPath (only uses floats)
-			// have strange effects on values on retreival:
-			//  -125.4000015258789 vs -125.4
-			// NOTE: see notes with LL_PRECISION
-			double lon = MathUtils.round(vertex[0], LocationUtils.LL_PRECISION);
-			double lat = MathUtils.round(vertex[1], LocationUtils.LL_PRECISION);
+			double lon = vertex[0];
+			double lat = vertex[1];
 			// skip the final closing segment which just repeats
 			// the previous vertex but indicates SEG_CLOSE
 			if (type != PathIterator.SEG_CLOSE) {
@@ -833,9 +755,6 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	private static LocationList createLocationCircle(
 			Location center, double radius) {
 		
-		// NOTE: uses immutable Locations because this method may create
-		// LocationLists that may be used as borders
-		
 		LocationList ll = new LocationList();
 	    for (double angle=0; angle<360; angle += WEDGE_WIDTH) {
 	    	ll.add(LocationUtils.location(
@@ -851,11 +770,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 */
 	private static LocationList createLocationBox(
 			Location p1, Location p2, double distance) {
-		
-		// NOTE: doesn't require immutable Locations at this time as it is only
-		// called when building bufferred Regions (the border LocationList
-		// of a buffered region is created from its area using immutables)
-		
+				
 		// get the azimuth and back-azimuth between the points
 		double az12 = LocationUtils.azimuthRad(p1, p2);
 		double az21 = LocationUtils.azimuthRad(p2, p1); // back azimuth
@@ -874,7 +789,7 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 		return ll;
 	}
 	
-	// Serialization methods required for Area
+	// Serialization methods required for non-serializable Area
 	private void writeObject(ObjectOutputStream os) throws IOException {
 		 os.writeObject(name);
 		 os.writeObject(border);
@@ -895,38 +810,5 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
     		 }
     	 }
     }
-
-    public static void main(String[] args) {
- 		Line2D line = new Line2D.Double(new Point(1, 1), new Point(2, 1));
-		Polygon poly = new Polygon(new int[]{1,4,3,2}, new int[]{1,1,1,1}, 4);
-		
-		Area testArea = new Area(poly);
-		System.out.println(testArea.isEmpty());
-
-    }
-     // TODO clean
-// 	NOTE: see notes with LL_PRECISION
-//	   hold onto and revisit precision testing until after move to jdk6
-//	public static void main(String[] args) {
-//		double tmp = 5.64352783407;
-//		Location loc = new Location(tmp,tmp,0);
-//		System.out.println(loc);
-//		
-//		DecimalFormat fmt1 = new DecimalFormat("0.0######");
-//		DecimalFormat fmt2 = new DecimalFormat("0.0#####");
-//		DecimalFormat fmt3 = new DecimalFormat("0.0####");
-//		System.out.println(MathUtils.round(tmp, LocationUtils.LL_PRECISION));
-//		System.out.println(fmt1.format(tmp));
-//		System.out.println(fmt2.format(tmp));
-//		System.out.println(fmt3.format(tmp));
-//		System.out.println((float) tmp);
-		
-//		LocationList ll = new LocationList();
-//		ll.addLocation(new Location(40, -120));
-//		ll.addLocation(new Location(44, -120));
-//		ll.addLocation(new Location(44, -115));
-//		ll.addLocation(new Location(40, -115));
-//		
-//	}
 
 }
