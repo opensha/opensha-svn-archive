@@ -46,7 +46,8 @@ public class CalcInputsGenerator {
 			String name = "ceus";
 			double latmin = 24.6;
 		    double latmax = 50.0;
-		    double lonmin = -125.0;
+//		    double lonmin = -125.0;
+		    double lonmin = -100.0;
 		    double lonmax = -65.0;
 			
 		    // South America
