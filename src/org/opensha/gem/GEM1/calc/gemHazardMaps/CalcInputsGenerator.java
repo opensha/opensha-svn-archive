@@ -22,7 +22,6 @@ import org.opensha.gem.condor.dagGen.HazardDataSetDAGCreator;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1SouthAmericaERF;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1_CEUS_ERF;
-import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.util.TectonicRegionType;
 
@@ -114,7 +113,7 @@ public class CalcInputsGenerator {
 			String curveOutputDir = outputDir + "/curves";
 			AsciiFileCurveArchiver archiver = new AsciiFileCurveArchiver(curveOutputDir, binByLat, binByLon);
 			
-			String javaExec = "/usr/bin/java";
+			String javaExec = "/auto/usc/jdk/1.6.0/jre/bin/java";
 			String jarFile = "/home/scec-00/tera3d/opensha/gem/svn/dist/OpenSHA_complete.jar";
 			HazardDataSetDAGCreator dag = new HazardDataSetDAGCreator(modelERF, maps, sites, settings,
 					archiver, javaExec, jarFile);
