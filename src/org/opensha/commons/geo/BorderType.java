@@ -17,9 +17,8 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.data.region;
+package org.opensha.commons.geo;
 
-import org.opensha.commons.geo.Location;
 
 /**
  * A <code>BorderType</code> specifies how lines connecting two points on the

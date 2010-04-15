@@ -8,8 +8,8 @@ import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMAreaSourceD
 
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.region.Region;
 import org.opensha.gem.GEM1.calc.gemModelParsers.GemFileParser;
 import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.earthquake.griddedForecast.MagFreqDistsForFocalMechs;

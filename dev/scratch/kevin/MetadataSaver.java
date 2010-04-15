@@ -9,7 +9,7 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.data.region.GriddedRegion;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.gridComputing.GridResources;
 import org.opensha.commons.gridComputing.ResourceProvider;
 import org.opensha.commons.gridComputing.StorageHost;

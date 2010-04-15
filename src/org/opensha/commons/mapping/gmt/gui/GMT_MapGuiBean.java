@@ -25,9 +25,9 @@ import java.util.ListIterator;
 import javax.swing.JOptionPane;
 
 import org.opensha.commons.data.XYZ_DataSetAPI;
-import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;

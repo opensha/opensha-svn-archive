@@ -19,7 +19,7 @@
 
 package org.opensha.commons.mapping.gmt.elements;
 
-import org.opensha.commons.data.region.Region;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.mapping.gmt.GMT_Map;
 
 public enum TopographicSlopeFile {

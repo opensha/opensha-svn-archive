@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.data.region;
+package org.opensha.commons.geo;
 
 import java.awt.Color;
 import java.io.File;
@@ -33,8 +33,6 @@ import org.dom4j.Namespace;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import org.dom4j.tree.DefaultElement;
-import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.LocationList;
 
 /**
  * Add comments here

@@ -1,6 +1,6 @@
 package scratch.matt.calc;
 
-import org.opensha.commons.data.region.GriddedRegion;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.griddedForecast.STEP_CombineForecastModels;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;

@@ -19,8 +19,8 @@
 
 package org.opensha.commons.util.binFile;
 
-import org.opensha.commons.data.region.Region;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.Region;
 
 public class GeolocatedRectangularBinaryMesh2DCalculator extends
 		BinaryMesh2DCalculator {

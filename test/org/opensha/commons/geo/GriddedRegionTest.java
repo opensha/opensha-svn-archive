@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.data.region;
+package org.opensha.commons.geo;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -35,9 +35,12 @@ import java.io.ObjectOutputStream;
 import org.apache.commons.math.util.MathUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opensha.commons.geo.BorderType;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.geo.Region;
 
 
 public class GriddedRegionTest {

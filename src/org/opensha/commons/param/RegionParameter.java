@@ -22,12 +22,12 @@ package org.opensha.commons.param;
 import java.util.ArrayList;
 
 import org.dom4j.Element;
-import org.opensha.commons.data.region.Region;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.RegionParameterEditor;
 

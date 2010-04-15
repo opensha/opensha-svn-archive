@@ -33,11 +33,11 @@ import java.util.ListIterator;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Site;
-import org.opensha.commons.data.region.BorderType;
-import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.commons.geo.BorderType;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.param.ParameterAPI;

@@ -27,8 +27,8 @@ import java.util.ListIterator;
 
 import org.dom4j.Element;
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.commons.data.region.Region;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.metadata.MetadataLoader;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.param.Parameter;

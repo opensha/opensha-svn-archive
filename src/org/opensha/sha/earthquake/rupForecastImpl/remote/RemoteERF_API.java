@@ -24,8 +24,8 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.commons.data.region.Region;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 

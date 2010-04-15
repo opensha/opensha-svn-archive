@@ -14,7 +14,7 @@ import org.dom4j.Element;
 import org.junit.Before;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.data.region.GriddedRegion;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.gridComputing.condor.SubmitScript.Universe;
 import org.opensha.commons.param.DependentParameter;

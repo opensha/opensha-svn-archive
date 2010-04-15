@@ -32,7 +32,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
-import org.opensha.commons.data.region.GriddedRegion;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.MailUtil;
 import org.opensha.sha.calc.hazardMap.grid.MetadataHazardMapCalculator;

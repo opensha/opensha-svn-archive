@@ -24,10 +24,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.region.GriddedRegion;
-import org.opensha.commons.data.region.Region;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeEqkRupture;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeEvenlyGriddedSurface;

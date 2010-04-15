@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.data.region;
+package org.opensha.commons.geo;
 
 import java.awt.Shape;
 import java.awt.geom.Area;
@@ -26,8 +26,6 @@ import java.util.Iterator;
 
 import org.apache.commons.math.util.MathUtils;
 import org.dom4j.Element;
-import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.LocationList;
 
 
 /**

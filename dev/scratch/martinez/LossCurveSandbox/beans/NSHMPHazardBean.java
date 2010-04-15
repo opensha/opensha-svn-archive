@@ -5,8 +5,8 @@ import java.beans.PropertyVetoException;
 import java.util.Vector;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.region.Region;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.Region;
 import org.opensha.nshmp.sha.data.HazardDataMinerServletMode;
 import org.opensha.nshmp.util.GlobalConstants;
 

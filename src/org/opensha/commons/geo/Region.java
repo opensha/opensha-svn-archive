@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.data.region;
+package org.opensha.commons.geo;
 
 import static org.opensha.commons.geo.GeoTools.PI_BY_2;
 import static org.opensha.commons.geo.GeoTools.TO_RAD;
@@ -36,9 +36,6 @@ import java.util.List;
 
 import org.dom4j.Element;
 import org.opensha.commons.data.NamedObjectAPI;
-import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.metadata.XMLSaveable;
 
 /**

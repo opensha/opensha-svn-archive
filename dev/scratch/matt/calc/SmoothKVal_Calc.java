@@ -3,7 +3,7 @@ package scratch.matt.calc;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.region.GriddedRegion;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.griddedForecast.GenericAfterHypoMagFreqDistForecast;

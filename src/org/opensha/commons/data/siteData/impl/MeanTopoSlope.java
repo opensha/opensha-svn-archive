@@ -21,12 +21,12 @@ package org.opensha.commons.data.siteData.impl;
 
 import java.io.IOException;
 
-import org.opensha.commons.data.region.GriddedRegion;
-import org.opensha.commons.data.region.Region;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.util.MeanTopoSlopeCalculator;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.param.DoubleParameter;
 
 public class MeanTopoSlope extends AbstractSiteData<Double> {

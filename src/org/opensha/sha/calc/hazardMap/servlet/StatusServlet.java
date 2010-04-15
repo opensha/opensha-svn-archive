@@ -37,7 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
-import org.opensha.commons.data.region.GriddedRegion;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.gridComputing.StorageHost;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.XMLUtils;

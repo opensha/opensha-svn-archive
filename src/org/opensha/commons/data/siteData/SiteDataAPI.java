@@ -23,9 +23,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.NamedObjectAPI;
-import org.opensha.commons.data.region.Region;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterListEditor;

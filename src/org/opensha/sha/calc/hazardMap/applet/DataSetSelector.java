@@ -34,7 +34,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.opensha.commons.data.region.GriddedRegion;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.sha.calc.hazardMap.servlet.DatasetID;
 import org.opensha.sha.calc.hazardMap.servlet.StatusServletAccessor;
 

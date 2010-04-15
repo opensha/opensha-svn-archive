@@ -21,9 +21,9 @@ package org.opensha.nshmp.util;
 
 import java.util.ArrayList;
 
-import org.opensha.commons.data.region.Region;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.Region;
 import org.opensha.nshmp.exceptions.AnalysisOptionNotSupportedException;
 
 

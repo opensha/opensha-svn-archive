@@ -25,7 +25,7 @@ import java.io.ObjectOutputStream;
 import java.net.URLConnection;
 import java.util.ArrayList;
 
-import org.opensha.commons.data.region.GriddedRegion;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.sha.calc.hazardMap.CalculationStatus;
 
 public class StatusServletAccessor extends ServletAccessor {

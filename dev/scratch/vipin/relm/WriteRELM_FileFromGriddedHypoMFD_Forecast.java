@@ -6,7 +6,7 @@ import java.io.FileWriter;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.data.region.GriddedRegion;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;

@@ -5,8 +5,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import org.opensha.commons.data.region.Region;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.Region;
 
 import ucar.ma2.Array;
 import ucar.ma2.Index;

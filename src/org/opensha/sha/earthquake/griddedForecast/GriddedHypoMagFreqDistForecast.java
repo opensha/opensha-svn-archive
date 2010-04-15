@@ -24,9 +24,9 @@ import java.util.EventObject;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.commons.data.region.GriddedRegion;
-import org.opensha.commons.data.region.Region;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;

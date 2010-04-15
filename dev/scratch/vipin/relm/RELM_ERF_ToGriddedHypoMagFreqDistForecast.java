@@ -2,7 +2,7 @@ package scratch.vipin.relm;
 
 import java.util.ArrayList;
 
-import org.opensha.commons.data.region.GriddedRegion;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.calc.ERF2GriddedSeisRatesCalc;
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;

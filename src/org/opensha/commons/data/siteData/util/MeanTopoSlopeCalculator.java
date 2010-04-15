@@ -22,9 +22,9 @@ package org.opensha.commons.data.siteData.util;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.opensha.commons.data.region.GriddedRegion;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.impl.SRTM30PlusTopoSlope;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 
