@@ -26,7 +26,7 @@ public class TripleS {
 	    double latmax = 34.5;//90.0;
 	    double lonmin = -118.0;//-180.0;
 	    double lonmax = -118.0;//180.0;
-	    double delta = 10.0;
+	    double delta = 0.5;
 	    
 		// probability level for computing hazard map
 		double[] probLevel = new double[3];

@@ -60,6 +60,8 @@ public class HazardCurveSetCalculator {
 		int siteCount = 0;
 		for (Site site : sites) {
 			siteCount++;
+			if (siteCount % 10 == 0)
+				System.gc();
 			int imrMapCount = 0;
 			for (HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap : imrMaps) {
 				imrMapCount++;
