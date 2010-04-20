@@ -105,8 +105,8 @@ public class HazardDataSetDAGCreator {
 	}
 	
 	private void writeCalcWrapperScript(String scriptFile, int startIndex, String xmlFile) throws IOException {
-		String newJar = "/tmp/openSHA_" + startIndex + ".jar";
-		String javaCommand = javaExec +  " -Xmx" + heapSize + "M" + " -classpath " + newJar + " "
+		String newJarFile = "openSHA_" + startIndex + ".jar";
+		String javaCommand = javaExec +  " -Xmx" + heapSize + "M" + " -classpath $jarDir/" + newJarFile + " "
 					+ HazardCurveDriver.class.getName() + " " + xmlFile;
 		
 		FileWriter fw = new FileWriter(scriptFile);
@@ -115,7 +115,13 @@ public class HazardDataSetDAGCreator {
 		fw.write("" + "\n");
 		fw.write("set -o errexit" + "\n");
 		fw.write("" + "\n");
-		fw.write("cp " + jarFile + " " + newJar + "\n");
+		fw.write("# try /scratch, default to /tmp if not" + "\n");
+		fw.write("jarDir=\"/scratch\"" + "\n");
+		fw.write("if [[ ! -e $jarDir ]];then" + "\n");
+		fw.write("\tjarDir=\"/tmp\"" + "\n");
+		fw.write("fi" + "\n");
+		fw.write("" + "\n");
+		fw.write("cp " + jarFile + " $jarDir/" + newJarFile + "\n");
 		fw.write("" + "\n");
 		fw.write(javaCommand + "\n");
 		fw.write("exit $?" + "\n");
