@@ -101,7 +101,7 @@ public class CalcInputsGenerator {
 			/*			ERF					*/
 //			NshmpSouthAmericaData model = new NshmpSouthAmericaData(latmin,latmax,lonmin,lonmax);
 //			GEM1ERF modelERF = new GEM1ERF(model.getList(),calcSet);
-			GEM1ERF modelERF = new GEM1_CEUS_ERF(latmin,latmax,lonmin,lonmax, calcSet);
+			GEM1ERF modelERF = new GEM1_CEUS_ERF(calcSet);
 //			GEM1
 			modelERF.updateForecast();
 			if (calcSet.isSourceCache()) {
