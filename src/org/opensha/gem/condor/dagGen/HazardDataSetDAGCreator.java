@@ -106,7 +106,7 @@ public class HazardDataSetDAGCreator {
 	
 	private void writeCalcWrapperScript(String scriptFile, int startIndex, String xmlFile) throws IOException {
 		String newJar = "/tmp/openSHA_" + startIndex + ".jar";
-		String javaCommand = javaExec +  " -Xmx" + heapSize + " -classpath " + newJar + " "
+		String javaCommand = javaExec +  " -Xmx" + heapSize + "M" + " -classpath " + newJar + " "
 					+ HazardCurveDriver.class.getName() + " " + xmlFile;
 		
 		FileWriter fw = new FileWriter(scriptFile);

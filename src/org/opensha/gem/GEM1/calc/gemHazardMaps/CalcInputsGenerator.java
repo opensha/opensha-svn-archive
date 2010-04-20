@@ -102,11 +102,12 @@ public class CalcInputsGenerator {
 //			NshmpSouthAmericaData model = new NshmpSouthAmericaData(latmin,latmax,lonmin,lonmax);
 //			GEM1ERF modelERF = new GEM1ERF(model.getList(),calcSet);
 			GEM1ERF modelERF = new GEM1_CEUS_ERF(calcSet);
-//			GEM1
-			modelERF.updateForecast();
-			if (calcSet.isSourceCache()) {
-				for (int i=0; i<modelERF.getNumSources(); i++)
-					modelERF.getSource(i);
+			if (settings.isSerializeERF()) {
+				modelERF.updateForecast();
+				if (calcSet.isSourceCache()) {
+					for (int i=0; i<modelERF.getNumSources(); i++)
+						modelERF.getSource(i);
+				}
 			}
 //			System.out.println("TRT 0: " + modelERF.getSource(0).getTectonicRegionType());
 //			System.exit(0);
