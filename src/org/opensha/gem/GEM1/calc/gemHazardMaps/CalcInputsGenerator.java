@@ -49,6 +49,13 @@ public class CalcInputsGenerator {
 		    double lonmin = -100.0;
 		    double lonmax = -65.0;
 			
+			// globla
+//			String name = "globalSS";
+//			double latmin = -90;
+//		    double latmax = 90;
+//		    double lonmin = -180.0;
+//		    double lonmax = 180;
+			
 		    // South America
 //		    String name = "southAmerica";
 //			double latmin = -55;
@@ -59,6 +66,7 @@ public class CalcInputsGenerator {
 			Location topLeft = new Location(latmax, lonmin);
 			Location bottomRight = new Location(latmin, lonmax);
 			double spacing = 0.1;
+//			double spacing = 0.5;
 //			double spacing = 1.0;
 			GriddedRegion region = new GriddedRegion(topLeft, bottomRight, spacing, topLeft);
 			ArrayList<Site> sites = new ArrayList<Site>();
@@ -93,7 +101,8 @@ public class CalcInputsGenerator {
 			/*			ERF					*/
 //			NshmpSouthAmericaData model = new NshmpSouthAmericaData(latmin,latmax,lonmin,lonmax);
 //			GEM1ERF modelERF = new GEM1ERF(model.getList(),calcSet);
-			GEM1ERF modelERF = new GEM1_CEUS_ERF(calcSet);
+			GEM1ERF modelERF = new GEM1_CEUS_ERF(latmin,latmax,lonmin,lonmax, calcSet);
+//			GEM1
 			modelERF.updateForecast();
 			if (calcSet.isSourceCache()) {
 				for (int i=0; i<modelERF.getNumSources(); i++)
