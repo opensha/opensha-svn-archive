@@ -49,6 +49,8 @@ public class HazardDataSetDAGCreator {
 	private String javaExec;
 	private String jarFile;
 	
+	private int heapSize = 2048;
+	
 	private String requirements = null;
 
 	private DecimalFormat curveIndexFormat;
@@ -101,6 +103,25 @@ public class HazardDataSetDAGCreator {
 		this.javaExec = javaExec;
 		this.jarFile = jarFile;
 	}
+	
+	private void writeCalcWrapperScript(String scriptFile, int startIndex, String xmlFile) throws IOException {
+		String newJar = "/tmp/openSHA_" + startIndex + ".jar";
+		String javaCommand = javaExec +  " -Xmx" + heapSize + " -classpath " + newJar + " "
+					+ HazardCurveDriver.class.getName() + " " + xmlFile;
+		
+		FileWriter fw = new FileWriter(scriptFile);
+		
+		fw.write("#!/bin/bash" + "\n");
+		fw.write("" + "\n");
+		fw.write("set -o errexit" + "\n");
+		fw.write("" + "\n");
+		fw.write("cp " + jarFile + " " + newJar + "\n");
+		fw.write("" + "\n");
+		fw.write(javaCommand + "\n");
+		fw.write("exit $?" + "\n");
+		
+		fw.close();
+	}
 
 	/**
 	 * Writes the DAG to the specified output directory. It will the task into many small tasks
@@ -144,9 +165,11 @@ public class HazardDataSetDAGCreator {
 			System.out.println("Writing job for curves " + startIndex + " => " + endIndex);
 
 			String jobName = "Curves_" + curveIndexFormat.format(startIndex) + "_" + curveIndexFormat.format(endIndex);
-			String executable = javaExec;
 			String xmlFile = writeCurveJobXML(odir, startIndex, endIndex, jobName, serializedERFFile);
-			String arguments = "-Xmx2048M -classpath " + jarFile + " " + HazardCurveDriver.class.getName() + " " + xmlFile;
+			String scriptFile = odir + jobName + ".sh";
+			writeCalcWrapperScript(scriptFile, startIndex, xmlFile);
+			String executable = "/bin/bash";
+			String arguments = scriptFile;
 			SubmitScriptForDAG job = new SubmitScriptForDAG(jobName, executable, arguments,
 					"/tmp", universe, true);
 			job.setRequirements(requirements);
