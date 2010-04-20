@@ -1,5 +1,6 @@
 package org.opensha.sra.calc;
 
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.param.ParameterAPI;
@@ -9,7 +10,9 @@ import org.opensha.sha.imr.IntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sra.asset.Asset;
+import org.opensha.sra.asset.MonetaryValue;
 import org.opensha.sra.asset.Portfolio;
+import org.opensha.sra.asset.Value;
 import org.opensha.sra.vulnerability.Vulnerability;
 
 /**
@@ -26,6 +29,12 @@ import org.opensha.sra.vulnerability.Vulnerability;
  * @version $Id:$
  */
 public class PortfolioLossExceedenceCurveCalculator {
+	
+	// TODO allow user to specify?
+	private static double valueCoefficientOfVariation = 0.15;
+	
+	// TODO allow user to specify?
+	private static double interEventFactor = 0.25;
 
 	// TODO TectonicRegionType support?
 	
@@ -38,21 +47,55 @@ public class PortfolioLossExceedenceCurveCalculator {
 		
 		// data arrays
 		int n = portfolio.size();
+		// mean value
+		double[] mValue = new double[n]; // v sub j bar
+		// high value
+		double[] hValue = new double[n]; // v sub j+
+		// low value
+		double[] lValue = new double[n]; // v sub j-
 		// mean damage for mean IML
-		double[] mDamage_mIML = new double[n];
+		double[] mDamage_mIML = new double[n]; // y sub j bar
 		// high damage for mean IML
-		double[] hDamage_mIML = new double[n];
+		double[] hDamage_mIML = new double[n]; // y sub j+
 		// low damage for mean IML
-		double[] lDamage_mIML = new double[n];
+		double[] lDamage_mIML = new double[n]; // y sub j-
 		// mean damage ...
-		double[] mDamage_hInter = new double[n];
-		double[] mDamage_lInter = new double[n];
-		double[] mDamage_hIntra = new double[n];
-		double[] mDamage_lIntra = new double[n];
+		double[] mShaking = new double[n]; // s sub j bar
+		double[] mDamage_hInter = new double[n]; // s sub +t
+		double[] mDamage_lInter = new double[n]; // s sub -t
+		double[] mDamage_hIntra = new double[n]; // s sub +p
+		double[] mDamage_lIntra = new double[n]; // s sub -p
+		
+		// Equation 5
+		double w0 = 1d - (6d + 4d*portfolio.size())/6d;
+		double wi = 1d / 6d;
+		
+		double sqrt3 = Math.sqrt(3d);
 		
 		// loop over assets
-		for (Asset asset : portfolio) {
-			// set mean low and high value array
+		for (int i=0; i<portfolio.size(); i++) {
+			Asset asset = portfolio.get(i);
+			Value value = asset.getValue();
+			if (value instanceof MonetaryValue) {
+				MonetaryValue mvalue = (MonetaryValue)asset.getValue();
+				double meanValue = mvalue.getValue();
+				// TODO: implement case where high and low are specified in portfolio! This calculates them
+				// from the mean
+				
+				// Equation 11
+				double medianValue = meanValue / Math.sqrt(1d + valueCoefficientOfVariation*valueCoefficientOfVariation);
+				// Equation 12
+				double coeffSqr3 = valueCoefficientOfVariation * sqrt3;
+				double highValue = medianValue * Math.exp(1d + coeffSqr3);
+				double lowValue = medianValue * Math.exp(1d - coeffSqr3);
+				
+				// set mean low and high value arrays
+				mValue[i] = meanValue; // v sub j bar
+				hValue[i] = highValue; // v sub j+
+				lValue[i] = lowValue;  // v sub j-
+			} else {
+				throw new RuntimeException("Value must be of type MonetaryValue");
+			}
 		}
 		// ---
 		
@@ -69,7 +112,8 @@ public class PortfolioLossExceedenceCurveCalculator {
 					
 					Asset asset = portfolio.get(k);
 					Vulnerability vuln = asset.getVulnerability();
-						
+					
+					// TODO: deal with setting period for SA
 					imr.setIntensityMeasure(vuln.getIMT());
 					imr.setSite(asset.getSite());
 					imr.setEqkRupture(src.getRupture(rupID));
@@ -86,38 +130,39 @@ public class PortfolioLossExceedenceCurveCalculator {
 						intraStd = imr.getStdDev();
 						stdParam.setValue(StdDevTypeParam.STD_DEV_TYPE_INTER);
 						interStd = imr.getStdDev();
-					}
-					else {
-						interStd = 0.25*std; // TODO make 0.25 adj. Param
-						intraStd = Math.sqrt(std*std-interStd*interStd);
+					} else {
+						interStd = interEventFactor*std; // Equation 6
+						intraStd = Math.sqrt(std*std-interStd*interStd); // Equation 7
 					}
 					
-					
-					mDamage_mIML[k] = vuln.getMeanLoss(mLnIML);
+					mDamage_mIML[k] = vuln.getMeanLoss(mLnIML); // y sub j bar
 					
 					// TODO K. Porter explain 11th and 89th
 					// e^(mIML + 0.5 * std * std)
-					double mIML = Math.exp(mLnIML + 0.5 * std * std);
-					hDamage_mIML[k] = vuln.getLossAtExceedProb(mIML, 0.11); 
-					lDamage_mIML[k] = vuln.getLossAtExceedProb(mIML, 0.89);
+					double mIML = Math.exp(mLnIML + 0.5 * std * std); // Equation 9
+					mShaking[k] = mIML; // s sub j bar
+					
+					hDamage_mIML[k] = vuln.getLossAtExceedProb(mIML, 0.11); // y sub j+
+					lDamage_mIML[k] = vuln.getLossAtExceedProb(mIML, 0.89); // y sub j-
 					
 					// TODO doublecheck log-space consistency for vulnerability
 					// vuln not log space so what is mean?
 					
+					// Equation 8
 					// e^(mIML+1.732*interStd)  96th %ile
 					//
 					// sqrt(3) = 1.732
-					double interVal = 1.732 * interStd;
+					double interVal = sqrt3 * interStd;
 					double imlHighInter = Math.exp(mLnIML + interVal);
 					double imlLowInter = Math.exp(mLnIML - interVal);
-					mDamage_hInter[k] = vuln.getMeanLoss(imlHighInter);
-					mDamage_lInter[k] = vuln.getMeanLoss(imlLowInter);
+					mDamage_hInter[k] = vuln.getMeanLoss(imlHighInter); // s sub +t
+					mDamage_lInter[k] = vuln.getMeanLoss(imlLowInter);  // s sub -t
 					
-					double intraVal = 1.732 * intraStd;
+					double intraVal = sqrt3 * intraStd;
 					double imlHighIntra = Math.exp(mLnIML + intraVal);
 					double imlLowIntra = Math.exp(mLnIML - intraVal);
-					mDamage_hIntra[k] = vuln.getMeanLoss(imlHighIntra);
-					mDamage_lIntra[k] = vuln.getMeanLoss(imlLowIntra);
+					mDamage_hIntra[k] = vuln.getMeanLoss(imlHighIntra); // s sub +p
+					mDamage_lIntra[k] = vuln.getMeanLoss(imlLowIntra);  // s sub -p
 
 					
 					
@@ -142,11 +187,83 @@ public class PortfolioLossExceedenceCurveCalculator {
 					// do simulations
 					// store 
 		
+//		int numSamples = 8 + 4*portfolio.size();
+		int numSamples = 7;
+		double[] l = new double[numSamples];
+		double[] lSquared = new double[numSamples];
+		// init arrays to 0
+		for (int i=0; i<numSamples; i++) {
+			l[i] = 0;
+			lSquared[i] = 0;
+		}
+		// now we combine everything
+		for (int i=0; i<portfolio.size(); i++) {
+			Asset asset = portfolio.get(i);
+			
+			double val;
+			
+			// Equation 20
+			val = mValue[i] * mDamage_mIML[i] * mShaking[i];
+			l[0] += val;
+			lSquared[0] += val * val;
+			
+			// Equation 21
+			val = mValue[i] * mDamage_mIML[i] * mDamage_hInter[i];
+			l[1] += val;
+			lSquared[1] += val * val;
+			
+			// Equation 22
+			val = mValue[i] * mDamage_mIML[i] * mDamage_lInter[i];
+			l[2] += val;
+			lSquared[2] += val * val;
+			
+			// Equation 23
+			val = hValue[i] * mDamage_mIML[i] * mShaking[i];
+			l[3] += val;
+			lSquared[2] += val * val;
+			
+			// Equation 24
+			val = lValue[i] * mDamage_mIML[i] * mShaking[i];
+			l[4] += val;
+			lSquared[2] += val * val;
+			
+			// Equation 25
+			val = mValue[i] * hDamage_mIML[i] * mShaking[i];
+			l[5] += val;
+			lSquared[0] += val * val;
+			
+			// Equation 26
+			val = mValue[i] * lDamage_mIML[i] * mShaking[i];
+			l[6] += val;
+			lSquared[0] += val * val;
+		}
 		
-					
-					
+		// all this is for Equation 33
+		double sumReg = 0;
+		double sumSquares = 0;
+		for (int i=0; i<portfolio.size(); i++) {
+			Asset asset = portfolio.get(i);
+			
+			// vBar ( yBar ( s sub +p ) + yBar ( s sub -p))
+			sumReg += mValue[i] * ( mDamage_mIML[i] * mDamage_hIntra[i] + mDamage_mIML[i] * mDamage_lIntra[i] );
+			sumSquares += Math.pow(mValue[i] * mDamage_mIML[i] * mDamage_hIntra[i], 2)
+								+ Math.pow(mValue[i] * mDamage_mIML[i] * mDamage_lIntra[i], 2);
+		}
+		double e_LgivenS = w0 * l[0] + wi * (l[1] + l[2] + l[3] + l[4] + 2*l[5] + 2*l[6]
+							+ (4*portfolio.size() - 4)*l[0] + sumReg);
+		double e_LSuqaredGivenS = w0 * lSquared[0] + wi * (lSquared[1] + lSquared[2] + lSquared[3] + lSquared[4]
+							+ 2*lSquared[5] + 2*lSquared[6] + (4*portfolio.size() - 4)*lSquared[0] + sumSquares);
 		
+		// Equation 34
+		double varLgivenS = e_LSuqaredGivenS - e_LgivenS * e_LgivenS;
+		
+		ArbitrarilyDiscretizedFunc result = new ArbitrarilyDiscretizedFunc();
+		for (int k=0; k<51; k++) {
+			double x = Math.pow(10d, -5d + 0.1 * k);
+//			double y = 1 - 
+		}
 		
 		return null;
 	}
 }
+
