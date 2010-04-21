@@ -115,11 +115,11 @@ public class HazardDataSetDAGCreator {
 		fw.write("" + "\n");
 		fw.write("set -o errexit" + "\n");
 		fw.write("" + "\n");
-		fw.write("# try /scratch, default to /tmp if not" + "\n");
-		fw.write("jarDir=\"/scratch\"" + "\n");
-		fw.write("if [[ ! -e $jarDir ]];then" + "\n");
-		fw.write("\tjarDir=\"/tmp\"" + "\n");
-		fw.write("fi" + "\n");
+//		fw.write("# try /scratch, default to /tmp if not" + "\n");
+//		fw.write("jarDir=\"/scratch\"" + "\n");
+//		fw.write("if [[ ! -e $jarDir ]];then" + "\n");
+		fw.write("jarDir=\"/tmp\"" + "\n");
+//		fw.write("fi" + "\n");
 		fw.write("" + "\n");
 		fw.write("cp " + jarFile + " $jarDir/" + newJarFile + "\n");
 		fw.write("" + "\n");
