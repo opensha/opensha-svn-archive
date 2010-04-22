@@ -13,6 +13,7 @@ import org.opensha.sha.imr.IntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sra.asset.Asset;
+import org.opensha.sra.asset.MonetaryHighLowValue;
 import org.opensha.sra.asset.MonetaryValue;
 import org.opensha.sra.asset.Portfolio;
 import org.opensha.sra.asset.Value;
@@ -81,16 +82,22 @@ public class PortfolioLossExceedenceCurveCalculator {
 			Value value = asset.getValue();
 			if (value instanceof MonetaryValue) {
 				MonetaryValue mvalue = (MonetaryValue)asset.getValue();
-				double meanValue = mvalue.getValue();
-				// TODO: implement case where high and low are specified in portfolio! This calculates them
-				// from the mean
 				
-				// Equation 11
-				double medianValue = meanValue / Math.sqrt(1d + valueCoefficientOfVariation*valueCoefficientOfVariation);
-				// Equation 12
-				double coeffSqr3 = valueCoefficientOfVariation * sqrt3;
-				double highValue = medianValue * Math.exp(1d + coeffSqr3);
-				double lowValue = medianValue * Math.exp(1d - coeffSqr3);
+				double meanValue = mvalue.getValue();
+				double highValue, lowValue;
+				if (mvalue instanceof MonetaryHighLowValue) {
+					MonetaryHighLowValue hlmValue = (MonetaryHighLowValue) mvalue;
+					highValue = hlmValue.getHighValue();
+					lowValue = hlmValue.getLowValue();
+				} else {
+					// if high/low value isn't given, we need to calculate it from mean and COV
+					// Equation 11
+					double medianValue = meanValue / Math.sqrt(1d + valueCoefficientOfVariation*valueCoefficientOfVariation);
+					// Equation 12
+					double coeffSqr3 = valueCoefficientOfVariation * sqrt3;
+					highValue = medianValue * Math.exp(1d + coeffSqr3);
+					lowValue = medianValue * Math.exp(1d - coeffSqr3);
+				}
 				
 				// set mean low and high value arrays
 				mValue[i] = meanValue; // v sub j bar
