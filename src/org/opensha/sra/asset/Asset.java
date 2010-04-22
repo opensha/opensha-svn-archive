@@ -24,6 +24,16 @@ import org.opensha.sra.vulnerability.Vulnerability;
  * @version $Id:$
  */
 public class Asset {
+	
+	public Asset(int id, String name, AssetCategory type, Value value, Vulnerability vuln, Site site) {
+		this.id = id;
+		this.name = name;
+		this.type = type;
+		this.value = value;
+		this.vuln = vuln;
+		this.site = site;
+		this.params = new ParameterList();
+	}
 
 	/**
 	 * Returns the ...

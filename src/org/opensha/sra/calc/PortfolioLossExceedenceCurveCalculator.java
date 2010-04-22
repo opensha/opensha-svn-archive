@@ -5,6 +5,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.param.ParameterAPI;
+import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -45,7 +46,7 @@ public class PortfolioLossExceedenceCurveCalculator {
 			EqkRupForecastAPI erf,
 			Portfolio portfolio,
 			DiscretizedFuncAPI function) {
-		
+		// TODO actually use the function that's passed in
 		
 		// data arrays
 		int n = portfolio.size();
@@ -121,8 +122,9 @@ public class PortfolioLossExceedenceCurveCalculator {
 					Asset asset = portfolio.get(k);
 					Vulnerability vuln = asset.getVulnerability();
 					
-					// TODO: deal with setting period for SA
-					imr.setIntensityMeasure(vuln.getIMT());
+					// TODO: deal with setting period for SA in a better way
+					String imt = vuln.getIMT();
+					IM_EventSetOutputWriter.setIMTFromString(imt, imr);
 					imr.setSite(asset.getSite());
 					imr.setEqkRupture(src.getRupture(rupID));
 					

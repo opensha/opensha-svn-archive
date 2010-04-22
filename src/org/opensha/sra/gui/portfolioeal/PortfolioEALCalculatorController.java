@@ -34,6 +34,7 @@ import org.opensha.sra.vulnerability.models.curee.caltech.CCSmallHouseRetro;
 import org.opensha.sra.vulnerability.models.curee.caltech.CCSmallHouseTypical;
 import org.opensha.sra.vulnerability.models.curee.caltech.CCTownhouseLimitedDrift;
 import org.opensha.sra.vulnerability.models.curee.caltech.CCTownhouseTypical;
+import org.opensha.sra.vulnerability.models.servlet.VulnerabilityServletAccessor;
 
 
 import com.isti.util.gui.IstiFileChooser;
@@ -123,9 +124,21 @@ public class PortfolioEALCalculatorController implements ActionListener, ItemLis
 			for (SimpleVulnerability sVuln : fileVulns) {
 				vulnerabilities.put(sVuln.getShortName(), sVuln);
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+//			e.printStackTrace();
+			VulnerabilityServletAccessor accessor = new VulnerabilityServletAccessor();
+			try {
+				HashMap<String, Vulnerability> map = accessor.getVulnMap();
+				for (String shortName : map.keySet()) {
+					vulnerabilities.put(shortName, map.get(shortName));
+				}
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				e1.printStackTrace();
+				System.out.println("couldn't get vulnerabilities from file or servlet!");
+			}
 		}
 		System.out.println("Added " + vulnerabilities.size() + " vulnerabilities!");
 	}
