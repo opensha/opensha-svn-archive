@@ -1,10 +1,12 @@
 package org.opensha.sra.calc;
 
+import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.imr.IntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
@@ -38,7 +40,7 @@ public class PortfolioLossExceedenceCurveCalculator {
 
 	// TODO TectonicRegionType support?
 	
-	public DiscretizedFuncAPI calculateCurve(
+	private ArbitrarilyDiscretizedFunc[][] calculateCurve(
 			ScalarIntensityMeasureRelationshipAPI imr,
 			EqkRupForecastAPI erf,
 			Portfolio portfolio,
@@ -103,8 +105,14 @@ public class PortfolioLossExceedenceCurveCalculator {
 		
 		// loop over sources
 		
+		ArbitrarilyDiscretizedFunc[][] exceedanceProbs = new ArbitrarilyDiscretizedFunc[erf.getNumSources()][];
+		
 		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
 			ProbEqkSource src = erf.getSource(sourceID);
+			
+			// TODO skip sources not within cutoff distance of any asset?
+			
+			exceedanceProbs[sourceID] = new ArbitrarilyDiscretizedFunc[src.getNumRuptures()];
 			
 			for (int rupID=0; rupID<src.getNumRuptures(); rupID++) {
 				
@@ -139,7 +147,7 @@ public class PortfolioLossExceedenceCurveCalculator {
 					
 					// TODO K. Porter explain 11th and 89th
 					// e^(mIML + 0.5 * std * std)
-					double mIML = Math.exp(mLnIML + 0.5 * std * std); // Equation 9
+					double mIML = Math.exp(mLnIML + 0.5 * std * std); // Equation 9, mean shaking real domain
 					mShaking[k] = mIML; // s sub j bar
 					
 					hDamage_mIML[k] = vuln.getLossAtExceedProb(mIML, 0.11); // y sub j+
@@ -167,6 +175,99 @@ public class PortfolioLossExceedenceCurveCalculator {
 					
 					
 				}
+//				int numSamples = 8 + 4*portfolio.size();
+				int numSamples = 7;
+				double[] l = new double[numSamples];
+				double[] lSquared = new double[numSamples];
+				// init arrays to 0
+				for (int i=0; i<numSamples; i++) {
+					l[i] = 0;
+					lSquared[i] = 0;
+				}
+				// now we combine everything
+				for (int i=0; i<portfolio.size(); i++) {
+					Asset asset = portfolio.get(i);
+					
+					double val;
+					
+					// Equation 20
+					val = mValue[i] * mDamage_mIML[i] * mShaking[i];
+					l[0] += val;
+					lSquared[0] += val * val;
+					
+					// Equation 21
+					val = mValue[i] * mDamage_mIML[i] * mDamage_hInter[i];
+					l[1] += val;
+					lSquared[1] += val * val;
+					
+					// Equation 22
+					val = mValue[i] * mDamage_mIML[i] * mDamage_lInter[i];
+					l[2] += val;
+					lSquared[2] += val * val;
+					
+					// Equation 23
+					val = hValue[i] * mDamage_mIML[i] * mShaking[i];
+					l[3] += val;
+					lSquared[2] += val * val;
+					
+					// Equation 24
+					val = lValue[i] * mDamage_mIML[i] * mShaking[i];
+					l[4] += val;
+					lSquared[2] += val * val;
+					
+					// Equation 25
+					val = mValue[i] * hDamage_mIML[i] * mShaking[i];
+					l[5] += val;
+					lSquared[0] += val * val;
+					
+					// Equation 26
+					val = mValue[i] * lDamage_mIML[i] * mShaking[i];
+					l[6] += val;
+					lSquared[0] += val * val;
+				}
+				
+				// all this is for Equation 33
+				double sumReg = 0;
+				double sumSquares = 0;
+				for (int i=0; i<portfolio.size(); i++) {
+					Asset asset = portfolio.get(i);
+					
+					// vBar ( yBar ( s sub +p ) + yBar ( s sub -p))
+					sumReg += mValue[i] * ( mDamage_mIML[i] * mDamage_hIntra[i] + mDamage_mIML[i] * mDamage_lIntra[i] );
+					sumSquares += Math.pow(mValue[i] * mDamage_mIML[i] * mDamage_hIntra[i], 2)
+										+ Math.pow(mValue[i] * mDamage_mIML[i] * mDamage_lIntra[i], 2);
+				}
+				double e_LgivenS = w0 * l[0] + wi * (l[1] + l[2] + l[3] + l[4] + 2*l[5] + 2*l[6]
+									+ (4*portfolio.size() - 4)*l[0] + sumReg);
+				double e_LSuqaredGivenS = w0 * lSquared[0] + wi * (lSquared[1] + lSquared[2] + lSquared[3] + lSquared[4]
+									+ 2*lSquared[5] + 2*lSquared[6] + (4*portfolio.size() - 4)*lSquared[0] + sumSquares);
+				
+				// Equation 34
+				double varLgivenS = e_LSuqaredGivenS - e_LgivenS * e_LgivenS;
+				
+				// Eqaution 18
+				double deltaSquaredSubLgivenS = varLgivenS / (e_LgivenS * e_LgivenS);
+				
+				// Equation 17
+				double thetaSubLgivenS = e_LgivenS / Math.sqrt(1d + deltaSquaredSubLgivenS);
+				
+				// Equation 19
+				double betaSubLgivenS = Math.sqrt(Math.log(1d + deltaSquaredSubLgivenS));
+				
+				ArbDiscrEmpiricalDistFunc distFunc = new ArbDiscrEmpiricalDistFunc();
+				for (int k=0; k<51; k++) {
+					double x = Math.pow(10d, -5d + 0.1 * k);
+					double inside = (Math.log(x) / thetaSubLgivenS) / betaSubLgivenS;
+					distFunc.set(x, inside);
+				}
+				ArbitrarilyDiscretizedFunc normCumDist = distFunc.getNormalizedCumDist();
+				for (int k=0; k<51; k++) {
+					double x = normCumDist.getX(k);
+					double y = normCumDist.getY(k);
+					normCumDist.set(x, 1-y);
+				}
+				
+				exceedanceProbs[sourceID][rupID] = normCumDist;
 			}
 		}
 			// loop over ruptures
@@ -187,82 +288,55 @@ public class PortfolioLossExceedenceCurveCalculator {
 					// do simulations
 					// store 
 		
-//		int numSamples = 8 + 4*portfolio.size();
-		int numSamples = 7;
-		double[] l = new double[numSamples];
-		double[] lSquared = new double[numSamples];
-		// init arrays to 0
-		for (int i=0; i<numSamples; i++) {
-			l[i] = 0;
-			lSquared[i] = 0;
-		}
-		// now we combine everything
-		for (int i=0; i<portfolio.size(); i++) {
-			Asset asset = portfolio.get(i);
-			
-			double val;
-			
-			// Equation 20
-			val = mValue[i] * mDamage_mIML[i] * mShaking[i];
-			l[0] += val;
-			lSquared[0] += val * val;
-			
-			// Equation 21
-			val = mValue[i] * mDamage_mIML[i] * mDamage_hInter[i];
-			l[1] += val;
-			lSquared[1] += val * val;
-			
-			// Equation 22
-			val = mValue[i] * mDamage_mIML[i] * mDamage_lInter[i];
-			l[2] += val;
-			lSquared[2] += val * val;
-			
-			// Equation 23
-			val = hValue[i] * mDamage_mIML[i] * mShaking[i];
-			l[3] += val;
-			lSquared[2] += val * val;
-			
-			// Equation 24
-			val = lValue[i] * mDamage_mIML[i] * mShaking[i];
-			l[4] += val;
-			lSquared[2] += val * val;
-			
-			// Equation 25
-			val = mValue[i] * hDamage_mIML[i] * mShaking[i];
-			l[5] += val;
-			lSquared[0] += val * val;
-			
-			// Equation 26
-			val = mValue[i] * lDamage_mIML[i] * mShaking[i];
-			l[6] += val;
-			lSquared[0] += val * val;
+		return exceedanceProbs;
+	}
+	
+	public ArbitrarilyDiscretizedFunc calcProbabilityOfExceedanceCurve(
+			ScalarIntensityMeasureRelationshipAPI imr,
+			EqkRupForecastAPI erf,
+			Portfolio portfolio,
+			DiscretizedFuncAPI function) {
+		
+		ArbitrarilyDiscretizedFunc[][] exceedanceProbs = calculateCurve(imr, erf, portfolio, function);
+		
+		ArbitrarilyDiscretizedFunc curve = new ArbitrarilyDiscretizedFunc();
+		
+		// init the curve
+		for (int i=0; i<exceedanceProbs[0][0].getNum(); i++) {
+			ArbitrarilyDiscretizedFunc normCumDist = exceedanceProbs[0][0];
+			curve.set(normCumDist.getX(i), 0.0);
 		}
 		
-		// all this is for Equation 33
-		double sumReg = 0;
-		double sumSquares = 0;
-		for (int i=0; i<portfolio.size(); i++) {
-			Asset asset = portfolio.get(i);
-			
-			// vBar ( yBar ( s sub +p ) + yBar ( s sub -p))
-			sumReg += mValue[i] * ( mDamage_mIML[i] * mDamage_hIntra[i] + mDamage_mIML[i] * mDamage_lIntra[i] );
-			sumSquares += Math.pow(mValue[i] * mDamage_mIML[i] * mDamage_hIntra[i], 2)
-								+ Math.pow(mValue[i] * mDamage_mIML[i] * mDamage_lIntra[i], 2);
-		}
-		double e_LgivenS = w0 * l[0] + wi * (l[1] + l[2] + l[3] + l[4] + 2*l[5] + 2*l[6]
-							+ (4*portfolio.size() - 4)*l[0] + sumReg);
-		double e_LSuqaredGivenS = w0 * lSquared[0] + wi * (lSquared[1] + lSquared[2] + lSquared[3] + lSquared[4]
-							+ 2*lSquared[5] + 2*lSquared[6] + (4*portfolio.size() - 4)*lSquared[0] + sumSquares);
-		
-		// Equation 34
-		double varLgivenS = e_LSuqaredGivenS - e_LgivenS * e_LgivenS;
-		
-		ArbitrarilyDiscretizedFunc result = new ArbitrarilyDiscretizedFunc();
-		for (int k=0; k<51; k++) {
-			double x = Math.pow(10d, -5d + 0.1 * k);
-//			double y = 1 - 
+		for (int k=0; k<curve.getNum(); k++) {
+			for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
+				ProbEqkSource src = erf.getSource(sourceID);
+				for (int rupID=0; rupID<src.getNumRuptures(); rupID++) {
+					ProbEqkRupture rup = src.getRupture(rupID);
+					
+					ArbitrarilyDiscretizedFunc normCumDist = exceedanceProbs[sourceID][rupID];
+					
+					double rupProb = rup.getProbability();
+					
+					double x = normCumDist.getX(k);
+					
+					double y = curve.getY(k);
+					
+					y +=  rupProb * normCumDist.getY(k);
+					
+					curve.set(x, y);
+				}
+			}
 		}
 		
+		return curve;
+	}
+	
+	public ArbitrarilyDiscretizedFunc calcFrequencyOfExceedanceCurve(
+			ScalarIntensityMeasureRelationshipAPI imr,
+			EqkRupForecastAPI erf,
+			Portfolio portfolio,
+			DiscretizedFuncAPI function) {
+		// TODO implement frequency
 		return null;
 	}
 }
