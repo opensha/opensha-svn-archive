@@ -10,6 +10,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.earthquake.ERFTestSubset;
+import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
@@ -23,24 +24,34 @@ import org.opensha.sra.vulnerability.models.servlet.VulnerabilityServletAccessor
 
 public class PortfolioLossExceedenceCurveCalculatorTest {
 
-	private static ERFTestSubset erf;
+	private static EqkRupForecastAPI erf;
 	private static ScalarIntensityMeasureRelationshipAPI imr;
 	private static Portfolio portfolio;
 	
+	private static boolean smallERF = false;
+	
 	@BeforeClass
 	public static void setUp() throws Exception {
-		erf = new ERFTestSubset(new Frankel96_AdjustableEqkRupForecast());
-		erf.updateForecast();
-		erf.includeSource(0);
-		erf.includeSource(1);
-		erf.includeSource(2);
-		erf.includeSource(3);
-		erf.includeSource(4);
-		erf.includeSource(5);
-		erf.includeSource(6);
-		erf.includeSource(7);
-		erf.includeSource(8);
-		erf.includeSource(9);
+		if (smallERF) {
+			ERFTestSubset erf = new ERFTestSubset(new Frankel96_AdjustableEqkRupForecast());
+			erf.updateForecast();
+			erf.includeSource(0);
+			erf.includeSource(1);
+			erf.includeSource(2);
+			erf.includeSource(3);
+			erf.includeSource(4);
+			erf.includeSource(5);
+			erf.includeSource(6);
+			erf.includeSource(7);
+			erf.includeSource(8);
+			erf.includeSource(9);
+			PortfolioLossExceedenceCurveCalculatorTest.erf = erf;
+		} else {
+			Frankel96_AdjustableEqkRupForecast erf = new Frankel96_AdjustableEqkRupForecast();
+			erf.updateForecast();
+			PortfolioLossExceedenceCurveCalculatorTest.erf = erf;
+		}
+
 		
 		int rupCount = 0;
 		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
