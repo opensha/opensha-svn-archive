@@ -26,6 +26,8 @@ public class ParentChildRelationship {
 	}
 
 	public void setParent(SubmitScriptForDAG parent) {
+		if (parent.getJobName().equals(child.getJobName()))
+			throw new IllegalArgumentException("Parent and child cannot be the same!");
 		this.parent = parent;
 	}
 
@@ -34,6 +36,8 @@ public class ParentChildRelationship {
 	}
 
 	public void setChild(SubmitScriptForDAG child) {
+		if (parent.getJobName().equals(child.getJobName()))
+			throw new IllegalArgumentException("Parent and child cannot be the same!");
 		this.child = child;
 	}
 	
