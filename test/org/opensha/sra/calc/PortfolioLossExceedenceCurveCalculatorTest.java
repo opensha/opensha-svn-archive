@@ -28,7 +28,7 @@ public class PortfolioLossExceedenceCurveCalculatorTest {
 	private static ScalarIntensityMeasureRelationshipAPI imr;
 	private static Portfolio portfolio;
 	
-	private static boolean smallERF = false;
+	private static boolean smallERF = true;
 	
 	@BeforeClass
 	public static void setUp() throws Exception {

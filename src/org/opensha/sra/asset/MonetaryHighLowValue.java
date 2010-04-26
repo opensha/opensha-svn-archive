@@ -7,6 +7,8 @@ public class MonetaryHighLowValue extends MonetaryValue {
 	
 	public MonetaryHighLowValue(double value, double highValue, double lowValue, int valueBasisYear) {
 		super(value, valueBasisYear);
+		this.highValue = highValue;
+		this.lowValue = lowValue;
 	}
 
 	public double getHighValue() {
