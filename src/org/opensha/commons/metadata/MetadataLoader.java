@@ -30,7 +30,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
-import org.opensha.sha.calc.hazardMap.HazardMapJob;
+import org.opensha.sha.calc.hazardMap.old.HazardMapJob;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.imr.IntensityMeasureRelationship;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;

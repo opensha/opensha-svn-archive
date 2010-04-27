@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.metadata.XMLSaveable;
@@ -502,6 +503,10 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	public Element toXMLMetadata(Element root) {
 		Element xml = root.addElement(Region.XML_METADATA_NAME);
 		xml = border.toXMLMetadata(xml);
+		String name = this.name;
+		if (name == null)
+			name = "";
+		xml.addAttribute("name", name);
 		return root;
 	}
 	
@@ -513,7 +518,14 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	public static Region fromXMLMetadata(Element e) {
 		LocationList list = LocationList.fromXMLMetadata(
 				e.element(LocationList.XML_METADATA_NAME));
-		return new Region(list, BorderType.MERCATOR_LINEAR);
+		Region region = new Region(list, BorderType.MERCATOR_LINEAR);
+		Attribute nameAtt = e.attribute("name");
+		if (nameAtt != null) {
+			String name = nameAtt.getValue();
+			if (name.length() > 0)
+				region.setName(name);
+		}
+		return region;
 	}
 
 	/**

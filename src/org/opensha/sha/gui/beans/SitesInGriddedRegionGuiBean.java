@@ -34,6 +34,7 @@ import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.IntegerParameter;
 import org.opensha.commons.param.ParameterAPI;
@@ -45,7 +46,6 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.sha.calc.hazardMap.NamedGeographicRegion;
 import org.opensha.sha.util.SiteTranslator;
 
 
@@ -125,15 +125,15 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	public final static String SO_CAL_NAME = "Southern California Region";
 	public final static String NO_CAL_NAME = "Northern Caliofnia Region";
 
-	ArrayList<NamedGeographicRegion> presets;
+	ArrayList<Region> presets;
 
 	private StringParameter regionSelect;
 
-	public SitesInGriddedRegionGuiBean(ArrayList<NamedGeographicRegion> presets) throws RegionConstraintException {
+	public SitesInGriddedRegionGuiBean(ArrayList<Region> presets) throws RegionConstraintException {
 		ArrayList<String> presetsStr = new ArrayList<String>();
 		presetsStr.add(SitesInGriddedRegionGuiBean.RECTANGULAR_NAME);
 		//		presetsStr.add(SitesInGriddedRegionGuiBean.CUSTOM_NAME);
-		for (NamedGeographicRegion preset : presets) {
+		for (Region preset : presets) {
 			presetsStr.add(preset.getName());
 		}
 
@@ -195,23 +195,31 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		this(generateDefaultRegions());
 	}
 
-	public static ArrayList<NamedGeographicRegion> generateDefaultRegions() {
-		ArrayList<NamedGeographicRegion> regions = new ArrayList<NamedGeographicRegion>();
+	public static ArrayList<Region> generateDefaultRegions() {
+		ArrayList<Region> regions = new ArrayList<Region>();
 
 		// TODO these are circular see namedGeoRegion
+		Region region;
 		
-		regions.add(new NamedGeographicRegion(
-				new CaliforniaRegions.RELM_TESTING().getBorder(),
-				RELM_TESTING_NAME));
-		regions.add(new NamedGeographicRegion(
-				new CaliforniaRegions.RELM_COLLECTION().getBorder(),
-				RELM_COLLECTION_NAME));
-		regions.add(new NamedGeographicRegion(
-				new CaliforniaRegions.RELM_SOCAL().getBorder(),
-				SO_CAL_NAME));
-		regions.add(new NamedGeographicRegion(
-				new CaliforniaRegions.RELM_NOCAL().getBorder(),
-				NO_CAL_NAME));
+		region = new Region(
+				new CaliforniaRegions.RELM_TESTING().getBorder(), BorderType.MERCATOR_LINEAR);
+		region.setName(RELM_TESTING_NAME);
+		regions.add(region);
+		
+		region = new Region(
+				new CaliforniaRegions.RELM_COLLECTION().getBorder(), BorderType.MERCATOR_LINEAR);
+		region.setName(RELM_COLLECTION_NAME);
+		regions.add(region);
+		
+		region = new Region(
+				new CaliforniaRegions.RELM_SOCAL().getBorder(), BorderType.MERCATOR_LINEAR);
+		region.setName(SO_CAL_NAME);
+		regions.add(region);
+		
+		region = new Region(
+				new CaliforniaRegions.RELM_NOCAL().getBorder(), BorderType.MERCATOR_LINEAR);
+		region.setName(NO_CAL_NAME);
+		regions.add(region);
 
 		return regions;
 	}
@@ -495,7 +503,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 						  gridSpacingD, new Location(0,0));
 			gridRegion= new SitesInGriddedRegion(eggr);
 		} else {
-			for (NamedGeographicRegion region : presets) {
+			for (Region region : presets) {
 				if (name.equals(region.getName())) {
 					GriddedRegion eggr = 
 						new GriddedRegion(

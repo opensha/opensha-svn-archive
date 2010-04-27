@@ -12,12 +12,12 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.XMLUtils;
-import org.opensha.sha.calc.hazardMap.NamedGeographicRegion;
 
 public class RegionSaver {
 	
 	public static void saveRegion(Region region, String fileName, String name) throws IOException {
-		region = new NamedGeographicRegion(region.getBorder(), name);
+		region = new Region(region.getBorder(), BorderType.MERCATOR_LINEAR);
+		region.setName(name);
 		
 		Document doc = XMLUtils.createDocumentWithRoot();
 		
