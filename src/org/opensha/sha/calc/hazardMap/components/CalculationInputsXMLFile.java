@@ -1,4 +1,4 @@
-package org.opensha.gem.condor.calc.components;
+package org.opensha.sha.calc.hazardMap.components;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -16,7 +16,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.gem.condor.dagGen.HazardDataSetDAGCreator;
+import org.opensha.sha.calc.hazardMap.dagGen.HazardDataSetDAGCreator;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.imr.IntensityMeasureRelationship;

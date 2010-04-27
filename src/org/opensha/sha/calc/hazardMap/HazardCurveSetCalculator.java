@@ -1,4 +1,4 @@
-package org.opensha.gem.condor.calc;
+package org.opensha.sha.calc.hazardMap;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
@@ -9,10 +9,10 @@ import java.util.List;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.gem.condor.calc.components.CalculationSettings;
-import org.opensha.gem.condor.calc.components.CurveMetadata;
-import org.opensha.gem.condor.calc.components.CurveResultsArchiver;
 import org.opensha.sha.calc.HazardCurveCalculator;
+import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
+import org.opensha.sha.calc.hazardMap.components.CurveMetadata;
+import org.opensha.sha.calc.hazardMap.components.CurveResultsArchiver;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.util.TectonicRegionType;

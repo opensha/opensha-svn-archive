@@ -1,4 +1,4 @@
-package org.opensha.gem.condor.calc.components;
+package org.opensha.sha.calc.hazardMap.components;
 
 import org.dom4j.Element;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;

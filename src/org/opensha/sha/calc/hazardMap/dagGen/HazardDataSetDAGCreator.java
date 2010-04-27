@@ -1,4 +1,4 @@
-package org.opensha.gem.condor.dagGen;
+package org.opensha.sha.calc.hazardMap.dagGen;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -18,10 +18,10 @@ import org.opensha.commons.gridComputing.condor.SubmitScript.Universe;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
 import org.opensha.commons.util.XMLUtils;
-import org.opensha.gem.condor.calc.HazardCurveDriver;
-import org.opensha.gem.condor.calc.components.CalculationInputsXMLFile;
-import org.opensha.gem.condor.calc.components.CalculationSettings;
-import org.opensha.gem.condor.calc.components.CurveResultsArchiver;
+import org.opensha.sha.calc.hazardMap.HazardCurveDriver;
+import org.opensha.sha.calc.hazardMap.components.CalculationInputsXMLFile;
+import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
+import org.opensha.sha.calc.hazardMap.components.CurveResultsArchiver;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.util.TectonicRegionType;

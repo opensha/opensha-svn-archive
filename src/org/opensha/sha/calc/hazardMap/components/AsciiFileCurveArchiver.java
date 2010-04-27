@@ -1,4 +1,4 @@
-package org.opensha.gem.condor.calc.components;
+package org.opensha.sha.calc.hazardMap.components;
 
 import java.io.File;
 import java.io.FileNotFoundException;

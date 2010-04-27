@@ -1,4 +1,4 @@
-package org.opensha.gem.condor.calc.components;
+package org.opensha.sha.calc.hazardMap.components;
 
 import org.opensha.commons.data.Site;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
