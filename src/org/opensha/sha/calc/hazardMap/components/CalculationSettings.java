@@ -4,6 +4,14 @@ import org.dom4j.Element;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.metadata.XMLSaveable;
 
+/**
+ * The class contains basic hazard map parameters such as X values for curve calculation,
+ * max source cutoff distance, wether the ERF should be serialized before it's distributed
+ * to compute nodes, etc.
+ * 
+ * @author kevin
+ *
+ */
 public class CalculationSettings implements XMLSaveable {
 	
 	public static final String XML_METADATA_NAME = "CalculationSettings";

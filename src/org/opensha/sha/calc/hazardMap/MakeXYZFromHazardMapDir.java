@@ -35,6 +35,14 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.geo.Location;
 
+/**
+ * This class makes a single hazard map file (GMT format) from a directory structure containing
+ * hazard curves. Curves should be binned into subdirectories, and the files should be titled:
+ * {lat}_{lon}.txt .
+ * 
+ * @author kevin
+ *
+ */
 public class MakeXYZFromHazardMapDir {
 	
 	public static int WRITES_UNTIL_FLUSH = 1000;

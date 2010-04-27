@@ -7,7 +7,8 @@ import org.opensha.sha.util.TectonicRegionType;
 import java.util.HashMap;
 
 /**
- * Metadata for the curves that's necessary for archiving them
+ * Metadata for the curves that's necessary for archiving them such as the location and
+ * information about the IMRs used to caclulate them.
  * 
  * @author kevin
  *

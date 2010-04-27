@@ -23,6 +23,13 @@ import org.opensha.sha.imr.IntensityMeasureRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.util.TectonicRegionType;
 
+/**
+ * This class represends all of the inputs to the hazard map calculation process,
+ * and handles writing/loading them to/from XML.
+ * 
+ * @author kevin
+ *
+ */
 public class CalculationInputsXMLFile implements XMLSaveable {
 	
 	private EqkRupForecastAPI erf;
