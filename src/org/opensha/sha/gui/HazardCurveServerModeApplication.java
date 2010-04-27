@@ -97,7 +97,6 @@ import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
 import org.opensha.sha.gui.controls.CyberShakeSiteSetterControlPanel;
 import org.opensha.sha.gui.controls.DisaggregationControlPanel;
 import org.opensha.sha.gui.controls.ERF_EpistemicListControlPanel;
-import org.opensha.sha.gui.controls.ERF_EpistemicListControlPanelAPI;
 import org.opensha.sha.gui.controls.PEER_TestCaseSelectorControlPanel;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.controls.PlottingOptionControl;
@@ -146,7 +145,7 @@ import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
  */
 
 public class HazardCurveServerModeApplication extends JFrame implements
-		Runnable, ParameterChangeListener, ERF_EpistemicListControlPanelAPI,
+		Runnable, ParameterChangeListener,
 		CurveDisplayAppAPI, ButtonControlPanelAPI,
 		GraphPanelAPI, GraphWindowAPI, IMR_GuiBeanAPI, 
 		CalculationSettingsControlPanelAPI, ActionListener {
@@ -189,7 +188,6 @@ public class HazardCurveServerModeApplication extends JFrame implements
 
 	// Strings for control pick list
 	protected final static String CONTROL_PANELS = "Select";
-	protected final static String EPISTEMIC_CONTROL = "Epistemic List Control";
 
 	// objects for control panels
 	protected PEER_TestCaseSelectorControlPanel peerTestsControlPanel;
@@ -1186,7 +1184,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 
 		// if IMR selection changed, update the site parameter list and
 		// supported IMT
-		if (name1.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
+		if (name1.equalsIgnoreCase(IMR_GuiBean.IMR_PARAM_NAME)) {
 			ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean
 					.getSelectedIMR_Instance();
 			imtGuiBean.setIM(imr, imr.getSupportedIntensityMeasuresIterator());
@@ -1196,18 +1194,17 @@ public class HazardCurveServerModeApplication extends JFrame implements
 			siteGuiBean.validate();
 			siteGuiBean.repaint();
 		}
-		if (name1.equalsIgnoreCase(this.erfGuiBean.ERF_PARAM_NAME)) {
+		if (name1.equalsIgnoreCase(ERF_GuiBean.ERF_PARAM_NAME)) {
 
 			String plottingOption = null;
 			if (plotOptionControl != null)
 				plottingOption = this.plotOptionControl.getSelectedOption();
-			controlComboBox.removeAllItems();
-			this.initControlList();
+//			controlComboBox.removeAllItems();
+//			this.initControlList();
 			// add the Epistemic control panel option if Epistemic ERF is
 			// selected
 			if (erfGuiBean.isEpistemicList()) {
-				this.controlComboBox.addItem(EPISTEMIC_CONTROL);
-				controlComboBox.setSelectedItem(EPISTEMIC_CONTROL);
+				showControlPanel(ERF_EpistemicListControlPanel.NAME);
 			} else if (plottingOption != null
 					&& plottingOption
 							.equalsIgnoreCase(PlottingOptionControl.ADD_TO_EXISTING)) {
@@ -2010,6 +2007,10 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		/*		External XY Data Control		*/
 		controlComboBox.addItem(XY_ValuesControlPanel.NAME);
 		controlPanels.add(new XY_ValuesControlPanel(this, this));
+		
+		/*		Epistempic list Control		*/
+		controlComboBox.addItem(ERF_EpistemicListControlPanel.NAME);
+		controlPanels.add(epistemicControlPanel = new ERF_EpistemicListControlPanel(this, this));
 	}
 
 	private void selectControlPanel() {

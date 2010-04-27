@@ -491,12 +491,9 @@ extends HazardCurveLocalModeApplication {
 			String plottingOption = null;
 			if (plotOptionControl != null)
 				plottingOption = this.plotOptionControl.getSelectedOption();
-			controlComboBox.removeAllItems();
-			this.initControlList();
 			// add the Epistemic control panel option if Epistemic ERF is selected
 			if (erfGuiBean.isEpistemicList()) {
-				this.controlComboBox.addItem(EPISTEMIC_CONTROL);
-				controlComboBox.setSelectedItem(EPISTEMIC_CONTROL);
+				showControlPanel(ERF_EpistemicListControlPanel.NAME);
 			}
 			else if (plottingOption != null &&
 					plottingOption.equalsIgnoreCase(PlottingOptionControl.

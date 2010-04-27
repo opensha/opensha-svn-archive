@@ -81,7 +81,6 @@ import org.opensha.sha.gui.controls.AxisLimitsControlPanelAPI;
 import org.opensha.sha.gui.controls.CurveDisplayAppAPI;
 import org.opensha.sha.gui.controls.DisaggregationControlPanel;
 import org.opensha.sha.gui.controls.ERF_EpistemicListControlPanel;
-import org.opensha.sha.gui.controls.ERF_EpistemicListControlPanelAPI;
 import org.opensha.sha.gui.controls.PEER_TestCaseSelectorControlPanel;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.controls.PlottingOptionControl;
@@ -112,8 +111,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
  */
 
 public class HazardSpectrumApplication extends JApplet
-implements Runnable, ParameterChangeListener, AxisLimitsControlPanelAPI,
-ERF_EpistemicListControlPanelAPI,CurveDisplayAppAPI,
+implements Runnable, ParameterChangeListener, AxisLimitsControlPanelAPI,CurveDisplayAppAPI,
 ButtonControlPanelAPI,GraphPanelAPI,GraphWindowAPI, IMR_GuiBeanAPI{
 
 	/**
@@ -1555,9 +1553,10 @@ ButtonControlPanelAPI,GraphPanelAPI,GraphWindowAPI, IMR_GuiBeanAPI{
 	 * from controls pick list
 	 */
 	private void initEpistemicControl() {
-		if(this.epistemicControlPanel==null)
-			epistemicControlPanel = new ERF_EpistemicListControlPanel(this,this);
-		epistemicControlPanel.setVisible(true);
+		throw new RuntimeException("Broken in old junk app");
+//		if(this.epistemicControlPanel==null)
+//			epistemicControlPanel = new ERF_EpistemicListControlPanel(this,this);
+//		epistemicControlPanel.setVisible(true);
 	}
 
 	/**

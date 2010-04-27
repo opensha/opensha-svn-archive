@@ -34,7 +34,6 @@ public class NshmpUsData  extends GemFileParser{
 		srcDataList.addAll(cascadiaSub.getList());
 		srcDataList.addAll(ceusFault.getList());
 		srcDataList.addAll(ceusGrid.getList());
-		
 	}
 
 }

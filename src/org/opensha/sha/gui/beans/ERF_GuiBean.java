@@ -24,6 +24,7 @@ import java.awt.Font;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ListIterator;
 
@@ -95,6 +96,8 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 	//checks to see if this a new ERF instance has been given by application to this Gui Bean.
 	private boolean isNewERF_Instance;
 	
+	private HashMap<String, Object> classNameERFMap = new HashMap<String, Object>();
+	
 	/**
 	 * Constructor : It accepts the classNames of the ERFs to be shown in the editor
 	 * @param erfClassNames
@@ -124,12 +127,15 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 	 */
 	private Object createERFClassInstance( String className) throws InvocationTargetException{
 		String S = C + ": createERFClassInstance(): ";
+		if (classNameERFMap.containsKey(className))
+			return classNameERFMap.get(className);
 		try {
 			Object[] paramObjects = new Object[]{};
 			Class[] params = new Class[]{};
 			Class erfClass = Class.forName( className );
 			Constructor con = erfClass.getConstructor(params);
 			Object obj = con.newInstance( paramObjects );
+			classNameERFMap.put(className, obj);
 			return obj;
 		} catch ( ClassCastException e ) {
 			System.out.println(S + e.toString());
@@ -162,6 +168,8 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 	 * @return
 	 */
 	private String getERFName(String className) {
+		// TODO so this doesn't do what the comment says, it actually creates the ERF.
+		// but because it's not stored, it has to create it again. Adding a fix.
 		try{
 			Object obj = this.createERFClassInstance(className);
 			String name = new String (((EqkRupForecastBaseAPI)obj).getName());

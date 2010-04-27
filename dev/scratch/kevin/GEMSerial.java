@@ -32,23 +32,26 @@ public class GEMSerial {
 //		double lonmax = -30;
 		double latmin = 24.6;
 	    double latmax = 50.0;
-	    double lonmin = -125.0;
+	    double lonmin = -100.0;
 	    double lonmax = -65.0;
 //		NshmpSouthAmericaData model = new NshmpSouthAmericaData(latmin,latmax,lonmin,lonmax);
 //		GEM1ERF modelERF = new GEM1SouthAmericaERF();
-		GEM1ERF modelERF = new GEM1_CEUS_ERF(new CalculationSettings());
+	    CalculationSettings calcSet = new CalculationSettings();
+	    calcSet.setSourceCache(true);
+		GEM1ERF modelERF = new GEM1_CEUS_ERF(calcSet);
 		modelERF.updateForecast();
-//		for (int i=0; i<modelERF.getNumSources(); i++)
-//			modelERF.getSource(i);
+		for (int i=0; i<modelERF.getNumSources(); i++)
+			modelERF.getSource(i);
 		String fname = "/tmp/gemerf.obj";
 		System.out.println("*********** SAVING ************");
 		FileUtils.saveObjectInFile(fname, modelERF);
 		System.out.println("*********** LOADING ************");
 		EqkRupForecast fileERF = (EqkRupForecast)FileUtils.loadObject(fname);
 //		System.out.println("Before serialization");
-//		printERF(modelERF);
+		printERF(modelERF);
 		System.out.println("Loaded from file");
 		printERF(fileERF);
+		System.exit(0);
 	}
 
 }
