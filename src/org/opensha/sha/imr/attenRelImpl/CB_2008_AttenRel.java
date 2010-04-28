@@ -461,7 +461,7 @@ public class CB_2008_AttenRel
 	  
 	  EvenlyGriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
 	  double depth = surface.getLocation(0, 0).getDepth();
-	  rupTopDepthParam.setValue(depth);
+	  rupTopDepthParam.setValueIgnoreWarning(depth);
 	  
 	  dipParam.setValueIgnoreWarning(surface.getAveDip());
 	  

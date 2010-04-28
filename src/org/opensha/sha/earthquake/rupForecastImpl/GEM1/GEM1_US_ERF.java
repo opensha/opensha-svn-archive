@@ -46,12 +46,6 @@ public class GEM1_US_ERF extends GEM1ERF {
 	}
 
 	@Override
-	public int getNumSources() {
-		initSourceData();
-		return super.getNumSources();
-	}
-
-	@Override
 	public void updateForecast() {
 		initSourceData();
 		super.updateForecast();
