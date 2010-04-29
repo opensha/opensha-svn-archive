@@ -15,6 +15,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.gridComputing.condor.DAG;
 import org.opensha.commons.gridComputing.condor.SubmitScriptForDAG;
 import org.opensha.commons.gridComputing.condor.SubmitScript.Universe;
+import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
 import org.opensha.commons.util.XMLUtils;
@@ -43,6 +44,8 @@ public class HazardDataSetDAGCreator {
 
 	private EqkRupForecastAPI erf;
 	private List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps;
+	private List<DependentParameterAPI<Double>> imts;
+
 	private List<Site> sites;
 	private CalculationSettings calcSettings;
 	private CurveResultsArchiver archiver;
@@ -69,7 +72,7 @@ public class HazardDataSetDAGCreator {
 	 * @param jarFile
 	 */
 	public HazardDataSetDAGCreator(CalculationInputsXMLFile inputs, String javaExec, String jarFile) {
-		this(inputs.getERF(), inputs.getIMRMaps(), inputs.getSites(), inputs.getCalcSettings(),
+		this(inputs.getERF(), inputs.getIMRMaps(), inputs.getIMTs(), inputs.getSites(), inputs.getCalcSettings(),
 				inputs.getArchiver(), javaExec, jarFile);
 	}
 
@@ -78,6 +81,7 @@ public class HazardDataSetDAGCreator {
 	 * 
 	 * @param erf - The ERF
 	 * @param imrMaps - A list of IMR/TectonicRegion hash maps
+	 * @param imts - A list of imt's for each imrMap (or null to use IMT from IMR)
 	 * @param sites - The list of sites that need to be calculated. All site parameters should already be set
 	 * @param calcSettings - Some simple calculation settings (such as X values, cutoff distance)
 	 * @param archiver - The archiver used to store curves once calculated
@@ -86,6 +90,7 @@ public class HazardDataSetDAGCreator {
 	 */
 	public HazardDataSetDAGCreator(EqkRupForecastAPI erf,
 			List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps,
+			List<DependentParameterAPI<Double>> imts,
 			List<Site> sites,
 			CalculationSettings calcSettings,
 			CurveResultsArchiver archiver,
@@ -93,6 +98,7 @@ public class HazardDataSetDAGCreator {
 			String jarFile) {
 		this.erf = erf;
 		this.imrMaps = imrMaps;
+		this.imts = imts;
 		this.sites = sites;
 		this.calcSettings = calcSettings;
 		this.archiver = archiver;
@@ -203,7 +209,7 @@ public class HazardDataSetDAGCreator {
 		List<Site> newSites = sites.subList(startIndex, endIndex+1);
 
 		// create inputs XML file
-		CalculationInputsXMLFile xml = new CalculationInputsXMLFile(erf, imrMaps, newSites, calcSettings, archiver);
+		CalculationInputsXMLFile xml = new CalculationInputsXMLFile(erf, imrMaps, imts, newSites, calcSettings, archiver);
 
 		xml.setSerialized(serializedERFFile);
 

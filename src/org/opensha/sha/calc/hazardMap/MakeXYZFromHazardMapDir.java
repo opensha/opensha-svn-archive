@@ -259,11 +259,11 @@ public class MakeXYZFromHazardMapDir {
 //			String curveDir = "/home/kevin/OpenSHA/condor/oldRuns/statewide/test_30000_2/curves";
 //			String curveDir = "/home/kevin/OpenSHA/condor/frankel_0.1";
 //			String curveDir = "/home/kevin/CyberShake/baseMaps/ave2008/curves_3sec";
-			String curveDir = "/home/kevin/OpenSHA/gem/ceus/imrs1";
+			String curveDir = "/home/kevin/OpenSHA/gem/ceus/curves_0.1/imrs2";
 //			String outfile = "xyzCurves.txt";
 //			String outfile = "/home/kevin/OpenSHA/condor/oldRuns/statewide/test_30000_2/xyzCurves.txt";
 //			String outfile = "/home/kevin/CyberShake/baseMaps/ave2008/xyzCurves.txt";
-			String outfile = "/home/kevin/OpenSHA/gem/ceus/imrs1.txt";
+			String outfile = "/home/kevin/OpenSHA/gem/ceus/curves_0.1/imrs2.txt";
 //			boolean isProbAt_IML = true;
 //			double level = 0.2;
 			boolean isProbAt_IML = false;

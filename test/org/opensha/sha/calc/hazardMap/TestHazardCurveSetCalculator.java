@@ -1,4 +1,4 @@
-package org.opensha.gem.condor;
+package org.opensha.sha.calc.hazardMap;
 
 
 import java.io.File;

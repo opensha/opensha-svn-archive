@@ -14,6 +14,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.metadata.XMLSaveable;
+import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.hazardMap.dagGen.HazardDataSetDAGCreator;
@@ -35,6 +36,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 	private EqkRupForecastAPI erf;
 	private List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps;
 	private List<Site> sites;
+	private List<DependentParameterAPI<Double>> imts;
 	private CalculationSettings calcSettings;
 	private CurveResultsArchiver archiver;
 	
@@ -42,12 +44,22 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 	private String serializedERFFile;
 	
 	public CalculationInputsXMLFile(EqkRupForecastAPI erf,
+			List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps,
+			List<Site> sites,
+			CalculationSettings calcSettings,
+			CurveResultsArchiver archiver) {
+		this(erf, imrMaps, null, sites, calcSettings, archiver);
+	}
+	
+	public CalculationInputsXMLFile(EqkRupForecastAPI erf,
 		List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps,
+		List<DependentParameterAPI<Double>> imts,
 		List<Site> sites,
 		CalculationSettings calcSettings,
 		CurveResultsArchiver archiver) {
 		this.erf = erf;
 		this.imrMaps = imrMaps;
+		this.imts = imts;
 		this.sites = sites;
 		this.calcSettings = calcSettings;
 		this.archiver = archiver;
@@ -71,6 +83,14 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 
 	public List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> getIMRMaps() {
 		return imrMaps;
+	}
+	
+	public void setIMTs(List<DependentParameterAPI<Double>> imts) {
+		this.imts = imts;
+	}
+	
+	public List<DependentParameterAPI<Double>> getIMTs() {
+		return this.imts;
 	}
 
 	public List<Site> getSites() {
@@ -125,7 +145,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 			}
 		}
 		imrsToXML(imrs, root);
-		imrMapsToXML(newList, root);
+		imrMapsToXML(newList, imts, root);
 		Site.writeSitesToXML(sites, root);
 		calcSettings.toXMLMetadata(root);
 		archiver.toXMLMetadata(root);
@@ -173,6 +193,9 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps =
 			imrMapsFromXML(imrs, imrMapsEl);
 		
+		/* Load the IMTs if applicaple				*/
+		List<DependentParameterAPI<Double>> imts = imtsFromXML(imrs.get(0), imrMapsEl);
+		
 		/* Load the sites 							*/
 		Element sitesEl = root.element(Site.XML_METADATA_LIST_NAME);
 		ArrayList<Site> sites = Site.loadSitesFromXML(sitesEl, paramsToAdd);
@@ -185,7 +208,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		Element calcSettingsEl = root.element(CalculationSettings.XML_METADATA_NAME);
 		CalculationSettings calcSettings = CalculationSettings.fromXMLMetadata(calcSettingsEl);
 		
-		return new CalculationInputsXMLFile(erf, imrMaps, sites, calcSettings, archiver);
+		return new CalculationInputsXMLFile(erf, imrMaps, imts, sites, calcSettings, archiver);
 	}
 	
 	public static final String XML_IMRS_NAME = "IMRs";
@@ -227,6 +250,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 	public static final String XML_IMR_MAPING_NAME = "IMR_Maping";
 	
 	public static Element imrMapToXML(Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> map,
+			List<DependentParameterAPI<Double>> imts,
 			Element root, int index) {
 		Element mapEl = root.addElement(XML_IMR_MAP_NAME);
 		mapEl.addAttribute("index", index + "");
@@ -238,7 +262,56 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 			mapingEl.addAttribute("imr", imr.getShortName());
 		}
 		
+		if (imts != null) {
+			imts.get(index).toXMLMetadata(mapEl, IntensityMeasureRelationship.XML_METADATA_IMT_NAME);
+		}
+		
 		return root;
+	}
+	
+	public static DependentParameterAPI<Double> imtFromXML(
+			ScalarIntensityMeasureRelationshipAPI testIMR,
+			Element imrMapEl) {
+		Element imtElem = imrMapEl.element(IntensityMeasureRelationship.XML_METADATA_IMT_NAME);
+		if (imtElem == null)
+			return null;
+		
+		String imtName = imtElem.attributeValue("name");
+
+		System.out.println("IMT Name: " + imtName);
+
+		testIMR.setIntensityMeasure(imtName);
+
+		DependentParameterAPI<Double> imt = (DependentParameterAPI<Double>) testIMR.getIntensityMeasure();
+
+		imt.setValueFromXMLMetadata(imtElem);
+		
+		return imt;
+	}
+	
+	public static List<DependentParameterAPI<Double>> imtsFromXML(
+			ScalarIntensityMeasureRelationshipAPI testIMR,
+			Element imrMapsEl) {
+		ArrayList<DependentParameterAPI<Double>> imts = new ArrayList<DependentParameterAPI<Double>>();
+		
+		Iterator<Element> it = imrMapsEl.elementIterator(XML_IMR_MAP_NAME);
+		
+		// this makes sure they get loaded in correct order
+		HashMap<Integer, DependentParameterAPI<Double>> listsMap = 
+			new HashMap<Integer, DependentParameterAPI<Double>>();
+		while (it.hasNext()) {
+			Element imrMapEl = it.next();
+			int index = Integer.parseInt(imrMapEl.attributeValue("index"));
+			DependentParameterAPI<Double> imt = imtFromXML(testIMR, imrMapEl);
+			if (imt == null)
+				return null;
+			listsMap.put(new Integer(index), imt);
+		}
+		for (int i=0; i<listsMap.size(); i++) {
+			imts.add(listsMap.get(new Integer(i)));
+		}
+		
+		return imts;
 	}
 	
 	public static HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMapFromXML(
@@ -274,12 +347,12 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 	
 	public static Element imrMapsToXML(
 			ArrayList<Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> maps,
-			Element root) {
+			List<DependentParameterAPI<Double>> imts, Element root) {
 		Element mapsEl = root.addElement(XML_IMR_MAP_LIST_NAME);
 		
 		for (int i=0; i<maps.size(); i++) {
 			Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> map = maps.get(i);
-			mapsEl = imrMapToXML(map, mapsEl, i);
+			mapsEl = imrMapToXML(map, imts, mapsEl, i);
 		}
 		
 		return root;

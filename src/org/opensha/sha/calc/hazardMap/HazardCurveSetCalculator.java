@@ -5,10 +5,13 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.param.DependentParameterAPI;
+import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
 import org.opensha.sha.calc.hazardMap.components.CurveMetadata;
@@ -27,6 +30,7 @@ public class HazardCurveSetCalculator {
 	
 	private EqkRupForecastAPI erf;
 	private List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps;
+	private List<DependentParameterAPI<Double>> imts;
 	private CurveResultsArchiver archiver;
 	private CalculationSettings calcSettings;
 	private HazardCurveCalculator calc;
@@ -35,10 +39,23 @@ public class HazardCurveSetCalculator {
 			List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps,
 			CurveResultsArchiver archiver,
 			CalculationSettings calcSettings) {
+		this(erf, imrMaps, null, archiver, calcSettings);
+	}
+	
+	public HazardCurveSetCalculator(EqkRupForecastAPI erf,
+			List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps,
+			List<DependentParameterAPI<Double>> imts,
+			CurveResultsArchiver archiver,
+			CalculationSettings calcSettings) {
 		this.erf = erf;
 		this.imrMaps = imrMaps;
+		this.imts = imts;
 		this.archiver = archiver;
 		this.calcSettings = calcSettings;
+		
+		if (imts != null && imts.size() != imrMaps.size())
+			throw new IllegalArgumentException("If IMTs are specified for each IMR map, there must me exactly one" +
+					" for every IMR map.");
 		
 		try {
 			this.calc = new HazardCurveCalculator();
@@ -53,7 +70,6 @@ public class HazardCurveSetCalculator {
 		System.out.println("Calculating " + sites.size() + " hazard curves");
 		System.out.println("ERF: " + erf.getName());
 		System.out.println("Num IMR Maps: " + imrMaps.size());
-		System.out.println("X-Values: " + calcSettings.getXValues().getNum());
 		calc.setMaxSourceDistance(calcSettings.getMaxSourceDistance());
 		System.out.println("Max Source Cutoff: " + calcSettings.getMaxSourceDistance());
 		// looop over all sites
@@ -64,27 +80,43 @@ public class HazardCurveSetCalculator {
 				System.gc();
 			int imrMapCount = 0;
 			for (HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap : imrMaps) {
+				if (imts != null) {
+					// if a different IMT has been specified for each imr map then we must set it
+					DependentParameterAPI<Double> newIMT = imts.get(imrMapCount);
+//					System.out.println("Setting IMT to " + newIMT.getName());
+					for (TectonicRegionType trt : imrMap.keySet()) {
+						ScalarIntensityMeasureRelationshipAPI imr = imrMap.get(trt);
+						imr.setIntensityMeasure(newIMT.getName());
+						DependentParameterAPI<Double> imt = (DependentParameterAPI<Double>) imr.getIntensityMeasure();
+						ListIterator<ParameterAPI<?>> it = newIMT.getIndependentParametersIterator();
+						while (it.hasNext()) {
+							ParameterAPI<?> depParam = it.next();
+							imt.getIndependentParameter(depParam.getName()).setValue(depParam.getValue());
+						}
+					}
+				}
 				imrMapCount++;
+				String imt = imrMap.get(imrMap.keySet().iterator().next()).getIntensityMeasure().getName();
 				System.out.println("Calculating curve(s) for site " + siteCount + "/" + sites.size()
-						+ " IMR Map " + imrMapCount + "/" + imrMaps.size());
+						+ " IMR Map " + imrMapCount + "/" + imrMaps.size() + " IMT: " + imt);
 				CurveMetadata meta = new CurveMetadata(site, imrMap, "imrs" + imrMapCount);
-				if (archiver.isCurveCalculated(meta, calcSettings.getXValues())) {
+				if (archiver.isCurveCalculated(meta, calcSettings.getXValues(imt))) {
 					System.out.println("Curve already calculated, skipping...");
 					continue;
 				}
 				ArbitrarilyDiscretizedFunc calcFunction;
 				boolean logSpace = calcSettings.isCalcInLogSpace();
 				if (logSpace)
-					calcFunction = getLogFunction(calcSettings.getXValues());
+					calcFunction = getLogFunction(calcSettings.getXValues(imt));
 				else
-					calcFunction = calcSettings.getXValues().deepClone();
+					calcFunction = calcSettings.getXValues(imt).deepClone();
 				System.out.println("Calculating Hazard Curve. timestamp=" + System.currentTimeMillis());
 				// actually calculate the curve from the log hazard function, site, IMR, and ERF
 				calc.getHazardCurve(calcFunction,site,imrMap,erf);
 				System.out.println("Calculated a curve! timestamp=" + System.currentTimeMillis());
 				ArbitrarilyDiscretizedFunc hazardCurve;
 				if (logSpace)
-					hazardCurve = unLogFunction(calcSettings.getXValues(), calcFunction);
+					hazardCurve = unLogFunction(calcSettings.getXValues(imt), calcFunction);
 				else
 					hazardCurve = calcFunction;
 				// archive the curve;

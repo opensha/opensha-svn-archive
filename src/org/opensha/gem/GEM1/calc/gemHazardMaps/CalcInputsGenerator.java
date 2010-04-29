@@ -125,7 +125,7 @@ public class CalcInputsGenerator {
 			
 			String javaExec = "/auto/usc/jdk/1.6.0/jre/bin/java";
 			String jarFile = "/home/scec-00/tera3d/opensha/gem/svn/dist/OpenSHA_complete.jar";
-			HazardDataSetDAGCreator dag = new HazardDataSetDAGCreator(modelERF, maps, sites, settings,
+			HazardDataSetDAGCreator dag = new HazardDataSetDAGCreator(modelERF, maps, null, sites, settings,
 					archiver, javaExec, jarFile);
 			
 			int sitesPerJob;
