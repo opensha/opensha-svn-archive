@@ -41,9 +41,9 @@ public class HardCodedTest {
 		erf.getAdjustableParameterList().getParameter(
 				Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.
 						BACK_SEIS_EXCLUDE);
-		erf.getAdjustableParameterList().getParameter(
-				Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME).setValue(
-						Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_FINITE);
+//		erf.getAdjustableParameterList().getParameter(
+//				Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME).setValue(
+//						Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_FINITE);
 		erf.updateForecast();
 		return erf;
 	}
