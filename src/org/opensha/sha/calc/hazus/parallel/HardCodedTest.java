@@ -86,6 +86,7 @@ public class HardCodedTest {
 				ParameterAPI<?> siteParam = it.next();
 				site.addParameter((ParameterAPI) siteParam.clone());
 			}
+			sites.add(site);
 		}
 		IMT_Info imtInfo = new IMT_Info();
 		HashMap<String, ArbitrarilyDiscretizedFunc> imtXValMap = new HashMap<String, ArbitrarilyDiscretizedFunc>();
