@@ -23,7 +23,7 @@ import org.opensha.sha.util.TectonicRegionType;
  * 
  * Initially this will take an XML file which describes the inputs. This is the XML format that
  * I (Kevin Milner) used for a previous implementation. For GEM purposes, this could be changed
- * to some other input.
+ * to some other input, as long as all of the inputs are specified.
  * 
  * @author kevin
  *
