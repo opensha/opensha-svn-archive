@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.sha.calc.hazardMap.MakeXYZFromHazardMapDir;
+import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
 import org.opensha.sha.cybershake.db.CybershakeHazardCurveRecord;
 import org.opensha.sha.cybershake.db.CybershakeSite;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
@@ -95,7 +95,7 @@ public class CSGridPrioritization {
 				continue;
 			DiscretizedFuncAPI func = curve2db.getHazardCurve(curve.getCurveID());
 			System.out.println("FOUND A CURVE VAL!!!!!!!!!");
-			return MakeXYZFromHazardMapDir.getCurveVal(func, isProbAt_IML, level);
+			return HazardDataSetLoader.getCurveVal(func, isProbAt_IML, level);
 		}
 		return null;
 	}

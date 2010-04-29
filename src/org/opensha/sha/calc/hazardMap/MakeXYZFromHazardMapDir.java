@@ -32,7 +32,6 @@ import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.geo.Location;
 
 /**
@@ -107,7 +106,7 @@ public class MakeXYZFromHazardMapDir {
 						String curveFileName = file.getName();
 						//files that ends with ".txt"
 						if(curveFileName.endsWith(".txt")){
-							Location loc = decodeFileName(curveFileName);
+							Location loc = HazardDataSetLoader.decodeFileName(curveFileName);
 							if (loc != null) {
 								double latVal = loc.getLatitude();
 								double lonVal = loc.getLongitude();
@@ -159,35 +158,11 @@ public class MakeXYZFromHazardMapDir {
 		return xyz;
 	}
 	
-	/**
-	 * Decodes a filename of the format lat_lon.txt
-	 * 
-	 * @param fileName
-	 * @return
-	 */
-	public static Location decodeFileName(String fileName) {
-		int index = fileName.indexOf("_");
-		int firstIndex = fileName.indexOf(".");
-		int lastIndex = fileName.lastIndexOf(".");
-		// Hazard data files have 3 "." in their names
-		//And leaving the rest of the files which contains only 1"." in their names
-		if(firstIndex != lastIndex){
-
-			//getting the lat and Lon values from file names
-			Double latVal = new Double(fileName.substring(0,index).trim());
-			Double lonVal = new Double(fileName.substring(index+1,lastIndex).trim());
-			return new Location(latVal, lonVal);
-		} else {
-			return null;
-		}
-	}
-
-
 	public double handleFile(String fileName, boolean isProbAt_IML, double val) {
 		try {
 			ArbitrarilyDiscretizedFunc func = DiscretizedFunc.loadFuncFromSimpleFile(fileName);
 			
-			return getCurveVal(func, isProbAt_IML, val);
+			return HazardDataSetLoader.getCurveVal(func, isProbAt_IML, val);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -196,25 +171,6 @@ public class MakeXYZFromHazardMapDir {
 		return Double.NaN;
 	}
 	
-	public static double getCurveVal(DiscretizedFuncAPI func, boolean isProbAt_IML, double val) {
-		if (isProbAt_IML)
-			//final iml value returned after interpolation in log space
-			return func.getInterpolatedY_inLogXLogYDomain(val);
-		// for  IML_AT_PROB
-		else { //interpolating the iml value in log space entered by the user to get the final iml for the
-			//corresponding prob.
-			double out;
-			try {
-				out = func.getFirstInterpolatedX_inLogXLogYDomain(val);
-				return out;
-			} catch (RuntimeException e) {
-				System.err.println("WARNING: Probability value doesn't exist, setting IMT to NaN");
-				//return 0d;
-				return Double.NaN;
-			}
-		}
-	}
-
 	private static class FileComparator implements Comparator {
 		private Collator c = Collator.getInstance();
 
@@ -255,6 +211,7 @@ public class MakeXYZFromHazardMapDir {
 	
 	public static void main(String args[]) {
 		try {
+			long start = System.currentTimeMillis();
 //			String curveDir = "/home/kevin/OpenSHA/condor/test_results";
 //			String curveDir = "/home/kevin/OpenSHA/condor/oldRuns/statewide/test_30000_2/curves";
 //			String curveDir = "/home/kevin/OpenSHA/condor/frankel_0.1";
@@ -273,6 +230,7 @@ public class MakeXYZFromHazardMapDir {
 			boolean latFirst = true;
 			MakeXYZFromHazardMapDir maker = new MakeXYZFromHazardMapDir(curveDir, false, latFirst);
 			maker.writeXYZFile(isProbAt_IML, level, outfile);
+			System.out.println("took " + ((System.currentTimeMillis() - start) / 1000d) + " secs");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

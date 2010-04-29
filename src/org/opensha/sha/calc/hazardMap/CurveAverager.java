@@ -69,7 +69,7 @@ public class CurveAverager {
 						outSubDirFile.mkdir();
 					//files that ends with ".txt"
 					if(fileName.endsWith(".txt")){
-						Location loc = MakeXYZFromHazardMapDir.decodeFileName(fileName);
+						Location loc = HazardDataSetLoader.decodeFileName(fileName);
 						if (loc != null) {
 							String relativePath = dir.getName() + File.separator + fileName;
 							System.out.println(relativePath);

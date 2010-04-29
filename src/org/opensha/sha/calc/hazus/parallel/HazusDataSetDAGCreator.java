@@ -2,25 +2,18 @@ package org.opensha.sha.calc.hazus.parallel;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
-import org.dom4j.Document;
-import org.dom4j.Element;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.hazardMap.components.CalculationInputsXMLFile;
 import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
 import org.opensha.sha.calc.hazardMap.components.CurveResultsArchiver;
 import org.opensha.sha.calc.hazardMap.dagGen.HazardDataSetDAGCreator;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.imr.IntensityMeasureRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;

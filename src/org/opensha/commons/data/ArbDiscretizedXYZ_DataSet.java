@@ -248,5 +248,15 @@ public class ArbDiscretizedXYZ_DataSet implements XYZ_DataSetAPI,java.io.Seriali
 		this.yValues.add(yVal);
 		this.zValues.add(zVal);
 	}
+	
+	public void addAllValues(ArrayList<Double> xVals, ArrayList<Double> yVals, ArrayList<Double> zVals) {
+		this.xValues.addAll(xVals);
+		this.yValues.addAll(yVals);
+		this.zValues.addAll(zVals);
+	}
+	
+	public void addAllValues(XYZ_DataSetAPI xyz) {
+		this.addAllValues(xyz.getX_DataSet(), xyz.getY_DataSet(), xyz.getZ_DataSet());
+	}
 
 }
