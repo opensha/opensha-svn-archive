@@ -96,11 +96,11 @@ public class HazusVerificationTest {
 	
 	@Test
 	public void testResults() throws FileNotFoundException, IOException {
-//		String refDir = "/home/kevin/OpenSHA/hazus/Run1_Grid01_NoSoil/";
-//		String newDir = "/home/kevin/workspace/OpenSHA_head_refactor/HazusMapDataSets/verify_no_siteeffects/";
+		String refDir = "/home/kevin/OpenSHA/hazus/Run1_Grid01_NoSoil/";
+		String newDir = "/home/kevin/workspace/OpenSHA_head_refactor/HazusMapDataSets/verify3/";
 		
-		String refDir = "/home/kevin/OpenSHA/hazus/Run3b_05grid_soil_withbackgroundseism/";
-		String newDir = "/home/kevin/workspace/OpenSHA_head_refactor/HazusMapDataSets/verify1/";
+//		String refDir = "/home/kevin/OpenSHA/hazus/Run3b_05grid_soil_withbackgroundseism/";
+//		String newDir = "/home/kevin/workspace/OpenSHA_head_refactor/HazusMapDataSets/verify1/";
 		
 		compareResults(refDir + "final_100.dat", newDir + "final_100.0.dat");
 		System.out.println();

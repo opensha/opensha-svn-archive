@@ -54,16 +54,38 @@ public class HazusDataSetAssmbler {
 		for (Location loc : results.keySet()) {
 			double[] result = results.get(loc);
 			
-			String line = df.format(loc.getLatitude()) + "," + df.format(loc.getLongitude())
-					+ "," + df.format(result[0]) + "," + df.format(result[1])
-					+ "," + df.format(result[2]) + "," + df.format(result[3]);
+			String line = df.format(loc.getLatitude()) + "," + df.format(loc.getLongitude());
+			
+			for (int i=0; i<4; i++) {
+				double val = result[i];
+				if (Double.isNaN(val))
+					line += ",NaN";
+				else
+					line += "," + df.format(val);
+			}
+			
+//			String line = df.format(loc.getLatitude()) + "," + df.format(loc.getLongitude())
+//					+ "," + df.format(result[0]) + "," + df.format(result[1])
+//					+ "," + df.format(result[2]) + "," + df.format(result[3]);
 			fw.write(line + "\n");
 		}
 	}
 	
 	private static double getValFromCurve(ArbitrarilyDiscretizedFunc curve, double returnPeriod, int years) {
 		double probVal = ((double)years) / returnPeriod;
-		return curve.getFirstInterpolatedX_inLogXLogYDomain(probVal);
+		try {
+			return curve.getFirstInterpolatedX_inLogXLogYDomain(probVal);
+		} catch (Exception e) {
+			return Double.NaN;
+		}
+	}
+	
+	public static void main(String args[]) throws IOException {
+		System.out.println(Double.NaN);
+		HazusDataSetAssmbler assem = new HazusDataSetAssmbler("/home/kevin/OpenSHA/hazus/gridTest/curves");
+		
+		HashMap<Location, double[]> results = assem.assemble(1000, 50);
+		writeFile("/home/kevin/OpenSHA/hazus/gridTest/curves/final_1000.dat", results);
 	}
 
 }
