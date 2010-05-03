@@ -42,125 +42,125 @@ import org.opensha.sha.magdist.SingleMagFreqDist;
 
 public class TestGEM_ERF extends EqkRupForecast{
 
-	
-    private static String  C = "GEM Test ERF";
+
+	public static final String NAME = "GEM Test ERF";
 	private ArrayList<ProbEqkSource> allSources = null;
-	
-	  public final static String GRID_SPACING_PARAM_NAME = "Grid Spacing";
-	  private Double GRID_SPACING_DEFAULT = new Double(0.1);
-	  private final static String GRID_SPACING_UNITS = "Degrees";
-	  private final static String GRID_SPACING_INFO = "Grid spacing of source zones";
-	  private final static double GRID_SPACING_MIN = 0.001;
-	  private final static double GRID_SPACING_MAX = 1;
-	  private DoubleParameter gridSpacingParam;
 
-		
-	  public final static String MAG_BIN_WIDTH_PARAM_NAME = "Mag Bin Width";
-	  private Double MAG_BIN_WIDTH_DEFAULT = new Double(0.1);
-	  private final static String MAG_BIN_WIDTH_UNITS = null;
-	  private final static String MAG_BIN_WIDTH_INFO = "Discretization of mag-freq distribution";
-	  private final static double MAG_BIN_WIDTH_MIN = 0.01;
-	  private final static double MAG_BIN_WIDTH_MAX = 1;
-	  private DoubleParameter magBinWidthParam;
+	public final static String GRID_SPACING_PARAM_NAME = "Grid Spacing";
+	private Double GRID_SPACING_DEFAULT = new Double(0.1);
+	private final static String GRID_SPACING_UNITS = "Degrees";
+	private final static String GRID_SPACING_INFO = "Grid spacing of source zones";
+	private final static double GRID_SPACING_MIN = 0.001;
+	private final static double GRID_SPACING_MAX = 1;
+	private DoubleParameter gridSpacingParam;
 
-	
+
+	public final static String MAG_BIN_WIDTH_PARAM_NAME = "Mag Bin Width";
+	private Double MAG_BIN_WIDTH_DEFAULT = new Double(0.1);
+	private final static String MAG_BIN_WIDTH_UNITS = null;
+	private final static String MAG_BIN_WIDTH_INFO = "Discretization of mag-freq distribution";
+	private final static double MAG_BIN_WIDTH_MIN = 0.01;
+	private final static double MAG_BIN_WIDTH_MAX = 1;
+	private DoubleParameter magBinWidthParam;
+
+
 	// No argument constructor
 	public TestGEM_ERF(){
-		
-	    // create the timespan object with start time and duration in years
-	    timeSpan = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
-	    timeSpan.addParameterChangeListener(this);
-	    
-	    initAdjParams();
+
+		// create the timespan object with start time and duration in years
+		timeSpan = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
+		timeSpan.addParameterChangeListener(this);
+
+		initAdjParams();
 
 	}
-	
+
 	// make the adjustable parameters & the list
-	  private void initAdjParams() {
+	private void initAdjParams() {
 
 
-		  gridSpacingParam = new DoubleParameter(GRID_SPACING_PARAM_NAME, GRID_SPACING_MIN,
-				  GRID_SPACING_MAX, GRID_SPACING_UNITS, GRID_SPACING_DEFAULT);
-		  gridSpacingParam.setInfo(GRID_SPACING_INFO);
+		gridSpacingParam = new DoubleParameter(GRID_SPACING_PARAM_NAME, GRID_SPACING_MIN,
+				GRID_SPACING_MAX, GRID_SPACING_UNITS, GRID_SPACING_DEFAULT);
+		gridSpacingParam.setInfo(GRID_SPACING_INFO);
 
-		  magBinWidthParam = new DoubleParameter(MAG_BIN_WIDTH_PARAM_NAME, MAG_BIN_WIDTH_MIN,
-				  MAG_BIN_WIDTH_MAX, MAG_BIN_WIDTH_UNITS, MAG_BIN_WIDTH_DEFAULT);
-		  magBinWidthParam.setInfo(MAG_BIN_WIDTH_INFO);
+		magBinWidthParam = new DoubleParameter(MAG_BIN_WIDTH_PARAM_NAME, MAG_BIN_WIDTH_MIN,
+				MAG_BIN_WIDTH_MAX, MAG_BIN_WIDTH_UNITS, MAG_BIN_WIDTH_DEFAULT);
+		magBinWidthParam.setInfo(MAG_BIN_WIDTH_INFO);
 
 
-		  // add adjustable parameters to the list
-		    adjustableParams.addParameter(gridSpacingParam);
-		    adjustableParams.addParameter(magBinWidthParam);
+		// add adjustable parameters to the list
+		adjustableParams.addParameter(gridSpacingParam);
+		adjustableParams.addParameter(magBinWidthParam);
 
-	  }
+	}
 
-	
-	  public void updateForecast() {
 
-		    // make sure something has changed (e.g., timeSpan)
-		    if (parameterChangeFlag) {
-//		    	System.out.println("Param changed");
-		    	
-		    	allSources = new ArrayList<ProbEqkSource>();
-		    	
-		    	// add fault sources
-		    	allSources.addAll(getFaultSources());
-		    	
-		    	// add source zones
-		    	String SSZfname = "testSrcZonesData.txt";
+	public void updateForecast() {
 
-		    	allSources.addAll(getSourceZoneSources(SSZfname));
-		    }
-	  }
+		// make sure something has changed (e.g., timeSpan)
+		if (parameterChangeFlag) {
+			//		    	System.out.println("Param changed");
 
-	  
+			allSources = new ArrayList<ProbEqkSource>();
 
-	  private ArrayList<ProbEqkSource> getFaultSources(){
-		  ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
+			// add fault sources
+			allSources.addAll(getFaultSources());
 
-		  // Only one fault source for now (from a USGS Input file
-		  FaultTrace trace = new FaultTrace("Example fault trace");
-		  trace.add(new Location(40.26392,75.81272));
-		  trace.add(new Location(40.17707,75.74847));
-		  trace.add(new Location(40.10844,75.69968));
-		  trace.add(new Location(40.04114,75.58109));
-		  trace.add(new Location(40.01505,75.57042));
-		  trace.add(new Location(39.93080,75.45937));
-		  trace.add(new Location(39.78529,75.35471));
-		  trace.add(new Location(39.66522,75.30668));
-		  trace.add(new Location(39.52629,75.20238));
+			// add source zones
+			String SSZfname = "testSrcZonesData.txt";
 
-		  double aveDip=50;
-		  double downDipWidth=19.58;
-		  double depthToTop=0;
-		  double charMag=7.5;
-		  double charRate=8.3516453E-5;	//
-		  double rake=90;
-		  double faultGridSpacing=1;
+			allSources.addAll(getSourceZoneSources(SSZfname));
+		}
+	}
 
-		  // Compute the lower seismogenic depth
-		  double lowerDepth = depthToTop + downDipWidth * Math.sin(aveDip/180*Math.PI);
 
-		  // Compute a gridded fault surface 
-		  StirlingGriddedSurface surf = new StirlingGriddedSurface(trace,aveDip,depthToTop,lowerDepth,faultGridSpacing);
-		  
-		  SingleMagFreqDist mfd = new SingleMagFreqDist(charMag,2,0.1);
-		  mfd.setMagAndRate(charMag, charRate);
-//		  double prob = 1-Math.exp(-timeSpan.getDuration()*charRate);
 
-		  // Create a FaultRuptureSource object
-		  FaultRuptureSource source = new FaultRuptureSource(mfd, surf, rake, timeSpan.getDuration());
-		  source.setName("Example Fault Source");
+	private ArrayList<ProbEqkSource> getFaultSources(){
+		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
 
-		  // Add source to the source list
-		  sources.add(source);
-		  
-		  return sources; 
-	  }
-	  
-	  
+		// Only one fault source for now (from a USGS Input file
+		FaultTrace trace = new FaultTrace("Example fault trace");
+		trace.add(new Location(40.26392,75.81272));
+		trace.add(new Location(40.17707,75.74847));
+		trace.add(new Location(40.10844,75.69968));
+		trace.add(new Location(40.04114,75.58109));
+		trace.add(new Location(40.01505,75.57042));
+		trace.add(new Location(39.93080,75.45937));
+		trace.add(new Location(39.78529,75.35471));
+		trace.add(new Location(39.66522,75.30668));
+		trace.add(new Location(39.52629,75.20238));
+
+		double aveDip=50;
+		double downDipWidth=19.58;
+		double depthToTop=0;
+		double charMag=7.5;
+		double charRate=8.3516453E-5;	//
+		double rake=90;
+		double faultGridSpacing=1;
+
+		// Compute the lower seismogenic depth
+		double lowerDepth = depthToTop + downDipWidth * Math.sin(aveDip/180*Math.PI);
+
+		// Compute a gridded fault surface 
+		StirlingGriddedSurface surf = new StirlingGriddedSurface(trace,aveDip,depthToTop,lowerDepth,faultGridSpacing);
+
+		SingleMagFreqDist mfd = new SingleMagFreqDist(charMag,2,0.1);
+		mfd.setMagAndRate(charMag, charRate);
+		//		  double prob = 1-Math.exp(-timeSpan.getDuration()*charRate);
+
+		// Create a FaultRuptureSource object
+		FaultRuptureSource source = new FaultRuptureSource(mfd, surf, rake, timeSpan.getDuration());
+		source.setName("Example Fault Source");
+
+		// Add source to the source list
+		sources.add(source);
+
+		return sources; 
+	}
+
+
 	private ArrayList<ProbEqkSource> getSourceZoneSources(String SSZfname){
-		
+
 		// Get the file lines
 		ArrayList<String> fileLines;
 		try{
@@ -168,7 +168,7 @@ public class TestGEM_ERF extends EqkRupForecast{
 		} catch(Exception e) {
 			throw new RuntimeException(SSZfname+" file Not Found", e);
 		}
-		
+
 		// declare data to read
 		int numSrces = fileLines.size();
 		double[] a = new double[numSrces];		// a value
@@ -193,7 +193,7 @@ public class TestGEM_ERF extends EqkRupForecast{
 			}
 			region[line] = polygon;
 		}
-		
+
 		// now make the sources
 		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
 		double gridSpacing = gridSpacingParam.getValue();
@@ -216,7 +216,7 @@ public class TestGEM_ERF extends EqkRupForecast{
 			GriddedRegionPoissonEqkSource sszEqkSource = new GriddedRegionPoissonEqkSource(gr,grDist,timeSpan.getDuration(),0,90,0.0);
 			sources.add(sszEqkSource);
 		}
-		
+
 		return sources;
 	}
 
@@ -239,7 +239,7 @@ public class TestGEM_ERF extends EqkRupForecast{
 
 	// return name of the class
 	public String getName() {
-		return C;
+		return NAME;
 	}
 
 }

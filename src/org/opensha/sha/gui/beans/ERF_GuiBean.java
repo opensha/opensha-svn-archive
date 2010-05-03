@@ -22,6 +22,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -168,17 +169,40 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 	 * @return
 	 */
 	private String getERFName(String className) {
-		// TODO so this doesn't do what the comment says, it actually creates the ERF.
-		// but because it's not stored, it has to create it again. Adding a fix.
-		try{
-			Object obj = this.createERFClassInstance(className);
-			String name = new String (((EqkRupForecastBaseAPI)obj).getName());
-			obj = null;
+		try {
+			Class<?> erfClass = Class.forName(className);
+			Field nameField = erfClass.getField("NAME");
+			String name = (String)nameField.get(erfClass);
 			return name;
-		}catch(Exception e){
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return null;
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchFieldException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		return null;
+//		// TODO so this doesn't do what the comment says, it actually creates the ERF.
+//		// but because it's not stored, it has to create it again. Adding a fix.
+//		try{
+//			Object obj = this.createERFClassInstance(className);
+//			String name = new String (((EqkRupForecastBaseAPI)obj).getName());
+//			obj = null;
+//			return name;
+//		}catch(Exception e){
+//			e.printStackTrace();
+//			return null;
+//		}
+		
 	}
 
 	/**

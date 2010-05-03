@@ -42,88 +42,88 @@ import org.opensha.sha.util.TectonicRegionType;
  */
 
 public interface EqkRupForecastBaseAPI extends NamedObjectAPI{
+	
+	/**
+	 * To increase load time for applications, the name of each ERF should be stored
+	 * as a public static final String called "NAME". This is the default name, and should
+	 * be overridden in implementing classes.
+	 */
+	public static final String NAME = "Unnamed ERF";
 
-  /**
-   * This method tells the forecast that the user is done setting parameters and that
-   * it can now prepare itself for use.  We could avoid needing this method if the 
-   * forecast updated every time a parameter was changed, but this would be very inefficient
-   * with forecasts that take a lot of time to update.  This also avoids problems associated
-   * with accidentally changing a parameter in the middle of a calculation.
-   * @return
-   */
-  public void updateForecast();
+	/**
+	 * This method tells the forecast that the user is done setting parameters and that
+	 * it can now prepare itself for use.  We could avoid needing this method if the 
+	 * forecast updated every time a parameter was changed, but this would be very inefficient
+	 * with forecasts that take a lot of time to update.  This also avoids problems associated
+	 * with accidentally changing a parameter in the middle of a calculation.
+	 * @return
+	 */
+	public void updateForecast();
 
-  /**
-   * Update and save the serialized forecast into a file
-   */
-  public String updateAndSaveForecast();
+	/**
+	 * Update and save the serialized forecast into a file
+	 */
+	public String updateAndSaveForecast();
 
-  /**
-   * Return the name for this class
-   *
-   * @return : return the name for this class
-   */
-  public String getName();
-
-  /**
-   * This method sets the time-span field
-   * @param time
-   */
-  public void setTimeSpan(TimeSpan time);
-
-
-  /**
-   * This method gets the time-span field
-   */
-  public TimeSpan getTimeSpan();
+	/**
+	 * This method sets the time-span field
+	 * @param time
+	 */
+	public void setTimeSpan(TimeSpan time);
 
 
-  /**
-   * This will set the parameter with the given
-   * name to the given value.
-   * @param name String Name of the Adjustable Parameter
-   * @param value Object Parameter Value
-   * @return boolean boolean to see if it was successful in setting the parameter
-   * value.
-   */
-  public boolean setParameter(String name, Object value);
-
-  /**
-   * get the adjustable parameters for this forecast
-   *
-   * @return
-   */
-  public ListIterator<ParameterAPI> getAdjustableParamsIterator();
-  
-  /**
-   * Gets the Adjustable parameter list for the ERF
-   * @return
-   */
-  public ParameterList getAdjustableParameterList();
+	/**
+	 * This method gets the time-span field
+	 */
+	public TimeSpan getTimeSpan();
 
 
-  /**
-   * This function finds whether a particular location lies in applicable
-   * region of the forecast
-   *
-   * @param loc : location
-   * @return: True if this location is within forecast's applicable region, else false
-   */
-  public boolean isLocWithinApplicableRegion(Location loc);
+	/**
+	 * This will set the parameter with the given
+	 * name to the given value.
+	 * @param name String Name of the Adjustable Parameter
+	 * @param value Object Parameter Value
+	 * @return boolean boolean to see if it was successful in setting the parameter
+	 * value.
+	 */
+	public boolean setParameter(String name, Object value);
+
+	/**
+	 * get the adjustable parameters for this forecast
+	 *
+	 * @return
+	 */
+	public ListIterator<ParameterAPI> getAdjustableParamsIterator();
+
+	/**
+	 * Gets the Adjustable parameter list for the ERF
+	 * @return
+	 */
+	public ParameterList getAdjustableParameterList();
 
 
-  /**
-   * Get the region for which this forecast is applicable
-   * @return : Geographic region object specifying the applicable region of forecast
-   */
-  public Region getApplicableRegion();
-  
+	/**
+	 * This function finds whether a particular location lies in applicable
+	 * region of the forecast
+	 *
+	 * @param loc : location
+	 * @return: True if this location is within forecast's applicable region, else false
+	 */
+	public boolean isLocWithinApplicableRegion(Location loc);
 
-  /**
-   * This specifies what types of Tectonic Regions are included in the ERF
-   * @return : ArrayList<TectonicRegionType>
-   */
-  public ArrayList<TectonicRegionType> getIncludedTectonicRegionTypes();
+
+	/**
+	 * Get the region for which this forecast is applicable
+	 * @return : Geographic region object specifying the applicable region of forecast
+	 */
+	public Region getApplicableRegion();
+
+
+	/**
+	 * This specifies what types of Tectonic Regions are included in the ERF
+	 * @return : ArrayList<TectonicRegionType>
+	 */
+	public ArrayList<TectonicRegionType> getIncludedTectonicRegionTypes();
 
 
 
