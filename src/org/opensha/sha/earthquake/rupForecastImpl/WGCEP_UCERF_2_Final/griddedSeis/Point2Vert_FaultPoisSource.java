@@ -384,7 +384,7 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
     				Location loc = finiteFault.getLocation(i, j);
     				loc = new Location(
     						loc.getLatitude(), loc.getLongitude(), depth);
-    				finiteFault.set(i, j, loc);
+    				finiteFault.setLocation(i, j, loc);
     			}
     		}
 //    		Iterator<Location> it = finiteFault.getLocationsIterator();

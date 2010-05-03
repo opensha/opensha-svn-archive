@@ -100,7 +100,7 @@ public abstract class EvenlyGriddedSurface
      * @param  location                            The new location value.
      * @exception  ArrayIndexOutOfBoundsException  Thrown if the row or column lies beyond the grid space indexes.
      */
-    protected void setLocation( int row, int column, Location location ) {
+    public void setLocation( int row, int column, Location location ) {
         super.set( row, column, location );
     }
 
