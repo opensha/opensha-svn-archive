@@ -84,8 +84,40 @@ public class HazusDataSetAssmbler {
 		System.out.println(Double.NaN);
 		HazusDataSetAssmbler assem = new HazusDataSetAssmbler("/home/kevin/OpenSHA/hazus/gridTest/curves");
 		
-		HashMap<Location, double[]> results = assem.assemble(1000, 50);
-		writeFile("/home/kevin/OpenSHA/hazus/gridTest/curves/final_1000.dat", results);
+		HashMap<Location, double[]> results;
+		int rp;
+		
+		rp = 100;
+		results = assem.assemble(rp, 50);
+		writeFile("/home/kevin/OpenSHA/hazus/gridTest/curves/final_" + rp + ".dat", results);
+		
+		rp = 250;
+		results = assem.assemble(rp, 50);
+		writeFile("/home/kevin/OpenSHA/hazus/gridTest/curves/final_" + rp + ".dat", results);
+		
+		rp = 500;
+		results = assem.assemble(rp, 50);
+		writeFile("/home/kevin/OpenSHA/hazus/gridTest/curves/final_" + rp + ".dat", results);
+		
+		rp = 750;
+		results = assem.assemble(rp, 50);
+		writeFile("/home/kevin/OpenSHA/hazus/gridTest/curves/final_" + rp + ".dat", results);
+		
+		rp = 1000;
+		results = assem.assemble(rp, 50);
+		writeFile("/home/kevin/OpenSHA/hazus/gridTest/curves/final_" + rp + ".dat", results);
+		
+		rp = 1500;
+		results = assem.assemble(rp, 50);
+		writeFile("/home/kevin/OpenSHA/hazus/gridTest/curves/final_" + rp + ".dat", results);
+		
+		rp = 2000;
+		results = assem.assemble(rp, 50);
+		writeFile("/home/kevin/OpenSHA/hazus/gridTest/curves/final_" + rp + ".dat", results);
+		
+		rp = 2500;
+		results = assem.assemble(rp, 50);
+		writeFile("/home/kevin/OpenSHA/hazus/gridTest/curves/final_" + rp + ".dat", results);
 	}
 
 }
