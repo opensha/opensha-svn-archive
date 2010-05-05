@@ -20,7 +20,6 @@
 package org.opensha.sha.faultSurface;
 
 import java.util.Iterator;
-import java.util.ListIterator;
 
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.geo.Location;
@@ -45,6 +44,10 @@ import org.opensha.commons.geo.LocationUtils;
 public class FaultTrace extends LocationList implements NamedObjectAPI {
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/**
      *  Fault name field
      */
     private String faultName;

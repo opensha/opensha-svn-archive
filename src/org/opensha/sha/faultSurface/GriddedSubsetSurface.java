@@ -22,11 +22,8 @@ package org.opensha.sha.faultSurface;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.Container2D;
-import org.opensha.commons.data.Container2DAPI;
 import org.opensha.commons.data.ContainerSubset2D;
 import org.opensha.commons.data.Window2D;
-import org.opensha.commons.exceptions.LocationException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 

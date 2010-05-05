@@ -21,7 +21,6 @@ package org.opensha.sha.faultSurface;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.ListIterator;
 
 import org.opensha.commons.exceptions.FaultException;
 import org.opensha.commons.geo.LocationVector;
@@ -44,7 +43,11 @@ import org.opensha.commons.geo.LocationUtils;
 
 public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData {
 
-    protected final static String C = "StirlingGriddedSurface";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	protected final static String C = "StirlingGriddedSurface";
     protected final static boolean D = false;
 
     protected double aveDipDir = Double.NaN;
@@ -331,7 +334,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
         		upperSeismogenicDepth, lowerSeismogenicDepth, gridSpacing);
         System.out.println("******Fault Trace*********");
         System.out.println(faultTrace);
-        Iterator it = griddedSurface.getLocationsIterator();
+        Iterator<Location> it = griddedSurface.getLocationsIterator();
         System.out.println("*******Evenly Gridded Surface************");
         while(it.hasNext()){
             Location loc = (Location)it.next();

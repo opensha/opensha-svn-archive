@@ -44,8 +44,8 @@ public class SimpleFaultDataList {
     /**
      *  Contains the list of Locations
      */
-    protected ArrayList list = new ArrayList();
-    protected HashMap map = new HashMap();
+    protected ArrayList<SimpleFaultData> list = new ArrayList<SimpleFaultData>();
+    protected HashMap<String, SimpleFaultData> map = new HashMap<String, SimpleFaultData>();
 
 
     /**
@@ -58,7 +58,7 @@ public class SimpleFaultDataList {
      */
     public SimpleFaultData getSimpleFaultDataAt( int index ) throws InvalidRangeException {
         checkIndex(index);
-        return (SimpleFaultData)list.get( index );
+        return list.get( index );
     }
 
 
@@ -114,7 +114,7 @@ public class SimpleFaultDataList {
      *
      * @return    list iterator over SimpleFaultData objects
      */
-    public ListIterator listIterator() {
+    public ListIterator<SimpleFaultData> listIterator() {
         return list.listIterator();
     }
 
@@ -143,7 +143,7 @@ public class SimpleFaultDataList {
         b.append('\n');
         b.append(TAB + "Size = " + size());
 
-        ListIterator it = listIterator();
+        ListIterator<SimpleFaultData> it = listIterator();
         while( it.hasNext() ){
 
             SimpleFaultData trace = (SimpleFaultData)it.next();

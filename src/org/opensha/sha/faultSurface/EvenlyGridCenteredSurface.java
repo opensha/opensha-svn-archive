@@ -38,7 +38,11 @@ public class EvenlyGridCenteredSurface
     extends EvenlyGriddedSurface {
 
 
-  private EvenlyGriddedSurfaceAPI origSurface;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+private EvenlyGriddedSurfaceAPI origSurface;
 
   /**
    * Class constructor that takes in a EvenGriddedSurface and computes a EvenlyGridCentered

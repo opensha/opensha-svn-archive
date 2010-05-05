@@ -50,7 +50,11 @@ import org.opensha.commons.util.FaultUtils;
 
 public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
 
-  protected final static String C = "SimpleListricGriddedFaultFactory";
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+protected final static String C = "SimpleListricGriddedFaultFactory";
     protected final static boolean D = false;
 
     protected final static double PI_RADIANS = Math.PI / 180;
@@ -65,18 +69,18 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
      * bottom) over the various depth intervals.  The number of elements here must be
      * one less that those in the depths ArrayList.
      */
-    protected ArrayList dips;
+    protected ArrayList<Double> dips;
 
     /**
      * A ArrayList of Double objects representing the depth intervals on the fault
      * surface (from top to bottom).  This must have one more element that the dips ArrayList.
      */
-    protected ArrayList depths;
+    protected ArrayList<Double> depths;
 
 
     public SimpleListricGriddedSurface( FaultTrace faultTrace,
-                                        ArrayList dips,
-                                        ArrayList depths,
+                                        ArrayList<Double> dips,
+                                        ArrayList<Double> depths,
                                         double gridSpacing )
                                         throws FaultException {
 
@@ -285,13 +289,13 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
     protected void assertValidData() throws FaultException {
 
         // check the dips
-        ListIterator it1 = dips.listIterator();
+        ListIterator<Double> it1 = dips.listIterator();
         while(it1.hasNext()) {
           FaultUtils.assertValidDip( ((Double)it1.next()).doubleValue() );
         }
 
         // check the depths
-        ListIterator it2 = depths.listIterator();
+        ListIterator<Double> it2 = depths.listIterator();
         // store the first one
         double depth = ((Double)it2.next()).doubleValue();
         FaultUtils.assertValidDepth(depth);
@@ -372,11 +376,11 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
          faultTrace.add(new Location(20.0, -120.0, 0.0));
          faultTrace.add(new Location(20.2, -120.0, 0.0));
 
-         ArrayList dips = new ArrayList();
+         ArrayList<Double> dips = new ArrayList<Double>();
          dips.add(new Double(60.0));
          dips.add(new Double(45.0));
 
-         ArrayList depths = new ArrayList();
+         ArrayList<Double> depths = new ArrayList<Double>();
          depths.add(new Double(0.0));
          depths.add(new Double(5.0));
          depths.add(new Double(10.0));
@@ -388,10 +392,10 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
                                         5.0 );
 
 
-         Iterator it = test.getLocationsIterator();
+         Iterator<Location> it = test.getLocationsIterator();
          Location loc;
          while (it.hasNext()) {
-            loc = (Location) it.next();
+            loc = it.next();
             System.out.println(loc.getLatitude() +"  "+loc.getLongitude()+"  "+loc.getDepth());
          }
 

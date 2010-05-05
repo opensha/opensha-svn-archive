@@ -4,17 +4,12 @@
 package org.opensha.sha.faultSurface;
 
 import java.io.FileWriter;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Iterator;
 
-import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.util.FaultTraceUtils;
-import org.opensha.commons.util.GMT_GrdFile;
-
-import ucar.ma2.InvalidRangeException;
 
 /**
  * This classe represents and approximately evenly gridded surface, where the gridSpacing represents some average value.
@@ -23,6 +18,12 @@ import ucar.ma2.InvalidRangeException;
  * @author field
  */
 public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 
 	/**
 	 * This constructor creates a blank surface enabling the user to populate the surface any way they want
@@ -116,7 +117,7 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 				this.setLocation(r,c, nextLoc);
 				prevLoc = nextLoc;
 			}
-			double accuracyCheck = LocationUtils.linearDistanceFast(botLoc, this.getLocation(nRows-1,c));
+//			double accuracyCheck = LocationUtils.linearDistanceFast(botLoc, this.getLocation(nRows-1,c));
 //			System.out.println("Distance between actual and computed bottom point = "+(float)accuracyCheck);
 			
 			//override last location
@@ -204,7 +205,7 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 		try{
 			FileWriter fw = new FileWriter(fileName);
 			fw.write("lat\tlon\tdepth\n");
-			Iterator it = this.getLocationsIterator();
+			Iterator<Location> it = this.getLocationsIterator();
 			while(it.hasNext()) {
 				Location loc = (Location) it.next();
 				fw.write(loc.getLatitude()+"\t"+loc.getLongitude()+"\t"+loc.getDepth()+"\n");

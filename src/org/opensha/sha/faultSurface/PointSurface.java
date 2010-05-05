@@ -22,10 +22,7 @@ package org.opensha.sha.faultSurface;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import org.jpedal.fonts.tt.Loca;
 import org.opensha.commons.exceptions.InvalidRangeException;
-import org.opensha.commons.exceptions.LocationException;
-import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.util.FaultUtils;
@@ -57,6 +54,11 @@ import org.opensha.commons.util.FaultUtils;
 // TODO note in docs that class now wraps Location rather tan subclasses
 //public class PointSurface extends Location implements EvenlyGriddedSurfaceAPI {
 public class PointSurface implements EvenlyGriddedSurfaceAPI {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private Location location;
 

@@ -45,6 +45,10 @@ import org.opensha.commons.geo.LocationUtils;
 public class SimpleFaultData  implements java.io.Serializable {
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/**
      *  Description of the Field
      */
     private double upperSeismogenicDepth;
