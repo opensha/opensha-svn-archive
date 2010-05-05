@@ -49,9 +49,14 @@ import org.opensha.commons.geo.LocationList;
  * @created    February 26, 2002
  * @version    1.0
  */
-public class GriddedSubsetSurface extends ContainerSubset2D implements EvenlyGriddedSurfaceAPI {
+public class GriddedSubsetSurface extends ContainerSubset2D<Location> implements EvenlyGriddedSurfaceAPI {
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
      *  Constructor for the GriddedSubsetSurface object
      *
      * @param  numRows                             Specifies the length of the window.
@@ -80,7 +85,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements EvenlyGri
      */
     public GriddedSubsetSurface( int numRows, int numCols, int startRow, int startCol, EvenlyGriddedSurfaceAPI data )
              throws ArrayIndexOutOfBoundsException {
-        super( numRows, numCols, startRow, startCol, ( Container2DAPI ) data );
+        super( numRows, numCols, startRow, startCol, data );
     }
 
 
@@ -151,45 +156,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements EvenlyGri
      * @param  gs  The new newMainSurface value
      */
     public void setNewMainSurface( EvenlyGriddedSurface gs ) {
-        super.setContainer2D( ( Container2D ) gs );
-    }
-
-
-    /**
-     *  Get a Location to the grid, unless it doesn't exist. Note
-     *  these points are translated to the real grid. FOr example
-     *  0 row and column returns from the GriddedSurface the Location
-     *  at (startRow, startColumn). <p>
-     *
-     * Recall that the grid point may be a valid point but there
-     * is no Location object stored at that grid point.
-     *
-     * @param  row                    The row index from which to obtain the Location, in subset coordinates.
-     * @param  col                    The column index from which to obtain the Location, in subset coordinates.
-     * @return                        The location value if found.
-     * @exception  LocationException  Thrown if a Location doesn't exist
-     * at the specified grid point.
-     */
-    public Location getLocation( int row, int col )
-             throws LocationException {
-        String S = C + ": getLocation():";
-        if ( exist( row, col ) ) {
-            return ( Location ) get( row, col );
-        } else {
-            throw new LocationException( S + "Requested object doesn't exist in " + row + ", " + col );
-        }
-    }
-
-
-    /**
-     *  Gets the locationsIterator attribute of the GriddedSubsetSurface object.
-     *  Will return a subset iterator, not iterating over the whole GriddedSurface,
-     *  but just over the subset window points.
-     *
-     * @return    A listIterator of Location obejcts.
-     */
-    public ListIterator getLocationsIterator() {
-        return this.listIterator();
+        super.setContainer2D(gs);
     }
 
     /**
@@ -199,7 +166,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements EvenlyGri
      */
     public LocationList getLocationList() {
       LocationList locList = new LocationList();
-      Iterator it = this.getLocationsIterator();
+      Iterator<Location> it = listIterator();
       while(it.hasNext()) locList.add((Location)it.next());
       return locList;
 
@@ -288,10 +255,10 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements EvenlyGri
     /** get a list of locations that constitutes the perimeter (forst row, last col, last row, and first col) */
     public LocationList getSurfacePerimeterLocsList() {
   	  LocationList locList = new LocationList();
-  	  for(int c=0;c<getNumCols();c++) locList.add(getLocation(0, c));
-  	  for(int r=0;r<getNumRows();r++) locList.add(getLocation(r, getNumCols()-1));
-  	  for(int c=getNumCols()-1;c>=0;c--) locList.add(getLocation(getNumRows()-1, c));
-  	  for(int r=getNumRows()-1;r>=0;r--) locList.add(getLocation(r, 0));
+  	  for(int c=0;c<getNumCols();c++) locList.add(get(0, c));
+  	  for(int r=0;r<getNumRows();r++) locList.add(get(r, getNumCols()-1));
+  	  for(int c=getNumCols()-1;c>=0;c--) locList.add(get(getNumRows()-1, c));
+  	  for(int r=getNumRows()-1;r>=0;r--) locList.add(get(r, 0));
   	  return locList;
     }
 
@@ -343,6 +310,18 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements EvenlyGri
     public double getSurfaceArea() {
       return getSurfaceWidth()*getSurfaceLength();
     }
+
+
+	@Override
+	public Location getLocation(int row, int column) {
+		return get(row, column);
+	}
+
+
+	@Override
+	public ListIterator<Location> getLocationsIterator() {
+		return listIterator();
+	}
 
 
 }

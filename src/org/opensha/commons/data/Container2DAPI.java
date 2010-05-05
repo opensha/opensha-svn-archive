@@ -48,7 +48,7 @@ import org.opensha.commons.geo.Location;
  * @version    1.0
  */
 
-public interface Container2DAPI extends NamedObjectAPI{
+public interface Container2DAPI<T> extends NamedObjectAPI{
 
     /**
      *  Returns the number of rows int this two dimensional container.
@@ -113,7 +113,7 @@ public interface Container2DAPI extends NamedObjectAPI{
      * @exception  ClassCastException              Thrown by subclasses that
      *      expect a particular type of Java object.
      */
-    public void set( int row, int column, Object obj ) throws
+    public void set( int row, int column, T obj ) throws
             ArrayIndexOutOfBoundsException,
             ClassCastException;
 
@@ -124,7 +124,7 @@ public interface Container2DAPI extends NamedObjectAPI{
      * @param  column  The y coordinate of the cell.
      * @return
      */
-    public Object get( int row, int column );
+    public T get( int row, int column );
 
 
     /**
@@ -148,7 +148,7 @@ public interface Container2DAPI extends NamedObjectAPI{
      * @exception  ArrayIndexOutOfBoundsException  Thrown if the row is beyond
      *      the two dimensional matrix range.
      */
-    public ListIterator getColumnIterator( int row ) throws ArrayIndexOutOfBoundsException;
+    public ListIterator<T> getColumnIterator( int row ) throws ArrayIndexOutOfBoundsException;
 
 
     /**
@@ -161,7 +161,7 @@ public interface Container2DAPI extends NamedObjectAPI{
      * @exception  ArrayIndexOutOfBoundsException  Thrown if the column is
      *      beyond the two dimensional matrix range.
      */
-    public ListIterator getRowIterator( int column ) throws ArrayIndexOutOfBoundsException;
+    public ListIterator<T> getRowIterator( int column ) throws ArrayIndexOutOfBoundsException;
 
 
     /**
@@ -172,7 +172,7 @@ public interface Container2DAPI extends NamedObjectAPI{
      *
      * @return    The allByColumnsIterator value
      */
-    public ListIterator getAllByColumnsIterator();
+    public ListIterator<T> getAllByColumnsIterator();
 
 
     /**
@@ -183,7 +183,7 @@ public interface Container2DAPI extends NamedObjectAPI{
      *
      * @return    The allByRowsIterator value
      */
-    public ListIterator getAllByRowsIterator();
+    public ListIterator<T> getAllByRowsIterator();
 
 
     /**
@@ -194,7 +194,7 @@ public interface Container2DAPI extends NamedObjectAPI{
      *
      * @return    Description of the Return Value
      */
-    public ListIterator listIterator();
+    public ListIterator<T> listIterator();
 
     /**
      * state dump to a string, useful for debugging. Subclasses can implement

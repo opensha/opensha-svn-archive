@@ -41,122 +41,143 @@ import org.opensha.commons.util.FaultUtils;
  * @version 1.0
  */
 public abstract class EvenlyGriddedSurfFromSimpleFaultData
-    extends EvenlyGriddedSurface{
+extends EvenlyGriddedSurface{
 
-    // *********************
-    /** @todo  Variables */
-    // *********************
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	// *********************
+	/** @todo  Variables */
+	// *********************
 
-    /* Debbuging variables */
-    protected final static String C = "EvenlyGriddedSurfFromSimpleFaultData";
-    protected final static boolean D = false;
+	/* Debbuging variables */
+	protected final static String C = "EvenlyGriddedSurfFromSimpleFaultData";
+	protected final static boolean D = false;
 
-    protected FaultTrace faultTrace;
-    protected double upperSeismogenicDepth = Double.NaN;
-    protected double lowerSeismogenicDepth = Double.NaN;
-
-
-
-    protected EvenlyGriddedSurfFromSimpleFaultData(SimpleFaultData simpleFaultData,
-    		double gridSpacing) throws
-    		FaultException {
- 
-      this(simpleFaultData.getFaultTrace(),
-           simpleFaultData.getAveDip(),
-           simpleFaultData.getUpperSeismogenicDepth(),
-           simpleFaultData.getLowerSeismogenicDepth(),
-           gridSpacing);
-
-    }
-    
-    protected EvenlyGriddedSurfFromSimpleFaultData(FaultTrace faultTrace,
-                                                double aveDip,
-                                                double upperSeismogenicDepth,
-                                                double lowerSeismogenicDepth,
-                                                double gridSpacing) throws
-        FaultException {
-    	set(faultTrace, aveDip, upperSeismogenicDepth, lowerSeismogenicDepth, gridSpacing);
-    }
-    
-    private void set(FaultTrace faultTrace,
-    		double aveDip,
-    		double upperSeismogenicDepth,
-    		double lowerSeismogenicDepth,
-    		double gridSpacing)	{
-    	this.faultTrace =faultTrace;
-    	this.aveDip =aveDip;
-    	this.upperSeismogenicDepth = upperSeismogenicDepth;
-    	this.lowerSeismogenicDepth =lowerSeismogenicDepth;
-    	this.gridSpacing = gridSpacing;
-    }
-    
-    
-    /**
-     * Stitch Together the fault sections. It assumes:
-     * 1. Sections are in correct order (in how they are to be stitched together)
-     * 2. Distance between adjacent points on neighboring sections (in correct order) 
-     * is less than distance to opposite ends of the sections.  In other words no sections
-     * overlap by more than half the section length.
-     * Each of the following are average over the sections (weight averaged by area): 
-     * upper and lower seismogenic depth, slip.  Total area of surface is maintained, 
-     * plus an addition area implied by gaps between neighboring sections.
-     * 
-     * @param simpleFaultData
-     * @param gridSpacing
-     * @throws FaultException
-     */
-    protected EvenlyGriddedSurfFromSimpleFaultData(ArrayList<SimpleFaultData> simpleFaultDataList, double gridSpacing) {
-    	SimpleFaultData simpleFaultData = SimpleFaultData.getCombinedSimpleFaultData(simpleFaultDataList);
-    	set(simpleFaultData.getFaultTrace(), 
-    			simpleFaultData.getAveDip(), 
-    			simpleFaultData.getUpperSeismogenicDepth(),
-    			simpleFaultData.getLowerSeismogenicDepth(),
-    			gridSpacing);
-    	
-    }
-
-    // ***************************************************************
-    /** @todo  Serializing Helpers - overide to increase performance */
-    // ***************************************************************
-
-    protected void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
-        ois.defaultReadObject();
-    }
-    protected void writeObject(ObjectOutputStream oos) throws IOException {
-        oos.defaultWriteObject();
-    }
+	protected FaultTrace faultTrace;
+	protected double upperSeismogenicDepth = Double.NaN;
+	protected double lowerSeismogenicDepth = Double.NaN;
 
 
-    public FaultTrace getFaultTrace() { return faultTrace; }
+
+	protected EvenlyGriddedSurfFromSimpleFaultData(SimpleFaultData simpleFaultData,
+			double gridSpacing) throws
+			FaultException {
+
+		this(simpleFaultData.getFaultTrace(),
+				simpleFaultData.getAveDip(),
+				simpleFaultData.getUpperSeismogenicDepth(),
+				simpleFaultData.getLowerSeismogenicDepth(),
+				gridSpacing);
+
+	}
+
+	protected EvenlyGriddedSurfFromSimpleFaultData(FaultTrace faultTrace,
+			double aveDip,
+			double upperSeismogenicDepth,
+			double lowerSeismogenicDepth,
+			double gridSpacing) throws
+			FaultException {
+		set(faultTrace, aveDip, upperSeismogenicDepth, lowerSeismogenicDepth, gridSpacing);
+	}
+
+	private void set(FaultTrace faultTrace,
+			double aveDip,
+			double upperSeismogenicDepth,
+			double lowerSeismogenicDepth,
+			double gridSpacing)	{
+		this.faultTrace =faultTrace;
+		this.aveDip =aveDip;
+		this.upperSeismogenicDepth = upperSeismogenicDepth;
+		this.lowerSeismogenicDepth =lowerSeismogenicDepth;
+		this.gridSpacing = gridSpacing;
+	}
 
 
-    public double getUpperSeismogenicDepth() { return upperSeismogenicDepth; }
+	/**
+	 * Stitch Together the fault sections. It assumes:
+	 * 1. Sections are in correct order (in how they are to be stitched together)
+	 * 2. Distance between adjacent points on neighboring sections (in correct order) 
+	 * is less than distance to opposite ends of the sections.  In other words no sections
+	 * overlap by more than half the section length.
+	 * Each of the following are average over the sections (weight averaged by area): 
+	 * upper and lower seismogenic depth, slip.  Total area of surface is maintained, 
+	 * plus an addition area implied by gaps between neighboring sections.
+	 * 
+	 * @param simpleFaultData
+	 * @param gridSpacing
+	 * @throws FaultException
+	 */
+	protected EvenlyGriddedSurfFromSimpleFaultData(ArrayList<SimpleFaultData> simpleFaultDataList, double gridSpacing) {
+		SimpleFaultData simpleFaultData = SimpleFaultData.getCombinedSimpleFaultData(simpleFaultDataList);
+		set(simpleFaultData.getFaultTrace(), 
+				simpleFaultData.getAveDip(), 
+				simpleFaultData.getUpperSeismogenicDepth(),
+				simpleFaultData.getLowerSeismogenicDepth(),
+				gridSpacing);
 
-    public double getLowerSeismogenicDepth() { return lowerSeismogenicDepth; }
+	}
+
+	// ***************************************************************
+	/** @todo  Serializing Helpers - overide to increase performance */
+	// ***************************************************************
+
+	protected void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+		ois.defaultReadObject();
+	}
+	protected void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();
+	}
 
 
-    /**
-     * This method checks the simple-fault data to make sure it's all OK.
-     * @throws FaultException
-     */
-    protected void assertValidData() throws FaultException {
+	public FaultTrace getFaultTrace() { return faultTrace; }
 
-        if( faultTrace == null ) throw new FaultException(C + "Fault Trace is null");
 
-        FaultUtils.assertValidDip(aveDip);
-        FaultUtils.assertValidSeisUpperAndLower(upperSeismogenicDepth, lowerSeismogenicDepth);
+	public double getUpperSeismogenicDepth() { return upperSeismogenicDepth; }
 
-        if( gridSpacing == Double.NaN ) throw new FaultException(C + "invalid gridSpacing");
+	public double getLowerSeismogenicDepth() { return lowerSeismogenicDepth; }
 
-        double depth = faultTrace.get(0).getDepth();
-        if(depth > upperSeismogenicDepth)
-                throw new FaultException(C + "depth on faultTrace locations must be < upperSeisDepth");
 
-        Iterator<Location> it = faultTrace.iterator();
-        while(it.hasNext()) {
-          if(it.next().getDepth() != depth){
-            throw new FaultException(C + ":All depth on faultTrace locations must be equal");
-          }
-        }
-    }
+	/**
+	 * This method checks the simple-fault data to make sure it's all OK.
+	 * @throws FaultException
+	 */
+	protected void assertValidData() throws FaultException {
+
+		if( faultTrace == null ) throw new FaultException(C + "Fault Trace is null");
+
+		FaultUtils.assertValidDip(aveDip);
+		FaultUtils.assertValidSeisUpperAndLower(upperSeismogenicDepth, lowerSeismogenicDepth);
+
+		if( gridSpacing == Double.NaN ) throw new FaultException(C + "invalid gridSpacing");
+
+		double depth = faultTrace.get(0).getDepth();
+		if(depth > upperSeismogenicDepth)
+			throw new FaultException(C + "depth on faultTrace locations must be < upperSeisDepth");
+
+		Iterator<Location> it = faultTrace.iterator();
+		while(it.hasNext()) {
+			if(it.next().getDepth() != depth){
+				throw new FaultException(C + ":All depth on faultTrace locations must be equal");
+			}
+		}
+	}
+
+	@Override
+	public Location getLocation(int row, int column) {
+		return get(row, column);
+	}
+
+
+	@Override
+	public ListIterator<Location> getLocationsIterator() {
+		return listIterator();
+	}
+
+
+	@Override
+	public void setLocation(int row, int column, Location loc) {
+		set(row, column, loc);
+	}
 }

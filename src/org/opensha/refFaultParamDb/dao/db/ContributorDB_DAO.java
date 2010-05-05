@@ -94,6 +94,8 @@ public class ContributorDB_DAO  {
 	}
 
 	public static String getEnryptedPassword(String password) {
+		if (password == null)
+			return null;
 		try {
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			md.update(password.getBytes());

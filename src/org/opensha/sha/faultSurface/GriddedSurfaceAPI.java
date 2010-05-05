@@ -46,62 +46,71 @@ import org.opensha.commons.geo.LocationList;
  * @created
  * @version    1.0
  */
-public interface GriddedSurfaceAPI extends Container2DAPI {
+public interface GriddedSurfaceAPI extends Container2DAPI<Location> {
 
-    /** Returns the average dip of the surface.  */
-    public double getAveDip()throws UnsupportedOperationException;
-;
-
-
-    /** Returns the average strike of the surface.  */
-    public double getAveStrike()throws UnsupportedOperationException;
-
-    /**
-     *  Retrieves a Location in the 2D grid - does the same thing as get() except
-     *  that it casts the returned object to a Location.
-     *
-     * @param  row     The row to set this Location at.
-     * @param  column  The column to set this Location at.
-     * @return         The location value
-     */
-    public Location getLocation( int row, int column );
+	/** Returns the average dip of the surface.  */
+	public double getAveDip()throws UnsupportedOperationException;
+	;
 
 
-    /** Does same thing as listIterator() in super Interface */
-    public ListIterator getLocationsIterator();
+	/** Returns the average strike of the surface.  */
+	public double getAveStrike()throws UnsupportedOperationException;
 
-    /**
-     * Put all the locations of this surface into a location list
-     *
-     * @return
-     */
-    public LocationList getLocationList();
+	/**
+	 * Put all the locations of this surface into a location list
+	 *
+	 * @return
+	 */
+	public LocationList getLocationList();
 
-    /** Common debug string that most Java classes implement */
-    public String toString();
+	/** Common debug string that most Java classes implement */
+	public String toString();
 
-    /** get a list of locations that constitutes the perimeter (forst row, last col, last row, and first col) */
-    public LocationList getSurfacePerimeterLocsList();
+	/** get a list of locations that constitutes the perimeter (forst row, last col, last row, and first col) */
+	public LocationList getSurfacePerimeterLocsList();
 
-    /**
-     * Returns the Metadata for the surface
-     * @return String
-     */
-    public String getSurfaceMetadata();
-
-
-    /**
-     * This returns the total length of the surface
-     * @return double
-     */
-    public double getSurfaceLength();
-
-    /**
-     * This returns the surface width (down dip)
-     * @return double
-     */
-    public double getSurfaceWidth();
+	/**
+	 * Returns the Metadata for the surface
+	 * @return String
+	 */
+	public String getSurfaceMetadata();
 
 
+	/**
+	 * This returns the total length of the surface
+	 * @return double
+	 */
+	public double getSurfaceLength();
+
+	/**
+	 * This returns the surface width (down dip)
+	 * @return double
+	 */
+	public double getSurfaceWidth();
+
+	/**
+	 * Method to get location...same as get(row, column)
+	 * 
+	 * @param row
+	 * @param column
+	 * @return
+	 */
+	public Location getLocation(int row, int column);
+	
+	/**
+	 * Method to set location...same as set(row, column, loc)
+	 * 
+	 * @param row
+	 * @param column
+	 * @param loc
+	 */
+	public void setLocation(int row, int column, Location loc);
+	
+	/**
+	 * Returns listiterator()
+	 * 
+	 * @return
+	 */
+	public ListIterator<Location> getLocationsIterator();
 
 }
