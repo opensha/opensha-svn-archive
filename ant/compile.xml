@@ -330,6 +330,7 @@
 		           windowtitle="OpenSHA">
 
 			<fileset dir="${src}" defaultexcludes="yes">
+				<include name="**/*.java"/>
 			</fileset>
 
 			<doctitle><![CDATA[<h1>OpenSHA <a href="http://www.opensha.org">www.OpenSHA.org</a></h1>]]></doctitle>
