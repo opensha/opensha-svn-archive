@@ -81,7 +81,7 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
   private String siteEntryDate;
   private String siteRepresentativeIndex;
   private ArrayList siteTypes;
-  private CombinedEventsInfoDB_DAO combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_AccessAPI.dbConnection);
+  private CombinedEventsInfoDB_DAO combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_AccessAPI.db_latest_conn);
 
 
   /**

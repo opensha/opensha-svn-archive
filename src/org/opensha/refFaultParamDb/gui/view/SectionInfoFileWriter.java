@@ -18,7 +18,7 @@ import org.opensha.sha.gui.infoTools.CalcProgressBar;
  *
  */
 public class SectionInfoFileWriter implements Runnable {
-	private  PrefFaultSectionDataDB_DAO faultSectionPrefDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection); 
+	private  PrefFaultSectionDataDB_DAO faultSectionPrefDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.db_latest_conn); 
 	private CalcProgressBar progressBar;
 	private int totSections;
 	private int currSection;

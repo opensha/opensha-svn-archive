@@ -21,7 +21,7 @@ public class EndTimeUpdation {
 	// update the end time with publication year instead of 0 AD
 	private final static String FILE_NAME = "org/opensha/refFaultParamDb/excelToDatabase/EndTime.csv";
 	// database connection
-	private  static final DB_AccessAPI dbConnection = DB_AccessAPI.dbConnection;
+	private  static final DB_AccessAPI dbConnection = DB_AccessAPI.db_ver2_conn;
 	 
 	public static void main(String[] args) {
 		SessionInfo.setUserName("vgupta");

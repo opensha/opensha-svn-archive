@@ -36,7 +36,7 @@ public class SoSAF_SubSectionInversion {
 
 	private boolean D = true;
 	private final static int MAX_SUBSECTION_LEN = 10;
-	private DeformationModelPrefDataDB_DAO deformationModelPrefDB_DAO = new DeformationModelPrefDataDB_DAO(DB_AccessAPI.dbConnection);
+	private DeformationModelPrefDataDB_DAO deformationModelPrefDB_DAO = new DeformationModelPrefDataDB_DAO(DB_AccessAPI.db_ver2_conn);
 	private ArrayList<FaultSectionPrefData> subSectionList;
 	
 	private int num_seg, num_rup;

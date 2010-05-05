@@ -48,7 +48,7 @@ public class CheckFaultSectionDatabase {
 		HashMap<String, Double> prefFaultSectionAseisFactors = new HashMap<String, Double>();
 	
 		// Get Values from fault section database
-		FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
+		FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.db_ver2_conn);
 		ArrayList<FaultSectionData> faultSectionsList =  faultSectionDAO.getAllFaultSections();
 		for(int i=0; i<faultSectionsList.size(); ++i) {
 			FaultSectionPrefData faultSectionPrefData  = faultSectionsList.get(i).getFaultSectionPrefData();
@@ -65,8 +65,8 @@ public class CheckFaultSectionDatabase {
 		defModels.add("D2.4");
 		defModels.add("D2.5");
 		defModels.add("D2.6");
-		DeformationModelSummaryDB_DAO defModelSummaryDAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
-		DeformationModelPrefDataDB_DAO defModelPrefDAO = new DeformationModelPrefDataDB_DAO(DB_AccessAPI.dbConnection);
+		DeformationModelSummaryDB_DAO defModelSummaryDAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.db_ver2_conn);
+		DeformationModelPrefDataDB_DAO defModelPrefDAO = new DeformationModelPrefDataDB_DAO(DB_AccessAPI.db_ver2_conn);
 		for(int i=0; i<defModels.size(); ++i) {
 			String defModelName = defModels.get(i);
 			DeformationModelSummary defModelSummary = defModelSummaryDAO.getDeformationModel(defModelName);

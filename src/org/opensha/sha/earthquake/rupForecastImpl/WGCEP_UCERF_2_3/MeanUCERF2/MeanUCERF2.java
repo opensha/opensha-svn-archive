@@ -137,7 +137,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 
 	private NSHMP_GridSourceGenerator nshmp_gridSrcGen = new NSHMP_GridSourceGenerator();
 	private UCERF2 ucerf2 = new UCERF2();
-	private DeformationModelSummaryDB_DAO defModelSummaryDAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
+	private DeformationModelSummaryDB_DAO defModelSummaryDAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.db_ver2_conn);
 	private NonCA_FaultsFetcher nonCA_B_Faultsfetcher = new NonCA_FaultsFetcher();
 
 	// whether we need to calculate MFDs for verification purposes

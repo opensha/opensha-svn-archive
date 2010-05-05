@@ -120,7 +120,7 @@ public class PrefFaultSectionDataFinal implements Serializable {
 
 
 	private void writeFaultSectionDataFromDatabaseTo_XML() {
-		PrefFaultSectionDataDB_DAO faultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
+		PrefFaultSectionDataDB_DAO faultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.db_ver2_conn);
 		ArrayList faultSectionDataListFromDatabase = faultSectionDAO.getAllFaultSectionPrefData();
 		
 		Document document = DocumentHelper.createDocument();

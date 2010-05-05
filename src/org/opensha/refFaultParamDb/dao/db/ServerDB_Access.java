@@ -47,8 +47,14 @@ public class ServerDB_Access     implements java.io.Serializable, DB_AccessAPI {
 	//used for debugging
 	private static final boolean D = false;
 
-	// GRAVITY FOR JAVA 1.5
-	private final static String SERVLET_URL  = ServletPrefs.OPENSHA_SERVLET_URL + "Fault_DB_AccessServlet";
+	public final static String SERVLET_URL_DB2  = ServletPrefs.OPENSHA_SERVLET_URL + "Fault_DB_AccessServlet";
+	public final static String SERVLET_URL_DB3  = ServletPrefs.OPENSHA_SERVLET_URL + "Fault_DB_AccessServlet_Ver3";
+	
+	private String servletURL;
+	
+	public ServerDB_Access(String servletURL) {
+		this.servletURL = servletURL;
+	}
 
 	// SCECDATA FOR JAVA 1.5
 	//private final static String SERVLET_URL  = "http://scecdata.usc.edu:8080/UCERF/servlet/DB_AccessServlet";
@@ -224,8 +230,8 @@ public class ServerDB_Access     implements java.io.Serializable, DB_AccessAPI {
 		try{
 			//System.out.println("***********"+SERVLET_URL+"**************");	
 			//System.out.flush();
-			if(D) System.out.println("starting to make connection with servlet");
-			URL dbAccessServlet = new URL(SERVLET_URL);
+			if(D) System.out.println("starting to make connection with servlet: " + servletURL);
+			URL dbAccessServlet = new URL(servletURL);
 
 			URLConnection servletConnection = dbAccessServlet.openConnection();
 			if(D) System.out.println("connection established");
@@ -245,7 +251,7 @@ public class ServerDB_Access     implements java.io.Serializable, DB_AccessAPI {
 			//sending the username and password to the server
 			outputToServlet.writeObject(SessionInfo.getUserName());
 			//send the password
-			outputToServlet.writeObject(SessionInfo.getPassword());
+			outputToServlet.writeObject(SessionInfo.getEncryptedPassword());
 			//sending the type of operation that needs to be performed in the database
 			outputToServlet.writeObject(sqlFunction);
 			//sending the actual query to be performed in the database
@@ -281,7 +287,7 @@ public class ServerDB_Access     implements java.io.Serializable, DB_AccessAPI {
 	 * @param args
 	 */
 	public static void main(String args[]) {
-		DB_AccessAPI db = new ServerDB_Access();
+		DB_AccessAPI db = new ServerDB_Access(SERVLET_URL_DB2);
 		boolean valid = PrioritizedDB_Access.isAccessorValid(db);
 		System.out.println("Valid? " + valid);
 		System.exit(0);

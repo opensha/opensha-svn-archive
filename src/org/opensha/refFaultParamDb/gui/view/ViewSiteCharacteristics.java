@@ -144,7 +144,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
   private AddEditIndividualEvent addEditIndividualEvent;
 
   //dao
-  private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.dbConnection);
+  private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.db_latest_conn);
 
 
   public ViewSiteCharacteristics(SiteSelectionAPI siteSelectionListener) {

@@ -43,7 +43,7 @@ import org.opensha.refFaultParamDb.vo.EstimateInstances;
  *
  */
 public class ViewDeformationModel extends JFrame {
-	private DeformationModelDB_DAO deformationModelDAO = new DeformationModelDB_DAO(DB_AccessAPI.dbConnection);
+	private DeformationModelDB_DAO deformationModelDAO = new DeformationModelDB_DAO(DB_AccessAPI.db_latest_conn);
 	private final static String SLIP_RATE = "Slip Rate (mm/year)";
 	private final static String ASEISMIC_SLIP_FACTOR = "Aseismic Slip Factor";
 

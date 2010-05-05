@@ -269,7 +269,7 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 	 * @param args
 	 */
 	public static void main(String []args) {
-		DB_AccessAPI dbAccessAPI = new ServerDB_Access();
+		DB_AccessAPI dbAccessAPI = new ServerDB_Access(ServerDB_Access.SERVLET_URL_DB3);
 		SessionInfo.setUserName(args[0]);
 	    SessionInfo.setPassword(args[1]);
 	    SessionInfo.setContributorInfo();

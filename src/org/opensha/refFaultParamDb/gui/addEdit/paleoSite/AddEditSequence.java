@@ -117,7 +117,7 @@ public class AddEditSequence extends LabeledBoxPanel implements ActionListener,
   private ParameterListEditor sequenceProbEditor;
 
   private ArrayList sequenceList = new ArrayList();
-  private PaleoEventDB_DAO paleoEventDAO = new PaleoEventDB_DAO(DB_AccessAPI.dbConnection);
+  private PaleoEventDB_DAO paleoEventDAO = new PaleoEventDB_DAO(DB_AccessAPI.db_latest_conn);
   private int siteId;
   private String siteEntryDate;
   ArrayList eventsInfoList ;

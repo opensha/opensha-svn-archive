@@ -64,7 +64,7 @@ public class GetAccountInfo extends JFrame implements ActionListener {
   private final static String MSG_EMAIL_MISSING = "Email address is missing";
   private final static String MSG_INVALID_EMAIL = "Invalid email address";
   private final static String MSG_SUCCESS = "Account Info emailed successfully";
-  private ContributorDB_DAO contributorDAO = new ContributorDB_DAO(DB_AccessAPI.dbConnection);
+  private ContributorDB_DAO contributorDAO = new ContributorDB_DAO(DB_AccessAPI.db_latest_conn);
 
   public GetAccountInfo() {
     try {

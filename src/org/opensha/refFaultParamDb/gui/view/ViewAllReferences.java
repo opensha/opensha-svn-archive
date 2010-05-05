@@ -62,7 +62,7 @@ public class ViewAllReferences extends JFrame implements ActionListener {
   private JScrollPane referencesScrollPane = new JScrollPane();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   // references DAO
-  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
+  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.db_latest_conn);
   private final static String MSG_MINUTE_TO_LOAD = " May take a minute to load ........";
   private CalcProgressBar progressBar = new CalcProgressBar("Getting References", MSG_MINUTE_TO_LOAD);
   private final static String TITLE = "All References";

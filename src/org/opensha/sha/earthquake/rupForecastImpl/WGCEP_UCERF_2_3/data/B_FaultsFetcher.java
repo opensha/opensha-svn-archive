@@ -45,7 +45,7 @@ public  class B_FaultsFetcher extends FaultsFetcher  implements java.io.Serializ
 	 */
 	public B_FaultsFetcher() {
 		// cache the PrefFaultSectionData
-		 PrefFaultSectionDataDB_DAO faultSectionPrefDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
+		 PrefFaultSectionDataDB_DAO faultSectionPrefDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.db_ver2_conn);
 		 faultSectionPrefDAO.getAllFaultSectionPrefData();
 	}
 

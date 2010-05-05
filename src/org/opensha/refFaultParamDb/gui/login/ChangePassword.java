@@ -73,7 +73,7 @@ public class ChangePassword extends JFrame implements ActionListener {
   private final static String MSG_PWD_CHANGE_FAILED = "Password change failed\n"+
       "Check username and current password";
 
-  private ContributorDB_DAO contributorDAO = new ContributorDB_DAO(DB_AccessAPI.dbConnection);
+  private ContributorDB_DAO contributorDAO = new ContributorDB_DAO(DB_AccessAPI.db_latest_conn);
 
   public ChangePassword() {
     try {

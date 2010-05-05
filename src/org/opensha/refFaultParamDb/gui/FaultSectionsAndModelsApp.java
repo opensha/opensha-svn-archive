@@ -9,6 +9,8 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.ServerDB_Access;
 import org.opensha.refFaultParamDb.gui.addEdit.deformationModel.EditDeformationModel;
 import org.opensha.refFaultParamDb.gui.addEdit.faultModel.AddEditFaultModel;
 import org.opensha.refFaultParamDb.gui.view.FaultSectionsDistanceCalcGUI;
@@ -36,7 +38,11 @@ public class FaultSectionsAndModelsApp extends JFrame {
 		this.getContentPane().add(tabbedPane, BorderLayout.CENTER);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.pack();
-		this.show();
+		this.setVisible(true);
+	}
+	
+	public static void main(String args[]) {
+		new LoginWindow(FaultSectionsAndModelsApp.class.getName());
 	}
 
 }

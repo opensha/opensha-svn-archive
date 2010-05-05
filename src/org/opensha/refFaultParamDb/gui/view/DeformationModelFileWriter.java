@@ -25,7 +25,7 @@ import org.opensha.sha.gui.infoTools.CalcProgressBar;
  *
  */
 public class DeformationModelFileWriter implements Runnable {
-	private DeformationModelPrefDataDB_DAO deformationModelPrefDAO = new DeformationModelPrefDataDB_DAO(DB_AccessAPI.dbConnection);
+	private DeformationModelPrefDataDB_DAO deformationModelPrefDAO = new DeformationModelPrefDataDB_DAO(DB_AccessAPI.db_latest_conn);
 	private CalcProgressBar progressBar;
 	private int totSections;
 	private int currSection;

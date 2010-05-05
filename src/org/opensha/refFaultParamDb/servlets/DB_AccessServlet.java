@@ -100,7 +100,7 @@ public class DB_AccessServlet extends HttpServlet{
 			// get the username
 			String usrName = (String)inputFromApp.readObject();
 			// get the password
-			String passwd = (String)inputFromApp.readObject();
+			String encrypitedPass = (String)inputFromApp.readObject();
 			//receiving the name of the Function to be performed
 			String functionToPerform = (String) inputFromApp.readObject();
 
@@ -108,7 +108,7 @@ public class DB_AccessServlet extends HttpServlet{
 			if(!functionToPerform.equalsIgnoreCase(DB_AccessAPI.RESET_PASSWORD) &&
 					!functionToPerform.equalsIgnoreCase(DB_AccessAPI.SELECT_QUERY) &&
 					!functionToPerform.equalsIgnoreCase(DB_AccessAPI.SELECT_QUERY_SPATIAL) &&
-					contributorDAO.isContributorValid(usrName, passwd)==null) {
+					contributorDAO.isContributorValidEncrypted(usrName, encrypitedPass)==null) {
 				inputFromApp.close();
 				DBConnectException exception =  new DBConnectException(CONNECT_FAILURE_MSG);
 				outputToApp.writeObject(exception);

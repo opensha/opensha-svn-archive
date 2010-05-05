@@ -83,8 +83,8 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 	private final static String SECTION_AREA = "Area (sq km)";
 	private InfoLabel sectionAreaLabel = new InfoLabel();
 	private GridBagLayout gridBagLayout = new GridBagLayout();
-	private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection); 
-	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection); 
+	private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.db_latest_conn); 
+	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.db_latest_conn); 
 	private JButton editButton = new JButton("Edit");
 	private JButton removeButton = new JButton("Remove");
 	private JButton saveButton = new JButton("Save All to File");

@@ -39,7 +39,7 @@ public class MakeFaultSectionsTextFile {
 	private final static String SECTION_SOURCE = "Section_Source";
 	
 	public MakeFaultSectionsTextFile() {
-		FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
+		FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.db_ver2_conn);
 		try {
 			FileWriter fw = new FileWriter(SECTIONS_TXT_FILENAME);
 			// get all the fault sections from the database

@@ -93,7 +93,7 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
   private ConstrainedStringParameterEditor eventNameParamEditor;
   // site name
   private PaleoSite paleoSite=null;
-  private PaleoEventDB_DAO paleoEventDAO = new PaleoEventDB_DAO(DB_AccessAPI.dbConnection);
+  private PaleoEventDB_DAO paleoEventDAO = new PaleoEventDB_DAO(DB_AccessAPI.db_latest_conn);
   private ArrayList paleoEventsList;
   private ArrayList eventNamesList;
 

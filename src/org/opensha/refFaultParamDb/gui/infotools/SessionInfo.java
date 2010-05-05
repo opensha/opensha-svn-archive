@@ -63,12 +63,18 @@ public class SessionInfo {
     * @return
     */
    public static String getPassword() { return password; }
+   
+   /**
+    * Get the encrypted password
+    * @return
+    */
+   public static String getEncryptedPassword() { return ContributorDB_DAO.getEnryptedPassword(password); }
 
    /**
     * Get the contributor info from database based on username and password
     */
    public static void setContributorInfo() {
-     ContributorDB_DAO contributorDAO = new ContributorDB_DAO(DB_AccessAPI.dbConnection);
+     ContributorDB_DAO contributorDAO = new ContributorDB_DAO(DB_AccessAPI.db_latest_ro_conn);
      contributor = contributorDAO.isContributorValid(userName, password);
    }
 

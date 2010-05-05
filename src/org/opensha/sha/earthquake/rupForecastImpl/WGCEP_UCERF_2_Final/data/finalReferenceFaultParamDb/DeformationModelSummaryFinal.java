@@ -88,7 +88,7 @@ public class DeformationModelSummaryFinal implements Serializable {
 	   * This reads from the oracle database and writes the results to an XML file (only need to do once)
 	   */
 	private void writeDeformationModelSummariesXML_File() {
-		DeformationModelSummaryDB_DAO deformationModelSummaryDB_DAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
+		DeformationModelSummaryDB_DAO deformationModelSummaryDB_DAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.db_ver2_conn);
 		ArrayList<DeformationModelSummary> deformationModelSummariesFromDatabaseList = deformationModelSummaryDB_DAO.getAllDeformationModels();
 		DeformationModelSummary deformationModelSummary;
 		

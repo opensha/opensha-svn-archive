@@ -25,8 +25,8 @@ public class DeformationModelTableModel  extends DefaultTableModel  {
 	  	private int deformationModelId;
 	  	private ArrayList faultSectionsInModel;
 	  	private HashMap faultSectionsSummaryMap = new HashMap();
-	  	private FaultSectionVer2_DB_DAO faultSectionDB_DAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
-	  	private DeformationModelDB_DAO deformationModelDAO = new DeformationModelDB_DAO(DB_AccessAPI.dbConnection);
+	  	private FaultSectionVer2_DB_DAO faultSectionDB_DAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.db_latest_conn);
+	  	private DeformationModelDB_DAO deformationModelDAO = new DeformationModelDB_DAO(DB_AccessAPI.db_latest_conn);
 	  	private ArrayList faultSectionSummries;
 	  	
 	  	public  DeformationModelTableModel() {

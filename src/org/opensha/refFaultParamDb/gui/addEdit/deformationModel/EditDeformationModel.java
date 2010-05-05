@@ -37,9 +37,9 @@ import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 public class EditDeformationModel extends JPanel implements ActionListener, ParameterChangeListener {
 	private ArrayList deformationModelsList;
 	private ArrayList faultSectionsSummaryList;
-	private DeformationModelDB_DAO deformationModelDB_DAO = new DeformationModelDB_DAO(DB_AccessAPI.dbConnection);
-	private DeformationModelSummaryDB_DAO deformationModelSummaryDB_DAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
-	private  FaultSectionVer2_DB_DAO faultSectionDB_DAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
+	private DeformationModelDB_DAO deformationModelDB_DAO = new DeformationModelDB_DAO(DB_AccessAPI.db_latest_conn);
+	private DeformationModelSummaryDB_DAO deformationModelSummaryDB_DAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.db_latest_conn);
+	private  FaultSectionVer2_DB_DAO faultSectionDB_DAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.db_latest_conn);
 	private StringParameter deformationModelsParam;
 	private final static String AVAILABLE_DEFORMATION_MODEL_PARAM_NAME = "Choose Deformation Model";
 	private ConstrainedStringParameterEditor deformationModelsParamEditor;

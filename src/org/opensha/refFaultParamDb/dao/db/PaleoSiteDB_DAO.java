@@ -67,7 +67,7 @@ public class PaleoSiteDB_DAO  {
   // fault DAO
   private FaultSectionVer2_DB_DAO faultSectionDAO;
   
-  private static PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
+  private static PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.db_ver2_conn);
   private static ArrayList prefFaultSectionDataList = prefFaultSectionDAO.getAllFaultSectionPrefData();
 
 

@@ -74,13 +74,13 @@ public class ChooseReference extends JFrame implements ActionListener,
   private ConstrainedStringParameterEditor siteTypeParamEditor;
   private ConstrainedStringParameterEditor siteRepresentationParamEditor;
   // site type DAO
-  private SiteTypeDB_DAO siteTypeDAO = new SiteTypeDB_DAO(DB_AccessAPI.dbConnection);
+  private SiteTypeDB_DAO siteTypeDAO = new SiteTypeDB_DAO(DB_AccessAPI.db_latest_conn);
   // site representations DAO
-  private SiteRepresentationDB_DAO siteRepresentationDAO = new SiteRepresentationDB_DAO(DB_AccessAPI.dbConnection);
+  private SiteRepresentationDB_DAO siteRepresentationDAO = new SiteRepresentationDB_DAO(DB_AccessAPI.db_latest_conn);
   private final static String TITLE="Choose Reference";
 
   // references DAO
-  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
+  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.db_latest_conn);
 
   public ChooseReference(AddSiteInfo addSiteInfo) {
     this.setLocationRelativeTo(null);

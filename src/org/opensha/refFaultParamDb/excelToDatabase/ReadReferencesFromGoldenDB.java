@@ -39,7 +39,7 @@ import org.opensha.refFaultParamDb.vo.Reference;
 
 public class ReadReferencesFromGoldenDB {
   private final static DB_AccessAPI dbConnPas= new DB_ConnectionPool();
-  private final static DB_AccessAPI dbConnGolden = new ServerDB_Access();
+  private final static DB_AccessAPI dbConnGolden = new ServerDB_Access(null);
 
   public ReadReferencesFromGoldenDB() {
   }

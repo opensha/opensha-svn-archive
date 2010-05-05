@@ -32,7 +32,7 @@ public class B_FaultsFetcherForMeanUCERF {
 	public B_FaultsFetcherForMeanUCERF(A_FaultsFetcher aFaultsFetcher, boolean isAseisReducesArea) {
 		
 		// get deformation model summaries
-		DeformationModelSummaryDB_DAO defModelSummaryDAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
+		DeformationModelSummaryDB_DAO defModelSummaryDAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.db_ver2_conn);
 		DeformationModelSummary defModelSummary2_1 = defModelSummaryDAO.getDeformationModel("D2.1");
 		DeformationModelSummary defModelSummary2_2 = defModelSummaryDAO.getDeformationModel("D2.4");
 
@@ -246,7 +246,7 @@ public class B_FaultsFetcherForMeanUCERF {
 	 */
 	public static void main(String[] args) {
 		A_FaultsFetcher aFaultsFetcher = new A_FaultsFetcher();
-		DeformationModelSummaryDB_DAO defModelSummaryDAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
+		DeformationModelSummaryDB_DAO defModelSummaryDAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.db_ver2_conn);
 		DeformationModelSummary defModelSummary2_1 = defModelSummaryDAO.getDeformationModel("D2.1");
 		aFaultsFetcher.setDeformationModel(defModelSummary2_1, false);
 		

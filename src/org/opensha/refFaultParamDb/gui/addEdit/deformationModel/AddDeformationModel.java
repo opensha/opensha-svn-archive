@@ -36,8 +36,8 @@ public class AddDeformationModel extends JFrame implements ActionListener {
 	private final static String MSG_DEF_MODEL_NAME_MISSING = "Deformation model name is missing";
 	private final static String MSG_DEF_MODEL_ADD_SUCCESS = "Deformation Model added successfully to the database";
 	private ArrayList faultModelsList;
-	private  FaultModelSummaryDB_DAO faultModelDB_DAO = new FaultModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
-	private DeformationModelSummaryDB_DAO defModelSummaryDB_DAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
+	private  FaultModelSummaryDB_DAO faultModelDB_DAO = new FaultModelSummaryDB_DAO(DB_AccessAPI.db_latest_conn);
+	private DeformationModelSummaryDB_DAO defModelSummaryDB_DAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.db_latest_conn);
 	private StringParameter faultModelsParam;
 	private final static String AVAILABLE_FAULT_MODEL_PARAM_NAME = "Choose Fault Model";
 	private EditDeformationModel editDeformationModel;

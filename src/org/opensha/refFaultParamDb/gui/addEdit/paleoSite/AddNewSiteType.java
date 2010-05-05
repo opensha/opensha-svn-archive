@@ -68,7 +68,7 @@ public class AddNewSiteType extends DbAdditionFrame implements ActionListener {
   private JButton cancelButton = new JButton("Cancel");
   private final static String MSG_INSERT_SUCCESS = "Site type added sucessfully to the database";
 
-  private SiteTypeDB_DAO siteTypeDAO = new SiteTypeDB_DAO(DB_AccessAPI.dbConnection);
+  private SiteTypeDB_DAO siteTypeDAO = new SiteTypeDB_DAO(DB_AccessAPI.db_latest_conn);
 
   public AddNewSiteType() {
     //intialize the parameters and editors

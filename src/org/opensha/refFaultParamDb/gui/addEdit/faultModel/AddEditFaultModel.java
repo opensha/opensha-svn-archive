@@ -40,9 +40,9 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 	
 	private ArrayList faultModelsList;
 	private ArrayList faultSectionsSummaryList;
-	private  FaultModelSummaryDB_DAO faultModelDB_DAO = new FaultModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
-	private  FaultModelDB_DAO faultModelSectionDB_DAO = new FaultModelDB_DAO(DB_AccessAPI.dbConnection);
-	private  FaultSectionVer2_DB_DAO faultSectionDB_DAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
+	private  FaultModelSummaryDB_DAO faultModelDB_DAO = new FaultModelSummaryDB_DAO(DB_AccessAPI.db_latest_conn);
+	private  FaultModelDB_DAO faultModelSectionDB_DAO = new FaultModelDB_DAO(DB_AccessAPI.db_latest_conn);
+	private  FaultSectionVer2_DB_DAO faultSectionDB_DAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.db_latest_conn);
 	private StringParameter faultModelsParam;
 	private final static String AVAILABLE_FAULT_MODEL_PARAM_NAME = "Choose Fault Model";
 	private ConstrainedStringParameterEditor faultModelsParamEditor;

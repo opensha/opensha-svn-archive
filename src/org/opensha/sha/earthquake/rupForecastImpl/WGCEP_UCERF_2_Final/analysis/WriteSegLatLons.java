@@ -24,7 +24,7 @@ import org.opensha.sha.faultSurface.FaultTrace;
  *
  */
 public class WriteSegLatLons {
-	private DeformationModelSummaryDB_DAO defModelSummaryDAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
+	private DeformationModelSummaryDB_DAO defModelSummaryDAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.db_ver2_conn);
 	private final static boolean IS_ASEIS_REDUCES_AREA = false;
 
 	/**

@@ -42,7 +42,7 @@ public class EditAseismicSlipFactor extends JFrame implements ActionListener {
 	  private JButton okButton = new JButton("OK");
 	  private JButton cancelButton = new JButton("Cancel");
 	  // deformation model DAO
-	  DeformationModelDB_DAO deformationModelDAO = new DeformationModelDB_DAO(DB_AccessAPI.dbConnection);
+	  DeformationModelDB_DAO deformationModelDAO = new DeformationModelDB_DAO(DB_AccessAPI.db_latest_conn);
 	  private final static String MSG_UPDATE_SUCCESS = "Aseimsic Slip Factor updated succesfully for fault section in deformation model";
 	  private int deformationModelId, faultSectionId;
 	  private EstimateInstances aseismicSlipEst;

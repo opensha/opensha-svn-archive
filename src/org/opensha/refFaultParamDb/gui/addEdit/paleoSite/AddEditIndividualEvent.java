@@ -151,9 +151,9 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
   private final static int HEIGHT = 700;
 
   // references DAO
-  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
+  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.db_latest_conn);
   // paleo event DAO
-  private PaleoEventDB_DAO paleoEventDAO = new PaleoEventDB_DAO(DB_AccessAPI.dbConnection);
+  private PaleoEventDB_DAO paleoEventDAO = new PaleoEventDB_DAO(DB_AccessAPI.db_latest_conn);
   private ArrayList paleoEvents; // saves a list of all paleo events for this site
   private int siteId; // site id for which this paleo event will be added
   private String siteEntryDate; // site entry dat for which paleo event is to be added

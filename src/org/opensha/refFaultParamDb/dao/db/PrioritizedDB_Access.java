@@ -22,6 +22,7 @@ package org.opensha.refFaultParamDb.dao.db;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+
 import com.sun.rowset.CachedRowSetImpl;
 
 /**
@@ -49,7 +50,7 @@ public class PrioritizedDB_Access implements DB_AccessAPI {
 		}
 		// if that doesn't work we'll try the servlet to get around firewall issues
 		try {
-			accessors.add(new ServerDB_Access());
+			accessors.add(new ServerDB_Access(ServerDB_Access.SERVLET_URL_DB2));
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
