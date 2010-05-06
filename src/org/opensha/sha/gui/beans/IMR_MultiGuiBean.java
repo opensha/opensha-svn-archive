@@ -4,6 +4,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Vector;
 
 import javax.swing.BoxLayout;
@@ -22,6 +23,11 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private JCheckBox singleIMRBox = new JCheckBox("Single IMR For All Tectonic Region Types");
 	
 	private ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs;
@@ -207,6 +213,54 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener 
 			paramEdit.setIMR(imrs.get(chooser.getSelectedIndex()));
 			paramEdit.validate();
 		}
+	}
+	
+	private ScalarIntensityMeasureRelationshipAPI getIMRForChooser(int chooserID) {
+		ChooserComboBox chooser = chooserBoxes.get(chooserID);
+		return imrs.get(chooser.getSelectedIndex());
+	}
+	
+	public boolean isMultipleIMRs() {
+		return !singleIMRBox.isSelected();
+	}
+	
+	public ScalarIntensityMeasureRelationshipAPI getSelectedIMR() {
+		if (isMultipleIMRs())
+			throw new RuntimeException("Cannot get single selected IMR when multiple selected!");
+		return getIMRForChooser(0);
+	}
+	
+	public ScalarIntensityMeasureRelationshipAPI getSelectedIMR(TectonicRegionType trt) {
+		if (!isMultipleIMRs()) {
+			// if it's just a single, then it's easy
+			return getIMRForChooser(0);
+		}
+		if (regions == null)
+			return null;
+		for (int i=0; i<regions.size(); i++) {
+			TectonicRegionType region = regions.get(i);
+			if (region == trt) {
+				return getIMRForChooser(i);
+			}
+		}
+		return null;
+	}
+	
+	public HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> getIMRMap() {
+		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> map =
+			new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
+		
+		if (!isMultipleIMRs()) {
+			ScalarIntensityMeasureRelationshipAPI imr = getIMRForChooser(0);
+			map.put(TectonicRegionType.ACTIVE_SHALLOW, imr);
+		} else {
+			for (int i=0; i<regions.size(); i++) {
+				TectonicRegionType region = regions.get(i);
+				map.put(region, getIMRForChooser(i));
+			}
+		}
+		
+		return map;
 	}
 
 }
