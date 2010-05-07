@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.opensha.commons.geo.Location;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
@@ -39,7 +39,7 @@ public class MakeFaultSectionsTextFile {
 	private final static String SECTION_SOURCE = "Section_Source";
 	
 	public MakeFaultSectionsTextFile() {
-		FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.db_ver2_ro_conn);
+		FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_ConnectionPool.getDB2ReadOnlyConn());
 		try {
 			FileWriter fw = new FileWriter(SECTIONS_TXT_FILENAME);
 			// get all the fault sections from the database

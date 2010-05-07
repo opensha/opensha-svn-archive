@@ -31,7 +31,7 @@ import org.opensha.commons.param.ParameterListParameter;
 import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.sha.earthquake.EqkRupForecast;
@@ -173,7 +173,7 @@ public class UCERF2 extends EqkRupForecast {
 	public final static String DEFORMATION_MODEL_PARAM_NAME = "Deformation Model";
 	private final static String DEFORMATION_MODEL_PARAM_INFO = "D2.1 to D2.3 use Fault Model 2.1, and D2.4 to D2.6 use Fault Model 2.2";
 	private StringParameter deformationModelsParam;
-	private DeformationModelSummaryDB_DAO deformationModelSummaryDB_DAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.db_ver2_ro_conn);
+	private DeformationModelSummaryDB_DAO deformationModelSummaryDB_DAO = new DeformationModelSummaryDB_DAO(DB_ConnectionPool.getDB2ReadOnlyConn());
 	private ArrayList<DeformationModelSummary> deformationModelSummariesList;
 
 	// aseismic factor interpolated

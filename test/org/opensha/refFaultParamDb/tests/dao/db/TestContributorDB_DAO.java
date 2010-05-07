@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opensha.refFaultParamDb.dao.db.ContributorDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
 import org.opensha.refFaultParamDb.dao.exception.UpdateException;

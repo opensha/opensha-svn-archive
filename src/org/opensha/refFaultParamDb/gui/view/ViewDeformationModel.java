@@ -27,7 +27,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.opensha.commons.data.estimate.Estimate;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
@@ -43,7 +43,7 @@ import org.opensha.refFaultParamDb.vo.EstimateInstances;
  *
  */
 public class ViewDeformationModel extends JFrame {
-	private DeformationModelDB_DAO deformationModelDAO = new DeformationModelDB_DAO(DB_AccessAPI.db_latest_conn);
+	private DeformationModelDB_DAO deformationModelDAO = new DeformationModelDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
 	private final static String SLIP_RATE = "Slip Rate (mm/year)";
 	private final static String ASEISMIC_SLIP_FACTOR = "Aseismic Slip Factor";
 

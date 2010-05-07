@@ -9,7 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.ServerDB_Access;
 import org.opensha.refFaultParamDb.gui.addEdit.deformationModel.EditDeformationModel;
 import org.opensha.refFaultParamDb.gui.addEdit.faultModel.AddEditFaultModel;

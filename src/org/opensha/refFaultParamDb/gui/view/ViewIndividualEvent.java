@@ -33,7 +33,7 @@ import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.PaleoEventDB_DAO;
 import org.opensha.refFaultParamDb.data.TimeAPI;
 import org.opensha.refFaultParamDb.data.TimeEstimate;
@@ -93,7 +93,7 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
   private ConstrainedStringParameterEditor eventNameParamEditor;
   // site name
   private PaleoSite paleoSite=null;
-  private PaleoEventDB_DAO paleoEventDAO = new PaleoEventDB_DAO(DB_AccessAPI.db_latest_conn);
+  private PaleoEventDB_DAO paleoEventDAO = new PaleoEventDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
   private ArrayList paleoEventsList;
   private ArrayList eventNamesList;
 

@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.geo.LocationUtils;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
@@ -39,7 +39,7 @@ public class SubSectionsRupCalc {
 	private double subSectionsCutoffDist = 10; 
 	private  double maxSubSectionLength = 10;
 	private ArrayList<MultipleSectionRup> rupList;
-	private final PrefFaultSectionDataDB_DAO faultSectionPrefDataDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.db_ver2_ro_conn);
+	private final PrefFaultSectionDataDB_DAO faultSectionPrefDataDAO = new PrefFaultSectionDataDB_DAO(DB_ConnectionPool.getDB2ReadOnlyConn());
 	private ArrayList subSectionList;
 	private ArrayList doneList;
 	private ArrayList<Tree> clusterList;

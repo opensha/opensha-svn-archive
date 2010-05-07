@@ -52,7 +52,7 @@ import org.opensha.commons.param.estimate.EstimateConstraint;
 import org.opensha.commons.param.estimate.EstimateParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.dao.db.PaleoSiteDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
@@ -159,15 +159,15 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
   private final static String ADD_NEW_REF_TOOL_TIP= "Add Reference not currently in database";
 
   // site type DAO
-  private SiteTypeDB_DAO siteTypeDAO = new SiteTypeDB_DAO(DB_AccessAPI.db_latest_conn);
+  private SiteTypeDB_DAO siteTypeDAO = new SiteTypeDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
   // references DAO
-  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.db_latest_conn);
+  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
   // site representations DAO
-  private SiteRepresentationDB_DAO siteRepresentationDAO = new SiteRepresentationDB_DAO(DB_AccessAPI.db_latest_conn);
+  private SiteRepresentationDB_DAO siteRepresentationDAO = new SiteRepresentationDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
   // paleo site DAO
-  private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.db_latest_conn);
+  private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
   // fault DAO
-  private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.db_latest_conn);
+  private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
   private AddNewSiteType addNewSiteType;
   private AddNewReference addNewReference;
   private LabeledBoxPanel labeledBoxPanel;

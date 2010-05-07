@@ -14,7 +14,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.commons.data.ValueWeight;
 import org.opensha.commons.geo.Location;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
@@ -39,7 +39,7 @@ public class A_FaultsFetcher extends FaultsFetcher implements java.io.Serializab
 	public final static String MIN_RATE_RUP_MODEL = "Min Rate Model";
 	public final static String MAX_RATE_RUP_MODEL = "Max Rate Model";
 	public final static String GEOL_INSIGHT_RUP_MODEL = "Geol Insight Solution";
-	private PrefFaultSectionDataDB_DAO faultSectionPrefDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.db_ver2_ro_conn);
+	private PrefFaultSectionDataDB_DAO faultSectionPrefDAO = new PrefFaultSectionDataDB_DAO(DB_ConnectionPool.getDB2ReadOnlyConn());
 	private final static String A_FAULT_SEGMENTS_MODEL = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/SegmentModels.txt";
 	private final static String UNSEGMENTED_MODEL = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/A_FaultUnsegmentedModels.txt";
 

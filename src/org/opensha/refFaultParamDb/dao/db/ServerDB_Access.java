@@ -251,7 +251,7 @@ public class ServerDB_Access     implements java.io.Serializable, DB_AccessAPI {
 			//sending the username and password to the server
 			outputToServlet.writeObject(SessionInfo.getUserName());
 			//send the password
-			outputToServlet.writeObject(SessionInfo.getEncryptedPassword());
+			outputToServlet.writeObject(SessionInfo.getPassword());
 			//sending the type of operation that needs to be performed in the database
 			outputToServlet.writeObject(sqlFunction);
 			//sending the actual query to be performed in the database

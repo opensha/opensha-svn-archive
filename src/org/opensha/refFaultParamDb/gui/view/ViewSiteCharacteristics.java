@@ -38,7 +38,7 @@ import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.PaleoSiteDB_DAO;
 import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditIndividualEvent;
 import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditSiteCharacteristics;
@@ -144,7 +144,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
   private AddEditIndividualEvent addEditIndividualEvent;
 
   //dao
-  private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.db_latest_conn);
+  private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
 
 
   public ViewSiteCharacteristics(SiteSelectionAPI siteSelectionListener) {

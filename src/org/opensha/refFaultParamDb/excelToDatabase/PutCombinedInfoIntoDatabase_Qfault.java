@@ -30,7 +30,7 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.data.estimate.MinMaxPrefEstimate;
 import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.dao.db.PaleoSiteDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
@@ -71,10 +71,10 @@ public class PutCombinedInfoIntoDatabase_Qfault {
   // columns in this excel file
   private final static int MIN_COL = 0;
   private final static int MAX_COL = 48;
-  private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.db_ver2_ro_conn);
-  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.db_ver2_ro_conn);
-  private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.db_ver2_ro_conn);
-  private CombinedEventsInfoDB_DAO combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_AccessAPI.db_ver2_ro_conn);
+  private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_ConnectionPool.getDB2ReadOnlyConn());
+  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_ConnectionPool.getDB2ReadOnlyConn());
+  private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_ConnectionPool.getDB2ReadOnlyConn());
+  private CombinedEventsInfoDB_DAO combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_ConnectionPool.getDB2ReadOnlyConn());
   private final static String UNKNOWN = "Unknown";
   private final static String MA = "MA";
   private final static String KA = "ka";

@@ -35,7 +35,7 @@ import org.opensha.commons.exceptions.DataPoint2DException;
 import org.opensha.commons.exceptions.DiscretizedFuncException;
 import org.opensha.commons.exceptions.MagFreqDistException;
 import org.opensha.commons.util.RunScript;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelPrefDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;

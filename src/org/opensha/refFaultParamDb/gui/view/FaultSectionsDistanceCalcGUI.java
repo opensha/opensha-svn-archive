@@ -18,7 +18,7 @@ import javax.swing.JPanel;
 
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
@@ -35,8 +35,8 @@ import org.opensha.sha.faultSurface.StirlingGriddedSurface;
  */
 public class FaultSectionsDistanceCalcGUI extends JPanel implements ActionListener {
 	private final static double GRID_SPACING = 1.0;
-	private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.db_latest_conn); 
-	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.db_latest_conn); 
+	private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_ConnectionPool.getLatestReadWriteConn()); 
+	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_ConnectionPool.getLatestReadWriteConn()); 
 	private StringParameter faultSection1Param, faultSection2Param, faultModelParam;
 	private final static String FAULT_SECTION1_PARAM_NAME = "Fault Section 1";
 	private final static String FAULT_SECTION2_PARAM_NAME = "Fault Section 2";
@@ -170,7 +170,7 @@ public class FaultSectionsDistanceCalcGUI extends JPanel implements ActionListen
 		 // File consists of each fault section pair and minimum 3-D distance between them
 		
 		// get all fault sections from database
-		PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.db_latest_conn); 
+		PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_ConnectionPool.getLatestReadWriteConn()); 
 		ArrayList<FaultSectionPrefData> prefFaultSectionsList = prefFaultSectionDAO.getAllFaultSectionPrefData();
 		ArrayList<EvenlyGriddedSurface> surfaceList = new ArrayList<EvenlyGriddedSurface>();
 		

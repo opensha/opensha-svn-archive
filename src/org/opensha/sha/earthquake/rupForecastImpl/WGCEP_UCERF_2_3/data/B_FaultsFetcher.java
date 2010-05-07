@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.opensha.commons.geo.Location;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
@@ -45,7 +45,7 @@ public  class B_FaultsFetcher extends FaultsFetcher  implements java.io.Serializ
 	 */
 	public B_FaultsFetcher() {
 		// cache the PrefFaultSectionData
-		 PrefFaultSectionDataDB_DAO faultSectionPrefDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.db_ver2_ro_conn);
+		 PrefFaultSectionDataDB_DAO faultSectionPrefDAO = new PrefFaultSectionDataDB_DAO(DB_ConnectionPool.getDB2ReadOnlyConn());
 		 faultSectionPrefDAO.getAllFaultSectionPrefData();
 	}
 

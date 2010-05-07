@@ -53,6 +53,67 @@ import com.sun.rowset.CachedRowSetImpl;
  * modified by Vipin Gupta , Nitin Gupta
  */
 public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
+	
+	private static DB_AccessAPI db_ver2_ro_conn = null;
+	/**
+	 * Gets a read only connection to Fault DB version 2
+	 * @return
+	 */
+	public static DB_AccessAPI getDB2ReadOnlyConn() {
+		if (db_ver2_ro_conn == null)
+			db_ver2_ro_conn  = new PrioritizedDB_Access(PrioritizedDB_Access.createDB2ReadOnlyAccessors());
+		return db_ver2_ro_conn;
+	}
+	
+	private static DB_AccessAPI db_ver2_conn = null;
+	/**
+	 * Gets a read/write capable connection to Fault DB version 2
+	 * @return
+	 */
+	public static DB_AccessAPI getDB2ReadWriteConn() {
+		if (db_ver2_conn == null)
+			db_ver2_conn  = new ServerDB_Access(ServerDB_Access.SERVLET_URL_DB2);
+		return db_ver2_conn;
+	}
+	
+	private static DB_AccessAPI db_ver3_ro_conn = null;
+	/**
+	 * Gets a read only connection to Fault DB version 3
+	 * @return
+	 */
+	public static DB_AccessAPI getDB3ReadOnlyConn() {
+		if (db_ver3_ro_conn == null)
+			db_ver3_ro_conn  = new PrioritizedDB_Access(PrioritizedDB_Access.createDB3ReadOnlyAccessors());
+		return db_ver3_ro_conn;
+	}
+	
+	private static DB_AccessAPI db_ver3_conn = null;
+	/**
+	 * Gets a read/write capable connection to Fault DB version 3
+	 * @return
+	 */
+	public static DB_AccessAPI getDB3ReadWriteConn() {
+		if (db_ver3_conn == null)
+			db_ver3_conn  = new ServerDB_Access(ServerDB_Access.SERVLET_URL_DB3);
+		return db_ver3_conn;
+	}
+	
+	/**
+	 * Gets a read only connection to the latest development version of the fault database
+	 * @return
+	 */
+	public static DB_AccessAPI getLatestReadOnlyConn() {
+		return getDB3ReadOnlyConn();
+	}
+	
+	/**
+	 * Gets a read/write capable connection to the latest development version of the fault database
+	 * @return
+	 */
+	public static DB_AccessAPI getLatestReadWriteConn() {
+		return getDB3ReadWriteConn();
+	}
+	
 	private Thread runner;
 
 	private Connection[] connPool;
@@ -73,14 +134,14 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
 
 	private final int DEFAULTMAXCHECKOUTSECONDS=60;
 	private final int DEFAULTDEBUGLEVEL=1;
-	
+
 	public static final String db_prop_3_ro_file = "/org/opensha/refFaultParamDb/dao/db/DB_AccessProp_3.0_ro.dat";
 	public static final String db_prop_2_file = "/org/opensha/refFaultParamDb/dao/db/DB_AccessProp_2.0.dat";
 
 	public DB_ConnectionPool() {
 		this(db_prop_2_file);
 	}
-	
+
 	/**
 	 * Class default constructor
 	 * Creates a new Connection Broker after reading the JDBC info from the
@@ -239,7 +300,7 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
 					if(debugLevel > 0) {
 						log.println("--->Attempt (" + String.valueOf(i) +
 								" of " + String.valueOf(dbLoop) +
-								") failed to create new connections set at startup: ");
+						") failed to create new connections set at startup: ");
 						log.println("    " + e);
 					}
 				}

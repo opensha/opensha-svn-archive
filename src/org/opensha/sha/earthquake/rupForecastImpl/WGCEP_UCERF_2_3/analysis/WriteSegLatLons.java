@@ -8,7 +8,7 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 
 import org.opensha.commons.geo.Location;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
@@ -24,7 +24,7 @@ import org.opensha.sha.faultSurface.FaultTrace;
  *
  */
 public class WriteSegLatLons {
-	private DeformationModelSummaryDB_DAO defModelSummaryDAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.db_ver2_ro_conn);
+	private DeformationModelSummaryDB_DAO defModelSummaryDAO = new DeformationModelSummaryDB_DAO(DB_ConnectionPool.getDB2ReadOnlyConn());
 	private final static boolean IS_ASEIS_REDUCES_AREA = false;
 
 	/**

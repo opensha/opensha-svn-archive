@@ -20,7 +20,7 @@ import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 import org.opensha.commons.geo.Location;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
@@ -120,7 +120,7 @@ public class PrefFaultSectionDataFinal implements Serializable {
 
 
 	private void writeFaultSectionDataFromDatabaseTo_XML() {
-		PrefFaultSectionDataDB_DAO faultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.db_ver2_ro_conn);
+		PrefFaultSectionDataDB_DAO faultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_ConnectionPool.getDB2ReadOnlyConn());
 		ArrayList faultSectionDataListFromDatabase = faultSectionDAO.getAllFaultSectionPrefData();
 		
 		Document document = DocumentHelper.createDocument();

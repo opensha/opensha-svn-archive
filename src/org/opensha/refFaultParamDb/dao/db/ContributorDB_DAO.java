@@ -116,14 +116,13 @@ public class ContributorDB_DAO  {
 	public boolean updatePassword(String userName, String oldPassword,
 			String newPassword) throws UpdateException {
 		String sql = "update "+TABLE_NAME+" set "+PASSWORD+"= '"+
-		getEnryptedPassword(newPassword)+"' where "+this.CONTRIBUTOR_NAME+"='"+
-		userName+"' and "+this.PASSWORD+"='"+getEnryptedPassword(oldPassword)+"'";
+		getEnryptedPassword(newPassword)+"' where "+CONTRIBUTOR_NAME+"='"+
+		userName+"' and "+PASSWORD+"='"+getEnryptedPassword(oldPassword)+"'";
 		try {
 			int numRows = dbAccessAPI.insertUpdateOrDeleteData(sql);
-			if(numRows==1) return true;
+			return numRows == 1;
 		}
 		catch(SQLException e) { throw new UpdateException(e.getMessage()); }
-		return false;
 	}
 
 
@@ -134,7 +133,7 @@ public class ContributorDB_DAO  {
 	public String resetPasswordByEmail(String email) throws UpdateException {
 		String randomPass = getRandomPassword();
 		String sql = "update "+TABLE_NAME+" set "+PASSWORD+"= '"+
-		getEnryptedPassword(randomPass)+"' where "+this.EMAIL+"='"+
+		getEnryptedPassword(randomPass)+"' where "+EMAIL+"='"+
 		email+"'";
 		try {
 			int numRows = dbAccessAPI.resetPasswordByEmail(sql);
@@ -218,21 +217,6 @@ public class ContributorDB_DAO  {
 		Contributor contributor=null;
 		String condition  =  " where "+CONTRIBUTOR_NAME+"='"+name+"' and "+
 		PASSWORD+"='"+getEnryptedPassword(password)+"'";
-		ArrayList contributorList = query(condition);
-		if(contributorList.size()>0) return (Contributor)contributorList.get(0);
-		else return null;
-	}
-	
-	/**
-	 * Whether the provided username/password is valid
-	 * @param name
-	 * @param password
-	 * @return
-	 */
-	public Contributor isContributorValidEncrypted(String name, String encryptedPass) {
-		Contributor contributor=null;
-		String condition  =  " where "+CONTRIBUTOR_NAME+"='"+name+"' and "+
-		PASSWORD+"='"+encryptedPass+"'";
 		ArrayList contributorList = query(condition);
 		if(contributorList.size()>0) return (Contributor)contributorList.get(0);
 		else return null;

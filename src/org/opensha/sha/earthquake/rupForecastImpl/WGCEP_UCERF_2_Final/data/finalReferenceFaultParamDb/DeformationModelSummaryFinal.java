@@ -17,7 +17,7 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
@@ -88,7 +88,7 @@ public class DeformationModelSummaryFinal implements Serializable {
 	   * This reads from the oracle database and writes the results to an XML file (only need to do once)
 	   */
 	private void writeDeformationModelSummariesXML_File() {
-		DeformationModelSummaryDB_DAO deformationModelSummaryDB_DAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.db_ver2_ro_conn);
+		DeformationModelSummaryDB_DAO deformationModelSummaryDB_DAO = new DeformationModelSummaryDB_DAO(DB_ConnectionPool.getDB2ReadOnlyConn());
 		ArrayList<DeformationModelSummary> deformationModelSummariesFromDatabaseList = deformationModelSummaryDB_DAO.getAllDeformationModels();
 		DeformationModelSummary deformationModelSummary;
 		

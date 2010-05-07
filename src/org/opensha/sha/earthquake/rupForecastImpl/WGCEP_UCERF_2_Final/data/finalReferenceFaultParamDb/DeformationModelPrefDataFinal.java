@@ -19,7 +19,7 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelPrefDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
@@ -82,7 +82,7 @@ public class DeformationModelPrefDataFinal implements Serializable {
 		Document document = DocumentHelper.createDocument();
 		Element root = document.addElement( "DeformationModelPrefData" );
 		
-		DeformationModelPrefDataDB_DAO deformationModelPrefDB_DAO = new DeformationModelPrefDataDB_DAO(DB_AccessAPI.db_ver2_ro_conn);
+		DeformationModelPrefDataDB_DAO deformationModelPrefDB_DAO = new DeformationModelPrefDataDB_DAO(DB_ConnectionPool.getDB2ReadOnlyConn());
 		deformationModelSummaryFinal = new DeformationModelSummaryFinal();
 		ArrayList<DeformationModelSummary> deformationModelSummaryList = deformationModelSummaryFinal.getAllDeformationModels();
 		for(int i=0; i<deformationModelSummaryList.size();i++) {

@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 import javax.swing.table.DefaultTableModel;
 
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
@@ -25,8 +25,8 @@ public class DeformationModelTableModel  extends DefaultTableModel  {
 	  	private int deformationModelId;
 	  	private ArrayList faultSectionsInModel;
 	  	private HashMap faultSectionsSummaryMap = new HashMap();
-	  	private FaultSectionVer2_DB_DAO faultSectionDB_DAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.db_latest_conn);
-	  	private DeformationModelDB_DAO deformationModelDAO = new DeformationModelDB_DAO(DB_AccessAPI.db_latest_conn);
+	  	private FaultSectionVer2_DB_DAO faultSectionDB_DAO = new FaultSectionVer2_DB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
+	  	private DeformationModelDB_DAO deformationModelDAO = new DeformationModelDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
 	  	private ArrayList faultSectionSummries;
 	  	
 	  	public  DeformationModelTableModel() {

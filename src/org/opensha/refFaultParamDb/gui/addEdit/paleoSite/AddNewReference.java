@@ -30,7 +30,7 @@ import javax.swing.JOptionPane;
 
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.StringParameterEditor;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
 import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
@@ -70,7 +70,7 @@ public class AddNewReference extends DbAdditionFrame implements ActionListener {
   private JButton okButton = new JButton("Submit");
   private JButton cancelButton = new JButton("Cancel");
   private JButton viewAllRefsButton = new JButton("View All References");
-  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.db_latest_conn);
+  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
   private final static String MSG_INSERT_SUCCESS = "Reference added sucessfully to the database";
   private final static String MSG_SINGLE_QUOTES_NOT_ALLOWED = "Single quotes are not allowed for author, year or full bibliographic reference";
   public AddNewReference() {

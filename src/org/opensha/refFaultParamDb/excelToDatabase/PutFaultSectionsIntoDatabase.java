@@ -38,7 +38,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
@@ -77,7 +77,7 @@ public class PutFaultSectionsIntoDatabase {
   private int nextTraceStartIndex=0;
 
   // DAO to put fault sections to database
-  private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.db_ver2_ro_conn);
+  private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_ConnectionPool.getDB2ReadOnlyConn());
   
   private final static int MIN_ROW_NAME_CHANGES = 1; // skip first row as it is header
   private final static int MAX_ROW_NAME_CHANGES = 256;  

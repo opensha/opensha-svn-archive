@@ -46,12 +46,13 @@ import org.opensha.commons.util.ServletPrefs;
 
 public class RefFaultDB_UpdateEmailServlet extends HttpServlet {
 	public final static String SERVLET_ADDRESS = ServletPrefs.OPENSHA_SERVLET_URL + "Fault_DB_EmailServlet";
-	
+
 	//static Strings to send the mails
-	private String emailTo, smtpHost, emailSubject, emailFrom, emailEnabled;
+	private String emailTo, smtpHost, emailSubject, emailFrom;
 	private boolean isEmailEnabled;
 	private final static String CONFIG_NAME = "EmailConfig";
 
+	@Override
 	public void init() throws ServletException {
 		try {
 			Properties p = new Properties();
