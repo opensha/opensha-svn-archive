@@ -51,7 +51,7 @@ import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.ServerDB_Access;
 import org.opensha.refFaultParamDb.data.ExactTime;
 import org.opensha.refFaultParamDb.data.TimeAPI;
@@ -150,7 +150,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
 	 * information about a user selected site
 	 */
 	public PaleoSiteApp2() {
-		combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_AccessAPI.db_latest_conn);
+		combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
 		try {
 			setTitle(TITLE);
 			jbInit();

@@ -22,7 +22,7 @@ package org.opensha.refFaultParamDb.excelToDatabase;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.FaultDB_DAO;
 import org.opensha.refFaultParamDb.vo.Fault;
 
@@ -37,7 +37,7 @@ import org.opensha.refFaultParamDb.vo.Fault;
 
 public class PutFaultNamesIntoDB {
   private final static HashMap faultNameIdMapping = new HashMap();
-  private final static FaultDB_DAO faultDAO = new FaultDB_DAO(DB_AccessAPI.db_ver2_conn);
+  private final static FaultDB_DAO faultDAO = new FaultDB_DAO(DB_ConnectionPool.getDB2ReadOnlyConn());
 
   public PutFaultNamesIntoDB() {
     Iterator it = faultNameIdMapping.keySet().iterator();

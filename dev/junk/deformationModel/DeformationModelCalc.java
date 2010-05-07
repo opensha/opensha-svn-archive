@@ -6,7 +6,7 @@ import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
@@ -19,7 +19,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 public class DeformationModelCalc {
 	// fault section info from the database
 	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO = 
-		new PrefFaultSectionDataDB_DAO(DB_AccessAPI.db_ver2_conn);
+		new PrefFaultSectionDataDB_DAO(DB_ConnectionPool.getDB2ReadOnlyConn());
 	private final static int NUM = 50;
 
 	/**

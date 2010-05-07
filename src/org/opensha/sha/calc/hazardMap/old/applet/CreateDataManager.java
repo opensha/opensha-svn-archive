@@ -67,12 +67,12 @@ import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.beans.SitesInGriddedRegionGuiBean;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.IntensityMeasureRelationshipAPI;
-import org.opensha.sha.imr.event.AttenuationRelationshipChangeEvent;
-import org.opensha.sha.imr.event.AttenuationRelationshipChangeListener;
+import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
+import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 
-public class CreateDataManager extends StepManager implements AttenuationRelationshipChangeListener {
+public class CreateDataManager extends StepManager implements ScalarIMRChangeListener {
 	
 	boolean useSSL = false;
 	
@@ -422,8 +422,8 @@ public class CreateDataManager extends StepManager implements AttenuationRelatio
 		}
 	}
 	
-	public void attenuationRelationshipChange(
-			AttenuationRelationshipChangeEvent event) {
-		this.siteDataGuiBean.setAttenuationRelationship(event.getNewAttenRel());
+	public void imrChange(
+			ScalarIMRChangeEvent event) {
+		this.siteDataGuiBean.setAttenuationRelationship(event.getNewIMR());
 	}
 }

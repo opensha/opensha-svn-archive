@@ -22,7 +22,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelPrefDataDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
@@ -48,7 +48,7 @@ public class CheckFaultSectionDatabase {
 		HashMap<String, Double> prefFaultSectionAseisFactors = new HashMap<String, Double>();
 	
 		// Get Values from fault section database
-		FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.db_ver2_conn);
+		FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_ConnectionPool.getDB2ReadOnlyConn());
 		ArrayList<FaultSectionData> faultSectionsList =  faultSectionDAO.getAllFaultSections();
 		for(int i=0; i<faultSectionsList.size(); ++i) {
 			FaultSectionPrefData faultSectionPrefData  = faultSectionsList.get(i).getFaultSectionPrefData();
@@ -65,8 +65,8 @@ public class CheckFaultSectionDatabase {
 		defModels.add("D2.4");
 		defModels.add("D2.5");
 		defModels.add("D2.6");
-		DeformationModelSummaryDB_DAO defModelSummaryDAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.db_ver2_conn);
-		DeformationModelPrefDataDB_DAO defModelPrefDAO = new DeformationModelPrefDataDB_DAO(DB_AccessAPI.db_ver2_conn);
+		DeformationModelSummaryDB_DAO defModelSummaryDAO = new DeformationModelSummaryDB_DAO(DB_ConnectionPool.getDB2ReadOnlyConn());
+		DeformationModelPrefDataDB_DAO defModelPrefDAO = new DeformationModelPrefDataDB_DAO(DB_ConnectionPool.getDB2ReadOnlyConn());
 		for(int i=0; i<defModels.size(); ++i) {
 			String defModelName = defModels.get(i);
 			DeformationModelSummary defModelSummary = defModelSummaryDAO.getDeformationModel(defModelName);

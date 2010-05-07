@@ -55,6 +55,11 @@ import org.opensha.refFaultParamDb.gui.login.RequestUserAccount;
 
 public class LoginWindow extends JFrame implements ActionListener {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private static final boolean D= false;
 	private final static String TITLE = "Login";
 	private JPanel passwordPanel = new JPanel();
@@ -67,10 +72,6 @@ public class LoginWindow extends JFrame implements ActionListener {
 	private JComboBox loginTypeComboBox = new JComboBox();
 	private JLabel loginTypeLabel = new JLabel();
 
-
-	//checks if user did successful login
-	private boolean loginSuccess = false;
-
 	private JButton newUserButton = new JButton();
 	private JButton forgetPassButton = new JButton();
 	private JButton changePassButton = new JButton();
@@ -82,6 +83,7 @@ public class LoginWindow extends JFrame implements ActionListener {
 	private String appClassName;
 
 	public LoginWindow(String className){
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		init();
 		showHideUserNamePwd();
 		this.appClassName = className;

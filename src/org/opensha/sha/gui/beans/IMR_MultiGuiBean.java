@@ -4,7 +4,9 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Vector;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.ListIterator;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -15,13 +17,22 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.opensha.commons.gui.LabeledBoxPanel;
-import org.opensha.commons.param.editor.ParameterEditor;
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.DependentParameterAPI;
+import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
+import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 import org.opensha.sha.util.TectonicRegionType;
 
 public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private ArrayList<ScalarIMRChangeListener> listeners = new ArrayList<ScalarIMRChangeListener>();
+
 	private JCheckBox singleIMRBox = new JCheckBox("Single IMR For All Tectonic Region Types");
 	
 	private ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs;
@@ -31,9 +42,14 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener 
 	private ArrayList<ShowHideButton> showHideButtons = null;
 	private ArrayList<ChooserComboBox> chooserBoxes = null;
 	
+	private HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap;
+	
+	private DependentParameterAPI<Double> imt = null;
+	
 	public IMR_MultiGuiBean(ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs) {
 		this.imrs = imrs;
 		
+		// TODO add make the multi imr bean handle warnings
 		initGUI();
 	}
 	
@@ -133,6 +149,8 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener 
 		boolean refreshOnly = (regions == null || regions.size() < 2) && !this.singleIMRBox.isAncestorOf(this);
 		this.regions = regions;
 		this.rebuildGUI(refreshOnly);
+		if (!refreshOnly)
+			fireUpdateIMRMap();
 	}
 	
 	private static String showParamsTitle = "Edit IMR Params";
@@ -176,6 +194,11 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener 
 	}
 	
 	private class ChooserComboBox extends JComboBox {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
 		private int index;
 		public ChooserComboBox(int index) {
 			for (ScalarIntensityMeasureRelationshipAPI imr : imrs) 
@@ -207,6 +230,122 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener 
 			paramEdit.setIMR(imrs.get(chooser.getSelectedIndex()));
 			paramEdit.validate();
 		}
+		if (source == singleIMRBox || source instanceof ChooserComboBox) {
+			fireUpdateIMRMap();
+		}
+	}
+	
+	private ScalarIntensityMeasureRelationshipAPI getIMRForChooser(int chooserID) {
+		ChooserComboBox chooser = chooserBoxes.get(chooserID);
+		return imrs.get(chooser.getSelectedIndex());
+	}
+	
+	public boolean isMultipleIMRs() {
+		return !singleIMRBox.isSelected();
+	}
+	
+	public ScalarIntensityMeasureRelationshipAPI getSelectedIMR() {
+		if (isMultipleIMRs())
+			throw new RuntimeException("Cannot get single selected IMR when multiple selected!");
+		return getIMRForChooser(0);
+	}
+	
+	public ScalarIntensityMeasureRelationshipAPI getSelectedIMR(TectonicRegionType trt) {
+		if (!isMultipleIMRs()) {
+			// if it's just a single, then it's easy
+			return getIMRForChooser(0);
+		}
+		if (regions == null)
+			return null;
+		for (int i=0; i<regions.size(); i++) {
+			TectonicRegionType region = regions.get(i);
+			if (region == trt) {
+				return getIMRForChooser(i);
+			}
+		}
+		return null;
+	}
+	
+	public HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> getIMRMap() {
+		return imrMap;
+	}
+	
+	public void updateIMRMap() {
+		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> map =
+			new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
+		
+		if (!isMultipleIMRs()) {
+			ScalarIntensityMeasureRelationshipAPI imr = getIMRForChooser(0);
+			map.put(TectonicRegionType.ACTIVE_SHALLOW, imr);
+		} else {
+			for (int i=0; i<regions.size(); i++) {
+				TectonicRegionType region = regions.get(i);
+				map.put(region, getIMRForChooser(i));
+			}
+		}
+		
+		this.imrMap = map;
+	}
+	
+	public void setMultipleIMRs(boolean multipleIMRs) {
+		// if they're trying to set it to multiple, but we don't have multiple tectonic regions
+		// then throw an exception
+		if (multipleIMRs && (regions == null || regions.size() <= 1))
+			throw new RuntimeException("Cannot be set to multiple IMRs if < 2 tectonic regions" +
+					" sepcified");
+		singleIMRBox.setSelected(!multipleIMRs);
+	}
+	
+	public void setSelectedSingleIMR(String imrName) {
+		setMultipleIMRs(false);
+		ChooserComboBox chooser = chooserBoxes.get(0);
+		for (int i=0; i<chooser.getItemCount(); i++) {
+			chooser.setSelectedIndex(i);
+		}
+	}
+	
+	public void addAttenuationRelationshipChangeListener(ScalarIMRChangeListener listener) {
+		listeners.add(listener);
+	}
+	
+	public void removeAttenuationRelationshipChangeListener(ScalarIMRChangeListener listener) {
+		listeners.remove(listener);
+	}
+	
+	private void fireUpdateIMRMap() {
+		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> oldMap = imrMap;
+		updateIMRMap();
+		fireIMRChangeEvent(oldMap, imrMap);
+	}
+	
+	private void fireIMRChangeEvent(
+			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> oldMap,
+			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> newMap) {
+		ScalarIMRChangeEvent event = new ScalarIMRChangeEvent(this, oldMap, newMap);
+		for (ScalarIMRChangeListener listener : listeners) {
+			listener.imrChange(event);
+		}
+	}
+	
+	public Iterator<ParameterAPI<?>> getMultiIMRSiteParamIterator() {
+		return getMultiIMRSiteParamIterator(imrMap);
+	}
+	
+	public static Iterator<ParameterAPI<?>> getMultiIMRSiteParamIterator(
+			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap) {
+		ArrayList<ParameterAPI<?>> params = new ArrayList<ParameterAPI<?>>();
+		for (TectonicRegionType trt : imrMap.keySet()) {
+			ScalarIntensityMeasureRelationshipAPI imr = imrMap.get(trt);
+			ListIterator<ParameterAPI<?>> siteParams = imr.getSiteParamsIterator();
+			while (siteParams.hasNext()) {
+				params.add(siteParams.next());
+			}
+		}
+		return params.iterator();
+	}
+	
+	public void setIMT(DependentParameterAPI<Double> newIMT) {
+		this.imt = newIMT;
 	}
 
 }

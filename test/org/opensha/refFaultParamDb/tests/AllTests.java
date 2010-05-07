@@ -24,7 +24,7 @@ import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 
 public class AllTests {
 
-	public static DB_AccessAPI dbConnection = new DB_ConnectionPool();
+	public static DB_AccessAPI dbConnection = DB_ConnectionPool.getLatestReadOnlyConn();
 
 	//  public AllTests(String s) {
 	//    super(s);

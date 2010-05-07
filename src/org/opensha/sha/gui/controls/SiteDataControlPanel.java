@@ -40,11 +40,11 @@ import org.opensha.commons.geo.Location;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
-import org.opensha.sha.imr.event.AttenuationRelationshipChangeEvent;
-import org.opensha.sha.imr.event.AttenuationRelationshipChangeListener;
+import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
+import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 import org.opensha.sha.util.SiteTranslator;
 
-public class SiteDataControlPanel extends ControlPanel implements AttenuationRelationshipChangeListener,
+public class SiteDataControlPanel extends ControlPanel implements ScalarIMRChangeListener,
 					ActionListener, ChangeListener {
 	
 	public static final String NAME = "Set Site Params from Web Services";
@@ -98,8 +98,8 @@ public class SiteDataControlPanel extends ControlPanel implements AttenuationRel
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	}
 
-	public void attenuationRelationshipChange(AttenuationRelationshipChangeEvent event) {
-		dataGuiBean.setAttenuationRelationship(event.getNewAttenRel());
+	public void imrChange(ScalarIMRChangeEvent event) {
+		dataGuiBean.setAttenuationRelationship(event.getNewIMR());
 		enableButtons();
 	}
 	

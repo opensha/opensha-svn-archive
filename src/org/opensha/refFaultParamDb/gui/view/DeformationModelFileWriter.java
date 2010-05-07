@@ -13,7 +13,7 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelPrefDataDB_DAO;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
@@ -25,7 +25,7 @@ import org.opensha.sha.gui.infoTools.CalcProgressBar;
  *
  */
 public class DeformationModelFileWriter implements Runnable {
-	private DeformationModelPrefDataDB_DAO deformationModelPrefDAO = new DeformationModelPrefDataDB_DAO(DB_AccessAPI.db_latest_conn);
+	private DeformationModelPrefDataDB_DAO deformationModelPrefDAO = new DeformationModelPrefDataDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
 	private CalcProgressBar progressBar;
 	private int totSections;
 	private int currSection;

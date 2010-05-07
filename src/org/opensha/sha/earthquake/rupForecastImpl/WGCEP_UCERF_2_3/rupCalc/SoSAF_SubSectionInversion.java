@@ -18,7 +18,7 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun
 import org.opensha.commons.calc.nnls.NNLSWrapper;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelPrefDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.SegRateConstraint;
@@ -36,7 +36,7 @@ public class SoSAF_SubSectionInversion {
 
 	private boolean D = true;
 	private final static int MAX_SUBSECTION_LEN = 10;
-	private DeformationModelPrefDataDB_DAO deformationModelPrefDB_DAO = new DeformationModelPrefDataDB_DAO(DB_AccessAPI.db_ver2_conn);
+	private DeformationModelPrefDataDB_DAO deformationModelPrefDB_DAO = new DeformationModelPrefDataDB_DAO(DB_ConnectionPool.getDB2ReadOnlyConn());
 	private ArrayList<FaultSectionPrefData> subSectionList;
 	
 	private int num_seg, num_rup;

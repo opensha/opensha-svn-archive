@@ -46,16 +46,6 @@ public interface DB_AccessAPI {
 	public static final String RESET_PASSWORD = "reset password";
 	//public static final DB_AccessAPI dbConnection = new DB_ConnectionPool();
 	//  public static final DB_AccessAPI dbConnection = new ServerDB_Access();
-	/**
-	 * This default dbConnection object will first try to use a direct DB connection,
-	 * then fall back on a servlet based connection if blocked by firewalls.
-	 */
-	public static final DB_AccessAPI db_ver2_conn = new PrioritizedDB_Access();
-	
-	public static final DB_AccessAPI db_ver3_ro_conn = new PrioritizedDB_Access();
-	public static final DB_AccessAPI db_ver3_conn = new ServerDB_Access(ServerDB_Access.SERVLET_URL_DB3);
-	public static final DB_AccessAPI db_latest_ro_conn = db_ver3_ro_conn;
-	public static final DB_AccessAPI db_latest_conn = db_ver3_conn;
 
 	/**
 	 * Gets the next unique sequence number to be insertd in the table.

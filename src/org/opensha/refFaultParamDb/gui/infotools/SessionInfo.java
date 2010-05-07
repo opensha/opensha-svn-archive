@@ -20,7 +20,7 @@
 package org.opensha.refFaultParamDb.gui.infotools;
 
 import org.opensha.refFaultParamDb.dao.db.ContributorDB_DAO;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.vo.Contributor;
 
 /**
@@ -34,57 +34,57 @@ import org.opensha.refFaultParamDb.vo.Contributor;
  */
 
 public class SessionInfo {
-  private static String userName;
-  private static String password;
-  private static Contributor contributor;
+	private static String userName;
+	private static String password;
+	private static Contributor contributor;
 
-  /**
-    * Set the username typed by the user in the login window. This username is used
-    * for db connection
-    * @param userName
-    */
-   public static void setUserName(String userName) {
-     SessionInfo.userName = userName;
-   }
-   /**
-    * Get the username to be used for DB connection
-    * @return
-    */
-   public static String getUserName() { return userName; }
-   /**
-    * Set the password for making the database connection
-    * @param password
-    */
-   public static void setPassword(String password) {
-     SessionInfo.password = password;
-   }
-   /**
-    * Get the password
-    * @return
-    */
-   public static String getPassword() { return password; }
-   
-   /**
-    * Get the encrypted password
-    * @return
-    */
-   public static String getEncryptedPassword() { return ContributorDB_DAO.getEnryptedPassword(password); }
+	/**
+	 * Set the username typed by the user in the login window. This username is used
+	 * for db connection
+	 * @param userName
+	 */
+	public static void setUserName(String userName) {
+		SessionInfo.userName = userName;
+	}
+	/**
+	 * Get the username to be used for DB connection
+	 * @return
+	 */
+	public static String getUserName() { return userName; }
+	/**
+	 * Set the password for making the database connection
+	 * @param password
+	 */
+	public static void setPassword(String password) {
+		SessionInfo.password = password;
+	}
+	/**
+	 * Get the password
+	 * @return
+	 */
+	public static String getPassword() { return password; }
 
-   /**
-    * Get the contributor info from database based on username and password
-    */
-   public static void setContributorInfo() {
-     ContributorDB_DAO contributorDAO = new ContributorDB_DAO(DB_AccessAPI.db_latest_ro_conn);
-     contributor = contributorDAO.isContributorValid(userName, password);
-   }
+	/**
+	 * Get the encrypted password
+	 * @return
+	 */
+	public static String getEncryptedPassword() { return ContributorDB_DAO.getEnryptedPassword(password); }
 
-   /**
-    * Get the contributor info
-    *
-    * @return
-    */
-   public static Contributor getContributor() {
-     return contributor;
-   }
+	/**
+	 * Get the contributor info from database based on username and password
+	 */
+	public static void setContributorInfo() {
+		ContributorDB_DAO contributorDAO = new ContributorDB_DAO(DB_ConnectionPool.getLatestReadOnlyConn());
+		contributor = contributorDAO.isContributorValid(userName, password);
+	}
+
+	/**
+	 * Get the contributor info
+	 *
+	 * @return
+	 */
+	public static Contributor getContributor() {
+		return contributor;
+	}
 
 }

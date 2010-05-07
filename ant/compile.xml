@@ -283,6 +283,8 @@
 		<unjar src="${lib.dir}/commons-math-2.1.jar" dest="${build}" />
 		<unjar src="${lib.dir}/ncCore-4.0.jar" dest="${build}" />
 		<unjar src="${lib.dir}/junit-4.5.jar" dest="${build}" />
+		<unjar src="${lib.dir}/sdoapi.jar" dest="${build}" />
+		<unjar src="${lib.dir}/ojdbc14.jar" dest="${build}" />
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
@@ -330,6 +332,7 @@
 		           windowtitle="OpenSHA">
 
 			<fileset dir="${src}" defaultexcludes="yes">
+				<include name="**/*.java"/>
 			</fileset>
 
 			<doctitle><![CDATA[<h1>OpenSHA <a href="http://www.opensha.org">www.OpenSHA.org</a></h1>]]></doctitle>

@@ -34,10 +34,10 @@ import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
-import org.opensha.sha.imr.event.AttenuationRelationshipChangeEvent;
-import org.opensha.sha.imr.event.AttenuationRelationshipChangeListener;
+import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
+import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 
-public class IMR_ChooserPanel extends NamesListPanel implements IMR_GuiBeanAPI, AttenuationRelationshipChangeListener {
+public class IMR_ChooserPanel extends NamesListPanel implements IMR_GuiBeanAPI, ScalarIMRChangeListener {
 	
 	private IMR_GuiBean imrGuiBean;
 	private IMT_ChooserPanel imtChooser;
@@ -121,9 +121,9 @@ public class IMR_ChooserPanel extends NamesListPanel implements IMR_GuiBeanAPI, 
 		frame.setVisible(true);
 	}
 
-	public void attenuationRelationshipChange(
-			AttenuationRelationshipChangeEvent event) {
-		addButton.setEnabled(shouldEnableAddButton(event.getNewAttenRel()));
+	public void imrChange(
+			ScalarIMRChangeEvent event) {
+		addButton.setEnabled(shouldEnableAddButton(event.getNewIMR()));
 	}
 
 	@Override

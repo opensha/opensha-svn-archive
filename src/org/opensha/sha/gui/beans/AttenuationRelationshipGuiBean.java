@@ -67,8 +67,8 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
-import org.opensha.sha.imr.event.AttenuationRelationshipChangeEvent;
-import org.opensha.sha.imr.event.AttenuationRelationshipChangeListener;
+import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
+import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
@@ -92,7 +92,7 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
 ActionListener,ItemListener,ParameterChangeListener,
 ParameterChangeWarningListener, ParameterChangeFailListener{
 
-	private ArrayList<AttenuationRelationshipChangeListener> listeners = new ArrayList<AttenuationRelationshipChangeListener>();
+	private ArrayList<ScalarIMRChangeListener> listeners = new ArrayList<ScalarIMRChangeListener>();
 
 	private static final String C = "MultipleIMR_GuiBean";
 	private static final boolean D = false;
@@ -1440,21 +1440,21 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		repaint();
 	}
 
-	public void addAttenuationRelationshipChangeListener(AttenuationRelationshipChangeListener listener) {
+	public void addAttenuationRelationshipChangeListener(ScalarIMRChangeListener listener) {
 		listeners.add(listener);
 	}
 
-	public void removeAttenuationRelationshipChangeListener(AttenuationRelationshipChangeListener listener) {
+	public void removeAttenuationRelationshipChangeListener(ScalarIMRChangeListener listener) {
 		listeners.remove(listener);
 	}
 
 	public void fireAttenuationRelationshipChangedEvent(ScalarIntensityMeasureRelationshipAPI oldAttenRel, ScalarIntensityMeasureRelationshipAPI newAttenRel) {
 		if (listeners.size() == 0)
 			return;
-		AttenuationRelationshipChangeEvent event = new AttenuationRelationshipChangeEvent(this, oldAttenRel, newAttenRel);
+		ScalarIMRChangeEvent event = new ScalarIMRChangeEvent(this, oldAttenRel, newAttenRel);
 
-		for (AttenuationRelationshipChangeListener listener : listeners) {
-			listener.attenuationRelationshipChange(event);
+		for (ScalarIMRChangeListener listener : listeners) {
+			listener.imrChange(event);
 		}
 	}
 }

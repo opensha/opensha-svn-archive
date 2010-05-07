@@ -22,6 +22,7 @@ package org.opensha.sha.gui.beans;
 import java.awt.Color;
 import java.awt.Font;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ListIterator;
 
@@ -46,12 +47,13 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
-import org.opensha.sha.imr.event.AttenuationRelationshipChangeEvent;
-import org.opensha.sha.imr.event.AttenuationRelationshipChangeListener;
+import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
+import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
+import org.opensha.sha.util.TectonicRegionType;
 
 /**
  * <p>Title: IMR Gui Bean</p>
@@ -72,7 +74,7 @@ public class IMR_GuiBean extends ParameterListEditor
 implements ParameterChangeListener,
 ParameterChangeWarningListener, ParameterChangeFailListener {
 
-	private ArrayList<AttenuationRelationshipChangeListener> listeners = new ArrayList<AttenuationRelationshipChangeListener>();
+	private ArrayList<ScalarIMRChangeListener> listeners = new ArrayList<ScalarIMRChangeListener>();
 
 	// IMR GUI Editor & Parameter names
 	public final static String IMR_PARAM_NAME = "IMR";
@@ -620,21 +622,28 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 		return supportedAttenRels;
 	}
 	
-	public void addAttenuationRelationshipChangeListener(AttenuationRelationshipChangeListener listener) {
+	public void addAttenuationRelationshipChangeListener(ScalarIMRChangeListener listener) {
 		listeners.add(listener);
 	}
 	
-	public void removeAttenuationRelationshipChangeListener(AttenuationRelationshipChangeListener listener) {
+	public void removeAttenuationRelationshipChangeListener(ScalarIMRChangeListener listener) {
 		listeners.remove(listener);
 	}
 	
-	public void fireAttenuationRelationshipChangedEvent(ScalarIntensityMeasureRelationshipAPI oldAttenRel, ScalarIntensityMeasureRelationshipAPI newAttenRel) {
+	public void fireAttenuationRelationshipChangedEvent(ScalarIntensityMeasureRelationshipAPI oldAttenRel,
+			ScalarIntensityMeasureRelationshipAPI newAttenRel) {
 		if (listeners.size() == 0)
 			return;
-		AttenuationRelationshipChangeEvent event = new AttenuationRelationshipChangeEvent(this, oldAttenRel, newAttenRel);
+		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> oldMap =
+			new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
+		oldMap.put(TectonicRegionType.ACTIVE_SHALLOW, oldAttenRel);
+		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> newMap =
+			new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
+		oldMap.put(TectonicRegionType.ACTIVE_SHALLOW, newAttenRel);
+		ScalarIMRChangeEvent event = new ScalarIMRChangeEvent(this, oldMap, newMap);
 		
-		for (AttenuationRelationshipChangeListener listener : listeners) {
-			listener.attenuationRelationshipChange(event);
+		for (ScalarIMRChangeListener listener : listeners) {
+			listener.imrChange(event);
 		}
 	}
 

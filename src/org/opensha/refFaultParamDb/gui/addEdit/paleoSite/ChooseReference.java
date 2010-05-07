@@ -32,7 +32,7 @@ import javax.swing.JFrame;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.SiteRepresentationDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.SiteTypeDB_DAO;
@@ -74,13 +74,13 @@ public class ChooseReference extends JFrame implements ActionListener,
   private ConstrainedStringParameterEditor siteTypeParamEditor;
   private ConstrainedStringParameterEditor siteRepresentationParamEditor;
   // site type DAO
-  private SiteTypeDB_DAO siteTypeDAO = new SiteTypeDB_DAO(DB_AccessAPI.db_latest_conn);
+  private SiteTypeDB_DAO siteTypeDAO = new SiteTypeDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
   // site representations DAO
-  private SiteRepresentationDB_DAO siteRepresentationDAO = new SiteRepresentationDB_DAO(DB_AccessAPI.db_latest_conn);
+  private SiteRepresentationDB_DAO siteRepresentationDAO = new SiteRepresentationDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
   private final static String TITLE="Choose Reference";
 
   // references DAO
-  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.db_latest_conn);
+  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
 
   public ChooseReference(AddSiteInfo addSiteInfo) {
     this.setLocationRelativeTo(null);

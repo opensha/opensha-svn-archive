@@ -48,7 +48,7 @@ import org.opensha.commons.param.estimate.EstimateConstraint;
 import org.opensha.commons.param.estimate.EstimateParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.dao.db.SectionSourceDB_DAO;
 import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
@@ -262,7 +262,7 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 		        new Insets(0, 0, 0, 0), 0, 0));
 	  
 	  // fault section sources
-	  SectionSourceDB_DAO sectionSourceDB_DAO = new SectionSourceDB_DAO(DB_AccessAPI.db_latest_conn);
+	  SectionSourceDB_DAO sectionSourceDB_DAO = new SectionSourceDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
 	  ArrayList sectionSourcesList = sectionSourceDB_DAO.getAllSectionSource();
 	  ArrayList sectionSourceNamesList = new ArrayList();
 	  for(int i=0; i<sectionSourcesList.size(); ++i)
@@ -364,7 +364,7 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 			  // set the parameters in the fault section object
 			  setParamsInSelectedFaultSection();
 			  // update in the database
-			  FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.db_latest_conn);
+			  FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
 			  if(this.isEdit) {  // edit fault section
 				  faultSectionDAO.update(this.selectedFaultSection);
 				  viewFaultSection.refreshFaultSectionValues();

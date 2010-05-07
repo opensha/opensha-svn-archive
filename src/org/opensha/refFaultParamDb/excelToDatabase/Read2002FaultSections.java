@@ -23,7 +23,7 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 
 import org.opensha.commons.geo.Location;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.FaultSection2002DB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSection2002;
 import org.opensha.sha.faultSurface.FaultTrace;
@@ -39,7 +39,7 @@ import org.opensha.sha.faultSurface.FaultTrace;
  */
 
 public class Read2002FaultSections {
-  private FaultSection2002DB_DAO faultSection2002DAO = new FaultSection2002DB_DAO(DB_AccessAPI.db_ver2_conn);
+  private FaultSection2002DB_DAO faultSection2002DAO = new FaultSection2002DB_DAO(DB_ConnectionPool.getDB2ReadOnlyConn());
   private final static String SECTION_TRACE_OUT_FILENAME = "FaultSections_Trace2002.txt";
   private final static String SECTION_NAMES_FILENAME="FaultSections_Name2002.txt";
   //private final static String DIP_FILENAME = "DipForFaultSections2002.txt";

@@ -9,6 +9,7 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.util.FileUtils;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 
 /**
@@ -21,7 +22,7 @@ public class MeasuredCompSlipUpdation {
 //	 update the sense of motion
 	private final static String FILE_NAME = "org/opensha/refFaultParamDb/excelToDatabase/MeasuredCompOfSlip.csv";
 	// database connection
-	private  static final DB_AccessAPI dbConnection = DB_AccessAPI.db_ver2_conn;
+	private  static final DB_AccessAPI dbConnection = DB_ConnectionPool.getDB2ReadOnlyConn();
 	 
 	public static void main(String[] args) {
 		SessionInfo.setUserName("vgupta");

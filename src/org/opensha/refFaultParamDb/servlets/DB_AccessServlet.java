@@ -34,8 +34,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.opensha.refFaultParamDb.dao.db.ContributorDB_DAO;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.SpatialQueryResult;
 import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
 
@@ -98,9 +98,9 @@ public class DB_AccessServlet extends HttpServlet{
 				getOutputStream());
 		try {
 			// get the username
-			String usrName = (String)inputFromApp.readObject();
+			String user = (String)inputFromApp.readObject();
 			// get the password
-			String encrypitedPass = (String)inputFromApp.readObject();
+			String pass = (String)inputFromApp.readObject();
 			//receiving the name of the Function to be performed
 			String functionToPerform = (String) inputFromApp.readObject();
 
@@ -108,7 +108,7 @@ public class DB_AccessServlet extends HttpServlet{
 			if(!functionToPerform.equalsIgnoreCase(DB_AccessAPI.RESET_PASSWORD) &&
 					!functionToPerform.equalsIgnoreCase(DB_AccessAPI.SELECT_QUERY) &&
 					!functionToPerform.equalsIgnoreCase(DB_AccessAPI.SELECT_QUERY_SPATIAL) &&
-					contributorDAO.isContributorValidEncrypted(usrName, encrypitedPass)==null) {
+					contributorDAO.isContributorValid(user, pass)==null) {
 				inputFromApp.close();
 				DBConnectException exception =  new DBConnectException(CONNECT_FAILURE_MSG);
 				outputToApp.writeObject(exception);

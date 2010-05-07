@@ -40,11 +40,11 @@ public class PrioritizedDB_Access implements DB_AccessAPI {
 	
 	private DB_AccessAPI dbAccess = null;
 	
-	public static ArrayList<DB_AccessAPI> createDefaultAccessors() {
+	public static ArrayList<DB_AccessAPI> createDB2ReadOnlyAccessors() {
 		ArrayList<DB_AccessAPI> accessors = new ArrayList<DB_AccessAPI>();
 		// first priority is a direct connection
 		try {
-			accessors.add(new DB_ConnectionPool());
+			accessors.add(new DB_ConnectionPool(DB_ConnectionPool.db_prop_2_file));
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
@@ -57,8 +57,21 @@ public class PrioritizedDB_Access implements DB_AccessAPI {
 		return accessors;
 	}
 	
-	public PrioritizedDB_Access() {
-		this(createDefaultAccessors());
+	public static ArrayList<DB_AccessAPI> createDB3ReadOnlyAccessors() {
+		ArrayList<DB_AccessAPI> accessors = new ArrayList<DB_AccessAPI>();
+		// first priority is a direct connection
+		try {
+			accessors.add(new DB_ConnectionPool(DB_ConnectionPool.db_prop_3_ro_file));
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+		// if that doesn't work we'll try the servlet to get around firewall issues
+		try {
+			accessors.add(new ServerDB_Access(ServerDB_Access.SERVLET_URL_DB3));
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+		return accessors;
 	}
 	
 	public PrioritizedDB_Access(ArrayList<DB_AccessAPI> accessors) {
@@ -122,7 +135,7 @@ public class PrioritizedDB_Access implements DB_AccessAPI {
 	}
 	
 	public static void main(String args[]) {
-		new PrioritizedDB_Access();
+		new PrioritizedDB_Access(PrioritizedDB_Access.createDB3ReadOnlyAccessors());
 		System.exit(0);
 	}
 
