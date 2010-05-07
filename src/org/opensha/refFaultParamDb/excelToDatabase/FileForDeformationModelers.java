@@ -52,9 +52,9 @@ import org.opensha.refFaultParamDb.vo.Reference;
 public class FileForDeformationModelers {
 	private final static String OUT_FILE_NAME = "org/opensha/refFaultParamDb/excelToDatabase/FileForDeformationModelersv4.xls";
 	// DAO to get information from the database
-	private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.db_ver2_conn);
-	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.db_ver2_conn);
-	private CombinedEventsInfoDB_DAO combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_AccessAPI.db_ver2_conn);
+	private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.db_ver2_ro_conn);
+	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.db_ver2_ro_conn);
+	private CombinedEventsInfoDB_DAO combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_AccessAPI.db_ver2_ro_conn);
 	private final static String BETWEEN_LOCATIONS_SITE_TYPE = "Between Locations";
 	private final static String KA = "KA";
 	private final static String ALT = " alt ";

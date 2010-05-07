@@ -50,9 +50,12 @@ public interface DB_AccessAPI {
 	 * This default dbConnection object will first try to use a direct DB connection,
 	 * then fall back on a servlet based connection if blocked by firewalls.
 	 */
-	public static final DB_AccessAPI db_ver2_conn = new PrioritizedDB_Access();
+	public static final DB_AccessAPI db_ver2_ro_conn =
+		new PrioritizedDB_Access(PrioritizedDB_Access.createDB2ReadOnlyAccessors());
+	public static final DB_AccessAPI db_ver2_conn = new ServerDB_Access(ServerDB_Access.SERVLET_URL_DB2);
 	
-	public static final DB_AccessAPI db_ver3_ro_conn = new PrioritizedDB_Access();
+	public static final DB_AccessAPI db_ver3_ro_conn =
+		new PrioritizedDB_Access(PrioritizedDB_Access.createDB3ReadOnlyAccessors());
 	public static final DB_AccessAPI db_ver3_conn = new ServerDB_Access(ServerDB_Access.SERVLET_URL_DB3);
 	public static final DB_AccessAPI db_latest_ro_conn = db_ver3_ro_conn;
 	public static final DB_AccessAPI db_latest_conn = db_ver3_conn;

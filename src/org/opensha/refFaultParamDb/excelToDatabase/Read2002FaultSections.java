@@ -39,7 +39,7 @@ import org.opensha.sha.faultSurface.FaultTrace;
  */
 
 public class Read2002FaultSections {
-  private FaultSection2002DB_DAO faultSection2002DAO = new FaultSection2002DB_DAO(DB_AccessAPI.db_ver2_conn);
+  private FaultSection2002DB_DAO faultSection2002DAO = new FaultSection2002DB_DAO(DB_AccessAPI.db_ver2_ro_conn);
   private final static String SECTION_TRACE_OUT_FILENAME = "FaultSections_Trace2002.txt";
   private final static String SECTION_NAMES_FILENAME="FaultSections_Name2002.txt";
   //private final static String DIP_FILENAME = "DipForFaultSections2002.txt";

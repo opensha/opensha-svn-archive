@@ -37,7 +37,7 @@ import org.opensha.refFaultParamDb.vo.Fault;
 
 public class PutFaultNamesIntoDB {
   private final static HashMap faultNameIdMapping = new HashMap();
-  private final static FaultDB_DAO faultDAO = new FaultDB_DAO(DB_AccessAPI.db_ver2_conn);
+  private final static FaultDB_DAO faultDAO = new FaultDB_DAO(DB_AccessAPI.db_ver2_ro_conn);
 
   public PutFaultNamesIntoDB() {
     Iterator it = faultNameIdMapping.keySet().iterator();

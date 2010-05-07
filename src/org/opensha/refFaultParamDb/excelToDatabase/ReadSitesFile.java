@@ -40,8 +40,8 @@ import org.opensha.refFaultParamDb.vo.PaleoSitePublication;
 
 public class ReadSitesFile {
   private final static String FILENAME = "org\\opensha\\refFaultParamDb\\PaleoSites.txt";
-  private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.db_ver2_conn);
-  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.db_ver2_conn);
+  private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.db_ver2_ro_conn);
+  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.db_ver2_ro_conn);
   private final static String COMMENTS_DEFAULT = "Site Information provided by Chris Wills from Excel file";
   private final static String STRAND_DEFAULT = "Unknown";
   private final static String SITE_TYPE_DEFAULT = "Unknown";

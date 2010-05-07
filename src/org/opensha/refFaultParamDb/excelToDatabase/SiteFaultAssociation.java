@@ -21,7 +21,7 @@ public class SiteFaultAssociation {
 //	 update the sense of motion
 	private final static String FILE_NAME = "org/opensha/refFaultParamDb/excelToDatabase/SiteFaultAssociation.csv";
 	// database connection
-	private  static final DB_AccessAPI dbConnection = DB_AccessAPI.db_ver2_conn;
+	private  static final DB_AccessAPI dbConnection = DB_AccessAPI.db_ver2_ro_conn;
 	 
 	public static void main(String[] args) {
 		SessionInfo.setUserName("vgupta");

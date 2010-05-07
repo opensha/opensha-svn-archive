@@ -82,7 +82,7 @@ public class DeformationModelPrefDataFinal implements Serializable {
 		Document document = DocumentHelper.createDocument();
 		Element root = document.addElement( "DeformationModelPrefData" );
 		
-		DeformationModelPrefDataDB_DAO deformationModelPrefDB_DAO = new DeformationModelPrefDataDB_DAO(DB_AccessAPI.db_ver2_conn);
+		DeformationModelPrefDataDB_DAO deformationModelPrefDB_DAO = new DeformationModelPrefDataDB_DAO(DB_AccessAPI.db_ver2_ro_conn);
 		deformationModelSummaryFinal = new DeformationModelSummaryFinal();
 		ArrayList<DeformationModelSummary> deformationModelSummaryList = deformationModelSummaryFinal.getAllDeformationModels();
 		for(int i=0; i<deformationModelSummaryList.size();i++) {

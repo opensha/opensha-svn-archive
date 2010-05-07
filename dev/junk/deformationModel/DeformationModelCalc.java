@@ -19,7 +19,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 public class DeformationModelCalc {
 	// fault section info from the database
 	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO = 
-		new PrefFaultSectionDataDB_DAO(DB_AccessAPI.db_ver2_conn);
+		new PrefFaultSectionDataDB_DAO(DB_AccessAPI.db_ver2_ro_conn);
 	private final static int NUM = 50;
 
 	/**

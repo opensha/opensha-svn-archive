@@ -71,10 +71,10 @@ public class PutCombinedInfoIntoDatabase_Qfault {
   // columns in this excel file
   private final static int MIN_COL = 0;
   private final static int MAX_COL = 48;
-  private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.db_ver2_conn);
-  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.db_ver2_conn);
-  private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.db_ver2_conn);
-  private CombinedEventsInfoDB_DAO combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_AccessAPI.db_ver2_conn);
+  private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.db_ver2_ro_conn);
+  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.db_ver2_ro_conn);
+  private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.db_ver2_ro_conn);
+  private CombinedEventsInfoDB_DAO combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_AccessAPI.db_ver2_ro_conn);
   private final static String UNKNOWN = "Unknown";
   private final static String MA = "MA";
   private final static String KA = "ka";

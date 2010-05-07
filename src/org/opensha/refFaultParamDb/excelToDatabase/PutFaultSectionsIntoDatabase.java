@@ -77,7 +77,7 @@ public class PutFaultSectionsIntoDatabase {
   private int nextTraceStartIndex=0;
 
   // DAO to put fault sections to database
-  private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.db_ver2_conn);
+  private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.db_ver2_ro_conn);
   
   private final static int MIN_ROW_NAME_CHANGES = 1; // skip first row as it is header
   private final static int MAX_ROW_NAME_CHANGES = 256;  

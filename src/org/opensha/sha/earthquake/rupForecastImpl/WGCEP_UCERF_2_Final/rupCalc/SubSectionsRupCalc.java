@@ -39,7 +39,7 @@ public class SubSectionsRupCalc {
 	private double subSectionsCutoffDist = 10; 
 	private  double maxSubSectionLength = 10;
 	private ArrayList<MultipleSectionRup> rupList;
-	private final PrefFaultSectionDataDB_DAO faultSectionPrefDataDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.db_ver2_conn);
+	private final PrefFaultSectionDataDB_DAO faultSectionPrefDataDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.db_ver2_ro_conn);
 	private ArrayList subSectionList;
 	private ArrayList doneList;
 	private ArrayList<Tree> clusterList;

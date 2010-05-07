@@ -42,8 +42,8 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.FaultSegmentDa
 public abstract class FaultsFetcher {
 	protected HashMap faultModels;
 	// DAO to access the fault section database
-	private PrefFaultSectionDataDB_DAO faultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.db_ver2_conn);
-	protected DeformationModelPrefDataDB_DAO deformationModelPrefDB_DAO = new DeformationModelPrefDataDB_DAO(DB_AccessAPI.db_ver2_conn);
+	private PrefFaultSectionDataDB_DAO faultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.db_ver2_ro_conn);
+	protected DeformationModelPrefDataDB_DAO deformationModelPrefDB_DAO = new DeformationModelPrefDataDB_DAO(DB_AccessAPI.db_ver2_ro_conn);
 	private final static String FAULT_MODEL_NAME_PREFIX = "-";
 	protected ArrayList<String> faultModelNames = new ArrayList<String>();
 	protected HashMap segmentNamesMap = new HashMap();
