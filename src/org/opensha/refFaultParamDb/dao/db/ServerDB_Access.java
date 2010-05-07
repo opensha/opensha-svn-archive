@@ -270,7 +270,8 @@ public class ServerDB_Access     implements java.io.Serializable, DB_AccessAPI {
 			ObjectInputStream(servletConnection.getInputStream());
 
 			outputFromRemoteDB = inputToServlet.readObject();
-			if(outputFromRemoteDB instanceof Exception) throw (RuntimeException)outputFromRemoteDB;
+			if(outputFromRemoteDB instanceof Exception)
+				throw (RuntimeException)outputFromRemoteDB;
 			inputToServlet.close();
 		}catch (IOException e) {
 			e.printStackTrace();
