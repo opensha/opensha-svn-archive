@@ -876,7 +876,11 @@ public class GEM1ERF extends EqkRupForecast {
 				sub_floaterTypeFlag = 2;
 			
 			
-
+			if (sourceCache != null) {
+				sourceCache = null;
+				System.gc();
+			}
+			
 			parameterChangeFlag = false;
 		}
 	}
