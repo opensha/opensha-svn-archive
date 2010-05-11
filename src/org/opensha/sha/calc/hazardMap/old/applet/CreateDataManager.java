@@ -216,7 +216,7 @@ public class CreateDataManager extends StepManager implements ScalarIMRChangeLis
 	
 	private Step createSiteDataStep() {
 		siteDataGuiBean = new OrderedSiteDataGUIBean(OrderedSiteDataProviderList.createSiteDataProviderDefaults(),
-							hazard.getIMR());
+				OrderedSiteDataGUIBean.wrapInMap(hazard.getIMR()));
 		
 		IMR_GuiBean imrGuiBean = hazard.getIMRGuiBean();
 		imrGuiBean.addAttenuationRelationshipChangeListener(this);
@@ -424,6 +424,6 @@ public class CreateDataManager extends StepManager implements ScalarIMRChangeLis
 	
 	public void imrChange(
 			ScalarIMRChangeEvent event) {
-		this.siteDataGuiBean.setAttenuationRelationship(event.getNewIMR());
+		this.siteDataGuiBean.setIMR(event.getNewIMR());
 	}
 }

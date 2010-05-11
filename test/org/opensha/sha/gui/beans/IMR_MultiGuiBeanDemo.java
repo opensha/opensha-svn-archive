@@ -14,6 +14,8 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
+import org.opensha.sha.gui.beans.event.IMTChangeEvent;
+import org.opensha.sha.gui.beans.event.IMTChangeListener;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
@@ -41,14 +43,22 @@ public class IMR_MultiGuiBeanDemo extends JPanel implements ActionListener {
 	
 	private IMR_MultiGuiBean bean;
 	
+	private IMT_NewGuiBean imtBean;
+	
 	public IMR_MultiGuiBeanDemo() {
 		super(new BorderLayout());
 		
 		AttenuationRelationshipsInstance attenRelInst = new AttenuationRelationshipsInstance();
 		imrs = attenRelInst.createIMRClassInstance(null);
+		for (ScalarIntensityMeasureRelationshipAPI imr : imrs)
+			imr.setParamDefaults();
 		
 		bean = new IMR_MultiGuiBean(imrs);
 		
+		imtBean = new IMT_NewGuiBean(imrs);
+		imtBean.addIMTChangeListener(bean);
+		
+		this.add(imtBean, BorderLayout.NORTH);
 		this.add(bean, BorderLayout.CENTER);
 		
 		JPanel buttonPanels = new JPanel();
@@ -83,7 +93,7 @@ public class IMR_MultiGuiBeanDemo extends JPanel implements ActionListener {
 		this.add(buttonPanels, BorderLayout.SOUTH);
 		
 		JFrame window = new JFrame();
-		window.setSize(400, 600);
+		window.setSize(400, 900);
 		
 		window.setContentPane(this);
 		
@@ -110,14 +120,19 @@ public class IMR_MultiGuiBeanDemo extends JPanel implements ActionListener {
 			DependentParameterAPI<Double> imt = null;
 			bean.setIMT(imt);
 		} else if (e.getSource() == pgaButton) {
-			DependentParameterAPI<Double> imt = getIMT(PGA_Param.NAME, -1);
-			bean.setIMT(imt);
+			imtBean.getParameterList().getParameter(IMT_NewGuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);
+//			DependentParameterAPI<Double> imt = getIMT(PGA_Param.NAME, -1);
+//			bean.setIMT(imt);
 		} else if (e.getSource() == mmiButton) {
-			DependentParameterAPI<Double> imt = getIMT(ShakeMap_2003_AttenRel.MMI_NAME, -1);;
-			bean.setIMT(imt);
+			imtBean.getParameterList().getParameter(IMT_NewGuiBean.IMT_PARAM_NAME).setValue(ShakeMap_2003_AttenRel.MMI_NAME);
+//			DependentParameterAPI<Double> imt = getIMT(ShakeMap_2003_AttenRel.MMI_NAME, -1);;
+//			bean.setIMT(imt);
 		} else if (e.getSource() == sa10Button) {
-			DependentParameterAPI<Double> imt = getIMT(SA_Param.NAME, 1.0);
-			bean.setIMT(imt);
+			imtBean.getParameterList().getParameter(IMT_NewGuiBean.IMT_PARAM_NAME).setValue(SA_Param.NAME);
+			imtBean.getParameterList().getParameter(PeriodParam.NAME).setValue(new Double(1.0));
+			imtBean.refreshParamEditor();
+//			DependentParameterAPI<Double> imt = getIMT(SA_Param.NAME, 1.0);
+//			bean.setIMT(imt);
 		}
 	}
 	

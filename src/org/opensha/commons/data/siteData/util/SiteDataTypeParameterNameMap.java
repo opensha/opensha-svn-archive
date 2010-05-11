@@ -20,6 +20,7 @@
 package org.opensha.commons.data.siteData.util;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.siteData.SiteDataAPI;
@@ -30,6 +31,7 @@ import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.util.SiteTranslator;
+import org.opensha.sha.util.TectonicRegionType;
 
 /**
  * This class represents an N to N mapping between site data types and parameter names. If
@@ -116,6 +118,24 @@ public class SiteDataTypeParameterNameMap extends NtoNMap<String, String> {
 	}
 	
 	/**
+	 * Returns true if the given IMR/Tectonic Region mapping has a parameter that can be set by
+	 * this type.
+	 * 
+	 * @param type
+	 * @param imrMap
+	 * @return
+	 */
+	public boolean isTypeApplicable(String type,
+			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap) {
+		for (TectonicRegionType trt : imrMap.keySet()) {
+			ScalarIntensityMeasureRelationshipAPI imr = imrMap.get(trt);
+			if (isTypeApplicable(type, imr))
+				return true;
+		}
+		return false;
+	}
+	
+	/**
 	 * Returns true if the given attenuation relationship has a parameter that can be set by
 	 * this type.
 	 * 
@@ -125,6 +145,19 @@ public class SiteDataTypeParameterNameMap extends NtoNMap<String, String> {
 	 */
 	public boolean isTypeApplicable(SiteDataValue<?> value, ScalarIntensityMeasureRelationshipAPI attenRel) {
 		return isTypeApplicable(value.getDataType(), attenRel);
+	}
+	
+	/**
+	 * Returns true if the given IMR/Tectonic Region mapping has a parameter that can be set by
+	 * this type.
+	 * 
+	 * @param type
+	 * @param imrMap
+	 * @return
+	 */
+	public boolean isTypeApplicable(SiteDataValue<?> value,
+			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap) {
+		return isTypeApplicable(value.getDataType(), imrMap);
 	}
 	
 	private void printParamsForType(String type) {

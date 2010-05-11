@@ -26,8 +26,30 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
+import org.opensha.gem.GEM1.scratch.ZhaoEtAl_2006_AttenRel;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.BC_2004_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.BS_2003_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.CB_2003_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.CS_2005_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.Field_2000_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.GouletEtAl_2006_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.McVerryetal_2000_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.SadighEtAl_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.depricated.BA_2006_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.depricated.CB_2006_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.depricated.CY_2006_AttenRel;
 
 /**
  * <p>Title: AtteuationRelationshipsInstance </p>
@@ -41,35 +63,6 @@ import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 public class AttenuationRelationshipsInstance {
 
 	private static final String C= "AtteuationRelationshipsInstance";
-
-	/**
-	 *  The object class names for all the supported attenuation ralations (IMRs)
-	 *  Temp until figure out way to dynamically load classes during runtime
-	 */
-	public final static String BJF_1997_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel";
-	public final static String BA_2008_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel";
-	public final static String AS_1997_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel";
-	public final static String C_1997_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel";
-	public final static String SCEMY_1997_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.SadighEtAl_1997_AttenRel";
-	public final static String F_2000_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Field_2000_AttenRel";
-	public final static String A_2000_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
-	public final static String CB_2003_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CB_2003_AttenRel";
-	public final static String SM_2003_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel";
-	public final static String USGS_2004_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel";
-	public final static String AS_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.depricated.AS_2005_prelim_AttenRel";
-	public final static String CB_2006_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.depricated.CB_2006_AttenRel";
-	public final static String CB_2008_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel";
-	public final static String CY_2006_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.depricated.CY_2006_AttenRel";
-	public final static String Boore_2006_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.depricated.BA_2006_AttenRel";
-	public final static String CS_2005_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CS_2005_AttenRel";
-	//public final static String SS_2006_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.SiteSpecific_2006_AttenRel";
-	public final static String BS_2003_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.BS_2003_AttenRel";
-	public final static String BC_2004_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.BC_2004_AttenRel";
-	public final static String GouletEtAl_2006_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.GouletEtAl_2006_AttenRel";
-	public final static String AS_2008_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel";
-	public final static String CY_2008_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel";
-	public final static String CyberShake_CLASS_NAME = "org.opensha.sha.cybershake.openshaAPIs.CyberShakeIMR";
-	public final static String McVerryetal_2000_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.McVerryetal_2000_AttenRel";
     
 	//arrayList to store the supported AttenRel Class Names with their full package structure.
 	private ArrayList<String> supportedAttenRelClasses;
@@ -82,43 +75,44 @@ public class AttenuationRelationshipsInstance {
 		// 2009
 		
 		// 2008
-		supportedAttenRelClasses.add(CB_2008_CLASS_NAME);
-		supportedAttenRelClasses.add(BA_2008_CLASS_NAME);
-		supportedAttenRelClasses.add(AS_2008_CLASS_NAME);
-		supportedAttenRelClasses.add(CY_2008_CLASS_NAME);
+		supportedAttenRelClasses.add(CB_2008_AttenRel.class.getName());
+		supportedAttenRelClasses.add(BA_2008_AttenRel.class.getName());
+		supportedAttenRelClasses.add(AS_2008_AttenRel.class.getName());
+		supportedAttenRelClasses.add(CY_2008_AttenRel.class.getName());
 		// 2007
 		
 		// 2006
-		supportedAttenRelClasses.add(Boore_2006_CLASS_NAME);
-		supportedAttenRelClasses.add(CB_2006_CLASS_NAME);
-		supportedAttenRelClasses.add(CY_2006_CLASS_NAME);
-		supportedAttenRelClasses.add(GouletEtAl_2006_CLASS_NAME);
+		supportedAttenRelClasses.add(BA_2006_AttenRel.class.getName());
+		supportedAttenRelClasses.add(CB_2006_AttenRel.class.getName());
+		supportedAttenRelClasses.add(CY_2006_AttenRel.class.getName());
+		supportedAttenRelClasses.add(GouletEtAl_2006_AttenRel.class.getName());
+		supportedAttenRelClasses.add(ZhaoEtAl_2006_AttenRel.class.getName());
 		// 2005
-		supportedAttenRelClasses.add(CS_2005_CLASS_NAME);
+		supportedAttenRelClasses.add(CS_2005_AttenRel.class.getName());
 		// 2004
-		supportedAttenRelClasses.add(BC_2004_CLASS_NAME);
-		supportedAttenRelClasses.add(USGS_2004_CLASS_NAME);
+		supportedAttenRelClasses.add(BC_2004_AttenRel.class.getName());
+		supportedAttenRelClasses.add(USGS_Combined_2004_AttenRel.class.getName());
 		// 2003
-		supportedAttenRelClasses.add(BS_2003_CLASS_NAME);
-		supportedAttenRelClasses.add(CB_2003_CLASS_NAME);
-		supportedAttenRelClasses.add(SM_2003_CLASS_NAME);
+		supportedAttenRelClasses.add(BS_2003_AttenRel.class.getName());
+		supportedAttenRelClasses.add(CB_2003_AttenRel.class.getName());
+		supportedAttenRelClasses.add(ShakeMap_2003_AttenRel.class.getName());
 		// 2002
 		
 		// 2001
 		
 		// 2000
-		supportedAttenRelClasses.add(F_2000_CLASS_NAME);
-		supportedAttenRelClasses.add(A_2000_CLASS_NAME);
-		supportedAttenRelClasses.add(McVerryetal_2000_CLASS_NAME);
+		supportedAttenRelClasses.add(Field_2000_AttenRel.class.getName());
+		supportedAttenRelClasses.add(Abrahamson_2000_AttenRel.class.getName());
+		supportedAttenRelClasses.add(McVerryetal_2000_AttenRel.class.getName());
 		// 1999
 		
 		// 1998
 		
 		// 1997
-		supportedAttenRelClasses.add(AS_1997_CLASS_NAME);
-		supportedAttenRelClasses.add(BJF_1997_CLASS_NAME);
-		supportedAttenRelClasses.add(C_1997_CLASS_NAME);
-		supportedAttenRelClasses.add(SCEMY_1997_CLASS_NAME);
+		supportedAttenRelClasses.add(AS_1997_AttenRel.class.getName());
+		supportedAttenRelClasses.add(BJF_1997_AttenRel.class.getName());
+		supportedAttenRelClasses.add(Campbell_1997_AttenRel.class.getName());
+		supportedAttenRelClasses.add(SadighEtAl_1997_AttenRel.class.getName());
 		
 		// OTHER
 //		supportedAttenRelClasses.add(CyberShake_CLASS_NAME);

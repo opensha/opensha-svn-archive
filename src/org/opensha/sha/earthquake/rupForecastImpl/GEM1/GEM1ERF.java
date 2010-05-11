@@ -31,6 +31,7 @@ import org.opensha.gem.GEM1.commons.CalculationSettings;
 import org.opensha.gem.GEM1.util.SourceType;
 import org.opensha.sha.faultSurface.ApproxEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
+import org.opensha.sha.util.TectonicRegionType;
 
 /**
  * <p>Title: GEM1ERF </p>
@@ -264,6 +265,8 @@ public class GEM1ERF extends EqkRupForecast {
 	public final static Boolean SOURCE_CACHE_PARAM_DEFAULT = false;
 	private BooleanParameter sourceCacheParam;
 	private HashMap<Integer, ProbEqkSource> sourceCache = null;
+	
+	private ArrayList<TectonicRegionType> tectonicRegionTypes;
 
 
 	/**
@@ -289,6 +292,12 @@ public class GEM1ERF extends EqkRupForecast {
 
 		// create and add adj params to list
 		initAdjParams();
+		
+		tectonicRegionTypes = new ArrayList<TectonicRegionType>();
+		tectonicRegionTypes.add(TectonicRegionType.ACTIVE_SHALLOW);
+		tectonicRegionTypes.add(TectonicRegionType.STABLE_SHALLOW);
+		tectonicRegionTypes.add(TectonicRegionType.SUBDUCTION_SLAB);
+		tectonicRegionTypes.add(TectonicRegionType.SUBDUCTION_INTERFACE);
 	}
 	
 	/**
@@ -935,6 +944,11 @@ public class GEM1ERF extends EqkRupForecast {
 			if (rup.getMag() >= mMin && rup.getMag() < mMax) rupList.add(rup);
 		}
 		return rupList;
+	}
+	
+	@Override
+	public ArrayList<TectonicRegionType> getIncludedTectonicRegionTypes() {
+		return tectonicRegionTypes;
 	}
 
 }

@@ -88,9 +88,9 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
-import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
 import org.opensha.sha.gui.beans.IMR_MultiGuiBean;
 import org.opensha.sha.gui.beans.IMT_GuiBean;
+import org.opensha.sha.gui.beans.IMT_NewGuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.gui.controls.CalculationSettingsControlPanel;
 import org.opensha.sha.gui.controls.CalculationSettingsControlPanelAPI;
@@ -155,7 +155,7 @@ import org.opensha.sha.util.TectonicRegionType;
 public class HazardCurveServerModeApplication extends JFrame implements
 		Runnable, ParameterChangeListener,
 		CurveDisplayAppAPI, ButtonControlPanelAPI,
-		GraphPanelAPI, GraphWindowAPI, IMR_GuiBeanAPI, 
+		GraphPanelAPI, GraphWindowAPI, 
 		CalculationSettingsControlPanelAPI, ActionListener,
 		ScalarIMRChangeListener {
 
@@ -305,7 +305,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	private ButtonControlPanel buttonControlPanel;
 
 	protected IMR_MultiGuiBean imrGuiBean;
-	private IMT_GuiBean imtGuiBean;
+	private IMT_NewGuiBean imtGuiBean;
 	protected Site_GuiBean siteGuiBean;
 	protected ERF_GuiBean erfGuiBean;
 	protected EqkRupSelectorGuiBean erfRupSelectorGuiBean;
@@ -1220,6 +1220,12 @@ public class HazardCurveServerModeApplication extends JFrame implements
 						.setSelectedOption(PlottingOptionControl.PLOT_ON_TOP);
 				setButtonsEnable(true);
 			}
+			try {
+				imrGuiBean.setTectonicRegions(erfGuiBean.getSelectedERF_Instance().getIncludedTectonicRegionTypes());
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+				imrGuiBean.setTectonicRegions(null);
+			}
 		}
 	}
 
@@ -1285,7 +1291,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		try {
 			// this function will get the selected IMT parameter and set it in
 			// IMT
-			imtGuiBean.setIMT();
+			imtGuiBean.setIMTinIMRs(imrMap);
 		} catch (Exception ex) {
 			ExceptionWindow bugWindow = new ExceptionWindow(this, ex,
 					getParametersInfoAsString());
@@ -1352,12 +1358,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 					progressCheckBox.setSelected(false);
 					progressCheckBox.setEnabled(false);
 					ProbEqkSource source = this.erfRupSelectorGuiBean.getSource();
-					TectonicRegionType trt = source.getTectonicRegionType();
-					ScalarIntensityMeasureRelationshipAPI imr;
-					if (trt == null)
-						imr = firstIMRFromMap;
-					else
-						imr = imrMap.get(trt);
+					ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR();
 					ProbEqkRupture rupture = (ProbEqkRupture) this.erfRupSelectorGuiBean.getRupture();
 					hazFunction = (ArbitrarilyDiscretizedFunc) calc
 							.getHazardCurve(hazFunction, site, imr, rupture);
@@ -1750,11 +1751,11 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		//Set previous type
 		String prevTypeCalc;
 		if(isProbabilisticCurve) 
-			prevTypeCalc = this.PROBABILISTIC;
+			prevTypeCalc = PROBABILISTIC;
 		else if(isDeterministicCurve)
-			prevTypeCalc = this.DETERMINISTIC;
+			prevTypeCalc = DETERMINISTIC;
 		else
-			prevTypeCalc = this.STOCHASTIC;
+			prevTypeCalc = STOCHASTIC;
 		
 		// set new type
 		String selectedControl = probDeterComboBox.getSelectedItem().toString();
@@ -1773,7 +1774,10 @@ public class HazardCurveServerModeApplication extends JFrame implements
 				isStochasticCurve=false;
 				isDeterministicCurve=true;
 		}
-
+		
+		// if it's deterministic, don't allow multiple IMRs
+		imrGuiBean.setMultipleIMRsEnabled(!selectedControl.equalsIgnoreCase(DETERMINISTIC));
+		
 		// Update ERF GUI Beans
 		
 		// If it's changed FROM Deterministic
@@ -1816,15 +1820,9 @@ public class HazardCurveServerModeApplication extends JFrame implements
 			imr.setParamDefaults();
 		}
 		// TODO add make the multi imr bean handle warnings
-
-//		imrGuiBean = new IMR_GuiBean(this);
+		
 		imrGuiBean = new IMR_MultiGuiBean(imrs);
-		imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter()
-				.addParameterChangeListener(this);
-//		imrPanel.add(imrGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0,
-//				1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-//				new Insets(0,0,0,0), 0, 0)); TODO clean
-		//imrPanel.updateUI();
+		imrGuiBean.addIMRChangeListener(this);
 	}
 
 	/**
@@ -1832,32 +1830,18 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 */
 	private void initIMT_GuiBean() {
 		// create the IMT Gui Bean object
-//		imtGuiBean = new IMT_GuiBean(imr, imr
-//				.getSupportedIntensityMeasuresIterator());
-		imtGuiBean = new IMT_GuiBean(imrGuiBean.getIMRs());
-//		imtPanel.setLayout(new GridBagLayout()); TODO clean
-//		imtPanel.add(imtGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
-//				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-//				new Insets(0,0,0,0), 0, 0));
-		//imtPanel.updateUI();
-
+		
+		imtGuiBean = new IMT_NewGuiBean(imrGuiBean.getIMRs());
+		imtGuiBean.addIMTChangeListener(imrGuiBean);
+//		imtGuiBean = new IMT_GuiBean(imrGuiBean.getIMRs());
 	}
 
 	/**
 	 * Initialize the site gui bean
 	 */
 	protected void initSiteGuiBean() {
-
-		// get the selected IMR
-		// create the Site Gui Bean object
 		siteGuiBean = new Site_GuiBean();
 		siteGuiBean.addSiteParams(imrGuiBean.getMultiIMRSiteParamIterator());
-		// show the sitebean in JPanel
-//		sitePanel.add(siteGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0,
-//				1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-//				new Insets(0,0,0,0), 0, 0));
-		//sitePanel.updateUI();
-
 	}
 
 	/**
@@ -2387,15 +2371,14 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 */
 	public String getMapParametersInfoAsHTML() {
 		String imrMetadata;
-		if (!isDeterministicCurve) // if Probabilistic calculation then only add the
+		
+		if (!isDeterministicCurve) { // if Probabilistic calculation then only add the
 								// metadata
-			// for visible parameters
-			imrMetadata = imrGuiBean.getVisibleParametersCloned()
-					.getParameterListMetadataString();
-		else
+			imrMetadata = imrGuiBean.getIMRMetadataHTML();
+		} else {
 			// if deterministic calculations then add all IMR params metadata.
-			imrMetadata = imrGuiBean.getSelectedIMR_Instance()
-					.getAllParamMetadata();
+			imrMetadata = imrGuiBean.getSelectedIMR().getAllParamMetadata();
+		}
 
 		String calcType = probDeterComboBox.getSelectedItem().toString();
 
@@ -2669,7 +2652,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 * set the same SA period value in the main application similar to selected
 	 * for Cybershake.
 	 */
-	public IMT_GuiBean getIMTGuiBeanInstance() {
+	public IMT_NewGuiBean getIMTGuiBeanInstance() {
 		return imtGuiBean;
 	}
 
@@ -2678,21 +2661,8 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 * set the gaussian truncation value in the main application similar to
 	 * selected for Cybershake.
 	 */
-	public IMR_GuiBean getIMRGuiBeanInstance() {
+	public IMR_MultiGuiBean getIMRGuiBeanInstance() {
 		return imrGuiBean;
-	}
-
-	/**
-	 * Updates the IMT_GuiBean to reflect the chnaged IM for the selected
-	 * AttenuationRelationship. This method is called from the IMR_GuiBean to
-	 * update the application with the Attenuation's supported IMs.
-	 * 
-	 */
-	public void updateIM() {
-		// get the selected IMR
-		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean
-				.getSelectedIMR_Instance();
-		imtGuiBean.setIM(imr, imr.getSupportedIntensityMeasuresIterator());
 	}
 
 	/**

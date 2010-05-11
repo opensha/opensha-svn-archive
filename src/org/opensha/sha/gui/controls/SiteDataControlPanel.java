@@ -25,6 +25,7 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -38,22 +39,22 @@ import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
+import org.opensha.sha.gui.beans.IMR_MultiGuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
 import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 import org.opensha.sha.util.SiteTranslator;
+import org.opensha.sha.util.TectonicRegionType;
 
 public class SiteDataControlPanel extends ControlPanel implements ScalarIMRChangeListener,
 					ActionListener, ChangeListener {
 	
 	public static final String NAME = "Set Site Params from Web Services";
 	
-	private IMR_GuiBean imrGuiBean;
+	private IMR_MultiGuiBean imrGuiBean;
 	private Site_GuiBean siteGuiBean;
 	private OrderedSiteDataGUIBean dataGuiBean;
-	
-	private ScalarIntensityMeasureRelationshipAPI attenRel;
 	
 	private JPanel mainPanel = new JPanel(new BorderLayout());
 	
@@ -64,7 +65,7 @@ public class SiteDataControlPanel extends ControlPanel implements ScalarIMRChang
 	
 	private JFrame frame;
 	
-	public SiteDataControlPanel(Component parent, IMR_GuiBean imrGuiBean,
+	public SiteDataControlPanel(Component parent, IMR_MultiGuiBean imrGuiBean,
             Site_GuiBean siteGuiBean) {
 		super(NAME);
 		this.imrGuiBean = imrGuiBean;
@@ -73,10 +74,10 @@ public class SiteDataControlPanel extends ControlPanel implements ScalarIMRChang
 	
 	public void doinit() {
 		frame = new JFrame();
-		attenRel = imrGuiBean.getSelectedIMR_Instance();
-		imrGuiBean.addAttenuationRelationshipChangeListener(this);
+		imrGuiBean.addIMRChangeListener(this);
 		
-		dataGuiBean = new OrderedSiteDataGUIBean(OrderedSiteDataProviderList.createCachedSiteDataProviderDefaults(), attenRel);
+		dataGuiBean = new OrderedSiteDataGUIBean(
+				OrderedSiteDataProviderList.createCachedSiteDataProviderDefaults(), imrGuiBean.getIMRMap());
 		
 		viewButton.addActionListener(this);
 		setButton.addActionListener(this);
@@ -99,7 +100,7 @@ public class SiteDataControlPanel extends ControlPanel implements ScalarIMRChang
 	}
 
 	public void imrChange(ScalarIMRChangeEvent event) {
-		dataGuiBean.setAttenuationRelationship(event.getNewIMR());
+		dataGuiBean.setIMR(event.getNewIMR());
 		enableButtons();
 	}
 	
@@ -117,7 +118,7 @@ public class SiteDataControlPanel extends ControlPanel implements ScalarIMRChang
 			trans = new SiteTranslator();
 		}
 		
-		trans.setAllSiteParams(imrGuiBean.getSelectedIMR_Instance(), data);
+		trans.setAllSiteParams(imrGuiBean.getIMRMap(), data);
 		
 		this.siteGuiBean.getParameterListEditor().refreshParamEditor();
 		frame.dispose();

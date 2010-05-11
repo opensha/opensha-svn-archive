@@ -73,11 +73,15 @@ import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBeanAPI;
 import org.opensha.sha.gui.beans.EqkRuptureFromERFSelectorPanel;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
+import org.opensha.sha.gui.beans.IMR_MultiGuiBean;
 import org.opensha.sha.gui.beans.IMT_GuiBean;
+import org.opensha.sha.gui.beans.IMT_NewGuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.gui.beans.TimeSpanGuiBean;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 
@@ -921,20 +925,20 @@ extends ControlPanel implements ParameterChangeListener {
 	}
 
 	private void setIMR_Params(){
-		IMR_GuiBean imrGui = application.getIMRGuiBeanInstance();
-
+		IMR_MultiGuiBean imrGui = application.getIMRGuiBeanInstance();
+		ScalarIntensityMeasureRelationshipAPI imr = imrGui.getSelectedIMR();
 //		SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED;
 
 		try {
-			StringParameter truncTypeParam = (StringParameter)imrGui.getParameterList().getParameter(SigmaTruncTypeParam.NAME);
+			StringParameter truncTypeParam = (StringParameter)imr.getParameter(SigmaTruncTypeParam.NAME);
 
 			truncTypeParam.setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
 
-			DoubleParameter truncLevelParam = (DoubleParameter)imrGui.getParameterList().getParameter(SigmaTruncLevelParam.NAME);
+			DoubleParameter truncLevelParam = (DoubleParameter)imr.getParameter(SigmaTruncLevelParam.NAME);
 
 			truncLevelParam.setValue(3.0);
 
-			imrGui.refreshParamEditor();
+			imrGui.rebuildGUI();
 		} catch (ParameterException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -946,11 +950,11 @@ extends ControlPanel implements ParameterChangeListener {
 	 * in Cybershake control panel.
 	 */
 	private boolean setIMT_Params(){
-		IMT_GuiBean imtGui = application.getIMTGuiBeanInstance();
+		IMT_NewGuiBean imtGui = application.getIMTGuiBeanInstance();
 		DecimalFormat format = new DecimalFormat("0.00");
-		imtGui.getParameterEditor(imtGui.IMT_PARAM_NAME).setValue("SA");
+		imtGui.getParameterEditor(IMT_NewGuiBean.IMT_PARAM_NAME).setValue("SA");
 		double saPeriodVal = this.im.getVal();
-		DoubleDiscreteParameter saPeriodParam = (DoubleDiscreteParameter)imtGui.getParameterEditor("SA Period").getParameter();
+		DoubleDiscreteParameter saPeriodParam = (DoubleDiscreteParameter)imtGui.getParameterEditor(PeriodParam.NAME).getParameter();
 		ArrayList allowedVals = saPeriodParam.getAllowedDoubles();
 		int size = allowedVals.size();
 		double minSaVal = ((Double)allowedVals.get(0)).doubleValue();

@@ -22,12 +22,14 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import org.opensha.commons.gui.LabeledBoxPanel;
 import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.ParameterAPI;
+import org.opensha.sha.gui.beans.event.IMTChangeEvent;
+import org.opensha.sha.gui.beans.event.IMTChangeListener;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
 import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 import org.opensha.sha.util.TectonicRegionType;
 
-public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener {
+public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener, IMTChangeListener {
 
 	/**
 	 * 
@@ -62,6 +64,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener 
 
 		// TODO add make the multi imr bean handle warnings
 		initGUI();
+		updateIMRMap();
 	}
 
 	private void initGUI() {
@@ -77,7 +80,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener 
 	/**
 	 * This rebuilds all components of the GUI for display
 	 */
-	private void rebuildGUI() {
+	public void rebuildGUI() {
 		rebuildGUI(false);
 	}
 
@@ -93,7 +96,6 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener 
 			checkPanel.setLayout(new BoxLayout(checkPanel, BoxLayout.X_AXIS));
 			checkPanel.add(singleIMRBox);
 			this.add(checkPanel);
-			singleIMRBox.setEnabled(true);
 			singleIMRBox.setEnabled(regions.size() > 1);
 		}
 		if (!refreshOnly) {
@@ -312,6 +314,12 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener 
 	public boolean isMultipleIMRs() {
 		return !singleIMRBox.isSelected();
 	}
+	
+	public void setMultipleIMRsEnabled(boolean enabled) {
+		if (!enabled)
+			setMultipleIMRs(false);
+		singleIMRBox.setEnabled(enabled);
+	}
 
 	public ScalarIntensityMeasureRelationshipAPI getSelectedIMR() {
 		if (isMultipleIMRs())
@@ -373,11 +381,11 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener 
 		}
 	}
 
-	public void addAttenuationRelationshipChangeListener(ScalarIMRChangeListener listener) {
+	public void addIMRChangeListener(ScalarIMRChangeListener listener) {
 		listeners.add(listener);
 	}
 
-	public void removeAttenuationRelationshipChangeListener(ScalarIMRChangeListener listener) {
+	public void removeIMRChangeListener(ScalarIMRChangeListener listener) {
 		listeners.remove(listener);
 	}
 
@@ -451,6 +459,15 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener 
 	
 	public ArrayList<ScalarIntensityMeasureRelationshipAPI> getIMRs() {
 		return imrs;
+	}
+	
+	public String getIMRMetadataHTML() {
+		return "IMR METADATA!!!!"; // TODO fill this in!
+	}
+
+	@Override
+	public void imtChange(IMTChangeEvent e) {
+		this.setIMT(e.getNewIMT());
 	}
 
 }

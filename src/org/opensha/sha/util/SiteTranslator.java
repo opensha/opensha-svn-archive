@@ -325,6 +325,21 @@ implements java.io.Serializable {
 	}
 	
 	/**
+	 * Convenience method to set all site params in the given IMR/Tectonic Region mapping from a single
+	 * site data value. Returns true if at least one parameter was set.
+	 * 
+	 * @param imrMap
+	 * @param datas
+	 * @return true if at least one parameter was set.
+	 */
+	public boolean setAllSiteParams(HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap,
+			SiteDataValue<?> data) {
+		Collection<SiteDataValue<?>> datas = new ArrayList<SiteDataValue<?>>();
+		datas.add(data);
+		return setAllSiteParams(imrMap, datas);
+	}
+	
+	/**
 	 * Convenience method to set all site params in the given attenuation relationship instance from the given
 	 * set of data. Returns true if at least one parameter was set.
 	 * 
@@ -340,6 +355,27 @@ implements java.io.Serializable {
 		while (it.hasNext()) {
 			ParameterAPI param = it.next();
 			if (this.setParameterValue(param, datas))
+				setSomething = true;
+		}
+		
+		return setSomething;
+	}
+	
+	/**
+	 * Convenience method to set all site params in the given IMR/Tectonic Region mapping from the given
+	 * set of data. Returns true if at least one parameter was set.
+	 * 
+	 * @param imrMap
+	 * @param datas
+	 * @return true if at least one parameter was set.
+	 */
+	public boolean setAllSiteParams(HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap,
+			Collection<SiteDataValue<?>> datas) {
+		boolean setSomething = false;
+		
+		for (TectonicRegionType trt : imrMap.keySet()) {
+			ScalarIntensityMeasureRelationshipAPI imr = imrMap.get(trt);
+			if (this.setAllSiteParams(imr, datas))
 				setSomething = true;
 		}
 		

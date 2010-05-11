@@ -521,7 +521,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 		imrPanel.add(imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
 		imrGuiBean.addAttenuationRelationshipChangeListener(this);
-		siteDataGUIBean.setAttenuationRelationship(imrGuiBean.getSelectedIMR_Instance());
+		siteDataGUIBean.setIMR(imrGuiBean.getSelectedIMR_Instance());
 	}
 
 	/**
@@ -1078,7 +1078,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 	
 	public void imrChange(
 			ScalarIMRChangeEvent event) {
-		siteDataGUIBean.setAttenuationRelationship(event.getNewIMR());
+		siteDataGUIBean.setIMR(event.getNewIMR());
 	}
 
 
