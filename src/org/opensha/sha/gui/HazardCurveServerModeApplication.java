@@ -1818,7 +1818,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		// TODO add make the multi imr bean handle warnings
 
 //		imrGuiBean = new IMR_GuiBean(this);
-		imrGuiBean = new IMR_MultiGuiBean(imrs)
+		imrGuiBean = new IMR_MultiGuiBean(imrs);
 		imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter()
 				.addParameterChangeListener(this);
 //		imrPanel.add(imrGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0,
@@ -1831,13 +1831,10 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 * Initialize the IMT Gui Bean
 	 */
 	private void initIMT_GuiBean() {
-
-		// get the selected IMR
-		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean
-				.getSelectedIMR_Instance();
 		// create the IMT Gui Bean object
-		imtGuiBean = new IMT_GuiBean(imr, imr
-				.getSupportedIntensityMeasuresIterator());
+//		imtGuiBean = new IMT_GuiBean(imr, imr
+//				.getSupportedIntensityMeasuresIterator());
+		imtGuiBean = new IMT_GuiBean(imrGuiBean.getIMRs());
 //		imtPanel.setLayout(new GridBagLayout()); TODO clean
 //		imtPanel.add(imtGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
 //				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -1852,11 +1849,9 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	protected void initSiteGuiBean() {
 
 		// get the selected IMR
-		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean
-				.getSelectedIMR_Instance();
 		// create the Site Gui Bean object
 		siteGuiBean = new Site_GuiBean();
-		siteGuiBean.addSiteParams(imr.getSiteParamsIterator());
+		siteGuiBean.addSiteParams(imrGuiBean.getMultiIMRSiteParamIterator());
 		// show the sitebean in JPanel
 //		sitePanel.add(siteGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0,
 //				1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,

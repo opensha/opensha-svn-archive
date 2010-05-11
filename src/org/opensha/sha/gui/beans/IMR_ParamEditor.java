@@ -11,6 +11,8 @@ import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 
 public class IMR_ParamEditor extends ParameterListEditor implements ParameterChangeListener {
 	
+	public static final String DEFAULT_NAME = "IMR Params";
+	
 	private ScalarIntensityMeasureRelationshipAPI imr;
 	
 	public IMR_ParamEditor() {
@@ -18,7 +20,7 @@ public class IMR_ParamEditor extends ParameterListEditor implements ParameterCha
 	}
 	
 	public IMR_ParamEditor(ScalarIntensityMeasureRelationshipAPI imr) {
-		setTitle("IMR Params");
+		setTitle(DEFAULT_NAME);
 		this.setIMR(imr);
 	}
 	

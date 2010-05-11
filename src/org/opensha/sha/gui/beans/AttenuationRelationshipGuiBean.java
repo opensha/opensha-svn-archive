@@ -32,6 +32,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
@@ -72,6 +73,7 @@ import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
+import org.opensha.sha.util.TectonicRegionType;
 
 /**
  * <p>Title: AttenuationRelationshipGuiBean</p>
@@ -1451,7 +1453,13 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 	public void fireAttenuationRelationshipChangedEvent(ScalarIntensityMeasureRelationshipAPI oldAttenRel, ScalarIntensityMeasureRelationshipAPI newAttenRel) {
 		if (listeners.size() == 0)
 			return;
-		ScalarIMRChangeEvent event = new ScalarIMRChangeEvent(this, oldAttenRel, newAttenRel);
+		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> oldMap = 
+			new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
+		oldMap.put(TectonicRegionType.ACTIVE_SHALLOW, oldAttenRel);
+		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> newMap = 
+			new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
+		newMap.put(TectonicRegionType.ACTIVE_SHALLOW, newAttenRel);
+		ScalarIMRChangeEvent event = new ScalarIMRChangeEvent(this, oldMap, newMap);
 
 		for (ScalarIMRChangeListener listener : listeners) {
 			listener.imrChange(event);
