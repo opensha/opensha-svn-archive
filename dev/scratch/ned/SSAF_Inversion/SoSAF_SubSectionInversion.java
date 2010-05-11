@@ -64,7 +64,7 @@ public class SoSAF_SubSectionInversion {
 	private int num_seg, num_rup;
 	
 	private int[] numSegInRup, firstSegOfRup;
-	private SummedMagFreqDist aveOfSegPartMFDs;
+	private SummedMagFreqDist aveOfSegPartMFDs, sumOfSegNuclMF_NoParkfield;
 	
 	private boolean transitionAseisAtEnds, transitionSlipRateAtEnds;
 	private int slipRateSmoothing;
@@ -1689,7 +1689,7 @@ public class SoSAF_SubSectionInversion {
 	private void computeSegMFDs() {
 		segmentNucleationMFDs = new ArrayList<SummedMagFreqDist>();
 		segmentParticipationMFDs = new ArrayList<SummedMagFreqDist>();
-		SummedMagFreqDist sumOfSegNuclMFDs = new SummedMagFreqDist(5,41,0.1);
+		sumOfSegNuclMF_NoParkfield = new SummedMagFreqDist(5,41,0.1);
 		SummedMagFreqDist sumOfSegPartMFDs = new SummedMagFreqDist(5,41,0.1);
 		aveOfSegPartMFDs = new SummedMagFreqDist(5,41,0.1);
 		
@@ -1715,12 +1715,14 @@ public class SoSAF_SubSectionInversion {
 			}
 			segmentNucleationMFDs.add(segNuclMFD);
 			segmentParticipationMFDs.add(segPartMFD);
-			sumOfSegNuclMFDs.addIncrementalMagFreqDist(segNuclMFD);
+			if(seg >=numSubSections[0]) // exclude parkfield
+				sumOfSegNuclMF_NoParkfield.addIncrementalMagFreqDist(segNuclMFD); 
 			sumOfSegPartMFDs.addIncrementalMagFreqDist(segPartMFD);
 		}
 		// compute aveOfSegPartMFDs from sumOfSegPartMFDs
 		for(int m=0; m<sumOfSegPartMFDs.getNum();m++) aveOfSegPartMFDs.add(m, sumOfSegPartMFDs.getY(m)/num_seg);
 		aveOfSegPartMFDs.setInfo("Average Seg Participation MFD");
+		sumOfSegNuclMF_NoParkfield.setInfo("Sum of Nucleation MFDs excluding Parkfield segments");
 		
 		// test the sum of segmentNucleationMFDs (checks out for both 5 and 10 km subsection lengths)
 		/*
@@ -2025,6 +2027,9 @@ public class SoSAF_SubSectionInversion {
 		mfd_funcs.add(aveOfSegPartMFDs);
 		EvenlyDiscretizedFunc cumAveOfSegPartMFDs = aveOfSegPartMFDs.getCumRateDistWithOffset();
 		cumAveOfSegPartMFDs.setInfo("cumulative "+aveOfSegPartMFDs.getInfo());
+		
+		//
+		mfd_funcs.add(sumOfSegNuclMF_NoParkfield);
 //		mfd_funcs.add(cumAveOfSegPartMFDs);
 // the following is just a check		
 //		System.out.println("orig/smoothed MFD moRate ="+ (float)(magFreqDist.getTotalMomentRate()/smoothedMagFreqDist.getTotalMomentRate()));
@@ -2064,6 +2069,7 @@ public class SoSAF_SubSectionInversion {
 		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 3));
 		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.RED, 3));
 		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.GREEN, 3));
+		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.MAGENTA, 3));
 		if(gr != null) {
 			plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 1));
 			plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.RED, 1));
