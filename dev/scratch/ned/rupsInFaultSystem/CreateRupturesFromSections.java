@@ -104,6 +104,28 @@ System.out.println("maxJumpDist="+maxJumpDist);
 		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
 		allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelId);
 /**/		
+		
+		// find and print max Down-dip width
+		double maxDDW=0;
+		int index=-1;
+		for(int i=0; i<allFaultSectionPrefData.size(); i++) {
+			double ddw = allFaultSectionPrefData.get(i).getDownDipWidth();
+			/*
+			System.out.println((float)allFaultSectionPrefData.get(i).getDownDipWidth()+"\t"+
+					(float)allFaultSectionPrefData.get(i).getAveLongTermSlipRate()+"\t"+
+					allFaultSectionPrefData.get(i).getSectionName());
+			
+			System.out.println((float)allFaultSectionPrefData.get(i).getAveUpperDepth()+"\t"+
+					(float)allFaultSectionPrefData.get(i).getFaultTrace().getLocationAt(0).getDepth());
+*/
+			if(ddw>maxDDW) {
+				maxDDW = ddw;
+				index=i;
+			}
+		}
+		System.out.println("Max Down-Dip Width = "+maxDDW+" for "+allFaultSectionPrefData.get(index).getSectionName());
+
+		
 		// remove those with no slip rate
 		 if(!includeSectionsWithNaN_slipRates) {
 				System.out.println("Removing the following due to NaN slip rate:");
