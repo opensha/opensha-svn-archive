@@ -126,6 +126,7 @@ import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
 import org.opensha.sha.imr.event.ScalarIMRChangeListener;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.util.TectonicRegionType;
 
 
@@ -596,12 +597,13 @@ public class HazardCurveServerModeApplication extends JFrame implements
 
 		imrImtSplitPane = new JSplitPane(
 				JSplitPane.VERTICAL_SPLIT, true, 
-				imrGuiBean, imtGuiBean);
-		imrImtSplitPane.setResizeWeight(0.6);
+				imtGuiBean, imrGuiBean);
+//		imrImtSplitPane.setResizeWeight(0.6);
+		imrImtSplitPane.setResizeWeight(0.18);
 		imrImtSplitPane.setBorder(null);
 		imrImtSplitPane.setOpaque(false);
-		imrImtSplitPane.setMinimumSize(new Dimension(180,100));
-		imrImtSplitPane.setPreferredSize(new Dimension(250,100));
+		imrImtSplitPane.setMinimumSize(new Dimension(200,100));
+		imrImtSplitPane.setPreferredSize(new Dimension(280,100));
 
 		//sitePanel = new JPanel(new GridBagLayout());
 		//sitePanel.setBorder(BorderFactory.createEmptyBorder()); TODO clean
@@ -610,7 +612,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		JSplitPane imrImtSiteSplitPane = new JSplitPane(
 				JSplitPane.HORIZONTAL_SPLIT, true, 
 				imrImtSplitPane, siteGuiBean);
-		imrImtSiteSplitPane.setResizeWeight(0.5);
+		imrImtSiteSplitPane.setResizeWeight(0.7);
 		imrImtSiteSplitPane.setBorder(
 				BorderFactory.createEmptyBorder(2,8,8,8));
 		imrImtSiteSplitPane.setOpaque(false);
@@ -1823,6 +1825,8 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		
 		imrGuiBean = new IMR_MultiGuiBean(imrs);
 		imrGuiBean.addIMRChangeListener(this);
+		imrGuiBean.setMaxChooserChars(30);
+		imrGuiBean.rebuildGUI();
 	}
 
 	/**
@@ -1831,8 +1835,10 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	private void initIMT_GuiBean() {
 		// create the IMT Gui Bean object
 		
-		imtGuiBean = new IMT_NewGuiBean(imrGuiBean.getIMRs());
-		imtGuiBean.addIMTChangeListener(imrGuiBean);
+		imtGuiBean = new IMT_NewGuiBean(imrGuiBean);
+		imtGuiBean.setSelectedIMT(SA_Param.NAME);
+		imtGuiBean.setMinimumSize(new Dimension(200, 90));
+		imtGuiBean.setPreferredSize(new Dimension(290, 220));
 //		imtGuiBean = new IMT_GuiBean(imrGuiBean.getIMRs());
 	}
 

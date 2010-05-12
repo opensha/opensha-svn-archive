@@ -1,6 +1,8 @@
 package org.opensha.sha.gui.beans;
 
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.NoSuchElementException;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -22,6 +25,7 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import org.opensha.commons.gui.LabeledBoxPanel;
 import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.util.ListUtils;
 import org.opensha.sha.gui.beans.event.IMTChangeEvent;
 import org.opensha.sha.gui.beans.event.IMTChangeListener;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
@@ -35,6 +39,8 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	private static final Font trtFont = new Font("TRTFont", Font.BOLD, 16);
 
 	private ArrayList<ScalarIMRChangeListener> listeners = new ArrayList<ScalarIMRChangeListener>();
 
@@ -54,6 +60,8 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	private HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap;
 
 	private DependentParameterAPI<Double> imt = null;
+	
+	private int maxChooserChars = Integer.MAX_VALUE;
 
 	public IMR_MultiGuiBean(ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs) {
 		this.imrs = imrs;
@@ -108,6 +116,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 			for (int i=0; i<regions.size(); i++) {
 				TectonicRegionType region = regions.get(i);
 				JLabel label = new JLabel(region.toString());
+				label.setFont(trtFont);
 				this.add(wrapInPanel(label));
 				ChooserComboBox chooser;
 				ShowHideButton button;
@@ -141,6 +150,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 				chooser = chooserBoxes.get(0);
 			} else {
 				chooser = new ChooserComboBox(0);
+				chooser.setBackground(Color.WHITE);
 				chooser.addActionListener(this);
 				chooserBoxes.add(chooser);
 			}
@@ -212,8 +222,10 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 
 		@Override
 		public Component getListCellRendererComponent(JList list, Object value,
-				int index, boolean arg3, boolean arg4) {
-			Component comp = super.getListCellRendererComponent(list, value, index, arg3, arg4);
+				int index, boolean isSelected, boolean cellHasFocus) {
+			Component comp = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+			if (!isSelected)
+				comp.setBackground(Color.white);
 			if (index >= 0)
 				comp.setEnabled(imrEnables.get(index));
 			else
@@ -231,8 +243,13 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 
 		private int comboBoxIndex;
 		public ChooserComboBox(int index) {
-			for (ScalarIntensityMeasureRelationshipAPI imr : imrs) 
-				this.addItem(imr.getName());
+			for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+				String name = imr.getName();
+				if (name.length() > maxChooserChars) {
+					name = name.substring(0, maxChooserChars);
+				}
+				this.addItem(name);
+			}
 			
 			for (int i=0; i<imrEnables.size(); i++) {
 				if (imrEnables.get(i).booleanValue()) {
@@ -245,6 +262,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 			this.setRenderer(new EnableableCellRenderer());
 			this.comboBoxIndex = index;
 			this.addActionListener(new ComboListener(this));
+			this.setMaximumSize(new Dimension(15, 150));
 		}
 
 		public int getIndex() {
@@ -376,9 +394,10 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	public void setSelectedSingleIMR(String imrName) {
 		setMultipleIMRs(false);
 		ChooserComboBox chooser = chooserBoxes.get(0);
-		for (int i=0; i<chooser.getItemCount(); i++) {
-			chooser.setSelectedIndex(i);
-		}
+		int index = ListUtils.getIndexByName(imrs, imrName);
+		if (index < 0)
+			throw new NoSuchElementException("IMR '" + imrName + "' not found");
+		chooser.setSelectedIndex(index);
 	}
 
 	public void addIMRChangeListener(ScalarIMRChangeListener listener) {
@@ -468,6 +487,10 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	@Override
 	public void imtChange(IMTChangeEvent e) {
 		this.setIMT(e.getNewIMT());
+	}
+	
+	public void setMaxChooserChars(int maxChooserChars) {
+		this.maxChooserChars = maxChooserChars;
 	}
 
 }

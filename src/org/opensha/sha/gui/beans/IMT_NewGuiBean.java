@@ -45,6 +45,11 @@ public class IMT_NewGuiBean extends ParameterListEditor implements ParameterChan
 		this(wrapInList(imr));
 	}
 	
+	public IMT_NewGuiBean(IMR_MultiGuiBean imrGuiBean) {
+		this(imrGuiBean.getIMRs());
+		this.addIMTChangeListener(imrGuiBean);
+	}
+	
 	public IMT_NewGuiBean(ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs) {
 		this.setTitle(TITLE);
 		setIMRs(imrs);
@@ -186,6 +191,7 @@ public class IMT_NewGuiBean extends ParameterListEditor implements ParameterChan
 		
 		// now add the independent params for the selected IMT
 		String imtName = imtParameter.getValue();
+		System.out.println("Updating GUI for: " + imtName);
 		DependentParameterAPI<?> imtParam = (DependentParameterAPI<?>) imtParams.getParameter(imtName);
 		ListIterator<ParameterAPI<?>> paramIt = imtParam.getIndependentParametersIterator();
 		while (paramIt.hasNext()) {
@@ -195,10 +201,19 @@ public class IMT_NewGuiBean extends ParameterListEditor implements ParameterChan
 		this.setParameterList(params);
 		this.refreshParamEditor();
 		this.revalidate();
+		this.repaint();
 	}
 	
 	public String getSelectedIMT() {
 		return imtParameter.getValue();
+	}
+	
+	public void setSelectedIMT(String imtName) {
+		if (!imtName.equals(getSelectedIMT())) {
+			imtParameter.setValue(imtName);
+			updateGUI();
+			fireIMTChangeEvent();
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
