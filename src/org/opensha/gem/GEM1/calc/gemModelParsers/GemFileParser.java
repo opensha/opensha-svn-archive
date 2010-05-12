@@ -109,6 +109,112 @@ public class GemFileParser {
 	}
 	
 	/**
+	 * This writes area source polygons into KML file
+	 */
+	public void writeAreaKMLfile (FileWriter file) throws IOException{
+		
+		// output KML file
+		BufferedWriter out = new BufferedWriter(file);
+		
+		// XML header
+		out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+		// KML namespace declaration
+		out.write("<kml xmlns=\"http://www.opengis.net/kml/2.2\">\n");
+		
+		out.write("<Document>\n");
+		
+	    out.write("<Style id=\"transRedPoly\">");
+	    out.write("<LineStyle>");
+	    out.write("<width>1.5</width>");
+	    out.write("</LineStyle>");
+	    out.write("<PolyStyle>");
+	    out.write("<color>7d0000ff</color>");
+	    out.write("</PolyStyle>");
+	    out.write("</Style>");
+		
+		// loop over area sources
+		for (GEMSourceData dat: srcDataList){
+			
+			if (dat instanceof GEMAreaSourceData){
+				
+				// create area source object
+				GEMAreaSourceData src = (GEMAreaSourceData) dat;
+				
+				// create Placemarck object
+				out.write("<Placemark>\n");
+				
+				// define name
+				out.write("<name>"+src.getName()+"</name>\n");
+				
+				out.write("<styleUrl>#transRedPoly</styleUrl>");
+				
+				// description
+				String descr = "";
+				// loop  over focal mechanisms
+				for(int ifm=0;ifm<src.getMagfreqDistFocMech().getNumFocalMechs();ifm++){
+					
+					descr = descr + "Mmin = "+src.getMagfreqDistFocMech().getMagFreqDist(ifm).getMinX()+", "+
+					                "Mmax = "+src.getMagfreqDistFocMech().getMagFreqDist(ifm).getMaxX()+", "+
+					                "TotalCumulativeRate (ev/yr) = "+src.getMagfreqDistFocMech().getMagFreqDist(ifm).getTotalIncrRate()+", "+
+					                "Strike: "+src.getMagfreqDistFocMech().getFocalMech(ifm).getStrike()+", "+
+					                "Dip: "+src.getMagfreqDistFocMech().getFocalMech(ifm).getDip()+", "+
+					                "Rake: "+src.getMagfreqDistFocMech().getFocalMech(ifm).getRake()+", "+
+					                "Average Hypo Depth (km): "+src.getAveHypoDepth();
+					
+				}
+				out.write("<description>\n");
+				out.write(descr+"\n");
+				out.write("</description>\n");
+				
+				// write outer polygon
+				out.write("<Polygon>\n");
+				// outer boundary
+				out.write("<outerBoundaryIs>\n");
+				out.write("<LinearRing>\n");
+				out.write("<coordinates>\n");
+				// loop over coordinates
+				for(int ic=0;ic<src.getRegion().getBorder().size();ic++){
+					double lon = src.getRegion().getBorder().get(ic).getLongitude();
+					double lat = src.getRegion().getBorder().get(ic).getLatitude();
+					out.write(lon+","+lat+"\n");
+				}
+				out.write("</coordinates>\n");
+				out.write("</LinearRing>\n");
+				out.write("</outerBoundaryIs>\n");
+				
+			    // write inner polygons
+				// loop over interiors
+				if(src.getRegion().getInteriors()!=null){
+					for(int ireg=0;ireg<src.getRegion().getInteriors().size();ireg++){
+						out.write("<innerBoundaryIs>\n");
+						out.write("<LinearRing>\n");
+						out.write("<coordinates>\n");
+						// loop over coordinates
+						for(int ic=0;ic<src.getRegion().getInteriors().get(ireg).size();ic++){
+							double lon = src.getRegion().getInteriors().get(ireg).get(ic).getLongitude();
+							double lat = src.getRegion().getInteriors().get(ireg).get(ic).getLatitude();
+							out.write(lon+","+lat+"\n");
+						}
+						out.write("</coordinates>\n");
+						out.write("</LinearRing>\n");
+						out.write("</innerBoundaryIs>\n");
+					}
+				}
+
+				out.write("</Polygon>\n");
+				out.write("</Placemark>\n");
+
+			}
+			
+			
+			
+		}
+		out.write("</Document>\n");
+		out.write("</kml>");
+		out.close();
+	}
+	
+	/**
 	 * This writes the coordinates of the fault traces to a file. The format of the outfile is 
 	 * compatible with the GMT psxy multiple segment file format. The separator adopted here is the 
 	 * default separator suggested in GMT (i.e. '>') 
