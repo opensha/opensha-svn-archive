@@ -3,18 +3,17 @@ package org.opensha.sha.earthquake.rupForecastImpl.GEM1;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.opensha.gem.GEM1.calc.gemModelData.nshmp.south_america.NshmpSouthAmericaData;
-import org.opensha.gem.GEM1.calc.gemModelData.nshmp.us.NshmpUsData;
+import org.opensha.gem.GEM1.calc.gemModelData.nshmp.south_east_asia.NshmpSouthEastAsiaData;
 import org.opensha.gem.GEM1.commons.CalculationSettings;
 
-public class GEM1SouthAmericaERF extends GEM1ERF {
+public class GEM1_NSHMP_SE_Asia_ERF extends GEM1ERF {
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
-	public final static String NAME = "GEM1 South America ERF";
+	
+	public final static String NAME = "GEM1 GSHAP SE Asia ERF";
 	
 	private static double default_latmin = -55;
 	private static double default_latmax = 15;
@@ -23,15 +22,15 @@ public class GEM1SouthAmericaERF extends GEM1ERF {
 	
 	private double latmin, latmax, lonmin, lonmax;
 	
-	public GEM1SouthAmericaERF() throws IOException {
+	public GEM1_NSHMP_SE_Asia_ERF() throws IOException {
 		this(new CalculationSettings());
 	}
 	
-	public GEM1SouthAmericaERF(CalculationSettings calcSet) throws IOException {
+	public GEM1_NSHMP_SE_Asia_ERF(CalculationSettings calcSet) throws IOException {
 		this(default_latmin,default_latmax,default_lonmin,default_lonmax, calcSet);
 	}
 	
-	public GEM1SouthAmericaERF(double latmin, double latmax, double lonmin, double lonmax,
+	public GEM1_NSHMP_SE_Asia_ERF(double latmin, double latmax, double lonmin, double lonmax,
 			CalculationSettings calcSet) throws IOException {
 		super(null, calcSet);
 		this.latmin = latmin;
@@ -43,7 +42,7 @@ public class GEM1SouthAmericaERF extends GEM1ERF {
 	private void initSourceData() {
 		try {
 			if (gemSourceDataList == null)
-				gemSourceDataList = new NshmpSouthAmericaData(latmin,latmax,lonmin,lonmax).getList();
+				gemSourceDataList = new NshmpSouthEastAsiaData(latmin, latmax, lonmin, lonmax).getList();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

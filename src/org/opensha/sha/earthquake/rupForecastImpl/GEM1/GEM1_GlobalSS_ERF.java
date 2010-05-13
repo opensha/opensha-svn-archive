@@ -7,6 +7,11 @@ import org.opensha.gem.GEM1.commons.CalculationSettings;
 
 public class GEM1_GlobalSS_ERF extends GEM1ERF {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public static final String NAME = "GEM1 Global Smoothed Seismicity ERF";
 
 	public static final String inputFile = "/org/opensha/gem/GEM1/data/" +

@@ -7,6 +7,11 @@ import org.opensha.gem.GEM1.commons.CalculationSettings;
 
 public class GEM1_CEUS_ERF extends GEM1_US_ERF {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public final static String NAME = "GEM1 CEUS ERF";
 	
 	private static double default_latmin = 24.6;
