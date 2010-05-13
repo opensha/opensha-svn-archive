@@ -728,8 +728,9 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	/**
 	 * Provided to allow subclasses to substitute the IMT panel.
 	 */
-	protected void setImtPanel(ParameterListEditor panel) {
-		imrImtSplitPane.setBottomComponent(panel);
+	protected void setImtPanel(ParameterListEditor panel, double resizeWeight) {
+		imrImtSplitPane.setTopComponent(panel);
+		imrImtSplitPane.setResizeWeight(resizeWeight);
 	}
 	
 	// Get Applet information
@@ -1952,26 +1953,11 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		 // TODO delete; not sure why needed, ui shouldn't have changed from launch
 		//erfPanel.updateUI();
 	}
-
-	/**
-	 * Initialize the items to be added to the control list
-	 */
-	protected void initControlList() {
+	
+	protected void initCommonControlList() {
 		controlPanels = new ArrayList<ControlPanel>();
 		
 		controlComboBox.addItem(CONTROL_PANELS);
-		
-		/*		PEER Test Case Control			*/
-		controlComboBox.addItem(PEER_TestCaseSelectorControlPanel.NAME);
-		controlPanels.add(new PEER_TestCaseSelectorControlPanel(this,
-					this, imrGuiBean, siteGuiBean, imtGuiBean, erfGuiBean,
-					erfGuiBean.getSelectedERFTimespanGuiBean(),
-					this));
-		
-		/*		Disagg Control					*/
-		controlComboBox.addItem(DisaggregationControlPanel.NAME);
-		disaggregationControlPanel = new DisaggregationControlPanel(this, this);
-		controlPanels.add(disaggregationControlPanel);
 		
 		/*		Calc Settings Control			*/
 		controlComboBox.addItem(CalculationSettingsControlPanel.NAME);
@@ -1992,6 +1978,34 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		controlComboBox.addItem(X_ValuesInCurveControlPanel.NAME);
 		controlPanels.add(xValuesPanel = new X_ValuesInCurveControlPanel(this, this));
 		
+		/*		Plotting Prefs Control			*/
+		controlComboBox.addItem(PlottingOptionControl.NAME);
+		controlPanels.add(new PlottingOptionControl(this));
+		
+		/*		External XY Data Control		*/
+		controlComboBox.addItem(XY_ValuesControlPanel.NAME);
+		controlPanels.add(new XY_ValuesControlPanel(this, this));
+	}
+
+	/**
+	 * Initialize the items to be added to the control list
+	 */
+	protected void initControlList() {
+		
+		initCommonControlList();
+		
+		/*		PEER Test Case Control			*/
+		controlComboBox.addItem(PEER_TestCaseSelectorControlPanel.NAME);
+		controlPanels.add(new PEER_TestCaseSelectorControlPanel(this,
+					this, imrGuiBean, siteGuiBean, imtGuiBean, erfGuiBean,
+					erfGuiBean.getSelectedERFTimespanGuiBean(),
+					this));
+		
+		/*		Disagg Control					*/
+		controlComboBox.addItem(DisaggregationControlPanel.NAME);
+		disaggregationControlPanel = new DisaggregationControlPanel(this, this);
+		controlPanels.add(disaggregationControlPanel);
+		
 		/*		All Peer Tests Control			*/
 		controlComboBox.addItem(RunAll_PEER_TestCasesControlPanel.NAME);
 		controlPanels.add(new RunAll_PEER_TestCasesControlPanel(this));
@@ -2003,14 +2017,6 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		/*		CyberShake Sites Control		*/
 		controlComboBox.addItem(CyberShakeSiteSetterControlPanel.NAME);
 		controlPanels.add(new CyberShakeSiteSetterControlPanel(this.siteGuiBean));
-		
-		/*		Plotting Prefs Control			*/
-		controlComboBox.addItem(PlottingOptionControl.NAME);
-		controlPanels.add(new PlottingOptionControl(this));
-		
-		/*		External XY Data Control		*/
-		controlComboBox.addItem(XY_ValuesControlPanel.NAME);
-		controlPanels.add(new XY_ValuesControlPanel(this, this));
 		
 		/*		Epistempic list Control		*/
 		controlComboBox.addItem(ERF_EpistemicListControlPanel.NAME);

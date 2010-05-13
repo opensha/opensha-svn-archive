@@ -210,7 +210,7 @@ extends HazardCurveLocalModeApplication {
 			// initialize the GUI components
 			jbInit();
 
-			setImtPanel(imlProbGuiBean); // swap iml panel
+			setImtPanel(imlProbGuiBean, 0.28); // swap iml panel
 
 		}
 		catch (Exception e) {
@@ -421,13 +421,7 @@ extends HazardCurveLocalModeApplication {
 	 * Initialize the items to be added to the control list
 	 */
 	protected void initControlList() {
-		controlComboBox.addItem(CONTROL_PANELS);
-		controlComboBox.addItem(CalculationSettingsControlPanel.NAME);
-		controlComboBox.addItem(SitesOfInterestControlPanel.NAME);
-		controlComboBox.addItem(SiteDataControlPanel.NAME);
-		controlComboBox.addItem(PlottingOptionControl.NAME);
-		controlComboBox.addItem(X_ValuesInCurveControlPanel.NAME);
-		controlComboBox.addItem(XY_ValuesControlPanel.NAME);
+		initCommonControlList();
 	}
 
 
