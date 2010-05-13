@@ -71,6 +71,7 @@ import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
 import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.util.TRTUtils;
 
 public class CreateDataManager extends StepManager implements ScalarIMRChangeListener {
 	
@@ -216,7 +217,7 @@ public class CreateDataManager extends StepManager implements ScalarIMRChangeLis
 	
 	private Step createSiteDataStep() {
 		siteDataGuiBean = new OrderedSiteDataGUIBean(OrderedSiteDataProviderList.createSiteDataProviderDefaults(),
-				OrderedSiteDataGUIBean.wrapInMap(hazard.getIMR()));
+				TRTUtils.wrapInHashMap(hazard.getIMR()));
 		
 		IMR_GuiBean imrGuiBean = hazard.getIMRGuiBean();
 		imrGuiBean.addAttenuationRelationshipChangeListener(this);

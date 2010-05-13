@@ -1285,7 +1285,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		// this first IMR from the map...note this should ONLY be used for getting settings
 		// common to all IMRS (such as units), and not for calculation (except in deterministic
 		// calc with no trt's selected)
-		ScalarIntensityMeasureRelationshipAPI firstIMRFromMap = imrMap.get(imrMap.keySet().iterator().next());
+		ScalarIntensityMeasureRelationshipAPI firstIMRFromMap = imrMap.values().iterator().next();
 
 		// make a site object to pass to IMR
 		Site site = siteGuiBean.getSite();
@@ -1354,7 +1354,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 									(EqkRupForecastAPI) forecast);
 				} else if (isStochasticCurve) {
 					hazFunction = (ArbitrarilyDiscretizedFunc) calc.
-					getAverageEventSetHazardCurve(hazFunction, site, imrMap,
+					getAverageEventSetHazardCurve(hazFunction, site, imrGuiBean.getSelectedIMR(),
 									(EqkRupForecastAPI) forecast);
 				} else { // deterministic
 					progressCheckBox.setSelected(false);
@@ -1677,7 +1677,8 @@ public class HazardCurveServerModeApplication extends JFrame implements
 							.getHazardCurve(hazFunction, site, imrMap, erfList.getERF(i));
 					else if(isStochasticCurve) // it's stochastic
 						hazFunction = (ArbitrarilyDiscretizedFunc) calc
-							.getAverageEventSetHazardCurve(hazFunction, site, imrMap, erfList.getERF(i));
+							.getAverageEventSetHazardCurve(
+									hazFunction, site, imrGuiBean.getSelectedIMR(), erfList.getERF(i));
 					else
 						throw new RuntimeException("Can't disaggregate with deterministic calculations");
 					// System.out.println("Num points:"
@@ -1777,8 +1778,8 @@ public class HazardCurveServerModeApplication extends JFrame implements
 				isDeterministicCurve=true;
 		}
 		
-		// if it's deterministic, don't allow multiple IMRs
-		imrGuiBean.setMultipleIMRsEnabled(!selectedControl.equalsIgnoreCase(DETERMINISTIC));
+		// only allow multiple IMRs if it's probabilistic for now
+		imrGuiBean.setMultipleIMRsEnabled(selectedControl.equalsIgnoreCase(PROBABILISTIC));
 		
 		// Update ERF GUI Beans
 		
@@ -1969,7 +1970,8 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		
 		/*		Disagg Control					*/
 		controlComboBox.addItem(DisaggregationControlPanel.NAME);
-		controlPanels.add(new DisaggregationControlPanel(this, this));
+		disaggregationControlPanel = new DisaggregationControlPanel(this, this);
+		controlPanels.add(disaggregationControlPanel);
 		
 		/*		Calc Settings Control			*/
 		controlComboBox.addItem(CalculationSettingsControlPanel.NAME);

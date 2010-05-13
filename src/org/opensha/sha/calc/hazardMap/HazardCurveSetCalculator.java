@@ -96,7 +96,7 @@ public class HazardCurveSetCalculator {
 					}
 				}
 				imrMapCount++;
-				String imt = imrMap.get(imrMap.keySet().iterator().next()).getIntensityMeasure().getName();
+				String imt = imrMap.values().iterator().next().getIntensityMeasure().getName();
 				System.out.println("Calculating curve(s) for site " + siteCount + "/" + sites.size()
 						+ " IMR Map " + imrMapCount + "/" + imrMaps.size() + " IMT: " + imt);
 				CurveMetadata meta = new CurveMetadata(site, imrMap, "imrs" + imrMapCount);

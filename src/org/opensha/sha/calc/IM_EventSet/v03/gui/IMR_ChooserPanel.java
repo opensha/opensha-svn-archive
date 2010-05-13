@@ -126,7 +126,7 @@ public class IMR_ChooserPanel extends NamesListPanel implements IMR_GuiBeanAPI, 
 	public void imrChange(
 			ScalarIMRChangeEvent event) {
 		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap = event.getNewIMR();
-		ScalarIntensityMeasureRelationshipAPI imr = imrMap.get(imrMap.keySet().iterator().next());
+		ScalarIntensityMeasureRelationshipAPI imr = imrMap.values().iterator().next();
 		addButton.setEnabled(shouldEnableAddButton(imr));
 	}
 

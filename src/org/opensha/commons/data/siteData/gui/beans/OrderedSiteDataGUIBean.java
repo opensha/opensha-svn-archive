@@ -91,14 +91,6 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 		this(list, null);
 	}
 	
-	public static HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> wrapInMap(
-			ScalarIntensityMeasureRelationshipAPI imr) {
-		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap =
-			new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
-		imrMap.put(TectonicRegionType.ACTIVE_SHALLOW, imr);
-		return imrMap;
-	}
-	
 	public OrderedSiteDataGUIBean(OrderedSiteDataProviderList list,
 			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap) {
 		super(new BorderLayout());

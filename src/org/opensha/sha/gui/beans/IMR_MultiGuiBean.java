@@ -62,6 +62,8 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	private DependentParameterAPI<Double> imt = null;
 	
 	private int maxChooserChars = Integer.MAX_VALUE;
+	
+	private int defaultIMRIndex = 0;
 
 	public IMR_MultiGuiBean(ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs) {
 		this.imrs = imrs;
@@ -251,13 +253,16 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 				this.addItem(name);
 			}
 			
-			for (int i=0; i<imrEnables.size(); i++) {
-				if (imrEnables.get(i).booleanValue()) {
-//					System.out.println("Const...set imr to " + imrs.get(i).getName());
-					this.setSelectedIndex(i);
-					break;
+			if (!imrEnables.get(defaultIMRIndex)) {
+				for (int i=0; i<imrEnables.size(); i++) {
+					if (imrEnables.get(i).booleanValue()) {
+//						System.out.println("Const...set imr to " + imrs.get(i).getName());
+						defaultIMRIndex = i;
+						break;
+					}
 				}
 			}
+			this.setSelectedIndex(defaultIMRIndex);
 
 			this.setRenderer(new EnableableCellRenderer());
 			this.comboBoxIndex = index;
@@ -293,6 +298,8 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	}
 	
 	private void updateParamEdit(ChooserComboBox chooser) {
+		if (chooser.getIndex() == 0 && !isMultipleIMRs())
+			defaultIMRIndex = chooser.getSelectedIndex();
 		if (chooserForEditor == chooser.getIndex()) {
 			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(chooser.getSelectedIndex());
 //			System.out.println("Updating param edit for chooser " + chooserForEditor + " to : " + imr.getName());

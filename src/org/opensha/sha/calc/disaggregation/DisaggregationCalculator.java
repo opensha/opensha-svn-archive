@@ -30,8 +30,9 @@ import java.rmi.server.UnicastRemoteObject;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.Map;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
@@ -44,6 +45,8 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
+import org.opensha.sha.util.TRTUtils;
+import org.opensha.sha.util.TectonicRegionType;
 
 
 /**
@@ -63,6 +66,11 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 public class DisaggregationCalculator extends UnicastRemoteObject
 implements DisaggregationCalculatorAPI{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	protected final static String C = "DisaggregationCalculator";
 	protected final static boolean D = false;
 
@@ -135,8 +143,6 @@ implements DisaggregationCalculatorAPI{
 		//Create adjustable parameters
 	}
 
-
-
 	/**
 	 * this function performs the disaggregation.
 	 * Returns true if it was succesfully able to disaggregate above
@@ -153,6 +159,16 @@ implements DisaggregationCalculatorAPI{
 			EqkRupForecast eqkRupForecast,
 			double maxDist, ArbitrarilyDiscretizedFunc magDistFilter) 
 			throws java.rmi.RemoteException {
+		return disaggregate(iml, site, TRTUtils.wrapInHashMap(imr), eqkRupForecast, maxDist, magDistFilter);
+	}
+	
+	@Override
+	public boolean disaggregate(
+			double iml,
+			Site site,
+			Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap,
+			EqkRupForecast eqkRupForecast, double maxDist,
+			ArbitrarilyDiscretizedFunc magDistFilter) throws RemoteException {
 
 		double rate, condProb;
 
@@ -170,17 +186,17 @@ implements DisaggregationCalculatorAPI{
 		if (D) System.out.println(S + "iml = " + iml);
 
 		//    if( D )System.out.println(S + "deltaMag = " + deltaMag + "; deltaDist = " + deltaDist + "; deltaE = " + deltaE);
-		ArrayList disaggSourceList = null;
+		ArrayList<DisaggregationSourceRuptureInfo> disaggSourceList = null;
 		DisaggregationSourceRuptureComparator srcRupComparator = null;
 		if (this.numSourcesToShow > 0) {
-			disaggSourceList = new ArrayList();
-			srcRupComparator = new
-			DisaggregationSourceRuptureComparator();
+			disaggSourceList = new ArrayList<DisaggregationSourceRuptureInfo>();
+			srcRupComparator = new DisaggregationSourceRuptureComparator();
 		}
 		//resetting the Parameter change Listeners on the AttenuationRelationship
 		//parameters. This allows the Server version of our application to listen to the
 		//parameter changes.
-		( (AttenuationRelationship) imr).resetParameterEventListeners();
+		for (ScalarIntensityMeasureRelationshipAPI imr : imrMap.values())
+			( (AttenuationRelationship) imr).resetParameterEventListeners();
 
 
 		boolean includeMagDistFilter;
@@ -190,12 +206,13 @@ implements DisaggregationCalculatorAPI{
 		
 		// set the maximum distance in the attenuation relationship
 		// (Note- other types of IMRs may not have this method so we should really check type here)
-		imr.setUserMaxDistance(maxDist);
+		for (ScalarIntensityMeasureRelationshipAPI imr : imrMap.values())
+			imr.setUserMaxDistance(maxDist);
 
 		// set iml in imr
-		ParameterAPI im = imr.getIntensityMeasure();
-		if (im instanceof WarningParameterAPI) {
-			WarningParameterAPI warnIM = (WarningParameterAPI)im;
+		ParameterAPI<Double> im = imrMap.values().iterator().next().getIntensityMeasure();
+		if (im instanceof WarningParameterAPI<?>) {
+			WarningParameterAPI<Double> warnIM = (WarningParameterAPI<Double>)im;
 			warnIM.setValueIgnoreWarning(new Double(iml));
 		} else {
 			im.setValue(new Double(iml));
@@ -204,7 +221,7 @@ implements DisaggregationCalculatorAPI{
 		// get total number of sources
 		int numSources = eqkRupForecast.getNumSources();
 
-		HashMap sourceDissaggMap = new HashMap();
+//		HashMap<String, ArrayList<?>> sourceDissaggMap = new HashMap<String, ArrayList<?>>();
 
 		// compute the total number of ruptures for updating the progress bar
 		totRuptures = 0;
@@ -214,13 +231,15 @@ implements DisaggregationCalculatorAPI{
 		// init the current rupture number (also for progress bar)
 		currRuptures = 0;
 
-		try {
-			// set the site in IMR
-			imr.setSite(site);
-		}
-		catch (Exception ex) {
-			if (D) System.out.println(C + ":Param warning caught" + ex);
-			ex.printStackTrace();
+		for (ScalarIntensityMeasureRelationshipAPI imr : imrMap.values()) {
+			try {
+				// set the site in IMR
+				imr.setSite(site);
+			}
+			catch (Exception ex) {
+				if (D) System.out.println(C + ":Param warning caught" + ex);
+				ex.printStackTrace();
+			}
 		}
 
 		// initialize
@@ -235,8 +254,6 @@ implements DisaggregationCalculatorAPI{
 			for (int j = 0; j < mag_center.length; j++)
 				for (int k = 0; k < NUM_E; k++)
 					pdf3D[i][j][k] = 0;
-
-		int testNum = 0;
 		
 	    int numRupRejected =0;
 
@@ -262,10 +279,12 @@ implements DisaggregationCalculatorAPI{
 				magThresh = magDistFilter.getInterpolatedY(distance);
 			}
 			
+			// set the IMR according to the tectonic region of the source (if there is more than one)
+			TectonicRegionType trt = source.getTectonicRegionType();
+			ScalarIntensityMeasureRelationshipAPI imr = TRTUtils.getIMRForTRT(imrMap, trt);
 
-
-			if (numSourcesToShow > 0)
-				sourceDissaggMap.put(sourceName, new ArrayList());
+//			if (numSourcesToShow > 0)
+//				sourceDissaggMap.put(sourceName, new ArrayList());
 
 			// loop over ruptures
 			for (int n = 0; n < numRuptures; n++, ++currRuptures) {

@@ -33,7 +33,7 @@ import java.util.Comparator;
  * @author not attributable
  * @version 1.0
  */
-public class DisaggregationSourceRuptureComparator implements Comparator, java.io.Serializable {
+public class DisaggregationSourceRuptureComparator implements Comparator<DisaggregationSourceRuptureInfo>, java.io.Serializable {
 
   /**
    * Compares its two arguments for order. Returns a negative integer, zero, or
@@ -56,9 +56,7 @@ public class DisaggregationSourceRuptureComparator implements Comparator, java.i
    *  as the first argument is less than, equal to, or greater
    * @todo Implement this java.util.Comparator method
    */
-  public int compare(Object object1, Object object2) {
-    DisaggregationSourceRuptureInfo sourceInfo1 = (DisaggregationSourceRuptureInfo)object1;
-    DisaggregationSourceRuptureInfo sourceInfo2 = (DisaggregationSourceRuptureInfo)object2;
+  public int compare(DisaggregationSourceRuptureInfo sourceInfo1, DisaggregationSourceRuptureInfo sourceInfo2) {
     if(sourceInfo1.getRate() > sourceInfo2.getRate())
       return -1;
     else if(sourceInfo1.getRate() == sourceInfo2.getRate())
