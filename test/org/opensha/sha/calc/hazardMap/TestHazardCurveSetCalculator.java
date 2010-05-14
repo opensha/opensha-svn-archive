@@ -4,7 +4,6 @@ package org.opensha.sha.calc.hazardMap;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -19,8 +18,6 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.XMLUtils;
-import org.opensha.sha.calc.hazardMap.HazardCurveDriver;
-import org.opensha.sha.calc.hazardMap.HazardCurveSetCalculator;
 import org.opensha.sha.calc.hazardMap.components.AsciiFileCurveArchiver;
 import org.opensha.sha.calc.hazardMap.components.CalculationInputsXMLFile;
 import org.opensha.sha.calc.hazardMap.components.CalculationSettings;

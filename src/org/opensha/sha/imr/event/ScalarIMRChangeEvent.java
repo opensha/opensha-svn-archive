@@ -70,7 +70,7 @@ public class ScalarIMRChangeEvent extends EventObject {
      *
      * @return    New AttentuationRelationship
      */
-    public HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> getNewIMR() {
+    public HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> getNewIMRs() {
         return newIMRMap;
     }
 

@@ -1078,7 +1078,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 	
 	public void imrChange(
 			ScalarIMRChangeEvent event) {
-		siteDataGUIBean.setIMR(event.getNewIMR());
+		siteDataGUIBean.setIMR(event.getNewIMRs());
 	}
 
 

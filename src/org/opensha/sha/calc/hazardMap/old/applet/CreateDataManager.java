@@ -425,6 +425,6 @@ public class CreateDataManager extends StepManager implements ScalarIMRChangeLis
 	
 	public void imrChange(
 			ScalarIMRChangeEvent event) {
-		this.siteDataGuiBean.setIMR(event.getNewIMR());
+		this.siteDataGuiBean.setIMR(event.getNewIMRs());
 	}
 }

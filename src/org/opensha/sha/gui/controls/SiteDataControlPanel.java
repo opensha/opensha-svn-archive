@@ -100,7 +100,7 @@ public class SiteDataControlPanel extends ControlPanel implements ScalarIMRChang
 	}
 
 	public void imrChange(ScalarIMRChangeEvent event) {
-		dataGuiBean.setIMR(event.getNewIMR());
+		dataGuiBean.setIMR(event.getNewIMRs());
 		enableButtons();
 	}
 	

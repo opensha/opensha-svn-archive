@@ -44,7 +44,8 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 
 	private ArrayList<ScalarIMRChangeListener> listeners = new ArrayList<ScalarIMRChangeListener>();
 
-	private JCheckBox singleIMRBox = new JCheckBox("Single IMR For All Tectonic Region Types");
+	private JPanel checkPanel;
+	protected JCheckBox singleIMRBox = new JCheckBox("Single IMR For All Tectonic Region Types");
 
 	private ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs;
 	private ArrayList<Boolean> imrEnables;
@@ -98,11 +99,12 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	 * This rebuilds all components of the GUI for display
 	 */
 	private void rebuildGUI(boolean refreshOnly) {
+		System.out.println("rebuildGUI...refreshOnly? " + refreshOnly);
 		this.removeAll();
 		if (regions == null || regions.size() <= 1) {
 			singleIMRBox.setSelected(true);
 		} else {
-			JPanel checkPanel = new JPanel();
+			checkPanel = new JPanel();
 			checkPanel.setLayout(new BoxLayout(checkPanel, BoxLayout.X_AXIS));
 			checkPanel.add(singleIMRBox);
 			this.add(checkPanel);
@@ -170,14 +172,30 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 		panel.add(comp);
 		return panel;
 	}
+	
+	public boolean isCheckBoxVisible() {
+		if (checkPanel == null)
+			return false;
+		else
+			return checkPanel.isAncestorOf(singleIMRBox) && this.isAncestorOf(checkPanel);
+	}
 
 	public void setTectonicRegions(ArrayList<TectonicRegionType> regions) {
 		// we can refresh only if there are none or < 2 regions, and the check box isn't showing
-		boolean refreshOnly = (regions == null || regions.size() < 2) && !this.singleIMRBox.isAncestorOf(this);
+		boolean refreshOnly = (regions == null || regions.size() < 2) && !isCheckBoxVisible();
 		this.regions = regions;
+		boolean prevSingle = !isMultipleIMRs();
 		this.rebuildGUI(refreshOnly);
-		if (!refreshOnly)
+		boolean newSingle = !isMultipleIMRs();
+		// update the IMR map if we rebuilt the GUI, and it didn't both start and end as single IMR.
+		// we dont' want to fire an event if we changed TRTs from null to something, but still have single
+		// IMR selected.
+		if (!refreshOnly && !(prevSingle && newSingle))
 			fireUpdateIMRMap();
+	}
+	
+	public ArrayList<TectonicRegionType> getTectonicRegions() {
+		return regions;
 	}
 
 	private static String showParamsTitle = "Edit IMR Params";
@@ -395,7 +413,13 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 		if (multipleIMRs && (regions == null || regions.size() <= 1))
 			throw new RuntimeException("Cannot be set to multiple IMRs if < 2 tectonic regions" +
 			" sepcified");
-		singleIMRBox.setSelected(!multipleIMRs);
+		boolean previous = isMultipleIMRs();
+		if (previous != multipleIMRs) {
+			singleIMRBox.setSelected(!multipleIMRs);
+//			System.out.println("changing singleIMRBox to " + (!multipleIMRs));
+			rebuildGUI(false);
+			fireUpdateIMRMap();
+		}
 	}
 
 	public void setSelectedSingleIMR(String imrName) {
