@@ -37,6 +37,7 @@ import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
 import org.opensha.sha.imr.event.ScalarIMRChangeListener;
+import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
 
 public class IMR_ChooserPanel extends NamesListPanel implements IMR_GuiBeanAPI, ScalarIMRChangeListener {
@@ -126,7 +127,7 @@ public class IMR_ChooserPanel extends NamesListPanel implements IMR_GuiBeanAPI, 
 	public void imrChange(
 			ScalarIMRChangeEvent event) {
 		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap = event.getNewIMRs();
-		ScalarIntensityMeasureRelationshipAPI imr = imrMap.values().iterator().next();
+		ScalarIntensityMeasureRelationshipAPI imr = TRTUtils.getFirstIMR(imrMap);
 		addButton.setEnabled(shouldEnableAddButton(imr));
 	}
 

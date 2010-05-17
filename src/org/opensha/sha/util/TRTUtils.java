@@ -20,6 +20,11 @@ public class TRTUtils {
 	public static ScalarIntensityMeasureRelationshipAPI getIMRForTRT(
 			Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap,
 			TectonicRegionType trt) {
+		
+		if (trt == null)
+			// TODO maybe figure out another way to handle this?
+			throw new IllegalArgumentException("Tectonic Region Type cannot be null!");
+		
 		ScalarIntensityMeasureRelationshipAPI imr;
 		if(imrMap.size()>1) {
 			imr = imrMap.get(trt);
@@ -34,8 +39,13 @@ public class TRTUtils {
 			}
 
 		} else {  // only one IMR, so force all sources to be used with this one and assume the TectonicRegionTypeParam has already been set (e.g., in the gui)
-			imr = imrMap.values().iterator().next();		// long winded way of getting the single imr		  
+			imr = getFirstIMR(imrMap);		// long winded way of getting the single imr		  
 		}
 		return imr;
+	}
+	
+	public static ScalarIntensityMeasureRelationshipAPI getFirstIMR(
+			Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap) {
+		return imrMap.values().iterator().next();
 	}
 }

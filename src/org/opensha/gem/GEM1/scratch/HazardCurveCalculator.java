@@ -51,6 +51,7 @@ import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
+import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
 
 
@@ -349,24 +350,8 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 			ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
 
 			// set the IMR according to the tectonic region of the source (if there is more than one)
-			ScalarIntensityMeasureRelationshipAPI imr;
 			TectonicRegionType trt = source.getTectonicRegionType();
-			if(imrMap.size()>1) {
-				imr = imrMap.get(trt);
-				// now set the tectonic region in the imr if it supports this type 
-				// (because it might support multiple Tectonic Regions), otherwise
-				// do nothing to force it to take the ruptures anyway (and to avoid an exception)
-				// what if it support two other types, but not this one?????????????????????
-				if(imr.isTectonicRegionSupported(trt.toString()))  {
-					imr.getParameter(TectonicRegionTypeParam.NAME).setValue(trt.toString());					  
-				} else { // set to the default value
-					imr.getParameter(TectonicRegionTypeParam.NAME).setValueAsDefault();
-				}
-
-			} else {  // only one IMR, so force all sources to be used with this one and assume the TectonicRegionTypeParam has already been set (e.g., in the gui)
-				imr = imrMap.values().iterator().next();		// long winded way of getting the single imr		  
-			}
-
+			ScalarIntensityMeasureRelationshipAPI imr = TRTUtils.getIMRForTRT(imrMap, trt);
 
 			// compute the source's distance from the site and skip if it's too far away
 			distance = source.getMinDistance(site);

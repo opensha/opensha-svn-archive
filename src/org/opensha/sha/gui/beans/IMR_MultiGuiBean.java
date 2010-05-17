@@ -96,32 +96,44 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	}
 
 	/**
-	 * This rebuilds all components of the GUI for display
+	 * This rebuilds all components of the GUI for display. If refreshOnly is true,
+	 * then the GUI will just be refreshed with editor panels updated, otherwise it will
+	 * be rebuilt from the ground up. You can only refresh on a show/hide button click,
+	 * otherwise you should rebuild for all events
 	 */
 	private void rebuildGUI(boolean refreshOnly) {
-		System.out.println("rebuildGUI...refreshOnly? " + refreshOnly);
+//		System.out.println("rebuildGUI...refreshOnly? " + refreshOnly);
+		// even for a refresh, we remove all components and re-add
 		this.removeAll();
 		if (regions == null || regions.size() <= 1) {
+			// if we don't have enough regions for multiple IMRs, make sure the
+			// single IMR box is selected, but don't show it
 			singleIMRBox.setSelected(true);
 		} else {
+			// this means there's the possibility of multiple IMRs...show the box
 			checkPanel = new JPanel();
 			checkPanel.setLayout(new BoxLayout(checkPanel, BoxLayout.X_AXIS));
 			checkPanel.add(singleIMRBox);
 			this.add(checkPanel);
-			singleIMRBox.setEnabled(regions.size() > 1);
 		}
 		if (!refreshOnly) {
+			// if we're rebuilding, we have to re-init the GUI elements
 			chooserBoxes = new ArrayList<ChooserComboBox>();
 			showHideButtons = null;
 		}
 		if (!singleIMRBox.isSelected()) {
+			// this is for multiple IMRs
 			if (!refreshOnly)
 				showHideButtons = new ArrayList<ShowHideButton>();
 			for (int i=0; i<regions.size(); i++) {
+				// create label for tectonic region
 				TectonicRegionType region = regions.get(i);
 				JLabel label = new JLabel(region.toString());
 				label.setFont(trtFont);
 				this.add(wrapInPanel(label));
+				
+				// get the chooser and button. if we're rebuilding, chooser
+				// and button need to be recreated
 				ChooserComboBox chooser;
 				ShowHideButton button;
 				if (refreshOnly) {
@@ -143,12 +155,15 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 
 				//				this.add(wrapInPanel(panel));
 				if (button.isShowing()) {
+					// if the show params button is selected, update and add the parameter editor
+					// to the GUI
 					chooserForEditor = i;
 					updateParamEdit(chooser);
 					this.add(paramEdit);
 				}
 			}
 		} else {
+			// this is for single IMR mode
 			ChooserComboBox chooser;
 			if (refreshOnly) {
 				chooser = chooserBoxes.get(0);
@@ -158,6 +173,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 				chooser.addActionListener(this);
 				chooserBoxes.add(chooser);
 			}
+			// we simply add chooser 0 to the GUI, and show the params for the selected IMR
 			this.add(wrapInPanel(chooser));
 			chooserForEditor = 0;
 			updateParamEdit(chooser);
@@ -316,12 +332,20 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	}
 	
 	private void updateParamEdit(ChooserComboBox chooser) {
-		if (chooser.getIndex() == 0 && !isMultipleIMRs())
+		if (chooser.getIndex() == 0 && !isMultipleIMRs()) {
+			// if we're in single mode, and this is the single chooser, then 
+			// the default IMR index should be this chooser's value
 			defaultIMRIndex = chooser.getSelectedIndex();
+		}
 		if (chooserForEditor == chooser.getIndex()) {
+			// this is a check to make sure that we're updating the param editor for the
+			// currently showing chooser
+			
 			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(chooser.getSelectedIndex());
 //			System.out.println("Updating param edit for chooser " + chooserForEditor + " to : " + imr.getName());
 			paramEdit.setIMR(imr);
+			// we only want to show the TRT param if it's in single mode
+			paramEdit.setTRTParamVisible(!this.isMultipleIMRs());
 			paramEdit.setTitle(IMR_ParamEditor.DEFAULT_NAME + ": " + imr.getShortName());
 			paramEdit.validate();
 		}
@@ -330,21 +354,34 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
 		if (source instanceof ShowHideButton) {
+			// one of the buttons to show or hide parameters in the GUI was clicked
+			
 			ShowHideButton button = (ShowHideButton)source;
+			// toggle the button that was clicked
 			button.toggle();
+			// make sure that every other button has params hidden
 			for (ShowHideButton theButton : showHideButtons) {
 				if (theButton == button)
 					continue;
 				theButton.hideParams();
 			}
+			// since we're just showing params, we can rebuild with
+			// a simple refresh instead of re-creating each GUI element
 			rebuildGUI(true);
 		} else if (source == singleIMRBox) {
+			// this means the user either selected or deselected the
+			// single/multiple IMR check box...full GUI rebuild
 			rebuildGUI();
 		} else if (source instanceof ChooserComboBox) {
+			// this means the user changed one of the selected IMRs in a
+			// chooser list
 			ChooserComboBox chooser = (ChooserComboBox)source;
 			updateParamEdit(chooser);
 		}
 		if (source == singleIMRBox || source instanceof ChooserComboBox) {
+			// if we switched between single/multiple, or changed a selected
+			// attenuation relationship, then we have to update the in-memory
+			// IMR map and fire an IMR Change event
 			fireUpdateIMRMap();
 		}
 	}

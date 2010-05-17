@@ -21,6 +21,7 @@ import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
 import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
 
 public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
@@ -69,7 +70,7 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 		
 		assertEquals("IMRMap should be of size 1 with no TRTs", 1, imrMap.size());
 		assertEquals("Single IMR not returning same as first from Map",
-				getSingleIMR(imrMap).getName(), singleIMR.getName());
+				TRTUtils.getFirstIMR(imrMap).getName(), singleIMR.getName());
 		
 		gui.setTectonicRegions(demoTRTs);
 		
@@ -133,9 +134,9 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 		assertEquals("Changing IMR should fire a single event", 1, eventStack.size());
 		ScalarIMRChangeEvent event = eventStack.pop();
 		assertEquals("New IMR in event is wrong!", BA_2008_AttenRel.NAME,
-				getSingleIMR(event.getNewIMRs()).getName());
+				TRTUtils.getFirstIMR(event.getNewIMRs()).getName());
 		assertEquals("Old IMR in event is wrong!", prevIMR.getName(),
-				getSingleIMR(event.getOldValue()).getName());
+				TRTUtils.getFirstIMR(event.getOldValue()).getName());
 		
 		/*		Test TRT changes firing events				*/
 		gui.setTectonicRegions(demoTRTs);
@@ -172,9 +173,9 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 		assertEquals("Should fire event setting IMT to MMI when IMR doesn't support it", 1, eventStack.size());
 		event = eventStack.pop();
 		assertTrue("New IMR should support IMT",
-				getSingleIMR(event.getNewIMRs()).isIntensityMeasureSupported(mmiIMR));
+				TRTUtils.getFirstIMR(event.getNewIMRs()).isIntensityMeasureSupported(mmiIMR));
 		assertFalse("Old IMR should not support IMT",
-				getSingleIMR(event.getOldValue()).isIntensityMeasureSupported(mmiIMR));
+				TRTUtils.getFirstIMR(event.getOldValue()).isIntensityMeasureSupported(mmiIMR));
 		
 		// now lets change back to something that they both support
 		ScalarIntensityMeasureRelationshipAPI cb2008 =
@@ -185,11 +186,6 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 		assertEquals("Should not fire event setting IMT to one supported by current IMR", 0, eventStack.size());
 		gui.setIMT(null);
 		assertEquals("Should not fire event setting IMT to null", 0, eventStack.size());
-	}
-	
-	private static ScalarIntensityMeasureRelationshipAPI getSingleIMR(
-			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap) {
-		return imrMap.values().iterator().next();
 	}
 
 	@Override

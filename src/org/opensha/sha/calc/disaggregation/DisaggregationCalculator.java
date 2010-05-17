@@ -210,7 +210,7 @@ implements DisaggregationCalculatorAPI{
 			imr.setUserMaxDistance(maxDist);
 
 		// set iml in imr
-		ParameterAPI<Double> im = imrMap.values().iterator().next().getIntensityMeasure();
+		ParameterAPI<Double> im = TRTUtils.getFirstIMR(imrMap).getIntensityMeasure();
 		if (im instanceof WarningParameterAPI<?>) {
 			WarningParameterAPI<Double> warnIM = (WarningParameterAPI<Double>)im;
 			warnIM.setValueIgnoreWarning(new Double(iml));

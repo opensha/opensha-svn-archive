@@ -127,6 +127,7 @@ import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
 import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
 
 
@@ -1286,7 +1287,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		// this first IMR from the map...note this should ONLY be used for getting settings
 		// common to all IMRS (such as units), and not for calculation (except in deterministic
 		// calc with no trt's selected)
-		ScalarIntensityMeasureRelationshipAPI firstIMRFromMap = imrMap.values().iterator().next();
+		ScalarIntensityMeasureRelationshipAPI firstIMRFromMap = TRTUtils.getFirstIMR(imrMap);
 
 		// make a site object to pass to IMR
 		Site site = siteGuiBean.getSite();
