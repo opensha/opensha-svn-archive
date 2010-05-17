@@ -648,7 +648,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	 * @return
 	 */
 	private boolean shouldEnableIMR(ScalarIntensityMeasureRelationshipAPI imr) {
-		return imt == null || imr.isIntensityMeasureSupported(imt);
+		return imt == null || imr.isIntensityMeasureSupported(imt.getName());
 	}
 
 	/**
