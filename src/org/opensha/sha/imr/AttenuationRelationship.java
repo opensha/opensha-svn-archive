@@ -64,6 +64,7 @@ import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
+import org.opensha.sha.util.TectonicRegionType;
 
 /**
  *  <b>Title:</b> AttenuationRelationship</p> <p>
@@ -811,12 +812,23 @@ extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationsh
 	public void resetParameterEventListeners(){};
 
 	/**
-	 * Tells whether the give tectonic region is supported
+	 * Tells whether the given tectonic region is supported
 	 * @param tectRegionName
 	 * @return
 	 */
 	public boolean isTectonicRegionSupported(String tectRegionName) {
+		if (tectonicRegionTypeParam == null)
+			return false;
 		return tectonicRegionTypeParam.isAllowed(tectRegionName);
+	}
+	
+	/**
+	 * Tells whether the given tectonic region is supported
+	 * @param tectRegion
+	 * @return
+	 */
+	public boolean isTectonicRegionSupported(TectonicRegionType tectRegion) {
+		return isTectonicRegionSupported(tectRegion.toString());
 	}
 
 }

@@ -3,11 +3,18 @@ package org.opensha.sha.util;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
 
 public class TRTUtils {
 
+	/**
+	 * This wraps a single IMR in a HashMap with a single TRT, Active Shallow.
+	 * 
+	 * @param imr
+	 * @return
+	 */
 	public static HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>
 			wrapInHashMap(ScalarIntensityMeasureRelationshipAPI imr) {
 		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap =
@@ -17,6 +24,16 @@ public class TRTUtils {
 		return imrMap;
 	}
 	
+	/**
+	 * This will return the IMR for the given Tectonic Region Type. If the map has only
+	 * a single mapping, the first (and only) IMR in the map is returned without checking
+	 * that the Tectonic Region Types match.
+	 * 
+	 * @param imrMap
+	 * @param trt
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
 	public static ScalarIntensityMeasureRelationshipAPI getIMRForTRT(
 			Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap,
 			TectonicRegionType trt) {
@@ -44,6 +61,13 @@ public class TRTUtils {
 		return imr;
 	}
 	
+	/**
+	 * Simply returns the first IMR in the map by calling <code>imrMap.values().iterator().next()</code>.
+	 * This is useful for returning the only IMR out of a map with a single TRT.
+	 * 
+	 * @param imrMap
+	 * @return
+	 */
 	public static ScalarIntensityMeasureRelationshipAPI getFirstIMR(
 			Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap) {
 		return imrMap.values().iterator().next();

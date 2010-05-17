@@ -31,8 +31,16 @@ import org.opensha.sha.gui.beans.event.IMTChangeListener;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
 import org.opensha.sha.imr.event.ScalarIMRChangeListener;
+import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
 
+/**
+ * This is a completely re-written IMR selection GUI which allows for multiple IMRs to be selected
+ * and edited, one for each Tectonic Region Type.
+ * 
+ * @author kevin
+ *
+ */
 public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener, IMTChangeListener {
 
 	/**
@@ -66,6 +74,11 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	
 	private int defaultIMRIndex = 0;
 
+	/**
+	 * Initializes the GUI with the given list of IMRs
+	 * 
+	 * @param imrs
+	 */
 	public IMR_MultiGuiBean(ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs) {
 		this.imrs = imrs;
 		imrEnables = new ArrayList<Boolean>();
@@ -189,6 +202,10 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 		return panel;
 	}
 	
+	/**
+	 * 
+	 * @return true if the single IMR check box is visible in the GUI
+	 */
 	public boolean isCheckBoxVisible() {
 		if (checkPanel == null)
 			return false;
@@ -196,6 +213,14 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 			return checkPanel.isAncestorOf(singleIMRBox) && this.isAncestorOf(checkPanel);
 	}
 
+	/**
+	 * This sets the tectonic regions for the GUI. If regions is not null and contains multiple,
+	 * TRTs, then the user can select multiple IMRs
+	 * 
+	 * This triggers a GUI rebuild, and will fire an IMR Change Event if necessary
+	 * 
+	 * @param regions
+	 */
 	public void setTectonicRegions(ArrayList<TectonicRegionType> regions) {
 		// we can refresh only if there are none or < 2 regions, and the check box isn't showing
 		boolean refreshOnly = (regions == null || regions.size() < 2) && !isCheckBoxVisible();
@@ -210,14 +235,28 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 			fireUpdateIMRMap();
 	}
 	
+	/**
+	 * 
+	 * @return the list Tectonic Regions from the GUI
+	 */
 	public ArrayList<TectonicRegionType> getTectonicRegions() {
 		return regions;
 	}
 
 	private static String showParamsTitle = "Edit IMR Params";
 	private static String hideParamsTitle = "Hide IMR Params";
+	/**
+	 * This is an internal class for a button that shows/hides parameter editors in the multi-IMR GUI
+	 * @author kevin
+	 *
+	 */
 	private class ShowHideButton extends JButton {
 
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
 		private int index;
 		private boolean showing;
 
@@ -254,7 +293,36 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 		}
 	}
 
+	private static final Font supportedTRTFont = new Font("supportedFont", Font.BOLD, 12);
+	private static final Font unsupportedTRTFont = new Font("supportedFont", Font.ITALIC, 12);
+	
+	/**
+	 * This class is the cell renderer for the drop down chooser boxes. It adds
+	 * the ability to enable/disable a selected item.
+	 * 
+	 * If a Tectonic Region Type is given, it will render IMRs the support the TRT
+	 * bold, and those that don't in italics.
+	 * 
+	 * @author kevin
+	 *
+	 */
 	public class EnableableCellRenderer extends BasicComboBoxRenderer {
+		
+		private ArrayList<Boolean> trtSupported = null;
+		
+		public EnableableCellRenderer(TectonicRegionType trt) {
+			if (trt != null) {
+				trtSupported = new ArrayList<Boolean>();
+				for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+					trtSupported.add(imr.isTectonicRegionSupported(trt));
+				}
+			}
+		}
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 
 		@Override
 		public Component getListCellRendererComponent(JList list, Object value,
@@ -262,15 +330,34 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 			Component comp = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 			if (!isSelected)
 				comp.setBackground(Color.white);
-			if (index >= 0)
+			if (index >= 0) {
 				comp.setEnabled(imrEnables.get(index));
-			else
+				setFont(comp, index);
+			} else {
+				int selIndex = list.getSelectedIndex();
+				setFont(comp, selIndex);
 				comp.setEnabled(true);
+			}
 			return comp;
+		}
+		
+		public void setFont(Component comp, int index) {
+			if (trtSupported != null) {
+				if (trtSupported.get(index))
+					comp.setFont(supportedTRTFont);
+				else
+					comp.setFont(unsupportedTRTFont);
+			}
 		}
 
 	}
 
+	/**
+	 * Internal sub-class for IMR chooser combo box
+	 * 
+	 * @author kevin
+	 *
+	 */
 	private class ChooserComboBox extends JComboBox {
 		/**
 		 * 
@@ -298,7 +385,11 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 			}
 			this.setSelectedIndex(defaultIMRIndex);
 
-			this.setRenderer(new EnableableCellRenderer());
+			TectonicRegionType trt = null;
+			if (isMultipleIMRs())
+				trt = regions.get(index);
+			this.setRenderer(new EnableableCellRenderer(trt));
+			
 			this.comboBoxIndex = index;
 			this.addActionListener(new ComboListener(this));
 			this.setMaximumSize(new Dimension(15, 150));
@@ -309,6 +400,13 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 		}
 	}
 
+	/**
+	 * This internal class makes sure that the user selected an enabled IMR in the list.
+	 * If the selected one is disabled, it reverts to the previous selection.
+	 * 
+	 * @author kevin
+	 *
+	 */
 	class ComboListener implements ActionListener {
 		ChooserComboBox combo;
 
@@ -391,42 +489,50 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 		return imrs.get(chooser.getSelectedIndex());
 	}
 
+	/**
+	 * 
+	 * @return true if multiple IMRs are both enabled, and selected
+	 */
 	public boolean isMultipleIMRs() {
 		return !singleIMRBox.isSelected();
 	}
 	
+	/**
+	 * this enables/disables the multiple IMR check box.
+	 * @param enabled
+	 */
 	public void setMultipleIMRsEnabled(boolean enabled) {
 		if (!enabled)
 			setMultipleIMRs(false);
 		singleIMRBox.setEnabled(enabled);
 	}
 
+	/**
+	 * This returns the selected IMR if only a single one is selected. Otherwise, a
+	 * <code>RuntimeException</code> is thrown.
+	 * 
+	 * @return
+	 */
 	public ScalarIntensityMeasureRelationshipAPI getSelectedIMR() {
 		if (isMultipleIMRs())
 			throw new RuntimeException("Cannot get single selected IMR when multiple selected!");
 		return getIMRForChooser(0);
 	}
 
-	public ScalarIntensityMeasureRelationshipAPI getSelectedIMR(TectonicRegionType trt) {
-		if (!isMultipleIMRs()) {
-			// if it's just a single, then it's easy
-			return getIMRForChooser(0);
-		}
-		if (regions == null)
-			return null;
-		for (int i=0; i<regions.size(); i++) {
-			TectonicRegionType region = regions.get(i);
-			if (region == trt) {
-				return getIMRForChooser(i);
-			}
-		}
-		return null;
-	}
-
+	/**
+	 * This returns a clone of the current IMR map in the GUI. This internal IMR map is updated
+	 * when certain actions are preformed, and should always be up to date.
+	 * 
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
 	public HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> getIMRMap() {
-		return imrMap;
+		return (HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>) imrMap.clone();
 	}
 
+	/**
+	 * This updates the current in-memory IMR map (the one returned by <code>getIMRMap()</code>)
+	 */
 	public void updateIMRMap() {
 		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> map =
 			new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
@@ -444,6 +550,14 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 		this.imrMap = map;
 	}
 
+	/**
+	 * Sets the GUI to multiple/single IMR mode. If setting to multiple, but multiple isn't
+	 * supported, a <code>RundimeException</code> is thrown.
+	 * 
+	 * The GUI will be updated, and IMR an change event will be fired as needed.
+	 * 
+	 * @param multipleIMRs
+	 */
 	public void setMultipleIMRs(boolean multipleIMRs) {
 		// if they're trying to set it to multiple, but we don't have multiple tectonic regions
 		// then throw an exception
@@ -459,6 +573,11 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 		}
 	}
 
+	/**
+	 * Sets the GUI to single IMR mode, and sets the selected IMR to the given name.
+	 * 
+	 * @param imrName
+	 */
 	public void setSelectedSingleIMR(String imrName) {
 		setMultipleIMRs(false);
 		ChooserComboBox chooser = chooserBoxes.get(0);
@@ -492,10 +611,22 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 		}
 	}
 
+	/**
+	 * This returns an iterator over all of the IMR params in the current IMR map
+	 * 
+	 * @return
+	 */
 	public Iterator<ParameterAPI<?>> getMultiIMRSiteParamIterator() {
 		return getMultiIMRSiteParamIterator(imrMap);
 	}
 
+	/**
+	 * This returns an iterator over all of the IMR params in the given IMR map
+	 * 
+	 * @param imrMap
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
 	public static Iterator<ParameterAPI<?>> getMultiIMRSiteParamIterator(
 			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap) {
 		ArrayList<ParameterAPI<?>> params = new ArrayList<ParameterAPI<?>>();
@@ -521,6 +652,12 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 		return imt == null || imr.isIntensityMeasureSupported(imt);
 	}
 
+	/**
+	 * Sets the IMT that this GUI should use. All IMRs that don't support this IMT will
+	 * be disabled.
+	 * 
+	 * @param newIMT - new IMT, or null to enable all IMRs
+	 */
 	public void setIMT(DependentParameterAPI<Double> newIMT) {
 		this.imt = newIMT;
 
@@ -544,10 +681,19 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 		}
 	}
 	
+	/**
+	 * Returns a clone of this GUI's IMR list
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
 	public ArrayList<ScalarIntensityMeasureRelationshipAPI> getIMRs() {
-		return imrs;
+		return (ArrayList<ScalarIntensityMeasureRelationshipAPI>) imrs.clone();
 	}
 	
+	/**
+	 * 
+	 * @return IMR metadata as HTML for display
+	 */
 	public String getIMRMetadataHTML() {
 		return "IMR METADATA!!!!"; // TODO fill this in!
 	}
@@ -557,6 +703,12 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 		this.setIMT(e.getNewIMT());
 	}
 	
+	/**
+	 * Sets the number of characters that should be displayed in the chooser lists. This helps
+	 * to constrain GUI width.
+	 * 
+	 * @param maxChooserChars
+	 */
 	public void setMaxChooserChars(int maxChooserChars) {
 		this.maxChooserChars = maxChooserChars;
 	}
