@@ -7,10 +7,12 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -25,12 +27,15 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import org.opensha.commons.gui.LabeledBoxPanel;
 import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.ListUtils;
+import org.opensha.commons.util.NtoNMap;
 import org.opensha.sha.gui.beans.event.IMTChangeEvent;
 import org.opensha.sha.gui.beans.event.IMTChangeListener;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
 import org.opensha.sha.imr.event.ScalarIMRChangeListener;
+import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
 import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
 
@@ -156,7 +161,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 					chooser = new ChooserComboBox(i);
 					chooser.addActionListener(this);
 					chooserBoxes.add(chooser);
-					button = new ShowHideButton(i, false);
+					button = new ShowHideButton(false);
 					button.addActionListener(this);
 					showHideButtons.add(button);
 				}
@@ -257,11 +262,9 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private int index;
 		private boolean showing;
 
-		public ShowHideButton(int index, boolean initial) {
-			this.index = index;
+		public ShowHideButton(boolean initial) {
 			this.showing = initial;
 
 			updateText();
@@ -282,10 +285,6 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 		public void toggle() {
 			showing = !showing;
 			updateText();
-		}
-
-		public int getIndex() {
-			return index;
 		}
 
 		public boolean isShowing() {
@@ -690,12 +689,53 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 		return (ArrayList<ScalarIntensityMeasureRelationshipAPI>) imrs.clone();
 	}
 	
+	public NtoNMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> getNtoNMap() {
+		NtoNMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> map =
+			new NtoNMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
+		for (TectonicRegionType trt : imrMap.keySet()) {
+			map.put(trt, imrMap.get(trt));
+		}
+		return map;
+	}
+	
 	/**
 	 * 
 	 * @return IMR metadata as HTML for display
 	 */
 	public String getIMRMetadataHTML() {
-		return "IMR METADATA!!!!"; // TODO fill this in!
+		if (isMultipleIMRs()) {
+			NtoNMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> map = getNtoNMap();
+			String meta = null;
+			Set<ScalarIntensityMeasureRelationshipAPI> myIMRs = map.getRights();
+			for (ScalarIntensityMeasureRelationshipAPI imr : myIMRs) {
+				if (meta == null)
+					meta = "";
+				else
+					meta += "<br>";
+				meta += "IMR: " + imr.getName() + "; ";
+				String trtNames = null;
+				Collection<TectonicRegionType> trtsForIMR = map.getLefts(imr);
+				for (TectonicRegionType trt : trtsForIMR) {
+					if (trtNames == null)
+						trtNames = "";
+					else
+						trtNames += ", ";
+					trtNames += trt.toString();
+				}
+				if (trtsForIMR.size() > 1)
+					meta += "TectonicRegions";
+				else
+					meta += "TectonicRegion";
+				meta += ": " + trtNames + "<br>";
+				ParameterList paramList = (ParameterList) imr.getOtherParamsList().clone();
+				if (paramList.containsParameter(TectonicRegionTypeParam.NAME))
+					paramList.removeParameter(TectonicRegionTypeParam.NAME);
+				meta += paramList.getParameterListMetadataString();
+			}
+			return meta;
+		} else {
+			return paramEdit.getVisibleParameters().getParameterListMetadataString();
+		}
 	}
 
 	@Override

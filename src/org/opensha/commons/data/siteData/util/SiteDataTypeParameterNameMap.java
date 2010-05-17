@@ -63,7 +63,7 @@ public class SiteDataTypeParameterNameMap extends NtoNMap<String, String> {
 	 * @return
 	 */
 	public Collection<String> getTypesForParameterName(String paramName) {
-		return this.getOnes(paramName);
+		return this.getLefts(paramName);
 	}
 	
 	/**
@@ -74,7 +74,7 @@ public class SiteDataTypeParameterNameMap extends NtoNMap<String, String> {
 	 * @return
 	 */
 	public Collection<String> getParameterNamesForType(String type) {
-		return this.getTwos(type);
+		return this.getRights(type);
 	}
 	
 	/**
