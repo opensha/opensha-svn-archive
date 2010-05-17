@@ -712,7 +712,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 					meta = "";
 				else
 					meta += "<br>";
-				meta += "IMR: " + imr.getName() + "; ";
+				meta += "--- IMR: " + imr.getName() + " ---<br>";
 				String trtNames = null;
 				Collection<TectonicRegionType> trtsForIMR = map.getLefts(imr);
 				for (TectonicRegionType trt : trtsForIMR) {
@@ -722,11 +722,11 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 						trtNames += ", ";
 					trtNames += trt.toString();
 				}
+				meta += "--- TectonicRegion";
 				if (trtsForIMR.size() > 1)
-					meta += "TectonicRegions";
-				else
-					meta += "TectonicRegion";
-				meta += ": " + trtNames + "<br>";
+					meta += "s";
+				meta += ": " + trtNames + " ---<br>";
+				meta += "--- Params ---<br>";
 				ParameterList paramList = (ParameterList) imr.getOtherParamsList().clone();
 				if (paramList.containsParameter(TectonicRegionTypeParam.NAME))
 					paramList.removeParameter(TectonicRegionTypeParam.NAME);
