@@ -173,7 +173,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		
 		// now add the independent params for the selected IMT
 		String imtName = imtParameter.getValue();
-		System.out.println("Updating GUI for: " + imtName);
+//		System.out.println("Updating GUI for: " + imtName);
 		DependentParameterAPI<?> imtParam = (DependentParameterAPI<?>) imtParams.getParameter(imtName);
 		ListIterator<ParameterAPI<?>> paramIt = imtParam.getIndependentParametersIterator();
 		while (paramIt.hasNext()) {
