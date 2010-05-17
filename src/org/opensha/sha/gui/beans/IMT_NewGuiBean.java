@@ -1,6 +1,7 @@
 package org.opensha.sha.gui.beans;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.ListIterator;
@@ -16,16 +17,21 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.sha.gui.beans.event.IMTChangeEvent;
 import org.opensha.sha.gui.beans.event.IMTChangeListener;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
+import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.util.TectonicRegionType;
 
-public class IMT_NewGuiBean extends ParameterListEditor implements ParameterChangeListener {
+public class IMT_NewGuiBean extends ParameterListEditor
+implements ParameterChangeListener, ScalarIMRChangeListener {
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	private static double default_period = 1.0;
 	
 	public final static String IMT_PARAM_NAME =  "IMT";
 	
@@ -40,6 +46,9 @@ public class IMT_NewGuiBean extends ParameterListEditor implements ParameterChan
 	private ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs;
 	
 	private ArrayList<IMTChangeListener> listeners = new ArrayList<IMTChangeListener>();
+	
+	private ArrayList<Double> allPeriods;
+	private ArrayList<Double> currentSupportedPeriods;
 
 	public IMT_NewGuiBean(ScalarIntensityMeasureRelationshipAPI imr) {
 		this(wrapInList(imr));
@@ -48,6 +57,7 @@ public class IMT_NewGuiBean extends ParameterListEditor implements ParameterChan
 	public IMT_NewGuiBean(IMR_MultiGuiBean imrGuiBean) {
 		this(imrGuiBean.getIMRs());
 		this.addIMTChangeListener(imrGuiBean);
+		imrGuiBean.addIMRChangeListener(this);
 	}
 	
 	public IMT_NewGuiBean(ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs) {
@@ -72,8 +82,7 @@ public class IMT_NewGuiBean extends ParameterListEditor implements ParameterChan
 		
 		// first get a master list of all of the supported Params
 		// this is hardcoded to allow for checking of common SA period
-		ArrayList<Double> saPeriods = new ArrayList<Double>();
-		double defaultPeriod = -1;
+		ArrayList<Double> saPeriods;
 		ParameterList paramList = new ParameterList();
 		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
 			for (ParameterAPI<?> param : imr.getSupportedIntensityMeasuresList()) {
@@ -81,21 +90,6 @@ public class IMT_NewGuiBean extends ParameterListEditor implements ParameterChan
 					// it's already in there, do nothing
 				} else {
 					paramList.addParameter(param);
-				}
-				// get all of the periods in there
-				if (param.getName().equals(SA_Param.NAME)) {
-					SA_Param saParam = (SA_Param)param;
-					PeriodParam periodParam = saParam.getPeriodParam();
-					if (defaultPeriod < 0)
-						defaultPeriod = periodParam.getValue();
-					ArrayList<Double> periods = periodParam.getSupportedPeriods();
-//					System.out.println("Located " + periods.size() + " supported periods for " + imr.getShortName());
-					for (double period : periods) {
-						if (!saPeriods.contains(period)) {
-//							System.out.println("Adding a period: " + period);
-							saPeriods.add(period);
-						}
-					}
 				}
 			}
 		}
@@ -121,22 +115,6 @@ public class IMT_NewGuiBean extends ParameterListEditor implements ParameterChan
 				}
 				ArrayList<Double> badPeriods = new ArrayList<Double>();
 				if (param.getName().equals(SA_Param.NAME)) {
-					for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-						SA_Param saParam = (SA_Param) imr.getSupportedIntensityMeasuresList().getParameter(SA_Param.NAME);
-						PeriodParam periodParam = saParam.getPeriodParam();
-						ArrayList<Double> periods = periodParam.getSupportedPeriods();
-						for (double period : saPeriods) {
-							if (!periods.contains(period)) {
-								// this period is not supported by this IMR
-								if (!badPeriods.contains(period))
-									badPeriods.add(period);
-							}
-						}
-					}
-					for (double badPeriod : badPeriods) {
-//						System.out.println("Removing a period: " + badPeriod);
-						saPeriods.remove(badPeriod);
-					}
 					oldSAParam = (SA_Param)param;
 				}
 			}
@@ -144,6 +122,7 @@ public class IMT_NewGuiBean extends ParameterListEditor implements ParameterChan
 			for (ParameterAPI badParam : toBeRemoved) {
 				paramList.removeParameter(badParam.getName());
 			}
+			saPeriods = getCommonPeriods(imrs);
 		} else {
 			for (ParameterAPI<?> param : paramList) {
 				if (param.getName().equals(SA_Param.NAME)) {
@@ -151,13 +130,16 @@ public class IMT_NewGuiBean extends ParameterListEditor implements ParameterChan
 					break;
 				}
 			}
+			saPeriods = getAllSupportedPeriods(imrs);
 		}
 		if (oldSAParam != null && paramList.containsParameter(oldSAParam.getName())) {
 			Collections.sort(saPeriods);
+			allPeriods = saPeriods;
 			DoubleDiscreteConstraint pConst = new DoubleDiscreteConstraint(saPeriods);
+			double defaultPeriod = default_period;
+			if (!pConst.isAllowed(defaultPeriod))
+				defaultPeriod = saPeriods.get(0);
 			PeriodParam periodParam = new PeriodParam(pConst, defaultPeriod, true);
-			if (periodParam.isAllowed(1.0))
-				periodParam.setValue(1.0);
 			periodParam.addParameterChangeListener(this);
 //			System.out.println("new period param with " + saPeriods.size() + " periods");
 			SA_Param replaceSA = new SA_Param(periodParam, oldSAParam.getDampingParam());
@@ -195,7 +177,23 @@ public class IMT_NewGuiBean extends ParameterListEditor implements ParameterChan
 		DependentParameterAPI<?> imtParam = (DependentParameterAPI<?>) imtParams.getParameter(imtName);
 		ListIterator<ParameterAPI<?>> paramIt = imtParam.getIndependentParametersIterator();
 		while (paramIt.hasNext()) {
-			params.addParameter(paramIt.next());
+			ParameterAPI<?> param = paramIt.next();
+			if (param.getName().equals(PeriodParam.NAME)) {
+				PeriodParam periodParam = (PeriodParam) param;
+				ArrayList<Double> periods = currentSupportedPeriods;
+				if (periods == null)
+					periods = allPeriods;
+				DoubleDiscreteConstraint pConst = new DoubleDiscreteConstraint(periods);
+				periodParam.setConstraint(pConst);
+				if (periodParam.getValue() == null) {
+					if (periodParam.isAllowed(default_period))
+						periodParam.setValue(default_period);
+					else
+						periodParam.setValue(periods.get(0));
+				}
+				periodParam.getEditor().setParameter(periodParam);
+			}
+			params.addParameter(param);
 		}
 		
 		this.setParameterList(params);
@@ -285,6 +283,56 @@ public class IMT_NewGuiBean extends ParameterListEditor implements ParameterChan
 			ScalarIntensityMeasureRelationshipAPI imr = imrMap.get(trt);
 			setIMTinIMR(imt, imr);
 		}
+	}
+	
+	public void setSupportedPeriods(ArrayList<Double> supportedPeriods) {
+		this.currentSupportedPeriods = supportedPeriods;
+		Collections.sort(currentSupportedPeriods);
+		updateGUI();
+	}
+	
+	public static ArrayList<Double> getCommonPeriods(Collection<ScalarIntensityMeasureRelationshipAPI> imrs) {
+		ArrayList<Double> allPeriods = getAllSupportedPeriods(imrs);
+		
+		ArrayList<Double> commonPeriods = new ArrayList<Double>();
+		for (Double period : allPeriods) {
+			boolean include = true;
+			for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+				imr.setIntensityMeasure(SA_Param.NAME);
+				SA_Param saParam = (SA_Param)imr.getIntensityMeasure();
+				PeriodParam periodParam = saParam.getPeriodParam();
+				if (!periodParam.isAllowed(period)) {
+					include = false;
+					break;
+				}
+			}
+			
+			if (include)
+				commonPeriods.add(period);
+		}
+		
+		return commonPeriods;
+	}
+	
+	public static ArrayList<Double> getAllSupportedPeriods(Collection<ScalarIntensityMeasureRelationshipAPI> imrs) {
+		ArrayList<Double> periods = new ArrayList<Double>();
+		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+			if (imr.isIntensityMeasureSupported(SA_Param.NAME)) {
+				imr.setIntensityMeasure(SA_Param.NAME);
+				SA_Param saParam = (SA_Param)imr.getIntensityMeasure();
+				PeriodParam periodParam = saParam.getPeriodParam();
+				for (double period : periodParam.getAllowedDoubles()) {
+					if (!periods.contains(period))
+						periods.add(period);
+				}
+			}
+		}
+		return periods;
+	}
+
+	@Override
+	public void imrChange(ScalarIMRChangeEvent event) {
+		this.setSupportedPeriods(getCommonPeriods(event.getNewIMRs().values()));
 	}
 
 }

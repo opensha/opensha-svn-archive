@@ -55,7 +55,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	
 	private static final Font trtFont = new Font("TRTFont", Font.BOLD, 16);
 
-	private ArrayList<ScalarIMRChangeListener> listeners = new ArrayList<ScalarIMRChangeListener>();
+	private ArrayList<ScalarIMRChangeListener> imrChangeListeners = new ArrayList<ScalarIMRChangeListener>();
 
 	private JPanel checkPanel;
 	protected JCheckBox singleIMRBox = new JCheckBox("Single IMR For All Tectonic Region Types");
@@ -587,11 +587,11 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	}
 
 	public void addIMRChangeListener(ScalarIMRChangeListener listener) {
-		listeners.add(listener);
+		imrChangeListeners.add(listener);
 	}
 
 	public void removeIMRChangeListener(ScalarIMRChangeListener listener) {
-		listeners.remove(listener);
+		imrChangeListeners.remove(listener);
 	}
 
 	private void fireUpdateIMRMap() {
@@ -605,7 +605,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> newMap) {
 		ScalarIMRChangeEvent event = new ScalarIMRChangeEvent(this, oldMap, newMap);
 //		System.out.println("Firing IMR Change Event");
-		for (ScalarIMRChangeListener listener : listeners) {
+		for (ScalarIMRChangeListener listener : imrChangeListeners) {
 			listener.imrChange(event);
 		}
 	}
