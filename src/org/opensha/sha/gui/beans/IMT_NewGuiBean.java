@@ -23,6 +23,13 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.util.TectonicRegionType;
 
+/**
+ * This is a GUI bean for selecting IMTs with an IMT-First approach. It takes a list
+ * of IMRs and lists every IMT supported by at least one IMR.
+ * 
+ * @author kevin
+ *
+ */
 public class IMT_NewGuiBean extends ParameterListEditor
 implements ParameterChangeListener, ScalarIMRChangeListener {
 	
@@ -50,16 +57,32 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	private ArrayList<Double> allPeriods;
 	private ArrayList<Double> currentSupportedPeriods;
 
+	/**
+	 * Init with single IMR
+	 * 
+	 * @param imr
+	 */
 	public IMT_NewGuiBean(ScalarIntensityMeasureRelationshipAPI imr) {
 		this(wrapInList(imr));
 	}
 	
+	/**
+	 * Init with an IMR gui bean. Listeners will be set up so that the IMT GUI will be updated
+	 * when the IMRs change, and visa-versa.
+	 * 
+	 * @param imrGuiBean
+	 */
 	public IMT_NewGuiBean(IMR_MultiGuiBean imrGuiBean) {
 		this(imrGuiBean.getIMRs());
 		this.addIMTChangeListener(imrGuiBean);
 		imrGuiBean.addIMRChangeListener(this);
 	}
 	
+	/**
+	 * Init with a list of IMRs
+	 * 
+	 * @param imrs
+	 */
 	public IMT_NewGuiBean(ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs) {
 		this.setTitle(TITLE);
 		setIMRs(imrs);
@@ -73,10 +96,20 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		return imrs;
 	}
 	
+	/**
+	 * Setup IMT GUI for single IMR
+	 * 
+	 * @param imr
+	 */
 	public void setIMR(ScalarIntensityMeasureRelationshipAPI imr) {
 		this.setIMRs(wrapInList(imr));
 	}
 	
+	/**
+	 * Set IMT GUI for multiple IMRs. All IMTs supported by at least one IMR will be displayed.
+	 * 
+	 * @param imrs
+	 */
 	public void setIMRs(ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs) {
 		this.imrs = imrs;
 		
@@ -202,10 +235,20 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		this.repaint();
 	}
 	
+	/**
+	 * Returns the name of the selected Intensity Measure
+	 * 
+	 * @return
+	 */
 	public String getSelectedIMT() {
 		return imtParameter.getValue();
 	}
 	
+	/**
+	 * Set the selected Intensity Measure by name
+	 * 
+	 * @param imtName
+	 */
 	public void setSelectedIMT(String imtName) {
 		if (!imtName.equals(getSelectedIMT())) {
 			imtParameter.setValue(imtName);
@@ -214,6 +257,10 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		}
 	}
 	
+	/**
+	 * 
+	 * @return The selected intensity measure parameter
+	 */
 	@SuppressWarnings("unchecked")
 	public DependentParameterAPI<Double> getSelectedIM() {
 		return (DependentParameterAPI<Double>) imtParams.getParameter(getSelectedIMT());
@@ -252,14 +299,33 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		}
 	}
 	
+	/**
+	 * Sets the current IM in the given IMR
+	 * 
+	 * @param imr
+	 */
 	public void setIMTinIMR(ScalarIntensityMeasureRelationshipAPI imr) {
 		setIMTinIMR(getSelectedIM(), imr);
 	}
 	
+	/**
+	 * Sets the current IM in each IMR in the given IMR map
+	 * 
+	 * @param imrMap
+	 */
 	public void setIMTinIMRs(HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap) {
 		setIMTinIMRs(getSelectedIM(), imrMap);
 	}
 	
+	/**
+	 * This will set the IMT (and it's independent params) in the given IMR. If you simply called
+	 * <code>setIntensityMeasure</code> for the IMR, it might throw an error because the IMT could
+	 * have been cloned or could be from another IMR. This gets around that problem by setting
+	 * the IMR by name, then setting the value of each independent parameter.
+	 * 
+	 * @param imt
+	 * @param imr
+	 */
 	@SuppressWarnings("unchecked")
 	public static void setIMTinIMR(
 			DependentParameterAPI<Double> imt,
@@ -276,6 +342,12 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		}
 	}
 	
+	/**
+	 * Set the IMT in each IMR contained in the IMR map
+	 * 
+	 * @param imt
+	 * @param imrMap
+	 */
 	public static void setIMTinIMRs(
 			DependentParameterAPI<Double> imt,
 			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap) {
@@ -285,12 +357,24 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		}
 	}
 	
+	/**
+	 * Sets the periods that should be displayed...by default all periods will be displayed,
+	 * even those only supported by a single IMR.
+	 * 
+	 * @param supportedPeriods
+	 */
 	public void setSupportedPeriods(ArrayList<Double> supportedPeriods) {
 		this.currentSupportedPeriods = supportedPeriods;
 		Collections.sort(currentSupportedPeriods);
 		updateGUI();
 	}
 	
+	/**
+	 * Creates a list of periods common to all of the given IMRs
+	 * 
+	 * @param imrs
+	 * @return
+	 */
 	public static ArrayList<Double> getCommonPeriods(Collection<ScalarIntensityMeasureRelationshipAPI> imrs) {
 		ArrayList<Double> allPeriods = getAllSupportedPeriods(imrs);
 		
@@ -314,6 +398,12 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		return commonPeriods;
 	}
 	
+	/**
+	 * Creates a list of all periods found in any of the given IMRs
+	 * 
+	 * @param imrs
+	 * @return
+	 */
 	public static ArrayList<Double> getAllSupportedPeriods(Collection<ScalarIntensityMeasureRelationshipAPI> imrs) {
 		ArrayList<Double> periods = new ArrayList<Double>();
 		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
