@@ -135,7 +135,7 @@ public class PrioritizedDB_Access implements DB_AccessAPI {
 	}
 	
 	public static void main(String args[]) {
-		new PrioritizedDB_Access(PrioritizedDB_Access.createDB3ReadOnlyAccessors());
+		new PrioritizedDB_Access(PrioritizedDB_Access.createDB2ReadOnlyAccessors());
 		System.exit(0);
 	}
 

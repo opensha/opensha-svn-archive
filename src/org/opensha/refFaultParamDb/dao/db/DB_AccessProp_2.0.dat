@@ -4,5 +4,5 @@ minConns      2
 maxConns      7
 logFileString db_log.log
 maxConnTime   .5
-userName	  fault_sandbox
-password      perry
+userName	  ucerf2_ro
+password      faultaccess
