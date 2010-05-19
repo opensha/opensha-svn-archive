@@ -162,23 +162,6 @@ public class Site_GuiBean extends JPanel implements ParameterChangeListener,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
 						0, 0, 0, 0), 0, 0));
 	}
-	
-	/**
-	 * If the site gui bean is being used for multiple IMRs, then you have to make sure that
-	 * duplicate parameters are set in all IMRs by calling this method.
-	 * 
-	 * @param imrs
-	 */
-	public void setParamsInIMRs(Collection<ScalarIntensityMeasureRelationshipAPI> imrs) {
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-			ListIterator<ParameterAPI<?>> siteParamsIt = imr.getSiteParamsIterator();
-			while (siteParamsIt.hasNext()) {
-				ParameterAPI siteParam = siteParamsIt.next();
-				ParameterAPI theParam = parameterList.getParameter(siteParam.getName());
-				siteParam.setValue(theParam.getValue());
-			}
-		}
-	}
 
 	/**
 	 * This function adds the site params to the existing list. Parameters are
