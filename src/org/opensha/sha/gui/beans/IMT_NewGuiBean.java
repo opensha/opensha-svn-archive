@@ -76,6 +76,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		this(imrGuiBean.getIMRs());
 		this.addIMTChangeListener(imrGuiBean);
 		imrGuiBean.addIMRChangeListener(this);
+		fireIMTChangeEvent();
 	}
 	
 	/**
@@ -198,6 +199,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 			finalParamList.addParameter(param);
 		}
 		updateGUI();
+		fireIMTChangeEvent();
 	}
 	
 	private void updateGUI() {
@@ -252,9 +254,11 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	public void setSelectedIMT(String imtName) {
 		if (!imtName.equals(getSelectedIMT())) {
 			imtParameter.setValue(imtName);
-			updateGUI();
-			fireIMTChangeEvent();
 		}
+	}
+	
+	public ArrayList<String> getSupportedIMTs() {
+		return imtParameter.getAllowedStrings();
 	}
 	
 	/**
@@ -274,7 +278,8 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 			updateGUI();
 			fireIMTChangeEvent();
 		} else if (paramName.equals(PeriodParam.NAME)) {
-			fireIMTChangeEvent();
+			if (getSelectedIMT().equals(SA_Param.NAME))
+				fireIMTChangeEvent();
 		}
 			
 	}

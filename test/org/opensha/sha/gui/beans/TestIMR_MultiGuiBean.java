@@ -4,22 +4,27 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.NoSuchElementException;
 import java.util.Stack;
 
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.util.ListUtils;
+import org.opensha.sha.gui.beans.IMR_MultiGuiBean.EnableableCellRenderer;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
 import org.opensha.sha.imr.event.ScalarIMRChangeListener;
+import org.opensha.sha.imr.param.IntensityMeasureParams.MMI_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
@@ -167,7 +172,7 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 		
 		ScalarIntensityMeasureRelationshipAPI shakeMapIMR =
 			(ScalarIntensityMeasureRelationshipAPI) ListUtils.getObjectByName(imrs, ShakeMap_2003_AttenRel.NAME);
-		shakeMapIMR.setIntensityMeasure(ShakeMap_2003_AttenRel.MMI_NAME);
+		shakeMapIMR.setIntensityMeasure(MMI_Param.NAME);
 		DependentParameterAPI<Double> mmiIMR = (DependentParameterAPI<Double>) shakeMapIMR.getIntensityMeasure();
 		gui.setIMT(mmiIMR);
 		assertEquals("Should fire event setting IMT to MMI when IMR doesn't support it", 1, eventStack.size());
@@ -186,6 +191,95 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 		assertEquals("Should not fire event setting IMT to one supported by current IMR", 0, eventStack.size());
 		gui.setIMT(null);
 		assertEquals("Should not fire event setting IMT to null", 0, eventStack.size());
+	}
+	
+	@Test
+	public void testIMRChangeMethods() {
+		try {
+			gui.setSelectedSingleIMR(null);
+			fail("Should throw exception when setSelectedSingleIMR called with null name");
+		} catch (NoSuchElementException e) {}
+		
+		gui.setSelectedSingleIMR(BA_2008_AttenRel.NAME);
+		assertEquals("Single IMR not set correctly!", BA_2008_AttenRel.NAME, gui.getSelectedIMR().getName());
+		
+		ScalarIntensityMeasureRelationshipAPI shakeMapIMR =
+			(ScalarIntensityMeasureRelationshipAPI) ListUtils.getObjectByName(imrs, ShakeMap_2003_AttenRel.NAME);
+		shakeMapIMR.setIntensityMeasure(PGA_Param.NAME);
+		DependentParameterAPI<Double> pgaIMR = (DependentParameterAPI<Double>) shakeMapIMR.getIntensityMeasure();
+		shakeMapIMR.setIntensityMeasure(MMI_Param.NAME);
+		DependentParameterAPI<Double> mmiIMR = (DependentParameterAPI<Double>) shakeMapIMR.getIntensityMeasure();
+		gui.setIMT(mmiIMR);
+		
+		try {
+			gui.setSelectedSingleIMR(BA_2008_AttenRel.NAME);
+			fail("Setting single IMR should fail if IMR doesn't support current IMT!");
+		} catch (Exception e) {}
+		
+		gui.setTectonicRegions(demoTRTs);
+		
+		try {
+			gui.setIMR(ShakeMap_2003_AttenRel.NAME, demoTRTs.get(0));
+			fail("Should throw exception when setIMR called in single IMR mode");
+		} catch (RuntimeException e) {}
+		
+		gui.setMultipleIMRs(true);
+		
+		try {
+			gui.setIMR(null, demoTRTs.get(0));
+			fail("Should throw exception when setIMR called with null name");
+		} catch (NoSuchElementException e) {}
+		
+		try {
+			gui.setIMR(null, demoTRTs.get(0));
+			fail("Should throw exception when setIMR called with null name");
+		} catch (NoSuchElementException e) {}
+		
+		try {
+			gui.setIMR(ShakeMap_2003_AttenRel.NAME, null);
+			fail("Should throw exception when setIMR called with null TRT");
+		} catch (RuntimeException e) {}
+		
+		try {
+			gui.setIMR(BA_2008_AttenRel.NAME, demoTRTs.get(0));
+			fail("Setting IMR should fail if IMR doesn't support current IMT!");
+		} catch (Exception e) {}
+		
+		gui.setIMT(pgaIMR);
+		
+		gui.setIMR(CY_2008_AttenRel.NAME, demoTRTs.get(0));
+		
+		assertEquals("Set IMR for TRT 0 didn't work!",
+				CY_2008_AttenRel.NAME, gui.getIMRMap().get(demoTRTs.get(0)).getName());
+	}
+	
+	@Test
+	public void testTRTSupportedIndications() {
+		gui.setTectonicRegions(demoTRTs);
+		
+		EnableableCellRenderer renderer;
+		JComboBox chooser;
+		
+		chooser = gui.getChooser(null);
+		assertTrue("Chooser renderer should be an EnableableCellRenderer",
+				chooser.getRenderer() instanceof EnableableCellRenderer);
+		renderer = (EnableableCellRenderer) chooser.getRenderer();
+		assertNull("TRTs supporteds should be null in single mode", renderer.trtSupported);
+		
+		gui.setMultipleIMRs(true);
+		
+		for (TectonicRegionType trt : demoTRTs) {
+			chooser = gui.getChooser(trt);
+			for (int i=0; i<imrs.size(); i++) {
+				ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
+				gui.setIMR(imr.getName(), trt);
+				assertTrue("Chooser renderer should be an EnableableCellRenderer",
+						chooser.getRenderer() instanceof EnableableCellRenderer);
+				renderer = (EnableableCellRenderer) chooser.getRenderer();
+				assertTrue("TRT supported not being set correctly",
+						renderer.trtSupported.get(i) == imr.isTectonicRegionSupported(trt));
+			}
+		}
 	}
 
 	@Override

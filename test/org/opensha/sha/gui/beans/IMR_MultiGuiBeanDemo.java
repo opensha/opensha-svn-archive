@@ -21,6 +21,7 @@ import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.MMI_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
@@ -124,7 +125,7 @@ public class IMR_MultiGuiBeanDemo extends JPanel implements ActionListener {
 //			DependentParameterAPI<Double> imt = getIMT(PGA_Param.NAME, -1);
 //			bean.setIMT(imt);
 		} else if (e.getSource() == mmiButton) {
-			imtBean.getParameterList().getParameter(IMT_NewGuiBean.IMT_PARAM_NAME).setValue(ShakeMap_2003_AttenRel.MMI_NAME);
+			imtBean.getParameterList().getParameter(IMT_NewGuiBean.IMT_PARAM_NAME).setValue(MMI_Param.NAME);
 //			DependentParameterAPI<Double> imt = getIMT(ShakeMap_2003_AttenRel.MMI_NAME, -1);;
 //			bean.setIMT(imt);
 		} else if (e.getSource() == sa10Button) {

@@ -292,8 +292,8 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 		}
 	}
 
-	private static final Font supportedTRTFont = new Font("supportedFont", Font.BOLD, 12);
-	private static final Font unsupportedTRTFont = new Font("supportedFont", Font.ITALIC, 12);
+	protected static final Font supportedTRTFont = new Font("supportedFont", Font.BOLD, 12);
+	protected static final Font unsupportedTRTFont = new Font("supportedFont", Font.ITALIC, 12);
 	
 	/**
 	 * This class is the cell renderer for the drop down chooser boxes. It adds
@@ -307,7 +307,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	 */
 	public class EnableableCellRenderer extends BasicComboBoxRenderer {
 		
-		private ArrayList<Boolean> trtSupported = null;
+		protected ArrayList<Boolean> trtSupported = null;
 		
 		public EnableableCellRenderer(TectonicRegionType trt) {
 			if (trt != null) {
@@ -397,6 +397,16 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 		public int getIndex() {
 			return comboBoxIndex;
 		}
+	}
+	
+	protected ChooserComboBox getChooser(TectonicRegionType trt) {
+		if (!isMultipleIMRs())
+			return chooserBoxes.get(0);
+		for (int i=0; i<regions.size(); i++) {
+			if (regions.get(i).toString().equals(trt.toString()))
+				return chooserBoxes.get(i);
+		}
+		return null;
 	}
 
 	/**
@@ -583,7 +593,32 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 		int index = ListUtils.getIndexByName(imrs, imrName);
 		if (index < 0)
 			throw new NoSuchElementException("IMR '" + imrName + "' not found");
+		ScalarIntensityMeasureRelationshipAPI imr = imrs.get(index);
+		if (!shouldEnableIMR(imr))
+			throw new RuntimeException("IMR '" + imrName + "' cannot be set because it is not" +
+					" supported by the current IMT, '" + imt.getName() + "'.");
 		chooser.setSelectedIndex(index);
+	}
+	
+	public void setIMR(String imrName, TectonicRegionType trt) {
+		if (!isMultipleIMRs())
+			throw new RuntimeException("IMR cannot be set for a Tectonic Region in single IMR mode");
+		if (trt == null)
+			throw new IllegalArgumentException("Tectonic Region Type cannot be null!");
+		for (int i=0; i<regions.size(); i++) {
+			if (trt.toString().equals(regions.get(i).toString())) {
+				int index = ListUtils.getIndexByName(imrs, imrName);
+				if (index < 0)
+					throw new NoSuchElementException("IMR '" + imrName + "' not found");
+				ScalarIntensityMeasureRelationshipAPI imr = imrs.get(index);
+				if (!shouldEnableIMR(imr))
+					throw new RuntimeException("IMR '" + imrName + "' cannot be set because it is not" +
+							" supported by the current IMT, '" + imt.getName() + "'.");
+				chooserBoxes.get(i).setSelectedIndex(index);
+				return;
+			}
+		}
+		throw new RuntimeException("TRT '" + trt.toString() + "' not found!");
 	}
 
 	public void addIMRChangeListener(ScalarIMRChangeListener listener) {
@@ -637,6 +672,14 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 			}
 		}
 		return params.iterator();
+	}
+	
+	public boolean isIMREnabled(String imrName) {
+		int index = ListUtils.getIndexByName(imrs, imrName);
+		if (index < 0)
+			throw new NoSuchElementException("IMR '" + imrName + "' not found!");
+		
+		return imrEnables.get(index);
 	}
 	
 	/**
@@ -740,6 +783,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 
 	@Override
 	public void imtChange(IMTChangeEvent e) {
+//		System.out.println("IMTChangeEvent: " + e.getNewIMT().getName());
 		this.setIMT(e.getNewIMT());
 	}
 	

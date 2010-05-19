@@ -1,7 +1,5 @@
 package org.opensha.commons.calc;
 
-import junk.bpt.TestBPT_DistCalcOld;
-
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.opensha.commons.geo.LocationUtilsTest;

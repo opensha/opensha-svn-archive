@@ -46,6 +46,7 @@ import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.calc.Borcherdt2004_SiteAmpCalc;
 import org.opensha.sha.imr.attenRelImpl.calc.Wald_MMI_Calc;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.MMI_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
@@ -202,22 +203,7 @@ public class USGS_Combined_2004_AttenRel
   /**
    * MMI parameter, the natural log of the "Modified Mercalli Intensity" IMT.
    */
-  protected DoubleParameter mmiParam = null;
-  public final static String MMI_NAME = "MMI";
-  protected final static Double MMI_DEFAULT = new Double(Math.log(5.0));
-  public final static String MMI_INFO = "Modified Mercalli Intensity";
-  protected final static Double MMI_MIN = new Double(Math.log(1.0));
-  protected final static Double MMI_MAX = new Double(Math.log(10.0));
-  public final static String MMI_ERROR_STRING = "Problem: " +
-      NAME + " cannot complete\n the requested computation for MMI.\n\n" +
-      "This has occurred because you attempted to compute the\n" +
-      "standard deviation (or something else such as probability \n" +
-      "of exceedance which depends on the standard deviation).  \n" +
-      "The inability to compute these will remain until someone comes up\n" +
-      "with the probability distribution for MMI (when computed from\n" +
-      "PGA or PGV).  For now you can compute the median or the\n" +
-      "IML that has exactly a 0.5 chance of being exceeded (assuming\n" +
-      "this application supports such computations).\n";
+  protected MMI_Param mmiParam = null;
   public final static String UNSUPPORTED_METHOD_ERROR =
       "This method is not supprted";
 
@@ -597,8 +583,8 @@ private double getEpsilon(AttenuationRelationship attenRel,
     }
     else {
       //  throw exception if it's MMI
-      if (im.getName().equals(MMI_NAME)) {
-        throw new RuntimeException(MMI_ERROR_STRING);
+      if (im.getName().equals(MMI_Param.NAME)) {
+        throw new RuntimeException(MMI_Param.MMI_ERROR_STRING);
       }
 
       // get the stRndVar dep on sigma truncation type and level
@@ -770,8 +756,8 @@ private double getEpsilon(AttenuationRelationship attenRel,
   public double getExceedProbability() throws ParameterException, IMRException {
 
     // throw exception if MMI was chosen
-    if (im.getName().equals(MMI_NAME)) {
-      throw new RuntimeException(MMI_ERROR_STRING);
+    if (im.getName().equals(MMI_Param.NAME)) {
+      throw new RuntimeException(MMI_Param.MMI_ERROR_STRING);
     }
 
     // set vs30
@@ -800,8 +786,8 @@ private double getEpsilon(AttenuationRelationship attenRel,
 public double getEpsilon() {
 
   // throw exception if MMI was chosen
-  if (im.getName().equals(MMI_NAME)) {
-    throw new RuntimeException(MMI_ERROR_STRING);
+  if (im.getName().equals(MMI_Param.NAME)) {
+    throw new RuntimeException(MMI_Param.MMI_ERROR_STRING);
   }
 
   // set vs30
@@ -837,8 +823,8 @@ public double getEpsilon() {
       ) throws ParameterException {
 
     // throw exception if MMI was chosen
-    if (im.getName().equals(MMI_NAME)) {
-      throw new RuntimeException(MMI_ERROR_STRING);
+    if (im.getName().equals(MMI_Param.NAME)) {
+      throw new RuntimeException(MMI_Param.MMI_ERROR_STRING);
     }
 
     DataPoint2D point;
@@ -870,7 +856,7 @@ public double getEpsilon() {
     saDampingParam.setValueAsDefault();
     pgaParam.setValueAsDefault();
     pgvParam.setValueAsDefault();
-    mmiParam.setValue(MMI_DEFAULT);
+    mmiParam.setValue(MMI_Param.DEFAULT);
     componentParam.setValueAsDefault();
     stdDevTypeParam.setValueAsDefault();
 
@@ -971,9 +957,7 @@ public double getEpsilon() {
 	pgvParam.setNonEditable();
 
     // The MMI parameter
-    mmiParam = new DoubleParameter(MMI_NAME, MMI_MIN, MMI_MAX);
-    mmiParam.setInfo(MMI_INFO);
-    mmiParam.setNonEditable();
+    mmiParam = new MMI_Param();
     
     // Add the warning listeners:
     saParam.addParameterChangeWarningListener(warningListener);

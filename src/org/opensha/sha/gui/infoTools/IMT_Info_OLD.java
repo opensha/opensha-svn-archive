@@ -25,6 +25,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.WC94_DisplMagRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.MMI_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
@@ -137,7 +138,7 @@ public final class IMT_Info_OLD {
       }
       return function;
     }
-    else if((imtName.equals(ShakeMap_2003_AttenRel.MMI_NAME))){
+    else if((imtName.equals(MMI_Param.NAME))){
       for(int i=0; i < NUM_MMI ;++i){
         double xVal = Double.parseDouble(format.format(Math.exp(Math.log(MIN_MMI)+i*discretization_mmi)));
         function.set(xVal,1.0);
@@ -165,7 +166,7 @@ public final class IMT_Info_OLD {
       return MIN_PGV;
     else if(imt.equals(WC94_DisplMagRel.FAULT_DISPL_NAME))
       return MIN_FAULT_DISPL;
-    else if(imt.equals(ShakeMap_2003_AttenRel.MMI_NAME))
+    else if(imt.equals(MMI_Param.NAME))
       return MIN_MMI;
     return 0;
   }
@@ -184,7 +185,7 @@ public final class IMT_Info_OLD {
       return MAX_PGV;
     else if(imt.equals(WC94_DisplMagRel.FAULT_DISPL_NAME))
       return MAX_FAULT_DISPL;
-    else if(imt.equals(ShakeMap_2003_AttenRel.MMI_NAME))
+    else if(imt.equals(MMI_Param.NAME))
       return MAX_MMI;
     return 0;
   }
@@ -203,7 +204,7 @@ public final class IMT_Info_OLD {
       return NUM_PGV;
     else if(imt.equals(WC94_DisplMagRel.FAULT_DISPL_NAME))
       return NUM_FAULT_DISPL;
-    else if(imt.equals(ShakeMap_2003_AttenRel.MMI_NAME))
+    else if(imt.equals(MMI_Param.NAME))
       return NUM_MMI;
     return 0;
   }
@@ -222,7 +223,7 @@ public final class IMT_Info_OLD {
       return DEFAULT_PGV;
     else if(imt.equals(WC94_DisplMagRel.FAULT_DISPL_NAME))
       return DEFAULT_FAULT_DISPL;
-    else if(imt.equals(ShakeMap_2003_AttenRel.MMI_NAME))
+    else if(imt.equals(MMI_Param.NAME))
       return DEFAULT_MMI;
     return 0;
   }
@@ -238,7 +239,7 @@ public final class IMT_Info_OLD {
     if(imt.equalsIgnoreCase(PGA_Param.NAME) ||
        imt.equalsIgnoreCase(PGV_Param.NAME) ||
        imt.equalsIgnoreCase(SA_Param.NAME)  ||
-       imt.equalsIgnoreCase(ShakeMap_2003_AttenRel.MMI_NAME)  ||
+       imt.equalsIgnoreCase(MMI_Param.NAME)  ||
        imt.equalsIgnoreCase(WC94_DisplMagRel.FAULT_DISPL_NAME))
       return true;
     return false;
