@@ -625,11 +625,12 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		ArrayList<String> imt=new ArrayList<String>();
 		imtParam = new ArrayList<ParameterAPI>();
 		for(int i=0;i<numSupportedAttenRels;++i){
-			Iterator<DependentParameterAPI> it = ((ScalarIntensityMeasureRelationshipAPI)attenRelsSupported.get(i)).getSupportedIntensityMeasuresIterator();
+			Iterator<ParameterAPI<?>> it =
+				((ScalarIntensityMeasureRelationshipAPI)attenRelsSupported.get(i)).getSupportedIntensityMeasuresIterator();
 
 			//loop over each IMT and get their independent parameters
 			while ( it.hasNext() ) {
-				DependentParameterAPI param = it.next();
+				DependentParameterAPI param = (DependentParameterAPI) it.next();
 
 				String imtName = param.getName();
 				DoubleParameter param1 = null;

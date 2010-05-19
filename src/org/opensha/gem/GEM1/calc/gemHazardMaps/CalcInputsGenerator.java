@@ -76,7 +76,7 @@ public class CalcInputsGenerator {
 				for (HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> map : maps) {
 					for (TectonicRegionType tect : map.keySet()) {
 						ScalarIntensityMeasureRelationshipAPI imr = map.get(tect);
-						ListIterator<ParameterAPI> it = imr.getSiteParamsIterator();
+						ListIterator<ParameterAPI<?>> it = imr.getSiteParamsIterator();
 						while (it.hasNext()) {
 							ParameterAPI param = it.next();
 							try {

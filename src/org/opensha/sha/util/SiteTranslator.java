@@ -350,7 +350,7 @@ implements java.io.Serializable {
 	public boolean setAllSiteParams(ScalarIntensityMeasureRelationshipAPI imr, Collection<SiteDataValue<?>> datas) {
 		boolean setSomething = false;
 		
-		ListIterator<ParameterAPI> it = imr.getSiteParamsIterator();
+		ListIterator<ParameterAPI<?>> it = imr.getSiteParamsIterator();
 		
 		while (it.hasNext()) {
 			ParameterAPI param = it.next();

@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Stack;
 
@@ -14,7 +16,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensha.commons.param.DependentParameterAPI;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.util.ListUtils;
+import org.opensha.gem.GEM1.scratch.ZhaoEtAl_2006_AttenRel;
 import org.opensha.sha.gui.beans.IMR_MultiGuiBean.EnableableCellRenderer;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
@@ -26,6 +31,8 @@ import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
 import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 import org.opensha.sha.imr.param.IntensityMeasureParams.MMI_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
+import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
 import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
 
@@ -33,6 +40,7 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 	
 	static ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs;
 	static ArrayList<TectonicRegionType> demoTRTs;
+	static ArrayList<TectonicRegionType> demoTRTsNoSub;
 	static ArrayList<TectonicRegionType> demoSingleTRT;
 	
 	IMR_MultiGuiBean gui;
@@ -51,6 +59,11 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 		demoTRTs.add(TectonicRegionType.STABLE_SHALLOW);
 		demoTRTs.add(TectonicRegionType.SUBDUCTION_INTERFACE);
 		demoTRTs.add(TectonicRegionType.SUBDUCTION_SLAB);
+		
+		demoTRTsNoSub = new ArrayList<TectonicRegionType>();
+		demoTRTsNoSub.add(TectonicRegionType.ACTIVE_SHALLOW);
+		demoTRTsNoSub.add(TectonicRegionType.STABLE_SHALLOW);
+		
 		demoSingleTRT = new ArrayList<TectonicRegionType>();
 		demoSingleTRT.add(TectonicRegionType.ACTIVE_SHALLOW);
 	}
@@ -76,6 +89,11 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 		assertEquals("IMRMap should be of size 1 with no TRTs", 1, imrMap.size());
 		assertEquals("Single IMR not returning same as first from Map",
 				TRTUtils.getFirstIMR(imrMap).getName(), singleIMR.getName());
+		
+		try {
+			gui.setMultipleIMRs(true);
+			fail("Setting multiple IMRs with no TRTs should throw an exception.");
+		} catch (Exception e1) {}
 		
 		gui.setTectonicRegions(demoTRTs);
 		
@@ -251,6 +269,15 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 		
 		assertEquals("Set IMR for TRT 0 didn't work!",
 				CY_2008_AttenRel.NAME, gui.getIMRMap().get(demoTRTs.get(0)).getName());
+		
+		gui.setTectonicRegions(demoTRTsNoSub);
+		
+		gui.setIMR(CB_2008_AttenRel.NAME, TectonicRegionType.ACTIVE_SHALLOW);
+		gui.setIMR(CY_2008_AttenRel.NAME, TectonicRegionType.STABLE_SHALLOW);
+		try {
+			gui.setIMR(ZhaoEtAl_2006_AttenRel.NAME, TectonicRegionType.SUBDUCTION_INTERFACE);
+			fail("setting IMR for a TRT that's not included should throw an exception.");
+		} catch (Exception e) {}
 	}
 	
 	@Test
@@ -279,6 +306,101 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 				assertTrue("TRT supported not being set correctly",
 						renderer.trtSupported.get(i) == imr.isTectonicRegionSupported(trt));
 			}
+		}
+	}
+	
+	private void setupMultipleDiffIMRs() {
+		gui.setTectonicRegions(demoTRTs);
+		
+		gui.setMultipleIMRs(true);
+		
+		gui.setIMR(CB_2008_AttenRel.NAME, TectonicRegionType.ACTIVE_SHALLOW);
+		gui.setIMR(CY_2008_AttenRel.NAME, TectonicRegionType.STABLE_SHALLOW);
+		gui.setIMR(ZhaoEtAl_2006_AttenRel.NAME, TectonicRegionType.SUBDUCTION_INTERFACE);
+		gui.setIMR(ZhaoEtAl_2006_AttenRel.NAME, TectonicRegionType.SUBDUCTION_SLAB);
+	}
+	
+	@Test
+	public void testMultiParamEdits() {
+		setupMultipleDiffIMRs();
+		
+		gui.showParamEditor(TectonicRegionType.ACTIVE_SHALLOW);
+		verifyParamEditor(gui.getParamEdit(), imrs.get(ListUtils.getIndexByName(imrs, CB_2008_AttenRel.NAME)));
+		
+		gui.showParamEditor(TectonicRegionType.STABLE_SHALLOW);
+		verifyParamEditor(gui.getParamEdit(), imrs.get(ListUtils.getIndexByName(imrs, CY_2008_AttenRel.NAME)));
+		
+		gui.showParamEditor(TectonicRegionType.SUBDUCTION_INTERFACE);
+		verifyParamEditor(gui.getParamEdit(), imrs.get(ListUtils.getIndexByName(imrs, ZhaoEtAl_2006_AttenRel.NAME)));
+		
+		gui.showParamEditor(TectonicRegionType.SUBDUCTION_SLAB);
+		verifyParamEditor(gui.getParamEdit(), imrs.get(ListUtils.getIndexByName(imrs, ZhaoEtAl_2006_AttenRel.NAME)));
+	}
+	
+	private void verifyParamEditor(ParameterListEditor paramEdit, ScalarIntensityMeasureRelationshipAPI imr) {
+		for (ParameterAPI<?> param : imr.getOtherParamsList()) {
+			assertTrue("Param '" + param.getName() + "' from IMR isn't in the param list!",
+					paramEdit.getParameterList().containsParameter(param));
+		}
+		
+		for (ParameterAPI<?> param : paramEdit.getParameterList()) {
+			assertTrue("Param '" + param.getName() + "' from param list isn't in the IMR!",
+					imr.getOtherParamsList().containsParameter(param));
+		}
+	}
+	
+	@Test
+	public void testMultiIMRSiteParams() {
+		setupMultipleDiffIMRs();
+		
+		Iterator<ParameterAPI<?>> siteParamIt;
+		
+		for (ScalarIntensityMeasureRelationshipAPI imr : gui.getIMRMap().values()) {
+			ListIterator<ParameterAPI<?>> mySiteParamIt = imr.getSiteParamsIterator();
+			
+			while (mySiteParamIt.hasNext()) {
+				ParameterAPI<?> myParam = mySiteParamIt.next();
+				siteParamIt = gui.getMultiIMRSiteParamIterator();
+				boolean found = false;
+				while (siteParamIt.hasNext()) {
+					ParameterAPI<?> param = siteParamIt.next();
+					if (myParam.getName().equals(param.getName())) {
+						found = true;
+						break;
+					}
+				}
+				assertTrue("Param '" + myParam.getName() + "' from IMR not in site params iterator!", found);
+			}
+		}
+	}
+	
+	@Test
+	public void testSingleMetadata() {
+		checkMetaForIMR(gui.getSelectedIMR(), gui.getIMRMetadataHTML());
+	}
+	
+	@Test
+	public void testMultipleMetadata() {
+		setupMultipleDiffIMRs();
+		
+		String meta = gui.getIMRMetadataHTML();
+		
+		for (ScalarIntensityMeasureRelationshipAPI imr : gui.getIMRMap().values())
+			checkMetaForIMR(imr, meta);
+		
+		for (TectonicRegionType trt : demoTRTs)
+			assertTrue("Metadata doesn't contain TRT: " + trt.toString(), meta.contains(trt.toString()));
+	}
+	
+	private void checkMetaForIMR(ScalarIntensityMeasureRelationshipAPI imr, String meta) {
+		assertTrue("Metadata doesn't contain IMR name!", meta.contains(imr.getName()));
+		
+		for (ParameterAPI<?> param : imr.getOtherParamsList()) {
+			if (param.getName().equals(SigmaTruncLevelParam.NAME))
+				continue;
+			if (param.getName().equals(TectonicRegionTypeParam.NAME))
+				continue;
+			assertTrue("Metadata doesn't contain IMR param: " + param.getName(), meta.contains(param.getName()));
 		}
 	}
 

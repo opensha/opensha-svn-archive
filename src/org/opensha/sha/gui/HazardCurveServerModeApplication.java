@@ -1296,6 +1296,9 @@ public class HazardCurveServerModeApplication extends JFrame implements
 			// this function will get the selected IMT parameter and set it in
 			// IMT
 			imtGuiBean.setIMTinIMRs(imrMap);
+			
+			// this makes sure that all of the site params are set correctly
+			siteGuiBean.setParamsInIMRs(imrMap.values());
 		} catch (Exception ex) {
 			ExceptionWindow bugWindow = new ExceptionWindow(this, ex,
 					getParametersInfoAsString());

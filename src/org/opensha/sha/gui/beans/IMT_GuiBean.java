@@ -65,7 +65,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 	 * @param imr Choosen AttenuationRelationship
 	 * @param supportedIntensityMeasureIt Supported Intensity Measure Iterator
 	 */
-	public IMT_GuiBean(ScalarIntensityMeasureRelationshipAPI imr,Iterator<ParameterAPI> supportedIntensityMeasureIt) {
+	public IMT_GuiBean(ScalarIntensityMeasureRelationshipAPI imr,Iterator<ParameterAPI<?>> supportedIntensityMeasureIt) {
 		setIM(imr,supportedIntensityMeasureIt );
 	}
 	
@@ -85,7 +85,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 	 * @param imr Choosen AttenuationRelationship
 	 * @param supportedIntensityMeasureIt Supported Intensity Measure Iterator
 	 */
-	public void setIM(ScalarIntensityMeasureRelationshipAPI imr,Iterator<ParameterAPI> supportedIntensityMeasureIt){
+	public void setIM(ScalarIntensityMeasureRelationshipAPI imr,Iterator<ParameterAPI<?>> supportedIntensityMeasureIt){
 		this.imr = imr;
 		init_imtParamListAndEditor(imr.getSupportedIntensityMeasuresList());
 	}

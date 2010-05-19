@@ -691,7 +691,7 @@ extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationsh
 	 *
 	 * @return    The Independent Params Iterator
 	 */
-	public ListIterator getMeanIndependentParamsIterator() {
+	public ListIterator<ParameterAPI<?>> getMeanIndependentParamsIterator() {
 		return meanIndependentParams.getParametersIterator();
 	}
 
@@ -702,7 +702,7 @@ extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationsh
 	 *
 	 * @return    The Independent Parameters Iterator
 	 */
-	public ListIterator getStdDevIndependentParamsIterator() {
+	public ListIterator<ParameterAPI<?>> getStdDevIndependentParamsIterator() {
 		return stdDevIndependentParams.getParametersIterator();
 	}
 
@@ -713,7 +713,7 @@ extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationsh
 	 *
 	 * @return    The Independent Params Iterator
 	 */
-	public ListIterator getExceedProbIndependentParamsIterator() {
+	public ListIterator<ParameterAPI<?>> getExceedProbIndependentParamsIterator() {
 		return exceedProbIndependentParams.getParametersIterator();
 	}
 
@@ -724,7 +724,7 @@ extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationsh
 	 *
 	 * @return    The Independent Params Iterator
 	 */
-	public ListIterator getIML_AtExceedProbIndependentParamsIterator() {
+	public ListIterator<ParameterAPI<?>> getIML_AtExceedProbIndependentParamsIterator() {
 		return imlAtExceedProbIndependentParams.getParametersIterator();
 	}
 

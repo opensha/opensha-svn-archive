@@ -228,7 +228,7 @@ public class Site extends ParameterList implements NamedObjectAPI,Serializable,X
 		Element siteEl = root.addElement(XML_METADATA_NAME);
 		siteEl = getLocation().toXMLMetadata(siteEl);
 		Element paramsEl = siteEl.addElement(XML_PARAMS_NAME);
-		ListIterator<ParameterAPI> paramIt = getParametersIterator();
+		ListIterator<ParameterAPI<?>> paramIt = getParametersIterator();
 		while (paramIt.hasNext()) {
 			ParameterAPI param = paramIt.next();
 			paramsEl = param.toXMLMetadata(paramsEl);

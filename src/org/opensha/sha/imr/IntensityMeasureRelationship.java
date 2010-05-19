@@ -423,7 +423,7 @@ implements IntensityMeasureRelationshipAPI {
 		}
 		catch (ParameterException e) {}
 
-		ListIterator<ParameterAPI> it = supportedIMParams.getParametersIterator();
+		ListIterator<ParameterAPI<?>> it = supportedIMParams.getParametersIterator();
 		while (it.hasNext()) {
 
 			DependentParameterAPI param = (DependentParameterAPI) it.next();
@@ -447,7 +447,7 @@ implements IntensityMeasureRelationshipAPI {
 	 *
 	 * @return    The Site Parameters Iterator
 	 */
-	public ListIterator<ParameterAPI> getSiteParamsIterator() {
+	public ListIterator<ParameterAPI<?>> getSiteParamsIterator() {
 		return siteParams.getParametersIterator();
 	}
 
@@ -460,7 +460,7 @@ implements IntensityMeasureRelationshipAPI {
 	 *
 	 * @return    Iterator for otherParameters
 	 */
-	public ListIterator<ParameterAPI> getOtherParamsIterator() {
+	public ListIterator<ParameterAPI<?>> getOtherParamsIterator() {
 		return otherParams.getParametersIterator();
 	}
 	
@@ -473,7 +473,7 @@ implements IntensityMeasureRelationshipAPI {
 	 *
 	 * @return    The EqkRupture Parameters Iterator
 	 */
-	public ListIterator<ParameterAPI> getEqkRuptureParamsIterator() {
+	public ListIterator<ParameterAPI<?>> getEqkRuptureParamsIterator() {
 		return eqkRuptureParams.getParametersIterator();
 	}
 
@@ -484,7 +484,7 @@ implements IntensityMeasureRelationshipAPI {
 	 *
 	 * @return    The Propagation Effect Parameters Iterator
 	 */
-	public ListIterator<ParameterAPI> getPropagationEffectParamsIterator() {
+	public ListIterator<ParameterAPI<?>> getPropagationEffectParamsIterator() {
 		return propagationEffectParams.getParametersIterator();
 	}
 
@@ -494,7 +494,7 @@ implements IntensityMeasureRelationshipAPI {
 	 *
 	 * @return    The Supported Intensity-Measures Iterator
 	 */
-	public ListIterator<ParameterAPI> getSupportedIntensityMeasuresIterator() {
+	public ListIterator<ParameterAPI<?>> getSupportedIntensityMeasuresIterator() {
 		return supportedIMParams.getParametersIterator();
 	}
 

@@ -145,7 +145,7 @@ public class TestIMT_NewGuiBean implements IMTChangeListener {
 				imrs.get(ListUtils.getIndexByName(imrs, CY_2008_AttenRel.NAME)));
 
 		try {
-			testSetIMT(PGV_Param.NAME, imrMap);
+			testSetIMT(PGV_Param.NAME, -1, imrMap);
 		} catch (Exception e) {
 			fail("Could not set IMT of '"+PGV_Param.NAME+"' in IMRs");
 		}
@@ -156,39 +156,84 @@ public class TestIMT_NewGuiBean implements IMTChangeListener {
 				imrs.get(ListUtils.getIndexByName(imrs, ZhaoEtAl_2006_AttenRel.NAME)));
 
 		try {
-			testSetIMT(SA_Param.NAME, imrMap);
+			testSetIMT(SA_Param.NAME, 0.1, imrMap);
 		} catch (Exception e) {
 			fail("Could not set IMT of '"+SA_Param.NAME+"' in IMRs");
 		}
 		try {
-			testSetIMT(PGA_Param.NAME, imrMap);
+			testSetIMT(PGA_Param.NAME, -1, imrMap);
 		} catch (Exception e) {
 			fail("Could not set IMT of '"+PGA_Param.NAME+"' in IMRs");
 		}
 		
 		try {
-			testSetIMT(MMI_Param.NAME, imrMap);
+			testSetIMT(MMI_Param.NAME, -1, imrMap);
 			fail("Setting IMT of '"+MMI_Param.NAME+"' in IMRs should fail if it's not supported");
 		} catch (Exception e) {}
 	}
-
-	private void testSetIMT(String imtName,
-			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap) {
+	
+	private void setIMTinGUI(String imtName, double period) {
 		gui.setSelectedIMT(imtName);
+		if (imtName.equals(SA_Param.NAME))
+			gui.getSelectedIM().getIndependentParameter(PeriodParam.NAME).setValue(period);
+	}
 
+	private void testSetIMT(String imtName, double period,
+			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap) {
+		setIMTinGUI(imtName, period);
 		gui.setIMTinIMRs(imrMap);
 
-		double period = -1;
-		if (imtName.equals(SA_Param.NAME))
-			period = (Double)gui.getSelectedIM().getIndependentParameter(PeriodParam.NAME).getValue();
 		for (ScalarIntensityMeasureRelationshipAPI imr : imrMap.values()) {
-			assertEquals("IMT not set properly!", imtName, imr.getIntensityMeasure().getName());
-			if (period >= 0) {
-				double myPeriod = (Double)((DependentParameterAPI<Double>)imr.getIntensityMeasure())
-				.getIndependentParameter(PeriodParam.NAME).getValue();
-				assertEquals("Period not set properly!", period, myPeriod, 0.0);
-			}
+			testIMTSetCorrectly(imtName, period, imr);
 		}
+	}
+	
+	private void testIMTSetCorrectly(String imtName, double period, ScalarIntensityMeasureRelationshipAPI imr) {
+		assertEquals("IMT not set properly!", imtName, imr.getIntensityMeasure().getName());
+		if (period >= 0) {
+			double myPeriod = (Double)((DependentParameterAPI<Double>)imr.getIntensityMeasure())
+			.getIndependentParameter(PeriodParam.NAME).getValue();
+			assertEquals("Period not set properly!", period, myPeriod, 0.0);
+		}
+	}
+	
+	@Test
+	public void testSingleIMR() {
+		ScalarIntensityMeasureRelationshipAPI cb2008 =
+			imrs.get(ListUtils.getIndexByName(imrs, CB_2008_AttenRel.NAME));
+		
+		gui = new IMT_NewGuiBean(cb2008);
+		
+		ArrayList<String> supportedIMTs = gui.getSupportedIMTs();
+		
+		for (ParameterAPI<?> imtParam : cb2008.getSupportedIntensityMeasuresList()) {
+			String imtName = imtParam.getName();
+			assertTrue("IMT '" + imtName + "' should be in list!",
+					supportedIMTs.contains(imtName));
+		}
+		
+		gui.setIMR(cb2008);
+		
+		String imtName;
+		double period;
+		
+		imtName = PGA_Param.NAME;
+		period = -1;
+		setIMTinGUI(imtName, period);
+		gui.setIMTinIMR(cb2008);
+		testIMTSetCorrectly(imtName, period, cb2008);
+		
+		imtName = SA_Param.NAME;
+		period = 0.1;
+		setIMTinGUI(imtName, period);
+		gui.setIMTinIMR(cb2008);
+		testIMTSetCorrectly(imtName, period, cb2008);
+		
+		imtName = SA_Param.NAME;
+		period = 1.0;
+		setIMTinGUI(imtName, period);
+		gui.setIMTinIMR(cb2008);
+		testIMTSetCorrectly(imtName, period, cb2008);
 	}
 
 	@Override

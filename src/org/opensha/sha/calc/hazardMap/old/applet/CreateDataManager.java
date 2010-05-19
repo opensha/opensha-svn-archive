@@ -325,7 +325,7 @@ public class CreateDataManager extends StepManager implements ScalarIMRChangeLis
 			imr.getParameter(PeriodParam.NAME).setValue(period);
 		}
 		ArrayList<ParameterAPI> siteParams = sitesGuiBean.getSiteParams();
-		Iterator<ParameterAPI> imrParams = imr.getSiteParamsIterator();
+		Iterator<ParameterAPI<?>> imrParams = imr.getSiteParamsIterator();
 		while (imrParams.hasNext()) {
 			ParameterAPI imrParam = imrParams.next();
 			for (ParameterAPI param : siteParams) {

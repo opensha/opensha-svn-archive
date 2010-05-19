@@ -527,6 +527,30 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 			throw new RuntimeException("Cannot get single selected IMR when multiple selected!");
 		return getIMRForChooser(0);
 	}
+	
+	/**
+	 * In multiple IMR mode, shows the parameter editor for the IMR associated with the
+	 * given tectonic region type.
+	 * 
+	 * @param trt
+	 */
+	public void showParamEditor(TectonicRegionType trt) {
+		if (!isMultipleIMRs())
+			throw new RuntimeException("Cannot show param editor for TRT in single IMR mode!");
+		for (int i=0; i<regions.size(); i++) {
+			if (regions.get(i).toString().equals(trt.toString())) {
+				ShowHideButton button = showHideButtons.get(i);
+				if (button.isShowing())
+					button.doClick();
+				return;
+			}
+		}
+		throw new RuntimeException("TRT '" + trt.toString() + "' not found!");
+	}
+	
+	protected IMR_ParamEditor getParamEdit() {
+		return paramEdit;
+	}
 
 	/**
 	 * This returns a clone of the current IMR map in the GUI. This internal IMR map is updated
@@ -660,7 +684,6 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	 * @param imrMap
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public static Iterator<ParameterAPI<?>> getMultiIMRSiteParamIterator(
 			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap) {
 		ArrayList<ParameterAPI<?>> params = new ArrayList<ParameterAPI<?>>();
@@ -777,7 +800,9 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 			}
 			return meta;
 		} else {
-			return paramEdit.getVisibleParameters().getParameterListMetadataString();
+			String meta = "IMR = " + getSelectedIMR().getName() + "; ";
+			meta += paramEdit.getVisibleParameters().getParameterListMetadataString();
+			return meta;
 		}
 	}
 

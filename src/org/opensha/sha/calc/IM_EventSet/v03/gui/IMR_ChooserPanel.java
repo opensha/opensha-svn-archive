@@ -176,7 +176,7 @@ public class IMR_ChooserPanel extends NamesListPanel implements IMR_GuiBeanAPI, 
 		for (int i=0; i<imrs.size(); i++) {
 			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
 			ScalarIntensityMeasureRelationshipAPI myIMR = imrGuiBean.getIMR_Instance(imr.getName());
-			ListIterator<ParameterAPI> paramIt = myIMR.getOtherParamsIterator();
+			ListIterator<ParameterAPI<?>> paramIt = myIMR.getOtherParamsIterator();
 			while (paramIt.hasNext()) {
 				ParameterAPI param = paramIt.next();
 				param.setValue(imr.getParameter(param.getName()).getValue());

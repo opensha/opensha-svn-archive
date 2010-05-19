@@ -162,7 +162,7 @@ public abstract class IM_EventSetOutputWriter {
 	@SuppressWarnings("unchecked")
 	protected ArrayList<ParameterAPI> getDefaultSiteParams(ScalarIntensityMeasureRelationshipAPI attenRel) {
 		logger.log(Level.FINE, "Storing default IMR site related params.");
-		ListIterator<ParameterAPI> siteParamsIt = attenRel.getSiteParamsIterator();
+		ListIterator<ParameterAPI<?>> siteParamsIt = attenRel.getSiteParamsIterator();
 		ArrayList<ParameterAPI> defaultSiteParams = new ArrayList<ParameterAPI>();
 
 		while (siteParamsIt.hasNext()) {
@@ -201,7 +201,7 @@ public abstract class IM_EventSetOutputWriter {
 		ArrayList<ArrayList<SiteDataValue<?>>> sitesData = this.calc.getSitesData();
 
 		// we need to make sure that the site has parameters for this atten rel
-		ListIterator<ParameterAPI> siteParamsIt = attenRel.getSiteParamsIterator();
+		ListIterator<ParameterAPI<?>> siteParamsIt = attenRel.getSiteParamsIterator();
 		while (siteParamsIt.hasNext()) {
 			ParameterAPI attenParam = siteParamsIt.next();
 			for (int i=0; i<sites.size(); i++) {

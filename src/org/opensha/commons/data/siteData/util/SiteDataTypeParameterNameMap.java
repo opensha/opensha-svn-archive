@@ -108,7 +108,7 @@ public class SiteDataTypeParameterNameMap extends NtoNMap<String, String> {
 	 * @return
 	 */
 	public boolean isTypeApplicable(String type, ScalarIntensityMeasureRelationshipAPI attenRel) {
-		ListIterator<ParameterAPI> it = attenRel.getSiteParamsIterator();
+		ListIterator<ParameterAPI<?>> it = attenRel.getSiteParamsIterator();
 		while (it.hasNext()) {
 			ParameterAPI param = it.next();
 			if (isValidMapping(type, param.getName()))
