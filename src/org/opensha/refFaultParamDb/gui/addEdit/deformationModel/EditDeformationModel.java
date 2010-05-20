@@ -64,11 +64,11 @@ public class EditDeformationModel extends JPanel implements ActionListener, Para
 	
 	public EditDeformationModel(DB_AccessAPI dbConnection) {
 		this.dbConnection = dbConnection; 
-		table = new DeformationModelTable(dbConnection, tableModel);
 		deformationModelDB_DAO = new DeformationModelDB_DAO(dbConnection);
 		deformationModelSummaryDB_DAO = new DeformationModelSummaryDB_DAO(dbConnection);
 		faultSectionDB_DAO = new FaultSectionVer2_DB_DAO(dbConnection);
 		tableModel = new DeformationModelTableModel(dbConnection);
+		table = new DeformationModelTable(dbConnection, tableModel);
 		if(SessionInfo.getContributor()==null)  {
 			this.addModelButton.setEnabled(false);
 			this.removeModelButton.setEnabled(false);
