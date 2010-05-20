@@ -17,6 +17,7 @@ import javax.swing.JOptionPane;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.editor.StringParameterEditor;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.FaultModelSummaryDB_DAO;
@@ -36,13 +37,15 @@ public class AddDeformationModel extends JFrame implements ActionListener {
 	private final static String MSG_DEF_MODEL_NAME_MISSING = "Deformation model name is missing";
 	private final static String MSG_DEF_MODEL_ADD_SUCCESS = "Deformation Model added successfully to the database";
 	private ArrayList faultModelsList;
-	private  FaultModelSummaryDB_DAO faultModelDB_DAO = new FaultModelSummaryDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
-	private DeformationModelSummaryDB_DAO defModelSummaryDB_DAO = new DeformationModelSummaryDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
+	private  FaultModelSummaryDB_DAO faultModelDB_DAO;
+	private DeformationModelSummaryDB_DAO defModelSummaryDB_DAO;
 	private StringParameter faultModelsParam;
 	private final static String AVAILABLE_FAULT_MODEL_PARAM_NAME = "Choose Fault Model";
 	private EditDeformationModel editDeformationModel;
 	
-	public AddDeformationModel(EditDeformationModel editDeformationModel) {
+	public AddDeformationModel(DB_AccessAPI dbConnection, EditDeformationModel editDeformationModel) {
+		faultModelDB_DAO = new FaultModelSummaryDB_DAO(dbConnection);
+		defModelSummaryDB_DAO = new DeformationModelSummaryDB_DAO(dbConnection);
 		this.editDeformationModel = editDeformationModel;
 		getContentPane().setLayout(new GridBagLayout());
 		makeDeformationModelNameParam(); // make deformation model parameter

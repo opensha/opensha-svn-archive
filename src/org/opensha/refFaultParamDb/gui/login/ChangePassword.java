@@ -37,6 +37,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import org.opensha.refFaultParamDb.dao.db.ContributorDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
 import org.opensha.refFaultParamDb.gui.LoginWindow;
@@ -73,9 +74,10 @@ public class ChangePassword extends JFrame implements ActionListener {
 	private final static String MSG_PWD_CHANGE_FAILED = "Password change failed\n"+
 	"Check username and current password";
 
-	private ContributorDB_DAO contributorDAO = new ContributorDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
+	private ContributorDB_DAO contributorDAO;
 
-	public ChangePassword() {
+	public ChangePassword(DB_AccessAPI dbConnection) {
+		contributorDAO = new ContributorDB_DAO(dbConnection);
 		try {
 			jbInit();
 			changePasswordButton.addActionListener(this);
@@ -86,9 +88,6 @@ public class ChangePassword extends JFrame implements ActionListener {
 		catch(Exception e) {
 			e.printStackTrace();
 		}
-	}
-	public static void main(String[] args) {
-		new ChangePassword();
 	}
 	private void jbInit() throws Exception {
 		this.getContentPane().setLayout(borderLayout1);

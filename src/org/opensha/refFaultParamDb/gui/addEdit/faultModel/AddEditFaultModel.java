@@ -21,6 +21,7 @@ import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.FaultModelDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.FaultModelSummaryDB_DAO;
@@ -40,9 +41,9 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 	
 	private ArrayList faultModelsList;
 	private ArrayList faultSectionsSummaryList;
-	private  FaultModelSummaryDB_DAO faultModelDB_DAO = new FaultModelSummaryDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
-	private  FaultModelDB_DAO faultModelSectionDB_DAO = new FaultModelDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
-	private  FaultSectionVer2_DB_DAO faultSectionDB_DAO = new FaultSectionVer2_DB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
+	private  FaultModelSummaryDB_DAO faultModelDB_DAO;
+	private  FaultModelDB_DAO faultModelSectionDB_DAO;
+	private  FaultSectionVer2_DB_DAO faultSectionDB_DAO;
 	private StringParameter faultModelsParam;
 	private final static String AVAILABLE_FAULT_MODEL_PARAM_NAME = "Choose Fault Model";
 	private ConstrainedStringParameterEditor faultModelsParamEditor;
@@ -61,7 +62,13 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 	private final static String MSG_UPDATE_MODEL_SUCCESS = "Model Updated Successfully";
 	private final static String MSG_NO_FAULT_MODEL_EXISTS = "Currently, there is no Fault Model";
 	
-	public AddEditFaultModel() {
+	private DB_AccessAPI dbConnection;
+	
+	public AddEditFaultModel(DB_AccessAPI dbConnection) {
+		this.dbConnection = dbConnection;
+		faultModelDB_DAO = new FaultModelSummaryDB_DAO(dbConnection);
+		faultModelSectionDB_DAO = new FaultModelDB_DAO(dbConnection);
+		faultSectionDB_DAO = new FaultSectionVer2_DB_DAO(dbConnection);
 		if(SessionInfo.getContributor()==null)  {
 			this.addModelButton.setEnabled(false);
 			this.removeModelButton.setEnabled(false);
@@ -236,7 +243,7 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 		for(int i=0; i<faultSectionIdList.size(); ++i) {
 			faultSectionIds[i] = ((Integer)faultSectionIdList.get(i)).intValue();
 		}
-		SectionInfoFileWriter fileWriter = new SectionInfoFileWriter();
+		SectionInfoFileWriter fileWriter = new SectionInfoFileWriter(dbConnection);
 		fileWriter.writeForFaultModel(faultSectionIds, file);
 	}
 	
@@ -364,7 +371,7 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 	private void loadAllFaultSectionsSummary() {
 		faultSectionsSummaryList = faultSectionDB_DAO.getAllFaultSectionsSummary();
 		tableModel = new FaultModelTableModel(faultSectionsSummaryList);
-		table = new FaultModelTable(tableModel);
+		table = new FaultModelTable(dbConnection, tableModel);
 	}
 	
 }

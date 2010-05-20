@@ -39,6 +39,7 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
 import org.opensha.commons.util.ClassUtils;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.gui.login.ChangePassword;
@@ -81,8 +82,11 @@ public class LoginWindow extends JFrame implements ActionListener {
 	private final static String READ_ONLY = "Read Only";
 	private final static String READ_WRITE = "Read/Write";
 	private String appClassName;
+	
+	private DB_AccessAPI dbConnection;
 
-	public LoginWindow(String className){
+	public LoginWindow(DB_AccessAPI dbConnection, String className){
+		this.dbConnection = dbConnection;
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		init();
 		showHideUserNamePwd();
@@ -228,9 +232,9 @@ public class LoginWindow extends JFrame implements ActionListener {
 		} else if(source == newUserButton) {
 			new RequestUserAccount();
 		} else if(source == forgetPassButton) {
-			new GetAccountInfo();
+			new GetAccountInfo(dbConnection);
 		} else if(source == changePassButton) {
-			new ChangePassword();
+			new ChangePassword(dbConnection);
 		} else if(source == this.loginTypeComboBox) {
 			showHideUserNamePwd();
 		}
@@ -259,24 +263,12 @@ public class LoginWindow extends JFrame implements ActionListener {
 
 	//static initializer for setting look & feel
 	static {
-		String osName = System.getProperty("os.name");
+//		String osName = System.getProperty("os.name");
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		}
 		catch(Exception e) {
 		}
-	}
-
-	/**
-	 * Argument 1 : Class name of the application that needs to be authenticated
-	 * @param args
-	 */
-	public static void main(String args[]) {
-		//LoginWindow loginWindow = new LoginWindow(args[0]);
-		//LoginWindow loginWindow = new LoginWindow(ViewFaultSection.class.getName());
-		//LoginWindow loginWindow = new LoginWindow(AddEditFaultModel.class.getName());
-		LoginWindow loginWindow = new LoginWindow(FaultSectionsAndModelsApp.class.getName());
-		//	  LoginWindow loginWindow = new LoginWindow(PaleoSiteApp2.class.getName());
 	}
 
 }

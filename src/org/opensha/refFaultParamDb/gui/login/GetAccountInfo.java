@@ -39,6 +39,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import org.opensha.refFaultParamDb.dao.db.ContributorDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.servlets.UserAccountInfoServlet;
 import org.opensha.refFaultParamDb.vo.Contributor;
@@ -64,9 +65,10 @@ public class GetAccountInfo extends JFrame implements ActionListener {
 	private final static String MSG_EMAIL_MISSING = "Email address is missing";
 	private final static String MSG_INVALID_EMAIL = "Invalid email address";
 	private final static String MSG_SUCCESS = "Account Info emailed successfully";
-	private ContributorDB_DAO contributorDAO = new ContributorDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
+	private ContributorDB_DAO contributorDAO;
 
-	public GetAccountInfo() {
+	public GetAccountInfo(DB_AccessAPI dbConnection) {
+		contributorDAO = new ContributorDB_DAO(dbConnection);
 		try {
 			jbInit();
 			emailAccountInfoButton.addActionListener(this);
@@ -77,9 +79,6 @@ public class GetAccountInfo extends JFrame implements ActionListener {
 		catch(Exception e) {
 			e.printStackTrace();
 		}
-	}
-	public static void main(String[] args) {
-		new GetAccountInfo();
 	}
 	private void jbInit() throws Exception {
 		this.getContentPane().setLayout(gridBagLayout2);

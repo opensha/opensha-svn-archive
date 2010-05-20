@@ -38,6 +38,7 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
 import org.opensha.refFaultParamDb.vo.Reference;
@@ -62,11 +63,12 @@ public class ViewAllReferences extends JFrame implements ActionListener {
   private JScrollPane referencesScrollPane = new JScrollPane();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   // references DAO
-  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
+  private ReferenceDB_DAO referenceDAO;
   private final static String MSG_MINUTE_TO_LOAD = " May take a minute to load ........";
   private CalcProgressBar progressBar = new CalcProgressBar("Getting References", MSG_MINUTE_TO_LOAD);
   private final static String TITLE = "All References";
-  public ViewAllReferences() {
+  public ViewAllReferences(DB_AccessAPI dbConnection) {
+	  referenceDAO = new ReferenceDB_DAO(dbConnection);
     try {
       progressBar.setVisible(true);
       jbInit();

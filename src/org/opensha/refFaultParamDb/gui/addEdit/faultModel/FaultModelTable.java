@@ -32,6 +32,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.gui.view.ViewFaultSection;
 
 
@@ -45,11 +46,11 @@ public class FaultModelTable extends JTable{
 	/**
 	 * @param dm
 	 */
-	public FaultModelTable(TableModel dm) {
+	public FaultModelTable(DB_AccessAPI dbConnection, TableModel dm) {
 		super(dm);
 		getTableHeader().setReorderingAllowed(false);
 		getColumnModel().getColumn(1).setCellRenderer(new ButtonRenderer());
-		addMouseListener(new MouseListener(this));
+		addMouseListener(new MouseListener(dbConnection, this));
 		// set width of first column 
 		TableColumn col1 = getColumnModel().getColumn(0);
 		col1.setPreferredWidth(100);
@@ -77,7 +78,10 @@ class MouseListener extends MouseAdapter {
 	private ViewFaultSection viewFaultSection ;
 	private JFrame frame;
 	
-	public MouseListener(JTable table) {
+	private DB_AccessAPI dbConnection;
+	
+	public MouseListener(DB_AccessAPI dbConnection, JTable table) {
+		this.dbConnection = dbConnection;
 		this.table = table;
 	}
 	
@@ -88,7 +92,7 @@ class MouseListener extends MouseAdapter {
         int column = table.columnAtPoint(p); // This is the view column!
         if(column!=1) return;
         if(viewFaultSection==null) 
-        		viewFaultSection = new ViewFaultSection();
+        		viewFaultSection = new ViewFaultSection(dbConnection);
         if(frame==null || !frame.isShowing()) {
         		frame = new JFrame();
         		frame.getContentPane().setLayout(new BorderLayout());

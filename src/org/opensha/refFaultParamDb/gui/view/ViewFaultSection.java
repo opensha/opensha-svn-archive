@@ -24,6 +24,7 @@ import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
@@ -43,7 +44,7 @@ import org.opensha.sha.faultSurface.FaultTrace;
  *
  */
 public class ViewFaultSection extends JPanel implements ParameterChangeListener, ActionListener {
-	
+
 	// paramter to provide a list of all fault sections in the database
 	private final static String FAULT_SECTION_PARAM_NAME = "Fault Section";
 	private StringParameter faultSectionParam;
@@ -83,8 +84,8 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 	private final static String SECTION_AREA = "Area (sq km)";
 	private InfoLabel sectionAreaLabel = new InfoLabel();
 	private GridBagLayout gridBagLayout = new GridBagLayout();
-	private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_ConnectionPool.getLatestReadWriteConn()); 
-	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_ConnectionPool.getLatestReadWriteConn()); 
+	private FaultSectionVer2_DB_DAO faultSectionDAO; 
+	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO; 
 	private JButton editButton = new JButton("Edit");
 	private JButton removeButton = new JButton("Remove");
 	private JButton saveButton = new JButton("Save All to File");
@@ -93,16 +94,22 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 	private final static String SAVE_SUBSECTIONS_BUTTON_TOOL_TIP = "Save All Sub Sections to a txt file";
 	private JButton addButton = new JButton("Add");
 	private final static String MSG_REMOVE_CONFIRM = "Do you want to delete this fault Section from the database?\n"+
-		"All PaleoSites associated with this Fault Section will be removed.";
+	"All PaleoSites associated with this Fault Section will be removed.";
 	private final static String MSG_REMOVE_SUCCESS = "Fault Section removed sucessfully from the database";
 	private FaultSectionData selectedFaultSection;
 	private ConstrainedStringParameterEditor faultSectionParamEditor;
 	
-	public ViewFaultSection() {
-		this(null);
+	private DB_AccessAPI dbConnection;
+
+	public ViewFaultSection(DB_AccessAPI dbConnection) {
+		this(dbConnection, null);
 	}
-	
-	public ViewFaultSection(String selectedFaultSectionNameId) {
+
+	public ViewFaultSection(DB_AccessAPI dbConnection, String selectedFaultSectionNameId) {
+		this.dbConnection = dbConnection;
+		faultSectionDAO = new FaultSectionVer2_DB_DAO(dbConnection);
+		prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(dbConnection);
+		
 		initGUI(); // intialize the GUI
 		if(selectedFaultSectionNameId!=null) this.faultSectionParam.setValue(selectedFaultSectionNameId);
 		refreshFaultSectionValues(); // fill the fault section values according to selected Fault Section
@@ -113,7 +120,7 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 			addButton.setEnabled(false);
 		}
 	}
-	
+
 	/**
 	 * Set the selected fault section
 	 * 
@@ -123,113 +130,113 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 		faultSectionParam.setValue(selectedFaultSectionNameId);
 		faultSectionParamEditor.refreshParamEditor();
 		refreshFaultSectionValues(); // fill the fault section values according to selected Fault Section
-		
+
 	}
-	
+
 	private void initGUI() {
 		// set the Layout
 		this.setLayout(gridBagLayout);
 		int pos = 1;
-		
+
 		// fault section names parameter editor
 		this.makeFaultSectionNamesEditor();
-			
+
 		// JPanel to view QfaultId, entry date, source and comments
 		JPanel idPanel = getInfoPanel();	
 		add(idPanel, new GridBagConstraints(0, pos++, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-		        new Insets(0, 0, 0, 0), 0, 0));	
-		
+				, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+				new Insets(0, 0, 0, 0), 0, 0));	
+
 		// fault trace label
 		add(GUI_Utils.getPanel( this.faultTraceLabel, FAULT_TRACE), new GridBagConstraints(0, pos++, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-		        new Insets(0, 0, 0, 0), 0, 0));
-		
+				, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+				new Insets(0, 0, 0, 0), 0, 0));
+
 		// upper depth
 		add(GUI_Utils.getPanel(upperDepthLabel, UPPER_DEPTH), new GridBagConstraints(0, pos++, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-		        new Insets(0, 0, 0, 0), 0, 0));
+				, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+				new Insets(0, 0, 0, 0), 0, 0));
 		// lower depth
 		add(GUI_Utils.getPanel(lowerDepthLabel, LOWER_DEPTH), new GridBagConstraints(0, pos++, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-		        new Insets(0, 0, 0, 0), 0, 0));
-		
+				, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+				new Insets(0, 0, 0, 0), 0, 0));
+
 		pos = 0;
-		
+
 		//		 button to allow editing of Fault Section 
 		add(this.makeButtonPanel(), new GridBagConstraints(1, pos++, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-		        new Insets(0, 0, 0, 0), 0, 0));
-		
+				, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				new Insets(0, 0, 0, 0), 0, 0));
+
 		// slip rate
 		add(GUI_Utils.getPanel(slipRateLabel, AVE_LONG_TERM_SLIP_RATE), new GridBagConstraints(1, pos++, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-		        new Insets(0, 0, 0, 0), 0, 0));
+				, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+				new Insets(0, 0, 0, 0), 0, 0));
 		// dip Panel
 		JPanel dipPanel = getDipPanel();
 		add(dipPanel, new GridBagConstraints(1, pos++, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-		        new Insets(0, 0, 0, 0), 0, 0));
-		
+				, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+				new Insets(0, 0, 0, 0), 0, 0));
+
 		// rake
 		add(GUI_Utils.getPanel(rakeLabel, RAKE), new GridBagConstraints(1, pos++, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-		        new Insets(0, 0, 0, 0), 0, 0));
-		
-		
+				, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+				new Insets(0, 0, 0, 0), 0, 0));
+
+
 		// aseismic slip factor
 		add(GUI_Utils.getPanel(aseismicSlipLabel, ASEISMIC_SLIP), new GridBagConstraints(1, pos++, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-		        new Insets(0, 0, 0, 0), 0, 0));
-		
+				, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+				new Insets(0, 0, 0, 0), 0, 0));
+
 		// derived values
 		add(getDerivedValsPanel(), new GridBagConstraints(1, pos++, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-		        new Insets(0, 0, 0, 0), 0, 0));
+				, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+				new Insets(0, 0, 0, 0), 0, 0));
 	}
-	
+
 	private JPanel makeButtonPanel() {
 		JPanel panel = new JPanel(new GridBagLayout());
 		// edit fault section button
 		panel.add(this.editButton, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-		        new Insets(0, 0, 0, 0), 0, 0));
+				, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+				new Insets(0, 0, 0, 0), 0, 0));
 		editButton.addActionListener(this);
 		// remove fault section button
 		panel.add(this.removeButton, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-		        new Insets(0, 0, 0, 0), 0, 0));
+				, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+				new Insets(0, 0, 0, 0), 0, 0));
 		removeButton.addActionListener(this);
 		// add fault section button
 		panel.add(this.addButton, new GridBagConstraints(2, 0, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-		        new Insets(0, 0, 0, 0), 0, 0));
+				, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+				new Insets(0, 0, 0, 0), 0, 0));
 		addButton.addActionListener(this);
 		// save all fault sections to a file button
 		panel.add(this.saveButton, new GridBagConstraints(3, 0, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-		        new Insets(0, 0, 0, 0), 0, 0));
+				, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+				new Insets(0, 0, 0, 0), 0, 0));
 		saveButton.addActionListener(this);
 		saveButton.setToolTipText(SAVE_BUTTON_TOOL_TIP);
 		// save subsections to a file
 		panel.add(this.saveSubSections, new GridBagConstraints(4, 0, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-		        new Insets(0, 0, 0, 0), 0, 0));
+				, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+				new Insets(0, 0, 0, 0), 0, 0));
 		saveSubSections.addActionListener(this);
 		saveSubSections.setToolTipText(SAVE_SUBSECTIONS_BUTTON_TOOL_TIP);
 		return panel;
 	}
-	
+
 	public void actionPerformed(ActionEvent event) {
 		Object source = event.getSource();
 		if(source == this.editButton) { // edit fault section
-			EditFaultSection editFaultSection = new EditFaultSection(this.selectedFaultSection, this);
+			EditFaultSection editFaultSection = new EditFaultSection(dbConnection, this.selectedFaultSection, this);
 		}
 		else if(source == this.removeButton) { // remove fault section
 			removeFaultSection();
 			refreshFaultSectionValues(); // fill the fault section values according to selected Fault Section
 		} else if(source == this.addButton) { // add a new fault section
-			EditFaultSection editFaultSection = new EditFaultSection(null, this);
+			EditFaultSection editFaultSection = new EditFaultSection(dbConnection, null, this);
 		} else if(source == this.saveButton) { // save all fault sections to a file
 			File file = getOutFile();
 			if(file!=null) writeSectionsToFile(file);
@@ -243,10 +250,10 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 			}catch(NumberFormatException ex) {
 				JOptionPane.showMessageDialog(this, "Invalid subsection length");
 			}
-			
+
 		}
 	}
-	
+
 	/**
 	 * Get output filename
 	 * @return
@@ -264,7 +271,7 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 	 */
 	private void writeSubSectionsToFile(File file, double subSecLen) {
 		ArrayList faultSectionPrefDataList = prefFaultSectionDAO.getAllFaultSectionPrefData();
-		SectionInfoFileWriter sectionWriter = new SectionInfoFileWriter();
+		SectionInfoFileWriter sectionWriter = new SectionInfoFileWriter(dbConnection);
 		FileWriter fw;
 		try {
 			fw = new FileWriter(file);
@@ -287,8 +294,8 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 			e.printStackTrace();
 		}
 	}
-		
-	
+
+
 	/**
 	 * Write fault sections to a file
 	 * @param file
@@ -299,10 +306,10 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 		for(int i=0; i<faultSectionsSummaryList.size(); ++i) {
 			faultSectionIds[i] = ((FaultSectionSummary)faultSectionsSummaryList.get(i)).getSectionId();
 		}
-		SectionInfoFileWriter fileWriter = new SectionInfoFileWriter();
+		SectionInfoFileWriter fileWriter = new SectionInfoFileWriter(dbConnection);
 		fileWriter.writeForFaultModel(faultSectionIds, file);
 	}
-	
+
 	/**
 	 * Remove the fault section from the database.
 	 * Ask the user to confirm the removal of fault section first
@@ -320,20 +327,20 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 			makeFaultSectionNamesEditor();	
 		}
 	}
-	
-	
+
+
 	private JPanel getDipPanel() {
 		JPanel dipPanel = GUI_Utils.getPanel(DIP);
-		
+
 		// dip
 		dipPanel.add(dipLabel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-		        new Insets(0, 0, 0, 0), 0, 0));
-		
+				, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				new Insets(0, 0, 0, 0), 0, 0));
+
 		// dip direction
 		dipPanel.add(dipDirectionLabel, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-		        new Insets(0, 0, 0, 0), 0, 0));
+				, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+				new Insets(0, 0, 0, 0), 0, 0));
 		return dipPanel;
 	}
 
@@ -341,19 +348,19 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 		JPanel derivedValsPanel = GUI_Utils.getPanel(DERIVED_VALS);	
 		// Fault Trace Length
 		derivedValsPanel.add(this.sectionLengthLabel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-		        new Insets(0, 0, 0, 0), 0, 0));
+				, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				new Insets(0, 0, 0, 0), 0, 0));
 		// Down Dip width
 		derivedValsPanel.add(this.downDipWidthLabel, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-		        new Insets(0, 0, 0, 0), 0, 0));
+				, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				new Insets(0, 0, 0, 0), 0, 0));
 		// Section Area
 		derivedValsPanel.add(this.sectionAreaLabel, new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-		        new Insets(0, 0, 0, 0), 0, 0));
+				, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				new Insets(0, 0, 0, 0), 0, 0));
 		return derivedValsPanel;
 	}
-	
+
 	/**
 	 * JPanel to view QfaultId, entry date, source and comments
 	 * @return
@@ -361,34 +368,34 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 	private JPanel getInfoPanel() {
 		// JPanel to view QfaultId, entry date, source and comments
 		JPanel idPanel = GUI_Utils.getPanel(INFO);
-		
+
 		// short name
 		idPanel.add(shortNameLabel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-		        new Insets(0, 0, 0, 0), 0, 0));
-		
+				, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				new Insets(0, 0, 0, 0), 0, 0));
+
 		// entry date
 		idPanel.add(entryDateLabel, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-		        new Insets(0, 0, 0, 0), 0, 0));
-		
+				, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				new Insets(0, 0, 0, 0), 0, 0));
+
 		// qfault Id
 		idPanel.add(qfaultLabel, new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-		        new Insets(0, 0, 0, 0), 0, 0));
-		
+				, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				new Insets(0, 0, 0, 0), 0, 0));
+
 		// source 
 		idPanel.add(sourceLabel, new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-		        new Insets(0, 0, 0, 0), 0, 0));
-		
+				, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				new Insets(0, 0, 0, 0), 0, 0));
+
 		//		 comments
 		idPanel.add(commentsLabel, new GridBagConstraints(0, 4, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-		        new Insets(0, 0, 0, 0), 0, 0));
+				, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				new Insets(0, 0, 0, 0), 0, 0));
 		return idPanel;
 	}
-	
+
 	/**
 	 * Make parameter editor to list all availble Fault Section names
 	 * @return
@@ -404,18 +411,18 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 		faultSectionParamEditor = new ConstrainedStringParameterEditor(faultSectionParam);
 		// fault section name editor 
 		add(faultSectionParamEditor, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-		        new Insets(0, 0, 0, 0), 0, 0));
+				, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+				new Insets(0, 0, 0, 0), 0, 0));
 		this.updateUI();
 	}
-	
+
 	/**
 	 * This function is called whenever chooses a different fault section
 	 */
 	public void parameterChange(ParameterChangeEvent event) {
 		refreshFaultSectionValues();
 	}
-	
+
 	/**
 	 * Refresh the fault section values based on fault section chosen by the user
 	 * @param faultSectionName
@@ -434,36 +441,36 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 		if(selectedFaultSection.getAveLongTermSlipRateEst()!=null)
 			slipRateEst = selectedFaultSection.getAveLongTermSlipRateEst().getEstimate();
 		slipRateLabel.setTextAsHTML(slipRateEst, AVE_LONG_TERM_SLIP_RATE, PROB);
-		
+
 		// Dip Est
 		Estimate dipEst = null;
 		if(selectedFaultSection.getAveDipEst()!=null)
 			dipEst = selectedFaultSection.getAveDipEst().getEstimate();
 		dipLabel.setTextAsHTML(dipEst, DIP, PROB);
-		
+
 		// Dip LocationVector Label
 		dipDirectionLabel.setTextAsHTML(DIP_DIRECTION, ""+selectedFaultSection.getDipDirection());
-		
+
 		// rake
 		Estimate rakeEst = null;
 		if(selectedFaultSection.getAveRakeEst()!=null) rakeEst = selectedFaultSection.getAveRakeEst().getEstimate();
 		rakeLabel.setTextAsHTML(rakeEst, RAKE, PROB);
-		
+
 		// upper depth
 		Estimate upperDepthEst = null;
 		if(selectedFaultSection.getAveUpperDepthEst()!=null) upperDepthEst = selectedFaultSection.getAveUpperDepthEst().getEstimate();
 		upperDepthLabel.setTextAsHTML(upperDepthEst, UPPER_DEPTH, PROB);
-		
+
 		// lower Depth
 		Estimate lowerDepthEst = null;
 		if(selectedFaultSection.getAveLowerDepthEst()!=null) lowerDepthEst = selectedFaultSection.getAveLowerDepthEst().getEstimate();
 		lowerDepthLabel.setTextAsHTML(lowerDepthEst, LOWER_DEPTH, PROB);
-		
+
 		// aseismic slip factor
 		Estimate aseismicSlipEst = null;
 		if(selectedFaultSection.getAseismicSlipFactorEst()!=null) aseismicSlipEst = selectedFaultSection.getAseismicSlipFactorEst().getEstimate();
 		aseismicSlipLabel.setTextAsHTML(aseismicSlipEst, ASEISMIC_SLIP, PROB);
-		
+
 		// fault trace
 		FaultTrace faultTrace = selectedFaultSection.getFaultTrace();
 		ArrayList locsAsString = new ArrayList();
@@ -472,7 +479,7 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 			Location loc = faultTrace.get(i);
 			locsAsString.add(loc.getLongitude()+","+loc.getLatitude());
 		}
-		
+
 		faultTraceLabel.setTextAsHTML(locsAsString);
 		FaultSectionPrefData faultsectionPrefData = selectedFaultSection.getFaultSectionPrefData();
 		// fault trace length
@@ -485,12 +492,12 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 		this.sectionAreaLabel.setTextAsHTML(SECTION_AREA, ""+(float)(length*ddw));
 		// comments
 		commentsLabel.setTextAsHTML(COMMENTS, selectedFaultSection.getComments());
-		
+
 		// qfault Id
 		qfaultLabel.setTextAsHTML(QFAULT_ID, selectedFaultSection.getQFaultId());
 		this.shortNameLabel.setTextAsHTML(SHORT_NAME, selectedFaultSection.getShortName());
-		
+
 	}
-	
+
 
 }

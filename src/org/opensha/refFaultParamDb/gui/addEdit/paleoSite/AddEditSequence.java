@@ -43,6 +43,7 @@ import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.editor.StringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.PaleoEventDB_DAO;
 import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
@@ -117,14 +118,15 @@ ParameterChangeListener {
 	private ParameterListEditor sequenceProbEditor;
 
 	private ArrayList sequenceList = new ArrayList();
-	private PaleoEventDB_DAO paleoEventDAO = new PaleoEventDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
+	private PaleoEventDB_DAO paleoEventDAO;
 	private int siteId;
 	private String siteEntryDate;
 	ArrayList eventsInfoList ;
 	ArrayList eventNamesList;
 
 
-	public AddEditSequence(int siteId, String siteEntryDate) {
+	public AddEditSequence(DB_AccessAPI dbConnection, int siteId, String siteEntryDate) {
+		paleoEventDAO = new PaleoEventDB_DAO(dbConnection);
 		this.siteId = siteId;
 		this.siteEntryDate = siteEntryDate;
 		this.setLayout(GUI_Utils.gridBagLayout);

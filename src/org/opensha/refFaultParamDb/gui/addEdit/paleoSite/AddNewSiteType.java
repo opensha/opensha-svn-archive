@@ -30,6 +30,7 @@ import javax.swing.JOptionPane;
 
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.StringParameterEditor;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.SiteTypeDB_DAO;
 import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
@@ -68,9 +69,10 @@ public class AddNewSiteType extends DbAdditionFrame implements ActionListener {
 	private JButton cancelButton = new JButton("Cancel");
 	private final static String MSG_INSERT_SUCCESS = "Site type added sucessfully to the database";
 
-	private SiteTypeDB_DAO siteTypeDAO = new SiteTypeDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
+	private SiteTypeDB_DAO siteTypeDAO;
 
-	public AddNewSiteType() {
+	public AddNewSiteType(DB_AccessAPI dbConnection) {
+		siteTypeDAO = new SiteTypeDB_DAO(dbConnection);
 		//intialize the parameters and editors
 		initParamsAndEditors();
 		// add the editors to GUI

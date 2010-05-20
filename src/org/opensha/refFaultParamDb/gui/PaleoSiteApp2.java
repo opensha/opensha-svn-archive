@@ -51,6 +51,7 @@ import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.ServerDB_Access;
 import org.opensha.refFaultParamDb.data.ExactTime;
@@ -88,6 +89,8 @@ import org.opensha.sha.gui.infoTools.CalcProgressBar;
  */
 
 public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, ParameterChangeListener {
+	
+	private final static DB_AccessAPI dbConnection = DB_ConnectionPool.getLatestReadWriteConn();
 
 	private final static int WIDTH = 925;
 	private final static int HEIGHT = 800;
@@ -132,7 +135,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
 	private ViewSlipRate slipRatePanel = new ViewSlipRate();
 	private ViewCumDisplacement displacementPanel = new ViewCumDisplacement();
 	private ViewNumEvents numEventsPanel= new ViewNumEvents() ;
-	private ViewIndividualEvent individualEventPanel = new ViewIndividualEvent();
+	private ViewIndividualEvent individualEventPanel = new ViewIndividualEvent(dbConnection);
 	private ViewSequences sequencesPanel = new ViewSequences();
 
 	private ArrayList combinedEventsInfoList;
@@ -150,7 +153,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
 	 * information about a user selected site
 	 */
 	public PaleoSiteApp2() {
-		combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
+		combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(dbConnection);
 		try {
 			setTitle(TITLE);
 			jbInit();
@@ -416,7 +419,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
 	 * Add the panel to display the available paleo sites in the database
 	 */
 	private void addSitesPanel() {
-		viewPaleoSites = new ViewSiteCharacteristics(this);
+		viewPaleoSites = new ViewSiteCharacteristics(dbConnection, this);
 		mainSplitPane.add(viewPaleoSites, JSplitPane.LEFT);
 	}
 
@@ -640,7 +643,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
 	}
 
 	public static void main(String args[]) {
-		new LoginWindow(PaleoSiteApp2.class.getName());
+		new LoginWindow(dbConnection, PaleoSiteApp2.class.getName());
 	}
 }
 

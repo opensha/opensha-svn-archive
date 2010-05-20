@@ -22,6 +22,7 @@ import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.editor.StringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
@@ -37,16 +38,16 @@ import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 public class EditDeformationModel extends JPanel implements ActionListener, ParameterChangeListener {
 	private ArrayList deformationModelsList;
 	private ArrayList faultSectionsSummaryList;
-	private DeformationModelDB_DAO deformationModelDB_DAO = new DeformationModelDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
-	private DeformationModelSummaryDB_DAO deformationModelSummaryDB_DAO = new DeformationModelSummaryDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
-	private  FaultSectionVer2_DB_DAO faultSectionDB_DAO = new FaultSectionVer2_DB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
+	private DeformationModelDB_DAO deformationModelDB_DAO;
+	private DeformationModelSummaryDB_DAO deformationModelSummaryDB_DAO;
+	private  FaultSectionVer2_DB_DAO faultSectionDB_DAO;
 	private StringParameter deformationModelsParam;
 	private final static String AVAILABLE_DEFORMATION_MODEL_PARAM_NAME = "Choose Deformation Model";
 	private ConstrainedStringParameterEditor deformationModelsParamEditor;
 	private JButton removeModelButton = new JButton("Remove Model");
 	private JButton addModelButton = new JButton("Add Model");
-	private DeformationModelTableModel tableModel = new DeformationModelTableModel();
-	private DeformationModelTable table = new DeformationModelTable(tableModel);
+	private DeformationModelTableModel tableModel;
+	private DeformationModelTable table;
 	private final static String TITLE = "Deformation Model";
 	private JButton saveButton = new JButton("Save All to File");
 	private final static String SAVE_BUTTON_TOOL_TIP = "Save All Fault Sections in this Fault Model to a txt file";
@@ -59,7 +60,15 @@ public class EditDeformationModel extends JPanel implements ActionListener, Para
 	private int selectedDeformationModelId;
 	private ArrayList faultSectionsIdListInDefModel;
 	
-	public EditDeformationModel() {
+	private DB_AccessAPI dbConnection;
+	
+	public EditDeformationModel(DB_AccessAPI dbConnection) {
+		this.dbConnection = dbConnection; 
+		table = new DeformationModelTable(dbConnection, tableModel);
+		deformationModelDB_DAO = new DeformationModelDB_DAO(dbConnection);
+		deformationModelSummaryDB_DAO = new DeformationModelSummaryDB_DAO(dbConnection);
+		faultSectionDB_DAO = new FaultSectionVer2_DB_DAO(dbConnection);
+		tableModel = new DeformationModelTableModel(dbConnection);
 		if(SessionInfo.getContributor()==null)  {
 			this.addModelButton.setEnabled(false);
 			this.removeModelButton.setEnabled(false);
@@ -156,7 +165,7 @@ public class EditDeformationModel extends JPanel implements ActionListener, Para
 		Object source = event.getSource();
 		try {
 			if(source==this.addModelButton) { // add a new model
-				AddDeformationModel addDeformationModel = new AddDeformationModel(this);
+				AddDeformationModel addDeformationModel = new AddDeformationModel(dbConnection, this);
 			
 			} else if(source == this .removeModelButton) { // remove the model from the database
 				String selectedDeformationModel = (String)this.deformationModelsParam.getValue();
@@ -183,7 +192,7 @@ public class EditDeformationModel extends JPanel implements ActionListener, Para
 	 * @param file
 	 */
 	private void writeSectionsToFile(File file) {
-		DeformationModelFileWriter defModelWriter = new DeformationModelFileWriter();
+		DeformationModelFileWriter defModelWriter = new DeformationModelFileWriter(dbConnection);
 		defModelWriter.writeForDeformationModel(this.selectedDeformationModelId, file, true);
 	}
 	

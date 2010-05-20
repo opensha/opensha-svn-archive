@@ -33,6 +33,7 @@ import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.param.editor.estimate.ConstrainedEstimateParameterEditor;
 import org.opensha.commons.param.estimate.EstimateConstraint;
 import org.opensha.commons.param.estimate.EstimateParameter;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
@@ -59,17 +60,19 @@ public class EditSlipRate extends JFrame implements ActionListener {
 	  private JButton okButton = new JButton("OK");
 	  private JButton cancelButton = new JButton("Cancel");
 	  // deformation model DAO
-	  DeformationModelDB_DAO deformationModelDAO = new DeformationModelDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
+	  DeformationModelDB_DAO deformationModelDAO;
 	  private final static String MSG_UPDATE_SUCCESS = "Slip Rate updated succesfully for fault section in deformation model";
 	  private int deformationModelId, faultSectionId;
 	  private EstimateInstances slipRateEst;
 	  
-	  public EditSlipRate(int deformationModelId, int faultSectionId, EstimateInstances slipRateEst) {
+	  public EditSlipRate(DB_AccessAPI dbConnection, int deformationModelId,
+			  int faultSectionId, EstimateInstances slipRateEst) {
+		  deformationModelDAO = new DeformationModelDB_DAO(dbConnection);
 		  this.deformationModelId = deformationModelId;
 		  this.faultSectionId = faultSectionId;
 		  this.slipRateEst = slipRateEst;
 		  this.getContentPane().setLayout(GUI_Utils.gridBagLayout);
-		  setTitle(this.SLIP_RATE_PARAMS_TITLE);
+		  setTitle(SLIP_RATE_PARAMS_TITLE);
 		  makeSlipRateParameterAndEditor();
 		  addToGUI();
 		  if(SessionInfo.getContributor()==null) this.okButton.setEnabled(false);

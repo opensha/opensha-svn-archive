@@ -6,6 +6,7 @@ package org.opensha.refFaultParamDb.gui.view;
 import java.io.File;
 import java.io.FileWriter;
 
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
@@ -18,10 +19,15 @@ import org.opensha.sha.gui.infoTools.CalcProgressBar;
  *
  */
 public class SectionInfoFileWriter implements Runnable {
-	private  PrefFaultSectionDataDB_DAO faultSectionPrefDAO = new PrefFaultSectionDataDB_DAO(DB_ConnectionPool.getLatestReadWriteConn()); 
+	private  PrefFaultSectionDataDB_DAO faultSectionPrefDAO; 
 	private CalcProgressBar progressBar;
 	private int totSections;
 	private int currSection;
+	
+	public SectionInfoFileWriter(DB_AccessAPI dbConnection) {
+		faultSectionPrefDAO = new PrefFaultSectionDataDB_DAO(dbConnection);
+	}
+	
 	/**
 	 * Write FaultSectionPrefData to file.
 	 * @param faultSectionIds  array of faultsection Ids

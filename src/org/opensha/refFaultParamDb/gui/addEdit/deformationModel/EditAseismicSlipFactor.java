@@ -17,6 +17,7 @@ import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.param.editor.estimate.ConstrainedEstimateParameterEditor;
 import org.opensha.commons.param.estimate.EstimateConstraint;
 import org.opensha.commons.param.estimate.EstimateParameter;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
@@ -42,12 +43,14 @@ public class EditAseismicSlipFactor extends JFrame implements ActionListener {
 	  private JButton okButton = new JButton("OK");
 	  private JButton cancelButton = new JButton("Cancel");
 	  // deformation model DAO
-	  DeformationModelDB_DAO deformationModelDAO = new DeformationModelDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
+	  DeformationModelDB_DAO deformationModelDAO;
 	  private final static String MSG_UPDATE_SUCCESS = "Aseimsic Slip Factor updated succesfully for fault section in deformation model";
 	  private int deformationModelId, faultSectionId;
 	  private EstimateInstances aseismicSlipEst;
 	  
-	  public EditAseismicSlipFactor(int deformationModelId, int faultSectionId, EstimateInstances aseismicSlipEst) {
+	  public EditAseismicSlipFactor(DB_AccessAPI dbConnection, int deformationModelId,
+			  int faultSectionId, EstimateInstances aseismicSlipEst) {
+		  deformationModelDAO = new DeformationModelDB_DAO(dbConnection);
 		  this.deformationModelId = deformationModelId;
 		  this.faultSectionId = faultSectionId;
 		  this.aseismicSlipEst = aseismicSlipEst;

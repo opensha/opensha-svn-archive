@@ -48,6 +48,7 @@ import org.opensha.commons.param.estimate.EstimateConstraint;
 import org.opensha.commons.param.estimate.EstimateParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.PaleoEventDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
@@ -151,9 +152,9 @@ ActionListener, DbAdditionListener {
 	private final static int HEIGHT = 700;
 
 	// references DAO
-	private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
+	private ReferenceDB_DAO referenceDAO;
 	// paleo event DAO
-	private PaleoEventDB_DAO paleoEventDAO = new PaleoEventDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
+	private PaleoEventDB_DAO paleoEventDAO;
 	private ArrayList paleoEvents; // saves a list of all paleo events for this site
 	private int siteId; // site id for which this paleo event will be added
 	private String siteEntryDate; // site entry dat for which paleo event is to be added
@@ -164,8 +165,13 @@ ActionListener, DbAdditionListener {
 	private SenseOfMotionPanel senseOfMotionPanel;
 	private MeasuredCompPanel measuredCompPanel;
 	private static int eventToDatabaseCounter=0;
+	
+	private DB_AccessAPI dbConnection;
 
-	public AddEditIndividualEvent(int siteId, String siteEntryDate) {
+	public AddEditIndividualEvent(DB_AccessAPI dbConnection, int siteId, String siteEntryDate) {
+		this.dbConnection = dbConnection;
+		referenceDAO = new ReferenceDB_DAO(dbConnection);
+		paleoEventDAO = new PaleoEventDB_DAO(dbConnection);
 		try {
 			senseOfMotionPanel = new SenseOfMotionPanel();
 			measuredCompPanel = new MeasuredCompPanel();
@@ -358,7 +364,7 @@ ActionListener, DbAdditionListener {
 	public void actionPerformed(ActionEvent event) {
 		Object source = event.getSource() ;
 		if(source == addNewReferenceButton)  {
-			addNewReference  = new AddNewReference();
+			addNewReference  = new AddNewReference(dbConnection);
 			addNewReference.addDbAdditionSuccessListener(this);
 		}
 		else if(source == okButton) {
@@ -395,7 +401,7 @@ ActionListener, DbAdditionListener {
 			eventToDatabaseCounter=0;
 			this.dispose();
 		}
-		else if(source == viewAllRefsButton) new ViewAllReferences();
+		else if(source == viewAllRefsButton) new ViewAllReferences(dbConnection);
 	}
 
 	/**

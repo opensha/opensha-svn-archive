@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
@@ -35,8 +36,8 @@ import org.opensha.sha.faultSurface.StirlingGriddedSurface;
  */
 public class FaultSectionsDistanceCalcGUI extends JPanel implements ActionListener {
 	private final static double GRID_SPACING = 1.0;
-	private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_ConnectionPool.getLatestReadWriteConn()); 
-	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_ConnectionPool.getLatestReadWriteConn()); 
+	private FaultSectionVer2_DB_DAO faultSectionDAO; 
+	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO; 
 	private StringParameter faultSection1Param, faultSection2Param, faultModelParam;
 	private final static String FAULT_SECTION1_PARAM_NAME = "Fault Section 1";
 	private final static String FAULT_SECTION2_PARAM_NAME = "Fault Section 2";
@@ -47,7 +48,10 @@ public class FaultSectionsDistanceCalcGUI extends JPanel implements ActionListen
 	private JButton calcButton = new JButton("Calculate Distance");
 	private DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00");
 	
-	public FaultSectionsDistanceCalcGUI() {
+	public FaultSectionsDistanceCalcGUI(DB_AccessAPI dbConnection) {
+		faultSectionDAO = new FaultSectionVer2_DB_DAO(dbConnection);
+		prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(dbConnection);
+		
 		makeFaultSectionNamesParamAndEditor();
 		makeFaultModelParamAndEditor();
 		calcButton.addActionListener(this);

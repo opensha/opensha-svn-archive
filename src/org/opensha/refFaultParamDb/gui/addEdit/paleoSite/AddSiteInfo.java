@@ -32,6 +32,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
 import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.data.TimeAPI;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
@@ -81,7 +82,7 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
 	private String siteEntryDate;
 	private String siteRepresentativeIndex;
 	private ArrayList siteTypes;
-	private CombinedEventsInfoDB_DAO combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
+	private CombinedEventsInfoDB_DAO combinedEventsInfoDAO;
 
 
 	/**
@@ -93,10 +94,11 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
 	 * @param isNumEventsVisible
 	 * @param isSequenceVisible
 	 */
-	public AddSiteInfo(int siteId, String siteEntryDate,
+	public AddSiteInfo(DB_AccessAPI dbConnection, int siteId, String siteEntryDate,
 			boolean isSlipVisible, boolean isDisplacementVisible,
 			boolean isNumEventsVisible, boolean isSequenceVisible)  {
-		this(siteId, siteEntryDate, isSlipVisible, isDisplacementVisible, isNumEventsVisible, isSequenceVisible, null);
+		this(dbConnection, siteId, siteEntryDate, isSlipVisible, isDisplacementVisible,
+				isNumEventsVisible, isSequenceVisible, null);
 	}
 
 	/**
@@ -110,10 +112,11 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
 	 * @param isSequenceVisible
 	 * @param combinedInfo
 	 */
-	public AddSiteInfo(int siteId, String siteEntryDate,
+	public AddSiteInfo(DB_AccessAPI dbConnection, int siteId, String siteEntryDate,
 			boolean isSlipVisible, boolean isDisplacementVisible,
 			boolean isNumEventsVisible, boolean isSequenceVisible,
 			CombinedEventsInfo combinedInfo) {
+		combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(dbConnection);
 		this.siteId = siteId;
 		// user should provide info about at least one of slip, cum disp or num events
 		if(!isSlipVisible && !isDisplacementVisible && !isNumEventsVisible && !isSequenceVisible)
@@ -126,7 +129,7 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
 		this.siteEntryDate = siteEntryDate;
 		try {
 			if (this.isSequenceVisible)
-				this.addEditSequence = new AddEditSequence(siteId, siteEntryDate);
+				this.addEditSequence = new AddEditSequence(dbConnection, siteId, siteEntryDate);
 		}catch(RuntimeException e) {
 			JOptionPane.showMessageDialog(this, e.getMessage());
 			this.isSequenceVisible = false;
@@ -172,7 +175,7 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
 		this.setVisible(true);
 
 		// show window to get the reference
-		ChooseReference referencesDialog = new ChooseReference(this);
+		ChooseReference referencesDialog = new ChooseReference(dbConnection, this);
 		referencesDialog.setFocusableWindowState(true);
 		referencesDialog.setVisible(true);
 		if(combinedInfo!=null) {

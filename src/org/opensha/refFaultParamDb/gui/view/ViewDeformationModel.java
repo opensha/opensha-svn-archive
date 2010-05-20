@@ -27,6 +27,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.opensha.commons.data.estimate.Estimate;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
@@ -43,7 +44,7 @@ import org.opensha.refFaultParamDb.vo.EstimateInstances;
  *
  */
 public class ViewDeformationModel extends JFrame {
-	private DeformationModelDB_DAO deformationModelDAO = new DeformationModelDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
+	private DeformationModelDB_DAO deformationModelDAO;
 	private final static String SLIP_RATE = "Slip Rate (mm/year)";
 	private final static String ASEISMIC_SLIP_FACTOR = "Aseismic Slip Factor";
 
@@ -54,7 +55,9 @@ public class ViewDeformationModel extends JFrame {
 	 * @param deformationModelId
 	 * @param faultSectionId
 	 */
-	public ViewDeformationModel(int deformationModelId, int faultSectionId) {
+	public ViewDeformationModel(DB_AccessAPI dbConnection, int deformationModelId, int faultSectionId) {
+		deformationModelDAO = new DeformationModelDB_DAO(dbConnection);
+		
 		this.getContentPane().setLayout(new GridBagLayout());
 		EstimateInstances asesmicSlipEstInstance  = deformationModelDAO.getAseismicSlipEstimate(deformationModelId, faultSectionId);
 		EstimateInstances slipRateEstInstance  = deformationModelDAO.getSlipRateEstimate(deformationModelId, faultSectionId);

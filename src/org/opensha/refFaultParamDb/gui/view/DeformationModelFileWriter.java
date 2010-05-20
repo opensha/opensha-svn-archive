@@ -13,6 +13,7 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelPrefDataDB_DAO;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
@@ -25,7 +26,7 @@ import org.opensha.sha.gui.infoTools.CalcProgressBar;
  *
  */
 public class DeformationModelFileWriter implements Runnable {
-	private DeformationModelPrefDataDB_DAO deformationModelPrefDAO = new DeformationModelPrefDataDB_DAO(DB_ConnectionPool.getLatestReadWriteConn());
+	private DeformationModelPrefDataDB_DAO deformationModelPrefDAO;
 	private CalcProgressBar progressBar;
 	private int totSections;
 	private int currSection;
@@ -33,6 +34,11 @@ public class DeformationModelFileWriter implements Runnable {
 	private HSSFSheet excelSheet;
 	private int rowNum;
 	private boolean createExcelSheet;
+	
+	public DeformationModelFileWriter(DB_AccessAPI dbConnection) {
+		deformationModelPrefDAO = new DeformationModelPrefDataDB_DAO(dbConnection);
+	}
+	
 	/**
 	 * Write FaultSectionPrefData to file.
 	 * @param faultSectionIds  array of faultsection Ids
@@ -41,7 +47,7 @@ public class DeformationModelFileWriter implements Runnable {
 	 * as requested by Ray Weldon in his email on June 26, 2007 at 1:39 PM
 	 * @param file
 	 */
-	public  void writeForDeformationModel(int deformationModelId, File file, boolean createExcelSheet) {
+	public void writeForDeformationModel(int deformationModelId, File file, boolean createExcelSheet) {
 		try {
 			this.createExcelSheet = createExcelSheet;
 			if(createExcelSheet) {

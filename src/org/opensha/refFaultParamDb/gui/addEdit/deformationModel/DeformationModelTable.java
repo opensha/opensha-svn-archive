@@ -14,6 +14,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 
 /**
@@ -26,12 +27,12 @@ public class DeformationModelTable extends JTable {
 	/**
 	 * @param dm
 	 */
-	public DeformationModelTable(TableModel dm) {
+	public DeformationModelTable(DB_AccessAPI dbConnection, TableModel dm) {
 		super(dm);
 		getTableHeader().setReorderingAllowed(false);
 		getColumnModel().getColumn(1).setCellRenderer(new ButtonRenderer(SLIP_RATE));
 		getColumnModel().getColumn(2).setCellRenderer(new ButtonRenderer(ASEISMIC_SLIP_FACTOR));
-		addMouseListener(new MouseListener(this));
+		addMouseListener(new MouseListener(dbConnection, this));
 		// set width of first column 
 		TableColumn col1 = getColumnModel().getColumn(1);
 		col1.setPreferredWidth(125);
@@ -57,8 +58,11 @@ public class DeformationModelTable extends JTable {
 class MouseListener extends MouseAdapter {
 	private JTable table;
 	
-	public MouseListener(JTable table) {
+	private DB_AccessAPI dbConnection;
+	
+	public MouseListener(DB_AccessAPI dbConnection, JTable table) {
 		this.table = table;
+		this.dbConnection = dbConnection;
 	}
 	
 	public void mouseClicked(MouseEvent event) {
@@ -71,10 +75,10 @@ class MouseListener extends MouseAdapter {
         int faultSectionId =  tableModel.getFaultSectionId(row);
         if(column==1) { // edit slip rate
         	EstimateInstances slipRateEst = (EstimateInstances)tableModel.getValueForSlipAndAseismicFactor(row, column);
-        	new EditSlipRate(deformationModelId, faultSectionId, slipRateEst);
+        	new EditSlipRate(dbConnection, deformationModelId, faultSectionId, slipRateEst);
         } else if(column==2) { // edit aseismic slip factor
         	EstimateInstances aseismicSlipFactorEst = (EstimateInstances)tableModel.getValueForSlipAndAseismicFactor(row, column);
-        	new EditAseismicSlipFactor(deformationModelId, faultSectionId, aseismicSlipFactorEst);
+        	new EditAseismicSlipFactor(dbConnection, deformationModelId, faultSectionId, aseismicSlipFactorEst);
         }
         
 	}
