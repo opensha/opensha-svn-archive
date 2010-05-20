@@ -272,7 +272,7 @@ implements DependentParameterAPI<Double>, ParameterAPI<Double>
 
 
 	/** Returns a clone of all allowed values. Proxy to constraint object. */
-	public ArrayList getAllowedDoubles() {
+	public ArrayList<Double> getAllowedDoubles() {
 		return ( ( DoubleDiscreteConstraint ) this.constraint ).getAllowedDoubles();
 	}
 

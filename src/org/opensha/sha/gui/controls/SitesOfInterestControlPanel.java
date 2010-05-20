@@ -111,6 +111,11 @@ public class SitesOfInterestControlPanel extends ControlPanel {
 			this.sitesComboBox.addItem("Alaskan Pipeline");
 			latVector.add(new Double(63.375));
 			lonVector.add(new Double(-145.825));
+			
+			// Santiago, Chile
+			this.sitesComboBox.addItem("Santiago, Chile");
+			latVector.add(new Double(-33.45));
+			lonVector.add(new Double(-70.6666667));
 
 			jbInit();
 			// show the window at center of the parent component

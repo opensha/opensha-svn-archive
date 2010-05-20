@@ -173,7 +173,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs =imrsFromXML(imrsEl);
 		ArrayList<ParameterAPI> paramsToAdd = new ArrayList<ParameterAPI>();
 		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-			ListIterator<ParameterAPI> it = imr.getSiteParamsIterator();
+			ListIterator<ParameterAPI<?>> it = imr.getSiteParamsIterator();
 			while (it.hasNext()) {
 				ParameterAPI param = it.next();
 				boolean add = true;

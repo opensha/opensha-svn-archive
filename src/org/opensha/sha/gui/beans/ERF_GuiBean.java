@@ -641,7 +641,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 		for(int i=0;i<size;++i){
 			if(erfName.equalsIgnoreCase( (String) erfNamesVector.get(i))) {
 				try{
-					listEditor.getParameterEditor(this.ERF_PARAM_NAME).setValue(erfName);
+					listEditor.getParameterEditor(ERF_PARAM_NAME).setValue(erfName);
 					setParamsInForecast();
 				}catch(Exception e){
 					e.printStackTrace();

@@ -121,7 +121,7 @@ public class NGA08_Site_EqkRup_Tests {
 		
 		// Create the test Site object & add the site-related parameters to the Site
 		site = new Site();
-		ListIterator<ParameterAPI> it = as08.getSiteParamsIterator();
+		ListIterator<ParameterAPI<?>> it = as08.getSiteParamsIterator();
 		while(it.hasNext()) {
 			ParameterAPI param = it.next();
 			if(!site.containsParameter(param)) site.addParameter(param);
@@ -355,7 +355,7 @@ public class NGA08_Site_EqkRup_Tests {
 	private boolean checkAttenRel(int lat, int lon, AttenuationRelationship attenRel) {
 		
 		// Check the Earthquake Rupture Parameters
-		ListIterator<ParameterAPI> it = attenRel.getEqkRuptureParamsIterator();
+		ListIterator<ParameterAPI<?>> it = attenRel.getEqkRuptureParamsIterator();
 		while(it.hasNext()) {
 			ParameterAPI param = it.next();
 			

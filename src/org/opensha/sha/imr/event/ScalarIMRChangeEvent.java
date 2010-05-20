@@ -20,11 +20,13 @@
 package org.opensha.sha.imr.event;
 
 import java.util.EventObject;
+import java.util.HashMap;
 
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.util.TectonicRegionType;
 
 /**
- *  <b>Title:</b> AttenuationRelationshipChangeEvent<p>
+ *  <b>Title:</b> ScalarIMRChangeEvent<p>
  *
  *  <b>Description:</b> Any time the selected Attenuation Relationship changed via the IMR
  *  GUI bean, this event is triggered and received by all listeners<p>
@@ -34,13 +36,15 @@ import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
  * @version    1.0
  */
 
-public class AttenuationRelationshipChangeEvent extends EventObject {
+public class ScalarIMRChangeEvent extends EventObject {
 
     /** New value for the Parameter. */
-    private ScalarIntensityMeasureRelationshipAPI newAttenRel;
+	HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> newIMRMap;
+//    private ScalarIntensityMeasureRelationshipAPI newAttenRel;
 
     /** Old value for the Parameter. */
-    private ScalarIntensityMeasureRelationshipAPI oldAttenRel;
+	HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> oldIMRMap;
+//    private ScalarIntensityMeasureRelationshipAPI oldAttenRel;
 
 
     /**
@@ -50,14 +54,14 @@ public class AttenuationRelationshipChangeEvent extends EventObject {
      * @param  oldAttenRel       Old AttenuationRelationship
      * @param  newAttenRel       New AttenuationRelationship
      */
-    public AttenuationRelationshipChangeEvent(
+    public ScalarIMRChangeEvent(
             Object reference,
-            ScalarIntensityMeasureRelationshipAPI oldAttenRel,
-            ScalarIntensityMeasureRelationshipAPI newAttenRel
+            HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> oldIMRMap,
+            HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> newIMRMap
              ) {
         super( reference );
-        this.oldAttenRel = oldAttenRel;
-        this.newAttenRel = newAttenRel;
+        this.oldIMRMap = oldIMRMap;
+        this.newIMRMap = newIMRMap;
 
     }
 
@@ -66,8 +70,8 @@ public class AttenuationRelationshipChangeEvent extends EventObject {
      *
      * @return    New AttentuationRelationship
      */
-    public ScalarIntensityMeasureRelationshipAPI getNewAttenRel() {
-        return newAttenRel;
+    public HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> getNewIMRs() {
+        return newIMRMap;
     }
 
 
@@ -76,7 +80,7 @@ public class AttenuationRelationshipChangeEvent extends EventObject {
      *
      * @return    Old AttentuationRelationship
      */
-    public ScalarIntensityMeasureRelationshipAPI getOldValue() {
-        return oldAttenRel;
+    public HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> getOldValue() {
+        return oldIMRMap;
     }
 }

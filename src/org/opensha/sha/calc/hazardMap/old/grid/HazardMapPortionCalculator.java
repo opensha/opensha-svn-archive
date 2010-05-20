@@ -159,7 +159,7 @@ public class HazardMapPortionCalculator {
 			ArrayList<ParameterAPI> defaultSiteParams = null;
 			boolean hasSiteData = siteDataValues != null;
 			if (hasSiteData) {
-				Iterator<ParameterAPI> it = imr.getSiteParamsIterator();
+				Iterator<ParameterAPI<?>> it = imr.getSiteParamsIterator();
 				
 				defaultSiteParams = new ArrayList<ParameterAPI>();
 				while (it.hasNext()) {
@@ -216,7 +216,7 @@ public class HazardMapPortionCalculator {
 							for (SiteDataValue<?> val : datas) {
 								System.out.println("\t" + val.getDataType() + ": " + val.getValue());
 							}
-							Iterator<ParameterAPI> it = site.getParametersIterator();
+							Iterator<ParameterAPI<?>> it = site.getParametersIterator();
 							while (it.hasNext()) {
 								ParameterAPI param = it.next();
 								

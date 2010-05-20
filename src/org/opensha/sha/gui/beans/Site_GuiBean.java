@@ -24,7 +24,9 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.ListIterator;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -41,6 +43,7 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
 /**
  * <p>
@@ -98,8 +101,8 @@ public class Site_GuiBean extends JPanel implements ParameterChangeListener,
 	 */
 	public Site_GuiBean() {
 
-		setMinimumSize(new Dimension(160,100));
-		setPreferredSize(new Dimension(180,100));
+		setMinimumSize(new Dimension(140,100));
+		setPreferredSize(new Dimension(160,100));
 		
 		// add the longitude and latitude paramters
 		parameterList.addParameter(longitude);
@@ -206,10 +209,10 @@ public class Site_GuiBean extends JPanel implements ParameterChangeListener,
 		site = new Site(new Location(((Double) latitude.getValue())
 				.doubleValue(), ((Double) longitude.getValue()).doubleValue()));
 		// first remove all the parameters ewxcept latitude and longitude
-		Iterator siteIt = parameterList.getParameterNamesIterator();
+		Iterator<String> siteIt = parameterList.getParameterNamesIterator();
 		while (siteIt.hasNext()) { // remove all the parameters except latitdue
 									// and longitude
-			String paramName = (String) siteIt.next();
+			String paramName = siteIt.next();
 			if (!paramName.equalsIgnoreCase(LATITUDE)
 					&& !paramName.equalsIgnoreCase(LONGITUDE)) {
 				parameterList.removeParameter(paramName);

@@ -214,7 +214,7 @@ public class StringParameter
      * Useful for presenting in a picklist
      * @return    The allowedStrings vector
      */
-    public ArrayList getAllowedStrings() {
+    public ArrayList<String> getAllowedStrings() {
         return ( ( StringConstraint ) this.constraint ).getAllowedStrings();
     }
 

@@ -93,8 +93,8 @@ import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.infoTools.IMT_Info;
-import org.opensha.sha.imr.event.AttenuationRelationshipChangeEvent;
-import org.opensha.sha.imr.event.AttenuationRelationshipChangeListener;
+import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
+import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 
 /**
  * <p>Title: ScenarioShakeMapApp</p>
@@ -118,7 +118,7 @@ import org.opensha.sha.imr.event.AttenuationRelationshipChangeListener;
  */
 
 public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListener,
-AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Runnable, AttenuationRelationshipChangeListener{
+AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Runnable, ScalarIMRChangeListener{
 
 	/**
 	 * Name of the class
@@ -521,7 +521,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 		imrPanel.add(imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
 		imrGuiBean.addAttenuationRelationshipChangeListener(this);
-		siteDataGUIBean.setAttenuationRelationship(imrGuiBean.getSelectedIMR_Instance());
+		siteDataGUIBean.setIMR(imrGuiBean.getSelectedIMR_Instance());
 	}
 
 	/**
@@ -1076,9 +1076,9 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 		calculationSettingsParamsMetadata;
 	}
 	
-	public void attenuationRelationshipChange(
-			AttenuationRelationshipChangeEvent event) {
-		siteDataGUIBean.setAttenuationRelationship(event.getNewAttenRel());
+	public void imrChange(
+			ScalarIMRChangeEvent event) {
+		siteDataGUIBean.setIMR(event.getNewIMRs());
 	}
 
 

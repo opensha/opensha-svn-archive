@@ -780,7 +780,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	}
 
 	public String getCurveParametersInfoAsHTML(AttenuationRelationship imr, EqkRupForecast erf, Site site) {
-		ListIterator<ParameterAPI> imrIt = imr.getOtherParamsIterator();
+		ListIterator<ParameterAPI<?>> imrIt = imr.getOtherParamsIterator();
 		String imrMetadata = "IMR = " + imr.getName() + "; ";
 		while (imrIt.hasNext()) {
 			ParameterAPI tempParam = imrIt.next();
@@ -869,7 +869,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 						"Manually Set Vs30 Value"));
 			}
 			
-			Iterator<ParameterAPI> it = attenRel.getSiteParamsIterator(); // get site params for this IMR
+			Iterator<ParameterAPI<?>> it = attenRel.getSiteParamsIterator(); // get site params for this IMR
 			while(it.hasNext()) {
 				ParameterAPI tempParam = it.next();
 				if(!site.containsParameter(tempParam))

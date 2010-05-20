@@ -65,7 +65,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 	 * @param imr Choosen AttenuationRelationship
 	 * @param supportedIntensityMeasureIt Supported Intensity Measure Iterator
 	 */
-	public IMT_GuiBean(ScalarIntensityMeasureRelationshipAPI imr,Iterator<ParameterAPI> supportedIntensityMeasureIt) {
+	public IMT_GuiBean(ScalarIntensityMeasureRelationshipAPI imr,Iterator<ParameterAPI<?>> supportedIntensityMeasureIt) {
 		setIM(imr,supportedIntensityMeasureIt );
 	}
 	
@@ -85,7 +85,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 	 * @param imr Choosen AttenuationRelationship
 	 * @param supportedIntensityMeasureIt Supported Intensity Measure Iterator
 	 */
-	public void setIM(ScalarIntensityMeasureRelationshipAPI imr,Iterator<ParameterAPI> supportedIntensityMeasureIt){
+	public void setIM(ScalarIntensityMeasureRelationshipAPI imr,Iterator<ParameterAPI<?>> supportedIntensityMeasureIt){
 		this.imr = imr;
 		init_imtParamListAndEditor(imr.getSupportedIntensityMeasuresList());
 	}
@@ -308,18 +308,18 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 		String name1 = event.getParameterName();
 
 		// if IMT selection then update
-		if (name1.equalsIgnoreCase(this.IMT_PARAM_NAME)) {
+		if (name1.equalsIgnoreCase(IMT_PARAM_NAME)) {
 			updateIMT((String)event.getNewValue());
 		}
 
 	}
 
 	/**
-	 * It will retunr the IMT selected by the user
+	 * It will return the IMT selected by the user
 	 * @return : IMT selected by the user
 	 */
 	public String getSelectedIMT() {
-		return this.parameterList.getValue(this.IMT_PARAM_NAME).toString();
+		return this.parameterList.getValue(IMT_PARAM_NAME).toString();
 	}
 
 	/**
@@ -348,7 +348,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 	 * @return
 	 */
 	public ParameterAPI getIntensityMeasure(){
-		String selectedImt = parameterList.getValue(this.IMT_PARAM_NAME).toString();
+		String selectedImt = parameterList.getValue(IMT_PARAM_NAME).toString();
 		//set all the  parameters related to this IMT
 		Iterator it= imtParam.iterator();
 		while(it.hasNext()){

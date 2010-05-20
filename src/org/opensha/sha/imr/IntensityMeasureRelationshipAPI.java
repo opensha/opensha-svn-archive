@@ -202,7 +202,7 @@ public interface IntensityMeasureRelationshipAPI
    *
    * @return    The Site Parameters Iterator
    */
-  public ListIterator getSiteParamsIterator();
+  public ListIterator<ParameterAPI<?>> getSiteParamsIterator();
 
   /**
    *  Returns an iterator over all other parameters.  Other parameters are those
@@ -213,7 +213,7 @@ public interface IntensityMeasureRelationshipAPI
    *
    * @return    Iterator for otherParameters
    */
-  public ListIterator getOtherParamsIterator();
+  public ListIterator<ParameterAPI<?>> getOtherParamsIterator();
   
   /**
    *  Returns an ParameterList of all other parameters.  Other parameters are those
@@ -231,7 +231,7 @@ public interface IntensityMeasureRelationshipAPI
    *
    * @return    The Earthquake-Rupture Parameters Iterator
    */
-  public ListIterator getEqkRuptureParamsIterator();
+  public ListIterator<ParameterAPI<?>> getEqkRuptureParamsIterator();
 
   /**
    *  Returns the iterator over all Propagation-Effect related parameters
@@ -240,7 +240,7 @@ public interface IntensityMeasureRelationshipAPI
    *
    * @return    The Propagation Effect Parameters Iterator
    */
-  public ListIterator getPropagationEffectParamsIterator();
+  public ListIterator<ParameterAPI<?>> getPropagationEffectParamsIterator();
 
   /**
    *  Returns the iterator over all supported Intensity-Measure
@@ -248,7 +248,7 @@ public interface IntensityMeasureRelationshipAPI
    *
    * @return    The Supported Intensity-Measures Iterator
    */
-  public ListIterator getSupportedIntensityMeasuresIterator();
+  public ListIterator<ParameterAPI<?>> getSupportedIntensityMeasuresIterator();
   
   /**
    *  Returns a list of all supported Intensity-Measure

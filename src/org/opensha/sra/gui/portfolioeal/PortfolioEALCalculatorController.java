@@ -239,7 +239,7 @@ public class PortfolioEALCalculatorController implements ActionListener, ItemLis
 	 * @param type     	The name of what is being formatted
 	 * @return 		   	The formatted string that will be used in the ouput
 	 */
-	private String formatOutput( ListIterator<ParameterAPI> paramIterator, String type ) {
+	private String formatOutput( ListIterator<ParameterAPI<?>> paramIterator, String type ) {
 		aString = type + " Parameter List\n-------------------\n";
 		if ( type.equals("Site") ) {
 			if ( site.getName() != null ) aString += "Name: " + site.getName() + "\n";
@@ -247,7 +247,7 @@ public class PortfolioEALCalculatorController implements ActionListener, ItemLis
 			aString += "Longitude: " + site.getLocation().getLongitude() + "\n";
 		}
 		while( paramIterator.hasNext() ) {
-			ParameterAPI next = paramIterator.next();
+			ParameterAPI<?> next = paramIterator.next();
 			aString += next.getName() + ": " + next.getValue() + "\n";
 		}
 		aString += "\n";

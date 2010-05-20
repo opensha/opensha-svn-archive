@@ -30,14 +30,14 @@ import java.util.Set;
  * 
  * @author Kevin Milner
  *
- * @param <Element1>
- * @param <Element2>
+ * @param <Left>
+ * @param <Right>
  */
-public class NtoNMap<Element1, Element2> {
+public class NtoNMap<Left, Right> {
 	
-	public HashMap<Element1, Collection<Element2>> oneToTwoMap = new HashMap<Element1, Collection<Element2>>();
+	private HashMap<Left, Collection<Right>> leftToRightMap = new HashMap<Left, Collection<Right>>();
 	
-	public HashMap<Element2, Collection<Element1>> twoToOneMap = new HashMap<Element2, Collection<Element1>>();
+	private HashMap<Right, Collection<Left>> rightToLeftMap = new HashMap<Right, Collection<Left>>();
 	
 	private int size = 0;
 	
@@ -46,33 +46,33 @@ public class NtoNMap<Element1, Element2> {
 	}
 	
 	public void clear() {
-		oneToTwoMap.clear();
-		twoToOneMap.clear();
+		leftToRightMap.clear();
+		rightToLeftMap.clear();
 		size = 0;
 	}
 	
 	/**
 	 * Add the mapping to the map
 	 * 
-	 * @param elem1
-	 * @param elem2
+	 * @param leftElem
+	 * @param rightElem
 	 */
-	public void put(Element1 elem1, Element2 elem2) {
-		Collection<Element2> twos = oneToTwoMap.get(elem1);
-		Collection<Element1> ones = twoToOneMap.get(elem2);
+	public void put(Left leftElem, Right rightElem) {
+		Collection<Right> rights = leftToRightMap.get(leftElem);
+		Collection<Left> lefts = rightToLeftMap.get(rightElem);
 		
-		if (ones == null) {
-			ones = new ArrayList<Element1>();
-			twoToOneMap.put(elem2, ones);
+		if (lefts == null) {
+			lefts = new ArrayList<Left>();
+			rightToLeftMap.put(rightElem, lefts);
 		}
-		if (twos == null) {
-			twos = new ArrayList<Element2>();
-			oneToTwoMap.put(elem1, twos);
+		if (rights == null) {
+			rights = new ArrayList<Right>();
+			leftToRightMap.put(leftElem, rights);
 		}
 		
-		if (!ones.contains(elem1) && !twos.contains(elem2)) {
-			ones.add(elem1);
-			twos.add(elem2);
+		if (!lefts.contains(leftElem) && !rights.contains(rightElem)) {
+			lefts.add(leftElem);
+			rights.add(rightElem);
 			size++;
 		}
 	}
@@ -82,66 +82,66 @@ public class NtoNMap<Element1, Element2> {
 	 * 
 	 * @param map
 	 */
-	public void putAll(NtoNMap<Element1, Element2> map) {
-		for (Element1 one : map.getOnes()) {
-			for (Element2 two : map.getTwos(one)) {
+	public void putAll(NtoNMap<Left, Right> map) {
+		for (Left one : map.getLefts()) {
+			for (Right two : map.getRights(one)) {
 				this.put(one, two);
 			}
 		}
 	}
 	
 	/**
-	 * Get all of the Ones
+	 * Get all of the Lefts
 	 * 
 	 * @return Set<Element1>
 	 */
-	public Set<Element1> getOnes() {
-		return oneToTwoMap.keySet();
+	public Set<Left> getLefts() {
+		return leftToRightMap.keySet();
 	}
 	
 	/**
-	 * Get all of the ones for the given two
+	 * Get all of the Lefts for the given Right
 	 * 
 	 * @param two
 	 * @return
 	 */
-	public Collection<Element1> getOnes(Element2 two) {
-		return twoToOneMap.get(two);
+	public Collection<Left> getLefts(Right two) {
+		return rightToLeftMap.get(two);
 	}
 	
 	/**
-	 * Get all of the Twos
+	 * Get all of the Rights
 	 * 
 	 * @return
 	 */
-	public Set<Element2> getTwos() {
-		return twoToOneMap.keySet();
+	public Set<Right> getRights() {
+		return rightToLeftMap.keySet();
 	}
 	
 	/**
-	 * Get all of the twos for the given one
+	 * Get all of the Rights for the given Left
 	 * 
 	 * @param one
 	 * @return
 	 */
-	public Collection<Element2> getTwos(Element1 one) {
-		return oneToTwoMap.get(one);
+	public Collection<Right> getRights(Left one) {
+		return leftToRightMap.get(one);
 	}
 	
 	/**
 	 * Returns true if the specified mapping exists
 	 * 
-	 * @param one
-	 * @param two
+	 * @param left
+	 * @param right
 	 * @return
 	 */
-	public boolean containsMapping(Element1 one, Element2 two) {
-		Collection<Element1> ones = this.getOnes(two);
-		if (ones == null)
+	public boolean containsMapping(Left left, Right right) {
+		Collection<Left> lefts = this.getLefts(right);
+		if (lefts == null)
 			return false;
 		
-		for (Element1 oneTest : ones) {
-			if (oneTest.equals(one))
+		for (Left leftTest : lefts) {
+			if (leftTest.equals(left))
 				return true;
 		}
 		
@@ -169,17 +169,17 @@ public class NtoNMap<Element1, Element2> {
 	/**
 	 * Remove a mapping
 	 * 
-	 * @param one
-	 * @param two
+	 * @param left
+	 * @param right
 	 * @return success
 	 */
-	public boolean remove(Element1 one, Element2 two) {
-		Collection<Element1> ones = getOnes(two);
-		Collection<Element2> twos = getTwos(one);
+	public boolean remove(Left left, Right right) {
+		Collection<Left> lefts = getLefts(right);
+		Collection<Right> rights = getRights(left);
 		
-		if (ones != null && twos != null) {
-			if (ones.contains(one) && twos.contains(two)) {
-				boolean success = ones.remove(one) && twos.remove(two);
+		if (lefts != null && rights != null) {
+			if (lefts.contains(left) && rights.contains(right)) {
+				boolean success = lefts.remove(left) && rights.remove(right);
 				if (success) {
 					size--;
 					return true;

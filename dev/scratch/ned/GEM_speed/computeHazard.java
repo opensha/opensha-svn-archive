@@ -236,7 +236,7 @@ public class computeHazard implements Runnable {
 			//initialize site parameters for attenuation relation
 			for(int is=0;is<siteList.size();is++){
 				// set site parameters
-				ListIterator<ParameterAPI> it = as_1997.getSiteParamsIterator();
+				ListIterator<ParameterAPI<?>> it = as_1997.getSiteParamsIterator();
 		        while (it.hasNext()) {
 			           ParameterAPI param = it.next();
 			           if (!siteList.get(i).containsParameter(param))

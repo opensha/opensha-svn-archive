@@ -20,6 +20,7 @@
 package org.opensha.sha.calc.IM_EventSet.v03.gui;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.ListIterator;
 
 import javax.swing.BoxLayout;
@@ -34,10 +35,12 @@ import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
-import org.opensha.sha.imr.event.AttenuationRelationshipChangeEvent;
-import org.opensha.sha.imr.event.AttenuationRelationshipChangeListener;
+import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
+import org.opensha.sha.imr.event.ScalarIMRChangeListener;
+import org.opensha.sha.util.TRTUtils;
+import org.opensha.sha.util.TectonicRegionType;
 
-public class IMR_ChooserPanel extends NamesListPanel implements IMR_GuiBeanAPI, AttenuationRelationshipChangeListener {
+public class IMR_ChooserPanel extends NamesListPanel implements IMR_GuiBeanAPI, ScalarIMRChangeListener {
 	
 	private IMR_GuiBean imrGuiBean;
 	private IMT_ChooserPanel imtChooser;
@@ -121,9 +124,11 @@ public class IMR_ChooserPanel extends NamesListPanel implements IMR_GuiBeanAPI, 
 		frame.setVisible(true);
 	}
 
-	public void attenuationRelationshipChange(
-			AttenuationRelationshipChangeEvent event) {
-		addButton.setEnabled(shouldEnableAddButton(event.getNewAttenRel()));
+	public void imrChange(
+			ScalarIMRChangeEvent event) {
+		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap = event.getNewIMRs();
+		ScalarIntensityMeasureRelationshipAPI imr = TRTUtils.getFirstIMR(imrMap);
+		addButton.setEnabled(shouldEnableAddButton(imr));
 	}
 
 	@Override
@@ -171,7 +176,7 @@ public class IMR_ChooserPanel extends NamesListPanel implements IMR_GuiBeanAPI, 
 		for (int i=0; i<imrs.size(); i++) {
 			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
 			ScalarIntensityMeasureRelationshipAPI myIMR = imrGuiBean.getIMR_Instance(imr.getName());
-			ListIterator<ParameterAPI> paramIt = myIMR.getOtherParamsIterator();
+			ListIterator<ParameterAPI<?>> paramIt = myIMR.getOtherParamsIterator();
 			while (paramIt.hasNext()) {
 				ParameterAPI param = paramIt.next();
 				param.setValue(imr.getParameter(param.getName()).getValue());

@@ -26,6 +26,7 @@ import java.awt.event.ActionListener;
 import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.ListIterator;
 
 import javax.swing.JOptionPane;
@@ -51,6 +52,7 @@ import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMT_GuiBean;
+import org.opensha.sha.gui.beans.IMT_NewGuiBean;
 import org.opensha.sha.gui.controls.CalculationSettingsControlPanel;
 import org.opensha.sha.gui.controls.ERF_EpistemicListControlPanel;
 import org.opensha.sha.gui.controls.PlottingOptionControl;
@@ -64,7 +66,9 @@ import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.infoTools.WeightedFuncListforPlotting;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.util.TectonicRegionType;
 
 /**
  * @author nitingupta
@@ -170,15 +174,11 @@ extends HazardCurveLocalModeApplication {
 	 * Initialize the IMR Gui Bean
 	 */
 	protected void initIMR_GuiBean() {
+		super.initIMR_GuiBean();
+		imrGuiBean.setMultipleIMRsEnabled(false);
 
-		imrGuiBean = new IMR_GuiBean(this);
-		imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
 		//sets the Intensity measure for the IMR
-		imrGuiBean.getSelectedIMR_Instance().setIntensityMeasure(this.SA_NAME);
-		// show this gui bean the JPanel
-		//     imrPanel.add(this.imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-		//         GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0,0,0,0), 0, 0 ));
-		//     imrPanel.updateUI(); TODO clean
+		imrGuiBean.getSelectedIMR().setIntensityMeasure(SA_Param.NAME);
 	}
 
 
@@ -210,7 +210,7 @@ extends HazardCurveLocalModeApplication {
 			// initialize the GUI components
 			jbInit();
 
-			setImtPanel(imlProbGuiBean); // swap iml panel
+			setImtPanel(imlProbGuiBean, 0.28); // swap iml panel
 
 		}
 		catch (Exception e) {
@@ -292,8 +292,7 @@ extends HazardCurveLocalModeApplication {
 		}
 
 		// get the selected IMR
-		AttenuationRelationship imr = (AttenuationRelationship) imrGuiBean.
-		getSelectedIMR_Instance();
+		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR();
 
 		getSA_PeriodForIMR(imr);
 
@@ -416,24 +415,13 @@ extends HazardCurveLocalModeApplication {
 	 */
 	private void initImlProb_GuiBean() {
 		imlProbGuiBean = new IMLorProbSelectorGuiBean();
-		//    this.imtPanel.add(imlProbGuiBean, TODO clean
-		//                      new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
-		//                                             GridBagConstraints.CENTER,
-		//                                             GridBagConstraints.BOTH,
-		//                                             new Insets(0,0,0,0), 0, 0));
 	}
 
 	/**
 	 * Initialize the items to be added to the control list
 	 */
 	protected void initControlList() {
-		controlComboBox.addItem(CONTROL_PANELS);
-		controlComboBox.addItem(CalculationSettingsControlPanel.NAME);
-		controlComboBox.addItem(SitesOfInterestControlPanel.NAME);
-		controlComboBox.addItem(SiteDataControlPanel.NAME);
-		controlComboBox.addItem(PlottingOptionControl.NAME);
-		controlComboBox.addItem(X_ValuesInCurveControlPanel.NAME);
-		controlComboBox.addItem(XY_ValuesControlPanel.NAME);
+		initCommonControlList();
 	}
 
 
@@ -442,7 +430,8 @@ extends HazardCurveLocalModeApplication {
 	 * to set the same SA period value in the main application
 	 * similar to selected for Cybershake.
 	 */
-	public IMT_GuiBean getIMTGuiBeanInstance() {
+	@Override
+	public IMT_NewGuiBean getIMTGuiBeanInstance() {
 		return null;
 	}
 
@@ -475,17 +464,6 @@ extends HazardCurveLocalModeApplication {
 
 		String name1 = event.getParameterName();
 
-		// if IMR selection changed, update the site parameter list and supported IMT
-		if (name1.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
-			ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
-			//set the intensity measure fo	r the IMR
-			imr.setIntensityMeasure(SA_Param.NAME);
-			//gets the SA Period Values fo	r the IMR
-			this.getSA_PeriodForIMR(imr);
-			siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
-			siteGuiBean.validate();
-			siteGuiBean.repaint();
-		}
 		if (name1.equalsIgnoreCase(this.erfGuiBean.ERF_PARAM_NAME)) {
 
 			String plottingOption = null;
@@ -516,7 +494,7 @@ extends HazardCurveLocalModeApplication {
 		setButtonsEnable(false);
 		// do not show warning messages in IMR gui bean. this is needed
 		// so that warning messages for site parameters are not shown when Add graph is clicked
-		imrGuiBean.showWarningMessages(false);
+		//		imrGuiBean.showWarningMessages(false); // TODO need to add this back in
 		if(plotOptionControl !=null){
 			if(this.plotOptionControl.getSelectedOption().equals(PlottingOptionControl.PLOT_ON_TOP))
 				addData = true;
@@ -734,13 +712,14 @@ extends HazardCurveLocalModeApplication {
 	 */
 	public String getMapParametersInfoAsHTML() {
 		String imrMetadata;
-		if (this.isProbabilisticCurve) //if Probabilistic calculation then only add the metadata
-			//for visible parameters
-			imrMetadata = imrGuiBean.getVisibleParametersCloned().
-			getParameterListMetadataString();
-		else //if deterministic calculations then add all IMR params metadata.
-			imrMetadata = imrGuiBean.getSelectedIMR_Instance().getAllParamMetadata();
 
+		if (!isDeterministicCurve) { // if Probabilistic calculation then only add the
+			// metadata
+			imrMetadata = imrGuiBean.getIMRMetadataHTML();
+		} else {
+			// if deterministic calculations then add all IMR params metadata.
+			imrMetadata = imrGuiBean.getSelectedIMR().getAllParamMetadata();
+		}
 
 		return "<br>" + "IMR Param List:" + "<br>" +
 		"---------------" + "<br>" +
@@ -778,4 +757,11 @@ extends HazardCurveLocalModeApplication {
 		this.probDeterComboBox.addItem(PROBABILISTIC);
 		this.probDeterComboBox.addItem(DETERMINISTIC);
 	}
+
+	@Override
+	public void imrChange(ScalarIMRChangeEvent event) {
+		super.imrChange(event);
+		imrGuiBean.getSelectedIMR().setIntensityMeasure(SA_Param.NAME);
+	}
+
 }

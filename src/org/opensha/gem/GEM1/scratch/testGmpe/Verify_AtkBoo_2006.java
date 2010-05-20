@@ -393,7 +393,7 @@ public class Verify_AtkBoo_2006 {
 	private static ArrayList<Double> getPeriods(ScalarIntensityMeasureRelationshipAPI imr) {
 		// Get the list of periods available for the selected IMR
 		ArrayList<Double> per = new ArrayList<Double>();
-		ListIterator<ParameterAPI> it = imr.getSupportedIntensityMeasuresIterator();
+		ListIterator<ParameterAPI<?>> it = imr.getSupportedIntensityMeasuresIterator();
 	    while(it.hasNext()){
 	    	DependentParameterAPI tempParam = (DependentParameterAPI)it.next();
 	    	if (tempParam.getName().equalsIgnoreCase(SA_Param.NAME)){

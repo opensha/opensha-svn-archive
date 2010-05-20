@@ -189,7 +189,7 @@ public class GemComputeHazard implements Runnable {
 			Iterator<TectonicRegionType> iterGmpeLabel = gmpeLabels.iterator(); 
 			//initialize site parameters for each attenuation relation
 			while(iterGmpeLabel.hasNext()){
-				ListIterator<ParameterAPI> it = gmpeMapThread.get(iterGmpeLabel.next()).getSiteParamsIterator();
+				ListIterator<ParameterAPI<?>> it = gmpeMapThread.get(iterGmpeLabel.next()).getSiteParamsIterator();
 		        while (it.hasNext()) {
 			           ParameterAPI param = it.next();
 			           if (!siteList.get(i).containsParameter(param))

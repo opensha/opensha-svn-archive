@@ -216,7 +216,7 @@ public class SitesInGriddedRegion implements Serializable {
 		String siteInfo=null;
 		if(!setSameSiteParams){
 			//getting the Site Parameters Iterator
-			Iterator<ParameterAPI> it = site.getParametersIterator();
+			Iterator<ParameterAPI<?>> it = site.getParametersIterator();
 			//checking to see if we are getting the correct value for willsSiteClassList and basin depth.
 			if(D){
 				System.out.println(site.getLocation().toString());

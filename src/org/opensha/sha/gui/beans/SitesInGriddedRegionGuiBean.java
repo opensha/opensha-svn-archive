@@ -227,10 +227,10 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	private void reloadSiteParams() {
 		boolean useData = this.isUseSiteData();
 		
-		Iterator<ParameterAPI> it = parameterList.getParametersIterator();
+		Iterator<ParameterAPI<?>> it = parameterList.getParametersIterator();
 		
 		while (it.hasNext()) {
-			ParameterAPI param = it.next();
+			ParameterAPI<?> param = it.next();
 			
 			if (isSiteParam(param)) {
 				parameterList.removeParameter(param);
@@ -279,13 +279,13 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 *
 	 * @param it
 	 */
-	public void replaceSiteParams(Iterator<ParameterAPI> it) {
+	public void replaceSiteParams(Iterator<ParameterAPI<?>> it) {
 		boolean useData = this.isUseSiteData();
 		
 		// first remove all the parameters except latitude and longitude
-		Iterator<ParameterAPI> siteIt = parameterList.getParametersIterator();
+		Iterator<ParameterAPI<?>> siteIt = parameterList.getParametersIterator();
 		while(siteIt.hasNext()) { // remove all the parameters except latitude and longitude and gridSpacing
-			ParameterAPI param = siteIt.next();
+			ParameterAPI<?> param = siteIt.next();
 			if(isSiteParam(param)) {
 				parameterList.removeParameter(param);
 				System.out.println("Removed: " + param.getName());

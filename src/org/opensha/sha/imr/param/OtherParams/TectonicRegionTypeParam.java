@@ -37,6 +37,11 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class TectonicRegionTypeParam extends StringParameter {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public final static String NAME = "Tectonic Region";
 	public final static String INFO = "Applicable Tectonic Region(s) - not strictly enforced";
 	

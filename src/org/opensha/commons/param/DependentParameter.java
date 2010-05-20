@@ -100,7 +100,7 @@ implements DependentParameterAPI<E>
 	 * Returns an iterator of all parameters in the list.<p>
 	 *
 	 */
-	public ListIterator<ParameterAPI> getIndependentParametersIterator(){
+	public ListIterator<ParameterAPI<?>> getIndependentParametersIterator(){
 		return getIndependentParameterList().getParametersIterator();
 	}
 
