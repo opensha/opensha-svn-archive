@@ -34,30 +34,30 @@ import org.opensha.refFaultParamDb.vo.Reference;
  */
 
 public class TimeAPI {
-  // constant values for AD/BC
-  public final static String AD = "AD";
-  public final static String BC = "BC";
+	// constant values for AD/BC
+	public final static String AD = "AD";
+	public final static String BC = "BC";
 
-  private ArrayList referencesList;
-  private String datingComments;
-  public String getDatingComments() {
-    return datingComments;
-  }
-  public ArrayList getReferencesList() {
-    return referencesList;
-  }
-  public void setDatingComments(String datingComments) {
-    this.datingComments = datingComments;
-  }
-  public void setReferencesList(ArrayList referencesList) {
-    this.referencesList = referencesList;
-  }
+	private ArrayList<Reference> referencesList;
+	private String datingComments;
+	public String getDatingComments() {
+		return datingComments;
+	}
+	public ArrayList<Reference> getReferencesList() {
+		return referencesList;
+	}
+	public void setDatingComments(String datingComments) {
+		this.datingComments = datingComments;
+	}
+	public void setReferencesList(ArrayList<Reference> referencesList) {
+		this.referencesList = referencesList;
+	}
 
-  public String toString() {
-    String referenceString="";
-    for(int i=0; referencesList!=null && i<referencesList.size();++i)
-      referenceString+=((Reference)referencesList.get(i)).getSummary()+",";
-    return "Dating Comments="+ datingComments+"\n"+
-        "Time References="+referenceString;
-  }
+	public String toString() {
+		String referenceString="";
+		for(int i=0; referencesList!=null && i<referencesList.size();++i)
+			referenceString+=((Reference)referencesList.get(i)).getSummary()+",";
+		return "Dating Comments="+ datingComments+"\n"+
+		"Time References="+referenceString;
+	}
 }

@@ -22,6 +22,8 @@ package org.opensha.refFaultParamDb.dao.db;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import oracle.spatial.geometry.JGeometry;
+
 
 import com.sun.rowset.CachedRowSetImpl;
 
@@ -35,11 +37,11 @@ import com.sun.rowset.CachedRowSetImpl;
  *
  */
 public class PrioritizedDB_Access implements DB_AccessAPI {
-	
+
 	private static final boolean D = false;
-	
+
 	private DB_AccessAPI dbAccess = null;
-	
+
 	public static ArrayList<DB_AccessAPI> createDB2ReadOnlyAccessors() {
 		ArrayList<DB_AccessAPI> accessors = new ArrayList<DB_AccessAPI>();
 		// first priority is a direct connection
@@ -56,7 +58,7 @@ public class PrioritizedDB_Access implements DB_AccessAPI {
 		}
 		return accessors;
 	}
-	
+
 	public static ArrayList<DB_AccessAPI> createDB3ReadOnlyAccessors() {
 		ArrayList<DB_AccessAPI> accessors = new ArrayList<DB_AccessAPI>();
 		// first priority is a direct connection
@@ -73,7 +75,7 @@ public class PrioritizedDB_Access implements DB_AccessAPI {
 		}
 		return accessors;
 	}
-	
+
 	public PrioritizedDB_Access(ArrayList<DB_AccessAPI> accessors) {
 		for (int i=0; i<accessors.size(); i++) {
 			DB_AccessAPI accessor = accessors.get(i);
@@ -90,7 +92,7 @@ public class PrioritizedDB_Access implements DB_AccessAPI {
 			throw new RuntimeException("No valid DB Accessors! (0/" + accessors.size() + " successful)");
 		}
 	}
-	
+
 	public static boolean isAccessorValid(DB_AccessAPI dbAccess) {
 		String sql = "SELECT * FROM Fault_Model where rownum<=1";
 		try {
@@ -115,8 +117,8 @@ public class PrioritizedDB_Access implements DB_AccessAPI {
 		return dbAccess.insertUpdateOrDeleteData(sql);
 	}
 
-	public int insertUpdateOrDeleteData(String sql, ArrayList geometryList)
-			throws SQLException {
+	public int insertUpdateOrDeleteData(String sql, ArrayList<JGeometry> geometryList)
+	throws SQLException {
 		return dbAccess.insertUpdateOrDeleteData(sql, geometryList);
 	}
 
@@ -125,15 +127,15 @@ public class PrioritizedDB_Access implements DB_AccessAPI {
 	}
 
 	public SpatialQueryResult queryData(String sqlWithSpatialColumnNames,
-			String sqlWithNoSpatialColumnNames, ArrayList spatialColumnNames)
-			throws SQLException {
+			String sqlWithNoSpatialColumnNames, ArrayList<String> spatialColumnNames)
+	throws SQLException {
 		return dbAccess.queryData(sqlWithSpatialColumnNames, sqlWithNoSpatialColumnNames, spatialColumnNames);
 	}
 
 	public int resetPasswordByEmail(String sql) throws SQLException {
 		return dbAccess.resetPasswordByEmail(sql);
 	}
-	
+
 	public static void main(String args[]) {
 		new PrioritizedDB_Access(PrioritizedDB_Access.createDB2ReadOnlyAccessors());
 		System.exit(0);

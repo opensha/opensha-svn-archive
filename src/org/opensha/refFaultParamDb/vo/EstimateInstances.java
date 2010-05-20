@@ -30,41 +30,41 @@ import org.opensha.commons.data.estimate.Estimate;
  */
 
 public class EstimateInstances {
-  private int estimateInstanceId;
-  private Estimate estimate;
-  private String units;
+	private int estimateInstanceId;
+	private Estimate estimate;
+	private String units;
 
-  public EstimateInstances() {
-  }
+	public EstimateInstances() {
+	}
 
 
-  public String toString() {
-    return estimate.toString();
-  }
+	public String toString() {
+		return estimate.toString();
+	}
 
-  public EstimateInstances(Estimate estimate, String units) {
-   setEstimate(estimate);
-   setUnits(units);
-  }
+	public EstimateInstances(Estimate estimate, String units) {
+		setEstimate(estimate);
+		setUnits(units);
+	}
 
-  public Estimate getEstimate() {
-    return estimate;
-  }
-  public int getEstimateInstanceId() {
-    return estimateInstanceId;
-  }
-  public void setEstimate(Estimate estimate) {
-    this.estimate = estimate;
-  }
-  public void setEstimateInstanceId(int estimateInstanceId) {
-    this.estimateInstanceId = estimateInstanceId;
-  }
-  public String getUnits() {
-    return units;
-  }
-  public void setUnits(String units) {
-    this.units = units;
-  }
+	public Estimate getEstimate() {
+		return estimate;
+	}
+	public int getEstimateInstanceId() {
+		return estimateInstanceId;
+	}
+	public void setEstimate(Estimate estimate) {
+		this.estimate = estimate;
+	}
+	public void setEstimateInstanceId(int estimateInstanceId) {
+		this.estimateInstanceId = estimateInstanceId;
+	}
+	public String getUnits() {
+		return units;
+	}
+	public void setUnits(String units) {
+		this.units = units;
+	}
 
 
 }

@@ -10,7 +10,6 @@ import java.util.Iterator;
 import org.dom4j.Element;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.metadata.XMLSaveable;
-import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.commons.util.FaultTraceUtils;
 import org.opensha.sha.faultSurface.SimpleFaultData;
@@ -21,9 +20,14 @@ import org.opensha.sha.faultSurface.SimpleFaultData;
  *
  */
 public class FaultSectionPrefData  implements java.io.Serializable, XMLSaveable, Cloneable {
-	
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public static final String XML_METADATA_NAME = "FaultSectionPrefData";
-	
+
 	private int sectionId=-1;
 	private String sectionName;
 	private String shortName;
@@ -36,11 +40,11 @@ public class FaultSectionPrefData  implements java.io.Serializable, XMLSaveable,
 	private double aseismicSlipFactor;
 	private FaultTrace faultTrace;
 	private float dipDirection;
-	
+
 	public String getShortName() {
 		return this.shortName;
 	}
-	 
+
 	public void setFaultSectionPrefData(FaultSectionPrefData faultSectionPrefData) {
 		sectionId = faultSectionPrefData.getSectionId();
 		sectionName= faultSectionPrefData.getSectionName();
@@ -55,7 +59,7 @@ public class FaultSectionPrefData  implements java.io.Serializable, XMLSaveable,
 		faultTrace= faultSectionPrefData.getFaultTrace();
 		dipDirection= faultSectionPrefData.getDipDirection();
 	}
-	
+
 	public String toString() {
 		String str = new String();
 		str += "sectionId = "+this.getSectionId()+"\n";
@@ -70,17 +74,17 @@ public class FaultSectionPrefData  implements java.io.Serializable, XMLSaveable,
 		str += "aseismicSlipFactor = "+this.getAseismicSlipFactor()+"\n";
 		str += "dipDirection = "+this.getDipDirection()+"\n";
 		str += "faultTrace:\n";
-			for(int i=0; i <this.getFaultTrace().size();i++) {
-				Location loc = this.getFaultTrace().get(i);
-				str += "\t"+loc.getLatitude()+", "+loc.getLongitude()+", "+loc.getDepth()+"\n";
-			}
+		for(int i=0; i <this.getFaultTrace().size();i++) {
+			Location loc = this.getFaultTrace().get(i);
+			str += "\t"+loc.getLatitude()+", "+loc.getLongitude()+", "+loc.getDepth()+"\n";
+		}
 		return str;
 	}
-	
+
 	public void setShortName(String shortName) {
 		this.shortName = shortName;
 	}
-	
+
 	public double getAseismicSlipFactor() {
 		return aseismicSlipFactor;
 	}
@@ -120,7 +124,7 @@ public class FaultSectionPrefData  implements java.io.Serializable, XMLSaveable,
 	public float getDipDirection() {
 		return dipDirection;
 	}
-	
+
 	public void setDipDirection(float dipDirection) {
 		this.dipDirection = dipDirection;
 	}
@@ -148,14 +152,14 @@ public class FaultSectionPrefData  implements java.io.Serializable, XMLSaveable,
 	public double getDownDipWidth() {
 		return (getAveLowerDepth()-getAveUpperDepth())/Math.sin(getAveDip()*Math.PI/ 180);
 	}
-	
+
 	/**
 	 * Get a list of all sub sections
 	 * 
 	 * @param maxSubSectionLen
 	 * @return
 	 */
-	public ArrayList getSubSectionsList(double maxSubSectionLen) {
+	public ArrayList<FaultSectionPrefData> getSubSectionsList(double maxSubSectionLen) {
 		ArrayList<FaultTrace> equalLengthSubsTrace = FaultTraceUtils.getEqualLengthSubsectionTraces(this.faultTrace, maxSubSectionLen);
 		ArrayList<FaultSectionPrefData> subSectionList = new ArrayList<FaultSectionPrefData>();
 		for(int i=0; i<equalLengthSubsTrace.size(); ++i) {
@@ -176,7 +180,7 @@ public class FaultSectionPrefData  implements java.io.Serializable, XMLSaveable,
 	public void setSlipRateStdDev(double slipRateStdDev) {
 		this.slipRateStdDev = slipRateStdDev;
 	}
-	
+
 	/**
 	 * Make simple fault data.  This reduces the lower seis depth by the aseismicSlipFactor if aseisReducesArea is true
 	 *
@@ -196,12 +200,12 @@ public class FaultSectionPrefData  implements java.io.Serializable, XMLSaveable,
 			//System.out.println(depthToReduce+","+lowerDepth+","+upperDepth);
 			SimpleFaultData simpleFaultData = new SimpleFaultData(getAveDip(), lowerDepth, upperDepth, getFaultTrace());
 			return simpleFaultData;
-			
+
 		}
 	}
 
 	public Element toXMLMetadata(Element root) {
-		
+
 		Element el = root.addElement(XML_METADATA_NAME);
 		el.addAttribute("sectionId", this.getSectionId() + "");
 		el.addAttribute("sectionName", this.getSectionName());
@@ -214,23 +218,24 @@ public class FaultSectionPrefData  implements java.io.Serializable, XMLSaveable,
 		el.addAttribute("aveLowerDepth", this.getAveLowerDepth() + "");
 		el.addAttribute("aseismicSlipFactor", this.getAseismicSlipFactor() + "");
 		el.addAttribute("dipDirection", this.getDipDirection() + "");
-		
+
 		FaultTrace trace = this.getFaultTrace();
-		
+
 		Element traceEl = el.addElement("FaultTrace");
 		traceEl.addAttribute("name", trace.getName());
-		
+
 		for (int j=0; j<trace.getNumLocations(); j++) {
 			Location loc = trace.get(j);
-			
+
 			traceEl = loc.toXMLMetadata(traceEl);
 		}
-		
+
 		return root;
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	public static FaultSectionPrefData fromXMLMetadata(Element el) throws InvocationTargetException {
-		
+
 		int sectionId = Integer.parseInt(el.attributeValue("sectionId"));
 		String sectionName = el.attributeValue("sectionName");
 		String shortName = el.attributeValue("shortName");
@@ -245,16 +250,16 @@ public class FaultSectionPrefData  implements java.io.Serializable, XMLSaveable,
 		Element traceEl = el.element("FaultTrace");
 
 		String traceName = traceEl.attributeValue("name");
-		
+
 		FaultTrace trace = new FaultTrace(traceName);
-		
-		Iterator<Element> traceIt = traceEl.elementIterator();
+
+		Iterator<Element> traceIt = (Iterator<Element>)traceEl.elementIterator();
 		while (traceIt.hasNext()) {
 			Element locEl = traceIt.next();
-			
+
 			trace.add(Location.fromXMLMetadata(locEl));
 		}
-		
+
 		FaultSectionPrefData data = new FaultSectionPrefData();
 		data.setSectionId(sectionId);
 		data.setSectionName(sectionName);
@@ -267,16 +272,16 @@ public class FaultSectionPrefData  implements java.io.Serializable, XMLSaveable,
 		data.setAseismicSlipFactor(aseismicSlipFactor);
 		data.setDipDirection(dipDirection);
 		data.setFaultTrace(trace);
-		
+
 		return data;
 	}
-	
+
 	public FaultSectionPrefData clone() {
-		
+
 		FaultSectionPrefData section = new FaultSectionPrefData();
-		
+
 		section.setFaultSectionPrefData(this);
-		
+
 		return section;
 	}
 }

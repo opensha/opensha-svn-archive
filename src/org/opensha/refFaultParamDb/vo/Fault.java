@@ -29,25 +29,25 @@ package org.opensha.refFaultParamDb.vo;
  */
 
 public class Fault {
-  private int faultId;
-  private String faultName;
+	private int faultId;
+	private String faultName;
 
-  public Fault(int id, String faultName) {
-    setFaultId(id);
-    setFaultName(faultName);
-  }
+	public Fault(int id, String faultName) {
+		setFaultId(id);
+		setFaultName(faultName);
+	}
 
-  public int getFaultId() {
-    return faultId;
-  }
-  public String getFaultName() {
-    return faultName;
-  }
-  public void setFaultId(int faultId) {
-    this.faultId = faultId;
-  }
-  public void setFaultName(String faultName) {
-    this.faultName = faultName;
-  }
+	public int getFaultId() {
+		return faultId;
+	}
+	public String getFaultName() {
+		return faultName;
+	}
+	public void setFaultId(int faultId) {
+		this.faultId = faultId;
+	}
+	public void setFaultName(String faultName) {
+		this.faultName = faultName;
+	}
 
 }

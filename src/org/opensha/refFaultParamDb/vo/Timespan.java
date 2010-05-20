@@ -32,30 +32,30 @@ import org.opensha.refFaultParamDb.data.TimeAPI;
  */
 
 public class Timespan {
-  private TimeAPI startTime;
-  private TimeAPI endTime;
-  private String datingMethodology;
+	private TimeAPI startTime;
+	private TimeAPI endTime;
+	private String datingMethodology;
 
-  public Timespan() {
-  }
+	public Timespan() {
+	}
 
-  public String getDatingMethodology() {
-    return datingMethodology;
-  }
-  public TimeAPI getEndTime() {
-    return endTime;
-  }
-  public TimeAPI getStartTime() {
-    return startTime;
-  }
-  public void setDatingMethodology(String datingMethodology) {
-    this.datingMethodology = datingMethodology;
-  }
-  public void setEndTime(TimeAPI endTime) {
-    this.endTime = endTime;
-  }
+	public String getDatingMethodology() {
+		return datingMethodology;
+	}
+	public TimeAPI getEndTime() {
+		return endTime;
+	}
+	public TimeAPI getStartTime() {
+		return startTime;
+	}
+	public void setDatingMethodology(String datingMethodology) {
+		this.datingMethodology = datingMethodology;
+	}
+	public void setEndTime(TimeAPI endTime) {
+		this.endTime = endTime;
+	}
 
-  public void setStartTime(TimeAPI startTime) {
-    this.startTime = startTime;
-  }
+	public void setStartTime(TimeAPI startTime) {
+		this.startTime = startTime;
+	}
 }

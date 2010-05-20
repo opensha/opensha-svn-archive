@@ -31,18 +31,23 @@ package org.opensha.refFaultParamDb.dao.exception;
 
 public class UpdateException extends RuntimeException {
 
-  public UpdateException() {
-  }
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
-  public UpdateException(String message) {
-    super(message);
-  }
+	public UpdateException() {
+	}
 
-  public UpdateException(String message, Throwable cause) {
-    super(message, cause);
-  }
+	public UpdateException(String message) {
+		super(message);
+	}
 
-  public UpdateException(Throwable cause) {
-    super(cause);
-  }
+	public UpdateException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public UpdateException(Throwable cause) {
+		super(cause);
+	}
 }

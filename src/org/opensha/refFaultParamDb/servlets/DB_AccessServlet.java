@@ -33,6 +33,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import oracle.spatial.geometry.JGeometry;
+
 import org.opensha.refFaultParamDb.dao.db.ContributorDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
@@ -134,7 +136,7 @@ public class DB_AccessServlet extends HttpServlet{
 			}
 			// inserting spatial data into database
 			else if(functionToPerform.equals(DB_AccessAPI.INSERT_UPDATE_SPATIAL)){
-				ArrayList geomteryObjectList = (ArrayList)inputFromApp.readObject();
+				ArrayList<JGeometry> geomteryObjectList = (ArrayList<JGeometry>)inputFromApp.readObject();
 				int key = myBroker.insertUpdateOrDeleteData(query, geomteryObjectList);
 				outputToApp.writeObject(new Integer(key));
 			}
@@ -146,7 +148,7 @@ public class DB_AccessServlet extends HttpServlet{
 			//reading the data form the database
 			else if(functionToPerform.equals(DB_AccessAPI.SELECT_QUERY_SPATIAL)){
 				String sqlWithNoSaptialColumnNames = (String)inputFromApp.readObject();
-				ArrayList geomteryObjectList = (ArrayList)inputFromApp.readObject();
+				ArrayList<String> geomteryObjectList = (ArrayList<String>)inputFromApp.readObject();
 				SpatialQueryResult resultSet= myBroker.queryData(query,
 						sqlWithNoSaptialColumnNames, geomteryObjectList);
 				outputToApp.writeObject(resultSet);

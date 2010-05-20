@@ -37,72 +37,72 @@ import org.opensha.refFaultParamDb.vo.SiteRepresentation;
 
 public class SiteRepresentationDB_DAO  {
 
-  private final static String TABLE_NAME="Site_Representations";
-  private final static String SITE_REPRESENTATION_ID="Site_Representation_Id";
-  public final static String SITE_REPRESENTATION_NAME="Site_Representation_Name";
-  private DB_AccessAPI dbAccessAPI;
+	private final static String TABLE_NAME="Site_Representations";
+	private final static String SITE_REPRESENTATION_ID="Site_Representation_Id";
+	public final static String SITE_REPRESENTATION_NAME="Site_Representation_Name";
+	private DB_AccessAPI dbAccessAPI;
 
 
-  public SiteRepresentationDB_DAO(DB_AccessAPI dbAccessAPI) {
-   setDB_Connection(dbAccessAPI);
-  }
+	public SiteRepresentationDB_DAO(DB_AccessAPI dbAccessAPI) {
+		setDB_Connection(dbAccessAPI);
+	}
 
-  public void setDB_Connection(DB_AccessAPI dbAccessAPI) {
-    this.dbAccessAPI = dbAccessAPI;
-  }
+	public void setDB_Connection(DB_AccessAPI dbAccessAPI) {
+		this.dbAccessAPI = dbAccessAPI;
+	}
 
-  /**
-  * Get all the representations with which a site can be associated
-  * @return
-  */
-  public ArrayList getAllSiteRepresentations() {
-    return query(" ");
-  }
+	/**
+	 * Get all the representations with which a site can be associated
+	 * @return
+	 */
+	public ArrayList<SiteRepresentation> getAllSiteRepresentations() {
+		return query(" ");
+	}
 
-  /**
-   * Get a representation based on site representation Id
-   * @param siteRepresentationId
-   * @return
-   */
-  public SiteRepresentation getSiteRepresentation(int siteRepresentationId) {
-    SiteRepresentation siteRepresentation=null;
-    String condition = " where "+this.SITE_REPRESENTATION_ID+"="+siteRepresentationId;
-    ArrayList siteRepresentationList=query(condition);
-    if(siteRepresentationList.size()>0) siteRepresentation = (SiteRepresentation)siteRepresentationList.get(0);
-    return siteRepresentation;
-  }
+	/**
+	 * Get a representation based on site representation Id
+	 * @param siteRepresentationId
+	 * @return
+	 */
+	public SiteRepresentation getSiteRepresentation(int siteRepresentationId) {
+		SiteRepresentation siteRepresentation=null;
+		String condition = " where "+SITE_REPRESENTATION_ID+"="+siteRepresentationId;
+		ArrayList<SiteRepresentation> siteRepresentationList=query(condition);
+		if(siteRepresentationList.size()>0) siteRepresentation = (SiteRepresentation)siteRepresentationList.get(0);
+		return siteRepresentation;
+	}
 
-  /**
-   * Get a  representation based on site representation name
-   *
-   * @param siteRepresentationName
-   * @return
-   */
-  public SiteRepresentation getSiteRepresentation(String siteRepresentationName) {
-    SiteRepresentation siteRepresentation=null;
-   String condition = " where upper("+this.SITE_REPRESENTATION_NAME+")=upper('"+siteRepresentationName+"')";
-   ArrayList siteRepresentationList=query(condition);
-   if(siteRepresentationList.size()>0) siteRepresentation = (SiteRepresentation)siteRepresentationList.get(0);
-   return siteRepresentation;
-  }
+	/**
+	 * Get a  representation based on site representation name
+	 *
+	 * @param siteRepresentationName
+	 * @return
+	 */
+	public SiteRepresentation getSiteRepresentation(String siteRepresentationName) {
+		SiteRepresentation siteRepresentation=null;
+		String condition = " where upper("+SITE_REPRESENTATION_NAME+")=upper('"+siteRepresentationName+"')";
+		ArrayList<SiteRepresentation> siteRepresentationList=query(condition);
+		if(siteRepresentationList.size()>0) siteRepresentation = (SiteRepresentation)siteRepresentationList.get(0);
+		return siteRepresentation;
+	}
 
-  /**
-   *
-   * @param condition
-   * @return
-   * @throws QueryException
-   */
-  private ArrayList query(String condition) throws QueryException {
-   ArrayList siteRepresentationList = new ArrayList();
-   String sql =  "select "+SITE_REPRESENTATION_ID+","+SITE_REPRESENTATION_NAME+" from "+TABLE_NAME+condition;
-   try {
-     ResultSet rs  = dbAccessAPI.queryData(sql);
-     while(rs.next()) siteRepresentationList.add(new SiteRepresentation(rs.getInt(SITE_REPRESENTATION_ID),
-           rs.getString(SITE_REPRESENTATION_NAME)));
-     rs.close();
-   } catch(SQLException e) { throw new QueryException(e.getMessage()); }
-   return siteRepresentationList;
- }
+	/**
+	 *
+	 * @param condition
+	 * @return
+	 * @throws QueryException
+	 */
+	private ArrayList<SiteRepresentation> query(String condition) throws QueryException {
+		ArrayList<SiteRepresentation> siteRepresentationList = new ArrayList<SiteRepresentation>();
+		String sql =  "select "+SITE_REPRESENTATION_ID+","+SITE_REPRESENTATION_NAME+" from "+TABLE_NAME+condition;
+		try {
+			ResultSet rs  = dbAccessAPI.queryData(sql);
+			while(rs.next()) siteRepresentationList.add(new SiteRepresentation(rs.getInt(SITE_REPRESENTATION_ID),
+					rs.getString(SITE_REPRESENTATION_NAME)));
+			rs.close();
+		} catch(SQLException e) { throw new QueryException(e.getMessage()); }
+		return siteRepresentationList;
+	}
 
 
 }

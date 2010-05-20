@@ -29,6 +29,11 @@ import org.opensha.sha.faultSurface.FaultTrace;
  *
  */
 public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private final static String TABLE_NAME = "Pref_Fault_Section_Data";
 	public final static String SECTION_ID = "Section_Id";
 	public final static String PREF_SLIP_RATE = "Pref_Slip_Rate";
@@ -42,9 +47,10 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 	public final static String PREF_ASEISMIC_SLIP= "Pref_Aseismic_Slip";
 	public final static String DIP_DIRECTION = "Dip_Direction";
 	private DB_AccessAPI dbAccess;
-	private static HashMap cachedSections = new HashMap();
+	private static HashMap<Integer, FaultSectionPrefData> cachedSections =
+		new HashMap<Integer, FaultSectionPrefData>();
 	private static ArrayList<FaultSectionPrefData> faultSectionsList;
-	
+
 	public PrefFaultSectionDataDB_DAO(DB_AccessAPI dbAccess) {
 		setDB_Connection(dbAccess);
 	}
@@ -56,20 +62,20 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 	public void setDB_Connection(DB_AccessAPI dbAccess) {
 		this.dbAccess = dbAccess;
 	}
-	
+
 	/**
 	 * Remove the exisiting data from preferred data table and re-populate it.
 	 *
 	 */
 	public void rePopulatePrefDataTable() {
 		FaultSectionVer2_DB_DAO faultSectionVer2DAO = new FaultSectionVer2_DB_DAO(dbAccess);
-		ArrayList faultSectionsDataList = faultSectionVer2DAO.getAllFaultSections();
+		ArrayList<FaultSectionData> faultSectionsDataList = faultSectionVer2DAO.getAllFaultSections();
 		removeAll(); // remove all the pref data
 		for(int i=0; i<faultSectionsDataList.size(); ++i) {
 			FaultSectionData faultSection = (FaultSectionData)faultSectionsDataList.get(i);
 			addFaultSectionPrefData(faultSection.getFaultSectionPrefData());
 		}
-		
+
 	}
 
 	/**
@@ -82,62 +88,62 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 		removeFaultSection(faultSectionId); // remove all the pref data
 		addFaultSectionPrefData(faultSectionData.getFaultSectionPrefData());
 	}
-	  /**
-	   * Add a new fault section pref data to the database
-	   * @param faultSection
-	   * @return
-	   */
-	  private void addFaultSectionPrefData(FaultSectionPrefData faultSectionPrefData) {
+	/**
+	 * Add a new fault section pref data to the database
+	 * @param faultSection
+	 * @return
+	 */
+	private void addFaultSectionPrefData(FaultSectionPrefData faultSectionPrefData) {
 
-	    // get JGeomtery object from fault trace
-	    JGeometry faultSectionTraceGeom =  FaultSectionVer2_DB_DAO.getGeomtery(faultSectionPrefData.getFaultTrace()); 
-	    String columnNames="";
-	    String columnVals = "";
-	    
-	    // check if slip rate is present for this fault section
-	    double slipRate = faultSectionPrefData.getAveLongTermSlipRate();
-	    if(!Double.isNaN(slipRate)) { // if slip rate estimate is present
-	    	columnNames+=PREF_SLIP_RATE+",";
-	    	columnVals+=slipRate+",";
-	    }
-	    
-	    // check if rake is present for this section
-	    double rake = faultSectionPrefData.getAveRake();
-	    if(!Double.isNaN(rake)) {
-	    	columnNames+=PREF_RAKE+",";
-	    	columnVals+=rake+",";
-	    }
-	    
-	    // check if dip direction is present for this section. Dip direction is not available wherever dip=90 degrees
-	    float dipDirection  = faultSectionPrefData.getDipDirection();
-	    if(!Float.isNaN(dipDirection)) {
-	    	columnNames+=DIP_DIRECTION+",";
-	    	columnVals+=dipDirection+",";
-	    }
-	    // check if short name is available
-	    String shortName = faultSectionPrefData.getShortName();
-	    if(shortName!=null) {
-	    	columnNames+=SHORT_NAME+",";
-	    	columnVals+="'"+shortName+"',";
-	    }
-	    // insert the fault section into the database
-	    ArrayList geomteryObjectList = new ArrayList();
-	    geomteryObjectList.add(faultSectionTraceGeom);
-	    String sql = "insert into "+TABLE_NAME+"("+ SECTION_ID+","+
-	        columnNames+PREF_DIP+","+PREF_UPPER_DEPTH+","+PREF_LOWER_DEPTH+","+SECTION_NAME+","+
-	        FAULT_TRACE+","+PREF_ASEISMIC_SLIP+") values ("+
-	        faultSectionPrefData.getSectionId()+","+columnVals+
-	        faultSectionPrefData.getAveDip()+","+faultSectionPrefData.getAveUpperDepth()+","+
-	        faultSectionPrefData.getAveLowerDepth()+",'"+faultSectionPrefData.getSectionName()+"',?,"+
-	        faultSectionPrefData.getAseismicSlipFactor()+")";
-	    try {
-	      dbAccess.insertUpdateOrDeleteData(sql, geomteryObjectList);
-	    }
-	    catch(SQLException e) {
-	      throw new InsertException(e.getMessage());
-	    }
-	  }
-	
+		// get JGeomtery object from fault trace
+		JGeometry faultSectionTraceGeom =  FaultSectionVer2_DB_DAO.getGeomtery(faultSectionPrefData.getFaultTrace()); 
+		String columnNames="";
+		String columnVals = "";
+
+		// check if slip rate is present for this fault section
+		double slipRate = faultSectionPrefData.getAveLongTermSlipRate();
+		if(!Double.isNaN(slipRate)) { // if slip rate estimate is present
+			columnNames+=PREF_SLIP_RATE+",";
+			columnVals+=slipRate+",";
+		}
+
+		// check if rake is present for this section
+		double rake = faultSectionPrefData.getAveRake();
+		if(!Double.isNaN(rake)) {
+			columnNames+=PREF_RAKE+",";
+			columnVals+=rake+",";
+		}
+
+		// check if dip direction is present for this section. Dip direction is not available wherever dip=90 degrees
+		float dipDirection  = faultSectionPrefData.getDipDirection();
+		if(!Float.isNaN(dipDirection)) {
+			columnNames+=DIP_DIRECTION+",";
+			columnVals+=dipDirection+",";
+		}
+		// check if short name is available
+		String shortName = faultSectionPrefData.getShortName();
+		if(shortName!=null) {
+			columnNames+=SHORT_NAME+",";
+			columnVals+="'"+shortName+"',";
+		}
+		// insert the fault section into the database
+		ArrayList<JGeometry> geomteryObjectList = new ArrayList<JGeometry>();
+		geomteryObjectList.add(faultSectionTraceGeom);
+		String sql = "insert into "+TABLE_NAME+"("+ SECTION_ID+","+
+		columnNames+PREF_DIP+","+PREF_UPPER_DEPTH+","+PREF_LOWER_DEPTH+","+SECTION_NAME+","+
+		FAULT_TRACE+","+PREF_ASEISMIC_SLIP+") values ("+
+		faultSectionPrefData.getSectionId()+","+columnVals+
+		faultSectionPrefData.getAveDip()+","+faultSectionPrefData.getAveUpperDepth()+","+
+		faultSectionPrefData.getAveLowerDepth()+",'"+faultSectionPrefData.getSectionName()+"',?,"+
+		faultSectionPrefData.getAseismicSlipFactor()+")";
+		try {
+			dbAccess.insertUpdateOrDeleteData(sql, geomteryObjectList);
+		}
+		catch(SQLException e) {
+			throw new InsertException(e.getMessage());
+		}
+	}
+
 	/**
 	 * Remove all preferred data
 	 */
@@ -147,7 +153,7 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 			dbAccess.insertUpdateOrDeleteData(sql);
 		} catch(SQLException e) { throw new UpdateException(e.getMessage()); }
 	}
-	
+
 	/**
 	 * Remove data for a specific fault section
 	 *
@@ -158,17 +164,17 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 			dbAccess.insertUpdateOrDeleteData(sql);
 		} catch(SQLException e) { throw new UpdateException(e.getMessage()); }
 	}
-	
+
 	/**
 	 * Get a list of all Fault Section Pref Data from the database
 	 * @return
 	 */
-	public ArrayList getAllFaultSectionPrefData() {
+	public ArrayList<FaultSectionPrefData> getAllFaultSectionPrefData() {
 		if(faultSectionsList==null) 
-			this.faultSectionsList = query("");
+			faultSectionsList = query("");
 		return faultSectionsList;
 	}
-	
+
 	/**
 	 * Get Preferred fault section data for a Fault Section Id
 	 * @param faultSectionId
@@ -176,15 +182,15 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 	 */
 	public FaultSectionPrefData getFaultSectionPrefData(int faultSectionId) {
 		String condition = " where "+SECTION_ID+"="+faultSectionId;
-		if(this.cachedSections.containsKey(new Integer(faultSectionId))) {
+		if(cachedSections.containsKey(new Integer(faultSectionId))) {
 			return (FaultSectionPrefData)cachedSections.get(new Integer(faultSectionId));
 		}
-		ArrayList faultSectionsList = query(condition);	
+		ArrayList<FaultSectionPrefData> faultSectionsList = query(condition);	
 		FaultSectionPrefData faultSectionPrefData = null;		
 		if(faultSectionsList.size()>0) faultSectionPrefData = (FaultSectionPrefData)faultSectionsList.get(0);
 		return faultSectionPrefData;  
 	}
-	
+
 	/**
 	 * Get the fault sections based on some filter parameter
 	 * @param condition
@@ -203,7 +209,7 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 		",("+PREF_ASEISMIC_SLIP+"+0) "+PREF_ASEISMIC_SLIP+
 		",("+DIP_DIRECTION+"+0) "+DIP_DIRECTION+
 		" from "+TABLE_NAME+condition+ " order by "+SECTION_NAME;
-		
+
 		String sqlWithNoSpatialColumnNames =  "select "+SECTION_ID+
 		", ("+PREF_SLIP_RATE+"+0) "+PREF_SLIP_RATE+
 		", ("+PREF_DIP+"+0) "+ PREF_DIP+
@@ -213,10 +219,10 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 		","+SECTION_NAME+","+SHORT_NAME+
 		",("+PREF_ASEISMIC_SLIP+"+0) "+PREF_ASEISMIC_SLIP+
 		",("+DIP_DIRECTION+"+0) "+DIP_DIRECTION+" from "+TABLE_NAME+condition+" order by "+SECTION_NAME;
-		
+
 		//System.out.println(sqlWithSpatialColumnNames+"\n\n"+sqlWithNoSpatialColumnNames);
-		
-		ArrayList spatialColumnNames = new ArrayList();
+
+		ArrayList<String> spatialColumnNames = new ArrayList<String>();
 		spatialColumnNames.add(FAULT_TRACE);
 		try {
 			SpatialQueryResult spatialQueryResult  = dbAccess.queryData(sqlWithSpatialColumnNames, sqlWithNoSpatialColumnNames, spatialColumnNames);
@@ -228,42 +234,42 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 				faultSectionPrefData.setSectionName(rs.getString(SECTION_NAME));
 				faultSectionPrefData.setAseismicSlipFactor(rs.getFloat(PREF_ASEISMIC_SLIP));
 				faultSectionPrefData.setAveDip(rs.getFloat(PREF_DIP));
-				
+
 				// get slip rate estimate if slip rate is provided for this fault section
 				double slipRate= rs.getFloat(PREF_SLIP_RATE);
 				if(rs.wasNull()) slipRate = Double.NaN;
 				faultSectionPrefData.setAveLongTermSlipRate(slipRate);
-				  
-				  // get rake estimate if rake is provided for this fault section
+
+				// get rake estimate if rake is provided for this fault section
 				double rake= rs.getFloat(PREF_RAKE);
 				if(rs.wasNull()) rake = Double.NaN;
 				faultSectionPrefData.setAveRake(rake);
-				  
+
 				float dipDirection = rs.getFloat(FaultSectionVer2_DB_DAO.DIP_DIRECTION);
 				if(rs.wasNull()) dipDirection = Float.NaN;
 				faultSectionPrefData.setDipDirection(dipDirection);
-				  
+
 				faultSectionPrefData.setAveLowerDepth(rs.getFloat(PREF_LOWER_DEPTH));
 				faultSectionPrefData.setAveUpperDepth(rs.getFloat(PREF_UPPER_DEPTH));
-				  
-			      // fault trace
+
+				// fault trace
 				String sectionName = faultSectionPrefData.getSectionName();
-				
-//				 short name
+
+				//				 short name
 				String shortName = rs.getString(SHORT_NAME);
 				if(!rs.wasNull()) faultSectionPrefData.setShortName(shortName);
-				
-				ArrayList geometries = spatialQueryResult.getGeometryObjectsList(i++);
+
+				ArrayList<JGeometry> geometries = spatialQueryResult.getGeometryObjectsList(i++);
 				FaultTrace faultTrace = FaultSectionVer2_DB_DAO.getFaultTrace(sectionName, faultSectionPrefData.getAveUpperDepth(), geometries);	
 				faultSectionPrefData.setFaultTrace(faultTrace);
 				faultSectionsList.add(faultSectionPrefData);
 				cachedSections.put(new Integer(faultSectionPrefData.getSectionId()), faultSectionPrefData);
-			  }
-			  rs.close();
-		  } catch(SQLException e) { throw new QueryException(e.getMessage()); }
-		  	return faultSectionsList;
-	  }
-	
+			}
+			rs.close();
+		} catch(SQLException e) { throw new QueryException(e.getMessage()); }
+		return faultSectionsList;
+	}
+
 	/**
 	 * Recalculate the fault section pref data
 	 * @param args
@@ -271,8 +277,8 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 	public static void main(String []args) {
 		DB_AccessAPI dbAccessAPI = new ServerDB_Access(ServerDB_Access.SERVLET_URL_DB3);
 		SessionInfo.setUserName(args[0]);
-	    SessionInfo.setPassword(args[1]);
-	    SessionInfo.setContributorInfo();
+		SessionInfo.setPassword(args[1]);
+		SessionInfo.setContributorInfo();
 		PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new  PrefFaultSectionDataDB_DAO(dbAccessAPI);
 		prefFaultSectionDAO.rePopulatePrefDataTable();
 		System.exit(0);
@@ -289,16 +295,16 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 		try {
 			rs = dbAccess.queryData(sql);
 			rs.next();
-		     maxSlipRate = rs.getFloat(0);
-		    rs.close();
+			maxSlipRate = rs.getFloat(0);
+			rs.close();
 		} catch (SQLException e) {
-			 throw new QueryException(e.getMessage()); 
+			throw new QueryException(e.getMessage()); 
 		}
-	    return maxSlipRate;
+		return maxSlipRate;
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Get Min slip rate from preferred fault data
 	 *
@@ -311,13 +317,13 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 			rs = dbAccess.queryData(sql);
 			rs.next();
 			minSlipRate = rs.getFloat(0);
-		    rs.close();
+			rs.close();
 		} catch (SQLException e) {
-			 throw new QueryException(e.getMessage()); 
+			throw new QueryException(e.getMessage()); 
 		}
-	    return minSlipRate;
+		return minSlipRate;
 	}
 
-	
+
 
 }

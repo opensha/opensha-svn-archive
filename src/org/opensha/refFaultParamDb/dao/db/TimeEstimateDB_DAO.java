@@ -108,7 +108,7 @@ public class TimeEstimateDB_DAO  {
   public TimeEstimate getTimeEstimate(int timeInstanceId) throws QueryException {
     TimeEstimate timeEstimate=null;
     String condition  =  " where "+TIME_INSTANCE_ID+"="+timeInstanceId;
-    ArrayList timeEstimateList = query(condition);
+    ArrayList<TimeEstimate> timeEstimateList = query(condition);
     if(timeEstimateList.size()>0) timeEstimate = (TimeEstimate)timeEstimateList.get(0);
     return timeEstimate;
   }
@@ -130,8 +130,8 @@ public class TimeEstimateDB_DAO  {
   }
 
 
-  private ArrayList query(String condition) throws QueryException {
-   ArrayList timeEstimateList = new ArrayList();
+  private ArrayList<TimeEstimate> query(String condition) throws QueryException {
+   ArrayList<TimeEstimate> timeEstimateList = new ArrayList<TimeEstimate>();
    String sql = "select "+TIME_INSTANCE_ID+","+TIME_EST_ID+","+
         IS_KA+","+ERA+","+ZERO_YEAR+" from "+TABLE_NAME+" "+condition;
    try {
@@ -139,7 +139,7 @@ public class TimeEstimateDB_DAO  {
      while(rs.next()) {
        TimeEstimate timeEstimate = new TimeEstimate();
        EstimateInstances estimateInstance  = estimateInstanceDAO.getEstimateInstance(rs.getInt(TIME_EST_ID));
-       if(rs.getString(IS_KA).equalsIgnoreCase(this.YES)) // if ka was selected by user
+       if(rs.getString(IS_KA).equalsIgnoreCase(YES)) // if ka was selected by user
          timeEstimate.setForKaUnits(estimateInstance.getEstimate(),
                                     rs.getInt(ZERO_YEAR));
        else  // if calendar years estimate was selected by user

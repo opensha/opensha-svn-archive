@@ -64,8 +64,6 @@ public class PaleoSiteDB_DAO  {
 	private EstimateInstancesDB_DAO estimateInstancesDAO;
 	// paleo site publication DAO
 	private PaleoSitePublicationsDB_DAO paleoSitePublicationDAO;
-	// fault DAO
-	private FaultSectionVer2_DB_DAO faultSectionDAO;
 
 	public PaleoSiteDB_DAO(DB_AccessAPI dbAccess) {
 		setDB_Connection(dbAccess);
@@ -73,7 +71,6 @@ public class PaleoSiteDB_DAO  {
 
 	public void setDB_Connection(DB_AccessAPI dbAccess) {
 		this.dbAccess = dbAccess;
-		faultSectionDAO = new FaultSectionVer2_DB_DAO(dbAccess);
 		estimateInstancesDAO = new EstimateInstancesDB_DAO(dbAccess);
 		paleoSitePublicationDAO = new PaleoSitePublicationsDB_DAO(dbAccess);
 	}
@@ -111,7 +108,7 @@ public class PaleoSiteDB_DAO  {
 
 
 
-		ArrayList geomteryObjectList = new ArrayList();
+		ArrayList<JGeometry> geomteryObjectList = new ArrayList<JGeometry>();
 		geomteryObjectList.add(location1);
 
 		String colNames="", colVals="";
@@ -152,7 +149,7 @@ public class PaleoSiteDB_DAO  {
 			//System.out.println(sql);
 			dbAccess.insertUpdateOrDeleteData(sql, geomteryObjectList);
 			// put the reference, site type and representative strand index
-			ArrayList paleoSitePubList = paleoSite.getPaleoSitePubList();
+			ArrayList<PaleoSitePublication> paleoSitePubList = paleoSite.getPaleoSitePubList();
 			for(int i=0; i<paleoSitePubList.size(); ++i ) {
 				// set the site entry date and site id
 				PaleoSitePublication paleoSitePub = (PaleoSitePublication)paleoSitePubList.get(i);
@@ -175,7 +172,7 @@ public class PaleoSiteDB_DAO  {
 	 */
 	public PaleoSite getPaleoSite(int paleoSiteId) throws QueryException {
 		String condition = " where "+SITE_ID+"="+paleoSiteId;
-		ArrayList paleoSiteList = query(condition);
+		ArrayList<PaleoSite> paleoSiteList = query(condition);
 		PaleoSite paleoSite = null;
 		if(paleoSiteList.size()>0) paleoSite = (PaleoSite)paleoSiteList.get(0);
 		return paleoSite;
@@ -189,7 +186,7 @@ public class PaleoSiteDB_DAO  {
 	 */
 	public PaleoSite getPaleoSiteByQfaultId(String qFaultSiteId) throws QueryException {
 		String condition = " where "+OLD_SITE_ID+"='"+qFaultSiteId+"'";
-		ArrayList paleoSiteList = query(condition);
+		ArrayList<PaleoSite> paleoSiteList = query(condition);
 		PaleoSite paleoSite = null;
 		if(paleoSiteList.size()>0) paleoSite = (PaleoSite)paleoSiteList.get(0);
 		return paleoSite;
@@ -203,7 +200,7 @@ public class PaleoSiteDB_DAO  {
 	 */
 	public PaleoSite getPaleoSite(String paleoSiteName) throws QueryException {
 		String condition = " where "+SITE_NAME+"='"+paleoSiteName+"'";
-		ArrayList paleoSiteList = query(condition);
+		ArrayList<PaleoSite> paleoSiteList = query(condition);
 		PaleoSite paleoSite = null;
 		if(paleoSiteList.size()>0) paleoSite = (PaleoSite)paleoSiteList.get(0);
 		return paleoSite;
@@ -219,8 +216,8 @@ public class PaleoSiteDB_DAO  {
 	 * @return
 	 * @throws QueryException
 	 */
-	public ArrayList getAllPaleoSiteNames() throws QueryException {
-		ArrayList paleoSiteSummaryList = new ArrayList();
+	public ArrayList<PaleoSiteSummary> getAllPaleoSiteNames() throws QueryException {
+		ArrayList<PaleoSiteSummary> paleoSiteSummaryList = new ArrayList<PaleoSiteSummary>();
 		String sql =  "select "+SITE_ID+","+SITE_NAME+" from "+TABLE_NAME+" order by "+SITE_NAME;
 		try {
 			ResultSet rs  = dbAccess.queryData(sql);
@@ -240,13 +237,13 @@ public class PaleoSiteDB_DAO  {
 	 * @return
 	 * @throws QueryException
 	 */
-	public ArrayList getPaleoSiteNameIdAndLocations() throws QueryException {
-		ArrayList paleoSiteList = new ArrayList();
+	public ArrayList<PaleoSite> getPaleoSiteNameIdAndLocations() throws QueryException {
+		ArrayList<PaleoSite> paleoSiteList = new ArrayList<PaleoSite>();
 		String sqlWithSpatialColumnNames =  "select "+SITE_ID+","+SITE_NAME+","+SITE_LOCATION1+","+
 		SITE_LOCATION2+" from "+TABLE_NAME;
 		String sqlWithNoSpatialColumnNames =  "select "+SITE_ID+","+SITE_NAME+" from "+TABLE_NAME;
 
-		ArrayList spatialColumnNames = new ArrayList();
+		ArrayList<String> spatialColumnNames = new ArrayList<String>();
 		spatialColumnNames.add(SITE_LOCATION1);
 		spatialColumnNames.add(SITE_LOCATION2);
 		try {
@@ -258,7 +255,7 @@ public class PaleoSiteDB_DAO  {
 				paleoSite.setSiteId(rs.getInt(SITE_ID));
 				paleoSite.setSiteName(rs.getString(SITE_NAME));
 				// location 1
-				ArrayList geometries = spatialQueryResult.getGeometryObjectsList(i++);
+				ArrayList<JGeometry> geometries = spatialQueryResult.getGeometryObjectsList(i++);
 				setPaleoSiteLocations(paleoSite, geometries);
 				paleoSiteList.add(paleoSite);
 			}
@@ -289,14 +286,14 @@ public class PaleoSiteDB_DAO  {
 	 * @return
 	 * @throws QueryException
 	 */
-	public ArrayList getAllPaleoSites() throws QueryException {
+	public ArrayList<PaleoSite> getAllPaleoSites() throws QueryException {
 		return query(" ");
 	}
 
 
 
-	private ArrayList query(String condition) throws QueryException {
-		ArrayList paleoSiteList = new ArrayList();
+	private ArrayList<PaleoSite> query(String condition) throws QueryException {
+		ArrayList<PaleoSite> paleoSiteList = new ArrayList<PaleoSite>();
 		String sqlWithSpatialColumnNames =  "select "+SITE_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
 		","+SITE_NAME+","+SITE_LOCATION1+","+
 		SITE_LOCATION2+","+
@@ -307,7 +304,7 @@ public class PaleoSiteDB_DAO  {
 		DIP_EST_ID+","+GENERAL_COMMENTS+","+OLD_SITE_ID+
 		" from "+TABLE_NAME+condition;
 
-		ArrayList spatialColumnNames = new ArrayList();
+		ArrayList<String> spatialColumnNames = new ArrayList<String>();
 		spatialColumnNames.add(SITE_LOCATION1);
 		spatialColumnNames.add(SITE_LOCATION2);
 		try {
@@ -329,7 +326,7 @@ public class PaleoSiteDB_DAO  {
 				paleoSite.setOldSiteId(rs.getString(OLD_SITE_ID));
 				paleoSite.setPaleoSitePubList(this.paleoSitePublicationDAO.getPaleoSitePublicationInfo(rs.getInt(SITE_ID)));
 
-				ArrayList geometries = spatialQueryResult.getGeometryObjectsList(i++);
+				ArrayList<JGeometry> geometries = spatialQueryResult.getGeometryObjectsList(i++);
 				setPaleoSiteLocations(paleoSite, geometries);
 
 				paleoSiteList.add(paleoSite);
@@ -365,7 +362,7 @@ public class PaleoSiteDB_DAO  {
 	 * @param paleoSite
 	 * @param geometries
 	 */
-	private void setPaleoSiteLocations(PaleoSite paleoSite, ArrayList geometries) {
+	private void setPaleoSiteLocations(PaleoSite paleoSite, ArrayList<JGeometry> geometries) {
 		JGeometry location1 =(JGeometry) geometries.get(0);
 		double []point1 = location1.getPoint();
 		//location 2

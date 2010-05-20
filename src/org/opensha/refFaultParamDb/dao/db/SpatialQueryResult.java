@@ -21,6 +21,8 @@ package org.opensha.refFaultParamDb.dao.db;
 
 import java.util.ArrayList;
 
+import oracle.spatial.geometry.JGeometry;
+
 import com.sun.rowset.CachedRowSetImpl;
 
 /**
@@ -33,27 +35,32 @@ import com.sun.rowset.CachedRowSetImpl;
  */
 
 public class SpatialQueryResult implements java.io.Serializable{
-  private CachedRowSetImpl cachedRowSetImpl;
-  private ArrayList geomteryObjectsList = new ArrayList();
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private CachedRowSetImpl cachedRowSetImpl;
+	private ArrayList<ArrayList<JGeometry>> geomteryObjectsList = new ArrayList<ArrayList<JGeometry>>();
 
-  public SpatialQueryResult() {
-  }
+	public SpatialQueryResult() {
+	}
 
-  public void setCachedRowSet(CachedRowSetImpl cachedRowSetImpl) {
-    this.cachedRowSetImpl = cachedRowSetImpl;
-  }
+	public void setCachedRowSet(CachedRowSetImpl cachedRowSetImpl) {
+		this.cachedRowSetImpl = cachedRowSetImpl;
+	}
 
-  public ArrayList getGeometryObjectsList(int index) {
-    return (ArrayList)geomteryObjectsList.get(index);
-  }
+	public ArrayList<JGeometry> getGeometryObjectsList(int index) {
+		return geomteryObjectsList.get(index);
+	}
 
-  public void add(ArrayList geomteryObjects) {
-    geomteryObjectsList.add(geomteryObjects);
-  }
+	public void add(ArrayList<JGeometry> geomteryObjects) {
+		geomteryObjectsList.add(geomteryObjects);
+	}
 
-  public CachedRowSetImpl getCachedRowSet() {
-    return this.cachedRowSetImpl;
-  }
+	public CachedRowSetImpl getCachedRowSet() {
+		return this.cachedRowSetImpl;
+	}
 
 
 

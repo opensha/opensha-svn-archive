@@ -11,15 +11,15 @@ package org.opensha.refFaultParamDb.vo;
 public class FaultSectionSummary {
 	private int sectionId;
 	private String sectionName;
-	
+
 	public FaultSectionSummary() { 
 	}
-	
+
 	public FaultSectionSummary(int sectionId, String sectionName) {
 		setSectionId(sectionId);
 		setSectionName(sectionName);
 	}
-	
+
 	public int getSectionId() {
 		return sectionId;
 	}
@@ -32,11 +32,11 @@ public class FaultSectionSummary {
 	public void setSectionName(String sectionName) {
 		this.sectionName = sectionName;
 	}
-	
+
 	public  String getAsString() {
 		return getSectionName()+"["+getSectionId()+"]";
 	}
-	
+
 	public static FaultSectionSummary getFaultSectionSummary(String faultSectionSummaryAsStr) {
 		int index1 = faultSectionSummaryAsStr.indexOf("[");
 		int index2 = faultSectionSummaryAsStr.indexOf("]");

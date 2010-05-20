@@ -44,10 +44,10 @@ public class CombinedEventsInfo {
   private CombinedSlipRateInfo combinedSlipRateInfo;
   private CombinedDisplacementInfo combinedDisplacementInfo;
   private CombinedNumEventsInfo combinedNumEventsInfo;
-  private ArrayList eventSequenceList;
+  private ArrayList<EventSequence> eventSequenceList;
   private boolean isExpertOpinion=false;
   private PaleoSitePublication paleoSitePublication;
-  private ArrayList referenceList;
+  private ArrayList<Reference> referenceList;
   private String neokinemaFaultNumber="";  
   private String dataSource="";
   private int faultSectionId;
@@ -126,10 +126,10 @@ public class CombinedEventsInfo {
     this.infoId = infoId;
   }
 
-  public ArrayList getReferenceList() {
+  public ArrayList<Reference> getReferenceList() {
     return this.referenceList;
   }
-  public void setReferenceList(ArrayList referenceList) {
+  public void setReferenceList(ArrayList<Reference> referenceList) {
     this.referenceList = referenceList;
   }
 
@@ -187,10 +187,10 @@ public class CombinedEventsInfo {
   public void setCombinedSlipRateInfo(CombinedSlipRateInfo combinedSlipRateInfo) {
     this.combinedSlipRateInfo = combinedSlipRateInfo;
   }
-  public ArrayList getEventSequence() {
+  public ArrayList<EventSequence> getEventSequence() {
     return eventSequenceList;
   }
-  public void setEventSequenceList(ArrayList eventSequenceList) {
+  public void setEventSequenceList(ArrayList<EventSequence> eventSequenceList) {
     this.eventSequenceList = eventSequenceList;
   }
   public PaleoSitePublication getPaleoSitePublication() {

@@ -31,18 +31,23 @@ package org.opensha.refFaultParamDb.dao.exception;
 
 public class InsertException extends RuntimeException {
 
-  public InsertException() {
-  }
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
-  public InsertException(String message) {
-    super(message);
-  }
+	public InsertException() {
+	}
 
-  public InsertException(String message, Throwable cause) {
-    super(message, cause);
-  }
+	public InsertException(String message) {
+		super(message);
+	}
 
-  public InsertException(Throwable cause) {
-    super(cause);
-  }
+	public InsertException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public InsertException(Throwable cause) {
+		super(cause);
+	}
 }

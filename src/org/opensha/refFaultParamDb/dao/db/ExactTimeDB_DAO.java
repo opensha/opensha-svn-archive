@@ -38,118 +38,118 @@ import org.opensha.refFaultParamDb.data.ExactTime;
 
 public class ExactTimeDB_DAO {
 
-  private final static String TABLE_NAME="Exact_Time_Info";
-  private final static String TIME_INSTANCE_ID="Time_Instance_Id";
-  private final static String YEAR="Year";
-  private final static String MONTH="Month";
-  private final static String DAY = "Day";
-  private final static String HOUR = "Hour";
-  private final static String MINUTE = "Minute";
-  private final static String SECOND = "Second";
-  private final static String ERA = "Era";
-  private final static String IS_NOW = "Is_Now";
-  private final static String YES_IS_NOW = "Y";
-  private final static String NOT_IS_NOW = "N";
-  private DB_AccessAPI dbAccessAPI;
-  private final static String ERR_MSG = "This class just deals with Exact Times";
+	private final static String TABLE_NAME="Exact_Time_Info";
+	private final static String TIME_INSTANCE_ID="Time_Instance_Id";
+	private final static String YEAR="Year";
+	private final static String MONTH="Month";
+	private final static String DAY = "Day";
+	private final static String HOUR = "Hour";
+	private final static String MINUTE = "Minute";
+	private final static String SECOND = "Second";
+	private final static String ERA = "Era";
+	private final static String IS_NOW = "Is_Now";
+	private final static String YES_IS_NOW = "Y";
+	private final static String NOT_IS_NOW = "N";
+	private DB_AccessAPI dbAccessAPI;
+//	private final static String ERR_MSG = "This class just deals with Exact Times";
 
- /**
-  * Constructor.
-  * @param dbConnection
-  */
- public ExactTimeDB_DAO(DB_AccessAPI dbAccessAPI) {
-   setDB_Connection(dbAccessAPI);
- }
+	/**
+	 * Constructor.
+	 * @param dbConnection
+	 */
+	public ExactTimeDB_DAO(DB_AccessAPI dbAccessAPI) {
+		setDB_Connection(dbAccessAPI);
+	}
 
- public ExactTimeDB_DAO() { }
+	public ExactTimeDB_DAO() { }
 
 
- public void setDB_Connection(DB_AccessAPI dbAccessAPI) {
-   this.dbAccessAPI = dbAccessAPI;
- }
+	public void setDB_Connection(DB_AccessAPI dbAccessAPI) {
+		this.dbAccessAPI = dbAccessAPI;
+	}
 
- /**
-  *
-  * @param timeInstanceId
-  * @param exactTime
-  * @throws InsertException
-  */
- public void addExactTime(int timeInstanceId, ExactTime exactTime) throws InsertException {
-    String isNow = this.NOT_IS_NOW;
-    if(exactTime.getIsNow()) isNow=this.YES_IS_NOW;
-    // insert into exact time info table
-    String sql = "insert into "+TABLE_NAME+"("+ TIME_INSTANCE_ID+","+YEAR+","+
-        MONTH+","+DAY+","+HOUR+","+MINUTE+","+SECOND+","+ERA+","+IS_NOW+")"+
-        " values ("+timeInstanceId+","+exactTime.getYear()+","+
-        exactTime.getMonth()+","+exactTime.getDay()+","+exactTime.getHour()+","+
-        exactTime.getMinute()+","+exactTime.getSecond()+",'"+exactTime.getEra()+"',"+
-        "'"+isNow+"')";
-    try { dbAccessAPI.insertUpdateOrDeleteData(sql); }
-    catch(SQLException e) {
-      //e.printStackTrace();
-      throw new InsertException(e.getMessage());
-    }
-  }
+	/**
+	 *
+	 * @param timeInstanceId
+	 * @param exactTime
+	 * @throws InsertException
+	 */
+	public void addExactTime(int timeInstanceId, ExactTime exactTime) throws InsertException {
+		String isNow = NOT_IS_NOW;
+		if(exactTime.getIsNow()) isNow=YES_IS_NOW;
+		// insert into exact time info table
+		String sql = "insert into "+TABLE_NAME+"("+ TIME_INSTANCE_ID+","+YEAR+","+
+		MONTH+","+DAY+","+HOUR+","+MINUTE+","+SECOND+","+ERA+","+IS_NOW+")"+
+		" values ("+timeInstanceId+","+exactTime.getYear()+","+
+		exactTime.getMonth()+","+exactTime.getDay()+","+exactTime.getHour()+","+
+		exactTime.getMinute()+","+exactTime.getSecond()+",'"+exactTime.getEra()+"',"+
+		"'"+isNow+"')";
+		try { dbAccessAPI.insertUpdateOrDeleteData(sql); }
+		catch(SQLException e) {
+			//e.printStackTrace();
+			throw new InsertException(e.getMessage());
+		}
+	}
 
-  /**
-   * Get the exact time based on time instance id
-   * @param timeInstanceId
-   * @return
-   * @throws QueryException
-   */
-  public ExactTime getExactTime(int timeInstanceId) throws QueryException {
-    ExactTime exactTime=null;
-    String condition  =  " where "+TIME_INSTANCE_ID+"="+timeInstanceId;
-    ArrayList exactTimeList = query(condition);
-    if(exactTimeList.size()>0) exactTime = (ExactTime)exactTimeList.get(0);
-    return exactTime;
-  }
+	/**
+	 * Get the exact time based on time instance id
+	 * @param timeInstanceId
+	 * @return
+	 * @throws QueryException
+	 */
+	public ExactTime getExactTime(int timeInstanceId) throws QueryException {
+		ExactTime exactTime=null;
+		String condition  =  " where "+TIME_INSTANCE_ID+"="+timeInstanceId;
+		ArrayList<ExactTime> exactTimeList = query(condition);
+		if(exactTimeList.size()>0) exactTime = (ExactTime)exactTimeList.get(0);
+		return exactTime;
+	}
 
-  /**
-   * Remove the time instance based on id
-   * @param estimateInstanceId
-   * @return
-   * @throws UpdateException
-   */
-  public boolean removeTime(int timeInstanceId) throws UpdateException {
-    String sql = "delete from "+TABLE_NAME+"  where "+TIME_INSTANCE_ID+"="+timeInstanceId;
-     try {
-       int numRows = dbAccessAPI.insertUpdateOrDeleteData(sql);
-       if(numRows==1) return true;
-     }
-     catch(SQLException e) { throw new UpdateException(e.getMessage()); }
-     return false;
-  }
+	/**
+	 * Remove the time instance based on id
+	 * @param estimateInstanceId
+	 * @return
+	 * @throws UpdateException
+	 */
+	public boolean removeTime(int timeInstanceId) throws UpdateException {
+		String sql = "delete from "+TABLE_NAME+"  where "+TIME_INSTANCE_ID+"="+timeInstanceId;
+		try {
+			int numRows = dbAccessAPI.insertUpdateOrDeleteData(sql);
+			if(numRows==1) return true;
+		}
+		catch(SQLException e) { throw new UpdateException(e.getMessage()); }
+		return false;
+	}
 
-  /**
-   * Query the table to get the exact time instances
-   * @param condition
-   * @return
-   * @throws QueryException
-   */
-  private ArrayList query(String condition) throws QueryException {
-   ArrayList exactTimeList = new ArrayList();
-   String sql = "select "+TIME_INSTANCE_ID+","+YEAR+","+
-        MONTH+","+DAY+","+HOUR+","+MINUTE+","+SECOND+","+ERA+","+this.IS_NOW+
-        " from "+TABLE_NAME+" "+condition;
-   try {
-     ResultSet rs  = dbAccessAPI.queryData(sql);
-     while(rs.next()) {
-       boolean isNow = false;
-       if(rs.getString(IS_NOW).equalsIgnoreCase(this.YES_IS_NOW)) isNow=true;
-       ExactTime exactTime = new ExactTime(rs.getInt(YEAR),
-                                           rs.getInt(MONTH),
-                                           rs.getInt(DAY),
-                                           rs.getInt(HOUR),
-                                           rs.getInt(MINUTE),
-                                           rs.getInt(SECOND),
-                                           rs.getString(ERA),
-                                           isNow);
-       exactTimeList.add(exactTime);
-     }
-     rs.close();
-   } catch(SQLException e) { throw new QueryException(e.getMessage()); }
-   return exactTimeList;
- }
+	/**
+	 * Query the table to get the exact time instances
+	 * @param condition
+	 * @return
+	 * @throws QueryException
+	 */
+	private ArrayList<ExactTime> query(String condition) throws QueryException {
+		ArrayList<ExactTime> exactTimeList = new ArrayList<ExactTime>();
+		String sql = "select "+TIME_INSTANCE_ID+","+YEAR+","+
+		MONTH+","+DAY+","+HOUR+","+MINUTE+","+SECOND+","+ERA+","+IS_NOW+
+		" from "+TABLE_NAME+" "+condition;
+		try {
+			ResultSet rs  = dbAccessAPI.queryData(sql);
+			while(rs.next()) {
+				boolean isNow = false;
+				if(rs.getString(IS_NOW).equalsIgnoreCase(YES_IS_NOW)) isNow=true;
+				ExactTime exactTime = new ExactTime(rs.getInt(YEAR),
+						rs.getInt(MONTH),
+						rs.getInt(DAY),
+						rs.getInt(HOUR),
+						rs.getInt(MINUTE),
+						rs.getInt(SECOND),
+						rs.getString(ERA),
+						isNow);
+				exactTimeList.add(exactTime);
+			}
+			rs.close();
+		} catch(SQLException e) { throw new QueryException(e.getMessage()); }
+		return exactTimeList;
+	}
 
 }

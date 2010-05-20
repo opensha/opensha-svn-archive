@@ -28,6 +28,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import oracle.spatial.geometry.JGeometry;
+
 import org.opensha.commons.util.ServletPrefs;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 
@@ -43,6 +45,11 @@ import com.sun.rowset.CachedRowSetImpl;
  */
 public class ServerDB_Access     implements java.io.Serializable, DB_AccessAPI {
 
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	//used for debugging
 	private static final boolean D = false;
@@ -109,7 +116,7 @@ public class ServerDB_Access     implements java.io.Serializable, DB_AccessAPI {
 	 * @return int
 	 * @throws SQLException
 	 */
-	public int insertUpdateOrDeleteData(String sql, ArrayList geometryList) throws java.sql.SQLException {
+	public int insertUpdateOrDeleteData(String sql, ArrayList<JGeometry> geometryList) throws java.sql.SQLException {
 		Object dataFromServlet = openServletConnection(DB_AccessAPI.
 				INSERT_UPDATE_SPATIAL, sql, null, geometryList);
 		if (dataFromServlet instanceof SQLException) {
@@ -152,7 +159,7 @@ public class ServerDB_Access     implements java.io.Serializable, DB_AccessAPI {
 	 */
 	public SpatialQueryResult queryData(String sqlWithSpatialColumnName,
 			String sqlWithNoSpatialColumnName,
-			ArrayList spatialColumnNames)
+			ArrayList<String> spatialColumnNames)
 	throws java.sql.SQLException {
 		Object dataFromServlet = openServletConnection(DB_AccessAPI.
 				SELECT_QUERY_SPATIAL,
@@ -223,8 +230,7 @@ public class ServerDB_Access     implements java.io.Serializable, DB_AccessAPI {
 	 * @return Object : Object returned from the servlet
 	 */
 	private Object openServletConnection(String sqlFunction, String sql,
-			String sql1,
-			ArrayList geometryList){
+			String sql1, ArrayList<?> geometryList){
 
 		Object outputFromRemoteDB = null;
 		try{

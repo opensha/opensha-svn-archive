@@ -30,18 +30,23 @@ package org.opensha.refFaultParamDb.dao.exception;
 
 public class QueryException extends RuntimeException {
 
-  public QueryException() {
-  }
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
-  public QueryException(String message) {
-    super(message);
-  }
+	public QueryException() {
+	}
 
-  public QueryException(String message, Throwable cause) {
-    super(message, cause);
-  }
+	public QueryException(String message) {
+		super(message);
+	}
 
-  public QueryException(Throwable cause) {
-    super(cause);
-  }
+	public QueryException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public QueryException(Throwable cause) {
+		super(cause);
+	}
 }

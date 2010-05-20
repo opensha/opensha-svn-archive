@@ -32,18 +32,23 @@ package org.opensha.refFaultParamDb.dao.exception;
 
 public class DBConnectException extends RuntimeException {
 
-  public DBConnectException() {
-  }
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
-  public DBConnectException(String message) {
-    super(message);
-  }
+	public DBConnectException() {
+	}
 
-  public DBConnectException(String message, Throwable cause) {
-    super(message, cause);
-  }
+	public DBConnectException(String message) {
+		super(message);
+	}
 
-  public DBConnectException(Throwable cause) {
-    super(cause);
-  }
+	public DBConnectException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public DBConnectException(Throwable cause) {
+		super(cause);
+	}
 }

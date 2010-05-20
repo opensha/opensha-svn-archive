@@ -29,22 +29,22 @@ package org.opensha.refFaultParamDb.vo;
  */
 
 public class PaleoSiteSummary {
-  private int siteId;
-  private String siteName;
-  public PaleoSiteSummary() {
-  }
-  public int getSiteId() {
-    return siteId;
-  }
-  public String getSiteName() {
-    return siteName;
-  }
-  public void setSiteId(int siteId) {
-    this.siteId = siteId;
-  }
-  public void setSiteName(String siteName) {
-    this.siteName = siteName;
-  }
+	private int siteId;
+	private String siteName;
+	public PaleoSiteSummary() {
+	}
+	public int getSiteId() {
+		return siteId;
+	}
+	public String getSiteName() {
+		return siteName;
+	}
+	public void setSiteId(int siteId) {
+		this.siteId = siteId;
+	}
+	public void setSiteName(String siteName) {
+		this.siteName = siteName;
+	}
 
 
 }

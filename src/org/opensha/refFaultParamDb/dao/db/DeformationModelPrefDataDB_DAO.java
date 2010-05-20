@@ -32,15 +32,15 @@ public class DeformationModelPrefDataDB_DAO {
 	private final static String PREF_LONG_TERM_SLIP_RATE = "Pref_Long_Term_Slip_Rate";
 	private final static String SLIP_STD_DEV = "Slip_Std_Dev";
 	private final static String PREF_ASEISMIC_SLIP = "Pref_Aseismic_Slip";
-	private static HashMap slipRateMap;
-	private static HashMap aseismicSlipMap;
-	private static HashMap stdDevMap;
+	private static HashMap<Integer, Double> slipRateMap;
+	private static HashMap<Integer, Double> aseismicSlipMap;
+	private static HashMap<Integer, Double> stdDevMap;
 	private static int selectedDefModelId = -1;
 	private DB_AccessAPI dbAccess;
 	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO;
 	private DeformationModelDB_DAO deformationModelDB_DAO;
-	private static ArrayList faultSectionIdList;
-	
+	private static ArrayList<Integer> faultSectionIdList;
+
 	public DeformationModelPrefDataDB_DAO(DB_AccessAPI dbAccess) {
 		setDB_Connection(dbAccess);
 	}
@@ -51,29 +51,29 @@ public class DeformationModelPrefDataDB_DAO {
 	 */
 	public void setDB_Connection(DB_AccessAPI dbAccess) {
 		this.dbAccess = dbAccess;
-		 prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(dbAccess); 
-		 deformationModelDB_DAO = new DeformationModelDB_DAO(dbAccess);
+		prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(dbAccess); 
+		deformationModelDB_DAO = new DeformationModelDB_DAO(dbAccess);
 	}
-	
+
 	/**
 	 * Remove the exisiting data from preferred data table and re-populate it.
 	 *
 	 */
 	public void rePopulatePrefDataTable() {
 		removeAll(); // remove all the pref data
-		
+
 		// iterate over all deformation Models
 		DeformationModelSummaryDB_DAO defModelSumDAO = new DeformationModelSummaryDB_DAO(this.dbAccess);
-		ArrayList deformationModelList = defModelSumDAO.getAllDeformationModels();
-		
-		
+		ArrayList<DeformationModelSummary> deformationModelList = defModelSumDAO.getAllDeformationModels();
+
+
 		int faultSectionId, deformationModelId;
 		double aseismicSlipFactor, slipRate;
 		for(int i=0; i<deformationModelList.size(); ++i) {
 			DeformationModelSummary defModelSummary = (DeformationModelSummary)deformationModelList.get(i);
 			deformationModelId = defModelSummary.getDeformationModelId();
 			// get the fault sections in each deformation model
-			ArrayList faultSectionIdList = deformationModelDB_DAO.getFaultSectionIdsForDeformationModel(deformationModelId);
+			ArrayList<Integer> faultSectionIdList = deformationModelDB_DAO.getFaultSectionIdsForDeformationModel(deformationModelId);
 			for(int j=0; j<faultSectionIdList.size(); ++j) {
 				faultSectionId = ((Integer)faultSectionIdList.get(j)).intValue();
 				aseismicSlipFactor = FaultSectionData.getPrefForEstimate(deformationModelDB_DAO.getAseismicSlipEstimate(deformationModelId, faultSectionId));
@@ -93,8 +93,8 @@ public class DeformationModelPrefDataDB_DAO {
 			}
 		}
 	}
-	
-	
+
+
 	/**
 	 * Add data to table
 	 * @param deformationModelId
@@ -115,8 +115,8 @@ public class DeformationModelPrefDataDB_DAO {
 			colVals +=slipRateStdDev+",";
 		}
 		String sql = "insert into "+TABLE_NAME+" ("+DEFORMATION_MODEL_ID+","+
-			SECTION_ID+","+columnNames+PREF_ASEISMIC_SLIP+") values ("+
-			deformationModelId+","+faultSectionId+","+colVals+aseismicSlipFactor+")";
+		SECTION_ID+","+columnNames+PREF_ASEISMIC_SLIP+") values ("+
+		deformationModelId+","+faultSectionId+","+colVals+aseismicSlipFactor+")";
 		try {
 			dbAccess.insertUpdateOrDeleteData(sql);
 		}
@@ -124,18 +124,18 @@ public class DeformationModelPrefDataDB_DAO {
 			throw new InsertException(e.getMessage());
 		}
 	}
-	
-	
+
+
 	/**
 	 * Get a list of all fault sections within this deformation model
 	 * @param deformationModelId
 	 * @return
 	 */
-	public ArrayList getFaultSectionIdsForDeformationModel(int deformationModelId) {
+	public ArrayList<Integer> getFaultSectionIdsForDeformationModel(int deformationModelId) {
 		if(selectedDefModelId!=deformationModelId) this.cache(deformationModelId);
 		return faultSectionIdList;
 	}
-	
+
 	/**
 	 * Get Fault Section Pref data for a deformation model ID and Fault section Id
 	 * @param deformationModelId
@@ -151,7 +151,7 @@ public class DeformationModelPrefDataDB_DAO {
 		faultSectionPrefData.setSlipRateStdDev(this.getSlipStdDev(deformationModelId, faultSectionId));
 		return faultSectionPrefData;
 	}
-	
+
 	/**
 	 * Get the preferred Slip Rate value for selected Deformation Model and Fault Section
 	 * Returns NaN if Slip rate is not available
@@ -161,12 +161,12 @@ public class DeformationModelPrefDataDB_DAO {
 	 * @return
 	 */
 	public double getSlipRate(int deformationModelId, int faultSectionId) {
-		if(this.selectedDefModelId!=deformationModelId) this.cache(deformationModelId);
+		if(selectedDefModelId!=deformationModelId) this.cache(deformationModelId);
 		Double slipRate =  (Double)slipRateMap.get(new Integer(faultSectionId));
 		if(slipRate==null) return Double.NaN;
 		else return slipRate.doubleValue();
 	}	
-	
+
 	/**
 	 * Get the Std Dev for Slip Rate value for selected Deformation Model and Fault Section
 	 * Returns NaN if Std Dev is not  available
@@ -176,12 +176,12 @@ public class DeformationModelPrefDataDB_DAO {
 	 * @return
 	 */
 	public double getSlipStdDev(int deformationModelId, int faultSectionId) {
-		if(this.selectedDefModelId!=deformationModelId) this.cache(deformationModelId);
+		if(selectedDefModelId!=deformationModelId) this.cache(deformationModelId);
 		Double stdDev =  (Double)stdDevMap.get(new Integer(faultSectionId));
 		if(stdDev==null) return Double.NaN;
 		else return stdDev.doubleValue();
 	}	
-	
+
 	/**
 	 * Get the preferred Aseismic Slip Factor for selected Deformation Model and Fault Section
 	 * 
@@ -191,18 +191,18 @@ public class DeformationModelPrefDataDB_DAO {
 	 * @return
 	 */
 	public double getAseismicSlipFactor(int deformationModelId, int faultSectionId) {
-		if(this.selectedDefModelId!=deformationModelId) this.cache(deformationModelId);
+		if(selectedDefModelId!=deformationModelId) this.cache(deformationModelId);
 		Double aseismicSlip = (Double)aseismicSlipMap.get(new Integer(faultSectionId));
 		if(aseismicSlip == null) return Double.NaN;
 		else return aseismicSlip.doubleValue();
 	}
-	
-	
+
+
 	private void cache(int defModelId) {
-		slipRateMap = new HashMap();
-		aseismicSlipMap = new HashMap();
-		stdDevMap = new HashMap();
-		faultSectionIdList = new ArrayList();
+		slipRateMap = new HashMap<Integer, Double>();
+		aseismicSlipMap = new HashMap<Integer, Double>();
+		stdDevMap = new HashMap<Integer, Double>();
+		faultSectionIdList = new ArrayList<Integer>();
 		String sql= "select "+SECTION_ID+"," +
 		" ("+PREF_ASEISMIC_SLIP+"+0) "+PREF_ASEISMIC_SLIP+","+
 		" ("+SLIP_STD_DEV+"+0) "+SLIP_STD_DEV+","+
@@ -220,7 +220,7 @@ public class DeformationModelPrefDataDB_DAO {
 				stdDev = rs.getFloat(SLIP_STD_DEV);
 				if(rs.wasNull()) stdDev = Double.NaN;
 				sectionId = new Integer(rs.getInt(SECTION_ID));
-				this.faultSectionIdList.add(sectionId);
+				faultSectionIdList.add(sectionId);
 				slipRateMap.put(sectionId, new Double(slip)) ;
 				aseismicSlipMap.put(sectionId, new Double(aseismicSlipFactor));
 				stdDevMap.put(sectionId, new Double(stdDev));
@@ -228,11 +228,11 @@ public class DeformationModelPrefDataDB_DAO {
 		} catch (SQLException e) {
 			throw new QueryException(e.getMessage());
 		}
-		this.selectedDefModelId = defModelId;
-		
+		selectedDefModelId = defModelId;
+
 	}
-	
-	
+
+
 	/**
 	 * Remove all preferred data
 	 */
@@ -242,12 +242,12 @@ public class DeformationModelPrefDataDB_DAO {
 			dbAccess.insertUpdateOrDeleteData(sql);
 		} catch(SQLException e) { throw new UpdateException(e.getMessage()); }
 	}
-	
+
 	public static void main(String[] args) {
 		DB_AccessAPI dbAccessAPI = new ServerDB_Access(ServerDB_Access.SERVLET_URL_DB3);
 		SessionInfo.setUserName(args[0]);
-	    SessionInfo.setPassword(args[1]);
-	    SessionInfo.setContributorInfo();
+		SessionInfo.setPassword(args[1]);
+		SessionInfo.setContributorInfo();
 		DeformationModelPrefDataDB_DAO defModelPrefDataDB_DAO = new DeformationModelPrefDataDB_DAO(dbAccessAPI);
 		defModelPrefDataDB_DAO.rePopulatePrefDataTable();
 		System.exit(0);

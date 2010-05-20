@@ -30,31 +30,31 @@ package org.opensha.refFaultParamDb.vo;
  */
 
 public class SiteRepresentation {
-  private int siteRepresentationId;
-  private String siteRepresentationName;
+	private int siteRepresentationId;
+	private String siteRepresentationName;
 
-  /**
-   *
-   * @param siteRepresentationId
-   * @param siteRepresentationName
-   */
-  public SiteRepresentation(int siteRepresentationId, String siteRepresentationName) {
-    setSiteRepresentationId(siteRepresentationId);
-    setSiteRepresentationName(siteRepresentationName);
-  }
+	/**
+	 *
+	 * @param siteRepresentationId
+	 * @param siteRepresentationName
+	 */
+	public SiteRepresentation(int siteRepresentationId, String siteRepresentationName) {
+		setSiteRepresentationId(siteRepresentationId);
+		setSiteRepresentationName(siteRepresentationName);
+	}
 
-  // various get/set methods
-  public int getSiteRepresentationId() {
-    return siteRepresentationId;
-  }
-  public void setSiteRepresentationId(int siteRepresentationId) {
-    this.siteRepresentationId = siteRepresentationId;
-  }
-  public void setSiteRepresentationName(String siteRepresentationName) {
-    this.siteRepresentationName = siteRepresentationName;
-  }
-  public String getSiteRepresentationName() {
-    return siteRepresentationName;
-  }
+	// various get/set methods
+	public int getSiteRepresentationId() {
+		return siteRepresentationId;
+	}
+	public void setSiteRepresentationId(int siteRepresentationId) {
+		this.siteRepresentationId = siteRepresentationId;
+	}
+	public void setSiteRepresentationName(String siteRepresentationName) {
+		this.siteRepresentationName = siteRepresentationName;
+	}
+	public String getSiteRepresentationName() {
+		return siteRepresentationName;
+	}
 
 }

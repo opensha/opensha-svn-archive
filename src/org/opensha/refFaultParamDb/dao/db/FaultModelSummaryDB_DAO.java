@@ -40,7 +40,12 @@ import org.opensha.refFaultParamDb.vo.FaultModelSummary;
 
 
 public class FaultModelSummaryDB_DAO   implements java.io.Serializable {
-  private final static String SEQUENCE_NAME="Fault_Model_Summary_Sequence";
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+private final static String SEQUENCE_NAME="Fault_Model_Summary_Sequence";
   private final static String TABLE_NAME="Fault_Model_Summary";
   private final static String FAULT_MODEL_ID="Fault_Model_Id";
   private final static String CONTRIBUTOR_ID="Contributor_Id";
@@ -115,7 +120,7 @@ public class FaultModelSummaryDB_DAO   implements java.io.Serializable {
   public FaultModelSummary getFaultModel(int faultModelId) throws QueryException {
     FaultModelSummary faultModel=null;
     String condition = " where "+FAULT_MODEL_ID+"="+faultModelId;
-    ArrayList faultModelList=query(condition);
+    ArrayList<FaultModelSummary> faultModelList=query(condition);
     if(faultModelList.size()>0) faultModel = (FaultModelSummary)faultModelList.get(0);
     return faultModel;
 
@@ -143,12 +148,12 @@ public class FaultModelSummaryDB_DAO   implements java.io.Serializable {
    * @return
    * @throws QueryException
    */
-  public ArrayList getAllFaultModels() throws QueryException {
+  public ArrayList<FaultModelSummary> getAllFaultModels() throws QueryException {
    return query(" ");
   }
 
-  private ArrayList query(String condition) throws QueryException {
-    ArrayList faultModelList = new ArrayList();
+  private ArrayList<FaultModelSummary> query(String condition) throws QueryException {
+    ArrayList<FaultModelSummary> faultModelList = new ArrayList<FaultModelSummary>();
     String sql =  "select "+FAULT_MODEL_ID+","+FAULT_MODEL_NAME+","+CONTRIBUTOR_ID+" from "+TABLE_NAME+condition;
     try {
       ResultSet rs  = dbAccessAPI.queryData(sql);

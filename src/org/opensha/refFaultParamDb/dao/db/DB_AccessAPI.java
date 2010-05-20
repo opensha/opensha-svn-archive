@@ -22,6 +22,8 @@ package org.opensha.refFaultParamDb.dao.db;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import oracle.spatial.geometry.JGeometry;
+
 import com.sun.rowset.CachedRowSetImpl;
 
 /**
@@ -99,7 +101,7 @@ public interface DB_AccessAPI {
 	 * @return int
 	 * @throws SQLException
 	 */
-	public int insertUpdateOrDeleteData(String sql, ArrayList geometryList) throws java.sql.SQLException;
+	public int insertUpdateOrDeleteData(String sql, ArrayList<JGeometry> geometryList) throws java.sql.SQLException;
 
 
 	/**

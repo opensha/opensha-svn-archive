@@ -37,87 +37,87 @@ import org.opensha.refFaultParamDb.vo.Fault;
  */
 
 public class FaultDB_DAO  {
-  private DB_AccessAPI dbAccessAPI;
-  private final static String TABLE_NAME = "Fault_Names";
-  private final static String FAULT_ID = "Fault_Id";
-  private final static String FAULT_NAME = "Fault_Name";
+	private DB_AccessAPI dbAccessAPI;
+	private final static String TABLE_NAME = "Fault_Names";
+	private final static String FAULT_ID = "Fault_Id";
+	private final static String FAULT_NAME = "Fault_Name";
 
 
-  public FaultDB_DAO(DB_AccessAPI dbAccessAPI) {
-    setDB_Connection(dbAccessAPI);
-  }
+	public FaultDB_DAO(DB_AccessAPI dbAccessAPI) {
+		setDB_Connection(dbAccessAPI);
+	}
 
-  /**
-   *
-   * @param dbAccessAPI
-   */
-  public void setDB_Connection(DB_AccessAPI dbAccessAPI) {
-    this.dbAccessAPI = dbAccessAPI;
-  }
+	/**
+	 *
+	 * @param dbAccessAPI
+	 */
+	public void setDB_Connection(DB_AccessAPI dbAccessAPI) {
+		this.dbAccessAPI = dbAccessAPI;
+	}
 
-  /**
-   * Add a fault name to the database
-   * @param fault
-   * @return
-   * @throws InsertException
-   */
-  public void addFault(Fault fault) throws InsertException {
+	/**
+	 * Add a fault name to the database
+	 * @param fault
+	 * @return
+	 * @throws InsertException
+	 */
+	public void addFault(Fault fault) throws InsertException {
 
-    // insert into the table
-    String sql = "insert into "+TABLE_NAME+"("+ FAULT_ID+","+FAULT_NAME+")"+
-        " values ("+fault.getFaultId()+",'"+fault.getFaultName()+"')";
-    try { dbAccessAPI.insertUpdateOrDeleteData(sql); }
-    catch(SQLException e) {
-      //e.printStackTrace();
-      throw new InsertException(e.getMessage());
-    }
-  }
+		// insert into the table
+		String sql = "insert into "+TABLE_NAME+"("+ FAULT_ID+","+FAULT_NAME+")"+
+		" values ("+fault.getFaultId()+",'"+fault.getFaultName()+"')";
+		try { dbAccessAPI.insertUpdateOrDeleteData(sql); }
+		catch(SQLException e) {
+			//e.printStackTrace();
+			throw new InsertException(e.getMessage());
+		}
+	}
 
 
-  /**
-  * Get the information about a fault based on fault Id
-  * @param faultId
-  * @return
-  */
-  public Fault getFault(int faultId) throws QueryException {
-    Fault fault=null;
-    String condition  =  " where "+this.FAULT_ID+"="+faultId+"";
-    ArrayList faultList = query(condition);
-    if(faultList.size()>0) fault = (Fault)faultList.get(0);
-    return fault;
-  }
+	/**
+	 * Get the information about a fault based on fault Id
+	 * @param faultId
+	 * @return
+	 */
+	public Fault getFault(int faultId) throws QueryException {
+		Fault fault=null;
+		String condition  =  " where "+FAULT_ID+"="+faultId+"";
+		ArrayList<Fault> faultList = query(condition);
+		if(faultList.size()>0) fault = (Fault)faultList.get(0);
+		return fault;
+	}
 
-  /**
-   * Get information about a fault based on fault name
-   * @param faultName
-   * @return
-   */
-  public Fault getFault(String faultName) throws QueryException {
-    Fault fault=null;
-    String condition  =  " where "+this.FAULT_NAME+"='"+faultName+"'";
-    ArrayList faultList = query(condition);
-    if(faultList.size()>0) fault = (Fault)faultList.get(0);
-    return fault;
-  }
+	/**
+	 * Get information about a fault based on fault name
+	 * @param faultName
+	 * @return
+	 */
+	public Fault getFault(String faultName) throws QueryException {
+		Fault fault=null;
+		String condition  =  " where "+FAULT_NAME+"='"+faultName+"'";
+		ArrayList<Fault> faultList = query(condition);
+		if(faultList.size()>0) fault = (Fault)faultList.get(0);
+		return fault;
+	}
 
-  /**
-  * Get a list of all the faults existing itn database
-  * @return
-  */
- public ArrayList getAllFaults() throws QueryException {
-    return query(" ");
- }
+	/**
+	 * Get a list of all the faults existing itn database
+	 * @return
+	 */
+	public ArrayList<Fault> getAllFaults() throws QueryException {
+		return query(" ");
+	}
 
- // query based on the condition
- private ArrayList query(String condition) throws QueryException  {
-   ArrayList faultNamesList = new ArrayList();
-   String sql = "select "+this.FAULT_ID+","+this.FAULT_NAME+" from "+
-       this.TABLE_NAME+" "+condition;
-   try {
-     ResultSet rs  = dbAccessAPI.queryData(sql);
-     while(rs.next()) faultNamesList.add(new Fault(rs.getInt(FAULT_ID), rs.getString(FAULT_NAME)));
-     rs.close();
-   } catch(SQLException e) { throw new QueryException(e.getMessage()); }
-   return faultNamesList;
- }
+	// query based on the condition
+	private ArrayList<Fault> query(String condition) throws QueryException  {
+		ArrayList<Fault> faultNamesList = new ArrayList<Fault>();
+		String sql = "select "+FAULT_ID+","+FAULT_NAME+" from "+
+		TABLE_NAME+" "+condition;
+		try {
+			ResultSet rs  = dbAccessAPI.queryData(sql);
+			while(rs.next()) faultNamesList.add(new Fault(rs.getInt(FAULT_ID), rs.getString(FAULT_NAME)));
+			rs.close();
+		} catch(SQLException e) { throw new QueryException(e.getMessage()); }
+		return faultNamesList;
+	}
 }

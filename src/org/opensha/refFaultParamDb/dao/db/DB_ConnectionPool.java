@@ -53,7 +53,7 @@ import com.sun.rowset.CachedRowSetImpl;
  * modified by Vipin Gupta , Nitin Gupta
  */
 public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
-	
+
 	private static DB_AccessAPI db_ver2_ro_conn = null;
 	/**
 	 * Gets a read only connection to Fault DB version 2
@@ -64,7 +64,7 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
 			db_ver2_ro_conn  = new PrioritizedDB_Access(PrioritizedDB_Access.createDB2ReadOnlyAccessors());
 		return db_ver2_ro_conn;
 	}
-	
+
 	private static DB_AccessAPI db_ver2_conn = null;
 	/**
 	 * Gets a read/write capable connection to Fault DB version 2
@@ -75,7 +75,7 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
 			db_ver2_conn  = new ServerDB_Access(ServerDB_Access.SERVLET_URL_DB2);
 		return db_ver2_conn;
 	}
-	
+
 	private static DB_AccessAPI db_ver3_ro_conn = null;
 	/**
 	 * Gets a read only connection to Fault DB version 3
@@ -86,7 +86,7 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
 			db_ver3_ro_conn  = new PrioritizedDB_Access(PrioritizedDB_Access.createDB3ReadOnlyAccessors());
 		return db_ver3_ro_conn;
 	}
-	
+
 	private static DB_AccessAPI db_ver3_conn = null;
 	/**
 	 * Gets a read/write capable connection to Fault DB version 3
@@ -97,7 +97,7 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
 			db_ver3_conn  = new ServerDB_Access(ServerDB_Access.SERVLET_URL_DB3);
 		return db_ver3_conn;
 	}
-	
+
 	/**
 	 * Gets a read only connection to the latest development version of the fault database
 	 * @return
@@ -105,7 +105,7 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
 	public static DB_AccessAPI getLatestReadOnlyConn() {
 		return getDB3ReadOnlyConn();
 	}
-	
+
 	/**
 	 * Gets a read/write capable connection to the latest development version of the fault database
 	 * @return
@@ -113,7 +113,7 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
 	public static DB_AccessAPI getLatestReadWriteConn() {
 		return getDB3ReadWriteConn();
 	}
-	
+
 	private Thread runner;
 
 	private Connection[] connPool;
@@ -122,7 +122,7 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
 	private long[] connLockTime, connCreateDate;
 	private String[] connID;
 	private String dbDriver, dbServer, dbLogin, dbPassword, logFileString;
-	private int currConnections, connLast, minConns, maxConns, maxConnMSec,
+	private int currConnections, connLast, maxConns, maxConnMSec,
 	maxCheckoutSeconds, debugLevel;
 
 	//available: set to false on destroy, checked by getConnection()
@@ -336,7 +336,6 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
 	public void run() {
 		boolean forever = true;
 		Statement stmt=null;
-		String currCatalog=null;
 		long maxCheckoutMillis = maxCheckoutSeconds * 1000;
 
 
@@ -937,12 +936,12 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
 	 * @return int
 	 * @throws SQLException
 	 */
-	public int insertUpdateOrDeleteData(String sql, ArrayList geometryList) throws java.sql.SQLException {
+	public int insertUpdateOrDeleteData(String sql, ArrayList<JGeometry> geometryList) throws java.sql.SQLException {
 		Connection conn = getConnection();
 		PreparedStatement ps = conn.prepareStatement(sql);
 		//convert JGeometry instance to DB STRUCT
 		for(int i=0; i<geometryList.size(); ++i)  {
-			STRUCT obj = JGeometry.store((JGeometry)geometryList.get(i), conn);
+			STRUCT obj = JGeometry.store(geometryList.get(i), conn);
 			ps.setObject(i+1, obj);
 		}
 		boolean success = ps.execute();

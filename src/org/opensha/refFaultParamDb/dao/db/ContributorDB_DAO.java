@@ -159,12 +159,25 @@ public class ContributorDB_DAO  {
 	private String getRandomPassword() {
 		Random rn = new Random();
 		int n = rand(8, 12, rn);
-		byte b[] = new byte[n];
-		for (int i = 0; i < n; i++)
-			b[i] = (byte)rand('a', 'z', rn);
-		return new String(b, 0);
+		return getPassword(n);
 	}
 
+	public static String getPassword(int n) {
+		char[] pw = new char[n];
+		int c  = 'A';
+		int  r1 = 0;
+		for (int i=0; i < n; i++)
+		{
+			r1 = (int)(Math.random() * 3);
+			switch(r1) {
+			case 0: c = '0' +  (int)(Math.random() * 10); break;
+			case 1: c = 'a' +  (int)(Math.random() * 26); break;
+			case 2: c = 'A' +  (int)(Math.random() * 26); break;
+			}
+			pw[i] = (char)c;
+		}
+		return new String(pw);
+	}
 
 	/**
 	 * Get contributor corresponding to an Id
@@ -175,7 +188,7 @@ public class ContributorDB_DAO  {
 	public Contributor getContributor(int contributorId) throws QueryException {
 		Contributor contributor=null;
 		String condition  =  " where "+CONTRIBUTOR_ID+"="+contributorId;
-		ArrayList contributorList = query(condition);
+		ArrayList<Contributor> contributorList = query(condition);
 		if(contributorList.size()>0) contributor = (Contributor)contributorList.get(0);
 		return contributor;
 	}
@@ -187,8 +200,8 @@ public class ContributorDB_DAO  {
 	 */
 	public Contributor getContributor(String name) throws QueryException {
 		Contributor contributor=null;
-		String condition  =  " where "+this.CONTRIBUTOR_NAME+"='"+name+"'";
-		ArrayList contributorList = query(condition);
+		String condition  =  " where "+CONTRIBUTOR_NAME+"='"+name+"'";
+		ArrayList<Contributor> contributorList = query(condition);
 		if(contributorList.size()>0) contributor = (Contributor)contributorList.get(0);
 		return contributor;
 	}
@@ -200,8 +213,8 @@ public class ContributorDB_DAO  {
 	 */
 	public Contributor getContributorByEmail(String emailAdd) throws QueryException {
 		Contributor contributor=null;
-		String condition  =  " where "+this.EMAIL+"='"+emailAdd+"'";
-		ArrayList contributorList = query(condition);
+		String condition  =  " where "+EMAIL+"='"+emailAdd+"'";
+		ArrayList<Contributor> contributorList = query(condition);
 		if(contributorList.size()>0) contributor = (Contributor)contributorList.get(0);
 		return contributor;
 	}
@@ -214,10 +227,9 @@ public class ContributorDB_DAO  {
 	 * @return
 	 */
 	public Contributor isContributorValid(String name, String password) {
-		Contributor contributor=null;
 		String condition  =  " where "+CONTRIBUTOR_NAME+"='"+name+"' and "+
 		PASSWORD+"='"+getEnryptedPassword(password)+"'";
-		ArrayList contributorList = query(condition);
+		ArrayList<Contributor> contributorList = query(condition);
 		if(contributorList.size()>0) return (Contributor)contributorList.get(0);
 		else return null;
 	}
@@ -244,12 +256,12 @@ public class ContributorDB_DAO  {
 	 * @return
 	 * @throws QueryException
 	 */
-	public ArrayList getAllContributors() throws QueryException {
+	public ArrayList<Contributor> getAllContributors() throws QueryException {
 		return query(" ");
 	}
 
-	private ArrayList query(String condition) throws QueryException {
-		ArrayList contributorList = new ArrayList();
+	private ArrayList<Contributor> query(String condition) throws QueryException {
+		ArrayList<Contributor> contributorList = new ArrayList<Contributor>();
 		String sql = "select "+CONTRIBUTOR_ID+","+CONTRIBUTOR_NAME+" from "+TABLE_NAME+" "+condition;
 		try {
 			ResultSet rs  = dbAccessAPI.queryData(sql);
