@@ -82,6 +82,11 @@ import scratch.ned.URS.URS_MeanUCERF2;
 
 public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplication {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	protected final static String appURL = "http://www.opensha.org/applications/hazCurvApp/HazardCurveApp.jar";
 
 	/**
@@ -100,7 +105,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 	 * user to the latest version on the website.
 	 */
 	protected void checkAppVersion(){
-		ArrayList hazCurveVersion = null;
+		ArrayList<String> hazCurveVersion = null;
 		try {
 			hazCurveVersion = FileUtils.loadFile(new URL(versionURL));
 		}
@@ -112,7 +117,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 			try{
 				ApplicationVersionInfoWindow messageWindow =
 					new ApplicationVersionInfoWindow(appURL,
-							this.versionUpdateInfoURL,
+							versionUpdateInfoURL,
 							"App Version Update", this);
 				Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 				messageWindow.setLocation( (dim.width -
@@ -190,7 +195,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 
 			try {
 				erfGuiBean = new ERF_GuiBean(erf_Classes);
-				erfGuiBean.getParameter(erfGuiBean.ERF_PARAM_NAME).
+				erfGuiBean.getParameter(ERF_GuiBean.ERF_PARAM_NAME).
 				addParameterChangeListener(this);
 			}
 			catch (InvocationTargetException e) {

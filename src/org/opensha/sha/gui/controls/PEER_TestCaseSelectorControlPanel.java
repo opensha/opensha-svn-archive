@@ -147,8 +147,8 @@ public class PEER_TestCaseSelectorControlPanel extends ControlPanel {
 	private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
 	//ArrayList to store the peer test cases names
-	private ArrayList peerTestSetOne = new ArrayList();
-	private ArrayList peerTestSetTwo = new ArrayList();
+	private ArrayList<String> peerTestSetOne = new ArrayList<String>();
+	private ArrayList<String> peerTestSetTwo = new ArrayList<String>();
 
 	//These hold the lats, lons, dips, and depths of the faults used in the FloatingPoissonFaultERF
 	private ArrayList fault1and2_Lats, fault1and2_Lons, fault1_Dips, fault2_Dips, fault1_Depths, fault2_Depths;
@@ -1007,7 +1007,7 @@ public class PEER_TestCaseSelectorControlPanel extends ControlPanel {
 	 */
 	private void initializeTestsAndSites() {
 		//initializing the values inside the combobox for the supported test cases and sites
-		ArrayList v = new ArrayList();
+		ArrayList<String> v = new ArrayList<String>();
 
 		//test case-1 ,Set-1
 		v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_ONE+"-"+this.SITE_ONE));
@@ -1224,7 +1224,7 @@ public class PEER_TestCaseSelectorControlPanel extends ControlPanel {
 	 *
 	 * @returns the ArrayList of the PEER Test Case set One
 	 */
-	public ArrayList getPEER_SetOneTestCasesNames(){
+	public ArrayList<String> getPEER_SetOneTestCasesNames(){
 		return this.peerTestSetOne;
 	}
 
@@ -1233,7 +1233,7 @@ public class PEER_TestCaseSelectorControlPanel extends ControlPanel {
 	 *
 	 * @returns the ArrayList of the PEER Test Case set Two
 	 */
-	public ArrayList getPEER_SetTwoTestCasesNames(){
+	public ArrayList<String> getPEER_SetTwoTestCasesNames(){
 		return this.peerTestSetTwo;
 	}
 

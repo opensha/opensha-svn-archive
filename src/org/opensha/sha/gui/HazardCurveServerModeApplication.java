@@ -89,7 +89,6 @@ import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMR_MultiGuiBean;
-import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.beans.IMT_NewGuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.gui.controls.CalculationSettingsControlPanel;
@@ -155,11 +154,16 @@ import org.opensha.sha.util.TectonicRegionType;
  */
 
 public class HazardCurveServerModeApplication extends JFrame implements
-		Runnable, ParameterChangeListener,
-		CurveDisplayAppAPI, ButtonControlPanelAPI,
-		GraphPanelAPI, GraphWindowAPI, 
-		CalculationSettingsControlPanelAPI, ActionListener,
-		ScalarIMRChangeListener {
+Runnable, ParameterChangeListener,
+CurveDisplayAppAPI, ButtonControlPanelAPI,
+GraphPanelAPI, GraphWindowAPI, 
+CalculationSettingsControlPanelAPI, ActionListener,
+ScalarIMRChangeListener {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Name of the class
@@ -204,7 +208,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	protected PEER_TestCaseSelectorControlPanel peerTestsControlPanel;
 	protected DisaggregationControlPanel disaggregationControlPanel;
 	protected ERF_EpistemicListControlPanel epistemicControlPanel;
-//	protected SetMinSourceSiteDistanceControlPanel distanceControlPanel;
+	//	protected SetMinSourceSiteDistanceControlPanel distanceControlPanel;
 	protected CalculationSettingsControlPanel calcParamsControl;
 	protected SitesOfInterestControlPanel sitesOfInterest;
 	protected SiteDataControlPanel cvmControlPanel;
@@ -212,7 +216,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	private RunAll_PEER_TestCasesControlPanel runAllPeerTestsCP;
 	protected PlottingOptionControl plotOptionControl;
 	protected XY_ValuesControlPanel xyPlotControl;
-	
+
 	private ArrayList<ControlPanel> controlPanels;
 
 	// log flags declaration
@@ -258,7 +262,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	private double maxYValue;
 	private boolean customAxis = false;
 
-	
+
 	// flags to check which X Values the user wants to work with: default or
 	// custom
 	boolean useCustomX_Values = false;
@@ -280,10 +284,10 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	private JMenuItem saveMenuItem;
 	private JMenuItem printMenuItem;
 	private JMenuItem closeMenuItem;
-	
-//	private JButton saveButton; TODO clean
-//	private JButton printButton;
-//	private JButton closeButton;
+
+	//	private JButton saveButton; TODO clean
+	//	private JButton printButton;
+	//	private JButton closeButton;
 
 	private JButton computeButton;
 	private JButton cancelButton;
@@ -299,7 +303,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	//protected JPanel imrPanel; // TODO make private
 	//protected JPanel imtPanel; // TODO make private
 	//protected JPanel erfPanel; // TODO make private
-	
+
 	private JSplitPane imrImtSplitPane;
 	private JTabbedPane paramsTabbedPane;
 	private GraphPanel graphPanel; // actual plot panel
@@ -312,7 +316,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	protected ERF_GuiBean erfGuiBean;
 	protected EqkRupSelectorGuiBean erfRupSelectorGuiBean;
 
-	
+
 
 	// instances of various calculators
 	protected HazardCurveCalculatorAPI calc;
@@ -327,13 +331,13 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	Thread calcThread;
 	// checks to see if HazardCurveCalculations are done
 	boolean isHazardCalcDone = false;
-	
-	
 
-//	private final static String POWERED_BY_IMAGE = TODO clean
-//			"logos/PoweredByOpenSHA_Agua.jpg";
-//	private JLabel imgLabel = new JLabel(new ImageIcon(
-//			ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
+
+
+	//	private final static String POWERED_BY_IMAGE = TODO clean
+	//			"logos/PoweredByOpenSHA_Agua.jpg";
+	//	private JLabel imgLabel = new JLabel(new ImageIcon(
+	//			ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
 
 	// maintains which ERFList was previously selected
 	protected String prevSelectedERF_List = null;
@@ -350,7 +354,6 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 * data(this option only works if it is ERF_List).
 	 * */
 	boolean addData = true;
-	private FlowLayout flowLayout1 = new FlowLayout();
 
 	protected final static String version = "0.0.19";
 
@@ -368,13 +371,13 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		try {
 
 			startAppProgressClass = new CalcProgressBar("Starting Application",
-					"Initializing Application .. Please Wait");
+			"Initializing Application .. Please Wait");
 
 			// initialize the various GUI beans
 			initIMR_GuiBean();
 			initIMT_GuiBean();
 			initSiteGuiBean();
-			
+
 			try {
 				initERF_GuiBean();
 			} catch (RuntimeException e) {
@@ -394,12 +397,12 @@ public class HazardCurveServerModeApplication extends JFrame implements
 			e.printStackTrace();
 			ExceptionWindow bugWindow = new ExceptionWindow(this, e,
 					"Exception occured while creating the GUI.\n"
-							+ "No Parameters have been set");
+					+ "No Parameters have been set");
 			bugWindow.setVisible(true);
 			bugWindow.pack();
 		}
 		startAppProgressClass.dispose();
-		
+
 		// TODO delete not sure why this is called; maybe other platforms need it
 		//((JPanel) getContentPane()).updateUI();
 	}
@@ -420,31 +423,36 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		closeMenuItem.addActionListener(this);
 		fileMenu.add(closeMenuItem);
 		menuBar.add(fileMenu);
-		
-		
+
+
 		// ======== init toolbar ======== TODO delayed clean
-//		JToolBar toolbar = new JToolBar();
-//		toolbar.setFloatable(false);
-//		closeButton = new JButton(new ImageIcon(
-//				ImageUtils.loadImage("icons/closeFile.png")));
-//		closeButton.setToolTipText("Exit Application");
-//		closeButton.addActionListener(this);
-//		toolbar.add(closeButton);
-//		printButton = new JButton(new ImageIcon(
-//				ImageUtils.loadImage("icons/printFile.jpg")));
-//		printButton.setToolTipText("Print Graph");
-//		printButton.addActionListener(this);
-//		toolbar.add(printButton);
-//		saveButton = new JButton(new ImageIcon(
-//				ImageUtils.loadImage("icons/saveFile.jpg")));
-//		saveButton.setToolTipText("Save Graph as image");
-//		saveButton.addActionListener(this);
-//		toolbar.add(saveButton);
-		
+		//		JToolBar toolbar = new JToolBar();
+		//		toolbar.setFloatable(false);
+		//		closeButton = new JButton(new ImageIcon(
+		//				ImageUtils.loadImage("icons/closeFile.png")));
+		//		closeButton.setToolTipText("Exit Application");
+		//		closeButton.addActionListener(this);
+		//		toolbar.add(closeButton);
+		//		printButton = new JButton(new ImageIcon(
+		//				ImageUtils.loadImage("icons/printFile.jpg")));
+		//		printButton.setToolTipText("Print Graph");
+		//		printButton.addActionListener(this);
+		//		toolbar.add(printButton);
+		//		saveButton = new JButton(new ImageIcon(
+		//				ImageUtils.loadImage("icons/saveFile.jpg")));
+		//		saveButton.setToolTipText("Save Graph as image");
+		//		saveButton.addActionListener(this);
+		//		toolbar.add(saveButton);
+
 		Color bg = new Color(220,220,220);
-		
+
 		// ======== button panel ========
 		JPanel buttonPanel = new JPanel(new GridBagLayout()) {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void paintComponent(Graphics g) {
 				super.paintComponent(g);
@@ -461,7 +469,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 
 		JLabel calcTypeLabel = new JLabel("Calculation type:");
 		JLabel cpLabel = new JLabel("Control panel:");
-		
+
 		controlComboBox = new JComboBox();
 		initControlList();
 		controlComboBox.addActionListener(this);
@@ -480,11 +488,11 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(this);
 		cancelButton.setEnabled(false);
-		
+
 		computeButton = new JButton("Compute");
 		computeButton.addActionListener(this);
 		computeButton.setDefaultCapable(true);
-		
+
 		//buttonPanel.setMinimumSize(new Dimension(600, 100));
 		//buttonPanel.setPreferredSize(new Dimension(600, 100));
 		//buttonPanel.setLayout(flowLayout1);
@@ -493,15 +501,15 @@ public class HazardCurveServerModeApplication extends JFrame implements
 				GridBagConstraints.LINE_START, 
 				GridBagConstraints.NONE, 
 				new Insets(0,0,0,0),0,0);
-		
+
 		// ---- row 1 ----
 		gbc.gridheight = 2;
 		gbc.weightx = 0.0;
 		buttonPanel.add(gemLogo, gbc);
-		
+
 		gbc.gridx += 1;
 		buttonPanel.add(shaLogo, gbc);
-		
+
 		gbc.gridx += 1;
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.weightx = 1.0;
@@ -512,17 +520,17 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		gbc.anchor = GridBagConstraints.LINE_END;
 		gbc.weightx = 0.0;
 		buttonPanel.add(calcTypeLabel, gbc);
-		
+
 		gbc.gridx += 1;
 		gbc.anchor = GridBagConstraints.LINE_START;
 		buttonPanel.add(probDeterComboBox, gbc);
-		
+
 		gbc.gridx += 1;
 		gbc.weightx = 1.0;
 		gbc.gridheight = 2;
 		gbc.anchor = GridBagConstraints.LINE_END;
 		buttonPanel.add(cancelButton, gbc);
-		
+
 		gbc.gridx += 1;
 		gbc.weightx = 0.0;
 		buttonPanel.add(computeButton, gbc);
@@ -533,30 +541,30 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		gbc.gridheight = 1;
 		gbc.anchor = GridBagConstraints.LINE_END;
 		buttonPanel.add(cpLabel, gbc);
-		
+
 		gbc.gridx += 1;
 		gbc.anchor = GridBagConstraints.LINE_START;
 		buttonPanel.add(controlComboBox, gbc);
-		
-		
-		
-		
-		
-		
+
+
+
+
+
+
 		clearButton = new JButton("Clear Plot");
 		clearButton.addActionListener(this);
 		clearButton.setEnabled(false);
 		clearButton.putClientProperty("JButton.buttonType", "segmentedTextured");
 		clearButton.putClientProperty("JButton.segmentPosition", "first");
 		clearButton.putClientProperty("JComponent.sizeVariant","small");
-		
+
 		peelButton = new JButton("Peel Off");
 		peelButton.addActionListener(this);
 		peelButton.setEnabled(false);
 		peelButton.putClientProperty("JButton.buttonType", "segmentedTextured");
 		peelButton.putClientProperty("JButton.segmentPosition", "last");
 		peelButton.putClientProperty("JComponent.sizeVariant","small");
-				
+
 		buttonControlPanel = new ButtonControlPanel(this);
 		buttonControlPanel.setEnabled(false);
 		// we know the button cp has a box layout so add clear and peel to it
@@ -565,18 +573,18 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		buttonControlPanel.getButtonRow().add(clearButton);
 		buttonControlPanel.getButtonRow().add(peelButton);
 		buttonControlPanel.getButtonRow().add(Box.createHorizontalGlue());
-		
-//		buttonPanel.add(probDeterComboBox, 0);
-//		buttonPanel.add(controlComboBox, 1);
-//		buttonPanel.add(computeButton, 2);
-//		buttonPanel.add(cancelButton, 3);
-//		//buttonPanel.add(clearButton, 4);
-//		//buttonPanel.add(peelButton, 5);
-//		buttonPanel.add(progressCheckBox, 4);
-//		//buttonPanel.add(buttonControlPanel, 7);
-//		buttonPanel.add(imgLabel, 5);
 
-		
+		//		buttonPanel.add(probDeterComboBox, 0);
+		//		buttonPanel.add(controlComboBox, 1);
+		//		buttonPanel.add(computeButton, 2);
+		//		buttonPanel.add(cancelButton, 3);
+		//		//buttonPanel.add(clearButton, 4);
+		//		//buttonPanel.add(peelButton, 5);
+		//		buttonPanel.add(progressCheckBox, 4);
+		//		//buttonPanel.add(buttonControlPanel, 7);
+		//		buttonPanel.add(imgLabel, 5);
+
+
 		// creating the Object the GraphPaenl class
 		graphPanel = new GraphPanel(this);
 
@@ -590,7 +598,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		emptyPlotPanel.setBackground(Color.white);
 		plotPanel.add(buttonControlPanel, BorderLayout.PAGE_END);
 		plotPanel.add(emptyPlotPanel, BorderLayout.CENTER);
-		
+
 		// IMR, IMT & Site panel
 		//imrPanel = new JPanel(new GridBagLayout());
 
@@ -599,7 +607,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		imrImtSplitPane = new JSplitPane(
 				JSplitPane.VERTICAL_SPLIT, true, 
 				imtGuiBean, imrGuiBean);
-//		imrImtSplitPane.setResizeWeight(0.6);
+		//		imrImtSplitPane.setResizeWeight(0.6);
 		imrImtSplitPane.setResizeWeight(0.18);
 		imrImtSplitPane.setBorder(null);
 		imrImtSplitPane.setOpaque(false);
@@ -609,7 +617,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		//sitePanel = new JPanel(new GridBagLayout());
 		//sitePanel.setBorder(BorderFactory.createEmptyBorder()); TODO clean
 		//sitePanel.setBackground(Color.white);
-		
+
 		JSplitPane imrImtSiteSplitPane = new JSplitPane(
 				JSplitPane.HORIZONTAL_SPLIT, true, 
 				imrImtSplitPane, siteGuiBean);
@@ -619,21 +627,21 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		imrImtSiteSplitPane.setOpaque(false);
 		//imrImtSiteSplitPane.setDividerLocation(0.5); //TODO revisit
 		//imrImtSiteSplitPane.setBorder(null);
-		
+
 		// ERF panel
 		//erfPanel = new JPanel(new GridBagLayout());
-		
+
 		// tabbed
 		paramsTabbedPane = new JTabbedPane();
 		paramsTabbedPane.setBorder(BorderFactory.createEmptyBorder(8,0,0,4));
 		paramsTabbedPane.add(imrImtSiteSplitPane, "IMR, IMT & Site");
 		erfGuiBean.setBorder(BorderFactory.createEmptyBorder(2,8,8,4));
 		paramsTabbedPane.add(erfGuiBean, "ERF & Time Span");
-		
+
 		paramsTabbedPane.setMinimumSize(new Dimension(320,100));
 		paramsTabbedPane.setPreferredSize(new Dimension(480,100));
 
-		
+
 		// ======== content area ========
 		JSplitPane contentSplitPane = new JSplitPane(
 				JSplitPane.HORIZONTAL_SPLIT, true, 
@@ -648,22 +656,22 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		//content.add(toolbar, BorderLayout.NORTH); TODO clean delay
 		content.add(contentSplitPane, BorderLayout.CENTER);
 		content.add(buttonPanel, BorderLayout.SOUTH);
-		
 
-		
+
+
 		// erfPanel.setLayout(new GridBagLayout());
-//		erfPanel.validate();
-//		erfPanel.repaint();
-//		contentSplitPane.setDividerLocation(590);
-		
-//		JPanel contentPanel = new JPanel(new GridBagLayout());
-//		contentPanel.add(contentSplitPane, new GridBagConstraints(
-//				0, 0, 1, 1,
-//				1.0, 1.0, 
-//				GridBagConstraints.CENTER, 
-//				GridBagConstraints.BOTH,
-//				new Insets(11, 4, 5, 6), 
-//				243, 231));
+		//		erfPanel.validate();
+		//		erfPanel.repaint();
+		//		contentSplitPane.setDividerLocation(590);
+
+		//		JPanel contentPanel = new JPanel(new GridBagLayout());
+		//		contentPanel.add(contentSplitPane, new GridBagConstraints(
+		//				0, 0, 1, 1,
+		//				1.0, 1.0, 
+		//				GridBagConstraints.CENTER, 
+		//				GridBagConstraints.BOTH,
+		//				new Insets(11, 4, 5, 6), 
+		//				243, 231));
 
 		// assemble frame
 
@@ -676,29 +684,29 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		setLocation(xPos, 0);
 		setJMenuBar(menuBar);
 		getRootPane().setDefaultButton(computeButton);
-		
+
 		//post build param setting -- WTF doen't this work; site gets updated but not the IMR bean
-//		imrGuiBean.getParameterList().getParameter(
-//				IMR_GuiBean.IMR_PARAM_NAME).setValue(
-//						CB_2008_AttenRel.NAME); //TODO revisit
-//		/// Soooo KLUDGY ... just forcing the editor to change seems to update site as well. Wrong
+		//		imrGuiBean.getParameterList().getParameter(
+		//				IMR_GuiBean.IMR_PARAM_NAME).setValue(
+		//						CB_2008_AttenRel.NAME); //TODO revisit
+		//		/// Soooo KLUDGY ... just forcing the editor to change seems to update site as well. Wrong
 		imrGuiBean.setSelectedSingleIMR(CB_2008_AttenRel.NAME);
-//		((JComboBox) imrGuiBean.getParameterList().getParameter(
-//				IMR_GuiBean.IMR_PARAM_NAME).getEditor().
-//				getValueEditor()).setSelectedIndex(9);
-		
+		//		((JComboBox) imrGuiBean.getParameterList().getParameter(
+		//				IMR_GuiBean.IMR_PARAM_NAME).getEditor().
+		//				getValueEditor()).setSelectedIndex(9);
+
 	}
 
 	/* implementation */ 
 	public void actionPerformed(ActionEvent e) {
 		Object src = e.getSource();
-//		if (src.equals(closeMenuItem) || src.equals(closeButton)) { TODO clean if toolbar killed
-//			close();
-//		} else if (src.equals(saveMenuItem) || src.equals(saveButton)) {
-//			save();
-//		} else if (src.equals(printMenuItem) || src.equals(printButton)) {
-//			print();
-//		} else if (src.equals(clearButton)) {
+		//		if (src.equals(closeMenuItem) || src.equals(closeButton)) { TODO clean if toolbar killed
+		//			close();
+		//		} else if (src.equals(saveMenuItem) || src.equals(saveButton)) {
+		//			save();
+		//		} else if (src.equals(printMenuItem) || src.equals(printButton)) {
+		//			print();
+		//		} else if (src.equals(clearButton)) {
 		if (src.equals(closeMenuItem)) {
 			close();
 		} else if (src.equals(saveMenuItem)) {
@@ -725,7 +733,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		super.setVisible(visible);
 		computeButton.requestFocusInWindow();
 	}
-	
+
 	/**
 	 * Provided to allow subclasses to substitute the IMT panel.
 	 */
@@ -733,7 +741,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		imrImtSplitPane.setTopComponent(panel);
 		imrImtSplitPane.setResizeWeight(resizeWeight);
 	}
-	
+
 	// Get Applet information
 	public String getAppletInfo() {
 		return "Hazard Curves Applet";
@@ -744,7 +752,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 * the user to the latest version on the website.
 	 */
 	protected void checkAppVersion() {
-		ArrayList hazCurveVersion = null;
+		ArrayList<String> hazCurveVersion = null;
 		try {
 			hazCurveVersion = FileUtils.loadFile(new URL(versionURL));
 		} catch (Exception ex1) {
@@ -754,7 +762,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		if (!appVersionOnWebsite.trim().equals(version.trim())) {
 			try {
 				ApplicationVersionInfoWindow messageWindow = new ApplicationVersionInfoWindow(
-						appURL, this.versionUpdateInfoURL,
+						appURL, versionUpdateInfoURL,
 						"App Version Update", this);
 				Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 				messageWindow.setLocation(
@@ -784,14 +792,14 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		HazardCurveServerModeApplication applet = new HazardCurveServerModeApplication();
 		applet.checkAppVersion();
 		applet.init();
-//		applet.pack();
+		//		applet.pack();
 		applet.setVisible(true);
 	}
 
 	// static initializer for setting look & feel
 	static {
 		System.setProperty("apple.laf.useScreenMenuBar", "true");
-		String osName = System.getProperty("os.name");
+//		String osName = System.getProperty("os.name");
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
@@ -805,7 +813,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	private void addGraphPanel() {
 
 		// Starting
-		String S = C + ": addGraphPanel(): ";
+//		String S = C + ": addGraphPanel(): ";
 		graphPanel.drawGraphPanel(xAxisName, yAxisName, functionList, xLog,
 				yLog, customAxis, TITLE, buttonControlPanel);
 		togglePlot();
@@ -814,18 +822,18 @@ public class HazardCurveServerModeApplication extends JFrame implements
 
 	// checks if the user has plot the data window or plot window
 	public void togglePlot() {
-//		plotPanel.removeAll();
+		//		plotPanel.removeAll();
 		plotPanel.remove(graphPanel);
 		plotPanel.remove(emptyPlotPanel);
 		graphPanel.togglePlot(buttonControlPanel);
 		plotPanel.add(graphPanel, BorderLayout.CENTER);
-//		plotPanel.add(graphPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
-//				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
-//						0, 0, 0, 0), 0, 0));
+		//		plotPanel.add(graphPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
+		//				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
+		//						0, 0, 0, 0), 0, 0));
 		clearButton.setEnabled(true);
 		peelButton.setEnabled(true);
 		buttonControlPanel.setEnabled(true);
-		
+
 		plotPanel.validate();
 		plotPanel.repaint();
 	}
@@ -845,14 +853,14 @@ public class HazardCurveServerModeApplication extends JFrame implements
 					// related files
 					File peerDir = new File(peerDirName);
 					if (!peerDir.isDirectory()) { // if main directory does not
-													// exist
-						boolean success = (new File(peerDirName)).mkdir();
+						// exist
+						(new File(peerDirName)).mkdir();
 					}
 
 					// ArrayList testCases =
 					// this.peerTestsControlPanel.getPEER_SetTwoTestCasesNames();
-					ArrayList testCases = this.peerTestsControlPanel
-							.getPEER_SetOneTestCasesNames();
+					ArrayList<String> testCases = this.peerTestsControlPanel
+					.getPEER_SetOneTestCasesNames();
 
 					int size = testCases.size();
 					/*
@@ -879,14 +887,14 @@ public class HazardCurveServerModeApplication extends JFrame implements
 
 						// first do PGA
 						peerTestsControlPanel
-								.setTestCaseAndSite((String) testCases.get(i));
+						.setTestCaseAndSite((String) testCases.get(i));
 						calculate();
 
 						FileWriter peerFile = new FileWriter(peerDirName
 								+ (String) testCases.get(i)
 								+ "-PGA_OpenSHA.txt");
 						DiscretizedFuncAPI func = (DiscretizedFuncAPI) functionList
-								.get(0);
+						.get(0);
 						for (int j = 0; j < func.getNum(); ++j)
 							peerFile.write(func.get(j).getX() + "\t"
 									+ func.get(j).getY() + "\n");
@@ -955,7 +963,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 * own machine.
 	 */
 	protected void createCalcInstance() {
-//System.out.println("createCalcInstance()");
+		//System.out.println("createCalcInstance()");
 		if (!isDeterministicCurve){
 			calc = (new RemoteHazardCurveClient()).getRemoteHazardCurveCalc();
 			if(this.calcParamsControl != null)
@@ -965,13 +973,13 @@ public class HazardCurveServerModeApplication extends JFrame implements
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-//System.out.println("Created new calc from ServeModeApp using getRemoteHazardCurveCalc()");
+				//System.out.println("Created new calc from ServeModeApp using getRemoteHazardCurveCalc()");
 		}
 		else if (calc == null && isDeterministicCurve) {
 			try {
 				calc = new HazardCurveCalculator();
 				calc.setAdjustableParams(calcParamsControl.getAdjustableCalcParams());
-//System.out.println("Created new calc from ServeModeApp when isDeterministicCurve=true");
+				//System.out.println("Created new calc from ServeModeApp when isDeterministicCurve=true");
 			} catch (Exception ex) {
 				ExceptionWindow bugWindow = new ExceptionWindow(this, ex, this
 						.getParametersInfoAsString());
@@ -981,8 +989,8 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		}
 		if (disaggregationFlag)
 			disaggCalc = (new RemoteDisaggregationCalcClient())
-					.getRemoteDisaggregationCalc();
-		
+			.getRemoteDisaggregationCalc();
+
 
 	}
 
@@ -994,7 +1002,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		// do not show warning messages in IMR gui bean. this is needed
 		// so that warning messages for site parameters are not shown when Add
 		// graph is clicked
-//		imrGuiBean.showWarningMessages(false); // TODO should we add this to the multi imr bean?
+		//		imrGuiBean.showWarningMessages(false); // TODO should we add this to the multi imr bean?
 		if (plotOptionControl != null) {
 			if (this.plotOptionControl.getSelectedOption().equals(
 					PlottingOptionControl.PLOT_ON_TOP))
@@ -1026,7 +1034,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 							boolean totCurCalculated = true;
 							if (currRupture == -1) {
 								progressClass
-										.setProgressMessage("Please wait, calculating total rutures ....");
+								.setProgressMessage("Please wait, calculating total rutures ....");
 								totCurCalculated = false;
 							}
 							if (!isHazardCalcDone && totCurCalculated)
@@ -1035,9 +1043,9 @@ public class HazardCurveServerModeApplication extends JFrame implements
 						} else {
 							if ((numERFsInEpistemicList) != 0)
 								progressClass
-										.updateProgress(
-												currentERFInEpistemicListForHazardCurve,
-												numERFsInEpistemicList);
+								.updateProgress(
+										currentERFInEpistemicListForHazardCurve,
+										numERFsInEpistemicList);
 						}
 						if (isHazardCalcDone) {
 							timer.stop();
@@ -1102,7 +1110,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 */
 	protected void drawGraph() {
 		// you can show warning messages now
-//		imrGuiBean.showWarningMessages(true); // TODO should we add this to the multi imr bean?
+		//		imrGuiBean.showWarningMessages(true); // TODO should we add this to the multi imr bean?
 		addGraphPanel();
 		if (!disaggregationFlag)
 			setButtonsEnable(true);
@@ -1206,22 +1214,22 @@ public class HazardCurveServerModeApplication extends JFrame implements
 			String plottingOption = null;
 			if (plotOptionControl != null)
 				plottingOption = this.plotOptionControl.getSelectedOption();
-//			controlComboBox.removeAllItems();
-//			this.initControlList();
+			//			controlComboBox.removeAllItems();
+			//			this.initControlList();
 			// add the Epistemic control panel option if Epistemic ERF is
 			// selected
 			if (erfGuiBean.isEpistemicList()) {
 				showControlPanel(ERF_EpistemicListControlPanel.NAME);
 			} else if (plottingOption != null
 					&& plottingOption
-							.equalsIgnoreCase(PlottingOptionControl.ADD_TO_EXISTING)) {
+					.equalsIgnoreCase(PlottingOptionControl.ADD_TO_EXISTING)) {
 				JOptionPane
-						.showMessageDialog(
-								this,
-								"Cannot add to existing without selecting ERF Epistemic list",
-								"Input Error", JOptionPane.INFORMATION_MESSAGE);
+				.showMessageDialog(
+						this,
+						"Cannot add to existing without selecting ERF Epistemic list",
+						"Input Error", JOptionPane.INFORMATION_MESSAGE);
 				plotOptionControl
-						.setSelectedOption(PlottingOptionControl.PLOT_ON_TOP);
+				.setSelectedOption(PlottingOptionControl.PLOT_ON_TOP);
 				setButtonsEnable(true);
 			}
 			try {
@@ -1247,19 +1255,19 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		buttonControlPanel.setEnabled(b);
 		progressCheckBox.setEnabled(b);
 	}
-	
+
 
 	/**
 	 * Gets the probabilities functiion based on selected parameters this
 	 * function is called when add Graph is clicked
 	 */
 	protected void computeHazardCurve() {
-		
+
 		// starting the calculation
 		isHazardCalcDone = false;
 
 		EqkRupForecastBaseAPI forecast = null;
-		
+
 		// get the selected forecast model
 		try {
 			if (!isDeterministicCurve) {
@@ -1277,7 +1285,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		}
 		if (this.progressCheckBox.isSelected()) {
 			progressClass = new CalcProgressBar("Hazard-Curve Calc Status",
-					"Beginning Calculation ");
+			"Beginning Calculation ");
 			progressClass.displayProgressBar();
 			timer.start();
 		}
@@ -1305,9 +1313,6 @@ public class HazardCurveServerModeApplication extends JFrame implements
 				System.out.println(C + ":Param warning caught" + ex);
 			ex.printStackTrace();
 		}
-		// check whether this forecast is a Forecast List
-		// if this is forecast list , handle it differently
-		boolean isEqkForecastList = false;
 		if (forecast instanceof ERF_EpistemicList && !isDeterministicCurve) {
 			// if add on top get the name of ERF List forecast
 			if (addData)
@@ -1315,14 +1320,14 @@ public class HazardCurveServerModeApplication extends JFrame implements
 
 			if (!prevSelectedERF_List.equals(forecast.getName()) && !addData) {
 				JOptionPane
-						.showMessageDialog(
-								this,
-								"Cannot add to existing without selecting same ERF Epistemic list",
-								"Input Error", JOptionPane.INFORMATION_MESSAGE);
+				.showMessageDialog(
+						this,
+						"Cannot add to existing without selecting same ERF Epistemic list",
+						"Input Error", JOptionPane.INFORMATION_MESSAGE);
 				return;
 			}
 			this.isEqkList = true; // set the flag to indicate thatwe are
-									// dealing with Eqk list
+			// dealing with Eqk list
 			handleForecastList(site, imrMap, forecast);
 			// initializing the counters for ERF List to 0, for other ERF List
 			// calculations
@@ -1338,7 +1343,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		// this is not a eqk list
 		this.isEqkList = false;
 		// calculate the hazard curve
-		
+
 		// initialize the values in condProbfunc with log values as passed in
 		// hazFunction
 		// intialize the hazard function
@@ -1352,20 +1357,19 @@ public class HazardCurveServerModeApplication extends JFrame implements
 			try {
 				if (isProbabilisticCurve) {
 					hazFunction = (ArbitrarilyDiscretizedFunc) calc
-							.getHazardCurve(hazFunction, site, imrMap,
-									(EqkRupForecastAPI) forecast);
+					.getHazardCurve(hazFunction, site, imrMap,
+							(EqkRupForecastAPI) forecast);
 				} else if (isStochasticCurve) {
 					hazFunction = (ArbitrarilyDiscretizedFunc) calc.
 					getAverageEventSetHazardCurve(hazFunction, site, imrGuiBean.getSelectedIMR(),
-									(EqkRupForecastAPI) forecast);
+							(EqkRupForecastAPI) forecast);
 				} else { // deterministic
 					progressCheckBox.setSelected(false);
 					progressCheckBox.setEnabled(false);
-					ProbEqkSource source = this.erfRupSelectorGuiBean.getSource();
 					ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR();
 					ProbEqkRupture rupture = (ProbEqkRupture) this.erfRupSelectorGuiBean.getRupture();
 					hazFunction = (ArbitrarilyDiscretizedFunc) calc
-							.getHazardCurve(hazFunction, site, imr, rupture);
+					.getHazardCurve(hazFunction, site, imr, rupture);
 					progressCheckBox.setSelected(true);
 					progressCheckBox.setEnabled(true);
 				}
@@ -1397,7 +1401,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 
 		isHazardCalcDone = true;
 		disaggregationString = null;
-		
+
 		// Disaggregation with stochastic event sets not yet supported
 		if (disaggregationFlag && isStochasticCurve) {
 			JOptionPane.showMessageDialog(this,
@@ -1406,13 +1410,13 @@ public class HazardCurveServerModeApplication extends JFrame implements
 			setButtonsEnable(true);
 			return;
 		}
-		
+
 		// checking the disAggregation flag and probability curve is being plotted
 		if (disaggregationFlag && isProbabilisticCurve) {
 			if (this.progressCheckBox.isSelected()) {
 				disaggProgressClass = new CalcProgressBar(
 						"Disaggregation Calc Status",
-						"Beginning Disaggregation ");
+				"Beginning Disaggregation ");
 				disaggProgressClass.displayProgressBar();
 				disaggTimer.start();
 			}
@@ -1430,9 +1434,9 @@ public class HazardCurveServerModeApplication extends JFrame implements
 			boolean disaggSuccessFlag = false;
 			boolean disaggrAtIML = false;
 			double disaggregationVal = disaggregationControlPanel
-					.getDisaggregationVal();
+			.getDisaggregationVal();
 			String disaggregationParamVal = disaggregationControlPanel
-					.getDisaggregationParamValue();
+			.getDisaggregationParamValue();
 			double minMag = disaggregationControlPanel.getMinMag();
 			double deltaMag = disaggregationControlPanel.getdeltaMag();
 			int numMag = disaggregationControlPanel.getNumMag();
@@ -1440,13 +1444,13 @@ public class HazardCurveServerModeApplication extends JFrame implements
 			double deltaDist = disaggregationControlPanel.getdeltaDist();
 			int numDist = disaggregationControlPanel.getNumDist();
 			int numSourcesForDisag = disaggregationControlPanel
-					.getNumSourcesForDisagg();
+			.getNumSourcesForDisagg();
 			double maxZAxis = disaggregationControlPanel.getZAxisMax();
 			double imlVal = 0, probVal = 0;
 			try {
 				if (disaggregationControlPanel.isCustomDistBinning()) {
 					double distBins[] = disaggregationControlPanel
-							.getCustomBinEdges();
+					.getCustomBinEdges();
 					disaggCalc.setDistanceRange(distBins);
 				} else {
 					disaggCalc.setDistanceRange(minDist, numDist, deltaDist);
@@ -1465,47 +1469,47 @@ public class HazardCurveServerModeApplication extends JFrame implements
 			try {
 
 				if (disaggregationParamVal
-						.equals(disaggregationControlPanel.DISAGGREGATE_USING_PROB)) {
+						.equals(DisaggregationControlPanel.DISAGGREGATE_USING_PROB)) {
 					disaggrAtIML = false;
 					// if selected Prob is not within the range of the Exceed.
 					// prob of Hazard Curve function
 					if (disaggregationVal > hazFunction.getY(0)
 							|| disaggregationVal < hazFunction.getY(num - 1))
 						JOptionPane
-								.showMessageDialog(
-										this,
-										new String(
-												"Chosen Probability is not"
-														+ " within the range of the min and max prob."
-														+ " in the Hazard Curve"),
+						.showMessageDialog(
+								this,
+								new String(
+										"Chosen Probability is not"
+										+ " within the range of the min and max prob."
+										+ " in the Hazard Curve"),
 										"Disaggregation error message",
 										JOptionPane.ERROR_MESSAGE);
 					else {
 						// gets the Disaggregation data
 						imlVal = hazFunction
-								.getFirstInterpolatedX_inLogXLogYDomain(disaggregationVal);
+						.getFirstInterpolatedX_inLogXLogYDomain(disaggregationVal);
 						probVal = disaggregationVal;
 					}
 				} else if (disaggregationParamVal
-						.equals(disaggregationControlPanel.DISAGGREGATE_USING_IML)) {
+						.equals(DisaggregationControlPanel.DISAGGREGATE_USING_IML)) {
 					disaggrAtIML = true;
 					// if selected IML is not within the range of the IML values
 					// chosen for Hazard Curve function
 					if (disaggregationVal < hazFunction.getX(0)
 							|| disaggregationVal > hazFunction.getX(num - 1))
 						JOptionPane
-								.showMessageDialog(
-										this,
-										new String(
-												"Chosen IML is not"
-														+ " within the range of the min and max IML values"
-														+ " in the Hazard Curve"),
+						.showMessageDialog(
+								this,
+								new String(
+										"Chosen IML is not"
+										+ " within the range of the min and max IML values"
+										+ " in the Hazard Curve"),
 										"Disaggregation error message",
 										JOptionPane.ERROR_MESSAGE);
 					else {
 						imlVal = disaggregationVal;
 						probVal = hazFunction
-								.getInterpolatedY_inLogXLogYDomain(disaggregationVal);
+						.getInterpolatedY_inLogXLogYDomain(disaggregationVal);
 					}
 				}
 
@@ -1532,12 +1536,12 @@ public class HazardCurveServerModeApplication extends JFrame implements
 						imlVal, probVal);
 			else
 				JOptionPane
-						.showMessageDialog(
-								this,
-								"Disaggregation failed because there is "
-										+ "no exceedance above \n "
-										+ "the given IML (or that interpolated from the chosen probability).",
-								"Disaggregation Message", JOptionPane.OK_OPTION);
+				.showMessageDialog(
+						this,
+						"Disaggregation failed because there is "
+						+ "no exceedance above \n "
+						+ "the given IML (or that interpolated from the chosen probability).",
+						"Disaggregation Message", JOptionPane.OK_OPTION);
 		}
 		setButtonsEnable(true);
 		// displays the disaggregation string in the pop-up window
@@ -1572,7 +1576,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		}
 		String binData = null;
 		boolean binDataToShow = disaggregationControlPanel
-				.isShowDisaggrBinDataSelected();
+		.isShowDisaggrBinDataSelected();
 		if (binDataToShow) {
 			try {
 				binData = disaggCalc.getBinData();
@@ -1591,10 +1595,10 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		String modeString = "";
 		if (imlBasedDisaggr)
 			modeString = "Disaggregation Results for IML = " + imlVal
-					+ " (for Prob = " + (float) probVal + ")";
+			+ " (for Prob = " + (float) probVal + ")";
 		else
 			modeString = "Disaggregation Results for Prob = " + probVal
-					+ " (for IML = " + (float) imlVal + ")";
+			+ " (for IML = " + (float) imlVal + ")";
 		modeString += "\n" + disaggregationString;
 
 		String disaggregationPlotWebAddr = null;
@@ -1613,16 +1617,14 @@ public class HazardCurveServerModeApplication extends JFrame implements
 
 			metadata = getMapParametersInfoAsHTML();
 			metadata += "<br><br>Click  " + "<a href=\""
-					+ disaggregationPlotWebAddr + "\">" + "here" + "</a>"
-					+ " to download files. They will be deleted at midnight";
+			+ disaggregationPlotWebAddr + "\">" + "here" + "</a>"
+			+ " to download files. They will be deleted at midnight";
 		} catch (RuntimeException e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(this, e.getMessage(),
 					"Server Problem", JOptionPane.INFORMATION_MESSAGE);
 			return;
 		}
-		String imgName = disaggregationPlotWebAddr
-				+ DisaggregationCalculator.DISAGGREGATION_PLOT_IMG_NAME;
 
 		// adding the image to the Panel and returning that to the applet
 		// new DisaggregationPlotViewerWindow(imgName,true,modeString,
@@ -1649,7 +1651,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		ERF_EpistemicList erfList = (ERF_EpistemicList) eqkRupForecast;
 
 		numERFsInEpistemicList = erfList.getNumERFs(); // get the num of ERFs in
-														// the list
+		// the list
 
 		if (addData) // add new data on top of the existing data
 			weightedFuncList = new WeightedFuncListforPlotting();
@@ -1676,11 +1678,11 @@ public class HazardCurveServerModeApplication extends JFrame implements
 					// calculate the hazard curve
 					if(isProbabilisticCurve)
 						hazFunction = (ArbitrarilyDiscretizedFunc) calc
-							.getHazardCurve(hazFunction, site, imrMap, erfList.getERF(i));
+						.getHazardCurve(hazFunction, site, imrMap, erfList.getERF(i));
 					else if(isStochasticCurve) // it's stochastic
 						hazFunction = (ArbitrarilyDiscretizedFunc) calc
-							.getAverageEventSetHazardCurve(
-									hazFunction, site, imrGuiBean.getSelectedIMR(), erfList.getERF(i));
+						.getAverageEventSetHazardCurve(
+								hazFunction, site, imrGuiBean.getSelectedIMR(), erfList.getERF(i));
 					else
 						throw new RuntimeException("Can't disaggregate with deterministic calculations");
 					// System.out.println("Num points:"
@@ -1752,7 +1754,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 * @param e
 	 */
 	protected void probDeterSelectionChange() {
-		
+
 		//Set previous type
 		String prevTypeCalc;
 		if(isProbabilisticCurve) 
@@ -1761,30 +1763,30 @@ public class HazardCurveServerModeApplication extends JFrame implements
 			prevTypeCalc = DETERMINISTIC;
 		else
 			prevTypeCalc = STOCHASTIC;
-		
+
 		// set new type
 		String selectedControl = probDeterComboBox.getSelectedItem().toString();
 		if (selectedControl.equalsIgnoreCase(PROBABILISTIC)) {
-				isProbabilisticCurve = true;
-				isStochasticCurve=false;
-				isDeterministicCurve=false;
+			isProbabilisticCurve = true;
+			isStochasticCurve=false;
+			isDeterministicCurve=false;
 		} 
 		else if (selectedControl.equalsIgnoreCase(STOCHASTIC)) {
-				isProbabilisticCurve = false;
-				isStochasticCurve=true;
-				isDeterministicCurve=false;
+			isProbabilisticCurve = false;
+			isStochasticCurve=true;
+			isDeterministicCurve=false;
 		} 
 		else if (selectedControl.equalsIgnoreCase(DETERMINISTIC)) {
-				isProbabilisticCurve = false;
-				isStochasticCurve=false;
-				isDeterministicCurve=true;
+			isProbabilisticCurve = false;
+			isStochasticCurve=false;
+			isDeterministicCurve=true;
 		}
-		
+
 		// only allow multiple IMRs if it's probabilistic for now
 		imrGuiBean.setMultipleIMRsEnabled(selectedControl.equalsIgnoreCase(PROBABILISTIC));
-		
+
 		// Update ERF GUI Beans
-		
+
 		// If it's changed FROM Deterministic
 		if (prevTypeCalc.equalsIgnoreCase(DETERMINISTIC)) {
 			try {
@@ -1825,7 +1827,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 			imr.setParamDefaults();
 		}
 		// TODO add make the multi imr bean handle warnings
-		
+
 		imrGuiBean = new IMR_MultiGuiBean(imrs);
 		imrGuiBean.addIMRChangeListener(this);
 		imrGuiBean.setMaxChooserChars(30);
@@ -1837,12 +1839,12 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 */
 	private void initIMT_GuiBean() {
 		// create the IMT Gui Bean object
-		
+
 		imtGuiBean = new IMT_NewGuiBean(imrGuiBean);
 		imtGuiBean.setSelectedIMT(SA_Param.NAME);
 		imtGuiBean.setMinimumSize(new Dimension(200, 90));
 		imtGuiBean.setPreferredSize(new Dimension(290, 220));
-//		imtGuiBean = new IMT_GuiBean(imrGuiBean.getIMRs());
+		//		imtGuiBean = new IMT_GuiBean(imrGuiBean.getIMRs());
 	}
 
 	/**
@@ -1880,10 +1882,10 @@ public class HazardCurveServerModeApplication extends JFrame implements
 
 				erfGuiBean = new ERF_GuiBean(erf_Classes);
 				erfGuiBean.getParameter(ERF_GuiBean.ERF_PARAM_NAME)
-						.addParameterChangeListener(this);
+				.addParameterChangeListener(this);
 			} catch (InvocationTargetException e) {
 				ExceptionWindow bugWindow = new ExceptionWindow(this, e,
-						"ERF's Initialization problem. Rest all parameters are default");
+				"ERF's Initialization problem. Rest all parameters are default");
 				bugWindow.setVisible(true);
 				bugWindow.pack();
 				// e.printStackTrace();
@@ -1891,20 +1893,20 @@ public class HazardCurveServerModeApplication extends JFrame implements
 			}
 		} else {
 			boolean isCustomRupture = erfRupSelectorGuiBean
-					.isCustomRuptureSelected();
+			.isCustomRuptureSelected();
 			if (!isCustomRupture) {
 				EqkRupForecastBaseAPI eqkRupForecast = erfRupSelectorGuiBean
-						.getSelectedEqkRupForecastModel();
+				.getSelectedEqkRupForecastModel();
 				erfGuiBean.setERF(eqkRupForecast);
 			}
 		}
-//		erfPanel.removeAll();
-//		erfPanel.add(erfGuiBean, BorderLayout.CENTER);
-//		 erfPanel.add(erfGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
-//		 GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0,0,0,0), 0,
-//		 0));
+		//		erfPanel.removeAll();
+		//		erfPanel.add(erfGuiBean, BorderLayout.CENTER);
+		//		 erfPanel.add(erfGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
+		//		 GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0,0,0,0), 0,
+		//		 0));
 
-		 // TODO delete; not sure why needed, ui shouldn't have changed from launch
+		// TODO delete; not sure why needed, ui shouldn't have changed from launch
 		//erfPanel.updateUI();
 
 	}
@@ -1946,43 +1948,43 @@ public class HazardCurveServerModeApplication extends JFrame implements
 				throw new RuntimeException("Connection to ERF's failed");
 			}
 		}
-//		erfPanel.removeAll();
-//		// erfGuiBean = null;
-//		erfPanel.add(erfRupSelectorGuiBean, new GridBagConstraints(0, 0, 1, 1,
-//				1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-//				defaultInsets, 0, 0));
-		 // TODO delete; not sure why needed, ui shouldn't have changed from launch
+		//		erfPanel.removeAll();
+		//		// erfGuiBean = null;
+		//		erfPanel.add(erfRupSelectorGuiBean, new GridBagConstraints(0, 0, 1, 1,
+		//				1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+		//				defaultInsets, 0, 0));
+		// TODO delete; not sure why needed, ui shouldn't have changed from launch
 		//erfPanel.updateUI();
 	}
-	
+
 	protected void initCommonControlList() {
 		controlPanels = new ArrayList<ControlPanel>();
-		
+
 		controlComboBox.addItem(CONTROL_PANELS);
-		
+
 		/*		Calc Settings Control			*/
 		controlComboBox.addItem(CalculationSettingsControlPanel.NAME);
 		controlPanels.add(new CalculationSettingsControlPanel(this,this));
-		
+
 		/*		Sites Of Interest Control		*/
 		controlComboBox.addItem(SitesOfInterestControlPanel.NAME);
 		controlPanels.add(new SitesOfInterestControlPanel(this,
-					this.siteGuiBean));
-		
+				this.siteGuiBean));
+
 		/*		Site Data Control				*/
 		controlComboBox.addItem(SiteDataControlPanel.NAME);
 		cvmControlPanel = new SiteDataControlPanel(this, this.imrGuiBean,
 				this.siteGuiBean);
 		controlPanels.add(cvmControlPanel);
-		
+
 		/*		X Values Control				*/
 		controlComboBox.addItem(X_ValuesInCurveControlPanel.NAME);
 		controlPanels.add(xValuesPanel = new X_ValuesInCurveControlPanel(this, this));
-		
+
 		/*		Plotting Prefs Control			*/
 		controlComboBox.addItem(PlottingOptionControl.NAME);
 		controlPanels.add(new PlottingOptionControl(this));
-		
+
 		/*		External XY Data Control		*/
 		controlComboBox.addItem(XY_ValuesControlPanel.NAME);
 		controlPanels.add(new XY_ValuesControlPanel(this, this));
@@ -1992,33 +1994,33 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 * Initialize the items to be added to the control list
 	 */
 	protected void initControlList() {
-		
+
 		initCommonControlList();
-		
+
 		/*		PEER Test Case Control			*/
 		controlComboBox.addItem(PEER_TestCaseSelectorControlPanel.NAME);
 		controlPanels.add(new PEER_TestCaseSelectorControlPanel(this,
-					this, imrGuiBean, siteGuiBean, imtGuiBean, erfGuiBean,
-					erfGuiBean.getSelectedERFTimespanGuiBean(),
-					this));
-		
+				this, imrGuiBean, siteGuiBean, imtGuiBean, erfGuiBean,
+				erfGuiBean.getSelectedERFTimespanGuiBean(),
+				this));
+
 		/*		Disagg Control					*/
 		controlComboBox.addItem(DisaggregationControlPanel.NAME);
 		disaggregationControlPanel = new DisaggregationControlPanel(this, this);
 		controlPanels.add(disaggregationControlPanel);
-		
+
 		/*		All Peer Tests Control			*/
 		controlComboBox.addItem(RunAll_PEER_TestCasesControlPanel.NAME);
 		controlPanels.add(new RunAll_PEER_TestCasesControlPanel(this));
-		
+
 		/*		CyberShake Plot Control			*/
 		controlComboBox.addItem(CyberShakePlotFromDBControlPanel.NAME);
 		controlPanels.add(new CyberShakePlotFromDBControlPanel(this));
-		
+
 		/*		CyberShake Sites Control		*/
 		controlComboBox.addItem(CyberShakeSiteSetterControlPanel.NAME);
 		controlPanels.add(new CyberShakeSiteSetterControlPanel(this.siteGuiBean));
-		
+
 		/*		Epistempic list Control		*/
 		controlComboBox.addItem(ERF_EpistemicListControlPanel.NAME);
 		controlPanels.add(epistemicControlPanel = new ERF_EpistemicListControlPanel(this, this));
@@ -2029,23 +2031,23 @@ public class HazardCurveServerModeApplication extends JFrame implements
 			return;
 		String selectedControl = controlComboBox.getSelectedItem().toString();
 		showControlPanel(selectedControl);
-		
+
 		controlComboBox.setSelectedItem(CONTROL_PANELS);
 	}
-	
+
 	/**
 	 *
 	 * @throws RemoteException 
 	 * @returns the Adjustable parameters for the ScenarioShakeMap calculator
 	 */
 	public ParameterList getCalcAdjustableParams(){
-			try {
-				return calc.getAdjustableParams();
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return null;
-			}
+		try {
+			return calc.getAdjustableParams();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 
@@ -2077,14 +2079,14 @@ public class HazardCurveServerModeApplication extends JFrame implements
 					this.siteGuiBean);
 		return cvmControlPanel;
 	}
-	
+
 	protected void showControlPanel(String controlName) {
 		ControlPanel control = (ControlPanel)ListUtils.getObjectByName(controlPanels, controlName);
 		if (control == null)
 			throw new NullPointerException("Control Panel '" + controlName + "' not found!");
 		showControlPanel(control);
 	}
-	
+
 	protected void showControlPanel(ControlPanel control) {
 		control.showControlPanel();
 	}
@@ -2163,7 +2165,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 			function = imtInfo.getDefaultHazardCurve(imtGuiBean
 					.getSelectedIMT());
 
-		if (imtInfo.isIMT_LogNormalDist(imtGuiBean.getSelectedIMT())) {
+		if (IMT_Info.isIMT_LogNormalDist(imtGuiBean.getSelectedIMT())) {
 			for (int i = 0; i < function.getNum(); ++i)
 				arb.set(Math.log(function.getX(i)), 1);
 
@@ -2187,7 +2189,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		hazFunc = new ArbitrarilyDiscretizedFunc();
 		// take log only if it is PGA, PGV ,SA or FaultDispl
 
-		if (imtInfo.isIMT_LogNormalDist(imtGuiBean.getSelectedIMT())) {
+		if (IMT_Info.isIMT_LogNormalDist(imtGuiBean.getSelectedIMT())) {
 			for (int i = 0; i < numPoints; ++i)
 				hazFunc.set(function.getX(i), tempFunc.getY(i));
 			return hazFunc;
@@ -2386,9 +2388,9 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 */
 	public String getMapParametersInfoAsHTML() {
 		String imrMetadata;
-		
+
 		if (!isDeterministicCurve) { // if Probabilistic calculation then only add the
-								// metadata
+			// metadata
 			imrMetadata = imrGuiBean.getIMRMetadataHTML();
 		} else {
 			// if deterministic calculations then add all IMR params metadata.
@@ -2398,42 +2400,42 @@ public class HazardCurveServerModeApplication extends JFrame implements
 		String calcType = probDeterComboBox.getSelectedItem().toString();
 
 		return "<br>" + "Cacluation Type = " + calcType
-				+ "<br><br>" + "IMR Param List:" + "<br>" + "---------------" + "<br>"+ imrMetadata
-				+ "<br><br>"
-				+ "Site Param List: "
-				+ "<br>"
-				+ "----------------"
-				+ "<br>"
-				+ siteGuiBean.getParameterListEditor()
-						.getVisibleParametersCloned()
-						.getParameterListMetadataString()
-				+ "<br><br>"
-				+ "IMT Param List: "
-				+ "<br>"
-				+ "---------------"
-				+ "<br>"
-				+ imtGuiBean.getVisibleParametersCloned()
-						.getParameterListMetadataString()
-				+ "<br><br>"
-				+ "Forecast Param List: "
-				+ "<br>"
-				+ "--------------------"
-				+ "<br>"
-				+ erfGuiBean.getERFParameterList()
-						.getParameterListMetadataString()
-				+ "<br><br>"
-				+ "TimeSpan Param List: "
-				+ "<br>"
-				+ "--------------------"
-				+ "<br>"
-				+ erfGuiBean.getSelectedERFTimespanGuiBean()
-						.getParameterListMetadataString() 
-				+ "<br><br>"
-				+ "Calculation Settings: "
-				+ "<br>"
-				+ "--------------------"
-				+ "<br>"
-				+ getCalcParamMetadataString();
+		+ "<br><br>" + "IMR Param List:" + "<br>" + "---------------" + "<br>"+ imrMetadata
+		+ "<br><br>"
+		+ "Site Param List: "
+		+ "<br>"
+		+ "----------------"
+		+ "<br>"
+		+ siteGuiBean.getParameterListEditor()
+		.getVisibleParametersCloned()
+		.getParameterListMetadataString()
+		+ "<br><br>"
+		+ "IMT Param List: "
+		+ "<br>"
+		+ "---------------"
+		+ "<br>"
+		+ imtGuiBean.getVisibleParametersCloned()
+		.getParameterListMetadataString()
+		+ "<br><br>"
+		+ "Forecast Param List: "
+		+ "<br>"
+		+ "--------------------"
+		+ "<br>"
+		+ erfGuiBean.getERFParameterList()
+		.getParameterListMetadataString()
+		+ "<br><br>"
+		+ "TimeSpan Param List: "
+		+ "<br>"
+		+ "--------------------"
+		+ "<br>"
+		+ erfGuiBean.getSelectedERFTimespanGuiBean()
+		.getParameterListMetadataString() 
+		+ "<br><br>"
+		+ "Calculation Settings: "
+		+ "<br>"
+		+ "--------------------"
+		+ "<br>"
+		+ getCalcParamMetadataString();
 
 	}
 
@@ -2473,7 +2475,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	private void close() {
 		int option = JOptionPane.showConfirmDialog(this,
 				"Do you really want to exit the application?\n"
-						+ "You will loose all unsaved data.", "Exit App",
+				+ "You will loose all unsaved data.", "Exit App",
 				JOptionPane.OK_CANCEL_OPTION);
 		if (option == JOptionPane.OK_OPTION)
 			System.exit(0);
@@ -2511,7 +2513,7 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	 */
 	private void cancelCalculation() {
 		// stopping the Hazard Curve calculation thread
-		calcThread.stop();
+		calcThread.stop(); // TODO remove dependency on depricated "stop" method
 		calcThread = null;
 		// close the progress bar for the ERF GuiBean that displays
 		// "Updating Forecast".

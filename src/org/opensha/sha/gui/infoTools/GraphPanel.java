@@ -160,10 +160,10 @@ public class GraphPanel extends JSplitPane {
 
 	//List of PlotCurveCharacterstics for each curve
 	//that we plot which include the line color,line width.
-	private ArrayList curvePlottingCharacterstics = new ArrayList();
+	private ArrayList<PlotCurveCharacterstics> curvePlottingCharacterstics = new ArrayList<PlotCurveCharacterstics>();
 
 	//This ArrayList stores the legend for various
-	private ArrayList legendString;
+	private ArrayList<String> legendString;
 
 	/**
 	 * class constructor
@@ -909,7 +909,7 @@ public class GraphPanel extends JSplitPane {
 	 * @returns the list PlotCurveCharacterstics that contain the info about
 	 * plotting the curve like plot line color , its width and line type.
 	 */
-	public ArrayList getCurvePlottingCharacterstic(){
+	public ArrayList<PlotCurveCharacterstics> getCurvePlottingCharacterstic(){
 		return curvePlottingCharacterstics;
 	}
 
