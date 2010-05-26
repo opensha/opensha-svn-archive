@@ -19,6 +19,8 @@
 
 package org.opensha.sha.calc.disaggregation;
 
+import org.opensha.sha.earthquake.ProbEqkSource;
+
 /**
  * <p>Title: DisaggregationSourceInfo</p>
  *
@@ -29,61 +31,69 @@ package org.opensha.sha.calc.disaggregation;
  */
 public class DisaggregationSourceRuptureInfo {
 
-  private String name;
-  private double rate;
-  private double eventRate;
-  private double mag;
-  private double distance;
-  private int id;
+	private String name;
+	private double rate;
+	private double eventRate;
+	private double mag;
+	private double distance;
+	private int id;
+	private ProbEqkSource source;
 
-  public DisaggregationSourceRuptureInfo(String name, double rate, int id) {
+	public DisaggregationSourceRuptureInfo(String name, double rate, int id, ProbEqkSource source) {
 
-    this.name = name;
-    this.rate = rate;
-    this.id = id;
-  }
+		this.name = name;
+		this.rate = rate;
+		this.id = id;
+		this.source = source;
+	}
 
-  public DisaggregationSourceRuptureInfo(String name, double eventRate, double rate,
-                                         int id,double mag,double distance) {
-   this.name = name;
-   this.rate = rate;
-   this.id = id;
-   this.eventRate = eventRate;
-   this.mag = mag;
-   this.distance = distance;
- }
-
-
-  public DisaggregationSourceRuptureInfo(String name, double eventRate, double rate, int id) {
-
-    this.name = name;
-    this.rate = rate;
-    this.id = id;
-    this.eventRate = eventRate;
-  }
-
-  public int getId(){
-    return id;
-  }
+	public DisaggregationSourceRuptureInfo(String name, double eventRate, double rate,
+			int id,double mag,double distance, ProbEqkSource source) {
+		this.name = name;
+		this.rate = rate;
+		this.id = id;
+		this.eventRate = eventRate;
+		this.mag = mag;
+		this.distance = distance;
+		this.source = source;
+	}
 
 
-  public double getRate(){
-    return rate;
-  }
+	public DisaggregationSourceRuptureInfo(String name, double eventRate, double rate, int id, ProbEqkSource source) {
 
-  public String getName(){
-    return name;
-  }
+		this.name = name;
+		this.rate = rate;
+		this.id = id;
+		this.eventRate = eventRate;
+		this.source = source;
+	}
 
-  public double getEventRate(){
-    return eventRate;
-  }
+	public int getId(){
+		return id;
+	}
 
-  public double getMag(){
-    return mag;
-  }
 
-  public double getDistance(){
-    return distance;
-  }
+	public double getRate(){
+		return rate;
+	}
+
+	public String getName(){
+		return name;
+	}
+
+	public double getEventRate(){
+		return eventRate;
+	}
+
+	public double getMag(){
+		return mag;
+	}
+
+	public double getDistance(){
+		return distance;
+	}
+	
+	public ProbEqkSource getSource() {
+		return source;
+	}
 }

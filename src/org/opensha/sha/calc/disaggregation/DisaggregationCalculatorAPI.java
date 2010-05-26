@@ -91,6 +91,14 @@ public interface DisaggregationCalculatorAPI extends Remote{
 	 */
 	public void setNumSourcestoShow(int numSources)throws
 	java.rmi.RemoteException ;
+	
+	/**
+	 * Enables/disables calculation and display of source distances in source data list.
+	 * 
+	 * @param showDistances
+	 * @throws RemoteException 
+	 */
+	public void setShowDistances(boolean showDistances) throws RemoteException;
 
 	/**
 	 * This sets the maximum distance of sources to be considered in the calculation

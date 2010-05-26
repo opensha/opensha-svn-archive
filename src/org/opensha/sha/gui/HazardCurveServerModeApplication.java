@@ -1445,6 +1445,7 @@ ScalarIMRChangeListener {
 			int numDist = disaggregationControlPanel.getNumDist();
 			int numSourcesForDisag = disaggregationControlPanel
 			.getNumSourcesForDisagg();
+			boolean showSourceDistances = disaggregationControlPanel.isShowSourceDistances();
 			double maxZAxis = disaggregationControlPanel.getZAxisMax();
 			double imlVal = 0, probVal = 0;
 			try {
@@ -1457,6 +1458,7 @@ ScalarIMRChangeListener {
 				}
 				disaggCalc.setMagRange(minMag, numMag, deltaMag);
 				disaggCalc.setNumSourcestoShow(numSourcesForDisag);
+				disaggCalc.setShowDistances(showSourceDistances);
 
 			} catch (Exception e) {
 				setButtonsEnable(true);

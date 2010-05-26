@@ -88,6 +88,8 @@ implements ParameterChangeFailListener, ParameterChangeListener{
 	private final static String NUM_SOURCE_PARAM_NAME = "Num Sources in List";
 	private IntegerParameter numSourcesToShow = new IntegerParameter(NUM_SOURCE_PARAM_NAME,new Integer(100));
 
+	private final static String SHOW_DISTANCES_PARAM_NAME = "Include Source Distances";
+	private BooleanParameter showDistancesParam = new BooleanParameter(SHOW_DISTANCES_PARAM_NAME, false);
 
 	//show the bin data only if this parameter is selected
 	private final static String SHOW_DISAGGR_BIN_RATE_PARAM_NAME = "Show Disaggregation Bin Rate Data";
@@ -141,9 +143,9 @@ implements ParameterChangeFailListener, ParameterChangeListener{
 	// applet which called this control panel
 	HazardCurveServerModeApplication parent;
 	private GridBagLayout gridBagLayout1 = new GridBagLayout();
-	
+
 	private JFrame frame;
-	
+
 	private Component parentComponent;
 
 	public DisaggregationControlPanel(HazardCurveServerModeApplication parent,
@@ -152,10 +154,10 @@ implements ParameterChangeFailListener, ParameterChangeListener{
 		this.parent = parent;
 		this.parentComponent = parentComponent;
 	}
-	
+
 	public void doinit() {
 		frame = new JFrame();
-		
+
 		// set info strings for parameters
 		minMagParam.setInfo("The center of the first magnitude bin (for histogram & mode calcs)");
 		minDistParam.setInfo("The center of the first distance bin (for histogram & mode calcs)");
@@ -170,6 +172,7 @@ implements ParameterChangeFailListener, ParameterChangeListener{
 		" of their contribution to the hazard");
 
 		numSourcesToShow.setInfo("The number of sources to show in the list");
+		showDistancesParam.setInfo("Compute and display source distance metrics");
 
 		zMaxParam.setInfo(Z_AXIS_MAX_INFO);
 
@@ -219,6 +222,7 @@ implements ParameterChangeFailListener, ParameterChangeListener{
 			paramList.addParameter(disaggregationIMLParam);
 			paramList.addParameter(sourceDisaggregationParam);
 			paramList.addParameter(numSourcesToShow);
+			paramList.addParameter(showDistancesParam);
 			paramList.addParameter(binRateDisaggregationParam);
 			paramList.addParameter(minMagParam);
 			paramList.addParameter(numMagParam);
@@ -226,24 +230,24 @@ implements ParameterChangeFailListener, ParameterChangeListener{
 			paramList.addParameter(distBinTypeSelector);
 			//      String distType = (String)distBinTypeSelector.getValue(); 
 			//      if (distType.equals(DIST_TYPE_EVEN)) {
-				paramList.addParameter(minDistParam);
-				paramList.addParameter(numDistParam);
-				paramList.addParameter(deltaDistParam);
-				//      } else if (distType.equals(DIST_TYPE_CUSTOM)) {
-				paramList.addParameter(customDistBinParam);
-				//      }
+			paramList.addParameter(minDistParam);
+			paramList.addParameter(numDistParam);
+			paramList.addParameter(deltaDistParam);
+			//      } else if (distType.equals(DIST_TYPE_CUSTOM)) {
+			paramList.addParameter(customDistBinParam);
+			//      }
 
-				paramList.addParameter(zMaxChoiceParam);
-				paramList.addParameter(zMaxParam);
+			paramList.addParameter(zMaxChoiceParam);
+			paramList.addParameter(zMaxParam);
 
 
-				paramListEditor = new ParameterListEditor(paramList);
-				setParamsVisible((String)disaggregationParameter.getValue());
+			paramListEditor = new ParameterListEditor(paramList);
+			setParamsVisible((String)disaggregationParameter.getValue());
 
-				jbInit();
-				// show the window at center of the parent component
-				frame.setLocation(parentComponent.getX()+parentComponent.getWidth()/2,0);
-				parent.setDisaggregationSelected(isDisaggregationSelected);
+			jbInit();
+			// show the window at center of the parent component
+			frame.setLocation(parentComponent.getX()+parentComponent.getWidth()/2,0);
+			parent.setDisaggregationSelected(isDisaggregationSelected);
 
 
 		}
@@ -305,6 +309,7 @@ implements ParameterChangeFailListener, ParameterChangeListener{
 	 */
 	private void showNumSourcesParam(boolean paramToShow){
 		paramListEditor.getParameterEditor(NUM_SOURCE_PARAM_NAME).setVisible(paramToShow);
+		paramListEditor.getParameterEditor(SHOW_DISTANCES_PARAM_NAME).setVisible(paramToShow);
 	}
 
 	/**
@@ -528,6 +533,10 @@ implements ParameterChangeFailListener, ParameterChangeListener{
 		if(isDisaggregationSelected && isSourceDisaggregationSelected())
 			return ((Integer)numSourcesToShow.getValue()).intValue();
 		return 0;
+	}
+	
+	public boolean isShowSourceDistances() {
+		return showDistancesParam.getValue();
 	}
 
 	/**

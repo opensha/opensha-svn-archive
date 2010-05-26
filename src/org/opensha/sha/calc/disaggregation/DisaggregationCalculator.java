@@ -43,6 +43,7 @@ import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.util.TRTUtils;
@@ -105,6 +106,8 @@ implements DisaggregationCalculatorAPI{
 
 	//gets the number of sources to be shown in the disaggregation window
 	private int numSourcesToShow = 0;
+	
+	private boolean showDistances = true;
 
 	//stores the source Disagg info
 	private String sourceDisaggInfo;
@@ -384,7 +387,7 @@ implements DisaggregationCalculatorAPI{
 				//Collections.sort(sourceRupList,srcRupComparator);
 				// create the total rate info for this source
 				DisaggregationSourceRuptureInfo disaggInfo = new
-				DisaggregationSourceRuptureInfo(sourceName, (float) sourceRate, i);
+				DisaggregationSourceRuptureInfo(sourceName, (float) sourceRate, i, source);
 				disaggSourceList.add(disaggInfo);
 			}
 		}
@@ -398,7 +401,10 @@ implements DisaggregationCalculatorAPI{
 			Collections.sort(disaggSourceList, srcRupComparator);
 			// make a string of the sorted list info
 			sourceDisaggInfo =
-				"Source#\t% Contribution\tTotExceedRate\tSourceName\n";
+				"Source#\t% Contribution\tTotExceedRate\tSourceName";
+			if (showDistances)
+				sourceDisaggInfo += "\tDistRup\tDistX\tDistSeis\tDistJB";
+			sourceDisaggInfo += "\n";
 			int size = disaggSourceList.size();
 			if (size > numSourcesToShow)
 				size = numSourcesToShow;
@@ -410,7 +416,24 @@ implements DisaggregationCalculatorAPI{
 				sourceDisaggInfo += f1.format(disaggInfo.getId()) + "\t" +
 				f2.format(100*disaggInfo.getRate()/totalRate) +
 				"\t" + (float) disaggInfo.getRate() +
-				"\t" + disaggInfo.getName() + "\n";
+				"\t" + disaggInfo.getName();
+				
+				if (showDistances) {
+					ProbEqkSource source = disaggInfo.getSource();
+					double mag = 0;
+					for (int rupID=0; rupID<source.getNumRuptures(); rupID++) {
+						double myMag = source.getRupture(rupID).getMag();
+						if (myMag > mag)
+							mag = myMag;
+					}
+					
+					ProbEqkRupture fakeRupture = new ProbEqkRupture(mag, 0, 0, source.getSourceSurface(), null);
+					PropagationEffect pEffect = new PropagationEffect(site, fakeRupture);
+					sourceDisaggInfo += "\t" + pEffect.getDistanceRup() + "\t" + pEffect.getDistanceX()
+							+ "\t" + pEffect.getDistanceSeis() + "\t" + pEffect.getDistanceJB();
+				}
+				
+				sourceDisaggInfo += "\n";
 				//System.out.println(f2.format(100*disaggInfo.getRate()/totalRate));
 			}
 		}
@@ -1030,6 +1053,10 @@ System.out.println("numRupRejected="+numRupRejected);
 	 */
 	public void setNumSourcestoShow(int numSources) throws RemoteException {
 		numSourcesToShow = numSources;
+	}
+	
+	public void setShowDistances(boolean showDistances) throws java.rmi.RemoteException {
+		this.showDistances = showDistances;
 	}
 
 }
