@@ -209,7 +209,7 @@ public class LoginWindow extends JFrame implements ActionListener {
 		if(source==loginButton) { // if login button is clicked, save the username/passwd
 
 			// check username/password for read /write access
-			if(this.loginTypeComboBox.getSelectedItem().equals(this.READ_WRITE)) {
+			if(this.loginTypeComboBox.getSelectedItem().equals(READ_WRITE)) {
 				SessionInfo.setPassword(new String(passwordText.getPassword()).trim());
 				SessionInfo.setUserName(this.usernameText.getText());
 				try {

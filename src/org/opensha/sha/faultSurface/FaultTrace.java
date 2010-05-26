@@ -160,6 +160,14 @@ public class FaultTrace extends LocationList implements NamedObjectAPI {
         return b.toString();
 
     }
+    
+    public FaultTrace clone() {
+    	FaultTrace trace = new FaultTrace(this.getName());
+    	for (Location loc : this) {
+    		trace.add(loc);
+    	}
+    	return trace;
+    }
 
 
 }

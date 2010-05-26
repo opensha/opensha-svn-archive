@@ -34,7 +34,7 @@ import org.opensha.sha.faultSurface.FaultTrace;
  * @version 1.0
  */
 
-public class FaultSectionData {
+public class FaultSectionData implements Cloneable {
 
 	private int sectionId=-1;
 	private String sectionName;
@@ -201,5 +201,28 @@ public class FaultSectionData {
 			 return discValEst.getMean();
 		 } else throw new RuntimeException("FaultSectionData: Unable to handle this estimate type");
 	 }
+
+	@Override
+	public FaultSectionData clone() {
+		FaultSectionData data = new FaultSectionData();
+		
+		data.setSectionId(getSectionId());
+		data.setSectionName(getSectionName());
+		data.setShortName(getShortName());
+		data.setAveLongTermSlipRateEst(getAveLongTermSlipRateEst());
+		data.setAveDipEst(getAveDipEst());
+		data.setAveRakeEst(getAveRakeEst());
+		data.setAveUpperDepthEst(getAveUpperDepthEst());
+		data.setAveLowerDepthEst(getAveLowerDepthEst());
+		data.setAseismicSlipFactorEst(getAseismicSlipFactorEst());
+		data.setEntryDate(getEntryDate());
+		data.setSource(getSource());
+		data.setComments(getComments());
+		data.setFaultTrace(getFaultTrace());
+		data.setDipDirection(getDipDirection());
+		data.setQFaultId(getQFaultId());
+		
+		return data;
+	}
 
 }

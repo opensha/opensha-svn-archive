@@ -38,6 +38,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
 
+import javax.swing.JOptionPane;
+
+import org.opensha.commons.gui.UserAuthDialog;
+import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
+import org.opensha.refFaultParamDb.gui.LoginWindow;
+import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+
 import oracle.spatial.geometry.JGeometry;
 import oracle.sql.STRUCT;
 
@@ -96,6 +103,30 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
 		if (db_ver3_conn == null)
 			db_ver3_conn  = new ServerDB_Access(ServerDB_Access.SERVLET_URL_DB3);
 		return db_ver3_conn;
+	}
+	
+	public static void authenticateDBConnection(boolean exitOnCancel, boolean allowReadOnly) {
+		UserAuthDialog auth = new UserAuthDialog(null, exitOnCancel, allowReadOnly);
+		auth.setVisible(true);
+		auth.validate();
+		if (auth.isReadOnly()) {
+			SessionInfo.setUserName(null);
+			SessionInfo.setPassword(null);
+		} else {
+			SessionInfo.setPassword(new String(auth.getPassword()).trim());
+			SessionInfo.setUserName(auth.getUsername());
+			try {
+				SessionInfo.setContributorInfo();
+				if(SessionInfo.getContributor()==null)  {
+					JOptionPane.showMessageDialog(null, LoginWindow.MSG_INVALID_USERNAME_PWD);
+					return;
+				}
+			}catch(DBConnectException connectException) {
+				//connectException.printStackTrace();
+				JOptionPane.showMessageDialog(null, LoginWindow.MSG_INVALID_USERNAME_PWD);
+				return;
+			}
+		}
 	}
 
 	/**
