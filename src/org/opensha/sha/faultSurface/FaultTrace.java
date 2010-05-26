@@ -25,6 +25,7 @@ import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.util.FaultTraceUtils;
 
 // Fix - Needs more comments
 
@@ -132,17 +133,21 @@ public class FaultTrace extends LocationList implements NamedObjectAPI {
     
 
     /*
-     * Calculates  minimum distance of this faultTrace from the user provided fault trace.
+     * Calculates  minimum distance of this faultTrace from the user provided fault trace,
+     * where the latter is resampled at discrInterval (km) for computing distances.
      * Returns the distance in km.
      * 
      * @param faultTrace FaultTrace from where distance needs to be calculated
+     * @param discrInterval resampling interval (km)
      */
-    public double getMinDistance(FaultTrace faultTrace) {
+    public double getMinDistance(FaultTrace faultTrace, double discrInterval) {
     	// calculate the minimum fault trace distance
 		double minFaultTraceDist = Double.POSITIVE_INFINITY;
 		double dist;
-		for(int i=0; i<faultTrace.getNumLocations(); ++i) {
-			dist = minDistToLine(faultTrace.get(i));
+		int num = (int)(faultTrace.getTraceLength()/discrInterval) + 1;
+		FaultTrace discrFaultTrace = FaultTraceUtils.resampleTrace(faultTrace, num);
+		for(int i=0; i<discrFaultTrace.getNumLocations(); ++i) {
+			dist = minDistToLine(discrFaultTrace.get(i));
 			if(dist<minFaultTraceDist) minFaultTraceDist = dist;
 		}
 		return minFaultTraceDist;

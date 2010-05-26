@@ -41,7 +41,7 @@ import org.opensha.commons.exceptions.NamedObjectException;
  * @version    1.0
  */
 
-public class NamedObjectComparator implements Comparator {
+public class NamedObjectComparator implements Comparator<NamedObjectAPI> {
 
     /** Class name for debugging. */
     final static String C = "NamedObjectComparator";
@@ -75,7 +75,7 @@ public class NamedObjectComparator implements Comparator {
      * @see                              Comparable
      * @see                              NamedObjectAPI
      */
-    public int compare( Object o1, Object o2 ) throws NamedObjectException {
+    public int compare( NamedObjectAPI o1, NamedObjectAPI o2 ) throws NamedObjectException {
 
         String S = C + ":compare(): ";
         if ( D ) {

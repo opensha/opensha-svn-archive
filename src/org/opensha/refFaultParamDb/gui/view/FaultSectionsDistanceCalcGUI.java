@@ -137,7 +137,7 @@ public class FaultSectionsDistanceCalcGUI extends JPanel implements ActionListen
 		EvenlyGriddedSurface surface2 = getEvenlyGriddedSurface(faultSection2PrefData);
 		
 		
-		JOptionPane.showMessageDialog(this, "Minimum Fault Trace distance="+DECIMAL_FORMAT.format(faultTrace1.getMinDistance(faultTrace2))+" km\n"+
+		JOptionPane.showMessageDialog(this, "Minimum Fault Trace distance="+DECIMAL_FORMAT.format(faultTrace1.getMinDistance(faultTrace2,1.0))+" km\n"+
 				"Minimum 3D distance="+DECIMAL_FORMAT.format(surface1.getMinDistance(surface2))+" km");
 	}
 	

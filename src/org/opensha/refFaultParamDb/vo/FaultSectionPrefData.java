@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.dom4j.Element;
+import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.sha.faultSurface.FaultTrace;
@@ -19,7 +20,7 @@ import org.opensha.sha.faultSurface.SimpleFaultData;
  * @author vipingupta
  *
  */
-public class FaultSectionPrefData  implements java.io.Serializable, XMLSaveable, Cloneable {
+public class FaultSectionPrefData  implements NamedObjectAPI, java.io.Serializable, XMLSaveable, Cloneable {
 
 	/**
 	 * 
@@ -84,6 +85,8 @@ public class FaultSectionPrefData  implements java.io.Serializable, XMLSaveable,
 	public void setShortName(String shortName) {
 		this.shortName = shortName;
 	}
+	
+	public String getName() {return this.getSectionName();}
 
 	public double getAseismicSlipFactor() {
 		return aseismicSlipFactor;

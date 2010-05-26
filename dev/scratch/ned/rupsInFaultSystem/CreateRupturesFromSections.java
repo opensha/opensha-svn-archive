@@ -2,7 +2,9 @@ package scratch.ned.rupsInFaultSystem;
 
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 
+import org.opensha.commons.data.NamedObjectComparator;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
@@ -52,6 +54,10 @@ System.out.println("maxJumpDist="+maxJumpDist);
 		this.maxSubSectionLength=maxSubSectionLength;
 		this.minNumSubSectInRup=minNumSubSectInRup;
 		getAllSections(true);
+		
+		writeSectionDistances(10.0);
+		
+		/* SKIP TEMPORARILY 
 		computeConnectedSectionEndpointPairs();
 		computeEndToEndSectLinksList();
 		computeSectionClusters();
@@ -59,6 +65,9 @@ System.out.println("maxJumpDist="+maxJumpDist);
 		System.out.println("maxDist="+maxJumpDist+"\tmaxAngle="+maxAngle+"\tmaxStrikeChange="+
 				maxStrikeChange+"\tmaxSubSectionLength="+maxSubSectionLength+"\tminNumSubSectInRup="+minNumSubSectInRup);
 		System.out.println("numSubSections="+numSubSections+"\tgetRupList().size()="+getRupList().size());
+		*/
+		
+		
 //		for(int i=0; i<sectionClusterList.size();i++)
 //		System.out.println("sectionClusterList.get(0).getRuptures().size()="+sectionClusterList.get(0).getRuptures().size());
 ///			System.out.println("Cluster "+i+" has "+sectionClusterList.get(i).getNumSubSections()+" subsections");
@@ -103,6 +112,9 @@ System.out.println("maxJumpDist="+maxJumpDist);
 		
 		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
 		allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelId);
+		//Alphabetize:
+		Collections.sort(allFaultSectionPrefData, new NamedObjectComparator());
+
 /**/		
 		
 		// find and print max Down-dip width
@@ -529,10 +541,10 @@ System.out.println("sectionClusterList.size()="+sectionClusterList.size());
 
 	
 	
-	public void writeSectionDistances() {
+	public void writeSectionEndpointDistances() {
 		
 		try{
-			FileWriter fw = new FileWriter("/Users/field/workspace/OpenSHA/scratchJavaDevelopers/ned/rupsInFaultSystem/sectionDistances.txt");
+			FileWriter fw = new FileWriter("/Users/field/workspace/OpenSHA/scratchJavaDevelopers/ned/rupsInFaultSystem/sectionEndpointDistances.txt");
 			
 			int num = numSectEndPts;
 			String outputString = new String();
@@ -563,6 +575,60 @@ System.out.println("sectionClusterList.size()="+sectionClusterList.size());
 //		System.out.print(output);
 
 	}
+	
+	
+	/**
+	 * This computes the distance from each section endpoint to the closest distance on all other section, but
+	 * only if that point on the second section is not an endpoint.  This will only keep those that are withing
+	 * distThresh
+	 */
+	public void writeSectionDistances(double distThresh) {
+		
+		try{
+			FileWriter fw = new FileWriter("/Users/field/workspace/OpenSHA/dev/scratch/ned/rupsInFaultSystem/sectionDistances.txt");
+			
+			int num = allFaultSectionPrefData.size();
+			String outputString = new String();
+			outputString += "Section Distances\n";
+			for(int i=0;i<num;i++) {
+				FaultSectionPrefData data1 = allFaultSectionPrefData.get(i);
+				FaultTrace trace1 = data1.getFaultTrace();
+				for(int j=i+1; j<num; j++) {
+					FaultSectionPrefData data2 = allFaultSectionPrefData.get(j);
+					FaultTrace trace2 = data2.getFaultTrace();
+					
+					double minDist = Double.MAX_VALUE;
+					double d1 = LocationUtils.horzDistance(trace1.get(0), trace2.get(trace2.getNumLocations()-1));
+					if(d1<minDist) minDist=d1;
+					double d2 = LocationUtils.horzDistance(trace1.get(0), trace2.get(0));
+					if(d2<minDist) minDist=d2;
+					double d3 = LocationUtils.horzDistance(trace1.get(trace1.getNumLocations()-1), trace2.get(trace2.getNumLocations()-1));
+					if(d3<minDist) minDist=d3;
+					double d4 = LocationUtils.horzDistance(trace1.get(trace1.getNumLocations()-1), trace2.get(0));
+					if(d4<minDist) minDist=d4;
+				
+					double minDist2 = trace2.getMinDistance(trace1, 1.0);
+					
+					if(minDist2<minDist-1.0 && minDist2<distThresh) {
+						String string = data1.getSectionName()+"\t--->\t"+data2.getSectionName()+"\t"+minDist2+"\n";
+						outputString += string;
+						System.out.print(string);
+
+					}
+						
+				}
+				fw.write(outputString);
+			}
+
+			fw.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	
+	
 	
 	
 	public void plotTraces(FaultTrace ft1, FaultTrace ft2) {
