@@ -429,8 +429,10 @@ implements DisaggregationCalculatorAPI{
 					
 					ProbEqkRupture fakeRupture = new ProbEqkRupture(mag, 0, 0, source.getSourceSurface(), null);
 					PropagationEffect pEffect = new PropagationEffect(site, fakeRupture);
-					sourceDisaggInfo += "\t" + pEffect.getDistanceRup() + "\t" + pEffect.getDistanceX()
-							+ "\t" + pEffect.getDistanceSeis() + "\t" + pEffect.getDistanceJB();
+					sourceDisaggInfo += "\t" + f2.format(pEffect.getDistanceRup())
+							+ "\t" + f2.format(pEffect.getDistanceX())
+							+ "\t" + f2.format(pEffect.getDistanceSeis())
+							+ "\t" + f2.format(pEffect.getDistanceJB());
 				}
 				
 				sourceDisaggInfo += "\n";
