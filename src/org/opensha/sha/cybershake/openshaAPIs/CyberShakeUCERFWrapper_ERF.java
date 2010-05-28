@@ -32,6 +32,8 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 
 public class CyberShakeUCERFWrapper_ERF extends EqkRupForecast {
 	
+	public static final String NAME = "CyberShake UCERF 2 Wrapper";
+	
 	public static final String ERF_XML_FILE = "org/opensha/sha/cybershake/conf/MeanUCERF.xml";
 	
 	public static final int ERF_ID = 35;
@@ -83,7 +85,7 @@ public class CyberShakeUCERFWrapper_ERF extends EqkRupForecast {
 
 	public String getName() {
 		// TODO Auto-generated method stub
-		return "CyberShake UCERF 2 Wrapper";
+		return NAME;
 	}
 
 	public void updateForecast() {

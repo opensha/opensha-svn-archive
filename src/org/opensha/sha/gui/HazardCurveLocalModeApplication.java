@@ -30,6 +30,7 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.gem.GEM1.scratch.marco.testParsers.GEM1ERF;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
+import org.opensha.sha.cybershake.openshaAPIs.CyberShakeUCERFWrapper_ERF;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF;
 import org.opensha.sha.earthquake.rupForecastImpl.PointSourceERF;
@@ -64,7 +65,7 @@ import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 
-import scratch.ned.URS.URS_MeanUCERF2;
+import scratch.christine.URS.URS_MeanUCERF2;
 
 
 
@@ -168,6 +169,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 		erf_Classes.add(YuccaMountainERF.class.getName());
 		erf_Classes.add(YuccaMountainERF_List.class.getName());
 		
+		erf_Classes.add(CyberShakeUCERFWrapper_ERF.class.getName());
 		erf_Classes.add(TestGEM_ERF.class.getName());
 		erf_Classes.add(GEM1SouthAmericaERF.class.getName());
 		erf_Classes.add(GEM1_CEUS_ERF.class.getName());

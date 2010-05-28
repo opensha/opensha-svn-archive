@@ -27,6 +27,7 @@ import java.util.Comparator;
 
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.gem.GEM1.scratch.ZhaoEtAl_2006_AttenRel;
+import org.opensha.sha.cybershake.openshaAPIs.CyberShakeIMR;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
@@ -115,7 +116,7 @@ public class AttenuationRelationshipsInstance {
 		supportedAttenRelClasses.add(SadighEtAl_1997_AttenRel.class.getName());
 		
 		// OTHER
-//		supportedAttenRelClasses.add(CyberShake_CLASS_NAME);
+		supportedAttenRelClasses.add(CyberShakeIMR.class.getName());
 		return supportedAttenRelClasses;
 	}
 
