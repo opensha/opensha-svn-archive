@@ -38,6 +38,8 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class NshmpGrid2GemSourceData extends GemFileParser {
 	
+		private final static boolean D = false;	// for debugging
+	
 	    // variable containing the source data
 		//private ArrayList<GEMPointSourceData> srcDataList;
 		
@@ -66,7 +68,7 @@ public class NshmpGrid2GemSourceData extends GemFileParser {
 //			{
 //				inputFile = inputFile.substring(inputFile.lastIndexOf("./")+1);
 //			}
-			System.out.println("Getting resource as stream: " + inputFile);
+			if (D) System.out.println("Getting resource as stream: " + inputFile);
 	        BufferedReader oReader = new BufferedReader(new InputStreamReader(GemComputeHazardLogicTree.class.getResourceAsStream(inputFile)));
 	        
 	        
@@ -264,7 +266,7 @@ public class NshmpGrid2GemSourceData extends GemFileParser {
 				// read a value file name
 				aValFileName = st.nextToken();
 				aValFileName = aValFileName.replaceFirst("../../data/", "/org/opensha/gem/GEM1/data/");
-				System.out.println("a value matrix: "+aValFileName);
+				if (D) System.out.println("a value matrix: "+aValFileName);
 				// read a value file
 				ReadBinaryInputMatrix aValMat = new ReadBinaryInputMatrix(aValFileName, bigEndian2LittleEndian);
 

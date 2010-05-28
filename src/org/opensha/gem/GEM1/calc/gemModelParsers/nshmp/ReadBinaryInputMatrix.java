@@ -27,6 +27,8 @@ import org.opensha.gem.GEM1.calc.gemHazardCalculator.GemComputeHazardLogicTree;
 
 public class ReadBinaryInputMatrix {
 	
+	private final static boolean D = false;	// for debugging
+	
     ArrayList<Double> val;
 	
 	// constructor
@@ -75,7 +77,7 @@ public class ReadBinaryInputMatrix {
 	            index = index+1;
 	        }
 	        catch (EOFException eof) {
-	          System.out.println ("End of File");
+	          if (D) System.out.println ("End of File");
 	          break;
 	        }
 	      }

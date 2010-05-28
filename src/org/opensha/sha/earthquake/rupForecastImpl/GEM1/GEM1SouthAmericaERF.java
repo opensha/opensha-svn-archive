@@ -6,6 +6,10 @@ import java.io.IOException;
 import org.opensha.gem.GEM1.calc.gemModelData.nshmp.south_america.NshmpSouthAmericaData;
 import org.opensha.gem.GEM1.calc.gemModelData.nshmp.us.NshmpUsData;
 import org.opensha.gem.GEM1.commons.CalculationSettings;
+import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 public class GEM1SouthAmericaERF extends GEM1ERF {
 	
@@ -63,5 +67,41 @@ public class GEM1SouthAmericaERF extends GEM1ERF {
 	public String getName() {
 		return NAME;
 	}
+	
+	   // this is temporary for testing purposes
+	   public static void main(String[] args) {
+		   double time = System.currentTimeMillis();
+		   GEM1SouthAmericaERF saerf = null;
+		   	try {
+				saerf = new GEM1SouthAmericaERF();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println("Starting Data Creation");
+			saerf.updateForecast();
+			double runtime = (System.currentTimeMillis() - time)/1000;
+			System.out.println("Done with Data Creation in "+(float) runtime+" seconds)");
+
+			System.out.println("NumSources = "+saerf.getNumSources());
+			System.out.println("Starting Rupture Count");
+			double num =0;
+			for(int i=0;i<saerf.getNumSources();i++) num += saerf.getSource(i).getNumRuptures();
+			System.out.println("Done with Rupture Count; numRup = "+num);
+			runtime = (System.currentTimeMillis() - time)/1000;
+			System.out.println("Total Runtime = "+runtime);
+/*			for(int s=0;s<saerf.getNumSources();s++){
+				ProbEqkSource src = saerf.getSource(s);
+				for(int r=0; r<src.getNumRuptures();r++) {
+					EvenlyGriddedSurfaceAPI surface = saerf.getRupture(s, r).getRuptureSurface();
+					double depth = surface.getLocation(0, 0).getDepth();	
+					if(depth>100) System.out.println("depth="+(float)depth+"\tfor r="+r+" & s="+s+"\t"+src.getName());
+				}
+			}
+*/
+
+
+		 }
+
 
 }

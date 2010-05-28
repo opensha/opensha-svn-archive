@@ -42,6 +42,8 @@ import org.opensha.sha.util.TectonicRegionType;
 public class NshmpFault2GemSourceData extends GemFileParser {
 
 	
+	private final static boolean D = false;	// for debugging
+	
 	// array list of GEMFaultSourceData objects
 	//private ArrayList<GEMFaultSourceData> srcDataList;
 	
@@ -77,7 +79,7 @@ public class NshmpFault2GemSourceData extends GemFileParser {
 //		{
 //			inputfile = inputfile.substring(inputfile.lastIndexOf("./")+1);
 //		}
-		System.out.println("Getting resource as stream: " + inputfile);
+		if (D) System.out.println("Getting resource as stream: " + inputfile);
         BufferedReader oReader = new BufferedReader(new InputStreamReader(GemComputeHazardLogicTree.class.getResourceAsStream(inputfile)));
         
         String sRecord = null;

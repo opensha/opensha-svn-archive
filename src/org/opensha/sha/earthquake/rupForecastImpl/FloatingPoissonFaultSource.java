@@ -402,29 +402,29 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
 	 */
 	private void mkApproxSourceSurface(EvenlyGriddedSurface faultSurface) {
 
-		int nRows = faultSurface.getNumRows();
-		int nCols = faultSurface.getNumCols();
-		LocationList faultCornerLocations = new LocationList();
-		faultCornerLocations.add(faultSurface.getLocation(0,0));
-		faultCornerLocations.add(faultSurface.getLocation(0,(int)(nCols/2)));
-		faultCornerLocations.add(faultSurface.getLocation(0,nCols-1));
-		faultCornerLocations.add(faultSurface.getLocation(nRows-1,nCols-1));
-		faultCornerLocations.add(faultSurface.getLocation(nRows-1,(int)(nCols/2)));
-		faultCornerLocations.add(faultSurface.getLocation(nRows-1,0));
-		try {
-			sourceRegion = new Region(faultCornerLocations,BorderType.GREAT_CIRCLE);
-		} catch (IllegalArgumentException iae) {
-			System.out.println(
-					"FloatingPoissonFaultSource.mkApproxSourceSurface() " +
-					"reverting to fault trace: Needs validation");
-			Iterator it = faultSurface.getColumnIterator(0);
-			sourceTrace = new LocationList();
-			while (it.hasNext()) {
-				sourceTrace.add((Location) it.next());
+		if(faultSurface.getAveDip() != 90) {
+			int nRows = faultSurface.getNumRows();
+			int nCols = faultSurface.getNumCols();
+			LocationList faultCornerLocations = new LocationList();
+			faultCornerLocations.add(faultSurface.getLocation(0,0));
+			faultCornerLocations.add(faultSurface.getLocation(0,(int)(nCols/2)));
+			faultCornerLocations.add(faultSurface.getLocation(0,nCols-1));
+			faultCornerLocations.add(faultSurface.getLocation(nRows-1,nCols-1));
+			faultCornerLocations.add(faultSurface.getLocation(nRows-1,(int)(nCols/2)));
+			faultCornerLocations.add(faultSurface.getLocation(nRows-1,0));
+			try {
+				sourceRegion = new Region(faultCornerLocations,BorderType.GREAT_CIRCLE);
+			} catch (IllegalArgumentException iae) {
 			}
 		}
-
+		else {
+			Iterator it = faultSurface.getColumnIterator(0);
+			sourceTrace = new LocationList();
+			while (it.hasNext())
+				sourceTrace.add((Location) it.next());
+		}
 	}
+	
 
 	/**
 	 * set the name of this class

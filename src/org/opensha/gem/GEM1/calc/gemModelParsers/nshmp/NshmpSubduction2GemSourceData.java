@@ -41,6 +41,8 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class NshmpSubduction2GemSourceData extends GemFileParser {
 	
+	private final static boolean D = false;	// for debugging
+	
 	// array list of GEMFaultSourceData objects
 	//private ArrayList<GEMSubductionFaultSourceData> srcDataList;
 	
@@ -68,7 +70,7 @@ public class NshmpSubduction2GemSourceData extends GemFileParser {
 //		{
 //			inputfile = inputfile.substring(inputfile.lastIndexOf("./")+1);
 //		}
-		System.out.println("Getting resource as stream: " + inputfile);
+		if (D) System.out.println("Getting resource as stream: " + inputfile);
         BufferedReader oReader = new BufferedReader(new InputStreamReader(GemComputeHazardLogicTree.class.getResourceAsStream(inputfile)));
         
         
@@ -218,7 +220,7 @@ public class NshmpSubduction2GemSourceData extends GemFileParser {
 			String fName = "";
 			while(st.hasMoreTokens()) fName = fName+" "+st.nextToken();
 			
-			System.out.println("Processing subduction fault: "+fName);
+			if (D) System.out.println("Processing subduction fault: "+fName);
 			
 			IncrementalMagFreqDist mfd = null;
 			

@@ -12,6 +12,8 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class NshmpSouthAmericaGridData extends GemFileParser {
 	
+	private final static boolean D = false;	// for debugging
+	
 	// directory for grid seismicity files
 	private String inDir = "/org/opensha/gem/GEM1/data/nshmp/south_america/grid/";
 	
@@ -42,7 +44,7 @@ public class NshmpSouthAmericaGridData extends GemFileParser {
 		Iterator<String> iterFileName = fileName.iterator();
 		while(iterFileName.hasNext()){
 			String key = iterFileName.next();
-			System.out.println("Processing file: "+key+", weight: "+gridFile.get(key));
+			if (D) System.out.println("Processing file: "+key+", weight: "+gridFile.get(key));
 			NshmpGrid2GemSourceData gm = null;
 			if(key.equalsIgnoreCase(inDir+"SA.grid.0to50km.in") || key.equalsIgnoreCase(inDir+"SA.gridTdF.0to50.in")){
 				gm = new NshmpGrid2GemSourceData(key,TectonicRegionType.ACTIVE_SHALLOW,gridFile.get(key),

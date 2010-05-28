@@ -19,6 +19,9 @@ import org.opensha.commons.util.FaultTraceUtils;
  */
 public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 
+	// for debugging
+	private final static boolean D = false;
+
 	/**
 	 * 
 	 */
@@ -64,7 +67,7 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 		double firstLastDist = LocationUtils.horzDistanceFast(firstUpperLoc, lastLowerLoc);
 		if(firstLastDist < firstFirstDist) {
 			lowerFaultTrace.reverse();
-			System.out.println("Needed to reversed lower trace to comply with upper trace");
+			if(D) System.out.println("Needed to reversed lower trace to comply with upper trace");
 		}
 
 		// Now check that Aki-Richards convention is adhered to (fault dips to right)
@@ -73,20 +76,20 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 		if((strikeDir-dipDir) <0 ||  (strikeDir-dipDir) > 180) {
 			upperFaultTrace.reverse();
 			lowerFaultTrace.reverse();
-			System.out.println("reversed trace order to adhere to Aki Richards");
+			if(D) System.out.println("reversed trace order to adhere to Aki Richards");
 		}
 
 		// now compute num subsection of trace
 		double aveTraceLength = (upperFaultTrace.getTraceLength()+lowerFaultTrace.getTraceLength())/2;
 		int num = (int) Math.round(aveTraceLength/aveGridSpacing);
 		
-		System.out.println("gridSpacing="+gridSpacing+", aveTraceLength="+aveTraceLength+", numCol="+num);
+		if(D) System.out.println("gridSpacing="+gridSpacing+", aveTraceLength="+aveTraceLength+", numCol="+num);
 
 		// get resampled traces (note that number of locs in trace will be num+1)
 		FaultTrace resampUpperTrace = FaultTraceUtils.resampleTrace(upperFaultTrace, num);
 		FaultTrace resampLowerTrace = FaultTraceUtils.resampleTrace(lowerFaultTrace, num);
 
-		System.out.println("resample trace lengths: "+resampUpperTrace.size()+" & "+resampLowerTrace.size());
+		if(D) System.out.println("resample trace lengths: "+resampUpperTrace.size()+" & "+resampLowerTrace.size());
 		// compute ave num columns
 		double aveDist=0;
 		for(int i=0; i<resampUpperTrace.size(); i++) {
@@ -97,7 +100,7 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 		aveDist /= resampUpperTrace.size();
 		int nRows = (int) Math.round(aveDist/aveGridSpacing)+1;
 		
-		System.out.println("aveDist="+aveDist+", nRows="+nRows);
+		if(D) System.out.println("aveDist="+aveDist+", nRows="+nRows);
 
 		this.setNumRowsAndNumCols(nRows, num+1);		// note the plus 1!
 
@@ -126,12 +129,12 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 		
 		Location loc1 = resampLowerTrace.get(resampLowerTrace.size()-1);
 		Location loc2 = this.getLocation(numRows-1, numCols-1);
-		System.out.println("DeltaLat = "+ (float)((loc1.getLatitude()-loc2.getLatitude())*111));
-		System.out.println("DeltaLon = "+ (float)((loc1.getLongitude()-loc2.getLongitude())*111));
-		System.out.println("DeltaDepth = "+ (float)(loc1.getDepth()-loc2.getDepth()));
+		if(D) System.out.println("DeltaLat = "+ (float)((loc1.getLatitude()-loc2.getLatitude())*111));
+		if(D) System.out.println("DeltaLon = "+ (float)((loc1.getLongitude()-loc2.getLongitude())*111));
+		if(D) System.out.println("DeltaDepth = "+ (float)(loc1.getDepth()-loc2.getDepth()));
 
-		System.out.println(resampLowerTrace.get(resampLowerTrace.size()-1).toString());
-		System.out.println(resampUpperTrace.get(resampLowerTrace.size()-1).toString());
+		if(D) System.out.println(resampLowerTrace.get(resampLowerTrace.size()-1).toString());
+		if(D) System.out.println(resampUpperTrace.get(resampLowerTrace.size()-1).toString());
 
 	}
 	

@@ -13,6 +13,8 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class NshmpSouthAmericaSubductionData extends GemFileParser {
 	
+	private final static boolean D = false;	// for debugging
+	
 	private String inDir = "/org/opensha/gem/GEM1/data/nshmp/south_america/subduction/";
 	
 	public NshmpSouthAmericaSubductionData(double latmin, double latmax, double lonmin, double lonmax) throws IOException{
@@ -61,7 +63,7 @@ public class NshmpSouthAmericaSubductionData extends GemFileParser {
 		Iterator<String> iterFileName = fileName.iterator();
 		while(iterFileName.hasNext()){
 			String key = iterFileName.next();
-			System.out.println("Processing file: "+key+", weight: "+faultFile.get(key));
+			if (D) System.out.println("Processing file: "+key+", weight: "+faultFile.get(key));
 			NshmpSubduction2GemSourceData fm = null;
 			fm = new NshmpSubduction2GemSourceData(key,TectonicRegionType.SUBDUCTION_INTERFACE,faultFile.get(key),
 					latmin, latmax, lonmin, lonmax);

@@ -13,6 +13,8 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class NshmpSouthAmericaFaultData extends GemFileParser{
 	
+	private final static boolean D = false;	// for debugging
+	
 	private String inDir = "/org/opensha/gem/GEM1/data/nshmp/south_america/fault/";
 	
 	public NshmpSouthAmericaFaultData(double latmin, double latmax, double lonmin, double lonmax) throws FileNotFoundException{
@@ -36,7 +38,7 @@ public class NshmpSouthAmericaFaultData extends GemFileParser{
 		Iterator<String> iterFileName = fileName.iterator();
 		while(iterFileName.hasNext()){
 			String key = iterFileName.next();
-			System.out.println("Processing file: "+key+", weight: "+faultFile.get(key));
+			if (D) System.out.println("Processing file: "+key+", weight: "+faultFile.get(key));
 			NshmpFault2GemSourceData fm = null;
 			if(key.equalsIgnoreCase(inDir+"sam.fixed.char_modified.txt") ||  key.equalsIgnoreCase(inDir+"sam.fixed.gr_modified.txt")){
 				fm = new NshmpFault2GemSourceData(key,TectonicRegionType.ACTIVE_SHALLOW,faultFile.get(key),
