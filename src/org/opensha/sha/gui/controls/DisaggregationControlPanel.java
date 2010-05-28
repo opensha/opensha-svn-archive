@@ -103,7 +103,7 @@ implements ParameterChangeFailListener, ParameterChangeListener{
 	private static final String NUM_MAG_PARAM_NAME = "Num Mag";
 	private static final String DELTA_MAG_PARAM_NAME = "Delta Mag";
 	private DoubleParameter minMagParam = new DoubleParameter(MIN_MAG_PARAM_NAME,0,10,new Double(5));
-	private IntegerParameter numMagParam = new IntegerParameter(NUM_MAG_PARAM_NAME,new Integer(8));
+	private IntegerParameter numMagParam = new IntegerParameter(NUM_MAG_PARAM_NAME,new Integer(10));
 	private DoubleParameter deltaMagParam = new DoubleParameter(DELTA_MAG_PARAM_NAME,new Double(0.5));
 
 	//sets the Dist range for Disaggregation calculation
