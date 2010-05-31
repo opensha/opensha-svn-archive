@@ -52,8 +52,6 @@ public class PoissonAreaSource extends PointToLineSource implements java.io.Seri
 	 * @param magFreqDistsForFocalMechs
 	 * @param aveRupTopVersusMag
 	 * @param defaultHypoDepth
-	 * @param magScalingRel
-	 * @param lowerSeisDepth
 	 * @param duration
 	 * @param minMag
 	 */
