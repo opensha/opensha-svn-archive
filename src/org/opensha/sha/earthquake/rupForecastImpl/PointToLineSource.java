@@ -64,13 +64,24 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 	protected ArrayList<Double> rates;
 
 	protected Location location;
-	protected double duration=Double.NaN;
-	protected double minMag = Double.NaN;
 	protected double maxLength = 0;
+	int numRuptures;
 	
+	IncrementalMagFreqDist[] magFreqDists;
+	FocalMechanism[] focalMechanisms;
+	ArbitrarilyDiscretizedFunc aveRupTopVersusMag;
+	double defaultHypoDepth;
+	MagScalingRelationship magScalingRel;
+	double lowerSeisDepth;
+	double duration = Double.NaN;
+	double minMag = Double.NaN;
+	int numStrikes=-1;
+	double firstStrike;
 	
+	// no arg constructor (for subclasses)
 	public PointToLineSource() {}
 
+	
 	/**
 	 * This constructor takes a HypoMagFreqDistAtLoc object, depth as a function of mag (aveRupTopVersusMag), 
 	 * and a default depth (defaultHypoDepth).  The depth of each point source is set according to the
@@ -84,23 +95,13 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 			ArbitrarilyDiscretizedFunc aveRupTopVersusMag, double defaultHypoDepth,
 			MagScalingRelationship magScalingRel,double lowerSeisDepth, 
 			double duration, double minMag){
+		// invoke other constructor with numStrikes=-1
+		this(hypoMagFreqDistAtLoc,aveRupTopVersusMag, defaultHypoDepth,magScalingRel,lowerSeisDepth, 
+				duration, minMag,-1,Double.NaN);
 
-		this.duration = duration;
-		this.isPoissonian = true;
-		this.location = hypoMagFreqDistAtLoc.getLocation();
-
-		probEqkRuptureList = new ArrayList<ProbEqkRupture>();
-		rates = new ArrayList<Double>();
-
-		IncrementalMagFreqDist[] magFreqDists = hypoMagFreqDistAtLoc.getMagFreqDistList();
-		FocalMechanism[] focalMechanisms = hypoMagFreqDistAtLoc.getFocalMechanismList();
-		for (int i=0; i<magFreqDists.length; i++) {
-			mkAndAddRuptures(location, magFreqDists[i], focalMechanisms[i], aveRupTopVersusMag, defaultHypoDepth, 
-					magScalingRel, lowerSeisDepth, duration, minMag, 1.0);
-		}
 	}
-
-
+	
+	
 	/**
 	 * This constructor is the same as the other, but rather than using the given or a random strike,
 	 * this applies a spoked source where several strikes are applied with even spacing in azimuth.
@@ -113,32 +114,89 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 			MagScalingRelationship magScalingRel,double lowerSeisDepth, 
 			double duration, double minMag, int numStrikes, double firstStrike){
 
+		this.magFreqDists = hypoMagFreqDistAtLoc.getMagFreqDistList();
+		this.focalMechanisms = hypoMagFreqDistAtLoc.getFocalMechanismList();
+		this.aveRupTopVersusMag = aveRupTopVersusMag;
+		this.defaultHypoDepth = defaultHypoDepth;
+		this.magScalingRel = magScalingRel;
+		this.lowerSeisDepth = lowerSeisDepth;
 		this.duration = duration;
+		this.minMag = minMag;
+		this.numStrikes = numStrikes;
+		this.firstStrike = firstStrike;
+
 		this.isPoissonian = true;
+		
+		// Compute stuff needed for the getMinDistance(Site) method, so this can be computed before ruptures are generated
 		this.location = hypoMagFreqDistAtLoc.getLocation();
-
-		probEqkRuptureList = new ArrayList<ProbEqkRupture>();
-		rates = new ArrayList<Double>();
-
-		// set the strikes
-		double deltaStrike = 180/numStrikes;
-		double[] strike = new double[numStrikes];
-		for(int n=0;n<numStrikes;n++)
-			strike[n]=firstStrike+n*deltaStrike;
-
-		IncrementalMagFreqDist[] magFreqDists = hypoMagFreqDistAtLoc.getMagFreqDistList();
-		FocalMechanism[] focalMechanisms = hypoMagFreqDistAtLoc.getFocalMechanismList();
+		this.maxLength = computeMaxLength();
+		
+		numRuptures = this.computeNumRuptures();
+	}
+	
+	
+	protected double computeMaxLength() {
+		double max = 0;
 		for (int i=0; i<magFreqDists.length; i++) {
-			FocalMechanism focalMech = focalMechanisms[i].copy(); // COPY THIS
-			for(int s=0;s<numStrikes;s++) {
-				focalMech.setStrike(strike[s]);
-				double weight = 1.0/numStrikes;
-				mkAndAddRuptures(location, magFreqDists[i], focalMechanisms[i], aveRupTopVersusMag, defaultHypoDepth, 
-						magScalingRel, lowerSeisDepth, duration, minMag,weight);			  
+			double dip = focalMechanisms[i].getDip();
+			double mag = magFreqDists[i].getMaxMagWithNonZeroRate();
+			double length = getRupLength(mag, aveRupTopVersusMag, lowerSeisDepth, dip, magScalingRel);
+			if(length>max) max = length;
+		}		
+		return max;
+	}
+	
+	
+	protected int computeNumRuptures() {
+		int num=0;
+		for(int i=0;i<magFreqDists.length;i++ ) {
+			IncrementalMagFreqDist mfd = magFreqDists[i];
+			double min = minMag;
+			if(min<mfd.getX(0)) min = mfd.getX(0);
+			for(int m=mfd.getXIndex(min);m<mfd.getNum();m++) {
+				double prob = 1-Math.exp(-mfd.getY(m)*duration);
+				if(prob>0) num +=1;
 			}
 		}
+		if(numStrikes != -1) num *= numStrikes;
+		return num;
 	}
 
+
+	private void mkAllRuptures() {
+		
+		probEqkRuptureList = new ArrayList<ProbEqkRupture>();
+		rates = new ArrayList<Double>();
+		
+//		System.out.println((float)rupLength+"\t"+(float)mag+"\t"+(float)lowerSeisDepth+"\t"+(float)dip+"\t"+magScalingRel);
+
+		if(numStrikes == -1) { // random or applied strike
+			for (int i=0; i<magFreqDists.length; i++) {
+				mkAndAddRuptures(location, magFreqDists[i], focalMechanisms[i], aveRupTopVersusMag, defaultHypoDepth, 
+						magScalingRel, lowerSeisDepth, duration, minMag, 1.0);
+			}			
+		}
+		else {
+			// set the strikes
+			double deltaStrike = 180/numStrikes;
+			double[] strike = new double[numStrikes];
+			for(int n=0;n<numStrikes;n++)
+				strike[n]=firstStrike+n*deltaStrike;
+
+			for (int i=0; i<magFreqDists.length; i++) {
+				FocalMechanism focalMech = focalMechanisms[i].copy(); // COPY THIS
+				for(int s=0;s<numStrikes;s++) {
+					focalMech.setStrike(strike[s]);
+					double weight = 1.0/numStrikes;
+					mkAndAddRuptures(location, magFreqDists[i], focalMech, aveRupTopVersusMag, defaultHypoDepth, 
+							magScalingRel, lowerSeisDepth, duration, minMag,weight);			  
+				}
+			}			
+		}
+		
+		if(numRuptures != probEqkRuptureList.size())
+			throw new RuntimeException("Error in computing number of ruptures");
+	}
 
 
 	/**
@@ -184,7 +242,7 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 				// set rupture length
 				double rupLength = getRupLength(mag, aveRupTopVersusMag, lowerSeisDepth, dip, magScalingRel);
 
-				if(rupLength>maxLength) maxLength=rupLength; 
+//				if(rupLength>maxLength) maxLength=rupLength; 
 
 				// get randome strike if needed
 				if(isStrikeRandom) {
@@ -209,7 +267,8 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 				rupture.setRuptureSurface(surf);
 				rupture.setProbability(prob);
 
-				if (D) System.out.println("\tstrike\t"+strike+"\tmag\t"+(float)mag+"\trate\t"+(float)rate+"\tprob\t"+(float)prob+"\tweight\t"+(float)weight);
+				if (D) System.out.println("\trupLength\t"+rupLength+"\tstrike\t"+strike+"\tmag\t"+(float)mag+"\trate\t"+
+						(float)rate+"\tprob\t"+(float)prob+"\tweight\t"+(float)weight);
 
 				// add the rupture to the list and save the rate in case the duration changes
 				probEqkRuptureList.add(rupture);
@@ -217,6 +276,7 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 			}
 		}
 	}
+	
 
 	/**
 	 * This computes the rupture length.  If magScalingRel is a mag-length relationship, then
@@ -232,7 +292,7 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 	 */
 	private double getRupLength(double mag, ArbitrarilyDiscretizedFunc aveRupTopVersusMag, 
 			double lowerSeisDepth, double dip, MagScalingRelationship magScalingRel) {
-
+		
 		double rupLength;
 		if(magScalingRel instanceof MagAreaRelationship) {
 			double ddw = (aveRupTopVersusMag.getClosestY(mag) - lowerSeisDepth)/Math.sin(dip*Math.PI/180);
@@ -245,7 +305,9 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 		else if (magScalingRel instanceof MagLengthRelationship) {
 			rupLength = magScalingRel.getMedianScale(mag);
 		}
-		else throw new RuntimeException("bad type of MagScalingRelationship");
+		else throw new RuntimeException("bad type of MagScalingRelationship: "+magScalingRel);
+		
+//		System.out.println((float)rupLength+"\t"+(float)mag+"\t"+(float)lowerSeisDepth+"\t"+(float)dip+"\t"+magScalingRel);
 
 		return rupLength;
 	}
@@ -278,7 +340,7 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 	 * @return the number of rutures (equals number of mags with non-zero rates)
 	 */
 	public int getNumRuptures() {
-		return probEqkRuptureList.size();
+		return numRuptures;
 	}
 
 
@@ -286,6 +348,7 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 	 * This makes and returns the nth probEqkRupture for this source.
 	 */
 	public ProbEqkRupture getRupture(int nthRupture){
+		if(probEqkRuptureList == null) mkAllRuptures();
 		return probEqkRuptureList.get(nthRupture);
 	}
 
