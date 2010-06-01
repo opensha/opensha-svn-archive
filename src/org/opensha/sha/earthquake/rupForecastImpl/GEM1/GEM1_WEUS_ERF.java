@@ -9,8 +9,6 @@ import org.opensha.gem.GEM1.calc.gemModelData.nshmp.us.NshmpWusFaultData;
 import org.opensha.gem.GEM1.calc.gemModelData.nshmp.us.NshmpWusGridData;
 import org.opensha.gem.GEM1.commons.CalculationSettings;
 
-import sun.tools.tree.ThisExpression;
-
 public class GEM1_WEUS_ERF extends GEM1ERF {
 	
 	/**
