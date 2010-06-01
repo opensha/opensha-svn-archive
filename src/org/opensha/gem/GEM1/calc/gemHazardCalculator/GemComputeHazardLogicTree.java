@@ -223,46 +223,46 @@ public class GemComputeHazardLogicTree {
 		
 		// set area source parameters
 	    // source modeling type
-	    modelERF.setParameter(GEM1ERF.AREA_SRC_RUP_NAME, (String) calcSet.getErf().get(SourceType.AREA_SOURCE).get(GEM1ERF.AREA_SRC_RUP_NAME));
+	    modelERF.setParameter(GEM1ERF.AREA_SRC_RUP_TYPE_NAME, (String) calcSet.getErf().get(SourceType.AREA_SOURCE).get(GEM1ERF.AREA_SRC_RUP_TYPE_NAME));
 	    // lower seismogenic depth
-	    modelERF.setParameter(GEM1ERF.LOWER_SEIS_DEPTH_AREA_SRC_PARAM_NAME, (Double) calcSet.getErf().get(SourceType.AREA_SOURCE).get(GEM1ERF.LOWER_SEIS_DEPTH_AREA_SRC_PARAM_NAME));
+	    modelERF.setParameter(GEM1ERF.AREA_SRC_LOWER_SEIS_DEPTH_PARAM_NAME, (Double) calcSet.getErf().get(SourceType.AREA_SOURCE).get(GEM1ERF.AREA_SRC_LOWER_SEIS_DEPTH_PARAM_NAME));
 	    // source discretization
-	    modelERF.setParameter(GEM1ERF.AREA_DISCR_PARAM_NAME, (Double) calcSet.getErf().get(SourceType.AREA_SOURCE).get(GEM1ERF.AREA_DISCR_PARAM_NAME));
+	    modelERF.setParameter(GEM1ERF.AREA_SRC_DISCR_PARAM_NAME, (Double) calcSet.getErf().get(SourceType.AREA_SOURCE).get(GEM1ERF.AREA_SRC_DISCR_PARAM_NAME));
 	    // magnitude scaling relationship
-		modelERF.setParameter(GEM1ERF.MAG_SCALING_REL_AREA_SRC_PARAM_NAME, (String) calcSet.getErf().get(SourceType.AREA_SOURCE).get(GEM1ERF.MAG_SCALING_REL_AREA_SRC_PARAM_NAME));
+		modelERF.setParameter(GEM1ERF.AREA_SRC_MAG_SCALING_REL_PARAM_NAME, (String) calcSet.getErf().get(SourceType.AREA_SOURCE).get(GEM1ERF.AREA_SRC_MAG_SCALING_REL_PARAM_NAME));
 		
 		// set point source parameters
 	    // source modeling type
-	    modelERF.setParameter(GEM1ERF.BACK_SEIS_RUP_NAME, (String) calcSet.getErf().get(SourceType.GRID_SOURCE).get(GEM1ERF.BACK_SEIS_RUP_NAME));
+	    modelERF.setParameter(GEM1ERF.GRIDDED_SEIS_RUP_TYPE_NAME, (String) calcSet.getErf().get(SourceType.GRID_SOURCE).get(GEM1ERF.GRIDDED_SEIS_RUP_TYPE_NAME));
 	    // lower seismogenic depth
-	    modelERF.setParameter(GEM1ERF.LOWER_SEIS_DEPTH_BACKGR_PARAM_NAME, (Double) calcSet.getErf().get(SourceType.GRID_SOURCE).get(GEM1ERF.LOWER_SEIS_DEPTH_BACKGR_PARAM_NAME));
+	    modelERF.setParameter(GEM1ERF.GRIDDED_SEIS_LOWER_SEIS_DEPTH_PARAM_NAME, (Double) calcSet.getErf().get(SourceType.GRID_SOURCE).get(GEM1ERF.GRIDDED_SEIS_LOWER_SEIS_DEPTH_PARAM_NAME));
 	    // mag scaling relationship
-	    modelERF.setParameter(GEM1ERF.MAG_SCALING_REL_BACKGR_PARAM_NAME, (String) calcSet.getErf().get(SourceType.GRID_SOURCE).get(GEM1ERF.MAG_SCALING_REL_BACKGR_PARAM_NAME));
+	    modelERF.setParameter(GEM1ERF.GRIDDED_SEIS_MAG_SCALING_REL_PARAM_NAME, (String) calcSet.getErf().get(SourceType.GRID_SOURCE).get(GEM1ERF.GRIDDED_SEIS_MAG_SCALING_REL_PARAM_NAME));
 	    
 	    // set fault source parameters
 	    // rupture offset
-	    modelERF.setParameter(GEM1ERF.RUP_OFFSET_PARAM_NAME, (Double) calcSet.getErf().get(SourceType.FAULT_SOURCE).get(GEM1ERF.RUP_OFFSET_PARAM_NAME));
+	    modelERF.setParameter(GEM1ERF.FAULT_RUP_OFFSET_PARAM_NAME, (Double) calcSet.getErf().get(SourceType.FAULT_SOURCE).get(GEM1ERF.FAULT_RUP_OFFSET_PARAM_NAME));
 	    // fault discretization
 	    modelERF.setParameter(GEM1ERF.FAULT_DISCR_PARAM_NAME, (Double) calcSet.getErf().get(SourceType.FAULT_SOURCE).get(GEM1ERF.FAULT_DISCR_PARAM_NAME));
 	    // mag scaling relationship
-	    modelERF.setParameter(GEM1ERF.MAG_SCALING_REL_PARAM_NAME, (String) calcSet.getErf().get(SourceType.FAULT_SOURCE).get(GEM1ERF.MAG_SCALING_REL_PARAM_NAME));
+	    modelERF.setParameter(GEM1ERF.FAULT_MAG_SCALING_REL_PARAM_NAME, (String) calcSet.getErf().get(SourceType.FAULT_SOURCE).get(GEM1ERF.FAULT_MAG_SCALING_REL_PARAM_NAME));
 	    // standard deviation
-	    modelERF.setParameter(GEM1ERF.SIGMA_PARAM_NAME, (Double) calcSet.getErf().get(SourceType.FAULT_SOURCE).get(GEM1ERF.SIGMA_PARAM_NAME));
+	    modelERF.setParameter(GEM1ERF.FAULT_SCALING_SIGMA_PARAM_NAME, (Double) calcSet.getErf().get(SourceType.FAULT_SOURCE).get(GEM1ERF.FAULT_SCALING_SIGMA_PARAM_NAME));
 	    // rupture aspect ratio
-	    modelERF.setParameter(GEM1ERF.ASPECT_RATIO_PARAM_NAME, (Double) calcSet.getErf().get(SourceType.FAULT_SOURCE).get(GEM1ERF.ASPECT_RATIO_PARAM_NAME));
+	    modelERF.setParameter(GEM1ERF.FAULT_RUP_ASPECT_RATIO_PARAM_NAME, (Double) calcSet.getErf().get(SourceType.FAULT_SOURCE).get(GEM1ERF.FAULT_RUP_ASPECT_RATIO_PARAM_NAME));
 	    // rupture floating type
-	    modelERF.setParameter(GEM1ERF.FLOATER_TYPE_PARAM_NAME, (String) calcSet.getErf().get(SourceType.FAULT_SOURCE).get(GEM1ERF.FLOATER_TYPE_PARAM_NAME));
+	    modelERF.setParameter(GEM1ERF.FAULT_FLOATER_TYPE_PARAM_NAME, (String) calcSet.getErf().get(SourceType.FAULT_SOURCE).get(GEM1ERF.FAULT_FLOATER_TYPE_PARAM_NAME));
 	    
 	    // set subduction fault parameters
 	    modelERF.setParameter(GEM1ERF.SUB_RUP_OFFSET_PARAM_NAME, (Double) calcSet.getErf().get(SourceType.SUBDUCTION_FAULT_SOURCE).get(GEM1ERF.SUB_RUP_OFFSET_PARAM_NAME));
 	    // fault discretization
-	    modelERF.setParameter(GEM1ERF.SUB_FAULT_DISCR_PARAM_NAME, (Double) calcSet.getErf().get(SourceType.SUBDUCTION_FAULT_SOURCE).get(GEM1ERF.SUB_FAULT_DISCR_PARAM_NAME));
+	    modelERF.setParameter(GEM1ERF.SUB_DISCR_PARAM_NAME, (Double) calcSet.getErf().get(SourceType.SUBDUCTION_FAULT_SOURCE).get(GEM1ERF.SUB_DISCR_PARAM_NAME));
 	    // mag scaling relationship
 	    modelERF.setParameter(GEM1ERF.SUB_MAG_SCALING_REL_PARAM_NAME, (String) calcSet.getErf().get(SourceType.SUBDUCTION_FAULT_SOURCE).get(GEM1ERF.SUB_MAG_SCALING_REL_PARAM_NAME));
 	    // standard deviation
-	    modelERF.setParameter(GEM1ERF.SUB_SIGMA_PARAM_NAME, (Double) calcSet.getErf().get(SourceType.SUBDUCTION_FAULT_SOURCE).get(GEM1ERF.SUB_SIGMA_PARAM_NAME));
+	    modelERF.setParameter(GEM1ERF.SUB_SCALING_SIGMA_PARAM_NAME, (Double) calcSet.getErf().get(SourceType.SUBDUCTION_FAULT_SOURCE).get(GEM1ERF.SUB_SCALING_SIGMA_PARAM_NAME));
 	    // rupture aspect ratio
-	    modelERF.setParameter(GEM1ERF.SUB_ASPECT_RATIO_PARAM_NAME, (Double) calcSet.getErf().get(SourceType.SUBDUCTION_FAULT_SOURCE).get(GEM1ERF.SUB_ASPECT_RATIO_PARAM_NAME));
+	    modelERF.setParameter(GEM1ERF.SUB_RUP_ASPECT_RATIO_PARAM_NAME, (Double) calcSet.getErf().get(SourceType.SUBDUCTION_FAULT_SOURCE).get(GEM1ERF.SUB_RUP_ASPECT_RATIO_PARAM_NAME));
 	    // rupture floating type
 	    modelERF.setParameter(GEM1ERF.SUB_FLOATER_TYPE_PARAM_NAME, (String) calcSet.getErf().get(SourceType.SUBDUCTION_FAULT_SOURCE).get(GEM1ERF.SUB_FLOATER_TYPE_PARAM_NAME));
 	    

@@ -39,12 +39,12 @@ public class CalculationSettings {
 	
 	// default parameters for area sources
 	private static double area_grid_spacing = 0.1;
-	private static String area_rupture_type = GEM1ERF.AREA_SRC_RUP_POINT;
+	private static String area_rupture_type = GEM1ERF.AREA_SRC_RUP_TYPE_POINT;
 	private static double area_lower_seismogenic_depth = 14.0;
 	private static MagAreaRelationship area_mag_area_rel = new WC1994_MagAreaRelationship();
 	
 	// default parameters for point sources
-	private static String point_rupture_type = GEM1ERF.BACK_SEIS_RUP_POINT;
+	private static String point_rupture_type = GEM1ERF.GRIDDED_SEIS_RUP_TYPE_POINT;
 	private static double point_lower_seismogenic_depth = 14.0;
 	private static MagAreaRelationship point_mag_area_rel = new WC1994_MagAreaRelationship();
 
@@ -157,39 +157,39 @@ public class CalculationSettings {
 		// hashmap for area sources
 	    HashMap<String,Object> areaSourceCalcSet = new HashMap<String,Object>();
 	    // source modeling type
-	    areaSourceCalcSet.put(GEM1ERF.AREA_SRC_RUP_NAME,area_rupture_type);
+	    areaSourceCalcSet.put(GEM1ERF.AREA_SRC_RUP_TYPE_NAME,area_rupture_type);
 	    // lower seismogenic depth
-	    areaSourceCalcSet.put(GEM1ERF.LOWER_SEIS_DEPTH_AREA_SRC_PARAM_NAME,area_lower_seismogenic_depth);
+	    areaSourceCalcSet.put(GEM1ERF.AREA_SRC_LOWER_SEIS_DEPTH_PARAM_NAME,area_lower_seismogenic_depth);
 	    // source discretization
-	    areaSourceCalcSet.put(GEM1ERF.AREA_DISCR_PARAM_NAME,area_grid_spacing);
+	    areaSourceCalcSet.put(GEM1ERF.AREA_SRC_DISCR_PARAM_NAME,area_grid_spacing);
 	    // magnitude scaling relationship
-	    areaSourceCalcSet.put(GEM1ERF.MAG_SCALING_REL_AREA_SRC_PARAM_NAME,area_mag_area_rel.getName());
+	    areaSourceCalcSet.put(GEM1ERF.AREA_SRC_MAG_SCALING_REL_PARAM_NAME,area_mag_area_rel.getName());
 	    Erf.put(SourceType.AREA_SOURCE, areaSourceCalcSet);
 	    
 	    // hashmap for point sources
 	    HashMap<String,Object> gridSourceCalcSet = new HashMap<String,Object>();
 	    // source modeling type
-	    gridSourceCalcSet.put(GEM1ERF.BACK_SEIS_RUP_NAME,point_rupture_type);
+	    gridSourceCalcSet.put(GEM1ERF.GRIDDED_SEIS_RUP_TYPE_NAME,point_rupture_type);
 	    // lower seismogenic depth
-	    gridSourceCalcSet.put(GEM1ERF.LOWER_SEIS_DEPTH_BACKGR_PARAM_NAME,point_lower_seismogenic_depth);
+	    gridSourceCalcSet.put(GEM1ERF.GRIDDED_SEIS_LOWER_SEIS_DEPTH_PARAM_NAME,point_lower_seismogenic_depth);
 	    // mag scaling relationship
-	    gridSourceCalcSet.put(GEM1ERF.MAG_SCALING_REL_BACKGR_PARAM_NAME,point_mag_area_rel.getName());
+	    gridSourceCalcSet.put(GEM1ERF.GRIDDED_SEIS_MAG_SCALING_REL_PARAM_NAME,point_mag_area_rel.getName());
 	    Erf.put(SourceType.GRID_SOURCE, gridSourceCalcSet);
 	    
 	    // hashmap for fault source calculation settings
 	    HashMap<String,Object> faultSourceCalcSet = new HashMap<String,Object>();
 	    // rupture offset
-	    faultSourceCalcSet.put(GEM1ERF.RUP_OFFSET_PARAM_NAME,fault_rupt_offset);
+	    faultSourceCalcSet.put(GEM1ERF.FAULT_RUP_OFFSET_PARAM_NAME,fault_rupt_offset);
 	    // fault discretization
 	    faultSourceCalcSet.put(GEM1ERF.FAULT_DISCR_PARAM_NAME,fault_grid_spacing);
 	    // mag scaling relationship
-	    faultSourceCalcSet.put(GEM1ERF.MAG_SCALING_REL_PARAM_NAME,fault_mag_area_rel.getName());
+	    faultSourceCalcSet.put(GEM1ERF.FAULT_MAG_SCALING_REL_PARAM_NAME,fault_mag_area_rel.getName());
 	    // standard deviation
-	    faultSourceCalcSet.put(GEM1ERF.SIGMA_PARAM_NAME,fault_magAreaStd);
+	    faultSourceCalcSet.put(GEM1ERF.FAULT_SCALING_SIGMA_PARAM_NAME,fault_magAreaStd);
 	    // rupture aspect ratio
-	    faultSourceCalcSet.put(GEM1ERF.ASPECT_RATIO_PARAM_NAME,fault_rupt_aspect_ratio);
+	    faultSourceCalcSet.put(GEM1ERF.FAULT_RUP_ASPECT_RATIO_PARAM_NAME,fault_rupt_aspect_ratio);
 	    // rupture floating type
-	    faultSourceCalcSet.put(GEM1ERF.FLOATER_TYPE_PARAM_NAME,fault_rupt_floating_type);
+	    faultSourceCalcSet.put(GEM1ERF.FAULT_FLOATER_TYPE_PARAM_NAME,fault_rupt_floating_type);
 	    Erf.put(SourceType.FAULT_SOURCE, faultSourceCalcSet);
 	    
 	    // hashmap for fault source calculation settings
@@ -197,13 +197,13 @@ public class CalculationSettings {
 	    // rupture offset
 	    subFaultSourceCalcSet.put(GEM1ERF.SUB_RUP_OFFSET_PARAM_NAME,sub_fault_rupt_offset);
 	    // fault discretization
-	    subFaultSourceCalcSet.put(GEM1ERF.SUB_FAULT_DISCR_PARAM_NAME,sub_fault_grid_spacing);
+	    subFaultSourceCalcSet.put(GEM1ERF.SUB_DISCR_PARAM_NAME,sub_fault_grid_spacing);
 	    // mag scaling relationship
 	    subFaultSourceCalcSet.put(GEM1ERF.SUB_MAG_SCALING_REL_PARAM_NAME,sub_fault_mag_area_rel.getName());
 	    // standard deviation
-	    subFaultSourceCalcSet.put(GEM1ERF.SUB_SIGMA_PARAM_NAME,sub_fault_magAreaStd);
+	    subFaultSourceCalcSet.put(GEM1ERF.SUB_SCALING_SIGMA_PARAM_NAME,sub_fault_magAreaStd);
 	    // rupture aspect ratio
-	    subFaultSourceCalcSet.put(GEM1ERF.SUB_ASPECT_RATIO_PARAM_NAME,sub_fault_rupt_aspect_ratio);
+	    subFaultSourceCalcSet.put(GEM1ERF.SUB_RUP_ASPECT_RATIO_PARAM_NAME,sub_fault_rupt_aspect_ratio);
 	    // rupture floating type
 	    subFaultSourceCalcSet.put(GEM1ERF.SUB_FLOATER_TYPE_PARAM_NAME,sub_fault_rupt_floating_type);
 	    Erf.put(SourceType.SUBDUCTION_FAULT_SOURCE, subFaultSourceCalcSet);

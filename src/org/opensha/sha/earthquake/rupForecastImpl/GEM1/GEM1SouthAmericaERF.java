@@ -64,7 +64,7 @@ public class GEM1SouthAmericaERF extends GEM1ERF {
 		GEM1SouthAmericaERF saerf = null;
 		saerf = new GEM1SouthAmericaERF();
 		
-		saerf.setParameter(BACK_SEIS_RUP_NAME, BACK_SEIS_RUP_LINE);
+		saerf.setParameter(GRIDDED_SEIS_RUP_TYPE_NAME, GRIDDED_SEIS_RUP_TYPE_LINE);
 		saerf.updateForecast();
 		double runtime = (System.currentTimeMillis() - time)/1000;
 		System.out.println("Done with Data Creation in "+(float) runtime+" seconds)");
