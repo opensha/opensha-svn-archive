@@ -2,7 +2,7 @@
  * 
  */
 package scratch.ned.URS;
-/ Moved the *.java to scratch.christine.urs to keep all the trial versions together CG 2010-05-26
+// Moved the *.java to scratch.christine.urs to keep all the trial versions together CG 2010-05-26
 
 import java.util.ArrayList;
 

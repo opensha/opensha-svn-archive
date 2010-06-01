@@ -29,6 +29,8 @@ import org.w3c.dom.NodeList;
 
 public class ForecastML2GemSourceData extends GemFileParser{
 	
+	private final static boolean D = false;	// for debugging
+	
 	// default focal mechanism
 	private static double strike = 0.0;
 	private static double dip = 90.0;
@@ -130,25 +132,25 @@ public class ForecastML2GemSourceData extends GemFileParser{
 		    // starting year
 		    NodeList forecastStart = doc.getElementsByTagName("forecastStartDate");
 		    int startYear = Integer.parseInt(forecastStart.item(0).getFirstChild().getNodeValue().substring(0, 4));
-		    System.out.println("Forecast Start Date: "+startYear);
+		    if (D) System.out.println("Forecast Start Date: "+startYear);
 		    
 		    // ending year
 		    NodeList forecastEnd = doc.getElementsByTagName("forecastEndDate");
 		    int endYear = Integer.parseInt(forecastEnd.item(0).getFirstChild().getNodeValue().substring(0,4));
-		    System.out.println("Forecast End Date: "+endYear);
+		    if (D) System.out.println("Forecast End Date: "+endYear);
 		    
 		    //******** magnitude bin dimension ********//
 		    NodeList magBin = doc.getElementsByTagName("defaultMagBinDimension");
 		    double delta = Double.parseDouble(magBin.item(0).getFirstChild().getNodeValue());
-		    System.out.println("Default magnitude bin dimension: "+delta);
+		    if (D) System.out.println("Default magnitude bin dimension: "+delta);
 		    
 		    //******** cell dimension *********//
 		    NodeList cellDim = doc.getElementsByTagName("defaultCellDimension");
 		    double cellDimLat = Double.parseDouble(cellDim.item(0).getAttributes().getNamedItem("latRange").getNodeValue());
 		    double cellDimLon = Double.parseDouble(cellDim.item(0).getAttributes().getNamedItem("lonRange").getNodeValue());
-		    System.out.println("Default cell dimension");
-		    System.out.println("Latitude range: "+cellDimLat);
-		    System.out.println("Longitude range: "+cellDimLon);
+		    if (D) System.out.println("Default cell dimension");
+		    if (D) System.out.println("Latitude range: "+cellDimLat);
+		    if (D) System.out.println("Longitude range: "+cellDimLon);
 		    
 		    //******* source cells ***********//
 		    NodeList cellLst = doc.getElementsByTagName("cell");
@@ -158,7 +160,7 @@ public class ForecastML2GemSourceData extends GemFileParser{
 		    // loop over cells
 		    for (int i = 0; i < cellLst.getLength(); i++) {
 		    	
-		    	System.out.println("Cell: "+(i+1)+" of "+cellLst.getLength());
+		    	if (D) System.out.println("Cell: "+(i+1)+" of "+cellLst.getLength());
 		    
 			    Node cell = cellLst.item(i);
 			    //******** cell coordinates ***********//
@@ -235,7 +237,7 @@ public class ForecastML2GemSourceData extends GemFileParser{
 		            	System.exit(0);
 		            }
 				    
-		            System.out.println(regName+" "+tectRegType);
+		            if (D) System.out.println(regName+" "+tectRegType);
 				    srcDataList.add(new GEMAreaSourceData(id, name, tectRegType, 
 				    		reg, mfdForFocMec, 
 				    		aveRupTopVsMag, defaultDepth));

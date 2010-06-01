@@ -12,6 +12,8 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class NshmpWusGridData  extends GemFileParser{
 	
+	private final static boolean D = false;	// for debugging
+	
 	// directory for grid seismicity files
 	private String inDir = NshmpUsData.dataDir + "wus/grid/";
 	
@@ -88,7 +90,7 @@ public class NshmpWusGridData  extends GemFileParser{
 		Iterator<String> iterFileName = fileName.iterator();
 		while(iterFileName.hasNext()){
 			String key = iterFileName.next();
-			System.out.println("Processing file: "+key+", weight: "+gridFile.get(key));
+			if (D) System.out.println("Processing file: "+key+", weight: "+gridFile.get(key));
 			NshmpGrid2GemSourceData gm = null;
 			if(key.equalsIgnoreCase(inDir+"pacnwdeep.in") || key.equalsIgnoreCase(inDir+"portdeep.in")
 					|| key.equalsIgnoreCase(inDir+"CAdeep.in")){

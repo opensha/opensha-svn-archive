@@ -14,6 +14,8 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class NshmpSouthEastAsiaSubductionData extends  GemFileParser {
 	
+	private final static boolean D = false;	// for debugging
+	
 	private static String inDir = "../../data/nshmp/south_east_asia/subduction/";
 	
 	public NshmpSouthEastAsiaSubductionData(double latmin, double latmax, double lonmin, double lonmax) throws IOException{
@@ -44,7 +46,7 @@ public class NshmpSouthEastAsiaSubductionData extends  GemFileParser {
 		Iterator<String> iterFileName = fileName.iterator();
 		while(iterFileName.hasNext()){
 			String key = iterFileName.next();
-			System.out.println("Processing file: "+key+", weight: "+faultFile.get(key));
+			if (D) System.out.println("Processing file: "+key+", weight: "+faultFile.get(key));
 			NshmpSubduction2GemSourceData fm = null;
 			fm = new NshmpSubduction2GemSourceData(key,TectonicRegionType.SUBDUCTION_INTERFACE,faultFile.get(key),
 					latmin, latmax, lonmin, lonmax);

@@ -211,7 +211,7 @@ public class NshmpGrid2GemSourceData extends GemFileParser {
 				}
 				
 				if(iflt>2){
-					System.out.println("iflt>2. Magnitude conversion equation is applied!");
+					if (D) System.out.println("iflt>2. Magnitude conversion equation is applied!");
 				}
 				
 				// Depending on the previous record read b value file and/or maximum magnitude file.
@@ -223,7 +223,7 @@ public class NshmpGrid2GemSourceData extends GemFileParser {
 					// read b file name
 					bValFileName = st.nextToken();
 					bValFileName = bValFileName.replaceFirst("../../data/", "/org/opensha/gem/GEM1/data/");
-					System.out.println("b value matrix: "+bValFileName);
+					if (D) System.out.println("b value matrix: "+bValFileName);
 					// read b value matrix
 					bValMat = new ReadBinaryInputMatrix(bValFileName, bigEndian2LittleEndian);
 				}
@@ -235,7 +235,7 @@ public class NshmpGrid2GemSourceData extends GemFileParser {
 					// read maximum magnitude file name
 					maxMagFileName = st.nextToken();
 					maxMagFileName = maxMagFileName.replaceFirst("../../data/", "/org/opensha/gem/GEM1/data/");
-					System.out.println("Maximum magnitude matrix: "+maxMagFileName);
+					if (D) System.out.println("Maximum magnitude matrix: "+maxMagFileName);
 					// read maximum magnitude matrix
 					maxMagMat = new ReadBinaryInputMatrix(maxMagFileName, bigEndian2LittleEndian);
 				}
@@ -249,7 +249,7 @@ public class NshmpGrid2GemSourceData extends GemFileParser {
 					// read maximum magnitude file name
 					weightMTaperFileName = st.nextToken();
 					weightMTaperFileName = weightMTaperFileName.replaceFirst("../../data/", "/org/opensha/gem/GEM1/data/");
-					System.out.println("Tapering magnitude weights matrix: "+weightMTaperFileName);
+					if (D) System.out.println("Tapering magnitude weights matrix: "+weightMTaperFileName);
 					// read weights file
 					weightMTaperMat = new ReadBinaryInputMatrix(weightMTaperFileName, bigEndian2LittleEndian);
 				}

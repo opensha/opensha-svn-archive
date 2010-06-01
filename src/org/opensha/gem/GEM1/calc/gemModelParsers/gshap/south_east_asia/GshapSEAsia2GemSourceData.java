@@ -33,6 +33,8 @@ import org.opensha.sha.util.TectonicRegionType;
  */
 public class GshapSEAsia2GemSourceData extends GemFileParser {
 	
+	private final static boolean D = false;	// for debugging
+	
 	// magnitude bin width used to compute the final mfd
 	private static double dm = 0.1;
 	
@@ -103,7 +105,7 @@ public class GshapSEAsia2GemSourceData extends GemFileParser {
 					String sourceName = "";
 					while(st.hasMoreTokens()) sourceName = sourceName+" "+st.nextToken();
 					
-					System.out.println(sourceName);
+					if (D) System.out.println(sourceName);
 					
 					// Read 2nd Line
 		        	sRecord = oReader.readLine();
@@ -138,7 +140,7 @@ public class GshapSEAsia2GemSourceData extends GemFileParser {
 					occRate = Math.pow(10, aVal-bVal*calcMinMag)-Math.pow(10, aVal-bVal*maxMag);
                     }
  					
-					System.out.println(bVal+ " " + occRate + " " + aVal + " " + maxMag + " "+minMag);
+					if (D) System.out.println(bVal+ " " + occRate + " " + aVal + " " + maxMag + " "+minMag);
 					
 					// read polygon coordinates
 					Region srcRegion = null;
@@ -150,7 +152,7 @@ public class GshapSEAsia2GemSourceData extends GemFileParser {
 						double lon  = Double.valueOf(st.nextToken()).doubleValue();
 					    double lat = Double.valueOf(st.nextToken()).doubleValue();
 
-						System.out.println(lon+" "+lat);
+						if (D) System.out.println(lon+" "+lat);
 						
 						if(lat<minLat) minLat = lat;
 						if(lat>maxLat) maxLat = lat;
@@ -229,7 +231,7 @@ public class GshapSEAsia2GemSourceData extends GemFileParser {
 				
 	        	} // end loop over sources
 	        	
-	        	System.out.println("minLat: "+minLat+" maxLat: "+maxLat+" minLon: "+minLon+" maxLon: "+maxLon);
+	        	if (D) System.out.println("minLat: "+minLat+" maxLat: "+maxLat+" minLon: "+minLon+" maxLon: "+maxLon);
 
 	
 	} catch (IOException e) {

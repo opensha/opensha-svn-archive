@@ -13,6 +13,8 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class NshmpSouthEastAsiaGridData extends GemFileParser{
 	
+	private final static boolean D = false;	// for debugging
+	
 	private static String inDir = "../../data/nshmp/south_east_asia/grid/";
 
 	public NshmpSouthEastAsiaGridData(double latmin, double latmax, double lonmin, double lonmax){
@@ -67,7 +69,7 @@ public class NshmpSouthEastAsiaGridData extends GemFileParser{
 		Iterator<String> iterFileName = fileName.iterator();
 		while(iterFileName.hasNext()){
 			String key = iterFileName.next();
-			System.out.println("Processing file: "+key+", weight: "+gridFile.get(key));
+			if (D) System.out.println("Processing file: "+key+", weight: "+gridFile.get(key));
 			NshmpGrid2GemSourceData gm = null;
 			if(key.equalsIgnoreCase(inDir+"SEAsia.deep100.in") || key.equalsIgnoreCase(inDir+"SEAsia.deep150.in")
 					|| key.equalsIgnoreCase(inDir+"SEAsia.deep200.in")
