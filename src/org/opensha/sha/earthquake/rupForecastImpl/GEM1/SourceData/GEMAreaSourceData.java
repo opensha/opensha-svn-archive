@@ -108,7 +108,7 @@ public class GEMAreaSourceData extends GEMSourceData {
 				area += tmpArea;
 			}
 		}
-		System.out.println("Area:"+area);
+//		System.out.println("Area:"+area);
 		return area;
 		
 	}

@@ -379,5 +379,16 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
 
        return f;
    }
+   
+   /**
+    * This returns the maximum magnitude with a non-zero rate
+    * @return
+    */
+   public double getMaxMagWithNonZeroRate() {
+	   for(int i=num-1; i>=0; i--) {
+		   if(getY(i)>0) return getX(i);
+	   }
+	   return -1;
+   }
 
 }

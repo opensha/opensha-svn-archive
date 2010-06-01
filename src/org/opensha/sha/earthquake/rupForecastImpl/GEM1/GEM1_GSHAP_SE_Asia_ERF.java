@@ -16,33 +16,36 @@ public class GEM1_GSHAP_SE_Asia_ERF extends GEM1ERF {
 	public final static String NAME = "GEM1 GSHAP SE Asia ERF";
 	
 	
-	public GEM1_GSHAP_SE_Asia_ERF() throws IOException {
-		this(new CalculationSettings());
+	public GEM1_GSHAP_SE_Asia_ERF() {
+		this(null);
 	}
 	
-	public GEM1_GSHAP_SE_Asia_ERF(CalculationSettings calcSet) throws IOException {
-		super(null, calcSet);
-	}
-	
-	private void initSourceData() {
+	public GEM1_GSHAP_SE_Asia_ERF(CalculationSettings calcSet) {
 		try {
-			if (gemSourceDataList == null)
-				gemSourceDataList = new GshapSEAsia2GemSourceData().getList();
+			this.areaSourceDataList = new GshapSEAsia2GemSourceData().getList();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		this.initialize(calcSet);
 	}
-
-	@Override
-	public void updateForecast() {
-		initSourceData();
-		super.updateForecast();
-	}
-
+	
 	@Override
 	public String getName() {
 		return NAME;
 	}
+	
+	// this is temporary for testing purposes
+	public static void main(String[] args) {
+		double time = System.currentTimeMillis();
+		System.out.println("Starting Data Creation");
+		GEM1_GSHAP_SE_Asia_ERF erf = null;
+		erf = new GEM1_GSHAP_SE_Asia_ERF();
+		erf.updateForecast();
+		double runtime = (System.currentTimeMillis() - time)/1000;
+		System.out.println("Done with Data Creation in "+(float) runtime+" seconds)");
+	}
+
 
 }

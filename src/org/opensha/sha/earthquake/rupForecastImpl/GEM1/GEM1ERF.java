@@ -22,6 +22,9 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
 import org.opensha.sha.earthquake.rupForecastImpl.GriddedRegionPoissonEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.PointToLineSource;
+import org.opensha.sha.earthquake.rupForecastImpl.PoissonAreaSource;
+import org.opensha.sha.earthquake.rupForecastImpl.PointToLineSource_old;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMAreaSourceData;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMFaultSourceData;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMPointSourceData;
@@ -37,16 +40,20 @@ import org.opensha.sha.util.TectonicRegionType;
  * <p>Title: GEM1ERF </p>
  *
  *@TODO
-	1) mk calcSettings contain only GEM1ERF values (not all GEM1 calc values)
-	2) check dynamic changes to adj parameter list (to make sure proper things are visible)
-	3) Fix hard-coded modification of area sources (only treated as pt src right now); 
-	    test efficiency of two options 
-	4) Revert commented out sections of mkGridSource method (and test efficiency there too)
-	5) See if new method getRupturesMag(*) is being used, and if so, should it go to parent class?
-	6) Remove source caching from getSource() method (Kevin added to handle serialization issue on HPCC)
-	   --note: just made it an adjustable parameter that defaults to off...should we still disable it? -Kevin
+	1) test and verify all the options contained herein
+	2) fix problem that lowerSeisDepth for point sources can be inconsistent with given aveRupTomDepthVersusMag.
+	   For example, if both shallow and very deep sources exist, then rupture-length estimates are bogus if computed 
+	   from a mag-area relationship (e.g., if lowerSeisDepth = 14km and aveRuptTopDepthVersusMag = 115 km, as happens
+	   for the S. American ERF)
+	3) mk calcSettings contain only GEM1ERF values (not all GEM1 calc values)
+	4) move all dependencies (parsers and data files) into subdirs here (and streamline thing if possible)
+	5) move each adjustable parameter to a separate class (as is done for IMRs); this will clean things a lot
+	6) change names of parameter elements to be consistent with parameter names (e.g., right now we have AREA_SRC_RUP_NAME
+	   applied to areaSrcRupTypeParam, so change the former to be consistent with the latter)
+	7) Add spinning, dipping faults for point-sources option. 
+	8) Review all documentation and add more (including to glossary?)
 
- * @author : 
+ * @author : Edward Field
  * @Date : 
  * @version 1.0
  */
@@ -62,113 +69,129 @@ public class GEM1ERF extends EqkRupForecast {
 	
 	protected ArrayList<GEMSourceData> gemSourceDataList;
 	
+	protected ArrayList<GEMSourceData> areaSourceDataList;
+	protected ArrayList<GEMSourceData> griddedSeisSourceDataList;
+	protected ArrayList<GEMSourceData> faultSourceDataList;
+	protected ArrayList<GEMSourceData> subductionSourceDataList;
+	
 	// some fixed parameters
 	final static double MINMAG = 0;   // this sets the minimum mag considered in the forecast (overriding that implied in the source data)
 	
 	// calculation settings (primitive versions of the adj parameters)
-	String backSeisValue;
-	String backSeisRupValue;
-	String areaSrcValue;
-	String areaSrcRupValue;
-	double lowerSeisDepthValue;
+	// for area sources
+	String areaSrcRupTypeValue;
 	double areaSrcLowerSeisDepthValue;
-	double areaDiscrValue;
-	MagScalingRelationship magScalingRelBackgr;
-	MagScalingRelationship magScalingRelArea;
-	double rupOffsetValue;
+	double areaSrcDiscrValue;
+	MagScalingRelationship areaSrcMagScalingRel;
+	// for gridded seis sources
+	String griddedSeisRupTypeValue;
+	double griddedSeisLowerSeisDepthValue;
+	MagScalingRelationship griddedSeisMagScalingRel;
+	// for fault sources
+	double faultRupOffsetValue;
 	double faultDiscrValue;
-	MagScalingRelationship magScalingRel;
-	double sigmaValue;
-	double aspectRatioValue;
-	int floaterTypeFlag;
-	double duration;		// from the timeSpan
+	MagScalingRelationship faultMagScalingRel;
+	double faultScalingSigmaValue;
+	double faultRupAspectRatioValue;
+	int faultFloaterTypeValue;
 	// for subduction fault
-	double sub_rupOffsetValue;
-	double sub_faultDiscrValue;
-	MagScalingRelationship sub_magScalingRel;
-	double sub_sigmaValue;
-	double sub_aspectRatioValue;
-	int sub_floaterTypeFlag;
+	double subductionRupOffsetValue;
+	double subductionDiscrValue;
+	MagScalingRelationship subductionMagScalingRel;
+	double subductionScalingSigmaValue;
+	double subductionRupAspectRatioValue;
+	int subductionFloaterTypeValue;
+	// from the timeSpan
+	double duration;		
+
 
 	// THE REST IS FOR ALL THE ADJUSTABLE PARAMERS:
 	
 	//-------------------------------------------------------------------------------- AREA SOURCES
+	
+	// Whether or not to include these sources
+	public final static String INCLUDE_AREA_SRC_PARAM_NAME = "Include Area Sources?";
+	public final static String INCLUDE_SRC_PARAM_INFO = "These sources will be excluded if this is unchecked";
+	public final static Boolean INCLUDE_SRC_PARAM_DEFAULT = true;
+	private BooleanParameter includeAreaSourceParam;
+
 	// Treat background seismogenic as point of finite ruptures parameter
-	public final static String AREA_SRC_RUP_NAME = new String ("Treat Background Seismicity As");
+	public final static String AREA_SRC_RUP_NAME = new String ("Treat Area Sources As");
 	public final static String AREA_SRC_RUP_POINT = new String ("Point Sources");
 	public final static String AREA_SRC_RUP_LINE = new String ("Line Sources (random or given strike)");
 	public final static String AREA_SRC_RUP_CROSS_HAIR = new String ("Cross Hair Line Sources");
 	public final static String AREA_SRC_RUP_SPOKED = new String ("16 Spoked Line Sources");
 	public final static String AREA_SRC_RUP_FINITE_SURF = new String ("Finite Dipping Sources");
-	public final static String AREA_SRC_RUP_POINT_OLD = new String ("Old Point Sources");
-	StringParameter areaSrcRupParam;
+	StringParameter areaSrcRupTypeParam;
 
 	// Default lower seismogenic depth of area sources
-	public final static String LOWER_SEIS_DEPTH_AREA_SRC_PARAM_NAME = "Default Lower Seis Depth";
+	public final static String LOWER_SEIS_DEPTH_AREA_SRC_PARAM_NAME = "Area Source Lower Seis Depth";
 	public final static Double LOWER_SEIS_DEPTH_AREA_SRC_PARAM_MIN = new Double(5.0);
 	public final static Double LOWER_SEIS_DEPTH_AREA_SRC_PARAM_MAX = new Double(50);
 	public final static Double LOWER_SEIS_DEPTH_AREA_SRC_PARAM_DEFAULT = new Double(14);
 	public final static String LOWER_SEIS_DEPTH_AREA_SRC_PARAM_UNITS = "km";
 	private final static String LOWER_SEIS_DEPTH_AREA_SRC_PARAM_INFO = "The default lower-seimogenic " +
-			"depth for area sources=";
+			"depth for area sources";
 	private DoubleParameter areaSrcLowerSeisDepthParam;
 
 	// For area discretization
-	public final static String AREA_DISCR_PARAM_NAME ="Area Discretization";
+	public final static String AREA_DISCR_PARAM_NAME ="Area Source Discretization";
 	private final static Double AREA_DISCR_PARAM_DEFAULT = new Double(0.1);
 	private final static String AREA_DISCR_PARAM_UNITS = "deg";
 	private final static String AREA_DISCR_PARAM_INFO = "The discretization of area sources";
 	public final static double AREA_DISCR_PARAM_MIN = new Double(0.01);
 	public final static double AREA_DISCR_PARAM_MAX = new Double(1.0);
-	DoubleParameter areaDiscrParam;
+	DoubleParameter areaSrcDiscrParam;
 	
 	// Mag-scaling relationship for turning grip points into finite ruptures
-	public final static String MAG_SCALING_REL_AREA_SRC_PARAM_NAME = "Background Mag-Scaling";
+	public final static String MAG_SCALING_REL_AREA_SRC_PARAM_NAME = "Area Source Mag-Scaling";
 	private final static String MAG_SCALING_REL_AREA_SRC_PARAM_INFO = " Mag-scaling relationship " +
-			"for computing size of background events";
-	StringParameter magScalingRelAreaSrcParam;
+			"for computing size of area source events";
+	StringParameter areaSrcMagScalingRelParam;
 
 	//--------------------------------------------------------------------------- GRIDDED SEISMCITY
-	// Include or exclude background seis parameter
-	public final static String BACK_SEIS_NAME = new String ("Background Seismicity");
-	public final static String BACK_SEIS_INCLUDE = new String ("Include");
-	public final static String BACK_SEIS_EXCLUDE = new String ("Exclude");
-	public final static String BACK_SEIS_ONLY = new String ("Only Background");
-	// make the fault-model parameter
-	StringParameter backSeisParam;
+
+	// Whether or not to include these sources
+	public final static String INCLUDE_GRIDDED_SEIS_PARAM_NAME = "Include Gridded Seis Sources?";
+	private BooleanParameter includeGriddedSeisParam;
 
 	// Treat background seis as point of finite ruptures parameter
-	public final static String BACK_SEIS_RUP_NAME = new String ("Treat Background Seismicity As");
+	public final static String BACK_SEIS_RUP_NAME = new String ("Treat Gridded Seis As");
 	public final static String BACK_SEIS_RUP_POINT = new String ("Point Sources");
 	public final static String BACK_SEIS_RUP_LINE = new String ("Line Sources (random or given strike)");
 	public final static String BACK_SEIS_RUP_CROSS_HAIR = new String ("Cross Hair Line Sources");
 	public final static String BACK_SEIS_RUP_SPOKED = new String ("16 Spoked Line Sources");
 	public final static String BACK_SEIS_RUP_FINITE_SURF = new String ("Finite Dipping Sources");
-	StringParameter backSeisRupParam;
+	StringParameter griddedSeisRupTypeParam;
 
 	// default lower seis depth of gridded/background source
-	public final static String LOWER_SEIS_DEPTH_BACKGR_PARAM_NAME = "Default Lower Seis Depth";
+	public final static String LOWER_SEIS_DEPTH_BACKGR_PARAM_NAME = "Gridded Seis Lower Seis Depth";
 	public final static Double LOWER_SEIS_DEPTH_BACKGR_PARAM_MIN = new Double(5.0);
 	public final static Double LOWER_SEIS_DEPTH_BACKGR_PARAM_MAX = new Double(50);
 	public final static Double LOWER_SEIS_DEPTH_BACKGR_PARAM_DEFAULT = new Double(14);
 	public final static String LOWER_SEIS_DEPTH_BACKGR_PARAM_UNITS = "km";
 	private final static String LOWER_SEIS_DEPTH_BACKGR_PARAM_INFO = "The default lower-seimogenic depth for gridded seismicity=";
-	private DoubleParameter lowerSeisDepthParam ;
+	private DoubleParameter griddedSeisLowerSeisDepthParam;
 
 	// Mag-scaling relationship for turning grip points into finite ruptures
-	public final static String MAG_SCALING_REL_BACKGR_PARAM_NAME = "Background Mag-Scaling";
+	public final static String MAG_SCALING_REL_BACKGR_PARAM_NAME = "Gridded Seis Mag-Scaling";
 	private final static String MAG_SCALING_REL_BACKGR_PARAM_INFO = " Mag-scaling relationship for computing size of background events";
-	StringParameter magScalingRelBackgrParam;
+	StringParameter griddedSeisMagScalingRelParam;
 
 	//------------------------------------------------------------------------------- FAULT SOURCES
+
+	// Whether or not to include these sources
+	public final static String INCLUDE_FAULT_SOURCES_PARAM_NAME = "Include Fault Sources?";
+	private BooleanParameter includeFaultSourcesParam;
+
 	// For rupture offset length along fault parameter
-	public final static String RUP_OFFSET_PARAM_NAME ="Rupture Offset";
+	public final static String RUP_OFFSET_PARAM_NAME ="Fault Rupture Offset";
 	private final static Double RUP_OFFSET_DEFAULT = new Double(5);
 	private final static String RUP_OFFSET_PARAM_UNITS = "km";
 	private final static String RUP_OFFSET_PARAM_INFO = "The amount floating ruptures are offset along the fault";
 	public final static double RUP_OFFSET_PARAM_MIN = 1;
 	public final static double RUP_OFFSET_PARAM_MAX = 100;
-	DoubleParameter rupOffsetParam;
+	DoubleParameter faultRupOffsetParam;
 
 	// For fault discretization
 	public final static String FAULT_DISCR_PARAM_NAME ="Fault Discretization";
@@ -180,25 +203,25 @@ public class GEM1ERF extends EqkRupForecast {
 	DoubleParameter faultDiscrParam;
 
 	// Mag-scaling relationship parameter stuff
-	public final static String MAG_SCALING_REL_PARAM_NAME = "Rupture Mag-Scaling";
+	public final static String MAG_SCALING_REL_PARAM_NAME = "Fault Rupture Scaling";
 	private final static String MAG_SCALING_REL_PARAM_INFO = " Mag-scaling relationship for computing size of floaters";
-	StringParameter magScalingRelParam;
+	StringParameter faultMagScalingRelParam;
 
 	// Mag-scaling sigma parameter stuff
-	public final static String SIGMA_PARAM_NAME =  "Mag Scaling Sigma";
+	public final static String SIGMA_PARAM_NAME =  "Fault Scaling Sigma";
 	private final static String SIGMA_PARAM_INFO =  "The standard deviation of the Area(mag) or Length(M) relationship";
 	private Double SIGMA_PARAM_MIN = new Double(0);
 	private Double SIGMA_PARAM_MAX = new Double(1);
 	private Double SIGMA_PARAM_DEFAULT = new Double(0.0);
-	DoubleParameter sigmaParam;
+	DoubleParameter faultScalingSigmaParam;
 
 	// rupture aspect ratio parameter stuff
-	public final static String ASPECT_RATIO_PARAM_NAME = "Rupture Aspect Ratio";
-	private final static String ASPECT_RATIO_PARAM_INFO = "The ratio of rupture length to rupture width";
+	public final static String ASPECT_RATIO_PARAM_NAME = "Fault Rupture Aspect Ratio";
+	private final static String ASPECT_RATIO_PARAM_INFO = "The ratio of rupture length to rupture width for floaters";
 	private Double ASPECT_RATIO_PARAM_MIN = new Double(Double.MIN_VALUE);
 	private Double ASPECT_RATIO_PARAM_MAX = new Double(Double.MAX_VALUE);
 	private Double ASPECT_RATIO_PARAM_DEFAULT = new Double(1.0);
-	DoubleParameter aspectRatioParam;
+	DoubleParameter faultRupAspectRatioParam;
 
 	// Floater Type
 	public final static String FLOATER_TYPE_PARAM_NAME = "Floater Type";
@@ -207,39 +230,44 @@ public class GEM1ERF extends EqkRupForecast {
 	public final static String FLOATER_TYPE_ALONG_STRIKE_AND_DOWNDIP = "Along strike and down dip";
 	public final static String FLOATER_TYPE_CENTERED_DOWNDIP = "Along strike & centered down dip";
 	public final static String FLOATER_TYPE_PARAM_DEFAULT = FLOATER_TYPE_ALONG_STRIKE_AND_DOWNDIP;
-	StringParameter floaterTypeParam;
+	StringParameter faultFloaterTypeParam;
 	
 	//------------------------------------------------------------------------------- SUBDUCTION FAULT SOURCES
+
+	// Whether or not to include these sources
+	public final static String INCLUDE_SUBDUCTION_SOURCES_PARAM_NAME = "Include Subduction-Zone Sources?";
+	private BooleanParameter includeSubductionSourcesParam;
+
 	// For rupture offset length along fault parameter
-	public final static String SUB_RUP_OFFSET_PARAM_NAME ="Subduction Fault Rupture Offset";
-	private final static Double SUB_RUP_OFFSET_DEFAULT = new Double(5);
+	public final static String SUB_RUP_OFFSET_PARAM_NAME ="Subduction Zone Rupture Offset";
+	private final static Double SUB_RUP_OFFSET_DEFAULT = new Double(10);
 	private final static String SUB_RUP_OFFSET_PARAM_UNITS = "km";
-	private final static String SUB_RUP_OFFSET_PARAM_INFO = "The amount floating ruptures are offset along the fault";
+	private final static String SUB_RUP_OFFSET_PARAM_INFO = "The amount floating ruptures are offset along the subduction zones";
 	public final static double SUB_RUP_OFFSET_PARAM_MIN = 1;
 	public final static double SUB_RUP_OFFSET_PARAM_MAX = 100;
-	DoubleParameter sub_rupOffsetParam;
+	DoubleParameter subductionRupOffsetParam;
 
 	// For fault discretization
 	public final static String SUB_FAULT_DISCR_PARAM_NAME ="Subduction Fault Discretization";
-	private final static Double SUB_FAULT_DISCR_PARAM_DEFAULT = new Double(1.0);
+	private final static Double SUB_FAULT_DISCR_PARAM_DEFAULT = new Double(10);
 	private final static String SUB_FAULT_DISCR_PARAM_UNITS = "km";
-	private final static String SUB_FAULT_DISCR_PARAM_INFO = "The discretization of faults";
+	private final static String SUB_FAULT_DISCR_PARAM_INFO = "The discretization of subduction zones";
 	public final static double SUB_FAULT_DISCR_PARAM_MIN = 1;
 	public final static double SUB_FAULT_DISCR_PARAM_MAX = 100;
-	DoubleParameter sub_faultDiscrParam;
+	DoubleParameter subductionDiscrParam;
 
 	// Mag-scaling relationship parameter stuff
-	public final static String SUB_MAG_SCALING_REL_PARAM_NAME = "Subduction Fault Rupture Mag-Scaling";
+	public final static String SUB_MAG_SCALING_REL_PARAM_NAME = "Subduction-Zone Rupture Scaling";
 	private final static String SUB_MAG_SCALING_REL_PARAM_INFO = " Mag-scaling relationship for computing size of floaters";
-	StringParameter sub_magScalingRelParam;
+	StringParameter subductionMagScalingRelParam;
 
 	// Mag-scaling sigma parameter stuff
-	public final static String SUB_SIGMA_PARAM_NAME =  "Subduction Fault Mag Scaling Sigma";
+	public final static String SUB_SIGMA_PARAM_NAME =  "Subduction Zone Scaling Sigma";
 	private final static String SUB_SIGMA_PARAM_INFO =  "The standard deviation of the Area(mag) or Length(M) relationship";
 	private Double SUB_SIGMA_PARAM_MIN = new Double(0);
 	private Double SUB_SIGMA_PARAM_MAX = new Double(1);
 	private Double SUB_SIGMA_PARAM_DEFAULT = new Double(0.0);
-	DoubleParameter sub_sigmaParam;
+	DoubleParameter subductionScalingSigmaParam;
 
 	// rupture aspect ratio parameter stuff
 	public final static String SUB_ASPECT_RATIO_PARAM_NAME = "Subduction Fault Rupture Aspect Ratio";
@@ -247,16 +275,16 @@ public class GEM1ERF extends EqkRupForecast {
 	private Double SUB_ASPECT_RATIO_PARAM_MIN = new Double(Double.MIN_VALUE);
 	private Double SUB_ASPECT_RATIO_PARAM_MAX = new Double(Double.MAX_VALUE);
 	private Double SUB_ASPECT_RATIO_PARAM_DEFAULT = new Double(1.0);
-	DoubleParameter sub_aspectRatioParam;
+	DoubleParameter subductionRupAspectRatioParam;
 
 	// Floater Type
 	public final static String SUB_FLOATER_TYPE_PARAM_NAME = "Subduction Fault Floater Type";
-	public final static String SUB_FLOATER_TYPE_PARAM_INFO = "Specifies how to float ruptures around the faults";
+	public final static String SUB_FLOATER_TYPE_PARAM_INFO = "Specifies how to float ruptures around subduction zones";
 	public final static String SUB_FLOATER_TYPE_FULL_DDW = "Only along strike ( rupture full DDW)";
 	public final static String SUB_FLOATER_TYPE_ALONG_STRIKE_AND_DOWNDIP = "Along strike and down dip";
 	public final static String SUB_FLOATER_TYPE_CENTERED_DOWNDIP = "Along strike & centered down dip";
 	public final static String SUB_FLOATER_TYPE_PARAM_DEFAULT = FLOATER_TYPE_ALONG_STRIKE_AND_DOWNDIP;
-	StringParameter sub_floaterTypeParam;
+	StringParameter subductionFloaterTypeParam;
 	
 	
 	public final static String SOURCE_CACHE_PARAM_NAME = "Cache Sources";
@@ -264,26 +292,93 @@ public class GEM1ERF extends EqkRupForecast {
 			" of nearby sites, but requires more memory";
 	public final static Boolean SOURCE_CACHE_PARAM_DEFAULT = false;
 	private BooleanParameter sourceCacheParam;
+	
 	private HashMap<Integer, ProbEqkSource> sourceCache = null;
 	
 	private ArrayList<TectonicRegionType> tectonicRegionTypes;
 
 
 	/**
-	 *
-	 * No argument constructor
+	 * No arg constructor.
 	 */
-	public GEM1ERF() {
-		this(null);
-	}
+	public GEM1ERF() {}
 
 
 	/**
-	 * This takes a gemSourceDataList
+	 * Constructor that takes lists of each source type.  Set any list as null if there are no associated data types.
 	 */
-	public GEM1ERF(ArrayList<GEMSourceData> gemSourceDataList) {
+	public GEM1ERF(ArrayList<GEMSourceData> areaSourceDataList,ArrayList<GEMSourceData> griddedSeisSourceDataList,
+			ArrayList<GEMSourceData> faultSourceDataList,ArrayList<GEMSourceData> subductionSourceDataList) {
 		
-		this.gemSourceDataList = gemSourceDataList;
+		this(areaSourceDataList, griddedSeisSourceDataList, faultSourceDataList, subductionSourceDataList,null);
+	}
+
+	/**
+	 * Constructor that takes lists of each source type and a CalculationSettings object.  
+	 * Set any list as null if there are no associated data types.
+	 */
+	public GEM1ERF(ArrayList<GEMSourceData> areaSourceDataList,ArrayList<GEMSourceData> griddedSeisSourceDataList,
+			ArrayList<GEMSourceData> faultSourceDataList,ArrayList<GEMSourceData> subductionSourceDataList, CalculationSettings calcSet) {
+		
+		this.areaSourceDataList = areaSourceDataList;
+		this.griddedSeisSourceDataList = griddedSeisSourceDataList;
+		this.faultSourceDataList = faultSourceDataList;
+		this.subductionSourceDataList = subductionSourceDataList;
+		
+		initialize(calcSet);
+
+	}
+	
+	/**
+	 * This takes a allGemSourceDataList (and parses the list into separate lists for each source type).
+	 */
+	public GEM1ERF(ArrayList<GEMSourceData> allGemSourceDataList) {
+		this(allGemSourceDataList,null);
+	}
+
+
+
+	/**
+	 * This takes a allGemSourceDataList (which get parsed into separate lists) and a CalculationSettings object.
+	 */
+	public GEM1ERF(ArrayList<GEMSourceData> allGemSourceDataList, CalculationSettings calcSet) {
+		parseSourceListIntoDifferentTypes(allGemSourceDataList);
+		initialize(calcSet);
+	}
+	
+	protected void parseSourceListIntoDifferentTypes(ArrayList<GEMSourceData> allGemSourceDataList) {
+
+		areaSourceDataList = new ArrayList<GEMSourceData> ();
+		griddedSeisSourceDataList = new ArrayList<GEMSourceData> ();
+		faultSourceDataList = new ArrayList<GEMSourceData> ();
+		subductionSourceDataList = new ArrayList<GEMSourceData> ();
+		for(int i=0;i<allGemSourceDataList.size();i++) {
+			GEMSourceData srcData = allGemSourceDataList.get(i);
+			if(srcData instanceof GEMFaultSourceData)
+				faultSourceDataList.add(srcData);
+			else if (srcData instanceof GEMSubductionFaultSourceData)
+				subductionSourceDataList.add(srcData);
+			else if (srcData instanceof GEMPointSourceData)
+				griddedSeisSourceDataList.add(srcData);
+			else if (srcData instanceof GEMAreaSourceData)
+				areaSourceDataList.add(srcData);
+			else
+				throw new RuntimeException(NAME+": "+srcData.getClass()+" not yet supported");
+		}
+		
+		// make any that are empty null
+		if (areaSourceDataList.size() == 0) areaSourceDataList = null;
+		if (griddedSeisSourceDataList.size() == 0) griddedSeisSourceDataList = null;
+		if (faultSourceDataList.size() == 0) faultSourceDataList = null;
+		if (subductionSourceDataList.size() == 0) subductionSourceDataList = null;
+	}
+	
+	
+	/**
+	 * This initializes the ERF & sets parameters from calcSet (if calcSet != null)
+	 * @param calcSet
+	 */
+	protected void initialize(CalculationSettings calcSet) {
 
 		// create the timespan object with start time and duration in years
 		timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
@@ -293,53 +388,56 @@ public class GEM1ERF extends EqkRupForecast {
 		// create and add adj params to list
 		initAdjParams();
 		
+		// set params from calcSet if it's not null
+		if(calcSet != null) setParamsFromCalcSettings(calcSet);
+		
+		// Create adjustable parameter list
+		createParamList();
+
+		// Determine which tectonic region types are included
+		int numActiveShallow=0;
+		int numStableShallow=0;
+		int numSubSlab=0;
+		int numSubInterface=0;
+		ArrayList<GEMSourceData> tempAllData = new ArrayList<GEMSourceData>();
+		if(areaSourceDataList != null) tempAllData.addAll(areaSourceDataList);
+		if(griddedSeisSourceDataList != null) tempAllData.addAll(griddedSeisSourceDataList);
+		if(faultSourceDataList != null) tempAllData.addAll(faultSourceDataList);
+		if(subductionSourceDataList != null) tempAllData.addAll(subductionSourceDataList);
+		for(int i=0;i<tempAllData.size();i++) {
+			TectonicRegionType tectReg = tempAllData.get(i).getTectReg();
+			if (tectReg == TectonicRegionType.ACTIVE_SHALLOW) 
+				numActiveShallow += 1;
+			else if (tectReg == TectonicRegionType.STABLE_SHALLOW) 
+				numStableShallow += 1;
+			else if (tectReg == TectonicRegionType.SUBDUCTION_SLAB) 
+				numSubSlab += 1;
+			else if (tectReg == TectonicRegionType.SUBDUCTION_INTERFACE) 
+				numSubInterface += 1;
+			else throw new RuntimeException("tectonic region type not supported");
+		}
 		tectonicRegionTypes = new ArrayList<TectonicRegionType>();
-		tectonicRegionTypes.add(TectonicRegionType.ACTIVE_SHALLOW);
-		tectonicRegionTypes.add(TectonicRegionType.STABLE_SHALLOW);
-		tectonicRegionTypes.add(TectonicRegionType.SUBDUCTION_SLAB);
-		tectonicRegionTypes.add(TectonicRegionType.SUBDUCTION_INTERFACE);
+		if(numActiveShallow>0) tectonicRegionTypes.add(TectonicRegionType.ACTIVE_SHALLOW);
+		if(numStableShallow>0) tectonicRegionTypes.add(TectonicRegionType.STABLE_SHALLOW);
+		if(numSubSlab>0) tectonicRegionTypes.add(TectonicRegionType.SUBDUCTION_SLAB);
+		if(numSubInterface>0) tectonicRegionTypes.add(TectonicRegionType.SUBDUCTION_INTERFACE);
+		if(D) {
+			System.out.println("numActiveShallow="+numActiveShallow);
+			System.out.println("numStableShallow="+numStableShallow);
+			System.out.println("numSubSlab="+numSubSlab);
+			System.out.println("numSubInterface="+numSubInterface);
+		}
 	}
 	
-	/**
-	 * This takes a gemSourceDataList and a CalculationSettings object
-	 */
-	public GEM1ERF(ArrayList<GEMSourceData> gemSourceDataList, CalculationSettings calcSet) {
-		this(gemSourceDataList);
-		this.setParamsFromCalcSettings(calcSet);
-	}
 	
 	// Make the adjustable parameters & the list
 	private void initAdjParams() {
 
-		// ---------------------------------------------------------------------------- GRID SOURCES
-		ArrayList<String> backSeisOptionsStrings = new ArrayList<String>();
-		backSeisOptionsStrings.add(BACK_SEIS_EXCLUDE);
-		backSeisOptionsStrings.add(BACK_SEIS_INCLUDE);
-		backSeisOptionsStrings.add(BACK_SEIS_ONLY);
-		backSeisParam = new StringParameter(BACK_SEIS_NAME, backSeisOptionsStrings,BACK_SEIS_EXCLUDE);
-	
-		ArrayList<String> backSeisRupOptionsStrings = new ArrayList<String>();
-		backSeisRupOptionsStrings.add(BACK_SEIS_RUP_POINT);
-		backSeisRupOptionsStrings.add(BACK_SEIS_RUP_LINE);
-		backSeisRupOptionsStrings.add(BACK_SEIS_RUP_CROSS_HAIR);
-		backSeisRupOptionsStrings.add(BACK_SEIS_RUP_SPOKED);
-		backSeisRupOptionsStrings.add(BACK_SEIS_RUP_FINITE_SURF);
-		backSeisRupParam = new StringParameter(BACK_SEIS_RUP_NAME, backSeisRupOptionsStrings,BACK_SEIS_RUP_POINT);
-
-		lowerSeisDepthParam = new DoubleParameter(LOWER_SEIS_DEPTH_BACKGR_PARAM_NAME,LOWER_SEIS_DEPTH_BACKGR_PARAM_MIN,
-				LOWER_SEIS_DEPTH_BACKGR_PARAM_MAX,LOWER_SEIS_DEPTH_BACKGR_PARAM_UNITS,LOWER_SEIS_DEPTH_BACKGR_PARAM_DEFAULT);
-		lowerSeisDepthParam.setInfo(LOWER_SEIS_DEPTH_BACKGR_PARAM_INFO);
-		
-		// Create the mag-scaling relationship param for griddes seismicity
-		ArrayList<String> magScalingRelBackgrOptions = new ArrayList<String>();
-		magScalingRelBackgrOptions.add(WC1994_MagAreaRelationship.NAME);
-		magScalingRelBackgrOptions.add(WC1994_MagLengthRelationship.NAME);
-		magScalingRelBackgrOptions.add(PEER_testsMagAreaRelationship.NAME);
-		magScalingRelBackgrParam = new StringParameter(MAG_SCALING_REL_BACKGR_PARAM_NAME,magScalingRelBackgrOptions,
-				WC1994_MagAreaRelationship.NAME);
-		magScalingRelBackgrParam.setInfo(MAG_SCALING_REL_BACKGR_PARAM_INFO);
-
 		// ---------------------------------------------------------------------------- AREA SOURCES
+		
+		includeAreaSourceParam = new BooleanParameter(INCLUDE_AREA_SRC_PARAM_NAME,INCLUDE_SRC_PARAM_DEFAULT);
+		includeAreaSourceParam.setInfo(INCLUDE_SRC_PARAM_INFO);
+
 		// Create the fault option parameter for area sources
 		ArrayList<String> areaSeisRupOptionsStrings = new ArrayList<String>();
 		areaSeisRupOptionsStrings.add(AREA_SRC_RUP_POINT);
@@ -347,18 +445,8 @@ public class GEM1ERF extends EqkRupForecast {
 		areaSeisRupOptionsStrings.add(AREA_SRC_RUP_CROSS_HAIR);
 		areaSeisRupOptionsStrings.add(AREA_SRC_RUP_SPOKED);
 		areaSeisRupOptionsStrings.add(AREA_SRC_RUP_FINITE_SURF);
-		areaSeisRupOptionsStrings.add(AREA_SRC_RUP_POINT_OLD);
-		areaSrcRupParam = new StringParameter(AREA_SRC_RUP_NAME,areaSeisRupOptionsStrings,
+		areaSrcRupTypeParam = new StringParameter(AREA_SRC_RUP_NAME,areaSeisRupOptionsStrings,
 				AREA_SRC_RUP_POINT);
-		
-		// Create the mag-scaling relationship param for area sources
-		ArrayList<String> magScalingRelAreaOptions = new ArrayList<String>();
-		magScalingRelAreaOptions.add(WC1994_MagAreaRelationship.NAME);
-		magScalingRelAreaOptions.add(WC1994_MagLengthRelationship.NAME);
-		magScalingRelAreaOptions.add(PEER_testsMagAreaRelationship.NAME);
-		magScalingRelAreaSrcParam = new StringParameter(MAG_SCALING_REL_AREA_SRC_PARAM_NAME,magScalingRelAreaOptions,
-				WC1994_MagAreaRelationship.NAME);
-		magScalingRelAreaSrcParam.setInfo(MAG_SCALING_REL_AREA_SRC_PARAM_INFO);
 		
 		// Area lower seismogenic depth parameter
 		areaSrcLowerSeisDepthParam = new DoubleParameter(LOWER_SEIS_DEPTH_AREA_SRC_PARAM_NAME,
@@ -369,15 +457,56 @@ public class GEM1ERF extends EqkRupForecast {
 		areaSrcLowerSeisDepthParam.setInfo(LOWER_SEIS_DEPTH_BACKGR_PARAM_INFO);
 
 		// Area discretization parameter
-		areaDiscrParam = new DoubleParameter(AREA_DISCR_PARAM_NAME,AREA_DISCR_PARAM_MIN,
+		areaSrcDiscrParam = new DoubleParameter(AREA_DISCR_PARAM_NAME,AREA_DISCR_PARAM_MIN,
 				AREA_DISCR_PARAM_MAX,AREA_DISCR_PARAM_UNITS,AREA_DISCR_PARAM_DEFAULT);
-		areaDiscrParam.setInfo(AREA_DISCR_PARAM_INFO);
+		areaSrcDiscrParam.setInfo(AREA_DISCR_PARAM_INFO);
+		
+		// Create the mag-scaling relationship param for area sources
+		ArrayList<String> magScalingRelAreaOptions = new ArrayList<String>();
+		magScalingRelAreaOptions.add(WC1994_MagAreaRelationship.NAME);
+		magScalingRelAreaOptions.add(WC1994_MagLengthRelationship.NAME);
+		magScalingRelAreaOptions.add(PEER_testsMagAreaRelationship.NAME);
+		areaSrcMagScalingRelParam = new StringParameter(MAG_SCALING_REL_AREA_SRC_PARAM_NAME,magScalingRelAreaOptions,
+				WC1994_MagLengthRelationship.NAME);
+		areaSrcMagScalingRelParam.setInfo(MAG_SCALING_REL_AREA_SRC_PARAM_INFO);
+		
+		// ---------------------------------------------------------------------------- GRID SOURCES
+		
+		includeGriddedSeisParam = new BooleanParameter(INCLUDE_GRIDDED_SEIS_PARAM_NAME,INCLUDE_SRC_PARAM_DEFAULT);
+		includeGriddedSeisParam.setInfo(INCLUDE_SRC_PARAM_INFO);
+
+		// Rup type options
+		ArrayList<String> backSeisRupOptionsStrings = new ArrayList<String>();
+		backSeisRupOptionsStrings.add(BACK_SEIS_RUP_POINT);
+		backSeisRupOptionsStrings.add(BACK_SEIS_RUP_LINE);
+		backSeisRupOptionsStrings.add(BACK_SEIS_RUP_CROSS_HAIR);
+		backSeisRupOptionsStrings.add(BACK_SEIS_RUP_SPOKED);
+		backSeisRupOptionsStrings.add(BACK_SEIS_RUP_FINITE_SURF);
+		griddedSeisRupTypeParam = new StringParameter(BACK_SEIS_RUP_NAME, backSeisRupOptionsStrings,BACK_SEIS_RUP_POINT);
+
+		griddedSeisLowerSeisDepthParam = new DoubleParameter(LOWER_SEIS_DEPTH_BACKGR_PARAM_NAME,LOWER_SEIS_DEPTH_BACKGR_PARAM_MIN,
+				LOWER_SEIS_DEPTH_BACKGR_PARAM_MAX,LOWER_SEIS_DEPTH_BACKGR_PARAM_UNITS,LOWER_SEIS_DEPTH_BACKGR_PARAM_DEFAULT);
+		griddedSeisLowerSeisDepthParam.setInfo(LOWER_SEIS_DEPTH_BACKGR_PARAM_INFO);
+		
+		// Create the mag-scaling relationship param for griddes seismicity
+		ArrayList<String> magScalingRelBackgrOptions = new ArrayList<String>();
+		magScalingRelBackgrOptions.add(WC1994_MagAreaRelationship.NAME);
+		magScalingRelBackgrOptions.add(WC1994_MagLengthRelationship.NAME);
+		magScalingRelBackgrOptions.add(PEER_testsMagAreaRelationship.NAME);
+		griddedSeisMagScalingRelParam = new StringParameter(MAG_SCALING_REL_BACKGR_PARAM_NAME,magScalingRelBackgrOptions,
+				WC1994_MagLengthRelationship.NAME);
+		griddedSeisMagScalingRelParam.setInfo(MAG_SCALING_REL_BACKGR_PARAM_INFO);
+
 		
 		// --------------------------------------------------------------------------- FAULT SOURCES
+		
+		includeFaultSourcesParam = new BooleanParameter(INCLUDE_FAULT_SOURCES_PARAM_NAME,INCLUDE_SRC_PARAM_DEFAULT);
+		includeFaultSourcesParam.setInfo(INCLUDE_SRC_PARAM_INFO);
+
 		// Rupture offset
-		rupOffsetParam = new DoubleParameter(RUP_OFFSET_PARAM_NAME,RUP_OFFSET_PARAM_MIN,
+		faultRupOffsetParam = new DoubleParameter(RUP_OFFSET_PARAM_NAME,RUP_OFFSET_PARAM_MIN,
 				RUP_OFFSET_PARAM_MAX,RUP_OFFSET_PARAM_UNITS,RUP_OFFSET_DEFAULT);
-		rupOffsetParam.setInfo(RUP_OFFSET_PARAM_INFO);
+		faultRupOffsetParam.setInfo(RUP_OFFSET_PARAM_INFO);
 
 		// Fault discretization parameter
 		faultDiscrParam = new DoubleParameter(FAULT_DISCR_PARAM_NAME,FAULT_DISCR_PARAM_MIN,
@@ -389,101 +518,104 @@ public class GEM1ERF extends EqkRupForecast {
 		magScalingRelOptions.add(WC1994_MagAreaRelationship.NAME);
 		magScalingRelOptions.add(WC1994_MagLengthRelationship.NAME);
 		magScalingRelOptions.add(PEER_testsMagAreaRelationship.NAME);
-		magScalingRelParam = new StringParameter(MAG_SCALING_REL_PARAM_NAME,magScalingRelOptions,
-				WC1994_MagAreaRelationship.NAME);
-		magScalingRelParam.setInfo(MAG_SCALING_REL_PARAM_INFO);
+		faultMagScalingRelParam = new StringParameter(MAG_SCALING_REL_PARAM_NAME,magScalingRelOptions,
+				WC1994_MagLengthRelationship.NAME);
+		faultMagScalingRelParam.setInfo(MAG_SCALING_REL_PARAM_INFO);
 
 		// create the mag-scaling sigma param
-		sigmaParam = new DoubleParameter(SIGMA_PARAM_NAME,
+		faultScalingSigmaParam = new DoubleParameter(SIGMA_PARAM_NAME,
 				SIGMA_PARAM_MIN, SIGMA_PARAM_MAX, SIGMA_PARAM_DEFAULT);
-		sigmaParam.setInfo(SIGMA_PARAM_INFO);
+		faultScalingSigmaParam.setInfo(SIGMA_PARAM_INFO);
 
 		// create the aspect ratio param
-		aspectRatioParam = new DoubleParameter(ASPECT_RATIO_PARAM_NAME,ASPECT_RATIO_PARAM_MIN,
+		faultRupAspectRatioParam = new DoubleParameter(ASPECT_RATIO_PARAM_NAME,ASPECT_RATIO_PARAM_MIN,
 				ASPECT_RATIO_PARAM_MAX,ASPECT_RATIO_PARAM_DEFAULT);
-		aspectRatioParam.setInfo(ASPECT_RATIO_PARAM_INFO);
+		faultRupAspectRatioParam.setInfo(ASPECT_RATIO_PARAM_INFO);
 
 		ArrayList<String> floaterTypeOptions = new ArrayList<String>();
 		floaterTypeOptions.add(FLOATER_TYPE_FULL_DDW);
 		floaterTypeOptions.add(FLOATER_TYPE_ALONG_STRIKE_AND_DOWNDIP);
 		floaterTypeOptions.add(FLOATER_TYPE_CENTERED_DOWNDIP);
-		floaterTypeParam = new StringParameter(FLOATER_TYPE_PARAM_NAME,floaterTypeOptions,
+		faultFloaterTypeParam = new StringParameter(FLOATER_TYPE_PARAM_NAME,floaterTypeOptions,
 				FLOATER_TYPE_PARAM_DEFAULT);
-		floaterTypeParam.setInfo(FLOATER_TYPE_PARAM_INFO);
+		faultFloaterTypeParam.setInfo(FLOATER_TYPE_PARAM_INFO);
 		
 		// --------------------------------------------------------------------------- SUBDUCTION FAULT SOURCES
+		
+		includeSubductionSourcesParam = new BooleanParameter(INCLUDE_SUBDUCTION_SOURCES_PARAM_NAME,INCLUDE_SRC_PARAM_DEFAULT);
+		includeSubductionSourcesParam.setInfo(INCLUDE_SRC_PARAM_INFO);
+
 		// Rupture offset
-		sub_rupOffsetParam = new DoubleParameter(SUB_RUP_OFFSET_PARAM_NAME,SUB_RUP_OFFSET_PARAM_MIN,
+		subductionRupOffsetParam = new DoubleParameter(SUB_RUP_OFFSET_PARAM_NAME,SUB_RUP_OFFSET_PARAM_MIN,
 				SUB_RUP_OFFSET_PARAM_MAX,SUB_RUP_OFFSET_PARAM_UNITS,SUB_RUP_OFFSET_DEFAULT);
-		sub_rupOffsetParam.setInfo(SUB_RUP_OFFSET_PARAM_INFO);
+		subductionRupOffsetParam.setInfo(SUB_RUP_OFFSET_PARAM_INFO);
 
 		// Fault discretization parameter
-		sub_faultDiscrParam = new DoubleParameter(SUB_FAULT_DISCR_PARAM_NAME,SUB_FAULT_DISCR_PARAM_MIN,
+		subductionDiscrParam = new DoubleParameter(SUB_FAULT_DISCR_PARAM_NAME,SUB_FAULT_DISCR_PARAM_MIN,
 				SUB_FAULT_DISCR_PARAM_MAX,SUB_FAULT_DISCR_PARAM_UNITS,SUB_FAULT_DISCR_PARAM_DEFAULT);
-		sub_faultDiscrParam.setInfo(SUB_FAULT_DISCR_PARAM_INFO);
+		subductionDiscrParam.setInfo(SUB_FAULT_DISCR_PARAM_INFO);
 
 		// create the mag-scaling relationship param
 		ArrayList<String> sub_magScalingRelOptions = new ArrayList<String>();
 		sub_magScalingRelOptions.add(WC1994_MagAreaRelationship.NAME);
 		sub_magScalingRelOptions.add(WC1994_MagLengthRelationship.NAME);
 		sub_magScalingRelOptions.add(PEER_testsMagAreaRelationship.NAME);
-		sub_magScalingRelParam = new StringParameter(SUB_MAG_SCALING_REL_PARAM_NAME,sub_magScalingRelOptions,
+		subductionMagScalingRelParam = new StringParameter(SUB_MAG_SCALING_REL_PARAM_NAME,sub_magScalingRelOptions,
 				WC1994_MagAreaRelationship.NAME);
-		sub_magScalingRelParam.setInfo(SUB_MAG_SCALING_REL_PARAM_INFO);
+		subductionMagScalingRelParam.setInfo(SUB_MAG_SCALING_REL_PARAM_INFO);
 
 		// create the mag-scaling sigma param
-		sub_sigmaParam = new DoubleParameter(SUB_SIGMA_PARAM_NAME,
+		subductionScalingSigmaParam = new DoubleParameter(SUB_SIGMA_PARAM_NAME,
 				SUB_SIGMA_PARAM_MIN, SUB_SIGMA_PARAM_MAX, SUB_SIGMA_PARAM_DEFAULT);
-		sub_sigmaParam.setInfo(SUB_SIGMA_PARAM_INFO);
+		subductionScalingSigmaParam.setInfo(SUB_SIGMA_PARAM_INFO);
 
 		// create the aspect ratio param
-		sub_aspectRatioParam = new DoubleParameter(SUB_ASPECT_RATIO_PARAM_NAME,SUB_ASPECT_RATIO_PARAM_MIN,
+		subductionRupAspectRatioParam = new DoubleParameter(SUB_ASPECT_RATIO_PARAM_NAME,SUB_ASPECT_RATIO_PARAM_MIN,
 				SUB_ASPECT_RATIO_PARAM_MAX,SUB_ASPECT_RATIO_PARAM_DEFAULT);
-		sub_aspectRatioParam.setInfo(SUB_ASPECT_RATIO_PARAM_INFO);
+		subductionRupAspectRatioParam.setInfo(SUB_ASPECT_RATIO_PARAM_INFO);
 
 		ArrayList<String> sub_floaterTypeOptions = new ArrayList<String>();
 		sub_floaterTypeOptions.add(SUB_FLOATER_TYPE_FULL_DDW);
 		sub_floaterTypeOptions.add(SUB_FLOATER_TYPE_ALONG_STRIKE_AND_DOWNDIP);
 		sub_floaterTypeOptions.add(SUB_FLOATER_TYPE_CENTERED_DOWNDIP);
-		sub_floaterTypeParam = new StringParameter(SUB_FLOATER_TYPE_PARAM_NAME,sub_floaterTypeOptions,
+		subductionFloaterTypeParam = new StringParameter(SUB_FLOATER_TYPE_PARAM_NAME,sub_floaterTypeOptions,
 				SUB_FLOATER_TYPE_PARAM_DEFAULT);
-		sub_floaterTypeParam.setInfo(SUB_FLOATER_TYPE_PARAM_INFO);
+		subductionFloaterTypeParam.setInfo(SUB_FLOATER_TYPE_PARAM_INFO);
 		
 		sourceCacheParam = new BooleanParameter(SOURCE_CACHE_PARAM_NAME, SOURCE_CACHE_PARAM_DEFAULT);
 		sourceCacheParam.setInfo(SOURCE_CACHE_PARAM_INFO);
 		if (sourceCacheParam.getValue())
 			sourceCache = new HashMap<Integer, ProbEqkSource>();
 
-		// Add adjustable parameters to the list
-		createParamList();
-
 		// Add the change listener to parameters
-		// -- Grid sources
-		backSeisParam.addParameterChangeListener(this);  // 1 
-		backSeisRupParam.addParameterChangeListener(this); // 2
-		lowerSeisDepthParam.addParameterChangeListener(this); // 3
-		magScalingRelBackgrParam.addParameterChangeListener(this); // 4
-		// -- Fault sources
-		rupOffsetParam.addParameterChangeListener(this); // 5 
-		faultDiscrParam.addParameterChangeListener(this); // 6 
-		aspectRatioParam.addParameterChangeListener(this); // 7
-		floaterTypeParam.addParameterChangeListener(this); // 8
-		magScalingRelParam.addParameterChangeListener(this); // 9
-		// not sure - check later
-		sigmaParam.addParameterChangeListener(this); // 10
 		// -- Area sources
-		areaDiscrParam.addParameterChangeListener(this); // 11
-		areaSrcLowerSeisDepthParam.addParameterChangeListener(this); // 12
-		areaSrcRupParam.addParameterChangeListener(this); // 13
-		magScalingRelAreaSrcParam.addParameterChangeListener(this); // 14
+		includeAreaSourceParam.addParameterChangeListener(this);
+		areaSrcDiscrParam.addParameterChangeListener(this);
+		areaSrcLowerSeisDepthParam.addParameterChangeListener(this);
+		areaSrcRupTypeParam.addParameterChangeListener(this);
+		areaSrcMagScalingRelParam.addParameterChangeListener(this);
+		// -- Grid sources
+		includeGriddedSeisParam.addParameterChangeListener(this);
+		griddedSeisRupTypeParam.addParameterChangeListener(this);
+		griddedSeisLowerSeisDepthParam.addParameterChangeListener(this);
+		griddedSeisMagScalingRelParam.addParameterChangeListener(this);
+		// -- Fault sources
+		includeFaultSourcesParam.addParameterChangeListener(this);
+		faultRupOffsetParam.addParameterChangeListener(this);
+		faultDiscrParam.addParameterChangeListener(this);
+		faultRupAspectRatioParam.addParameterChangeListener(this);
+		faultFloaterTypeParam.addParameterChangeListener(this);
+		faultMagScalingRelParam.addParameterChangeListener(this);
+		faultScalingSigmaParam.addParameterChangeListener(this);
 		// -- Subduction sources
-		sub_rupOffsetParam.addParameterChangeListener(this); // 15 
-		sub_faultDiscrParam.addParameterChangeListener(this); // 16 
-		sub_aspectRatioParam.addParameterChangeListener(this); // 17
-		sub_floaterTypeParam.addParameterChangeListener(this); // 18
-		sub_magScalingRelParam.addParameterChangeListener(this); // 19
-		// not sure - check later
-		sub_sigmaParam.addParameterChangeListener(this); // 20
+		includeSubductionSourcesParam.addParameterChangeListener(this);
+		subductionRupOffsetParam.addParameterChangeListener(this);
+		subductionDiscrParam.addParameterChangeListener(this);
+		subductionRupAspectRatioParam.addParameterChangeListener(this);
+		subductionFloaterTypeParam.addParameterChangeListener(this);
+		subductionMagScalingRelParam.addParameterChangeListener(this);
+		subductionScalingSigmaParam.addParameterChangeListener(this);
+		// -- Other
 		sourceCacheParam.addParameterChangeListener(this);
 	}
 	
@@ -492,25 +624,29 @@ public class GEM1ERF extends EqkRupForecast {
 	// Make the adjustable parameters & the list
 	private void setParamsFromCalcSettings(CalculationSettings calcSet) {
 
-		backSeisRupParam.setValue(calcSet.getErf().get(SourceType.GRID_SOURCE).get(GEM1ERF.BACK_SEIS_RUP_NAME).toString());
-		lowerSeisDepthParam.setValue((Double)calcSet.getErf().get(SourceType.GRID_SOURCE).get(GEM1ERF.LOWER_SEIS_DEPTH_BACKGR_PARAM_NAME));
-		magScalingRelBackgrParam.setValue(calcSet.getErf().get(SourceType.GRID_SOURCE).get(GEM1ERF.MAG_SCALING_REL_BACKGR_PARAM_NAME).toString());
-		areaSrcRupParam.setValue(calcSet.getErf().get(SourceType.AREA_SOURCE).get(GEM1ERF.AREA_SRC_RUP_NAME).toString());
-		magScalingRelAreaSrcParam.setValue(calcSet.getErf().get(SourceType.AREA_SOURCE).get(GEM1ERF.MAG_SCALING_REL_AREA_SRC_PARAM_NAME).toString());
+		areaSrcRupTypeParam.setValue(calcSet.getErf().get(SourceType.AREA_SOURCE).get(GEM1ERF.AREA_SRC_RUP_NAME).toString());
+		areaSrcMagScalingRelParam.setValue(calcSet.getErf().get(SourceType.AREA_SOURCE).get(GEM1ERF.MAG_SCALING_REL_AREA_SRC_PARAM_NAME).toString());
 		areaSrcLowerSeisDepthParam.setValue((Double)calcSet.getErf().get(SourceType.AREA_SOURCE).get(LOWER_SEIS_DEPTH_AREA_SRC_PARAM_NAME));
-		areaDiscrParam.setValue((Double)calcSet.getErf().get(SourceType.AREA_SOURCE).get(GEM1ERF.AREA_DISCR_PARAM_NAME));
-		rupOffsetParam.setValue((Double)calcSet.getErf().get(SourceType.FAULT_SOURCE).get(GEM1ERF.RUP_OFFSET_PARAM_NAME));
+		areaSrcDiscrParam.setValue((Double)calcSet.getErf().get(SourceType.AREA_SOURCE).get(GEM1ERF.AREA_DISCR_PARAM_NAME));
+
+		griddedSeisRupTypeParam.setValue(calcSet.getErf().get(SourceType.GRID_SOURCE).get(GEM1ERF.BACK_SEIS_RUP_NAME).toString());
+		griddedSeisLowerSeisDepthParam.setValue((Double)calcSet.getErf().get(SourceType.GRID_SOURCE).get(GEM1ERF.LOWER_SEIS_DEPTH_BACKGR_PARAM_NAME));
+		griddedSeisMagScalingRelParam.setValue(calcSet.getErf().get(SourceType.GRID_SOURCE).get(GEM1ERF.MAG_SCALING_REL_BACKGR_PARAM_NAME).toString());
+
+		faultRupOffsetParam.setValue((Double)calcSet.getErf().get(SourceType.FAULT_SOURCE).get(GEM1ERF.RUP_OFFSET_PARAM_NAME));
 		faultDiscrParam.setValue((Double)calcSet.getErf().get(SourceType.FAULT_SOURCE).get(FAULT_DISCR_PARAM_NAME));
-		magScalingRelParam.setValue(calcSet.getErf().get(SourceType.FAULT_SOURCE).get(GEM1ERF.MAG_SCALING_REL_PARAM_NAME).toString());
-		sigmaParam.setValue((Double)calcSet.getErf().get(SourceType.FAULT_SOURCE).get(SIGMA_PARAM_NAME));
-		aspectRatioParam.setValue((Double)calcSet.getErf().get(SourceType.FAULT_SOURCE).get(GEM1ERF.ASPECT_RATIO_PARAM_NAME));
-		floaterTypeParam.setValue(calcSet.getErf().get(SourceType.FAULT_SOURCE).get(GEM1ERF.FLOATER_TYPE_PARAM_NAME).toString());
-		sub_rupOffsetParam.setValue((Double)calcSet.getErf().get(SourceType.SUBDUCTION_FAULT_SOURCE).get(GEM1ERF.SUB_RUP_OFFSET_PARAM_NAME));
-		sub_faultDiscrParam.setValue((Double)calcSet.getErf().get(SourceType.SUBDUCTION_FAULT_SOURCE).get(GEM1ERF.SUB_FAULT_DISCR_PARAM_NAME));
-		sub_magScalingRelParam.setValue(calcSet.getErf().get(SourceType.SUBDUCTION_FAULT_SOURCE).get(GEM1ERF.SUB_MAG_SCALING_REL_PARAM_NAME).toString());
-		sub_sigmaParam.setValue((Double)calcSet.getErf().get(SourceType.SUBDUCTION_FAULT_SOURCE).get(GEM1ERF.SUB_SIGMA_PARAM_NAME));
-		sub_aspectRatioParam.setValue((Double)calcSet.getErf().get(SourceType.SUBDUCTION_FAULT_SOURCE).get(GEM1ERF.SUB_ASPECT_RATIO_PARAM_NAME));
-		sub_floaterTypeParam.setValue(calcSet.getErf().get(SourceType.SUBDUCTION_FAULT_SOURCE).get(GEM1ERF.SUB_FLOATER_TYPE_PARAM_NAME).toString());
+		faultMagScalingRelParam.setValue(calcSet.getErf().get(SourceType.FAULT_SOURCE).get(GEM1ERF.MAG_SCALING_REL_PARAM_NAME).toString());
+		faultScalingSigmaParam.setValue((Double)calcSet.getErf().get(SourceType.FAULT_SOURCE).get(SIGMA_PARAM_NAME));
+		faultRupAspectRatioParam.setValue((Double)calcSet.getErf().get(SourceType.FAULT_SOURCE).get(GEM1ERF.ASPECT_RATIO_PARAM_NAME));
+		faultFloaterTypeParam.setValue(calcSet.getErf().get(SourceType.FAULT_SOURCE).get(GEM1ERF.FLOATER_TYPE_PARAM_NAME).toString());
+
+		subductionRupOffsetParam.setValue((Double)calcSet.getErf().get(SourceType.SUBDUCTION_FAULT_SOURCE).get(GEM1ERF.SUB_RUP_OFFSET_PARAM_NAME));
+		subductionDiscrParam.setValue((Double)calcSet.getErf().get(SourceType.SUBDUCTION_FAULT_SOURCE).get(GEM1ERF.SUB_FAULT_DISCR_PARAM_NAME));
+		subductionMagScalingRelParam.setValue(calcSet.getErf().get(SourceType.SUBDUCTION_FAULT_SOURCE).get(GEM1ERF.SUB_MAG_SCALING_REL_PARAM_NAME).toString());
+		subductionScalingSigmaParam.setValue((Double)calcSet.getErf().get(SourceType.SUBDUCTION_FAULT_SOURCE).get(GEM1ERF.SUB_SIGMA_PARAM_NAME));
+		subductionRupAspectRatioParam.setValue((Double)calcSet.getErf().get(SourceType.SUBDUCTION_FAULT_SOURCE).get(GEM1ERF.SUB_ASPECT_RATIO_PARAM_NAME));
+		subductionFloaterTypeParam.setValue(calcSet.getErf().get(SourceType.SUBDUCTION_FAULT_SOURCE).get(GEM1ERF.SUB_FLOATER_TYPE_PARAM_NAME).toString());
+
 		sourceCacheParam.setValue(calcSet.isSourceCache());
 	}
 
@@ -520,40 +656,65 @@ public class GEM1ERF extends EqkRupForecast {
 	 * This could be smarter in terms of not showing parameters if certain
 	 * GEMSourceData subclasses are not passed in.
 	 */
-	private void createParamList() {
+	protected void createParamList() {
 
 		adjustableParams = new ParameterList();
 
-		// add adjustable parameters to the list
-		adjustableParams.addParameter(backSeisParam);
-		
-		if(!backSeisParam.getValue().equals(BACK_SEIS_EXCLUDE)) {
-			adjustableParams.addParameter(backSeisRupParam);
-			if(!backSeisRupParam.getValue().equals(BACK_SEIS_RUP_POINT)) {
-				adjustableParams.addParameter(magScalingRelBackgrParam);
-				MagScalingRelationship magScRel = getmagScalingRelationship(magScalingRelBackgrParam.getValue());
-				if(backSeisRupParam.getValue().equals(BACK_SEIS_RUP_FINITE_SURF) || (magScRel instanceof MagAreaRelationship)) {
-					adjustableParams.addParameter(lowerSeisDepthParam);
+		if(areaSourceDataList != null) {
+			adjustableParams.addParameter(includeAreaSourceParam);
+			if(includeAreaSourceParam.getValue()) {
+				adjustableParams.addParameter(areaSrcDiscrParam);
+				adjustableParams.addParameter(areaSrcRupTypeParam);
+				if(!areaSrcRupTypeParam.getValue().equals(AREA_SRC_RUP_POINT)) {
+					adjustableParams.addParameter(areaSrcMagScalingRelParam);
+					MagScalingRelationship magScRel = getmagScalingRelationship(areaSrcMagScalingRelParam.getValue());
+					if(areaSrcRupTypeParam.getValue().equals(AREA_SRC_RUP_FINITE_SURF) || (magScRel instanceof MagAreaRelationship)) {
+						adjustableParams.addParameter(areaSrcLowerSeisDepthParam);
+					}
 				}
 			}
 		}
-		adjustableParams.addParameter(areaSrcRupParam);
-		adjustableParams.addParameter(areaSrcLowerSeisDepthParam);
-		adjustableParams.addParameter(areaDiscrParam);
-		adjustableParams.addParameter(faultDiscrParam);
-		adjustableParams.addParameter(rupOffsetParam);
-		adjustableParams.addParameter(aspectRatioParam);
-		adjustableParams.addParameter(floaterTypeParam);
-		adjustableParams.addParameter(magScalingRelParam);
-		adjustableParams.addParameter(magScalingRelAreaSrcParam);
-		adjustableParams.addParameter(sigmaParam);
-		adjustableParams.addParameter(sub_faultDiscrParam);
-		adjustableParams.addParameter(sub_rupOffsetParam);
-		adjustableParams.addParameter(sub_aspectRatioParam);
-		adjustableParams.addParameter(sub_floaterTypeParam);
-		adjustableParams.addParameter(sub_magScalingRelParam);
-		adjustableParams.addParameter(sub_sigmaParam);
+
+		if(griddedSeisSourceDataList != null) {
+			adjustableParams.addParameter(includeGriddedSeisParam);
+			if(includeGriddedSeisParam.getValue()) {
+				adjustableParams.addParameter(griddedSeisRupTypeParam);
+				if(!griddedSeisRupTypeParam.getValue().equals(BACK_SEIS_RUP_POINT)) {
+					adjustableParams.addParameter(griddedSeisMagScalingRelParam);
+					MagScalingRelationship magScRel = getmagScalingRelationship(griddedSeisMagScalingRelParam.getValue());
+					if(griddedSeisRupTypeParam.getValue().equals(BACK_SEIS_RUP_FINITE_SURF) || (magScRel instanceof MagAreaRelationship)) {
+						adjustableParams.addParameter(griddedSeisLowerSeisDepthParam);
+					}
+				}
+			}
+		}
+		
+		if(faultSourceDataList != null) {
+			adjustableParams.addParameter(includeFaultSourcesParam);
+			if(includeFaultSourcesParam.getValue()) {
+				adjustableParams.addParameter(faultDiscrParam);
+				adjustableParams.addParameter(faultRupOffsetParam);
+				adjustableParams.addParameter(faultRupAspectRatioParam);
+				adjustableParams.addParameter(faultFloaterTypeParam);
+				adjustableParams.addParameter(faultMagScalingRelParam);
+				adjustableParams.addParameter(faultScalingSigmaParam);				
+			}
+		}
+		
+		if(subductionSourceDataList != null) {
+			adjustableParams.addParameter(includeSubductionSourcesParam);
+			if(includeSubductionSourcesParam.getValue()) {
+				adjustableParams.addParameter(subductionDiscrParam);
+				adjustableParams.addParameter(subductionRupOffsetParam);
+				adjustableParams.addParameter(subductionRupAspectRatioParam);
+				adjustableParams.addParameter(subductionFloaterTypeParam);
+				adjustableParams.addParameter(subductionMagScalingRelParam);
+				adjustableParams.addParameter(subductionScalingSigmaParam);
+			}
+		}
+		
 		adjustableParams.addParameter(sourceCacheParam);
+
 	}
 
 
@@ -584,14 +745,14 @@ public class GEM1ERF extends EqkRupForecast {
 			 src = new FloatingPoissonFaultSource(
 					gemFaultSourceData.getMfd(),	//IncrementalMagFreqDist
 	                faultSurface,					//EvenlyGriddedSurface			
-	                magScalingRel,					// MagScalingRelationship
-	                this.sigmaValue,				// sigma of the mag-scaling relationship
-	                this.aspectRatioValue,			// floating rupture aspect ration (length/width)
-	                this.rupOffsetValue,			// floating rupture offset
+	                faultMagScalingRel,					// MagScalingRelationship
+	                this.faultScalingSigmaValue,				// sigma of the mag-scaling relationship
+	                this.faultRupAspectRatioValue,			// floating rupture aspect ration (length/width)
+	                this.faultRupOffsetValue,			// floating rupture offset
 	                gemFaultSourceData.getRake(),	// average rake of the ruptures
 	                duration,						// duration of forecast
 	                MINMAG,							// minimum mag considered (probs of those lower set to zero regardless of MFD)
-	                floaterTypeFlag,				// type of floater (0 for full DDW, 1 for floating both ways, and 2 for floating down center)
+	                faultFloaterTypeValue,				// type of floater (0 for full DDW, 1 for floating both ways, and 2 for floating down center)
 	                12.0);  						// mags >= to this forced to be full fault ruptures (set as high value for now)
 			
 		}
@@ -600,14 +761,14 @@ public class GEM1ERF extends EqkRupForecast {
 			 src = new FloatingPoissonFaultSource(
 					gemFaultSourceData.getMfd(),	//IncrementalMagFreqDist
 	                faultSurface,					//EvenlyGriddedSurface			
-	                magScalingRel,					// MagScalingRelationship
-	                this.sigmaValue,				// sigma of the mag-scaling relationship
-	                this.aspectRatioValue,			// floating rupture aspect ration (length/width)
-	                this.rupOffsetValue,			// floating rupture offset
+	                faultMagScalingRel,					// MagScalingRelationship
+	                this.faultScalingSigmaValue,				// sigma of the mag-scaling relationship
+	                this.faultRupAspectRatioValue,			// floating rupture aspect ration (length/width)
+	                this.faultRupOffsetValue,			// floating rupture offset
 	                gemFaultSourceData.getRake(),	// average rake of the ruptures
 	                duration,						// duration of forecast
 	                MINMAG,							// minimum mag considered (probs of those lower set to zero regardless of MFD)
-	                floaterTypeFlag,				// type of floater (0 for full DDW, 1 for floating both ways, and 2 for floating down center)
+	                faultFloaterTypeValue,				// type of floater (0 for full DDW, 1 for floating both ways, and 2 for floating down center)
 	                0.0);  						// mags >= to this forced to be full fault ruptures (set as high value for now)
 			
 		}
@@ -623,7 +784,7 @@ public class GEM1ERF extends EqkRupForecast {
 		ApproxEvenlyGriddedSurface faultSurface = new ApproxEvenlyGriddedSurface(
 				gemSubductFaultSourceData.getTopTrace(),
 				gemSubductFaultSourceData.getBottomTrace(),
-                sub_faultDiscrValue);
+                subductionDiscrValue);
 		
 		FloatingPoissonFaultSource src = null;
 		
@@ -632,14 +793,14 @@ public class GEM1ERF extends EqkRupForecast {
 			src = new FloatingPoissonFaultSource(
 					gemSubductFaultSourceData.getMfd(),	//IncrementalMagFreqDist
 	                faultSurface,					//EvenlyGriddedSurface			
-	                sub_magScalingRel,					// MagScalingRelationship
-	                this.sub_sigmaValue,				// sigma of the mag-scaling relationship
-	                this.sub_aspectRatioValue,			// floating rupture aspect ration (length/width)
-	                this.sub_rupOffsetValue,			// floating rupture offset
+	                subductionMagScalingRel,					// MagScalingRelationship
+	                this.subductionScalingSigmaValue,				// sigma of the mag-scaling relationship
+	                this.subductionRupAspectRatioValue,			// floating rupture aspect ration (length/width)
+	                this.subductionRupOffsetValue,			// floating rupture offset
 	                gemSubductFaultSourceData.getRake(),	// average rake of the ruptures
 	                timeSpan.getDuration(),						// duration of forecast
 	                MINMAG,							// minimum mag considered (probs of those lower set to zero regardless of MFD)
-	                sub_floaterTypeFlag,					// type of floater (0 for full DDW, 1 for floating both ways, and 2 for floating down center)
+	                subductionFloaterTypeValue,					// type of floater (0 for full DDW, 1 for floating both ways, and 2 for floating down center)
 	                12.0);  						// mags >= to this forced to be full fault ruptures (set as high value for now)
 			
 		}
@@ -648,14 +809,14 @@ public class GEM1ERF extends EqkRupForecast {
 			src = new FloatingPoissonFaultSource(
 					gemSubductFaultSourceData.getMfd(),	//IncrementalMagFreqDist
 	                faultSurface,					//EvenlyGriddedSurface			
-	                sub_magScalingRel,					// MagScalingRelationship
-	                this.sub_sigmaValue,				// sigma of the mag-scaling relationship
-	                this.sub_aspectRatioValue,			// floating rupture aspect ration (length/width)
-	                this.sub_rupOffsetValue,			// floating rupture offset
+	                subductionMagScalingRel,					// MagScalingRelationship
+	                this.subductionScalingSigmaValue,				// sigma of the mag-scaling relationship
+	                this.subductionRupAspectRatioValue,			// floating rupture aspect ration (length/width)
+	                this.subductionRupOffsetValue,			// floating rupture offset
 	                gemSubductFaultSourceData.getRake(),	// average rake of the ruptures
 	                timeSpan.getDuration(),						// duration of forecast
 	                MINMAG,							// minimum mag considered (probs of those lower set to zero regardless of MFD)
-	                sub_floaterTypeFlag,					// type of floater (0 for full DDW, 1 for floating both ways, and 2 for floating down center)
+	                subductionFloaterTypeValue,					// type of floater (0 for full DDW, 1 for floating both ways, and 2 for floating down center)
 	                0.0);  						// mags >= to this forced to be full fault ruptures (set as high value for now)
 			
 		}
@@ -670,50 +831,39 @@ public class GEM1ERF extends EqkRupForecast {
 	 * @return ProbEqkSource
 	 */
 	protected ProbEqkSource mkAreaSource(GEMAreaSourceData areaSourceData) {	
-//		if (areaSrcRupValue.equals(AREA_SRC_RUP_POINT)){
-			// Point sources 
-//			PoissonAreaSource src = new PoissonAreaSource(areaSourceData.getRegion(),AREA_DISCR_PARAM_DEFAULT,
-//					areaSourceData.getMagfreqDistFocMech(),areaSourceData.getAveRupTopVsMag(),
-//					areaSourceData.getAveHypoDepth(),duration,MINMAG);
-//			src.setTectonicRegionType(areaSourceData.getTectReg());
-//			return src;
-//		} else if (areaSrcRupValue.equals(AREA_SRC_RUP_LINE)) {
-//			// Finite ruptures 
-//			PoissonAreaSource src = new PoissonAreaSource(areaSourceData.getRegion(),AREA_DISCR_PARAM_DEFAULT,
-//					areaSourceData.getMagfreqDistFocMech(),areaSourceData.getAveRupTopVsMag(),
-//					areaSourceData.getAveHypoDepth(),magScalingRelArea,lowerSeisDepthValue,
-//					duration,MINMAG);
-//			src.setTectonicRegionType(areaSourceData.getTectReg());
-//			return src;
-//		} else if (areaSrcRupValue.equals(AREA_SRC_RUP_CROSS_HAIR)) {
-//			PoissonAreaSource src = new PoissonAreaSource(areaSourceData.getRegion(),AREA_DISCR_PARAM_DEFAULT,
-//					areaSourceData.getMagfreqDistFocMech(),areaSourceData.getAveRupTopVsMag(),
-//					areaSourceData.getAveHypoDepth(),magScalingRelArea,lowerSeisDepthValue,
-//					duration,MINMAG,2,0);
-//			src.setTectonicRegionType(areaSourceData.getTectReg());
-//			return src;
-//		} else if (areaSrcRupValue.equals(AREA_SRC_RUP_SPOKED)) {
-//			PoissonAreaSource src = new PoissonAreaSource(areaSourceData.getRegion(),AREA_DISCR_PARAM_DEFAULT,
-//					areaSourceData.getMagfreqDistFocMech(),areaSourceData.getAveRupTopVsMag(),
-//					areaSourceData.getAveHypoDepth(),magScalingRelArea,lowerSeisDepthValue,
-//					duration,MINMAG,16,0);
-//			src.setTectonicRegionType(areaSourceData.getTectReg());
-//			return src;
-//		} else if(areaSrcRupValue.equals(AREA_SRC_RUP_FINITE_SURF)) {
-//			throw new RuntimeException(NAME+" - "+AREA_SRC_RUP_FINITE_SURF+ " is not yet implemented");
-//		}  else if(areaSrcRupValue.equals(AREA_SRC_RUP_POINT_OLD)) {
-	  		GriddedRegion gridReg = new GriddedRegion(areaSourceData.getRegion(),this.areaDiscrValue,null); 
-	  		
-	  		// create source
-	    	GriddedRegionPoissonEqkSource src = new GriddedRegionPoissonEqkSource(gridReg,areaSourceData.getMagfreqDistFocMech().getFirstMagFreqDist(),
-	    			                                   duration,areaSourceData.getMagfreqDistFocMech().getFirstFocalMech().getRake(),
-	    			                                   areaSourceData.getMagfreqDistFocMech().getFirstFocalMech().getDip(),
-	    			                                   areaSourceData.getAveHypoDepth(),MINMAG);
-	    	src.setTectonicRegionType(areaSourceData.getTectReg());
-	    	  
-		    return src;
-//	    } else
-//		    throw new RuntimeException(NAME+" - Unsupported area source rupture type");
+		
+
+		if (areaSrcRupTypeValue.equals(AREA_SRC_RUP_POINT)){
+			PoissonAreaSource src = new PoissonAreaSource(areaSourceData.getRegion(),AREA_DISCR_PARAM_DEFAULT,
+					areaSourceData.getMagfreqDistFocMech(),areaSourceData.getAveRupTopVsMag(),
+					areaSourceData.getAveHypoDepth(),duration,MINMAG);
+			src.setTectonicRegionType(areaSourceData.getTectReg());
+			return src;
+		} else if (areaSrcRupTypeValue.equals(AREA_SRC_RUP_LINE)) {
+			PoissonAreaSource src = new PoissonAreaSource(areaSourceData.getRegion(),AREA_DISCR_PARAM_DEFAULT,
+					areaSourceData.getMagfreqDistFocMech(),areaSourceData.getAveRupTopVsMag(),
+					areaSourceData.getAveHypoDepth(),areaSrcMagScalingRel,areaSrcLowerSeisDepthValue,
+					duration,MINMAG);
+			src.setTectonicRegionType(areaSourceData.getTectReg());
+			return src;
+		} else if (areaSrcRupTypeValue.equals(AREA_SRC_RUP_CROSS_HAIR)) {
+			PoissonAreaSource src = new PoissonAreaSource(areaSourceData.getRegion(),AREA_DISCR_PARAM_DEFAULT,
+					areaSourceData.getMagfreqDistFocMech(),areaSourceData.getAveRupTopVsMag(),
+					areaSourceData.getAveHypoDepth(),areaSrcMagScalingRel,areaSrcLowerSeisDepthValue,
+					duration,MINMAG,2,0);
+			src.setTectonicRegionType(areaSourceData.getTectReg());
+			return src;
+		} else if (areaSrcRupTypeValue.equals(AREA_SRC_RUP_SPOKED)) {
+			PoissonAreaSource src = new PoissonAreaSource(areaSourceData.getRegion(),AREA_DISCR_PARAM_DEFAULT,
+					areaSourceData.getMagfreqDistFocMech(),areaSourceData.getAveRupTopVsMag(),
+					areaSourceData.getAveHypoDepth(),areaSrcMagScalingRel,areaSrcLowerSeisDepthValue,
+					duration,MINMAG,16,0);
+			src.setTectonicRegionType(areaSourceData.getTectReg());
+			return src;
+		} else if(areaSrcRupTypeValue.equals(AREA_SRC_RUP_FINITE_SURF)) {
+			throw new RuntimeException(NAME+" - "+AREA_SRC_RUP_FINITE_SURF+ " is not yet implemented");
+	    } else
+		    throw new RuntimeException(NAME+" - Unsupported area source rupture type");
 
 	}	
 	
@@ -724,51 +874,51 @@ public class GEM1ERF extends EqkRupForecast {
 	 */
 	protected ProbEqkSource mkGridSource(GEMPointSourceData gridSourceData) {
 
-	//	if(backSeisRupValue.equals(BACK_SEIS_RUP_POINT)) {
+		if(griddedSeisRupTypeValue.equals(BACK_SEIS_RUP_POINT)) {
 			PointEqkSource src = new PointEqkSource(gridSourceData.getHypoMagFreqDistAtLoc(),
 					gridSourceData.getAveRupTopVsMag(), 
 					gridSourceData.getAveHypoDepth(),
 					duration, MINMAG);
 			src.setTectonicRegionType(gridSourceData.getTectReg());
 			return src;
-//		}
-//		else if(backSeisRupValue.equals(BACK_SEIS_RUP_LINE)) {
-//			PointToLineSource src = new PointToLineSource(gridSourceData.getHypoMagFreqDistAtLoc(),
-//					gridSourceData.getAveRupTopVsMag(), 
-//					gridSourceData.getAveHypoDepth(),
-//					magScalingRelBackgr,
-//					lowerSeisDepthValue, 
-//					duration, MINMAG);
-//			src.setTectonicRegionType(gridSourceData.getTectReg());
-//			return src;
-//		}
-//		else if(backSeisRupValue.equals(BACK_SEIS_RUP_CROSS_HAIR)) {
-//			PointToLineSource src = new PointToLineSource(gridSourceData.getHypoMagFreqDistAtLoc(),
-//					gridSourceData.getAveRupTopVsMag(), 
-//					gridSourceData.getAveHypoDepth(),
-//					magScalingRelBackgr,
-//					lowerSeisDepthValue, 
-//					duration, MINMAG,
-//					2, 0);
-//			src.setTectonicRegionType(gridSourceData.getTectReg());
-//			return src;
-//		}
-//		else if(backSeisRupValue.equals(BACK_SEIS_RUP_SPOKED)) {
-//			PointToLineSource src = new PointToLineSource(gridSourceData.getHypoMagFreqDistAtLoc(),
-//					gridSourceData.getAveRupTopVsMag(), 
-//					gridSourceData.getAveHypoDepth(),
-//					magScalingRelBackgr,
-//					lowerSeisDepthValue, 
-//					duration, MINMAG,
-//					16, 0);
-//			src.setTectonicRegionType(gridSourceData.getTectReg());
-//			return src;
-//		}
-//		else if(backSeisRupValue.equals(BACK_SEIS_RUP_FINITE_SURF)) {
-//			throw new RuntimeException(NAME+" - "+BACK_SEIS_RUP_FINITE_SURF+ " is not yet implemented");
-//		}
-//		else
-//			throw new RuntimeException(NAME+" - Unsupported background rupture type");
+		}
+		else if(griddedSeisRupTypeValue.equals(BACK_SEIS_RUP_LINE)) {
+			PointToLineSource src = new PointToLineSource(gridSourceData.getHypoMagFreqDistAtLoc(),
+					gridSourceData.getAveRupTopVsMag(), 
+					gridSourceData.getAveHypoDepth(),
+					griddedSeisMagScalingRel,
+					griddedSeisLowerSeisDepthValue, 
+					duration, MINMAG);
+			src.setTectonicRegionType(gridSourceData.getTectReg());
+			return src;
+		}
+		else if(griddedSeisRupTypeValue.equals(BACK_SEIS_RUP_CROSS_HAIR)) {
+			PointToLineSource src = new PointToLineSource(gridSourceData.getHypoMagFreqDistAtLoc(),
+					gridSourceData.getAveRupTopVsMag(), 
+					gridSourceData.getAveHypoDepth(),
+					griddedSeisMagScalingRel,
+					griddedSeisLowerSeisDepthValue, 
+					duration, MINMAG,
+					2, 0);
+			src.setTectonicRegionType(gridSourceData.getTectReg());
+			return src;
+		}
+		else if(griddedSeisRupTypeValue.equals(BACK_SEIS_RUP_SPOKED)) {
+			PointToLineSource src = new PointToLineSource(gridSourceData.getHypoMagFreqDistAtLoc(),
+					gridSourceData.getAveRupTopVsMag(), 
+					gridSourceData.getAveHypoDepth(),
+					griddedSeisMagScalingRel,
+					griddedSeisLowerSeisDepthValue, 
+					duration, MINMAG,
+					16, 0);
+			src.setTectonicRegionType(gridSourceData.getTectReg());
+			return src;
+		}
+		else if(griddedSeisRupTypeValue.equals(BACK_SEIS_RUP_FINITE_SURF)) {
+			throw new RuntimeException(NAME+" - "+BACK_SEIS_RUP_FINITE_SURF+ " is not yet implemented");
+		}
+		else
+			throw new RuntimeException(NAME+" - Unsupported background rupture type");
 	}	
 
 	/**
@@ -844,51 +994,61 @@ public class GEM1ERF extends EqkRupForecast {
 			// methods (this could alternatively be done in the parameterChange method)
 			
 			// ------------------------------------------------------------------------- AREA SOURCE
-			areaSrcRupValue = areaSrcRupParam.getValue();
+			areaSrcRupTypeValue = areaSrcRupTypeParam.getValue();
 			areaSrcLowerSeisDepthValue = areaSrcLowerSeisDepthParam.getValue();
-			areaDiscrValue = areaDiscrParam.getValue();
-			magScalingRelArea = getmagScalingRelationship(magScalingRelAreaSrcParam.getValue());
+			areaSrcDiscrValue = areaSrcDiscrParam.getValue();
+			areaSrcMagScalingRel = getmagScalingRelationship(areaSrcMagScalingRelParam.getValue());
 			
 			// ------------------------------------------------------------------------- GRID SOURCE
-			backSeisValue = backSeisParam.getValue();
-			backSeisRupValue = backSeisRupParam.getValue();
-			lowerSeisDepthValue = lowerSeisDepthParam.getValue();
-			magScalingRelBackgr = getmagScalingRelationship(magScalingRelBackgrParam.getValue());
+			griddedSeisRupTypeValue = griddedSeisRupTypeParam.getValue();
+			griddedSeisLowerSeisDepthValue = griddedSeisLowerSeisDepthParam.getValue();
+			griddedSeisMagScalingRel = getmagScalingRelationship(griddedSeisMagScalingRelParam.getValue());
 
 			// ------------------------------------------------------------------------ FAULT SOURCE
-			rupOffsetValue = rupOffsetParam.getValue();
+			faultRupOffsetValue = faultRupOffsetParam.getValue();
 			faultDiscrValue = faultDiscrParam.getValue();
-			magScalingRel = getmagScalingRelationship(magScalingRelParam.getValue());
-			sigmaValue = sigmaParam.getValue();
-			aspectRatioValue = aspectRatioParam.getValue();
-			String floaterTypeName = floaterTypeParam.getValue();
+			faultMagScalingRel = getmagScalingRelationship(faultMagScalingRelParam.getValue());
+			faultScalingSigmaValue = faultScalingSigmaParam.getValue();
+			faultRupAspectRatioValue = faultRupAspectRatioParam.getValue();
+			String floaterTypeName = faultFloaterTypeParam.getValue();
 			if(floaterTypeName.equals(this.FLOATER_TYPE_FULL_DDW)) 
-				floaterTypeFlag = 0;
+				faultFloaterTypeValue = 0;
 			else if(floaterTypeName.equals(this.FLOATER_TYPE_ALONG_STRIKE_AND_DOWNDIP)) 
-				floaterTypeFlag = 1;
+				faultFloaterTypeValue = 1;
 			else // (floaterTypeName.equals(this.FLOATER_TYPE_CENTERED_DOWNDIP)) 
-				floaterTypeFlag = 2;
+				faultFloaterTypeValue = 2;
 			duration = timeSpan.getDuration();
 			
 			// ------------------------------------------------------------------------ SUBDUCTION FAULT SOURCE
-			sub_rupOffsetValue = sub_rupOffsetParam.getValue();
-			sub_faultDiscrValue = sub_faultDiscrParam.getValue();
-			sub_magScalingRel = getmagScalingRelationship(sub_magScalingRelParam.getValue());
-			sub_sigmaValue = sub_sigmaParam.getValue();
-			sub_aspectRatioValue = sub_aspectRatioParam.getValue();
-			String sub_floaterTypeName = sub_floaterTypeParam.getValue();
+			subductionRupOffsetValue = subductionRupOffsetParam.getValue();
+			subductionDiscrValue = subductionDiscrParam.getValue();
+			subductionMagScalingRel = getmagScalingRelationship(subductionMagScalingRelParam.getValue());
+			subductionScalingSigmaValue = subductionScalingSigmaParam.getValue();
+			subductionRupAspectRatioValue = subductionRupAspectRatioParam.getValue();
+			String sub_floaterTypeName = subductionFloaterTypeParam.getValue();
 			if(sub_floaterTypeName.equals(this.SUB_FLOATER_TYPE_FULL_DDW)) 
-				sub_floaterTypeFlag = 0;
+				subductionFloaterTypeValue = 0;
 			else if(sub_floaterTypeName.equals(this.SUB_FLOATER_TYPE_ALONG_STRIKE_AND_DOWNDIP)) 
-				sub_floaterTypeFlag = 1;
+				subductionFloaterTypeValue = 1;
 			else // (floaterTypeName.equals(this.FLOATER_TYPE_CENTERED_DOWNDIP)) 
-				sub_floaterTypeFlag = 2;
+				subductionFloaterTypeValue = 2;
 			
-			
+			// clear cache (if used) and garbage collect
 			if (sourceCache != null) {
 				sourceCache = null;
 				System.gc();
 			}
+			
+			// make the list of sources
+			gemSourceDataList = new ArrayList<GEMSourceData>();
+			if(includeAreaSourceParam.getValue() && areaSourceDataList !=null ) 
+				gemSourceDataList.addAll(areaSourceDataList);
+			if(includeGriddedSeisParam.getValue() && griddedSeisSourceDataList !=null ) 
+				gemSourceDataList.addAll(griddedSeisSourceDataList);
+			if(includeFaultSourcesParam.getValue() && faultSourceDataList !=null ) 
+				gemSourceDataList.addAll(faultSourceDataList);
+			if(includeSubductionSourcesParam.getValue() && subductionSourceDataList !=null ) 
+				gemSourceDataList.addAll(subductionSourceDataList);
 			
 			parameterChangeFlag = false;
 		}
@@ -904,20 +1064,17 @@ public class GEM1ERF extends EqkRupForecast {
 	public void parameterChange(ParameterChangeEvent event) {
 		super.parameterChange(event);
 		String paramName = event.getParameterName();
-
-		// recreate the parameter list if any of the following were modified
-		if(paramName.equals(BACK_SEIS_NAME) || paramName.equals(BACK_SEIS_RUP_NAME) || 
-				paramName.equals(MAG_SCALING_REL_BACKGR_PARAM_NAME)){
-			createParamList();
-		}
+		
+		// for now create new parameter list on every change; make more efficient later?
+		createParamList();
+		
 		if (paramName.equals(SOURCE_CACHE_PARAM_NAME)) {
-			Boolean cache = (Boolean)event.getParameter().getValue();
-			if (cache) {
+			if ((Boolean)event.getParameter().getValue()) {
 				if (sourceCache == null)
 					sourceCache = new HashMap<Integer, ProbEqkSource>();
 			} else {
 				sourceCache = null;
-				System.gc();
+				System.gc();  // garbage collection
 			}
 		} else
 			parameterChangeFlag = true;
@@ -927,27 +1084,6 @@ public class GEM1ERF extends EqkRupForecast {
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
 
-	}
-	/**
-	 * This method provides a list of ruptures for source sourceId with a magnitude 
-	 * comprised between a lower and an upper threshold 
-	 *
-	 * @param sourceId			Index of the source
-	 * @param mMin				Minimum value of magnitude
-	 * @return rupList			List of ruptures with magnitude in a given interval
-	 */		
-	public ArrayList<ProbEqkRupture> getRupturesMag(int sourceId,double mMin, double mMax) {
-		ProbEqkSource prbSrc = (ProbEqkSource) this.getSource(sourceId);
-		ArrayList<ProbEqkRupture> rupList = new ArrayList<ProbEqkRupture>();
-		
-		Iterator<ProbEqkRupture> iter = prbSrc.getRupturesIterator(); 
-		while (iter.hasNext()) {
-			// Get rupture
-			ProbEqkRupture rup = iter.next();
-			// Add the rupture to the list 
-			if (rup.getMag() >= mMin && rup.getMag() < mMax) rupList.add(rup);
-		}
-		return rupList;
 	}
 	
 	@Override
