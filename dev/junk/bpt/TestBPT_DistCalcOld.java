@@ -5,8 +5,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.opensha.commons.util.DataUtils;
 
-import util.TestUtils;
 
 public class TestBPT_DistCalcOld {
 
@@ -29,7 +29,7 @@ public class TestBPT_DistCalcOld {
 	public void testStaticWG02() {
 		System.out.println("Test1: comparison with probs from WG02 code");
 		for(int i=0;i<rate.length;i++) {
-			double diff = TestUtils.getPercentDiff(static_prob[i], prob[i]);
+			double diff = DataUtils.getPercentDiff(static_prob[i], prob[i]);
 			assertTrue(diff <= 0.5);
 		}
 	}
@@ -41,7 +41,7 @@ public class TestBPT_DistCalcOld {
 		BPT_DistCalcOld calc = new BPT_DistCalcOld(0.5);
 		for(int i=0;i<rate.length;i++) {
 			p = calc.getCondProb(timeSinceLast,rate[i],nYr);
-			double diff = util.TestUtils.getPercentDiff(p, static_prob[i]);
+			double diff = org.opensha.commons.util.DataUtils.getPercentDiff(p, static_prob[i]);
 //			System.out.println("DIFF: " + diff);
 			assertTrue(diff <= 0.5);
 		}
@@ -55,7 +55,7 @@ public class TestBPT_DistCalcOld {
 		calc.setDelta(0.01);
 		for(int i=0;i<rate.length;i++) {
 			p = calc.getCondProb(timeSinceLast,rate[i],nYr);
-			double diff = util.TestUtils.getPercentDiff(p, static_prob[i]);
+			double diff = org.opensha.commons.util.DataUtils.getPercentDiff(p, static_prob[i]);
 //			System.out.println("DIFF: " + diff);
 			assertTrue(diff <= 0.5);
 		}

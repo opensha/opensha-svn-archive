@@ -314,7 +314,12 @@ extends HttpServlet implements ParameterChangeWarningListener {
 	 */
 	private void createXYZDataObjectFile(ArbDiscretizedXYZ_DataSet xyzData,
 			String xyzDataFileWithAbsolutePath) {
-		FileUtils.saveObjectInFile(xyzDataFileWithAbsolutePath, xyzData);
+		try {
+			FileUtils.saveObjectInFile(xyzDataFileWithAbsolutePath, xyzData);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**

@@ -129,7 +129,12 @@ public class STEP_DamageState implements ParameterChangeWarningListener{
       createHazCurveFile(hazCurveList, sites);
       ArrayList stepAftershockList= stepMain.getSTEP_AftershockForecastList();
       //saving the STEP_Aftershock list object to the file
-      FileUtils.saveObjectInFile(STEP_AFTERSHOCK_OBJECT_FILE, stepAftershockList);
+      try {
+		FileUtils.saveObjectInFile(STEP_AFTERSHOCK_OBJECT_FILE, stepAftershockList);
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
 	}
 	
 	

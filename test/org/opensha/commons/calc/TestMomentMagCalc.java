@@ -4,8 +4,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.opensha.commons.util.DataUtils;
 
-import util.TestUtils;
 
 public class TestMomentMagCalc {
 
@@ -18,7 +18,7 @@ public class TestMomentMagCalc {
 		for (double moment = 1e10; moment < 1e30; moment *= 5) {
 			double mag = MomentMagCalc.getMag(moment);
 			double calcMoment = MomentMagCalc.getMoment(mag);
-			double pDiff = TestUtils.getPercentDiff(calcMoment, moment);
+			double pDiff = DataUtils.getPercentDiff(calcMoment, moment);
 			assertTrue(pDiff < 0.000001);
 		}
 	}

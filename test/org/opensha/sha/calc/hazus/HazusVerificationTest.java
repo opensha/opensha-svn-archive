@@ -11,9 +11,9 @@ import java.util.StringTokenizer;
 import org.junit.Before;
 import org.junit.Test;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.FileUtils;
 
-import util.TestUtils;
 
 public class HazusVerificationTest {
 	
@@ -74,7 +74,7 @@ public class HazusVerificationTest {
 			double[] newvals = newResults.get(loc);
 			
 			for (int i=0; i<4; i++) {
-				double pdiff = TestUtils.getPercentDiff(newvals[i], refvals[i]);
+				double pdiff = DataUtils.getPercentDiff(newvals[i], refvals[i]);
 				avgDiffs[i] += pdiff;
 				if (pdiff > maxDiffs[i])
 					maxDiffs[i] = pdiff;

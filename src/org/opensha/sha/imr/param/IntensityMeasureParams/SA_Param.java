@@ -20,6 +20,7 @@
 package org.opensha.sha.imr.param.IntensityMeasureParams;
 
 import org.opensha.commons.param.DoubleConstraint;
+import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.WarningDoubleParameter;
 
 /**
@@ -90,6 +91,11 @@ public class SA_Param extends WarningDoubleParameter {
 	 */
 	public DampingParam getDampingParam() {
 		return (DampingParam) this.getIndependentParameter(DampingParam.NAME);
+	}
+	
+	public static void setPeriodInSA_Param(ParameterAPI<?> param, double period) {
+		SA_Param saParam = (SA_Param) param;
+		saParam.getPeriodParam().setValue(period);
 	}
 
 }

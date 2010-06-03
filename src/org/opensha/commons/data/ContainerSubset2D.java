@@ -19,6 +19,7 @@
 
 package org.opensha.commons.data;
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
@@ -1193,5 +1194,11 @@ public class ContainerSubset2D<T> implements Container2DAPI<T>, Serializable {
 	}
 	public String getName() {
 		return name;
+	}
+
+
+	@Override
+	public Iterator<T> iterator() {
+		return listIterator();
 	}
 }

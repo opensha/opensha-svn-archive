@@ -114,8 +114,13 @@ public class RemoteEqkRupForecast_Impl
      String parentDir = "/opt/install/apache-tomcat-5.5.20/webapps/";
      String subDir = "OpenSHA/HazardMapDatasets/savedERFs/";
      String fileName = System.currentTimeMillis() + ".javaobject";
-     org.opensha.commons.util.FileUtils.saveObjectInFile(parentDir + subDir + fileName,
-                                              eqkRupForecast);
+     try {
+		org.opensha.commons.util.FileUtils.saveObjectInFile(parentDir + subDir + fileName,
+		                                          eqkRupForecast);
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
      return parentDir + subDir + fileName;
    }
 

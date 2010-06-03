@@ -315,7 +315,7 @@ public class HazardMapMetadataJobCreator {
 		// save ERF to file
 		String erfFileName = job.getJobID() + "_ERF.obj";
 		System.out.println("Saving ERF to " + erfFileName + "...");
-		FileUtils.saveObjectInFileThrow(outputDir + erfFileName, erf);
+		FileUtils.saveObjectInFile(outputDir + erfFileName, erf);
 
 		// create new ERF element and add to root
 		Element newERFElement = root.addElement(EqkRupForecast.XML_METADATA_NAME);

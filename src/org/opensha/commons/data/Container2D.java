@@ -19,6 +19,7 @@
 
 package org.opensha.commons.data;
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
@@ -842,6 +843,12 @@ public class Container2D<T> implements Container2DAPI<T>, Serializable, NamedObj
 		b.append( "Size = " + size + '\n' );
 		b.append( "Number of non-null objects = " + counter + '\n' );
 		return b.toString();
+	}
+
+
+	@Override
+	public Iterator<T> iterator() {
+		return listIterator();
 	}
 
 

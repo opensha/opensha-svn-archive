@@ -31,7 +31,7 @@ public class ERFSaveAndSerializeTest {
 		erf.updateForecast();
 		//System.out.println("Sources: " + erf.getNumSources());
 		try {
-			FileUtils.saveObjectInFileThrow("erf.obj", erf);
+			FileUtils.saveObjectInFile("erf.obj", erf);
 			EqkRupForecastAPI erf2 = null;
 			System.out.println("TRYING...");
 			erf2 = (EqkRupForecastAPI)FileUtils.loadObject("erf.obj");

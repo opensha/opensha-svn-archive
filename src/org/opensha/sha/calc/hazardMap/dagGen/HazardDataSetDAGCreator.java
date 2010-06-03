@@ -225,7 +225,7 @@ public class HazardDataSetDAGCreator {
 	private String serializeERF(String odir) throws IOException {
 		erf.updateForecast();
 		String serializedERFFile = odir + ERF_SERIALIZED_FILE_NAME;
-		FileUtils.saveObjectInFileThrow(serializedERFFile, erf);
+		FileUtils.saveObjectInFile(serializedERFFile, erf);
 		return serializedERFFile;
 	}
 

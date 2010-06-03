@@ -60,7 +60,7 @@ public class NSHMPRiskMapTest {
 			if (Double.isNaN(expected))
 				continue;
 			double actual = testVals.get(i);
-			double diff = util.TestUtils.getPercentDiff(actual, expected);
+			double diff = org.opensha.commons.util.DataUtils.getPercentDiff(actual, expected);
 			assertTrue("index " + i + "/" + (verificationVals.size()-1) +
 					" expected: " + expected + " actual: " + actual + " pdiff: " + diff, diff < 5d);
 		}

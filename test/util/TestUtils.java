@@ -25,14 +25,4 @@ public class TestUtils {
 		return n;
 	}
 
-	
-	/* Returns the percent difference between two values. */
-	public static double getPercentDiff(double testVal, double targetVal) {
-		double result = 0;
-		if (targetVal != 0)
-			result = (StrictMath.abs(testVal - targetVal) / targetVal) * 100d;
-
-		return result;
-	}
-
 }

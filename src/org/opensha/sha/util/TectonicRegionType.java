@@ -73,7 +73,7 @@ public enum TectonicRegionType implements Serializable {
 		System.out.println(isValidType("Active Shallow Crust"));
 		String fname = "/tmp/trt.obj";
 		TectonicRegionType before = TectonicRegionType.ACTIVE_SHALLOW;
-		FileUtils.saveObjectInFileThrow(fname, before);
+		FileUtils.saveObjectInFile(fname, before);
 		TectonicRegionType after = (TectonicRegionType)FileUtils.loadObject(fname);
 		System.out.println("before: " + before);
 		System.out.println("after: " + after);

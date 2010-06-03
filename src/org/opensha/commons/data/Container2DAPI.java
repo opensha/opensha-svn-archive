@@ -48,7 +48,7 @@ import org.opensha.commons.geo.Location;
  * @version    1.0
  */
 
-public interface Container2DAPI<T> extends NamedObjectAPI{
+public interface Container2DAPI<T> extends NamedObjectAPI, Iterable<T> {
 
     /**
      *  Returns the number of rows int this two dimensional container.

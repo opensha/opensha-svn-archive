@@ -20,6 +20,7 @@
 package org.opensha.sha.faultSurface;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.exceptions.InvalidRangeException;
@@ -454,6 +455,11 @@ public class PointSurface implements EvenlyGriddedSurfaceAPI {
 
 	@Override
 	public ListIterator<Location> getLocationsIterator() {
+		return listIterator();
+	}
+
+	@Override
+	public Iterator<Location> iterator() {
 		return listIterator();
 	}
 

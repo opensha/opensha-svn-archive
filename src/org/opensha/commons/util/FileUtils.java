@@ -192,25 +192,9 @@ public class FileUtils {
 	 * save the serialized object into the specified file
 	 * @param fileName
 	 * @param obj
-	 */
-	public static void saveObjectInFile(String fileName, Object obj) {
-		try {
-			// write  object to the file
-			FileOutputStream fileOut = new FileOutputStream(fileName);
-			ObjectOutputStream objectStream = new ObjectOutputStream(fileOut);
-			objectStream.writeObject(obj);
-			objectStream.close();
-			fileOut.close();
-		}catch(Exception e ) { e.printStackTrace(); }
-	}
-
-	/**
-	 * save the serialized object into the specified file
-	 * @param fileName
-	 * @param obj
 	 * @throws IOException 
 	 */
-	public static void saveObjectInFileThrow(String fileName, Object obj) throws IOException {
+	public static void saveObjectInFile(String fileName, Object obj) throws IOException {
 		// write  object to the file
 		FileOutputStream fileOut = new FileOutputStream(fileName);
 		ObjectOutputStream objectStream = new ObjectOutputStream(fileOut);

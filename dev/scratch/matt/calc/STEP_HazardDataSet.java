@@ -96,7 +96,12 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 		ArrayList stepAftershockList= stepMain.getSTEP_AftershockForecastList();
 		//saving the STEP_Aftershock list object to the file, why not do it in stepMain?
 		synchronized(stepAftershockList){
-			FileUtils.saveObjectInFile(STEP_AFTERSHOCK_OBJECT_FILE, stepAftershockList);
+			try {
+				FileUtils.saveObjectInFile(STEP_AFTERSHOCK_OBJECT_FILE, stepAftershockList);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 

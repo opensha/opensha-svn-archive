@@ -38,8 +38,10 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.WarningDoubleParameter;
+import org.opensha.commons.util.DataUtils;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.PropagationEffectParams.WarningDoublePropagationEffectParameter;
+
 
 /**
  * <p>Title: AttenRelResultsChecker</p>
@@ -354,14 +356,20 @@ public class AttenRelResultsChecker {
 		//and making sure that values lies with the .01% range of the target values.
 		//comparing if the values lies within the actual tolerence range of the target result
 		double result = 0;
-		if(targetVal!=0)
-			result =(StrictMath.abs(valFromSHA-targetVal)/targetVal)*100;
+		if(targetVal!=0) {
+//			result =(StrictMath.abs(valFromSHA-targetVal)/targetVal)*100;
+			result = DataUtils.getPercentDiff(valFromSHA, targetVal);
+		}
+		
+		
 
 		//System.out.println("Result: "+ result);
-		if(result < this.tolerence)
+		if(result < this.tolerence) {
 			return true;
-		else
+		} else {
+			System.out.println("bad result. myVal: " + valFromSHA + " target: " + targetVal + " diff: " + result + "%");
 			return false;
+		}
 	}
 
 

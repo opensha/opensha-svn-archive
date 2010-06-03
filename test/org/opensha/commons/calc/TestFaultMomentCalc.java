@@ -3,8 +3,8 @@ package org.opensha.commons.calc;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.opensha.commons.util.DataUtils;
 
-import util.TestUtils;
 
 public class TestFaultMomentCalc {
 
@@ -52,7 +52,7 @@ public class TestFaultMomentCalc {
 			for (double moment=3e9; moment<10e15; moment*=1.25) {
 				double slip = FaultMomentCalc.getSlip(area, moment);
 				double calcMoment = FaultMomentCalc.getMoment(area, slip);
-				assertTrue(TestUtils.getPercentDiff(calcMoment, moment) < 0.01);
+				assertTrue(DataUtils.getPercentDiff(calcMoment, moment) < 0.01);
 				tests++;
 			}
 		}

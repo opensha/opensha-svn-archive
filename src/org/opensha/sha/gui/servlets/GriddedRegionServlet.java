@@ -118,8 +118,9 @@ public class GriddedRegionServlet extends HttpServlet {
 	 * Saves the Gridded region object in file specified by the regionFileWithAbsolutePath
 	 * @param griddedRegion
 	 * @param regionFileWithAbsolutePath
+	 * @throws IOException 
 	 */
-	private void createGriddedRegionFile(SitesInGriddedRegion griddedRegion,String regionFileWithAbsolutePath){
+	private void createGriddedRegionFile(SitesInGriddedRegion griddedRegion,String regionFileWithAbsolutePath) throws IOException{
 		FileUtils.saveObjectInFile(regionFileWithAbsolutePath,griddedRegion);
 	}
 

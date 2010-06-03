@@ -20,6 +20,7 @@
 package org.opensha.sha.cybershake.openshaAPIs;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
@@ -161,8 +162,14 @@ public class CyberShakeERF extends EqkRupForecast {
 				double secs = (double)(System.currentTimeMillis() - start) / 1000d;
 				System.out.println("Took " + secs + " seconds to update forecast!");
 				updated = true;
-				if (SAVE_OBJECTS)
-					FileUtils.saveObjectInFile(fileName, sources);
+				if (SAVE_OBJECTS) {
+					try {
+						FileUtils.saveObjectInFile(fileName, sources);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 			}
 		}
 	}

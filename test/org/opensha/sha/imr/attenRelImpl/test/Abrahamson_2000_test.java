@@ -59,7 +59,7 @@ public class Abrahamson_2000_test implements ParameterChangeWarningListener {
 	 **/
 	private static String showParamsForTests = "fail"; //other option can be "both" to show all results
 
-	private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/test/AttenRelResultSetFiles/";
+	private static final String RESULT_SET_PATH = "/org/opensha/sha/imr/attenRelImpl/test/AttenRelResultSetFiles/";
 	private static final String ABRAHAMSON_2000_RESULTS = RESULT_SET_PATH +"AS2000.txt";
 
 
@@ -70,14 +70,14 @@ public class Abrahamson_2000_test implements ParameterChangeWarningListener {
 	}
 
 	@Before
-	protected void setUp() {
+	public void setUp() {
 		// create the instance of the Abrahamson_2000
 		abrahamson_2000 = new Abrahamson_2000_AttenRel(this);
 		attenRelChecker = new AttenRelResultsChecker(abrahamson_2000,ABRAHAMSON_2000_RESULTS, tolerence);
 	}
 
 	@After
-	protected void tearDown() {
+	public void tearDown() {
 	}
 
 	@Test

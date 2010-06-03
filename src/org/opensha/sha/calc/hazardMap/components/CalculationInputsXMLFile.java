@@ -71,7 +71,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 	
 	public void serializeERF(String odir) throws IOException {
 		erf.updateForecast();
-		FileUtils.saveObjectInFileThrow(serializedERFFile, erf);
+		FileUtils.saveObjectInFile(serializedERFFile, erf);
 		String serializedERFFile = odir + HazardDataSetDAGCreator.ERF_SERIALIZED_FILE_NAME;
 		setSerialized(serializedERFFile);
 	}
