@@ -204,12 +204,12 @@ ParameterAPI<E>, java.io.Serializable
 		// do not fire the event if new value is same as current value
 		if(this.value!=null && this.value.equals(value)) return;
 
-		this.value = value;
-
 		org.opensha.commons.param.event.ParameterChangeEvent event = new org.opensha.commons.param.event.ParameterChangeEvent(
 				this, getName(),
 				getValue(), value
 		);
+		
+		this.value = value;
 
 		firePropertyChange( event );
 	}
