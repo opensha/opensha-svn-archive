@@ -15,7 +15,7 @@ import org.opensha.sha.faultSurface.SimpleFaultData;
 
 public class FaultSectDistCalculator implements Runnable {
 	
-	private ArrayList<FaultSectionPrefData> data;
+	private ArrayList<Integer> sectionIDs;
 	private ArrayList<EvenlyGriddedSurfaceAPI> surfaces;
 	
 	private HashMap<Pairing, FaultSectDistRecord> records;
@@ -37,14 +37,25 @@ public class FaultSectDistCalculator implements Runnable {
 	public FaultSectDistCalculator(
 			double disc, boolean fast,
 			ArrayList<FaultSectionPrefData> data) {
-		this.data = data;
-		this.fast = fast;
-		
-		createSurfaces(disc);
+		this(fast, createSurfaces(disc, data), getIDs(data));
 	}
 	
-	private void createSurfaces(double disc) {
-		this.surfaces = new ArrayList<EvenlyGriddedSurfaceAPI>();
+	public FaultSectDistCalculator(boolean fast, ArrayList<EvenlyGriddedSurfaceAPI> surfaces, ArrayList<Integer> ids) {
+		this.fast = fast;
+		this.surfaces = surfaces;
+		this.sectionIDs = ids;
+	}
+	
+	private static ArrayList<Integer> getIDs(ArrayList<FaultSectionPrefData> data) {
+		ArrayList<Integer> sectionIDs = new ArrayList<Integer>();
+		for (FaultSectionPrefData val : data) {
+			sectionIDs.add(val.getSectionId());
+		}
+		return sectionIDs;
+	}
+	
+	private static ArrayList<EvenlyGriddedSurfaceAPI> createSurfaces(double disc, ArrayList<FaultSectionPrefData> data) {
+		ArrayList<EvenlyGriddedSurfaceAPI> surfaces = new ArrayList<EvenlyGriddedSurfaceAPI>();
 		
 		for (FaultSectionPrefData section : data) {
 			SimpleFaultData simpleFaultData = section.getSimpleFaultData(false);
@@ -52,6 +63,7 @@ public class FaultSectDistCalculator implements Runnable {
 			
 			surfaces.add(surface);
 		}
+		return surfaces;
 	}
 	
 	public void calcDistances() {
@@ -104,8 +116,8 @@ public class FaultSectDistCalculator implements Runnable {
 				EvenlyGriddedSurfaceAPI surface2 = surfaces.get(j);
 				if (surface1 == surface2)
 					continue;
-				int id1 = data.get(i).getSectionId();
-				int id2 = data.get(j).getSectionId();
+				int id1 = sectionIDs.get(i);
+				int id2 = sectionIDs.get(j);
 				if (id1 >= id2)
 					continue;
 				FaultSectDistRecord record = new FaultSectDistRecord(id1, surface1, id2, surface2);
