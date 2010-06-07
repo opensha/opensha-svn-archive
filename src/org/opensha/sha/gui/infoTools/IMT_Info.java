@@ -10,6 +10,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.IA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.MMI_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_InterpolatedParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 /**
  * <p>Title: IMT_Info</p>
@@ -101,7 +102,7 @@ public final class IMT_Info {
    */
   public ArbitrarilyDiscretizedFunc getDefaultHazardCurve(String imtName){
     ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();
-    if(imtName.equals(SA_Param.NAME)){
+    if(imtName.equals(SA_Param.NAME) || imtName.equals(SA_InterpolatedParam.NAME)){
       for(int i=0; i < NUM_SA ;++i){
         double xVal =Double.parseDouble(format.format(Math.exp(Math.log(MIN_SA)+i*discretization_sa)));
         function.set(xVal,1.0);
@@ -245,6 +246,7 @@ public final class IMT_Info {
     if(imt.equalsIgnoreCase(PGA_Param.NAME) ||
        imt.equalsIgnoreCase(PGV_Param.NAME) ||
        imt.equalsIgnoreCase(SA_Param.NAME)  ||
+       imt.equalsIgnoreCase(SA_InterpolatedParam.NAME)  ||
        imt.equalsIgnoreCase(MMI_Param.NAME)  ||
        imt.equalsIgnoreCase(WC94_DisplMagRel.FAULT_DISPL_NAME)  ||
        imt.equalsIgnoreCase(IA_Param.NAME))

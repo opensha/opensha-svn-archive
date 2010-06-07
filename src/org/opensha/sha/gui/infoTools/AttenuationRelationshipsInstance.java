@@ -48,6 +48,7 @@ import org.opensha.sha.imr.attenRelImpl.McVerryetal_2000_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.SadighEtAl_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.SA_InterpolatedWrapperAttenRel.InterpolatedBA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.depricated.BA_2006_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.depricated.CB_2006_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.depricated.CY_2006_AttenRel;
@@ -80,6 +81,7 @@ public class AttenuationRelationshipsInstance {
 		supportedAttenRelClasses.add(BA_2008_AttenRel.class.getName());
 		supportedAttenRelClasses.add(AS_2008_AttenRel.class.getName());
 		supportedAttenRelClasses.add(CY_2008_AttenRel.class.getName());
+		supportedAttenRelClasses.add(InterpolatedBA_2008_AttenRel.class.getName());
 		// 2007
 		
 		// 2006

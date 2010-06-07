@@ -69,5 +69,32 @@ public class PeriodParam extends DoubleDiscreteParameter {
 		ArrayList<Double> periods = constr.getAllowedDoubles();
 		return periods;
 	}
+	
+	/**
+	 * This assumes the list is always in order (is this correct?)
+	 * @return
+	 */
+	public double getMinPeriod() {
+		ArrayList<Double> periods = getSupportedPeriods();
+		return periods.get(0);
+	}
+	
+	/**
+	 * This assumes the list is always in order (is this correct?)
+	 * @return
+	 */
+	public double getMaxPeriod() {
+		ArrayList<Double> periods = getSupportedPeriods();
+		return periods.get(periods.size()-1);
+	}
+	
+	public double[] getPeriods() {
+		ArrayList<Double> periods = getSupportedPeriods();
+		double[] pers = new double[periods.size()];
+		for(int i=0;i<periods.size();i++)
+			pers[i] = periods.get(i).doubleValue();
+		return pers;
+	}
+
 
 }

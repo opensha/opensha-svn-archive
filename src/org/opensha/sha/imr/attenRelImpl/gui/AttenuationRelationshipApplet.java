@@ -108,6 +108,7 @@ import org.opensha.sha.imr.attenRelImpl.McVerryetal_2000_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.SEA_1999_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.SadighEtAl_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.SA_InterpolatedWrapperAttenRel.InterpolatedBA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.depricated.BA_2006_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.depricated.CB_2006_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.depricated.CY_2006_AttenRel;
@@ -264,6 +265,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 	/**
 	 *  Temp until figure out way to dynamically load classes during runtime
 	 */
+	protected final static String INTERP_BA_2008_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.SA_InterpolatedWrapperAttenRel.InterpolatedBA_2008_AttenRel";
 	protected final static String CY_2008_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel";
 	protected final static String BJF_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel";
 	protected final static String AS_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel";
@@ -306,6 +308,8 @@ CurveDisplayAppAPI,GraphWindowAPI {
 	 *  loader to load these
 	 */
 	static {
+		imNames.add(InterpolatedBA_2008_AttenRel.NAME);
+		attenRelClasses.add(INTERP_BA_2008_CLASS_NAME);
 		imNames.add(CY_2008_AttenRel.NAME);
 		attenRelClasses.add(CY_2008_CLASS_NAME);
 		imNames.add(AS_2008_AttenRel.NAME);

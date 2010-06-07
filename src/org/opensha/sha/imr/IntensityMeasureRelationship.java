@@ -450,6 +450,10 @@ implements IntensityMeasureRelationshipAPI {
 	public ListIterator<ParameterAPI<?>> getSiteParamsIterator() {
 		return siteParams.getParametersIterator();
 	}
+	
+	public ParameterList getSiteParamsList() {
+		return siteParams;
+	}
 
 	/**
 	 *  Returns an iterator over all other parameters.  Other parameters are those
@@ -476,6 +480,11 @@ implements IntensityMeasureRelationshipAPI {
 	public ListIterator<ParameterAPI<?>> getEqkRuptureParamsIterator() {
 		return eqkRuptureParams.getParametersIterator();
 	}
+	
+	public ParameterList getEqkRuptureParamsList() {
+		return eqkRuptureParams;
+	}
+
 
 	/**
 	 *  Returns the iterator over all Propagation-Effect related parameters
@@ -487,6 +496,11 @@ implements IntensityMeasureRelationshipAPI {
 	public ListIterator<ParameterAPI<?>> getPropagationEffectParamsIterator() {
 		return propagationEffectParams.getParametersIterator();
 	}
+	
+	public ParameterList getPropagationEffectParamsList() {
+		return propagationEffectParams;
+	}
+
 
 	/**
 	 *  Returns the iterator over all supported Intensity-Measure
