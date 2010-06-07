@@ -253,7 +253,6 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 */
 	public void setSelectedIMT(String imtName) {
 		if (!imtName.equals(getSelectedIMT())) {
-			System.out.println("Setting IMT to: " + imtName);
 			imtParameter.setValue(imtName);
 		}
 	}

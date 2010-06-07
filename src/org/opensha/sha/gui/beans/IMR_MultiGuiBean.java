@@ -430,10 +430,10 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 			Object tempItem = combo.getSelectedItem();
 			// if the selected one isn't enabled, then go back to the old one
 			if (!imrEnables.get(combo.getSelectedIndex())) {
-				System.out.println("Just selected a bad IMR: " + combo.getSelectedItem());
+//				System.out.println("Just selected a bad IMR: " + combo.getSelectedItem());
 				combo.setSelectedItem(currentItem);
 				updateParamEdit(combo);
-				System.out.println("reverted to: " + combo.getSelectedItem());
+//				System.out.println("reverted to: " + combo.getSelectedItem());
 			} else {
 				currentItem = tempItem;
 				updateParamEdit(combo);
