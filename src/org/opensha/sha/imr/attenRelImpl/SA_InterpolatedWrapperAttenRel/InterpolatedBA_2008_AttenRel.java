@@ -21,7 +21,6 @@ package org.opensha.sha.imr.attenRelImpl.SA_InterpolatedWrapperAttenRel;
 
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
-import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 
 /**
  * <b>Title:</b> InterpolatedBA_2008_AttenRel<p>
