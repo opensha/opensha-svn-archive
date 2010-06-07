@@ -253,6 +253,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 */
 	public void setSelectedIMT(String imtName) {
 		if (!imtName.equals(getSelectedIMT())) {
+			System.out.println("Setting IMT to: " + imtName);
 			imtParameter.setValue(imtName);
 		}
 	}
@@ -275,8 +276,8 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		String paramName = event.getParameterName();
 		
 		if (paramName.equals(IMT_PARAM_NAME)) {
-			updateGUI();
 			fireIMTChangeEvent();
+			updateGUI();
 		} else if (paramName.equals(PeriodParam.NAME)) {
 			if (getSelectedIMT().equals(SA_Param.NAME))
 				fireIMTChangeEvent();
@@ -297,6 +298,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	}
 	
 	private void fireIMTChangeEvent() {
+		System.out.println("firing change event!");
 		IMTChangeEvent event = new IMTChangeEvent(this, getSelectedIM());
 		
 		for (IMTChangeListener listener : listeners) {

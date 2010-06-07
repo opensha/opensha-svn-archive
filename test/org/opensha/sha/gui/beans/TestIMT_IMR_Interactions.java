@@ -8,12 +8,17 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.util.ListUtils;
 import org.opensha.gem.GEM1.scratch.ZhaoEtAl_2006_AttenRel;
+import org.opensha.sha.gui.beans.IMR_MultiGuiBean.ChooserComboBox;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.MMI_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_InterpolatedParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.util.TectonicRegionType;
 
@@ -62,29 +67,40 @@ public class TestIMT_IMR_Interactions {
 		imtGui.setSelectedIMT(SA_Param.NAME);
 
 		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-			imrGui.setSelectedSingleIMR(imr.getName());
+			if (imr.isIntensityMeasureSupported(SA_Param.NAME)) {
+				imrGui.setSelectedSingleIMR(imr.getName());
 
-			SA_Param saParam = (SA_Param) imtGui.getSelectedIM();
-			PeriodParam periodParam = saParam.getPeriodParam();
+				SA_Param saParam = (SA_Param) imtGui.getSelectedIM();
+				PeriodParam periodParam = saParam.getPeriodParam();
 
-			if (!imr.isIntensityMeasureSupported(SA_Param.NAME))
-				continue;
+				if (!imr.isIntensityMeasureSupported(SA_Param.NAME))
+					continue;
 
-			imr.setIntensityMeasure(SA_Param.NAME);
-			SA_Param mySAParam = (SA_Param) imr.getIntensityMeasure();
-			PeriodParam myPeriodParam = mySAParam.getPeriodParam();
+				imr.setIntensityMeasure(SA_Param.NAME);
+				SA_Param mySAParam = (SA_Param) imr.getIntensityMeasure();
+				PeriodParam myPeriodParam = mySAParam.getPeriodParam();
 
-			for (Double period : periodParam.getAllowedDoubles()) {
+				for (Double period : periodParam.getAllowedDoubles()) {
 
-				assertTrue("Period in IMT gui not supported by selected IMR!",
-						myPeriodParam.isAllowed(period));
+					assertTrue("Period (" + period + ") in IMT gui not supported by selected IMR!"
+							+ " (" + imr.getName() + ")",
+							myPeriodParam.isAllowed(period));
+				}
+
+				for (Double period : myPeriodParam.getAllowedDoubles()) {
+
+					assertTrue("Period in selected IMR listed in IMT gui!",
+							periodParam.isAllowed(period));
+				}
+			} else {
+				try {
+					imrGui.setSelectedSingleIMR(imr.getName());
+					fail("Exception not thrown setting IMR to one that doesn't support SA while SA selected");
+				} catch (Exception e) {
+					// should throw exception
+				}
 			}
-
-			for (Double period : myPeriodParam.getAllowedDoubles()) {
-
-				assertTrue("Period in selected IMR listed in IMT gui!",
-						periodParam.isAllowed(period));
-			}
+			
 		}
 	}
 
@@ -114,6 +130,31 @@ public class TestIMT_IMR_Interactions {
 						myPeriodParam.isAllowed(period));
 			}
 		}
+	}
+	
+	@Test
+	public void testSetSAWithNonSAIMRSelected() {
+		// this tests settting IMT to SA with an IMR selected that doesn't support SA
+		
+		imtGui.setSelectedIMT(SA_InterpolatedParam.NAME);
+		assertTrue("IMT changed to interpolated, but selected IMR doesn't support it and was not changed.",
+				imrGui.getSelectedIMR().isIntensityMeasureSupported(SA_InterpolatedParam.NAME));
+		
+		imtGui.setSelectedIMT(SA_Param.NAME);
+	}
+	
+	@Test
+	public void testChooserSetToDisabled() {
+		imtGui.setSelectedIMT(MMI_Param.NAME);
+		ChooserComboBox chooser = imrGui.getChooser(null);
+		int bjf97Index = ListUtils.getIndexByName(imrs, BJF_1997_AttenRel.NAME);
+		String mmiIMRName = imrGui.getSelectedIMR().getName();
+		chooser.setSelectedIndex(bjf97Index);
+		assertFalse("IMR should not be BJF when it's disabled...should revert to previously selected!"
+				, imrGui.getSelectedIMR().getName().equals(BJF_1997_AttenRel.NAME));
+		assertTrue("IMR should be reset to previous if disabled IMR selected.",
+				imrGui.getSelectedIMR().getName().equals(mmiIMRName));
+		System.out.println(imrGui.getSelectedIMR().getName());
 	}
 	
 	@Test

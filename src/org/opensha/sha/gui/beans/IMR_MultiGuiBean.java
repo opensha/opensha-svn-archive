@@ -159,7 +159,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 					button = showHideButtons.get(i);
 				} else {
 					chooser = new ChooserComboBox(i);
-					chooser.addActionListener(this);
+//					chooser.addActionListener(this);
 					chooserBoxes.add(chooser);
 					button = new ShowHideButton(false);
 					button.addActionListener(this);
@@ -188,7 +188,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 			} else {
 				chooser = new ChooserComboBox(0);
 				chooser.setBackground(Color.WHITE);
-				chooser.addActionListener(this);
+//				chooser.addActionListener(this);
 				chooserBoxes.add(chooser);
 			}
 			// we simply add chooser 0 to the GUI, and show the params for the selected IMR
@@ -357,7 +357,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	 * @author kevin
 	 *
 	 */
-	private class ChooserComboBox extends JComboBox {
+	public class ChooserComboBox extends JComboBox {
 		/**
 		 * 
 		 */
@@ -430,10 +430,14 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 			Object tempItem = combo.getSelectedItem();
 			// if the selected one isn't enabled, then go back to the old one
 			if (!imrEnables.get(combo.getSelectedIndex())) {
+				System.out.println("Just selected a bad IMR: " + combo.getSelectedItem());
 				combo.setSelectedItem(currentItem);
 				updateParamEdit(combo);
+				System.out.println("reverted to: " + combo.getSelectedItem());
 			} else {
 				currentItem = tempItem;
+				updateParamEdit(combo);
+				fireUpdateIMRMap();
 			}
 		}
 	}
@@ -479,17 +483,18 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 			// this means the user either selected or deselected the
 			// single/multiple IMR check box...full GUI rebuild
 			rebuildGUI();
-		} else if (source instanceof ChooserComboBox) {
-			// this means the user changed one of the selected IMRs in a
-			// chooser list
-			ChooserComboBox chooser = (ChooserComboBox)source;
-			updateParamEdit(chooser);
-		}
-		if (source == singleIMRBox || source instanceof ChooserComboBox) {
-			// if we switched between single/multiple, or changed a selected
-			// attenuation relationship, then we have to update the in-memory
-			// IMR map and fire an IMR Change event
 			fireUpdateIMRMap();
+//		} else if (source instanceof ChooserComboBox) {
+//			// this means the user changed one of the selected IMRs in a
+//			// chooser list
+//			ChooserComboBox chooser = (ChooserComboBox)source;
+//			updateParamEdit(chooser);
+//		}
+//		if (source == singleIMRBox || source instanceof ChooserComboBox) {
+//			// if we switched between single/multiple, or changed a selected
+//			// attenuation relationship, then we have to update the in-memory
+//			// IMR map and fire an IMR Change event
+//			fireUpdateIMRMap();
 		}
 	}
 

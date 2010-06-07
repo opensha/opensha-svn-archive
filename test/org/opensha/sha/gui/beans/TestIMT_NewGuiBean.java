@@ -69,6 +69,8 @@ public class TestIMT_NewGuiBean implements IMTChangeListener {
 		PeriodParam periodParam = saParam.getPeriodParam();
 
 		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+			if (!imr.isIntensityMeasureSupported(SA_Param.NAME))
+				continue;
 			imr.setIntensityMeasure(SA_Param.NAME);
 			SA_Param mySAParam = (SA_Param) imr.getIntensityMeasure();
 			PeriodParam myPeriodParam = mySAParam.getPeriodParam();
@@ -86,6 +88,8 @@ public class TestIMT_NewGuiBean implements IMTChangeListener {
 		PeriodParam periodParam = saParam.getPeriodParam();
 
 		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+			if (!imr.isIntensityMeasureSupported(SA_Param.NAME))
+				continue;
 			imr.setIntensityMeasure(SA_Param.NAME);
 			SA_Param mySAParam = (SA_Param) imr.getIntensityMeasure();
 			PeriodParam myPeriodParam = mySAParam.getPeriodParam();
