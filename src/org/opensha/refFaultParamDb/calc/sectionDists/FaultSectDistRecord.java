@@ -26,6 +26,7 @@ public class FaultSectDistRecord implements Serializable {
 	private Pairing pairing;
 	
 	private double minDist = Double.MAX_VALUE;
+	private double maxDist = 0;
 	
 	private int[] minDistLoc1 = new int[2];
 	private int[] minDistLoc2 = new int[2];
@@ -148,6 +149,8 @@ public class FaultSectDistRecord implements Serializable {
 							minDistLoc2[0] = row2;
 							minDistLoc2[1] = col2;
 						}
+						if (dist > maxDist)
+							maxDist = dist;
 						Double prevDist1 = dists1.get(row1, col1);
 						Double prevDist2 = dists1.get(row1, col1);
 						if (prevDist1 == null || dist < prevDist1)
@@ -206,6 +209,10 @@ public class FaultSectDistRecord implements Serializable {
 
 	public int[] getMinDistLoc2() {
 		return minDistLoc2;
+	}
+	
+	public double getMaxDist() {
+		return maxDist;
 	}
 
 }

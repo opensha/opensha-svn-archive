@@ -2,11 +2,14 @@ package org.opensha.refFaultParamDb.calc.sectionDists;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.Stack;
 
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.threads.Task;
+import org.opensha.commons.util.threads.ThreadedTaskComputer;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
@@ -75,31 +78,14 @@ public class FaultSectDistCalculator implements Runnable {
 	}
 	
 	public void calcDistances(int numThreads) throws InterruptedException {
-		if (numThreads <= 1) {
-			calcDistances();
-			return;
-		}
+		Stack<Task> tasks = new Stack<Task>();
+		for (FaultSectDistRecord record : records.values())
+			tasks.push(new CalcTask(record, fast));
+		
+		ThreadedTaskComputer threaded = new ThreadedTaskComputer(tasks, true);
+		
 		long start = System.currentTimeMillis();
-		calcStack = new Stack<FaultSectDistRecord>();
-		for (FaultSectDistRecord record : records.values()) {
-			calcStack.push(record);
-		}
-		// create the threads
-		ArrayList<Thread> threads = new ArrayList<Thread>();
-		for (int i=0; i<numThreads; i++) {
-			Thread t = new Thread(this);
-			threads.add(t);
-		}
-		
-		// start the threads
-		for (Thread t : threads) {
-			t.start();
-		}
-		
-		// join the threads
-		for (Thread t : threads) {
-			t.join();
-		}
+		threaded.computThreaded(numThreads);
 		calcTimeSecs = (System.currentTimeMillis() - start) / 1000d;
 	}
 	
