@@ -70,46 +70,134 @@ public class GEMAreaSourceData extends GEMSourceData {
 	}
 	
 	/**
-	 * This computes an approximate extension of the area. 
+	 * D.M. This computes an approximate extension of an area source meant as a polygon on a sphere.
+	 * The algorithm is taken from "Some algorithms for Polygons on a Sphere", R.G.Chamberlain,
+	 * W.H.Duquette, Jet Propulsion Laboratory, presented at the Association of American Geographers
+	 * Annual Meeting, San Francisco California, 17-21 April 2007. JPL publication 07-3
+	 *  I commented the algorithm from Marco for the moment, because I found it slower and in case
+	 *  of the Autralia model it was giving some strange values. Maybe somo more investigation is needed?
+	 *  I checked the results of this algorithm with the areas provide in the Australia model and the
+	 *  numbers are consistent (not identical however).
+	 * 
 	 * @return area
 	 */
 	public double getArea(){
 		
-		double area = 0.0;
-		double grdSpacing = 0.005;
 		double earthRadiusEquator = 6378.1370;
 		double earthRadiusPole = 6356.7523;
-		double oldLat = 0.0;
-		double tmpArea = 0.0;
-		double tmpRadius = 0.0;
+		double meanRadius = (2*earthRadiusEquator+earthRadiusPole)/3;
 		
-		// Gridding the region
-		GriddedRegion grd = new GriddedRegion(this.reg,grdSpacing,null);
+		LocationList border = this.reg.getBorder();
 		
-		// Mean radius
-		double meanRadius = (2*earthRadiusEquator + earthRadiusPole) / 3.0;
+		// loop over border coordinates
+		double a = 0.0;
+		for(int i=0;i<border.size();i++){
+			
+			double lon_i_plus_1 = Double.NaN;
+			double lon_i_minus_1 = Double.NaN;
+			double lat_i = Double.NaN;
+			if(i==0){
+				lon_i_plus_1 = border.get(i+1).getLongitude()*(Math.PI/180);
+				lon_i_minus_1 = border.get(border.size()-1).getLongitude()*(Math.PI/180);
+				lat_i = border.get(i).getLatitude()*(Math.PI/180);
+			}
+			else if(i==border.size()-1){
+				lon_i_plus_1 = border.get(0).getLongitude()*(Math.PI/180);
+				lon_i_minus_1 = border.get(i-1).getLongitude()*(Math.PI/180);
+				lat_i = border.get(i).getLatitude()*(Math.PI/180);
+			}
+			else{
+				lon_i_plus_1 = border.get(i+1).getLongitude()*(Math.PI/180);
+				lon_i_minus_1 = border.get(i-1).getLongitude()*(Math.PI/180);
+				lat_i = border.get(i).getLatitude()*(Math.PI/180);
+			}
+			
+			a = a + (lon_i_plus_1-lon_i_minus_1)*Math.sin(lat_i);
+			
+		}
+		a = a*(-Math.pow(meanRadius, 2)/2);
 		
-		// Computing the area
-		for (Location loc: grd.getNodeList()){
-			double tmpLat = loc.getLatitude();
-			if ( Math.abs(tmpLat-oldLat) > grdSpacing/10) {
-				double tmpLatRad = tmpLat / 180 * Math.PI;
-				double tmpNum = Math.pow(earthRadiusEquator*earthRadiusEquator*Math.cos(tmpLatRad),2) +
-					Math.pow(earthRadiusPole*earthRadiusPole*Math.sin(tmpLatRad),2);
-				double tmpDen = Math.pow(earthRadiusEquator*Math.cos(tmpLatRad),2) +
-					Math.pow(earthRadiusPole*Math.sin(tmpLatRad),2);
-				tmpRadius = Math.sqrt(tmpNum/tmpDen);
+		// the absolute value is taken because the sign depends on the fact 
+		// that the polygon is specified in a clock or counter-clock wise order.
+		a = Math.abs(a);
+		
+		// subtract interiors
+		if(this.reg.getInteriors()!=null){
+			// loop over interiors
+			for(int i=0;i<this.reg.getInteriors().size();i++){
 				
-				tmpArea = Math.pow(grdSpacing/360*2.0*Math.PI,2) * tmpRadius * 
-					Math.sin(Math.PI-tmpLatRad) * meanRadius; 
-				area += tmpArea;
-				oldLat = tmpLat;
-			} else {
-				area += tmpArea;
+				LocationList innerBorder = this.reg.getInteriors().get(i);
+				
+				// loop over border coordinates
+				double innerA = 0.0;
+				for(int j=0;j<innerBorder.size();j++){
+					
+					double lon_i_plus_1 = Double.NaN;
+					double lon_i_minus_1 = Double.NaN;
+					double lat_i = Double.NaN;
+					if(j==0){
+						lon_i_plus_1 = innerBorder.get(j+1).getLongitude()*(Math.PI/180);
+						lon_i_minus_1 = innerBorder.get(innerBorder.size()-1).getLongitude()*(Math.PI/180);
+						lat_i = innerBorder.get(j).getLatitude()*(Math.PI/180);
+					}
+					else if(j==innerBorder.size()-1){
+						lon_i_plus_1 = innerBorder.get(0).getLongitude()*(Math.PI/180);
+						lon_i_minus_1 = innerBorder.get(j-1).getLongitude()*(Math.PI/180);
+						lat_i = innerBorder.get(j).getLatitude()*(Math.PI/180);
+					}
+					else{
+						lon_i_plus_1 = innerBorder.get(j+1).getLongitude()*(Math.PI/180);
+						lon_i_minus_1 = innerBorder.get(j-1).getLongitude()*(Math.PI/180);
+						lat_i = innerBorder.get(j).getLatitude()*(Math.PI/180);
+					}
+					
+					innerA = innerA + (lon_i_plus_1-lon_i_minus_1)*Math.sin(lat_i);
+					
+				}
+				innerA = innerA*(-Math.pow(meanRadius, 2)/2);
+				
+				innerA = Math.abs(innerA);
+				
+				a = a - innerA;
 			}
 		}
-//		System.out.println("Area:"+area);
-		return area;
+		
+		return a;
+		
+//		double area = 0.0;
+//		double grdSpacing = 0.005;
+//
+//		double oldLat = 0.0;
+//		double tmpArea = 0.0;
+//		double tmpRadius = 0.0;
+//		
+//		// Gridding the region
+//		GriddedRegion grd = new GriddedRegion(this.reg,grdSpacing,null);
+//		
+//		// Mean radius
+//		double meanRadius = (2*earthRadiusEquator + earthRadiusPole) / 3.0;
+//		
+//		// Computing the area
+//		for (Location loc: grd.getNodeList()){
+//			double tmpLat = loc.getLatitude();
+//			if ( Math.abs(tmpLat-oldLat) > grdSpacing/10) {
+//				double tmpLatRad = tmpLat / 180 * Math.PI;
+//				double tmpNum = Math.pow(earthRadiusEquator*earthRadiusEquator*Math.cos(tmpLatRad),2) +
+//					Math.pow(earthRadiusPole*earthRadiusPole*Math.sin(tmpLatRad),2);
+//				double tmpDen = Math.pow(earthRadiusEquator*Math.cos(tmpLatRad),2) +
+//					Math.pow(earthRadiusPole*Math.sin(tmpLatRad),2);
+//				tmpRadius = Math.sqrt(tmpNum/tmpDen);
+//				
+//				tmpArea = Math.pow(grdSpacing/360*2.0*Math.PI,2) * tmpRadius * 
+//					Math.sin(Math.PI-tmpLatRad) * meanRadius; 
+//				area += tmpArea;
+//				oldLat = tmpLat;
+//			} else {
+//				area += tmpArea;
+//			}
+//		}
+////		System.out.println("Area:"+area);
+//		return area;
 		
 	}
 	
