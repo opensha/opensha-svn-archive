@@ -78,7 +78,7 @@ public class CPT extends ArrayList<CPTVal> {
 	/**
 	 * Sets color to be used when given value is not a number (NaN)
 	 *
-	 * @see javax.vecmath.Color3f for more information on rgb values.
+	 * @see java.awt.Color for more information on rgb values.
 	 *
 	 * @param r
 	 * @param g
@@ -91,7 +91,7 @@ public class CPT extends ArrayList<CPTVal> {
 	/**
 	 * Sets color to be used when given value is not a number (NaN)
 	 *
-	 * @see javax.vecmath.Color3f
+	 * @see java.awt.Color
 	 */
 	public void setNanColor(Color color) {
 		nanColor = color;
@@ -102,7 +102,7 @@ public class CPT extends ArrayList<CPTVal> {
 	 * Set The value of the color returned by getColor if the value is below the
 	 * range of the CPT class using r,g,b values as used in Color3f.
 	 *
-	 * @see javax.vecmath.Color3f
+	 * @see java.awt.Color
 	 *
 	 *
 	 */
@@ -114,7 +114,7 @@ public class CPT extends ArrayList<CPTVal> {
 	 * Set The value of the color returned by getColor if the value is above the
 	 * range of the CPT class using r,g,b values as used in Color3f.
 	 *
-	 * @see javax.vecmath.Color3f
+	 * @see java.awt.Color
 	 *
 	 */
 	public void setAboveMaxColor(Color color) {
@@ -133,7 +133,7 @@ public class CPT extends ArrayList<CPTVal> {
 
 	/**
 	 * @see setGapColor(Color3f color)
-	 * @see javax.vecmath.Color3f
+	 * @see java.awt.Color
 	 */
 	public void setGapColor(int r, int g, int b) {
 		gapColor = new Color(r, g, b);
@@ -141,7 +141,7 @@ public class CPT extends ArrayList<CPTVal> {
 
 	/**
 	 * @see setBelowMinColor(Color3f color)
-	 * @see javax.vecmath.Color3f
+	 * @see java.awt.Color
 	 */
 	public void setBelowMinColor(int r, int g, int b) {
 		belowMinColor = new Color(r, g, b);
@@ -149,7 +149,7 @@ public class CPT extends ArrayList<CPTVal> {
 
 	/**
 	 * @see setAboveMaxColor(Color3f color)
-	 * @see javax.vecmath.Color3f
+	 * @see java.awt.Color
 	 */
 	public void setAboveMaxColor(int r, int g, int b) {
 		aboveMaxColor = new Color(r, g, b);
@@ -236,7 +236,7 @@ public class CPT extends ArrayList<CPTVal> {
 			return getBelowMinColor();
 		else if (value > this.get(this.size() - 1).end)
 			return getAboveMaxColor();
-		else if (value == Float.NaN)
+		else if (Float.isNaN(value))
 			return nanColor;
 		else {
 			return gapColor;
