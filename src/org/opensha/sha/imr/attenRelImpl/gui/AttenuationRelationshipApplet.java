@@ -1234,7 +1234,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 		String YLabel = (String)attenRel.getControlsEditor().getParameterList().getParameter(attenRel.Y_AXIS_NAME).getValue();
 
 		//if the user just wants to see the result for the single value.
-		if(XLabel.equals(attenRel.X_AXIS_SINGLE_VAL)){
+		if(XLabel.equals(AttenuationRelationshipGuiBean.X_AXIS_SINGLE_VAL)){
 			functionList.clear();
 			getPlottingFeatures().clear();
 			//making the GUI components disable if the user wants just one single value
