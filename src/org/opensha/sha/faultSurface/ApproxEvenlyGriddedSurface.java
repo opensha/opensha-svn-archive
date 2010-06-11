@@ -35,8 +35,10 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 	 * @param aveGridSpacing
 	 */
 	public ApproxEvenlyGriddedSurface(int numRows,int numCols, double aveGridSpacing) {
-		this.setNumRowsAndNumCols(numRows, numCols);
-		this.gridSpacing = aveGridSpacing;
+		setNumRowsAndNumCols(numRows, numCols);
+		gridSpacingAlong = aveGridSpacing;
+		gridSpacingDown = aveGridSpacing;
+		sameGridSpacing = true;
 	}
 
 
@@ -53,11 +55,9 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 	 */
 	public ApproxEvenlyGriddedSurface(FaultTrace upperFaultTrace,FaultTrace lowerFaultTrace, double aveGridSpacing) {
 
-		// verify not crossing
-		
-		// verify 
-		
-		this.gridSpacing = aveGridSpacing;
+		gridSpacingAlong = aveGridSpacing;
+		gridSpacingDown = aveGridSpacing;
+		sameGridSpacing = true;
 
 		// check that the traces are both in the same order
 		Location firstUpperLoc = upperFaultTrace.get(0);
@@ -83,7 +83,7 @@ public class ApproxEvenlyGriddedSurface extends EvenlyGriddedSurface {
 		double aveTraceLength = (upperFaultTrace.getTraceLength()+lowerFaultTrace.getTraceLength())/2;
 		int num = (int) Math.round(aveTraceLength/aveGridSpacing);
 		
-		if(D) System.out.println("gridSpacing="+gridSpacing+", aveTraceLength="+aveTraceLength+", numCol="+num);
+		if(D) System.out.println("gridSpacing="+gridSpacingAlong+", aveTraceLength="+aveTraceLength+", numCol="+num);
 
 		// get resampled traces (note that number of locs in trace will be num+1)
 		FaultTrace resampUpperTrace = FaultTraceUtils.resampleTrace(upperFaultTrace, num);

@@ -58,31 +58,10 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
 
     public StirlingGriddedSurface(SimpleFaultData simpleFaultData,
                                   double gridSpacing) throws FaultException {
-
-      super(simpleFaultData, gridSpacing);
+      super(simpleFaultData, gridSpacing, gridSpacing);
       createEvenlyGriddedSurface();
     }
 
-    /**
-     * Stitch Together the fault sections. It assumes:
-     * 1. Sections are in correct order
-     * 2. Distance between end points of section in correct order is less than the distance to opposite end of section
-     * Upper seismogenic depth, sip aand lower seimogenic depth are area weighted.
-     * 
-     * @param simpleFaultData
-     * @param gridSpacing
-     * @throws FaultException
-     */
-    public StirlingGriddedSurface(ArrayList<SimpleFaultData> simpleFaultData,
-    		double gridSpacing) throws FaultException {
-    	
-    	super(simpleFaultData, gridSpacing);
-    	// I do not know whether why this was added. So, we have commented for now.
-    	//aveDipDir = this.faultTrace.getAveStrike() + 90;
-    	createEvenlyGriddedSurface();
-    }
-    
-    
     
     public StirlingGriddedSurface(FaultTrace faultTrace,
                                   double aveDip,
@@ -90,14 +69,12 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
                                   double lowerSeismogenicDepth,
                                   double gridSpacing) throws FaultException {
 
-      super(faultTrace, aveDip, upperSeismogenicDepth, lowerSeismogenicDepth,
-            gridSpacing);
+      super(faultTrace, aveDip, upperSeismogenicDepth, lowerSeismogenicDepth, gridSpacing);
       createEvenlyGriddedSurface();
     }
 
 
-    public StirlingGriddedSurface( SimpleFaultData simpleFaultData,
-                                        double gridSpacing,double aveDipDir)
+    public StirlingGriddedSurface( SimpleFaultData simpleFaultData, double gridSpacing,double aveDipDir)
                                         throws FaultException {
 
         super(simpleFaultData, gridSpacing);
@@ -119,6 +96,23 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
     }
 
 
+    /**
+     * Stitch Together the fault sections. It assumes:
+     * 1. Sections are in correct order
+     * 2. Distance between end points of section in correct order is less than the distance to opposite end of section
+     * Upper seismogenic depth, sip aand lower seimogenic depth are area weighted.
+     * 
+     * @param simpleFaultData
+     * @param gridSpacing
+     * @throws FaultException
+     */
+    public StirlingGriddedSurface(ArrayList<SimpleFaultData> simpleFaultData,
+    		double gridSpacing) throws FaultException {
+    	
+    	super(simpleFaultData, gridSpacing);
+    	createEvenlyGriddedSurface();
+    }
+
 
     /**
      * Creates the Stirling Gridded Surface from the Simple Fault Data
@@ -134,8 +128,8 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
 
         final int numSegments = faultTrace.getNumLocations() - 1;
         final double avDipRadians = aveDip * PI_RADIANS;
-        final double gridSpacingCosAveDipRadians = gridSpacing * Math.cos( avDipRadians );
-        final double gridSpacingSinAveDipRadians = gridSpacing * Math.sin( avDipRadians );
+        final double gridSpacingCosAveDipRadians = gridSpacingDown * Math.cos( avDipRadians );
+        final double gridSpacingSinAveDipRadians = gridSpacingDown * Math.sin( avDipRadians );
 
         double[] segmentLenth = new double[numSegments];
         double[] segmentAzimuth = new double[numSegments];
@@ -193,8 +187,8 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
         double downDipWidth = (lowerSeismogenicDepth-upperSeismogenicDepth)/Math.sin( avDipRadians );
 
         // Calculate the number of rows and columns
-        int rows = 1 + Math.round((float) (downDipWidth/gridSpacing));
-        int cols = 1 + Math.round((float) (segmentCumLenth[numSegments - 1] / gridSpacing));
+        int rows = 1 + Math.round((float) (downDipWidth/gridSpacingDown));
+        int cols = 1 + Math.round((float) (segmentCumLenth[numSegments - 1] / gridSpacingAlong));
 
 
         if(D) System.out.println("numLocs: = " + faultTrace.getNumLocations());
@@ -225,7 +219,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
             if( D ) System.out.println(S + "ith_col = " + ith_col);
 
             // calculate distance from column number and grid spacing
-            distanceAlong = ith_col * gridSpacing;
+            distanceAlong = ith_col * gridSpacingAlong;
             if( D ) System.out.println(S + "distanceAlongFault = " + distanceAlong);
 
             // Determine which segment distanceAlong is in
@@ -291,6 +285,16 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
         }
 
         if( D ) System.out.println(S + "Ending");
+ 
+        /*
+        // test for fittings surfaces exactly
+        if((float)(faultTrace.getTraceLength()-getSurfaceLength()) != 0.0)
+        	System.out.println(faultTrace.getName()+"\n\t"+
+        		"LengthDiff="+(float)(faultTrace.getTraceLength()-getSurfaceLength())+
+        		"\t"+(float)faultTrace.getTraceLength()+"\t"+(float)getSurfaceLength()+"\t"+getNumCols()+"\t"+(float)getGridSpacingAlongStrike()+
+        		"\n\tWidthDiff="+(float)(downDipWidth-getSurfaceWidth())
+        		+"\t"+(float)(downDipWidth)+"\t"+(float)getSurfaceWidth()+"\t"+getNumRows()+"\t"+(float)getGridSpacingDownDip());
+        */
     }
 
 
@@ -299,6 +303,9 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
      * @param args
      */
     public static void main(String args[]) {
+    	
+    	double test = 4%4.1;
+    	System.out.println(test);
 //        double aveDip = 15;
 //        double upperSeismogenicDepth = 9.1;
 //        double lowerSeismogenicDepth =15.2;
@@ -323,6 +330,8 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
     	// for N-S strike and E dip, this setup showed that prior to fixing
     	// LocationUtils.getLocation() the grid of the fault actually
     	// starts to the left of the trace, rather than to the right.
+    	
+    	/*
         double aveDip = 30;
         double upperSeismogenicDepth = 5;
         double lowerSeismogenicDepth = 15;
@@ -340,7 +349,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
             Location loc = (Location)it.next();
             System.out.println(loc.getLatitude()+","+loc.getLongitude()+","+loc.getDepth());
         }
-
+*/
     }
 
 

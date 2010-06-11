@@ -55,9 +55,8 @@ System.out.println("maxJumpDist="+maxJumpDist);
 		this.minNumSubSectInRup=minNumSubSectInRup;
 		getAllSections(true);
 		
-		writeSectionDistances(10.0);
+//		writeSectionDistances(10.0);
 		
-		/* SKIP TEMPORARILY 
 		computeConnectedSectionEndpointPairs();
 		computeEndToEndSectLinksList();
 		computeSectionClusters();
@@ -65,7 +64,7 @@ System.out.println("maxJumpDist="+maxJumpDist);
 		System.out.println("maxDist="+maxJumpDist+"\tmaxAngle="+maxAngle+"\tmaxStrikeChange="+
 				maxStrikeChange+"\tmaxSubSectionLength="+maxSubSectionLength+"\tminNumSubSectInRup="+minNumSubSectInRup);
 		System.out.println("numSubSections="+numSubSections+"\tgetRupList().size()="+getRupList().size());
-		*/
+		
 		
 		
 //		for(int i=0; i<sectionClusterList.size();i++)
@@ -115,8 +114,6 @@ System.out.println("maxJumpDist="+maxJumpDist);
 		//Alphabetize:
 		Collections.sort(allFaultSectionPrefData, new NamedObjectComparator());
 
-/**/		
-		
 		// find and print max Down-dip width
 		double maxDDW=0;
 		int index=-1;

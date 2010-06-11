@@ -739,7 +739,8 @@ public  class ERF2DB implements ERF2DBAPI{
 		int numRows = rupSurface.getNumRows();
 		int numCols = rupSurface.getNumCols();
 		int numPoints = numRows * numCols;
-		double gridSpacing = rupSurface.getGridSpacing();
+		double gridSpacing = rupSurface.getGridSpacingAlongStrike();
+		if(!rupSurface.isGridSpacingSame()) throw new RuntimeException("this may not work now that grid spacing can differ along strike and down dip");
 		Location surfaceStartLocation = (Location) rupSurface.get(0, 0);
 		Location surfaceEndLocation = (Location) rupSurface.get(0, numCols - 1);
 		double surfaceStartLat = surfaceStartLocation.getLatitude();

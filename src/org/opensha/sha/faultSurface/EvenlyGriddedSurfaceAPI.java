@@ -34,13 +34,26 @@ package org.opensha.sha.faultSurface;
 public interface EvenlyGriddedSurfaceAPI extends GriddedSurfaceAPI {
 
 
-    /**
-     * returns the grid spacing
-     *
-     * @return
-     */
-    public  double getGridSpacing();
-    
+	/**
+	 * returns the grid spacing along strike
+	 *
+	 * @return
+	 */
+	public double getGridSpacingAlongStrike();
+	
+	/**
+	 * returns the grid spacing down dip
+	 *
+	 * @return
+	 */
+	public double getGridSpacingDownDip();
+	
+	/**
+	 * this tells whether along strike and down dip grip
+	 * @return
+	 */
+	public Boolean isGridSpacingSame();
+
     /**
      * This returns the total length of the surface in km
      * @return double

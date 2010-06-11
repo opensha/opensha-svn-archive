@@ -444,8 +444,24 @@ public class PointSurface implements EvenlyGriddedSurfaceAPI {
 	 *
 	 * @return
 	 */
-	public double getGridSpacing() {
+	public double getGridSpacingAlongStrike() {
 		return Double.NaN;
+	}
+	/**
+	 * returns the grid spacing
+	 *
+	 * @return
+	 */
+	public double getGridSpacingDownDip() {
+		return Double.NaN;
+	}
+	/**
+	 * returns the grid spacing
+	 *
+	 * @return
+	 */
+	public Boolean isGridSpacingSame() {
+		return null;
 	}
 
 	@Override

@@ -55,7 +55,10 @@ private EvenlyGriddedSurfaceAPI origSurface;
           "Grid-Centered Surface not defined " +
           "for Frankel surface");
     this.origSurface = surface;
-    this.gridSpacing = surface.getGridSpacing();
+    this.gridSpacingAlong = surface.getGridSpacingAlongStrike();
+    this.gridSpacingDown = surface.getGridSpacingDownDip();
+    this.sameGridSpacing = surface.isGridSpacingSame();
+
     getGridCenteredSurface();
   }
 
