@@ -66,15 +66,11 @@ extends EvenlyGriddedSurface{
 	 * @param gridSpacing
 	 * @throws FaultException
 	 */
-	protected EvenlyGriddedSurfFromSimpleFaultData(SimpleFaultData simpleFaultData,
-			double gridSpacing) throws
-			FaultException {
+	protected EvenlyGriddedSurfFromSimpleFaultData(SimpleFaultData simpleFaultData, double gridSpacing) throws FaultException {
 
-		this(simpleFaultData.getFaultTrace(),
-				simpleFaultData.getAveDip(),
+		this(simpleFaultData.getFaultTrace(), simpleFaultData.getAveDip(),
 				simpleFaultData.getUpperSeismogenicDepth(),
-				simpleFaultData.getLowerSeismogenicDepth(),
-				gridSpacing);
+				simpleFaultData.getLowerSeismogenicDepth(), gridSpacing);
 
 	}
 
@@ -88,12 +84,8 @@ extends EvenlyGriddedSurface{
 	 * @param gridSpacing
 	 * @throws FaultException
 	 */
-	protected EvenlyGriddedSurfFromSimpleFaultData(FaultTrace faultTrace,
-			double aveDip,
-			double upperSeismogenicDepth,
-			double lowerSeismogenicDepth,
-			double gridSpacing) throws
-			FaultException {
+	protected EvenlyGriddedSurfFromSimpleFaultData(FaultTrace faultTrace, double aveDip, double upperSeismogenicDepth,
+			double lowerSeismogenicDepth, double gridSpacing) throws FaultException {
 		set(faultTrace, aveDip, upperSeismogenicDepth, lowerSeismogenicDepth, gridSpacing, gridSpacing);
 	}
 	
@@ -108,18 +100,12 @@ extends EvenlyGriddedSurface{
 	 * upper and lower seismogenic depth, slip.  Total area of surface is maintained, 
 	 * plus an addition area implied by gaps between neighboring sections.
 	 * 
-	 * @param simpleFaultData
+	 * @param simpleFaultDataList
 	 * @param gridSpacing
 	 * @throws FaultException
 	 */
 	protected EvenlyGriddedSurfFromSimpleFaultData(ArrayList<SimpleFaultData> simpleFaultDataList, double gridSpacing) {
-		SimpleFaultData simpleFaultData = SimpleFaultData.getCombinedSimpleFaultData(simpleFaultDataList);
-		set(simpleFaultData.getFaultTrace(), 
-				simpleFaultData.getAveDip(), 
-				simpleFaultData.getUpperSeismogenicDepth(),
-				simpleFaultData.getLowerSeismogenicDepth(),
-				gridSpacing, gridSpacing);
-
+		this(SimpleFaultData.getCombinedSimpleFaultData(simpleFaultDataList),gridSpacing);
 	}
 
 	
@@ -183,23 +169,15 @@ extends EvenlyGriddedSurface{
 	 * upper and lower seismogenic depth, slip.  Total area of surface is maintained, 
 	 * plus an addition area implied by gaps between neighboring sections.
 	 * 
-	 * @param simpleFaultData
-	 * @param gridSpacing
+	 * @param simpleFaultDataList
+	 * @param maxGridSpacingAlong
+	 * @param maxGridSpacingDown
 	 * @throws FaultException
 	 */
 	protected EvenlyGriddedSurfFromSimpleFaultData(ArrayList<SimpleFaultData> simpleFaultDataList, 
 			double maxGridSpacingAlong, double maxGridSpacingDown) {
-		SimpleFaultData simpleFaultData = SimpleFaultData.getCombinedSimpleFaultData(simpleFaultDataList);
-		double length = faultTrace.getTraceLength();
-		double gridSpacingAlong = length/Math.ceil(length/maxGridSpacingAlong);
-		double downDipWidth = (lowerSeismogenicDepth-upperSeismogenicDepth)/Math.sin(aveDip*Math.PI/180 );
-		double gridSpacingDown = downDipWidth/Math.ceil(downDipWidth/maxGridSpacingAlong);
-		set(simpleFaultData.getFaultTrace(), 
-				simpleFaultData.getAveDip(), 
-				simpleFaultData.getUpperSeismogenicDepth(),
-				simpleFaultData.getLowerSeismogenicDepth(),
-				gridSpacingAlong, gridSpacingDown);
-
+		
+		this(SimpleFaultData.getCombinedSimpleFaultData(simpleFaultDataList), maxGridSpacingAlong, maxGridSpacingDown);
 	}
 
 

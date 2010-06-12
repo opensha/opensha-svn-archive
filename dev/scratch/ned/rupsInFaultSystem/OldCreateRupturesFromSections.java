@@ -3,20 +3,17 @@ package scratch.ned.rupsInFaultSystem;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.ListIterator;
 
 import org.opensha.commons.data.NamedObjectComparator;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
-import org.opensha.refFaultParamDb.calc.sectionDists.FaultSectDistRecord;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 
-public class CreateRupturesFromSections {
+public class OldCreateRupturesFromSections {
 	
 	/*
 	SubSectionsRupCalc
@@ -31,21 +28,14 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 	 */
 	
 	ArrayList<FaultSectionPrefData> allFaultSectionPrefData;
-	double subSectionDistances[][], subSectionAngleDiffs[][];
+	double sectionDistances[][], sectionAngleDiffs[][];
 	String endPointNames[];
 	Location endPointLocs[];
-	int numSections, counter, numSubSections, minNumSubSectInRup;
-	ArrayList<ArrayList<Integer>> subSectionConnectionsListList, endToEndSectLinksList;
-	ArrayList<SectionCluster> sectionClusterList;
+	int numSections, numSectEndPts, counter, numSubSections, minNumSubSectInRup;
+	ArrayList<ArrayList<Integer>> sectionConnectionsList, endToEndSectLinksList;
+	ArrayList<OldSectionCluster> sectionClusterList;
 	double maxJumpDist, maxAngle, maxTotStrikeChange, maxSubSectionLength;
-	ArrayList<ArrayList<FaultSectionPrefData>> subSectionPrefDataListList;
-	ArrayList<FaultSectionPrefData> subSectionPrefDataList; // same as above, but a sequential list (not list of lists)
-	
-	// this is to store the section and subsection indices for the ith subsection.
-	int[]  sectionMapping,subSectionMapping;
-	// this gives the section index for the ith sections and jth subsection withing
-	int[][] indexMapping;
-
+	ArrayList<ArrayList<FaultSectionPrefData>> subSectionPrefDataList;
 
 	
 	/**
@@ -53,14 +43,11 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 	 * @param maxJumpDist
 	 * @param maxAngle
 	 * @param maxStrikeChange
-	 * @param maxSubSectionLength - In units of down-dip width
+	 * @param maxSubSectionLength
 	 * @param minNumSubSectInRup
 	 */
-	public CreateRupturesFromSections(double maxJumpDist, double maxAngle, double maxStrikeChange, 
+	public OldCreateRupturesFromSections(double maxJumpDist, double maxAngle, double maxStrikeChange, 
 			double maxSubSectionLength, int minNumSubSectInRup) {
-		
-		System.out.println("maxDist="+maxJumpDist+"\tmaxAngle="+maxAngle+"\tmaxStrikeChange="+
-				maxStrikeChange+"\tmaxSubSectionLength="+maxSubSectionLength+"\tminNumSubSectInRup="+minNumSubSectInRup);
 		
 		this.maxJumpDist=maxJumpDist;
 		this.maxAngle=maxAngle;
@@ -71,17 +58,16 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 		Boolean includeSectionsWithNaN_slipRates = false;
 		getAllSections(includeSectionsWithNaN_slipRates);
 		
-		calcSubSectionDistances();
-		
 //		writeSectionDistances(10.0);
 		
-		computeCloseSubSectionsListList();
-		
-/*		computeEndToEndSectLinksList();
+		computeConnectedSectionEndpointPairs();
+		computeEndToEndSectLinksList();
 		computeSectionClusters();
 
+		System.out.println("maxDist="+maxJumpDist+"\tmaxAngle="+maxAngle+"\tmaxStrikeChange="+
+				maxStrikeChange+"\tmaxSubSectionLength="+maxSubSectionLength+"\tminNumSubSectInRup="+minNumSubSectInRup);
 		System.out.println("numSubSections="+numSubSections+"\tgetRupList().size()="+getRupList().size());
-*/	
+		
 		
 		
 //		for(int i=0; i<sectionClusterList.size();i++)
@@ -94,7 +80,7 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 		return sectionClusterList.size();
 	}
 	
-	public SectionCluster getCluster(int clusterIndex) {
+	public OldSectionCluster getCluster(int clusterIndex) {
 		return sectionClusterList.get(clusterIndex);
 	}
 	
@@ -109,232 +95,150 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 
 	
 	
-	  /**
-	   * This gets the section data, creates subsections, and fills in arrays giving the 
-	   * name of section endpoints, angles between section endpoints, and distances between
-	   * section endpoints (these latter arrays are for sections, not subsections)
-	   * @param includeSectionsWithNaN_slipRates
-	   */
-	  private void getAllSections(boolean includeSectionsWithNaN_slipRates) {
-		  /** Set the deformation model
-		   * D2.1 = 82
-		   * D2.2 = 83
-		   * D2.3 = 84
-		   * D2.4 = 85
-		   * D2.5 = 86
-		   * D2.6 = 87
-		   */
-		  int deformationModelId = 82;
-
-		  DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
-		  allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelId);
-		  //Alphabetize:
-		  Collections.sort(allFaultSectionPrefData, new NamedObjectComparator());
-
-
-		  // remove those with no slip rate
-		  if(!includeSectionsWithNaN_slipRates) {
-			  System.out.println("Removing the following due to NaN slip rate:");
-			  for(int i=allFaultSectionPrefData.size()-1; i>=0;i--)
-				  if(Double.isNaN(allFaultSectionPrefData.get(i).getAveLongTermSlipRate())) {
-					  System.out.println("\t"+allFaultSectionPrefData.get(i).getSectionName());
-					  allFaultSectionPrefData.remove(i);
-				  }	 
-		  }
-
-		  // find and print max Down-dip width
-		  double maxDDW=0;
-		  int index=-1;
-		  for(int i=0; i<allFaultSectionPrefData.size(); i++) {
-			  double ddw = allFaultSectionPrefData.get(i).getDownDipWidth();
-			  if(ddw>maxDDW) {
-				  maxDDW = ddw;
-				  index=i;
-			  }
-		  }
-		  System.out.println("Max Down-Dip Width = "+maxDDW+" for "+allFaultSectionPrefData.get(index).getSectionName());
-
-		  // make subsection data
-		  subSectionPrefDataListList = new ArrayList<ArrayList<FaultSectionPrefData>>();
-		  subSectionPrefDataList = new ArrayList<FaultSectionPrefData>();
-		  numSubSections=0;
-		  numSections = allFaultSectionPrefData.size();
-		  int maxNumSubSections=0;
-		  for(int i=0; i<numSections; ++i) {
-			  FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)allFaultSectionPrefData.get(i);
-//			  double maxSectLength = faultSectionPrefData.getDownDipWidth()*maxSubSectionLength;
-//			  ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength);
-//System.out.println(i+"\t"+faultSectionPrefData.getName());
-			  ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSubSectionLength);
-			  if(subSectData.size()>maxNumSubSections) maxNumSubSections = numSubSections;
-			  numSubSections += subSectData.size();
-			  subSectionPrefDataListList.add(subSectData);
-			  subSectionPrefDataList.addAll(subSectData);
-		  }
-		  
-		  
-		  // Set the mappings among sections and subsection lists
-		  sectionMapping = new int[subSectionPrefDataList.size()];
-		  subSectionMapping = new int[subSectionPrefDataList.size()];
-		  indexMapping = new int[numSections][maxNumSubSections];
-		  for(int i=0;i<numSections;i++)
-			  for(int j=0;j<maxNumSubSections;j++)
-				  indexMapping[i][j]=-1; // initialize with bogus indices
-		  // mow make the mappings
-		  int counter =0;
-		  for(int i=0; i<subSectionPrefDataListList.size(); ++i) {
-			  for(int j=0; j<subSectionPrefDataListList.get(i).size();j++) {
-				  sectionMapping[counter] = i;
-				  subSectionMapping[counter] = j;
-				  indexMapping[i][j]=counter;
-				  counter += 1;
-			  }
-		  }
-/*		  
-		  counter =0;
-		  for(int i=0; i<subSectionPrefDataListList.size(); ++i) {
-			  ArrayList<FaultSectionPrefData> dataList = subSectionPrefDataListList.get(i);
-			  for(int j=0; j<dataList.size();j++) {
-				  System.out.println(indexMapping[i][j]+","+counter+"\t"+i+","+sectionMapping[counter]+"\t"+j+","+subSectionMapping[counter]);
-				  counter += 1;
-			  }
-		  }
-*/  
-
-
-		  // write the number of sections and subsections
-		  System.out.println("numSections="+numSections+";  numSubSections="+numSubSections);
-		  // write index/names
-		  //		 for(int i=0;i<allFaultSectionPrefData.size();i++) System.out.println(i+"\t"+allFaultSectionPrefData.get(i).getSectionName());
-		  // write out strike directions
-		  //		 for(int s=0;s<num_sections;s++) System.out.println(allFaultSectionPrefData.get(s).getFaultTrace().getStrikeDirection());
-
-
-	  }
-	  
-	  private void calcSubSectionDistances() {
+	/**
+	 * This gets the section data, creates subsections, and fills in arrays giving the 
+	 * name of section endpoints, angles between section endpoints, and distances between
+	 * section endpoints (these latter arrays are for sections, not subsections)
+	 * @param includeSectionsWithNaN_slipRates
+	 */
+	private void getAllSections(boolean includeSectionsWithNaN_slipRates) {
+		/** Set the deformation model
+		 * D2.1 = 82
+		 * D2.2 = 83
+		 * D2.3 = 84
+		 * D2.4 = 85
+		 * D2.5 = 86
+		 * D2.6 = 87
+		 */
+		int deformationModelId = 82;
 		
-		  /*
-		  // test:
-		  StirlingGriddedSurface testSurf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(3).getSimpleFaultData(false), 1.0);
-		  StirlingGriddedSurface testSurf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(691).getSimpleFaultData(false), 1.0);
-		  System.out.println("testMinDist="+testSurf1.getMinDistance(testSurf2));
-		  System.out.println(testSurf1.getFaultTrace().getName());
-		  System.out.println("\t"+testSurf1.getLocation(0, 0));
-		  System.out.println("\t"+testSurf1.getLocation(0, testSurf1.getNumCols()-1));
-		  System.out.println("\t"+testSurf1.getLocation(testSurf1.getNumRows()-1, 0));
-		  System.out.println("\t"+testSurf1.getLocation(testSurf1.getNumRows()-1, testSurf1.getNumCols()-1));
-		  System.out.println(testSurf2.getFaultTrace().getName());
-		  System.out.println("\t"+testSurf2.getLocation(0, 0));
-		  System.out.println("\t"+testSurf2.getLocation(0, testSurf2.getNumCols()-1));
-		  System.out.println("\t"+testSurf2.getLocation(testSurf2.getNumRows()-1, 0));
-		  System.out.println("\t"+testSurf2.getLocation(testSurf2.getNumRows()-1, testSurf2.getNumCols()-1));
-*/
-		  /*
-		  for(int i=0; i<6;i++) {
-			  FaultTrace trace = subSectionPrefDataList.get(i).getFaultTrace();
-			  System.out.println(i+"\t"+trace.get(0));
-			  System.out.println("\t"+trace.get(trace.size()-1));
-		  }
-		  */
-		  
-		  subSectionDistances = new double[numSubSections][numSubSections];
-		  subSectionAngleDiffs = new double[numSubSections][numSubSections];
-		  
-		  // Calculate the distance matrix
-		  counter = 5;  // for progress report
-		  for(int a=0;a<numSubSections;a++) {
-//		  for(int a=0;a<1;a++) {
-			  if (100*a/numSubSections > counter) {
-				  System.out.println(counter+"% done");
-				  counter += 5;
-			  }
-			  StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultData(false), 2.0);
-/*			  
-			  if(a==0){
-				  Location loc1 = surf1.get(0, 0);
-				  Location loc2 = surf1.get(0, surf1.getNumCols()-1);
-				  System.out.println(surf1.getFaultTrace().getName()+"\t"+loc1.getLatitude()+"\t"+loc1.getLongitude()+"\t"+loc2.getLatitude()+"\t"+loc2.getLongitude());
-			  }
-*/
-			  for(int b=a+1;b<numSubSections;b++) {
-//			  for(int b=a;b<numSubSections;b++) {
-				  StirlingGriddedSurface surf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(b).getSimpleFaultData(false), 2.0);
-				  double minDist = surf1.getMinDistance(surf2);
-				  subSectionDistances[a][b] = minDist;
-				  subSectionDistances[b][a] = minDist;
-				  /*
-				  if(a==0 && minDist < this.maxJumpDist){
-					  Location loc1 = surf2.get(0, 0);
-					  Location loc2 = surf2.get(0, surf2.getNumCols()-1);
-					  System.out.println("\t"+surf2.getFaultTrace().getName()+"\t"+minDist+"\t"+loc1.getLatitude()+"\t"+loc1.getLongitude()+"\t"+loc2.getLatitude()+"\t"+loc2.getLongitude());
-				  }
-				  */
-			  }
-		  }
+		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
+		allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelId);
+		//Alphabetize:
+		Collections.sort(allFaultSectionPrefData, new NamedObjectComparator());
 
-	  }
-	  
-	  
-	  /**
-	   * For each sub section, create a list of subsections that are within maxJumpDist.  
-	   * This generates an ArrayList of ArrayLists (named sectionConnectionsList).  
-	   * Reciprocal duplicates are not filtered out.
-	   * @param maxJumpDist
-	   * @param maxAngle
-	   */
-	  private void computeCloseSubSectionsListList() {
-		  subSectionConnectionsListList = new ArrayList<ArrayList<Integer>>();
+		// find and print max Down-dip width
+		double maxDDW=0;
+		int index=-1;
+		for(int i=0; i<allFaultSectionPrefData.size(); i++) {
+			double ddw = allFaultSectionPrefData.get(i).getDownDipWidth();
+			if(ddw>maxDDW) {
+				maxDDW = ddw;
+				index=i;
+			}
+		}
+		System.out.println("Max Down-Dip Width = "+maxDDW+" for "+allFaultSectionPrefData.get(index).getSectionName());
 
-		  // create the lists and add the neighboring subsections in each section
-		  for(int i=0; i<subSectionPrefDataListList.size(); ++i) {
-			  int numSubSect = subSectionPrefDataListList.get(i).size();
-			  for(int j=0;j<numSubSect;j++) {
-				  ArrayList<Integer> sectionConnections = new ArrayList<Integer>();
-				  if(j != 0) 
-					  sectionConnections.add(indexMapping[i][j-1]);
-				  if(j != numSubSect-1)
-					  sectionConnections.add(indexMapping[i][j+1]);
-				  subSectionConnectionsListList.add(sectionConnections);
-			  }
-		  }
-		  
-		  // now add subsections on other sections, keeping only one connection between each section
-		  for(int i=0; i<subSectionPrefDataListList.size(); ++i) {
-			  ArrayList<FaultSectionPrefData> sect1_List = subSectionPrefDataListList.get(i);
-			  for(int j=i+1; j<subSectionPrefDataListList.size(); ++j) {
-				  ArrayList<FaultSectionPrefData> sect2_List = subSectionPrefDataListList.get(j);
-				  double minDist=Double.MAX_VALUE;
-				  int subSectIndex1 = -1;
-				  int subSectIndex2 = -1;
-				  for(int k=0;k<sect1_List.size();k++) {
-					  for(int l=0;l<sect2_List.size();l++) {
-						  int index1 = indexMapping[i][k];
-						  int index2 = indexMapping[j][l];
-						  double dist = subSectionDistances[index1][index2];
+		
+		// remove those with no slip rate
+		 if(!includeSectionsWithNaN_slipRates) {
+				System.out.println("Removing the following due to NaN slip rate:");
+				for(int i=allFaultSectionPrefData.size()-1; i>=0;i--)
+					if(Double.isNaN(allFaultSectionPrefData.get(i).getAveLongTermSlipRate())) {
+						System.out.println("\t"+allFaultSectionPrefData.get(i).getSectionName());
+						allFaultSectionPrefData.remove(i);
+					}	 
+		 }
+		 
+
+		 // make subsection data
+		 subSectionPrefDataList = new ArrayList<ArrayList<FaultSectionPrefData>>();
+		 numSubSections=0;
+		 numSections = allFaultSectionPrefData.size();
+		 for(int i=0; i<numSections; ++i) {
+			 FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)allFaultSectionPrefData.get(i);
+			 ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSubSectionLength);
+			 numSubSections += subSectData.size();
+			 subSectionPrefDataList.add(subSectData);
+		 }
+		 
+		 // write the number of sections and subsections
+//		 System.out.println("numSections="+numSections+";  numSubSections="+numSubSections);
+		 // write index/names
+//		 for(int i=0;i<allFaultSectionPrefData.size();i++) System.out.println(i+"\t"+allFaultSectionPrefData.get(i).getSectionName());
+		 // write out strike directions
+//		 for(int s=0;s<num_sections;s++) System.out.println(allFaultSectionPrefData.get(s).getFaultTrace().getStrikeDirection());
+
+		
+		numSectEndPts = 2*numSections;
+		sectionDistances = new double[numSectEndPts][numSectEndPts];
+		sectionAngleDiffs = new double[numSectEndPts][numSectEndPts];
+		endPointNames = new String[numSectEndPts];
+		endPointLocs = new Location[numSectEndPts];
+		
+		// loop over first fault section (A)
+		for(int a=0;a<numSections;a++) {
+			FaultSectionPrefData dataA = allFaultSectionPrefData.get(a);
+			int indexA_firstPoint = 2*a;
+			int indexA_lastPoint = indexA_firstPoint+1;
+			endPointNames[indexA_firstPoint] = dataA.getSectionName() +" -- first";
+			endPointNames[indexA_lastPoint] = dataA.getSectionName() +" -- last";
+			Location locA_1st = dataA.getFaultTrace().get(0);
+			Location locA_2nd = dataA.getFaultTrace().get(dataA.getFaultTrace().size()-1);
+			endPointLocs[indexA_firstPoint] = locA_1st;
+			endPointLocs[indexA_lastPoint] = locA_2nd;
+//			System.out.println(endPointNames[indexA_firstPoint]+"\t"+endPointNames[indexA_lastPoint]);
+			// loop over second fault section (B)
+			for(int b=0;b<allFaultSectionPrefData.size();b++) {
+				FaultSectionPrefData dataB = allFaultSectionPrefData.get(b);
+				int indexB_firstPoint = 2*b;
+				int indexB_lastPoint = indexB_firstPoint+1;
+				Location locB_1st = dataB.getFaultTrace().get(0);
+				Location locB_2nd = dataB.getFaultTrace().get(dataB.getFaultTrace().size()-1);
+				sectionDistances[indexA_firstPoint][indexB_firstPoint] = LocationUtils.horzDistanceFast(locA_1st, locB_1st);
+				sectionDistances[indexA_firstPoint][indexB_lastPoint] = LocationUtils.horzDistanceFast(locA_1st, locB_2nd);
+				sectionDistances[indexA_lastPoint][indexB_firstPoint] = LocationUtils.horzDistanceFast(locA_2nd, locB_1st);
+				sectionDistances[indexA_lastPoint][indexB_lastPoint] = LocationUtils.horzDistanceFast(locA_2nd, locB_2nd);
+				
+				double dirA = dataA.getFaultTrace().getStrikeDirection();  // values are between -180 and 180
+				double dirB = dataB.getFaultTrace().getStrikeDirection();
+				
+				sectionAngleDiffs[indexA_firstPoint][indexB_firstPoint] = getStrikeDirectionDifference(reverseAzimuth(dirA), dirB);
+				sectionAngleDiffs[indexA_firstPoint][indexB_lastPoint] = getStrikeDirectionDifference(reverseAzimuth(dirA), reverseAzimuth(dirB));
+				sectionAngleDiffs[indexA_lastPoint][indexB_firstPoint] = getStrikeDirectionDifference(dirA, dirB);
+				sectionAngleDiffs[indexA_lastPoint][indexB_lastPoint] = getStrikeDirectionDifference(dirA, reverseAzimuth(dirB));
+			}
+		}
+	}
+	
+	
+	/**
+	 * For each section endpoint, this creates a list of endpoints on other sections that are both within 
+	 * the given distance and where the angle differences between sections is not larger than given.  This
+	 * generates an ArrayList of ArrayLists (named sectionConnectionsList).  Reciprocal duplicates are not filtered out.
+	 * @param maxJumpDist
+	 * @param maxAngle
+	 */
+	private void computeConnectedSectionEndpointPairs() {
+		sectionConnectionsList = new ArrayList<ArrayList<Integer>>();
+		for(int i=0;i<numSectEndPts;i++) {
+			ArrayList<Integer> sectionConnections = new ArrayList<Integer>();
+			for(int j=0;j<numSectEndPts;j++)
+				 
+				if(sectionAngleDiffs[i][j] <= maxAngle && sectionAngleDiffs[i][j] >= -maxAngle)
+					if(sectionDistances[i][j] <= maxJumpDist && getSectionIndexForEndPoint(i) != getSectionIndexForEndPoint(j)) {
+						sectionConnections.add(j);
+					}
+					else { // check if it comes close to middle of any other section
+						boolean j_isOdd = (((double)j/2.0 - Math.floor(j/2.0)) > 0.1); // only check odd j values (second end of section)
+						if(j_isOdd && !sectionConnections.contains(j-1) && j-1 != i) {  // also make sure the other end point was not already obtained
+							int sectIndex = (int) Math.floor(j/2);
+							Location loc = endPointLocs[i];
+							double distToTrace = allFaultSectionPrefData.get(sectIndex).getFaultTrace().minDistToLine(loc);
+							if(distToTrace < maxJumpDist) {
+								String sectName = allFaultSectionPrefData.get(sectIndex).getFaultTrace().getName();
+								System.out.println(endPointNames[i]+" is close ("+Math.round(distToTrace)+"k m) to the middle of trace "+sectName);
+							}
+						}
+					}
+			sectionConnectionsList.add(sectionConnections);
 /*
-						  if(i==0 && j==88 ) {
-							  System.out.println(index1+"\t"+subSectionPrefDataList.get(index1).getName()+
-									  "\t"+ index2+"\t"+subSectionPrefDataList.get(index2).getName()+"\t"+ dist);
-						  }
+			System.out.print("\n"+i+"\t"+endPointNames[i]+"\thas "+sectionConnections.size()+"\t");
+			for(int k=0; k<sectionConnections.size(); k++) System.out.print(sectionConnections.get(k)+",");
+			System.out.print("\n");
 */
-						  if(dist < minDist) {
-							  minDist = dist;
-							  subSectIndex1 = index1;
-							  subSectIndex2 = index2;
-						  }					  
-					  }
-				  }
-				  // add to lists for each subsection
-				  if (minDist<maxJumpDist) {
-					  subSectionConnectionsListList.get(subSectIndex1).add(subSectIndex2);
-					  subSectionConnectionsListList.get(subSectIndex2).add(subSectIndex1);  // reciprocal of the above
-				  }
-			  }
-		  }
-	  }
-	  
-	  
+		}
+	}
 	
 	
 	   
@@ -418,7 +322,7 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
     
     
     private void computeSectionClusters() {
-    	sectionClusterList = new ArrayList<SectionCluster>();
+    	sectionClusterList = new ArrayList<OldSectionCluster>();
     	// duplicate the following because it will get modified 
     	ArrayList<ArrayList<Integer>> tempEndToEndSectList = (ArrayList<ArrayList<Integer>>)endToEndSectLinksList.clone();
 
@@ -426,8 +330,8 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
     	while(tempEndToEndSectList.size() > 0) {
 //System.out.println("Working on cluster "+clusterCounter);
 //    		System.out.println("sectionClusterList.size()="+sectionClusterList.size()+";  tempEndToEndSectList.size()"+tempEndToEndSectList.size());
-    		SectionCluster cluster = new SectionCluster();
-    		tempEndToEndSectList = cluster.CreateCluster(tempEndToEndSectList, subSectionPrefDataListList,minNumSubSectInRup);  // this removes the ones it takes from the list passed in
+    		OldSectionCluster cluster = new OldSectionCluster();
+    		tempEndToEndSectList = cluster.CreateCluster(tempEndToEndSectList, subSectionPrefDataList,minNumSubSectInRup);  // this removes the ones it takes from the list passed in
     		sectionClusterList.add(cluster);
     		clusterCounter +=1;
     	}
@@ -441,7 +345,7 @@ System.out.println("sectionClusterList.size()="+sectionClusterList.size());
     	System.out.println("Testing clusters:");
     	boolean allGood = true;
 //    	for(int i=0; i<numSectEndPts; i++) {
-        for(int i=0; i<numSubSections; i++) {
+        for(int i=0; i<numSectEndPts; i++) {
     		int sum =0;
     		for(int j=0;j<this.sectionClusterList.size(); j++) {
 //    		for(int j=0;j<6; j++) {
@@ -512,7 +416,7 @@ System.out.println("sectionClusterList.size()="+sectionClusterList.size());
     */
     
     private void addConnections(Integer endPtID, ArrayList currentList, ArrayList<ArrayList> finalList) {
-    	ArrayList<Integer> sectionConnections = subSectionConnectionsListList.get(endPtID);
+    	ArrayList<Integer> sectionConnections = sectionConnectionsList.get(endPtID);
     	
 //    	System.out.println("Connections for "+endPtID+" ("+endPointNames[endPtID]+") are: ");
 //    	for(int temp=0;temp<sectionConnections.size();temp++) System.out.println("\t"+sectionConnections.get(temp)+" ("+endPointNames[sectionConnections.get(temp).intValue()]+")");
@@ -533,7 +437,7 @@ System.out.println("sectionClusterList.size()="+sectionClusterList.size());
     			
     			// check total direction change between 1st and this new section & skip if
     			int firstPt = ((Integer)currentList.get(0)).intValue();
-    			double totalStrikeChange = Math.abs(subSectionAngleDiffs[firstPt][connectedPtIndex]);
+    			double totalStrikeChange = Math.abs(sectionAngleDiffs[firstPt][connectedPtIndex]);
     			if(totalStrikeChange > maxTotStrikeChange) {
     				finalList.add((ArrayList)currentList.clone());
 //    				System.out.println("NOTE - total strike became too large between "+endPointNames[firstPt]+" and "+endPointNames[connectedPtIndex]);
@@ -568,10 +472,10 @@ System.out.println("sectionClusterList.size()="+sectionClusterList.size());
 	// Note that this produces erroneous zig-zag plot for traces that have multiple lats for a given lon 
 	// (functions force x values to monotonically increase)
 	public void plotAllTraces(double maxDist, double minAngle, double maxAngle) {
-		for(int i=0;i<numSubSections;i++)
-			for(int j=0;j<numSubSections;j++)
-				if(subSectionDistances[i][j] <= maxDist && i != j) 
-					if(subSectionAngleDiffs[i][j] >= minAngle && subSectionAngleDiffs[i][j] <= maxAngle) {
+		for(int i=0;i<numSectEndPts;i++)
+			for(int j=0;j<numSectEndPts;j++)
+				if(sectionDistances[i][j] <= maxDist && i != j) 
+					if(sectionAngleDiffs[i][j] >= minAngle && sectionAngleDiffs[i][j] <= maxAngle) {
 						FaultTrace ftA = this.allFaultSectionPrefData.get(getSectionIndexForEndPoint(i)).getFaultTrace();
 						FaultTrace ftB = this.allFaultSectionPrefData.get(getSectionIndexForEndPoint(j)).getFaultTrace();
 //						if (allFaultSectionPrefData.get(indexB).getSectionName().equals("Burnt Mtn")) System.out.println("Burnt Mtn index ="+allFaultSectionPrefData.get(indexB).getFaultTrace().toString());
@@ -626,31 +530,89 @@ System.out.println("sectionClusterList.size()="+sectionClusterList.size());
 
 	
 	
-	/**
-	 * This writes out the close subsections to each subsection (and the distance)
-	 */
-	public void writeCloseSubSections() {
-		System.out.print("writing file...");
-		try{
-			FileWriter fw = new FileWriter("/Users/field/workspace/OpenSHA/dev/scratch/ned/rupsInFaultSystem/closeSubSections.txt");
-			String outputString = new String();
-			
-			for(int sIndex1=0; sIndex1<subSectionConnectionsListList.size();sIndex1++) {
-				ArrayList<Integer> sectList = subSectionConnectionsListList.get(sIndex1);
-				outputString += "\n"+subSectionPrefDataList.get(sIndex1).getName() + "  connections:\n\n";
-				for(int i=0;i<sectList.size();i++) {
-					int sIndex2 = sectList.get(i);
-					outputString += "\t"+subSectionPrefDataList.get(sIndex2).getName()+
-							"\t"+(float)this.subSectionDistances[sIndex1][sIndex2]+"\n";
-				}
-			}
+	public void writeSectionEndpointDistances() {
 		
+		try{
+			FileWriter fw = new FileWriter("/Users/field/workspace/OpenSHA/scratchJavaDevelopers/ned/rupsInFaultSystem/sectionEndpointDistances.txt");
+			
+			int num = numSectEndPts;
+			String outputString = new String();
+			outputString += "\t";
+			for(int i=0;i<num;i++) outputString += endPointNames[i]+"\t";
+			outputString += "\n";
 			fw.write(outputString);
+			/* */
+			for(int i=0;i<num;i++) {
+//				System.out.print(i);
+				outputString = new String();
+				outputString += endPointNames[i]+"\t";
+				for(int j=0;j<num;j++) {
+					String distString = new Double(Math.round(sectionDistances[i][j])).toString()+"\t";
+					outputString += distString;
+					if(sectionDistances[i][j] <= 5 && i != j) System.out.println(endPointNames[i]+"\t"+endPointNames[j]+"\t"+
+							Math.round(sectionDistances[i][j])+"\t"+Math.round(sectionAngleDiffs[i][j]));
+				}
+				outputString += "\n";
+				fw.write(outputString);
+			}
+
 			fw.close();
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println(" - done");
+		
+//		System.out.print(output);
+
+	}
+	
+	
+	/**
+	 * This computes the distance from each section endpoint to the closest distance on all other section, but
+	 * only if that point on the second section is not an endpoint.  This will only keep those that are withing
+	 * distThresh
+	 */
+	public void writeSectionDistances(double distThresh) {
+		
+		try{
+			FileWriter fw = new FileWriter("/Users/field/workspace/OpenSHA/dev/scratch/ned/rupsInFaultSystem/sectionDistances.txt");
+			
+			int num = allFaultSectionPrefData.size();
+			String outputString = new String();
+			outputString += "Section Distances\n";
+			for(int i=0;i<num;i++) {
+				FaultSectionPrefData data1 = allFaultSectionPrefData.get(i);
+				FaultTrace trace1 = data1.getFaultTrace();
+				for(int j=i+1; j<num; j++) {
+					FaultSectionPrefData data2 = allFaultSectionPrefData.get(j);
+					FaultTrace trace2 = data2.getFaultTrace();
+					
+					double minDist = Double.MAX_VALUE;
+					double d1 = LocationUtils.horzDistance(trace1.get(0), trace2.get(trace2.getNumLocations()-1));
+					if(d1<minDist) minDist=d1;
+					double d2 = LocationUtils.horzDistance(trace1.get(0), trace2.get(0));
+					if(d2<minDist) minDist=d2;
+					double d3 = LocationUtils.horzDistance(trace1.get(trace1.getNumLocations()-1), trace2.get(trace2.getNumLocations()-1));
+					if(d3<minDist) minDist=d3;
+					double d4 = LocationUtils.horzDistance(trace1.get(trace1.getNumLocations()-1), trace2.get(0));
+					if(d4<minDist) minDist=d4;
+				
+					double minDist2 = trace2.getMinDistance(trace1, 1.0);
+					
+					if(minDist2<minDist-1.0 && minDist2<distThresh) {
+						String string = data1.getSectionName()+"\t--->\t"+data2.getSectionName()+"\t"+minDist2+"\n";
+						outputString += string;
+						System.out.print(string);
+
+					}
+						
+				}
+				fw.write(outputString);
+			}
+
+			fw.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 
 	}
 
@@ -726,10 +688,9 @@ System.out.println("sectionClusterList.size()="+sectionClusterList.size());
 	 */
 	public static void main(String[] args) {
 		long startTime=System.currentTimeMillis();
-		CreateRupturesFromSections createRups = new CreateRupturesFromSections(10, 45, 60, 7, 2);
+		OldCreateRupturesFromSections createRups = new OldCreateRupturesFromSections(10, 45, 60, 7, 2);
 		int runtime = (int)(System.currentTimeMillis()-startTime)/1000;
 		System.out.println("Run took "+runtime+" seconds");
-		createRups.writeCloseSubSections();
 //		createRups.plotAllClusters();
 //		createRups.plotAllEndToEndLinks();
 //		createRups.writeBurntMtTrace();

@@ -444,8 +444,10 @@ implements EvenlyGriddedSurfaceAPI {
 			Iterator<Location> it2 = surface.listIterator();
 			while(it2.hasNext()) { // iterate over all locations on the user provided surface
 				Location loc2 = (Location)it2.next();
-				dist = LocationUtils.horzDistanceFast(loc1, loc2);
-				if(dist<min3dDist) min3dDist = dist;
+				dist = LocationUtils.linearDistanceFast(loc1, loc2);
+				if(dist<min3dDist){
+					min3dDist = dist;
+				}
 			}
 		}
 		return min3dDist;

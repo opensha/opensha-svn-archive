@@ -89,6 +89,12 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 		super(simpleFaultData, gridSpacing);
 		createEvenlyGriddedSurface();
 	}
+	
+    public FrankelGriddedSurface(SimpleFaultData simpleFaultData, double maxGridSpacingAlong, double maxGridSpacingDown) throws FaultException {
+        super(simpleFaultData, maxGridSpacingAlong, maxGridSpacingDown);
+        createEvenlyGriddedSurface();
+      }
+
 
 
 

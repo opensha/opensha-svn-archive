@@ -192,7 +192,8 @@ public class FaultSectionPrefData  implements NamedObjectAPI, java.io.Serializab
 	 */
 	public SimpleFaultData getSimpleFaultData(boolean aseisReducesArea) {
 		if(!aseisReducesArea) {
-			SimpleFaultData simpleFaultData = new SimpleFaultData(getAveDip(), getAveLowerDepth(), getAveUpperDepth(), getFaultTrace());
+			SimpleFaultData simpleFaultData = new SimpleFaultData(getAveDip(), getAveLowerDepth(), 
+					getAveUpperDepth(), getFaultTrace(), getDipDirection());
 			return simpleFaultData;
 		}
 		else {

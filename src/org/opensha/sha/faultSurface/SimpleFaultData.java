@@ -31,9 +31,9 @@ import org.opensha.commons.geo.LocationUtils;
 
 /**
  *  <b>Title:</b> SimpleFaultData<p>
- *  <b>Description:</b> This object contains all the fault-related information needed
- *  by a SimpleGriddedFaultFactory.  This does not check whether the values make sense
- *  (e.g., it doesn not check that 0�aveDip�90) because these will get checked in the
+ *  <b>Description:</b> This object contains "simple fault data".  
+ *  This does not check whether the values make sense
+ *  (e.g., it doesn not check that 0<aveDip<90) because these will get checked in the
  *  classes that use this data (and we don't want duplicate these checks). <p>
  *
  *
@@ -54,6 +54,7 @@ public class SimpleFaultData  implements java.io.Serializable {
     private double upperSeismogenicDepth;
     private double lowerSeismogenicDepth;
     private double aveDip;
+    private double aveDipDir = Double.NaN;
     private FaultTrace faultTrace;
 
     protected final static String C = "SimpleFaultData";
@@ -61,10 +62,8 @@ public class SimpleFaultData  implements java.io.Serializable {
 
     public SimpleFaultData(){ }
 
-    public SimpleFaultData(double aveDip,
-                           double lowerSeisDepth,
-                           double upperSeisDepth,
-                           FaultTrace faultTrace) {
+    public SimpleFaultData(double aveDip, double lowerSeisDepth,
+                           double upperSeisDepth, FaultTrace faultTrace) {
 
         this.aveDip = aveDip;
         this.lowerSeismogenicDepth = lowerSeisDepth;
@@ -72,6 +71,18 @@ public class SimpleFaultData  implements java.io.Serializable {
         this.faultTrace = faultTrace;
 
     }
+
+    public SimpleFaultData(double aveDip, double lowerSeisDepth, double upperSeisDepth,
+    		FaultTrace faultTrace, double aveDipDir) {
+
+    	this.aveDip = aveDip;
+    	this.lowerSeismogenicDepth = lowerSeisDepth;
+    	this.upperSeismogenicDepth = upperSeisDepth;
+    	this.faultTrace = faultTrace;
+    	this.aveDipDir = aveDipDir;
+
+    }
+
 
     public void setUpperSeismogenicDepth(double upperSeismogenicDepth) { this.upperSeismogenicDepth = upperSeismogenicDepth; }
     public double getUpperSeismogenicDepth() { return upperSeismogenicDepth; }
@@ -81,6 +92,9 @@ public class SimpleFaultData  implements java.io.Serializable {
 
     public void setAveDip(double aveDip) { this.aveDip = aveDip; }
     public double getAveDip() { return aveDip; }
+    
+    public void setAveDipDir(double aveDipDir) { this.aveDipDir = aveDipDir; }
+    public double getAveDipDir() { return aveDipDir; }
 
     public void setFaultTrace(FaultTrace faultTrace) {
         this.faultTrace = faultTrace;

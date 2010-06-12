@@ -27,8 +27,6 @@ import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 
-
-
 /**
  * <b>Title:</b> StirlingGriddedSurface.   <br>
  * <b>Description: This creates an EvenlyGriddedSurface
@@ -56,24 +54,27 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
     protected final static String ERR = " is null, unable to process.";
 
 
-    public StirlingGriddedSurface(SimpleFaultData simpleFaultData,
-                                  double gridSpacing) throws FaultException {
+    public StirlingGriddedSurface(SimpleFaultData simpleFaultData, double gridSpacing) throws FaultException {
       super(simpleFaultData, gridSpacing, gridSpacing);
+      this.aveDipDir=simpleFaultData.getAveDipDir();
       createEvenlyGriddedSurface();
     }
 
+    public StirlingGriddedSurface(SimpleFaultData simpleFaultData, double maxGridSpacingAlong, double maxGridSpacingDown) throws FaultException {
+        super(simpleFaultData, maxGridSpacingAlong, maxGridSpacingDown);
+        this.aveDipDir=simpleFaultData.getAveDipDir();
+        createEvenlyGriddedSurface();
+      }
+
     
-    public StirlingGriddedSurface(FaultTrace faultTrace,
-                                  double aveDip,
-                                  double upperSeismogenicDepth,
-                                  double lowerSeismogenicDepth,
-                                  double gridSpacing) throws FaultException {
+    public StirlingGriddedSurface(FaultTrace faultTrace, double aveDip, double upperSeismogenicDepth,
+                                  double lowerSeismogenicDepth, double gridSpacing) throws FaultException {
 
       super(faultTrace, aveDip, upperSeismogenicDepth, lowerSeismogenicDepth, gridSpacing);
       createEvenlyGriddedSurface();
     }
 
-
+/*
     public StirlingGriddedSurface( SimpleFaultData simpleFaultData, double gridSpacing,double aveDipDir)
                                         throws FaultException {
 
@@ -81,13 +82,10 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
         this.aveDipDir = aveDipDir;
         createEvenlyGriddedSurface();
     }
+*/
 
-
-    public StirlingGriddedSurface( FaultTrace faultTrace,
-                                        double aveDip,
-                                        double upperSeismogenicDepth,
-                                        double lowerSeismogenicDepth,
-                                        double gridSpacing,double aveDipDir )
+    public StirlingGriddedSurface( FaultTrace faultTrace, double aveDip, double upperSeismogenicDepth,
+                                        double lowerSeismogenicDepth, double gridSpacing,double aveDipDir )
                                         throws FaultException {
 
         super(faultTrace, aveDip, upperSeismogenicDepth, lowerSeismogenicDepth, gridSpacing);
@@ -112,6 +110,10 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
     	super(simpleFaultData, gridSpacing);
     	createEvenlyGriddedSurface();
     }
+    
+    public double getAveDipDir() {
+    	return aveDipDir;
+    }
 
 
     /**
@@ -124,8 +126,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
         if( D ) System.out.println(S + "Starting");
 
         assertValidData();
-
-
+        
         final int numSegments = faultTrace.getNumLocations() - 1;
         final double avDipRadians = aveDip * PI_RADIANS;
         final double gridSpacingCosAveDipRadians = gridSpacingDown * Math.cos( avDipRadians );
@@ -141,7 +142,6 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
         Location firstLoc;
         Location lastLoc;
         double aveDipDirection;
-
        // Find ave dip direction (defined by end locations):
         if( Double.isNaN(aveDipDir) ) {
           firstLoc = faultTrace.get(0);
@@ -154,7 +154,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
           aveDipDirection = aveDipDir;
         }
 
-        if (D) System.out.println("aveDipDirection = " + aveDipDirection);
+        if(D) System.out.println(this.faultTrace.getName()+"\taveDipDirection = " + (float)aveDipDirection);
 
 
         // Iterate over each Location in Fault Trace
