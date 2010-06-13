@@ -10,6 +10,8 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.refFaultParamDb.calc.sectionDists.FaultSectDistRecord;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
+import org.opensha.refFaultParamDb.dao.db.DeformationModelPrefDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 import org.opensha.sha.faultSurface.FaultTrace;
@@ -36,15 +38,16 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 	Location endPointLocs[];
 	int numSections, counter, numSubSections, minNumSubSectInRup;
 	ArrayList<ArrayList<Integer>> subSectionConnectionsListList, endToEndSectLinksList;
-	ArrayList<SectionCluster> sectionClusterList;
 	double maxJumpDist, maxAngle, maxTotStrikeChange, maxSubSectionLength;
 	ArrayList<ArrayList<FaultSectionPrefData>> subSectionPrefDataListList;
 	ArrayList<FaultSectionPrefData> subSectionPrefDataList; // same as above, but a sequential list (not list of lists)
 	
 	// this is to store the section and subsection indices for the ith subsection.
-	int[]  sectionMapping,subSectionMapping;
+	int[]  sectForSubSectionMapping,subSectForSubSectMapping, firstSubsectOfSectMapping;
 	// this gives the section index for the ith sections and jth subsection withing
-	int[][] indexMapping;
+	int[][] subSectForSectAndSubsectMapping;
+	
+	ArrayList<SectionCluster> clusterList;
 
 
 	
@@ -68,21 +71,25 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 		this.maxSubSectionLength=maxSubSectionLength;
 		this.minNumSubSectInRup=minNumSubSectInRup;
 		
-		Boolean includeSectionsWithNaN_slipRates = false;
+		Boolean includeSectionsWithNaN_slipRates = true;
 		getAllSections(includeSectionsWithNaN_slipRates);
+		
 		
 		calcSubSectionDistances();
 		
-//		writeSectionDistances(10.0);
-		
 		computeCloseSubSectionsListList();
 		
-/*		computeEndToEndSectLinksList();
-		computeSectionClusters();
-
-		System.out.println("numSubSections="+numSubSections+"\tgetRupList().size()="+getRupList().size());
-*/	
+		makeClusterList();
 		
+		for(int i=1; i<clusterList.size(); i++) {
+			SectionCluster cluster = clusterList.get(i);
+			System.out.println("CONTENTS OF CLUSTER #"+i);
+			ArrayList<Integer> allSubSectionsIdList = cluster.getAllSubSectionsIdList();
+			for(int j=0; j< cluster.size();j++)
+				System.out.println("\t"+subSectionPrefDataList.get(cluster.get(j)).getName()+"\t"+allSubSectionsIdList.get(j));
+		}
+		/*		*/
+//		System.out.println("numSubSections="+numSubSections+"\tgetRupList().size()="+getRupList().size());
 		
 //		for(int i=0; i<sectionClusterList.size();i++)
 //		System.out.println("sectionClusterList.get(0).getRuptures().size()="+sectionClusterList.get(0).getRuptures().size());
@@ -90,20 +97,22 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 //		testClusters();
 	}
 	
+	
+	
 	public int getNumClusters() {
-		return sectionClusterList.size();
+		return clusterList.size();
 	}
 	
 	public SectionCluster getCluster(int clusterIndex) {
-		return sectionClusterList.get(clusterIndex);
+		return clusterList.get(clusterIndex);
 	}
 	
 	
 	
 	  public ArrayList<ArrayList<Integer>> getRupList() {
 		  ArrayList<ArrayList<Integer>> rupList = new ArrayList<ArrayList<Integer>>();
-		  for(int i=0; i<sectionClusterList.size();i++)
-			  rupList.addAll(sectionClusterList.get(i).getRuptures());
+		  for(int i=0; i<clusterList.size();i++)
+			  rupList.addAll(clusterList.get(i).getRuptures());
 		  return rupList;
 	  }
 
@@ -128,8 +137,26 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 
 		  DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
 		  allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelId);
+		  
+		  /* The following is painfully slow!
+		  System.out.println("beginning database read");
+		  DeformationModelPrefDataDB_DAO deformationModelDB_DAO = new DeformationModelPrefDataDB_DAO(DB_ConnectionPool.getDB2ReadOnlyConn());
+		  ArrayList<Integer> idList = deformationModelDB_DAO.getFaultSectionIdsForDeformationModel(deformationModelId);
+		  allFaultSectionPrefData = new ArrayList<FaultSectionPrefData>();
+		  for(int i=0;i<idList.size();i++)
+			  allFaultSectionPrefData.add(deformationModelDB_DAO.getFaultSectionPrefData(deformationModelId,idList.get(i)));
+		  System.out.println("done with database read");
+		  */
+		  
+		  
+
 		  //Alphabetize:
 		  Collections.sort(allFaultSectionPrefData, new NamedObjectComparator());
+/*		  
+			for(int i=0; i< this.allFaultSectionPrefData.size();i++){
+				System.out.println(allFaultSectionPrefData.get(i).getSectionId()+"\t"+allFaultSectionPrefData.get(i).getName());
+			}
+*/
 
 
 		  // remove those with no slip rate
@@ -153,6 +180,20 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 			  }
 		  }
 		  System.out.println("Max Down-Dip Width = "+maxDDW+" for "+allFaultSectionPrefData.get(index).getSectionName());
+/*		  
+		  ArrayList<FaultSectionPrefData> trimmedFaultSectionPrefData = new ArrayList<FaultSectionPrefData>();
+		  trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(77));
+		  trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(75));
+		  trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(164));
+		  trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(42));
+		  trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(108));
+		  trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(0));
+		  allFaultSectionPrefData = trimmedFaultSectionPrefData;
+		
+		  for(int i=0; i< allFaultSectionPrefData.size();i++) 
+			  System.out.println(i+"\t"+allFaultSectionPrefData.get(i).getName());
+		  
+*/
 
 		  // make subsection data
 		  subSectionPrefDataListList = new ArrayList<ArrayList<FaultSectionPrefData>>();
@@ -174,22 +215,25 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 		  
 		  
 		  // Set the mappings among sections and subsection lists
-		  sectionMapping = new int[subSectionPrefDataList.size()];
-		  subSectionMapping = new int[subSectionPrefDataList.size()];
-		  indexMapping = new int[numSections][maxNumSubSections];
+		  sectForSubSectionMapping = new int[subSectionPrefDataList.size()];
+		  subSectForSubSectMapping = new int[subSectionPrefDataList.size()];
+		  subSectForSectAndSubsectMapping = new int[numSections][maxNumSubSections];
+		  firstSubsectOfSectMapping = new int [numSections];
 		  for(int i=0;i<numSections;i++)
 			  for(int j=0;j<maxNumSubSections;j++)
-				  indexMapping[i][j]=-1; // initialize with bogus indices
+				  subSectForSectAndSubsectMapping[i][j]=-1; // initialize with bogus indices
 		  // mow make the mappings
 		  int counter =0;
 		  for(int i=0; i<subSectionPrefDataListList.size(); ++i) {
+			  firstSubsectOfSectMapping[i] = counter;
 			  for(int j=0; j<subSectionPrefDataListList.get(i).size();j++) {
-				  sectionMapping[counter] = i;
-				  subSectionMapping[counter] = j;
-				  indexMapping[i][j]=counter;
+				  sectForSubSectionMapping[counter] = i;
+				  subSectForSubSectMapping[counter] = j;
+				  subSectForSectAndSubsectMapping[i][j]=counter;
 				  counter += 1;
 			  }
 		  }
+		  
 /*		  
 		  counter =0;
 		  for(int i=0; i<subSectionPrefDataListList.size(); ++i) {
@@ -213,30 +257,6 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 	  }
 	  
 	  private void calcSubSectionDistances() {
-		
-		  /*
-		  // test:
-		  StirlingGriddedSurface testSurf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(3).getSimpleFaultData(false), 1.0);
-		  StirlingGriddedSurface testSurf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(691).getSimpleFaultData(false), 1.0);
-		  System.out.println("testMinDist="+testSurf1.getMinDistance(testSurf2));
-		  System.out.println(testSurf1.getFaultTrace().getName());
-		  System.out.println("\t"+testSurf1.getLocation(0, 0));
-		  System.out.println("\t"+testSurf1.getLocation(0, testSurf1.getNumCols()-1));
-		  System.out.println("\t"+testSurf1.getLocation(testSurf1.getNumRows()-1, 0));
-		  System.out.println("\t"+testSurf1.getLocation(testSurf1.getNumRows()-1, testSurf1.getNumCols()-1));
-		  System.out.println(testSurf2.getFaultTrace().getName());
-		  System.out.println("\t"+testSurf2.getLocation(0, 0));
-		  System.out.println("\t"+testSurf2.getLocation(0, testSurf2.getNumCols()-1));
-		  System.out.println("\t"+testSurf2.getLocation(testSurf2.getNumRows()-1, 0));
-		  System.out.println("\t"+testSurf2.getLocation(testSurf2.getNumRows()-1, testSurf2.getNumCols()-1));
-*/
-		  /*
-		  for(int i=0; i<6;i++) {
-			  FaultTrace trace = subSectionPrefDataList.get(i).getFaultTrace();
-			  System.out.println(i+"\t"+trace.get(0));
-			  System.out.println("\t"+trace.get(trace.size()-1));
-		  }
-		  */
 		  
 		  subSectionDistances = new double[numSubSections][numSubSections];
 		  subSectionAngleDiffs = new double[numSubSections][numSubSections];
@@ -244,32 +264,17 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 		  // Calculate the distance matrix
 		  counter = 5;  // for progress report
 		  for(int a=0;a<numSubSections;a++) {
-//		  for(int a=0;a<1;a++) {
 			  if (100*a/numSubSections > counter) {
 				  System.out.println(counter+"% done");
 				  counter += 5;
 			  }
 			  StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultData(false), 2.0);
-/*			  
-			  if(a==0){
-				  Location loc1 = surf1.get(0, 0);
-				  Location loc2 = surf1.get(0, surf1.getNumCols()-1);
-				  System.out.println(surf1.getFaultTrace().getName()+"\t"+loc1.getLatitude()+"\t"+loc1.getLongitude()+"\t"+loc2.getLatitude()+"\t"+loc2.getLongitude());
-			  }
-*/
+
 			  for(int b=a+1;b<numSubSections;b++) {
-//			  for(int b=a;b<numSubSections;b++) {
 				  StirlingGriddedSurface surf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(b).getSimpleFaultData(false), 2.0);
 				  double minDist = surf1.getMinDistance(surf2);
 				  subSectionDistances[a][b] = minDist;
 				  subSectionDistances[b][a] = minDist;
-				  /*
-				  if(a==0 && minDist < this.maxJumpDist){
-					  Location loc1 = surf2.get(0, 0);
-					  Location loc2 = surf2.get(0, surf2.getNumCols()-1);
-					  System.out.println("\t"+surf2.getFaultTrace().getName()+"\t"+minDist+"\t"+loc1.getLatitude()+"\t"+loc1.getLongitude()+"\t"+loc2.getLatitude()+"\t"+loc2.getLongitude());
-				  }
-				  */
 			  }
 		  }
 
@@ -292,9 +297,9 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 			  for(int j=0;j<numSubSect;j++) {
 				  ArrayList<Integer> sectionConnections = new ArrayList<Integer>();
 				  if(j != 0) 
-					  sectionConnections.add(indexMapping[i][j-1]);
+					  sectionConnections.add(subSectForSectAndSubsectMapping[i][j-1]);
 				  if(j != numSubSect-1)
-					  sectionConnections.add(indexMapping[i][j+1]);
+					  sectionConnections.add(subSectForSectAndSubsectMapping[i][j+1]);
 				  subSectionConnectionsListList.add(sectionConnections);
 			  }
 		  }
@@ -309,8 +314,8 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 				  int subSectIndex2 = -1;
 				  for(int k=0;k<sect1_List.size();k++) {
 					  for(int l=0;l<sect2_List.size();l++) {
-						  int index1 = indexMapping[i][k];
-						  int index2 = indexMapping[j][l];
+						  int index1 = subSectForSectAndSubsectMapping[i][k];
+						  int index2 = subSectForSectAndSubsectMapping[j][l];
 						  double dist = subSectionDistances[index1][index2];
 /*
 						  if(i==0 && j==88 ) {
@@ -335,297 +340,42 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 	  }
 	  
 	  
-	
-	
-	   
-	/**
-	 * For each section, this adds neighboring sections as links until the ends are reached, at which 
-	 * time this end-to-end link is saved if it doesn't already exist.  All branches are followed. For example,
-	 * three sections in a "Y" shape would lead to two end-to-end links, and four sections in an "X" shape would 
-	 * lead to four end-to-end links.  The result is put into endTEndSectLinksList, an ArrayList of ArrayList<Integer>
-	 * objects (where the latter lists all the section end points in the list).
-	 */
-    private void computeEndToEndSectLinksList() {
-    	endToEndSectLinksList  = new ArrayList<ArrayList<Integer>>();
-    	
-    	System.out.println("sum_sections = "+numSections);
-    	
-    	int oldNum=0;
-        for(int sect=0; sect<numSections; sect++) {
-//        for(int sect=68; sect<69; sect++) {
-//      	System.out.println("sect = "+sect+"  "+allFaultSectionPrefData.get(sect).getSectionName());
-//        	System.out.println("\n\nfirst path");
-    		ArrayList<ArrayList> firstConnectionsList = new ArrayList<ArrayList>();
-    		int startPtIndex1 = sect*2;
-    		ArrayList<Integer> currentList1 = new ArrayList<Integer>();
-    		currentList1.add(startPtIndex1);
-    		addConnections(startPtIndex1, currentList1, firstConnectionsList);
-//    		System.out.println("firstConnectionsList="+firstConnectionsList);
-    		
-//        	System.out.println("second path");
-    		ArrayList<ArrayList> secondConnectionsList = new ArrayList<ArrayList>();
-    		int startPtIndex2 = sect*2+1;
-    		ArrayList<Integer> currentList2 = new ArrayList<Integer>();
-    		currentList2.add(startPtIndex2);
-    		addConnections(startPtIndex2, currentList2, secondConnectionsList);
-//    		System.out.println("secondConnectionsList="+secondConnectionsList);
-    		
-    		// now stitch together all combinations
-    		int num=0, numRemoved=0;
-			for(int j=0; j<secondConnectionsList.size(); j++) {
-				ArrayList<Integer> secondList = secondConnectionsList.get(j);
-				for(int i=0; i<firstConnectionsList.size();i++) {
-					num += 1;
-					ArrayList<Integer> firstList = firstConnectionsList.get(i);
-					ArrayList<Integer> stitchedList = new ArrayList<Integer>();
-        			for(int k= firstList.size()-1; k >=0; k--) stitchedList.add(firstList.get(k));
-    				stitchedList.addAll(secondList);
-/* this works!
-    				if(linkedSectionsList.contains(stitchedList))
-    					System.out.println(num+" is a Duplicate Here !!!!!!!!!!!!!!!!!!!!");
-*/
-    				// reverse the list so we can check that one too
-    				ArrayList<Integer> reversedList = new ArrayList<Integer>();
-    				for(int n=stitchedList.size()-1; n>=0; n--) reversedList.add(stitchedList.get(n));
-    				
-    				// now add if we don't already have this
-    				if(!endToEndSectLinksList.contains(stitchedList) && !endToEndSectLinksList.contains(reversedList))
-    					endToEndSectLinksList.add(stitchedList);
-    				else
-    					numRemoved += 1;
-    			}
-    		}
-		
-			int numNew = endToEndSectLinksList.size()-oldNum;
-			/*    write out contents of the list
-			System.out.println("\n"+numNew+" in list for "+
-    				allFaultSectionPrefData.get(sect).getSectionName()+" (section "+sect+"), "+numRemoved+" removed as duplicates  ******************");
-			for(int k=oldNum; k<endToEndSectLinksList.size(); k++) {
-				System.out.println(k);
-				ArrayList<Integer> list = endToEndSectLinksList.get(k);
-				for(int l=0; l<list.size();l++)
-					System.out.println(endPointNames[list.get(l)]);
-			}
-			*/
-			oldNum = endToEndSectLinksList.size();
-    	}
-/*
-        System.out.println("endToEndSectLinksList=");
-        for(int i=0;i<endToEndSectLinksList.size(); i++)
-        	System.out.println(i+"\t"+endToEndSectLinksList.get(i));
-*/	
-    }
-    
-    
-    private void computeSectionClusters() {
-    	sectionClusterList = new ArrayList<SectionCluster>();
-    	// duplicate the following because it will get modified 
-    	ArrayList<ArrayList<Integer>> tempEndToEndSectList = (ArrayList<ArrayList<Integer>>)endToEndSectLinksList.clone();
+	  private void makeClusterList() {
+		  
+		  // make an arrayList of subsection integers
+		  ArrayList<Integer> availableSubSections = new ArrayList<Integer>();
+		  for(int i=0; i<numSubSections; i++) availableSubSections.add(i);
+		  
+		  clusterList = new ArrayList<SectionCluster>();
+		  while(availableSubSections.size()>0) {
+			  
+			  System.out.println("WORKING ON CLUSTER #"+(clusterList.size()+1));
+			  int firstSubSection = availableSubSections.get(0);
+			  SectionCluster newCluster = new SectionCluster(subSectionPrefDataList, minNumSubSectInRup);
+			  newCluster.add(firstSubSection);
+			  System.out.println("\tfirst is "+this.subSectionPrefDataList.get(firstSubSection).getName());
+			  addLinks(firstSubSection, newCluster);
+			  for(int i=0; i<newCluster.size();i++) availableSubSections.remove(newCluster.get(i));
+			  clusterList.add(newCluster);
+			  System.out.println(newCluster.size()+"\tsubsections in cluster #"+clusterList.size()+"\t"+
+					  availableSubSections.size()+"\t subsections left to allocate");
+		  }
+	  }
+	  
+	  
+	  private void addLinks(int subSectIndex, SectionCluster list) {
+		  ArrayList<Integer> branches = subSectionConnectionsListList.get(subSectIndex);
+		  for(int i=0; i<branches.size(); i++) {
+			  Integer subSect = branches.get(i);
+			  if(!list.contains(subSect)) {
+				  list.add(subSect);
+				  addLinks(subSect, list);
+//				  System.out.println("\tadded "+this.subSectionPrefDataList.get(subSect).getName());
+			  }
+		  }
+	  }
+	  
 
-    	int clusterCounter=0;
-    	while(tempEndToEndSectList.size() > 0) {
-//System.out.println("Working on cluster "+clusterCounter);
-//    		System.out.println("sectionClusterList.size()="+sectionClusterList.size()+";  tempEndToEndSectList.size()"+tempEndToEndSectList.size());
-    		SectionCluster cluster = new SectionCluster();
-    		tempEndToEndSectList = cluster.CreateCluster(tempEndToEndSectList, subSectionPrefDataListList,minNumSubSectInRup);  // this removes the ones it takes from the list passed in
-    		sectionClusterList.add(cluster);
-    		clusterCounter +=1;
-    	}
-System.out.println("sectionClusterList.size()="+sectionClusterList.size());
-    }
-    
-    
-
-    private void testClusters() {
-    	// make sure that each section endpoint is part of one and only one cluster
-    	System.out.println("Testing clusters:");
-    	boolean allGood = true;
-//    	for(int i=0; i<numSectEndPts; i++) {
-        for(int i=0; i<numSubSections; i++) {
-    		int sum =0;
-    		for(int j=0;j<this.sectionClusterList.size(); j++) {
-//    		for(int j=0;j<6; j++) {
-    			ArrayList<Integer> indices = sectionClusterList.get(j).getSectionIndicesInCluster();
-//    			System.out.println(indices);
-    			if(indices.contains(new Integer(i)))
-    				sum+=1;
-    		}
-    		if(sum !=1) {
-    			System.out.println("sectEndPt "+i+" exists in "+sum+" clusters");
-    			allGood = false;
-    		}
-    	}
-    	System.out.println("\tallGood="+allGood);
-    }
-
-    
-    
-
-
-    /*
-    private void computeSectionClusters() {
-    	
-    	ArrayList<Integer> test = new ArrayList<Integer> ();
-    	test.add(new Integer(2));
-    	if(test.contains(new Integer(2))) System.out.println("It Works!!!!!!!!!!");
-    	
-    	sectionClusterList = new ArrayList<ArrayList<Integer>>();
-    	// add the first end-to-end link as the first cluster
-    	ArrayList<Integer> firstCluster = (ArrayList<Integer>)endToEndSectLinksList.get(0).clone();
-    	sectionClusterList.add(firstCluster);
-//    	System.out.println("endToEndSectLinksList.size()="+endToEndSectLinksList.size());
-//    	System.out.println("endToEndSectLinksList.get(0)="+endToEndSectLinksList.get(0));
-    	 
-    	for(int i=1; i< endToEndSectLinksList.size();i++) {
-//    		System.out.println("endToEndSectLinksList.get("+i+")="+endToEndSectLinksList.get(i));
-    		boolean newCluster = true;
-    		boolean done = false;
-    		ArrayList<Integer> endToEndLink = endToEndSectLinksList.get(i);
-    		// loop over clusters to see if this link is part of one (shares at least one section)
-    		for(int j=0; j<sectionClusterList.size() && !done; j++) {
-    			ArrayList<Integer> cluster = sectionClusterList.get(j);
-    			// loop over sections in the link
-    			for(int k=0; k<endToEndLink.size() && !done; k++) {
-    				if(cluster.contains(endToEndLink.get(k))) { // if the section index is in this cluster add the link to the cluster
-//    					System.out.println("Got one!");
-    					for(int l=0; l<endToEndLink.size(); l++)
-    						if (!cluster.contains(endToEndLink.get(l))) cluster.add(endToEndLink.get(l));
-    					newCluster = false;
-    					done = true;
-    				}
-    			}
-    			
-    		}
-    		if(newCluster) sectionClusterList.add((ArrayList<Integer>)endToEndLink.clone());
-    	}
-
-		System.out.println("Num Clusters = "+sectionClusterList.size());
-    	for(int cl=0;cl< sectionClusterList.size(); cl++)
-    		System.out.println("\t"+cl+" has"+sectionClusterList.get(cl).size()+" sections");
-    		
-    	System.out.println("sectionClusterList=");
-        for(int i=0;i<sectionClusterList.size(); i++)
-        	System.out.println(i+"\t"+sectionClusterList.get(i));
- 
-
-    }
-    */
-    
-    private void addConnections(Integer endPtID, ArrayList currentList, ArrayList<ArrayList> finalList) {
-    	ArrayList<Integer> sectionConnections = subSectionConnectionsListList.get(endPtID);
-    	
-//    	System.out.println("Connections for "+endPtID+" ("+endPointNames[endPtID]+") are: ");
-//    	for(int temp=0;temp<sectionConnections.size();temp++) System.out.println("\t"+sectionConnections.get(temp)+" ("+endPointNames[sectionConnections.get(temp).intValue()]+")");
-    	
-    	if(sectionConnections.size() == 0) {  // no more connections, so add it to the final list
-    		finalList.add((ArrayList)currentList.clone());
-    	//	System.out.println("\tDONE");
-    	}
-    	else {
-    	//	System.out.println(sectionConnections.size()+" connections for "+this.endPointNames[endPtID]);
-    		for(int i=0; i< sectionConnections.size(); i++) {
-    			int connectedPtIndex = sectionConnections.get(i).intValue();
-    			int otherPtIndex;
-    			if(connectedPtIndex  % 2 != 0) // if the index is odd (last point)
-    				otherPtIndex = connectedPtIndex-1;
-    			else
-    				otherPtIndex = connectedPtIndex+1;
-    			
-    			// check total direction change between 1st and this new section & skip if
-    			int firstPt = ((Integer)currentList.get(0)).intValue();
-    			double totalStrikeChange = Math.abs(subSectionAngleDiffs[firstPt][connectedPtIndex]);
-    			if(totalStrikeChange > maxTotStrikeChange) {
-    				finalList.add((ArrayList)currentList.clone());
-//    				System.out.println("NOTE - total strike became too large between "+endPointNames[firstPt]+" and "+endPointNames[connectedPtIndex]);
-    				continue;
-    			}
-    			
-    			// quit also if the list already has this point (two sections looping around on each other)
-    			if(currentList.contains(new Integer(connectedPtIndex))) {
-    				finalList.add((ArrayList)currentList.clone());
-//    				System.out.println("NOTE - quit due to looping "+endPointNames[firstPt]+" and "+endPointNames[connectedPtIndex]);
-    				continue;
-    			}
-    			ArrayList newCurrentList = (ArrayList) currentList.clone();
-    			newCurrentList.add(connectedPtIndex);
-    			newCurrentList.add(otherPtIndex);
-    	//		System.out.println("\tadded "+endPointNames[otherPtIndex]+" and "+endPointNames[connectedPtIndex]+" to "+
-    	//				endPointNames[endPtID]+"  TOTAL STRIKE CHANGE = "+totalStrikeChange);
-    	//		counter+=1;
-    	//		if(counter<100)
-    			addConnections(otherPtIndex, newCurrentList, finalList);
-    		}
-    	}
-    }
-
-	
-	private int getSectionIndexForEndPoint(int endPointIndex) {
-		if(endPointIndex % 2 != 0) return (endPointIndex-1)/2;  // test to see if it's odd
-		else return endPointIndex/2;
-	}
-	
-	
-	// Note that this produces erroneous zig-zag plot for traces that have multiple lats for a given lon 
-	// (functions force x values to monotonically increase)
-	public void plotAllTraces(double maxDist, double minAngle, double maxAngle) {
-		for(int i=0;i<numSubSections;i++)
-			for(int j=0;j<numSubSections;j++)
-				if(subSectionDistances[i][j] <= maxDist && i != j) 
-					if(subSectionAngleDiffs[i][j] >= minAngle && subSectionAngleDiffs[i][j] <= maxAngle) {
-						FaultTrace ftA = this.allFaultSectionPrefData.get(getSectionIndexForEndPoint(i)).getFaultTrace();
-						FaultTrace ftB = this.allFaultSectionPrefData.get(getSectionIndexForEndPoint(j)).getFaultTrace();
-//						if (allFaultSectionPrefData.get(indexB).getSectionName().equals("Burnt Mtn")) System.out.println("Burnt Mtn index ="+allFaultSectionPrefData.get(indexB).getFaultTrace().toString());
-//						boolean flag=false; if (allFaultSectionPrefData.get(indexB).getSectionName().equals("Burnt Mtn")) flag = true;
-						plotTraces(ftA, ftB);
-					}
-	}
-	
-	
-	// Note that this produces erroneous zig-zag plot for traces that have multiple lats for a given lon 
-	// (functions force x values to monotonically increase)
-	public void plotAllSections(ArrayList<Integer> link) {
-		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-		double minLat=1000, maxLat=-1000, minLon=1000, maxLon=-1000;
-		String name = new String();
-		for(int j=0; j<link.size(); j+=2) {
-			int sectIndex = getSectionIndexForEndPoint(link.get(j).intValue());
-			FaultTrace ft = allFaultSectionPrefData.get(sectIndex).getFaultTrace();
-			name += allFaultSectionPrefData.get(sectIndex).getSectionName() +"+";
-			for(int l=0; l<ft.size();l++) {
-				Location loc = ft.get(l);
-				func.set(loc.getLongitude(), loc.getLatitude());
-				if(loc.getLongitude()<minLon) minLon = loc.getLongitude();
-				if(loc.getLongitude()>maxLon) maxLon = loc.getLongitude();
-				if(loc.getLatitude()<minLat) minLat = loc.getLatitude();
-				if(loc.getLatitude()>maxLat) maxLat = loc.getLatitude();
-			}
-		}
-		func.setName(name);
-		ArrayList funcs = new ArrayList();
-		funcs.add(func);
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "");  
-		// make the axis range equal
-		if((maxLat-minLat) < (maxLon-minLon)) maxLat = minLat  + (maxLon-minLon);
-		else maxLon = minLon + (maxLat-minLat);
-		graph.setAxisRange(minLon, maxLon, minLat, maxLat);
-
-	}
-
-	public void plotAllEndToEndLinks() {
-		for(int i=0;i<endToEndSectLinksList.size();i++)
-			plotAllSections(endToEndSectLinksList.get(i));
-	}
-	
-	public void plotAllClusters() {
-		for(int i=0;i<sectionClusterList.size();i++) {
-			ArrayList<Integer> indices = sectionClusterList.get(i).getSectionIndicesInCluster();
-			if(indices.size()>6)
-				plotAllSections(indices);
-		}
-	}
-
-	
-	
 	/**
 	 * This writes out the close subsections to each subsection (and the distance)
 	 */
@@ -653,42 +403,6 @@ System.out.println("sectionClusterList.size()="+sectionClusterList.size());
 		System.out.println(" - done");
 
 	}
-
-	
-	
-	
-	
-	public void plotTraces(FaultTrace ft1, FaultTrace ft2) {
-		ArbitrarilyDiscretizedFunc ft1_func = new ArbitrarilyDiscretizedFunc();
-		ft1_func.setName(ft1.getName());
-		ArbitrarilyDiscretizedFunc ft2_func = new ArbitrarilyDiscretizedFunc();
-		ft2_func.setName(ft2.getName());
-		double minLat=1000, maxLat=-1000, minLon=1000, maxLon=-1000;
-		for(int l=0; l<ft1.size();l++) {
-			Location loc = ft1.get(l);
-			ft1_func.set(loc.getLongitude(), loc.getLatitude());
-			if(loc.getLongitude()<minLon) minLon = loc.getLongitude();
-			if(loc.getLongitude()>maxLon) maxLon = loc.getLongitude();
-			if(loc.getLatitude()<minLat) minLat = loc.getLatitude();
-			if(loc.getLatitude()>maxLat) maxLat = loc.getLatitude();
-		}
-		for(int l=0; l<ft2.size();l++) {
-			Location loc = ft2.get(l);
-			ft2_func.set(loc.getLongitude(), loc.getLatitude());
-			if(loc.getLongitude()<minLon) minLon = loc.getLongitude();
-			if(loc.getLongitude()>maxLon) maxLon = loc.getLongitude();
-			if(loc.getLatitude()<minLat) minLat = loc.getLatitude();
-			if(loc.getLatitude()>maxLat) maxLat = loc.getLatitude();
-		}
-		ArrayList ft_funcs = new ArrayList();
-		ft_funcs.add(ft1_func);
-		ft_funcs.add(ft2_func);
-		GraphiWindowAPI_Impl sr_graph = new GraphiWindowAPI_Impl(ft_funcs, "");  
-		// make the axis range equal
-		if((maxLat-minLat) < (maxLon-minLon)) maxLat = minLat  + (maxLon-minLon);
-		else maxLon = minLon + (maxLat-minLat);
-		sr_graph.setAxisRange(minLon, maxLon, minLat, maxLat);
-	}
 	
 	
     /**
@@ -706,20 +420,18 @@ System.out.println("sectionClusterList.size()="+sectionClusterList.size());
     	else
     		return diff;
      }
+    
 
     /**
      * This reverses the given azimuth (assumed to be between -180 and 180 degrees).
      * The output is between -180 and 180 degrees.
      * @return
      */
-
     private double reverseAzimuth(double azimuth) {
     	if(azimuth<0) return azimuth+180;
     	else return azimuth-180;
      }
     
-    
- 	
 	
 	/**
 	 * @param args
@@ -730,15 +442,6 @@ System.out.println("sectionClusterList.size()="+sectionClusterList.size());
 		int runtime = (int)(System.currentTimeMillis()-startTime)/1000;
 		System.out.println("Run took "+runtime+" seconds");
 		createRups.writeCloseSubSections();
-//		createRups.plotAllClusters();
-//		createRups.plotAllEndToEndLinks();
-//		createRups.writeBurntMtTrace();
-//		createRups.plotAllTraces(5, -45, 45);
-//		createRups.writeSectionDistances();
-		
-		
-
 	}
 	
-
 }

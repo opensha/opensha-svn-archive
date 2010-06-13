@@ -689,6 +689,8 @@ System.out.println("sectionClusterList.size()="+sectionClusterList.size());
 	public static void main(String[] args) {
 		long startTime=System.currentTimeMillis();
 		OldCreateRupturesFromSections createRups = new OldCreateRupturesFromSections(10, 45, 60, 7, 2);
+		ArrayList<ArrayList<Integer>> rupList = createRups.getRupList();
+		System.out.println(rupList.get(0));
 		int runtime = (int)(System.currentTimeMillis()-startTime)/1000;
 		System.out.println("Run took "+runtime+" seconds");
 //		createRups.plotAllClusters();
