@@ -70,7 +70,7 @@ public class SectionCluster extends ArrayList<Integer> {
 			  rupList.add(newRup);
 		  }
 		  return rupList;
-		  */
+		*/  
 	}
 	
 	public ArrayList<ArrayList<Integer>> getRupturesByIndices() {

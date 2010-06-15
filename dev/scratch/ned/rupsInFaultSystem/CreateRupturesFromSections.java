@@ -1,6 +1,12 @@
 package scratch.ned.rupsInFaultSystem;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -31,6 +37,10 @@ public class CreateRupturesFromSections {
 	int[]  sectForSubSectionMapping,subSectForSubSectMapping, firstSubsectOfSectMapping;
 	// this gives the section index for the ith sections and jth subsection withing
 	int[][] subSectForSectAndSubsectMapping;
+	int deformationModelId;  // ID of deformation model used
+	
+	String test = "";  // this string is used filled in with something when we're testing with a subset of fault sections
+					   // (it's added to the distance-calc output files to avoid confusion from when we're doing the full calc)
 	
 	ArrayList<SectionCluster> sectionClusterList;
 	
@@ -166,7 +176,7 @@ System.out.println("Working on rupture list for cluster "+i);
 		   * D2.5 = 86
 		   * D2.6 = 87
 		   */
-		  int deformationModelId = 82;
+		  deformationModelId = 82;
 
 		  // fetch the sections
 		  DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
@@ -204,8 +214,10 @@ System.out.println("Working on rupture list for cluster "+i);
 		  }
 		  System.out.println("Max Down-Dip Width = "+maxDDW+" for "+allFaultSectionPrefData.get(index).getSectionName());
 */	
-/*		 */ 
-		  // this is a trimmed list for testing
+/*		  
+		  // this is a trimmed list fo subsections for testing; 
+		  // make sure includeSectionsWithNaN_slipRates=false for the IDs below to be good choices
+		  test = "_test";
 		  ArrayList<FaultSectionPrefData> trimmedFaultSectionPrefData = new ArrayList<FaultSectionPrefData>();
 		  trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(77));
 		  trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(75));
@@ -217,7 +229,7 @@ System.out.println("Working on rupture list for cluster "+i);
 		  // write out these
 		  for(int i=0; i< allFaultSectionPrefData.size();i++) 
 			  System.out.println(i+"\t"+allFaultSectionPrefData.get(i).getName());
-	  
+*/	  
 
 		  // make subsection data
 		  subSectionPrefDataListList = new ArrayList<ArrayList<FaultSectionPrefData>>();
@@ -260,74 +272,82 @@ System.out.println("Working on rupture list for cluster "+i);
 	  }
 	  
 	  private void calcSubSectionDistances() {
-		  
-		  subSectionDistances = new double[numSubSections][numSubSections];
-		  
-		  // Calculate the distance matrix
-		  int progress = 0, progressInterval=10;  // for progress report
-		  System.out.print("Dist Calc % Done:");
-		  for(int a=0;a<numSubSections;a++) {
-			  if (100*a/numSubSections > progress) {
-				  System.out.print("\t"+progress);
-				  progress += progressInterval;
-			  }
-			  StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultData(false), 2.0);
 
-			  for(int b=a+1;b<numSubSections;b++) {
-				  StirlingGriddedSurface surf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(b).getSimpleFaultData(false), 2.0);
-				  double minDist = surf1.getMinDistance(surf2);
-				  subSectionDistances[a][b] = minDist;
-				  subSectionDistances[b][a] = minDist;
+		  subSectionDistances = new double[numSubSections][numSubSections];
+
+		  // construct filename
+		  String name = deformationModelId+"_"+(int)(maxSubSectionLength*1000)+test+"_Distances";
+		  String fullpathname = "/Users/field/workspace/OpenSHA/dev/scratch/ned/rupsInFaultSystem/PreComputedSubSectionDistances/"+name;
+		  File file = new File (fullpathname);
+		  
+		  // Read data if already computed and saved
+		  if(file.exists()) {
+			  System.out.println("Reading existing file: "+ name);
+			    try {
+			        // Wrap the FileInputStream with a DataInputStream
+			        FileInputStream file_input = new FileInputStream (file);
+			        DataInputStream data_in    = new DataInputStream (file_input );
+					  for(int i=0; i<numSubSections;i++)
+						  for(int j=i; j<numSubSections;j++) {
+							  subSectionDistances[i][j] = data_in.readDouble();
+						  }
+	/*
+			        while (true) {
+			          try {
+			            d_data = data_in.readDouble ();
+			          }
+			          catch (EOFException eof) {
+			            System.out.println ("End of File");
+			            break;
+			          }
+			          // Print out the integer, double data pairs.
+			          System.out.printf ("%3d. Data = %8.3e %n", i_data, d_data );
+	*/
+			        data_in.close ();
+			      } catch  (IOException e) {
+			         System.out.println ( "IO Exception =: " + e );
+			      }
+
+		  }
+		  else {// Calculate new distance matrix & save to a file
+			  System.out.println("Calculating data and will save to file: "+name);
+
+			  int progress = 0, progressInterval=10;  // for progress report
+			  System.out.print("Dist Calc % Done:");
+			  for(int a=0;a<numSubSections;a++) {
+				  if (100*a/numSubSections > progress) {
+					  System.out.print("\t"+progress);
+					  progress += progressInterval;
+				  }
+				  StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultData(false), 2.0);
+
+				  for(int b=a+1;b<numSubSections;b++) {
+					  StirlingGriddedSurface surf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(b).getSimpleFaultData(false), 2.0);
+					  double minDist = surf1.getMinDistance(surf2);
+					  subSectionDistances[a][b] = minDist;
+					  subSectionDistances[b][a] = minDist;
+				  }
+			  }
+			  System.out.print("\n");
+			  // Now save to a binary file
+			  try {
+				  // Create an output stream to the file.
+				  FileOutputStream file_output = new FileOutputStream (file);
+				  // Wrap the FileOutputStream with a DataOutputStream
+				  DataOutputStream data_out = new DataOutputStream (file_output);
+				  for(int i=0; i<numSubSections;i++)
+					  for(int j=i; j<numSubSections;j++)
+						  data_out.writeDouble(subSectionDistances[i][j]);
+				  // Close file
+				  file_output.close ();
+			  }
+			  catch (IOException e) {
+				  System.out.println ("IO exception = " + e );
 			  }
 		  }
-		  System.out.print("\n");
-
 	  }
 	  
-	  private void calcSubSectionDistancesFast() {
-
-		  double[][] subSectionDistances2 = new double[numSubSections][numSubSections];
-
-		  // Calculate the distance matrix
-		  int progress = 0, progressInterval=10;  // for progress report
-		  for(int a=0;a<numSubSections;a++) {
-			  if (100*a/numSubSections > progress) {
-				  System.out.println(progress+"% done");
-				  progress += progressInterval;
-			  }
-			  StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultData(false), 2.0);
-
-			  for(int b=a+1;b<numSubSections;b++) {
-				  StirlingGriddedSurface surf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(b).getSimpleFaultData(false), 2.0);
-				  Iterator<Location> it = surf1.listIterator();
-				  double min3dDist = Double.POSITIVE_INFINITY;
-				  double dist;
-				  // find distance between all location pairs in the two surfaces
-				  search:
-					  while(it.hasNext()) { // iterate over all locations in this surface
-						  Location loc1 = (Location)it.next();
-						  Iterator<Location> it2 = surf2.listIterator();
-						  while(it2.hasNext()) { // iterate over all locations on the user provided surface
-							  Location loc2 = (Location)it2.next();
-							  dist = LocationUtils.linearDistanceFast(loc1, loc2);
-							  if(dist<min3dDist){
-								  min3dDist = dist;
-								  if (dist > 50) break search;  // skip if it's clearly too far
-							  }
-						  }
-					  }
-				  subSectionDistances2[a][b] = min3dDist;
-				  subSectionDistances2[b][a] = min3dDist;
-			  }
-
-		  }
-		  for(int i=0;i<numSubSections; i++)
-			  for(int j=i+1;j<numSubSections; j++) {
-				  double diff = Math.abs(subSectionDistances2[i][j]-subSectionDistances[i][j]);
-				  if(subSectionDistances[i][j] < maxJumpDist && diff > 0.1)
-					  System.out.println("Distance discrepancy: "+i+"\t"+j+"\t"+subSectionDistances[i][j]+"\t"+subSectionDistances2[i][j]+"\t");
-			  }
-	  }
+	  
 
 	  
 	  
