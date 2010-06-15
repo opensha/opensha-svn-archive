@@ -3,40 +3,25 @@ package scratch.ned.rupsInFaultSystem;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.ListIterator;
+import java.util.Iterator;
 
 import org.opensha.commons.data.NamedObjectComparator;
-import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
-import org.opensha.refFaultParamDb.calc.sectionDists.FaultSectDistRecord;
-import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
-import org.opensha.refFaultParamDb.dao.db.DeformationModelPrefDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
-import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 
 public class CreateRupturesFromSections {
 	
-	/*
-	SubSectionsRupCalc
+    protected final static boolean D = false;  // for debugging
 
-DONE	getNumClusters()
-DONE	getCluster(i).getNumSubSections()
-DONE	getCluster(i).getRuptures().size()				mid method is ArrayList
-DONE	getCluster(clusterIndex).getAllSubSectionsIdList()	ArrayList<Integer>
-DONE	getCluster(clusterIndex).getRuptures()			ArrayList
-DONE	getRupList()								ArrayList<MultipleSectionRup>
-
-	 */
 	
 	ArrayList<FaultSectionPrefData> allFaultSectionPrefData;
-	double subSectionDistances[][], subSectionAngleDiffs[][];
+	double subSectionDistances[][];
 	String endPointNames[];
 	Location endPointLocs[];
-	int numSections, counter, numSubSections, minNumSubSectInRup;
+	int numSections, numSubSections, minNumSubSectInRup;
 	ArrayList<ArrayList<Integer>> subSectionConnectionsListList, endToEndSectLinksList;
 	double maxJumpDist, maxAngle, maxTotStrikeChange, maxSubSectionLength;
 	ArrayList<ArrayList<FaultSectionPrefData>> subSectionPrefDataListList;
@@ -47,9 +32,7 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 	// this gives the section index for the ith sections and jth subsection withing
 	int[][] subSectForSectAndSubsectMapping;
 	
-	ArrayList<SectionCluster> clusterList;
-
-
+	ArrayList<SectionCluster> sectionClusterList;
 	
 	/**
 	 * 
@@ -66,21 +49,60 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 				maxStrikeChange+"\tmaxSubSectionLength="+maxSubSectionLength+"\tminNumSubSectInRup="+minNumSubSectInRup);
 		
 		this.maxJumpDist=maxJumpDist;
-		this.maxAngle=maxAngle;
-		this.maxTotStrikeChange=maxStrikeChange;
+		this.maxAngle=maxAngle;  					// not used right now
+		this.maxTotStrikeChange=maxStrikeChange;	// not used right now
 		this.maxSubSectionLength=maxSubSectionLength;
 		this.minNumSubSectInRup=minNumSubSectInRup;
 		
-		Boolean includeSectionsWithNaN_slipRates = true;
-		getAllSections(includeSectionsWithNaN_slipRates);
+		Boolean includeSectionsWithNaN_slipRates = false;
 		
+		// Create the sections and subsections and mappings
+		createSubSections(includeSectionsWithNaN_slipRates);
 		
+		// write the number of sections and subsections
+		System.out.println("numSections="+numSections+";  numSubSections="+numSubSections);
+		
+		// compute the distances between subsections
+		long startTime=System.currentTimeMillis();
 		calcSubSectionDistances();
+		int runtime = (int)(System.currentTimeMillis()-startTime)/1000;
+		System.out.println("calcSubSectionDistances Run took "+runtime+" seconds");
+
+		// a faster way
+/*		startTime=System.currentTimeMillis();
+		calcSubSectionDistancesFast();
+		runtime = (int)(System.currentTimeMillis()-startTime)/1000;
+		System.out.println("calcSubSectionDistancesFast Run took "+runtime+" seconds");
+*/
 		
+		// make the list of nearby subsections for each subsection (branches)
 		computeCloseSubSectionsListList();
 		
+		// make the list of SectionCluser objects 
+		// (each represents a set of nearby subsections and computes the possible
+		//  "ruptures", each defined as a list of subsections in that rupture)
 		makeClusterList();
 		
+		writeCloseSubSections();
+
+/*		
+		// this writes out the ruptures for a given cluster
+		int clusterIndex = 0;
+		ArrayList<ArrayList<Integer>> rups = sectionClusterList.get(clusterIndex).getRuptures();
+		ArrayList<ArrayList<Integer>> rupsIndices = sectionClusterList.get(clusterIndex).getRupturesByIndices();
+		System.out.println("Cluster "+clusterIndex+" has "+sectionClusterList.get(clusterIndex).size()+
+				" subsections and "+rups.size()+" ruptures");
+		Integer id = rups.get(0).get(0);  // ID of first subsection of first rupture
+		for(int i=0;i<50;i++) {
+			ArrayList<Integer> rup = rups.get(i);
+			ArrayList<Integer> rupIndices = rupsIndices.get(i);
+//			if(rup.get(0) != id) break;
+			System.out.println("rup "+i+":");
+			for(int j=0;j<rup.size();j++)
+				System.out.println("\t"+subSectionPrefDataList.get(rupIndices.get(j)).getName());
+		}
+*/
+		/*		
 		for(int i=1; i<clusterList.size(); i++) {
 			SectionCluster cluster = clusterList.get(i);
 			System.out.println("CONTENTS OF CLUSTER #"+i);
@@ -88,32 +110,42 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 			for(int j=0; j< cluster.size();j++)
 				System.out.println("\t"+subSectionPrefDataList.get(cluster.get(j)).getName()+"\t"+allSubSectionsIdList.get(j));
 		}
-		/*		*/
-//		System.out.println("numSubSections="+numSubSections+"\tgetRupList().size()="+getRupList().size());
+				*/
+//		System.out.println("numSubSections="+numSubSections+"\tnumRups="+getNumRupRuptures());
 		
 //		for(int i=0; i<sectionClusterList.size();i++)
 //		System.out.println("sectionClusterList.get(0).getRuptures().size()="+sectionClusterList.get(0).getRuptures().size());
 ///			System.out.println("Cluster "+i+" has "+sectionClusterList.get(i).getNumSubSections()+" subsections");
-//		testClusters();
 	}
 	
 	
 	
 	public int getNumClusters() {
-		return clusterList.size();
+		return sectionClusterList.size();
 	}
 	
 	public SectionCluster getCluster(int clusterIndex) {
-		return clusterList.get(clusterIndex);
+		return sectionClusterList.get(clusterIndex);
 	}
 	
 	
 	
 	  public ArrayList<ArrayList<Integer>> getRupList() {
 		  ArrayList<ArrayList<Integer>> rupList = new ArrayList<ArrayList<Integer>>();
-		  for(int i=0; i<clusterList.size();i++)
-			  rupList.addAll(clusterList.get(i).getRuptures());
+		  for(int i=0; i<sectionClusterList.size();i++) {
+System.out.println("Working on rupture list for cluster "+i);
+			  rupList.addAll(sectionClusterList.get(i).getRuptures());
+		  }
 		  return rupList;
+	  }
+
+	  
+	  public int getNumRupRuptures() {
+		  int num = 0;
+		  for(int i=0; i<sectionClusterList.size();i++) {
+			  num += sectionClusterList.get(i).getNumRuptures();
+		  }
+		  return num;
 	  }
 
 	
@@ -124,7 +156,8 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 	   * section endpoints (these latter arrays are for sections, not subsections)
 	   * @param includeSectionsWithNaN_slipRates
 	   */
-	  private void getAllSections(boolean includeSectionsWithNaN_slipRates) {
+	  private void createSubSections(boolean includeSectionsWithNaN_slipRates) {
+
 		  /** Set the deformation model
 		   * D2.1 = 82
 		   * D2.2 = 83
@@ -135,40 +168,30 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 		   */
 		  int deformationModelId = 82;
 
+		  // fetch the sections
 		  DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
 		  allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelId);
-		  
-		  /* The following is painfully slow!
-		  System.out.println("beginning database read");
-		  DeformationModelPrefDataDB_DAO deformationModelDB_DAO = new DeformationModelPrefDataDB_DAO(DB_ConnectionPool.getDB2ReadOnlyConn());
-		  ArrayList<Integer> idList = deformationModelDB_DAO.getFaultSectionIdsForDeformationModel(deformationModelId);
-		  allFaultSectionPrefData = new ArrayList<FaultSectionPrefData>();
-		  for(int i=0;i<idList.size();i++)
-			  allFaultSectionPrefData.add(deformationModelDB_DAO.getFaultSectionPrefData(deformationModelId,idList.get(i)));
-		  System.out.println("done with database read");
-		  */
-		  
-		  
 
 		  //Alphabetize:
 		  Collections.sort(allFaultSectionPrefData, new NamedObjectComparator());
+		  
 /*		  
-			for(int i=0; i< this.allFaultSectionPrefData.size();i++){
+		  // write sections IDs and names
+		  for(int i=0; i< this.allFaultSectionPrefData.size();i++)
 				System.out.println(allFaultSectionPrefData.get(i).getSectionId()+"\t"+allFaultSectionPrefData.get(i).getName());
-			}
 */
 
-
-		  // remove those with no slip rate
+		  // remove those with no slip rate if appropriate
 		  if(!includeSectionsWithNaN_slipRates) {
-			  System.out.println("Removing the following due to NaN slip rate:");
+			  if (D)System.out.println("Removing the following due to NaN slip rate:");
 			  for(int i=allFaultSectionPrefData.size()-1; i>=0;i--)
 				  if(Double.isNaN(allFaultSectionPrefData.get(i).getAveLongTermSlipRate())) {
-					  System.out.println("\t"+allFaultSectionPrefData.get(i).getSectionName());
+					  if(D) System.out.println("\t"+allFaultSectionPrefData.get(i).getSectionName());
 					  allFaultSectionPrefData.remove(i);
 				  }	 
 		  }
-
+		  
+/*	
 		  // find and print max Down-dip width
 		  double maxDDW=0;
 		  int index=-1;
@@ -180,7 +203,9 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 			  }
 		  }
 		  System.out.println("Max Down-Dip Width = "+maxDDW+" for "+allFaultSectionPrefData.get(index).getSectionName());
+*/	
 /*		  
+		  // this is a trimmed list for testing
 		  ArrayList<FaultSectionPrefData> trimmedFaultSectionPrefData = new ArrayList<FaultSectionPrefData>();
 		  trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(77));
 		  trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(75));
@@ -189,11 +214,10 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 		  trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(108));
 		  trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(0));
 		  allFaultSectionPrefData = trimmedFaultSectionPrefData;
-		
+		  // write out these
 		  for(int i=0; i< allFaultSectionPrefData.size();i++) 
 			  System.out.println(i+"\t"+allFaultSectionPrefData.get(i).getName());
-		  
-*/
+*/	  
 
 		  // make subsection data
 		  subSectionPrefDataListList = new ArrayList<ArrayList<FaultSectionPrefData>>();
@@ -203,10 +227,9 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 		  int maxNumSubSections=0;
 		  for(int i=0; i<numSections; ++i) {
 			  FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)allFaultSectionPrefData.get(i);
-//			  double maxSectLength = faultSectionPrefData.getDownDipWidth()*maxSubSectionLength;
-//			  ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength);
-//System.out.println(i+"\t"+faultSectionPrefData.getName());
-			  ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSubSectionLength);
+			  double maxSectLength = faultSectionPrefData.getDownDipWidth()*maxSubSectionLength;
+			  ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength);
+//			  ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSubSectionLength);
 			  if(subSectData.size()>maxNumSubSections) maxNumSubSections = numSubSections;
 			  numSubSections += subSectData.size();
 			  subSectionPrefDataListList.add(subSectData);
@@ -233,40 +256,20 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 				  counter += 1;
 			  }
 		  }
-		  
-/*		  
-		  counter =0;
-		  for(int i=0; i<subSectionPrefDataListList.size(); ++i) {
-			  ArrayList<FaultSectionPrefData> dataList = subSectionPrefDataListList.get(i);
-			  for(int j=0; j<dataList.size();j++) {
-				  System.out.println(indexMapping[i][j]+","+counter+"\t"+i+","+sectionMapping[counter]+"\t"+j+","+subSectionMapping[counter]);
-				  counter += 1;
-			  }
-		  }
-*/  
-
-
-		  // write the number of sections and subsections
-		  System.out.println("numSections="+numSections+";  numSubSections="+numSubSections);
-		  // write index/names
-		  //		 for(int i=0;i<allFaultSectionPrefData.size();i++) System.out.println(i+"\t"+allFaultSectionPrefData.get(i).getSectionName());
-		  // write out strike directions
-		  //		 for(int s=0;s<num_sections;s++) System.out.println(allFaultSectionPrefData.get(s).getFaultTrace().getStrikeDirection());
-
 
 	  }
 	  
 	  private void calcSubSectionDistances() {
 		  
 		  subSectionDistances = new double[numSubSections][numSubSections];
-		  subSectionAngleDiffs = new double[numSubSections][numSubSections];
 		  
 		  // Calculate the distance matrix
-		  counter = 5;  // for progress report
+		  int progress = 0, progressInterval=10;  // for progress report
+		  System.out.print("Dist Calc % Done:");
 		  for(int a=0;a<numSubSections;a++) {
-			  if (100*a/numSubSections > counter) {
-				  System.out.println(counter+"% done");
-				  counter += 5;
+			  if (100*a/numSubSections > progress) {
+				  System.out.print("\t"+progress);
+				  progress += progressInterval;
 			  }
 			  StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultData(false), 2.0);
 
@@ -277,8 +280,55 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 				  subSectionDistances[b][a] = minDist;
 			  }
 		  }
+		  System.out.print("\n");
 
 	  }
+	  
+	  private void calcSubSectionDistancesFast() {
+
+		  double[][] subSectionDistances2 = new double[numSubSections][numSubSections];
+
+		  // Calculate the distance matrix
+		  int progress = 0, progressInterval=10;  // for progress report
+		  for(int a=0;a<numSubSections;a++) {
+			  if (100*a/numSubSections > progress) {
+				  System.out.println(progress+"% done");
+				  progress += progressInterval;
+			  }
+			  StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultData(false), 2.0);
+
+			  for(int b=a+1;b<numSubSections;b++) {
+				  StirlingGriddedSurface surf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(b).getSimpleFaultData(false), 2.0);
+				  Iterator<Location> it = surf1.listIterator();
+				  double min3dDist = Double.POSITIVE_INFINITY;
+				  double dist;
+				  // find distance between all location pairs in the two surfaces
+				  search:
+					  while(it.hasNext()) { // iterate over all locations in this surface
+						  Location loc1 = (Location)it.next();
+						  Iterator<Location> it2 = surf2.listIterator();
+						  while(it2.hasNext()) { // iterate over all locations on the user provided surface
+							  Location loc2 = (Location)it2.next();
+							  dist = LocationUtils.linearDistanceFast(loc1, loc2);
+							  if(dist<min3dDist){
+								  min3dDist = dist;
+								  if (dist > 50) break search;  // skip if it's clearly too far
+							  }
+						  }
+					  }
+				  subSectionDistances2[a][b] = min3dDist;
+				  subSectionDistances2[b][a] = min3dDist;
+			  }
+
+		  }
+		  for(int i=0;i<numSubSections; i++)
+			  for(int j=i+1;j<numSubSections; j++) {
+				  double diff = Math.abs(subSectionDistances2[i][j]-subSectionDistances[i][j]);
+				  if(subSectionDistances[i][j] < maxJumpDist && diff > 0.1)
+					  System.out.println("Distance discrepancy: "+i+"\t"+j+"\t"+subSectionDistances[i][j]+"\t"+subSectionDistances2[i][j]+"\t");
+			  }
+	  }
+
 	  
 	  
 	  /**
@@ -289,22 +339,23 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 	   * @param maxAngle
 	   */
 	  private void computeCloseSubSectionsListList() {
+		  
 		  subSectionConnectionsListList = new ArrayList<ArrayList<Integer>>();
 
-		  // create the lists and add the neighboring subsections in each section
+		  // first add the adjacent subsections in that section
 		  for(int i=0; i<subSectionPrefDataListList.size(); ++i) {
 			  int numSubSect = subSectionPrefDataListList.get(i).size();
 			  for(int j=0;j<numSubSect;j++) {
 				  ArrayList<Integer> sectionConnections = new ArrayList<Integer>();
-				  if(j != 0) 
+				  if(j != 0) // the first one has no previous subsection
 					  sectionConnections.add(subSectForSectAndSubsectMapping[i][j-1]);
-				  if(j != numSubSect-1)
+				  if(j != numSubSect-1) // the last one has no subsequent subsection
 					  sectionConnections.add(subSectForSectAndSubsectMapping[i][j+1]);
 				  subSectionConnectionsListList.add(sectionConnections);
 			  }
 		  }
 		  
-		  // now add subsections on other sections, keeping only one connection between each section
+		  // now add subsections on other sections, keeping only one connection between each section (the closest)
 		  for(int i=0; i<subSectionPrefDataListList.size(); ++i) {
 			  ArrayList<FaultSectionPrefData> sect1_List = subSectionPrefDataListList.get(i);
 			  for(int j=i+1; j<subSectionPrefDataListList.size(); ++j) {
@@ -312,17 +363,12 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 				  double minDist=Double.MAX_VALUE;
 				  int subSectIndex1 = -1;
 				  int subSectIndex2 = -1;
+				  // find the closest pair
 				  for(int k=0;k<sect1_List.size();k++) {
 					  for(int l=0;l<sect2_List.size();l++) {
 						  int index1 = subSectForSectAndSubsectMapping[i][k];
 						  int index2 = subSectForSectAndSubsectMapping[j][l];
 						  double dist = subSectionDistances[index1][index2];
-/*
-						  if(i==0 && j==88 ) {
-							  System.out.println(index1+"\t"+subSectionPrefDataList.get(index1).getName()+
-									  "\t"+ index2+"\t"+subSectionPrefDataList.get(index2).getName()+"\t"+ dist);
-						  }
-*/
 						  if(dist < minDist) {
 							  minDist = dist;
 							  subSectIndex1 = index1;
@@ -346,18 +392,19 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 		  ArrayList<Integer> availableSubSections = new ArrayList<Integer>();
 		  for(int i=0; i<numSubSections; i++) availableSubSections.add(i);
 		  
-		  clusterList = new ArrayList<SectionCluster>();
+		  sectionClusterList = new ArrayList<SectionCluster>();
 		  while(availableSubSections.size()>0) {
-			  
-			  System.out.println("WORKING ON CLUSTER #"+(clusterList.size()+1));
+			  if (D) System.out.println("WORKING ON CLUSTER #"+(sectionClusterList.size()+1));
 			  int firstSubSection = availableSubSections.get(0);
-			  SectionCluster newCluster = new SectionCluster(subSectionPrefDataList, minNumSubSectInRup);
+			  SectionCluster newCluster = new SectionCluster(subSectionPrefDataList, minNumSubSectInRup,subSectionConnectionsListList);
 			  newCluster.add(firstSubSection);
-			  System.out.println("\tfirst is "+this.subSectionPrefDataList.get(firstSubSection).getName());
+			  if (D) System.out.println("\tfirst is "+this.subSectionPrefDataList.get(firstSubSection).getName());
 			  addLinks(firstSubSection, newCluster);
+			  // remove the used subsections from the available list
 			  for(int i=0; i<newCluster.size();i++) availableSubSections.remove(newCluster.get(i));
-			  clusterList.add(newCluster);
-			  System.out.println(newCluster.size()+"\tsubsections in cluster #"+clusterList.size()+"\t"+
+			  // add this cluster to the list
+			  sectionClusterList.add(newCluster);
+System.out.println(newCluster.size()+"\tsubsections in cluster #"+sectionClusterList.size()+"\t"+
 					  availableSubSections.size()+"\t subsections left to allocate");
 		  }
 	  }
@@ -370,7 +417,6 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 			  if(!list.contains(subSect)) {
 				  list.add(subSect);
 				  addLinks(subSect, list);
-//				  System.out.println("\tadded "+this.subSectionPrefDataList.get(subSect).getName());
 			  }
 		  }
 	  }
@@ -438,10 +484,9 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 	 */
 	public static void main(String[] args) {
 		long startTime=System.currentTimeMillis();
-		CreateRupturesFromSections createRups = new CreateRupturesFromSections(10, 45, 60, 7, 2);
+		CreateRupturesFromSections createRups = new CreateRupturesFromSections(10, 45, 60, 0.5, 2);
 		int runtime = (int)(System.currentTimeMillis()-startTime)/1000;
 		System.out.println("Run took "+runtime+" seconds");
-		createRups.writeCloseSubSections();
 	}
 	
 }
