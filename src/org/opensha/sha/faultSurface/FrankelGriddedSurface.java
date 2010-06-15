@@ -89,6 +89,12 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 		super(simpleFaultData, gridSpacing);
 		createEvenlyGriddedSurface();
 	}
+	
+    public FrankelGriddedSurface(SimpleFaultData simpleFaultData, double maxGridSpacingAlong, double maxGridSpacingDown) throws FaultException {
+        super(simpleFaultData, maxGridSpacingAlong, maxGridSpacingDown);
+        createEvenlyGriddedSurface();
+      }
+
 
 
 
@@ -105,8 +111,8 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 
 		final int numSegments = faultTrace.getNumLocations() - 1;
 		final double avDipRadians = aveDip * PI_RADIANS;
-		final double gridSpacingCosAveDipRadians = gridSpacing * Math.cos( avDipRadians );
-		final double gridSpacingSinAveDipRadians = gridSpacing * Math.sin( avDipRadians );
+		final double gridSpacingCosAveDipRadians = gridSpacingDown * Math.cos( avDipRadians );
+		final double gridSpacingSinAveDipRadians = gridSpacingDown * Math.sin( avDipRadians );
 
 		double[] segmentLenth = new double[numSegments];
 		double[] segmentAzimuth = new double[numSegments];
@@ -145,8 +151,8 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 		double downDipWidth = (lowerSeismogenicDepth-upperSeismogenicDepth)/Math.sin( avDipRadians );
 
 		// Calculate the number of rows and columns
-		int rows = 1 + Math.round((float) (downDipWidth/gridSpacing));
-		int cols = 1 + Math.round((float) (segmentCumLenth[numSegments - 1] / gridSpacing));
+		int rows = 1 + Math.round((float) (downDipWidth/gridSpacingDown));
+		int cols = 1 + Math.round((float) (segmentCumLenth[numSegments - 1] / gridSpacingAlong));
 
 
 		if(D) System.out.println("numLocs: = " + faultTrace.getNumLocations());
@@ -176,7 +182,7 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 			if( D ) System.out.println(S + "ith_col = " + ith_col);
 
 			// calculate distance from column number and grid spacing
-			distanceAlong = ith_col * gridSpacing;
+			distanceAlong = ith_col * gridSpacingAlong;
 			if( D ) System.out.println(S + "distanceAlongFault = " + distanceAlong);
 
 			// Determine which segment distanceAlong is in

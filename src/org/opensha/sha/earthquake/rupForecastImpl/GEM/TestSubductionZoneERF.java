@@ -157,7 +157,7 @@ public class TestSubductionZoneERF extends EqkRupForecast{
     	   ApproxEvenlyGriddedSurface surf = surfGen.getGriddedSurface(clipFileNames.get(s), 
     			   grdFileNames.get(s), aveGridSpaceing);
     	   System.out.println("SurfaceLength="+surf.getSurfaceLength()+"\tSurfaceWidth="+surf.getSurfaceWidth()+
-    			   "\taveGridSpacing="+surf.getGridSpacing()+"\tnumRows="+surf.getNumRows()+"\tnumCols="+surf.getNumCols());
+    			   "\taveGridSpacing="+surf.getGridSpacingAlongStrike()+"\tnumRows="+surf.getNumRows()+"\tnumCols="+surf.getNumCols());
 
     	   double totArea = surf.getSurfaceLength()*surf.getSurfaceWidth();
     	   double magMax = magScalingRel.getMedianMag(totArea);

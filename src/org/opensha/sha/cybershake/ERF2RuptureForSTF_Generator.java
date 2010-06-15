@@ -578,7 +578,9 @@ public class ERF2RuptureForSTF_Generator {
    */
   private double getGridSpacing(EvenlyGriddedSurfaceAPI surface) {
 
-    double gridSpacing = surface.getGridSpacing();
+    double gridSpacing = surface.getGridSpacingAlongStrike();
+    // Ned added the following in case different grid spacings are implemented at some time (existing class breaks?)
+    if(!surface.isGridSpacingSame()) throw new RuntimeException("may not work now that spacind down dip can differ from along strike");
     if(Double.isNaN(gridSpacing))
       return this.DEFAULT_GRID_SPACING_FOR_POINT_SURFACE;
 

@@ -237,7 +237,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location> implements
      */
     public double getSurfaceLength() {
 
-        return getGridSpacing() * (getNumCols()-1);
+        return getGridSpacingAlongStrike() * (getNumCols()-1);
     }
 
     /**
@@ -245,7 +245,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location> implements
      * @return double
      */
     public double getSurfaceWidth() {
-      return getGridSpacing() * (getNumRows()-1);
+      return getGridSpacingDownDip() * (getNumRows()-1);
     }
     
 
@@ -287,14 +287,33 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location> implements
 
 
     /**
-     * returns the grid spacing
+     * returns the grid spacing along strike
      *
      * @return
      */
-    public double getGridSpacing() {
-      return ((EvenlyGriddedSurfaceAPI)data).getGridSpacing();
+    public double getGridSpacingAlongStrike() {
+      return ((EvenlyGriddedSurfaceAPI)data).getGridSpacingAlongStrike();
+    }
+
+
+    /**
+     * returns the grid spacing down dip
+     *
+     * @return
+     */
+    public double getGridSpacingDownDip() {
+      return ((EvenlyGriddedSurfaceAPI)data).getGridSpacingDownDip();
     }
     
+	/**
+	 * this tells whether along strike and down dip grip
+	 * @return
+	 */
+	public Boolean isGridSpacingSame() {
+		return ((EvenlyGriddedSurfaceAPI)data).isGridSpacingSame();
+	}
+
+   
     /**
      * This returns the total length of the surface in km
      * @return double

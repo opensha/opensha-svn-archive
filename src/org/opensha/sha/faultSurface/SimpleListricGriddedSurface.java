@@ -87,7 +87,9 @@ protected final static String C = "SimpleListricGriddedFaultFactory";
             this.faultTrace = faultTrace;
             this.dips = dips;
             this.depths = depths;
-            this.gridSpacing = gridSpacing;
+            this.gridSpacingAlong = gridSpacing;
+            this.gridSpacingDown = gridSpacing;
+            this.sameGridSpacing = true;
             if(D){
               System.out.println("FaultTrace: "+faultTrace.toString()+"\n"+
                                  "gridSpacing :"+gridSpacing);
@@ -178,8 +180,8 @@ protected final static String C = "SimpleListricGriddedFaultFactory";
         aveDip = Math.atan(totVert/totHorz) / PI_RADIANS;
 
         // Calculate the number of rows and columns
-        int rows = 1 + Math.round((float) (downDipWidth/gridSpacing));
-        int cols = 1 + Math.round((float) (segmentCumLenth[numSegments - 1] / gridSpacing));
+        int rows = 1 + Math.round((float) (downDipWidth/gridSpacingDown));
+        int cols = 1 + Math.round((float) (segmentCumLenth[numSegments - 1] / gridSpacingAlong));
 
 
         if(D) System.out.println("numLocs: = " + faultTrace.getNumLocations());
@@ -208,7 +210,7 @@ protected final static String C = "SimpleListricGriddedFaultFactory";
             if( D ) System.out.println(S + "ith_col = " + ith_col);
 
             // calculate distance from column number and grid spacing
-            distanceAlong = ith_col * gridSpacing;
+            distanceAlong = ith_col * gridSpacingAlong;
             if( D ) System.out.println(S + "distanceAlongFault = " + distanceAlong);
 
             // Determine which segment distanceAlong is in
@@ -239,8 +241,8 @@ protected final static String C = "SimpleListricGriddedFaultFactory";
 
             // Loop over each row - calculating location at depth along the fault trace
             dip = ( (Double) dips.get(0) ).doubleValue();
-            hDistance = gridSpacing * Math.cos( dip*PI_RADIANS );
-            vDistance = gridSpacing * Math.sin( dip*PI_RADIANS );
+            hDistance = gridSpacingDown * Math.cos( dip*PI_RADIANS );
+            vDistance = gridSpacingDown * Math.sin( dip*PI_RADIANS );
             //vDistance = -gridSpacing * Math.sin( dip*PI_RADIANS );
 //            dir = new LocationVector(vDistance, hDistance, aveDipDirection, 0);
             dir = new LocationVector(aveDipDirection, hDistance, vDistance);
@@ -262,8 +264,8 @@ protected final static String C = "SimpleListricGriddedFaultFactory";
                 if( nextLocation.getDepth() > ((Double) depths.get(depthNum)).doubleValue() &&
                     ith_row != rows-1 ) {
                       dip = ( (Double) dips.get(depthNum) ).doubleValue();
-                      hDistance = gridSpacing * Math.cos( dip*PI_RADIANS );
-                      vDistance = gridSpacing * Math.sin( dip*PI_RADIANS );
+                      hDistance = gridSpacingDown * Math.cos( dip*PI_RADIANS );
+                      vDistance = gridSpacingDown * Math.sin( dip*PI_RADIANS );
                       //vDistance = -gridSpacing * Math.sin( dip*PI_RADIANS );
 //                      dir = new LocationVector(vDistance, hDistance, aveDipDirection, 0);
                       dir = new LocationVector(aveDipDirection, hDistance, vDistance);
@@ -323,7 +325,7 @@ protected final static String C = "SimpleListricGriddedFaultFactory";
           }
         }
 
-        if( !(gridSpacing > 0.0) ) throw new FaultException(C + "invalid gridSpacing");
+        if( !(gridSpacingAlong > 0.0) ) throw new FaultException(C + "invalid gridSpacing");
 
     }
 

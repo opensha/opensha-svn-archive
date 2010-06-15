@@ -8,7 +8,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
-import org.opensha.sha.faultSurface.FrankelGriddedSurface;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
 public class FaultSectDistRecord implements Serializable {
 	
@@ -35,9 +35,15 @@ public class FaultSectDistRecord implements Serializable {
 		
 	}
 	
+	/**
+	 * This constructs the surfaces using the Stirling representation
+	 * @param data1
+	 * @param data2
+	 * @param disc
+	 */
 	public FaultSectDistRecord(FaultSectionPrefData data1, FaultSectionPrefData data2, double disc) {
-		this(data1.getSectionId(),  new FrankelGriddedSurface(data1.getSimpleFaultData(false), disc),
-				data2.getSectionId(),  new FrankelGriddedSurface(data2.getSimpleFaultData(false), disc));
+		this(data1.getSectionId(),  new StirlingGriddedSurface(data1.getSimpleFaultData(false), disc),
+				data2.getSectionId(),  new StirlingGriddedSurface(data2.getSimpleFaultData(false), disc));
 	}
 	
 	public FaultSectDistRecord(int id1, EvenlyGriddedSurfaceAPI surface1, int id2, EvenlyGriddedSurfaceAPI surface2) {

@@ -113,8 +113,8 @@ public class WG02_CharEqkSource extends ProbEqkSource {
       // compute rupture width and length given the rupArea (rupArea is less than the
       // area of the fault surface (rupSurface) if the aseismic scaling factor (r) was
       // applied as a reduction of rupture area rather than slip rate)
-      double faultLength = (rupSurface.getNumCols()-1)*rupSurface.getGridSpacing();
-      double ddw = (rupSurface.getNumRows()-1)*rupSurface.getGridSpacing();
+      double faultLength = (rupSurface.getNumCols()-1)*rupSurface.getGridSpacingAlongStrike();
+      double ddw = (rupSurface.getNumRows()-1)*rupSurface.getGridSpacingDownDip();
       rupWidth = Math.sqrt(rupArea);
       rupLength = rupWidth;
       // stretch it's length if the width exceeds the down dip width

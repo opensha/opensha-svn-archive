@@ -61,7 +61,9 @@ implements EvenlyGriddedSurfaceAPI {
 	/**
 	 * @todo Variables
 	 */
-	protected double gridSpacing;
+	protected double gridSpacingAlong;
+	protected double gridSpacingDown;
+	protected Boolean sameGridSpacing;
 
 	/**
 	 * No Argument constructor, called from classes extending it.
@@ -70,14 +72,18 @@ implements EvenlyGriddedSurfaceAPI {
 	protected EvenlyGriddedSurface(){}
 
 	/**
-	 *  Constructor for the GriddedSurface object
+	 *  Constructor for the GriddedSurface object; this sets both the grid spacing along
+	 *  and down dip to the value passed in
 	 *
 	 * @param  numRows  Number of grid points along width of fault
 	 * @param  numCols  Number of grid points along length of fault
+	 * @param  gridSpacing  Grid Spacing
 	 */
 	public EvenlyGriddedSurface( int numRows, int numCols,double gridSpacing ) {
 		super( numRows, numCols );
-		this.gridSpacing = gridSpacing;
+		gridSpacingAlong = gridSpacing;
+		gridSpacingDown = gridSpacing;
+		sameGridSpacing = true;
 	}
 
 	/** Returns the average strike of this surface on the Earth.  */
@@ -122,12 +128,31 @@ implements EvenlyGriddedSurfaceAPI {
 
 
 	/**
-	 * returns the grid spacing
+	 * returns the grid spacing along strike
 	 *
 	 * @return
 	 */
-	public double getGridSpacing() {
-		return this.gridSpacing;
+	public double getGridSpacingAlongStrike() {
+		return this.gridSpacingAlong;
+	}
+
+	
+	/**
+	 * returns the grid spacing down dip
+	 *
+	 * @return
+	 */
+	public double getGridSpacingDownDip() {
+		return this.gridSpacingDown;
+	}
+	
+	
+	/**
+	 * this tells whether along strike and down dip grip
+	 * @return
+	 */
+	public Boolean isGridSpacingSame() {
+		return this.sameGridSpacing;
 	}
 
 
@@ -135,35 +160,27 @@ implements EvenlyGriddedSurfaceAPI {
 	/**
 	 * Gets the Nth subSurface on the surface
 	 *
-	 * @param numSubSurfaceCols  Number of grid points along length
-	 * @param numSubSurfaceRows  Number of grid points along width
-	 * @param numSubSurfaceOffset Number of grid poits for offset
+	 * @param numSubSurfaceCols  Number of grid points in subsurface length
+	 * @param numSubSurfaceRows  Number of grid points in subsurface width
+	 * @param numSubSurfaceOffsetAlong Number of grid points for offset along strike
+	 * @param numSubSurfaceOffsetDown Number of grid points for offset down dip
 	 * @param n The index of the desired surface (from 0 to (getNumSubsetSurfaces - 1))
 	 *
 	 */
 	public GriddedSubsetSurface getNthSubsetSurface(int numSubSurfaceCols,
-			int numSubSurfaceRows,
-			int numSubSurfaceOffset,
-			int n) {
+			int numSubSurfaceRows, int numSubSurfaceOffsetAlong, int numSubSurfaceOffsetDown, int n) {
+		
 		// number of subSurfaces along the length of fault
-		int nSubSurfaceAlong = (int)Math.floor((numCols-numSubSurfaceCols)/numSubSurfaceOffset +1);
+		int nSubSurfaceAlong = (int)Math.floor((numCols-numSubSurfaceCols)/numSubSurfaceOffsetAlong +1);
 
 		// there is only one subSurface
 		if(nSubSurfaceAlong <=1) {
 			nSubSurfaceAlong=1;
 		}
 		if(numSubSurfaceCols > numCols) numSubSurfaceCols = numCols;
-
-		// number of subSurfaces down fault width
-		int nSubSurfaceDown =  (int)Math.floor((numRows-numSubSurfaceRows)/numSubSurfaceOffset +1);
-
-		// one subSurface along width
-		if(nSubSurfaceDown <=1) {
-			nSubSurfaceDown=1;
-		}
 		if(numSubSurfaceRows > numRows) numSubSurfaceRows = numRows;
 
-		return getNthSubsetSurface(numSubSurfaceCols, numSubSurfaceRows, numSubSurfaceOffset, nSubSurfaceAlong, n);
+		return getNthSubsetSurface(numSubSurfaceCols, numSubSurfaceRows, numSubSurfaceOffsetAlong, numSubSurfaceOffsetDown, nSubSurfaceAlong, n);
 		//     throw new RuntimeException("EvenlyGriddeddsurface:getNthSubsetSurface::Inavlid n value for subSurface");
 	}
 
@@ -173,25 +190,26 @@ implements EvenlyGriddedSurfaceAPI {
 	 *
 	 * @param numSubSurfaceCols  Number of grid points along length
 	 * @param numSubSurfaceRows  Number of grid points along width
-	 * @param numSubSurfaceOffset Number of grid poits for offset
+	 * @param numSubSurfaceOffsetAlong Number of grid points for offset along strike
+	 * @param numSubSurfaceOffsetDown Number of grid points for offset down dip
 	 * @param n The index of the desired surface (from 0 to (getNumSubsetSurfaces - 1))
 	 *
 	 */
 	private GriddedSubsetSurface getNthSubsetSurface(int numSubSurfaceCols,int numSubSurfaceRows,
-			int numSubSurfaceOffset,int nSubSurfaceAlong,
-			int n){
+			int numSubSurfaceOffsetAlong,int numSubSurfaceOffsetDown,int nSubSurfaceAlong, int n){
+		
 		//getting the row number in which that subsetSurface is present
-		int row = n/nSubSurfaceAlong * numSubSurfaceOffset;
+		int startRow = n/nSubSurfaceAlong * numSubSurfaceOffsetDown;
 
 		//getting the column from which that subsetSurface starts
-		int col = n%nSubSurfaceAlong * numSubSurfaceOffset;
+		int startCol = n%nSubSurfaceAlong * numSubSurfaceOffsetAlong;  // % gives the remainder: a%b = a-floor(a/b)*b; a%b = a if b>a
 
-		return (new GriddedSubsetSurface((int)numSubSurfaceRows,(int)numSubSurfaceCols,row,col,this));
+		return (new GriddedSubsetSurface((int)numSubSurfaceRows,(int)numSubSurfaceCols,startRow,startCol,this));
 	}
 
 
 	/**
-	 * Gets the Nth subSurface on the surface
+	 * Gets the Nth subSurface on the surface.
 	 *
 	 * @param subSurfaceLength  subsurface length in km
 	 * @param subSurfaceWidth  subsurface width in km
@@ -203,10 +221,10 @@ implements EvenlyGriddedSurfaceAPI {
 			double subSurfaceWidth,
 			double subSurfaceOffset,
 			int n) {
-		return getNthSubsetSurface((int)Math.rint(subSurfaceLength/gridSpacing+1),
-				(int)Math.rint(subSurfaceWidth/gridSpacing+1),
-				(int)Math.rint(subSurfaceOffset/gridSpacing), 
-				n);
+		return getNthSubsetSurface((int)Math.rint(subSurfaceLength/gridSpacingAlong+1),
+				(int)Math.rint(subSurfaceWidth/gridSpacingDown+1),
+				(int)Math.rint(subSurfaceOffset/gridSpacingAlong), 
+				(int)Math.rint(subSurfaceOffset/gridSpacingDown), n);
 	}
 
 
@@ -225,7 +243,7 @@ implements EvenlyGriddedSurfaceAPI {
 			double subSurfaceOffset,
 			int n) {
 
-		int numSubSurfaceCols =  (int)Math.rint(subSurfaceLength/gridSpacing+1);
+		int numSubSurfaceCols =  (int)Math.rint(subSurfaceLength/gridSpacingAlong+1);
 		int startCol = -1;
 
 		// make sure it doesn't extend beyond the end
@@ -234,10 +252,10 @@ implements EvenlyGriddedSurfaceAPI {
 			startCol=0;
 		}
 		else {
-			startCol = n * (int)Math.rint(subSurfaceOffset/gridSpacing);
+			startCol = n * (int)Math.rint(subSurfaceOffset/gridSpacingAlong);
 		}
 
-		int numSubSurfaceRows = (int)Math.rint(subSurfaceWidth/gridSpacing+1);
+		int numSubSurfaceRows = (int)Math.rint(subSurfaceWidth/gridSpacingDown+1);
 		int startRow=-1;
 
 		// make sure it doesn't extend beyone the end
@@ -248,9 +266,12 @@ implements EvenlyGriddedSurfaceAPI {
 		else {
 			startRow = (int)Math.floor((numRows-numSubSurfaceRows)/2);  		
 		}
-		System.out.println("subSurfaceLength="+subSurfaceLength+", subSurfaceWidth="+subSurfaceWidth+", subSurfaceOffset="+
+
+		/*
+		 System.out.println("subSurfaceLength="+subSurfaceLength+", subSurfaceWidth="+subSurfaceWidth+", subSurfaceOffset="+
 				subSurfaceOffset+", numRows="+numRows+", numCols="+numCols+", numSubSurfaceRows="+
 				numSubSurfaceRows+", numSubSurfaceCols="+numSubSurfaceCols+", startRow="+startRow+", startCol="+startCol);
+		*/
 		return (new GriddedSubsetSurface(numSubSurfaceRows,numSubSurfaceCols,startRow,startCol,this));
 	}
 
@@ -263,16 +284,17 @@ implements EvenlyGriddedSurfaceAPI {
 	 *
 	 * @param numSubSurfaceCols  Number of grid points according to length
 	 * @param numSubSurfaceRows  Number of grid points according to width
-	 * @param numSubSurfaceOffset Number of grid poits for offset
+	 * @param numSubSurfaceOffset Number of grid points for offset
 	 *
 	 */
-	public Iterator<GriddedSubsetSurface> getSubsetSurfacesIterator(int numSubSurfaceCols, int numSubSurfaceRows, int numSubSurfaceOffset) {
+	public Iterator<GriddedSubsetSurface> getSubsetSurfacesIterator(int numSubSurfaceCols, int numSubSurfaceRows,
+			int numSubSurfaceOffsetAlong, int numSubSurfaceOffsetDown) {
 
 		//vector to store the GriddedSurface
 		ArrayList<GriddedSubsetSurface> v = new ArrayList<GriddedSubsetSurface>();
 
 		// number of subSurfaces along the length of fault
-		int nSubSurfaceAlong = (int)Math.floor((numCols-numSubSurfaceCols)/numSubSurfaceOffset +1);
+		int nSubSurfaceAlong = (int)Math.floor((numCols-numSubSurfaceCols)/numSubSurfaceOffsetAlong +1);
 
 		// there is only one subSurface
 		if(nSubSurfaceAlong <=1) {
@@ -281,7 +303,7 @@ implements EvenlyGriddedSurfaceAPI {
 		}
 
 		// number of subSurfaces along fault width
-		int nSubSurfaceDown =  (int)Math.floor((numRows-numSubSurfaceRows)/numSubSurfaceOffset +1);
+		int nSubSurfaceDown =  (int)Math.floor((numRows-numSubSurfaceRows)/numSubSurfaceOffsetDown +1);
 
 		// one subSurface along width
 		if(nSubSurfaceDown <=1) {
@@ -296,7 +318,7 @@ implements EvenlyGriddedSurfaceAPI {
 
 		//adding each subset surface to the ArrayList
 		for(int i=0;i<totalSubSetSurface;++i)
-			v.add(getNthSubsetSurface(numSubSurfaceCols,numSubSurfaceRows,numSubSurfaceOffset,nSubSurfaceAlong,i));
+			v.add(getNthSubsetSurface(numSubSurfaceCols,numSubSurfaceRows,numSubSurfaceOffsetAlong,numSubSurfaceOffsetDown,nSubSurfaceAlong,i));
 
 		return v.iterator();
 	}
@@ -315,9 +337,10 @@ implements EvenlyGriddedSurfaceAPI {
 			double subSurfaceWidth,
 			double subSurfaceOffset) {
 
-		return getSubsetSurfacesIterator((int)Math.rint(subSurfaceLength/gridSpacing+1),
-				(int)Math.rint(subSurfaceWidth/gridSpacing+1),
-				(int)Math.rint(subSurfaceOffset/gridSpacing));
+		return getSubsetSurfacesIterator((int)Math.rint(subSurfaceLength/gridSpacingAlong+1),
+				(int)Math.rint(subSurfaceWidth/gridSpacingDown+1),
+				(int)Math.rint(subSurfaceOffset/gridSpacingAlong),
+				(int)Math.rint(subSurfaceOffset/gridSpacingDown));
 
 	}
 
@@ -325,16 +348,18 @@ implements EvenlyGriddedSurfaceAPI {
 	 *
 	 * @param subSurfaceLength subSurface length in km
 	 * @param subSurfaceWidth  subSurface Width in km
-	 * @param subSurfaceOffset subSurface offset
+	 * @param subSurfaceOffset subSurface offset in km
 	 * @return total number of subSurface along the fault
 	 */
 	public int getNumSubsetSurfaces(double subSurfaceLength,double subSurfaceWidth,double subSurfaceOffset){
-		int lengthCols =  (int)Math.rint(subSurfaceLength/gridSpacing+1);
-		int widthCols =    (int)Math.rint(subSurfaceWidth/gridSpacing+1);
-		int offsetCols =   (int)Math.rint(subSurfaceOffset/gridSpacing);
-		int totalSubSurfaces =1;
+
+		int lengthCols =  (int)Math.rint(subSurfaceLength/gridSpacingAlong+1);
+		int widthCols =    (int)Math.rint(subSurfaceWidth/gridSpacingDown+1);
+		int offsetColsAlong =   (int)Math.rint(subSurfaceOffset/gridSpacingAlong);
+		int offsetColsDown =   (int)Math.rint(subSurfaceOffset/gridSpacingDown);
+
 		// number of subSurfaces along the length of fault
-		int nSubSurfaceAlong = (int)Math.floor((numCols-lengthCols)/offsetCols +1);
+		int nSubSurfaceAlong = (int)Math.floor((numCols-lengthCols)/offsetColsAlong +1);
 
 		// there is only one subSurface
 		if(nSubSurfaceAlong <=1) {
@@ -342,14 +367,14 @@ implements EvenlyGriddedSurfaceAPI {
 		}
 
 		// nnmber of subSurfaces along fault width
-		int nSubSurfaceDown =  (int)Math.floor((numRows-widthCols)/offsetCols +1);
+		int nSubSurfaceDown =  (int)Math.floor((numRows-widthCols)/offsetColsDown +1);
 
 		// one subSurface along width
 		if(nSubSurfaceDown <=1) {
 			nSubSurfaceDown=1;
 		}
-		totalSubSurfaces =   nSubSurfaceAlong * nSubSurfaceDown;
-		return totalSubSurfaces;
+
+		return nSubSurfaceAlong * nSubSurfaceDown;
 	}
 
 
@@ -361,8 +386,8 @@ implements EvenlyGriddedSurfaceAPI {
 	 * @return total number of subSurface along the fault
 	 */
 	public int getNumSubsetSurfacesAlongLength(double subSurfaceLength,double subSurfaceOffset){
-		int lengthCols =  (int)Math.rint(subSurfaceLength/gridSpacing+1);
-		int offsetCols =   (int)Math.rint(subSurfaceOffset/gridSpacing);
+		int lengthCols =  (int)Math.rint(subSurfaceLength/gridSpacingAlong+1);
+		int offsetCols =   (int)Math.rint(subSurfaceOffset/gridSpacingAlong);
 
 		// number of subSurfaces along the length of fault
 		int nSubSurfaceAlong = (int)Math.floor((numCols-lengthCols)/offsetCols +1);
@@ -383,7 +408,7 @@ implements EvenlyGriddedSurfaceAPI {
 	 */
 	public double getSurfaceLength() {
 
-		return getGridSpacing() * (getNumCols()-1);
+		return getGridSpacingAlongStrike() * (getNumCols()-1);
 	}
 
 	/**
@@ -391,7 +416,7 @@ implements EvenlyGriddedSurfaceAPI {
 	 * @return double
 	 */
 	public double getSurfaceWidth() {
-		return getGridSpacing() * (getNumRows()-1);
+		return getGridSpacingDownDip() * (getNumRows()-1);
 	}
 
 	/**
@@ -419,8 +444,10 @@ implements EvenlyGriddedSurfaceAPI {
 			Iterator<Location> it2 = surface.listIterator();
 			while(it2.hasNext()) { // iterate over all locations on the user provided surface
 				Location loc2 = (Location)it2.next();
-				dist = LocationUtils.horzDistanceFast(loc1, loc2);
-				if(dist<min3dDist) min3dDist = dist;
+				dist = LocationUtils.linearDistanceFast(loc1, loc2);
+				if(dist<min3dDist){
+					min3dDist = dist;
+				}
 			}
 		}
 		return min3dDist;
