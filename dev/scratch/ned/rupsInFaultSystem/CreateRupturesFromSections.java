@@ -24,12 +24,12 @@ public class CreateRupturesFromSections {
 
 	
 	ArrayList<FaultSectionPrefData> allFaultSectionPrefData;
-	double subSectionDistances[][];
+	double subSectionDistances[][],subSectionAzimuths[][];;
 	String endPointNames[];
 	Location endPointLocs[];
 	int numSections, numSubSections, minNumSubSectInRup;
 	ArrayList<ArrayList<Integer>> subSectionConnectionsListList, endToEndSectLinksList;
-	double maxJumpDist, maxAngle, maxTotStrikeChange, maxSubSectionLength;
+	double maxJumpDist, maxAzimuthChange, maxTotAzimuthChange, maxSubSectionLength;
 	ArrayList<ArrayList<FaultSectionPrefData>> subSectionPrefDataListList;
 	ArrayList<FaultSectionPrefData> subSectionPrefDataList; // same as above, but a sequential list (not list of lists)
 	
@@ -52,15 +52,15 @@ public class CreateRupturesFromSections {
 	 * @param maxSubSectionLength - In units of down-dip width
 	 * @param minNumSubSectInRup
 	 */
-	public CreateRupturesFromSections(double maxJumpDist, double maxAngle, double maxStrikeChange, 
+	public CreateRupturesFromSections(double maxJumpDist, double maxAzimuthChange, double maxTotAzimuthChange, 
 			double maxSubSectionLength, int minNumSubSectInRup) {
 		
-		System.out.println("maxDist="+maxJumpDist+"\tmaxAngle="+maxAngle+"\tmaxStrikeChange="+
-				maxStrikeChange+"\tmaxSubSectionLength="+maxSubSectionLength+"\tminNumSubSectInRup="+minNumSubSectInRup);
+		System.out.println("maxDist="+maxJumpDist+"\tmaxAzimuthChange="+maxAzimuthChange+"\tmaxTotAzimuthChange="+
+				maxTotAzimuthChange+"\tmaxSubSectionLength="+maxSubSectionLength+"\tminNumSubSectInRup="+minNumSubSectInRup);
 		
 		this.maxJumpDist=maxJumpDist;
-		this.maxAngle=maxAngle;  					// not used right now
-		this.maxTotStrikeChange=maxStrikeChange;	// not used right now
+		this.maxAzimuthChange=maxAzimuthChange;  					// not used right now
+		this.maxTotAzimuthChange=maxTotAzimuthChange;	// not used right now
 		this.maxSubSectionLength=maxSubSectionLength;
 		this.minNumSubSectInRup=minNumSubSectInRup;
 		
@@ -77,14 +77,12 @@ public class CreateRupturesFromSections {
 		calcSubSectionDistances();
 		int runtime = (int)(System.currentTimeMillis()-startTime)/1000;
 		System.out.println("calcSubSectionDistances Run took "+runtime+" seconds");
-
-		// a faster way
-/*		startTime=System.currentTimeMillis();
-		calcSubSectionDistancesFast();
-		runtime = (int)(System.currentTimeMillis()-startTime)/1000;
-		System.out.println("calcSubSectionDistancesFast Run took "+runtime+" seconds");
-*/
 		
+		// compute the azimuths between subsections:
+		System.out.println("Starting computing azimuths");
+		calcSubSectionAzimuths();
+		System.out.println("Done computing azimuths");
+
 		// make the list of nearby subsections for each subsection (branches)
 		computeCloseSubSectionsListList();
 		
@@ -94,6 +92,9 @@ public class CreateRupturesFromSections {
 		makeClusterList();
 		
 		writeCloseSubSections();
+		
+		for(int i=0;i<this.sectionClusterList.size(); i++)
+			System.out.println("Cluster "+i+" has "+getCluster(i).getNumRuptures()+" ruptures");
 
 /*		
 		// this writes out the ruptures for a given cluster
@@ -214,8 +215,8 @@ System.out.println("Working on rupture list for cluster "+i);
 		  }
 		  System.out.println("Max Down-Dip Width = "+maxDDW+" for "+allFaultSectionPrefData.get(index).getSectionName());
 */	
-/*		  
-		  // this is a trimmed list fo subsections for testing; 
+/*		*/  
+		  // this is a trimmed list of subsections for testing; 
 		  // make sure includeSectionsWithNaN_slipRates=false for the IDs below to be good choices
 		  test = "_test";
 		  ArrayList<FaultSectionPrefData> trimmedFaultSectionPrefData = new ArrayList<FaultSectionPrefData>();
@@ -229,7 +230,7 @@ System.out.println("Working on rupture list for cluster "+i);
 		  // write out these
 		  for(int i=0; i< allFaultSectionPrefData.size();i++) 
 			  System.out.println(i+"\t"+allFaultSectionPrefData.get(i).getName());
-*/	  
+	  
 
 		  // make subsection data
 		  subSectionPrefDataListList = new ArrayList<ArrayList<FaultSectionPrefData>>();
@@ -349,7 +350,22 @@ System.out.println("Working on rupture list for cluster "+i);
 	  
 	  
 
-	  
+	  /**
+	   *  this computes the azimuth between between each subsection pair from the middle point of each surface
+	   */
+	  private void calcSubSectionAzimuths() {
+		  subSectionAzimuths = new double[numSubSections][numSubSections];
+			  for(int a=0;a<numSubSections;a++) {
+				  StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultData(false), 1.0);
+				  Location loc1 = surf1.getLocation(surf1.getNumRows()/2, surf1.getNumCols()/2);
+				  for(int b=0;b<numSubSections;b++) {
+					  StirlingGriddedSurface surf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(b).getSimpleFaultData(false), 1.0);
+					  Location loc2 = surf2.getLocation((int)(surf2.getNumRows()/2), (int)(surf2.getNumCols()/2));
+					  subSectionAzimuths[a][b] = LocationUtils.azimuth(loc1, loc2);
+				  }
+			  }
+	  }
+
 	  
 	  /**
 	   * For each sub section, create a list of subsections that are within maxJumpDist.  
@@ -416,7 +432,8 @@ System.out.println("Working on rupture list for cluster "+i);
 		  while(availableSubSections.size()>0) {
 			  if (D) System.out.println("WORKING ON CLUSTER #"+(sectionClusterList.size()+1));
 			  int firstSubSection = availableSubSections.get(0);
-			  SectionCluster newCluster = new SectionCluster(subSectionPrefDataList, minNumSubSectInRup,subSectionConnectionsListList);
+			  SectionCluster newCluster = new SectionCluster(subSectionPrefDataList, minNumSubSectInRup,subSectionConnectionsListList,
+					  subSectionAzimuths, maxAzimuthChange, maxTotAzimuthChange);
 			  newCluster.add(firstSubSection);
 			  if (D) System.out.println("\tfirst is "+this.subSectionPrefDataList.get(firstSubSection).getName());
 			  addLinks(firstSubSection, newCluster);
@@ -446,7 +463,7 @@ System.out.println(newCluster.size()+"\tsubsections in cluster #"+sectionCluster
 	 * This writes out the close subsections to each subsection (and the distance)
 	 */
 	public void writeCloseSubSections() {
-		System.out.print("writing file...");
+		if (D) System.out.print("writing file...");
 		try{
 			FileWriter fw = new FileWriter("/Users/field/workspace/OpenSHA/dev/scratch/ned/rupsInFaultSystem/closeSubSections.txt");
 			String outputString = new String();
@@ -466,27 +483,11 @@ System.out.println(newCluster.size()+"\tsubsections in cluster #"+sectionCluster
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println(" - done");
+		if (D) System.out.println(" - done");
 
 	}
 	
 	
-    /**
-     * This returns the change in strike direction in going from this azimuth1 to azimuth2,
-     * where these azimuths are assumed to be defined between -180 and 180 degrees.
-     * The output is between -180 and 180 degrees.
-     * @return
-     */
-    private double getStrikeDirectionDifference(double azimuth1, double azimuth2) {
-    	double diff = azimuth2 - azimuth1;
-    	if(diff>180)
-    		return diff-360;
-    	else if (diff<-180)
-    		return diff+360;
-    	else
-    		return diff;
-     }
-    
 
     /**
      * This reverses the given azimuth (assumed to be between -180 and 180 degrees).
@@ -505,6 +506,7 @@ System.out.println(newCluster.size()+"\tsubsections in cluster #"+sectionCluster
 	public static void main(String[] args) {
 		long startTime=System.currentTimeMillis();
 		CreateRupturesFromSections createRups = new CreateRupturesFromSections(10, 45, 60, 0.5, 2);
+//		CreateRupturesFromSections createRups = new CreateRupturesFromSections(10, 45, 60, 100, 1);
 		int runtime = (int)(System.currentTimeMillis()-startTime)/1000;
 		System.out.println("Run took "+runtime+" seconds");
 	}
