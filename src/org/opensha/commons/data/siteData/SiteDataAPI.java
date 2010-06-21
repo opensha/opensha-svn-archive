@@ -57,11 +57,11 @@ public interface SiteDataAPI<Element> extends NamedObjectAPI, XMLSaveable {
 	 */
 	public static final String TYPE_WILLS_CLASS = "Wills Class";
 	/**
-	 * Depth to first Vs30 = 2.5 km/sec (km)
+	 * Depth to first Vs = 2.5 km/sec (km)
 	 */
 	public static final String TYPE_DEPTH_TO_2_5 = "Depth to Vs = 2.5 km/sec";
 	/**
-	 * Depth to first Vs30 = 1.0 km/sec (km)
+	 * Depth to first Vs = 1.0 km/sec (km)
 	 */
 	public static final String TYPE_DEPTH_TO_1_0 = "Depth to Vs = 1.0 km/sec";
 	/**
