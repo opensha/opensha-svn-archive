@@ -81,7 +81,7 @@ public class AttenuationRelationshipsInstance {
 		supportedAttenRelClasses.add(BA_2008_AttenRel.class.getName());
 		supportedAttenRelClasses.add(AS_2008_AttenRel.class.getName());
 		supportedAttenRelClasses.add(CY_2008_AttenRel.class.getName());
-		supportedAttenRelClasses.add(InterpolatedBA_2008_AttenRel.class.getName());
+//		supportedAttenRelClasses.add(InterpolatedBA_2008_AttenRel.class.getName());
 		// 2007
 		
 		// 2006
