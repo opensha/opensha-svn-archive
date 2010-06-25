@@ -32,11 +32,11 @@ public final class PlaneUtils {
     /** Calculates a triangle centroid by averaging the x, y, and z values of
      * three vertices. Accepts a 2D double array of triangle vertices with the
      * form:<br/><br/>
-     * <div align="center"><b>
-     * | x1 y1 z1 |<br/>
-     * | x2 y2 z2 |<br/>
-     * | x3 y3 z3 |<br/>
-     * </b></div><br/>
+     * <div align="center"><b><pre>
+     * [ [ x1 y1 z1 ]
+     *   [ x2 y2 z2 ]
+     *   [ x3 y3 z3 ] ]</pre></b></div>
+     * <br/>
      * and returns a 1D double array with the form:<br/><br/>
      * <div align="center"><b>| x y z |</b></div>
      * @param verticesIn 2D triangle vertex array.
@@ -82,9 +82,9 @@ public final class PlaneUtils {
      * vertices. Accepts a 2D double array of triangle vertices with the form:
      * <br/><br/>
      * <div align="center"><b><pre>
-     * [ [ x1 y1 z1 ]<br/>
-     *   [ x2 y2 z2 ]<br/>
-     *   [ x3 y3 z3 ] ]<br/></pre></b></div>
+     * [ [ x1 y1 z1 ]
+     *   [ x2 y2 z2 ]
+     *   [ x3 y3 z3 ] ]</pre></b></div>
      * <br/>
      * Values returned follow the <I>right-hand-rule</I> (downdip direction is
      * always to the right of strike direction).<br/>
