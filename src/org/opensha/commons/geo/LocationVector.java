@@ -45,14 +45,14 @@ package org.opensha.commons.geo;
 public class LocationVector {
 
 	/*
-	 * Developer Notes: The previous incarnation of this class as 'LocationVector'
+	 * Developer Notes: The previous version of this class as 'LocationVector'
 	 * included back azimuth. There are (were) instances in OpenSHA where
 	 * this was taken to be the azimuth from point B to A (for an azimuth
 	 * from point A to B). As Back azimuth is generally defined, this interp
 	 * is incorrect. Back azimuth is the 180 degree complement of the
 	 * azimuth at an origin point. Under the assumed interpretation, each
-	 * LocationVector was implicitely Location dependent, but that information was
-	 * never stored as part of this class. Furthermore, the onus was on the 
+	 * LocationVector was implicitely Location dependent, but that information 
+	 * was never stored as part of this class. Furthermore, the onus was on the 
 	 * user to provide the correct value for back azimuth. This property of 
 	 * the class has been removed and users are directed in 
 	 * LocationUtils.azimuth() to simply reverse the points of interest if 

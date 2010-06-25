@@ -3,12 +3,12 @@ package org.opensha.commons.geo;
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 
-
 /**
- * @author P. Powers
- * 
- *  The class <CODE>GeoCalc</CODE> contains static utility methods for
- * manipulating dislocation data in 3D space.
+ * Add comments here
+ *
+ *
+ * @author Peter Powers
+ * @version $Id:$
  */
 public final class PlaneUtils {
     
@@ -81,10 +81,10 @@ public final class PlaneUtils {
      * Calculates the strike and dip of a triangular surface as defined by its
      * vertices. Accepts a 2D double array of triangle vertices with the form:
      * <br/><br/>
-     * <div align="center"><b>
-     * | x1 y1 z1 |<br/>
-     * | x2 y2 z2 |<br/>
-     * | x3 y3 z3 |<br/></b></div>
+     * <div align="center"><b><pre>
+     * [ [ x1 y1 z1 ]<br/>
+     *   [ x2 y2 z2 ]<br/>
+     *   [ x3 y3 z3 ] ]<br/></pre></b></div>
      * <br/>
      * Values returned follow the <I>right-hand-rule</I> (downdip direction is
      * always to the right of strike direction).<br/>
@@ -147,7 +147,119 @@ public final class PlaneUtils {
         return strikeDip;
     }
     
+	/**
+	 * Calculates the strike and dip of a trianglular surface as defined by
+	 * three <code>Location</code>s. Internally, the three <code>Location</code>
+	 * s are transformed to vertices in a local cartesian coordinate system and
+	 * {@linkplain #getStrikeAndDip(double[][])} is called.<br/>
+	 * <br/>
+	 * Note that the results of this method are undefined for 
+	 * <code>Location</code> arguments that span #177;180&#176;.
+	 * 
+	 * @param loc1
+	 * @param loc2
+	 * @param loc3
+	 * @return the strike and dip of the plane defined by the supplied
+	 *         <code>Location</code>s
+	 * @throws IllegalArgumentException if <code>Location</code> arguments are
+	 *         separated more than 1&#176; in latitude or longitude
+	 * @see #getStrikeAndDip(double[][])
+	 */
+	public static double[] getStrikeAndDip(Location loc1, Location loc2,
+			Location loc3) {
+		
+		double dLat12 = loc2.getLatitude() - loc1.getLatitude();
+		double dLat13 = loc3.getLatitude() - loc1.getLatitude();
+		double dLat23 = loc3.getLatitude() - loc2.getLatitude();
+		double dLon12 = loc2.getLongitude() - loc1.getLongitude();
+		double dLon13 = loc3.getLongitude() - loc1.getLongitude();
+		double dLon23 = loc3.getLongitude() - loc2.getLongitude();
+		
+		if (dLat12 > 1 || dLat13 > 1 || dLat23 > 1 || dLon12 > 1 || dLon13 > 1
+			|| dLon23 > 1) {
+			throw new IllegalArgumentException(
+				"Supplied Locations are more than 1 degree apart.");
+		}
+		
+		double[][] vertices = new double[][] {
+			{ 0.0, 0.0, -loc1.getDepth() },
+			{ deltaLonKM(loc1, loc2), deltaLatKM(loc1, loc2), -loc2.getDepth() },
+			{ deltaLonKM(loc1, loc3), deltaLatKM(loc1, loc3), -loc3.getDepth() } };
+
+		return getStrikeAndDip(vertices);
+	}
+
+	private static double deltaLonKM(Location loc1, Location loc2) {
+		double dLon = loc2.getLongitude() - loc1.getLongitude();
+		double avgLat = (loc2.getLatitude() + loc1.getLatitude()) / 2;
+		Location loc = new Location(avgLat, 0);
+		return dLon / GeoTools.degreesLonPerKm(loc);
+	}
+
+	private static double deltaLatKM(Location loc1, Location loc2) {
+		double dLat = loc2.getLatitude() - loc1.getLatitude();
+		double avgLat = (loc2.getLatitude() + loc1.getLatitude()) / 2;
+		Location loc = new Location(avgLat, 0);
+		return dLat / GeoTools.degreesLatPerKm(loc);
+	}
     
+	public static void main(String[] args) {
+		Location l1,l2,l3;
+		double[] sd;
+		
+		l1 = new Location(0,0,0);
+		l2 = new Location(1,1,0);
+		l3 = new Location(0,1,110);
+		sd = getStrikeAndDip(l1, l2, l3);
+		System.out.println("Strike: " + sd[0] + " Dip: " + sd[1]);
+
+		l1 = new Location(45,0,0);
+		l2 = new Location(46,1,0);
+		l3 = new Location(45,1,110);
+		sd = getStrikeAndDip(l1, l2, l3);
+		System.out.println("Strike: " + sd[0] + " Dip: " + sd[1]);
+
+		l1 = new Location(89,0,0);
+		l2 = new Location(90,1,0);
+		l3 = new Location(89,1,110);
+		sd = getStrikeAndDip(l1, l2, l3);
+		System.out.println("Strike: " + sd[0] + " Dip: " + sd[1]);
+
+		// southern hemisphere
+		
+		l1 = new Location(-1,-1,0);
+		l2 = new Location(0,0,0);
+		l3 = new Location(-1,0,110);
+		sd = getStrikeAndDip(l1, l2, l3);
+		System.out.println("Strike: " + sd[0] + " Dip: " + sd[1]);
+
+		// reverse 1 and 2 above
+		l1 = new Location(0,0,0);
+		l2 = new Location(-1,-1,0);
+		l3 = new Location(-1,0,110);
+		sd = getStrikeAndDip(l1, l2, l3);
+		System.out.println("Strike: " + sd[0] + " Dip: " + sd[1]);
+
+		l1 = new Location(-46,-1,0);
+		l2 = new Location(-45,0,0);
+		l3 = new Location(-46,0,110);
+		sd = getStrikeAndDip(l1, l2, l3);
+		System.out.println("Strike: " + sd[0] + " Dip: " + sd[1]);
+
+		// reverse 1 and 2 above
+		l1 = new Location(-45,0,0);
+		l2 = new Location(-46,-1,0);
+		l3 = new Location(-46,0,110);
+		sd = getStrikeAndDip(l1, l2, l3);
+		System.out.println("Strike: " + sd[0] + " Dip: " + sd[1]);
+
+		l1 = new Location(-89,0,0);
+		l2 = new Location(-90,-1,0);
+		l3 = new Location(-89,0,110);
+		sd = getStrikeAndDip(l1, l2, l3);
+		System.out.println("Strike: " + sd[0] + " Dip: " + sd[1]);
+
+	}
 	public static double[] getStrikeAndDip(double[] cosinesIn) {
         
 		// initialize result
