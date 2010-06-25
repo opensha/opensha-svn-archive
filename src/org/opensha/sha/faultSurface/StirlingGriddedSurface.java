@@ -54,8 +54,14 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
     protected final static String ERR = " is null, unable to process.";
 
 
+    /**
+     * This applies the  grid spacing exactly as given (trimming any remainder from the ends)
+     * @param simpleFaultData
+     * @param gridSpacing
+     * @throws FaultException
+     */
     public StirlingGriddedSurface(SimpleFaultData simpleFaultData, double gridSpacing) throws FaultException {
-      super(simpleFaultData, gridSpacing, gridSpacing);
+      super(simpleFaultData, gridSpacing);
       this.aveDipDir=simpleFaultData.getAveDipDir();
       createEvenlyGriddedSurface();
     }

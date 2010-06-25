@@ -16,6 +16,8 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.SimpleFaultData;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
 public class CreateRupturesFromSections {
@@ -59,13 +61,14 @@ public class CreateRupturesFromSections {
 				maxTotAzimuthChange+"\tmaxSubSectionLength="+maxSubSectionLength+"\tminNumSubSectInRup="+minNumSubSectInRup);
 		
 		this.maxJumpDist=maxJumpDist;
-		this.maxAzimuthChange=maxAzimuthChange;  					// not used right now
+		this.maxAzimuthChange=maxAzimuthChange;  		// not used right now
 		this.maxTotAzimuthChange=maxTotAzimuthChange;	// not used right now
 		this.maxSubSectionLength=maxSubSectionLength;
 		this.minNumSubSectInRup=minNumSubSectInRup;
 		
 		Boolean includeSectionsWithNaN_slipRates = false;
 		
+	
 		// Create the sections and subsections and mappings
 		createSubSections(includeSectionsWithNaN_slipRates);
 		
@@ -215,7 +218,8 @@ System.out.println("Working on rupture list for cluster "+i);
 		  }
 		  System.out.println("Max Down-Dip Width = "+maxDDW+" for "+allFaultSectionPrefData.get(index).getSectionName());
 */	
-/*		*/  
+		  
+/*		  
 		  // this is a trimmed list of subsections for testing; 
 		  // make sure includeSectionsWithNaN_slipRates=false for the IDs below to be good choices
 		  test = "_test";
@@ -230,7 +234,7 @@ System.out.println("Working on rupture list for cluster "+i);
 		  // write out these
 		  for(int i=0; i< allFaultSectionPrefData.size();i++) 
 			  System.out.println(i+"\t"+allFaultSectionPrefData.get(i).getName());
-	  
+*/	  
 
 		  // make subsection data
 		  subSectionPrefDataListList = new ArrayList<ArrayList<FaultSectionPrefData>>();
@@ -242,7 +246,6 @@ System.out.println("Working on rupture list for cluster "+i);
 			  FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)allFaultSectionPrefData.get(i);
 			  double maxSectLength = faultSectionPrefData.getDownDipWidth()*maxSubSectionLength;
 			  ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength);
-//			  ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSubSectionLength);
 			  if(subSectData.size()>maxNumSubSections) maxNumSubSections = numSubSections;
 			  numSubSections += subSectData.size();
 			  subSectionPrefDataListList.add(subSectData);
@@ -250,7 +253,7 @@ System.out.println("Working on rupture list for cluster "+i);
 		  }
 		  
 		  
-		  // Set the mappings among sections and subsection lists
+		  // Set the mappings between elements of subSectionPrefDataList and subSectionPrefDataListList 
 		  sectForSubSectionMapping = new int[subSectionPrefDataList.size()];
 		  subSectForSubSectMapping = new int[subSectionPrefDataList.size()];
 		  subSectForSectAndSubsectMapping = new int[numSections][maxNumSubSections];
@@ -269,9 +272,12 @@ System.out.println("Working on rupture list for cluster "+i);
 				  counter += 1;
 			  }
 		  }
-
 	  }
 	  
+	  /**
+	   * This computes the distances between subsection if it hasn't already been done.
+	   * Otherwise the values are read from a file.
+	   */
 	  private void calcSubSectionDistances() {
 
 		  subSectionDistances = new double[numSubSections][numSubSections];
@@ -292,18 +298,6 @@ System.out.println("Working on rupture list for cluster "+i);
 						  for(int j=i; j<numSubSections;j++) {
 							  subSectionDistances[i][j] = data_in.readDouble();
 						  }
-	/*
-			        while (true) {
-			          try {
-			            d_data = data_in.readDouble ();
-			          }
-			          catch (EOFException eof) {
-			            System.out.println ("End of File");
-			            break;
-			          }
-			          // Print out the integer, double data pairs.
-			          System.out.printf ("%3d. Data = %8.3e %n", i_data, d_data );
-	*/
 			        data_in.close ();
 			      } catch  (IOException e) {
 			         System.out.println ( "IO Exception =: " + e );
@@ -488,16 +482,6 @@ System.out.println(newCluster.size()+"\tsubsections in cluster #"+sectionCluster
 	}
 	
 	
-
-    /**
-     * This reverses the given azimuth (assumed to be between -180 and 180 degrees).
-     * The output is between -180 and 180 degrees.
-     * @return
-     */
-    private double reverseAzimuth(double azimuth) {
-    	if(azimuth<0) return azimuth+180;
-    	else return azimuth-180;
-     }
     
 	
 	/**
@@ -505,10 +489,88 @@ System.out.println(newCluster.size()+"\tsubsections in cluster #"+sectionCluster
 	 */
 	public static void main(String[] args) {
 		long startTime=System.currentTimeMillis();
-		CreateRupturesFromSections createRups = new CreateRupturesFromSections(10, 45, 60, 0.5, 2);
+		CreateRupturesFromSections createRups = new CreateRupturesFromSections(10, 45, 60, 100, 2);
 //		CreateRupturesFromSections createRups = new CreateRupturesFromSections(10, 45, 60, 100, 1);
 		int runtime = (int)(System.currentTimeMillis()-startTime)/1000;
 		System.out.println("Run took "+runtime+" seconds");
 	}
+	
+	
+	
+	
+	/*
+	private void testCalcForSimulators() {
+
+		deformationModelId = 82;
+
+		// fetch the sections
+		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
+		allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelId);
+
+		//Alphabetize:
+		Collections.sort(allFaultSectionPrefData, new NamedObjectComparator());
+
+		for(int i=allFaultSectionPrefData.size()-1; i>=0;i--)
+			if(Double.isNaN(allFaultSectionPrefData.get(i).getAveLongTermSlipRate())) {
+				if(D) System.out.println("\t"+allFaultSectionPrefData.get(i).getSectionName());
+				allFaultSectionPrefData.remove(i);
+			}	 
+
+		int totalNumElements=0;
+		double minSpacingAlong=Double.MAX_VALUE;
+		int minSpacingAlongIndex=-1;
+		double minSpacingDown=Double.MAX_VALUE;
+		int minSpacingDownIndex=-1;
+
+		double maxAngleDiff =0;
+		int maxAngleDiffIndex = -1;
+		int maxAngleDiffElement = -1;
+		// make the stirling sufaces
+		for(int i=0; i<allFaultSectionPrefData.size();i++){
+			SimpleFaultData faultData = allFaultSectionPrefData.get(i).getSimpleFaultData(false);
+			StirlingGriddedSurface surf = new StirlingGriddedSurface(faultData, 4.0, 4.0);
+			totalNumElements += (surf.getNumCols()-1)*(surf.getNumRows()-1);
+			if(minSpacingAlong>surf.getGridSpacingAlongStrike()) {
+				minSpacingAlong = surf.getGridSpacingAlongStrike();
+				minSpacingAlongIndex=i;
+			}
+			if(minSpacingDown>surf.getGridSpacingDownDip()) {
+				minSpacingDown = surf.getGridSpacingDownDip();
+				minSpacingDownIndex = i;
+			}
+			
+			FaultTrace trace = faultData.getFaultTrace();
+			double dirTotal = LocationUtils.azimuth(trace.get(0), trace.get(trace.size()-1));
+			if(dirTotal>180) dirTotal -= 360;
+			if(dirTotal<-180) dirTotal += 360;
+			for(int j=1;j<trace.size();j++) {
+				double dir = LocationUtils.azimuth(trace.get(j-1), trace.get(j));
+				if(trace.get(j-1).equals(trace.get(j)) ) {
+					System.out.println(allFaultSectionPrefData.get(i).getName()+" has duplicate locs in trace for the following incides: "+(j-1)+"  "+j);
+					continue;
+				}
+				if(i==147) System.out.println("Locations:"+trace.get(j-1)+"\t"+trace.get(j));
+				if(dir>180) dir -= 360;
+				if(dir<-180) dir += 360;
+				double diff = Math.abs(SectionCluster.getAzimuthDifference(dirTotal, dir));
+				if(i==147) System.out.println((float)dir+"\t"+(float)dirTotal+"\t"+(float)diff+"\t"+allFaultSectionPrefData.get(i).getName());
+				if(diff>maxAngleDiff) {
+					maxAngleDiffIndex = i;
+					maxAngleDiff = diff;
+					maxAngleDiffElement = j-1;
+				}
+			}
+		}
+		System.out.println("totalNumElements = "+totalNumElements);
+		System.out.println("minSpacingAlong = "+minSpacingAlong);
+		System.out.println("minSpacingAlongIndex = "+minSpacingAlongIndex+"\t"+allFaultSectionPrefData.get(minSpacingAlongIndex).getName());
+		System.out.println("minSpacingDown = "+minSpacingDown);
+		System.out.println("minSpacingDownIndex = "+minSpacingDownIndex+"\t"+allFaultSectionPrefData.get(minSpacingDownIndex).getName());
+		System.out.println("maxAngleDiffIndex = "+maxAngleDiffIndex+"\t"+allFaultSectionPrefData.get(maxAngleDiffIndex).getName());
+		System.out.println("maxAngleDiff = "+maxAngleDiff);
+		System.out.println("maxAngleDiffElement = "+maxAngleDiffElement);
+
+	}
+*/
 	
 }

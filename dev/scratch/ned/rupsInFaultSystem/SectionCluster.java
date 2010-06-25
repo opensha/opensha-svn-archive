@@ -92,38 +92,53 @@ public class SectionCluster extends ArrayList<Integer> {
 	int rupCounterProgressIncrement = 1000000;
 	  
 	
-	private void addRuptures(int subSectIndex,int lastSubSect, ArrayList<Integer> list) {
+	private void addRuptures(ArrayList<Integer> list) {
+		int subSectIndex = list.get(list.size()-1);
+		int lastSubSect;
+		if(list.size()>1)
+			lastSubSect = list.get(list.size()-2);
+		else
+			lastSubSect = -1;   // bogus index because subSectIndex is first in list
+		
+		// loop over branches at the present subsection
 		ArrayList<Integer> branches = subSectionConnectionsListList.get(subSectIndex);
 		for(int i=0; i<branches.size(); i++) { 
 			Integer newSubSect = branches.get(i);
 
-			// avoid looping back on self or to previous subsect
+			// avoid looping back on self or to previous subSection
 			if(list.contains(newSubSect) || newSubSect == lastSubSect) continue;
-/*			
-			if(lastSubSect != -1)
+			
+			// debugging stuff:
+/*			if(list.size()>1)
 				System.out.println("lastSubSect=\t"+lastSubSect+"\t"+this.subSectionPrefDataList.get(lastSubSect).getName());
 			System.out.println("subSectIndex=\t"+subSectIndex+"\t"+this.subSectionPrefDataList.get(subSectIndex).getName());
 			System.out.println("newSubSect=\t"+newSubSect+"\t"+this.subSectionPrefDataList.get(newSubSect).getName());
-*/				
+				
 			// check the azimuth change
 			if(list.size()>3) { // make sure there are enough points to compute an azimuth change
 				double newAzimuth = subSectionAzimuths[subSectIndex][newSubSect];
-				double latestAzimuth = subSectionAzimuths[list.get(list.size()-3)][lastSubSect];
-				double absAzimuthDiff = Math.abs(getAzimuthDifference(latestAzimuth,newAzimuth));
-/*
-				System.out.println("latestAzimuth=\t"+(int)latestAzimuth+"\t"+list.get(list.size()-3)+"\t"+lastSubSect);
+				double lastAzimuth = subSectionAzimuths[lastSubSect][subSectIndex];
+				double previousAzimuth = subSectionAzimuths[list.get(list.size()-3)][lastSubSect];
+				double newLastAzimuthDiff = Math.abs(getAzimuthDifference(newAzimuth,lastAzimuth));
+				double newPreviousAzimuthDiff = Math.abs(getAzimuthDifference(newAzimuth,previousAzimuth));
 				System.out.println("newAzimuth=\t"+(int)newAzimuth+"\t"+subSectIndex+"\t"+newSubSect);
-				System.out.println("\tabsAzimuthDiff=\t"+(int)absAzimuthDiff);
-*/
-				if(absAzimuthDiff > maxAzimuthChange) {
-					// remove the last rupture added (since it was headed the wrong way) and continue
-//					System.out.println("removing: "+rupListIndices.get(rupListIndices.size()-1));
-//					rupListIndices.remove(rupListIndices.size()-1);
-//					numRupsAdded -= 1;
-					continue;
+				System.out.println("lastAzimuth=\t"+(int)lastAzimuth+"\t"+lastSubSect+"\t"+subSectIndex);
+				System.out.println("previousAzimuth=\t"+(int)previousAzimuth+"\t"+list.get(list.size()-3)+"\t"+lastSubSect);
+				System.out.println("newLastAzimuthDiff=\t"+(int)newLastAzimuthDiff);
+				System.out.println("newPreviousAzimuthDiff=\t"+(int)newPreviousAzimuthDiff);
+
+				if(newLastAzimuthDiff<maxAzimuthChange && newPreviousAzimuthDiff>=maxAzimuthChange) {
+					ArrayList<Integer> lastRup = rupListIndices.get(rupListIndices.size()-1);
+					if(lastRup.get(lastRup.size()-1) == lastSubSect) {
+						//stop it from going down bad branch, and remove previous rupture since it headed this way
+						System.out.println("removing: "+rupListIndices.get(rupListIndices.size()-1));
+						rupListIndices.remove(rupListIndices.size()-1);
+						numRupsAdded -= 1;
+						continue;						
+					}
 				}
 			}
-
+*/
 			ArrayList<Integer> newList = (ArrayList<Integer>)list.clone();
 			newList.add(newSubSect);
 			if(newList.size() >= minNumSubSectInRup)  {// it's a rupture
@@ -133,21 +148,12 @@ public class SectionCluster extends ArrayList<Integer> {
 					System.out.println(numRupsAdded);
 					rupCounterProgress += rupCounterProgressIncrement;
 				}
-				System.out.println("adding: "+newList);
-				//					  if(numRupsAdded>200) return;
+//				System.out.println("adding: "+newList);
+				if(numRupsAdded>100) return;
 			}
-			/*
-			// set the azimuth for the next iteration
-			double azimuth;
-			if(lastSubSect != -1)
-				azimuth = subSectionAzimuths[lastSubSect][subSectIndex];
-			else
-				azimuth = Double.NaN;
-			System.out.println("latestAzimuth=\t"+(int)azimuth+"\t"+lastSubSect+"\t"+subSectIndex);
-			*/
 			
-			addRuptures(newSubSect,subSectIndex,newList);
-			//				  System.out.println("\tadded "+this.subSectionPrefDataList.get(subSect).getName());
+			addRuptures(newList);
+//				  System.out.println("\tadded "+this.subSectionPrefDataList.get(subSect).getName());
 		}
 	}
 
@@ -160,7 +166,7 @@ public class SectionCluster extends ArrayList<Integer> {
 		int progressIncrement = 5;
 		numRupsAdded=0;
 		System.out.print("% Done:\t");
-		for(int s=0;s<size();s++) {
+		for(int s=0;s<1;s++) {
 			// show progress
 			if(s*100/size() > progress) {
 				System.out.print(progress+"\t");
@@ -169,8 +175,7 @@ public class SectionCluster extends ArrayList<Integer> {
 			ArrayList<Integer> subSectList = new ArrayList<Integer>();
 			int subSectIndex = get(s);
 			subSectList.add(subSectIndex);
-			addRuptures(subSectIndex, -1, subSectList);
-//			System.out.println("done with subsection "+s);
+			addRuptures(subSectList);
 //			System.out.println(rupList.size()+" ruptures after subsection "+s);
 		}
 		System.out.print("\n");
@@ -204,7 +209,7 @@ public class SectionCluster extends ArrayList<Integer> {
 	     * The output is between -180 and 180 degrees.
 	     * @return
 	     */
-	    private double getAzimuthDifference(double azimuth1, double azimuth2) {
+	    public static double getAzimuthDifference(double azimuth1, double azimuth2) {
 	    	double diff = azimuth2 - azimuth1;
 	    	if(diff>180)
 	    		return diff-360;
@@ -213,7 +218,5 @@ public class SectionCluster extends ArrayList<Integer> {
 	    	else
 	    		return diff;
 	     }
-	    
-
 
 }
