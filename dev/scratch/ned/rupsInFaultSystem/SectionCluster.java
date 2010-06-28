@@ -113,29 +113,31 @@ public class SectionCluster extends ArrayList<Integer> {
 				System.out.println("lastSubSect=\t"+lastSubSect+"\t"+this.subSectionPrefDataList.get(lastSubSect).getName());
 			System.out.println("subSectIndex=\t"+subSectIndex+"\t"+this.subSectionPrefDataList.get(subSectIndex).getName());
 			System.out.println("newSubSect=\t"+newSubSect+"\t"+this.subSectionPrefDataList.get(newSubSect).getName());
-				
+*/	
+			/*
 			// check the azimuth change
-			if(list.size()>3) { // make sure there are enough points to compute an azimuth change
+			if(list.size()>2) { // make sure there are enough points to compute an azimuth change (change 2 to 3 to get previousAzimuth below)
 				double newAzimuth = subSectionAzimuths[subSectIndex][newSubSect];
 				double lastAzimuth = subSectionAzimuths[lastSubSect][subSectIndex];
-				double previousAzimuth = subSectionAzimuths[list.get(list.size()-3)][lastSubSect];
+//				double previousAzimuth = subSectionAzimuths[list.get(list.size()-3)][lastSubSect];
 				double newLastAzimuthDiff = Math.abs(getAzimuthDifference(newAzimuth,lastAzimuth));
-				double newPreviousAzimuthDiff = Math.abs(getAzimuthDifference(newAzimuth,previousAzimuth));
-				System.out.println("newAzimuth=\t"+(int)newAzimuth+"\t"+subSectIndex+"\t"+newSubSect);
-				System.out.println("lastAzimuth=\t"+(int)lastAzimuth+"\t"+lastSubSect+"\t"+subSectIndex);
-				System.out.println("previousAzimuth=\t"+(int)previousAzimuth+"\t"+list.get(list.size()-3)+"\t"+lastSubSect);
-				System.out.println("newLastAzimuthDiff=\t"+(int)newLastAzimuthDiff);
-				System.out.println("newPreviousAzimuthDiff=\t"+(int)newPreviousAzimuthDiff);
+//				double newPreviousAzimuthDiff = Math.abs(getAzimuthDifference(newAzimuth,previousAzimuth));
+//				System.out.println("newAzimuth=\t"+(int)newAzimuth+"\t"+subSectIndex+"\t"+newSubSect);
+//				System.out.println("lastAzimuth=\t"+(int)lastAzimuth+"\t"+lastSubSect+"\t"+subSectIndex);
+//				System.out.println("previousAzimuth=\t"+(int)previousAzimuth+"\t"+list.get(list.size()-3)+"\t"+lastSubSect);
+//				System.out.println("newLastAzimuthDiff=\t"+(int)newLastAzimuthDiff);
+//				System.out.println("newPreviousAzimuthDiff=\t"+(int)newPreviousAzimuthDiff);
 
-				if(newLastAzimuthDiff<maxAzimuthChange && newPreviousAzimuthDiff>=maxAzimuthChange) {
-					ArrayList<Integer> lastRup = rupListIndices.get(rupListIndices.size()-1);
-					if(lastRup.get(lastRup.size()-1) == lastSubSect) {
+//				if(newLastAzimuthDiff<maxAzimuthChange && newPreviousAzimuthDiff>=maxAzimuthChange) {
+				if(newLastAzimuthDiff<maxAzimuthChange) {
+//					ArrayList<Integer> lastRup = rupListIndices.get(rupListIndices.size()-1);
+//					if(lastRup.get(lastRup.size()-1) == lastSubSect) {
 						//stop it from going down bad branch, and remove previous rupture since it headed this way
-						System.out.println("removing: "+rupListIndices.get(rupListIndices.size()-1));
-						rupListIndices.remove(rupListIndices.size()-1);
-						numRupsAdded -= 1;
+//						System.out.println("removing: "+rupListIndices.get(rupListIndices.size()-1));
+//						rupListIndices.remove(rupListIndices.size()-1);
+//						numRupsAdded -= 1;
 						continue;						
-					}
+//					}
 				}
 			}
 */
@@ -144,14 +146,17 @@ public class SectionCluster extends ArrayList<Integer> {
 			if(newList.size() >= minNumSubSectInRup)  {// it's a rupture
 				rupListIndices.add(newList);
 				numRupsAdded += 1;
+				// show progress
 				if(numRupsAdded >= rupCounterProgress) {
 					System.out.println(numRupsAdded);
 					rupCounterProgress += rupCounterProgressIncrement;
 				}
 //				System.out.println("adding: "+newList);
-				if(numRupsAdded>100) return;
+				// Debugging exist after 100 ruptures
+//				if(numRupsAdded>100) return;
 			}
 			
+			// Iterate
 			addRuptures(newList);
 //				  System.out.println("\tadded "+this.subSectionPrefDataList.get(subSect).getName());
 		}
@@ -166,7 +171,8 @@ public class SectionCluster extends ArrayList<Integer> {
 		int progressIncrement = 5;
 		numRupsAdded=0;
 		System.out.print("% Done:\t");
-		for(int s=0;s<1;s++) {
+//		for(int s=0;s<size();s++) {
+		for(int s=0;s<1;s++) {	// Debugging: only compute ruptures from first subsection
 			// show progress
 			if(s*100/size() > progress) {
 				System.out.print(progress+"\t");
@@ -180,7 +186,7 @@ public class SectionCluster extends ArrayList<Integer> {
 		}
 		System.out.print("\n");
 
-		// now filter out duplicates & change from containing indices to IDs
+		// now filter out duplicates (which would exist in reverse order) & change from containing indices to IDs
 		ArrayList<ArrayList<Integer>> newRupList = new ArrayList<ArrayList<Integer>>();
 		for(int r=0; r< rupListIndices.size();r++) {
 			ArrayList<Integer> rup = rupListIndices.get(r);
@@ -191,6 +197,7 @@ public class SectionCluster extends ArrayList<Integer> {
 			}
 		}
 		rupListIndices = newRupList;
+		numRupsAdded = rupListIndices.size();
 	}
 	
 	  

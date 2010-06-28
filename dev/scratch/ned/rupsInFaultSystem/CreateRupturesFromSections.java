@@ -54,15 +54,14 @@ public class CreateRupturesFromSections {
 	 * @param maxSubSectionLength - In units of down-dip width
 	 * @param minNumSubSectInRup
 	 */
-	public CreateRupturesFromSections(double maxJumpDist, double maxAzimuthChange, double maxTotAzimuthChange, 
-			double maxSubSectionLength, int minNumSubSectInRup) {
+	public CreateRupturesFromSections(double maxJumpDist, double maxSubSectionLength, int minNumSubSectInRup) {
 		
 		System.out.println("maxDist="+maxJumpDist+"\tmaxAzimuthChange="+maxAzimuthChange+"\tmaxTotAzimuthChange="+
 				maxTotAzimuthChange+"\tmaxSubSectionLength="+maxSubSectionLength+"\tminNumSubSectInRup="+minNumSubSectInRup);
 		
 		this.maxJumpDist=maxJumpDist;
-		this.maxAzimuthChange=maxAzimuthChange;  		// not used right now
-		this.maxTotAzimuthChange=maxTotAzimuthChange;	// not used right now
+		this.maxAzimuthChange=45;  		// 
+		this.maxTotAzimuthChange=45;	// not used right now
 		this.maxSubSectionLength=maxSubSectionLength;
 		this.minNumSubSectInRup=minNumSubSectInRup;
 		
@@ -219,7 +218,7 @@ System.out.println("Working on rupture list for cluster "+i);
 		  System.out.println("Max Down-Dip Width = "+maxDDW+" for "+allFaultSectionPrefData.get(index).getSectionName());
 */	
 		  
-/*		  
+/*	*/	  
 		  // this is a trimmed list of subsections for testing; 
 		  // make sure includeSectionsWithNaN_slipRates=false for the IDs below to be good choices
 		  test = "_test";
@@ -234,7 +233,7 @@ System.out.println("Working on rupture list for cluster "+i);
 		  // write out these
 		  for(int i=0; i< allFaultSectionPrefData.size();i++) 
 			  System.out.println(i+"\t"+allFaultSectionPrefData.get(i).getName());
-*/	  
+	  
 
 		  // make subsection data
 		  subSectionPrefDataListList = new ArrayList<ArrayList<FaultSectionPrefData>>();
@@ -489,7 +488,7 @@ System.out.println(newCluster.size()+"\tsubsections in cluster #"+sectionCluster
 	 */
 	public static void main(String[] args) {
 		long startTime=System.currentTimeMillis();
-		CreateRupturesFromSections createRups = new CreateRupturesFromSections(10, 45, 60, 100, 2);
+		CreateRupturesFromSections createRups = new CreateRupturesFromSections(10, 0.5, 2);
 //		CreateRupturesFromSections createRups = new CreateRupturesFromSections(10, 45, 60, 100, 1);
 		int runtime = (int)(System.currentTimeMillis()-startTime)/1000;
 		System.out.println("Run took "+runtime+" seconds");
