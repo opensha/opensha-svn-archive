@@ -144,4 +144,41 @@ public class GemLogicTree<Element> implements GemLogicTreeAPI<Element>, Serializ
 		// to disk.
 		obj_out.writeObject (this);
 	}
+	
+	/**
+	 * print logic tree structure on standard output
+	 * 
+	 */
+	public void printGemLogicTreeStructure(){
+		
+		// total number of branching levels
+	    int numBranchingLevels = this.branLevLst.size();
+
+	    System.out.println("Total number of branching levels in the logic tree: "+numBranchingLevels+"\n");
+	    // loop over branching levels
+	    for(int i=0;i<numBranchingLevels;i++){
+	    	
+	    	GemLogicTreeBranchingLevel braLev = this.branLevLst.get(i);
+	    	System.out.println("Branching level: "+braLev.getLevel()+", label: "+braLev.getBranchingLabel()+", appliesTo: "+braLev.getAppliesTo());
+	    	
+	    	// number of branches
+	    	int numBranches = braLev.getTreeBranchList().size();
+	        // loop over branches
+	    	for(int j=0;j<numBranches;j++){
+	    		
+	    		GemLogicTreeBranch bra = braLev.getBranch(j);
+	    		
+	    		System.out.println("Branch number: "+bra.getRelativeID()+", label: "+bra.getBranchingValue()+", weight: "+bra.getWeight());
+	    		if(bra.getNameInputFile()!=null) System.out.println("Associated file: "+bra.getNameInputFile());
+	    		if(bra.getRule()!=null) {
+	    			System.out.println("Associated rule: "+bra.getRule().getRuleName());
+	    			System.out.println("Associated uncertainty value: "+bra.getRule().getVal());
+	    		}
+	    		
+	    		
+	    	}
+	    	System.out.println("\n\n");
+	    	
+	    }
+	}
 }

@@ -1,0 +1,28 @@
+// ERF logic tree file
+/Users/damianomonelli/Documents/Workspace/OpenSHA/src/org/opensha/gem/GEM1/data/command_line_input_files/ErfLogicTree.inp
+// GMPEs logic tree file
+/Users/damianomonelli/Documents/Workspace/OpenSHA/src/org/opensha/gem/GEM1/data/command_line_input_files/GmpeLogicTree.inp
+// Path for the output directory
+./../Output/Ecuador
+// Minimum magnitude
+5.0
+// Investigation time
+50.0
+// Ground motion parameter
+sa
+// Period (sa=0.0 means PGA)
+0.0
+// Number of sigmas for truncation of GMPEs
+3
+// Reference Vs30 value 
+760.0
+// Width of the MFD bins
+0.1
+// Number of processors
+8
+// Result type: map, hazardCurve, disaggregation 
+map
+// Probability of exceedance
+0.1
+// Rectangle (lon,lat, lower left – upper right – cell size)
+-78.0 0.0 -76.0 2.0 0.1

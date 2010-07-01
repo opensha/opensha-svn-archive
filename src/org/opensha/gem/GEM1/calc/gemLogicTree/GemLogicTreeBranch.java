@@ -8,6 +8,7 @@ public class GemLogicTreeBranch implements Serializable{
 	private String branchingValue;
 	private double weight;
 	private String nameInputFile;
+	private GemLogicTreeRule rule;
 	
 	
 	public GemLogicTreeBranch(){
@@ -52,6 +53,14 @@ public class GemLogicTreeBranch implements Serializable{
 	 */
 	public void setWeight(double weight) {
 		this.weight = weight;
+	}
+
+	public GemLogicTreeRule getRule() {
+		return rule;
+	}
+
+	public void setRule(GemLogicTreeRule rule) {
+		this.rule = rule;
 	}
 	
 }

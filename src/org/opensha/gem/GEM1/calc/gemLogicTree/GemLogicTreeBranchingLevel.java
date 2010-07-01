@@ -64,9 +64,9 @@ public class GemLogicTreeBranchingLevel implements Serializable {
 		return appliesTo;
 	}
 	public void setAppliesTo(int appliesTo) {
-		if (appliesTo >= 0){
+		//if (appliesTo >= 0){
 			this.appliesTo = appliesTo;
-		}
+		//}
 	}
 	/**
 	 * 
