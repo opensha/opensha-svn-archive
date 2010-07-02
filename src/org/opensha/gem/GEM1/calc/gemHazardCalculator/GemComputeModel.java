@@ -213,6 +213,56 @@ public class GemComputeModel {
 		
 	}
 
+	/**
+	 * 
+	 * @param srcList
+	 * @param modelName
+	 * @param gmpeLogicTree
+	 * @param hazSite
+	 * @param probLevel
+	 * @param outDir
+	 * @param outputHazCurve
+	 * @param calcSet
+	 * @throws IOException
+	 */
+	public GemComputeModel(ArrayList<GEMSourceData> srcList,
+			String modelName,
+			GemLogicTree<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>> gmpeLogicTree,
+			ArrayList<Site> hazSite,
+			double[] probLevel,
+			String outDir,
+			boolean outputHazCurve,
+			CalculationSettings calcSet) throws IOException{
+		
+        // define logic tree for input model
+        GemLogicTree<ArrayList<GEMSourceData>> modelLogicTree = new GemLogicTree<ArrayList<GEMSourceData>>();
+        
+		// instantiate logic tree branches
+		GemLogicTreeBranch bra1 = null;
+		
+		// 1st branching level
+		GemLogicTreeBranchingLevel braLev1 = new GemLogicTreeBranchingLevel(1,"Model",-1);
+		
+		// 1st branching level-1st branch
+		bra1 = new GemLogicTreeBranch(1,"MeanModel",1.0);
+		
+		// add branches to 1st branching level
+		braLev1.addTreeBranch(bra1);
+		
+        // add branching levels to logic tree
+        modelLogicTree.addBranchingLevel(braLev1);
+        
+        modelLogicTree.addEBMapping("1",srcList);
+        
+        modelLogicTree.setModelName(modelName);
+        
+		// define array list of sites
+//		ArrayList<Site> hazSite = createListOfSitesFromRectangularRegion(latmin,latmax,lonmin,lonmax,delta);
+		
+		// use first constructor
+		new GemComputeModel(modelLogicTree, gmpeLogicTree, hazSite, probLevel, outDir, outputHazCurve, calcSet);
+		
+	}
 	
 	/**
 	 * 

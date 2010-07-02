@@ -5,11 +5,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.hamcrest.core.IsInstanceOf;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMAreaSourceData;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMFaultSourceData;
+import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMGridSourceData;
+import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMPointSourceData;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSourceData;
+import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSubductionFaultSourceData;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 public class GemFileParser {
@@ -23,6 +27,58 @@ public class GemFileParser {
 	 */
 	public ArrayList<GEMSourceData> getList (){
 		return this.srcDataList;
+	}
+	
+	/**
+	 * This returns the list of GEMAreaSourceData obects contained in the parsed list
+	 * @return 
+	 */
+	public ArrayList<GEMSourceData> getAreaSourceList (){
+		ArrayList<GEMSourceData> areaList = new ArrayList<GEMSourceData>();
+		for (GEMSourceData src: this.srcDataList){
+			if (src instanceof GEMAreaSourceData) areaList.add(src);
+		}
+		if (areaList.size() < 1) areaList = null;
+		return areaList;
+	}
+	
+	/**
+	 * This returns the list of GEMAreaSourceData objects contained in the parsed list
+	 * @return 
+	 */
+	public ArrayList<GEMSourceData> getFaultSourceList (){
+		ArrayList<GEMSourceData> faultList = new ArrayList<GEMSourceData>();
+		for (GEMSourceData src: this.srcDataList){
+			if (src instanceof GEMFaultSourceData) faultList.add(src);
+		}
+		if (faultList.size() < 1) faultList = null;
+		return faultList;
+	}
+	
+	/**
+	 * This returns the list of GEMSubductionFaultSourceData objects contained in the parsed list
+	 * @return 
+	 */
+	public ArrayList<GEMSourceData> getSubductionFaultSourceList (){
+		ArrayList<GEMSourceData> faultList = new ArrayList<GEMSourceData>();
+		for (GEMSourceData src: this.srcDataList){
+			if (src instanceof GEMSubductionFaultSourceData) faultList.add(src);
+		}
+		if (faultList.size() < 1) faultList = null;
+		return faultList;
+	}
+	
+	/**
+	 * This returns the list of GEMPointSourceData objects contained in the parsed list
+	 * @return 
+	 */
+	public ArrayList<GEMSourceData> getPointSourceList (){
+		ArrayList<GEMSourceData> pointSource = new ArrayList<GEMSourceData>();
+		for (GEMSourceData src: this.srcDataList){
+			if (src instanceof GEMPointSourceData) pointSource.add(src);
+		}
+		if (pointSource.size() < 1) pointSource = null;
+		return pointSource;
 	}
 	
 	/**
