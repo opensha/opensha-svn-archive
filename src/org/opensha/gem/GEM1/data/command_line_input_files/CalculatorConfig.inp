@@ -1,28 +1,58 @@
-// ERF logic tree file
+// This is the configuration file of the command line calculator
+
+// FILE CONTAINING ERF LOGIC TREE STRUCTURE
 /Users/damianomonelli/Documents/Workspace/OpenSHA/src/org/opensha/gem/GEM1/data/command_line_input_files/ErfLogicTree.inp
-// GMPEs logic tree file
+
+// FILE CONTAINING GMPE LOGIC TREE STRUCTURE
 /Users/damianomonelli/Documents/Workspace/OpenSHA/src/org/opensha/gem/GEM1/data/command_line_input_files/GmpeLogicTree.inp
-// Path for the output directory
+
+// OUTPUT DIRECTORY
 ./../Output/Ecuador
-// Minimum magnitude
+
+// MINIMUM MAGNITUDE
 5.0
-// Investigation time
+
+// INVESTIGATION TIME
 50.0
-// Ground motion parameter
-sa
-// Period (sa=0.0 means PGA)
-0.0
-// Number of sigmas for truncation of GMPEs
+
+// COMPONENT (Average Horizontal, Average Horizontal (GMRotI50), Random Horizontal, Greater of Two Horz., Vertical)
+Average Horizontal (GMRotI50)
+
+// INTENSITY MEASURE TYPE (PGA (g), PGD (cm), PGV (cm/s), SA (g))
+SA
+
+// PERIOD (s) (0.0 for PGA, PGV, PGD)
+0.01
+
+// DAMPING (%) (0.0 for PGA, PGV, PGD)
+5.0 
+
+// INTENSITY MEASURE LEVELS
+0.005 0.007 0.098 0.0137 0.0192 0.0269 0.0376 0.0527 0.0738 0.103 0.145 0.203 0.284 0.397 0.556 0.778 1.09 1.52 2.13
+
+// GMPE TRUNCATION TYPE (None, 1 Sided, 2 Sided)
+2 Sided
+
+// TRUNCATION LEVEL (1,2,3,...)
 3
-// Reference Vs30 value 
+
+// STANDARD DEVIATION TYPE (Total, Inter-Event, Intra-Event, None (zero), Total (Mag Dependent), Total (PGA Dependent), Intra-Event (Mag Dependent))
+Total
+
+// REFERENCE VS30 VALUE 
 760.0
-// Width of the MFD bins
+
+// WIDTH OF MFD BIN
 0.1
-// Number of processors
+
+// NUMBER OF PROCESSORS
 8
-// Result type: map, hazardCurve, disaggregation 
+
+// RESULT TYPE (map) 
 map
-// Probability of exceedance
+
+// PROBABILITY OF EXCEEDANCE
 0.1
-// Rectangle (lon,lat, lower left – upper right – cell size)
+
+// REGION lat, lon of left lower and upper right corner, grid spacing
 -78.0 0.0 -76.0 2.0 0.1

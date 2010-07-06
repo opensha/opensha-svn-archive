@@ -1,9 +1,17 @@
-// Hereâ€™s our beautiful new source file format:	
+// Here is our beautiful new source file format
+
+// newsource keyword indicates beginning of source definition	
 newsource
+// source id
 src01
+// source name
 Quito area source
-ActiveShallow
+// tectonic region type
+Active Shallow Crust
+
+// source typology
 area
+// if area give polygon boundaries (number of vertices and coordinates)
 // Now we define the geometry
 4
 -78.0 0.0
@@ -11,36 +19,85 @@ area
 -77.0 1.0
 -78.0 1.0
 // Here we specify the mag-freq properties 
-// First we define the number of mag-freq distributions 
-// for his zone
+// First we define the number of pairs mag-freq distribution
+// - focal mechanism for this zone
 1
 // 
 // Then we specify the parameters characterizing the 
-// mag-freq dist. First we define the number of MFD 
-// to combine than the rates provided by the MFD are 
-// in terms of events per year. In case of a G-R MFD:
-// 	gr aGR bGR mMax weight 
-// 	ch magChar rateChar sigmaChar numSigma weight 
-// Finally I describe the properties of the focal
-// mechanism (-999.0 identifies unknown parameters)
-1
-// Number of MFD to combine 
-1
-gr 10.0 0.8 1.0
+// mag-freq dist
+// 	gr aGR(cumulative) bGR mMax 
+// 	ch magChar rateChar sigmaChar numSigma 
+gr 5.0 0.8 7.0
 // Focal mechanism follows the Aki-Richards convention. 
-strike -999.0 dip -999.0 rake -999.0
-//
+// -999.0 means not defined
+// strike dip rake
+-999.0 -999.0 -999.0
+
+
 // Here we than describe the depth to the top of rupture
 // properties for this area source. The first value of
 // magnitude corresponds to the first magnitude for which 
 // we take into account the finiteness of the rupture.
 // Format (depth is positive [km]): 
-// <mag_1> <dep_1> <mag_2> <dep_2> â€¦ <mag_n> <dep_n> 
+// <mag_1> <dep_1> <mag_2> <dep_2> â..., <mag_n> <dep_n> 
 6.0 5.0 6.5 3.0 7.0 0.0
 // Here we define the the hypocentral depth [km] for the 
 // seismicity modeled as point source (i.e. the 
 // seismicity with magnitude lower than the lower value
-// of magnitude used in the description of the depth to // the top of rupture.
+// of magnitude used in the description of the depth to 
+// the top of rupture.
 // For example, if all the seismicity must be treated as
-// punctual just simply put 10.0 0.0 as the unique depth // to the top of rupture 
+// punctual just simply put 10.0 0.0 as the unique depth 
+// to the top of rupture 
+5.0
+
+// newsource keyword indicates beginning of source definition	
+newsource
+// source id
+src02
+// source name
+Quito 2 area source
+// tectonic region type
+Active Shallow Crust
+
+// source typology
+area
+// if area give polygon boundaries (number of vertices and coordinates)
+// Now we define the geometry
+4
+-78.0 0.0
+-77.0 0.0
+-77.0 1.0
+-78.0 1.0
+// Here we specify the mag-freq properties 
+// First we define the number of pairs mag-freq distribution
+// - focal mechanism for this zone
+1
+// 
+// Then we specify the parameters characterizing the 
+// mag-freq dist
+// 	gr aGR(cumulative) bGR mMax 
+// 	ch magChar rateChar sigmaChar numSigma 
+gr 5.0 0.8 7.0
+// Focal mechanism follows the Aki-Richards convention. 
+// -999.0 means not defined
+// strike dip rake
+-999.0 -999.0 -999.0
+
+
+// Here we than describe the depth to the top of rupture
+// properties for this area source. The first value of
+// magnitude corresponds to the first magnitude for which 
+// we take into account the finiteness of the rupture.
+// Format (depth is positive [km]): 
+// <mag_1> <dep_1> <mag_2> <dep_2> â..., <mag_n> <dep_n> 
+6.0 5.0 6.5 3.0 7.0 0.0
+// Here we define the the hypocentral depth [km] for the 
+// seismicity modeled as point source (i.e. the 
+// seismicity with magnitude lower than the lower value
+// of magnitude used in the description of the depth to 
+// the top of rupture.
+// For example, if all the seismicity must be treated as
+// punctual just simply put 10.0 0.0 as the unique depth 
+// to the top of rupture 
 5.0

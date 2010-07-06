@@ -36,7 +36,7 @@ BranchSet
 // uncertainty model type
 inputfile
 // input file name(s)
-/home/damiano/psha_model/source_model_1.dat      /home/damiano/psha_model/source_model_2.dat
+/Users/damianomonelli/Documents/workspace/OpenSHA/src/org/opensha/gem/GEM1/data/command_line_input_files/src_model1.dat     /Users/damianomonelli/Documents/workspace/OpenSHA/src/org/opensha/gem/GEM1/data/command_line_input_files/source_model_2.dat
 // input file descriptor(s) (in each descriptor spaces are not allowed)
 source_geometry_model_#1   source_geometry_model_#2
 // weight(s)
