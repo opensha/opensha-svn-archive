@@ -3,6 +3,7 @@ package org.opensha.gem.GEM1.calc.gemCommandLineCalculator;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 
 import org.opensha.gem.GEM1.calc.gemLogicTree.GemLogicTreeBranch;
@@ -14,8 +15,15 @@ public class CommandLineCalculator {
 	/**
 	 * @param args
 	 * @throws IOException 
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
+	 * @throws ClassNotFoundException 
+	 * @throws NoSuchMethodException 
+	 * @throws SecurityException 
+	 * @throws InvocationTargetException 
+	 * @throws IllegalArgumentException 
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, SecurityException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
 		
 //		/Users/damianomonelli/Documents/Workspace/OpenSHA/src/org/opensha/gem/GEM1/data/command_line_input_files/CalculatorConfig.inp
 		
@@ -41,8 +49,10 @@ public class CommandLineCalculator {
 	    // just to be sure that input file is read correctly
 	    erfLogicTree.getErfLogicTree().printGemLogicTreeStructure();
 	    
-	    // read GMPE logic tree file
-	    GmpeLogicTreeData gmpeLogicTree = new GmpeLogicTreeData(calcConfig.getGmpeLogicTreeFile());
+	    // read GMPE logic tree file and set gmpe logic tree
+	    GmpeLogicTreeData gmpeLogicTree = new GmpeLogicTreeData(calcConfig.getGmpeLogicTreeFile(),calcConfig.getComponent(),calcConfig.getIntensityMeasureType(),
+	    		                               calcConfig.getPeriod(), calcConfig.getDamping(), calcConfig.getTruncationType(), calcConfig.getTruncationLevel(),
+	    		                               calcConfig.getStandardDeviationType(), calcConfig.getVs30Reference());
 	    
     	// get logic tree for each tectonic type and print the structure to standard output
 	    // again to check that the input file is read correctly
@@ -52,6 +62,9 @@ public class CommandLineCalculator {
 	    	System.out.println("Gmpe Logic Tree for "+trt);
 	    	gmpeLogicTree.getGmpeLogicTreeHashMap().get(trt).printGemLogicTreeStructure();
 	    }
+	    
+	    
+	    
 
 	}
 
