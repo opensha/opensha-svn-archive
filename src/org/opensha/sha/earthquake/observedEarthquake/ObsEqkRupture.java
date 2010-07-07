@@ -158,9 +158,9 @@ public class ObsEqkRupture
     boolean eventsEqual = true;
 
     //if any of the condition is not true else return false
-    if(eventId != obsRupEvent.getEventId() ||
+    if(!eventId.equals(obsRupEvent.getEventId()) ||
        eventVersion != obsRupEvent.getEventVersion() ||
-       magType != obsRupEvent.getMagType() ||
+       !magType.equals(obsRupEvent.getMagType()) ||
        magError != obsRupEvent.getMagError() ||
        hypoLocHorzErr != obsRupEvent.getHypoLocHorzErr() ||
        hypoLocVertErr != obsRupEvent.getHypoLocVertErr() ||

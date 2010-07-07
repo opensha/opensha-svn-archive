@@ -657,7 +657,7 @@ public class SEA_1999_AttenRel
 
   // this is temporary for testing purposes
   public static void main(String[] args) {
-    SEA_1999_AttenRel ar = new SEA_1999_AttenRel(null);
+    new SEA_1999_AttenRel(null);
   }
 
   /**

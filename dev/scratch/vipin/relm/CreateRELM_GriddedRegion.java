@@ -110,7 +110,7 @@ public class CreateRELM_GriddedRegion {
   }
 
   public static void main(String[] args) {
-    CreateRELM_GriddedRegion createRELM_GriddedRegion1 = new CreateRELM_GriddedRegion("alm.forecast");
+    new CreateRELM_GriddedRegion("alm.forecast");
   }
 
 }

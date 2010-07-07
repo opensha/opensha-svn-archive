@@ -688,7 +688,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 				String gmtSymbol = " c0.04i";    // draw a circles of 0.04 inch diameter
 				// get points along the top
 				
-				LinearBlender blend = new LinearBlender();
+//				LinearBlender blend = new LinearBlender();
 				Color bigColor = new Color(20, 20, 20);
 				Color smallColor = new Color(235, 235, 235);
 				float dep1 = (float)surface.getLocation(0,0).getDepth();

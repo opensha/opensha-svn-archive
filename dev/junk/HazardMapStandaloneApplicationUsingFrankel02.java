@@ -121,7 +121,7 @@ public class HazardMapStandaloneApplicationUsingFrankel02
   //Main method
   public static void main(String[] args) {
     try{
-      HazardMapStandaloneApplicationUsingFrankel02 app = new HazardMapStandaloneApplicationUsingFrankel02();
+     new HazardMapStandaloneApplicationUsingFrankel02();
     }
     catch(Exception e){
       System.out.println(e.getMessage());

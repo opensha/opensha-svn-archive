@@ -107,8 +107,8 @@ public class OvalBorder implements Border {
     public OvalBorder( int w, int h, Color topColor, Color bottomColor ) {
         width = w;
         height = h;
-        topColor = topColor;
-        bottomColor = bottomColor;
+        this.topColor = topColor;
+        this.bottomColor = bottomColor;
     }
 
 

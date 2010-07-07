@@ -86,7 +86,7 @@ public class ExceptionBean implements GuiBeanAPI {
 		if(exception != null) {
 			// If user provided no message, then use the exception's message
 			// if it is available.  Else, just stick with the default.
-			if(message==DEFAULT_MSG && exception.getMessage() != "")
+			if(message.equals(DEFAULT_MSG) && exception.getMessage().length() > 0)
 				message = exception.getMessage();
 			this.exception = exception;
 		}

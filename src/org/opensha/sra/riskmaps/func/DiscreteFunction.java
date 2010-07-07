@@ -144,18 +144,22 @@ public class DiscreteFunction implements FunctionAPI {
 	 * @param func The function to compare agaist.
 	 * @return True if the two functions are logically equal, false otherwise.
 	 */
-	public boolean equals(DiscreteFunction func) {
-		double [] otherX = func.getXVals();
-		double [] otherY = func.getYVals();
+	public boolean equals(Object obj) {
+		if (obj instanceof DiscreteFunction) {
+			DiscreteFunction func = (DiscreteFunction)obj;
+			double [] otherX = func.getXVals();
+			double [] otherY = func.getYVals();
 
-		for (int i = 0; i < xvals.length; ++i) {
-			try {
-				if (xvals[i] != otherX[i] || yvals[i] != otherY[i]) {return false;}
-			} catch (ArrayIndexOutOfBoundsException abx) {
-				return false;
+			for (int i = 0; i < xvals.length; ++i) {
+				try {
+					if (xvals[i] != otherX[i] || yvals[i] != otherY[i]) {return false;}
+				} catch (ArrayIndexOutOfBoundsException abx) {
+					return false;
+				}
 			}
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	public String toString() {

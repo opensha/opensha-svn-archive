@@ -510,7 +510,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 	public void addChangeListener(ChangeListener listener) {
 		if (changeListeners == null)
 			changeListeners = new ArrayList<ChangeListener>();
-		if (!changeListeners.contains(changeListeners))
+		if (!changeListeners.contains(listener))
 			changeListeners.add(listener);
 	}
 	

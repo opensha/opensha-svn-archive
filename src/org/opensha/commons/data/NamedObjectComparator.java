@@ -19,6 +19,7 @@
 
 package org.opensha.commons.data;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 import org.opensha.commons.exceptions.NamedObjectException;
@@ -41,9 +42,14 @@ import org.opensha.commons.exceptions.NamedObjectException;
  * @version    1.0
  */
 
-public class NamedObjectComparator implements Comparator<NamedObjectAPI> {
+public class NamedObjectComparator implements Comparator<NamedObjectAPI>, Serializable {
 
-    /** Class name for debugging. */
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	/** Class name for debugging. */
     final static String C = "NamedObjectComparator";
     /** If true print out debug statements. */
     final static boolean D = false;

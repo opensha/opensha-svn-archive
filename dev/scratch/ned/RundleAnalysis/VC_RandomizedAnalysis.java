@@ -443,6 +443,6 @@ public class VC_RandomizedAnalysis {
 
 
   public static void main(String[] args) {
-    VC_RandomizedAnalysis analysis = new VC_RandomizedAnalysis();
+    new VC_RandomizedAnalysis();
   }
 }

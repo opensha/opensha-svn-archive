@@ -165,8 +165,7 @@ public class EditDeformationModel extends JPanel implements ActionListener, Para
 		Object source = event.getSource();
 		try {
 			if(source==this.addModelButton) { // add a new model
-				AddDeformationModel addDeformationModel = new AddDeformationModel(dbConnection, this);
-			
+				new AddDeformationModel(dbConnection, this);
 			} else if(source == this .removeModelButton) { // remove the model from the database
 				String selectedDeformationModel = (String)this.deformationModelsParam.getValue();
 				int deformationModelId = this.getDeformationModelSummary(selectedDeformationModel).getDeformationModelId();

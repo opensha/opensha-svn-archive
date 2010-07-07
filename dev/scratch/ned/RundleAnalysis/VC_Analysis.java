@@ -437,6 +437,6 @@ public class VC_Analysis {
 
 
   public static void main(String[] args) {
-    VC_Analysis analysis = new VC_Analysis();
+    new VC_Analysis();
   }
 }

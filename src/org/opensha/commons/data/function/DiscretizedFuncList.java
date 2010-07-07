@@ -322,20 +322,24 @@ public class DiscretizedFuncList implements NamedObjectAPI{
      * Equality is determined if the two lists are the same size,
      * then calls containsAll()
      */
-    public boolean equals(DiscretizedFuncList list){
+    public boolean equals(Object list){
+    	if (list instanceof DiscretizedFuncList) {
+    		DiscretizedFuncList listObj = (DiscretizedFuncList) list;
+    		// Not same size, can't be equal
+            if( this.size() != listObj.size() ) return false;
 
-        // Not same size, can't be equal
-        if( this.size() != list.size() ) return false;
+            // next check boolean flags
+            // if( allowedDifferentAxisNames != list.allowedDifferentAxisNames ) return false;
+            // if( allowedIdenticalFunctions != list.allowedIdenticalFunctions ) return false;
 
-        // next check boolean flags
-        // if( allowedDifferentAxisNames != list.allowedDifferentAxisNames ) return false;
-        // if( allowedIdenticalFunctions != list.allowedIdenticalFunctions ) return false;
+            // All functions must be present
+            if ( !containsAll(listObj) ) return false;
 
-        // All functions must be present
-        if ( !containsAll(list) ) return false;
+            // Passed all tests - return true
+            return true;
+    	}
 
-        // Passed all tests - return true
-        return true;
+        return false;
 
     }
 

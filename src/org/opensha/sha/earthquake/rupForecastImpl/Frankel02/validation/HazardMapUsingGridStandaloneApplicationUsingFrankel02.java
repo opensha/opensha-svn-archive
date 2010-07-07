@@ -126,8 +126,7 @@ public class HazardMapUsingGridStandaloneApplicationUsingFrankel02
   //Main method
   public static void main(String[] args) {
     try {
-      HazardMapUsingGridStandaloneApplicationUsingFrankel02 app = new
-          HazardMapUsingGridStandaloneApplicationUsingFrankel02();
+      new HazardMapUsingGridStandaloneApplicationUsingFrankel02();
     }
     catch (RegionConstraintException ex) {
       System.out.println(ex.getMessage());

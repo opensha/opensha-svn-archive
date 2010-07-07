@@ -497,7 +497,6 @@ public class PrepareTreeStructure {
    */
   private SectionNodeDist getAdjacentFaultSectionNode(Node node1, Node node2) {
     Iterator it = faultTree.keySet().iterator();
-    HashMap adjacentSectionsAndDist = new HashMap();
     double minDist= Double.MAX_VALUE;
     Node minNode1 = null, minNode2 = null;
     while(node1!=null) {

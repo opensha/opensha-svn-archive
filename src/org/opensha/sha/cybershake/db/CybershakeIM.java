@@ -53,8 +53,10 @@ public class CybershakeIM implements Comparable<CybershakeIM> {
 		return this.measure + ": " + this.val + " (" + this.units + ")";
 	}
 	
-	public boolean equals(CybershakeIM im) {
-		return id == im.id;
+	public boolean equals(Object im) {
+		if (im instanceof CybershakeIM)
+			return id == ((CybershakeIM)im).id;
+		return false;
 	}
 
 	public int compareTo(CybershakeIM im) {

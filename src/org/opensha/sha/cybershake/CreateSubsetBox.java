@@ -69,7 +69,7 @@ public class CreateSubsetBox {
 	}
 	
 	public static void main(String[] args){
-		CreateSubsetBox createsubset = new CreateSubsetBox();
+		new CreateSubsetBox();
 	}
 	
 }

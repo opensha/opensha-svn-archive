@@ -128,8 +128,7 @@ public class HazardMapCalcServlet extends HttpServlet {
       if(D) System.out.println("after wget");
 
       // now run the calculation on grid
-      SubmitJobForGridComputation computation = null;
-      computation =  new SubmitJobForGridComputation(IMR_FILE_NAME, ERF_FILE_NAME,
+      new SubmitJobForGridComputation(IMR_FILE_NAME, ERF_FILE_NAME,
           REGION_FILE_NAME, X_VALUES_FILE_NAME,maxDistance, newDir, datasetDir, sites,
           emailAddr);
     }

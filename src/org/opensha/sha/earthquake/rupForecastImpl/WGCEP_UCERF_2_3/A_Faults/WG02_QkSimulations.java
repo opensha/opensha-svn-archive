@@ -86,7 +86,7 @@ public class WG02_QkSimulations {
 		
 		eventIndex = new int[numEvents];
 		eventYear = new double[numEvents];
-		WG02_QkProbCalc calc = new WG02_QkProbCalc();
+//		WG02_QkProbCalc calc = new WG02_QkProbCalc();
 
 		int numSeg = segRate.length;
 		double deltaYear = 1.0;

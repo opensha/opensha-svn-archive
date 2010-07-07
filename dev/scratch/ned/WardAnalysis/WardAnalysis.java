@@ -475,6 +475,6 @@ public class WardAnalysis {
 
 
   public static void main(String[] args) {
-    WardAnalysis analysis = new WardAnalysis();
+    new WardAnalysis();
   }
 }

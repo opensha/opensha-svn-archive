@@ -372,7 +372,7 @@ public class ReportBulgeFigures {
 
 
 	public static void main(String []args) {
-		ReportBulgeFigures bulgeFigures= new ReportBulgeFigures();
+		new ReportBulgeFigures();
 		//bulgeFigures.generateAnalysisFigures("BulgeFigures");
 		//bulgeFigures.findMinBulge();
 	}

@@ -1,8 +1,14 @@
 package org.opensha.refFaultParamDb.calc.sectionDists;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
-public class RecordIDsComparator implements Comparator<FaultSectDistRecord> {
+public class RecordIDsComparator implements Comparator<FaultSectDistRecord>, Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	@Override
 	public int compare(FaultSectDistRecord o1, FaultSectDistRecord o2) {

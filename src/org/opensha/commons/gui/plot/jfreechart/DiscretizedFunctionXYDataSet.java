@@ -280,9 +280,12 @@ public class DiscretizedFunctionXYDataSet extends AbstractXYDataset implements N
      *  Returns true if all the Functions in this list are equal. See
      * DiscretizedFunctList.equals() for further details.
      */
-    public boolean equals( DiscretizedFunctionXYDataSet list ){
-        if( list.getFunctions().equals( this.functions ) ) return true;
-        else return false;
+    public boolean equals(Object list ){
+    	if (list instanceof DiscretizedFunctionXYDataSet) {
+    		if( ((DiscretizedFunctionXYDataSet)list).getFunctions().equals( this.functions ) )
+    			return true;
+    	}
+        return false;
     }
 
     /**

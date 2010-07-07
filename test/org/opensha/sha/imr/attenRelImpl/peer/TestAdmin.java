@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
 import java.text.DecimalFormat;
@@ -465,8 +466,13 @@ public class TestAdmin {
 	
 	// special sorter so that Case10 does not immediately follow Case1
 	// (preceeding Case2)
-	static class TestFileComparator implements Comparator<File> {
+	static class TestFileComparator implements Comparator<File>, Serializable {
 		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		public int compare(File f1, File f2) {
 			
 			String[] f1s = StringUtils.split(

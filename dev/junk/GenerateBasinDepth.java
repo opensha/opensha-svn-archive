@@ -101,7 +101,7 @@ public class GenerateBasinDepth {
 
 
   public static void main(String args[]){
-    GenerateBasinDepth basinDepth = new GenerateBasinDepth();
+    new GenerateBasinDepth();
   }
 
 }

@@ -26,7 +26,6 @@ import org.opensha.sha.earthquake.EqkRupForecast;
 public class CybershakeSiteManager {
 	
 	public static boolean insertCybershakeSite(DBAccess db, CybershakeSite site, EqkRupForecast erf, int erfID, double cutoffDistance, int typeID) {
-		PeakAmplitudesFromDB amps2db = new PeakAmplitudesFromDB(db);
 		SiteInfo2DB site2db = new SiteInfo2DB(db);
 		CybershakeSiteInfo2DB csSite2db = new CybershakeSiteInfo2DB(db);
 		System.out.println("Inserting site: " + site.getFormattedName());

@@ -19,6 +19,7 @@
 
 package org.opensha.sha.gui.infoTools;
 
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -232,7 +233,12 @@ public class AttenuationRelationshipsInstance {
 	}
 
 	private static class ImrComparator implements 
-			Comparator<ScalarIntensityMeasureRelationshipAPI> {
+			Comparator<ScalarIntensityMeasureRelationshipAPI>, Serializable {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 
 		public int compare(
 				ScalarIntensityMeasureRelationshipAPI imr1,

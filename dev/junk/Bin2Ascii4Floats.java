@@ -40,7 +40,7 @@ public class Bin2Ascii4Floats {
   public Bin2Ascii4Floats() {
   }
   public static void main(String[] args) {
-    Bin2Ascii4Floats binary2Ascii1 = new Bin2Ascii4Floats();
+//    Bin2Ascii4Floats binary2Ascii1 = new Bin2Ascii4Floats();
 
     if(args.length <1)
       System.out.println("Usage : Binary2Ascii <filename>");
