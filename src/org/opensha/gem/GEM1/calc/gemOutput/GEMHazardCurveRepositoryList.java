@@ -2,6 +2,7 @@ package org.opensha.gem.GEM1.calc.gemOutput;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 import org.opensha.commons.data.Site;
@@ -104,6 +105,62 @@ public class GEMHazardCurveRepositoryList {
 			
 		}
 		return meanhc;
+	}
+	
+	public GEMHazardCurveRepository getQuantiles(double probLevel){
+		
+		// define GEMHazardCurveRepository for storing  quantile hazard curve corresponding to the given
+		// probability level
+		// the initialization is done considering the first HazardCurveRepository in the HazardCurveRepositoryList
+        UnoptimizedDeepCopy udp = new UnoptimizedDeepCopy();
+		GEMHazardCurveRepository hcRep = new GEMHazardCurveRepository((ArrayList<Site>) udp.copy(hcRepList.get(0).getGridNode()),
+				(ArrayList<Double>) udp.copy(hcRepList.get(0).getGmLevels()), (ArrayList<Double[]>) udp.copy(hcRepList.get(0).getProbExList()), hcRepList.get(0).getUnitsMeas());
+		
+		
+		// loop over sites
+		int indexSite = 0;
+		for(Site site: hcRep.getGridNode()){
+			
+			// hazard curve (probabilities of exceedance)
+			Double[] probEx = new Double[hcRep.getGmLevels().size()];
+			
+			int indexGMV = 0;
+			// loop over ground motion values
+			for(Double gml: hcRep.getGmLevels()){
+				
+				// array list containing probability of exceedance values
+				ArrayList<Double> probExValList = new ArrayList<Double>();
+				
+				// loop over hazard curves realizations
+				for(int i=0;i<hcRepList.size();i++){
+					
+					// get corresponding ground motion value
+					probExValList.add(hcRepList.get(i).getProbExceedanceList(indexSite)[indexGMV]);
+					
+				}
+				
+				// sort values from smallest to largest (that is ascending order)
+				Collections.sort(probExValList);
+				
+				// loop over sorted values and find the one corresponding to
+				// the specified quantile
+				for(int iv=0;iv<probExValList.size();iv++){
+					if(probLevel>(iv)/probExValList.size() && probLevel<=(iv+1)/probExValList.size()){
+						probEx[indexGMV] = probExValList.get(iv);
+						break;
+					}
+				}
+				
+					indexGMV = indexGMV + 1;
+			}// end loop over ground motion values
+			
+			hcRep.setHazardCurveGridNode(indexSite, site.getLocation().getLatitude(), site.getLocation().getLongitude(), probEx);
+			
+			indexSite = indexSite + 1;
+		}// end loop over site
+		
+
+		return hcRep;
 	}
 	
 	/**

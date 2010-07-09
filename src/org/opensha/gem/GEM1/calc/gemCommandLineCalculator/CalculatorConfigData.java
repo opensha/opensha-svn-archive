@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.gem.GEM1.util.ResultTypeParams;
 
 /**
@@ -32,6 +33,8 @@ public class CalculatorConfigData {
 	private static Double minMag = null;
 	// investigation time (years)
 	private static Double investigationTime = null;
+	// maximum distance
+	private static Double maxDistance = null;
 	// component
 	private static String component = null;
 	// intensity measure type
@@ -50,6 +53,14 @@ public class CalculatorConfigData {
 	private static String standardDeviationType = null;
 	// reference Vs30 value (m/s)
 	private static Double vs30Reference = null;
+	// include area source
+	private static Boolean includeAreaSource = null;
+	// area source rupture model
+	private static String areaSourceRuptureModel = null;
+	// area source discretization
+	private static Double areaSourceDiscretization = null;
+	// area source magnitude scaling relationship
+	private static String areaSourceMagAreaRel = null;
 	// magnitude frequency distribution bin width
 	private static Double mfdBinWidth = null;
 	// number of treads for calculation
@@ -59,12 +70,13 @@ public class CalculatorConfigData {
 	
 	// probability of exceedance
 	private static Double probExc = null;
-	// lower left corner of the region where to compute hazard map
-	private static Location leftLowerCorner = null;
-	// upper right corner of the region where to compute hazard map
-	private static Location upperRightCorner = null;
+	// region boundary
+	private static LocationList regionBoundary = null;
 	// grid spacing
 	private static Double gridSpacing = null;
+
+	// number of samples
+	private static Integer numHazCurve = null;
 	
 	// comment line identifier
 	private static String comment = "//";
@@ -116,6 +128,11 @@ public class CalculatorConfigData {
         	continue;
         this.investigationTime = Double.parseDouble(sRecord);
         
+        // read maximum distance
+        while((sRecord=oReader.readLine()).contains(comment.subSequence(0, comment.length()))  || sRecord.isEmpty())
+        	continue;
+        this.maxDistance = Double.parseDouble(sRecord);
+        
         // read component
         while((sRecord=oReader.readLine()).contains(comment.subSequence(0, comment.length()))  || sRecord.isEmpty())
         	continue;
@@ -163,6 +180,31 @@ public class CalculatorConfigData {
         	continue;
         this.vs30Reference = Double.parseDouble(sRecord);
         
+        // read include area source
+        while((sRecord=oReader.readLine()).contains(comment.subSequence(0, comment.length()))  || sRecord.isEmpty())
+        	continue;
+        if(sRecord.equalsIgnoreCase("yes")){
+        	this.includeAreaSource = true;
+        }
+        else{
+        	this.includeAreaSource = false;
+        }
+        
+        // read area source rupture model
+        while((sRecord=oReader.readLine()).contains(comment.subSequence(0, comment.length()))  || sRecord.isEmpty())
+        	continue;
+        this.areaSourceRuptureModel = sRecord;
+        
+        // read area source discretization   
+        while((sRecord=oReader.readLine()).contains(comment.subSequence(0, comment.length()))  || sRecord.isEmpty())
+        	continue;
+        this.areaSourceDiscretization = Double.parseDouble(sRecord);
+        
+        // read mag-area scaling relationship
+        while((sRecord=oReader.readLine()).contains(comment.subSequence(0, comment.length()))  || sRecord.isEmpty())
+        	continue;
+        this.areaSourceMagAreaRel = sRecord;
+        
         // read MFD bin width
         while((sRecord=oReader.readLine()).contains(comment.subSequence(0, comment.length()))  || sRecord.isEmpty())
         	continue;
@@ -185,25 +227,33 @@ public class CalculatorConfigData {
             while((sRecord=oReader.readLine()).contains(comment.subSequence(0, comment.length()))  || sRecord.isEmpty())
             	continue;
             this.probExc = Double.parseDouble(sRecord);
-        	
-            // read rectangle coordinates
+            
+            // read region boundary
             while((sRecord=oReader.readLine()).contains(comment.subSequence(0, comment.length()))  || sRecord.isEmpty())
             	continue;
-            
             st = new StringTokenizer(sRecord);
-            
-            double lon = Double.parseDouble(st.nextToken());
-            double lat = Double.parseDouble(st.nextToken());
-            this.leftLowerCorner = new Location(lat,lon);
-            
-            lon = Double.parseDouble(st.nextToken());
-            lat = Double.parseDouble(st.nextToken());
-            this.upperRightCorner = new Location(lat,lon);
+            // number of vertices
+            int numVert = (st.countTokens()-1)/2;
+            this.regionBoundary = new LocationList();
+            for(int i=0;i<numVert;i++){
+            	this.regionBoundary.add(new Location(Double.parseDouble(st.nextToken()),Double.parseDouble(st.nextToken())));
+            }
             
             // read grid spacing
             this.gridSpacing = Double.parseDouble(st.nextToken());
         	
         }
+        else{
+        	System.out.println(this.resultType+" is not supported!");
+        	System.out.println("Execution stopped.");
+        	System.exit(0);
+        }
+        
+        // read number of samples to be generated
+        while((sRecord=oReader.readLine()).contains(comment.subSequence(0, comment.length()))  || sRecord.isEmpty())
+        	continue;
+        this.numHazCurve = Integer.parseInt(sRecord);
+        
         
         // close file
 		oFIS.close();
@@ -284,16 +334,36 @@ public class CalculatorConfigData {
 		return probExc;
 	}
 
-	public static Location getLeftLowerCorner() {
-		return leftLowerCorner;
-	}
-
-	public static Location getUpperRightCorner() {
-		return upperRightCorner;
-	}
-
 	public static Double getGridSpacing() {
 		return gridSpacing;
+	}
+
+	public static Double getMaxDistance() {
+		return maxDistance;
+	}
+
+	public static LocationList getRegionBoundary() {
+		return regionBoundary;
+	}
+
+	public static Integer getNumHazCurve() {
+		return numHazCurve;
+	}
+
+	public static Boolean getIncludeAreaSource() {
+		return includeAreaSource;
+	}
+
+	public static String getAreaSourceRuptureModel() {
+		return areaSourceRuptureModel;
+	}
+
+	public static Double getAreaSourceDiscretization() {
+		return areaSourceDiscretization;
+	}
+
+	public static String getAreaSourceMagAreaRel() {
+		return areaSourceMagAreaRel;
 	}
 
 }

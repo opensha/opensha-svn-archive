@@ -305,6 +305,8 @@ public class GmpeLogicTreeData {
     		// create an instance of the class
     		AttenuationRelationship ar = (AttenuationRelationship) cstr.newInstance(ParameterChangeWarningListener(event));
     		
+    		// set defaults parameters
+    		ar.setParamDefaults();
     		
     		// set component
     		// first check if the chosen component is allowed

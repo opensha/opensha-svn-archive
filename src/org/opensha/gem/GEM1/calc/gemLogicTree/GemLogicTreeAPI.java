@@ -31,4 +31,6 @@ public interface GemLogicTreeAPI<Element> extends Iterable<Element> {
 	
 	public void saveGemLogicTreeModel(String fileName) throws Exception;
 	
+	public int sampleBranchingLevel(int branchingLevelIndex);
+	
 }

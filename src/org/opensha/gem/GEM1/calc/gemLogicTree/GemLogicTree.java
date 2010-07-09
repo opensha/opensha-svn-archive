@@ -21,7 +21,9 @@ public class GemLogicTree<Element> implements GemLogicTreeAPI<Element>, Serializ
 
 	private ArrayList<GemLogicTreeBranchingLevel> branLevLst;
 	protected HashMap<String,Element> ebMap;
-	private String modelName;
+	private static String modelName;
+	
+	private Boolean D = false;
 	
 	public GemLogicTree(){
 		this.branLevLst = new ArrayList<GemLogicTreeBranchingLevel>();
@@ -180,5 +182,63 @@ public class GemLogicTree<Element> implements GemLogicTreeAPI<Element>, Serializ
 	    	System.out.println("\n\n");
 	    	
 	    }
+	}
+	
+	/**
+	 * This method samples a branching level and return the index of a branch. 
+	 * The sampling is done using the inverse transform method.
+	 * (For the algorithm description see "Computational Statistics Handbook 
+	 * with Matlab", Martinez & Martinez, Champman & all, pag.83)
+	 */
+	public int sampleBranchingLevel(int branchingLevelIndex){
+		
+		
+		int sample = -Integer.MIN_VALUE;
+		
+		// get the corresponding branching level
+		GemLogicTreeBranchingLevel bl = this.branLevLst.get(branchingLevelIndex);
+		
+		// x values
+		int[] x = new int[bl.getTreeBranchList().size()];
+		// p (probability values)
+		double[] p = new double[bl.getTreeBranchList().size()];
+		
+		// loop over branches
+		int i = 0;
+		for(GemLogicTreeBranch b: bl.getTreeBranchList()){
+			
+			x[i] = b.getRelativeID();
+			p[i] = b.getWeight();
+			if(D) System.out.println("label, prob: "+x[i]+" "+p[i]);
+			
+			i = i+1;
+			
+		}
+		
+		// compute cumulative distribution
+		double[] cdf = new double[p.length];
+		// initialize to zero
+		for(i=0;i<cdf.length;i++) cdf[i] = 0.0;
+		for(i=0;i<cdf.length;i++){
+			for(int j=0;j<=i;j++) cdf[i] = cdf[i] + p[j];
+		}
+		if(D) System.out.println("Cumulative distribution:");
+		if(D) for(i=0;i<cdf.length;i++) System.out.println(cdf[i]);
+		
+		// generate uniform random number between 0 and 1
+		double rand = Math.random();
+		if(D) System.out.println("Random number: "+rand);
+		
+		// loop over probabilities
+		for(int j=0;j<p.length;j++){
+			
+			if(rand<=cdf[j]){
+				sample = x[j];
+				break;
+			}
+						
+		}// end loop over probabilities
+		
+		return sample;
 	}
 }
