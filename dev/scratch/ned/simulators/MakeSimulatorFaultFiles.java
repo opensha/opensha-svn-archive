@@ -133,15 +133,15 @@ public class MakeSimulatorFaultFiles {
 						(float)newTop1.getLatitude() + "\t"+
 						(float)newTop1.getLongitude() + "\t"+
 						(float)newTop1.getDepth()*-1000 + "\t"+
-						(float)newTop2.getLatitude() + "\t"+
-						(float)newTop2.getLongitude() + "\t"+
-						(float)newTop2.getDepth()*-1000 + "\t"+
-						(float)newBot2.getLatitude() + "\t"+
-						(float)newBot2.getLongitude() + "\t"+
-						(float)newBot2.getDepth()*-1000 + "\t"+
 						(float)newBot1.getLatitude() + "\t"+
 						(float)newBot1.getLongitude() + "\t"+
 						(float)newBot1.getDepth()*-1000 + "\t"+
+						(float)newBot2.getLatitude() + "\t"+
+						(float)newBot2.getLongitude() + "\t"+
+						(float)newBot2.getDepth()*-1000 + "\t"+
+						(float)newTop2.getLatitude() + "\t"+
+						(float)newTop2.getLongitude() + "\t"+
+						(float)newTop2.getDepth()*-1000 + "\t"+
 						sectionName;
 
 					System.out.println(line);
