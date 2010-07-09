@@ -95,10 +95,11 @@ public class MakeSimulatorFaultFiles {
 					Location top1 = surface.get(row, col);
 					Location top2 = surface.get(row, col+1);
 					Location bot1 = surface.get(row+1, col);
-					Location bot2 = surface.get(row+1, col+1);
+//					Location bot2 = surface.get(row+1, col+1);
 					double[] strikeAndDip = PlaneUtils.getStrikeAndDip(top1, top2, bot1);
 					elementStrike = strikeAndDip[0];
-					elementDip = strikeAndDip[1];					
+					elementDip = strikeAndDip[1];	
+					
 					double hDistAlong = elementLength/2;
 					double dipRad = Math.PI*elementDip/180;
 					double vDist = (elementDDW/2)*Math.sin(dipRad);
