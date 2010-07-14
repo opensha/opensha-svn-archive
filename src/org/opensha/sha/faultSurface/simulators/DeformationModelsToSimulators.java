@@ -1,4 +1,4 @@
-package scratch.ned.simulators;
+package org.opensha.sha.faultSurface.simulators;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,15 +9,23 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.PlaneUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
-public class MakeSimulatorFaultFiles {
+public class DeformationModelsToSimulators {
 
 	protected final static boolean D = false;  // for debugging
+	
+	private boolean aseisReducesArea;
+	private double maxDiscretization;
+	private ArrayList<FaultSectionPrefData> allFaultSectionPrefData;
+	
 
-	public MakeSimulatorFaultFiles(double maxDiscretization) {
+	public DeformationModelsToSimulators(int deformationModelID,
+			boolean aseisReducesArea,
+			double maxDiscretization) {
 
 		/** Set the deformation model
 		 * D2.1 = 82
@@ -27,13 +35,13 @@ public class MakeSimulatorFaultFiles {
 		 * D2.5 = 86
 		 * D2.6 = 87
 		 */
-		int deformationModelId = 82;
 		
-		boolean aseisReducesArea = false;
+		this.aseisReducesArea = aseisReducesArea;
+		this.maxDiscretization = maxDiscretization;
 
 		// fetch the sections
 		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
-		ArrayList<FaultSectionPrefData> allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelId);
+		allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelID);
 
 		//Alphabetize:
 		Collections.sort(allFaultSectionPrefData, new NamedObjectComparator());
@@ -66,11 +74,18 @@ public class MakeSimulatorFaultFiles {
 		  System.out.println("Max Down-Dip Width = "+maxDDW+" for "+allFaultSectionPrefData.get(index).getSectionName());
 		 */	
 		
+		
+
+	}
+	
+	public ArrayList<SimulatorFaultSurface> getSimulatorSurfaces() {
+		ArrayList<SimulatorFaultSurface> surfaces = new ArrayList<SimulatorFaultSurface>();
+		
 		// Loop over sections and create the simulator elements
 		int elementID =0;
 		int numberAlongStrike = 0;
 		int numberDownDip;
-		String faultNumber = "NA";
+		int faultNumber = -1;
 		int sectionNumber =0;
 		double elementSlipRate=0;
 		double elementStrength = Double.NaN;
@@ -119,37 +134,53 @@ public class MakeSimulatorFaultFiles {
 					vect.set(elementStrike+90, hDist, vDist); // down-dip direction
 					Location newBot2 = LocationUtils.location(newMid2, vect);
 					
+					Location[][] pts = new Location[2][2];
+					pts[0][0] = newTop1;
+					pts[0][1] = newTop2;
+					pts[1][0] = newBot1;
+					pts[1][1] = newBot2;
+					
+					FocalMechanism focalMech = new FocalMechanism(elementStrike, elementDip, elementRake);
+					
 					elementID +=1;
 					
-					String line = elementID + "\t"+
-						numberAlongStrike + "\t"+
-						numberDownDip + "\t"+
-						faultNumber + "\t"+
-						sectionNumber + "\t"+
-						(float)elementSlipRate + "\t"+
-						(float)elementStrength + "\t"+
-						(float)elementStrike + "\t"+
-						(float)elementDip + "\t"+
-						(float)elementRake + "\t"+
-						(float)newTop1.getLatitude() + "\t"+
-						(float)newTop1.getLongitude() + "\t"+
-						(float)newTop1.getDepth()*-1000 + "\t"+
-						(float)newBot1.getLatitude() + "\t"+
-						(float)newBot1.getLongitude() + "\t"+
-						(float)newBot1.getDepth()*-1000 + "\t"+
-						(float)newBot2.getLatitude() + "\t"+
-						(float)newBot2.getLongitude() + "\t"+
-						(float)newBot2.getDepth()*-1000 + "\t"+
-						(float)newTop2.getLatitude() + "\t"+
-						(float)newTop2.getLongitude() + "\t"+
-						(float)newTop2.getDepth()*-1000 + "\t"+
-						sectionName;
-
-					System.out.println(line);
+					SimulatorFaultSurface simSurface =
+						new SimulatorFaultSurface(elementID, pts, sectionName,
+								faultNumber, sectionNumber, numberAlongStrike, numberDownDip,
+								elementSlipRate, elementStrength, focalMech);
+					
+					surfaces.add(simSurface);
+					
+//					String line = elementID + "\t"+
+//						numberAlongStrike + "\t"+
+//						numberDownDip + "\t"+
+//						faultNumber + "\t"+
+//						sectionNumber + "\t"+
+//						(float)elementSlipRate + "\t"+
+//						(float)elementStrength + "\t"+
+//						(float)elementStrike + "\t"+
+//						(float)elementDip + "\t"+
+//						(float)elementRake + "\t"+
+//						(float)newTop1.getLatitude() + "\t"+
+//						(float)newTop1.getLongitude() + "\t"+
+//						(float)newTop1.getDepth()*-1000 + "\t"+
+//						(float)newBot1.getLatitude() + "\t"+
+//						(float)newBot1.getLongitude() + "\t"+
+//						(float)newBot1.getDepth()*-1000 + "\t"+
+//						(float)newBot2.getLatitude() + "\t"+
+//						(float)newBot2.getLongitude() + "\t"+
+//						(float)newBot2.getDepth()*-1000 + "\t"+
+//						(float)newTop2.getLatitude() + "\t"+
+//						(float)newTop2.getLongitude() + "\t"+
+//						(float)newTop2.getDepth()*-1000 + "\t"+
+//						sectionName;
+//
+//					System.out.println(line);
 				}
 			}
 		}
-
+		
+		return surfaces;
 	}
 	
 	/**
@@ -157,7 +188,7 @@ public class MakeSimulatorFaultFiles {
 	 */
 	public static void main(String[] args) {
 		long startTime=System.currentTimeMillis();
-		new MakeSimulatorFaultFiles(4.0);
+		new DeformationModelsToSimulators(82, false, 4.0);
 		int runtime = (int)(System.currentTimeMillis()-startTime)/1000;
 		System.out.println("Run took "+runtime+" seconds");
 	}
