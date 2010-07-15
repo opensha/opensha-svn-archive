@@ -53,7 +53,7 @@ public class DeformationModelPrefDataFinal implements Serializable {
 	private static HashMap aseismicSlipMap;
 	private static HashMap stdDevMap;
 	private static HashMap faultSectionIdIndexMapMap; // a map of maps (the array index for each Id, for each def model)
-	private static HashMap faultSectionIdMap; // contains Array list of fault sections Ids for each def model
+	private static HashMap<Integer, ArrayList<Integer>> faultSectionIdMap; // contains Array list of fault sections Ids for each def model
 	
 	private PrefFaultSectionDataFinal prefFaultSectionDataFinal;
 	
@@ -170,8 +170,8 @@ public class DeformationModelPrefDataFinal implements Serializable {
 	 * @param deformationModelId
 	 * @return
 	 */
-	public ArrayList getFaultSectionIdsForDeformationModel(int deformationModelId) {
-		return (ArrayList) faultSectionIdMap.get(deformationModelId);
+	public ArrayList<Integer> getFaultSectionIdsForDeformationModel(int deformationModelId) {
+		return faultSectionIdMap.get(deformationModelId);
 	}
 	
 	/**
