@@ -91,8 +91,9 @@ public class DeformationModelsToSimulators {
 		double elementStrength = Double.NaN;
 		double elementStrike=0, elementDip=0, elementRake=0;
 		String sectionName;
+		System.out.println("got here");
 		for(int i=0;i<allFaultSectionPrefData.size();i++) {
-//		for(int i=0;i<1;i++) {
+//		for(int i=0;i<2;i++) {
 			sectionNumber +=1;
 			FaultSectionPrefData faultSectionPrefData = allFaultSectionPrefData.get(i);
 			StirlingGriddedSurface surface = new StirlingGriddedSurface(faultSectionPrefData.getSimpleFaultData(aseisReducesArea), maxDiscretization, maxDiscretization);
@@ -105,6 +106,7 @@ public class DeformationModelsToSimulators {
 			for(int col=0; col<gridCenteredSurf.getNumCols();col++) {
 				numberAlongStrike += 1;
 				for(int row=0; row<gridCenteredSurf.getNumRows();row++) {
+					elementID +=1;
 					numberDownDip = row+1;
 					Location centerLoc = gridCenteredSurf.get(row, col);
 					Location top1 = surface.get(row, col);
@@ -120,16 +122,18 @@ public class DeformationModelsToSimulators {
 					double vDist = (elementDDW/2)*Math.sin(dipRad);
 					double hDist = (elementDDW/2)*Math.cos(dipRad);
 					
+//					System.out.println(elementID+"\telementDDW="+elementDDW+"\telementDip="+elementDip+"\tdipRad="+dipRad+"\tvDist="+vDist+"\thDist="+hDist);
+					
 					LocationVector vect = new LocationVector(elementStrike+180, hDistAlong, 0);
 					Location newMid1 = LocationUtils.location(centerLoc, vect);  // half way down the first edge
-					vect.set(elementStrike-90, hDist, vDist); // up-dip direction
+					vect.set(elementStrike-90, hDist, -vDist); // up-dip direction
 					Location newTop1 = LocationUtils.location(newMid1, vect);
 					vect.set(elementStrike+90, hDist, vDist); // down-dip direction
 					Location newBot1 = LocationUtils.location(newMid1, vect);
 					 
 					vect.set(elementStrike, hDistAlong, 0);
 					Location newMid2 = LocationUtils.location(centerLoc, vect); // half way down the other edge
-					vect.set(elementStrike-90, hDist, vDist); // up-dip direction
+					vect.set(elementStrike-90, hDist, -vDist); // up-dip direction
 					Location newTop2 = LocationUtils.location(newMid2, vect);
 					vect.set(elementStrike+90, hDist, vDist); // down-dip direction
 					Location newBot2 = LocationUtils.location(newMid2, vect);
@@ -139,11 +143,16 @@ public class DeformationModelsToSimulators {
 					pts[0][1] = newTop2;
 					pts[1][0] = newBot1;
 					pts[1][1] = newBot2;
-					
+/*					
+					if(elementID==254) {
+						System.out.println(newTop1);
+						System.out.println(newTop2);
+						System.out.println(newBot1);
+						System.out.println(newBot2);
+					}
+*/					
 					FocalMechanism focalMech = new FocalMechanism(elementStrike, elementDip, elementRake);
-					
-					elementID +=1;
-					
+										
 					SimulatorFaultSurface simSurface =
 						new SimulatorFaultSurface(elementID, pts, sectionName,
 								faultNumber, sectionNumber, numberAlongStrike, numberDownDip,
@@ -188,7 +197,8 @@ public class DeformationModelsToSimulators {
 	 */
 	public static void main(String[] args) {
 		long startTime=System.currentTimeMillis();
-		new DeformationModelsToSimulators(82, false, 4.0);
+		DeformationModelsToSimulators test = new DeformationModelsToSimulators(82, false, 4.0);
+		test.getSimulatorSurfaces();
 		int runtime = (int)(System.currentTimeMillis()-startTime)/1000;
 		System.out.println("Run took "+runtime+" seconds");
 	}
