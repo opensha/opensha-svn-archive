@@ -366,6 +366,74 @@ public  class ERF2DB implements ERF2DBAPI{
 
 		return ids;
 	}
+	
+	public ArrayList<CybershakeRuptureRecord> getRuptures(int erfID, int sourceID) {
+		String sql = "SELECT Rupture_ID, Mag, Prob FROM Ruptures WHERE ERF_ID="+erfID+" AND Source_ID="+sourceID;
+		
+		ArrayList<CybershakeRuptureRecord> records = new ArrayList<CybershakeRuptureRecord>();
+		
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			return null;
+		}
+		try {
+			rs.first();
+			while(!rs.isAfterLast()){
+				int rupID = rs.getInt("Rupture_ID");
+				double mag = rs.getDouble("Mag");
+				double prob = rs.getDouble("Prob");
+				records.add(new CybershakeRuptureRecord(sourceID, rupID, mag, prob));
+				rs.next();
+			}
+			rs.close();
+		} catch (SQLException e) {
+			//			e.printStackTrace();
+		}
+		
+		return records;
+	}
+	
+	public void loadRVs(int erfID, int rupVarScenID, int sourceID, int rupID,
+			ArrayList<String> lfns, ArrayList<Location> hypocenterLocs) {
+		String sql = "SELECT Rup_Var_LFN, Hypocenter_Lat, Hypocenter_Lon, Hypocenter_Depth" +
+				" FROM Rupture_Variations WHERE Rup_Var_Scenario_ID="+rupVarScenID+" and ERF_ID="+erfID+
+				" and Source_ID="+sourceID+" and Rupture_ID="+rupID;
+		//		System.out.println(sql);
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			return;
+		}
+		try {
+			rs.first();
+			while(!rs.isAfterLast()){
+				String lfn = rs.getString("Rup_Var_LFN");
+				double lat = rs.getDouble("Hypocenter_Lat");
+				double lon = rs.getDouble("Hypocenter_Lon");
+				double depth = rs.getDouble("Hypocenter_Depth");
+				//				System.out.println("Loaded source " + id);
+				Location hypo = null;
+				if (lat != 0 && lon != 0 && depth != 0) {
+					hypo = new Location(lat, lon, depth);
+				}
+				lfns.add(lfn);
+				hypocenterLocs.add(hypo);
+				rs.next();
+			}
+			rs.close();
+		} catch (SQLException e) {
+			//			e.printStackTrace();
+		}
+
+		return;
+	}
 
 	public void loadSourceList(int erfID, ArrayList<Integer> ids, ArrayList<String> names) {
 		String sql = "SELECT distinct Source_ID,Source_Name from Ruptures WHERE ERF_ID=" + erfID + " order by Source_ID";
