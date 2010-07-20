@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EmptyStackException;
 import java.util.Stack;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Class for calculating a {@link Collection} of embarassingly parallel {@link Task}
@@ -15,24 +17,27 @@ import java.util.Stack;
  */
 public class ThreadedTaskComputer implements Runnable {
 	
-	private Stack<Task> stack;
+	private Stack<? extends Task> stack;
 	
-	public ThreadedTaskComputer(Collection<Task> tasks) {
+	private TimerTask progressTimerTask = null;
+	private int timerPeriodMilis = 5000;
+	
+	public ThreadedTaskComputer(Collection<? extends Task> tasks) {
 		this(tasks, true);
 	}
 	
-	private static Stack<Task> colToStack(Collection<Task> tasks) {
+	private static Stack<Task> colToStack(Collection<? extends Task> tasks) {
 		Stack<Task> stack = new Stack<Task>();
 		for (Task task : tasks)
 			stack.push(task);
 		return stack;
 	}
 	
-	public ThreadedTaskComputer(Collection<Task> tasks, boolean shuffle) {
+	public ThreadedTaskComputer(Collection<? extends Task> tasks, boolean shuffle) {
 		this(colToStack(tasks), shuffle);
 	}
 	
-	public ThreadedTaskComputer(Stack<Task> stack, boolean shuffle) {
+	public ThreadedTaskComputer(Stack<? extends Task> stack, boolean shuffle) {
 		this.stack = stack;
 		
 		if (shuffle)
@@ -75,10 +80,18 @@ public class ThreadedTaskComputer implements Runnable {
 		
 		ArrayList<Thread> threads = new ArrayList<Thread>();
 		
+		Timer timer = null;
+		
 		// create the threads
 		for (int i=0; i<numThreads; i++) {
 			Thread t = new Thread(this);
 			threads.add(t);
+		}
+		
+		// init the progress timer
+		if (progressTimerTask != null) {
+			timer = new Timer();
+			timer.schedule(progressTimerTask, 0, timerPeriodMilis);
 		}
 
 		// start the threads
@@ -89,6 +102,11 @@ public class ThreadedTaskComputer implements Runnable {
 		// join the threads
 		for (Thread t : threads) {
 			t.join();
+		}
+		
+		// kill the timer
+		if (timer != null) {
+			timer.cancel();
 		}
 	}
 
@@ -102,6 +120,20 @@ public class ThreadedTaskComputer implements Runnable {
 				break;
 			}
 		}
+	}
+	
+	public void setProgressTimer(TimerTask progressTimerTask) {
+		this.progressTimerTask = progressTimerTask;
+	}
+	
+	public void setProgressTimer(TaskProgressListener listener, int precentMod) {
+		ArrayList<TaskProgressListener> listeners = new ArrayList<TaskProgressListener>();
+		listeners.add(listener);
+		setProgressTimer(listeners, precentMod);
+	}
+	
+	public void setProgressTimer(ArrayList<TaskProgressListener> listeners, int precentMod) {
+		progressTimerTask = new StackPrecentWatcher(stack, precentMod, listeners);
 	}
 
 }

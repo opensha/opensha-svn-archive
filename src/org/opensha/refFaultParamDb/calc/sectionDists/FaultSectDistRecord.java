@@ -118,6 +118,31 @@ public class FaultSectDistRecord implements Serializable {
 		return minDist;
 	}
 	
+	public boolean calcIsWithinDistThresh(double distThresh, SurfaceFilter filter, boolean fast) {
+		for (int i1=0; i1<surface1.getNumRows(); i1++) {
+			for (int j1=0; j1<surface1.getNumCols(); j1++) {
+				if (filter != null && !filter.isIncluded(surface1, i1, j1))
+					continue;
+				Location loc1 = surface1.get(i1, j1);
+				for (int i2=0; i2<surface2.getNumRows(); i2++) {
+					for (int j2=0; j2<surface2.getNumCols(); j2++) {
+						if (filter != null && !filter.isIncluded(surface2, i2, j2))
+							continue;
+						Location loc2 = surface2.get(i2, j2);
+						double dist;
+						if (fast)
+							dist = LocationUtils.linearDistanceFast(loc1, loc2);
+						else
+							dist = LocationUtils.linearDistance(loc1, loc2);
+						if (dist < distThresh)
+							return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
 	public double calcMinDist(SurfaceFilter filter, boolean fast) {
 		calcDistances(filter, fast);
 		return minDist;
