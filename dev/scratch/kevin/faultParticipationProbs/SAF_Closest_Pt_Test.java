@@ -3,6 +3,7 @@ package scratch.kevin.faultParticipationProbs;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -92,7 +93,7 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 			}
 		}
 //		Collections.shuffle(tasks);
-//		while (tasks.size() > 400) // TODO REMOVE THIS SPEED HACK!!!
+//		while (tasks.size() > 100) // TODO REMOVE THIS SPEED HACK!!!
 //			tasks.remove(tasks.size() -1);
 		printTimes(sources.size(), 1d);
 		calcStartTime = System.currentTimeMillis();
@@ -139,7 +140,7 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 		
 	}
 	
-	public void writeFiles(String dir, double mag) throws IOException {
+	public void writeFiles(String dir, float[] mags) throws IOException {
 		File pDirFile = new File(dir + File.separator + "prob");
 		File rDirFile = new File(dir + File.separator + "rate");
 		if (!pDirFile.exists())
@@ -151,17 +152,35 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 				String safeName = fault.getSafeName();
 				String rateFileName = rDirFile.getAbsolutePath() + File.separator + "rate_" + safeName + ".txt";
 				String probFileName = pDirFile.getAbsolutePath() + File.separator + "prob_" + safeName + ".txt";
-				Container2D<Double> rates = fault.getRatesForMag(mag);
-				Container2D<Double> probs = fault.getProbsForMag(mag, rates);
+				Container2D<Double>[] rates = new Container2D[mags.length];
+				Container2D<Double>[] probs = new Container2D[mags.length];
+				for (int i=0; i<mags.length; i++) {
+					rates[i] = fault.getRatesForMag(mags[i]);
+					probs[i] = fault.getProbsForMag(mags[i], rates[i]);
+				}
 				FileWriter rfw = new FileWriter(rateFileName);
 				FileWriter pfw = new FileWriter(probFileName);
 				
-				for (int row=0; row<rates.getNumRows(); row++) {
-					for (int col=0; col<rates.getNumCols(); col++) {
+				String header = "#lat\tlon\tdepth";
+				for (float mag : mags) {
+					header += "\t" + mag;
+				}
+				
+				rfw.write(header + "\n");
+				pfw.write(header + "\n");
+				
+				for (int row=0; row<fault.getSurface().getNumRows(); row++) {
+					for (int col=0; col<fault.getSurface().getNumCols(); col++) {
 						Location loc = fault.getSurface().get(row, col);
 						String locStr = loc.getLatitude() + "\t" + loc.getLongitude() + "\t" + loc.getDepth();
-						rfw.write(locStr + "\t" + rates.get(row, col) + "\n");
-						pfw.write(locStr + "\t" + probs.get(row, col) + "\n");
+						String rLine = locStr;
+						String pLine = locStr;
+						for (int i=0; i<mags.length; i++) {
+							rLine += "\t" + rates[i].get(row, col);
+							pLine += "\t" + probs[i].get(row, col);
+						}
+						rfw.write(rLine + "\n");
+						pfw.write(pLine + "\n");
 					}
 				}
 				rfw.close();
@@ -340,8 +359,11 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 		SAF_Closest_Pt_Test calc =
 			new SAF_Closest_Pt_Test(data, defModel, sources, minMag, maxMag, numMagBins, duration);
 		calc.loadMFDs();
-		double mag = 6.7;
-		calc.writeFiles("pp_files", mag);
+		float[] mags = new float[numMagBins];
+		for (int i=0; i<numMagBins; i++) {
+			mags[i] =(float)(minMag + 0.1*(float)i);
+		}
+		calc.writeFiles("pp_files", mags);
 	}
 	
 	private void printTimes(int tasksDone, double pDone) {
