@@ -128,7 +128,8 @@ public class GEMHazardCurveRepositoryList {
 			// loop over ground motion values
 			for(Double gml: hcRep.getGmLevels()){
 				
-				// array list containing probability of exceedance values
+				// array list containing probability of exceedance values 
+				// for the current ground motion values
 				ArrayList<Double> probExValList = new ArrayList<Double>();
 				
 				// loop over hazard curves realizations
@@ -139,13 +140,24 @@ public class GEMHazardCurveRepositoryList {
 					
 				}
 				
+//				System.out.println("prob values before sorting: ");
+//				for(int iv=0;iv<probExValList.size();iv++) System.out.println(probExValList.get(iv));
+				
 				// sort values from smallest to largest (that is ascending order)
 				Collections.sort(probExValList);
+				
+//				System.out.println("prob values after sorting: ");
+//				for(int iv=0;iv<probExValList.size();iv++) System.out.println(probExValList.get(iv));
+				
 				
 				// loop over sorted values and find the one corresponding to
 				// the specified quantile
 				for(int iv=0;iv<probExValList.size();iv++){
-					if(probLevel>(iv)/probExValList.size() && probLevel<=(iv+1)/probExValList.size()){
+					double index = new Double(iv);
+					double size = new Double(probExValList.size());
+					double lev1 = index/size;
+					double lev2 = (index+1)/size;
+					if(probLevel>lev1 && probLevel<=lev2){
 						probEx[indexGMV] = probExValList.get(iv);
 						break;
 					}
