@@ -9,17 +9,21 @@
 // For this last entry, there are two special cases: the string "NONE" represents the case in which
 // the branching level does not apply to anything (this is only used for the first branching level), 
 // and the string "ALL" indicating that the branching level applies to all previously created branches 
+// NOTE: in the present version these are the only two options supported.
 
 // A branching level is then populated by one or more branches. A set of branches is defined by the keyword
 // "BranchSet".
-// A "BranchSet" is defined by an uncertainty model type (specifying how the uncertainty model is defined). Currently
+// A "BranchSet" is defined by an uncertainty model descriptor (specifying how the uncertainty model is defined). Currently
 // there are two ways to specify an uncertainty model:
 //         - inputfile: ASCII input file defining a source model
 //         - rule: predefined string defining a single parameter uncertainty model
 // If "inputfile" is chosen then the user must provide one or more input file names (including paths)
-// together with descriptor strings and associated weights. 
+// together with descriptor strings and associated weights. NOTE: in the present version only input models with area source area sources are supported.
 // If "rule" is chosen then the user must provide a rule descriptor string (among the ones that the software can process)
 // and one or more parameter uncertainties values, together with the associated weights.
+// NOTE: the only rules implemented so far are:
+// - mMaxGRRelative: relative uncertainties on maximum magnitude for GR mfd (uncertainties are applied conserving total moment rate)
+// - bGRRelative: relative uncertainties on GR b value (uncertainties are applied conserving total moment rate)
 
 // keyword "BranchingLevel" define beginning of branching level definition
 BranchingLevel
@@ -40,7 +44,7 @@ inputfile
 // input file descriptor(s) (in each descriptor spaces are not allowed)
 source_geometry_model_#1   source_geometry_model_#2
 // weight(s)
-0.3  0.7
+1.0  0.0
 
 // We define now the second branching level. This branching level
 // describe uncertainties on the maximum magnitude.
@@ -58,11 +62,13 @@ BranchSet
 rule
 // rule descriptor (in this case the following numbers represent
 // relative uncertainties (that is to be added) on the maximum magnitude 
-mMaxRelative
+mMaxGRRelative
 // uncertainty values
-0.2 0.0 -0.2
+//0.2 0.0 -0.2
+0.0
 // uncertainty weights
-0.2 0.6 0.2
+//0.2 0.6 0.2
+1.0
 
 // We define now the third branching level. This branching level
 // describe uncertainties on the Gutenberg-Richter b value

@@ -24,4 +24,4 @@ Active Shallow Crust
 // gmpe name (opensha class name)
 BA_2008_AttenRel CB_2008_AttenRel
 // gmpe weights
-0.5 0.5
+1.0 0.0

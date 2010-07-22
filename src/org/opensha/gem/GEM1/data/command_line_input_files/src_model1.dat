@@ -5,7 +5,7 @@ newsource
 // source id
 src01
 // source name
-Quito area source
+Quito area source Model 1
 // tectonic region type
 Active Shallow Crust
 
@@ -41,12 +41,9 @@ gr 5.0 0.8 7.0
 // Format (depth is positive [km]): 
 // <mag_1> <dep_1> <mag_2> <dep_2> â..., <mag_n> <dep_n> 
 6.0 5.0 6.5 3.0 7.0 0.0
-// Here we define the the hypocentral depth [km] for the 
+// Here we define the hypocentral depth [km] for the 
 // seismicity modeled as point source (i.e. the 
 // seismicity with magnitude lower than the lower value
 // of magnitude used in the description of the depth to 
 // the top of rupture.
-// For example, if all the seismicity must be treated as
-// punctual just simply put 10.0 0.0 as the unique depth 
-// to the top of rupture 
 5.0
