@@ -3,7 +3,7 @@ package org.opensha.gem.GEM1.calc.gemLogicTree;
 public enum GemLogicTreeRuleParam {
 	
 	/** uncertainties on maximum magnitude */
-	mMaxRelative("mMaxRelative"),
+	mMaxGRRelative("mMaxGRRelative"),
 	
     /** uncertainties on GR b value*/
 	bGRRelative("bGRRelative");
