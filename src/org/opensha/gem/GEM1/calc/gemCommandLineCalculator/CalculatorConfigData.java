@@ -157,7 +157,8 @@ public class CalculatorConfigData {
         while((sRecord=oReader.readLine()).contains(comment.subSequence(0, comment.length()))  || sRecord.isEmpty())
         	continue;
         st = new StringTokenizer(sRecord);
-        for(int i=0;i<st.countTokens();i++) this.imlList.set(Double.parseDouble(st.nextToken()), 1.0);
+        int numGMV = st.countTokens();
+        for(int i=0;i<numGMV;i++) this.imlList.set(Math.log(Double.parseDouble(st.nextToken())), 1.0);
         
         // read truncation type
         while((sRecord=oReader.readLine()).contains(comment.subSequence(0, comment.length()))  || sRecord.isEmpty())

@@ -34,7 +34,9 @@ import org.opensha.gem.GEM1.util.CpuParams;
 import org.opensha.gem.GEM1.util.DistanceParams;
 import org.opensha.gem.GEM1.util.IMLListParams;
 import org.opensha.gem.GEM1.util.SiteParams;
+import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.griddedForecast.MagFreqDistsForFocalMechs;
+import org.opensha.sha.earthquake.rupForecastImpl.GriddedRegionPoissonEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMAreaSourceData;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSourceData;
@@ -62,16 +64,7 @@ public class CommandLineCalculator {
 //		/Users/damianomonelli/Documents/Workspace/OpenSHA/src/org/opensha/gem/GEM1/data/command_line_input_files/CalculatorConfig.inp
 		
 		// calculator configuration file
-		String calculatorConfigFile = null;
-		
-		// set up reader from standard input
-        InputStreamReader inp = new InputStreamReader(System.in);
-        BufferedReader br = new BufferedReader(inp);
-
-        // ask for calculator configuration file
-	    System.out.println("Enter calculator configuration file (press Enter to continue): ");
-	    // read file name
-	    calculatorConfigFile = br.readLine();
+		String calculatorConfigFile = "/Users/damianomonelli/Documents/Workspace/OpenSHA/src/org/opensha/gem/GEM1/data/command_line_input_files/CalculatorConfig.inp";
 	    
 	    // read configuration file
 	    CalculatorConfigData calcConfig = new CalculatorConfigData(calculatorConfigFile);
@@ -96,25 +89,16 @@ public class CommandLineCalculator {
 	    	System.out.println("Gmpe Logic Tree for "+trt);
 	    	gmpeLogicTree.getGmpeLogicTreeHashMap().get(trt).printGemLogicTreeStructure();
 	    } 
-	    
-	    // create gridded region from borders coordinates
-	    GriddedRegion gridReg = new GriddedRegion(calcConfig.getRegionBoundary(),BorderType.MERCATOR_LINEAR,calcConfig.getGridSpacing(),null);
-	    // list of locations in the region
-	    LocationList locList = gridReg.getNodeList();
-	    // store locations in a ArrayList of Sites
-	    ArrayList<Site> locs = new ArrayList<Site>();
-	    Iterator<Location> iter = locList.iterator();
-	    while(iter.hasNext()) locs.add(new Site(iter.next()));
-	    
-		// Instantiate the repository for the results
+   
+		// instantiate the repository for the results
 		GEMHazardCurveRepositoryList hcRepList = new GEMHazardCurveRepositoryList();
 	    
-	    // create region from border coordinates
-	    Region reg = new Region(calcConfig.getRegionBoundary(),BorderType.GREAT_CIRCLE);
-	    
+		// get list of sites where hazard curves have to be calculated
+		ArrayList<Site> locs = createLocList(calcConfig);
+		
 	    // loop over number of hazard curves to be generated
 	    for(int i=0;i<calcConfig.getNumHazCurve();i++){
-	    	
+
 	    	// do calculation
 			GemComputeHazard compHaz = new GemComputeHazard(
 					calcConfig.getNumThreads(), 
@@ -126,29 +110,80 @@ public class CommandLineCalculator {
 			
 			// store results
 			hcRepList.add(compHaz.getValues(),Integer.toString(i));
-			
-			// calculate fractiles
-			GEMHazardCurveRepository fractile = hcRepList.getQuantiles(0.5);
-			// save
-			saveFractiles(calcConfig.getOutputDir(), 0.5, fractile);
-			
-			// calculate fractiles
-			fractile = hcRepList.getQuantiles(0.25);
-			// save
-			saveFractiles(calcConfig.getOutputDir(), 0.25, fractile);
-			
-			// calculate fractiles
-			fractile = hcRepList.getQuantiles(0.75);
-			// save
-			saveFractiles(calcConfig.getOutputDir(), 0.75, fractile);
-	    	
 	    	
 	    }
+	    
+		// save hazard curves
+		saveHazardCurves(calcConfig.getOutputDir(),hcRepList);
+		
+		// calculate fractiles (median)
+		GEMHazardCurveRepository fractile = hcRepList.getQuantiles(0.5);
+		// save
+		saveFractiles(calcConfig.getOutputDir(), 0.5, fractile);
+		
+		// calculate fractiles (1st quartile)
+		fractile = hcRepList.getQuantiles(0.25);
+		// save
+		saveFractiles(calcConfig.getOutputDir(), 0.25, fractile);
+		
+		// calculate fractiles (3rd quartile)
+		fractile = hcRepList.getQuantiles(0.75);
+		// save
+		saveFractiles(calcConfig.getOutputDir(), 0.75, fractile);
+		
+		System.exit(0);
 	    
 	    
 	    
 
 	} // end main
+	
+	private static void saveHazardCurves(String dirName, GEMHazardCurveRepositoryList hazardCurves) throws IOException{
+
+		String outfile = dirName+"hazardCurves"+".dat";
+		
+		FileOutputStream oOutFIS = new FileOutputStream(outfile);
+        BufferedOutputStream oOutBIS = new BufferedOutputStream(oOutFIS);
+        BufferedWriter oWriter = new BufferedWriter(new OutputStreamWriter(oOutBIS));
+       
+        // first line contains ground motion values
+		// loop over ground motion values
+        oWriter.write(String.format("%8s %8s "," "," "));
+		for(int igmv=0;igmv<hazardCurves.getHcRepList().get(0).getGmLevels().size();igmv++){
+			double gmv = hazardCurves.getHcRepList().get(0).getGmLevels().get(igmv);
+			gmv = Math.exp(gmv);
+			oWriter.write(String.format("%7.4e ",gmv));
+		}
+		oWriter.write("\n");
+		
+        // loop over grid points
+		for(int igp=0;igp<hazardCurves.getHcRepList().get(0).getNodesNumber();igp++){
+			
+			// loop over hazard curve realizations
+			for(int ihc=0;ihc<hazardCurves.getHcRepList().size();ihc++){
+				
+				double lat = hazardCurves.getHcRepList().get(0).getGridNode().get(igp).getLocation().getLatitude();
+				double lon = hazardCurves.getHcRepList().get(0).getGridNode().get(igp).getLocation().getLongitude();
+				oWriter.write(String.format("%+8.4f %+7.4f ",lon,lat));
+				
+				GEMHazardCurveRepository hcRep = hazardCurves.getHcRepList().get(ihc);
+				
+				// loop over ground motion values
+				for(int igmv=0;igmv<hcRep.getGmLevels().size();igmv++){
+					double probEx = hcRep.getProbExceedanceList(igp)[igmv];
+					oWriter.write(String.format("%7.4e ",probEx));
+				}
+				oWriter.write("\n");
+				
+			}
+			
+		}
+        oWriter.close();
+        oOutBIS.close();
+        oOutFIS.close();
+		
+	}
+	
 	
 	private static void saveFractiles(String dirName, double probLevel, GEMHazardCurveRepository fractile) throws IOException{
 
@@ -188,15 +223,23 @@ public class CommandLineCalculator {
 		
 	}
 	
-	private static ArrayList<Location> createLocList(Region reg, double gridSpacing){
+	private static ArrayList<Site> createLocList(CalculatorConfigData calcConfig){
 		
-		// array list of location
-		ArrayList<Location> locList = new ArrayList<Location>();
+	    // arraylist of sites storing locations where hazard curves must be calculated
+	    ArrayList<Site> locs = new ArrayList<Site>();
 		
-		// from region create gridded region
-		//GriddedRegion gridReg = new GriddedRegion(reg,gridSpacing);
+	    // create gridded region from borders coordinates and grid spacing
+	    GriddedRegion gridReg = new GriddedRegion(calcConfig.getRegionBoundary(),BorderType.MERCATOR_LINEAR,calcConfig.getGridSpacing(),null);
+	    
+	    // get list of locations in the region
+	    LocationList locList = gridReg.getNodeList();
+
+	    // store locations as sites
+	    Iterator<Location> iter = locList.iterator();
+	    while(iter.hasNext()) locs.add(new Site(iter.next()));
 		
-		return locList;
+	    // return array list of sites
+		return locs;
 	}
 	
 	private static GEM1ERF sampleGemLogicTreeERF(GemLogicTree<ArrayList<GEMSourceData>> ltERF, CalculatorConfigData calcConfig) throws IOException{
@@ -226,6 +269,13 @@ public class CommandLineCalculator {
 			// load sources
 			srcList = inputModelData.getSourceList();
 			
+//			// loop over sources and print total moment rate for each source
+//			System.out.println("Sources before sampling");
+//			for(int is=0;is<srcList.size();is++){
+//				GEMAreaSourceData src = (GEMAreaSourceData) srcList.get(is);
+//				System.out.println("Name: "+srcList.get(is).getName()+", total moment rate: "+src.getMagfreqDistFocMech().getFirstMagFreqDist().getTotalMomentRate());
+//			}
+			
 		}
 		else{
 			System.out.println("The first branching level of the ERF logic tree does not contain a source model!!");
@@ -252,9 +302,11 @@ public class CommandLineCalculator {
 					
 					// apply rule
 					// uncertainty on maximum magnitude
-	    			if(branch.getRule().getRuleName().toString().equalsIgnoreCase(GemLogicTreeRuleParam.mMaxRelative.toString())){
+	    			if(branch.getRule().getRuleName().toString().equalsIgnoreCase(GemLogicTreeRuleParam.mMaxGRRelative.toString())){
 	    				
 	    				if(src instanceof GEMAreaSourceData){
+	    					
+	    					//System.out.println("Applying mMaxRule");
 	    					
 	    					// define area source
 	    					GEMAreaSourceData areaSrc = (GEMAreaSourceData)src;
@@ -280,6 +332,7 @@ public class CommandLineCalculator {
 	    							// calculate new mMax value
 	    							// old mMax value
 	    							double mMax = mfdGR.getMagUpper();
+	    							//System.out.println("Old mMax: "+mMax);
 	    							// add uncertainty value (deltaM/2 is added because mMax 
 	    							// refers to bin center
 	    							mMax = mMax+deltaM/2+branch.getRule().getVal();
@@ -287,6 +340,7 @@ public class CommandLineCalculator {
 	    							mMax = Math.round(mMax/deltaM)*deltaM;
 	    							// move back to bin center
 	    							mMax = mMax-deltaM/2;
+	    							//System.out.println("New mMax: "+mMax);
 	    							
 	    							if(mMax - mMin>=deltaM){
 	    								
@@ -428,6 +482,12 @@ public class CommandLineCalculator {
 			
 			sourceIndex = sourceIndex + 1;
 		} // end loop over sources
+		
+//		System.out.println("Sources after sampling");
+//		for(int is=0;is<srcList.size();is++){
+//			GEMAreaSourceData src = (GEMAreaSourceData) srcList.get(is);
+//			System.out.println("Name: "+srcList.get(is).getName()+", total moment rate: "+src.getMagfreqDistFocMech().getFirstMagFreqDist().getTotalMomentRate());
+//		}
 		
 		// instantiate ERF
 		erf = new GEM1ERF(srcList);
