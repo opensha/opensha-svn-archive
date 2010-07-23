@@ -28,7 +28,7 @@
 	<import file="include/utils.xml"/>
 	
 	<!-- global properties -->
-	<property name="app.name" value="HazardCurveApp" />
+	<property name="app.short.name" value="HazardCurveLocal" />
 	<property name="build" value="../build" />
 	<property name="dist" value="../dist" />
 	<property name="src" value="../src" />
@@ -57,7 +57,8 @@
 		<!-- build manifest -->
 		<!-- set version number -->
 		<runtarget target="set.app.version" />
-		<jar destfile="${dist}/${app.name}-${app.version}.jar" 
+		<property name="app.jar" value="${dist}/${app.short.name}-${app.version}.jar" />
+		<jar destfile="${app.jar}" 
 			 basedir="${build}">
 			<manifest>
 				<attribute name="Main-Class" 
@@ -74,6 +75,8 @@
 			<include name="resources/**" />
 		</jar>
 		<antcall target="clean.build.dir" />
+		<ant antfile="compile.xml" target="sign.jar"/>
+		<ant antfile="compile.xml" target="copy.server.jar"/>
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 

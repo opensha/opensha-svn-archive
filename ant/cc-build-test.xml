@@ -20,6 +20,10 @@
 
 <project basedir="." default="svn.build.run.common.tests" name="Cruise Control Build File">
 	
+	<property name="server.apps.dir" value="/var/www/html/apps/opensha" />
+	<property name="app.build.type" value="nightly" />
+	<property name="sign.jars" value="true" />
+	
 	<target name="svn.update.build">
 		<ant antfile="compile.xml" target="svn.update"/>
 		<ant antfile="compile.xml" target="build"/>
@@ -33,6 +37,10 @@
 	
 	<target name="run.operational.tests">
 		<ant antfile="test.xml" target="run.operational.tests"/>
+	</target>
+	
+	<target name="svn.update.app.build" depends="svn.update.build">
+		<ant antfile="MultiAppBuilder.xml" target="build.all"/>
 	</target>
 	
 	<target name="svn.build.run.daily.coverage" depends="svn.update.build">

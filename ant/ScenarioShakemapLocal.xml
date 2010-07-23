@@ -24,6 +24,7 @@
     </description>
 
 	<!-- global properties -->
+	<property name="app.short.name" value="ScenarioShakeMapLocal" />
 	<property name="build" value="../build" />
 	<property name="dist" value="../dist" />
 	<property name="src" value="../src" />
@@ -53,7 +54,8 @@
 				       value="org.opensha.sha.gui.ScenarioShakeMapLocalModeCalcApp" />
 			<attribute name="Built-By" value="${user.name}" />
 		</manifest>
-		<jar destfile="${dist}/ScenarioShakeMapLocalCalcApp.jar"
+		<property name="app.jar" value="${dist}/ScenarioShakeMapLocalCalcApp.jar" />
+		<jar destfile="${app.jar}"
 		     basedir="${build}"
 		     manifest="${build}/MANIFEST.MF">
 			<include name="at/**" />
@@ -65,6 +67,8 @@
 		</jar>
 		<antcall target="clean.build.dir">
 		</antcall>
+		<ant antfile="compile.xml" target="sign.jar"/>
+		<ant antfile="compile.xml" target="copy.server.jar"/>
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 

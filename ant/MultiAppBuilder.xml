@@ -19,6 +19,9 @@
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
 <project basedir="." default="build.all" name="MultiAppBuilder">
+	
+	<property name="app.build.type" value="dist" />
+	<!-- <property name="sign.jars" value="true" /> -->
 
 	<target name="build.all">
 		<antcall target="build.local" />
