@@ -10,7 +10,7 @@
         <!-- Application Resources -->
         <j2se version="1.6+" java-vm-args="-Xmx1024M"
               href="http://java.sun.com/products/autodl/j2se"/>
-        <jar href="HazardCurveApp.jar" main="true" />
+        <jar href="HazardCurveLocal.jar" main="true" />
 
     </resources>
     <application-desc
