@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.rmi.RemoteException;
+import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -798,7 +799,11 @@ ScalarIMRChangeListener {
 
 	// static initializer for setting look & feel
 	static {
-		System.setProperty("apple.laf.useScreenMenuBar", "true");
+		try {
+			System.setProperty("apple.laf.useScreenMenuBar", "true");
+		} catch (AccessControlException e1) {
+			System.err.println("WARNING: could not set property 'apple.laf.useScreenMenuBar'");
+		}
 //		String osName = System.getProperty("os.name");
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

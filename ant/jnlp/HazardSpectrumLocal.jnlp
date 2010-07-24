@@ -3,7 +3,7 @@
     codebase="http://opensha.usc.edu/apps/opensha/HazardSpectrumLocal/nightly"
     href="HazardSpectrumLocal.jnlp">
     <information>
-        <title>Hazard Curve Local Mode Application</title>
+        <title>Hazard Spectrum Local Mode Application</title>
         <vendor>OpenSHA</vendor>
     </information>
     <resources>
