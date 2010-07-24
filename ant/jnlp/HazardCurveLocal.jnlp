@@ -1,21 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jnlp spec="1.0+" 
-    codebase="http://opensha.usc.edu/apps/opensha/HazardCurveLocal/nightly"
-    href="HazardCurveLocal.jnlp">
-    <information>
-        <title>Hazard Curve Local Mode Application</title>
-        <vendor>OpenSHA</vendor>
-    </information>
-    <resources>
-        <!-- Application Resources -->
-        <j2se version="1.6+" java-vm-args="-Xmx1024M"
-              href="http://java.sun.com/products/autodl/j2se"/>
-        <jar href="HazardCurveLocal.jar" main="true" />
 
-    </resources>
-    <application-desc
-         name="Hazard Curve Application"
-         main-class="org.opensha.sha.gui.HazardCurveLocalModeApplication">
-     </application-desc>
-     <update check="timeout"/>
+<jnlp spec="1.5+" codebase="http://opensha.usc.edu/apps/opensha/HazardCurveLocal/nightly" href="HazardCurveLocal.jnlp">
+  <information>
+    <title>Hazard Curve Local Mode Application</title>
+    <vendor>OpenSHA</vendor>
+  </information>
+  <resources>
+    <j2se version="1.6+" java-vm-args="-Xmx1024M" href="http://java.sun.com/products/autodl/j2se"/>
+    <jar href="HazardCurveLocal.jar" main="true"/>
+  </resources>
+  <application-desc name="Hazard Curve Local Mode Application" main-class="org.opensha.sha.gui.HazardCurveLocalModeApplication"/>
+  <update check="timeout"/>
+  <offline-allowed/>
+  <security>
+    <all-permissions/>
+  </security>
 </jnlp>
