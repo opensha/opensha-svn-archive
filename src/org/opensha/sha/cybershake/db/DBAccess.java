@@ -226,18 +226,18 @@ public class DBAccess implements Runnable{
                                                        logAppend),true);
 
             // Can't open the requested file. Open the default file.
-        } catch (IOException e1) {
+        } catch (Exception e1) {
             try {
                 log = new PrintWriter(new FileOutputStream("DCB_" +
                                            System.currentTimeMillis() + ".log",
                                            logAppend),true);
 
-            } catch (IOException e2) {
+            } catch (Exception e2) {
             	try {
             		File tempFile = File.createTempFile("OpenSHA_db_access", ".log");
             		System.err.println("WARNING: couldn't write to db log file, using temporary file: " + tempFile.getAbsolutePath());
 					log = new PrintWriter(new FileOutputStream(tempFile),true);
-				} catch (IOException e) {
+				} catch (Exception e) {
 					throw new IOException("Can't open any log file");
 				}
             }
