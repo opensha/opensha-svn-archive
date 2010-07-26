@@ -86,7 +86,7 @@ public class DBAccess implements Runnable{
         readOnly = true;
         int minConns =1;
         int maxConns = 100;
-        String logFileString ="cybershake_db_log_file";
+        String logFileString = null;
         double maxConnTime = 0.5;
 
         try {
@@ -114,7 +114,7 @@ public class DBAccess implements Runnable{
         String dbPassword = pass;
         int minConns =1;
         int maxConns = 100;
-        String logFileString ="cybershake_db_log_file";
+        String logFileString = null;
         double maxConnTime = 0.5;
 
 		setupBroker(dbDriver, dbServer, dbLogin, dbPassword, minConns,
@@ -227,20 +227,13 @@ public class DBAccess implements Runnable{
 
             // Can't open the requested file. Open the default file.
         } catch (Exception e1) {
-            try {
-                log = new PrintWriter(new FileOutputStream("DCB_" +
-                                           System.currentTimeMillis() + ".log",
-                                           logAppend),true);
-
-            } catch (Exception e2) {
-            	try {
-            		File tempFile = File.createTempFile("OpenSHA_db_access", ".log");
-            		System.err.println("WARNING: couldn't write to db log file, using temporary file: " + tempFile.getAbsolutePath());
-					log = new PrintWriter(new FileOutputStream(tempFile),true);
-				} catch (Exception e) {
-					throw new IOException("Can't open any log file");
-				}
-            }
+        	try {
+        		File tempFile = File.createTempFile("OpenSHA_CyberShake_db_access", ".log");
+//        		System.err.println("WARNING: couldn't write to db log file, using temporary file: " + tempFile.getAbsolutePath());
+				log = new PrintWriter(new FileOutputStream(tempFile),true);
+			} catch (Exception e) {
+				throw new IOException("Can't open any log file");
+			}
         }
 
 
