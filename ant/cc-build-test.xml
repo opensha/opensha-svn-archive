@@ -43,6 +43,7 @@
 	</target>
 	
 	<target name="svn.update.app.build" depends="svn.update">
+		<ant antfile="compile.xml" target="update.jnlps"/>
 		<ant antfile="MultiAppBuilder.xml" target="build.all"/>
 	</target>
 	

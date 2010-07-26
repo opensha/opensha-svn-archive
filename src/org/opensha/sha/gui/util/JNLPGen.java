@@ -27,16 +27,22 @@ public class JNLPGen {
 	private ServerPrefs prefs = ServerPrefUtils.SERVER_PREFS;
 	private boolean startMenu = true;
 	private boolean desktop = true;
+	private boolean onlineOnly = false;
 	
-	public JNLPGen(Class<?> theClass, String shortName, String title) {
-		System.out.println(theClass.getName());
+	public JNLPGen(Class<?> theClass, String shortName, String title, boolean onlineOnly) {
+		System.out.println("Creating JNLP for: " + theClass.getName());
 		this.theClass = theClass;
 		this.shortName = shortName;
 		this.title = title;
+		this.onlineOnly = onlineOnly;
 	}
 	
 	private String getDistType() {
 		return prefs.getBuildType();
+	}
+	
+	public void setOnlineOnly(boolean onlineOnly) {
+		this.onlineOnly = onlineOnly;
 	}
 	
 	public void writeJNLPFile() throws IOException {
@@ -46,7 +52,14 @@ public class JNLPGen {
 	public void writeJNLPFile(String dir) throws IOException {
 		Document doc = createDocument();
 		
-		XMLUtils.writeDocumentToFile(dir + File.separator + shortName + ".jnlp", doc);
+		File dirFile = new File(dir);
+		if (!dirFile.exists())
+			dirFile.mkdir();
+		
+		String fileName = dir + File.separator + shortName + ".jnlp";
+		System.out.println("Writing JNLP to: " + fileName);
+		
+		XMLUtils.writeDocumentToFile(fileName, doc);
 	}
 	
 	public Document createDocument() {
@@ -70,7 +83,7 @@ public class JNLPGen {
 		// shortcuts
 		if (startMenu || desktop) {
 			Element shortcutEl = infoEl.addElement("shortcut");
-			shortcutEl.addAttribute("online", "true");
+			shortcutEl.addAttribute("online", onlineOnly + "");
 			if (desktop)
 				shortcutEl.addElement("desktop");
 			if (startMenu) {
@@ -99,8 +112,10 @@ public class JNLPGen {
 		Element updateEl = root.addElement("update");
 		updateEl.addAttribute("check", "timeout");
 		
-		// offline-allowed
-		root.addElement("offline-allowed");
+		if (!onlineOnly) {
+			// offline-allowed
+			root.addElement("offline-allowed");
+		}
 		
 		// security
 		Element securityEl = root.addElement("security");
@@ -124,11 +139,11 @@ public class JNLPGen {
 			System.exit(2);
 		}
 		new JNLPGen(HazardCurveLocalModeApplication.class,
-					"HazardCurveLocal", "Hazard Curve Local Mode Application").writeJNLPFile(outputDir);
+					"HazardCurveLocal", "Hazard Curve Local Mode Application", false).writeJNLPFile(outputDir);
 		new JNLPGen(HazardSpectrumLocalModeApplication.class,
-				"HazardSpectrumLocal", "Hazard Spectrum Local Mode Application").writeJNLPFile(outputDir);
+				"HazardSpectrumLocal", "Hazard Spectrum Local Mode Application", false).writeJNLPFile(outputDir);
 		new JNLPGen(ScenarioShakeMapLocalModeCalcApp.class,
-				"ScenarioShakeMapLocal", "Scenario ShakeMap Local Mode Application").writeJNLPFile(outputDir);
+				"ScenarioShakeMapLocal", "Scenario ShakeMap Local Mode Application", true).writeJNLPFile(outputDir);
 	}
 
 }
