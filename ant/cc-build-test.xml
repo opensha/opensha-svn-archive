@@ -24,8 +24,11 @@
 	<property name="app.build.type" value="nightly" />
 	<property name="sign.jars" value="true" />
 	
-	<target name="svn.update.build">
+	<target name="svn.update">
 		<ant antfile="compile.xml" target="svn.update"/>
+	</target>
+	
+	<target name="svn.update.build" depends="svn.update">
 		<ant antfile="compile.xml" target="build"/>
 		<ant antfile="compile.xml" target="resource.all"/>
 		<ant antfile="compile.xml" target="rmi.all"/>
@@ -39,7 +42,7 @@
 		<ant antfile="test.xml" target="run.operational.tests"/>
 	</target>
 	
-	<target name="svn.update.app.build" depends="svn.update.build">
+	<target name="svn.update.app.build" depends="svn.update">
 		<ant antfile="MultiAppBuilder.xml" target="build.all"/>
 	</target>
 	
