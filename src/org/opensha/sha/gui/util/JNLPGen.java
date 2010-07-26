@@ -19,6 +19,7 @@ public class JNLPGen {
 	private static final String webRoot = "http://opensha.usc.edu/apps/opensha";
 	
 	private static final String vendor = "OpenSHA";
+	private static final String homepage = "<homepage href=\"http://www.opensha.org\"/>";
 	
 	private Class<?> theClass;
 	private String shortName;
@@ -91,6 +92,11 @@ public class JNLPGen {
 				menuEl.addAttribute("submenu", vendor);
 			}
 		}
+		infoEl.addElement("homepage").addAttribute("href", homepage);
+		if (!onlineOnly) {
+			// offline-allowed
+			infoEl.addElement("offline-allowed");
+		}
 		
 		// resources
 		Element resourcesEl = root.addElement("resources");
@@ -111,11 +117,6 @@ public class JNLPGen {
 		// update
 		Element updateEl = root.addElement("update");
 		updateEl.addAttribute("check", "timeout");
-		
-		if (!onlineOnly) {
-			// offline-allowed
-			root.addElement("offline-allowed");
-		}
 		
 		// security
 		Element securityEl = root.addElement("security");
