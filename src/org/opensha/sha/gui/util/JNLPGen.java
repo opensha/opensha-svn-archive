@@ -19,7 +19,7 @@ public class JNLPGen {
 	private static final String webRoot = "http://opensha.usc.edu/apps/opensha";
 	
 	private static final String vendor = "OpenSHA";
-	private static final String homepage = "<homepage href=\"http://www.opensha.org\"/>";
+	private static final String homepage = "http://www.opensha.org";
 	
 	private Class<?> theClass;
 	private String shortName;
