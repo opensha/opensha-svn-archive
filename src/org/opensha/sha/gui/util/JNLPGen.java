@@ -10,8 +10,12 @@ import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.ServerPrefs;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.gui.HazardCurveLocalModeApplication;
+import org.opensha.sha.gui.HazardCurveServerModeApplication;
 import org.opensha.sha.gui.HazardSpectrumLocalModeApplication;
+import org.opensha.sha.gui.HazardSpectrumServerModeApplication;
+import org.opensha.sha.gui.ScenarioShakeMapApp;
 import org.opensha.sha.gui.ScenarioShakeMapLocalModeCalcApp;
+import org.opensha.sha.imr.attenRelImpl.gui.AttenuationRelationshipApplet;
 
 public class JNLPGen {
 	
@@ -28,22 +32,22 @@ public class JNLPGen {
 	private ServerPrefs prefs = ServerPrefUtils.SERVER_PREFS;
 	private boolean startMenu = true;
 	private boolean desktop = true;
-	private boolean onlineOnly = false;
+	private boolean allowOffline = true;
 	
-	public JNLPGen(Class<?> theClass, String shortName, String title, boolean onlineOnly) {
+	public JNLPGen(Class<?> theClass, String shortName, String title, boolean allowOffline) {
 		System.out.println("Creating JNLP for: " + theClass.getName());
 		this.theClass = theClass;
 		this.shortName = shortName;
 		this.title = title;
-		this.onlineOnly = onlineOnly;
+		this.allowOffline = allowOffline;
 	}
 	
 	private String getDistType() {
 		return prefs.getBuildType();
 	}
 	
-	public void setOnlineOnly(boolean onlineOnly) {
-		this.onlineOnly = onlineOnly;
+	public void setAllowOffline(boolean allowOffline) {
+		this.allowOffline = allowOffline;
 	}
 	
 	public void writeJNLPFile() throws IOException {
@@ -84,7 +88,7 @@ public class JNLPGen {
 		// shortcuts
 		if (startMenu || desktop) {
 			Element shortcutEl = infoEl.addElement("shortcut");
-			shortcutEl.addAttribute("online", onlineOnly + "");
+			shortcutEl.addAttribute("online", !allowOffline + "");
 			if (desktop)
 				shortcutEl.addElement("desktop");
 			if (startMenu) {
@@ -93,7 +97,7 @@ public class JNLPGen {
 			}
 		}
 		infoEl.addElement("homepage").addAttribute("href", homepage);
-		if (!onlineOnly) {
+		if (allowOffline) {
 			// offline-allowed
 			infoEl.addElement("offline-allowed");
 		}
@@ -139,12 +143,24 @@ public class JNLPGen {
 			System.err.println("USAGE: JNLPGen [outputDir]");
 			System.exit(2);
 		}
+		/*		Hazard Curve				*/
 		new JNLPGen(HazardCurveLocalModeApplication.class,
-					"HazardCurveLocal", "Hazard Curve Local Mode Application", false).writeJNLPFile(outputDir);
+				"HazardCurveLocal", "Hazard Curve Local Mode Application", true).writeJNLPFile(outputDir);
+		new JNLPGen(HazardCurveServerModeApplication.class,
+				"HazardCurveServer", "Hazard Curve Server Mode Application", false).writeJNLPFile(outputDir);
+		/*		Hazard Spectrum				*/
 		new JNLPGen(HazardSpectrumLocalModeApplication.class,
-				"HazardSpectrumLocal", "Hazard Spectrum Local Mode Application", false).writeJNLPFile(outputDir);
+				"HazardSpectrumLocal", "Hazard Spectrum Local Mode Application", true).writeJNLPFile(outputDir);
+		new JNLPGen(HazardSpectrumServerModeApplication.class,
+				"HazardSpectrumServer", "Hazard Spectrum Server Mode Application", false).writeJNLPFile(outputDir);
+		/*		Scenario ShakeMap			*/
 		new JNLPGen(ScenarioShakeMapLocalModeCalcApp.class,
-				"ScenarioShakeMapLocal", "Scenario ShakeMap Local Mode Application", true).writeJNLPFile(outputDir);
+				"ScenarioShakeMapLocal", "Scenario ShakeMap Local Mode Application", false).writeJNLPFile(outputDir);
+		new JNLPGen(ScenarioShakeMapApp.class,
+				"ScenarioShakeMapServer", "Scenario ShakeMap Server Mode Application", false).writeJNLPFile(outputDir);
+		/*		Attenuation Relationship	*/
+		new JNLPGen(AttenuationRelationshipApplet.class,
+				"AttenuationRelationship", "Attenuation Relationship Application", true).writeJNLPFile(outputDir);
 	}
 
 }

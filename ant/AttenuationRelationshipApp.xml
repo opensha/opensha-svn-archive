@@ -18,15 +18,17 @@
     limitations under the License.
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
-<project basedir="." default="build.app" name="ScenarioShakemapLocal">
+<!-- $Id: HazardCurveLocal.xml 6842 2010-07-23 23:41:09Z kmilner $ -->
+
+<project basedir="." default="build.app" name="HazardCurveLocal">
 	<description>
         Builds the HazardCurveLocal mode application as a launchable jar.
     </description>
-	
-	<import file="include/utils.xml"/>
 
+	<import file="include/utils.xml"/>
+	
 	<!-- global properties -->
-	<property name="app.short.name" value="ScenarioShakeMapLocal" />
+	<property name="app.short.name" value="AttenuationRelationship" />
 	<property name="build" value="../build" />
 	<property name="dist" value="../dist" />
 	<property name="src" value="../src" />
@@ -39,12 +41,13 @@
 		</fileset>
 	</path>
 
+
 	<!-- ================================= 
           target: build.app
          ================================= -->
 	<target name="build.app" depends="init, compile, copy, pack" />
 
-
+	
 	<!-- - - - - - - - - - - - - - - - - - 
           target: pack
           
@@ -59,7 +62,7 @@
 			 basedir="${build}">
 			<manifest>
 				<attribute name="Main-Class" 
-					       value="org.opensha.sha.gui.ScenarioShakeMapLocalModeCalcApp" />
+					       value="org.opensha.sha.imr.attenRelImpl.gui.AttenuationRelationshipApplet" />
 				<attribute name="Version" value="1.0"/>
 				<attribute name="Built-By" value="${user.name}" />
 			</manifest>
@@ -68,10 +71,11 @@
 			<include name="edu/**" />
 			<include name="net/**" />
 			<include name="org/**" />
+			<include name="javax/**" />
+			<include name="scratch/**" />
 			<include name="resources/**" />
 		</jar>
-		<antcall target="clean.build.dir">
-		</antcall>
+		<antcall target="clean.build.dir" />
 		<ant antfile="compile.xml" target="sign.jar"/>
 		<ant antfile="compile.xml" target="copy.server.jar"/>
 	</target>
@@ -98,15 +102,15 @@
 			</classpath>
 			<src path="${src}" />
 			<src path="${dev}" />
+			<!-- spcifying the main() class compiles all dependencies -->
+			<include name="org/opensha/sha/imr/attenRelImpl/gui/AttenuationRelationshipApplet.java" />
+			<!-- paths to hard-coded classes
+			<include name="org/opensha/sha/earthquake/rupForecastImpl/**" />
+			<include name="org/opensha/sha/cybershake/openshaAPIs/**" />
 			<include name="org/opensha/sha/imr/attenRelImpl/**" />
+			<include name="scratch/christine/attenRelImpl/**" />
 			<exclude name="org/opensha/sha/imr/attenRelImpl/gui/**" />
-			<exclude name="org/opensha/sha/imr/attenRelImpl/test/**" />
-			<include name="org/opensha/sha/gui/ScenarioShakeMapLocalModeCalcApp.java" />
-			<include name="org/opensha/sha/param/**" />
-			<include name="org/opensha/param/**" />
-			<include name="org/opensha/sha/earthquake/**" />
-			<include name="org/opensha/sha/calc/ScenarioShakeMapCalculator.java" />
-			<include name="scratch/bbradley/**" />
+			<exclude name="org/opensha/sha/imr/attenRelImpl/test/**" />-->
 		</javac>
 	</target>
 
@@ -114,7 +118,7 @@
           target: compile.rmi
          - - - - - - - - - - - - - - - - - -->
 	<target name="compile.rmi">
-		<!-- No RMI needed for local mode -->
+		<ant antfile="compile.xml" target="rmi.hazard.curve"/>
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
@@ -131,7 +135,7 @@
           target: copy.resources
          - - - - - - - - - - - - - - - - - -->
 	<target name="copy.resources">
-		<ant antfile="compile.xml" target="resource.hazard.apps"/>
+		<ant antfile="compile.xml" target="resource.hazard.apps.server"/>
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 

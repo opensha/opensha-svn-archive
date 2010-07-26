@@ -22,6 +22,8 @@
 	<description>
         Builds the HazardCurveLocal mode application as a launchable jar.
     </description>
+	
+	<import file="include/utils.xml"/>
 
 	<!-- global properties -->
 	<property name="app.short.name" value="HazardSpectrumLocal" />
@@ -49,15 +51,18 @@
           Creates manifest and jar; cleans up build dir.                     
          - - - - - - - - - - - - - - - - - -->
 	<target name="pack">
-		<manifest file="${build}/MANIFEST.MF">
-			<attribute name="Main-Class" 
-				       value="org.opensha.sha.gui.HazardSpectrumLocalModeApplication" />
-			<attribute name="Built-By" value="${user.name}" />
-		</manifest>
-		<property name="app.jar" value="${dist}/HazardSpectrumLocalModeApp.jar" />
-		<jar destfile="${app.jar}"
-		     basedir="${build}"
-		     manifest="${build}/MANIFEST.MF">
+		<!-- build manifest -->
+		<!-- set version number -->
+		<runtarget target="set.app.version" />
+		<property name="app.jar" value="${dist}/${app.short.name}-${app.version}.jar" />
+		<jar destfile="${app.jar}" 
+			 basedir="${build}">
+			<manifest>
+				<attribute name="Main-Class" 
+					       value="org.opensha.sha.gui.HazardSpectrumLocalModeApplication" />
+				<attribute name="Version" value="1.0"/>
+				<attribute name="Built-By" value="${user.name}" />
+			</manifest>
 			<include name="at/**" />
 			<include name="com/**" />
 			<include name="edu/**" />
@@ -67,7 +72,7 @@
 		</jar>
 		<antcall target="clean.build.dir"></antcall>
 		<ant antfile="compile.xml" target="sign.jar"/>
-				<ant antfile="compile.xml" target="copy.server.jar"/>
+		<ant antfile="compile.xml" target="copy.server.jar"/>
 	</target>
 	
 	<!-- - - - - - - - - - - - - - - - - - 

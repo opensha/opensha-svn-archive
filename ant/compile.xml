@@ -250,6 +250,10 @@
 		<copy todir="${build}/resources/images" overwrite="true">
 			<fileset dir="${src}/resources/images" />
 		</copy>
+		
+		<copy todir="${build}/resources/help" overwrite="true">
+			<fileset dir="${src}/resources/help" />
+		</copy>
 
 		<copy todir="${build}/resources/data/region" overwrite="true">
 			<fileset dir="${src}/resources/data/region" />
@@ -315,6 +319,7 @@
 		<unjar src="${lib.dir}/junit-4.5.jar" dest="${build}" />
 		<unjar src="${lib.dir}/sdoapi.jar" dest="${build}" />
 		<unjar src="${lib.dir}/ojdbc14.jar" dest="${build}" />
+		<unjar src="${lib.dir}/jh.jar" dest="${build}" />
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 

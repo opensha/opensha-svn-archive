@@ -32,9 +32,13 @@
 		<ant antfile="HazardCurveLocal.xml" target="build.app"/>
 		<ant antfile="HazardSpectrumLocal.xml" target="build.app"/>
 		<ant antfile="ScenarioShakemapLocal.xml" target="build.app"/>
+		<ant antfile="AttenuationRelationshipApp.xml" target="build.app"/>
 	</target>
 	
 	<target name="build.server">
+		<ant antfile="HazardCurveServer.xml" target="build.app"/>
+		<ant antfile="HazardSpectrumServer.xml" target="build.app"/>
+		<ant antfile="ScenarioShakemapServer.xml" target="build.app"/>
 	</target>
 
 </project>

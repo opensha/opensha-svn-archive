@@ -838,7 +838,7 @@ ParameterChangeListener, ParameterChangeFailListener
 		
 		int num = numXPointsParam.getValue();
 
-		System.out.println("min: " + min + " max: " + max + " delta: " + delta + " num: " + num);
+//		System.out.println("min: " + min + " max: " + max + " delta: " + delta + " num: " + num);
 		if (log) {
 			if (min == 0) {
 				min = 1E-40;
@@ -849,26 +849,26 @@ ParameterChangeListener, ParameterChangeFailListener
 			min = Math.log(min);
 			max = Math.log(max);
 			delta = ( max - min ) / ( num - 1 );
-			System.out.println("min: " + min + " max: " + max + " delta: " + delta);
+//			System.out.println("min: " + min + " max: " + max + " delta: " + delta);
 		}
 
 		while ( index < num ) {
 			// if it's just beyond the max (due to numerical imprececion) make it the max
-			System.out.println("val before: " + val);
+//			System.out.println("val before: " + val);
 			if(val > minmaxdelta.max) val = minmaxdelta.max;
 			paramToSet.setValue( new Double( val ) );
 			DataPoint2D point = new DataPoint2D( val , getCalculation( type ) );
 			function.set( point );
 			if (log) {
 				val = Math.log(val);
-				System.out.println("log val before: " + val);
+//				System.out.println("log val before: " + val);
 				val += delta;
-				System.out.println("log val after: " + val);
+//				System.out.println("log val after: " + val);
 				val = Math.exp(val);
 			} else {
 				val += minmaxdelta.delta;
 			}
-			System.out.println("val after: " + val);
+//			System.out.println("val after: " + val);
 			index++;
 		}
 
