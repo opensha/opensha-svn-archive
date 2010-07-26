@@ -25,6 +25,8 @@ public class JNLPGen {
 	private String title;
 	private int xmxMegs = 1024;
 	private ServerPrefs prefs = ServerPrefUtils.SERVER_PREFS;
+	private boolean startMenu = true;
+	private boolean desktop = true;
 	
 	public JNLPGen(Class<?> theClass, String shortName, String title) {
 		System.out.println(theClass.getName());
@@ -92,6 +94,18 @@ public class JNLPGen {
 		// security
 		Element securityEl = root.addElement("security");
 		securityEl.addElement("all-permissions");
+		
+		// shortcuts
+		if (startMenu || desktop) {
+			Element shortcutEl = root.addElement("shortcut");
+			shortcutEl.addAttribute("online", "true");
+			if (desktop)
+				shortcutEl.addElement("desktop");
+			if (startMenu) {
+				Element menuEl = shortcutEl.addElement("menu");
+				menuEl.addAttribute("submenu", vendor);
+			}
+		}
 		
 		return doc;
 	}

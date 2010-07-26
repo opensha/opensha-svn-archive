@@ -15,4 +15,8 @@
   <security>
     <all-permissions/>
   </security>
+  <shortcut online="true">
+    <desktop/>
+    <menu submenu="OpenSHA"/>
+  </shortcut>
 </jnlp>
