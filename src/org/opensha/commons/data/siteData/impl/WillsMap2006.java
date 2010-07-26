@@ -36,7 +36,7 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.util.ServletPrefs;
+import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
 
@@ -56,7 +56,7 @@ public class WillsMap2006 extends AbstractSiteData<Double> {
 	public static final String SERVER_BIN_FILE = "/export/opensha/data/siteData/wills2006.bin";
 	public static final String DEBUG_BIN_FILE = "/home/kevin/OpenSHA/siteClass/out.bin";
 	
-	public static final String SERVLET_URL = ServletPrefs.OPENSHA_SERVLET_URL + "SiteData/Wills2006";
+	public static final String SERVLET_URL = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "SiteData/Wills2006";
 	
 	private Region applicableRegion;
 	

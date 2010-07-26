@@ -6,6 +6,8 @@ import java.io.IOException;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.opensha.commons.util.ServerPrefUtils;
+import org.opensha.commons.util.ServerPrefs;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.gui.HazardCurveLocalModeApplication;
 import org.opensha.sha.gui.HazardSpectrumLocalModeApplication;
@@ -22,7 +24,7 @@ public class JNLPGen {
 	private String shortName;
 	private String title;
 	private int xmxMegs = 1024;
-	private boolean nightly = true;
+	private ServerPrefs prefs = ServerPrefUtils.SERVER_PREFS;
 	
 	public JNLPGen(Class<?> theClass, String shortName, String title) {
 		System.out.println(theClass.getName());
@@ -32,20 +34,17 @@ public class JNLPGen {
 	}
 	
 	private String getDistType() {
-		if (nightly)
-			return "nightly";
-		else
-			return "dist";
+		return prefs.getBuildType();
 	}
 	
 	public void writeJNLPFile() throws IOException {
-		writeJNLPFile(new File(jnlpDir + File.separator + shortName + ".jnlp"));
+		writeJNLPFile(jnlpDir);
 	}
 	
-	public void writeJNLPFile(File file) throws IOException {
+	public void writeJNLPFile(String dir) throws IOException {
 		Document doc = createDocument();
 		
-		XMLUtils.writeDocumentToFile(file.getAbsolutePath(), doc);
+		XMLUtils.writeDocumentToFile(dir + File.separator + shortName + ".jnlp", doc);
 	}
 	
 	public Document createDocument() {
@@ -102,12 +101,21 @@ public class JNLPGen {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
+		String outputDir = null;
+		if (args.length == 0) {
+			outputDir = JNLPGen.jnlpDir;
+		} else if (args.length == 1) {
+			outputDir = args[0];
+		} else {
+			System.err.println("USAGE: JNLPGen [outputDir]");
+			System.exit(2);
+		}
 		new JNLPGen(HazardCurveLocalModeApplication.class,
-					"HazardCurveLocal", "Hazard Curve Local Mode Application").writeJNLPFile();
+					"HazardCurveLocal", "Hazard Curve Local Mode Application").writeJNLPFile(outputDir);
 		new JNLPGen(HazardSpectrumLocalModeApplication.class,
-				"HazardSpectrumLocal", "Hazard Spectrum Local Mode Application").writeJNLPFile();
+				"HazardSpectrumLocal", "Hazard Spectrum Local Mode Application").writeJNLPFile(outputDir);
 		new JNLPGen(ScenarioShakeMapLocalModeCalcApp.class,
-				"ScenarioShakeMapLocal", "Scenario ShakeMap Local Mode Application").writeJNLPFile();
+				"ScenarioShakeMapLocal", "Scenario ShakeMap Local Mode Application").writeJNLPFile(outputDir);
 	}
 
 }

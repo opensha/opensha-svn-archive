@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.opensha.commons.util.MailUtil;
-import org.opensha.commons.util.ServletPrefs;
+import org.opensha.commons.util.ServerPrefUtils;
 
 /**
  * <p>Title: UserAccountInfoServlet.java </p>
@@ -46,7 +46,7 @@ import org.opensha.commons.util.ServletPrefs;
 
 public class UserAccountInfoServlet extends HttpServlet {
 
-	public final static String SERVLET_ADDRESS = ServletPrefs.OPENSHA_SERVLET_URL + "Fault_DB_AccountServlet";
+	public final static String SERVLET_ADDRESS = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "Fault_DB_AccountServlet";
 
 	//static Strings to send the mails
 	private String  smtpHost, emailSubject, emailFrom;

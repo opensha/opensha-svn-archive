@@ -36,7 +36,7 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.util.ServletPrefs;
+import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
 
@@ -55,7 +55,7 @@ public class SRTM30Topography extends AbstractSiteData<Double> {
 	public static final double minLon = -180 + (spacing / 2d);
 	public static final double minLat = -60 + (spacing / 2d);
 	
-	public static final String SERVLET_URL = ServletPrefs.OPENSHA_SERVLET_URL + "SiteData/SRTM30";
+	public static final String SERVLET_URL = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "SiteData/SRTM30";
 	
 	private boolean useServlet;
 	

@@ -35,7 +35,7 @@ import org.opensha.commons.data.siteData.servlet.SiteDataServletAccessor;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.util.ServletPrefs;
+import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
@@ -58,8 +58,8 @@ public class CVM4BasinDepth extends AbstractSiteData<Double> {
 	public static final String DEPTH_2_5_FILE = "data/siteData/CVM4/depth_2.5.bin";
 	public static final String DEPTH_1_0_FILE = "data/siteData/CVM4/depth_1.0.bin";
 	
-	public static final String SERVLET_2_5_URL = ServletPrefs.OPENSHA_SERVLET_URL + "SiteData/CVM4_2_5";
-	public static final String SERVLET_1_0_URL = ServletPrefs.OPENSHA_SERVLET_URL + "SiteData/CVM4_1_0";
+	public static final String SERVLET_2_5_URL = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "SiteData/CVM4_2_5";
+	public static final String SERVLET_1_0_URL = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "SiteData/CVM4_1_0";
 	
 	private RandomAccessFile file = null;
 	private String fileName = null;

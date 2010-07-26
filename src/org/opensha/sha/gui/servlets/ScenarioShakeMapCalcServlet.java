@@ -41,7 +41,7 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.commons.util.ServletPrefs;
+import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.sha.calc.ScenarioShakeMapCalculator;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.gui.infoTools.IMT_Info;
@@ -62,7 +62,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 public class ScenarioShakeMapCalcServlet
 extends HttpServlet implements ParameterChangeWarningListener {
 
-	public final static String SERVLET_URL = ServletPrefs.OPENSHA_SERVLET_URL + "ScenarioShakeMapCalcServlet";
+	public final static String SERVLET_URL = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "ScenarioShakeMapCalcServlet";
 	//path on the server where all the object will be stored
 	private final static String FILE_PATH = GriddedRegionServlet.FILE_PATH;
 	private final static String XYZ_DATA_DIR = "xyzDataObject/";

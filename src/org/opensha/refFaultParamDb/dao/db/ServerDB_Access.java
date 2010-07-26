@@ -30,7 +30,7 @@ import java.util.ArrayList;
 
 import oracle.spatial.geometry.JGeometry;
 
-import org.opensha.commons.util.ServletPrefs;
+import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 
 import com.sun.rowset.CachedRowSetImpl;
@@ -54,8 +54,8 @@ public class ServerDB_Access     implements java.io.Serializable, DB_AccessAPI {
 	//used for debugging
 	private static final boolean D = false;
 
-	public final static String SERVLET_URL_DB2  = ServletPrefs.OPENSHA_SERVLET_URL + "Fault_DB_AccessServlet";
-	public final static String SERVLET_URL_DB3  = ServletPrefs.OPENSHA_SERVLET_URL + "Fault_DB_AccessServlet_Ver3";
+	public final static String SERVLET_URL_DB2  = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "Fault_DB_AccessServlet";
+	public final static String SERVLET_URL_DB3  = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "Fault_DB_AccessServlet_Ver3";
 	
 	private String servletURL;
 	

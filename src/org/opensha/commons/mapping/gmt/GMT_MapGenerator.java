@@ -57,7 +57,7 @@ import org.opensha.commons.param.IntegerParameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.util.ServletPrefs;
+import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.RunScript;
 import org.opensha.commons.util.cpt.CPT;
 
@@ -104,7 +104,7 @@ public class GMT_MapGenerator implements Serializable{
 	public static final String OPENSHA_PS2PDF_PATH = "/usr/bin/ps2pdf";
 	public static final String OPENSHA_CONVERT_PATH="/usr/bin/convert";
 	public static final String OPENSHA_GMT_DATA_PATH = "/export/opensha/data/gmt/";
-	public static final String OPENSHA_SERVLET_URL = ServletPrefs.OPENSHA_SERVLET_URL + "GMT_MapGeneratorServlet";
+	public static final String OPENSHA_SERVLET_URL = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "GMT_MapGeneratorServlet";
 	public static final String OPENSHA_JAVA_PATH = "/usr/java/1.5.0_10/bin/java";
 	public static final String OPENSHA_CLASSPATH = "/usr/local/tomcat/default/webapps/OpenSHA/WEB-INF/classes";
 	public static final String OPENSHA_NETCDF_LIB_PATH="/usr/local/netCDF/lib/";

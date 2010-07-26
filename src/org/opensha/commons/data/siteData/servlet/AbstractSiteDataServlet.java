@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.util.ServletPrefs;
+import org.opensha.commons.util.ServerPrefUtils;
 
 public abstract class AbstractSiteDataServlet<Element> extends HttpServlet {
 	
@@ -149,10 +149,10 @@ public abstract class AbstractSiteDataServlet<Element> extends HttpServlet {
 	}
 	
 	protected void fail(ObjectOutputStream out, String message) throws IOException {
-		ServletPrefs.fail(out, debugName, message);
+		ServerPrefUtils.fail(out, debugName, message);
 	}
 	
 	protected void debug(String message) {
-		ServletPrefs.debug(debugName, message);
+		ServerPrefUtils.debug(debugName, message);
 	}
 }
