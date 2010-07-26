@@ -4,6 +4,10 @@
   <information>
     <title>Hazard Curve Local Mode Application</title>
     <vendor>OpenSHA</vendor>
+    <shortcut online="true">
+      <desktop/>
+      <menu submenu="OpenSHA"/>
+    </shortcut>
   </information>
   <resources>
     <j2se version="1.6+" java-vm-args="-Xmx1024M" href="http://java.sun.com/products/autodl/j2se"/>
@@ -15,8 +19,4 @@
   <security>
     <all-permissions/>
   </security>
-  <shortcut online="true">
-    <desktop/>
-    <menu submenu="OpenSHA"/>
-  </shortcut>
 </jnlp>

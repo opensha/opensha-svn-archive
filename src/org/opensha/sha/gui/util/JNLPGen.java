@@ -67,6 +67,17 @@ public class JNLPGen {
 		titleEl.addText(title);
 		Element vendorEl = infoEl.addElement("vendor");
 		vendorEl.addText(vendor);
+		// shortcuts
+		if (startMenu || desktop) {
+			Element shortcutEl = infoEl.addElement("shortcut");
+			shortcutEl.addAttribute("online", "true");
+			if (desktop)
+				shortcutEl.addElement("desktop");
+			if (startMenu) {
+				Element menuEl = shortcutEl.addElement("menu");
+				menuEl.addAttribute("submenu", vendor);
+			}
+		}
 		
 		// resources
 		Element resourcesEl = root.addElement("resources");
@@ -94,18 +105,6 @@ public class JNLPGen {
 		// security
 		Element securityEl = root.addElement("security");
 		securityEl.addElement("all-permissions");
-		
-		// shortcuts
-		if (startMenu || desktop) {
-			Element shortcutEl = root.addElement("shortcut");
-			shortcutEl.addAttribute("online", "true");
-			if (desktop)
-				shortcutEl.addElement("desktop");
-			if (startMenu) {
-				Element menuEl = shortcutEl.addElement("menu");
-				menuEl.addAttribute("submenu", vendor);
-			}
-		}
 		
 		return doc;
 	}
