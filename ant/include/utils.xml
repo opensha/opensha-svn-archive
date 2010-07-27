@@ -62,7 +62,11 @@
 		<svn>
 			<wcVersion path=".." prefix="svn." />
 		</svn>
-		<var name="app.version" value="${major.version}.${minor.version}.${build.number}-${svn.revision.max}"/>
+		<tstamp>
+			<format property="build.date" pattern="yyyy_MM_dd" unit="day"/>
+		</tstamp>
+		<var name="app.version"
+			value="${major.version}.${minor.version}.${build.number}-${svn.revision.max}-${build.date}"/>
 	</target>
 	<target name="update.major.version">
 		<propertyfile file="${prop.file.name}" comment="${prop.file.comment}">

@@ -133,9 +133,15 @@
 	
 	<target name="copy.server.jar" if="server.apps.dir">
 		<copy file="${project.jnlp.dir}/${app.short.name}.jnlp"
-						todir="${server.apps.dir}/${app.short.name}/${app.build.type}"/>
+			todir="${server.apps.dir}/${app.short.name}/${app.build.type}"/>
 		<copy file="${app.jar}"
-						tofile="${server.apps.dir}/${app.short.name}/${app.build.type}/${app.short.name}.jar"/>
+			todir="${server.apps.dir}/${app.short.name}/${app.build.type}/"/>
+		<delete file="${server.apps.dir}/${app.short.name}/${app.build.type}/${app.short.name}.jar"/>
+		<exec executable="/bin/ln" >
+			<arg value="-s"/>
+			<arg value="${server.apps.dir}/${app.short.name}/${app.build.type}/${app.jar.name}"/>
+			<arg value="${server.apps.dir}/${app.short.name}/${app.build.type}/${app.short.name}.jar"/>
+		</exec>
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 

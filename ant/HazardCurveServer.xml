@@ -54,7 +54,8 @@
 		<!-- build manifest -->
 		<!-- set version number -->
 		<runtarget target="set.app.version" />
-		<property name="app.jar" value="${dist}/${app.short.name}-${app.version}.jar" />
+		<property name="app.jar.name" value="${app.short.name}-${app.version}.jar" />
+		<property name="app.jar" value="${dist}/${app.jar.name}" />
 		<jar destfile="${app.jar}" 
 			 basedir="${build}">
 			<manifest>
