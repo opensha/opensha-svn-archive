@@ -8,7 +8,9 @@ import java.util.HashMap;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.ParameterAPI;
@@ -17,6 +19,8 @@ import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
 import org.opensha.sha.calc.hazardMap.components.CurveResultsArchiver;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel;
@@ -31,52 +35,73 @@ import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
 
 public class HardCodedTest {
-
-	private static EqkRupForecast getERF() {
-		EqkRupForecast erf = new Frankel02_AdjustableEqkRupForecast();
-		//		forecast = new Frankel02_AdjustableEqkRupForecast();
-		erf.getTimeSpan().setDuration(50.0);
-		/*forecast.getAdjustableParameterList().getParameter(
-	               Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.
-	                                        BACK_SEIS_EXCLUDE);*/
-		erf.getAdjustableParameterList().getParameter(
-				Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.
-						BACK_SEIS_EXCLUDE);
-//		erf.getAdjustableParameterList().getParameter(
-//				Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME).setValue(
-//						Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_FINITE);
-		erf.updateForecast();
-		return erf;
+	
+	private static MeanUCERF2 getUCERF2(int years, int startYear) {
+		MeanUCERF2 ucerf = new MeanUCERF2();
+		
+		if (startYear > 0) {
+			ucerf.getAdjustableParameterList().getParameter(UCERF2.PROB_MODEL_PARAM_NAME)
+					.setValue(MeanUCERF2.PROB_MODEL_WGCEP_PREF_BLEND);
+			ucerf.getTimeSpan().setStartTime(startYear);
+		} else {
+			ucerf.getAdjustableParameterList().getParameter(UCERF2.PROB_MODEL_PARAM_NAME)
+					.setValue(UCERF2.PROB_MODEL_POISSON);
+		}
+		ucerf.getTimeSpan().setDuration(years);
+		
+		ucerf.updateForecast();
+		System.out.println("UCERF Params:");
+		System.out.println(ucerf.getAdjustableParameterList().getParameterListMetadataString());
+		
+		return ucerf;
 	}
 
-	private static ScalarIntensityMeasureRelationshipAPI getIMR(){
+	private static EqkRupForecast getERF(int years, int startYear) {
+		return getUCERF2(years, startYear);
+	}
+	
+	private static ScalarIntensityMeasureRelationshipAPI getUSGSCombined2004IMR() {
 		ScalarIntensityMeasureRelationshipAPI attenRel = new USGS_Combined_2004_AttenRel(null);
 		attenRel.setParamDefaults();
-		attenRel.getParameter(Vs30_Param.NAME).setValue(new Double(760));
-		attenRel.getParameter(SigmaTruncTypeParam.NAME).
-		setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
-		attenRel.getParameter(SigmaTruncLevelParam.NAME).
-		setValue(new Double(3.0));
 		attenRel.getParameter(ComponentParam.NAME).
-		setValue(ComponentParam.COMPONENT_AVE_HORZ);
+				setValue(ComponentParam.COMPONENT_AVE_HORZ);
+		return attenRel;
+	}
+
+	private static ScalarIntensityMeasureRelationshipAPI getIMR(double sigmaTrunc){
+		ScalarIntensityMeasureRelationshipAPI attenRel = getUSGSCombined2004IMR();
+		attenRel.getParameter(Vs30_Param.NAME).setValue(new Double(760));
+		if (sigmaTrunc > 0) {
+			attenRel.getParameter(SigmaTruncTypeParam.NAME).
+				setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
+			attenRel.getParameter(SigmaTruncLevelParam.NAME).
+				setValue(new Double(sigmaTrunc));
+		} else {
+			attenRel.getParameter(SigmaTruncTypeParam.NAME).
+			setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE);
+		}
+		
 		return attenRel;
 	}
 
 	public static void main(String args[]) throws IOException, InvocationTargetException {
-		EqkRupForecast erf = getERF();
+		int years = 30;
+		int startYear = 2010;
+		EqkRupForecast erf = getERF(years, startYear);
 		
-		
-		ScalarIntensityMeasureRelationshipAPI imr = getIMR();
+		double sigmaTrunc = 0;
+		ScalarIntensityMeasureRelationshipAPI imr = getIMR(sigmaTrunc);
 		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap =
 			TRTUtils.wrapInHashMap(imr);
 		ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps = 
 			new ArrayList<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>>();
 		imrMaps.add(imrMap);
 		
-		Location topLeft = new Location(42.1, -125.5);
-		Location bottomRight = new Location(32.4, -114.1);
 		double spacing = 0.1;
-		GriddedRegion region = new GriddedRegion(topLeft, bottomRight, spacing, topLeft);
+//		Location topLeft = new Location(42.1, -125.5);
+//		Location bottomRight = new Location(32.4, -114.1);
+//		GriddedRegion region = new GriddedRegion(topLeft, bottomRight, spacing, topLeft);
+		GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED(spacing);
 		
 		ArrayList<Site> sites = new ArrayList<Site>();
 		for (Location loc : region.getNodeList()) {
