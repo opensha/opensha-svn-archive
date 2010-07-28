@@ -3,7 +3,9 @@ package org.opensha.sha.calc.hazus.parallel;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.ListIterator;
 
@@ -35,6 +37,8 @@ import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
 
 public class HardCodedTest {
+	
+	private static SimpleDateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm");
 	
 	private static MeanUCERF2 getUCERF2(int years, int startYear) {
 		MeanUCERF2 ucerf = new MeanUCERF2();
@@ -120,7 +124,7 @@ public class HardCodedTest {
 		imtXValMap.put(SA_Param.NAME, imtInfo.getDefaultHazardCurve(SA_Param.NAME));
 		CalculationSettings calcSet = new CalculationSettings(imtXValMap, 200.0);
 		
-		String jobDir = "/home/scec-00/kmilner/hazMaps/hazus_test/";
+		String jobDir = "/home/scec-00/kmilner/hazMaps/hazus_test-" + df.format(new Date()) + "/";
 		String curveDir = jobDir + "curves/";
 		CurveResultsArchiver archiver = new AsciiFileCurveArchiver(curveDir, true, false);
 		
