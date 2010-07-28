@@ -13,8 +13,16 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
+import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.SiteDataProvidersTest;
+import org.opensha.commons.data.siteData.SiteDataValue;
+import org.opensha.commons.data.siteData.SiteDataValueList;
+import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
+import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.calc.hazardMap.components.AsciiFileCurveArchiver;
 import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
@@ -34,6 +42,7 @@ import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
+import org.opensha.sha.util.SiteTranslator;
 import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
 
@@ -114,13 +123,34 @@ public class HardCodedTest {
 //		GriddedRegion region = new GriddedRegion(topLeft, bottomRight, spacing, topLeft);
 		GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED(spacing);
 		
+		ArrayList<SiteDataAPI<?>> provs = new ArrayList<SiteDataAPI<?>>();
+		provs.add(new WillsMap2006());
+		provs.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5));
+		provs.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0));
+		ArrayList<SiteDataValue<?>>[] siteData = new ArrayList[region.getNodeCount()];
+		for (SiteDataAPI<?> prov : provs) {
+			SiteDataValueList<?> vals = prov.getAnnotatedValues(region.getNodeList());
+			for (int i=0; i<siteData.length; i++) {
+				if (siteData[i] == null)
+					siteData[i] = new ArrayList<SiteDataValue<?>>();
+				siteData[i].add(vals.getValue(i));
+			}
+		}
+		
+		SiteTranslator trans = new SiteTranslator();
+		
 		ArrayList<Site> sites = new ArrayList<Site>();
-		for (Location loc : region.getNodeList()) {
+		LocationList locs = region.getNodeList();
+		for (int i=0; i<region.getNodeCount(); i++) {
+			Location loc = locs.get(i);
 			Site site = new Site(loc);
 			ListIterator<ParameterAPI<?>> it = imr.getSiteParamsIterator();
+			ArrayList<SiteDataValue<?>> datas = siteData[i];
 			while (it.hasNext()) {
 				ParameterAPI<?> siteParam = it.next();
-				site.addParameter((ParameterAPI) siteParam.clone());
+				ParameterAPI clonedParam = (ParameterAPI) siteParam.clone();
+				trans.setParameterValue(clonedParam, datas);
+				site.addParameter(clonedParam);
 			}
 			sites.add(site);
 		}
