@@ -53,6 +53,7 @@ import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
 import org.opensha.refFaultParamDb.vo.CombinedEventsInfo;
 import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
 import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
+import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 import org.opensha.refFaultParamDb.vo.PaleoSite;
 import org.opensha.refFaultParamDb.vo.PaleoSitePublication;
 import org.opensha.refFaultParamDb.vo.PaleoSiteSummary;
@@ -581,7 +582,11 @@ ParameterChangeListener, DbAdditionListener {
 			int index = this.siteNamesList.indexOf(siteName)-1; // -1 IS NEEDED BECAUSE OF TEST SITE
 			PaleoSiteSummary paleoSiteSummary = (PaleoSiteSummary)this.paleoSiteSummaryList.get(index);
 			paleoSite = this.paleoSiteDAO.getPaleoSite(paleoSiteSummary.getSiteId());
-			faultSectionName = paleoSite.getFaultSectionName();
+			FaultSectionSummary fs = paleoSite.getFaultSectionSummary();
+			if (fs == null)
+				faultSectionName = "(null)";
+			else
+				faultSectionName = fs.getSectionName();
 			latitude = paleoSite.getSiteLat1();
 			longitude = paleoSite.getSiteLon1();
 			elevation = paleoSite.getSiteElevation1();

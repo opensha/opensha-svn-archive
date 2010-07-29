@@ -131,6 +131,10 @@ public class PaleoSite {
 	public void setSiteElevation2(float siteElevation2) {
 		this.siteElevation2 = siteElevation2;
 	}
+	
+	public FaultSectionSummary getFaultSectionSummary() {
+		return faultSection;
+	}
 
 	public String getFaultSectionName() {
 		return this.faultSection.getSectionName();

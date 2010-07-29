@@ -28,7 +28,7 @@
 	<import file="include/utils.xml"/>
 	
 	<!-- global properties -->
-	<property name="app.short.name" value="FaultSectionsApp" />
+	<property name="app.short.name" value="PaleoSitesApp" />
 	<property name="build" value="../build" />
 	<property name="dist" value="../dist" />
 	<property name="src" value="../src" />
@@ -63,7 +63,7 @@
 			 basedir="${build}">
 			<manifest>
 				<attribute name="Main-Class" 
-					       value="org.opensha.refFaultParamDb.gui.FaultSectionsAndModelsApp" />
+					       value="org.opensha.refFaultParamDb.gui.PaleoSiteApp2" />
 				<attribute name="Version" value="1.0"/>
 				<attribute name="Built-By" value="${user.name}" />
 			</manifest>
@@ -101,7 +101,7 @@
 			<src path="${src}" />
 			<!-- <src path="${dev}" /> -->
 			<!-- spcifying the main() class compiles all dependencies -->
-			<include name="org/opensha/refFaultParamDb/gui/FaultSectionsAndModelsApp.java" />
+			<include name="org/opensha/refFaultParamDb/gui/PaleoSiteApp2.java" />
 			<include name="org/opensha/refFaultParamDb/**/*.java" />
 		</javac>
 	</target>
