@@ -19,6 +19,8 @@
 
 package org.opensha.commons.util;
 
+import java.util.NoSuchElementException;
+
 public enum ServerPrefs {
 	
 	/**
@@ -46,6 +48,20 @@ public enum ServerPrefs {
 
 	public String getBuildType() {
 		return buildType;
+	}
+	
+	/**
+	 * Returns the server type with the given build type string
+	 * 
+	 * @param buildType
+	 * @return
+	 */
+	public static ServerPrefs fromBuildType(String buildType) {
+		for (ServerPrefs prefs : ServerPrefs.values()) {
+			if (prefs.getBuildType().equals(buildType))
+				return prefs;
+		}
+		throw new NoSuchElementException("No ServerPrefs instance exists with build type '" + buildType + "'");
 	}
 	
 }
