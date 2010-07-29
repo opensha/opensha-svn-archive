@@ -24,6 +24,7 @@
 	<!-- <property name="sign.jars" value="true" /> -->
 
 	<target name="build.nightly">
+		<ant antfile="compile.xml" target="update.jnlps"/>
 		<property name="server.apps.dir" value="/var/www/html/apps/opensha" />
 		<property name="app.build.type" value="nightly" />
 		<property name="sign.jars" value="true" />
@@ -31,6 +32,7 @@
 	</target>
 	
 	<target name="build.dist">
+		<ant antfile="compile.xml" target="update.jnlps"/>
 		<property name="server.apps.dir" value="/var/www/html/apps/opensha" />
 		<property name="app.build.type" value="dist" />
 		<property name="sign.jars" value="true" />
