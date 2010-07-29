@@ -20,10 +20,6 @@
 
 <project basedir="." default="svn.build.run.common.tests" name="Cruise Control Build File">
 	
-	<property name="server.apps.dir" value="/var/www/html/apps/opensha" />
-	<property name="app.build.type" value="nightly" />
-	<property name="sign.jars" value="true" />
-	
 	<target name="svn.update">
 		<ant antfile="compile.xml" target="svn.update"/>
 	</target>

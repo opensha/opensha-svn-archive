@@ -20,9 +20,23 @@
 
 <project basedir="." default="build.all" name="MultiAppBuilder">
 	
-	<property name="app.build.type" value="dist" />
+	<!-- <property name="app.build.type" value="dist" /> -->
 	<!-- <property name="sign.jars" value="true" /> -->
 
+	<target name="build.nightly">
+		<property name="server.apps.dir" value="/var/www/html/apps/opensha" />
+		<property name="app.build.type" value="nightly" />
+		<property name="sign.jars" value="true" />
+		<antcall target="build.all"/>
+	</target>
+	
+	<target name="build.dist">
+		<property name="server.apps.dir" value="/var/www/html/apps/opensha" />
+		<property name="app.build.type" value="dist" />
+		<property name="sign.jars" value="true" />
+		<antcall target="build.all"/>
+	</target>
+	
 	<target name="build.all">
 		<antcall target="build.local" />
 		<antcall target="build.server" />
