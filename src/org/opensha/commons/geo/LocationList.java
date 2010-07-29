@@ -220,6 +220,46 @@ public class LocationList extends ArrayList<Location> implements XMLSaveable {
 		return locs;
 	}
 	
+	public static double calcMinLat(Collection<Location> locs) {
+		double min = Double.MAX_VALUE;
+		for (Location loc : locs) {
+			double val = loc.getLatitude();
+			if (val < min)
+				min = val;
+		}
+		return min;
+	}
+	
+	public static double calcMinLon(Collection<Location> locs) {
+		double min = Double.MAX_VALUE;
+		for (Location loc : locs) {
+			double val = loc.getLongitude();
+			if (val < min)
+				min = val;
+		}
+		return min;
+	}
+	
+	public static double calcMaxLat(Collection<Location> locs) {
+		double max = Double.NEGATIVE_INFINITY;
+		for (Location loc : locs) {
+			double val = loc.getLatitude();
+			if (val > max)
+				max = val;
+		}
+		return max;
+	}
+	
+	public static double calcMaxLon(Collection<Location> locs) {
+		double max = Double.NEGATIVE_INFINITY;
+		for (Location loc : locs) {
+			double val = loc.getLongitude();
+			if (val > max)
+				max = val;
+		}
+		return max;
+	}
+	
 	/**
 	 * Returns an unmodifiable view of this <code>LocationList</code>. Any 
 	 * calls to methods that would result in a change to this list will

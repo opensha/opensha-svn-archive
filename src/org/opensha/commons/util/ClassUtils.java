@@ -139,6 +139,11 @@ public class ClassUtils {
       }
 
     }
-
+    
+    public static String getClassNameWithoutPackage(Class<?> theClass) {
+    	String name = theClass.getName();
+    	String[] split = name.split("\\.");
+    	return split[split.length-1];
+    }
 
 }

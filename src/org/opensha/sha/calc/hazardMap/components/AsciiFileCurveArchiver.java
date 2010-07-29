@@ -123,5 +123,10 @@ public class AsciiFileCurveArchiver implements CurveResultsArchiver {
 		}
 		return false;
 	}
+
+	@Override
+	public File getStoreDir() {
+		return new File(outputDir);
+	}
 	
 }

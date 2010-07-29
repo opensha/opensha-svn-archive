@@ -105,7 +105,7 @@ public class HardCodedTest {
 	}
 
 	public static void main(String args[]) throws IOException, InvocationTargetException {
-		int years = 30;
+		int years = 50;
 		int startYear = 2010;
 		EqkRupForecast erf = getERF(years, startYear);
 		
@@ -169,9 +169,9 @@ public class HardCodedTest {
 		String jarFile = "/home/scec-00/kmilner/hazMaps/svn/dist/OpenSHA_complete.jar";
 		
 		HazusDataSetDAGCreator dag = new HazusDataSetDAGCreator(erf, imrMaps, sites,
-				calcSet, archiver, javaExec, jarFile);
+				calcSet, archiver, javaExec, jarFile, years);
 		
-		dag.writeDAG(new File(jobDir), 100, false);
+		dag.writeDAG(new File(jobDir), 20, false);
 	}
 
 }

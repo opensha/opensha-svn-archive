@@ -1,13 +1,19 @@
 package org.opensha.sha.calc.hazus.parallel;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.util.ClassUtils;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
 
 public class HazusDataSetAssmbler {
@@ -69,6 +75,28 @@ public class HazusDataSetAssmbler {
 //					+ "," + df.format(result[2]) + "," + df.format(result[3]);
 			fw.write(line + "\n");
 		}
+		fw.close();
+	}
+	
+	public static void writeSitesFile(String fileName, Collection<Location> locs) throws IOException {
+		double minLat = LocationList.calcMinLat(locs);
+		double maxLat = LocationList.calcMaxLat(locs);
+		double minLon = LocationList.calcMinLon(locs);
+		double maxLon = LocationList.calcMaxLon(locs);
+		double latSpacing = Double.MAX_VALUE;
+		double lonSpacing = Double.MAX_VALUE;
+		for (Location loc : locs) {
+			double myLatSpacing = loc.getLatitude() - minLat;
+			double myLonSpacing = loc.getLongitude() - minLon;
+			if (myLatSpacing > 0 && myLatSpacing < latSpacing)
+				latSpacing = myLatSpacing;
+			if (myLonSpacing > 0 && myLonSpacing < lonSpacing)
+				lonSpacing = myLonSpacing;
+		}
+		FileWriter fw = new FileWriter(fileName);
+		fw.write((float)minLat + " " + (float)maxLat + " " + (float)latSpacing + "\n");
+		fw.write((float)minLon + " " + (float)maxLon + " " + (float)lonSpacing + "\n");
+		fw.close();
 	}
 	
 	private static double getValFromCurve(ArbitrarilyDiscretizedFunc curve, double returnPeriod, int years) {
@@ -81,43 +109,47 @@ public class HazusDataSetAssmbler {
 	}
 	
 	public static void main(String args[]) throws IOException {
-		System.out.println(Double.NaN);
-		HazusDataSetAssmbler assem = new HazusDataSetAssmbler("/home/kevin/OpenSHA/hazus/gridTest/curves");
+		String dataDir = null;
+		int years = -1;
+		if (args.length == 0) {
+			System.err.println("WARNING: Running with hardcoded paths!");
+			dataDir = "/home/kevin/OpenSHA/hazus/ca_0.1_test/curves";
+			years = 30;
+		} else if (args.length == 2) {
+			dataDir = args[0];
+			years = Integer.parseInt(args[1]);
+		} else {
+			String cname = ClassUtils.getClassNameWithoutPackage(HazusDataSetAssmbler.class);
+			System.out.println("USAGE: " + cname + " <dataDir> <years>");
+			System.exit(2);
+		}
+		if (!(new File(dataDir).exists()))
+			throw new FileNotFoundException("Data dir doesn't exist: " + dataDir);
+		if (years < 1)
+			throw new IllegalArgumentException("Years must be >= 1");
 		
-		HashMap<Location, double[]> results;
-		int rp;
+		HazusDataSetAssmbler assem = new HazusDataSetAssmbler(dataDir);
 		
-		rp = 100;
-		results = assem.assemble(rp, 50);
-		writeFile("/home/kevin/OpenSHA/hazus/gridTest/curves/final_" + rp + ".dat", results);
+		HashMap<Location, double[]> results = null;
+		String fileName;
 		
-		rp = 250;
-		results = assem.assemble(rp, 50);
-		writeFile("/home/kevin/OpenSHA/hazus/gridTest/curves/final_" + rp + ".dat", results);
+		ArrayList<String> fileNames = new ArrayList<String>();
 		
-		rp = 500;
-		results = assem.assemble(rp, 50);
-		writeFile("/home/kevin/OpenSHA/hazus/gridTest/curves/final_" + rp + ".dat", results);
+		int[] rps = { 100, 250, 500, 750, 1000, 1500, 2000, 2500 };
 		
-		rp = 750;
-		results = assem.assemble(rp, 50);
-		writeFile("/home/kevin/OpenSHA/hazus/gridTest/curves/final_" + rp + ".dat", results);
+		for (int rp : rps) {
+			results = assem.assemble(rp, years);
+			fileName = "final_" + rp + ".dat";
+			writeFile(dataDir+"/"+fileName, results);
+			fileNames.add(fileName);
+		}
 		
-		rp = 1000;
-		results = assem.assemble(rp, 50);
-		writeFile("/home/kevin/OpenSHA/hazus/gridTest/curves/final_" + rp + ".dat", results);
+		fileName = "sites.dat";
+		writeSitesFile(dataDir+"/"+fileName, results.keySet());
+		fileNames.add(fileName);
 		
-		rp = 1500;
-		results = assem.assemble(rp, 50);
-		writeFile("/home/kevin/OpenSHA/hazus/gridTest/curves/final_" + rp + ".dat", results);
-		
-		rp = 2000;
-		results = assem.assemble(rp, 50);
-		writeFile("/home/kevin/OpenSHA/hazus/gridTest/curves/final_" + rp + ".dat", results);
-		
-		rp = 2500;
-		results = assem.assemble(rp, 50);
-		writeFile("/home/kevin/OpenSHA/hazus/gridTest/curves/final_" + rp + ".dat", results);
+		String zipFile = dataDir + "/hazus.zip";
+		FileUtils.createZipFile(zipFile, dataDir, fileNames);
 	}
 
 }

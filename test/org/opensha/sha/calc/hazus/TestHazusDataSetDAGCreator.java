@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
+import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.gridComputing.condor.SubmitScript.Universe;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.hazardMap.components.CalculationInputsXMLFile;
@@ -44,7 +45,8 @@ public class TestHazusDataSetDAGCreator extends TestHazardDataSetDAGCreator {
 		
 		HazusDataSetDAGCreator dagCreator;
 		try {
-			dagCreator = new HazusDataSetDAGCreator(inputs, javaExec, jarFile);
+			dagCreator = new HazusDataSetDAGCreator(inputs, javaExec, jarFile,
+					(int)erf.getTimeSpan().getDuration(TimeSpan.YEARS));
 		} catch (InvocationTargetException e) {
 			throw new RuntimeException(e);
 		}

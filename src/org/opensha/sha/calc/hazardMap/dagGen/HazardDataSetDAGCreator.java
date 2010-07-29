@@ -14,6 +14,7 @@ import org.dom4j.DocumentException;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.gridComputing.condor.DAG;
 import org.opensha.commons.gridComputing.condor.SubmitScriptForDAG;
+import org.opensha.commons.gridComputing.condor.DAG.DAG_ADD_LOCATION;
 import org.opensha.commons.gridComputing.condor.SubmitScript.Universe;
 import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.util.FileUtils;
@@ -48,9 +49,9 @@ public class HazardDataSetDAGCreator {
 
 	private List<Site> sites;
 	private CalculationSettings calcSettings;
-	private CurveResultsArchiver archiver;
-	private String javaExec;
-	private String jarFile;
+	protected CurveResultsArchiver archiver;
+	protected String javaExec;
+	protected String jarFile;
 	
 	private int heapSize = 2048;
 	
@@ -58,7 +59,7 @@ public class HazardDataSetDAGCreator {
 
 	private DecimalFormat curveIndexFormat;
 
-	private Universe universe = Universe.VANILLA;
+	protected Universe universe = Universe.VANILLA;
 	
 	public static int DAGMAN_MAX_IDLE = 50;
 	public static int DAGMAN_MAX_PRE = 3;
@@ -134,6 +135,26 @@ public class HazardDataSetDAGCreator {
 		
 		fw.close();
 	}
+	
+	/**
+	 * Can be overridden to add jobs at the start of the workflow
+	 * 
+	 * @return
+	 * @throws IOException 
+	 */
+	protected DAG getPreDAG(File outputDir) throws IOException {
+		return null;
+	}
+	
+	/**
+	 * Can be overridden to add jobs at the end of the workflow
+	 * 
+	 * @return
+	 * @throws IOException 
+	 */
+	protected DAG getPostDAG(File outputDir) throws IOException {
+		return null;
+	}
 
 	/**
 	 * Writes the DAG to the specified output directory. It will the task into many small tasks
@@ -191,10 +212,16 @@ public class HazardDataSetDAGCreator {
 
 			dag.addJob(job);
 		}
+		DAG preDAG = getPreDAG(outputDir);
+		DAG postDAG = getPostDAG(outputDir);
+		if (preDAG != null)
+			dag.addDAG(preDAG, DAG_ADD_LOCATION.BEFORE_ALL);
+		if (postDAG != null)
+			dag.addDAG(postDAG, DAG_ADD_LOCATION.AFTER_ALL);
 
 		String dagFileName = odir + "main.dag";
 
-		System.out.println("Writing DAG: " + dagFileName);
+		System.out.println("Writing DAG: " + dagFileName + " (" + dag.getNumJobs() + " jobs)");
 		dag.writeDag(dagFileName);
 		
 		System.out.println("Writing DAG submit script");

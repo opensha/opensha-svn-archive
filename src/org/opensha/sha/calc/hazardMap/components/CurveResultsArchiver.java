@@ -1,5 +1,6 @@
 package org.opensha.sha.calc.hazardMap.components;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -24,5 +25,19 @@ public interface CurveResultsArchiver extends XMLSaveable {
 	 */
 	public void archiveCurve(ArbitrarilyDiscretizedFunc curve, CurveMetadata meta) throws IOException;
 	
+	/**
+	 * Returns true if the given curve has already been calculated and archived
+	 * 
+	 * @param meta
+	 * @param xVals
+	 * @return
+	 */
 	public boolean isCurveCalculated(CurveMetadata meta, ArbitrarilyDiscretizedFunc xVals);
+	
+	/**
+	 * Return the store dir if applicable (null otherwise) for this archiver.
+	 * 
+	 * @return
+	 */
+	public File getStoreDir();
 }

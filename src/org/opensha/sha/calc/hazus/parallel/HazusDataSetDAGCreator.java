@@ -1,11 +1,15 @@
 package org.opensha.sha.calc.hazus.parallel;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import org.opensha.commons.data.Site;
+import org.opensha.commons.gridComputing.condor.DAG;
+import org.opensha.commons.gridComputing.condor.SubmitScriptForDAG;
 import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterAPI;
@@ -33,6 +37,8 @@ import org.opensha.sha.util.TectonicRegionType;
  *
  */
 public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
+	
+	private int durationYears;
 
 	/**
 	 * Convenience constructor for if you already have the inputs from an XML file.
@@ -42,9 +48,10 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 	 * @param jarFile
 	 * @throws InvocationTargetException 
 	 */
-	public HazusDataSetDAGCreator(CalculationInputsXMLFile inputs, String javaExec, String jarFile) throws InvocationTargetException {
+	public HazusDataSetDAGCreator(CalculationInputsXMLFile inputs, String javaExec, String jarFile,
+			int durationYears) throws InvocationTargetException {
 		this(inputs.getERF(), inputs.getIMRMaps(), inputs.getSites(), inputs.getCalcSettings(),
-				inputs.getArchiver(), javaExec, jarFile);
+				inputs.getArchiver(), javaExec, jarFile, durationYears);
 	}
 
 	/**
@@ -65,9 +72,10 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 			CalculationSettings calcSettings,
 			CurveResultsArchiver archiver,
 			String javaExec,
-			String jarFile) throws InvocationTargetException {
+			String jarFile,
+			int durationYears) throws InvocationTargetException {
 		super(erf, getHAZUSMaps(imrMaps), getIMTList(imrMaps), sites, calcSettings, archiver, javaExec, jarFile);
-		
+		this.durationYears = durationYears;
 	}
 	
 	/**
@@ -89,9 +97,10 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 			CalculationSettings calcSettings,
 			CurveResultsArchiver archiver,
 			String javaExec,
-			String jarFile) throws InvocationTargetException {
+			String jarFile,
+			int durationYears) throws InvocationTargetException {
 		super(erf, getHAZUSMaps(imrMaps), validateIMTList(imts), sites, calcSettings, archiver, javaExec, jarFile);
-		
+		this.durationYears = durationYears;
 	}
 	
 	private static List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> getHAZUSMaps(
@@ -205,5 +214,28 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 		imts.add(saParam);
 		
 		return imts;
+	}
+
+	@Override
+	protected DAG getPostDAG(File outputDir) throws IOException {
+		DAG postDAG = new DAG();
+		
+		String odir = outputDir.getAbsolutePath();
+		if (!odir.endsWith(File.separator))
+			odir += File.separator;
+		
+		String executable = javaExec;
+		String vmArgs = "-classpath " + jarFile + " " + HazusDataSetAssmbler.class.getName();
+		String progArgs = archiver.getStoreDir().getPath() + " " + durationYears;
+		String arguments = vmArgs + " " + progArgs;
+		SubmitScriptForDAG assembleJob = new SubmitScriptForDAG("assemble", executable, arguments,
+				"/tmp", universe, true);
+		assembleJob.setRequirements(getRequirements());
+		assembleJob.writeScriptInDir(odir);
+		assembleJob.setComment("Assemble curves into HAZUS dataset");
+		
+		postDAG.addJob(assembleJob);
+		
+		return postDAG;
 	}
 }
