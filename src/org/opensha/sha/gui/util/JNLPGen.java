@@ -29,7 +29,7 @@ public class JNLPGen {
 	private String shortName;
 	private String title;
 	private int xmxMegs = 1024;
-	private ServerPrefs prefs = ServerPrefUtils.SERVER_PREFS;
+	private static ServerPrefs prefs = ServerPrefUtils.SERVER_PREFS;
 	private boolean startMenu = true;
 	private boolean desktop = true;
 	private boolean allowOffline = true;
@@ -40,6 +40,14 @@ public class JNLPGen {
 		this.shortName = shortName;
 		this.title = title;
 		this.allowOffline = allowOffline;
+	}
+	
+	public static void setDefaultServerPrefs(ServerPrefs prefs) {
+		JNLPGen.prefs = prefs;
+	}
+	
+	public void setServerPrefs(ServerPrefs prefs) {
+		JNLPGen.prefs = prefs;
 	}
 	
 	private String getDistType() {
@@ -59,7 +67,7 @@ public class JNLPGen {
 		
 		File dirFile = new File(dir);
 		if (!dirFile.exists())
-			dirFile.mkdir();
+			dirFile.mkdirs();
 		
 		String fileName = dir + File.separator + shortName + ".jnlp";
 		System.out.println("Writing JNLP to: " + fileName);
@@ -135,32 +143,42 @@ public class JNLPGen {
 	 */
 	public static void main(String[] args) throws IOException {
 		String outputDir = null;
+		ServerPrefs[] prefsToBuild = ServerPrefs.values();
 		if (args.length == 0) {
 			outputDir = JNLPGen.jnlpDir;
-		} else if (args.length == 1) {
+		} else if (args.length == 1 || args.length == 2) {
 			outputDir = args[0];
+			if (args.length == 2) {
+				String buildType = args[1];
+				prefsToBuild = new ServerPrefs[1];
+				prefsToBuild[0] = ServerPrefs.fromBuildType(buildType);
+			}
 		} else {
 			System.err.println("USAGE: JNLPGen [outputDir]");
 			System.exit(2);
 		}
-		/*		Hazard Curve				*/
-		new JNLPGen(HazardCurveLocalModeApplication.class,
-				"HazardCurveLocal", "Hazard Curve Local Mode Application", true).writeJNLPFile(outputDir);
-		new JNLPGen(HazardCurveServerModeApplication.class,
-				"HazardCurveServer", "Hazard Curve Server Mode Application", false).writeJNLPFile(outputDir);
-		/*		Hazard Spectrum				*/
-		new JNLPGen(HazardSpectrumLocalModeApplication.class,
-				"HazardSpectrumLocal", "Hazard Spectrum Local Mode Application", true).writeJNLPFile(outputDir);
-		new JNLPGen(HazardSpectrumServerModeApplication.class,
-				"HazardSpectrumServer", "Hazard Spectrum Server Mode Application", false).writeJNLPFile(outputDir);
-		/*		Scenario ShakeMap			*/
-		new JNLPGen(ScenarioShakeMapLocalModeCalcApp.class,
-				"ScenarioShakeMapLocal", "Scenario ShakeMap Local Mode Application", false).writeJNLPFile(outputDir);
-		new JNLPGen(ScenarioShakeMapApp.class,
-				"ScenarioShakeMapServer", "Scenario ShakeMap Server Mode Application", false).writeJNLPFile(outputDir);
-		/*		Attenuation Relationship	*/
-		new JNLPGen(AttenuationRelationshipApplet.class,
-				"AttenuationRelationship", "Attenuation Relationship Application", true).writeJNLPFile(outputDir);
+		for (ServerPrefs myPrefs : prefsToBuild) {
+			setDefaultServerPrefs(myPrefs);
+			String distOutDir = outputDir + File.separator + myPrefs.getBuildType();
+			/*		Hazard Curve				*/
+			new JNLPGen(HazardCurveLocalModeApplication.class,
+					"HazardCurveLocal", "Hazard Curve Local Mode Application", true).writeJNLPFile(distOutDir);
+			new JNLPGen(HazardCurveServerModeApplication.class,
+					"HazardCurveServer", "Hazard Curve Server Mode Application", false).writeJNLPFile(distOutDir);
+			/*		Hazard Spectrum				*/
+			new JNLPGen(HazardSpectrumLocalModeApplication.class,
+					"HazardSpectrumLocal", "Hazard Spectrum Local Mode Application", true).writeJNLPFile(distOutDir);
+			new JNLPGen(HazardSpectrumServerModeApplication.class,
+					"HazardSpectrumServer", "Hazard Spectrum Server Mode Application", false).writeJNLPFile(distOutDir);
+			/*		Scenario ShakeMap			*/
+			new JNLPGen(ScenarioShakeMapLocalModeCalcApp.class,
+					"ScenarioShakeMapLocal", "Scenario ShakeMap Local Mode Application", false).writeJNLPFile(distOutDir);
+			new JNLPGen(ScenarioShakeMapApp.class,
+					"ScenarioShakeMapServer", "Scenario ShakeMap Server Mode Application", false).writeJNLPFile(distOutDir);
+			/*		Attenuation Relationship	*/
+			new JNLPGen(AttenuationRelationshipApplet.class,
+					"AttenuationRelationship", "Attenuation Relationship Application", true).writeJNLPFile(distOutDir);
+		}
 	}
 
 }

@@ -132,7 +132,7 @@
 	</target>
 	
 	<target name="copy.server.jar" if="server.apps.dir">
-		<copy file="${project.jnlp.dir}/${app.short.name}.jnlp"
+		<copy file="${project.jnlp.dir}/${app.build.type}/${app.short.name}.jnlp"
 			todir="${server.apps.dir}/${app.short.name}/${app.build.type}"/>
 		<copy file="${app.jar}"
 			todir="${server.apps.dir}/${app.short.name}/${app.build.type}/"/>
