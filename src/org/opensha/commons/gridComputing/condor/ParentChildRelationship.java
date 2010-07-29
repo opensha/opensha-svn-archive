@@ -55,4 +55,16 @@ public class ParentChildRelationship {
 		this.comment = comment;
 	}
 
+	@Override
+	public String toString() {
+		String line = "";
+		if (this.hasComment()) {
+			String comment = this.getComment();
+			line += DAG.checkAddNewline(comment);
+		}
+		line += "PARENT " + this.getParent().getJobName()
+				+ " CHILD " + this.getChild().getJobName();
+		return line;
+	}
+
 }

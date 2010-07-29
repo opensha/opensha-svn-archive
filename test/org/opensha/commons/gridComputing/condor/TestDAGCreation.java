@@ -17,25 +17,15 @@ public class TestDAGCreation extends TestCase {
 		
 	}
 	
-	public void testDAGCreation() throws IOException {
-		File tempDir = FileUtils.createTempDir();
-		String dir = tempDir.getAbsolutePath() + File.separator;
-		
-		System.out.println("DIR: " + dir);
-		
+	protected static DAG createSimpleTestDAG(String initialDir) {
 		SubmitScriptForDAG id = new SubmitScriptForDAG("id", "/usr/bin/id", null,
-				tempDir.getAbsolutePath(), Universe.SCHEDULER, false);
+				initialDir, Universe.SCHEDULER, false);
 		SubmitScriptForDAG pwd = new SubmitScriptForDAG("pwd", "/bin/pwd", null,
-				tempDir.getAbsolutePath(), Universe.SCHEDULER, false);
+				initialDir, Universe.SCHEDULER, false);
 		SubmitScriptForDAG ls = new SubmitScriptForDAG("ls", "/bin/ls", "-lah",
-				tempDir.getAbsolutePath(), Universe.SCHEDULER, false);
+				initialDir, Universe.SCHEDULER, false);
 		SubmitScriptForDAG ps = new SubmitScriptForDAG("ps", "/bin/ps", "aux",
-				tempDir.getAbsolutePath(), Universe.SCHEDULER, false);
-		
-		id.writeScriptInDir(dir);
-		pwd.writeScriptInDir(dir);
-		ls.writeScriptInDir(dir);
-		ps.writeScriptInDir(dir);
+				initialDir, Universe.SCHEDULER, false);
 		
 		DAG dag = new DAG();
 		
@@ -48,6 +38,21 @@ public class TestDAGCreation extends TestCase {
 		dag.addParentChildRelationship(id, ls);
 		dag.addParentChildRelationship(pwd, ps);
 		dag.addParentChildRelationship(ls, ps);
+		
+		return dag;
+	}
+	
+	public void testDAGCreation() throws IOException {
+		File tempDir = FileUtils.createTempDir();
+		String dir = tempDir.getAbsolutePath() + File.separator;
+		
+		System.out.println("DIR: " + dir);
+		
+		DAG dag = createSimpleTestDAG(tempDir.getAbsolutePath());
+		
+		for (SubmitScriptForDAG job : dag.getJobs()) {
+			job.writeScriptInDir(dir);
+		}
 		
 		dag.writeDag(dir + "main.dag");
 	}

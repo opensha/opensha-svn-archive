@@ -6,6 +6,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.NoSuchElementException;
 
 /**
  * This class represents a Condor (high throughput computing) DAG.
@@ -17,6 +18,19 @@ import java.util.Date;
  *
  */
 public class DAG {
+	
+	public enum DAG_ADD_LOCATION {
+		
+		BEFORE_ALL("before"),
+		AFTER_ALL("after"),
+		PARALLEL("parallel");
+		
+		private String loc;
+		
+		private DAG_ADD_LOCATION(String loc) {
+			this.loc = loc;
+		}
+	}
 	
 	public static DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
 	
@@ -33,20 +47,22 @@ public class DAG {
 	}
 	
 	public void addJob(SubmitScriptForDAG script) {
-		if (script.getJobName() == null) {
-			throw new NullPointerException("Script job name cannot be null!");
-		}
-		for (SubmitScriptForDAG oldScript : scripts) {
-			if (oldScript.getJobName().equals(script.getJobName()))
-				throw new IllegalArgumentException("A script already exists in this DAG with the name " +
-						"'" + script.getJobName() + "'");
-		}
+		validateJobName(script.getJobName());
+		verifyDoesntExist(script.getJobName());
 		this.scripts.add(script);
 	}
 	
 	public void addJob(SubmitScriptForDAG script, String comment) {
 		addJob(script);
 		script.setComment(comment);
+	}
+	
+	public ArrayList<SubmitScriptForDAG> getJobs() {
+		return scripts;
+	}
+	
+	public ArrayList<ParentChildRelationship> getRelationships() {
+		return relationships;
 	}
 	
 	public void addParentChildRelationship(ParentChildRelationship relationship) {
@@ -78,6 +94,103 @@ public class DAG {
 		ParentChildRelationship relationship = new ParentChildRelationship(parent, child);
 		relationship.setComment(comment);
 		this.addParentChildRelationship(relationship);
+	}
+	
+	public void addDAG(DAG dag, DAG_ADD_LOCATION location) {
+		if (location == null)
+			throw new NullPointerException("You must specify an add location for the new DAG!");
+		// first make sure none of these jobs are duplicates
+		for (SubmitScriptForDAG newScript : dag.scripts) {
+			verifyDoesntExist(newScript.getJobName());
+		}
+		ArrayList<ParentChildRelationship> newRelationships = new ArrayList<ParentChildRelationship>();
+		if (location == DAG_ADD_LOCATION.BEFORE_ALL) {
+			// set all bottom level jobs from new DAG to be parents of all top level jobs from current DAG
+			for (SubmitScriptForDAG newScript : dag.scripts) {
+				if (!dag.isBottomLevel(newScript.getJobName()))
+					continue; // we can skip this new job if it has children
+				for (SubmitScriptForDAG oldScript : scripts) {
+					if (!isTopLevel(oldScript.getJobName()))
+						continue; // we can skip this old job if it has parents
+					newRelationships.add(new ParentChildRelationship(newScript, oldScript));
+				}
+			}
+		} else if (location == DAG_ADD_LOCATION.AFTER_ALL) {
+			// set all top level jobs from new DAG to be children of all bottom level jobs from current DAG
+			for (SubmitScriptForDAG newScript : dag.scripts) {
+				if (!dag.isTopLevel(newScript.getJobName()))
+					continue; // we can skip this new job if it has parents
+				for (SubmitScriptForDAG oldScript : scripts) {
+					if (!isBottomLevel(oldScript.getJobName()))
+						continue; // we can skip this old job if it has children
+					newRelationships.add(new ParentChildRelationship(oldScript, newScript));
+				}
+			}
+		}
+		// add the jobs
+		scripts.addAll(dag.scripts);
+		// add p/c relationships from new DAG
+		relationships.addAll(dag.relationships);
+		// add all of our new p/c relationships
+		relationships.addAll(newRelationships);
+	}
+	
+	public boolean containsJob(String jobName) {
+		for (SubmitScriptForDAG oldScript : scripts) {
+			if (oldScript.getJobName().equals(jobName))
+				return true;
+		}
+		return false;
+	}
+	
+	private void validateJobName(String jobName) {
+		if (jobName == null) {
+			throw new NullPointerException("Script job name cannot be null!");
+		}
+		String[] forbidden = { " ", ",", "\n", "\t", "/", "\\", "<", ">" };
+		for (String badStr : forbidden) {
+			if (jobName.contains(badStr))
+				throw new IllegalArgumentException("jobName '"+jobName+"' cannot contain '" + badStr + "'");
+		}
+	}
+	
+	private void verifyDoesntExist(String jobName) throws NoSuchElementException {
+		if (containsJob(jobName))
+			throw new IllegalArgumentException("A script already exists in this DAG with the name " +
+					"'" + jobName + "'");
+	}
+	
+	private void verifyExists(String jobName) throws NoSuchElementException {
+		if (!containsJob(jobName))
+			throw new NoSuchElementException("Job '" + jobName + "' doesn't exist in this DAG!");
+	}
+	
+	/**
+	 * Returns true if the specified job has no parents
+	 * @param jobName
+	 * @return
+	 */
+	public boolean isTopLevel(String jobName) {
+		verifyExists(jobName);
+		for (ParentChildRelationship rel : relationships) {
+			if (rel.getChild().getJobName().equals(jobName))
+				return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * Returns true if the specified job has no children
+	 * @param jobName
+	 * @return
+	 */
+	public boolean isBottomLevel(String jobName) {
+		verifyExists(jobName);
+		for (ParentChildRelationship rel : relationships) {
+			if (rel.getParent().getJobName().equals(jobName))
+				return false;
+		}
+		return true;
 	}
 	
 	public String getDAG() {
@@ -112,12 +225,7 @@ public class DAG {
 		
 		dag +="\n\t## Parent Child Relationships ##\n\n";
 		for (ParentChildRelationship relationship : relationships) {
-			if (relationship.hasComment()) {
-				String comment = relationship.getComment();
-				dag += checkAddNewline(comment);
-			}
-			dag += "PARENT " + relationship.getParent().getJobName()
-					+ " CHILD " + relationship.getChild().getJobName() + "\n";
+			dag += relationship.toString() + "\n";
 		}
 		
 		dag += "\n";
@@ -161,6 +269,10 @@ public class DAG {
 	public void setDotFile(String dotFileName, boolean dotUpdate) {
 		setDotFile(dotFileName);
 		this.dotUpdate = dotUpdate;
+	}
+	
+	public int getNumJobs() {
+		return scripts.size();
 	}
 
 }
