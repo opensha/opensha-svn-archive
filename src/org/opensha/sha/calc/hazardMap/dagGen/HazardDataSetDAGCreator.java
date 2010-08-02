@@ -43,12 +43,12 @@ public class HazardDataSetDAGCreator {
 
 	public static final String ERF_SERIALIZED_FILE_NAME = "erf.obj";
 
-	private EqkRupForecastAPI erf;
-	private List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps;
+	protected EqkRupForecastAPI erf;
+	protected List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps;
 	private List<DependentParameterAPI<Double>> imts;
 
-	private List<Site> sites;
-	private CalculationSettings calcSettings;
+	protected List<Site> sites;
+	protected CalculationSettings calcSettings;
 	protected CurveResultsArchiver archiver;
 	protected String javaExec;
 	protected String jarFile;

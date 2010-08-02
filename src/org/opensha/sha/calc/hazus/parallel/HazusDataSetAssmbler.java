@@ -18,12 +18,16 @@ import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
 
 public class HazusDataSetAssmbler {
 	
+	public static final String METADATA_RP_REPLACE_STR = "$RETURN_PERIOD";
+	
 	public static DecimalFormat df = new DecimalFormat("0.000000");
 	
 	HashMap<Location, ArbitrarilyDiscretizedFunc> pgaCurves;
 	HashMap<Location, ArbitrarilyDiscretizedFunc> pgvCurves;
 	HashMap<Location, ArbitrarilyDiscretizedFunc> sa03Curves;
 	HashMap<Location, ArbitrarilyDiscretizedFunc> sa10Curves;
+	
+	ArrayList<String> metadata = null;
 	
 	public HazusDataSetAssmbler(String hazardMapDir) throws IOException {
 		this(hazardMapDir + File.separator + "imrs1", hazardMapDir + File.separator + "imrs2",
@@ -41,6 +45,10 @@ public class HazusDataSetAssmbler {
 		sa10Curves = HazardDataSetLoader.loadDataSet(new File(sa10Dir));
 	}
 	
+	public void loadMetadataFile(String fileName) throws IOException {
+		metadata = FileUtils.loadFile(fileName, false);
+	}
+	
 	public HashMap<Location, double[]> assemble(double returnPeriod, int years) {
 		HashMap<Location, double[]> results = new HashMap<Location, double[]>();
 		for (Location loc : pgaCurves.keySet()) {
@@ -55,8 +63,18 @@ public class HazusDataSetAssmbler {
 		return results;
 	}
 	
-	public static void writeFile(String fileName, HashMap<Location, double[]> results) throws IOException {
+	public void writeFile(String fileName, HashMap<Location, double[]> results, double returnPeriod)
+	throws IOException {
 		FileWriter fw = new FileWriter(fileName);
+		if (metadata != null) {
+			for (String line : metadata) {
+				line = line.replaceAll(METADATA_RP_REPLACE_STR, returnPeriod+"").trim();
+				if (!line.startsWith("#"))
+					line = "#" + line;
+				fw.write(line + "\n");
+			}
+		}
+		fw.write("#Column Info: Lat,Lon,PGA,PGV,SA-0.3,SA-1" + "\n");
 		for (Location loc : results.keySet()) {
 			double[] result = results.get(loc);
 			
@@ -110,17 +128,21 @@ public class HazusDataSetAssmbler {
 	
 	public static void main(String args[]) throws IOException {
 		String dataDir = null;
+		String metadataFile = null;
 		int years = -1;
 		if (args.length == 0) {
 			System.err.println("WARNING: Running with hardcoded paths!");
 			dataDir = "/home/kevin/OpenSHA/hazus/ca_0.1_test/curves";
 			years = 30;
-		} else if (args.length == 2) {
+		} else if (args.length == 2 || args.length == 3) {
 			dataDir = args[0];
 			years = Integer.parseInt(args[1]);
+			if (args.length == 3) {
+				metadataFile = args[2];
+			}
 		} else {
 			String cname = ClassUtils.getClassNameWithoutPackage(HazusDataSetAssmbler.class);
-			System.out.println("USAGE: " + cname + " <dataDir> <years>");
+			System.out.println("USAGE: " + cname + " <dataDir> <years> [<metadataFile>]");
 			System.exit(2);
 		}
 		if (!(new File(dataDir).exists()))
@@ -129,6 +151,9 @@ public class HazusDataSetAssmbler {
 			throw new IllegalArgumentException("Years must be >= 1");
 		
 		HazusDataSetAssmbler assem = new HazusDataSetAssmbler(dataDir);
+		
+		if (metadataFile != null)
+			assem.loadMetadataFile(metadataFile);
 		
 		HashMap<Location, double[]> results = null;
 		String fileName;
@@ -140,7 +165,7 @@ public class HazusDataSetAssmbler {
 		for (int rp : rps) {
 			results = assem.assemble(rp, years);
 			fileName = "final_" + rp + ".dat";
-			writeFile(dataDir+"/"+fileName, results);
+			assem.writeFile(dataDir+"/"+fileName, results, rp);
 			fileNames.add(fileName);
 		}
 		

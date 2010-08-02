@@ -13,6 +13,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataProvidersTest;
@@ -20,6 +21,8 @@ import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
+import org.opensha.commons.data.siteData.util.SiteDataTypeParameterNameMap;
+import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -41,6 +44,8 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
+import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
+import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.util.SiteTranslator;
 import org.opensha.sha.util.TRTUtils;
@@ -49,6 +54,7 @@ import org.opensha.sha.util.TectonicRegionType;
 public class HardCodedTest {
 	
 	private static SimpleDateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm");
+	private static final boolean constrainBasinMin = true;
 	
 	private static MeanUCERF2 getUCERF2(int years, int startYear) {
 		MeanUCERF2 ucerf = new MeanUCERF2();
@@ -124,9 +130,44 @@ public class HardCodedTest {
 		GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED(spacing);
 		
 		ArrayList<SiteDataAPI<?>> provs = new ArrayList<SiteDataAPI<?>>();
-		provs.add(new WillsMap2006());
-		provs.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5));
-		provs.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0));
+		SiteDataTypeParameterNameMap siteDataMap = SiteTranslator.DATA_TYPE_PARAM_NAME_MAP;
+		if (siteDataMap.isTypeApplicable(SiteDataAPI.TYPE_VS30, imr))
+			provs.add(new WillsMap2006());
+		if (siteDataMap.isTypeApplicable(SiteDataAPI.TYPE_DEPTH_TO_2_5, imr))
+			provs.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5));
+		if (siteDataMap.isTypeApplicable(SiteDataAPI.TYPE_DEPTH_TO_1_0, imr))
+			provs.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0));
+		
+		if (constrainBasinMin) {
+			// constrain basin depth to default minimums
+			for (SiteDataAPI<?> prov : provs) {
+				if (prov.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_2_5)
+						|| prov.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_1_0)) {
+					ParameterAPI<Double> minBasinParam = null;
+					try {
+						minBasinParam = prov.getAdjustableParameterList()
+							.getParameter(AbstractSiteData.PARAM_MIN_BASIN_DEPTH_DOUBLE_NAME);
+					} catch (ParameterException e) {}
+					if (minBasinParam != null) {
+						ListIterator<ParameterAPI<?>> siteParamsIt = imr.getSiteParamsIterator();
+						while (siteParamsIt.hasNext()) {
+							ParameterAPI<?> param = siteParamsIt.next();
+							if (param.getName().equals(DepthTo2pt5kmPerSecParam.NAME)
+									&& prov.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_2_5)) {
+								minBasinParam.setValue((Double)param.getValue());
+							} else if (param.getName().equals(DepthTo1pt0kmPerSecParam.NAME)
+									&& prov.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_1_0)) {
+								Double minVal = (Double)param.getValue();
+								// convert from KM to M
+								minVal *= 1000;
+								minBasinParam.setValue(minVal);
+							}
+						}
+					}
+				}
+			}
+		}
+		
 		ArrayList<SiteDataValue<?>>[] siteData = new ArrayList[region.getNodeCount()];
 		for (SiteDataAPI<?> prov : provs) {
 			SiteDataValueList<?> vals = prov.getAnnotatedValues(region.getNodeList());
@@ -169,7 +210,7 @@ public class HardCodedTest {
 		String jarFile = "/home/scec-00/kmilner/hazMaps/svn/dist/OpenSHA_complete.jar";
 		
 		HazusDataSetDAGCreator dag = new HazusDataSetDAGCreator(erf, imrMaps, sites,
-				calcSet, archiver, javaExec, jarFile, years);
+				calcSet, archiver, javaExec, jarFile, years, region);
 		
 		dag.writeDAG(new File(jobDir), 20, false);
 	}

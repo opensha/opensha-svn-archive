@@ -1,6 +1,7 @@
 package org.opensha.sha.calc.hazus.parallel;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -8,6 +9,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.geo.GriddedRegion;
+import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.gridComputing.condor.DAG;
 import org.opensha.commons.gridComputing.condor.SubmitScriptForDAG;
 import org.opensha.commons.param.DependentParameterAPI;
@@ -39,6 +44,7 @@ import org.opensha.sha.util.TectonicRegionType;
 public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 	
 	private int durationYears;
+	private GriddedRegion region;
 
 	/**
 	 * Convenience constructor for if you already have the inputs from an XML file.
@@ -49,9 +55,9 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 	 * @throws InvocationTargetException 
 	 */
 	public HazusDataSetDAGCreator(CalculationInputsXMLFile inputs, String javaExec, String jarFile,
-			int durationYears) throws InvocationTargetException {
+			int durationYears, GriddedRegion region) throws InvocationTargetException {
 		this(inputs.getERF(), inputs.getIMRMaps(), inputs.getSites(), inputs.getCalcSettings(),
-				inputs.getArchiver(), javaExec, jarFile, durationYears);
+				inputs.getArchiver(), javaExec, jarFile, durationYears, region);
 	}
 
 	/**
@@ -73,9 +79,11 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 			CurveResultsArchiver archiver,
 			String javaExec,
 			String jarFile,
-			int durationYears) throws InvocationTargetException {
+			int durationYears,
+			GriddedRegion region) throws InvocationTargetException {
 		super(erf, getHAZUSMaps(imrMaps), getIMTList(imrMaps), sites, calcSettings, archiver, javaExec, jarFile);
 		this.durationYears = durationYears;
+		this.region = region;
 	}
 	
 	/**
@@ -98,9 +106,11 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 			CurveResultsArchiver archiver,
 			String javaExec,
 			String jarFile,
-			int durationYears) throws InvocationTargetException {
+			int durationYears,
+			GriddedRegion region) throws InvocationTargetException {
 		super(erf, getHAZUSMaps(imrMaps), validateIMTList(imts), sites, calcSettings, archiver, javaExec, jarFile);
 		this.durationYears = durationYears;
+		this.region = region;
 	}
 	
 	private static List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> getHAZUSMaps(
@@ -215,6 +225,65 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 		
 		return imts;
 	}
+	
+	private String getIMRMetadata() {
+		String meta = null;
+		
+		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap1 = this.imrMaps.get(0);
+		if (imrMap1.size() == 1) {
+			ScalarIntensityMeasureRelationshipAPI imr = imrMap1.values().iterator().next();
+			meta = "IMR = " + imr.getName() + "; " + imr.getAllParamMetadata();
+		} else {
+			meta = "IMR = (multiple)";
+			for (TectonicRegionType trt : imrMap1.keySet()) {
+				ScalarIntensityMeasureRelationshipAPI imr = imrMap1.get(trt);
+				meta += "; " + trt.toString() + " = " + imr.getName() + "; " + imr.getAllParamMetadata();
+			}
+		}
+		
+		return meta;
+	}
+	
+	private String getSitesMetadata() {
+		double minLat = region.getMinGridLat();
+		double maxLat = region.getMaxGridLat();
+		double minLon = region.getMinGridLon();
+		double maxLon = region.getMaxGridLon();
+		double spacing = region.getSpacing();
+		
+		return "Min Longitude = "+minLon+"; Max Longitude = "+maxLon+"; " +
+				"Min  Latitude = "+minLat+"; Max  Latitude = "+maxLat+"; Grid Spacing = "+spacing+";";
+	}
+	
+	private String getERFMetadata() {
+		return "Eqk Rup Forecast = " + erf.getName() + "; "
+			+ erf.getAdjustableParameterList().getParameterListMetadataString();
+	}
+	
+	private String writeMetadataFile(String odir) throws IOException {
+		String fileName = odir + "metadata.dat";
+		FileWriter fw = new FileWriter(fileName);
+		
+		// line 1, IMR
+		fw.write(getIMRMetadata() + "\n");
+		// line 2, blank
+		fw.write("" + "\n");
+		// line 3, Sites
+		fw.write(getSitesMetadata() + "\n");
+		// line 4, blank
+		fw.write("" + "\n");
+		// line 5, ERF
+		fw.write(getERFMetadata() + "\n");
+		// line 6, duration
+		fw.write("Duration = " + erf.getTimeSpan().getDuration(TimeSpan.YEARS) + "\n");
+		// line 7, RP
+		fw.write("Return Period = " + HazusDataSetAssmbler.METADATA_RP_REPLACE_STR + "\n");
+		// line 8, cutoff
+		fw.write("Maximum Site Source Distance = " + this.calcSettings.getMaxSourceDistance() + "\n");
+		
+		fw.close();
+		return fileName;
+	}
 
 	@Override
 	protected DAG getPostDAG(File outputDir) throws IOException {
@@ -224,9 +293,11 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 		if (!odir.endsWith(File.separator))
 			odir += File.separator;
 		
+		String metadataFile = writeMetadataFile(odir);
+		
 		String executable = javaExec;
 		String vmArgs = "-classpath " + jarFile + " " + HazusDataSetAssmbler.class.getName();
-		String progArgs = archiver.getStoreDir().getPath() + " " + durationYears;
+		String progArgs = archiver.getStoreDir().getPath() + " " + durationYears + " " + metadataFile;
 		String arguments = vmArgs + " " + progArgs;
 		SubmitScriptForDAG assembleJob = new SubmitScriptForDAG("assemble", executable, arguments,
 				"/tmp", universe, true);

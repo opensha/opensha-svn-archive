@@ -37,6 +37,7 @@ public class TestHazardDataSetDAGCreator {
 	protected static CalculationSettings calcSettings;
 	protected static CurveResultsArchiver archiver;
 	protected static File tempDir;
+	protected static GriddedRegion region;
 	
 	public static double spacing = 0.1;
 
@@ -48,7 +49,7 @@ public class TestHazardDataSetDAGCreator {
 		
 		ScalarIntensityMeasureRelationshipAPI cb08 = imrMaps.get(0).get(TectonicRegionType.ACTIVE_SHALLOW);
 		
-		GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED(spacing);
+		region = new CaliforniaRegions.RELM_TESTING_GRIDDED(spacing);
 		
 		sites = new ArrayList<Site>();
 		for (Location loc : region) {
