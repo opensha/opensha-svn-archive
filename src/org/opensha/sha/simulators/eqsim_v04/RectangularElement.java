@@ -27,7 +27,8 @@ public class RectangularElement {
 	private int numDownDip;
 	
 	/**
-	 * 
+	 * This creates the RectangularElement from the supplied information.  Note that this assumes
+	 * the vertices correspond to a perfect rectangle.
 	 * @param index
 	 * @param vertices - a list of 4 vertices, where the order is as follows as viewed 
 	 *                   from the positive side of the fault: 0th is top left, 1st is lower left,
@@ -38,12 +39,13 @@ public class RectangularElement {
 	 * @param numAlongStrike - index along strike on the fault section
 	 * @param numDownDip - index down dip
 	 * @param slipRate - slip rate (units?)
-	 * @param elementStrength - REMOVE THIS?
+	 * @param aseisFactor - aseismicity factor
 	 * @param focalMechanism - this contains the strike, dip, and rake
 	 */
 	public RectangularElement(int index, Vertex[] vertices, String sectionName,
 			int faultIndex, int sectionIndex, int numAlongStrike, int numDownDip,
-			double slipRate, double elementStrength, FocalMechanism focalMechanism) {
+			double slipRate, double aseisFactor, FocalMechanism focalMechanism, 
+			boolean perfectRect) {
 
 		if(vertices.length !=4 )
 			throw new RuntimeException("RectangularElement: vertices.length should equal 4");
@@ -56,7 +58,11 @@ public class RectangularElement {
 		this.numAlongStrike = numAlongStrike;
 		this.numDownDip = numDownDip;
 		this.slipRate = slipRate;
+		this.aseisFactor = aseisFactor;
 		this.focalMechanism = focalMechanism;
+		this.perfect = perfectRect;
+		
+		this.perfect = true;
 		
 	}
 	
@@ -155,57 +161,64 @@ public class RectangularElement {
 	
 
 	/**
-	 *  This creates the element from a Ward format line
+	 *  This creates the element from a line according to the supplied format
 	 * @param line
+	 * @param formatType - format type: 0 for Ward input file lines
+
 	 */
-	public RectangularElement(String line) {
+	public RectangularElement(String line, int formatType) {
 		StringTokenizer tok = new StringTokenizer(line);
 
-		index = Integer.parseInt(tok.nextToken()); // unique number ID for each element
-		numAlongStrike = Integer.parseInt(tok.nextToken()); // Number along strike
-		numDownDip = Integer.parseInt(tok.nextToken()); // Number down dip
-		faultIndex = Integer.parseInt(tok.nextToken()); // Fault Number
-		sectionIndex = Integer.parseInt(tok.nextToken()); // Segment Number
-		slipRate = Double.parseDouble(tok.nextToken()); // Slip Rate in m/y.
-		double strength = Double.parseDouble(tok.nextToken()); // Element Strength in Bars.
-		double strike = Double.parseDouble(tok.nextToken()); // stike
-		double dip = Double.parseDouble(tok.nextToken()); // dip
-		double rake = Double.parseDouble(tok.nextToken()); // rake
-		this.focalMechanism = new FocalMechanism(strike, dip, rake);
+		// Ward format
+		if(formatType == 0) {
+			index = Integer.parseInt(tok.nextToken()); // unique number ID for each element
+			numAlongStrike = Integer.parseInt(tok.nextToken()); // Number along strike
+			numDownDip = Integer.parseInt(tok.nextToken()); // Number down dip
+			faultIndex = Integer.parseInt(tok.nextToken()); // Fault Number
+			sectionIndex = Integer.parseInt(tok.nextToken()); // Segment Number
+			slipRate = Double.parseDouble(tok.nextToken()); // Slip Rate in m/y.
+			double strength = Double.parseDouble(tok.nextToken()); // Element Strength in Bars (not used).
+			double strike = Double.parseDouble(tok.nextToken()); // stike
+			double dip = Double.parseDouble(tok.nextToken()); // dip
+			double rake = Double.parseDouble(tok.nextToken()); // rake
+			this.focalMechanism = new FocalMechanism(strike, dip, rake);
 
-		vertices = new Vertex[4];
-		// 0th vertex
-		double lat = Double.parseDouble(tok.nextToken());
-		double lon = Double.parseDouble(tok.nextToken());
-		double depth = Double.parseDouble(tok.nextToken()) / -1000d;
-		vertices[0] = new Vertex(lat, lon, depth);
-		// 1st vertex
-		lat = Double.parseDouble(tok.nextToken());
-		lon = Double.parseDouble(tok.nextToken());
-		depth = Double.parseDouble(tok.nextToken()) / -1000d;
-		vertices[1] = new Vertex(lat, lon, depth);
-		// 2nd vertex
-		lat = Double.parseDouble(tok.nextToken());
-		lon = Double.parseDouble(tok.nextToken());
-		depth = Double.parseDouble(tok.nextToken()) / -1000d;
-		vertices[2] = new Vertex(lat, lon, depth);
-		// last vertex
-		lat = Double.parseDouble(tok.nextToken());
-		lon = Double.parseDouble(tok.nextToken());
-		depth = Double.parseDouble(tok.nextToken()) / -1000d;
-		vertices[3] = new Vertex(lat, lon, depth);
-		
-		String name = null;
-		while (tok.hasMoreTokens()) {
-			if (name == null)
-				name = "";
-			else
-				name += " ";
-			name += tok.nextToken();
+			vertices = new Vertex[4];
+			// 0th vertex
+			double lat = Double.parseDouble(tok.nextToken());
+			double lon = Double.parseDouble(tok.nextToken());
+			double depth = Double.parseDouble(tok.nextToken()) / -1000d;
+			vertices[0] = new Vertex(lat, lon, depth);
+			// 1st vertex
+			lat = Double.parseDouble(tok.nextToken());
+			lon = Double.parseDouble(tok.nextToken());
+			depth = Double.parseDouble(tok.nextToken()) / -1000d;
+			vertices[1] = new Vertex(lat, lon, depth);
+			// 2nd vertex
+			lat = Double.parseDouble(tok.nextToken());
+			lon = Double.parseDouble(tok.nextToken());
+			depth = Double.parseDouble(tok.nextToken()) / -1000d;
+			vertices[2] = new Vertex(lat, lon, depth);
+			// last vertex
+			lat = Double.parseDouble(tok.nextToken());
+			lon = Double.parseDouble(tok.nextToken());
+			depth = Double.parseDouble(tok.nextToken()) / -1000d;
+			vertices[3] = new Vertex(lat, lon, depth);
+
+			String name = null;
+			while (tok.hasMoreTokens()) {
+				if (name == null)
+					name = "";
+				else
+					name += " ";
+				name += tok.nextToken();
+			}
+
+			sectionName = name;
 		}
-		
-		sectionName = name;
-		
+		else
+			throw new RuntimeException("Unknown format specification");
+
 	}
-	
+
 }

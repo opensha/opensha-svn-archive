@@ -33,6 +33,24 @@ public class Vertex extends Location {
 		this.traceFlag=traceFlag;
 	}
 	
+	
+	/**
+	 * This constructor takes a location object
+	 * @param loc
+	 * @param index - this is an integer ID for this vertex (should be unique among all vertices)
+	 * @param das - distance along trace
+	 * @param traceFlag - tells whether is on the fault trace  (0 means no; 1 means yes, but not
+	 * 		              the first or last point; 2 means yes & it's the first; and 3 means yes 
+	 *                    & it's the last point)
+	 */
+	public Vertex(Location loc, int index, double das, int traceFlag) {
+		super(loc.getLatitude(), loc.getLongitude(), loc.getDepth());
+		this.index=index;
+		this.das=das;
+		this.traceFlag=traceFlag;
+	}
+
+	
 	public Vertex(double latitute,double longitude,double depth) {
 		super(latitute, longitude, depth);
 		das = Double.NaN;
