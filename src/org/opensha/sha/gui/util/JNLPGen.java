@@ -1,11 +1,18 @@
 package org.opensha.sha.gui.util;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.opensha.commons.util.IconGen;
 import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.ServerPrefs;
 import org.opensha.commons.util.XMLUtils;
@@ -25,21 +32,48 @@ public class JNLPGen {
 	private static final String vendor = "OpenSHA";
 	private static final String homepage = "http://www.opensha.org";
 	
+	private static final String iconsDirName = "icons";
+	
 	private Class<?> theClass;
 	private String shortName;
 	private String title;
+	private String iconText;
 	private int xmxMegs = 1024;
 	private static ServerPrefs prefs = ServerPrefUtils.SERVER_PREFS;
 	private boolean startMenu = true;
 	private boolean desktop = true;
 	private boolean allowOffline = true;
 	
-	public JNLPGen(Class<?> theClass, String shortName, String title, boolean allowOffline) {
+	private ArrayList<IconEntry> icons;
+	
+	public JNLPGen(Class<?> theClass, String shortName, String title, String iconText, boolean allowOffline) {
 		System.out.println("Creating JNLP for: " + theClass.getName());
 		this.theClass = theClass;
 		this.shortName = shortName;
 		this.title = title;
+		this.iconText = iconText;
 		this.allowOffline = allowOffline;
+	}
+	
+	private void generateAppIcons(String baseDir) throws IOException {
+		String iconDir = baseDir + File.separator + iconsDirName;
+		File dirFile = new File(iconDir);
+		if (!dirFile.exists())
+			dirFile.mkdirs();
+		
+		IconGen gen = new IconGen(IconGen.loadLogoIcon(), iconText, Font.SANS_SERIF, Color.WHITE, Color.BLACK);
+		if (allowOffline)
+			gen.setUpperRightImage(IconGen.loadLocalIcon());
+		else
+			gen.setUpperRightImage(IconGen.loadServerIcon());
+		icons = new ArrayList<IconEntry>();
+		int[] sizes = { 16, 32, 48, 64, 128 };
+		for (int size : sizes) {
+			BufferedImage icon = gen.getIcon(size, size);
+			String fileName = shortName + "_" + size + "x" + size + ".png";
+			ImageIO.write(icon, "png", new File(iconDir + File.separator + fileName));
+			icons.add(new IconEntry(iconsDirName + "/" + fileName, size, size));
+		}
 	}
 	
 	public static void setDefaultServerPrefs(ServerPrefs prefs) {
@@ -82,7 +116,7 @@ public class JNLPGen {
 		Element root = doc.getRootElement();
 		
 		// root attributes
-		root.addAttribute("spec", "1.5+");
+		root.addAttribute("spec", "6.0+");
 		String codeBaseURL = webRoot + "/" + shortName + "/" + getDistType();
 		root.addAttribute("codebase", codeBaseURL);
 		root.addAttribute("href", shortName + ".jnlp");
@@ -109,13 +143,24 @@ public class JNLPGen {
 			// offline-allowed
 			infoEl.addElement("offline-allowed");
 		}
+		// icons
+		if (icons != null) {
+			for (IconEntry icon : icons) {
+				Element iconEl = infoEl.addElement("icon");
+				iconEl.addAttribute("href", icon.url);
+				iconEl.addAttribute("width", icon.width+"");
+				iconEl.addAttribute("height", icon.height+"");
+				if (icon.kind != null && icon.kind.length() > 0)
+					iconEl.addAttribute("kind", icon.kind);
+			}
+		}
 		
 		// resources
 		Element resourcesEl = root.addElement("resources");
-		Element j2seEl = resourcesEl.addElement("j2se");
-		j2seEl.addAttribute("version", "1.6+");
-		j2seEl.addAttribute("java-vm-args", "-Xmx"+xmxMegs+"M");
-		j2seEl.addAttribute("href", "http://java.sun.com/products/autodl/j2se");
+		Element javaEl = resourcesEl.addElement("java");
+		javaEl.addAttribute("version", "1.6+");
+		javaEl.addAttribute("java-vm-args", "-Xmx"+xmxMegs+"M");
+		javaEl.addAttribute("href", "http://java.sun.com/products/autodl/j2se");
 		Element jarEl = resourcesEl.addElement("jar");
 		String jarName = shortName + ".jar";
 		jarEl.addAttribute("href", jarName);
@@ -136,6 +181,25 @@ public class JNLPGen {
 		
 		return doc;
 	}
+	
+	private class IconEntry {
+		
+		String url;
+		String kind;
+		int width;
+		int height;
+		
+		public IconEntry(String url, int width, int height) {
+			this(url, width, height, null);
+		}
+		
+		public IconEntry(String url, int width, int height, String kind) {
+			this.url = url;
+			this.width = width;
+			this.height = height;
+			this.kind = kind;
+		}
+	}
 
 	/**
 	 * @param args
@@ -154,30 +218,36 @@ public class JNLPGen {
 				prefsToBuild[0] = ServerPrefs.fromBuildType(buildType);
 			}
 		} else {
-			System.err.println("USAGE: JNLPGen [outputDir]");
+			System.err.println("USAGE: JNLPGen [outputDir [build_type]]");
 			System.exit(2);
 		}
+		ArrayList<JNLPGen> appsToBuild = new ArrayList<JNLPGen>();
+		/*		Hazard Curve				*/
+		appsToBuild.add(new JNLPGen(HazardCurveLocalModeApplication.class,
+				"HazardCurveLocal", "Hazard Curve Local Mode Application", "HC", true));
+		appsToBuild.add(new JNLPGen(HazardCurveServerModeApplication.class,
+				"HazardCurveServer", "Hazard Curve Server Mode Application", "HC", false));
+		/*		Hazard Spectrum				*/
+		appsToBuild.add(new JNLPGen(HazardSpectrumLocalModeApplication.class,
+				"HazardSpectrumLocal", "Hazard Spectrum Local Mode Application", "HS", true));
+		appsToBuild.add(new JNLPGen(HazardSpectrumServerModeApplication.class,
+				"HazardSpectrumServer", "Hazard Spectrum Server Mode Application", "HS", false));
+		/*		Scenario ShakeMap			*/
+		appsToBuild.add(new JNLPGen(ScenarioShakeMapLocalModeCalcApp.class,
+				"ScenarioShakeMapLocal", "Scenario ShakeMap Local Mode Application", "SM", true));
+		appsToBuild.add(new JNLPGen(HazardSpectrumServerModeApplication.class,
+				"ScenarioShakeMapServer", "Scenario ShakeMap Server Mode Application", "SM", false));
+		/*		Attenuation Relationship	*/
+		appsToBuild.add(new JNLPGen(AttenuationRelationshipApplet.class,
+				"AttenuationRelationship", "Attenuation Relationship Application", "AR", true));
+		
 		for (ServerPrefs myPrefs : prefsToBuild) {
 			setDefaultServerPrefs(myPrefs);
 			String distOutDir = outputDir + File.separator + myPrefs.getBuildType();
-			/*		Hazard Curve				*/
-			new JNLPGen(HazardCurveLocalModeApplication.class,
-					"HazardCurveLocal", "Hazard Curve Local Mode Application", true).writeJNLPFile(distOutDir);
-			new JNLPGen(HazardCurveServerModeApplication.class,
-					"HazardCurveServer", "Hazard Curve Server Mode Application", false).writeJNLPFile(distOutDir);
-			/*		Hazard Spectrum				*/
-			new JNLPGen(HazardSpectrumLocalModeApplication.class,
-					"HazardSpectrumLocal", "Hazard Spectrum Local Mode Application", true).writeJNLPFile(distOutDir);
-			new JNLPGen(HazardSpectrumServerModeApplication.class,
-					"HazardSpectrumServer", "Hazard Spectrum Server Mode Application", false).writeJNLPFile(distOutDir);
-			/*		Scenario ShakeMap			*/
-			new JNLPGen(ScenarioShakeMapLocalModeCalcApp.class,
-					"ScenarioShakeMapLocal", "Scenario ShakeMap Local Mode Application", false).writeJNLPFile(distOutDir);
-			new JNLPGen(ScenarioShakeMapApp.class,
-					"ScenarioShakeMapServer", "Scenario ShakeMap Server Mode Application", false).writeJNLPFile(distOutDir);
-			/*		Attenuation Relationship	*/
-			new JNLPGen(AttenuationRelationshipApplet.class,
-					"AttenuationRelationship", "Attenuation Relationship Application", true).writeJNLPFile(distOutDir);
+			for (JNLPGen app : appsToBuild) {
+				app.generateAppIcons(distOutDir);
+				app.writeJNLPFile(distOutDir);
+			}
 		}
 	}
 

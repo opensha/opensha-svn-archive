@@ -132,8 +132,12 @@
 	</target>
 	
 	<target name="copy.server.jar" if="server.apps.dir">
-		<copy file="${project.jnlp.dir}/${app.build.type}/${app.short.name}.jnlp"
-			todir="${server.apps.dir}/${app.short.name}/${app.build.type}"/>
+		<copy todir="${server.apps.dir}/${app.short.name}/${app.build.type}">
+			<fileset dir="${project.jnlp.dir}/${app.build.type}">
+				<include name="${app.short.name}.jnlp"/>
+				<include name="icons/${app.short.name}*"/>
+			</fileset>
+		</copy>
 		<copy file="${app.jar}"
 			todir="${server.apps.dir}/${app.short.name}/${app.build.type}/"/>
 		<delete file="${server.apps.dir}/${app.short.name}/${app.build.type}/${app.short.name}.jar"/>

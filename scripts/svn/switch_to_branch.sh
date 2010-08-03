@@ -7,7 +7,7 @@ if [[ ! $branch ]];then
 	exit 2
 fi
 
-url="https://intensity.usc.edu/svn/opensha/branches/$branch"
+url="https://source.usc.edu/svn/opensha/branches/$branch"
 
 echo "switching to branch $branch at $url"
 
