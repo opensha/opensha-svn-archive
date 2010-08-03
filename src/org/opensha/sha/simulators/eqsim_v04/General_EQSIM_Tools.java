@@ -21,8 +21,6 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.final
 import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
-import sun.tools.tree.ThisExpression;
-
 /**
  * This class reads and writes various files, as well as doing some analysis of simulator results.
  * 
