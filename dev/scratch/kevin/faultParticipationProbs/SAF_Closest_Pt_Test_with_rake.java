@@ -6,12 +6,11 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 
 import org.opensha.commons.data.Container2D;
 import org.opensha.commons.data.NamedObjectAPI;
-import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
@@ -22,6 +21,7 @@ import org.opensha.refFaultParamDb.calc.sectionDists.FaultSectDistRecord;
 import org.opensha.refFaultParamDb.calc.sectionDists.SmartSurfaceFilter;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
@@ -32,12 +32,12 @@ import org.opensha.sha.faultSurface.SimpleFaultData;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
-public class SAF_Closest_Pt_Test implements TaskProgressListener {
+public class SAF_Closest_Pt_Test_with_rake implements TaskProgressListener {
 
 	private static final double gridSpacing = 1.0;
+	private static final double halfGridSpacing = gridSpacing * 0.5d;
 	
 	private static final boolean QUICK_TEST = false;
-	private static final boolean TIME_DEPENDENT = true;
 
 	private ArrayList<ProbEqkSource> sources;
 
@@ -46,7 +46,7 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 	private static final SmartSurfaceFilter filter = new SmartSurfaceFilter(2, 5, 150);
 	private static final boolean fastDist = true;
 	private static double filterDistThresh = 10d;
-	private static double closestThresh = 7.5d;
+	private static double closestThresh = 10d;
 
 	private double minMag;
 	private double maxMag;
@@ -62,7 +62,7 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 	
 	private ArrayList<Location> unassignedLocs = new ArrayList<Location>();
 
-	public SAF_Closest_Pt_Test(DeformationModelPrefDataFinal data, int defModel, ArrayList<ProbEqkSource> sources,
+	public SAF_Closest_Pt_Test_with_rake(DeformationModelPrefDataFinal data, int defModel, ArrayList<ProbEqkSource> sources,
 			double minMag, double maxMag, int numMagBins, int duration) {
 		this.sources = sources;
 		this.minMag = minMag;
@@ -74,11 +74,19 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 
 		for (int faultSectionId : data.getFaultSectionIdsForDeformationModel(defModel)) {
 			FaultSectionPrefData fault = data.getFaultSectionPrefData(defModel, faultSectionId);
+			
 			SimpleFaultData simpleFaultData = fault.getSimpleFaultData(false);
 			StirlingGriddedSurface surface = new StirlingGriddedSurface(simpleFaultData, gridSpacing, gridSpacing);
-
-			faults.add(new FaultProbPairing(surface, fault.getName(), faultSectionId, fault.getAveLongTermSlipRate()));
+			FocalMechanism fm = new FocalMechanism(getStrikeEst(surface), fault.getAveDip(), fault.getAveRake());
+			faults.add(new FaultProbPairing(surface, fault.getName(), faultSectionId,
+					fault.getAveLongTermSlipRate(), fm));
 		}
+	}
+	
+	private static double getStrikeEst(EvenlyGriddedSurfaceAPI surface) {
+		Location pt1 = surface.get(0, 0);
+		Location pt2 = surface.get(0, surface.getNumCols()-1);
+		return LocationUtils.azimuth(pt2, pt1);
 	}
 
 	public void loadMFDs() throws InterruptedException {
@@ -133,9 +141,11 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 		@Override
 		public void compute() {
 			double mag = rup.getMag();
+			EvenlyGriddedSurfaceAPI rupSurface = rup.getRuptureSurface();
+			FocalMechanism fm = new FocalMechanism(getStrikeEst(rupSurface), Double.NaN, rup.getAveRake());
 			double meanAnnualRate = rup.getMeanAnnualRate(duration);
-			for (Location rupPt : rup.getRuptureSurface()) {
-				SummedMagFreqDist closestMFD = getClosestMFD(faultsForRup, rupPt);
+			for (Location rupPt : rupSurface) {
+				SummedMagFreqDist closestMFD = getClosestMFD(faultsForRup, rupPt, fm);
 				if (closestMFD == null) {
 					numUnassigned++;
 					unassignedLocs.add(rupPt);
@@ -148,25 +158,7 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 		
 	}
 	
-	/**
-	 * returns the median...array must be sorted
-	 * 
-	 * @param m
-	 * @return
-	 */
-	private static double median(double[] m) {
-		int middle = (m.length)/2;  // subscript of middle element
-		if (m.length%2 == 1) {
-			// Odd number of elements -- return the middle one.
-			return m[middle];
-		} else {
-			// Even number -- return average of middle two
-			// Must cast the numbers to double before dividing.
-			return (m[middle-1] + m[middle]) / 2.0;
-		}
-	}
-	
-	public void writeFiles(String dir, float[] mags, boolean colMedian) throws IOException {
+	public void writeFiles(String dir, float[] mags) throws IOException {
 		File pDirFile = new File(dir + File.separator + "prob");
 		File rDirFile = new File(dir + File.separator + "rate");
 		if (!pDirFile.exists())
@@ -195,41 +187,15 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 				rfw.write(header + "\n");
 				pfw.write(header + "\n");
 				
-				for (int col=0; col<fault.getSurface().getNumCols(); col++) {
-					double[] colMedProbVals = null;
-					double[] colMedRateVals = null;
-					if (colMedian) {
-						colMedProbVals = new double[probs.length];
-						colMedRateVals = new double[probs.length];
-						for (int i=0; i<mags.length; i++) {
-							double[] colProbVals = new double[fault.getSurface().getNumRows()];
-							double[] colRateVals = new double[fault.getSurface().getNumRows()];
-							for (int row=0; row<fault.getSurface().getNumRows(); row++) {
-								colProbVals[row] = probs[i].get(row, col);
-								colRateVals[row] = rates[i].get(row, col);
-							}
-							Arrays.sort(colProbVals);
-							Arrays.sort(colMedRateVals);
-							colMedProbVals[i] = median(colProbVals);
-							colMedRateVals[i] = median(colRateVals);
-						}
-					}
-					for (int row=0; row<fault.getSurface().getNumRows(); row++) {
+				for (int row=0; row<fault.getSurface().getNumRows(); row++) {
+					for (int col=0; col<fault.getSurface().getNumCols(); col++) {
 						Location loc = fault.getSurface().get(row, col);
 						String locStr = loc.getLatitude() + "\t" + loc.getLongitude() + "\t" + loc.getDepth();
 						String rLine = locStr;
 						String pLine = locStr;
 						for (int i=0; i<mags.length; i++) {
-							double rateVal, probVal;
-							if (colMedian) {
-								rateVal = colMedRateVals[i];
-								probVal = colMedProbVals[i];
-							} else {
-								rateVal = rates[i].get(row, col);
-								probVal = probs[i].get(row, col);
-							}
-							rLine += "\t" + rateVal;
-							pLine += "\t" + probVal;
+							rLine += "\t" + rates[i].get(row, col);
+							pLine += "\t" + probs[i].get(row, col);
 						}
 						rfw.write(rLine + "\n");
 						pfw.write(pLine + "\n");
@@ -247,28 +213,143 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 			ufw.close();
 		}
 	}
+	
+	private static double angleSubtract(double a1, double a2) {
+		if (a1 > a2) {
+			double temp = a2;
+			a2 = a1;
+			a1 = temp;
+		}
+		double result = a2 - a1;
+		if (result > 180d)
+			result = (a1 + 360d) - a2;
+		return result;
+	}
 
-	private SummedMagFreqDist getClosestMFD(ArrayList<FaultProbPairing> faultsForSource, Location rupPt) {
+	private SummedMagFreqDist getClosestMFD(ArrayList<FaultProbPairing> faultsForSource,
+			Location rupPt, FocalMechanism rupFM) {
+		if (faultsForSource.size() == 0)
+			return null;
 		SummedMagFreqDist closestMFD = null;
-		double closestDist = Double.MAX_VALUE;
+		ArrayList<FaultPtDistRecord> dists = new ArrayList<FaultPtDistRecord>();
 		for (FaultProbPairing fault : faultsForSource) {
-			EvenlyGriddedSurfaceAPI faultSurface = fault.getSurface();
+			FaultPtDistRecord dist = new FaultPtDistRecord(fault, rupPt, rupFM);
+			dist.compute();
+			dists.add(dist);
+		}
+		// filter out ones with opposite rake's or stikes
+		for (int i=dists.size()-1; i>=0; i--) {
+			FaultPtDistRecord dist = dists.get(i);
+			double rakeDiff = dist.rakeDiff;
+			double strikeDiff = dist.strikeDiff;
+			if (rakeDiff > 30 || strikeDiff > 60) {
+//				System.err.println("Filtering out because rakeDiff=" + rakeDiff + " and strikeDiff=" + strikeDiff);
+				dists.remove(i);
+			}
+		}
+		if (dists.size() == 0)
+			return null;
+		Collections.sort(dists, new FaultPtDistRecordComparator());
+		FaultPtDistRecord best = dists.get(0);
+		if (best.closestRow < 0)
+			return null;
+		FaultProbPairing fault = best.fault;
+		closestMFD = fault.getMFDs().get(best.closestRow, best.closestCol);
+//		double closestDist = dists.get(0).closestDist;
+//		if (closestDist > dists.get(1).closestDist)
+//			throw new RuntimeException("sorting didn't work!");
+//		if (closestDist > halfGridSpacing) {
+//			// it's not really close, lets look for a better match
+//			FaultPtDistRecord[] topRecords = new FaultPtDistRecord[dists.size()];
+//			double[] topColDists = new double[dists.size()];
+//			int minTopColDistI  = -1;
+//			double minTopColDist  = Double.MAX_VALUE;
+//			for (int i=0; i<topColDists.length; i++) {
+//				topColDists[i] = dists.get(i).calcTopOfColDist();
+//				if (topColDists[i] < minTopColDist) {
+//					minTopColDist = topColDists[i];
+//					minTopColDistI = i;
+//				}
+//			}
+//			if (minTopColDistI != 0) {
+//				// the closest top col dist isn't the closest normal dist
+//				
+//			}
+//		}
+		
+		return closestMFD;
+	}
+	
+	private static class FaultPtDistRecordComparator implements Comparator<FaultPtDistRecord> {
+
+		@Override
+		public int compare(FaultPtDistRecord dist1, FaultPtDistRecord dist2) {
+			return Double.compare(dist1.score, dist2.score);
+		}
+		
+	}
+	
+	private class FaultPtDistRecord {
+		
+		private EvenlyGriddedSurfaceAPI faultSurface;
+		private Location rupPt;
+		private Location closestPt = null;
+		private int closestRow = -1;
+		private int closestCol = -1;
+		private double closestDist = Double.MAX_VALUE;
+		private double horizDist = Double.MAX_VALUE;
+		private double vertDist = Double.MAX_VALUE;
+		private FocalMechanism rupFM;
+		private FaultProbPairing fault;
+		private double rakeDiff;
+		private double strikeDiff;
+		private double score = Double.MAX_VALUE;
+		
+		public FaultPtDistRecord(FaultProbPairing fault, Location rupPt, FocalMechanism rupFM) {
+			this.fault = fault;
+			this.faultSurface = fault.getSurface();
+			this.rupPt = rupPt;
+			this.rupFM = rupFM;
+		}
+		
+		public void compute() {
 			for (int row=0; row<faultSurface.getNumRows(); row++) {
 				for (int col=0; col<faultSurface.getNumCols(); col++) {
 					Location faultPt = faultSurface.get(row, col);
-					double dist;
-					if (fastDist)
-						dist = LocationUtils.linearDistanceFast(rupPt, faultPt);
-					else
-						dist = LocationUtils.linearDistance(rupPt, faultPt);
+					double dist, h, v;
+//					LocationUtils.hT
+					if (fastDist) {
+						h = LocationUtils.horzDistanceFast(rupPt, faultPt);
+					} else {
+						h = LocationUtils.horzDistance(rupPt, faultPt);
+					}
+					v = Math.abs(LocationUtils.vertDistance(rupPt, faultPt));
+					dist = Math.sqrt(h*h + v*v);
 					if (dist < closestDist && dist < closestThresh) {
-						closestMFD = fault.getMFDs().get(row, col);
+						this.closestRow = row;
+						this.closestCol = col;
+						this.closestPt = faultPt;
+						this.horizDist = h;
+						this.vertDist = v;
 						closestDist = dist;
 					}
 				}
 			}
+			rakeDiff = angleSubtract(rupFM.getRake(), fault.getFocalMechanism().getRake());
+			strikeDiff = angleSubtract(rupFM.getStrike(), fault.getFocalMechanism().getStrike());
+			if (strikeDiff > 90)
+				strikeDiff = Math.abs(strikeDiff - 180d);
+			score = getScore();
 		}
-		return closestMFD;
+		
+		private double getScore() {
+			double score = horizDist * 10; 	// 10 pts/KM
+			score += vertDist * 25;			// 25 pts/KM
+//			score += rakeDiff * 5;			// 5 pts/degree
+//			score += strikeDiff * 0.3;			// 0.2 pt/degree
+			
+			return score;
+		}
 	}
 
 	private ArrayList<FaultProbPairing> getFaultsForSource(ProbEqkSource source) {
@@ -297,12 +378,15 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 		private String name;
 		private int sectionID;
 		private double slipRate;
+		private FocalMechanism fm;
 		
-		public FaultProbPairing(EvenlyGriddedSurfaceAPI surface, String name, int sectionID, double slip) {
+		public FaultProbPairing(EvenlyGriddedSurfaceAPI surface, String name, int sectionID,
+				double slip, FocalMechanism fm) {
 			this.surface = surface;
 			this.name = name;
 			this.sectionID = sectionID;
 			this.slipRate = slip;
+			this.fm = fm;
 			mfds = new Container2D<SummedMagFreqDist>(surface.getNumRows(), surface.getNumCols());
 			for (int row=0; row<mfds.getNumRows(); row++) {
 				for (int col=0; col<mfds.getNumCols(); col++) {
@@ -342,6 +426,10 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 					return true;
 			}
 			return false;
+		}
+		
+		public FocalMechanism getFocalMechanism() {
+			return fm;
 		}
 		
 		public Container2D<Double> getRatesForMag(double mag) {
@@ -401,35 +489,23 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 		System.out.println("Instantiating forecast");
 		EqkRupForecastAPI erf = new MeanUCERF2();
 		erf.getAdjustableParameterList().getParameter(UCERF2.BACK_SEIS_NAME).setValue(UCERF2.BACK_SEIS_EXCLUDE);
-		if (!TIME_DEPENDENT) {
-			System.out.println("Setting params for Poisson model!");
-			erf.getAdjustableParameterList().getParameter(UCERF2.PROB_MODEL_PARAM_NAME)
-				.setValue(UCERF2.PROB_MODEL_POISSON);
-			erf.getTimeSpan().setDuration(30d, TimeSpan.YEARS);
-		}
 		System.out.println("Updating forecast");
 		erf.updateForecast();
 		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
 		// for now just SAF
 		for (int i=0; i<erf.getNumSources(); i++) {
 			ProbEqkSource source = erf.getSource(i);
-//			if (!QUICK_TEST || i==128)
-			if (!QUICK_TEST || source.getName().toLowerCase().contains("andreas"))
+			if (!QUICK_TEST || i==128)
 				sources.add(source);
 		}
-		SAF_Closest_Pt_Test calc =
-			new SAF_Closest_Pt_Test(data, defModel, sources, minMag, maxMag, numMagBins, duration);
+		SAF_Closest_Pt_Test_with_rake calc =
+			new SAF_Closest_Pt_Test_with_rake(data, defModel, sources, minMag, maxMag, numMagBins, duration);
 		calc.loadMFDs();
 		float[] mags = new float[numMagBins];
 		for (int i=0; i<numMagBins; i++) {
 			mags[i] =(float)(minMag + 0.1*(float)i);
 		}
-		String dirName = "pp_files";
-		if (!TIME_DEPENDENT) {
-			dirName += File.separator + "poisson";
-		}
-		calc.writeFiles(dirName, mags, false);
-		calc.writeFiles(dirName + File.separator + "colMedian", mags, true);
+		calc.writeFiles("pp_files", mags);
 	}
 	
 	private void printTimes(int tasksDone, double pDone) {
