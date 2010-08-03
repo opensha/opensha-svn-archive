@@ -7,7 +7,7 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.FocalMechanism;
-import org.opensha.sha.faultSurface.FourPointEvenlyGriddedSurface;
+//import org.opensha.sha.faultSurface.FourPointEvenlyGriddedSurface;
 
 public class RectangularElement {
 	
@@ -66,9 +66,9 @@ public class RectangularElement {
 		
 	}
 	
-	public FourPointEvenlyGriddedSurface getGriddedSurface() {
-		return new FourPointEvenlyGriddedSurface(vertices[0],vertices[1],vertices[2],vertices[3]);
-	}
+//	public FourPointEvenlyGriddedSurface getGriddedSurface() {
+//		return new FourPointEvenlyGriddedSurface(vertices[0],vertices[1],vertices[2],vertices[3]);
+//	}
 	
 	/**
 	 * This returns the section name for now
