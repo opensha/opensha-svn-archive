@@ -106,6 +106,11 @@ public class RectangularElement {
 		return perfect;
 	}
 	
+	public int getPerfectInt() {
+		if(perfect) return 1;
+		else return 0;
+	}
+	
 	public String getSectionName() {
 		return sectionName;
 	}

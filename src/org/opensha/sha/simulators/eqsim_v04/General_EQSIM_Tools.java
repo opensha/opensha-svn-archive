@@ -21,6 +21,8 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.final
 import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
+import sun.tools.tree.ThisExpression;
+
 /**
  * This class reads and writes various files, as well as doing some analysis of simulator results.
  * 
@@ -51,6 +53,7 @@ public class General_EQSIM_Tools {
 	ArrayList<ArrayList<RectangularElement>> rectElementsListForSections;
 	ArrayList<ArrayList<Vertex>> vertexListForSections;
 	ArrayList<String> namesOfSections;
+	ArrayList<Integer> faultIDs_ForSections;
 	
 	final static String GEOM_FILE_SIG = "EQSim_Input_Geometry_2";	// signature of the geometry file
 	final static int GEOM_FILE_SPEC_LEVEL = 2;
@@ -123,6 +126,7 @@ public class General_EQSIM_Tools {
 		rectElementsListForSections = new ArrayList<ArrayList<RectangularElement>> ();
 		vertexListForSections = new ArrayList<ArrayList<Vertex>>();
 		namesOfSections = new ArrayList<String>();
+		faultIDs_ForSections = new ArrayList<Integer>();
 		
 //		Iterator<String> linesIterator = lines.iterator();
 		ListIterator<String> linesIterator = lines.listIterator();
@@ -161,13 +165,22 @@ public class General_EQSIM_Tools {
 				int n_sect_vertex=Integer.parseInt(tok.nextToken());
 				int n_sect_triangle=Integer.parseInt(tok.nextToken());
 				int n_sect_rectangle=Integer.parseInt(tok.nextToken());
-				// the rest of the line contains:
-				// lat_lo lat_hi lon_lo lon_hi depth_lo depth_hi das_lo das_hi fault_id comment_text
+				tok.nextToken(); // lat_lo
+				tok.nextToken(); // lat_hi
+				tok.nextToken(); // lon_lo
+				tok.nextToken(); // lon_hi
+				tok.nextToken(); // depth_lo
+				tok.nextToken(); // depth_hi
+				tok.nextToken(); // das_lo
+				tok.nextToken(); // das_hi
+				int fault_id = Integer.parseInt(tok.nextToken());
+				// the rest of the line contains: comment_text
 				
 				// check for triangular elements
 				if(n_sect_triangle>0) throw new RuntimeException("Don't yet support trinagles");
 				
 				namesOfSections.add(name);
+				faultIDs_ForSections.add(fault_id);
 
 				// read the vertices for this section
 				ArrayList<Vertex> verticesForThisSect = new ArrayList<Vertex>();
@@ -179,13 +192,13 @@ public class General_EQSIM_Tools {
 					int index = Integer.parseInt(tok.nextToken());
 					double lat = Double.parseDouble(tok.nextToken());
 					double lon = Double.parseDouble(tok.nextToken());
-					double depth = -Double.parseDouble(tok.nextToken())/1000;
-					double das = Double.parseDouble(tok.nextToken());
+					double depth = -Double.parseDouble(tok.nextToken())/1000; 	// convert to km
+					double das = Double.parseDouble(tok.nextToken())/1000;		// convert to km
 					int trace_flag = Integer.parseInt(tok.nextToken());
 					// the rest of the line contains:
 					// comment_text
 					
-					Vertex vertex = new Vertex(lat,lon,depth, index, das, trace_flag);
+					Vertex vertex = new Vertex(lat,lon,depth, index, das, trace_flag); 
 					verticesForThisSect.add(vertex);
 					vertexList.add(vertex);
 				}
@@ -221,7 +234,6 @@ public class General_EQSIM_Tools {
 				    vertices[3] = vertexList.get(vertex_4-1);
 				    int numAlongStrike = -1;// unknown
 				    int numDownDip = -1;	// unknown
-				    int fault_id = -1;		// could get this from above if needed
 				    FocalMechanism focalMechanism = new FocalMechanism(strike,dip,rake);
 				    RectangularElement rectElem = new RectangularElement(index, vertices, name, fault_id, sid, numAlongStrike, 
 				    													numDownDip, slip_rate, aseis_factor, focalMechanism, perfectBoolean);
@@ -276,6 +288,8 @@ public class General_EQSIM_Tools {
 		rectElementsListForSections = new ArrayList<ArrayList<RectangularElement>> ();
 		vertexListForSections = new ArrayList<ArrayList<Vertex>>();
 		namesOfSections = new ArrayList<String>();
+		faultIDs_ForSections = null;	// no info for this
+
 		
 		// fetch the sections
 		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
@@ -362,8 +376,8 @@ public class General_EQSIM_Tools {
 					
 					
 					// set DAS
-					double das1 = col*elementLength;
-					double das2 = das1+elementLength;
+					double das1 = col*elementLength;	// this is in km
+					double das2 = das1+elementLength;	// this is in km
 					// set traceFlag - tells whether is on the fault trace  (0 means no; 1 means yes, but not the first or last point; 2 means yes & it's the first; and 3 means yes & it's the last point)
 					int traceFlagBot = 0;
 					int traceFlagTop1 = 0;
@@ -515,17 +529,81 @@ public class General_EQSIM_Tools {
 				StringTokenizer tok = new StringTokenizer(line);
 				int kindOfLine = Integer.parseInt(tok.nextToken());
 				if(kindOfLine==120 || kindOfLine==121 || kindOfLine==103)
-					efw.write(line);
+					efw.write(line+"\n");
 			}
 			
 			// now add the data records/lines 
-
 			
+			// Fault System Summary Record:
+			// 200 n_section n_vertex n_triangle n_rectangle lat_lo lat_hi lon_lo lon_hi depth_lo depth_hi comment_text
+			efw.write("200 "+namesOfSections.size()+" "+vertexList.size()+" 0 "+rectElementsList.size()+" "+
+							getMinMaxFileString(vertexList, false)+"\n");
+
+			// loop over sections
+			for(int i=0;i<namesOfSections.size();i++) {
+				ArrayList<Vertex> vertListForSect = vertexListForSections.get(i);
+				ArrayList<RectangularElement> rectElemForSect = rectElementsListForSections.get(i);
+				String fault_id;
+				if(faultIDs_ForSections == null)
+					fault_id = "NA";
+				else
+					fault_id = faultIDs_ForSections.get(i).toString();
+				// Fault Section Information Record:
+				// 201 sid name n_vertex n_triangle n_rectangle lat_lo lat_hi lon_lo lon_hi depth_lo depth_hi das_lo das_hi fault_id comment_text
+				efw.write("201 "+(i+1)+" "+namesOfSections.get(i)+" "+vertListForSect.size()+" 0 "+
+						rectElemForSect.size()+" "+getMinMaxFileString(vertListForSect, true)+" "+fault_id+"\n");
+				for(int v=0; v<vertListForSect.size(); v++) {
+					Vertex vert = vertListForSect.get(v);
+					// Vertex Record: 202 index lat lon depth das trace_flag comment_text
+					efw.write("202 "+vert.getIndex()+" "+(float)vert.getLatitude()+" "+(float)vert.getLongitude()+" "+
+							(float)(vert.getDepth()*-1000)+" "+(float)vert.getDAS()*1000+" "+vert.getTraceFlag()+"\n");
+				}
+				for(int e=0; e<rectElemForSect.size(); e++) {
+					RectangularElement elem = rectElemForSect.get(e);
+					Vertex[] vert = elem.getVertices();
+					FocalMechanism focalMech = elem.getFocalMechanism();
+					// Rectangle Record:  204 index vertex_1 vertex_2 vertex_3 vertex_4 rake slip_rate aseis_factor strike dip perfect_flag comment_text
+					efw.write("204 "+elem.getIndex()+" "+vert[0].getIndex()+" "+vert[1].getIndex()+" "+vert[2].getIndex()+" "+
+							vert[3].getIndex()+" "+(float)focalMech.getRake()+" "+(float)(elem.getSlipRate()/SECONDS_PER_YEAR)+" "+
+							(float)elem.getAseisFactor()+" "+(float)focalMech.getStrike()+" "+(float)focalMech.getDip()
+							+" "+elem.getPerfectInt()+"\n");
+				}
+			}
 			
 			// add the last line
 			efw.write("999 End\n");
 
 			efw.close();
+	}
+	
+	
+	/**
+	 * This produces the string of min and max lat, lon, depth, and (optionally) DAS from the
+	 * given list of vertices.  There are no spaces before or after the first and last values,
+	 * respectively.  Depth and DAS values are converted to meters (from km).
+	 * @param vertexList
+	 * @param includeDAS
+	 * @return
+	 */
+	private String getMinMaxFileString(ArrayList<Vertex> vertexList, boolean includeDAS) {
+		double minLat=Double.MAX_VALUE, maxLat=-Double.MAX_VALUE;
+		double minLon=Double.MAX_VALUE, maxLon=-Double.MAX_VALUE;
+		double minDep=Double.MAX_VALUE, maxDep=-Double.MAX_VALUE;
+		double minDAS=Double.MAX_VALUE, maxDAS=-Double.MAX_VALUE;
+		for(Vertex vertex: vertexList) {
+			if(vertex.getLatitude()<minLat) minLat = vertex.getLatitude();
+			if(vertex.getLongitude()<minLon) minLon = vertex.getLongitude();
+			if(vertex.getDepth()<minDep) minDep = vertex.getDepth();
+			if(vertex.getDAS()<minDAS) minDAS = vertex.getDAS();
+			if(vertex.getLatitude()>maxLat) maxLat = vertex.getLatitude();
+			if(vertex.getLongitude()>maxLon) maxLon = vertex.getLongitude();
+//			if(!includeDAS) System.out.println(maxLon);
+			if(vertex.getDepth()>maxDep) maxDep = vertex.getDepth();
+			if(vertex.getDAS()>maxDAS) maxDAS = vertex.getDAS();
+		}
+		String string = (float)minLat+" "+(float)maxLat+" "+(float)minLon+" "+(float)maxLon+" "+(float)maxDep*-1000+" "+(float)minDep*-1000;
+		if(includeDAS) string += " "+(float)minDAS*1000+" "+(float)maxDAS*1000;
+		return string;
 	}
 
 	
@@ -537,13 +615,32 @@ public class General_EQSIM_Tools {
 		long startTime=System.currentTimeMillis();
 		System.out.println("Starting");
 		
-//		General_EQSIM_Tools test = new General_EQSIM_Tools(82, false, 4.0);
+		General_EQSIM_Tools test = new General_EQSIM_Tools(82, false, 4.0);
 //		test.getElementsList();
+		String writePath = "testEQSIM_Output.txt";
+		try {
+			test.writeTo_EQSIM_V04_GeometryFile(writePath, null, "test UCERF2 output", 
+					"Ned Field", "Aug 3, 2010");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
-		
+		/*
+		// THE FOLLOWING TEST LOOKS GOOD FROM A VISUAL INSPECTION
 //		String fullPath = "org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/NCA_Ward_Geometry.dat.txt";
 		String fullPath = "org/opensha/sha/simulators/eqsim_v04/ALLCAL_Model_v04/ALLCAL_Ward_Geometry.dat";
 		General_EQSIM_Tools test = new General_EQSIM_Tools(fullPath);
+		
+		String writePath = "testEQSIM_Output.txt";
+		try {
+			test.writeTo_EQSIM_V04_GeometryFile(writePath, null, "test output", 
+					"Ned Field", "Aug 3, 2010");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		*/
 		
 		
 		int runtime = (int)(System.currentTimeMillis()-startTime)/1000;
