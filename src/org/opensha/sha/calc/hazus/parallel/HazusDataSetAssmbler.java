@@ -19,6 +19,7 @@ import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
 public class HazusDataSetAssmbler {
 	
 	public static final String METADATA_RP_REPLACE_STR = "$RETURN_PERIOD";
+	public static final String METADATA_RP_REGEX_REPLACE_STR = "\\"+METADATA_RP_REPLACE_STR;
 	
 	public static DecimalFormat df = new DecimalFormat("0.000000");
 	
@@ -49,6 +50,24 @@ public class HazusDataSetAssmbler {
 		metadata = FileUtils.loadFile(fileName, false);
 	}
 	
+	private boolean hasMetadata() {
+		return metadata != null && !metadata.isEmpty();
+	}
+	
+	private void writeMetadata(String fileName) throws IOException {
+		FileWriter fw = new FileWriter(fileName);
+		
+		for (String line : metadata) {
+			line = line.trim();
+			// skip the RP line
+			if (line.contains(METADATA_RP_REPLACE_STR))
+				line = "";
+			fw.write(line + "\n");
+		}
+		
+		fw.close();
+	}
+	
 	public HashMap<Location, double[]> assemble(double returnPeriod, int years) {
 		HashMap<Location, double[]> results = new HashMap<Location, double[]>();
 		for (Location loc : pgaCurves.keySet()) {
@@ -68,7 +87,7 @@ public class HazusDataSetAssmbler {
 		FileWriter fw = new FileWriter(fileName);
 		if (metadata != null) {
 			for (String line : metadata) {
-				line = line.replaceAll(METADATA_RP_REPLACE_STR, returnPeriod+"").trim();
+				line = line.replaceAll(METADATA_RP_REGEX_REPLACE_STR, returnPeriod+"").trim();
 				if (!line.startsWith("#"))
 					line = "#" + line;
 				fw.write(line + "\n");
@@ -172,6 +191,12 @@ public class HazusDataSetAssmbler {
 		fileName = "sites.dat";
 		writeSitesFile(dataDir+"/"+fileName, results.keySet());
 		fileNames.add(fileName);
+		
+		if (assem.hasMetadata()) {
+			fileName = "metadata.dat";
+			assem.writeMetadata(dataDir+"/"+fileName);
+			fileNames.add(fileName);
+		}
 		
 		String zipFile = dataDir + "/hazus.zip";
 		FileUtils.createZipFile(zipFile, dataDir, fileNames);

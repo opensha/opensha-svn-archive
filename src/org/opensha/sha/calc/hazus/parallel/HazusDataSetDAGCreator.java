@@ -232,7 +232,7 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap1 = this.imrMaps.get(0);
 		if (imrMap1.size() == 1) {
 			ScalarIntensityMeasureRelationshipAPI imr = imrMap1.values().iterator().next();
-			meta = "IMR = " + imr.getName() + "; " + imr.getAllParamMetadata();
+			meta = "IMR = " + imr.getName() + "; " + imr.getOtherParamsList().getParameterListMetadataString();
 		} else {
 			meta = "IMR = (multiple)";
 			for (TectonicRegionType trt : imrMap1.keySet()) {
@@ -252,7 +252,7 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 		double spacing = region.getSpacing();
 		
 		return "Min Longitude = "+minLon+"; Max Longitude = "+maxLon+"; " +
-				"Min  Latitude = "+minLat+"; Max  Latitude = "+maxLat+"; Grid Spacing = "+spacing+";";
+				"Min  Latitude = "+minLat+"; Max  Latitude = "+maxLat+"; Grid Spacing = "+spacing;
 	}
 	
 	private String getERFMetadata() {
