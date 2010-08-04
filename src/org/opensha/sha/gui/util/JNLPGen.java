@@ -12,6 +12,7 @@ import javax.imageio.ImageIO;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.opensha.commons.mapping.gmt.gui.GMT_MapGeneratorApplet;
 import org.opensha.commons.util.IconGen;
 import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.ServerPrefs;
@@ -23,6 +24,7 @@ import org.opensha.sha.gui.HazardSpectrumServerModeApplication;
 import org.opensha.sha.gui.ScenarioShakeMapApp;
 import org.opensha.sha.gui.ScenarioShakeMapLocalModeCalcApp;
 import org.opensha.sha.imr.attenRelImpl.gui.AttenuationRelationshipApplet;
+import org.opensha.sha.magdist.gui.MagFreqDistApp;
 
 public class JNLPGen {
 	
@@ -240,6 +242,12 @@ public class JNLPGen {
 		/*		Attenuation Relationship	*/
 		appsToBuild.add(new JNLPGen(AttenuationRelationshipApplet.class,
 				"AttenuationRelationship", "Attenuation Relationship Application", "AR", true));
+		/*		Magnitude Frequency Dist	*/
+		appsToBuild.add(new JNLPGen(MagFreqDistApp.class,
+				"MagFreqDist", "Magnitude Frequency Distribution Application", "MFD", true));
+		/*		GMT Map Generator		*/
+		appsToBuild.add(new JNLPGen(GMT_MapGeneratorApplet.class,
+				"GMTMap", "GMT Map Generator Application", "GMT", true));
 		
 		for (ServerPrefs myPrefs : prefsToBuild) {
 			setDefaultServerPrefs(myPrefs);

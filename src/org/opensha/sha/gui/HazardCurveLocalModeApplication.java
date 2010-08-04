@@ -87,53 +87,6 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	protected final static String appURL = "http://www.opensha.org/applications/hazCurvApp/HazardCurveApp.jar";
-
-	/**
-	 * Returns the Application version
-	 * @return String
-	 */
-
-	public static String getAppVersion(){
-		return version;
-	}
-
-
-
-	/**
-	 * Checks if the current version of the application is latest else direct the
-	 * user to the latest version on the website.
-	 */
-	protected void checkAppVersion(){
-		ArrayList<String> hazCurveVersion = null;
-		try {
-			hazCurveVersion = FileUtils.loadFile(new URL(versionURL));
-		}
-		catch (Exception ex1) {
-			return;
-		}
-		String appVersionOnWebsite = (String)hazCurveVersion.get(0);
-		if(!appVersionOnWebsite.trim().equals(version.trim())){
-			try{
-				ApplicationVersionInfoWindow messageWindow =
-					new ApplicationVersionInfoWindow(appURL,
-							versionUpdateInfoURL,
-							"App Version Update", this);
-				Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-				messageWindow.setLocation( (dim.width -
-						messageWindow.getSize().width) / 2,
-						(dim.height -
-								messageWindow.getSize().height) / 2);
-				messageWindow.setVisible(true);
-			}catch(Exception e){
-				e.printStackTrace();
-			}
-		}
-
-		return;
-
-	}
 
 	public static ArrayList<String> getLocalERFClasses() {
 		ArrayList<String> erf_Classes = new ArrayList<String>();
@@ -304,7 +257,6 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 
 	public static void main(String[] args) {
 		HazardCurveLocalModeApplication applet = new HazardCurveLocalModeApplication();
-		applet.checkAppVersion();
 		applet.init();
 		applet.setTitle("Hazard Curve Local mode Application "+"("+getAppVersion()+")" );
 		applet.setVisible(true);

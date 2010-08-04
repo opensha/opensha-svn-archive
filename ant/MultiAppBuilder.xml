@@ -22,6 +22,10 @@
 	
 	<!-- <property name="app.build.type" value="dist" /> -->
 	<!-- <property name="sign.jars" value="true" /> -->
+	<property name="app.build.file" value="AppBuilder.xml" />
+	
+	<property name="sha.gui.package" value="org.opensha.sha.gui" />
+	<property name="sha.gui.dir" value="org/opensha/sha/gui" />
 
 	<target name="build.nightly">
 		<ant antfile="compile.xml" target="update.jnlps"/>
@@ -45,16 +49,134 @@
 	</target>
 
 	<target name="build.local">
-		<ant antfile="HazardCurveLocal.xml" target="build.app"/>
-		<ant antfile="HazardSpectrumLocal.xml" target="build.app"/>
-		<ant antfile="ScenarioShakemapLocal.xml" target="build.app"/>
-		<ant antfile="AttenuationRelationshipApp.xml" target="build.app"/>
+		<antcall target="build.hc.local" />
+		<antcall target="build.hs.local" />
+		<antcall target="build.sm.local" />
+		<antcall target="build.atten.rel" />
+		<antcall target="build.gmt" />
+		<antcall target="build.mfd" />
 	</target>
 	
 	<target name="build.server">
-		<ant antfile="HazardCurveServer.xml" target="build.app"/>
-		<ant antfile="HazardSpectrumServer.xml" target="build.app"/>
-		<ant antfile="ScenarioShakemapServer.xml" target="build.app"/>
+		<antcall target="build.hc.server" />
+		<antcall target="build.hs.server" />
+		<antcall target="build.sm.server" />
+	</target>
+	
+	<target name="build.hc.local">
+		<ant antfile="${app.build.file}" target="build.app">
+			<property name="app.short.name" value="HazardCurveLocal" />
+			<property name="app.main.class" value="${sha.gui.package}.HazardCurveLocalModeApplication" />
+			<property name="javac.includes"     value="${sha.gui.dir}/HazardCurveLocalModeApplication.java" />
+			<property name="javac.excludes" value="" />
+			<property name="rmi.target" value="rmi.hazard.curve" />
+			<property name="resource.target" value="resource.hazard.apps" />
+		</ant>
+	</target>
+	
+	<target name="build.hc.server">
+		<ant antfile="${app.build.file}" target="build.app">
+			<property name="app.short.name" value="HazardCurveServer" />
+			<property name="app.main.class" value="${sha.gui.package}.HazardCurveServerModeApplication" />
+			<property name="javac.includes"     value="${sha.gui.dir}/HazardCurveServerModeApplication.java" />
+			<property name="javac.excludes" value="" />
+			<property name="rmi.target" value="rmi.hazard.curve" />
+			<property name="resource.target" value="resource.hazard.apps.server" />
+		</ant>
+	</target>
+	
+	<target name="build.hs.local">
+		<ant antfile="${app.build.file}" target="build.app">
+			<property name="app.short.name" value="HazardSpectrumLocal" />
+			<property name="app.main.class" value="${sha.gui.package}.HazardSpectrumLocalModeApplication" />
+			<property name="javac.includes"     value="${sha.gui.dir}/HazardSpectrumLocalModeApplication.java" />
+			<property name="javac.excludes" value="" />
+			<property name="rmi.target" value="rmi.hazard.curve" />
+			<property name="resource.target" value="resource.hazard.apps" />
+		</ant>
+	</target>
+	
+	<target name="build.hs.server">
+		<ant antfile="${app.build.file}" target="build.app">
+			<property name="app.short.name" value="HazardSpectrumServer" />
+			<property name="app.main.class" value="${sha.gui.package}.HazardSpectrumServerModeApplication" />
+			<property name="javac.includes"     value="${sha.gui.dir}/HazardSpectrumServerModeApplication.java" />
+			<property name="javac.excludes" value="" />
+			<property name="rmi.target" value="rmi.hazard.curve" />
+			<property name="resource.target" value="resource.hazard.apps.server" />
+		</ant>
+	</target>
+	
+	<target name="build.sm.local">
+		<ant antfile="${app.build.file}" target="build.app">
+			<property name="app.short.name" value="ScenarioShakeMapLocal" />
+			<property name="app.main.class" value="${sha.gui.package}.ScenarioShakeMapLocalModeCalcApp" />
+			<property name="javac.includes"     value="${sha.gui.dir}/ScenarioShakeMapLocalModeCalcApp.java" />
+			<property name="javac.excludes" value="" />
+			<property name="rmi.target" value="rmi.hazard.curve" />
+			<property name="resource.target" value="resource.hazard.apps" />
+		</ant>
+	</target>
+	
+	<target name="build.sm.server">
+		<ant antfile="${app.build.file}" target="build.app">
+			<property name="app.short.name" value="ScenarioShakeMapServer" />
+			<property name="app.main.class" value="${sha.gui.package}.ScenarioShakeMapApp" />
+			<property name="javac.includes"     value="${sha.gui.dir}/ScenarioShakeMapApp.java" />
+			<property name="javac.excludes" value="" />
+			<property name="rmi.target" value="rmi.hazard.curve" />
+			<property name="resource.target" value="resource.hazard.apps.server" />
+		</ant>
+	</target>
+	
+	<target name="build.gmt">
+		<ant antfile="${app.build.file}" target="build.app">
+			<property name="app.short.name" value="GMTMap" />
+			<property name="app.main.class" value="org.opensha.commons.mapping.gmt.gui.GMT_MapGeneratorApplet" />
+			<property name="javac.includes" value="org/opensha/commons/mapping/gmt/gui/GMT_MapGeneratorApplet.java" />
+			<property name="javac.excludes" value="" />
+			<property name="resource.target" value="resource.misc.required" />
+		</ant>
+	</target>
+	
+	<target name="build.mfd">
+		<ant antfile="${app.build.file}" target="build.app">
+			<property name="app.short.name" value="MagFreqDist" />
+			<property name="app.main.class" value="org.opensha.sha.magdist.gui.MagFreqDistApp" />
+			<property name="javac.includes" value="org/opensha/sha/magdist/gui/MagFreqDistApp.java" />
+			<property name="javac.excludes" value="" />
+			<property name="resource.target" value="resource.misc.required" />
+		</ant>
+	</target>
+	
+	<target name="build.atten.rel">
+		<ant antfile="${app.build.file}" target="build.app">
+			<property name="app.short.name" value="AttenuationRelationship" />
+			<property name="app.main.class" value="org.opensha.sha.imr.attenRelImpl.gui.AttenuationRelationshipApplet" />
+			<property name="javac.includes" value="org/opensha/sha/imr/attenRelImpl/gui/AttenuationRelationshipApplet.java" />
+			<property name="javac.excludes" value="" />
+			<property name="resource.target" value="resource.hazard.apps.server" />
+		</ant>
+	</target>
+	
+	<target name="build.faults">
+		<ant antfile="${app.build.file}" target="build.app">
+			<property name="app.short.name" value="FaultSectionsApp" />
+			<property name="app.main.class" value="org.opensha.refFaultParamDb.gui.FaultSectionsAndModelsApp" />
+			<property name="javac.includes" value="org/opensha/refFaultParamDb/**/*.java" />
+			<property name="javac.excludes" value="" />
+			<property name="resource.target" value="resource.misc.required" />
+		</ant>
+	</target>
+	
+	<target name="build.paleo.sites">
+		<ant antfile="${app.build.file}" target="build.app">
+			<property name="app.short.name" value="FaultSectionsApp" />
+			<property name="app.main.class" value="org.opensha.refFaultParamDb.gui.PaleoSiteApp2" />
+			<property name="javac.includes" value="org/opensha/refFaultParamDb/**/*.java" />
+			<property name="javac.excludes" value="" />
+			<property name="resource.target" value="resource.misc.required" />
+		</ant>
 	</target>
 
 </project>

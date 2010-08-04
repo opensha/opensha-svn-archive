@@ -28,6 +28,15 @@ import java.util.ArrayList;
 
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF;
+import org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF;
+import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
+import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
+import org.opensha.sha.earthquake.rupForecastImpl.GEM.TestGEM_ERF;
+import org.opensha.sha.earthquake.rupForecastImpl.GEM.TestSubductionZoneERF;
+import org.opensha.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
 
@@ -45,28 +54,6 @@ import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
 public class ScenarioShakeMapLocalModeCalcApp
 extends ScenarioShakeMapApp {
 
-
-	protected final static String appURL = "http://www.opensha.org/applications/scenShakeMapApp/ScenarioShakeMapLocalCalcApp.jar";		
-
-	/**	
-	 *  The object class names for all the supported Eqk Rup Forecasts
-	 */	
-	public final static String FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
-	public final static String STEP_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
-	public final static String STEP_ALASKA_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
-	public final static String FLOATING_POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF";
-	public final static String FRANKEL02_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
-	public final static String PEER_AREA_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast";
-	public final static String PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast";
-	public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast";
-	public final static String POINT2MULT_VSS_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF";
-	public final static String POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF";
-	public final static String WG02_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast";
-	public final static String WGCEP_UCERF1_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast";
-	public final static String WGCEP_MEAN_UCERF2_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2";
-	public final static String GEM_TEST_ERF_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.GEM.TestGEM_ERF";
-	public final static String TEST_SUBDUCTION_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.GEM.TestSubductionZoneERF";
-
 	/**
 	 * Initialize the ERF Gui Bean
 	 */
@@ -77,20 +64,20 @@ extends ScenarioShakeMapApp {
 		/**
 		 *  The object class names for all the supported Eqk Rup Forecasts
 		 */
-		erf_Classes.add(GEM_TEST_ERF_CLASS_NAME);
-		erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
-		erf_Classes.add(WGCEP_MEAN_UCERF2_CLASS_NAME);
-		erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
+//		erf_Classes.add(TestGEM_ERF.class.getName());
+		erf_Classes.add(PoissonFaultERF.class.getName());
+		erf_Classes.add(MeanUCERF2.class.getName());
+		erf_Classes.add(Frankel96_AdjustableEqkRupForecast.class.getName());
 		//erf_Classes.add(STEP_FORECAST_CLASS_NAME);
 		//   erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
-		erf_Classes.add(FLOATING_POISSON_FAULT_ERF_CLASS_NAME);
-		erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
+		erf_Classes.add(FloatingPoissonFaultERF.class.getName());
+		erf_Classes.add(Frankel02_AdjustableEqkRupForecast.class.getName());
 		//   erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
 		//   erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
 		//   erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
-		erf_Classes.add(WG02_ERF_CLASS_NAME);
-		erf_Classes.add(WGCEP_UCERF1_CLASS_NAME);
-		erf_Classes.add(TEST_SUBDUCTION_CLASS_NAME);
+		erf_Classes.add(WG02_EqkRupForecast.class.getName());
+		erf_Classes.add(WGCEP_UCERF1_EqkRupForecast.class.getName());
+		erf_Classes.add(TestSubductionZoneERF.class.getName());
 
 		try {
 			erfGuiBean = new EqkRupSelectorGuiBean(erf_Classes);
@@ -103,54 +90,9 @@ extends ScenarioShakeMapApp {
 		calculationFromServer = false;
 	}
 
-	/**
-	 * Checks if the current version of the application is latest else direct the
-	 * user to the latest version on the website.
-	 */
-	protected void checkAppVersion(){
-		ArrayList scenarioShakeVersion = null;
-		try {
-			scenarioShakeVersion = FileUtils.loadFile(new URL(versionURL));
-		}
-		catch (Exception ex1) {
-			return;
-		}
-		String appVersionOnWebsite = (String)scenarioShakeVersion.get(0);
-		if(!appVersionOnWebsite.trim().equals(version.trim())){
-			try{
-				ApplicationVersionInfoWindow messageWindow =
-					new ApplicationVersionInfoWindow(appURL,
-							this.versionUpdateInfoURL,
-							"App Version Update", this);
-				Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-				messageWindow.setLocation( (dim.width -
-						messageWindow.getSize().width) / 2,
-						(dim.height -
-								messageWindow.getSize().height) / 2);
-				messageWindow.setVisible(true);
-			}catch(Exception e){
-				e.printStackTrace();
-			}
-		}
-
-		return;
-
-	}
-
-	/**
-	 * Returns the Application version
-	 * @return String
-	 */
-	public static String getAppVersion(){
-		return version;
-	}
-
-
-
 	//Main method
 	public static void main(String[] args) {
 		ScenarioShakeMapLocalModeCalcApp applet = new ScenarioShakeMapLocalModeCalcApp();
-		applet.checkAppVersion();
 		applet.init();
 		applet.setVisible(true);
 	}

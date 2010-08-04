@@ -40,7 +40,6 @@ public class TestHazardCurveMultiIMRs {
 	@Before
 	public void setUp() throws Exception {
 		app = new HazardCurveLocalModeApplication();
-		app.checkAppVersion();
 		app.init();
 		app.setTitle("Hazard Curve Local mode Application "+"("+HazardCurveLocalModeApplication.getAppVersion()+")" );
 		app.setVisible(true);

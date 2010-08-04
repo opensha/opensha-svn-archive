@@ -154,7 +154,7 @@ public class FileUtils {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public static ArrayList<String> loadFile(URL url) throws Exception {
+	public static ArrayList<String> loadFile(URL url) throws IOException {
 		if(D) System.out.println("url="+url);
 		URLConnection uc = url.openConnection();
 		ArrayList<String> list = new ArrayList<String>();

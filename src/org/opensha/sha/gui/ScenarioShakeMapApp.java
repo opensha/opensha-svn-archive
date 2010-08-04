@@ -30,6 +30,7 @@ import java.awt.SystemColor;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -61,8 +62,15 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.ListUtils;
+import org.opensha.commons.util.VersionUtils;
 import org.opensha.sha.calc.ScenarioShakeMapCalculator;
 import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.FloatingPoissonFaultERF_Client;
+import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel02_AdjustableEqkRupForecastClient;
+import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel96_AdjustableEqkRupForecastClient;
+import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.PoissonFaultERF_Client;
+import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_FortranWrappedERF_EpistemicListClient;
+import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WGCEP_UCERF1_EqkRupForecastClient;
 import org.opensha.sha.gui.beans.AttenuationRelationshipGuiBean;
 import org.opensha.sha.gui.beans.AttenuationRelationshipSiteParamsRegionAPI;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
@@ -127,15 +135,6 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 	// for debug purpose
 	protected final static boolean D = false;
 
-
-	protected final static String version = "0.0.16";
-
-	protected final static String versionURL = "http://www.opensha.org/applications/scenShakeMapApp/ScenarioShakeMapApp_Version.txt";
-	protected final static String appURL = "http://www.opensha.org/applications/scenShakeMapApp/ScenarioShakeMapApp.jar";
-	protected final static String versionUpdateInfoURL = "http://www.opensha.org/applications/scenShakeMapApp/versionUpdate.html";
-
-
-
 	//variables that determine the width and height of the frame
 	protected static final int W=550;
 	protected static final int H=760;
@@ -184,23 +183,6 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 
 	//boolean to check if the calculation have to be done on the server
 	protected boolean calculationFromServer = true;
-
-
-	/**
-	 *  The object class names for all the supported Eqk Rup Forecasts
-	 */
-	public final static String RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel96_AdjustableEqkRupForecastClient";
-	public final static String RMI_STEP_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.STEP_EqkRupForecastClient";
-	public final static String RMI_STEP_ALASKA_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.STEP_AlaskanPipeForecastClient";
-	public final static String RMI_FLOATING_POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.FloatingPoissonFaultERF_Client";
-	public final static String RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel02_AdjustableEqkRupForecastClient";
-	public final static String RMI_PEER_AREA_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_AreaForecastClient";
-	public final static String RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_NonPlanarFaultForecastClient";
-	public final static String RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_MultiSourceForecastClient";
-	public final static String RMI_POINT2MULT_VSS_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF";
-	public final static String RMI_POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.PoissonFaultERF_Client";
-	public final static String RMI_WG02_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_EqkRupForecastClient";
-	public final static String RMI_WGCEP_UCERF1_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WGCEP_UCERF1_EqkRupForecastClient";
 
 	// Strings for control pick list
 	protected final static String CONTROL_PANELS = "Control Panels";
@@ -337,45 +319,16 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 	}
 
 	/**
-	 * Checks if the current version of the application is latest else direct the
-	 * user to the latest version on the website.
-	 */
-	protected void checkAppVersion(){
-		ArrayList scenarioShakeVersion = null;
-		try {
-			scenarioShakeVersion = FileUtils.loadFile(new URL(versionURL));
-		}
-		catch (Exception ex1) {
-			return;
-		}
-		String appVersionOnWebsite = (String)scenarioShakeVersion.get(0);
-		if(!appVersionOnWebsite.trim().equals(version.trim())){
-			try{
-				ApplicationVersionInfoWindow messageWindow =
-					new ApplicationVersionInfoWindow(appURL,
-							this.versionUpdateInfoURL,
-							"App Version Update", this);
-				Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-				messageWindow.setLocation( (dim.width -
-						messageWindow.getSize().width) / 2,
-						(dim.height -
-								messageWindow.getSize().height) / 2);
-				messageWindow.setVisible(true);
-			}catch(Exception e){
-				e.printStackTrace();
-			}
-		}
-
-		return;
-
-	}
-
-	/**
 	 * Returns the Application version
 	 * @return String
 	 */
 	public static String getAppVersion(){
-		return version;
+		try {
+			return VersionUtils.loadBuildVersion();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 
@@ -461,7 +414,6 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 	//Main method
 	public static void main(String[] args) {
 		ScenarioShakeMapApp applet = new ScenarioShakeMapApp();
-		applet.checkAppVersion();
 		applet.init();
 		applet.setVisible(true);
 	}
@@ -529,22 +481,22 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 	 */
 	protected void initERFSelector_GuiBean() {
 		// create the ERF Gui Bean object
-		ArrayList erf_Classes = new ArrayList();
+		ArrayList<String> erf_Classes = new ArrayList<String>();
 
 		/**
 		 *  The object class names for all the supported Eqk Rup Forecasts
 		 */
-		erf_Classes.add(RMI_POISSON_FAULT_ERF_CLASS_NAME);
-		erf_Classes.add(RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME);
+		erf_Classes.add(PoissonFaultERF_Client.class.getName());
+		erf_Classes.add(Frankel96_AdjustableEqkRupForecastClient.class.getName());
 		//erf_Classes.add(RMI_STEP_FORECAST_CLASS_NAME);
 		//   erf_Classes.add(RMI_STEP_ALASKA_ERF_CLASS_NAME);
-		erf_Classes.add(RMI_FLOATING_POISSON_FAULT_ERF_CLASS_NAME);
-		erf_Classes.add(RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME);
+		erf_Classes.add(FloatingPoissonFaultERF_Client.class.getName());
+		erf_Classes.add(Frankel02_AdjustableEqkRupForecastClient.class.getName());
 		//   erf_Classes.add(RMI_PEER_AREA_FORECAST_CLASS_NAME);
 		//   erf_Classes.add(RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
 		//   erf_Classes.add(RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
-		erf_Classes.add(RMI_WG02_ERF_CLASS_NAME);
-		erf_Classes.add(RMI_WGCEP_UCERF1_ERF_CLASS_NAME);
+		erf_Classes.add(WG02_FortranWrappedERF_EpistemicListClient.class.getName());
+		erf_Classes.add(WGCEP_UCERF1_EqkRupForecastClient.class.getName());
 
 
 		try{

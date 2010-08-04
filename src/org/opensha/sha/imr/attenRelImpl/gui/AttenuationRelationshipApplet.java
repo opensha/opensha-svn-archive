@@ -75,6 +75,7 @@ import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.VersionUtils;
 import org.opensha.sha.gui.controls.AxisLimitsControlPanel;
 import org.opensha.sha.gui.controls.AxisLimitsControlPanelAPI;
 import org.opensha.sha.gui.controls.CurveDisplayAppAPI;
@@ -141,13 +142,8 @@ ItemListener, AxisLimitsControlPanelAPI,GraphPanelAPI,ButtonControlPanelAPI,
 CurveDisplayAppAPI,GraphWindowAPI {
 
 	protected final static String C = "AttenuationRelationshipApplet";
-	protected final static String version = "0.10.24";
-	//protected final static String version = "0";
 	protected final static boolean D = false;
 
-	protected final static String versionURL = "http://www.opensha.org/applications/attenRelApp/AttenuationRelationship_Version.txt";
-	protected final static String appURL = "http://www.opensha.org/applications/attenRelApp/AttenuationRelationshipApp.jar";
-	protected final static String versionUpdateInfoURL = "http://www.opensha.org/applications/attenRelApp/versionUpdate.html";
 	protected final static String disclaimerPageURL = "http://www.opensha.org/documentation/applications/disclaimer.html";
 
 
@@ -415,48 +411,17 @@ CurveDisplayAppAPI,GraphWindowAPI {
 	protected XY_ValuesControlPanel xyNewDatasetControl;
 	protected JButton peelOffButton = new JButton();
 
-
-	/**
-	 * Checks if the current version of the application is latest else direct the
-	 * user to the latest version on the website.
-	 */
-	protected void checkAppVersion(){
-		ArrayList attenRelVersion = null;
-		try {
-			attenRelVersion = FileUtils.loadFile(new URL(versionURL));
-		}
-		catch (Exception ex1) {
-			return;
-		}
-		String appVersionOnWebsite = (String)attenRelVersion.get(0);
-		if(!appVersionOnWebsite.trim().equals(version.trim())){
-			try{
-				ApplicationVersionInfoWindow messageWindow =
-					new ApplicationVersionInfoWindow(appURL,
-							this.versionUpdateInfoURL,
-							"App Version Update", this);
-				Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-				messageWindow.setLocation( (dim.width -
-						messageWindow.getSize().width) / 2,
-						(dim.height -
-								messageWindow.getSize().height) / 2);
-				messageWindow.setVisible(true);
-			}catch(Exception e){
-				e.printStackTrace();
-			}
-		}
-
-		return;
-
-	}
-
-
 	/**
 	 * Returns the Application version
 	 * @return String
 	 */
 	public static String getAppVersion(){
-		return version;
+		try {
+			return VersionUtils.loadBuildVersion();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	/**
@@ -748,7 +713,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 		mainSplitPane.setDividerLocation(630 );
 
 		//frame.setTitle( applet.getAppletInfo() + ":  [" + applet.getCurrentAttenuationRelationshipName() + ']' );
-		setTitle( this.getAppInfo() + " (Version:"+version+")");
+		setTitle( this.getAppInfo() + " (Version:"+getAppVersion()+")");
 		setSize( W, H );
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		setLocation( ( d.width - getSize().width ) / 2, ( d.height - getSize().height ) / 2 );
@@ -935,8 +900,6 @@ CurveDisplayAppAPI,GraphWindowAPI {
 	public static void main( String[] args ) {
 		new ApplicationDisclaimerWindow(disclaimerPageURL);
 		AttenuationRelationshipApplet applet = new AttenuationRelationshipApplet();
-
-		applet.checkAppVersion();
 		applet.init();
 		applet.setVisible(true);
 

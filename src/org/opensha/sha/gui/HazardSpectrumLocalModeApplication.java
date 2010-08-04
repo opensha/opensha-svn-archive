@@ -90,29 +90,14 @@ extends HazardCurveLocalModeApplication {
 	//ArrayList that stores the SA Period values for the IMR
 	private ArrayList saPeriodVector;
 
-	protected final static String version = "0.0.19";
-
 	//Graph Title
 	protected String TITLE = new String("Response Spectra Curves");
 
-
-	protected final static String versionURL = "http://www.opensha.org/applications/hazSpectrumApp/HazardSpectrumApp_Version.txt";
-	protected final static String appURL = "http://www.opensha.org/applications/hazSpectrumApp/HazardSpectrumLocalModeApp.jar";
-	protected final static String versionUpdateInfoURL = "http://www.opensha.org/applications/hazSpectrumApp/versionUpdate.html";
 	//instances of various calculators
 	protected SpectrumCalculatorAPI calc;
 	//Prob@IML or IML@Prob
 	boolean probAtIML;
 
-
-	/**
-	 * Returns the Application version
-	 * @return String
-	 */
-
-	public static String getAppVersion(){
-		return version;
-	}
 
 	/**
 	 *
@@ -130,45 +115,6 @@ extends HazardCurveLocalModeApplication {
 			return null;
 		}
 	}
-
-
-
-
-	/**
-	 * Checks if the current version of the application is latest else direct the
-	 * user to the latest version on the website.
-	 */
-	protected void checkAppVersion(){
-		ArrayList hazCurveVersion = null;
-		try {
-			hazCurveVersion = FileUtils.loadFile(new URL(versionURL));
-		}
-		catch (Exception ex1) {
-			return;
-		}
-		String appVersionOnWebsite = (String)hazCurveVersion.get(0);
-		if(!appVersionOnWebsite.trim().equals(version.trim())){
-			try{
-				ApplicationVersionInfoWindow messageWindow =
-					new ApplicationVersionInfoWindow(appURL,
-							this.versionUpdateInfoURL,
-							"App Version Update", this);
-				Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-				messageWindow.setLocation( (dim.width -
-						messageWindow.getSize().width) / 2,
-						(dim.height -
-								messageWindow.getSize().height) / 2);
-				messageWindow.setVisible(true);
-			}catch(Exception e){
-				e.printStackTrace();
-			}
-		}
-
-		return;
-
-	}  
-
-
 
 	/**
 	 * Initialize the IMR Gui Bean
@@ -221,7 +167,7 @@ extends HazardCurveLocalModeApplication {
 			bugWindow.pack();
 			//e.printStackTrace();
 		}
-		this.setTitle("Hazard Spectrum Application ("+version+")");
+		this.setTitle("Hazard Spectrum Application ("+getAppVersion()+")");
 		startAppProgressClass.dispose();
 		( (JPanel) getContentPane()).updateUI();
 	}
@@ -747,7 +693,6 @@ extends HazardCurveLocalModeApplication {
 	public static void main(String[] args) {
 		HazardSpectrumLocalModeApplication applet = new
 		HazardSpectrumLocalModeApplication();
-		applet.checkAppVersion();
 		applet.init();
 		applet.setVisible(true);
 	}

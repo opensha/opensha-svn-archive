@@ -1,6 +1,10 @@
 #!/bin/bash
 
-mainDir="/usr/local/tomcat/default/webapps/OpenSHA/WEB-INF"
+mainDir=`pwd`
+if [[ `basename $mainDir` != "WEB-INF" ]];then
+	echo "must be run from WEB-INF directory!"
+	exit 2
+fi
 java="/usr/java/default/bin/java"
 #java="/usr/java/jdk1.6.0_10/jre/bin/java"
 

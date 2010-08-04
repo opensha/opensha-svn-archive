@@ -27,23 +27,31 @@ public enum ServerPrefs {
 	 * Preferences for development (trunk)
 	 */
 	DEV_PREFS(ServerPrefUtils.OPENSHA_SERVLET_DEV_URL,
+			ServerPrefUtils.OPENSHA_RMI_DEV_URL,
 			ServerPrefUtils.BUILD_TYPE_NIGHTLY),
 	/**
 	 * Preferences for stable production releases
 	 */
 	PRODUCTION_PREFS(ServerPrefUtils.OPENSHA_SERVLET_PRODUCTION_URL,
+			ServerPrefUtils.OPENSHA_RMI_PRODUCTION_URL,
 			ServerPrefUtils.BUILD_TYPE_PRODUCTION);
 	
 	private String servletURL;
+	private String rmiURL;
 	private String buildType;
 	
-	private ServerPrefs(String servletURL, String buildType) {
+	private ServerPrefs(String servletURL, String rmiURL, String buildType) {
 		this.servletURL = servletURL;
+		this.rmiURL = rmiURL;
 		this.buildType = buildType;
 	}
 
 	public String getServletBaseURL() {
 		return servletURL;
+	}
+	
+	public String getRMIBaseURL() {
+		return rmiURL;
 	}
 
 	public String getBuildType() {

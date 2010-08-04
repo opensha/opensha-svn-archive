@@ -18,20 +18,24 @@
     limitations under the License.
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
-<project basedir="." default="build.app" name="HazardSpectrumServer">
-	<description>
-        Builds the HazardCurveLocal mode application as a launchable jar.
-    </description>
-	
-	<import file="include/utils.xml"/>
+<!-- $Id: HazardCurveLocal.xml 6862 2010-07-27 23:02:54Z kmilner $ -->
 
+<project basedir="." default="build.app" name="AppBuilder">
+	<description>
+        Builds an OpenSHA application as a launchable jar...must be called by another build file with the following
+		properties set: app.short.name, app.main.class, javac.includes, javac.excludes, resource.target,
+		and optionally: rmi.target
+    </description>
+
+	<import file="include/utils.xml"/>
+	
 	<!-- global properties -->
-	<property name="app.short.name" value="HazardSpectrumServer" />
 	<property name="build" value="../build" />
 	<property name="dist" value="../dist" />
 	<property name="src" value="../src" />
 	<property name="dev" value="../dev" />
 	<property name="lib.dir" value="../lib" />
+	<property name="unjar.target" value="unjar.libs.common" />
 
 	<path id="library.classpath">
 		<fileset dir="${lib.dir}">
@@ -39,11 +43,12 @@
 		</fileset>
 	</path>
 
+
 	<!-- ================================= 
           target: build.app
          ================================= -->
 	<target name="build.app" depends="init, compile, copy, pack" />
-	
+
 	
 	<!-- - - - - - - - - - - - - - - - - - 
           target: pack
@@ -60,7 +65,7 @@
 			 basedir="${build}">
 			<manifest>
 				<attribute name="Main-Class" 
-					       value="org.opensha.sha.gui.HazardSpectrumServerModeApplication" />
+					       value="${app.main.class}" />
 				<attribute name="Version" value="1.0"/>
 				<attribute name="Built-By" value="${user.name}" />
 			</manifest>
@@ -69,79 +74,74 @@
 			<include name="edu/**" />
 			<include name="net/**" />
 			<include name="org/**" />
+			<include name="javax/**" />
 			<include name="scratch/**" />
 			<include name="resources/**" />
+			<include name="build.version" />
 		</jar>
-		<antcall target="clean.build.dir"></antcall>
+		<antcall target="clean.build.dir" />
 		<ant antfile="compile.xml" target="sign.jar"/>
 		<ant antfile="compile.xml" target="copy.server.jar"/>
 	</target>
-	
+
 	<!-- - - - - - - - - - - - - - - - - - 
           target: compile                      
          - - - - - - - - - - - - - - - - - -->
-    <target name="compile">
-        <antcall target="compile.java" />
-        <antcall target="compile.rmi" />
-    </target>
+	<target name="compile">
+		<antcall target="compile.java" />
+		<antcall target="compile.rmi" />
+	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
           target: compile.java
          - - - - - - - - - - - - - - - - - -->
 	<target name="compile.java">
 		<javac debug="true"
-		       debuglevel="lines,source"
-		       destdir="${build}"
-		       fork="yes">
+				debuglevel="lines,source"
+				destdir="${build}"
+				fork="yes"
+				includes="${javac.includes}"
+				excludes="${javac.excludes}">
 			<classpath>
 				<pathelement location="${build}"/>
 				<path refid="library.classpath" />
 			</classpath>
 			<src path="${src}" />
 			<src path="${dev}" />
-			<!-- spcifying the main() class compiles all dependencies -->
-			<include name="org/opensha/sha/gui/HazardSpectrumServerModeApplication.java" />
-			<!-- paths to hard-coded classes -->
-			<include name="org/opensha/sha/earthquake/rupForecastImpl/**" />
-			<include name="org/opensha/sha/cybershake/openshaAPIs/**" />
-			<include name="org/opensha/sha/imr/attenRelImpl/**" />
-			<include name="scratch/christine/attenRelImpl/**" />
-			<exclude name="org/opensha/sha/imr/attenRelImpl/gui/**" />
-			<exclude name="org/opensha/sha/imr/attenRelImpl/test/**" />
 		</javac>
 	</target>
-	
+
 	<!-- - - - - - - - - - - - - - - - - - 
           target: compile.rmi
          - - - - - - - - - - - - - - - - - -->
-	<target name="compile.rmi">
-		<ant antfile="compile.xml" target="rmi.hazard.curve"/>
+	<target name="compile.rmi" if="rmi.target">
+		<ant antfile="compile.xml" target="${rmi.target}"/>
 	</target>
-	
+
 	<!-- - - - - - - - - - - - - - - - - - 
           target: copy                      
           
           Copies resources and unpacks required libs.
          - - - - - - - - - - - - - - - - - -->
-    <target name="copy">
-        <antcall target="copy.resources" />
-        <antcall target="unjar.libs" />
-    </target>
-	
+	<target name="copy">
+		<antcall target="copy.resources" />
+		<antcall target="unjar.libs" />
+	</target>
+
 	<!-- - - - - - - - - - - - - - - - - - 
           target: copy.resources
          - - - - - - - - - - - - - - - - - -->
-	<target name="copy.resources">
-		<ant antfile="compile.xml" target="resource.hazard.apps.server"/>
+	<target name="copy.resources" if="resource.target">
+		<ant antfile="compile.xml" target="${resource.target}"/>
 	</target>
-	
+
 	<!-- - - - - - - - - - - - - - - - - - 
           target: unjar.libs
           
           Unpack necessary libs for inclusion in app.                      
          - - - - - - - - - - - - - - - - - -->
 	<target name="unjar.libs">
-		<ant antfile="compile.xml" target="unjar.libs.common"/>
+		<ant antfile="compile.xml" target="${unjar.target}"/>
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
@@ -153,7 +153,7 @@
 		<!-- clean build dir if it wasn't cleaned-->
 		<antcall target="clean.build.dir" />
 	</target>
-	
+
 	<!-- - - - - - - - - - - - - - - - - - 
           target: clean.build.dir                      
          - - - - - - - - - - - - - - - - - -->

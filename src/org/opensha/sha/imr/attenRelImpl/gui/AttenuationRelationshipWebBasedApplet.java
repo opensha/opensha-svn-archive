@@ -232,7 +232,6 @@ public class AttenuationRelationshipWebBasedApplet
   public static void main( String[] args ) {
 
       AttenuationRelationshipWebBasedApplet applet = new AttenuationRelationshipWebBasedApplet();
-      applet.checkAppVersion();
 	  applet.init();
 	  applet.setVisible(true);     
 

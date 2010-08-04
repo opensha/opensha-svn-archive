@@ -21,6 +21,8 @@ package org.opensha.sha.earthquake.rupForecastImpl.remote;
 
 import java.rmi.Naming;
 
+import org.opensha.commons.util.ServerPrefUtils;
+
 /**
  *
  * <p>Title: RegisterRemoteERF_Factory.java </p>
@@ -31,7 +33,8 @@ import java.rmi.Naming;
  * @version 1.0
  */
 public class RegisterRemoteERF_Factory {
- public final static String registrationName = "rmi://opensha.usc.edu:1099/ERF_FactoryServer";
+ public final static String registrationName =
+	 ServerPrefUtils.SERVER_PREFS.getRMIBaseURL()+"ERF_FactoryServer";
  public static void main(String[] args) {
    try {
      // register the ERF Factory with the naming service

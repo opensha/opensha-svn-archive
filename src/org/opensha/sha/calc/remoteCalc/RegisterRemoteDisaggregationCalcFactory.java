@@ -21,6 +21,8 @@ package org.opensha.sha.calc.remoteCalc;
 
 import java.rmi.Naming;
 
+import org.opensha.commons.util.ServerPrefUtils;
+
 /**
  * <p>Title: RegisterRemoteDisaggregationCalcFactory</p>
  * <p>Description: This class creates a RMI server that will listen all the
@@ -31,7 +33,8 @@ import java.rmi.Naming;
 
 public class RegisterRemoteDisaggregationCalcFactory {
 
-  public final static String registrationName = "rmi://opensha.usc.edu:1099/DisaggregationCalc_FactoryServer";
+  public final static String registrationName =
+	  ServerPrefUtils.SERVER_PREFS.getRMIBaseURL()+"DisaggregationCalc_FactoryServer";
 
 
    public static void main(String[] args) {
