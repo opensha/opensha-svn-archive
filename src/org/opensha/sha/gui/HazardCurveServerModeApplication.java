@@ -1854,6 +1854,7 @@ ScalarIMRChangeListener {
 				erfGuiBean.getParameter(ERF_GuiBean.ERF_PARAM_NAME)
 				.addParameterChangeListener(this);
 			} catch (InvocationTargetException e) {
+				e.printStackTrace();
 				ExceptionWindow bugWindow = new ExceptionWindow(this, e,
 				"ERF's Initialization problem. Rest all parameters are default");
 				bugWindow.setVisible(true);
