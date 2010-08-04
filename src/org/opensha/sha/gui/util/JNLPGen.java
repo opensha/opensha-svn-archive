@@ -67,7 +67,7 @@ public class JNLPGen {
 		else
 			gen.setUpperRightImage(IconGen.loadServerIcon());
 		icons = new ArrayList<IconEntry>();
-		int[] sizes = { 16, 32, 48, 64, 128 };
+		int[] sizes = { 128, 64, 48, 32, 16 };
 		for (int size : sizes) {
 			BufferedImage icon = gen.getIcon(size, size);
 			String fileName = shortName + "_" + size + "x" + size + ".png";
