@@ -22,6 +22,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients;
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 
+import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RegisterRemoteERF_Factory;
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
 
@@ -36,12 +37,14 @@ import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
  */
 
 public class PEER_NonPlanarFaultForecastClient extends RemoteERF_Client {
+	
+	public static final String NAME = PEER_NonPlanarFaultForecast.NAME;
 
-  public PEER_NonPlanarFaultForecastClient() throws java.rmi.RemoteException, MalformedURLException, NotBoundException{
-    String className = "org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast";
-    String remoteRegistrationName = RegisterRemoteERF_Factory.registrationName;
-    getRemoteERF(className,remoteRegistrationName);
-  }
+	public PEER_NonPlanarFaultForecastClient() throws java.rmi.RemoteException, MalformedURLException, NotBoundException{
+		String className = PEER_NonPlanarFaultForecast.class.getName();
+		String remoteRegistrationName = RegisterRemoteERF_Factory.registrationName;
+		getRemoteERF(className,remoteRegistrationName);
+	}
 
 
 

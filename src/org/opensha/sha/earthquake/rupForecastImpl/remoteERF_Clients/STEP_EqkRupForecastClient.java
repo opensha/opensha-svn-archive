@@ -24,6 +24,7 @@ import java.rmi.NotBoundException;
 
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RegisterRemoteERF_Factory;
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
+import org.opensha.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast;
 
 /**
  * <p>Title: STEP_EqkRupForecastClient.java </p>
@@ -37,10 +38,12 @@ import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
 
 public class STEP_EqkRupForecastClient extends RemoteERF_Client{
 
-  public STEP_EqkRupForecastClient() throws java.rmi.RemoteException, MalformedURLException, NotBoundException{
-    String className = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
-    String remoteRegistrationName = RegisterRemoteERF_Factory.registrationName;
-    getRemoteERF(className,remoteRegistrationName);
-  }
+	public static final String NAME = STEP_EqkRupForecast.NAME;
+	
+	public STEP_EqkRupForecastClient() throws java.rmi.RemoteException, MalformedURLException, NotBoundException{
+		String className = STEP_EqkRupForecast.class.getName();
+		String remoteRegistrationName = RegisterRemoteERF_Factory.registrationName;
+		getRemoteERF(className,remoteRegistrationName);
+	}
 
 }

@@ -22,6 +22,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients;
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 
+import org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF;
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RegisterRemoteERF_Factory;
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
 
@@ -35,11 +36,13 @@ import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
 
 public class PoissonFaultERF_Client extends RemoteERF_Client {
 
-  public PoissonFaultERF_Client() throws java.rmi.RemoteException, MalformedURLException, NotBoundException{
-    String className = "org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF";
-    String remoteRegistrationName = RegisterRemoteERF_Factory.registrationName;
-    getRemoteERF(className,remoteRegistrationName);
-  }
+	public static final String NAME = PoissonFaultERF.NAME;
+
+	public PoissonFaultERF_Client() throws java.rmi.RemoteException, MalformedURLException, NotBoundException{
+		String className = PoissonFaultERF.class.getName();
+		String remoteRegistrationName = RegisterRemoteERF_Factory.registrationName;
+		getRemoteERF(className,remoteRegistrationName);
+	}
 
 
 }

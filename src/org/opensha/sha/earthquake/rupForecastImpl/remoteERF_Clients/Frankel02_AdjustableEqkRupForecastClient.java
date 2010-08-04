@@ -22,6 +22,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients;
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 
+import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RegisterRemoteERF_Factory;
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
 
@@ -36,11 +37,13 @@ import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
  */
 
 public class Frankel02_AdjustableEqkRupForecastClient extends RemoteERF_Client {
+	
+	public static final String NAME = Frankel02_AdjustableEqkRupForecast.NAME;
 
-  public Frankel02_AdjustableEqkRupForecastClient() throws java.rmi.RemoteException, MalformedURLException, NotBoundException{
-    String className = "org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
-    String remoteRegistrationName = RegisterRemoteERF_Factory.registrationName;
-    getRemoteERF(className,remoteRegistrationName);
-  }
+	public Frankel02_AdjustableEqkRupForecastClient() throws java.rmi.RemoteException, MalformedURLException, NotBoundException{
+		String className = Frankel02_AdjustableEqkRupForecast.class.getName();
+		String remoteRegistrationName = RegisterRemoteERF_Factory.registrationName;
+		getRemoteERF(className,remoteRegistrationName);
+	}
 
 }

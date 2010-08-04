@@ -19,6 +19,7 @@
 
 package org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients;
 
+import org.opensha.sha.earthquake.rupForecastImpl.WG02.WG02_FortranWrappedERF_EpistemicList;
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RegisterRemoteERF_ListFactory;
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_ListClient;
 
@@ -34,11 +35,13 @@ import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_ListClient;
 
 public class WG02_FortranWrappedERF_EpistemicListClient extends RemoteERF_ListClient{
 
-  public WG02_FortranWrappedERF_EpistemicListClient() throws java.rmi.RemoteException{
-    String className = "org.opensha.sha.earthquake.rupForecastImpl.WG02.WG02_FortranWrappedERF_EpistemicList";
-    String remoteRegistrationName = RegisterRemoteERF_ListFactory.registrationName;
-    getRemoteERF_List(className,remoteRegistrationName);
-  }
+	public static final String NAME = WG02_FortranWrappedERF_EpistemicList.NAME;
+
+	public WG02_FortranWrappedERF_EpistemicListClient() throws java.rmi.RemoteException{
+		String className = WG02_FortranWrappedERF_EpistemicList.class.getName();
+		String remoteRegistrationName = RegisterRemoteERF_ListFactory.registrationName;
+		getRemoteERF_List(className,remoteRegistrationName);
+	}
 
 }
 
