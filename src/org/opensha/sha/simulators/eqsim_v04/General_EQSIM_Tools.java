@@ -139,12 +139,14 @@ public class General_EQSIM_Tools {
 		eventList = new ArrayList<EQSIM_Event>();
 		EQSIM_Event currEvent = null;
 		EventRecord evRec = new EventRecord(); // this one never used, but created to compile
+		int numEventRecs=0;
 		while (linesIterator.hasNext()) {
 			line = linesIterator.next();
 			tok = new StringTokenizer(line);
 			kindOfLine = Integer.parseInt(tok.nextToken());
 			if(kindOfLine ==200) {
 				evRec = new EventRecord(line);
+				numEventRecs+=1;
 				
 				// check whether this is the first event in the list
 				if(eventList.size() == 0) {
@@ -167,6 +169,8 @@ public class General_EQSIM_Tools {
 				evRec.addSlipAndElementData(line); // add to the last event record created
 			}
 		}
+		
+		System.out.println("Num Events = "+this.eventList.size()+"\tNum Event Records = "+numEventRecs);
 	}
 	
 	
