@@ -52,9 +52,12 @@ public class General_EQSIM_Tools {
 	ArrayList<ArrayList<Vertex>> vertexListForSections;
 	ArrayList<String> namesOfSections;
 	ArrayList<Integer> faultIDs_ForSections;
+	ArrayList<EQSIM_Event> eventList;
 	
 	final static String GEOM_FILE_SIG = "EQSim_Input_Geometry_2";	// signature of the geometry file
 	final static int GEOM_FILE_SPEC_LEVEL = 2;
+	final static String EVENT_FILE_SIG = "EQSim_Output_Event_2";
+	final static int EVENT_FILE_SPEC_LEVEL = 2;
 	final static double SECONDS_PER_YEAR = 365*24*60*60;
 
 
@@ -86,7 +89,7 @@ public class General_EQSIM_Tools {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		loadFromEQSIMv04_Lines(lines);
+		loadFromEQSIMv04_GeometryLines(lines);
 	}
 	
 	
@@ -105,9 +108,66 @@ public class General_EQSIM_Tools {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		loadFromEQSIMv04_Lines(lines);
+		loadFromEQSIMv04_GeometryLines(lines);
 	}
 
+	
+	
+	private void read_EQSIMv04_EventsFile(String filePathName) {
+
+		ArrayList<String> lines=null;
+		try {
+			lines = FileUtils.loadJarFile(filePathName);
+			System.out.println("Number of file lines: "+lines.size()+" (in "+filePathName+")");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		ListIterator<String> linesIterator = lines.listIterator();
+		
+		// get & check first line (must be the signature line)
+		String line = linesIterator.next();
+		StringTokenizer tok = new StringTokenizer(line);
+		int kindOfLine = Integer.parseInt(tok.nextToken());
+		String fileSignature = tok.nextToken();
+		int fileSpecLevel = Integer.parseInt(tok.nextToken());
+		if(kindOfLine != 101 || !fileSignature.equals(EVENT_FILE_SIG) || fileSpecLevel < EVENT_FILE_SPEC_LEVEL)
+			throw new RuntimeException("wrong type of event input file");
+
+		eventList = new ArrayList<EQSIM_Event>();
+		EQSIM_Event currEvent = null;
+		EventRecord evRec = new EventRecord(); // this one never used, but created to compile
+		while (linesIterator.hasNext()) {
+			line = linesIterator.next();
+			tok = new StringTokenizer(line);
+			kindOfLine = Integer.parseInt(tok.nextToken());
+			if(kindOfLine ==200) {
+				evRec = new EventRecord(line);
+				
+				// check whether this is the first event in the list
+				if(eventList.size() == 0) {
+					EQSIM_Event event = new EQSIM_Event(evRec);
+					eventList.add(event);
+					currEvent = event;
+				}
+				else { // check whether this is part of currEvent (same index)
+					if(currEvent.isSameEvent(evRec)) {
+						currEvent.add(evRec);
+					}
+					else { // it's a new event
+						EQSIM_Event event = new EQSIM_Event(evRec);
+						eventList.add(event);
+						currEvent = event;
+					}
+				}
+			}
+			else if(kindOfLine ==201) {
+				evRec.addSlipAndElementData(line); // add to the last event record created
+			}
+		}
+	}
 	
 	
 	
@@ -117,7 +177,7 @@ public class General_EQSIM_Tools {
 	 * @param lines
 	 * @return
 	 */
-	private void loadFromEQSIMv04_Lines(ArrayList<String> lines) {
+	private void loadFromEQSIMv04_GeometryLines(ArrayList<String> lines) {
 		
 		rectElementsList = new ArrayList<RectangularElement>();
 		vertexList = new ArrayList<Vertex>();
@@ -613,6 +673,7 @@ public class General_EQSIM_Tools {
 		long startTime=System.currentTimeMillis();
 		System.out.println("Starting");
 		
+		/*
 		General_EQSIM_Tools test = new General_EQSIM_Tools(82, false, 4.0);
 //		test.getElementsList();
 		String writePath = "testEQSIM_Output.txt";
@@ -623,13 +684,16 @@ public class General_EQSIM_Tools {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		*/
+		
+		/**/
+		// THE FOLLOWING TEST LOOKS GOOD FROM A VISUAL INSPECTION
+		String fullPath = "org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/NCA_Ward_Geometry.dat.txt";
+//		String fullPath = "org/opensha/sha/simulators/eqsim_v04/ALLCAL_Model_v04/ALLCAL_Ward_Geometry.dat";
+		General_EQSIM_Tools test = new General_EQSIM_Tools(fullPath);
+		test.read_EQSIMv04_EventsFile("org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/NCAL_Ward.out.txt");
 		
 		/*
-		// THE FOLLOWING TEST LOOKS GOOD FROM A VISUAL INSPECTION
-//		String fullPath = "org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/NCA_Ward_Geometry.dat.txt";
-		String fullPath = "org/opensha/sha/simulators/eqsim_v04/ALLCAL_Model_v04/ALLCAL_Ward_Geometry.dat";
-		General_EQSIM_Tools test = new General_EQSIM_Tools(fullPath);
-		
 		String writePath = "testEQSIM_Output.txt";
 		try {
 			test.writeTo_EQSIM_V04_GeometryFile(writePath, null, "test output", 
