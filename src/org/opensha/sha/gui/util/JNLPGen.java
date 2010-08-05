@@ -226,28 +226,37 @@ public class JNLPGen {
 		ArrayList<JNLPGen> appsToBuild = new ArrayList<JNLPGen>();
 		/*		Hazard Curve				*/
 		appsToBuild.add(new JNLPGen(HazardCurveLocalModeApplication.class,
-				"HazardCurveLocal", "Hazard Curve Local Mode Application", "HC", true));
+				HazardCurveLocalModeApplication.APP_SHORT_NAME, 
+				HazardCurveLocalModeApplication.APP_NAME, "HC", true));
 		appsToBuild.add(new JNLPGen(HazardCurveServerModeApplication.class,
-				"HazardCurveServer", "Hazard Curve Server Mode Application", "HC", false));
+				HazardCurveServerModeApplication.APP_SHORT_NAME, 
+				HazardCurveServerModeApplication.APP_NAME, "HC", false));
 		/*		Hazard Spectrum				*/
 		appsToBuild.add(new JNLPGen(HazardSpectrumLocalModeApplication.class,
-				"HazardSpectrumLocal", "Hazard Spectrum Local Mode Application", "HS", true));
+				HazardSpectrumLocalModeApplication.APP_SHORT_NAME, 
+				HazardSpectrumLocalModeApplication.APP_NAME, "HS", true));
 		appsToBuild.add(new JNLPGen(HazardSpectrumServerModeApplication.class,
-				"HazardSpectrumServer", "Hazard Spectrum Server Mode Application", "HS", false));
+				HazardSpectrumServerModeApplication.APP_SHORT_NAME, 
+				HazardSpectrumServerModeApplication.APP_NAME, "HS", false));
 		/*		Scenario ShakeMap			*/
 		appsToBuild.add(new JNLPGen(ScenarioShakeMapLocalModeCalcApp.class,
-				"ScenarioShakeMapLocal", "Scenario ShakeMap Local Mode Application", "SM", true));
-		appsToBuild.add(new JNLPGen(HazardSpectrumServerModeApplication.class,
-				"ScenarioShakeMapServer", "Scenario ShakeMap Server Mode Application", "SM", false));
+				ScenarioShakeMapLocalModeCalcApp.APP_SHORT_NAME, 
+				ScenarioShakeMapLocalModeCalcApp.APP_NAME, "SM", true));
+		appsToBuild.add(new JNLPGen(ScenarioShakeMapApp.class,
+				ScenarioShakeMapApp.APP_SHORT_NAME, 
+				ScenarioShakeMapApp.APP_NAME, "SM", false));
 		/*		Attenuation Relationship	*/
 		appsToBuild.add(new JNLPGen(AttenuationRelationshipApplet.class,
-				"AttenuationRelationship", "Attenuation Relationship Application", "AR", true));
+				AttenuationRelationshipApplet.APP_SHORT_NAME, 
+				AttenuationRelationshipApplet.APP_NAME, "AR", true));
 		/*		Magnitude Frequency Dist	*/
 		appsToBuild.add(new JNLPGen(MagFreqDistApp.class,
-				"MagFreqDist", "Magnitude Frequency Distribution Application", "MFD", true));
-		/*		GMT Map Generator		*/
+				MagFreqDistApp.APP_SHORT_NAME, 
+				MagFreqDistApp.APP_NAME, "MFD", true));
+		/*		GMT Map Generator			*/
 		appsToBuild.add(new JNLPGen(GMT_MapGeneratorApplet.class,
-				"GMTMap", "GMT Map Generator Application", "GMT", true));
+				GMT_MapGeneratorApplet.APP_SHORT_NAME, 
+				GMT_MapGeneratorApplet.APP_NAME, "GMT", true));
 		
 		for (ServerPrefs myPrefs : prefsToBuild) {
 			setDefaultServerPrefs(myPrefs);

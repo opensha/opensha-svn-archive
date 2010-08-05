@@ -22,11 +22,13 @@ package org.opensha.sha.gui;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.Toolkit;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 
 import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF;
 import org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF;
@@ -53,6 +55,9 @@ import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
  */
 public class ScenarioShakeMapLocalModeCalcApp
 extends ScenarioShakeMapApp {
+	
+	public static final String APP_NAME = "Scenario ShakeMap Local Mode Application";
+	public static final String APP_SHORT_NAME = "ScenarioShakeMapLocal";
 
 	/**
 	 * Initialize the ERF Gui Bean
@@ -91,7 +96,8 @@ extends ScenarioShakeMapApp {
 	}
 
 	//Main method
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
+		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
 		ScenarioShakeMapLocalModeCalcApp applet = new ScenarioShakeMapLocalModeCalcApp();
 		applet.init();
 		applet.setVisible(true);

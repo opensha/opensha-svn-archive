@@ -23,6 +23,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.gui;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
+import org.opensha.commons.util.ApplicationVersion;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
@@ -70,8 +71,8 @@ public class CEA_HazardCurveLocalModeApp extends HazardCurveServerModeApplicatio
 	 * @return String
 	 */
 
-	public static String getAppVersion(){
-		return "1.0";
+	public static ApplicationVersion getAppVersion(){
+		return new ApplicationVersion(1, 0, 0);
 	}
 
 

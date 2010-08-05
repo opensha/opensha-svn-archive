@@ -56,13 +56,14 @@ import org.opensha.commons.data.siteData.impl.WaldAllenGlobalVs30;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.ListUtils;
-import org.opensha.commons.util.VersionUtils;
+import org.opensha.commons.util.ApplicationVersion;
 import org.opensha.sha.calc.ScenarioShakeMapCalculator;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.FloatingPoissonFaultERF_Client;
@@ -127,11 +128,16 @@ import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 
 public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListener,
 AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Runnable, ScalarIMRChangeListener{
+	
+	public static final String APP_NAME = "Scenario ShakeMap Server Mode Application";
+	public static final String APP_SHORT_NAME = "ScenarioShakeMapServer";
 
 	/**
 	 * Name of the class
 	 */
 	protected final static String C = "ScenarioShakeMapApp";
+	
+	private static ApplicationVersion version;
 	// for debug purpose
 	protected final static boolean D = false;
 
@@ -320,15 +326,17 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 
 	/**
 	 * Returns the Application version
-	 * @return String
+	 * @return ApplicationVersion
 	 */
-	public static String getAppVersion(){
-		try {
-			return VersionUtils.loadBuildVersion();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
+	public static ApplicationVersion getAppVersion(){
+		if (version == null) {
+			try {
+				version = ApplicationVersion.loadBuildVersion();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
+		return version;
 	}
 
 
@@ -412,7 +420,8 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
   }*/
 
 	//Main method
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
+		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
 		ScenarioShakeMapApp applet = new ScenarioShakeMapApp();
 		applet.init();
 		applet.setVisible(true);

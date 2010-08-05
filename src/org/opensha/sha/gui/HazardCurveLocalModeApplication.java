@@ -22,10 +22,12 @@ package org.opensha.sha.gui;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 
+import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.gem.GEM1.scratch.marco.testParsers.GEM1ERF;
 import org.opensha.sha.calc.HazardCurveCalculator;
@@ -87,6 +89,9 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	public static final String APP_NAME = "Hazard Curve Local Mode Application";
+	public static final String APP_SHORT_NAME = "HazardCurveLocal";
 
 	public static ArrayList<String> getLocalERFClasses() {
 		ArrayList<String> erf_Classes = new ArrayList<String>();
@@ -255,7 +260,8 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 		
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
+		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
 		HazardCurveLocalModeApplication applet = new HazardCurveLocalModeApplication();
 		applet.init();
 		applet.setTitle("Hazard Curve Local mode Application "+"("+getAppVersion()+")" );

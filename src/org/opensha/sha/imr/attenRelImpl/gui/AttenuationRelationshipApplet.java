@@ -64,6 +64,7 @@ import javax.swing.border.Border;
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.gui.OvalBorder;
 import org.opensha.commons.gui.SidesBorder;
 import org.opensha.commons.param.ParameterAPI;
@@ -75,7 +76,7 @@ import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.commons.util.VersionUtils;
+import org.opensha.commons.util.ApplicationVersion;
 import org.opensha.sha.gui.controls.AxisLimitsControlPanel;
 import org.opensha.sha.gui.controls.AxisLimitsControlPanelAPI;
 import org.opensha.sha.gui.controls.CurveDisplayAppAPI;
@@ -140,12 +141,14 @@ implements ParameterChangeFailListener,
 ParameterChangeWarningListener,
 ItemListener, AxisLimitsControlPanelAPI,GraphPanelAPI,ButtonControlPanelAPI,
 CurveDisplayAppAPI,GraphWindowAPI {
+	
+	public static final String APP_NAME = "Attenuation Relationship Application";
+	public static final String APP_SHORT_NAME = "AttenuationRelationship";
+	
+	private static ApplicationVersion version;
 
 	protected final static String C = "AttenuationRelationshipApplet";
 	protected final static boolean D = false;
-
-	protected final static String disclaimerPageURL = "http://www.opensha.org/documentation/applications/disclaimer.html";
-
 
 	/**
 	 * these four values save the custom axis scale specified by user
@@ -413,15 +416,17 @@ CurveDisplayAppAPI,GraphWindowAPI {
 
 	/**
 	 * Returns the Application version
-	 * @return String
+	 * @return ApplicationVersion
 	 */
-	public static String getAppVersion(){
-		try {
-			return VersionUtils.loadBuildVersion();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
+	public static ApplicationVersion getAppVersion(){
+		if (version == null) {
+			try {
+				version = ApplicationVersion.loadBuildVersion();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
+		return version;
 	}
 
 	/**
@@ -896,9 +901,10 @@ CurveDisplayAppAPI,GraphWindowAPI {
 	 *  Main method
 	 *
 	 * @param  args  The command line arguments
+	 * @throws MalformedURLException 
 	 */
-	public static void main( String[] args ) {
-		new ApplicationDisclaimerWindow(disclaimerPageURL);
+	public static void main( String[] args ) throws MalformedURLException, IOException {
+		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
 		AttenuationRelationshipApplet applet = new AttenuationRelationshipApplet();
 		applet.init();
 		applet.setVisible(true);

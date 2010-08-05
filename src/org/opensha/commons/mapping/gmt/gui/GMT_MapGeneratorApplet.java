@@ -27,6 +27,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ListIterator;
@@ -41,8 +42,10 @@ import javax.swing.UIManager;
 
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.StringParameterEditor;
+import org.opensha.commons.util.ApplicationVersion;
 import org.opensha.commons.util.FileUtils;
 
 
@@ -56,7 +59,25 @@ import org.opensha.commons.util.FileUtils;
  */
 
 public class GMT_MapGeneratorApplet extends Applet{
-
+	
+	public static final String APP_NAME = "GMT Map Generator Application";
+	public static final String APP_SHORT_NAME = "GMTMap";
+	private static ApplicationVersion version;
+	
+	/**
+	 * Returns the Application version
+	 * @return ApplicationVersion
+	 */
+	public static ApplicationVersion getAppVersion(){
+		if (version == null) {
+			try {
+				version = ApplicationVersion.loadBuildVersion();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return version;
+	}
 
 	private static final String C="GMT_MapGeneratorApplet";
 
@@ -171,12 +192,12 @@ public class GMT_MapGeneratorApplet extends Applet{
 		return null;
 	}
 	//Main method
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
+		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
 		GMT_MapGeneratorApplet applet = new GMT_MapGeneratorApplet();
 		applet.isStandalone = true;
 		JFrame frame = new JFrame();
-		//EXIT_ON_CLOSE == 3
-		frame.setDefaultCloseOperation(3);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setTitle("Maps");
 		frame.getContentPane().add(applet, BorderLayout.CENTER);
 		applet.init();

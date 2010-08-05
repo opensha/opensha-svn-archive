@@ -21,11 +21,13 @@ package org.opensha.sha.gui;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
+import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.SpectrumCalculator;
 import org.opensha.sha.calc.remoteCalc.RemoteResponseSpectrumClient;
@@ -63,6 +65,9 @@ import org.opensha.sha.gui.infoTools.ExceptionWindow;
  */
 public class HazardSpectrumServerModeApplication
 extends HazardSpectrumLocalModeApplication {
+	
+	public static final String APP_NAME = "Hazard Spectrum Server Mode Application";
+	public static final String APP_SHORT_NAME = "HazardSpectrumServer";
 
 	/**
 	 * Initialize the ERF Gui Bean
@@ -197,7 +202,8 @@ extends HazardSpectrumLocalModeApplication {
 		}
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
+		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
 		HazardSpectrumServerModeApplication applet = new
 		HazardSpectrumServerModeApplication();
 		applet.init();

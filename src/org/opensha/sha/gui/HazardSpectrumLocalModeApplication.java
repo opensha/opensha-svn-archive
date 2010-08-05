@@ -23,6 +23,7 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.DoubleDiscreteParameter;
 import org.opensha.commons.param.ParameterAPI;
@@ -76,6 +78,9 @@ import org.opensha.sha.util.TectonicRegionType;
  */
 public class HazardSpectrumLocalModeApplication
 extends HazardCurveLocalModeApplication {
+	
+	public static final String APP_NAME = "Hazard Spectrum Local Mode Application";
+	public static final String APP_SHORT_NAME = "HazardSpectrumLocal";
 
 	//Static String to tell the IMT as the SA becuase it is the only supported IMT for this Application
 	protected static String SA_NAME = "SA";
@@ -690,7 +695,8 @@ extends HazardCurveLocalModeApplication {
 	}
 
 	//Main method
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
+		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
 		HazardSpectrumLocalModeApplication applet = new
 		HazardSpectrumLocalModeApplication();
 		applet.init();

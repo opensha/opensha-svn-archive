@@ -78,6 +78,7 @@
 			<include name="scratch/**" />
 			<include name="resources/**" />
 			<include name="build.version" />
+			<include name="LICENSE.txt" />
 		</jar>
 		<antcall target="clean.build.dir" />
 		<ant antfile="compile.xml" target="sign.jar"/>
@@ -124,8 +125,8 @@
           Copies resources and unpacks required libs.
          - - - - - - - - - - - - - - - - - -->
 	<target name="copy">
-		<antcall target="copy.resources" />
 		<antcall target="unjar.libs" />
+		<antcall target="copy.resources" />
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 

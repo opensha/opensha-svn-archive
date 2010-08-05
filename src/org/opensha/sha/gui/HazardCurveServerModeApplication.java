@@ -68,13 +68,14 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.commons.exceptions.WarningException;
+import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.ListUtils;
-import org.opensha.commons.util.VersionUtils;
+import org.opensha.commons.util.ApplicationVersion;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
@@ -180,6 +181,11 @@ ScalarIMRChangeListener {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	private static ApplicationVersion version;
+	
+	public static final String APP_NAME = "Hazard Curve Server Mode Application";
+	public static final String APP_SHORT_NAME = "HazardCurveServer";
 
 	/**
 	 * Name of the class
@@ -740,20 +746,22 @@ ScalarIMRChangeListener {
 
 	/**
 	 * Returns the Application version
-	 * 
-	 * @return String
+	 * @return ApplicationVersion
 	 */
-	public static String getAppVersion() {
-		try {
-			return VersionUtils.loadBuildVersion();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
+	public static ApplicationVersion getAppVersion(){
+		if (version == null) {
+			try {
+				version = ApplicationVersion.loadBuildVersion();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
+		return version;
 	}
 
 	// Main method
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
+		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
 		HazardCurveServerModeApplication applet = new HazardCurveServerModeApplication();
 		applet.init();
 		//		applet.pack();
@@ -2670,3 +2678,4 @@ ScalarIMRChangeListener {
 		updateSiteParams();
 	}
 }
+

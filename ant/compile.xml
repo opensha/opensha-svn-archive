@@ -258,6 +258,7 @@
 		fit into another category well -->
 		
 		<copy todir="${build}/" overwrite="true" file="include/build.version"/>
+		<copy todir="${build}/" overwrite="true" file="../LICENSE.txt"/>
 
 		<copy todir="${build}/resources/images" overwrite="true">
 			<fileset dir="${src}/resources/images" />
