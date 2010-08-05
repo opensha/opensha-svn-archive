@@ -557,8 +557,8 @@ public class GMT_MapGenerator implements Serializable{
 		
 		imgWebAddr = this.openServletConnection(map, metadata, dirName);
 
-		if (!imgWebAddr.endsWith(File.separator))
-			imgWebAddr += File.separator;
+		if (!imgWebAddr.endsWith("/"))
+			imgWebAddr += "/";
 
 		return imgWebAddr+JPG_FILE_NAME;
 	}
