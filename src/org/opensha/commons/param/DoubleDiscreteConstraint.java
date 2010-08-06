@@ -42,13 +42,17 @@ public class DoubleDiscreteConstraint
     implements DiscreteParameterConstraintAPI<Double>
 {
 
-    /** Class name for debugging. */
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/** Class name for debugging. */
     protected final static String C = "DoubleDiscreteConstraint";
     /** If true print out debug statements. */
     protected final static boolean D = false;
 
     /** List of possible Double values allowed by this constraint */
-    private ArrayList doubles = new ArrayList();
+    private ArrayList<Double> doubles = new ArrayList<Double>();
 
 
     /** No-arg Constructor, just calls super() */
@@ -61,7 +65,7 @@ public class DoubleDiscreteConstraint
      * @param  doubles                  A vector of allowed Doubles in this constraint.
      * @exception  ConstraintException  Is thrown if passed in list is empty.
      */
-    public DoubleDiscreteConstraint( ArrayList doubles ) throws ConstraintException {
+    public DoubleDiscreteConstraint( ArrayList<Double> doubles ) throws ConstraintException {
 
         if ( doubles.size() > 0 ) {
             this.doubles = doubles;
@@ -78,7 +82,7 @@ public class DoubleDiscreteConstraint
      *
      * @param  doubles  The new list of allowed doubles
      */
-    public void setDoubles( ArrayList doubles ) throws EditableException {
+    public void setDoubles( ArrayList<Double> doubles ) throws EditableException {
 
         if( !this.editable ) throw new EditableException(C + ": setStrings(): " +
             "This constraint is currently not editable." );
@@ -93,7 +97,7 @@ public class DoubleDiscreteConstraint
      *
      * @return    The allowed doubles in a Vectoru
      */
-    public ArrayList getAllowedValues() { return getAllowedDoubles(); }
+    public ArrayList<Double> getAllowedValues() { return getAllowedDoubles(); }
 
 
     /**
@@ -102,8 +106,8 @@ public class DoubleDiscreteConstraint
      *
      * @return    The allowed doubles in a Vectoru
      */
-    public ArrayList getAllowedDoubles() {
-        return ( ArrayList ) doubles.clone();
+    public ArrayList<Double> getAllowedDoubles() {
+        return ( ArrayList<Double> ) doubles.clone();
     }
 
     /**
@@ -129,7 +133,7 @@ public class DoubleDiscreteConstraint
 
 
     /** Returns Iterator over all allowed values */
-    public ListIterator listIterator() { return doubles.listIterator(); }
+    public ListIterator<Double> listIterator() { return doubles.listIterator(); }
 
 
     /**
@@ -207,7 +211,7 @@ public class DoubleDiscreteConstraint
         //b.append( TAB + "Is Editable = " + this.editable + '\n' );
         b.append( TAB.concat( "Allowed values = " ) );
 
-        ListIterator it = doubles.listIterator();
+        ListIterator<Double> it = doubles.listIterator();
         boolean first = true;
         while ( it.hasNext() ) {
             if ( !first ) {
@@ -232,8 +236,8 @@ public class DoubleDiscreteConstraint
 
         DoubleDiscreteConstraint c1 = new DoubleDiscreteConstraint();
         c1.setName( name );
-        ArrayList v = getAllowedDoubles();
-        ListIterator it = v.listIterator();
+        ArrayList<Double> v = getAllowedDoubles();
+        ListIterator<Double> it = v.listIterator();
         while ( it.hasNext() ) {
             Double val = ( Double ) it.next();
             Double val2 = new Double( val.doubleValue() );
