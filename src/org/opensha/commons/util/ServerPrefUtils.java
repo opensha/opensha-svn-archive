@@ -28,7 +28,7 @@ public class ServerPrefUtils {
 	/**
 	 * This is the URL to the development OpenSHA servlets
 	 */
-	protected static final String OPENSHA_RMI_DEV_URL = "rmi://opensha.usc.edu:1098/";
+	protected static final String OPENSHA_RMI_DEV_URL = "rmi://opensha.usc.edu:1099/DEV_";
 	
 	protected static final String BUILD_TYPE_NIGHTLY = "nightly";
 	protected static final String BUILD_TYPE_PRODUCTION = "dist";

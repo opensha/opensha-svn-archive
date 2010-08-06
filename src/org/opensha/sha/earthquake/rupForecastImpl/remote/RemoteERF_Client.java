@@ -60,6 +60,7 @@ ParameterChangeListener{
 	protected void getRemoteERF(String className,
 			String rmiRemoteRegistrationName) throws
 			RemoteException, MalformedURLException, NotBoundException {
+		System.out.println("Loading erf: " + className + "\nFrom: " + rmiRemoteRegistrationName);
 		RemoteERF_FactoryAPI remoteERF_Factory = (RemoteERF_FactoryAPI) Naming.
 		lookup(rmiRemoteRegistrationName);
 		erfServer = remoteERF_Factory.getRemoteERF(className);

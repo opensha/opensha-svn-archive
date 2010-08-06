@@ -37,6 +37,10 @@ import org.opensha.commons.param.editor.TreeBranchWeightsParameterEditor;
 public class TreeBranchWeightsParameter extends ParameterListParameter
 implements  java.io.Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/** Class name for debugging. */
 	protected final static String C = "TreeBranchWeightsParameter";
 	/** If true print out debug statements. */
