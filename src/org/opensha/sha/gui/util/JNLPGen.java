@@ -13,6 +13,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGeneratorApplet;
+import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.util.IconGen;
 import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.ServerPrefs;
@@ -148,12 +149,7 @@ public class JNLPGen {
 		// icons
 		if (icons != null) {
 			for (IconEntry icon : icons) {
-				Element iconEl = infoEl.addElement("icon");
-				iconEl.addAttribute("href", icon.url);
-				iconEl.addAttribute("width", icon.width+"");
-				iconEl.addAttribute("height", icon.height+"");
-				if (icon.kind != null && icon.kind.length() > 0)
-					iconEl.addAttribute("kind", icon.kind);
+				icon.toXMLMetadata(infoEl);
 			}
 		}
 		
@@ -184,7 +180,7 @@ public class JNLPGen {
 		return doc;
 	}
 	
-	private class IconEntry {
+	private class IconEntry implements XMLSaveable {
 		
 		String url;
 		String kind;
@@ -200,6 +196,17 @@ public class JNLPGen {
 			this.width = width;
 			this.height = height;
 			this.kind = kind;
+		}
+
+		@Override
+		public Element toXMLMetadata(Element root) {
+			Element iconEl = root.addElement("icon");
+			iconEl.addAttribute("href", url);
+			iconEl.addAttribute("width", width+"");
+			iconEl.addAttribute("height", height+"");
+			if (kind != null && kind.length() > 0)
+				iconEl.addAttribute("kind", kind);
+			return root;
 		}
 	}
 
