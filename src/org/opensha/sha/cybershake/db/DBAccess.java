@@ -784,10 +784,6 @@ public class DBAccess implements Runnable{
        //gets the resultSet after running the query
        //System.out.println("Query = "+sql);
        ResultSet result = stat.executeQuery(sql+";");
-       // create CachedRowSet and populate
-       //CachedRowSetImpl crs = new CachedRowSetImpl();
-       //crs.populate(result);
-       //result.close();
       
        freeConnection(conn);
        return result;

@@ -28,12 +28,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import javax.sql.rowset.CachedRowSet;
+
 import oracle.spatial.geometry.JGeometry;
 
 import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
-
-import com.sun.rowset.CachedRowSetImpl;
 
 
 /**
@@ -133,11 +133,11 @@ public class ServerDB_Access     implements java.io.Serializable, DB_AccessAPI {
 	 * Query the databse and returns the Results in a CachedRowset object.
 	 *
 	 * @param sql String
-	 * @return CachedRowSetImpl
+	 * @return CachedRowSet
 	 * @throws SQLException
 	 * @todo Implement this scratchJavaDevelopers.vipin.dao.db.DB_AccessAPI method
 	 */
-	public CachedRowSetImpl queryData(String sql) throws SQLException {
+	public CachedRowSet queryData(String sql) throws SQLException {
 
 		Object dataFromServlet = openServletConnection(DB_AccessAPI.
 				SELECT_QUERY, sql, null, null);
@@ -145,7 +145,7 @@ public class ServerDB_Access     implements java.io.Serializable, DB_AccessAPI {
 			throw (SQLException) dataFromServlet;
 		}
 		else {
-			CachedRowSetImpl rowSet = (CachedRowSetImpl) dataFromServlet;
+			CachedRowSet rowSet = (CachedRowSet) dataFromServlet;
 			return rowSet;
 		}
 	}
@@ -154,7 +154,7 @@ public class ServerDB_Access     implements java.io.Serializable, DB_AccessAPI {
 	 * Query the databse and returns the Results in a  object which contains CachedRowSet
 	 * as well as JGeomtery objects.
 	 * @param sql String
-	 * @return CachedRowSetImpl
+	 * @return CachedRowSet
 	 * @throws SQLException
 	 */
 	public SpatialQueryResult queryData(String sqlWithSpatialColumnName,

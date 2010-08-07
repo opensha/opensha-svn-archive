@@ -22,10 +22,9 @@ package org.opensha.refFaultParamDb.dao.db;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import javax.sql.rowset.CachedRowSet;
+
 import oracle.spatial.geometry.JGeometry;
-
-
-import com.sun.rowset.CachedRowSetImpl;
 
 /**
  * This class represents a list of DB_AccessAPI's. The first one that works will be used
@@ -96,7 +95,7 @@ public class PrioritizedDB_Access implements DB_AccessAPI {
 	public static boolean isAccessorValid(DB_AccessAPI dbAccess) {
 		String sql = "SELECT * FROM Fault_Model where rownum<=1";
 		try {
-			CachedRowSetImpl rs = dbAccess.queryData(sql);
+			CachedRowSet rs = dbAccess.queryData(sql);
 			rs.first();
 		} catch (Throwable t) {
 			t.printStackTrace();
@@ -122,7 +121,7 @@ public class PrioritizedDB_Access implements DB_AccessAPI {
 		return dbAccess.insertUpdateOrDeleteData(sql, geometryList);
 	}
 
-	public CachedRowSetImpl queryData(String sql) throws SQLException {
+	public CachedRowSet queryData(String sql) throws SQLException {
 		return dbAccess.queryData(sql);
 	}
 

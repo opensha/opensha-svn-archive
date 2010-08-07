@@ -32,6 +32,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.rowset.CachedRowSet;
 
 import oracle.spatial.geometry.JGeometry;
 
@@ -40,8 +41,6 @@ import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.SpatialQueryResult;
 import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
-
-import com.sun.rowset.CachedRowSetImpl;
 
 /**
  * <p>Title: DB_AccessServlet</p>
@@ -142,7 +141,7 @@ public class DB_AccessServlet extends HttpServlet{
 			}
 			//reading the data form the database
 			else if(functionToPerform.equals(DB_AccessAPI.SELECT_QUERY)){
-				CachedRowSetImpl resultSet= myBroker.queryData(query);
+				CachedRowSet resultSet= myBroker.queryData(query);
 				outputToApp.writeObject(resultSet);
 			}
 			//reading the data form the database

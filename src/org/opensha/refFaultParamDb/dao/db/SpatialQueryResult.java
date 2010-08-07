@@ -21,9 +21,9 @@ package org.opensha.refFaultParamDb.dao.db;
 
 import java.util.ArrayList;
 
-import oracle.spatial.geometry.JGeometry;
+import javax.sql.rowset.CachedRowSet;
 
-import com.sun.rowset.CachedRowSetImpl;
+import oracle.spatial.geometry.JGeometry;
 
 /**
  * <p>Title: SpatialQueryResult.java </p>
@@ -40,14 +40,14 @@ public class SpatialQueryResult implements java.io.Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private CachedRowSetImpl cachedRowSetImpl;
+	private CachedRowSet cachedRowSet;
 	private ArrayList<ArrayList<JGeometry>> geomteryObjectsList = new ArrayList<ArrayList<JGeometry>>();
 
 	public SpatialQueryResult() {
 	}
 
-	public void setCachedRowSet(CachedRowSetImpl cachedRowSetImpl) {
-		this.cachedRowSetImpl = cachedRowSetImpl;
+	public void setCachedRowSet(CachedRowSet cachedRowSet) {
+		this.cachedRowSet = cachedRowSet;
 	}
 
 	public ArrayList<JGeometry> getGeometryObjectsList(int index) {
@@ -58,8 +58,8 @@ public class SpatialQueryResult implements java.io.Serializable{
 		geomteryObjectsList.add(geomteryObjects);
 	}
 
-	public CachedRowSetImpl getCachedRowSet() {
-		return this.cachedRowSetImpl;
+	public CachedRowSet getCachedRowSet() {
+		return this.cachedRowSet;
 	}
 
 

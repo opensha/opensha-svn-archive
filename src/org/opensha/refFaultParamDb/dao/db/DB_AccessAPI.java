@@ -22,9 +22,9 @@ package org.opensha.refFaultParamDb.dao.db;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import oracle.spatial.geometry.JGeometry;
+import javax.sql.rowset.CachedRowSet;
 
-import com.sun.rowset.CachedRowSetImpl;
+import oracle.spatial.geometry.JGeometry;
 
 /**
  * <p>Title: DB_AccessAPI</p>
@@ -60,16 +60,16 @@ public interface DB_AccessAPI {
 	/**
 	 * Query the databse and returns the Results in a CachedRowset object.
 	 * @param sql String
-	 * @return CachedRowSetImpl
+	 * @return CachedRowSet
 	 * @throws SQLException
 	 */
-	public CachedRowSetImpl queryData(String sql) throws java.sql.SQLException;
+	public CachedRowSet queryData(String sql) throws java.sql.SQLException;
 
 	/**
 	 * Query the databse and returns the Results in a  object which contains CachedRowSet
 	 * as well as JGeomtery objects.
 	 * @param sql String
-	 * @return CachedRowSetImpl
+	 * @return CachedRowSet
 	 * @throws SQLException
 	 */
 	public SpatialQueryResult queryData(String sqlWithSpatialColumnNames,

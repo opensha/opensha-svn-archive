@@ -48,7 +48,7 @@ import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import oracle.spatial.geometry.JGeometry;
 import oracle.sql.STRUCT;
 
-import com.sun.rowset.CachedRowSetImpl;
+import oracle.jdbc.rowset.OracleCachedRowSet;
 
 
 /**
@@ -902,13 +902,13 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
 	 * @param query
 	 * @return
 	 */
-	public CachedRowSetImpl queryData(String sql) throws java.sql.SQLException {
+	public OracleCachedRowSet queryData(String sql) throws java.sql.SQLException {
 		Connection conn = getConnection();
 		Statement stat = conn.createStatement();
 		//gets the resultSet after running the query
 		ResultSet result = stat.executeQuery(sql);
 		// create CachedRowSet and populate
-		CachedRowSetImpl crs = new CachedRowSetImpl();
+		OracleCachedRowSet crs = new OracleCachedRowSet();
 		crs.populate(result);
 		result.close();
 		stat.close();
@@ -920,7 +920,7 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
 	 * Query the databse and returns the Results in a  object which contains CachedRowSet
 	 * as well as JGeomtery objects.
 	 * @param sql String
-	 * @return CachedRowSetImpl
+	 * @return OracleCachedRowSet
 	 * @throws SQLException
 	 */
 	public SpatialQueryResult queryData(String sqlWithSpatialColumnNames,
@@ -950,7 +950,7 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
 		result.close();
 		ResultSet result1 = stat.executeQuery(sqlWithNoSpatialColumnNames);
 		// create CachedRowSet and populate
-		CachedRowSetImpl crs = new CachedRowSetImpl();
+		OracleCachedRowSet crs = new OracleCachedRowSet();
 		crs.populate(result1);
 		queryResult.setCachedRowSet(crs);
 		result1.close();
