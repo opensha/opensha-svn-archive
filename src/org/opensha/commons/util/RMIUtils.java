@@ -16,7 +16,7 @@ public class RMIUtils {
 			registry = LocateRegistry.getRegistry(port);
 			registry.list(); // make sure this is real
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 			// if we're here, then we need to create a registry
 			System.out.println("RMIUtils: creating registry on port "+port); 
 			registry = LocateRegistry.createRegistry(port);
