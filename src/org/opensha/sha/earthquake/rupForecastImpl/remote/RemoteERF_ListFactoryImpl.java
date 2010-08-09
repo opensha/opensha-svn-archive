@@ -21,6 +21,8 @@ package org.opensha.sha.earthquake.rupForecastImpl.remote;
 
 import java.rmi.server.UnicastRemoteObject;
 
+import org.opensha.commons.util.ServerPrefUtils;
+
 /**
  * <p>Title: RemoteERF_ListFactoryImpl </p>
  * <p>Description: This class generates a new ERF List remote object and passes its
@@ -32,21 +34,29 @@ import java.rmi.server.UnicastRemoteObject;
  */
 
 public class RemoteERF_ListFactoryImpl extends UnicastRemoteObject
-    implements RemoteERF_ListFactoryAPI {
+implements RemoteERF_ListFactoryAPI {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
-  public RemoteERF_ListFactoryImpl() throws java.rmi.RemoteException  { }
+	private static String debugName = "RemoteERF_ListImpl["+ServerPrefUtils.SERVER_PREFS.getBuildType()+"]: ";
 
-  /**
-   * Return the Remote ERF List reference back to the calling client
-   * @return Remote ERF List
-   * @throws java.rmi.RemoteException
-   */
-  public RemoteERF_ListAPI getRemoteERF_List(String className) throws java.rmi.RemoteException {
-    try {
-       RemoteERF_ListAPI erfServer = new RemoteERF_ListImpl(className);
-       return erfServer;
-    }catch(Exception e) { e.printStackTrace();}
-    return null;
-  }
+	public RemoteERF_ListFactoryImpl() throws java.rmi.RemoteException  { }
+
+	/**
+	 * Return the Remote ERF List reference back to the calling client
+	 * @return Remote ERF List
+	 * @throws java.rmi.RemoteException
+	 */
+	public RemoteERF_ListAPI getRemoteERF_List(String className) throws java.rmi.RemoteException {
+		try {
+			System.out.println(debugName+"processing request for '" + className+ "'");
+			RemoteERF_ListAPI erfServer = new RemoteERF_ListImpl(className);
+			System.out.println(debugName+"returning remote ERF!");
+			return erfServer;
+		}catch(Exception e) { e.printStackTrace();}
+		return null;
+	}
 }

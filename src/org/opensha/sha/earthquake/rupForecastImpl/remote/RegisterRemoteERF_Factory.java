@@ -33,23 +33,23 @@ import org.opensha.commons.util.ServerPrefUtils;
  * @version 1.0
  */
 public class RegisterRemoteERF_Factory {
- public final static String registrationName =
-	 ServerPrefUtils.SERVER_PREFS.getRMIBaseURL()+"ERF_FactoryServer";
- public static void main(String[] args) {
-   try {
-     // register the ERF Factory with the naming service
-     System.out.println("Starting ERF Factory Server");
-     RemoteERF_FactoryAPI erfServer = new RemoteERF_FactoryImpl();
-     Naming.rebind(registrationName, erfServer);
-     System.out.println("Registered ERF Factory Server as " + registrationName);
-     System.out.println("CWD: " + System.getProperty("user.dir"));
-   }
-   catch (Exception e) {
-     System.out.println("exception in starting server");
-     e.printStackTrace();
-     e.getMessage();
-     return;
-   }
+	public final static String registrationName =
+		ServerPrefUtils.SERVER_PREFS.getRMIBaseURL()+"ERF_FactoryServer";
+	public static void main(String[] args) {
+		try {
+			// register the ERF Factory with the naming service
+			System.out.println("Starting ERF Factory Server");
+			RemoteERF_FactoryAPI erfServer = new RemoteERF_FactoryImpl();
+			Naming.rebind(registrationName, erfServer);
+			System.out.println("Registered ERF Factory Server as " + registrationName);
+			System.out.println("CWD: " + System.getProperty("user.dir"));
+		}
+		catch (Exception e) {
+			System.out.println("exception in starting server");
+			e.printStackTrace();
+			e.getMessage();
+			return;
+		}
 
- }
+	}
 }

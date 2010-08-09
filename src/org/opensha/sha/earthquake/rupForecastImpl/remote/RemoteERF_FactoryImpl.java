@@ -22,6 +22,8 @@ package org.opensha.sha.earthquake.rupForecastImpl.remote;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 
+import org.opensha.commons.util.ServerPrefUtils;
+
 
 /**
  * <p>Title: RemoteERF_FactoryImpl.java </p>
@@ -34,39 +36,49 @@ import java.util.ArrayList;
  */
 
 public class RemoteERF_FactoryImpl extends UnicastRemoteObject
-    implements RemoteERF_FactoryAPI {
+implements RemoteERF_FactoryAPI {
 
 
-  public RemoteERF_FactoryImpl() throws java.rmi.RemoteException  { }
-
-  /**
-   * Retun the Remote ERF reference back to the calling client
-   * @return Remote ERF
-   * @throws java.rmi.RemoteException
-   */
-  public RemoteEqkRupForecastAPI getRemoteERF(String className) throws java.rmi.RemoteException {
-    try {
-       RemoteEqkRupForecastAPI erfServer = new RemoteEqkRupForecast_Impl(className);
-       return erfServer;
-    }catch(Exception e) { e.printStackTrace();}
-    return null;
-  }
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private static String debugName = "RemoteERF_FactoryImpl["+ServerPrefUtils.SERVER_PREFS.getBuildType()+"]: ";
 
 
-  /**
-   * Retun the Remote ERF reference back to the calling client.
-   * @param params : Passes the arguments for creating the class constructor.
-   * @param className: class name of the ERF
-   * @return
-   * @throws java.rmi.RemoteException
-   */
-  public RemoteEqkRupForecastAPI getRemoteERF(ArrayList params,ArrayList paramTypes,String className) throws java.rmi.RemoteException {
-    try {
-      RemoteEqkRupForecastAPI erfServer = new RemoteEqkRupForecast_Impl(params,paramTypes,className);
-      return erfServer;
-      }catch(Exception e) { e.printStackTrace();}
-      return null;
-  }
+	public RemoteERF_FactoryImpl() throws java.rmi.RemoteException  { }
+
+	/**
+	 * Retun the Remote ERF reference back to the calling client
+	 * @return Remote ERF
+	 * @throws java.rmi.RemoteException
+	 */
+	public RemoteEqkRupForecastAPI getRemoteERF(String className) throws java.rmi.RemoteException {
+		try {
+			System.out.println(debugName+"processing request for '" + className+ "'");
+			RemoteEqkRupForecastAPI erfServer = new RemoteEqkRupForecast_Impl(className);
+			System.out.println(debugName+"returning remote ERF!");
+			return erfServer;
+		}catch(Exception e) { e.printStackTrace();}
+		return null;
+	}
+
+
+	/**
+	 * Retun the Remote ERF reference back to the calling client.
+	 * @param params : Passes the arguments for creating the class constructor.
+	 * @param className: class name of the ERF
+	 * @return
+	 * @throws java.rmi.RemoteException
+	 */
+	public RemoteEqkRupForecastAPI getRemoteERF(ArrayList params,ArrayList paramTypes,String className) throws java.rmi.RemoteException {
+		try {
+			RemoteEqkRupForecastAPI erfServer = new RemoteEqkRupForecast_Impl(params,paramTypes,className);
+			return erfServer;
+		}catch(Exception e) { e.printStackTrace();}
+		return null;
+	}
 }
 
 
