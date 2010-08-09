@@ -5,7 +5,6 @@ dashNine=""
 count=0
 while [[ $procs ]]
 do
-	sleep 1
 	echo -n "killing: ";
 	echo $procs | xargs echo
 	if [[ $count -gt 9 ]];then
@@ -13,5 +12,6 @@ do
 	fi
 	echo $procs | xargs kill $dashNine
 	let count=count+1
+	sleep 1
 	procs=`ps gx | grep java | grep cruisecontrol-launcher.jar | awk '{ print $1 }'`
 done
