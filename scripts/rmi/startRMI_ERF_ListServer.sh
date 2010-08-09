@@ -9,5 +9,4 @@ rmiPolicyFile=$mainDir/conf/SimpleRMI.policy
 java="/usr/java/default/bin/java"
 #java="/usr/java/jdk1.6.0_10/jre/bin/java"
 
--Djava.rmi.server.codebase=file:${mainDir}/dist/OpenSHA_complete.jar
 $java -Xmx500M -classpath ${mainDir}/dist/OpenSHA_complete.jar -Djava.security.policy=file:$rmiPolicyFile -Djava.rmi.server.hostname=opensha.usc.edu org.opensha.sha.earthquake.rupForecastImpl.remote.RegisterRemoteERF_ListFactory &
