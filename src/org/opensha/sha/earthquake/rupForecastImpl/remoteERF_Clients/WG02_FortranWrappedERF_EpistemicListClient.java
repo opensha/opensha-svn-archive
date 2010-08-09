@@ -39,7 +39,7 @@ public class WG02_FortranWrappedERF_EpistemicListClient extends RemoteERF_ListCl
 
 	public WG02_FortranWrappedERF_EpistemicListClient() throws java.rmi.RemoteException{
 		String className = WG02_FortranWrappedERF_EpistemicList.class.getName();
-		String remoteRegistrationName = RegisterRemoteERF_ListFactory.registrationName;
+		String remoteRegistrationName = RegisterRemoteERF_ListFactory.registrationURL;
 		getRemoteERF_List(className,remoteRegistrationName);
 	}
 

@@ -42,7 +42,7 @@ public class Point2MultVertSS_FaultERF_Client extends RemoteERF_Client {
 
 	public Point2MultVertSS_FaultERF_Client() throws java.rmi.RemoteException, MalformedURLException, NotBoundException{
 		String className = Point2MultVertSS_FaultERF.class.getName();
-		String remoteRegistrationName = RegisterRemoteERF_Factory.registrationName;
+		String remoteRegistrationName = RegisterRemoteERF_Factory.registrationURL;
 		getRemoteERF(className,remoteRegistrationName);
 	}
 

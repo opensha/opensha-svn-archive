@@ -40,7 +40,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
 public class WG02_EqkRupForecastClient extends RemoteERF_Client {
 
   public final static String className = "org.opensha.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast";
-  private final static  String remoteRegistrationName = RegisterRemoteERF_Factory.registrationName;
+  private final static  String remoteRegistrationName = RegisterRemoteERF_Factory.registrationURL;
   /**
    * Class default constructor
    * @throws java.rmi.RemoteException

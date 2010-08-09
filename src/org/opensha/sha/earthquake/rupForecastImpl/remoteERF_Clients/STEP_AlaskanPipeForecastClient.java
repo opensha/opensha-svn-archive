@@ -42,7 +42,7 @@ public class STEP_AlaskanPipeForecastClient extends RemoteERF_Client{
 
 	public STEP_AlaskanPipeForecastClient() throws java.rmi.RemoteException, MalformedURLException, NotBoundException{
 		String className = STEP_AlaskanPipeForecast.class.getName();
-		String remoteRegistrationName = RegisterRemoteERF_Factory.registrationName;
+		String remoteRegistrationName = RegisterRemoteERF_Factory.registrationURL;
 		getRemoteERF(className,remoteRegistrationName);
 	}
 

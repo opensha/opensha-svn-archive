@@ -19,8 +19,9 @@
 
 package org.opensha.sha.earthquake.rupForecastImpl.remote;
 
-import java.rmi.Naming;
+import java.rmi.registry.Registry;
 
+import org.opensha.commons.util.RMIUtils;
 import org.opensha.commons.util.ServerPrefUtils;
 
 /**
@@ -33,22 +34,25 @@ import org.opensha.commons.util.ServerPrefUtils;
  * @version 1.0
  */
 public class RegisterRemoteERF_ListFactory {
- public final static String registrationName =
-	 ServerPrefUtils.SERVER_PREFS.getRMIBaseURL()+"ERF_ListFactoryServer";
- public static void main(String[] args) {
-   try {
-     // register the ERF List Factory with the naming service
-     System.out.println("Starting ERF List Factory Server");
-     RemoteERF_ListFactoryAPI erfServer = new RemoteERF_ListFactoryImpl();
-     Naming.rebind(registrationName, erfServer);
-     System.out.println("Registered ERF List Factory Server as " + registrationName);
-   }
-   catch (Exception e) {
-     System.out.println("exception in starting server");
-     e.printStackTrace();
-     e.getMessage();
-     return;
-   }
+	public final static String registrationName = "ERF_ListFactoryServer";
+	public final static String registrationURL =
+		 ServerPrefUtils.SERVER_PREFS.getRMIBaseURL()+registrationName;
+	public static void main(String[] args) {
+		try {
+			// register the ERF List Factory with the naming service
+			System.out.println("Starting ERF List Factory Server");
+			RemoteERF_ListFactoryAPI erfServer = new RemoteERF_ListFactoryImpl();
+			Registry registry = RMIUtils.getCreateRegistry();
+			registry.rebind(registrationName, erfServer);
+			System.out.println("Registered "+registrationName+" as " + registrationURL);
+			System.out.println("CWD: " + System.getProperty("user.dir"));
+		}
+		catch (Exception e) {
+			System.out.println("exception in starting server");
+			e.printStackTrace();
+			e.getMessage();
+			return;
+		}
 
- }
+	}
 }

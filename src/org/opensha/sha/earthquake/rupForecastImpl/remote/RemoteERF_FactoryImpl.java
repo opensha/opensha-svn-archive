@@ -74,7 +74,9 @@ implements RemoteERF_FactoryAPI {
 	 */
 	public RemoteEqkRupForecastAPI getRemoteERF(ArrayList params,ArrayList paramTypes,String className) throws java.rmi.RemoteException {
 		try {
+			System.out.println(debugName+"processing request for '" + className+ "' (w/ "+params.size()+" params)");
 			RemoteEqkRupForecastAPI erfServer = new RemoteEqkRupForecast_Impl(params,paramTypes,className);
+			System.out.println(debugName+"returning remote ERF!");
 			return erfServer;
 		}catch(Exception e) { e.printStackTrace();}
 		return null;

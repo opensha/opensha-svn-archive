@@ -42,7 +42,7 @@ public class STEP_EqkRupForecastClient extends RemoteERF_Client{
 	
 	public STEP_EqkRupForecastClient() throws java.rmi.RemoteException, MalformedURLException, NotBoundException{
 		String className = STEP_EqkRupForecast.class.getName();
-		String remoteRegistrationName = RegisterRemoteERF_Factory.registrationName;
+		String remoteRegistrationName = RegisterRemoteERF_Factory.registrationURL;
 		getRemoteERF(className,remoteRegistrationName);
 	}
 

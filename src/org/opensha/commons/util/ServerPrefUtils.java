@@ -20,15 +20,22 @@ public class ServerPrefUtils {
 	 */
 	protected static final String OPENSHA_SERVLET_DEV_URL = "http://opensha.usc.edu:8080/OpenSHA_dev/";
 	
+	
+	
 	/**
 	 * This is the URL to the production OpenSHA servlets.
 	 */
-	protected static final String OPENSHA_RMI_PRODUCTION_URL = "rmi://opensha.usc.edu:1099/";
+	protected static final String OPENSHA_RMI_BASE_URL = "rmi://opensha.usc.edu";
 	
 	/**
-	 * This is the URL to the development OpenSHA servlets
+	 * This is the production port for RMI
 	 */
-	protected static final String OPENSHA_RMI_DEV_URL = "rmi://opensha.usc.edu:1099/DEV_";
+	protected static final int OPENSHA_RMI_PRODUCTION_PORT = 1099;
+	
+	/**
+	 * This is the development port for RMI
+	 */
+	protected static final int OPENSHA_RMI_DEV_PORT = 1098;
 	
 	protected static final String BUILD_TYPE_NIGHTLY = "nightly";
 	protected static final String BUILD_TYPE_PRODUCTION = "dist";

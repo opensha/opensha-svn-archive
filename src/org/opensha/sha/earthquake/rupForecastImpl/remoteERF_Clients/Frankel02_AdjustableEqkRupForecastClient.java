@@ -42,7 +42,7 @@ public class Frankel02_AdjustableEqkRupForecastClient extends RemoteERF_Client {
 
 	public Frankel02_AdjustableEqkRupForecastClient() throws java.rmi.RemoteException, MalformedURLException, NotBoundException{
 		String className = Frankel02_AdjustableEqkRupForecast.class.getName();
-		String remoteRegistrationName = RegisterRemoteERF_Factory.registrationName;
+		String remoteRegistrationName = RegisterRemoteERF_Factory.registrationURL;
 		getRemoteERF(className,remoteRegistrationName);
 	}
 

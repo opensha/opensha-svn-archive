@@ -40,7 +40,7 @@ public class PoissonFaultERF_Client extends RemoteERF_Client {
 
 	public PoissonFaultERF_Client() throws java.rmi.RemoteException, MalformedURLException, NotBoundException{
 		String className = PoissonFaultERF.class.getName();
-		String remoteRegistrationName = RegisterRemoteERF_Factory.registrationName;
+		String remoteRegistrationName = RegisterRemoteERF_Factory.registrationURL;
 		getRemoteERF(className,remoteRegistrationName);
 	}
 
