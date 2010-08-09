@@ -70,6 +70,14 @@ public enum ServerPrefs {
 		return hostName;
 	}
 	
+	public int getMinRMISocketPort() {
+		return ServerPrefUtils.OPENSHA_RMI_SOCKET_MIN_PORT;
+	}
+	
+	public int getMaxRMISocketPort() {
+		return ServerPrefUtils.OPENSHA_RMI_SOCKET_MAX_PORT;
+	}
+	
 	/**
 	 * Returns the server type with the given build type string
 	 * 

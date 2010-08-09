@@ -42,6 +42,9 @@ public class ServerPrefUtils {
 	 */
 	protected static final int OPENSHA_RMI_DEV_PORT = 1098;
 	
+	protected static final int OPENSHA_RMI_SOCKET_MIN_PORT = 40000;
+	protected static final int OPENSHA_RMI_SOCKET_MAX_PORT = 40500;
+	
 	protected static final String BUILD_TYPE_NIGHTLY = "nightly";
 	protected static final String BUILD_TYPE_PRODUCTION = "dist";
 	

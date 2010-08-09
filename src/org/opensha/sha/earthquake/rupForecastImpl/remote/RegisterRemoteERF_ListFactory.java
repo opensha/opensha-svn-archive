@@ -39,6 +39,8 @@ public class RegisterRemoteERF_ListFactory {
 		 ServerPrefUtils.SERVER_PREFS.getRMIBaseURL()+registrationName;
 	public static void main(String[] args) {
 		try {
+			System.out.println("Creating custom socket factory");
+			RMIUtils.initSocketFactory();
 			// register the ERF List Factory with the naming service
 			System.out.println("Starting ERF List Factory Server");
 			RemoteERF_ListFactoryAPI erfServer = new RemoteERF_ListFactoryImpl();
