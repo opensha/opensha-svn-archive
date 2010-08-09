@@ -154,7 +154,11 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 			System.out.println(S + e.toString());
 			throw new RuntimeException( S + e.toString() );
 		} catch (InvocationTargetException e) {
-			JOptionPane.showMessageDialog(this,"An ERF failed to load because it could not connect to a server, check your internet connection and firewall settings.","Internet Connection Problem",
+			String title = "ERF Failed to Load";
+			String message = "An ERF failed to load. Possible reasons include:\n" +
+					"* Internet connection issues (check firewall settings)\n" +
+					"* a server is down (try again later)";
+			JOptionPane.showMessageDialog(this,message,title,
 					JOptionPane.OK_OPTION);
 			throw e;
 		}
