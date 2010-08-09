@@ -46,6 +46,11 @@ public class RegisterRemoteERF_Factory {
 			registry.rebind(registrationName, erfServer);
 			System.out.println("Registered "+registrationName+" as " + registrationURL);
 			System.out.println("CWD: " + System.getProperty("user.dir"));
+			System.out.println("Registry bindings: ---------");
+			for (String binding : registry.list()) {
+				System.out.println(binding);
+			}
+			System.out.println("----------------------------");
 		}
 		catch (Exception e) {
 			System.out.println("exception in starting server");
