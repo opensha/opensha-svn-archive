@@ -40,7 +40,7 @@ public class PEER_LogicTreeERF_ListClient extends RemoteERF_ListClient{
 
   public PEER_LogicTreeERF_ListClient() throws java.rmi.RemoteException{
     String className = PEER_LogicTreeServerBasedERF_List.class.getName();
-    String remoteRegistrationName = RegisterRemoteERF_ListFactory.registrationURL;
+    String remoteRegistrationName = RegisterRemoteERF_ListFactory.registrationName;
     getRemoteERF_List(className,remoteRegistrationName);
   }
 

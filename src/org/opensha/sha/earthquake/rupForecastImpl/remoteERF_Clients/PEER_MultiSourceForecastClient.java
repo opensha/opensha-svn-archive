@@ -42,7 +42,7 @@ public class PEER_MultiSourceForecastClient extends RemoteERF_Client {
 
 	public PEER_MultiSourceForecastClient() throws java.rmi.RemoteException, MalformedURLException, NotBoundException{
 		String className = PEER_MultiSourceForecast.class.getName();
-		String remoteRegistrationName = RegisterRemoteERF_Factory.registrationURL;
+		String remoteRegistrationName = RegisterRemoteERF_Factory.registrationName;
 		getRemoteERF(className,remoteRegistrationName);
 	}
 

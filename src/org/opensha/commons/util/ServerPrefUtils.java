@@ -11,21 +11,26 @@ public class ServerPrefUtils {
 	public static final DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
 	
 	/**
+	 * Hostname for all production services
+	 */
+	public static final String OPENSHA_SERVER_PRODUCTION_HOST = "opensha.usc.edu";
+	
+	/**
+	 * Hostname for all production services
+	 */
+	public static final String OPENSHA_SERVER_DEV_HOST = "opensha.usc.edu";
+	
+	/**
 	 * This is the URL to the production OpenSHA servlets.
 	 */
-	protected static final String OPENSHA_SERVLET_PRODUCTION_URL = "http://opensha.usc.edu:8080/OpenSHA/";
+	protected static final String OPENSHA_SERVLET_PRODUCTION_URL =
+		"http://"+OPENSHA_SERVER_PRODUCTION_HOST+":8080/OpenSHA/";
 	
 	/**
 	 * This is the URL to the development OpenSHA servlets
 	 */
-	protected static final String OPENSHA_SERVLET_DEV_URL = "http://opensha.usc.edu:8080/OpenSHA_dev/";
-	
-	
-	
-	/**
-	 * This is the URL to the production OpenSHA servlets.
-	 */
-	protected static final String OPENSHA_RMI_BASE_URL = "rmi://opensha.usc.edu";
+	protected static final String OPENSHA_SERVLET_DEV_URL =
+		"http://"+OPENSHA_SERVER_DEV_HOST+":8080/OpenSHA_dev/";
 	
 	/**
 	 * This is the production port for RMI

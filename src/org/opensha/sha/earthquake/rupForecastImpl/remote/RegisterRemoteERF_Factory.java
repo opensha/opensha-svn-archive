@@ -35,7 +35,7 @@ import org.opensha.commons.util.ServerPrefUtils;
  */
 public class RegisterRemoteERF_Factory {
 	public final static String registrationName ="ERF_FactoryServer";
-	public final static String registrationURL =
+	private final static String registrationURL =
 		ServerPrefUtils.SERVER_PREFS.getRMIBaseURL()+registrationName;
 	public static void main(String[] args) {
 		try {

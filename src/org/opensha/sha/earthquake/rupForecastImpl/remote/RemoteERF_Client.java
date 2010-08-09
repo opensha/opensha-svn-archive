@@ -20,9 +20,9 @@
 package org.opensha.sha.earthquake.rupForecastImpl.remote;
 
 import java.net.MalformedURLException;
-import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
@@ -33,6 +33,7 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.util.RMIUtils;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -60,8 +61,9 @@ ParameterChangeListener{
 	protected void getRemoteERF(String className,
 			String rmiRemoteRegistrationName) throws
 			RemoteException, MalformedURLException, NotBoundException {
+		Registry registry = RMIUtils.getRegistry();
 		System.out.println("Loading erf: " + className + "\nFrom: " + rmiRemoteRegistrationName);
-		RemoteERF_FactoryAPI remoteERF_Factory = (RemoteERF_FactoryAPI) Naming.
+		RemoteERF_FactoryAPI remoteERF_Factory = (RemoteERF_FactoryAPI) registry.
 		lookup(rmiRemoteRegistrationName);
 		erfServer = remoteERF_Factory.getRemoteERF(className);
 		//adding the listeners to the parameters
@@ -108,7 +110,8 @@ ParameterChangeListener{
 	 * @throws MalformedURLException 
 	 */
 	protected void getRemoteERF(ArrayList paramArrays,ArrayList paramTypes,String className,String rmiRemoteRegistrationName) throws RemoteException, MalformedURLException, NotBoundException{
-		RemoteERF_FactoryAPI remoteERF_Factory= (RemoteERF_FactoryAPI) Naming.lookup(rmiRemoteRegistrationName);
+		Registry registry = RMIUtils.getRegistry();
+		RemoteERF_FactoryAPI remoteERF_Factory= (RemoteERF_FactoryAPI) registry.lookup(rmiRemoteRegistrationName);
 		erfServer = remoteERF_Factory.getRemoteERF(paramArrays,paramTypes,className);
 		adjustableParams = erfServer.getAdjustableParameterList();
 		ListIterator it = adjustableParams.getParametersIterator();

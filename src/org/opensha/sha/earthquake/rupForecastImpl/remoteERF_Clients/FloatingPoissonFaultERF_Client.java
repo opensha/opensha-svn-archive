@@ -42,7 +42,7 @@ public class FloatingPoissonFaultERF_Client extends RemoteERF_Client{
 
 		public FloatingPoissonFaultERF_Client() throws java.rmi.RemoteException, MalformedURLException, NotBoundException{
 		String className = FloatingPoissonFaultERF.class.getName();
-		String remoteRegistrationName = RegisterRemoteERF_Factory.registrationURL;
+		String remoteRegistrationName = RegisterRemoteERF_Factory.registrationName;
 		getRemoteERF(className,remoteRegistrationName);
 	}
 

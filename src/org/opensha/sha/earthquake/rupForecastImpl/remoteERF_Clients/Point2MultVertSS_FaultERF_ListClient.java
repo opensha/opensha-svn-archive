@@ -39,7 +39,7 @@ public class Point2MultVertSS_FaultERF_ListClient extends RemoteERF_ListClient{
 
   public Point2MultVertSS_FaultERF_ListClient() throws java.rmi.RemoteException{
     String className = Point2MultVertSS_FaultServerBasedERF_List.class.getName();
-    String remoteRegistrationName = RegisterRemoteERF_ListFactory.registrationURL;
+    String remoteRegistrationName = RegisterRemoteERF_ListFactory.registrationName;
     getRemoteERF_List(className,remoteRegistrationName);
   }
 

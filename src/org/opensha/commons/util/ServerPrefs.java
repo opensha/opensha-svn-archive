@@ -26,21 +26,25 @@ public enum ServerPrefs {
 	/**
 	 * Preferences for development (trunk)
 	 */
-	DEV_PREFS(ServerPrefUtils.OPENSHA_SERVLET_DEV_URL,
+	DEV_PREFS(ServerPrefUtils.OPENSHA_SERVER_DEV_HOST,
+			ServerPrefUtils.OPENSHA_SERVLET_DEV_URL,
 			ServerPrefUtils.OPENSHA_RMI_DEV_PORT,
 			ServerPrefUtils.BUILD_TYPE_NIGHTLY),
 	/**
 	 * Preferences for stable production releases
 	 */
-	PRODUCTION_PREFS(ServerPrefUtils.OPENSHA_SERVLET_PRODUCTION_URL,
+	PRODUCTION_PREFS(ServerPrefUtils.OPENSHA_SERVER_PRODUCTION_HOST,
+			ServerPrefUtils.OPENSHA_SERVLET_PRODUCTION_URL,
 			ServerPrefUtils.OPENSHA_RMI_PRODUCTION_PORT,
 			ServerPrefUtils.BUILD_TYPE_PRODUCTION);
 	
+	private String hostName;
 	private String servletURL;
 	private int rmiPort;
 	private String buildType;
 	
-	private ServerPrefs(String servletURL, int rmiPort, String buildType) {
+	private ServerPrefs(String hostName, String servletURL, int rmiPort, String buildType) {
+		this.hostName = hostName;
 		this.servletURL = servletURL;
 		this.rmiPort = rmiPort;
 		this.buildType = buildType;
@@ -55,11 +59,15 @@ public enum ServerPrefs {
 	}
 	
 	public String getRMIBaseURL() {
-		return ServerPrefUtils.OPENSHA_RMI_BASE_URL+":"+rmiPort+"/";
+		return "rmi://"+hostName+":"+rmiPort+"/";
 	}
 
 	public String getBuildType() {
 		return buildType;
+	}
+	
+	public String getHostName() {
+		return hostName;
 	}
 	
 	/**

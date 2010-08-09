@@ -42,7 +42,7 @@ public class WGCEP_UCERF1_EqkRupForecastClient extends RemoteERF_Client {
 
 	public WGCEP_UCERF1_EqkRupForecastClient() throws java.rmi.RemoteException, MalformedURLException, NotBoundException{
 		String className = WGCEP_UCERF1_EqkRupForecast.class.getName();
-		String remoteRegistrationName = RegisterRemoteERF_Factory.registrationURL;
+		String remoteRegistrationName = RegisterRemoteERF_Factory.registrationName;
 		getRemoteERF(className,remoteRegistrationName);
 	}
 
