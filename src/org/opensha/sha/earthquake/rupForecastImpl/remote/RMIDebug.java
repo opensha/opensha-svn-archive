@@ -38,10 +38,14 @@ public class RMIDebug {
 				}
 				System.out.println("----------------------------");
 				try {
+					String lname = RegisterRemoteERF_Factory.registrationName;
+					System.out.println("Now attempting to lookup: "+ lname);
 					RemoteERF_FactoryAPI r = (RemoteERF_FactoryAPI)
-								registry.lookup(RegisterRemoteERF_Factory.registrationName);
+								registry.lookup(lname);
+					String erfName = Frankel96_AdjustableEqkRupForecastClient.class.getName();
+					System.out.println("Getting ERF: " + erfName);
 					RemoteEqkRupForecastAPI erf =
-						r.getRemoteERF(Frankel96_AdjustableEqkRupForecastClient.class.getName());
+						r.getRemoteERF(erfName);
 					System.out.println("Loaded: " + erf.getName());
 				} catch (Exception e) {
 					e.printStackTrace();
