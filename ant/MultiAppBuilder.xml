@@ -85,6 +85,17 @@
 		</ant>
 	</target>
 	
+	<target name="build.rmi.test">
+		<ant antfile="${app.build.file}" target="build.app">
+			<property name="app.short.name" value="RMITest" />
+			<property name="app.main.class" value="org.opensha.sha.earthquake.rupForecastImpl.remote.RMIDebug" />
+			<property name="javac.includes"     value="org/opensha/sha/earthquake/rupForecastImpl/remote/RMIDebug.java" />
+			<property name="javac.excludes" value="" />
+			<property name="rmi.target" value="rmi.hazard.curve" />
+			<property name="resource.target" value="resource.hazard.apps.server" />
+		</ant>
+	</target>
+	
 	<target name="build.hs.local">
 		<ant antfile="${app.build.file}" target="build.app">
 			<property name="app.short.name" value="HazardSpectrumLocal" />

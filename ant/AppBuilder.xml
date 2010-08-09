@@ -141,7 +141,7 @@
           
           Unpack necessary libs for inclusion in app.                      
          - - - - - - - - - - - - - - - - - -->
-	<target name="unjar.libs">
+	<target name="unjar.libs" if="unjar.target">
 		<ant antfile="compile.xml" target="${unjar.target}"/>
 	</target>
 
