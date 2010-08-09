@@ -6,9 +6,14 @@ import static org.junit.Assert.*;
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.registry.Registry;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.opensha.commons.util.RMIUtils;
+import org.opensha.commons.util.ServerPrefs;
+import org.opensha.sha.earthquake.rupForecastImpl.remote.RegisterRemoteERF_Factory;
+import org.opensha.sha.earthquake.rupForecastImpl.remote.RegisterRemoteERF_ListFactory;
 
 public class Test_RMI_ERFs_Operational {
 
@@ -50,6 +55,39 @@ public class Test_RMI_ERFs_Operational {
 		} catch (NullPointerException e) {
 			// TODO Auto-generated catch block
 			fail("NullPointerException: " + e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testProdDevPorts() {
+		testPortsForPrefs(ServerPrefs.PRODUCTION_PREFS);
+		testPortsForPrefs(ServerPrefs.DEV_PREFS);
+	}
+	
+	private boolean contains(String[] list, String testName) {
+		for (String name : list) {
+			if (name.equals(testName))
+				return true;
+		}
+		return false;
+	}
+	
+	private void testPortsForPrefs(ServerPrefs prefs) {
+		try {
+			Registry reg = RMIUtils.getRegistry(prefs);
+			String[] list = reg.list();
+			System.out.println("******* Naming list for "+prefs.name()+" *******");
+			for (String name : list)
+				System.out.println("- "+name);
+			String[] testNames = { RegisterRemoteERF_Factory.registrationName,
+					RegisterRemoteERF_ListFactory.registrationName };
+			for (String testName : testNames) {
+				assertTrue("ServerPrefs '"+prefs.name()+"' doesn't have RMI binding for '"+testName+"'", 
+						contains(list, testName));
+			}
+		} catch (RemoteException e) {
+			e.printStackTrace();
+			fail("Remote exceptoin!");
 		}
 	}
 
