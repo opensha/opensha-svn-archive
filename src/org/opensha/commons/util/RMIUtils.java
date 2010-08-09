@@ -52,9 +52,11 @@ public class RMIUtils {
 		
 		private ServerPrefs prefs;
 		private Random r = new Random();
+		private String debugName;
 		
 		public FixedPortRMISocketFactory(ServerPrefs prefs) {
 			this.prefs = prefs;
+			debugName = "FixedPortRMISocketFactory[" + prefs.getBuildType() + "]: ";
 		}
 		
 		private int getRandomPort() {
@@ -67,13 +69,13 @@ public class RMIUtils {
 		@Override
 		public ServerSocket createServerSocket(int port) throws IOException {
 			port = (port == 0 ? getRandomPort() : port);
-			System.out.println("creating ServerSocket on port " + port);
+			System.out.println(debugName+"creating ServerSocket on port " + port);
 			return new ServerSocket(port);
 		}
 
 		@Override
 		public Socket createSocket(String host, int port) throws IOException {
-			System.out.println("creating socket to host : " + host + " on port " + port);
+			System.out.println(debugName+"creating socket to host : " + host + " on port " + port);
 			return new Socket(host, port);
 		}
 
