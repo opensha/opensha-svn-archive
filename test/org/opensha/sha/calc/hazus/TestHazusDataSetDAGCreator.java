@@ -46,7 +46,7 @@ public class TestHazusDataSetDAGCreator extends TestHazardDataSetDAGCreator {
 		HazusDataSetDAGCreator dagCreator;
 		try {
 			dagCreator = new HazusDataSetDAGCreator(inputs, javaExec, jarFile,
-					(int)erf.getTimeSpan().getDuration(TimeSpan.YEARS), region);
+					(int)erf.getTimeSpan().getDuration(TimeSpan.YEARS), region.getSpacing());
 		} catch (InvocationTargetException e) {
 			throw new RuntimeException(e);
 		}
