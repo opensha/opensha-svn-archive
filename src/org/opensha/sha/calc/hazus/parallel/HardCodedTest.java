@@ -140,7 +140,7 @@ public class HardCodedTest {
 		imrMaps.add(imrMap);
 		
 		double spacing = 0.1;
-		String spacingCode = ""+(int)(spacing * 10d);
+		String spacingCode = ""+(int)(spacing * 100d);
 		if (spacingCode.length() < 2)
 			spacingCode = "0"+spacingCode;
 //		Location topLeft = new Location(42.1, -125.5);
