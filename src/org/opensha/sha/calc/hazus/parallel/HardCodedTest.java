@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.ListIterator;
 
+import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -109,6 +110,21 @@ public class HardCodedTest {
 		
 		return attenRel;
 	}
+	
+	private static LocationList loadCSV(File file) throws IOException {
+		LocationList locs = new LocationList();
+		
+		CSVFile<String> csv = CSVFile.readFile(file);
+		
+		for (int i=0; i<csv.getNumLines(); i++) {
+			ArrayList<String> line = csv.getLine(i);
+			double lat = Double.parseDouble(line.get(1));
+			double lon = Double.parseDouble(line.get(2));
+			locs.add(new Location(lat, lon));
+		}
+		
+		return locs;
+	}
 
 	public static void main(String args[]) throws IOException, InvocationTargetException {
 		int years = 50;
@@ -124,10 +140,15 @@ public class HardCodedTest {
 		imrMaps.add(imrMap);
 		
 		double spacing = 0.1;
+		String spacingCode = ""+(int)(spacing * 10d);
+		if (spacingCode.length() < 2)
+			spacingCode = "0"+spacingCode;
 //		Location topLeft = new Location(42.1, -125.5);
 //		Location bottomRight = new Location(32.4, -114.1);
 //		GriddedRegion region = new GriddedRegion(topLeft, bottomRight, spacing, topLeft);
-		GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED(spacing);
+//		GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED(spacing);
+		String spacingFile = "/home/scec-00/kmilner/hazMaps/"+spacingCode+"grid.csv";
+		LocationList locs = loadCSV(new File(spacingFile));
 		
 		ArrayList<SiteDataAPI<?>> provs = new ArrayList<SiteDataAPI<?>>();
 		SiteDataTypeParameterNameMap siteDataMap = SiteTranslator.DATA_TYPE_PARAM_NAME_MAP;
@@ -168,9 +189,9 @@ public class HardCodedTest {
 			}
 		}
 		
-		ArrayList<SiteDataValue<?>>[] siteData = new ArrayList[region.getNodeCount()];
+		ArrayList<SiteDataValue<?>>[] siteData = new ArrayList[locs.size()];
 		for (SiteDataAPI<?> prov : provs) {
-			SiteDataValueList<?> vals = prov.getAnnotatedValues(region.getNodeList());
+			SiteDataValueList<?> vals = prov.getAnnotatedValues(locs);
 			for (int i=0; i<siteData.length; i++) {
 				if (siteData[i] == null)
 					siteData[i] = new ArrayList<SiteDataValue<?>>();
@@ -181,8 +202,7 @@ public class HardCodedTest {
 		SiteTranslator trans = new SiteTranslator();
 		
 		ArrayList<Site> sites = new ArrayList<Site>();
-		LocationList locs = region.getNodeList();
-		for (int i=0; i<region.getNodeCount(); i++) {
+		for (int i=0; i<locs.size(); i++) {
 			Location loc = locs.get(i);
 			Site site = new Site(loc);
 			ListIterator<ParameterAPI<?>> it = imr.getSiteParamsIterator();
@@ -210,7 +230,7 @@ public class HardCodedTest {
 		String jarFile = "/home/scec-00/kmilner/hazMaps/svn/dist/OpenSHA_complete.jar";
 		
 		HazusDataSetDAGCreator dag = new HazusDataSetDAGCreator(erf, imrMaps, sites,
-				calcSet, archiver, javaExec, jarFile, years, region);
+				calcSet, archiver, javaExec, jarFile, years, spacing);
 		
 		dag.writeDAG(new File(jobDir), 20, false);
 	}

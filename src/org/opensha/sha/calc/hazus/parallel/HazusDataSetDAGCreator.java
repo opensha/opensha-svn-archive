@@ -44,7 +44,7 @@ import org.opensha.sha.util.TectonicRegionType;
 public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 	
 	private int durationYears;
-	private GriddedRegion region;
+	private double minLat, maxLat, minLon, maxLon, spacing;
 
 	/**
 	 * Convenience constructor for if you already have the inputs from an XML file.
@@ -55,9 +55,9 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 	 * @throws InvocationTargetException 
 	 */
 	public HazusDataSetDAGCreator(CalculationInputsXMLFile inputs, String javaExec, String jarFile,
-			int durationYears, GriddedRegion region) throws InvocationTargetException {
+			int durationYears, double spacing) throws InvocationTargetException {
 		this(inputs.getERF(), inputs.getIMRMaps(), inputs.getSites(), inputs.getCalcSettings(),
-				inputs.getArchiver(), javaExec, jarFile, durationYears, region);
+				inputs.getArchiver(), javaExec, jarFile, durationYears, spacing);
 	}
 
 	/**
@@ -80,10 +80,11 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 			String javaExec,
 			String jarFile,
 			int durationYears,
-			GriddedRegion region) throws InvocationTargetException {
+			double spacing) throws InvocationTargetException {
 		super(erf, getHAZUSMaps(imrMaps), getIMTList(imrMaps), sites, calcSettings, archiver, javaExec, jarFile);
 		this.durationYears = durationYears;
-		this.region = region;
+		this.spacing = spacing;
+		calcExtentsFromSites();
 	}
 	
 	/**
@@ -107,10 +108,32 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 			String javaExec,
 			String jarFile,
 			int durationYears,
-			GriddedRegion region) throws InvocationTargetException {
+			double spacing) throws InvocationTargetException {
 		super(erf, getHAZUSMaps(imrMaps), validateIMTList(imts), sites, calcSettings, archiver, javaExec, jarFile);
 		this.durationYears = durationYears;
-		this.region = region;
+		this.spacing = spacing;
+		calcExtentsFromSites();
+	}
+	
+	private void calcExtentsFromSites() {
+		minLon = Double.MAX_VALUE;
+		maxLon = Double.NEGATIVE_INFINITY;
+		minLat = Double.MAX_VALUE;
+		maxLat = Double.NEGATIVE_INFINITY;
+		
+		for (Site site : sites) {
+			Location loc = site.getLocation();
+			double lat = loc.getLatitude();
+			double lon = loc.getLongitude();
+			if (lat < minLat)
+				minLat = lat;
+			if (lat > maxLat)
+				maxLat = lat;
+			if (lon < minLon)
+				minLon = lon;
+			if (lon > maxLon)
+				maxLon = lon;
+		}
 	}
 	
 	private static List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> getHAZUSMaps(
@@ -245,12 +268,6 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 	}
 	
 	private String getSitesMetadata() {
-		double minLat = region.getMinGridLat();
-		double maxLat = region.getMaxGridLat();
-		double minLon = region.getMinGridLon();
-		double maxLon = region.getMaxGridLon();
-		double spacing = region.getSpacing();
-		
 		return "Min Longitude = "+minLon+"; Max Longitude = "+maxLon+"; " +
 				"Min  Latitude = "+minLat+"; Max  Latitude = "+maxLat+"; Grid Spacing = "+spacing;
 	}
