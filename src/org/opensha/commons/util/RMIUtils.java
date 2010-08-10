@@ -59,16 +59,36 @@ public class RMIUtils {
 			debugName = "FixedPortRMISocketFactory[" + prefs.getBuildType() + "]: ";
 		}
 		
-		private int getRandomPort() {
+		private int getPort() throws IOException {
 			int min = prefs.getMinRMISocketPort();
 			int max = prefs.getMaxRMISocketPort();
 			int delta = max - min;
-			return min + r.nextInt(delta);
+			
+			int port = 0;
+			int cnt = 0;
+			while (port == 0 || isPortInUse(port)) {
+				port = min + r.nextInt(delta);
+				cnt++;
+				if (cnt == 100)
+					throw new IOException("Couldn't find an open port after 100 tries!");
+			}
+			return port;
+		}
+		
+		private boolean isPortInUse(int port) {
+			try {
+				ServerSocket socket = new ServerSocket(port);
+				socket.close();
+			} catch (Exception e) {
+				System.out.println(debugName+"port '"+port+"' already in use!");
+				return true;
+			}
+			return false;
 		}
 
 		@Override
 		public ServerSocket createServerSocket(int port) throws IOException {
-			port = (port == 0 ? getRandomPort() : port);
+			port = (port == 0 ? getPort() : port);
 			System.out.println(debugName+"creating ServerSocket on port " + port);
 			return new ServerSocket(port);
 		}
