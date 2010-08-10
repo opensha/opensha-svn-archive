@@ -80,7 +80,7 @@ public class DisclaimerDialog extends JDialog implements ActionListener {
 	}
 	
 	private void init() {
-		this.setModalityType(ModalityType.APPLICATION_MODAL);
+		this.setModalityType(ModalityType.TOOLKIT_MODAL);
 		this.getContentPane().setLayout(new BorderLayout());
 		
 		textArea = new JTextArea(license);
