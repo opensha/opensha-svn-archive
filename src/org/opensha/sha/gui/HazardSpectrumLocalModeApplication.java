@@ -66,6 +66,7 @@ import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.infoTools.WeightedFuncListforPlotting;
+import org.opensha.sha.gui.util.IconFetcher;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
@@ -700,6 +701,7 @@ extends HazardCurveLocalModeApplication {
 		HazardSpectrumLocalModeApplication applet = new
 		HazardSpectrumLocalModeApplication();
 		applet.init();
+		applet.setIconImages(IconFetcher.fetchIcons(APP_SHORT_NAME));
 		applet.setVisible(true);
 	}
 

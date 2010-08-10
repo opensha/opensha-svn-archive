@@ -138,6 +138,7 @@ import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.gui.infoTools.WeightedFuncListforPlotting;
+import org.opensha.sha.gui.util.IconFetcher;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
@@ -764,6 +765,7 @@ ScalarIMRChangeListener {
 		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
 		HazardCurveServerModeApplication applet = new HazardCurveServerModeApplication();
 		applet.init();
+		applet.setIconImages(IconFetcher.fetchIcons(APP_SHORT_NAME));
 		//		applet.pack();
 		applet.setVisible(true);
 	}

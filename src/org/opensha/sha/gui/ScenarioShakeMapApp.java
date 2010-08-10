@@ -102,6 +102,7 @@ import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.infoTools.IMT_Info;
+import org.opensha.sha.gui.util.IconFetcher;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
 import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 
@@ -424,6 +425,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
 		ScenarioShakeMapApp applet = new ScenarioShakeMapApp();
 		applet.init();
+		applet.setIconImages(IconFetcher.fetchIcons(APP_SHORT_NAME));
 		applet.setVisible(true);
 	}
 

@@ -68,6 +68,7 @@ import org.opensha.sha.gui.infoTools.GraphPanelAPI;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.gui.util.IconFetcher;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -1028,6 +1029,7 @@ ParameterChangeListener{
 	public static void main(String[] args) throws IOException {
 		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
 		MagFreqDistApp magFreqDistApp = new MagFreqDistApp();
+		magFreqDistApp.setIconImages(IconFetcher.fetchIcons(APP_SHORT_NAME));
 		magFreqDistApp.initMagParamEditor();
 		magFreqDistApp.createMagParam();
 		magFreqDistApp.makeSumDistVisible(true);

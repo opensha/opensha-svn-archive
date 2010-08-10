@@ -47,6 +47,7 @@ import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.StringParameterEditor;
 import org.opensha.commons.util.ApplicationVersion;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.sha.gui.util.IconFetcher;
 
 
 
@@ -201,6 +202,7 @@ public class GMT_MapGeneratorApplet extends Applet{
 		frame.setTitle("Maps");
 		frame.getContentPane().add(applet, BorderLayout.CENTER);
 		applet.init();
+		frame.setIconImages(IconFetcher.fetchIcons(APP_SHORT_NAME));
 		applet.start();
 		frame.setSize(W,H);
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();

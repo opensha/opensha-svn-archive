@@ -50,6 +50,7 @@ import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
+import org.opensha.sha.gui.util.IconFetcher;
 
 /**
  * <p>Title: HazardSpectrumServerModeApplication </p>
@@ -207,6 +208,7 @@ extends HazardSpectrumLocalModeApplication {
 		HazardSpectrumServerModeApplication applet = new
 		HazardSpectrumServerModeApplication();
 		applet.init();
+		applet.setIconImages(IconFetcher.fetchIcons(APP_SHORT_NAME));
 		applet.setVisible(true);
 	}
 }

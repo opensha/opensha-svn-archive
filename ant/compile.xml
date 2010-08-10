@@ -34,7 +34,8 @@
 	<property name="keystore.alias" value="opensha" />
 	<property name="keystore.pass" value="opensha" />
 	<property name="project.jnlp.dir" value="jnlp" />
-
+	<property name="app.build.type" value="nightly" />
+	
 	<path id="library.classpath">
 		<fileset dir="${lib.dir}">
 			<include name="**/*.jar" />
@@ -264,6 +265,8 @@
 			<fileset dir="${src}/resources/images" />
 		</copy>
 		
+		<antcall target="resource.app.icons" />
+		
 		<copy todir="${build}/resources/help" overwrite="true">
 			<fileset dir="${src}/resources/help" />
 		</copy>
@@ -275,6 +278,14 @@
 		<copy todir="${build}/org/opensha/refFaultParamDb/dao/db/" overwrite="true">
 			<fileset dir="${src}/org/opensha/refFaultParamDb/dao/db/">
 				<include name="*.dat" />
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="resource.app.icons" if="app.short.name">
+		<copy todir="${build}/resources/images/icons" overwrite="true">
+			<fileset dir="${project.jnlp.dir}/${app.build.type}/icons">
+				<include name="${app.short.name}*.png" />
 			</fileset>
 		</copy>
 	</target>

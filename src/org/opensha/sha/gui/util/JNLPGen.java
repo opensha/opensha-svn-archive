@@ -30,7 +30,9 @@ import org.opensha.sha.magdist.gui.MagFreqDistApp;
 public class JNLPGen {
 	
 	private static final String jnlpDir = "ant" + File.separator + "jnlp";
-	private static final String webRoot = "http://opensha.usc.edu/apps/opensha";
+	protected static final String webRoot = "http://opensha.usc.edu/apps/opensha";
+	
+	protected static final int[] icon_sizes = { 128, 64, 48, 32, 16 };
 	
 	private static final String vendor = "OpenSHA";
 	private static final String homepage = "http://www.opensha.org";
@@ -70,13 +72,16 @@ public class JNLPGen {
 		else
 			gen.setUpperRightImage(IconGen.loadServerIcon());
 		icons = new ArrayList<IconEntry>();
-		int[] sizes = { 128, 64, 48, 32, 16 };
-		for (int size : sizes) {
+		for (int size : icon_sizes) {
 			BufferedImage icon = gen.getIcon(size, size);
-			String fileName = shortName + "_" + size + "x" + size + ".png";
+			String fileName = getIconName(shortName, size);
 			ImageIO.write(icon, "png", new File(iconDir + File.separator + fileName));
 			icons.add(new IconEntry(iconsDirName + "/" + fileName, size, size));
 		}
+	}
+	
+	protected static String getIconName(String shortName, int size) {
+		return shortName + "_" + size + "x" + size + ".png";
 	}
 	
 	public static void setDefaultServerPrefs(ServerPrefs prefs) {

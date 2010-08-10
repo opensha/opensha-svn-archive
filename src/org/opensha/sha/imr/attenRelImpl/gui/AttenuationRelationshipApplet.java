@@ -92,6 +92,7 @@ import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.LaunchHelpFromMenu;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.gui.util.IconFetcher;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel;
@@ -907,6 +908,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
 		AttenuationRelationshipApplet applet = new AttenuationRelationshipApplet();
 		applet.init();
+		applet.setIconImages(IconFetcher.fetchIcons(APP_SHORT_NAME));
 		applet.setVisible(true);
 
 	}

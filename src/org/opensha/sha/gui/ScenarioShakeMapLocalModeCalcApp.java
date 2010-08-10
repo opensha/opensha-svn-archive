@@ -41,6 +41,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkR
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
+import org.opensha.sha.gui.util.IconFetcher;
 
 /**
  * <p>Title: ScenarioShakeMapLocalModeCalcApplication</p>
@@ -100,6 +101,7 @@ extends ScenarioShakeMapApp {
 		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
 		ScenarioShakeMapLocalModeCalcApp applet = new ScenarioShakeMapLocalModeCalcApp();
 		applet.init();
+		applet.setIconImages(IconFetcher.fetchIcons(APP_SHORT_NAME));
 		applet.setVisible(true);
 	}
 
