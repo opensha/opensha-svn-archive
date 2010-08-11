@@ -81,8 +81,8 @@
 			<include name="LICENSE.txt" />
 		</jar>
 		<antcall target="clean.build.dir" />
-		<ant antfile="compile.xml" target="sign.jar"/>
-		<ant antfile="compile.xml" target="copy.server.jar"/>
+		<ant antfile="build.xml" target="sign.jar"/>
+		<ant antfile="build.xml" target="copy.server.jar"/>
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
@@ -116,7 +116,7 @@
           target: compile.rmi
          - - - - - - - - - - - - - - - - - -->
 	<target name="compile.rmi" if="rmi.target">
-		<ant antfile="compile.xml" target="${rmi.target}"/>
+		<ant antfile="build.xml" target="${rmi.target}"/>
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
@@ -133,7 +133,7 @@
           target: copy.resources
          - - - - - - - - - - - - - - - - - -->
 	<target name="copy.resources" if="resource.target">
-		<ant antfile="compile.xml" target="${resource.target}"/>
+		<ant antfile="build.xml" target="${resource.target}"/>
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
@@ -142,7 +142,7 @@
           Unpack necessary libs for inclusion in app.                      
          - - - - - - - - - - - - - - - - - -->
 	<target name="unjar.libs" if="unjar.target">
-		<ant antfile="compile.xml" target="${unjar.target}"/>
+		<ant antfile="build.xml" target="${unjar.target}"/>
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 

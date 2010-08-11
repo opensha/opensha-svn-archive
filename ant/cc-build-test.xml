@@ -21,13 +21,13 @@
 <project basedir="." default="svn.build.run.common.tests" name="Cruise Control Build File">
 	
 	<target name="svn.update">
-		<ant antfile="compile.xml" target="svn.update"/>
+		<ant antfile="build.xml" target="svn.update"/>
 	</target>
 	
 	<target name="svn.update.build" depends="svn.update">
-		<ant antfile="compile.xml" target="build"/>
-		<ant antfile="compile.xml" target="resource.all"/>
-		<ant antfile="compile.xml" target="rmi.all"/>
+		<ant antfile="build.xml" target="build"/>
+		<ant antfile="build.xml" target="resource.all"/>
+		<ant antfile="build.xml" target="rmi.all"/>
 	</target>
 	
 	<target name="svn.build.run.common.tests" depends="svn.update.build">
@@ -44,7 +44,7 @@
 	
 	<target name="svn.build.run.daily.coverage" depends="svn.update.build">
 		<ant antfile="test.xml" target="run.cobertura"/>
-		<ant antfile="compile.xml" target="javadoc"/>
+		<ant antfile="build.xml" target="javadoc"/>
 	</target>
 	
 	<target name="svn.build.run.weekly.coverage" depends="svn.update.build">

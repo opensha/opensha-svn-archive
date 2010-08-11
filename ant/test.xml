@@ -55,11 +55,11 @@
 	</path>
 	
 	<target name="compile.tets" depends="">
-		<ant antfile="compile.xml" target="compile.tets"/>
+		<ant antfile="build.xml" target="compile.tets"/>
 	</target>
 	
 	<target name="resource.tests" depends="">
-		<ant antfile="compile.xml" target="resource.tests"/>
+		<ant antfile="build.xml" target="resource.tests"/>
 	</target>
 
 	<target name="pre.test.cleanup">
@@ -137,7 +137,7 @@
 		</cobertura-instrument>
 		<!--<property name="build.old" value="${build}" />
 		<property name="build" value="${cobertura.instrumented.dir}" />-->
-		<ant antfile="compile.xml" target="resource.all">
+		<ant antfile="build.xml" target="resource.all">
 			<property name="build" value="${cobertura.instrumented.dir}"/>
 		</ant>
 		<!--<property name="build" value="${build.old}" />-->
