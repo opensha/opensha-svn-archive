@@ -55,7 +55,7 @@
 	<target name="restart.tomcat">
 		<echo message="shutting down tomcat"/>
 		<!-- shutdown tomcat -->
-		<exec executable="/bin/bash">
+		<exec executable="/bin/bash" timeout="10000">
 			<arg value="/usr/local/tomcat/default/bin/shutdown.sh"/>
 		</exec>
 		<!-- sleep -->
