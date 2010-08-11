@@ -63,7 +63,7 @@
 		<sleep seconds="5"/>
 		<!-- start tomcat -->
 		<echo message="starting up tomcat"/>
-		<exec executable="/bin/bash">
+		<exec executable="/bin/bash" spawn="true">
 			<arg value="/usr/local/tomcat/default/bin/startup.sh"/>
 		</exec>
 	</target>
