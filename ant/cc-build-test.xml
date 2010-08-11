@@ -38,8 +38,9 @@
 		<ant antfile="test.xml" target="run.operational.tests"/>
 	</target>
 	
-	<target name="svn.update.app.build" depends="svn.update">
+	<target name="svn.update.app.build" depends="svn.update.build">
 		<ant antfile="MultiAppBuilder.xml" target="build.nightly"/>
+		<antcall target="restart.tomcat"/>
 	</target>
 	
 	<target name="svn.build.run.daily.coverage" depends="svn.update.build">
@@ -49,6 +50,22 @@
 	
 	<target name="svn.build.run.weekly.coverage" depends="svn.update.build">
 		<ant antfile="test.xml" target="run.cobertura.weekly"/>
+	</target>
+	
+	<target name="restart.tomcat">
+		<echo message="shutting down tomcat"/>
+		<!-- shutdown tomcat -->
+		<exec executable="/bin/bash">
+			<arg value="/usr/local/tomcat/default/bin/shutdown.sh"/>
+		</exec>
+		<!-- sleep -->
+		<echo message="sleeping for 5 seconds"/>
+		<sleep seconds="5"/>
+		<!-- start tomcat -->
+		<echo message="starting up tomcat"/>
+		<exec executable="/bin/bash">
+			<arg value="/usr/local/tomcat/default/bin/startup.sh"/>
+		</exec>
 	</target>
 	
 </project>

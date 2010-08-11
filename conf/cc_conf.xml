@@ -1,6 +1,7 @@
 <cruisecontrol>
 	<!-- Commonly used directories -->
 	<property name="projectdir" value="/scratch/opensha/build/trunk"/>
+	<property name="tomcatprojectdir" value="/usr/local/tomcat/default/webapps/OpenSHA_dev/WEB-INF"/>
 	<property name="testdir" value="${projectdir}/junit/logs"/>
 	<property name="logdir" value="logs/${project.name}"/>
 	<property name="ant.bin" value="/usr/local/ant/default/bin/ant"/>
@@ -65,12 +66,16 @@
 				localWorkingCopy="${projectdir}" />
 			<svnbootstrapper file="ant/test.xml"
 				localWorkingCopy="${projectdir}" />
+			<svnbootstrapper file="ant/cc-build.xml"
+				localWorkingCopy="${tomcatprojectdir}" />
+			<svnbootstrapper file="ant/build.xml"
+				localWorkingCopy="${tomcatprojectdir}" />
 		</bootstrappers>
 
 		<schedule>
 			<!-- This test runs nightly, building nightly jars -->
 			<ant time="0000" antscript="${ant.bin}"
-						buildfile="${projectdir}/ant/cc-build-test.xml"
+						buildfile="${tomcatprojectdir}/ant/cc-build-test.xml"
 						target="svn.update.app.build" />
 
 			<!-- This test runs nightly, updating the coverage site with daily tests -->

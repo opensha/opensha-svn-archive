@@ -168,12 +168,6 @@
 			</fileset>
 		</copy>
 
-		<copy todir="${build}/scratch/bbradley" overwrite="true">
-			<fileset dir="${dev}/scratch/bbradley">
-				<include name="**/*.txt" />
-			</fileset>
-		</copy>
-
 		<copy todir="${build}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data" overwrite="true">
 			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data">
 				<include name="**/*.txt" />
@@ -193,6 +187,12 @@
 	<target name="resource.erfs.dev">
 		<!-- This is for ERFs that we won't include in our regular apps because they are under
 		development -->
+		<copy todir="${build}/scratch/bbradley" overwrite="true">
+			<fileset dir="${dev}/scratch/bbradley">
+				<include name="**/*.txt" />
+			</fileset>
+		</copy>
+		
 		<copy todir="${build}/org/opensha/sha/earthquake/rupForecastImpl/GEM" overwrite="true">
 			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/GEM">
 				<include name="**/*.txt" />

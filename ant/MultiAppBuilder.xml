@@ -102,7 +102,7 @@
 			<property name="app.main.class" value="${sha.gui.package}.HazardSpectrumLocalModeApplication" />
 			<property name="javac.includes"     value="${sha.gui.dir}/HazardSpectrumLocalModeApplication.java" />
 			<property name="javac.excludes" value="" />
-			<property name="rmi.target" value="rmi.hazard.curve" />
+			<property name="rmi.target" value="rmi.hazard.spectrum" />
 			<property name="resource.target" value="resource.hazard.apps" />
 		</ant>
 	</target>
@@ -113,7 +113,7 @@
 			<property name="app.main.class" value="${sha.gui.package}.HazardSpectrumServerModeApplication" />
 			<property name="javac.includes"     value="${sha.gui.dir}/HazardSpectrumServerModeApplication.java" />
 			<property name="javac.excludes" value="" />
-			<property name="rmi.target" value="rmi.hazard.curve" />
+			<property name="rmi.target" value="rmi.hazard.spectrum" />
 			<property name="resource.target" value="resource.hazard.apps.server" />
 		</ant>
 	</target>
