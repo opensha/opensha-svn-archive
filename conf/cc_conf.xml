@@ -14,7 +14,7 @@
 			<currentbuildstatusbootstrapper file="${logdir}/buildstatus.txt"/>
 			<svnbootstrapper file="ant/cc-build-test.xml"
 				localWorkingCopy="${projectdir}" />
-			<svnbootstrapper file="ant/compile.xml"
+			<svnbootstrapper file="ant/build.xml"
 				localWorkingCopy="${projectdir}" />
 			<svnbootstrapper file="ant/test.xml"
 				localWorkingCopy="${projectdir}" />
@@ -61,7 +61,7 @@
 			<currentbuildstatusbootstrapper file="${logdir}/buildstatus.txt"/>
 			<svnbootstrapper file="ant/cc-build.xml"
 				localWorkingCopy="${projectdir}" />
-			<svnbootstrapper file="ant/compile.xml"
+			<svnbootstrapper file="ant/build.xml"
 				localWorkingCopy="${projectdir}" />
 			<svnbootstrapper file="ant/test.xml"
 				localWorkingCopy="${projectdir}" />
@@ -125,7 +125,7 @@
 			<currentbuildstatusbootstrapper file="${logdir}/buildstatus.txt"/>
 			<svnbootstrapper file="ant/cc-build.xml"
 				localWorkingCopy="${projectdir}" />
-			<svnbootstrapper file="ant/compile.xml"
+			<svnbootstrapper file="ant/build.xml"
 				localWorkingCopy="${projectdir}" />
 			<svnbootstrapper file="ant/test.xml"
 				localWorkingCopy="${projectdir}" />
