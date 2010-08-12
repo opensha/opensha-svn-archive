@@ -339,6 +339,7 @@
 		<unjar src="${lib.dir}/BrowserLauncher2-1_3.jar" dest="${build}" />
 		<unjar src="${lib.dir}/commons-math-2.1.jar" dest="${build}" />
 		<unjar src="${lib.dir}/commons-lang-2.4.jar" dest="${build}" />
+		<unjar src="${lib.dir}/commons-codec-1.4.jar" dest="${build}" />
 		<unjar src="${lib.dir}/ncCore-4.0.jar" dest="${build}" />
 		<unjar src="${lib.dir}/junit-4.5.jar" dest="${build}" />
 		<unjar src="${lib.dir}/sdoapi.jar" dest="${build}" />
