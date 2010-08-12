@@ -19,9 +19,13 @@
 
 package org.opensha.commons.util;
 
-import java.io.PrintStream;
+import java.util.Properties;
 
-import sun.net.smtp.SmtpClient;
+import javax.mail.Message;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 /**
  * <p>Title: MailUtil.java </p>
@@ -35,39 +39,59 @@ import sun.net.smtp.SmtpClient;
 
 public final class MailUtil {
 
-  /**
-   *
-   * @param host SMTP server from which mail needs to be sent
-   * @param from Email prefix of sender
-   * @param emailAddr email address of receiver
-   * @param mailSubject Email subject
-   * @param mailMessage Email body
-   */
- public static void sendMail(String host, String from,
-                      String emailAddr,
-                      String mailSubject,
-                      String mailMessage) {
-   try {
+	/**
+	 *
+	 * @param host SMTP server from which mail needs to be sent
+	 * @param from Email prefix of sender
+	 * @param emailAddr email address of receiver
+	 * @param mailSubject Email subject
+	 * @param mailMessage Email body
+	 */
+	public static void sendMail(String host, String from,
+			String to,
+			String mailSubject,
+			String mailMessage) {
+		try {
+			Properties props = System.getProperties();
+			// Setup mail server
+			props.put("mail.smtp.host", host);
+			// Get session
+			Session session = Session.getDefaultInstance(props, null);
+			
+			// Define message
+			MimeMessage message = new MimeMessage(session);
+			message.setFrom(new InternetAddress(from));
+			message.addRecipient(Message.RecipientType.TO, 
+			  new InternetAddress(to));
+			message.setSubject(mailSubject);
+			message.setText(mailMessage);
 
-     // Create a new instance of SmtpClient.
-     SmtpClient smtp = new SmtpClient(host);
-     // Sets the originating e-mail address
-     smtp.from(from);
-     // Sets the recipients' e-mail address
-     smtp.to(emailAddr);
-     // Create an output stream to the connection
-     PrintStream msg = smtp.startMessage();
-     msg.println("To: " + emailAddr); // so mailers will display the recipient's e-mail address
-     msg.println("From: " + from); // so that mailers will display the sender's e-mail address
-     msg.println("Subject: " + mailSubject + "\n");
-     msg.println(mailMessage);
-
-     // Close the connection to the SMTP server and send the message out to the recipient
-     smtp.closeServer();
-   }
-   catch (Exception e) {
-     e.printStackTrace();
-   }
- }
+			// Send message
+			Transport.send(message);
+			
+//			// Create a new instance of SmtpClient.
+//			SmtpClient smtp = new SmtpClient(host);
+//			// Sets the originating e-mail address
+//			smtp.from(from);
+//			// Sets the recipients' e-mail address
+//			smtp.to(emailAddr);
+//			// Create an output stream to the connection
+//			PrintStream msg = smtp.startMessage();
+//			msg.println("To: " + emailAddr); // so mailers will display the recipient's e-mail address
+//			msg.println("From: " + from); // so that mailers will display the sender's e-mail address
+//			msg.println("Subject: " + mailSubject + "\n");
+//			msg.println(mailMessage);
+//
+//			// Close the connection to the SMTP server and send the message out to the recipient
+//			smtp.closeServer();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void main(String args[]) {
+//		sendMail("email.usc.edu", "kmilner@usc.edu", "kmilner@usc.edu", "testing?", "this is a test message\nnewline!");
+	}
 
 }
