@@ -58,7 +58,7 @@ public class DistanceX_Parameter
     /** Class name used in debug strings */
     protected final static String C = "DistanceJBParameter";
     /** If true debug statements are printed out */
-    protected final static boolean D = true;
+    protected final static boolean D = false;
     
     /** Hardcoded name */
     public final static String NAME = "DistanceX";
