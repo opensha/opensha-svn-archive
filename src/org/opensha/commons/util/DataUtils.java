@@ -86,5 +86,38 @@ public class DataUtils {
 	
 		return result;
 	}
+	
+	public static class MinMaxAveTracker {
+		private double min = Double.POSITIVE_INFINITY;
+		private double max = Double.NEGATIVE_INFINITY;
+		private double tot = 0;
+		private int num = 0;
+		
+		public void addValue(double val) {
+			if (val < min)
+				min = val;
+			if (val > max)
+				max = val;
+			tot += val;
+			num++;
+		}
+		
+		public double getMin() {
+			return min;
+		}
+		
+		public double getMax() {
+			return max;
+		}
+		
+		public double getAverage() {
+			return tot / (double)num;
+		}
+		
+		@Override
+		public String toString() {
+			return "min: " + min + ", max: " + max + ", avg: " + getAverage();
+		}
+	}
 
 }

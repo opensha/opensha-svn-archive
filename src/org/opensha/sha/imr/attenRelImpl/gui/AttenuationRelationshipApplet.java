@@ -108,6 +108,7 @@ import org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.Field_2000_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.GouletEtAl_2006_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.McVerryetal_2000_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.NGA_2008_Averaged_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.SEA_1999_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.SadighEtAl_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
@@ -277,6 +278,8 @@ CurveDisplayAppAPI,GraphWindowAPI {
 	 *  loader to load these
 	 */
 	static {
+		imNames.add(NGA_2008_Averaged_AttenRel.NAME);
+		attenRelClasses.add(NGA_2008_Averaged_AttenRel.class.getName());
 		imNames.add(InterpolatedBA_2008_AttenRel.NAME);
 		attenRelClasses.add(InterpolatedBA_2008_AttenRel.class.getName());
 		imNames.add(CY_2008_AttenRel.NAME);

@@ -46,14 +46,14 @@ public class SA_Param extends WarningDoubleParameter {
 	 * warning constraint, and sets the default as Math.log(0.5) (the natural
 	 * log of 0.5). The parameter is left as non editable
 	 */
-	public SA_Param(PeriodParam periodPeram, DampingParam dampingParam) {
+	public SA_Param(PeriodParam periodParam, DampingParam dampingParam) {
 		super(NAME, new DoubleConstraint(MIN, MAX), UNITS);
 		getConstraint().setNonEditable();
 		this.setInfo(INFO);
 		DoubleConstraint warn2 = new DoubleConstraint(DEFAULT_WARN_MIN, DEFAULT_WARN_MAX);
 		warn2.setNonEditable();
 		setWarningConstraint(warn2);
-		addIndependentParameter(periodPeram);
+		addIndependentParameter(periodParam);
 		addIndependentParameter(dampingParam);
 		setDefaultValue(0.5);
 		setNonEditable();

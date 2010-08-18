@@ -38,6 +38,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.NGA_2008_Averaged_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
@@ -94,9 +95,15 @@ public class HardCodedTest {
 		imr.setParamDefaults();
 		return imr;
 	}
+	
+	private static ScalarIntensityMeasureRelationshipAPI getNGA_2008IMR() {
+		ScalarIntensityMeasureRelationshipAPI imr = new NGA_2008_Averaged_AttenRel(null);
+		imr.setParamDefaults();
+		return imr;
+	}
 
 	private static ScalarIntensityMeasureRelationshipAPI getIMR(double sigmaTrunc){
-		ScalarIntensityMeasureRelationshipAPI attenRel = getCB_2008IMR();
+		ScalarIntensityMeasureRelationshipAPI attenRel = getNGA_2008IMR();
 		attenRel.getParameter(Vs30_Param.NAME).setValue(new Double(760));
 		if (sigmaTrunc > 0) {
 			attenRel.getParameter(SigmaTruncTypeParam.NAME).

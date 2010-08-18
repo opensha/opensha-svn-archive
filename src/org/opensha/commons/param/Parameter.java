@@ -198,7 +198,7 @@ ParameterAPI<E>, java.io.Serializable
 		String S = getName() + ": setValue(): ";
 
 		if ( !isAllowed( value ) ) {
-			throw new ConstraintException( S + "Value is not allowed: " + value.toString() );
+			throw new ConstraintException( S + "Value is not allowed: " + value);
 		}
 
 		// do not fire the event if new value is same as current value

@@ -428,7 +428,7 @@ extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationsh
 	IMRException {
 
 		// set the im parameter in order to verify that it's a permitted value
-		im.setValue(new Double(iml));
+		setIntensityMeasureLevel(new Double(iml));
 
 		return getExceedProbability();
 	}
@@ -444,7 +444,7 @@ extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationsh
 	public DiscretizedFuncAPI getSA_ExceedProbSpectrum(double iml) throws ParameterException,
 	IMRException {
 		this.setIntensityMeasure(SA_Param.NAME);
-		im.setValue(new Double(iml));
+		setIntensityMeasureLevel(new Double(iml));
 		DiscretizedFuncAPI exeedProbFunction =  new ArbitrarilyDiscretizedFunc();
 		ArrayList allowedSA_Periods = saPeriodParam.getAllowedDoubles();
 		int size = allowedSA_Periods.size();
@@ -502,7 +502,7 @@ extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationsh
 	 */
 	public double getEpsilon(double iml){
 		// set the im parameter in order to verify that it's a permitted value
-		im.setValue(new Double(iml));
+		setIntensityMeasureLevel(new Double(iml));
 
 		return getEpsilon();
 	}
@@ -592,7 +592,7 @@ extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationsh
 		ProbEqkRupture tempRup;
 
 		//set the IML
-		im.setValue(new Double(iml));
+		setIntensityMeasureLevel(new Double(iml));
 
 		// set the eqRup- and propEffect-params from the first rupture
 		this.setEqkRupture(ptSrc.getRupture(0));
