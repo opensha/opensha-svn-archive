@@ -124,7 +124,7 @@ NamedObjectAPI, ParameterChangeListener {
 	// Name of IMR
 	public final static String NAME = "Chiou & Youngs (2008)";
 	public final static String SHORT_NAME = "CY2008";
-//	private static final long serialVersionUID = 1234567890987654360L;
+	//	private static final long serialVersionUID = 1234567890987654360L;
 
 
 	// coefficients (index 22 is PGA and 23 is PGV):
@@ -198,7 +198,7 @@ NamedObjectAPI, ParameterChangeListener {
 	public final static String FLT_TYPE_STRIKE_SLIP = "Strike-Slip";
 	public final static String FLT_TYPE_REVERSE = "Reverse";
 	public final static String FLT_TYPE_NORMAL = "Normal";
-	
+
 	// this is for computing distance metrics efficiently
 	private PropagationEffect propagationEffect;
 
@@ -228,9 +228,9 @@ NamedObjectAPI, ParameterChangeListener {
 
 		initIndependentParamLists(); // This must be called after the above
 		initParameterEventListeners(); //add the change listeners to the parameters
-		
-	    propagationEffect = new PropagationEffect();
-	    propagationEffect.fixDistanceJB(true); // this ensures that it's exatly zero over the discretized rupture surfaces
+
+		propagationEffect = new PropagationEffect();
+		propagationEffect.fixDistanceJB(true); // this ensures that it's exatly zero over the discretized rupture surfaces
 
 
 	}
@@ -409,8 +409,8 @@ NamedObjectAPI, ParameterChangeListener {
 		hangingWallFlagParam.setValueAsDefault();
 
 		componentParam.setValueAsDefault();
-	    stdDevTypeParam.setValueAsDefault();
-		
+		stdDevTypeParam.setValueAsDefault();
+
 		saParam.setValueAsDefault();
 		saPeriodParam.setValueAsDefault();
 		saDampingParam.setValueAsDefault();
@@ -479,7 +479,7 @@ NamedObjectAPI, ParameterChangeListener {
 	protected void initSiteParams() {
 
 		vs30Param = new Vs30_Param(VS30_WARN_MIN, VS30_WARN_MAX);
-	    vs30_TypeParam = new Vs30_TypeParam();
+		vs30_TypeParam = new Vs30_TypeParam();
 		depthTo1pt0kmPerSecParam = new DepthTo1pt0kmPerSecParam(DEPTH_1pt0_WARN_MIN, DEPTH_1pt0_WARN_MAX);
 
 		siteParams.clear();
@@ -497,11 +497,11 @@ NamedObjectAPI, ParameterChangeListener {
 	protected void initEqkRuptureParams() {
 
 		magParam = new MagParam(MAG_WARN_MIN, MAG_WARN_MAX);
-	    
+
 		aftershockParam = new AftershockParam();
-		
+
 		dipParam = new DipParam();
-		
+
 		rupTopDepthParam = new RupTopDepthParam(RUP_TOP_WARN_MIN, RUP_TOP_WARN_MAX);
 
 		StringConstraint constraint = new StringConstraint();
@@ -509,7 +509,7 @@ NamedObjectAPI, ParameterChangeListener {
 		constraint.addString(FLT_TYPE_NORMAL);
 		constraint.addString(FLT_TYPE_REVERSE);
 		constraint.setNonEditable();
-	    fltTypeParam = new FaultTypeParam(constraint,FLT_TYPE_STRIKE_SLIP);
+		fltTypeParam = new FaultTypeParam(constraint,FLT_TYPE_STRIKE_SLIP);
 
 		eqkRuptureParams.clear();
 		eqkRuptureParams.addParameter(magParam);
@@ -542,9 +542,9 @@ NamedObjectAPI, ParameterChangeListener {
 		distRupMinusJB_OverRupParam.setNonEditable();
 
 		distRupMinusDistX_OverRupParam = new DistRupMinusDistX_OverRupParam();
-		
-	    // create hanging wall parameter
-	    hangingWallFlagParam = new HangingWallFlagParam();
+
+		// create hanging wall parameter
+		hangingWallFlagParam = new HangingWallFlagParam();
 
 		propagationEffectParams.addParameter(distanceRupParam);
 		propagationEffectParams.addParameter(distRupMinusJB_OverRupParam);
@@ -574,7 +574,7 @@ NamedObjectAPI, ParameterChangeListener {
 		//  Create PGA Parameter (pgaParam):
 		pgaParam = new PGA_Param();
 		pgaParam.setNonEditable();
-	
+
 		//  Create PGV Parameter (pgvParam):
 		pgvParam = new PGV_Param();
 		pgvParam.setNonEditable();
@@ -605,7 +605,7 @@ NamedObjectAPI, ParameterChangeListener {
 		StringConstraint constraint = new StringConstraint();
 		constraint.addString(ComponentParam.COMPONENT_GMRotI50);
 		constraint.setNonEditable();
-	    componentParam = new ComponentParam(constraint,ComponentParam.COMPONENT_GMRotI50);
+		componentParam = new ComponentParam(constraint,ComponentParam.COMPONENT_GMRotI50);
 
 		// the stdDevType Parameter
 		StringConstraint stdDevTypeConstraint = new StringConstraint();
@@ -614,7 +614,7 @@ NamedObjectAPI, ParameterChangeListener {
 		stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_INTER);
 		stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_INTRA);
 		stdDevTypeConstraint.setNonEditable();
-	    stdDevTypeParam = new StdDevTypeParam(stdDevTypeConstraint);
+		stdDevTypeParam = new StdDevTypeParam(stdDevTypeConstraint);
 
 		// add these to the list
 		otherParams.addParameter(componentParam);
@@ -659,12 +659,12 @@ NamedObjectAPI, ParameterChangeListener {
 	 */
 	public double getMean(int iper, double vs30, double f_rv, double f_nm, double rRup, double distRupMinusJB_OverRup,
 			double depthTo1pt0kmPerSec, double distRupMinusDistX_OverRup, double f_hw, double dip, double mag, double depthTop, double aftershock) {
-			
+
 
 		if(lnYref_is_not_fresh)
 			compute_lnYref(iper, f_rv, f_nm, rRup, distRupMinusJB_OverRup, distRupMinusDistX_OverRup, f_hw, dip, mag, depthTop, aftershock);
 
-		
+
 		// set basinDepth default if depthTo1pt0kmPerSec is NaN 
 		double basinDepth;
 		if(Double.isNaN(depthTo1pt0kmPerSec))
@@ -705,12 +705,12 @@ NamedObjectAPI, ParameterChangeListener {
 	 * @return
 	 */
 	private void compute_lnYref(int iper, double f_rv, double f_nm, double rRup, double distRupMinusJB_OverRup,
-								double distRupMinusDistX_OverRup, double f_hw, double dip, double mag, double depthTop, double aftershock) {
+			double distRupMinusDistX_OverRup, double f_hw, double dip, double mag, double depthTop, double aftershock) {
 		// compute rJB
 		double distanceJB = rRup - distRupMinusJB_OverRup*rRup;
 		double distX  = rRup - distRupMinusDistX_OverRup*rRup;
-// System.out.println(depthTop);
-				
+		// System.out.println(depthTop);
+
 		double cosDelta = Math.cos(dip*Math.PI/180);
 		double altDist = Math.sqrt(distanceJB*distanceJB+depthTop*depthTop);
 
@@ -727,11 +727,11 @@ NamedObjectAPI, ParameterChangeListener {
 		(cg1[iper] + cg2[iper]/Math.cosh(Math.max(mag-cg3,0.0)))*rRup +
 
 		c9[iper] * f_hw * Math.tanh(distX*cosDelta*cosDelta/c9a[iper]) * (1-altDist/(rRup+0.001));
-		
+
 		lnYref_is_not_fresh = false;
-	
-		
-//		System.out.println(rRup+"\t"+distanceJB+"\t"+distX+"\t"+f_hw+"\t"+lnYref);
+
+
+		//		System.out.println(rRup+"\t"+distanceJB+"\t"+distX+"\t"+f_hw+"\t"+lnYref);
 
 	}
 
@@ -793,7 +793,7 @@ NamedObjectAPI, ParameterChangeListener {
 		Object val = e.getNewValue();
 		parameterChange = true;
 		lnYref_is_not_fresh = true;  // this could be placed below, only where really needed.
-		
+
 		if (pName.equals(magParam.NAME)) {
 			mag = ( (Double) val).doubleValue();
 		}
@@ -908,15 +908,15 @@ NamedObjectAPI, ParameterChangeListener {
 		stdDevTypeParam.addParameterChangeListener(this);
 		saPeriodParam.addParameterChangeListener(this);
 	}
-	
-	  
-	  /**
-	   * This provides a URL where more info on this model can be obtained
-	   * @throws MalformedURLException if returned URL is not a valid URL.
-	   * @returns the URL to the AttenuationRelationship document on the Web.
-	   */
-	  public URL getInfoURL() throws MalformedURLException{
-		  return new URL("http://www.opensha.org/documentation/modelsImplemented/attenRel/CY_2008.html");
-	  }
+
+
+	/**
+	 * This provides a URL where more info on this model can be obtained
+	 * @throws MalformedURLException if returned URL is not a valid URL.
+	 * @returns the URL to the AttenuationRelationship document on the Web.
+	 */
+	public URL getInfoURL() throws MalformedURLException{
+		return new URL("http://www.opensha.org/documentation/modelsImplemented/attenRel/CY_2008.html");
+	}
 
 }

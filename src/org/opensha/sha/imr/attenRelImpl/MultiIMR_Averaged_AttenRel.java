@@ -504,8 +504,8 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		if (propEffect.getSite() != null) {
 			for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
 				// TODO speed this up to avoid redundant dist calculations
-				imr.setPropagationEffect(propEffect);
-				imr.setEqkRupture(eqkRupture);
+//				imr.setPropagationEffect(propEffect);
+				imr.setEqkRupture(eqkRupture); // this is actually done above
 			}
 		}
 	}

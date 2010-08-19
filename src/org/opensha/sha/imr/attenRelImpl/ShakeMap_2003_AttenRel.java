@@ -691,7 +691,7 @@ NamedObjectAPI {
 		}
 		else {
 			throw new ParameterException(C +
-					": getMean(): Invalid EqkRupture Parameter value for : FaultType");
+			": getMean(): Invalid EqkRupture Parameter value for : FaultType");
 		}
 
 		// Calculate the log rock-site mean for BJF
@@ -931,8 +931,8 @@ NamedObjectAPI {
 		willsSiteParam.setNonEditable();
 
 		// add it to the siteParams list:
-			siteParams.clear();
-			siteParams.addParameter(willsSiteParam);
+		siteParams.clear();
+		siteParams.addParameter(willsSiteParam);
 
 	}
 
