@@ -45,6 +45,10 @@
 	
 	<target name="svn.build.run.daily.coverage" depends="svn.update.build">
 		<ant antfile="test.xml" target="run.cobertura"/>
+		<antcall target="javadoc"/>
+	</target>
+	
+	<target name="javadoc">
 		<ant antfile="build.xml" target="javadoc">
 			<property name="javadoc.dir" value="/var/www/html/docs/opensha/javadoc/" />
 		</ant>
