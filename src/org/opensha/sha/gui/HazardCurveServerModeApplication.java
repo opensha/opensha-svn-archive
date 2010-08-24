@@ -38,6 +38,7 @@ import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.gui.controls.CalculationSettingsControlPanel;
 import org.opensha.sha.gui.controls.CalculationSettingsControlPanelAPI;
+import org.opensha.sha.gui.controls.ControlPanel;
 import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
 import org.opensha.sha.gui.controls.CyberShakeSiteSetterControlPanel;
 import org.opensha.sha.gui.controls.DisaggregationControlPanel;
@@ -188,6 +189,8 @@ public class HazardCurveServerModeApplication extends JFrame implements
 	protected XY_ValuesControlPanel xyPlotControl;
 	protected CyberShakePlotFromDBControlPanel cyberControlPanel;
 	protected CyberShakeSiteSetterControlPanel cyberSiteControlPanel;
+	
+	private ArrayList<ControlPanel> controlPanels;
 
 	// log flags declaration
 	private boolean xLog = false;
@@ -2108,6 +2111,23 @@ public class HazardCurveServerModeApplication extends JFrame implements
 			calcParamsControl = new CalculationSettingsControlPanel(this,this);
 
 		calcParamsControl.setVisible(true);
+	}
+	
+	protected void showControlPanel(String controlName) {
+		for (ControlPanel control : controlPanels) {
+			if (control.getName().equals(controlName)) {
+				showControlPanel(control);
+				return;
+			}
+		}
+		throw new NullPointerException("Control Panel '" + controlName + "' not found!");
+	}
+	
+	protected void showControlPanel(ControlPanel control) {
+		if (!control.isInitialized()) {
+			control.init();
+		}
+		control.setVisible(true);
 	}
 	
 	/**

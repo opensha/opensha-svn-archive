@@ -37,17 +37,20 @@ public class CalcCurves {
 			CalcCurves calc = new CalcCurves(db, ims);
 			
 //			String baseDir = "/home/kevin/CyberShake/bombay/";
-			String baseDir = "/home/kevin/CyberShake/parkfield/";
+//			String baseDir = "/home/kevin/CyberShake/parkfield/";
+			String baseDir = "/home/kevin/CyberShake/picoRivera/";
 			double increaseMultFactor = 1000;
 			
 			String origDir = baseDir + "origCurves/";
-			String modDir = baseDir + "modCurves_noMod/";
+			String modDir = baseDir + "modCurves/";
 			
 			Div365ProbModifier div365 = new Div365ProbModifier();
 			
-			calc.calc(origDir, div365, null);
+//			calc.calc(origDir, div365, null);
+//			BombayBeachHazardCurveCalc bombay = new BombayBeachHazardCurveCalc(db, increaseMultFactor,
+//					BombayBeachHazardCurveCalc.PARKFIELD_LOC, 10d, "andreas", false);
 			BombayBeachHazardCurveCalc bombay = new BombayBeachHazardCurveCalc(db, increaseMultFactor,
-					BombayBeachHazardCurveCalc.PARKFIELD_LOC);
+					BombayBeachHazardCurveCalc.PICO_RIVERA_LOC, 10d, null, false);
 			calc.calc(modDir, div365, bombay);
 			db.destroy();
 			System.exit(0);

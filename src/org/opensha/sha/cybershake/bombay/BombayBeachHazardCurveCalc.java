@@ -36,7 +36,8 @@ public class BombayBeachHazardCurveCalc implements RuptureVariationProbabilityMo
 	/** The location of the M4.8 event */
 	public static final Location BOMBAY_LOC = new Location(33.318333, -115.728333);
 	public static final Location PARKFIELD_LOC = new Location(35.815, -120.374);
-	public static final double MAX_DIST_KM = 10;
+	public static final Location PICO_RIVERA_LOC = new Location(33.99, -118.08, 18.9);
+//	public static double MAX_DIST_KM = 10;
 	
 	private Location hypoLocation;
 	
@@ -57,10 +58,24 @@ public class BombayBeachHazardCurveCalc implements RuptureVariationProbabilityMo
 	private PeakAmplitudesFromDB amps2db;
 	private DBAccess db;
 	
-	public BombayBeachHazardCurveCalc(DBAccess db, double increaseMultFactor, Location hypoLocation) {
+	private boolean useDepth;
+	private String sourceNameConstr;
+	private double maxDistance;
+	
+	private HashMap<String, ArrayList<Location>> rvLocMap = new HashMap<String, ArrayList<Location>>();
+	
+	public BombayBeachHazardCurveCalc(DBAccess db, double increaseMultFactor, Location hypoLocation,
+			double maxDistance, String sourceNameConstr, boolean useDepth) {
 		this.db = db;
 		this.increaseMultFactor = increaseMultFactor;
 		this.hypoLocation = hypoLocation;
+		this.useDepth = useDepth;
+		this.maxDistance = maxDistance;
+		if (sourceNameConstr != null && sourceNameConstr.length() == 0)
+			sourceNameConstr = null;
+		this.sourceNameConstr = sourceNameConstr;
+		if (!useDepth)
+			this.hypoLocation = new Location(hypoLocation.getLatitude(), hypoLocation.getLongitude());
 		erf2db = new ERF2DB(db);
 		site2db = new SiteInfo2DB(db);
 		amps2db = new PeakAmplitudesFromDB(db);
@@ -79,7 +94,7 @@ public class BombayBeachHazardCurveCalc implements RuptureVariationProbabilityMo
 		for (int sourceID=0; sourceID<numSources; sourceID++) {
 			ProbEqkSource source = ucerf.getSource(sourceID);
 			String name = source.getName();
-			if (!name.toLowerCase().contains("andreas"))
+			if (sourceNameConstr != null && !name.toLowerCase().contains(sourceNameConstr))
 				continue;
 			ArrayList<Integer> rupIDs = new ArrayList<Integer>();
 			for (int rupID=0; rupID<source.getNumRuptures(); rupID++) {
@@ -105,7 +120,7 @@ public class BombayBeachHazardCurveCalc implements RuptureVariationProbabilityMo
 			for (int j=0; j<surface.getNumCols(); j++) {
 				Location loc = surface.getLocation(i, j);
 				double dist = RelativeLocation.getTotalDistance(hypoLocation, loc);
-				if (dist < MAX_DIST_KM) {
+				if (dist < maxDistance) {
 					return true;
 				}
 			}
@@ -114,7 +129,7 @@ public class BombayBeachHazardCurveCalc implements RuptureVariationProbabilityMo
 	}
 	
 	private ArrayList<Integer> getRupVars(int sourceID, int rupID) {
-		String sql = "SELECT Rup_Var_ID,Hypocenter_Lat,Hypocenter_Lon FROM Rupture_Variations " +
+		String sql = "SELECT Rup_Var_ID,Hypocenter_Lat,Hypocenter_Lon,Hypocenter_Depth FROM Rupture_Variations " +
 					"WHERE ERF_ID=" + ERFID + " AND Rup_Var_Scenario_ID=" + RUP_VAR_SCEN_ID + " " +
 					"AND Source_ID=" + sourceID + " AND Rupture_ID=" + rupID;
 		ArrayList<Integer> rvs = new ArrayList<Integer>();
@@ -126,12 +141,24 @@ public class BombayBeachHazardCurveCalc implements RuptureVariationProbabilityMo
 				int rvID = rs.getInt("Rup_Var_ID");
 				double lat = rs.getDouble("Hypocenter_Lat");
 				double lon = rs.getDouble("Hypocenter_Lon");
-				Location loc = new Location(lat, lon);
+				double depth = rs.getDouble("Hypocenter_Depth");
+				Location loc;
+				if (useDepth)
+					loc = new Location(lat, lon, depth);
+				else
+					loc = new Location(lat, lon);
 				tot++;
 				
 				double dist = RelativeLocation.getTotalDistance(loc, hypoLocation);
-				if (dist < MAX_DIST_KM)
+				if (dist < maxDistance) {
 					rvs.add(rvID);
+					ArrayList<Location> locs = rvLocMap.get(getKey(sourceID, rupID));
+					if (locs == null) {
+						locs = new ArrayList<Location>();
+						rvLocMap.put(getKey(sourceID, rupID), locs);
+					}
+					locs.add(loc);
+				}
 				
 				success = rs.next();
 			}
@@ -189,8 +216,12 @@ public class BombayBeachHazardCurveCalc implements RuptureVariationProbabilityMo
 					continue;
 				double mag = ucerf.getSource(sourceID).getRupture(rupID).getMag();
 				double prob = ucerf.getSource(sourceID).getRupture(rupID).getProbability();
-				for (int rv : rvs) {
-					fw.write(sourceID + "\t" + rupID + "\t" + rv + "\t" + mag + "\t" + prob + "\n");
+				ArrayList<Location> locs = rvLocMap.get(getKey(sourceID, rupID));
+				for (int j=0; j<rvs.size(); j++) {
+					int rv = rvs.get(j);
+					Location loc = locs.get(j);
+					double dist = RelativeLocation.getTotalDistance(loc, hypoLocation);
+					fw.write(sourceID + "\t" + rupID + "\t" + rv + "\t" + mag + "\t" + prob + "\t" + dist + "\n");
 				}
 			}
 		}
@@ -274,12 +305,20 @@ public class BombayBeachHazardCurveCalc implements RuptureVariationProbabilityMo
 		try {
 			DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 			
-//			BombayBeachHazardCurveCalc calc = new BombayBeachHazardCurveCalc(db, 1000d, BOMBAY_LOC);
-			BombayBeachHazardCurveCalc calc = new BombayBeachHazardCurveCalc(db, 1000d, PARKFIELD_LOC);
+//			String sourceNameConstr = "andreas";
+//			BombayBeachHazardCurveCalc calc = new BombayBeachHazardCurveCalc(db, 1000d, BOMBAY_LOC,
+//					10d, sourceNameConstr, false);
+//			BombayBeachHazardCurveCalc calc = new BombayBeachHazardCurveCalc(db, 1000d, PARKFIELD_LOC,
+//					10d, sourceNameConstr, false);
+//			String sourceNameConstr = "puente";
+			String sourceNameConstr = null;
+			BombayBeachHazardCurveCalc calc = new BombayBeachHazardCurveCalc(db, 1000d, PICO_RIVERA_LOC,
+					15d, sourceNameConstr, true);
 			
 			try {
 //				calc.writeSourceRupInfoFile("/home/kevin/CyberShake/bombay/rv_info.txt");
-				calc.writeSourceRupInfoFile("/home/kevin/CyberShake/parkfield/rv_info.txt");
+//				calc.writeSourceRupInfoFile("/home/kevin/CyberShake/parkfield/rv_info.txt");
+				calc.writeSourceRupInfoFile("/home/kevin/CyberShake/picoRivera/rv_info.txt");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

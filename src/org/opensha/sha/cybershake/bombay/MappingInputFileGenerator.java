@@ -15,6 +15,8 @@ import org.opensha.sha.cybershake.db.Runs2DB;
 import org.opensha.sha.cybershake.db.SiteInfo2DB;
 
 public class MappingInputFileGenerator {
+	
+	private static double PROB_MULT = 1;
 
 	Runs2DB runs2db;
 	SiteInfo2DB sites2db;
@@ -47,6 +49,8 @@ public class MappingInputFileGenerator {
 						ArbitrarilyDiscretizedFunc.loadFuncFromSimpleFile(file.getAbsolutePath());
 			
 			double val = MakeXYZFromHazardMapDir.getCurveVal(curve, isProbAt_IML, level);
+			if (isProbAt_IML)
+				val *= PROB_MULT;
 			
 			fw.write(site.lat + "\t" + site.lon + "\t" + val + "\t" + site.short_name + "\n");
 		}
@@ -61,11 +65,12 @@ public class MappingInputFileGenerator {
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		MappingInputFileGenerator gen = new MappingInputFileGenerator(Cybershake_OpenSHA_DBApplication.db);
 		
-		boolean isProbAt_IML = false;
-		double level = 0.0004 / 365;
+//		boolean isProbAt_IML = false;
+//		double level = 0.0004;
 		
-//		boolean isProbAt_IML = true;
-//		double level = 0.2;
+//		PROB_MULT = 1d/365d;
+		boolean isProbAt_IML = true;
+		double level = 0.2;
 //		double level = 0.5;
 		
 //		String baseDir = "/home/kevin/CyberShake/parkfield/";
@@ -79,7 +84,7 @@ public class MappingInputFileGenerator {
 //		gen.writeFile(inputDir, inputDir + ".txt", isProbAt_IML, level);
 		
 //		String inputDir = "/home/kevin/CyberShake/timeDep/curves_1yr_bad";
-		String inputDir = "/home/kevin/CyberShake/timeDep/curves";
+		String inputDir = "/home/kevin/CyberShake/picoRivera/modCurves";
 		gen.writeFile(inputDir, inputDir + ".txt", isProbAt_IML, level);
 		
 		System.exit(0);

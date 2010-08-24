@@ -37,7 +37,7 @@ public class SingleCurveDebugTest implements GraphPanelAPI, PlotControllerAPI {
 		
 		Div365ProbModifier div365 = new Div365ProbModifier();
 		BombayBeachHazardCurveCalc bombay = new BombayBeachHazardCurveCalc(db, increaseMultFactor,
-				BombayBeachHazardCurveCalc.BOMBAY_LOC);
+				BombayBeachHazardCurveCalc.BOMBAY_LOC, 10d, "andreas", false);
 		
 		HazardCurveComputation calc = new HazardCurveComputation(db);
 		

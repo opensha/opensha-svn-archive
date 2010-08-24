@@ -142,20 +142,25 @@ public class MakeXYZFromHazardMapDir {
 	 * @return
 	 */
 	public static Location decodeFileName(String fileName) {
-		int index = fileName.indexOf("_");
-		int firstIndex = fileName.indexOf(".");
-		int lastIndex = fileName.lastIndexOf(".");
-		// Hazard data files have 3 "." in their names
-		//And leaving the rest of the files which contains only 1"." in their names
-		if(firstIndex != lastIndex){
-
-			//getting the lat and Lon values from file names
-			Double latVal = new Double(fileName.substring(0,index).trim());
-			Double lonVal = new Double(fileName.substring(index+1,lastIndex).trim());
-			return new Location(latVal, lonVal);
-		} else {
-			return null;
-		}
+//		int index = fileName.indexOf("_");
+//		int firstIndex = fileName.indexOf(".");
+//		int lastIndex = fileName.lastIndexOf(".");
+//		// Hazard data files have 3 "." in their names
+//		//And leaving the rest of the files which contains only 1"." in their names
+//		if(firstIndex != lastIndex){
+//
+//			//getting the lat and Lon values from file names
+//			Double latVal = new Double(fileName.substring(0,index).trim());
+//			Double lonVal = new Double(fileName.substring(index+1,lastIndex).trim());
+//			return new Location(latVal, lonVal);
+//		} else {
+//			return null;
+//		}
+		fileName = fileName.substring(0, fileName.length()-4);
+		StringTokenizer tok = new StringTokenizer(fileName, "_");
+		Double latVal = Double.parseDouble(tok.nextToken());
+		Double lonVal = Double.parseDouble(tok.nextToken());
+		return new Location(latVal, lonVal);
 	}
 
 
@@ -234,15 +239,15 @@ public class MakeXYZFromHazardMapDir {
 //			String curveDir = "/home/kevin/OpenSHA/condor/test_results";
 //			String curveDir = "/home/kevin/OpenSHA/condor/oldRuns/statewide/test_30000_2/curves";
 //			String curveDir = "/home/kevin/OpenSHA/condor/frankel_0.1";
-			String curveDir = "/home/kevin/CyberShake/baseMaps/cb2008/curves_3sec";
+			String curveDir = "/home/kevin/CyberShake/baseMaps/cb_td2008/curves_3sec";
 //			String outfile = "xyzCurves.txt";
 //			String outfile = "/home/kevin/OpenSHA/condor/oldRuns/statewide/test_30000_2/xyzCurves.txt";
-			String outfile = "/home/kevin/CyberShake/baseMaps/cb2008/xyzCurves.txt";
-			boolean isProbAt_IML = true;
-			double level = 0.2 * (365);
-//			boolean isProbAt_IML = false;
+			String outfile = "/home/kevin/CyberShake/baseMaps/cb_td2008/xyzCurves.txt";
+//			boolean isProbAt_IML = true;
+//			double level = 0.2 * (365);
+			boolean isProbAt_IML = false;
 //			double level = 0.002;		// 10% in 50
-//			double level = 0.0004;		// 	2% in 50
+			double level = 0.0004;		// 	2% in 50
 			boolean latFirst = true;
 			MakeXYZFromHazardMapDir maker = new MakeXYZFromHazardMapDir(curveDir, false, latFirst);
 			maker.writeXYZFile(isProbAt_IML, level, outfile);
@@ -251,3 +256,4 @@ public class MakeXYZFromHazardMapDir {
 		}
 	}
 }
+
