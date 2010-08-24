@@ -189,7 +189,7 @@ public class MultiIMR_CalcTest {
 		return multi;
 	}
 	
-	private enum IMR_PROP {
+	protected enum IMR_PROP {
 		EPSILON,
 		MEAN,
 		STD_DEV,
@@ -260,8 +260,8 @@ public class MultiIMR_CalcTest {
 			}
 		}
 		System.out.println("********* " + meta + " *********");
-		System.out.println("compare single with multi(1): " + tracker1);
-		System.out.println("compare single with multi(2): " + tracker2);
+		System.out.println("compare single with multi(1):\t" + tracker1);
+		System.out.println("compare multi(1) with multi(2):\t" + tracker2);
 		System.out.println("********************************************************");
 	}
 
@@ -305,13 +305,13 @@ public class MultiIMR_CalcTest {
 			assertTrue(meta+" PDiff2 greater than "+max_curve_pt_diff+"\n"+vals, diff2 < max_curve_pt_diff);
 		}
 		System.out.println("********* " + meta + " *********");
-		System.out.println("compare single with multi(1): " + tracker1);
-		System.out.println("compare single with multi(2): " + tracker2);
+		System.out.println("compare single with multi(1):\t" + tracker1);
+		System.out.println("compare multi(1) with multi(2):\t" + tracker2);
 		System.out.println("********************************************************");
 		
 	}
 
-	private void setIMT(ScalarIntensityMeasureRelationshipAPI imr, String imt, double period) {
+	protected static void setIMT(ScalarIntensityMeasureRelationshipAPI imr, String imt, double period) {
 		imr.setIntensityMeasure(imt);
 		if (period >= 0) {
 			DependentParameterAPI<Double> imtParam = (DependentParameterAPI<Double>) imr.getIntensityMeasure();
