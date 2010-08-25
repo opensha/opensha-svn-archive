@@ -12,6 +12,6 @@ package scratch.peter;
 public class Test {
 
   public Test() {
-	  //ned branch test
+	  //ned branch test test
   }
 }
