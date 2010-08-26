@@ -45,9 +45,11 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 	}
 	
 	public ArrayList<String> getGMT_ScriptLines(GMT_Map map, String dir) throws GMT_MapException {
-		if (!(map instanceof InterpDiffMap))
+		if (map instanceof InterpDiffMap)
+			return getGMT_ScriptLines((InterpDiffMap)map, dir);
+		else
 			throw new IllegalArgumentException("map must be of type InterpDiffMap!");
-		return getGMT_ScriptLines((InterpDiffMap)map, dir);
+		
 	}
 	
 	public ArrayList<String> getGMT_ScriptLines(InterpDiffMap map, String dir) throws GMT_MapException {
@@ -156,13 +158,54 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			}
 		}
 		
+		// get color scale limits
+		double colorScaleMin, colorScaleMax;
+		if (map.isCustomScale()) {
+			colorScaleMin = map.getCustomScaleMin();
+			colorScaleMax = map.getCustomScaleMax();
+			if (colorScaleMin >= colorScaleMax)
+				throw new RuntimeException("Error: Color-Scale Min must be less than the Max");
+		}
+		else {
+			double minGrid = griddedData.getMinZ();
+			double maxGrid = griddedData.getMaxZ();
+			double minScatter = scatterData.getMinZ();
+			double maxScatter = scatterData.getMaxZ();
+			colorScaleMin = minGrid;
+			if (minScatter < minGrid)
+				colorScaleMin = minScatter;
+			colorScaleMax = maxGrid;
+			if (maxScatter > maxGrid)
+				colorScaleMax = maxScatter;
+			System.out.println(colorScaleMin+","+colorScaleMax);
+			if (colorScaleMin == colorScaleMax)
+				throw new RuntimeException("Can't make the image plot because all Z values in the XYZ dataset have the same value ");
+		}
+		
 		// write the CPT
-		String cptFile = "cptFile.cpt";
-		CPT cpt = map.getCpt();
-		try {
-			cpt.writeCPTFile(dir + cptFile);
-		} catch (IOException e) {
-			throw new GMT_MapException("Could not write custom CPT file", e);
+		String inputCPT;
+		if (map.getCptFile() != null) {
+			inputCPT = GMT_MapGenerator.SCEC_GMT_DATA_PATH + map.getCptFile();
+		} else {
+			inputCPT = "cptFile_input.cpt";
+			CPT cpt = map.getCpt();
+			try {
+				cpt.writeCPTFile(dir + inputCPT);
+			} catch (IOException e) {
+				throw new GMT_MapException("Could not write custom CPT file", e);
+			}
+		}
+		
+		String cptFile;
+		if (map.isRescaleCPT()) {
+			cptFile = "cptFile.cpt";
+			// make the cpt file
+			float inc = (float) ((colorScaleMax-colorScaleMin)/20);
+			gmtCommandLines.add("# Rescale the CPT file");
+			commandLine="${GMT_PATH}makecpt -C" + inputCPT + " -T" + colorScaleMin +"/"+ colorScaleMax +"/" + inc + " -Z > "+cptFile;
+			gmtCommandLines.add(commandLine+"\n");
+		} else {
+			cptFile = inputCPT;
 		}
 		
 		gmtCommandLines.add("# Set GMT paper/font defaults");
@@ -282,7 +325,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			GMT_MapGenerator.addSpecialElements(gmtCommandLines, map, region, proj, psFile);
 			
 			GMT_MapGenerator.addColorbarCommand(gmtCommandLines, map,
-					(double)cpt.getMinValue(), (double)cpt.getMaxValue(), cptFile, psFile);
+					colorScaleMin, colorScaleMax, cptFile, psFile);
 			
 			gmtCommandLines.add("# basemap");
 			commandLine = "${GMT_PATH}psbasemap -B0.5/0.5eWNs"+region+proj+"-O >> "+psFile;

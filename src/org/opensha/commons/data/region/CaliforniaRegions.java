@@ -195,6 +195,17 @@ public class CaliforniaRegions {
 					new Location(34,-118));
 		}
 	}
+	
+	/** 
+	 * A box defining the region of the CyberShake 1.0 map region
+	 */
+	public static final class CYBERSHAKE_MAP_REGION extends Region {
+		/** New instance of region. */
+		public CYBERSHAKE_MAP_REGION() {
+			super(readCoords("CyberShake_Map.coords"), 
+					BorderType.MERCATOR_LINEAR);
+		}
+	}
 
 	/*
 	 * Reads coordinate pairs from a file. Each line of the file should have

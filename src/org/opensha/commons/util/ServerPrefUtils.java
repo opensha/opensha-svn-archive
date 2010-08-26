@@ -13,12 +13,12 @@ public class ServerPrefUtils {
 	/**
 	 * Hostname for all production services
 	 */
-	public static final String OPENSHA_SERVER_PRODUCTION_HOST = "opensha.usc.edu";
+	protected static final String OPENSHA_SERVER_PRODUCTION_HOST = "opensha.usc.edu";
 	
 	/**
 	 * Hostname for all production services
 	 */
-	public static final String OPENSHA_SERVER_DEV_HOST = "opensha.usc.edu";
+	protected static final String OPENSHA_SERVER_DEV_HOST = "opensha.usc.edu";
 	
 	/**
 	 * This is the URL to the production OpenSHA servlets.

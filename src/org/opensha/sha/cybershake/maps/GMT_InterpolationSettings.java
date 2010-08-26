@@ -38,6 +38,10 @@ public class GMT_InterpolationSettings implements Serializable {
 	 */
 	private double searchRadius;
 	
+	public static GMT_InterpolationSettings getDefaultSettings() {
+		return new GMT_InterpolationSettings(0.02, 0, 0.1, -1, 1.0);
+	}
+	
 	public GMT_InterpolationSettings(double interpSpacing, double interiorTension, double exteriorTension,
 			double convergenceLimit, double searchRadius) {
 		this.interpSpacing = interpSpacing;
