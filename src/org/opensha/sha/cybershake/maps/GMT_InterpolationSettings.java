@@ -51,7 +51,7 @@ public class GMT_InterpolationSettings implements Serializable {
 		return interpSpacing;
 	}
 
-	public void setInterpSpacing(double interpDisc) {
+	public void setInterpSpacing(double interpSpacing) {
 		this.interpSpacing = interpSpacing;
 	}
 

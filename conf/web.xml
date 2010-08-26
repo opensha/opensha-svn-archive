@@ -172,6 +172,22 @@
     <servlet-name>gmtHazusWS</servlet-name>
     <url-pattern>/GMT_HazusMapServlet</url-pattern>
   </servlet-mapping>
+  
+  <!-- ** GMT CyberShake Interpolated Diff Map Service ** -->
+  <servlet>
+    <servlet-name>csGMTInterpDiff</servlet-name>
+    <servlet-class>org.opensha.sha.cybershake.maps.servlet.CS_InterpDiffMapServlet</servlet-class>
+    <init-param>
+      <param-name>debug</param-name>
+      <param-value>2</param-value>
+    </init-param>
+  </servlet>
+
+  <!-- Mapping -->
+  <servlet-mapping>
+    <servlet-name>csGMTInterpDiff</servlet-name>
+    <url-pattern>/CS_InterpDiffMapServlet</url-pattern>
+  </servlet-mapping>
 
   <!-- ** GMT Server-Side region creation Service ** -->
   <servlet>

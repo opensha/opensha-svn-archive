@@ -19,27 +19,18 @@
 
 package org.opensha.sha.cybershake.maps.servlet;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.SystemUtils;
-import org.opensha.commons.exceptions.GMT_MapException;
-import org.opensha.commons.mapping.gmt.GMT_Map;
-import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
-import org.opensha.commons.mapping.gmt.SecureMapGenerator;
 import org.opensha.commons.mapping.servlet.GMT_MapGeneratorServlet;
-import org.opensha.commons.util.FileUtils;
-import org.opensha.commons.util.RunScript;
+import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.sha.cybershake.maps.CyberShake_GMT_MapGenerator;
 import org.opensha.sha.cybershake.maps.InterpDiffMap;
 
@@ -74,6 +65,9 @@ extends HttpServlet {
 	 */
 	private static final long serialVersionUID = 1L;
 	
+	public static final String SERVLET_URL = ServerPrefUtils.SERVER_PREFS.getServletBaseURL()
+					+ "CS_InterpDiffMapServlet";
+	
 	private CyberShake_GMT_MapGenerator csGMT = new CyberShake_GMT_MapGenerator();
 
 	//Process the HTTP Get request
@@ -83,9 +77,6 @@ extends HttpServlet {
 		// get an ouput stream from the applet
 		ObjectOutputStream outputToApplet = new ObjectOutputStream(response.
 				getOutputStream());
-
-		//string that decides the name of the output gmt files
-		String outFile = null;
 
 		try {
 			//all the user gmt stuff will be stored in this directory
