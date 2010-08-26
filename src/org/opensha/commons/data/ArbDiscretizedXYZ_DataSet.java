@@ -230,7 +230,7 @@ public class ArbDiscretizedXYZ_DataSet implements XYZ_DataSetAPI,java.io.Seriali
 			if (line.length() < 2)
 				continue;
 			StringTokenizer tok = new StringTokenizer(line);
-			if (tok.countTokens() != 3)
+			if (tok.countTokens() < 3)
 				continue;
 			
 			double x = Double.parseDouble(tok.nextToken());

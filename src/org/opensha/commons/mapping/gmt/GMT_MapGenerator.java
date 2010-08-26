@@ -1715,6 +1715,8 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		String scaleLabel = map.getCustomLabel();
 		if (scaleLabel == null)
 			scaleLabel = " ";
+		else if (map.isLogPlot())
+			scaleLabel = "Log10("+scaleLabel+")";
 		scaleLabel = stripFormatLabel(scaleLabel);
 		gmtCommandLines.add("# Colorbar/label");
 		String commandLine="${GMT_PATH}psscale -Ba"+tickInc+":"+scaleLabel+": -D3.25i/-0.5i/6i/0.3ih -C"+cptFile+" -O -K -N70 >> " + psFile;

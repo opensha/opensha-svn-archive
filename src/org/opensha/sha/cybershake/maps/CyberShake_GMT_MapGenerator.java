@@ -15,6 +15,7 @@ import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.SecureMapGenerator;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
+import org.opensha.commons.util.XYZClosestPointFinder;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.cybershake.maps.InterpDiffMap.InterpDiffMapType;
 import org.opensha.sha.cybershake.plot.ScatterSymbol;
@@ -30,7 +31,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		ArrayList<Double> y = orig.getY_DataSet();
 		ArrayList<Double> z = orig.getZ_DataSet();
 		
-		for (int i=0; i<orig.getX_DataSet().size(); i++) {
+		for (int i=0; i<x.size(); i++) {
 			double zVal = z.get(i);
 			if (zVal < 0)
 				throw new RuntimeException("log cannot be taken with dataset values < 0");
@@ -42,6 +43,27 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		}
 		
 		return log;
+	}
+	
+	private static ArbDiscretizedXYZ_DataSet getDiffs(XYZ_DataSetAPI baseMap, XYZ_DataSetAPI scatterData) {
+		ArbDiscretizedXYZ_DataSet diffs = new ArbDiscretizedXYZ_DataSet();
+		
+		XYZClosestPointFinder xyz = new XYZClosestPointFinder(baseMap, true);
+		
+		ArrayList<Double> lats = scatterData.getX_DataSet();
+		ArrayList<Double> lons = scatterData.getY_DataSet();
+		ArrayList<Double> vals = scatterData.getZ_DataSet();
+		
+		for (int i=0; i<lats.size(); i++) {
+			double lat = lats.get(i);
+			double lon = lons.get(i);
+			double scatterVal = vals.get(i);
+			double closestVal = xyz.getClosestVal(lat, lon);
+			
+			diffs.addValue(lat, lon, scatterVal - closestVal);
+		}
+		
+		return diffs;
 	}
 	
 	public ArrayList<String> getGMT_ScriptLines(GMT_Map map, String dir) throws GMT_MapException {
@@ -110,6 +132,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			griddedData = getLogXYZ(griddedData);
 			scatterData = getLogXYZ(scatterData);
 		}
+		XYZ_DataSetAPI diffs = getDiffs(griddedData, scatterData);
 		
 		// write the basemap
 		String basemapXYZName = map.getXyzFileName();
@@ -131,7 +154,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			// do the interpolation
 			String interpXYZName = "scatter_points.xyz";
 			try {
-				ArbDiscretizedXYZ_DataSet.writeXYZFile(scatterData, dir + interpXYZName);
+				ArbDiscretizedXYZ_DataSet.writeXYZFile(diffs, dir + interpXYZName);
 			} catch (IOException e) {
 				throw new GMT_MapException("Could not write XYZ data to a file", e);
 			}
@@ -163,6 +186,10 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		if (map.isCustomScale()) {
 			colorScaleMin = map.getCustomScaleMin();
 			colorScaleMax = map.getCustomScaleMax();
+			if (map.isLogPlot()) {
+				colorScaleMin = Math.log(colorScaleMin);
+				colorScaleMax = Math.log(colorScaleMax);
+			}
 			if (colorScaleMin >= colorScaleMax)
 				throw new RuntimeException("Error: Color-Scale Min must be less than the Max");
 		}
@@ -260,7 +287,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		}
 		
 		String xOff = " -X1.5i";
-		String yOff = " -Y1.5i";
+		String yOff = " -Y2.0i";
 		
 		for (InterpDiffMapType mapType : mapTypes) {
 			gmtCommandLines.add("# PLOTTING: "+mapType+"\n");

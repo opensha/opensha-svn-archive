@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.geo.Location;
 
 /**
@@ -36,6 +37,27 @@ import org.opensha.commons.geo.Location;
  */
 public class XYZClosestPointFinder {
 	ArrayList<double[]> vals;
+	
+	public XYZClosestPointFinder(XYZ_DataSetAPI dataset, boolean xIsLat){
+		vals = new ArrayList<double[]>();
+		ArrayList<Double> lats;
+		ArrayList<Double> lons;
+		if (xIsLat) {
+			lats = dataset.getX_DataSet();
+			lons = dataset.getY_DataSet();
+		} else {
+			lats = dataset.getY_DataSet();
+			lons = dataset.getX_DataSet();
+		}
+		ArrayList<Double> zs = dataset.getZ_DataSet();
+		for (int i=0; i<lats.size(); i++) {
+			double lat = lats.get(i);
+			double lon = lons.get(i);
+			double z = zs.get(i);
+			double doub[] = {lat, lon, z};
+			vals.add(doub);
+		}
+	}
 	
 	public XYZClosestPointFinder(String fileName) throws FileNotFoundException, IOException {
 		
@@ -52,10 +74,7 @@ public class XYZClosestPointFinder {
 			double lat = Double.parseDouble(tok.nextToken());
 			double lon = Double.parseDouble(tok.nextToken());
 			double val = Double.parseDouble(tok.nextToken());
-			double doub[] = new double[3];
-			doub[0] = lat;
-			doub[1] = lon;
-			doub[2] = val;
+			double doub[] = {lat, lon, val};
 			vals.add(doub);
 		}
 	}
