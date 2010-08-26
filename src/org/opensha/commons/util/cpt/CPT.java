@@ -632,6 +632,28 @@ public class CPT extends ArrayList<CPTVal> {
 		return out;
 	}
 	
+	public float getMinValue() {
+		float min = Float.POSITIVE_INFINITY;
+		for (CPTVal cptVal : this) {
+			if (cptVal.start < min)
+				min = cptVal.start;
+			if (cptVal.end < min)
+				min = cptVal.end;
+		}
+		return min;
+	}
+	
+	public float getMaxValue() {
+		float max = Float.NEGATIVE_INFINITY;
+		for (CPTVal cptVal : this) {
+			if (cptVal.start > max)
+				max = cptVal.start;
+			if (cptVal.end > max)
+				max = cptVal.end;
+		}
+		return max;
+	}
+	
 	public static void main(String args[]) throws FileNotFoundException, IOException {
 		CPT cpt = CPT.loadFromFile(new File("/usr/share/gmt/cpt/GMT_seis.cpt"));
 		System.out.println(cpt);

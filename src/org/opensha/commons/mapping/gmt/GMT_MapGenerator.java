@@ -69,7 +69,7 @@ import org.opensha.commons.util.cpt.CPT;
  * @version 1.0
  */
 
-public class GMT_MapGenerator implements Serializable{
+public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 	/**
 	 * Name of the class
@@ -120,7 +120,7 @@ public class GMT_MapGenerator implements Serializable{
 	public static final String GRAVITY_CLASSPATH = "";
 
 	// this is the path where general data (e.g., topography) are found:
-	protected static String SCEC_GMT_DATA_PATH = OPENSHA_GMT_DATA_PATH;
+	public static String SCEC_GMT_DATA_PATH = OPENSHA_GMT_DATA_PATH;
 	private static String SERVLET_URL = OPENSHA_SERVLET_URL;
 	private static String JAVA_PATH = OPENSHA_JAVA_PATH;
 	private static String JAVA_CLASSPATH = OPENSHA_CLASSPATH;
@@ -1284,7 +1284,7 @@ public class GMT_MapGenerator implements Serializable{
 	/**
 	 * This method generates a list of strings needed for the GMT script
 	 */
-	public ArrayList<String> getGMT_ScriptLines(GMT_Map map, String dir) throws GMT_MapException{
+	public ArrayList<String> getGMT_ScriptLines(GMT_Map map, String dir) throws GMT_MapException {
 		
 		System.out.println("Generating map for dir: " + dir);
 		
@@ -1444,141 +1444,19 @@ public class GMT_MapGenerator implements Serializable{
 		}
 		
 		gmtCommandLines.add("");
-
-		// add highways if desired
-		if (map.getHighwayFile() != null) {
-			gmtCommandLines.add("# Add highways to plot");
-			commandLine="${GMT_PATH}psxy  "+region + projWdth + " -K -O -W5/125/125/125 -: -Ms "
-						+ SCEC_GMT_DATA_PATH + map.getHighwayFile().fileName() + " >> " + psFileName;
-			gmtCommandLines.add(commandLine);
-		}
-
-		// add coast and fill if desired
-		CoastAttributes coastAt = map.getCoast();
-		if(coastAt != null) {
-			
-			String fillColor = "";
-			if (coastAt.getFillColor() != null) {
-				fillColor = "-S" + getGMTColorString(coastAt.getFillColor());
-			}
-			String lineColor = "";
-			if (coastAt.getLineColor() != null) {
-				lineColor = "-W" + coastAt.getLineSize() + "/" + getGMTColorString(coastAt.getLineColor());
-			}
-			
-			gmtCommandLines.add("# Draw coastline");
-			commandLine="${GMT_PATH}pscoast "+region + projWdth + " -K -O " + lineColor + 
-						" -P " + fillColor + " -Dh -N2 >> " + psFileName;
-			gmtCommandLines.add(commandLine);
-		}
+		addSpecialElements(gmtCommandLines, map, region, projWdth, psFileName);
 		
 //
 //		//TODO: figure this out...
 //		// This adds intermediate commands
 //		addIntermediateGMT_ScriptLines(gmtCommandLines);
-//
-		ArrayList<PSXYPolygon> polys = map.getPolys();
-		if (polys != null && polys.size() > 0) {
-			System.out.println("Map has " + polys.size() + " polygons!");
-			gmtCommandLines.add("");
-			gmtCommandLines.add("# Lines/Polygons");
-			String polyFile = "polys.xy";
-			gmtCommandLines.add("${COMMAND_PATH}cat  << END > " + polyFile);
-			for (int i=0; i<polys.size(); i++) {
-				PSXYPolygon poly = polys.get(i);
-				if (!poly.isValid())
-					throw new GMT_MapException("Polygons must have at least 2 points");
-				String sep = "> " + poly.getPenString();
-				if (poly.size() > 2) {
-					sep += " " + poly.getFillString();
-				}
-				gmtCommandLines.add(sep);
-				for (DataPoint2D point : poly.getPoints()) {
-					gmtCommandLines.add(point.getX() + "\t" + point.getY());
-				}
-			}
-			gmtCommandLines.add("END");
-			gmtCommandLines.add("${GMT_PATH}psxy " + polyFile + " " + region + projWdth
-								+" -K -O -M >> " + psFileName);
-//			rmFiles.add(polyFile);
-		}
-		
-		ArrayList<PSXYSymbol> symbols = map.getSymbols();
-		if (symbols != null && symbols.size() > 0) {
-			System.out.println("Map has " + symbols.size() + " symbols!");
-			gmtCommandLines.add("");
-			gmtCommandLines.add("# Symbols");
-//			String symbolFile = "symbols.xy";
-//			gmtCommandLines.add("${COMMAND_PATH}cat  << END > " + symbolFile);
-//			for (int i=0; i<symbols.size(); i++) {
-//				PSXYSymbol symbol = symbols.get(i);
-//				DataPoint2D point = symbol.getPoint();
-//				String line = point.getX() + "\t" + point.getY() + "\t0";
-//				line += "\t" + symbol.getSymbolString() + "\t" + symbol.getFillString();
-//				if (symbol.getPenColor() != null)
-//					line += "\t" + symbol.getPenString();
-//				gmtCommandLines.add(line);
-//			}
-//			gmtCommandLines.add("END");
-//			gmtCommandLines.add("${GMT_PATH}psxy " + symbolFile + " " + region + projWdth + " -K -O >> " + PS_FILE_NAME);
-			
-			for (int i=0; i<symbols.size(); i++) {
-				PSXYSymbol symbol = symbols.get(i);
-				DataPoint2D point = symbol.getPoint();
-				String line = "echo " + point.getX() + " " + point.getY() + " | ${GMT_PATH}psxy "
-							+ symbol.getSymbolString() + " " + symbol.getFillString();
-				if (symbol.getPenColor() != null)
-					line += " " + symbol.getPenString();
-				line += " " + region + projWdth + " -K -O >> " + psFileName;
-				gmtCommandLines.add(line);
-			}
-		}
-		
-		if (map.getSymbolSet() != null) {
-			PSXYSymbolSet symSet = map.getSymbolSet();
-			System.out.println("Map has a symbol set!");
-			gmtCommandLines.add("");
-			gmtCommandLines.add("# Symbol set");
-			String symbolCPTFile = "symbol_set.cpt";
-			gmtCommandLines.add("${COMMAND_PATH}cat  << END > " + symbolCPTFile);
-			gmtCommandLines.add(symSet.getCpt().toString());
-			gmtCommandLines.add("END");
-			String symbolFile = "symbol_set.xy";
-			gmtCommandLines.add("${COMMAND_PATH}cat  << END > " + symbolFile);
-			symbols = symSet.getSymbols();
-			ArrayList<Double> vals = symSet.getVals();
-			for (int i=0; i<symbols.size(); i++) {
-				PSXYSymbol symbol = symbols.get(i);
-				double val = vals.get(i);
-				DataPoint2D point = symbol.getPoint();
-				String line = point.getX() + "\t" + point.getY() + "\t" + val + "\t"
-						+ symbol.getSymbol().val() + symbol.getWidth() + "i";
-				gmtCommandLines.add(line);
-			}
-			gmtCommandLines.add("END");
-			String penStr = "";
-			if (symSet.getPenColor() != null)
-				penStr = " " + symSet.getPenString();
-			gmtCommandLines.add("${GMT_PATH}psxy " + symbolFile + " -C" + symbolCPTFile + penStr +
-					" -S " + region + projWdth + " -K -O >> " + psFileName);
-		}
 		
 		// set some defaults
 		gmtCommandLines.add("# Set GMT map property defaults");
 		commandLine="${GMT_PATH}gmtset BASEMAP_FRAME_RGB 255/255/255 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
 		gmtCommandLines.add(commandLine);
 
-		// add the color scale
-		DecimalFormat df2 = new DecimalFormat("0.E0");
-		Float tickInc = new Float(df2.format((colorScaleMax-colorScaleMin)/4.0));
-		//checks to see if customLabel is selected, then get the custom label
-		String scaleLabel = map.getCustomLabel();
-		if (scaleLabel == null)
-			scaleLabel = " ";
-		scaleLabel = stripFormatLabel(scaleLabel);
-		gmtCommandLines.add("# Colorbar/label");
-		commandLine="${GMT_PATH}psscale -Ba"+tickInc+":"+scaleLabel+": -D3.25i/-0.5i/6i/0.3ih -C"+tempFilePrefix+".cpt -O -K -N70 >> " + psFileName;
-		gmtCommandLines.add(commandLine);
+		addColorbarCommand(gmtCommandLines, map, colorScaleMin, colorScaleMax, tempFilePrefix+".cpt", psFileName);
 
 		// add the basemap
 		double niceKmLength = getNiceKmScaleLength(minLat, minLon, maxLon);
@@ -1690,6 +1568,157 @@ public class GMT_MapGenerator implements Serializable{
 
 
 		return gmtCommandLines;
+	}
+	
+	public static void addHighwayCommand(ArrayList<String> gmtCommandLines, GMT_Map map,
+			String region, String proj, String psFile) {
+		// add highways if desired
+		if (map.getHighwayFile() != null) {
+			gmtCommandLines.add("# Add highways to plot");
+			gmtCommandLines.add("${GMT_PATH}psxy  "+region + proj + " -K -O -W5/125/125/125 -: -Ms "
+						+ SCEC_GMT_DATA_PATH + map.getHighwayFile().fileName() + " >> " + psFile+"\n");
+		}
+	}
+	
+	public static void addCoastCommand(ArrayList<String> gmtCommandLines, GMT_Map map,
+			String region, String proj, String psFile) {
+
+		// add coast and fill if desired
+		CoastAttributes coastAt = map.getCoast();
+		if(coastAt != null) {
+			
+			String fillColor = "";
+			if (coastAt.getFillColor() != null) {
+				fillColor = "-S" + getGMTColorString(coastAt.getFillColor());
+			}
+			String lineColor = "";
+			if (coastAt.getLineColor() != null) {
+				lineColor = "-W" + coastAt.getLineSize() + "/" + getGMTColorString(coastAt.getLineColor());
+			}
+			
+			gmtCommandLines.add("# Draw coastline");
+			gmtCommandLines.add("${GMT_PATH}pscoast "+region + proj + " -K -O " + lineColor + 
+						" -P " + fillColor + " -Dh -N2 >> " + psFile+"\n");
+		}
+	}
+	
+	public static void addPolyCommands(ArrayList<String> gmtCommandLines, GMT_Map map,
+			String region, String proj, String psFile) throws GMT_MapException {
+		ArrayList<PSXYPolygon> polys = map.getPolys();
+		if (polys != null && polys.size() > 0) {
+			System.out.println("Map has " + polys.size() + " polygons!");
+			gmtCommandLines.add("");
+			gmtCommandLines.add("# Lines/Polygons");
+			String polyFile = "polys.xy";
+			gmtCommandLines.add("${COMMAND_PATH}cat  << END > " + polyFile);
+			for (int i=0; i<polys.size(); i++) {
+				PSXYPolygon poly = polys.get(i);
+				if (!poly.isValid())
+					throw new GMT_MapException("Polygons must have at least 2 points");
+				String sep = "> " + poly.getPenString();
+				if (poly.size() > 2) {
+					sep += " " + poly.getFillString();
+				}
+				gmtCommandLines.add(sep);
+				for (DataPoint2D point : poly.getPoints()) {
+					gmtCommandLines.add(point.getX() + "\t" + point.getY());
+				}
+			}
+			gmtCommandLines.add("END");
+			gmtCommandLines.add("${GMT_PATH}psxy " + polyFile + " " + region + proj
+								+" -K -O -M >> " + psFile);
+//			rmFiles.add(polyFile);
+		}
+	}
+	
+	public static void addSymbolCommands(ArrayList<String> gmtCommandLines, GMT_Map map,
+			String region, String proj, String psFile) {
+		ArrayList<PSXYSymbol> symbols = map.getSymbols();
+		if (symbols != null && symbols.size() > 0) {
+			System.out.println("Map has " + symbols.size() + " symbols!");
+			gmtCommandLines.add("");
+			gmtCommandLines.add("# Symbols");
+//			String symbolFile = "symbols.xy";
+//			gmtCommandLines.add("${COMMAND_PATH}cat  << END > " + symbolFile);
+//			for (int i=0; i<symbols.size(); i++) {
+//				PSXYSymbol symbol = symbols.get(i);
+//				DataPoint2D point = symbol.getPoint();
+//				String line = point.getX() + "\t" + point.getY() + "\t0";
+//				line += "\t" + symbol.getSymbolString() + "\t" + symbol.getFillString();
+//				if (symbol.getPenColor() != null)
+//					line += "\t" + symbol.getPenString();
+//				gmtCommandLines.add(line);
+//			}
+//			gmtCommandLines.add("END");
+//			gmtCommandLines.add("${GMT_PATH}psxy " + symbolFile + " " + region + projWdth + " -K -O >> " + PS_FILE_NAME);
+			
+			for (int i=0; i<symbols.size(); i++) {
+				PSXYSymbol symbol = symbols.get(i);
+				DataPoint2D point = symbol.getPoint();
+				String line = "echo " + point.getX() + " " + point.getY() + " | ${GMT_PATH}psxy "
+							+ symbol.getSymbolString() + " " + symbol.getFillString();
+				if (symbol.getPenColor() != null)
+					line += " " + symbol.getPenString();
+				line += " " + region + proj + " -K -O >> " + psFile;
+				gmtCommandLines.add(line);
+			}
+		}
+	}
+	
+	public static void addSymbolSetCommands(ArrayList<String> gmtCommandLines, GMT_Map map,
+			String region, String proj, String psFile) {
+		if (map.getSymbolSet() != null) {
+			PSXYSymbolSet symSet = map.getSymbolSet();
+			System.out.println("Map has a symbol set!");
+			gmtCommandLines.add("");
+			gmtCommandLines.add("# Symbol set");
+			String symbolCPTFile = "symbol_set.cpt";
+			gmtCommandLines.add("${COMMAND_PATH}cat  << END > " + symbolCPTFile);
+			gmtCommandLines.add(symSet.getCpt().toString());
+			gmtCommandLines.add("END");
+			String symbolFile = "symbol_set.xy";
+			gmtCommandLines.add("${COMMAND_PATH}cat  << END > " + symbolFile);
+			ArrayList<PSXYSymbol> symbols = symSet.getSymbols();
+			ArrayList<Double> vals = symSet.getVals();
+			for (int i=0; i<symbols.size(); i++) {
+				PSXYSymbol symbol = symbols.get(i);
+				double val = vals.get(i);
+				DataPoint2D point = symbol.getPoint();
+				String line = point.getX() + "\t" + point.getY() + "\t" + val + "\t"
+						+ symbol.getSymbol().val() + symbol.getWidth() + "i";
+				gmtCommandLines.add(line);
+			}
+			gmtCommandLines.add("END");
+			String penStr = "";
+			if (symSet.getPenColor() != null)
+				penStr = " " + symSet.getPenString();
+			gmtCommandLines.add("${GMT_PATH}psxy " + symbolFile + " -C" + symbolCPTFile + penStr +
+					" -S " + region + proj + " -K -O >> " + psFile);
+		}
+	}
+	
+	public static void addSpecialElements(ArrayList<String> gmtCommandLines, GMT_Map map,
+			String region, String proj, String psFile) throws GMT_MapException {
+		addHighwayCommand(gmtCommandLines, map, region, proj, psFile);
+		addCoastCommand(gmtCommandLines, map, region, proj, psFile);
+		addPolyCommands(gmtCommandLines, map, region, proj, psFile);
+		addSymbolCommands(gmtCommandLines, map, region, proj, psFile);
+		addSymbolSetCommands(gmtCommandLines, map, region, proj, psFile);
+	}
+	
+	public static void addColorbarCommand(ArrayList<String> gmtCommandLines, GMT_Map map,
+			double colorScaleMin, double colorScaleMax, String cptFile, String psFile) {
+		// add the color scale
+		DecimalFormat df2 = new DecimalFormat("0.E0");
+		Float tickInc = new Float(df2.format((colorScaleMax-colorScaleMin)/4.0));
+		//checks to see if customLabel is selected, then get the custom label
+		String scaleLabel = map.getCustomLabel();
+		if (scaleLabel == null)
+			scaleLabel = " ";
+		scaleLabel = stripFormatLabel(scaleLabel);
+		gmtCommandLines.add("# Colorbar/label");
+		String commandLine="${GMT_PATH}psscale -Ba"+tickInc+":"+scaleLabel+": -D3.25i/-0.5i/6i/0.3ih -C"+cptFile+" -O -K -N70 >> " + psFile;
+		gmtCommandLines.add(commandLine+"\n");
 	}
 
 

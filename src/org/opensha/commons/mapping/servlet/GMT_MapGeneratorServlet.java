@@ -36,6 +36,7 @@ import org.apache.commons.lang.SystemUtils;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
+import org.opensha.commons.mapping.gmt.SecureMapGenerator;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
 
@@ -86,8 +87,8 @@ extends HttpServlet {
 	private static final String GRAVITY_FILE_PATH = "/opt/install/apache-tomcat-5.5.20/webapps/gmtWS/";
 	
 	private static final String GMT_URL_PATH = OPENSHA_GMT_URL_PATH;
-	private final static String FILE_PATH = OPENSHA_FILE_PATH;
-	private final static String GMT_DATA_DIR = "gmtData/";
+	public final static String FILE_PATH = OPENSHA_FILE_PATH;
+	public final static String GMT_DATA_DIR = "gmtData/";
 	private final static String GMT_SCRIPT_FILE = "gmtScript.txt";
 	
 	private GMT_MapGenerator gmt = new GMT_MapGenerator();
@@ -147,7 +148,7 @@ extends HttpServlet {
 		doGet(request, response);
 	}
 	
-	public static String createMap(GMT_MapGenerator gmt, GMT_Map map, String plotDirName, String metadata,
+	public static String createMap(SecureMapGenerator gmt, GMT_Map map, String plotDirName, String metadata,
 			String metadataFileName) throws IOException, GMT_MapException {
 		//Name of the directory in which we are storing all the gmt data for the user
 		String newDir = null;
