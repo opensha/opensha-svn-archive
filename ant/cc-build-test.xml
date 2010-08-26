@@ -67,6 +67,11 @@
 		<!-- sleep -->
 		<echo message="sleeping for 5 seconds"/>
 		<sleep seconds="5"/>
+		<echo message="making sure it's really dead!"/>
+		<exec executable="/bin/bash" spawn="true">
+			<arg value="../scripts/cron/force_kill_tomcat.sh"/>
+		</exec>
+		<sleep seconds="1"/>
 		<!-- start tomcat -->
 		<echo message="starting up tomcat"/>
 		<exec executable="/bin/bash" spawn="true">
