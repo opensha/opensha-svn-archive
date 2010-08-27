@@ -1,18 +1,25 @@
 package org.opensha.sha.cybershake.maps;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.util.cpt.CPT;
+import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
 import org.opensha.sha.cybershake.HazardCurveFetcher;
+import org.opensha.sha.cybershake.db.CybershakeRun;
 import org.opensha.sha.cybershake.db.CybershakeSite;
+import org.opensha.sha.cybershake.db.CybershakeSiteInfo2DB;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;
+import org.opensha.sha.cybershake.db.Runs2DB;
 import org.opensha.sha.cybershake.maps.InterpDiffMap.InterpDiffMapType;
 import org.opensha.sha.cybershake.maps.servlet.CS_InterpDiffMapServletAccessor;
 
@@ -53,8 +60,56 @@ public class HardCodedInterpDiffMapCreator {
 			fname = "orig_";
 		fname += (float)val+"g_singleDay.txt";
 		String fileName = dir + fname;
-		System.out.println("Loading scatter from: " + fileName);
-		return ArbDiscretizedXYZ_DataSet.loadXYZFile(fileName);
+		File file = new File(fileName);
+		if (file.exists()) {
+			System.out.println("Loading scatter from: " + fileName);
+			return ArbDiscretizedXYZ_DataSet.loadXYZFile(fileName);
+		} else {
+			String curveDir = "/home/kevin/CyberShake/"+singleName+"/";
+			if (mod)
+				curveDir += "mod";
+			else
+				curveDir += "orig";
+			curveDir += "Curves";
+			File curveDirFile = new File(curveDir);
+			if (curveDirFile.exists()) {
+				DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+				Runs2DB runs2db = new Runs2DB(db);
+				ArrayList<CybershakeRun> runs = runs2db.getRuns();
+				CybershakeSiteInfo2DB sites2db = new CybershakeSiteInfo2DB(db);
+				ArrayList<CybershakeSite> sites = sites2db.getAllSitesFromDB();
+				ArbDiscretizedXYZ_DataSet xyz = new ArbDiscretizedXYZ_DataSet();
+				
+				for (File curveFile : curveDirFile.listFiles()) {
+					if (curveFile.isFile() && curveFile.getName().endsWith(".txt")
+							&& curveFile.getName().startsWith("run_")) {
+						ArbitrarilyDiscretizedFunc func =
+							ArbitrarilyDiscretizedFunc.loadFuncFromSimpleFile(curveFile.getAbsolutePath());
+//						System.out.println("Loaded func with "+func.getNum()+" pts from "+curveFile.getName());
+						String[] split = curveFile.getName().split("_");
+						int runID = Integer.parseInt(split[1]);
+						CybershakeSite site = null;
+						for (CybershakeRun run : runs) {
+							if (run.getRunID() == runID) {
+								for (CybershakeSite tempSite : sites) {
+									if (tempSite.id == run.getSiteID()) {
+										site = tempSite;
+										break;
+									}
+								}
+							}
+						}
+						if (site == null)
+							throw new RuntimeException("run '"+runID+"' not found!");
+						double zVal = HazardDataSetLoader.getCurveVal(func, isProbAt_IML, val);
+						xyz.addValue(site.lat, site.lon, zVal);
+					}
+				}
+				return xyz;
+			} else {
+				throw new FileNotFoundException("Couldn't locate file or curve dir for dataset '"+singleName+"'");
+			}
+		}
 	}
 	
 	private static ArbDiscretizedXYZ_DataSet loadBaseMap(boolean singleDay, boolean isProbAt_IML,
@@ -99,14 +154,18 @@ public class HardCodedInterpDiffMapCreator {
 			boolean isProbAt_IML = true;
 			double val = 0.2;
 			String baseMapName = "cb2008";
-			String singleName = "parkfield";
+//			String singleName = "parkfield";
+			String singleName = "yucaipa";
+//			Location hypo = Bomba
 			boolean mod = true;
+			String customLabel = "POE "+(float)val+"G 3sec SA in 1 day";
 			
 //			boolean isProbAt_IML = false;
 //			double val = 0.0004;
 //			String baseMapName = "cb2008";
 //			String singleName = null;
 //			boolean mod = false;
+//			String customLabel = "3sec SA, 2% in 50 yrs";
 			
 			
 			boolean remote = true;
@@ -119,7 +178,6 @@ public class HardCodedInterpDiffMapCreator {
 			System.out.println("Loading basemap...");
 			ArbDiscretizedXYZ_DataSet baseMap = loadBaseMap(singleDay, isProbAt_IML, val, imTypeID, baseMapName);
 			System.out.println("Basemap has " + baseMap.getX_DataSet().size() + " points");
-			String customLabel = "3sec SA, 2% in 50 yrs";
 			
 			System.out.println("Fetching curves...");
 			ArbDiscretizedXYZ_DataSet scatterData;
