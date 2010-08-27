@@ -38,7 +38,10 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			if (zVal == 0)
 				zVal = Double.NaN;
 			else
-				zVal = Math.log10(z.get(i));
+				zVal = Math.log10(zVal);
+			if (i % 100 == 0) {
+				System.out.println("getLogXYZ: orig: "+z.get(i) + " log: "+zVal);
+			}
 			log.addValue(x.get(i), y.get(i), zVal);
 //			System.out.println(x.get(i) + ", " + y.get(i) + ": orig: " + z.get(i) + " log: " + zVal);
 		}
@@ -130,18 +133,12 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		GMT_InterpolationSettings interpSettings = map.getInterpSettings();
 		double interpGridSpacing = interpSettings.getInterpSpacing();
 		
-		XYZ_DataSetAPI tempGriddedData = map.getGriddedData();
-		XYZ_DataSetAPI tempScatterData = map.getScatter();
-		
-		XYZ_DataSetAPI griddedData;
-		XYZ_DataSetAPI scatterData;
+		XYZ_DataSetAPI griddedData = map.getGriddedData();
+		XYZ_DataSetAPI scatterData = map.getScatter();
 		if (map.isLogPlot()) {
 			System.out.println("taking the log of input files!");
-			griddedData = getLogXYZ(tempGriddedData);
-			scatterData = getLogXYZ(tempScatterData);
-		} else {
-			griddedData = tempGriddedData;
-			scatterData = tempScatterData;
+			griddedData = getLogXYZ(griddedData);
+			scatterData = getLogXYZ(scatterData);
 		}
 		XYZ_DataSetAPI diffs = getDiffs(griddedData, scatterData);
 		
