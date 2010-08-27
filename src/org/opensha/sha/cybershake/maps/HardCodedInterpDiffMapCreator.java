@@ -52,7 +52,9 @@ public class HardCodedInterpDiffMapCreator {
 		else
 			fname = "orig_";
 		fname += (float)val+"g_singleDay.txt";
-		return ArbDiscretizedXYZ_DataSet.loadXYZFile(dir + fname);
+		String fileName = dir + fname;
+		System.out.println("Loading scatter from: " + fileName);
+		return ArbDiscretizedXYZ_DataSet.loadXYZFile(fileName);
 	}
 	
 	private static ArbDiscretizedXYZ_DataSet loadBaseMap(boolean singleDay, boolean isProbAt_IML,
@@ -72,7 +74,7 @@ public class HardCodedInterpDiffMapCreator {
 			fname += (float)val+"g";
 		} else {
 			if (val == 0.0004)
-				fname += "2precent";
+				fname += "2percent";
 			else if (val == 0.002)
 				fname += "10precent";
 			else
@@ -81,7 +83,9 @@ public class HardCodedInterpDiffMapCreator {
 		if (singleDay)
 			fname += "_singleDay";
 		fname += "_hiRes.txt";
-		return ArbDiscretizedXYZ_DataSet.loadXYZFile(dir + fname);
+		String fileName = dir + fname;
+		System.out.println("Loading basemap from: " + fileName);
+		return ArbDiscretizedXYZ_DataSet.loadXYZFile(fileName);
 	}
 
 	/**
@@ -92,21 +96,28 @@ public class HardCodedInterpDiffMapCreator {
 	 */
 	public static void main(String[] args){
 		try {
-			boolean isProbAt_IML = true;
-			double val = 0.2;
-//			boolean isProbAt_IML = false;
-//			double val = 0.0004;
+//			boolean isProbAt_IML = true;
+//			double val = 0.2;
+//			String baseMapName = "cb2008";
+//			String singleName = "parkfield";
+//			boolean mod = true;
+			
+			boolean isProbAt_IML = false;
+			double val = 0.0004;
 			String baseMapName = "cb2008";
-			String singleName = "parkfield";
-			boolean mod = true;
-			int imTypeID = 21;
+			String singleName = null;
+			boolean mod = false;
+			
+			
 			boolean logPlot = true;
+			int imTypeID = 21;
 			
 			
 			boolean singleDay = singleName != null;
 			double baseMapRes = 0.005;
 			System.out.println("Loading basemap...");
 			ArbDiscretizedXYZ_DataSet baseMap = loadBaseMap(singleDay, isProbAt_IML, val, imTypeID, baseMapName);
+			System.out.println("Basemap has " + baseMap.getX_DataSet().size() + " points");
 			String customLabel = "3sec SA, 2% in 50 yrs";
 			
 			System.out.println("Fetching curves...");
@@ -127,8 +138,10 @@ public class HardCodedInterpDiffMapCreator {
 			
 			InterpDiffMap map = new InterpDiffMap(region, baseMap, baseMapRes, cpt, scatterData, interpSettings, mapTypes);
 			map.setCustomLabel(customLabel);
-			map.setTopoResolution(TopographicSlopeFile.CA_SIX);
+			map.setTopoResolution(TopographicSlopeFile.CA_THREE);
 			map.setLogPlot(logPlot);
+			map.setDpi(300);
+			map.isCustomScale();
 			
 			String metadata = "isProbAt_IML: " + isProbAt_IML + "\n" +
 							"val: " + val + "\n" +

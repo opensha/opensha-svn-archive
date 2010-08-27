@@ -38,14 +38,14 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			if (zVal == 0)
 				zVal = Double.NaN;
 			else
-				zVal = Math.log(z.get(i));
+				zVal = Math.log10(z.get(i));
 			log.addValue(x.get(i), y.get(i), zVal);
 		}
 		
 		return log;
 	}
 	
-	private static ArbDiscretizedXYZ_DataSet getDiffs(XYZ_DataSetAPI baseMap, XYZ_DataSetAPI scatterData) {
+	public static ArbDiscretizedXYZ_DataSet getDiffs(XYZ_DataSetAPI baseMap, XYZ_DataSetAPI scatterData) {
 		ArbDiscretizedXYZ_DataSet diffs = new ArbDiscretizedXYZ_DataSet();
 		
 		XYZClosestPointFinder xyz = new XYZClosestPointFinder(baseMap, true);
@@ -57,8 +57,11 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		for (int i=0; i<lats.size(); i++) {
 			double lat = lats.get(i);
 			double lon = lons.get(i);
+			
 			double scatterVal = vals.get(i);
 			double closestVal = xyz.getClosestVal(lat, lon);
+//			System.out.println("scatterVal: " + scatterVal);
+//			System.out.println("closestVal: " + closestVal);
 			
 			diffs.addValue(lat, lon, scatterVal - closestVal);
 		}
@@ -152,7 +155,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		String interpSampledGRD = "interp_resampled.grd";
 		if (shouldInterp) {
 			// do the interpolation
-			String interpXYZName = "scatter_points.xyz";
+			String interpXYZName = "scatter_diffs.xyz";
 			try {
 				ArbDiscretizedXYZ_DataSet.writeXYZFile(diffs, dir + interpXYZName);
 			} catch (IOException e) {
@@ -187,8 +190,8 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			colorScaleMin = map.getCustomScaleMin();
 			colorScaleMax = map.getCustomScaleMax();
 			if (map.isLogPlot()) {
-				colorScaleMin = Math.log(colorScaleMin);
-				colorScaleMax = Math.log(colorScaleMax);
+				colorScaleMin = Math.log10(colorScaleMin);
+				colorScaleMax = Math.log10(colorScaleMax);
 			}
 			if (colorScaleMin >= colorScaleMax)
 				throw new RuntimeException("Error: Color-Scale Min must be less than the Max");
@@ -241,21 +244,6 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				" PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
 		gmtCommandLines.add(commandLine+"\n");
 		
-		String maskGRD = null;
-		if (!map.getRegion().isRectangular()) {
-			String maskName = "mask.xy";
-			maskGRD = "mask.grd";
-			rmFiles.add(maskGRD);
-			try {
-				writeMaskFile(map.getRegion(), dir+maskName);
-			} catch (IOException e) {
-				throw new GMT_MapException("Couldn't write mask file!", e);
-			}
-			gmtCommandLines.add("# creat mask");
-			commandLine = "${GMT_PATH}grdmask "+maskName+region+" -I"+mapGridSpacing+" -NNaN/1/1 -G"+maskGRD;
-			gmtCommandLines.add(commandLine+"\n");
-		}
-		
 		String interpDiffGRD = "interp_diff.grd";
 		if (shouldInterp) {
 			// combine the basemap and interpolated map
@@ -286,6 +274,26 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			gmtCommandLines.add(commandLine);
 		}
 		
+		String maskGRD = null;
+		if (!map.getRegion().isRectangular()) {
+			String maskName = "mask.xy";
+			maskGRD = "mask.grd";
+			rmFiles.add(maskGRD);
+			try {
+				writeMaskFile(map.getRegion(), dir+maskName);
+			} catch (IOException e) {
+				throw new GMT_MapException("Couldn't write mask file!", e);
+			}
+			String spacing;
+			if (shouldMakeTopo)
+				spacing = topoFile.resolution() + "c";
+			else
+				spacing = mapGridSpacing + "";
+			gmtCommandLines.add("# creat mask");
+			commandLine = "${GMT_PATH}grdmask "+maskName+region+" -I"+spacing+" -NNaN/1/1 -G"+maskGRD;
+			gmtCommandLines.add(commandLine+"\n");
+		}
+		
 		String xOff = " -X1.5i";
 		String yOff = " -Y2.0i";
 		
@@ -306,13 +314,6 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				continue;
 			}
 			
-			if (maskGRD != null) {
-				String unmaskedGRD = "unmasked_"+grdFile;
-				rmFiles.add(unmaskedGRD);
-				gmtCommandLines.add("mv "+grdFile+" "+unmaskedGRD);
-				gmtCommandLines.add("${GMT_PATH}grdmath "+unmaskedGRD+" "+maskGRD+" MUL = "+grdFile+"\n");
-			}
-			
 			int dpi = map.getDpi();
 			String gmtSmoothOption="";
 			if (!map.isUseGMTSmoothing()) gmtSmoothOption=" -T ";
@@ -327,6 +328,12 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				gmtCommandLines.add(commandLine);
 				grdFile = topoResGRD;
 				topoOption = " -I"+intenGRD;
+			}
+			if (maskGRD != null) {
+				String unmaskedGRD = "unmasked_"+grdFile;
+				rmFiles.add(unmaskedGRD);
+				gmtCommandLines.add("mv "+grdFile+" "+unmaskedGRD);
+				gmtCommandLines.add("${GMT_PATH}grdmath "+unmaskedGRD+" "+maskGRD+" MUL = "+grdFile+"\n");
 			}
 			gmtCommandLines.add("# Plot the gridded data");
 			commandLine="${GMT_PATH}grdimage "+ grdFile + xOff + yOff + proj + topoOption + " -C"+cptFile+

@@ -26,6 +26,7 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationUtils;
 
 /**
  * This class takes the path to a Generic Mapping Tools style XYZ file and loads in all of the
@@ -36,10 +37,12 @@ import org.opensha.commons.geo.Location;
  *
  */
 public class XYZClosestPointFinder {
-	ArrayList<double[]> vals;
+	ArrayList<Location> locs;
+	ArrayList<Double> vals;
 	
 	public XYZClosestPointFinder(XYZ_DataSetAPI dataset, boolean xIsLat){
-		vals = new ArrayList<double[]>();
+		locs = new ArrayList<Location>();
+		vals = new ArrayList<Double>();
 		ArrayList<Double> lats;
 		ArrayList<Double> lons;
 		if (xIsLat) {
@@ -54,8 +57,10 @@ public class XYZClosestPointFinder {
 			double lat = lats.get(i);
 			double lon = lons.get(i);
 			double z = zs.get(i);
-			double doub[] = {lat, lon, z};
-			vals.add(doub);
+			Location loc = new Location(lat, lon);
+			locs.add(loc);
+//			System.out.println("XYZ: adding loc: " + loc + ", val: " + z);
+			vals.add(z);
 		}
 	}
 	
@@ -64,7 +69,8 @@ public class XYZClosestPointFinder {
 		ArrayList<String> lines = null;
 		lines = FileUtils.loadFile(fileName);
 		
-		vals = new ArrayList<double[]>();
+		locs = new ArrayList<Location>();
+		vals = new ArrayList<Double>();
 		
 		for (String line : lines) {
 			line = line.trim();
@@ -74,8 +80,8 @@ public class XYZClosestPointFinder {
 			double lat = Double.parseDouble(tok.nextToken());
 			double lon = Double.parseDouble(tok.nextToken());
 			double val = Double.parseDouble(tok.nextToken());
-			double doub[] = {lat, lon, val};
-			vals.add(doub);
+			locs.add(new Location(lat, lon));
+			vals.add(val);
 		}
 	}
 	
@@ -87,7 +93,7 @@ public class XYZClosestPointFinder {
 	 * @return
 	 */
 	public double getClosestVal(Location loc) {
-		return getClosestVal(loc.getLatitude(), loc.getLongitude());
+		return getClosestVal(loc, Double.MAX_VALUE);
 	}
 	
 	/**
@@ -99,7 +105,7 @@ public class XYZClosestPointFinder {
 	 * @return
 	 */
 	public double getClosestVal(double lat, double lon) {
-		return getClosestVal(lat, lon, Double.MAX_VALUE);
+		return getClosestVal(new Location(lat, lon), Double.MAX_VALUE);
 	}
 	
 	/**
@@ -109,8 +115,25 @@ public class XYZClosestPointFinder {
 	 * @param tolerance
 	 * @return
 	 */
-	public double getClosestVal(Location loc, double tolerance) {
-		return getClosestVal(loc.getLatitude(), loc.getLongitude(), tolerance);
+	public double getClosestVal(Location pt1, double tolerance) {
+		double closest = Double.MAX_VALUE;
+		double closeVal = 0;
+		
+		for (int i=0; i<locs.size(); i++) {
+			Location pt2 = locs.get(i);
+			double val = vals.get(i);
+//			double dist = Math.pow(val[0] - lat, 2) + Math.pow(val[1] - lon, 2);
+			double dist = LocationUtils.horzDistanceFast(pt1, pt2);
+			if (dist < closest) {
+				closest = dist;
+				closeVal = val;
+			}
+		}
+		
+		if (closest < tolerance)
+			return closeVal;
+		else
+			return Double.NaN;
 	}
 	
 	/**
@@ -122,20 +145,6 @@ public class XYZClosestPointFinder {
 	 * @return
 	 */
 	public double getClosestVal(double lat, double lon, double tolerance) {
-		double closest = Double.MAX_VALUE;
-		double closeVal = 0;
-		
-		for (double[] val : vals) {
-			double dist = Math.pow(val[0] - lat, 2) + Math.pow(val[1] - lon, 2);
-			if (dist < closest) {
-				closest = dist;
-				closeVal = val[2];
-			}
-		}
-		
-		if (closest < tolerance)
-			return closeVal;
-		else
-			return Double.NaN;
+		return getClosestVal(new Location(lat, lon), tolerance);
 	}
 }
