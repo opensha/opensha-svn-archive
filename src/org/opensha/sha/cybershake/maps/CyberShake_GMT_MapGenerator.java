@@ -24,7 +24,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 	
 	public static int[] dpis = {72, 150, 300};
 	
-	protected static ArbDiscretizedXYZ_DataSet getLogXYZ(XYZ_DataSetAPI orig) {
+	public static ArbDiscretizedXYZ_DataSet getLogXYZ(XYZ_DataSetAPI orig) {
 		ArbDiscretizedXYZ_DataSet log = new ArbDiscretizedXYZ_DataSet();
 		
 		ArrayList<Double> x = orig.getX_DataSet();
@@ -135,14 +135,14 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		
 		XYZ_DataSetAPI griddedData;
 		XYZ_DataSetAPI scatterData;
-		if (map.isLogPlot()) {
-			System.out.println("taking the log of input files!");
-			griddedData = getLogXYZ(map.getGriddedData());
-			scatterData = getLogXYZ(map.getScatter());
-		} else {
+//		if (map.isLogPlot()) {
+//			System.out.println("taking the log of input files!");
+//			griddedData = getLogXYZ(map.getGriddedData());
+//			scatterData = getLogXYZ(map.getScatter());
+//		} else {
 			griddedData = map.getGriddedData();
 			scatterData = map.getScatter();
-		}
+//		}
 		XYZ_DataSetAPI diffs = getDiffs(griddedData, scatterData);
 		
 		// write the basemap
@@ -197,10 +197,10 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		if (map.isCustomScale()) {
 			colorScaleMin = map.getCustomScaleMin();
 			colorScaleMax = map.getCustomScaleMax();
-			if (map.isLogPlot()) {
+//			if (map.isLogPlot()) {
 				colorScaleMin = Math.log10(colorScaleMin);
 				colorScaleMax = Math.log10(colorScaleMax);
-			}
+//			}
 			if (colorScaleMin >= colorScaleMax)
 				throw new RuntimeException("Error: Color-Scale Min must be less than the Max");
 		}

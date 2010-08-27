@@ -109,6 +109,7 @@ public class HardCodedInterpDiffMapCreator {
 			boolean mod = false;
 			
 			
+			boolean remote = true;
 			boolean logPlot = true;
 			int imTypeID = 21;
 			
@@ -151,7 +152,10 @@ public class HardCodedInterpDiffMapCreator {
 							"imTypeID: " + imTypeID + "\n";
 			
 			System.out.println("Making map...");
-			System.out.println("map address: " + CS_InterpDiffMapServletAccessor.makeMap(null, map, metadata));
+			if (remote)
+				System.out.println("map address: " + CS_InterpDiffMapServletAccessor.makeMap(null, map, metadata));
+			else
+				new CyberShake_GMT_MapGenerator().getGMT_ScriptLines(map, "/tmp/gmttest");
 			
 			System.exit(0);
 		} catch (Throwable t) {

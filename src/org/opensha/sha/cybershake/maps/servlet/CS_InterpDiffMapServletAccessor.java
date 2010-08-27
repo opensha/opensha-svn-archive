@@ -6,14 +6,24 @@ import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
+import org.opensha.sha.cybershake.maps.CyberShake_GMT_MapGenerator;
 import org.opensha.sha.cybershake.maps.InterpDiffMap;
 
 public class CS_InterpDiffMapServletAccessor {
 	
 	public static String DEFAULT_METADATA_FILE_NAME = "metadata.txt";
 	
+	private static void checkLog(InterpDiffMap map) {
+		if (map.isLogPlot()) {
+			map.setGriddedData(CyberShake_GMT_MapGenerator.getLogXYZ(map.getGriddedData()));
+			map.setScatter(CyberShake_GMT_MapGenerator.getLogXYZ(map.getScatter()));
+		}
+	}
+	
 	public static String makeMap(String dirName, InterpDiffMap map, String metadata) throws IOException, ClassNotFoundException {
 		URL gmtMapServlet = new URL(CS_InterpDiffMapServlet.SERVLET_URL);
+		
+		checkLog(map);
 
 		URLConnection servletConnection = gmtMapServlet.openConnection();
 		
