@@ -16,6 +16,7 @@ import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.SecureMapGenerator;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.util.XYZClosestPointFinder;
+import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.cybershake.maps.InterpDiffMap.InterpDiffMapType;
 import org.opensha.sha.cybershake.plot.ScatterSymbol;
@@ -79,6 +80,26 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		else
 			throw new IllegalArgumentException("map must be of type InterpDiffMap!");
 		
+	}
+	
+	private static MinMaxAveTracker calcExtentsWithinRegion(XYZ_DataSetAPI xyz, Region region) {
+		ArrayList<Double> lats = xyz.getX_DataSet();
+		ArrayList<Double> lons = xyz.getY_DataSet();
+		ArrayList<Double> vals = xyz.getZ_DataSet();
+		
+		MinMaxAveTracker tracker = new MinMaxAveTracker();
+		
+		for (int i=0; i<lats.size(); i++) {
+			double lat = lats.get(i);
+			double lon = lons.get(i);
+			double val = vals.get(i);
+			Location loc = new Location(lat, lon);
+			if (region.contains(loc)) {
+				tracker.addValue(val);
+			}
+		}
+		
+		return tracker;
 	}
 	
 	public ArrayList<String> getGMT_ScriptLines(InterpDiffMap map, String dir) throws GMT_MapException {
@@ -206,8 +227,11 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				throw new RuntimeException("Error: Color-Scale Min must be less than the Max");
 		}
 		else {
-			double minGrid = griddedData.getMinZ();
-			double maxGrid = griddedData.getMaxZ();
+			MinMaxAveTracker baseTracker = calcExtentsWithinRegion(griddedData, map.getRegion());
+			if (baseTracker.getNum() == 0)
+				throw new GMT_MapException("Base map has no points within mask region!");
+			double minGrid = baseTracker.getMin();
+			double maxGrid = baseTracker.getMax();
 			double minScatter = scatterData.getMinZ();
 			double maxScatter = scatterData.getMaxZ();
 			colorScaleMin = minGrid;

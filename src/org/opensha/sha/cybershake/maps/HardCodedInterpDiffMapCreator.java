@@ -96,17 +96,17 @@ public class HardCodedInterpDiffMapCreator {
 	 */
 	public static void main(String[] args){
 		try {
-//			boolean isProbAt_IML = true;
-//			double val = 0.2;
-//			String baseMapName = "cb2008";
-//			String singleName = "parkfield";
-//			boolean mod = true;
-			
-			boolean isProbAt_IML = false;
-			double val = 0.0004;
+			boolean isProbAt_IML = true;
+			double val = 0.2;
 			String baseMapName = "cb2008";
-			String singleName = null;
-			boolean mod = false;
+			String singleName = "parkfield";
+			boolean mod = true;
+			
+//			boolean isProbAt_IML = false;
+//			double val = 0.0004;
+//			String baseMapName = "cb2008";
+//			String singleName = null;
+//			boolean mod = false;
 			
 			
 			boolean remote = true;

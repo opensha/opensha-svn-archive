@@ -114,6 +114,10 @@ public class DataUtils {
 			return tot / (double)num;
 		}
 		
+		public int getNum() {
+			return num;
+		}
+		
 		@Override
 		public String toString() {
 			return "min: " + min + ", max: " + max + ", avg: " + getAverage();
