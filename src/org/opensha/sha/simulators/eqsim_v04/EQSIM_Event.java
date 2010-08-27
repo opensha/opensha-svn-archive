@@ -11,7 +11,7 @@ public class EQSIM_Event extends ArrayList<EventRecord> {
 
 	public EQSIM_Event(EventRecord eventRecord) {
 		this.add(eventRecord);
-		this.event_id = eventRecord.getIndex();
+		this.event_id = eventRecord.getID();
 		this.magnitude=eventRecord.getMagnitude();
 		this.time=eventRecord.getTime();
 		this.duration=eventRecord.getDuration();
@@ -24,15 +24,35 @@ public class EQSIM_Event extends ArrayList<EventRecord> {
 	}
 	
 	public boolean isSameEvent(EventRecord eventRecord) {
-		return (eventRecord.getIndex() == event_id);
+		return (eventRecord.getID() == event_id);
 	}
 	
-	public int getIndex() { return event_id;}
+	public int getID() { return event_id;}
 	
 	public double getMagnitude() { return magnitude;}
 	
 	public double getDuration() { return duration;}
 	
 	public double getTime() { return time;}
+	
+	/**
+	 * This tells whether the event has data for slip on each element
+	 * @return
+	 */
+	public boolean hasElementSlipsAndIDs() {
+		boolean hasThem = true;
+		for (EventRecord evRec : this) {
+			if(!evRec.hasElementSlipsAndIDs()) hasThem = false;  // false is any event record lacks slips and IDs
+		}
+		return hasThem;
+	}
+	
+	public int getNumElements() {
+		int num = 0;
+		for (EventRecord evRec : this) {
+			num += evRec.getElementID_List().size();
+		}
+		return num;
+	}
 
 }

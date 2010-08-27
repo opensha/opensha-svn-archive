@@ -3,13 +3,19 @@ package org.opensha.sha.simulators.eqsim_v04;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+/**
+ * This gives information about an event on a specific section 
+ * (separate event records are used when an event involves multiple sections)
+ * @author field
+ *
+ */
 public class EventRecord {
 	
 	int event_id;			
 	double magnitude;		// (same for all records for the event)
 	double time;			// seconds from start of simulation (same for all records for the event)
 	double duration;		// seconds (same for all records for the event)
-    int sid;				// section ID (for just this record)
+    int sectionID;			// section ID (for just this record)
     double depth_lo;		// meters (for just this record)
     double depth_hi; 		// meters (for just this record)
     double das_lo;			// meters (for just this record)
@@ -24,6 +30,8 @@ public class EventRecord {
     double normal_before;	// Pascal (for just this record)
     double normal_after;	// Pascal (for just this record)
     String comment_text;
+    
+    boolean hasElementSlipsAndIDs = true;
     
     ArrayList<Double> elementSlipList;
     ArrayList<Integer> elementID_List;
@@ -42,7 +50,7 @@ public class EventRecord {
 		this.magnitude = Double.parseDouble(tok.nextToken());
 		this.time = Double.parseDouble(tok.nextToken());
 		this.duration = Double.parseDouble(tok.nextToken());
-	    this.sid = Integer.parseInt(tok.nextToken());
+	    this.sectionID = Integer.parseInt(tok.nextToken());
 	    this.depth_lo = Double.parseDouble(tok.nextToken());
 	    this.depth_hi = Double.parseDouble(tok.nextToken()); 
 	    this.das_lo = Double.parseDouble(tok.nextToken());
@@ -52,10 +60,29 @@ public class EventRecord {
 	    this.area = Double.parseDouble(tok.nextToken());
 	    this.mean_slip = Double.parseDouble(tok.nextToken());
 	    this.moment = Double.parseDouble(tok.nextToken());
-	    this.shear_before = Double.parseDouble(tok.nextToken());
-	    this.shear_after = Double.parseDouble(tok.nextToken());
-	    this.normal_before = Double.parseDouble(tok.nextToken());
-	    this.normal_after = Double.parseDouble(tok.nextToken());
+	    
+	    // the following has to deal with NA in input files
+	    try {
+			this.shear_before = Double.parseDouble(tok.nextToken());
+		} catch (NumberFormatException e) {
+			this.shear_before= Double.NaN;
+		}
+	    try {
+			this.shear_after = Double.parseDouble(tok.nextToken());
+		} catch (NumberFormatException e) {
+			this.shear_after= Double.NaN;
+		}
+	    try {
+			this.normal_before = Double.parseDouble(tok.nextToken());
+		} catch (NumberFormatException e) {
+			this.normal_before= Double.NaN;
+		}
+	    try {
+			this.normal_after = Double.parseDouble(tok.nextToken());
+		} catch (NumberFormatException e) {
+			this.normal_after= Double.NaN;
+		}
+
 	    while(tok.hasMoreTokens())
 	    	comment_text += tok.nextToken()+" ";
 	    
@@ -66,38 +93,71 @@ public class EventRecord {
 	}
 	
 	/**
-	 * This extracts and saves the slip and element ID info
-	 * from a Slip-Map-Record line.
+	 * This extracts and saves the slip and element ID info data from a Slip-Map-Record line, 
+	 * but only if the slip is assigned to a specific element (the element ID on the line is >0).
 	 * @param fileLine
 	 */
 	public void addSlipAndElementData(String fileLine) {
-		StringTokenizer tok = new StringTokenizer(fileLine);
-		int kindOfLine = Integer.parseInt(tok.nextToken());
-		if(kindOfLine != 201) throw new RuntimeException("not a slip-map-record line type");
-
-		tok.nextToken();	// depth_lo
-		tok.nextToken();	// depth_hi
-		tok.nextToken();	// das_lo
-		tok.nextToken();	// das_hi
-		tok.nextToken();	// area
-		elementSlipList.add(Double.parseDouble(tok.nextToken()));	// mean_slip
-		tok.nextToken();	// moment
-		tok.nextToken();	// shear_before
-		tok.nextToken();	// shear_after
-		tok.nextToken();	// normal_before
-		tok.nextToken();	// normal_after
-		int element_id = Integer.parseInt(tok.nextToken());
-		if (element_id <= 0) throw new RuntimeException("Don't support zero or negative element IDs");
-		elementID_List.add(element_id);
-		// the rest are comments
+		
+		if(hasElementSlipsAndIDs) {
+			StringTokenizer tok = new StringTokenizer(fileLine);
+			int kindOfLine = Integer.parseInt(tok.nextToken());
+			if(kindOfLine != 201) throw new RuntimeException("not a slip-map-record line type");
+			tok.nextToken();	// depth_lo
+			tok.nextToken();	// depth_hi
+			tok.nextToken();	// das_lo
+			tok.nextToken();	// das_hi
+			tok.nextToken();	// area
+			Double slip = Double.parseDouble(tok.nextToken());
+			tok.nextToken();	// moment
+			tok.nextToken();	// shear_before
+			tok.nextToken();	// shear_after
+			tok.nextToken();	// normal_before
+			tok.nextToken();	// normal_after
+			int element_id=0;
+			if(tok.hasMoreTokens()) {
+				try {
+					element_id = Integer.parseInt(tok.nextToken());
+					if (element_id <= 0) throw new RuntimeException("Don't support zero or negative element IDs");
+				} catch (NumberFormatException e) {
+					element_id=0;
+				}
+			}
+			else 
+				element_id=0;
+			
+			if(element_id>0) {
+				elementSlipList.add(slip);	// mean_slip
+				elementID_List.add(element_id);				
+			}
+			else
+				hasElementSlipsAndIDs=false;
+				
+		}
+		
+		// the rest of the line is comments
 	}
 	
-	public int getIndex() { return event_id;}
+	public int getID() { return event_id;}
+	
+	public int getSectionID() {return sectionID;}
 	
 	public double getMagnitude() { return magnitude;}
 	
 	public double getDuration() { return duration;}
 	
 	public double getTime() { return time;}
+	
+	public ArrayList<Integer> getElementID_List() {return elementID_List;}
+	
+	/**
+	 * This gives a list of element slips (meters)
+	 * @return
+	 */
+	public ArrayList<Double> getElementSlipList() {return elementSlipList;}
+	
+	public boolean hasElementSlipsAndIDs() {
+		return (elementSlipList.size() > 0);
+	}
 
 }

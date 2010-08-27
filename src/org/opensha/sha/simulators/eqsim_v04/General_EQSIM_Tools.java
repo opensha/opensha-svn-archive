@@ -10,6 +10,8 @@ import java.util.ListIterator;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.data.NamedObjectComparator;
+import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.LocationVector;
@@ -20,16 +22,19 @@ import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
+import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 
 /**
  * This class reads and writes various files, as well as doing some analysis of simulator results.
  * 
- * Note that this class could extend the "Container" defined in EQSIM, but it's not clear that generality is necessary.
+ * Note that this class could extend some class representing the "Container" defined in EQSIM, but it's not clear that generality is necessary.
  * 
  * Things to keep in mind:
  * 
- * Indexing in the EQSIM files starts from 1, not zero.  Therefore, the index for the ith RectangularElement 
- * in rectElementsList (rectElementsList.getIndex()) is one less than i (same goes for vertexList).
+ * Indexing in the EQSIM files starts from 1, not zero.  Therefore, here we refer to their "indices" as IDs to avoid confusion.
+ * For example, the ID for the ith RectangularElement in rectElementsList (rectElementsList.getID()) is one less than i 
+ * (same goes for other lists).
  * 
  * All units in EQSIM files are SI
  * 
@@ -133,8 +138,9 @@ public class General_EQSIM_Tools {
 		int kindOfLine = Integer.parseInt(tok.nextToken());
 		String fileSignature = tok.nextToken();
 		int fileSpecLevel = Integer.parseInt(tok.nextToken());
-		if(kindOfLine != 101 || !fileSignature.equals(EVENT_FILE_SIG) || fileSpecLevel < EVENT_FILE_SPEC_LEVEL)
-			throw new RuntimeException("wrong type of event input file");
+//		if(kindOfLine != 101 || !fileSignature.equals(EVENT_FILE_SIG) || fileSpecLevel < EVENT_FILE_SPEC_LEVEL)
+		if(kindOfLine != 101 || !fileSignature.equals(EVENT_FILE_SIG))
+			throw new RuntimeException("wrong type of event input file; your first file line is:\n\n\t"+line+"\n");
 
 		eventList = new ArrayList<EQSIM_Event>();
 		EQSIM_Event currEvent = null;
@@ -144,7 +150,7 @@ public class General_EQSIM_Tools {
 			line = linesIterator.next();
 			tok = new StringTokenizer(line);
 			kindOfLine = Integer.parseInt(tok.nextToken());
-			if(kindOfLine ==200) {
+			if(kindOfLine ==200) {	// event record
 				evRec = new EventRecord(line);
 				numEventRecs+=1;
 				
@@ -154,7 +160,7 @@ public class General_EQSIM_Tools {
 					eventList.add(event);
 					currEvent = event;
 				}
-				else { // check whether this is part of currEvent (same index)
+				else { // check whether this is part of currEvent (same ID)
 					if(currEvent.isSameEvent(evRec)) {
 						currEvent.add(evRec);
 					}
@@ -165,7 +171,7 @@ public class General_EQSIM_Tools {
 					}
 				}
 			}
-			else if(kindOfLine ==201) {
+			else if(kindOfLine ==201) {	// Slip map record
 				evRec.addSlipAndElementData(line); // add to the last event record created
 			}
 		}
@@ -183,6 +189,7 @@ public class General_EQSIM_Tools {
 	 */
 	private void loadFromEQSIMv04_GeometryLines(ArrayList<String> lines) {
 		
+		// note that the following lists have indices that start from 0
 		rectElementsList = new ArrayList<RectangularElement>();
 		vertexList = new ArrayList<Vertex>();
 		rectElementsListForSections = new ArrayList<ArrayList<RectangularElement>> ();
@@ -190,7 +197,6 @@ public class General_EQSIM_Tools {
 		namesOfSections = new ArrayList<String>();
 		faultIDs_ForSections = new ArrayList<Integer>();
 		
-//		Iterator<String> linesIterator = lines.iterator();
 		ListIterator<String> linesIterator = lines.listIterator();
 		
 		// get & check first line (must be the signature line)
@@ -202,7 +208,7 @@ public class General_EQSIM_Tools {
 		if(kindOfLine != 101 || !fileSignature.equals(GEOM_FILE_SIG) || fileSpecLevel < GEOM_FILE_SPEC_LEVEL)
 			throw new RuntimeException("wrong type of input file");
 		
-		int n_sction=-1, n_vertex=-1, n_triangle=-1, n_rectangle=-1;
+		int n_section=-1, n_vertex=-1,n_triangle=-1, n_rectangle=-1;
 
 		while (linesIterator.hasNext()) {
 			
@@ -212,7 +218,7 @@ public class General_EQSIM_Tools {
 			
 			// read "Fault System Summary Record" (values kept are use as a check later)
 			if(kindOfLine == 200) {
-				n_sction=Integer.parseInt(tok.nextToken());
+				n_section=Integer.parseInt(tok.nextToken());
 				n_vertex=Integer.parseInt(tok.nextToken());
 				n_triangle=Integer.parseInt(tok.nextToken());
 				n_rectangle=Integer.parseInt(tok.nextToken());
@@ -222,7 +228,7 @@ public class General_EQSIM_Tools {
 			
 			// read "Fault Section Information Record"
 			if(kindOfLine == 201) {
-				int sid = Integer.parseInt(tok.nextToken());
+				int sid = Integer.parseInt(tok.nextToken());  // section ID
 				String name = tok.nextToken();
 				int n_sect_vertex=Integer.parseInt(tok.nextToken());
 				int n_sect_triangle=Integer.parseInt(tok.nextToken());
@@ -251,16 +257,16 @@ public class General_EQSIM_Tools {
 					tok = new StringTokenizer(line);
 					kindOfLine = Integer.parseInt(tok.nextToken());
 					if(kindOfLine != 202) throw new RuntimeException("Problem with file (line should start with 202)");
-					int index = Integer.parseInt(tok.nextToken());
+					int id = Integer.parseInt(tok.nextToken());
 					double lat = Double.parseDouble(tok.nextToken());
 					double lon = Double.parseDouble(tok.nextToken());
-					double depth = -Double.parseDouble(tok.nextToken())/1000; 	// convert to km
+					double depth = -Double.parseDouble(tok.nextToken())/1000; 	// convert to km & change sign
 					double das = Double.parseDouble(tok.nextToken())/1000;		// convert to km
 					int trace_flag = Integer.parseInt(tok.nextToken());
 					// the rest of the line contains:
 					// comment_text
 					
-					Vertex vertex = new Vertex(lat,lon,depth, index, das, trace_flag); 
+					Vertex vertex = new Vertex(lat,lon,depth, id, das, trace_flag); 
 					verticesForThisSect.add(vertex);
 					vertexList.add(vertex);
 				}
@@ -273,31 +279,30 @@ public class General_EQSIM_Tools {
 					tok = new StringTokenizer(line);
 					kindOfLine = Integer.parseInt(tok.nextToken());
 					if(kindOfLine != 204) throw new RuntimeException("Problem with file (line should start with 204)");
-					int index = Integer.parseInt(tok.nextToken());
-					int vertex_1 = Integer.parseInt(tok.nextToken());
-					int vertex_2 = Integer.parseInt(tok.nextToken());
-					int vertex_3 = Integer.parseInt(tok.nextToken());
-					int vertex_4 = Integer.parseInt(tok.nextToken());
+					int id = Integer.parseInt(tok.nextToken());
+					int vertex_1_ID = Integer.parseInt(tok.nextToken());
+					int vertex_2_ID = Integer.parseInt(tok.nextToken());
+					int vertex_3_ID = Integer.parseInt(tok.nextToken());
+					int vertex_4_ID = Integer.parseInt(tok.nextToken());
 				    double rake = Double.parseDouble(tok.nextToken());
 				    double slip_rate = Double.parseDouble(tok.nextToken())*SECONDS_PER_YEAR; // convert to meters per year
 				    double aseis_factor = Double.parseDouble(tok.nextToken());
 				    double strike = Double.parseDouble(tok.nextToken());
 				    double dip = Double.parseDouble(tok.nextToken());
 				    int perfect_flag = Integer.parseInt(tok.nextToken());
-					// the rest of the line contains:
-					// comment_text
+					// the rest of the line contains: comment_text
 				    boolean perfectBoolean = false;
 				    if(perfect_flag == 1) perfectBoolean = true;
 				    Vertex[] vertices = new Vertex[4];
 				    
-				    vertices[0] = vertexList.get(vertex_1-1);
-				    vertices[1] = vertexList.get(vertex_2-1);
-				    vertices[2] = vertexList.get(vertex_3-1);
-				    vertices[3] = vertexList.get(vertex_4-1);
+				    vertices[0] = vertexList.get(vertex_1_ID-1);  // vertex index is one minus vertex ID
+				    vertices[1] = vertexList.get(vertex_2_ID-1);
+				    vertices[2] = vertexList.get(vertex_3_ID-1);
+				    vertices[3] = vertexList.get(vertex_4_ID-1);
 				    int numAlongStrike = -1;// unknown
 				    int numDownDip = -1;	// unknown
 				    FocalMechanism focalMechanism = new FocalMechanism(strike,dip,rake);
-				    RectangularElement rectElem = new RectangularElement(index, vertices, name, fault_id, sid, numAlongStrike, 
+				    RectangularElement rectElem = new RectangularElement(id, vertices, name, fault_id, sid, numAlongStrike, 
 				    													numDownDip, slip_rate, aseis_factor, focalMechanism, perfectBoolean);
 				    rectElemForThisSect.add(rectElem);
 				    rectElementsList.add(rectElem);
@@ -308,7 +313,7 @@ public class General_EQSIM_Tools {
 		}
 		
 		// check the numbers of things:  n_sction, n_vertex, n_triangle, n_rectangle
-		if(n_sction != namesOfSections.size())
+		if(n_section != namesOfSections.size())
 			throw new RuntimeException("something wrong with number of sections");
 		if(n_vertex != vertexList.size())
 			throw new RuntimeException("something wrong with number of vertices");
@@ -317,12 +322,12 @@ public class General_EQSIM_Tools {
 		
 		System.out.println("namesOfSections.size()="+namesOfSections.size()+"\tvertexList.size()="+vertexList.size()+"\trectElementsList.size()="+rectElementsList.size());
 		
-		// check that indices are in order:
+		// check that indices are in order, and that index is one minus the ID:
 		for(int i=0;i<vertexList.size();i++) {
-			if(i != vertexList.get(i).getIndex()-1) throw new RuntimeException("vertexList index problem at "+i);
+			if(i != vertexList.get(i).getID()-1) throw new RuntimeException("vertexList index problem at "+i);
 		}
 		for(int i=0;i<rectElementsList.size();i++) {
-			if(i != rectElementsList.get(i).getIndex()-1) throw new RuntimeException("rectElementsList index problem at "+i);
+			if(i != rectElementsList.get(i).getID()-1) throw new RuntimeException("rectElementsList index problem at "+i);
 		}
 		
 	}
@@ -440,7 +445,8 @@ public class General_EQSIM_Tools {
 					// set DAS
 					double das1 = col*elementLength;	// this is in km
 					double das2 = das1+elementLength;	// this is in km
-					// set traceFlag - tells whether is on the fault trace  (0 means no; 1 means yes, but not the first or last point; 2 means yes & it's the first; and 3 means yes & it's the last point)
+					// set traceFlag - tells whether is on the fault trace  (0 means no; 1 means yes, but not the 
+					// first or last point; 2 means yes & it's the first; and 3 means yes & it's the last point)
 					int traceFlagBot = 0;
 					int traceFlagTop1 = 0;
 					int traceFlagTop2 = 0;
@@ -516,8 +522,8 @@ public class General_EQSIM_Tools {
 			ArrayList<RectangularElement> elList = rectElementsListForSections.get(i);
 			ArrayList<Vertex> verList = vertexListForSections.get(i);;
 			System.out.println(allFaultSectionPrefData.get(i).getName());
-			System.out.println("\tEl Indices:  "+elList.get(0).getIndex()+"\t"+elList.get(elList.size()-1).getIndex());
-//			System.out.println("\tVer Indices:  "+verList.get(0).getIndex()+"\t"+verList.get(verList.size()-1).getIndex());
+			System.out.println("\tEl Indices:  "+elList.get(0).getID()+"\t"+elList.get(elList.size()-1).getID());
+//			System.out.println("\tVer Indices:  "+verList.get(0).getID()+"\t"+verList.get(verList.size()-1).getID());
 		}
 		*/
 	}
@@ -616,17 +622,17 @@ public class General_EQSIM_Tools {
 						rectElemForSect.size()+" "+getMinMaxFileString(vertListForSect, true)+" "+fault_id+"\n");
 				for(int v=0; v<vertListForSect.size(); v++) {
 					Vertex vert = vertListForSect.get(v);
-					// Vertex Record: 202 index lat lon depth das trace_flag comment_text
-					efw.write("202 "+vert.getIndex()+" "+(float)vert.getLatitude()+" "+(float)vert.getLongitude()+" "+
+					// Vertex Record: 202 ID lat lon depth das trace_flag comment_text
+					efw.write("202 "+vert.getID()+" "+(float)vert.getLatitude()+" "+(float)vert.getLongitude()+" "+
 							(float)(vert.getDepth()*-1000)+" "+(float)vert.getDAS()*1000+" "+vert.getTraceFlag()+"\n");
 				}
 				for(int e=0; e<rectElemForSect.size(); e++) {
 					RectangularElement elem = rectElemForSect.get(e);
 					Vertex[] vert = elem.getVertices();
 					FocalMechanism focalMech = elem.getFocalMechanism();
-					// Rectangle Record:  204 index vertex_1 vertex_2 vertex_3 vertex_4 rake slip_rate aseis_factor strike dip perfect_flag comment_text
-					efw.write("204 "+elem.getIndex()+" "+vert[0].getIndex()+" "+vert[1].getIndex()+" "+vert[2].getIndex()+" "+
-							vert[3].getIndex()+" "+(float)focalMech.getRake()+" "+(float)(elem.getSlipRate()/SECONDS_PER_YEAR)+" "+
+					// Rectangle Record:  204 ID vertex_1 vertex_2 vertex_3 vertex_4 rake slip_rate aseis_factor strike dip perfect_flag comment_text
+					efw.write("204 "+elem.getID()+" "+vert[0].getID()+" "+vert[1].getID()+" "+vert[2].getID()+" "+
+							vert[3].getID()+" "+(float)focalMech.getRake()+" "+(float)(elem.getSlipRate()/SECONDS_PER_YEAR)+" "+
 							(float)elem.getAseisFactor()+" "+(float)focalMech.getStrike()+" "+(float)focalMech.getDip()
 							+" "+elem.getPerfectInt()+"\n");
 				}
@@ -667,6 +673,122 @@ public class General_EQSIM_Tools {
 		if(includeDAS) string += " "+(float)minDAS*1000+" "+(float)maxDAS*1000;
 		return string;
 	}
+	
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public ArbIncrementalMagFreqDist getMagFreqDist(double minMag, double maxMag, int numMag) {
+		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, maxMag, numMag);
+		
+		for(EQSIM_Event event : eventList) {
+			mfd.addResampledMagRate(event.getMagnitude(), 1.0, true);
+		}
+		return mfd;
+	}
+	
+	/**
+	 * This tells whether all events have data on the slip on each element
+	 * @return
+	 */
+	public int getNumEventsWithElementSlipData() {
+		int numTrue =0;
+		for (EQSIM_Event event : eventList) {
+			if(event.hasElementSlipsAndIDs()) numTrue +=1;
+		}
+		return numTrue;
+	}
+	
+	public ArrayList<EQSIM_Event> getEventsList() {
+		return eventList;
+	}
+	
+	
+	
+	public void testTimePredictability(double magThresh) {
+
+		FileWriter efw;
+		try {
+			efw = new FileWriter("testTimePredFile");
+
+			double[] lastTimeForElement = new double[rectElementsList.size()];
+			double[] lastSlipForElement = new double[rectElementsList.size()];
+			for(int i=0; i<lastTimeForElement.length;i++) lastTimeForElement[i]=-1;  // initialize to bogus value so we can check
+			
+			int numEvents=0;
+			int numBad=0;
+			// loop over all events
+			for(EQSIM_Event event:eventList) {
+				numEvents +=1;
+				if(event.hasElementSlipsAndIDs() && event.getMagnitude() > magThresh) {
+					boolean goodSample = true;
+					double eventTime = event.getTime();
+					ArrayList<Double> slipList = new ArrayList<Double>();
+					ArrayList<Integer> elementID_List = new ArrayList<Integer>();
+					// collect slip and ID data from all event records
+					for(EventRecord evRec: event) {
+						if(eventTime != evRec.getTime()) throw new RuntimeException("problem with event times");  // just a check
+						slipList.addAll(evRec.getElementSlipList());
+						elementID_List.addAll(evRec.getElementID_List());
+					}
+					// get average date of last event and average predicted date of next
+					double aveLastEvTime=0;
+					double avePredNextEvTime=0;
+					double aveSlipRate =0;
+					double aveLastSlip =0;
+					int numElements = slipList.size();
+					for(int e=0;e<numElements;e++) {
+						int index = elementID_List.get(e).intValue() -1;
+						double lastTime = lastTimeForElement[index];
+						double lastSlip = lastSlipForElement[index];
+						double slipRate = rectElementsList.get(index).getSlipRate();
+						if(slipRate == 0) {  // there are few of these, and I don't know what to do about them
+							goodSample=false;
+//							System.out.println("slip rate is zero for element "+index+"; last slip is "+lastSlip);
+						}
+						aveLastEvTime += lastTime;
+						avePredNextEvTime += lastTime + lastSlip/(slipRate/SECONDS_PER_YEAR);
+						aveSlipRate += slipRate/SECONDS_PER_YEAR;
+						aveLastSlip += lastSlip;
+						// mark as bad sample if  lastTime is -1
+						if(lastTime==-1){
+							goodSample=false;
+//							System.out.println("time=0 for element"+e+" of event"+eventNum);
+						}
+					}
+					aveLastEvTime /= numElements;
+					avePredNextEvTime /= numElements;
+					aveSlipRate /= numElements;
+					aveLastSlip /= numElements;
+					double normRecurInterval = (eventTime-aveLastEvTime) / (avePredNextEvTime-aveLastEvTime);
+					double normRecurInterval2 = (eventTime-aveLastEvTime) / (aveLastSlip/aveSlipRate);
+					
+					if(goodSample) {
+						efw.write(aveLastEvTime+"\t"+eventTime+"\t"+(float)avePredNextEvTime+"\t"+(float)normRecurInterval+"\t"+(float)normRecurInterval2+"\n");
+					}
+					else {
+//						System.out.println("event "+ eventNum+" is bad");
+						numBad += 1;
+					}
+
+					// now fill in the last event data for next time
+					for(int e=0;e<numElements;e++) {
+						int index = elementID_List.get(e).intValue() -1;
+						lastTimeForElement[index] = eventTime;
+						lastSlipForElement[index] = slipList.get(e);
+					}
+				}
+			}
+			System.out.println(numBad+" events were bad");
+			efw.close();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+	}
+
 
 	
 	/**
@@ -677,7 +799,7 @@ public class General_EQSIM_Tools {
 		long startTime=System.currentTimeMillis();
 		System.out.println("Starting");
 		
-		/*
+		/*  This writes an EQSIM file from a UCERF2 deformation model
 		General_EQSIM_Tools test = new General_EQSIM_Tools(82, false, 4.0);
 //		test.getElementsList();
 		String writePath = "testEQSIM_Output.txt";
@@ -696,6 +818,30 @@ public class General_EQSIM_Tools {
 //		String fullPath = "org/opensha/sha/simulators/eqsim_v04/ALLCAL_Model_v04/ALLCAL_Ward_Geometry.dat";
 		General_EQSIM_Tools test = new General_EQSIM_Tools(fullPath);
 		test.read_EQSIMv04_EventsFile("org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/NCAL_Ward.out.txt");
+//		test.read_EQSIMv04_EventsFile("org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/VC_norcal.d.txt");
+//		test.read_EQSIMv04_EventsFile("org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/eqs.NCA_RSQSim.barall.txt");
+		ArbIncrementalMagFreqDist mfd = test.getMagFreqDist(4.0,9.0,51);
+		System.out.println(test.getNumEventsWithElementSlipData()+" out of "+test.getEventsList().size()+" have slip on elements data");
+
+		// find the mag cutoff for inclusion of element slip data
+		double maxWithOut = 0;
+		double minWith =10;
+		for(EQSIM_Event event:test.getEventsList()) {
+			if(event.hasElementSlipsAndIDs()) {
+				if (event.getMagnitude()<minWith) minWith = event.getMagnitude();
+			}
+			else
+				if(event.getMagnitude()>maxWithOut) maxWithOut = event.getMagnitude();
+		}
+		System.out.println("minWith="+minWith+";\tmaxWithOut="+maxWithOut);
+		
+		test.testTimePredictability(7.1);
+		
+/*
+		ArrayList funcs = new ArrayList();
+		funcs.add(mfd);
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Mag Freq Dist");   
+*/
 		
 		/*
 		String writePath = "testEQSIM_Output.txt";

@@ -9,10 +9,16 @@ import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.faultSurface.FourPointEvenlyGriddedSurface;
 
+/**
+ * This uses "id" rather than "index" to avoid confusion from the fact that our indexing 
+ * starts from zero (and that in EQSIM docs starts from 1)
+ * @author field
+ *
+ */
 public class RectangularElement {
 	
 	// these are the official variables
-	private int index;
+	private int id;	// this is referred to as "index" in the EQSIM documentation
 	private Vertex[] vertices;
 	private FocalMechanism focalMechanism;
 	private double slipRate;
@@ -21,40 +27,40 @@ public class RectangularElement {
 
 	// these are other variable (e.g., used by Ward's simulator)
 	private String sectionName;
-	private int sectionIndex;
-	private int faultIndex;
+	private int sectionID;	
+	private int faultID;
 	private int numAlongStrike;
 	private int numDownDip;
 	
 	/**
 	 * This creates the RectangularElement from the supplied information.  Note that this assumes
 	 * the vertices correspond to a perfect rectangle.
-	 * @param index
+	 * @param id - an integer for identification (referred to as "index" in the EQSIM documentation)
 	 * @param vertices - a list of 4 vertices, where the order is as follows as viewed 
 	 *                   from the positive side of the fault: 0th is top left, 1st is lower left,
 	 *                   2nd is lower right, and 3rd is upper right (counter clockwise)
 	 * @param sectionName - the name of the fault section that this element is on
-	 * @param faultIndex - the index of the original fault (really needed?)
-	 * @param sectionIndex - the index of the associated fault section
+	 * @param faultID - the ID of the original fault (really needed?)
+	 * @param sectionID - the ID of the associated fault section
 	 * @param numAlongStrike - index along strike on the fault section
 	 * @param numDownDip - index down dip
-	 * @param slipRate - slip rate (units?)
+	 * @param slipRate - slip rate (meters/year; note that this is different from the EQSIM convention (which is m/s))
 	 * @param aseisFactor - aseismicity factor
 	 * @param focalMechanism - this contains the strike, dip, and rake
 	 */
-	public RectangularElement(int index, Vertex[] vertices, String sectionName,
-			int faultIndex, int sectionIndex, int numAlongStrike, int numDownDip,
+	public RectangularElement(int id, Vertex[] vertices, String sectionName,
+			int faultID, int sectionID, int numAlongStrike, int numDownDip,
 			double slipRate, double aseisFactor, FocalMechanism focalMechanism, 
 			boolean perfectRect) {
 
 		if(vertices.length !=4 )
 			throw new RuntimeException("RectangularElement: vertices.length should equal 4");
 		
-		this.index = index;
+		this.id = id;
 		this.vertices = vertices;
 		this.sectionName = sectionName;
-		this.faultIndex = faultIndex;
-		this.sectionIndex = sectionIndex;
+		this.faultID = faultID;
+		this.sectionID = sectionID;
 		this.numAlongStrike = numAlongStrike;
 		this.numDownDip = numDownDip;
 		this.slipRate = slipRate;
@@ -78,8 +84,8 @@ public class RectangularElement {
 		return sectionName;
 	}
 
-	public int getIndex() {
-		return index;
+	public int getID() {
+		return id;
 	}
 
 	public Vertex[] getVertices() {
@@ -115,12 +121,12 @@ public class RectangularElement {
 		return sectionName;
 	}
 
-	public int getSectionIndex() {
-		return sectionIndex;
+	public int getSectionID() {
+		return sectionID;
 	}
 	
-	public int getFaultIndex() {
-		return faultIndex;
+	public int getFaultID() {
+		return faultID;
 	}
 	
 	public int getNumAlongStrike() {
@@ -138,11 +144,11 @@ public class RectangularElement {
 		Location newTop2 = vertices[3];
 		Location newBot1 = vertices[1];;
 		Location newBot2 = vertices[2];;
-		String line = index + "\t"+
+		String line = id + "\t"+
 			numAlongStrike + "\t"+
 			numDownDip + "\t"+
-			faultIndex + "\t"+
-			sectionIndex + "\t"+
+			faultID + "\t"+
+			sectionID + "\t"+
 			(float)slipRate + "\t"+
 			"NA" + "\t"+  // elementStrength not available
 			(float)focalMechanism.getStrike() + "\t"+
@@ -176,11 +182,11 @@ public class RectangularElement {
 
 		// Ward format
 		if(formatType == 0) {
-			index = Integer.parseInt(tok.nextToken()); // unique number ID for each element
+			id = Integer.parseInt(tok.nextToken()); // unique number ID for each element
 			numAlongStrike = Integer.parseInt(tok.nextToken()); // Number along strike
 			numDownDip = Integer.parseInt(tok.nextToken()); // Number down dip
-			faultIndex = Integer.parseInt(tok.nextToken()); // Fault Number
-			sectionIndex = Integer.parseInt(tok.nextToken()); // Segment Number
+			faultID = Integer.parseInt(tok.nextToken()); // Fault Number
+			sectionID = Integer.parseInt(tok.nextToken()); // Segment Number
 			slipRate = Double.parseDouble(tok.nextToken()); // Slip Rate in m/y.
 			double strength = Double.parseDouble(tok.nextToken()); // Element Strength in Bars (not used).
 			double strike = Double.parseDouble(tok.nextToken()); // stike
