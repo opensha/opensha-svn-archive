@@ -59,4 +59,7 @@ public class CybershakeHazardCurveRecord implements Comparable<CybershakeHazardC
 		return 0;
 	}
 
+	public String toString() {
+		return "curveID: " + curveID + ", runID: " + runID + ", imTypeID: " + imTypeID + ", date: " + date;
+	}
 }

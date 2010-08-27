@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -88,6 +89,17 @@ public class XMLUtils {
 		SAXReader read = new SAXReader();
 		
 		return read.read(new File(path));
+	}
+	
+	/**
+	 * Loads an XML document from a file path
+	 * 
+	 * @return XML document
+	 */
+	public static Document loadDocument(URL url) throws MalformedURLException, DocumentException {
+		SAXReader read = new SAXReader();
+		
+		return read.read(url);
 	}
 	
 	/**

@@ -148,20 +148,23 @@ public class CybershakeSiteInfo2DB {
 		int csSource = erfSourceID;
 		
 		if (matchSourceNames) {
-			HashMap<Integer, Integer> map = this.getSourceMatchMap(eqkRupForecast, erfID);
-			if (map == null) {
-				System.err.println("WHAT?????????????");
-			}
+			csSource = getMatchedCSSourceID(eqkRupForecast, erfID, erfSourceID);
 			System.out.print("Matching sourceID " + erfSourceID + "...");
-			if (map.containsKey(erfSourceID)) {
-				csSource = map.get(erfSourceID);
-				System.out.println(csSource);
-			} else {
+			if (csSource < 0) {
 				System.out.println("it's not in there!");
 			}
 		}
 		
 		return csSource;
+	}
+	
+	public int getMatchedCSSourceID(EqkRupForecastAPI eqkRupForecast, int erfID, int erfSourceID) {
+		HashMap<Integer, Integer> map = this.getSourceMatchMap(eqkRupForecast, erfID);
+		if (map.containsKey(erfSourceID)) {
+			return map.get(erfSourceID);
+		} else {
+			return -1;
+		}
 	}
 	
 	/**
@@ -511,16 +514,16 @@ public class CybershakeSiteInfo2DB {
 	
 	
 	public static void main(String args[]) {
-		HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
 		
-		map.put(3, 5);
+		CybershakeSiteInfo2DB site2db = new CybershakeSiteInfo2DB(Cybershake_OpenSHA_DBApplication.db);
 		
-		System.out.println(map.get(3));
-		System.out.println(map.get(new Integer(3)));
+		EqkRupForecastAPI erf = MeanUCERF2_ToDB.createUCERF2ERF();
+		erf.updateForecast();
 		
-//		CybershakeSiteInfo2DB site2db = new CybershakeSiteInfo2DB(Cybershake_OpenSHA_DBApplication.db);
-		
-//		site2db.
+		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
+			int id34 = site2db.getMatchedCSSourceID(erf, 34, sourceID);
+			System.out.println("ERF35: " + sourceID + " => ERF34: " + id34);
+		}
 	}
 	
 

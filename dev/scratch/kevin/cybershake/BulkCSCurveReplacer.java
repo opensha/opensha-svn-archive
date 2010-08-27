@@ -7,6 +7,9 @@ import java.util.HashMap;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.sha.cybershake.calc.HazardCurveComputation;
+import org.opensha.sha.cybershake.calc.RuptureProbabilityModifier;
+import org.opensha.sha.cybershake.calc.RuptureVariationProbabilityModifier;
 import org.opensha.sha.cybershake.db.CybershakeHazardCurveRecord;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeRun;
@@ -14,7 +17,6 @@ import org.opensha.sha.cybershake.db.CybershakeSite;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.cybershake.db.HazardCurve2DB;
-import org.opensha.sha.cybershake.db.HazardCurveComputation;
 import org.opensha.sha.cybershake.db.PeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.db.SiteInfo2DB;
 import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
@@ -26,6 +28,7 @@ public class BulkCSCurveReplacer {
 	private PeakAmplitudesFromDB amps2db;
 	private SiteInfo2DB sites2db;
 	private HazardCurve2DB curve2db;
+	private HazardCurveComputation calc;
 	
 	private ArrayList<CybershakeSite> ampSites;
 	private ArrayList<CybershakeRun> ampRuns;
@@ -33,6 +36,8 @@ public class BulkCSCurveReplacer {
 	private HashMap<Integer, ArrayList<DiscretizedFuncAPI>> curvesMap;
 	
 	private HashMap<Integer, CybershakeIM> imMap = new HashMap<Integer, CybershakeIM>();
+	
+	private ArrayList<Integer> recalcIMs = null;
 	
 	public BulkCSCurveReplacer(DBAccess db) {
 		this(db, null);
@@ -43,6 +48,7 @@ public class BulkCSCurveReplacer {
 		this.amps2db = new PeakAmplitudesFromDB(db);
 		this.sites2db = new SiteInfo2DB(db);
 		this.curve2db = new HazardCurve2DB(db);
+		this.calc = new HazardCurveComputation(db);
 		
 		ampRuns = amps2db.getPeakAmpRuns();
 		ampSites = new ArrayList<CybershakeSite>();
@@ -63,6 +69,18 @@ public class BulkCSCurveReplacer {
 				curvesMap.put(run.getRunID(), curves);
 			}
 		}
+	}
+	
+	public void setRupRpobModifier(RuptureProbabilityModifier rupProbMod) {
+		calc.setRupProbModifier(rupProbMod);
+	}
+	
+	public void setRupVarProbModifier(RuptureVariationProbabilityModifier rupVarProbMod) {
+		calc.setRupVarProbModifier(rupVarProbMod);
+	}
+	
+	public void setRecalcIMs(ArrayList<Integer> recalcIMs) {
+		this.recalcIMs = recalcIMs;
 	}
 	
 	public static String getFileName(int runID, int curveID) {
@@ -125,14 +143,19 @@ public class BulkCSCurveReplacer {
 		for (int i=0; i<func.getNum(); i++)
 			imVals.add(func.getX(i));
 		
-		HazardCurveComputation calc = new HazardCurveComputation(db);
-		
 		for (CybershakeRun run : ampRuns) {
+			if (run.getERFID() != 35)
+//				throw new RuntimeException("ERF ID IS NOT 35!!!!");
+				continue;
 			ArrayList<CybershakeHazardCurveRecord> records = curveRecordsMap.get(new Integer(run.getRunID()));
 			if (records == null)
 				continue;
 			for (int i=0; i<records.size(); i++) {
 				CybershakeHazardCurveRecord record = records.get(i);
+				
+				// if we're only calculating for specific IM(s), skip if this doesn't match them
+				if (recalcIMs != null && !recalcIMs.contains(new Integer(record.getImTypeID())))
+					continue;
 				
 				String fileName = dir + getFileName(run.getRunID(), record.getCurveID());
 				File curveFile = new File(fileName);
@@ -163,6 +186,7 @@ public class BulkCSCurveReplacer {
 					imMap.put(record.getImTypeID(), im);
 				}
 				
+				System.out.println("Calculating curve: " + record);
 				long prev = System.currentTimeMillis();
 				DiscretizedFuncAPI curve = calc.computeHazardCurve(imVals, run, im);
 				double secs = ((double)(System.currentTimeMillis() - prev)) / 1000d;
