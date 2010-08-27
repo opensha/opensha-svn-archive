@@ -1551,7 +1551,17 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		//			commandLine = "${COMMAND_PATH}mv temp2.jpg "+jpgFileName;
 		//			gmtCommandLines.add(commandLine+"\n");
 		//		}
+		addCleanup(gmtCommandLines, rmFiles);
+		
+		
+		// This adds any final commands
+		addFinalGMT_ScriptLines(gmtCommandLines);
 
+
+		return gmtCommandLines;
+	}
+	
+	public static void addCleanup(ArrayList<String> gmtCommandLines, ArrayList<String> rmFiles) {
 		// clean out temp files
 		if (rmFiles.size() > 0) {
 			gmtCommandLines.add("");
@@ -1562,12 +1572,6 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			}
 			gmtCommandLines.add(rmCommand);
 		}
-		
-		// This adds any final commands
-		addFinalGMT_ScriptLines(gmtCommandLines);
-
-
-		return gmtCommandLines;
 	}
 	
 	public static void addHighwayCommand(ArrayList<String> gmtCommandLines, GMT_Map map,

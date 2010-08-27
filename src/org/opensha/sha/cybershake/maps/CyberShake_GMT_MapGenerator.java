@@ -39,9 +39,9 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				zVal = Double.NaN;
 			else
 				zVal = Math.log10(zVal);
-			if (i % 100 == 0) {
-				System.out.println("getLogXYZ: orig: "+z.get(i) + " log: "+zVal);
-			}
+//			if (i % 100 == 0) {
+//				System.out.println("getLogXYZ: orig: "+z.get(i) + " log: "+zVal);
+//			}
 			log.addValue(x.get(i), y.get(i), zVal);
 //			System.out.println(x.get(i) + ", " + y.get(i) + ": orig: " + z.get(i) + " log: " + zVal);
 		}
@@ -133,12 +133,15 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		GMT_InterpolationSettings interpSettings = map.getInterpSettings();
 		double interpGridSpacing = interpSettings.getInterpSpacing();
 		
-		XYZ_DataSetAPI griddedData = map.getGriddedData();
-		XYZ_DataSetAPI scatterData = map.getScatter();
+		XYZ_DataSetAPI griddedData;
+		XYZ_DataSetAPI scatterData;
 		if (map.isLogPlot()) {
 			System.out.println("taking the log of input files!");
-			griddedData = getLogXYZ(griddedData);
-			scatterData = getLogXYZ(scatterData);
+			griddedData = getLogXYZ(map.getGriddedData());
+			scatterData = getLogXYZ(map.getScatter());
+		} else {
+			griddedData = map.getGriddedData();
+			scatterData = map.getScatter();
 		}
 		XYZ_DataSetAPI diffs = getDiffs(griddedData, scatterData);
 		
@@ -380,6 +383,8 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + psFile + " " + fName);
 			}
 		}
+		
+		GMT_MapGenerator.addCleanup(gmtCommandLines, rmFiles);
 		
 		return gmtCommandLines;
 	}

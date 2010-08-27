@@ -142,6 +142,7 @@ public class HardCodedInterpDiffMapCreator {
 			map.setLogPlot(logPlot);
 			map.setDpi(300);
 			map.isCustomScale();
+			map.setXyzFileName("base_map.xyz");
 			
 			String metadata = "isProbAt_IML: " + isProbAt_IML + "\n" +
 							"val: " + val + "\n" +
