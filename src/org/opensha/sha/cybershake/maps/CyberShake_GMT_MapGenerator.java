@@ -24,7 +24,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 	
 	public static int[] dpis = {72, 150, 300};
 	
-	private static ArbDiscretizedXYZ_DataSet getLogXYZ(XYZ_DataSetAPI orig) {
+	protected static ArbDiscretizedXYZ_DataSet getLogXYZ(XYZ_DataSetAPI orig) {
 		ArbDiscretizedXYZ_DataSet log = new ArbDiscretizedXYZ_DataSet();
 		
 		ArrayList<Double> x = orig.getX_DataSet();
@@ -40,6 +40,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			else
 				zVal = Math.log10(z.get(i));
 			log.addValue(x.get(i), y.get(i), zVal);
+//			System.out.println(x.get(i) + ", " + y.get(i) + ": orig: " + z.get(i) + " log: " + zVal);
 		}
 		
 		return log;
@@ -132,6 +133,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		XYZ_DataSetAPI griddedData = map.getGriddedData();
 		XYZ_DataSetAPI scatterData = map.getScatter();
 		if (map.isLogPlot()) {
+			System.out.println("taking the log of input files!");
 			griddedData = getLogXYZ(griddedData);
 			scatterData = getLogXYZ(scatterData);
 		}
