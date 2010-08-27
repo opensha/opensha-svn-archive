@@ -130,12 +130,18 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		GMT_InterpolationSettings interpSettings = map.getInterpSettings();
 		double interpGridSpacing = interpSettings.getInterpSpacing();
 		
-		XYZ_DataSetAPI griddedData = map.getGriddedData();
-		XYZ_DataSetAPI scatterData = map.getScatter();
+		XYZ_DataSetAPI tempGriddedData = map.getGriddedData();
+		XYZ_DataSetAPI tempScatterData = map.getScatter();
+		
+		XYZ_DataSetAPI griddedData;
+		XYZ_DataSetAPI scatterData;
 		if (map.isLogPlot()) {
 			System.out.println("taking the log of input files!");
-			griddedData = getLogXYZ(griddedData);
-			scatterData = getLogXYZ(scatterData);
+			griddedData = getLogXYZ(tempGriddedData);
+			scatterData = getLogXYZ(tempScatterData);
+		} else {
+			griddedData = tempGriddedData;
+			scatterData = tempScatterData;
 		}
 		XYZ_DataSetAPI diffs = getDiffs(griddedData, scatterData);
 		
