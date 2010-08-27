@@ -147,11 +147,12 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		
 		// write the basemap
 		String basemapXYZName = map.getXyzFileName();
-		try {
-			ArbDiscretizedXYZ_DataSet.writeXYZFile(griddedData, dir + basemapXYZName);
-		} catch (IOException e) {
-			throw new GMT_MapException("Could not write XYZ data to a file", e);
-		}
+		// this is done by the servlet
+//		try {
+//			ArbDiscretizedXYZ_DataSet.writeXYZFile(griddedData, dir + basemapXYZName);
+//		} catch (IOException e) {
+//			throw new GMT_MapException("Could not write XYZ data to a file", e);
+//		}
 		String baseGRD = "base_map.grd";
 		rmFiles.add(baseGRD);
 		gmtCommandLines.add("# convert xyz file to grd file");
@@ -198,8 +199,8 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			colorScaleMin = map.getCustomScaleMin();
 			colorScaleMax = map.getCustomScaleMax();
 //			if (map.isLogPlot()) {
-				colorScaleMin = Math.log10(colorScaleMin);
-				colorScaleMax = Math.log10(colorScaleMax);
+//				colorScaleMin = Math.log10(colorScaleMin);
+//				colorScaleMax = Math.log10(colorScaleMax);
 //			}
 			if (colorScaleMin >= colorScaleMax)
 				throw new RuntimeException("Error: Color-Scale Min must be less than the Max");
