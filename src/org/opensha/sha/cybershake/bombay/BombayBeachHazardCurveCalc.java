@@ -37,6 +37,7 @@ public class BombayBeachHazardCurveCalc implements RuptureVariationProbabilityMo
 	public static final Location BOMBAY_LOC = new Location(33.318333, -115.728333);
 	public static final Location PARKFIELD_LOC = new Location(35.815, -120.374);
 	public static final Location PICO_RIVERA_LOC = new Location(33.99, -118.08, 18.9);
+	public static final Location YUCAIPA_LOC = new Location(34.058, -117.011, 11.8);
 //	public static double MAX_DIST_KM = 10;
 	
 	private Location hypoLocation;
@@ -312,13 +313,16 @@ public class BombayBeachHazardCurveCalc implements RuptureVariationProbabilityMo
 //					10d, sourceNameConstr, false);
 //			String sourceNameConstr = "puente";
 			String sourceNameConstr = null;
-			BombayBeachHazardCurveCalc calc = new BombayBeachHazardCurveCalc(db, 1000d, PICO_RIVERA_LOC,
-					15d, sourceNameConstr, true);
+//			BombayBeachHazardCurveCalc calc = new BombayBeachHazardCurveCalc(db, 1000d, PICO_RIVERA_LOC,
+//					15d, sourceNameConstr, true);
+			BombayBeachHazardCurveCalc calc = new BombayBeachHazardCurveCalc(db, 1000d, YUCAIPA_LOC,
+					10d, sourceNameConstr, true);
 			
 			try {
 //				calc.writeSourceRupInfoFile("/home/kevin/CyberShake/bombay/rv_info.txt");
 //				calc.writeSourceRupInfoFile("/home/kevin/CyberShake/parkfield/rv_info.txt");
-				calc.writeSourceRupInfoFile("/home/kevin/CyberShake/picoRivera/rv_info.txt");
+//				calc.writeSourceRupInfoFile("/home/kevin/CyberShake/picoRivera/rv_info.txt");
+				calc.writeSourceRupInfoFile("/home/kevin/CyberShake/yucaipa/rv_info.txt");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
