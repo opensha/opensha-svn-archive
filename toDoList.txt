@@ -1,24 +1,34 @@
-**************** SHORT TERM (HIGH PRIORITY): ****************
--------------------------------------------------------------
+Ned did his best to make sure there is no overlap between this and what's in Trac.
+
+Near Term
+---------
+
+Ned needs to review Kevin's average IMR implementation, and then we need to implement a subclass of that which replicates the NSHMP 2008 calculations.
+
+Investigate upgrade to JFreeChart current version; buy dev guide
+
+Finish PEER test conversion to JUnit. (Keep test and app control panel in sync).  Peter says we need to set the failure threshold.  The link for their report is here:
+
+	http://peer.berkeley.edu/publications/peer_reports/reports_2010/web_PEER_10106_THOMASetal.pdf
+
+
+In SECEC VDO, can edit the MagFreqDist in the Pois floating ERF.
+
+Ned has the following things in his "OpenSHA =- To Do Now" email lists:
+
+	1) polish tools for calculating bin MFDs from an ERF (finish org.opensha.sha.earthquake.calc.ERF_Calculator)
+	2) Looks at Kevin's Bsind depth data and site-type APIs
+	3) Look at Kevin's site data applets (org.opensha.data.siteType.gui.SiteDataApplet & org.opensha.data.siteType.gui.SiteDataMapApplet )
+	4) Peter's new IMR GUI bean prototype (http://intensity.usc.edu/trac/opensha/wiki/SettingUpEclipse#Branching)
+	5) Brendon Bradley's "Re: Implementation of ground motion selection in OpenSHA"
+	6) Reproduction of NSHMP08 calcs (also see my marker board)
+	7) Brendon's "Incorporation of SI and ASI predictions to trunk" emails.
+	8) scatter plots
+	9) simulator rupture viewing in SCEC VDO.
 
 
 BROADER ISSUES:
 --------------
-
-Develop strategy for instantiation of model components for each type of 
-calculation from XML files.  In so doing we will likely revise the implementation 
-of our GUIs in order to make things most efficient (e.g., in terms of showing metadata 
-from a calculation, saving the state of an application, and avoiding redundant calcs 
-if already done and saved in a database (the latter two have yet to be done)).   
-This will involve first looking at our calculators (the various elements needed 
-for the various calculations), and then considering how these relate to our GUI 
-beans and control panels.  This will also involve reviewing Kevin's 
-toXMLMetadata(Element root)  &  fromXMLMetadata(Element root) implementations (these 
-should be our starting point).  We also want to maintain remote calc capabilities.
-
-Investigate upgrade to JFreeChart current version; buy dev guide
-
-Finish PEER test conversion to JUnit. (Keep test and app control panel in sync)
 
 The ability to associate sources and imrs to TectonicRegionTypes has been added to the HazardCurveCalculator.  What remains to be done is:
 
@@ -33,9 +43,6 @@ The ability to associate sources and imrs to TectonicRegionTypes has been added 
 	time or bloat memory.
 	
 	
-Verify WG02 Fortan (since being made to work)
-	- need to compare to original calculations. 
-
 Website:
 	Map/UML of each calculator/application.
 	Caluclator demos/tutorials
@@ -65,8 +72,6 @@ Clean up control panels (make subdirs, and change names that are unclear, like C
 
 Event Set Data Calculator  - more test?; gui/xml version?; versioning for reference?
 
-Geographic disaggregation
-
 Clarify declarations of IntensityMeasureRelationship, IntensityMeasureRelationshipAPI, ScalarIntensityMeasureRelationship, and AttenuationRelationship, especially in calculators
 
 JUnit JUnit JUnit.
@@ -77,17 +82,6 @@ See if param API method "getType()" is needed anymore.
 Improvement on TreeMap?
 
 ------
-
-IntensityMeasureRelationship defines intensity measure as: protected ParameterAPI im;
-yet elsewhere we assume its a DependentParameterAPI, such as in the method:
-IntensityMeasureRelationship.setIntensityMeasure(ParameterAPI intensityMeasure)
-(where it's cast to DependentParameterAPI).  So far this hasn't been a problem because 
-all thus-far implemented IMs are DependentParameterAPIs.  Fix this either by changing
-the definition of im or putting and if statement before castings.  We could either 
-change the definition of im to be a DependentParameterAPI, or put an if statement 
-before sections where we currently assume it's a DependentParameterAPI.
-
-Clean the Application build process
 
 Clean the etc dir
 
@@ -147,8 +141,6 @@ MINOR ISSUES:
 Our PEER PSHA verification applications are broken (remove, or should we update with final results)?
 
 HazardSpectrumApp crashes if source and site are more than the "Max Source-Site Distance" value (try defaults with point-source ERF).
-
-Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.  DID NITIN DO THIS?
 
 Hazus PSHA dataset calculator - GUI-based app?
 
@@ -212,9 +204,6 @@ Decide how to handle rake=NaN in each IMR (can rake-NaN in an EarthquakeRupture 
 
 Vector PSHA?
 
-Pathway 1.5?
-
-AttenRelApp:
 
 	Problem:  if you violate a parameter constraint when hitting the add trace button
 	(rather than hitting return in the parameter editor) you need to hit add trace again
@@ -249,15 +238,7 @@ STEP Implementation (has Matt done much of this???):
 --------------------------------------------------------
 
 
-Cybershake Scatter plotter
-
-
-
-Nitin - prepare a brief documentation on the how and why I did HazardCurveServer Mode in RMI. This will also include preparing a brief documentation on RMI and webservices. This document should also include the possible flaws in the applications and what improvements are needed in the application and what's more needs to be added to generalize the application.  
-
 Access PEER NGA data file for comparisons in our apps.
-
-Fix GriddedFaultApplet - horz/vert scaling - may be fixed; check it out; add java 3D.  Or should we use SCEC VDO?
 
 Look into how to save an application in its current state (and to an abitrary file name) so that a user can double click later to come back.
 
