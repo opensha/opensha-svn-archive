@@ -33,7 +33,18 @@ public class EQSIM_Event extends ArrayList<EventRecord> {
 	
 	public double getDuration() { return duration;}
 	
+	/**
+	 * This returns the time of the event in seconds
+	 * @return
+	 */
 	public double getTime() { return time;}
+	
+	/**
+	 * This returns the time of the event in years
+	 * @return
+	 */
+	public double getTimeInYears() { return time/General_EQSIM_Tools.SECONDS_PER_YEAR;}
+
 	
 	/**
 	 * This tells whether the event has data for slip on each element
@@ -54,5 +65,42 @@ public class EQSIM_Event extends ArrayList<EventRecord> {
 		}
 		return num;
 	}
+	
+	/**
+	 * This returns a complete list of element IDs for this event 
+	 * (it loops over all the event records). The results are in the same
+	 * order as returned by getAllElementSlips().
+	 * @return
+	 */
+	public ArrayList<Integer> getAllElementIDs() {
+		if(hasElementSlipsAndIDs()) {
+			ArrayList<Integer> idList = new ArrayList<Integer>();
+			for(int r=0; r<this.size();r++) {
+				EventRecord er = get(r);
+				idList.addAll(er.getElementID_List());
+			}
+			return idList;
+		}
+		else return null;
+	}
+	
+	/**
+	 * This returns a complete list of element Slips for this event 
+	 * (it loops over all the event records).  The results are in the same
+	 * order as returned by getAllElementIDs().
+	 * @return
+	 */
+	public ArrayList<Double> getAllElementSlips() {
+		if(hasElementSlipsAndIDs()) {
+			ArrayList<Double> slipList = new ArrayList<Double>();
+			for(int r=0; r<this.size();r++) {
+				EventRecord er = get(r);
+				slipList.addAll(er.getElementSlipList());
+			}
+			return slipList;
+		}
+		else return null;
+	}
 
+	
 }
