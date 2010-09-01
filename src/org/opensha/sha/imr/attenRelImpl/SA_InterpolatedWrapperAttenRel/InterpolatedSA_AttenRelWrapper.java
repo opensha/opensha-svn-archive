@@ -193,10 +193,11 @@ public class InterpolatedSA_AttenRelWrapper
 		  setPeriodsAboveAndBelow();
 	  }
 	  origPeriodParam.setValue(periodBelow);
-	  double mean1 = attenRelToWrap.getMean();
+	  double meanBelow = attenRelToWrap.getMean();
 	  origPeriodParam.setValue(periodAbove);
-	  double mean2 = attenRelToWrap.getMean();
-	  return (mean1*(periodAbove-period) + mean2*(period-periodBelow))/(periodAbove-periodBelow);
+	  double meanAbove = attenRelToWrap.getMean();
+//	  return (meanBelow*(periodAbove-period) + meanAbove*(period-periodBelow))/(periodAbove-periodBelow);
+	  return (meanBelow + (meanAbove-meanBelow)*Math.log(period/periodBelow)/Math.log(periodAbove/periodBelow)); //log interpolation
   }
 
   /**
@@ -207,10 +208,12 @@ public class InterpolatedSA_AttenRelWrapper
 		  setPeriodsAboveAndBelow();
 	  }
 	  origPeriodParam.setValue(periodAbove);
-	  double std2 = attenRelToWrap.getStdDev();
+	  double stdAbove = attenRelToWrap.getStdDev();
 	  origPeriodParam.setValue(periodBelow);
-	  double std1 = attenRelToWrap.getStdDev();
-	  return (std1*(periodAbove-period) + std2*(period-periodBelow))/(periodAbove-periodBelow);
+	  double stdBelow = attenRelToWrap.getStdDev();
+//	  return (stdBelow*(periodAbove-period) + stdAbove*(period-periodBelow))/(periodAbove-periodBelow);
+	  return (stdBelow + (stdAbove-stdBelow)*Math.log(period/periodBelow)/Math.log(periodAbove/periodBelow)); //log interpolation
+
   }
   
  /**
