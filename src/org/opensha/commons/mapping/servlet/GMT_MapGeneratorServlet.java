@@ -148,27 +148,34 @@ extends HttpServlet {
 		doGet(request, response);
 	}
 	
-	public static String createMap(SecureMapGenerator gmt, GMT_Map map, String plotDirName, String metadata,
-			String metadataFileName) throws IOException, GMT_MapException {
-		//Name of the directory in which we are storing all the gmt data for the user
-		String newDir = null;
-		//gets the current time in milliseconds to be the new director for each user
-		String currentMilliSec = "" + System.currentTimeMillis();
+	public static String getPlotDirName(String plotDirName) {
 		if (plotDirName != null) {
-			File f = new File(plotDirName);
+			File f = new File(FILE_PATH + GMT_DATA_DIR + plotDirName);
 			int fileCounter = 1;
+			String modPlotDirName = plotDirName;
 			//checking if the directory already exists then add
 			while (f.exists()) {
-				String tempDirName = plotDirName + fileCounter;
+				modPlotDirName = plotDirName + fileCounter;
+				String tempDirName = FILE_PATH + GMT_DATA_DIR + modPlotDirName;
 				f = new File(tempDirName);
 				++fileCounter;
 			}
-			newDir = FILE_PATH + GMT_DATA_DIR + f.getName();
+			return modPlotDirName;
 		}
 		else {
-			plotDirName = currentMilliSec;
-			newDir = FILE_PATH + GMT_DATA_DIR + currentMilliSec;
+			return "" + System.currentTimeMillis();
 		}
+	}
+	
+	public static String getPlotDirPath(String plotDirName) {
+		plotDirName = getPlotDirName(plotDirName);
+		return FILE_PATH + GMT_DATA_DIR + plotDirName;
+	}
+	
+	public static String createMap(SecureMapGenerator gmt, GMT_Map map, String plotDirName, String metadata,
+			String metadataFileName) throws IOException, GMT_MapException {
+		//Name of the directory in which we are storing all the gmt data for the user
+		String newDir = getPlotDirPath(plotDirName);
 
 		//create a gmt directory for each user in which all his gmt files will be stored
 		(new File(newDir)).mkdir();

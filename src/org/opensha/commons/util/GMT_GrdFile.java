@@ -5,6 +5,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 
@@ -518,6 +519,31 @@ public class GMT_GrdFile {
 		}
 		
 		return region;
+	}
+	
+	public ArbDiscretizedXYZ_DataSet getXYZDataset(boolean latIsX) {
+		ArbDiscretizedXYZ_DataSet xyz = new ArbDiscretizedXYZ_DataSet();
+		
+		for (int xInd=0; xInd<getNumX(); xInd++) {
+			for (int yInd=0; yInd<getNumY(); yInd++) {
+				double x, y, z;
+				if (latIsX) {
+					x = getY(yInd);
+					y = getX(xInd);
+				} else {
+					y = getY(yInd);
+					x = getX(xInd);
+				}
+				try {
+					z = getZ(xInd, yInd);
+					xyz.addValue(x, y, z);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		
+		return xyz;
 	}
 
 	/**

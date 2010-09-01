@@ -8,10 +8,21 @@ import java.net.URLConnection;
 
 import org.opensha.sha.cybershake.maps.CyberShake_GMT_MapGenerator;
 import org.opensha.sha.cybershake.maps.InterpDiffMap;
+import org.opensha.sha.cybershake.maps.ProbabilityGainMap;
 
 public class CS_InterpDiffMapServletAccessor {
 	
 	public static String DEFAULT_METADATA_FILE_NAME = "metadata.txt";
+	
+	private static void checkLog(Object map) {
+		if (map instanceof InterpDiffMap) {
+			checkLog((InterpDiffMap)map);
+		} else if (map instanceof ProbabilityGainMap) {
+			ProbabilityGainMap pgMap = (ProbabilityGainMap)map;
+			checkLog(pgMap.getReferenceMap());
+			checkLog(pgMap.getModifiedMap());
+		}
+	}
 	
 	private static void checkLog(InterpDiffMap map) {
 		if (map.isLogPlot()) {
@@ -21,6 +32,14 @@ public class CS_InterpDiffMapServletAccessor {
 	}
 	
 	public static String makeMap(String dirName, InterpDiffMap map, String metadata) throws IOException, ClassNotFoundException {
+		return (String)getMap(dirName, map, metadata);
+	}
+	
+	public static String[] makeMap(String dirName, ProbabilityGainMap map, String metadata) throws IOException, ClassNotFoundException {
+		return (String[])getMap(dirName, map, metadata);
+	}
+	
+	private static Object getMap(String dirName, Object map, String metadata) throws IOException, ClassNotFoundException {
 		URL gmtMapServlet = new URL(CS_InterpDiffMapServlet.SERVLET_URL);
 		
 		checkLog(map);
@@ -62,13 +81,9 @@ public class CS_InterpDiffMapServletAccessor {
 
 		Object messageFromServlet = inputToServlet.readObject();
 		inputToServlet.close();
-		String webaddr;
-		if(messageFromServlet instanceof String){
-			webaddr = (String) messageFromServlet;
-		}
-		else
+		if (messageFromServlet instanceof RuntimeException)
 			throw (RuntimeException)messageFromServlet;
-		return webaddr;
+		return messageFromServlet;
 	}
 
 }

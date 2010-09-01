@@ -29,10 +29,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.mapping.servlet.GMT_MapGeneratorServlet;
 import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.sha.cybershake.maps.CyberShake_GMT_MapGenerator;
 import org.opensha.sha.cybershake.maps.InterpDiffMap;
+import org.opensha.sha.cybershake.maps.ProbabilityGainMap;
 
 
 
@@ -94,7 +96,7 @@ extends HttpServlet {
 			String dirName = (String) inputFromApplet.readObject();
 
 			//gets the object for the GMT_MapGenerator script
-			InterpDiffMap map = (InterpDiffMap)inputFromApplet.readObject();
+			Object mapObj = inputFromApplet.readObject();
 
 			//Metadata content: Map Info
 			String metadata = (String) inputFromApplet.readObject();
@@ -102,10 +104,19 @@ extends HttpServlet {
 			//Name of the Metadata file
 			String metadataFileName = (String) inputFromApplet.readObject();
 			
-			String mapImagePath = GMT_MapGeneratorServlet.createMap(csGMT, map, dirName, metadata, metadataFileName);
+			if (mapObj instanceof InterpDiffMap) {
+				InterpDiffMap map = (InterpDiffMap)mapObj;
+				String mapImagePath = GMT_MapGeneratorServlet.createMap(csGMT, map, dirName, metadata, metadataFileName);
+				
+				//returns the URL to the folder where map image resides
+				outputToApplet.writeObject(mapImagePath);
+			} else if (mapObj instanceof ProbabilityGainMap) {
+				ProbabilityGainMap map = (ProbabilityGainMap)mapObj;
+				String[] locs = getProbGainMap(map, dirName, metadata, metadataFileName);
+			} else {
+				throw new GMT_MapException("Map type '" + mapObj.getClass().getName() + "' not supported!");
+			}
 			
-			//returns the URL to the folder where map image resides
-			outputToApplet.writeObject(mapImagePath);
 			outputToApplet.close();
 
 		}catch (Throwable t) {
@@ -113,6 +124,40 @@ extends HttpServlet {
 			outputToApplet.writeObject(new RuntimeException(t));
 			outputToApplet.close();
 		}
+	}
+	
+	private static final String REF_SUBDIR_NAME = "reference";
+	private static final String MOD_SUBDIR_NAME = "modified";
+	private static final String GAIN_SUBDIR_NAME = "gain";
+	
+	private String[] getProbGainMap(ProbabilityGainMap map, String dirName, String metadata, String metadataFileName)
+	throws IOException, GMT_MapException {
+		String plotDir = GMT_MapGeneratorServlet.getPlotDirPath(dirName);
+		File plotDirFile = new File(plotDir);
+		String plotDirName = plotDirFile.getName();
+		
+		String refPlotDirName = plotDirName + File.separator + REF_SUBDIR_NAME;
+		String modPlotDirName = plotDirName + File.separator + MOD_SUBDIR_NAME;
+		String gainPlotDirName = plotDirName + File.separator + GAIN_SUBDIR_NAME;
+		
+		String refURL =GMT_MapGeneratorServlet.createMap(csGMT, map.getReferenceMap(),
+				refPlotDirName, metadata, metadataFileName);
+		String modURL = GMT_MapGeneratorServlet.createMap(csGMT, map.getModifiedMap(),
+				modPlotDirName, metadata, metadataFileName);
+		
+		String refGRDFile = plotDir + File.separator + REF_SUBDIR_NAME + File.separator
+								+ CyberShake_GMT_MapGenerator.INTERP_DIFF_MASKED_GRD_NAME;
+		String modGRDFile = plotDir + File.separator + MOD_SUBDIR_NAME + File.separator
+								+ CyberShake_GMT_MapGenerator.INTERP_DIFF_MASKED_GRD_NAME;
+		
+		InterpDiffMap gainMap = map.convertModifiedToProbGain(refGRDFile, modGRDFile);
+		
+		String gainURL = GMT_MapGeneratorServlet.createMap(csGMT, map.getModifiedMap(),
+				gainPlotDirName, metadata, metadataFileName);
+		
+		String[] urls = {refURL, modURL, gainURL};
+		
+		return null;
 	}
 	
 	//Process the HTTP Post request

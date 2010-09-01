@@ -25,6 +25,8 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 	
 	public static int[] dpis = {72, 150, 300};
 	
+	public static final String INTERP_DIFF_MASKED_GRD_NAME = "interp_diff.grd";
+	
 	public static ArbDiscretizedXYZ_DataSet getLogXYZ(XYZ_DataSetAPI orig) {
 		ArbDiscretizedXYZ_DataSet log = new ArbDiscretizedXYZ_DataSet();
 		
@@ -277,10 +279,9 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				" PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
 		gmtCommandLines.add(commandLine+"\n");
 		
-		String interpDiffGRD = "interp_diff.grd";
+		String interpDiffGRD = INTERP_DIFF_MASKED_GRD_NAME;
 		if (shouldInterp) {
 			// combine the basemap and interpolated map
-			rmFiles.add(interpDiffGRD);
 			gmtCommandLines.add("# add the interpolated vals to the basemap");
 			gmtCommandLines.add("${GMT_PATH}grdmath "+baseGRD+" "+interpSampledGRD+" ADD = "+interpDiffGRD+"\n");
 		}
