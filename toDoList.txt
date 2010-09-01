@@ -5,26 +5,26 @@ Near Term
 
 Ned needs to review Kevin's average IMR implementation, and then we need to implement a subclass of that which replicates the NSHMP 2008 calculations.
 
-Investigate upgrade to JFreeChart current version; buy dev guide
-
-Finish PEER test conversion to JUnit. (Keep test and app control panel in sync).  Peter says we need to set the failure threshold.  The link for their report is here:
+Finish PEER test conversion to JUnit. (Keep test and app control panel in sync).  Peter says we need to set the failure threshold (Ned and Peter will work on finishing this).  The link for their report is here:
 
 	http://peer.berkeley.edu/publications/peer_reports/reports_2010/web_PEER_10106_THOMASetal.pdf
 
-
 In SECEC VDO, can edit the MagFreqDist in the Pois floating ERF.
 
-Ned has the following things in his "OpenSHA =- To Do Now" email lists:
+Move all GEM1 stuff to be self contained (see Ned's email on this).
+
+Finish new web-site.
+
+Ned has the following things in his "OpenSHA - To Do Now" email lists:
 
 	1) polish tools for calculating bin MFDs from an ERF (finish org.opensha.sha.earthquake.calc.ERF_Calculator)
-	2) Looks at Kevin's Bsind depth data and site-type APIs
-	3) Look at Kevin's site data applets (org.opensha.data.siteType.gui.SiteDataApplet & org.opensha.data.siteType.gui.SiteDataMapApplet )
-	4) Peter's new IMR GUI bean prototype (http://intensity.usc.edu/trac/opensha/wiki/SettingUpEclipse#Branching)
-	5) Brendon Bradley's "Re: Implementation of ground motion selection in OpenSHA"
+	2) Looks at Kevin's Basin depth data and site-type APIs
+	3) Look at Kevin's site data applets (org.opensha.data.siteType.gui.SiteDataApplet & org.opensha.data.siteType.gui.SiteDataMapApplet ); he's adding these apps to web site.
 	6) Reproduction of NSHMP08 calcs (also see my marker board)
 	7) Brendon's "Incorporation of SI and ASI predictions to trunk" emails.
-	8) scatter plots
-	9) simulator rupture viewing in SCEC VDO.
+	8) Scatter plots
+	9) Simulator rupture viewing in SCEC VDO.
+	10) Nitin's work
 
 
 BROADER ISSUES:
@@ -66,8 +66,6 @@ Investigate Performance Issues:
 		
 Need to review the new site translator class (what Kevin put together)
 
-Evaluate Kevin's implementation of site class for region web services
-
 Clean up control panels (make subdirs, and change names that are unclear, like CalcOptionControl)
 
 Event Set Data Calculator  - more test?; gui/xml version?; versioning for reference?
@@ -75,6 +73,7 @@ Event Set Data Calculator  - more test?; gui/xml version?; versioning for refere
 Clarify declarations of IntensityMeasureRelationship, IntensityMeasureRelationshipAPI, ScalarIntensityMeasureRelationship, and AttenuationRelationship, especially in calculators
 
 JUnit JUnit JUnit.
+
 Clean up as many Eclipse warnings as possible
 
 See if param API method "getType()" is needed anymore.
@@ -100,8 +99,6 @@ Figure out where to put org.opensha.refFaultParamDb
 
 Clean up contents of org.opensha.sha.gui.infoTools
 
-Review allowed values for location fields, and whether using radians rather than degrees for internal storage would be more efficient.
-
 Codebase
 	�	Revise exception handling
 	�	Use enums where applicable (e.g. fault_type and std_dev in IMR) - Peter will 
@@ -109,15 +106,11 @@ Codebase
 	�	Clear out Sys.out.println and use of C & D for naming/debugging ... use logging 
 		with warn levels.  Peter will propose something
 	�	Survey other custom editors for possible improvements (e.g. Rupture Editor)
-	�	Move to Java WebStart and/or bundled applications
 	�	Better integration of threading and use of wait-cursor
 	�	Persistence framework that does not require explicit read/write XML in each class
 	�	Use correct modifiers (public protected private (e.g. HazardCurveCalculator)
-	�	.
 
 Web
-	�	Requirements for content of user site (e.g. demos, tutorial, any technical documentation?)
-	�	Use Drupal for user site?
 	�	Better user/download tracking
 
 Other notes
@@ -127,12 +120,6 @@ Other notes
 	�	Fix ArbDiscretizedXYZ_dataSet ??
 
 
-Make email lists for the following (with on-line archives):
-
-	users@OpenSHA.org
-	developers@OpenSHA.org
-	leaders@OpenSHA.org
-	advisors@OpenSHA.org
 
 
 MINOR ISSUES:
@@ -150,13 +137,9 @@ EstimateParameterEditor - problem with IntegerEstimate (won't recover if non int
 
 FractileListEstimate - add this to the parameter editor
 
-Implement new version checking/download option in all apps (skip if no internet access)
-
 Attenuation Relationship Plotter
 
 	Buttons at the bottom right disappear if window is too narrow
-
-Do MFD & gridded forecast stuff on Ned's email to himself.
 
 Implement the attenuation relationship desired by UCLA.  This will require allowing an IMR to issue a supportedIMT_Change event so the applications can refresh accordingly.  This will also require an object on the server to communicate with an application if we ever distribute IMRs.
 
