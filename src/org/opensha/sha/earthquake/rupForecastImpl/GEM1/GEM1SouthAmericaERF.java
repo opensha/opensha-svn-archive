@@ -2,19 +2,11 @@ package org.opensha.sha.earthquake.rupForecastImpl.GEM1;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 
-import org.opensha.gem.GEM1.calc.gemModelData.nshmp.south_america.NshmpSouthAmericaData;
 import org.opensha.gem.GEM1.calc.gemModelData.nshmp.south_america.NshmpSouthAmericaFaultData;
 import org.opensha.gem.GEM1.calc.gemModelData.nshmp.south_america.NshmpSouthAmericaGridData;
 import org.opensha.gem.GEM1.calc.gemModelData.nshmp.south_america.NshmpSouthAmericaSubductionData;
-import org.opensha.gem.GEM1.calc.gemModelData.nshmp.us.NshmpUsData;
 import org.opensha.gem.GEM1.commons.CalculationSettings;
-import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSourceData;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
-import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 public class GEM1SouthAmericaERF extends GEM1ERF {
 

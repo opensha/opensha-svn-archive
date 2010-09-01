@@ -1,10 +1,8 @@
 package org.opensha.sha.earthquake.rupForecastImpl.GEM1;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 
 import org.opensha.gem.GEM1.calc.gemModelData.nshmp.us.NshmpCascadiaSubductionData;
-import org.opensha.gem.GEM1.calc.gemModelData.nshmp.us.NshmpUsData;
 import org.opensha.gem.GEM1.calc.gemModelData.nshmp.us.NshmpWusFaultData;
 import org.opensha.gem.GEM1.calc.gemModelData.nshmp.us.NshmpWusGridData;
 import org.opensha.gem.GEM1.commons.CalculationSettings;

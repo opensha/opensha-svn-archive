@@ -3,7 +3,6 @@ package org.opensha.sha.earthquake.rupForecastImpl.GEM1;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.opensha.gem.GEM1.calc.gemModelData.nshmp.south_east_asia.NshmpSouthEastAsiaData;
 import org.opensha.gem.GEM1.calc.gemModelData.nshmp.south_east_asia.NshmpSouthEastAsiaFaultData;
 import org.opensha.gem.GEM1.calc.gemModelData.nshmp.south_east_asia.NshmpSouthEastAsiaGridData;
 import org.opensha.gem.GEM1.calc.gemModelData.nshmp.south_east_asia.NshmpSouthEastAsiaSubductionData;
