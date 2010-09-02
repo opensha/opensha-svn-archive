@@ -134,6 +134,7 @@ extends HttpServlet {
 	throws IOException, GMT_MapException {
 		String plotDir = GMT_MapGeneratorServlet.getPlotDirPath(dirName);
 		File plotDirFile = new File(plotDir);
+		plotDirFile.mkdir();
 		String plotDirName = plotDirFile.getName();
 		
 		String refPlotDirName = plotDirName + File.separator + REF_SUBDIR_NAME;
@@ -152,12 +153,12 @@ extends HttpServlet {
 		
 		InterpDiffMap gainMap = map.convertModifiedToProbGain(refGRDFile, modGRDFile);
 		
-		String gainURL = GMT_MapGeneratorServlet.createMap(csGMT, map.getModifiedMap(),
+		String gainURL = GMT_MapGeneratorServlet.createMap(csGMT, gainMap,
 				gainPlotDirName, metadata, metadataFileName);
 		
 		String[] urls = {refURL, modURL, gainURL};
 		
-		return null;
+		return urls;
 	}
 	
 	//Process the HTTP Post request
