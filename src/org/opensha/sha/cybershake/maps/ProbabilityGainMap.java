@@ -42,10 +42,14 @@ public class ProbabilityGainMap implements Serializable {
 	 * @return
 	 */
 	public InterpDiffMap convertModifiedToProbGain(GMT_GrdFile refGRDFile, GMT_GrdFile modGRDFile) {
+		System.out.println("Loading ref dataset");
 		ArbDiscretizedXYZ_DataSet refXYZ = refGRDFile.getXYZDataset(true);
-		ArbDiscretizedXYZ_DataSet modXYZ = refGRDFile.getXYZDataset(true);
+		System.out.println("Loading mod dataset");
+		ArbDiscretizedXYZ_DataSet modXYZ = modGRDFile.getXYZDataset(true);
 		
+		System.out.println("Computing prob gain");
 		ArbDiscretizedXYZ_DataSet gainXYZ = getProbabilityGain(refXYZ, modXYZ);
+		System.out.println("Done");
 		
 		modifiedMap.setGriddedData(gainXYZ);
 		modifiedMap.setScatter(null);
@@ -75,18 +79,16 @@ public class ProbabilityGainMap implements Serializable {
 			double refX = refXVals.get(refInd);
 			double refY = refYVals.get(refInd);
 			double refZ = refZVals.get(refInd);
-			for (int modInd=0; modInd<refXVals.size(); modInd++) {
-				double modX = modXVals.get(modInd);
-				double modY = modYVals.get(modInd);
-				double modZ = modZVals.get(modInd);
-				
-				if (refX != modX || refY != modY)
-					continue;
-				
-				double gain = modZ / refZ;
-				
-				gainXYZ.addValue(modX, modY, gain);
-			}
+			double modX = modXVals.get(refInd);
+			double modY = modYVals.get(refInd);
+			double modZ = modZVals.get(refInd);
+			
+			if (refX != modX || refY != modY)
+				throw new RuntimeException("ref and mod GRD files don't match!");
+			
+			double gain = modZ / refZ;
+			
+			gainXYZ.addValue(modX, modY, gain);
 		}
 		
 		return gainXYZ;
@@ -130,6 +132,15 @@ public class ProbabilityGainMap implements Serializable {
 
 	public void setLogPlot(boolean logPlot) {
 		this.logPlot = logPlot;
+	}
+	
+	public static void main(String args[]) throws IOException {
+		InterpDiffMap fakeMap = new InterpDiffMap(null, null, 0.005, null, null, null, null);
+		ProbabilityGainMap map =
+			new ProbabilityGainMap(fakeMap, fakeMap);
+		String refGRDFile = "/tmp/ref_" + CyberShake_GMT_MapGenerator.INTERP_DIFF_MASKED_GRD_NAME;
+		String modGRDFile = "/tmp/" + CyberShake_GMT_MapGenerator.INTERP_DIFF_MASKED_GRD_NAME;
+		map.convertModifiedToProbGain(refGRDFile, modGRDFile);
 	}
 
 }
