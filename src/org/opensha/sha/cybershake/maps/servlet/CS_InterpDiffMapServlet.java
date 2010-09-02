@@ -141,8 +141,10 @@ extends HttpServlet {
 		String modPlotDirName = plotDirName + File.separator + MOD_SUBDIR_NAME;
 		String gainPlotDirName = plotDirName + File.separator + GAIN_SUBDIR_NAME;
 		
+		System.out.println("Making REFERENCE map");
 		String refURL =GMT_MapGeneratorServlet.createMap(csGMT, map.getReferenceMap(),
 				refPlotDirName, metadata, metadataFileName);
+		System.out.println("Making MODIEIFED map");
 		String modURL = GMT_MapGeneratorServlet.createMap(csGMT, map.getModifiedMap(),
 				modPlotDirName, metadata, metadataFileName);
 		
@@ -151,8 +153,10 @@ extends HttpServlet {
 		String modGRDFile = plotDir + File.separator + MOD_SUBDIR_NAME + File.separator
 								+ CyberShake_GMT_MapGenerator.INTERP_DIFF_MASKED_GRD_NAME;
 		
+		System.out.println("Computing probability gain");
 		InterpDiffMap gainMap = map.convertModifiedToProbGain(refGRDFile, modGRDFile);
 		
+		System.out.println("Making GAIN map");
 		String gainURL = GMT_MapGeneratorServlet.createMap(csGMT, gainMap,
 				gainPlotDirName, metadata, metadataFileName);
 		
