@@ -1,13 +1,19 @@
 package org.opensha.sha.cybershake.maps;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.util.GMT_GrdFile;
 import org.opensha.sha.cybershake.maps.InterpDiffMap.InterpDiffMapType;
 
-public class ProbabilityGainMap {
+public class ProbabilityGainMap implements Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	
 	private InterpDiffMap referenceMap;
 	private InterpDiffMap modifiedMap;
