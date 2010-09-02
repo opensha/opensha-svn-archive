@@ -166,7 +166,6 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			griddedData = map.getGriddedData();
 			scatterData = map.getScatter();
 //		}
-		XYZ_DataSetAPI diffs = getDiffs(griddedData, scatterData);
 		
 		// write the basemap
 		String basemapXYZName = map.getXyzFileName();
@@ -188,6 +187,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		if (shouldInterp) {
 			// do the interpolation
 			String interpXYZName = "scatter_diffs.xyz";
+			XYZ_DataSetAPI diffs = getDiffs(griddedData, scatterData);
 			try {
 				ArbDiscretizedXYZ_DataSet.writeXYZFile(diffs, dir + interpXYZName);
 			} catch (IOException e) {
