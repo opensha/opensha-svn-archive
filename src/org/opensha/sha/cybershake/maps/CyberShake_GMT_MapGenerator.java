@@ -234,14 +234,17 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				throw new GMT_MapException("Base map has no points within mask region!");
 			double minGrid = baseTracker.getMin();
 			double maxGrid = baseTracker.getMax();
-			double minScatter = scatterData.getMinZ();
-			double maxScatter = scatterData.getMaxZ();
 			colorScaleMin = minGrid;
-			if (minScatter < minGrid)
-				colorScaleMin = minScatter;
 			colorScaleMax = maxGrid;
-			if (maxScatter > maxGrid)
-				colorScaleMax = maxScatter;
+			if (scatterData != null) {
+				// if this is just a basemap, scatter might be null!
+				double minScatter = scatterData.getMinZ();
+				double maxScatter = scatterData.getMaxZ();
+				if (minScatter < minGrid)
+					colorScaleMin = minScatter;
+				if (maxScatter > maxGrid)
+					colorScaleMax = maxScatter;
+			}
 			System.out.println(colorScaleMin+","+colorScaleMax);
 			if (colorScaleMin == colorScaleMax)
 				throw new RuntimeException("Can't make the image plot because all Z values in the XYZ dataset have the same value ");
