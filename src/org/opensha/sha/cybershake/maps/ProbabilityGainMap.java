@@ -71,9 +71,9 @@ public class ProbabilityGainMap implements Serializable {
 		ArrayList<Double> refYVals = refXYZ.getY_DataSet();
 		ArrayList<Double> refZVals = refXYZ.getZ_DataSet();
 		
-		ArrayList<Double> modXVals = refXYZ.getX_DataSet();
-		ArrayList<Double> modYVals = refXYZ.getY_DataSet();
-		ArrayList<Double> modZVals = refXYZ.getZ_DataSet();
+		ArrayList<Double> modXVals = modXYZ.getX_DataSet();
+		ArrayList<Double> modYVals = modXYZ.getY_DataSet();
+		ArrayList<Double> modZVals = modXYZ.getZ_DataSet();
 		
 		for (int refInd=0; refInd<refXVals.size(); refInd++) {
 			double refX = refXVals.get(refInd);
