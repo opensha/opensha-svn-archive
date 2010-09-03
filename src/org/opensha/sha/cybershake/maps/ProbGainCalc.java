@@ -22,7 +22,7 @@ public class ProbGainCalc {
 			double refX = refXVals.get(refInd);
 			double refY = refYVals.get(refInd);
 			double refZ = refZVals.get(refInd);
-			for (int modInd=0; modInd<refXVals.size(); modInd++) {
+			for (int modInd=0; modInd<modXVals.size(); modInd++) {
 				double modX = modXVals.get(modInd);
 				double modY = modYVals.get(modInd);
 				double modZ = modZVals.get(modInd);

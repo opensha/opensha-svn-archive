@@ -181,7 +181,7 @@ public class HardCodedInterpDiffMapCreator {
 	public static void main(String[] args){
 		try {
 			boolean remote = true;
-			boolean logPlot = false;
+			boolean logPlot = true;
 			int imTypeID = 21;
 			Double customMin = null;
 			Double customMax = null;
@@ -194,12 +194,12 @@ public class HardCodedInterpDiffMapCreator {
 //			Location hypo = BombayBeachHazardCurveCalc.BOMBAY_LOC;
 //			String singleName = "picoRivera";
 //			Location hypo = BombayBeachHazardCurveCalc.PICO_RIVERA_LOC;
-			String singleName = "parkfield";
-			Location hypo = BombayBeachHazardCurveCalc.PARKFIELD_LOC;
+//			String singleName = "parkfield";
+//			Location hypo = BombayBeachHazardCurveCalc.PARKFIELD_LOC;
 //			String singleName = "yucaipa";
 //			Location hypo = BombayBeachHazardCurveCalc.YUCAIPA_LOC;
-//			String singleName = "coyote";
-//			Location hypo = BombayBeachHazardCurveCalc.COYOTE_CREEK;
+			String singleName = "coyote";
+			Location hypo = BombayBeachHazardCurveCalc.COYOTE_CREEK;
 			boolean mod = true;
 			boolean probGain = true;
 			String customLabel = "POE "+(float)val+"G 3sec SA in 1 day";
@@ -219,7 +219,6 @@ public class HardCodedInterpDiffMapCreator {
 			
 			
 			
-			logPlot = logPlot && !probGain;
 			mod = mod || probGain;
 			boolean singleDay = singleName != null;
 			double baseMapRes = 0.005;
@@ -255,6 +254,7 @@ public class HardCodedInterpDiffMapCreator {
 				mapTypes = new InterpDiffMapType[2];
 				mapTypes[0] = InterpDiffMapType.INTERP_NOMARKS;
 				mapTypes[1] = InterpDiffMapType.INTERP_MARKS;
+				customLabel = "Probability Gain";
 			}
 			
 			InterpDiffMap map = new InterpDiffMap(region, baseMap, baseMapRes, cpt, scatterData, interpSettings, mapTypes);
