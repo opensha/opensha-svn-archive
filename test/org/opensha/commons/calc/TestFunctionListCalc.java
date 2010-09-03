@@ -3,7 +3,7 @@ package org.opensha.commons.calc;
 import org.junit.Test;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.XY_DataSetList;
 
 import static org.junit.Assert.*;
 
@@ -36,7 +36,7 @@ public class TestFunctionListCalc {
 
 	@Test
 	public void testSum1_2() {
-		DiscretizedFuncList list = new DiscretizedFuncList();
+		XY_DataSetList list = new XY_DataSetList();
 		list.add(func1);
 		list.add(func2);
 		
@@ -49,7 +49,7 @@ public class TestFunctionListCalc {
 	
 	@Test
 	public void testSum1_2_3() {
-		DiscretizedFuncList list = new DiscretizedFuncList();
+		XY_DataSetList list = new XY_DataSetList();
 		list.add(func1);
 		list.add(func2);
 		list.add(func3);

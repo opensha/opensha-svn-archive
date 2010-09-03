@@ -25,7 +25,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 import org.opensha.nshmp.sha.calc.api.HazardDataCalcAPI;
 import org.opensha.nshmp.sha.calc.remote.api.RemoteHazardDataCalcFactoryAPI;
@@ -171,7 +171,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
    * @param selectedSpectraType String
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList getSA(String geographicRegion,
+  public XY_DataSetList getSA(String geographicRegion,
                                    String dataEdition, double lat,
                                    double lon, String selectedSpectraType) throws
       RemoteException {
@@ -189,7 +189,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
    * @return DiscretizedFuncList
    * @throws ZipCodeErrorException
    */
-  public DiscretizedFuncList getSA(String geographicRegion,
+  public XY_DataSetList getSA(String geographicRegion,
                                    String dataEdition, String zipCode,
                                    String spectraType) throws
       ZipCodeErrorException, RemoteException {
@@ -293,7 +293,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
    * @param fv double
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList getSMSpectrum(ArbitrarilyDiscretizedFunc func,
+  public XY_DataSetList getSMSpectrum(ArbitrarilyDiscretizedFunc func,
                                            float fa, float fv, String siteClass, String edition) throws
       RemoteException {
     HazardDataCalcAPI calc = getHazardDataCalcObject();
@@ -307,7 +307,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
    * @param fv double
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList getSDSpectrum(ArbitrarilyDiscretizedFunc func,
+  public XY_DataSetList getSDSpectrum(ArbitrarilyDiscretizedFunc func,
                                            float fa, float fv, String siteClass, String edition) throws
       RemoteException {
     HazardDataCalcAPI calc = getHazardDataCalcObject();
@@ -319,7 +319,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
    * @param func ArbitrarilyDiscretizedFunc
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList getMapSpectrum(ArbitrarilyDiscretizedFunc func) throws
+  public XY_DataSetList getMapSpectrum(ArbitrarilyDiscretizedFunc func) throws
       RemoteException {
     HazardDataCalcAPI calc = getHazardDataCalcObject();
     return calc.computeMapSpectrum(func);
@@ -332,7 +332,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
    * @param fv double
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList getSM_UHSpectrum(ArbitrarilyDiscretizedFunc func,
+  public XY_DataSetList getSM_UHSpectrum(ArbitrarilyDiscretizedFunc func,
                                               float fa, float fv,
                                               String siteClass) throws
       RemoteException {
@@ -347,7 +347,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
    * @param fv double
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList getSD_UHSpectrum(ArbitrarilyDiscretizedFunc func,
+  public XY_DataSetList getSD_UHSpectrum(ArbitrarilyDiscretizedFunc func,
                                               float fa, float fv,
                                               String siteClass) throws
       RemoteException {
@@ -360,7 +360,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
    * @param func ArbitrarilyDiscretizedFunc
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList getApprox_UHSpectrum(ArbitrarilyDiscretizedFunc
+  public XY_DataSetList getApprox_UHSpectrum(ArbitrarilyDiscretizedFunc
                                                   func) throws RemoteException {
     HazardDataCalcAPI calc = getHazardDataCalcObject();
     return calc.computeApproxUHSpectrum(func);

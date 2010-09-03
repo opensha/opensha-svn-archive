@@ -24,9 +24,9 @@ import java.util.ArrayList;
 import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.exceptions.DataPoint2DException;
-import org.opensha.commons.exceptions.DiscretizedFuncException;
+import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.MagFreqDistException;
 
@@ -45,7 +45,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
 
   private boolean saveMagFreqDists=false;     // whether you want to store each distribution
   private boolean saveAllInfo=false;          // whether you want to save info for each distribution
-  private DiscretizedFuncList savedMagFreqDists;  // to save the each distribution
+  private XY_DataSetList savedMagFreqDists;  // to save the each distribution
   private ArrayList savedInfoList;     // to save the info strings only
 
   public static String NAME = "Summed Dist";
@@ -74,7 +74,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
     */
 
    public  SummedMagFreqDist(double min,double max,int num)
-                             throws DiscretizedFuncException,InvalidRangeException {
+                             throws XY_DataSetException,InvalidRangeException {
      super(min,max,num);
    }
 
@@ -97,7 +97,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
      this.saveAllInfo = saveAllInfo;
 
      if(saveMagFreqDists)     // if complete distribution needs to be saved
-       savedMagFreqDists = new DiscretizedFuncList();
+       savedMagFreqDists = new XY_DataSetList();
      else if(saveAllInfo)     // to save info
        savedInfoList = new ArrayList();
    }
@@ -117,12 +117,12 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
 
    public  SummedMagFreqDist(double min,double max,int num,
                              boolean saveMagFreqDist,boolean saveAllInfo)
-                             throws DiscretizedFuncException,InvalidRangeException {
+                             throws XY_DataSetException,InvalidRangeException {
      super(min,max,num);
      this.saveMagFreqDists=saveMagFreqDist;
      this.saveAllInfo = saveAllInfo;
      if(saveMagFreqDists)     // if complete distribution needs to be saved
-       savedMagFreqDists = new DiscretizedFuncList();
+       savedMagFreqDists = new XY_DataSetList();
      else if(saveAllInfo)     // to save info
        savedInfoList = new ArrayList();
    }
@@ -136,14 +136,14 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
     */
 
    public void addIncrementalMagFreqDist(IncrementalMagFreqDist magFreqDist)
-               throws DiscretizedFuncException,DataPoint2DException {
+               throws XY_DataSetException,DataPoint2DException {
 
      /* check whether mun,num and delta of new distribution matches
         the min, num and delta in  the constructor */
 
      if(magFreqDist.getMinX()!=minX || magFreqDist.getDelta()!=delta
                                     || magFreqDist.getNum()!=num)
-        throw new DiscretizedFuncException("addIncrementalMagFreqDist "+
+        throw new XY_DataSetException("addIncrementalMagFreqDist "+
                   "invalid value of min, num or delta of new distribution");
 
 
@@ -252,13 +252,13 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
     */
 
    public void removeIncrementalMagFreqDist(IncrementalMagFreqDist magFreqDist)
-                          throws DiscretizedFuncException,DataPoint2DException {
+                          throws XY_DataSetException,DataPoint2DException {
 
      if(saveMagFreqDists) {    // check if this distribution exists
        int index = savedMagFreqDists.indexOf(magFreqDist);
 
        if(index==-1)  // if this distribution is not found in the list
-         throw new DiscretizedFuncException("this distribution does not exist");
+         throw new XY_DataSetException("this distribution does not exist");
        else           // remove the distribution if it is found
          savedMagFreqDists.remove(magFreqDist);
      }
@@ -267,12 +267,12 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
        int index = savedInfoList.indexOf(magFreqDist.getInfo());
 
        if(index==-1)  // if this distribution is not found in the list
-         throw new DiscretizedFuncException("this distribution does not exist");
+         throw new XY_DataSetException("this distribution does not exist");
        else          // remove the distribution if it is found
          savedInfoList.remove(magFreqDist.getInfo());
      }
      else
-        throw new DiscretizedFuncException("Distributions are not saved");
+        throw new XY_DataSetException("Distributions are not saved");
 
      for(int i=0;i<num;++i)      // remove the rates associated with the removed distribution
        super.set(i,this.getY(i) - magFreqDist.getY(i));
@@ -311,7 +311,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
    * @return the list of all distributions in this summed distribution
    */
 
-  public DiscretizedFuncList getMagFreqDists() {
+  public XY_DataSetList getMagFreqDists() {
     return savedMagFreqDists;
   }
 

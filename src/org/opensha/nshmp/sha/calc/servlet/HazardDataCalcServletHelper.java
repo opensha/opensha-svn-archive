@@ -23,7 +23,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.nshmp.sha.calc.HazardDataCalc;
 
 /**
@@ -76,8 +76,8 @@ public class HazardDataCalcServletHelper {
 					"************************************************************\n" +
 					"************************************************************\n");
 				return rtn;
-			} else if (o instanceof DiscretizedFuncList) {
-				DiscretizedFuncList rtn = (DiscretizedFuncList) o;
+			} else if (o instanceof XY_DataSetList) {
+				XY_DataSetList rtn = (XY_DataSetList) o;
 				rtn.setInfo("\n\n************************************************************\n" +
 					"************************************************************\n" +
 					"YOU ARE USING AN OLD VERSION OF THIS APPLICATION.\nPLEASE VISIT:\n\n" +

@@ -20,7 +20,7 @@
 package org.opensha.nshmp.sha.calc;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.nshmp.sha.data.calc.FaFvCalc;
 import org.opensha.nshmp.util.ui.DataDisplayFormatter;
 
@@ -90,7 +90,7 @@ public class SDSsS1Calculator {
 	  FaFvCalc fafvcalc = new FaFvCalc();
 	  
 	  // This is the function holding the Centroid values
-	  DiscretizedFuncList funcs = calculator.getSsS1FuncList(edition, region,
+	  XY_DataSetList funcs = calculator.getSsS1FuncList(edition, region,
 			  zipCode);
 	  
 	  ArbitrarilyDiscretizedFunc funcCen = (ArbitrarilyDiscretizedFunc) 

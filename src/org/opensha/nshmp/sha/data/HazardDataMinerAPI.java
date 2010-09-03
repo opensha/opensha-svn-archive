@@ -22,7 +22,7 @@ package org.opensha.nshmp.sha.data;
 import java.rmi.RemoteException;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 
 /**
@@ -117,7 +117,7 @@ public interface HazardDataMinerAPI {
    * @param selectedSpectraType String
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList getSA(String geographicRegion,
+  public XY_DataSetList getSA(String geographicRegion,
                                    String dataEdition, double lat,
                                    double lon, String selectedSpectraType) throws
       RemoteException;
@@ -130,7 +130,7 @@ public interface HazardDataMinerAPI {
    * @return DiscretizedFuncList
    * @throws ZipCodeErrorException
    */
-  public DiscretizedFuncList getSA(String geographicRegion,
+  public XY_DataSetList getSA(String geographicRegion,
                                    String dataEdition, String zipCode,
                                    String spectraType) throws
       ZipCodeErrorException, RemoteException ;
@@ -207,7 +207,7 @@ public interface HazardDataMinerAPI {
    * @param fv double
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList getSMSpectrum(ArbitrarilyDiscretizedFunc func,
+  public XY_DataSetList getSMSpectrum(ArbitrarilyDiscretizedFunc func,
                                            float fa, float fv, String siteClass, String edition) throws
       RemoteException ;
 
@@ -218,7 +218,7 @@ public interface HazardDataMinerAPI {
    * @param fv double
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList getSDSpectrum(ArbitrarilyDiscretizedFunc func,
+  public XY_DataSetList getSDSpectrum(ArbitrarilyDiscretizedFunc func,
                                            float fa, float fv, String siteClass, String edition) throws
       RemoteException;
 
@@ -227,7 +227,7 @@ public interface HazardDataMinerAPI {
    * @param func ArbitrarilyDiscretizedFunc
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList getMapSpectrum(ArbitrarilyDiscretizedFunc func) throws
+  public XY_DataSetList getMapSpectrum(ArbitrarilyDiscretizedFunc func) throws
       RemoteException ;
 
   /**
@@ -237,7 +237,7 @@ public interface HazardDataMinerAPI {
    * @param fv double
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList getSM_UHSpectrum(ArbitrarilyDiscretizedFunc func,
+  public XY_DataSetList getSM_UHSpectrum(ArbitrarilyDiscretizedFunc func,
                                               float fa, float fv,
                                               String siteClass) throws
       RemoteException ;
@@ -249,7 +249,7 @@ public interface HazardDataMinerAPI {
    * @param fv double
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList getSD_UHSpectrum(ArbitrarilyDiscretizedFunc func,
+  public XY_DataSetList getSD_UHSpectrum(ArbitrarilyDiscretizedFunc func,
                                               float fa, float fv,
                                               String siteClass) throws
       RemoteException ;
@@ -259,7 +259,7 @@ public interface HazardDataMinerAPI {
    * @param func ArbitrarilyDiscretizedFunc
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList getApprox_UHSpectrum(ArbitrarilyDiscretizedFunc
+  public XY_DataSetList getApprox_UHSpectrum(ArbitrarilyDiscretizedFunc
                                                   func) throws RemoteException ;
 
 

@@ -41,7 +41,8 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.XY_DataSetAPI;
+import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.geo.Location;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 import org.opensha.nshmp.sha.data.api.DataGeneratorAPI_UHS;
@@ -136,7 +137,7 @@ public class DataGenerator_UHS
    */
   public void calculateApproxUHS() throws RemoteException {
     HazardDataMinerAPI miner = new HazardDataMinerServletMode();
-    DiscretizedFuncList functions = miner.getApprox_UHSpectrum(pgaFunction);
+    XY_DataSetList functions = miner.getApprox_UHSpectrum(pgaFunction);
     addDataInfo(functions.getInfo());
     getFunctionsForApprox_UHSpectrum(functions);
   }
@@ -145,7 +146,7 @@ public class DataGenerator_UHS
    *
    * @param mapSpectrumFunctions DiscretizedFuncList
    */
-  protected void getFunctionsForApprox_UHSpectrum(DiscretizedFuncList
+  protected void getFunctionsForApprox_UHSpectrum(XY_DataSetList
                                                   mapSpectrumFunctions) {
 
     int numFunctions = mapSpectrumFunctions.size();
@@ -188,7 +189,7 @@ public class DataGenerator_UHS
    *
    * @param smSpectrumFunctions DiscretizedFuncList
    */
-  protected void getFunctionsForSMSpectrum(DiscretizedFuncList
+  protected void getFunctionsForSMSpectrum(XY_DataSetList
                                            smSpectrumFunctions) {
 
     int numFunctions = smSpectrumFunctions.size();
@@ -225,7 +226,7 @@ public class DataGenerator_UHS
    *
    * @param sdSpectrumFunctions DiscretizedFuncList
    */
-  protected void getFunctionsForSDSpectrum(DiscretizedFuncList
+  protected void getFunctionsForSDSpectrum(XY_DataSetList
                                            sdSpectrumFunctions) {
 
     int numFunctions = sdSpectrumFunctions.size();
@@ -263,7 +264,7 @@ public class DataGenerator_UHS
    */
   public void calculateSMSpectrum() throws RemoteException {
     HazardDataMinerAPI miner = new HazardDataMinerServletMode();
-    DiscretizedFuncList functions = miner.getSM_UHSpectrum(pgaFunction, faVal,
+    XY_DataSetList functions = miner.getSM_UHSpectrum(pgaFunction, faVal,
         fvVal, siteClass);
     addDataInfo(functions.getInfo());
     getFunctionsForSMSpectrum(functions);
@@ -274,7 +275,7 @@ public class DataGenerator_UHS
    */
   public void calculateSDSpectrum() throws RemoteException {
     HazardDataMinerAPI miner = new HazardDataMinerServletMode();
-    DiscretizedFuncList functions = miner.getSD_UHSpectrum(pgaFunction, faVal,
+    XY_DataSetList functions = miner.getSD_UHSpectrum(pgaFunction, faVal,
         fvVal, siteClass);
     addDataInfo(functions.getInfo());
     getFunctionsForSDSpectrum(functions);
@@ -284,7 +285,7 @@ public class DataGenerator_UHS
    *
    * @param sdSpectrumFunctions DiscretizedFuncList
    */
-  private void getFunctionsForSDT(DiscretizedFuncList functions) {
+  private void getFunctionsForSDT(XY_DataSetList functions) {
 
     int numFunctions = functions.size();
     int i = 0;
@@ -328,7 +329,7 @@ public class DataGenerator_UHS
   public void calculateUHS(String zipCode) throws ZipCodeErrorException,
       RemoteException {
     HazardDataMinerAPI miner = new HazardDataMinerServletMode();
-    DiscretizedFuncList funcList = miner.getSA(geographicRegion, dataEdition,
+    XY_DataSetList funcList = miner.getSA(geographicRegion, dataEdition,
                                                zipCode, selectedSpectraType);
     String location = "ZipCode - " + zipCode;
     createMetadataForPlots(location);
@@ -348,7 +349,7 @@ public class DataGenerator_UHS
   public void calculateUHS(double lat, double lon) throws RemoteException {
 
     HazardDataMinerAPI miner = new HazardDataMinerServletMode();
-    DiscretizedFuncList funcList = miner.getSA(geographicRegion, dataEdition,
+    XY_DataSetList funcList = miner.getSA(geographicRegion, dataEdition,
                                                lat, lon, selectedSpectraType);
     String location = "Lat - " + lat + "  Lon - " + lon;
     createMetadataForPlots(location);
@@ -411,12 +412,12 @@ public class DataGenerator_UHS
 		 xlRow = xlSheet.createRow(i+startRow);
 		 double curLat = locations.get(i).getLatitude();
 		 double curLon = locations.get(i).getLongitude();
-		 DiscretizedFuncAPI saFunc = null;
-		 DiscretizedFuncAPI sdFunc = null;
+		 XY_DataSetAPI saFunc = null;
+		 XY_DataSetAPI sdFunc = null;
 		 String curGridSpacing = "";
 		 try {
 			 HazardDataMinerAPI miner = new HazardDataMinerServletMode();
-			 DiscretizedFuncList funcList = miner.getSA(geographicRegion, dataEdition,
+			 XY_DataSetList funcList = miner.getSA(geographicRegion, dataEdition,
 					 curLat, curLon, selectedSpectraType);
 			saFunc = funcList.get(1);
 			sdFunc = funcList.get(0);

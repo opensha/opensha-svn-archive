@@ -22,7 +22,7 @@ package org.opensha.nshmp.sha.calc;
 import java.text.DecimalFormat;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.nshmp.util.GlobalConstants;
 import org.opensha.nshmp.util.ui.DataDisplayFormatter;
 
@@ -51,10 +51,10 @@ public class SpectrumCalculator {
    * @param fv float
    * @return DiscretizedFuncList
    */
-  protected DiscretizedFuncList approxSaSd(double periodVal,
+  protected XY_DataSetList approxSaSd(double periodVal,
                                            double sAccerlation,
                                            double sVelocity, double sPGA) {
-    DiscretizedFuncList funcList = new DiscretizedFuncList();
+    XY_DataSetList funcList = new XY_DataSetList();
     saTfunction = new ArbitrarilyDiscretizedFunc();
 
     double tAcc = periodVal;
@@ -93,7 +93,7 @@ public class SpectrumCalculator {
    * @param saVals ArbitrarilyDiscretizedFunc
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList calculateMapSpectrum(ArbitrarilyDiscretizedFunc
+  public XY_DataSetList calculateMapSpectrum(ArbitrarilyDiscretizedFunc
                                                   saVals) {
 
     float fa = 1.0f;
@@ -104,7 +104,7 @@ public class SpectrumCalculator {
     double sVel = fv * saVals.getY(1);
     double sPGA = 0.4 * sAcc;
 
-    DiscretizedFuncList funcList = approxSaSd(tAcc, sAcc, sVel, sPGA);
+    XY_DataSetList funcList = approxSaSd(tAcc, sAcc, sVel, sPGA);
 
     saTfunction.setName(GlobalConstants.MCE_SPECTRUM_SA_Vs_T_GRAPH);
     saSdfunction.setName(GlobalConstants.MCE_SPECTRUM_SD_Vs_T_GRAPH);
@@ -132,7 +132,7 @@ public class SpectrumCalculator {
    * @param fv float
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList calculateSMSpectrum(ArbitrarilyDiscretizedFunc
+  public XY_DataSetList calculateSMSpectrum(ArbitrarilyDiscretizedFunc
                                                  saVals,
                                                  float fa, float fv,
                                                  String siteClass, String edition) {
@@ -142,7 +142,7 @@ public class SpectrumCalculator {
     double sVel = fv * saVals.getY(1);
     double sPGA = 0.4 * sAcc;
     boolean is2009 = GlobalConstants.NEHRP_2009.equals(edition);
-    DiscretizedFuncList funcList = approxSaSd(tAcc, sAcc, sVel, sPGA);
+    XY_DataSetList funcList = approxSaSd(tAcc, sAcc, sVel, sPGA);
 
     saTfunction.setName(GlobalConstants.SITE_MODIFIED_SA_Vs_T_GRAPH);
     saSdfunction.setName(GlobalConstants.SITE_MODIFIED_SD_Vs_T_GRAPH);
@@ -178,7 +178,7 @@ public class SpectrumCalculator {
    * @param fv float
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList calculateSDSpectrum(ArbitrarilyDiscretizedFunc
+  public XY_DataSetList calculateSDSpectrum(ArbitrarilyDiscretizedFunc
                                                  saVals,
                                                  float fa, float fv,
                                                  String siteClass, String edition) {
@@ -191,7 +191,7 @@ public class SpectrumCalculator {
     double sPGA = 0.4 * sAcc;
     boolean is2009 = GlobalConstants.NEHRP_2009.equals(edition);
 
-    DiscretizedFuncList funcList = approxSaSd(tAcc, sAcc, sVel, sPGA);
+    XY_DataSetList funcList = approxSaSd(tAcc, sAcc, sVel, sPGA);
 
     saTfunction.setName(GlobalConstants.DESIGN_SPECTRUM_SA_Vs_T_GRAPH);
     saSdfunction.setName(GlobalConstants.DESIGN_SPECTRUM_SD_Vs_T_GRAPH);

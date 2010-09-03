@@ -28,7 +28,7 @@ import java.util.ArrayList;
 
 import org.apache.commons.codec.binary.Base64;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 import org.opensha.nshmp.util.AppProperties;
 import org.opensha.nshmp.util.GlobalConstants;
@@ -185,7 +185,7 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
   * @param selectedSpectraType String
   * @return DiscretizedFuncList
   */
- public DiscretizedFuncList getSA(String geographicRegion,
+ public XY_DataSetList getSA(String geographicRegion,
                                   String dataEdition, double lat,
                                   double lon, String selectedSpectraType) {
 
@@ -195,7 +195,7 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
    objectList.add(new Double(lat));
    objectList.add(new Double(lon));
    objectList.add(selectedSpectraType);
-   return (DiscretizedFuncList)this.connectToServlet(HazardDataMinerServletMode.COMPUTE_SA, objectList);
+   return (XY_DataSetList)this.connectToServlet(HazardDataMinerServletMode.COMPUTE_SA, objectList);
  }
 
  /**
@@ -206,7 +206,7 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
   * @return DiscretizedFuncList
   * @throws ZipCodeErrorException
   */
- public DiscretizedFuncList getSA(String geographicRegion,
+ public XY_DataSetList getSA(String geographicRegion,
                                   String dataEdition, String zipCode,
                                   String spectraType) throws ZipCodeErrorException {
    ArrayList<Object> objectList = new ArrayList<Object>();
@@ -214,7 +214,7 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
    objectList.add(dataEdition);
    objectList.add(zipCode);
    objectList.add(spectraType);
-   return (DiscretizedFuncList)this.connectToServlet(HazardDataMinerServletMode.COMPUTE_SA, objectList);
+   return (XY_DataSetList)this.connectToServlet(HazardDataMinerServletMode.COMPUTE_SA, objectList);
  }
 
  /**
@@ -349,7 +349,7 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
   * @param fv double
   * @return DiscretizedFuncList
   */
- public DiscretizedFuncList getSMSpectrum(ArbitrarilyDiscretizedFunc func,
+ public XY_DataSetList getSMSpectrum(ArbitrarilyDiscretizedFunc func,
                                           float fa, float fv, String siteClass, String edition) {
    ArrayList<Object> objectList = new ArrayList<Object>();
    objectList.add(func);
@@ -357,7 +357,7 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
    objectList.add(new Float(fv));
    objectList.add(siteClass);
    objectList.add(edition);
-   return (DiscretizedFuncList)connectToServlet(HazardDataMinerServletMode.COMPUTE_SM_SPECTRUM, objectList);
+   return (XY_DataSetList)connectToServlet(HazardDataMinerServletMode.COMPUTE_SM_SPECTRUM, objectList);
  }
 
  /**
@@ -367,7 +367,7 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
   * @param fv double
   * @return DiscretizedFuncList
   */
- public DiscretizedFuncList getSDSpectrum(ArbitrarilyDiscretizedFunc func,
+ public XY_DataSetList getSDSpectrum(ArbitrarilyDiscretizedFunc func,
                                           float fa, float fv, String siteClass, String edition)  {
    ArrayList<Object> objectList = new ArrayList<Object>();
    objectList.add(func);
@@ -375,7 +375,7 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
    objectList.add(new Float(fv));
    objectList.add(siteClass);
    objectList.add(edition);
-   return (DiscretizedFuncList)connectToServlet(HazardDataMinerServletMode.COMPUTE_SD_SPECTRUM, objectList);
+   return (XY_DataSetList)connectToServlet(HazardDataMinerServletMode.COMPUTE_SD_SPECTRUM, objectList);
  }
 
  /**
@@ -383,10 +383,10 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
   * @param func ArbitrarilyDiscretizedFunc
   * @return DiscretizedFuncList
   */
- public DiscretizedFuncList getMapSpectrum(ArbitrarilyDiscretizedFunc func) {
+ public XY_DataSetList getMapSpectrum(ArbitrarilyDiscretizedFunc func) {
    ArrayList<Object> objectList = new ArrayList<Object>();
    objectList.add(func);
-   return (DiscretizedFuncList)connectToServlet(HazardDataMinerServletMode.COMPUTE_MAP_SPECTRUM, objectList);
+   return (XY_DataSetList)connectToServlet(HazardDataMinerServletMode.COMPUTE_MAP_SPECTRUM, objectList);
  }
 
  /**
@@ -396,7 +396,7 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
   * @param fv double
   * @return DiscretizedFuncList
   */
- public DiscretizedFuncList getSM_UHSpectrum(ArbitrarilyDiscretizedFunc func,
+ public XY_DataSetList getSM_UHSpectrum(ArbitrarilyDiscretizedFunc func,
                                              float fa, float fv,
                                              String siteClass)  {
    ArrayList<Object> objectList = new ArrayList<Object>();
@@ -404,7 +404,7 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
    objectList.add(new Float(fa));
    objectList.add(func);
    objectList.add(func);
-   return (DiscretizedFuncList)connectToServlet(HazardDataMinerServletMode.COMPUTE_SM_UHS_SPECTRUM, objectList);
+   return (XY_DataSetList)connectToServlet(HazardDataMinerServletMode.COMPUTE_SM_UHS_SPECTRUM, objectList);
  }
 
  /**
@@ -414,7 +414,7 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
   * @param fv double
   * @return DiscretizedFuncList
   */
- public DiscretizedFuncList getSD_UHSpectrum(ArbitrarilyDiscretizedFunc func,
+ public XY_DataSetList getSD_UHSpectrum(ArbitrarilyDiscretizedFunc func,
                                              float fa, float fv,
                                              String siteClass)  {
    ArrayList<Object> objectList = new ArrayList<Object>();
@@ -422,7 +422,7 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
    objectList.add(new Float(fa));
    objectList.add(new Float(fv));
    objectList.add(siteClass);
-   return (DiscretizedFuncList)connectToServlet(HazardDataMinerServletMode.COMPUTE_SD_UHS_SPECTRUM, objectList);
+   return (XY_DataSetList)connectToServlet(HazardDataMinerServletMode.COMPUTE_SD_UHS_SPECTRUM, objectList);
  }
 
  /**
@@ -430,11 +430,11 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
   * @param func ArbitrarilyDiscretizedFunc
   * @return DiscretizedFuncList
   */
- public DiscretizedFuncList getApprox_UHSpectrum(ArbitrarilyDiscretizedFunc
+ public XY_DataSetList getApprox_UHSpectrum(ArbitrarilyDiscretizedFunc
                                                  func) {
    ArrayList<Object> objectList = new ArrayList<Object>();
    objectList.add(func);
-   return (DiscretizedFuncList)connectToServlet(HazardDataMinerServletMode.COMPUTE_APPROX_UHS_SPECTRUM, objectList);
+   return (XY_DataSetList)connectToServlet(HazardDataMinerServletMode.COMPUTE_APPROX_UHS_SPECTRUM, objectList);
  }
 
  /**

@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.geo.Location;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 import org.opensha.nshmp.sha.data.SiteInterpolation;
@@ -425,7 +425,7 @@ public class SsS1Calculator {
 			function.set(0.2, 150.0 / GlobalConstants.DIVIDING_FACTOR_HUNDRED);
 			function.set(1.0, 60.0 / GlobalConstants.DIVIDING_FACTOR_HUNDRED);
 		}
-		DiscretizedFuncList functionList = new DiscretizedFuncList();
+		XY_DataSetList functionList = new XY_DataSetList();
 		functionList.add(function);
 		// set the info for the function being added
 		String info = "";
@@ -440,10 +440,10 @@ public class SsS1Calculator {
 		return function;
 	}
 
-	public DiscretizedFuncList getSsS1FuncList(String edition, String region,
+	public XY_DataSetList getSsS1FuncList(String edition, String region,
 			String zipCode) {
 		
-		DiscretizedFuncList funcList = new DiscretizedFuncList();
+		XY_DataSetList funcList = new XY_DataSetList();
 		DataFileNameSelector fileSelector = new DataFileNameSelector();
 		String fileName = fileSelector.getFileName(edition);
 		BufferedReader bin = null;

@@ -23,7 +23,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 
 /**
@@ -123,7 +123,7 @@ public interface HazardDataCalcAPI
    * @param spectraType String
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList computeSA(String selectedRegion,
+  public XY_DataSetList computeSA(String selectedRegion,
                                        String selectedEdition,
                                        double latitude,
                                        double longitude,
@@ -139,7 +139,7 @@ public interface HazardDataCalcAPI
    * @param spectraType String
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList computeSA(String selectedRegion,
+  public XY_DataSetList computeSA(String selectedRegion,
                                        String selectedEdition,
                                        String zipCode,
                                        String spectraType) throws
@@ -228,7 +228,7 @@ public interface HazardDataCalcAPI
    * @param fv float
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList computeMapSpectrum(ArbitrarilyDiscretizedFunc
+  public XY_DataSetList computeMapSpectrum(ArbitrarilyDiscretizedFunc
                                                 function) throws
       RemoteException;
 
@@ -239,7 +239,7 @@ public interface HazardDataCalcAPI
    * @param fv float
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList computeSMSpectrum(ArbitrarilyDiscretizedFunc
+  public XY_DataSetList computeSMSpectrum(ArbitrarilyDiscretizedFunc
                                                function, float fa, float fv,
                                                String siteClass, String edition) throws
       RemoteException;
@@ -251,7 +251,7 @@ public interface HazardDataCalcAPI
    * @param fv float
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList computeSDSpectrum(ArbitrarilyDiscretizedFunc
+  public XY_DataSetList computeSDSpectrum(ArbitrarilyDiscretizedFunc
                                                function, float fa, float fv,
                                                String siteClass, String edition) throws
       RemoteException;
@@ -261,7 +261,7 @@ public interface HazardDataCalcAPI
    * @param function ArbitrarilyDiscretizedFunc
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList computeApproxUHSpectrum(ArbitrarilyDiscretizedFunc
+  public XY_DataSetList computeApproxUHSpectrum(ArbitrarilyDiscretizedFunc
       function) throws RemoteException;
 
   /**
@@ -271,7 +271,7 @@ public interface HazardDataCalcAPI
    * @param fv float
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList computeSM_UHSpectrum(ArbitrarilyDiscretizedFunc
+  public XY_DataSetList computeSM_UHSpectrum(ArbitrarilyDiscretizedFunc
                                                   function, float fa, float fv,
                                                   String siteClass) throws
       RemoteException;
@@ -283,7 +283,7 @@ public interface HazardDataCalcAPI
    * @param fv float
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList computeSD_UHSpectrum(ArbitrarilyDiscretizedFunc
+  public XY_DataSetList computeSD_UHSpectrum(ArbitrarilyDiscretizedFunc
                                                   function, float fa, float fv,
                                                   String siteClass) throws
       RemoteException;

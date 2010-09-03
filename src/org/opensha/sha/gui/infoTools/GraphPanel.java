@@ -65,7 +65,7 @@ import org.jfree.data.Range;
 import org.jfree.ui.RectangleInsets;
 import org.jfree.util.ShapeUtilities;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.gui.plot.jfreechart.JFreeLogarithmicAxis;
 import org.opensha.commons.gui.plot.jfreechart.MyTickUnits;
@@ -127,7 +127,7 @@ public class GraphPanel extends JSplitPane {
 	//dataset to handover the data to JFreechart
 	private DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
 	//list containing Discretized function set
-	private DiscretizedFuncList totalProbFuncs = new DiscretizedFuncList();
+	private XY_DataSetList totalProbFuncs = new XY_DataSetList();
 
 	//checks if weighted function exists in the list of functions
 	private int weightedfuncListIndex;
@@ -581,7 +581,7 @@ public class GraphPanel extends JSplitPane {
 			//plotting characterstics, also fractiles in weighted function list share same
 			//plotting characterstics. So creating dataset for each list of curves with
 			//same plotting characterstics.
-			DiscretizedFuncList dataFunctions = new DiscretizedFuncList();
+			XY_DataSetList dataFunctions = new XY_DataSetList();
 			DiscretizedFunctionXYDataSet dataset = new DiscretizedFunctionXYDataSet();
 			dataset.setXLog(xLog);
 			dataset.setYLog(yLog);
@@ -784,7 +784,7 @@ public class GraphPanel extends JSplitPane {
 				//checking if individual curves need to be plotted
 				if(weightedList.areIndividualCurvesToPlot()){
 					//getting the metadata for each individual curves and creating the legend string
-					DiscretizedFuncList list = weightedList.getWeightedFunctionList();
+					XY_DataSetList list = weightedList.getWeightedFunctionList();
 					ArrayList wtList = weightedList.getRelativeWtList();
 					int listSize = list.size();
 					for(int j=0;j<listSize;++j){
@@ -798,7 +798,7 @@ public class GraphPanel extends JSplitPane {
 				if(weightedList.areFractilesToPlot()){
 
 					//getting the fractile info for the weighted function list and adding that to the legend
-					DiscretizedFuncList list = weightedList.getFractileList();
+					XY_DataSetList list = weightedList.getFractileList();
 					ArrayList fractileValueList = weightedList.getFractileValuesList();
 					int listSize = list.size();
 					for(int j=0;j<listSize;++j){
@@ -944,13 +944,13 @@ public class GraphPanel extends JSplitPane {
 			if(obj instanceof WeightedFuncListforPlotting){
 				WeightedFuncListforPlotting weightedList = (WeightedFuncListforPlotting)obj;
 				if(weightedList.areIndividualCurvesToPlot()){
-					DiscretizedFuncList list= weightedList.getWeightedFunctionList();
+					XY_DataSetList list= weightedList.getWeightedFunctionList();
 					//list.get(0).setInfo(weightedList.getInfo()+"\n"+"(a) "+list.getInfo());
 					numColorArray.add(new Integer(list.size()));
 					totalProbFuncs.addAll(list);
 				}
 				if(weightedList.areFractilesToPlot()){
-					DiscretizedFuncList list= weightedList.getFractileList();
+					XY_DataSetList list= weightedList.getFractileList();
 					// list.get(0).setInfo("(b) "+list.getInfo());
 					totalProbFuncs.addAll(list);
 					numColorArray.add(new Integer(list.size()));

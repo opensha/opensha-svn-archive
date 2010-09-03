@@ -58,7 +58,7 @@ import org.jfree.data.Range;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.DoubleDiscreteParameter;
@@ -240,7 +240,7 @@ ButtonControlPanelAPI,GraphPanelAPI,GraphWindowAPI, IMR_GuiBeanAPI{
 	/**
 	 * FunctionList declared
 	 */
-	private DiscretizedFuncList totalProbFuncs = new DiscretizedFuncList();
+	private XY_DataSetList totalProbFuncs = new XY_DataSetList();
 	private DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
 
 	/**

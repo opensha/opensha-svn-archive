@@ -25,7 +25,7 @@ import java.util.ListIterator;
 
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.exceptions.DataPoint2DException;
-import org.opensha.commons.exceptions.DiscretizedFuncException;
+import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 
 
@@ -142,20 +142,20 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
 
     public void set(double min, double max, int num) {
       if (num <= 0)
-        throw new DiscretizedFuncException("num points must be >= 0");
+        throw new XY_DataSetException("num points must be >= 0");
 
       if (num == 1 && min != max)
-        throw new DiscretizedFuncException("min must equal max if num points = 1");
+        throw new XY_DataSetException("min must equal max if num points = 1");
 
       if (min > max)
-        throw new DiscretizedFuncException("min must be less than max");
+        throw new XY_DataSetException("min must be less than max");
       else if (min < max)
         delta = (max - min) / (num - 1);
       else { // max == min
         if (num == 1)
           delta = 0;
         else
-          throw new DiscretizedFuncException("num must = 1 if min = max");
+          throw new XY_DataSetException("num must = 1 if min = max");
       }
 
       this.minX = min;

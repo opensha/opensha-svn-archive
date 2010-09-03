@@ -22,7 +22,7 @@ package org.opensha.sha.magdist;
 
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.exceptions.DataPoint2DException;
-import org.opensha.commons.exceptions.DiscretizedFuncException;
+import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.MagFreqDistException;
 
@@ -70,7 +70,7 @@ public class TaperedGR_MagFreqDist
    */
 
   public TaperedGR_MagFreqDist(double min, double max, int num) throws
-      DiscretizedFuncException, InvalidRangeException {
+      XY_DataSetException, InvalidRangeException {
     super(min, max, num);
     
   }
@@ -85,7 +85,7 @@ public class TaperedGR_MagFreqDist
 
   public TaperedGR_MagFreqDist(double bValue, double totCumRate,
                                      double min, double max, int num) throws
-      DiscretizedFuncException, InvalidRangeException {
+      XY_DataSetException, InvalidRangeException {
     super(min, max, num);
     setAllButTotMoRate(min, max, totCumRate, bValue);
   }
@@ -162,7 +162,7 @@ public class TaperedGR_MagFreqDist
    */
   public void setAllButCornerMag(double magLower, double totMoRate,
 		  double totCumRate, double bValue) throws
-		  MagFreqDistException, DiscretizedFuncException,
+		  MagFreqDistException, XY_DataSetException,
 		  DataPoint2DException {
 	  
 	  this.magLower = magLower;

@@ -33,12 +33,17 @@ package org.opensha.commons.exceptions;
  * @created    February 20, 2002
  * @version    1.0
  */
-public class DiscretizedFuncException extends RuntimeException {
+public class XY_DataSetException extends RuntimeException {
 
-    /** No-arg constructor */
-    public DiscretizedFuncException()  { super(); }
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	/** No-arg constructor */
+    public XY_DataSetException()  { super(); }
     /** Constructor that specifies an error message */
-    public DiscretizedFuncException( String string ) { super( string ); }
+    public XY_DataSetException( String string ) { super( string ); }
 }
 
 

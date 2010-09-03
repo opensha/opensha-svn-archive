@@ -65,7 +65,7 @@ import org.jfree.chart.axis.TickUnits;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.data.Range;
-import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.OvalBorder;
 import org.opensha.commons.gui.SidesBorder;
@@ -228,9 +228,9 @@ public class MagFreqDistTesterApplet extends JApplet
    * total Cum Rate Data and total Moment Rate Data.
    */
 
-  DiscretizedFuncList incrFunctions = new DiscretizedFuncList();
-  DiscretizedFuncList toCumFunctions = new DiscretizedFuncList();
-  DiscretizedFuncList toMoFunctions = new DiscretizedFuncList();
+  XY_DataSetList incrFunctions = new XY_DataSetList();
+  XY_DataSetList toCumFunctions = new XY_DataSetList();
+  XY_DataSetList toMoFunctions = new XY_DataSetList();
 
   DiscretizedFunctionXYDataSet incrData = new DiscretizedFunctionXYDataSet();
   DiscretizedFunctionXYDataSet toCumData = new DiscretizedFunctionXYDataSet();
@@ -1359,9 +1359,9 @@ public class MagFreqDistTesterApplet extends JApplet
   private void insertSummedDistribution() {
 
     // clone the function lists
-     DiscretizedFuncList cloneIncrFunctions = incrFunctions.deepClone();
-     DiscretizedFuncList cloneCumFunctions = toCumFunctions.deepClone();
-     DiscretizedFuncList cloneMoFunctions = toMoFunctions.deepClone();
+     XY_DataSetList cloneIncrFunctions = incrFunctions.deepClone();
+     XY_DataSetList cloneCumFunctions = toCumFunctions.deepClone();
+     XY_DataSetList cloneMoFunctions = toMoFunctions.deepClone();
 
      // now clear the function lists
      incrFunctions.clear();

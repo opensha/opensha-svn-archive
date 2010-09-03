@@ -55,6 +55,7 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.sha.cybershake.calc.HazardCurveComputation;
 import org.opensha.sha.cybershake.db.CybershakeERF;
 import org.opensha.sha.cybershake.db.CybershakeIM;
+import org.opensha.sha.cybershake.db.CybershakeRun;
 import org.opensha.sha.cybershake.db.CybershakeSite;
 import org.opensha.sha.cybershake.db.CybershakeSiteInfo2DB;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
@@ -1059,7 +1060,8 @@ extends ControlPanel implements ParameterChangeListener {
 			curve2db.replaceHazardCurve(id, currentHazardCurve);
 		else {
 			int runID = runs2db.getRunIDs(siteID, erfID, sgtID, rupVarID, null, null, null, null).get(0);
-			curve2db.insertHazardCurve(runID,
+			CybershakeRun run = runs2db.getRun(runID);
+			curve2db.insertHazardCurve(run,
 					imID, currentHazardCurve);
 		}
 		this.loadSA_PeriodParam();

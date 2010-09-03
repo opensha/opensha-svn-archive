@@ -37,7 +37,7 @@ import javax.swing.Timer;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.DoubleDiscreteParameter;
@@ -554,7 +554,7 @@ extends HazardCurveLocalModeApplication {
 		}
 
 
-		DiscretizedFuncList hazardFuncList = new DiscretizedFuncList();
+		XY_DataSetList hazardFuncList = new XY_DataSetList();
 		for (int i = 0; i < numERFsInEpistemicList; ++i) {
 			//current ERF's being used to calculated Hazard Curve
 			currentERFInEpistemicListForHazardCurve = i;

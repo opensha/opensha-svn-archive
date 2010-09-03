@@ -35,10 +35,12 @@ public class HazardCurve2DB {
 	
 	private DBAccess dbaccess;
 	private Runs2DB runs2db;
+	private HazardDataset2DB hd2db;
 	
 	public HazardCurve2DB(DBAccess dbaccess){
 		this.dbaccess = dbaccess;
 		runs2db = new Runs2DB(dbaccess);
+		hd2db = new HazardDataset2DB(dbaccess);
 	}
 	
 	public ArrayList<Integer> getAllHazardCurveIDs(int erfID, int rupVarScenarioID, int sgtVarID, int imTypeID) {
@@ -424,8 +426,13 @@ public class HazardCurve2DB {
 		}
 	}
 	
-	public void insertHazardCurve(int runID, int imTypeID, DiscretizedFuncAPI hazardFunc) {
-		int id = this.insertHazardCurveID(runID, imTypeID);
+	public void insertHazardCurve(CybershakeRun run, int imTypeID, DiscretizedFuncAPI hazardFunc) {
+		int datasetID = hd2db.getDefaultDatasetID(run);
+		insertHazardCurve(run.getRunID(), imTypeID, hazardFunc, datasetID);
+	}
+	
+	public void insertHazardCurve(int runID, int imTypeID, DiscretizedFuncAPI hazardFunc, int datasetID) {
+		int id = this.insertHazardCurveID(runID, imTypeID, datasetID);
 		this.insertHazardCurvePoints(id, hazardFunc);
 	}
 	
@@ -481,15 +488,19 @@ public class HazardCurve2DB {
 		}
 	}
 	
-	private int insertHazardCurveID(int runID, int imTypeID) {
+	private int insertHazardCurveID(int runID, int imTypeID, int datasetID) {
 		
 		Date now = new Date();
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 		String date = format.format(now);
 		
+		String dataset = "(null)";
+		if (datasetID > 0)
+			dataset = datasetID+"";
+		
 		String sql = "INSERT into " + TABLE_NAME + 
-		"(Run_ID,IM_Type_ID,Curve_Date)"+
-		"VALUES("+runID+","+imTypeID+",'"+date+"')";
+		"(Run_ID,IM_Type_ID,Curve_Date,Hazard_Dataset_ID)"+
+		"VALUES("+runID+","+imTypeID+",'"+date+"',"+dataset+")";
 		System.out.println(sql);
 		try {
 			dbaccess.insertUpdateOrDeleteData(sql);

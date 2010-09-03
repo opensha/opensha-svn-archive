@@ -6,12 +6,12 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.XY_DataSetList;
 
 public class TestFractileCurveCalculator {
 	
-	public static DiscretizedFuncList getGoodTestData() {
-		DiscretizedFuncList list = new DiscretizedFuncList();
+	public static XY_DataSetList getGoodTestData() {
+		XY_DataSetList list = new XY_DataSetList();
 		
 		ArbitrarilyDiscretizedFunc func1 = new ArbitrarilyDiscretizedFunc();
 		ArbitrarilyDiscretizedFunc func2 = new ArbitrarilyDiscretizedFunc();
@@ -30,8 +30,8 @@ public class TestFractileCurveCalculator {
 		return list;
 	}
 	
-	public static DiscretizedFuncList getBaddTestData() {
-		DiscretizedFuncList list = new DiscretizedFuncList();
+	public static XY_DataSetList getBaddTestData() {
+		XY_DataSetList list = new XY_DataSetList();
 		
 		ArbitrarilyDiscretizedFunc func1 = new ArbitrarilyDiscretizedFunc();
 		ArbitrarilyDiscretizedFunc func2 = new ArbitrarilyDiscretizedFunc();
@@ -84,8 +84,8 @@ public class TestFractileCurveCalculator {
 	
 	@Test
 	public void testSet() {
-		DiscretizedFuncList goodList = getGoodTestData();
-		DiscretizedFuncList badList = getBaddTestData();
+		XY_DataSetList goodList = getGoodTestData();
+		XY_DataSetList badList = getBaddTestData();
 		
 		ArrayList<Double> goodWts = getGoodWeights();
 		ArrayList<Double> badWts = getBadWeights();

@@ -21,7 +21,7 @@ package org.opensha.sha.magdist;
 
 
 import org.opensha.commons.exceptions.DataPoint2DException;
-import org.opensha.commons.exceptions.DiscretizedFuncException;
+import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.MagFreqDistException;
 
@@ -72,7 +72,7 @@ public class GutenbergRichterMagFreqDist
    */
 
   public GutenbergRichterMagFreqDist(double min, double max, int num) throws
-      DiscretizedFuncException, InvalidRangeException {
+      XY_DataSetException, InvalidRangeException {
     super(min, max, num);
     
   }
@@ -87,7 +87,7 @@ public class GutenbergRichterMagFreqDist
 
   public GutenbergRichterMagFreqDist(double bValue, double totCumRate,
                                      double min, double max, int num) throws
-      DiscretizedFuncException, InvalidRangeException {
+      XY_DataSetException, InvalidRangeException {
     super(min, max, num);
     this.setAllButTotMoRate(min, max, totCumRate, bValue);
   }
@@ -181,7 +181,7 @@ public class GutenbergRichterMagFreqDist
   public void setAllButMagUpper(double magLower, double totMoRate,
                                 double totCumRate,
                                 double bValue, boolean relaxTotMoRate) throws
-      MagFreqDistException, DiscretizedFuncException,
+      MagFreqDistException, XY_DataSetException,
       DataPoint2DException {
 
     if (D) System.out.println("magLower = " + magLower);

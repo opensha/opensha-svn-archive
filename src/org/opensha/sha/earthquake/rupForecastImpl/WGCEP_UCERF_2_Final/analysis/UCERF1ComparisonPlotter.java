@@ -25,7 +25,8 @@ import java.util.ArrayList;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.XY_DataSetAPI;
+import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UnsegmentedSource;
@@ -61,17 +62,17 @@ public class UCERF1ComparisonPlotter {
 	 */
 	public void plot_SJ_SSAF_FaultsDefModels() {
 		// It holds incr rates for each A-Fault
-		ArrayList<DiscretizedFuncList> aFaultIncrRateFuncList = new ArrayList<DiscretizedFuncList>();
+		ArrayList<XY_DataSetList> aFaultIncrRateFuncList = new ArrayList<XY_DataSetList>();
 		// It holds Cum Rates for each A-Fault
-		ArrayList<DiscretizedFuncList> aFaultCumRateFuncList = new ArrayList<DiscretizedFuncList>();
+		ArrayList<XY_DataSetList> aFaultCumRateFuncList = new ArrayList<XY_DataSetList>();
 	
 		int sanJacintoIndex = 2;
 		int soSAF_Index = 4;
 		
-		DiscretizedFuncList sjIncrRateFuncList = new DiscretizedFuncList();
-		DiscretizedFuncList ssafIncrRateFuncList = new DiscretizedFuncList();
-		DiscretizedFuncList sjCumRateFuncList = new DiscretizedFuncList();
-		DiscretizedFuncList ssafCumRateFuncList = new DiscretizedFuncList();
+		XY_DataSetList sjIncrRateFuncList = new XY_DataSetList();
+		XY_DataSetList ssafIncrRateFuncList = new XY_DataSetList();
+		XY_DataSetList sjCumRateFuncList = new XY_DataSetList();
+		XY_DataSetList ssafCumRateFuncList = new XY_DataSetList();
 		
 		System.out.println("Doing Deformation model 2.1");
 		fillCumAndIncrFuncListForDefModel("D2.1", aFaultIncrRateFuncList, aFaultCumRateFuncList);
@@ -84,9 +85,9 @@ public class UCERF1ComparisonPlotter {
 		ssafCumRateFuncList.add(aFaultCumRateFuncList.get(soSAF_Index).get(numCurvesAdded-1));
 		
 		System.out.println("Doing Deformation model 2.2");
-		aFaultIncrRateFuncList = new ArrayList<DiscretizedFuncList>();
+		aFaultIncrRateFuncList = new ArrayList<XY_DataSetList>();
 		// It holds Cum Rates for each A-Fault
-		aFaultCumRateFuncList = new ArrayList<DiscretizedFuncList>();
+		aFaultCumRateFuncList = new ArrayList<XY_DataSetList>();
 		fillCumAndIncrFuncListForDefModel("D2.2", aFaultIncrRateFuncList, aFaultCumRateFuncList);
 		// add to the list of functions to be plotted
 		numCurvesAdded = aFaultIncrRateFuncList.get(sanJacintoIndex).size();
@@ -96,9 +97,9 @@ public class UCERF1ComparisonPlotter {
 		ssafCumRateFuncList.add(aFaultCumRateFuncList.get(soSAF_Index).get(numCurvesAdded-1));
 		
 		System.out.println("Doing Deformation model 2.3");
-		aFaultIncrRateFuncList = new ArrayList<DiscretizedFuncList>();
+		aFaultIncrRateFuncList = new ArrayList<XY_DataSetList>();
 		// It holds Cum Rates for each A-Fault
-		aFaultCumRateFuncList = new ArrayList<DiscretizedFuncList>();
+		aFaultCumRateFuncList = new ArrayList<XY_DataSetList>();
 		fillCumAndIncrFuncListForDefModel("D2.3", aFaultIncrRateFuncList, aFaultCumRateFuncList);
 		// add to the list of functions to be plotted
 		numCurvesAdded = aFaultIncrRateFuncList.get(sanJacintoIndex).size();
@@ -123,7 +124,7 @@ public class UCERF1ComparisonPlotter {
 		// SJF and SSAF
 		IncrementalMagFreqDist sjWtAveMFD = (IncrementalMagFreqDist) ((IncrementalMagFreqDist)sjIncrRateFuncList.get(0)).deepClone();
 		IncrementalMagFreqDist ssafWtAveMFD = (IncrementalMagFreqDist) ((IncrementalMagFreqDist)ssafIncrRateFuncList.get(0)).deepClone();
-		DiscretizedFuncAPI func = sjIncrRateFuncList.get(0);
+		XY_DataSetAPI func = sjIncrRateFuncList.get(0);
 		for(int imag=0; imag<func.getNum(); ++imag) {
 			double val1 = 0.5*sjIncrRateFuncList.get(0).getY(imag) + 0.2*sjIncrRateFuncList.get(1).getY(imag) + 0.3*sjIncrRateFuncList.get(2).getY(imag);
 			sjWtAveMFD.set(func.getX(imag), val1);
@@ -162,7 +163,7 @@ public class UCERF1ComparisonPlotter {
 
 	}
 
-	private void makePlot(DiscretizedFuncList sjIncrRateFuncList, ArrayList plotChars, String label) {
+	private void makePlot(XY_DataSetList sjIncrRateFuncList, ArrayList plotChars, String label) {
 		ArrayList aList = new ArrayList();
 		for(int i=0; i<sjIncrRateFuncList.size(); ++i)
 			aList.add(sjIncrRateFuncList.get(i));
@@ -180,9 +181,9 @@ public class UCERF1ComparisonPlotter {
 	public void plotA_FaultMFDs_forReport(String defModelName) {
 		
 		// It holds incr rates for each A-Fault
-		ArrayList<DiscretizedFuncList> aFaultIncrRateFuncList = new ArrayList<DiscretizedFuncList>();
+		ArrayList<XY_DataSetList> aFaultIncrRateFuncList = new ArrayList<XY_DataSetList>();
 		// It holds Cum Rates for each A-Fault
-		ArrayList<DiscretizedFuncList> aFaultCumRateFuncList = new ArrayList<DiscretizedFuncList>();
+		ArrayList<XY_DataSetList> aFaultCumRateFuncList = new ArrayList<XY_DataSetList>();
 		
 		ArrayList<String> faultNames=fillCumAndIncrFuncListForDefModel(defModelName, aFaultIncrRateFuncList, aFaultCumRateFuncList);
 		
@@ -203,7 +204,7 @@ public class UCERF1ComparisonPlotter {
 
 		// PLOT INCR RATES
 		for(int i=0; i<aFaultIncrRateFuncList.size(); ++i) {
-			DiscretizedFuncList funcList = aFaultIncrRateFuncList.get(i);
+			XY_DataSetList funcList = aFaultIncrRateFuncList.get(i);
 			String faultName = faultNames.get(i);
 			ArrayList funcArrayList = new ArrayList();
 			funcArrayList.add(funcList.get(funcList.size()-1));
@@ -217,7 +218,7 @@ public class UCERF1ComparisonPlotter {
 
 		// PLOT CUM RATES
 		for(int i=0; i<aFaultCumRateFuncList.size(); ++i) {
-			DiscretizedFuncList funcList = aFaultCumRateFuncList.get(i);
+			XY_DataSetList funcList = aFaultCumRateFuncList.get(i);
 			String faultName = faultNames.get(i);
 			ArrayList funcArrayList = new ArrayList();
 			funcArrayList.add(funcList.get(funcList.size()-1));
@@ -230,7 +231,7 @@ public class UCERF1ComparisonPlotter {
 		}
 	}
 
-	private ArrayList<String> fillCumAndIncrFuncListForDefModel(String defModelName, ArrayList<DiscretizedFuncList> aFaultIncrRateFuncList, ArrayList<DiscretizedFuncList> aFaultCumRateFuncList) {
+	private ArrayList<String> fillCumAndIncrFuncListForDefModel(String defModelName, ArrayList<XY_DataSetList> aFaultIncrRateFuncList, ArrayList<XY_DataSetList> aFaultCumRateFuncList) {
 		
 		ucerf2.setParamDefaults();
 		ucerf2.updateForecast();
@@ -240,8 +241,8 @@ public class UCERF1ComparisonPlotter {
 		ArrayList<String> faultNames = aFaultsFetcher.getAllFaultNames();
 		for(int i=0; i<numA_Faults; ++i) {
 			//System.out.println(faultNames.get(i));
-			aFaultIncrRateFuncList.add(new DiscretizedFuncList());
-			aFaultCumRateFuncList.add(new DiscretizedFuncList());
+			aFaultIncrRateFuncList.add(new XY_DataSetList());
+			aFaultCumRateFuncList.add(new XY_DataSetList());
 		}
 		
 		// Default parameters
@@ -298,10 +299,10 @@ public class UCERF1ComparisonPlotter {
 		 */
 		name  = "Wt Avg MFD with "+UCERF2.DEFORMATION_MODEL_PARAM_NAME+"="+defModelName;
 		for(int i=0; i<aFaultIncrRateFuncList.size(); ++i) {
-			DiscretizedFuncList funcList = aFaultIncrRateFuncList.get(i);
+			XY_DataSetList funcList = aFaultIncrRateFuncList.get(i);
 			//System.out.println("i="+i+", Funclist size="+funcList.size());
 			IncrementalMagFreqDist wtAveMFD = (IncrementalMagFreqDist) ((IncrementalMagFreqDist)funcList.get(0)).deepClone();
-			DiscretizedFuncAPI func = funcList.get(0);
+			XY_DataSetAPI func = funcList.get(0);
 			for(int imag=0; imag<func.getNum(); ++imag) {
 				// D2.1
 				double val1 = 0.225*funcList.get(0).getY(imag) + 0.225*funcList.get(1).getY(imag) + 
@@ -346,13 +347,13 @@ public class UCERF1ComparisonPlotter {
 		int numB_Faults = bFaultNames.length;
 		
 		// It holds incr rates for each B-Faults
-		ArrayList<DiscretizedFuncList> bFaultIncrRateFuncList = new ArrayList<DiscretizedFuncList>();
+		ArrayList<XY_DataSetList> bFaultIncrRateFuncList = new ArrayList<XY_DataSetList>();
 		// It holds Cum Rates for each A-Fault
-		ArrayList<DiscretizedFuncList> bFaultCumRateFuncList = new ArrayList<DiscretizedFuncList>();
+		ArrayList<XY_DataSetList> bFaultCumRateFuncList = new ArrayList<XY_DataSetList>();
 
 		for(int i=0; i<numB_Faults; ++i) {
-			bFaultIncrRateFuncList.add(new DiscretizedFuncList());
-			bFaultCumRateFuncList.add(new DiscretizedFuncList());
+			bFaultIncrRateFuncList.add(new XY_DataSetList());
+			bFaultCumRateFuncList.add(new XY_DataSetList());
 		}
 		// Default Parameters
 		String name = "Default Parameters";
@@ -400,9 +401,9 @@ public class UCERF1ComparisonPlotter {
 		 */
 		name  = "Wt Avg MFD";
 		for(int i=0; i<bFaultIncrRateFuncList.size(); ++i) {
-			DiscretizedFuncList funcList = bFaultIncrRateFuncList.get(i);
+			XY_DataSetList funcList = bFaultIncrRateFuncList.get(i);
 			IncrementalMagFreqDist wtAveMFD = (IncrementalMagFreqDist) ((IncrementalMagFreqDist)funcList.get(0)).deepClone();
-			DiscretizedFuncAPI func = funcList.get(0);
+			XY_DataSetAPI func = funcList.get(0);
 			
 			for(int imag=0; imag<func.getNum(); ++imag) 
 				wtAveMFD.set(func.getX(imag), 
@@ -434,7 +435,7 @@ public class UCERF1ComparisonPlotter {
 
 		// PLOT INCR RATES
 		for(int i=0; i<bFaultIncrRateFuncList.size(); ++i) {
-			DiscretizedFuncList funcList = bFaultIncrRateFuncList.get(i);
+			XY_DataSetList funcList = bFaultIncrRateFuncList.get(i);
 			String faultName = bFaultNames[i];
 			ArrayList funcArrayList = new ArrayList();
 			funcArrayList.add(funcList.get(funcList.size()-1));
@@ -448,7 +449,7 @@ public class UCERF1ComparisonPlotter {
 
 		// PLOT CUM RATES
 		for(int i=0; i<bFaultCumRateFuncList.size(); ++i) {
-			DiscretizedFuncList funcList = bFaultCumRateFuncList.get(i);
+			XY_DataSetList funcList = bFaultCumRateFuncList.get(i);
 			String faultName = bFaultNames[i];
 			ArrayList funcArrayList = new ArrayList();
 			funcArrayList.add(funcList.get(funcList.size()-1));
@@ -461,7 +462,7 @@ public class UCERF1ComparisonPlotter {
 		}
 	}
 
-	private void addToB_FaultsPlottingList(int[] b_FaultIndices, int numB_Faults, ArrayList<DiscretizedFuncList> bFaultIncrRateFuncList, ArrayList<DiscretizedFuncList> bFaultCumRateFuncList, String name) {
+	private void addToB_FaultsPlottingList(int[] b_FaultIndices, int numB_Faults, ArrayList<XY_DataSetList> bFaultIncrRateFuncList, ArrayList<XY_DataSetList> bFaultCumRateFuncList, String name) {
 		ArrayList<UnsegmentedSource> bFaultSources = ucerf2.get_B_FaultSources();
 		for(int i=0; i<numB_Faults; ++i) {
 			IncrementalMagFreqDist incrMFD = bFaultSources.get(b_FaultIndices[i]).getMagFreqDist();
@@ -482,8 +483,8 @@ public class UCERF1ComparisonPlotter {
 	 * @param aFaultCumRateFuncList
 	 * @param name
 	 */
-	private void addToFuncListForReportPlots(ArrayList<DiscretizedFuncList> aFaultIncrRateFuncList, 
-			ArrayList<DiscretizedFuncList> aFaultCumRateFuncList, String name) {
+	private void addToFuncListForReportPlots(ArrayList<XY_DataSetList> aFaultIncrRateFuncList, 
+			ArrayList<XY_DataSetList> aFaultCumRateFuncList, String name) {
 		IncrementalMagFreqDist incrMFD;
 		EvenlyDiscretizedFunc cumMFD;
 		String modelType = (String)ucerf2.getParameter(UCERF2.RUP_MODEL_TYPE_NAME).getValue();

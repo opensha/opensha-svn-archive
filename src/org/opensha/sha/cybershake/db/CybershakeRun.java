@@ -34,18 +34,20 @@ public class CybershakeRun {
 	private int erfID;
 	private int sgtVarID;
 	private int rupVarScenID;
+	private int velModelID;
 	private Timestamp sgtTime;
 	private Timestamp ppTime;
 	private String sgtHost;
 	private String ppHost;
 	
-	public CybershakeRun(int runID, int siteID, int erfID, int sgtVarID, int rupVarScenID,
+	public CybershakeRun(int runID, int siteID, int erfID, int sgtVarID, int rupVarScenID, int velModelID,
 			Timestamp sgtTime, Timestamp ppTime, String sgtHost, String ppHost) {
 		this.runID = runID;
 		this.siteID = siteID;
 		this.erfID = erfID;
 		this.sgtVarID = sgtVarID;
 		this.rupVarScenID = rupVarScenID;
+		this.velModelID = velModelID;
 		this.sgtTime = sgtTime;
 		this.ppTime = ppTime;
 		this.sgtHost = sgtHost;
@@ -88,6 +90,10 @@ public class CybershakeRun {
 		return ppHost;
 	}
 	
+	public int getVelModelID() {
+		return velModelID;
+	}
+	
 	@Override
 	public String toString() {
 		return "ID: " + getRunID() + ", Site_ID: " + getSiteID() + ", ERF_ID: " + getERFID() +
@@ -102,12 +108,14 @@ public class CybershakeRun {
 		int erfID = rs.getInt("ERF_ID");
 		int sgtVarID = rs.getInt("SGT_Variation_ID");
 		int rupVarScenID = rs.getInt("Rup_Var_Scenario_ID");
+		int velModelID = rs.getInt("Velocity_Model_ID");
 		Timestamp sgtTime = rs.getTimestamp("SGT_Time");
 		Timestamp ppTime = rs.getTimestamp("PP_Time");
 		String sgtHost = rs.getString("SGT_Host");
 		String ppHost = rs.getString("PP_Host");
 		
-		return new CybershakeRun(runID, siteID, erfID, sgtVarID, rupVarScenID, sgtTime, ppTime, sgtHost, ppHost);
+		return new CybershakeRun(runID, siteID, erfID, sgtVarID, rupVarScenID, velModelID,
+				sgtTime, ppTime, sgtHost, ppHost);
 	}
 
 }

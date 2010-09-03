@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.XY_DataSetList;
 /**
  * <p>Title:  FractileCurveCalculator</p>
  * <p>Description: This class calculates fractiles from a list of discretized functions (e.g., hazzard curves) and their relative weights</p>
@@ -36,7 +36,7 @@ import org.opensha.commons.data.function.DiscretizedFuncList;
 public class FractileCurveCalculator {
 
   // function list to save the curves
-  private DiscretizedFuncList funcList;
+  private XY_DataSetList funcList;
   // save the relative weight of each curve
   private ArrayList<Double> relativeWeights;
   // save the number of X values
@@ -58,7 +58,7 @@ public class FractileCurveCalculator {
    * @param relativeWts : weight assigned to each curves. It expects the ArrayList
    *  to contain Double values
    */
-  public FractileCurveCalculator(DiscretizedFuncList functionList,
+  public FractileCurveCalculator(XY_DataSetList functionList,
                                ArrayList<Double> relativeWts) {
     set(functionList, relativeWts);
   }
@@ -81,7 +81,7 @@ public class FractileCurveCalculator {
    * array list in the same order as in the functionList. Note that these values do not have to
    * be normalized (they don't have to sum to 1.0) - this normalization is taken care of internally.
    */
-  public void set(DiscretizedFuncList functionList,
+  public void set(XY_DataSetList functionList,
                                  ArrayList<Double> relativeWts) {
 
     // check that number of weights are equal to number of curves give

@@ -20,7 +20,7 @@
 package org.opensha.nshmp.sha.calc;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.nshmp.util.GlobalConstants;
 import org.opensha.nshmp.util.ui.DataDisplayFormatter;
 
@@ -38,7 +38,7 @@ public class UHS_SpectrumCalculator
    * @param saVals ArbitrarilyDiscretizedFunc
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList calculateApproxUHSSpectrum(
+  public XY_DataSetList calculateApproxUHSSpectrum(
       ArbitrarilyDiscretizedFunc pgaVals) {
 
     float fa = 1.0f;
@@ -48,7 +48,7 @@ public class UHS_SpectrumCalculator
     double sAcc = fa * pgaVals.getY(1);
     double sVel = fv * pgaVals.getY(2);
     double sPGA = fa * pgaVals.getY(0);
-    DiscretizedFuncList funcList = approxSaSd(tAcc, sAcc, sVel, sPGA);
+    XY_DataSetList funcList = approxSaSd(tAcc, sAcc, sVel, sPGA);
 
     saTfunction.setName(GlobalConstants.APPROX_UNIFORM_HAZARD_SPECTRUM_NAME +
                         " of " +
@@ -80,7 +80,7 @@ public class UHS_SpectrumCalculator
    * @param fv float
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList calculateSMS_UHSpectrum(ArbitrarilyDiscretizedFunc
+  public XY_DataSetList calculateSMS_UHSpectrum(ArbitrarilyDiscretizedFunc
       pgaVals,
       float fa, float fv, String siteClass) {
 
@@ -88,7 +88,7 @@ public class UHS_SpectrumCalculator
     double sAcc = fa * pgaVals.getY(1);
     double sVel = fv * pgaVals.getY(2);
     double sPga = fa * pgaVals.getY(0);
-    DiscretizedFuncList funcList = approxSaSd(tAcc, sAcc, sVel, sPga);
+    XY_DataSetList funcList = approxSaSd(tAcc, sAcc, sVel, sPga);
 
     saTfunction.setName(GlobalConstants.SITE_MODIFIED_SA_Vs_T_GRAPH);
     saSdfunction.setName(GlobalConstants.SITE_MODIFIED_SD_Vs_T_GRAPH);
@@ -114,7 +114,7 @@ public class UHS_SpectrumCalculator
    * @param fv float
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList calculateSD_UHSpectrum(ArbitrarilyDiscretizedFunc
+  public XY_DataSetList calculateSD_UHSpectrum(ArbitrarilyDiscretizedFunc
       pgaVals,
       float fa, float fv,
       String siteClass) {
@@ -127,7 +127,7 @@ public class UHS_SpectrumCalculator
     //Have to ask E.V about its formula
     //double sPga = faVal*pgaVals.getY(0);
     double sPga = (2.0f / 3.0f) * sAcc;
-    DiscretizedFuncList funcList = approxSaSd(tAcc, sAcc, sVel, sPga);
+    XY_DataSetList funcList = approxSaSd(tAcc, sAcc, sVel, sPga);
 
     saTfunction.setName(GlobalConstants.DESIGN_SPECTRUM_SA_Vs_T_GRAPH);
     saSdfunction.setName(GlobalConstants.DESIGN_SPECTRUM_SD_Vs_T_GRAPH);

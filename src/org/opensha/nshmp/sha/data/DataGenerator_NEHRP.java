@@ -39,7 +39,8 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.XY_DataSetAPI;
+import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.geo.Location;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 import org.opensha.nshmp.sha.data.api.DataGeneratorAPI_NEHRP;
@@ -604,7 +605,7 @@ public class DataGenerator_NEHRP
 	// For 2009 we don't care about Map Spectrum. Just skip.
 	// if (GlobalConstants.NEHRP_2009.equals(dataEdition)) {return;}
     HazardDataMinerAPI miner = new HazardDataMinerServletMode();
-    DiscretizedFuncList functions = miner.getMapSpectrum(saFunction);
+    XY_DataSetList functions = miner.getMapSpectrum(saFunction);
     addDataInfo(functions.getInfo());
     getFunctionsForMapSpectrum(functions);
   }
@@ -662,15 +663,15 @@ public class DataGenerator_NEHRP
 			 xlRow = xlSheet.createRow(i+startRow);
 			 double curLat = locations.get(i).getLatitude();
 			 double curLon = locations.get(i).getLongitude();
-			 DiscretizedFuncAPI saFunc = null;
-			 DiscretizedFuncAPI sdFunc = null;
+			 XY_DataSetAPI saFunc = null;
+			 XY_DataSetAPI sdFunc = null;
 			 String curGridSpacing = "";
 			 try {
 				// Set the saFunction (ss,s1)
 				getCalculateSsS1Function(curLat, curLon);
 				// Now get the Map Spectrum (sa,sd funcs)
 			    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
-				DiscretizedFuncList functions = miner.getMapSpectrum(saFunction);
+				XY_DataSetList functions = miner.getMapSpectrum(saFunction);
 				saFunc = functions.get(1);
 				sdFunc = functions.get(0);
 				
@@ -729,7 +730,7 @@ public class DataGenerator_NEHRP
    *
    * @param mapSpectrumFunctions DiscretizedFuncList
    */
-  protected void getFunctionsForMapSpectrum(DiscretizedFuncList
+  protected void getFunctionsForMapSpectrum(XY_DataSetList
                                             mapSpectrumFunctions) {
 
 	int numFunctions = mapSpectrumFunctions.size();
@@ -773,7 +774,7 @@ public class DataGenerator_NEHRP
    *
    * @param smSpectrumFunctions DiscretizedFuncList
    */
-  protected void getFunctionsForSMSpectrum(DiscretizedFuncList
+  protected void getFunctionsForSMSpectrum(XY_DataSetList
                                            smSpectrumFunctions) {
 
     int numFunctions = smSpectrumFunctions.size();
@@ -817,7 +818,7 @@ public class DataGenerator_NEHRP
    *
    * @param sdSpectrumFunctions DiscretizedFuncList
    */
-  protected void getFunctionsForSDSpectrum(DiscretizedFuncList
+  protected void getFunctionsForSDSpectrum(XY_DataSetList
                                            sdSpectrumFunctions) {
 
     int numFunctions = sdSpectrumFunctions.size();
@@ -888,7 +889,7 @@ public class DataGenerator_NEHRP
    */
   public void calculateSMSpectrum() throws RemoteException {
     HazardDataMinerAPI miner = new HazardDataMinerServletMode();
-    DiscretizedFuncList functions = miner.getSMSpectrum(saFunction, faVal,
+    XY_DataSetList functions = miner.getSMSpectrum(saFunction, faVal,
         fvVal, siteClass, dataEdition);
     addDataInfo(functions.getInfo());
     getFunctionsForSMSpectrum(functions);
@@ -956,8 +957,8 @@ public class DataGenerator_NEHRP
 		 xlRow = xlSheet.createRow(i+startRow);
 		 double curLat = locations.get(i).getLatitude();
 		 double curLon = locations.get(i).getLongitude();
-		 DiscretizedFuncAPI saFunc = null;
-		 DiscretizedFuncAPI sdFunc = null;
+		 XY_DataSetAPI saFunc = null;
+		 XY_DataSetAPI sdFunc = null;
 		 String curGridSpacing = "";
 		 Float curFa = Float.MAX_VALUE;
 		 Float curFv = Float.MAX_VALUE;
@@ -975,7 +976,7 @@ public class DataGenerator_NEHRP
 			curFv = (float) calc.getFv(curCond, curSa);
 
 		    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
-		    DiscretizedFuncList functions = miner.getSMSpectrum(saFunction, curFa,
+		    XY_DataSetList functions = miner.getSMSpectrum(saFunction, curFa,
 		        curFv, curCond, dataEdition);
 			
 		    saFunc = functions.get(1);
@@ -1039,7 +1040,7 @@ public class DataGenerator_NEHRP
    */
   public void calculateSDSpectrum() throws RemoteException {
     HazardDataMinerAPI miner = new HazardDataMinerServletMode();
-    DiscretizedFuncList functions = miner.getSDSpectrum(saFunction, faVal,
+    XY_DataSetList functions = miner.getSDSpectrum(saFunction, faVal,
         fvVal, siteClass, dataEdition);
     addDataInfo(functions.getInfo());
     getFunctionsForSDSpectrum(functions);
@@ -1103,8 +1104,8 @@ public class DataGenerator_NEHRP
 		 xlRow = xlSheet.createRow(i+startRow);
 		 double curLat = locations.get(i).getLatitude();
 		 double curLon = locations.get(i).getLongitude();
-		 DiscretizedFuncAPI saFunc = null;
-		 DiscretizedFuncAPI sdFunc = null;
+		 XY_DataSetAPI saFunc = null;
+		 XY_DataSetAPI sdFunc = null;
 		 String curGridSpacing = "";
 		 Float curFa = Float.MAX_VALUE;
 		 Float curFv = Float.MAX_VALUE;
@@ -1128,7 +1129,7 @@ public class DataGenerator_NEHRP
 			curFv = (float) calc.getFv(curCond, curSa);
 
 		    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
-		    DiscretizedFuncList functions = miner.getSDSpectrum(saFunction, curFa,
+		    XY_DataSetList functions = miner.getSDSpectrum(saFunction, curFa,
 		        curFv, curCond, dataEdition);
 			
 		    saFunc = functions.get(1);

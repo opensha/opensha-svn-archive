@@ -21,7 +21,7 @@ package org.opensha.sha.magdist;
 
 import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.exceptions.DataPoint2DException;
-import org.opensha.commons.exceptions.DiscretizedFuncException;
+import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 
 /**
@@ -62,7 +62,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    * @param max
    * @param num
    */
-  public SingleMagFreqDist(double min,double max,int num) throws DiscretizedFuncException,
+  public SingleMagFreqDist(double min,double max,int num) throws XY_DataSetException,
                            InvalidRangeException {
     super(min,max,num);
   }

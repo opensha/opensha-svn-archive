@@ -21,7 +21,7 @@ package org.opensha.sha.magdist;
 
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.exceptions.DataPoint2DException;
-import org.opensha.commons.exceptions.DiscretizedFuncException;
+import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.MagFreqDistException;
 
@@ -82,7 +82,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param num - number of points in distribution
    */
   public GaussianMagFreqDist(double min,double max,int num)
-    throws DiscretizedFuncException,InvalidRangeException {
+    throws XY_DataSetException,InvalidRangeException {
 
     super(min,max,num);
 
@@ -99,7 +99,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param totMoRate - the total moment rate
    */
   public GaussianMagFreqDist(double min,double max,int num,double mean,double stdDev,
-                             double totMoRate) throws DiscretizedFuncException,
+                             double totMoRate) throws XY_DataSetException,
                              InvalidRangeException,DataPoint2DException {
     super(min,max,num);
     this.mean=mean;
@@ -167,7 +167,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    */
   public GaussianMagFreqDist(double min,double max,int num,double mean,double stdDev,
                              double totMoRate,double truncLevel,int truncType)
-                             throws DiscretizedFuncException, InvalidRangeException,
+                             throws XY_DataSetException, InvalidRangeException,
                              DataPoint2DException {
     super(min,max,num);
     this.mean=mean;

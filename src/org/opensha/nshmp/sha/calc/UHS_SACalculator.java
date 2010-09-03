@@ -22,7 +22,7 @@ package org.opensha.nshmp.sha.calc;
 import java.text.DecimalFormat;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.geo.Location;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 import org.opensha.nshmp.sha.data.SiteInterpolation;
@@ -120,7 +120,7 @@ public class UHS_SACalculator {
    * @param longitude double
    * @return ArbitrarilyDiscretizedFunc
    */
-  public DiscretizedFuncList getSA(String selectedRegion,
+  public XY_DataSetList getSA(String selectedRegion,
                                    String selectedEdition,
                                    double latitude, double longitude,
                                    String spectraType) {
@@ -140,7 +140,7 @@ public class UHS_SACalculator {
     ArbitrarilyDiscretizedFunc sdTFunction = calcSDTFunction(function);
     gridSpacing = (float) siteSaVals.getGridSpacing();
 
-    DiscretizedFuncList funcList = new DiscretizedFuncList();
+    XY_DataSetList funcList = new XY_DataSetList();
     funcList.add(sdTFunction);
     funcList.add(function);
     funcList.add(createPGAValues(selectedRegion, selectedEdition, function));
@@ -148,7 +148,7 @@ public class UHS_SACalculator {
     return funcList;
   }
 
-  private String setInfo(DiscretizedFuncList funcList,
+  private String setInfo(XY_DataSetList funcList,
                          double latitude, double longitude, String spectraType) {
     //set the info for the function being added
     String info = "";
@@ -188,7 +188,7 @@ public class UHS_SACalculator {
     return info;
   }
 
-  private String setInfoForZipCode(DiscretizedFuncList funcList, String zipCode,
+  private String setInfoForZipCode(XY_DataSetList funcList, String zipCode,
                                    double lat, double lon, String spectraType) {
     //adding the info for each function
     //set the info for the function being added
@@ -216,7 +216,7 @@ public class UHS_SACalculator {
    * @param zipCode
    * @return
    */
-  public DiscretizedFuncList getSA(String selectedRegion,
+  public XY_DataSetList getSA(String selectedRegion,
                                    String selectedEdition,
                                    String zipCode, String spectraType) throws
       ZipCodeErrorException {
@@ -225,7 +225,7 @@ public class UHS_SACalculator {
     double lat = loc.getLatitude();
     double lon = loc.getLongitude();
     //getting the SA Period values for the lat lon for the selected Zip code.
-    DiscretizedFuncList funcList = getSA(selectedRegion,
+    XY_DataSetList funcList = getSA(selectedRegion,
                                          selectedEdition, lat, lon, spectraType);
     funcList.setInfo(setInfoForZipCode(funcList, zipCode, lat, lon, spectraType));
     return funcList;

@@ -23,7 +23,7 @@ package org.opensha.sha.magdist;
 import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.exceptions.DataPoint2DException;
-import org.opensha.commons.exceptions.DiscretizedFuncException;
+import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 
 
@@ -66,7 +66,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
      * using the min, max and num we calculate the delta
      */
     public IncrementalMagFreqDist(double min,double max,int num)
-                                 throws DiscretizedFuncException,InvalidRangeException {
+                                 throws XY_DataSetException,InvalidRangeException {
       super(min,max,num);
       setTolerance(delta/1000000);
    }

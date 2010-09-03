@@ -22,7 +22,7 @@ package org.opensha.nshmp.util.ui;
 import java.text.DecimalFormat;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.XY_DataSetList;
 
 /**
  * <p>Title: DataDisplayFormatter</p>
@@ -175,7 +175,7 @@ public final class DataDisplayFormatter {
    * @param siteClass String
    * @return String
    */
-  public static String createFunctionInfoString(DiscretizedFuncList
+  public static String createFunctionInfoString(XY_DataSetList
                                                 functionList, String siteClass) {
     String dataInfo = "";
 		dataInfo += "\n" + colPad("Period", 6, 2) + colPad("Sa", 6, 2) +
@@ -203,7 +203,7 @@ public final class DataDisplayFormatter {
    * @param flag
    * @return
    */
-  public static String createFunctionInfoString(DiscretizedFuncList funcs,
+  public static String createFunctionInfoString(XY_DataSetList funcs,
 		  String siteClass, boolean flag) {
 	  StringBuffer info = new StringBuffer("\n");
 	  info.append(colPad("Period", 6, 2) + colPad("Sa", 6, 2) + "\n");

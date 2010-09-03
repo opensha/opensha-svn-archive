@@ -21,7 +21,7 @@ package org.opensha.commons.calc;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.XY_DataSetList;
 
 /**
  * <p>Title: FunctionListCalc</p>
@@ -43,7 +43,7 @@ public class FunctionListCalc {
    * @param funcList  List conatining all the functins for which mean needs to be calculated
    * @return A function for mean of all the functions in the list
    */
-  public static DiscretizedFunc getMean(DiscretizedFuncList funcList) {
+  public static DiscretizedFunc getMean(XY_DataSetList funcList) {
     DiscretizedFunc meanFunc = new ArbitrarilyDiscretizedFunc();
     int numFunctions = funcList.size(); // number of functions in the list
     int numPoints; // number of x,y points

@@ -50,7 +50,8 @@ import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.XY_DataSetAPI;
+import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.gui.plot.jfreechart.MyTickUnits;
 import org.opensha.commons.util.FileUtils;
@@ -115,7 +116,7 @@ ActionListener {
 	protected boolean graphOn = false;
 
 
-	DiscretizedFuncList functions = new DiscretizedFuncList();
+	XY_DataSetList functions = new XY_DataSetList();
 	DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
 
 
@@ -564,9 +565,9 @@ ActionListener {
 		if(D) System.out.println(S);
 		int k;
 		// functions needed to calculate the average
-		DiscretizedFuncList avgFunctions = new DiscretizedFuncList();
+		XY_DataSetList avgFunctions = new XY_DataSetList();
 		//functions for plotting
-		DiscretizedFuncList plotFunctions = new DiscretizedFuncList();
+		XY_DataSetList plotFunctions = new XY_DataSetList();
 		// clearing all the plots before adding them to the functionList
 		clearPlot(true);
 
@@ -596,7 +597,7 @@ ActionListener {
 				if(D) System.out.println(S+":numFunc:"+numFunc);
 				//getting the correct filename to read the data from
 				for(int j=0; j<numFunc; ++j) {
-					DiscretizedFuncAPI func= functions.get(j);
+					XY_DataSetAPI func= functions.get(j);
 					if (D) System.out.println(S+":checkText:"+checkText+",func.getName():"+func.getName());
 					if(checkText.equalsIgnoreCase(func.getName())) {
 						if(checkBox.isSelected())  {

@@ -545,7 +545,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 					if (curveID >= 0) {
 						curve2db_write.insertHazardCurvePoints(curveID, curve);
 					} else {
-						curve2db_write.insertHazardCurve(runID, im.getID(), curve);
+						curve2db_write.insertHazardCurve(run, im.getID(), curve);
 						curveID = curve2db.getHazardCurveID(runID, im.getID());
 					}
 				} else {

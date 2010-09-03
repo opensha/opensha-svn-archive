@@ -46,10 +46,11 @@ public class DefModelPtFileWriter {
 		for (FaultSectionPrefData fault : allFaultSectionPrefData) {
 			String name = fault.getName();
 			double slip = fault.getAveLongTermSlipRate();
+			double rake = fault.getAveRake();
 			StirlingGriddedSurface surface = new StirlingGriddedSurface(fault.getSimpleFaultData(aseisReducesArea),
 					maxDiscretization, maxDiscretization);
 			
-			fw.write("# name: '" + name + "'\tslip: " + slip + "\n");
+			fw.write("# name: '" + name + "'\tslip: " + slip + "\trake: " + rake + "\n");
 			for (Location loc : surface) {
 				fw.write(loc.getLatitude() + "\t" + loc.getLongitude() + "\t" + loc.getDepth() + "\n");
 			}

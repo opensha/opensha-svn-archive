@@ -22,7 +22,7 @@ package org.opensha.sha.magdist;
 
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.exceptions.DataPoint2DException;
-import org.opensha.commons.exceptions.DiscretizedFuncException;
+import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.MagFreqDistException;
 
@@ -75,7 +75,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
     * @param num - number of points in distribution
     */
    public YC_1985_CharMagFreqDist(double min,double max,int num)
-                                 throws DiscretizedFuncException,InvalidRangeException{
+                                 throws XY_DataSetException,InvalidRangeException{
      super(min,max,num);
    }
 
