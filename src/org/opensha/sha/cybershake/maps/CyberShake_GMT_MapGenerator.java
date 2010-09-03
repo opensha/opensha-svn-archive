@@ -207,7 +207,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				gmtCommandLines.add("cp " + interpUnsampledGRD + " " + interpSampledGRD);
 			} else {
 				gmtCommandLines.add("# resample the interpolated file");
-				boolean bicubic = true;
+				boolean bicubic = false;
 				commandLine = "${GMT_PATH}grdsample "+interpUnsampledGRD+" -G"+interpSampledGRD
 								+" -I"+mapGridSpacing+region;
 				if (!bicubic)
