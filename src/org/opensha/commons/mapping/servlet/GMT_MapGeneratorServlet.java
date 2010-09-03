@@ -209,24 +209,26 @@ extends HttpServlet {
 		bw.close();
 
 		//creating the XYZ file from the XYZ file from the XYZ dataSet
-		ArrayList<Double> xVals = map.getGriddedData().getX_DataSet();
-		ArrayList<Double> yVals = map.getGriddedData().getY_DataSet();
-		ArrayList<Double> zVals = map.getGriddedData().getZ_DataSet();
-		//file follows the convention lat, lon and Z value
-		if (map.getGriddedData().checkXYZ_NumVals()) {
-			size = xVals.size();
-			fw = new FileWriter(newDir + "/" + new File(map.getXyzFileName()).getName());
-			bw = new BufferedWriter(fw);
-			for (int i = 0; i < size; ++i) {
-				//System.out.println(xVals.get(i)+" "+yVals.get(i)+" "+zVals.get(i)+"\n");
-				bw.write(xVals.get(i) + " " + yVals.get(i) + " " + zVals.get(i) +
-				"\n");
+		if (map.getGriddedData() != null) {
+			ArrayList<Double> xVals = map.getGriddedData().getX_DataSet();
+			ArrayList<Double> yVals = map.getGriddedData().getY_DataSet();
+			ArrayList<Double> zVals = map.getGriddedData().getZ_DataSet();
+			//file follows the convention lat, lon and Z value
+			if (map.getGriddedData().checkXYZ_NumVals()) {
+				size = xVals.size();
+				fw = new FileWriter(newDir + "/" + new File(map.getXyzFileName()).getName());
+				bw = new BufferedWriter(fw);
+				for (int i = 0; i < size; ++i) {
+					//System.out.println(xVals.get(i)+" "+yVals.get(i)+" "+zVals.get(i)+"\n");
+					bw.write(xVals.get(i) + " " + yVals.get(i) + " " + zVals.get(i) +
+					"\n");
+				}
+				bw.close();
 			}
-			bw.close();
-		}
-		else {
-			throw new RuntimeException(
-					"X, Y and Z dataset does not have equal size");
+			else {
+				throw new RuntimeException(
+						"X, Y and Z dataset does not have equal size");
+			}
 		}
 
 		//running the gmtScript file
