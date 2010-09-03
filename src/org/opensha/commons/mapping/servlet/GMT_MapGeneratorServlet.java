@@ -148,7 +148,7 @@ extends HttpServlet {
 		doGet(request, response);
 	}
 	
-	public static String getPlotDirName(String plotDirName) {
+	private static String getPlotDirName(String plotDirName) {
 		if (plotDirName != null) {
 			File f = new File(FILE_PATH + GMT_DATA_DIR + plotDirName);
 			int fileCounter = 1;
@@ -167,14 +167,14 @@ extends HttpServlet {
 		}
 	}
 	
-	public static String getPlotDirPath(String plotDirName) {
-		plotDirName = getPlotDirName(plotDirName);
+	private static String getPlotDirPath(String plotDirName) {
 		return FILE_PATH + GMT_DATA_DIR + plotDirName;
 	}
 	
 	public static String createMap(SecureMapGenerator gmt, GMT_Map map, String plotDirName, String metadata,
 			String metadataFileName) throws IOException, GMT_MapException {
 		//Name of the directory in which we are storing all the gmt data for the user
+		plotDirName = getPlotDirName(plotDirName);
 		String newDir = getPlotDirPath(plotDirName);
 
 		//create a gmt directory for each user in which all his gmt files will be stored
