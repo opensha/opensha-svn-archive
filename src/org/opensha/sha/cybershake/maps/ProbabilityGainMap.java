@@ -86,7 +86,13 @@ public class ProbabilityGainMap implements Serializable {
 			if (refX != modX || refY != modY)
 				throw new RuntimeException("ref and mod GRD files don't match!");
 			
-			double gain = modZ / refZ;
+			double gain;
+			
+			if (modZ < 0 || refZ <= 0) {
+				gain = 0;
+			} else {
+				gain = modZ / refZ;
+			}
 			
 			gainXYZ.addValue(modX, modY, gain);
 		}

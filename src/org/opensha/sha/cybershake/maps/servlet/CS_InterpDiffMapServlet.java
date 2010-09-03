@@ -113,6 +113,7 @@ extends HttpServlet {
 			} else if (mapObj instanceof ProbabilityGainMap) {
 				ProbabilityGainMap map = (ProbabilityGainMap)mapObj;
 				String[] locs = getProbGainMap(map, dirName, metadata, metadataFileName);
+				outputToApplet.writeObject(locs);
 			} else {
 				throw new GMT_MapException("Map type '" + mapObj.getClass().getName() + "' not supported!");
 			}

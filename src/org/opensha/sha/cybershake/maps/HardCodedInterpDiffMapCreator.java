@@ -57,21 +57,21 @@ public class HardCodedInterpDiffMapCreator {
 			throw new IllegalArgumentException("IM type must be 21 for custom map");
 		if (!isProbAt_IML)
 			throw new IllegalArgumentException("isProbAt_IML must be true for custom map");
-		String dir = "/home/kevin/CyberShake/interpDiffInputFiles/"+singleName+"/";
-		String fname;
-		if (mod)
-			fname = "mod_";
-		else
-			fname = "orig_";
-		fname += (float)val+"g_singleDay.txt";
-		String fileName = dir + fname;
-		File file = new File(fileName);
-		if (file.exists()) {
-			System.out.println("Loading scatter from: " + fileName);
-			return ArbDiscretizedXYZ_DataSet.loadXYZFile(fileName);
-		} else {
+//		String dir = "/home/kevin/CyberShake/interpDiffInputFiles/"+singleName+"/";
+//		String fname;
+//		if (mod)
+//			fname = "mod_";
+//		else
+//			fname = "orig_";
+//		fname += (float)val+"g_singleDay.txt";
+//		String fileName = dir + fname;
+//		File file = new File(fileName);
+//		if (file.exists()) {
+//			System.out.println("Loading scatter from: " + fileName);
+//			return ArbDiscretizedXYZ_DataSet.loadXYZFile(fileName);
+//		} else {
 			return loadCustomMapCurves(singleName, isProbAt_IML, val, mod);
-		}
+//		}
 	}
 
 	private static ArbDiscretizedXYZ_DataSet loadCustomMapCurves(
@@ -181,7 +181,7 @@ public class HardCodedInterpDiffMapCreator {
 	public static void main(String[] args){
 		try {
 			boolean remote = true;
-			boolean logPlot = true;
+			boolean logPlot = false;
 			int imTypeID = 21;
 			Double customMin = null;
 			Double customMax = null;
@@ -196,12 +196,12 @@ public class HardCodedInterpDiffMapCreator {
 //			Location hypo = BombayBeachHazardCurveCalc.PICO_RIVERA_LOC;
 //			String singleName = "parkfield";
 //			Location hypo = BombayBeachHazardCurveCalc.PARKFIELD_LOC;
-			String singleName = "yucaipa";
-			Location hypo = BombayBeachHazardCurveCalc.YUCAIPA_LOC;
-//			String singleName = "coyote";
-//			Location hypo = BombayBeachHazardCurveCalc.COYOTE_CREEK;
+//			String singleName = "yucaipa";
+//			Location hypo = BombayBeachHazardCurveCalc.YUCAIPA_LOC;
+			String singleName = "coyote";
+			Location hypo = BombayBeachHazardCurveCalc.COYOTE_CREEK;
 			boolean mod = true;
-			boolean probGain = true;
+			boolean probGain = false;
 			String customLabel = "POE "+(float)val+"G 3sec SA in 1 day";
 			if (logPlot && !probGain) {
 				customMin = -8.259081006598409;
