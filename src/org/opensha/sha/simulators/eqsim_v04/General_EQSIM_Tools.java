@@ -101,6 +101,32 @@ public class General_EQSIM_Tools {
 	
 	
 	/**
+	 * This constructor loads the data from either an EQSIM_v04 Geometry file (formatType=0)
+	 * or from Steve Ward's format (formatType=1).
+	 * @param filePathName		 - full path and file name
+	 * @param formatType		 - set as 0 for EQSIM_v04 Geometry file or 1 for Steve Ward's format
+	 */
+	public General_EQSIM_Tools(String filePathName, int formatType) {
+		System.out.println(filePathName);
+		ArrayList<String> lines=null;
+		try {
+			lines = FileUtils.loadJarFile(filePathName);
+			System.out.println("Number of file lines: "+lines.size()+" (in "+filePathName+")");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		if(formatType==0)
+			loadFromEQSIMv04_GeometryLines(lines);
+		else if (formatType==1)
+			loadFromSteveWardLines(lines);
+		else
+			throw new RuntimeException("format type not supported");
+	}
+
+	
+	/**
 	 * This constructor loads the data from an EQSIM_v04 Geometry file
 	 * @param url		 - full URL path name
 	 */
@@ -531,30 +557,130 @@ public class General_EQSIM_Tools {
 	}
 	
 	
+	public void writeToWardFile(String fileName) throws IOException {
+		FileWriter efw = new FileWriter(fileName);
+		for (RectangularElement rectElem : rectElementsList) {
+			efw.write(rectElem.toWardFormatLine() + "\n");
+		}
+		efw.close();
+	}
+
+	
 	/**
-	 * this returns a list of elements created from the given lines from a Ward-format file
+	 * This loads from Steve Wards file format (at least for the format he sent on Sept 2, 2010).  This
+	 * implementation does not put DAS for traceFlag in the vertices, and there are assumptions about the
+	 * ordering of things in his file.  Note also that his NAS does not start over for each section, but
+	 * rather starts over for each fault.
 	 * @param lines
-	 * @return
 	 */
-	public static ArrayList<RectangularElement> getElementsFromWardFileLines(ArrayList<String> lines) {
-		ArrayList<RectangularElement> elements = new ArrayList<RectangularElement>();
+	private void loadFromSteveWardLines(ArrayList<String> lines) {
+
+		
+		// now need to fill these lists
+		rectElementsList = new ArrayList<RectangularElement>();
+		vertexList = new ArrayList<Vertex>();
+		rectElementsListForSections = new ArrayList<ArrayList<RectangularElement>> ();
+		vertexListForSections = new ArrayList<ArrayList<Vertex>>();
+		namesOfSections = new ArrayList<String>();
+		faultIDs_ForSections = new ArrayList<Integer>();
+		
+		int lastSectionID = -1;
+		ArrayList<RectangularElement> currentRectElForSection = null;
+		ArrayList<Vertex> currVertexListForSection = null;
+		
+		int numVertices= 0; // to set vertexIDs
+
 		
 		for (String line : lines) {
 			if (line == null || line.length() == 0)
 				continue;
-			elements.add(new RectangularElement(line,0));
-		}
-		return elements;
+
+			StringTokenizer tok = new StringTokenizer(line);
+
+			int id = Integer.parseInt(tok.nextToken()); // unique number ID for each element
+			int numAlongStrike = Integer.parseInt(tok.nextToken()); // Number along strike
+			int numDownDip = Integer.parseInt(tok.nextToken()); // Number down dip
+			int faultID = Integer.parseInt(tok.nextToken()); // Fault Number
+			int sectionID = Integer.parseInt(tok.nextToken()); // Segment Number
+			double slipRate = Double.parseDouble(tok.nextToken()); // Slip Rate in m/y.
+			double strength = Double.parseDouble(tok.nextToken()); // Element Strength in Bars (not used).
+			double strike = Double.parseDouble(tok.nextToken()); // stike
+			double dip = Double.parseDouble(tok.nextToken()); // dip
+			double rake = Double.parseDouble(tok.nextToken()); // rake
+			FocalMechanism focalMechanism = new FocalMechanism(strike, dip, rake);
+
+			Vertex[] vertices = new Vertex[4];
+			// 0th vertex
+			double lat = Double.parseDouble(tok.nextToken());
+			double lon = Double.parseDouble(tok.nextToken());
+			double depth = Double.parseDouble(tok.nextToken()) / -1000d;
+			numVertices+=1;
+			vertices[0] = new Vertex(lat, lon, depth, numVertices);
+			// 1st vertex
+			lat = Double.parseDouble(tok.nextToken());
+			lon = Double.parseDouble(tok.nextToken());
+			depth = Double.parseDouble(tok.nextToken()) / -1000d;
+			numVertices+=1;
+			vertices[1] = new Vertex(lat, lon, depth, numVertices);
+			// 2nd vertex
+			lat = Double.parseDouble(tok.nextToken());
+			lon = Double.parseDouble(tok.nextToken());
+			depth = Double.parseDouble(tok.nextToken()) / -1000d;
+			numVertices+=1;
+			vertices[2] = new Vertex(lat, lon, depth, numVertices);
+			// last vertex
+			lat = Double.parseDouble(tok.nextToken());
+			lon = Double.parseDouble(tok.nextToken());
+			depth = Double.parseDouble(tok.nextToken()) / -1000d;
+			numVertices+=1;
+			vertices[3] = new Vertex(lat, lon, depth, numVertices);
+
+			String name = null;
+			while (tok.hasMoreTokens()) {
+				if (name == null)
+					name = "";
+				else
+					name += " ";
+				name += tok.nextToken();
+			}
+			String sectionName = name;
+			
+			RectangularElement rectElem = new RectangularElement(id, vertices, sectionName,faultID, sectionID, 
+					numAlongStrike, numDownDip, slipRate, Double.NaN, focalMechanism, true);
+			
+			rectElementsList.add(rectElem);
+			
+			// check if this is a new section
+			if(sectionID != lastSectionID) {
+				// encountered a new section
+				currentRectElForSection = new ArrayList<RectangularElement>();
+				currVertexListForSection = new ArrayList<Vertex>();
+				rectElementsListForSections.add(currentRectElForSection);
+				vertexListForSections.add(currVertexListForSection);
+				namesOfSections.add(sectionName);
+				faultIDs_ForSections.add(faultID);
+			}
+			currentRectElForSection.add(rectElem);
+			for(int i=0; i<4;i++) {
+				vertexList.add(vertices[i]);
+				currVertexListForSection.add(vertices[i]);
+			}
 	}
-	
-	
-	public void writeToWardFile(String fileName) throws IOException {
-		FileWriter efw = new FileWriter(fileName);
-		for (RectangularElement surface : rectElementsList) {
-			efw.write(surface.toWardFormatLine() + "\n");
+		
+		// check that indices are in order, and that index is one minus the ID:
+		for(int i=0;i<vertexList.size();i++) {
+			int idMinus1 = vertexList.get(i).getID()-1;
+			if(i != idMinus1) throw new RuntimeException("vertexList index problem at index "+i+" (ID-1="+idMinus1+")");
 		}
-		efw.close();
+		for(int i=0;i<rectElementsList.size();i++) {
+			if(i != rectElementsList.get(i).getID()-1) throw new RuntimeException("rectElementsList index problem at "+i);
+		}
+		
+		System.out.println("namesOfSections.size()="+namesOfSections.size()+"\tvertexList.size()="+vertexList.size()+"\trectElementsList.size()="+rectElementsList.size());
+
+
 	}
+
 	
 	
 	/**
@@ -924,7 +1050,15 @@ public class General_EQSIM_Tools {
 		}
 		*/
 		
-		/**/
+		String fullPath = "org/opensha/sha/simulators/eqsim_v04/WardsInputFile/test.txt";
+		General_EQSIM_Tools test = new General_EQSIM_Tools(fullPath, 1);
+		test.read_EQSIMv04_EventsFile("org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/NCAL_Ward.out.txt");
+		test.checkEventMagnitudes();
+		test.checkElementSlipRates();
+
+
+		
+		/*
 		// THE FOLLOWING TEST LOOKS GOOD FROM A VISUAL INSPECTION
 		String fullPath = "org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/NCA_Ward_Geometry.dat.txt";
 //		String fullPath = "org/opensha/sha/simulators/eqsim_v04/ALLCAL_Model_v04/ALLCAL_Ward_Geometry.dat";
@@ -951,14 +1085,15 @@ public class General_EQSIM_Tools {
 		
 		test.checkElementSlipRates();
 		
+		*/
 				
 //		test.testTimePredictability(6.5);
 		
-		/**/
+		/*
 		ArrayList funcs = new ArrayList();
 		funcs.add(mfd);
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Mag Freq Dist");   
-
+*/
 		
 		/*
 		String writePath = "testEQSIM_Output.txt";

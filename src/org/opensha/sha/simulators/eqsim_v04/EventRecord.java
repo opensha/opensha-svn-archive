@@ -125,14 +125,14 @@ public class EventRecord {
 			}
 			else 
 				element_id=0;
-			
+/*			
 			// test fix for Ward's file
 			int nas = Integer.parseInt(tok.nextToken());
 			int ndd = Integer.parseInt(tok.nextToken());
 			element_id = (nas-1)*4+ndd;
 //			System.out.println("WARNING - TEMP FIX IMPOSED ON WARD'S FILE");
 			// test ends here
-			
+*/			
 			if(element_id>0) {
 				elementSlipList.add(slip);	// mean_slip
 				elementID_List.add(element_id);				

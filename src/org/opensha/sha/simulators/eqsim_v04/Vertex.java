@@ -62,6 +62,15 @@ public class Vertex extends Location {
 		id = -1;
 		traceFlag = -1;
 	}
+	
+	
+	public Vertex(double latitute,double longitude,double depth, int id) {
+		super(latitute, longitude, depth);
+		das = Double.NaN;
+		this.id = id;
+		traceFlag = -1;
+	}
+
 
 	public Vertex(Location loc) {
 		super(loc.getLatitude(), loc.getLongitude(), loc.getDepth());
