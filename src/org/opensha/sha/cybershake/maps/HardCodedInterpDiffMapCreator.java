@@ -194,14 +194,14 @@ public class HardCodedInterpDiffMapCreator {
 //			Location hypo = BombayBeachHazardCurveCalc.BOMBAY_LOC;
 //			String singleName = "picoRivera";
 //			Location hypo = BombayBeachHazardCurveCalc.PICO_RIVERA_LOC;
-//			String singleName = "parkfield";
-//			Location hypo = BombayBeachHazardCurveCalc.PARKFIELD_LOC;
+			String singleName = "parkfield";
+			Location hypo = BombayBeachHazardCurveCalc.PARKFIELD_LOC;
 //			String singleName = "yucaipa";
 //			Location hypo = BombayBeachHazardCurveCalc.YUCAIPA_LOC;
-			String singleName = "coyote";
-			Location hypo = BombayBeachHazardCurveCalc.COYOTE_CREEK;
+//			String singleName = "coyote";
+//			Location hypo = BombayBeachHazardCurveCalc.COYOTE_CREEK;
 			boolean mod = true;
-			boolean probGain = false;
+			boolean probGain = true;
 			String customLabel = "POE "+(float)val+"G 3sec SA in 1 day";
 			if (logPlot && !probGain) {
 				customMin = -8.259081006598409;
@@ -224,8 +224,13 @@ public class HardCodedInterpDiffMapCreator {
 			boolean singleDay = singleName != null;
 			double baseMapRes = 0.005;
 			System.out.println("Loading basemap...");
-			ArbDiscretizedXYZ_DataSet baseMap = loadBaseMap(singleDay, isProbAt_IML, val, imTypeID, baseMapName);
-			System.out.println("Basemap has " + baseMap.getX_DataSet().size() + " points");
+			ArbDiscretizedXYZ_DataSet baseMap;
+			if (!probGain) {
+				baseMap = loadBaseMap(singleDay, isProbAt_IML, val, imTypeID, baseMapName);
+				System.out.println("Basemap has " + baseMap.getX_DataSet().size() + " points");
+			} else {
+				baseMap = null;
+			}
 			
 			System.out.println("Fetching curves...");
 			ArbDiscretizedXYZ_DataSet scatterData;
@@ -243,14 +248,13 @@ public class HardCodedInterpDiffMapCreator {
 			CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
 					"/resources/cpt/MaxSpectrum2.cpt"));
 			
-			InterpDiffMap referenceMap = null;
+			ArbDiscretizedXYZ_DataSet refScatter = null;
 			if (probGain) {
-				ArbDiscretizedXYZ_DataSet refScatter = getCusomScatter("parkfield", imTypeID, isProbAt_IML, val, false);
-				referenceMap = new InterpDiffMap(region, baseMap, baseMapRes, cpt, refScatter, interpSettings, mapTypes);
-				referenceMap.setCustomLabel("Prability Gain");
-				referenceMap.setLogPlot(false);
-				referenceMap.setDpi(300);
-				referenceMap.setTopoResolution(TopographicSlopeFile.CA_THREE);
+				refScatter = getCusomScatter("parkfield", imTypeID, isProbAt_IML, val, false);
+				scatterData = ProbGainCalc.calcProbGain(refScatter, scatterData);
+				mapTypes = new InterpDiffMapType[2];
+				mapTypes[0] = InterpDiffMapType.INTERP_NOMARKS;
+				mapTypes[1] = InterpDiffMapType.INTERP_MARKS;
 			}
 			
 			InterpDiffMap map = new InterpDiffMap(region, baseMap, baseMapRes, cpt, scatterData, interpSettings, mapTypes);
@@ -275,15 +279,7 @@ public class HardCodedInterpDiffMapCreator {
 			
 			System.out.println("Making map...");
 			if (remote) {
-				if (probGain) {
-					ProbabilityGainMap pgMap = new ProbabilityGainMap(referenceMap, map);
-					String[] addresses = CS_InterpDiffMapServletAccessor.makeMap(null, pgMap, metadata);
-					System.out.println("Ref: " + addresses[0]);
-					System.out.println("Mod: " + addresses[1]);
-					System.out.println("Gain: " + addresses[2]);
-				} else {
-					System.out.println("map address: " + CS_InterpDiffMapServletAccessor.makeMap(null, map, metadata));
-				}
+				System.out.println("map address: " + CS_InterpDiffMapServletAccessor.makeMap(null, map, metadata));
 			} else {
 				new CyberShake_GMT_MapGenerator().getGMT_ScriptLines(map, "/tmp/gmttest");
 			}

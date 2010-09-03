@@ -25,8 +25,6 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 	
 	public static int[] dpis = {72, 150, 300};
 	
-	public static final String INTERP_DIFF_MASKED_GRD_NAME = "interp_diff.grd";
-	
 	public static ArbDiscretizedXYZ_DataSet getLogXYZ(XYZ_DataSetAPI orig) {
 		ArbDiscretizedXYZ_DataSet log = new ArbDiscretizedXYZ_DataSet();
 		
@@ -158,14 +156,8 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		
 		XYZ_DataSetAPI griddedData;
 		XYZ_DataSetAPI scatterData;
-//		if (map.isLogPlot()) {
-//			System.out.println("taking the log of input files!");
-//			griddedData = getLogXYZ(map.getGriddedData());
-//			scatterData = getLogXYZ(map.getScatter());
-//		} else {
-			griddedData = map.getGriddedData();
-			scatterData = map.getScatter();
-//		}
+		griddedData = map.getGriddedData();
+		scatterData = map.getScatter();
 		
 		// write the basemap
 		String basemapXYZName = map.getXyzFileName();
@@ -176,20 +168,29 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 //			throw new GMT_MapException("Could not write XYZ data to a file", e);
 //		}
 		String baseGRD = "base_map.grd";
-		rmFiles.add(baseGRD);
-		gmtCommandLines.add("# convert xyz file to grd file");
-		commandLine = "${GMT_PATH}xyz2grd "+ basemapXYZName +" -G"+ baseGRD+ " -I"+mapGridSpacing+
-						region +" -D/degree/degree/amp/=/=/=  -: -H0";
-		gmtCommandLines.add(commandLine+"\n");
+		if (griddedData != null) {
+			rmFiles.add(baseGRD);
+			gmtCommandLines.add("# convert xyz file to grd file");
+			commandLine = "${GMT_PATH}xyz2grd "+ basemapXYZName +" -G"+ baseGRD+ " -I"+mapGridSpacing+
+							region +" -D/degree/degree/amp/=/=/=  -: -H0";
+			gmtCommandLines.add(commandLine+"\n");
+		}
 		
 		String interpUnsampledGRD = "interpolated.grd";
 		String interpSampledGRD = "interp_resampled.grd";
 		if (shouldInterp) {
 			// do the interpolation
-			String interpXYZName = "scatter_diffs.xyz";
-			XYZ_DataSetAPI diffs = getDiffs(griddedData, scatterData);
+			String interpXYZName;
+			XYZ_DataSetAPI toBeWritten;
+			if (griddedData == null) {
+				interpXYZName = "scatter.xyz";
+				toBeWritten = scatterData;
+			} else {
+				interpXYZName = "scatter_diffs.xyz";
+				toBeWritten = getDiffs(griddedData, scatterData);
+			}
 			try {
-				ArbDiscretizedXYZ_DataSet.writeXYZFile(diffs, dir + interpXYZName);
+				ArbDiscretizedXYZ_DataSet.writeXYZFile(toBeWritten, dir + interpXYZName);
 			} catch (IOException e) {
 				throw new GMT_MapException("Could not write XYZ data to a file", e);
 			}
@@ -229,11 +230,18 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				throw new RuntimeException("Error: Color-Scale Min must be less than the Max");
 		}
 		else {
-			MinMaxAveTracker baseTracker = calcExtentsWithinRegion(griddedData, map.getRegion());
-			if (baseTracker.getNum() == 0)
-				throw new GMT_MapException("Base map has no points within mask region!");
-			double minGrid = baseTracker.getMin();
-			double maxGrid = baseTracker.getMax();
+			double minGrid;
+			double maxGrid;
+			if (griddedData != null) {
+				MinMaxAveTracker baseTracker = calcExtentsWithinRegion(griddedData, map.getRegion());
+				if (baseTracker.getNum() == 0)
+					throw new GMT_MapException("Base map has no points within mask region!");
+				minGrid = baseTracker.getMin();
+				maxGrid = baseTracker.getMax();
+			} else {
+				minGrid = Double.POSITIVE_INFINITY;
+				maxGrid = Double.NEGATIVE_INFINITY;
+			}
 			colorScaleMin = minGrid;
 			colorScaleMax = maxGrid;
 			if (scatterData != null) {
@@ -282,11 +290,14 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				" PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
 		gmtCommandLines.add(commandLine+"\n");
 		
-		String interpDiffGRD = INTERP_DIFF_MASKED_GRD_NAME;
-		if (shouldInterp) {
+		String interpPlotGRD;
+		if (shouldInterp && griddedData != null) {
+			interpPlotGRD = "interp_diff.grd";
 			// combine the basemap and interpolated map
 			gmtCommandLines.add("# add the interpolated vals to the basemap");
-			gmtCommandLines.add("${GMT_PATH}grdmath "+baseGRD+" "+interpSampledGRD+" ADD = "+interpDiffGRD+"\n");
+			gmtCommandLines.add("${GMT_PATH}grdmath "+baseGRD+" "+interpSampledGRD+" ADD = "+interpPlotGRD+"\n");
+		} else {
+			interpPlotGRD = interpSampledGRD;
 		}
 		
 		String intenGRD = null;
@@ -343,9 +354,9 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			if (mapType == InterpDiffMapType.BASEMAP) {
 				grdFile = baseGRD;
 			} else if (mapType == InterpDiffMapType.INTERP_MARKS) {
-				grdFile = interpDiffGRD;
+				grdFile = interpPlotGRD;
 			} else if (mapType == InterpDiffMapType.INTERP_NOMARKS) {
-				grdFile = interpDiffGRD;
+				grdFile = interpPlotGRD;
 			} else {
 				// TODO implement DIFF
 				continue;
