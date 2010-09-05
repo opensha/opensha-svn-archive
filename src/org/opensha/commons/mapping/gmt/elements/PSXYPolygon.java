@@ -19,9 +19,9 @@
 
 package org.opensha.commons.mapping.gmt.elements;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
-import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 
@@ -32,7 +32,7 @@ public class PSXYPolygon extends PSXYElement {
 	 */
 	private static final long serialVersionUID = 1l;
 	
-	private ArrayList<DataPoint2D> points = new ArrayList<DataPoint2D>();;
+	private ArrayList<Point2D> points = new ArrayList<Point2D>();
 	
 	/**
 	 * Constructor for a simple line
@@ -40,23 +40,23 @@ public class PSXYPolygon extends PSXYElement {
 	 * @param point1
 	 * @param point2
 	 */
-	public PSXYPolygon(DataPoint2D point1, DataPoint2D point2) {
+	public PSXYPolygon(Point2D point1, Point2D point2) {
 		points.add(point1);
 		points.add(point2);
 	}
 	
 	public PSXYPolygon(Location loc1, Location loc2) {
-		points.add(new DataPoint2D(loc1.getLongitude(), loc1.getLatitude()));
-		points.add(new DataPoint2D(loc2.getLongitude(), loc2.getLatitude()));
+		points.add(new Point2D.Double(loc1.getLongitude(), loc1.getLatitude()));
+		points.add(new Point2D.Double(loc2.getLongitude(), loc2.getLatitude()));
 	}
 	
-	public PSXYPolygon(ArrayList<DataPoint2D> points) {
+	public PSXYPolygon(ArrayList<Point2D> points) {
 		this.points = points;
 	}
 	
 	public PSXYPolygon(LocationList locs) {
 		for (Location loc : locs) {
-			points.add(new DataPoint2D(loc.getLongitude(), loc.getLatitude()));
+			points.add(new Point2D.Double(loc.getLongitude(), loc.getLatitude()));
 		}
 	}
 	
@@ -64,11 +64,11 @@ public class PSXYPolygon extends PSXYElement {
 		
 	}
 	
-	public ArrayList<DataPoint2D> getPoints() {
+	public ArrayList<Point2D> getPoints() {
 		return points;
 	}
 	
-	public void addPoint(DataPoint2D point) {
+	public void addPoint(Point2D point) {
 		points.add(point);
 	}
 	

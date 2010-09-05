@@ -19,6 +19,7 @@
 
 package org.opensha.commons.data;
 
+import java.awt.geom.Point2D;
 import java.util.Comparator;
 
 import org.opensha.commons.exceptions.InvalidRangeException;
@@ -36,7 +37,7 @@ import org.opensha.commons.exceptions.InvalidRangeException;
  * @version    1.0
  */
 
-public interface DataPoint2DComparatorAPI extends Comparator {
+public interface Point2DComparatorAPI extends Comparator<Point2D> {
 
     /**
      *  Tolerance indicates the distance two values can be apart, but still

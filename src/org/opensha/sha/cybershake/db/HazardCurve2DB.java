@@ -19,13 +19,13 @@
 
 package org.opensha.sha.cybershake.db;
 
+import java.awt.geom.Point2D;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 
@@ -519,7 +519,7 @@ public class HazardCurve2DB {
 				"VALUES";
 		int numPoints = hazardFunc.getNum();
 		for (int i=0; i<numPoints; i++) {
-			DataPoint2D pt = hazardFunc.get(i);
+			Point2D pt = hazardFunc.get(i);
 			sql += " (" + id + "," + pt.getX() + "," + pt.getY() + ")";
 			if (i < numPoints -1)
 				sql += ",";

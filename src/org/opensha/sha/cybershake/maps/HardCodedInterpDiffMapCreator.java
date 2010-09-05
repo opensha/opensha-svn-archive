@@ -1,13 +1,13 @@
 package org.opensha.sha.cybershake.maps;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
@@ -164,7 +164,7 @@ public class HardCodedInterpDiffMapCreator {
 			System.out.println("Hypocenter: "+hypo+"\nisn't within region: "+region);
 			return null;
 		}
-		DataPoint2D pt = new DataPoint2D(hypo.getLongitude(), hypo.getLatitude());
+		Point2D pt = new Point2D.Double(hypo.getLongitude(), hypo.getLatitude());
 		double width = 0.4;
 		double penWidth = 5;
 		Color penColor = Color.WHITE;

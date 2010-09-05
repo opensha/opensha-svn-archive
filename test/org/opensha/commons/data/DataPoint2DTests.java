@@ -21,9 +21,10 @@ package org.opensha.commons.data;
 
 import static org.junit.Assert.*;
 
+import java.awt.geom.Point2D;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.opensha.commons.data.DataPoint2D;
 
 
 /**
@@ -32,7 +33,7 @@ import org.opensha.commons.data.DataPoint2D;
  * <b>Description:</b> Class used by the JUnit testing harness to test the
  * DataPoint2D. This class was used to test using JUnit. For some reason
  * testEquals() fails in JUnit, but the main() test (hand coded testing) shows
- * that the DataPoint2D passes the tests. Need more exploring of JUnit. <P>
+ * that the Point2D passes the tests. Need more exploring of JUnit. <P>
  *
  * Note: Requires the JUnit classes to run<p>
  * Note: This class is not needed in production, only for testing.<p>
@@ -50,17 +51,17 @@ import org.opensha.commons.data.DataPoint2D;
 
 public class DataPoint2DTests {
 
-    /** First test DataPoint2D */
-    public DataPoint2D d1;
+    /** First test Point2D */
+    public Point2D d1;
 
-    /** Second test DataPoint2D */
-    public DataPoint2D d2;
+    /** Second test Point2D */
+    public Point2D d2;
 
-    /** Third test DataPoint2D */
-    public DataPoint2D d3;
+    /** Third test Point2D */
+    public Point2D d3;
 
-    /** Fourth test DataPoint2D */
-    public DataPoint2D d4 = null;
+    /** Fourth test Point2D */
+    public Point2D d4 = null;
 
 
     /**
@@ -74,9 +75,9 @@ public class DataPoint2DTests {
      */
     @Before
     public void setUp() {
-        d1 = new DataPoint2D( 12.2,  11.3  );
-        d3 = new DataPoint2D( 120.2 ,  111.3  );
-        d2 = new DataPoint2D( 12.2, 11.3  );
+        d1 = new Point2D.Double( 12.2,  11.3  );
+        d3 = new Point2D.Double( 120.2 ,  111.3  );
+        d2 = new Point2D.Double( 12.2, 11.3  );
 
     }
 

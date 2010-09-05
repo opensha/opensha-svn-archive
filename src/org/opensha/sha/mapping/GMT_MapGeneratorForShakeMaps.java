@@ -20,6 +20,7 @@
 package org.opensha.sha.mapping;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -28,7 +29,6 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.Location;
@@ -700,7 +700,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 				for(r=surface.getNumRows()-1;r>=0;r--) {   // reverse order so upper points plot over lower points
 					for(c=0;c<surface.getNumCols()-1;c++) {
 						loc = surface.getLocation(r,c);
-						DataPoint2D pt = new DataPoint2D(loc.getLongitude(), loc.getLatitude());
+						Point2D pt = new Point2D.Double(loc.getLongitude(), loc.getLatitude());
 						PSXYSymbol sym = new PSXYSymbol(pt, PSXYSymbol.Symbol.CIRCLE, 0.04);
 						symbols.addSymbol(sym, loc.getDepth());
 					}

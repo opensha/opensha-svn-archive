@@ -19,11 +19,11 @@
 
 package org.opensha.commons.data.function;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.exceptions.XY_DataSetException;
 
@@ -413,7 +413,7 @@ public class XY_DataSetList implements NamedObjectAPI{
         while( it.hasNext() ){
 
             XY_DataSetAPI function = (XY_DataSetAPI)it.next();
-            Iterator<DataPoint2D> it2 = function.getPointsIterator();
+            Iterator<Point2D> it2 = function.getPointsIterator();
 
             counter++;
             b.append("\nData Set #" + counter + '\n');
@@ -424,7 +424,7 @@ public class XY_DataSetList implements NamedObjectAPI{
 
             while(it2.hasNext()){
 
-                DataPoint2D point = (DataPoint2D)it2.next();
+            	Point2D point = (Point2D)it2.next();
                 double x = point.getX();
                 double y = point.getY();
                 b.append((float) x + TAB + (float) y + '\n');
@@ -475,14 +475,14 @@ public class XY_DataSetList implements NamedObjectAPI{
             XY_DataSetAPI function = (XY_DataSetAPI)it1.next();
             b.append("\nColumn " + (counter + 2) + ". Y-Axis: " + function.toString());
 
-            Iterator<DataPoint2D> it = function.getPointsIterator();
+            Iterator<Point2D> it = function.getPointsIterator();
 
             // Conversion
             if(D) System.out.println(S + "Converting Function to 2D Array");
             int i = 0;
             while(it.hasNext()){
 
-                DataPoint2D point = (DataPoint2D)it.next();
+            	Point2D point = (Point2D)it.next();
 
                 if(first){
                     double x1 = point.getX();

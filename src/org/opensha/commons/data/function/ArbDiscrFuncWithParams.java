@@ -19,11 +19,11 @@
 
 package org.opensha.commons.data.function;
 
+import java.awt.geom.Point2D;
 import java.util.Comparator;
 import java.util.Iterator;
 
-import org.opensha.commons.data.DataPoint2D;
-import org.opensha.commons.data.DataPoint2DComparatorAPI;
+import org.opensha.commons.data.Point2DComparatorAPI;
 import org.opensha.commons.param.ParameterList;
 
 
@@ -61,28 +61,18 @@ public class ArbDiscrFuncWithParams
      * calculation this DiscretizedFunction. Useful for determining if two
      * data sets are the same, i.e. have the same x/y axis and the same
      * set of independent parameters. Bypasses the more numerically intensive
-     * task of comparing each DataPoint2D of two DiscretizedFunction2D.
+     * task of comparing each Point2D of two DiscretizedFunction2D.
      */
     protected ParameterList list = new ParameterList();
 
-
     /**
      * The passed in comparator must be an implementor of DataPoint2DComparatorAPI.
-     * These comparators know they are dealing with a DataPoint2D and usually
+     * These comparators know they are dealing with a Point2D and usually
      * only compare the x-values for sorting. Special comparators may wish to
      * sort on both the x and y values, i.e. the data points are geographical
      * locations.
      */
-    public ArbDiscrFuncWithParams(Comparator comparator) { super(comparator); }
-
-    /**
-     * The passed in comparator must be an implementor of DataPoint2DComparatorAPI.
-     * These comparators know they are dealing with a DataPoint2D and usually
-     * only compare the x-values for sorting. Special comparators may wish to
-     * sort on both the x and y values, i.e. the data points are geographical
-     * locations.
-     */
-    public ArbDiscrFuncWithParams(DataPoint2DComparatorAPI comparator) { super(comparator); }
+    public ArbDiscrFuncWithParams(Point2DComparatorAPI comparator) { super(comparator); }
 
     /**
      *  Easiest one to use, uses the default DataPoint2DToleranceComparator comparator.
@@ -128,7 +118,7 @@ public class ArbDiscrFuncWithParams
      * calculation this DiscretizedFunction. Useful for determining if two
      * data sets are the same, i.e. have the same x/y axis and the same
      * set of independent parameters. Bypasses the more numerically intensive
-     * task of comparing each DataPoint2D of two DiscretizedFunction2D.
+     * task of comparing each Point2D of two DiscretizedFunction2D.
      */
     public ParameterList getParameterList(){ return list; }
 
@@ -177,7 +167,7 @@ public class ArbDiscrFuncWithParams
         Iterator it = this.getPointsIterator();
         if( it != null ) {
             while(it.hasNext()) {
-                function.set( (DataPoint2D)((DataPoint2D)it.next()).clone() );
+                function.set( (Point2D)((Point2D)it.next()).clone() );
             }
         }
 

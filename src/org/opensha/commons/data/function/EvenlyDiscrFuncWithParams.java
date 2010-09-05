@@ -54,7 +54,7 @@ public class EvenlyDiscrFuncWithParams
      * calculation this DiscretizedFunction. Useful for determining if two
      * data sets are the same, i.e. have the same x/y axis and the same
      * set of independent parameters. Bypasses the more numerically intensive
-     * task of comparing each DataPoint2D of two DiscretizedFunction2D.
+     * task of comparing each Point2D of two DiscretizedFunction2D.
      */
     protected ParameterList list = new ParameterList();
 
@@ -86,7 +86,7 @@ public class EvenlyDiscrFuncWithParams
      * calculation this DiscretizedFunction. Useful for determining if two
      * data sets are the same, i.e. have the same x/y axis and the same
      * set of independent parameters. Bypasses the more numerically intensive
-     * task of comparing each DataPoint2D of two DiscretizedFunction2D.
+     * task of comparing each Point2D of two DiscretizedFunction2D.
      */
     public ParameterList getParameterList(){ return list; }
 

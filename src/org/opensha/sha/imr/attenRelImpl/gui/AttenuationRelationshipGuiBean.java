@@ -20,6 +20,7 @@
 package org.opensha.sha.imr.attenRelImpl.gui;
 
 
+import java.awt.geom.Point2D;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
@@ -31,7 +32,6 @@ import java.util.ListIterator;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.lang.StringUtils;
-import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.function.ArbDiscrFuncWithParams;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
@@ -663,7 +663,7 @@ ParameterChangeListener, ParameterChangeFailListener
 				// set the IM in the attenuation relationship
 				attenRel.setIntensityMeasure( getGraphControlsParamValue( IM ) );
 
-				DataPoint2D point = new DataPoint2D( val.doubleValue(), getCalculation( type ));
+				Point2D point = new Point2D.Double( val.doubleValue(), getCalculation( type ));
 				function.set( point );
 
 			}
@@ -766,7 +766,7 @@ ParameterChangeListener, ParameterChangeFailListener
                 newVal = bdB.doubleValue();
 
                 xAxisParam.setValue( new Double( newVal ) );
-                DataPoint2D point = new DataPoint2D( newVal , getCalculation( type ) );
+                Point2D point = new Point2D.Double( newVal , getCalculation( type ) );
                 function.set( point );
                 val += minmaxdelta.delta;
             }
@@ -781,7 +781,7 @@ ParameterChangeListener, ParameterChangeFailListener
                 newVal = bdB.doubleValue();
 
                 independentParam.setValue( new Double( newVal ) );
-                DataPoint2D point = new DataPoint2D( newVal , getCalculation( type ) );
+                Point2D point = new Point2D.Double( newVal , getCalculation( type ) );
                 function.set( point );
                 val += minmaxdelta.delta;
             }
@@ -857,7 +857,7 @@ ParameterChangeListener, ParameterChangeFailListener
 //			System.out.println("val before: " + val);
 			if(val > minmaxdelta.max) val = minmaxdelta.max;
 			paramToSet.setValue( new Double( val ) );
-			DataPoint2D point = new DataPoint2D( val , getCalculation( type ) );
+			Point2D point = new Point2D.Double( val , getCalculation( type ) );
 			function.set( point );
 			if (log) {
 				val = Math.log(val);

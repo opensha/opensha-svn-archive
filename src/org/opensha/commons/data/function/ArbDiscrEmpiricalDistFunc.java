@@ -19,12 +19,12 @@
 
 package org.opensha.commons.data.function;
 
+import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.opensha.commons.data.DataPoint2D;
-import org.opensha.commons.data.EmpiricalDistributionTreeMap;
+import org.opensha.commons.data.Point2DToleranceComparator;
 import org.opensha.commons.exceptions.DataPoint2DException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 
@@ -64,7 +64,10 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
     /**
      * No-Arg Constructor.
      */
-    public ArbDiscrEmpiricalDistFunc() { super.points = new EmpiricalDistributionTreeMap(); }
+    public ArbDiscrEmpiricalDistFunc() {
+    	super(new EmpiricalPoint2DToleranceSortedList(
+    			new Point2DToleranceComparator()));
+    }
 
 
     /**
@@ -92,7 +95,7 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
         Iterator it = this.getPointsIterator();
         if( it != null ) {
             while(it.hasNext()) {
-                function.set( (DataPoint2D)((DataPoint2D)it.next()).clone() );
+                function.set( (Point2D)((Point2D)it.next()).clone() );
             }
         }
 
@@ -169,7 +172,7 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
     public double getSumOfAllY_Values() {
         double totSum = 0;
         Iterator it = getPointsIterator();
-        while (it.hasNext()) { totSum += ((DataPoint2D) it.next()).getY(); }
+        while (it.hasNext()) { totSum += ((Point2D) it.next()).getY(); }
         return totSum;    	
     }
     
@@ -269,13 +272,13 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
     private ArbitrarilyDiscretizedFunc getCumDist(double totSum) throws DataPoint2DException {
 
       ArbitrarilyDiscretizedFunc cumDist = new ArbitrarilyDiscretizedFunc(0.0);
-      DataPoint2D dp;
+      Point2D dp;
       double sum = 0;
       Iterator it = getPointsIterator();
       while (it.hasNext()) {
-        dp = (DataPoint2D) it.next();
+        dp = (Point2D) it.next();
         sum += dp.getY();
-        DataPoint2D dpNew = new DataPoint2D(dp.getX(),sum/totSum);
+        Point2D dpNew = new Point2D.Double(dp.getX(),sum/totSum);
         cumDist.set(dpNew);
       }
       return cumDist;
@@ -332,9 +335,9 @@ public static void main( String[] args ) {
 
   System.out.println("func:");
   Iterator it = func.getPointsIterator();
-  DataPoint2D point;
+  Point2D point;
   while( it.hasNext()) {
-    point = (DataPoint2D) it.next();
+    point = (Point2D) it.next();
     System.out.println(point.getX()+"  "+point.getY());
   }
 
@@ -342,7 +345,7 @@ public static void main( String[] args ) {
   ArbitrarilyDiscretizedFunc cumFunc = func.getNormalizedCumDist();
   it = cumFunc.getPointsIterator();
   while( it.hasNext()) {
-    point = (DataPoint2D) it.next();
+    point = (Point2D) it.next();
     System.out.println(point.getX()+"  "+point.getY());
   }
 /* */
@@ -371,11 +374,11 @@ public static void main( String[] args ) {
 
         // get all points
         Iterator it = getPointsIterator();
-        if( it != null ) while(it.hasNext()) { points.add( (DataPoint2D)it.next() ); }
+        if( it != null ) while(it.hasNext()) { points.add( (Point2D)it.next() ); }
 
         // get all non-log points if any
         it = getNonLogPointsIterator();
-        if( it != null ) while(it.hasNext()) { points.add( (DataPoint2D)it.next() ); }
+        if( it != null ) while(it.hasNext()) { points.add( (Point2D)it.next() ); }
 
         // clear permanent storage
         points.clear();
@@ -383,7 +386,7 @@ public static void main( String[] args ) {
 
         // rebuild permanent storage
         it = points.listIterator();
-        if( it != null ) while(it.hasNext()) { set( (DataPoint2D)it.next() ); }
+        if( it != null ) while(it.hasNext()) { set( (Point2D)it.next() ); }
 
         if( D ) System.out.println("rebuild: " + toDebugString());
         points = null;

@@ -19,12 +19,12 @@
 
 package org.opensha.sha.imr;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.calc.GaussianDistCalc;
-import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
@@ -564,11 +564,13 @@ extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationsh
 		double stdDev = getStdDev();
 		double mean = getMean();
 
-		Iterator it = intensityMeasureLevels.getPointsIterator();
+		Iterator<Point2D> it = intensityMeasureLevels.getPointsIterator();
 		while (it.hasNext()) {
 
-			DataPoint2D point = (DataPoint2D) it.next();
-			point.setY(getExceedProbability(mean, stdDev, point.getX()));
+			Point2D point = (Point2D) it.next();
+			double x = point.getX();
+			double y = getExceedProbability(mean, stdDev, point.getX());
+			point.setLocation(x, y);
 
 		}
 

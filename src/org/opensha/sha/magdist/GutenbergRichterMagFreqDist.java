@@ -248,7 +248,7 @@ public class GutenbergRichterMagFreqDist
    * @param point
    * @throws MagFreqDistException
    */
-  /*public void set(DataPoint2D point) throws MagFreqDistException {
+  /*public void set(Point2D point) throws MagFreqDistException {
     throw new MagFreqDistException("Cannot Access the set function of the GutenbergRichterMagFreqDist from outside this class");
   }*/
 

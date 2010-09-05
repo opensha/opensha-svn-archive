@@ -19,11 +19,11 @@
 
 package org.opensha.commons.data.function;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.exceptions.DataPoint2DException;
 import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.exceptions.InvalidRangeException;
@@ -37,10 +37,10 @@ import org.opensha.commons.exceptions.InvalidRangeException;
  * the delta distance. Y Values are stored as doubles in an array of primitives. This
  * allows replacement of values at specified indexes.<p>
  *
- * Note that the basic unit for this function framework are DataPoint2D which contain
+ * Note that the basic unit for this function framework are Point2D which contain
  * x and y values. Since the x-values are evenly space there are no need to store
  * them. They can be calculated on the fly based on index. So the internal storage
- * saves space by only saving the y values, and reconstituting the DataPoint2D values
+ * saves space by only saving the y values, and reconstituting the Point2D values
  * as needed. <p>
  *
  * Since the x values are not stored, what is stored instead is the x-min value, x-max value,
@@ -232,11 +232,11 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
 
 
     /**
-     * Returns an x and y value in a DataPoint2D based on index
+     * Returns an x and y value in a Point2D based on index
      * into the y-points array.  The index is based along the x-axis.
      */
-    public DataPoint2D get(int index){
-        return new DataPoint2D(getX(index), getY(index));
+    public Point2D get(int index){
+        return new Point2D.Double(getX(index), getY(index));
     }
 
     /**
@@ -295,7 +295,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      * Calls set( x value, y value ). A DataPoint2DException is thrown
      * if the x value is not an x-axis point.
      */
-    public void set(DataPoint2D point) throws DataPoint2DException {
+    public void set(Point2D point) throws DataPoint2DException {
 
         set( point.getX(), point.getY());
     }
@@ -351,14 +351,14 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
 
     /**
      * This function may be slow if there are many points in the list. It has to
-     * reconstitute all the DataPoint2D x-values by index, only y values are stored
-     * internally in this function type. A DataPoint2D is built for each y value and
+     * reconstitute all the Point2D x-values by index, only y values are stored
+     * internally in this function type. A Point2D is built for each y value and
      * added to a local ArrayList. Then the iterator of the local ArrayList is returned.
      */
-    public Iterator getPointsIterator(){
-        ArrayList<DataPoint2D> list = new ArrayList<DataPoint2D>();
+    public Iterator<Point2D> getPointsIterator(){
+        ArrayList<Point2D> list = new ArrayList<Point2D>();
         for( int i = 0; i < num; i++){
-            list.add( new DataPoint2D( getX(i), getY(i) ) );
+            list.add( new Point2D.Double( getX(i), getY(i) ) );
         }
         return list.listIterator();
     }
@@ -366,7 +366,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
     /**
      * This returns an iterator over x values as Double objects
      */
-    public ListIterator getXValuesIterator(){
+    public ListIterator<Double> getXValuesIterator(){
         ArrayList<Double> list = new ArrayList<Double>();
         for( int i = 0; i < num; i++){ list.add(new Double(getX(i))); }
         return list.listIterator();
@@ -375,7 +375,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
     /**
      * This returns an iterator over y values as Double objects
      */
-    public ListIterator getYValuesIterator(){
+    public ListIterator<Double> getYValuesIterator(){
         ArrayList<Double> list = new ArrayList<Double>();
         for( int i = 0; i < this.num; i++){ list.add(new Double(getY(i))); }
         return list.listIterator();
@@ -662,9 +662,9 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
             double y1 = getY(i);
             double y2 = function.getY(i);
 
-            if( y1 == Double.NaN &&  y2 != Double.NaN ) return false;
-            else if( y2 == Double.NaN &&  y1 != Double.NaN ) return false;
-            else if( y1 != y2 ) return false;
+            if (Double.isNaN(y1) &&  !Double.isNaN(y2)) return false;
+            else if (Double.isNaN(y2) &&  !Double.isNaN(y1)) return false;
+            else if ( y1 != y2 ) return false;
 
         }
 
@@ -695,11 +695,11 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      */
     public String getMetadataString(){
       StringBuffer b = new StringBuffer();
-      Iterator it2 = this.getPointsIterator();
+      Iterator<Point2D> it2 = this.getPointsIterator();
 
       while(it2.hasNext()){
 
-        DataPoint2D point = (DataPoint2D)it2.next();
+    	  Point2D point = (Point2D)it2.next();
         double x = point.getX();
         double y = point.getY();
         b.append((float) x + "\t  " + (float) y + '\n');
@@ -711,7 +711,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      * Returns true if the x value is withing tolerance of an x-value in this list,
      * and the y value is equal to y value in the list.
      */
-    public boolean hasPoint(DataPoint2D point){
+    public boolean hasPoint(Point2D point){
         return hasPoint(point.getX(),point.getY());
     }
 
@@ -723,7 +723,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
       try {
         int index = getXIndex( x );
         double yVal = this.getY(index);
-        if( yVal == Double.NaN || yVal!=y) return false;
+        if(Double.isNaN(yVal)|| yVal!=y) return false;
           return true;
       } catch(DataPoint2DException e) {
           return false;
@@ -734,7 +734,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
       *  both the x-value and y-values in list should match with that of point
       * returns -1 if there is no such value in the list
       * */
-     public int getIndex(DataPoint2D point){
+     public int getIndex(Point2D point){
        try {
          int index= getXIndex( point.getX() );
          if (index < 0) return -1;

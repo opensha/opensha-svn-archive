@@ -21,7 +21,7 @@ package org.opensha.commons.exceptions;
 
 /**
  *  <b>Title:</b> DataPoint2DException<p>
- *  <b>Description:</b> Exception thrown when DataPoint2D errors occur<p>
+ *  <b>Description:</b> Exception thrown when Point2D errors occur<p>
  *
  * Note: These exception subclasses add no new functionality. It's really
  * the class name that is the important information. The name indicates what

@@ -608,7 +608,7 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel2
 //	    Iterator it = intensityMeasureLevels.getPointsIterator();
 //	    while (it.hasNext()) {
 
-//	      DataPoint2D point = (DataPoint2D) it.next();
+//	      Point2D point = (Point2D) it.next();
 //	      point.setY(getExceedProbabilitySS(mean, stdDev, point.getX()));
 
 //	    }

@@ -19,10 +19,10 @@
 
 package org.opensha.commons.data.function;
 
+import java.awt.geom.Point2D;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.exceptions.DataPoint2DException;
 
 /**
@@ -52,7 +52,7 @@ import org.opensha.commons.exceptions.DataPoint2DException;
  * tolerance level that specifies how close two points have to be along
  * the x axis to be considered equal.<p>
  *
- * DataPoint2D = (x,y)<p>
+ * Point2D = (x,y)<p>
  *
  * Note: This interface defines a tolerance so that you can say two x-values
  * are the same within this tolerance limit. THERE IS NO TOLERANCE FOR THE
@@ -158,9 +158,9 @@ public interface DiscretizedFuncAPI extends XY_DataSetAPI {
 	/**
 	 * Since the x-axis is sorted and points stored in a list,
 	 * they can be accessed by index. This function returns the index
-	 * of the specified x value in the DataPoint2D if found withing tolerance,
+	 * of the specified x value in the Point2D if found withing tolerance,
 	 * else returns -1.
 	 */
-	public int getIndex(DataPoint2D point);
+	public int getIndex(Point2D point);
 
 }

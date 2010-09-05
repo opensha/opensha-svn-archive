@@ -19,13 +19,13 @@
 
 package org.opensha.sha.imr.attenRelImpl;
 
+import java.awt.geom.Point2D;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.calc.GaussianDistCalc;
-import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
@@ -827,7 +827,7 @@ NamedObjectAPI {
 			throw new RuntimeException(MMI_Param.MMI_ERROR_STRING);
 		}
 
-		DataPoint2D point;
+		Point2D point;
 
 		// set vs30
 		vs30 = ( (Double) vs30Param.getValue()).doubleValue();
@@ -840,8 +840,10 @@ NamedObjectAPI {
 
 		Iterator it = intensityMeasureLevels.getPointsIterator();
 		while (it.hasNext()) {
-			point = (DataPoint2D) it.next();
-			point.setY(getCombinedExceedProbability(point.getX()));
+			point = (Point2D) it.next();
+			double x = point.getX();
+			double y = getCombinedExceedProbability(point.getX());
+			point.setLocation(x, y);
 		}
 		return intensityMeasureLevels;
 

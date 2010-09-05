@@ -19,6 +19,7 @@
 
 package org.opensha.commons.data;
 
+import java.awt.geom.Point2D;
 import java.io.Serializable;
 
 import org.opensha.commons.exceptions.InvalidRangeException;
@@ -56,14 +57,19 @@ import org.opensha.commons.exceptions.InvalidRangeException;
  *
  * @author     Steven W. Rock
  * @created    February 20, 2002
- * @see        DataPoint2DComparatorAPI
+ * @see        Point2DComparatorAPI
  * @version    1.0
  */
 
-public class DataPoint2DToleranceComparator implements DataPoint2DComparatorAPI,
+public class Point2DToleranceComparator implements Point2DComparatorAPI,
                                                        Serializable{
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	/**
      *  The tolerance for determining whether two x values are different.  A
      *  tolerance of 0.0 (the default) is really about 1e-16 due to the numerical
      *  precision of floating point arithmetic ( 1.0 - (1.0+1e-16) = 0.0 ).
@@ -79,7 +85,7 @@ public class DataPoint2DToleranceComparator implements DataPoint2DComparatorAPI,
      *
      * @exception  InvalidRangeException
      */
-    public DataPoint2DToleranceComparator() throws InvalidRangeException { }
+    public Point2DToleranceComparator() throws InvalidRangeException { }
 
 
     /**
@@ -91,7 +97,7 @@ public class DataPoint2DToleranceComparator implements DataPoint2DComparatorAPI,
      *      and still considered equal
      * @exception  InvalidRangeException  Thrown if tolerance is negative
      */
-    public DataPoint2DToleranceComparator( double tolerance ) throws InvalidRangeException {
+    public Point2DToleranceComparator( double tolerance ) throws InvalidRangeException {
 
         if ( tolerance < 0 ) {
             throw new InvalidRangeException( "Tolerance must be larger or equal to 0" );
@@ -148,18 +154,10 @@ public class DataPoint2DToleranceComparator implements DataPoint2DComparatorAPI,
      * @exception  ClassCastException  Thrown if either passed in arg is not a
      *      DataPoint2D
      */
-    public int compare( Object o1, Object o2 ) throws ClassCastException {
+    public int compare( Point2D o1, Point2D o2 ) throws ClassCastException {
 
-        if ( !( o1 instanceof DataPoint2D ) ) {
-            throw new ClassCastException( "The first object is not an DataPoint2D, unable to compare" );
-        }
-
-        if ( !( o2 instanceof DataPoint2D ) ) {
-            throw new ClassCastException( "The second object is not an DataPoint2D, unable to compare" );
-        }
-
-        double x1 = ( ( DataPoint2D ) o1 ).getX();
-        double x2 = ( ( DataPoint2D ) o2 ).getX();
+        double x1 = o1.getX();
+        double x2 = o2.getX();
 
         if ( Math.abs( x1 - x2 ) <= tolerance) {
             return 0;

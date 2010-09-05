@@ -71,7 +71,7 @@ public interface FuncWithParamsAPI {
      *
      * Note: Another way to say that two functions are the same is if each DataPoint
      * is the same. That is much more numerically intensive
-     * task of comparing each DataPoint2D using equals(). It depends on your
+     * task of comparing each Point2D using equals(). It depends on your
      * business logic how to determine if two lists are the same.
      */
     public ParameterList getParameterList();

@@ -2,9 +2,9 @@ package org.opensha.sra.riskmaps.func;
 
 import gov.usgs.util.MathUtils;
 
+import java.awt.geom.Point2D;
 import java.util.Arrays;
 
-import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 
 /**
@@ -331,7 +331,7 @@ public class DiscreteInterpExterpFunc extends DiscreteFunction {
 		double yVals[] = new double[size];
 		
 		for (int i=0; i<size; i++) {
-			DataPoint2D pt = func.get(i);
+			Point2D pt = func.get(i);
 			xVals[i] = pt.getX();
 			yVals[i] = pt.getY();
 		}

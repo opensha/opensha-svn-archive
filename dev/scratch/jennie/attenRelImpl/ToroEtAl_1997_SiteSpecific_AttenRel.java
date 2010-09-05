@@ -1,10 +1,10 @@
 package scratch.jennie.attenRelImpl;
 
+import java.awt.geom.Point2D;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
@@ -598,8 +598,10 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
 	    Iterator it = intensityMeasureLevels.getPointsIterator();
 	    while (it.hasNext()) {
 
-	      DataPoint2D point = (DataPoint2D) it.next();
-	      point.setY(getExceedProbabilitySS(mean, stdDev, point.getX()));
+	      Point2D point = (Point2D) it.next();
+	      double x = point.getX();
+	      double y = getExceedProbabilitySS(mean, stdDev, point.getX());
+	      point.setLocation(x, y);
 
 	    }
 

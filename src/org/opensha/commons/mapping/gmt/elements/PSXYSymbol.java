@@ -20,8 +20,7 @@
 package org.opensha.commons.mapping.gmt.elements;
 
 import java.awt.Color;
-
-import org.opensha.commons.data.DataPoint2D;
+import java.awt.geom.Point2D;
 
 public class PSXYSymbol extends PSXYElement {
 	
@@ -56,21 +55,21 @@ public class PSXYSymbol extends PSXYElement {
 	
 	private double width;
 	
-	private DataPoint2D pt;
+	private Point2D pt;
 	
 	/**
 	 * No-arg constructor for serialization
 	 */
 	public PSXYSymbol() {};
 	
-	public PSXYSymbol(DataPoint2D pt, Symbol symbol, double width) {
+	public PSXYSymbol(Point2D pt, Symbol symbol, double width) {
 		super();
 		this.symbol = symbol;
 		this.width = width;
 		this.pt = pt;
 	}
 	
-	public PSXYSymbol(DataPoint2D pt, Symbol symbol, double width, double penWidth, Color penColor, Color fillColor) {
+	public PSXYSymbol(Point2D pt, Symbol symbol, double width, double penWidth, Color penColor, Color fillColor) {
 		super(penWidth, penColor, fillColor);
 		this.symbol = symbol;
 		this.width = width;
@@ -97,11 +96,11 @@ public class PSXYSymbol extends PSXYElement {
 		this.width = width;
 	}
 
-	public DataPoint2D getPoint() {
+	public Point2D getPoint() {
 		return pt;
 	}
 
-	public void setPoint(DataPoint2D pt) {
+	public void setPoint(Point2D pt) {
 		this.pt = pt;
 	}
 

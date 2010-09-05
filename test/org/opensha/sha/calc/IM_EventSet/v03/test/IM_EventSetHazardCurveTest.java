@@ -19,6 +19,7 @@
 
 package org.opensha.sha.calc.IM_EventSet.v03.test;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,7 +29,6 @@ import static org.junit.Assert.*;
 
 import org.jfree.chart.ChartUtilities;
 import org.junit.Test;
-import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
@@ -145,8 +145,8 @@ public class IM_EventSetHazardCurveTest implements IM_EventSetCalc_v3_0_API, Gra
 		double maxPDiff = 0;
 		
 		for (int i=0; i<hCurve.getNum(); i++) {
-			DataPoint2D hPt = hCurve.get(i);
-			DataPoint2D rPt = realCurve.get(i);
+			Point2D hPt = hCurve.get(i);
+			Point2D rPt = realCurve.get(i);
 			
 			assertEquals(hPt.getX(), rPt.getX(), 0);
 			

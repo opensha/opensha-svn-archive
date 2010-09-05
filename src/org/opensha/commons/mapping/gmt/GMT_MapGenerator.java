@@ -20,6 +20,7 @@
 package org.opensha.commons.mapping.gmt;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -37,7 +38,6 @@ import java.util.ListIterator;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.exceptions.RegionConstraintException;
@@ -1624,7 +1624,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 					sep += " " + poly.getFillString();
 				}
 				gmtCommandLines.add(sep);
-				for (DataPoint2D point : poly.getPoints()) {
+				for (Point2D point : poly.getPoints()) {
 					gmtCommandLines.add(point.getX() + "\t" + point.getY());
 				}
 			}
@@ -1646,7 +1646,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 //			gmtCommandLines.add("${COMMAND_PATH}cat  << END > " + symbolFile);
 //			for (int i=0; i<symbols.size(); i++) {
 //				PSXYSymbol symbol = symbols.get(i);
-//				DataPoint2D point = symbol.getPoint();
+//				Point2D point = symbol.getPoint();
 //				String line = point.getX() + "\t" + point.getY() + "\t0";
 //				line += "\t" + symbol.getSymbolString() + "\t" + symbol.getFillString();
 //				if (symbol.getPenColor() != null)
@@ -1658,7 +1658,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			
 			for (int i=0; i<symbols.size(); i++) {
 				PSXYSymbol symbol = symbols.get(i);
-				DataPoint2D point = symbol.getPoint();
+				Point2D point = symbol.getPoint();
 				String line = "echo " + point.getX() + " " + point.getY() + " | ${GMT_PATH}psxy "
 							+ symbol.getSymbolString() + " " + symbol.getFillString();
 				if (symbol.getPenColor() != null)
@@ -1687,7 +1687,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			for (int i=0; i<symbols.size(); i++) {
 				PSXYSymbol symbol = symbols.get(i);
 				double val = vals.get(i);
-				DataPoint2D point = symbol.getPoint();
+				Point2D point = symbol.getPoint();
 				String line = point.getX() + "\t" + point.getY() + "\t" + val + "\t"
 						+ symbol.getSymbol().val() + symbol.getWidth() + "i";
 				gmtCommandLines.add(line);

@@ -1,10 +1,10 @@
 package org.opensha.commons.data.function;
 
+import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.exceptions.DataPoint2DException;
 import org.opensha.commons.metadata.XMLSaveable;
@@ -50,7 +50,7 @@ public interface XY_DataSetAPI extends NamedObjectAPI, XMLSaveable, Serializable
 	/* ******************/
 
 	/** Returns the nth (x,y) point in the Function by index */
-	public DataPoint2D get(int index);
+	public Point2D get(int index);
 
 	/** Returns the x-value given an index */
 	public double getX(int index);
@@ -64,7 +64,7 @@ public interface XY_DataSetAPI extends NamedObjectAPI, XMLSaveable, Serializable
 	/* ***************/
 
 	/** Either adds a new DataPoint, or replaces an existing one, within tolerance */
-	public void set(DataPoint2D point) throws DataPoint2DException;
+	public void set(Point2D point) throws DataPoint2DException;
 
 	/**
 	 * Creates a new DataPoint, then either adds it if it doesn't exist,
@@ -85,7 +85,7 @@ public interface XY_DataSetAPI extends NamedObjectAPI, XMLSaveable, Serializable
 	 * Determine wheither a point exists in the list,
 	 * as determined by it's x-value within tolerance.
 	 */
-	public boolean hasPoint(DataPoint2D point);
+	public boolean hasPoint(Point2D point);
 
 
 	/**
@@ -105,7 +105,7 @@ public interface XY_DataSetAPI extends NamedObjectAPI, XMLSaveable, Serializable
 	 * in sorted order.
 	 * @return
 	 */
-	public Iterator<DataPoint2D> getPointsIterator();
+	public Iterator<Point2D> getPointsIterator();
 
 
 	/**

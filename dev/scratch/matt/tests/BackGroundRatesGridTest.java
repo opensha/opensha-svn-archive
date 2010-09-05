@@ -1,5 +1,6 @@
 package scratch.matt.tests;
 
+import java.awt.geom.Point2D;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -106,7 +107,7 @@ public class BackGroundRatesGridTest  extends TestCase {
 		//2. there is only 1 mag 
 		assertEquals("there is only 1 mag ", 1,num );
 		logger.info("hypoMagFreqDist0 " +  hypoMagFreqDist0);
-		org.opensha.commons.data.DataPoint2D point = hypoMagFreqDist0.get(0);
+		Point2D point = hypoMagFreqDist0.get(0);
 		//3. the mag==0
 		assertEquals("x==0", 0d, point.getX() );
 		
@@ -160,7 +161,7 @@ public class BackGroundRatesGridTest  extends TestCase {
 		//2. there is only 1 mag 
 		assertEquals("there are 41 mag ", 41,num );
 		logger.info("hypoMagFreqDist0 " +  hypoMagFreqDist0);
-		org.opensha.commons.data.DataPoint2D point = hypoMagFreqDist0.get(0);
+		Point2D point = hypoMagFreqDist0.get(0);
 		//3. the mag==0
 		//assertTrue( point.getX()  == 0);
 		 assertTrue( point.getX() >=4 && point.getX() <= 8);		     

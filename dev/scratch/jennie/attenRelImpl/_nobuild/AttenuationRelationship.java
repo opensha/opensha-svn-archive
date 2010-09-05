@@ -901,7 +901,7 @@ public abstract class AttenuationRelationship
     Iterator it = intensityMeasureLevels.getPointsIterator();
     while (it.hasNext()) {
 
-      DataPoint2D point = (DataPoint2D) it.next();
+      Point2D point = (Point2D) it.next();
       point.setY(getExceedProbabilityFiltered(mean, stdDev, point.getX()));
 //      System.out.println("ExceedProb: " + getExceedProbabilityFiltered(mean, stdDev, point.getX()));
 

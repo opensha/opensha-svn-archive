@@ -19,10 +19,10 @@
 
 package org.opensha.sha.magdist;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 import org.opensha.commons.calc.MomentMagCalc;
-import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.exceptions.DataPoint2DException;
@@ -213,7 +213,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
    * @param point
    * @throws MagFreqDistException
    */
-  public void set(DataPoint2D point) throws MagFreqDistException {
+  public void set(Point2D point) throws MagFreqDistException {
     throw new MagFreqDistException("Cannot Access the set function of the SummedMagFreqDist from outside this class");
   }
 
