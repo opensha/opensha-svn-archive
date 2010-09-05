@@ -214,7 +214,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 */
 	public DiscretizedFuncAPI getAnnualizedRates(DiscretizedFuncAPI hazFunction,double years) 
 	throws java.rmi.RemoteException{
-		DiscretizedFuncAPI annualizedRateFunc = hazFunction.deepClone();
+		DiscretizedFuncAPI annualizedRateFunc = (DiscretizedFuncAPI)hazFunction.deepClone();
 		int size = annualizedRateFunc.getNum();
 		for(int i=0;i<size;++i){
 			annualizedRateFunc.set(i, - Math.log(1-annualizedRateFunc.getY(i))/years);
@@ -490,7 +490,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 
 		int numEventSets = numStochEventSetRealizationsParam.getValue();
 		DiscretizedFuncAPI hazCurve;
-		hazCurve = hazFunction.deepClone();
+		hazCurve = (DiscretizedFuncAPI)hazFunction.deepClone();
 		initDiscretizeValues(hazFunction, 0);
 		int numPts=hazCurve.getNum();
 		// for progress bar

@@ -19,7 +19,7 @@
 
 package org.opensha.commons.data.estimate;
 
-import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 /**
  * <p>Title: PDF_Estimate.java </p>
@@ -58,7 +58,7 @@ public class PDF_Estimate extends DiscretizedFuncEstimate {
   *
   * @param func
   */
- public void setValues(DiscretizedFunc newFunc, boolean isNormalized) {
+ public void setValues(AbstractDiscretizedFunc newFunc, boolean isNormalized) {
    if(!(newFunc instanceof EvenlyDiscretizedFunc))
      throw new InvalidParamValException(MSG_EVENLY_DISCRETIZED_ALLOWED);
  
@@ -89,9 +89,9 @@ public class PDF_Estimate extends DiscretizedFuncEstimate {
   * Get the cumulative distribution function
   * @return
   */
- public DiscretizedFunc getCDF_Test() {
+ public AbstractDiscretizedFunc getCDF_Test() {
    
-   DiscretizedFunc cdfFunc = (DiscretizedFunc)cumDistFunc.deepClone();
+   AbstractDiscretizedFunc cdfFunc = (AbstractDiscretizedFunc)cumDistFunc.deepClone();
    /*int numPoints = cdfFunc.getNum();
    double x;
    for(int i=0; i<numPoints; ++i) {
@@ -130,9 +130,9 @@ public class PDF_Estimate extends DiscretizedFuncEstimate {
   * Get the PDF
   * @return
   */
- public  DiscretizedFunc getPDF_Test() {
+ public  AbstractDiscretizedFunc getPDF_Test() {
 
-   EvenlyDiscretizedFunc pdfFunc = (EvenlyDiscretizedFunc)(DiscretizedFunc)func.deepClone();
+   EvenlyDiscretizedFunc pdfFunc = (EvenlyDiscretizedFunc)(AbstractDiscretizedFunc)func.deepClone();
    double deltaX = pdfFunc.getDelta();
    int numPoints = pdfFunc.getNum();
    double x;

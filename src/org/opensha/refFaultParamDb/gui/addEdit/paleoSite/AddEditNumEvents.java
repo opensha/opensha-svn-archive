@@ -27,7 +27,7 @@ import javax.swing.JOptionPane;
 
 import org.opensha.commons.data.estimate.IntegerEstimate;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.gui.LabeledBoxPanel;
 import org.opensha.commons.param.ArbitrarilyDiscretizedFuncParameter;
 import org.opensha.commons.param.IntegerParameter;
@@ -109,7 +109,7 @@ public class AddEditNumEvents extends LabeledBoxPanel implements ParameterChange
     numEventsCommentsParamEditor.refreshParamEditor();
     // num events estimate
     IntegerEstimate estimate  = (IntegerEstimate)combinedNumEventsInfo.getNumEventsEstimate().getEstimate();
-    DiscretizedFunc func = estimate.getValues();
+    AbstractDiscretizedFunc func = estimate.getValues();
     // min events param
     minEventsParam.setValue(new Integer((int)func.getMinX()));
     minEventsParamEditor.refreshParamEditor();

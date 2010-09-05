@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.opensha.commons.data.Point2DToleranceComparator;
-import org.opensha.commons.exceptions.DataPoint2DException;
+import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 
 
@@ -269,7 +269,7 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
      * by the value (totSum) passed in
      * @return
      */
-    private ArbitrarilyDiscretizedFunc getCumDist(double totSum) throws DataPoint2DException {
+    private ArbitrarilyDiscretizedFunc getCumDist(double totSum) {
 
       ArbitrarilyDiscretizedFunc cumDist = new ArbitrarilyDiscretizedFunc(0.0);
       Point2D dp;

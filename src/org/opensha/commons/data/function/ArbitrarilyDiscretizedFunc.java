@@ -31,7 +31,7 @@ import java.util.ListIterator;
 import org.opensha.commons.data.Point2DComparatorAPI;
 import org.opensha.commons.data.Point2DToleranceComparator;
 import org.opensha.commons.data.Point2DToleranceSortedList;
-import org.opensha.commons.exceptions.DataPoint2DException;
+import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 
 /**
@@ -53,7 +53,7 @@ import org.opensha.commons.exceptions.InvalidRangeException;
  * @version 1.0
  */
 
-public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
+public class ArbitrarilyDiscretizedFunc extends AbstractDiscretizedFunc
 implements Serializable {
 
 	private static final long serialVersionUID = 0xF1E37DA;
@@ -89,7 +89,7 @@ implements Serializable {
 	 * 
 	 * @param func
 	 */
-	public ArbitrarilyDiscretizedFunc(DiscretizedFunc func) {
+	public ArbitrarilyDiscretizedFunc(AbstractDiscretizedFunc func) {
 		this(func.getTolerance());
 		Iterator<Point2D> it = func.getPointsIterator();
 		while (it.hasNext())
@@ -230,25 +230,26 @@ implements Serializable {
 
 
 	/** Either adds a new DataPoint, or replaces an existing one, within tolerance */
-	public void set(Point2D point) throws DataPoint2DException{ points.add(point); }
+	public void set(Point2D point) throws Point2DException{ points.add(point); }
 
 	/**
 	 * Either adds a new DataPoint, or replaces an existing one, within tolerance,
 	 * created from the input x and y values.
 	 */
-	public void set(double x, double y) throws DataPoint2DException{ set(new Point2D.Double(x,y)); }
+	public void set(double x, double y) throws Point2DException{ set(new Point2D.Double(x,y)); }
 
 
 	/**
 	 * Replaces a y value for an existing point, accessed by index. If no DataPoint exists
 	 * nothing is done.
 	 */
-	public void set(int index, double y) throws DataPoint2DException{
+	public void set(int index, double y) throws Point2DException{
 		Point2D point = get(index);
 		if( point != null ) {
 			point.setLocation(point.getX(), y);
 			set(point);
-		}
+		} else
+			throw new IndexOutOfBoundsException();
 	}
 
 	/**
@@ -279,35 +280,6 @@ implements Serializable {
 	public Iterator<Point2D> getPointsIterator(){
 		return points.iterator();
 	}
-
-	/**
-	 * Returns an iterator over all x-values in the list. Results returned
-	 * in sorted order. Returns null if no points present.
-	 * @return
-	 */
-	public ListIterator<Double> getXValuesIterator(){
-		ArrayList<Double> list = new ArrayList<Double>();
-		int max = points.size();
-		for( int i = 0; i < max; i++){
-			list.add( new Double(this.getX(i)) );
-		}
-		return list.listIterator();
-	}
-
-	/**
-	 * Returns an iterator over all y-values in the list. Results returned
-	 * in sorted order along the x-axis. Returns null if no points present.
-	 * @return
-	 */
-	public ListIterator<Double> getYValuesIterator(){
-		ArrayList<Double> list = new ArrayList<Double>();
-		int max = points.size();
-		for( int i = 0; i < max; i++){
-			list.add( new Double(this.getY(i)));
-		}
-		return list.listIterator();
-	}
-
 
 	/**
 	 * Given the imput y value, finds the two sequential
@@ -773,25 +745,6 @@ if(debug) {
 			newFunction.set(getY(j),function.getY(j));
 
 		return newFunction;
-	}
-
-
-	/**
-	 * It finds out whether the X values are within tolerance of an integer value
-	 * @param tol tolerance value to consider  rounding errors
-	 *
-	 * @return true if all X values are within the tolerance of an integer value
-	 * else returns false
-	 */
-	public boolean areAllXValuesInteger(double tolerance) {
-		int num = getNum();
-		double x, diff;
-		for (int i = 0; i < num; ++i) {
-			x = getX(i);
-			diff = Math.abs(x - Math.rint(x));
-			if (diff > tolerance) return false;
-		}
-		return true;
 	}
 
 	/**

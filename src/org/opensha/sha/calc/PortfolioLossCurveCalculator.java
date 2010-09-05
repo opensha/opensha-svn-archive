@@ -97,7 +97,7 @@ public class PortfolioLossCurveCalculator extends UnicastRemoteObject {
 	 */
 	public DiscretizedFuncAPI getAnnualizedRates(DiscretizedFuncAPI hazFunction,double years) 
 	throws java.rmi.RemoteException{
-		DiscretizedFuncAPI annualizedRateFunc = hazFunction.deepClone();
+		DiscretizedFuncAPI annualizedRateFunc = (DiscretizedFuncAPI)hazFunction.deepClone();
 		int size = annualizedRateFunc.getNum();
 		for(int i=0;i<size;++i){
 			annualizedRateFunc.set(i, - Math.log(1-annualizedRateFunc.getY(i))/years);

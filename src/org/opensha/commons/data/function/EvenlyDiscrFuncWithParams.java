@@ -37,7 +37,7 @@ import org.opensha.commons.param.ParameterList;
  *
  * @see EvenlyDiscretizedFunc
  * @see FuncWithParamsAPI
- * @see DiscretizedFunc
+ * @see AbstractDiscretizedFunc
  * @see DiscretizedFuncAPIFunc
  * @see ParameterList
  * @author Steven W. Rock

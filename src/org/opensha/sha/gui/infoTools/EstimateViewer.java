@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.estimate.DiscreteValueEstimate;
 import org.opensha.commons.data.estimate.Estimate;
-import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 
 /**
@@ -83,7 +83,7 @@ public class EstimateViewer implements GraphWindowAPI {
 
   public ArrayList getCurveFunctionList() {
    ArrayList list = new ArrayList();
-   DiscretizedFunc func = estimate.getPDF_Test();
+   AbstractDiscretizedFunc func = estimate.getPDF_Test();
    list.add(func); // draw the histogram for PDF
    list.add(estimate.getCDF_Test());
    list.add(estimate.getCDF_TestUsingFractile());

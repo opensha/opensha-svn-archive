@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.XY_DataSetList;
-import org.opensha.commons.exceptions.DataPoint2DException;
+import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.MagFreqDistException;
@@ -136,7 +136,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
     */
 
    public void addIncrementalMagFreqDist(IncrementalMagFreqDist magFreqDist)
-               throws XY_DataSetException,DataPoint2DException {
+               throws XY_DataSetException,Point2DException {
 
      /* check whether mun,num and delta of new distribution matches
         the min, num and delta in  the constructor */
@@ -252,7 +252,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
     */
 
    public void removeIncrementalMagFreqDist(IncrementalMagFreqDist magFreqDist)
-                          throws XY_DataSetException,DataPoint2DException {
+                          throws XY_DataSetException,Point2DException {
 
      if(saveMagFreqDists) {    // check if this distribution exists
        int index = savedMagFreqDists.indexOf(magFreqDist);

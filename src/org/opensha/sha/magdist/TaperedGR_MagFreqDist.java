@@ -22,7 +22,7 @@ package org.opensha.sha.magdist;
 
 import java.awt.geom.Point2D;
 
-import org.opensha.commons.exceptions.DataPoint2DException;
+import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.MagFreqDistException;
@@ -107,7 +107,7 @@ public class TaperedGR_MagFreqDist
                                      double magLower, double magCorner,
                                      double totMoRate, double bValue) throws
       InvalidRangeException,
-      DataPoint2DException {
+      Point2DException {
     super(min, num, delta);
     setAllButTotCumRate(magLower, magCorner, totMoRate, bValue);
   }
@@ -121,7 +121,7 @@ public class TaperedGR_MagFreqDist
    */
   public void setAllButTotCumRate(double magLower, double magCorner,
                                   double totMoRate, double bValue) throws
-      DataPoint2DException {
+      Point2DException {
 
     this.magLower = magLower;
     this.magCorner = magCorner;
@@ -140,7 +140,7 @@ public class TaperedGR_MagFreqDist
 
   public void setAllButTotMoRate(double magLower, double magCorner,
                                  double totCumRate, double bValue) throws
-      DataPoint2DException {
+      Point2DException {
 
     this.magLower = magLower;
     this.magCorner = magCorner;
@@ -164,7 +164,7 @@ public class TaperedGR_MagFreqDist
   public void setAllButCornerMag(double magLower, double totMoRate,
 		  double totCumRate, double bValue) throws
 		  MagFreqDistException, XY_DataSetException,
-		  DataPoint2DException {
+		  Point2DException {
 	  
 	  this.magLower = magLower;
 	  this.bValue = bValue;
@@ -261,12 +261,12 @@ public class TaperedGR_MagFreqDist
    * private function to set the rate values
    */
 
-  private void calculateRelativeRates() throws DataPoint2DException {
+  private void calculateRelativeRates() throws Point2DException {
 
     // checks that magCorner, magLower lie between minX and maxX
     // it also checks that magCorner > magLower
     if (magLower < minX || magLower > maxX)
-      throw new DataPoint2DException(
+      throw new Point2DException(
           "magLower should lie between minX and maxX");
     if (magLower > magCorner)
       throw new InvalidRangeException("magLower must be < magCorner");
@@ -297,7 +297,7 @@ public class TaperedGR_MagFreqDist
    * @returns the cumulative rate at magLower
    */
 
-  public double getTotCumRate() throws DataPoint2DException {
+  public double getTotCumRate() throws Point2DException {
     return getCumRate(magLower);
   }
 
@@ -338,7 +338,7 @@ public class TaperedGR_MagFreqDist
    * this function returns String for drawing Legen in JFreechart
    * @return : returns the String which is needed for Legend in graph
    */
-  public String getDefaultInfo() throws DataPoint2DException {
+  public String getDefaultInfo() throws Point2DException {
     return ("minMag=" + minX + "; maxMag=" + maxX + "; numMag=" + num +
             "; bValue=" + bValue + "; magLower=" + magLower + "; magCorner=" +
             (float) magCorner +

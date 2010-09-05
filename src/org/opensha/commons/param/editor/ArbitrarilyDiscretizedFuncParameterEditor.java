@@ -44,7 +44,7 @@ import javax.swing.event.TableModelListener;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.exceptions.ConstraintException;
-import org.opensha.commons.exceptions.DataPoint2DException;
+import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.param.ArbitrarilyDiscretizedFuncParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.editor.ArbitrarilyDiscretizedFuncTableModel.ArbitrarilyDiscretizedFuncTableCellRenderer;
@@ -246,7 +246,7 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor i
 		if(D) System.out.println(S + "Ending");
 	}
 
-	private void setValueInParameter() throws DataPoint2DException,
+	private void setValueInParameter() throws Point2DException,
 	HeadlessException, NumberFormatException {
 		// TODO: fix this
 		//      String xValsStr = this.xValsTextArea.getText();

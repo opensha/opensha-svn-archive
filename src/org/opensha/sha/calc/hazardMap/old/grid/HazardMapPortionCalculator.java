@@ -31,7 +31,7 @@ import java.util.Iterator;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.siteData.SiteDataValue;
@@ -393,7 +393,7 @@ public class HazardMapPortionCalculator {
 				// write the result to the file
 				if (print)
 					System.out.println("Writing Results to File: " + outFileName);
-				DiscretizedFunc.writeSimpleFuncFile(hazFunction, outFileName);
+				AbstractDiscretizedFunc.writeSimpleFuncFile(hazFunction, outFileName);
 //				chmod(outFile.getAbsolutePath());
 			}
 			if ((lessPrints && j % 100 != 0 || !lessPrints) && timer && j>0) {
@@ -526,7 +526,7 @@ public class HazardMapPortionCalculator {
 	
 	public static ArbitrarilyDiscretizedFunc loadCurveFile(String fileName) {
 		try {
-			ArbitrarilyDiscretizedFunc func = DiscretizedFunc.loadFuncFromSimpleFile(fileName);
+			ArbitrarilyDiscretizedFunc func = AbstractDiscretizedFunc.loadFuncFromSimpleFile(fileName);
 			return func;
 		} catch (Exception e) {
 			e.printStackTrace();

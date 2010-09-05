@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;

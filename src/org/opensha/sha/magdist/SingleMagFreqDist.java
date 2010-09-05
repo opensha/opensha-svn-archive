@@ -20,7 +20,7 @@
 package org.opensha.sha.magdist;
 
 import org.opensha.commons.calc.MomentMagCalc;
-import org.opensha.commons.exceptions.DataPoint2DException;
+import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 
@@ -77,7 +77,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    */
 
   public SingleMagFreqDist(double min,int num,double delta, double mag,double moRate)
-                           throws InvalidRangeException,DataPoint2DException {
+                           throws InvalidRangeException,Point2DException {
     super(min,num,delta);
     rate = moRate/MomentMagCalc.getMoment(mag);
     setMagAndRate(mag, rate);
@@ -104,7 +104,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    * @param mag
    * @param rate
    */
-  public void setMagAndRate(double mag, double rate) throws DataPoint2DException{
+  public void setMagAndRate(double mag, double rate) throws Point2DException{
     this.mag=mag;
     this.rate=rate;
     for(int i=0;i<num;++i)
@@ -119,7 +119,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    * @param mag
    * @param moRate
    */
-  public void setMagAndMomentRate(double mag,double moRate) throws DataPoint2DException{
+  public void setMagAndMomentRate(double mag,double moRate) throws Point2DException{
     this.rate=moRate/MomentMagCalc.getMoment(mag);
     setMagAndRate(mag,rate);
   }
@@ -133,7 +133,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    * @param rate
    * @param moRate
    */
-  public void setRateAndMomentRate(double rate,double moRate, boolean relaxTotMoRate) throws DataPoint2DException{
+  public void setRateAndMomentRate(double rate,double moRate, boolean relaxTotMoRate) throws Point2DException{
 
     this.mag = MomentMagCalc.getMag(moRate/rate);
     int index = (int) Math.rint((mag - minX)/delta);

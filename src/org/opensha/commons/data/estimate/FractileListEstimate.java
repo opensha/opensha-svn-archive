@@ -19,7 +19,7 @@
 
 package org.opensha.commons.data.estimate;
 
-import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 
 /**
  * <p>Title: FractileListEstimate.java </p>
@@ -43,7 +43,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 public class FractileListEstimate extends Estimate {
   public final static String NAME  =  "Fractile List";
   private final static double tol = 1e-6;
-  private DiscretizedFunc func=null;
+  private AbstractDiscretizedFunc func=null;
 
    /**
     * Construnctor - Accepts the ArbitrarilyDiscretizedFunc of values and probabilites.
@@ -52,7 +52,7 @@ public class FractileListEstimate extends Estimate {
     *
     * @param func ArbitrarilyDiscretizedFunc function of  values and probabilities
     */
-   public FractileListEstimate(DiscretizedFunc func) {
+   public FractileListEstimate(AbstractDiscretizedFunc func) {
      setValues(func);
    }
 
@@ -78,7 +78,7 @@ public class FractileListEstimate extends Estimate {
     *
     * @param func
     */
-   public void setValues(DiscretizedFunc func) {
+   public void setValues(AbstractDiscretizedFunc func) {
      max = func.getMaxX();
      min = func.getMinX();
      int numValues = func.getNum();
@@ -94,7 +94,7 @@ public class FractileListEstimate extends Estimate {
      }
      if(Math.abs(sum-1)>tol)
        throw new InvalidParamValException(EST_MSG_NOT_NORMALIZED);
-     this.func = (DiscretizedFunc)func.deepClone();
+     this.func = (AbstractDiscretizedFunc)func.deepClone();
    }
 
 
@@ -132,7 +132,7 @@ public class FractileListEstimate extends Estimate {
    }
 
 
-  public DiscretizedFunc getValues() {
+  public AbstractDiscretizedFunc getValues() {
     return this.func;
   }
 

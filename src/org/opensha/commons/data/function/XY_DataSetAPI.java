@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.NamedObjectAPI;
-import org.opensha.commons.exceptions.DataPoint2DException;
+import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.metadata.XMLSaveable;
 
 public interface XY_DataSetAPI extends NamedObjectAPI, XMLSaveable, Serializable {
@@ -64,13 +64,13 @@ public interface XY_DataSetAPI extends NamedObjectAPI, XMLSaveable, Serializable
 	/* ***************/
 
 	/** Either adds a new DataPoint, or replaces an existing one, within tolerance */
-	public void set(Point2D point) throws DataPoint2DException;
+	public void set(Point2D point) throws Point2DException;
 
 	/**
 	 * Creates a new DataPoint, then either adds it if it doesn't exist,
 	 * or replaces an existing one, within tolerance
 	 */
-	public void set(double x, double y) throws DataPoint2DException;
+	public void set(double x, double y) throws Point2DException;
 
 	/** Replaces a DataPoint y-value at the specifed index. */
 	public void set(int index, double Y);
@@ -140,16 +140,7 @@ public interface XY_DataSetAPI extends NamedObjectAPI, XMLSaveable, Serializable
 	 * same number of points, and the all points are equal, using the DataPoint2D
 	 * equals() function.
 	 */
-	public boolean equals( DiscretizedFuncAPI function );
-
-	/**
-	 * This function returns a new copy of this list, including copies
-	 * of all the points. A shallow clone would only create a new DiscretizedFunc
-	 * instance, but would maintain a reference to the original points. <p>
-	 *
-	 * Since this is a clone, you can modify it without changing the original.
-	 */
-	public DiscretizedFuncAPI deepClone();
+	public boolean equals( XY_DataSetAPI function );
 
 	/**
 	 * prints out the state of the list, such as number of points,
@@ -157,6 +148,15 @@ public interface XY_DataSetAPI extends NamedObjectAPI, XMLSaveable, Serializable
 	 * @returns value of each point in the function in String format
 	 */
 	public String getMetadataString();
+	
+	/**
+	 * This function returns a new copy of this list, including copies
+	 * of all the points. A shallow clone would only create a new DiscretizedFunc
+	 * instance, but would maintain a reference to the original points. <p>
+	 *
+	 * Since this is a clone, you can modify it without changing the original.
+	 */
+	public XY_DataSetAPI deepClone();
 
 	/**
 	 * It finds out whether the X values are within tolerance of an integer value
@@ -166,5 +166,28 @@ public interface XY_DataSetAPI extends NamedObjectAPI, XMLSaveable, Serializable
 	 * else returns false
 	 */
 	public boolean areAllXValuesInteger(double tolerance);
+	
+	/**
+	 * Sets the name of the X Axis
+	 * @param xName String
+	 */
+	public void setXAxisName(String xName);
+	
+	/**
+	 * Gets the name of the X Axis
+	 */
+	public String getXAxisName();
+	
+	/**
+	 * Sets the name of the X Axis
+	 * @param xName String
+	 */
+	public void setYAxisName(String xName);
+	
+	/**
+	 * Gets the name of the Y Axis
+	 */
+	public String getYAxisName();
+	
 
 }

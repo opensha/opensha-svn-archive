@@ -20,7 +20,7 @@
 package org.opensha.commons.data.estimate;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 
 /**
  * <p>Title: DiscreteValueEstimate.java </p>
@@ -62,7 +62,7 @@ public class DiscreteValueEstimate extends DiscretizedFuncEstimate {
 	 * Get the cumulative distribution function
 	 * @return
 	 */
-	public DiscretizedFunc getCDF_Test() {
+	public AbstractDiscretizedFunc getCDF_Test() {
 		ArbitrarilyDiscretizedFunc cdfFunc = new ArbitrarilyDiscretizedFunc();
 		int num = func.getNum();
 		double delta = 1e-3;
@@ -110,7 +110,7 @@ public class DiscreteValueEstimate extends DiscretizedFuncEstimate {
  }*/
 
 
-	public  DiscretizedFunc getPDF_Test() {
+	public  AbstractDiscretizedFunc getPDF_Test() {
 		return this.func;
 	}
 

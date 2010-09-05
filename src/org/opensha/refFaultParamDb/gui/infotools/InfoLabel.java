@@ -29,7 +29,7 @@ import org.opensha.commons.data.estimate.FractileListEstimate;
 import org.opensha.commons.data.estimate.LogNormalEstimate;
 import org.opensha.commons.data.estimate.MinMaxPrefEstimate;
 import org.opensha.commons.data.estimate.NormalEstimate;
-import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.refFaultParamDb.data.ExactTime;
 import org.opensha.refFaultParamDb.data.TimeAPI;
 import org.opensha.refFaultParamDb.data.TimeEstimate;
@@ -314,7 +314,7 @@ public class InfoLabel extends JLabel {
    * @return
    */
   private String getTextForDiscretizedFuncEstimate(DiscretizedFuncEstimate estimate) {
-    DiscretizedFunc func = estimate.getValues();
+    AbstractDiscretizedFunc func = estimate.getValues();
     String text =  "<b>"+ESTIMATE_TYPE+":&nbsp;</b>"+estimate.getName()+"<br>"+
         "<b>Value&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Probability</b> <br>";
     for(int i=0; i<func.getNum(); ++i)
@@ -331,7 +331,7 @@ public class InfoLabel extends JLabel {
   * @return
   */
  private String getTextForFractileListEstimate(FractileListEstimate estimate) {
-   DiscretizedFunc func = estimate.getValues();
+   AbstractDiscretizedFunc func = estimate.getValues();
    String text =  "<b>"+ESTIMATE_TYPE+":&nbsp;</b>"+estimate.getName()+"<br>"+
        "<b>"+func.getXAxisName()+"&nbsp;&nbsp;"+func.getYAxisName()+"</b> <br>";
    for(int i=0; i<func.getNum(); ++i)

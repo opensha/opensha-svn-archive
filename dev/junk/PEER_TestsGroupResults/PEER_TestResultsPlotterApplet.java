@@ -48,7 +48,7 @@ import org.jfree.data.Range;
 import org.opensha.commons.calc.FunctionListCalc;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.XY_DataSetAPI;
 import org.opensha.commons.data.function.XY_DataSetList;
@@ -617,7 +617,7 @@ ActionListener {
 
 		//see if the average checkBox is selected to calculate the average for all plotted prob's
 		if(avgFunctions.size()>0)  {
-			DiscretizedFunc avgFunc = FunctionListCalc.getMean(avgFunctions);
+			AbstractDiscretizedFunc avgFunc = FunctionListCalc.getMean(avgFunctions);
 			avgFunc.setInfo("Average");
 			avgFunc.setName("Average");
 			plotFunctions.add(avgFunc);

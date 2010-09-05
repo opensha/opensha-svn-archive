@@ -597,7 +597,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 			throws ParameterException {
 		ArrayList<DiscretizedFuncAPI> funcs = new ArrayList<DiscretizedFuncAPI>();
 		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-			funcs.add(imr.getExceedProbabilities(intensityMeasureLevels.deepClone()));
+			funcs.add(imr.getExceedProbabilities((DiscretizedFuncAPI)intensityMeasureLevels.deepClone()));
 		}
 		for (int i=0; i<intensityMeasureLevels.getNum(); i++) {
 			ArrayList<Double> vals = new ArrayList<Double>();

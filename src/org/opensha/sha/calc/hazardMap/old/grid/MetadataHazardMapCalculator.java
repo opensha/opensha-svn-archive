@@ -32,7 +32,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.siteData.SiteDataValueListList;
 import org.opensha.commons.geo.GriddedRegion;
@@ -160,14 +160,14 @@ public class MetadataHazardMapCalculator implements ParameterChangeWarningListen
 		//AttenuationRelationshipAPI imr = new CB_2008_AttenRel(this);
 		AttenuationRelationship imr = (AttenuationRelationship)AttenuationRelationship.fromXMLMetadata(root.element("IMR"), this);
 		
-		Element hazFuncElem = root.element(DiscretizedFunc.XML_METADATA_NAME);
+		Element hazFuncElem = root.element(AbstractDiscretizedFunc.XML_METADATA_NAME);
 		ArbitrarilyDiscretizedFunc hazFunction = null;
 		if (hazFuncElem == null) {
 			IMT_Info imtInfo = new IMT_Info();
 			// get the default function for the specified IMT
 			hazFunction = imtInfo.getDefaultHazardCurve(imr.getIntensityMeasure().getName());
 		} else {
-			hazFunction = DiscretizedFunc.fromXMLMetadata(hazFuncElem);
+			hazFunction = AbstractDiscretizedFunc.fromXMLMetadata(hazFuncElem);
 		}
 		
 		SiteDataValueListList siteDataVals = null;

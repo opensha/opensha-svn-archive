@@ -332,16 +332,16 @@ public class HazusMapCalculator {
 
     hazFunction[0] = IMT_Info.getUSGS_PGA_Function(); //PGA
     hazFunction[1] = IMT_Info.getUSGS_SA_Function(); //SA@0.3sec
-    hazFunction[2] = hazFunction[1].deepClone(); //SA@1.0sec
+    hazFunction[2] = (DiscretizedFuncAPI)hazFunction[1].deepClone(); //SA@1.0sec
     IMT_Info imtInfo = new IMT_Info();
     DiscretizedFuncAPI pgvFunction = imtInfo.getDefaultHazardCurve(PGV_Param.NAME);
-    hazFunction[3] = pgvFunction.deepClone();; //PGV
+    hazFunction[3] = (DiscretizedFuncAPI)pgvFunction.deepClone();; //PGV
  
 
-    sourceHazFunc[0] = hazFunction[0].deepClone();
-    sourceHazFunc[1] = hazFunction[1].deepClone();
-    sourceHazFunc[2] = hazFunction[1].deepClone();
-    sourceHazFunc[3] = hazFunction[1].deepClone();
+    sourceHazFunc[0] = (DiscretizedFuncAPI)hazFunction[0].deepClone();
+    sourceHazFunc[1] = (DiscretizedFuncAPI)hazFunction[1].deepClone();
+    sourceHazFunc[2] = (DiscretizedFuncAPI)hazFunction[1].deepClone();
+    sourceHazFunc[3] = (DiscretizedFuncAPI)hazFunction[1].deepClone();
     for(int m=0;m<numIMTs;++m){
     	  this.initDiscretizeValues(hazFunction[m],1.0);
     	  this.initDiscretizeValues(sourceHazFunc[m],1.0);
@@ -437,7 +437,7 @@ public class HazusMapCalculator {
         		 imr.getParameter(PeriodParam.NAME).setValue(new Double(1.0));
         	 }
         	 else if(imtIndex ==3){
-        		 condProbFunc = pgvFunction.deepClone();
+        		 condProbFunc = (DiscretizedFuncAPI)pgvFunction.deepClone();
         		 if(pgvSupported)
         		     imr.setIntensityMeasure(pgv);
         		 else{

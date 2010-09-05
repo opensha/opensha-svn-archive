@@ -65,6 +65,7 @@ import org.jfree.data.Range;
 import org.jfree.ui.RectangleInsets;
 import org.jfree.util.ShapeUtilities;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.XY_DataSetAPI;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.gui.plot.jfreechart.JFreeLogarithmicAxis;
@@ -722,7 +723,7 @@ public class GraphPanel extends JSplitPane {
 				else{ //if element in the list are individual function then get their info and show as legend
 					((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).setCurveName(
 							datasetName);
-					DiscretizedFuncAPI func = (DiscretizedFuncAPI)funcList.get(i);
+					XY_DataSetAPI func = (XY_DataSetAPI)funcList.get(i);
 					String functionInfo = func.getInfo();
 					String name = func.getName();
 					legend = new String(datasetName+"\n"+
@@ -773,7 +774,7 @@ public class GraphPanel extends JSplitPane {
 			Object obj = funcList.get(i);
 
 			if(!(obj instanceof WeightedFuncListforPlotting)){ //showing data for the individual function
-				DiscretizedFuncAPI function = (DiscretizedFuncAPI)obj;
+				XY_DataSetAPI function = (XY_DataSetAPI)obj;
 				b.append("\nDATASET #" + (i+1) + "\n\n");
 				b.append(function.toString()+ '\n');
 			}
@@ -935,7 +936,7 @@ public class GraphPanel extends JSplitPane {
 
 		totalProbFuncs.clear();
 		int numCurves  = functionList.size();
-		ArrayList numColorArray = new ArrayList();
+		ArrayList<Integer> numColorArray = new ArrayList<Integer>();
 
 
 		for(int i=0;i<numCurves;++i){
@@ -964,7 +965,7 @@ public class GraphPanel extends JSplitPane {
 				}
 			}
 			else{
-				totalProbFuncs.add((DiscretizedFuncAPI)obj);
+				totalProbFuncs.add((XY_DataSetAPI)obj);
 				numColorArray.add(new Integer(1));
 			}
 		}
@@ -982,9 +983,16 @@ public class GraphPanel extends JSplitPane {
 				defaultColorIndex = 0;
 			int val = ((Integer)numColorArray.get(i)).intValue();
 			//adding the new curves to the list for plot preferences.
-			if(i>=existingCurvesWithPlotPrefs)
-				curvePlottingCharacterstics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+			if(i>=existingCurvesWithPlotPrefs) {
+				XY_DataSetAPI func = totalProbFuncs.get(i);
+				String lineType;
+				if (func instanceof DiscretizedFuncAPI)
+					lineType = PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE;
+				else
+					lineType = PlotColorAndLineTypeSelectorControlPanel.DIAMONDS;
+				curvePlottingCharacterstics.add(new PlotCurveCharacterstics(lineType,
 						defaultColor[defaultColorIndex],1.0,val));
+			}
 		}
 	}
 

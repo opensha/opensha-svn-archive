@@ -43,7 +43,7 @@ import org.opensha.commons.data.estimate.LogNormalEstimate;
 import org.opensha.commons.data.estimate.MinMaxPrefEstimate;
 import org.opensha.commons.data.estimate.NormalEstimate;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.gui.LabeledBoxPanel;
 import org.opensha.commons.param.StringParameter;
@@ -301,7 +301,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
 				timeString+=format.format(((LogNormalEstimate)estimate).getLinearMedian());
 			// point of highest prob is displayed
 			else if (estimate instanceof DiscretizedFuncEstimate) {
-				DiscretizedFunc func = ( (DiscretizedFuncEstimate) estimate).getValues();
+				AbstractDiscretizedFunc func = ( (DiscretizedFuncEstimate) estimate).getValues();
 				timeString +=format.format(func.getFirstInterpolatedX(func.getMaxY()));
 			}
 			// try to display pref value, then maximum and then minimum

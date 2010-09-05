@@ -2,7 +2,7 @@ package org.opensha.commons.calc;
 
 import org.junit.Test;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSetList;
 
 import static org.junit.Assert.*;
@@ -40,7 +40,7 @@ public class TestFunctionListCalc {
 		list.add(func1);
 		list.add(func2);
 		
-		DiscretizedFunc mean = FunctionListCalc.getMean(list);
+		AbstractDiscretizedFunc mean = FunctionListCalc.getMean(list);
 		
 		for (int i=0; i<5; i++) {
 			assertTrue(mean.getY(i) == 7.5);
@@ -54,7 +54,7 @@ public class TestFunctionListCalc {
 		list.add(func2);
 		list.add(func3);
 		
-		DiscretizedFunc mean = FunctionListCalc.getMean(list);
+		AbstractDiscretizedFunc mean = FunctionListCalc.getMean(list);
 		
 		for (int i=0; i<5; i++) {
 			assertTrue(mean.getY(i) == (5 + 10 + i + 1) / 3d);

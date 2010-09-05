@@ -48,7 +48,7 @@ import org.opensha.commons.data.estimate.MinMaxPrefEstimate;
 import org.opensha.commons.data.estimate.NormalEstimate;
 import org.opensha.commons.data.estimate.PDF_Estimate;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
@@ -361,7 +361,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
   // set the estimate in fractile list estimate
   private void setFractileListVals(FractileListEstimate fractileListEstimate) {
     this.chooseEstimateParam.setValue(FractileListEstimate.NAME);
-    DiscretizedFunc func = fractileListEstimate.getValues();
+    AbstractDiscretizedFunc func = fractileListEstimate.getValues();
     this.minX_Param.setValue(func.getX(0));
     this.prefferedX_Param.setValue(func.getX(1));
     this.maxX_Param.setValue(func.getX(2));
@@ -1040,7 +1040,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
 
 
 
-  private void copyFunction(DiscretizedFunc funcFrom, DiscretizedFunc funcTo) {
+  private void copyFunction(AbstractDiscretizedFunc funcFrom, AbstractDiscretizedFunc funcTo) {
     int numVals = funcFrom.getNum();
     for(int i=0; i < numVals; ++i) funcTo.set(funcFrom.getX(i), funcFrom.getY(i));
   }

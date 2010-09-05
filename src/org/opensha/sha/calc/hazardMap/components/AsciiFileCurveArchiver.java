@@ -7,7 +7,7 @@ import java.text.DecimalFormat;
 
 import org.dom4j.Element;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.geo.Location;
 
@@ -48,7 +48,7 @@ public class AsciiFileCurveArchiver implements CurveResultsArchiver {
 	public void archiveCurve(ArbitrarilyDiscretizedFunc curve, CurveMetadata meta) throws IOException {
 		String outFileName = getFileName(meta);
 		System.out.println("Writing '" + outFileName + "'");
-		DiscretizedFunc.writeSimpleFuncFile(curve, outFileName);
+		AbstractDiscretizedFunc.writeSimpleFuncFile(curve, outFileName);
 	}
 	
 	private String getFileName(CurveMetadata meta) {

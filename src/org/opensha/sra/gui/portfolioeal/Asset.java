@@ -10,6 +10,7 @@ import javax.swing.JOptionPane;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.XY_DataSetAPI;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.Parameter;
@@ -177,7 +178,7 @@ public class Asset implements Cloneable {
 	 * @return The reset hazard function
 	 */
 	private DiscretizedFuncAPI resetHazardXValues( DiscretizedFuncAPI hazFunction, Vulnerability vulnModel ) {
-	    DiscretizedFuncAPI tempFunc = hazFunction.deepClone();
+	    XY_DataSetAPI tempFunc = hazFunction.deepClone();
 	    hazFunction = new ArbitrarilyDiscretizedFunc();
 	    double imlvals[] = vulnModel.getIMLValues();
 	    for( int i = 0; i < tempFunc.getNum(); ++i ) {

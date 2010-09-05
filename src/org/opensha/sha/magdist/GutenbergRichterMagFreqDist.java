@@ -20,7 +20,7 @@
 package org.opensha.sha.magdist;
 
 
-import org.opensha.commons.exceptions.DataPoint2DException;
+import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.MagFreqDistException;
@@ -104,7 +104,7 @@ public class GutenbergRichterMagFreqDist
 
   public GutenbergRichterMagFreqDist(double min, int num, double delta,
                                      double totMoRate, double bValue) throws
-      DataPoint2DException {
+      Point2DException {
     super(min, num, delta);
     // assumes magLower = minX and magUpper = maxX
     setAllButTotCumRate(minX, maxX, totMoRate, bValue);
@@ -125,7 +125,7 @@ public class GutenbergRichterMagFreqDist
                                      double magLower, double magUpper,
                                      double totMoRate, double bValue) throws
       InvalidRangeException,
-      DataPoint2DException {
+      Point2DException {
     super(min, num, delta);
     setAllButTotCumRate(magLower, magUpper, totMoRate, bValue);
   }
@@ -139,7 +139,7 @@ public class GutenbergRichterMagFreqDist
    */
   public void setAllButTotCumRate(double magLower, double magUpper,
                                   double totMoRate, double bValue) throws
-      DataPoint2DException {
+      Point2DException {
 
     this.magLower = magLower;
     this.magUpper = magUpper;
@@ -158,7 +158,7 @@ public class GutenbergRichterMagFreqDist
 
   public void setAllButTotMoRate(double magLower, double magUpper,
                                  double totCumRate, double bValue) throws
-      DataPoint2DException {
+      Point2DException {
 
     this.magLower = magLower;
     this.magUpper = magUpper;
@@ -182,7 +182,7 @@ public class GutenbergRichterMagFreqDist
                                 double totCumRate,
                                 double bValue, boolean relaxTotMoRate) throws
       MagFreqDistException, XY_DataSetException,
-      DataPoint2DException {
+      Point2DException {
 
     if (D) System.out.println("magLower = " + magLower);
     if (D) System.out.println("totMoRate = " + totMoRate);
@@ -280,12 +280,12 @@ public class GutenbergRichterMagFreqDist
    * private function to set the rate values
    */
 
-  private void calculateRelativeRates() throws DataPoint2DException {
+  private void calculateRelativeRates() throws Point2DException {
 
     // checks that magUpper, magLower lie between minX and maxX
     // it also checks that magUpper > magLower
     if (magLower < minX || magLower > maxX)
-      throw new DataPoint2DException(
+      throw new Point2DException(
           "magLower should lie between minX and maxX");
     if (magLower > magUpper)
       throw new InvalidRangeException("magLower must be < magUpper");
@@ -311,7 +311,7 @@ public class GutenbergRichterMagFreqDist
    * @returns the cumulative rate at magLower
    */
 
-  public double getTotCumRate() throws DataPoint2DException {
+  public double getTotCumRate() throws Point2DException {
     return getCumRate(magLower);
   }
 
@@ -352,7 +352,7 @@ public class GutenbergRichterMagFreqDist
    * this function returns String for drawing Legen in JFreechart
    * @return : returns the String which is needed for Legend in graph
    */
-  public String getDefaultInfo() throws DataPoint2DException {
+  public String getDefaultInfo() throws Point2DException {
     return ("minMag=" + minX + "; maxMag=" + maxX + "; numMag=" + num +
             "; bValue=" + bValue + "; magLower=" + magLower + "; magUpper=" +
             (float) magUpper +

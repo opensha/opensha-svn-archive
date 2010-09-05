@@ -62,7 +62,7 @@ public class UCERF2 extends EqkRupForecast {
 	// name of this ERF
 	public final static String NAME = new String("WGCEP Eqk Rate Model 2 ERF");
 
-//	ArrayList allSourceNames;
+	//	ArrayList allSourceNames;
 
 	public final static double MIN_MAG = 5.05;
 	public final static double MAX_MAG = 8.95;
@@ -71,7 +71,7 @@ public class UCERF2 extends EqkRupForecast {
 
 	// public final static double B_FAULT_GR_MAG_LOWER = 6.5;
 	public final static double BACKGROUND_MAG_LOWER = 5.0;
-	
+
 	// Fault Grid Spacing
 	public final static double GRID_SPACING = 1;
 	public final static double RUP_OFFSET = 5;
@@ -93,7 +93,7 @@ public class UCERF2 extends EqkRupForecast {
 	//private final static String IN_FILE_PATH = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/WEB-INF/dataFiles/frankel02_inputfiles/";
 	private final static String IN_FILE_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/";
 	public final static String NON_CA_SOURCES_FILENAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/NearCA_NSHMP/NonCA_Faults.txt";
-	
+
 	private ArrayList allSources;
 
 	// background seismicity inlcude/exclude param
@@ -130,7 +130,7 @@ public class UCERF2 extends EqkRupForecast {
 	public final static double RUP_OFFSET_PARAM_MIN = 1;
 	public final static double RUP_OFFSET_PARAM_MAX = 100;
 	private DoubleParameter rupOffset_Param;
-	
+
 	// Floater Type
 	public final static String FLOATER_TYPE_PARAM_NAME = "Floater Type";
 	public final static String FULL_DDW_FLOATER = "Only along strike ( rupture full DDW)";
@@ -138,7 +138,7 @@ public class UCERF2 extends EqkRupForecast {
 	public final static String CENTERED_DOWNDIP_FLOATER = "Along strike & centered down dip";
 	public final static String FLOATER_TYPE_PARAM_DEFAULT = CENTERED_DOWNDIP_FLOATER;
 	private StringParameter floaterTypeParam;
-	
+
 	// rate for M>=5
 	public final static String TOT_MAG_RATE_PARAM_NAME = "Total M�5 Rate";
 	public final static Double TOT_MAG_RATE_MIN = new Double(2.0);
@@ -307,7 +307,7 @@ public class UCERF2 extends EqkRupForecast {
 	private final static Boolean INCLUDE_C_ZONES_DEFAULT = new Boolean(true);
 	private BooleanParameter includeC_ZonesParam;
 	 */
-//	C-zone weight
+	//	C-zone weight
 	public final static String C_ZONE_WT_PARAM_NAME  = "C-Zone Weight";
 	private final static Double C_ZONE_WT_DEFAULT = new Double(0.5);
 	private final static String C_ZONE_WT_INFO = "Weight to apply to type C-zones";
@@ -340,14 +340,14 @@ public class UCERF2 extends EqkRupForecast {
 	private StringParameter setForBckParam;
 
 	// NSHMP Bulge Reduction Param
-//	public final static String BULGE_REDUCTION_PARAM_NAME = "NSHMP Bulge Reduction?";
-//	private final static String BULGE_REDUCTION_PARAM_INFO = "This reduces california backgroud seis. rates by a factor of 3 for M>6.5";
-//	private BooleanParameter bulgeReductionBooleanParam;
+	//	public final static String BULGE_REDUCTION_PARAM_NAME = "NSHMP Bulge Reduction?";
+	//	private final static String BULGE_REDUCTION_PARAM_INFO = "This reduces california backgroud seis. rates by a factor of 3 for M>6.5";
+	//	private BooleanParameter bulgeReductionBooleanParam;
 
 	// NSHMP Max-Mag Grid Param
-//	public final static String MAX_MAG_GRID_PARAM_NAME = "Apply Max-Mag Grid?";
-//	private final static String MAX_MAG_GRID_PARAM_INFO = "This applies spatially variable mag-mags in background sies.";
-//	private BooleanParameter maxMagGridBooleanParam;
+	//	public final static String MAX_MAG_GRID_PARAM_NAME = "Apply Max-Mag Grid?";
+	//	private final static String MAX_MAG_GRID_PARAM_INFO = "This applies spatially variable mag-mags in background sies.";
+	//	private BooleanParameter maxMagGridBooleanParam;
 
 	// Probability Model Param
 	public final static String PROB_MODEL_PARAM_NAME = "Probability Model";
@@ -402,7 +402,7 @@ public class UCERF2 extends EqkRupForecast {
 	private ArrayList aFaultSourceGenerators; 
 	private ArrayList<UnsegmentedSource> bFaultSources;
 	private ArrayList<ProbEqkSource> nonCA_bFaultSources;
-	
+
 
 	private B_FaultFixes bFaultFixes = new B_FaultFixes(); 
 
@@ -426,7 +426,7 @@ public class UCERF2 extends EqkRupForecast {
 		// put parameters in the parameter List object	
 		createParamList();
 
-//		create the timespan parameter, to allow the user to set the timespan to be
+		//		create the timespan parameter, to allow the user to set the timespan to be
 		//time independent or time dependent.
 		setTimespanParameter();
 
@@ -568,9 +568,9 @@ public class UCERF2 extends EqkRupForecast {
 		ArrayList deformationModelNames = new ArrayList();
 		for(int i=0; i<deformationModelSummariesList.size(); ++i) {
 			deformationModelNames.add(((DeformationModelSummary)deformationModelSummariesList.get(i)).getDeformationModelName());
-//			System.out.println(i+" "+
-//			((DeformationModelSummary)deformationModelsList.get(i)).getDeformationModelName()+"  "+
-//			((DeformationModelSummary)deformationModelsList.get(i)).getDeformationModelId());
+			//			System.out.println(i+" "+
+			//			((DeformationModelSummary)deformationModelsList.get(i)).getDeformationModelName()+"  "+
+			//			((DeformationModelSummary)deformationModelsList.get(i)).getDeformationModelId());
 		}
 		deformationModelsParam = new StringParameter(DEFORMATION_MODEL_PARAM_NAME,deformationModelNames, (String)deformationModelNames.get(0) );
 		deformationModelsParam.setInfo(DEFORMATION_MODEL_PARAM_INFO);
@@ -622,13 +622,13 @@ public class UCERF2 extends EqkRupForecast {
 				MEAN_MAG_CORRECTION_DEFAULT);
 		meanMagCorrectionParam.setInfo(MEAN_MAG_CORRECTION_INFO);
 
-//		B-Fault Min Mag
+		//		B-Fault Min Mag
 		bFaultsMinMagParam = new DoubleParameter(B_FAULTS_MIN_MAG, 5.0, 8.0, B_FAULTS_MIN_MAG_DEFAULT);
 		bFaultsMinMagParam.setInfo(B_FAULTS_MIN_MAG_INFO);
 
 
 		// C-zone weight
-//		includeC_ZonesParam = new BooleanParameter(INCLUDE_C_ZONES, INCLUDE_C_ZONES_DEFAULT);
+		//		includeC_ZonesParam = new BooleanParameter(INCLUDE_C_ZONES, INCLUDE_C_ZONES_DEFAULT);
 		c_ZoneWtParam  = new DoubleParameter(C_ZONE_WT_PARAM_NAME, 0.0, 1.0, C_ZONE_WT_DEFAULT);
 		c_ZoneWtParam.setInfo(C_ZONE_WT_INFO);
 
@@ -643,11 +643,11 @@ public class UCERF2 extends EqkRupForecast {
 		setForBckParam.setInfo(SET_FOR_BCK_PARAM_INFO);
 		setForBckParam.addParameterChangeListener(this);
 
-//		bulgeReductionBooleanParam = new BooleanParameter(BULGE_REDUCTION_PARAM_NAME,true);
-//		bulgeReductionBooleanParam.setInfo(BULGE_REDUCTION_PARAM_INFO);
+		//		bulgeReductionBooleanParam = new BooleanParameter(BULGE_REDUCTION_PARAM_NAME,true);
+		//		bulgeReductionBooleanParam.setInfo(BULGE_REDUCTION_PARAM_INFO);
 
-//		this.maxMagGridBooleanParam = new BooleanParameter(MAX_MAG_GRID_PARAM_NAME,true);
-//		maxMagGridBooleanParam.setInfo(MAX_MAG_GRID_PARAM_INFO);
+		//		this.maxMagGridBooleanParam = new BooleanParameter(MAX_MAG_GRID_PARAM_NAME,true);
+		//		maxMagGridBooleanParam.setInfo(MAX_MAG_GRID_PARAM_INFO);
 
 		// Probability Model Param
 		ArrayList<String> probModelOptions = new ArrayList<String>();
@@ -675,14 +675,14 @@ public class UCERF2 extends EqkRupForecast {
 		// Segment Dependent Aperiodicity Param
 		segDepAperiodicityParam = new BooleanParameter(SEG_DEP_APERIODICITY_PARAM_NAME, SEG_DEP_APERIODICITY_PARAM_DEFAULT);
 		segDepAperiodicityParam.setInfo(SEG_DEP_APERIODICITY_PARAM_INFO);
-		
+
 		// Floater Type Param
 		ArrayList<String> floaterTypes = new ArrayList<String>();
 		floaterTypes.add(FULL_DDW_FLOATER);
 		floaterTypes.add(STRIKE_AND_DOWNDIP_FLOATER);
 		floaterTypes.add(CENTERED_DOWNDIP_FLOATER);
 		floaterTypeParam = new StringParameter(FLOATER_TYPE_PARAM_NAME, floaterTypes, FLOATER_TYPE_PARAM_DEFAULT);
-		
+
 	}
 
 
@@ -710,7 +710,7 @@ public class UCERF2 extends EqkRupForecast {
 		// relativeSegRateWeightParam
 		relativeSegRateWeightParam.setValue(REL_SEG_RATE_WT_PARAM_DEFAULT);		
 		// preserveMinAFaultRateParam
-//		preserveMinAFaultRateParam.setValue(true);
+		//		preserveMinAFaultRateParam.setValue(true);
 		minA_FaultRate1Param.setValue(MIN_A_FAULT_RATE_1_DEFAULT);
 		minA_FaultRate2Param.setValue(MIN_A_FAULT_RATE_2_DEFAULT);
 		// weightedInversionParam
@@ -751,8 +751,8 @@ public class UCERF2 extends EqkRupForecast {
 		c_ZoneWtParam.setValue(C_ZONE_WT_DEFAULT);
 		// set for background
 		setForBckParam.setValue(SET_FOR_BCK_PARAM_NSHMP07);
-//		bulgeReductionBooleanParam.setValue(true);
-//		maxMagGridBooleanParam.setValue(true);
+		//		bulgeReductionBooleanParam.setValue(true);
+		//		maxMagGridBooleanParam.setValue(true);
 
 		probModelParam.setValue(PROB_MODEL_DEFAULT);
 		aperiodicityParam.setValue(APERIODICITY_PARAM_DEFAULT);
@@ -785,13 +785,13 @@ public class UCERF2 extends EqkRupForecast {
 	private void createParamList() {
 		adjustableParams = new ParameterList();
 		//	 add adjustable parameters to the list
-//		adjustableParams.addParameter(faultModelParam);		not needed for now
-//		adjustableParams.addParameter(rupOffset_Param);		not needed for now
+		//		adjustableParams.addParameter(faultModelParam);		not needed for now
+		//		adjustableParams.addParameter(rupOffset_Param);		not needed for now
 		adjustableParams.addParameter(deformationModelsParam);
 		adjustableParams.addParameter(moRateFracToBackgroundParam);
 		adjustableParams.addParameter(couplingCoeffParam);
 		adjustableParams.addParameter(aftershockFractionParam);
-//		adjustableParams.addParameter(aseisFactorInterParam);
+		//		adjustableParams.addParameter(aseisFactorInterParam);
 		adjustableParams.addParameter(rupModelParam);
 		String rupModel = (String)rupModelParam.getValue();
 		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) {
@@ -802,7 +802,7 @@ public class UCERF2 extends EqkRupForecast {
 			adjustableParams.addParameter(weightedInversionParam);
 			adjustableParams.addParameter(minA_FaultRate1Param);
 			adjustableParams.addParameter(minA_FaultRate2Param);
-//			adjustableParams.addParameter(preserveMinAFaultRateParam);
+			//			adjustableParams.addParameter(preserveMinAFaultRateParam);
 		}
 
 		if(rupModel.equalsIgnoreCase(UNSEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(aFaultB_ValParam);
@@ -832,8 +832,8 @@ public class UCERF2 extends EqkRupForecast {
 		}
 		else {
 			// the else case (SET_FOR_BCK_PARAM_NSHMP07) adds nothing here
-//			adjustableParams.addParameter(bulgeReductionBooleanParam);
-//			adjustableParams.addParameter(maxMagGridBooleanParam);
+			//			adjustableParams.addParameter(bulgeReductionBooleanParam);
+			//			adjustableParams.addParameter(maxMagGridBooleanParam);
 		}
 		adjustableParams.addParameter(probModelParam);
 		if(this.probModelParam.getValue().equals(PROB_MODEL_BPT)) { // if time dependent prob model is chosen
@@ -966,7 +966,7 @@ public class UCERF2 extends EqkRupForecast {
 				if(moRateFracToBackground > 0)
 					((TaperedGR_MagFreqDist) totBackgroundMFD).setAllButCornerMag(MIN_MAG, totBackMoRate, totBackRate, bValue);
 			}
-//			System.out.println(totBackMoRate+", "+totBackRate+", "+bValue+", "+totBackgroundMFD.getTotalMomentRate());
+			//			System.out.println(totBackMoRate+", "+totBackRate+", "+bValue+", "+totBackgroundMFD.getTotalMomentRate());
 		}
 		else if(backgroundTreatment.equals(SET_FOR_BCK_PARAM_BCK_MAX_MAG)) {
 			double magMax = ((Double)backSeisMaxMagParam.getValue()).doubleValue();
@@ -974,8 +974,8 @@ public class UCERF2 extends EqkRupForecast {
 			((GutenbergRichterMagFreqDist) totBackgroundMFD).setAllButTotMoRate(MIN_MAG, magMax, totBackRate, bValue);
 		}
 		else { // the SET_FOR_BCK_PARAM_NSHMP07 case
-//			boolean bulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
-//			boolean maxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
+			//			boolean bulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
+			//			boolean maxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
 			totBackgroundMFD = nshmp_gridSrcGen.getTotMFDForRegion(null, false,true,true, true);
 			// totBackgroundMFD = getNSHMP02_Backgr_MFD();
 			// totBackgroundMFD.scaleToCumRate(5.0,totBackRate);
@@ -994,7 +994,7 @@ public class UCERF2 extends EqkRupForecast {
 			if(backSeisRup.equalsIgnoreCase(UCERF2.BACK_SEIS_RUP_POINT)) {
 				nshmp_gridSrcGen.setAsPointSources(true);
 				//allSources.addAll(nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration()));
-				
+
 			} else if(backSeisRup.equalsIgnoreCase(UCERF2.BACK_SEIS_RUP_FINITE)) {
 				nshmp_gridSrcGen.setAsPointSources(false);
 				//allSources.addAll(nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration()));
@@ -1009,7 +1009,7 @@ public class UCERF2 extends EqkRupForecast {
 
 		this.reCalcBck = false; 
 
-//		System.out.println(totBackgroundMFD.getTotalMomentRate()+","+totBackgroundMFD.getTotalIncrRate());
+		//		System.out.println(totBackgroundMFD.getTotalMomentRate()+","+totBackgroundMFD.getTotalIncrRate());
 
 
 		//
@@ -1074,10 +1074,10 @@ public class UCERF2 extends EqkRupForecast {
 		nshmp02_Backgr_MFD.set(6.8, 0.016882885);
 		nshmp02_Backgr_MFD.set(6.9, 0.013718917);
 		nshmp02_Backgr_MFD.set(7.0, 0.0021095828);
-//		nshmp02_Backgr_MFD.set(7.1, 3.271536E-4);
-//		nshmp02_Backgr_MFD.set(7.2, 2.0748665E-4);
-//		nshmp02_Backgr_MFD.set(7.3, 1.3159173E-4);
-//		nshmp02_Backgr_MFD.set(7.4, 1.09453234E-4);
+		//		nshmp02_Backgr_MFD.set(7.1, 3.271536E-4);
+		//		nshmp02_Backgr_MFD.set(7.2, 2.0748665E-4);
+		//		nshmp02_Backgr_MFD.set(7.3, 1.3159173E-4);
+		//		nshmp02_Backgr_MFD.set(7.4, 1.09453234E-4);
 
 		return nshmp02_Backgr_MFD;
 	}
@@ -1093,7 +1093,7 @@ public class UCERF2 extends EqkRupForecast {
 		cZonesMFD_List = new ArrayList<IncrementalMagFreqDist> ();
 		double cZoneWt = ((Double)c_ZoneWtParam.getValue()).doubleValue();
 		if(cZoneWt > 0.0) {
-//			if(((Boolean)includeC_ZonesParam.getValue()).booleanValue()) {
+			//			if(((Boolean)includeC_ZonesParam.getValue()).booleanValue()) {
 			/* 			
 			String []names = { "Foothills Fault System", "Mohawk-Honey Lake Zone",
 					"Northeastern California", "Western Nevada", "Eastern California Shear Zone N",
@@ -1107,7 +1107,7 @@ public class UCERF2 extends EqkRupForecast {
 			double[] magLower = {6.0, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5}; 
 			double[] magUpper = {7.0, 7.3, 7.3, 7.3, 7.6, 7.6, 7.3, 7.3};
 			 */
-			
+
 			/*
 			 * "Foothills Fault System" = area1 or shear1
 			 * "Mohawk-Honey Lake Zone" = area3 or shear3
@@ -1132,7 +1132,7 @@ public class UCERF2 extends EqkRupForecast {
 			double moRate, slipRate;
 			for(int i=0; i<names.length; ++i) {
 				// reduce slip rate by total moment rate reduction
-//				slipRate = (1-totMoRateReduction)*slipRates[i]/1000.0;
+				//				slipRate = (1-totMoRateReduction)*slipRates[i]/1000.0;
 				slipRate = cZoneWt*slipRates[i]/1000.0;
 				moRate = FaultMomentCalc.getMoment((depthBottom[i]-depthTop[i])*length[i]*1e6, slipRate);
 				GutenbergRichterMagFreqDist grMFD = new GutenbergRichterMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
@@ -1154,14 +1154,14 @@ public class UCERF2 extends EqkRupForecast {
 		String slipModel = (String)slipModelParam.getValue();
 		boolean isAseisReducesArea = ((Boolean) aseisFactorInterParam.getValue()).booleanValue();
 		double meanMagCorrection = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
-//		boolean preserveMinAFaultRate = ((Boolean) preserveMinAFaultRateParam.getValue()).booleanValue();
+		//		boolean preserveMinAFaultRate = ((Boolean) preserveMinAFaultRateParam.getValue()).booleanValue();
 		boolean wtedInversion = ((Boolean) weightedInversionParam.getValue()).booleanValue();
 		// this gets a list of FaultSegmentData objects (one for each A fault, and for the deformation model previously set)
 		ArrayList aFaultSegmentData = aFaultsFetcher.getFaultSegmentDataList(isAseisReducesArea);
 		aFaultSourceGenerators = new ArrayList();
 		aFaultSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 		double duration = timeSpan.getDuration();
-//		boolean isTimeIndepenent = isTimeIndependent();
+		//		boolean isTimeIndepenent = isTimeIndependent();
 		double startYear = Double.NaN, aperiodicity = Double.NaN;
 		boolean isSegDependentAperiodicity = false;
 
@@ -1195,7 +1195,7 @@ public class UCERF2 extends EqkRupForecast {
 				}
 				else 
 					throw new RuntimeException("Problem with a-priori rates for fault "+segmentData.getFaultName());
-//				System.out.println(rup+"  "+(float)minRates[rup]+"  "+segmentData.getFaultName());
+				//				System.out.println(rup+"  "+(float)minRates[rup]+"  "+segmentData.getFaultName());
 			}
 
 			A_FaultSegmentedSourceGenerator aFaultSourceGenerator = new A_FaultSegmentedSourceGenerator(segmentData, 
@@ -1212,9 +1212,9 @@ public class UCERF2 extends EqkRupForecast {
 			}
 			aFaultSummedMFD.addIncrementalMagFreqDist(aFaultSourceGenerator.getTotalRupMFD());
 			//System.out.println("************"+i+"******"+aFaultSummedMFD.toString());
-		
-		
-	}
+
+
+		}
 		reCalcA_Faults=false;
 	}
 
@@ -1227,14 +1227,14 @@ public class UCERF2 extends EqkRupForecast {
 	private void mkA_FaultUnsegmentedSources() {
 		double magSigma  = ((Double) magSigmaParam.getValue()).doubleValue();
 		double magTruncLevel = ((Double) truncLevelParam.getValue()).doubleValue();
-//		double fractCharVsGR= ((Double) percentCharVsGRParam.getValue()).doubleValue()/100.0;
+		//		double fractCharVsGR= ((Double) percentCharVsGRParam.getValue()).doubleValue()/100.0;
 		double fractCharVsGR= 0.0;
 		MagAreaRelationship magAreaRel = getMagAreaRelationship();
 		boolean isAseisReducesArea = ((Boolean) aseisFactorInterParam.getValue()).booleanValue();
 		double bValue = ((Double) aFaultB_ValParam.getValue()).doubleValue();
 		double meanMagCorrection = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
 		double minMagGR = ((Double) bFaultsMinMagParam.getValue()).doubleValue();
-//		this gets a list of FaultSegmentData objects (one for each A fault, and for the deformation model previously set)	
+		//		this gets a list of FaultSegmentData objects (one for each A fault, and for the deformation model previously set)	
 		ArrayList aFaultSegmentData = aFaultsFetcher.getFaultSegmentDataList(isAseisReducesArea);
 		aFaultSourceGenerators = new ArrayList();
 		aFaultSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
@@ -1242,7 +1242,7 @@ public class UCERF2 extends EqkRupForecast {
 		EmpiricalModel empiricalModel  = null;
 		int floaterType = getFloaterType();
 		if(this.probModelParam.getValue().equals(this.PROB_MODEL_EMPIRICAL)) empiricalModel = this.empiricalModel;
-			
+
 		for(int i=0; i<aFaultSegmentData.size(); ++i) {
 			FaultSegmentData segmentData = (FaultSegmentData) aFaultSegmentData.get(i);	
 			UnsegmentedSource source = new UnsegmentedSource( segmentData,  magAreaRel, 
@@ -1250,14 +1250,14 @@ public class UCERF2 extends EqkRupForecast {
 					minMagGR, bValue, totMoRateReduction, Double.NaN, Double.NaN, 
 					meanMagCorrection, empiricalModel, floaterType);
 			source.setDuration(duration);
-//			the following isn't really correct (not a srcGen, but rather a src)
+			//			the following isn't really correct (not a srcGen, but rather a src)
 			aFaultSourceGenerators.add(source);
 			allSources.add(source);
 			aFaultSummedMFD.addIncrementalMagFreqDist(source.getMagFreqDist());   		
 		}
 		reCalcA_Faults=false;
 	}
-	
+
 	/**
 	 * Get the Types of floaters desired
 	 * @param floaterType - FULL_DDW_FLOATER (0) = only along strike ( rupture full DDW); 
@@ -1283,10 +1283,10 @@ public class UCERF2 extends EqkRupForecast {
 		double meanMagCorrection = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
 		double minMagGR = ((Double) bFaultsMinMagParam.getValue()).doubleValue();
 		double bValue = ((Double) bFaultB_ValParam.getValue()).doubleValue();
-//		this gets a list of FaultSegmentData objects (one for each B fault, and for the deformation model previously set)
+		//		this gets a list of FaultSegmentData objects (one for each B fault, and for the deformation model previously set)
 		ArrayList bFaultSegmentData = bFaultsFetcher.getFaultSegmentDataList(isAseisReducesArea);
-//		ArrayList B_faultCharMFDs = new ArrayList();
-//		ArrayList B_faultGR_MFDs = new ArrayList();
+		//		ArrayList B_faultCharMFDs = new ArrayList();
+		//		ArrayList B_faultGR_MFDs = new ArrayList();
 		bFaultCharSummedMFD= new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 		bFaultGR_SummedMFD= new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 		int floaterType = getFloaterType();
@@ -1301,9 +1301,9 @@ public class UCERF2 extends EqkRupForecast {
 			//FileWriter fw2 = new FileWriter("B_GR_Temp.txt");
 			for(int i=0; i<bFaultSegmentData.size(); ++i) {
 				FaultSegmentData segmentData = (FaultSegmentData)bFaultSegmentData.get(i);
-//				Fixes no longer used
-//				fixMag = bFaultFixes.getMag(segmentData.getFaultName());
-//				fixRate = bFaultFixes.getRate(segmentData.getFaultName());
+				//				Fixes no longer used
+				//				fixMag = bFaultFixes.getMag(segmentData.getFaultName());
+				//				fixRate = bFaultFixes.getRate(segmentData.getFaultName());
 				fixMag = Double.NaN;
 				fixRate = Double.NaN;
 				//if(!Double.isNaN(fixMag)) {
@@ -1315,7 +1315,7 @@ public class UCERF2 extends EqkRupForecast {
 						segmentData.getFaultName().equals("Brawley (Seismic Zone), alt 2") ||
 						segmentData.getFaultName().equals("Carson Range (Genoa)") ||
 						segmentData.getFaultName().equals("Antelope Valley")) {
-//					System.out.println(segmentData.getFaultName());
+					//					System.out.println(segmentData.getFaultName());
 					continue;
 				}
 				UnsegmentedSource source = new UnsegmentedSource( segmentData,  magAreaRel, 
@@ -1334,7 +1334,7 @@ public class UCERF2 extends EqkRupForecast {
 					//fw2.write(segmentData.getFaultName()+";"+(float)grMagFreqDist.getCumRate(6.5)+"\n");
 				}
 			}
-			
+
 			reCalcB_Faults=false;
 			//fw1.close();
 			//fw2.close();
@@ -1342,7 +1342,7 @@ public class UCERF2 extends EqkRupForecast {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void mkNonCA_B_FaultSources() {
 		double magSigma  = ((Double) magSigmaParam.getValue()).doubleValue();
 		double magTruncLevel = ((Double) truncLevelParam.getValue()).doubleValue();
@@ -1356,9 +1356,9 @@ public class UCERF2 extends EqkRupForecast {
 		allSources.addAll(sources);
 		nonCA_B_FaultsSummedMFD = fetcher.getSummedMFD();
 		reCalcNonCA_B_Fauts=false;
-//System.out.println("Non CA B-Faults");
-//for(int i=0; i <nonCA_bFaultSources.size(); i++)
-//	System.out.println(nonCA_bFaultSources.get(i).getName());
+		//System.out.println("Non CA B-Faults");
+		//for(int i=0; i <nonCA_bFaultSources.size(); i++)
+		//	System.out.println(nonCA_bFaultSources.get(i).getName());
 	}
 
 
@@ -1373,7 +1373,7 @@ public class UCERF2 extends EqkRupForecast {
 		return this.aFaultSourceGenerators;
 	}
 
-	
+
 	/**
 	 * Get a List of Non-CA b Fault sources 
 	 * 
@@ -1403,10 +1403,10 @@ public class UCERF2 extends EqkRupForecast {
 		ArrayList sourceList = new ArrayList();
 		sourceList.addAll(allSources);
 
-		
+
 		boolean isBackground = backSeisParam.getValue().equals(UCERF2.BACK_SEIS_INCLUDE) ||
-				backSeisParam.getValue().equals(UCERF2.BACK_SEIS_ONLY);
-		
+		backSeisParam.getValue().equals(UCERF2.BACK_SEIS_ONLY);
+
 		if( isBackground &&
 				this.backSeisRupParam.getValue().equals(UCERF2.BACK_SEIS_RUP_CROSSHAIR))
 			sourceList.addAll(nshmp_gridSrcGen.getAllCrosshairGriddedSources(timeSpan.getDuration()));
@@ -1436,8 +1436,8 @@ public class UCERF2 extends EqkRupForecast {
 		ArrayList<EvenlyDiscretizedFunc> obsCumMFD = getObsCumMFD(includeAfterShocks);
 		return getIncrFromCumMFD(obsCumMFD);
 	}
-	
-	
+
+
 	/**
 	 * Get observed incremental MFD for No Cal region
 	 * @return
@@ -1466,7 +1466,7 @@ public class UCERF2 extends EqkRupForecast {
 		for(int i=0; i<1; ++i) {
 			EvenlyDiscretizedFunc cumMFD = obsCumMFD.get(i);
 			ArbIncrementalMagFreqDist arbIncrMFD = new ArbIncrementalMagFreqDist(cumMFD.getMinX()+UCERF2.DELTA_MAG, cumMFD.getMaxX()-UCERF2.DELTA_MAG, 24);
-//			System.out.println("deltaMag="+arbIncrMFD.getDelta()+"  "+arbIncrMFD.getMinX()+"  "+arbIncrMFD.getMaxX());
+			//			System.out.println("deltaMag="+arbIncrMFD.getDelta()+"  "+arbIncrMFD.getMinX()+"  "+arbIncrMFD.getMaxX());
 			arbIncrMFD.setCumRateDist(cumMFD);
 			ArbitrarilyDiscretizedFunc arbDiscFun = new ArbitrarilyDiscretizedFunc();
 			arbDiscFun.set(5.1, arbIncrMFD.getY(5.1));
@@ -1480,7 +1480,7 @@ public class UCERF2 extends EqkRupForecast {
 		return obsIncrMFDList;
 	}
 
-	
+
 	/**
 	 * This returns an ArrayList of EvenlyDiscretizedFunc that have cumulative 
 	 * MFD for Karen Felzer's observed MFD in NoCal Polygon 
@@ -1512,8 +1512,8 @@ public class UCERF2 extends EqkRupForecast {
 		obsCumList.add(obsCumHighMFD);
 		return obsCumList;
 	}
-	
-	
+
+
 	/**
 	 * This returns an ArrayList of EvenlyDiscretizedFunc that have cumulative 
 	 * MFD for Karen Felzer's observed MFD in SoCal Polygon 
@@ -1609,8 +1609,8 @@ public class UCERF2 extends EqkRupForecast {
 		return obsCumList;
 	}
 
-	
-	
+
+
 	/**
 	 * Note that it calculates the WG02 region by including the complete San Gregorio
 	 * 
@@ -1625,11 +1625,11 @@ public class UCERF2 extends EqkRupForecast {
 			double minMag = magProbDist.getX(i);
 			for(int srcIndex=0; srcIndex < bFaultSources.size(); srcIndex++)
 				prob *= getProbForUnsegmentedSrc(bFaultSources.get(srcIndex), 
-						 minMag,  region);
+						minMag,  region);
 			magProbDist.set(i, 1.0 - prob);
 		}
 	}
-	
+
 	/**
 	 * Get Probability for unsegmented source. Region does not matter if it WG02 region
 	 * and faultName is San Gregorio
@@ -1648,7 +1648,7 @@ public class UCERF2 extends EqkRupForecast {
 		else return 1-segmentedSrcGenerator.getApproxTotFaultProb(minMag, region);
 
 	}
-	
+
 	/**
 	 * Get Probability for unsegmented source. Region does not matter if it WG02 region
 	 * and faultName is San Gregorio
@@ -1667,7 +1667,7 @@ public class UCERF2 extends EqkRupForecast {
 		else return 1-unsegmentedSrc.computeApproxTotalProbAbove(minMag, region);
 
 	}
-	
+
 	/**
 	 * Get Probs for a particular B-Fault
 	 * 
@@ -1690,7 +1690,7 @@ public class UCERF2 extends EqkRupForecast {
 			}
 		}
 	}
-	
+
 
 	public void getTotal_NonCA_B_FaultsProb(DiscretizedFuncAPI magProbDist, Region region) {
 		int numMags = magProbDist.getNum();
@@ -1702,7 +1702,7 @@ public class UCERF2 extends EqkRupForecast {
 			magProbDist.set(i, 1.0-prob);
 		}
 	}
-	
+
 	/**
 	 * Note that it calculates the WG02 region by including the complete N. San Andreas
 	 * 
@@ -1727,7 +1727,7 @@ public class UCERF2 extends EqkRupForecast {
 			magProbDist.set(i, 1.0-prob);
 		}
 	}
-	
+
 	/**
 	 * Note that it calculates the WG02 region by including the complete N. San Andreas
 	 * 
@@ -1749,13 +1749,13 @@ public class UCERF2 extends EqkRupForecast {
 					}
 					break;
 				}
-					
+
 			}
 			else  { // Unsegmented source
 				UnsegmentedSource unsegmentedSrc = (UnsegmentedSource)source;
 				if(aFaultName.equalsIgnoreCase("San Jacinto")) {
-					DiscretizedFuncAPI sj1 = magProbDist.deepClone();
-					DiscretizedFuncAPI sj2 = magProbDist.deepClone();
+					DiscretizedFuncAPI sj1 = (DiscretizedFuncAPI)magProbDist.deepClone();
+					DiscretizedFuncAPI sj2 = (DiscretizedFuncAPI)magProbDist.deepClone();
 					getProbForA_Fault("San Jacinto (SB to C)", sj1, region);
 					getProbForA_Fault("San Jacinto (CC to SM)", sj2, region);
 					for(int i=0; i<numMags; ++i) {
@@ -1779,8 +1779,8 @@ public class UCERF2 extends EqkRupForecast {
 	// this assumes not time dependence
 	public void getTotal_BackgroundProb(DiscretizedFuncAPI magProbDist, Region region) {
 		int numMags = magProbDist.getNum();
-//		boolean applyBulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
-//		boolean applyMaxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
+		//		boolean applyBulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
+		//		boolean applyMaxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
 		IncrementalMagFreqDist incrMFD= this.nshmp_gridSrcGen.getTotMFDForRegion(region, false, true, true, true);
 		for(int i=0; i<numMags; ++i) {
 			double minMag = magProbDist.getX(i);
@@ -1790,13 +1790,13 @@ public class UCERF2 extends EqkRupForecast {
 		}
 	}
 
-	
+
 
 	// this assumes not time dependence
 	public void getTotal_BackgroundMFD(DiscretizedFuncAPI magFreqDist, Region region) {
 		int numMags = magFreqDist.getNum();
-//		boolean applyBulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
-//		boolean applyMaxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
+		//		boolean applyBulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
+		//		boolean applyMaxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
 		IncrementalMagFreqDist incrMFD= this.nshmp_gridSrcGen.getTotMFDForRegion(region, false, true, true, true);
 		for(int i=0; i<numMags; ++i) {
 			double minMag = magFreqDist.getX(i);
@@ -1820,18 +1820,18 @@ public class UCERF2 extends EqkRupForecast {
 
 	public void getTotalProb(DiscretizedFuncAPI magProbDist, Region region) {
 		int numMags = magProbDist.getNum();
-		DiscretizedFuncAPI bFaultsProbDist = magProbDist.deepClone();
-		DiscretizedFuncAPI nonCA_B_FaultsProbDist = magProbDist.deepClone();
-		DiscretizedFuncAPI aFaultsProbDist = magProbDist.deepClone();
-		DiscretizedFuncAPI bckProbDist = magProbDist.deepClone();
-		DiscretizedFuncAPI cZoneProbDist = magProbDist.deepClone();
-		
+		DiscretizedFuncAPI bFaultsProbDist = (DiscretizedFuncAPI)magProbDist.deepClone();
+		DiscretizedFuncAPI nonCA_B_FaultsProbDist = (DiscretizedFuncAPI)magProbDist.deepClone();
+		DiscretizedFuncAPI aFaultsProbDist = (DiscretizedFuncAPI)magProbDist.deepClone();
+		DiscretizedFuncAPI bckProbDist = (DiscretizedFuncAPI)magProbDist.deepClone();
+		DiscretizedFuncAPI cZoneProbDist = (DiscretizedFuncAPI)magProbDist.deepClone();
+
 		getTotal_B_FaultsProb(bFaultsProbDist, region);
 		getTotal_NonCA_B_FaultsProb(nonCA_B_FaultsProbDist, region);
 		getTotal_A_FaultsProb(aFaultsProbDist, region);
 		getTotal_BackgroundProb(bckProbDist, region);
 		getTotal_C_ZoneProb(cZoneProbDist, region);
-		
+
 		for(int i=0; i<numMags; ++i) {
 			double prob = 1;
 			prob *= 1-bFaultsProbDist.getY(i);
@@ -1842,7 +1842,7 @@ public class UCERF2 extends EqkRupForecast {
 			magProbDist.set(i, 1.0-prob);
 		}
 	}
-	
+
 
 
 	public IncrementalMagFreqDist getTotal_B_FaultsCharMFD() {
@@ -1858,7 +1858,7 @@ public class UCERF2 extends EqkRupForecast {
 	public IncrementalMagFreqDist getTotal_NonCA_B_FaultsMFD() {
 		return this.nonCA_B_FaultsSummedMFD;
 	}
-	
+
 	public IncrementalMagFreqDist getTotal_A_FaultsMFD() {
 		return this.aFaultSummedMFD;
 	}
@@ -1962,7 +1962,7 @@ public class UCERF2 extends EqkRupForecast {
 		Iterator it = this.aFaultSourceGenerators.iterator();
 		while(it.hasNext()) {
 			A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator)it.next();
-//			System.out.println(source.getName()+"  "+ source.getTotalAPrioriRate()+"  "+(source.getTotalAPrioriRate() > 0.0));
+			//			System.out.println(source.getName()+"  "+ source.getTotalAPrioriRate()+"  "+(source.getTotalAPrioriRate() > 0.0));
 			if(source.getTotalAPrioriRate() > 0.0) // filter out any bogus models (i.e., a-priori models not yet avail)
 				nonNorm_aPrioriRateError+=source.getNonNormA_PrioriModelError();
 		}
@@ -1970,7 +1970,7 @@ public class UCERF2 extends EqkRupForecast {
 	}
 
 
-	
+
 
 	/**
 	 * update the forecast
@@ -2030,7 +2030,7 @@ public class UCERF2 extends EqkRupForecast {
 		/* */
 		//System.out.println("Creating B Fault sources");
 		mkB_FaultSources();
-		
+
 		mkNonCA_B_FaultSources();
 
 		//System.out.println("Creating C Zone Fault sources");
@@ -2158,7 +2158,7 @@ public class UCERF2 extends EqkRupForecast {
 		}else if(paramName.equalsIgnoreCase(this.APERIODICITY_PARAM_NAME)) {
 			this.reCalcA_Faults = true;
 		}*/
-		
+
 		if(paramName.equalsIgnoreCase(SET_FOR_BCK_PARAM_NAME) ||
 				paramName.equalsIgnoreCase(SEG_DEP_APERIODICITY_PARAM_NAME) ||
 				paramName.equalsIgnoreCase(BACK_SEIS_NAME)) {
@@ -2172,7 +2172,7 @@ public class UCERF2 extends EqkRupForecast {
 			this.updateA_FaultsFetcher = true;
 		} else if(paramName.equalsIgnoreCase(CONNECT_B_FAULTS_PARAM_NAME)) { // whether more B-Faults need to be connected
 			//bFaultsFetcher.setDeformationModel( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), 
-				//	getSelectedDeformationModelSummary(), aFaultsFetcher);
+			//	getSelectedDeformationModelSummary(), aFaultsFetcher);
 			//bFaultsFetcher.test_writeFileAfterCombiningB_Faults();
 			this.updateB_FaultsFetcher = true;
 		} else if(paramName.equalsIgnoreCase(DEFORMATION_MODEL_PARAM_NAME)) { // if deformation model changes, update the files to be read
@@ -2189,11 +2189,11 @@ public class UCERF2 extends EqkRupForecast {
 	 * @param  event  The Event which triggered this function call
 	 */
 	public void timeSpanChange(EventObject event) {
-		
+
 		parameterChangeFlag = true;
-		
+
 	}
-	
+
 
 	/**
 	 * Update fetchers based on selected deformation model
@@ -2249,21 +2249,21 @@ public class UCERF2 extends EqkRupForecast {
 	 *  (the rates of 5 ruptures differed by 1e-4 when rounded to nearest 1e-4).
 	 */
 	private void makeMatlabNNLS_testScript() {
-//		throw new RuntimeException ("Method unsupported exception");
+		//		throw new RuntimeException ("Method unsupported exception");
 		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
-//		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
+		//		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
 		for(int imag=0; imag<magAreaOptions.size();imag++)
-//			for(int irup=0; irup<rupModelOptions.size();irup++)
+			//			for(int irup=0; irup<rupModelOptions.size();irup++)
 			for(int islip=0; islip<slipModelOptions.size();islip++) {
 				magAreaRelParam.setValue((String)magAreaOptions.get(imag));
-//				rupModelParam.setValue(rupModelOptions.get(irup));
+				//				rupModelParam.setValue(rupModelOptions.get(irup));
 				slipModelParam.setValue((String)slipModelOptions.get(islip));
 				System.out.println("% "+magAreaOptions.get(imag)+
-//						"\n% " + rupModelOptions.get(irup) +
+						//						"\n% " + rupModelOptions.get(irup) +
 						"\n% " + slipModelOptions.get(islip));
 				System.out.println("display CASE_"+imag+"_"+islip);
-//				System.out.println("display CASE_"+imag+"_"+irup+"_"+islip);
+				//				System.out.println("display CASE_"+imag+"_"+irup+"_"+islip);
 				mkA_FaultSegmentedSources();
 			}
 	}
@@ -2281,16 +2281,16 @@ public class UCERF2 extends EqkRupForecast {
 		int nrup = nsaf_src_gen.getNumRupSources();
 		double[] wg02_probs = new double[nrup];
 		for(int r=0;r<nrup;r++) wg02_probs[r] = nsaf_src_gen.getRupSourceProb(r);
-		
+
 		double[] timePredProbs = nsaf_src_gen.tryTimePredProbs(30,2007,0.5);
-		
+
 		System.out.println("wg02_probs\ttimePredProbs\twg02_probs/timePredProbs");
 		for(int r=0;r<nrup;r++) {
 			System.out.println((float)wg02_probs[r]+"\t"+(float)timePredProbs[r]+"\t"+
 					(float)(wg02_probs[r]/timePredProbs[r])+"\t"+nsaf_src_gen.getLongRupName(r));
 		}	
 	}
-	
+
 	public static void simulateSSAF_events() {
 		UCERF2 erRateModel2_ERF = new UCERF2();
 		erRateModel2_ERF.setParamDefaults();
@@ -2307,7 +2307,7 @@ public class UCERF2 extends EqkRupForecast {
 	public static void main(String[] args) {
 		//testNSAF_TimePredProbs();
 		//simulateSSAF_events();
-		
+
 		UCERF2 erRateModel2_ERF = new UCERF2();
 		erRateModel2_ERF.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_POISSON);
 		erRateModel2_ERF.updateForecast();
@@ -2321,8 +2321,8 @@ public class UCERF2 extends EqkRupForecast {
 		}*/
 		//System.out.println(cumMFD.toString());
 		//System.out.println(cumMFD.toString());
-		
-		
+
+
 		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 	}
 }

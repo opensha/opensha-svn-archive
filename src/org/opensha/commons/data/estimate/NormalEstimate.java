@@ -19,7 +19,7 @@
 
 package org.opensha.commons.data.estimate;
 import org.opensha.commons.calc.GaussianDistCalc;
-import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 
 /**
@@ -240,7 +240,7 @@ public class NormalEstimate extends Estimate {
   *
   * @return
   */
-  public DiscretizedFunc getPDF_Test() {
+  public AbstractDiscretizedFunc getPDF_Test() {
     EvenlyDiscretizedFunc func = getEvenlyDiscretizedFunc();
     double deltaX = func.getDelta();
     int numPoints = func.getNum();
@@ -270,7 +270,7 @@ public class NormalEstimate extends Estimate {
    * Get the cumulative distribution function
    * @return
    */
-  public DiscretizedFunc getCDF_Test() {
+  public AbstractDiscretizedFunc getCDF_Test() {
     EvenlyDiscretizedFunc func = getEvenlyDiscretizedFunc();
     int numPoints = func.getNum();
     for(int i=0; i<numPoints; ++i)

@@ -32,7 +32,7 @@ import javax.swing.JTextArea;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.exceptions.ConstraintException;
-import org.opensha.commons.exceptions.DataPoint2DException;
+import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.param.EvenlyDiscretizedFuncParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
@@ -341,7 +341,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
         }catch(NumberFormatException ex){
           JOptionPane.showMessageDialog(this, Y_VALID_MSG);
           return;
-        }catch(DataPoint2DException ex) {
+        }catch(Point2DException ex) {
            JOptionPane.showMessageDialog(this, INCORRECT_NUM_Y_VALS);
            return;
         }

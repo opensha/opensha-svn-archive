@@ -19,7 +19,7 @@
 
 package org.opensha.commons.data.estimate;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 
 /**
  * <p>Title: Estimate.java </p>
@@ -172,7 +172,7 @@ public abstract class Estimate {
     *
     * @return
     */
-   public DiscretizedFunc getPDF_Test() {
+   public AbstractDiscretizedFunc getPDF_Test() {
     throw new java.lang.UnsupportedOperationException("Method getPDF_Test() not supported");
   }
 
@@ -183,7 +183,7 @@ public abstract class Estimate {
     *
     * @return
     */
-   public DiscretizedFunc getCDF_Test() {
+   public AbstractDiscretizedFunc getCDF_Test() {
     throw new java.lang.UnsupportedOperationException("Method getCDF_Test() not supported");
   }
 
@@ -208,7 +208,7 @@ public abstract class Estimate {
    *
    * @return
    */
-  public  DiscretizedFunc getCDF_TestUsingFractile() {
+  public  AbstractDiscretizedFunc getCDF_TestUsingFractile() {
     ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
     //discretize the Y values
     double minProb = 0.00001;

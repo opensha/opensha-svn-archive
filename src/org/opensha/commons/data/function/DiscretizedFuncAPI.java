@@ -23,7 +23,7 @@ import java.awt.geom.Point2D;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import org.opensha.commons.exceptions.DataPoint2DException;
+import org.opensha.commons.exceptions.Point2DException;
 
 /**
  * <b>Title:</b> DiscretizedFuncAPI<p>

@@ -20,7 +20,7 @@
 package org.opensha.commons.data.estimate;
 
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
-import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 /**
  * <p>Title: DiscreteValueEstimate.java </p>
  * <p>Description:  This can be used to specify probabilities associated with
@@ -37,7 +37,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 
 public abstract class DiscretizedFuncEstimate extends Estimate {
   protected ArbDiscrEmpiricalDistFunc func=null;
-  protected DiscretizedFunc cumDistFunc = null;
+  protected AbstractDiscretizedFunc cumDistFunc = null;
 
   // tolerance for checking normalization
   protected double tol = 1e-6;
@@ -50,7 +50,7 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
    * passed in.
    * @param func
    */
-  public DiscretizedFuncEstimate(DiscretizedFunc func, boolean isNormalized) {
+  public DiscretizedFuncEstimate(AbstractDiscretizedFunc func, boolean isNormalized) {
     setValues(func, isNormalized);
   }
 
@@ -72,7 +72,7 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
    *
    * @param func
    */
-  public void setValues(DiscretizedFunc newFunc, boolean isNormalized) {
+  public void setValues(AbstractDiscretizedFunc newFunc, boolean isNormalized) {
 
 
     // Check normalization and value range
@@ -114,7 +114,7 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
    * get the values and corresponding probabilities from this estimate
    * @return
    */
-  public DiscretizedFunc getValues() {
+  public AbstractDiscretizedFunc getValues() {
     return func;
   }
 
@@ -175,7 +175,7 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
   * Get the function in which values are stored
   * @return
   */
- public DiscretizedFunc getFunc() { return this.func;}
+ public AbstractDiscretizedFunc getFunc() { return this.func;}
 
  /**
   * Get fractile for a given probability (the value where the CDF equals prob).

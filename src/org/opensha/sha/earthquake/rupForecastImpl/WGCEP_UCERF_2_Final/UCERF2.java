@@ -1753,8 +1753,8 @@ public class UCERF2 extends EqkRupForecast {
 			else  { // Unsegmented source
 				UnsegmentedSource unsegmentedSrc = (UnsegmentedSource)source;
 				if(aFaultName.equalsIgnoreCase("San Jacinto")) {
-					DiscretizedFuncAPI sj1 = magProbDist.deepClone();
-					DiscretizedFuncAPI sj2 = magProbDist.deepClone();
+					DiscretizedFuncAPI sj1 = (DiscretizedFuncAPI)magProbDist.deepClone();
+					DiscretizedFuncAPI sj2 = (DiscretizedFuncAPI)magProbDist.deepClone();
 					getProbForA_Fault("San Jacinto (SB to C)", sj1, region);
 					getProbForA_Fault("San Jacinto (CC to SM)", sj2, region);
 					for(int i=0; i<numMags; ++i) {
@@ -1819,11 +1819,11 @@ public class UCERF2 extends EqkRupForecast {
 
 	public void getTotalProb(DiscretizedFuncAPI magProbDist, Region region) {
 		int numMags = magProbDist.getNum();
-		DiscretizedFuncAPI bFaultsProbDist = magProbDist.deepClone();
-		DiscretizedFuncAPI nonCA_B_FaultsProbDist = magProbDist.deepClone();
-		DiscretizedFuncAPI aFaultsProbDist = magProbDist.deepClone();
-		DiscretizedFuncAPI bckProbDist = magProbDist.deepClone();
-		DiscretizedFuncAPI cZoneProbDist = magProbDist.deepClone();
+		DiscretizedFuncAPI bFaultsProbDist = (DiscretizedFuncAPI)magProbDist.deepClone();
+		DiscretizedFuncAPI nonCA_B_FaultsProbDist = (DiscretizedFuncAPI)magProbDist.deepClone();
+		DiscretizedFuncAPI aFaultsProbDist = (DiscretizedFuncAPI)magProbDist.deepClone();
+		DiscretizedFuncAPI bckProbDist = (DiscretizedFuncAPI)magProbDist.deepClone();
+		DiscretizedFuncAPI cZoneProbDist = (DiscretizedFuncAPI)magProbDist.deepClone();
 		
 		getTotal_B_FaultsProb(bFaultsProbDist, region);
 		getTotal_NonCA_B_FaultsProb(nonCA_B_FaultsProbDist, region);
