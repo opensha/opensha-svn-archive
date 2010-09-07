@@ -72,18 +72,6 @@ public class XY_DataSet extends AbstractXY_DataSet {
 	}
 
 	@Override
-	public String getMetadataString() {
-		String meta = ClassUtils.getClassNameWithoutPackage(this.getClass()) + "\n";
-		meta += "name: " + getName() + "\n";
-		meta += "info: " + getInfo() + "\n";
-		meta += "values:" + "\n";
-		for (Point2D pt : points) {
-			meta += "\t"+(float)pt.getX() + ", " + (float)pt.getY();
-		}
-		return null;
-	}
-
-	@Override
 	public double getMinX() {
 		return xTracker.getMin();
 	}
@@ -146,5 +134,42 @@ public class XY_DataSet extends AbstractXY_DataSet {
 	public Element toXMLMetadata(Element root) {
 		throw new RuntimeException("not supported");
 	}
+	
+	/**
+	 * Standard java function, usually used for debugging, prints out
+	 * the state of the list, such as number of points, the value of each point, etc.
+	 * @return
+	 */
+	public String toString(){
+		StringBuffer b = new StringBuffer();
+		//Iterator it2 = this.getPointsIterator();
+
+		b.append("Name: " + getName() + '\n');
+		b.append("Num Points: " + getNum() + '\n');
+		b.append("Info: " + getInfo() + "\n\n");
+		b.append("X, Y Data:" + '\n');
+		b.append(getMetadataString()+ '\n');
+		return b.toString();
+	}
+	
+	/**
+	 *
+	 * @returns value of each point in the function in String format
+	 */
+	public String getMetadataString(){
+		StringBuffer b = new StringBuffer();
+		Iterator<Point2D> it2 = this.getPointsIterator();
+
+		while(it2.hasNext()){
+
+			Point2D point = (Point2D)it2.next();
+			double x = point.getX();
+			double y = point.getY();
+			b.append((float) x + "\t  " + (float) y + '\n');
+		}
+		return b.toString();
+	}
+
+
 
 }
