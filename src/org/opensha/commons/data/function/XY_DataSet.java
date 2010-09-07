@@ -3,11 +3,9 @@ package org.opensha.commons.data.function;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.ListIterator;
 
 import org.dom4j.Element;
 import org.opensha.commons.exceptions.Point2DException;
-import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 
 public class XY_DataSet extends AbstractXY_DataSet {
