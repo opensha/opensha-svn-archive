@@ -57,8 +57,8 @@ public class ScatterComparisonCreator {
 	
 	ArrayList<XYTextAnnotation> annotations = new ArrayList<XYTextAnnotation>();
 	
-	public ScatterComparisonCreator(DBAccess db, ArrayList<Integer> erfIDs, int rupVarScenarioID, int sgtVarID, int imTypeID) {
-		fetcher = new HazardCurveFetcher(db, erfIDs, rupVarScenarioID, sgtVarID, imTypeID);
+	public ScatterComparisonCreator(DBAccess db, int erfID, int rupVarScenarioID, int sgtVarID, int velModelID, int imTypeID) {
+		fetcher = new HazardCurveFetcher(db, erfID, rupVarScenarioID, sgtVarID, velModelID, imTypeID);
 		sites = fetcher.getCurveSites();
 	}
 	
@@ -180,10 +180,9 @@ public class ScatterComparisonCreator {
 		double val = 0.0;
 		
 		System.out.println("Creating Scatter Creator");
-		ArrayList<Integer> erfIDs = new ArrayList<Integer>();
-		erfIDs.add(34);
-		erfIDs.add(35);
-		ScatterComparisonCreator creator = new ScatterComparisonCreator(db, erfIDs, rupVarScenID, sgtVarID, imTypeID);
+		int erfID = 35;
+		int velModelID = 1;
+		ScatterComparisonCreator creator = new ScatterComparisonCreator(db, erfID, rupVarScenID, sgtVarID, velModelID, imTypeID);
 		
 		boolean two = true;
 		boolean ten = false;

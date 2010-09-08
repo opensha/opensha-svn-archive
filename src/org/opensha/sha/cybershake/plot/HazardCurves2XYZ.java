@@ -36,15 +36,15 @@ public class HazardCurves2XYZ {
 	
 	private ArrayList<Integer> siteTypeIDs;
 	
-	public HazardCurves2XYZ(DBAccess db, ArrayList<Integer> erfIDs, int rupVarScenarioID, int sgtVarID, int imTypeID) {
-		this(db, erfIDs, rupVarScenarioID, sgtVarID, imTypeID, null);
+	public HazardCurves2XYZ(DBAccess db, int erfID, int rupVarScenarioID, int sgtVarID, int velModelID, int imTypeID) {
+		this(db, erfID, rupVarScenarioID, sgtVarID, velModelID, imTypeID, null);
 	}
 	
-	public HazardCurves2XYZ(DBAccess db, ArrayList<Integer> erfIDs, int rupVarScenarioID, int sgtVarID, int imTypeID,
+	public HazardCurves2XYZ(DBAccess db, int erfID, int rupVarScenarioID, int sgtVarID, int velModelID, int imTypeID,
 			ArrayList<Integer> siteTypeIDs) {
 		this.db = db;
 		this.siteTypeIDs = siteTypeIDs;
-		fetcher = new HazardCurveFetcher(db, erfIDs, rupVarScenarioID, sgtVarID, imTypeID);
+		fetcher = new HazardCurveFetcher(db, erfID, rupVarScenarioID, sgtVarID, velModelID, imTypeID);
 	}
 	
 	public static void writeXYZ(String fileName, ArrayList<CybershakeSite> sites, ArrayList<Double> vals,
@@ -133,7 +133,7 @@ public class HazardCurves2XYZ {
 		}
 		
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
-		HazardCurves2XYZ xyz = new HazardCurves2XYZ(db, null, 3, 5, 21, typeIDs);
+		HazardCurves2XYZ xyz = new HazardCurves2XYZ(db, 35, 3, 5, 1, 21, typeIDs);
 		
 		boolean isProbAt_IML = false;
 		double level = 0.0004;

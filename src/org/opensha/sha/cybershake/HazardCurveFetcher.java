@@ -46,11 +46,19 @@ public class HazardCurveFetcher {
 	
 	ArrayList<CybershakeSite> allSites = null;
 	
-	public HazardCurveFetcher(DBAccess db, ArrayList<Integer> erfIDs, int rupVarScenarioID, int sgtVarID, int imTypeID) {
+	public HazardCurveFetcher(DBAccess db, int datasetID, int imTypeID) {
 		this.initDBConnections(db);
-		System.out.println("rupV: " + rupVarScenarioID + " sgtV: " + sgtVarID);
-		ids = curve2db.getAllHazardCurveIDs(erfIDs, rupVarScenarioID, sgtVarID, imTypeID);
-//		System.out.println("Got " + ids.size() + " IDs");
+		init(curve2db.getAllHazardCurveIDsForDataset(datasetID, imTypeID));
+	}
+	
+	public HazardCurveFetcher(DBAccess db, int erfID, int rupVarScenarioID, int sgtVarID, int velModelID, int imTypeID) {
+		this.initDBConnections(db);
+		System.out.println("rupV: " + rupVarScenarioID + " sgtV: " + sgtVarID + " velID: " + velModelID);
+		init(curve2db.getAllHazardCurveIDs(erfID, rupVarScenarioID, sgtVarID, velModelID, imTypeID));
+	}
+	
+	private void init(ArrayList<Integer> ids) {
+		this.ids = ids;
 		sites = new ArrayList<CybershakeSite>();
 		funcs = new ArrayList<DiscretizedFuncAPI>();
 		ArrayList<Integer> siteIDs = new ArrayList<Integer>();
@@ -65,7 +73,6 @@ public class HazardCurveFetcher {
 			DiscretizedFuncAPI curve = curve2db.getHazardCurve(id);
 			funcs.add(curve);
 		}
-//		System.out.println("Out of constructor!");
 	}
 	
 	private void initDBConnections(DBAccess db) {
@@ -145,10 +152,8 @@ public class HazardCurveFetcher {
 		
 		System.out.println("1");
 		
-		ArrayList<Integer> erfIDs = new ArrayList<Integer>();
-		erfIDs.add(34);
-		erfIDs.add(35);
-		HazardCurveFetcher fetcher = new HazardCurveFetcher(db, erfIDs, 3, 5, 21);
+		int erfID = 35;
+		HazardCurveFetcher fetcher = new HazardCurveFetcher(db, erfID, 3, 5, 1, 21);
 		
 		System.out.println("2");
 		

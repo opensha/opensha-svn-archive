@@ -52,10 +52,10 @@ public class HazardMapScatterCreator {
 	
 	HazardCurveFetcher fetcher;
 	
-	public HazardMapScatterCreator(DBAccess db, ArrayList<Integer> erfIDs, int rupVarScenarioID, int sgtVarID, int imTypeID, CPT cpt, boolean isProbAt_IML, double val) {
+	public HazardMapScatterCreator(DBAccess db, int erfID, int rupVarScenarioID, int sgtVarID, int velModelID, int imTypeID, CPT cpt, boolean isProbAt_IML, double val) {
 		this.cpt = cpt;
 		
-		fetcher = new HazardCurveFetcher(db, erfIDs, rupVarScenarioID, sgtVarID, imTypeID);
+		fetcher = new HazardCurveFetcher(db, erfID, rupVarScenarioID, sgtVarID, velModelID, imTypeID);
 		sites = fetcher.getCurveSites();
 		funcs = fetcher.getFuncs();
 		
@@ -391,6 +391,8 @@ public class HazardMapScatterCreator {
 			int imTypeID = Integer.parseInt(args[3]);
 			System.out.println("IM Type ID: " + imTypeID);
 			
+			int velModelID = 1;
+			
 			boolean isProbAt_IML = false;
 			double val = 0.0004;
 			
@@ -403,7 +405,10 @@ public class HazardMapScatterCreator {
 				System.out.println("ERF ID: " + idInt);
 			}
 			
-			HazardMapScatterCreator map = new HazardMapScatterCreator(db, erfIDs, rupVarScenID, sgtVarID, imTypeID, cpt, isProbAt_IML, val);
+			if (erfIDs.size() > 1)
+				throw new RuntimeException("ERF IDs must now just be single");
+			
+			HazardMapScatterCreator map = new HazardMapScatterCreator(db, erfIDs.get(0), rupVarScenID, sgtVarID, velModelID, imTypeID, cpt, isProbAt_IML, val);
 			
 //		map.addComparison("CB 2008", "/home/kevin/CyberShake/scatterMap/base_cb.txt");
 //		map.addComparison("BA 2008", "/home/kevin/CyberShake/scatterMap/base_ba.txt");

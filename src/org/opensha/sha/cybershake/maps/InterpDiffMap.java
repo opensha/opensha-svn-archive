@@ -11,8 +11,8 @@ public class InterpDiffMap extends GMT_Map {
 	
 	public enum InterpDiffMapType {
 		BASEMAP("basemap", null),
-		INTERP_MARKS("interpolated", null),
-		INTERP_NOMARKS("interpolated_marks", Color.WHITE),
+		INTERP_NOMARKS("interpolated", null),
+		INTERP_MARKS("interpolated_marks", Color.WHITE),
 		DIFF("diff", Color.BLACK);
 		
 		private String prefix;

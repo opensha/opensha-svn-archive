@@ -28,6 +28,7 @@ import java.util.Date;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.sha.cybershake.gui.BatchSiteAddGUI.CybershakeCutoffSite;
 
 public class HazardCurve2DB {
 	
@@ -36,59 +37,27 @@ public class HazardCurve2DB {
 	private DBAccess dbaccess;
 	private Runs2DB runs2db;
 	private HazardDataset2DB hd2db;
+	private CybershakeSiteInfo2DB sites2db;
 	
 	public HazardCurve2DB(DBAccess dbaccess){
 		this.dbaccess = dbaccess;
 		runs2db = new Runs2DB(dbaccess);
 		hd2db = new HazardDataset2DB(dbaccess);
+		sites2db = new CybershakeSiteInfo2DB(dbaccess);
 	}
 	
-	public ArrayList<Integer> getAllHazardCurveIDs(int erfID, int rupVarScenarioID, int sgtVarID, int imTypeID) {
-		ArrayList<Integer> erfIDs = new ArrayList<Integer>();
-		erfIDs.add(erfID);
+	public ArrayList<Integer> getAllHazardCurveIDs(int erfID, int rupVarScenarioID, int sgtVarID,
+			int velModelID, int imTypeID) {
+		int probModelID = hd2db.getDefaultProbModelID(erfID);
+		int timeSpanID = hd2db.getDefaultTimeSpanID(erfID);
+		Date timeSpanStart = null; // TODO this might need to be changed
+		int datasetID = hd2db.getDatasetID(erfID, rupVarScenarioID, sgtVarID, velModelID,
+					probModelID, timeSpanID, timeSpanStart);
 		
-		return this.getAllHazardCurveIDs(erfIDs, rupVarScenarioID, sgtVarID, imTypeID);
-	}
-	
-	public ArrayList<Integer> getAllHazardCurveIDs(ArrayList<Integer> erfIDs, int rupVarScenarioID, int sgtVarID, int imTypeID) {
-		ArrayList<Integer> curveIDs = new ArrayList<Integer>();
-		ArrayList<Integer> runIDs = new ArrayList<Integer>();
+		if (datasetID < 0)
+			throw new RuntimeException("Hazard Dataset ID could not be loaded from the DB!");
 		
-//		System.out.println("1");
-		
-		if (erfIDs == null) {
-			ArrayList<Integer> newIDs = runs2db.getRunIDs(-1, -1, sgtVarID, rupVarScenarioID, null, null, null, null);
-			if (newIDs != null && newIDs.size() > 0)
-				runIDs.addAll(newIDs);
-		} else {
-			for (int erfID : erfIDs) {
-				ArrayList<Integer> newIDs = runs2db.getRunIDs(-1, erfID, sgtVarID, rupVarScenarioID, null, null, null, null);
-				if (newIDs != null && newIDs.size() > 0)
-					runIDs.addAll(newIDs);
-			}
-		}
-		
-//		System.out.println("2");
-		ArrayList<CybershakeHazardCurveRecord> records = getAllHazardCurveRecords();
-		
-		for (CybershakeHazardCurveRecord record : records) {
-			int typeID = record.getImTypeID();
-			if ((typeID < 0 || typeID == imTypeID) && runIDs.contains(record.getRunID())) {
-				curveIDs.add(record.getCurveID());
-			}
-		}
-//		System.out.println("3");
-		
-//		for (int runID : runIDs) {
-//			System.out.println("runID: " + runID);
-//			ArrayList<Integer> newIDs = getAllHazardCurveIDs(runID, imTypeID);
-//			if (newIDs != null && newIDs.size() > 0)
-//				curveIDs.addAll(newIDs);
-//		}
-//		
-//		System.out.println("4");
-		
-		return curveIDs;
+		return this.getAllHazardCurveIDsForDataset(datasetID, imTypeID);
 	}
 	
 	public ArrayList<CybershakeHazardCurveRecord> getHazardCurveRecordsForSite(int siteID) {
@@ -103,6 +72,12 @@ public class HazardCurve2DB {
 	
 	public ArrayList<CybershakeHazardCurveRecord> getHazardCurveRecordsForRun(int runID) {
 		String runWhere = "Run_ID=" + runID;
+		
+		return getAllHazardCurveRecords(runWhere);
+	}
+	
+	public ArrayList<CybershakeHazardCurveRecord> getHazardCurveRecordsForDataset(int datasetID) {
+		String runWhere = "Hazard_Dataset_ID=" + datasetID;
 		
 		return getAllHazardCurveRecords(runWhere);
 	}
@@ -138,8 +113,15 @@ public class HazardCurve2DB {
 				int runID = rs.getInt("Run_ID");
 				int imTypeID = rs.getInt("IM_Type_ID");
 				Date date = rs.getDate("Curve_Date");
+				String datasetStr = rs.getString("Hazard_Dataset_ID");
+				int dataset;
+				if (datasetStr == null || datasetStr.length() == 0 || datasetStr.toLowerCase().contains("null"))
+					dataset = -1;
+				else
+					dataset = Integer.parseInt(datasetStr);
 				
-				CybershakeHazardCurveRecord record = new CybershakeHazardCurveRecord(curveID, runID, imTypeID, date);
+				CybershakeHazardCurveRecord record =
+					new CybershakeHazardCurveRecord(curveID, runID, imTypeID, date, dataset);
 				curves.add(record);
 				
 				valid = rs.next();
@@ -153,11 +135,8 @@ public class HazardCurve2DB {
 		}
 	}
 	
-	public ArrayList<Integer> getAllHazardCurveIDs(int runID, int imTypeID) {
-		
-		String sql = "SELECT Hazard_Curve_ID FROM " + TABLE_NAME + " WHERE Run_ID=" + runID;
-		if (imTypeID >= 0)
-			sql += " AND IM_Type_ID=" + imTypeID; 
+	private ArrayList<Integer> getAllHazardCurveIDs(String whereClause) {
+		String sql = "SELECT Hazard_Curve_ID FROM " + TABLE_NAME + " " + whereClause;
 		sql += " ORDER BY Curve_Date desc";
 		
 //		System.out.println(sql);
@@ -195,6 +174,20 @@ public class HazardCurve2DB {
 //			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	public ArrayList<Integer> getAllHazardCurveIDsForDataset(int datasetID, int imTypeID) {
+		String whereClause = "WHERE Hazard_Dataset_ID=" + datasetID;
+		if (imTypeID >= 0)
+			whereClause += " AND IM_Type_ID=" + imTypeID; 
+		return getAllHazardCurveIDs(whereClause);
+	}
+	
+	public ArrayList<Integer> getAllHazardCurveIDs(int runID, int imTypeID) {
+		String whereClause = "WHERE Run_ID=" + runID;
+		if (imTypeID >= 0)
+			whereClause += " AND IM_Type_ID=" + imTypeID; 
+		return getAllHazardCurveIDs(whereClause);
 	}
 	
 	public ArrayList<Integer> getAllHazardCurveIDsForSite(int siteID, int erfID, int rupVarScenarioID, int sgtVarID) {
@@ -272,10 +265,23 @@ public class HazardCurve2DB {
 	}
 	
 	public int getHazardCurveID(int runID, int imTypeID) {
-		String sql = "SELECT Hazard_Curve_ID FROM " + TABLE_NAME + " WHERE Run_ID=" + runID + " AND IM_Type_ID=" + imTypeID
-					+ " ORDER BY Curve_Date desc";
+		return getHazardCurveID(runID, -1, imTypeID);
+	}
+	
+	public int getHazardCurveID(int runID, int datasetID, int imTypeID) {
+		if (datasetID < 0)
+			datasetID = hd2db.getDefaultDatasetID(runs2db.getRun(runID));
+		String whereClause = "WHERE Run_ID=" + runID + " AND IM_Type_ID=" + imTypeID
+				+ " AND Hazard_Dataset_ID="+datasetID;
 		
 //		System.out.println(sql);
+		
+		return getHazardCurveID(whereClause);
+	}
+	
+	private int getHazardCurveID(String whereClause) {
+		String sql = "SELECT Hazard_Curve_ID FROM " + TABLE_NAME + " " + whereClause;
+		sql += " ORDER BY Curve_Date desc";
 		
 		ResultSet rs = null;
 		try {
@@ -443,6 +449,55 @@ public class HazardCurve2DB {
 		return ptRows > 0 || idRows > 0;
 	}
 	
+	public boolean deleteCurvesForDatasetID(int datasetID) {
+		ArrayList<CybershakeHazardCurveRecord> records = getHazardCurveRecordsForDataset(datasetID);
+		
+		System.out.println("deleting "+records.size()+" curves!");
+		
+		boolean didSomething = false;
+		
+		for (CybershakeHazardCurveRecord record : records) {
+			didSomething = deleteHazardCurve(record.getCurveID()) || didSomething;
+		}
+		
+		return didSomething;
+	}
+	
+	public boolean deleteCurvesForDatasetID(int datasetID, int siteTypeID) {
+		ArrayList<CybershakeHazardCurveRecord> records = getHazardCurveRecordsForDataset(datasetID);
+		ArrayList<CybershakeRun> runs = runs2db.getRuns();
+		ArrayList<CybershakeSite> sites = sites2db.getAllSitesFromDB();
+		
+		System.out.println("deleting "+records.size()+" curves!");
+		
+		boolean didSomething = false;
+		
+		for (CybershakeHazardCurveRecord record : records) {
+			int myTypeID = getSiteTypeForCurve(record, runs, sites);
+			if (myTypeID == siteTypeID)
+				didSomething = deleteHazardCurve(record.getCurveID()) || didSomething;
+		}
+		
+		return didSomething;
+	}
+	
+	public int getSiteTypeForCurve(CybershakeHazardCurveRecord record) {
+		return getSiteTypeForCurve(record, runs2db.getRuns(), sites2db.getAllSitesFromDB());
+	}
+	
+	public int getSiteTypeForCurve(CybershakeHazardCurveRecord record,
+			ArrayList<CybershakeRun> runs, ArrayList<CybershakeSite> sites) {
+		for (CybershakeRun run : runs) {
+			if (run.getRunID() == record.getRunID()) {
+				for (CybershakeSite site : sites) {
+					if (site.id == run.getSiteID())
+						return site.type_id;
+				}
+			}
+		}
+		return -1;
+	}
+	
 	public int deleteHazardCurveID(int curveID) {
 		String sql = "DELETE FROM " + TABLE_NAME + " WHERE Hazard_Curve_ID=" + curveID;
 		System.out.println(sql);
@@ -491,8 +546,8 @@ public class HazardCurve2DB {
 	private int insertHazardCurveID(int runID, int imTypeID, int datasetID) {
 		
 		Date now = new Date();
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-		String date = format.format(now);
+		
+		String date = DBAccess.SQL_DATE_FORMAT.format(now);
 		
 		String dataset = "(null)";
 		if (datasetID > 0)
@@ -664,7 +719,7 @@ public class HazardCurve2DB {
 		
 		System.out.println(hazardFunc.toString());
 		
-		for (int id : hc.getAllHazardCurveIDs(34, 3, 5, 21)) {
+		for (int id : hc.getAllHazardCurveIDs(34, 3, 5, 1, 21)) {
 			System.out.println("Haz Curve For: " + id);
 		}
 		

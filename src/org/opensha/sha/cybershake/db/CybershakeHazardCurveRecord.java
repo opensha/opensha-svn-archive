@@ -27,12 +27,14 @@ public class CybershakeHazardCurveRecord implements Comparable<CybershakeHazardC
 	private int runID;
 	private int imTypeID;
 	private Date date;
+	private int datasetID;
 	
-	public CybershakeHazardCurveRecord(int curveID, int runID, int imTypeID, Date date) {
+	public CybershakeHazardCurveRecord(int curveID, int runID, int imTypeID, Date date, int datasetID) {
 		this.curveID = curveID;
 		this.runID = runID;
 		this.imTypeID = imTypeID;
 		this.date = date;
+		this.datasetID = datasetID;
 	}
 
 	public int getCurveID() {
@@ -45,6 +47,10 @@ public class CybershakeHazardCurveRecord implements Comparable<CybershakeHazardC
 
 	public int getImTypeID() {
 		return imTypeID;
+	}
+	
+	public int getDataSetID() {
+		return datasetID;
 	}
 
 	public Date getDate() {
@@ -60,6 +66,7 @@ public class CybershakeHazardCurveRecord implements Comparable<CybershakeHazardC
 	}
 
 	public String toString() {
-		return "curveID: " + curveID + ", runID: " + runID + ", imTypeID: " + imTypeID + ", date: " + date;
+		return "curveID: " + curveID + ", runID: " + runID + ", imTypeID: " + imTypeID
+				+ ", date: " + date + ", datasetID: " + datasetID;
 	}
 }

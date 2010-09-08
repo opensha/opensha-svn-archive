@@ -47,6 +47,9 @@ import org.opensha.commons.gui.UserAuthDialog;
  * modified by Vipin Gupta , Nitin Gupta
  */
 public class DBAccess implements Runnable{
+	
+	public static final SimpleDateFormat SQL_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+	
 	private boolean readOnly = false;
 	
     private Thread runner;
