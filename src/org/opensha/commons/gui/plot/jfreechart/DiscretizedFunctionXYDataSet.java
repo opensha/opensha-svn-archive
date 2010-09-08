@@ -404,7 +404,7 @@ public class DiscretizedFunctionXYDataSet extends AbstractXYDataset implements N
 		double x = ((Double)getXValue(series,item)).doubleValue();
 		XY_DataSetAPI dataset = functions.get( series );
 		if( dataset != null && dataset instanceof EvenlyDiscretizedFunc)
-			x = x - ((EvenlyDiscretizedFunc)dataset).getDelta()/2;
+			x = x + ((EvenlyDiscretizedFunc)dataset).getDelta()/2;
 		return x;
 	}
 
