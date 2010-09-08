@@ -79,7 +79,7 @@ public class FileUtils {
 	{
 		return loadFile(fileName, true);
 	}
-	
+
 	/**
 	 * Loads in each line to a text file into an ArrayList ( i.e. a vector ). Each
 	 * element in the ArrayList represents one line from the file.
@@ -232,7 +232,7 @@ public class FileUtils {
 		byte[] buffer = new byte[18024];
 
 		ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFile));
-		
+
 		if (dir.length() > 0 && !dir.endsWith(File.separator))
 			dir += File.separator;
 
@@ -333,7 +333,7 @@ public class FileUtils {
 		}catch(Exception e) { e.printStackTrace(); }
 		return null;
 	}
-	
+
 	public static File createTempDir() throws IOException {
 		File tempDir = File.createTempFile("openSHA", "temp");
 		tempDir.delete();
@@ -342,21 +342,43 @@ public class FileUtils {
 	}
 
 	/**
-	   * this method accepts the filename and loads the image from the jar file
-	   * @param fileName
-	   * @return
-	   */
-	  public static Image loadImage(String fileName) {
-	    String imageFileName = FileUtils.imagePath+fileName;
-	    java.net.URL url = FileUtils.class.getResource(imageFileName);
-	    Image img=Toolkit.getDefaultToolkit().getImage(url);
-	    return img;
-	  }
+	 * this method accepts the filename and loads the image from the jar file
+	 * @param fileName
+	 * @return
+	 */
+	public static Image loadImage(String fileName) {
+		String imageFileName = FileUtils.imagePath+fileName;
+		java.net.URL url = FileUtils.class.getResource(imageFileName);
+		Image img=Toolkit.getDefaultToolkit().getImage(url);
+		return img;
+	}
 
 	/**
-	   * this is the path where images will be put into
-	   */
-	  private static final String imagePath = "/resources/images/";
+	 * this is the path where images will be put into
+	 */
+	private static final String imagePath = "/resources/images/";
+	
+	public static void downloadURL(String addr, File outFile) throws IOException {
+		downloadURL(new URL(addr), outFile);
+	}
+
+	public static void downloadURL(URL url, File outFile) throws IOException {
+		System.out.println("Downloading " + url + " to " + outFile.getAbsolutePath());
+
+		InputStream in = url.openStream();         // throws an IOException
+
+		FileOutputStream out = new FileOutputStream(outFile);
+
+		byte[] buf = new byte[4 * 1024]; // 4K buffer
+		int bytesRead;
+		while ((bytesRead = in.read(buf)) > 0) {
+			out.write(buf, 0, bytesRead);
+		}
+		
+		in.close();
+		out.close();
+		System.out.println("DONE");
+	}
 
 }
 

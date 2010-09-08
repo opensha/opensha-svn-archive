@@ -8,31 +8,13 @@ import java.io.InputStream;
 import java.net.URL;
 
 import org.opensha.commons.exceptions.GMT_MapException;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.cybershake.bombay.ModProbConfig;
 import org.opensha.sha.cybershake.bombay.ModProbConfigFactory;
 import org.opensha.sha.cybershake.bombay.ScenarioBasedModProbConfig;
 import org.opensha.sha.cybershake.maps.InterpDiffMap.InterpDiffMapType;
 
 public class PosterImageGen {
-
-	private static void downloadURL(String addr, File outFile) throws IOException {
-		System.out.println("Downloading " + addr + " to " + outFile.getAbsolutePath());
-		URL u = new URL(addr);
-
-		InputStream in = u.openStream();         // throws an IOException
-
-		FileOutputStream out = new FileOutputStream(outFile);
-
-		byte[] buf = new byte[4 * 1024]; // 4K buffer
-		int bytesRead;
-		while ((bytesRead = in.read(buf)) > 0) {
-			out.write(buf, 0, bytesRead);
-		}
-		
-		in.close();
-		out.close();
-		System.out.println("DONE");
-	}
 
 	private static void saveCurves(String webAddr, String mainDir, String name, boolean base) throws IOException {
 		if (!webAddr.endsWith("/"))
@@ -41,11 +23,14 @@ public class PosterImageGen {
 			webAddr += "basemap";
 		else
 			webAddr += "interpolated";
-		webAddr += ".300.png";
+		String pngAddr = webAddr + ".300.png";
+		String psAddr = webAddr + ".ps";
 		
-		File outFile = new File(mainDir + File.separator + name + ".png");
+		File pngFile = new File(mainDir + File.separator + name + ".png");
+		File psFile = new File(mainDir + File.separator + name + ".ps");
 		
-		downloadURL(webAddr, outFile);
+		FileUtils.downloadURL(pngAddr, pngFile);
+		FileUtils.downloadURL(psAddr, psFile);
 	}
 
 	/**
@@ -60,10 +45,15 @@ public class PosterImageGen {
 		boolean isProbAt_IML = true;
 		double val = 0.2;
 		
+		boolean gainOnly = false;
+		
 		String baseMapName = "cb2008";
 		
 		Double normCustomMin = -8.259081006598409;
 		Double normCustomMax = -2.5;
+		
+		Double gainCustomMin = 0.0;
+		Double gainCustomMax = 2.2;
 		
 		String normLabel = "POE "+(float)val+"G 3sec SA in 1 day";
 		String gainLabel = "Probability Gain";
@@ -75,13 +65,15 @@ public class PosterImageGen {
 		try {
 			for (ModProbConfig config : ModProbConfigFactory.modProbConfigs.values()) {
 				String name = config.getName().replaceAll(" ", "");
-				String normAddr = 
-					HardCodedInterpDiffMapCreator.getMap(logPlot, imTypeID, normCustomMin, normCustomMax,
-							isProbAt_IML, val, baseMapName, config, false, normLabel);
-				saveCurves(normAddr, mainDir, name, false);
+				if (!gainOnly) {
+					String normAddr = 
+						HardCodedInterpDiffMapCreator.getMap(logPlot, imTypeID, normCustomMin, normCustomMax,
+								isProbAt_IML, val, baseMapName, config, false, normLabel);
+					saveCurves(normAddr, mainDir, name, false);
+				}
 				if (config instanceof ScenarioBasedModProbConfig) {
 					String gainAddr = 
-						HardCodedInterpDiffMapCreator.getMap(logPlot, imTypeID, null, null,
+						HardCodedInterpDiffMapCreator.getMap(logPlot, imTypeID, gainCustomMin, gainCustomMax,
 								isProbAt_IML, val, baseMapName, config, true, gainLabel);
 					saveCurves(gainAddr, mainDir, name+"_gain", false);
 				}
