@@ -9,11 +9,14 @@ import java.util.Collections;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
+import org.apache.commons.math.stat.correlation.PearsonsCorrelation;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.data.NamedObjectComparator;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.LocationVector;
@@ -142,6 +145,10 @@ public class General_EQSIM_Tools {
 			e1.printStackTrace();
 		}
 		loadFromEQSIMv04_GeometryLines(lines);
+	}
+	
+	public ArrayList<String> getSectionsNameList() {
+		return namesOfSections;
 	}
 
 	
@@ -807,14 +814,55 @@ public class General_EQSIM_Tools {
 	 * 
 	 * @return
 	 */
-	public ArbIncrementalMagFreqDist getMagFreqDist(double minMag, double maxMag, int numMag) {
+	public ArbIncrementalMagFreqDist computeMagFreqDist(double minMag, double maxMag, int numMag, boolean makePlot) {
 		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, maxMag, numMag);
 		
+		double simDurr = getSimulationDurationInYears();
 		for(EQSIM_Event event : eventList) {
-			mfd.addResampledMagRate(event.getMagnitude(), 1.0, true);
+			mfd.addResampledMagRate(event.getMagnitude(), 1.0/simDurr, true);
 		}
+		mfd.setName("Total MFD");
+		mfd.setInfo(" ");
+		
+		if(makePlot){
+			ArrayList<EvenlyDiscretizedFunc> mfdList = new ArrayList<EvenlyDiscretizedFunc>();
+			mfdList.add(mfd);
+			mfdList.add(mfd.getCumRateDistWithOffset());
+			mfdList.get(1).setName("Cumulative Distribution");
+			mfdList.get(1).setInfo(" ");
+			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfdList, "Mag Freq Dist");   
+		}
+
 		return mfd;
 	}
+	
+	/**
+	 * This returns a list of incremental MFDs reflecting the rates of nucleation (as a function of mag) on each fault section
+	 * @return
+	 */
+	public ArrayList<ArbIncrementalMagFreqDist> computeMagFreqDistByFaultSection(double minMag, double maxMag, int numMag, boolean makePlot) {
+		
+		ArrayList<ArbIncrementalMagFreqDist> mfdList = new ArrayList<ArbIncrementalMagFreqDist>();
+		for(int s=0; s<namesOfSections.size(); s++) {
+			ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, maxMag, numMag);
+			mfd.setName(namesOfSections.get(s)+" MFD");
+			mfd.setInfo(" ");
+			mfdList.add(mfd);
+		}
+		
+		double simDurr = getSimulationDurationInYears();
+		for(EQSIM_Event event : eventList) {
+			int sectionIndex = event.get(0).getSectionID()-1;	// nucleates on first (0th) event record, and index is one minus ID 
+			mfdList.get(sectionIndex).addResampledMagRate(event.getMagnitude(), 1.0/simDurr, true);
+		}
+		
+		if(makePlot){
+			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfdList, "Mag Freq Dists");   
+		}
+		
+		return mfdList;
+	}
+
 	
 	/**
 	 * This tells whether all events have data on the slip on each element
@@ -834,11 +882,11 @@ public class General_EQSIM_Tools {
 	
 	
 	
-	public void testTimePredictability(double magThresh) {
+	public void testTimePredictability(double magThresh, String fileName) {
 
-		FileWriter fw_timePred, fw_slipRates;
+		FileWriter fw_timePred;
 		try {
-			fw_timePred = new FileWriter("testTimePredFile");
+			fw_timePred = new FileWriter(fileName);
 
 			double[] lastTimeForElement = new double[rectElementsList.size()];
 			double[] lastSlipForElement = new double[rectElementsList.size()];
@@ -848,18 +896,30 @@ public class General_EQSIM_Tools {
 			int numBad=0;
 			double minElementArea = Double.MAX_VALUE;
 			double maxElementArea = 0;
+			int counter=-1;
 			
 			// write file header
-			fw_timePred.write("obsInterval\tpredInterval2\tnormRecurInterval2\taveLastSlip\taveSlip\teventMag+\n");
+			fw_timePred.write("counter\tobsInterval\ttpInterval1\tnorm_tpInterval1\ttpInterval2\tnorm_tpInterval2\t"+
+					"spInterval1\tnorm_spInterval1\tspInterval2\tnorm_spInterval2\t"+
+					"aveLastSlip\taveSlip\teventMag\teventID\tfirstSectionID\tnumSectionsInEvent\tsectionsInEventString\n");
 //			efw.write("obs\tpred\tnormRI\n");
 
 			// loop over all events
 			for(EQSIM_Event event:eventList) {
 				numEvents +=1;
 				double eventTime = event.getTime();
+/*				
+				// write out Berryessa event info
+				for(EventRecord evRec: event) {
+					if(evRec.getSectionID() == 6) {
+						System.out.println(event.getID()+"\t"+event.getMagnitude()+"\t"+(float)event.getTimeInYears()+"\t"+event.size());
+					}
+				}
+*/				
 				if(event.hasElementSlipsAndIDs() && event.getMagnitude() > magThresh) {
 					boolean goodSample = true;
 					double eventMag = event.getMagnitude();
+					String sectionsInEventString = new String();
 					ArrayList<Double> slipList = new ArrayList<Double>();
 					ArrayList<Integer> elementID_List = new ArrayList<Integer>();
 					// collect slip and ID data from all event records
@@ -867,10 +927,12 @@ public class General_EQSIM_Tools {
 						if(eventTime != evRec.getTime()) throw new RuntimeException("problem with event times");  // just a check
 						slipList.addAll(evRec.getElementSlipList());
 						elementID_List.addAll(evRec.getElementID_List());
+						sectionsInEventString += namesOfSections.get(evRec.getSectionID()-1) + " + ";
 					}
 					// get average date of last event and average predicted date of next
 					double aveLastEvTime=0;
-					double avePredNextEvTime=0;
+					double ave_tpNextEvTime=0;
+					double ave_spNextEvTime=0;
 					double aveSlipRate =0;
 					double aveLastSlip =0;
 					double aveSlip=0;
@@ -888,8 +950,10 @@ public class General_EQSIM_Tools {
 //							System.out.println("slip rate is zero for element "+index+"; last slip is "+lastSlip);
 //						}
 						aveLastEvTime += lastTime;
-						if(slipRate != 0)  // there are a few of these, and I don't know what else to do
-							avePredNextEvTime += lastTime + lastSlip/(slipRate/SECONDS_PER_YEAR);
+						if(slipRate != 0) {  // there are a few of these, and I don't know what else to do
+							ave_tpNextEvTime += lastTime + lastSlip/(slipRate/SECONDS_PER_YEAR);
+							ave_spNextEvTime += lastTime + slipList.get(e)/(slipRate/SECONDS_PER_YEAR);
+						}
 						aveSlipRate += slipRate/SECONDS_PER_YEAR;
 						aveLastSlip += lastSlip;
 						aveSlip += slipList.get(e);
@@ -900,18 +964,32 @@ public class General_EQSIM_Tools {
 						}
 					}
 					aveLastEvTime /= numElements;
-					avePredNextEvTime /= numElements;
+					ave_tpNextEvTime /= numElements;
+					ave_spNextEvTime /= numElements;
 					aveSlipRate /= numElements;
 					aveLastSlip /= numElements;
 					aveSlip /= numElements;
 					double obsInterval = (eventTime-aveLastEvTime)/SECONDS_PER_YEAR;
-					double predInterval1 = avePredNextEvTime-aveLastEvTime;
-					double predInterval2 = (aveLastSlip/aveSlipRate)/SECONDS_PER_YEAR;
-					double normRecurInterval = obsInterval/predInterval1;
-					double normRecurInterval2 = obsInterval/predInterval2;
+					double tpInterval1 = (ave_tpNextEvTime-aveLastEvTime)/SECONDS_PER_YEAR;
+					double tpInterval2 = (aveLastSlip/aveSlipRate)/SECONDS_PER_YEAR;
+					double spInterval1 = (ave_spNextEvTime-aveLastEvTime)/SECONDS_PER_YEAR;
+					double spInterval2 = (aveSlip/aveSlipRate)/SECONDS_PER_YEAR;
+					double norm_tpInterval1 = obsInterval/tpInterval1;
+					double norm_tpInterval2 = obsInterval/tpInterval2;
+					double norm_spInterval1 = obsInterval/spInterval1;
+					double norm_spInterval2 = obsInterval/spInterval2;
 					
 					if(goodSample) {
-						fw_timePred.write(obsInterval+"\t"+predInterval2+"\t"+(float)normRecurInterval2+"\t"+(float)aveLastSlip+"\t"+(float)aveSlip+"\t"+(float)eventMag+"\n");
+						counter += 1;
+						fw_timePred.write(counter+"\t"+obsInterval+"\t"+
+								tpInterval1+"\t"+(float)norm_tpInterval1+"\t"+
+								tpInterval2+"\t"+(float)norm_tpInterval2+"\t"+
+								spInterval1+"\t"+(float)norm_spInterval1+"\t"+
+								spInterval2+"\t"+(float)norm_spInterval2+"\t"+
+								(float)aveLastSlip+"\t"+(float)aveSlip+"\t"+
+								(float)eventMag+"\t"+event.getID()+"\t"+
+								event.get(0).getSectionID()+"\t"+
+								event.size()+"\t"+sectionsInEventString+"\n");
 					}
 					else {
 //						System.out.println("event "+ eventNum+" is bad");
@@ -976,55 +1054,76 @@ public class General_EQSIM_Tools {
 		}
 		System.out.println("maximum abs(eventMag-computedMag) ="+maxMagDiff);
 	}
+	
+	
+	/**
+	 * This computes the simulation duration from the times of the first and last event
+	 * @return
+	 */
+	public double getSimulationDurationInYears() {
+		double startTime=eventList.get(0).getTime();
+		double endTime=eventList.get(eventList.size()-1).getTime();
+		return (endTime-startTime)/SECONDS_PER_YEAR;
+	}
 
 	
-	public void checkElementSlipRates() {
+	/**
+	 * This compares observed slip rate (from events) with those imposed.
+	 * @param fileName - set as null to not write the data out.
+	 */
+	public void checkElementSlipRates(String fileName) {
 
 		FileWriter fw_slipRates;
-		try {
-			fw_slipRates = new FileWriter("testSlipRateFile");
-			double[] obsAveSlipRate = new double[rectElementsList.size()];
-			int[] numEvents = new int[rectElementsList.size()];
-			double startTime=eventList.get(0).getTime();
-			double endTime=eventList.get(eventList.size()-1).getTime();
-			double simDuration = (endTime-startTime)/SECONDS_PER_YEAR;
-			System.out.println("Duration of simulation is "+simDuration+" years");
-			int eventNum=0;
-			// loop over all events
-			for(EQSIM_Event event:eventList) {
-				eventNum++;
-				if(event.hasElementSlipsAndIDs()) {
-					ArrayList<Double> slipList = new ArrayList<Double>();
-					ArrayList<Integer> elementID_List = new ArrayList<Integer>();
-					// collect slip and ID data from all event records
-					for(EventRecord evRec: event) {
-						slipList.addAll(evRec.getElementSlipList());
-						elementID_List.addAll(evRec.getElementID_List());
-					}
-					int numElements = slipList.size();
-					for(int e=0;e<numElements;e++) {
-						int index = elementID_List.get(e).intValue() -1;
-						obsAveSlipRate[index] += slipList.get(e);
-						numEvents[index] += 1;
-//						if(eventNum ==3) System.out.println("Test: el_ID="+elementID_List.get(e).intValue()+"\tindex="+index+"\tslip="+slipList.get(e));
-					}
+		double[] obsAveSlipRate = new double[rectElementsList.size()];
+		double[] imposedSlipRate = new double[rectElementsList.size()];
+		int[] numEvents = new int[rectElementsList.size()];
+		int eventNum=0;
+		// loop over all events
+		for(EQSIM_Event event:eventList) {
+			eventNum++;
+			if(event.hasElementSlipsAndIDs()) {
+				ArrayList<Double> slipList = new ArrayList<Double>();
+				ArrayList<Integer> elementID_List = new ArrayList<Integer>();
+				// collect slip and ID data from all event records
+				for(EventRecord evRec: event) {
+					slipList.addAll(evRec.getElementSlipList());
+					elementID_List.addAll(evRec.getElementID_List());
+				}
+				int numElements = slipList.size();
+				for(int e=0;e<numElements;e++) {
+					int index = elementID_List.get(e).intValue() -1;
+					obsAveSlipRate[index] += slipList.get(e);
+					numEvents[index] += 1;
+					//						if(eventNum ==3) System.out.println("Test: el_ID="+elementID_List.get(e).intValue()+"\tindex="+index+"\tslip="+slipList.get(e));
 				}
 			}
-			fw_slipRates.write("obsSlipRate\timposedSlipRate\tdiff\tnumEvents\n");
-//			System.out.println(endTime+"\t"+startTime);
-			for(int i=0; i<obsAveSlipRate.length; i++) {
-				obsAveSlipRate[i] /= (endTime-startTime)/SECONDS_PER_YEAR;
-				double obsSlipRate = obsAveSlipRate[i];
-				double imposedSlipRate = rectElementsList.get(i).getSlipRate();
-				double diff = obsSlipRate-imposedSlipRate;
-				fw_slipRates.write(obsSlipRate+"\t"+imposedSlipRate+"\t"+diff+"\t"+numEvents[i]+"\n");
-			}
-			fw_slipRates.close();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
 		}
 
+		// finish obs and get imposed slip rates:
+		double simDurr = getSimulationDurationInYears();
+		for(int i=0; i<obsAveSlipRate.length; i++) {
+			obsAveSlipRate[i] /= simDurr;
+			imposedSlipRate[i] = rectElementsList.get(i).getSlipRate();
+		}
+
+		PearsonsCorrelation corrCalc = new PearsonsCorrelation();
+		double slipRateCorr = corrCalc.correlation(obsAveSlipRate, imposedSlipRate);
+		System.out.println("Correlation between obs and imposed slip rate = "+(float)slipRateCorr);
+
+		if(fileName != null) {
+			try {
+				fw_slipRates = new FileWriter(fileName);
+				fw_slipRates.write("obsSlipRate\timposedSlipRate\tdiff\tnumEvents\n");
+				//				System.out.println(endTime+"\t"+startTime);
+				for(int i=0; i<obsAveSlipRate.length; i++) {
+					double diff = obsAveSlipRate[i]-imposedSlipRate[i];
+					fw_slipRates.write(obsAveSlipRate[i]+"\t"+imposedSlipRate[i]+"\t"+diff+"\t"+numEvents[i]+"\n");
+				}
+				fw_slipRates.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
 	}
 
 
@@ -1037,25 +1136,82 @@ public class General_EQSIM_Tools {
 		long startTime=System.currentTimeMillis();
 		System.out.println("Starting");
 		
+		/*
+		// this is for analysis of the Ward Results:
+		String fullPath = "org/opensha/sha/simulators/eqsim_v04/WardsInputFile/test.txt";
+		// I had to rename the file "NCAL(9/1/10)-elements.dat.txt" to test.txt to get this to work
+		General_EQSIM_Tools test = new General_EQSIM_Tools(fullPath, 1);
+		test.read_EQSIMv04_EventsFile("org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/NCAL_Ward.out.txt");
+		test.checkEventMagnitudes();
+		test.checkElementSlipRates("testSlipRateFileForWard");
+		test.testTimePredictability(6.5, "testTimePredFileForWard_M6pt5");
+		 */
+		
+		// this is for analysis of the RQSim Results:
+		String fullPath = "org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/NCA_Ward_Geometry.dat.txt";
+		General_EQSIM_Tools test = new General_EQSIM_Tools(fullPath);
+		ArrayList<String> sectNames = test.getSectionsNameList();
+		System.out.println("Section Names (IDs)");
+		for(int s=0; s<sectNames.size();s++)	System.out.println("\t"+sectNames.get(s)+"("+(s+1)+")");
+		test.read_EQSIMv04_EventsFile("org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/eqs.NCA_RSQSim.barall.txt");
+		test.checkEventMagnitudes();
+		test.checkElementSlipRates("testSlipRateFileForEQSim");
+		System.out.println("Simulation Duration is "+(float)test.getSimulationDurationInYears()+" years");
+		test.testTimePredictability(5.5, "testTimePredFileForEQSim_M5pt5");
+		ArbIncrementalMagFreqDist mfd = test.computeMagFreqDist(4.05,9.05,51,true);
+		ArrayList<ArbIncrementalMagFreqDist> funcs = test.computeMagFreqDistByFaultSection(4.05,9.05,51,true);
+		
+		ArrayList<EvenlyDiscretizedFunc> mfdList = new ArrayList<EvenlyDiscretizedFunc>();
+		mfdList.add(funcs.get(8));
+		mfdList.add(funcs.get(8).getCumRateDistWithOffset());
+		mfdList.get(1).setName("Cumulative Distribution");
+
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfdList, "Mag Freq Dist");   
+
+		
+		/*
+		ArbIncrementalMagFreqDist mfd = test.getMagFreqDist(4.0,9.0,51);
+		ArrayList funcs = new ArrayList();
+		funcs.add(mfd);
+		
+		XY_DataSet testScatter = new XY_DataSet();
+		for(int i=0; i<mfd.getNum();i++)
+			testScatter.set(mfd.getX(i), mfd.getY(i)*(Math.random()+0.5));
+		testScatter.setName("Scatter Plot Name");
+		testScatter.setInfo("Scatter Plot Info");
+		funcs.add(testScatter);
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Mag Freq Dist");   
+*/
+
+		/*
+		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+		XY_DataSet scatter = new XY_DataSet();
+		for (double x=0; x<getMaxX(); x++) {
+			double y = x * 0.8;
+			y += r.nextDouble() - 0.5d;
+			System.out.println("Adding " + x + ", " + y);
+			func.set(x, y);
+			
+			scatter.set(x, y + r.nextDouble()*0.5);
+			scatter.set(x, y - r.nextDouble()*0.5);
+		}
+		
+		funcs.add(func);
+		funcs.add(scatter);
+		*/
+
+		
 		/*  This writes an EQSIM file from a UCERF2 deformation model
 		General_EQSIM_Tools test = new General_EQSIM_Tools(82, false, 4.0);
 //		test.getElementsList();
 		String writePath = "testEQSIM_Output.txt";
 		try {
-			test.writeTo_EQSIM_V04_GeometryFile(writePath, null, "test UCERF2 output", 
-					"Ned Field", "Aug 3, 2010");
+			test.writeTo_EQSIM_V04_GeometryFile(writePath, null, "test UCERF2 output", "Ned Field", "Aug 3, 2010");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		*/
-		
-		String fullPath = "org/opensha/sha/simulators/eqsim_v04/WardsInputFile/test.txt";
-		General_EQSIM_Tools test = new General_EQSIM_Tools(fullPath, 1);
-		test.read_EQSIMv04_EventsFile("org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/NCAL_Ward.out.txt");
-		test.checkEventMagnitudes();
-		test.checkElementSlipRates();
-
 
 		
 		/*
@@ -1066,7 +1222,8 @@ public class General_EQSIM_Tools {
 		test.read_EQSIMv04_EventsFile("org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/NCAL_Ward.out.txt");
 //		test.read_EQSIMv04_EventsFile("org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/VC_norcal.d.txt");
 //		test.read_EQSIMv04_EventsFile("org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/eqs.NCA_RSQSim.barall.txt");
-		ArbIncrementalMagFreqDist mfd = test.getMagFreqDist(4.0,9.0,51);
+
+
 		System.out.println(test.getNumEventsWithElementSlipData()+" out of "+test.getEventsList().size()+" have slip on elements data");
 
 		// find the mag cutoff for inclusion of element slip data
@@ -1081,32 +1238,8 @@ public class General_EQSIM_Tools {
 		}
 		System.out.println("minWith="+minWith+";\tmaxWithOut="+maxWithOut);
 		
-	//	test.checkEventMagnitudes();
-		
-		test.checkElementSlipRates();
-		
 		*/
-				
-//		test.testTimePredictability(6.5);
-		
-		/*
-		ArrayList funcs = new ArrayList();
-		funcs.add(mfd);
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Mag Freq Dist");   
-*/
-		
-		/*
-		String writePath = "testEQSIM_Output.txt";
-		try {
-			test.writeTo_EQSIM_V04_GeometryFile(writePath, null, "test output", 
-					"Ned Field", "Aug 3, 2010");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		*/
-		
-		
+						
 		int runtime = (int)(System.currentTimeMillis()-startTime)/1000;
 		System.out.println("This Run took "+runtime+" seconds");
 	}

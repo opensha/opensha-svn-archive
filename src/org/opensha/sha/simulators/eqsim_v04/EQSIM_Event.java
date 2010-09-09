@@ -33,6 +33,7 @@ public class EQSIM_Event extends ArrayList<EventRecord> {
 	
 	public double getDuration() { return duration;}
 	
+	
 	/**
 	 * This returns the time of the event in seconds
 	 * @return
