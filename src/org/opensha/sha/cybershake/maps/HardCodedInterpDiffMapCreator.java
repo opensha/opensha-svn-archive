@@ -231,8 +231,8 @@ public class HardCodedInterpDiffMapCreator {
 			boolean isProbAt_IML = true;
 			double val = 0.2;
 			String baseMapName = "cb2008";
-			ModProbConfig config = ModProbConfigFactory.getScenarioConfig(BombayBeachHazardCurveCalc.YUCAIPA_LOC);
-			boolean probGain = false;
+			ModProbConfig config = ModProbConfigFactory.getScenarioConfig(BombayBeachHazardCurveCalc.PARKFIELD_LOC);
+			boolean probGain = true;
 			String customLabel;
 			if (probGain)
 				customLabel = "Probability Gain";
@@ -255,6 +255,8 @@ public class HardCodedInterpDiffMapCreator {
 			String addr = getMap(logPlot, imTypeID, customMin, customMax,
 					isProbAt_IML, val, baseMapName, config, probGain,
 					customLabel);
+			
+			System.out.println("Map address: " + addr);
 			
 			System.exit(0);
 		} catch (Throwable t) {

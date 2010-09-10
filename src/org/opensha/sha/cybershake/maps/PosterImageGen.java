@@ -3,11 +3,13 @@ package org.opensha.sha.cybershake.maps;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
 import org.opensha.commons.exceptions.GMT_MapException;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.cybershake.bombay.ModProbConfig;
 import org.opensha.sha.cybershake.bombay.ModProbConfigFactory;
@@ -31,6 +33,19 @@ public class PosterImageGen {
 		
 		FileUtils.downloadURL(pngAddr, pngFile);
 		FileUtils.downloadURL(psAddr, psFile);
+	}
+	
+	private static void writeLocsFile(String fileName) throws IOException {
+		FileWriter fw = new FileWriter(fileName);
+		
+		for (ModProbConfig config : ModProbConfigFactory.modProbConfigs.values()) {
+			if (config instanceof ScenarioBasedModProbConfig) {
+				Location hypo = ((ScenarioBasedModProbConfig)config).getHypocenter();
+				fw.write((float)hypo.getLatitude() + " " + (float)hypo.getLongitude() + " " + config.getName() + "\n");
+			}
+		}
+		
+		fw.close();
 	}
 
 	/**
@@ -63,6 +78,8 @@ public class PosterImageGen {
 		HardCodedInterpDiffMapCreator.normPlotTypes = types;
 
 		try {
+			writeLocsFile(mainDir + "/locs.txt");
+			System.exit(0);
 			for (ModProbConfig config : ModProbConfigFactory.modProbConfigs.values()) {
 				String name = config.getName().replaceAll(" ", "");
 				if (!gainOnly) {
