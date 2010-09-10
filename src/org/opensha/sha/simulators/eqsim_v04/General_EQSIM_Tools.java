@@ -1,5 +1,6 @@
 package org.opensha.sha.simulators.eqsim_v04;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -151,14 +152,16 @@ public class General_EQSIM_Tools {
 		return namesOfSections;
 	}
 
+	public void read_EQSIMv04_EventsFile(String filePathName) {
+		read_EQSIMv04_EventsFile(this.getClass().getResource("/"+filePathName));
+	}
 	
-	
-	private void read_EQSIMv04_EventsFile(String filePathName) {
+	public void read_EQSIMv04_EventsFile(URL url) {
 
 		ArrayList<String> lines=null;
 		try {
-			lines = FileUtils.loadJarFile(filePathName);
-			System.out.println("Number of file lines: "+lines.size()+" (in "+filePathName+")");
+			lines = FileUtils.loadFile(url);
+			System.out.println("Number of file lines: "+lines.size()+" (in "+url+")");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -1212,7 +1215,6 @@ public class General_EQSIM_Tools {
 			e.printStackTrace();
 		}
 		*/
-
 		
 		/*
 		// THE FOLLOWING TEST LOOKS GOOD FROM A VISUAL INSPECTION
