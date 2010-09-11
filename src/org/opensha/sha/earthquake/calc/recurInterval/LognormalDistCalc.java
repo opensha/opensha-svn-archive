@@ -102,7 +102,8 @@ public final class LognormalDistCalc extends EqkProbDistCalc implements Paramete
 		
 		// convert mean and aperiodicity to mu and sigma
 		double sigma = Math.sqrt(Math.log(aperiodicity*aperiodicity+1));
-		double mu = Math.log(mean/Math.exp(sigma*sigma/2));
+//		double mu = Math.log(mean/Math.exp(sigma*sigma/2));
+		double mu = Math.log(mean)-(sigma*sigma/2);
 		
 		double temp1 = sigma*Math.sqrt(2.0*Math.PI);
 		double temp2 = 2.0*sigma*sigma;
