@@ -1,6 +1,6 @@
 package org.opensha.sha.simulators.eqsim_v04;
 
-import java.io.File;
+import java.awt.Color;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -28,7 +28,9 @@ import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
+import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 
 /**
@@ -152,16 +154,14 @@ public class General_EQSIM_Tools {
 		return namesOfSections;
 	}
 
-	public void read_EQSIMv04_EventsFile(String filePathName) {
-		read_EQSIMv04_EventsFile(this.getClass().getResource("/"+filePathName));
-	}
 	
-	public void read_EQSIMv04_EventsFile(URL url) {
+	
+	private void read_EQSIMv04_EventsFile(String filePathName) {
 
 		ArrayList<String> lines=null;
 		try {
-			lines = FileUtils.loadFile(url);
-			System.out.println("Number of file lines: "+lines.size()+" (in "+url+")");
+			lines = FileUtils.loadJarFile(filePathName);
+			System.out.println("Number of file lines: "+lines.size()+" (in "+filePathName+")");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -817,7 +817,7 @@ public class General_EQSIM_Tools {
 	 * 
 	 * @return
 	 */
-	public ArbIncrementalMagFreqDist computeMagFreqDist(double minMag, double maxMag, int numMag, boolean makePlot) {
+	public ArbIncrementalMagFreqDist computeTotalMagFreqDist(double minMag, double maxMag, int numMag, boolean makePlot) {
 		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, maxMag, numMag);
 		
 		double simDurr = getSimulationDurationInYears();
@@ -833,17 +833,39 @@ public class General_EQSIM_Tools {
 			mfdList.add(mfd.getCumRateDistWithOffset());
 			mfdList.get(1).setName("Cumulative Distribution");
 			mfdList.get(1).setInfo(" ");
-			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfdList, "Mag Freq Dist");   
+			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfdList, "Total Mag Freq Dist"); 
+			graph.setX_AxisLabel("Magnitude");
+			graph.setY_AxisLabel("Rate (per yr)");
+			graph.setX_AxisRange(4.5, 8.5);
+			double yMin = Math.pow(10,Math.floor(Math.log10(1/getSimulationDurationInYears())));
+			double yMax = graph.getMaxY();
+			if(yMin<yMax) {
+				graph.setY_AxisRange(yMin,yMax);
+				graph.setYLog(true);
+			}
+
 		}
 
 		return mfd;
 	}
 	
+		
+// 
+
 	/**
-	 * This returns a list of incremental MFDs reflecting the rates of nucleation (as a function of mag) on each fault section
+	 * This returns a list of incremental MFDs reflecting the rates of nucleation (as a function of mag) 
+	 * on each fault section.  It also optionally makes plots.
+	 */
+	/**
+	 * @param minMag
+	 * @param maxMag
+	 * @param numMag
+	 * @param makeOnePlotWithAll - plot all incremental dists in one graph
+	 * @param makeSeparatePlots - make separate plots of incremental and cumulative distributions
 	 * @return
 	 */
-	public ArrayList<ArbIncrementalMagFreqDist> computeMagFreqDistByFaultSection(double minMag, double maxMag, int numMag, boolean makePlot) {
+	public ArrayList<ArbIncrementalMagFreqDist> computeMagFreqDistByFaultSection(double minMag, double maxMag, int numMag, 
+			boolean makeOnePlotWithAll, boolean makeSeparatePlots) {
 		
 		ArrayList<ArbIncrementalMagFreqDist> mfdList = new ArrayList<ArbIncrementalMagFreqDist>();
 		for(int s=0; s<namesOfSections.size(); s++) {
@@ -859,8 +881,36 @@ public class General_EQSIM_Tools {
 			mfdList.get(sectionIndex).addResampledMagRate(event.getMagnitude(), 1.0/simDurr, true);
 		}
 		
-		if(makePlot){
+		double yMin = Math.pow(10,Math.floor(Math.log10(1/getSimulationDurationInYears())));
+		if(makeOnePlotWithAll){
 			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfdList, "Mag Freq Dists");   
+			graph.setX_AxisLabel("Magnitude");
+			graph.setY_AxisLabel("Rate (per yr)");
+			graph.setX_AxisRange(4.5, 8.5);
+			double yMax = graph.getMaxY();
+			if(yMin<yMax) {
+				graph.setY_AxisRange(yMin,yMax);
+				graph.setYLog(true);
+			}
+		}
+		
+		if(makeSeparatePlots) {
+			for(ArbIncrementalMagFreqDist mfd :mfdList) {
+				ArrayList<EvenlyDiscretizedFunc> mfdList2 = new ArrayList<EvenlyDiscretizedFunc>();
+				mfdList2.add(mfd);
+				mfdList2.add(mfd.getCumRateDistWithOffset());
+				mfdList2.get(1).setName("Cumulative Distribution");
+				mfdList2.get(1).setInfo(" ");
+				GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfdList2, mfd.getName()); 
+				graph.setX_AxisLabel("Magnitude");
+				graph.setY_AxisLabel("Rate (per yr)");
+				graph.setX_AxisRange(4.5, 8.5);
+				double yMax = graph.getMaxY();
+				if(yMin<yMax) {
+					graph.setY_AxisRange(yMin,yMax);
+					graph.setYLog(true);
+				}
+			}
 		}
 		
 		return mfdList;
@@ -901,16 +951,27 @@ public class General_EQSIM_Tools {
 			double maxElementArea = 0;
 			int counter=-1;
 			
+			ArrayList<Double> obsIntervalList = new ArrayList<Double>();
+			ArrayList<Double> tpInterval1List = new ArrayList<Double>();
+			ArrayList<Double> tpInterval2List = new ArrayList<Double>();
+			ArrayList<Double> spInterval1List = new ArrayList<Double>();
+			ArrayList<Double> spInterval2List = new ArrayList<Double>();
+			ArrayList<Integer> firstSectionList = new ArrayList<Integer>();
+
+			
 			// write file header
 			fw_timePred.write("counter\tobsInterval\ttpInterval1\tnorm_tpInterval1\ttpInterval2\tnorm_tpInterval2\t"+
 					"spInterval1\tnorm_spInterval1\tspInterval2\tnorm_spInterval2\t"+
 					"aveLastSlip\taveSlip\teventMag\teventID\tfirstSectionID\tnumSectionsInEvent\tsectionsInEventString\n");
 //			efw.write("obs\tpred\tnormRI\n");
+			
+			double simDurInSec = eventList.get(eventList.size()-1).getTime() - eventList.get(0).getTime();
 
 			// loop over all events
 			for(EQSIM_Event event:eventList) {
 				numEvents +=1;
 				double eventTime = event.getTime();
+//				double eventTime = Math.random()*simDurInSec;
 /*				
 				// write out Berryessa event info
 				for(EventRecord evRec: event) {
@@ -982,6 +1043,9 @@ public class General_EQSIM_Tools {
 					double norm_spInterval1 = obsInterval/spInterval1;
 					double norm_spInterval2 = obsInterval/spInterval2;
 					
+					// skip those that have zero aveSlipRate (causes Inf for tpInterval2 &spInterval2)
+					if(aveSlipRate == 0) goodSample = false;
+					
 					if(goodSample) {
 						counter += 1;
 						fw_timePred.write(counter+"\t"+obsInterval+"\t"+
@@ -993,6 +1057,19 @@ public class General_EQSIM_Tools {
 								(float)eventMag+"\t"+event.getID()+"\t"+
 								event.get(0).getSectionID()+"\t"+
 								event.size()+"\t"+sectionsInEventString+"\n");
+						/*
+						if(Double.isInfinite(tpInterval2))
+							System.out.println("tpInterval2=NaN for line "+counter+"\taveLastSlip="+aveSlip+"\taveSlipRate="+aveSlipRate);
+						if(Double.isInfinite(spInterval2))
+							System.out.println("spInterval2=NaN for line "+counter+"\taveSlip="+aveSlip+"\taveSlipRate="+aveSlipRate);
+*/
+						// save for calculating correlations
+						obsIntervalList.add(obsInterval);
+						tpInterval1List.add(tpInterval1);
+						tpInterval2List.add(tpInterval2);
+						spInterval1List.add(spInterval1);
+						spInterval2List.add(spInterval2);
+						firstSectionList.add(event.get(0).getSectionID());
 					}
 					else {
 //						System.out.println("event "+ eventNum+" is bad");
@@ -1008,6 +1085,38 @@ public class General_EQSIM_Tools {
 				}
 			}
 			
+			System.out.println("\nMinimum Magnitude Considered in Time Dependence = "+magThresh+"\n");
+
+			
+			// Print correlations
+			System.out.println("\nCorrelations between all Observed and Predicted Intervals:");
+			System.out.println("\t"+(float)getCorrelation(tpInterval1List, obsIntervalList)+" for tpInterval1");
+			System.out.println("\t"+(float)getCorrelation(tpInterval2List, obsIntervalList)+" for tpInterval2");
+			System.out.println("\t"+(float)getCorrelation(spInterval1List, obsIntervalList)+" for spInterval1");
+			System.out.println("\t"+(float)getCorrelation(spInterval2List, obsIntervalList)+" for spInterval2");
+			
+			// now do correlations for each section
+			System.out.println("\nCorrelations between Observed and tpInterval1 by Section:");
+			
+			for(int s=0;s<namesOfSections.size();s++) {
+				ArrayList<Double> vals1 = new ArrayList<Double>();
+				ArrayList<Double> vals2 = new ArrayList<Double>();
+				for(int i=0;i<obsIntervalList.size();i++) {
+					if(firstSectionList.get(i).intValue() == s+1) {
+						vals1.add(obsIntervalList.get(i));
+						vals2.add(tpInterval1List.get(i));
+					}
+				}
+				if(vals1.size()>10)
+					System.out.println("\t"+(s+1)+"\t"+(float)getCorrelation(vals1, vals2)+
+						"\tfor section "+namesOfSections.get(s)+"(num points = "+vals1.size()+")");
+					else
+						System.out.println("\t"+(s+1)+"\tNaN\t\t for section "+
+								namesOfSections.get(s)+"(num points = "+vals1.size()+")");
+			}
+			
+			
+			
 			System.out.println(numBad+" events were bad");
 			
 			System.out.println("minElementArea="+(float)minElementArea+"\tmaxElementArea"+(float)maxElementArea);
@@ -1018,6 +1127,23 @@ public class General_EQSIM_Tools {
 			e1.printStackTrace();
 		}
 
+	}
+	
+	/**
+	 * This computes the correlation coefficient between the two lists
+	 * @param list1
+	 * @param list2
+	 * @return
+	 */
+	private double getCorrelation(ArrayList<Double> list1, ArrayList<Double> list2) {
+		double[] xVals = new double[list1.size()];
+		double[] yVals = new double[list2.size()];
+		for(int i=0;i<list1.size();i++) {
+			xVals[i] = list1.get(i);
+			yVals[i] = list2.get(i);
+		}
+		PearsonsCorrelation corrCalc = new PearsonsCorrelation();
+		return corrCalc.correlation(xVals, yVals);
 	}
 	
 	
@@ -1074,7 +1200,7 @@ public class General_EQSIM_Tools {
 	 * This compares observed slip rate (from events) with those imposed.
 	 * @param fileName - set as null to not write the data out.
 	 */
-	public void checkElementSlipRates(String fileName) {
+	public void checkElementSlipRates(String fileName, boolean makePlot) {
 
 		FileWriter fw_slipRates;
 		double[] obsAveSlipRate = new double[rectElementsList.size()];
@@ -1112,7 +1238,23 @@ public class General_EQSIM_Tools {
 		PearsonsCorrelation corrCalc = new PearsonsCorrelation();
 		double slipRateCorr = corrCalc.correlation(obsAveSlipRate, imposedSlipRate);
 		System.out.println("Correlation between obs and imposed slip rate = "+(float)slipRateCorr);
+		
+		// make plot if desired
+		if(makePlot) {
+			XY_DataSet xy_data = new XY_DataSet(imposedSlipRate,obsAveSlipRate);
+			xy_data.setName("Obs versus Imposed Slip Rate");
+			xy_data.setInfo(" ");
+			ArrayList funcs = new ArrayList();
+			funcs.add(xy_data);
+			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Slip Rate Comparison");   
+			graph.setX_AxisLabel("Imposed Slip Rate (m/s)");
+			graph.setY_AxisLabel("Observed Slip Rate (m/s)");
+			ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
+			curveCharacteristics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES, Color.BLUE, 4));
+			graph.setPlottingFeatures(curveCharacteristics);
+		}
 
+		// write file if name is non null
 		if(fileName != null) {
 			try {
 				fw_slipRates = new FileWriter(fileName);
@@ -1158,19 +1300,11 @@ public class General_EQSIM_Tools {
 		for(int s=0; s<sectNames.size();s++)	System.out.println("\t"+sectNames.get(s)+"("+(s+1)+")");
 		test.read_EQSIMv04_EventsFile("org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/eqs.NCA_RSQSim.barall.txt");
 		test.checkEventMagnitudes();
-		test.checkElementSlipRates("testSlipRateFileForEQSim");
+//		test.checkElementSlipRates("testSlipRateFileForEQSim", true);
 		System.out.println("Simulation Duration is "+(float)test.getSimulationDurationInYears()+" years");
-		test.testTimePredictability(5.5, "testTimePredFileForEQSim_M5pt5");
-		ArbIncrementalMagFreqDist mfd = test.computeMagFreqDist(4.05,9.05,51,true);
-		ArrayList<ArbIncrementalMagFreqDist> funcs = test.computeMagFreqDistByFaultSection(4.05,9.05,51,true);
-		
-		ArrayList<EvenlyDiscretizedFunc> mfdList = new ArrayList<EvenlyDiscretizedFunc>();
-		mfdList.add(funcs.get(8));
-		mfdList.add(funcs.get(8).getCumRateDistWithOffset());
-		mfdList.get(1).setName("Cumulative Distribution");
-
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfdList, "Mag Freq Dist");   
-
+//		test.testTimePredictability(5.5, "testTimePredFileForEQSim_M5pt5_rand");
+//		ArbIncrementalMagFreqDist mfd = test.computeTotalMagFreqDist(4.05,9.05,51,true);
+//		ArrayList<ArbIncrementalMagFreqDist> funcs = test.computeMagFreqDistByFaultSection(4.05,9.05,51,true,false);
 		
 		/*
 		ArbIncrementalMagFreqDist mfd = test.getMagFreqDist(4.0,9.0,51);
@@ -1215,6 +1349,7 @@ public class General_EQSIM_Tools {
 			e.printStackTrace();
 		}
 		*/
+
 		
 		/*
 		// THE FOLLOWING TEST LOOKS GOOD FROM A VISUAL INSPECTION
