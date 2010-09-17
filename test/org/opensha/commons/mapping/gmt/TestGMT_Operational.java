@@ -18,6 +18,8 @@ import org.junit.Test;
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
 
+import util.TestUtils;
+
 public class TestGMT_Operational {
 	
 	private static GMT_MapGenerator gmt;
@@ -30,7 +32,12 @@ public class TestGMT_Operational {
 	}
 	
 	@Test
-	public void testMakeMapUsingServletGMT_MapStringString() {
+	public void testMakeMapUsingServletGMT_MapStringString() throws Throwable {
+		TestUtils.runTestWithTimer("runTest", this, 120);
+	}
+	
+	@SuppressWarnings("unused")
+	private void runTest() {
 		GMT_Map map = gmt.getGMTMapSpecification(xyz);
 		map.setCustomScaleMin(null);
 		map.setCustomScaleMax(null);

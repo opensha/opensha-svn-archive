@@ -15,6 +15,8 @@ import org.opensha.commons.util.ServerPrefs;
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RegisterRemoteERF_Factory;
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RegisterRemoteERF_ListFactory;
 
+import util.TestUtils;
+
 public class Test_RMI_ERFs_Operational {
 
 	@Before
@@ -22,7 +24,12 @@ public class Test_RMI_ERFs_Operational {
 	}
 	
 	@Test
-	public void testFrankel96() {
+	public void testFrankel96() throws Throwable {
+		TestUtils.runTestWithTimer("runFrankel96", this, 60);
+	}
+	
+	@SuppressWarnings("unused")
+	private void runFrankel96() {
 		Frankel96_AdjustableEqkRupForecastClient erf = null;
 		try {
 			erf = new Frankel96_AdjustableEqkRupForecastClient();
@@ -41,7 +48,12 @@ public class Test_RMI_ERFs_Operational {
 	}
 	
 	@Test
-	public void testWG02_Fortran() {
+	public void testWG02_Fortran() throws Throwable {
+		TestUtils.runTestWithTimer("runWG02", this, 60);
+	}
+	
+	@SuppressWarnings("unused")
+	private void runWG02() {
 		WG02_FortranWrappedERF_EpistemicListClient erf = null;
 		try {
 			erf = new WG02_FortranWrappedERF_EpistemicListClient();
@@ -59,8 +71,20 @@ public class Test_RMI_ERFs_Operational {
 	}
 	
 	@Test
-	public void testProdDevPorts() {
+	public void testProdDevPorts() throws Throwable {
+		TestUtils.runTestWithTimer("testProdPorts", this, 15);
+		TestUtils.runTestWithTimer("testDevPorts", this, 15);
+//		testPortsForPrefs(ServerPrefs.PRODUCTION_PREFS);
+//		testPortsForPrefs(ServerPrefs.DEV_PREFS);
+	}
+	
+	@SuppressWarnings("unused")
+	private void testProdPorts() {
 		testPortsForPrefs(ServerPrefs.PRODUCTION_PREFS);
+	}
+	
+	@SuppressWarnings("unused")
+	private void testDevPorts() {
 		testPortsForPrefs(ServerPrefs.DEV_PREFS);
 	}
 	

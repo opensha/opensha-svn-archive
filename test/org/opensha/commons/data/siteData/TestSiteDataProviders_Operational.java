@@ -31,10 +31,13 @@ import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 
+import util.TestUtils;
+
 import static org.junit.Assert.*;
 
 public class TestSiteDataProviders_Operational {
 	
+	private static final int TIMEOUT_TIME = 20;
 	private static final boolean D = true;
 	
 	private Location loc1 = new Location(34d, -118d);
@@ -69,6 +72,8 @@ public class TestSiteDataProviders_Operational {
 			// just to make sure that the server gives the save values individually as it does in a list
 			Object serverSingleVal = prov.getValue(locs.get(i));
 			
+			System.out.println("Got val: " + serverSingleVal);
+			
 			assertEquals(serverSingleVal, serverGroupVal);
 			if (prov.isValueValid(serverSingleVal))
 				hasOneValid = true;
@@ -76,52 +81,68 @@ public class TestSiteDataProviders_Operational {
 		assertTrue("At least one 'valid' value per test is expected.", hasOneValid);
 	}
 	
+	private void testProvTimed(SiteDataAPI prov, int timeoutSeconds) throws Throwable {
+		TestUtils.runTestWithTimer("runTest", new TestProvClass(prov), timeoutSeconds);
+	}
+	
+	private class TestProvClass {
+		SiteDataAPI prov;
+		public TestProvClass(SiteDataAPI prov) {
+			this.prov = prov;
+		}
+		
+		@SuppressWarnings("unused")
+		public void runTest() throws IOException {
+			testProv(prov);
+		}
+	}
+	
 	@Test
-	public void testCVM2() throws IOException {
+	public void testCVM2() throws Throwable {
 		CVM2BasinDepth prov = new CVM2BasinDepth();
 		
-		testProv(prov);
+		testProvTimed(prov, TIMEOUT_TIME);
 	}
 	
 	@Test
-	public void testCVM4_2_5() throws IOException {
+	public void testCVM4_2_5() throws Throwable {
 		CVM4BasinDepth prov = new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5);
 		
-		testProv(prov);
+		testProvTimed(prov, TIMEOUT_TIME);
 	}
 	
 	@Test
-	public void testCVM4_1_0() throws IOException {
+	public void testCVM4_1_0() throws Throwable {
 		CVM4BasinDepth prov = new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0);
 		
-		testProv(prov);
+		testProvTimed(prov, TIMEOUT_TIME);
 	}
 	
 	@Test
-	public void testUSGSBayArea_2_5() throws IOException {
+	public void testUSGSBayArea_2_5() throws Throwable {
 		USGSBayAreaBasinDepth prov = new USGSBayAreaBasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5);
 		
-		testProv(prov);
+		testProvTimed(prov, TIMEOUT_TIME);
 	}
 	
 	@Test
-	public void testUSGSBayArea_1_0() throws IOException {
+	public void testUSGSBayArea_1_0() throws Throwable {
 		USGSBayAreaBasinDepth prov = new USGSBayAreaBasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0);
 		
-		testProv(prov);
+		testProvTimed(prov, TIMEOUT_TIME);
 	}
 	
 	@Test
-	public void testWills2006() throws IOException {
+	public void testWills2006() throws Throwable {
 		WillsMap2006 prov = new WillsMap2006();
 		
-		testProv(prov);
+		testProvTimed(prov, TIMEOUT_TIME);
 	}
 	
 	@Test
-	public void testWills2000() throws IOException {
+	public void testWills2000() throws Throwable {
 		WillsMap2000TranslatedVs30 prov = new WillsMap2000TranslatedVs30();
 		
-		testProv(prov);
+		testProvTimed(prov, TIMEOUT_TIME);
 	}
 }
