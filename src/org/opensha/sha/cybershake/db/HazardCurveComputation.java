@@ -74,18 +74,19 @@ public class HazardCurveComputation {
 	 * @param rupId
 	 * @param imType
 	 */
-	public DiscretizedFuncAPI computeDeterministicCurve(ArrayList<Double> imlVals, String site,int erfId, int sgtVariation, int rvid,
-			int srcId,int rupId,CybershakeIM imType){
-		CybershakeRun run = getRun(site, erfId, sgtVariation, rvid);
+	public DiscretizedFuncAPI computeDeterministicCurve(ArrayList<Double> imlVals, String site,int erfId,
+			int sgtVariation, int rvid,
+			int velModelID, int srcId,int rupId,CybershakeIM imType){
+		CybershakeRun run = getRun(site, erfId, sgtVariation, rvid, velModelID);
 		if (run == null)
 			return null;
 		else
 			return computeDeterministicCurve(imlVals, run, srcId, rupId, imType);
 	}
 
-	private CybershakeRun getRun(String site, int erfID, int sgtVarID, int rupVarID) {
+	private CybershakeRun getRun(String site, int erfID, int sgtVarID, int rupVarID, int velModelID) {
 		int siteID = siteDB.getSiteId(site);
-		ArrayList<CybershakeRun> runIDs = runs2db.getRuns(siteID, erfID, sgtVarID, rupVarID, null, null, null, null);
+		ArrayList<CybershakeRun> runIDs = runs2db.getRuns(siteID, erfID, sgtVarID, rupVarID, velModelID, null, null, null, null);
 		if (runIDs == null || runIDs.size() < 0)
 			return null;
 		return runIDs.get(0);
@@ -150,10 +151,11 @@ public class HazardCurveComputation {
 	 * @param erfName
 	 * @param imType
 	 */
-	public DiscretizedFuncAPI computeHazardCurve(ArrayList<Double> imlVals, String site,String erfName,int sgtVariation, int rvid, CybershakeIM imType){
+	public DiscretizedFuncAPI computeHazardCurve(ArrayList<Double> imlVals, String site,String erfName,
+			int sgtVariation, int rvid, int velModelID, CybershakeIM imType){
 		int erfId = erfDB.getInserted_ERF_ID(erfName);
 		System.out.println("for erfname: " + erfName + " found ERFID: " + erfId + "\n");
-		return computeHazardCurve(imlVals, site, erfId, sgtVariation, rvid, imType);
+		return computeHazardCurve(imlVals, site, erfId, sgtVariation, rvid, velModelID, imType);
 	}
 
 	/**
@@ -163,8 +165,9 @@ public class HazardCurveComputation {
 	 * @param erfName
 	 * @param imType
 	 */
-	public DiscretizedFuncAPI computeHazardCurve(ArrayList<Double> imlVals, String site,int erfId,int sgtVariation, int rvid, CybershakeIM imType){
-		CybershakeRun run = getRun(site, erfId, sgtVariation, rvid);
+	public DiscretizedFuncAPI computeHazardCurve(ArrayList<Double> imlVals, String site,int erfId,
+			int sgtVariation, int rvid, int velModelID, CybershakeIM imType){
+		CybershakeRun run = getRun(site, erfId, sgtVariation, rvid, velModelID);
 		if (run == null)
 			return null;
 		else

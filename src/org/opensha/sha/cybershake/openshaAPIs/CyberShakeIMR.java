@@ -40,6 +40,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.cybershake.calc.HazardCurveComputation;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeSite;
+import org.opensha.sha.cybershake.db.CybershakeVelocityModel;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.cybershake.db.PeakAmplitudesFromDB;
@@ -78,16 +79,23 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 
 	public static final String SGT_VAR_PARAM = "SGT Variation ID";
 	public static final String RUP_VAR_SCENARIO_PARAM = "Rupture Variation Scenario ID";
+	public static final String VEL_MODEL_PARAM = "Velocity Model";
 
 	//source index parameter
 	private StringParameter sgtVarParam;
 
 	//rupture index parameter
 	private StringParameter rupVarScenarioParam;
+	
+	//vel model index parameter
+	private StringParameter velModelParam;
 
+	private ArrayList<CybershakeVelocityModel> velModels;
+	
 	int selectedSGTVariation = 5;
 	int selectedRupVarScenario = 3;
-
+	int selectedVelModel = 1;
+	
 	double curPeriod = 0;
 	CybershakeIM curIM = null;
 
@@ -103,6 +111,7 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 
 		sgtVarParam = new StringParameter(SGT_VAR_PARAM, "");
 		rupVarScenarioParam = new StringParameter(RUP_VAR_SCENARIO_PARAM, "");
+		velModelParam = new StringParameter(VEL_MODEL_PARAM, "");
 		//		saPeriod = saPeriods.get(0);
 		//		saPeriodParam = new StringParameter(SA_PERIOD_SELECTOR_PARAM_NAME,
 		//		saPeriods,saPeriod);
@@ -144,9 +153,20 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 			rupVarScenarioParam.setValue(vals.get(0));
 			rupVarScenarioParam.setConstraint(new StringConstraint(vals));
 			rupVarScenarioParam.addParameterChangeListener(this);
+			
+			velModels = runs2db.getVelocityModels();
+			selectedVelModel = velModels.get(0).getID();
+			vals = new ArrayList<String>();
+			for (CybershakeVelocityModel velModel : velModels) {
+				vals.add(velModel.toString());
+			}
+			velModelParam.setValue(vals.get(0));
+			velModelParam.setConstraint(new StringConstraint(vals));
+			velModelParam.addParameterChangeListener(this);
 
 			otherParams.addParameter(rupVarScenarioParam);
 			otherParams.addParameter(sgtVarParam);
+			otherParams.addParameter(velModelParam);
 
 			saPeriodParam.addParameterChangeListener(this);
 
@@ -285,11 +305,12 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 		int erfID = rup.getErfID();
 		int sgtVarID = this.selectedSGTVariation;
 		int rupVarID = this.selectedRupVarScenario;
+		int velModelID = this.selectedVelModel;
 
 		ArrayList<Double> imVals = null; 
 
 		try {
-			imVals = getIMVals(this.csSite.id, erfID, sgtVarID, rupVarID, srcID, rupID, curIM);
+			imVals = getIMVals(this.csSite.id, erfID, sgtVarID, rupVarID, velModelID, srcID, rupID, curIM);
 		} catch (SQLException e) {
 			//			e.printStackTrace();
 			return 0;
@@ -327,11 +348,12 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 		int erfID = rup.getErfID();
 		int sgtVarID = this.selectedSGTVariation;
 		int rupVarID = this.selectedRupVarScenario;
+		int velModelID = this.selectedVelModel;
 
 		ArrayList<Double> imVals = null; 
 
 		try {
-			imVals = getIMVals(this.csSite.id, erfID, sgtVarID, rupVarID, srcID, rupID, curIM);
+			imVals = getIMVals(this.csSite.id, erfID, sgtVarID, rupVarID, velModelID, srcID, rupID, curIM);
 		} catch (SQLException e) {
 			//			e.printStackTrace();
 			for (int i=0; i<intensityMeasureLevels.getNum(); i++) {
@@ -439,11 +461,11 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 
 	}
 
-	private String getBuffKey(int siteID, int erfID, int sgtVarID, int rupVarID, int srcID, int rupID, CybershakeIM im) {
-		return siteID + "_" + erfID + "_" + sgtVarID + "_" + rupVarID + "_" + srcID + "_" + rupID + "_" + im.getID();
+	private String getBuffKey(int siteID, int erfID, int sgtVarID, int rupVarID, int velModelID, int srcID, int rupID, CybershakeIM im) {
+		return siteID + "_" + erfID + "_" + sgtVarID + "_" + rupVarID + "_" + velModelID + "_" + srcID + "_" + rupID + "_" + im.getID();
 	}
 
-	private ArrayList<Double> getIMVals(int siteID, int erfID, int sgtVarID, int rupVarID, int srcID, int rupID, CybershakeIM im) throws SQLException {
+	private ArrayList<Double> getIMVals(int siteID, int erfID, int sgtVarID, int rupVarID, int velModelID, int srcID, int rupID, CybershakeIM im) throws SQLException {
 		if (imValsBuff == null) {
 			imValsBuff = new LinkedList<ArrayList<Double>>();
 			imValsBuffKeys = new LinkedList<String>();
@@ -453,7 +475,7 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 			//			}
 		}
 
-		String key = getBuffKey(siteID, erfID, sgtVarID, rupVarID, srcID, rupID, im);
+		String key = getBuffKey(siteID, erfID, sgtVarID, rupVarID, velModelID, srcID, rupID, im);
 		for (int i=0; i<imValsBuffKeys.size(); i++) {
 			String bufKey = imValsBuffKeys.get(i);
 
@@ -464,7 +486,7 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 
 		// if we made it this far, then it's not in the buffer...we'll need to get it manually
 //		System.out.println("Loading amps for " + erfID + " " + srcID + " " + rupID);
-		int runID = runs2db.getLatestRunID(siteID, erfID, sgtVarID, rupVarID, null, null, null, null);
+		int runID = runs2db.getLatestRunID(siteID, erfID, sgtVarID, rupVarID, velModelID, null, null, null, null);
 		ArrayList<Double> imVals = ampsDB.getIM_Values(runID, srcID, rupID, im);
 
 //		String valStr = "";
@@ -533,9 +555,10 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 		int erfID = rup.getErfID();
 		int sgtVarID = this.selectedSGTVariation;
 		int rupVarID = this.selectedRupVarScenario;
+		int velModelID = this.selectedVelModel;
 
 		try {
-			ArrayList<Double> imVals = getIMVals(this.csSite.id, erfID, sgtVarID, rupVarID, srcID, rupID, curIM);
+			ArrayList<Double> imVals = getIMVals(this.csSite.id, erfID, sgtVarID, rupVarID, velModelID, srcID, rupID, curIM);
 
 			return calcMean(imVals);
 		} catch (SQLException e) {
@@ -558,9 +581,10 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 		int erfID = rup.getErfID();
 		int sgtVarID = this.selectedSGTVariation;
 		int rupVarID = this.selectedRupVarScenario;
+		int velModelID = this.selectedVelModel;
 
 		try {
-			ArrayList<Double> vals = getIMVals(this.csSite.id, erfID, sgtVarID, rupVarID, srcID, rupID, curIM);
+			ArrayList<Double> vals = getIMVals(this.csSite.id, erfID, sgtVarID, rupVarID, velModelID, srcID, rupID, curIM);
 
 			return calcStdDev(vals);
 		} catch (SQLException e) {
@@ -581,7 +605,7 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 		CyberShakeIMR imr = new CyberShakeIMR(null);
 		imr.checkInit();
 		try {
-			imr.getIMVals(28, 34, 5, 3, 1, 0, new CybershakeIM(21, "safddsa", 3, ""));
+			imr.getIMVals(28, 34, 5, 3, 1, 1, 0, new CybershakeIM(21, "safddsa", 3, ""));
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

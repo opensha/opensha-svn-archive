@@ -190,9 +190,9 @@ public class HazardCurve2DB {
 		return getAllHazardCurveIDs(whereClause);
 	}
 	
-	public ArrayList<Integer> getAllHazardCurveIDsForSite(int siteID, int erfID, int rupVarScenarioID, int sgtVarID) {
+	public ArrayList<Integer> getAllHazardCurveIDsForSite(int siteID, int erfID, int rupVarScenarioID, int sgtVarID, int velModelID) {
 		ArrayList<Integer> ids = new ArrayList<Integer>();
-		ArrayList<Integer> runIDs = runs2db.getRunIDs(siteID, erfID, sgtVarID, rupVarScenarioID, null, null, null, null);
+		ArrayList<Integer> runIDs = runs2db.getRunIDs(siteID, erfID, sgtVarID, rupVarScenarioID, velModelID, null, null, null, null);
 		
 		String whereClause = Runs2DB.getRunsWhereStatement(runIDs);
 		if (whereClause == null || whereClause.length() != 0)
@@ -306,9 +306,9 @@ public class HazardCurve2DB {
 		}
 	}
 	
-	public int getHazardCurveID(int siteID, int erfID, int rupVarScenarioID, int sgtVarID, int imTypeID) {
+	public int getHazardCurveID(int siteID, int erfID, int rupVarScenarioID, int sgtVarID, int velModelID, int imTypeID) {
 		
-		ArrayList<Integer> runIDs = runs2db.getRunIDs(siteID, erfID, sgtVarID, rupVarScenarioID, null, null, null, null);
+		ArrayList<Integer> runIDs = runs2db.getRunIDs(siteID, erfID, sgtVarID, rupVarScenarioID, velModelID, null, null, null, null);
 		
 		String whereClause = Runs2DB.getRunsWhereStatement(runIDs);
 		if (whereClause == null || whereClause.length() == 0)
@@ -699,8 +699,8 @@ public class HazardCurve2DB {
 	/**
 	 * @returns the supported SA Period as list of strings.
 	 */
-	public ArrayList<CybershakeIM>  getSupportedIMs(int siteID, int erfID, int rupVarID, int sgtVariation) {
-		ArrayList<Integer> runIDs = runs2db.getRunIDs(siteID, erfID, sgtVariation, rupVarID, null, null, null, null);
+	public ArrayList<CybershakeIM>  getSupportedIMs(int siteID, int erfID, int rupVarID, int sgtVariation, int velModelID) {
+		ArrayList<Integer> runIDs = runs2db.getRunIDs(siteID, erfID, sgtVariation, rupVarID, velModelID, null, null, null, null);
 		ArrayList<CybershakeIM> ims = new ArrayList<CybershakeIM>();
 		
 		for (int runID : runIDs) {
@@ -712,8 +712,8 @@ public class HazardCurve2DB {
 	public static void main(String args[]) {
 		HazardCurve2DB hc = new HazardCurve2DB(Cybershake_OpenSHA_DBApplication.db);
 		
-		System.out.println("ID: " + hc.getHazardCurveID(2, 34, 3, 5, 21));
-		System.out.println("ID: " + hc.getHazardCurveID(26, 34, 3, 5, 21));
+		System.out.println("ID: " + hc.getHazardCurveID(2, 34, 3, 5, 1, 21));
+		System.out.println("ID: " + hc.getHazardCurveID(26, 34, 3, 5, 1, 21));
 		
 		DiscretizedFuncAPI hazardFunc = hc.getHazardCurve(1);
 		
@@ -723,7 +723,7 @@ public class HazardCurve2DB {
 			System.out.println("Haz Curve For: " + id);
 		}
 		
-		for (CybershakeIM im : hc.getSupportedIMs(33, 34, 3, 5)) {
+		for (CybershakeIM im : hc.getSupportedIMs(33, 34, 3, 5, 1)) {
 			System.out.println(im);
 		}
 	}

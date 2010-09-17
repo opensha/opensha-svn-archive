@@ -69,6 +69,7 @@ public class CommandLineHazardCurve implements ParameterChangeWarningListener {
 		String siteName = args[0];
 		int sgtVariationID = Integer.parseInt(args[1]);
 		int rupVarID = Integer.parseInt(args[2]);
+		int velModelID = 1; //TODO don't hardcode
 		siteCoords = getSiteCoordinates(siteName);
 		System.out.println(siteCoords[0] + " " + siteCoords[1]);
 //		siteCoords[0] = 34.0192;
@@ -78,17 +79,17 @@ public class CommandLineHazardCurve implements ParameterChangeWarningListener {
 //		System.out.println("Calculating Attenuation curve.");
 //		clhc.calcAttenuationCurve(siteName);
 		System.out.println("Calculating CS curve.");
-		clhc.calcCyberShakeCurve(siteName, sgtVariationID, rupVarID);
+		clhc.calcCyberShakeCurve(siteName, sgtVariationID, rupVarID, velModelID);
 		System.exit(0);
 	}
 	
-	private void calcCyberShakeCurve(String siteName, int sgtVariationID, int rupVarID) {
+	private void calcCyberShakeCurve(String siteName, int sgtVariationID, int rupVarID, int velModelID) {
 		HazardCurveComputation hazCurve = new HazardCurveComputation(db);
 		ArrayList<Double> imlVals = new ArrayList<Double>();
 		for(int i=0; i<function.getNum();++i)
 			imlVals.add(function.getX(i));
 		CybershakeIM im = new CybershakeIM(21, "spectral acceleration", 3.00003, "cm per sec squared");
-		DiscretizedFuncAPI cyberShakeHazardData= hazCurve.computeHazardCurve(imlVals, siteName, ERF_NAME, sgtVariationID, rupVarID, im);
+		DiscretizedFuncAPI cyberShakeHazardData= hazCurve.computeHazardCurve(imlVals, siteName, ERF_NAME, sgtVariationID, rupVarID, velModelID, im);
 		System.out.println("Writing out CS file.");
 		try {
 		    FileWriter fr = new FileWriter(siteName + "_cybershake.txt");

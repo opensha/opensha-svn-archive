@@ -63,8 +63,8 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		return runs;
 	}
 	
-	public ArrayList<CybershakeRun> getPeakAmpRuns(int siteID, int erfID, int sgtVarID, int rupVarScenID) {
-		ArrayList<CybershakeRun> runs = runs2db.getRuns(siteID, erfID, sgtVarID, rupVarScenID, null, null, null, null);
+	public ArrayList<CybershakeRun> getPeakAmpRuns(int siteID, int erfID, int sgtVarID, int rupVarScenID, int velModelID) {
+		ArrayList<CybershakeRun> runs = runs2db.getRuns(siteID, erfID, sgtVarID, rupVarScenID, velModelID, null, null, null, null);
 		ArrayList<Integer> ids = getPeakAmpRunIDs();
 		
 		ArrayList<CybershakeRun> ampsRuns = new ArrayList<CybershakeRun>();
@@ -115,11 +115,11 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 	}
 	
 	public boolean hasAmps(int siteID, int erfID) {
-		return hasAmps(siteID, erfID, -1, -1);
+		return hasAmps(siteID, erfID, -1, -1, -1);
 	}
 	
-	public boolean hasAmps(int siteID, int erfID, int rupVarScenID, int sgtVarID) {
-		ArrayList<Integer> runs = runs2db.getRunIDs(siteID, erfID, sgtVarID, rupVarScenID, null, null, null, null);
+	public boolean hasAmps(int siteID, int erfID, int rupVarScenID, int sgtVarID, int velModelID) {
+		ArrayList<Integer> runs = runs2db.getRunIDs(siteID, erfID, sgtVarID, rupVarScenID, velModelID, null, null, null, null);
 		if (runs.size() == 0)
 			return false;
 		

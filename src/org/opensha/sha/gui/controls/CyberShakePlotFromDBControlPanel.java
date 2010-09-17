@@ -135,6 +135,7 @@ extends ControlPanel implements ParameterChangeListener {
 
 	int selectedSGTVariation = 5;
 	int selectedRupVarScenario = 3;
+	int selectedVelModel = 1;
 
 	CalcProgressBar calcProgress = null;
 
@@ -370,13 +371,13 @@ extends ControlPanel implements ParameterChangeListener {
 		ampCurves = new ArrayList<Integer>();
 
 //		saPeriods = hazCurve.getSupportedSA_PeriodStrings(selectedSite.id, this.selectedERF.id selectedSGTVariation, selectedRupVarScenario);
-		ArrayList<Integer> runIDs = runs2db.getRunIDs(selectedSite.id, selectedERF.id, selectedSGTVariation, selectedRupVarScenario, null, null, null, null);
+		ArrayList<Integer> runIDs = runs2db.getRunIDs(selectedSite.id, selectedERF.id, selectedSGTVariation, selectedRupVarScenario, selectedVelModel, null, null, null, null);
 		ArrayList<CybershakeIM> ampIms = null;
 		if (runIDs.size() > 0)
 			ampIms = hazCurve.getSupportedSA_PeriodStrings(runIDs.get(0));
 		else
 			ampIms = new ArrayList<CybershakeIM>();
-		ArrayList<CybershakeIM> curveIms = curve2db.getSupportedIMs(selectedSite.id, this.selectedERF.id, selectedRupVarScenario, selectedSGTVariation);
+		ArrayList<CybershakeIM> curveIms = curve2db.getSupportedIMs(selectedSite.id, this.selectedERF.id, selectedRupVarScenario, selectedSGTVariation, selectedVelModel);
 		
 		if (!isDeterministic) {
 			for (CybershakeIM curveIM : curveIms) {
@@ -635,6 +636,7 @@ extends ControlPanel implements ParameterChangeListener {
 		int erfID = this.selectedERF.id;
 		int rupVarID = this.selectedRupVarScenario;
 		int sgtID = this.selectedSGTVariation;
+		int velModelID = this.selectedVelModel;
 		int imID = this.im.getID();
 		
 		if (curveInDB) {
@@ -652,13 +654,13 @@ extends ControlPanel implements ParameterChangeListener {
 		
 		if (dbCurve) {
 			System.out.println("Computing a hazard curve from db for " + selectedSite);
-			int id = curve2db.getHazardCurveID(siteID, erfID, rupVarID, sgtID, imID);
+			int id = curve2db.getHazardCurveID(siteID, erfID, rupVarID, sgtID, velModelID, imID);
 			cyberShakeHazardData = curve2db.getHazardCurve(id);
 			this.publishButton.setEnabled(false);
 		} else {
 			System.out.println("Computing a hazard curve for " + selectedSite);
 			cyberShakeHazardData= hazCurve.computeHazardCurve(imlVals,selectedSite.short_name,
-					erfID, sgtID, rupVarID, im);
+					erfID, sgtID, rupVarID, velModelID, im);
 			this.publishButton.setEnabled(true);
 			currentHazardCurve = cyberShakeHazardData;
 		}
@@ -675,7 +677,7 @@ extends ControlPanel implements ParameterChangeListener {
 	private DiscretizedFuncAPI getDeterministicData(ArrayList imlVals) throws
 	RuntimeException {
 		DiscretizedFuncAPI cyberShakeDeterminicticHazardCurve = hazCurve.computeDeterministicCurve(imlVals, selectedSite.short_name,
-				this.selectedERF.id, selectedSGTVariation, selectedRupVarScenario,
+				this.selectedERF.id, selectedSGTVariation, selectedRupVarScenario, selectedVelModel,
 				selectedSrcId, selectedRupId, im);
 
 		return cyberShakeDeterminicticHazardCurve;
@@ -993,12 +995,13 @@ extends ControlPanel implements ParameterChangeListener {
 		int siteID = this.selectedSite.id;
 		int erfID = this.selectedERF.id;
 		int rupVarID = this.selectedRupVarScenario;
+		int velModelID = this.selectedVelModel;
 		int sgtID = this.selectedSGTVariation;
 		int imID = this.im.getID();
 		
 		boolean overwrite = false;
 		
-		int id = curve2db.getHazardCurveID(siteID, erfID, rupVarID, sgtID, imID);
+		int id = curve2db.getHazardCurveID(siteID, erfID, rupVarID, sgtID, velModelID, imID);
 		
 		// check to see if it's already in there
 		
@@ -1059,7 +1062,7 @@ extends ControlPanel implements ParameterChangeListener {
 		if (overwrite)
 			curve2db.replaceHazardCurve(id, currentHazardCurve);
 		else {
-			int runID = runs2db.getRunIDs(siteID, erfID, sgtID, rupVarID, null, null, null, null).get(0);
+			int runID = runs2db.getRunIDs(siteID, erfID, sgtID, rupVarID, velModelID, null, null, null, null).get(0);
 			CybershakeRun run = runs2db.getRun(runID);
 			curve2db.insertHazardCurve(run,
 					imID, currentHazardCurve);

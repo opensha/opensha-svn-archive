@@ -54,22 +54,22 @@ public class Runs2DB {
 		}
 	}
 	
-	public int getLatestRunID(int siteID, int erfID, int sgtVarID, int rupVarScenID,
+	public int getLatestRunID(int siteID, int erfID, int sgtVarID, int rupVarScenID, int velModelID,
 			Timestamp sgtTime, Timestamp ppTime, String sgtHost, String ppHost) {
-		ArrayList<Integer> ids = getRunIDs(siteID, erfID, sgtVarID, rupVarScenID, sgtTime, ppTime, sgtHost, ppHost);
+		ArrayList<Integer> ids = getRunIDs(siteID, erfID, sgtVarID, rupVarScenID, velModelID, sgtTime, ppTime, sgtHost, ppHost);
 		if (ids == null || ids.size() == 0)
 			return -1;
 		return ids.get(0);
 	}
 	
 	public ArrayList<Integer> getRunIDs(int siteID) {
-		return getRunIDs(siteID, -1, -1, -1, null, null, null, null);
+		return getRunIDs(siteID, -1, -1, -1, -1, null, null, null, null);
 	}
 	
-	public ArrayList<Integer> getRunIDs(int siteID, int erfID, int sgtVarID, int rupVarScenID,
+	public ArrayList<Integer> getRunIDs(int siteID, int erfID, int sgtVarID, int rupVarScenID, int velModelID,
 			Timestamp sgtTime, Timestamp ppTime, String sgtHost, String ppHost) {
 		String sql = "SELECT Run_ID FROM CyberShake_Runs";
-		String where = generateWhereClause(siteID, erfID, sgtVarID, rupVarScenID, sgtTime, ppTime, sgtHost, ppHost);
+		String where = generateWhereClause(siteID, erfID, sgtVarID, rupVarScenID, velModelID, sgtTime, ppTime, sgtHost, ppHost);
 		if (where != null && where.length() > 0)
 			sql += " WHERE" + where;
 		
@@ -119,26 +119,26 @@ public class Runs2DB {
 		}
 	}
 	
-	public CybershakeRun getLatestRun(int siteID, int erfID, int sgtVarID, int rupVarScenID,
+	public CybershakeRun getLatestRun(int siteID, int erfID, int sgtVarID, int rupVarScenID, int velModelID,
 			Timestamp sgtTime, Timestamp ppTime, String sgtHost, String ppHost) {
-		ArrayList<CybershakeRun> ids = getRuns(siteID, erfID, sgtVarID, rupVarScenID, sgtTime, ppTime, sgtHost, ppHost);
+		ArrayList<CybershakeRun> ids = getRuns(siteID, erfID, sgtVarID, rupVarScenID, velModelID, sgtTime, ppTime, sgtHost, ppHost);
 		if (ids == null || ids.size() == 0)
 			return null;
 		return ids.get(0);
 	}
 	
 	public ArrayList<CybershakeRun> getRuns() {
-		return getRuns(-1, -1, -1, -1, null, null, null, null);
+		return getRuns(-1, -1, -1, -1, -1, null, null, null, null);
 	}
 	
 	public ArrayList<CybershakeRun> getRuns(int siteID) {
-		return getRuns(siteID, -1, -1, -1, null, null, null, null);
+		return getRuns(siteID, -1, -1, -1, -1, null, null, null, null);
 	}
 	
-	public ArrayList<CybershakeRun> getRuns(int siteID, int erfID, int sgtVarID, int rupVarScenID,
+	public ArrayList<CybershakeRun> getRuns(int siteID, int erfID, int sgtVarID, int rupVarScenID, int velModelID,
 			Timestamp sgtTime, Timestamp ppTime, String sgtHost, String ppHost) {
 		String sql = "SELECT * FROM CyberShake_Runs";
-		String where = generateWhereClause(siteID, erfID, sgtVarID, rupVarScenID, sgtTime, ppTime, sgtHost, ppHost);
+		String where = generateWhereClause(siteID, erfID, sgtVarID, rupVarScenID, velModelID, sgtTime, ppTime, sgtHost, ppHost);
 		if (where != null && where.length() > 0)
 			sql += " WHERE" + where;
 		
@@ -165,7 +165,7 @@ public class Runs2DB {
 		return runs;
 	}
 	
-	private String generateWhereClause(int siteID, int erfID, int sgtVarID, int rupVarScenID,
+	private String generateWhereClause(int siteID, int erfID, int sgtVarID, int rupVarScenID, int velModelID,
 			Timestamp sgtTime, Timestamp ppTime, String sgtHost, String ppHost) {
 		String where = "";
 		boolean first = true;
@@ -196,6 +196,13 @@ public class Runs2DB {
 			else
 				where += " AND";
 			where += " Rup_Var_Scenario_ID=" + rupVarScenID;
+		}
+		if (velModelID >= 0) {
+			if (first)
+				first = false;
+			else
+				where += " AND";
+			where += " Velocity_Model_ID=" + velModelID;
 		}
 		if (sgtTime != null) {
 			if (first)
@@ -244,6 +251,46 @@ public class Runs2DB {
 			whereStr += ")";
 		
 		return whereStr;
+	}
+	
+	public ArrayList<CybershakeVelocityModel> getVelocityModels() {
+		return getVelocityModels(null);
+	}
+	
+	public CybershakeVelocityModel getVelocityModel(int id) {
+		String whereClause = "Velocity_Model_ID="+id;
+		ArrayList<CybershakeVelocityModel> models = getVelocityModels(whereClause);
+		if (models == null)
+			return null;
+		else
+			return models.get(0);
+	}
+	
+	private ArrayList<CybershakeVelocityModel> getVelocityModels(String whereClause) {
+		String sql = "SELECT * FROM Velocity_Models";
+		if (whereClause != null && whereClause.length() > 0)
+			sql += " WHERE" + whereClause;
+		
+		System.out.println(sql);
+		
+		ArrayList<CybershakeVelocityModel> vels = new ArrayList<CybershakeVelocityModel>();
+		
+		try {
+			ResultSet rs = db.selectData(sql);
+			boolean valid = rs.first();
+			
+			while (valid) {
+				vels.add(CybershakeVelocityModel.fromResultSet(rs));
+				
+				valid = rs.next();
+			}
+			
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		return vels;
 	}
 	
 	public static void main(String args[]) {

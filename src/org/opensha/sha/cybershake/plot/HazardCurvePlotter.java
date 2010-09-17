@@ -150,8 +150,8 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		init();
 	}
 	
-	private int getRunID(int siteID, int erfID, int rupVarScenarioID, int sgtVarID) {
-		ArrayList<Integer> runIDs = runs2db.getRunIDs(siteID, erfID, sgtVarID, rupVarScenarioID, null, null, null, null);
+	private int getRunID(int siteID, int erfID, int rupVarScenarioID, int sgtVarID, int velModelID) {
+		ArrayList<Integer> runIDs = runs2db.getRunIDs(siteID, erfID, sgtVarID, velModelID, rupVarScenarioID, null, null, null, null);
 		if (runIDs == null || runIDs.size() == 0)
 			return -1;
 		int id = -1;
@@ -280,7 +280,12 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 				sgtVarID = Integer.parseInt(cmd.getOptionValue("sgt-var-id"));
 			else
 				sgtVarID = -1;
-			runID = this.getRunID(siteID, erfID, rupVarScenarioID, sgtVarID);
+			int velModelID;
+			if (cmd.hasOption("vel-model-id"))
+				velModelID = Integer.parseInt(cmd.getOptionValue("vel-model-id"));
+			else
+				velModelID = -1;
+			runID = this.getRunID(siteID, erfID, rupVarScenarioID, sgtVarID, velModelID);
 			if (runID < 0) {
 				System.err.println("No suitable run ID found! siteID: " + siteID + ", erfID: " + erfID +
 						", rupVarScenarioID: " + rupVarScenarioID + ", sgtVarID: " + sgtVarID);
@@ -1036,6 +1041,10 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		Option sgt = new Option("sgt", "sgt-var-id", true, "STG Variation ID");
 		sgt.setRequired(false);
 		ops.addOption(sgt);
+		
+		Option vel = new Option("vel", "vel-model-id", true, "Velocity Model ID");
+		vel.setRequired(false);
+		ops.addOption(vel);
 		
 		Option run = new Option("R", "run-id", true, "Run ID");
 		run.setRequired(false);
