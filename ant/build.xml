@@ -67,7 +67,7 @@
 				<path refid="library.classpath" />
 			</classpath>
 			<src path="${test}" />
-			<include name="org/**" />
+			<!--<include name="org/**" />-->
 			<exclude name="**/_nobuild/**" />
 		</javac>
 	</target>
