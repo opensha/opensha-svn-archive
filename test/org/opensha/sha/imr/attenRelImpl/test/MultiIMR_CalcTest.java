@@ -14,6 +14,7 @@ import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.sha.calc.HazardCurveCalculator;
+import org.opensha.sha.calc.hazardMap.CurveAverager;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -39,8 +40,9 @@ public class MultiIMR_CalcTest {
 	private static EqkRupForecastAPI erf;
 	private static Site site;
 	private static HazardCurveCalculator hc;
-	
+
 	private static final double max_curve_pt_diff = 0.01;
+	private static final double max_avg_curve_pt_diff = 0.02;
 	private static final double max_val_diff = 0.01;
 
 	@BeforeClass
@@ -73,7 +75,7 @@ public class MultiIMR_CalcTest {
 		imrs.add(new BA_2008_AttenRel(null));
 		imrs.add(new CY_2008_AttenRel(null));
 		imrs.add(new AS_2008_AttenRel(null));
-		
+
 		if (setParamDefaults) {
 			for (ScalarIntensityMeasureRelationshipAPI imr : imrs)
 				imr.setParamDefaults();
@@ -86,67 +88,74 @@ public class MultiIMR_CalcTest {
 	public void testSingleIMRs_PGA() throws RemoteException {
 		doHC_NGA_Test(PGA_Param.NAME, -1.0);
 	}
-	
+
 	@Test
 	public void testSingleIMRs_PGV() throws RemoteException {
 		doHC_NGA_Test(PGV_Param.NAME, -1.0);
 	}
-	
+
 	@Test
 	public void testSingleIMRs_SA01() throws RemoteException {
 		doHC_NGA_Test(SA_Param.NAME, 0.1);
 	}
-	
+
 	@Test
 	public void testSingleIMRs_SA10() throws RemoteException {
 		doHC_NGA_Test(SA_Param.NAME, 1.0);
 	}
-	
+
 	@Test
 	public void testSingleIMRs_SA20() throws RemoteException {
 		doHC_NGA_Test(SA_Param.NAME, 2.0);
 	}
-	
+
+	@Test
+	public void testMultiIMRs_SA01() throws RemoteException {
+		ArrayList<ScalarIntensityMeasureRelationshipAPI> ngas1 = createNGAs(true);
+		ArrayList<ScalarIntensityMeasureRelationshipAPI> ngas2 = createNGAs(true);
+		testMultiIMRAverageCurve(new MultiIMR_Averaged_AttenRel(ngas1), ngas2, SA_Param.NAME, 1.0);
+	}
+
 	@Test
 	public void testSingleIMRs_EPSILON_SA10() throws RemoteException {
 		doVal_NGA_Test(SA_Param.NAME, 1.0, IMR_PROP.EPSILON);
 	}
-	
+
 	@Test
 	public void testSingleIMRs_MEAN_SA10() throws RemoteException {
 		doVal_NGA_Test(SA_Param.NAME, 1.0, IMR_PROP.MEAN);
 	}
-	
+
 	@Test
 	public void testSingleIMRs_STD_DEV_SA10() throws RemoteException {
 		doVal_NGA_Test(SA_Param.NAME, 1.0, IMR_PROP.STD_DEV);
 	}
-	
+
 	@Test
 	public void testSingleIMRs_EXCEED_PROB_SA10() throws RemoteException {
 		doVal_NGA_Test(SA_Param.NAME, 1.0, IMR_PROP.EXCEED_PROB);
 	}
-	
+
 	@Test
 	public void testSingleIMRs_EPSILON_PGA() throws RemoteException {
 		doVal_NGA_Test(PGA_Param.NAME, -1.0, IMR_PROP.EPSILON);
 	}
-	
+
 	@Test
 	public void testSingleIMRs_MEAN_PGA() throws RemoteException {
 		doVal_NGA_Test(PGA_Param.NAME, -1.0, IMR_PROP.MEAN);
 	}
-	
+
 	@Test
 	public void testSingleIMRs_STD_DEV_PGA() throws RemoteException {
 		doVal_NGA_Test(PGA_Param.NAME, -1.0, IMR_PROP.STD_DEV);
 	}
-	
+
 	@Test
 	public void testSingleIMRs_EXCEED_PROB_PGA() throws RemoteException {
 		doVal_NGA_Test(PGA_Param.NAME, -1.0, IMR_PROP.EXCEED_PROB);
 	}
-	
+
 	private void doHC_NGA_Test(String imt, double period) throws RemoteException {
 		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs1 = createNGAs(true);
 		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs2 = createNGAs(true);
@@ -158,7 +167,7 @@ public class MultiIMR_CalcTest {
 					getMulti(imrs3.get(i), imrs4.get(i)),
 					imt, period);
 	}
-	
+
 	private void doVal_NGA_Test(String imt, double period, IMR_PROP prop) throws RemoteException {
 		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs1 = createNGAs(true);
 		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs2 = createNGAs(true);
@@ -170,7 +179,7 @@ public class MultiIMR_CalcTest {
 					getMulti(imrs3.get(i), imrs4.get(i)),
 					imt, period, prop);
 	}
-	
+
 	private MultiIMR_Averaged_AttenRel getMulti(ScalarIntensityMeasureRelationshipAPI imr) {
 		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs =
 			new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
@@ -178,7 +187,7 @@ public class MultiIMR_CalcTest {
 		MultiIMR_Averaged_AttenRel multi = new MultiIMR_Averaged_AttenRel(imrs);
 		return multi;
 	}
-	
+
 	private MultiIMR_Averaged_AttenRel getMulti(ScalarIntensityMeasureRelationshipAPI imr1,
 			ScalarIntensityMeasureRelationshipAPI imr2) {
 		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs =
@@ -188,14 +197,14 @@ public class MultiIMR_CalcTest {
 		MultiIMR_Averaged_AttenRel multi = new MultiIMR_Averaged_AttenRel(imrs);
 		return multi;
 	}
-	
+
 	protected enum IMR_PROP {
 		EPSILON,
 		MEAN,
 		STD_DEV,
 		EXCEED_PROB;
 	}
-	
+
 	private void testSingleIMRIndVal(ScalarIntensityMeasureRelationshipAPI imr,
 			MultiIMR_Averaged_AttenRel multi,
 			MultiIMR_Averaged_AttenRel multis,
@@ -204,18 +213,18 @@ public class MultiIMR_CalcTest {
 		setIMT(imr, imt, period);
 		setIMT(multi, imt, period);
 		setIMT(multis, imt, period);
-		
+
 		imr.setSite(site);
 		multi.setSite(site);
 		multis.setSite(site);
-		
+
 		MinMaxAveTracker tracker1 = new MinMaxAveTracker();
 		MinMaxAveTracker tracker2 = new MinMaxAveTracker();
-		
+
 		String meta = "("+prop+") IMR: " + imr.getShortName() + " IMT: " + imt;
 		if (period >= 0)
 			meta += " PERIOD: " + period;
-		
+
 		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
 			ProbEqkSource source = erf.getSource(sourceID);
 			for (int rupID=0; rupID<source.getNumRuptures(); rupID++) {
@@ -223,11 +232,11 @@ public class MultiIMR_CalcTest {
 				imr.setEqkRupture(rup);
 				multi.setEqkRupture(rup);
 				multis.setEqkRupture(rup);
-				
+
 				double mean1 = imr.getMean();
 				double mean2 = multi.getMean();
 				double mean3 = multis.getMean();
-				
+
 				double val1 = 0;
 				double val2 = 0;
 				double val3 = 0;
@@ -248,7 +257,7 @@ public class MultiIMR_CalcTest {
 					val2 = multi.getExceedProbability();
 					val3 = multis.getExceedProbability();
 				}
-				
+
 				double diff1 = DataUtils.getPercentDiff(val1, val2);
 				double diff2 = DataUtils.getPercentDiff(val2, val3);
 				tracker1.addValue(diff1);
@@ -256,7 +265,7 @@ public class MultiIMR_CalcTest {
 				String vals = val1 + ", " + val2 + ", PDIFF1: " + diff1 + ", " + val3 + ", PDIFF2: " + diff2;
 				assertTrue(meta+" PDiff1 greater than "+max_val_diff+"\n"+vals, diff1 < max_val_diff);
 				assertTrue(meta+" PDiff2 greater than "+max_val_diff+"\n"+vals, diff2 < max_val_diff);
-				
+
 			}
 		}
 		System.out.println("********* " + meta + " *********");
@@ -265,17 +274,77 @@ public class MultiIMR_CalcTest {
 		System.out.println("********************************************************");
 	}
 
+	private void testMultiIMRAverageCurve(MultiIMR_Averaged_AttenRel multi,
+			ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs,
+			String imt, double period) throws RemoteException {
+
+		IMT_Info imtInfo = new IMT_Info();
+		ArrayList<DiscretizedFuncAPI> singleCurves = new ArrayList<DiscretizedFuncAPI>();
+		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+			setIMT(imr, imt, period);
+			DiscretizedFuncAPI singleCurve = imtInfo.getDefaultHazardCurve(imt);
+			hc.getHazardCurve(singleCurve, site, imr, erf);
+			singleCurves.add(singleCurve);
+		}
+		DiscretizedFuncAPI averageCurve = CurveAverager.averageCurves(singleCurves);
+		averageCurve.setName("Average value curve");
+		setIMT(multi, imt, period);
+		DiscretizedFuncAPI multiCurve = imtInfo.getDefaultHazardCurve(imt);
+		multiCurve.setName("Curve calculated with MultiIMR_Averaged_AttenRel");
+		hc.getHazardCurve(multiCurve, site, multi, erf);
+
+		String meta = "(hazard curve) IMT: " + imt;
+		if (period >= 0)
+			meta += " PERIOD: " + period;
+
+		MinMaxAveTracker tracker1 = new MinMaxAveTracker();
+
+		int perfectMatches = 0;
+
+		for (int j=0; j<multiCurve.getNum(); j++) {
+			double x = multiCurve.getX(j);
+			double yMulti = multiCurve.getY(j);
+			double ySingleAvg = averageCurve.getY(j);
+
+			if (ySingleAvg == yMulti && ySingleAvg != 0d)
+				perfectMatches++;
+
+			double diff = DataUtils.getPercentDiff(ySingleAvg, yMulti);
+			String vals = ySingleAvg + ", " + yMulti + ", PDIFF: " + diff;
+			assertTrue(meta+" PDiff1 greater than "+max_avg_curve_pt_diff+"\n"+vals, diff < max_avg_curve_pt_diff);
+
+			tracker1.addValue(diff);
+			String singleVals = null;
+			for (DiscretizedFuncAPI singleCurve : singleCurves) {
+				if (singleVals == null)
+					singleVals = "";
+				else
+					singleVals += "\t";
+				singleVals += "("+(float)singleCurve.getY(j)+")";
+			}
+			System.out.println(x+"\t"+(float)yMulti+"\t"+(float)ySingleAvg+"\t"+(float)diff+"\t"+singleVals);
+		}
+		//		System.out.println(multiCurve);
+		//		System.out.println(averageCurve);
+		System.out.println("********* " + meta + " *********");
+		System.out.println("Percent differences between MultiIMR value and averaged single values " +
+				"(for each hazard curve x value):\n" + tracker1);
+		System.out.println(perfectMatches+"/"+multiCurve.getNum()+" non zero curve points match EXACTLY");
+		System.out.println("********************************************************");
+
+	}
+
 	private void testSingleIMRHazardCurve(ScalarIntensityMeasureRelationshipAPI imr,
 			MultiIMR_Averaged_AttenRel multi,
 			MultiIMR_Averaged_AttenRel multis,
 			String imt, double period) throws RemoteException {
-		
+
 		setIMT(imr, imt, period);
 		setIMT(multi, imt, period);
 		setIMT(multis, imt, period);
 
 		IMT_Info imtInfo = new IMT_Info();
-		
+
 		DiscretizedFuncAPI curve1 = imtInfo.getDefaultHazardCurve(imt);
 		DiscretizedFuncAPI curve2 = imtInfo.getDefaultHazardCurve(imt);
 		DiscretizedFuncAPI curve3 = imtInfo.getDefaultHazardCurve(imt);
@@ -286,7 +355,7 @@ public class MultiIMR_CalcTest {
 		String meta = "(hazard curve) IMR: " + imr.getShortName() + " IMT: " + imt;
 		if (period >= 0)
 			meta += " PERIOD: " + period;
-		
+
 		MinMaxAveTracker tracker1 = new MinMaxAveTracker();
 		MinMaxAveTracker tracker2 = new MinMaxAveTracker();
 
@@ -308,7 +377,7 @@ public class MultiIMR_CalcTest {
 		System.out.println("compare single with multi(1):\t" + tracker1);
 		System.out.println("compare multi(1) with multi(2):\t" + tracker2);
 		System.out.println("********************************************************");
-		
+
 	}
 
 	protected static void setIMT(ScalarIntensityMeasureRelationshipAPI imr, String imt, double period) {
@@ -318,17 +387,17 @@ public class MultiIMR_CalcTest {
 			imtParam.getIndependentParameter(PeriodParam.NAME).setValue(period);
 		}
 	}
-	
+
 	@Test
 	public void testCurveAverage_SA01() throws RemoteException {
 		testCurveAverage(SA_Param.NAME, 0.1);
 	}
-	
+
 	@Test
 	public void testCurveAverage_SA10() throws RemoteException {
 		testCurveAverage(SA_Param.NAME, 1.0);
 	}
-	
+
 	@Test
 	public void testCurveAverage_PGA() throws RemoteException {
 		testCurveAverage(PGA_Param.NAME, -1.0);
@@ -343,7 +412,7 @@ public class MultiIMR_CalcTest {
 		cb08_multi.setParamDefaults();
 		ba08_master.setParamDefaults();
 		ba08_multi.setParamDefaults();
-		
+
 		IMT_Info imtInfo = new IMT_Info();
 
 		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
@@ -351,7 +420,7 @@ public class MultiIMR_CalcTest {
 		imrs.add(ba08_multi);
 
 		MultiIMR_Averaged_AttenRel multiIMR = new MultiIMR_Averaged_AttenRel(imrs);
-		
+
 		setIMT(multiIMR, imt, period);
 		setIMT(cb08_master, imt, period);
 		setIMT(ba08_master, imt, period);
@@ -367,12 +436,12 @@ public class MultiIMR_CalcTest {
 		int numVals = multiFunc.getNum();
 		int numEqualCB = 0;
 		int numEqualBA = 0;
-		
+
 		for (int i=0; i<numVals; i++) {
 			double multiVal = multiFunc.getY(i);
 			double cbVal = cb08Func.getY(i);
 			double baVal = ba08Func.getY(i);
-			
+
 			if (multiVal != 0 && multiVal == cbVal)
 				numEqualCB++;
 			if (multiVal != 0 && multiVal == baVal)
