@@ -154,7 +154,18 @@ public class General_EQSIM_Tools {
 		return namesOfSections;
 	}
 
-	
+	public void read_EQSIMv04_EventsFile(URL url) {
+		ArrayList<String> lines=null;
+		try {
+			lines = FileUtils.loadFile(url);
+			System.out.println("Number of file lines: "+lines.size()+" (in "+url+")");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		read_EQSIMv04_EventsFile(lines);
+	}
 	
 	private void read_EQSIMv04_EventsFile(String filePathName) {
 
@@ -167,6 +178,10 @@ public class General_EQSIM_Tools {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		read_EQSIMv04_EventsFile(lines);
+	}
+	
+	private void read_EQSIMv04_EventsFile(ArrayList<String> lines) {
 		
 		ListIterator<String> linesIterator = lines.listIterator();
 		
