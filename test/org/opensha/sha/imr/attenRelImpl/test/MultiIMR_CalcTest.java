@@ -41,7 +41,15 @@ public class MultiIMR_CalcTest {
 	private static Site site;
 	private static HazardCurveCalculator hc;
 
+	/**
+	 * The maximum allowed percent difference for curves calculated with 1 IMR by itself
+	 * vs when wrapped with the MultiIMR averager
+	 */
 	private static final double max_curve_pt_diff = 0.01;
+	/**
+	 * The maximum allowed percent difference for curves calculated with multiple IMRs by themselves
+	 * (and then averaged) vs calculated with the MultiIMR averager
+	 */
 	private static final double max_avg_curve_pt_diff = 0.02;
 	private static final double max_val_diff = 0.01;
 
