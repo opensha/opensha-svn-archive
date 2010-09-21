@@ -2,7 +2,7 @@ package org.opensha.sha.simulators.eqsim_v04;
 
 import java.util.ArrayList;
 
-public class EQSIM_Event extends ArrayList<EventRecord> {
+public class EQSIM_Event extends ArrayList<EventRecord> implements Comparable<EQSIM_Event> {
 	
 	int event_id;			
 	double magnitude;		// (same for all records for the event)
@@ -15,6 +15,17 @@ public class EQSIM_Event extends ArrayList<EventRecord> {
 		this.magnitude=eventRecord.getMagnitude();
 		this.time=eventRecord.getTime();
 		this.duration=eventRecord.getDuration();
+	}
+	
+	public int compareTo(EQSIM_Event event) {
+		double thisTime = this.getTime();
+		double thatTime = event.getTime();
+		if(thisTime<thatTime)
+			return -1;
+		else if(thisTime>thatTime)
+			return 1;
+		else
+			return 0;  // they're equal
 	}
 	
 	public void addEventRecord(EventRecord eventRecord){
@@ -39,6 +50,17 @@ public class EQSIM_Event extends ArrayList<EventRecord> {
 	 * @return
 	 */
 	public double getTime() { return time;}
+	
+	/**
+	 * This overrides the event time with the value passed in
+	 * @param time
+	 */
+	public void setTime(double time) {
+		this.time=time;
+		for(EventRecord rec:this) {
+			rec.setTime(time);
+		}
+	}
 	
 	/**
 	 * This returns the time of the event in years

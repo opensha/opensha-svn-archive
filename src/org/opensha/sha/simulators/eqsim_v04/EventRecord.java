@@ -155,6 +155,8 @@ public class EventRecord {
 	
 	public double getTime() { return time;}
 	
+	public void setTime(double time) { this.time=time;}
+	
 	public ArrayList<Integer> getElementID_List() {return elementID_List;}
 	
 	/**

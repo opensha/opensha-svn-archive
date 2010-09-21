@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
@@ -31,6 +32,7 @@ import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 
 /**
@@ -948,13 +950,46 @@ public class General_EQSIM_Tools {
 		return eventList;
 	}
 	
+	public void randomizeEventTimes() {
+		System.out.println(eventList.get(0).getTime()+"\t"+eventList.get(eventList.size()-1).getTime()+"\t"+eventList.size());
+		double firstEventTime=eventList.get(0).getTime();
+		double simDurInSec = eventList.get(eventList.size()-1).getTime() - firstEventTime;
+		for(EQSIM_Event event:eventList)
+			event.setTime(firstEventTime+Math.random()*simDurInSec);
+		Collections.sort(eventList);
+		System.out.println(eventList.get(0).getTime()+"\t"+eventList.get(eventList.size()-1).getTime()+"\t"+eventList.size());
+		
+		double lastTime=0;
+		for(EQSIM_Event event:eventList)
+			if(lastTime>event.getTime()) System.out.println("out of order");
+
+	}
+	
+	public void plotYearlyEventRates() {
+		
+		double startTime=eventList.get(0).getTime();
+		int numYears = (int)getSimulationDurationInYears();
+		EvenlyDiscretizedFunc evPerYear = new EvenlyDiscretizedFunc(0.0, numYears+1, 1.0);
+		for(EQSIM_Event event :eventList) {
+			int year = (int)((event.getTime()-startTime)/SECONDS_PER_YEAR);
+			evPerYear.add(year, 1.0);
+		}
+		ArrayList<EvenlyDiscretizedFunc> funcList = new ArrayList<EvenlyDiscretizedFunc>();
+		funcList.add(evPerYear);
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, "Num Events Per Year"); 
+		graph.setX_AxisLabel("Year");
+		graph.setY_AxisLabel("Number");
+	}
+	
 	
 	
 	public void testTimePredictability(double magThresh, String fileName) {
 
 		FileWriter fw_timePred;
+		FileWriter fw_eventTimes;
 		try {
 			fw_timePred = new FileWriter(fileName);
+			fw_eventTimes = new FileWriter("eventTimes");
 
 			double[] lastTimeForElement = new double[rectElementsList.size()];
 			double[] lastSlipForElement = new double[rectElementsList.size()];
@@ -972,22 +1007,21 @@ public class General_EQSIM_Tools {
 			ArrayList<Double> spInterval1List = new ArrayList<Double>();
 			ArrayList<Double> spInterval2List = new ArrayList<Double>();
 			ArrayList<Integer> firstSectionList = new ArrayList<Integer>();
-
+			
+			System.out.println("Minimum Magnitude Considered for time and slip predicatbility = "+magThresh);
 			
 			// write file header
 			fw_timePred.write("counter\tobsInterval\ttpInterval1\tnorm_tpInterval1\ttpInterval2\tnorm_tpInterval2\t"+
 					"spInterval1\tnorm_spInterval1\tspInterval2\tnorm_spInterval2\t"+
 					"aveLastSlip\taveSlip\teventMag\teventID\tfirstSectionID\tnumSectionsInEvent\tsectionsInEventString\n");
-//			efw.write("obs\tpred\tnormRI\n");
 			
-			double simDurInSec = eventList.get(eventList.size()-1).getTime() - eventList.get(0).getTime();
-
+			
 			// loop over all events
 			for(EQSIM_Event event:eventList) {
 				numEvents +=1;
 				double eventTime = event.getTime();
-//				double eventTime = Math.random()*simDurInSec;
-/*				
+				
+				/*				
 				// write out Berryessa event info
 				for(EventRecord evRec: event) {
 					if(evRec.getSectionID() == 6) {
@@ -995,7 +1029,7 @@ public class General_EQSIM_Tools {
 					}
 				}
 */				
-				if(event.hasElementSlipsAndIDs() && event.getMagnitude() > magThresh) {
+				if(event.hasElementSlipsAndIDs() && event.getMagnitude() >= magThresh) {
 					boolean goodSample = true;
 					double eventMag = event.getMagnitude();
 					String sectionsInEventString = new String();
@@ -1072,12 +1106,6 @@ public class General_EQSIM_Tools {
 								(float)eventMag+"\t"+event.getID()+"\t"+
 								event.get(0).getSectionID()+"\t"+
 								event.size()+"\t"+sectionsInEventString+"\n");
-						/*
-						if(Double.isInfinite(tpInterval2))
-							System.out.println("tpInterval2=NaN for line "+counter+"\taveLastSlip="+aveSlip+"\taveSlipRate="+aveSlipRate);
-						if(Double.isInfinite(spInterval2))
-							System.out.println("spInterval2=NaN for line "+counter+"\taveSlip="+aveSlip+"\taveSlipRate="+aveSlipRate);
-*/
 						// save for calculating correlations
 						obsIntervalList.add(obsInterval);
 						tpInterval1List.add(tpInterval1);
@@ -1102,7 +1130,6 @@ public class General_EQSIM_Tools {
 			
 			System.out.println("\nMinimum Magnitude Considered in Time Dependence = "+magThresh+"\n");
 
-			
 			// Print correlations
 			System.out.println("\nCorrelations between all Observed and Predicted Intervals:");
 			System.out.println("\t"+(float)getCorrelation(tpInterval1List, obsIntervalList)+" for tpInterval1");
@@ -1112,7 +1139,6 @@ public class General_EQSIM_Tools {
 			
 			// now do correlations for each section
 			System.out.println("\nCorrelations between Observed and tpInterval1 by Section:");
-			
 			for(int s=0;s<namesOfSections.size();s++) {
 				ArrayList<Double> vals1 = new ArrayList<Double>();
 				ArrayList<Double> vals2 = new ArrayList<Double>();
@@ -1126,17 +1152,16 @@ public class General_EQSIM_Tools {
 					System.out.println("\t"+(s+1)+"\t"+(float)getCorrelation(vals1, vals2)+
 						"\tfor section "+namesOfSections.get(s)+"(num points = "+vals1.size()+")");
 					else
-						System.out.println("\t"+(s+1)+"\tNaN\t\t for section "+
-								namesOfSections.get(s)+"(num points = "+vals1.size()+")");
+						System.out.println("\t"+(s+1)+"\tNaN\t\t"+
+								namesOfSections.get(s)+" (num points = "+vals1.size()+")");
 			}
-			
-			
 			
 			System.out.println(numBad+" events were bad");
 			
 			System.out.println("minElementArea="+(float)minElementArea+"\tmaxElementArea"+(float)maxElementArea);
 			
 			fw_timePred.close();
+			fw_eventTimes.close();
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -1285,6 +1310,58 @@ public class General_EQSIM_Tools {
 			}
 		}
 	}
+	
+	public double[] getRecurIntervalsForNearestLoc(double lat, double lon, double magThresh, boolean makePlot) {
+		Location loc = new Location(lat,lon);
+		double recurInt =0;
+		double minDist= Double.MAX_VALUE;
+		int elementIndex=-1;
+		//Find nearest Element
+		for(int i=0; i<rectElementsList.size(); i++) {
+			double dist = DistanceRupParameter.getDistance(loc, rectElementsList.get(i).getGriddedSurface());
+			if(dist<minDist){
+				minDist=dist;
+				elementIndex= i;
+			}
+		}
+		Integer elemID = rectElementsList.get(elementIndex).getID();
+		System.out.println("Closest Element to loc is rect elem ID "+elemID+
+				" on "+rectElementsList.get(elementIndex).getSectionName()+" ("+minDist+" km away)");
+		
+		ArrayList<Double> eventTimes = new ArrayList<Double>();
+		for(EQSIM_Event event:eventList) {
+			if(event.getAllElementIDs().contains(elemID) && event.getMagnitude() >= magThresh) {
+				eventTimes.add(event.getTimeInYears());
+			}
+		}
+		double[] intervals = new double[eventTimes.size()-1];
+		double maxInterval=0;
+		for(int i=1;i<eventTimes.size();i++) {
+			intervals[i-1] = (eventTimes.get(i)-eventTimes.get(i-1));
+			if(intervals[i-1]>maxInterval) maxInterval = intervals[i-1];
+		}
+		
+		System.out.println("number of RIs for loc is "+intervals.length);
+		
+		// calc num bins at 10-year intervals
+		int numBins = (int)Math.ceil(maxInterval/10.0);
+		EvenlyDiscretizedFunc riHist = new EvenlyDiscretizedFunc(5.0, numBins, 10.0);
+		riHist.setTolerance(20.0);  // anything more than 10 should do it
+		
+		for(int i=0; i<intervals.length;i++)
+			riHist.add(intervals[i], 1.0);
+		
+		if(makePlot){
+			ArrayList<EvenlyDiscretizedFunc> funcList = new ArrayList<EvenlyDiscretizedFunc>();
+			funcList.add(riHist);
+			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, "Recurence Interval"); 
+			graph.setX_AxisLabel("RI (yrs)");
+			graph.setY_AxisLabel("Number");
+
+		}
+
+		return intervals;
+	}
 
 
 	
@@ -1311,13 +1388,16 @@ public class General_EQSIM_Tools {
 		String fullPath = "org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/NCA_Ward_Geometry.dat.txt";
 		General_EQSIM_Tools test = new General_EQSIM_Tools(fullPath);
 		ArrayList<String> sectNames = test.getSectionsNameList();
-		System.out.println("Section Names (IDs)");
-		for(int s=0; s<sectNames.size();s++)	System.out.println("\t"+sectNames.get(s)+"("+(s+1)+")");
+//		System.out.println("Section Names (IDs)");
+//		for(int s=0; s<sectNames.size();s++)	System.out.println("\t"+sectNames.get(s)+"("+(s+1)+")");
 		test.read_EQSIMv04_EventsFile("org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/eqs.NCA_RSQSim.barall.txt");
 		test.checkEventMagnitudes();
 //		test.checkElementSlipRates("testSlipRateFileForEQSim", true);
 		System.out.println("Simulation Duration is "+(float)test.getSimulationDurationInYears()+" years");
-//		test.testTimePredictability(5.5, "testTimePredFileForEQSim_M5pt5_rand");
+		test.randomizeEventTimes();
+//		test.plotYearlyEventRates();
+//		test.getRecurIntervalsForNearestLoc(36.9415,  -121.6729, 6.5, true);
+		test.testTimePredictability(6.5, "testTimePredFileForEQSim_M6pt5_rand");
 //		ArbIncrementalMagFreqDist mfd = test.computeTotalMagFreqDist(4.05,9.05,51,true);
 //		ArrayList<ArbIncrementalMagFreqDist> funcs = test.computeMagFreqDistByFaultSection(4.05,9.05,51,true,false);
 		

@@ -124,36 +124,37 @@ implements WarningParameterAPI
 	 * Note that this doesn not throw a warning
 	 */
 	protected void calcValueFromSiteAndEqkRup(){
-		if( ( this.site != null ) && ( this.eqkRupture != null ) ){
-
-			Location loc1 = site.getLocation();
-			double minDistance = 999999;
-			double horzDist, vertDist, totalDist;
-			
-			EvenlyGriddedSurfaceAPI rupSurf = eqkRupture.getRuptureSurface();
-			
-			// get locations to iterate over depending on dip
-			ListIterator it;
-			if(rupSurf.getAveDip() > 89)
-				it = rupSurf.getColumnIterator(0);
-			else
-				it = rupSurf.getLocationsIterator();
-
-			while( it.hasNext() ){
-				Location loc2 = (Location) it.next();
-				horzDist = LocationUtils.horzDistance(loc1, loc2);
-				vertDist = LocationUtils.vertDistance(loc1, loc2);
-				totalDist = horzDist * horzDist + vertDist * vertDist;
-				if( totalDist < minDistance ) minDistance = totalDist;
-			}				
-
-			this.setValueIgnoreWarning( new Double( Math.pow ( minDistance , 0.5 ) ));
-
-		}
-		else this.value = null;
+		if( ( this.site != null ) && ( this.eqkRupture != null ))
+			this.setValueIgnoreWarning(getDistance(site.getLocation(), eqkRupture.getRuptureSurface()));
+		else
+			this.value = null;
 
 
 	}
+	
+	public static double getDistance(Location loc, EvenlyGriddedSurfaceAPI rupSurf) {
+		double minDistance = 999999;
+		double horzDist, vertDist, totalDist;
+		
+		// get locations to iterate over depending on dip
+		ListIterator it;
+		if(rupSurf.getAveDip() > 89)
+			it = rupSurf.getColumnIterator(0);
+		else
+			it = rupSurf.getLocationsIterator();
+
+		while( it.hasNext() ){
+			Location loc2 = (Location) it.next();
+			horzDist = LocationUtils.horzDistance(loc, loc2);
+			vertDist = LocationUtils.vertDistance(loc, loc2);
+			totalDist = horzDist * horzDist + vertDist * vertDist;
+			if( totalDist < minDistance ) minDistance = totalDist;
+		}				
+
+		return Math.pow ( minDistance , 0.5 );
+
+	}
+	
 
 	/** This is used to determine what widget editor to use in GUI Applets.  */
 	public String getType() {
