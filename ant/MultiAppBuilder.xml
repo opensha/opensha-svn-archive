@@ -185,7 +185,7 @@
 	
 	<target name="build.faults">
 		<ant antfile="${app.build.file}" target="build.app">
-			<property name="app.short.name" value="FaultSectionsApp" />
+			<property name="app.short.name" value="FaultSections" />
 			<property name="app.main.class" value="org.opensha.refFaultParamDb.gui.FaultSectionsAndModelsApp" />
 			<property name="javac.includes" value="org/opensha/refFaultParamDb/**/*.java" />
 			<property name="javac.excludes" value="" />
@@ -195,7 +195,7 @@
 	
 	<target name="build.paleo.sites">
 		<ant antfile="${app.build.file}" target="build.app">
-			<property name="app.short.name" value="FaultSectionsApp" />
+			<property name="app.short.name" value="PaleoSites" />
 			<property name="app.main.class" value="org.opensha.refFaultParamDb.gui.PaleoSiteApp2" />
 			<property name="javac.includes" value="org/opensha/refFaultParamDb/**/*.java" />
 			<property name="javac.excludes" value="" />
