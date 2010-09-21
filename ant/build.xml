@@ -132,6 +132,18 @@
 		</java>
 	</target>
 	
+	<target name="update.wgcep.jnlps">
+		<java
+			classname="org.opensha.refFaultParamDb.gui.DBAppsJNLPGen"
+			fork="true"
+			dir="../">
+			<classpath>
+				<pathelement location="${build}" />
+				<path refid="library.classpath" />
+			</classpath>
+		</java>
+	</target>
+	
 	<target name="copy.server.jar" if="server.apps.dir">
 		<copy todir="${server.apps.dir}/${app.short.name}/${app.build.type}">
 			<fileset dir="${project.jnlp.dir}/${app.build.type}">

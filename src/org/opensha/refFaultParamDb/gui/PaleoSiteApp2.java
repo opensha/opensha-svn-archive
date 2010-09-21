@@ -90,13 +90,16 @@ import org.opensha.sha.gui.infoTools.CalcProgressBar;
 
 public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, ParameterChangeListener {
 	
+	
+	
 	private final static DB_AccessAPI dbConnection = DB_ConnectionPool.getLatestReadWriteConn();
 
 	private final static int WIDTH = 925;
 	private final static int HEIGHT = 800;
 
-	private final static String TITLE =
+	public final static String APP_NAME =
 		"California Reference Geologic Fault Parameter (Paleo Site) GUI";
+	public final static String APP_SHORT_NAME = "PaleoSites";
 	private final static String TIMESPAN_PARAM_NAME = "TimeSpans";
 	private final static String DATA_SPECIFIC_TO_TIME_INTERVALS =
 		"Data currently in this database";
@@ -155,7 +158,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
 	public PaleoSiteApp2() {
 		combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(dbConnection);
 		try {
-			setTitle(TITLE);
+			setTitle(APP_NAME);
 			jbInit();
 			addTimeSpansPanel();
 			addSitesPanel(); // add the available sites from database for viewing

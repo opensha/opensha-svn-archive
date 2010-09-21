@@ -35,6 +35,14 @@
 		<antcall target="build.all"/>
 	</target>
 	
+	<target name="build.wgcep.dist">
+		<ant antfile="build.xml" target="update.wgcep.jnlps"/>
+		<property name="server.apps.dir" value="/var/www/html/apps/opensha" />
+		<property name="app.build.type" value="nightly" />
+		<property name="sign.jars" value="true" />
+		<antcall target="build.wgcep"/>
+	</target>
+	
 	<target name="build.dist">
 		<ant antfile="build.xml" target="update.jnlps"/>
 		<property name="server.apps.dir" value="/var/www/html/apps/opensha" />
@@ -61,6 +69,11 @@
 		<antcall target="build.hc.server" />
 		<antcall target="build.hs.server" />
 		<antcall target="build.sm.server" />
+	</target>
+	
+	<target name="build.wgcep">
+		<antcall target="build.faults" />
+		<antcall target="build.paleo.sites" />
 	</target>
 	
 	<target name="build.hc.local">

@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
@@ -29,7 +30,7 @@ import org.opensha.sha.magdist.gui.MagFreqDistApp;
 
 public class JNLPGen {
 	
-	private static final String jnlpDir = "ant" + File.separator + "jnlp";
+	public static final String jnlpDir = "ant" + File.separator + "jnlp";
 	protected static final String webRoot = "http://opensha.usc.edu/apps/opensha";
 	
 	protected static final int[] icon_sizes = { 128, 64, 48, 32, 16 };
@@ -44,7 +45,7 @@ public class JNLPGen {
 	private String title;
 	private String iconText;
 	private int xmxMegs = 1024;
-	private static ServerPrefs prefs = ServerPrefUtils.SERVER_PREFS;
+	private ServerPrefs prefs = ServerPrefUtils.SERVER_PREFS;
 	private boolean startMenu = true;
 	private boolean desktop = true;
 	private boolean allowOffline = true;
@@ -60,13 +61,13 @@ public class JNLPGen {
 		this.allowOffline = allowOffline;
 	}
 	
-	private void generateAppIcons(String baseDir) throws IOException {
+	public void generateAppIcons(String baseDir, HashMap<int[], BufferedImage> logoIcon) throws IOException {
 		String iconDir = baseDir + File.separator + iconsDirName;
 		File dirFile = new File(iconDir);
 		if (!dirFile.exists())
 			dirFile.mkdirs();
 		
-		IconGen gen = new IconGen(IconGen.loadLogoIcon(), iconText, Font.SANS_SERIF, Color.WHITE, Color.BLACK);
+		IconGen gen = new IconGen(logoIcon, iconText, Font.SANS_SERIF, Color.WHITE, Color.BLACK);
 		if (allowOffline)
 			gen.setUpperRightImage(IconGen.loadLocalIcon());
 		else
@@ -80,16 +81,16 @@ public class JNLPGen {
 		}
 	}
 	
+	private void generateAppIcons(String baseDir) throws IOException {
+		generateAppIcons(baseDir, IconGen.loadLogoIcon());
+	}
+	
 	protected static String getIconName(String shortName, int size) {
 		return shortName + "_" + size + "x" + size + ".png";
 	}
 	
-	public static void setDefaultServerPrefs(ServerPrefs prefs) {
-		JNLPGen.prefs = prefs;
-	}
-	
 	public void setServerPrefs(ServerPrefs prefs) {
-		JNLPGen.prefs = prefs;
+		this.prefs = prefs;
 	}
 	
 	private String getDistType() {
@@ -271,9 +272,9 @@ public class JNLPGen {
 				GMT_MapGeneratorApplet.APP_NAME, "GMT", true));
 		
 		for (ServerPrefs myPrefs : prefsToBuild) {
-			setDefaultServerPrefs(myPrefs);
 			String distOutDir = outputDir + File.separator + myPrefs.getBuildType();
 			for (JNLPGen app : appsToBuild) {
+				app.setServerPrefs(myPrefs);
 				app.generateAppIcons(distOutDir);
 				app.writeJNLPFile(distOutDir);
 			}

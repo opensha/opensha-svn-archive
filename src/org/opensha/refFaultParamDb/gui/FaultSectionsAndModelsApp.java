@@ -24,6 +24,9 @@ import org.opensha.refFaultParamDb.gui.view.ViewFaultSection;
  *
  */
 public class FaultSectionsAndModelsApp extends JFrame {
+	public static final String APP_NAME = "WGCEP Fault Sections and Models Application";
+	public static final String APP_SHORT_NAME = "FaultSections";
+	
 	private JTabbedPane tabbedPane = new JTabbedPane();
 	private final static String FAULT_SECTION = "Fault Section";
 	private final static String FAULT_MODEL = "Fault Model";
