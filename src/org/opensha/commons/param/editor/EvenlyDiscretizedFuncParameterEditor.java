@@ -237,7 +237,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
       Double minVal = (Double)parameterList.getParameter(EvenlyDiscretizedFuncParameter.MIN_PARAM_NAME).getValue();
       String isMissing = " is missing";
       if(minVal==null) {
-    	this.editor.getParameterEditor(EvenlyDiscretizedFuncParameter.MIN_PARAM_NAME).grabFocus();
+    	this.editor.getParameterEditor(EvenlyDiscretizedFuncParameter.MIN_PARAM_NAME).getComponent().grabFocus();
         JOptionPane.showMessageDialog(this, EvenlyDiscretizedFuncParameter.MIN_PARAM_NAME+isMissing);
         return;
       }
@@ -245,7 +245,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
       // check that user has entered max val
       Double maxVal = (Double)parameterList.getParameter(EvenlyDiscretizedFuncParameter.MAX_PARAM_NAME).getValue();
       if(maxVal==null) {
-    	  this.editor.getParameterEditor(EvenlyDiscretizedFuncParameter.MAX_PARAM_NAME).grabFocus();
+    	  this.editor.getParameterEditor(EvenlyDiscretizedFuncParameter.MAX_PARAM_NAME).getComponent().grabFocus();
         JOptionPane.showMessageDialog(this, EvenlyDiscretizedFuncParameter.MAX_PARAM_NAME+isMissing);
         return;
       }
@@ -253,7 +253,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
       //check that user has entered num values
       Integer numVal = (Integer)parameterList.getParameter(EvenlyDiscretizedFuncParameter.NUM_PARAM_NAME).getValue();
       if(numVal==null) {
-    	  this.editor.getParameterEditor(EvenlyDiscretizedFuncParameter.NUM_PARAM_NAME).grabFocus();
+    	  this.editor.getParameterEditor(EvenlyDiscretizedFuncParameter.NUM_PARAM_NAME).getComponent().grabFocus();
         JOptionPane.showMessageDialog(this, EvenlyDiscretizedFuncParameter.NUM_PARAM_NAME+isMissing);
 
         return;

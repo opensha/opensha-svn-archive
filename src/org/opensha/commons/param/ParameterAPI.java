@@ -24,7 +24,7 @@ import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.metadata.XMLSaveable;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 
 
@@ -291,5 +291,5 @@ public interface ParameterAPI<E> extends NamedObjectAPI, Comparable, XMLSaveable
      * This returns an editor for this parameter. The parameter editor shouldn't be
      * instantiated until the first call to this method in order to save memory.
      */
-    public ParameterEditor getEditor();
+    public ParameterEditorAPI getEditor();
 }

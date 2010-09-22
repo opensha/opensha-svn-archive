@@ -36,6 +36,7 @@ import org.opensha.commons.param.BooleanParameter;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ArbitrarilyDiscretizedFuncTableModel;
 import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 
@@ -334,12 +335,12 @@ public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements Par
 			return;
 		if (D) System.out.println("WaldRefreshParams start...");
 		String val = (String)coeffPresetParam.getValue();
-		ParameterEditor funcEditor = this.paramEdit.getParameterEditor(COEFF_FUNC_PARAM_NAME);
+		ParameterEditorAPI funcEditor = this.paramEdit.getParameterEditor(COEFF_FUNC_PARAM_NAME);
 		funcEditor.setEnabled(val == COEFF_CUSTOM_NAME);
 		if (D) System.out.println("WaldRefreshParams refreshing params...");
 //		funcEditor.refreshParamEditor();
 		paramEdit.refreshParamEditor();
-		funcEditor.validate();
+		funcEditor.getComponent().validate();
 		paramEdit.validate();
 //		paramEdit.refreshParamEditor();
 		if (D) System.out.println("WaldRefreshParams DONE");

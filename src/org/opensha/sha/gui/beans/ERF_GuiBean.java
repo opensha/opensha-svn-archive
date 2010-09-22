@@ -40,6 +40,7 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
@@ -306,7 +307,8 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 		// get the panel for increasing the font and border
 		// this is hard coding for increasing the IMR font
 		// the colors used here are from ParameterEditor
-		JPanel panel = listEditor.getParameterEditor(this.ERF_PARAM_NAME).getOuterPanel();
+		
+		JPanel panel = ((ParameterEditor)listEditor.getParameterEditor(ERF_PARAM_NAME)).getOuterPanel();
 		TitledBorder titledBorder1 = new TitledBorder(
 				BorderFactory.createLineBorder(
 						new Color( 80, 80, 140 ),3),ERF_PARAM_NAME);

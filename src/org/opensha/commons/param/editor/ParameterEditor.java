@@ -294,14 +294,6 @@ public class ParameterEditor
     }
 
     /**
-     * Set the value of the parameer as a String, regardless of it's true data type .
-     * Internally the string is converted to the correct data type if possible.
-     * This base class does nothing in this function, i.e. empty function. To be
-     * determined by subclasses.
-     */
-    public void setAsText( String string ) throws IllegalArgumentException { }
-
-    /**
      * VERY IMPORTANT function to understand this framework. This
      * is the function overidden by all subclasses to add different types
      * of editors. The titled border name is also updated. This base class
@@ -348,12 +340,6 @@ public class ParameterEditor
 
     /** Returns the parameter this editor is pointing to.  */
     public ParameterAPI getParameter() { return model; }
-
-    /** Not sure what this is used for. This base class function is empty. */
-    public String[] getTags() { return null; }
-
-    /** Returns the value of the parameer as a String, regardless of it's true data type */
-    public String getAsText() { return getValue().toString(); }
 
     /** Returns the focusEnabled boolean indicating this is the GUI componet with the current focus */
     public boolean isFocusEnabled() { return focusEnabled; }
@@ -565,7 +551,7 @@ public class ParameterEditor
     }
 
 
-	public JPanel getPanel() {
+	public JPanel getComponent() {
 		return this;
 	}
 

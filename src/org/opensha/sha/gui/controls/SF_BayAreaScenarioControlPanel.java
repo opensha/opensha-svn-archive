@@ -24,6 +24,7 @@ import java.io.FileReader;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.gui.beans.AttenuationRelationshipGuiBean;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
@@ -113,7 +114,7 @@ public class SF_BayAreaScenarioControlPanel {
       erfPanel.showAllParamsForForecast(false);
 
       //changing the ERF to Frankel02_AdjustableEqkRupForecast
-      ParameterEditor paramEditor = erfGuiBean.getParameterEditor(erfPanel.ERF_PARAM_NAME);
+      ParameterEditorAPI paramEditor = erfGuiBean.getParameterEditor(erfPanel.ERF_PARAM_NAME);
       paramEditor.setValue(Frankel02_AdjustableEqkRupForecast.NAME);
       paramEditor.refreshParamEditor();
 

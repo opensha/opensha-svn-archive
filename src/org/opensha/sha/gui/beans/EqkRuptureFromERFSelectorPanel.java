@@ -52,6 +52,7 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
@@ -572,7 +573,7 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 		// get the panel for increasing the font and border
 		// this is hard coding for increasing the IMR font
 		// the colors used here are from ParameterEditor
-		JPanel panel = listEditor.getParameterEditor(erfGuiBean.ERF_PARAM_NAME).getOuterPanel();
+		JPanel panel = ((ParameterEditor)listEditor.getParameterEditor(erfGuiBean.ERF_PARAM_NAME)).getOuterPanel();
 		TitledBorder titledBorder1 = new TitledBorder(BorderFactory.createLineBorder(new Color( 80, 80, 140 ),3),"");
 		titledBorder1.setTitleColor(new Color( 80, 80, 140 ));
 		Font DEFAULT_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 13 );
@@ -737,7 +738,7 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 	 * @param paramName
 	 * @returns the ParameterEditor associated with paramName
 	 */
-	public ParameterEditor getParameterEditor(String paramName){
+	public ParameterEditorAPI getParameterEditor(String paramName){
 		return listEditor.getParameterEditor(paramName);
 	}
 

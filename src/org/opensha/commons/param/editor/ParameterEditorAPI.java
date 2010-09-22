@@ -19,6 +19,9 @@
 
 package org.opensha.commons.param.editor;
 
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+
 import org.opensha.commons.param.ParameterAPI;
 
 /**
@@ -41,19 +44,19 @@ import org.opensha.commons.param.ParameterAPI;
  * @version    1.0
  */
 
-public interface ParameterEditorAPI {
+public interface ParameterEditorAPI<E> {
 
     /** Set the value of the Parameter this editor is editing. */
-    public void setValue( Object object );
+    public void setValue( E object );
 
     /** Returns the value of the parameter object.  */
-    public Object getValue();
+    public E getValue();
 
     /**
      * Needs to be called by subclasses when editable widget field change fails
      * due to constraint problems. Allows rollback to the previous good value.
      */
-    public void unableToSetValue( Object object );
+    public void unableToSetValue( E object );
 
     /**
      * Called when the parameter has changed independently from
@@ -63,23 +66,11 @@ public interface ParameterEditorAPI {
      */
     public void refreshParamEditor();
 
-    /** Returns the value of the parameer as a String, regardless of it's true data type */
-    public String getAsText();
-
-    /**
-     * Set the value of the parameer as a String, regardless of it's true data type .
-     * Internally the string is converted to the correct data type if possible.
-     */
-    public void setAsText( String string ) throws IllegalArgumentException;
-
-    /** Not sure what this is used for. */
-    public String[] getTags();
-
     /** Returns the parameter that is stored internally that this GUI widget is editing */
-    public ParameterAPI getParameter();
+    public ParameterAPI<E> getParameter();
 
     /** Sets the parameter that is stored internally for this GUI widget to edit */
-    public void setParameter( ParameterAPI model );
+    public void setParameter( ParameterAPI<E> model );
 
 
     /** Sets the focusEnabled boolean indicating this is the GUI componet with the current focus */
@@ -87,6 +78,14 @@ public interface ParameterEditorAPI {
 
     /** Returns the focusEnabled boolean indicating this is the GUI componet with the current focus */
     public boolean isFocusEnabled();
+    
+    public void setEnabled(boolean isEnabled);
+    
+    public void setVisible(boolean isVisible);
+    
+    public boolean isVisible();
+    
+    public JComponent getComponent();
 
 }
 

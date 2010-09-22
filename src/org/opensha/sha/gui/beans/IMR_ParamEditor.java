@@ -86,7 +86,7 @@ public class IMR_ParamEditor extends ParameterListEditor implements ParameterCha
 		}
 		else{
 			setParameterVisible( SigmaTruncLevelParam.NAME, true );
-			getParameterEditor(SigmaTruncLevelParam.NAME).validate();
+			getParameterEditor(SigmaTruncLevelParam.NAME).getComponent().validate();
 		}
 		this.validate();
 	}

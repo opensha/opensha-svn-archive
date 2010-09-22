@@ -76,7 +76,7 @@ public class ParameterListEditor extends LabeledBoxPanel {
 	/** Both the parameterEditor and parameterName maintain the same ordering of the
 	 *  parameters. parametersEditor store the editor for each parameter name stored
 	 *  in the  parameterName variable at the same index.*/
-	protected ArrayList<ParameterEditor> parameterEditors = new ArrayList<ParameterEditor>();
+	protected ArrayList<ParameterEditorAPI> parameterEditors = new ArrayList<ParameterEditorAPI>();
 	protected ArrayList<String> parametersName = new ArrayList<String>();
 
 	/** Calls super() to configure the GUI */
@@ -121,7 +121,7 @@ public class ParameterListEditor extends LabeledBoxPanel {
 		parameterName = parameterList.getParameterName( parameterName );
 		int index = getIndexOf(parameterName);
 		if ( index != -1 ) {
-			ParameterEditor editor = parameterEditors.get(index);
+			ParameterEditorAPI editor = parameterEditors.get(index);
 			editor.setVisible( visible );
 		}
 
@@ -133,7 +133,7 @@ public class ParameterListEditor extends LabeledBoxPanel {
 	 */
 	public void setEnabled(boolean isEnabled) {
 		for(int i=0; i<parameterEditors.size(); ++i)
-			parameterEditors.get(i).getPanel().setEnabled(isEnabled);
+			parameterEditors.get(i).getComponent().setEnabled(isEnabled);
 	}
 
 
@@ -159,10 +159,10 @@ public class ParameterListEditor extends LabeledBoxPanel {
 
 		ParameterList visibles = new ParameterList();
 
-		Iterator<ParameterEditor> it = parameterEditors.iterator();
+		Iterator<ParameterEditorAPI> it = parameterEditors.iterator();
 		while ( it.hasNext() ) {
 
-			ParameterEditor editor = it.next();
+			ParameterEditorAPI editor = it.next();
 			if ( editor.isVisible() ) {
 				ParameterAPI param = ( ParameterAPI ) editor.getParameter();
 				visibles.addParameter( param );
@@ -190,12 +190,12 @@ public class ParameterListEditor extends LabeledBoxPanel {
 	 * @return                             Returns the found ParameterEditor for the named parameter
 	 * @exception  NoSuchElementException  Thrown if the named parameter doesn't exist.
 	 */
-	public ParameterEditor getParameterEditor( String parameterName ) throws NoSuchElementException {
+	public ParameterEditorAPI getParameterEditor( String parameterName ) throws NoSuchElementException {
 
 		parameterName = parameterList.getParameterName( parameterName );
 		int index = getIndexOf(parameterName);
 		if ( index != -1 ) {
-			ParameterEditor editor = parameterEditors.get(index);
+			ParameterEditorAPI editor = parameterEditors.get(index);
 			return editor;
 		}
 		else
@@ -214,9 +214,9 @@ public class ParameterListEditor extends LabeledBoxPanel {
 	 * event.
 	 */
 	public void refreshParamEditor() {
-		Iterator<ParameterEditor> it = parameterEditors.iterator();
+		Iterator<ParameterEditorAPI> it = parameterEditors.iterator();
 		while ( it.hasNext() ) {
-			ParameterEditor editor = it.next();
+			ParameterEditorAPI editor = it.next();
 			editor.refreshParamEditor();
 		}
 	}
@@ -232,7 +232,7 @@ public class ParameterListEditor extends LabeledBoxPanel {
 		parameterName = this.parameterList.getParameterName( parameterName );
 		int index = getIndexOf(parameterName);
 		if ( index != -1 ) {
-			ParameterEditor editor = parameterEditors.get(index);
+			ParameterEditorAPI editor = parameterEditors.get(index);
 			editor.setParameter( param );
 			parameterList.removeParameter( parameterName );
 			parameterList.addParameter( param );
@@ -259,13 +259,13 @@ public class ParameterListEditor extends LabeledBoxPanel {
 		int counter = 0;
 		
 		for (ParameterAPI<?> param : parameterList) {
-			ParameterEditor paramEdit = param.getEditor();
+			ParameterEditorAPI paramEdit = param.getEditor();
 			paramEdit.setVisible(true);
 			if (paramEdit == null)
 				throw new RuntimeException("No parameter editor exists for type: " + param.getType() + " (" + param.getClass().getName() + ")");
 			parametersName.add(param.getName());
 			parameterEditors.add(paramEdit );
-			editorPanel.add(paramEdit, new GridBagConstraints( 0, counter, 0,1, 1.0, 1.0
+			editorPanel.add(paramEdit.getComponent(), new GridBagConstraints( 0, counter, 0,1, 1.0, 1.0
 					, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets( 4, 4, 4, 4 ), 0, 0 ) );
 			counter++;
 		}

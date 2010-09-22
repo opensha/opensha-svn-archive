@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
@@ -86,7 +87,7 @@ public class PuenteHillsScenarioTestControlPanel {
     //making the ERF Gui Bean Adjustable Param not visible to the user, becuase
     //this control panel will set the values by itself.
     //This is done in the EqkRupSelectorGuiBean
-    ParameterEditor paramEditor = erfGuiBean.getParameterEditor(erfGuiBean.RUPTURE_SELECTOR_PARAM_NAME);
+    ParameterEditorAPI paramEditor = erfGuiBean.getParameterEditor(erfGuiBean.RUPTURE_SELECTOR_PARAM_NAME);
     paramEditor.setValue(erfGuiBean.RUPTURE_FROM_EXISTING_ERF);
     paramEditor.refreshParamEditor();
     EqkRuptureFromERFSelectorPanel erfPanel= (EqkRuptureFromERFSelectorPanel)erfGuiBean.getEqkRuptureSelectorPanel();

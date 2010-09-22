@@ -36,6 +36,7 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
@@ -432,7 +433,7 @@ public class EqkRuptureCreationPanel
    * @param paramName
    * @returns the ParameterEditor associated with paramName
    */
-  public ParameterEditor getParameterEditor(String paramName) {
+  public ParameterEditorAPI getParameterEditor(String paramName) {
     if (parameterList.containsParameter(paramName)) {
       if (listEditor.getParameterEditor(paramName).isVisible()) {
         return listEditor.getParameterEditor(paramName);

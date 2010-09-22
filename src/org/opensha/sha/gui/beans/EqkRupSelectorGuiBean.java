@@ -36,6 +36,7 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
@@ -322,8 +323,8 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 	 * @param paramName
 	 * @returns the ParameterEditor associated with paramName
 	 */
-	public ParameterEditor getParameterEditor(String paramName){
-		if(paramName.equals(this.RUPTURE_SELECTOR_PARAM_NAME))
+	public ParameterEditorAPI getParameterEditor(String paramName){
+		if(paramName.equals(RUPTURE_SELECTOR_PARAM_NAME))
 			return this.ruptureSelectorParamEditor;
 		else{
 			return eqkRupturePanel.getParameterEditor(paramName);
