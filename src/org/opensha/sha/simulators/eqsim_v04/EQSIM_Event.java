@@ -38,6 +38,21 @@ public class EQSIM_Event extends ArrayList<EventRecord> implements Comparable<EQ
 		return (eventRecord.getID() == event_id);
 	}
 	
+	
+	/**
+	 * Note that das must be supplied in meters.
+	 * @param sectId
+	 * @param das
+	 * @return
+	 */
+	public boolean doesEventIncludeSectionAndDAS(int sectId, double das) {
+		boolean includes = false;
+		for(EventRecord eventRecord: this)
+			if(eventRecord.getSectionID() == sectId && das<eventRecord.das_hi && das>eventRecord.das_lo)
+				includes = true;
+		return includes;
+	}
+	
 	public int getID() { return event_id;}
 	
 	public double getMagnitude() { return magnitude;}

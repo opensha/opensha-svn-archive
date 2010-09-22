@@ -82,6 +82,10 @@ public class Vertex extends Location {
 
 	public int getID() {return id;}
 	
+	/**
+	 * Note that DAS here is in km (whereas it's m in the EQSIM specs)
+	 * @return
+	 */
 	public double getDAS() {return das;}
 
 	public int getTraceFlag() {return traceFlag;}

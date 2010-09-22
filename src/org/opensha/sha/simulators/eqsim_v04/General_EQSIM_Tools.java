@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
+import org.apache.commons.math.MathException;
+import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.stat.correlation.PearsonsCorrelation;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.MomentMagCalc;
@@ -951,18 +953,13 @@ public class General_EQSIM_Tools {
 	}
 	
 	public void randomizeEventTimes() {
-		System.out.println(eventList.get(0).getTime()+"\t"+eventList.get(eventList.size()-1).getTime()+"\t"+eventList.size());
+		System.out.println("Event Times have been randomized");
 		double firstEventTime=eventList.get(0).getTime();
 		double simDurInSec = eventList.get(eventList.size()-1).getTime() - firstEventTime;
 		for(EQSIM_Event event:eventList)
 			event.setTime(firstEventTime+Math.random()*simDurInSec);
 		Collections.sort(eventList);
-		System.out.println(eventList.get(0).getTime()+"\t"+eventList.get(eventList.size()-1).getTime()+"\t"+eventList.size());
 		
-		double lastTime=0;
-		for(EQSIM_Event event:eventList)
-			if(lastTime>event.getTime()) System.out.println("out of order");
-
 	}
 	
 	public void plotYearlyEventRates() {
@@ -1131,32 +1128,39 @@ public class General_EQSIM_Tools {
 			System.out.println("\nMinimum Magnitude Considered in Time Dependence = "+magThresh+"\n");
 
 			// Print correlations
-			System.out.println("\nCorrelations between all Observed and Predicted Intervals:");
-			System.out.println("\t"+(float)getCorrelation(tpInterval1List, obsIntervalList)+" for tpInterval1");
-			System.out.println("\t"+(float)getCorrelation(tpInterval2List, obsIntervalList)+" for tpInterval2");
-			System.out.println("\t"+(float)getCorrelation(spInterval1List, obsIntervalList)+" for spInterval1");
-			System.out.println("\t"+(float)getCorrelation(spInterval2List, obsIntervalList)+" for spInterval2");
-			
+			double[] result;
+			System.out.println("\nCorrelations (and chance it's random) between all Observed and Predicted Intervals:");
+			result = this.getCorrelationAndP_Value(tpInterval1List, obsIntervalList);
+			System.out.println("\t"+(float)result[0]+"\t("+result[1]+") for tpInterval1 (num pts ="+tpInterval1List.size()+")");
+			result = this.getCorrelationAndP_Value(tpInterval2List, obsIntervalList);
+			System.out.println("\t"+(float)result[0]+"\t("+result[1]+") for tpInterval2 (num pts ="+tpInterval2List.size()+")");
+			result = this.getCorrelationAndP_Value(spInterval1List, obsIntervalList);
+			System.out.println("\t"+(float)result[0]+"\t("+result[1]+") for spInterval1 (num pts ="+spInterval1List.size()+")");
+			result = this.getCorrelationAndP_Value(spInterval2List, obsIntervalList);
+			System.out.println("\t"+(float)result[0]+"\t("+result[1]+") for spInterval2 (num pts ="+spInterval2List.size()+")");
+
 			// now do correlations for each section
-			System.out.println("\nCorrelations between Observed and tpInterval1 by Section:");
+			System.out.println("\nCorrelations (and chance it's random) between Observed and tpInterval2 by Section:");
 			for(int s=0;s<namesOfSections.size();s++) {
 				ArrayList<Double> vals1 = new ArrayList<Double>();
 				ArrayList<Double> vals2 = new ArrayList<Double>();
 				for(int i=0;i<obsIntervalList.size();i++) {
 					if(firstSectionList.get(i).intValue() == s+1) {
 						vals1.add(obsIntervalList.get(i));
-						vals2.add(tpInterval1List.get(i));
+						vals2.add(tpInterval2List.get(i));
 					}
 				}
-				if(vals1.size()>10)
-					System.out.println("\t"+(s+1)+"\t"+(float)getCorrelation(vals1, vals2)+
-						"\tfor section "+namesOfSections.get(s)+"(num points = "+vals1.size()+")");
-					else
-						System.out.println("\t"+(s+1)+"\tNaN\t\t"+
-								namesOfSections.get(s)+" (num points = "+vals1.size()+")");
+				if(vals1.size()>2) {
+					result = this.getCorrelationAndP_Value(vals1, vals2);
+					System.out.println("\t"+(s+1)+"\t"+(float)result[0]+"\t("+(float)result[1]+
+							")\tfor section "+namesOfSections.get(s)+" (num points = "+vals1.size()+")");
+				}
+				else
+					System.out.println("\t"+(s+1)+"\tNaN\t\t\t\t"+
+							namesOfSections.get(s)+" (num points = "+vals1.size()+")");
 			}
 			
-			System.out.println(numBad+" events were bad");
+			System.out.println("\n"+numBad+" events were bad");
 			
 			System.out.println("minElementArea="+(float)minElementArea+"\tmaxElementArea"+(float)maxElementArea);
 			
@@ -1169,22 +1173,40 @@ public class General_EQSIM_Tools {
 
 	}
 	
+	
 	/**
-	 * This computes the correlation coefficient between the two lists
+	 * This computes the correlation coefficient and the p-value between the two lists.  
+	 * The p-value represents the two-tailed significance of the result (and it depends on the 
+	 * number of points).  This represents the probability that a truly random process
+	 * would produce a correlation greater than the value or less than the negative value.  
+	 * In other words, if you reject the null hypothesis that there is no correlation, then
+	 * there is the p-value chance that you are wrong.  The one sided values are exactly half 
+	 * the two-sided values.
 	 * @param list1
 	 * @param list2
-	 * @return
+	 * @return double[2], where the first element is the correlation and the second is the p-value
 	 */
-	private double getCorrelation(ArrayList<Double> list1, ArrayList<Double> list2) {
-		double[] xVals = new double[list1.size()];
-		double[] yVals = new double[list2.size()];
+	private double[] getCorrelationAndP_Value(ArrayList<Double> list1, ArrayList<Double> list2) {
+		double[][] vals = new double[list1.size()][2];
 		for(int i=0;i<list1.size();i++) {
-			xVals[i] = list1.get(i);
-			yVals[i] = list2.get(i);
+			vals[i][0] = list1.get(i);
+			vals[i][1] = list2.get(i);
 		}
-		PearsonsCorrelation corrCalc = new PearsonsCorrelation();
-		return corrCalc.correlation(xVals, yVals);
+		PearsonsCorrelation corrCalc = new PearsonsCorrelation(vals);
+		double[] result = new double[2];
+		RealMatrix matrix;
+		try {
+			matrix = corrCalc.getCorrelationMatrix();
+			result[0] = matrix.getEntry(0, 1);
+			matrix = corrCalc.getCorrelationPValues();
+			result[1] = matrix.getEntry(0, 1);
+		} catch (MathException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result;
 	}
+
 	
 	
 	/**
@@ -1311,6 +1333,16 @@ public class General_EQSIM_Tools {
 		}
 	}
 	
+	
+	/**
+	 * This one only includes events that utilize the nearest rectangular element (presumably the 
+	 * one at the surface), which means non-surface rupturing events will not be included
+	 * @param lat
+	 * @param lon
+	 * @param magThresh
+	 * @param makePlot
+	 * @return
+	 */
 	public double[] getRecurIntervalsForNearestLoc(double lat, double lon, double magThresh, boolean makePlot) {
 		Location loc = new Location(lat,lon);
 		double recurInt =0;
@@ -1362,6 +1394,79 @@ public class General_EQSIM_Tools {
 
 		return intervals;
 	}
+	
+	
+	/**
+	 * This one include events that pass anywhere below the site (by using DAS values)
+	 * @param lat
+	 * @param lon
+	 * @param magThresh
+	 * @param makePlot
+	 * @return
+	 */
+	public double[] getRecurIntervalsForNearestLoc2(double lat, double lon, double magThresh, boolean makePlot) {
+		Location loc = new Location(lat,lon);
+		double minDist= Double.MAX_VALUE;
+		int vertexIndex=-1;
+		//Find nearest Element
+		for(int i=0; i<vertexList.size(); i++) {
+			double dist = LocationUtils.linearDistance(loc, vertexList.get(i));
+			if(dist<minDist){
+				minDist=dist;
+				vertexIndex= i;
+			}
+		}
+		Vertex closestVertex = vertexList.get(vertexIndex);
+		double das = 1000* closestVertex.getDAS(); // convert to meters for comparisons below
+		int sectIndex = -1;
+		// find the section index for this vertex
+		for(int i=0; i<vertexListForSections.size(); i++)
+			if(vertexListForSections.get(i).contains(closestVertex))
+				sectIndex = i;
+		int sectID = sectIndex+1;
+				
+		System.out.println("Closest Vertex to loc has ID "+closestVertex.getID()+
+				", is on section "+this.namesOfSections.get(sectIndex)+" at DAS="+(float)das+", and is "+(float)minDist+" km away from the target site ("+lat+","+lon+").");
+
+		ArrayList<Double> eventTimes = new ArrayList<Double>();
+//		System.out.println("Events Included:\n\t\teventID\teventMag\teventTime");
+//		int num=0;
+		for(EQSIM_Event event:eventList) {
+			if(event.getMagnitude() >= magThresh && event.doesEventIncludeSectionAndDAS(sectID,das)) {
+						eventTimes.add(event.getTimeInYears());
+//						num+=1;
+//						System.out.println("\t"+num+"\t"+event.getID()+"\t"+event.getMagnitude()+"\t"+event.getTime());
+			}
+		}
+		double[] intervals = new double[eventTimes.size()-1];
+		double maxInterval=0;
+		for(int i=1;i<eventTimes.size();i++) {
+			intervals[i-1] = (eventTimes.get(i)-eventTimes.get(i-1));
+			if(intervals[i-1]>maxInterval) maxInterval = intervals[i-1];
+		}
+		
+		System.out.println("number of RIs for loc is "+intervals.length);
+		
+		// calc num bins at 10-year intervals
+		int numBins = (int)Math.ceil(maxInterval/10.0);
+		EvenlyDiscretizedFunc riHist = new EvenlyDiscretizedFunc(5.0, numBins, 10.0);
+		riHist.setTolerance(20.0);  // anything more than 10 should do it
+		
+		for(int i=0; i<intervals.length;i++)
+			riHist.add(intervals[i], 1.0);
+		
+		if(makePlot){
+			ArrayList<EvenlyDiscretizedFunc> funcList = new ArrayList<EvenlyDiscretizedFunc>();
+			funcList.add(riHist);
+			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, "Recurence Interval"); 
+			graph.setX_AxisLabel("RI (yrs)");
+			graph.setY_AxisLabel("Number");
+
+		}
+
+		return null;
+	}
+
 
 
 	
@@ -1391,12 +1496,12 @@ public class General_EQSIM_Tools {
 //		System.out.println("Section Names (IDs)");
 //		for(int s=0; s<sectNames.size();s++)	System.out.println("\t"+sectNames.get(s)+"("+(s+1)+")");
 		test.read_EQSIMv04_EventsFile("org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/eqs.NCA_RSQSim.barall.txt");
-		test.checkEventMagnitudes();
+//		test.checkEventMagnitudes();
 //		test.checkElementSlipRates("testSlipRateFileForEQSim", true);
 		System.out.println("Simulation Duration is "+(float)test.getSimulationDurationInYears()+" years");
-		test.randomizeEventTimes();
+//		test.randomizeEventTimes();
 //		test.plotYearlyEventRates();
-//		test.getRecurIntervalsForNearestLoc(36.9415,  -121.6729, 6.5, true);
+//		test.getRecurIntervalsForNearestLoc2(36.9415,  -121.6729, 6.5, true);
 		test.testTimePredictability(6.5, "testTimePredFileForEQSim_M6pt5_rand");
 //		ArbIncrementalMagFreqDist mfd = test.computeTotalMagFreqDist(4.05,9.05,51,true);
 //		ArrayList<ArbIncrementalMagFreqDist> funcs = test.computeMagFreqDistByFaultSection(4.05,9.05,51,true,false);
