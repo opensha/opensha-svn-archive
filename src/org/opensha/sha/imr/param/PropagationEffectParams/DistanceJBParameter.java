@@ -128,15 +128,11 @@ implements WarningParameterAPI
 	/**
 	 * Note that this does not throw a warning
 	 */
-	protected void calcValueFromSiteAndEqkRup(){
-		if( ( this.site != null ) && ( this.eqkRupture != null ) ){
+	public static double getDistance(Location loc, EvenlyGriddedSurfaceAPI rupSurf) {
 
-			Location loc1 = site.getLocation();
 			Location loc2;
 			double minDistance = 999999;
 			double currentDistance;
-
-			EvenlyGriddedSurfaceAPI rupSurf = eqkRupture.getRuptureSurface();
 			
 			// get locations to iterate over depending on dip
 			ListIterator it;
@@ -148,28 +144,43 @@ implements WarningParameterAPI
 			while( it.hasNext() ){
 
 				loc2 = (Location) it.next();
-				currentDistance = LocationUtils.horzDistance(loc1, loc2);
+				currentDistance = LocationUtils.horzDistance(loc, loc2);
 				if( currentDistance < minDistance ) minDistance = currentDistance;
 			}				
 
+			return minDistance;
+		}
+	
+	
+	/**
+	 * Note that this doesn't not throw a warning
+	 */
+	protected void calcValueFromSiteAndEqkRup(){
+		if( ( this.site != null ) && ( this.eqkRupture != null )) {
+			Location loc = site.getLocation();
+			EvenlyGriddedSurfaceAPI rupSurf = eqkRupture.getRuptureSurface();
+			double dist = getDistance(loc, rupSurf);
 			// fix distanceJB if needed
-			if(fix_dist_JB)
+			if(fix_dist_JB){
 				if(rupSurf.getNumCols() > 1 && rupSurf.getNumRows() > 1) {
 					double d1, d2,min_dist;
-					loc1 = rupSurf.getLocation(0, 0);
-					loc2 = rupSurf.getLocation(1, 1);
-					d1 = LocationUtils.horzDistance(loc1,loc2);
-					loc1 = rupSurf.getLocation(0, 1);
+					loc = rupSurf.getLocation(0, 0);
+					Location loc2 = rupSurf.getLocation(1, 1);
+					d1 = LocationUtils.horzDistance(loc,loc2);
+					loc = rupSurf.getLocation(0, 1);
 					loc2 = rupSurf.getLocation(1, 0);
-					d2 = LocationUtils.horzDistance(loc1,loc2);
+					d2 = LocationUtils.horzDistance(loc,loc2);
 					min_dist = Math.min(d1, d1)/2;
-					if(minDistance<=min_dist) minDistance = 0;
+					if(dist<=min_dist) dist = 0;
 				}
-
-			this.setValueIgnoreWarning( new Double( minDistance ) );
+			}
+			this.setValueIgnoreWarning(dist);
 		}
-		else this.setValue(null);
+		else
+			this.value = null;
 	}
+
+	
 
 	/**
 	 * Setting this as true will change the calculated distanceJB value to 0.0 if it's less
