@@ -121,15 +121,13 @@ implements WarningParameterAPI
 
 
 	/**
-	 * Note that this doesn not throw a warning
+	 * Note that this doesn't not throw a warning
 	 */
 	protected void calcValueFromSiteAndEqkRup(){
 		if( ( this.site != null ) && ( this.eqkRupture != null ))
 			this.setValueIgnoreWarning(getDistance(site.getLocation(), eqkRupture.getRuptureSurface()));
 		else
 			this.value = null;
-
-
 	}
 	
 	public static double getDistance(Location loc, EvenlyGriddedSurfaceAPI rupSurf) {
