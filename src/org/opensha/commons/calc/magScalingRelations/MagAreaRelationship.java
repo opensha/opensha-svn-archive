@@ -19,6 +19,9 @@
 
 package org.opensha.commons.calc.magScalingRelations;
 
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+
 
 
 /**
@@ -36,6 +39,28 @@ package org.opensha.commons.calc.magScalingRelations;
 public abstract class MagAreaRelationship extends MagScalingRelationship {
 
     final static String C = "MagAreaRelationship";
+    
+    
+    
+    /**
+     * This returns an ArbitrarilyDiscretizedFunc with Mag on the y-axis and 
+     * Area on the x-axis (sampled at the given mag increments)
+     * @param minMag
+     * @param deltaMag
+     * @param numMag
+     * @return
+     */
+    public ArbitrarilyDiscretizedFunc getMagAreaFunction(double minMag, double deltaMag, int numMag) {
+    	ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+    	for(int i=0; i<numMag; i++) {
+    		double mag = minMag+deltaMag*i;
+    		double area = getMedianArea(mag);
+    		func.set(area, mag);
+    	}
+    	func.setName(this.getName());
+    	func.setInfo("Mag-Area relationship");
+    	return func;
+    }
 
     /**
      * Computes the median magnitude from rupture area

@@ -160,7 +160,18 @@ public class WC1994_MagAreaRelationship extends MagAreaRelationship {
      *
      */
     public String getName() {
-      return NAME;
+    	String type;
+        if (Double.isNaN(rake))
+            type = "All";
+          else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
+            type = "strike slip";
+          else if (rake > 0)
+            type = "thrust/reverse";
+          else
+            type =  "normal";
+ 
+    	
+      return NAME +" for "+type+" events";
     }
 
 /*

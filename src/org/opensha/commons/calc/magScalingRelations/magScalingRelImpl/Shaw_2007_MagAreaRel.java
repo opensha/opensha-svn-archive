@@ -20,7 +20,11 @@
 package org.opensha.commons.calc.magScalingRelations.magScalingRelImpl;
 
 
+import java.util.ArrayList;
+
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 
 /**
  * <b>Title:</b>Shaw_2007_MagAreaRel<br>
@@ -35,6 +39,7 @@ public class Shaw_2007_MagAreaRel extends MagAreaRelationship {
 
     final static String C = "Shaw_2007_MagAreaRel";
     public final static String NAME = "Shaw (2007)";
+    ArbitrarilyDiscretizedFunc magAreaFunc = null;
 
     /**
      * Computes the median magnitude from rupture area.
@@ -61,7 +66,26 @@ public class Shaw_2007_MagAreaRel extends MagAreaRelationship {
      * @return median area in km
      */
     public double getMedianArea(double mag){
-          return Double.NaN;
+    	
+    	if(magAreaFunc == null) {
+        	magAreaFunc = new ArbitrarilyDiscretizedFunc();
+        	// area from 1 to 100000 (log area from 0 to 5)
+        	for(int i=0; i<=1000; i++) {
+        		double logArea = (double)i*5.5/1000.0;
+        		double area = Math.pow(10,logArea);
+        		double tempMag = getMedianMag(area);
+        		magAreaFunc.set(area, tempMag);
+        	}
+        	/* debugging stuff 
+        	System.out.println("firstMag="+magAreaFunc.getY(0));
+        	System.out.println("lastMag="+magAreaFunc.getY(magAreaFunc.getNum()-1));
+    		ArrayList funcs = new ArrayList();
+    		funcs.add(magAreaFunc);
+    		funcs.add(this.getMagAreaFunction(4, 0.1, 45));
+    		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Mag vs Area");   
+*/
+    	}
+     	return magAreaFunc.getFirstInterpolatedX(mag);
    }
 
     /**
@@ -77,5 +101,10 @@ public class Shaw_2007_MagAreaRel extends MagAreaRelationship {
     public String getName() {
       return NAME;
     }
+    
+	public static void main(String[] args) {
+		Shaw_2007_MagAreaRel test = new Shaw_2007_MagAreaRel();
+		test.getMedianArea(7);
+	}
 }
 
