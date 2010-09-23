@@ -16,6 +16,10 @@ import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.stat.correlation.PearsonsCorrelation;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.MomentMagCalc;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Shaw_2007_MagAreaRel;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
 import org.opensha.commons.data.NamedObjectComparator;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -962,6 +966,9 @@ public class General_EQSIM_Tools {
 		
 	}
 	
+	/**
+	 * 
+	 */
 	public void plotYearlyEventRates() {
 		
 		double startTime=eventList.get(0).getTime();
@@ -1181,7 +1188,7 @@ public class General_EQSIM_Tools {
 	 * would produce a correlation greater than the value or less than the negative value.  
 	 * In other words, if you reject the null hypothesis that there is no correlation, then
 	 * there is the p-value chance that you are wrong.  The one sided values are exactly half 
-	 * the two-sided values.
+	 * the two-sided values.  I verified the p-values against an on-line calculator.
 	 * @param list1
 	 * @param list2
 	 * @return double[2], where the first element is the correlation and the second is the p-value
@@ -1334,6 +1341,77 @@ public class General_EQSIM_Tools {
 	}
 	
 	
+	public void plotScalingRelationships() {
+		double[] slip = new double[eventList.size()];
+		double[] mag = new double[eventList.size()];
+		double[] area = new double[eventList.size()];
+		double[] length = new double[eventList.size()];
+		
+		int index = -1;
+		for(EQSIM_Event event:eventList) {
+			index +=1;
+			slip[index]=event.getMeanSlip();
+			mag[index]=event.getMagnitude();
+			area[index]=event.getArea()/1e6; 		// convert to km-sq
+			length[index]=event.getLength()/1000; 	// convert to km
+		}
+		/*
+		XY_DataSet s_vs_l_data = new XY_DataSet(slip,length);
+		s_vs_l_data.setName("Mean Slip vs Length");
+		s_vs_l_data.setInfo(" ");
+		ArrayList s_vs_l_funcs = new ArrayList();
+		s_vs_l_funcs.add(s_vs_l_data);
+		GraphiWindowAPI_Impl s_vs_l_graph = new GraphiWindowAPI_Impl(s_vs_l_funcs, "Mean Slip vs Length");   
+		s_vs_l_graph.setX_AxisLabel("Mean Slip (m)");
+		s_vs_l_graph.setY_AxisLabel("Length (km)");
+		ArrayList<PlotCurveCharacterstics> s_vs_l_curveChar = new ArrayList<PlotCurveCharacterstics>();
+		s_vs_l_curveChar.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CIRCLES, Color.BLUE, 3));
+		s_vs_l_graph.setPlottingFeatures(s_vs_l_curveChar);
+		*/
+		XY_DataSet m_vs_a_data = new XY_DataSet(area,mag);
+		m_vs_a_data.setName("Mag vs Area");
+		m_vs_a_data.setInfo(" ");
+		ArrayList m_vs_a_funcs = new ArrayList();
+		Ellsworth_B_WG02_MagAreaRel elB = new Ellsworth_B_WG02_MagAreaRel();
+		HanksBakun2002_MagAreaRel hb = new HanksBakun2002_MagAreaRel();
+		WC1994_MagAreaRelationship wc = new WC1994_MagAreaRelationship();
+		wc.setRake(0);
+		Shaw_2007_MagAreaRel sh = new Shaw_2007_MagAreaRel();
+		m_vs_a_funcs.add(elB.getMagAreaFunction(4, 0.1, 46));
+		m_vs_a_funcs.add(hb.getMagAreaFunction(4, 0.1, 46));
+		m_vs_a_funcs.add(wc.getMagAreaFunction(4, 0.1, 46));
+		m_vs_a_funcs.add(sh.getMagAreaFunction(4, 0.1, 46));
+		m_vs_a_funcs.add(m_vs_a_data);	// do this after the above so it plots underneath
+		GraphiWindowAPI_Impl m_vs_a_graph = new GraphiWindowAPI_Impl(m_vs_a_funcs, "Mag vs Area");   
+		m_vs_a_graph.setY_AxisLabel("Magnitude (Mw)");
+		m_vs_a_graph.setX_AxisLabel("Area (km-sq)");
+		ArrayList<PlotCurveCharacterstics> m_vs_a_curveChar = new ArrayList<PlotCurveCharacterstics>();
+		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLACK, 3));
+		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 3));
+		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.GREEN, 3));
+		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.MAGENTA, 3));
+		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CIRCLES, Color.RED, 3));
+		m_vs_a_graph.setPlottingFeatures(m_vs_a_curveChar);
+		m_vs_a_graph.setXLog(true);
+		m_vs_a_graph.setY_AxisRange(4.5, 8.5);
+	/*
+		XY_DataSet m_vs_l_data = new XY_DataSet(length,mag);
+		m_vs_l_data.setName("Mag vs Length");
+		m_vs_l_data.setInfo(" ");
+		ArrayList m_vs_l_funcs = new ArrayList();
+		m_vs_l_funcs.add(m_vs_l_data);
+		GraphiWindowAPI_Impl m_vs_l_graph = new GraphiWindowAPI_Impl(m_vs_l_funcs, "Mag vs Length");   
+		m_vs_l_graph.setY_AxisLabel("Magnitude (Mw)");
+		m_vs_l_graph.setX_AxisLabel("Length (km)");
+		ArrayList<PlotCurveCharacterstics> m_vs_l_curveChar = new ArrayList<PlotCurveCharacterstics>();
+		m_vs_l_curveChar.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CIRCLES, Color.GREEN, 3));
+		m_vs_l_graph.setPlottingFeatures(m_vs_l_curveChar);
+		m_vs_l_graph.setXLog(true);
+		m_vs_l_graph.setY_AxisRange(4.5, 8.5);
+*/
+	}
+	
+	
 	/**
 	 * This one only includes events that utilize the nearest rectangular element (presumably the 
 	 * one at the surface), which means non-surface rupturing events will not be included
@@ -1386,9 +1464,13 @@ public class General_EQSIM_Tools {
 		if(makePlot){
 			ArrayList<EvenlyDiscretizedFunc> funcList = new ArrayList<EvenlyDiscretizedFunc>();
 			funcList.add(riHist);
-			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, "Recurence Interval"); 
+			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, "Recurence Intervals"); 
 			graph.setX_AxisLabel("RI (yrs)");
-			graph.setY_AxisLabel("Number");
+			graph.setY_AxisLabel("Number of Observations");
+			ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
+			curveCharacteristics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM, Color.BLUE, 2));
+			graph.setPlottingFeatures(curveCharacteristics);
+
 
 		}
 
@@ -1397,7 +1479,7 @@ public class General_EQSIM_Tools {
 	
 	
 	/**
-	 * This one include events that pass anywhere below the site (by using DAS values)
+	 * This version includes events that pass anywhere below the site (by using DAS values the way Keith Richards-Dinger does it)
 	 * @param lat
 	 * @param lon
 	 * @param magThresh
@@ -1417,16 +1499,30 @@ public class General_EQSIM_Tools {
 			}
 		}
 		Vertex closestVertex = vertexList.get(vertexIndex);
-		double das = 1000* closestVertex.getDAS(); // convert to meters for comparisons below
+		// Find 2nd closest vertex
+		double secondMinDist= Double.MAX_VALUE;
+		int secondClosestVertexIndex=-1;
+		//Find nearest Element
+		for(int i=0; i<vertexList.size(); i++) {
+			double dist = LocationUtils.linearDistance(loc, vertexList.get(i));
+			if(dist<secondMinDist && i != vertexIndex){
+				secondMinDist=dist;
+				secondClosestVertexIndex= i;
+			}
+		}
+		Vertex secondClosestVertex = vertexList.get(secondClosestVertexIndex);
+
+		
+		double das = 1000*(closestVertex.getDAS()*minDist+secondClosestVertex.getDAS()*secondMinDist)/(minDist+secondMinDist); // convert to meters for comparisons below
 		int sectIndex = -1;
-		// find the section index for this vertex
+		// find the section index for the closest vertex
 		for(int i=0; i<vertexListForSections.size(); i++)
 			if(vertexListForSections.get(i).contains(closestVertex))
 				sectIndex = i;
 		int sectID = sectIndex+1;
 				
-		System.out.println("Closest Vertex to loc has ID "+closestVertex.getID()+
-				", is on section "+this.namesOfSections.get(sectIndex)+" at DAS="+(float)das+", and is "+(float)minDist+" km away from the target site ("+lat+","+lon+").");
+		System.out.println("RI PDF at site ("+lat+","+lon+"):\n\tClosest vertex ID is "+closestVertex.getID()+" & second closest vertex ID "+secondClosestVertex.getID()+
+				", on section "+namesOfSections.get(sectIndex)+" at average DAS of "+(float)das+"; site is "+(float)minDist+" km away from closest vertex.");
 
 		ArrayList<Double> eventTimes = new ArrayList<Double>();
 //		System.out.println("Events Included:\n\t\teventID\teventMag\teventTime");
@@ -1445,7 +1541,7 @@ public class General_EQSIM_Tools {
 			if(intervals[i-1]>maxInterval) maxInterval = intervals[i-1];
 		}
 		
-		System.out.println("number of RIs for loc is "+intervals.length);
+		System.out.println("\tnumber of RIs for loc is "+intervals.length);
 		
 		// calc num bins at 10-year intervals
 		int numBins = (int)Math.ceil(maxInterval/10.0);
@@ -1458,10 +1554,12 @@ public class General_EQSIM_Tools {
 		if(makePlot){
 			ArrayList<EvenlyDiscretizedFunc> funcList = new ArrayList<EvenlyDiscretizedFunc>();
 			funcList.add(riHist);
-			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, "Recurence Interval"); 
+			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, "Recurence Intervals"); 
 			graph.setX_AxisLabel("RI (yrs)");
-			graph.setY_AxisLabel("Number");
-
+			graph.setY_AxisLabel("Number Observed");
+			ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
+			curveCharacteristics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM, Color.BLUE, 2));
+			graph.setPlottingFeatures(curveCharacteristics);
 		}
 
 		return null;
@@ -1501,8 +1599,9 @@ public class General_EQSIM_Tools {
 		System.out.println("Simulation Duration is "+(float)test.getSimulationDurationInYears()+" years");
 //		test.randomizeEventTimes();
 //		test.plotYearlyEventRates();
+		test.plotScalingRelationships();
 //		test.getRecurIntervalsForNearestLoc2(36.9415,  -121.6729, 6.5, true);
-		test.testTimePredictability(6.5, "testTimePredFileForEQSim_M6pt5_rand");
+//		test.testTimePredictability(6.5, "testTimePredFileForEQSim_M6pt5_rand");
 //		ArbIncrementalMagFreqDist mfd = test.computeTotalMagFreqDist(4.05,9.05,51,true);
 //		ArrayList<ArbIncrementalMagFreqDist> funcs = test.computeMagFreqDistByFaultSection(4.05,9.05,51,true,false);
 		

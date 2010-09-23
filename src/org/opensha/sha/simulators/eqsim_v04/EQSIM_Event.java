@@ -139,6 +139,40 @@ public class EQSIM_Event extends ArrayList<EventRecord> implements Comparable<EQ
 		}
 		else return null;
 	}
-
 	
+	/**
+	 * This returns the event area in meters squared
+	 * @return
+	 */
+	public double getArea() {
+		double area=0;
+		for(EventRecord evRec:this) area += evRec.getArea();
+		return area;
+	}
+
+	/**
+	 * This returns the event length in meters
+	 * (computed as the sum of (das_hi-das_lo) from event records
+	 * @return
+	 */
+	public double getLength() {
+		double length=0;
+		for(EventRecord evRec:this) length += evRec.getLength();
+		return length;
+	}
+
+	/**
+	 * This returns the average slip in meters
+	 * @return
+	 */
+	public double getMeanSlip() {
+		double aveSlip=0;
+		double totalArea=0;
+		for(EventRecord evRec:this) {
+			aveSlip += evRec.getMeanSlip()*evRec.getArea();
+			totalArea+=evRec.getArea();
+		}
+		return aveSlip/totalArea;
+	}
+
 }

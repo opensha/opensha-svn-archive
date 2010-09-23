@@ -160,6 +160,24 @@ public class EventRecord {
 	public ArrayList<Integer> getElementID_List() {return elementID_List;}
 	
 	/**
+	 * 
+	 * @return mean slip in meters
+	 */
+	public double getMeanSlip() {return mean_slip;}
+	
+	/**
+	 * 
+	 * @return area in meters squared
+	 */
+	public double getArea() {return area;}
+	
+	/**
+	 * 
+	 * @return length in meters
+	 */
+	public double getLength() { return das_hi-das_lo;}
+	
+	/**
 	 * This gives a list of element slips (meters)
 	 * @return
 	 */
