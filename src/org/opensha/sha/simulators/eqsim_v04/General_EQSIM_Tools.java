@@ -23,6 +23,7 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_Mag
 import org.opensha.commons.data.NamedObjectComparator;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.geo.Location;
@@ -32,6 +33,8 @@ import org.opensha.commons.geo.PlaneUtils;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.FocalMechanism;
+import org.opensha.sha.earthquake.calc.recurInterval.BPT_DistCalc;
+import org.opensha.sha.earthquake.calc.recurInterval.LognormalDistCalc;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
@@ -986,6 +989,57 @@ public class General_EQSIM_Tools {
 	}
 	
 	
+	public void plotNormRI_Distribution(ArrayList<Double> normRI_List) {
+		// find max value
+		double max=0;
+		for(Double val:normRI_List)
+			if(val>max) max = val;
+		double delta=0.1;
+		int num = (int)Math.ceil(max/delta)+2;
+		EvenlyDiscretizedFunc dist = new EvenlyDiscretizedFunc(delta/2, num,delta);
+		dist.setTolerance(2*delta);
+		int numData=normRI_List.size();
+		for(Double val:normRI_List)
+			dist.add(val, 1.0/(numData*delta));  // this makes it a true PDF
+		
+		// now make the function list for the plot
+		ArrayList<EvenlyDiscretizedFunc> funcList = new ArrayList<EvenlyDiscretizedFunc>();
+		
+
+		// add best-fit BPT function
+		BPT_DistCalc bpt_calc = new BPT_DistCalc();
+		bpt_calc.fitToThisFunction(dist, 0.5, 1.5, 11, 0.1, 1.5, 151);
+		EvenlyDiscretizedFunc fitBPT_func = bpt_calc.getPDF();
+		fitBPT_func.setName("Best Fit BPT Dist");
+		fitBPT_func.setInfo("(mean="+(float)bpt_calc.getMean()+", aper="+(float)bpt_calc.getAperiodicity()+")");
+		funcList.add(fitBPT_func);
+		
+		// add best-fit Lognormal dist function
+		LognormalDistCalc logNorm_calc = new LognormalDistCalc();
+		logNorm_calc.fitToThisFunction(dist, 0.5, 1.5, 11, 0.1, 1.5, 151);
+		EvenlyDiscretizedFunc fitLogNorm_func = logNorm_calc.getPDF();
+		fitLogNorm_func.setName("Best Fit Lognormal Dist");
+		fitLogNorm_func.setInfo("(mean="+(float)bpt_calc.getMean()+", aper="+(float)bpt_calc.getAperiodicity()+")");
+		funcList.add(fitLogNorm_func);
+		
+		// add the histogram created here
+		dist.setName("Recur. Int. Dist");
+		dist.setInfo("(Number of points = "+ numData+")");
+		funcList.add(dist);
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, "Normalized Recurence Intervals"); 
+		graph.setX_AxisLabel("RI (yrs)");
+		graph.setY_AxisLabel("Density");
+		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
+		curveCharacteristics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLACK, 2));
+		curveCharacteristics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 2));
+		curveCharacteristics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM, Color.RED, 2));
+		graph.setPlottingFeatures(curveCharacteristics);
+		graph.setX_AxisRange(0, 5);
+		
+
+	}
+	
+	
 	
 	public void testTimePredictability(double magThresh, String fileName) {
 
@@ -1010,6 +1064,7 @@ public class General_EQSIM_Tools {
 			ArrayList<Double> tpInterval2List = new ArrayList<Double>();
 			ArrayList<Double> spInterval1List = new ArrayList<Double>();
 			ArrayList<Double> spInterval2List = new ArrayList<Double>();
+			ArrayList<Double> norm_tpInterval2List = new ArrayList<Double>();
 			ArrayList<Integer> firstSectionList = new ArrayList<Integer>();
 			
 			System.out.println("Minimum Magnitude Considered for time and slip predicatbility = "+magThresh);
@@ -1117,6 +1172,7 @@ public class General_EQSIM_Tools {
 						spInterval1List.add(spInterval1);
 						spInterval2List.add(spInterval2);
 						firstSectionList.add(event.get(0).getSectionID());
+						norm_tpInterval2List.add(norm_tpInterval2);
 					}
 					else {
 //						System.out.println("event "+ eventNum+" is bad");
@@ -1131,6 +1187,8 @@ public class General_EQSIM_Tools {
 					}
 				}
 			}
+			
+			plotNormRI_Distribution(norm_tpInterval2List);
 			
 			System.out.println("\nMinimum Magnitude Considered in Time Dependence = "+magThresh+"\n");
 
@@ -1355,7 +1413,9 @@ public class General_EQSIM_Tools {
 			area[index]=event.getArea()/1e6; 		// convert to km-sq
 			length[index]=event.getLength()/1000; 	// convert to km
 		}
-		/*
+		/**/
+		
+		// SLIP VS LENGTH PLOT
 		XY_DataSet s_vs_l_data = new XY_DataSet(slip,length);
 		s_vs_l_data.setName("Mean Slip vs Length");
 		s_vs_l_data.setInfo(" ");
@@ -1367,9 +1427,10 @@ public class General_EQSIM_Tools {
 		ArrayList<PlotCurveCharacterstics> s_vs_l_curveChar = new ArrayList<PlotCurveCharacterstics>();
 		s_vs_l_curveChar.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CIRCLES, Color.BLUE, 3));
 		s_vs_l_graph.setPlottingFeatures(s_vs_l_curveChar);
-		*/
+		
+		// MAG VS AREA PLOT
 		XY_DataSet m_vs_a_data = new XY_DataSet(area,mag);
-		m_vs_a_data.setName("Mag vs Area");
+		m_vs_a_data.setName("Mag-Area data from simulation");
 		m_vs_a_data.setInfo(" ");
 		ArrayList m_vs_a_funcs = new ArrayList();
 		Ellsworth_B_WG02_MagAreaRel elB = new Ellsworth_B_WG02_MagAreaRel();
@@ -1377,10 +1438,10 @@ public class General_EQSIM_Tools {
 		WC1994_MagAreaRelationship wc = new WC1994_MagAreaRelationship();
 		wc.setRake(0);
 		Shaw_2007_MagAreaRel sh = new Shaw_2007_MagAreaRel();
-		m_vs_a_funcs.add(elB.getMagAreaFunction(4, 0.1, 46));
-		m_vs_a_funcs.add(hb.getMagAreaFunction(4, 0.1, 46));
-		m_vs_a_funcs.add(wc.getMagAreaFunction(4, 0.1, 46));
-		m_vs_a_funcs.add(sh.getMagAreaFunction(4, 0.1, 46));
+		m_vs_a_funcs.add(elB.getMagAreaFunction(1, 10000, 101));
+		m_vs_a_funcs.add(hb.getMagAreaFunction(1, 10000, 101));
+		m_vs_a_funcs.add(wc.getMagAreaFunction(1, 10000, 101));
+		m_vs_a_funcs.add(sh.getMagAreaFunction(1, 10000, 101));
 		m_vs_a_funcs.add(m_vs_a_data);	// do this after the above so it plots underneath
 		GraphiWindowAPI_Impl m_vs_a_graph = new GraphiWindowAPI_Impl(m_vs_a_funcs, "Mag vs Area");   
 		m_vs_a_graph.setY_AxisLabel("Magnitude (Mw)");
@@ -1394,7 +1455,8 @@ public class General_EQSIM_Tools {
 		m_vs_a_graph.setPlottingFeatures(m_vs_a_curveChar);
 		m_vs_a_graph.setXLog(true);
 		m_vs_a_graph.setY_AxisRange(4.5, 8.5);
-	/*
+	/**/
+		// MAG VS LENGTH PLOT
 		XY_DataSet m_vs_l_data = new XY_DataSet(length,mag);
 		m_vs_l_data.setName("Mag vs Length");
 		m_vs_l_data.setInfo(" ");
@@ -1408,8 +1470,73 @@ public class General_EQSIM_Tools {
 		m_vs_l_graph.setPlottingFeatures(m_vs_l_curveChar);
 		m_vs_l_graph.setXLog(true);
 		m_vs_l_graph.setY_AxisRange(4.5, 8.5);
-*/
+
 	}
+	
+	
+	/**
+	 * 
+	 * @param elemID
+	 * @param magThresh
+	 * @return
+	 */
+	public double[] getRecurIntervalsForElement(int elemID, double magThresh) {
+		ArrayList<Double> eventTimes = new ArrayList<Double>();
+		for(EQSIM_Event event:eventList)
+			if(event.getAllElementIDs().contains(elemID) && event.getMagnitude() >= magThresh)
+				eventTimes.add(event.getTimeInYears());
+		if (eventTimes.size()>0) {
+			double[] intervals = new double[eventTimes.size()-1];
+			for(int i=1;i<eventTimes.size();i++)
+				intervals[i-1] = (eventTimes.get(i)-eventTimes.get(i-1));
+			return intervals;
+		}
+		else return null;
+	}
+	
+	
+	/**
+	 * 
+	 * @param magThresh
+	 */
+	public void plotNormRecurIntsForAllSurfaceElements(double magThresh) {
+
+		int totNum=0;
+
+		// Make distribution function; bins for dist are 0.05, with 201 bins (from 0 to 10)
+		double delta=0.05;
+		int num = (int)Math.round(50/0.05)+1;
+		EvenlyDiscretizedFunc riHist = new EvenlyDiscretizedFunc(delta/2, num, delta);
+		riHist.setTolerance(10*delta);
+
+		// Loop over elements
+		for(RectangularElement elem:rectElementsList) {
+			// check whether it's a surface element
+			if(elem.getVertices()[0].getTraceFlag() != 0) {
+//				System.out.println("trace vertex found");
+				double[] recurInts = getRecurIntervalsForElement(elem.getID(), magThresh);
+				if(recurInts != null) {
+					double mean=0;
+					for(int i=0;i<recurInts.length; i++) 
+						mean += recurInts[i]/recurInts.length;
+					for(int i=0;i<recurInts.length; i++) {
+						riHist.add(recurInts[i]/mean, 1.0);
+						totNum +=1;
+					}					
+				}
+			}
+		}
+		ArrayList<EvenlyDiscretizedFunc> funcList = new ArrayList<EvenlyDiscretizedFunc>();
+		funcList.add(riHist);
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, "Recurence Intervals for All Surface Elments"); 
+		graph.setX_AxisLabel("RI (yrs)");
+		graph.setY_AxisLabel("Number of Observations");
+		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
+		curveCharacteristics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM, Color.RED, 2));
+		graph.setPlottingFeatures(curveCharacteristics);
+
+	}
+
 	
 	
 	/**
@@ -1438,17 +1565,10 @@ public class General_EQSIM_Tools {
 		System.out.println("Closest Element to loc is rect elem ID "+elemID+
 				" on "+rectElementsList.get(elementIndex).getSectionName()+" ("+minDist+" km away)");
 		
-		ArrayList<Double> eventTimes = new ArrayList<Double>();
-		for(EQSIM_Event event:eventList) {
-			if(event.getAllElementIDs().contains(elemID) && event.getMagnitude() >= magThresh) {
-				eventTimes.add(event.getTimeInYears());
-			}
-		}
-		double[] intervals = new double[eventTimes.size()-1];
+		double[] intervals = getRecurIntervalsForElement(elemID, magThresh);
 		double maxInterval=0;
-		for(int i=1;i<eventTimes.size();i++) {
-			intervals[i-1] = (eventTimes.get(i)-eventTimes.get(i-1));
-			if(intervals[i-1]>maxInterval) maxInterval = intervals[i-1];
+		for(int i=1;i<intervals.length;i++) {
+			if(intervals[i]>maxInterval) maxInterval = intervals[i];
 		}
 		
 		System.out.println("number of RIs for loc is "+intervals.length);
@@ -1599,9 +1719,10 @@ public class General_EQSIM_Tools {
 		System.out.println("Simulation Duration is "+(float)test.getSimulationDurationInYears()+" years");
 //		test.randomizeEventTimes();
 //		test.plotYearlyEventRates();
-		test.plotScalingRelationships();
-//		test.getRecurIntervalsForNearestLoc2(36.9415,  -121.6729, 6.5, true);
-//		test.testTimePredictability(6.5, "testTimePredFileForEQSim_M6pt5_rand");
+//		test.plotScalingRelationships();
+//		test.plotNormRecurIntsForAllSurfaceElements(6.5);
+//		test.getRecurIntervalsForNearestLoc(36.9415,  -121.6729, 6.5, true);
+		test.testTimePredictability(6.5, "testTimePredFileForEQSim_M6pt5_rand");
 //		ArbIncrementalMagFreqDist mfd = test.computeTotalMagFreqDist(4.05,9.05,51,true);
 //		ArrayList<ArbIncrementalMagFreqDist> funcs = test.computeMagFreqDistByFaultSection(4.05,9.05,51,true,false);
 		

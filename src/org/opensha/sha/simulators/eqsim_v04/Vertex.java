@@ -88,6 +88,12 @@ public class Vertex extends Location {
 	 */
 	public double getDAS() {return das;}
 
+	/**
+	 * tells whether is on the fault trace  (0 means no; 1 means yes, but not
+	 * the first or last point; 2 means yes & it's the first; and 3 means yes 
+	 * & it's the last point)
+	 * @return
+	 */
 	public int getTraceFlag() {return traceFlag;}
 	
 }
