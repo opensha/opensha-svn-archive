@@ -19,6 +19,7 @@
 
 package org.opensha.sha.earthquake.calc.recurInterval;
 
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.IntegerParameter;
@@ -189,5 +190,54 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 	public String getName() {
 		return this.NAME;
 	}
+	
+	
+	/**
+	 * This sets the values of the distribution by finding those that are best fit to the function passed in.
+	 * The best-fit values are found via a grid search.
+	 * @param dist - the distribution to be fit (should be a true pdf such that integration (sum of y values multiplied by deltaX) equals 1)
+	 * @param minMean
+	 * @param maxMean
+	 * @param numMean
+	 * @param minAper
+	 * @param maxAper
+	 * @param numAper
+	 */
+	public void fitToThisFunction(EvenlyDiscretizedFunc dist, double minMean, double maxMean,
+			int numMean, double minAper, double maxAper,int numAper) {
+		
+		deltaX_Param.setValue(dist.getDelta()/2);	// increase discretization here just to be safe
+		numPointsParam.setValue(dist.getNum()*2+1);	// vals start from zero whereas passed in histograms might start at delta/2
+		double bestMean=0;
+		double bestAper=0;
+		double best_rms=Double.MAX_VALUE;
+		double deltaMean=(maxMean-minMean)/(numMean-1);
+		double deltaAper=(maxAper-minAper)/(numAper-1);
+		for(int m=0;m<numMean;m++) {
+			for(int c=0;c<numAper;c++) {
+				meanParam.setValue(minMean+m*deltaMean);
+				aperiodicityParam.setValue(minAper+c*deltaAper);
+				EvenlyDiscretizedFunc pdf = this.getPDF();
+				double rms=0;
+				for(int i=0;i<dist.getNum()-1;i++) {
+					double diff=(dist.getY(i)-pdf.getInterpolatedY(dist.getX(i)));
+					rms += diff*diff;
+				}
+				if(rms<best_rms) {
+					bestMean=mean;
+					bestAper=aperiodicity;
+					best_rms=rms;
+				}
+			}
+		}
+		meanParam.setValue(bestMean);
+		aperiodicityParam.setValue(bestAper);
+		System.out.println(this.NAME+" best fit mean and aper: "+mean+"\t"+aperiodicity);
+	}
+	
+	public double getMean() {return mean;}
+	
+	public double  getAperiodicity() {return aperiodicity;}
+
 }
 
