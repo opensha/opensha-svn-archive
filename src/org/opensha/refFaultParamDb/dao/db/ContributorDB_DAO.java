@@ -133,8 +133,11 @@ public class ContributorDB_DAO  {
 	 */
 	public String resetPasswordByEmail(String email) throws UpdateException {
 		String randomPass = getRandomPassword();
+		System.out.println("New random pass generated: " + randomPass);
+		String encr = getEnryptedPassword(randomPass);
+		System.out.println("encr: " + encr);
 		String sql = "update "+TABLE_NAME+" set "+PASSWORD+"= '"+
-		getEnryptedPassword(randomPass)+"' where "+EMAIL+"='"+
+		encr+"' where "+EMAIL+"='"+
 		email+"'";
 		try {
 			int numRows = dbAccessAPI.resetPasswordByEmail(sql);
@@ -145,7 +148,7 @@ public class ContributorDB_DAO  {
 	}
 
 
-	private int rand(int lo, int hi, Random rn) {
+	private static int rand(int lo, int hi, Random rn) {
 		int n = hi - lo + 1;
 		int i = rn.nextInt() % n;
 		if (i < 0)
@@ -157,7 +160,7 @@ public class ContributorDB_DAO  {
 	 * Get random string
 	 * @return
 	 */
-	private String getRandomPassword() {
+	private static String getRandomPassword() {
 		Random rn = new Random();
 		int n = rand(8, 12, rn);
 		return getPassword(n);
@@ -270,5 +273,12 @@ public class ContributorDB_DAO  {
 			rs.close();
 		} catch(SQLException e) { throw new QueryException(e.getMessage()); }
 		return contributorList;
+	}
+	
+	public static void main(String[] args) {
+		String rand = getRandomPassword();
+		String md5 = getEnryptedPassword(rand);
+		System.out.println(rand);
+		System.out.println(md5);
 	}
 }
