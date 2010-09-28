@@ -110,9 +110,9 @@
 	     			<formatter type="xml" />
 				<batchtest fork="yes" todir="${logs}">
 				<fileset dir="../classes/">
-					<!-- This would be a good test, except fails through ant, no security context -->
 					<include name="org/opensha/sha/earthquake/rupForecastImpl/remoteERF_Clients/Test_RMI_ERFs_Operational*" />
 					<include name="org/opensha/commons/mapping/gmt/TestGMT_Operational*" />
+					<include name="org/opensha/refFaultParamDb/tests/dao/db/Test*Operational*" />
 				</fileset>
 			</batchtest>
 		</junit>    
