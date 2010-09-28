@@ -169,6 +169,7 @@ public class DB_AccessServlet extends HttpServlet{
 				encr+"' where "+ContributorDB_DAO.EMAIL+"='"+email+"'";
 				int key = myBroker.insertUpdateOrDeleteData(query);
 				props.setEmailTo(email);
+				props.setEmailSubject("Login information in CA Ref Fault Param GUI");
 				String userName = contributorDAO.getContributorByEmail(email).getName();
 				String emailMessage = "Account info - "+"\n"+
 				"user name: "+userName+"\n"+
