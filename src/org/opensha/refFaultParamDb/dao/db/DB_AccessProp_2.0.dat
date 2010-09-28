@@ -1,5 +1,5 @@
 dbDriver      oracle.jdbc.driver.OracleDriver
-dbServer      jdbc:oracle:thin:@iron.gps.caltech.edu:1521:irondb
+dbServer      jdbc:oracle:thin:@calcite2.gps.caltech.edu:1521:archdb
 minConns      2
 maxConns      7
 logFileString db_log.log
