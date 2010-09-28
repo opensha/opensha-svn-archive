@@ -83,7 +83,7 @@ public interface DB_AccessAPI {
 	 * @param email
 	 * @return
 	 */
-	public int resetPasswordByEmail(String sql) throws java.sql.SQLException;
+	public int resetPasswordByEmail(String email) throws java.sql.SQLException;
 
 
 	/**

@@ -42,13 +42,13 @@ import org.opensha.refFaultParamDb.vo.Contributor;
 
 public class ContributorDB_DAO  {
 	private final static String SEQUENCE_NAME="Contributors_Sequence";
-	private final static String TABLE_NAME="Contributors";
+	public final static String TABLE_NAME="Contributors";
 	private final static String CONTRIBUTOR_ID="Contributor_Id";
 	public final static String CONTRIBUTOR_NAME="Contributor_Name";
 	private final static String FIRST_NAME = "First_Name";
 	private final static String LAST_NAME = "Last_Name";
-	private final static String EMAIL = "Email";
-	private final static String PASSWORD = "Password";
+	public final static String EMAIL = "Email";
+	public final static String PASSWORD = "Password";
 
 	private DB_AccessAPI dbAccessAPI;
 
@@ -131,20 +131,25 @@ public class ContributorDB_DAO  {
 	 * reset the password for a contributor in the database
 	 * @throws UpdateException
 	 */
-	public String resetPasswordByEmail(String email) throws UpdateException {
-		String randomPass = getRandomPassword();
-		System.out.println("New random pass generated: " + randomPass);
-		String encr = getEnryptedPassword(randomPass);
-		System.out.println("encr: " + encr);
-		String sql = "update "+TABLE_NAME+" set "+PASSWORD+"= '"+
-		encr+"' where "+EMAIL+"='"+
-		email+"'";
+	public void resetPasswordByEmail(String email) throws UpdateException {
+//		String randomPass = getRandomPassword();
+//		System.out.println("New random pass generated: " + randomPass);
+//		String encr = getEnryptedPassword(randomPass);
+//		System.out.println("encr: " + encr);
+//		String sql = "update "+TABLE_NAME+" set "+PASSWORD+"= '"+
+//		encr+"' where "+EMAIL+"='"+
+//		email+"'";
+//		try {
+//			int numRows = dbAccessAPI.resetPasswordByEmail(sql);
+//			if(numRows>1) return randomPass;
+//		}
+//		catch(SQLException e) { throw new UpdateException(e.getMessage()); }
+//		return null;
 		try {
-			int numRows = dbAccessAPI.resetPasswordByEmail(sql);
-			if(numRows==1) return randomPass;
+			dbAccessAPI.resetPasswordByEmail(email);
+		} catch(SQLException e) {
+			throw new UpdateException(e.getMessage());
 		}
-		catch(SQLException e) { throw new UpdateException(e.getMessage()); }
-		return null;
 	}
 
 
@@ -160,7 +165,7 @@ public class ContributorDB_DAO  {
 	 * Get random string
 	 * @return
 	 */
-	private static String getRandomPassword() {
+	public static String getRandomPassword() {
 		Random rn = new Random();
 		int n = rand(8, 12, rn);
 		return getPassword(n);

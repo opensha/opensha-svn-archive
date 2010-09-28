@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.opensha.commons.util.MailUtil;
 import org.opensha.commons.util.ServerPrefUtils;
+import org.opensha.commons.util.MailUtil.MailProps;
 
 /**
  * <p>Title: RefFaultDB_UpdateEmailServlet.java </p>
@@ -48,22 +49,15 @@ public class RefFaultDB_UpdateEmailServlet extends HttpServlet {
 	public final static String SERVLET_ADDRESS = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "Fault_DB_EmailServlet";
 
 	//static Strings to send the mails
-	private String emailTo, smtpHost, emailSubject, emailFrom;
-	private boolean isEmailEnabled;
-	private final static String CONFIG_NAME = "EmailConfig";
+	private MailProps props = null;
+	protected final static String CONFIG_NAME = "EmailConfig";
 
 	@Override
 	public void init() throws ServletException {
 		try {
-			Properties p = new Properties();
+			
 			String fileName = getInitParameter(CONFIG_NAME);
-			p.load(new FileInputStream(fileName));
-			emailTo = (String) p.get("EmailTo");
-			smtpHost = (String) p.get("SmtpHost");
-			emailSubject =  (String) p.get("Subject");
-			emailFrom =(String) p.get("EmailFrom");
-			isEmailEnabled = Boolean.valueOf((String) p.get("EmailEnabled")).booleanValue();
-			System.out.println(emailTo+","+smtpHost+","+smtpHost+","+emailSubject+","+emailSubject+","+isEmailEnabled);
+			props = MailUtil.loadMailPropsFromFile(fileName);
 		}
 		catch (FileNotFoundException f) {f.printStackTrace();}
 		catch (IOException e) {e.printStackTrace();}
@@ -81,8 +75,7 @@ public class RefFaultDB_UpdateEmailServlet extends HttpServlet {
 			//getting the email content from the aplication
 			String emailMessage = (String) inputFromApplet.readObject();
 			inputFromApplet.close();
-			if(isEmailEnabled) // send email to database curator
-				MailUtil.sendMail(smtpHost,emailFrom,emailTo,this.emailSubject,emailMessage);
+			MailUtil.sendMail(props,emailMessage);
 			// report to the user whether the operation was successful or not
 			// get an ouput stream from the applet
 			ObjectOutputStream outputToApplet = new ObjectOutputStream(response.

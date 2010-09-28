@@ -19,6 +19,9 @@
 
 package org.opensha.commons.util;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Properties;
 
 import javax.mail.Message;
@@ -38,6 +41,75 @@ import javax.mail.internet.MimeMessage;
  */
 
 public final class MailUtil {
+	
+	public static class MailProps {
+		private String emailTo, smtpHost, emailSubject, emailFrom;
+		private boolean isEmailEnabled;
+		
+		public MailProps(Properties p) {
+			emailTo = (String) p.get("EmailTo");
+			smtpHost = (String) p.get("SmtpHost");
+			emailSubject =  (String) p.get("Subject");
+			emailFrom =(String) p.get("EmailFrom");
+			isEmailEnabled = Boolean.valueOf((String) p.get("EmailEnabled")).booleanValue();
+		}
+		
+		public MailProps(String emailTo, String smtpHost, String emailSubject,
+				String emailFrom, boolean isEmailEnabled) {
+			super();
+			this.emailTo = emailTo;
+			this.smtpHost = smtpHost;
+			this.emailSubject = emailSubject;
+			this.emailFrom = emailFrom;
+			this.isEmailEnabled = isEmailEnabled;
+		}
+
+		public String getEmailTo() {
+			return emailTo;
+		}
+
+		public void setEmailTo(String emailTo) {
+			this.emailTo = emailTo;
+		}
+
+		public String getSmtpHost() {
+			return smtpHost;
+		}
+
+		public void setSmtpHost(String smtpHost) {
+			this.smtpHost = smtpHost;
+		}
+
+		public String getEmailSubject() {
+			return emailSubject;
+		}
+
+		public void setEmailSubject(String emailSubject) {
+			this.emailSubject = emailSubject;
+		}
+
+		public String getEmailFrom() {
+			return emailFrom;
+		}
+
+		public void setEmailFrom(String emailFrom) {
+			this.emailFrom = emailFrom;
+		}
+
+		public boolean isEmailEnabled() {
+			return isEmailEnabled;
+		}
+
+		public void setEmailEnabled(boolean isEmailEnabled) {
+			this.isEmailEnabled = isEmailEnabled;
+		}
+	}
+	
+	public static MailProps loadMailPropsFromFile(String fileName) throws FileNotFoundException, IOException {
+		Properties p = new Properties();
+		p.load(new FileInputStream(fileName));
+		return new MailProps(p);
+	}
 
 	/**
 	 *
@@ -51,19 +123,26 @@ public final class MailUtil {
 			String to,
 			String mailSubject,
 			String mailMessage) {
+		MailProps p = new MailProps(to, host, mailSubject, from, true);
+		sendMail(p, mailMessage);
+	}
+	
+	public static void sendMail(MailProps p, String mailMessage) {
+		if (!p.isEmailEnabled)
+			return;
 		try {
 			Properties props = System.getProperties();
 			// Setup mail server
-			props.put("mail.smtp.host", host);
+			props.put("mail.smtp.host", p.getSmtpHost());
 			// Get session
 			Session session = Session.getDefaultInstance(props, null);
 			
 			// Define message
 			MimeMessage message = new MimeMessage(session);
-			message.setFrom(new InternetAddress(from));
+			message.setFrom(new InternetAddress(p.getEmailFrom()));
 			message.addRecipient(Message.RecipientType.TO, 
-			  new InternetAddress(to));
-			message.setSubject(mailSubject);
+			  new InternetAddress(p.getEmailTo()));
+			message.setSubject(p.getEmailSubject());
 			message.setText(mailMessage);
 
 			// Send message

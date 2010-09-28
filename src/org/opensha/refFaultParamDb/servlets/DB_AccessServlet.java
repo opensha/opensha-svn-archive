@@ -36,6 +36,8 @@ import javax.sql.rowset.CachedRowSet;
 
 import oracle.spatial.geometry.JGeometry;
 
+import org.opensha.commons.util.MailUtil;
+import org.opensha.commons.util.MailUtil.MailProps;
 import org.opensha.refFaultParamDb.dao.db.ContributorDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
@@ -53,6 +55,8 @@ import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
 public class DB_AccessServlet extends HttpServlet{
 	//GOLDEN: jdbc:oracle:thin:@gldwebdb.cr.usgs.gov:1521:EQCATS
 	//PASADENA: jdbc:oracle:thin:@iron.gps.caltech.edu:1521:irondb
+	
+	private MailProps props = null;
 
 	private final static String CONNECT_FAILURE_MSG = "Connection to the database server failed.\nCheck username/password or try again later";
 	private final static String PROP_NAME = "DbConnectionPropertiesFileName";
@@ -76,6 +80,9 @@ public class DB_AccessServlet extends HttpServlet{
 			DB_ConnectionPool(dbDriver, dbServer, usrName, password,
 					minConns, maxConns, logFileString, maxConnTime);
 			contributorDAO = new ContributorDB_DAO(myBroker);
+			
+			String emailFileName = getInitParameter(RefFaultDB_UpdateEmailServlet.CONFIG_NAME);
+			props = MailUtil.loadMailPropsFromFile(emailFileName);
 		}
 		catch (FileNotFoundException f) {f.printStackTrace();}
 		catch (IOException e) {e.printStackTrace();}
@@ -154,7 +161,21 @@ public class DB_AccessServlet extends HttpServlet{
 			}
 			// reset the password
 			else if(functionToPerform.equalsIgnoreCase(DB_AccessAPI.RESET_PASSWORD)) {
+				String email = query;
+				String randomPass = ContributorDB_DAO.getRandomPassword();
+				String encr = ContributorDB_DAO.getEnryptedPassword(randomPass);
+				System.out.println("New random encr pw: " + encr);
+				query = "update "+ContributorDB_DAO.TABLE_NAME+" set "+ContributorDB_DAO.PASSWORD+"= '"+
+				encr+"' where "+ContributorDB_DAO.EMAIL+"='"+email+"'";
 				int key = myBroker.insertUpdateOrDeleteData(query);
+				props.setEmailTo(email);
+				String userName = contributorDAO.getContributorByEmail(email).getName();
+				String emailMessage = "Account info - "+"\n"+
+				"user name: "+userName+"\n"+
+				"Password: "+randomPass+"\n";
+				if (key > 0) {
+					MailUtil.sendMail(props,emailMessage);
+				}
 				outputToApp.writeObject(new Integer(key));
 			}
 			inputFromApp.close();

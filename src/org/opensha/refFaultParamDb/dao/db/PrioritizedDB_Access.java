@@ -131,8 +131,8 @@ public class PrioritizedDB_Access implements DB_AccessAPI {
 		return dbAccess.queryData(sqlWithSpatialColumnNames, sqlWithNoSpatialColumnNames, spatialColumnNames);
 	}
 
-	public int resetPasswordByEmail(String sql) throws SQLException {
-		return dbAccess.resetPasswordByEmail(sql);
+	public int resetPasswordByEmail(String email) throws SQLException {
+		return dbAccess.resetPasswordByEmail(email);
 	}
 
 	public static void main(String args[]) {

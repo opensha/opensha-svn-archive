@@ -120,12 +120,7 @@ public class GetAccountInfo extends JFrame implements ActionListener {
 			return;
 		}
 		// reset the password
-		String password = contributorDAO.resetPasswordByEmail(email);
-		// email account info to the user
-		String message = "Account info - "+"\n"+
-		"user name:"+contributor.getName()+"\n"+
-		"Password:"+password+"\n";
-		sendEmail(message, email);
+		contributorDAO.resetPasswordByEmail(email);
 		JOptionPane.showMessageDialog(this, MSG_SUCCESS);
 		this.dispose();
 
@@ -138,7 +133,7 @@ public class GetAccountInfo extends JFrame implements ActionListener {
 	 *
 	 * @param message
 	 */
-	private void sendEmail(String message, String emailTo) {
+	public static void sendEmail(String message, String emailTo) {
 		try {
 			URL emailServlet = new URL(UserAccountInfoServlet.SERVLET_ADDRESS);
 
