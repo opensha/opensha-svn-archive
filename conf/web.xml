@@ -57,6 +57,10 @@
       <param-name>DbConnectionPropertiesFileName</param-name>
       <param-value>/usr/local/tomcat/default/webapps/OpenSHA_dev/WEB-INF/DbConnection_Prop.dat</param-value>
     </init-param>
+    <init-param>
+      <param-name>EmailConfig</param-name>
+      <param-value>/usr/local/tomcat/default/webapps/OpenSHA_dev/WEB-INF/conf/EmailConfig.txt</param-value>
+    </init-param>
   </servlet>
 
   <!-- Mapping -->
@@ -76,6 +80,10 @@
     <init-param>
       <param-name>DbConnectionPropertiesFileName</param-name>
       <param-value>/usr/local/tomcat/default/webapps/OpenSHA_dev/WEB-INF/DbConnection_Prop_ver3.dat</param-value>
+    </init-param>
+    <init-param>
+      <param-name>EmailConfig</param-name>
+      <param-value>/usr/local/tomcat/default/webapps/OpenSHA_dev/WEB-INF/conf/EmailConfig.txt</param-value>
     </init-param>
   </servlet>
 
