@@ -197,6 +197,10 @@ public class DeformationModelPrefDataDB_DAO {
 		else return aseismicSlip.doubleValue();
 	}
 
+	public void cacheEverything(int defModelId) {
+		// update the cache for fault sections
+		prefFaultSectionDAO.getAllFaultSectionPrefData();
+	}
 
 	private void cache(int defModelId) {
 		slipRateMap = new HashMap<Integer, Double>();

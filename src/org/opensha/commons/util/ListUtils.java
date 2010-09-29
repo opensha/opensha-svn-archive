@@ -1,5 +1,6 @@
 package org.opensha.commons.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -21,6 +22,14 @@ public class ListUtils {
 				return i;
 		}
 		return -1;
+	}
+	
+	public static ArrayList<String> getNamesList(Collection<? extends NamedObjectAPI> objects) {
+		ArrayList<String> names = new ArrayList<String>();
+		for (NamedObjectAPI object : objects) {
+			names.add(object.getName());
+		}
+		return names;
 	}
 
 }
