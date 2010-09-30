@@ -33,9 +33,19 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 	private final PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 			Color.PINK, 2);
 	private final PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			Color.LIGHT_GRAY, 5);
+			Color.LIGHT_GRAY, 2);
 	private final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 			Color.RED, 2);
+	private final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+			Color.ORANGE, 2);
+	private final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+			Color.CYAN, 2);
+	private final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+			Color.DARK_GRAY, 2);
+	private final PlotCurveCharacterstics PLOT_CHAR11 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+			Color.GRAY, 2);
+	
+
 
 	private boolean xLog = false, yLog = false;
 	private ArrayList<PlotCurveCharacterstics> plotChars;
@@ -53,6 +63,10 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 		list.add(this.PLOT_CHAR5);
 		list.add(this.PLOT_CHAR6);
 		list.add(this.PLOT_CHAR7);
+		list.add(this.PLOT_CHAR8);
+		list.add(this.PLOT_CHAR9);
+		list.add(this.PLOT_CHAR10);
+		list.add(this.PLOT_CHAR11);
 		int numChars = list.size();
 		plotChars = new ArrayList<PlotCurveCharacterstics>();
 		for(int i=0; i<funcs.size(); ++i)
@@ -177,6 +191,13 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 	public void setPlottingFeatures(ArrayList<PlotCurveCharacterstics> curveCharacteristics) {
 		plotChars   = curveCharacteristics;
 		this.graphWindow.setPlottingFeatures(curveCharacteristics);
+	}
+	
+	public void setAllLineTypes(String curveType) {
+		for(PlotCurveCharacterstics plotChar : plotChars) {
+			plotChar.setCurveType(curveType);
+		}
+		this.setPlottingFeatures(plotChars);
 	}
 
 	/**
