@@ -358,7 +358,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
      * @return String
      */
     public String getInfo(){
-      if(info !=null && !(info.trim().equals("")))
+      if(info !=null && !(info.equals("")))
         return super.getInfo();
       return getDefaultInfo();
     }
