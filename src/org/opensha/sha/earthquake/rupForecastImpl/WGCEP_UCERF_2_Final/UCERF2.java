@@ -1431,8 +1431,7 @@ public class UCERF2 extends EqkRupForecast {
 	 * @return
 	 */
 	public ArrayList<ArbitrarilyDiscretizedFunc> getObsIncrMFD(boolean includeAftershocks) {
-		boolean includeAfterShocks = areAfterShocksIncluded();
-		ArrayList<EvenlyDiscretizedFunc> obsCumMFD = getObsCumMFD(includeAfterShocks);
+		ArrayList<EvenlyDiscretizedFunc> obsCumMFD = getObsCumMFD(includeAftershocks);
 		return getIncrFromCumMFD(obsCumMFD);
 	}
 	
