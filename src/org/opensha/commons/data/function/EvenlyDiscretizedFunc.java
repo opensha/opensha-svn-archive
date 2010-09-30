@@ -277,7 +277,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 		if( withinTolerance(x, this.getX(i) ))
 			return i;
 		else
-			throw new Point2DException(C + ": set(): This point doesn't match a permitted x value.");
+			throw new Point2DException(C + ": set(): This point doesn't match a permitted x value (your x="+x+"; closest X="+getX(i)+"; tol="+tolerance+").");
 		/*
         // Steve's old approach:
 

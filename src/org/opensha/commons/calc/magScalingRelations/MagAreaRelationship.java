@@ -50,11 +50,12 @@ public abstract class MagAreaRelationship extends MagScalingRelationship {
      * @param numMag
      * @return
      */
-    public ArbitrarilyDiscretizedFunc getMagAreaFunction(double minMag, double deltaMag, int numMag) {
+    public ArbitrarilyDiscretizedFunc getMagAreaFunction(double areaMin, double areaMax, int numArea) {
     	ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-    	for(int i=0; i<numMag; i++) {
-    		double mag = minMag+deltaMag*i;
-    		double area = getMedianArea(mag);
+    	double deltaLogArea = (Math.log10(areaMax)-Math.log10(areaMin))/(numArea-1);
+    	for(int i=0; i<numArea; i++) {
+    		double area = Math.pow(10,Math.log10(areaMin)+deltaLogArea*i);
+    		double mag = getMedianMag(area);
     		func.set(area, mag);
     	}
     	func.setName(this.getName());

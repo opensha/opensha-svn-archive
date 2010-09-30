@@ -35,6 +35,7 @@ public abstract class AbstractXY_DataSet implements XY_DataSetAPI {
 
 	/** Returns the info of this function. */
 	public String getInfo(){ return info; }
+
 	/** Sets the info string of this function. */
 	public void setInfo(String info){ this.info = info; }
 	

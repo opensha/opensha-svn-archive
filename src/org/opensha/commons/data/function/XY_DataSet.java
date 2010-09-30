@@ -33,6 +33,14 @@ public class XY_DataSet extends AbstractXY_DataSet {
 	}
 
 	
+	public XY_DataSet(ArrayList<Double> xVals, ArrayList<Double> yVals) {
+		if(xVals.size() != yVals.size())
+			throw new RuntimeException("Data longths differ");
+		points = new ArrayList<Point2D>();
+		for(int i=0; i<xVals.size();i++) set(xVals.get(i), yVals.get(i));
+		resetTrackers();
+	}
+
 	private void resetTrackers() {
 		xTracker = new MinMaxAveTracker();
 		yTracker = new MinMaxAveTracker();
