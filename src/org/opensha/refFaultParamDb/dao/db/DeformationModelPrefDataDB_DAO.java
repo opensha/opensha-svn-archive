@@ -32,10 +32,10 @@ public class DeformationModelPrefDataDB_DAO {
 	private final static String PREF_LONG_TERM_SLIP_RATE = "Pref_Long_Term_Slip_Rate";
 	private final static String SLIP_STD_DEV = "Slip_Std_Dev";
 	private final static String PREF_ASEISMIC_SLIP = "Pref_Aseismic_Slip";
-	private static HashMap<Integer, Double> slipRateMap;
-	private static HashMap<Integer, Double> aseismicSlipMap;
-	private static HashMap<Integer, Double> stdDevMap;
-	private static int selectedDefModelId = -1;
+	private HashMap<Integer, Double> slipRateMap;
+	private HashMap<Integer, Double> aseismicSlipMap;
+	private HashMap<Integer, Double> stdDevMap;
+	private int selectedDefModelId = -1;
 	private DB_AccessAPI dbAccess;
 	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO;
 	private DeformationModelDB_DAO deformationModelDB_DAO;

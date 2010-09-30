@@ -140,4 +140,14 @@ public class PrioritizedDB_Access implements DB_AccessAPI {
 		System.exit(0);
 	}
 
+	@Override
+	public void destroy() throws SQLException {
+		dbAccess.destroy();
+	}
+
+	@Override
+	public void destroy(int millis) throws SQLException {
+		dbAccess.destroy(millis);
+	}
+
 }

@@ -300,4 +300,14 @@ public class ServerDB_Access     implements java.io.Serializable, DB_AccessAPI {
 		System.exit(0);
 	}
 
+	@Override
+	public void destroy() throws SQLException {
+		// do nothing
+	}
+
+	@Override
+	public void destroy(int millis) throws SQLException {
+		// do nothing	
+	}
+
 }

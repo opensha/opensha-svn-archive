@@ -109,5 +109,9 @@ public interface DB_AccessAPI {
 	 * @return
 	 */
 	public String getSystemDate() throws java.sql.SQLException;
+	
+	public void destroy() throws SQLException;
+	
+	public void destroy(int millis) throws SQLException;
 
 }

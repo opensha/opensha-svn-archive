@@ -47,9 +47,9 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 	public final static String PREF_ASEISMIC_SLIP= "Pref_Aseismic_Slip";
 	public final static String DIP_DIRECTION = "Dip_Direction";
 	private DB_AccessAPI dbAccess;
-	private static HashMap<Integer, FaultSectionPrefData> cachedSections =
+	private HashMap<Integer, FaultSectionPrefData> cachedSections =
 		new HashMap<Integer, FaultSectionPrefData>();
-	private static ArrayList<FaultSectionPrefData> faultSectionsList;
+	private ArrayList<FaultSectionPrefData> faultSectionsList;
 
 	public PrefFaultSectionDataDB_DAO(DB_AccessAPI dbAccess) {
 		setDB_Connection(dbAccess);
