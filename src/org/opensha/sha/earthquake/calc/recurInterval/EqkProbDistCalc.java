@@ -232,7 +232,7 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 		}
 		meanParam.setValue(bestMean);
 		aperiodicityParam.setValue(bestAper);
-		System.out.println(this.NAME+" best fit mean and aper: "+mean+"\t"+aperiodicity);
+//		System.out.println(this.NAME+" best fit mean and aper: "+mean+"\t"+aperiodicity);
 	}
 	
 	public double getMean() {return mean;}
