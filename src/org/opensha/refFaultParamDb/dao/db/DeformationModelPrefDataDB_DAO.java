@@ -144,7 +144,7 @@ public class DeformationModelPrefDataDB_DAO {
 	 */
 	public FaultSectionPrefData getFaultSectionPrefData(int deformationModelId,
 			int faultSectionId) {
-		FaultSectionPrefData faultSectionPrefData = prefFaultSectionDAO.getFaultSectionPrefData(faultSectionId);
+		FaultSectionPrefData faultSectionPrefData = prefFaultSectionDAO.getFaultSectionPrefData(faultSectionId).clone();
 		// get slip rate and aseimic slip factor from deformation model
 		faultSectionPrefData.setAseismicSlipFactor(this.getAseismicSlipFactor(deformationModelId, faultSectionId));
 		faultSectionPrefData.setAveLongTermSlipRate(this.getSlipRate(deformationModelId, faultSectionId));
