@@ -54,7 +54,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/standard.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-io-1.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-math-2.1.jar"/>
-	<classpathentry kind="lib" path="lib/ojdbc5.jar"/>
-	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ojdbc5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-codec-1.4.jar"/>
 	<classpathentry kind="output" path="classes/"/>
 </classpath>
