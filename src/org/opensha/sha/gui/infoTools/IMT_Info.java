@@ -90,7 +90,7 @@ public final class IMT_Info {
    * @return
    */
   public  ArbitrarilyDiscretizedFunc getDefaultHazardCurve(ParameterAPI imtParam){
-    String paramVal =(String)imtParam.getValue();
+    String paramVal =imtParam.getName();
    return getDefaultHazardCurve(paramVal);
   }
 

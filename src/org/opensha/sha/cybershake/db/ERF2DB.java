@@ -22,6 +22,7 @@ package org.opensha.sha.cybershake.db;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.ListIterator;
 
 import org.opensha.commons.geo.GriddedRegion;
@@ -1035,6 +1036,37 @@ public  class ERF2DB implements ERF2DBAPI{
 			e.printStackTrace();
 			return -1;
 		}
+	}
+	
+	public HashMap<Integer, Location> getHypocenters(int erfID, int sourceID, int rupID, int rupVarScenID) {
+		HashMap<Integer, Location> locs = new HashMap<Integer, Location>();
+		
+		String sql = "SELECT Rup_Var_ID,Hypocenter_Lat,Hypocenter_Lon,Hypocenter_Depth FROM Rupture_Variations " +
+		"WHERE ERF_ID=" + erfID + " AND Rup_Var_Scenario_ID=" + rupVarScenID + " " +
+		"AND Source_ID=" + sourceID + " AND Rupture_ID=" + rupID;
+		
+		try {
+			ResultSet rs = dbaccess.selectData(sql);
+			
+			boolean success = rs.first();
+			while (success) {
+				int rvID = rs.getInt("Rup_Var_ID");
+				double lat = rs.getDouble("Hypocenter_Lat");
+				double lon = rs.getDouble("Hypocenter_Lon");
+				double depth = rs.getDouble("Hypocenter_Depth");
+				Location loc = new Location(lat, lon, depth);
+				
+				locs.put(rvID, loc);
+				
+				success = rs.next();
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+		
+		return locs;
 	}
 
 	public static void main(String args[]) {

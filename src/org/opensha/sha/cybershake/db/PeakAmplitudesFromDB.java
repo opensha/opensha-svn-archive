@@ -327,7 +327,7 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 	 */
 	public ArrayList<Double> getIM_Values(int runID, int srcId, int rupId, CybershakeIM im) throws SQLException{
 		String sql = "SELECT IM_Value from " + TABLE_NAME + " where Run_ID=" + runID + " and Source_ID = '"+srcId+"' "+
-        "and Rupture_ID = '"+rupId+"' and IM_Type_ID = '"+im.getID()+"'";
+        "and Rupture_ID = '"+rupId+"' and IM_Type_ID = '"+im.getID()+"' ORDER BY Rup_Var_ID";
 //		System.out.println(sql);
 		ResultSet rs = null;
 		ArrayList<Double> vals = new ArrayList<Double>();
@@ -481,6 +481,34 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 			e.printStackTrace();
 			return -1;
 		}
+	}
+	
+	public ArrayList<PeakAmplitudesRecord> getPeakAmpRecord(int runID, int sourceID, int rupID) {
+		String sql = "SELECT * FROM "+TABLE_NAME+" WHERE Run_ID="+runID+" AND Source_ID="+sourceID+" AND Rupture_ID="+rupID;
+		
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		ArrayList<PeakAmplitudesRecord> amps = new ArrayList<PeakAmplitudesRecord>();
+		
+		try {
+			rs.first();
+			while(!rs.isAfterLast()){
+				amps.add(PeakAmplitudesRecord.fromResultSet(rs));
+				rs.next();
+			}
+			
+			return amps;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	public static void main(String args[]) {

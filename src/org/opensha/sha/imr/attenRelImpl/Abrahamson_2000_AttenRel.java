@@ -200,7 +200,7 @@ NamedObjectAPI {
 	 */
 	protected void setFaultTypeFromRake(double rake) throws InvalidRangeException {
 		FaultUtils.assertValidRake(rake);
-		if ( (rake < 22.5 && rake > -22.5) || (rake < -157.5 && rake > 157.5)) {
+		if ( (rake < 22.5 && rake > -22.5) || (rake < -157.5 || rake > 157.5)) {
 			fltTypeParam.setValue(FLT_TYPE_SS);
 		}
 		else {

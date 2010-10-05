@@ -18,20 +18,23 @@ import org.opensha.sha.cybershake.maps.InterpDiffMap.InterpDiffMapType;
 
 public class PosterImageGen {
 
-	private static void saveCurves(String webAddr, String mainDir, String name, boolean base) throws IOException {
+	protected static void saveCurves(String webAddr, String mainDir, String name, boolean base) throws IOException {
 		if (!webAddr.endsWith("/"))
 			webAddr += "/";
 		if (base)
 			webAddr += "basemap";
 		else
 			webAddr += "interpolated";
-		String pngAddr = webAddr + ".300.png";
+		String pngAddr72 = webAddr + ".72.png";
+		String pngAddr300 = webAddr + ".300.png";
 		String psAddr = webAddr + ".ps";
 		
-		File pngFile = new File(mainDir + File.separator + name + ".png");
+		File pngFile300 = new File(mainDir + File.separator + name + ".300.png");
+		File pngFile72 = new File(mainDir + File.separator + name + ".72.png");
 		File psFile = new File(mainDir + File.separator + name + ".ps");
 		
-		FileUtils.downloadURL(pngAddr, pngFile);
+		FileUtils.downloadURL(pngAddr72, pngFile72);
+		FileUtils.downloadURL(pngAddr300, pngFile300);
 		FileUtils.downloadURL(psAddr, psFile);
 	}
 	

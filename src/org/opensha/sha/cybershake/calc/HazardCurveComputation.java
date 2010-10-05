@@ -127,7 +127,8 @@ public class HazardCurveComputation {
 
 		int runID = run.getRunID();
 
-		double qkProb = erfDB.getRuptureProb(run.getERFID(), srcId, rupId);
+//		double qkProb = erfDB.getRuptureProb(run.getERFID(), srcId, rupId);
+		double qkProb = 1.0;
 		ArrayList<Double> imVals;
 		try {
 			imVals = peakAmplitudes.getIM_Values(runID, srcId, rupId, imType);

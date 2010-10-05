@@ -103,8 +103,10 @@ public class ScenarioShakeMapCalculator {
 	 * @param value : the IML or Prob to compute the map for.
 	 * @returns the XYZ_DataSetAPI  : ArbDiscretized XYZ dataset
 	 */
-	public XYZ_DataSetAPI getScenarioShakeMapData(ArrayList selectedAttenRels, ArrayList attenRelWts,
-			SitesInGriddedRegion sites,EqkRupture rupture,
+	public XYZ_DataSetAPI getScenarioShakeMapData(ArrayList<AttenuationRelationship> selectedAttenRels,
+			ArrayList<Double> attenRelWts,
+			SitesInGriddedRegion sites,
+			EqkRupture rupture,
 			boolean isProbAtIML,double value) throws ParameterException, RegionConstraintException {
 
 		numSites = sites.getRegion().getNodeCount();
@@ -132,7 +134,7 @@ public class ScenarioShakeMapCalculator {
 		 * set in the selected IMR's
 		 */
 		for(int i=0;i<size;++i){ //iterate over all the selected AttenuationRelationships
-			AttenuationRelationship attenRel = (AttenuationRelationship)selectedAttenRels.get(i);
+			AttenuationRelationship attenRel = selectedAttenRels.get(i);
 			if(D){
 				try {
 					fw.write("Lat"+"\t"+"Lon"+"\t");
@@ -214,12 +216,12 @@ public class ScenarioShakeMapCalculator {
 			 */
 			//iterating overe all the selected attenautionRelationShips and getting the XYZ data for them
 			for(int i=0;i<size;++i){
-				AttenuationRelationship attenRel = (AttenuationRelationship)selectedAttenRels.get(i);
+				AttenuationRelationship attenRel = selectedAttenRels.get(i);
 				//getting the calculated value for the scenarioshakemap for the i-th attenRel and for this site.
 				double val= scenarioShakeMapDataCalc(propagationEffect,attenRel,isProbAtIML);
 
 				//multiplying the value for the attenuation with the relative normalised wt for it
-				val *= ((Double)attenRelWts.get(i)).doubleValue();
+				val *= (attenRelWts.get(i)).doubleValue();
 				//adding up all the values obtained from different AttenRel for the site.
 				attenRelsAvgValForSite +=val;
 			}
