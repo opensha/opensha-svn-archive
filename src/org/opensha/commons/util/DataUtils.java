@@ -19,6 +19,10 @@
 
 package org.opensha.commons.util;
 
+import static com.google.common.base.Preconditions.*;
+
+import java.lang.reflect.Array;
+
 /**
  * This class provides various data processing utilities.
  *
@@ -29,8 +33,6 @@ public class DataUtils {
 
 	// no instantiation
 	private DataUtils() {}
-	
-	
 	
     /**
      * Validates the domain of a <code>double</code> data set. Method 
@@ -73,6 +75,40 @@ public class DataUtils {
         }        
     }
 
+    /**
+     * Creates a new array from the values in a source array at the specified
+     * indices. Returned array is of same type as source.
+     * 
+     * @param array array source
+     * @param indices index values of items to select
+     * @return a new array of values at indices in source
+     * @throws NullPointerException if <code>array</code> or 
+     * <code>indices</code> are <code>null</code>
+     * @throws IllegalArgumentException if data object is not an array or if data
+     * array is empty
+     * @throws IndexOutOfBoundsException if any indices are out of range
+     */
+    public static Object arraySelect(Object array, int[] indices) {
+        checkNotNull(array, "Supplied data array is null");
+        checkArgument(
+    		array.getClass().isArray(), 
+    		"Data object supplied is not an array");
+        int arraySize = Array.getLength(array);
+        checkArgument(arraySize != 0, "Supplied data array is empty");
+        checkNotNull(indices, "Supplied index array is null");
+        
+        // validate indices
+        for (int i=0; i<indices.length; i++) {
+        	checkPositionIndex(indices[i], arraySize, "Supplied index");
+        }
+        
+        Class<? extends Object> srcClass = array.getClass().getComponentType();
+        Object out = Array.newInstance(srcClass, indices.length);
+        for (int i=0; i<indices.length; i++) {
+            Array.set(out, i, Array.get(array, indices[i]));
+        }
+        return out;
+    }
 
 
 	/**
