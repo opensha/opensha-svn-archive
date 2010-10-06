@@ -118,6 +118,8 @@ public class SsS1Calculator {
 	protected static final int PGA_IDX = 8;
 	protected static final int PGAUH_IDX = 9;
 	protected static final int PGADET_IDX = 10;
+	
+	protected static final int TL_IDX = 11;
 
 	/**
 	 * Some static String for the data printing
@@ -303,6 +305,15 @@ public class SsS1Calculator {
 				function.set(SS_IDX, Ss);
 				function.set(S1_IDX, S1);
 				function.set(PGA_IDX, PGA);
+				
+				// Add TsubL data to function
+				try {
+					TsubL tlcalc = new TsubL(conn);
+					function.set(TL_IDX, tlcalc.get(latitude, longitude));
+				} catch (Exception ex) {
+					// Failed. Use NaN
+					function.set(TL_IDX, Double.NaN);
+				}
 
 				StringBuffer info = new StringBuffer(SsS1_TITLE + "\n");
 				info.append("By definition, Ss and S1 are for Site Class B\n");

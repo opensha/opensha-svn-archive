@@ -35,9 +35,9 @@ public class TsubL {
 		double longitude = Double.parseDouble(args[1]);
 
 		TsubL calc = new TsubL((new DBHazardConnection()).getConnection());
-		int tl = calc.get(latitude, longitude);
+		double tl = calc.get(latitude, longitude);
 
-		System.out.println(tl);
+		System.out.printf("%.0f\n", tl);
 	}
 
 	// Connection to the database
@@ -71,13 +71,13 @@ public class TsubL {
 	 * @throws Exception If an SQLException occurs or if the query fails to
 	 *                   return data.
 	 */
-	public int get(double latitude, double longitude) throws Exception {
+	public double get(double latitude, double longitude) throws Exception {
 		this.query.setDouble(1, latitude);
 		this.query.setDouble(2, longitude);
-		int tl;
+		double tl;
 
 		ResultSet results = this.query.executeQuery();
-		if (results.next()) { tl = results.getInt("TL"); }
+		if (results.next()) { tl = results.getDouble("TL"); }
 		else { 
 			results.close(); 
 			throw new Exception("Query failed to return results.");
