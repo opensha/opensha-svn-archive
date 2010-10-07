@@ -230,6 +230,7 @@ ActionListener,ParameterChangeListener{
     ParameterList paramList = editor.getParameterList();
     if(parameterChangeFlag){
       param.setValue(paramList);
+      param.firePropertyChange(new ParameterChangeEvent(param, param.getName(), param.getValue(), param.getValue()));
       parameterChangeFlag = false;
     }
     frame.dispose();

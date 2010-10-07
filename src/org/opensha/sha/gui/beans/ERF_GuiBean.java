@@ -173,7 +173,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 	 * @param className
 	 * @return
 	 */
-	private String getERFName(String className) {
+	public static String getERFName(String className) {
 		try {
 			Class<?> erfClass = Class.forName(className);
 			Field nameField = erfClass.getField("NAME");
