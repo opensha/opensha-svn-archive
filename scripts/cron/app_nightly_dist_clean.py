@@ -90,15 +90,16 @@ def processDir(dir):
 		if isNightly:
 			daysOld = (firstDate - jar.date).days
 			day = jar.date.day
+			numKept = len(jarsToKeep) # we want to keep at least the 3 latest around, regardless of age
 			if daysOld <= 7: # keep it if it's less than 7 days old
 				if not containsDate(jarsToKeep, jar.date):
 					jarsToKeep.append(jar)
 					continue
-			if daysOld <= 30: # keep if it it's less than 30 days and from sunday
+			if numKept > 3 and daysOld <= 30: # keep if it it's less than 30 days and from sunday
 				if day in (1, 8, 15, 22, 29) and not containsDate(jarsToKeep, jar.date):
 					jarsToKeep.append(jar)
 					continue
-			elif daysOld <= 365: # keep it if it > 30 days old and it's from the 1st of the month
+			elif numKept > 3 and daysOld <= 365: # keep it if its > 30 days old and it's from the 1st of the month
 				if day == 1 and not containsDate(jarsToKeep, jar.date):
 					jarsToKeep.append(jar)
 					continue
@@ -108,7 +109,7 @@ def processDir(dir):
 			if containsVersion(jarsToKeep, jar.version):
 				jarsToDelete.append(jar)
 				continue
-			jarsToKeep.append(jar)
+			jarsToKeep.append(jar) 
 	print "keeping:"
 	for jar in jarsToKeep:
 		print jar.fileName
