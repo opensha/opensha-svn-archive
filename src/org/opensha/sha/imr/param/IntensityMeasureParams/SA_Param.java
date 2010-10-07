@@ -97,5 +97,10 @@ public class SA_Param extends WarningDoubleParameter {
 		SA_Param saParam = (SA_Param) param;
 		saParam.getPeriodParam().setValue(period);
 	}
+	
+	public static double getPeriodInSA_Param(ParameterAPI<?> param) {
+		SA_Param saParam = (SA_Param) param;
+		return saParam.getPeriodParam().getValue();
+	}
 
 }

@@ -37,6 +37,7 @@ import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.elements.PSXYPolygon;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbolSet;
+import org.opensha.commons.mapping.gmt.elements.PSXYSymbol.Symbol;
 import org.opensha.commons.param.BooleanParameter;
 import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.StringParameter;
@@ -65,7 +66,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 	 * Name of the class
 	 */
 	protected final static String C = "GMT_MapGeneratorForShakeMaps";
-	
+
 	public static final String OPENSHA_HAZUS_SERVLET_URL = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "GMT_HazusMapServlet";
 
 	// for debug purpose
@@ -92,10 +93,10 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 
 	// for the rupture surface plotting parameter
 	public final static String RUP_PLOT_PARAM_NAME = "Rupture-Surface Plotting";
-	private final static String RUP_PLOT_PARAM_PERIMETER = "Draw Perimeter";
-	private final static String RUP_PLOT_PARAM_POINTS = "Draw Discrete Points";
-	private final static String RUP_PLOT_PARAM_NOTHING = "Draw Nothing";
-	private final static String RUP_PLOT_PARAM_INFO = "The hypocenter will also be plotted (as a star) if it has been set" ;
+	public final static String RUP_PLOT_PARAM_PERIMETER = "Draw Perimeter";
+	public final static String RUP_PLOT_PARAM_POINTS = "Draw Discrete Points";
+	public final static String RUP_PLOT_PARAM_NOTHING = "Draw Nothing";
+	public final static String RUP_PLOT_PARAM_INFO = "The hypocenter will also be plotted (as a star) if it has been set" ;
 	StringParameter rupPlotParam;
 
 	//creating the parameter to generate the Hazus Shape File
@@ -247,7 +248,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 		GS_PATH="/usr/local/bin/gs";
 		PS2PDF_PATH = "/usr/local/bin/ps2pdf";
 		CONVERT_PATH="/usr/bin/convert";
-		
+
 		GMT_Map maps[] = new GMT_Map[4];
 
 		// Do 0.3-sec SA first
@@ -494,7 +495,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 
 		//redefing the region for proper discretization of the region required by the GMT
 		String region = " -R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat+" ";
-//		String imt = map.get
+		//		String imt = map.get
 		String commandLine;
 		//if the selected IMT is SA
 		if(imt.equals(SA_Param.NAME)){
@@ -596,16 +597,10 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 		 */
 	}
 
-	@Override
-	public GMT_Map getGMTMapSpecification(XYZ_DataSetAPI xyzData) {
-		GMT_Map map =  super.getGMTMapSpecification(xyzData);
-		
-		String rupPlot = rupPlotParam.getValue();
-
+	public static final void addRupture(GMT_Map map, EvenlyGriddedSurfaceAPI surface, Location hypo, String rupPlot) {
 		if(!rupPlot.equals(RUP_PLOT_PARAM_NOTHING)) {
 
 			// Get the surface and associated info
-			EvenlyGriddedSurfaceAPI surface = eqkRup.getRuptureSurface();
 			Location loc;
 			int rows = surface.getNumRows();
 			int cols = surface.getNumCols();
@@ -621,7 +616,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 				int shade;
 				Location lastLoc = surface.getLocation(0,0);
 
-				if(eqkRup.getRuptureSurface().getAveDip() < 90) { // do only if not vertically dipping
+				if(surface.getAveDip() < 90) { // do only if not vertically dipping
 
 					// get points down the far side
 					c = cols-1;
@@ -678,17 +673,17 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 					lastLoc = loc;
 				}
 
-//				// plot the rupture surface points
-//				commandLine = GMT_PATH+"psxy "+ EQK_RUP_XYZ_FILE_NAME + region +
-//				projWdth +" -K -O -M >> " + PS_FILE_NAME;
-//				gmtLines.add(commandLine+"\n");
-//				gmtLines.add(COMMAND_PATH+"rm "+EQK_RUP_XYZ_FILE_NAME+"\n");
+				//				// plot the rupture surface points
+				//				commandLine = GMT_PATH+"psxy "+ EQK_RUP_XYZ_FILE_NAME + region +
+				//				projWdth +" -K -O -M >> " + PS_FILE_NAME;
+				//				gmtLines.add(commandLine+"\n");
+				//				gmtLines.add(COMMAND_PATH+"rm "+EQK_RUP_XYZ_FILE_NAME+"\n");
 			} else {
 				// Plot the discrete surface points
 				String gmtSymbol = " c0.04i";    // draw a circles of 0.04 inch diameter
 				// get points along the top
-				
-//				LinearBlender blend = new LinearBlender();
+
+				//				LinearBlender blend = new LinearBlender();
 				Color bigColor = new Color(20, 20, 20);
 				Color smallColor = new Color(235, 235, 235);
 				float dep1 = (float)surface.getLocation(0,0).getDepth();
@@ -706,43 +701,60 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 					}
 				}
 				map.setSymbolSet(symbols);
-				
-//				// make the file in the script:
-//				gmtLines.add(COMMAND_PATH+"cat << END > "+EQK_RUP_XYZ_FILE_NAME);
-//				Iterator it = fileLines.iterator();
-//				while(it.hasNext()) gmtLines.add((String)it.next());
-//				gmtLines.add("END\n");
-//
-//				// make the cpt file for the fault points
-//				
-//				commandLine = COMMAND_PATH+"cat << END > temp_rup_cpt\n"+
-//				(float)dep1+" 235 235 253 "+(float)dep2+" 20 20 20\n"+
-//				"F 235 235 235\nB 20 20 20\nEND";
-//				gmtLines.add(commandLine+"\n");
-//
-//				// plot the rupture surface points
-//				commandLine = GMT_PATH+"psxy "+ EQK_RUP_XYZ_FILE_NAME + region +
-//				projWdth +" -K -O -S -Ctemp_rup_cpt >> " + PS_FILE_NAME;
-//				gmtLines.add(commandLine+"\n");
-//				gmtLines.add(COMMAND_PATH+"rm temp_rup_cpt "+EQK_RUP_XYZ_FILE_NAME+"\n");
 			}
-//
-//
-//			// add hypocenter location if it's not null - the data files is generated by the script
-//			// this has two data lines because GMT needs at least two lines in an XYZ file
-//			loc = eqkRup.getHypocenterLocation();
-//			if(loc != null) {
-//				commandLine = COMMAND_PATH+"cat << END > temp_hyp\n"+
-//				(float)loc.getLongitude()+"  "+(float)loc.getLatitude()+"  "+(float)loc.getDepth()+"\n"+
-//				(float)loc.getLongitude()+"  "+(float)loc.getLatitude()+"  "+(float)loc.getDepth()+"\n"+
-//				"END";
-//				gmtLines.add(commandLine+"\n");
-//				commandLine = GMT_PATH+"psxy temp_hyp "+region+
-//				projWdth +" -K -O -Sa0.4i -W8/0/0/0 >> " + PS_FILE_NAME;
-//				gmtLines.add(commandLine+"\n");
-//				gmtLines.add(COMMAND_PATH+"rm temp_hyp\n");
+			if (hypo != null) {
+				Point2D pt = new Point2D.Double(hypo.getLongitude(), hypo.getLatitude());
+				Symbol symbol = Symbol.STAR;
+				double width = 0.4;
+				double penWidth = 8;
+				Color penColor = Color.BLACK;
+				Color fillColor = null;
+				PSXYSymbol hypoSym = new PSXYSymbol(pt, symbol, width, penWidth, penColor, fillColor);
+				map.addSymbol(hypoSym);
+			}
 		}
-		
+	}
+
+	@Override
+	public GMT_Map getGMTMapSpecification(XYZ_DataSetAPI xyzData) {
+		GMT_Map map =  super.getGMTMapSpecification(xyzData);
+
+		addRupture(map, eqkRup.getRuptureSurface(), eqkRup.getHypocenterLocation(), rupPlotParam.getValue());
+
+		//				// make the file in the script:
+		//				gmtLines.add(COMMAND_PATH+"cat << END > "+EQK_RUP_XYZ_FILE_NAME);
+		//				Iterator it = fileLines.iterator();
+		//				while(it.hasNext()) gmtLines.add((String)it.next());
+		//				gmtLines.add("END\n");
+		//
+		//				// make the cpt file for the fault points
+		//				
+		//				commandLine = COMMAND_PATH+"cat << END > temp_rup_cpt\n"+
+		//				(float)dep1+" 235 235 253 "+(float)dep2+" 20 20 20\n"+
+		//				"F 235 235 235\nB 20 20 20\nEND";
+		//				gmtLines.add(commandLine+"\n");
+		//
+		//				// plot the rupture surface points
+		//				commandLine = GMT_PATH+"psxy "+ EQK_RUP_XYZ_FILE_NAME + region +
+		//				projWdth +" -K -O -S -Ctemp_rup_cpt >> " + PS_FILE_NAME;
+		//				gmtLines.add(commandLine+"\n");
+		//				gmtLines.add(COMMAND_PATH+"rm temp_rup_cpt "+EQK_RUP_XYZ_FILE_NAME+"\n");
+		//
+		//
+		//			// add hypocenter location if it's not null - the data files is generated by the script
+		//			// this has two data lines because GMT needs at least two lines in an XYZ file
+		//			loc = eqkRup.getHypocenterLocation();
+		//			if(loc != null) {
+		//				commandLine = COMMAND_PATH+"cat << END > temp_hyp\n"+
+		//				(float)loc.getLongitude()+"  "+(float)loc.getLatitude()+"  "+(float)loc.getDepth()+"\n"+
+		//				(float)loc.getLongitude()+"  "+(float)loc.getLatitude()+"  "+(float)loc.getDepth()+"\n"+
+		//				"END";
+		//				gmtLines.add(commandLine+"\n");
+		//				commandLine = GMT_PATH+"psxy temp_hyp "+region+
+		//				projWdth +" -K -O -Sa0.4i -W8/0/0/0 >> " + PS_FILE_NAME;
+		//				gmtLines.add(commandLine+"\n");
+		//				gmtLines.add(COMMAND_PATH+"rm temp_hyp\n");
+
 		return map;
 	}
 
