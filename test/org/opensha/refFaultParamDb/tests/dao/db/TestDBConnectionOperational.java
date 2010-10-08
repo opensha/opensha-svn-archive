@@ -44,6 +44,7 @@ public class TestDBConnectionOperational {
 	private void runTestTimed(DB_AccessAPI db) throws Throwable {
 		this.db = db;
 		TestUtils.runTestWithTimer("runTest", this, 240);
+		db.destroy();
 	}
 	
 	@SuppressWarnings("unused")
