@@ -53,6 +53,18 @@ public class EQSIM_Event extends ArrayList<EventRecord> implements Comparable<EQ
 		return includes;
 	}
 	
+	/**
+	 * @param sectId
+	 * @return
+	 */
+	public boolean doesEventIncludeSection(int sectId) {
+		for(EventRecord eventRecord: this)
+			if(eventRecord.getSectionID() == sectId)
+				return true;
+		return false;
+	}
+
+	
 	public int getID() { return event_id;}
 	
 	public double getMagnitude() { return magnitude;}
