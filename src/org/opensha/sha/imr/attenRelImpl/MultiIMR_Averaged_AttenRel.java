@@ -49,7 +49,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	
 	private static final String C = ClassUtils.getClassNameWithoutPackage(MultiIMR_Averaged_AttenRel.class);
 	
-	private static final boolean D = true;
+	private static final boolean D = false;
 	
 	private ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs;
 	private ArrayList<Double> weights;
