@@ -146,7 +146,8 @@ public class HardCodedTest {
 			new ArrayList<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>>();
 		imrMaps.add(imrMap);
 		
-		double spacing = 0.1;
+//		double spacing = 0.1;
+		double spacing = 0.05;
 		String spacingCode = ""+(int)(spacing * 100d);
 		if (spacingCode.length() < 2)
 			spacingCode = "0"+spacingCode;
