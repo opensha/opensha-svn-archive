@@ -203,7 +203,15 @@ public class HardCodedTest {
 			for (int i=0; i<siteData.length; i++) {
 				if (siteData[i] == null)
 					siteData[i] = new ArrayList<SiteDataValue<?>>();
-				siteData[i].add(vals.getValue(i));
+				SiteDataValue<?> val = vals.getValue(i);
+				if (val.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_2_5)) {
+					if ((Double)val.getValue() > DepthTo2pt5kmPerSecParam.MAX) {
+						System.out.println("Got a super high: " + val);
+						val = new SiteDataValue<Double>(SiteDataAPI.TYPE_DEPTH_TO_2_5,
+								val.getDataMeasurementType(), Double.NaN);
+					}
+				}
+				siteData[i].add(val);
 			}
 		}
 		
