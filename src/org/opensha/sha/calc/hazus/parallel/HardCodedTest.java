@@ -204,12 +204,13 @@ public class HardCodedTest {
 				if (siteData[i] == null)
 					siteData[i] = new ArrayList<SiteDataValue<?>>();
 				SiteDataValue<?> val = vals.getValue(i);
-				if (val.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_2_5)) {
-					if ((Double)val.getValue() > DepthTo2pt5kmPerSecParam.MAX) {
-						System.out.println("Got a super high: " + val);
-						val = new SiteDataValue<Double>(SiteDataAPI.TYPE_DEPTH_TO_2_5,
-								val.getDataMeasurementType(), Double.NaN);
-					}
+				if ((val.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_2_5)
+						&& (Double)val.getValue() > DepthTo2pt5kmPerSecParam.MAX)
+						|| (val.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_1_0)
+						&& (Double)val.getValue() > DepthTo1pt0kmPerSecParam.MAX)) {
+					System.out.println("Got a super high: " + val);
+					val = new SiteDataValue<Double>(val.getDataType(),
+							val.getDataMeasurementType(), Double.NaN);
 				}
 				siteData[i].add(val);
 			}
