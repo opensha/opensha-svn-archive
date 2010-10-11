@@ -56,7 +56,7 @@ import org.opensha.sha.util.TectonicRegionType;
 public class HardCodedTest {
 	
 	private static SimpleDateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm");
-	private static final boolean constrainBasinMin = true;
+	private static final boolean constrainBasinMin = false;
 	
 	private static MeanUCERF2 getUCERF2(int years, int startYear) {
 		MeanUCERF2 ucerf = new MeanUCERF2();
@@ -118,7 +118,7 @@ public class HardCodedTest {
 		return attenRel;
 	}
 	
-	private static LocationList loadCSV(File file) throws IOException {
+	public static LocationList loadCSV(File file) throws IOException {
 		LocationList locs = new LocationList();
 		
 		CSVFile<String> csv = CSVFile.readFile(file);
@@ -204,14 +204,14 @@ public class HardCodedTest {
 				if (siteData[i] == null)
 					siteData[i] = new ArrayList<SiteDataValue<?>>();
 				SiteDataValue<?> val = vals.getValue(i);
-				if ((val.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_2_5)
-						&& (Double)val.getValue() > DepthTo2pt5kmPerSecParam.MAX)
-						|| (val.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_1_0)
-						&& (Double)val.getValue() > DepthTo1pt0kmPerSecParam.MAX)) {
-					System.out.println("Got a super high: " + val);
-					val = new SiteDataValue<Double>(val.getDataType(),
-							val.getDataMeasurementType(), Double.NaN);
-				}
+//				if ((val.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_2_5)
+//						&& (Double)val.getValue() > DepthTo2pt5kmPerSecParam.MAX)
+//						|| (val.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_1_0)
+//						&& (Double)val.getValue() > DepthTo1pt0kmPerSecParam.MAX)) {
+//					System.out.println("Got a super high: " + val);
+//					val = new SiteDataValue<Double>(val.getDataType(),
+//							val.getDataMeasurementType(), Double.NaN);
+//				}
 				siteData[i].add(val);
 			}
 		}
