@@ -66,6 +66,30 @@ public class BinaryMesh2DCalculator {
 		}
 	}
 	
+	public long calcFileX(long pos) {
+		return calcMeshX(pos / numBytesPerPoint);
+	}
+	
+	public long calcMeshX(long index) {
+		if (meshOrder == FAST_XY) {
+			return index % nx;
+		} else {
+			return index / ny;
+		}
+	}
+	
+	public long calcFileY(long pos) {
+		return calcMeshY(pos / numBytesPerPoint);
+	}
+	
+	public long calcMeshY(long index) {
+		if (meshOrder == FAST_XY) {
+			return index / nx;
+		} else {
+			return index % ny;
+		}
+	}
+	
 	public long calcFileIndex(long x, long y) {
 		return numBytesPerPoint * this.calcMeshIndex(x, y);
 	}

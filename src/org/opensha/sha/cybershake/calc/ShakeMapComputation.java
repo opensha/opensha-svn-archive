@@ -41,16 +41,34 @@ public class ShakeMapComputation {
 	
 	public XYZ_DataSetAPI getShakeMap(int datasetID, int erfID, int rupVarScenID, CybershakeIM im,
 			int sourceID, int rupID, Location hypo) {
+		ArrayList<Integer> rvsToInclude;
+		if (hypo == null) {
+			rvsToInclude = null;
+		} else {
+			HashMap<Integer, Location> rvHypos = erf2db.getHypocenters(erfID, sourceID, rupID, rupVarScenID);
+			rvsToInclude = new ArrayList<Integer>();
+			for (int rvID : rvHypos.keySet()) {
+				Location rvHypo = rvHypos.get(rvID);
+				if (hypo.equals(rvHypo))
+					rvsToInclude.add(rvID);
+			}
+		}
+		
+		return getShakeMap(datasetID, erfID, rupVarScenID, im, sourceID, rupID, rvsToInclude);
+	}
+	
+	public XYZ_DataSetAPI getShakeMap(int datasetID, int erfID, int rupVarScenID, int imTypeID,
+			int sourceID, int rupID, ArrayList<Integer> rvsToInclude) {
+		CybershakeIM im = hc2db.getIMFromID(imTypeID);
+		return getShakeMap(datasetID, erfID, rupVarScenID, im, sourceID, rupID, rvsToInclude);
+	}
+	
+	public XYZ_DataSetAPI getShakeMap(int datasetID, int erfID, int rupVarScenID, CybershakeIM im,
+			int sourceID, int rupID, ArrayList<Integer> rvsToInclude) {
 		
 		XYZ_DataSetAPI xyz = new ArbDiscretizedXYZ_DataSet();
 		
 		HazardCurveFetcher fetcher = new HazardCurveFetcher(db, datasetID, im.getID());
-		
-		HashMap<Integer, Location> rvHypos;
-		if (hypo == null)
-			rvHypos = null;
-		else
-			rvHypos = erf2db.getHypocenters(erfID, sourceID, rupID, rupVarScenID);
 		
 		for (CybershakeSite site : fetcher.getCurveSites()) {
 			ArrayList<CybershakeRun> runs = runs2db.getRuns(site.id);
@@ -68,18 +86,27 @@ public class ShakeMapComputation {
 				
 				System.out.println("loaded " + imVals.size() + " amps for site: " + site);
 				
-				if (hypo != null) {
-					if (imVals.size() != rvHypos.size())
-						throw new RuntimeException("rv count mismatch!");
+				if (rvsToInclude != null) {
 					ArrayList<Double> newIMVals = new ArrayList<Double>();
 					for (int rvID=0; rvID<imVals.size(); rvID++) {
-						Location rvHypo = rvHypos.get(rvID);
-						if (hypo.equals(rvHypo))
+						if (rvsToInclude.contains(rvID))
 							newIMVals.add(imVals.get(rvID));
 					}
 					imVals = newIMVals;
-					System.out.println("RV's with correct hypo: " + imVals.size());
 				}
+				
+//				if (rvsToInclude != null) {
+//					if (imVals.size() != rvHypos.size())
+//						throw new RuntimeException("rv count mismatch!");
+//					ArrayList<Double> newIMVals = new ArrayList<Double>();
+//					for (int rvID=0; rvID<imVals.size(); rvID++) {
+//						Location rvHypo = rvHypos.get(rvID);
+//						if (hypo.equals(rvHypo))
+//							newIMVals.add(imVals.get(rvID));
+//					}
+//					imVals = newIMVals;
+//					System.out.println("RV's with correct hypo: " + imVals.size());
+//				}
 				
 				double logTotal = 0;
 				for (int i=0; i<imVals.size(); i++) {

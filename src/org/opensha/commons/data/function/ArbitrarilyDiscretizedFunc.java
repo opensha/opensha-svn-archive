@@ -230,7 +230,10 @@ implements Serializable {
 
 
 	/** Either adds a new DataPoint, or replaces an existing one, within tolerance */
-	public void set(Point2D point) throws Point2DException{ points.add(point); }
+	public void set(Point2D point) throws Point2DException{
+		if (!points.add(point))
+			throw new RuntimeException("set called but nothing changed!");
+	}
 
 	/**
 	 * Either adds a new DataPoint, or replaces an existing one, within tolerance,

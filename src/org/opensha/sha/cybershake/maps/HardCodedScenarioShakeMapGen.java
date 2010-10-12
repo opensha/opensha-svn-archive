@@ -15,6 +15,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValueList;
@@ -27,6 +28,7 @@ import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.commons.util.cpt.CPT;
@@ -45,7 +47,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PGD_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
-public class ScenarioShakeMapGen {
+public class HardCodedScenarioShakeMapGen {
 	
 	private static final String cacheDir = "/home/kevin/CyberShake/M8/";
 	
@@ -102,7 +104,7 @@ public class ScenarioShakeMapGen {
 			fName += "_2.5";
 		else if (type.equals(SiteDataAPI.TYPE_DEPTH_TO_1_0))
 			fName += "_1.0";
-		fName += "_"+region.getName()+".txt";
+		fName += "_"+region.getName()+".xml";
 		
 		File file = new File(fName);
 		if (file.exists()) {
@@ -219,6 +221,7 @@ public class ScenarioShakeMapGen {
 			throw new RuntimeException("CS shakemaps can only be computed for IML @ 50% prob.");
 		File file = new File(cacheDir+"csScatter_"+datasetID+"_"+imTypeID+"_"+sourceID+"_"
 				+rupID+"_"+isProbAtIML+"_"+value+".txt");
+		
 		if (file.exists()) {
 			return ArbDiscretizedXYZ_DataSet.loadXYZFile(file.getAbsolutePath());
 		} else {
@@ -247,16 +250,16 @@ public class ScenarioShakeMapGen {
 		System.out.println("Creating Atten Rels...");
 		ArrayList<AttenuationRelationship> attenRels = getAttenRels();
 		
-//		Region region = new CaliforniaRegions.CYBERSHAKE_MAP_REGION();
-//		region.setName("CSReg");
-//		double spacing = 0.005;
+		GriddedRegion region = new CaliforniaRegions.CYBERSHAKE_MAP_GRIDDED(0.005);
+		region.setName("CSReg");
 //		Location northEast = new Location(38.4664459228515625, -113.125587463378906);
 //		Location southWest = new Location(30.7091560363769531, -122.500495910644531);
 //		Region region = new Region(northEast, southWest);
 //		region.setName("M8Rect");
 //		double spacing = 0.02;
-		CustomGriddedRegion region = loadCustomRegion();
-		region.setName("M8Exact");
+//		CustomGriddedRegion region = loadCustomRegion();
+//		region.setName("M8Exact");
+//		double spacing = region.getSpacing();
 		
 		
 		ArrayList<SiteDataValueList<?>> lists = loadValLists(region);
@@ -309,8 +312,9 @@ public class ScenarioShakeMapGen {
 			int rupVarScenID = 3;
 			
 			System.out.println("Loading Scatter Data");
-			XYZ_DataSetAPI scatterData = getScatterData(datasetID, erfID, rupVarScenID, imTypeID,
-					sourceID, rupID, hypo, isProbAt_IML, val);
+//			XYZ_DataSetAPI scatterData = getScatterData(datasetID, erfID, rupVarScenID, imTypeID,
+//					sourceID, rupID, hypo, isProbAt_IML, val);
+			XYZ_DataSetAPI scatterData = ArbDiscretizedXYZ_DataSet.loadXYZFile("/home/kevin/CyberShake/eew/parkfield/shakemap.txt");
 			
 			System.out.println("loaded "+scatterData.getX_DataSet().size()+" scatter vals");
 			
