@@ -45,11 +45,16 @@ public class Point2DToleranceSortedList extends TreeSet<Point2D> {
 	@Override
 	public boolean add(Point2D e) {
 		checkMinMaxY(e);
+		if (super.contains(e))
+			super.remove(e);
 		return super.add(e);
 	}
 
 	@Override
 	public boolean addAll(Collection<? extends Point2D> c) {
+		for (Point2D p : c)
+			if (super.contains(p))
+				super.remove(p);
 		boolean ret = super.addAll(c);
 		if (ret)
 			recalcMinMaxYs();
