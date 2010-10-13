@@ -2,8 +2,6 @@ package org.opensha.refFaultParamDb.tests.dao.db;
 
 import static org.junit.Assert.*;
 
-import java.sql.SQLException;
-
 import javax.sql.rowset.CachedRowSet;
 
 import org.junit.Before;
@@ -48,10 +46,15 @@ public class TestDBConnectionOperational {
 	}
 	
 	@SuppressWarnings("unused")
-	private void runTest() throws SQLException {
-		String sql = "SELECT * FROM Fault_Model where rownum<=1";
-		CachedRowSet rs = db.queryData(sql);
-		rs.first();
+	private void runTest() {
+		try {
+			String sql = "SELECT * FROM Fault_Model where rownum<=1";
+			CachedRowSet rs = db.queryData(sql);
+			rs.first();
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Exception thrown: " + e.getMessage());
+		}
 	}
 
 }

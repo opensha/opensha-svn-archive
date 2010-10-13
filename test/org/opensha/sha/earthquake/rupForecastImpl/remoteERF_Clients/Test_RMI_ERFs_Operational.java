@@ -42,9 +42,17 @@ public class Test_RMI_ERFs_Operational {
 		} catch (NotBoundException e) {
 			e.printStackTrace();
 			fail("NotBoundException: " + e.getMessage());
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Exception connectiong to ERF: " + e.getMessage());
 		}
 		assertNotNull("ERF should not be null!", erf);
-		erf.updateForecast();
+		try {
+			erf.updateForecast();
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Exception updating forecast: " + e.getMessage());
+		}
 	}
 	
 	@Test
@@ -60,31 +68,39 @@ public class Test_RMI_ERFs_Operational {
 		} catch (RemoteException e) {
 			e.printStackTrace();
 			fail("RemoteException: " + e.getMessage());
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Exception connecting to ERF: " + e.getMessage());
 		}
 		assertNotNull("ERF should not be null!", erf);
 		try {
 			erf.updateForecast();
 		} catch (NullPointerException e) {
 			// TODO Auto-generated catch block
-			fail("NullPointerException: " + e.getMessage());
+			fail("NullPointerException updating forecast: " + e.getMessage());
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Exception updating forecast: " + e.getMessage());
 		}
 	}
 	
 	@Test
-	public void testProdDevPorts() throws Throwable {
-		TestUtils.runTestWithTimer("testProdPorts", this, 15);
-		TestUtils.runTestWithTimer("testDevPorts", this, 15);
-//		testPortsForPrefs(ServerPrefs.PRODUCTION_PREFS);
-//		testPortsForPrefs(ServerPrefs.DEV_PREFS);
+	public void testProdPorts() throws Throwable {
+		TestUtils.runTestWithTimer("runTestProdPorts", this, 15);
+	}
+	
+	@Test
+	public void testDevPorts() throws Throwable {
+		TestUtils.runTestWithTimer("runTestDevPorts", this, 15);
 	}
 	
 	@SuppressWarnings("unused")
-	private void testProdPorts() {
+	private void runTestProdPorts() {
 		testPortsForPrefs(ServerPrefs.PRODUCTION_PREFS);
 	}
 	
 	@SuppressWarnings("unused")
-	private void testDevPorts() {
+	private void runTestDevPorts() {
 		testPortsForPrefs(ServerPrefs.DEV_PREFS);
 	}
 	
@@ -112,6 +128,9 @@ public class Test_RMI_ERFs_Operational {
 		} catch (RemoteException e) {
 			e.printStackTrace();
 			fail("Remote exceptoin!");
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Exception testing registry for '"+prefs.name()+"': " + e.getMessage());
 		}
 	}
 
