@@ -92,16 +92,35 @@ public class FaultTrace extends LocationList implements NamedObjectAPI {
       Iterator<Location> it = iterator();
       Location lastLoc = it.next();
       Location loc = null;
-      double aveStrike=0;
-      while( it.hasNext() ){
-        loc = it.next();
-        length = LocationUtils.horzDistance(lastLoc, loc);
-        aveStrike += LocationUtils.azimuth(lastLoc, loc) * length;
-        totLength += length;
-        lastLoc = loc;
-      }
-      throw new RuntimeException("This needs to be fixed for case where aximuths that cross the north direction (e.g., values of 10 & 350 average to 180");
+      
+      //    Old Method
+      //double aveStrike=0;
+      //while( it.hasNext() ){
+      //  loc = it.next();
+      //  length = LocationUtils.horzDistance(lastLoc, loc);
+      //  aveStrike += LocationUtils.azimuth(lastLoc, loc) * length;
+      //  totLength += length;
+      //  lastLoc = loc; 
+      //}
+      //throw new RuntimeException("This needs to be fixed for case where azimuths that cross the north direction (e.g., values of 10 & 350 average to 180");
       //return aveStrike/totLength;
+      
+      double xdir=0; double ydir=0;
+      while( it.hasNext() ){
+          loc = it.next();
+          length = LocationUtils.horzDistance(lastLoc, loc);
+          //System.out.println("azimuth = " + LocationUtils.azimuth(lastLoc, loc));
+          xdir+=length*Math.cos(Math.PI*LocationUtils.azimuth(lastLoc,loc)/180);
+          ydir+=length*Math.sin(Math.PI*LocationUtils.azimuth(lastLoc,loc)/180);
+          lastLoc = loc;
+      }
+      if (xdir>0 & ydir>=0) { return 180*Math.atan(ydir/xdir)/Math.PI; }
+      if (xdir>0 & ydir<0) { return 180*Math.atan(ydir/xdir)/Math.PI+360; } 
+      if (xdir<0) { return 180*Math.atan(ydir/xdir)/Math.PI+180; }   
+      if (xdir==0 & ydir>0) { return 90; }  
+      if (xdir==0 & ydir<0) { return 270; }   
+      else { return 0; } // if both xdir==0 & ydir=0
+
     }
     
     /**
