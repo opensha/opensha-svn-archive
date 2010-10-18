@@ -129,7 +129,7 @@ extends WarningDoublePropagationEffectParameter {
 	}
 	
 	public static double getDistance(Location loc, EvenlyGriddedSurfaceAPI rupSurf) {
-		double minDistance = 999999;
+		double minDistance = Double.MAX_VALUE;
 		double horzDist, vertDist, totalDist;
 		
 		// get locations to iterate over depending on dip
