@@ -54,6 +54,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	private ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs;
 	private ArrayList<Double> weights;
 	
+	private static final boolean PROP_EFFECT_SPEEDUP = true;
 	
 	public MultiIMR_Averaged_AttenRel(ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs) {
 		this(imrs, null);
@@ -501,21 +502,34 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		this.eqkRupture = eqkRupture;
 
 		this.propEffect.setEqkRupture(eqkRupture);
-		if (propEffect.getSite() != null) {
+		if (PROP_EFFECT_SPEEDUP && propEffect.getSite() != null) {
+			setPropagationEffect(propEffect);
+		} else {
 			for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-				// TODO speed this up to avoid redundant dist calculations
-//				imr.setPropagationEffect(propEffect);
-				imr.setEqkRupture(eqkRupture); // this is actually done above
+				imr.setEqkRupture(eqkRupture);
 			}
 		}
 	}
 
 	@Override
 	public void setSite(Site site) {
+		this.site = site;
+		
 		propEffect.setSite(site);
+		if (PROP_EFFECT_SPEEDUP && propEffect.getEqkRupture() != null) {
+			setPropagationEffect(propEffect);
+		} else {
+			for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+				imr.setSite(site);
+			}
+		}
+	}
+
+	@Override
+	public void setPropagationEffect(PropagationEffect propEffect) {
+		this.propEffect = propEffect;
 		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-			// TODO speed this up to avoid redundant dist calculations
-			imr.setSite(site);
+			imr.setPropagationEffect(propEffect);
 		}
 	}
 
