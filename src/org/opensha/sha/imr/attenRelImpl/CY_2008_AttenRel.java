@@ -320,8 +320,8 @@ NamedObjectAPI, ParameterChangeListener {
 				}
 			}
 			else {
-				distRupMinusJB_OverRupParam.setValueIgnoreWarning(0);
-				distRupMinusDistX_OverRupParam.setValue(0);
+				distRupMinusJB_OverRupParam.setValueIgnoreWarning(0d);
+				distRupMinusDistX_OverRupParam.setValue(0d);
 				hangingWallFlagParam.setValue(true);
 			}
 		}

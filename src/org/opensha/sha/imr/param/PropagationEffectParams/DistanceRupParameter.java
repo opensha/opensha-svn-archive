@@ -43,9 +43,7 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
  * @version 1.0
  */
 public class DistanceRupParameter
-extends WarningDoublePropagationEffectParameter
-implements WarningParameterAPI
-{
+extends WarningDoublePropagationEffectParameter {
 
 	/** Class name used in debug strings */
 	protected final static String C = "DistanceRupParameter";

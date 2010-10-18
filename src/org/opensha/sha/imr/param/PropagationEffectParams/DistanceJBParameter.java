@@ -43,9 +43,7 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
  * @version 1.0
  */
 public class DistanceJBParameter
-extends WarningDoublePropagationEffectParameter
-implements WarningParameterAPI
-{
+extends WarningDoublePropagationEffectParameter {
 
 
 

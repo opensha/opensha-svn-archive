@@ -56,8 +56,8 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
  * @version 1.0
  */
 public abstract class WarningDoublePropagationEffectParameter
-extends PropagationEffectParameter
-implements WarningParameterAPI
+extends PropagationEffectParameter<Double>
+implements WarningParameterAPI<Double>
 {
 
 	private transient ParameterEditor paramEdit = null;
@@ -154,7 +154,7 @@ implements WarningParameterAPI
 	 *  Gets the min value of the constraint object. If the constraint
 	 *  is not set returns null.
 	 */
-	public Object getWarningMin() throws Exception {
+	public Double getWarningMin() throws Exception {
 		if ( warningConstraint != null ) return warningConstraint.getMin();
 		else return null;
 	}
@@ -164,7 +164,7 @@ implements WarningParameterAPI
 	 *  Returns the maximum allowed value of the constraint
 	 *  object. If the constraint is not set returns null.
 	 */
-	public Object getWarningMax() {
+	public Double getWarningMax() {
 		if ( warningConstraint != null ) return warningConstraint.getMax();
 		else return null;
 
@@ -184,7 +184,7 @@ implements WarningParameterAPI
 	 *      editable
 	 * @throws  ConstraintException  Thrown if the object value is not allowed
 	 */
-	public synchronized void setValue( Object value ) throws ConstraintException, WarningException {
+	public synchronized void setValue( Double value ) throws ConstraintException, WarningException {
 
 		String S = getName() + ": setValue(): ";
 		if(D) System.out.println(S + "Starting: ");
@@ -230,7 +230,7 @@ implements WarningParameterAPI
 	 *  the absolute constraint check. WARNING: SWR: This may be a bug.
 	 *  Should we bypass the Absolute Constraints. ???
 	 */
-	public void setValueIgnoreWarning( Object value ) throws ConstraintException, ParameterException {
+	public void setValueIgnoreWarning( Double value ) throws ConstraintException, ParameterException {
 		//        this.value = value;
 		super.setValue(value);
 	}
@@ -243,7 +243,7 @@ implements WarningParameterAPI
 	 * @param  obj  Object to check if allowed via constraints
 	 * @return      True if the value is allowed.
 	 */
-	public boolean isRecommended( Object obj ) {
+	public boolean isRecommended( Double obj ) {
 		if ( warningConstraint != null ) return warningConstraint.isAllowed( (Double)obj );
 		else return true;
 

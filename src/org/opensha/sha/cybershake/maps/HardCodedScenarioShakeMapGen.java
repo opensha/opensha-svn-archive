@@ -29,6 +29,7 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.commons.util.cpt.CPT;
@@ -262,7 +263,7 @@ public class HardCodedScenarioShakeMapGen {
 //		double spacing = region.getSpacing();
 		
 		
-		ArrayList<SiteDataValueList<?>> lists = loadValLists(region);
+//		ArrayList<SiteDataValueList<?>> lists = loadValLists(region);
 		
 		boolean logPlot = true;
 		
@@ -281,22 +282,22 @@ public class HardCodedScenarioShakeMapGen {
 					+"_"+region.getSpacing()+"_"+sourceID+"_"+rupID+"_"+isProbAt_IML+"_"+val+"_"+region.getName()
 					+"_"+imt+"_"+period+".txt");
 			
-			XYZ_DataSetAPI baseMap;
-			if (baseMapFile.exists()) {
-				System.out.println("Loading Base Map Data");
-				baseMap = ArbDiscretizedXYZ_DataSet.loadXYZFile(baseMapFile.getAbsolutePath());
-			} else {
-				System.out.println("Getting rupture...");
-				EqkRupture rup = getRupture(sourceID, rupID, hypo);
-				System.out.println("Rup rake: " + rup.getAveRake());
-				System.out.println("Loading sites...");
-				SitesInGriddedRegion sites = getSites(attenRel, region, lists);
-				
-				System.out.println("Generating ShakeMap...");
-				baseMap = computeBaseMap(rup, attenRel, sites, isProbAt_IML, val);
-				System.out.println("Writing: " + baseMapFile.getAbsolutePath());
-				ArbDiscretizedXYZ_DataSet.writeXYZFile(baseMap, baseMapFile.getAbsolutePath());
-			}
+			XYZ_DataSetAPI baseMap = null;
+//			if (baseMapFile.exists()) {
+//				System.out.println("Loading Base Map Data");
+//				baseMap = ArbDiscretizedXYZ_DataSet.loadXYZFile(baseMapFile.getAbsolutePath());
+//			} else {
+//				System.out.println("Getting rupture...");
+//				EqkRupture rup = getRupture(sourceID, rupID, hypo);
+//				System.out.println("Rup rake: " + rup.getAveRake());
+//				System.out.println("Loading sites...");
+//				SitesInGriddedRegion sites = getSites(attenRel, region, lists);
+//				
+//				System.out.println("Generating ShakeMap...");
+//				baseMap = computeBaseMap(rup, attenRel, sites, isProbAt_IML, val);
+//				System.out.println("Writing: " + baseMapFile.getAbsolutePath());
+//				ArbDiscretizedXYZ_DataSet.writeXYZFile(baseMap, baseMapFile.getAbsolutePath());
+//			}
 			
 			if (region instanceof CustomGriddedRegion)
 				continue;
@@ -314,25 +315,27 @@ public class HardCodedScenarioShakeMapGen {
 			System.out.println("Loading Scatter Data");
 //			XYZ_DataSetAPI scatterData = getScatterData(datasetID, erfID, rupVarScenID, imTypeID,
 //					sourceID, rupID, hypo, isProbAt_IML, val);
-			XYZ_DataSetAPI scatterData = ArbDiscretizedXYZ_DataSet.loadXYZFile("/home/kevin/CyberShake/eew/parkfield/shakemap.txt");
+			XYZ_DataSetAPI scatterData =
+				ArbDiscretizedXYZ_DataSet.loadXYZFile("/home/kevin/CyberShake/eew/parkfield/min7.0/shakemap.txt");
 			
 			System.out.println("loaded "+scatterData.getX_DataSet().size()+" scatter vals");
 			
 //			InterpDiffMapType[] types = { InterpDiffMapType.BASEMAP, InterpDiffMapType.INTERP_NOMARKS };
-			InterpDiffMapType[] types = { InterpDiffMapType.BASEMAP };
+//			InterpDiffMapType[] types = { InterpDiffMapType.BASEMAP };
+			InterpDiffMapType[] types = { InterpDiffMapType.INTERP_NOMARKS, InterpDiffMapType.INTERP_MARKS };
 			InterpDiffMap map = new InterpDiffMap(region, baseMap, region.getSpacing(), cpt, scatterData, interpSettings, types);
 			map.setCustomLabel("3 Sec SA");
-//			map.setTopoResolution(TopographicSlopeFile.CA_THREE);
+			map.setTopoResolution(TopographicSlopeFile.CA_THREE);
 			map.setLogPlot(logPlot);
 			map.setDpi(300);
 			map.setXyzFileName("base_map.xyz");
-			if (logPlot) {
-				map.setCustomScaleMin(-1.7);
-				map.setCustomScaleMax(-0.2);
-			} else {
-				map.setCustomScaleMin(0.02);
-				map.setCustomScaleMax(0.6);
-			}
+//			if (logPlot) {
+//				map.setCustomScaleMin(-1.7);
+//				map.setCustomScaleMax(-0.2);
+//			} else {
+//				map.setCustomScaleMin(0.02);
+//				map.setCustomScaleMax(0.6);
+//			}
 			
 			String metadata = "";
 			

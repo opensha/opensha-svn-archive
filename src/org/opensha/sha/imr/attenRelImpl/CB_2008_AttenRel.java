@@ -501,7 +501,7 @@ NamedObjectAPI, ParameterChangeListener {
 
 			propagationEffect.setAll(this.eqkRupture, this.site); // use this for efficiency
 			//    	System.out.println(propagationEffect.getParamValue(distanceRupParam.NAME));
-			distanceRupParam.setValueIgnoreWarning(propagationEffect.getParamValue(distanceRupParam.NAME)); // this sets rRup too
+			distanceRupParam.setValueIgnoreWarning((Double)propagationEffect.getParamValue(DistanceRupParameter.NAME)); // this sets rRup too
 			double dist_jb = ((Double)propagationEffect.getParamValue(DistanceJBParameter.NAME)).doubleValue();
 			if(rRup == 0)
 				distRupMinusJB_OverRupParam.setValueIgnoreWarning(0.0);

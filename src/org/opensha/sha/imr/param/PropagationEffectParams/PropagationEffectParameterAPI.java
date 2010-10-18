@@ -44,23 +44,23 @@ import org.opensha.sha.earthquake.EqkRupture;
 * @author Steven W. Rock
 * @version 1.0
 */
-public interface PropagationEffectParameterAPI {
+public interface PropagationEffectParameterAPI<E> {
 
 
      /** Sets the independent variables (Site and eqkRupture) then calculates and returns the value */
-    public Object getValue(EqkRupture eqkRupture, Site site);
+    public E getValue(EqkRupture eqkRupture, Site site);
 
     /** Sets the site and recalculates the value. The ProbEqkRupture must have already been set */
-    public Object getValue(Site site);
+    public E getValue(Site site);
 
     /** Sets the EqkRupture and recalculates the value. The Site must have already been set */
-    public Object getValue(EqkRupture eqkRupture);
+    public E getValue(EqkRupture eqkRupture);
 
     /** Sets the independent variables (Site and EqkRupture) then calculates the value */
     public void setValue(EqkRupture eqkRupture, Site site);
 
     /** The EqkRupture and Site must have already been set */
-    public Object getValue();
+    public E getValue();
 
     /** Sets the Site and the value is recalculated */
     public void setSite(Site site);

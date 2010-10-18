@@ -87,6 +87,7 @@ public class EEWShakeMapCalc {
 				
 				ArrayList<Integer> rvs = rupsWithinCutoff.getVariationsWithinCutoff(sourceID, rupID);
 				if (rvs != null && rvs.size() > 0) {
+					System.out.println("INCLUDING SOURCE: " + sourceID + " " + rupID + " mag: " + rup.getMag());
 					int numExcluded = rupsWithinCutoff.getNumExcluded(sourceID, rupID);
 					if (numExcluded < 0)
 						throw new RuntimeException("Unexpected numEcluded!");
@@ -238,7 +239,8 @@ public class EEWShakeMapCalc {
 		try {
 			String dir = "/home/kevin/CyberShake/eew/parkfield";
 			Location hypoLocation = BombayBeachHazardCurveCalc.PARKFIELD_LOC;
-			double minMag = 6.5;
+			double minMag = 7.0;
+			dir += "/min"+(float)minMag;
 			double maxDistance = 10d;
 			String sourceNameConstr = null;
 			boolean useDepth = false;

@@ -255,7 +255,7 @@ public class McVerryetal_2000_AttenRelv1
     if ( (this.site != null) && (this.eqkRupture != null)) {
    
     	propagationEffect.setAll(this.eqkRupture, this.site); // use this for efficiency
-    	distanceRupParam.setValueIgnoreWarning(propagationEffect.getParamValue(distanceRupParam.NAME)); // this sets rRup too
+    	distanceRupParam.setValueIgnoreWarning((Double)propagationEffect.getParamValue(DistanceRupParameter.NAME)); // this sets rRup too
     }
   }
 
