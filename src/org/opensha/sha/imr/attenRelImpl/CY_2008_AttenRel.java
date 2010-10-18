@@ -667,7 +667,8 @@ NamedObjectAPI, ParameterChangeListener {
 
 		// set basinDepth default if depthTo1pt0kmPerSec is NaN
 		// TODO currently not possible to set depthTo1pt0kmPerSec Param to NaN
-		// b/c of limitations of WarningDoubleParam 
+		// b/c of limitations of WarningDoubleParam; NSHMP sets value based on
+		// unless vs30=760±20, then its set to 40m
 		double basinDepth;
 		if(Double.isNaN(depthTo1pt0kmPerSec))
 			basinDepth = Math.exp(28.5 - 3.82*Math.log(Math.pow(vs30,8)+Math.pow(378.7,8))/8);
