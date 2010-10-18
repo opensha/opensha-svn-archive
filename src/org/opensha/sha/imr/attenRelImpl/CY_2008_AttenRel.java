@@ -665,7 +665,9 @@ NamedObjectAPI, ParameterChangeListener {
 			compute_lnYref(iper, f_rv, f_nm, rRup, distRupMinusJB_OverRup, distRupMinusDistX_OverRup, f_hw, dip, mag, depthTop, aftershock);
 
 
-		// set basinDepth default if depthTo1pt0kmPerSec is NaN 
+		// set basinDepth default if depthTo1pt0kmPerSec is NaN
+		// TODO currently not possible to set depthTo1pt0kmPerSec Param to NaN
+		// b/c of limitations of WarningDoubleParam 
 		double basinDepth;
 		if(Double.isNaN(depthTo1pt0kmPerSec))
 			basinDepth = Math.exp(28.5 - 3.82*Math.log(Math.pow(vs30,8)+Math.pow(378.7,8))/8);
