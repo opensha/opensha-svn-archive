@@ -782,6 +782,18 @@ NamedObjectAPI, ParameterChangeListener {
 		else 
 			return Double.NaN;
 	}
+	
+	
+	/**
+	 * This gets deth to 1 km/sec isosurface from vs30 using their equation 1.
+	 * @param vs30
+	 * @return
+	 */
+	public double getDepthTo1pt0kmPerSecFromVs30(double vs30) {
+		double lnZ = 28.5 - 3.82*Math.log(Math.pow(vs30, 8)+Math.pow(378.7, 8))/8;
+		return Math.exp(lnZ);
+	}
+	
 
 	/**
 	 * This listens for parameter changes and updates the primitive parameters accordingly
@@ -826,6 +838,9 @@ NamedObjectAPI, ParameterChangeListener {
 		}
 		else if (pName.equals(Vs30_Param.NAME)) {
 			vs30 = ( (Double) val).doubleValue();
+			if(depthTo1pt0kmPerSecParam.getValue() == null)
+				depthTo1pt0kmPerSec = getDepthTo1pt0kmPerSecFromVs30(vs30);
+				
 		}
 		else if (pName.equals(Vs30_TypeParam.NAME)) {
 			if(((String)val).equals(Vs30_TypeParam.VS30_TYPE_MEASURED)) {
@@ -837,7 +852,7 @@ NamedObjectAPI, ParameterChangeListener {
 		}
 		else if(pName.equals(DepthTo1pt0kmPerSecParam.NAME)){
 			if(val == null)
-				depthTo1pt0kmPerSec = Double.NaN;
+				depthTo1pt0kmPerSec = getDepthTo1pt0kmPerSecFromVs30(vs30);
 			else
 				depthTo1pt0kmPerSec = ((Double)val).doubleValue();
 		}
