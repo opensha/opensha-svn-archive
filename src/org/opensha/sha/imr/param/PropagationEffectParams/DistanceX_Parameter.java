@@ -49,9 +49,7 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
  */
 
 public class DistanceX_Parameter
-     extends WarningDoublePropagationEffectParameter
-     implements WarningParameterAPI
-{
+     extends WarningDoublePropagationEffectParameter {
 
 
 

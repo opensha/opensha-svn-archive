@@ -481,7 +481,7 @@ public class CBJ_2008_AttenRel
    
     	propagationEffect.setAll(this.eqkRupture, this.site); // use this for efficiency
 //    	System.out.println(propagationEffect.getParamValue(distanceRupParam.NAME));
-    	distanceRupParam.setValueIgnoreWarning(propagationEffect.getParamValue(distanceRupParam.NAME)); // this sets rRup too
+    	distanceRupParam.setValueIgnoreWarning((Double)propagationEffect.getParamValue(DistanceRupParameter.NAME)); // this sets rRup too
     	double dist_jb = ((Double)propagationEffect.getParamValue(DistanceJBParameter.NAME)).doubleValue();
     	double dRupMinusJB_OverRup = (rRup-dist_jb)/rRup;
     	distRupMinusJB_OverRupParam.setValueIgnoreWarning(dRupMinusJB_OverRup);

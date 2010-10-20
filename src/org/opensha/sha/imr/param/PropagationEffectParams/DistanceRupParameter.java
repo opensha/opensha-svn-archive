@@ -43,9 +43,7 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
  * @version 1.0
  */
 public class DistanceRupParameter
-extends WarningDoublePropagationEffectParameter
-implements WarningParameterAPI
-{
+extends WarningDoublePropagationEffectParameter {
 
 	/** Class name used in debug strings */
 	protected final static String C = "DistanceRupParameter";
@@ -131,7 +129,7 @@ implements WarningParameterAPI
 	}
 	
 	public static double getDistance(Location loc, EvenlyGriddedSurfaceAPI rupSurf) {
-		double minDistance = 999999;
+		double minDistance = Double.MAX_VALUE;
 		double horzDist, vertDist, totalDist;
 		
 		// get locations to iterate over depending on dip

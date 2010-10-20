@@ -42,12 +42,12 @@ import org.opensha.sha.earthquake.EqkRupture;
  * @version 1.0
  */
 
-public abstract class PropagationEffectParameter
-    extends DependentParameter
+public abstract class PropagationEffectParameter<E>
+    extends DependentParameter<E>
     implements
-        PropagationEffectParameterAPI,
-        DependentParameterAPI,
-        ParameterAPI
+        PropagationEffectParameterAPI<E>,
+        DependentParameterAPI<E>,
+        ParameterAPI<E>
 {
 
 
@@ -88,7 +88,7 @@ public abstract class PropagationEffectParameter
 
 
     /** Sets the independent variables (Site and EqkRupture) then calculates and returns the value */
-    public Object getValue(EqkRupture eqkRupture, Site site){
+    public E getValue(EqkRupture eqkRupture, Site site){
         this.eqkRupture = eqkRupture;
         this.site = site;
         calcValueFromSiteAndEqkRup();
@@ -96,14 +96,14 @@ public abstract class PropagationEffectParameter
     }
 
     /** Sets the site and recalculates the value. The EqkRupture must have already been set */
-    public Object getValue(Site site){
+    public E getValue(Site site){
         this.site = site;
         calcValueFromSiteAndEqkRup();
         return this.value;
     }
 
     /** Sets the EqkRupture and recalculates the value. The Site must have already been set */
-    public Object getValue(EqkRupture eqkRupture){
+    public E getValue(EqkRupture eqkRupture){
         this.eqkRupture = eqkRupture;
         calcValueFromSiteAndEqkRup();
         return this.value;
@@ -117,7 +117,7 @@ public abstract class PropagationEffectParameter
     }
 
     /** The EqkRupture and Site must have already been set */
-    public Object getValue(){ return this.value; }
+    public E getValue(){ return this.value; }
 
     /** Sets the Site and the value is recalculated */
     public void setSite(Site site){

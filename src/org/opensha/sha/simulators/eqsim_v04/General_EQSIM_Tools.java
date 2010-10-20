@@ -90,6 +90,8 @@ public class General_EQSIM_Tools {
 	
 	ArrayList<String> infoStrings;
 	String dirNameForSavingFiles;
+	
+	UCERF2_DataForComparisonFetcher ucerf2_dataFetcher = new UCERF2_DataForComparisonFetcher();
 
 
 	/**
@@ -1338,7 +1340,7 @@ public class General_EQSIM_Tools {
 			
 			// print and plot the test element correlations
 			tempInfoString +="\nCorrelations (and chance it's random) between Predicted Intervals That Involve Element ID="+testElementID+":\n";
-			result = this.getCorrelationAndP_Value(tpInterval2ListForTestElement, spInterval2ListForTestElement);
+			result = getCorrelationAndP_Value(tpInterval2ListForTestElement, spInterval2ListForTestElement);
 			tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for tpInterval2 vs spInterval2List (num pts ="+tpInterval2ListForTestElement.size()+")\n";
 			ArrayList<XY_DataSet> obs_tp1_funcsForTestElement = new ArrayList<XY_DataSet>();
 			XY_DataSet xy_data = new XY_DataSet(tpInterval2ListForTestElement,spInterval2ListForTestElement);
@@ -1451,6 +1453,23 @@ public class General_EQSIM_Tools {
 			}
 		}
 		System.out.println("maximum abs(eventMag-computedMag) ="+maxMagDiff);
+	}
+	
+	
+	public void writeEventsThatInvolveMultSections() {
+		System.out.println("Events that involve more than one section:");
+		System.out.println("\t\tEvID\t# Sect\tMag\tSections involved...");
+		int num =0;
+		for(EQSIM_Event event:eventList) {
+			if(event.size()>1) {
+				num += 1;
+				double mag = Math.round(event.getMagnitude()*100.0)/100.0;
+				System.out.print("\t"+num+"\t"+event.getID()+"\t"+event.size()+"\t"+mag);
+				for(EventRecord rec:event)
+					System.out.print("\t"+this.namesOfSections.get(rec.getSectionID()-1));
+				System.out.print("\n");
+			}
+		}
 	}
 	
 	
@@ -1690,17 +1709,16 @@ public class General_EQSIM_Tools {
 	
 	/**
 	 * This one only includes events that utilize the nearest rectangular element (presumably the 
-	 * one at the surface), which means non-surface rupturing events will not be included
+	 * one at the surface), which means non-surface rupturing events will not be included.  This quits
+	 * and returns null if the loc is not within 5 km of an element.
 	 * @param lat
 	 * @param lon
 	 * @param magThresh
 	 * @param makePlot
 	 * @return
 	 */
-	public double[] getRecurIntervalsForNearestLoc(double lat, double lon, double magThresh, boolean makePlot, 
+	public double[] getRecurIntervalsForNearestLoc(Location loc, double magThresh, boolean makePlot, 
 			boolean savePlot, String locName) {
-		Location loc = new Location(lat,lon);
-		double recurInt =0;
 		double minDist= Double.MAX_VALUE;
 		int elementIndex=-1;
 		//Find nearest Element
@@ -1711,8 +1729,15 @@ public class General_EQSIM_Tools {
 				elementIndex= i;
 			}
 		}
+		
+		// quit and return null if not near element
+		if(minDist>5.0) {
+			System.out.println("No element found near the site "+locName);
+			return null;
+		}
+		
 		Integer elemID = rectElementsList.get(elementIndex).getID();
-		System.out.println("Closest Element to loc"+locName+" is rect elem ID "+elemID+
+		System.out.println("Closest Element to location "+locName+" is rect elem ID "+elemID+
 				" on "+rectElementsList.get(elementIndex).getSectionName()+" ("+minDist+" km away)");
 		infoStrings.add("Closest Element to loc"+locName+" is rect elem ID "+elemID+
 				" on "+rectElementsList.get(elementIndex).getSectionName()+" ("+minDist+" km away)");
@@ -1724,26 +1749,55 @@ public class General_EQSIM_Tools {
 		}
 		
 		System.out.println("number of RIs for loc is "+intervals.length+" for Mag>="+magThresh);
-		infoStrings.add("number of RIs for loc is "+intervals.length+" for Mag>="+magThresh);
+		infoStrings.add("\tnumber of RIs for loc is "+intervals.length+" for Mag>="+magThresh);
 		
 		// calc num bins at 10-year intervals
 		int numBins = (int)Math.ceil(maxInterval/10.0);
 		EvenlyDiscretizedFunc riHist = new EvenlyDiscretizedFunc(5.0, numBins, 10.0);
 		riHist.setTolerance(20.0);  // anything more than 10 should do it
 		
-		for(int i=0; i<intervals.length;i++)
-			riHist.add(intervals[i], 1.0);
+		double mean=0;
+		for(int i=0; i<intervals.length;i++) {
+			riHist.add(intervals[i], 1.0/intervals.length);
+			mean += intervals[i]/intervals.length;
+			System.out.println(intervals[i]);
+		}
+
+		
+		// now compute stdDevOfMean in log10 space
+		double stdDevOfMean=0;
+		for(int i=0; i<intervals.length;i++) {
+			stdDevOfMean += (intervals[i]-mean)*(intervals[i]-mean);
+		}
+		stdDevOfMean = Math.sqrt(stdDevOfMean/(intervals.length-1)); // this is the standard deviation
+		stdDevOfMean /= Math.sqrt(intervals.length); // this is the standard deviation of mean
+		
+		double firstBin = 10*Math.round(0.1*(mean-1.96*stdDevOfMean));
+		double lastBin = 10*Math.round(0.1*(mean+1.96*stdDevOfMean));
+		double meanBin = 10*Math.round(0.1*mean);
+		int numBin = (int)Math.round((lastBin-firstBin)/10) +1;
+		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(firstBin, lastBin, numBin);
+		func.set(firstBin,0.05);
+		func.set(lastBin,0.05);
+		func.set(meanBin,0.2);
+		func.setName("Mean and 95% confidence bounds on the mean simulator RI for "+locName);
+		func.setInfo("  ");
+
 		riHist.setName("RI histogram for "+locName+" (& Mag>="+magThresh+")");
-		riHist.setInfo("Lat="+lat+"; lon="+lon+ " for "+locName);
+		riHist.setInfo("Lat="+loc.getLatitude()+"; lon="+loc.getLongitude()+ " for "+locName);
 		
 		if(makePlot){
-			ArrayList<EvenlyDiscretizedFunc> funcList = new ArrayList<EvenlyDiscretizedFunc>();
+			ArrayList<DiscretizedFuncAPI> funcList = new ArrayList<DiscretizedFuncAPI>();
+			funcList.add(func);
+			funcList.add(ucerf2_dataFetcher.getParsons95PercentPoisFunction(loc));  // put this first so it plots on top
 			funcList.add(riHist);
 			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, "Recurence Intervals for "+locName+" (& Mag>="+magThresh+")"); 
 			graph.setX_AxisLabel("RI (yrs)");
 			graph.setY_AxisLabel("Number of Observations");
 			ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
-			curveCharacteristics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM, Color.BLUE, 2));
+			curveCharacteristics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM, Color.BLACK, 2));
+			curveCharacteristics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM, Color.RED, 2));
+			curveCharacteristics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM, Color.LIGHT_GRAY, 2));
 			graph.setPlottingFeatures(curveCharacteristics);
 			if(savePlot)
 				try {
@@ -1857,10 +1911,15 @@ public class General_EQSIM_Tools {
 		
 //		plotNormRecurIntsForAllSurfaceElements(magThresh, true);
 		
+		/**/
 		// need to loop over all interesting sites, and to add observed dists
-//		getRecurIntervalsForNearestLoc(36.9415,  -121.6729, 6.5, true, true,"SAF_Arano_Flat");
+		ArrayList<Location> locList = ucerf2_dataFetcher.getParsonsSiteLocs();
+		ArrayList<String> namesList = ucerf2_dataFetcher.getParsonsSiteNames();
+		for(int i=0;i<locList.size();i++)
+			getRecurIntervalsForNearestLoc(locList.get(i), 6.5, true, true,namesList.get(i));
+
 		
-		computeTotalMagFreqDist(4.05,9.05,51,true,true);
+//		computeTotalMagFreqDist(4.05,9.05,51,true,true);
 		
 //		computeMagFreqDistByFaultSection(4.05,9.05,51,true,true,true);
 		
@@ -1890,6 +1949,7 @@ public class General_EQSIM_Tools {
 		long startTime=System.currentTimeMillis();
 		System.out.println("Starting");
 		
+		
 		/*
 		// this is for analysis of the Ward Results:
 		String fullPath = "org/opensha/sha/simulators/eqsim_v04/WardsInputFile/test.txt";
@@ -1914,6 +1974,7 @@ public class General_EQSIM_Tools {
 //		test.randomizeEventTimes();
 //		test.plotYearlyEventRates();
 		test.doAllAnalysis("NEDS_TEST", 6.5);
+//		test.writeEventsThatInvolveMultSections();
 //		test.testTimePredictability(6.5, "testTimePredFileForEQSim_M6pt5_rand");
 		
 

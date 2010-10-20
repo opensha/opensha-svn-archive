@@ -215,14 +215,24 @@ public class HazardCurveComputation {
 			for(int rupIndex = 0;rupIndex<numRupSize;++rupIndex){
 				int rupId = rupIdList.get(rupIndex);
 				double qkProb = erfDB.getRuptureProb(erfID, srcId, rupId);
+				if (rupProbMod != null)
+					qkProb = rupProbMod.getModifiedProb(srcId, rupId, qkProb);
+				if (qkProb == 0) {
+					// if the probability is zero and we're not modifying anything then we can skip this rupture
+					if (rupVarProbMod == null)
+						continue;
+					else {
+						ArrayList<Integer> modIDs = rupVarProbMod.getModVariations(srcId, rupId);
+						if (modIDs == null || modIDs.size() == 0)
+							continue;
+					}
+				}
 				ArrayList<Double> imVals;
 				try {
 					imVals = peakAmplitudes.getIM_Values(runID, srcId, rupId, imType);
 				} catch (SQLException e) {
 					return null;
 				}
-				if (rupProbMod != null)
-					qkProb = rupProbMod.getModifiedProb(srcId, rupId, qkProb);
 				handleRupture(xVals, imVals, hazardFunc, qkProb, srcId, rupId, rupVarProbMod);
 			}
 		}
@@ -233,7 +243,7 @@ public class HazardCurveComputation {
 		return hazardFunc;
 	}
 	
-	private static void handleRupture(ArrayList<Double> xVals, ArrayList<Double> imVals,
+	public static void handleRupture(ArrayList<Double> xVals, ArrayList<Double> imVals,
 			DiscretizedFuncAPI hazardFunc, double qkProb,
 			int sourceID, int rupID, RuptureVariationProbabilityModifier rupProbVarMod) {
 		if (rupProbVarMod == null) {
@@ -280,7 +290,7 @@ public class HazardCurveComputation {
 		handleRupture(xVals, modVals, hazardFunc, modProb * modsToTotal);
 	}
 	
-	private static void handleRupture(ArrayList<Double> xVals, ArrayList<Double> imVals,
+	public static void handleRupture(ArrayList<Double> xVals, ArrayList<Double> imVals,
 			DiscretizedFuncAPI hazardFunc, double qkProb) {
 		ArbDiscrEmpiricalDistFunc function = new ArbDiscrEmpiricalDistFunc();
 		for (double val : imVals) {
@@ -301,7 +311,10 @@ public class HazardCurveComputation {
 			else prob = normalizedFunc.getInterpolatedY(iml);
 //			else prob = normalizedFunc.getInterpolatedY_inLogYDomain(iml);
 //			else prob = normalizedFunc.getInterpolatedY_inLogXLogYDomain(iml);
-			hazFunc.set(i, hazFunc.getY(i)*Math.pow(1-rupProb,1-prob));
+			double y = hazFunc.getY(i);
+			double newY = y*Math.pow(1-rupProb,1-prob);
+//			System.out.println("IML: " + iml + " rupProb: " + rupProb + " POE: " + prob + " oldY: " + y + " newY: " + y);
+			hazFunc.set(i, newY);
 		}
 		return hazFunc;
 	}

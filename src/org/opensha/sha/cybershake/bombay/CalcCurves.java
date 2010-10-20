@@ -24,7 +24,7 @@ public class CalcCurves {
 	
 	public void calc(String dir, RuptureProbabilityModifier rupProbMod,
 			RuptureVariationProbabilityModifier rupVarProbMod) throws IOException {
-		calc.setRupRpobModifier(rupProbMod);
+		calc.setRupProbModifier(rupProbMod);
 		calc.setRupVarProbModifier(rupVarProbMod);
 		calc.recalculateAllCurves(dir);
 	}

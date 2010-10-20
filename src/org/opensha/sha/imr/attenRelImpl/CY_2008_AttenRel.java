@@ -320,8 +320,8 @@ NamedObjectAPI, ParameterChangeListener {
 				}
 			}
 			else {
-				distRupMinusJB_OverRupParam.setValueIgnoreWarning(0);
-				distRupMinusDistX_OverRupParam.setValue(0);
+				distRupMinusJB_OverRupParam.setValueIgnoreWarning(0d);
+				distRupMinusDistX_OverRupParam.setValue(0d);
 				hangingWallFlagParam.setValue(true);
 			}
 		}
@@ -665,7 +665,7 @@ NamedObjectAPI, ParameterChangeListener {
 			compute_lnYref(iper, f_rv, f_nm, rRup, distRupMinusJB_OverRup, distRupMinusDistX_OverRup, f_hw, dip, mag, depthTop, aftershock);
 
 
-		// set basinDepth default if depthTo1pt0kmPerSec is NaN
+		// set basinDepth default if depthTo1pt0kmPerSec is NaN 
 		// TODO currently not possible to set depthTo1pt0kmPerSec Param to NaN
 		// b/c of limitations of WarningDoubleParam; NSHMP sets value based on
 		// unless vs30=760±20, then its set to 40m

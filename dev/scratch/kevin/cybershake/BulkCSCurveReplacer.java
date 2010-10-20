@@ -71,7 +71,7 @@ public class BulkCSCurveReplacer {
 		}
 	}
 	
-	public void setRupRpobModifier(RuptureProbabilityModifier rupProbMod) {
+	public void setRupProbModifier(RuptureProbabilityModifier rupProbMod) {
 		calc.setRupProbModifier(rupProbMod);
 	}
 	

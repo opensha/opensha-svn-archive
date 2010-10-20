@@ -82,5 +82,34 @@ public class BinaryMesh2DTest {
 			}
 		}
 	}
+	
+	@Test
+	public void testIndexToPosXY() {
+		doCalcXYTest(rect);
+	}
+	
+	@Test
+	public void testIndexToPosYX() {
+		doCalcXYTest(rect_fast_yx);
+	}
+	
+	private void doCalcXYTest(BinaryMesh2DCalculator calc) {
+		String fast;
+		if (calc.getMeshOrder() == BinaryMesh2DCalculator.FAST_XY)
+			fast = "Fast XY";
+		else
+			fast = "Fast YX";
+		for (int x=0; x<calc.getNX(); x++) {
+			for (int y=0; y<calc.getNY(); y++) {
+				long ind = calc.calcMeshIndex(x, y);
+				long pos = calc.calcFileIndex(x, y);
+				
+				assertEquals("Calc X incorrect, "+fast+", ind="+ind			, x, calc.calcMeshX(ind));
+				assertEquals("Calc Y incorrect, "+fast+", ind="+ind			, y, calc.calcMeshY(ind));
+				assertEquals("Calc file X incorrect, "+fast+", pos="+pos	, x, calc.calcFileX(pos));
+				assertEquals("Calc file Y incorrect, "+fast+", pos="+pos	, y, calc.calcFileY(pos));
+			}
+		}
+	}
 
 }

@@ -206,6 +206,16 @@ public class CaliforniaRegions {
 					BorderType.MERCATOR_LINEAR);
 		}
 	}
+	
+	/** 
+	 * A box defining the region of the CyberShake 1.0 map region
+	 */
+	public static final class CYBERSHAKE_MAP_GRIDDED extends GriddedRegion {
+		/** New instance of region. */
+		public CYBERSHAKE_MAP_GRIDDED(double spacing) {
+			super(new CYBERSHAKE_MAP_REGION(), spacing, null);
+		}
+	}
 
 	/*
 	 * Reads coordinate pairs from a file. Each line of the file should have

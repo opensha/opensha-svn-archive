@@ -31,6 +31,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.CachedSiteDataWrapper;
+import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.servlet.SiteDataServletAccessor;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -39,6 +40,7 @@ import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
+import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 
 public class CVM4BasinDepth extends AbstractSiteData<Double> {
 	
@@ -184,19 +186,23 @@ public class CVM4BasinDepth extends AbstractSiteData<Double> {
 		} else {
 			long pos = calc.calcClosestLocationFileIndex(loc);
 			
-			if (pos > MAX_FILE_POS || pos < 0)
-				return Double.NaN;
-			
-			file.seek(pos);
-			file.read(recordBuffer);
-			
-			// this is in meters
-			double val = floatBuff.get(0);
-			
-			// convert to KM
-			Double dobVal = (double)val / 1000d;
-			return certifyMinMaxBasinDepth(dobVal);
+			return getValue(pos);
 		}
+	}
+	
+	private Double getValue(long pos) throws IOException {
+		if (pos > MAX_FILE_POS || pos < 0)
+			return Double.NaN;
+		
+		file.seek(pos);
+		file.read(recordBuffer);
+		
+		// this is in meters
+		double val = floatBuff.get(0);
+		
+		// convert to KM
+		Double dobVal = (double)val / 1000d;
+		return certifyMinMaxBasinDepth(dobVal);
 	}
 
 	public ArrayList<Double> getValues(LocationList locs) throws IOException {
@@ -232,6 +238,23 @@ public class CVM4BasinDepth extends AbstractSiteData<Double> {
 	}
 	
 	public static void main(String[] args) throws IOException {
+		CVM4BasinDepth local = new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5, false);
+		
+		int cnt = 0;
+		for (long pos=0; pos<MAX_FILE_POS; pos+=4) {
+			Double val = local.getValue(pos);
+			if (val > DepthTo2pt5kmPerSecParam.MAX) {
+				cnt++;
+				long x = local.calc.calcFileX(pos);
+				long y = local.calc.calcFileX(pos);
+				Location loc = local.calc.getLocationForPoint(x, y);
+				System.out.println(loc.getLatitude() + ", " + loc.getLongitude() + ": " + val);
+			}
+		}
+		System.out.println("Num above: " + cnt);
+		
+		System.exit(0);
+		
 		CVM4BasinDepth map = new CVM4BasinDepth(TYPE_DEPTH_TO_1_0);
 		
 		Document doc = XMLUtils.createDocumentWithRoot();
