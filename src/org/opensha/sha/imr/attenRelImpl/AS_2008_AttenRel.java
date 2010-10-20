@@ -753,7 +753,8 @@ NamedObjectAPI, ParameterChangeListener {
 		vs30Param = new Vs30_Param(VS30_WARN_MIN, VS30_WARN_MAX);
 		vs30_TypeParam = new Vs30_TypeParam();
 		depthTo1pt0kmPerSecParam = new DepthTo1pt0kmPerSecParam(DEPTH_1pt0_WARN_MIN, DEPTH_1pt0_WARN_MAX);
-
+		depthTo1pt0kmPerSecParam.setValue(null);
+		
 		siteParams.clear();
 		siteParams.addParameter(vs30Param);
 		siteParams.addParameter(vs30_TypeParam);

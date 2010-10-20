@@ -62,7 +62,7 @@ public class MultiIMR_CalcTest {
 		vs30.setValueAsDefault();
 		DepthTo2pt5kmPerSecParam z25 = new DepthTo2pt5kmPerSecParam(1d);
 		z25.setValueAsDefault();
-		DepthTo1pt0kmPerSecParam z10 = new DepthTo1pt0kmPerSecParam(1d);
+		DepthTo1pt0kmPerSecParam z10 = new DepthTo1pt0kmPerSecParam(1d, false);
 		z10.setValueAsDefault();
 		Vs30_TypeParam vs30Type = new Vs30_TypeParam();
 		vs30Type.setValueAsDefault();
