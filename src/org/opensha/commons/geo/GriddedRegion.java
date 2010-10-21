@@ -475,29 +475,9 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 		int latIndex = getNodeIndex(latNodeEdges, loc.getLatitude());
 		if (latIndex == -1) return -1;
 		int gridIndex = ((latIndex) * lonNodes.length) + lonIndex;
-		try {
-			return gridIndices[gridIndex];
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.out.println("Loc="+loc);
-			System.exit(0);
-			return -1;
-		}
+		return gridIndices[gridIndex];
 	}
 	
-	public static void main(String[] args) {
-//		GriddedRegion region = new GriddedRegion(new Location(32.5,-118), new Location(35.5,-114), 0.1, null);
-		GriddedRegion region = new GriddedRegion(new Location(34.5,-118), new Location(35.5,-117), 0.1, null);
-		int numLocs = region.getNodeCount();
-		System.out.println("numLocs="+numLocs);
-		//Location loc = new Location(35.55101160623477,-117.23587173420789);
-		Location loc = new Location(35.551,-117.236);
-		region.indexForLocation(loc);
-		System.out.println(region.indexForLocation(loc));
-	}
-
-
 	/**
 	 * Returns the minimum grid latitude. Note that there may not actually be
 	 * any nodes at this latitude. See class <a href="#note">note</a>.
@@ -591,10 +571,8 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 		// adjusted to the correct node index with (-idx-2). Below range
 		// values are already -1; above range values are corrected to -1.
 		int idx = Arrays.binarySearch(edgeVals, value);
-		System.out.println("BinSrchIdx: " + value + " "  + idx);
-		return (idx < -1) ? 
-			((-idx - 2) == (edgeVals.length-1)) ? -1 : (-idx - 2) : 
-			(idx == edgeVals.length-1) ? -1 : idx;
+		idx = (idx < -1) ? (-idx - 2) : idx;
+		return (idx == edgeVals.length-1) ? -1 : idx;
 	}
 
 	/* grid setup */
