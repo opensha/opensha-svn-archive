@@ -102,6 +102,8 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	
 	public static final String TYPE_DEFAULT = TYPE_PDF;
 	
+	private static final String default_periods = "3";
+	
 	private double maxSourceDistance = 200;
 	
 	public static final int PLOT_WIDTH_DEFAULT = 600;
@@ -250,14 +252,13 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	}
 	
 	public boolean plotCurvesFromOptions(CommandLine cmd) {
-		String siteName = cmd.getOptionValue("site");
+		
 		
 		SiteInfo2DB site2db = getSite2DB();
 		PeakAmplitudesFromDB amps2db = getAmps2DB();
 		
-		int siteID = site2db.getSiteId(siteName);
-		
 		int runID;
+		String siteName = null;
 		if (cmd.hasOption("run-id")) {
 			runID = Integer.parseInt(cmd.getOptionValue("run-id"));
 			if (runID < 0) {
@@ -265,6 +266,10 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 				return false;
 			}
 		} else {
+			if (!cmd.hasOption("site"))
+				throw new IllegalArgumentException("Neither a run ID nor site short name was specified!");
+			siteName = cmd.getOptionValue("site");
+			int siteID = site2db.getSiteId(siteName);
 			int erfID;
 			if (cmd.hasOption("erf-id"))
 				erfID = Integer.parseInt(cmd.getOptionValue("erf-id"));
@@ -299,10 +304,14 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			return false;
 		}
 		
-		System.out.println("Plotting curve(s) for site " + siteName + "=" + siteID + ", RunID=" + runID);
-		this.setMaxSourceSiteDistance(siteID);
+		if (siteName == null) {
+			siteName = site2db.getSiteFromDB(run.getSiteID()).name;
+		}
 		
-		if (siteID < 0) {
+		System.out.println("Plotting curve(s) for site " + siteName + "=" + run.getSiteID() + ", RunID=" + runID);
+		this.setMaxSourceSiteDistance(run.getSiteID());
+		
+		if (run.getSiteID() < 0) {
 			System.err.println("Site '" + siteName + "' unknown!");
 			return false;
 		}
@@ -324,14 +333,18 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			}
 		}
 		
-		String periodStrs = cmd.getOptionValue("period");
+		String periodStrs;
+		if (cmd.hasOption("period"))
+			periodStrs = cmd.getOptionValue("period");
+		else
+			periodStrs = default_periods;
 		ArrayList<Double> periods = commaDoubleSplit(periodStrs);
 		
 		System.out.println("Matching periods to IM types...");
 		ArrayList<CybershakeIM> ims = amps2db.getIMForPeriods(periods, runID, curve2db);
 		
 		if (ims == null) {
-			System.err.println("No IM's for site=" + siteID + " run=" + runID);
+			System.err.println("No IM's for site=" + run.getSiteID() + " run=" + runID);
 			for (double period : periods) {
 				System.err.println("period: " + period);
 			}
@@ -436,7 +449,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 							System.out.println("A record for the selected curve exists in the database, but there " +
 									"are no data points: " + curveID + " period=" + im.getVal());
 						else
-							System.out.println("The selected curve does not exist in the database: " + siteID + " period="
+							System.out.println("The selected curve does not exist in the database: " + run.getSiteID() + " period="
 									+ im.getVal() + " run=" + runID);
 						boolean skip = false;
 						// open up standard input
@@ -461,7 +474,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 					}
 					int count = amps2db.countAmps(runID, im);
 					if (count <= 0) {
-						System.err.println("No Peak Amps for: " + siteID + " period="
+						System.err.println("No Peak Amps for: " + run.getSiteID() + " period="
 									+ im.getVal() + " run=" + runID);
 						return false;
 					}
@@ -1058,11 +1071,12 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		ops.addOption(attenRelFiles);
 		
 		Option site = new Option("s", "site", true, "Site short name");
-		site.setRequired(true);
+		site.setRequired(false);
 		ops.addOption(site);
 		
-		Option period = new Option("p", "period", true, "Period(s) to calculate. Multiple periods should be comma separated");
-		period.setRequired(true);
+		Option period = new Option("p", "period", true, "Period(s) to calculate. Multiple periods should be comma separated " +
+				"(default: "+default_periods+")");
+		period.setRequired(false);
 		ops.addOption(period);
 		
 		Option pass = new Option("pf", "password-file", true, "Path to a file that contains the username and password for " + 
