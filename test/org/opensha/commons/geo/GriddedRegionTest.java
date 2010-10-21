@@ -352,6 +352,52 @@ public class GriddedRegionTest {
 		GriddedRegion gr = new GriddedRegion(l1,l2,1,null);
 		Location result = gr.locationForIndex(gr.indexForLocation(l3));
 		assertTrue(result.equals(l4));
+		// test low outside values checking insidedness and bin splitting
+		result = gr.locationForIndex(gr.indexForLocation(
+			new Location(9.5, 10.49)));
+		assertTrue(result.equals(l1));
+		int idx = gr.indexForLocation(new Location(9.5, 10.5));
+		assertTrue(idx == 1);
+		result = gr.locationForIndex(gr.indexForLocation(
+			new Location(9.5, 9.5)));
+		assertTrue(result.equals(l1));
+		result = gr.locationForIndex(gr.indexForLocation(
+			new Location(10.49, 9.5)));
+		assertTrue(result.equals(l1));
+		idx = gr.indexForLocation(new Location(10.5, 9.5));
+		assertTrue(idx == 6);
+		idx = gr.indexForLocation(new Location(9.5, 9.49));
+		assertTrue(idx == -1);
+		idx = gr.indexForLocation(new Location( 9.49, 9.5));
+		assertTrue(idx == -1);
+		// test high outside values checking insidedness and bin splitting
+		result = gr.locationForIndex(gr.indexForLocation(
+			new Location(15.49, 15)));
+		assertTrue(result.equals(l2));
+		idx = gr.indexForLocation(new Location(15, 14.49));
+		assertTrue(idx == 34);
+		result = gr.locationForIndex(gr.indexForLocation(
+			new Location(15.49, 15.49)));
+		assertTrue(result.equals(l2));
+		result = gr.locationForIndex(gr.indexForLocation(
+			new Location(10.49, 9.5)));
+		assertTrue(result.equals(l1));
+		idx = gr.indexForLocation(new Location(15, 14.5));
+		assertTrue(idx == 35);
+		idx = gr.indexForLocation(new Location(15.49, 15.49));
+		assertTrue(idx == 35);
+		idx = gr.indexForLocation(new Location(15.5, 15.5));
+		assertTrue(idx == -1);
+		idx = gr.indexForLocation(new Location(15.5, 15.49));
+		assertTrue(idx == -1);
+		idx = gr.indexForLocation(new Location( 15.49, 15.5));
+		assertTrue(idx == -1);
+		idx = gr.indexForLocation(new Location( 15.49, 15.51));
+		assertTrue(idx == -1);
+		idx = gr.indexForLocation(new Location( 15.51, 15.49));
+		assertTrue(idx == -1);
+		idx = gr.indexForLocation(new Location( 15.51, 15.51));
+		assertTrue(idx == -1);
 	}
 
 	@Test

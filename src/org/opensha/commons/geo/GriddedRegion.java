@@ -487,11 +487,14 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	}
 	
 	public static void main(String[] args) {
-		GriddedRegion region = new GriddedRegion(new Location(32.5,-118), new Location(35.5,-114), 0.1, null);
+//		GriddedRegion region = new GriddedRegion(new Location(32.5,-118), new Location(35.5,-114), 0.1, null);
+		GriddedRegion region = new GriddedRegion(new Location(34.5,-118), new Location(35.5,-117), 0.1, null);
 		int numLocs = region.getNodeCount();
 		System.out.println("numLocs="+numLocs);
-		Location loc = new Location(35.55101160623477,-117.23587173420789);
+		//Location loc = new Location(35.55101160623477,-117.23587173420789);
+		Location loc = new Location(35.551,-117.236);
 		region.indexForLocation(loc);
+		System.out.println(region.indexForLocation(loc));
 	}
 
 
@@ -588,7 +591,10 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 		// adjusted to the correct node index with (-idx-2). Below range
 		// values are already -1; above range values are corrected to -1.
 		int idx = Arrays.binarySearch(edgeVals, value);
-		return (idx < -1) ? (-idx - 2) : (idx == edgeVals.length-1) ? -1 : idx;
+		System.out.println("BinSrchIdx: " + value + " "  + idx);
+		return (idx < -1) ? 
+			((-idx - 2) == (edgeVals.length-1)) ? -1 : (-idx - 2) : 
+			(idx == edgeVals.length-1) ? -1 : idx;
 	}
 
 	/* grid setup */
