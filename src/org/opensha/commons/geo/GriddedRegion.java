@@ -475,8 +475,25 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 		int latIndex = getNodeIndex(latNodeEdges, loc.getLatitude());
 		if (latIndex == -1) return -1;
 		int gridIndex = ((latIndex) * lonNodes.length) + lonIndex;
-		return gridIndices[gridIndex];
+		try {
+			return gridIndices[gridIndex];
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println("Loc="+loc);
+			System.exit(0);
+			return -1;
+		}
 	}
+	
+	public static void main(String[] args) {
+		GriddedRegion region = new GriddedRegion(new Location(32.5,-118), new Location(35.5,-114), 0.1, null);
+		int numLocs = region.getNodeCount();
+		System.out.println("numLocs="+numLocs);
+		Location loc = new Location(35.55101160623477,-117.23587173420789);
+		region.indexForLocation(loc);
+	}
+
 
 	/**
 	 * Returns the minimum grid latitude. Note that there may not actually be
