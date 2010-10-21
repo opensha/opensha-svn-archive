@@ -1,306 +1,222 @@
-/**
- * 
- */
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.analysis;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.text.DecimalFormat;
-
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.opensha.commons.data.Site;
+import java.text.SimpleDateFormat;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.WarningParameterAPI;
-import org.opensha.commons.param.event.ParameterChangeWarningEvent;
-import org.opensha.commons.param.event.ParameterChangeWarningListener;
-import org.opensha.sha.calc.HazardCurveCalculator;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
-import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
-import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
-import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
-import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 
 /**
- * This class creates a bunch of hazard curves using MeanUCERF2 for verification with NSHMP.
- * The latitudes and longitudes were provided by Mark Petersen in an email.
- * 
- * We have 2 different latitudes (34.0, 37.7) and 3 Intensity Measure Types(IMT) (PGA, SA at 0.2 sec, SA at 1 sec). 
- * A file is created for each combination. Hence it generates 6 spreadsheets.
- * 
- * IMPORTANT NOTE:  This was run on USGS Mac Server.
- * Please note the method generateHazardCurves() in this class. The call to this 
- * seems to be commented at various places (currently at 6 places). 
- * This was done for using the Mac Server at USGS, Pasadena. We can uncomment one of the method calls 
- * (and keeping the other 5 commented) and run the main() method. We can do this one by one with
- * each method call. So, it enabled us to utilize 6 different processors of the Mac Server and hence faster
- * results.
- * 
- * 
- * @author vipingupta
+ * This class is used for UCERF2 verification with NSHMP.
  *
+ * This class creates a hazard curves along various longitudinal profiles (as
+ * specified by Mark Petersen via email) using MeanUCERF2.
+ *
+ * Currently, two profiles are implemented at 34.0 and 37.7 N for 3 Intensity
+ * Measure Types(IMT) : [PGA, SA at 0.2 sec, SA at 1 sec]. One result
+ * spreadsheet is created for each combination.
+ *
+ * EXEC NOTE: Profiles are implemented as runnables so several may be computed
+ * simultaneously.
+ *
+ * @author vipingupta, pmpowers
  */
-public class HazardCurvesVerificationApp implements ParameterChangeWarningListener {
-	private final static String HAZ_CURVES_DIRECTORY_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/analysis/HazardCurvesVerification/BA08_760";
-	private final static DoubleParameter VS_30_PARAM = new DoubleParameter("Vs30", 760.0);
-	private final static DoubleParameter DEPTH_2_5KM_PARAM = new DoubleParameter("Depth 2.5 km/sec", 2.0);
-	private MeanUCERF2 meanUCERF2;
-	private ScalarIntensityMeasureRelationshipAPI imr;
-	private DecimalFormat latLonFormat = new DecimalFormat("0.00");
-	private ArbitrarilyDiscretizedFunc function; // X-Values function
-	private HazardCurveCalculator hazardCurveCalculator;
-	
+public class HazardCurvesVerificationApp {
+
+	private static SimpleDateFormat sdf = new SimpleDateFormat();
+
+	private final static String OUT_DIR = "tmp/NSHM_UCERF2";
+
 	// First Lat profiling
 	private final static double LAT1 = 34.0;
-	private final static double MIN_LON1 = -119.0;
+	private final static double MIN_LON1 = -123.0; // -119.0;
 	private final static double MAX_LON1 = -115.0;
-	
-	// Second Lat profiling
+
+	// Second Lat profilisng
 	private final static double LAT2 = 37.7;
 	private final static double MIN_LON2 = -123.0;
-	private final static double MAX_LON2 = -118.0;
+	private final static double MAX_LON2 = -115.0; // -118.0;
 	
-	// grid spacing in degrees
-	private final static double GRID_SPACING = 0.05;
+	// 
 
-	public HazardCurvesVerificationApp() {
-		System.out.println("Setting up ERF...");
-		setupERF();
-		System.out.println("Setting up IMR...");
-		setupIMR();
+	/** @param args */
+	public static void main(String[] args) {
 		
-		//		create directory for hazard curves
-		File file = new File(HAZ_CURVES_DIRECTORY_NAME);
-		if(!file.isDirectory()) file.mkdirs();
-		
-		// Generate Hazard Curves for PGA
-		imr.setIntensityMeasure("PGA");
-		createUSGS_PGA_Function();
-		String imtString = "PGA";
-		//generateHazardCurves(imtString, LAT1, MIN_LON1, MAX_LON1);
-		//generateHazardCurves(imtString, LAT2, MIN_LON2, MAX_LON2);
-		
-		// Generate Hazard Curves for SA 0.2s
-		imr.setIntensityMeasure("SA");
-		createUSGS_SA_01_AND_02_Function();
-		imr.getParameter(PeriodParam.NAME).setValue(0.2);
-		imtString = "SA_0.2sec";
-		//generateHazardCurves(imtString, LAT1, MIN_LON1, MAX_LON1);
-		//generateHazardCurves(imtString, LAT2, MIN_LON2, MAX_LON2);
-		
-		// Generate hazard curves for SA 1.0s
-		imr.setIntensityMeasure("SA");
-		imr.getParameter(PeriodParam.NAME).setValue(1.0);
-		createUSGS_SA_Function();
-		imtString = "SA_1sec";
-		//generateHazardCurves(imtString, LAT1, MIN_LON1, MAX_LON1);
-		generateHazardCurves(imtString, LAT2, MIN_LON2, MAX_LON2);
-	}
-	
-	/**
-	 * This method creates a spreadsheet for the provided latitude and IMT.
-	 * For the user provided latitude, it goes over all longitudes and calculates 2% Prob of Exceedance and
-	 * 10% probability of exceedance. 
-	 * For interpolation purposes, it uses Log-Log interpolation.
-	 *
-	 */
-	private void generateHazardCurves(String imtString, double lat, double minLon, double maxLon) {
-		try {
-			HSSFWorkbook wb  = new HSSFWorkbook();
-			HSSFSheet sheet = wb.createSheet(); // Sheet for displaying the Total Rates
-			sheet.createRow(0);
-			int numX_Vals = function.getNum();
-			for(int i=0; i<numX_Vals; ++i)
-				sheet.createRow(i+1).createCell((short)0).setCellValue(function.getX(i));
-			
-			int twoPercentProbRoIndex = numX_Vals+2;
-			int tenPercentProbRoIndex = numX_Vals+3;
-			
-			sheet.createRow(twoPercentProbRoIndex).createCell((short)0).setCellValue("2% Prob of Exceedance");
-			sheet.createRow(tenPercentProbRoIndex).createCell((short)0).setCellValue("10% Prob of Exceedance");
-			
-			hazardCurveCalculator = new HazardCurveCalculator(); 
-			String outputFileName = HAZ_CURVES_DIRECTORY_NAME+"/"+latLonFormat.format(lat)+"_"+imtString+".xls";
-			// Do for First Lat
-			double twoPercentProb, tenPercentProb;
-			int colIndex=1;
-			for(double lon=minLon; lon<=maxLon; lon+=GRID_SPACING, ++colIndex) {
-				System.out.println("Doing Site:"+latLonFormat.format(lat)+","+latLonFormat.format(lon));
-				Site site = new Site(new Location(lat, lon));
-				site.addParameter(VS_30_PARAM);
-				site.addParameter(DEPTH_2_5KM_PARAM);
-				
-				// do log of X axis values
-				DiscretizedFuncAPI hazFunc = new ArbitrarilyDiscretizedFunc();
-				for(int i=0; i<numX_Vals; ++i)
-					hazFunc.set(Math.log(function.getX(i)), 1);
-				
-				// Note here that hazardCurveCalculator accepts the Log of X-Values
-				this.hazardCurveCalculator.getHazardCurve(hazFunc, site, imr, meanUCERF2);
-				
-				// Unlog the X-Values before doing interpolation. The Y Values we get from hazardCurveCalculator are unmodified
-				DiscretizedFuncAPI newFunc = new ArbitrarilyDiscretizedFunc();
-				for(int i=0; i<numX_Vals; ++i)
-					newFunc.set(function.getX(i), hazFunc.getY(i));
-				
-				twoPercentProb = newFunc.getFirstInterpolatedX_inLogXLogYDomain(0.02);
-				tenPercentProb = newFunc.getFirstInterpolatedX_inLogXLogYDomain(0.1);
-				
-				sheet.getRow(0).createCell((short)colIndex).setCellValue(latLonFormat.format(lon));
-				for(int i=0; i<numX_Vals; ++i)
-					sheet.createRow(i+1).createCell((short)colIndex).setCellValue(newFunc.getY(i));
+//		// BA vs760 34.0N
+//		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "BA", 0.0, 760.0, get_USGS_PGA_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "BA", 0.2, 760.0, get_USGS_SA_0p2_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "BA", 1.0, 760.0, get_USGS_SA_1p0_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "BA", 3.0, 760.0, get_USGS_SA_3p0_Function(), OUT_DIR);
+//
+//		// BA vs760 37.7N
+//		new HazardProfileCalculator(LAT2, MIN_LON2, MAX_LON2, "BA", 0.0, 760.0, get_USGS_PGA_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT2, MIN_LON2, MAX_LON2, "BA", 0.2, 760.0, get_USGS_SA_0p2_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT2, MIN_LON2, MAX_LON2, "BA", 1.0, 760.0, get_USGS_SA_1p0_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT2, MIN_LON2, MAX_LON2, "BA", 3.0, 760.0, get_USGS_SA_3p0_Function(), OUT_DIR);
+//		
+//		// BA vs259 34.0N
+//		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "BA", 0.0, 259.0, get_USGS_PGA_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "BA", 0.2, 259.0, get_USGS_SA_0p2_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "BA", 1.0, 259.0, get_USGS_SA_1p0_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "BA", 3.0, 259.0, get_USGS_SA_3p0_Function(), OUT_DIR);
+//
+//		// BA vs259 37.7N
+//		new HazardProfileCalculator(LAT2, MIN_LON2, MAX_LON2, "BA", 0.0, 259.0, get_USGS_PGA_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT2, MIN_LON2, MAX_LON2, "BA", 0.2, 259.0, get_USGS_SA_0p2_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT2, MIN_LON2, MAX_LON2, "BA", 1.0, 259.0, get_USGS_SA_1p0_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT2, MIN_LON2, MAX_LON2, "BA", 3.0, 259.0, get_USGS_SA_3p0_Function(), OUT_DIR);
+//
+//		// CB vs760 34.0N
+//		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CB", 0.0, 760.0, get_USGS_PGA_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CB", 0.2, 760.0, get_USGS_SA_0p2_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CB", 1.0, 760.0, get_USGS_SA_1p0_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CB", 3.0, 760.0, get_USGS_SA_3p0_Function(), OUT_DIR);
+//		
+//		// CB vs760 37.7N
+//		new HazardProfileCalculator(LAT2, MIN_LON2, MAX_LON2, "CB", 0.0, 760.0, get_USGS_PGA_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT2, MIN_LON2, MAX_LON2, "CB", 0.2, 760.0, get_USGS_SA_0p2_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT2, MIN_LON2, MAX_LON2, "CB", 1.0, 760.0, get_USGS_SA_1p0_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT2, MIN_LON2, MAX_LON2, "CB", 3.0, 760.0, get_USGS_SA_3p0_Function(), OUT_DIR);
+//		
+//		// CB vs259 34.0N
+//		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CB", 0.0, 259.0, get_USGS_PGA_Function(), OUT_DIR);
+		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CB", 0.2, 259.0, get_USGS_SA_0p2_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CB", 1.0, 259.0, get_USGS_SA_1p0_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CB", 3.0, 259.0, get_USGS_SA_3p0_Function(), OUT_DIR);
+//		
+//		// CB vs259 37.7N
+//		new HazardProfileCalculator(LAT2, MIN_LON2, MAX_LON2, "CB", 0.0, 259.0, get_USGS_PGA_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT2, MIN_LON2, MAX_LON2, "CB", 0.2, 259.0, get_USGS_SA_0p2_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT2, MIN_LON2, MAX_LON2, "CB", 1.0, 259.0, get_USGS_SA_1p0_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT2, MIN_LON2, MAX_LON2, "CB", 3.0, 259.0, get_USGS_SA_3p0_Function(), OUT_DIR);
+//		
+//		// CY vs760 34.0N
+//		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CY", 0.0, 760.0, get_USGS_PGA_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CY", 0.2, 760.0, get_USGS_SA_0p2_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CY", 1.0, 760.0, get_USGS_SA_1p0_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CY", 3.0, 760.0, get_USGS_SA_3p0_Function(), OUT_DIR);
+//
+//		// CY vs760 37.7N
+//		new HazardProfileCalculator(LAT2, MIN_LON2, MAX_LON2, "CY", 0.0, 760.0, get_USGS_PGA_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT2, MIN_LON2, MAX_LON2, "CY", 0.2, 760.0, get_USGS_SA_0p2_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT2, MIN_LON2, MAX_LON2, "CY", 1.0, 760.0, get_USGS_SA_1p0_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT2, MIN_LON2, MAX_LON2, "CY", 3.0, 760.0, get_USGS_SA_3p0_Function(), OUT_DIR);
+//		
+//		// CY vs259 34.0N
+//		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CY", 0.0, 259.0, get_USGS_PGA_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CY", 0.2, 259.0, get_USGS_SA_0p2_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CY", 1.0, 259.0, get_USGS_SA_1p0_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CY", 3.0, 259.0, get_USGS_SA_3p0_Function(), OUT_DIR);
+//		
+//		// CY vs259 37.7N
+//		new HazardProfileCalculator(LAT2, MIN_LON2, MAX_LON2, "CY", 0.0, 259.0, get_USGS_PGA_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT2, MIN_LON2, MAX_LON2, "CY", 0.2, 259.0, get_USGS_SA_0p2_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT2, MIN_LON2, MAX_LON2, "CY", 1.0, 259.0, get_USGS_SA_1p0_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT2, MIN_LON2, MAX_LON2, "CY", 3.0, 259.0, get_USGS_SA_3p0_Function(), OUT_DIR);
 
-				sheet.createRow(twoPercentProbRoIndex).createCell((short)colIndex).setCellValue(twoPercentProb);
-				sheet.createRow(tenPercentProbRoIndex).createCell((short)colIndex).setCellValue(tenPercentProb);
-				
-			}
-			FileOutputStream fileOut = new FileOutputStream(outputFileName);
-			wb.write(fileOut);
-			fileOut.close();
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
 	}
-	
-	/**
-	 * Set up ERF Parameters
-	 *
-	 */
-	private void setupERF() {
-		meanUCERF2 = new MeanUCERF2();
-		meanUCERF2.setParameter(MeanUCERF2.RUP_OFFSET_PARAM_NAME, new Double(5.0));
-		meanUCERF2.setParameter(MeanUCERF2.CYBERSHAKE_DDW_CORR_PARAM_NAME, false);
-		meanUCERF2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
-		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
-		meanUCERF2.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_CROSSHAIR);
-		meanUCERF2.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.CENTERED_DOWNDIP_FLOATER);
-		meanUCERF2.getTimeSpan().setDuration(50.0);
-		meanUCERF2.updateForecast();
-	}
-	
-	/**
-	 * Set up IMR parameters
-	 *
-	 */
-	private void setupIMR() {
-		imr = new BA_2008_AttenRel(this);
-		imr.setParamDefaults();
-		imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
-		imr.getParameter(SigmaTruncLevelParam.NAME).setValue(3.0);
-		/*
-		imr = new CB_2008_AttenRel(this);
-		imr.setParamDefaults();
-		imr.getParameter(CB_2008_AttenRel.SIGMA_TRUNC_TYPE_NAME).setValue(CB_2008_AttenRel.SIGMA_TRUNC_TYPE_1SIDED);
-		imr.getParameter(CB_2008_AttenRel.SIGMA_TRUNC_LEVEL_NAME).setValue(3.0);
-		*/
-	}
-	
 
-	/**
-	 *  Function that must be implemented by all Listeners for
-	 *  ParameterChangeWarnEvents.
-	 *
-	 * @param  event  The Event which triggered this function call
-	 */
-	public void parameterChangeWarning(ParameterChangeWarningEvent e) {
-		String S = " : parameterChangeWarning(): ";
-		WarningParameterAPI param = e.getWarningParameter();
-		param.setValueIgnoreWarning(e.getNewValue());
+	// 0.0 sec
+	// 0.005,0.007,0.0098,0.0137,0.0192,0.0269,0.0376,0.0527,0.0738,0.103,0.145,0.203,0.284,0.397,0.556,0.778,1.09,1.52,2.13
+	private static ArbitrarilyDiscretizedFunc get_USGS_PGA_Function() {
+		ArbitrarilyDiscretizedFunc f = new ArbitrarilyDiscretizedFunc();
+		f.set(.005, 1);
+		f.set(.007, 1);
+		f.set(.0098, 1);
+		f.set(.0137, 1);
+		f.set(.0192, 1);
+		f.set(.0269, 1);
+		f.set(.0376, 1);
+		f.set(.0527, 1);
+		f.set(.0738, 1);
+		f.set(.103, 1);
+		f.set(.145, 1);
+		f.set(.203, 1);
+		f.set(.284, 1);
+		f.set(.397, 1);
+		f.set(.556, 1);
+		f.set(.778, 1);
+		f.set(1.09, 1);
+		f.set(1.52, 1);
+		f.set(2.13, 1);
+		return f;
 	}
-	
-	
-	  /**
-	   * initialises the function with the x and y values if the user has chosen the USGS-PGA X Vals
-	   * the y values are modified with the values entered by the user
-	   */
-	  private void createUSGS_PGA_Function(){
-	    function= new ArbitrarilyDiscretizedFunc();
-	    function.set(.005,1);
-	    function.set(.007,1);
-	    function.set(.0098,1);
-	    function.set(.0137,1);
-	    function.set(.0192,1);
-	    function.set(.0269,1);
-	    function.set(.0376,1);
-	    function.set(.0527,1);
-	    function.set(.0738,1);
-	    function.set(.103,1);
-	    function.set(.145,1);
-	    function.set(.203,1);
-	    function.set(.284,1);
-	    function.set(.397,1);
-	    function.set(.556,1);
-	    function.set(.778,1);
-	    function.set(1.09,1);
-	    function.set(1.52,1);
-	    function.set(2.13,1);
-	  }
 
-	  
-	  /**
-	   * initialises the function with the x and y values if the user has chosen the USGS-PGA X Vals
-	   * the y values are modified with the values entered by the user
-	   */
-	  private void createUSGS_SA_01_AND_02_Function(){
-	    function= new ArbitrarilyDiscretizedFunc();
-	                   
-	    function.set(.005,1);
-	    function.set(.0075,1);
-	    function.set(.0113 ,1);
-	    function.set(.0169,1);
-	    function.set(.0253,1);
-	    function.set(.0380,1);
-	    function.set(.0570,1);
-	    function.set(.0854,1);
-	    function.set(.128,1);
-	    function.set(.192,1);
-	    function.set(.288,1);
-	    function.set(.432,1);
-	    function.set(.649,1);
-	    function.set(.973,1);
-	    function.set(1.46,1);
-	    function.set(2.19,1);
-	    function.set(3.28,1);
-	    function.set(4.92,1);
-	    function.set(7.38,1);
-	    
-	  }
-	  
-	  /**
-	   * initialises the function with the x and y values if the user has chosen the USGS-PGA X Vals
-	   * the y values are modified with the values entered by the user
-	   */
-	  private void createUSGS_SA_Function(){
-	    function= new ArbitrarilyDiscretizedFunc();
-	 
-	    function.set(.0025,1);
-	    function.set(.00375,1);
-	    function.set(.00563 ,1);
-	    function.set(.00844,1);
-	    function.set(.0127,1);
-	    function.set(.0190,1);
-	    function.set(.0285,1);
-	    function.set(.0427,1);
-	    function.set(.0641,1);
-	    function.set(.0961,1);
-	    function.set(.144,1);
-	    function.set(.216,1);
-	    function.set(.324,1);
-	    function.set(.487,1);
-	    function.set(.730,1);
-	    function.set(1.09,1);
-	    function.set(1.64,1);
-	    function.set(2.46,1);
-	    function.set(3.69,1);
-	    function.set(5.54,1);
-	  }
-	
-	public static void main(String []args) {
-		new HazardCurvesVerificationApp();
+	// 0.2 sec
+	// 0.005,0.0075,0.0113,0.0169,0.0253,0.038,0.057,0.0854,0.128,0.192,0.288,0.432,0.649,0.973,1.46,2.19,3.28,4.92,7.38
+	private static ArbitrarilyDiscretizedFunc get_USGS_SA_0p2_Function() {
+		ArbitrarilyDiscretizedFunc f = new ArbitrarilyDiscretizedFunc();
+		f.set(.005, 1);
+		f.set(.0075, 1);
+		f.set(.0113, 1);
+		f.set(.0169, 1);
+		f.set(.0253, 1);
+		f.set(.0380, 1);
+		f.set(.0570, 1);
+		f.set(.0854, 1);
+		f.set(.128, 1);
+		f.set(.192, 1);
+		f.set(.288, 1);
+		f.set(.432, 1);
+		f.set(.649, 1);
+		f.set(.973, 1);
+		f.set(1.46, 1);
+		f.set(2.19, 1);
+		f.set(3.28, 1);
+		f.set(4.92, 1);
+		f.set(7.38, 1);
+		return f;
 	}
+
+	// 1.0 sec
+	// 0.0025,0.00375,0.00563,0.00844,0.0127,0.019,0.0285,0.0427,0.0641,0.0961,0.144,0.216,0.324,0.487,0.73,1.09,1.64,2.46,3.69,5.54
+	private static ArbitrarilyDiscretizedFunc get_USGS_SA_1p0_Function() {
+		ArbitrarilyDiscretizedFunc f = new ArbitrarilyDiscretizedFunc();
+		f.set(.0025, 1);
+		f.set(.00375, 1);
+		f.set(.00563, 1);
+		f.set(.00844, 1);
+		f.set(.0127, 1);
+		f.set(.0190, 1);
+		f.set(.0285, 1);
+		f.set(.0427, 1);
+		f.set(.0641, 1);
+		f.set(.0961, 1);
+		f.set(.144, 1);
+		f.set(.216, 1);
+		f.set(.324, 1);
+		f.set(.487, 1);
+		f.set(.730, 1);
+		f.set(1.09, 1);
+		f.set(1.64, 1);
+		f.set(2.46, 1);
+		f.set(3.69, 1);
+		f.set(5.54, 1);
+		return f;
+	}
+	
+	// 3.0 sec
+	// 0.0025,0.006,0.0098,0.0137,0.0192,0.0269,0.0376,0.0527,0.0738,0.103,0.145,0.203,0.284,0.397,0.556,0.778,1.09,1.52,2.13,3.3
+	private static ArbitrarilyDiscretizedFunc get_USGS_SA_3p0_Function() {
+		ArbitrarilyDiscretizedFunc f = new ArbitrarilyDiscretizedFunc();
+		f.set(.0025, 1);
+		f.set(.006, 1);
+		f.set(.0098, 1);
+		f.set(.0137, 1);
+		f.set(.0192, 1);
+		f.set(.0269, 1);
+		f.set(.0376, 1);
+		f.set(.0527, 1);
+		f.set(.0738, 1);
+		f.set(.103, 1);
+		f.set(.145, 1);
+		f.set(.203, 1);
+		f.set(.284, 1);
+		f.set(.397, 1);
+		f.set(.556, 1);
+		f.set(.778, 1);
+		f.set(1.09, 1);
+		f.set(1.52, 1);
+		f.set(2.13, 1);
+		f.set(3.3, 1);
+		return f;
+	}
+
 }

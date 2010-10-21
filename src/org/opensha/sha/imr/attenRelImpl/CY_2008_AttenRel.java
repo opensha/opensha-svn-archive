@@ -481,7 +481,8 @@ NamedObjectAPI, ParameterChangeListener {
 		vs30Param = new Vs30_Param(VS30_WARN_MIN, VS30_WARN_MAX);
 		vs30_TypeParam = new Vs30_TypeParam();
 		depthTo1pt0kmPerSecParam = new DepthTo1pt0kmPerSecParam(DEPTH_1pt0_WARN_MIN, DEPTH_1pt0_WARN_MAX);
-
+		depthTo1pt0kmPerSecParam.setValue(null);
+		
 		siteParams.clear();
 		siteParams.addParameter(vs30Param);
 		siteParams.addParameter(vs30_TypeParam);
@@ -666,6 +667,9 @@ NamedObjectAPI, ParameterChangeListener {
 
 
 		// set basinDepth default if depthTo1pt0kmPerSec is NaN 
+		// TODO currently not possible to set depthTo1pt0kmPerSec Param to NaN
+		// b/c of limitations of WarningDoubleParam; NSHMP sets value based on
+		// unless vs30=760±20, then its set to 40m
 		double basinDepth;
 		if(Double.isNaN(depthTo1pt0kmPerSec))
 			basinDepth = Math.exp(28.5 - 3.82*Math.log(Math.pow(vs30,8)+Math.pow(378.7,8))/8);
@@ -782,18 +786,6 @@ NamedObjectAPI, ParameterChangeListener {
 		else 
 			return Double.NaN;
 	}
-	
-	
-	/**
-	 * This gets deth to 1 km/sec isosurface from vs30 using their equation 1.
-	 * @param vs30
-	 * @return
-	 */
-	public double getDepthTo1pt0kmPerSecFromVs30(double vs30) {
-		double lnZ = 28.5 - 3.82*Math.log(Math.pow(vs30, 8)+Math.pow(378.7, 8))/8;
-		return Math.exp(lnZ);
-	}
-	
 
 	/**
 	 * This listens for parameter changes and updates the primitive parameters accordingly
@@ -838,9 +830,6 @@ NamedObjectAPI, ParameterChangeListener {
 		}
 		else if (pName.equals(Vs30_Param.NAME)) {
 			vs30 = ( (Double) val).doubleValue();
-			if(depthTo1pt0kmPerSecParam.getValue() == null)
-				depthTo1pt0kmPerSec = getDepthTo1pt0kmPerSecFromVs30(vs30);
-				
 		}
 		else if (pName.equals(Vs30_TypeParam.NAME)) {
 			if(((String)val).equals(Vs30_TypeParam.VS30_TYPE_MEASURED)) {
@@ -852,7 +841,7 @@ NamedObjectAPI, ParameterChangeListener {
 		}
 		else if(pName.equals(DepthTo1pt0kmPerSecParam.NAME)){
 			if(val == null)
-				depthTo1pt0kmPerSec = getDepthTo1pt0kmPerSecFromVs30(vs30);
+				depthTo1pt0kmPerSec = Double.NaN;
 			else
 				depthTo1pt0kmPerSec = ((Double)val).doubleValue();
 		}

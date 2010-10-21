@@ -39,11 +39,14 @@ public class DepthTo1pt0kmPerSecParam extends WarningDoubleParameter {
 
 	/**
 	 * This constructor sets the default as given, and leaves the param editable 
-	 * so the warning constraint can be added later.
+	 * so the warning constraint can be added later. Sets the primary constraint
+	 * to allow <code>null</code>, or not.
 	 * @param defaultDepth
+	 * @param allowsNull 
 	 */
-	public DepthTo1pt0kmPerSecParam(double defaultDepth) {
+	public DepthTo1pt0kmPerSecParam(double defaultDepth, boolean allowsNull) {
 		super(NAME, new DoubleConstraint(MIN, MAX), UNITS);
+		getConstraint().setNullAllowed(allowsNull);
 		getConstraint().setNonEditable();
 		setInfo(INFO);
 		setDefaultValue(defaultDepth);
@@ -51,9 +54,10 @@ public class DepthTo1pt0kmPerSecParam extends WarningDoubleParameter {
 
 	/**
 	 * This constructor sets the default as 100, and leaves the param editable 
-	 * so the warning constraint can be added later.
+	 * so the warning constraint can be added later. Parameter configured via
+	 * this constructor does allows <code>null</code> values.
 	 */
-	public DepthTo1pt0kmPerSecParam() {this(100.0);}
+	public DepthTo1pt0kmPerSecParam() {this(100.0, true);}
 
 	/**
 	 * This uses the given default and warning-constraint limits, and sets 
@@ -61,9 +65,12 @@ public class DepthTo1pt0kmPerSecParam extends WarningDoubleParameter {
 	 * @param defaultDepth
 	 * @param warnMin
 	 * @param warnMax
+	 * @param allowsNull 
 	 */
-	public DepthTo1pt0kmPerSecParam(double defaultDepth, double warnMin, double warnMax) {
+	public DepthTo1pt0kmPerSecParam(
+			double defaultDepth, double warnMin, double warnMax, boolean allowsNull) {
 		super(NAME, new DoubleConstraint(MIN, MAX), UNITS);
+		getConstraint().setNullAllowed(allowsNull);
 		getConstraint().setNonEditable();
 		setInfo(INFO);
 		setDefaultValue(defaultDepth);
@@ -75,9 +82,12 @@ public class DepthTo1pt0kmPerSecParam extends WarningDoubleParameter {
 	
 	/**
 	 * This sets default as 100, uses the given warning-constraint limits, and sets 
-	 * everything as non-editable.
+	 * everything as non-editable. Parameter configured via
+	 * this constructor allows <code>null</code> values.
 	 * @param warnMin
 	 * @param warnMax
 	 */
-	public DepthTo1pt0kmPerSecParam(double warnMin, double warnMax) {this(100.0,warnMin,warnMax);}
+	public DepthTo1pt0kmPerSecParam(double warnMin, double warnMax) {
+		this(100.0,warnMin,warnMax, true);
+	}
 }
