@@ -77,7 +77,7 @@ public class HazardCurvesVerificationApp {
 //		
 //		// CB vs259 34.0N
 //		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CB", 0.0, 259.0, get_USGS_PGA_Function(), OUT_DIR);
-//		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CB", 0.2, 259.0, get_USGS_SA_0p2_Function(), OUT_DIR);
+		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CB", 0.2, 259.0, get_USGS_SA_0p2_Function(), OUT_DIR);
 //		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CB", 1.0, 259.0, get_USGS_SA_1p0_Function(), OUT_DIR);
 //		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CB", 3.0, 259.0, get_USGS_SA_3p0_Function(), OUT_DIR);
 //		
@@ -88,7 +88,7 @@ public class HazardCurvesVerificationApp {
 //		new HazardProfileCalculator(LAT2, MIN_LON2, MAX_LON2, "CB", 3.0, 259.0, get_USGS_SA_3p0_Function(), OUT_DIR);
 //		
 //		// CY vs760 34.0N
-		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CY", 0.0, 760.0, get_USGS_PGA_Function(), OUT_DIR);
+//		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CY", 0.0, 760.0, get_USGS_PGA_Function(), OUT_DIR);
 //		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CY", 0.2, 760.0, get_USGS_SA_0p2_Function(), OUT_DIR);
 //		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CY", 1.0, 760.0, get_USGS_SA_1p0_Function(), OUT_DIR);
 //		new HazardProfileCalculator(LAT1, MIN_LON1, MAX_LON1, "CY", 3.0, 760.0, get_USGS_SA_3p0_Function(), OUT_DIR);

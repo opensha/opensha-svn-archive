@@ -111,12 +111,14 @@ public class HazardProfileCalculator implements ParameterChangeWarningListener {
 				System.out.println("Doing Site :" + latLonFormat.format(lat) + 
 					"," + latLonFormat.format(lon) + " " + imtString);
 				
+				// ensure that DEPTH_2_5KM_PARAM value iis set from default
+				DEPTH_2_5KM_PARAM.setValueAsDefault();
 				// set DEPTH_1_0KM_PARAM based on vs30; this could conceivably
-//				if (vs30 == 760.0) {
-//					DEPTH_1_0KM_PARAM.setValue(40.0);
-//				} else if (vs30 == 259.0) {
-//					DEPTH_1_0KM_PARAM.setValue(330.0);
-//				}
+				if (vs30 == 760.0) {
+					DEPTH_1_0KM_PARAM.setValue(40.0);
+				} else if (vs30 == 259.0) {
+					DEPTH_1_0KM_PARAM.setValue(330.0);
+				}
 				Site site = new Site(new Location(lat, lon));
 				site.addParameter(VS_30_PARAM);
 				site.addParameter(DEPTH_2_5KM_PARAM); // used by CB2008
