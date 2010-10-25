@@ -569,7 +569,7 @@ extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationsh
 
 			Point2D point = (Point2D) it.next();
 			double x = point.getX();
-			double y = getExceedProbability(mean, stdDev, point.getX());
+			double y = getExceedProbability(mean, stdDev, x);
 			point.setLocation(x, y);
 
 		}
