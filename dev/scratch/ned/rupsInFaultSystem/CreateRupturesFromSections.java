@@ -56,17 +56,16 @@ public class CreateRupturesFromSections {
 	 */
 	public CreateRupturesFromSections(double maxJumpDist, double maxSubSectionLength, int minNumSubSectInRup) {
 		
-		System.out.println("maxDist="+maxJumpDist+"\tmaxAzimuthChange="+maxAzimuthChange+"\tmaxTotAzimuthChange="+
-				maxTotAzimuthChange+"\tmaxSubSectionLength="+maxSubSectionLength+"\tminNumSubSectInRup="+minNumSubSectInRup);
-		
 		this.maxJumpDist=maxJumpDist;
 		this.maxAzimuthChange=45;  		// 
 		this.maxTotAzimuthChange=45;	// not used right now
 		this.maxSubSectionLength=maxSubSectionLength;
 		this.minNumSubSectInRup=minNumSubSectInRup;
 		
-		Boolean includeSectionsWithNaN_slipRates = false;
+		System.out.println("maxDist="+this.maxJumpDist+"\tmaxAzimuthChange="+maxAzimuthChange+"\tmaxTotAzimuthChange="+
+				maxTotAzimuthChange+"\tmaxSubSectionLength="+maxSubSectionLength+"\tminNumSubSectInRup="+minNumSubSectInRup);
 		
+		Boolean includeSectionsWithNaN_slipRates = false;
 	
 		// Create the sections and subsections and mappings
 		createSubSections(includeSectionsWithNaN_slipRates);
@@ -86,17 +85,25 @@ public class CreateRupturesFromSections {
 		System.out.println("Done computing azimuths");
 
 		// make the list of nearby subsections for each subsection (branches)
+		System.out.println("Starting computeCloseSubSectionsListList()");
 		computeCloseSubSectionsListList();
-		
+		System.out.println("Done with computeCloseSubSectionsListList()");
+
 		// make the list of SectionCluser objects 
 		// (each represents a set of nearby subsections and computes the possible
 		//  "ruptures", each defined as a list of subsections in that rupture)
+		System.out.println("Starting makeClusterList()");
 		makeClusterList();
+		System.out.println("Done with makeClusterList()");
+
 		
+		// saves list to a file
 		writeCloseSubSections();
 		
+		/*
 		for(int i=0;i<this.sectionClusterList.size(); i++)
 			System.out.println("Cluster "+i+" has "+getCluster(i).getNumRuptures()+" ruptures");
+		*/
 
 /*		
 		// this writes out the ruptures for a given cluster
@@ -221,15 +228,48 @@ System.out.println("Working on rupture list for cluster "+i);
 /*	*/	  
 		  // this is a trimmed list of subsections for testing; 
 		  // make sure includeSectionsWithNaN_slipRates=false for the IDs below to be good choices
-		  test = "_test";
-		  ArrayList<FaultSectionPrefData> trimmedFaultSectionPrefData = new ArrayList<FaultSectionPrefData>();
-		  trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(77));
-		  trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(75));
-		  trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(164));
-		  trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(42));
-		  trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(108));
-		  trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(0));
-		  allFaultSectionPrefData = trimmedFaultSectionPrefData;
+//		  test = "_test";
+//		  ArrayList<FaultSectionPrefData> trimmedFaultSectionPrefData = new ArrayList<FaultSectionPrefData>();
+//		  trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(77));  // Landers
+//		  trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(75));  // Johnson Valley
+//		  trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(164)); // So Emerson - Copper Mtn
+//		  trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(42));  // Gravel Hills - Harper Lk
+		  
+//		  trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(108));
+//		  trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(0));
+		  
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(123));  // San Andreas (Big Bend)
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(124));  // San Andreas (Carrizo)
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(125));  // San Andreas (Cholame)
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(126));  // San Andreas (Coachella)
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(127));  // San Andreas (Creeping Segment)
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(128));  // San Andreas (Mojave N)
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(129));  // San Andreas (Mojave S)
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(130));  // San Andreas (North Coast)
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(131));  // San Andreas (Offshore)
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(132));  // San Andreas (Parkfield)
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(133));  // San Andreas (Peninsula)
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(134));  // San Andreas (San Bernardino N)
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(135));  // San Andreas (San Bernardino S)
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(136));  // San Andreas (San Gorgonio Pass - Garnet Hill)
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(137));  // San Andreas (Santa Cruz Mtn)
+		  
+		  
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(142));  // San Jacinto
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(143));
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(144));
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(145));
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(146));
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(147));
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(148));
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(149));
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(150));
+		  
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(38)); //Garlock
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(39));
+		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(40));
+		  
+		  //allFaultSectionPrefData = trimmedFaultSectionPrefData;
 		  // write out these
 		  for(int i=0; i< allFaultSectionPrefData.size();i++) 
 			  System.out.println(i+"\t"+allFaultSectionPrefData.get(i).getName());
@@ -245,7 +285,8 @@ System.out.println("Working on rupture list for cluster "+i);
 			  FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)allFaultSectionPrefData.get(i);
 			  double maxSectLength = faultSectionPrefData.getDownDipWidth()*maxSubSectionLength;
 			  ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength);
-			  if(subSectData.size()>maxNumSubSections) maxNumSubSections = numSubSections;
+			  // if(subSectData.size()>maxNumSubSections) maxNumSubSections = numSubSections;  // this was a bug - fixed below
+			  if(subSectData.size()>maxNumSubSections) maxNumSubSections = subSectData.size();
 			  numSubSections += subSectData.size();
 			  subSectionPrefDataListList.add(subSectData);
 			  subSectionPrefDataList.addAll(subSectData);
@@ -284,6 +325,7 @@ System.out.println("Working on rupture list for cluster "+i);
 		  // construct filename
 		  String name = deformationModelId+"_"+(int)(maxSubSectionLength*1000)+test+"_Distances";
 		  String fullpathname = "/Users/field/workspace/OpenSHA/dev/scratch/ned/rupsInFaultSystem/PreComputedSubSectionDistances/"+name;
+		  //String fullpathname = "/Users/pagem/eclipse/workspace/OpenSHA/dev/scratch/pagem/rupsInFaultSystem/PreComputedSubSectionDistances/"+name;
 		  File file = new File (fullpathname);
 		  
 		  // Read data if already computed and saved
@@ -304,7 +346,7 @@ System.out.println("Working on rupture list for cluster "+i);
 
 		  }
 		  else {// Calculate new distance matrix & save to a file
-			  System.out.println("Calculating data and will save to file: "+name);
+			  System.out.println("Calculating distance data and will save to file: "+name);
 
 			  int progress = 0, progressInterval=10;  // for progress report
 			  System.out.print("Dist Calc % Done:");
@@ -346,7 +388,7 @@ System.out.println("Working on rupture list for cluster "+i);
 	  /**
 	   *  this computes the azimuth between between each subsection pair from the middle point of each surface
 	   */
-	  private void calcSubSectionAzimuths() {
+	  private void old_calcSubSectionAzimuths() {
 		  subSectionAzimuths = new double[numSubSections][numSubSections];
 			  for(int a=0;a<numSubSections;a++) {
 				  StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultData(false), 1.0);
@@ -357,6 +399,71 @@ System.out.println("Working on rupture list for cluster "+i);
 					  subSectionAzimuths[a][b] = LocationUtils.azimuth(loc1, loc2);
 				  }
 			  }
+	  }
+	  
+	  private void calcSubSectionAzimuths() {
+
+		  subSectionAzimuths = new double[numSubSections][numSubSections];
+
+		  // construct filename
+		  String name = deformationModelId+"_"+(int)(maxSubSectionLength*1000)+test+"_Azimuths";
+		  String fullpathname = "/Users/field/workspace/OpenSHA/dev/scratch/ned/rupsInFaultSystem/PreComputedSubSectionDistances/"+name;
+		  //String fullpathname = "/Users/pagem/eclipse/workspace/OpenSHA/dev/scratch/pagem/rupsInFaultSystem/PreComputedSubSectionDistances/"+name;
+		  File file = new File (fullpathname);
+		  
+		  // Read data if already computed and saved
+		  if(file.exists()) {
+			  System.out.println("Reading existing file: "+ name);
+			    try {
+			        // Wrap the FileInputStream with a DataInputStream
+			        FileInputStream file_input = new FileInputStream (file);
+			        DataInputStream data_in    = new DataInputStream (file_input );
+					  for(int i=0; i<numSubSections;i++)
+						  for(int j=i; j<numSubSections;j++) {
+							  subSectionAzimuths[i][j] = data_in.readDouble();
+						  }
+			        data_in.close ();
+			      } catch  (IOException e) {
+			         System.out.println ( "IO Exception =: " + e );
+			      }
+
+		  }
+		  else {// Calculate new distance matrix & save to a file
+			  System.out.println("Calculating azimuth data and will save to file: "+name);
+
+			  int progress = 0, progressInterval=10;  // for progress report
+			  System.out.print("Azimuth Calc % Done:");
+			  
+			  for(int a=0;a<numSubSections;a++) {
+				  if (100*a/numSubSections > progress) {
+					  System.out.print("\t"+progress);
+					  progress += progressInterval;
+				  }
+				  StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultData(false), 1.0);
+				  Location loc1 = surf1.getLocation(surf1.getNumRows()/2, surf1.getNumCols()/2);
+				  for(int b=0;b<numSubSections;b++) {
+					  StirlingGriddedSurface surf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(b).getSimpleFaultData(false), 1.0);
+					  Location loc2 = surf2.getLocation((int)(surf2.getNumRows()/2), (int)(surf2.getNumCols()/2));
+					  subSectionAzimuths[a][b] = LocationUtils.azimuth(loc1, loc2);
+				  }
+			  }
+			  System.out.print("\n");
+			  // Now save to a binary file
+			  try {
+				  // Create an output stream to the file.
+				  FileOutputStream file_output = new FileOutputStream (file);
+				  // Wrap the FileOutputStream with a DataOutputStream
+				  DataOutputStream data_out = new DataOutputStream (file_output);
+				  for(int i=0; i<numSubSections;i++)
+					  for(int j=i; j<numSubSections;j++)
+						  data_out.writeDouble(subSectionAzimuths[i][j]);
+				  // Close file
+				  file_output.close ();
+			  }
+			  catch (IOException e) {
+				  System.out.println ("IO exception = " + e );
+			  }
+		  }
 	  }
 
 	  
@@ -458,6 +565,7 @@ System.out.println(newCluster.size()+"\tsubsections in cluster #"+sectionCluster
 	public void writeCloseSubSections() {
 		if (D) System.out.print("writing file...");
 		try{
+			// FileWriter fw = new FileWriter("/Users/field/workspace/OpenSHA/dev/scratch/ned/rupsInFaultSystem/closeSubSections.txt");
 			FileWriter fw = new FileWriter("/Users/field/workspace/OpenSHA/dev/scratch/ned/rupsInFaultSystem/closeSubSections.txt");
 			String outputString = new String();
 			
@@ -488,7 +596,8 @@ System.out.println(newCluster.size()+"\tsubsections in cluster #"+sectionCluster
 	 */
 	public static void main(String[] args) {
 		long startTime=System.currentTimeMillis();
-		CreateRupturesFromSections createRups = new CreateRupturesFromSections(10, 0.5, 2);
+		CreateRupturesFromSections createRups = new CreateRupturesFromSections(5, 0.5, 2);
+//		CreateRupturesFromSections createRups = new CreateRupturesFromSections(1, 0.5, 2);
 //		CreateRupturesFromSections createRups = new CreateRupturesFromSections(10, 45, 60, 100, 1);
 		int runtime = (int)(System.currentTimeMillis()-startTime)/1000;
 		System.out.println("Run took "+runtime+" seconds");
