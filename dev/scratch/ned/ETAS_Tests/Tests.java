@@ -31,7 +31,7 @@ public class Tests extends ArrayList<Integer> {
 	}
 
 	/**
-	 * This creates data for a figure in our project plan, where one set is the rate of M≥5 events,
+	 * This creates data for a figure in our project plan, where one set is the spatial rate of M≥5 events,
 	 * and the other is this multiplied by a distance decay to get the probability that any cell will
 	 * host an aftershock
 	 */
