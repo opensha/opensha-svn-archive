@@ -11,28 +11,23 @@ import java.util.ListIterator;
 
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.siteData.AbstractSiteData;
-import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataAPI;
-import org.opensha.commons.data.siteData.SiteDataProvidersTest;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.data.siteData.util.SiteDataTypeParameterNameMap;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.StringParameter;
 import org.opensha.sha.calc.hazardMap.components.AsciiFileCurveArchiver;
 import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
 import org.opensha.sha.calc.hazardMap.components.CurveResultsArchiver;
 import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.gui.infoTools.IMT_Info;
@@ -58,7 +53,7 @@ public class HardCodedTest {
 	private static SimpleDateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm");
 	private static final boolean constrainBasinMin = false;
 	
-	private static MeanUCERF2 getUCERF2(int years, int startYear) {
+	private static MeanUCERF2 getUCERF2(int years, int startYear, boolean includeBackSeis) {
 		MeanUCERF2 ucerf = new MeanUCERF2();
 		
 		if (startYear > 0) {
@@ -71,6 +66,12 @@ public class HardCodedTest {
 		}
 		ucerf.getTimeSpan().setDuration(years);
 		
+		StringParameter backSeisParam = (StringParameter) ucerf.getParameter(UCERF2.BACK_SEIS_NAME);
+		if (includeBackSeis)
+			backSeisParam.setValue(UCERF2.BACK_SEIS_INCLUDE);
+		else
+			backSeisParam.setValue(UCERF2.BACK_SEIS_EXCLUDE);
+		
 		ucerf.updateForecast();
 		System.out.println("UCERF Params:");
 		System.out.println(ucerf.getAdjustableParameterList().getParameterListMetadataString());
@@ -78,8 +79,8 @@ public class HardCodedTest {
 		return ucerf;
 	}
 
-	private static EqkRupForecast getERF(int years, int startYear) {
-		return getUCERF2(years, startYear);
+	private static EqkRupForecast getERF(int years, int startYear, boolean includeBackSeis) {
+		return getUCERF2(years, startYear, includeBackSeis);
 	}
 	
 	private static ScalarIntensityMeasureRelationshipAPI getUSGSCombined2004IMR() {
@@ -137,7 +138,8 @@ public class HardCodedTest {
 	public static void main(String args[]) throws IOException, InvocationTargetException {
 		int years = 50;
 		int startYear = 2010;
-		EqkRupForecast erf = getERF(years, startYear);
+		boolean includeBackSeis = false;
+		EqkRupForecast erf = getERF(years, startYear, includeBackSeis);
 		
 		double sigmaTrunc = 0;
 		ScalarIntensityMeasureRelationshipAPI imr = getIMR(sigmaTrunc);
