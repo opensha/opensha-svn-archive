@@ -106,34 +106,6 @@ implements ParameterChangeWarningListener {
 	private ArrayList<ArrayList<SiteDataValue<?>>> userDataVals;
 
 	/**
-	 *  IMR Class Names
-	 */
-	protected final static String BJF_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel";
-	protected final static String AS_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel";
-	protected final static String AS_2008_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel";
-	protected final static String C_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel";
-	protected final static String SCEMY_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.SadighEtAl_1997_AttenRel";
-	protected final static String F_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Field_2000_AttenRel";
-	protected final static String A_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
-	protected final static String CB_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CB_2003_AttenRel";
-	protected final static String SM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel";
-	protected final static String SEA_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.SEA_1999_AttenRel";
-	//protected final static String DAHLE_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.DahleEtAl_1995_AttenRel";
-	protected final static String  CS_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CS_2005_AttenRel";
-	protected final static String AS_2005_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.depricated.AS_2005_prelim_AttenRel";
-	protected final static String CY_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.depricated.CY_2006_AttenRel";
-	protected final static String CY_2008_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel";
-	protected final static String BOORE_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.depricated.BA_2006_AttenRel";
-	protected final static String BOORE_2008_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel";
-	protected final static String CB_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.depricated.CB_2006_AttenRel";
-	protected final static String CB_2008_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel";
-	//protected final static String SS_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.SiteSpecific_2006_AttenRel";
-	protected final static String BS_2003_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.BS_2003_AttenRel";
-	protected final static String BC_2004_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.BC_2004_AttenRel";
-	protected final static String GOULET_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.GouletEtAl_2006_AttenRel";
-
-
-	/**
 	 *  ArrayList that maps picklist attenRel string names to the real fully qualified
 	 *  class names
 	 */
@@ -142,45 +114,45 @@ implements ParameterChangeWarningListener {
 
 	static {
 		imNames.add(CY_2006_AttenRel.NAME);
-		attenRelClasses.add(CY_2006_CLASS_NAME);
+		attenRelClasses.add(CY_2006_AttenRel.class.getName());
 		imNames.add(CY_2008_AttenRel.NAME);
-		attenRelClasses.add(CY_2008_CLASS_NAME);
+		attenRelClasses.add(CY_2008_AttenRel.class.getName());
 		imNames.add(CB_2006_AttenRel.NAME);
-		attenRelClasses.add(CB_2006_CLASS_NAME);
+		attenRelClasses.add(CB_2006_AttenRel.class.getName());
 		imNames.add(CB_2008_AttenRel.NAME);
-		attenRelClasses.add(CB_2008_CLASS_NAME);
+		attenRelClasses.add(CB_2008_AttenRel.class.getName());
 		imNames.add(BA_2006_AttenRel.NAME);
-		attenRelClasses.add(BOORE_2006_CLASS_NAME);
+		attenRelClasses.add(BA_2006_AttenRel.class.getName());
 		imNames.add(BA_2008_AttenRel.NAME);
-		attenRelClasses.add(BOORE_2008_CLASS_NAME);
+		attenRelClasses.add(BA_2008_AttenRel.class.getName());
 		imNames.add(CS_2005_AttenRel.NAME);
-		attenRelClasses.add(CS_CLASS_NAME);
+		attenRelClasses.add(CS_2005_AttenRel.class.getName());
 		imNames.add(BJF_1997_AttenRel.NAME);
-		attenRelClasses.add(BJF_CLASS_NAME);
+		attenRelClasses.add(BJF_1997_AttenRel.class.getName());
 		imNames.add(AS_1997_AttenRel.NAME);
-		attenRelClasses.add(AS_CLASS_NAME);
+		attenRelClasses.add(AS_1997_AttenRel.class.getName());
 		imNames.add(AS_2008_AttenRel.NAME);
-		attenRelClasses.add(AS_2008_CLASS_NAME);
+		attenRelClasses.add(AS_2008_AttenRel.class.getName());
 		imNames.add(Campbell_1997_AttenRel.NAME);
-		attenRelClasses.add(C_CLASS_NAME);
+		attenRelClasses.add(Campbell_1997_AttenRel.class.getName());
 		imNames.add(SadighEtAl_1997_AttenRel.NAME);
-		attenRelClasses.add(SCEMY_CLASS_NAME);
+		attenRelClasses.add(SadighEtAl_1997_AttenRel.class.getName());
 		imNames.add(Field_2000_AttenRel.NAME);
-		attenRelClasses.add(F_CLASS_NAME);
+		attenRelClasses.add(Field_2000_AttenRel.class.getName());
 		imNames.add(Abrahamson_2000_AttenRel.NAME);
-		attenRelClasses.add(A_CLASS_NAME);
+		attenRelClasses.add(Abrahamson_2000_AttenRel.class.getName());
 		imNames.add(CB_2003_AttenRel.NAME);
-		attenRelClasses.add(CB_CLASS_NAME);
+		attenRelClasses.add(CB_2003_AttenRel.class.getName());
 		imNames.add(BS_2003_AttenRel.NAME);
-		attenRelClasses.add(BS_2003_CLASS_NAME);
+		attenRelClasses.add(BS_2003_AttenRel.class.getName());
 		imNames.add(BC_2004_AttenRel.NAME);
-		attenRelClasses.add(BC_2004_CLASS_NAME);
+		attenRelClasses.add(BC_2004_AttenRel.class.getName());
 		imNames.add(GouletEtAl_2006_AttenRel.NAME);
-		attenRelClasses.add(GOULET_2006_CLASS_NAME);
+		attenRelClasses.add(GouletEtAl_2006_AttenRel.class.getName());
 		imNames.add(ShakeMap_2003_AttenRel.NAME);
-		attenRelClasses.add(SM_CLASS_NAME);
+		attenRelClasses.add(ShakeMap_2003_AttenRel.class.getName());
 		imNames.add(SEA_1999_AttenRel.NAME);
-		attenRelClasses.add(SEA_CLASS_NAME);
+		attenRelClasses.add(SEA_1999_AttenRel.class.getName());
 	}
 
 	public IM_EventSetCalc_v3_0_ASCII(String inpFile,String outDir) {
@@ -367,8 +339,7 @@ implements ParameterChangeWarningListener {
 	 */
 	protected void createIMRClassInstance(String AttenRelClassName) {
 		try {
-			Class listenerClass = Class.forName(
-					"org.opensha.commons.param.event.ParameterChangeWarningListener");
+			Class listenerClass = ParameterChangeWarningListener.class;
 			Object[] paramObjects = new Object[] {
 					this};
 			Class[] params = new Class[] {

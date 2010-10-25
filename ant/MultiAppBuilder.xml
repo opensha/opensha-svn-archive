@@ -202,5 +202,15 @@
 			<property name="resource.target" value="resource.misc.required" />
 		</ant>
 	</target>
+	
+	<target name="build.im.event.ascii">
+		<ant antfile="${app.build.file}" target="build.app">
+			<property name="app.short.name" value="IM_EventSetCalc_ASCII" />
+			<property name="app.main.class" value="org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetCalc_v3_0_ASCII" />
+			<property name="javac.includes" value="org/opensha/sha/calc/IM_EventSet/v03/IM_EventSetCalc_v3_0_ASCII.java" />
+			<property name="javac.excludes" value="" />
+			<property name="resource.target" value="resource.hazard.apps" />
+		</ant>
+	</target>
 
 </project>
