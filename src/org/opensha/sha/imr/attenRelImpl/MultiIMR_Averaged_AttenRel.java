@@ -557,50 +557,63 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		}
 	}
 	
-	private double getWeightedValue(ArrayList<Double> vals) {
-		if (vals.size() != weights.size())
+	private double getWeightedValue(double[] vals) {
+		if (vals.length != weights.size())
 			throw new RuntimeException("vals.size() != weights.size()");
 		double weighted = 0;
-		for (int i=0; i<vals.size(); i++) {
-			double val = vals.get(i);
+		for (int i=0; i<vals.length; i++) {
+			double val = vals[i];
 			double weight = weights.get(i);
 			weighted += val * weight;
+		}
+		if (D && Double.isNaN(weighted)) {
+			System.out.println("Got a NaN!");
+			for (int i=0; i<vals.length; i++) {
+				System.out.println(imrs.get(i).getShortName() + ": " + vals[i]);
+				if (Double.isNaN(vals[i]))
+					System.out.println(imrs.get(i).getAllParamMetadata());
+			}
+			throw new RuntimeException();
 		}
 		return weighted;
 	}
 
 	@Override
 	public double getMean() {
-		ArrayList<Double> means = new ArrayList<Double>();
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-			means.add(imr.getMean());
+		double[] means = new double[imrs.size()];
+		for (int i=0; i<imrs.size(); i++) {
+			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
+			means[i] = imr.getMean();
 		}
 		return getWeightedValue(means);
 	}
 
 	@Override
 	public double getStdDev() {
-		ArrayList<Double> std = new ArrayList<Double>();
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-			std.add(imr.getStdDev());
+		double[] std = new double[imrs.size()];
+		for (int i=0; i<imrs.size(); i++) {
+			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
+			std[i] = imr.getStdDev();
 		}
 		return getWeightedValue(std);
 	}
 
 	@Override
 	public double getEpsilon() {
-		ArrayList<Double> vals = new ArrayList<Double>();
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-			vals.add(imr.getEpsilon());
+		double[] vals = new double[imrs.size()];
+		for (int i=0; i<imrs.size(); i++) {
+			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
+			vals[i] = imr.getEpsilon();
 		}
 		return getWeightedValue(vals);
 	}
 
 	@Override
 	public double getEpsilon(double iml) {
-		ArrayList<Double> vals = new ArrayList<Double>();
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-			vals.add(imr.getEpsilon(iml));
+		double[] vals = new double[imrs.size()];
+		for (int i=0; i<imrs.size(); i++) {
+			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
+			vals[i] = imr.getEpsilon(iml);
 		}
 		return getWeightedValue(vals);
 	}
@@ -614,9 +627,10 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 			funcs.add(imr.getExceedProbabilities((DiscretizedFuncAPI)intensityMeasureLevels.deepClone()));
 		}
 		for (int i=0; i<intensityMeasureLevels.getNum(); i++) {
-			ArrayList<Double> vals = new ArrayList<Double>();
-			for (DiscretizedFuncAPI func : funcs) {
-				vals.add(func.getY(i));
+			double[] vals = new double[imrs.size()];
+			for (int j=0; j<funcs.size(); j++) {
+				DiscretizedFuncAPI func = funcs.get(j);
+				vals[j] = func.getY(i);
 			}
 			intensityMeasureLevels.set(i, getWeightedValue(vals));
 		}
@@ -626,9 +640,10 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	@Override
 	public double getExceedProbability() throws ParameterException,
 			IMRException {
-		ArrayList<Double> vals = new ArrayList<Double>();
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-			vals.add(imr.getExceedProbability());
+		double[] vals = new double[imrs.size()];
+		for (int i=0; i<imrs.size(); i++) {
+			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
+			vals[i] = imr.getExceedProbability();
 		}
 		return getWeightedValue(vals);
 	}
@@ -643,18 +658,20 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	@Override
 	public double getExceedProbability(double iml) throws ParameterException,
 			IMRException {
-		ArrayList<Double> vals = new ArrayList<Double>();
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-			vals.add(imr.getExceedProbability(iml));
+		double[] vals = new double[imrs.size()];
+		for (int i=0; i<imrs.size(); i++) {
+			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
+			vals[i] = imr.getExceedProbability(iml);
 		}
 		return getWeightedValue(vals);
 	}
 
 	@Override
 	public double getIML_AtExceedProb() throws ParameterException {
-		ArrayList<Double> vals = new ArrayList<Double>();
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-			vals.add(imr.getIML_AtExceedProb());
+		double[] vals = new double[imrs.size()];
+		for (int i=0; i<imrs.size(); i++) {
+			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
+			vals[i] = imr.getIML_AtExceedProb();
 		}
 		return getWeightedValue(vals);
 	}
@@ -662,9 +679,10 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	@Override
 	public double getIML_AtExceedProb(double exceedProb)
 			throws ParameterException {
-		ArrayList<Double> vals = new ArrayList<Double>();
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-			vals.add(imr.getIML_AtExceedProb(exceedProb));
+		double[] vals = new double[imrs.size()];
+		for (int i=0; i<imrs.size(); i++) {
+			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
+			vals[i] = imr.getIML_AtExceedProb(exceedProb);
 		}
 		return getWeightedValue(vals);
 	}
