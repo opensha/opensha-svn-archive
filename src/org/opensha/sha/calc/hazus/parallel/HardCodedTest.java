@@ -103,8 +103,8 @@ public class HardCodedTest {
 	}
 
 	private static ScalarIntensityMeasureRelationshipAPI getIMR(double sigmaTrunc){
-//		ScalarIntensityMeasureRelationshipAPI attenRel = getNGA_2008IMR();
-		ScalarIntensityMeasureRelationshipAPI attenRel = getCB_2008IMR();
+		ScalarIntensityMeasureRelationshipAPI attenRel = getNGA_2008IMR();
+//		ScalarIntensityMeasureRelationshipAPI attenRel = getCB_2008IMR();
 		attenRel.getParameter(Vs30_Param.NAME).setValue(new Double(760));
 		if (sigmaTrunc > 0) {
 			attenRel.getParameter(SigmaTruncTypeParam.NAME).
