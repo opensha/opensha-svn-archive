@@ -111,10 +111,13 @@ public class HazardCurveSetCalculator {
 					calcFunction = getLogFunction(calcSettings.getXValues(imt));
 				else
 					calcFunction = calcSettings.getXValues(imt).deepClone();
-				System.out.println("Calculating Hazard Curve. timestamp=" + System.currentTimeMillis());
+				long curveStart = System.currentTimeMillis();
+				System.out.println("Calculating Hazard Curve. timestamp=" + curveStart);
 				// actually calculate the curve from the log hazard function, site, IMR, and ERF
 				calc.getHazardCurve(calcFunction,site,imrMap,erf);
-				System.out.println("Calculated a curve! timestamp=" + System.currentTimeMillis());
+				long curveEnd = System.currentTimeMillis();
+				float curveSecs = (float)(curveEnd - curveStart) / 1000f;
+				System.out.println("Calculated a curve! timestamp=" + curveEnd + " ("+curveSecs+" secs)");
 				ArbitrarilyDiscretizedFunc hazardCurve;
 				if (logSpace)
 					hazardCurve = unLogFunction(calcSettings.getXValues(imt), calcFunction);
