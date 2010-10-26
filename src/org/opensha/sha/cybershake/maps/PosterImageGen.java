@@ -18,13 +18,10 @@ import org.opensha.sha.cybershake.maps.InterpDiffMap.InterpDiffMapType;
 
 public class PosterImageGen {
 
-	protected static void saveCurves(String webAddr, String mainDir, String name, boolean base) throws IOException {
+	protected static void saveCurves(String webAddr, String mainDir, String name, InterpDiffMapType type) throws IOException {
 		if (!webAddr.endsWith("/"))
 			webAddr += "/";
-		if (base)
-			webAddr += "basemap";
-		else
-			webAddr += "interpolated";
+		webAddr += type.getPrefix();
 		String pngAddr72 = webAddr + ".72.png";
 		String pngAddr300 = webAddr + ".300.png";
 		String psAddr = webAddr + ".ps";
@@ -89,13 +86,13 @@ public class PosterImageGen {
 					String normAddr = 
 						HardCodedInterpDiffMapCreator.getMap(logPlot, imTypeID, normCustomMin, normCustomMax,
 								isProbAt_IML, val, baseMapName, config, false, normLabel);
-					saveCurves(normAddr, mainDir, name, false);
+					saveCurves(normAddr, mainDir, name, InterpDiffMapType.INTERP_NOMARKS);
 				}
 				if (config instanceof ScenarioBasedModProbConfig) {
 					String gainAddr = 
 						HardCodedInterpDiffMapCreator.getMap(logPlot, imTypeID, gainCustomMin, gainCustomMax,
 								isProbAt_IML, val, baseMapName, config, true, gainLabel);
-					saveCurves(gainAddr, mainDir, name+"_gain", false);
+					saveCurves(gainAddr, mainDir, name+"_gain", InterpDiffMapType.INTERP_NOMARKS);
 				}
 			}
 		} catch (Exception e) {

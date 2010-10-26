@@ -29,6 +29,7 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.mapping.gmt.GMT_Map.HighwayFile;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.util.XMLUtils;
@@ -36,14 +37,17 @@ import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.calc.ScenarioShakeMapCalculator;
 import org.opensha.sha.cybershake.calc.ShakeMapComputation;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
+import org.opensha.sha.cybershake.db.MeanUCERF2_ToDB;
 import org.opensha.sha.cybershake.maps.InterpDiffMap.InterpDiffMapType;
 import org.opensha.sha.cybershake.maps.servlet.CS_InterpDiffMapServletAccessor;
+import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGD_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
@@ -53,22 +57,23 @@ public class HardCodedScenarioShakeMapGen {
 	private static final String cacheDir = "/home/kevin/CyberShake/M8/";
 	
 	private static EqkRupture getRupture(int sourceID, int rupID, Location hypo) {
-		MeanUCERF2 ucerf = new MeanUCERF2();
+		EqkRupForecast ucerf = MeanUCERF2_ToDB.createUCERF2ERF();
 		ucerf.updateForecast();
 		EqkRupture rup = ucerf.getRupture(sourceID, rupID);
 		rup.setHypocenterLocation(hypo);
 		return rup;
 	}
 	
-	private static ArrayList<AttenuationRelationship> getAttenRels() {
+	private static ArrayList<AttenuationRelationship> getAttenRels(double[] periods) {
 		ArrayList<AttenuationRelationship> realAR = new ArrayList<AttenuationRelationship>();
 //		attenRels.add(new AS_2008_AttenRel(null));
-		double[] periods = { -2, -1, 0.5, 1.0 };
+//		double[] periods = { -2, -1, 0.5, 1.0 };
+		
 		for (double period : periods) {
 //			attenRels.add(new Abrahamson_2000_AttenRel(null));
 			
 			ArrayList<AttenuationRelationship> attenRels = new ArrayList<AttenuationRelationship>();
-			attenRels.add(new ShakeMap_2003_AttenRel(null));
+//			attenRels.add(new ShakeMap_2003_AttenRel(null));
 			attenRels.add(new CB_2008_AttenRel(null));
 			for (AttenuationRelationship attenRel : attenRels) {
 				attenRel.setParamDefaults();
@@ -80,6 +85,11 @@ public class HardCodedScenarioShakeMapGen {
 				} else if (period == -1) {
 					if (attenRel.isIntensityMeasureSupported(PGD_Param.NAME))
 						attenRel.setIntensityMeasure(PGD_Param.NAME);
+					else
+						continue;
+				} else if (period == -3) {
+					if (attenRel.isIntensityMeasureSupported(PGA_Param.NAME))
+						attenRel.setIntensityMeasure(PGA_Param.NAME);
 					else
 						continue;
 				} else {
@@ -245,11 +255,23 @@ public class HardCodedScenarioShakeMapGen {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, ParameterException, RegionConstraintException, ClassNotFoundException, DocumentException {
-		int sourceID = 89;
-		int rupID = 3;
-		Location hypo = new Location(35.849, -120.3858, 15.5655);
+//		int sourceID = 89;
+//		int rupID = 3;
+//		Location hypo = new Location(35.849, -120.3858, 15.5655);
+		int sourceID = 242;
+		int rupID = 26;
+		Location hypo = new Location(34.093,-118.0315,13.2411);
+		boolean useBaseMap = true;
+		double[] periods = { -3.0 };
 		System.out.println("Creating Atten Rels...");
-		ArrayList<AttenuationRelationship> attenRels = getAttenRels();
+		ArrayList<AttenuationRelationship> attenRels = getAttenRels(periods);
+		
+//		String scatterHardCodeFile = null;
+//		String scatterHardCodeFile = "/home/kevin/CyberShake/eew/parkfield/min7.0/shakemap.txt";
+		String scatterHardCodeFile = "/home/kevin/ShakeOut/bband/pga.txt";
+		
+//		String outputDir = "/home/kevin/CyberShake/ShakeOut/maps";
+		String outputDir = "/home/kevin/CyberShake/ShakeOut/bband/maps";
 		
 		GriddedRegion region = new CaliforniaRegions.CYBERSHAKE_MAP_GRIDDED(0.005);
 		region.setName("CSReg");
@@ -263,7 +285,7 @@ public class HardCodedScenarioShakeMapGen {
 //		double spacing = region.getSpacing();
 		
 		
-//		ArrayList<SiteDataValueList<?>> lists = loadValLists(region);
+		ArrayList<SiteDataValueList<?>> lists = loadValLists(region);
 		
 		boolean logPlot = true;
 		
@@ -278,26 +300,28 @@ public class HardCodedScenarioShakeMapGen {
 			} else {
 				period = -1;
 			}
-			File baseMapFile = new File(cacheDir+"baseMap_"+attenRel.getShortName()
-					+"_"+region.getSpacing()+"_"+sourceID+"_"+rupID+"_"+isProbAt_IML+"_"+val+"_"+region.getName()
-					+"_"+imt+"_"+period+".txt");
-			
 			XYZ_DataSetAPI baseMap = null;
-//			if (baseMapFile.exists()) {
-//				System.out.println("Loading Base Map Data");
-//				baseMap = ArbDiscretizedXYZ_DataSet.loadXYZFile(baseMapFile.getAbsolutePath());
-//			} else {
-//				System.out.println("Getting rupture...");
-//				EqkRupture rup = getRupture(sourceID, rupID, hypo);
-//				System.out.println("Rup rake: " + rup.getAveRake());
-//				System.out.println("Loading sites...");
-//				SitesInGriddedRegion sites = getSites(attenRel, region, lists);
-//				
-//				System.out.println("Generating ShakeMap...");
-//				baseMap = computeBaseMap(rup, attenRel, sites, isProbAt_IML, val);
-//				System.out.println("Writing: " + baseMapFile.getAbsolutePath());
-//				ArbDiscretizedXYZ_DataSet.writeXYZFile(baseMap, baseMapFile.getAbsolutePath());
-//			}
+			if (useBaseMap) {
+				File baseMapFile = new File(cacheDir+"baseMap_"+attenRel.getShortName()
+						+"_"+region.getSpacing()+"_"+sourceID+"_"+rupID+"_"+isProbAt_IML+"_"+val+"_"+region.getName()
+						+"_"+imt+"_"+period+".txt");
+				
+				if (baseMapFile.exists()) {
+					System.out.println("Loading Base Map Data");
+					baseMap = ArbDiscretizedXYZ_DataSet.loadXYZFile(baseMapFile.getAbsolutePath());
+				} else {
+					System.out.println("Getting rupture...");
+					EqkRupture rup = getRupture(sourceID, rupID, hypo);
+					System.out.println("Rup rake: " + rup.getAveRake());
+					System.out.println("Loading sites...");
+					SitesInGriddedRegion sites = getSites(attenRel, region, lists);
+					
+					System.out.println("Generating ShakeMap...");
+					baseMap = computeBaseMap(rup, attenRel, sites, isProbAt_IML, val);
+					System.out.println("Writing: " + baseMapFile.getAbsolutePath());
+					ArbDiscretizedXYZ_DataSet.writeXYZFile(baseMap, baseMapFile.getAbsolutePath());
+				}
+			}
 			
 			if (region instanceof CustomGriddedRegion)
 				continue;
@@ -313,22 +337,32 @@ public class HardCodedScenarioShakeMapGen {
 			int rupVarScenID = 3;
 			
 			System.out.println("Loading Scatter Data");
-//			XYZ_DataSetAPI scatterData = getScatterData(datasetID, erfID, rupVarScenID, imTypeID,
-//					sourceID, rupID, hypo, isProbAt_IML, val);
-			XYZ_DataSetAPI scatterData =
-				ArbDiscretizedXYZ_DataSet.loadXYZFile("/home/kevin/CyberShake/eew/parkfield/min7.0/shakemap.txt");
+			XYZ_DataSetAPI scatterData;
+			if (scatterHardCodeFile == null)
+				scatterData = getScatterData(datasetID, erfID, rupVarScenID, imTypeID,
+					sourceID, rupID, hypo, isProbAt_IML, val);
+			else
+				scatterData = ArbDiscretizedXYZ_DataSet.loadXYZFile(scatterHardCodeFile);
 			
 			System.out.println("loaded "+scatterData.getX_DataSet().size()+" scatter vals");
 			
-//			InterpDiffMapType[] types = { InterpDiffMapType.BASEMAP, InterpDiffMapType.INTERP_NOMARKS };
+			InterpDiffMapType[] types = { InterpDiffMapType.BASEMAP, InterpDiffMapType.INTERP_NOMARKS, InterpDiffMapType.INTERP_MARKS };
 //			InterpDiffMapType[] types = { InterpDiffMapType.BASEMAP };
-			InterpDiffMapType[] types = { InterpDiffMapType.INTERP_NOMARKS, InterpDiffMapType.INTERP_MARKS };
+//			InterpDiffMapType[] types = { InterpDiffMapType.INTERP_NOMARKS, InterpDiffMapType.INTERP_MARKS };
 			InterpDiffMap map = new InterpDiffMap(region, baseMap, region.getSpacing(), cpt, scatterData, interpSettings, types);
-			map.setCustomLabel("3 Sec SA");
+			String label;
+			if (imt.equals(SA_Param.NAME)) {
+				label = (float)period + " Sec SA";
+			} else {
+				label = imt;
+			}
+			map.setCustomLabel(label);
 			map.setTopoResolution(TopographicSlopeFile.CA_THREE);
 			map.setLogPlot(logPlot);
 			map.setDpi(300);
 			map.setXyzFileName("base_map.xyz");
+//			map.setHighwayFile(HighwayFile.ALL);
+			
 //			if (logPlot) {
 //				map.setCustomScaleMin(-1.7);
 //				map.setCustomScaleMax(-0.2);
@@ -342,10 +376,12 @@ public class HardCodedScenarioShakeMapGen {
 			System.out.println("Generating map...");
 			String url = CS_InterpDiffMapServletAccessor.makeMap(null, map, metadata);
 			
-			String baseDir = "/home/kevin/CyberShake/M8/images/";
+//			String baseDir = "/home/kevin/CyberShake/M8/images/";
+			
 			String baseName = attenRel.getShortName()+"_"+region.getName();
-			PosterImageGen.saveCurves(url, baseDir, baseName, true);
-			PosterImageGen.saveCurves(url, baseDir, baseName+"_plus_cybershake", false);
+			for (InterpDiffMapType type : types) {
+				PosterImageGen.saveCurves(url, outputDir, baseName, type);
+			}
 			
 			System.out.println("Map address: "+url);
 			
