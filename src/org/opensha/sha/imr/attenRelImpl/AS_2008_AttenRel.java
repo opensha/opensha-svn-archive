@@ -1109,7 +1109,7 @@ NamedObjectAPI, ParameterChangeListener {
 
 			//T2 (Eq. 9) - rewritten 2009-01-29 to be consistent with ES paper
 			double rXtest = rupWidth*Math.cos(Math.toRadians(dip));
-			if (rX>rXtest || dip==90.0) {	// if site is beyond the surface projection
+			if (rX>=rXtest || dip==90.0) {	// if site is beyond the surface projection
 				T2 = 1.0;
 			} else {
 				T2 = 0.5 + rX / (2.0*rXtest);
