@@ -139,7 +139,7 @@ public class HardCodedTest {
 		int years = 50;
 //		int startYear = 2010;
 		int startYear = -1;
-		boolean includeBackSeis = false;
+		boolean includeBackSeis = true;
 		EqkRupForecast erf = getERF(years, startYear, includeBackSeis);
 		
 		double sigmaTrunc = 0;
