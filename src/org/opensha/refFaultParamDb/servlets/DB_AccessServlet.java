@@ -98,6 +98,9 @@ public class DB_AccessServlet extends HttpServlet{
 	 */
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws
 	ServletException, IOException {
+		
+		if (myBroker == null)
+			init();
 
 		// get an input stream from the applet
 		ObjectInputStream inputFromApp = new ObjectInputStream(request.
