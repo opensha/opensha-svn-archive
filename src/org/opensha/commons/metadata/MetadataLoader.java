@@ -22,7 +22,6 @@ package org.opensha.commons.metadata;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 
 import org.dom4j.Document;
@@ -115,9 +114,6 @@ public class MetadataLoader implements ParameterChangeWarningListener {
 	        HazardMapJob job = HazardMapJob.fromXMLMetadata(document.getRootElement().element(HazardMapJob.XML_METADATA_NAME));
 	        System.out.println(job.toString());
 		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (DocumentException e) {
 			// TODO Auto-generated catch block

@@ -830,9 +830,6 @@ public class PlotMapFromXMLHazardDataSetApp extends JApplet implements Parameter
 			localFileField.setText(file.getAbsolutePath());
 			addDataInfo();
 			fillLatLonAndGridSpacing();
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (DocumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

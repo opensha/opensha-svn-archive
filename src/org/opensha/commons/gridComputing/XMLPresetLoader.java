@@ -20,7 +20,6 @@
 package org.opensha.commons.gridComputing;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -100,8 +99,6 @@ public class XMLPresetLoader {
 				Document doc = reader.read(file);
 				
 				docs.add(doc);
-			} catch (MalformedURLException e) {
-				System.err.println("Bad file: " + file.getPath());
 			} catch (DocumentException e) {
 				System.err.println("Bad XML Parse: " + file.getAbsolutePath());
 			}
