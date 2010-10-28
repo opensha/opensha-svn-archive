@@ -137,8 +137,8 @@ public class UCERF2_DataForComparisonFetcher {
 			e.printStackTrace();
 		}
 		
-		for(int i=0;i<parsonsSiteNames.size();i++)
-			System.out.println(i+"\t"+parsonsSiteNames.get(i));
+//		for(int i=0;i<parsonsSiteNames.size();i++)
+//			System.out.println(i+"\t"+parsonsSiteNames.get(i));
 
 		//		for(Location loc: parsonsSiteLocs) System.out.println((float)loc.getLatitude()+"\t"+(float)loc.getLongitude());
 
@@ -408,7 +408,7 @@ public class UCERF2_DataForComparisonFetcher {
 
 			/**/
 			if(testfuncs.size()>0) {
-				GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(testfuncs, "Parson's BPT MRI PDFs for "+siteName);
+//				GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(testfuncs, "Parson's BPT MRI PDFs for "+siteName);
 			}
 			
 		}
@@ -449,19 +449,24 @@ public class UCERF2_DataForComparisonFetcher {
 	
 	
 	public EvenlyDiscretizedFunc getParsons95PercentPoisFunction(Location loc) {
-		return getParsons95PercentPoisFunction(getParsonsIndexForLoc(loc));
+		int siteIndex = getParsonsIndexForLoc(loc);
+		if(siteIndex == -1) 
+			return null;
+		else
+			return getParsons95PercentPoisFunction(siteIndex);
 	}
 	
 	public String getParsonsSiteName(int index) {return parsonsSiteNames.get(index); }
 
 	public Location getParsonsSiteLoc(int index) {return parsonsSiteLocs.get(index); }
 	
+	/**
+	 * This returns -1 if location not found
+	 */
 	public int getParsonsIndexForLoc(Location loc) {
 		int index = -1;
 		for(int i=0; i<parsonsSiteLocs.size(); i++)
 			if(parsonsSiteLocs.get(i).equals(loc)) index = i;
-		if(index == -1)
-			throw new RuntimeException("location not found");
 		return index;
 	}
 

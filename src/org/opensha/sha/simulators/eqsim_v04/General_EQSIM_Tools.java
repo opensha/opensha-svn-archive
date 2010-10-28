@@ -80,6 +80,8 @@ public class General_EQSIM_Tools {
 	ArrayList<ArrayList<Vertex>> vertexListForSections;
 	ArrayList<String> namesOfSections;
 	ArrayList<Integer> faultIDs_ForSections;
+	ArrayList<Double> depthLoForSections;
+	ArrayList<Double> depthHiForSections;
 	ArrayList<EQSIM_Event> eventList;
 	
 	final static String GEOM_FILE_SIG = "EQSim_Input_Geometry_2";	// signature of the geometry file
@@ -247,6 +249,8 @@ public class General_EQSIM_Tools {
 			else if(kindOfLine ==201) {	// Slip map record
 				evRec.addSlipAndElementData(line); // add to the last event record created
 			}
+			else if(kindOfLine ==202)
+				evRec.addType202_Line(line);
 		}
 		
 		System.out.println("Num Events = "+this.eventList.size()+"\tNum Event Records = "+numEventRecs);
@@ -269,6 +273,9 @@ public class General_EQSIM_Tools {
 		vertexListForSections = new ArrayList<ArrayList<Vertex>>();
 		namesOfSections = new ArrayList<String>();
 		faultIDs_ForSections = new ArrayList<Integer>();
+		depthLoForSections = new ArrayList<Double>();
+		depthHiForSections = new ArrayList<Double>();
+
 		
 		ListIterator<String> linesIterator = lines.listIterator();
 		
@@ -310,8 +317,8 @@ public class General_EQSIM_Tools {
 				tok.nextToken(); // lat_hi
 				tok.nextToken(); // lon_lo
 				tok.nextToken(); // lon_hi
-				tok.nextToken(); // depth_lo
-				tok.nextToken(); // depth_hi
+				double depth_lo = Double.parseDouble(tok.nextToken()); // depth_lo
+				double depth_hi = Double.parseDouble(tok.nextToken()); // depth_hi
 				tok.nextToken(); // das_lo
 				tok.nextToken(); // das_hi
 				int fault_id = Integer.parseInt(tok.nextToken());
@@ -322,6 +329,8 @@ public class General_EQSIM_Tools {
 				
 				namesOfSections.add(name);
 				faultIDs_ForSections.add(fault_id);
+				depthLoForSections.add(depth_lo);
+				depthHiForSections.add(depth_hi);
 
 				// read the vertices for this section
 				ArrayList<Vertex> verticesForThisSect = new ArrayList<Vertex>();
@@ -403,6 +412,22 @@ public class General_EQSIM_Tools {
 			if(i != rectElementsList.get(i).getID()-1) throw new RuntimeException("rectElementsList index problem at "+i);
 		}
 		
+	}
+	
+	/**
+	 * This tells whether any part of the earthquake ruptured completely down dip
+	 * @param event
+	 * @return
+	 */
+	private boolean doesEventRuptureFullDepth(EQSIM_Event event) {
+		boolean result = false;
+		for(EventRecord evRec:event) {
+			int sectIndex = evRec.getSectionID()-1;
+			double rupThickness = evRec.getDepthHi()-evRec.getDepthLo();
+			double sectThickness = depthHiForSections.get(sectIndex)-depthLoForSections.get(sectIndex);
+			if(rupThickness > 0.95*sectThickness) result = true;
+		}
+		return result;
 	}
 
 	
@@ -1121,7 +1146,6 @@ public class General_EQSIM_Tools {
 			double[] lastSlipForElement = new double[rectElementsList.size()];
 			for(int i=0; i<lastTimeForElement.length;i++) lastTimeForElement[i]=-1;  // initialize to bogus value so we can check
 			
-//			int numEvents=0;
 			int numBad=0;
 			double minElementArea = Double.MAX_VALUE;
 			double maxElementArea = 0;
@@ -1152,9 +1176,9 @@ public class General_EQSIM_Tools {
 			
 			// loop over all events
 			for(EQSIM_Event event:eventList) {
-//				numEvents +=1;
 				double eventTime = event.getTime();
 				
+//				if(event.hasElementSlipsAndIDs() && doesEventRuptureFullDepth(event)) {  // this didn't work better for eqs.NCA_RSQSim.barall.txt (but had weird events)
 				if(event.hasElementSlipsAndIDs() && event.getMagnitude() >= magThresh) {
 					boolean goodSample = true;
 					double eventMag = event.getMagnitude();
@@ -1166,6 +1190,9 @@ public class General_EQSIM_Tools {
 						if(eventTime != evRec.getTime()) throw new RuntimeException("problem with event times");  // just a check
 						slipList.addAll(evRec.getElementSlipList());
 						elementID_List.addAll(evRec.getElementID_List());
+/*if((evRec.getSectionID()-1) == 61) {
+	System.out.println("eventID="+event.getID()+"\teventMag="+event.getMagnitude()+"\tevRec="+evRec.getID()+"\tevRecSectID="+evRec.getSectionID());
+}*/
 						sectionsInEventString += namesOfSections.get(evRec.getSectionID()-1) + " + ";
 					}
 					// get average date of last event and average predicted date of next
@@ -1177,17 +1204,13 @@ public class General_EQSIM_Tools {
 					double aveSlip=0;
 					int numElements = slipList.size();
 					for(int e=0;e<numElements;e++) {
-						int index = elementID_List.get(e).intValue() -1;
+						int index = elementID_List.get(e).intValue() -1;  // index = ID-1
 						double lastTime = lastTimeForElement[index];
 						double lastSlip = lastSlipForElement[index];
 						double slipRate = rectElementsList.get(index).getSlipRate();
 						double area = rectElementsList.get(index).getGriddedSurface().getSurfaceArea();
 						if(area<minElementArea) minElementArea = area;
 						if(area>maxElementArea) maxElementArea = area;
-//						if(slipRate == 0) {  // there are few of these, and I don't know what to do about them
-//							goodSample=false;
-//							System.out.println("slip rate is zero for element "+index+"; last slip is "+lastSlip);
-//						}
 						aveLastEvTime += lastTime;
 						if(slipRate != 0) {  // there are a few of these, and I don't know what else to do
 							ave_tpNextEvTime += lastTime + lastSlip/(slipRate/SECONDS_PER_YEAR);
@@ -1361,6 +1384,31 @@ public class General_EQSIM_Tools {
 					e.printStackTrace();
 				}
 			}
+			
+			// Make the norm RI plot for each section
+			for(int s=0;s<namesOfSections.size();s++) {
+//			for(int s=0;s<1;s++) {  // only do first one for now
+				ArrayList<Double> sectNorm_tpInterval2List = new ArrayList<Double>();
+				for(int i=0; i<norm_tpInterval2List.size();i++) {
+					if(firstSectionList.get(i) == (s+1)) { // does section ID correspond to section index
+						sectNorm_tpInterval2List.add(norm_tpInterval2List.get(i));
+					}
+				}
+				if(sectNorm_tpInterval2List.size()>25){
+					String plotTitle = "Normalized Ave Time-Pred RI (norm_tpInterval2List) for "+namesOfSections.get(s);
+					GraphiWindowAPI_Impl plot = plotNormRI_Distribution(sectNorm_tpInterval2List, plotTitle);
+					if(saveStuff) {
+						String fileName = "/norm_tpInterval2_Dist_forSect"+s+".pdf";
+						try {
+							plot.saveAsPDF(dirNameForSavingFiles+fileName);
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}			
+				}
+			}
+
 
 			tempInfoString +="\n"+numBad+" events were bad\n";
 			
@@ -1485,7 +1533,8 @@ public class General_EQSIM_Tools {
 
 	
 	/**
-	 * This compares observed slip rate (from events) with those imposed.
+	 * This compares observed slip rate (from events) with those imposed.  This writes out
+	 * the correlation coefficient to System, and optionally: makes a plot and a file.
 	 * @param fileName - set as null to not write the data out.
 	 */
 	public void checkElementSlipRates(String fileName, boolean makePlot) {
@@ -1659,8 +1708,9 @@ public class General_EQSIM_Tools {
 	public double[] getRecurIntervalsForElement(int elemID, double magThresh) {
 		ArrayList<Double> eventTimes = new ArrayList<Double>();
 		for(EQSIM_Event event:eventList)
-			if(event.getAllElementIDs().contains(elemID) && event.getMagnitude() >= magThresh)
-				eventTimes.add(event.getTimeInYears());
+			if(event.hasElementSlipsAndIDs())
+				if(event.getAllElementIDs().contains(elemID) && event.getMagnitude() >= magThresh)
+					eventTimes.add(event.getTimeInYears());
 		if (eventTimes.size()>0) {
 			double[] intervals = new double[eventTimes.size()-1];
 			for(int i=1;i<eventTimes.size();i++)
@@ -1787,16 +1837,19 @@ public class General_EQSIM_Tools {
 		riHist.setInfo("Lat="+loc.getLatitude()+"; lon="+loc.getLongitude()+ " for "+locName);
 		
 		if(makePlot){
+			// funcs added first plot on top
 			ArrayList<DiscretizedFuncAPI> funcList = new ArrayList<DiscretizedFuncAPI>();
 			funcList.add(func);
-			funcList.add(ucerf2_dataFetcher.getParsons95PercentPoisFunction(loc));  // put this first so it plots on top
+			EvenlyDiscretizedFunc parsFunc = ucerf2_dataFetcher.getParsons95PercentPoisFunction(loc);
+			if(parsFunc != null)
+				funcList.add(parsFunc);  
 			funcList.add(riHist);
 			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, "Recurence Intervals for "+locName+" (& Mag>="+magThresh+")"); 
 			graph.setX_AxisLabel("RI (yrs)");
 			graph.setY_AxisLabel("Number of Observations");
 			ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
 			curveCharacteristics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM, Color.BLACK, 2));
-			curveCharacteristics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM, Color.RED, 2));
+			if(parsFunc != null) curveCharacteristics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM, Color.RED, 2));
 			curveCharacteristics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM, Color.LIGHT_GRAY, 2));
 			graph.setPlottingFeatures(curveCharacteristics);
 			if(savePlot)
@@ -1911,20 +1964,92 @@ public class General_EQSIM_Tools {
 		
 //		plotNormRecurIntsForAllSurfaceElements(magThresh, true);
 		
-		/**/
+		/*
 		// need to loop over all interesting sites, and to add observed dists
 		ArrayList<Location> locList = ucerf2_dataFetcher.getParsonsSiteLocs();
 		ArrayList<String> namesList = ucerf2_dataFetcher.getParsonsSiteNames();
 		for(int i=0;i<locList.size();i++)
 			getRecurIntervalsForNearestLoc(locList.get(i), 6.5, true, true,namesList.get(i));
-
+*/
+		
+		// this is a location that has a very non-BPT looking PDF of recurrence times.
+//		Location loc = rectElementsList.get(497-1).getGriddedSurface().get(0, 1);
+//		getRecurIntervalsForNearestLoc(loc, 6.5, true, false,loc.toString());
 		
 //		computeTotalMagFreqDist(4.05,9.05,51,true,true);
 		
 //		computeMagFreqDistByFaultSection(4.05,9.05,51,true,true,true);
 		
-//		testTimePredictability(magThresh, true);
+		randomizeEventTimes();
+		testTimePredictability(magThresh, true);
 
+		
+//		System.out.println(infoStrings);
+
+		try {
+			FileWriter infoFileWriter = new FileWriter(this.dirNameForSavingFiles+"/INFO.txt");
+			for(String string: infoStrings) 
+				infoFileWriter.write(string+"\n");
+			infoFileWriter.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+	
+	
+	/**
+	 * This looks at what rupture do and do not rupture all the way down dip
+	 */
+	public void checkFullDDW_rupturing() {
+		double minThatDoes=10;
+		double maxThatDoesnt=0;
+		int eventID_forMin=-1;
+		int eventID_forMax=-1;
+		ArbIncrementalMagFreqDist mfd_does = new ArbIncrementalMagFreqDist(5, 8.5, 36);
+		mfd_does.setName("Rups Completely Down Dip");
+		mfd_does.setTolerance(1.0);
+		ArbIncrementalMagFreqDist mfd_doesNot = new ArbIncrementalMagFreqDist(5, 8.5, 36);
+		mfd_doesNot.setName("Does Not Rup Completely Down Dip");
+		mfd_doesNot.setTolerance(1.0);
+		for(EQSIM_Event event:eventList) {
+			double mag = event.getMagnitude();
+			if(doesEventRuptureFullDepth(event)) {
+				if(mag<minThatDoes) {
+					minThatDoes=mag;
+					eventID_forMin=event.getID();
+				}
+				mfd_does.add(mag, 1.0);
+			}
+			else {
+				if(mag>maxThatDoesnt) {
+					maxThatDoesnt=mag;
+					eventID_forMax=event.getID();
+				}
+				mfd_doesNot.add(mag, 1.0);
+			}
+		}
+		System.out.println("minThatDoes="+minThatDoes+"\teventID="+eventID_forMin);
+		System.out.println("maxThatDoesnt="+maxThatDoesnt+"\teventID="+eventID_forMax);
+		System.out.println(mfd_does);
+		System.out.println(mfd_doesNot);
+		
+	}
+	
+	public void mkFigsForUCERF3_ProjPlanRepot(String dirNameForSavingFiles, double magThresh) {
+		infoStrings = new ArrayList<String>();
+		this.dirNameForSavingFiles = dirNameForSavingFiles;
+		File file1 = new File(dirNameForSavingFiles);
+		file1.mkdirs();
+
+		infoStrings.add("Simulation Duration is "+(float)this.getSimulationDurationInYears()+" years");
+		
+		// this is a location that has a very non-BPT looking PDF of recurrence times for "eqs.NCA_RSQSim.barall.txt" file.
+		Location loc = rectElementsList.get(497-1).getGriddedSurface().get(0, 1);
+		getRecurIntervalsForNearestLoc(loc, 6.5, true, true,"RI_distAt_NSAF_ElementID497");
+		
+		testTimePredictability(magThresh, true);
 		
 //		System.out.println(infoStrings);
 
@@ -1948,6 +2073,43 @@ public class General_EQSIM_Tools {
 		
 		long startTime=System.currentTimeMillis();
 		System.out.println("Starting");
+/*		*/
+		// RSQSim Runs:
+		String fullPath = "org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/NCA_Ward_Geometry.dat.txt";
+		General_EQSIM_Tools test = new General_EQSIM_Tools(fullPath);
+		test.read_EQSIMv04_EventsFile("org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/eqs.NCA_RSQSim.barall.txt");
+		test.mkFigsForUCERF3_ProjPlanRepot("RSQSim_Run",  6.5);
+		
+		test.randomizeEventTimes();
+		test.mkFigsForUCERF3_ProjPlanRepot("RSQSim_Run_Randomized",  6.5);
+
+/*		
+		// VC Runs:
+		String fullPath = "org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/NCA_Ward_Geometry.dat.txt";
+		General_EQSIM_Tools test = new General_EQSIM_Tools(fullPath);
+		test.read_EQSIMv04_EventsFile("org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/VC_NCAL_Ward_Event.d");
+		test.mkFigsForUCERF3_ProjPlanRepot("VC_Run",  6.5);
+*/
+		/*
+		// Ward Runs:
+//		String fullPath = "org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/NCAL4_Ward_Geometry.dat.txt";
+//		General_EQSIM_Tools test = new General_EQSIM_Tools(fullPath);
+//		test.read_EQSIMv04_EventsFile("org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/NCAL4-WARD-30k.dat");
+		String fullPath = "org/opensha/sha/simulators/eqsim_v04/WardsInputFile/test.txt";  // I had to rename the file "NCAL(9/1/10)-elements.dat.txt" to test.txt to get this to work
+		General_EQSIM_Tools test = new General_EQSIM_Tools(fullPath, 1);
+		test.read_EQSIMv04_EventsFile("org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/NCAL_Ward.out.txt");
+
+		test.mkFigsForUCERF3_ProjPlanRepot("Ward_Run",  6.5);
+	*/
+		
+		int runtime = (int)(System.currentTimeMillis()-startTime)/1000;
+		System.out.println("This Run took "+runtime+" seconds");
+
+
+		
+		//OLD JUNK BELOW
+		
+		
 		
 		
 		/*
@@ -1962,20 +2124,20 @@ public class General_EQSIM_Tools {
 		 */
 		
 		// this is for analysis of the RQSim Results:
-		String fullPath = "org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/NCA_Ward_Geometry.dat.txt";
-		General_EQSIM_Tools test = new General_EQSIM_Tools(fullPath);
-		ArrayList<String> sectNames = test.getSectionsNameList();
+//		String fullPath = "org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/NCA_Ward_Geometry.dat.txt";
+//		General_EQSIM_Tools test = new General_EQSIM_Tools(fullPath);
+//		ArrayList<String> sectNames = test.getSectionsNameList();
 //		System.out.println("Section Names (IDs)");
 //		for(int s=0; s<sectNames.size();s++)	System.out.println("\t"+sectNames.get(s)+"("+(s+1)+")");
-		test.read_EQSIMv04_EventsFile("org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/eqs.NCA_RSQSim.barall.txt");
+//		test.read_EQSIMv04_EventsFile("org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/eqs.NCA_RSQSim.barall.txt");
 //		test.checkEventMagnitudes();
 //		test.checkElementSlipRates("testSlipRateFileForEQSim", true);
-		System.out.println("Simulation Duration is "+(float)test.getSimulationDurationInYears()+" years");
+//		System.out.println("Simulation Duration is "+(float)test.getSimulationDurationInYears()+" years");
 //		test.randomizeEventTimes();
 //		test.plotYearlyEventRates();
-		test.doAllAnalysis("NEDS_TEST", 6.5);
+//		test.test();
+//		test.doAllAnalysis("NEDS_TEST", 6.5);
 //		test.writeEventsThatInvolveMultSections();
-//		test.testTimePredictability(6.5, "testTimePredFileForEQSim_M6pt5_rand");
 		
 
 		
@@ -2018,7 +2180,5 @@ public class General_EQSIM_Tools {
 		
 		*/
 						
-		int runtime = (int)(System.currentTimeMillis()-startTime)/1000;
-		System.out.println("This Run took "+runtime+" seconds");
 	}
 }

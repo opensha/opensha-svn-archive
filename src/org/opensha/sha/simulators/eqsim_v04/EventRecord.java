@@ -31,6 +31,8 @@ public class EventRecord {
     double normal_after;	// Pascal (for just this record)
     String comment_text;
     
+    Double tempSlip;		// used to store slip when multiple elements have the same value (when type 202 records are present)
+    
     boolean hasElementSlipsAndIDs = true;
     
     ArrayList<Double> elementSlipList;
@@ -118,7 +120,8 @@ public class EventRecord {
 			if(tok.hasMoreTokens()) {
 				try {
 					element_id = Integer.parseInt(tok.nextToken());
-					if (element_id <= 0) throw new RuntimeException("Don't support zero or negative element IDs");
+					if (element_id <= 0) //throw new RuntimeException("Don't support zero or negative element IDs");
+						tempSlip = slip;  // save for when type 202 files are read
 				} catch (NumberFormatException e) {
 					element_id=0;
 				}
@@ -137,13 +140,29 @@ public class EventRecord {
 				elementSlipList.add(slip);	// mean_slip
 				elementID_List.add(element_id);				
 			}
-			else
+			
+			if(element_id==0)
 				hasElementSlipsAndIDs=false;
 				
 		}
 		
 		// the rest of the line is comments
 	}
+	
+	/**
+	 * This adds the element ID from a type 202 line.
+	 * @param fileLine
+	 */
+	public void addType202_Line(String fileLine) {
+			StringTokenizer tok = new StringTokenizer(fileLine);
+			int kindOfLine = Integer.parseInt(tok.nextToken());
+			if(kindOfLine != 202) 
+				throw new RuntimeException("not a type 202 line; yours is type="+kindOfLine);
+			int element_id = Integer.parseInt(tok.nextToken());
+			elementSlipList.add(tempSlip);	// the values saved by addSlipAndElementData()
+			elementID_List.add(element_id);				
+	}
+
 	
 	public int getID() { return event_id;}
 	
@@ -176,6 +195,9 @@ public class EventRecord {
 	 * @return length in meters
 	 */
 	public double getLength() { return das_hi-das_lo;}
+	
+	public double getDepthLo() { return depth_lo;}
+	public double getDepthHi() { return depth_hi;}
 	
 	/**
 	 * This gives a list of element slips (meters)
