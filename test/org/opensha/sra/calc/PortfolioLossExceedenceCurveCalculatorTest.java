@@ -19,6 +19,7 @@ import org.opensha.sra.asset.AssetCategory;
 import org.opensha.sra.asset.MonetaryHighLowValue;
 import org.opensha.sra.asset.MonetaryValue;
 import org.opensha.sra.asset.Portfolio;
+import org.opensha.sra.calc.portfolioLEC.PortfolioLossExceedenceCurveCalculator;
 import org.opensha.sra.vulnerability.Vulnerability;
 import org.opensha.sra.vulnerability.models.servlet.VulnerabilityServletAccessor;
 
