@@ -352,8 +352,8 @@
 		<unjar src="${lib.dir}/jcommon-1.0.5.jar" dest="${build}" />
 		<unjar src="${lib.dir}/jfreechart-1.0.2.jar" dest="${build}" />
 		<unjar src="${lib.dir}/mysql-connector-java-3.1.6-bin.jar" dest="${build}" />
-		<unjar src="${lib.dir}/dom4j.jar" dest="${build}" />
-		<unjar src="${lib.dir}/poi-2.5.1-final-20040804.jar" dest="${build}" />
+		<unjar src="${lib.dir}/dom4j-1.6.1.jar" dest="${build}" />
+		<unjar src="${lib.dir}/poi-3.6-20091214.jar" dest="${build}" />
 		<unjar src="${lib.dir}/f2jutil.jar" dest="${build}" />
 		<unjar src="${lib.dir}/BrowserLauncher2-1_3.jar" dest="${build}" />
 		<unjar src="${lib.dir}/commons-math-2.1.jar" dest="${build}" />
