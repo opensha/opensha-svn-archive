@@ -157,9 +157,9 @@
 		<copy file="${app.jar}"
 			todir="${server.apps.dir}/${app.short.name}/${app.build.type}/"/>
 		<!-- delete the old link (which should point to most recent) -->
-		<delete file="${server.apps.dir}/${app.short.name}/${app.build.type}/${app.short.name}.jar"/>
+		<delete file="${server.apps.dir}/${app.short.name}/${app.build.type}/${app.short.name}.jar" failonerror="true"/>
 		<!-- set up a link to the new most recent build -->
-		<exec executable="/bin/ln" >
+		<exec executable="/bin/ln" failonerror="true">
 			<arg value="-s"/>
 			<arg value="${server.apps.dir}/${app.short.name}/${app.build.type}/${app.jar.name}"/>
 			<arg value="${server.apps.dir}/${app.short.name}/${app.build.type}/${app.short.name}.jar"/>
