@@ -22,6 +22,12 @@ package org.opensha.commons.util;
 import static com.google.common.base.Preconditions.*;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import com.google.common.primitives.Ints;
 
 /**
  * This class provides various data processing utilities.
@@ -109,6 +115,34 @@ public class DataUtils {
         }
         return out;
     }
+    
+    /**
+     * Sorts the supplied data array in place and returns an <code>int[]</code> 
+     * array of the original indices of the data values.
+     * For example, if the supplied array is [3, 1, 8], the supplied array will
+     * be sorted to [1, 3, 8] and the array [2, 1, 3] will be returned.
+     * 
+     * @param data array to sort
+     * @return the inidices of the unsorted array values
+     * @throws NullPointerException if source array is <code>null</code>
+     */
+    public static int[] indexAndSort(final double[] data) {
+    	checkNotNull(data, "Source array is null");
+    	List<Integer> indices = Ints.asList(new int[data.length]);
+    	for (int i=0; i<indices.size(); i++) {
+    		indices.set(i,i);
+    	}
+    	Collections.sort(indices, new Comparator<Integer>() {
+   			@Override
+			public int compare(Integer i1, Integer i2) {
+   				double d1 = data[i1];
+   				double d2 = data[i2];
+   				return (d1 < d2) ? -1 : (d1 == d2) ? 0 : 1;
+			}
+    	});
+    	Arrays.sort(data);
+    	return Ints.toArray(indices);
+    }
 
 
 	/**
@@ -118,7 +152,7 @@ public class DataUtils {
 	public static double getPercentDiff(double testVal, double targetVal) {
 		double result = 0;
 		if (targetVal != 0)
-			result = (StrictMath.abs(testVal - targetVal) / targetVal) * 100d;
+			result = (Math.abs(testVal - targetVal) / targetVal) * 100d;
 	
 		return result;
 	}

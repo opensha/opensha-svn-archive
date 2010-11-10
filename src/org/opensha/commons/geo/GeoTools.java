@@ -21,6 +21,7 @@ package org.opensha.commons.geo;
 
 import static java.lang.Math.PI;
 
+import org.apache.commons.math.distribution.PoissonDistributionImpl;
 import org.opensha.commons.util.DataUtils;
 
 /**
@@ -99,8 +100,11 @@ public class GeoTools {
 	/** Convenience constant for PI / 2 */
 	public static final double PI_BY_2 = PI/2;
 	
-	/** Convenience constant for radians per arcsecond. */
+	/** Convenience constant for arcseconds per degree (3600). */
 	public static final double SECONDS_PER_DEGREE = 3600;
+
+	/** Convenience constant for arcminutes per degree (60). */
+	public static final double MINUTES_PER_DEGREE = 60;
 	
 
     /**
@@ -235,13 +239,34 @@ public class GeoTools {
 	}
 	
 	/**
-	 * Converts decimal degrees to arcseconds.
-	 * @param degrees value to convert
-	 * @return the equivalent number of arcseconds
+	 * Converts arcminutes to decimal degrees.
+	 * @param minutes value to convert
+	 * @return the equivalent number of decimal degrees
 	 */
-	public static double degreesToSec(double degrees) {
-		return degrees * SECONDS_PER_DEGREE;
+	public static double minutesToDeg(double minutes) {
+		return minutes / MINUTES_PER_DEGREE;
 	}
+	
+    /**
+     * Converts 'degree : decimal minutes' to decimal degrees.
+     * 
+     * @param degrees part to convert
+     * @param minutes part to convert (decimal minutes)
+     * @return converted value
+     */
+    public static double toDecimalDegrees(double degrees, double minutes) {
+        return (degrees < 0) ?
+                (degrees - minutesToDeg(minutes)) :
+                (degrees + minutesToDeg(minutes));
+    }
 
+	public static void main(String[] args) {
+		double rate = 0.001;
+		double time = 50;
+		PoissonDistributionImpl pdi = new PoissonDistributionImpl(rate);
+		System.out.println(pdi.probability(time));
+		System.out.println(1-Math.exp(-rate*time));
+		
+	}
 
 }

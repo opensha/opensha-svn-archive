@@ -60,11 +60,6 @@ public class GeoToolsTest {
 	}
 	
 	@Test
-	public void testDegreesToSec() {
-		assertTrue(degreesToSec(10) == 10 * SECONDS_PER_DEGREE);
-	}
-	
-	@Test
 	public void testSecondsToDeg() {
 		assertTrue(secondsToDeg(10) == 10 / SECONDS_PER_DEGREE);
 	}

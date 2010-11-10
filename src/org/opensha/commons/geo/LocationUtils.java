@@ -122,7 +122,7 @@ public final class LocationUtils {
 	/**
 	 * Calculates approximate distance between two <code>Location</code>s.
 	 * This method is about 2 orders of magnitude faster than 
-	 * <code>surfaceDistance()</code>, but is imprecise at large distances. 
+	 * <code>horzDistance()</code>, but is imprecise at large distances. 
 	 * Method uses the latitudinal and longitudinal differences between the 
 	 * points as the sides of a right triangle. The longitudinal distance is 
 	 * scaled by the cosine of the mean latitude.<br/>
@@ -206,7 +206,7 @@ public final class LocationUtils {
 		double v = vertDistance(p1, p2);
 		return Math.sqrt(h*h + v*v);
 	}
-
+	
 	/**
 	 * Computes the shortest distance between a point and a line (great-circle).
 	 * Both the line and point are assumed to be at the earth's surface; the 
@@ -250,92 +250,45 @@ public final class LocationUtils {
 	}
 	
 	/**
-	 * Computes the shortest distance between a point and a line. Both the 
-	 * line and point are assumed to be at the earth's surface; the depth
-	 * component of each <code>Location</code> is ignored. This is a fast,
-	 * geometric, cartesion (flat-earth approximation) solution in which
-	 * longitude is scaled by the cosine of latitude; it is only appropriate 
-	 * for use over short distances (e.g. &lt;200 km).<br/>
+	 * Computes the shortest distance between a point and a line. Both the line
+	 * and point are assumed to be at the earth's surface; the depth component
+	 * of each <code>Location</code> is ignored. This is a fast, geometric,
+	 * cartesion (flat-earth approximation) solution in which longitude of the
+	 * line points are scaled by the cosine of latitude; it is only appropriate
+	 * for use over short distances (e.g. &lt;200 km). The sign of the result
+	 * indicates which side of the supplied line <code>p3</code> is on
+	 * (right:[+] left:[-]).<br/>
 	 * <br/>
-	 * <b>Note:</b> This method does <i>NOT</i> support values spanning 
+	 * <b>Note:</b> This method does <i>NOT</i> support values spanning
 	 * &#177;180&#176; and results for such input values are not guaranteed.
 	 * 
 	 * @param p1 the first <code>Location</code> point on the line
 	 * @param p2 the second <code>Location</code> point on the line
-	 * @param p3 the <code>Location</code> point for which distance will 
-	 * 		be calculated
+	 * @param p3 the <code>Location</code> point for which distance will be
+	 *        calculated
 	 * @return the shortest distance in km between the supplied point and line
 	 * @see #distanceToLine(Location, Location, Location)
 	 */
-	public static double distanceToLineFast(
-			Location p1,
-			Location p2,
-			Location p3) {
+	public static double distanceToLineFast(Location p1, Location p2, Location p3) {
 
 		double lat1 = p1.getLatRad();
 		double lat2 = p2.getLatRad();
 		double lat3 = p3.getLatRad();
 		double lon1 = p1.getLonRad();
-		double lon2 = p2.getLonRad();
-		double lon3 = p3.getLonRad();
 
 		// use average latitude to scale longitude
 		double lonScale = Math.cos(0.5 * lat3 + 0.25 * lat1 + 0.25 * lat2);
 
-		// line-point corrdinates w/ loc transformed to the origin
-		double x1 = (lon1 - lon3) * lonScale;
-		double x2 = (lon2 - lon3) * lonScale;
-		double y1 = lat1 - lat3;
-		double y2 = lat2 - lat3;
+		// first point on line transformed to origin; others scaled by lon
+		double x2 = (p2.getLonRad() - lon1) * lonScale;
+		double y2 = lat2 - lat1;
+		double x3 = (p3.getLonRad() - lon1) * lonScale;
+		double y3 = lat3 - lat1;
 
-		double dist;
-
-		// check for values very close to zero
-		if (Math.abs(x1 - x2) > 1e-6) {
-			double m = (y2 - y1) / (x2 - x1); // slope
-			double b = y2 - m * x2; 		  // intercept
-			double xT = -m * b / (1 + m * m); // x target
-			double yT = m * xT + b; 		  // y target
-
-			// make sure the target point is in between the two endpoints
-			boolean betweenPts = false;
-			if (x2 > x1) {
-				if (xT <= x2 && xT >= x1) betweenPts = true;
-			} else {
-				if (xT <= x1 && xT >= x2) betweenPts = true;
-			}
-
-			if (betweenPts)
-				dist = Math.sqrt(xT * xT + yT * yT);
-			// return Math.sqrt(xT*xT + yT*yT) * EARTH_RADIUS_MEAN;
-			else {
-				double d1 = Math.sqrt(x1 * x1 + y1 * y1);
-				double d2 = Math.sqrt(x2 * x2 + y2 * y2);
-				dist = Math.min(d1, d2);
-			}
-		} else {
-			// the x1 = x2 case
-			if (y2 > y1) {
-				if (y2 <= 0.0) {
-					dist = Math.sqrt(x2 * x2 + y2 * y2);
-				} else if (y1 >= 0) {
-					dist = Math.sqrt(x1 * x1 + y1 * y1);
-				} else {
-					dist = Math.abs(x1);
-				}
-			} else {
-				// (y1 > y2)
-				if (y1 <= 0.0) {
-					dist = Math.sqrt(x1 * x1 + y1 * y1);
-				} else if (y2 >= 0) {
-					dist = Math.sqrt(x2 * x2 + y2 * y2);
-				} else {
-					dist = Math.abs(x1);
-				}
-			}
-		}
-		return dist * EARTH_RADIUS_MEAN;
+		return ((x2) * (-y3) - (-x3) * (y2))
+			/ Math.sqrt((x2) * (x2) + (y2) * (y2)) * EARTH_RADIUS_MEAN;
 	}
+	
 
 	/**
 	 * Computes the initial azimuth (bearing) when moving from one
