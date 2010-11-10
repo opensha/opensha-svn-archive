@@ -14,21 +14,22 @@ import javax.imageio.ImageIO;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
+import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
+import org.opensha.commons.data.xyz.GeographicDataSetAPI;
 import org.opensha.commons.exceptions.GMT_MapException;
 
 public class TestGMT_MapGenerator {
 	
 	private static GMT_MapGenerator gmt;
-	private static ArbDiscretizedXYZ_DataSet xyz;
+	private static GeographicDataSetAPI xyz;
 	
-	public static ArbDiscretizedXYZ_DataSet generateTestData() {
-		ArbDiscretizedXYZ_DataSet xyz = new ArbDiscretizedXYZ_DataSet();
+	public static GeographicDataSetAPI generateTestData() {
+		GeographicDataSetAPI xyz = new ArbDiscrGeographicDataSet(true);
 		int y = 0;
 		for (double lat=33.5; lat<=35; lat+=0.1) {
 			int x = 0;
 			for (double lon=-119; lon<=-117; lon+=0.1) {
-				xyz.addValue(lat, lon, x + y);
-//				xyz.addValue(lon, lat, x + y);
+				xyz.set(lat, lon, x + y);
 				x++;
 			}
 			y++;

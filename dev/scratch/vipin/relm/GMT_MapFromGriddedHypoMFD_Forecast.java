@@ -3,8 +3,8 @@ package scratch.vipin.relm;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;

@@ -26,7 +26,7 @@ import java.net.URLConnection;
 
 import javax.swing.JOptionPane;
 
-import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 import org.opensha.commons.param.ParameterList;

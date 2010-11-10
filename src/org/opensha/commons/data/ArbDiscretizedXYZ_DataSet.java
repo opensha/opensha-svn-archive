@@ -19,12 +19,16 @@
 
 package org.opensha.commons.data;
 
+import java.awt.geom.Point2D;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.StringTokenizer;
 
+import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
+import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.FileUtils;
 
 /**
@@ -40,181 +44,148 @@ import org.opensha.commons.util.FileUtils;
  */
 
 public class ArbDiscretizedXYZ_DataSet implements XYZ_DataSetAPI,java.io.Serializable{
-	
+
 	/**
 	 * default serial version UID
 	 */
 	private static final long serialVersionUID = 1l;
-
-	ArrayList<Double> xValues, yValues, zValues;
-
-
-	/**
-	 * Default class constructor
-	 */
-	public ArbDiscretizedXYZ_DataSet(){
-		xValues = new ArrayList<Double>();
-		yValues = new ArrayList<Double>();
-		zValues = new ArrayList<Double>();
-	};
-	/**
-	 * constructor that takes the xVals,yVals and zVals as the argument
-	 * @param xVals = ArrayList containing the xValues
-	 * @param yVals = ArrayList containing the yValues
-	 * @param zVals = ArrayList containing the zValues
-	 */
-	public ArbDiscretizedXYZ_DataSet(ArrayList<Double> xVals, ArrayList<Double> yVals,
-			ArrayList<Double> zVals) {
-
-		xValues = xVals;
-		yValues = yVals;
-		zValues = zVals;
+	
+	// we need a separate list of points (vs just using map for everything) to ensure order
+	private ArrayList<Point2D> points;
+	// mapping of poitns to values
+	private HashMap<Point2D, Double> map;
+	
+	public ArbDiscretizedXYZ_DataSet() {
+		points = new ArrayList<Point2D>();
+		map = new HashMap<Point2D, Double>();
 	}
-
-	/**
-	 * Initialises the x, y and z Values ArrayList
-	 * @param xVals
-	 * @param yVals
-	 * @param zVals
-	 */
-	public void setXYZ_DataSet(ArrayList<Double> xVals, ArrayList<Double> yVals, ArrayList<Double> zVals){
-
-		xValues = xVals;
-		yValues = yVals;
-		zValues = zVals;
-	}
-
-	/**
-	 *
-	 * @returns the X Values dataSet
-	 */
-	public ArrayList<Double> getX_DataSet(){
-		return xValues;
-	}
-
-	/**
-	 *
-	 * @returns the Y value DataSet
-	 */
-	public ArrayList<Double> getY_DataSet(){
-		return yValues;
-	}
-
-
-	/**
-	 *
-	 * @returns the Z value DataSet
-	 */
-	public ArrayList<Double> getZ_DataSet(){
-		return zValues;
-	}
-
-	/**
-	 *
-	 * @returns the minimum of the X Values
-	 */
-	public double getMinX(){
-		return getMin(xValues);
-	}
-
-	/**
-	 *
-	 * @returns the maximum of the X Values
-	 */
-	public double getMaxX(){
-		return getMax(xValues);
-	}
-
-	/**
-	 *
-	 * @returns the minimum of the Y Values
-	 */
-	public double getMinY(){
-		return getMin(yValues);
-	}
-
-	/**
-	 *
-	 * @returns the maximum of the Y values
-	 */
-	public double getMaxY(){
-		return getMax(yValues);
-	}
-
-	/**
-	 *
-	 * @returns the minimum of the Z values
-	 */
-	public double getMinZ(){
-		return getMin(zValues);
-	}
-
-	/**
-	 *
-	 * @returns the maximum of the Z values
-	 */
-	public double getMaxZ(){
-		return getMax(zValues);
-	}
-
-	/**
-	 *
-	 * @returns true if size ArrayList for X,Y and Z dataset values is equal else return false
-	 */
-	public boolean checkXYZ_NumVals(){
-		if((xValues.size() == yValues.size()) && (xValues.size() == zValues.size()))
-			return true;
-		else
-			return false;
-	}
-
-	/**
-	 * private function of the class that finds the minimum value in the ArrayList
-	 * @param xyz
-	 * @return
-	 */
-	private double getMin(ArrayList xyz){
-		int size = xyz.size();
-		double min = Double.POSITIVE_INFINITY;
-		for(int i=1;i<size;++i){
-			double val = ((Double)xyz.get(i)).doubleValue();
-			if(Double.isNaN(val)) continue;
-			if(val < min)
-				min = val;
+	
+	private MinMaxAveTracker getXTracker() {
+		MinMaxAveTracker tracker = new MinMaxAveTracker();
+		for (Point2D pt : map.keySet()) {
+			tracker.addValue(pt.getX());
 		}
-		return min;
+		return tracker;
+	}
+	
+	private MinMaxAveTracker getYTracker() {
+		MinMaxAveTracker tracker = new MinMaxAveTracker();
+		for (Point2D pt : map.keySet()) {
+			tracker.addValue(pt.getY());
+		}
+		return tracker;
+	}
+	
+	private MinMaxAveTracker getZTracker() {
+		MinMaxAveTracker tracker = new MinMaxAveTracker();
+		for (double val : map.values()) {
+			tracker.addValue(val);
+		}
+		return tracker;
 	}
 
-	/**
-	 * private function of the class that finds the maximum value in the ArrayList
-	 * @param xyz
-	 * @return
-	 */
-	private double getMax(ArrayList xyz){
-		int size = xyz.size();
-		double max = Double.NEGATIVE_INFINITY;
-		for(int i=1;i<size;++i){
-			double val = ((Double)xyz.get(i)).doubleValue();
-			if(Double.isNaN(val)) continue;
-			if(val > max)
-				max = val;
+	@Override
+	public double getMinX() {
+		return getXTracker().getMin();
+	}
+
+	@Override
+	public double getMaxX() {
+		return getXTracker().getMax();
+	}
+
+	@Override
+	public double getMinY() {
+		return getYTracker().getMin();
+	}
+
+	@Override
+	public double getMaxY() {
+		return getYTracker().getMax();
+	}
+
+	@Override
+	public double getMinZ() {
+		return getZTracker().getMin();
+	}
+
+	@Override
+	public double getMaxZ() {
+		return getZTracker().getMax();
+	}
+
+	@Override
+	public void set(Point2D point, double z) {
+		if (!contains(point))
+			points.add(point);
+		map.put(point, z);
+	}
+
+	@Override
+	public void set(double x, double y, double z) {
+		set(new Point2D.Double(x, y), z);
+	}
+
+	@Override
+	public void set(int index, double z) {
+		set(getPoint(index), z);
+	}
+
+	@Override
+	public double get(Point2D point) {
+		return map.get(point);
+	}
+
+	@Override
+	public double get(double x, double y) {
+		return get(new Point2D.Double(x, y));
+	}
+
+	@Override
+	public double get(int index) {
+		return get(getPoint(index));
+	}
+
+	@Override
+	public Point2D getPoint(int index) {
+		return points.get(index);
+	}
+
+	@Override
+	public int indexOf(Point2D point) {
+		return points.indexOf(point);
+	}
+
+	@Override
+	public boolean contains(Point2D point) {
+		return points.contains(point);
+	}
+
+	@Override
+	public boolean contains(double x, double y) {
+		return contains(new Point2D.Double(x, y));
+	}
+
+	@Override
+	public int size() {
+		return points.size();
+	}
+
+	@Override
+	public void setAll(XYZ_DataSetAPI dataset) {
+		for (int i=0; i<dataset.size(); i++) {
+			set(dataset.getPoint(i), dataset.get(i));
 		}
-		return max;
 	}
 	
 	public static void writeXYZFile(XYZ_DataSetAPI xyz, String fileName) throws IOException {
-		if (!xyz.checkXYZ_NumVals())
-			throw new RuntimeException("Bad XYZ dataset!");
-		
-		ArrayList<Double> xData = xyz.getX_DataSet();
-		ArrayList<Double> yData = xyz.getY_DataSet();
-		ArrayList<Double> zData = xyz.getZ_DataSet();
-		
-		int size = xData.size();
 		
 		FileWriter fw = new FileWriter(fileName);
-		for (int i=0; i<size; i++) {
-			fw.write(xData.get(i) + "\t" + yData.get(i) + "\t" + zData.get(i) + "\n");
+		for (int i=0; i<xyz.size(); i++) {
+			Point2D point = xyz.getPoint(i);
+			double z = xyz.get(i);
+			
+			fw.write(point.getX() + "\t" + point.getY() + "\t" + z + "\n");
 		}
 		fw.close();
 	}
@@ -237,26 +208,19 @@ public class ArbDiscretizedXYZ_DataSet implements XYZ_DataSetAPI,java.io.Seriali
 			double y = Double.parseDouble(tok.nextToken());
 			double z = Double.parseDouble(tok.nextToken());
 			
-			xyz.addValue(x, y, z);
+			xyz.set(x, y, z);
 		}
 		
 		return xyz;
 	}
-	
-	public void addValue(double xVal, double yVal, double zVal) {
-		this.xValues.add(xVal);
-		this.yValues.add(yVal);
-		this.zValues.add(zVal);
-	}
-	
-	public void addAllValues(ArrayList<Double> xVals, ArrayList<Double> yVals, ArrayList<Double> zVals) {
-		this.xValues.addAll(xVals);
-		this.yValues.addAll(yVals);
-		this.zValues.addAll(zVals);
-	}
-	
-	public void addAllValues(XYZ_DataSetAPI xyz) {
-		this.addAllValues(xyz.getX_DataSet(), xyz.getY_DataSet(), xyz.getZ_DataSet());
-	}
 
+	@Override
+	public Object clone() {
+		ArbDiscretizedXYZ_DataSet xyz = new ArbDiscretizedXYZ_DataSet();
+		for (int i=0; i<size(); i++) {
+			xyz.set(getPoint(i), get(i));
+		}
+		return xyz;
+	}
+	
 }

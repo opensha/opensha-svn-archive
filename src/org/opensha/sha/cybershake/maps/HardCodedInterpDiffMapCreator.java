@@ -52,7 +52,7 @@ public class HardCodedInterpDiffMapCreator {
 		for (int i=0; i<sites.size(); i++) {
 			CybershakeSite site = sites.get(i);
 			double siteVal = vals.get(i);
-			scatterData.addValue(site.lat, site.lon, siteVal);
+			scatterData.add(site.lat, site.lon, siteVal);
 		}
 		return scatterData;
 	}
@@ -103,7 +103,7 @@ public class HardCodedInterpDiffMapCreator {
 //			System.out.println("loaded curve with "+curve.getNum()+" vals");
 			
 			double zVal = HazardDataSetLoader.getCurveVal(curve, isProbAt_IML, val);
-			xyz.addValue(site.lat, site.lon, zVal);
+			xyz.add(site.lat, site.lon, zVal);
 		}
 		
 		return xyz;
@@ -156,7 +156,7 @@ public class HardCodedInterpDiffMapCreator {
 					if (site == null)
 						throw new RuntimeException("run '"+runID+"' not found!");
 					double zVal = HazardDataSetLoader.getCurveVal(func, isProbAt_IML, val);
-					xyz.addValue(site.lat, site.lon, zVal);
+					xyz.add(site.lat, site.lon, zVal);
 				}
 			}
 			return xyz;
@@ -281,7 +281,7 @@ public class HardCodedInterpDiffMapCreator {
 		ArbDiscretizedXYZ_DataSet baseMap;
 		if (!probGain) {
 			baseMap = loadBaseMap(singleDay, isProbAt_IML, val, imTypeID, baseMapName);
-			System.out.println("Basemap has " + baseMap.getX_DataSet().size() + " points");
+			System.out.println("Basemap has " + baseMap.getX_Values().size() + " points");
 		} else {
 			baseMap = null;
 		}

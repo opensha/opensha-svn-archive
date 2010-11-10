@@ -35,7 +35,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextPane;
 
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
 import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.imr.AttenuationRelationship;
@@ -167,15 +167,15 @@ public class GenerateHazusFilesControlPanel extends JFrame {
       else{
         //if PGV is not supported by the attenuation then use the SA-1sec pd
         //and multiply the value by scaler 37.24*2.54
-        ArrayList zVals = sa10_xyzdata.getZ_DataSet();
+        ArrayList zVals = sa10_xyzdata.getZ_Values();
         int size = zVals.size();
         ArrayList newZVals = new ArrayList();
         for(int i=0;i<size;++i){
           double val = ((Double)zVals.get(i)).doubleValue()*37.24*2.54;
           newZVals.add(new Double(val));
         }
-        pgv_xyzdata = new ArbDiscretizedXYZ_DataSet(sa10_xyzdata.getX_DataSet(),
-                      sa10_xyzdata.getY_DataSet(), newZVals);
+        pgv_xyzdata = new ArbDiscretizedXYZ_DataSet(sa10_xyzdata.getX_Values(),
+                      sa10_xyzdata.getY_Values(), newZVals);
         metadata += "IMT: PGV"+"<br>\n";
       }
       //Doing for PGA

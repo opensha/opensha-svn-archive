@@ -7,9 +7,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.FileNameComparator;
 
@@ -69,7 +69,7 @@ public class HazardDataSetLoader {
 		for (Location loc : curves.keySet()) {
 			ArbitrarilyDiscretizedFunc curve = curves.get(loc);
 			double val = getCurveVal(curve, isProbAt_IML, level);
-			xyz.addValue(loc.getLatitude(), loc.getLongitude(), val);
+			xyz.add(loc.getLatitude(), loc.getLongitude(), val);
 		}
 		return xyz;
 	}
@@ -99,7 +99,7 @@ public class HazardDataSetLoader {
 			ArbitrarilyDiscretizedFunc curve =
 					ArbitrarilyDiscretizedFunc.loadFuncFromSimpleFile(file.getAbsolutePath());
 			double val = getCurveVal(curve, isProbAt_IML, level);
-			xyz.addValue(loc.getLatitude(), loc.getLongitude(), val);
+			xyz.add(loc.getLatitude(), loc.getLongitude(), val);
 		}
 		return xyz;
 	}

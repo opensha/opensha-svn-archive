@@ -14,7 +14,6 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.siteData.SiteDataAPI;
@@ -23,6 +22,7 @@ import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.USGSBayAreaBasinDepth;
 import org.opensha.commons.data.siteData.impl.WaldAllenGlobalVs30;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
+import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
@@ -214,12 +214,12 @@ public class HardCodedScenarioShakeMapGen {
 		attenRelWts.add(1.0);
 		
 		XYZ_DataSetAPI xyz = calc.getScenarioShakeMapData(selectedAttenRels, attenRelWts, sites, rup, isProbAtIML, value);
-		ArrayList<Double> vals = xyz.getZ_DataSet();
+		ArrayList<Double> vals = xyz.getZ_Values();
 		ArrayList<Double> unLogVals = new ArrayList<Double>();
 		for (Double val : vals) {
 			unLogVals.add(Math.exp(val));
 		}
-		ArbDiscretizedXYZ_DataSet unLog = new ArbDiscretizedXYZ_DataSet(xyz.getX_DataSet(), xyz.getY_DataSet(), unLogVals);
+		ArbDiscretizedXYZ_DataSet unLog = new ArbDiscretizedXYZ_DataSet(xyz.getX_Values(), xyz.getY_Values(), unLogVals);
 		
 		return unLog;
 	}
@@ -344,7 +344,7 @@ public class HardCodedScenarioShakeMapGen {
 			else
 				scatterData = ArbDiscretizedXYZ_DataSet.loadXYZFile(scatterHardCodeFile);
 			
-			System.out.println("loaded "+scatterData.getX_DataSet().size()+" scatter vals");
+			System.out.println("loaded "+scatterData.getX_Values().size()+" scatter vals");
 			
 			InterpDiffMapType[] types = { InterpDiffMapType.BASEMAP, InterpDiffMapType.INTERP_NOMARKS, InterpDiffMapType.INTERP_MARKS };
 //			InterpDiffMapType[] types = { InterpDiffMapType.BASEMAP };

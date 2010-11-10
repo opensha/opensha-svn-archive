@@ -39,7 +39,7 @@ import javax.swing.JTextPane;
 import javax.swing.Timer;
 
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.sha.gui.ScenarioShakeMapApp;
@@ -252,7 +252,7 @@ implements Runnable{
 				//if the AttenRels support PGV
 				xyzDataSet_PGV =hazusCalcForPGV(attenRelListSupportingPGV,attenRelListPGV_Wts,true);
 				//ArrayLists containing the Z Values for the XYZ dataset.
-				pgvList = xyzDataSet_PGV.getZ_DataSet();
+				pgvList = xyzDataSet_PGV.getZ_Values();
 				size = pgvList.size();
 			}
 
@@ -260,7 +260,7 @@ implements Runnable{
 				//if the AttenRels do not support PGV
 				xyzDataSet = hazusCalcForPGV(attenRelListNotSupportingPGV,attenRelListNot_PGV_Wts,false);
 				//ArrayLists containing the Z Values for the XYZ dataset for attenRel not supporting PGV.
-				list = xyzDataSet.getZ_DataSet();
+				list = xyzDataSet.getZ_Values();
 				size = list.size();
 			}
 
@@ -273,8 +273,8 @@ implements Runnable{
 				for(int i=0;i<size;++i)
 					finalPGV_Vals.add(new Double(((Double)pgvList.get(i)).doubleValue()+((Double)list.get(i)).doubleValue()));
 				//creating the final dataste for the PGV dataset.
-				pgv_xyzdata = new ArbDiscretizedXYZ_DataSet(xyzDataSet_PGV.getX_DataSet(),
-						xyzDataSet_PGV.getY_DataSet(),finalPGV_Vals);
+				pgv_xyzdata = new ArbDiscretizedXYZ_DataSet(xyzDataSet_PGV.getX_Values(),
+						xyzDataSet_PGV.getY_Values(),finalPGV_Vals);
 			}
 			else{
 				//if XYZ dataset supporting PGV is null
@@ -418,7 +418,7 @@ implements Runnable{
 
 			//if PGV is not supported by the attenuation then use the SA-1sec pd
 			//and multiply the value by scaler 37.24*2.54
-			ArrayList zVals = pgvDataSet.getZ_DataSet();
+			ArrayList zVals = pgvDataSet.getZ_Values();
 			size = zVals.size();
 			for(int i=0;i<size;++i){
 				double val = ((Double)zVals.get(i)).doubleValue()*37.24*2.54;

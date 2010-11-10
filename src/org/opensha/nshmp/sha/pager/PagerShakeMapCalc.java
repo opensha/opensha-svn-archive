@@ -30,8 +30,8 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
-import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
+import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
@@ -439,7 +439,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
     XYZ_DataSetAPI xyzDataSet = calc.getScenarioShakeMapData(attenRelsSupported,attenRelWts,sites,rupture,!imlAtProb,imlProbVal);
     //if the IMT is log supported then take the exponential of the Value if IML @ Prob
     if (IMT_Info.isIMT_LogNormalDist(attenRel.getIntensityMeasure().getName()) && imlAtProb) {
-      ArrayList zVals = xyzDataSet.getZ_DataSet();
+      ArrayList zVals = xyzDataSet.getZ_Values();
       int size = zVals.size();
       for (int i = 0; i < size; ++i) {
         double tempVal = Math.exp( ( (Double) (zVals.get(i))).doubleValue());
@@ -452,9 +452,9 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
 
   private void createMedianFile(XYZ_DataSetAPI xyzData){
 
-    ArrayList xVals = xyzData.getX_DataSet();
-    ArrayList yVals = xyzData.getY_DataSet();
-    ArrayList zVals = xyzData.getZ_DataSet();
+    ArrayList xVals = xyzData.getX_Values();
+    ArrayList yVals = xyzData.getY_Values();
+    ArrayList zVals = xyzData.getZ_Values();
     try {
       FileWriter fw = new FileWriter(this.outputFilePrefix + "_data.txt");
       int size = xVals.size();

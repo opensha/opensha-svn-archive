@@ -39,6 +39,7 @@ import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
+import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
@@ -108,16 +109,12 @@ public class SiteDataMapApplet extends Applet implements ActionListener, ListSel
 					GMT_MapGenerator.SCALE_LABEL_PARAM_NAME).setValue(label);
 		}
 		
-		ArrayList<Double> xVals = new ArrayList<Double>();
-		ArrayList<Double> yVals = new ArrayList<Double>();
+		ArbDiscrGeographicDataSet xyz = new ArbDiscrGeographicDataSet(true);
 		
-		for (Location loc : locs) {
-			// for some reason x and y are reversed here, but that's what the servlet expects
-			yVals.add(loc.getLongitude());
-			xVals.add(loc.getLatitude());
+		
+		for (int i=0; i<locs.size(); i++) {
+			xyz.set(locs.get(i), zVals.get(i));
 		}
-		
-		ArbDiscretizedXYZ_DataSet xyz = new ArbDiscretizedXYZ_DataSet(xVals, yVals, zVals);
 		
 		mapBean.makeMap(xyz, meta);
 		

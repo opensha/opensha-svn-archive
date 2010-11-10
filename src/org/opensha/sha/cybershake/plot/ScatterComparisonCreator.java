@@ -159,7 +159,7 @@ public class ScatterComparisonCreator {
 	public ArrayList<Double> getComparisonValsFromXYZ(String xyzFile) throws FileNotFoundException, IOException {
 		ArrayList<Double> vals = new ArrayList<Double>();
 		
-		XYZClosestPointFinder close = new XYZClosestPointFinder(xyzFile);
+		XYZClosestPointFinder close = new XYZClosestPointFinder(xyzFile, true);
 		
 		for (CybershakeSite site : sites) {
 			double val = close.getClosestVal(site.lat, site.lon);

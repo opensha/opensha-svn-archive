@@ -3,8 +3,8 @@ package org.opensha.sra.riskmaps;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.commons.data.EvenlyDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.xyz.EvenlyDiscretizedXYZ_DataSet;
 import org.opensha.commons.util.ArrayUtils;
 import org.opensha.sra.calc.LossCurveCalculator;
 import org.opensha.sra.riskmaps.func.DiscreteInterpExterpFunc;
@@ -184,7 +184,7 @@ public class NSHMPRiskMapCalc {
 			
 //			System.out.println("X: " + loc[1] + " Y: " + loc[0] + " Z: " + val);
 			
-			result.addValue(loc[1], loc[0], val);
+			result.add(loc[1], loc[0], val);
 			if (testVals != null && count < 10000)
 				testVals.add(val);
 			

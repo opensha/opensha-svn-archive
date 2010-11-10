@@ -34,7 +34,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.gridComputing.StorageHost;
 import org.opensha.commons.mapping.gmt.GMT_Map;
@@ -139,9 +139,9 @@ public class PlotServlet extends ConfLoadingServlet {
 						// if we're here then it's an overwrite if needed.
 						String xmlFile = storage.getPath() + File.separator + id + File.separator + id + ".xml";
 						int num = getNumPointsFromXML(xmlFile);
-						if (num <= 0 || num > xyz.getX_DataSet().size()) {
+						if (num <= 0 || num > xyz.getX_Values().size()) {
 							debug("Incomplete dataset...regenerating XYZ file! " +
-									"(have " + xyz.getX_DataSet().size() + " expecting " + num + ")");
+									"(have " + xyz.getX_Values().size() + " expecting " + num + ")");
 							maker = new MakeXYZFromHazardMapDir(curveDirName, false, true);
 						}
 					}

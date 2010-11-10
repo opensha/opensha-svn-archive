@@ -41,7 +41,7 @@ import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
 import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.StringParameterEditor;

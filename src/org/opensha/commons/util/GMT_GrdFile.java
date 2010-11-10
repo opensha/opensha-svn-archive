@@ -536,7 +536,7 @@ public class GMT_GrdFile {
 				}
 				try {
 					z = getZ(xInd, yInd);
-					xyz.addValue(x, y, z);
+					xyz.add(x, y, z);
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}

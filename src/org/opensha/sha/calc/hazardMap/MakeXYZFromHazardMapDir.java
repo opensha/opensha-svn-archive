@@ -29,9 +29,9 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.AbstractDiscretizedFunc;
+import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
 import org.opensha.commons.geo.Location;
 
 /**
@@ -118,12 +118,12 @@ public class MakeXYZFromHazardMapDir {
 									if (out != null)
 										out.write(latVal + "     " + lonVal + "     " + writeVal + "\n");
 									if (xyz != null)
-										xyz.addValue(latVal, lonVal, writeVal);
+										xyz.add(latVal, lonVal, writeVal);
 								} else {
 									if (out != null)
 										out.write(lonVal + "     " + latVal + "     " + writeVal + "\n");
 									if (xyz != null)
-										xyz.addValue(lonVal, latVal, writeVal);
+										xyz.add(lonVal, latVal, writeVal);
 								}
 								
 								if (latVal < minLat)

@@ -51,7 +51,7 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringParameter;

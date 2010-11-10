@@ -1,13 +1,14 @@
 package org.opensha.sha.cybershake.maps;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
+import org.opensha.commons.data.xyz.GeographicDataSetAPI;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
@@ -25,50 +26,22 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 	
 	public static int[] dpis = {72, 150, 300};
 	
-	public static ArbDiscretizedXYZ_DataSet getLogXYZ(XYZ_DataSetAPI orig) {
-		ArbDiscretizedXYZ_DataSet log = new ArbDiscretizedXYZ_DataSet();
+	public static GeographicDataSetAPI getDiffs(GeographicDataSetAPI baseMap, GeographicDataSetAPI scatterData) {
+		GeographicDataSetAPI diffs = new ArbDiscrGeographicDataSet(baseMap.isLatitudeX());
 		
-		ArrayList<Double> x = orig.getX_DataSet();
-		ArrayList<Double> y = orig.getY_DataSet();
-		ArrayList<Double> z = orig.getZ_DataSet();
+		XYZClosestPointFinder xyz = new XYZClosestPointFinder(baseMap);
 		
-		for (int i=0; i<x.size(); i++) {
-			double zVal = z.get(i);
-			if (zVal < 0)
-				throw new RuntimeException("log cannot be taken with dataset values < 0");
-			if (zVal == 0)
-				zVal = Double.NaN;
-			else
-				zVal = Math.log10(zVal);
-//			if (i % 100 == 0) {
-//				System.out.println("getLogXYZ: orig: "+z.get(i) + " log: "+zVal);
-//			}
-			log.addValue(x.get(i), y.get(i), zVal);
-//			System.out.println(x.get(i) + ", " + y.get(i) + ": orig: " + z.get(i) + " log: " + zVal);
-		}
-		
-		return log;
-	}
-	
-	public static ArbDiscretizedXYZ_DataSet getDiffs(XYZ_DataSetAPI baseMap, XYZ_DataSetAPI scatterData) {
-		ArbDiscretizedXYZ_DataSet diffs = new ArbDiscretizedXYZ_DataSet();
-		
-		XYZClosestPointFinder xyz = new XYZClosestPointFinder(baseMap, true);
-		
-		ArrayList<Double> lats = scatterData.getX_DataSet();
-		ArrayList<Double> lons = scatterData.getY_DataSet();
-		ArrayList<Double> vals = scatterData.getZ_DataSet();
-		
-		for (int i=0; i<lats.size(); i++) {
-			double lat = lats.get(i);
-			double lon = lons.get(i);
+		for (int i=0; i<scatterData.size(); i++) {
+			Location loc = scatterData.getLocation(i);
+			double lat = loc.getLatitude();
+			double lon = loc.getLongitude();
 			
-			double scatterVal = vals.get(i);
+			double scatterVal = scatterData.get(i);
 			double closestVal = xyz.getClosestVal(lat, lon);
 //			System.out.println("scatterVal: " + scatterVal);
 //			System.out.println("closestVal: " + closestVal);
 			
-			diffs.addValue(lat, lon, scatterVal - closestVal);
+			diffs.set(lat, lon, scatterVal - closestVal);
 		}
 		
 		return diffs;
@@ -82,18 +55,12 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		
 	}
 	
-	private static MinMaxAveTracker calcExtentsWithinRegion(XYZ_DataSetAPI xyz, Region region) {
-		ArrayList<Double> lats = xyz.getX_DataSet();
-		ArrayList<Double> lons = xyz.getY_DataSet();
-		ArrayList<Double> vals = xyz.getZ_DataSet();
-		
+	private static MinMaxAveTracker calcExtentsWithinRegion(GeographicDataSetAPI xyz, Region region) {
 		MinMaxAveTracker tracker = new MinMaxAveTracker();
 		
-		for (int i=0; i<lats.size(); i++) {
-			double lat = lats.get(i);
-			double lon = lons.get(i);
-			double val = vals.get(i);
-			Location loc = new Location(lat, lon);
+		for (int i=0; i<xyz.size(); i++) {
+			double val = xyz.get(i);
+			Location loc = xyz.getLocation(i);
 			if (region.contains(loc)) {
 				tracker.addValue(val);
 			}
@@ -154,8 +121,8 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		GMT_InterpolationSettings interpSettings = map.getInterpSettings();
 		double interpGridSpacing = interpSettings.getInterpSpacing();
 		
-		XYZ_DataSetAPI griddedData;
-		XYZ_DataSetAPI scatterData;
+		GeographicDataSetAPI griddedData;
+		GeographicDataSetAPI scatterData;
 		griddedData = map.getGriddedData();
 		scatterData = map.getScatter();
 		
@@ -181,7 +148,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		if (shouldInterp) {
 			// do the interpolation
 			String interpXYZName;
-			XYZ_DataSetAPI toBeWritten;
+			GeographicDataSetAPI toBeWritten;
 			if (griddedData == null) {
 				interpXYZName = "scatter.xyz";
 				toBeWritten = scatterData;
@@ -190,7 +157,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				toBeWritten = getDiffs(griddedData, scatterData);
 			}
 			try {
-				ArbDiscretizedXYZ_DataSet.writeXYZFile(toBeWritten, dir + interpXYZName);
+				ArbDiscrGeographicDataSet.writeXYZFile(toBeWritten, dir + interpXYZName);
 			} catch (IOException e) {
 				throw new GMT_MapException("Could not write XYZ data to a file", e);
 			}
@@ -390,12 +357,11 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			
 			if (markers) {
 				gmtCommandLines.add("# scatter markers");
-				ArrayList<Double> xVals = scatterData.getX_DataSet();
-				ArrayList<Double> yVals = scatterData.getY_DataSet();
 				String colorStr = GMT_MapGenerator.getGMTColorString(markerColor);
-				for (int i=0; i<xVals.size(); i++) {
-					double x = xVals.get(i);
-					double y = yVals.get(i);
+				for (int i=0; i<scatterData.size(); i++) {
+					Point2D pt = scatterData.getPoint(i);
+					double x = pt.getX();
+					double y = pt.getY();
 					
 					commandLine = "echo " + x + " " + y + " | ";
 					commandLine += "${GMT_PATH}psxy"+region+proj+"-S"+ScatterSymbol.SYMBOL_INVERTED_TRIANGLE

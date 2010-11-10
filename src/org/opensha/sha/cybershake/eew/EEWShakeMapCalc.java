@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
 import org.opensha.sha.cybershake.HazardCurveFetcher;
@@ -122,7 +122,7 @@ public class EEWShakeMapCalc {
 				}
 				
 				double val = HazardDataSetLoader.getCurveVal(curve, false, 0.5);
-				xyz.addValue(site.lat, site.lon, val);
+				xyz.add(site.lat, site.lon, val);
 			}
 		}
 		return xyz;

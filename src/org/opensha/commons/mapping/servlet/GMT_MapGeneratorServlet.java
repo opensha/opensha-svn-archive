@@ -210,9 +210,9 @@ extends HttpServlet {
 
 		//creating the XYZ file from the XYZ file from the XYZ dataSet
 		if (map.getGriddedData() != null) {
-			ArrayList<Double> xVals = map.getGriddedData().getX_DataSet();
-			ArrayList<Double> yVals = map.getGriddedData().getY_DataSet();
-			ArrayList<Double> zVals = map.getGriddedData().getZ_DataSet();
+			ArrayList<Double> xVals = map.getGriddedData().getX_Values();
+			ArrayList<Double> yVals = map.getGriddedData().getY_Values();
+			ArrayList<Double> zVals = map.getGriddedData().getZ_Values();
 			//file follows the convention lat, lon and Z value
 			if (map.getGriddedData().checkXYZ_NumVals()) {
 				size = xVals.size();
