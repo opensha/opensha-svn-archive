@@ -2,7 +2,6 @@ package org.opensha.commons.data.xyz;
 
 import java.awt.geom.Point2D;
 
-import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 
 public class XYZ_DataSetMath {
 	
@@ -14,7 +13,7 @@ public class XYZ_DataSetMath {
 	 * @return
 	 */
 	public static XYZ_DataSetAPI add(XYZ_DataSetAPI map1, XYZ_DataSetAPI map2) {
-		ArbDiscretizedXYZ_DataSet sum = new ArbDiscretizedXYZ_DataSet();
+		ArbDiscrXYZ_DataSet sum = new ArbDiscrXYZ_DataSet();
 		
 		for (int i=0; i<map1.size(); i++) {
 			Point2D point = map1.getPoint(i);
@@ -36,7 +35,7 @@ public class XYZ_DataSetMath {
 	 * @return
 	 */
 	public static XYZ_DataSetAPI subtract(XYZ_DataSetAPI minuend, XYZ_DataSetAPI subtrahend) {
-		ArbDiscretizedXYZ_DataSet difference = new ArbDiscretizedXYZ_DataSet();
+		ArbDiscrXYZ_DataSet difference = new ArbDiscrXYZ_DataSet();
 		
 		for (int i=0; i<minuend.size(); i++) {
 			Point2D point = minuend.getPoint(i);
@@ -59,7 +58,7 @@ public class XYZ_DataSetMath {
 	 * @return
 	 */
 	public static XYZ_DataSetAPI multiply(XYZ_DataSetAPI map1, XYZ_DataSetAPI map2) {
-		ArbDiscretizedXYZ_DataSet product = new ArbDiscretizedXYZ_DataSet();
+		ArbDiscrXYZ_DataSet product = new ArbDiscrXYZ_DataSet();
 		
 		for (int i=0; i<map1.size(); i++) {
 			Point2D point = map1.getPoint(i);
@@ -81,7 +80,7 @@ public class XYZ_DataSetMath {
 	 * @return
 	 */
 	public static XYZ_DataSetAPI divide(XYZ_DataSetAPI dividend, XYZ_DataSetAPI divisor) {
-		ArbDiscretizedXYZ_DataSet quotient = new ArbDiscretizedXYZ_DataSet();
+		ArbDiscrXYZ_DataSet quotient = new ArbDiscrXYZ_DataSet();
 		
 		for (int i=0; i<dividend.size(); i++) {
 			Point2D point = dividend.getPoint(i);

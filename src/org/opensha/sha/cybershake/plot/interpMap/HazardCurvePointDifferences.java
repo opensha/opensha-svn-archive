@@ -44,7 +44,7 @@ public class HazardCurvePointDifferences {
 	
 	public HazardCurvePointDifferences(CyberShakeValueProvider provider, String comparisonFile) throws IOException {
 		this.provider = provider;
-		xyz = new XYZClosestPointFinder(comparisonFile);
+		xyz = new XYZClosestPointFinder(comparisonFile, true);
 	}
 	
 	public ArrayList<Double> getSiteDifferenceValues() {

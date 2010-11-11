@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.data;
+package org.opensha.commons.data.xyz;
 
 import java.awt.geom.Point2D;
 import java.io.FileNotFoundException;
@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
-import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.FileUtils;
 
@@ -43,7 +42,7 @@ import org.opensha.commons.util.FileUtils;
  * @version 1.0
  */
 
-public class ArbDiscretizedXYZ_DataSet implements XYZ_DataSetAPI,java.io.Serializable{
+public class ArbDiscrXYZ_DataSet implements XYZ_DataSetAPI,java.io.Serializable{
 
 	/**
 	 * default serial version UID
@@ -55,7 +54,7 @@ public class ArbDiscretizedXYZ_DataSet implements XYZ_DataSetAPI,java.io.Seriali
 	// mapping of poitns to values
 	private HashMap<Point2D, Double> map;
 	
-	public ArbDiscretizedXYZ_DataSet() {
+	public ArbDiscrXYZ_DataSet() {
 		points = new ArrayList<Point2D>();
 		map = new HashMap<Point2D, Double>();
 	}
@@ -190,10 +189,10 @@ public class ArbDiscretizedXYZ_DataSet implements XYZ_DataSetAPI,java.io.Seriali
 		fw.close();
 	}
 	
-	public static ArbDiscretizedXYZ_DataSet loadXYZFile(String fileName) throws FileNotFoundException, IOException {
+	public static ArbDiscrXYZ_DataSet loadXYZFile(String fileName) throws FileNotFoundException, IOException {
 		ArrayList<String> lines = FileUtils.loadFile(fileName);
 		
-		ArbDiscretizedXYZ_DataSet xyz = new ArbDiscretizedXYZ_DataSet();
+		ArbDiscrXYZ_DataSet xyz = new ArbDiscrXYZ_DataSet();
 		
 		for (String line : lines) {
 			if (line.startsWith("#"))
@@ -216,7 +215,7 @@ public class ArbDiscretizedXYZ_DataSet implements XYZ_DataSetAPI,java.io.Seriali
 
 	@Override
 	public Object clone() {
-		ArbDiscretizedXYZ_DataSet xyz = new ArbDiscretizedXYZ_DataSet();
+		ArbDiscrXYZ_DataSet xyz = new ArbDiscrXYZ_DataSet();
 		for (int i=0; i<size(); i++) {
 			xyz.set(getPoint(i), get(i));
 		}

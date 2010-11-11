@@ -38,9 +38,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
+import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
+import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.FileUtils;
@@ -103,7 +104,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
 				if(optionSelected.equalsIgnoreCase(IMLorProbSelectorGuiBean.IML_AT_PROB))
 					isProbAt_IML = false;
 				// create the XYZ data set
-				XYZ_DataSetAPI xyzData = getXYZ_DataSet(selectedSet, isProbAt_IML, val, map);
+				GeographicDataSetAPI xyzData = getXYZ_DataSet(selectedSet, isProbAt_IML, val, map);
 				String metadataFileName = PARENT_DIR+
 				selectedSet+"/"+"map_info.txt";
 				FileWriter fw = new FileWriter(metadataFileName);
@@ -229,7 +230,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
 	 * @param map : GMT object
 	 * @return
 	 */
-	private XYZ_DataSetAPI getXYZ_DataSet(String selectedSet,
+	private GeographicDataSetAPI getXYZ_DataSet(String selectedSet,
 			boolean isProbAt_IML,
 			double val, GMT_MapGenerator map ){
 
@@ -243,10 +244,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
 		double gridSpacing =((Double) paramList.getValue(GMT_MapGenerator.GRID_SPACING_PARAM_NAME)).doubleValue();
 
 		//adding the xyz data set to the object of XYZ_DataSetAPI
-		XYZ_DataSetAPI xyzData;
-		ArrayList xVals= new ArrayList();
-		ArrayList yVals= new ArrayList();
-		ArrayList zVals= new ArrayList();
+		GeographicDataSetAPI xyzData = new ArbDiscrGeographicDataSet(true);
 
 		//searching the directory for the list of the files.
 		File dir = new File(PARENT_DIR+selectedSet+"/");
@@ -255,8 +253,8 @@ public class HazardMapViewerServlet  extends HttpServlet {
 		//number of files in selected dataset
 		int numFiles = fileList.length;
 		//creating the arraylist to get the all lats and lons in this dataset
-		ArrayList latList = new ArrayList();
-		ArrayList lonList = new ArrayList();
+		ArrayList<Double> latList = new ArrayList<Double>();
+		ArrayList<Double> lonList = new ArrayList<Double>();
 
 		/*
 		 *Reading all the Hazard files in the dataset to get their Lat and Lons
@@ -365,7 +363,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
 		//values depending on user choice (IML@Prob or Prob@IML).
 		for(int k=minLatIndex;k<=maxLatIndex;++k){
 			double interpolatedVal=0;
-			ArrayList fileLines;
+			ArrayList<String> fileLines;
 			for(int j=minLonIndex;j<=maxLonIndex;++j) {
 				//getting Lat and Lons
 				String lat = d.format(((Double)latList.get(k)).doubleValue());
@@ -403,14 +401,11 @@ public class HazardMapViewerServlet  extends HttpServlet {
 				}catch(Exception e) {
 					//e.printStackTrace();
 				} // catch invalid range exception etc.
-				xVals.add(new Double(lat));
-				yVals.add(new Double(lon));
-				zVals.add(new Double(interpolatedVal));
+				xyzData.set(new Location(latList.get(k), lonList.get(j)), interpolatedVal);
 			}
 		}
 
 		// return the XYZ Data set
-		xyzData = new ArbDiscretizedXYZ_DataSet(xVals,yVals,zVals);
 		return xyzData;
 	}
 }

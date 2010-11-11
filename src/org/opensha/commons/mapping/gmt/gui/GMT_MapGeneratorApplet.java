@@ -40,8 +40,9 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 
-import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
+import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
+import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.StringParameterEditor;
@@ -232,22 +233,19 @@ public class GMT_MapGeneratorApplet extends Applet{
 	void addButton() {
 
 		String fileName = (String)this.xyzFileName.getValue();
-		XYZ_DataSetAPI xyzData = null;
+		GeographicDataSetAPI xyzData = new ArbDiscrGeographicDataSet(true);
 		if(fileName != null){
-			ArrayList xVals = new ArrayList();
-			ArrayList yVals = new ArrayList();
-			ArrayList zVals = new ArrayList();
 			try{
 				URL fileURL = new URL((String)this.xyzFileName.getValue());
-				ArrayList fileLines =FileUtils.loadFile(fileURL);
-				ListIterator it = fileLines.listIterator();
+				ArrayList<String> fileLines =FileUtils.loadFile(fileURL);
+				ListIterator<String> it = fileLines.listIterator();
 				while(it.hasNext()){
 					StringTokenizer st = new StringTokenizer((String)it.next());
-					xVals.add(new Double(st.nextToken().trim()));
-					yVals.add(new Double(st.nextToken().trim()));
-					zVals.add(new Double(st.nextToken().trim()));
+					double lat = new Double(st.nextToken().trim());
+					double lon = new Double(st.nextToken().trim());
+					double z = new Double(st.nextToken().trim());
+					xyzData.set(new Location(lat, lon), z);
 				}
-				xyzData = new ArbDiscretizedXYZ_DataSet(xVals,yVals,zVals);
 			}catch(Exception ee){
 				JOptionPane.showMessageDialog(this,new String("Please enter URL"),"Error", JOptionPane.OK_OPTION);
 				ee.printStackTrace();

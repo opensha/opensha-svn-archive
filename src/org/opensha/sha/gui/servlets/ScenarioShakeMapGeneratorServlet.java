@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
+import org.opensha.commons.data.xyz.GeographicDataSetAPI;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.sha.earthquake.EqkRupture;
@@ -85,7 +85,7 @@ extends HttpServlet {
 			String dirName = (String) inputFromApplet.readObject();
 
 			//reading the XYZ dataset from the file
-			XYZ_DataSetAPI xyzData = (XYZ_DataSetAPI) FileUtils.loadObject(
+			GeographicDataSetAPI xyzData = (GeographicDataSetAPI) FileUtils.loadObject(
 					xyzDataFileName);
 
 			//creates and run the GMT Script on the server

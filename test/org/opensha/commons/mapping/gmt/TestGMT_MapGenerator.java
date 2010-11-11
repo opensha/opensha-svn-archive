@@ -13,8 +13,8 @@ import javax.imageio.ImageIO;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
+import org.opensha.commons.data.xyz.ArbDiscrXYZ_DataSet;
 import org.opensha.commons.data.xyz.GeographicDataSetAPI;
 import org.opensha.commons.exceptions.GMT_MapException;
 

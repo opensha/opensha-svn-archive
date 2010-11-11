@@ -5,7 +5,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
+import org.opensha.commons.data.xyz.ArbDiscrXYZ_DataSet;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 
@@ -521,8 +521,8 @@ public class GMT_GrdFile {
 		return region;
 	}
 	
-	public ArbDiscretizedXYZ_DataSet getXYZDataset(boolean latIsX) {
-		ArbDiscretizedXYZ_DataSet xyz = new ArbDiscretizedXYZ_DataSet();
+	public ArbDiscrXYZ_DataSet getXYZDataset(boolean latIsX) {
+		ArbDiscrXYZ_DataSet xyz = new ArbDiscrXYZ_DataSet();
 		
 		for (int xInd=0; xInd<getNumX(); xInd++) {
 			for (int yInd=0; yInd<getNumY(); yInd++) {
@@ -536,7 +536,7 @@ public class GMT_GrdFile {
 				}
 				try {
 					z = getZ(xInd, yInd);
-					xyz.add(x, y, z);
+					xyz.set(x, y, z);
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}

@@ -6,11 +6,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.FileUtils;
 
-public class ArbDiscrGeographicDataSet extends ArbDiscretizedXYZ_DataSet implements GeographicDataSetAPI {
+public class ArbDiscrGeographicDataSet extends ArbDiscrXYZ_DataSet implements GeographicDataSetAPI {
 	
 	/**
 	 * 

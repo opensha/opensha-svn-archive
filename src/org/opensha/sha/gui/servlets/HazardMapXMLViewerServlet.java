@@ -36,9 +36,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dom4j.Document;
 import org.dom4j.io.SAXReader;
-import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
+import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
+import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.hazardMap.MakeXYZFromHazardMapDir;
@@ -102,21 +103,19 @@ public class HazardMapXMLViewerServlet  extends HttpServlet {
 						MakeXYZFromHazardMapDir maker = new MakeXYZFromHazardMapDir(localDir + "/curves", false, true);
 						maker.writeXYZFile(isProbAt_IML, value, outFile);
 					}
-					XYZ_DataSetAPI xyzData = null;
+					GeographicDataSetAPI xyzData = null;
 					if(outFile != null){
-						ArrayList xVals = new ArrayList();
-						ArrayList yVals = new ArrayList();
-						ArrayList zVals = new ArrayList();
 						try{
+							xyzData = new ArbDiscrGeographicDataSet(true);
 							ArrayList fileLines = fileLines = FileUtils.loadFile(outFile);
 							ListIterator it = fileLines.listIterator();
 							while(it.hasNext()){
 								StringTokenizer st = new StringTokenizer((String)it.next());
-								xVals.add(new Double(st.nextToken().trim()));
-								yVals.add(new Double(st.nextToken().trim()));
-								zVals.add(new Double(st.nextToken().trim()));
+								double lat = new Double(st.nextToken().trim());
+								double lon = new Double(st.nextToken().trim());
+								double val = new Double(st.nextToken().trim());
+								xyzData.set(new Location(lat, lon), val);
 							}
-							xyzData = new ArbDiscretizedXYZ_DataSet(xVals,yVals,zVals);
 						}catch(Exception ee){
 							ee.printStackTrace();
 						}
@@ -270,16 +269,14 @@ public class HazardMapXMLViewerServlet  extends HttpServlet {
 	 * @param map : GMT object
 	 * @return
 	 */
-	private XYZ_DataSetAPI getXYZ_DataSet(String dirName,
+	private GeographicDataSetAPI getXYZ_DataSet(String dirName,
 			boolean isProbAt_IML,
 			double val){
 
 		File masterDir = new File("/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/HazardMapXMLDatasets/" + dirName);
 		File[] dirList=masterDir.listFiles();
 
-		ArrayList<Double> xVals = new ArrayList<Double>();
-		ArrayList<Double> yVals = new ArrayList<Double>();
-		ArrayList<Double> zVals = new ArrayList<Double>();
+		GeographicDataSetAPI xyzData = new ArbDiscrGeographicDataSet(true);
 
 		// for each file in the list
 		for(File dir : dirList){
@@ -305,9 +302,7 @@ public class HazardMapXMLViewerServlet  extends HttpServlet {
 								//System.out.println("Lat: " + latVal + " Lon: " + lonVal);
 								// handle the file
 								double writeVal = handleFile(latVal, lonVal, file.getAbsolutePath(), isProbAt_IML, val);
-								xVals.add(latVal);
-								yVals.add(lonVal);
-								zVals.add(writeVal);
+								xyzData.set(new Location(latVal, lonVal), writeVal);
 							}
 						}
 					}
@@ -317,8 +312,6 @@ public class HazardMapXMLViewerServlet  extends HttpServlet {
 
 		}
 
-
-		XYZ_DataSetAPI xyzData = new ArbDiscretizedXYZ_DataSet(xVals, yVals, zVals);
 		return xyzData;
 	}
 

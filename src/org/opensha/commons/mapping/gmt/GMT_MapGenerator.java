@@ -38,11 +38,9 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
-import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
 import org.opensha.commons.data.xyz.GeographicDataSetAPI;
 import org.opensha.commons.data.xyz.GeographicDataSetMath;
-import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GeoTools;
@@ -1330,10 +1328,10 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		gmtCommandLines.add("## Plot Script ##");
 		gmtCommandLines.add("");
 
-		XYZ_DataSetAPI griddedData = map.getGriddedData();
+		GeographicDataSetAPI griddedData = map.getGriddedData();
 		
 		try {
-			ArbDiscretizedXYZ_DataSet.writeXYZFile(griddedData, dir + map.getXyzFileName());
+			ArbDiscrGeographicDataSet.writeXYZFile(griddedData, dir + map.getXyzFileName());
 		} catch (IOException e) {
 			throw new GMT_MapException("Could not write XYZ data to a file", e);
 		}

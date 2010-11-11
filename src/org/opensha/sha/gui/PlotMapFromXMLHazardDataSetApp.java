@@ -65,9 +65,11 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
-import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
+import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
+import org.opensha.commons.data.xyz.ArbDiscrXYZ_DataSet;
 import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
 import org.opensha.commons.geo.GriddedRegion;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 import org.opensha.commons.param.ParameterList;
@@ -681,21 +683,20 @@ public class PlotMapFromXMLHazardDataSetApp extends JApplet implements Parameter
 	
 	void makeLocalMap(String fileName) {
 
-		XYZ_DataSetAPI xyzData = null;
+		ArbDiscrGeographicDataSet xyzData = null;
 		if(fileName != null){
-			ArrayList xVals = new ArrayList();
-			ArrayList yVals = new ArrayList();
-			ArrayList zVals = new ArrayList();
+			xyzData = new ArbDiscrGeographicDataSet(true);
 			try{
-				ArrayList fileLines = fileLines = FileUtils.loadFile(fileName);
-				ListIterator it = fileLines.listIterator();
+				ArrayList<String> fileLines = FileUtils.loadFile(fileName);
+				ListIterator<String> it = fileLines.listIterator();
 				while(it.hasNext()){
 					StringTokenizer st = new StringTokenizer((String)it.next());
-					xVals.add(new Double(st.nextToken().trim()));
-					yVals.add(new Double(st.nextToken().trim()));
-					zVals.add(new Double(st.nextToken().trim()));
+					double lat = new Double(st.nextToken().trim());
+					double lon = new Double(st.nextToken().trim());
+					double val = new Double(st.nextToken().trim());
+					Location loc = new Location(lat, lon);
+					xyzData.set(loc, val);
 				}
-				xyzData = new ArbDiscretizedXYZ_DataSet(xVals,yVals,zVals);
 			}catch(Exception ee){
 				JOptionPane.showMessageDialog(this,new String("Please enter URL or File Name"),"Error", JOptionPane.OK_OPTION);
 				ee.printStackTrace();

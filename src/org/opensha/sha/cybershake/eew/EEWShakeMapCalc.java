@@ -7,10 +7,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
+import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
+import org.opensha.commons.data.xyz.GeographicDataSetAPI;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
 import org.opensha.sha.cybershake.HazardCurveFetcher;
@@ -44,7 +44,7 @@ public class EEWShakeMapCalc {
 	private double totalProb;
 	private ShakeMapComputation smCalc;
 	
-	private HashMap<String, XYZ_DataSetAPI> shakeMaps = new HashMap<String, XYZ_DataSetAPI>();
+	private HashMap<String, GeographicDataSetAPI> shakeMaps = new HashMap<String, GeographicDataSetAPI>();
 	private HashMap<String, Double> unscaledProbs = new HashMap<String, Double>();
 	
 	private static final int datasetID = 1;
@@ -100,8 +100,8 @@ public class EEWShakeMapCalc {
 		}
 	}
 	
-	public XYZ_DataSetAPI doCalc(String dir) throws IOException {
-		ArbDiscretizedXYZ_DataSet xyz = new ArbDiscretizedXYZ_DataSet();
+	public GeographicDataSetAPI doCalc(String dir) throws IOException {
+		ArbDiscrGeographicDataSet xyz = new ArbDiscrGeographicDataSet(true);
 		for (CybershakeSite site : fetcher.getCurveSites()) {
 			ArrayList<CybershakeRun> runs = runs2db.getRuns(site.id);
 			if (runs.size() > 0) {
@@ -122,7 +122,7 @@ public class EEWShakeMapCalc {
 				}
 				
 				double val = HazardDataSetLoader.getCurveVal(curve, false, 0.5);
-				xyz.add(site.lat, site.lon, val);
+				xyz.set(new Location(site.lat, site.lon), val);
 			}
 		}
 		return xyz;
@@ -252,9 +252,9 @@ public class EEWShakeMapCalc {
 			
 			EEWShakeMapCalc calc = new EEWShakeMapCalc(db, rups);
 			
-			XYZ_DataSetAPI sm = calc.doCalc(dir);
+			GeographicDataSetAPI sm = calc.doCalc(dir);
 			
-			ArbDiscretizedXYZ_DataSet.writeXYZFile(sm, dir+File.separator+"shakemap.txt");
+			ArbDiscrGeographicDataSet.writeXYZFile(sm, dir+File.separator+"shakemap.txt");
 			
 //			calc.calc(dir);
 		} catch (Exception e) {
