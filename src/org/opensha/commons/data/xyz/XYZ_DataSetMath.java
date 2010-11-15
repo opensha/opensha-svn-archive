@@ -2,8 +2,19 @@ package org.opensha.commons.data.xyz;
 
 import java.awt.geom.Point2D;
 
-
+/**
+ * This class is used to perform common math operations on and between XYZ datasets.
+ * 
+ * @author kevin
+ *
+ */
 public class XYZ_DataSetMath {
+	
+	private static boolean isGeo(XYZ_DataSetAPI map1, XYZ_DataSetAPI map2) {
+		if (map1 instanceof GeographicDataSetAPI && map2 instanceof GeographicDataSetAPI)
+			return true;
+		return false;
+	}
 	
 	/**
 	 * Returns new <code>GeographicDataSetAPI</code> that represents the values in the
@@ -13,6 +24,8 @@ public class XYZ_DataSetMath {
 	 * @return
 	 */
 	public static XYZ_DataSetAPI add(XYZ_DataSetAPI map1, XYZ_DataSetAPI map2) {
+		if (isGeo(map1, map2))
+			return GeographicDataSetMath.add((GeographicDataSetAPI)map1, (GeographicDataSetAPI)map2);
 		ArbDiscrXYZ_DataSet sum = new ArbDiscrXYZ_DataSet();
 		
 		for (int i=0; i<map1.size(); i++) {
@@ -35,6 +48,8 @@ public class XYZ_DataSetMath {
 	 * @return
 	 */
 	public static XYZ_DataSetAPI subtract(XYZ_DataSetAPI minuend, XYZ_DataSetAPI subtrahend) {
+		if (isGeo(minuend, subtrahend))
+			return GeographicDataSetMath.subtract((GeographicDataSetAPI)minuend, (GeographicDataSetAPI)subtrahend);
 		ArbDiscrXYZ_DataSet difference = new ArbDiscrXYZ_DataSet();
 		
 		for (int i=0; i<minuend.size(); i++) {
@@ -58,12 +73,14 @@ public class XYZ_DataSetMath {
 	 * @return
 	 */
 	public static XYZ_DataSetAPI multiply(XYZ_DataSetAPI map1, XYZ_DataSetAPI map2) {
+		if (isGeo(map1, map2))
+			return GeographicDataSetMath.multiply((GeographicDataSetAPI)map1, (GeographicDataSetAPI)map2);
 		ArbDiscrXYZ_DataSet product = new ArbDiscrXYZ_DataSet();
 		
 		for (int i=0; i<map1.size(); i++) {
 			Point2D point = map1.getPoint(i);
 			double val1 = map1.get(i);
-			int map2Index = map1.indexOf(point);
+			int map2Index = map2.indexOf(point);
 			if (map2Index >= 0) {
 				double val2 = map2.get(map2Index);
 				product.set(point, val1 * val2);
@@ -80,6 +97,8 @@ public class XYZ_DataSetMath {
 	 * @return
 	 */
 	public static XYZ_DataSetAPI divide(XYZ_DataSetAPI dividend, XYZ_DataSetAPI divisor) {
+		if (isGeo(dividend, divisor))
+			return GeographicDataSetMath.divide((GeographicDataSetAPI)dividend, (GeographicDataSetAPI)divisor);
 		ArbDiscrXYZ_DataSet quotient = new ArbDiscrXYZ_DataSet();
 		
 		for (int i=0; i<dividend.size(); i++) {
@@ -88,7 +107,7 @@ public class XYZ_DataSetMath {
 			int map2Index = divisor.indexOf(point);
 			if (map2Index >= 0) {
 				double val2 = divisor.get(map2Index);
-				dividend.set(point, val1 / val2);
+				quotient.set(point, val1 / val2);
 			}
 		}
 		
@@ -151,13 +170,24 @@ public class XYZ_DataSetMath {
 	}
 	
 	/**
-	 * Each value in the map is raised to the given power. Changes are done in place, nothing is returned.
+	 * Each value in the map is scaled by the given scalar. Changes are done in place, nothing is returned.
 	 * 
 	 * @param map
 	 */
 	public static void scale(XYZ_DataSetAPI map, double scalar) {
 		for (int i=0; i<map.size(); i++) {
 			map.set(i, map.get(i) * scalar);
+		}
+	}
+	
+	/**
+	 * The given value is added to each value in the map. Changes are done in place, nothing is returned.
+	 * 
+	 * @param map
+	 */
+	public static void add(XYZ_DataSetAPI map, double value) {
+		for (int i=0; i<map.size(); i++) {
+			map.set(i, map.get(i) + value);
 		}
 	}
 

@@ -31,11 +31,9 @@ import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.FileUtils;
 
 /**
- * <p>Title: ArbDiscretizedXYZ_DataSet</p>
- * <p>Description: This class creates a vector for the XYZ dataset.
- * FIX : FIX - The implementation is the quick and dirty solution for the time being and will needed to
- * modified later on based on our requirements.
- * Requires Fixation to be consistent with our implementation of the 2-D data representation</p>
+ * <p>Title: ArbDiscrXYZ_DataSet</p>
+ * <p>Description: This class creates a vector for the XYZ dataset. Points can be arbitrarily
+ * distributed. This class is backed by the Point2D class and a HashMap.</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author : Ned Field, Nitin Gupta and Vipin Gupta
@@ -220,6 +218,11 @@ public class ArbDiscrXYZ_DataSet implements XYZ_DataSetAPI,java.io.Serializable{
 			xyz.set(getPoint(i), get(i));
 		}
 		return xyz;
+	}
+
+	@Override
+	public int indexOf(double x, double y) {
+		return indexOf(new Point2D.Double(x, y));
 	}
 	
 }

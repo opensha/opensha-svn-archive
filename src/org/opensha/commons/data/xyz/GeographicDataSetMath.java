@@ -2,6 +2,12 @@ package org.opensha.commons.data.xyz;
 
 import org.opensha.commons.geo.Location;
 
+/**
+ * This class does math for Geographic datasets. Comparisons are done in Locations instead of Point2D's.
+ * 
+ * @author kevin
+ *
+ */
 public class GeographicDataSetMath extends XYZ_DataSetMath {
 	
 	/**
@@ -87,7 +93,7 @@ public class GeographicDataSetMath extends XYZ_DataSetMath {
 			int map2Index = divisor.indexOf(loc);
 			if (map2Index >= 0) {
 				double val2 = divisor.get(map2Index);
-				dividend.set(loc, val1 / val2);
+				quotient.set(loc, val1 / val2);
 			}
 		}
 		

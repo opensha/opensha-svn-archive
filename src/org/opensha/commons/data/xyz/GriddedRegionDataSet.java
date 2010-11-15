@@ -9,6 +9,13 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 
+/**
+ * This is a Geohgraphic Dataset on a regular grid, as defined by a GriddedRegion. Points
+ * not in the given GriddedRegion cannot be set.
+ * 
+ * @author kevin
+ *
+ */
 public class GriddedRegionDataSet implements GeographicDataSetAPI {
 	
 	/**
@@ -24,7 +31,7 @@ public class GriddedRegionDataSet implements GeographicDataSetAPI {
 	
 	public GriddedRegionDataSet(GriddedRegion region, boolean latitudeX) {
 		this.region = region;
-		nodeList = new LocationList();
+		nodeList = region.getNodeList();
 		this.latitudeX = latitudeX;
 		map = new HashMap<Location, Double>();
 	}
@@ -198,6 +205,16 @@ public class GriddedRegionDataSet implements GeographicDataSetAPI {
 		}
 		
 		return data;
+	}
+
+	@Override
+	public int indexOf(double x, double y) {
+		return indexOf(new Point2D.Double(x, y));
+	}
+
+	@Override
+	public void setLatitudeX(boolean latitudeX) {
+		this.latitudeX = latitudeX;
 	}
 
 }

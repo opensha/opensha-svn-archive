@@ -20,62 +20,169 @@
 package org.opensha.commons.data.xyz;
 
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 /**
  * <p>Title: XYZ_DataSetAPI</p>
  * <p>Description: This interface defines the DataSet for the X,Y and Z.
- * It is the quick and dirty solution for the time being, and we need to fix
- * it with the same fuctionality as our 2-D representation of the data based
- * on the requirement.</p>
- * <p>Copyright: Copyright (c) 2002</p>
+ * This is the parent interface for <code>GeographicDataSetAPI</code>, which
+ * should be used for any Geographic (Location based) XYZ datasets.</p>
+ * <p>Copyright: Copyright (c) 2010</p>
  * <p>Company: </p>
- * @author : Ned Field, Nitin Gupta and Vipin Gupta
+ * @author : Kevin Milner
  * @version 1.0
  */
 
 public interface XYZ_DataSetAPI extends java.io.Serializable, Cloneable {
 
-
-	//gets the Min of the  X values
+	/**
+	 * Returns the minimum X value in this dataset.
+	 * 
+	 * @return
+	 */
 	public double getMinX();
 
-	//gets the Max of the X values
+	/**
+	 * Returns the maximum X value in this dataset.
+	 * 
+	 * @return
+	 */
 	public double getMaxX();
 
-	//gets the Min of the Y values
+	/**
+	 * Returns the minimum Y value in this dataset.
+	 * 
+	 * @return
+	 */
 	public double getMinY();
 
-	//gets the Max of the Y values
+	/**
+	 * Returns the maximum Y value in this dataset.
+	 * 
+	 * @return
+	 */
 	public double getMaxY();
 
-	//gets the Min of the Z values
+	/**
+	 * Returns the minimum Z value in this dataset.
+	 * 
+	 * @return
+	 */
 	public double getMinZ();
 
-	//gets the Max of the Z values
+	/**
+	 * Returns the maximum Z value in this dataset.
+	 * 
+	 * @return
+	 */
 	public double getMaxZ();
 	
+	/**
+	 * Sets the value at the given point. If the point doesn't exist, it will be added
+	 * to the dataset.
+	 * 
+	 * @param point
+	 * @param z
+	 */
 	public void set(Point2D point, double z);
 	
+	/**
+	 * Sets the value at the given point. If the point doesn't exist, it will be added
+	 * to the dataset.
+	 * 
+	 * @param x
+	 * @param y
+	 * @param z
+	 */
 	public void set(double x, double y, double z);
 	
+	/**
+	 * Sets the value at the given index. If index < 0 or index >= size(),
+	 * then an exception is thrown.
+	 * 
+	 * @param index
+	 * @param z
+	 */
 	public void set(int index, double z);
 	
+	/**
+	 * Gets the value at the given point. If the point doesn't exist, null will be returned.
+	 * 
+	 * @param point
+	 * @return
+	 */
 	public double get(Point2D point);
 	
+	/**
+	 * Gets the value at the given point. If the point doesn't exist, null will be returned.
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 */
 	public double get(double x, double y);
 
+	/**
+	 * Gets the value at the given index. If index < 0 or index >= size(),
+	 * then an exception is thrown.
+	 * @param index
+	 * @return
+	 */
 	public double get(int index);
 	
+	/**
+	 * Gets the point at the given index. If index < 0 or index >= size(),
+	 * then an exception is thrown.
+	 * 
+	 * @param index
+	 * @return
+	 */
 	public Point2D getPoint(int index);
 	
+	/**
+	 * Returns the index of the given point, or -1 if it isn't in the dataset.
+	 * 
+	 * @param point
+	 * @return
+	 */
 	public int indexOf(Point2D point);
 	
+	/**
+	 * Returns the index of the given point, or -1 if it isn't in the dataset.
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public int indexOf(double x, double y);
+	
+	/**
+	 * Returns true if the dataset contains the given point, false otherwise.
+	 * 
+	 * @param point
+	 * @return
+	 */
 	public boolean contains(Point2D point);
 	
+	/**
+	 * Returns true if the dataset contains the given point, false otherwise.
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 */
 	public boolean contains(double x, double y);
 	
+	/**
+	 * Returns the size of the given dataset.
+	 * 
+	 * @return
+	 */
 	public int size();
 	
+	/**
+	 * Sets every point in this dataset from the given dataset.
+	 * 
+	 * @param dataset
+	 */
 	public void setAll(XYZ_DataSetAPI dataset);
 	
 	public Object clone();

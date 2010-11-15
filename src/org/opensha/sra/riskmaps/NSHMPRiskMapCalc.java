@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.xyz.ArbDiscrXYZ_DataSet;
-import org.opensha.commons.data.xyz.EvenlyDiscretizedXYZ_DataSet;
+import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.util.ArrayUtils;
 import org.opensha.sra.calc.LossCurveCalculator;
 import org.opensha.sra.riskmaps.func.DiscreteInterpExterpFunc;
@@ -140,7 +140,7 @@ public class NSHMPRiskMapCalc {
 		printSingleTime("fetch", fetchTime, total);
 	}
 	
-	public EvenlyDiscretizedXYZ_DataSet calcRiskMap() throws Exception {
+	public EvenlyDiscrXYZ_DataSet calcRiskMap() throws Exception {
 		DiscreteInterpExterpFunc hazCurve = getNextCurve();
 		DiscreteInterpExterpFunc fragilityCurve = this.fragilityCurve;
 		double loc[];
@@ -151,7 +151,7 @@ public class NSHMPRiskMapCalc {
 		
 		LossCurveCalculator calc = new LossCurveCalculator();
 		
-		EvenlyDiscretizedXYZ_DataSet result = new EvenlyDiscretizedXYZ_DataSet(ncols, nrows,
+		EvenlyDiscrXYZ_DataSet result = new EvenlyDiscrXYZ_DataSet(ncols, nrows,
 				minLon, minLat, gridSpacing);
 		
 		int count = 0;
@@ -251,7 +251,7 @@ public class NSHMPRiskMapCalc {
 		long start = System.currentTimeMillis();
 		NSHMPRiskMapCalc calc = new NSHMPRiskMapCalc(curveReader, fragilityCurve);
 		
-		EvenlyDiscretizedXYZ_DataSet result = calc.calcRiskMap();
+		EvenlyDiscrXYZ_DataSet result = calc.calcRiskMap();
 		long end = System.currentTimeMillis();
 		
 		System.out.println("Took " + ((end - start) / 1000d) + " secs");

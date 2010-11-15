@@ -14,7 +14,14 @@ import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.FileUtils;
 
-public class EvenlyDiscretizedXYZ_DataSet implements XYZ_DataSetAPI {
+/**
+ * This class represents an evenly discretized XYZ dataset. Data is stored as an array, and set/get
+ * operations will use the closest point in the data if it's not exact.
+ * 
+ * @author kevin
+ *
+ */
+public class EvenlyDiscrXYZ_DataSet implements XYZ_DataSetAPI {
 	
 	/**
 	 * 
@@ -31,24 +38,24 @@ public class EvenlyDiscretizedXYZ_DataSet implements XYZ_DataSetAPI {
 	private double maxY;
 	private double gridSpacing;
 	
-	public EvenlyDiscretizedXYZ_DataSet(int nx, int ny, double minX, double minY, double gridSpacing) {
+	public EvenlyDiscrXYZ_DataSet(int nx, int ny, double minX, double minY, double gridSpacing) {
 		this(new double[ny][nx], minX, minY, gridSpacing);
 	}
 	
-	public EvenlyDiscretizedXYZ_DataSet(double[][] data, double minX, double minY, double gridSpacing) {
+	public EvenlyDiscrXYZ_DataSet(double[][] data, double minX, double minY, double gridSpacing) {
 		this.data = data;
 		this.minX = minX;
 		this.minY = minY;
 		this.gridSpacing = gridSpacing;
 		
-		this.ny = data[0].length;
-		this.nx = data.length;
+		this.ny = data.length;
+		this.nx = data[0].length;
 		
-		maxX = minX + gridSpacing * (ny-1);
-		maxY = minY + gridSpacing * (nx-1);
+		maxX = minX + gridSpacing * (nx-1);
+		maxY = minY + gridSpacing * (ny-1);
 		
-		System.out.println("EvenlyDiscretizedXYZ_DataSet: minX: " + minX + ", maxX: " + maxX
-				+ ", minY: " + minY + ", maxY: " + maxY);
+//		System.out.println("EvenlyDiscretizedXYZ_DataSet: minX: " + minX + ", maxX: " + maxX
+//				+ ", minY: " + minY + ", maxY: " + maxY);
 	}
 
 	public double getMaxX() {
@@ -102,17 +109,17 @@ public class EvenlyDiscretizedXYZ_DataSet implements XYZ_DataSetAPI {
 	}
 	
 	public int getNumX() {
-		return ny;
+		return nx;
 	}
 	
 	public int getNumY() {
-		return nx;
+		return ny;
 	}
 	
 	public void writeXYZBinFile(String fileNamePrefix) throws IOException {
 		FileWriter header = new FileWriter(fileNamePrefix + ".hdr");
-		header.write("ncols" + "\t" + ny + "\n");
-		header.write("nrows" + "\t" + nx + "\n");
+		header.write("ncols" + "\t" + nx + "\n");
+		header.write("nrows" + "\t" + ny + "\n");
 		header.write("xllcorner" + "\t" + minX + "\n");
 		header.write("yllcorner" + "\t" + minY + "\n");
 		header.write("cellsize" + "\t" + gridSpacing + "\n");
@@ -123,8 +130,8 @@ public class EvenlyDiscretizedXYZ_DataSet implements XYZ_DataSetAPI {
 		
 		DataOutputStream out = new DataOutputStream(new FileOutputStream(fileNamePrefix + ".flt"));
 		
-		for (int row=0; row<nx; row++) {
-			for (int col=0; col<ny; col++) {
+		for (int row=0; row<ny; row++) {
+			for (int col=0; col<nx; col++) {
 				double val = get(col, row);
 				out.writeFloat((float)val);
 			}
@@ -144,7 +151,7 @@ public class EvenlyDiscretizedXYZ_DataSet implements XYZ_DataSetAPI {
 		return null;
 	}
 	
-	public static EvenlyDiscretizedXYZ_DataSet readXYZBinFile(String fileNamePrefix) throws IOException {
+	public static EvenlyDiscrXYZ_DataSet readXYZBinFile(String fileNamePrefix) throws IOException {
 		ArrayList<String> lines = FileUtils.loadFile(fileNamePrefix + ".hdr");
 		
 		int ncols = Integer.parseInt(getHeaderValue(lines, "ncols"));
@@ -155,7 +162,7 @@ public class EvenlyDiscretizedXYZ_DataSet implements XYZ_DataSetAPI {
 		
 		DataInputStream reader = new DataInputStream(new FileInputStream(fileNamePrefix + ".flt"));
 		
-		EvenlyDiscretizedXYZ_DataSet data = new EvenlyDiscretizedXYZ_DataSet(ncols, nrows, minX, minY, gridSpacing);
+		EvenlyDiscrXYZ_DataSet data = new EvenlyDiscrXYZ_DataSet(ncols, nrows, minX, minY, gridSpacing);
 		
 		for (int row=0; row<nrows; row++) {
 			for (int col=0; col<ncols; col++) {
@@ -207,12 +214,14 @@ public class EvenlyDiscretizedXYZ_DataSet implements XYZ_DataSetAPI {
 	public void set(double x, double y, double z) {
 		if (!contains(x, y))
 			throw new InvalidRangeException("point must be within range");
-		this.set(getXIndex(x), getYIndex(y));
+		this.set(getXIndex(x), getYIndex(y), z);
 	}
 
 	@Override
 	public void set(int index, double z) {
-		this.set(getXIndex(index), getYIndex(index));
+//		System.out.println("nx: " + nx + ", ny: " + ny);
+//		System.out.println("set: index="+index+", x="+getXIndex(index)+", y="+getYIndex(index));
+		this.set(getXIndex(index), getYIndex(index), z);
 	}
 
 	@Override
@@ -269,13 +278,18 @@ public class EvenlyDiscretizedXYZ_DataSet implements XYZ_DataSetAPI {
 
 	@Override
 	public Object clone() {
-		EvenlyDiscretizedXYZ_DataSet xyz = new EvenlyDiscretizedXYZ_DataSet(nx, ny, minX, minY, gridSpacing);
+		EvenlyDiscrXYZ_DataSet xyz = new EvenlyDiscrXYZ_DataSet(nx, ny, minX, minY, gridSpacing);
 		for (int x=0; x<nx; x++) {
 			for (int y=0; y<ny; y++) {
 				xyz.set(x, y, get(x, y));
 			}
 		}
 		return xyz;
+	}
+
+	@Override
+	public int indexOf(double x, double y) {
+		return indexOf(new Point2D.Double(x, y));
 	}
 
 }
