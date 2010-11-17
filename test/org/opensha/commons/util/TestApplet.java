@@ -41,8 +41,10 @@ import javax.swing.JTextField;
  * in the Text-Areas and Text-Fields if we use the Java Version 1.4 on the Macs</p>
  * @author : Nitin Gupta
  * @version 1.0
+ * 
+ * CLEAN investigate if this is really needed pmpowers 11/17/2010
  */
-
+@Deprecated
 public class TestApplet extends JApplet {
   private boolean isStandalone = false;
   private JPanel jPanel1 = new JPanel();

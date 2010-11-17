@@ -6,11 +6,10 @@ import org.opensha.commons.geo.LocationUtilsTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	LocationUtilsTest.class,
 	TestFaultMomentCalc.class,
+	TestFractileCurveCalculator.class,
 	TestFunctionListCalc.class,
 	TestGaussianDistCalc.class,
-	TestFractileCurveCalculator.class,
 	TestMomentMagCalc.class
 })
 

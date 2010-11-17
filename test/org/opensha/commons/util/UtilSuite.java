@@ -26,6 +26,7 @@ import org.opensha.commons.util.binFile.GeolocatedBinaryMesh2DTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+	DataUtilsTest.class,
 	FaultUtilsTests.class,
 	BinaryMesh2DTest.class,
 	GeolocatedBinaryMesh2DTest.class

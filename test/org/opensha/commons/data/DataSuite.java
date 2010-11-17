@@ -22,6 +22,7 @@ package org.opensha.commons.data;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.opensha.commons.data.siteData.SiteDataProvidersTest;
+import org.opensha.commons.data.siteData.TestSiteDataProviders_Operational;
 import org.opensha.commons.geo.GriddedRegionTest;
 import org.opensha.commons.geo.RegionTest;
 
@@ -29,10 +30,12 @@ import org.opensha.commons.geo.RegionTest;
 @Suite.SuiteClasses({
 	DataPoint2DTests.class,
 	Point2DToleranceSortedListTest.class,
+	TestEvenlyDiscretizedXYZ_DataSet.class,
 	TimeSpanTests.class,
-	GriddedRegionTest.class,
-	RegionTest.class,
-	SiteDataProvidersTest.class
+	
+	// siteData
+	SiteDataProvidersTest.class,
+	TestSiteDataProviders_Operational.class
 })
 
 public class DataSuite

@@ -25,9 +25,11 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	GeoToolsTest.class,
-	LocationTest.class,
+	GriddedRegionTest.class,
 	LocationListTest.class,
-	LocationUtilsTest.class
+	LocationTest.class,
+	LocationUtilsTest.class,
+	RegionTest.class
 })
 
 public class GeoSuite
