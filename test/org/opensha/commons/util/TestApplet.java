@@ -42,7 +42,7 @@ import javax.swing.JTextField;
  * @author : Nitin Gupta
  * @version 1.0
  * 
- * CLEAN investigate if this is really needed pmpowers 11/17/2010
+ * TODO clean investigate if this is really needed pmpowers 11/17/2010
  */
 @Deprecated
 public class TestApplet extends JApplet {
