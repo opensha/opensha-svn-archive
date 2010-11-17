@@ -20,8 +20,7 @@
 package org.opensha.commons.geo;
 
 import static java.lang.Math.PI;
-
-import org.apache.commons.math.distribution.PoissonDistributionImpl;
+import static com.google.common.base.Preconditions.*;
 import org.opensha.commons.util.DataUtils;
 
 /**
@@ -112,8 +111,10 @@ public class GeoTools {
      * <code>LAT_MIN</code> and <code>LAT_MAX</code> (inclusive).
      * 
      * @param lats latitudes to validate
-     * @throws IllegalArgumentException if a <code>lat</code> value is 
+	 * @throws NullPointerException if <code>lats</code> is <code>null</code>
+     * @throws IllegalArgumentException if any <code>lats</code> value is 
      * 		   out of range
+     * @see DataUtils#validate(double[], double, double)
      */
     public static final void validateLats(double[] lats) {
         DataUtils.validate(lats, LAT_MIN, LAT_MAX);
@@ -126,6 +127,7 @@ public class GeoTools {
      * @param lat latitude to validate
      * @throws IllegalArgumentException if <code>lat</code> value is 
      * 		   out of range
+     * @see DataUtils#validate(double, double, double)
      */
     public static final void validateLat(double lat) {
     	DataUtils.validate(lat, LAT_MIN, LAT_MAX);
@@ -136,8 +138,10 @@ public class GeoTools {
      * <code>LON_MIN</code> and <code>LON_MAX</code> (inclusive).
      * 
      * @param lons longitudes to validate
-     * @throws IllegalArgumentException if a <code>lon</code> value is 
+	 * @throws NullPointerException if <code>lons</code> is <code>null</code>
+     * @throws IllegalArgumentException if any <code>lons</code> value is 
      * 		   out of range
+     * @see DataUtils#validate(double[], double, double)
      */
     public static final void validateLons(double[] lons) {
     	DataUtils.validate(lons, LON_MIN, LON_MAX);
@@ -150,6 +154,7 @@ public class GeoTools {
      * @param lon longitude to validate
      * @throws IllegalArgumentException if <code>lon</code> value is 
      * 		   out of range
+     * @see DataUtils#validate(double, double, double)
      */
     public static final void validateLon(double lon) {
     	DataUtils.validate(lon, LON_MIN, LON_MAX);
@@ -160,8 +165,10 @@ public class GeoTools {
      * <code>DEPTH_MIN</code> and <code>DEPTH_MAX</code> (inclusive).
      * 
      * @param depths depths to validate
-     * @throws IllegalArgumentException if a <code>depth</code> value is 
+	 * @throws NullPointerException if <code>depths</code> is <code>null</code>
+     * @throws IllegalArgumentException if any <code>depths</code> value is 
      * 		   out of range
+     * @see DataUtils#validate(double[], double, double)
      */
     public static final void validateDepths(double[] depths) {
     	DataUtils.validate(depths, DEPTH_MIN, DEPTH_MAX);
@@ -174,6 +181,7 @@ public class GeoTools {
      * @param depth depth to validate
      * @throws IllegalArgumentException if a <code>depth</code> value is 
      * 		   out of range
+     * @see DataUtils#validate(double, double, double)
      */
     public static final void validateDepth(double depth) {
     	DataUtils.validate(depth, DEPTH_MIN, DEPTH_MAX);
@@ -187,8 +195,10 @@ public class GeoTools {
 	 * 
 	 * @param p the <code>Location</code> at which to compute the earth's radius
 	 * @return the earth's radius at the supplied <code>Location</code>
+	 * @throws NullPointerException if supplied location is <code>null</code>
 	 */
 	public static double radiusAtLocation(Location p) {
+		checkNotNull(p, "Supplied location is null");
 		double cosL = Math.cos(p.getLatRad());
 		double sinL = Math.sin(p.getLatRad());
 		double C1 = cosL * EARTH_RADIUS_EQUATORIAL;
@@ -208,9 +218,11 @@ public class GeoTools {
 	 * @param p the <code>Location</code> at which to conversion value
 	 * @return the number of decimal degrees latitude per km at a given
 	 * 		<code>Location</code>
+	 * @throws NullPointerException if supplied location is <code>null</code>
 	 * @see #radiusAtLocation(Location)
 	 */
 	public static double degreesLatPerKm(Location p) {
+		checkNotNull(p, "Supplied location is null");
 		return TO_DEG / radiusAtLocation(p);
 	}
 
@@ -219,13 +231,16 @@ public class GeoTools {
 	 * <code>Location</code>. This can be used to convert between km-based
 	 * and degree-based grid spacing. The calculation scales the degrees
 	 * longitude per km at the equator by the cosine of the supplied
-	 * latitude.
+	 * latitude. (<i>Note</i>: The values returned are not based on the radius 
+	 * of curvature of the earth at the supplied location.)
 	 * 
 	 * @param p the <code>Location</code> at which to conversion value
 	 * @return the number of decimal degrees longitude per km at a given
 	 * 		<code>Location</code>
+	 * @throws NullPointerException if supplied location is <code>null</code>
 	 */
 	public static double degreesLonPerKm(Location p) {
+		checkNotNull(p, "Supplied location is null");
 		return TO_DEG / (EARTH_RADIUS_EQUATORIAL * Math.cos(p.getLatRad()));
 	}
 	
@@ -259,14 +274,5 @@ public class GeoTools {
                 (degrees - minutesToDeg(minutes)) :
                 (degrees + minutesToDeg(minutes));
     }
-
-	public static void main(String[] args) {
-		double rate = 0.001;
-		double time = 50;
-		PoissonDistributionImpl pdi = new PoissonDistributionImpl(rate);
-		System.out.println(pdi.probability(time));
-		System.out.println(1-Math.exp(-rate*time));
-		
-	}
 
 }

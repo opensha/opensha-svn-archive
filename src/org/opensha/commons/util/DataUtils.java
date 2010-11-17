@@ -43,15 +43,20 @@ public class DataUtils {
 	/**
 	 * Validates the domain of a <code>double</code> data set. Method verifies
 	 * that data values all fall within a specified minimum and maximum range
-	 * (inclusive).
+	 * (inclusive). Empty arrays are ignored. If <code>min</code> is 
+	 * <code>Double.NaN</code>, no lower limit is imposed; the same holds true
+	 * for <code>max</code>. <code>Double.NaN</code> values in <code>data</code>
+	 * will validate.
 	 * 
 	 * @param data to validate
 	 * @param min minimum range value
 	 * @param max maximum range value
-	 * @throws IllegalArgumentException if a data value is out of range
+	 * @throws NullPointerException if <code>data</code> is <code>null</code>
+	 * @throws IllegalArgumentException if any <code>data</code> value is out of range
 	 */
 	public final static void validate(double[] data, double min, double max)
-																			throws IllegalArgumentException {
+			throws IllegalArgumentException, NullPointerException {
+		checkNotNull(data, "Supplied data array is null");
 		double value;
 		for (int i = 0; i < data.length; i++) {
 			value = data[i];
@@ -61,10 +66,13 @@ public class DataUtils {
 			}
 		}
 	}
-
+	
 	/**
 	 * Verifies that a <code>double</code> data value falls within a specified
-	 * minimum and maximum range (inclusive).
+	 * minimum and maximum range (inclusive). If <code>min</code> is 
+	 * <code>Double.NaN</code>, no lower limit is imposed; the same holds true
+	 * for <code>max</code>. A value of <code>Double.NaN</code> will always
+	 * validate.
 	 * 
 	 * @param value to check
 	 * @param min minimum range value
@@ -93,11 +101,11 @@ public class DataUtils {
 	 */
 	public static Object arraySelect(Object array, int[] indices) {
 		checkNotNull(array, "Supplied data array is null");
+		checkNotNull(indices, "Supplied index array is null");
 		checkArgument(array.getClass().isArray(),
 			"Data object supplied is not an array");
 		int arraySize = Array.getLength(array);
 		checkArgument(arraySize != 0, "Supplied data array is empty");
-		checkNotNull(indices, "Supplied index array is null");
 
 		// validate indices
 		for (int i = 0; i < indices.length; i++) {
@@ -142,8 +150,19 @@ public class DataUtils {
 
 	/**
 	 * Returns the percent difference between two values.
-	 * 
+	 * TODO test,edit
 	 */
+//	public static double getPercentDiff2(double test, double target) {
+//		return Math.abs((test - target) / target) * 100.0;
+//
+//
+//		// double result = 0;
+//		// if (targetVal != 0)
+//		// result = (Math.abs(testVal - targetVal) / targetVal) * 100d;
+//		//
+//		// return result;
+//	}
+	
 	public static double getPercentDiff(double testVal, double targetVal) {
 		double result = 0;
 		if (targetVal != 0)
@@ -151,7 +170,32 @@ public class DataUtils {
 
 		return result;
 	}
+// TODO clean
+	public static void main(String[] args) {
+//		System.out.println(getPercentDiff1(10,10) + " " + getPercentDiff2(10,10));
+//		System.out.println(getPercentDiff1(10.0000000000001,10) + " " + getPercentDiff2(10.0000000000001,10));
+//		System.out.println(getPercentDiff1(10,10.0000000000001) + " " + getPercentDiff2(10,10.0000000000001));
+//		System.out.println(getPercentDiff1(10,0) + " " + getPercentDiff2(10.0,0.0));
+//		System.out.println(getPercentDiff1(0,10) + " " + getPercentDiff2(0,10));
+//		System.out.println(getPercentDiff1(Double.NaN,10) + " " + getPercentDiff2(Double.NaN,10));
+//		System.out.println(getPercentDiff1(10,Double.NaN) + " " + getPercentDiff2(10,Double.NaN));
+//		
+//		double d1 = 10.0;
+//		double d2 = 0.0;
+//		try {
+//			double dd = Math.abs((d1 - d2) / d2) * 100.0;
+//			System.out.println(dd);
+//		} catch (ArithmeticException e) {
+//			System.out.println("hi");
+//			//return (test == 0.0) ? 0.0 : 100.0;
+//		}
+//		System.out.println(Math.abs((10d - 0d) / 0d) * 100.0);
+		
+		//getPercentDiff(0.)
+	}
+	
 
+	// TODO test
 	public static class MinMaxAveTracker {
 		private double min = Double.POSITIVE_INFINITY;
 		private double max = Double.NEGATIVE_INFINITY;
