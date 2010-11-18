@@ -403,7 +403,7 @@ public class DefaultCatalog implements Catalog {
 	private void runMinMax(DataType type, Object data) {
 		if (type == DataType.TIME) {
 			minDate = new Date(((long[]) data)[0]);
-			maxDate = new Date(((long[]) data)[size - 1]);
+			maxDate = new Date(((long[]) data)[Array.getLength(data) - 1]);
 		} else if (minMaxTypes.contains(type)) {
 			minVals.put(type, Doubles.min((double[]) data));
 			maxVals.put(type, Doubles.max((double[]) data));
@@ -414,6 +414,7 @@ public class DefaultCatalog implements Catalog {
 	 * Duplicates the supplied array.
 	 */
 	private Object duplicateArray(Object data) {
+		int size = Array.getLength(data);
 		Object out = Array
 			.newInstance(data.getClass().getComponentType(), size);
 		System.arraycopy(data, 0, out, 0, size);
