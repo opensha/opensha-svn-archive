@@ -115,6 +115,7 @@ public class Reader_ANSS extends AbstractReader {
 			dat_eventIDs.add((id.equals("")) ? 0 : Integer.parseInt(id));
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new IllegalArgumentException(
 				"Error reading catalog file format at line: " + count);
 		}
