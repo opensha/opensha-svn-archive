@@ -96,7 +96,7 @@ public abstract class AbstractReader implements CatalogReader {
 
 	/**
 	 * Constructs a new catalog file reader that will use the supplied size to
-	 * initialize internal data arrays.
+	 * initialize internal data arrays. 
 	 *
 	 * @param name of the reader
 	 * @param description of the reader
@@ -104,7 +104,7 @@ public abstract class AbstractReader implements CatalogReader {
 	 * @throws IllegalArgumentException if <code>size</code> is less than 1
 	 */
 	public AbstractReader(String name, String description, int size) {
-		checkArgument(size < 1, "Supplied array size must be positive");
+		checkArgument(size > 0, "Supplied array size must be positive");
 		this.size = size;
 		this.name = name;
 		this.description = description;
