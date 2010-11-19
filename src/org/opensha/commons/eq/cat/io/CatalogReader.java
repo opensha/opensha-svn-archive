@@ -21,6 +21,8 @@ public interface CatalogReader {
 	 * @param file to process
 	 * @param catalog for file data
 	 * @throws IOException if IO or data reading problem encountered
+	 * @throws NullPointerException if <code>file</code> or <code>catalog</code>
+	 *         are <code>null</code>
 	 */
 	public void process(File file, Catalog catalog) throws IOException;
 

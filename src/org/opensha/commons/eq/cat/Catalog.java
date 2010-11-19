@@ -178,10 +178,12 @@ public interface Catalog {
 	 * [LONGITUDE, LATITUDE, DEPTH, MAGNITUDE]
 	 * 
 	 * @param type requested
-	 * @return the minimum value or <code>Double.NaN</code> if it is not set
+	 * @return the minimum value for the <code>DatType</code>
 	 * @throws NullPointerException if <code>type</code> is <code>null</code>
 	 * @throws IllegalArgumentException if requested <code>type</code> is not
 	 *         valid
+	 * @throws IllegalStateException if requested <code>type</code> is valid but
+	 *         was never added to catalog
 	 */
 	public double minForType(DataType type);
 
@@ -191,10 +193,12 @@ public interface Catalog {
 	 * [LONGITUDE, LATITUDE, DEPTH, MAGNITUDE]
 	 * 
 	 * @param type requested
-	 * @return the maximum value or <code>Double.NaN</code> if it is not set
+	 * @return the maximum value for the <code>DatType</code>
 	 * @throws NullPointerException if <code>type</code> is <code>null</code>
 	 * @throws IllegalArgumentException if requested <code>type</code> is not
 	 *         valid
+	 * @throws IllegalStateException if requested <code>type</code> is valid but
+	 *         was never added to catalog
 	 */
 	public double maxForType(DataType type);
 

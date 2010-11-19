@@ -181,6 +181,7 @@ public class DefaultCatalog implements Catalog {
 		if (type == MAGNITUDE) CatTools.validateMags((double[]) data);
 		runMinMax(type, data);
 		dataMap.put(type, data);
+		if (size == -1) size = Array.getLength(data);
 	}
 
 	@Override
@@ -220,7 +221,7 @@ public class DefaultCatalog implements Catalog {
 	 * @throws IndexOutOfBoundsException if any indices are out of range
 	 */
 	public Object deriveData(DataType type, int[] indices) {
-		if (dataMap.get(type) == null) return null;
+		if (dataMap.get(type) != null) return null;
 		return DataUtils.arraySelect(dataMap.get(type), indices);
 	}
 
@@ -338,7 +339,7 @@ public class DefaultCatalog implements Catalog {
 	@Override
 	public int getEventID(int index) {
 		checkPositionIndex(index, size, "Requested index");
-		checkState(dataMap.get(DataType.EVENT_ID) == null,
+		checkState(dataMap.get(DataType.EVENT_ID) != null,
 			"Catalog is missing event ID values");
 		return ((int[]) dataMap.get(DataType.EVENT_ID))[index];
 	}
@@ -369,7 +370,7 @@ public class DefaultCatalog implements Catalog {
 		checkNotNull(type, "Data type is null");
 		checkArgument(minMaxTypes.contains(type), "Invalid data type");
 		checkPositionIndex(index, size, "Requested index");
-		checkState(dataMap.get(type) == null, "Catalog is missing %s values",
+		checkState(dataMap.get(type) != null, "Catalog is missing %s values",
 			type);
 		return ((double[]) dataMap.get(type))[index];
 	}
@@ -378,22 +379,18 @@ public class DefaultCatalog implements Catalog {
 	public double minForType(DataType type) {
 		checkNotNull(type, "Data type is null");
 		checkArgument(minMaxTypes.contains(type), "Invalid data type");
-		checkState(dataMap.get(type) == null, "Catalog is missing %s values",
+		checkState(dataMap.get(type) != null, "Catalog is missing %s values",
 			type);
-		return 0;
-		// TODO do nothing
-
+		return minVals.get(type);
 	}
 
 	@Override
 	public double maxForType(DataType type) {
 		checkNotNull(type, "Data type is null");
 		checkArgument(minMaxTypes.contains(type), "Invalid data type");
-		checkState(dataMap.get(type) == null, "Catalog is missing %s values",
+		checkState(dataMap.get(type) != null, "Catalog is missing %s values",
 			type);
-		return 0;
-		// TODO do nothing
-
+		return maxVals.get(type);
 	}
 
 	/*
