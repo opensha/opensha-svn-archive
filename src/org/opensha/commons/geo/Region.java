@@ -21,6 +21,7 @@ package org.opensha.commons.geo;
 
 import static org.opensha.commons.geo.GeoTools.PI_BY_2;
 import static org.opensha.commons.geo.GeoTools.TO_RAD;
+import static com.google.common.base.Preconditions.*;
 
 import java.awt.Shape;
 import java.awt.geom.Area;
@@ -464,15 +465,18 @@ public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
 	 * 
 	 * @param loc the Location to compute a distance to
 	 * @return the minimum distance between this <code>Region</code> and a point
+	 * @throws NullPointerException if supplied location is <code>null</code>
 	 * @see LocationUtils#distanceToLineFast(Location, Location, Location)
 	 */
 	public double distanceToLocation(Location loc) {
+		checkNotNull(loc, "Supplied location is null");
 		if (contains(loc)) return 0;
 		double min = border.minDistToLine(loc);
 		// check the segment defined by the last and first points
-		double temp = LocationUtils.distanceToLineFast(
+		// take abs because value may be negative; i.e. value to left of line
+		double temp = Math.abs(LocationUtils.distanceToLineFast(
 				border.get(border.size() - 1),
-				border.get(0), loc);
+				border.get(0), loc));
 		return (temp < min) ? temp : min;
 	}
 

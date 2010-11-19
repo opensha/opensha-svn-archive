@@ -441,8 +441,6 @@ public class RegionTest {
 		assertTrue(!lgRectMercRegion.contains(containsNloc));
 		assertTrue(lgRectMercRegion.contains(containsSloc));
 		assertTrue(lgRectMercRegion.contains(containsWloc));
-		
-		//fail()
 	}
 	
 	@Test
@@ -647,11 +645,20 @@ public class RegionTest {
 		assertTrue(MathUtils.equals(-105, octRegion.getMaxLon(), TOLERANCE));
 	}
 
+	@Test(expected=NullPointerException.class)
+	public final void testDistanceToLocationNPE() {
+		octRegion.distanceToLocation(null);
+	}
+	
 	@Test
 	public final void testDistanceToLocation() {
+		System.out.println(octRegion.distanceToLocation(new Location(29,-120)));
+		System.out.println(octRegion.distanceToLocation(new Location(29,-105)));
+		System.out.println(octRegion.distanceToLocation(new Location(30,-115)));
+
 		fail("Not yet implemented");
 	}
-
+	
 	@Test
 	public final void testGetName() {
 		assertTrue(octRegion.getName().equals("Unnamed Region"));
@@ -755,6 +762,8 @@ public class RegionTest {
 	}
 
 	public static void main(String[] args) {
+		
+		
 		
 //		Location smCenter = new Location(43, -110);
 //		smCircRegion = new Region(smCenter, 100);

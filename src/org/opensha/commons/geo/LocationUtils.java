@@ -27,50 +27,50 @@ import static org.opensha.commons.geo.GeoTools.EARTH_RADIUS_MEAN;
 
 import org.apache.commons.math.util.MathUtils;
 
-
 /**
  * This class contains static utility methods to operate on geographic
  * <code>Location</code> data.<br>
  * <br>
  * See: <a href="http://williams.best.vwh.net/avform.htm" target="_blank">
- * Aviation Formulary</a> for formulae implemented in this class as well as
- * <a href="http://www.movable-type.co.uk/scripts/latlong.html"
+ * Aviation Formulary</a> for formulae implemented in this class as well as <a
+ * href="http://www.movable-type.co.uk/scripts/latlong.html"
  * target="_blank">Moveable Type Scripts</a> for other implementations.
- *
+ * 
  * @author Peter Powers
  * @author Steven W. Rock
  * @version $Id$
  * @see Location
  */
 public final class LocationUtils {
-	
+
 	/*
-	 * Developer Notes: All experimental, exploratory and test methods were 
-	 * moved to the LocationUtilsTest.java. On the basis of various 
-	 * experiments, older methods to calculate distance were replaced with 
-	 * updated versions, many of which leverage spherical geometry to yield
-	 * more accurate results. Some 'fast' versions were updated as well. All 
-	 * legacy methods, however, are preserved in LocationUtilsTest.java 
-	 * where comparison tests can be rerun. P.Powers 3-6-2010
+	 * Developer Notes: All experimental, exploratory and test methods were
+	 * moved to the LocationUtilsTest.java. On the basis of various experiments,
+	 * older methods to calculate distance were replaced with updated versions,
+	 * many of which leverage spherical geometry to yield more accurate results.
+	 * Some 'fast' versions were updated as well. All legacy methods, however,
+	 * are preserved in LocationUtilsTest.java where comparison tests can be
+	 * rerun. P.Powers 3-6-2010
 	 * 
-	 * Most methods take Locations exclusively as arguments. This alleviates
-	 * any error checking that must otherwise be performed on user supplied
-	 * lat-lon values. It also alleviates the need for expensive degree-radian
+	 * Most methods take Locations exclusively as arguments. This alleviates any
+	 * error checking that must otherwise be performed on user supplied lat-lon
+	 * values. It also alleviates the need for expensive degree-radian
 	 * conversions by using radians, the native format for Locations,
 	 * exclusively.
 	 * 
-	 * TODO: Add log warnings when 'fast' methods are being used for points
-	 * that exceed some max separation.
+	 * TODO: Add log warnings when 'fast' methods are being used for points that
+	 * exceed some max separation.
 	 */
 
 	/* No instantiation allowed */
 	private LocationUtils() {}
-	
+
 	/**
-	 * <code>Enum</code> used indicate sidedness of points with
-	 * respect to a line.
+	 * <code>Enum</code> used indicate sidedness of points with respect to a
+	 * line.
 	 */
 	public enum Side {
+		// TODO needed??
 		/** Indicates a point is on the right side of a line. */
 		RIGHT,
 		/** Indicates a point is on the left side of a line. */
@@ -80,12 +80,12 @@ public final class LocationUtils {
 	}
 
 	/**
-	 * Calculates the angle between two <code>Location</code>s using the 
-	 * <a href="http://en.wikipedia.org/wiki/Haversine_formula" target="_blank">
+	 * Calculates the angle between two <code>Location</code>s using the <a
+	 * href="http://en.wikipedia.org/wiki/Haversine_formula" target="_blank">
 	 * Haversine</a> formula. This method properly handles values spanning
-	 * &#177;180&#176;. See 
-	 * <a href="http://williams.best.vwh.net/avform.htm#Dist">
-	 * Aviation Formulary</a> for source. Result is returned in radians.
+	 * &#177;180&#176;. See <a
+	 * href="http://williams.best.vwh.net/avform.htm#Dist"> Aviation
+	 * Formulary</a> for source. Result is returned in radians.
 	 * 
 	 * @param p1 the first <code>Location</code> point
 	 * @param p2 the second <code>Location</code> point
@@ -97,17 +97,16 @@ public final class LocationUtils {
 		double sinDlatBy2 = Math.sin((lat2 - lat1) / 2.0);
 		double sinDlonBy2 = Math.sin((p2.getLonRad() - p1.getLonRad()) / 2.0);
 		// half length of chord connecting points
-		double c = (sinDlatBy2 * sinDlatBy2) +
-				   (Math.cos(lat1) * Math.cos(lat2) * sinDlonBy2 * sinDlonBy2);
-		return 2.0 * Math.atan2(Math.sqrt(c), Math.sqrt(1-c));
+		double c = (sinDlatBy2 * sinDlatBy2)
+			+ (Math.cos(lat1) * Math.cos(lat2) * sinDlonBy2 * sinDlonBy2);
+		return 2.0 * Math.atan2(Math.sqrt(c), Math.sqrt(1 - c));
 	}
-	
+
 	/**
 	 * Calculates the great circle surface distance between two
-	 * <code>Location</code>s using the Haversine formula for 
-	 * computing the angle between two points. For a faster, but less
-	 * accurate implementation at large separations, see 
-	 * {@link #horzDistanceFast(Location, Location)}.
+	 * <code>Location</code>s using the Haversine formula for computing the
+	 * angle between two points. For a faster, but less accurate implementation
+	 * at large separations, see {@link #horzDistanceFast(Location, Location)}.
 	 * 
 	 * @param p1 the first <code>Location</code> point
 	 * @param p2 the second <code>Location</code> point
@@ -116,21 +115,20 @@ public final class LocationUtils {
 	 * @see #horzDistanceFast(Location, Location)
 	 */
 	public static double horzDistance(Location p1, Location p2) {
-		return EARTH_RADIUS_MEAN * angle(p1,p2);
+		return EARTH_RADIUS_MEAN * angle(p1, p2);
 	}
-	
+
 	/**
-	 * Calculates approximate distance between two <code>Location</code>s.
-	 * This method is about 2 orders of magnitude faster than 
-	 * <code>horzDistance()</code>, but is imprecise at large distances. 
-	 * Method uses the latitudinal and longitudinal differences between the 
-	 * points as the sides of a right triangle. The longitudinal distance is 
-	 * scaled by the cosine of the mean latitude.<br/>
+	 * Calculates approximate distance between two <code>Location</code>s. This
+	 * method is about 2 orders of magnitude faster than
+	 * <code>horzDistance()</code>, but is imprecise at large distances. Method
+	 * uses the latitudinal and longitudinal differences between the points as
+	 * the sides of a right triangle. The longitudinal distance is scaled by the
+	 * cosine of the mean latitude.<br/>
 	 * <br/>
-	 * <b>Note:</b> This method does <i>NOT</i> support values spanning 
+	 * <b>Note:</b> This method does <i>NOT</i> support values spanning
 	 * #177;180&#176; and fails where the numeric angle exceeds 180&#176;. Use
-	 * {@link #horzDistance(Location, Location)} in such
-	 * instances.
+	 * {@link #horzDistance(Location, Location)} in such instances.
 	 * 
 	 * @param p1 the first <code>Location</code> point
 	 * @param p2 the second <code>Location</code> point
@@ -144,29 +142,30 @@ public final class LocationUtils {
 		double lat1 = p1.getLatRad();
 		double lat2 = p2.getLatRad();
 		double dLat = lat1 - lat2;
-		double dLon = (p1.getLonRad() - p2.getLonRad()) * 
-				Math.cos((lat1 + lat2) * 0.5);
-		return  EARTH_RADIUS_MEAN * Math.sqrt((dLat*dLat) + (dLon*dLon));
+		double dLon = (p1.getLonRad() - p2.getLonRad())
+			* Math.cos((lat1 + lat2) * 0.5);
+		return EARTH_RADIUS_MEAN * Math.sqrt((dLat * dLat) + (dLon * dLon));
 	}
 
 	/**
 	 * Returns the vertical separation between two <code>Location</code>s. The
 	 * returned value is not absolute and preserves the sign of the difference
 	 * between the points.
+	 * 
 	 * @param p1 the first <code>Location</code> point
 	 * @param p2 the first <code>Location</code> point
 	 * @return the vertical separation between the points
 	 */
 	public static double vertDistance(Location p1, Location p2) {
-		return  p2.getDepth() - p1.getDepth();
+		return p2.getDepth() - p1.getDepth();
 	}
 
 	/**
 	 * Calculates the distance in three dimensions between two
-	 * <code>Location</code>s using spherical geometry. Method returns the 
-	 * straight line distance taking into account the depths of the points.
-	 * For a faster, but less accurate implementation at large separations,
-	 * see {@link #linearDistanceFast(Location, Location)}.
+	 * <code>Location</code>s using spherical geometry. Method returns the
+	 * straight line distance taking into account the depths of the points. For
+	 * a faster, but less accurate implementation at large separations, see
+	 * {@link #linearDistanceFast(Location, Location)}.
 	 * 
 	 * @param p1 the first <code>Location</code> point
 	 * @param p2 the second <code>Location</code> point
@@ -174,25 +173,24 @@ public final class LocationUtils {
 	 * @see #linearDistanceFast(Location, Location)
 	 */
 	public static double linearDistance(Location p1, Location p2) {
-		double alpha = angle(p1,p2);
+		double alpha = angle(p1, p2);
 		double R1 = EARTH_RADIUS_MEAN - p1.getDepth();
 		double R2 = EARTH_RADIUS_MEAN - p2.getDepth();
 		double B = R1 * Math.sin(alpha);
 		double C = R2 - R1 * Math.cos(alpha);
-		return Math.sqrt(B*B + C*C);
+		return Math.sqrt(B * B + C * C);
 	}
-	
+
 	/**
-	 * Calculates the approximate linear distance in three dimensions
-	 * between two <code>Location</code>s. This simple and speedy
-	 * implementation uses the Pythagorean theorem, treating horizontal 
-	 * and vertical separations as orthogonal.<br/>
+	 * Calculates the approximate linear distance in three dimensions between
+	 * two <code>Location</code>s. This simple and speedy implementation uses
+	 * the Pythagorean theorem, treating horizontal and vertical separations as
+	 * orthogonal.<br/>
 	 * <br/>
 	 * <b>Note:</b> This method is very imprecise at large separations and
 	 * should not be used for points &gt;200km apart. If an estimate of
 	 * separation distance is not known in advance use
-	 * {@link #linearDistance(Location, Location)} for
-	 * more reliable results.
+	 * {@link #linearDistance(Location, Location)} for more reliable results.
 	 * 
 	 * @param p1 the first <code>Location</code> point
 	 * @param p2 the second <code>Location</code> point
@@ -204,49 +202,167 @@ public final class LocationUtils {
 	public static double linearDistanceFast(Location p1, Location p2) {
 		double h = horzDistanceFast(p1, p2);
 		double v = vertDistance(p1, p2);
-		return Math.sqrt(h*h + v*v);
+		return Math.sqrt(h * h + v * v);
 	}
-	
+
 	/**
 	 * Computes the shortest distance between a point and a line (great-circle).
-	 * Both the line and point are assumed to be at the earth's surface; the 
-	 * depth component of each <code>Location</code> is ignored. This
-	 * is the true spherical geometric function for 'off-track distance'; 
-	 * See <a href="http://williams.best.vwh.net/avform.htm#XTE">
-	 * Aviation Formulary</a> for source.<br/>
+	 * that extends infinitely in both directions. Both the line and point are
+	 * assumed to be at the earth's surface; the depth component of each
+	 * <code>Location</code> is ignored. This method uses the true spherical
+	 * geometric function for 'off-track distance'; See <a
+	 * href="http://williams.best.vwh.net/avform.htm#XTE"> Aviation
+	 * Formulary</a> for source. The sign of the result indicates which side of
+	 * the supplied line <code>p3</code> is on (right:[+] left:[-]).<br/>
 	 * <br/>
-	 * <b>Note:</b> This method, though more accurate over longer distances  
-	 * and line lengths, is up to 20x slower than
-	 * {@link #distanceToLineFast(Location, Location, Location)}. 
-	 * However, this method does return
-	 * accurate results for values spanning #177;180&#176;. Moreover, the
-	 * sign of the result indicates which side of the supplied line
-	 * <code>p3</code> is on (right:[+] left:[-]).
+	 * This method, though more accurate over longer distances and line lengths,
+	 * is up to 20x slower than
+	 * {@link #distanceToLineFast(Location, Location, Location)}. However, this
+	 * method returns accurate results for values spanning #177;180&#176;.<br/>
+	 * <br/>
+	 * If the line should instead be treated as a segment such that the result
+	 * will be a distance to an endpoint if <code>p3</code> does not project
+	 * onto the segment, use
+	 * {@link #distanceToSegment(Location, Location, Location)} instead.
 	 * 
 	 * @param p1 the first <code>Location</code> point on the line
 	 * @param p2 the second <code>Location</code> point on the line
-	 * @param p3 the <code>Location</code> point for which distance will 
-	 * 		be calculated
+	 * @param p3 the <code>Location</code> point for which distance will be
+	 *        calculated
 	 * @return the shortest distance in km between the supplied point and line
 	 * @see #distanceToLineFast(Location, Location, Location)
+	 * @see #distanceToSegment(Location, Location, Location)
 	 */
 	public static double distanceToLine(Location p1, Location p2, Location p3) {
 		// angular distance
 		double ad13 = angle(p1, p3);
 		// delta azimuth p1 to p3 and azimuth p1 to p2
-		double Daz13az12 = azimuthRad(p1, p3) - azimuthRad(p1, p2);		
-		
+		double Daz13az12 = azimuthRad(p1, p3) - azimuthRad(p1, p2);
+
 		// cross-track distance (in radians)
-		double xtdRad = Math.asin( Math.sin(ad13) * Math.sin(Daz13az12));
+		double xtdRad = Math.asin(Math.sin(ad13) * Math.sin(Daz13az12));
+		System.out.println("pp: " + (xtdRad * EARTH_RADIUS_MEAN));
+
 		// along-track distance (in km)
-		double atd = Math.acos( Math.cos(ad13) / Math.cos(xtdRad)) * 
-				EARTH_RADIUS_MEAN;
-		
+		double atd = Math.acos(Math.cos(ad13) / Math.cos(xtdRad))
+			* EARTH_RADIUS_MEAN;
+
+		double sign = (xtdRad != 0.0) ? Math.abs(xtdRad) / xtdRad : 0.0;
+
 		// check if beyond p3
-		if (atd > horzDistance(p1, p2)) return horzDistance(p2, p3);
+		if (atd > horzDistance(p1, p2)) return horzDistance(p2, p3) * sign;
 		// check if before p1
-		if (Math.cos(Daz13az12) < 0) return horzDistance(p1, p3);
+		if (Math.cos(Daz13az12) < 0) return horzDistance(p1, p3) * sign;
 		return xtdRad * EARTH_RADIUS_MEAN;
+	}
+
+	/**
+	 * Computes the shortest distance between a point and a line segment (i.e.
+	 * great-circle segment). Both the line and point are assumed to be at the
+	 * earth's surface; the depth component of each <code>Location</code> is
+	 * ignored. This method uses the true spherical geometric function for
+	 * 'off-track distance'; See <a
+	 * href="http://williams.best.vwh.net/avform.htm#XTE"> Aviation
+	 * Formulary</a> for source. The sign of the result indicates which side of
+	 * the supplied line <code>p3</code> is on (right:[+] left:[-]).<br/>
+	 * <br/>
+	 * This method, though more accurate over longer distances and line lengths,
+	 * is up to 20x slower than
+	 * {@link #distanceToSegmentFast(Location, Location, Location)}. However,
+	 * this method returns accurate results for values spanning #177;180&#176;.<br/>
+	 * <br/>
+	 * If the line should instead be treated as infinite, use
+	 * {@link #distanceToLine(Location, Location, Location)} instead.
+	 * 
+	 * @param p1 the first <code>Location</code> point on the line
+	 * @param p2 the second <code>Location</code> point on the line
+	 * @param p3 the <code>Location</code> point for which distance will be
+	 *        calculated
+	 * @return the shortest distance in km between the supplied point and line
+	 * @see #distanceToLineFast(Location, Location, Location)
+	 * @see #distanceToLine(Location, Location, Location)
+	 */
+	public static double distanceToSegment(Location p1, Location p2, Location p3) {
+		// angular distance
+		double ad13 = angle(p1, p3);
+		// delta azimuth p1 to p3 and azimuth p1 to p2
+		double Daz13az12 = azimuthRad(p1, p3) - azimuthRad(p1, p2);
+
+		// cross-track distance (in radians)
+		double xtdRad = Math.asin(Math.sin(ad13) * Math.sin(Daz13az12));
+		System.out.println("pp: " + (xtdRad * EARTH_RADIUS_MEAN));
+
+		// along-track distance (in km)
+		double atd = Math.acos(Math.cos(ad13) / Math.cos(xtdRad))
+			* EARTH_RADIUS_MEAN;
+
+		double sign = (xtdRad != 0.0) ? Math.abs(xtdRad) / xtdRad : 0.0;
+
+		// check if beyond p3
+		if (atd > horzDistance(p1, p2)) return horzDistance(p2, p3) * sign;
+		// check if before p1
+		if (Math.cos(Daz13az12) < 0) return horzDistance(p1, p3) * sign;
+		return xtdRad * EARTH_RADIUS_MEAN;
+	}
+
+	public static void main(String[] args) {
+		Location p1 = new Location(2, 0);
+		Location p2 = new Location(4, 0);
+
+		Location p3 = new Location(1, -1);
+		Location p4 = new Location(3, -1);
+		Location p5 = new Location(5, -1);
+		Location p6 = new Location(1, 1);
+		Location p7 = new Location(3, 1);
+		Location p8 = new Location(5, 1);
+		System.out.println(distanceToLine(p1, p2, p3));
+		System.out.println(distanceToLine(p1, p2, p4));
+		System.out.println(distanceToLine(p1, p2, p5));
+		System.out.println(distanceToLine(p1, p2, p6));
+		System.out.println(distanceToLine(p1, p2, p7));
+		System.out.println(distanceToLine(p1, p2, p8));
+
+	}
+
+	/**
+	 * Computes the shortest distance between a point and a line. Both the line
+	 * and point are assumed to be at the earth's surface; the depth component
+	 * of each <code>Location</code> is ignored. This is a fast, geometric,
+	 * cartesion (flat-earth approximation) solution in which longitude of the
+	 * line points are scaled by the cosine of latitude; it is only appropriate
+	 * for use over short distances (e.g. &lt;200 km). The sign of the result
+	 * indicates which side of the supplied line <code>p3</code> is on
+	 * (right:[+] left:[-]).<br/>
+	 * <br/>
+	 * <b>Note:</b> This method does <i>NOT</i> support values spanning
+	 * &#177;180&#176; and results for such input values are not guaranteed.
+	 * 
+	 * @param p1 the first <code>Location</code> point on the line
+	 * @param p2 the second <code>Location</code> point on the line
+	 * @param p3 the <code>Location</code> point for which distance will be
+	 *        calculated
+	 * @return the shortest distance in km between the supplied point and line
+	 * @see #distanceToLine(Location, Location, Location)
+	 */
+	public static double distanceToLineFast(Location p1, Location p2,
+			Location p3) {
+
+		double lat1 = p1.getLatRad();
+		double lat2 = p2.getLatRad();
+		double lat3 = p3.getLatRad();
+		double lon1 = p1.getLonRad();
+
+		// use average latitude to scale longitude
+		double lonScale = Math.cos(0.5 * lat3 + 0.25 * lat1 + 0.25 * lat2);
+
+		// first point on line transformed to origin; others scaled by lon
+		double x2 = (p2.getLonRad() - lon1) * lonScale;
+		double y2 = lat2 - lat1;
+		double x3 = (p3.getLonRad() - lon1) * lonScale;
+		double y3 = lat3 - lat1;
+
+		return ((x2) * (-y3) - (-x3) * (y2))
+			/ Math.sqrt((x2) * (x2) + (y2) * (y2)) * EARTH_RADIUS_MEAN;
 	}
 	
 	/**
@@ -269,7 +385,8 @@ public final class LocationUtils {
 	 * @return the shortest distance in km between the supplied point and line
 	 * @see #distanceToLine(Location, Location, Location)
 	 */
-	public static double distanceToLineFast(Location p1, Location p2, Location p3) {
+	public static double distanceToSegmentFast(Location p1, Location p2,
+			Location p3) {
 
 		double lat1 = p1.getLatRad();
 		double lat2 = p2.getLatRad();
@@ -288,17 +405,17 @@ public final class LocationUtils {
 		return ((x2) * (-y3) - (-x3) * (y2))
 			/ Math.sqrt((x2) * (x2) + (y2) * (y2)) * EARTH_RADIUS_MEAN;
 	}
-	
+
 
 	/**
 	 * Computes the initial azimuth (bearing) when moving from one
-	 * <code>Location</code> to another. See 
-	 * <a href="http://williams.best.vwh.net/avform.htm#Crs">
-	 * Aviation Formulary</a> for source. For back azimuth, 
-	 * reverse the <code>Location</code> arguments. Result is returned in
-	 * radians over the interval 0 to 2&pi;.<br/>
+	 * <code>Location</code> to another. See <a
+	 * href="http://williams.best.vwh.net/avform.htm#Crs"> Aviation
+	 * Formulary</a> for source. For back azimuth, reverse the
+	 * <code>Location</code> arguments. Result is returned in radians over the
+	 * interval 0 to 2&pi;.<br/>
 	 * <br/>
-	 * <b>Note:</b> It is more efficient to use this method for computation 
+	 * <b>Note:</b> It is more efficient to use this method for computation
 	 * because <code>Location</code>s store lat and lon in radians internally.
 	 * Use {@link #azimuth(Location, Location)} for presentation.
 	 * 
@@ -308,33 +425,31 @@ public final class LocationUtils {
 	 * @see #azimuth(Location, Location)
 	 */
 	public static double azimuthRad(Location p1, Location p2) {
-		
+
 		double lat1 = p1.getLatRad();
 		double lat2 = p2.getLatRad();
-		
+
 		// check the poles using a small number ~ machine precision
 		if (isPole(p1)) {
 			return ((lat1 > 0) ? PI : 0); // N : S pole
 		}
-		
+
 		// for starting points other than the poles:
 		double dLon = p2.getLonRad() - p1.getLonRad();
 		double cosLat2 = Math.cos(lat2);
-		double azRad = Math.atan2(
-				Math.sin(dLon) * cosLat2,
-				Math.cos(lat1) * Math.sin(lat2) - 
-				Math.sin(lat1) * cosLat2 * Math.cos(dLon));
+		double azRad = Math.atan2(Math.sin(dLon) * cosLat2, Math.cos(lat1)
+			* Math.sin(lat2) - Math.sin(lat1) * cosLat2 * Math.cos(dLon));
 
 		return (azRad + TWOPI) % TWOPI;
 	}
 
 	/**
 	 * Computes the initial azimuth (bearing) when moving from one
-	 * {@link Location} to another in degrees. See 
-	 * <a href="http://williams.best.vwh.net/avform.htm#Crs">
-	 * Aviation Formulary</a> for source. For back azimuth, 
-	 * reverse the <code>Location</code> arguments. Result is returned in
-	 * decimal degrees over the interval 0&#176; to 360&#176;.
+	 * {@link Location} to another in degrees. See <a
+	 * href="http://williams.best.vwh.net/avform.htm#Crs"> Aviation
+	 * Formulary</a> for source. For back azimuth, reverse the
+	 * <code>Location</code> arguments. Result is returned in decimal degrees
+	 * over the interval 0&#176; to 360&#176;.
 	 * 
 	 * @param p1 the first <code>Location</code> point
 	 * @param p2 the second <code>Location</code> point
@@ -344,9 +459,9 @@ public final class LocationUtils {
 	public static double azimuth(Location p1, Location p2) {
 		return azimuthRad(p1, p2) * TO_DEG;
 	}
-	
+
 	/**
-	 * Computes a <code>Location</code> given an origin point, bearing, and 
+	 * Computes a <code>Location</code> given an origin point, bearing, and
 	 * distance. See <a href="http://williams.best.vwh.net/avform.htm#LL">
 	 * Aviation Formulary</a> for source. Note that <code>azimuth</code> is
 	 * expected in <i>radians</i>.
@@ -354,61 +469,48 @@ public final class LocationUtils {
 	 * @param p starting location point
 	 * @param azimuth (bearing) in <i>radians</i> away from origin
 	 * @param distance (horizontal) along bearing in km
-	 * @return the end location 
+	 * @return the end location
 	 */
-	public static Location location(
-			Location p, double azimuth, double distance) {
-		return location(
-				p.getLatRad(), p.getLonRad(), p.getDepth(),
-				azimuth, distance, 0);
+	public static Location location(Location p, double azimuth, double distance) {
+		return location(p.getLatRad(), p.getLonRad(), p.getDepth(), azimuth,
+			distance, 0);
 	}
-	
+
 	/**
-	 * Computes a <code>Location</code> given an origin point and a 
-	 * <code>LocationVector</code>. See 
-	 * <a href="http://williams.best.vwh.net/avform.htm#LL">
-	 * Aviation Formulary</a> for source.
+	 * Computes a <code>Location</code> given an origin point and a
+	 * <code>LocationVector</code>. See <a
+	 * href="http://williams.best.vwh.net/avform.htm#LL"> Aviation Formulary</a>
+	 * for source.
 	 * 
 	 * @param p starting location point
 	 * @param d distance along bearing
-	 * @return the end location 
+	 * @return the end location
 	 */
 	public static Location location(Location p, LocationVector d) {
-		return location(
-				p.getLatRad(), 
-				p.getLonRad(), 
-				p.getDepth(),
-				d.getAzimuth() * TO_RAD, 
-				d.getHorzDistance(), 
-				d.getVertDistance());
+		return location(p.getLatRad(), p.getLonRad(), p.getDepth(),
+			d.getAzimuth() * TO_RAD, d.getHorzDistance(), d.getVertDistance());
 	}
-	
+
 	/*
-	 * Internal helper; assumes lat, lon, and azimuth in radians,
-	 * and depth and dist in km
+	 * Internal helper; assumes lat, lon, and azimuth in radians, and depth and
+	 * dist in km
 	 */
-	private static Location location(
-			double lat, double lon, double depth, 
+	private static Location location(double lat, double lon, double depth,
 			double az, double dH, double dV) {
-		
+
 		double sinLat1 = Math.sin(lat);
 		double cosLat1 = Math.cos(lat);
 		double ad = dH / EARTH_RADIUS_MEAN; // angular distance
 		double sinD = Math.sin(ad);
 		double cosD = Math.cos(ad);
-		
-		double lat2 = Math.asin(
-				sinLat1 * cosD +
-				cosLat1 * sinD * Math.cos(az));
-		
-		double lon2 = lon + Math.atan2(
-				Math.sin(az) * sinD * cosLat1,
+
+		double lat2 = Math.asin(sinLat1 * cosD + cosLat1 * sinD * Math.cos(az));
+
+		double lon2 = lon
+			+ Math.atan2(Math.sin(az) * sinD * cosLat1,
 				cosD - sinLat1 * Math.sin(lat2));
-		
-		return new Location(
-				lat2 * TO_DEG,
-				lon2 * TO_DEG,
-				depth + dV);
+
+		return new Location(lat2 * TO_DEG, lon2 * TO_DEG, depth + dV);
 	}
 
 	/**
@@ -418,50 +520,47 @@ public final class LocationUtils {
 	 * @param p1 the first <code>Location</code> point
 	 * @param p2 the second <code>Location</code> point
 	 * @return the <code>LocationVector</code> from <code>p1</code> to
-	 * 		   <code>p2</code>
+	 *         <code>p2</code>
 	 */
 	public static LocationVector vector(Location p1, Location p2) {
 
-		// NOTE A 'fast' implementation of this method was tested 
+		// NOTE A 'fast' implementation of this method was tested
 		// but no performance gain was realized P.Powers 3-5-2010
-		
-		LocationVector v = new LocationVector(
-				azimuth(p1, p2),
-				horzDistance(p1, p2),
-				vertDistance(p1, p2));
+
+		LocationVector v = new LocationVector(azimuth(p1, p2), horzDistance(p1,
+			p2), vertDistance(p1, p2));
 
 		return v;
 	}
-	
-	/** 
+
+	/**
 	 * Tolerance used for location comparisons; 0.000000000001 which in
-	 * decimal-degrees, radians, and km is comparable to micron-scale
-	 * precision.
+	 * decimal-degrees, radians, and km is comparable to micron-scale precision.
 	 */
 	public static final double TOLERANCE = 0.000000000001;
 
 	/**
-	 * Returns whether the supplied <code>Location</code> coincides with
-	 * one of the poles. Any supplied <code>Location</code>s that are very 
-	 * close (less than a mm) will return <code>true</code>.
+	 * Returns whether the supplied <code>Location</code> coincides with one of
+	 * the poles. Any supplied <code>Location</code>s that are very close (less
+	 * than a mm) will return <code>true</code>.
 	 * 
 	 * @param p <code>Location</code> to check
 	 * @return <code>true</code> if <code>loc</code> coincides with one of the
-	 * 		   earth's poles, <code>false</code> otherwise.
+	 *         earth's poles, <code>false</code> otherwise.
 	 */
 	public static boolean isPole(Location p) {
 		return Math.cos(p.getLatRad()) < TOLERANCE;
 	}
-	
+
 	/**
 	 * Returns <code>true</code> if the supplied <code>Location</code>s are
-	 * very, very close to one another. Internally, lat, lon, and depth values 
-	 * must be within <1mm of each other. 
+	 * very, very close to one another. Internally, lat, lon, and depth values
+	 * must be within <1mm of each other.
 	 * 
 	 * @param p1 the first <code>Location</code> to compare
 	 * @param p2 the second <code>Location</code> to compare
-	 * @return <code>true</code> if the supplied <code>Location</code>s are
-	 *         very close, <code>false</code> otherwise.
+	 * @return <code>true</code> if the supplied <code>Location</code>s are very
+	 *         close, <code>false</code> otherwise.
 	 */
 	public static boolean areSimilar(Location p1, Location p2) {
 		if (!MathUtils.equals(p1.getLatRad(), p2.getLatRad(), TOLERANCE)) {
@@ -475,7 +574,5 @@ public final class LocationUtils {
 		}
 		return true;
 	}
-	
 
-	
 }

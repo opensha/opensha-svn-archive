@@ -479,7 +479,7 @@ public class LocationUtilsTest {
 		
 		
 		// ==========================================================
-		//    Surface Distance Methods
+		//    Horizontal (Surface) Distance Methods
 		//
 		//    Summary: Accurate, Haversine based methods of distance
 		//             calculation have beeen shown to be much faster
@@ -489,8 +489,8 @@ public class LocationUtilsTest {
 		//                
 		//             HD   getHorizDistanceOLD()		1285 ms
 		//             AHD  getApproxHorzDistanceOLD()	955  ms
-		//             SD   surfaceDistance()			230  ms
-		//             SDF  surfaceDistanceFast()		1    ms
+		//             SD   horzDistance()				230  ms
+		//             SDF  horzDistanceFast()			1    ms
 		// ==========================================================
 
 		// long pair ~9K km : discrepancies > 100km

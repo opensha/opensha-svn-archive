@@ -127,6 +127,7 @@ public class LocationList extends ArrayList<Location> implements XMLSaveable {
 		for (int i = 1; i < size(); i++) {
 			dist = Math.abs(LocationUtils.distanceToLineFast(get(i - 1),
 				get(i), loc));
+			System.out.println("d: " + dist); //TODO cleann / fix
 			if (dist < min) min = dist;
 		}
 		return min;
