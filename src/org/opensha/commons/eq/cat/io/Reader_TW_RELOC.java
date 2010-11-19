@@ -110,6 +110,7 @@ public class Reader_TW_RELOC extends AbstractReader {
             dat_depths.add(Double.parseDouble(line.substring(42,47).trim()));
             
         } catch (Exception e) {
+        	// TODO stack trace to log
 			throw new IllegalArgumentException(
 				"Error reading catalog file format at line: " + count);
         }

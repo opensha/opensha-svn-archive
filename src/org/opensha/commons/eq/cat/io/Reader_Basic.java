@@ -78,7 +78,7 @@ public class Reader_Basic extends AbstractReader {
     public void parseLine(String line) {
 
         /** Sample data
-        #ID       LON        LAT      DEPTH  MAG  YYYY MM HH mm SS ss
+        #ID       LON        LAT      DEPTH  MAG  yyyy MM dd HH mm ss
         -01058774 -120.7083  36.4222  37.410 1.37 1981 01 01 08 49 39
         -01058781 -120.9427  36.1355   8.410 1.16 1981 01 01 11 45 16
         -01058783 -121.4362  36.7665   8.710 1.22 1981 01 01 13 52 25
@@ -100,8 +100,12 @@ public class Reader_Basic extends AbstractReader {
             cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(line.substring(53,55)));
             cal.set(Calendar.MINUTE, Integer.parseInt(line.substring(56,58)));
             cal.set(Calendar.SECOND, Integer.parseInt(line.substring(59,61)));
+         	// needed or empty milliseconds field is only filled when getTime()
+            // is called and uses the current time from epoch yielding
+            // inconsistent results each time source data is parsed
+            cal.set(Calendar.MILLISECOND, 0);
             dat_dates.add(cal.getTimeInMillis());
-
+            
             // magnitude
             dat_magnitudes.add(Double.parseDouble(line.substring(37,41).trim()));
 
@@ -114,6 +118,7 @@ public class Reader_Basic extends AbstractReader {
             dat_eventIDs.add(Integer.parseInt(line.substring(0,9).trim()));
 
         } catch (Exception e) {
+        	// TODO stack trace to log
 			throw new IllegalArgumentException(
 				"Error reading catalog file format at line: " + count);
         }

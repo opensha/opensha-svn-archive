@@ -111,11 +111,11 @@ public class Reader_ANSS extends AbstractReader {
 			dat_depths.add(Double.parseDouble(line.substring(42,48).trim()));
 
 			// id
-			String id = line.substring(84,96).trim();
+			String id = line.substring(88,96).trim();
 			dat_eventIDs.add((id.equals("")) ? 0 : Integer.parseInt(id));
 
 		} catch (Exception e) {
-			e.printStackTrace();
+        	// TODO stack trace to log
 			throw new IllegalArgumentException(
 				"Error reading catalog file format at line: " + count);
 		}

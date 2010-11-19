@@ -108,6 +108,7 @@ public class Reader_NC_PARK extends AbstractReader {
 			dat_eventIDs.add(Integer.parseInt(line.substring(59,68).trim()));
 
 		} catch (Exception e) {
+        	// TODO stack trace to log
 			throw new IllegalArgumentException(
 				"Error reading catalog file format at line: " + count);
 		}

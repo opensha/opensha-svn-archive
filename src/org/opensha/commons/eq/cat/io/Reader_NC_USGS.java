@@ -116,6 +116,7 @@ public class Reader_NC_USGS extends AbstractReader {
 			dat_eventIDs.add(Integer.parseInt(line.substring(69,78).trim()));
 
 		} catch (Exception e) {
+        	// TODO stack trace to log
 			throw new IllegalArgumentException(
 				"Error reading catalog file format at line: " + count);
 		}

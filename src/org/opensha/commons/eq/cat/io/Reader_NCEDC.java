@@ -128,6 +128,7 @@ public class Reader_NCEDC extends AbstractReader {
 			dat_eventIDs.add(Integer.parseInt(line.substring(85,94).trim()));
 
 		} catch (Exception e) {
+        	// TODO stack trace to log
 			throw new IllegalArgumentException(
 				"Error reading catalog file format at line: " + count);
 		}

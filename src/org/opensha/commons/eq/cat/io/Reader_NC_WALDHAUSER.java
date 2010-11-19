@@ -118,6 +118,7 @@ public class Reader_NC_WALDHAUSER extends AbstractReader {
 			dat_eventIDs.add(Integer.parseInt(line.substring(91,101).trim()));
 
 		} catch (Exception e) {
+        	// TODO stack trace to log
 			throw new IllegalArgumentException(
 				"Error reading catalog file format at line: " + count);
 		}

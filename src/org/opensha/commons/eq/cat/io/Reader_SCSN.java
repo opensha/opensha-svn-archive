@@ -132,6 +132,7 @@ public class Reader_SCSN extends AbstractReader {
 
 
 		} catch (Exception e) {
+        	// TODO stack trace to log
 			throw new IllegalArgumentException(
 				"Error reading catalog file format at line: " + count);
 		}
