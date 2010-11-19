@@ -111,7 +111,7 @@ public class Reader_ANSS extends AbstractReader {
 			dat_depths.add(Double.parseDouble(line.substring(42,48).trim()));
 
 			// id
-			String id = line.substring(85,94).trim();
+			String id = line.substring(84,96).trim();
 			dat_eventIDs.add((id.equals("")) ? 0 : Integer.parseInt(id));
 
 		} catch (Exception e) {
