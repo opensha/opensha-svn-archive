@@ -20,7 +20,6 @@ import com.google.common.primitives.Longs;
  * Reader class for lines from a Taiwanese catalog; relocations by Wu et al.
  * (2008). This reader records the following data for local events:<br/>
  * <ul>
- *     <li>CAT_DATA_EVENT_ID</li>
  *     <li>CAT_DATA_TIME</li>
  *     <li>CAT_DATA_LONGITUDE</li>
  *     <li>CAT_DATA_LATITUDE</li>
@@ -54,7 +53,6 @@ public class Reader_TW_RELOC extends AbstractReader {
 	@Override
 	public void initReader() {
 		count = 0;
-		dat_eventIDs       = new ArrayList<Integer>(size);
 		dat_dates          = new ArrayList<Long>(size);
 		dat_longitudes     = new ArrayList<Double>(size);
 		dat_latitudes      = new ArrayList<Double>(size);
@@ -64,7 +62,6 @@ public class Reader_TW_RELOC extends AbstractReader {
 
 	@Override
 	public void loadData() {
-		catalog.addData(EVENT_ID, Ints.toArray(dat_eventIDs));
 		catalog.addData(TIME, Longs.toArray(dat_dates));
 		catalog.addData(LONGITUDE, Doubles.toArray(dat_longitudes));
 		catalog.addData(LATITUDE, Doubles.toArray(dat_latitudes));
