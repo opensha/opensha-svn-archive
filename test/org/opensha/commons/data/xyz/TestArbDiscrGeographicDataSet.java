@@ -3,10 +3,13 @@ package org.opensha.commons.data.xyz;
 import static org.junit.Assert.*;
 
 import java.awt.geom.Point2D;
+import java.io.File;
+import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.util.FileUtils;
 
 public class TestArbDiscrGeographicDataSet extends TestArbDiscrXYZ_DataSet {
 
@@ -73,6 +76,8 @@ public class TestArbDiscrGeographicDataSet extends TestArbDiscrXYZ_DataSet {
 			Location loc1 = data1.getLocation(i);
 			Location loc2 = data2.getLocation(i);
 			assertEquals("locs not equal", loc1, loc2);
+			assertEquals("data not identical with diff latX accessed by loc", data1.get(loc1), data2.get(loc2), 0d);
+			assertEquals("data not identical with diff latX accessed by point", data1.get(pt1), data2.get(pt2), 0d);
 			
 			if (opposite) {
 				assertEquals("x1 != y2 when opposite!", pt1.getX(), pt2.getY(), 0d);
@@ -106,7 +111,7 @@ public class TestArbDiscrGeographicDataSet extends TestArbDiscrXYZ_DataSet {
 	}
 	
 	@Test
-	public void testGet() {
+	public void testGetGeo() {
 		ArbDiscrGeographicDataSet data = createTestData(true);
 		
 		for (int i=0; i<data.size(); i++) {
@@ -137,5 +142,31 @@ public class TestArbDiscrGeographicDataSet extends TestArbDiscrXYZ_DataSet {
 		assertEquals("set all didn't add new values", origSize+diffPtsDataSet.size(), xyz.size());
 	}
 	
+	@Test
+	public void testWriteReadGeo() throws IOException {
+		File tempDir = FileUtils.createTempDir();
+		String latXFileName = tempDir.getAbsolutePath() + File.separator + "data_lat_x.xyz";
+		String latYFileName = tempDir.getAbsolutePath() + File.separator + "data_lat_y.xyz";
+		
+		GeographicDataSetAPI data = createTestData(true);
+		ArbDiscrXYZ_DataSet.writeXYZFile(data, latXFileName);
+		ArbDiscrXYZ_DataSet.writeXYZFile(createTestData(false), latYFileName);
+		
+		GeographicDataSetAPI loadedLatX = ArbDiscrGeographicDataSet.loadXYZFile(latXFileName, true);
+		GeographicDataSetAPI loadedLatY = ArbDiscrGeographicDataSet.loadXYZFile(latYFileName, false);
+		
+		FileUtils.deleteRecursive(tempDir);
+		
+		assertEquals("written/loaded data has incorrect size!", data.size(), loadedLatX.size());
+		assertEquals("written/loaded data has incorrect size!", data.size(), loadedLatY.size());
+		
+		for (int i=0; i<data.size(); i++) {
+			assertEquals("written/loaded locs doesn't match!", data.getLocation(i), loadedLatX.getLocation(i));
+			assertEquals("written/loaded locs doesn't match!", data.getLocation(i), loadedLatY.getLocation(i));
+			assertEquals("written/loaded value doesn't match!", data.get(i), loadedLatX.get(i), xThresh);
+			assertEquals("written/loaded value doesn't match!", data.get(i), loadedLatY.get(i), xThresh);
+		}
+	}
 
 }
+

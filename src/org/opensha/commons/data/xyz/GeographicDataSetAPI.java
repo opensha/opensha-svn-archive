@@ -1,6 +1,9 @@
 package org.opensha.commons.data.xyz;
 
+import java.util.List;
+
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 
 /**
  * Interface for a geographic XYZ dataset. These datasets are backed by <code>Location</code> objects
@@ -38,7 +41,21 @@ public interface GeographicDataSetAPI extends XYZ_DataSetAPI {
 	 * 
 	 * @return
 	 */
+	public double getMaxLat();
+	
+	/**
+	 * Returns the minimum longitude in the given dataset.
+	 * 
+	 * @return
+	 */
 	public double getMinLon();
+	
+	/**
+	 * Returns the maximum longitude in the given dataset.
+	 * 
+	 * @return
+	 */
+	public double getMaxLon();
 	
 	/**
 	 * Set the value at the given <code>Location</code>. If the location doesn't exist in the
@@ -81,5 +98,12 @@ public interface GeographicDataSetAPI extends XYZ_DataSetAPI {
 	 * @return
 	 */
 	public boolean contains(Location loc);
+	
+	/**
+	 * Returns a list of all locations in the correct order (as defined by indexOf).
+	 * 
+	 * @return
+	 */
+	public LocationList getLocationList();
 
 }

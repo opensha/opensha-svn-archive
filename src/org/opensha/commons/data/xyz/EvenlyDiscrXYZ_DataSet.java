@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.exceptions.InvalidRangeException;
@@ -285,6 +286,22 @@ public class EvenlyDiscrXYZ_DataSet implements XYZ_DataSetAPI {
 	@Override
 	public int indexOf(double x, double y) {
 		return getIndex(x, y);
+	}
+
+	@Override
+	public List<Point2D> getPointList() {
+		ArrayList<Point2D> points = new ArrayList<Point2D>();
+		for (int i=0; i<size(); i++)
+			points.add(getPoint(i));
+		return points;
+	}
+
+	@Override
+	public List<Double> getValueList() {
+		ArrayList<Double> vals = new ArrayList<Double>();
+		for (int i=0; i<size(); i++)
+			vals.add(get(i));
+		return vals;
 	}
 
 }

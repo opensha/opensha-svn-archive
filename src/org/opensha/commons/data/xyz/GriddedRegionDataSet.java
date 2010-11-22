@@ -1,13 +1,11 @@
 package org.opensha.commons.data.xyz;
 
-import java.awt.geom.Point2D;
 import java.util.HashMap;
 
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 
 /**
  * This is a Geohgraphic Dataset on a regular grid, as defined by a GriddedRegion. Points
@@ -16,7 +14,7 @@ import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
  * @author kevin
  *
  */
-public class GriddedRegionDataSet implements GeographicDataSetAPI {
+public class GriddedRegionDataSet extends AbstractGeographicDataSet {
 	
 	/**
 	 * 
@@ -27,185 +25,16 @@ public class GriddedRegionDataSet implements GeographicDataSetAPI {
 	private LocationList nodeList;
 	private HashMap<Location, Double> map;
 	
-	private boolean latitudeX;
-	
 	public GriddedRegionDataSet(GriddedRegion region, boolean latitudeX) {
+		super(latitudeX);
 		this.region = region;
 		nodeList = region.getNodeList();
-		this.latitudeX = latitudeX;
 		map = new HashMap<Location, Double>();
-	}
-	
-	private MinMaxAveTracker getLatTracker() {
-		MinMaxAveTracker tracker = new MinMaxAveTracker();
-		
-		for (Location loc : nodeList) {
-			tracker.addValue(loc.getLatitude());
-		}
-		
-		return tracker;
-	}
-	
-	private MinMaxAveTracker getLonTracker() {
-		MinMaxAveTracker tracker = new MinMaxAveTracker();
-		
-		for (Location loc : nodeList) {
-			tracker.addValue(loc.getLongitude());
-		}
-		
-		return tracker;
-	}
-	
-	@Override
-	public double getMinLat() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public double getMinLon() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public double getMinX() {
-		if (latitudeX)
-			return getLatTracker().getMin();
-		else
-			return getLonTracker().getMin();
-	}
-
-	@Override
-	public double getMaxX() {
-		if (latitudeX)
-			return getLatTracker().getMax();
-		else
-			return getLonTracker().getMax();
-	}
-
-	@Override
-	public double getMinY() {
-		if (latitudeX)
-			return getLonTracker().getMin();
-		else
-			return getLatTracker().getMin();
-	}
-
-	@Override
-	public double getMaxY() {
-		if (latitudeX)
-			return getLonTracker().getMax();
-		else
-			return getLatTracker().getMax();
-	}
-	
-	private MinMaxAveTracker getZTracker() {
-		MinMaxAveTracker tracker = new MinMaxAveTracker();
-		
-		for (double val : map.values()) {
-			tracker.addValue(val);
-		}
-		
-		return tracker;
-	}
-
-	@Override
-	public double getMinZ() {
-		return getZTracker().getMin();
-	}
-
-	@Override
-	public double getMaxZ() {
-		return getZTracker().getMax();
-	}
-	
-	private Location ptToLoc(Point2D point) {
-		if (latitudeX)
-			return new Location(point.getX(), point.getY());
-		else
-			return new Location(point.getY(), point.getX());
-	}
-
-	private Point2D locToPoint(Location loc) {
-		if (latitudeX)
-			return new Point2D.Double(loc.getLatitude(), loc.getLongitude());
-		else
-			return new Point2D.Double(loc.getLongitude(), loc.getLatitude());
-	}
-
-	@Override
-	public void set(Point2D point, double z) {
-		set(ptToLoc(point), z);
-	}
-
-	@Override
-	public void set(double x, double y, double z) {
-		set(new Point2D.Double(x, y), z);
-	}
-
-	@Override
-	public void set(int index, double z) {
-		set(getLocation(index), z);
-	}
-
-	@Override
-	public double get(Point2D point) {
-		return get(ptToLoc(point));
-	}
-
-	@Override
-	public double get(double x, double y) {
-		return get(new Point2D.Double(x, y));
-	}
-
-	@Override
-	public double get(int index) {
-		return get(getLocation(index));
-	}
-
-	@Override
-	public Point2D getPoint(int index) {
-		return locToPoint(getLocation(index));
-	}
-
-	@Override
-	public int indexOf(Point2D point) {
-		return indexOf(ptToLoc(point));
-	}
-
-	@Override
-	public boolean contains(Point2D point) {
-		return contains(ptToLoc(point));
-	}
-
-	@Override
-	public boolean contains(double x, double y) {
-		return contains(new Point2D.Double(x, y));
 	}
 
 	@Override
 	public int size() {
 		return region.getNodeCount();
-	}
-
-	@Override
-	public void setAll(XYZ_DataSetAPI dataset) {
-		if (dataset instanceof GeographicDataSetAPI) {
-			GeographicDataSetAPI gdata = (GeographicDataSetAPI)dataset;
-			for (int i=0; i<dataset.size(); i++) {
-				set(gdata.getLocation(i), gdata.get(i));
-			}
-		} else {
-			for (int i=0; i<dataset.size(); i++) {
-				set(dataset.getPoint(i), dataset.get(i));
-			}
-		}
-	}
-
-	@Override
-	public boolean isLatitudeX() {
-		return latitudeX;
 	}
 
 	@Override
@@ -237,7 +66,7 @@ public class GriddedRegionDataSet implements GeographicDataSetAPI {
 
 	@Override
 	public Object clone() {
-		GriddedRegionDataSet data = new GriddedRegionDataSet(region, latitudeX);
+		GriddedRegionDataSet data = new GriddedRegionDataSet(region, isLatitudeX());
 		
 		for (int i=0; i<size(); i++) {
 			data.set(getLocation(i), get(i));
@@ -247,13 +76,8 @@ public class GriddedRegionDataSet implements GeographicDataSetAPI {
 	}
 
 	@Override
-	public int indexOf(double x, double y) {
-		return indexOf(new Point2D.Double(x, y));
-	}
-
-	@Override
-	public void setLatitudeX(boolean latitudeX) {
-		this.latitudeX = latitudeX;
+	public LocationList getLocationList() {
+		return nodeList;
 	}
 
 }

@@ -25,6 +25,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
@@ -223,6 +224,19 @@ public class ArbDiscrXYZ_DataSet implements XYZ_DataSetAPI,java.io.Serializable{
 	@Override
 	public int indexOf(double x, double y) {
 		return indexOf(new Point2D.Double(x, y));
+	}
+
+	@Override
+	public List<Point2D> getPointList() {
+		return points;
+	}
+
+	@Override
+	public List<Double> getValueList() {
+		ArrayList<Double> vals = new ArrayList<Double>();
+		for (int i=0; i<size(); i++)
+			vals.add(get(i));
+		return vals;
 	}
 	
 }

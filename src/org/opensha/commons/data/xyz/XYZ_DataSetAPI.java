@@ -20,6 +20,7 @@
 package org.opensha.commons.data.xyz;
 
 import java.awt.geom.Point2D;
+import java.util.List;
 /**
  * <p>Title: XYZ_DataSetAPI</p>
  * <p>Description: This interface defines the DataSet for the X,Y and Z.
@@ -184,6 +185,20 @@ public interface XYZ_DataSetAPI extends java.io.Serializable, Cloneable {
 	 * @param dataset
 	 */
 	public void setAll(XYZ_DataSetAPI dataset);
+	
+	/**
+	 * Returns a list of all points in the correct order (as defined by indexOf).
+	 * 
+	 * @return
+	 */
+	public List<Point2D> getPointList();
+	
+	/**
+	 * Returns a list of all values in the correct order (as defined by indexOf).
+	 * 
+	 * @return
+	 */
+	public List<Double> getValueList();
 	
 	public Object clone();
 }

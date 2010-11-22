@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.junit.Test;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
@@ -141,10 +142,7 @@ public class TestEvenlyDiscretizedXYZ_DataSet {
 			}
 		}
 		
-		for (File file : tempDir.listFiles()) {
-			file.delete();
-		}
-		tempDir.delete();
+		FileUtils.deleteRecursive(tempDir);
 	}
 	
 	@Test
@@ -194,6 +192,21 @@ public class TestEvenlyDiscretizedXYZ_DataSet {
 		data.setAll(origData);
 		for (int i=0; i<data.size(); i++)
 			assertEquals("setAll didn't work!", origData.get(i), data.get(i), 0.0000001);
+	}
+	
+	@Test
+	public void testGetLists() {
+		EvenlyDiscrXYZ_DataSet data = buildTestData();
+		List<Point2D> pointList = data.getPointList();
+		List<Double> valList = data.getValueList();
+		
+		assertEquals("point list size incorrect", data.size(), pointList.size());
+		assertEquals("value list size incorrect", data.size(), valList.size());
+		
+		for (int i=0; i<data.size(); i++) {
+			assertEquals("point from list doesn't equal point at index", data.getPoint(i), pointList.get(i));
+			assertEquals("value from list doesn't equal value at index", data.get(i), valList.get(i), 0d);
+		}
 	}
 
 }

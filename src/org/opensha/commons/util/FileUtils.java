@@ -340,6 +340,17 @@ public class FileUtils {
 		tempDir.mkdir();
 		return tempDir;
 	}
+	
+	public static boolean deleteRecursive(File f) {
+		if (f.isFile())
+			return f.delete();
+		else {
+			for (File child : f.listFiles()) {
+				deleteRecursive(child);
+			}
+			return f.delete();
+		}
+	}
 
 	/**
 	 * this method accepts the filename and loads the image from the jar file
