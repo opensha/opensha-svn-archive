@@ -25,6 +25,8 @@ import static org.opensha.commons.geo.GeoTools.TO_DEG;
 import static org.opensha.commons.geo.GeoTools.TO_RAD;
 import static org.opensha.commons.geo.GeoTools.EARTH_RADIUS_MEAN;
 
+import java.awt.geom.Line2D;
+
 import org.apache.commons.math.util.MathUtils;
 
 /**
@@ -218,7 +220,7 @@ public final class LocationUtils {
 	 * This method, though more accurate over longer distances and line lengths,
 	 * is up to 20x slower than
 	 * {@link #distanceToLineFast(Location, Location, Location)}. However, this
-	 * method returns accurate results for values spanning #177;180&#176;.<br/>
+	 * method returns accurate results for values spanning #177;180&#176;. <br/>
 	 * <br/>
 	 * If the line should instead be treated as a segment such that the result
 	 * will be a distance to an endpoint if <code>p3</code> does not project
@@ -238,22 +240,9 @@ public final class LocationUtils {
 		double ad13 = angle(p1, p3);
 		// delta azimuth p1 to p3 and azimuth p1 to p2
 		double Daz13az12 = azimuthRad(p1, p3) - azimuthRad(p1, p2);
-
 		// cross-track distance (in radians)
-		double xtdRad = Math.asin(Math.sin(ad13) * Math.sin(Daz13az12));
-		System.out.println("pp: " + (xtdRad * EARTH_RADIUS_MEAN));
-
-		// along-track distance (in km)
-		double atd = Math.acos(Math.cos(ad13) / Math.cos(xtdRad))
-			* EARTH_RADIUS_MEAN;
-
-		double sign = (xtdRad != 0.0) ? Math.abs(xtdRad) / xtdRad : 0.0;
-
-		// check if beyond p3
-		if (atd > horzDistance(p1, p2)) return horzDistance(p2, p3) * sign;
-		// check if before p1
-		if (Math.cos(Daz13az12) < 0) return horzDistance(p1, p3) * sign;
-		return xtdRad * EARTH_RADIUS_MEAN;
+		double xtd = Math.asin(Math.sin(ad13) * Math.sin(Daz13az12));
+		return (Math.abs(xtd) < TOLERANCE) ? 0.0 : xtd * EARTH_RADIUS_MEAN;
 	}
 
 	/**
@@ -263,13 +252,12 @@ public final class LocationUtils {
 	 * ignored. This method uses the true spherical geometric function for
 	 * 'off-track distance'; See <a
 	 * href="http://williams.best.vwh.net/avform.htm#XTE"> Aviation
-	 * Formulary</a> for source. The sign of the result indicates which side of
-	 * the supplied line <code>p3</code> is on (right:[+] left:[-]).<br/>
+	 * Formulary</a> for source. This method always returns a positive result.<br/>
 	 * <br/>
 	 * This method, though more accurate over longer distances and line lengths,
 	 * is up to 20x slower than
 	 * {@link #distanceToSegmentFast(Location, Location, Location)}. However,
-	 * this method returns accurate results for values spanning #177;180&#176;.<br/>
+	 * this method returns accurate results for values spanning #177;180&#176;. <br/>
 	 * <br/>
 	 * If the line should instead be treated as infinite, use
 	 * {@link #distanceToLine(Location, Location, Location)} instead.
@@ -283,44 +271,79 @@ public final class LocationUtils {
 	 * @see #distanceToLine(Location, Location, Location)
 	 */
 	public static double distanceToSegment(Location p1, Location p2, Location p3) {
+
+		// repeat calcs in distanceToLine() to cut down on replication of
+		// expensive trig ops that would result from calling distanceToLine()
+
 		// angular distance
 		double ad13 = angle(p1, p3);
 		// delta azimuth p1 to p3 and azimuth p1 to p2
 		double Daz13az12 = azimuthRad(p1, p3) - azimuthRad(p1, p2);
-
 		// cross-track distance (in radians)
-		double xtdRad = Math.asin(Math.sin(ad13) * Math.sin(Daz13az12));
-		System.out.println("pp: " + (xtdRad * EARTH_RADIUS_MEAN));
-
+		double xtd = Math.asin(Math.sin(ad13) * Math.sin(Daz13az12));
 		// along-track distance (in km)
-		double atd = Math.acos(Math.cos(ad13) / Math.cos(xtdRad))
+		double atd = Math.acos(Math.cos(ad13) / Math.cos(xtd))
 			* EARTH_RADIUS_MEAN;
-
-		double sign = (xtdRad != 0.0) ? Math.abs(xtdRad) / xtdRad : 0.0;
-
 		// check if beyond p3
-		if (atd > horzDistance(p1, p2)) return horzDistance(p2, p3) * sign;
+		if (atd > horzDistance(p1, p2)) return horzDistance(p2, p3);
 		// check if before p1
-		if (Math.cos(Daz13az12) < 0) return horzDistance(p1, p3) * sign;
-		return xtdRad * EARTH_RADIUS_MEAN;
+		if (Math.cos(Daz13az12) < 0) return horzDistance(p1, p3);
+		return (Math.abs(xtd) < TOLERANCE) ? 0.0 : Math.abs(xtd)
+			* EARTH_RADIUS_MEAN;
 	}
 
 	public static void main(String[] args) {
-		Location p1 = new Location(2, 0);
-		Location p2 = new Location(4, 0);
+		Location l1 = new Location(2, 0);
+		Location l2 = new Location(4, 0);
 
-		Location p3 = new Location(1, -1);
-		Location p4 = new Location(3, -1);
-		Location p5 = new Location(5, -1);
-		Location p6 = new Location(1, 1);
+		Location p1 = new Location(1, 0);
+		Location p2 = new Location(1, -1);
+		Location p3 = new Location(3, -1);
+		Location p4 = new Location(5, -1);
+		Location p5 = new Location(5, 0);
+		Location p6 = new Location(5, 1);
 		Location p7 = new Location(3, 1);
-		Location p8 = new Location(5, 1);
-		System.out.println(distanceToLine(p1, p2, p3));
-		System.out.println(distanceToLine(p1, p2, p4));
-		System.out.println(distanceToLine(p1, p2, p5));
-		System.out.println(distanceToLine(p1, p2, p6));
-		System.out.println(distanceToLine(p1, p2, p7));
-		System.out.println(distanceToLine(p1, p2, p8));
+		Location p8 = new Location(1, 1);
+
+		System.out.println("\ndtl:");
+		System.out.println(distanceToLine(l1, l2, p1));
+		System.out.println(distanceToLine(l1, l2, p2));
+		System.out.println(distanceToLine(l1, l2, p3));
+		System.out.println(distanceToLine(l1, l2, p4));
+		System.out.println(distanceToLine(l1, l2, p5));
+		System.out.println(distanceToLine(l1, l2, p6));
+		System.out.println(distanceToLine(l1, l2, p7));
+		System.out.println(distanceToLine(l1, l2, p8));
+
+		System.out.println("\ndtlf:");
+		System.out.println(distanceToLineFast(l1, l2, p1));
+		System.out.println(distanceToLineFast(l1, l2, p2));
+		System.out.println(distanceToLineFast(l1, l2, p3));
+		System.out.println(distanceToLineFast(l1, l2, p4));
+		System.out.println(distanceToLineFast(l1, l2, p5));
+		System.out.println(distanceToLineFast(l1, l2, p6));
+		System.out.println(distanceToLineFast(l1, l2, p7));
+		System.out.println(distanceToLineFast(l1, l2, p8));
+
+		System.out.println("\ndts:");
+		System.out.println(distanceToSegment(l1, l2, p1));
+		System.out.println(distanceToSegment(l1, l2, p2));
+		System.out.println(distanceToSegment(l1, l2, p3));
+		System.out.println(distanceToSegment(l1, l2, p4));
+		System.out.println(distanceToSegment(l1, l2, p5));
+		System.out.println(distanceToSegment(l1, l2, p6));
+		System.out.println(distanceToSegment(l1, l2, p7));
+		System.out.println(distanceToSegment(l1, l2, p8));
+
+		System.out.println("\ndtsf:");
+		System.out.println(distanceToSegmentFast(l1, l2, p1));
+		System.out.println(distanceToSegmentFast(l1, l2, p2));
+		System.out.println(distanceToSegmentFast(l1, l2, p3));
+		System.out.println(distanceToSegmentFast(l1, l2, p4));
+		System.out.println(distanceToSegmentFast(l1, l2, p5));
+		System.out.println(distanceToSegmentFast(l1, l2, p6));
+		System.out.println(distanceToSegmentFast(l1, l2, p7));
+		System.out.println(distanceToSegmentFast(l1, l2, p8));
 
 	}
 
@@ -335,7 +358,12 @@ public final class LocationUtils {
 	 * (right:[+] left:[-]).<br/>
 	 * <br/>
 	 * <b>Note:</b> This method does <i>NOT</i> support values spanning
-	 * &#177;180&#176; and results for such input values are not guaranteed.
+	 * &#177;180&#176; and results for such input values are not guaranteed. <br/>
+	 * <br/>
+	 * If the line should instead be treated as a segment such that the result
+	 * will be a distance to an endpoint if <code>p3</code> does not project
+	 * onto the segment, use
+	 * {@link #distanceToSegmentFast(Location, Location, Location)} instead.
 	 * 
 	 * @param p1 the first <code>Location</code> point on the line
 	 * @param p2 the second <code>Location</code> point on the line
@@ -343,6 +371,7 @@ public final class LocationUtils {
 	 *        calculated
 	 * @return the shortest distance in km between the supplied point and line
 	 * @see #distanceToLine(Location, Location, Location)
+	 * @see #distanceToSegmentFast(Location, Location, Location)
 	 */
 	public static double distanceToLineFast(Location p1, Location p2,
 			Location p3) {
@@ -364,26 +393,29 @@ public final class LocationUtils {
 		return ((x2) * (-y3) - (-x3) * (y2))
 			/ Math.sqrt((x2) * (x2) + (y2) * (y2)) * EARTH_RADIUS_MEAN;
 	}
-	
+
 	/**
-	 * Computes the shortest distance between a point and a line. Both the line
-	 * and point are assumed to be at the earth's surface; the depth component
-	 * of each <code>Location</code> is ignored. This is a fast, geometric,
-	 * cartesion (flat-earth approximation) solution in which longitude of the
-	 * line points are scaled by the cosine of latitude; it is only appropriate
-	 * for use over short distances (e.g. &lt;200 km). The sign of the result
-	 * indicates which side of the supplied line <code>p3</code> is on
-	 * (right:[+] left:[-]).<br/>
+	 * Computes the shortest distance between a point and a line segment. Both
+	 * the line and point are assumed to be at the earth's surface; the depth
+	 * component of each <code>Location</code> is ignored. This is a fast,
+	 * geometric, cartesion (flat-earth approximation) solution in which
+	 * longitude of the line points are scaled by the cosine of latitude; it is
+	 * only appropriate for use over short distances (e.g. &lt;200 km). <br/>
 	 * <br/>
 	 * <b>Note:</b> This method does <i>NOT</i> support values spanning
 	 * &#177;180&#176; and results for such input values are not guaranteed.
+	 * This method always returns a positive result.<br/>
+	 * <br/>
+	 * If the line should instead be treated as infinite, use
+	 * {@link #distanceToLineFast(Location, Location, Location)} instead.
 	 * 
 	 * @param p1 the first <code>Location</code> point on the line
 	 * @param p2 the second <code>Location</code> point on the line
 	 * @param p3 the <code>Location</code> point for which distance will be
 	 *        calculated
 	 * @return the shortest distance in km between the supplied point and line
-	 * @see #distanceToLine(Location, Location, Location)
+	 * @see #distanceToSegment(Location, Location, Location)
+	 * @see #distanceToLineFast(Location, Location, Location)
 	 */
 	public static double distanceToSegmentFast(Location p1, Location p2,
 			Location p3) {
@@ -402,10 +434,8 @@ public final class LocationUtils {
 		double x3 = (p3.getLonRad() - lon1) * lonScale;
 		double y3 = lat3 - lat1;
 
-		return ((x2) * (-y3) - (-x3) * (y2))
-			/ Math.sqrt((x2) * (x2) + (y2) * (y2)) * EARTH_RADIUS_MEAN;
+		return Line2D.ptSegDist(0, 0, x2, y2, x3, y3) * EARTH_RADIUS_MEAN;
 	}
-
 
 	/**
 	 * Computes the initial azimuth (bearing) when moving from one
