@@ -13,8 +13,6 @@ import java.util.ArrayList;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
-import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.siteData.SiteDataAPI;
@@ -23,6 +21,9 @@ import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.USGSBayAreaBasinDepth;
 import org.opensha.commons.data.siteData.impl.WaldAllenGlobalVs30;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
+import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
+import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.data.xyz.GeographicDataSetMath;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
@@ -202,7 +203,7 @@ public class HardCodedScenarioShakeMapGen {
 		return new CustomGriddedRegion(locs);
 	}
 	
-	private static XYZ_DataSetAPI computeBaseMap(EqkRupture rup,
+	private static GeographicDataSetAPI computeBaseMap(EqkRupture rup,
 			AttenuationRelationship attenRel,
 			SitesInGriddedRegion sites,
 			boolean isProbAtIML,double value) throws ParameterException, RegionConstraintException {
@@ -213,18 +214,14 @@ public class HardCodedScenarioShakeMapGen {
 		ArrayList<Double> attenRelWts = new ArrayList<Double>();
 		attenRelWts.add(1.0);
 		
-		XYZ_DataSetAPI xyz = calc.getScenarioShakeMapData(selectedAttenRels, attenRelWts, sites, rup, isProbAtIML, value);
-		ArrayList<Double> vals = xyz.getZ_DataSet();
-		ArrayList<Double> unLogVals = new ArrayList<Double>();
-		for (Double val : vals) {
-			unLogVals.add(Math.exp(val));
-		}
-		ArbDiscretizedXYZ_DataSet unLog = new ArbDiscretizedXYZ_DataSet(xyz.getX_DataSet(), xyz.getY_DataSet(), unLogVals);
+		GeographicDataSetAPI xyz = calc.getScenarioShakeMapData(selectedAttenRels, attenRelWts, sites, rup, isProbAtIML, value);
+		// un log it
+		GeographicDataSetMath.exp(xyz);
 		
-		return unLog;
+		return xyz;
 	}
 	
-	private static XYZ_DataSetAPI getScatterData(int datasetID, int erfID, int rupVarScenID, int imTypeID,
+	private static GeographicDataSetAPI getScatterData(int datasetID, int erfID, int rupVarScenID, int imTypeID,
 			int sourceID, int rupID, Location hypo,
 			boolean isProbAtIML, double value)
 			throws FileNotFoundException, IOException {
@@ -234,13 +231,13 @@ public class HardCodedScenarioShakeMapGen {
 				+rupID+"_"+isProbAtIML+"_"+value+".txt");
 		
 		if (file.exists()) {
-			return ArbDiscretizedXYZ_DataSet.loadXYZFile(file.getAbsolutePath());
+			return ArbDiscrGeographicDataSet.loadXYZFile(file.getAbsolutePath(), true);
 		} else {
 			ShakeMapComputation calc = new ShakeMapComputation(Cybershake_OpenSHA_DBApplication.db);
 			
-			XYZ_DataSetAPI xyz = calc.getShakeMap(datasetID, erfID, rupVarScenID, imTypeID,
+			GeographicDataSetAPI xyz = calc.getShakeMap(datasetID, erfID, rupVarScenID, imTypeID,
 					sourceID, rupID, hypo);
-			ArbDiscretizedXYZ_DataSet.writeXYZFile(xyz, file.getAbsolutePath());
+			ArbDiscrGeographicDataSet.writeXYZFile(xyz, file.getAbsolutePath());
 			
 			return xyz;
 		}
@@ -300,7 +297,7 @@ public class HardCodedScenarioShakeMapGen {
 			} else {
 				period = -1;
 			}
-			XYZ_DataSetAPI baseMap = null;
+			GeographicDataSetAPI baseMap = null;
 			if (useBaseMap) {
 				File baseMapFile = new File(cacheDir+"baseMap_"+attenRel.getShortName()
 						+"_"+region.getSpacing()+"_"+sourceID+"_"+rupID+"_"+isProbAt_IML+"_"+val+"_"+region.getName()
@@ -308,7 +305,7 @@ public class HardCodedScenarioShakeMapGen {
 				
 				if (baseMapFile.exists()) {
 					System.out.println("Loading Base Map Data");
-					baseMap = ArbDiscretizedXYZ_DataSet.loadXYZFile(baseMapFile.getAbsolutePath());
+					baseMap = ArbDiscrGeographicDataSet.loadXYZFile(baseMapFile.getAbsolutePath(), true);
 				} else {
 					System.out.println("Getting rupture...");
 					EqkRupture rup = getRupture(sourceID, rupID, hypo);
@@ -319,7 +316,7 @@ public class HardCodedScenarioShakeMapGen {
 					System.out.println("Generating ShakeMap...");
 					baseMap = computeBaseMap(rup, attenRel, sites, isProbAt_IML, val);
 					System.out.println("Writing: " + baseMapFile.getAbsolutePath());
-					ArbDiscretizedXYZ_DataSet.writeXYZFile(baseMap, baseMapFile.getAbsolutePath());
+					ArbDiscrGeographicDataSet.writeXYZFile(baseMap, baseMapFile.getAbsolutePath());
 				}
 			}
 			
@@ -337,14 +334,14 @@ public class HardCodedScenarioShakeMapGen {
 			int rupVarScenID = 3;
 			
 			System.out.println("Loading Scatter Data");
-			XYZ_DataSetAPI scatterData;
+			GeographicDataSetAPI scatterData;
 			if (scatterHardCodeFile == null)
 				scatterData = getScatterData(datasetID, erfID, rupVarScenID, imTypeID,
 					sourceID, rupID, hypo, isProbAt_IML, val);
 			else
-				scatterData = ArbDiscretizedXYZ_DataSet.loadXYZFile(scatterHardCodeFile);
+				scatterData = ArbDiscrGeographicDataSet.loadXYZFile(scatterHardCodeFile, true);
 			
-			System.out.println("loaded "+scatterData.getX_DataSet().size()+" scatter vals");
+			System.out.println("loaded "+scatterData.size()+" scatter vals");
 			
 			InterpDiffMapType[] types = { InterpDiffMapType.BASEMAP, InterpDiffMapType.INTERP_NOMARKS, InterpDiffMapType.INTERP_MARKS };
 //			InterpDiffMapType[] types = { InterpDiffMapType.BASEMAP };

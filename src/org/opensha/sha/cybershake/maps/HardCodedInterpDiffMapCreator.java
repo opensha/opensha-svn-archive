@@ -7,10 +7,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
@@ -37,7 +37,7 @@ import org.opensha.sha.cybershake.maps.servlet.CS_InterpDiffMapServletAccessor;
 
 public class HardCodedInterpDiffMapCreator {
 	
-	private static ArbDiscretizedXYZ_DataSet getMainScatter(boolean isProbAt_IML, double val, int imTypeID) {
+	private static ArbDiscrGeographicDataSet getMainScatter(boolean isProbAt_IML, double val, int imTypeID) {
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		int erfID = 35;
 		int rupVarScenarioID = 3;
@@ -48,16 +48,16 @@ public class HardCodedInterpDiffMapCreator {
 		ArrayList<CybershakeSite> sites = fetcher.getCurveSites();
 		ArrayList<Double> vals = fetcher.getSiteValues(isProbAt_IML, val);
 		
-		ArbDiscretizedXYZ_DataSet scatterData = new ArbDiscretizedXYZ_DataSet();
+		ArbDiscrGeographicDataSet scatterData = new ArbDiscrGeographicDataSet(true);
 		for (int i=0; i<sites.size(); i++) {
 			CybershakeSite site = sites.get(i);
 			double siteVal = vals.get(i);
-			scatterData.addValue(site.lat, site.lon, siteVal);
+			scatterData.set(new Location(site.lat, site.lon), siteVal);
 		}
 		return scatterData;
 	}
 	
-	private static ArbDiscretizedXYZ_DataSet getCustomScatter(ModProbConfig config, int imTypeID,
+	private static ArbDiscrGeographicDataSet getCustomScatter(ModProbConfig config, int imTypeID,
 			boolean isProbAt_IML, double val) throws FileNotFoundException, IOException {
 		if (imTypeID != 21)
 			throw new IllegalArgumentException("IM type must be 21 for custom map");
@@ -74,14 +74,14 @@ public class HardCodedInterpDiffMapCreator {
 //		File file = new File(fileName);
 //		if (file.exists()) {
 //			System.out.println("Loading scatter from: " + fileName);
-//			return ArbDiscretizedXYZ_DataSet.loadXYZFile(fileName);
+//			return ArbDiscrGeographicDataSet.loadXYZFile(fileName);
 //		} else {
 //			return loadCustomMapCurves(singleName, isProbAt_IML, val, mod);
 //		}
 		return loadCustomMapCurves(config, imTypeID, isProbAt_IML, val);
 	}
 	
-	private static ArbDiscretizedXYZ_DataSet loadCustomMapCurves(ModProbConfig config, int imTypeID,
+	private static ArbDiscrGeographicDataSet loadCustomMapCurves(ModProbConfig config, int imTypeID,
 			boolean isProbAt_IML, double val) {
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		
@@ -94,7 +94,7 @@ public class HardCodedInterpDiffMapCreator {
 		ArrayList<DiscretizedFuncAPI> curves = fetcher.getFuncs();
 		ArrayList<CybershakeSite> sites = fetcher.getCurveSites();
 		
-		ArbDiscretizedXYZ_DataSet xyz = new ArbDiscretizedXYZ_DataSet();
+		ArbDiscrGeographicDataSet xyz = new ArbDiscrGeographicDataSet(true);
 		
 		for (int i=0; i<curves.size(); i++) {
 			DiscretizedFuncAPI curve = curves.get(i);
@@ -103,7 +103,7 @@ public class HardCodedInterpDiffMapCreator {
 //			System.out.println("loaded curve with "+curve.getNum()+" vals");
 			
 			double zVal = HazardDataSetLoader.getCurveVal(curve, isProbAt_IML, val);
-			xyz.addValue(site.lat, site.lon, zVal);
+			xyz.set(new Location(site.lat, site.lon), zVal);
 		}
 		
 		return xyz;
@@ -125,7 +125,7 @@ public class HardCodedInterpDiffMapCreator {
 		return null;
 	}
 
-	private static ArbDiscretizedXYZ_DataSet loadCustomMapCurves(
+	private static ArbDiscrGeographicDataSet loadCustomMapCurves(
 			String singleName, boolean isProbAt_IML, double val, boolean mod)
 			throws FileNotFoundException, IOException {
 		String curveDir = "/home/kevin/CyberShake/"+singleName+"/";
@@ -141,7 +141,7 @@ public class HardCodedInterpDiffMapCreator {
 			ArrayList<CybershakeRun> runs = runs2db.getRuns();
 			CybershakeSiteInfo2DB sites2db = new CybershakeSiteInfo2DB(db);
 			ArrayList<CybershakeSite> sites = sites2db.getAllSitesFromDB();
-			ArbDiscretizedXYZ_DataSet xyz = new ArbDiscretizedXYZ_DataSet();
+			ArbDiscrGeographicDataSet xyz = new ArbDiscrGeographicDataSet(true);
 			
 			for (File curveFile : curveDirFile.listFiles()) {
 				if (curveFile.isFile() && curveFile.getName().endsWith(".txt")
@@ -156,7 +156,7 @@ public class HardCodedInterpDiffMapCreator {
 					if (site == null)
 						throw new RuntimeException("run '"+runID+"' not found!");
 					double zVal = HazardDataSetLoader.getCurveVal(func, isProbAt_IML, val);
-					xyz.addValue(site.lat, site.lon, zVal);
+					xyz.set(new Location(site.lat, site.lon), zVal);
 				}
 			}
 			return xyz;
@@ -165,7 +165,7 @@ public class HardCodedInterpDiffMapCreator {
 		}
 	}
 	
-	private static ArbDiscretizedXYZ_DataSet loadBaseMap(boolean singleDay, boolean isProbAt_IML,
+	private static ArbDiscrGeographicDataSet loadBaseMap(boolean singleDay, boolean isProbAt_IML,
 			double val, int imTypeID, String name) throws FileNotFoundException, IOException {
 		int period;
 		if (imTypeID == 11)
@@ -193,7 +193,7 @@ public class HardCodedInterpDiffMapCreator {
 		fname += "_hiRes.txt";
 		String fileName = dir + fname;
 		System.out.println("Loading basemap from: " + fileName);
-		return ArbDiscretizedXYZ_DataSet.loadXYZFile(fileName);
+		return ArbDiscrGeographicDataSet.loadXYZFile(fileName, true);
 	}
 	
 	private static PSXYSymbol getHypoSymbol(Region region, Location hypo) {
@@ -278,16 +278,16 @@ public class HardCodedInterpDiffMapCreator {
 		boolean singleDay = config != null;
 		double baseMapRes = 0.005;
 		System.out.println("Loading basemap...");
-		ArbDiscretizedXYZ_DataSet baseMap;
+		ArbDiscrGeographicDataSet baseMap;
 		if (!probGain) {
 			baseMap = loadBaseMap(singleDay, isProbAt_IML, val, imTypeID, baseMapName);
-			System.out.println("Basemap has " + baseMap.getX_DataSet().size() + " points");
+			System.out.println("Basemap has " + baseMap.size() + " points");
 		} else {
 			baseMap = null;
 		}
 		
 		System.out.println("Fetching curves...");
-		ArbDiscretizedXYZ_DataSet scatterData;
+		ArbDiscrGeographicDataSet scatterData;
 		if (singleDay)
 			scatterData = getCustomScatter(config, imTypeID, isProbAt_IML, val);
 		else
@@ -302,7 +302,7 @@ public class HardCodedInterpDiffMapCreator {
 		CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
 				"/resources/cpt/MaxSpectrum2.cpt"));
 		
-		ArbDiscretizedXYZ_DataSet refScatter = null;
+		ArbDiscrGeographicDataSet refScatter = null;
 		if (probGain) {
 			ModProbConfig timeIndepModProb = ModProbConfigFactory.getModProbConfig(1);
 			refScatter = getCustomScatter(timeIndepModProb, imTypeID, isProbAt_IML, val);

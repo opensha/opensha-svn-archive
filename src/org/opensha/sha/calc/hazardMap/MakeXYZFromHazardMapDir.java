@@ -28,10 +28,9 @@ import java.text.Collator;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.commons.data.XYZ_DataSetAPI;
-import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.AbstractDiscretizedFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
 import org.opensha.commons.geo.Location;
 
 /**
@@ -60,15 +59,15 @@ public class MakeXYZFromHazardMapDir {
 		parseFiles(isProbAt_IML, level, fileName, false);
 	}
 	
-	public XYZ_DataSetAPI getXYZDataset(boolean isProbAt_IML, double level) throws IOException {
+	public ArbDiscrGeographicDataSet getXYZDataset(boolean isProbAt_IML, double level) throws IOException {
 		return parseFiles(isProbAt_IML, level, null, false);
 	}
 	
-	public XYZ_DataSetAPI getXYZDataset(boolean isProbAt_IML, double level, String fileName) throws IOException {
+	public ArbDiscrGeographicDataSet getXYZDataset(boolean isProbAt_IML, double level, String fileName) throws IOException {
 		return parseFiles(isProbAt_IML, level, fileName, true);
 	}
 	
-	private XYZ_DataSetAPI parseFiles(boolean isProbAt_IML, double level, String fileName,
+	private ArbDiscrGeographicDataSet parseFiles(boolean isProbAt_IML, double level, String fileName,
 			boolean forceLoad) throws IOException {
 		// get and list the dir
 		System.out.println("Generating XYZ dataset for dir: " + dirName);
@@ -76,13 +75,13 @@ public class MakeXYZFromHazardMapDir {
 		File[] dirList=masterDir.listFiles();
 		
 		BufferedWriter out = null;
-		ArbDiscretizedXYZ_DataSet xyz = null;
+		ArbDiscrGeographicDataSet xyz = null;
 		
 		if (fileName != null && fileName.length() > 0) {
 			out = new BufferedWriter(new FileWriter(fileName));
 		}
 		if (out == null || forceLoad) {
-			xyz = new ArbDiscretizedXYZ_DataSet();
+			xyz = new ArbDiscrGeographicDataSet(latFirst);
 		}
 		
 		int count = 0;
@@ -118,12 +117,12 @@ public class MakeXYZFromHazardMapDir {
 									if (out != null)
 										out.write(latVal + "     " + lonVal + "     " + writeVal + "\n");
 									if (xyz != null)
-										xyz.addValue(latVal, lonVal, writeVal);
+										xyz.set(loc, writeVal);
 								} else {
 									if (out != null)
 										out.write(lonVal + "     " + latVal + "     " + writeVal + "\n");
 									if (xyz != null)
-										xyz.addValue(lonVal, latVal, writeVal);
+										xyz.set(loc, writeVal);
 								}
 								
 								if (latVal < minLat)

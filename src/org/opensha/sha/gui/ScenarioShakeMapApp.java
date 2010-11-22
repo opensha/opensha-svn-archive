@@ -47,13 +47,14 @@ import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
-import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.WaldAllenGlobalVs30;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
+import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.data.xyz.GeographicDataSetMath;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.gui.DisclaimerDialog;
@@ -158,7 +159,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 
 
 	//reference to the  XYZ dataSet
-	protected XYZ_DataSetAPI xyzDataSet;
+	protected GeographicDataSetAPI xyzDataSet;
 
 
 	//store the site values for each site in the griddded region
@@ -676,13 +677,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 						griddedRegionSites,eqkRupture,probAtIML,value);
 				//if the IMT is log supported then take the exponential of the Value if IML @ Prob
 				if(IMT_Info.isIMT_LogNormalDist(imt) && !probAtIML){
-					ArrayList zVals = xyzDataSet.getZ_DataSet();
-					int size = zVals.size();
-					for(int i=0;i<size;++i){
-						double val = ((Double)(zVals.get(i))).doubleValue();
-						double tempVal = Math.exp(val);
-						zVals.set(i,new Double(tempVal));
-					}
+					GeographicDataSetMath.exp(xyzDataSet);
 				}
 				return xyzDataSet;
 			}
@@ -754,8 +749,8 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 
 		if(!calculationFromServer) //if the calc are to be done on the local system
 			//creates the maps and information that goes into the Hazus.
-			mapGuiBean.makeHazusShapeFilesAndMap((XYZ_DataSetAPI)datasetForSA_03,(XYZ_DataSetAPI)datasetForSA_1,
-					(XYZ_DataSetAPI)datasetForPGA,(XYZ_DataSetAPI)datasetForPGV,eqkRupture,mapParametersInfo);
+			mapGuiBean.makeHazusShapeFilesAndMap((GeographicDataSetAPI)datasetForSA_03,(GeographicDataSetAPI)datasetForSA_1,
+					(GeographicDataSetAPI)datasetForPGA,(GeographicDataSetAPI)datasetForPGV,eqkRupture,mapParametersInfo);
 		else //if the calc are to be done on server
 			//creates the maps and information that goes into the Hazus.
 			mapGuiBean.makeHazusShapeFilesAndMap((String)datasetForSA_03,(String)datasetForSA_1,

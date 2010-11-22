@@ -2,7 +2,7 @@ package org.opensha.sha.cybershake.maps;
 
 import java.awt.Color;
 
-import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.data.xyz.GeographicDataSetAPI;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.util.cpt.CPT;
@@ -37,12 +37,12 @@ public class InterpDiffMap extends GMT_Map {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private XYZ_DataSetAPI scatter;
+	private GeographicDataSetAPI scatter;
 	private GMT_InterpolationSettings interpSettings;
 	private InterpDiffMapType[] mapTypes;
 	
-	public InterpDiffMap(Region region, XYZ_DataSetAPI baseMap, double basemapInc, CPT cpt,
-			XYZ_DataSetAPI scatter, GMT_InterpolationSettings interpSettings,
+	public InterpDiffMap(Region region, GeographicDataSetAPI baseMap, double basemapInc, CPT cpt,
+			GeographicDataSetAPI scatter, GMT_InterpolationSettings interpSettings,
 			InterpDiffMapType[] mapTypes) {
 		super(region, baseMap, basemapInc, cpt);
 		this.scatter = scatter;
@@ -50,11 +50,11 @@ public class InterpDiffMap extends GMT_Map {
 		this.mapTypes = mapTypes;
 	}
 
-	public XYZ_DataSetAPI getScatter() {
+	public GeographicDataSetAPI getScatter() {
 		return scatter;
 	}
 
-	public void setScatter(XYZ_DataSetAPI scatter) {
+	public void setScatter(GeographicDataSetAPI scatter) {
 		this.scatter = scatter;
 	}
 

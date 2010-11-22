@@ -24,6 +24,7 @@ import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -37,8 +38,9 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
-import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
+import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.data.xyz.GeographicDataSetMath;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GeoTools;
@@ -133,7 +135,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 	protected static String NETCDF_LIB_PATH = OPENSHA_NETCDF_LIB_PATH;
 	protected static String COMMAND_PATH = "/bin/";
 
-	protected XYZ_DataSetAPI xyzDataSet;
+	protected GeographicDataSetAPI xyzDataSet;
 
 	// common GMT command-line strings
 	protected String xOff;
@@ -396,7 +398,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 	 * @param scaleLabel - a string for the label (with no spaces!)
 	 * @return - the name of the jpg file
 	 */
-	public String makeMapLocally(XYZ_DataSetAPI xyzDataSet, String scaleLabel,
+	public String makeMapLocally(GeographicDataSetAPI xyzDataSet, String scaleLabel,
 			String metadata, String dirName) throws GMT_MapException{
 
 		//creates the metadata file
@@ -418,7 +420,11 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		checkForLogPlot();
 
 		// make the local XYZ data file
-		makeXYZ_File(XYZ_FILE_NAME);
+		try {
+			ArbDiscrGeographicDataSet.writeXYZFile(xyzDataSet, XYZ_FILE_NAME);
+		} catch (IOException e) {
+			throw new GMT_MapException(e);
+		}
 
 		// get the GMT script lines
 		ArrayList gmtLines = getGMT_ScriptLines();
@@ -433,7 +439,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		return JPG_FILE_NAME;
 	}
 	
-	public GMT_Map getGMTMapSpecification(XYZ_DataSetAPI xyzData) {
+	public GMT_Map getGMTMapSpecification(GeographicDataSetAPI xyzData) {
 		Region region;
 //		try {
 //			region = new Region(minLatParam.getValue(),
@@ -520,7 +526,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 	 * @param scaleLabel - a string for the label (with no spaces!)
 	 * @return - the name of the jpg file
 	 */
-	public String makeMapUsingServlet(XYZ_DataSetAPI xyzDataSet,
+	public String makeMapUsingServlet(GeographicDataSetAPI xyzDataSet,
 			String scaleLabel, String metadata, String dirName)
 	throws GMT_MapException,RuntimeException{
 		GMT_Map map = getGMTMapSpecification(xyzDataSet);
@@ -550,10 +556,6 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 		// take the log(z) values if necessary (and change label)
 		checkForLogPlot();
-
-		// check the xyz data set
-		if(!xyzDataSet.checkXYZ_NumVals())
-			throw new RuntimeException("X, Y and Z dataset does not have equal size");
 		
 		imgWebAddr = this.openServletConnection(map, metadata, dirName);
 
@@ -572,7 +574,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 	 * @param scaleLabel - a string for the label (with no spaces!)
 	 * @return - the name of the jpg file
 	 */
-	public String makeMapUsingWebServer(XYZ_DataSetAPI xyzDataSet, String scaleLabel, String metadata)
+	public String makeMapUsingWebServer(GeographicDataSetAPI xyzDataSet, String scaleLabel, String metadata)
 	throws GMT_MapException{
 		//creates the metadata file
 		createMapInfoFile(metadata);
@@ -591,7 +593,11 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		checkForLogPlot();
 
 		// make the local XYZ data file
-		makeXYZ_File(XYZ_FILE_NAME);
+		try {
+			ArbDiscrGeographicDataSet.writeXYZFile(xyzDataSet, XYZ_FILE_NAME);
+		} catch (IOException e) {
+			throw new GMT_MapException(e);
+		}
 
 		// get the GMT script lines
 		ArrayList gmtLines = getGMT_ScriptLines();
@@ -658,51 +664,6 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 		return metadataFilesLines;
 	}
-
-
-	// make the local XYZ file
-	protected void makeXYZ_File(String fileName) {
-		ArrayList lines = new ArrayList();
-		ArrayList xVals = xyzDataSet.getX_DataSet();
-		ArrayList yVals = xyzDataSet.getY_DataSet();
-		ArrayList zVals = xyzDataSet.getZ_DataSet();
-
-		if(xyzDataSet.checkXYZ_NumVals()){
-			int size = xVals.size();
-			for(int i=0;i<size;++i)
-				if(!Double.isNaN(((Double)zVals.get(i)).doubleValue()))
-					lines.add(xVals.get(i)+" "+yVals.get(i)+" "+zVals.get(i));
-		}
-		else
-			throw new RuntimeException("X, Y and Z dataset does not have equal size");
-
-		makeFileFromLines(lines, fileName);
-	}
-
-
-	// make the xyzDataSet from a local file
-	protected void make_xyzDataSet(String fileName) {
-
-		ArrayList xVals = new ArrayList();
-		ArrayList yVals =  new ArrayList();
-		ArrayList zVals =  new ArrayList();
-		try {
-			FileReader fr = new FileReader(fileName); //open the xyx file
-			BufferedReader bf = new BufferedReader(fr);
-			String str=bf.readLine();
-			StringTokenizer tokenizer;
-			while(str!=null) {
-				tokenizer = new StringTokenizer(str);
-				xVals.add(new Double(tokenizer.nextToken())); // lat
-				yVals.add(new Double(tokenizer.nextToken()));  // lon
-				zVals.add(new Double(tokenizer.nextToken()));  // z value
-				str = bf.readLine();
-			}
-			bf.close();
-		}catch(Exception e) { e.printStackTrace(); }
-		this.xyzDataSet = new org.opensha.commons.data.ArbDiscretizedXYZ_DataSet(xVals, yVals, zVals) ;
-	}
-
 
 	// make a local file from a vector of strings
 	protected void makeFileFromLines(ArrayList lines, String fileName) {
@@ -854,7 +815,11 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		// The color scale label
 		SCALE_LABEL = scaleLabel;
 
-		make_xyzDataSet(XYZ_FILE_NAME);
+		try {
+			this.xyzDataSet = ArbDiscrGeographicDataSet.loadXYZFile(XYZ_FILE_NAME, true);
+		} catch (IOException e) {
+			throw new GMT_MapException(e);
+		}
 
 		// take the log(z) values if necessary (and change label)
 		checkForLogPlot();
@@ -863,7 +828,11 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		boolean logPlotCheck = ((Boolean)logPlotParam.getValue()).booleanValue();
 		if(logPlotCheck){
 			XYZ_FILE_NAME = "Log_"+XYZ_FILE_NAME;
-			makeXYZ_File(XYZ_FILE_NAME);
+			try {
+				ArbDiscrGeographicDataSet.writeXYZFile(xyzDataSet, XYZ_FILE_NAME);
+			} catch (IOException e) {
+				throw new GMT_MapException(e);
+			}
 		}
 
 		// get the GMT script lines
@@ -1359,10 +1328,10 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		gmtCommandLines.add("## Plot Script ##");
 		gmtCommandLines.add("");
 
-		XYZ_DataSetAPI griddedData = map.getGriddedData();
+		GeographicDataSetAPI griddedData = map.getGriddedData();
 		
 		try {
-			ArbDiscretizedXYZ_DataSet.writeXYZFile(griddedData, dir + map.getXyzFileName());
+			ArbDiscrGeographicDataSet.writeXYZFile(griddedData, dir + map.getXyzFileName());
 		} catch (IOException e) {
 			throw new GMT_MapException("Could not write XYZ data to a file", e);
 		}
@@ -1758,15 +1727,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		//checks to see if the user wants Log Plot, if so then convert the zValues to the Log Space
 		boolean logPlotCheck = ((Boolean)logPlotParam.getValue()).booleanValue();
 		if(logPlotCheck){
-			//ArrayList of the Original z Values in the linear space
-			ArrayList zLinearVals = xyzDataSet.getZ_DataSet();
-			int size = zLinearVals.size();
-			for(int i=0;i<size;++i){
-				double zVal = ((Double)zLinearVals.get(i)).doubleValue();
-				if(zVal == 0) zLinearVals.set(i,new Double(Double.NaN));
-				//converting the Z linear Vals to the Log space.
-				else zLinearVals.set(i,new Double(0.4343 * StrictMath.log(zVal)));
-			}
+			GeographicDataSetMath.log10(xyzDataSet);
 			SCALE_LABEL = "\"log@-10@-\050"+SCALE_LABEL+"\051\"";
 		}
 	}

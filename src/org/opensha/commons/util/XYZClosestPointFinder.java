@@ -24,7 +24,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
+import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 
@@ -37,52 +39,14 @@ import org.opensha.commons.geo.LocationUtils;
  *
  */
 public class XYZClosestPointFinder {
-	ArrayList<Location> locs;
-	ArrayList<Double> vals;
+	private GeographicDataSetAPI dataset;
 	
-	public XYZClosestPointFinder(XYZ_DataSetAPI dataset, boolean xIsLat){
-		locs = new ArrayList<Location>();
-		vals = new ArrayList<Double>();
-		ArrayList<Double> lats;
-		ArrayList<Double> lons;
-		if (xIsLat) {
-			lats = dataset.getX_DataSet();
-			lons = dataset.getY_DataSet();
-		} else {
-			lats = dataset.getY_DataSet();
-			lons = dataset.getX_DataSet();
-		}
-		ArrayList<Double> zs = dataset.getZ_DataSet();
-		for (int i=0; i<lats.size(); i++) {
-			double lat = lats.get(i);
-			double lon = lons.get(i);
-			double z = zs.get(i);
-			Location loc = new Location(lat, lon);
-			locs.add(loc);
-//			System.out.println("XYZ: adding loc: " + loc + ", val: " + z);
-			vals.add(z);
-		}
+	public XYZClosestPointFinder(GeographicDataSetAPI dataset){
+		this.dataset = dataset;
 	}
 	
-	public XYZClosestPointFinder(String fileName) throws FileNotFoundException, IOException {
-		
-		ArrayList<String> lines = null;
-		lines = FileUtils.loadFile(fileName);
-		
-		locs = new ArrayList<Location>();
-		vals = new ArrayList<Double>();
-		
-		for (String line : lines) {
-			line = line.trim();
-			if (line.length() < 2)
-				continue;
-			StringTokenizer tok = new StringTokenizer(line);
-			double lat = Double.parseDouble(tok.nextToken());
-			double lon = Double.parseDouble(tok.nextToken());
-			double val = Double.parseDouble(tok.nextToken());
-			locs.add(new Location(lat, lon));
-			vals.add(val);
-		}
+	public XYZClosestPointFinder(String fileName, boolean latitudeX) throws FileNotFoundException, IOException {
+		this(ArbDiscrGeographicDataSet.loadXYZFile(fileName, latitudeX));
 	}
 	
 	/**
@@ -119,9 +83,9 @@ public class XYZClosestPointFinder {
 		double closest = Double.MAX_VALUE;
 		double closeVal = 0;
 		
-		for (int i=0; i<locs.size(); i++) {
-			Location pt2 = locs.get(i);
-			double val = vals.get(i);
+		for (int i=0; i<dataset.size(); i++) {
+			Location pt2 = dataset.getLocation(i);
+			double val = dataset.get(i);
 //			double dist = Math.pow(val[0] - lat, 2) + Math.pow(val[1] - lon, 2);
 			double dist = LocationUtils.horzDistanceFast(pt1, pt2);
 			if (dist < closest) {

@@ -24,7 +24,8 @@ import java.util.ListIterator;
 
 import javax.swing.JOptionPane;
 
-import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
@@ -197,7 +198,7 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
    * @param xyzVals : Object for the XYZ values
    * @param metadata : Associated Metadata for the values.
    */
-  public void makeMap(XYZ_DataSetAPI xyzVals, String metadataAsHTML) {
+  public void makeMap(GeographicDataSetAPI xyzVals, String metadataAsHTML) {
 
     // boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
     boolean gmtServerCheck = true;

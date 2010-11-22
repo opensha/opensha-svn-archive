@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
@@ -20,6 +21,7 @@ import org.opensha.sra.asset.MonetaryValue;
 import org.opensha.sra.asset.Portfolio;
 import org.opensha.sra.asset.Value;
 import org.opensha.sra.vulnerability.Vulnerability;
+import org.opensha.sra.vulnerability.models.SimpleVulnerability;
 
 /**
  * Portfolio loss calculator as described in:
@@ -38,7 +40,7 @@ import org.opensha.sra.vulnerability.Vulnerability;
  */
 public class PortfolioLossExceedenceCurveCalculator {
 	
-	public static final boolean D = false;
+	public static final boolean D = true;
 	public static final boolean WRITE_EXCEL_FILE = true;
 	
 	// TODO allow user to specify?
@@ -193,6 +195,13 @@ public class PortfolioLossExceedenceCurveCalculator {
 					// e^(mIML + 0.5 * std * std)
 					double mIML = Math.exp(mLnIML + 0.5 * std * std); // Equation 13, mean shaking real domain
 					if (D) System.out.println("mIML: " + mIML + " (s sub j bar) (eqn 13)");
+					
+					if (D) {
+						AbstractDiscretizedFunc vulnFunc = vuln.getVulnerabilityFunc();
+						System.out.println("Vulnerability Function:\n"+vulnFunc);
+						if (vuln instanceof SimpleVulnerability)
+							System.out.println("COV Function:\n"+((SimpleVulnerability)vuln).getCOVFunction());
+					}
 					
 					double mDamage_mIML = vuln.getMeanDamageFactor(mIML); // y sub j bar
 					if (D) System.out.println("mDamage_mIML: " + mDamage_mIML + " (y sub j bar)");
@@ -484,7 +493,7 @@ public class PortfolioLossExceedenceCurveCalculator {
 	private static void writeExcel(PortfolioRuptureResults[][] rupResults, ArbitrarilyDiscretizedFunc curve,
 			EqkRupForecastAPI erf) throws FileNotFoundException, IOException {
 		String dir = "/home/kevin/OpenSHA/portfolio_lec/";
-		String input = dir+"Porter (19 Oct 2010) Portfolio LEC checks and illustrations.xls";
+		String input = dir+"Porter (25 Oct 2010) Portfolio LEC checks and illustrations.xls";
 		String output = dir+"output.xls";
 		
 		ExcelVerificationWriter excel = new ExcelVerificationWriter(input, output);

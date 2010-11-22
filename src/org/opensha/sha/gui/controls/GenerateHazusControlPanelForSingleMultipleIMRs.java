@@ -38,8 +38,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.Timer;
 
-import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
+import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.data.xyz.GeographicDataSetMath;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.sha.gui.ScenarioShakeMapApp;
@@ -75,10 +76,10 @@ implements Runnable{
 
 	//Stores the XYZ data set for the SA-0.3, SA-1.0, PGA and PGV, if the calculation
 	//have to be done on the standalone system
-	private XYZ_DataSetAPI sa03_xyzdata;
-	private XYZ_DataSetAPI sa10_xyzdata;
-	private XYZ_DataSetAPI pga_xyzdata;
-	private XYZ_DataSetAPI pgv_xyzdata;
+	private GeographicDataSetAPI sa03_xyzdata;
+	private GeographicDataSetAPI sa10_xyzdata;
+	private GeographicDataSetAPI pga_xyzdata;
+	private GeographicDataSetAPI pgv_xyzdata;
 
 	//Stores the full path to the file where the XYZ data set objects are stored, if the
 	//calculation are to be done on the server
@@ -239,42 +240,32 @@ implements Runnable{
 			}
 		}
 		if(!calcOnServer){ // if the calculation are to be done one the standalone system
-			//arrayList declaration for the Atten Rel not supporting PGV
-			ArrayList list = null;
-			//arrayList declaration for the Atten Rel supporting PGV
-			ArrayList pgvList = null;
 			//XYZ data set supporting the PGV
-			XYZ_DataSetAPI xyzDataSet_PGV = null;
+			GeographicDataSetAPI xyzDataSet_PGV = null;
 			//XYZ data set not supporting the PGV
-			XYZ_DataSetAPI xyzDataSet = null;
+			GeographicDataSetAPI xyzDataSet = null;
 
 			if(attenRelListSupportingPGV.size() >0){
 				//if the AttenRels support PGV
 				xyzDataSet_PGV =hazusCalcForPGV(attenRelListSupportingPGV,attenRelListPGV_Wts,true);
 				//ArrayLists containing the Z Values for the XYZ dataset.
-				pgvList = xyzDataSet_PGV.getZ_DataSet();
-				size = pgvList.size();
+				size = xyzDataSet_PGV.size();
 			}
 
 			if(attenRelListNotSupportingPGV.size()>0){
 				//if the AttenRels do not support PGV
 				xyzDataSet = hazusCalcForPGV(attenRelListNotSupportingPGV,attenRelListNot_PGV_Wts,false);
 				//ArrayLists containing the Z Values for the XYZ dataset for attenRel not supporting PGV.
-				list = xyzDataSet.getZ_DataSet();
-				size = list.size();
+				size = xyzDataSet.size();
 			}
 
 			if(xyzDataSet_PGV != null && xyzDataSet!=null){
-				//ArrayList to store the combine( added) result(from Atten that support PGV
-				//and that do not support PGV) of the Z Values for the PGV.
-				ArrayList finalPGV_Vals = new ArrayList();
+				pgv_xyzdata = new ArbDiscrGeographicDataSet(true);
+				
 				//adding the values from both the above list for PGV( one calculated using PGV
 				//and other calculated using the SA at 1sec and mutipling by the scalar 37.24*2.54).
 				for(int i=0;i<size;++i)
-					finalPGV_Vals.add(new Double(((Double)pgvList.get(i)).doubleValue()+((Double)list.get(i)).doubleValue()));
-				//creating the final dataste for the PGV dataset.
-				pgv_xyzdata = new ArbDiscretizedXYZ_DataSet(xyzDataSet_PGV.getX_DataSet(),
-						xyzDataSet_PGV.getY_DataSet(),finalPGV_Vals);
+					pgv_xyzdata.set(xyzDataSet_PGV.getLocation(i), xyzDataSet_PGV.get(i)+xyzDataSet.get(i));
 			}
 			else{
 				//if XYZ dataset supporting PGV is null
@@ -350,7 +341,7 @@ implements Runnable{
 			((ScalarIntensityMeasureRelationshipAPI)selectedAttenRels.get(i)).setIntensityMeasure(PGA_Param.NAME);
 
 		if(!calcOnServer) //if calculation are not to be done on the server
-			pga_xyzdata = (XYZ_DataSetAPI)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,PGA_Param.NAME);
+			pga_xyzdata = (GeographicDataSetAPI)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,PGA_Param.NAME);
 		else //if calculation are to be done on the server
 			pga_xyzDataString = (String)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,PGA_Param.NAME);
 		metadata += "IMT = PGA"+"\n";
@@ -374,7 +365,7 @@ implements Runnable{
 
 		//if calculation are not to be done on the server
 		if(!calcOnServer)
-			sa03_xyzdata = (XYZ_DataSetAPI)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,SA_Param.NAME);
+			sa03_xyzdata = (GeographicDataSetAPI)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,SA_Param.NAME);
 		else //if calculation are to be done on the server
 			sa_03xyzDataString = (String)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,SA_Param.NAME);
 		metadata += "IMT = SA [ SA Damping = 5.0 ; SA Period = 0.3 ]"+"<br>\n";
@@ -384,7 +375,7 @@ implements Runnable{
 		setSA_PeriodForSelectedIMRs(selectedAttenRels,1.0);
 		//if calculation are not to be done on the server
 		if(!calcOnServer)
-			sa10_xyzdata = (XYZ_DataSetAPI)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,SA_Param.NAME);
+			sa10_xyzdata = (GeographicDataSetAPI)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,SA_Param.NAME);
 		else
 			//if calculation are to be done on the server
 			sa_10xyzDataString = (String)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,SA_Param.NAME);
@@ -397,16 +388,16 @@ implements Runnable{
 	 * @param pgvSupported : Checks if the list of the AttenRels support PGV
 	 * @return
 	 */
-	private XYZ_DataSetAPI hazusCalcForPGV(ArrayList attenRelList, ArrayList attenRelWtList,boolean pgvSupported) throws
+	private GeographicDataSetAPI hazusCalcForPGV(ArrayList attenRelList, ArrayList attenRelWtList,boolean pgvSupported) throws
 	RegionConstraintException, ParameterException, RuntimeException {
 		//if the PGV is supportd by the AttenuationRelationships
-		XYZ_DataSetAPI pgvDataSet = null;
+		GeographicDataSetAPI pgvDataSet = null;
 		int size = attenRelList.size();
 		if(pgvSupported){
 			for(int i=0;i<size;++i)
 				((ScalarIntensityMeasureRelationshipAPI)attenRelList.get(i)).setIntensityMeasure(PGV_Param.NAME);
 
-			pgvDataSet = (XYZ_DataSetAPI)application.generateShakeMap(attenRelList,attenRelWtList,PGV_Param.NAME);
+			pgvDataSet = (GeographicDataSetAPI)application.generateShakeMap(attenRelList,attenRelWtList,PGV_Param.NAME);
 			//metadata += imtParamEditor.getVisibleParameters().getParameterListMetadataString()+"<br>\n";
 		}
 		else{ //if the List of the attenRels does not support IMT then use SA at 1sec for PGV
@@ -414,16 +405,11 @@ implements Runnable{
 				((ScalarIntensityMeasureRelationshipAPI)attenRelList.get(i)).setIntensityMeasure(SA_Param.NAME);
 			this.setSA_PeriodForSelectedIMRs(attenRelList,1.0);
 
-			pgvDataSet = (XYZ_DataSetAPI)application.generateShakeMap(attenRelList,attenRelWtList,SA_Param.NAME);
+			pgvDataSet = (GeographicDataSetAPI)application.generateShakeMap(attenRelList,attenRelWtList,SA_Param.NAME);
 
 			//if PGV is not supported by the attenuation then use the SA-1sec pd
 			//and multiply the value by scaler 37.24*2.54
-			ArrayList zVals = pgvDataSet.getZ_DataSet();
-			size = zVals.size();
-			for(int i=0;i<size;++i){
-				double val = ((Double)zVals.get(i)).doubleValue()*37.24*2.54;
-				zVals.set(i,new Double(val));
-			}
+			GeographicDataSetMath.scale(pgvDataSet, 37.24*2.54);
 		}
 		return pgvDataSet;
 	}

@@ -30,10 +30,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
+import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
+import org.opensha.commons.data.xyz.GeographicDataSetAPI;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.Location;
@@ -103,7 +103,7 @@ public class ScenarioShakeMapCalculator {
 	 * @param value : the IML or Prob to compute the map for.
 	 * @returns the XYZ_DataSetAPI  : ArbDiscretized XYZ dataset
 	 */
-	public XYZ_DataSetAPI getScenarioShakeMapData(ArrayList<AttenuationRelationship> selectedAttenRels,
+	public GeographicDataSetAPI getScenarioShakeMapData(ArrayList<AttenuationRelationship> selectedAttenRels,
 			ArrayList<Double> attenRelWts,
 			SitesInGriddedRegion sites,
 			EqkRupture rupture,
@@ -112,7 +112,7 @@ public class ScenarioShakeMapCalculator {
 		numSites = sites.getRegion().getNodeCount();
 
 		//instance of the XYZ dataSet.
-		XYZ_DataSetAPI xyzDataSet =null;
+		GeographicDataSetAPI xyzDataSet =null;
 
 		//setting the rupture inside the propagationeffect.
 		propagationEffect.setEqkRupture(rupture);
@@ -185,11 +185,10 @@ public class ScenarioShakeMapCalculator {
 			}
 		}
 
-		ArrayList zVals;
-		ArrayList sumZVals = new ArrayList();
 		//store the sum of the averaged value of all the selected AttenRel
 		double attenRelsAvgValForSite = 0.0;
 		//iterating over all the sites and averaging the values for all AttenRels
+		xyzDataSet = new ArbDiscrGeographicDataSet(true);
 		for(int k=0;k<numSites;++k){
 			//saves the number of the current site being processed
 			currentSiteBeingProcessed = k+1;
@@ -225,7 +224,7 @@ public class ScenarioShakeMapCalculator {
 				//adding up all the values obtained from different AttenRel for the site.
 				attenRelsAvgValForSite +=val;
 			}
-			sumZVals.add(new Double(attenRelsAvgValForSite));
+			xyzDataSet.set(site.getLocation(), attenRelsAvgValForSite);
 		}
 		if(D){
 			try {
@@ -236,8 +235,6 @@ public class ScenarioShakeMapCalculator {
 			}
 		}
 		//updating the Z Values for the XYZ data after averaging the values for all selected attenuations.
-		xyzDataSet = new ArbDiscretizedXYZ_DataSet(getSitesLat(sites),
-				getSitesLon(sites),sumZVals);
 		return xyzDataSet;
 	}
 
@@ -345,48 +342,6 @@ public class ScenarioShakeMapCalculator {
 			}
 		}
 	}
-
-
-
-
-
-
-
-
-	/**
-	 * Gives the ArrayList of Latitudes from the gridded region
-	 * @param griddedRegionSites
-	 * @return
-	 */
-	private ArrayList<Double> getSitesLat(SitesInGriddedRegion sites){
-		//getting the gridded Locations list iterator
-		Iterator<Location> it = sites.getRegion().getNodeList().iterator();
-
-		//Adding the Latitudes to the ArrayLists for lats
-		ArrayList<Double> sitesLat = new ArrayList<Double>();
-		while(it.hasNext())
-			sitesLat.add(it.next().getLatitude());
-		return  sitesLat;
-	}
-
-	/**
-	 * Gives the ArrayList of Longitudes from the gridded region
-	 * @param griddedRegionSites
-	 * @return
-	 */
-	private ArrayList<Double> getSitesLon(SitesInGriddedRegion sites){
-		//getting the gridded Locations list iterator
-		//iterating over the locations iterator in the reverse order to get the Longitudes.
-		Iterator<Location> it = sites.getRegion().getNodeList().iterator();
-		//Adding the Longitudes to the ArrayLists for lons
-		ArrayList<Double> sitesLon = new ArrayList<Double>();
-		while(it.hasNext())
-			sitesLon.add(it.next().getLongitude());
-		return sitesLon;
-	}
-
-
-
 
 	/**
 	 *

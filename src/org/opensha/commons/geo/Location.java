@@ -196,9 +196,10 @@ public class Location implements
 	
 	@Override
 	public int hashCode() {
-		long latHash = Double.doubleToLongBits(lat);
-		long lonHash = Double.doubleToLongBits(lon + 1000);
-		long depHash = Double.doubleToLongBits(depth + 2000);
+		// edit did same fix as for equals, now uses getters
+		long latHash = Double.doubleToLongBits(getLatitude());
+		long lonHash = Double.doubleToLongBits(getLongitude() + 1000);
+		long depHash = Double.doubleToLongBits(getDepth() + 2000);
 		long v = latHash + lonHash + depHash;
 		return (int) (v^(v>>>32));
 	}

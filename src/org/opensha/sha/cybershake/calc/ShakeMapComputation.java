@@ -4,8 +4,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
+import org.opensha.commons.data.xyz.ArbDiscrXYZ_DataSet;
+import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.cybershake.HazardCurveFetcher;
 import org.opensha.sha.cybershake.db.CybershakeIM;
@@ -33,13 +35,13 @@ public class ShakeMapComputation {
 		erf2db = new ERF2DB(db);
 	}
 	
-	public XYZ_DataSetAPI getShakeMap(int datasetID, int erfID, int rupVarScenID, int imTypeID,
+	public GeographicDataSetAPI getShakeMap(int datasetID, int erfID, int rupVarScenID, int imTypeID,
 			int sourceID, int rupID, Location hypo) {
 		CybershakeIM im = hc2db.getIMFromID(imTypeID);
 		return getShakeMap(datasetID, erfID, rupVarScenID, im, sourceID, rupID, hypo);
 	}
 	
-	public XYZ_DataSetAPI getShakeMap(int datasetID, int erfID, int rupVarScenID, CybershakeIM im,
+	public GeographicDataSetAPI getShakeMap(int datasetID, int erfID, int rupVarScenID, CybershakeIM im,
 			int sourceID, int rupID, Location hypo) {
 		ArrayList<Integer> rvsToInclude;
 		if (hypo == null) {
@@ -57,16 +59,16 @@ public class ShakeMapComputation {
 		return getShakeMap(datasetID, erfID, rupVarScenID, im, sourceID, rupID, rvsToInclude);
 	}
 	
-	public XYZ_DataSetAPI getShakeMap(int datasetID, int erfID, int rupVarScenID, int imTypeID,
+	public GeographicDataSetAPI getShakeMap(int datasetID, int erfID, int rupVarScenID, int imTypeID,
 			int sourceID, int rupID, ArrayList<Integer> rvsToInclude) {
 		CybershakeIM im = hc2db.getIMFromID(imTypeID);
 		return getShakeMap(datasetID, erfID, rupVarScenID, im, sourceID, rupID, rvsToInclude);
 	}
 	
-	public XYZ_DataSetAPI getShakeMap(int datasetID, int erfID, int rupVarScenID, CybershakeIM im,
+	public GeographicDataSetAPI getShakeMap(int datasetID, int erfID, int rupVarScenID, CybershakeIM im,
 			int sourceID, int rupID, ArrayList<Integer> rvsToInclude) {
 		
-		XYZ_DataSetAPI xyz = new ArbDiscretizedXYZ_DataSet();
+		GeographicDataSetAPI xyz = new ArbDiscrGeographicDataSet(true);
 		
 		HazardCurveFetcher fetcher = new HazardCurveFetcher(db, datasetID, im.getID());
 		
@@ -118,7 +120,7 @@ public class ShakeMapComputation {
 				
 				System.out.println("Mean: " + mean);
 				
-				xyz.addValue(site.lat, site.lon, mean);
+				xyz.set(new Location(site.lat, site.lon), mean);
 				
 //				try {
 //					System.out.println("Getting amps for site: " + site);

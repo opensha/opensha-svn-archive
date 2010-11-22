@@ -17,31 +17,28 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.data;
+package org.opensha.commons.data.xyz;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.opensha.commons.data.siteData.SiteDataProvidersTest;
-import org.opensha.commons.data.siteData.TestSiteDataProviders_Operational;
-import org.opensha.commons.geo.GriddedRegionTest;
-import org.opensha.commons.geo.RegionTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	DataPoint2DTests.class,
-	Point2DToleranceSortedListTest.class,
-	TimeSpanTests.class,
-	
-	// siteData
-	SiteDataProvidersTest.class,
-	TestSiteDataProviders_Operational.class
+	TestArbDiscrGeographicDataSet.class,
+	TestArbDiscrXYZ_DataSet.class,
+	TestEvenlyDiscretizedXYZ_DataSet.class,
+	TestEvenlyGriddedDataSetMath.class,
+	TestGeographicDataSetMath.class,
+	TestGriddedGeographicDataSetMath.class,
+	TestGriddedRegionDataSet.class,
+	TestXYZ_DataSetMath.class
 })
 
-public class DataSuite
+public class XYZSuite
 {
 
 	public static void main(String args[])
 	{
-		org.junit.runner.JUnitCore.runClasses(DataSuite.class);
+		org.junit.runner.JUnitCore.runClasses(XYZSuite.class);
 	}
 }

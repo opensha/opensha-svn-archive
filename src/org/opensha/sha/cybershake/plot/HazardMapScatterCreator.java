@@ -64,7 +64,7 @@ public class HazardMapScatterCreator {
 	
 	public void addComparison(String name, String fileName) {
 		try {
-			comps.add(new XYZClosestPointFinder(fileName));
+			comps.add(new XYZClosestPointFinder(fileName, true));
 			compNames.add(name);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block

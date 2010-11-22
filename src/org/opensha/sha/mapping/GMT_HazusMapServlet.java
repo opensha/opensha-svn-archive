@@ -33,6 +33,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.SystemUtils;
+import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
+import org.opensha.commons.data.xyz.GeographicDataSetAPI;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
@@ -206,26 +208,10 @@ extends HttpServlet {
 				bw.write( (String) gmtMapScript.get(j) + "\n");
 			}
 			
-			//creating the XYZ file from the XYZ file from the XYZ dataSet
-			ArrayList<Double> xVals = map.getGriddedData().getX_DataSet();
-			ArrayList<Double> yVals = map.getGriddedData().getY_DataSet();
-			ArrayList<Double> zVals = map.getGriddedData().getZ_DataSet();
+			GeographicDataSetAPI griddedData = map.getGriddedData();
 			//file follows the convention lat, lon and Z value
-			if (map.getGriddedData().checkXYZ_NumVals()) {
-				size = xVals.size();
-				FileWriter fw2 = new FileWriter(newDir + "/" + new File(map.getXyzFileName()).getName());
-				BufferedWriter bw2 = new BufferedWriter(fw2);
-				for (int j = 0; j < size; ++j) {
-					//System.out.println(xVals.get(i)+" "+yVals.get(i)+" "+zVals.get(i)+"\n");
-					bw2.write(xVals.get(j) + " " + yVals.get(j) + " " + zVals.get(j) +
-					"\n");
-				}
-				bw2.close();
-			}
-			else {
-				throw new RuntimeException(
-						"X, Y and Z dataset does not have equal size");
-			}
+			size = griddedData.size();
+			ArbDiscrGeographicDataSet.writeXYZFile(griddedData, newDir + "/" + new File(map.getXyzFileName()).getName());
 		}
 		
 		bw.close();
