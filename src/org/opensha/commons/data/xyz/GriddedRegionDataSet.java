@@ -35,37 +35,69 @@ public class GriddedRegionDataSet implements GeographicDataSetAPI {
 		this.latitudeX = latitudeX;
 		map = new HashMap<Location, Double>();
 	}
+	
+	private MinMaxAveTracker getLatTracker() {
+		MinMaxAveTracker tracker = new MinMaxAveTracker();
+		
+		for (Location loc : nodeList) {
+			tracker.addValue(loc.getLatitude());
+		}
+		
+		return tracker;
+	}
+	
+	private MinMaxAveTracker getLonTracker() {
+		MinMaxAveTracker tracker = new MinMaxAveTracker();
+		
+		for (Location loc : nodeList) {
+			tracker.addValue(loc.getLongitude());
+		}
+		
+		return tracker;
+	}
+	
+	@Override
+	public double getMinLat() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double getMinLon() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
 	@Override
 	public double getMinX() {
 		if (latitudeX)
-			return region.getMinGridLat();
+			return getLatTracker().getMin();
 		else
-			return region.getMinGridLon();
+			return getLonTracker().getMin();
 	}
 
 	@Override
 	public double getMaxX() {
 		if (latitudeX)
-			return region.getMaxGridLat();
+			return getLatTracker().getMax();
 		else
-			return region.getMaxGridLon();
+			return getLonTracker().getMax();
 	}
 
 	@Override
 	public double getMinY() {
 		if (latitudeX)
-			return region.getMinGridLon();
+			return getLonTracker().getMin();
 		else
-			return region.getMinGridLat();
+			return getLatTracker().getMin();
 	}
 
 	@Override
 	public double getMaxY() {
 		if (latitudeX)
-			return region.getMaxGridLon();
+			return getLonTracker().getMax();
 		else
-			return region.getMaxGridLat();
+			return getLatTracker().getMax();
 	}
 	
 	private MinMaxAveTracker getZTracker() {
@@ -159,8 +191,15 @@ public class GriddedRegionDataSet implements GeographicDataSetAPI {
 
 	@Override
 	public void setAll(XYZ_DataSetAPI dataset) {
-		for (int i=0; i<dataset.size(); i++) {
-			set(dataset.getPoint(i), dataset.get(i));
+		if (dataset instanceof GeographicDataSetAPI) {
+			GeographicDataSetAPI gdata = (GeographicDataSetAPI)dataset;
+			for (int i=0; i<dataset.size(); i++) {
+				set(gdata.getLocation(i), gdata.get(i));
+			}
+		} else {
+			for (int i=0; i<dataset.size(); i++) {
+				set(dataset.getPoint(i), dataset.get(i));
+			}
 		}
 	}
 
@@ -172,7 +211,7 @@ public class GriddedRegionDataSet implements GeographicDataSetAPI {
 	@Override
 	public void set(Location loc, double value) {
 		if (!contains(loc))
-			throw new InvalidRangeException("point must be within range");
+			throw new InvalidRangeException("point must exist in the gridded region!");
 		map.put(loc, value);
 	}
 

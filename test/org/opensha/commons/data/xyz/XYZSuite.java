@@ -21,9 +21,6 @@ package org.opensha.commons.data.xyz;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.opensha.commons.data.siteData.SiteDataProvidersTest;
-import org.opensha.commons.geo.GriddedRegionTest;
-import org.opensha.commons.geo.RegionTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({

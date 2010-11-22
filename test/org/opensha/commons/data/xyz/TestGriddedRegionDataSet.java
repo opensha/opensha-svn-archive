@@ -7,6 +7,7 @@ import java.awt.geom.Point2D;
 import org.junit.Before;
 import org.junit.Test;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -72,17 +73,37 @@ public class TestGriddedRegionDataSet {
 		}
 	}
 	
+	@Test
 	public void testMinMax() {
+		data.setLatitudeX(true);
 		assertEquals("min lat isn't correct", LocationList.calcMinLat(grid.getNodeList()), data.getMinX(), 0d);
 		assertEquals("max lat isn't correct", LocationList.calcMaxLat(grid.getNodeList()), data.getMaxX(), 0d);
 		assertEquals("min lon isn't correct", LocationList.calcMinLon(grid.getNodeList()), data.getMinY(), 0d);
 		assertEquals("max lon isn't correct", LocationList.calcMaxLon(grid.getNodeList()), data.getMaxY(), 0d);
+		data.setLatitudeX(false);
+		assertEquals("min lat isn't correct", LocationList.calcMinLon(grid.getNodeList()), data.getMinX(), 0d);
+		assertEquals("max lat isn't correct", LocationList.calcMaxLon(grid.getNodeList()), data.getMaxX(), 0d);
+		assertEquals("min lon isn't correct", LocationList.calcMinLat(grid.getNodeList()), data.getMinY(), 0d);
+		assertEquals("max lon isn't correct", LocationList.calcMaxLat(grid.getNodeList()), data.getMaxY(), 0d);
 		MinMaxAveTracker tracker = new MinMaxAveTracker();
 		for (int i=0; i<data.size(); i++) {
 			tracker.addValue(data.get(i));
 		}
 		assertEquals("min val isn't correct", tracker.getMin(), data.getMinZ(), 0d);
 		assertEquals("max val isn't correct", tracker.getMax(), data.getMaxZ(), 0d);
+	}
+	
+	private LocationList getBadPointList() {
+		LocationList bad = new LocationList();
+		
+		Location origin = grid.getNodeList().get(0);
+		double spacing = grid.getSpacing();
+		double halfSpacing = spacing*0.5;
+		
+		bad.add(new Location(origin.getLatitude() + halfSpacing, origin.getLongitude() + halfSpacing));
+//		bad.add(new Location(data.getMi - spacing, origin.getLongitude() + halfSpacing));
+		
+		return bad;
 	}
 	
 	@Test
@@ -94,6 +115,8 @@ public class TestGriddedRegionDataSet {
 			assertTrue("contains doesn't work from point", data.contains(pt));
 			assertTrue("contains doesn't work from doubles", data.contains(pt.getX(), pt.getY()));
 		}
+		
+		// test some outside
 	}
 	
 	@Test
@@ -119,6 +142,18 @@ public class TestGriddedRegionDataSet {
 			assertEquals("set by doubles increased size!", origSize, data.size());
 			assertEquals("set by doubles didn't change", 1.4, data.get(i), 0d);
 		}
+		
+		// now set some that aren't contained
+		Location origin = grid.getNodeList().get(0);
+		double halfSpacing = grid.getSpacing()*0.5;
+		try {
+			data.set(new Location(origin.getLatitude() + halfSpacing, origin.getLongitude() + halfSpacing), 0d);
+			fail("Exceptoin should have been thrown setting incorrect point!");
+		} catch (InvalidRangeException e) {}
+		try {
+			data.set(new Location(origin.getLatitude() - grid.getSpacing(), origin.getLongitude() - grid.getSpacing()), 0d);
+			fail("Exceptoin should have been thrown setting incorrect point!");
+		} catch (InvalidRangeException e) {}
 	}
 	
 	private void doLatXTest(GriddedRegionDataSet data) {
@@ -152,6 +187,33 @@ public class TestGriddedRegionDataSet {
 		data.setLatitudeX(true);
 		assertTrue("latX not set correctly in method!", data.isLatitudeX());
 		doLatXTest(data);
+	}
+	
+	@Test
+	public void testSetAll() {
+		buildData(true);
+		GriddedRegionDataSet constData = (GriddedRegionDataSet)data.clone();
+		double constVal = 1.2345;
+		for (int i=0; i<constData.size(); i++)
+			constData.set(i, constVal);
+		
+		// testing simple case, both latX identical
+		data.setAll(constData);
+		for (int i=0; i<data.size(); i++)
+			assertEquals("data not set correctly in setAll with latX identical", constVal, data.get(i), 0);
+		
+		buildData(false);
+		// testing complex case, both latX identical
+		data.setAll(constData);
+		for (int i=0; i<data.size(); i++)
+			assertEquals("data not set correctly in setAll with latX different", constVal, data.get(i), 0);
+		
+		buildData(true);
+		ArbDiscrXYZ_DataSet nonGeo = new ArbDiscrXYZ_DataSet();
+		nonGeo.setAll(constData);
+		data.setAll(nonGeo);
+		for (int i=0; i<data.size(); i++)
+			assertEquals("data not set correctly in setAll with latX equal, non geographic", constVal, data.get(i), 0);
 	}
 
 }

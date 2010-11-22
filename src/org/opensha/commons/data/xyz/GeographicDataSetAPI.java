@@ -27,6 +27,20 @@ public interface GeographicDataSetAPI extends XYZ_DataSetAPI {
 	public boolean isLatitudeX();
 	
 	/**
+	 * Returns the minimum latitude in the given dataset.
+	 * 
+	 * @return
+	 */
+	public double getMinLat();
+	
+	/**
+	 * Returns the maximum latitude in the given dataset.
+	 * 
+	 * @return
+	 */
+	public double getMinLon();
+	
+	/**
 	 * Set the value at the given <code>Location</code>. If the location doesn't exist in the
 	 * dataset then it will be added.
 	 * 

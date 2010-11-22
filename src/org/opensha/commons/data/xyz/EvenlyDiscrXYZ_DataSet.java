@@ -67,16 +67,7 @@ public class EvenlyDiscrXYZ_DataSet implements XYZ_DataSetAPI {
 	}
 
 	public double getMaxZ() {
-		MinMaxAveTracker tracker = new MinMaxAveTracker();
-		
-		for (int row=0; row<nx; row++) {
-			for (int col=0; col<ny; col++) {
-				double val = get(col, row);
-				tracker.addValue(val);
-			}
-		}
-		
-		return tracker.getMax();
+		return getZTracker().getMax();
 	}
 
 	public double getMinX() {
@@ -88,16 +79,20 @@ public class EvenlyDiscrXYZ_DataSet implements XYZ_DataSetAPI {
 	}
 
 	public double getMinZ() {
+		return getZTracker().getMin();
+	}
+	
+	private MinMaxAveTracker getZTracker() {
 		MinMaxAveTracker tracker = new MinMaxAveTracker();
 		
-		for (int row=0; row<nx; row++) {
-			for (int col=0; col<ny; col++) {
+		for (int row=0; row<ny; row++) {
+			for (int col=0; col<nx; col++) {
 				double val = get(col, row);
 				tracker.addValue(val);
 			}
 		}
 		
-		return tracker.getMin();
+		return tracker;
 	}
 	
 	/**
@@ -258,7 +253,7 @@ public class EvenlyDiscrXYZ_DataSet implements XYZ_DataSetAPI {
 	}
 	
 	public int indexOf(Point2D point) {
-		return getIndex(point.getX(), point.getY());
+		return indexOf(point.getX(), point.getY());
 	}
 
 	@Override
@@ -289,7 +284,7 @@ public class EvenlyDiscrXYZ_DataSet implements XYZ_DataSetAPI {
 
 	@Override
 	public int indexOf(double x, double y) {
-		return indexOf(new Point2D.Double(x, y));
+		return getIndex(x, y);
 	}
 
 }

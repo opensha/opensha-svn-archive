@@ -66,6 +66,7 @@ public class TestArbDiscrXYZ_DataSet {
 		}
 	}
 	
+	@Test
 	public void testSetAll() {
 		XYZ_DataSetAPI xyz = getTestData();
 		
@@ -104,6 +105,7 @@ public class TestArbDiscrXYZ_DataSet {
 		}
 	}
 	
+	@Test
 	public void testMinMax() {
 		XYZ_DataSetAPI xyz = getTestData();
 		
