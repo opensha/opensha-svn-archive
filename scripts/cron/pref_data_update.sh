@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+	. ~/.bashrc
+fi
+
 dir=`dirname $0`
 
 jar="${dir}/../../dist/OpenSHA_complete.jar"
