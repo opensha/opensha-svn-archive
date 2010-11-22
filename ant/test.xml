@@ -239,6 +239,10 @@
 		</cobertura-report>
 	</target>
 	
+	<target name="run.cobertura" depends="compile.tets, resource.tests, pre.test.init, cobertura.instrument,
+			run.coverage.tests, cobertura.report">
+	</target>
+	
 	<target name="cobertura.check.merge">
 		<available file="${cobertura.data.dir}/${cobertura.data.weekly.file}" property="weekly.present"/>
 	</target>
@@ -252,7 +256,7 @@
 		</cobertura-merge>
 	</target>
 	
-	<target name="run.cobertura" depends="compile.tets, resource.tests, pre.test.init, cobertura.instrument,
+	<target name="run.merge.cobertura" depends="compile.tets, resource.tests, pre.test.init, cobertura.instrument,
 			run.coverage.tests, cobertura.check.merge, cobertura.merge, cobertura.report">
 	</target>
 	

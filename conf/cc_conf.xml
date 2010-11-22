@@ -81,17 +81,7 @@
 			<!-- This test runs nightly, updating the coverage site with daily tests -->
 			<ant time="0145" antscript="${ant.bin}"
 						buildfile="${projectdir}/ant/cc-build-test.xml"
-						target="svn.build.run.daily.coverage" />			
-
-			<!-- This test runs every Sunday morning, updating the coverage site with all tests -->
-			<ant time="0200" day="sunday" antscript="${ant.bin}"
-						buildfile="${projectdir}/ant/cc-build-test.xml"
-						target="svn.build.run.weekly.coverage" />
-
-			<!-- This test runs every Thursday morning, updating the coverage site with all tests -->
-			<ant time="0200" day="thursday" antscript="${ant.bin}"
-						buildfile="${projectdir}/ant/cc-build-test.xml"
-						target="svn.build.run.weekly.coverage" />
+						target="svn.build.run.daily.coverage" />
 		</schedule>
 
 		<!-- we shouldn't need this since requiremodification=false, but a CC bug requires it to build -->
