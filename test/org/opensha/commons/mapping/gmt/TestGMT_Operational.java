@@ -15,7 +15,6 @@ import javax.imageio.ImageIO;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opensha.commons.data.xyz.ArbDiscrXYZ_DataSet;
 import org.opensha.commons.data.xyz.GeographicDataSetAPI;
 import org.opensha.commons.exceptions.GMT_MapException;
 
@@ -29,6 +28,7 @@ public class TestGMT_Operational {
 	@BeforeClass
 	public static void setUp() throws Exception {
 		gmt = new GMT_MapGenerator();
+		gmt.getAdjustableParamsList().getParameter(GMT_MapGenerator.LOG_PLOT_NAME).setValue(new Boolean(false));
 		xyz = TestGMT_MapGenerator.generateTestData();
 	}
 	
@@ -40,6 +40,9 @@ public class TestGMT_Operational {
 	@SuppressWarnings("unused")
 	private void runTest() {
 		GMT_Map map = gmt.getGMTMapSpecification(xyz);
+		for (int i=0; i<xyz.size(); i++) {
+			System.out.println(xyz.getLocation(i) + ": " + xyz.get(i));
+		}
 		map.setCustomScaleMin(null);
 		map.setCustomScaleMax(null);
 		String metadata = "My Map Metadata";
@@ -84,8 +87,8 @@ public class TestGMT_Operational {
 		
 		System.out.println("Image size: " + width + "x" + height);
 		
-		assertTrue("Image width should be at least 100 pixels", width >= 100);
-		assertTrue("Image hgithg should be at least 100 pixels", height >= 100);
+		assertTrue("Image width should be at least 300 pixels", width >= 300);
+		assertTrue("Image hgithg should be at least 300 pixels", height >= 300);
 		
 		// the image should also not be simply blank, so lets make sure there are 100 unique colors
 		ArrayList<Integer> colors = new ArrayList<Integer>();

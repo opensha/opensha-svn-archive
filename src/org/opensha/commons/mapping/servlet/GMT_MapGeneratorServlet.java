@@ -103,9 +103,6 @@ extends HttpServlet {
 		ObjectOutputStream outputToApplet = new ObjectOutputStream(response.
 				getOutputStream());
 
-		//string that decides the name of the output gmt files
-		String outFile = null;
-
 		try {
 			//all the user gmt stuff will be stored in this directory
 			File mainDir = new File(FILE_PATH + GMT_DATA_DIR);

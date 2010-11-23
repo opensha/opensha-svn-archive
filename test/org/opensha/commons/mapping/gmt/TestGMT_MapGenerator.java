@@ -24,7 +24,7 @@ public class TestGMT_MapGenerator {
 	private static GeographicDataSetAPI xyz;
 	
 	public static GeographicDataSetAPI generateTestData() {
-		GeographicDataSetAPI xyz = new ArbDiscrGeographicDataSet(true);
+		ArbDiscrGeographicDataSet xyz = new ArbDiscrGeographicDataSet(true);
 		int y = 0;
 		for (double lat=33.5; lat<=35; lat+=0.1) {
 			int x = 0;
@@ -34,6 +34,7 @@ public class TestGMT_MapGenerator {
 			}
 			y++;
 		}
+		System.out.println("Num points: " + xyz.size());
 		System.out.println("X Range: " + xyz.getMinX() + " => " + xyz.getMaxX());
 		System.out.println("Y Range: " + xyz.getMinY() + " => " + xyz.getMaxY());
 		System.out.println("Z Range: " + xyz.getMinZ() + " => " + xyz.getMaxZ());
