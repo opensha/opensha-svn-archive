@@ -7,6 +7,12 @@ import java.util.List;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 
+/**
+ * This is an abstract class for handling the translation from Location to Points for Geographic 
+ * 
+ * @author kevin
+ *
+ */
 public abstract class AbstractGeographicDataSet implements GeographicDataSetAPI {
 
 	/**
