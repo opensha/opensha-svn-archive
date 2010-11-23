@@ -221,6 +221,8 @@ public class TestArbDiscrXYZ_DataSet {
 		XYZ_DataSetAPI loaded = (XYZ_DataSetAPI)FileUtils.loadObject(tempFile.getAbsolutePath());
 		
 		testLoaded(data, loaded);
+		
+		tempFile.delete();
 	}
 
 }
