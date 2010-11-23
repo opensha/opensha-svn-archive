@@ -37,42 +37,42 @@ public interface XYZ_DataSet extends java.io.Serializable, Cloneable {
 	/**
 	 * Returns the minimum X value in this dataset.
 	 * 
-	 * @return
+	 * @return minimum X value, or positive infinity if the dataset is empty
 	 */
 	public double getMinX();
 
 	/**
 	 * Returns the maximum X value in this dataset.
 	 * 
-	 * @return
+	 * @return maximum X value, or negative infinity if the dataset is empty
 	 */
 	public double getMaxX();
 
 	/**
 	 * Returns the minimum Y value in this dataset.
 	 * 
-	 * @return
+	 * @return minimum Y value, or positive infinity if the dataset is empty
 	 */
 	public double getMinY();
 
 	/**
 	 * Returns the maximum Y value in this dataset.
 	 * 
-	 * @return
+	 * @return maximum Y value, or negative infinity if the dataset is empty
 	 */
 	public double getMaxY();
 
 	/**
 	 * Returns the minimum Z value in this dataset.
 	 * 
-	 * @return
+	 * @return minimum Z value, or positive infinity if the dataset is empty
 	 */
 	public double getMinZ();
 
 	/**
 	 * Returns the maximum Z value in this dataset.
 	 * 
-	 * @return
+	 * @return maximum Z value, or negative infinity if the dataset is empty
 	 */
 	public double getMaxZ();
 	
@@ -80,8 +80,9 @@ public interface XYZ_DataSet extends java.io.Serializable, Cloneable {
 	 * Sets the value at the given point. If the point doesn't exist, it will be added
 	 * to the dataset.
 	 * 
-	 * @param point
-	 * @param z
+	 * @param point - the point at which to set
+	 * @param z - the value to set
+	 * @throws NullPointerException if <code>point</code> is null
 	 */
 	public void set(Point2D point, double z);
 	
@@ -89,9 +90,9 @@ public interface XYZ_DataSet extends java.io.Serializable, Cloneable {
 	 * Sets the value at the given point. If the point doesn't exist, it will be added
 	 * to the dataset.
 	 * 
-	 * @param x
-	 * @param y
-	 * @param z
+	 * @param x - the x value of the point at which to set
+	 * @param y - the y value of the point at which to set
+	 * @param z - the value to set
 	 */
 	public void set(double x, double y, double z);
 	
@@ -99,33 +100,34 @@ public interface XYZ_DataSet extends java.io.Serializable, Cloneable {
 	 * Sets the value at the given index. If index < 0 or index >= size(),
 	 * then an exception is thrown.
 	 * 
-	 * @param index
-	 * @param z
+	 * @param index - the index of the point to be set
+	 * @param z - the value to set
+	 * @throws IndexOutOfBoundsException if <code>index < 0</code> or <code>index >= size()</code>
 	 */
 	public void set(int index, double z);
 	
 	/**
 	 * Gets the value at the given point. If the point doesn't exist, null will be returned.
 	 * 
-	 * @param point
-	 * @return
+	 * @param point - the point at which to get
+	 * @return the value at the given point, or null if the point is not contained in the dataset
 	 */
 	public double get(Point2D point);
 	
 	/**
 	 * Gets the value at the given point. If the point doesn't exist, null will be returned.
 	 * 
-	 * @param x
-	 * @param y
-	 * @return
+	 * @param x - the x value of the point at which to get
+	 * @param y - the y value of the point at which to get
+	 * @return the value at the given point
 	 */
 	public double get(double x, double y);
 
 	/**
 	 * Gets the value at the given index. If index < 0 or index >= size(),
 	 * then an exception is thrown.
-	 * @param index
-	 * @return
+	 * @param index - the index of the point at which to get
+	 * @return the value at the given index
 	 */
 	public double get(int index);
 	
@@ -133,70 +135,74 @@ public interface XYZ_DataSet extends java.io.Serializable, Cloneable {
 	 * Gets the point at the given index. If index < 0 or index >= size(),
 	 * then an exception is thrown.
 	 * 
-	 * @param index
-	 * @return
+	 * @param index - the index of the point to get
+	 * @return the point at the given index
+	 * @throws IndexOutOfBoundsException if <code>index</code> < 0 or index >= size()
 	 */
 	public Point2D getPoint(int index);
 	
 	/**
 	 * Returns the index of the given point, or -1 if it isn't in the dataset.
 	 * 
-	 * @param point
-	 * @return
+	 * @param point - the point at which to return the index
+	 * @return index of the given point, or -1 if it isn't in the dataset.
 	 */
 	public int indexOf(Point2D point);
 	
 	/**
 	 * Returns the index of the given point, or -1 if it isn't in the dataset.
 	 * 
-	 * @param x
-	 * @param y
-	 * @return
+	 * @param x - the x value of the point at which to return the index
+	 * @param y - the y value of the point at which to return the index
+	 * @return index of the given point, or -1 if it isn't in the dataset.
 	 */
 	public int indexOf(double x, double y);
 	
 	/**
 	 * Returns true if the dataset contains the given point, false otherwise.
 	 * 
-	 * @param point
-	 * @return
+	 * @param point - the point to check
+	 * @return true if <code>point</code> is not null and is contained by the dataset, false otherwise
 	 */
 	public boolean contains(Point2D point);
 	
 	/**
 	 * Returns true if the dataset contains the given point, false otherwise.
 	 * 
-	 * @param x
-	 * @param y
-	 * @return
+	 * @param x - the x value of the point to check
+	 * @param y - the y value of the point to check
+	 * @return true if the dataset contains the given point, false otherwise
 	 */
 	public boolean contains(double x, double y);
 	
 	/**
-	 * Returns the size of the given dataset.
+	 * Returns the size of this dataset.
 	 * 
-	 * @return
+	 * @return size of this dataset
 	 */
 	public int size();
 	
 	/**
 	 * Sets every point in this dataset from the given dataset.
 	 * 
-	 * @param dataset
+	 * @param dataset - dataset who's values are to be set
+	 * @throws NullPointerException if <code>dataset</code> is null
 	 */
 	public void setAll(XYZ_DataSet dataset);
 	
 	/**
-	 * Returns a list of all points in the correct order (as defined by indexOf).
+	 * Returns a list of all points in the correct order (as defined by indexOf). If the dataset is empty,
+	 * then an empty list will be returned.
 	 * 
-	 * @return
+	 * @return list of all points in the dataset
 	 */
 	public List<Point2D> getPointList();
 	
 	/**
-	 * Returns a list of all values in the correct order (as defined by indexOf).
+	 * Returns a list of all values in the correct order (as defined by indexOf). If the dataset is empty,
+	 * then an empty list will be returned.
 	 * 
-	 * @return
+	 * @return list of all values in the dataset
 	 */
 	public List<Double> getValueList();
 	
