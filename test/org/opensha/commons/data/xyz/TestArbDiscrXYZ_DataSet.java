@@ -187,6 +187,15 @@ public class TestArbDiscrXYZ_DataSet {
 		}
 	}
 	
+	private static void testLoaded(XYZ_DataSetAPI data, XYZ_DataSetAPI loaded) {
+		assertEquals("written/loaded data has incorrect size!", data.size(), loaded.size());
+		
+		for (int i=0; i<data.size(); i++) {
+			assertEquals("written/loaded point doesn't match!", data.getPoint(i), loaded.getPoint(i));
+			assertEquals("written/loaded value doesn't match!", data.get(i), loaded.get(i), xThresh);
+		}
+	}
+	
 	@Test
 	public void testWriteReadXYZ() throws IOException {
 		File tempDir = FileUtils.createTempDir();
@@ -199,12 +208,19 @@ public class TestArbDiscrXYZ_DataSet {
 		
 		FileUtils.deleteRecursive(tempDir);
 		
-		assertEquals("written/loaded data has incorrect size!", data.size(), loaded.size());
+		testLoaded(data, loaded);
+	}
+	
+	@Test
+	public void testSerialize() throws IOException {
+		XYZ_DataSetAPI data = getTestData();
+		File tempFile = File.createTempFile("openSHA", "xyz.ser");
 		
-		for (int i=0; i<data.size(); i++) {
-			assertEquals("written/loaded point doesn't match!", data.getPoint(i), loaded.getPoint(i));
-			assertEquals("written/loaded value doesn't match!", data.get(i), loaded.get(i), xThresh);
-		}
+		FileUtils.saveObjectInFile(tempFile.getAbsolutePath(), data);
+		
+		XYZ_DataSetAPI loaded = (XYZ_DataSetAPI)FileUtils.loadObject(tempFile.getAbsolutePath());
+		
+		testLoaded(data, loaded);
 	}
 
 }
