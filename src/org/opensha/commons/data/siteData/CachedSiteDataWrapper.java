@@ -165,13 +165,6 @@ public class CachedSiteDataWrapper<Element> implements SiteDataAPI<Element>, Par
 	public boolean isValueValid(Element el) {
 		return provider.isValueValid(el);
 	}
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		
-	}
 
 	public org.dom4j.Element toXMLMetadata(org.dom4j.Element root) {
 		return provider.toXMLMetadata(root);
