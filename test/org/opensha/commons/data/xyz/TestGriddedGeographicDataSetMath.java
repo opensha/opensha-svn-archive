@@ -10,13 +10,13 @@ import org.opensha.commons.geo.Location;
 
 public class TestGriddedGeographicDataSetMath extends TestXYZ_DataSetMath {
 	
-	GriddedRegionDataSet griddedData;
+	GriddedGeoDataSet griddedData;
 	
 	@Before
 	public void setUp() throws Exception {
 		GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED(0.5);
 		
-		griddedData = new GriddedRegionDataSet(region, true);
+		griddedData = new GriddedGeoDataSet(region, true);
 		
 		for (int i=0; i<griddedData.size(); i++) {
 			griddedData.set(i, (double)i);
@@ -24,20 +24,20 @@ public class TestGriddedGeographicDataSetMath extends TestXYZ_DataSetMath {
 	}
 	
 	@Override
-	protected XYZ_DataSetAPI getData1() {
+	protected XYZ_DataSet getData1() {
 		return griddedData;
 	}
 	
 	@Override
-	protected XYZ_DataSetAPI getData2() {
-		return (GriddedRegionDataSet)griddedData.clone();
+	protected XYZ_DataSet getData2() {
+		return (GriddedGeoDataSet)griddedData.clone();
 	}
 	
 	@Override
-	protected XYZ_DataSetAPI getData3() {
+	protected XYZ_DataSet getData3() {
 		GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED(0.25);
 		
-		GriddedRegionDataSet data3 = new GriddedRegionDataSet(region, true);
+		GriddedGeoDataSet data3 = new GriddedGeoDataSet(region, true);
 		
 		for (int i=0; i<data3.size(); i++) {
 			data3.set(i, (double)i);

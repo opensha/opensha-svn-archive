@@ -20,7 +20,7 @@
 package org.opensha.sha.gui.controls;
 
 
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.sha.imr.AttenuationRelationship;
 
 /**
@@ -39,7 +39,7 @@ public interface GenerateHazusFilesConrolPanelAPI {
    * and stores the value in each vectors(lat-ArrayList, Lon-ArrayList and IML or Prob ArrayList)
    * The IML or prob vector contains value based on what the user has selected in the Map type
    */
-  public GeographicDataSetAPI generateShakeMap();
+  public GeoDataSet generateShakeMap();
 
   /**
    *

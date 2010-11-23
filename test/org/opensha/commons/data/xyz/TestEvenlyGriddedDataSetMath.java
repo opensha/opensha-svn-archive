@@ -37,17 +37,17 @@ public class TestEvenlyGriddedDataSetMath extends TestXYZ_DataSetMath {
 	}
 	
 	@Override
-	protected XYZ_DataSetAPI getData1() {
+	protected XYZ_DataSet getData1() {
 		return data1;
 	}
 	
 	@Override
-	protected XYZ_DataSetAPI getData2() {
+	protected XYZ_DataSet getData2() {
 		return data2;
 	}
 	
 	@Override
-	protected XYZ_DataSetAPI getData3() {
+	protected XYZ_DataSet getData3() {
 		return data3;
 	}
 }

@@ -14,7 +14,7 @@ import org.opensha.commons.geo.LocationList;
  * @author kevin
  *
  */
-public class GriddedRegionDataSet extends AbstractGeographicDataSet {
+public class GriddedGeoDataSet extends AbstractGeoDataSet {
 	
 	/**
 	 * 
@@ -25,7 +25,7 @@ public class GriddedRegionDataSet extends AbstractGeographicDataSet {
 	private LocationList nodeList;
 	private HashMap<Location, Double> map;
 	
-	public GriddedRegionDataSet(GriddedRegion region, boolean latitudeX) {
+	public GriddedGeoDataSet(GriddedRegion region, boolean latitudeX) {
 		super(latitudeX);
 		this.region = region;
 		nodeList = region.getNodeList();
@@ -66,7 +66,7 @@ public class GriddedRegionDataSet extends AbstractGeographicDataSet {
 
 	@Override
 	public Object clone() {
-		GriddedRegionDataSet data = new GriddedRegionDataSet(region, isLatitudeX());
+		GriddedGeoDataSet data = new GriddedGeoDataSet(region, isLatitudeX());
 		
 		for (int i=0; i<size(); i++) {
 			data.set(getLocation(i), get(i));

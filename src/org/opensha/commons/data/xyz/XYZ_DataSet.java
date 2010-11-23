@@ -32,7 +32,7 @@ import java.util.List;
  * @version 1.0
  */
 
-public interface XYZ_DataSetAPI extends java.io.Serializable, Cloneable {
+public interface XYZ_DataSet extends java.io.Serializable, Cloneable {
 
 	/**
 	 * Returns the minimum X value in this dataset.
@@ -184,7 +184,7 @@ public interface XYZ_DataSetAPI extends java.io.Serializable, Cloneable {
 	 * 
 	 * @param dataset
 	 */
-	public void setAll(XYZ_DataSetAPI dataset);
+	public void setAll(XYZ_DataSet dataset);
 	
 	/**
 	 * Returns a list of all points in the correct order (as defined by indexOf).

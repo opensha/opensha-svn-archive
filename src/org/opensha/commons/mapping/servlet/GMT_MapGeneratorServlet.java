@@ -33,8 +33,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.SystemUtils;
-import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
+import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
@@ -209,9 +209,9 @@ extends HttpServlet {
 
 		//creating the XYZ file from the XYZ file from the XYZ dataSet
 		if (map.getGriddedData() != null) {
-			GeographicDataSetAPI griddedData = map.getGriddedData();
+			GeoDataSet griddedData = map.getGriddedData();
 			griddedData.setLatitudeX(true);
-			ArbDiscrGeographicDataSet.writeXYZFile(griddedData, newDir + "/" + new File(map.getXyzFileName()).getName());
+			ArbDiscrGeoDataSet.writeXYZFile(griddedData, newDir + "/" + new File(map.getXyzFileName()).getName());
 		}
 
 		//running the gmtScript file

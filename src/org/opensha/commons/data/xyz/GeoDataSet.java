@@ -1,7 +1,5 @@
 package org.opensha.commons.data.xyz;
 
-import java.util.List;
-
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 
@@ -13,7 +11,7 @@ import org.opensha.commons.geo.LocationList;
  * @author kevin
  *
  */
-public interface GeographicDataSetAPI extends XYZ_DataSetAPI {
+public interface GeoDataSet extends XYZ_DataSet {
 	
 	/**
 	 * Set latitudeX. If true, latitude will be stored as X, otherwise as Y.

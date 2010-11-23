@@ -1,13 +1,13 @@
 package org.opensha.sha.cybershake.maps;
 
-import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
+import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.geo.Location;
 
 public class ProbGainCalc {
 
-	public static ArbDiscrGeographicDataSet calcProbGain(GeographicDataSetAPI refXYZ, GeographicDataSetAPI modXYZ) {
-		ArbDiscrGeographicDataSet gainXYZ = new ArbDiscrGeographicDataSet(true);
+	public static ArbDiscrGeoDataSet calcProbGain(GeoDataSet refXYZ, GeoDataSet modXYZ) {
+		ArbDiscrGeoDataSet gainXYZ = new ArbDiscrGeoDataSet(true);
 
 		for (int refInd=0; refInd<refXYZ.size(); refInd++) {
 			Location refLoc = refXYZ.getLocation(refInd);

@@ -37,8 +37,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.dom4j.Document;
 import org.dom4j.io.SAXReader;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
+import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.util.FileUtils;
@@ -103,10 +103,10 @@ public class HazardMapXMLViewerServlet  extends HttpServlet {
 						MakeXYZFromHazardMapDir maker = new MakeXYZFromHazardMapDir(localDir + "/curves", false, true);
 						maker.writeXYZFile(isProbAt_IML, value, outFile);
 					}
-					GeographicDataSetAPI xyzData = null;
+					GeoDataSet xyzData = null;
 					if(outFile != null){
 						try{
-							xyzData = new ArbDiscrGeographicDataSet(true);
+							xyzData = new ArbDiscrGeoDataSet(true);
 							ArrayList fileLines = fileLines = FileUtils.loadFile(outFile);
 							ListIterator it = fileLines.listIterator();
 							while(it.hasNext()){
@@ -269,14 +269,14 @@ public class HazardMapXMLViewerServlet  extends HttpServlet {
 	 * @param map : GMT object
 	 * @return
 	 */
-	private GeographicDataSetAPI getXYZ_DataSet(String dirName,
+	private GeoDataSet getXYZ_DataSet(String dirName,
 			boolean isProbAt_IML,
 			double val){
 
 		File masterDir = new File("/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/HazardMapXMLDatasets/" + dirName);
 		File[] dirList=masterDir.listFiles();
 
-		GeographicDataSetAPI xyzData = new ArbDiscrGeographicDataSet(true);
+		GeoDataSet xyzData = new ArbDiscrGeoDataSet(true);
 
 		// for each file in the list
 		for(File dir : dirList){

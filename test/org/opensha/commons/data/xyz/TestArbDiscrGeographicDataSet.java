@@ -18,20 +18,20 @@ public class TestArbDiscrGeographicDataSet extends TestArbDiscrXYZ_DataSet {
 	}
 
 	@Override
-	protected XYZ_DataSetAPI createEmpty() {
+	protected XYZ_DataSet createEmpty() {
 		return createEmpty(true);
 	}
 	
-	protected XYZ_DataSetAPI createEmpty(boolean latitudeX) {
-		return new ArbDiscrGeographicDataSet(latitudeX);
+	protected XYZ_DataSet createEmpty(boolean latitudeX) {
+		return new ArbDiscrGeoDataSet(latitudeX);
 	}
 	
-	protected ArbDiscrGeographicDataSet createTestData(boolean latitudeX) {
+	protected ArbDiscrGeoDataSet createTestData(boolean latitudeX) {
 		return createTestData(latitudeX, 0d);
 	}
 	
-	protected static ArbDiscrGeographicDataSet createTestData(boolean latitudeX, double add) {
-		ArbDiscrGeographicDataSet data = new ArbDiscrGeographicDataSet(latitudeX);
+	protected static ArbDiscrGeoDataSet createTestData(boolean latitudeX, double add) {
+		ArbDiscrGeoDataSet data = new ArbDiscrGeoDataSet(latitudeX);
 		
 		double lat = -90;
 		double lon = -180;
@@ -47,7 +47,7 @@ public class TestArbDiscrGeographicDataSet extends TestArbDiscrXYZ_DataSet {
 		return data;
 	}
 	
-	private static void verifySingleLatX(ArbDiscrGeographicDataSet data) {
+	private static void verifySingleLatX(ArbDiscrGeoDataSet data) {
 		for (int i=0; i<data.size(); i++) {
 			Point2D pt = data.getPoint(i);
 			Location loc = data.getLocation(i);
@@ -62,7 +62,7 @@ public class TestArbDiscrGeographicDataSet extends TestArbDiscrXYZ_DataSet {
 		}
 	}
 	
-	private static void verifyLatX(ArbDiscrGeographicDataSet data1, ArbDiscrGeographicDataSet data2) {
+	private static void verifyLatX(ArbDiscrGeoDataSet data1, ArbDiscrGeoDataSet data2) {
 		assertEquals("sizes not equal with different latX", data1.size(), data2.size());
 		
 		verifySingleLatX(data1);
@@ -90,9 +90,9 @@ public class TestArbDiscrGeographicDataSet extends TestArbDiscrXYZ_DataSet {
 	
 	@Test
 	public void testLatitudeX() {
-		ArbDiscrGeographicDataSet data1 = createTestData(true);
+		ArbDiscrGeoDataSet data1 = createTestData(true);
 		assertTrue("LatitudeX not set correctly in constructor", data1.isLatitudeX());
-		ArbDiscrGeographicDataSet data2 = createTestData(false);
+		ArbDiscrGeoDataSet data2 = createTestData(false);
 		assertFalse("LatitudeX not set correctly in constructor", data2.isLatitudeX());
 		
 		verifyLatX(data1, data2);
@@ -112,7 +112,7 @@ public class TestArbDiscrGeographicDataSet extends TestArbDiscrXYZ_DataSet {
 	
 	@Test
 	public void testGetGeo() {
-		ArbDiscrGeographicDataSet data = createTestData(true);
+		ArbDiscrGeoDataSet data = createTestData(true);
 		
 		for (int i=0; i<data.size(); i++) {
 			Point2D pt = data.getPoint(i);
@@ -125,19 +125,19 @@ public class TestArbDiscrGeographicDataSet extends TestArbDiscrXYZ_DataSet {
 	
 	@Test
 	public void testSetDuplicateLocs() {
-		ArbDiscrGeographicDataSet xyz = createTestData(true);
+		ArbDiscrGeoDataSet xyz = createTestData(true);
 		
 		int origSize = xyz.size();
 		
 		xyz.setAll(createTestData(true));
 		assertEquals("set all still added duplicates", origSize, xyz.size());
 		
-		ArbDiscrGeographicDataSet diffValsDataSet = createTestData(true);
+		ArbDiscrGeoDataSet diffValsDataSet = createTestData(true);
 		XYZ_DataSetMath.add(diffValsDataSet, 0.1d);
 		xyz.setAll(diffValsDataSet);
 		assertEquals("set all still added duplicate locs with diff values", origSize, xyz.size());
 		
-		ArbDiscrGeographicDataSet diffPtsDataSet = createTestData(true, 0.1);
+		ArbDiscrGeoDataSet diffPtsDataSet = createTestData(true, 0.1);
 		xyz.setAll(diffPtsDataSet);
 		assertEquals("set all didn't add new values", origSize+diffPtsDataSet.size(), xyz.size());
 	}
@@ -148,12 +148,12 @@ public class TestArbDiscrGeographicDataSet extends TestArbDiscrXYZ_DataSet {
 		String latXFileName = tempDir.getAbsolutePath() + File.separator + "data_lat_x.xyz";
 		String latYFileName = tempDir.getAbsolutePath() + File.separator + "data_lat_y.xyz";
 		
-		GeographicDataSetAPI data = createTestData(true);
+		GeoDataSet data = createTestData(true);
 		ArbDiscrXYZ_DataSet.writeXYZFile(data, latXFileName);
 		ArbDiscrXYZ_DataSet.writeXYZFile(createTestData(false), latYFileName);
 		
-		GeographicDataSetAPI loadedLatX = ArbDiscrGeographicDataSet.loadXYZFile(latXFileName, true);
-		GeographicDataSetAPI loadedLatY = ArbDiscrGeographicDataSet.loadXYZFile(latYFileName, false);
+		GeoDataSet loadedLatX = ArbDiscrGeoDataSet.loadXYZFile(latXFileName, true);
+		GeoDataSet loadedLatY = ArbDiscrGeoDataSet.loadXYZFile(latYFileName, false);
 		
 		FileUtils.deleteRecursive(tempDir);
 		

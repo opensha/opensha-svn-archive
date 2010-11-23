@@ -39,8 +39,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
+import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.param.ParameterList;
@@ -104,7 +104,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
 				if(optionSelected.equalsIgnoreCase(IMLorProbSelectorGuiBean.IML_AT_PROB))
 					isProbAt_IML = false;
 				// create the XYZ data set
-				GeographicDataSetAPI xyzData = getXYZ_DataSet(selectedSet, isProbAt_IML, val, map);
+				GeoDataSet xyzData = getXYZ_DataSet(selectedSet, isProbAt_IML, val, map);
 				String metadataFileName = PARENT_DIR+
 				selectedSet+"/"+"map_info.txt";
 				FileWriter fw = new FileWriter(metadataFileName);
@@ -230,7 +230,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
 	 * @param map : GMT object
 	 * @return
 	 */
-	private GeographicDataSetAPI getXYZ_DataSet(String selectedSet,
+	private GeoDataSet getXYZ_DataSet(String selectedSet,
 			boolean isProbAt_IML,
 			double val, GMT_MapGenerator map ){
 
@@ -244,7 +244,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
 		double gridSpacing =((Double) paramList.getValue(GMT_MapGenerator.GRID_SPACING_PARAM_NAME)).doubleValue();
 
 		//adding the xyz data set to the object of XYZ_DataSetAPI
-		GeographicDataSetAPI xyzData = new ArbDiscrGeographicDataSet(true);
+		GeoDataSet xyzData = new ArbDiscrGeoDataSet(true);
 
 		//searching the directory for the list of the files.
 		File dir = new File(PARENT_DIR+selectedSet+"/");

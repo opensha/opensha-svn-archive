@@ -16,7 +16,7 @@ import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 public class TestGriddedRegionDataSet {
 
 	private GriddedRegion grid;
-	private GriddedRegionDataSet data;
+	private GriddedGeoDataSet data;
 	
 	@Before
 	public void setUp() throws Exception {
@@ -25,7 +25,7 @@ public class TestGriddedRegionDataSet {
 	}
 	
 	private void buildData(boolean latitudeX) {
-		data = new GriddedRegionDataSet(grid, latitudeX);
+		data = new GriddedGeoDataSet(grid, latitudeX);
 		
 		for (int i=0; i<data.size(); i++) {
 			data.set(i, (double)i);
@@ -156,7 +156,7 @@ public class TestGriddedRegionDataSet {
 		} catch (InvalidRangeException e) {}
 	}
 	
-	private void doLatXTest(GriddedRegionDataSet data) {
+	private void doLatXTest(GriddedGeoDataSet data) {
 		for (int i=0; i<data.size(); i++) {
 			Location gridLoc = grid.getNodeList().get(i);
 			Point2D pt = data.getPoint(i);
@@ -192,7 +192,7 @@ public class TestGriddedRegionDataSet {
 	@Test
 	public void testSetAll() {
 		buildData(true);
-		GriddedRegionDataSet constData = (GriddedRegionDataSet)data.clone();
+		GriddedGeoDataSet constData = (GriddedGeoDataSet)data.clone();
 		double constVal = 1.2345;
 		for (int i=0; i<constData.size(); i++)
 			constData.set(i, constVal);

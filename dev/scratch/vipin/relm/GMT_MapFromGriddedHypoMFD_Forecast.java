@@ -3,8 +3,8 @@ package scratch.vipin.relm;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
+import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
@@ -55,7 +55,7 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
 	 * @param mag
 	 */
 	public void makeMap(double mag, String dirName, boolean isAdjustLatLon, double adjustmentVal) {
-		GeographicDataSetAPI xyzData = getRELM_XYZ_DataAboveMag(mag, isAdjustLatLon, adjustmentVal);
+		GeoDataSet xyzData = getRELM_XYZ_DataAboveMag(mag, isAdjustLatLon, adjustmentVal);
 		GriddedRegion region  = griddedHypoMFD.getRegion();
 		// make GMT_MapGenerator to make the map
 		GMT_MapGenerator mapGenerator = new GMT_MapGenerator();
@@ -107,8 +107,8 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
 	 *
 	 * @return
 	 */
-	public  GeographicDataSetAPI getRELM_XYZ_DataAboveMag(double mag, boolean isAdjustLatLon, double adjustment) {
-		ArbDiscrGeographicDataSet xyzDataSet = new ArbDiscrGeographicDataSet(true);
+	public  GeoDataSet getRELM_XYZ_DataAboveMag(double mag, boolean isAdjustLatLon, double adjustment) {
+		ArbDiscrGeoDataSet xyzDataSet = new ArbDiscrGeoDataSet(true);
 		// iterate over all locations.
 		double rateAboveMag=0.0, totalIncrRate=0;
 		int numLocs = griddedHypoMFD.getNumHypoLocs();

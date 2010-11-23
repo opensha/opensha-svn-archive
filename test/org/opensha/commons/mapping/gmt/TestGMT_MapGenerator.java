@@ -13,18 +13,18 @@ import javax.imageio.ImageIO;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
+import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.ArbDiscrXYZ_DataSet;
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
 
 public class TestGMT_MapGenerator {
 	
 	private static GMT_MapGenerator gmt;
-	private static GeographicDataSetAPI xyz;
+	private static GeoDataSet xyz;
 	
-	public static GeographicDataSetAPI generateTestData() {
-		ArbDiscrGeographicDataSet xyz = new ArbDiscrGeographicDataSet(true);
+	public static GeoDataSet generateTestData() {
+		ArbDiscrGeoDataSet xyz = new ArbDiscrGeoDataSet(true);
 		int y = 0;
 		for (double lat=33.5; lat<=35; lat+=0.1) {
 			int x = 0;

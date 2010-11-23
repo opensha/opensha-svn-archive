@@ -22,7 +22,7 @@ package org.opensha.commons.mapping.gmt;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.mapping.gmt.elements.CoastAttributes;
@@ -45,7 +45,7 @@ public class GMT_Map implements Serializable {
 	private CPT cpt = null;
 	private boolean rescaleCPT = true;
 	private double griddedDataInc;
-	private GeographicDataSetAPI griddedData = null;
+	private GeoDataSet griddedData = null;
 	
 	public enum HighwayFile {
 		ALL			("CA All", "ca_hiwys.all.xy"),
@@ -103,13 +103,13 @@ public class GMT_Map implements Serializable {
 	private ArrayList<PSXYPolygon> xyLines = new ArrayList<PSXYPolygon>();
 	private PSXYSymbolSet xySymbolSet = null;
 	
-	public GMT_Map(Region region, GeographicDataSetAPI griddedData,
+	public GMT_Map(Region region, GeoDataSet griddedData,
 			double griddedDataInc, String cptFile) {
 		this.region = region;
 		setGriddedData(griddedData, griddedDataInc, cptFile);
 	}
 	
-	public GMT_Map(Region region, GeographicDataSetAPI griddedData,
+	public GMT_Map(Region region, GeoDataSet griddedData,
 			double griddedDataInc, CPT cpt) {
 		this.region = region;
 		setGriddedData(griddedData, griddedDataInc, cpt);
@@ -122,7 +122,7 @@ public class GMT_Map implements Serializable {
 	 * @param griddedDataInc - Degree spacing of dataset
 	 * @param cptFile - CPT file
 	 */
-	public void setGriddedData(GeographicDataSetAPI griddedData, double griddedDataInc, String cptFile) {
+	public void setGriddedData(GeoDataSet griddedData, double griddedDataInc, String cptFile) {
 		this.griddedData = griddedData;
 		this.griddedDataInc = griddedDataInc;
 		this.cptFile = cptFile;
@@ -136,7 +136,7 @@ public class GMT_Map implements Serializable {
 	 * @param griddedDataInc - Degree spacing of dataset
 	 * @param cpt - CPT object
 	 */
-	public void setGriddedData(GeographicDataSetAPI griddedData, double griddedDataInc, CPT cpt) {
+	public void setGriddedData(GeoDataSet griddedData, double griddedDataInc, CPT cpt) {
 		this.griddedData = griddedData;
 		this.griddedDataInc = griddedDataInc;
 		this.cptFile = null;
@@ -183,11 +183,11 @@ public class GMT_Map implements Serializable {
 		this.griddedDataInc = griddedDataInc;
 	}
 
-	public GeographicDataSetAPI getGriddedData() {
+	public GeoDataSet getGriddedData() {
 		return griddedData;
 	}
 
-	public void setGriddedData(GeographicDataSetAPI griddedData) {
+	public void setGriddedData(GeoDataSet griddedData) {
 		this.griddedData = griddedData;
 	}
 

@@ -50,10 +50,10 @@ import javax.swing.JTextArea;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
-import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
+import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.ArbDiscrXYZ_DataSet;
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
-import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
+import org.opensha.commons.data.xyz.GeoDataSet;
+import org.opensha.commons.data.xyz.XYZ_DataSet;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterList;
@@ -486,13 +486,13 @@ public class STEP_MapViewerApp extends JApplet {
 	 * @param minLon
 	 * @param maxLon
 	 */
-	private GeographicDataSetAPI readAndWriteFile(double minLat,double maxLat,double minLon,
+	private GeoDataSet readAndWriteFile(double minLat,double maxLat,double minLon,
 			double maxLon,double gridSpacing,
 			String selectedSet, boolean isProbAt_IML, double val){
 
 		//searching the directory for the list of the files.
 		File dir = new File(this.STEP_DIR+selectedSet+"/");
-		GeographicDataSetAPI xyzData = new ArbDiscrGeographicDataSet(true);
+		GeoDataSet xyzData = new ArbDiscrGeoDataSet(true);
 		String[] fileList=dir.list();
 		//formatting of the text double Decimal numbers for 2 places of decimal.
 		DecimalFormat d= new DecimalFormat("0.00##");

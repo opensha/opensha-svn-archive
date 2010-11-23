@@ -34,8 +34,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
-import org.opensha.commons.data.xyz.GeographicDataSetMath;
+import org.opensha.commons.data.xyz.GeoDataSet;
+import org.opensha.commons.data.xyz.GeoDataSetMath;
 import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.imr.AttenuationRelationship;
@@ -62,10 +62,10 @@ public class GenerateHazusFilesControlPanel extends JFrame {
 	private GenerateHazusFilesConrolPanelAPI application;
 
 	//Stores the XYZ data set for the SA-0.3, SA-1.0, PGA and PGV
-	private GeographicDataSetAPI sa03_xyzdata;
-	private GeographicDataSetAPI sa10_xyzdata;
-	private GeographicDataSetAPI pga_xyzdata;
-	private GeographicDataSetAPI pgv_xyzdata;
+	private GeoDataSet sa03_xyzdata;
+	private GeoDataSet sa10_xyzdata;
+	private GeoDataSet pga_xyzdata;
+	private GeoDataSet pgv_xyzdata;
 
 	//metadata string for the different IMT required to generate the shapefiles for Hazus.
 	private String metadata;
@@ -167,8 +167,8 @@ public class GenerateHazusFilesControlPanel extends JFrame {
 		else{
 			//if PGV is not supported by the attenuation then use the SA-1sec pd
 			//and multiply the value by scaler 37.24*2.54
-			pgv_xyzdata = (GeographicDataSetAPI) sa10_xyzdata.clone();
-			GeographicDataSetMath.scale(pgv_xyzdata, 37.24*2.54);
+			pgv_xyzdata = (GeoDataSet) sa10_xyzdata.clone();
+			GeoDataSetMath.scale(pgv_xyzdata, 37.24*2.54);
 			metadata += "IMT: PGV"+"<br>\n";
 		}
 		//Doing for PGA
@@ -193,7 +193,7 @@ public class GenerateHazusFilesControlPanel extends JFrame {
 	 *
 	 * @returns the XYZ data set for the SA-0.3sec
 	 */
-	public GeographicDataSetAPI getXYZ_DataForSA_03(){
+	public GeoDataSet getXYZ_DataForSA_03(){
 		return sa03_xyzdata;
 	}
 
@@ -202,7 +202,7 @@ public class GenerateHazusFilesControlPanel extends JFrame {
 	 *
 	 * @return the XYZ data set for the SA-1.0sec
 	 */
-	public GeographicDataSetAPI getXYZ_DataForSA_10(){
+	public GeoDataSet getXYZ_DataForSA_10(){
 		return sa10_xyzdata;
 	}
 
@@ -210,7 +210,7 @@ public class GenerateHazusFilesControlPanel extends JFrame {
 	 *
 	 * @return the XYZ data set for the PGA
 	 */
-	public GeographicDataSetAPI getXYZ_DataForPGA(){
+	public GeoDataSet getXYZ_DataForPGA(){
 		return pga_xyzdata;
 	}
 
@@ -218,7 +218,7 @@ public class GenerateHazusFilesControlPanel extends JFrame {
 	 *
 	 * @return the XYZ data set for the PGV
 	 */
-	public GeographicDataSetAPI getXYZ_DataForPGV(){
+	public GeoDataSet getXYZ_DataForPGV(){
 		return pgv_xyzdata;
 	}
 

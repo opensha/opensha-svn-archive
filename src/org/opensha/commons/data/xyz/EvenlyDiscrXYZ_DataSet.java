@@ -22,7 +22,7 @@ import org.opensha.commons.util.FileUtils;
  * @author kevin
  *
  */
-public class EvenlyDiscrXYZ_DataSet implements XYZ_DataSetAPI {
+public class EvenlyDiscrXYZ_DataSet implements XYZ_DataSet {
 	
 	/**
 	 * 
@@ -266,7 +266,7 @@ public class EvenlyDiscrXYZ_DataSet implements XYZ_DataSetAPI {
 		return x >= minX && x <= maxX && y >= minY && y <= maxY;
 	}
 	
-	public void setAll(XYZ_DataSetAPI dataset) {
+	public void setAll(XYZ_DataSet dataset) {
 		for (int i=0; i<dataset.size(); i++) {
 			set(dataset.getPoint(i), dataset.get(i));
 		}

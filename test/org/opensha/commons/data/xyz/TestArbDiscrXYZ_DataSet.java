@@ -21,13 +21,13 @@ public class TestArbDiscrXYZ_DataSet {
 	public void setUp() throws Exception {
 	}
 	
-	protected XYZ_DataSetAPI createEmpty() {
+	protected XYZ_DataSet createEmpty() {
 		return new ArbDiscrXYZ_DataSet();
 	}
 	
 	@Test
 	public void testSetDuplicate() {
-		XYZ_DataSetAPI xyz = createEmpty();
+		XYZ_DataSet xyz = createEmpty();
 		
 		assertEquals("initial size should be 0", 0, xyz.size());
 		
@@ -44,12 +44,12 @@ public class TestArbDiscrXYZ_DataSet {
 		assertEquals("replace doesn't work", 7d, xyz.get(1), xThresh);
 	}
 	
-	private XYZ_DataSetAPI getTestData() {
+	private XYZ_DataSet getTestData() {
 		return getTestData(0d);
 	}
 	
-	private XYZ_DataSetAPI getTestData(double iAdd) {
-		XYZ_DataSetAPI xyz = createEmpty();
+	private XYZ_DataSet getTestData(double iAdd) {
+		XYZ_DataSet xyz = createEmpty();
 		
 		for (double i=0; i<=maxI; i++) {
 			double realI = i+iAdd;
@@ -61,7 +61,7 @@ public class TestArbDiscrXYZ_DataSet {
 	
 	@Test
 	public void testGet() {
-		XYZ_DataSetAPI xyz = getTestData();
+		XYZ_DataSet xyz = getTestData();
 		
 		for (int i=0; i<xyz.size(); i++) {
 			Point2D pt = xyz.getPoint(i);
@@ -78,7 +78,7 @@ public class TestArbDiscrXYZ_DataSet {
 	
 	@Test
 	public void testGetPoint() {
-		XYZ_DataSetAPI xyz = getTestData();
+		XYZ_DataSet xyz = getTestData();
 		
 		for (int i=0; i<xyz.size(); i++) {
 			assertEquals("get x by index doesn't work", (double)i, xyz.getPoint(i).getX(), xThresh);
@@ -91,7 +91,7 @@ public class TestArbDiscrXYZ_DataSet {
 	
 	@Test
 	public void testContains() {
-		XYZ_DataSetAPI xyz = getTestData();
+		XYZ_DataSet xyz = getTestData();
 		
 		for (int i=0; i<xyz.size(); i++) {
 			Point2D pt = xyz.getPoint(i);
@@ -106,26 +106,26 @@ public class TestArbDiscrXYZ_DataSet {
 	
 	@Test
 	public void testSetAll() {
-		XYZ_DataSetAPI xyz = getTestData();
+		XYZ_DataSet xyz = getTestData();
 		
 		int origSize = xyz.size();
 		
 		xyz.setAll(getTestData());
 		assertEquals("set all still added duplicates", origSize, xyz.size());
 		
-		XYZ_DataSetAPI diffValsDataSet = getTestData();
+		XYZ_DataSet diffValsDataSet = getTestData();
 		XYZ_DataSetMath.add(diffValsDataSet, 0.1d);
 		xyz.setAll(diffValsDataSet);
 		assertEquals("set all still added duplicate locs with diff values", origSize, xyz.size());
 		
-		XYZ_DataSetAPI diffPtsDataSet = getTestData(0.1);
+		XYZ_DataSet diffPtsDataSet = getTestData(0.1);
 		xyz.setAll(diffPtsDataSet);
 		assertEquals("set all didn't add new values", origSize*2, xyz.size());
 	}
 	
 	@Test
 	public void testSet() {
-		XYZ_DataSetAPI xyz = getTestData();
+		XYZ_DataSet xyz = getTestData();
 		double constVal1 = 1.2345432;
 		double constVal2 = 6.78765;
 		double constVal3 = 12.25253;
@@ -142,8 +142,8 @@ public class TestArbDiscrXYZ_DataSet {
 	
 	@Test
 	public void testClone() {
-		XYZ_DataSetAPI xyz = getTestData();
-		XYZ_DataSetAPI cloned = (XYZ_DataSetAPI)xyz.clone();
+		XYZ_DataSet xyz = getTestData();
+		XYZ_DataSet cloned = (XYZ_DataSet)xyz.clone();
 		
 		assertEquals("cloned size incorrect", xyz.size(), cloned.size());
 		
@@ -162,7 +162,7 @@ public class TestArbDiscrXYZ_DataSet {
 	
 	@Test
 	public void testMinMax() {
-		XYZ_DataSetAPI xyz = getTestData();
+		XYZ_DataSet xyz = getTestData();
 		
 		assertEquals("x min is wrong", 0d, xyz.getMinX(), xThresh);
 		assertEquals("x max is wrong", maxI, xyz.getMaxX(), xThresh);
@@ -174,7 +174,7 @@ public class TestArbDiscrXYZ_DataSet {
 	
 	@Test
 	public void testGetLists() {
-		XYZ_DataSetAPI data = getTestData();
+		XYZ_DataSet data = getTestData();
 		List<Point2D> pointList = data.getPointList();
 		List<Double> valList = data.getValueList();
 		
@@ -187,7 +187,7 @@ public class TestArbDiscrXYZ_DataSet {
 		}
 	}
 	
-	private static void testLoaded(XYZ_DataSetAPI data, XYZ_DataSetAPI loaded) {
+	private static void testLoaded(XYZ_DataSet data, XYZ_DataSet loaded) {
 		assertEquals("written/loaded data has incorrect size!", data.size(), loaded.size());
 		
 		for (int i=0; i<data.size(); i++) {
@@ -201,10 +201,10 @@ public class TestArbDiscrXYZ_DataSet {
 		File tempDir = FileUtils.createTempDir();
 		String fileName = tempDir.getAbsolutePath() + File.separator + "data.xyz";
 		
-		XYZ_DataSetAPI data = getTestData();
+		XYZ_DataSet data = getTestData();
 		ArbDiscrXYZ_DataSet.writeXYZFile(data, fileName);
 		
-		XYZ_DataSetAPI loaded = ArbDiscrXYZ_DataSet.loadXYZFile(fileName);
+		XYZ_DataSet loaded = ArbDiscrXYZ_DataSet.loadXYZFile(fileName);
 		
 		FileUtils.deleteRecursive(tempDir);
 		
@@ -213,12 +213,12 @@ public class TestArbDiscrXYZ_DataSet {
 	
 	@Test
 	public void testSerialize() throws IOException {
-		XYZ_DataSetAPI data = getTestData();
+		XYZ_DataSet data = getTestData();
 		File tempFile = File.createTempFile("openSHA", "xyz.ser");
 		
 		FileUtils.saveObjectInFile(tempFile.getAbsolutePath(), data);
 		
-		XYZ_DataSetAPI loaded = (XYZ_DataSetAPI)FileUtils.loadObject(tempFile.getAbsolutePath());
+		XYZ_DataSet loaded = (XYZ_DataSet)FileUtils.loadObject(tempFile.getAbsolutePath());
 		
 		testLoaded(data, loaded);
 		

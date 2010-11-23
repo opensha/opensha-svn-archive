@@ -15,7 +15,7 @@ import javax.imageio.ImageIO;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
 
 import util.TestUtils;
@@ -23,7 +23,7 @@ import util.TestUtils;
 public class TestGMT_Operational {
 	
 	private static GMT_MapGenerator gmt;
-	private static GeographicDataSetAPI xyz;
+	private static GeoDataSet xyz;
 	
 	@BeforeClass
 	public static void setUp() throws Exception {

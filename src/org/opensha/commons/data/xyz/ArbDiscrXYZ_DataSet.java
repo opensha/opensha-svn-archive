@@ -41,7 +41,7 @@ import org.opensha.commons.util.FileUtils;
  * @version 1.0
  */
 
-public class ArbDiscrXYZ_DataSet implements XYZ_DataSetAPI,java.io.Serializable{
+public class ArbDiscrXYZ_DataSet implements XYZ_DataSet,java.io.Serializable{
 
 	/**
 	 * default serial version UID
@@ -170,13 +170,13 @@ public class ArbDiscrXYZ_DataSet implements XYZ_DataSetAPI,java.io.Serializable{
 	}
 
 	@Override
-	public void setAll(XYZ_DataSetAPI dataset) {
+	public void setAll(XYZ_DataSet dataset) {
 		for (int i=0; i<dataset.size(); i++) {
 			set(dataset.getPoint(i), dataset.get(i));
 		}
 	}
 	
-	public static void writeXYZFile(XYZ_DataSetAPI xyz, String fileName) throws IOException {
+	public static void writeXYZFile(XYZ_DataSet xyz, String fileName) throws IOException {
 		
 		FileWriter fw = new FileWriter(fileName);
 		for (int i=0; i<xyz.size(); i++) {

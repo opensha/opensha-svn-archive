@@ -24,9 +24,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
-import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
+import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
+import org.opensha.commons.data.xyz.GeoDataSet;
+import org.opensha.commons.data.xyz.XYZ_DataSet;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 
@@ -39,14 +39,14 @@ import org.opensha.commons.geo.LocationUtils;
  *
  */
 public class XYZClosestPointFinder {
-	private GeographicDataSetAPI dataset;
+	private GeoDataSet dataset;
 	
-	public XYZClosestPointFinder(GeographicDataSetAPI dataset){
+	public XYZClosestPointFinder(GeoDataSet dataset){
 		this.dataset = dataset;
 	}
 	
 	public XYZClosestPointFinder(String fileName, boolean latitudeX) throws FileNotFoundException, IOException {
-		this(ArbDiscrGeographicDataSet.loadXYZFile(fileName, latitudeX));
+		this(ArbDiscrGeoDataSet.loadXYZFile(fileName, latitudeX));
 	}
 	
 	/**

@@ -10,8 +10,8 @@ import java.awt.geom.Point2D;
  */
 public class XYZ_DataSetMath {
 	
-	private static boolean isGeo(XYZ_DataSetAPI map1, XYZ_DataSetAPI map2) {
-		if (map1 instanceof GeographicDataSetAPI && map2 instanceof GeographicDataSetAPI)
+	private static boolean isGeo(XYZ_DataSet map1, XYZ_DataSet map2) {
+		if (map1 instanceof GeoDataSet && map2 instanceof GeoDataSet)
 			return true;
 		return false;
 	}
@@ -23,9 +23,9 @@ public class XYZ_DataSetMath {
 	 * @param map2
 	 * @return
 	 */
-	public static XYZ_DataSetAPI add(XYZ_DataSetAPI map1, XYZ_DataSetAPI map2) {
+	public static XYZ_DataSet add(XYZ_DataSet map1, XYZ_DataSet map2) {
 		if (isGeo(map1, map2))
-			return GeographicDataSetMath.add((GeographicDataSetAPI)map1, (GeographicDataSetAPI)map2);
+			return GeoDataSetMath.add((GeoDataSet)map1, (GeoDataSet)map2);
 		ArbDiscrXYZ_DataSet sum = new ArbDiscrXYZ_DataSet();
 		
 		for (int i=0; i<map1.size(); i++) {
@@ -47,9 +47,9 @@ public class XYZ_DataSetMath {
 	 * @param map2
 	 * @return
 	 */
-	public static XYZ_DataSetAPI subtract(XYZ_DataSetAPI minuend, XYZ_DataSetAPI subtrahend) {
+	public static XYZ_DataSet subtract(XYZ_DataSet minuend, XYZ_DataSet subtrahend) {
 		if (isGeo(minuend, subtrahend))
-			return GeographicDataSetMath.subtract((GeographicDataSetAPI)minuend, (GeographicDataSetAPI)subtrahend);
+			return GeoDataSetMath.subtract((GeoDataSet)minuend, (GeoDataSet)subtrahend);
 		ArbDiscrXYZ_DataSet difference = new ArbDiscrXYZ_DataSet();
 		
 		for (int i=0; i<minuend.size(); i++) {
@@ -72,9 +72,9 @@ public class XYZ_DataSetMath {
 	 * @param map2
 	 * @return
 	 */
-	public static XYZ_DataSetAPI multiply(XYZ_DataSetAPI map1, XYZ_DataSetAPI map2) {
+	public static XYZ_DataSet multiply(XYZ_DataSet map1, XYZ_DataSet map2) {
 		if (isGeo(map1, map2))
-			return GeographicDataSetMath.multiply((GeographicDataSetAPI)map1, (GeographicDataSetAPI)map2);
+			return GeoDataSetMath.multiply((GeoDataSet)map1, (GeoDataSet)map2);
 		ArbDiscrXYZ_DataSet product = new ArbDiscrXYZ_DataSet();
 		
 		for (int i=0; i<map1.size(); i++) {
@@ -96,9 +96,9 @@ public class XYZ_DataSetMath {
 	 * @param map2
 	 * @return
 	 */
-	public static XYZ_DataSetAPI divide(XYZ_DataSetAPI dividend, XYZ_DataSetAPI divisor) {
+	public static XYZ_DataSet divide(XYZ_DataSet dividend, XYZ_DataSet divisor) {
 		if (isGeo(dividend, divisor))
-			return GeographicDataSetMath.divide((GeographicDataSetAPI)dividend, (GeographicDataSetAPI)divisor);
+			return GeoDataSetMath.divide((GeoDataSet)dividend, (GeoDataSet)divisor);
 		ArbDiscrXYZ_DataSet quotient = new ArbDiscrXYZ_DataSet();
 		
 		for (int i=0; i<dividend.size(); i++) {
@@ -119,7 +119,7 @@ public class XYZ_DataSetMath {
 	 * 
 	 * @param map
 	 */
-	public static void abs(XYZ_DataSetAPI map) {
+	public static void abs(XYZ_DataSet map) {
 		for (int i=0; i<map.size(); i++) {
 			map.set(i, Math.abs(map.get(i)));
 		}
@@ -130,7 +130,7 @@ public class XYZ_DataSetMath {
 	 * 
 	 * @param map
 	 */
-	public static void log(XYZ_DataSetAPI map) {
+	public static void log(XYZ_DataSet map) {
 		for (int i=0; i<map.size(); i++) {
 			map.set(i, Math.log(map.get(i)));
 		}
@@ -141,7 +141,7 @@ public class XYZ_DataSetMath {
 	 * 
 	 * @param map
 	 */
-	public static void log10(XYZ_DataSetAPI map) {
+	public static void log10(XYZ_DataSet map) {
 		for (int i=0; i<map.size(); i++) {
 			map.set(i, Math.log10(map.get(i)));
 		}
@@ -152,7 +152,7 @@ public class XYZ_DataSetMath {
 	 * 
 	 * @param map
 	 */
-	public static void exp(XYZ_DataSetAPI map) {
+	public static void exp(XYZ_DataSet map) {
 		for (int i=0; i<map.size(); i++) {
 			map.set(i, Math.exp(map.get(i)));
 		}
@@ -163,7 +163,7 @@ public class XYZ_DataSetMath {
 	 * 
 	 * @param map
 	 */
-	public static void pow(XYZ_DataSetAPI map, double pow) {
+	public static void pow(XYZ_DataSet map, double pow) {
 		for (int i=0; i<map.size(); i++) {
 			map.set(i, Math.pow(map.get(i), pow));
 		}
@@ -174,7 +174,7 @@ public class XYZ_DataSetMath {
 	 * 
 	 * @param map
 	 */
-	public static void scale(XYZ_DataSetAPI map, double scalar) {
+	public static void scale(XYZ_DataSet map, double scalar) {
 		for (int i=0; i<map.size(); i++) {
 			map.set(i, map.get(i) * scalar);
 		}
@@ -185,7 +185,7 @@ public class XYZ_DataSetMath {
 	 * 
 	 * @param map
 	 */
-	public static void add(XYZ_DataSetAPI map, double value) {
+	public static void add(XYZ_DataSet map, double value) {
 		for (int i=0; i<map.size(); i++) {
 			map.set(i, map.get(i) + value);
 		}

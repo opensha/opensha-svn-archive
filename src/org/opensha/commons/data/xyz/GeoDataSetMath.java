@@ -8,7 +8,7 @@ import org.opensha.commons.geo.Location;
  * @author kevin
  *
  */
-public class GeographicDataSetMath extends XYZ_DataSetMath {
+public class GeoDataSetMath extends XYZ_DataSetMath {
 	
 	/**
 	 * Returns new <code>GeographicDataSetAPI</code> that represents the values in the
@@ -17,8 +17,8 @@ public class GeographicDataSetMath extends XYZ_DataSetMath {
 	 * @param map2
 	 * @return
 	 */
-	public static GeographicDataSetAPI add(GeographicDataSetAPI map1, GeographicDataSetAPI map2) {
-		ArbDiscrGeographicDataSet sum = new ArbDiscrGeographicDataSet(map1.isLatitudeX());
+	public static GeoDataSet add(GeoDataSet map1, GeoDataSet map2) {
+		ArbDiscrGeoDataSet sum = new ArbDiscrGeoDataSet(map1.isLatitudeX());
 		
 		for (int i=0; i<map1.size(); i++) {
 			Location loc = map1.getLocation(i);
@@ -39,8 +39,8 @@ public class GeographicDataSetMath extends XYZ_DataSetMath {
 	 * @param map2
 	 * @return
 	 */
-	public static GeographicDataSetAPI subtract(GeographicDataSetAPI minuend, GeographicDataSetAPI subtrahend) {
-		ArbDiscrGeographicDataSet difference = new ArbDiscrGeographicDataSet(minuend.isLatitudeX());
+	public static GeoDataSet subtract(GeoDataSet minuend, GeoDataSet subtrahend) {
+		ArbDiscrGeoDataSet difference = new ArbDiscrGeoDataSet(minuend.isLatitudeX());
 		
 		for (int i=0; i<minuend.size(); i++) {
 			Location loc = minuend.getLocation(i);
@@ -62,8 +62,8 @@ public class GeographicDataSetMath extends XYZ_DataSetMath {
 	 * @param map2
 	 * @return
 	 */
-	public static GeographicDataSetAPI multiply(GeographicDataSetAPI map1, GeographicDataSetAPI map2) {
-		ArbDiscrGeographicDataSet product = new ArbDiscrGeographicDataSet(map1.isLatitudeX());
+	public static GeoDataSet multiply(GeoDataSet map1, GeoDataSet map2) {
+		ArbDiscrGeoDataSet product = new ArbDiscrGeoDataSet(map1.isLatitudeX());
 		
 		for (int i=0; i<map1.size(); i++) {
 			Location loc = map1.getLocation(i);
@@ -84,8 +84,8 @@ public class GeographicDataSetMath extends XYZ_DataSetMath {
 	 * @param map2
 	 * @return
 	 */
-	public static GeographicDataSetAPI divide(GeographicDataSetAPI dividend, GeographicDataSetAPI divisor) {
-		ArbDiscrGeographicDataSet quotient = new ArbDiscrGeographicDataSet(dividend.isLatitudeX());
+	public static GeoDataSet divide(GeoDataSet dividend, GeoDataSet divisor) {
+		ArbDiscrGeoDataSet quotient = new ArbDiscrGeoDataSet(dividend.isLatitudeX());
 		
 		for (int i=0; i<dividend.size(); i++) {
 			Location loc = dividend.getLocation(i);

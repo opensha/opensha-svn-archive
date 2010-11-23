@@ -9,8 +9,8 @@ import java.util.HashMap;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
+import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
 import org.opensha.sha.cybershake.HazardCurveFetcher;
@@ -44,7 +44,7 @@ public class EEWShakeMapCalc {
 	private double totalProb;
 	private ShakeMapComputation smCalc;
 	
-	private HashMap<String, GeographicDataSetAPI> shakeMaps = new HashMap<String, GeographicDataSetAPI>();
+	private HashMap<String, GeoDataSet> shakeMaps = new HashMap<String, GeoDataSet>();
 	private HashMap<String, Double> unscaledProbs = new HashMap<String, Double>();
 	
 	private static final int datasetID = 1;
@@ -100,8 +100,8 @@ public class EEWShakeMapCalc {
 		}
 	}
 	
-	public GeographicDataSetAPI doCalc(String dir) throws IOException {
-		ArbDiscrGeographicDataSet xyz = new ArbDiscrGeographicDataSet(true);
+	public GeoDataSet doCalc(String dir) throws IOException {
+		ArbDiscrGeoDataSet xyz = new ArbDiscrGeoDataSet(true);
 		for (CybershakeSite site : fetcher.getCurveSites()) {
 			ArrayList<CybershakeRun> runs = runs2db.getRuns(site.id);
 			if (runs.size() > 0) {
@@ -252,9 +252,9 @@ public class EEWShakeMapCalc {
 			
 			EEWShakeMapCalc calc = new EEWShakeMapCalc(db, rups);
 			
-			GeographicDataSetAPI sm = calc.doCalc(dir);
+			GeoDataSet sm = calc.doCalc(dir);
 			
-			ArbDiscrGeographicDataSet.writeXYZFile(sm, dir+File.separator+"shakemap.txt");
+			ArbDiscrGeoDataSet.writeXYZFile(sm, dir+File.separator+"shakemap.txt");
 			
 //			calc.calc(dir);
 		} catch (Exception e) {

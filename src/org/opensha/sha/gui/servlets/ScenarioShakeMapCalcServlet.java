@@ -33,9 +33,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.opensha.commons.data.region.SitesInGriddedRegion;
-import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
-import org.opensha.commons.data.xyz.GeographicDataSetMath;
+import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
+import org.opensha.commons.data.xyz.GeoDataSet;
+import org.opensha.commons.data.xyz.GeoDataSetMath;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.ParameterAPI;
@@ -145,7 +145,7 @@ extends HttpServlet implements ParameterChangeWarningListener {
 			ScenarioShakeMapCalculator calc = new ScenarioShakeMapCalculator(
 					propEffect);
 
-			GeographicDataSetAPI xyzData = null;
+			GeoDataSet xyzData = null;
 			if (!selectedIMT.equals(PGV_Param.NAME)) {
 				//XYZ data for the scenarioshake as computed
 				xyzData = calc.getScenarioShakeMapData(
@@ -187,11 +187,11 @@ extends HttpServlet implements ParameterChangeWarningListener {
 	 * @param selectedIMT : choosen IMT in the application
 	 * @param isProbAtIML : if prob@IML is selected
 	 */
-	private void convertIML_ValuesToExpo(GeographicDataSetAPI xyzData,
+	private void convertIML_ValuesToExpo(GeoDataSet xyzData,
 			String selectedIMT, boolean isProbAtIML) {
 		//if the IMT is log supported then take the exponential of the Value if IML @ Prob
 		if (IMT_Info.isIMT_LogNormalDist(selectedIMT) && !isProbAtIML) {
-			GeographicDataSetMath.exp(xyzData);
+			GeoDataSetMath.exp(xyzData);
 		}
 	}
 
@@ -205,7 +205,7 @@ extends HttpServlet implements ParameterChangeWarningListener {
 	 * @param value
 	 * @return
 	 */
-	private GeographicDataSetAPI getXYZDataForPGV(ArrayList<AttenuationRelationship> selectedIMRs,
+	private GeoDataSet getXYZDataForPGV(ArrayList<AttenuationRelationship> selectedIMRs,
 			ArrayList<Double> selectedWts, SitesInGriddedRegion region, EqkRupture rupture,
 			boolean isProbAtIML, double value, ScenarioShakeMapCalculator calc)
 	throws RegionConstraintException, ParameterException {
@@ -222,7 +222,7 @@ extends HttpServlet implements ParameterChangeWarningListener {
 
 		//gets the final PGV values after summing up the attenRels not supporting PGV
 		// and one's supporting PGV.
-		GeographicDataSetAPI pgvDataSet = null;
+		GeoDataSet pgvDataSet = null;
 
 		int size = selectedIMRs.size();
 		for (int i = 0; i < size; ++i) {
@@ -242,9 +242,9 @@ extends HttpServlet implements ParameterChangeWarningListener {
 		int attenRelsSupportingPGV_size = attenRelsSupportingPGV.size();
 
 		//XYZ data for the data set supporting the PGV
-		GeographicDataSetAPI xyzDataSetForPGV = null;
+		GeoDataSet xyzDataSetForPGV = null;
 		//XYZ data for the data set not supporting PGV
-		GeographicDataSetAPI xyzDataSetForNotPGV = null;
+		GeoDataSet xyzDataSetForNotPGV = null;
 
 		if (attenRelsNotSupportingPGV_size > 0) { //if Attenuation Relations do not support the PGV
 			xyzDataSetForNotPGV = calc.getScenarioShakeMapData(
@@ -254,7 +254,7 @@ extends HttpServlet implements ParameterChangeWarningListener {
 					SA_Param.NAME, isProbAtIML);
 			//if PGV is not supported by the attenuation then use the SA-1sec pd
 			//and multiply the value by scaler 37.24*2.54
-			GeographicDataSetMath.scale(xyzDataSetForNotPGV, 37.24 * 2.54);
+			GeoDataSetMath.scale(xyzDataSetForNotPGV, 37.24 * 2.54);
 		}
 		if (attenRelsSupportingPGV_size > 0) { //if Attenuations support PGV
 			xyzDataSetForPGV = calc.getScenarioShakeMapData(attenRelsSupportingPGV,
@@ -267,7 +267,7 @@ extends HttpServlet implements ParameterChangeWarningListener {
 		//if there are both AttenRels selected those that support PGV and those that don't.
 		if (attenRelsNotSupportingPGV_size > 0 && attenRelsSupportingPGV_size > 0) {
 			//creating the final dataste for the PGV dataset.
-			pgvDataSet = new ArbDiscrGeographicDataSet(true);
+			pgvDataSet = new ArbDiscrGeoDataSet(true);
 			for (int i=0; i<xyzDataSetForPGV.size(); i++) {
 				pgvDataSet.set(xyzDataSetForNotPGV.getLocation(i), xyzDataSetForNotPGV.get(i));
 			}
@@ -291,7 +291,7 @@ extends HttpServlet implements ParameterChangeWarningListener {
 	 * @param griddedRegion
 	 * @param xyzDataFileWithAbsolutePath
 	 */
-	private void createXYZDataObjectFile(GeographicDataSetAPI xyzData,
+	private void createXYZDataObjectFile(GeoDataSet xyzData,
 			String xyzDataFileWithAbsolutePath) {
 		try {
 			FileUtils.saveObjectInFile(xyzDataFileWithAbsolutePath, xyzData);

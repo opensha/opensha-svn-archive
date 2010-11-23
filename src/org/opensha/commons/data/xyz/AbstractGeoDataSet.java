@@ -13,7 +13,7 @@ import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
  * @author kevin
  *
  */
-public abstract class AbstractGeographicDataSet implements GeographicDataSetAPI {
+public abstract class AbstractGeoDataSet implements GeoDataSet {
 
 	/**
 	 * 
@@ -22,7 +22,7 @@ public abstract class AbstractGeographicDataSet implements GeographicDataSetAPI 
 	
 	private boolean latitudeX;
 	
-	protected AbstractGeographicDataSet(boolean latitudeX) {
+	protected AbstractGeoDataSet(boolean latitudeX) {
 		this.latitudeX = latitudeX;
 	}
 	
@@ -188,9 +188,9 @@ public abstract class AbstractGeographicDataSet implements GeographicDataSetAPI 
 	}
 
 	@Override
-	public void setAll(XYZ_DataSetAPI dataset) {
-		if (dataset instanceof GeographicDataSetAPI) {
-			GeographicDataSetAPI geo = (GeographicDataSetAPI)dataset;
+	public void setAll(XYZ_DataSet dataset) {
+		if (dataset instanceof GeoDataSet) {
+			GeoDataSet geo = (GeoDataSet)dataset;
 			for (int i=0; i<dataset.size(); i++)
 				set(geo.getLocation(i), geo.get(i));
 		} else {

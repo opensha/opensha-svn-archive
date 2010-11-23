@@ -38,9 +38,9 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
-import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
-import org.opensha.commons.data.xyz.GeographicDataSetMath;
+import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
+import org.opensha.commons.data.xyz.GeoDataSet;
+import org.opensha.commons.data.xyz.GeoDataSetMath;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GeoTools;
@@ -135,7 +135,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 	protected static String NETCDF_LIB_PATH = OPENSHA_NETCDF_LIB_PATH;
 	protected static String COMMAND_PATH = "/bin/";
 
-	protected GeographicDataSetAPI xyzDataSet;
+	protected GeoDataSet xyzDataSet;
 
 	// common GMT command-line strings
 	protected String xOff;
@@ -398,7 +398,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 	 * @param scaleLabel - a string for the label (with no spaces!)
 	 * @return - the name of the jpg file
 	 */
-	public String makeMapLocally(GeographicDataSetAPI xyzDataSet, String scaleLabel,
+	public String makeMapLocally(GeoDataSet xyzDataSet, String scaleLabel,
 			String metadata, String dirName) throws GMT_MapException{
 
 		//creates the metadata file
@@ -421,7 +421,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 		// make the local XYZ data file
 		try {
-			ArbDiscrGeographicDataSet.writeXYZFile(xyzDataSet, XYZ_FILE_NAME);
+			ArbDiscrGeoDataSet.writeXYZFile(xyzDataSet, XYZ_FILE_NAME);
 		} catch (IOException e) {
 			throw new GMT_MapException(e);
 		}
@@ -439,7 +439,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		return JPG_FILE_NAME;
 	}
 	
-	public GMT_Map getGMTMapSpecification(GeographicDataSetAPI xyzData) {
+	public GMT_Map getGMTMapSpecification(GeoDataSet xyzData) {
 		Region region;
 //		try {
 //			region = new Region(minLatParam.getValue(),
@@ -526,7 +526,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 	 * @param scaleLabel - a string for the label (with no spaces!)
 	 * @return - the name of the jpg file
 	 */
-	public String makeMapUsingServlet(GeographicDataSetAPI xyzDataSet,
+	public String makeMapUsingServlet(GeoDataSet xyzDataSet,
 			String scaleLabel, String metadata, String dirName)
 	throws GMT_MapException,RuntimeException{
 		GMT_Map map = getGMTMapSpecification(xyzDataSet);
@@ -574,7 +574,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 	 * @param scaleLabel - a string for the label (with no spaces!)
 	 * @return - the name of the jpg file
 	 */
-	public String makeMapUsingWebServer(GeographicDataSetAPI xyzDataSet, String scaleLabel, String metadata)
+	public String makeMapUsingWebServer(GeoDataSet xyzDataSet, String scaleLabel, String metadata)
 	throws GMT_MapException{
 		//creates the metadata file
 		createMapInfoFile(metadata);
@@ -594,7 +594,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 		// make the local XYZ data file
 		try {
-			ArbDiscrGeographicDataSet.writeXYZFile(xyzDataSet, XYZ_FILE_NAME);
+			ArbDiscrGeoDataSet.writeXYZFile(xyzDataSet, XYZ_FILE_NAME);
 		} catch (IOException e) {
 			throw new GMT_MapException(e);
 		}
@@ -816,7 +816,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		SCALE_LABEL = scaleLabel;
 
 		try {
-			this.xyzDataSet = ArbDiscrGeographicDataSet.loadXYZFile(XYZ_FILE_NAME, true);
+			this.xyzDataSet = ArbDiscrGeoDataSet.loadXYZFile(XYZ_FILE_NAME, true);
 		} catch (IOException e) {
 			throw new GMT_MapException(e);
 		}
@@ -829,7 +829,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		if(logPlotCheck){
 			XYZ_FILE_NAME = "Log_"+XYZ_FILE_NAME;
 			try {
-				ArbDiscrGeographicDataSet.writeXYZFile(xyzDataSet, XYZ_FILE_NAME);
+				ArbDiscrGeoDataSet.writeXYZFile(xyzDataSet, XYZ_FILE_NAME);
 			} catch (IOException e) {
 				throw new GMT_MapException(e);
 			}
@@ -1328,10 +1328,10 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		gmtCommandLines.add("## Plot Script ##");
 		gmtCommandLines.add("");
 
-		GeographicDataSetAPI griddedData = map.getGriddedData();
+		GeoDataSet griddedData = map.getGriddedData();
 		
 		try {
-			ArbDiscrGeographicDataSet.writeXYZFile(griddedData, dir + map.getXyzFileName());
+			ArbDiscrGeoDataSet.writeXYZFile(griddedData, dir + map.getXyzFileName());
 		} catch (IOException e) {
 			throw new GMT_MapException("Could not write XYZ data to a file", e);
 		}
@@ -1727,7 +1727,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		//checks to see if the user wants Log Plot, if so then convert the zValues to the Log Space
 		boolean logPlotCheck = ((Boolean)logPlotParam.getValue()).booleanValue();
 		if(logPlotCheck){
-			GeographicDataSetMath.log10(xyzDataSet);
+			GeoDataSetMath.log10(xyzDataSet);
 			SCALE_LABEL = "\"log@-10@-\050"+SCALE_LABEL+"\051\"";
 		}
 	}

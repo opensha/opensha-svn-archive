@@ -38,7 +38,7 @@ import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
-import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
+import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.ArbDiscrXYZ_DataSet;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
@@ -109,7 +109,7 @@ public class SiteDataMapApplet extends Applet implements ActionListener, ListSel
 					GMT_MapGenerator.SCALE_LABEL_PARAM_NAME).setValue(label);
 		}
 		
-		ArbDiscrGeographicDataSet xyz = new ArbDiscrGeographicDataSet(true);
+		ArbDiscrGeoDataSet xyz = new ArbDiscrGeoDataSet(true);
 		
 		
 		for (int i=0; i<locs.size(); i++) {

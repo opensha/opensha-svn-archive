@@ -26,7 +26,7 @@ import java.net.URLConnection;
 
 import javax.swing.JOptionPane;
 
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 import org.opensha.commons.param.ParameterList;
@@ -122,7 +122,7 @@ public class MapGuiBean extends GMT_MapGuiBean {
    *
    * @param fileName: name of the XYZ file
    */
-  public void makeMap(GeographicDataSetAPI xyzVals,EqkRupture eqkRupture,String imt,
+  public void makeMap(GeoDataSet xyzVals,EqkRupture eqkRupture,String imt,
                       String metadataAsHTML){
 
     boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
@@ -172,8 +172,8 @@ public class MapGuiBean extends GMT_MapGuiBean {
    *
    * @param fileName: name of the XYZ file
    */
-  public void makeHazusShapeFilesAndMap(GeographicDataSetAPI sa03_xyzVals,GeographicDataSetAPI sa10_xyzVals,
-		  GeographicDataSetAPI pga_xyzVals, GeographicDataSetAPI pgv_xyzVals,
+  public void makeHazusShapeFilesAndMap(GeoDataSet sa03_xyzVals,GeoDataSet sa10_xyzVals,
+		  GeoDataSet pga_xyzVals, GeoDataSet pgv_xyzVals,
                       EqkRupture eqkRupture,String metadataAsHTML){
     String[] imgNames = null;
 

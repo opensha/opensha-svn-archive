@@ -53,8 +53,8 @@ import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.WaldAllenGlobalVs30;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
-import org.opensha.commons.data.xyz.GeographicDataSetMath;
+import org.opensha.commons.data.xyz.GeoDataSet;
+import org.opensha.commons.data.xyz.GeoDataSetMath;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.gui.DisclaimerDialog;
@@ -159,7 +159,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 
 
 	//reference to the  XYZ dataSet
-	protected GeographicDataSetAPI xyzDataSet;
+	protected GeoDataSet xyzDataSet;
 
 
 	//store the site values for each site in the griddded region
@@ -677,7 +677,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 						griddedRegionSites,eqkRupture,probAtIML,value);
 				//if the IMT is log supported then take the exponential of the Value if IML @ Prob
 				if(IMT_Info.isIMT_LogNormalDist(imt) && !probAtIML){
-					GeographicDataSetMath.exp(xyzDataSet);
+					GeoDataSetMath.exp(xyzDataSet);
 				}
 				return xyzDataSet;
 			}
@@ -749,8 +749,8 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 
 		if(!calculationFromServer) //if the calc are to be done on the local system
 			//creates the maps and information that goes into the Hazus.
-			mapGuiBean.makeHazusShapeFilesAndMap((GeographicDataSetAPI)datasetForSA_03,(GeographicDataSetAPI)datasetForSA_1,
-					(GeographicDataSetAPI)datasetForPGA,(GeographicDataSetAPI)datasetForPGV,eqkRupture,mapParametersInfo);
+			mapGuiBean.makeHazusShapeFilesAndMap((GeoDataSet)datasetForSA_03,(GeoDataSet)datasetForSA_1,
+					(GeoDataSet)datasetForPGA,(GeoDataSet)datasetForPGV,eqkRupture,mapParametersInfo);
 		else //if the calc are to be done on server
 			//creates the maps and information that goes into the Hazus.
 			mapGuiBean.makeHazusShapeFilesAndMap((String)datasetForSA_03,(String)datasetForSA_1,

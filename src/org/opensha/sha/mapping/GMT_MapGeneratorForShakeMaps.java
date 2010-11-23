@@ -30,8 +30,8 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
+import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.mapping.gmt.GMT_Map;
@@ -75,7 +75,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 	protected final static boolean D = false;
 
 	private String EQK_RUP_XYZ_FILE_NAME = "eqkRup_data.txt";
-	private GeographicDataSetAPI eqkRup_xyzDataSet;
+	private GeoDataSet eqkRup_xyzDataSet;
 
 	private String DEFAULT_HAZUS_FILE_PREFIX = "map_hazus";
 	private String HAZUS_FILE_PREFIX = DEFAULT_HAZUS_FILE_PREFIX;
@@ -157,8 +157,8 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 	 * @param eqkRupture
 	 * returns the String[] of the image file names
 	 */
-	public String[] makeHazusFileSetLocally(GeographicDataSetAPI sa03DataSet,GeographicDataSetAPI sa10DataSet,
-			GeographicDataSetAPI pgaDataSet,GeographicDataSetAPI pgvDataSet,
+	public String[] makeHazusFileSetLocally(GeoDataSet sa03DataSet,GeoDataSet sa10DataSet,
+			GeoDataSet pgaDataSet,GeoDataSet pgvDataSet,
 			EqkRupture eqkRupture, String metadata, String dirName)
 	throws GMT_MapException{
 
@@ -181,7 +181,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 		String sa_03Image = this.JPG_FILE_NAME;
 		xyzDataSet = sa03DataSet;
 		try {
-			ArbDiscrGeographicDataSet.writeXYZFile(xyzDataSet, XYZ_FILE_NAME);
+			ArbDiscrGeoDataSet.writeXYZFile(xyzDataSet, XYZ_FILE_NAME);
 		} catch (IOException e) {
 			throw new GMT_MapException(e);
 		}
@@ -194,7 +194,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 		String sa_10Image = this.JPG_FILE_NAME;
 		xyzDataSet = sa10DataSet;
 		try {
-			ArbDiscrGeographicDataSet.writeXYZFile(xyzDataSet, XYZ_FILE_NAME);
+			ArbDiscrGeoDataSet.writeXYZFile(xyzDataSet, XYZ_FILE_NAME);
 		} catch (IOException e) {
 			throw new GMT_MapException(e);
 		}
@@ -207,7 +207,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 		String pgaImage = this.JPG_FILE_NAME;
 		xyzDataSet = pgaDataSet;
 		try {
-			ArbDiscrGeographicDataSet.writeXYZFile(xyzDataSet, XYZ_FILE_NAME);
+			ArbDiscrGeoDataSet.writeXYZFile(xyzDataSet, XYZ_FILE_NAME);
 		} catch (IOException e) {
 			throw new GMT_MapException(e);
 		}
@@ -220,7 +220,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 		String pgvImage = this.JPG_FILE_NAME;
 		xyzDataSet = pgvDataSet;
 		try {
-			ArbDiscrGeographicDataSet.writeXYZFile(xyzDataSet, XYZ_FILE_NAME);
+			ArbDiscrGeoDataSet.writeXYZFile(xyzDataSet, XYZ_FILE_NAME);
 		} catch (IOException e) {
 			throw new GMT_MapException(e);
 		}
@@ -256,8 +256,8 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 	 * @param eqkRupture
 	 * @return - the String[] of web addresses(URL) where the images files are located
 	 */
-	public String[] makeHazusFileSetUsingServlet(GeographicDataSetAPI sa03DataSet,GeographicDataSetAPI sa10DataSet,
-			GeographicDataSetAPI pgaDataSet,GeographicDataSetAPI pgvDataSet,
+	public String[] makeHazusFileSetUsingServlet(GeoDataSet sa03DataSet,GeoDataSet sa10DataSet,
+			GeoDataSet pgaDataSet,GeoDataSet pgvDataSet,
 			EqkRupture eqkRupture,String metadata,String dirName)
 	throws GMT_MapException{
 		eqkRup = eqkRupture;
@@ -333,9 +333,9 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 	 * output files are generated
 	 * @throws RuntimeException
 	 */
-	protected String openServletConnection(GeographicDataSetAPI sa03_xyzDataVals,
-			GeographicDataSetAPI sa10_xyzDataVals, GeographicDataSetAPI pga_xyzDataVals,
-			GeographicDataSetAPI pgv_xyzDataVals, GMT_Map maps[],String metadata,String dirName) throws RuntimeException{
+	protected String openServletConnection(GeoDataSet sa03_xyzDataVals,
+			GeoDataSet sa10_xyzDataVals, GeoDataSet pga_xyzDataVals,
+			GeoDataSet pgv_xyzDataVals, GMT_Map maps[],String metadata,String dirName) throws RuntimeException{
 
 		String webaddr=null;
 		try{
@@ -407,7 +407,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 	 * @param imtString - the IMT string for labeling and filenames
 	 * @return
 	 */
-	public String makeMapLocally(GeographicDataSetAPI xyzDataSet, EqkRupture eqkRupture,
+	public String makeMapLocally(GeoDataSet xyzDataSet, EqkRupture eqkRupture,
 			String imtString, String metadata,String directoryName)
 	throws GMT_MapException{
 		eqkRup = eqkRupture;
@@ -467,7 +467,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 	 * @param imtString - the IMT string for labeling and filenames
 	 * @return: URL to the image
 	 */
-	public String makeMapUsingServlet(GeographicDataSetAPI xyzDataSet,
+	public String makeMapUsingServlet(GeoDataSet xyzDataSet,
 			EqkRupture eqkRupture,
 			String imtString,String metadata, String dirName) throws
 			GMT_MapException,RuntimeException{
@@ -485,7 +485,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 	 * @param imtString - the IMT string for labeling and filenames
 	 * @return: URL to the image
 	 */
-	public String makeMapUsingWebServer(GeographicDataSetAPI xyzDataSet,
+	public String makeMapUsingWebServer(GeoDataSet xyzDataSet,
 			EqkRupture eqkRupture,
 			String imtString, String metadata) throws
 			GMT_MapException {
@@ -734,7 +734,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 	}
 
 	@Override
-	public GMT_Map getGMTMapSpecification(GeographicDataSetAPI xyzData) {
+	public GMT_Map getGMTMapSpecification(GeoDataSet xyzData) {
 		GMT_Map map =  super.getGMTMapSpecification(xyzData);
 
 		addRupture(map, eqkRup.getRuptureSurface(), eqkRup.getHypocenterLocation(), rupPlotParam.getValue());

@@ -40,8 +40,8 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 
-import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
+import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.param.StringParameter;
@@ -233,7 +233,7 @@ public class GMT_MapGeneratorApplet extends Applet{
 	void addButton() {
 
 		String fileName = (String)this.xyzFileName.getValue();
-		GeographicDataSetAPI xyzData = new ArbDiscrGeographicDataSet(true);
+		GeoDataSet xyzData = new ArbDiscrGeoDataSet(true);
 		if(fileName != null){
 			try{
 				URL fileURL = new URL((String)this.xyzFileName.getValue());

@@ -31,8 +31,8 @@ import java.util.ListIterator;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.data.region.SitesInGriddedRegion;
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
-import org.opensha.commons.data.xyz.GeographicDataSetMath;
+import org.opensha.commons.data.xyz.GeoDataSet;
+import org.opensha.commons.data.xyz.GeoDataSetMath;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
@@ -415,7 +415,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
 	 *
 	 * @return XYZ_DataSetAPI
 	 */
-	private GeographicDataSetAPI pagerShakeMapCalc() throws RegionConstraintException,
+	private GeoDataSet pagerShakeMapCalc() throws RegionConstraintException,
 	ParameterException {
 
 		PropagationEffect propagationEffect = new PropagationEffect();
@@ -437,16 +437,16 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
 		attenRelsSupported.add(attenRel);
 		ArrayList attenRelWts = new ArrayList();
 		attenRelWts.add(new Double(1.0));
-		GeographicDataSetAPI xyzDataSet = calc.getScenarioShakeMapData(attenRelsSupported,attenRelWts,sites,rupture,!imlAtProb,imlProbVal);
+		GeoDataSet xyzDataSet = calc.getScenarioShakeMapData(attenRelsSupported,attenRelWts,sites,rupture,!imlAtProb,imlProbVal);
 		//if the IMT is log supported then take the exponential of the Value if IML @ Prob
 		if (IMT_Info.isIMT_LogNormalDist(attenRel.getIntensityMeasure().getName()) && imlAtProb) {
-			GeographicDataSetMath.exp(xyzDataSet);
+			GeoDataSetMath.exp(xyzDataSet);
 		}
 		return xyzDataSet;
 	}
 
 
-	private void createMedianFile(GeographicDataSetAPI xyzData){
+	private void createMedianFile(GeoDataSet xyzData){
 		try {
 			FileWriter fw = new FileWriter(this.outputFilePrefix + "_data.txt");
 			int size = xyzData.size();
@@ -465,7 +465,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
 	 * This method creates the Scenario ShakeMap
 	 * @param xyzDataSet XYZ_DataSetAPI
 	 */
-	private void createMap(GeographicDataSetAPI xyzDataSet) {
+	private void createMap(GeoDataSet xyzDataSet) {
 		if (gmtMapToGenerate) {
 			mapGuiBean = new MapGuiBean();
 			mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.LOG_PLOT_NAME).
@@ -597,7 +597,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
 		}
 
 		pagershakemapcalc.getSiteParamsForRegion();
-		GeographicDataSetAPI xyzDataSet = null;
+		GeoDataSet xyzDataSet = null;
 		try {
 			xyzDataSet = pagershakemapcalc.pagerShakeMapCalc();
 		}

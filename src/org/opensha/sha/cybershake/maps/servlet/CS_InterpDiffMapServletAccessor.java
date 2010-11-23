@@ -6,9 +6,9 @@ import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
-import org.opensha.commons.data.xyz.GeographicDataSetMath;
-import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
+import org.opensha.commons.data.xyz.GeoDataSet;
+import org.opensha.commons.data.xyz.GeoDataSetMath;
+import org.opensha.commons.data.xyz.XYZ_DataSet;
 import org.opensha.sha.cybershake.maps.CyberShake_GMT_MapGenerator;
 import org.opensha.sha.cybershake.maps.InterpDiffMap;
 
@@ -18,17 +18,17 @@ public class CS_InterpDiffMapServletAccessor {
 	
 	private static void checkLog(InterpDiffMap map) {
 		if (map.isLogPlot()) {
-			GeographicDataSetAPI gridded = map.getGriddedData();
-			GeographicDataSetAPI scatter = map.getScatter();
+			GeoDataSet gridded = map.getGriddedData();
+			GeoDataSet scatter = map.getScatter();
 			
 			if (gridded != null) {
-				gridded = (GeographicDataSetAPI) gridded.clone();
-				GeographicDataSetMath.log(gridded);
+				gridded = (GeoDataSet) gridded.clone();
+				GeoDataSetMath.log(gridded);
 				map.setGriddedData(gridded);
 			}
 			if (scatter != null) {
-				scatter = (GeographicDataSetAPI) gridded.clone();
-				GeographicDataSetMath.log(scatter);
+				scatter = (GeoDataSet) gridded.clone();
+				GeoDataSetMath.log(scatter);
 				map.setScatter(scatter);
 			}
 		}

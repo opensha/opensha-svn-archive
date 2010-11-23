@@ -32,8 +32,8 @@ import java.util.ListIterator;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
-import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
+import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.Location;
@@ -103,7 +103,7 @@ public class ScenarioShakeMapCalculator {
 	 * @param value : the IML or Prob to compute the map for.
 	 * @returns the XYZ_DataSetAPI  : ArbDiscretized XYZ dataset
 	 */
-	public GeographicDataSetAPI getScenarioShakeMapData(ArrayList<AttenuationRelationship> selectedAttenRels,
+	public GeoDataSet getScenarioShakeMapData(ArrayList<AttenuationRelationship> selectedAttenRels,
 			ArrayList<Double> attenRelWts,
 			SitesInGriddedRegion sites,
 			EqkRupture rupture,
@@ -112,7 +112,7 @@ public class ScenarioShakeMapCalculator {
 		numSites = sites.getRegion().getNodeCount();
 
 		//instance of the XYZ dataSet.
-		GeographicDataSetAPI xyzDataSet =null;
+		GeoDataSet xyzDataSet =null;
 
 		//setting the rupture inside the propagationeffect.
 		propagationEffect.setEqkRupture(rupture);
@@ -188,7 +188,7 @@ public class ScenarioShakeMapCalculator {
 		//store the sum of the averaged value of all the selected AttenRel
 		double attenRelsAvgValForSite = 0.0;
 		//iterating over all the sites and averaging the values for all AttenRels
-		xyzDataSet = new ArbDiscrGeographicDataSet(true);
+		xyzDataSet = new ArbDiscrGeoDataSet(true);
 		for(int k=0;k<numSites;++k){
 			//saves the number of the current site being processed
 			currentSiteBeingProcessed = k+1;

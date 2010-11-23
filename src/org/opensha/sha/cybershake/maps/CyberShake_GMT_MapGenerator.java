@@ -7,8 +7,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
+import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
@@ -26,8 +26,8 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 	
 	public static int[] dpis = {72, 150, 300};
 	
-	public static GeographicDataSetAPI getDiffs(GeographicDataSetAPI baseMap, GeographicDataSetAPI scatterData) {
-		GeographicDataSetAPI diffs = new ArbDiscrGeographicDataSet(baseMap.isLatitudeX());
+	public static GeoDataSet getDiffs(GeoDataSet baseMap, GeoDataSet scatterData) {
+		GeoDataSet diffs = new ArbDiscrGeoDataSet(baseMap.isLatitudeX());
 		
 		XYZClosestPointFinder xyz = new XYZClosestPointFinder(baseMap);
 		
@@ -55,7 +55,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		
 	}
 	
-	private static MinMaxAveTracker calcExtentsWithinRegion(GeographicDataSetAPI xyz, Region region) {
+	private static MinMaxAveTracker calcExtentsWithinRegion(GeoDataSet xyz, Region region) {
 		MinMaxAveTracker tracker = new MinMaxAveTracker();
 		
 		for (int i=0; i<xyz.size(); i++) {
@@ -121,8 +121,8 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		GMT_InterpolationSettings interpSettings = map.getInterpSettings();
 		double interpGridSpacing = interpSettings.getInterpSpacing();
 		
-		GeographicDataSetAPI griddedData;
-		GeographicDataSetAPI scatterData;
+		GeoDataSet griddedData;
+		GeoDataSet scatterData;
 		griddedData = map.getGriddedData();
 		scatterData = map.getScatter();
 		
@@ -148,7 +148,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		if (shouldInterp) {
 			// do the interpolation
 			String interpXYZName;
-			GeographicDataSetAPI toBeWritten;
+			GeoDataSet toBeWritten;
 			if (griddedData == null) {
 				interpXYZName = "scatter.xyz";
 				toBeWritten = scatterData;
@@ -157,7 +157,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				toBeWritten = getDiffs(griddedData, scatterData);
 			}
 			try {
-				ArbDiscrGeographicDataSet.writeXYZFile(toBeWritten, dir + interpXYZName);
+				ArbDiscrGeoDataSet.writeXYZFile(toBeWritten, dir + interpXYZName);
 			} catch (IOException e) {
 				throw new GMT_MapException("Could not write XYZ data to a file", e);
 			}

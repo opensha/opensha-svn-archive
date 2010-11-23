@@ -33,9 +33,9 @@ import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
-import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
+import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.ArbDiscrXYZ_DataSet;
-import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
+import org.opensha.commons.data.xyz.XYZ_DataSet;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.gridComputing.StorageHost;
 import org.opensha.commons.mapping.gmt.GMT_Map;
@@ -130,12 +130,12 @@ public class PlotServlet extends ConfLoadingServlet {
 				curveXYZFile += "_" + level + ".txt";
 				
 				File curveXYZFileFile = new File(curveXYZFile);
-				ArbDiscrGeographicDataSet xyz = null;
+				ArbDiscrGeoDataSet xyz = null;
 				MakeXYZFromHazardMapDir maker = null;
 				if (!curveXYZFileFile.exists() || isOverwriteAlways) {
 					maker = new MakeXYZFromHazardMapDir(curveDirName, false, true);
 				} else {
-					xyz = ArbDiscrGeographicDataSet.loadXYZFile(curveXYZFile, true);
+					xyz = ArbDiscrGeoDataSet.loadXYZFile(curveXYZFile, true);
 					if (!isOverwriteNever) {
 						// if we're here then it's an overwrite if needed.
 						String xmlFile = storage.getPath() + File.separator + id + File.separator + id + ".xml";

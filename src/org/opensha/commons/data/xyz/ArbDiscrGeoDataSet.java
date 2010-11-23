@@ -18,7 +18,7 @@ import org.opensha.commons.util.FileUtils;
  * @author kevin
  *
  */
-public class ArbDiscrGeographicDataSet extends AbstractGeographicDataSet {
+public class ArbDiscrGeoDataSet extends AbstractGeoDataSet {
 	
 	/**
 	 * 
@@ -30,7 +30,7 @@ public class ArbDiscrGeographicDataSet extends AbstractGeographicDataSet {
 	// mapping of poitns to values
 	private HashMap<Location, Double> map;
 	
-	public ArbDiscrGeographicDataSet(boolean latitudeX) {
+	public ArbDiscrGeoDataSet(boolean latitudeX) {
 		super(latitudeX);
 		points = new LocationList();
 		map = new HashMap<Location, Double>();
@@ -63,11 +63,11 @@ public class ArbDiscrGeographicDataSet extends AbstractGeographicDataSet {
 		return points.contains(loc);
 	}
 	
-	public static ArbDiscrGeographicDataSet loadXYZFile(String fileName, boolean latitudeX)
+	public static ArbDiscrGeoDataSet loadXYZFile(String fileName, boolean latitudeX)
 	throws FileNotFoundException, IOException {
 		ArrayList<String> lines = FileUtils.loadFile(fileName);
 		
-		ArbDiscrGeographicDataSet xyz = new ArbDiscrGeographicDataSet(latitudeX);
+		ArbDiscrGeoDataSet xyz = new ArbDiscrGeoDataSet(latitudeX);
 		
 		for (String line : lines) {
 			if (line.startsWith("#"))
@@ -95,13 +95,13 @@ public class ArbDiscrGeographicDataSet extends AbstractGeographicDataSet {
 		return xyz;
 	}
 	
-	public static void writeXYZFile(XYZ_DataSetAPI xyz, String fileName) throws IOException {
+	public static void writeXYZFile(XYZ_DataSet xyz, String fileName) throws IOException {
 		ArbDiscrXYZ_DataSet.writeXYZFile(xyz, fileName);
 	}
 
 	@Override
 	public Object clone() {
-		ArbDiscrGeographicDataSet data = new ArbDiscrGeographicDataSet(isLatitudeX());
+		ArbDiscrGeoDataSet data = new ArbDiscrGeoDataSet(isLatitudeX());
 		
 		for (int i=0; i<size(); i++) {
 			data.set(getPoint(i), get(i));

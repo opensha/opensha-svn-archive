@@ -8,8 +8,8 @@ import java.util.HashMap;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
+import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.FileNameComparator;
 
@@ -62,10 +62,10 @@ public class HazardDataSetLoader {
 		return false;
 	}
 	
-	public static GeographicDataSetAPI extractPointFromCurves(
+	public static GeoDataSet extractPointFromCurves(
 			HashMap<Location, ArbitrarilyDiscretizedFunc> curves,
 			boolean isProbAt_IML, double level) {
-		GeographicDataSetAPI xyz = new ArbDiscrGeographicDataSet(true);
+		GeoDataSet xyz = new ArbDiscrGeoDataSet(true);
 		for (Location loc : curves.keySet()) {
 			ArbitrarilyDiscretizedFunc curve = curves.get(loc);
 			double val = getCurveVal(curve, isProbAt_IML, level);
@@ -74,9 +74,9 @@ public class HazardDataSetLoader {
 		return xyz;
 	}
 	
-	public static GeographicDataSetAPI extractPointFromCurves(File dir,
+	public static GeoDataSet extractPointFromCurves(File dir,
 			boolean isProbAt_IML, double level) throws FileNotFoundException, IOException {
-		ArbDiscrGeographicDataSet xyz = new ArbDiscrGeographicDataSet(true);
+		ArbDiscrGeoDataSet xyz = new ArbDiscrGeoDataSet(true);
 		
 		File[] files = dir.listFiles();
 		Arrays.sort(files, new FileNameComparator());
@@ -161,8 +161,8 @@ public class HazardDataSetLoader {
 //		HashMap<Location, ArbitrarilyDiscretizedFunc> curves = loadDataSet(new File(curveDir));
 //		XYZ_DataSetAPI xyz = extractPointFromCurves(curves, isProbAt_IML, level);
 		
-		GeographicDataSetAPI xyz = extractPointFromCurves(new File(curveDir), isProbAt_IML, level);
-		ArbDiscrGeographicDataSet.writeXYZFile(xyz, outfile);
+		GeoDataSet xyz = extractPointFromCurves(new File(curveDir), isProbAt_IML, level);
+		ArbDiscrGeoDataSet.writeXYZFile(xyz, outfile);
 		
 		System.out.println("took " + ((System.currentTimeMillis() - start) / 1000d) + " secs");
 	}

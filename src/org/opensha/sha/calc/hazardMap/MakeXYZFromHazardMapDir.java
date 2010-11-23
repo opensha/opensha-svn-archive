@@ -30,7 +30,7 @@ import java.util.Comparator;
 
 import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
+import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.geo.Location;
 
 /**
@@ -59,15 +59,15 @@ public class MakeXYZFromHazardMapDir {
 		parseFiles(isProbAt_IML, level, fileName, false);
 	}
 	
-	public ArbDiscrGeographicDataSet getXYZDataset(boolean isProbAt_IML, double level) throws IOException {
+	public ArbDiscrGeoDataSet getXYZDataset(boolean isProbAt_IML, double level) throws IOException {
 		return parseFiles(isProbAt_IML, level, null, false);
 	}
 	
-	public ArbDiscrGeographicDataSet getXYZDataset(boolean isProbAt_IML, double level, String fileName) throws IOException {
+	public ArbDiscrGeoDataSet getXYZDataset(boolean isProbAt_IML, double level, String fileName) throws IOException {
 		return parseFiles(isProbAt_IML, level, fileName, true);
 	}
 	
-	private ArbDiscrGeographicDataSet parseFiles(boolean isProbAt_IML, double level, String fileName,
+	private ArbDiscrGeoDataSet parseFiles(boolean isProbAt_IML, double level, String fileName,
 			boolean forceLoad) throws IOException {
 		// get and list the dir
 		System.out.println("Generating XYZ dataset for dir: " + dirName);
@@ -75,13 +75,13 @@ public class MakeXYZFromHazardMapDir {
 		File[] dirList=masterDir.listFiles();
 		
 		BufferedWriter out = null;
-		ArbDiscrGeographicDataSet xyz = null;
+		ArbDiscrGeoDataSet xyz = null;
 		
 		if (fileName != null && fileName.length() > 0) {
 			out = new BufferedWriter(new FileWriter(fileName));
 		}
 		if (out == null || forceLoad) {
-			xyz = new ArbDiscrGeographicDataSet(latFirst);
+			xyz = new ArbDiscrGeoDataSet(latFirst);
 		}
 		
 		int count = 0;

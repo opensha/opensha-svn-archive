@@ -8,11 +8,11 @@ import org.junit.Test;
 public class TestXYZ_DataSetMath {
 	
 	// data where val == i
-	private XYZ_DataSetAPI data1;
+	private XYZ_DataSet data1;
 	// data where val == i*2
-	private XYZ_DataSetAPI data2;
+	private XYZ_DataSet data2;
 	// data where val == i*2, but with additional points
-	private XYZ_DataSetAPI data3;
+	private XYZ_DataSet data3;
 
 	@Before
 	public void setUp() throws Exception {
@@ -26,31 +26,31 @@ public class TestXYZ_DataSetMath {
 			data2.set(data1.getPoint(i), data1.get(i)*2d);
 		}
 		
-		data3 = (XYZ_DataSetAPI)getData2().clone();
+		data3 = (XYZ_DataSet)getData2().clone();
 		for (int i=1000; i<=1100; i++) {
 			getData3().set(i, -i, i*2);
 		}
 	}
 	
-	protected XYZ_DataSetAPI getData1() {
+	protected XYZ_DataSet getData1() {
 		return data1;
 	}
 	
-	protected XYZ_DataSetAPI getData2() {
+	protected XYZ_DataSet getData2() {
 		return data2;
 	}
 	
-	protected XYZ_DataSetAPI getData3() {
+	protected XYZ_DataSet getData3() {
 		return data3;
 	}
 	
-	private double getData2Val(int i, XYZ_DataSetAPI data1, XYZ_DataSetAPI data2) {
-		if (data1 instanceof GeographicDataSetAPI && data2 instanceof GeographicDataSetAPI)
-			return ((GeographicDataSetAPI)data2).get(((GeographicDataSetAPI)data1).getLocation(i));
+	private double getData2Val(int i, XYZ_DataSet data1, XYZ_DataSet data2) {
+		if (data1 instanceof GeoDataSet && data2 instanceof GeoDataSet)
+			return ((GeoDataSet)data2).get(((GeoDataSet)data1).getLocation(i));
 		return data2.get(data1.getPoint(i));
 	}
 
-	protected void doTestSum(XYZ_DataSetAPI sum, XYZ_DataSetAPI data1, XYZ_DataSetAPI data2) {
+	protected void doTestSum(XYZ_DataSet sum, XYZ_DataSet data1, XYZ_DataSet data2) {
 		for (int i=0; i<getData1().size(); i++) {
 			double val1 = data1.get(i);
 			double val2 = getData2Val(i, data1, data2);
@@ -60,7 +60,7 @@ public class TestXYZ_DataSetMath {
 	
 	@Test
 	public void testAddXYZ_DataSetAPIXYZ_DataSetAPI() {
-		XYZ_DataSetAPI sum = XYZ_DataSetMath.add(getData1(), getData2());
+		XYZ_DataSet sum = XYZ_DataSetMath.add(getData1(), getData2());
 		
 		assertEquals("sum size is incorrect", getData1().size(), sum.size());
 		doTestSum(sum, getData1(), getData2());
@@ -71,7 +71,7 @@ public class TestXYZ_DataSetMath {
 		doTestSum(sum, getData1(), getData3());
 	}
 	
-	private void doTestSubtract(XYZ_DataSetAPI diference, XYZ_DataSetAPI data1, XYZ_DataSetAPI data2) {
+	private void doTestSubtract(XYZ_DataSet diference, XYZ_DataSet data1, XYZ_DataSet data2) {
 		for (int i=0; i<getData1().size(); i++) {
 			double val1 = data1.get(i);
 			double val2 = getData2Val(i, data1, data2);
@@ -81,7 +81,7 @@ public class TestXYZ_DataSetMath {
 
 	@Test
 	public void testSubtract() {
-		XYZ_DataSetAPI diference = XYZ_DataSetMath.subtract(getData1(), getData2());
+		XYZ_DataSet diference = XYZ_DataSetMath.subtract(getData1(), getData2());
 		
 		assertEquals("diference size is incorrect", getData1().size(), diference.size());
 		doTestSubtract(diference, getData1(), getData2());
@@ -92,7 +92,7 @@ public class TestXYZ_DataSetMath {
 		doTestSubtract(diference, getData1(), getData3());
 	}
 	
-	private void doTestMultiply(XYZ_DataSetAPI product, XYZ_DataSetAPI data1, XYZ_DataSetAPI data2) {
+	private void doTestMultiply(XYZ_DataSet product, XYZ_DataSet data1, XYZ_DataSet data2) {
 		for (int i=0; i<getData1().size(); i++) {
 			double val1 = data1.get(i);
 			double val2 = getData2Val(i, data1, data2);
@@ -103,7 +103,7 @@ public class TestXYZ_DataSetMath {
 
 	@Test
 	public void testMultiply() {
-		XYZ_DataSetAPI product = XYZ_DataSetMath.multiply(getData1(), getData2());
+		XYZ_DataSet product = XYZ_DataSetMath.multiply(getData1(), getData2());
 		
 		assertEquals("sum size is incorrect", getData1().size(), product.size());
 		doTestMultiply(product, getData1(), getData2());
@@ -114,7 +114,7 @@ public class TestXYZ_DataSetMath {
 		doTestMultiply(product, getData1(), getData3());
 	}
 	
-	private void doTestDivide(XYZ_DataSetAPI quotient, XYZ_DataSetAPI data1, XYZ_DataSetAPI data2) {
+	private void doTestDivide(XYZ_DataSet quotient, XYZ_DataSet data1, XYZ_DataSet data2) {
 		for (int i=0; i<getData1().size(); i++) {
 			double val1 = data1.get(i);
 			double val2 = getData2Val(i, data1, data2);
@@ -124,7 +124,7 @@ public class TestXYZ_DataSetMath {
 
 	@Test
 	public void testDivide() {
-		XYZ_DataSetAPI quotient = XYZ_DataSetMath.divide(getData1(), getData2());
+		XYZ_DataSet quotient = XYZ_DataSetMath.divide(getData1(), getData2());
 		
 		assertEquals("quotient size is incorrect", getData1().size(), quotient.size());
 		doTestDivide(quotient, getData1(), getData2());
@@ -137,7 +137,7 @@ public class TestXYZ_DataSetMath {
 
 	@Test
 	public void testAbs() {
-		XYZ_DataSetAPI dataNeg = (XYZ_DataSetAPI)getData1().clone();
+		XYZ_DataSet dataNeg = (XYZ_DataSet)getData1().clone();
 		for (int i=0; i<dataNeg.size(); i++) {
 			double val = dataNeg.get(i);
 			if (val > 0)
@@ -152,7 +152,7 @@ public class TestXYZ_DataSetMath {
 
 	@Test
 	public void testLog() {
-		XYZ_DataSetAPI logged = (XYZ_DataSetAPI)getData1().clone();
+		XYZ_DataSet logged = (XYZ_DataSet)getData1().clone();
 		XYZ_DataSetMath.log(logged);
 		
 		for (int i=0; i<getData1().size(); i++) {
@@ -166,7 +166,7 @@ public class TestXYZ_DataSetMath {
 
 	@Test
 	public void testLog10() {
-		XYZ_DataSetAPI logged = (XYZ_DataSetAPI)getData1().clone();
+		XYZ_DataSet logged = (XYZ_DataSet)getData1().clone();
 		XYZ_DataSetMath.log10(logged);
 		
 		for (int i=0; i<getData1().size(); i++) {
@@ -180,7 +180,7 @@ public class TestXYZ_DataSetMath {
 
 	@Test
 	public void testExp() {
-		XYZ_DataSetAPI exp = (XYZ_DataSetAPI)getData1().clone();
+		XYZ_DataSet exp = (XYZ_DataSet)getData1().clone();
 		XYZ_DataSetMath.exp(exp);
 		
 		for (int i=0; i<getData1().size(); i++) {
@@ -197,7 +197,7 @@ public class TestXYZ_DataSetMath {
 		double[] pows = {0.5, 1, 2, 7.7 };
 		
 		for (double pow : pows) {
-			XYZ_DataSetAPI powData = (XYZ_DataSetAPI)getData1().clone();
+			XYZ_DataSet powData = (XYZ_DataSet)getData1().clone();
 			XYZ_DataSetMath.pow(powData, pow);
 			
 			for (int i=0; i<getData1().size(); i++) {
@@ -215,7 +215,7 @@ public class TestXYZ_DataSetMath {
 		double[] scalars = {0, 1, -1, -.5, 99.1 };
 		
 		for (double scalar : scalars) {
-			XYZ_DataSetAPI scaled = (XYZ_DataSetAPI)getData1().clone();
+			XYZ_DataSet scaled = (XYZ_DataSet)getData1().clone();
 			XYZ_DataSetMath.scale(scaled, scalar);
 			
 			for (int i=0; i<getData1().size(); i++) {
@@ -233,7 +233,7 @@ public class TestXYZ_DataSetMath {
 		double[] adds = {0, 1, -1, -.5, 99.1 };
 		
 		for (double add : adds) {
-			XYZ_DataSetAPI sum = (XYZ_DataSetAPI)getData1().clone();
+			XYZ_DataSet sum = (XYZ_DataSet)getData1().clone();
 			XYZ_DataSetMath.add(sum, add);
 			
 			for (int i=0; i<getData1().size(); i++) {

@@ -65,9 +65,9 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
-import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
+import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.ArbDiscrXYZ_DataSet;
-import org.opensha.commons.data.xyz.XYZ_DataSetAPI;
+import org.opensha.commons.data.xyz.XYZ_DataSet;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
@@ -683,9 +683,9 @@ public class PlotMapFromXMLHazardDataSetApp extends JApplet implements Parameter
 	
 	void makeLocalMap(String fileName) {
 
-		ArbDiscrGeographicDataSet xyzData = null;
+		ArbDiscrGeoDataSet xyzData = null;
 		if(fileName != null){
-			xyzData = new ArbDiscrGeographicDataSet(true);
+			xyzData = new ArbDiscrGeoDataSet(true);
 			try{
 				ArrayList<String> fileLines = FileUtils.loadFile(fileName);
 				ListIterator<String> it = fileLines.listIterator();

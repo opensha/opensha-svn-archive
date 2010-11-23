@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import junk.nga.EqkRuptureFromNGA;
 
 import org.opensha.commons.data.Site;
-import org.opensha.commons.data.xyz.ArbDiscrGeographicDataSet;
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
+import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.util.SiteTranslator;
@@ -42,7 +42,7 @@ public class PEER_NGA_HazardCalc {
 	 * to which other has be computed.
 	 * @return
 	 */
-	public  GeographicDataSetAPI getXYZData(EqkRuptureFromNGA rupture,
+	public  GeoDataSet getXYZData(EqkRuptureFromNGA rupture,
 			ScalarIntensityMeasureRelationshipAPI imr,boolean isProbAtIML,double value){
 
 		//instance of the XYZ dataset to store the Lat, Lon and IML or Prob based n what the user has choosen
@@ -58,7 +58,7 @@ public class PEER_NGA_HazardCalc {
 		//rake ArrayList
 		ArrayList rakeList = rupture.getObservedRuptureSiteRakeList();
 		
-		GeographicDataSetAPI xyz = new ArbDiscrGeographicDataSet(true);
+		GeoDataSet xyz = new ArbDiscrGeoDataSet(true);
 
 		//iterating over all the sites to get the IML or Prob value based on what user
 		//has selected IMLAtProb or Prob@IML.

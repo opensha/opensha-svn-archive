@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.opensha.commons.data.xyz.GeographicDataSetAPI;
+import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.sha.earthquake.EqkRupture;
@@ -85,16 +85,16 @@ public class ScenarioShakeMapForHazusGeneratorServlet extends HttpServlet {
 			String dirName = (String)inputFromApplet.readObject();
 
 			//reading the sa-0.3 XYZ dataset from the file
-			GeographicDataSetAPI sa_03xyzData = (GeographicDataSetAPI)FileUtils.loadObject(sa_03xyzDataFileName);
+			GeoDataSet sa_03xyzData = (GeoDataSet)FileUtils.loadObject(sa_03xyzDataFileName);
 
 			//reading the sa-1.0 XYZ dataset from the file
-			GeographicDataSetAPI sa_10xyzData = (GeographicDataSetAPI)FileUtils.loadObject(sa_10xyzDataFileName);
+			GeoDataSet sa_10xyzData = (GeoDataSet)FileUtils.loadObject(sa_10xyzDataFileName);
 
 			//reading the pga XYZ dataset from the file
-			GeographicDataSetAPI pga_xyzData = (GeographicDataSetAPI)FileUtils.loadObject(pga_xyzDataFileName);
+			GeoDataSet pga_xyzData = (GeoDataSet)FileUtils.loadObject(pga_xyzDataFileName);
 
 			//reading the pgv XYZ dataset from the file
-			GeographicDataSetAPI pgvxyzData = (GeographicDataSetAPI)FileUtils.loadObject(pgv_xyzDataFileName);
+			GeoDataSet pgvxyzData = (GeoDataSet)FileUtils.loadObject(pgv_xyzDataFileName);
 
 
 			//creates and run the GMT Script on the server and return back the URL to all the images
