@@ -11,7 +11,7 @@ import java.util.HashMap;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
@@ -116,10 +116,10 @@ public class HazusDataSetAssmbler {
 	}
 	
 	public static void writeSitesFile(String fileName, Collection<Location> locs) throws IOException {
-		double minLat = LocationList.calcMinLat(locs);
-		double maxLat = LocationList.calcMaxLat(locs);
-		double minLon = LocationList.calcMinLon(locs);
-		double maxLon = LocationList.calcMaxLon(locs);
+		double minLat = LocationUtils.calcMinLat(locs);
+		double maxLat = LocationUtils.calcMaxLat(locs);
+		double minLon = LocationUtils.calcMinLon(locs);
+		double maxLon = LocationUtils.calcMaxLon(locs);
 		double latSpacing = Double.MAX_VALUE;
 		double lonSpacing = Double.MAX_VALUE;
 		for (Location loc : locs) {

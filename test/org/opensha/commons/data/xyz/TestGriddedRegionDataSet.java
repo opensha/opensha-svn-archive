@@ -11,6 +11,7 @@ import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 
 public class TestGriddedRegionDataSet {
@@ -76,15 +77,15 @@ public class TestGriddedRegionDataSet {
 	@Test
 	public void testMinMax() {
 		data.setLatitudeX(true);
-		assertEquals("min lat isn't correct", LocationList.calcMinLat(grid.getNodeList()), data.getMinX(), 0d);
-		assertEquals("max lat isn't correct", LocationList.calcMaxLat(grid.getNodeList()), data.getMaxX(), 0d);
-		assertEquals("min lon isn't correct", LocationList.calcMinLon(grid.getNodeList()), data.getMinY(), 0d);
-		assertEquals("max lon isn't correct", LocationList.calcMaxLon(grid.getNodeList()), data.getMaxY(), 0d);
+		assertEquals("min lat isn't correct", LocationUtils.calcMinLat(grid.getNodeList()), data.getMinX(), 0d);
+		assertEquals("max lat isn't correct", LocationUtils.calcMaxLat(grid.getNodeList()), data.getMaxX(), 0d);
+		assertEquals("min lon isn't correct", LocationUtils.calcMinLon(grid.getNodeList()), data.getMinY(), 0d);
+		assertEquals("max lon isn't correct", LocationUtils.calcMaxLon(grid.getNodeList()), data.getMaxY(), 0d);
 		data.setLatitudeX(false);
-		assertEquals("min lat isn't correct", LocationList.calcMinLon(grid.getNodeList()), data.getMinX(), 0d);
-		assertEquals("max lat isn't correct", LocationList.calcMaxLon(grid.getNodeList()), data.getMaxX(), 0d);
-		assertEquals("min lon isn't correct", LocationList.calcMinLat(grid.getNodeList()), data.getMinY(), 0d);
-		assertEquals("max lon isn't correct", LocationList.calcMaxLat(grid.getNodeList()), data.getMaxY(), 0d);
+		assertEquals("min lat isn't correct", LocationUtils.calcMinLon(grid.getNodeList()), data.getMinX(), 0d);
+		assertEquals("max lat isn't correct", LocationUtils.calcMaxLon(grid.getNodeList()), data.getMaxX(), 0d);
+		assertEquals("min lon isn't correct", LocationUtils.calcMinLat(grid.getNodeList()), data.getMinY(), 0d);
+		assertEquals("max lon isn't correct", LocationUtils.calcMaxLat(grid.getNodeList()), data.getMaxY(), 0d);
 		MinMaxAveTracker tracker = new MinMaxAveTracker();
 		for (int i=0; i<data.size(); i++) {
 			tracker.addValue(data.get(i));

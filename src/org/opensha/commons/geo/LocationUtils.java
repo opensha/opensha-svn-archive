@@ -26,6 +26,7 @@ import static org.opensha.commons.geo.GeoTools.TO_RAD;
 import static org.opensha.commons.geo.GeoTools.EARTH_RADIUS_MEAN;
 
 import java.awt.geom.Line2D;
+import java.util.Collection;
 
 import org.apache.commons.math.util.MathUtils;
 
@@ -548,6 +549,74 @@ public final class LocationUtils {
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Calculates the minimum latitude in the supplied <code>Collection</code> of <code>Location</code> objects.
+	 * 
+	 * @param locs - collection of locations
+	 * @return the minimum latitude in the supplied locations, or positive infinity if the <code>Collection</code>
+	 * is empty.
+	 * @throws NullPointerException if <code>locs</code> is null
+	 */
+	public static double calcMinLat(Collection<Location> locs) {
+		double min = Double.POSITIVE_INFINITY;
+		for (Location loc : locs) {
+			double val = loc.getLatitude();
+			if (val < min) min = val;
+		}
+		return min;
+	}
+
+	/**
+	 * Calculates the minimum longitude in the supplied <code>Collection</code> of <code>Location</code> objects.
+	 * 
+	 * @param locs - collection of locations
+	 * @return the minimum longitude in the supplied locations, or positive infinity if the <code>Collection</code>
+	 * is empty.
+	 * @throws NullPointerException if <code>locs</code> is null
+	 */
+	public static double calcMinLon(Collection<Location> locs) {
+		double min = Double.POSITIVE_INFINITY;
+		for (Location loc : locs) {
+			double val = loc.getLongitude();
+			if (val < min) min = val;
+		}
+		return min;
+	}
+
+	/**
+	 * Calculates the maximum latitude in the supplied <code>Collection</code> of <code>Location</code> objects.
+	 * 
+	 * @param locs - collection of locations
+	 * @return the maximum latitude in the supplied locations, or negative infinity if the <code>Collection</code>
+	 * is empty.
+	 * @throws NullPointerException if <code>locs</code> is null
+	 */
+	public static double calcMaxLat(Collection<Location> locs) {
+		double max = Double.NEGATIVE_INFINITY;
+		for (Location loc : locs) {
+			double val = loc.getLatitude();
+			if (val > max) max = val;
+		}
+		return max;
+	}
+
+	/**
+	 * Calculates the maximum longitude in the supplied <code>Collection</code> of <code>Location</code> objects.
+	 * 
+	 * @param locs - collection of locations
+	 * @return the maximum longitude in the supplied locations, or negative infinity if the <code>Collection</code>
+	 * is empty.
+	 * @throws NullPointerException if <code>locs</code> is null
+	 */
+	public static double calcMaxLon(Collection<Location> locs) {
+		double max = Double.NEGATIVE_INFINITY;
+		for (Location loc : locs) {
+			double val = loc.getLongitude();
+			if (val > max) max = val;
+		}
+		return max;
 	}
 
 }

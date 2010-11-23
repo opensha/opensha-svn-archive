@@ -41,6 +41,7 @@ import static org.opensha.commons.geo.LocationUtils.location;
 import static org.opensha.commons.geo.LocationUtils.vertDistance;
 import static org.opensha.commons.geo.LocationUtils.areSimilar;
 
+import java.util.ArrayList;
 import java.util.Random;
 import org.junit.Test;
 import org.opensha.commons.geo.Location;
@@ -1427,6 +1428,56 @@ public class LocationUtilsTest {
 		}
 		return dist * EARTH_RADIUS_MEAN;
 	}
+	
+	@Test
+	public void testCalcMinMaxLatLonEmpty() {
+		ArrayList<Location> locs = new ArrayList<Location>();
+		
+		assertTrue("calcMin* should return infinity when locs is empty",
+				Double.POSITIVE_INFINITY == LocationUtils.calcMinLat(locs));
+		assertTrue("calcMin* should return infinity when locs is empty",
+				Double.POSITIVE_INFINITY == LocationUtils.calcMinLon(locs));
+		
+		assertTrue("calcMax* should return -infinity when locs is empty",
+				Double.NEGATIVE_INFINITY == LocationUtils.calcMaxLat(locs));
+		assertTrue("calcMax* should return -infinity when locs is empty",
+				Double.NEGATIVE_INFINITY == LocationUtils.calcMaxLon(locs));
+	}
 
+	@Test
+	public void testCalcMinMaxLatLon() {
+		ArrayList<Location> locs = new ArrayList<Location>();
+		
+		locs.add(new Location(34, -118));
+		locs.add(new Location(35, -118));
+		locs.add(new Location(35, -117));
+		locs.add(new Location(34, -117));
+		
+		assertEquals("Min lat is wrong", 34f, (float)LocationUtils.calcMinLat(locs), 0f);
+		assertEquals("Max lat is wrong", 35f, (float)LocationUtils.calcMaxLat(locs), 0f);
+		
+		assertEquals("Min lon is wrong", -118f, (float)LocationUtils.calcMinLon(locs), 0f);
+		assertEquals("Max lon is wrong", -117f, (float)LocationUtils.calcMaxLon(locs), 0f);
+	}
+	
+	@Test (expected=NullPointerException.class)
+	public void testCalcMinLatNull() {
+		LocationUtils.calcMinLat(null);
+	}
+	
+	@Test (expected=NullPointerException.class)
+	public void testCalcMinLonNull() {
+		LocationUtils.calcMinLon(null);
+	}
+	
+	@Test (expected=NullPointerException.class)
+	public void testCalcMaxLatNull() {
+		LocationUtils.calcMaxLat(null);
+	}
+	
+	@Test (expected=NullPointerException.class)
+	public void testCalcMaxLonNull() {
+		LocationUtils.calcMaxLon(null);
+	}
 
 }
