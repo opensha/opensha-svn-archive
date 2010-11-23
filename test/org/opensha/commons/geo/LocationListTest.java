@@ -16,9 +16,9 @@ public class LocationListTest {
 	private static LocationList ll1, ll2, ul;
 	private static Location p1,p2,p3,p4,p5,p6,p7,p8,p9;
 	
-	private double result_p3p4_p8 = 78.62078721818266;
+	private double result_p3p4_p8 = 78.62078721818267;
 	private double result_p4_p8 = 111.19505230826488;
-	private double result_p6p7_p9 = 78.55334545519584;
+	private double result_p6p7_p9 = 78.55334545519592;
 	private double result_p6_p9 = 111.04265949308352;
 	
 	@BeforeClass
@@ -95,6 +95,13 @@ public class LocationListTest {
 	public final void testMinDistToLine() {
 		assertEquals(result_p6p7_p9, ll1.minDistToLine(p9), 0);
 		assertEquals(result_p3p4_p8, ll1.minDistToLine(p8), 0);
+		// test against underlying distToSegment
+		assertEquals(
+			LocationUtils.distanceToSegmentFast(p6, p7, p9), 
+			ll1.minDistToLine(p9), 0.00000001);
+		assertEquals(
+			LocationUtils.distanceToSegmentFast(p3, p4, p8), 
+			ll1.minDistToLine(p8), 0.00000001);
 	}
 	
 	@Test

@@ -29,6 +29,8 @@ import static org.opensha.commons.geo.LocationUtils.azimuth;
 import static org.opensha.commons.geo.LocationUtils.azimuthRad;
 import static org.opensha.commons.geo.LocationUtils.distanceToLine;
 import static org.opensha.commons.geo.LocationUtils.distanceToLineFast;
+import static org.opensha.commons.geo.LocationUtils.distanceToSegment;
+import static org.opensha.commons.geo.LocationUtils.distanceToSegmentFast;
 import static org.opensha.commons.geo.LocationUtils.vector;
 import static org.opensha.commons.geo.LocationUtils.horzDistance;
 import static org.opensha.commons.geo.LocationUtils.horzDistanceFast;
@@ -50,14 +52,14 @@ import util.TestUtils;
 public class LocationUtilsTest {
 	
 	// short-range, small-angle test points
-	Location L1 = new Location(32.6, 20.4);
-	Location L2 = new Location(32.4, 20);
-	Location L3 = new Location(32.2, 20.6);
-	Location L4 = new Location(32, 20.2, 10);
+	private static Location L1 = new Location(32.6, 20.4);
+	private static Location L2 = new Location(32.4, 20);
+	private static Location L3 = new Location(32.2, 20.6);
+	private static Location L4 = new Location(32, 20.2, 10);
 	
 	// polar and long-distance, large-angle test points
-	Location L5 = new Location(90, 0);
-	Location L6 = new Location(-90, 0);
+	private static Location L5 = new Location(90, 0);
+	private static Location L6 = new Location(-90, 0);
 	
 	// Expected results from methods in this class were computed using the
 	// class methods and compared to the results provided by one or more
@@ -92,22 +94,13 @@ public class LocationUtilsTest {
 	// d413   30.170948729   30.205855981
 
 	// deltas - based on what decimal place known values above were clipped
-	double ldD    = 0.001;			// long-distance
-	double sdD    = 0.0000001;		// short-distance
-	double angleD = 0.000000001;	// angle
-	double azrD   = 0.000000001;	// azimuth-rad
-	double azdD   = 0.00001;		// azimuth-deg
-	double dtlD   = 0.000000001;	// dist to line
+	private static double ldD    = 0.001;		// long-distance
+	private static double sdD    = 0.0000001;	// short-distance
+	private static double angleD = 0.000000001;	// angle
+	private static double azrD   = 0.000000001;	// azimuth-rad
+	private static double azdD   = 0.00001;		// azimuth-deg
+	private static double dtlD   = 0.000000001;	// dist to line
 	
-	
-	
-//	@Before
-//	public void setUp() throws Exception {
-//	}
-//
-//	@After
-//	public void tearDown() throws Exception {
-//	}
 
 	@Test
 	public final void testLocationUtils() {
@@ -215,20 +208,89 @@ public class LocationUtilsTest {
 		assertEquals(21.395182516, ld13, delta);
 	}
 	
+	// additional locoations for line and segment tests
+	private static Location l1 = new Location(2, 0);
+	private static Location l2 = new Location(4, 0);
+
+	private static Location p1 = new Location(1, 0);
+	private static Location p2 = new Location(1, -1);
+	private static Location p3 = new Location(3, -1);
+	private static Location p4 = new Location(5, -1);
+	private static Location p5 = new Location(5, 0);
+	private static Location p6 = new Location(5, 1);
+	private static Location p7 = new Location(3, 1);
+	private static Location p8 = new Location(1, 1);
+
 	@Test
 	public final void testDistanceToLine() {
+		// set 1
 		assertEquals( 34.425229936, distanceToLine(L3,L2,L1), dtlD);
 		assertEquals(-34.425229936, distanceToLine(L2,L3,L1), dtlD);
 		assertEquals(-47.851004687, distanceToLine(L4,L3,L2), dtlD);
 		assertEquals( 30.205855981, distanceToLine(L4,L1,L3), dtlD);
+		//set 2
+		assertEquals(0.0, distanceToLine(l1, l2, p1), 0);
+		assertEquals(-111.17811504377568, distanceToLine(l1, l2, p2), 0);
+		assertEquals(-111.04264791008788, distanceToLine(l1, l2, p3), 0);
+		assertEquals(-110.77187883896175, distanceToLine(l1, l2, p4), 0);
+		assertEquals(0.0, distanceToLine(l1, l2, p5), 0);
+		assertEquals(110.7718788389617, distanceToLine(l1, l2, p6), 0);
+		assertEquals(111.04264791008788, distanceToLine(l1, l2, p7), 0);
+		assertEquals(111.17811504377575, distanceToLine(l1, l2, p8), 0);
 	}
 	
 	@Test
 	public final void testDistanceToLineFast() {
-		assertEquals(34.472999888, distanceToLineFast(L3,L2,L1), dtlD);
+		//set 1
+		assertEquals( 34.472999888, distanceToLineFast(L3,L2,L1), dtlD);
 		assertEquals(-34.472999888, distanceToLineFast(L2,L3,L1), dtlD);
 		assertEquals(-47.859144611, distanceToLineFast(L4,L3,L2), dtlD);
-		assertEquals(30.170948729, distanceToLineFast(L4,L1,L3), dtlD);
+		assertEquals( 30.170948729, distanceToLineFast(L4,L1,L3), dtlD);
+		//set 2
+		assertEquals(0.0, distanceToLineFast(l1, l2, p1), 0);
+		assertEquals(-111.12731528678844, distanceToLineFast(l1, l2, p2), 0);
+		assertEquals(-111.04266335361307, distanceToLineFast(l1, l2, p3), 0);
+		assertEquals(-110.92418674948573, distanceToLineFast(l1, l2, p4), 0);
+		assertEquals(0.0, distanceToLineFast(l1, l2, p5), 0);
+		assertEquals(110.92418674948573, distanceToLineFast(l1, l2, p6), 0);
+		assertEquals(111.04266335361307, distanceToLineFast(l1, l2, p7), 0);
+		assertEquals(111.12731528678844, distanceToLineFast(l1, l2, p8), 0);
+	}
+	
+	@Test
+	public final void testDistanceToSegment() {
+		//set 1
+		assertEquals(34.425229936, distanceToSegment(L3,L2,L1), dtlD);
+		assertEquals(34.425229936, distanceToSegment(L2,L3,L1), dtlD);
+		assertEquals(47.851004687, distanceToSegment(L4,L3,L2), dtlD);
+		assertEquals(30.205855981, distanceToSegment(L4,L1,L3), dtlD);
+		//set 2
+		assertEquals(111.19505230826488, distanceToSegment(l1, l2, p1), 0);
+		assertEquals(157.22560972181338, distanceToSegment(l1, l2, p2), 0);
+		assertEquals(111.04264791008788, distanceToSegment(l1, l2, p3), 0);
+		assertEquals(157.0103400810619, distanceToSegment(l1, l2, p4), 0);
+		assertEquals(111.19505230826486, distanceToSegment(l1, l2, p5), 0);
+		assertEquals(157.0103400810619, distanceToSegment(l1, l2, p6), 0);
+		assertEquals(111.04264791008788, distanceToSegment(l1, l2, p7), 0);
+		assertEquals(157.22560972181338, distanceToSegment(l1, l2, p8), 0);
+	}
+	
+	@Test
+	public final void testDistanceToSegmentFast() {
+		//set 1
+		assertEquals(34.472999888, distanceToSegmentFast(L3,L2,L1), dtlD);
+		assertEquals(34.472999888, distanceToSegmentFast(L2,L3,L1), dtlD);
+		assertEquals(47.859144611, distanceToSegmentFast(L4,L3,L2), dtlD);
+		assertEquals(30.170948729, distanceToSegmentFast(L4,L1,L3), dtlD);
+		//set 2
+		assertEquals(111.19505230826488, distanceToSegmentFast(l1, l2, p1), 0);
+		assertEquals(157.2056610325692, distanceToSegmentFast(l1, l2, p2), 0);
+		assertEquals(111.04266335361307, distanceToSegmentFast(l1, l2, p3), 0);
+		assertEquals(157.0621369518209, distanceToSegmentFast(l1, l2, p4), 0);
+		assertEquals(111.19505230826486, distanceToSegmentFast(l1, l2, p5), 0);
+		assertEquals(157.0621369518209, distanceToSegmentFast(l1, l2, p6), 0);
+		assertEquals(111.04266335361307, distanceToSegmentFast(l1, l2, p7), 0);
+		assertEquals(157.2056610325692, distanceToSegmentFast(l1, l2, p8), 0);
 	}
 
 	@Test
@@ -422,9 +484,12 @@ public class LocationUtilsTest {
 		//             1M repeat runs showed the following comp
 		//             times for fixed location pairs:
 		//
-		//             AHDTL	distanceToLineFastOLD()		120 ms
-		//             AHDTL	distanceToLineFast()		1 ms
 		//             DTL		distanceToLine()			1600 ms
+		//             DTLFo	distanceToLineFastOLD()		120 ms
+		//             DTLF		distanceToLineFast()		1 ms
+		//             DTS		distanceToSegment()			1 ms
+		//             DTSF		distanceToSegmentFast()		1 ms
+		//
 		//
 		// ==========================================================
 		
@@ -433,6 +498,20 @@ public class LocationUtilsTest {
 		L3 = new Location(34,-114);
 		
 		System.out.println("\nSPEED TEST -- Distance to Line\n");
+		System.out.println("distanceToLine(): " + 
+			distanceToLine(L1,L2,L3));
+		for (int i=0; i < 5; i++) {
+			long T = System.currentTimeMillis();
+			double d;
+			for (int j=0; j<numIter; j++) {
+				d = (fixedVals) ? 
+						distanceToLine(L1,L2,L3) :
+						distanceToLine(randomLoc(),randomLoc(),randomLoc());
+			}
+			T = (System.currentTimeMillis() - T);
+			System.out.println("    DTL: " + T);
+		}
+
 		System.out.println("distToLineFastOLD(): " + 
 			distanceToLineFastOLD(L1,L2,L3));
 		for (int i=0; i < 5; i++) {
@@ -459,381 +538,394 @@ public class LocationUtilsTest {
 						distanceToLineFast(randomLoc(),randomLoc(),randomLoc());
 			}
 			T = (System.currentTimeMillis() - T);
-			System.out.println("   DTLn: " + T);
+			System.out.println("   DTLF: " + T);
 		}
 
-		System.out.println("distanceToLine(): " + 
-				distanceToLine(L1,L2,L3));
+		System.out.println("distanceToSegment(): " + 
+			distanceToSegment(L1,L2,L3));
 		for (int i=0; i < 5; i++) {
 			long T = System.currentTimeMillis();
 			double d;
 			for (int j=0; j<numIter; j++) {
 				d = (fixedVals) ? 
-						distanceToLine(L1,L2,L3) :
-						distanceToLine(randomLoc(),randomLoc(),randomLoc());
+					distanceToSegment(L1,L2,L3) :
+						distanceToSegment(randomLoc(),randomLoc(),randomLoc());
 			}
 			T = (System.currentTimeMillis() - T);
-			System.out.println("   DTL: " + T);
+			System.out.println("    DTS: " + T);
 		}
 		
-		
-		
-		// ==========================================================
-		//    Horizontal (Surface) Distance Methods
-		//
-		//    Summary: Accurate, Haversine based methods of distance
-		//             calculation have beeen shown to be much faster
-		//             than existing methods (e.g. getHorzDistance).
-		//             1M repeat runs showed the following comp
-		//             times for fixed location pairs:
-		//                
-		//             HD   getHorizDistanceOLD()		1285 ms
-		//             AHD  getApproxHorzDistanceOLD()	955  ms
-		//             SD   horzDistance()				230  ms
-		//             SDF  horzDistanceFast()			1    ms
-		// ==========================================================
-
-		// long pair ~9K km : discrepancies > 100km
-		// L1 = new Location(20,-10);
-		// L2 = new Location(-20,60);
-		
-		// mid pair ~250 km : discrepancies in 10s of meters
-		// L1 = new Location(32.1,-117.2);
-		// L2 = new Location(33.8, -115.4);
-		
-		// short pair : negligible discrepancy in values
-		L1 = new Location(32.132,-117.21);
-		L2 = new Location(32.306, -117.105);
-		
-		System.out.println("\nSPEED TEST -- Horizontal Distance\n");
-		System.out.println("getHorzDistanceOLD(): " + 
-				getHorzDistanceOLD(L1, L2));
+		System.out.println("distanceToSegmentFast(): " + 
+			distanceToSegmentFast(L1,L2,L3));
 		for (int i=0; i < 5; i++) {
 			long T = System.currentTimeMillis();
 			double d;
 			for (int j=0; j<numIter; j++) {
 				d = (fixedVals) ? 
-						getHorzDistanceOLD(L1, L2) :
-						getHorzDistanceOLD(randomLoc(),randomLoc());
+					distanceToSegmentFast(L1,L2,L3) :
+						distanceToSegmentFast(randomLoc(),randomLoc(),randomLoc());
 			}
 			T = (System.currentTimeMillis() - T);
-			System.out.println("    HD: " + T);
+			System.out.println("   DTSF: " + T);
 		}
 		
-		System.out.println("getApproxHorzDistanceOLD(): " + 
-				getApproxHorzDistanceOLD(L1, L2));
-		for (int i=0; i < 5; i++) {
-			long T = System.currentTimeMillis();
-			double d;
-			for (int j=0; j<numIter; j++) {
-				d = (fixedVals) ? 
-						getApproxHorzDistanceOLD(L1, L2) :
-						getApproxHorzDistanceOLD(randomLoc(),randomLoc());
-			}
-			T = (System.currentTimeMillis() - T);
-			System.out.println("    AD: " + T);
-		}
-
-		System.out.println("horzDistance(): " + 
-				horzDistance(L1, L2));
-		for (int i=0; i < 5; i++) {
-			long T = System.currentTimeMillis();
-			double d;
-			for (int j=0; j<numIter; j++) {
-				d = (fixedVals) ? 
-						horzDistance(L1, L2) :
-						horzDistance(randomLoc(),randomLoc());
-			}
-			T = (System.currentTimeMillis() - T);
-			System.out.println("    SD: " + T);
-		}
 		
-		System.out.println("horzDistanceFast(): " + 
-				horzDistanceFast(L1, L2));
-		for (int i=0; i < 5; i++) {
-			long T = System.currentTimeMillis();
-			double d;
-			for (int j=0; j<numIter; j++) {
-				d = (fixedVals) ? 
-						horzDistanceFast(L1, L2) :
-						horzDistanceFast(randomLoc(),randomLoc());
-			}
-			T = (System.currentTimeMillis() - T);
-			System.out.println("   SDF: " + T);
-		}
-
-		
-		
-
-		// ==========================================================
-		//    Linear Distance Methods
-		//
-		//    Summary: Accurate, Haversine based methods of distance
-		//             calculation have beeen shown to be much faster
-		//             than existing methods (e.g. getHorzDistance).
-		//             1M repeat runs showed the following comp
-		//             times for fixed location pairs:
-		//                
-		//             TD   getTotalDistanceOLD()		1300 ms
-		//             LD   linearDistance()			240  ms
-		//             LDF  linearDistanceFast()		1    ms
-		// ==========================================================
-
-		// mid pair ~250 km : discrepancies in 10s of meters
-		L1 = new Location(32.1,-117.2);
-		L2 = new Location(33.8, -115.4);
-		
-		// short pair : negligible discrepancy in values
-		// L1 = new Location(32.132,-117.21);
-		// L2 = new Location(32.306, -117.105);
-		
-		System.out.println("\nSPEED TEST -- Linear Distance\n");
-		System.out.println("getTotalDistanceOLD(): " + 
-				getTotalDistanceOLD(L1, L2));
-		for (int i=0; i < 5; i++) {
-			long T = System.currentTimeMillis();
-			double d;
-			for (int j=0; j<numIter; j++) {
-				d = (fixedVals) ? 
-						getTotalDistanceOLD(L1, L2) :
-						getTotalDistanceOLD(randomLoc(),randomLoc());
-			}
-			T = (System.currentTimeMillis() - T);
-			System.out.println("    TD: " + T);
-		}
-
-		System.out.println("linearDistance(): " + 
-				linearDistance(L1, L2));
-		for (int i=0; i < 5; i++) {
-			long T = System.currentTimeMillis();
-			double d;
-			for (int j=0; j<numIter; j++) {
-				d = (fixedVals) ? 
-						linearDistance(L1, L2) :
-						linearDistance(randomLoc(),randomLoc());
-			}
-			T = (System.currentTimeMillis() - T);
-			System.out.println("    SD: " + T);
-		}
-		
-		System.out.println("linearDistanceFast(): " + 
-				linearDistanceFast(L1, L2));
-		for (int i=0; i < 5; i++) {
-			long T = System.currentTimeMillis();
-			double d;
-			for (int j=0; j<numIter; j++) {
-				d = (fixedVals) ? 
-						linearDistanceFast(L1, L2) :
-						linearDistanceFast(randomLoc(),randomLoc());
-			}
-			T = (System.currentTimeMillis() - T);
-			System.out.println("   SDF: " + T);
-		}
-
-		
-		
-		// ==========================================================
-		//    Azimuth Methods
-		//
-		//    Summary: New, spherical geometry azimuth methods are
-		//			   faster than existing methods.
-		//             1M repeat runs showed the following comp
-		//             times for fixed location pairs:
-		//                
-		//             gA   getAzimuthOLD()		1240 ms
-		//              A   azimuth()			348  ms
-		// ==========================================================
-
-		L1 = new Location(32, -117);
-		L2 = new Location(33, -115);
-		
-		System.out.println("\nSPEED TEST -- Azimuth\n");
-		System.out.println("getAzimuthOLD(): " + 
-				getAzimuthOLD(L1, L2));
-		for (int i=0; i < 5; i++) {
-			long T = System.currentTimeMillis();
-			double d;
-			for (int j=0; j<numIter; j++) {
-				d = (fixedVals) ? 
-						getAzimuthOLD(L1, L2) :
-						getAzimuthOLD(randomLoc(),randomLoc());
-			}
-			T = (System.currentTimeMillis() - T);
-			System.out.println("    gA: " + T);
-		}
-
-		System.out.println("azimuth(): " + 
-				azimuth(L1, L2));
-		for (int i=0; i < 5; i++) {
-			long T = System.currentTimeMillis();
-			double d;
-			for (int j=0; j<numIter; j++) {
-				d = (fixedVals) ? 
-						azimuth(L1, L2) :
-						azimuth(randomLoc(),randomLoc());
-			}
-			T = (System.currentTimeMillis() - T);
-			System.out.println("     A: " + T);
-		}
-
-		
-		
-		
-		// ==========================================================
-		//    Vector Methods
-		//
-		//    Summary: New, spherical geometry direction methods are
-		//			   faster than existing methods. A test using
-		//			   horzDistanceFast instead of horzDistance 
-		//			   realized no speed gain.
-		//             1M repeat runs showed the following comp
-		//             times for fixed location pairs:
-		//                
-		//             gA   getDirectionOLD()		3700 ms
-		//              A   vector()				610  ms
-		// ==========================================================
-
-		L1 = new Location(32, -117);
-		L2 = new Location(33, -115);
-		
-		System.out.println("\nSPEED TEST -- LocationVector\n");
-		System.out.println("getDirectionOLD(): " + getDirectionOLD(L1, L2));
-		for (int i=0; i < 5; i++) {
-			long T = System.currentTimeMillis();
-			LocationVector d;
-			for (int j=0; j<numIter; j++) {
-				d = (fixedVals) ? 
-						getDirectionOLD(L1, L2) :
-						getDirectionOLD(randomLoc(),randomLoc());
-			}
-			T = (System.currentTimeMillis() - T);
-			System.out.println("     D: " + T);
-		}
-
-		System.out.println("vector(): " + vector(L1, L2));
-		for (int i=0; i < 5; i++) {
-			long T = System.currentTimeMillis();
-			LocationVector d;
-			for (int j=0; j<numIter; j++) {
-				d = (fixedVals) ? 
-						vector(L1, L2) :
-						vector(randomLoc(),randomLoc());
-			}
-			T = (System.currentTimeMillis() - T);
-			System.out.println("     V: " + T);
-		}
-
-
-		
-		// ==========================================================
-		//    Location Methods
-		//
-		//    Summary: New, spherical geometry direction methods are
-		//			   slightly faster than existing methods.
-		//             1M repeat runs showed the following comp
-		//             times for fixed location pairs:
-		//                
-		//             gL   getLocationOLD()		915  ms
-		//              L   location()				670  ms
-		// ==========================================================
-
-		L1 = new Location(32, -117);
-		L2 = new Location(33, -115);
-		LocationVector dir = new LocationVector(20,111,10);
-		System.out.println("\nSPEED TEST -- Location\n");
-		System.out.println("getLocationOLD(): " + getLocationOLD(L1, dir));
-		for (int i=0; i < 5; i++) {
-			long T = System.currentTimeMillis();
-			Location loc;
-			for (int j=0; j<numIter; j++) {
-				loc = (fixedVals) ? 
-						getLocationOLD(L1, dir) :
-						getLocationOLD(randomLoc(),dir);
-			}
-			T = (System.currentTimeMillis() - T);
-			System.out.println("    gL: " + T);
-		}
-
-		System.out.println("location(): " + location(L1, dir));
-		for (int i=0; i < 5; i++) {
-			long T = System.currentTimeMillis();
-			Location loc;
-			for (int j=0; j<numIter; j++) {
-				loc = (fixedVals) ? 
-						location(L1, dir) :
-						location(randomLoc(),dir);
-			}
-			T = (System.currentTimeMillis() - T);
-			System.out.println("     L: " + T);
-		}
-
-		
-		
-		// ==========================================================
-		//    The following code may be used to explore how old and
-		//	  new distance caclulation methods compare and how
-		//	  results cary with distance
-		// ==========================================================
-
-		// commented values are accurate distances computed 
-		// using the Vincenty formula
-		
-		Location L1a = new Location(20,-10); // 8818.496 km
-		Location L1b = new Location(-20,60);
-		
-		Location L2a = new Location(90,10); // 4461.118 km
-		Location L2b = new Location(50,80);
-
-		Location L3a = new Location(-80,-30); // 3824.063 km
-		Location L3b = new Location(-50,20);
-		
-		Location L4a = new Location(-42,178); // 560.148 km
-		Location L4b = new Location(-38,-178);
-
-		Location L5a = new Location(5,-90); // 784.028 km
-		Location L5b = new Location(0,-85);
-
-		Location L6a = new Location(70,-40); // 1148.942 km
-		Location L6b = new Location(80,-50);
-
-		Location L7a = new Location(-30,80); // 1497.148 km
-		Location L7b = new Location(-20,90);
-		
-		Location L8a = new Location(70,70); // 234.662 km
-		Location L8b = new Location(72,72);
-
-		Location L9a = new Location(-20,120); // 305.532 km
-		Location L9b = new Location(-18,122);
-		
-		// LocationList llL1 = createLocList(L1a,L1b,0.2);
-		// LocationList llL2 = createLocList(L2a,L2b,0.2);
-		// LocationList llL3 = createLocList(L3a,L3b,0.2);
-		// LocationList llL4 = createLocList(L4a,L4b,356); // spans prime meridian
-		LocationList llL5 = createLocList(L5a,L5b,0.05);
-		// LocationList llL6 = createLocList(L6a,L6b,0.05);
-		// LocationList llL7 = createLocList(L7a,L7b,0.05);
-		// LocationList llL8 = createLocList(L8a,L8b,0.001);
-		// LocationList llL9 = createLocList(L9a,L9b,0.001);
-		
-		LocationList LLtoUse = llL5;
-		Location startPt = LLtoUse.get(0);
-		for (int i = 1; i < LLtoUse.size(); i++) {
-			Location endPt = LLtoUse.get(i);
-			double surfDist = horzDistance(startPt, endPt);
-			double fastSurfDist = horzDistanceFast(startPt, endPt);
-			double delta1 = fastSurfDist - surfDist;
-			double horizDist = getHorzDistanceOLD(startPt, endPt);
-			double approxDist = getApproxHorzDistanceOLD(startPt, endPt);
-			double delta2 = approxDist - horizDist;
-			double delta3 = fastSurfDist - approxDist;
-			String s = String.format(
-					"sd: %03.4f  sdf: %03.4f  d: %03.4f  " + 
-					"hdO: %03.4f  adO: %03.4f  d: %03.4f  Df: %03.4f",
-					surfDist, fastSurfDist, delta1,
-					horizDist, approxDist, delta2, delta3);
-			System.out.println(s);
-		}
-	
+//		// ==========================================================
+//		//    Horizontal (Surface) Distance Methods
+//		//
+//		//    Summary: Accurate, Haversine based methods of distance
+//		//             calculation have beeen shown to be much faster
+//		//             than existing methods (e.g. getHorzDistance).
+//		//             1M repeat runs showed the following comp
+//		//             times for fixed location pairs:
+//		//                
+//		//             HDo   getHorizDistanceOLD()		1285 ms
+//		//             AHDo  getApproxHorzDistanceOLD()	955  ms
+//		//             HD   horzDistance()				230  ms
+//		//             HDF  horzDistanceFast()			1    ms
+//		// ==========================================================
+//
+//		// long pair ~9K km : discrepancies > 100km
+//		// L1 = new Location(20,-10);
+//		// L2 = new Location(-20,60);
+//		
+//		// mid pair ~250 km : discrepancies in 10s of meters
+//		// L1 = new Location(32.1,-117.2);
+//		// L2 = new Location(33.8, -115.4);
+//		
+//		// short pair : negligible discrepancy in values
+//		L1 = new Location(32.132,-117.21);
+//		L2 = new Location(32.306, -117.105);
+//		
+//		System.out.println("\nSPEED TEST -- Horizontal Distance\n");
+//		System.out.println("getHorzDistanceOLD(): " + 
+//				getHorzDistanceOLD(L1, L2));
+//		for (int i=0; i < 5; i++) {
+//			long T = System.currentTimeMillis();
+//			double d;
+//			for (int j=0; j<numIter; j++) {
+//				d = (fixedVals) ? 
+//						getHorzDistanceOLD(L1, L2) :
+//						getHorzDistanceOLD(randomLoc(),randomLoc());
+//			}
+//			T = (System.currentTimeMillis() - T);
+//			System.out.println("   HDo: " + T);
+//		}
+//		
+//		System.out.println("getApproxHorzDistanceOLD(): " + 
+//				getApproxHorzDistanceOLD(L1, L2));
+//		for (int i=0; i < 5; i++) {
+//			long T = System.currentTimeMillis();
+//			double d;
+//			for (int j=0; j<numIter; j++) {
+//				d = (fixedVals) ? 
+//						getApproxHorzDistanceOLD(L1, L2) :
+//						getApproxHorzDistanceOLD(randomLoc(),randomLoc());
+//			}
+//			T = (System.currentTimeMillis() - T);
+//			System.out.println("   ADo: " + T);
+//		}
+//
+//		System.out.println("horzDistance(): " + 
+//				horzDistance(L1, L2));
+//		for (int i=0; i < 5; i++) {
+//			long T = System.currentTimeMillis();
+//			double d;
+//			for (int j=0; j<numIter; j++) {
+//				d = (fixedVals) ? 
+//						horzDistance(L1, L2) :
+//						horzDistance(randomLoc(),randomLoc());
+//			}
+//			T = (System.currentTimeMillis() - T);
+//			System.out.println("   HD: " + T);
+//		}
+//		
+//		System.out.println("horzDistanceFast(): " + 
+//				horzDistanceFast(L1, L2));
+//		for (int i=0; i < 5; i++) {
+//			long T = System.currentTimeMillis();
+//			double d;
+//			for (int j=0; j<numIter; j++) {
+//				d = (fixedVals) ? 
+//						horzDistanceFast(L1, L2) :
+//						horzDistanceFast(randomLoc(),randomLoc());
+//			}
+//			T = (System.currentTimeMillis() - T);
+//			System.out.println("   HDF: " + T);
+//		}
+//
+//		
+//		
+//
+//		// ==========================================================
+//		//    Linear Distance Methods
+//		//
+//		//    Summary: Accurate, Haversine based methods of distance
+//		//             calculation have beeen shown to be much faster
+//		//             than existing methods (e.g. getHorzDistance).
+//		//             1M repeat runs showed the following comp
+//		//             times for fixed location pairs:
+//		//                
+//		//             TDo   getTotalDistanceOLD()		1300 ms
+//		//             LD   linearDistance()			240  ms
+//		//             LDF  linearDistanceFast()		1    ms
+//		// ==========================================================
+//
+//		// mid pair ~250 km : discrepancies in 10s of meters
+//		L1 = new Location(32.1,-117.2);
+//		L2 = new Location(33.8, -115.4);
+//		
+//		// short pair : negligible discrepancy in values
+//		// L1 = new Location(32.132,-117.21);
+//		// L2 = new Location(32.306, -117.105);
+//		
+//		System.out.println("\nSPEED TEST -- Linear Distance\n");
+//		System.out.println("getTotalDistanceOLD(): " + 
+//				getTotalDistanceOLD(L1, L2));
+//		for (int i=0; i < 5; i++) {
+//			long T = System.currentTimeMillis();
+//			double d;
+//			for (int j=0; j<numIter; j++) {
+//				d = (fixedVals) ? 
+//						getTotalDistanceOLD(L1, L2) :
+//						getTotalDistanceOLD(randomLoc(),randomLoc());
+//			}
+//			T = (System.currentTimeMillis() - T);
+//			System.out.println("   TDo: " + T);
+//		}
+//
+//		System.out.println("linearDistance(): " + 
+//				linearDistance(L1, L2));
+//		for (int i=0; i < 5; i++) {
+//			long T = System.currentTimeMillis();
+//			double d;
+//			for (int j=0; j<numIter; j++) {
+//				d = (fixedVals) ? 
+//						linearDistance(L1, L2) :
+//						linearDistance(randomLoc(),randomLoc());
+//			}
+//			T = (System.currentTimeMillis() - T);
+//			System.out.println("    LD: " + T);
+//		}
+//		
+//		System.out.println("linearDistanceFast(): " + 
+//				linearDistanceFast(L1, L2));
+//		for (int i=0; i < 5; i++) {
+//			long T = System.currentTimeMillis();
+//			double d;
+//			for (int j=0; j<numIter; j++) {
+//				d = (fixedVals) ? 
+//						linearDistanceFast(L1, L2) :
+//						linearDistanceFast(randomLoc(),randomLoc());
+//			}
+//			T = (System.currentTimeMillis() - T);
+//			System.out.println("   LDF: " + T);
+//		}
+//
+//		
+//		
+//		// ==========================================================
+//		//    Azimuth Methods
+//		//
+//		//    Summary: New, spherical geometry azimuth methods are
+//		//			   faster than existing methods.
+//		//             1M repeat runs showed the following comp
+//		//             times for fixed location pairs:
+//		//                
+//		//             gAo   getAzimuthOLD()		1240 ms
+//		//             A   azimuth()				348  ms
+//		// ==========================================================
+//
+//		L1 = new Location(32, -117);
+//		L2 = new Location(33, -115);
+//		
+//		System.out.println("\nSPEED TEST -- Azimuth\n");
+//		System.out.println("getAzimuthOLD(): " + 
+//				getAzimuthOLD(L1, L2));
+//		for (int i=0; i < 5; i++) {
+//			long T = System.currentTimeMillis();
+//			double d;
+//			for (int j=0; j<numIter; j++) {
+//				d = (fixedVals) ? 
+//						getAzimuthOLD(L1, L2) :
+//						getAzimuthOLD(randomLoc(),randomLoc());
+//			}
+//			T = (System.currentTimeMillis() - T);
+//			System.out.println("   gAo: " + T);
+//		}
+//
+//		System.out.println("azimuth(): " + 
+//				azimuth(L1, L2));
+//		for (int i=0; i < 5; i++) {
+//			long T = System.currentTimeMillis();
+//			double d;
+//			for (int j=0; j<numIter; j++) {
+//				d = (fixedVals) ? 
+//						azimuth(L1, L2) :
+//						azimuth(randomLoc(),randomLoc());
+//			}
+//			T = (System.currentTimeMillis() - T);
+//			System.out.println("     A: " + T);
+//		}
+//
+//		
+//		
+//		
+//		// ==========================================================
+//		//    Vector Methods
+//		//
+//		//    Summary: New, spherical geometry direction methods are
+//		//			   faster than existing methods. A test using
+//		//			   horzDistanceFast instead of horzDistance 
+//		//			   realized no speed gain.
+//		//             1M repeat runs showed the following comp
+//		//             times for fixed location pairs:
+//		//                
+//		//             gDo		getDirectionOLD()		3700 ms
+//		//             V		vector()				610  ms
+//		// ==========================================================
+//
+//		L1 = new Location(32, -117);
+//		L2 = new Location(33, -115);
+//		
+//		System.out.println("\nSPEED TEST -- LocationVector\n");
+//		System.out.println("getDirectionOLD(): " + getDirectionOLD(L1, L2));
+//		for (int i=0; i < 5; i++) {
+//			long T = System.currentTimeMillis();
+//			LocationVector d;
+//			for (int j=0; j<numIter; j++) {
+//				d = (fixedVals) ? 
+//						getDirectionOLD(L1, L2) :
+//						getDirectionOLD(randomLoc(),randomLoc());
+//			}
+//			T = (System.currentTimeMillis() - T);
+//			System.out.println("    gDo: " + T);
+//		}
+//
+//		System.out.println("vector(): " + vector(L1, L2));
+//		for (int i=0; i < 5; i++) {
+//			long T = System.currentTimeMillis();
+//			LocationVector d;
+//			for (int j=0; j<numIter; j++) {
+//				d = (fixedVals) ? 
+//						vector(L1, L2) :
+//						vector(randomLoc(),randomLoc());
+//			}
+//			T = (System.currentTimeMillis() - T);
+//			System.out.println("     V: " + T);
+//		}
+//
+//
+//		
+//		// ==========================================================
+//		//    Location Methods
+//		//
+//		//    Summary: New, spherical geometry direction methods are
+//		//			   slightly faster than existing methods.
+//		//             1M repeat runs showed the following comp
+//		//             times for fixed location pairs:
+//		//                
+//		//             gLo		getLocationOLD()	915  ms
+//		//             L		location()			670  ms
+//		// ==========================================================
+//
+//		L1 = new Location(32, -117);
+//		L2 = new Location(33, -115);
+//		LocationVector dir = new LocationVector(20,111,10);
+//		System.out.println("\nSPEED TEST -- Location\n");
+//		System.out.println("getLocationOLD(): " + getLocationOLD(L1, dir));
+//		for (int i=0; i < 5; i++) {
+//			long T = System.currentTimeMillis();
+//			Location loc;
+//			for (int j=0; j<numIter; j++) {
+//				loc = (fixedVals) ? 
+//						getLocationOLD(L1, dir) :
+//						getLocationOLD(randomLoc(),dir);
+//			}
+//			T = (System.currentTimeMillis() - T);
+//			System.out.println("    gL: " + T);
+//		}
+//
+//		System.out.println("location(): " + location(L1, dir));
+//		for (int i=0; i < 5; i++) {
+//			long T = System.currentTimeMillis();
+//			Location loc;
+//			for (int j=0; j<numIter; j++) {
+//				loc = (fixedVals) ? 
+//						location(L1, dir) :
+//						location(randomLoc(),dir);
+//			}
+//			T = (System.currentTimeMillis() - T);
+//			System.out.println("     L: " + T);
+//		}
+//
+//		
+//		
+//		// ==========================================================
+//		//    The following code may be used to explore how old and
+//		//	  new distance caclulation methods compare and how
+//		//	  results cary with distance
+//		// ==========================================================
+//
+//		// commented values are accurate distances computed 
+//		// using the Vincenty formula
+//		
+//		Location L1a = new Location(20,-10); // 8818.496 km
+//		Location L1b = new Location(-20,60);
+//		
+//		Location L2a = new Location(90,10); // 4461.118 km
+//		Location L2b = new Location(50,80);
+//
+//		Location L3a = new Location(-80,-30); // 3824.063 km
+//		Location L3b = new Location(-50,20);
+//		
+//		Location L4a = new Location(-42,178); // 560.148 km
+//		Location L4b = new Location(-38,-178);
+//
+//		Location L5a = new Location(5,-90); // 784.028 km
+//		Location L5b = new Location(0,-85);
+//
+//		Location L6a = new Location(70,-40); // 1148.942 km
+//		Location L6b = new Location(80,-50);
+//
+//		Location L7a = new Location(-30,80); // 1497.148 km
+//		Location L7b = new Location(-20,90);
+//		
+//		Location L8a = new Location(70,70); // 234.662 km
+//		Location L8b = new Location(72,72);
+//
+//		Location L9a = new Location(-20,120); // 305.532 km
+//		Location L9b = new Location(-18,122);
+//		
+//		// LocationList llL1 = createLocList(L1a,L1b,0.2);
+//		// LocationList llL2 = createLocList(L2a,L2b,0.2);
+//		// LocationList llL3 = createLocList(L3a,L3b,0.2);
+//		// LocationList llL4 = createLocList(L4a,L4b,356); // spans prime meridian
+//		LocationList llL5 = createLocList(L5a,L5b,0.05);
+//		// LocationList llL6 = createLocList(L6a,L6b,0.05);
+//		// LocationList llL7 = createLocList(L7a,L7b,0.05);
+//		// LocationList llL8 = createLocList(L8a,L8b,0.001);
+//		// LocationList llL9 = createLocList(L9a,L9b,0.001);
+//		
+//		LocationList LLtoUse = llL5;
+//		Location startPt = LLtoUse.get(0);
+//		for (int i = 1; i < LLtoUse.size(); i++) {
+//			Location endPt = LLtoUse.get(i);
+//			double surfDist = horzDistance(startPt, endPt);
+//			double fastSurfDist = horzDistanceFast(startPt, endPt);
+//			double delta1 = fastSurfDist - surfDist;
+//			double horizDist = getHorzDistanceOLD(startPt, endPt);
+//			double approxDist = getApproxHorzDistanceOLD(startPt, endPt);
+//			double delta2 = approxDist - horizDist;
+//			double delta3 = fastSurfDist - approxDist;
+//			String s = String.format(
+//					"sd: %03.4f  sdf: %03.4f  d: %03.4f  " + 
+//					"hdO: %03.4f  adO: %03.4f  d: %03.4f  Df: %03.4f",
+//					surfDist, fastSurfDist, delta1,
+//					horizDist, approxDist, delta2, delta3);
+//			System.out.println(s);
+//		}
+//	
 	}
 	
 	// utility method to create a locationlist between two points; points
@@ -1290,7 +1382,7 @@ public class LocationUtilsTest {
 		double dist;
 
 		// check for values very close to zero
-		if (Math.abs(x1 - x2) > 1e-6) {
+		if (Math.abs(x1 - x2) > 1e-8) {
 			double m = (y2 - y1) / (x2 - x1); // slope
 			double b = y2 - m * x2; 		  // intercept
 			double xT = -m * b / (1 + m * m); // x target

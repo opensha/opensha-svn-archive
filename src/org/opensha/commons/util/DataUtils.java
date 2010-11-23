@@ -43,7 +43,7 @@ public class DataUtils {
 	/**
 	 * Validates the domain of a <code>double</code> data set. Method verifies
 	 * that data values all fall within a specified minimum and maximum range
-	 * (inclusive). Empty arrays are ignored. If <code>min</code> is 
+	 * (inclusive). Empty arrays are ignored. If <code>min</code> is
 	 * <code>Double.NaN</code>, no lower limit is imposed; the same holds true
 	 * for <code>max</code>. <code>Double.NaN</code> values in <code>data</code>
 	 * will validate.
@@ -52,7 +52,8 @@ public class DataUtils {
 	 * @param min minimum range value
 	 * @param max maximum range value
 	 * @throws NullPointerException if <code>data</code> is <code>null</code>
-	 * @throws IllegalArgumentException if any <code>data</code> value is out of range
+	 * @throws IllegalArgumentException if any <code>data</code> value is out of
+	 *         range
 	 */
 	public final static void validate(double[] data, double min, double max)
 			throws IllegalArgumentException, NullPointerException {
@@ -66,7 +67,7 @@ public class DataUtils {
 			}
 		}
 	}
-	
+		
 	/**
 	 * Verifies that a <code>double</code> data value falls within a specified
 	 * minimum and maximum range (inclusive). If <code>min</code> is 
@@ -192,6 +193,7 @@ public class DataUtils {
 //		System.out.println(Math.abs((10d - 0d) / 0d) * 100.0);
 		
 		//getPercentDiff(0.)
+		
 	}
 	
 

@@ -652,11 +652,13 @@ public class RegionTest {
 	
 	@Test
 	public final void testDistanceToLocation() {
-		System.out.println(octRegion.distanceToLocation(new Location(29,-120)));
-		System.out.println(octRegion.distanceToLocation(new Location(29,-105)));
-		System.out.println(octRegion.distanceToLocation(new Location(30,-115)));
-
-		fail("Not yet implemented");
+		assertEquals(73.50042984001041, octRegion.distanceToLocation(new Location(29,-120)), 0.0);
+		assertEquals(73.50042984001004, octRegion.distanceToLocation(new Location(29,-105)), 0.0);
+		assertEquals(0.0, octRegion.distanceToLocation(new Location(30,-115)), 0.0);
+		Location ll = new Location(25,-120);
+		assertEquals(
+			LocationUtils.distanceToSegmentFast(octRegionList.get(0), octRegionList.get(7), ll),
+			octRegion.distanceToLocation(ll), 0.0);
 	}
 	
 	@Test

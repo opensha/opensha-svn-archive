@@ -23,10 +23,10 @@ public class DataUtilsTest {
 	public void testValidateArrayNPE() { validate(null, -10, 10); }
 
 	@Test (expected = IllegalArgumentException.class)
-	public void testValidateArray1() { validate(dd, -11, 10); }
+	public void testValidateArray1() { validate(dd, -9, 10); }
 
 	@Test (expected = IllegalArgumentException.class)
-	public void testValidateArray2() { validate(dd, -10, 11); }
+	public void testValidateArray2() { validate(dd, -10, 9); }
 	
 	
 	@Test (expected = IllegalArgumentException.class)
