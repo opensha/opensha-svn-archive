@@ -92,19 +92,19 @@ public class LocationList extends ArrayList<Location> implements XMLSaveable {
 	/**
 	 * Computes the horizontal surface distance (in km) to the closest point in
 	 * this list from the supplied <code>Location</code>. This method uses
-	 * {@link LocationUtils#horzDistance(Location, Location)} to compute the
+	 * {@link LocationUtils#horzDistanceFast(Location, Location)} to compute the
 	 * distance.
 	 * 
 	 * @param loc <code>Location</code> of interest
 	 * @return the distance to the closest point in this
 	 *         <code>LocationList</code>
-	 * @see LocationUtils#horzDistance(Location, Location)
+	 * @see LocationUtils#horzDistanceFast(Location, Location)
 	 */
 	public double minDistToLocation(Location loc) {
 		double min = Double.MAX_VALUE;
 		double dist = 0;
 		for (Location p : this) {
-			dist = LocationUtils.horzDistance(loc, p);
+			dist = LocationUtils.horzDistanceFast(loc, p);
 			if (dist < min) min = dist;
 		}
 		return min;
