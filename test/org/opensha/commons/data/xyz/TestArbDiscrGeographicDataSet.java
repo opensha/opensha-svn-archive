@@ -133,7 +133,7 @@ public class TestArbDiscrGeographicDataSet extends TestArbDiscrXYZ_DataSet {
 		assertEquals("set all still added duplicates", origSize, xyz.size());
 		
 		ArbDiscrGeoDataSet diffValsDataSet = createTestData(true);
-		XYZ_DataSetMath.add(diffValsDataSet, 0.1d);
+		diffValsDataSet.add(0.1d);
 		xyz.setAll(diffValsDataSet);
 		assertEquals("set all still added duplicate locs with diff values", origSize, xyz.size());
 		
@@ -166,6 +166,53 @@ public class TestArbDiscrGeographicDataSet extends TestArbDiscrXYZ_DataSet {
 			assertEquals("written/loaded value doesn't match!", data.get(i), loadedLatX.get(i), xThresh);
 			assertEquals("written/loaded value doesn't match!", data.get(i), loadedLatY.get(i), xThresh);
 		}
+	}
+	
+	@Test (expected=NullPointerException.class)
+	public void testSetLocNull() {
+		GeoDataSet xyz = (GeoDataSet)createEmpty();
+		
+		Location loc = null;
+		
+		xyz.set(loc, 0d);
+	}
+	
+	@Test
+	public void testSetLocNullSizeCorrect() {
+		GeoDataSet xyz = (GeoDataSet)createEmpty();
+		
+		Location loc = null;
+		
+		try {
+			xyz.set(loc, 0d);
+		} catch (Exception e) {}
+		
+		assertEquals("called set(null, 0) and size increased!", 0, xyz.size());
+	}
+	
+	@Test (expected=IndexOutOfBoundsException.class)
+	public void testGepLocNegInd() {
+		GeoDataSet xyz = (GeoDataSet)createTestData(true);
+		
+		xyz.getLocation(-1);
+	}
+	
+	@Test
+	public void testIndOfNull() {
+		GeoDataSet xyz = (GeoDataSet)createEmpty();
+		
+		Location loc = null;
+		
+		assertEquals("indexOf(null) should be -1)", -1, xyz.indexOf(loc));
+	}
+	
+	@Test
+	public void testContainsNull() {
+		GeoDataSet xyz = (GeoDataSet)createTestData(true);
+		
+		Location loc = null;
+		
+		assertFalse("contains(null) returned true!", xyz.contains(loc));
 	}
 
 }

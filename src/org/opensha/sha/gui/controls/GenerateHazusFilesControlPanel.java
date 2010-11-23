@@ -168,7 +168,7 @@ public class GenerateHazusFilesControlPanel extends JFrame {
 			//if PGV is not supported by the attenuation then use the SA-1sec pd
 			//and multiply the value by scaler 37.24*2.54
 			pgv_xyzdata = (GeoDataSet) sa10_xyzdata.clone();
-			GeoDataSetMath.scale(pgv_xyzdata, 37.24*2.54);
+			pgv_xyzdata.scale(37.24*2.54);
 			metadata += "IMT: PGV"+"<br>\n";
 		}
 		//Doing for PGA

@@ -23,12 +23,12 @@ public class CS_InterpDiffMapServletAccessor {
 			
 			if (gridded != null) {
 				gridded = (GeoDataSet) gridded.clone();
-				GeoDataSetMath.log(gridded);
+				gridded.log();
 				map.setGriddedData(gridded);
 			}
 			if (scatter != null) {
 				scatter = (GeoDataSet) gridded.clone();
-				GeoDataSetMath.log(scatter);
+				scatter.log();
 				map.setScatter(scatter);
 			}
 		}

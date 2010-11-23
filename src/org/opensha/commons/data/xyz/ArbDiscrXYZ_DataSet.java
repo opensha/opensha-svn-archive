@@ -21,14 +21,12 @@ package org.opensha.commons.data.xyz;
 
 import java.awt.geom.Point2D;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.FileUtils;
 
 /**
@@ -41,7 +39,7 @@ import org.opensha.commons.util.FileUtils;
  * @version 1.0
  */
 
-public class ArbDiscrXYZ_DataSet implements XYZ_DataSet,java.io.Serializable{
+public class ArbDiscrXYZ_DataSet extends AbstractXYZ_DataSet {
 
 	/**
 	 * default serial version UID
@@ -58,62 +56,10 @@ public class ArbDiscrXYZ_DataSet implements XYZ_DataSet,java.io.Serializable{
 		map = new HashMap<Point2D, Double>();
 	}
 	
-	private MinMaxAveTracker getXTracker() {
-		MinMaxAveTracker tracker = new MinMaxAveTracker();
-		for (Point2D pt : map.keySet()) {
-			tracker.addValue(pt.getX());
-		}
-		return tracker;
-	}
-	
-	private MinMaxAveTracker getYTracker() {
-		MinMaxAveTracker tracker = new MinMaxAveTracker();
-		for (Point2D pt : map.keySet()) {
-			tracker.addValue(pt.getY());
-		}
-		return tracker;
-	}
-	
-	private MinMaxAveTracker getZTracker() {
-		MinMaxAveTracker tracker = new MinMaxAveTracker();
-		for (double val : map.values()) {
-			tracker.addValue(val);
-		}
-		return tracker;
-	}
-
-	@Override
-	public double getMinX() {
-		return getXTracker().getMin();
-	}
-
-	@Override
-	public double getMaxX() {
-		return getXTracker().getMax();
-	}
-
-	@Override
-	public double getMinY() {
-		return getYTracker().getMin();
-	}
-
-	@Override
-	public double getMaxY() {
-		return getYTracker().getMax();
-	}
-
-	@Override
-	public double getMinZ() {
-		return getZTracker().getMin();
-	}
-
-	@Override
-	public double getMaxZ() {
-		return getZTracker().getMax();
-	}
-
 	@Override
 	public void set(Point2D point, double z) {
+		if (point ==  null)
+			throw new NullPointerException("Point cannot be null");
 		if (!contains(point))
 			points.add(point);
 		map.put(point, z);
@@ -170,22 +116,22 @@ public class ArbDiscrXYZ_DataSet implements XYZ_DataSet,java.io.Serializable{
 	}
 
 	@Override
-	public void setAll(XYZ_DataSet dataset) {
-		for (int i=0; i<dataset.size(); i++) {
-			set(dataset.getPoint(i), dataset.get(i));
+	public Object clone() {
+		ArbDiscrXYZ_DataSet xyz = new ArbDiscrXYZ_DataSet();
+		for (int i=0; i<size(); i++) {
+			xyz.set(getPoint(i), get(i));
 		}
+		return xyz;
 	}
-	
-	public static void writeXYZFile(XYZ_DataSet xyz, String fileName) throws IOException {
-		
-		FileWriter fw = new FileWriter(fileName);
-		for (int i=0; i<xyz.size(); i++) {
-			Point2D point = xyz.getPoint(i);
-			double z = xyz.get(i);
-			
-			fw.write(point.getX() + "\t" + point.getY() + "\t" + z + "\n");
-		}
-		fw.close();
+
+	@Override
+	public int indexOf(double x, double y) {
+		return indexOf(new Point2D.Double(x, y));
+	}
+
+	@Override
+	public List<Point2D> getPointList() {
+		return points;
 	}
 	
 	public static ArbDiscrXYZ_DataSet loadXYZFile(String fileName) throws FileNotFoundException, IOException {
@@ -210,33 +156,6 @@ public class ArbDiscrXYZ_DataSet implements XYZ_DataSet,java.io.Serializable{
 		}
 		
 		return xyz;
-	}
-
-	@Override
-	public Object clone() {
-		ArbDiscrXYZ_DataSet xyz = new ArbDiscrXYZ_DataSet();
-		for (int i=0; i<size(); i++) {
-			xyz.set(getPoint(i), get(i));
-		}
-		return xyz;
-	}
-
-	@Override
-	public int indexOf(double x, double y) {
-		return indexOf(new Point2D.Double(x, y));
-	}
-
-	@Override
-	public List<Point2D> getPointList() {
-		return points;
-	}
-
-	@Override
-	public List<Double> getValueList() {
-		ArrayList<Double> vals = new ArrayList<Double>();
-		for (int i=0; i<size(); i++)
-			vals.add(get(i));
-		return vals;
 	}
 	
 }

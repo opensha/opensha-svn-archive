@@ -216,7 +216,7 @@ public class HardCodedScenarioShakeMapGen {
 		
 		GeoDataSet xyz = calc.getScenarioShakeMapData(selectedAttenRels, attenRelWts, sites, rup, isProbAtIML, value);
 		// un log it
-		GeoDataSetMath.exp(xyz);
+		xyz.exp();
 		
 		return xyz;
 	}

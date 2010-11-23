@@ -1727,7 +1727,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		//checks to see if the user wants Log Plot, if so then convert the zValues to the Log Space
 		boolean logPlotCheck = ((Boolean)logPlotParam.getValue()).booleanValue();
 		if(logPlotCheck){
-			GeoDataSetMath.log10(xyzDataSet);
+			xyzDataSet.log10();
 			SCALE_LABEL = "\"log@-10@-\050"+SCALE_LABEL+"\051\"";
 		}
 	}

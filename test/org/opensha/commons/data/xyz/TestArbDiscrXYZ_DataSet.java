@@ -114,13 +114,102 @@ public class TestArbDiscrXYZ_DataSet {
 		assertEquals("set all still added duplicates", origSize, xyz.size());
 		
 		XYZ_DataSet diffValsDataSet = getTestData();
-		XYZ_DataSetMath.add(diffValsDataSet, 0.1d);
+		diffValsDataSet.add(0.1d);
 		xyz.setAll(diffValsDataSet);
 		assertEquals("set all still added duplicate locs with diff values", origSize, xyz.size());
 		
 		XYZ_DataSet diffPtsDataSet = getTestData(0.1);
 		xyz.setAll(diffPtsDataSet);
 		assertEquals("set all didn't add new values", origSize*2, xyz.size());
+	}
+	
+	@Test (expected=IndexOutOfBoundsException.class)
+	public void testSetNegInd() {
+		XYZ_DataSet xyz = createEmpty();
+		
+		xyz.set(-1, 0d);
+	}
+	
+	@Test (expected=IndexOutOfBoundsException.class)
+	public void testSetEqualSize() {
+		XYZ_DataSet xyz = getTestData();
+		
+		xyz.set(xyz.size(), 0d);
+	}
+	
+	@Test (expected=IndexOutOfBoundsException.class)
+	public void testSetTooBig() {
+		XYZ_DataSet xyz = getTestData();
+		
+		xyz.set(xyz.size()+1, 0d);
+	}
+	
+	@Test
+	public void testSetNegIndSizeCorrect() {
+		XYZ_DataSet xyz = createEmpty();
+		
+		try {
+			xyz.set(-1, 0d);
+		} catch (Exception e) {}
+		
+		assertEquals("called set(-1, 0) and size increased!", 0, xyz.size());
+	}
+	
+	@Test (expected=NullPointerException.class)
+	public void testSetNull() {
+		XYZ_DataSet xyz = createEmpty();
+		
+		xyz.set(null, 0d);
+	}
+	
+	@Test
+	public void testSetNullSizeCorrect() {
+		XYZ_DataSet xyz = createEmpty();
+		
+		try {
+			xyz.set(null, 0d);
+		} catch (Exception e) {}
+		
+		assertEquals("called set(null, 0) and size increased!", 0, xyz.size());
+	}
+	
+	@Test (expected=NullPointerException.class)
+	public void testSetAllNull() {
+		XYZ_DataSet xyz = createEmpty();
+		
+		xyz.setAll(null);
+	}
+	
+	@Test
+	public void testSetAllNullSizeCorrect() {
+		XYZ_DataSet xyz = createEmpty();
+		
+		try {
+			xyz.setAll(null);
+		} catch (Exception e) {}
+		
+		assertEquals("called set(null, 0) and size increased!", 0, xyz.size());
+	}
+	
+	@Test (expected=IndexOutOfBoundsException.class)
+	public void testGepPointNegInd() {
+		XYZ_DataSet xyz = createEmpty();
+		
+		xyz.getPoint(-1);
+	}
+	
+	@Test
+	public void testIndOfNull() {
+		XYZ_DataSet xyz = createEmpty();
+		
+		assertEquals("indexOf(null) should be -1)", -1, xyz.indexOf(null));
+	}
+	
+	@Test
+	public void testContainsNull() {
+		XYZ_DataSet xyz = getTestData();
+		
+		assertFalse("contains(null) returned true!", xyz.contains(null));
 	}
 	
 	@Test
@@ -153,7 +242,7 @@ public class TestArbDiscrXYZ_DataSet {
 		}
 		
 		// change the cloned values
-		XYZ_DataSetMath.add(cloned, 0.1);
+		cloned.add(0.1);
 		
 		for (int i=0; i<xyz.size(); i++) {
 			assertTrue("cloned operations are affecting original", xyz.get(i) != cloned.get(i));
@@ -162,7 +251,17 @@ public class TestArbDiscrXYZ_DataSet {
 	
 	@Test
 	public void testMinMax() {
-		XYZ_DataSet xyz = getTestData();
+		XYZ_DataSet xyz = createEmpty();
+		
+		assertTrue("getMax* calls should be -infinity when empty", Double.NEGATIVE_INFINITY == xyz.getMaxX());
+		assertTrue("getMax* calls should be -infinity when empty", Double.NEGATIVE_INFINITY == xyz.getMaxY());
+		assertTrue("getMax* calls should be -infinity when empty", Double.NEGATIVE_INFINITY == xyz.getMaxZ());
+		
+		assertTrue("getMin* calls should be -infinity when empty", Double.POSITIVE_INFINITY == xyz.getMinX());
+		assertTrue("getMin* calls should be -infinity when empty", Double.POSITIVE_INFINITY == xyz.getMinY());
+		assertTrue("getMin* calls should be -infinity when empty", Double.POSITIVE_INFINITY == xyz.getMinZ());
+		
+		xyz = getTestData();
 		
 		assertEquals("x min is wrong", 0d, xyz.getMinX(), xThresh);
 		assertEquals("x max is wrong", maxI, xyz.getMaxX(), xThresh);

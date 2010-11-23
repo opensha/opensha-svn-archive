@@ -677,7 +677,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 						griddedRegionSites,eqkRupture,probAtIML,value);
 				//if the IMT is log supported then take the exponential of the Value if IML @ Prob
 				if(IMT_Info.isIMT_LogNormalDist(imt) && !probAtIML){
-					GeoDataSetMath.exp(xyzDataSet);
+					xyzDataSet.exp();
 				}
 				return xyzDataSet;
 			}

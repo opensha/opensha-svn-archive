@@ -144,7 +144,7 @@ public class TestXYZ_DataSetMath {
 				dataNeg.set(i, -1 * val);
 		}
 		
-		XYZ_DataSetMath.abs(dataNeg);
+		dataNeg.abs();
 		for (int i=0; i<dataNeg.size(); i++) {
 			assertEquals(getData1().get(i), dataNeg.get(i), 0d);
 		}
@@ -153,7 +153,7 @@ public class TestXYZ_DataSetMath {
 	@Test
 	public void testLog() {
 		XYZ_DataSet logged = (XYZ_DataSet)getData1().clone();
-		XYZ_DataSetMath.log(logged);
+		logged.log();
 		
 		for (int i=0; i<getData1().size(); i++) {
 			double val = getData1().get(i);
@@ -167,7 +167,7 @@ public class TestXYZ_DataSetMath {
 	@Test
 	public void testLog10() {
 		XYZ_DataSet logged = (XYZ_DataSet)getData1().clone();
-		XYZ_DataSetMath.log10(logged);
+		logged.log10();
 		
 		for (int i=0; i<getData1().size(); i++) {
 			double val = getData1().get(i);
@@ -181,7 +181,7 @@ public class TestXYZ_DataSetMath {
 	@Test
 	public void testExp() {
 		XYZ_DataSet exp = (XYZ_DataSet)getData1().clone();
-		XYZ_DataSetMath.exp(exp);
+		exp.exp();
 		
 		for (int i=0; i<getData1().size(); i++) {
 			double val = getData1().get(i);
@@ -198,7 +198,7 @@ public class TestXYZ_DataSetMath {
 		
 		for (double pow : pows) {
 			XYZ_DataSet powData = (XYZ_DataSet)getData1().clone();
-			XYZ_DataSetMath.pow(powData, pow);
+			powData.pow(pow);
 			
 			for (int i=0; i<getData1().size(); i++) {
 				double val = getData1().get(i);
@@ -216,7 +216,7 @@ public class TestXYZ_DataSetMath {
 		
 		for (double scalar : scalars) {
 			XYZ_DataSet scaled = (XYZ_DataSet)getData1().clone();
-			XYZ_DataSetMath.scale(scaled, scalar);
+			scaled.scale(scalar);
 			
 			for (int i=0; i<getData1().size(); i++) {
 				double val = getData1().get(i);
@@ -234,7 +234,7 @@ public class TestXYZ_DataSetMath {
 		
 		for (double add : adds) {
 			XYZ_DataSet sum = (XYZ_DataSet)getData1().clone();
-			XYZ_DataSetMath.add(sum, add);
+			sum.add(add);
 			
 			for (int i=0; i<getData1().size(); i++) {
 				double val = getData1().get(i);

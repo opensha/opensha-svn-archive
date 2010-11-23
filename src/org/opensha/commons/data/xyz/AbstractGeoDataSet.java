@@ -13,7 +13,7 @@ import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
  * @author kevin
  *
  */
-public abstract class AbstractGeoDataSet implements GeoDataSet {
+public abstract class AbstractGeoDataSet extends AbstractXYZ_DataSet implements GeoDataSet {
 
 	/**
 	 * 
@@ -169,6 +169,8 @@ public abstract class AbstractGeoDataSet implements GeoDataSet {
 
 	@Override
 	public int indexOf(Point2D point) {
+		if (point == null)
+			return -1;
 		return indexOf(ptToLoc(point));
 	}
 
@@ -179,6 +181,8 @@ public abstract class AbstractGeoDataSet implements GeoDataSet {
 
 	@Override
 	public boolean contains(Point2D point) {
+		if (point == null)
+			return false;
 		return contains(ptToLoc(point));
 	}
 
@@ -224,8 +228,5 @@ public abstract class AbstractGeoDataSet implements GeoDataSet {
 			vals.add(get(i));
 		return vals;
 	}
-	
-	@Override
-	public abstract Object clone();
 
 }

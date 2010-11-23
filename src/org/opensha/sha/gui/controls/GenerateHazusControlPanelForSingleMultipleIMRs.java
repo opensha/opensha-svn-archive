@@ -409,7 +409,7 @@ implements Runnable{
 
 			//if PGV is not supported by the attenuation then use the SA-1sec pd
 			//and multiply the value by scaler 37.24*2.54
-			GeoDataSetMath.scale(pgvDataSet, 37.24*2.54);
+			pgvDataSet.scale(37.24*2.54);
 		}
 		return pgvDataSet;
 	}

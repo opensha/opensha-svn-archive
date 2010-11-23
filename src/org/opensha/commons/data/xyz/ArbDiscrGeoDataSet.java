@@ -38,6 +38,8 @@ public class ArbDiscrGeoDataSet extends AbstractGeoDataSet {
 	
 	@Override
 	public void set(Location loc, double value) {
+		if (loc == null)
+			throw new NullPointerException("Location cannot be null");
 		if (!points.contains(loc))
 			points.add(loc);
 		map.put(loc, value);

@@ -8,11 +8,9 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.exceptions.InvalidRangeException;
-import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.FileUtils;
 
 /**
@@ -22,7 +20,7 @@ import org.opensha.commons.util.FileUtils;
  * @author kevin
  *
  */
-public class EvenlyDiscrXYZ_DataSet implements XYZ_DataSet {
+public class EvenlyDiscrXYZ_DataSet extends AbstractXYZ_DataSet {
 	
 	/**
 	 * 
@@ -67,33 +65,12 @@ public class EvenlyDiscrXYZ_DataSet implements XYZ_DataSet {
 		return maxY;
 	}
 
-	public double getMaxZ() {
-		return getZTracker().getMax();
-	}
-
 	public double getMinX() {
 		return minX;
 	}
 
 	public double getMinY() {
 		return minY;
-	}
-
-	public double getMinZ() {
-		return getZTracker().getMin();
-	}
-	
-	private MinMaxAveTracker getZTracker() {
-		MinMaxAveTracker tracker = new MinMaxAveTracker();
-		
-		for (int row=0; row<ny; row++) {
-			for (int col=0; col<nx; col++) {
-				double val = get(col, row);
-				tracker.addValue(val);
-			}
-		}
-		
-		return tracker;
 	}
 	
 	/**
@@ -265,12 +242,6 @@ public class EvenlyDiscrXYZ_DataSet implements XYZ_DataSet {
 	public boolean contains(double x, double y) {
 		return x >= minX && x <= maxX && y >= minY && y <= maxY;
 	}
-	
-	public void setAll(XYZ_DataSet dataset) {
-		for (int i=0; i<dataset.size(); i++) {
-			set(dataset.getPoint(i), dataset.get(i));
-		}
-	}
 
 	@Override
 	public Object clone() {
@@ -286,22 +257,6 @@ public class EvenlyDiscrXYZ_DataSet implements XYZ_DataSet {
 	@Override
 	public int indexOf(double x, double y) {
 		return getIndex(x, y);
-	}
-
-	@Override
-	public List<Point2D> getPointList() {
-		ArrayList<Point2D> points = new ArrayList<Point2D>();
-		for (int i=0; i<size(); i++)
-			points.add(getPoint(i));
-		return points;
-	}
-
-	@Override
-	public List<Double> getValueList() {
-		ArrayList<Double> vals = new ArrayList<Double>();
-		for (int i=0; i<size(); i++)
-			vals.add(get(i));
-		return vals;
 	}
 
 }

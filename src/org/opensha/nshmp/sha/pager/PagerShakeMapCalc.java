@@ -440,7 +440,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
 		GeoDataSet xyzDataSet = calc.getScenarioShakeMapData(attenRelsSupported,attenRelWts,sites,rupture,!imlAtProb,imlProbVal);
 		//if the IMT is log supported then take the exponential of the Value if IML @ Prob
 		if (IMT_Info.isIMT_LogNormalDist(attenRel.getIntensityMeasure().getName()) && imlAtProb) {
-			GeoDataSetMath.exp(xyzDataSet);
+			xyzDataSet.exp();
 		}
 		return xyzDataSet;
 	}

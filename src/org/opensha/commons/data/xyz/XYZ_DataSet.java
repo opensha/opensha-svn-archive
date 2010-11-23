@@ -207,4 +207,53 @@ public interface XYZ_DataSet extends java.io.Serializable, Cloneable {
 	public List<Double> getValueList();
 	
 	public Object clone();
+	
+	/*
+	 * 		******************************* MATH OPERATIONS *******************************
+	 */
+	
+	/**
+	 * Takes the absolute value of the each value in the dataset.
+	 * 
+	 * @param map
+	 */
+	public void abs();
+	
+	/**
+	 * Takes the natural log of each value in the dataset.
+	 */
+	public void log();
+	
+	/**
+	 * Takes the natural log base 10 of each value in the dataset.
+	 */
+	public void log10();
+	
+	/**
+	 * Euler's number e raised to the power of each value in the dataset.
+	 */
+	public void exp();
+	
+	/**
+	 * Each value in this dataset is raised to the given power.
+	 * 
+	 * @param pow - the power with which to raise each value in the dataset
+	 */
+	public void pow(double pow);
+	
+	/**
+	 * Each value in this dataset is scaled by the given scalar.
+	 * 
+	 * @param scalar - the double value with which to scale each value in the dataset
+	 */
+	public void scale(double scalar);
+	
+	/**
+	 * The given value is added to each value in this dataset.
+	 * 
+	 * @param value - the double value to add to each value in the dataset
+	 */
+	public void add(double value);
+	
+	
 }

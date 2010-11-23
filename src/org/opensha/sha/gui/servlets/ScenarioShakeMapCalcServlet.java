@@ -191,7 +191,7 @@ extends HttpServlet implements ParameterChangeWarningListener {
 			String selectedIMT, boolean isProbAtIML) {
 		//if the IMT is log supported then take the exponential of the Value if IML @ Prob
 		if (IMT_Info.isIMT_LogNormalDist(selectedIMT) && !isProbAtIML) {
-			GeoDataSetMath.exp(xyzData);
+			xyzData.exp();
 		}
 	}
 
@@ -254,7 +254,7 @@ extends HttpServlet implements ParameterChangeWarningListener {
 					SA_Param.NAME, isProbAtIML);
 			//if PGV is not supported by the attenuation then use the SA-1sec pd
 			//and multiply the value by scaler 37.24*2.54
-			GeoDataSetMath.scale(xyzDataSetForNotPGV, 37.24 * 2.54);
+			xyzDataSetForNotPGV.scale(37.24 * 2.54);
 		}
 		if (attenRelsSupportingPGV_size > 0) { //if Attenuations support PGV
 			xyzDataSetForPGV = calc.getScenarioShakeMapData(attenRelsSupportingPGV,
