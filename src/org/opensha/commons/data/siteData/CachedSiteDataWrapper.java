@@ -41,6 +41,11 @@ import org.opensha.commons.param.event.ParameterChangeListener;
  */
 public class CachedSiteDataWrapper<Element> implements SiteDataAPI<Element>, ParameterChangeListener {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	/** If true print out debug statements. */
 	protected final static boolean D = false;
 	
@@ -60,7 +65,7 @@ public class CachedSiteDataWrapper<Element> implements SiteDataAPI<Element>, Par
 		cacheSizeMinusOne = cacheSize - 1;
 		this.provider = provider;
 		ParameterList params = this.provider.getAdjustableParameterList();
-		for (ParameterAPI param : params) {
+		for (ParameterAPI<?> param : params) {
 			param.addParameterChangeListener(this);
 		}
 	}
