@@ -57,7 +57,7 @@ public class PointSourceERF extends EqkRupForecast{
   private PointEqkSource source;
 
   // mag parameter stuff
-  public final static String MAG_PARAM_NAME = "Magnitude Probability";
+  public final static String MAG_PARAM_NAME = "Magnitude";
   private final static String MAG_PARAM_INFO = "The  magnitude of the rupture";
   private final static String MAG_PARAM_UNITS = null;
   private Double MAG_PARAM_MIN = new Double(0);
