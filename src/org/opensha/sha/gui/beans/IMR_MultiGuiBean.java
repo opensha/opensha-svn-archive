@@ -36,7 +36,6 @@ import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
 import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
-import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
 
 /**
@@ -185,6 +184,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 			ChooserComboBox chooser;
 			if (refreshOnly) {
 				chooser = chooserBoxes.get(0);
+				chooser.resetRenderer();
 			} else {
 				chooser = new ChooserComboBox(0);
 				chooser.setBackground(Color.WHITE);
@@ -295,6 +295,14 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	protected static final Font supportedTRTFont = new Font("supportedFont", Font.BOLD, 12);
 	protected static final Font unsupportedTRTFont = new Font("supportedFont", Font.ITALIC, 12);
 	
+	private static ArrayList<TectonicRegionType> wrapInList(TectonicRegionType trt) {
+		if (trt == null)
+			return null;
+		ArrayList<TectonicRegionType> trts = new ArrayList<TectonicRegionType>();
+		trts.add(trt);
+		return trts;
+	}
+	
 	/**
 	 * This class is the cell renderer for the drop down chooser boxes. It adds
 	 * the ability to enable/disable a selected item.
@@ -310,10 +318,18 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 		protected ArrayList<Boolean> trtSupported = null;
 		
 		public EnableableCellRenderer(TectonicRegionType trt) {
-			if (trt != null) {
+			this(wrapInList(trt));
+		}
+		
+		public EnableableCellRenderer(ArrayList<TectonicRegionType> trts) {
+			if (trts != null) {
 				trtSupported = new ArrayList<Boolean>();
 				for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-					trtSupported.add(imr.isTectonicRegionSupported(trt));
+					boolean supportsAll = true;
+					for (TectonicRegionType trt : trts) {
+						supportsAll = supportsAll && imr.isTectonicRegionSupported(trt);
+					}
+					trtSupported.add(supportsAll);
 				}
 			}
 		}
@@ -383,15 +399,25 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 				}
 			}
 			this.setSelectedIndex(defaultIMRIndex);
-
-			TectonicRegionType trt = null;
-			if (isMultipleIMRs())
-				trt = regions.get(index);
-			this.setRenderer(new EnableableCellRenderer(trt));
-			
 			this.comboBoxIndex = index;
+			
+			resetRenderer();
+			
 			this.addActionListener(new ComboListener(this));
 			this.setMaximumSize(new Dimension(15, 150));
+		}
+		
+		public void resetRenderer() {
+			EnableableCellRenderer renderer;
+			if (isMultipleIMRs()) {
+				TectonicRegionType trt = regions.get(comboBoxIndex);
+//				System.out.println("Resetting renderer for single: " + trt);
+				renderer = new EnableableCellRenderer(trt);
+			} else {
+//				System.out.println("Resetting renderer for multiple: " + regions);
+				renderer = new EnableableCellRenderer(regions);
+			}
+			this.setRenderer(renderer);
 		}
 
 		public int getIndex() {
@@ -456,7 +482,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 //			System.out.println("Updating param edit for chooser " + chooserForEditor + " to : " + imr.getName());
 			paramEdit.setIMR(imr);
 			// we only want to show the TRT param if it's in single mode
-			paramEdit.setTRTParamVisible(!this.isMultipleIMRs());
+			paramEdit.setTRTParamVisible(false);
 			paramEdit.setTitle(IMR_ParamEditor.DEFAULT_NAME + ": " + imr.getShortName());
 			paramEdit.validate();
 		}

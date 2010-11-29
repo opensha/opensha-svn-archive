@@ -18,7 +18,7 @@ import org.opensha.commons.param.event.ParameterChangeListener;
  */
 public class ParamLinker<E> implements ParameterChangeListener {
 	
-	private static final boolean D = true;
+	private static final boolean D = false;
 	
 	private ParameterAPI<E> parentParam;
 	private ParameterAPI<E> childParam;

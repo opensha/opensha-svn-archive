@@ -291,7 +291,7 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 		assertTrue("Chooser renderer should be an EnableableCellRenderer",
 				chooser.getRenderer() instanceof EnableableCellRenderer);
 		renderer = (EnableableCellRenderer) chooser.getRenderer();
-		assertNull("TRTs supporteds should be null in single mode", renderer.trtSupported);
+//		assertNull("TRTs supporteds should be null in single mode", renderer.trtSupported); // not applicable anymore
 		
 		gui.setMultipleIMRs(true);
 		

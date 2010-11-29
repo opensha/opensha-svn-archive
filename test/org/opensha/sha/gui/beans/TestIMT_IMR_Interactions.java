@@ -133,12 +133,19 @@ public class TestIMT_IMR_Interactions {
 	}
 	
 	@Test
-	public void testSetSAWithNonSAIMRSelected() {
+	public void testSetMMIWithNonMMI_IMRSelected() {
 		// this tests settting IMT to SA with an IMR selected that doesn't support SA
 		
-		imtGui.setSelectedIMT(SA_InterpolatedParam.NAME);
-		assertTrue("IMT changed to interpolated, but selected IMR doesn't support it and was not changed.",
-				imrGui.getSelectedIMR().isIntensityMeasureSupported(SA_InterpolatedParam.NAME));
+		// first make sure the current IMR doesn't allow MMI
+		if (imrGui.getSelectedIMR().isIntensityMeasureSupported(MMI_Param.NAME)) {
+			imrGui.setSelectedSingleIMR(CB_2008_AttenRel.NAME);
+		}
+		
+		assertFalse("CB 2008 shouldn't support MMI", imrGui.getSelectedIMR().isIntensityMeasureSupported(MMI_Param.NAME));
+		
+		imtGui.setSelectedIMT(MMI_Param.NAME);
+		assertTrue("IMT changed to MII, but selected IMR doesn't support it and was not changed.",
+				imrGui.getSelectedIMR().isIntensityMeasureSupported(MMI_Param.NAME));
 		
 		imtGui.setSelectedIMT(SA_Param.NAME);
 	}

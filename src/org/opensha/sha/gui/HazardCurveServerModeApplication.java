@@ -378,6 +378,7 @@ ScalarIMRChangeListener {
 
 			try {
 				initERF_GuiBean();
+				imrGuiBean.setTectonicRegions(this.erfGuiBean.getSelectedERF().getIncludedTectonicRegionTypes());
 			} catch (RuntimeException e) {
 				JOptionPane.showMessageDialog(this,
 						"Connection to ERF's failed",
