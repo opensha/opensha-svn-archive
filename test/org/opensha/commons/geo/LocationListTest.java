@@ -19,7 +19,7 @@ public class LocationListTest {
 	private double result_p3p4_p8 = 78.62078721818267;
 	private double result_p4_p8 = 111.19505230826488;
 	private double result_p6p7_p9 = 78.55334545519592;
-	private double result_p6_p9 = 111.04265949308352;
+	private double result_p6_p9 = 111.04266335361307;
 	
 	@BeforeClass
 	public static void setUp() {
@@ -87,8 +87,14 @@ public class LocationListTest {
 
 	@Test
 	public final void testMinDistToLocation() {
-		assertTrue(ll1.minDistToLocation(p8) == result_p4_p8);
-		assertTrue(ll1.minDistToLocation(p9) == result_p6_p9);
+		assertEquals(result_p4_p8, ll1.minDistToLocation(p8), 0);
+		assertEquals(result_p6_p9, ll1.minDistToLocation(p9), 0);
+		assertEquals(
+			LocationUtils.horzDistanceFast(p6, p9),
+			ll1.minDistToLocation(p9), 0);
+		assertEquals(
+			LocationUtils.horzDistanceFast(p4, p8),
+			ll1.minDistToLocation(p8), 0);
 	}
 
 	@Test
@@ -98,10 +104,10 @@ public class LocationListTest {
 		// test against underlying distToSegment
 		assertEquals(
 			LocationUtils.distanceToSegmentFast(p6, p7, p9), 
-			ll1.minDistToLine(p9), 0.00000001);
+			ll1.minDistToLine(p9), 0);
 		assertEquals(
 			LocationUtils.distanceToSegmentFast(p3, p4, p8), 
-			ll1.minDistToLine(p8), 0.00000001);
+			ll1.minDistToLine(p8), 0);
 	}
 	
 	@Test
