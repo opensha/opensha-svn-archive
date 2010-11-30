@@ -696,7 +696,7 @@ NamedObjectAPI, ParameterChangeListener {
 	protected void initSiteParams() {
 
 		vs30Param = new Vs30_Param(VS30_WARN_MIN, VS30_WARN_MAX);
-		depthTo2pt5kmPerSecParam = new DepthTo2pt5kmPerSecParam(DEPTH_2pt5_WARN_MIN, DEPTH_2pt5_WARN_MAX);
+		depthTo2pt5kmPerSecParam = new DepthTo2pt5kmPerSecParam(DEPTH_2pt5_WARN_MIN, DEPTH_2pt5_WARN_MAX,true);
 
 		siteParams.clear();
 		siteParams.addParameter(vs30Param);
@@ -1020,7 +1020,7 @@ NamedObjectAPI, ParameterChangeListener {
 		}
 		else if (pName.equals(DepthTo2pt5kmPerSecParam.NAME)) {
 			if(val == null)
-				depthTo2pt5kmPerSec = Double.NaN;  // can't set the defauly here because vs30 could still change
+				depthTo2pt5kmPerSec = Double.NaN;  // can't set the default here because vs30 could still change
 			else
 				depthTo2pt5kmPerSec = ( (Double) val).doubleValue();
 		}
@@ -1102,7 +1102,7 @@ NamedObjectAPI, ParameterChangeListener {
 	 * @returns the URL to the AttenuationRelationship document on the Web.
 	 */
 	public URL getInfoURL() throws MalformedURLException{
-		return new URL("http://www.opensha.org/documentation/modelsImplemented/attenRel/CB_2008.html");
+		return new URL("http://www.opensha.org/glossary-attenuationRelation-CAMPBELL_BOZORG_2008");
 	}
 
 
