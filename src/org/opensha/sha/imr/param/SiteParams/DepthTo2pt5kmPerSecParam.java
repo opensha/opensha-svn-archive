@@ -37,34 +37,24 @@ public class DepthTo2pt5kmPerSecParam extends WarningDoubleParameter {
 	public final static Double MIN = new Double(0.0);
 	public final static Double MAX = new Double(30000.0);
 
+
 	/**
-	 * This constructor sets the default as given, and leaves the param editable 
-	 * so the warning constraint can be added later.
+	 * This constructor sets the default as given, and leaves everything editable 
+	 * (e.g., so the warning constraint can be added later).
 	 * @param defaultDepth
 	 */
 	public DepthTo2pt5kmPerSecParam(double defaultDepth) {
-		this(defaultDepth, true);
-	}
-	
-	/**
-	 * This constructor sets the default as given, and leaves the param editable 
-	 * so the warning constraint can be added later.
-	 * @param defaultDepth
-	 * @param nullAllowed - parameter can be set to null if true
-	 */
-	public DepthTo2pt5kmPerSecParam(double defaultDepth, boolean nullAllowed) {
 		super(NAME, new DoubleConstraint(MIN, MAX), UNITS);
-		getConstraint().setNullAllowed(nullAllowed);
 		getConstraint().setNonEditable();
 		setInfo(INFO);
 		setDefaultValue(defaultDepth);
 	}
 
 	/**
-	 * This constructor sets the default as 1.0, and leaves the param editable 
-	 * so the warning constraint can be added later.
+	 * This constructor sets the default as 1.0, and leaves everything editable 
+	 * (e.g., so the warning constraint can be added later).
 	 */
-	public DepthTo2pt5kmPerSecParam() {this(1.0, true);}
+	public DepthTo2pt5kmPerSecParam() {this(1.0);}
 
 	/**
 	 * This uses the given default and warning-constraint limits, and sets 
@@ -72,10 +62,14 @@ public class DepthTo2pt5kmPerSecParam extends WarningDoubleParameter {
 	 * @param defaultDepth
 	 * @param warnMin
 	 * @param warnMax
-	 * @param nullAllowed - parameter can be set to null if true
+	 * @param nullAllowed - tells whether null values are to be allowed
 	 */
 	public DepthTo2pt5kmPerSecParam(double defaultDepth, double warnMin, double warnMax, boolean nullAllowed) {
-		this(defaultDepth, nullAllowed); 
+		super(NAME, new DoubleConstraint(MIN, MAX), UNITS);
+		getConstraint().setNullAllowed(nullAllowed);
+		getConstraint().setNonEditable();
+		setInfo(INFO);
+		setDefaultValue(defaultDepth);
 		DoubleConstraint warn = new DoubleConstraint(warnMin, warnMax);
 		setWarningConstraint(warn);
 		warn.setNonEditable();
@@ -87,6 +81,9 @@ public class DepthTo2pt5kmPerSecParam extends WarningDoubleParameter {
 	 * everything as non-editable.
 	 * @param warnMin
 	 * @param warnMax
+	 * @param nullAllowed - tells whether null values are to be allowed
 	 */
-	public DepthTo2pt5kmPerSecParam(double warnMin, double warnMax) {this(1.0,warnMin,warnMax, true);}
+	public DepthTo2pt5kmPerSecParam(double warnMin, double warnMax, boolean nullAllowed) {
+		this(1.0,warnMin,warnMax,nullAllowed);
+		}
 }
