@@ -38,7 +38,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/mysql-connector-java-3.1.6-bin.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/DBConnection.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/USGSUtils.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/BrowserLauncher2-1_3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-cli-1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-lang-2.4.jar">
 		<attributes>

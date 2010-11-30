@@ -23,12 +23,14 @@ package org.opensha.nshmp.sha.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.net.URI;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -49,8 +51,6 @@ import javax.swing.border.TitledBorder;
 
 import org.opensha.nshmp.util.GlobalConstants;
 import org.opensha.nshmp.util.Versioner;
-
-import edu.stanford.ejalbert.BrowserLauncher;
 
 /**
  * <p>Title: ProbabilisticHazardGui</p>
@@ -268,8 +268,7 @@ public class ProbabilisticHazardGui
 	private void okButton_notCurrent(ActionEvent actionEvent) {
 		this.dispose();
 		try {
-		    BrowserLauncher bl = new BrowserLauncher();
-			bl.openURLinBrowser(DOWNLOAD_PAGE);
+		    Desktop.getDesktop().browse(new URI(DOWNLOAD_PAGE));
 		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(null, "Could not open the download page.  Please visit:\n\n\t" +
 				DOWNLOAD_PAGE + "\n\nto update your version" +

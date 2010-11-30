@@ -359,7 +359,6 @@
 		<unjar src="${lib.dir}/dom4j-1.6.1.jar" dest="${build}" />
 		<unjar src="${lib.dir}/poi-3.6-20091214.jar" dest="${build}" />
 		<unjar src="${lib.dir}/f2jutil.jar" dest="${build}" />
-		<unjar src="${lib.dir}/BrowserLauncher2-1_3.jar" dest="${build}" />
 		<unjar src="${lib.dir}/commons-math-2.1.jar" dest="${build}" />
 		<unjar src="${lib.dir}/commons-lang-2.4.jar" dest="${build}" />
 		<unjar src="${lib.dir}/commons-codec-1.4.jar" dest="${build}" />

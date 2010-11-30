@@ -21,6 +21,7 @@ package org.opensha.nshmp.sha.gui.infoTools;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -31,6 +32,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -39,8 +41,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
-
-import edu.stanford.ejalbert.BrowserLauncher;
 
 /**
  * <p>Title: NSHMP_MapViewFrame</p>
@@ -135,8 +135,7 @@ public class NSHMP_MapViewFrame
     int selectedIndex = mapList.getSelectedIndex();
     String fileToRead = mapFiles[selectedIndex];
     try {
-        BrowserLauncher bl = new BrowserLauncher();
-        bl.openURLinBrowser(fileToRead);
+    	Desktop.getDesktop().open(new File(fileToRead));
     }
     catch (Exception ex) {
       ex.printStackTrace();

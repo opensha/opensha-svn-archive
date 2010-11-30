@@ -22,12 +22,14 @@ package org.opensha.sha.gui.infoTools;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URI;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -172,7 +174,7 @@ extends JDialog {
 
 	public void yesButton_actionPerformed(ActionEvent actionEvent) {
 		try {
-			edu.stanford.ejalbert.BrowserLauncher.openURL(urlToApp);
+			Desktop.getDesktop().browse(new URI(urlToApp));
 		}
 		catch (Exception ex) {
 			ex.printStackTrace();
