@@ -830,7 +830,7 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
 	 * @return
 	 */
 	public int resetPasswordByEmail(String sql) throws java.sql.SQLException {
-		return insertUpdateOrDeleteData(sql);
+		throw new UnsupportedOperationException("Cannot reset password with direct DB connection");
 	}
 
 	/**

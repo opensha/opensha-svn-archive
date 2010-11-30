@@ -13,6 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -24,6 +25,7 @@ import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.util.ClassUtils;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
@@ -88,8 +90,10 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO; 
 	private JButton editButton = new JButton("Edit");
 	private JButton removeButton = new JButton("Remove");
-	private JButton saveButton = new JButton("Save All to File");
+	private JButton saveButton = new JButton("Save All");
 	private JButton saveSubSections = new JButton("Save Subsections");
+	private JButton updateFaultPrefDataButton = new JButton("Update Fault Pref. Data");
+	private JButton updateAllPrefDataButton = new JButton("Update All Pref. Data");
 	private final static String SAVE_BUTTON_TOOL_TIP = "Save All Fault Sections to a txt file";
 	private final static String SAVE_SUBSECTIONS_BUTTON_TOOL_TIP = "Save All Sub Sections to a txt file";
 	private JButton addButton = new JButton("Add");
@@ -118,6 +122,8 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 			editButton.setEnabled(false);
 			removeButton.setEnabled(false);
 			addButton.setEnabled(false);
+			updateFaultPrefDataButton.setEnabled(false);
+			updateAllPrefDataButton.setEnabled(false);
 		}
 	}
 
@@ -196,34 +202,64 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 	}
 
 	private JPanel makeButtonPanel() {
-		JPanel panel = new JPanel(new GridBagLayout());
-		// edit fault section button
-		panel.add(this.editButton, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-				, GridBagConstraints.CENTER, GridBagConstraints.NONE,
-				new Insets(0, 0, 0, 0), 0, 0));
+//		JPanel panel = new JPanel(new GridBagLayout());
+//		// edit fault section button
+//		panel.add(this.editButton, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+//				, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+//				new Insets(0, 0, 0, 0), 0, 0));
+//		editButton.addActionListener(this);
+//		// remove fault section button
+//		panel.add(this.removeButton, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
+//				, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+//				new Insets(0, 0, 0, 0), 0, 0));
+//		removeButton.addActionListener(this);
+//		// add fault section button
+//		panel.add(this.addButton, new GridBagConstraints(2, 0, 1, 1, 1.0, 1.0
+//				, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+//				new Insets(0, 0, 0, 0), 0, 0));
+//		addButton.addActionListener(this);
+//		// save all fault sections to a file button
+//		panel.add(this.saveButton, new GridBagConstraints(3, 0, 1, 1, 1.0, 1.0
+//				, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+//				new Insets(0, 0, 0, 0), 0, 0));
+//		saveButton.addActionListener(this);
+//		saveButton.setToolTipText(SAVE_BUTTON_TOOL_TIP);
+//		// save subsections to a file
+//		panel.add(this.saveSubSections, new GridBagConstraints(4, 0, 1, 1, 1.0, 1.0
+//				, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+//				new Insets(0, 0, 0, 0), 0, 0));
+//		saveSubSections.addActionListener(this);
+//		saveSubSections.setToolTipText(SAVE_SUBSECTIONS_BUTTON_TOOL_TIP);
+//		return panel;
+		
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		
+		JPanel top = new JPanel();
+		top.setLayout(new BoxLayout(top, BoxLayout.X_AXIS));
+		JPanel bottom = new JPanel();
+		bottom.setLayout(new BoxLayout(bottom, BoxLayout.X_AXIS));
+		
+		top.add(editButton);
 		editButton.addActionListener(this);
-		// remove fault section button
-		panel.add(this.removeButton, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
-				, GridBagConstraints.CENTER, GridBagConstraints.NONE,
-				new Insets(0, 0, 0, 0), 0, 0));
+		top.add(removeButton);
 		removeButton.addActionListener(this);
-		// add fault section button
-		panel.add(this.addButton, new GridBagConstraints(2, 0, 1, 1, 1.0, 1.0
-				, GridBagConstraints.CENTER, GridBagConstraints.NONE,
-				new Insets(0, 0, 0, 0), 0, 0));
+		top.add(addButton);
 		addButton.addActionListener(this);
-		// save all fault sections to a file button
-		panel.add(this.saveButton, new GridBagConstraints(3, 0, 1, 1, 1.0, 1.0
-				, GridBagConstraints.CENTER, GridBagConstraints.NONE,
-				new Insets(0, 0, 0, 0), 0, 0));
+		top.add(updateFaultPrefDataButton);
+		updateFaultPrefDataButton.addActionListener(this);
+		bottom.add(saveButton);
 		saveButton.addActionListener(this);
 		saveButton.setToolTipText(SAVE_BUTTON_TOOL_TIP);
-		// save subsections to a file
-		panel.add(this.saveSubSections, new GridBagConstraints(4, 0, 1, 1, 1.0, 1.0
-				, GridBagConstraints.CENTER, GridBagConstraints.NONE,
-				new Insets(0, 0, 0, 0), 0, 0));
+		bottom.add(saveSubSections);
 		saveSubSections.addActionListener(this);
 		saveSubSections.setToolTipText(SAVE_SUBSECTIONS_BUTTON_TOOL_TIP);
+		bottom.add(updateAllPrefDataButton);
+		updateAllPrefDataButton.addActionListener(this);
+		
+		panel.add(top);
+		panel.add(bottom);
+		
 		return panel;
 	}
 
@@ -251,6 +287,38 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 				JOptionPane.showMessageDialog(this, "Invalid subsection length");
 			}
 
+		} else if (source == this.updateFaultPrefDataButton) {
+			updateFaultPrefData();
+		} else if (source == this.updateAllPrefDataButton) {
+			updateAllPrefData();
+		}
+	}
+	
+	private void updateFaultPrefData() {
+		try {
+			prefFaultSectionDAO.rePopulatePrefDataTable(selectedFaultSection.getSectionId());
+			JOptionPane.showMessageDialog(this, "Pref. Data updated successfully!", "Update Successfull",
+					JOptionPane.INFORMATION_MESSAGE);
+		} catch (Exception e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, "An error was encountered while\n" +
+					"updating the Pref. fault section data.\n\n" +
+					"Exception Type: "+ClassUtils.getClassNameWithoutPackage(e.getClass()),
+					"Error Updating Pref. Data", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+	
+	private void updateAllPrefData() {
+		try {
+			prefFaultSectionDAO.rePopulatePrefDataTable();
+			JOptionPane.showMessageDialog(this, "Pref. Data updated successfully!", "Update Successfull",
+					JOptionPane.INFORMATION_MESSAGE);
+		} catch (Exception e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, "An error was encountered while\n" +
+					"updating the Pref. fault section data.\n\n" +
+					"Exception Type: "+ClassUtils.getClassNameWithoutPackage(e.getClass()),
+					"Error Updating Pref. Data", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 

@@ -41,6 +41,8 @@ import org.opensha.commons.util.MailUtil.MailProps;
 import org.opensha.refFaultParamDb.dao.db.ContributorDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.ServerDB_Access;
 import org.opensha.refFaultParamDb.dao.db.SpatialQueryResult;
 import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
 
@@ -62,6 +64,7 @@ public class DB_AccessServlet extends HttpServlet{
 	private final static String PROP_NAME = "DbConnectionPropertiesFileName";
 	private DB_AccessAPI myBroker;
 	private ContributorDB_DAO contributorDAO;
+	private PrefFaultSectionDataDB_DAO prefDataDAO;
 	public void init() throws ServletException {
 		try {
 			Properties p = new Properties();
@@ -181,6 +184,11 @@ public class DB_AccessServlet extends HttpServlet{
 					MailUtil.sendMail(props,emailMessage);
 				}
 				outputToApp.writeObject(new Integer(key));
+			} else if(functionToPerform.equalsIgnoreCase(ServerDB_Access.UPDATE_ALL_PREF_DATA)) {
+				if (prefDataDAO == null)
+					prefDataDAO = new PrefFaultSectionDataDB_DAO(myBroker);
+				prefDataDAO.rePopulatePrefDataTable();
+				outputToApp.writeObject(new Boolean(true));
 			}
 			inputFromApp.close();
 			outputToApp.close();

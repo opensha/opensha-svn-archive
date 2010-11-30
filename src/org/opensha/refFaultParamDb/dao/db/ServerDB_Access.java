@@ -57,6 +57,8 @@ public class ServerDB_Access     implements java.io.Serializable, DB_AccessAPI {
 	public final static String SERVLET_URL_DB2  = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "Fault_DB_AccessServlet";
 	public final static String SERVLET_URL_DB3  = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "Fault_DB_AccessServlet_Ver3";
 	
+	public final static String UPDATE_ALL_PREF_DATA = "Update Pref Data";
+	
 	private String servletURL;
 	
 	public ServerDB_Access(String servletURL) {
@@ -218,6 +220,19 @@ public class ServerDB_Access     implements java.io.Serializable, DB_AccessAPI {
 			return key;
 		}
 
+	}
+	
+	public boolean updateAllPrefData() {
+		try {
+			Object retVal = openServletConnection(UPDATE_ALL_PREF_DATA, null, null, null);
+			if (retVal instanceof Boolean)
+				return (Boolean)retVal;
+			else
+				return false;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 

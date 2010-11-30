@@ -114,7 +114,7 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 	private final static double DIP_MIN = Double.NEGATIVE_INFINITY;
 	private final static double DIP_MAX = Double.POSITIVE_INFINITY;
 	// dip direction
-	private final static String  DIP_DIRECTION= "Dip LocationVector";
+	private final static String  DIP_DIRECTION= "Dip Direction";
 	private DoubleParameter dipDirectionParam;
 	private final static double MIN_DIP_DIRECTION = 0;
 	private final static double MAX_DIP_DIRECTION = 360;

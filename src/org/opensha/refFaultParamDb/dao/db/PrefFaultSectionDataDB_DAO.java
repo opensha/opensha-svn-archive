@@ -68,6 +68,11 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 	 *
 	 */
 	public void rePopulatePrefDataTable() {
+		if (dbAccess instanceof ServerDB_Access) {
+			// hack to calculate it all server side
+			((ServerDB_Access)dbAccess).updateAllPrefData();
+			return;
+		}
 		FaultSectionVer2_DB_DAO faultSectionVer2DAO = new FaultSectionVer2_DB_DAO(dbAccess);
 		ArrayList<FaultSectionData> faultSectionsDataList = faultSectionVer2DAO.getAllFaultSections();
 		removeAll(); // remove all the pref data
