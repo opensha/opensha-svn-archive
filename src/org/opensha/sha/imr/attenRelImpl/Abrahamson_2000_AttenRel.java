@@ -103,7 +103,7 @@ NamedObjectAPI {
 	private static final long serialVersionUID = 1234567890987654351L;
 
 	// URL Info String
-	private final static String URL_INFO_STRING = "http://www.opensha.org/documentation/modelsImplemented/attenRel/Abrahamson_2000.html";
+	private final static String URL_INFO_STRING = "http://www.opensha.org/glossary-attenuationRelation-ABRAHAM_2000";
 
 
 

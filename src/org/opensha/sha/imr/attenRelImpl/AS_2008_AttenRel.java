@@ -138,7 +138,7 @@ NamedObjectAPI, ParameterChangeListener {
 	private static final long serialVersionUID = 1234567890987654358L;
 
 	// URL Info String
-	private final static String URL_INFO_STRING = "http://www.opensha.org/documentation/modelsImplemented/attenRel/AS_2008.html";
+	private final static String URL_INFO_STRING = "http://www.opensha.org/glossary-attenuationRelation-ABRAHAM_SILVA_2008";
 
 
 	// style of faulting param options

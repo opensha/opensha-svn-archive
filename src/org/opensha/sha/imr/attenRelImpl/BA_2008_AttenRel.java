@@ -103,7 +103,7 @@ NamedObjectAPI, ParameterChangeListener {
 	public final static String NAME = "Boore & Atkinson (2008)";
 
 	// URL Info String
-	private final static String URL_INFO_STRING = "http://www.opensha.org/documentation/modelsImplemented/attenRel/BA_2008.html";
+	private final static String URL_INFO_STRING = "http://www.opensha.org/glossary-attenuationRelation-BOORE_ATKIN_2008";
 
 
 	// coefficients:

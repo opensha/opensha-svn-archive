@@ -1207,7 +1207,7 @@ NamedObjectAPI {
 	 * @returns the URL to the AttenuationRelationship document on the Web.
 	 */
 	public URL getInfoURL() throws MalformedURLException{
-		return new URL("http://www.opensha.org/documentation/modelsImplemented/attenRel/CB_2003.html");
+		return new URL("http://www.opensha.org/glossary-attenuationRelation-CAMPBELL_BOZORG_2003");
 	}
 
 }
