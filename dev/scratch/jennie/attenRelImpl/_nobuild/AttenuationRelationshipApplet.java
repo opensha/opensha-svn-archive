@@ -1564,6 +1564,7 @@ public class AttenuationRelationshipApplet extends JFrame
 	    	}
 			hb.setCurrentURL(url);
 		} catch (MalformedURLException e1) {
+			e1.printStackTrace();
 			hb.setDisplayed(false);
 			JOptionPane.showMessageDialog(this, "No information exists for the selected AttenuationRelationship");
     		return;
