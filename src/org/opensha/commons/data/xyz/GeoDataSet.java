@@ -104,5 +104,13 @@ public interface GeoDataSet extends XYZ_DataSet {
 	 * @return list of all locations in the dataset
 	 */
 	public LocationList getLocationList();
+	
+	/**
+	 * Returns a shallow copy of this <code>GeoDataSet</code>. Internal points are not cloned.
+	 * 
+	 * @return shallow copy of this <code>GeoDataSet</code>
+	 */
+	@Override
+	public GeoDataSet copy();
 
 }

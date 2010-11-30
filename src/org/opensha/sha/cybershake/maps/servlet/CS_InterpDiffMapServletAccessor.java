@@ -7,9 +7,6 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import org.opensha.commons.data.xyz.GeoDataSet;
-import org.opensha.commons.data.xyz.GeoDataSetMath;
-import org.opensha.commons.data.xyz.XYZ_DataSet;
-import org.opensha.sha.cybershake.maps.CyberShake_GMT_MapGenerator;
 import org.opensha.sha.cybershake.maps.InterpDiffMap;
 
 public class CS_InterpDiffMapServletAccessor {
@@ -22,12 +19,12 @@ public class CS_InterpDiffMapServletAccessor {
 			GeoDataSet scatter = map.getScatter();
 			
 			if (gridded != null) {
-				gridded = (GeoDataSet) gridded.clone();
+				gridded = gridded.copy();
 				gridded.log();
 				map.setGriddedData(gridded);
 			}
 			if (scatter != null) {
-				scatter = (GeoDataSet) gridded.clone();
+				scatter = gridded.copy();
 				scatter.log();
 				map.setScatter(scatter);
 			}

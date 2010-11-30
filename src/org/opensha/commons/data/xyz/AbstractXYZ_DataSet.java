@@ -105,9 +105,6 @@ public abstract class AbstractXYZ_DataSet implements XYZ_DataSet {
 	}
 	
 	@Override
-	public abstract Object clone();
-	
-	@Override
 	public void abs() {
 		for (int i=0; i<size(); i++) {
 			set(i, Math.abs(get(i)));

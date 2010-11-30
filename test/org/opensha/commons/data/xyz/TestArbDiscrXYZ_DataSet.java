@@ -232,7 +232,7 @@ public class TestArbDiscrXYZ_DataSet {
 	@Test
 	public void testClone() {
 		XYZ_DataSet xyz = getTestData();
-		XYZ_DataSet cloned = (XYZ_DataSet)xyz.clone();
+		XYZ_DataSet cloned = xyz.copy();
 		
 		assertEquals("cloned size incorrect", xyz.size(), cloned.size());
 		

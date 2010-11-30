@@ -245,6 +245,11 @@ public class EvenlyDiscrXYZ_DataSet extends AbstractXYZ_DataSet {
 
 	@Override
 	public Object clone() {
+		return copy();
+	}
+		
+	@Override
+	public XYZ_DataSet copy() {
 		EvenlyDiscrXYZ_DataSet xyz = new EvenlyDiscrXYZ_DataSet(nx, ny, minX, minY, gridSpacing);
 		for (int x=0; x<nx; x++) {
 			for (int y=0; y<ny; y++) {
@@ -253,6 +258,8 @@ public class EvenlyDiscrXYZ_DataSet extends AbstractXYZ_DataSet {
 		}
 		return xyz;
 	}
+	
+	
 
 	@Override
 	public int indexOf(double x, double y) {

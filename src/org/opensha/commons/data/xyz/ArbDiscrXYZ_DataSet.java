@@ -117,6 +117,11 @@ public class ArbDiscrXYZ_DataSet extends AbstractXYZ_DataSet {
 
 	@Override
 	public Object clone() {
+		return copy();
+	}
+	
+	@Override
+	public ArbDiscrXYZ_DataSet copy() {
 		ArbDiscrXYZ_DataSet xyz = new ArbDiscrXYZ_DataSet();
 		for (int i=0; i<size(); i++) {
 			xyz.set(getPoint(i), get(i));

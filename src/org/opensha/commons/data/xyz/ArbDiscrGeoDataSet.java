@@ -103,6 +103,11 @@ public class ArbDiscrGeoDataSet extends AbstractGeoDataSet {
 
 	@Override
 	public Object clone() {
+		return copy();
+	}
+	
+	@Override
+	public ArbDiscrGeoDataSet copy() {
 		ArbDiscrGeoDataSet data = new ArbDiscrGeoDataSet(isLatitudeX());
 		
 		for (int i=0; i<size(); i++) {

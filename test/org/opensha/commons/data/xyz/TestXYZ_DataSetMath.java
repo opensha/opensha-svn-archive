@@ -26,7 +26,7 @@ public class TestXYZ_DataSetMath {
 			data2.set(data1.getPoint(i), data1.get(i)*2d);
 		}
 		
-		data3 = (XYZ_DataSet)getData2().clone();
+		data3 = getData2().copy();
 		for (int i=1000; i<=1100; i++) {
 			getData3().set(i, -i, i*2);
 		}
@@ -137,7 +137,7 @@ public class TestXYZ_DataSetMath {
 
 	@Test
 	public void testAbs() {
-		XYZ_DataSet dataNeg = (XYZ_DataSet)getData1().clone();
+		XYZ_DataSet dataNeg = getData1().copy();
 		for (int i=0; i<dataNeg.size(); i++) {
 			double val = dataNeg.get(i);
 			if (val > 0)
@@ -152,7 +152,7 @@ public class TestXYZ_DataSetMath {
 
 	@Test
 	public void testLog() {
-		XYZ_DataSet logged = (XYZ_DataSet)getData1().clone();
+		XYZ_DataSet logged = getData1().copy();
 		logged.log();
 		
 		for (int i=0; i<getData1().size(); i++) {
@@ -166,7 +166,7 @@ public class TestXYZ_DataSetMath {
 
 	@Test
 	public void testLog10() {
-		XYZ_DataSet logged = (XYZ_DataSet)getData1().clone();
+		XYZ_DataSet logged = getData1().copy();
 		logged.log10();
 		
 		for (int i=0; i<getData1().size(); i++) {
@@ -180,7 +180,7 @@ public class TestXYZ_DataSetMath {
 
 	@Test
 	public void testExp() {
-		XYZ_DataSet exp = (XYZ_DataSet)getData1().clone();
+		XYZ_DataSet exp = getData1().copy();
 		exp.exp();
 		
 		for (int i=0; i<getData1().size(); i++) {
@@ -197,7 +197,7 @@ public class TestXYZ_DataSetMath {
 		double[] pows = {0.5, 1, 2, 7.7 };
 		
 		for (double pow : pows) {
-			XYZ_DataSet powData = (XYZ_DataSet)getData1().clone();
+			XYZ_DataSet powData = getData1().copy();
 			powData.pow(pow);
 			
 			for (int i=0; i<getData1().size(); i++) {
@@ -215,7 +215,7 @@ public class TestXYZ_DataSetMath {
 		double[] scalars = {0, 1, -1, -.5, 99.1 };
 		
 		for (double scalar : scalars) {
-			XYZ_DataSet scaled = (XYZ_DataSet)getData1().clone();
+			XYZ_DataSet scaled = getData1().copy();
 			scaled.scale(scalar);
 			
 			for (int i=0; i<getData1().size(); i++) {
@@ -233,7 +233,7 @@ public class TestXYZ_DataSetMath {
 		double[] adds = {0, 1, -1, -.5, 99.1 };
 		
 		for (double add : adds) {
-			XYZ_DataSet sum = (XYZ_DataSet)getData1().clone();
+			XYZ_DataSet sum = getData1().copy();
 			sum.add(add);
 			
 			for (int i=0; i<getData1().size(); i++) {

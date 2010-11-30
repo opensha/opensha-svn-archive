@@ -27,7 +27,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -35,7 +34,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextPane;
 
 import org.opensha.commons.data.xyz.GeoDataSet;
-import org.opensha.commons.data.xyz.GeoDataSetMath;
 import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.imr.AttenuationRelationship;
@@ -167,7 +165,7 @@ public class GenerateHazusFilesControlPanel extends JFrame {
 		else{
 			//if PGV is not supported by the attenuation then use the SA-1sec pd
 			//and multiply the value by scaler 37.24*2.54
-			pgv_xyzdata = (GeoDataSet) sa10_xyzdata.clone();
+			pgv_xyzdata = sa10_xyzdata.copy();
 			pgv_xyzdata.scale(37.24*2.54);
 			metadata += "IMT: PGV"+"<br>\n";
 		}

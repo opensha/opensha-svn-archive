@@ -66,6 +66,11 @@ public class GriddedGeoDataSet extends AbstractGeoDataSet {
 
 	@Override
 	public Object clone() {
+		return copy();
+	}
+	
+	@Override
+	public GriddedGeoDataSet copy() {
 		GriddedGeoDataSet data = new GriddedGeoDataSet(region, isLatitudeX());
 		
 		for (int i=0; i<size(); i++) {
