@@ -675,7 +675,7 @@ public class CBJ_2008_AttenRel
   protected void initSiteParams() {
 
 	vs30Param = new Vs30_Param(VS30_WARN_MIN, VS30_WARN_MAX);
-	depthTo2pt5kmPerSecParam = new DepthTo2pt5kmPerSecParam(DEPTH_2pt5_WARN_MIN, DEPTH_2pt5_WARN_MAX);
+	depthTo2pt5kmPerSecParam = new DepthTo2pt5kmPerSecParam(DEPTH_2pt5_WARN_MIN, DEPTH_2pt5_WARN_MAX, true);
 
     siteParams.clear();
     siteParams.addParameter(vs30Param);
