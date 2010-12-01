@@ -31,7 +31,9 @@ import javax.help.HelpSet;
  *  application's help menu.</p>
  * @author Nitin Gupta
  * @version 1.0
+ * @deprecated not using javax.help anymore
  */
+@Deprecated
 public class LaunchHelpFromMenu {
 
 

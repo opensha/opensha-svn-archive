@@ -67,6 +67,7 @@ import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.exceptions.WarningException;
 import org.opensha.commons.gui.DisclaimerDialog;
+import org.opensha.commons.gui.HelpMenuBuilder;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -404,6 +405,22 @@ ScalarIMRChangeListener {
 		// TODO delete not sure why this is called; maybe other platforms need it
 		//((JPanel) getContentPane()).updateUI();
 	}
+	
+	protected String getGuideURL() {
+		return null;
+	}
+	
+	protected String getTutorialURL() {
+		return "http://www.opensha.org/tutorial-HazardCurveCalculator";
+	}
+	
+	private JMenu buildHelpMenu() {
+		HelpMenuBuilder builder = new HelpMenuBuilder(APP_NAME, APP_SHORT_NAME, getAppVersion(), this);
+		builder.setTutorialURL(getTutorialURL());
+		builder.setGuideURL(getGuideURL());
+		
+		return builder.buildMenu();
+	}
 
 	// Component initialization TODO should be private
 	protected void jbInit() throws Exception {
@@ -421,6 +438,7 @@ ScalarIMRChangeListener {
 		closeMenuItem.addActionListener(this);
 		fileMenu.add(closeMenuItem);
 		menuBar.add(fileMenu);
+		menuBar.add(buildHelpMenu());
 
 
 		// ======== init toolbar ======== TODO delayed clean

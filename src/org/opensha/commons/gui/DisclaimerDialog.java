@@ -8,7 +8,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import javax.swing.BoxLayout;
@@ -24,6 +23,11 @@ import org.opensha.commons.util.FileUtils;
 
 public class DisclaimerDialog extends JDialog implements ActionListener {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private static boolean D = false;
 	
 	private String appName;
@@ -62,13 +66,7 @@ public class DisclaimerDialog extends JDialog implements ActionListener {
 			return;
 		}
 		if (D) System.out.println("displaying disclaimer!");
-		try {
-			license = loadLicense();
-		} catch (Exception e) {
-			e.printStackTrace();
-			license = "Could not load License/Disclaimer. Please see http://www.opensha.org to obtain" +
-					" the latest License/Disclaimer.";
-		}
+		license = getLicense();
 		
 		init();
 		if (!accepted)
@@ -110,6 +108,18 @@ public class DisclaimerDialog extends JDialog implements ActionListener {
 		if (D) System.out.println("Setting visible");
 		this.setVisible(true);
 		if (D) System.out.println("Set visible done (accepted = " + accepted + ")");
+	}
+	
+	public static String getLicense() {
+		String license;
+		try {
+			license = loadLicense();
+		} catch (Exception e) {
+			e.printStackTrace();
+			license = "Could not load License/Disclaimer. Please see http://www.opensha.org to obtain" +
+					" the latest License/Disclaimer.";
+		}
+		return license;
 	}
 	
 	private static String loadLicense() throws IOException {

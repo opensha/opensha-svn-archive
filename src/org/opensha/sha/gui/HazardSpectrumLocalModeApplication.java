@@ -120,6 +120,15 @@ extends HazardCurveLocalModeApplication {
 		imrGuiBean.getSelectedIMR().setIntensityMeasure(SA_Param.NAME);
 	}
 
+	@Override
+	protected String getGuideURL() {
+		return null;
+	}
+	
+	@Override
+	protected String getTutorialURL() {
+		return null;
+	}
 
 	//Initialize the applet
 	public void init() {

@@ -21,6 +21,7 @@ package org.opensha.sha.imr.attenRelImpl.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -40,8 +41,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import javax.help.HelpBroker;
-import javax.help.CSH.DisplayHelpFromSource;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -65,6 +64,7 @@ import org.jfree.data.Range;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.gui.DisclaimerDialog;
+import org.opensha.commons.gui.HelpMenuBuilder;
 import org.opensha.commons.gui.OvalBorder;
 import org.opensha.commons.gui.SidesBorder;
 import org.opensha.commons.param.ParameterAPI;
@@ -75,15 +75,13 @@ import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
-import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.ApplicationVersion;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.gui.controls.AxisLimitsControlPanel;
 import org.opensha.sha.gui.controls.AxisLimitsControlPanelAPI;
 import org.opensha.sha.gui.controls.CurveDisplayAppAPI;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.controls.XY_ValuesControlPanel;
-import org.opensha.sha.gui.infoTools.ApplicationDisclaimerWindow;
-import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
 import org.opensha.sha.gui.infoTools.GraphPanel;
@@ -147,6 +145,8 @@ CurveDisplayAppAPI,GraphWindowAPI {
 	public static final String APP_NAME = "Attenuation Relationship Application";
 	public static final String APP_SHORT_NAME = "AttenuationRelationship";
 	
+	private static final String GUIDE_URL = "http://www.opensha.org/guide-AttenuationRelationship";
+	
 	private static ApplicationVersion version;
 
 	protected final static String C = "AttenuationRelationshipApplet";
@@ -187,9 +187,6 @@ CurveDisplayAppAPI,GraphWindowAPI {
 	//static string for the OPENSHA website
 	private final static String OPENSHA_WEBSITE="http://www.OpenSHA.org";
 
-	//Java Help Broker Object
-	protected HelpBroker hb;
-	protected DisplayHelpFromSource displaySource;
 	private JButton attenRelInfobutton = new JButton("  Get Info  ");
 
 
@@ -240,7 +237,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 
 	//Adding the Menu to the application
 	JMenuBar menuBar = new JMenuBar();
-	JMenu helpMenu = new JMenu();
+	JMenu helpMenu;
 	JMenu fileMenu = new JMenu();
 
 	JMenuItem fileExitMenu = new JMenuItem();
@@ -256,8 +253,6 @@ CurveDisplayAppAPI,GraphWindowAPI {
 
 	JButton saveButton = new JButton();
 	ImageIcon saveFileImage = new ImageIcon(FileUtils.loadImage("icons/saveFile.jpg"));
-
-	JMenuItem helpLaunchMenu = new JMenuItem();
 
 
 	//boolean to check if the plot preferences to be used to draw the curves
@@ -735,9 +730,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 		fileSaveMenu.setText("Save");
 		filePrintMenu.setText("Print");
 		//adding the Menu to the application
-		helpMenu.setText("Help");
-		helpLaunchMenu.setText("Help Application");
-		helpMenu.add(helpLaunchMenu);
+		helpMenu = createHelpMenu();
 
 
 		fileExitMenu.addActionListener(new java.awt.event.ActionListener() {
@@ -800,19 +793,17 @@ CurveDisplayAppAPI,GraphWindowAPI {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		updateChoosenAttenuationRelationship();
 		createHelpMenu();
-		attenRelInfobutton.addActionListener(displaySource);
 		// Big function here, sets all the AttenuationRelationship stuff and puts in sheetsPanel and
 		// inputsPanel
 
 		this.setVisible( true );
 	}
 
-	private void createHelpMenu(){
-		LaunchHelpFromMenu helpMenu = new LaunchHelpFromMenu();
-		hb = helpMenu.createHelpMenu(
-				"/resources/help/AttenuationRelationshipApplet/shaHelp.xml");
-		displaySource = new javax.help.CSH.DisplayHelpFromSource(hb);
-		helpLaunchMenu.addActionListener(displaySource);
+	private JMenu createHelpMenu(){
+		HelpMenuBuilder builder = new HelpMenuBuilder(APP_NAME, APP_SHORT_NAME, getAppVersion(), this);
+		
+		builder.setGuideURL(GUIDE_URL);
+		return builder.buildMenu();
 	}
 
 
@@ -1612,13 +1603,11 @@ CurveDisplayAppAPI,GraphWindowAPI {
 		try {
 			URL url = attenRel.getInfoURL();
 			if(url == null){
-				hb.setDisplayed(false);
 				JOptionPane.showMessageDialog(this, "No information exists for the selected Attenuation Relationship");
 				return;
 			}
-			hb.setCurrentURL(url);
-		} catch (MalformedURLException e1) {
-			hb.setDisplayed(false);
+			Desktop.getDesktop().browse(url.toURI());
+		} catch (Exception e1) {
 			JOptionPane.showMessageDialog(this, "No information exists for the selected Attenuation Relationship");
 			return;
 		}
