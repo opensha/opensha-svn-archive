@@ -37,6 +37,8 @@ import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.IntegerParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.EqkRupForecast;
@@ -48,6 +50,8 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupFore
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
 import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
 
@@ -100,7 +104,20 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	public final int NUM_STOCH_EVENT_SETS_PARAM_MIN = 1;
 	public final int NUM_STOCH_EVENT_SETS_PARAM_MAX = Integer.MAX_VALUE;
 	public final static Integer NUM_STOCH_EVENT_SETS_PARAM_DEFAULT = new Integer(1);
-
+	
+	//Info for parameter that tells whether to set TRT in IMR from source value
+	private BooleanParameter setTRTinIMR_FromSourceParam;
+	public final static String SET_TRT_IN_IMR_FROM_SOURCE_PARAM_NAME = "Set TRT From Source?";
+	public final String SET_TRT_IN_IMR_FROM_SOURCE_INFO = "Tells whether to set the Tectonic-Region-Type Param in the IMR from the value in each source (if not the value already specific in the IMR is used)";
+	public final boolean SET_TRT_IN_IMR_FROM_SOURCE_DEFAULT = false;
+	
+	// This tells the calculator what to do if the TRT is not supported by the IMR
+	StringParameter nonSupportedTRT_OptionsParam;
+	public final static String NON_SUPPORTED_TRT_OPTS_PARAM_NAME = "If source TRT not supported by IMR";
+	public final static String NON_SUPPORTED_TRT_OPTS_PARAM_INFO = "Tells how to set TRT in IMR if TRT from source is not supported";
+	public final static String NON_SUPPORTED_TRT_OPTS_USE_DEFAULT = "Use IMR's default TRT value";
+	public final static String NON_SUPPORTED_TRT_OPTS_USE_ORIG = "Use TRT value already set in IMR";
+	public final static String NON_SUPPORTED_TRT_OPTS_THROW = "Throw runtime exception";
 
 	private ParameterList adjustableParams;
 
@@ -141,12 +158,26 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		numStochEventSetRealizationsParam = new IntegerParameter(NUM_STOCH_EVENT_SETS_PARAM_NAME, NUM_STOCH_EVENT_SETS_PARAM_MIN, 
 				NUM_STOCH_EVENT_SETS_PARAM_MAX, NUM_STOCH_EVENT_SETS_PARAM_DEFAULT);
 		numStochEventSetRealizationsParam.setInfo(NUM_STOCH_EVENT_SETS_PARAM_INFO);
+		
+		setTRTinIMR_FromSourceParam = new BooleanParameter(SET_TRT_IN_IMR_FROM_SOURCE_PARAM_NAME,SET_TRT_IN_IMR_FROM_SOURCE_DEFAULT);
+		includeMagDistFilterParam.setInfo(SET_TRT_IN_IMR_FROM_SOURCE_INFO);
+		
+		StringConstraint constraint = new StringConstraint();
+		constraint.addString(NON_SUPPORTED_TRT_OPTS_USE_DEFAULT);
+		constraint.addString(NON_SUPPORTED_TRT_OPTS_USE_ORIG);
+		constraint.addString(NON_SUPPORTED_TRT_OPTS_THROW);
+		constraint.setNonEditable();
+		nonSupportedTRT_OptionsParam = new StringParameter(NON_SUPPORTED_TRT_OPTS_PARAM_NAME,constraint);
+		nonSupportedTRT_OptionsParam.setDefaultValue(NON_SUPPORTED_TRT_OPTS_USE_ORIG);
+		nonSupportedTRT_OptionsParam.setInfo(NON_SUPPORTED_TRT_OPTS_PARAM_INFO);
 
 		adjustableParams = new ParameterList();
 		adjustableParams.addParameter(maxDistanceParam);
 		adjustableParams.addParameter(numStochEventSetRealizationsParam);
 		adjustableParams.addParameter(includeMagDistFilterParam);
 		adjustableParams.addParameter(magDistCutoffParam);
+		adjustableParams.addParameter(setTRTinIMR_FromSourceParam);
+		adjustableParams.addParameter(nonSupportedTRT_OptionsParam);
 
 	}
 
@@ -277,6 +308,8 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		//	  System.out.println("Haz Curv Calc: includeMagDistFilterParam.getValue()="+includeMagDistFilterParam.getValue().toString());
 		if(includeMagDistFilterParam.getValue())
 			System.out.println("Haz Curv Calc: magDistCutoffParam.getValue()="+magDistCutoffParam.getValue().toString());
+		
+		boolean setTRTinIMR_FromSource = setTRTinIMR_FromSourceParam.getValue();
 
 		this.currRuptures = -1;
 
@@ -343,10 +376,28 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 
 			// get the ith source
 			ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
-
-			// set the IMR according to the tectonic region of the source (if there is more than one)
 			TectonicRegionType trt = source.getTectonicRegionType();
-			ScalarIntensityMeasureRelationshipAPI imr = TRTUtils.getIMRForTRT(imrMap, trt);
+			
+			// get the IMR
+			ScalarIntensityMeasureRelationshipAPI imr;
+			if(imrMap.size() == 1)  // get the first if there is only one
+				imr = imrMap.values().iterator().next();
+			else
+				imr = imrMap.get(trt);
+
+			// Set Tectonic Region Type in IMR
+			if(setTRTinIMR_FromSource) { // (otherwise leave as originally set)
+				if(imr.isTectonicRegionSupported(trt.toString()))  {  // check whether it's supported
+					imr.getParameter(TectonicRegionTypeParam.NAME).setValue(trt.toString());					  
+				} else { // what to do if imr does not support that type
+					if(nonSupportedTRT_OptionsParam.getValue().equals(NON_SUPPORTED_TRT_OPTS_USE_DEFAULT))
+						imr.getParameter(TectonicRegionTypeParam.NAME).setValueAsDefault();
+					else if (nonSupportedTRT_OptionsParam.getValue().equals(NON_SUPPORTED_TRT_OPTS_THROW))
+						throw new RuntimeException("Tectonic Region Type from source not supported by IMR");
+				}
+				// third case (NON_SUPPORTED_TRT_OPTS_ORIG) is do nothing; leave as already set
+
+			}
 
 			// compute the source's distance from the site and skip if it's too far away
 			distance = source.getMinDistance(site);

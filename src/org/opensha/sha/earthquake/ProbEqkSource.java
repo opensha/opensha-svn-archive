@@ -393,7 +393,9 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
    * @param tectonicRegionType
    */
   public void setTectonicRegionType(TectonicRegionType tectonicRegionType) {
-		  this.tectonicRegionType=tectonicRegionType;
+	  if(tectonicRegionType == null)
+		  throw new RuntimeException("tectonicRegionType cannot be set as null");
+	  this.tectonicRegionType=tectonicRegionType;
   }
 
 
