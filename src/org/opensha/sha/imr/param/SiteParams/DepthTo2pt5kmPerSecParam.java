@@ -22,6 +22,7 @@ package org.opensha.sha.imr.param.SiteParams;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.WarningDoubleParameter;
 
+
 /**
  * Depth 2.5 km/sec Parameter, reserved for representing the depth to where
  * shear-wave velocity = 2.5 km/sec.
