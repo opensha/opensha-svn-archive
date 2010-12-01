@@ -273,8 +273,6 @@ CurveDisplayAppAPI,GraphWindowAPI {
 	 *  loader to load these
 	 */
 	static {
-		imNames.add(NGA_2008_Averaged_AttenRel.NAME);
-		attenRelClasses.add(NGA_2008_Averaged_AttenRel.class.getName());
 		imNames.add(InterpolatedBA_2008_AttenRel.NAME);
 		attenRelClasses.add(InterpolatedBA_2008_AttenRel.class.getName());
 		imNames.add(CY_2008_AttenRel.NAME);
