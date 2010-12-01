@@ -164,6 +164,7 @@ public class BugReportDialog extends JDialog implements ActionListener, Hyperlin
 		mainText.setText(text);
 		mainText.setEditable(false);
 		mainText.setPreferredSize(new Dimension(this.getWidth()-6, 100));
+		mainText.setBackground(mainColor);
 		mainText.addHyperlinkListener(this);
 		
 		centerPanel.add(mainText);
