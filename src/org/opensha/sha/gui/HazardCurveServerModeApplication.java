@@ -24,7 +24,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -36,7 +35,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 import java.rmi.RemoteException;
 import java.security.AccessControlException;
 import java.util.ArrayList;
@@ -73,9 +71,12 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.util.ApplicationVersion;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.ListUtils;
-import org.opensha.commons.util.ApplicationVersion;
+import org.opensha.commons.util.bugReports.BugReport;
+import org.opensha.commons.util.bugReports.BugReportDialog;
+import org.opensha.commons.util.bugReports.DefaultExceptoinHandler;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
@@ -87,7 +88,6 @@ import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.FloatingPoissonFaultERF_Client;
 import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel02_AdjustableEqkRupForecastClient;
 import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel96_AdjustableEqkRupForecastClient;
@@ -124,13 +124,11 @@ import org.opensha.sha.gui.controls.SiteDataControlPanel;
 import org.opensha.sha.gui.controls.SitesOfInterestControlPanel;
 import org.opensha.sha.gui.controls.XY_ValuesControlPanel;
 import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanel;
-import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.DisaggregationPlotViewerWindow;
-import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.gui.infoTools.GraphPanelAPI;
 import org.opensha.sha.gui.infoTools.GraphWindow;
@@ -358,6 +356,9 @@ ScalarIMRChangeListener {
 	 * data(this option only works if it is ERF_List).
 	 * */
 	boolean addData = true;
+	
+	protected static String errorInInitializationMessage = "Problem occured " +
+				"during initialization the ERF's. All parameters are set to default.";
 
 	// Construct the applet
 	public HazardCurveServerModeApplication() {
@@ -394,11 +395,9 @@ ScalarIMRChangeListener {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			ExceptionWindow bugWindow = new ExceptionWindow(this, e,
-					"Exception occured while creating the GUI.\n"
-					+ "No Parameters have been set");
-			bugWindow.setVisible(true);
-			bugWindow.pack();
+			BugReport bug = new BugReport(e, errorInInitializationMessage, APP_SHORT_NAME, getAppVersion(), this);
+			BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
+			bugDialog.setVisible(true);
 		}
 		startAppProgressClass.dispose();
 
@@ -765,6 +764,8 @@ ScalarIMRChangeListener {
 	public static void main(String[] args) throws IOException {
 		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
 		HazardCurveServerModeApplication applet = new HazardCurveServerModeApplication();
+		Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptoinHandler(
+				APP_SHORT_NAME, getAppVersion(), applet, applet));
 		applet.init();
 		applet.setIconImages(IconFetcher.fetchIcons(APP_SHORT_NAME));
 		//		applet.pack();
@@ -900,10 +901,9 @@ ScalarIMRChangeListener {
 					System.exit(101);
 					// peerResultsFile.close();
 				} catch (Exception ee) {
-					ExceptionWindow bugWindow = new ExceptionWindow(this, ee,
-							getParametersInfoAsString());
-					bugWindow.setVisible(true);
-					bugWindow.pack();
+					BugReport bug = new BugReport(ee, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+					BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
+					bugDialog.setVisible(true);
 				}
 			}
 		} else {
@@ -926,10 +926,10 @@ ScalarIMRChangeListener {
 			calcThread = null;
 		} catch (Exception e) {
 			e.printStackTrace();
-			ExceptionWindow bugWindow = new ExceptionWindow(this, e,
-					getParametersInfoAsString());
-			bugWindow.setVisible(true);
-			bugWindow.pack();
+			BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
+			bugDialog.setVisible(true);
+			setButtonsEnable(true);
 		}
 
 	}
@@ -960,10 +960,10 @@ ScalarIMRChangeListener {
 				calc.setAdjustableParams(calcParamsControl.getAdjustableCalcParams());
 				//System.out.println("Created new calc from ServeModeApp when isDeterministicCurve=true");
 			} catch (Exception ex) {
-				ExceptionWindow bugWindow = new ExceptionWindow(this, ex, this
-						.getParametersInfoAsString());
-				bugWindow.setVisible(true);
-				bugWindow.pack();
+				ex.printStackTrace();
+				BugReport bug = new BugReport(ex, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+				BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
+				bugDialog.setVisible(true);
 			}
 		}
 		if (disaggregationFlag)
@@ -993,11 +993,10 @@ ScalarIMRChangeListener {
 			createCalcInstance();
 		} catch (Exception e) {
 			setButtonsEnable(true);
-			ExceptionWindow bugWindow = new ExceptionWindow(this, e,
-					getParametersInfoAsString());
-			bugWindow.setVisible(true);
-			bugWindow.pack();
 			e.printStackTrace();
+			BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
+			bugDialog.setVisible(true);
 		}
 
 		// check if progress bar is desired and set it up if so
@@ -1035,11 +1034,11 @@ ScalarIMRChangeListener {
 						// e.printStackTrace();
 						timer.stop();
 						setButtonsEnable(true);
-						ExceptionWindow bugWindow = new ExceptionWindow(
-								getApplicationComponent(), e,
-								getParametersInfoAsString());
-						bugWindow.setVisible(true);
-						bugWindow.pack();
+						e.printStackTrace();
+						BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_NAME,
+								getAppVersion(), getApplicationComponent());
+						BugReportDialog bugDialog = new BugReportDialog(getApplicationComponent(), bug, false);
+						bugDialog.setVisible(true);
 					}
 				}
 			});
@@ -1061,11 +1060,11 @@ ScalarIMRChangeListener {
 					} catch (Exception e) {
 						disaggTimer.stop();
 						setButtonsEnable(true);
-						ExceptionWindow bugWindow = new ExceptionWindow(
-								getApplicationComponent(), e,
-								getParametersInfoAsString());
-						bugWindow.setVisible(true);
-						bugWindow.pack();
+						e.printStackTrace();
+						BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_NAME,
+								getAppVersion(), getApplicationComponent());
+						BugReportDialog bugDialog = new BugReportDialog(getApplicationComponent(), bug, false);
+						bugDialog.setVisible(true);
 					}
 				}
 			});
@@ -1284,13 +1283,12 @@ ScalarIMRChangeListener {
 			// IMT
 			imtGuiBean.setIMTinIMRs(imrMap);
 		} catch (Exception ex) {
-			ExceptionWindow bugWindow = new ExceptionWindow(this, ex,
-					getParametersInfoAsString());
-			bugWindow.setVisible(true);
-			bugWindow.pack();
 			if (D)
 				System.out.println(C + ":Param warning caught" + ex);
 			ex.printStackTrace();
+			BugReport bug = new BugReport(ex, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
+			bugDialog.setVisible(true);
 		}
 		if (forecast instanceof ERF_EpistemicList && !isDeterministicCurve) {
 			// if add on top get the name of ERF List forecast
@@ -1355,10 +1353,9 @@ ScalarIMRChangeListener {
 			} catch (Exception e) {
 				e.printStackTrace();
 				setButtonsEnable(true);
-				ExceptionWindow bugWindow = new ExceptionWindow(this, e,
-						getParametersInfoAsString());
-				bugWindow.setVisible(true);
-				bugWindow.pack();
+				BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+				BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
+				bugDialog.setVisible(true);
 
 			}
 			hazFunction = toggleHazFuncLogValues(hazFunction);
@@ -1441,11 +1438,10 @@ ScalarIMRChangeListener {
 
 			} catch (Exception e) {
 				setButtonsEnable(true);
-				ExceptionWindow bugWindow = new ExceptionWindow(this, e,
-						getParametersInfoAsString());
-				bugWindow.setVisible(true);
-				bugWindow.pack();
 				e.printStackTrace();
+				BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+				BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
+				bugDialog.setVisible(true);
 			}
 			try {
 
@@ -1505,11 +1501,10 @@ ScalarIMRChangeListener {
 						.getMessage());
 			} catch (Exception e) {
 				setButtonsEnable(true);
-				ExceptionWindow bugWindow = new ExceptionWindow(this, e,
-						getParametersInfoAsString());
-				bugWindow.setVisible(true);
-				bugWindow.pack();
 				e.printStackTrace();
+				BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+				BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
+				bugDialog.setVisible(true);
 			}
 			// }
 			if (disaggSuccessFlag)
@@ -1566,11 +1561,10 @@ ScalarIMRChangeListener {
 				// "&nbsp;&nbsp;&nbsp;");
 			} catch (RemoteException ex) {
 				setButtonsEnable(true);
-				ExceptionWindow bugWindow = new ExceptionWindow(this, ex,
-						getParametersInfoAsString());
-				bugWindow.setVisible(true);
-				bugWindow.pack();
 				ex.printStackTrace();
+				BugReport bug = new BugReport(ex, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+				BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
+				bugDialog.setVisible(true);
 			}
 		}
 		String modeString = "";
@@ -1670,11 +1664,10 @@ ScalarIMRChangeListener {
 					// +hazFunction.toString());
 				} catch (Exception e) {
 					setButtonsEnable(true);
-					ExceptionWindow bugWindow = new ExceptionWindow(this, e,
-							getParametersInfoAsString());
-					bugWindow.setVisible(true);
-					bugWindow.pack();
 					e.printStackTrace();
+					BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+					BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
+					bugDialog.setVisible(true);
 				}
 				hazFunction = toggleHazFuncLogValues(hazFunction);
 			} catch (RuntimeException e) {
@@ -1866,12 +1859,9 @@ ScalarIMRChangeListener {
 				.addParameterChangeListener(this);
 			} catch (InvocationTargetException e) {
 				e.printStackTrace();
-				ExceptionWindow bugWindow = new ExceptionWindow(this, e,
-				"ERF's Initialization problem. Rest all parameters are default");
-				bugWindow.setVisible(true);
-				bugWindow.pack();
-				// e.printStackTrace();
-				// throw new RuntimeException("Connection to ERF's failed");
+				BugReport bug = new BugReport(e, errorInInitializationMessage, APP_SHORT_NAME, getAppVersion(), this);
+				BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
+				bugDialog.setVisible(true);
 			}
 		} else {
 			boolean isCustomRupture = erfRupSelectorGuiBean
@@ -2512,10 +2502,10 @@ ScalarIMRChangeListener {
 				calc.stopCalc();
 				calc = null;
 			} catch (RemoteException ee) {
-				ExceptionWindow bugWindow = new ExceptionWindow(this, ee,
-						getParametersInfoAsString());
-				bugWindow.setVisible(true);
-				bugWindow.pack();
+				ee.printStackTrace();
+				BugReport bug = new BugReport(ee, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+				BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
+				bugDialog.setVisible(true);
 			}
 		}
 		this.isHazardCalcDone = false;
@@ -2537,10 +2527,9 @@ ScalarIMRChangeListener {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			setButtonsEnable(true);
-			ExceptionWindow bugWindow = new ExceptionWindow(this, ex,
-					getParametersInfoAsString());
-			bugWindow.setVisible(true);
-			bugWindow.pack();
+			BugReport bug = new BugReport(ex, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
+			bugDialog.setVisible(true);
 		}
 		return null;
 	}
@@ -2556,10 +2545,9 @@ ScalarIMRChangeListener {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			setButtonsEnable(true);
-			ExceptionWindow bugWindow = new ExceptionWindow(this, ex,
-					getParametersInfoAsString());
-			bugWindow.setVisible(true);
-			bugWindow.pack();
+			BugReport bug = new BugReport(ex, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
+			bugDialog.setVisible(true);
 		}
 		return null;
 	}

@@ -19,16 +19,15 @@
 
 package org.opensha.sha.gui;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 import org.opensha.commons.gui.DisclaimerDialog;
-import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.bugReports.BugReport;
+import org.opensha.commons.util.bugReports.BugReportDialog;
+import org.opensha.commons.util.bugReports.DefaultExceptoinHandler;
 import org.opensha.sha.calc.SpectrumCalculator;
 import org.opensha.sha.calc.remoteCalc.RemoteResponseSpectrumClient;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
@@ -48,8 +47,6 @@ import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_Fortran
 import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WGCEP_UCERF1_EqkRupForecastClient;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
-import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
-import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.util.IconFetcher;
 
 /**
@@ -100,12 +97,10 @@ extends HazardSpectrumLocalModeApplication {
 				addParameterChangeListener(this);
 			}
 			catch (InvocationTargetException e) {
-				ExceptionWindow bugWindow = new ExceptionWindow(this, e,
-						"ERF's Initialization problem. Rest all parameters are default");
-				bugWindow.setVisible(true);
-				bugWindow.pack();
-				//e.printStackTrace();
-				//throw new RuntimeException("Connection to ERF's failed");
+				e.printStackTrace();
+				BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+				BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
+				bugDialog.setVisible(true);
 			}
 		}
 		else {
@@ -196,10 +191,9 @@ extends HazardSpectrumLocalModeApplication {
 				calc.setAdjustableParams(calcParamsControl.getAdjustableCalcParams());
 			}
 		}catch (Exception ex) {
-			ExceptionWindow bugWindow = new ExceptionWindow(this,
-					ex, this.getParametersInfoAsString());
-			bugWindow.setVisible(true);
-			bugWindow.pack();
+			BugReport bug = new BugReport(ex, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
+			bugDialog.setVisible(true);
 		}
 	}
 
@@ -207,6 +201,8 @@ extends HazardSpectrumLocalModeApplication {
 		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
 		HazardSpectrumServerModeApplication applet = new
 		HazardSpectrumServerModeApplication();
+		Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptoinHandler(
+				APP_SHORT_NAME, getAppVersion(), applet, applet));
 		applet.init();
 		applet.setIconImages(IconFetcher.fetchIcons(APP_SHORT_NAME));
 		applet.setVisible(true);

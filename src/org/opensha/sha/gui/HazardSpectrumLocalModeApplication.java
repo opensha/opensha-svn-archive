@@ -19,15 +19,11 @@
 
 package org.opensha.sha.gui;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.ListIterator;
 
 import javax.swing.JOptionPane;
@@ -44,7 +40,9 @@ import org.opensha.commons.param.DoubleDiscreteParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
-import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.bugReports.BugReport;
+import org.opensha.commons.util.bugReports.BugReportDialog;
+import org.opensha.commons.util.bugReports.DefaultExceptoinHandler;
 import org.opensha.sha.calc.SpectrumCalculator;
 import org.opensha.sha.calc.SpectrumCalculatorAPI;
 import org.opensha.sha.earthquake.ERF_EpistemicList;
@@ -52,26 +50,15 @@ import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
-import org.opensha.sha.gui.beans.IMR_GuiBean;
-import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.beans.IMT_NewGuiBean;
-import org.opensha.sha.gui.controls.CalculationSettingsControlPanel;
 import org.opensha.sha.gui.controls.ERF_EpistemicListControlPanel;
 import org.opensha.sha.gui.controls.PlottingOptionControl;
-import org.opensha.sha.gui.controls.SiteDataControlPanel;
-import org.opensha.sha.gui.controls.SitesOfInterestControlPanel;
-import org.opensha.sha.gui.controls.XY_ValuesControlPanel;
-import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanel;
-import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
-import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.infoTools.WeightedFuncListforPlotting;
 import org.opensha.sha.gui.util.IconFetcher;
-import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
-import org.opensha.sha.util.TectonicRegionType;
 
 /**
  * @author nitingupta
@@ -79,7 +66,7 @@ import org.opensha.sha.util.TectonicRegionType;
  */
 public class HazardSpectrumLocalModeApplication
 extends HazardCurveLocalModeApplication {
-	
+
 	public static final String APP_NAME = "Hazard Spectrum Local Mode Application";
 	public static final String APP_SHORT_NAME = "HazardSpectrumLocal";
 
@@ -164,14 +151,11 @@ extends HazardCurveLocalModeApplication {
 
 			setImtPanel(imlProbGuiBean, 0.28); // swap iml panel
 
-		}
-		catch (Exception e) {
-			ExceptionWindow bugWindow = new ExceptionWindow(this, e,
-					"Exception occured while creating the GUI.\n" +
-			"No Parameters have been set");
-			bugWindow.setVisible(true);
-			bugWindow.pack();
-			//e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+			BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
+			bugDialog.setVisible(true);
 		}
 		this.setTitle("Hazard Spectrum Application ("+getAppVersion()+")");
 		startAppProgressClass.dispose();
@@ -197,9 +181,9 @@ extends HazardCurveLocalModeApplication {
           disaggCalc = new DisaggregationCalculator();*/
 		}catch(Exception e){
 
-			ExceptionWindow bugWindow = new ExceptionWindow(this,e,this.getParametersInfoAsString());
-			bugWindow.setVisible(true);
-			bugWindow.pack();
+			BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
+			bugDialog.setVisible(true);
 			//     e.printStackTrace();
 		}
 	}
@@ -341,10 +325,9 @@ extends HazardCurveLocalModeApplication {
 			catch (Exception e) {
 				e.printStackTrace();
 				setButtonsEnable(true);
-				ExceptionWindow bugWindow = new ExceptionWindow(this, e,
-						getParametersInfoAsString());
-				bugWindow.setVisible(true);
-				bugWindow.pack();
+				BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+				BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
+				bugDialog.setVisible(true);
 			}
 			((ArbitrarilyDiscretizedFunc)hazFunction).setInfo(getParametersInfoAsString());
 		}
@@ -457,10 +440,9 @@ extends HazardCurveLocalModeApplication {
 			createCalcInstance();
 		}catch(Exception e){
 			setButtonsEnable(true);
-			ExceptionWindow bugWindow = new ExceptionWindow(this,e,getParametersInfoAsString());
-			bugWindow.setVisible(true);
-			bugWindow.pack();
-			e.printStackTrace();
+			BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
+			bugDialog.setVisible(true);
 		}
 
 		// check if progress bar is desired and set it up if so
@@ -490,9 +472,11 @@ extends HazardCurveLocalModeApplication {
 						//e.printStackTrace();
 						timer.stop();
 						setButtonsEnable(true);
-						ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e,getParametersInfoAsString());
-						bugWindow.setVisible(true);
-						bugWindow.pack();
+						e.printStackTrace();
+						BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_NAME,
+								getAppVersion(), getApplicationComponent());
+						BugReportDialog bugDialog = new BugReportDialog(getApplicationComponent(), bug, false);
+						bugDialog.setVisible(true);
 					}
 				}
 			});
@@ -582,10 +566,10 @@ extends HazardCurveLocalModeApplication {
 			}
 			catch(RemoteException e){
 				setButtonsEnable(true);
-				ExceptionWindow bugWindow = new ExceptionWindow(this,e,getParametersInfoAsString());
-				bugWindow.setVisible(true);
-				bugWindow.pack();
 				e.printStackTrace();
+				BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+				BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
+				bugDialog.setVisible(true);
 			}
 			catch (RuntimeException e) {
 				//e.printStackTrace();
@@ -700,6 +684,8 @@ extends HazardCurveLocalModeApplication {
 		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
 		HazardSpectrumLocalModeApplication applet = new
 		HazardSpectrumLocalModeApplication();
+		Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptoinHandler(
+				APP_SHORT_NAME, getAppVersion(), applet, applet));
 		applet.init();
 		applet.setIconImages(IconFetcher.fetchIcons(APP_SHORT_NAME));
 		applet.setVisible(true);

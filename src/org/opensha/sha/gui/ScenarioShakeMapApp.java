@@ -32,7 +32,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -54,7 +53,6 @@ import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.WaldAllenGlobalVs30;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.data.xyz.GeoDataSet;
-import org.opensha.commons.data.xyz.GeoDataSetMath;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.gui.DisclaimerDialog;
@@ -62,9 +60,11 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.commons.util.FileUtils;
-import org.opensha.commons.util.ListUtils;
 import org.opensha.commons.util.ApplicationVersion;
+import org.opensha.commons.util.ListUtils;
+import org.opensha.commons.util.bugReports.BugReport;
+import org.opensha.commons.util.bugReports.BugReportDialog;
+import org.opensha.commons.util.bugReports.DefaultExceptoinHandler;
 import org.opensha.sha.calc.ScenarioShakeMapCalculator;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.FloatingPoissonFaultERF_Client;
@@ -79,29 +79,16 @@ import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
 import org.opensha.sha.gui.beans.MapGuiBean;
 import org.opensha.sha.gui.beans.SitesInGriddedRectangularRegionGuiBean;
-import org.opensha.sha.gui.controls.GMTMapCalcOptionControl;
 import org.opensha.sha.gui.controls.CalculationSettingsControlPanel;
 import org.opensha.sha.gui.controls.CalculationSettingsControlPanelAPI;
 import org.opensha.sha.gui.controls.ControlPanel;
-import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
-import org.opensha.sha.gui.controls.CyberShakeSiteSetterControlPanel;
-import org.opensha.sha.gui.controls.DisaggregationControlPanel;
+import org.opensha.sha.gui.controls.GMTMapCalcOptionControl;
 import org.opensha.sha.gui.controls.GenerateHazusControlPanelForSingleMultipleIMRs;
 import org.opensha.sha.gui.controls.IM_EventSetCEA_ControlPanel;
-import org.opensha.sha.gui.controls.PEER_TestCaseSelectorControlPanel;
-import org.opensha.sha.gui.controls.PlottingOptionControl;
-import org.opensha.sha.gui.controls.PuenteHillsScenarioControlPanel;
 import org.opensha.sha.gui.controls.PuenteHillsScenarioControlPanelUsingEqkRuptureCreation;
 import org.opensha.sha.gui.controls.RegionsOfInterestControlPanel;
-import org.opensha.sha.gui.controls.RunAll_PEER_TestCasesControlPanel;
 import org.opensha.sha.gui.controls.SanAndreasScenarioControlPanel;
-import org.opensha.sha.gui.controls.SiteDataControlPanel;
-import org.opensha.sha.gui.controls.SitesOfInterestControlPanel;
-import org.opensha.sha.gui.controls.XY_ValuesControlPanel;
-import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanel;
-import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
-import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.gui.util.IconFetcher;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
@@ -263,24 +250,22 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 		}
 		catch (RuntimeException ex) {
 			step = 0;
-			ExceptionWindow bugWindow = new ExceptionWindow(this,ex,
-					"Exception occured while initializing the Site Data providers in ScenarioShakeMap application."+
-			"Parameters values have not been set yet.");
-			bugWindow.setVisible(true);
-			bugWindow.pack();
 			ex.printStackTrace();
-
+			BugReport bug = new BugReport(ex, "Exception occured while initializing the Site Data providers in ScenarioShakeMap application."+
+					"Parameters values have not been set yet.", APP_SHORT_NAME, getAppVersion(), this);
+			BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
+			bugDialog.setVisible(true);
 		}
 		try {
 			jbInit();
 		}
 		catch(Exception e) {
 			step = 0;
-			ExceptionWindow bugWindow = new ExceptionWindow(this,e,"Exception during initializing the application.\n"+
-			"Parameters values not yet set.");
 			e.printStackTrace();
-			bugWindow.setVisible(true);
-			bugWindow.pack();
+			BugReport bug = new BugReport(e, "Exception during initializing the application.\n"+
+					"Parameters values not yet set.", APP_SHORT_NAME, getAppVersion(), this);
+			BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
+			bugDialog.setVisible(true);
 		}
 		try{
 			//initialises the IMR and IMT Gui Bean
@@ -288,11 +273,11 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 		}catch(RuntimeException e){
 			//e.printStackTrace();
 			step = 0;
-			ExceptionWindow bugWindow = new ExceptionWindow(this,e, "Exception occured initializing the IMR with "+
-			"default parameters value");
 			e.printStackTrace();
-			bugWindow.setVisible(true);
-			bugWindow.pack();
+			BugReport bug = new BugReport(e, "Exception occured initializing the IMR with "+
+					"default parameters value", APP_SHORT_NAME, getAppVersion(), this);
+			BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
+			bugDialog.setVisible(true);
 			//JOptionPane.showMessageDialog(this,"Invalid parameter value",e.getMessage(),JOptionPane.ERROR_MESSAGE);
 			//return;
 		}
@@ -301,12 +286,11 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 		}
 		catch (RegionConstraintException ex) {
 			step = 0;
-			ExceptionWindow bugWindow = new ExceptionWindow(this,ex,
-					"Exception occured while initializing the  region parameters in ScenarioShakeMap application."+
-			"Parameters values have not been set yet.");
-			bugWindow.setVisible(true);
-			bugWindow.pack();
 			ex.printStackTrace();
+			BugReport bug = new BugReport(ex, "Exception occured while initializing the  region parameters in ScenarioShakeMap application."+
+					"Parameters values have not been set yet.", APP_SHORT_NAME, getAppVersion(), this);
+			BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
+			bugDialog.setVisible(true);
 
 		}
 		try{
@@ -315,7 +299,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 		}catch(RuntimeException e){
 			e.printStackTrace();
 			step =0;
-			JOptionPane.showMessageDialog(this,"Could not create ERF Object","Error occur in ERF",
+			JOptionPane.showMessageDialog(this,"Could not create ERF Object","Error occurred in ERF",
 					JOptionPane.OK_OPTION);
 			System.exit(0);
 			//return;
@@ -425,6 +409,8 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 	public static void main(String[] args) throws IOException {
 		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
 		ScenarioShakeMapApp applet = new ScenarioShakeMapApp();
+		Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptoinHandler(
+				APP_SHORT_NAME, getAppVersion(), applet, applet));
 		applet.init();
 		applet.setIconImages(IconFetcher.fetchIcons(APP_SHORT_NAME));
 		applet.setVisible(true);
@@ -600,10 +586,11 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 		}
 		catch(Exception ee){
 			step = 0;
-			ExceptionWindow bugWindow = new ExceptionWindow(this,ee,mapParametersInfo);
-			bugWindow.setVisible(true);
-			bugWindow.pack();
 			ee.printStackTrace();
+			BugReport bug = new BugReport(ee, mapParametersInfo, APP_SHORT_NAME, getAppVersion(), this);
+			BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
+			bugDialog.setVisible(true);
+			addButton.setEnabled(true);
 			return;
 		}
 	}

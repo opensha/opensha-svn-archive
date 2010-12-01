@@ -51,8 +51,9 @@ import javax.swing.JTextPane;
  * @author : Nitin Gupta and Vipin Gupta
  * @created
  * @version 1.0
+ * @deprecated - Use <code>BugReportDialog</code> instead
  */
-
+@Deprecated
 public class ExceptionWindow extends JDialog {
 	private JPanel jPanel1 = new JPanel();
 	private JLabel exceptionLabel = new JLabel();

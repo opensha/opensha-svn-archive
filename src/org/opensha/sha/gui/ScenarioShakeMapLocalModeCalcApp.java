@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.bugReports.DefaultExceptoinHandler;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF;
 import org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
@@ -100,6 +101,8 @@ extends ScenarioShakeMapApp {
 	public static void main(String[] args) throws IOException {
 		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
 		ScenarioShakeMapLocalModeCalcApp applet = new ScenarioShakeMapLocalModeCalcApp();
+		Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptoinHandler(
+				APP_SHORT_NAME, getAppVersion(), applet, applet));
 		applet.init();
 		applet.setIconImages(IconFetcher.fetchIcons(APP_SHORT_NAME));
 		applet.setVisible(true);

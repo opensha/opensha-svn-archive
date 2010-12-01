@@ -29,6 +29,9 @@ import java.util.ArrayList;
 
 import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.bugReports.BugReport;
+import org.opensha.commons.util.bugReports.BugReportDialog;
+import org.opensha.commons.util.bugReports.DefaultExceptoinHandler;
 import org.opensha.gem.GEM1.scratch.marco.testParsers.GEM1ERF;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
@@ -160,14 +163,11 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 				addParameterChangeListener(this);
 			}
 			catch (InvocationTargetException e) {
-
-				ExceptionWindow bugWindow = new ExceptionWindow(this, e,
-						"Problem occured " +
-				"during initialization the ERF's. All parameters are set to default.");
-				bugWindow.setVisible(true);
-				bugWindow.pack();
-				//e.printStackTrace();
-				//throw new RuntimeException("Connection to ERF's failed");
+				e.printStackTrace();
+				
+				BugReport bug = new BugReport(e, errorInInitializationMessage, APP_SHORT_NAME, getAppVersion(), this);
+				BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
+				bugDialog.setVisible(true);
 			}
 		}
 		else{
@@ -253,10 +253,9 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 					disaggCalc = new DisaggregationCalculator();
 		}catch(Exception e){
 			e.printStackTrace();
-			ExceptionWindow bugWindow = new ExceptionWindow(this,e,this.getParametersInfoAsString());
-			bugWindow.setVisible(true);
-			bugWindow.pack();
-			//     e.printStackTrace();
+			BugReport bug = new BugReport(e, this.getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
+			bugDialog.setVisible(true);
 		}
 		
 	}
@@ -264,6 +263,8 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 	public static void main(String[] args) throws IOException {
 		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
 		HazardCurveLocalModeApplication applet = new HazardCurveLocalModeApplication();
+		Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptoinHandler(
+				APP_SHORT_NAME, getAppVersion(), applet, applet));
 		applet.init();
 		applet.setTitle("Hazard Curve Local mode Application "+"("+getAppVersion()+")" );
 		applet.setIconImages(IconFetcher.fetchIcons(APP_SHORT_NAME));

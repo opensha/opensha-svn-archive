@@ -64,7 +64,10 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.util.ApplicationVersion;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.bugReports.BugReport;
+import org.opensha.commons.util.bugReports.BugReportDialog;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
@@ -83,7 +86,6 @@ import org.opensha.sha.gui.controls.XY_ValuesControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
-import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.gui.infoTools.GraphPanelAPI;
 import org.opensha.sha.gui.infoTools.GraphWindow;
@@ -125,6 +127,9 @@ public class LossEstimationApplication extends JFrame
 implements Runnable,  ParameterChangeListener,
 ButtonControlPanelAPI,GraphPanelAPI,GraphWindowAPI,CurveDisplayAppAPI,
 IMR_GuiBeanAPI{
+	
+	public static final String APP_NAME = "Loss Estimation Application";
+	public static final String APP_SHORT_NAME = "LossEstimationApp";
 
 	/**
 	 * Name of the class
@@ -317,14 +322,27 @@ IMR_GuiBeanAPI{
 	protected JButton cancelCalcButton = new JButton();
 	private FlowLayout flowLayout1 = new FlowLayout();
 
-	protected final static String version = "0.0.12";
+	protected static ApplicationVersion version;
 
 	protected final static String versionURL = "http://www.opensha.org/applications/hazCurvApp/HazardCurveApp_Version.txt";
 	protected final static String appURL = "http://www.opensha.org/applications/hazCurvApp/HazardCurveServerModeApp.jar";
 	protected final static String versionUpdateInfoURL = "http://www.opensha.org/applications/hazCurvApp/versionUpdate.html";
 
 
-
+	/**
+	 * Returns the Application version
+	 * @return ApplicationVersion
+	 */
+	public static ApplicationVersion getAppVersion(){
+		if (version == null) {
+			try {
+				version = ApplicationVersion.loadBuildVersion();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return version;
+	}
 
 	//Initialize the applet
 	public void init() {
@@ -352,11 +370,11 @@ IMR_GuiBeanAPI{
 			}
 		}
 		catch(Exception e) {
-			ExceptionWindow bugWindow = new ExceptionWindow(this,e,"Exception occured while creating the GUI.\n"+
-			"No Parameters have been set");
-			bugWindow.setVisible(true);
-			bugWindow.pack();
-			//e.printStackTrace();
+			e.printStackTrace();
+			BugReport bug = new BugReport(e, "Exception occured while creating the GUI.\n"+
+					"No Parameters have been set", APP_SHORT_NAME, getAppVersion(), this);
+			BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
+			bugDialog.setVisible(true);
 		}
 		startAppProgressClass.dispose();
 		((JPanel)getContentPane()).updateUI();
@@ -636,9 +654,10 @@ IMR_GuiBeanAPI{
 			calcThread = null;
 		}catch(Exception e){
 			e.printStackTrace();
-			ExceptionWindow bugWindow = new ExceptionWindow(this,e,getParametersInfoAsString());
-			bugWindow.setVisible(true);
-			bugWindow.pack();
+			setButtonsEnable(true);
+			BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
+			bugDialog.setVisible(true);
 		}
 
 	}
@@ -654,10 +673,10 @@ IMR_GuiBeanAPI{
 			calc = new HazardCurveCalculator();
 		}
 		catch (Exception ex) {
-			ExceptionWindow bugWindow = new ExceptionWindow(this,
-					ex, this.getParametersInfoAsString());
-			bugWindow.setVisible(true);
-			bugWindow.pack();
+			ex.printStackTrace();
+			BugReport bug = new BugReport(ex, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
+			bugDialog.setVisible(true);
 		}
 	}
 
@@ -673,11 +692,11 @@ IMR_GuiBeanAPI{
 		try{
 			createCalcInstance();
 		}catch(Exception e){
-			setButtonsEnable(true);
-			ExceptionWindow bugWindow = new ExceptionWindow(this,e,getParametersInfoAsString());
-			bugWindow.setVisible(true);
-			bugWindow.pack();
 			e.printStackTrace();
+			setButtonsEnable(true);
+			BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
+			bugDialog.setVisible(true);
 		}
 
 		// check if progress bar is desired and set it up if so
@@ -706,10 +725,12 @@ IMR_GuiBeanAPI{
 					}catch(Exception e){
 						//e.printStackTrace();
 						timer.stop();
+						e.printStackTrace();
 						setButtonsEnable(true);
-						ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e,getParametersInfoAsString());
-						bugWindow.setVisible(true);
-						bugWindow.pack();
+						BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME,
+								getAppVersion(), getApplicationComponent());
+						BugReportDialog bugDialog = new BugReportDialog(getApplicationComponent(), bug, false);
+						bugDialog.setVisible(true);
 					}
 				}
 			});
@@ -926,11 +947,10 @@ IMR_GuiBeanAPI{
 		}
 		catch (Exception e) {
 			setButtonsEnable(true);
-			ExceptionWindow bugWindow = new ExceptionWindow(this, e,
-					getParametersInfoAsString());
-			bugWindow.setVisible(true);
-			bugWindow.pack();
 			e.printStackTrace();
+			BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
+			bugDialog.setVisible(true);
 		}
 
 		ArbitrarilyDiscretizedFunc currentHazardCurve = calcHazardCurve(currentIMT,currentPeriod,currentIMLs,site,forecast,imr);
@@ -1595,9 +1615,11 @@ IMR_GuiBeanAPI{
 				calc.stopCalc();
 				calc = null;
 			}catch(RemoteException ee){
-				ExceptionWindow bugWindow = new ExceptionWindow(this,ee,getParametersInfoAsString());
-				bugWindow.setVisible(true);
-				bugWindow.pack();
+				setButtonsEnable(true);
+				BugReport bug = new BugReport(ee, getParametersInfoAsString(), APP_SHORT_NAME,
+						getAppVersion(), this);
+				BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
+				bugDialog.setVisible(true);
 			}
 		}
 		this.isHazardCalcDone = false;
