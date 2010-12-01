@@ -60,6 +60,7 @@ import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.hazardMap.old.HazardMapCalculationParameters;
 import org.opensha.sha.calc.hazardMap.old.HazardMapJob;
 import org.opensha.sha.calc.hazardMap.old.servlet.ManagementServletAccessor;
+import org.opensha.sha.calc.params.MaxDistanceParam;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.gui.beans.GridParametersGuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
@@ -375,7 +376,7 @@ public class CreateDataManager extends StepManager implements ScalarIMRChangeLis
 		
 //		if(distanceControlPanel == null )
 		// TODO: add custom max source distance
-		maxSourceDistance = new Double(HazardCurveCalculator.MAX_DISTANCE_DEFAULT);
+		maxSourceDistance = new Double(MaxDistanceParam.DEFAULT);
 //		else maxSourceDistance = new Double(distanceControlPanel.getDistance());
 		
 		String metadataFileName = id + ".xml";

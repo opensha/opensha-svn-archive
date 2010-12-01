@@ -351,7 +351,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 
 			// set the IMR according to the tectonic region of the source (if there is more than one)
 			TectonicRegionType trt = source.getTectonicRegionType();
-			ScalarIntensityMeasureRelationshipAPI imr = TRTUtils.getIMRForTRT(imrMap, trt);
+			ScalarIntensityMeasureRelationshipAPI imr = TRTUtils.getIMRforTRT(imrMap, trt);
 
 			// compute the source's distance from the site and skip if it's too far away
 			distance = source.getMinDistance(site);

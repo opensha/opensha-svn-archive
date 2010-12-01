@@ -481,8 +481,8 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(chooser.getSelectedIndex());
 //			System.out.println("Updating param edit for chooser " + chooserForEditor + " to : " + imr.getName());
 			paramEdit.setIMR(imr);
-			// we only want to show the TRT param if it's in single mode
-			paramEdit.setTRTParamVisible(false);
+			// we always show the TRT param now
+			paramEdit.setTRTParamVisible(true);
 			paramEdit.setTitle(IMR_ParamEditor.DEFAULT_NAME + ": " + imr.getShortName());
 			paramEdit.validate();
 		}

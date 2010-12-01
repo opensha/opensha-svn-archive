@@ -79,6 +79,7 @@ import org.opensha.sha.calc.hazardMap.old.HazardMapCalculationParameters;
 import org.opensha.sha.calc.hazardMap.old.HazardMapJob;
 import org.opensha.sha.calc.hazardMap.old.HazardMapMetadataJobCreator;
 import org.opensha.sha.calc.hazardMap.old.servlet.ManagementServletAccessor;
+import org.opensha.sha.calc.params.MaxDistanceParam;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.GridParametersGuiBean;
@@ -798,7 +799,7 @@ implements ParameterChangeListener, CurveDisplayAppAPI, IMR_GuiBeanAPI {
 			boolean useCVM = sitesGuiBean.isUseSiteData();
 			boolean saveERF = this.gridGuiBean.get_saveERF();
 			
-			if(distanceControlPanel == null ) maxSourceDistance = new Double(HazardCurveCalculator.MAX_DISTANCE_DEFAULT);
+			if(distanceControlPanel == null ) maxSourceDistance = new Double(MaxDistanceParam.DEFAULT);
 			else maxSourceDistance = new Double(distanceControlPanel.getDistance());
 			
 			String metadataFileName = jobName + ".xml";

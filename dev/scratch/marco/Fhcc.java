@@ -73,7 +73,7 @@ public class Fhcc {
 			
 			// Set the IMR according to the tectonic region of the source (if there is more than one)
 			TectonicRegionType trt = source.getTectonicRegionType();
-			ScalarIntensityMeasureRelationshipAPI imr = TRTUtils.getIMRForTRT(imrMap, trt);
+			ScalarIntensityMeasureRelationshipAPI imr = TRTUtils.getIMRforTRT(imrMap, trt);
 			
 			// Find the sites at a distance lower than the threshold distance
 			ArrayList<Integer> siteIdxList = new ArrayList<Integer>();

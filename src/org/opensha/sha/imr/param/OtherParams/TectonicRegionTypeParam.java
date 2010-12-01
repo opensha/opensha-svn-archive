@@ -78,6 +78,28 @@ public class TectonicRegionTypeParam extends StringParameter {
 	}
 	
 	/**
+	 * Convenience method for setting value directly from a <code>TectonicRegionType</code>.
+	 * 
+	 * Same as calling <code>setValue(trt.toString())</code>
+	 * 
+	 * @param trt - the <code>TectonicRegionType</code> to be set
+	 */
+	public void setValue(TectonicRegionType trt) {
+		super.setValue(trt.toString());
+	}
+	
+	/**
+	 * Convenience method for getting the value as a <code>TectonicRegionType</code>
+	 * 
+	 * Same as calling <code>TectonicRegionType.getTypeForName(trtParam.getValue())</code>
+	 * 
+	 * @return
+	 */
+	public TectonicRegionType getValueAsTRT() {
+		return TectonicRegionType.getTypeForName(getValue());
+	}
+	
+	/**
 	 * This checks whether a type is potentially supported by this class 
 	 * (whether an instance could support it, as opposed to whether an instance
 	 * does support it (the latter being controlled by the string constraint).

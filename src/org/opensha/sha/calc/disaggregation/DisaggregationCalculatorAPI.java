@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.util.TectonicRegionType;
@@ -59,13 +60,13 @@ public interface DisaggregationCalculatorAPI extends Remote{
 	 * @param site: site parameter
 	 * @param imr: selected IMR object
 	 * @param eqkRupForecast: selected Earthquake rup forecast
+	 * @param calcParams: calculation parameters from the <code>HazardCurveCalculator</code>
 	 * @return boolean
 	 */
 	public boolean disaggregate(double iml, Site site,
 			ScalarIntensityMeasureRelationshipAPI imr,
 			EqkRupForecast eqkRupForecast,
-			double maxDist,ArbitrarilyDiscretizedFunc 
-			magDistFilter) throws java.rmi.RemoteException;
+			ParameterList calcParams) throws java.rmi.RemoteException;
 
 	/**
 	 * this function performs the disaggregation.
@@ -76,13 +77,13 @@ public interface DisaggregationCalculatorAPI extends Remote{
 	 * @param site: site parameter
 	 * @param imrMap: mapping of tectonic regions to IMR objects
 	 * @param eqkRupForecast: selected Earthquake rup forecast
+	 * @param calcParams: calculation parameters from the <code>HazardCurveCalculator</code>
 	 * @return boolean
 	 */
 	public boolean disaggregate(double iml, Site site,
 			Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap,
 			EqkRupForecast eqkRupForecast,
-			double maxDist,ArbitrarilyDiscretizedFunc 
-			magDistFilter) throws java.rmi.RemoteException;
+			ParameterList calcParams) throws java.rmi.RemoteException;
 
 	/**
 	 * Sets the number of sources to be shown in the Disaggregation.

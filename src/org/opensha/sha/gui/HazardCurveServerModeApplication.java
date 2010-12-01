@@ -1489,10 +1489,9 @@ ScalarIMRChangeListener {
 						.getInterpolatedY_inLogXLogYDomain(disaggregationVal);
 					}
 				}
-
 				disaggSuccessFlag = disaggCalc.disaggregate(Math.log(imlVal),
 						site, imrMap, (EqkRupForecast) forecast,
-						this.calc.getMaxSourceDistance(), calc.getMagDistCutoffFunc());
+						this.calc.getAdjustableParams());
 				disaggCalc.setMaxZAxisForPlot(maxZAxis);
 				disaggregationString = disaggCalc.getMeanAndModeInfo();
 			} catch (WarningException warningException) {

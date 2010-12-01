@@ -70,6 +70,7 @@ import org.opensha.commons.util.bugReports.BugReport;
 import org.opensha.commons.util.bugReports.BugReportDialog;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
+import org.opensha.sha.calc.params.MaxDistanceParam;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
@@ -1443,7 +1444,7 @@ IMR_GuiBeanAPI{
 		if (distanceControlPanel != null)
 			maxSourceSiteDistance = distanceControlPanel.getDistance();
 		else
-			maxSourceSiteDistance = HazardCurveCalculator.MAX_DISTANCE_DEFAULT;
+			maxSourceSiteDistance = MaxDistanceParam.DEFAULT;
 
 		return "<br>"+ "IMR Param List:" +"<br>"+
 		"---------------"+"<br>"+

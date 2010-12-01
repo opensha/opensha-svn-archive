@@ -54,6 +54,7 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazusMapCalculator;
+import org.opensha.sha.calc.params.MaxDistanceParam;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
@@ -473,7 +474,7 @@ public class HazusDataSetCalcApp extends JFrame
    timer.start();
    try{
      step =1;
-     if(distanceControlPanel == null ) maxDistance = new Double(HazardCurveCalculator.MAX_DISTANCE_DEFAULT);
+     if(distanceControlPanel == null ) maxDistance = new Double(MaxDistanceParam.DEFAULT);
      else maxDistance = new Double(distanceControlPanel.getDistance());
      //starting the Hazus calculation in the new thread, make the call to the HazusMapCalculator Object.
      HazusMapCalculator hazusCalc = new HazusMapCalculator();

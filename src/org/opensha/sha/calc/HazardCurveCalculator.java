@@ -24,6 +24,7 @@ package org.opensha.sha.calc;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.ListIterator;
 import java.util.Map;
 
@@ -31,16 +32,16 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.ArbitrarilyDiscretizedFuncParameter;
-import org.opensha.commons.param.BooleanParameter;
-import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.IntegerParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringConstraint;
-import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
+import org.opensha.sha.calc.params.IncludeMagDistFilterParam;
+import org.opensha.sha.calc.params.MagDistCutoffParam;
+import org.opensha.sha.calc.params.MaxDistanceParam;
+import org.opensha.sha.calc.params.NonSupportedTRT_OptionsParam;
+import org.opensha.sha.calc.params.NumStochasticEventSetsParam;
+import org.opensha.sha.calc.params.SetTRTinIMR_FromSourceParam;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupture;
@@ -50,8 +51,6 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupFore
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
-import org.opensha.sha.imr.param.OtherParams.ComponentParam;
-import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
 import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
 
@@ -75,49 +74,26 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	protected final static boolean D = false;
 
 	//Info for parameter that sets the maximum distance considered
-	private DoubleParameter maxDistanceParam;
-	public final static String MAX_DISTANCE_PARAM_NAME = "Maximum Distance";
-	public final String MAX_DISTANCE_PARAM_UNITS = "km";
-	public final String MAX_DISTANCE_PARAM_INFO = "Earthquake Ruptures beyond this distance are ignored";
-	public final double MAX_DISTANCE_PARAM_MIN = 0;
-	public final double MAX_DISTANCE_PARAM_MAX = 40000;
-	public final static Double MAX_DISTANCE_DEFAULT = new Double(200);
+	private MaxDistanceParam maxDistanceParam;
 
 	//Info for parameter tells whether to apply a magnitude-dependent distance cutoff
-	private BooleanParameter includeMagDistFilterParam;
-	public final static String INCLUDE_MAG_DIST_FILTER_PARAM_NAME = "Use Mag-Distance Filter?";
-	public final String INCLUDE_MAG_DIST_FILTER_PARAM_INFO = "This specifies whether to apply the magnitude-distance filter";
-	public final boolean INCLUDE_MAG_DIST_FILTER_PARAM_DEFAULT = false;
+	private IncludeMagDistFilterParam includeMagDistFilterParam;
+	
 
 	//Info for parameter that specifies a magnitude-dependent distance cutoff
 	// (distance on x-axis and mag on y-axis)
-	private ArbitrarilyDiscretizedFuncParameter magDistCutoffParam;
-	public final static String MAG_DIST_CUTOFF_PARAM_NAME = "Mag-Dist Cutoff Function";
-	public final String MAG_DIST_CUTOFF_PARAM_INFO = "Distance cutoff is a function of mag (the function here, linearly interpolated)";
-	double[] defaultCutoffMags =  {0, 5.25,  5.75, 6.25,  6.75, 7.25,  9};
-	double[] defaultCutoffDists = {0, 25,    40,   60,    80,   100,   500};
+	private MagDistCutoffParam magDistCutoffParam;
+	
 
 	//Info for parameter that sets the maximum distance considered
-	private IntegerParameter numStochEventSetRealizationsParam;
-	public final static String NUM_STOCH_EVENT_SETS_PARAM_NAME = "Num Event Sets";
-	public final String NUM_STOCH_EVENT_SETS_PARAM_INFO = "Number of stochastic event sets for those types of calculations";
-	public final int NUM_STOCH_EVENT_SETS_PARAM_MIN = 1;
-	public final int NUM_STOCH_EVENT_SETS_PARAM_MAX = Integer.MAX_VALUE;
-	public final static Integer NUM_STOCH_EVENT_SETS_PARAM_DEFAULT = new Integer(1);
+	private NumStochasticEventSetsParam numStochEventSetRealizationsParam;
 	
 	//Info for parameter that tells whether to set TRT in IMR from source value
-	private BooleanParameter setTRTinIMR_FromSourceParam;
-	public final static String SET_TRT_IN_IMR_FROM_SOURCE_PARAM_NAME = "Set TRT From Source?";
-	public final String SET_TRT_IN_IMR_FROM_SOURCE_INFO = "Tells whether to set the Tectonic-Region-Type Param in the IMR from the value in each source (if not the value already specific in the IMR is used)";
-	public final boolean SET_TRT_IN_IMR_FROM_SOURCE_DEFAULT = false;
+	private SetTRTinIMR_FromSourceParam setTRTinIMR_FromSourceParam;
 	
 	// This tells the calculator what to do if the TRT is not supported by the IMR
-	StringParameter nonSupportedTRT_OptionsParam;
-	public final static String NON_SUPPORTED_TRT_OPTS_PARAM_NAME = "If source TRT not supported by IMR";
-	public final static String NON_SUPPORTED_TRT_OPTS_PARAM_INFO = "Tells how to set TRT in IMR if TRT from source is not supported";
-	public final static String NON_SUPPORTED_TRT_OPTS_USE_DEFAULT = "Use IMR's default TRT value";
-	public final static String NON_SUPPORTED_TRT_OPTS_USE_ORIG = "Use TRT value already set in IMR";
-	public final static String NON_SUPPORTED_TRT_OPTS_THROW = "Throw runtime exception";
+	NonSupportedTRT_OptionsParam nonSupportedTRT_OptionsParam;
+	
 
 	private ParameterList adjustableParams;
 
@@ -138,38 +114,19 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		// Create adjustable parameters and add to list
 
 		// Max Distance Parameter
-		maxDistanceParam = new DoubleParameter(MAX_DISTANCE_PARAM_NAME, MAX_DISTANCE_PARAM_MIN, 
-				MAX_DISTANCE_PARAM_MAX, MAX_DISTANCE_PARAM_UNITS, MAX_DISTANCE_DEFAULT);
-		maxDistanceParam.setInfo(MAX_DISTANCE_PARAM_INFO);
+		maxDistanceParam = new MaxDistanceParam();
 
 		// Include Mag-Distance Filter Parameter
-		includeMagDistFilterParam = new BooleanParameter(INCLUDE_MAG_DIST_FILTER_PARAM_NAME,INCLUDE_MAG_DIST_FILTER_PARAM_DEFAULT);
-		includeMagDistFilterParam.setInfo(INCLUDE_MAG_DIST_FILTER_PARAM_INFO);
+		includeMagDistFilterParam = new IncludeMagDistFilterParam();
 
-		// Mag-Distance Cutoff Parameter
-		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-		func.setName("mag-dist function");
-		for(int i=0; i<defaultCutoffMags.length;i++)
-			func.set(defaultCutoffDists[i], defaultCutoffMags[i]);
-		magDistCutoffParam = new ArbitrarilyDiscretizedFuncParameter(MAG_DIST_CUTOFF_PARAM_NAME,func);
-		magDistCutoffParam.setInfo(MAG_DIST_CUTOFF_PARAM_INFO);
+		magDistCutoffParam = new MagDistCutoffParam();
 
 		// Max Distance Parameter
-		numStochEventSetRealizationsParam = new IntegerParameter(NUM_STOCH_EVENT_SETS_PARAM_NAME, NUM_STOCH_EVENT_SETS_PARAM_MIN, 
-				NUM_STOCH_EVENT_SETS_PARAM_MAX, NUM_STOCH_EVENT_SETS_PARAM_DEFAULT);
-		numStochEventSetRealizationsParam.setInfo(NUM_STOCH_EVENT_SETS_PARAM_INFO);
+		numStochEventSetRealizationsParam = new NumStochasticEventSetsParam();
 		
-		setTRTinIMR_FromSourceParam = new BooleanParameter(SET_TRT_IN_IMR_FROM_SOURCE_PARAM_NAME,SET_TRT_IN_IMR_FROM_SOURCE_DEFAULT);
-		includeMagDistFilterParam.setInfo(SET_TRT_IN_IMR_FROM_SOURCE_INFO);
+		setTRTinIMR_FromSourceParam = new SetTRTinIMR_FromSourceParam();
 		
-		StringConstraint constraint = new StringConstraint();
-		constraint.addString(NON_SUPPORTED_TRT_OPTS_USE_DEFAULT);
-		constraint.addString(NON_SUPPORTED_TRT_OPTS_USE_ORIG);
-		constraint.addString(NON_SUPPORTED_TRT_OPTS_THROW);
-		constraint.setNonEditable();
-		nonSupportedTRT_OptionsParam = new StringParameter(NON_SUPPORTED_TRT_OPTS_PARAM_NAME,constraint);
-		nonSupportedTRT_OptionsParam.setDefaultValue(NON_SUPPORTED_TRT_OPTS_USE_ORIG);
-		nonSupportedTRT_OptionsParam.setInfo(NON_SUPPORTED_TRT_OPTS_PARAM_INFO);
+		nonSupportedTRT_OptionsParam = new NonSupportedTRT_OptionsParam();
 
 		adjustableParams = new ParameterList();
 		adjustableParams.addParameter(maxDistanceParam);
@@ -310,6 +267,9 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 			System.out.println("Haz Curv Calc: magDistCutoffParam.getValue()="+magDistCutoffParam.getValue().toString());
 		
 		boolean setTRTinIMR_FromSource = setTRTinIMR_FromSourceParam.getValue();
+		HashMap<ScalarIntensityMeasureRelationshipAPI, TectonicRegionType> trtDefaults = null;
+		if (setTRTinIMR_FromSource)
+			trtDefaults = TRTUtils.getTRTsSetInIMRs(imrMap);
 
 		this.currRuptures = -1;
 
@@ -379,24 +339,11 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 			TectonicRegionType trt = source.getTectonicRegionType();
 			
 			// get the IMR
-			ScalarIntensityMeasureRelationshipAPI imr;
-			if(imrMap.size() == 1)  // get the first if there is only one
-				imr = imrMap.values().iterator().next();
-			else
-				imr = imrMap.get(trt);
+			ScalarIntensityMeasureRelationshipAPI imr = TRTUtils.getIMRforTRT(imrMap, trt);
 
 			// Set Tectonic Region Type in IMR
 			if(setTRTinIMR_FromSource) { // (otherwise leave as originally set)
-				if(imr.isTectonicRegionSupported(trt.toString()))  {  // check whether it's supported
-					imr.getParameter(TectonicRegionTypeParam.NAME).setValue(trt.toString());					  
-				} else { // what to do if imr does not support that type
-					if(nonSupportedTRT_OptionsParam.getValue().equals(NON_SUPPORTED_TRT_OPTS_USE_DEFAULT))
-						imr.getParameter(TectonicRegionTypeParam.NAME).setValueAsDefault();
-					else if (nonSupportedTRT_OptionsParam.getValue().equals(NON_SUPPORTED_TRT_OPTS_THROW))
-						throw new RuntimeException("Tectonic Region Type from source not supported by IMR");
-				}
-				// third case (NON_SUPPORTED_TRT_OPTS_ORIG) is do nothing; leave as already set
-
+				TRTUtils.setTRTinIMR(imr, trt, nonSupportedTRT_OptionsParam, trtDefaults.get(imr));
 			}
 
 			// compute the source's distance from the site and skip if it's too far away
@@ -486,6 +433,10 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		if (D) System.out.println(C+"hazFunction.toString"+hazFunction.toString());
 
 		// System.out.println("numRupRejected="+numRupRejected);
+		
+		// reset TRT parameter in IMRs
+		if (trtDefaults != null)
+			TRTUtils.resetTRTsInIMRs(trtDefaults);
 
 		return hazFunction;
 	}
@@ -746,10 +697,16 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 */
 	public void setAdjustableParams(ParameterList paramList)  throws java.rmi.RemoteException{
 		this.adjustableParams = paramList;
-		this.maxDistanceParam= (DoubleParameter)paramList.getParameter(MAX_DISTANCE_PARAM_NAME);
-		this.numStochEventSetRealizationsParam= (IntegerParameter)paramList.getParameter(NUM_STOCH_EVENT_SETS_PARAM_NAME);
-		this.includeMagDistFilterParam= (BooleanParameter)paramList.getParameter(INCLUDE_MAG_DIST_FILTER_PARAM_NAME);
-		this.magDistCutoffParam= (ArbitrarilyDiscretizedFuncParameter)paramList.getParameter(MAG_DIST_CUTOFF_PARAM_NAME);
+		this.maxDistanceParam = (MaxDistanceParam)paramList.getParameter(MaxDistanceParam.NAME);
+		this.numStochEventSetRealizationsParam =
+			(NumStochasticEventSetsParam)paramList.getParameter(NumStochasticEventSetsParam.NAME);
+		this.includeMagDistFilterParam =
+			(IncludeMagDistFilterParam)paramList.getParameter(IncludeMagDistFilterParam.NAME);
+		this.magDistCutoffParam = (MagDistCutoffParam)paramList.getParameter(MagDistCutoffParam.NAME);
+		this.setTRTinIMR_FromSourceParam =
+			(SetTRTinIMR_FromSourceParam)paramList.getParameter(SetTRTinIMR_FromSourceParam.NAME);
+		this.nonSupportedTRT_OptionsParam =
+			(NonSupportedTRT_OptionsParam)paramList.getParameter(NonSupportedTRT_OptionsParam.NAME);
 	}
 
 

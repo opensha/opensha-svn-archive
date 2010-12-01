@@ -62,6 +62,7 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.HazardCurveCalculator;
+import org.opensha.sha.calc.params.MaxDistanceParam;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
@@ -688,7 +689,7 @@ implements ParameterChangeListener, IMR_GuiBeanAPI, Runnable, CurveDisplayAppAPI
 				function = imtInfo.getDefaultHazardCurve(imtGuiBean.getSelectedIMT());
 			//this connects to the servlet on web server to check if dataset name already exists
 			//or computation have already been for these parameter settings.
-			if(distanceControlPanel == null ) maxDistance = new Double(HazardCurveCalculator.MAX_DISTANCE_DEFAULT);
+			if(distanceControlPanel == null ) maxDistance = new Double(MaxDistanceParam.DEFAULT);
 			else maxDistance = new Double(distanceControlPanel.getDistance());
 			Object obj= checkForHazardMapComputation();
 			if(obj instanceof String){

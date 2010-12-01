@@ -30,6 +30,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.NotImplementedException;
@@ -37,8 +38,15 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.WarningParameterAPI;
 import org.opensha.commons.util.ServerPrefUtils;
+import org.opensha.sha.calc.params.IncludeMagDistFilterParam;
+import org.opensha.sha.calc.params.MagDistCutoffParam;
+import org.opensha.sha.calc.params.MaxDistanceParam;
+import org.opensha.sha.calc.params.NonSupportedTRT_OptionsParam;
+import org.opensha.sha.calc.params.NumStochasticEventSetsParam;
+import org.opensha.sha.calc.params.SetTRTinIMR_FromSourceParam;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -155,14 +163,15 @@ implements DisaggregationCalculatorAPI{
 	 * @param site: site parameter
 	 * @param imr: selected IMR object
 	 * @param eqkRupForecast: selected Earthquake rup forecast
+	 * @param calcParams: calculation parameters from the <code>HazardCurveCalculator</code>
 	 * @return boolean
 	 */
 	public boolean disaggregate(double iml, Site site,
 			ScalarIntensityMeasureRelationshipAPI imr,
 			EqkRupForecast eqkRupForecast,
-			double maxDist, ArbitrarilyDiscretizedFunc magDistFilter) 
+			ParameterList calcParams) 
 			throws java.rmi.RemoteException {
-		return disaggregate(iml, site, TRTUtils.wrapInHashMap(imr), eqkRupForecast, maxDist, magDistFilter);
+		return disaggregate(iml, site, TRTUtils.wrapInHashMap(imr), eqkRupForecast, calcParams);
 	}
 	
 	@Override
@@ -170,8 +179,18 @@ implements DisaggregationCalculatorAPI{
 			double iml,
 			Site site,
 			Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap,
-			EqkRupForecast eqkRupForecast, double maxDist,
-			ArbitrarilyDiscretizedFunc magDistFilter) throws RemoteException {
+			EqkRupForecast eqkRupForecast, ParameterList calcParams) throws RemoteException {
+		
+		MaxDistanceParam maxDistanceParam = (MaxDistanceParam)calcParams.getParameter(MaxDistanceParam.NAME);
+		NumStochasticEventSetsParam numStochEventSetRealizationsParam =
+			(NumStochasticEventSetsParam)calcParams.getParameter(NumStochasticEventSetsParam.NAME);
+		IncludeMagDistFilterParam includeMagDistFilterParam =
+			(IncludeMagDistFilterParam)calcParams.getParameter(IncludeMagDistFilterParam.NAME);
+		MagDistCutoffParam magDistCutoffParam = (MagDistCutoffParam)calcParams.getParameter(MagDistCutoffParam.NAME);
+		SetTRTinIMR_FromSourceParam setTRTinIMR_FromSourceParam =
+			(SetTRTinIMR_FromSourceParam)calcParams.getParameter(SetTRTinIMR_FromSourceParam.NAME);
+		NonSupportedTRT_OptionsParam nonSupportedTRT_OptionsParam =
+			(NonSupportedTRT_OptionsParam)calcParams.getParameter(NonSupportedTRT_OptionsParam.NAME);
 
 		double rate, condProb;
 
@@ -202,23 +221,27 @@ implements DisaggregationCalculatorAPI{
 			( (AttenuationRelationship) imr).resetParameterEventListeners();
 
 
-		boolean includeMagDistFilter;
-		if(magDistFilter == null ) includeMagDistFilter=false;
-		else includeMagDistFilter=true;
+		boolean includeMagDistFilter = includeMagDistFilterParam.getValue();
+		ArbitrarilyDiscretizedFunc magDistFilter = null;
+		if (includeMagDistFilter)
+			magDistFilter = magDistCutoffParam.getValue();
 		double magThresh=0.0;
+		double maxDist = maxDistanceParam.getValue();
 		
 		// set the maximum distance in the attenuation relationship
 		// (Note- other types of IMRs may not have this method so we should really check type here)
 		for (ScalarIntensityMeasureRelationshipAPI imr : imrMap.values())
 			imr.setUserMaxDistance(maxDist);
 
-		// set iml in imr
-		ParameterAPI<Double> im = TRTUtils.getFirstIMR(imrMap).getIntensityMeasure();
-		if (im instanceof WarningParameterAPI<?>) {
-			WarningParameterAPI<Double> warnIM = (WarningParameterAPI<Double>)im;
-			warnIM.setValueIgnoreWarning(new Double(iml));
-		} else {
-			im.setValue(new Double(iml));
+		// set iml in imrs
+		for (ScalarIntensityMeasureRelationshipAPI imr : imrMap.values()) {
+			ParameterAPI<Double> im = imr.getIntensityMeasure();
+			if (im instanceof WarningParameterAPI<?>) {
+				WarningParameterAPI<Double> warnIM = (WarningParameterAPI<Double>)im;
+				warnIM.setValueIgnoreWarning(new Double(iml));
+			} else {
+				im.setValue(new Double(iml));
+			}
 		}
 
 		// get total number of sources
@@ -260,6 +283,10 @@ implements DisaggregationCalculatorAPI{
 		
 	    int numRupRejected =0;
 
+	    boolean setTRTinIMR_FromSource = setTRTinIMR_FromSourceParam.getValue();
+		HashMap<ScalarIntensityMeasureRelationshipAPI, TectonicRegionType> trtDefaults = null;
+		if (setTRTinIMR_FromSource)
+			trtDefaults = TRTUtils.getTRTsSetInIMRs(imrMap);
 		
 		for (int i = 0; i < numSources; i++) {
 
@@ -284,7 +311,12 @@ implements DisaggregationCalculatorAPI{
 			
 			// set the IMR according to the tectonic region of the source (if there is more than one)
 			TectonicRegionType trt = source.getTectonicRegionType();
-			ScalarIntensityMeasureRelationshipAPI imr = TRTUtils.getIMRForTRT(imrMap, trt);
+			ScalarIntensityMeasureRelationshipAPI imr = TRTUtils.getIMRforTRT(imrMap, trt);
+			
+			// Set Tectonic Region Type in IMR
+			if(setTRTinIMR_FromSource) { // (otherwise leave as originally set)
+				TRTUtils.setTRTinIMR(imr, trt, nonSupportedTRT_OptionsParam, trtDefaults.get(imr));
+			}
 
 //			if (numSourcesToShow > 0)
 //				sourceDissaggMap.put(sourceName, new ArrayList());
@@ -391,6 +423,10 @@ implements DisaggregationCalculatorAPI{
 				disaggSourceList.add(disaggInfo);
 			}
 		}
+		
+		// reset TRT parameter in IMRs
+		if (trtDefaults != null)
+			TRTUtils.resetTRTsInIMRs(trtDefaults);
 
 		//if no rate of exceedance above a given IML then return false.
 		if (! (totalRate > 0))
