@@ -198,12 +198,20 @@ public class DataUtils {
 	
 
 	// TODO test
+	/**
+	 * Class for tracking the minimum and maximum values of a set of data.
+	 */
 	public static class MinMaxAveTracker {
 		private double min = Double.POSITIVE_INFINITY;
 		private double max = Double.NEGATIVE_INFINITY;
 		private double tot = 0;
 		private int num = 0;
 
+		/**
+		 * Add a new value to the tracker. Min/Max/Average will be updated.
+		 * 
+		 * @param val - value to be added
+		 */
 		public void addValue(double val) {
 			if (val < min) min = val;
 			if (val > max) max = val;
@@ -211,18 +219,39 @@ public class DataUtils {
 			num++;
 		}
 
+		/**
+		 * Returns the minimum value that has been added to this tracker, or positive infinity if
+		 * no values have been added.
+		 * 
+		 * @return minimum value
+		 */
 		public double getMin() {
 			return min;
 		}
 
+		/**
+		 * Returns the maximum value that has been added to this tracker, or negative infinity if
+		 * no values have been added.
+		 * 
+		 * @return maximum value
+		 */
 		public double getMax() {
 			return max;
 		}
 
+		/**
+		 * Computes the average of all values that have been added to this tracker.
+		 * 
+		 * @return the average of all values that have been added to this tracker.
+		 */
 		public double getAverage() {
 			return tot / (double) num;
 		}
 
+		/**
+		 * 
+		 * @return total number of values added to this tracker.
+		 */
 		public int getNum() {
 			return num;
 		}
