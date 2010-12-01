@@ -108,6 +108,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
  */
 
 
+
 public class CB_2008_AttenRel
 extends AttenuationRelationship implements
 ScalarIntensityMeasureRelationshipAPI,
