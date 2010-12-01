@@ -267,9 +267,9 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 			System.out.println("Haz Curv Calc: magDistCutoffParam.getValue()="+magDistCutoffParam.getValue().toString());
 		
 		boolean setTRTinIMR_FromSource = setTRTinIMR_FromSourceParam.getValue();
-		HashMap<ScalarIntensityMeasureRelationshipAPI, TectonicRegionType> trtDefaults = null;
+		HashMap<ScalarIntensityMeasureRelationshipAPI, TectonicRegionType> trtOrigVals = null;
 		if (setTRTinIMR_FromSource)
-			trtDefaults = TRTUtils.getTRTsSetInIMRs(imrMap);
+			trtOrigVals = TRTUtils.getTRTsSetInIMRs(imrMap);
 
 		this.currRuptures = -1;
 
@@ -343,7 +343,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 
 			// Set Tectonic Region Type in IMR
 			if(setTRTinIMR_FromSource) { // (otherwise leave as originally set)
-				TRTUtils.setTRTinIMR(imr, trt, nonSupportedTRT_OptionsParam, trtDefaults.get(imr));
+				TRTUtils.setTRTinIMR(imr, trt, nonSupportedTRT_OptionsParam, trtOrigVals.get(imr));
 			}
 
 			// compute the source's distance from the site and skip if it's too far away
@@ -435,8 +435,8 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		// System.out.println("numRupRejected="+numRupRejected);
 		
 		// reset TRT parameter in IMRs
-		if (trtDefaults != null)
-			TRTUtils.resetTRTsInIMRs(trtDefaults);
+		if (trtOrigVals != null)
+			TRTUtils.resetTRTsInIMRs(trtOrigVals);
 
 		return hazFunction;
 	}
