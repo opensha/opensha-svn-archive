@@ -429,12 +429,17 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 
 	/**
 	 * Returns the index of the grid node associated with a given
-	 * <code>Location</code> or -1 if the <code>Location</code> is 
+	 * <code>Location</code> or -1 if the associated grid node is 
 	 * ouside this gridded region. For a <code>Location</code> to be 
-	 * associated with a node it must fall within the square region 
-	 * represented by the node on which the node is centered. Note that 
+	 * associated with a node, it must fall within the square region 
+	 * on which the node is centered. Note that 
 	 * this allows for some <code>Location</code>s that are outside the 
-	 * region border to still be associated with a node.
+	 * region border to still be associated with a node. Conversely, a
+	 * {@link Region#contains(Location)} may return <code>true</code>
+	 * while this method returns -1. Users interested in node association
+	 * should always use this method alone and test for -1 return value.
+	 * {@link Region#contains(Location)} should <i>NOT</i> be used a as a
+	 * test prior to calling this method.
 	 * <br/><br/>
 	 * The figure and table below indicate the results produced 
 	 * by calling <code>contains()</code> or <code>indexForLocation()</code>.
@@ -635,7 +640,6 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 			for (double lon:lonNodes) {
 				loc = new Location(lat, lon);
 				if (contains(loc)) {
-					
 					nodeList.add(loc);
 					gridIndices[grid_idx] = node_idx++;
 				} else {
