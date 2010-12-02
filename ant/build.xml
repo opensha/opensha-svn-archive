@@ -418,5 +418,9 @@
 			<!-- <link offline="true" href="http://java.sun.com/j2se/1.5.0/docs/api/" packagelistLoc="C:\tmp"/>
 			<link href="http://developer.java.sun.com/developer/products/xml/docs/api/"/> -->
 		</javadoc>
+		<copy todir="${javadoc.dir}" overwrite="true">
+			<fileset dir="${src}/resources/doc" />
+		</copy>
+
 	</target>
 </project>
