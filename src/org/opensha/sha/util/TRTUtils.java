@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.opensha.sha.calc.params.NonSupportedTRT_OptionsParam;
-import org.opensha.sha.calc.params.SetTRTinIMR_FromSourceParam;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
 
