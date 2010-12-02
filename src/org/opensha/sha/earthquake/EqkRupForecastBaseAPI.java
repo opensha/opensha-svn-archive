@@ -93,7 +93,7 @@ public interface EqkRupForecastBaseAPI extends NamedObjectAPI{
 	 *
 	 * @return
 	 */
-	public ListIterator<ParameterAPI> getAdjustableParamsIterator();
+	public ListIterator<ParameterAPI<?>> getAdjustableParamsIterator();
 
 	/**
 	 * Gets the Adjustable parameter list for the ERF

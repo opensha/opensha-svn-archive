@@ -96,7 +96,7 @@ public class Fhcc {
 				imr.setSite(siteArr.get(siteIdx));
 			
 				// Rupture list for the current source
-				ArrayList<EqkRupture> rupList = source.getRuptureList();
+				ArrayList<ProbEqkRupture> rupList = source.getRuptureList();
 				
 				// Create an arbitrarily discretized func to calculate the 
 				ArbitrarilyDiscretizedFunc srcHazFun = new ArbitrarilyDiscretizedFunc();

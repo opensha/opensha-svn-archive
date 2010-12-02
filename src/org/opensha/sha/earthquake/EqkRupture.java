@@ -41,7 +41,12 @@ import org.opensha.sha.faultSurface.PointSurface;
 
 public class EqkRupture implements java.io.Serializable {
 
-    /* *******************/
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	/* *******************/
     /** @todo  Variables */
     /* *******************/
 
@@ -99,7 +104,7 @@ public class EqkRupture implements java.io.Serializable {
      * This is a common performance enhancement, because in general, not all
      * aspects of a program are used per user session.
      */
-    public void addParameter(ParameterAPI parameter){
+    public void addParameter(ParameterAPI<?> parameter){
         if( otherParams == null) otherParams = new ParameterList();
         if(!otherParams.containsParameter(parameter)){
             otherParams.addParameter(parameter);
@@ -107,7 +112,7 @@ public class EqkRupture implements java.io.Serializable {
         else{ otherParams.updateParameter(parameter); }
     }
 
-    public void removeParameter(ParameterAPI parameter){
+    public void removeParameter(ParameterAPI<?> parameter){
         if( otherParams == null) return;
         otherParams.removeParameter(parameter);
     }
@@ -118,7 +123,7 @@ public class EqkRupture implements java.io.Serializable {
      * have been Added, this doesn't convey any more information than the
      * short name to me.
      */
-    public ListIterator getAddedParametersIterator(){
+    public ListIterator<ParameterAPI<?>> getAddedParametersIterator(){
         if( otherParams == null) return null;
         else{ return otherParams.getParametersIterator(); }
     }

@@ -44,7 +44,7 @@ public interface EqkRupForecastAPI extends EqkRupForecastBaseAPI{
       *
       * @returns the sourceList
       */
-     public ArrayList getSourceList();
+     public ArrayList<? extends ProbEqkSource> getSourceList();
 
      /**
       * Return the earhthquake source at index i.   Note that this returns a

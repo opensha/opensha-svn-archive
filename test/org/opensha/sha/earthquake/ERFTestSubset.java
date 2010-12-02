@@ -13,6 +13,11 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class ERFTestSubset implements EqkRupForecastAPI {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	HashMap<Integer, Integer> sourceIDMap = new HashMap<Integer, Integer>();
 	
 	private EqkRupForecast baseERF;
@@ -27,7 +32,7 @@ public class ERFTestSubset implements EqkRupForecastAPI {
 	}
 
 	@Override
-	public ListIterator<ParameterAPI> getAdjustableParamsIterator() {
+	public ListIterator<ParameterAPI<?>> getAdjustableParamsIterator() {
 		return baseERF.getAdjustableParamsIterator();
 	}
 
@@ -107,7 +112,7 @@ public class ERFTestSubset implements EqkRupForecastAPI {
 	}
 
 	@Override
-	public ArrayList getSourceList() {
+	public ArrayList<ProbEqkSource> getSourceList() {
 		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
 		for (int i=0; i<getNumSources(); i++) {
 			sources.add(getSource(i));

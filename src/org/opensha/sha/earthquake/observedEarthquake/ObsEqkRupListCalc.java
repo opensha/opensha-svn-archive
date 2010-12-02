@@ -56,8 +56,8 @@ public class ObsEqkRupListCalc {
    * @return double min-mag
    */
   public static double getMinMag(ObsEqkRupList obsEqkEvents) {
-    Double minMag = (Double)Collections.min(obsEqkEvents.getObsEqkRupEventList(),new EqkRuptureMagComparator());
-    return minMag.doubleValue();
+    Double minMag = Collections.min(obsEqkEvents.getObsEqkRupEventList(),new EqkRuptureMagComparator()).getMag();
+    return minMag;
   }
 
 
@@ -67,8 +67,8 @@ public class ObsEqkRupListCalc {
    * @return double max-mag
    */
   public static double getMaxMag(ObsEqkRupList obsEqkEvents) {
-    Double maxMag = (Double)Collections.max(obsEqkEvents.getObsEqkRupEventList(),new EqkRuptureMagComparator());
-    return maxMag.doubleValue();
+    Double maxMag = Collections.max(obsEqkEvents.getObsEqkRupEventList(),new EqkRuptureMagComparator()).getMag();
+    return maxMag;
   }
 
   /**

@@ -44,7 +44,7 @@ public interface EqkSourceAPI extends NamedObjectAPI{
    *
    * @return Iterator on vector for all ruptures
    */
-  public Iterator getRupturesIterator();
+  public Iterator<ProbEqkRupture> getRupturesIterator();
 
 
   /**
@@ -83,7 +83,7 @@ public interface EqkSourceAPI extends NamedObjectAPI{
    *
    * @return ArrayList consisting of
    */
-  public ArrayList getRuptureList();
+  public ArrayList<ProbEqkRupture> getRuptureList();
 
   /**
    * It returns a list of all the locations which make up the surface for this

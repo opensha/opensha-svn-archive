@@ -34,169 +34,174 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
  * @version 1.0
  */
 
-public class ProbEqkRupture extends EqkRupture{
+public class ProbEqkRupture extends EqkRupture {
 
 
-  protected double probability;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
-  //index of rupture for a given source as defined by a ERF
-  private int rupIndex,srcIndex;
-  //name of the source of which this rupture is a part.
-  private String srcName;
+	protected double probability;
 
-
-  /* **********************/
-    /** @todo  Constructors */
-    /* **********************/
-
-  public ProbEqkRupture() {
-    super();
-  }
-
-  public ProbEqkRupture(double mag,
-                        double aveRake,
-                        double probability,
-                        EvenlyGriddedSurfaceAPI ruptureSurface,
-                        Location hypocenterLocation)
-                            throws InvalidRangeException {
-
-        super(mag, aveRake, ruptureSurface, hypocenterLocation);
-        this.probability = probability;
-
-   }
+	//index of rupture for a given source as defined by a ERF
+	private int rupIndex,srcIndex;
+	//name of the source of which this rupture is a part.
+	private String srcName;
 
 
+	/* **********************/
+	/** @todo  Constructors */
+	/* **********************/
 
-  public double getProbability() { return probability; }
+	public ProbEqkRupture() {
+		super();
+	}
 
-  public void setProbability(double p) { probability = p; }
+	public ProbEqkRupture(double mag,
+			double aveRake,
+			double probability,
+			EvenlyGriddedSurfaceAPI ruptureSurface,
+			Location hypocenterLocation)
+	throws InvalidRangeException {
 
-  /**
-   * This is a function of probability and duration
-   */
-  public double getMeanAnnualRate(double duration){
-	  return -Math.log(1 - probability)/duration;
-   }
+		super(mag, aveRake, ruptureSurface, hypocenterLocation);
+		this.probability = probability;
 
-
-   public String getInfo() {
-     String info1, info2;
-     info1 = new String("\tMag. = " + (float) mag + "\n" +
-                        "\tAve. Rake = " + (float) aveRake + "\n" +
-                        "\tProb. = " + (float) probability + "\n" +
-                        "\tAve. Dip = " + (float) ruptureSurface.getAveDip() +
-                        "\n" +
-                        "\tHypocenter = " + hypocenterLocation + "\n");
-
-     // write our rupture surface information
-     if (ruptureSurface.getNumCols() == 1 && ruptureSurface.getNumRows() == 1) {
-       Location loc = ruptureSurface.getLocation(0, 0);
-       info2 = new String("\tPoint-Surface Location (lat, lon, depth (km):" +
-                          "\n\n" +
-                          "\t\t" + (float) loc.getLatitude() + ", " +
-                          (float) loc.getLongitude() +
-                          ", " + (float) loc.getDepth());
-     }
-     else {
-       Location loc1 = ruptureSurface.getLocation(0, 0);
-       Location loc2 = ruptureSurface.getLocation(0,
-                                                  ruptureSurface.getNumCols() - 1);
-       Location loc3 = ruptureSurface.getLocation(ruptureSurface.getNumRows() -
-                                                  1, 0);
-       Location loc4 = ruptureSurface.getLocation(ruptureSurface.getNumRows() -
-                                                  1,
-                                                  ruptureSurface.getNumCols() - 1);
-       info2 = new String("\tRup. Surf. Corner Locations (lat, lon, depth (km):" +
-                          "\n\n" +
-                          "\t\t" + (float) loc1.getLatitude() + ", " +
-                          (float) loc1.getLongitude() + ", " +
-                          (float) loc1.getDepth() + "\n" +
-                          "\t\t" + (float) loc2.getLatitude() + ", " +
-                          (float) loc2.getLongitude() + ", " +
-                          (float) loc2.getDepth() + "\n" +
-                          "\t\t" + (float) loc3.getLatitude() + ", " +
-                          (float) loc3.getLongitude() + ", " +
-                          (float) loc3.getDepth() + "\n" +
-                          "\t\t" + (float) loc4.getLatitude() + ", " +
-                          (float) loc4.getLongitude() + ", " +
-                          (float) loc4.getDepth() + "\n");
-     }
-     return info1 + info2;
-   }
-
-
-   /**
-    * Sets the rupture index from given source.
-    * @param sourceIndex int source of the rupture
-    * @param sourceName String Name of the Source
-    * @param ruptureIndex int rupture index of the given source
-    *
-    */
-   public void setRuptureIndexAndSourceInfo(int sourceIndex,String sourceName,
-                                            int ruptureIndex){
-     srcIndex = sourceIndex;
-     srcName = sourceName;
-     rupIndex = ruptureIndex;
-   }
-
-
-   /**
-    * Returns the rupture index as defined by the Source
-    * @return int
-    */
-   public int getRuptureIndex(){
-     return rupIndex;
-   }
+	}
 
 
 
-   /**
-    * Returns the Metadata for the rupture of a given source. Following information
-    * is represented as a single line for the rupture.
-    * <ul>
-    *   <li>Source Index
-    *   <li>Rupture Index
-    *   <li>Magnitude
-    *   <li>Probablity
-    *   <li>Ave. Rake
-    *  <p>If rupture surface is a point surface then point surface locations are
-    *  included in it.So the next 3 elements are :</p>
-    *   <li>Point Surface Latitude
-    *   <li>Point Surface Longitude
-    *   <li>Point Surface Depth
-    *   <li>Source Name
-    * </ul>
-    *
-    * Each element in the single line is seperated by a tab ("\t").
-    * @return String
-    */
-   public String getRuptureMetadata(){
-     //rupture Metadata
-     String ruptureMetadata;
-     ruptureMetadata = srcIndex + "\t";
-     ruptureMetadata += rupIndex + "\t";
-     ruptureMetadata += (float)mag + "\t";
-     ruptureMetadata += (float)probability + "\t";
-     ruptureMetadata += (float)aveRake + "\t";
-     ruptureMetadata += (float)ruptureSurface.getAveDip()+"\t";
-     ruptureMetadata += "\""+srcName+"\"";
-     return ruptureMetadata;
+	public double getProbability() { return probability; }
 
-   }
+	public void setProbability(double p) { probability = p; }
 
-   /**
-    * Clones the eqk rupture and returns the new cloned object
-    * @return
-    */
-  public Object clone() {
-    ProbEqkRupture eqkRuptureClone=new ProbEqkRupture();
-    eqkRuptureClone.setAveRake(this.aveRake);
-    eqkRuptureClone.setMag(this.mag);
-    eqkRuptureClone.setRuptureSurface(this.ruptureSurface);
-    eqkRuptureClone.setHypocenterLocation(this.hypocenterLocation);
-    eqkRuptureClone.setProbability(this.probability);
-    return eqkRuptureClone;
-  }
+	/**
+	 * This is a function of probability and duration
+	 */
+	 public double getMeanAnnualRate(double duration){
+		return -Math.log(1 - probability)/duration;
+	 }
+
+
+	 public String getInfo() {
+		 String info1, info2;
+		 info1 = new String("\tMag. = " + (float) mag + "\n" +
+				 "\tAve. Rake = " + (float) aveRake + "\n" +
+				 "\tProb. = " + (float) probability + "\n" +
+				 "\tAve. Dip = " + (float) ruptureSurface.getAveDip() +
+				 "\n" +
+				 "\tHypocenter = " + hypocenterLocation + "\n");
+
+		 // write our rupture surface information
+		 if (ruptureSurface.getNumCols() == 1 && ruptureSurface.getNumRows() == 1) {
+			 Location loc = ruptureSurface.getLocation(0, 0);
+			 info2 = new String("\tPoint-Surface Location (lat, lon, depth (km):" +
+					 "\n\n" +
+					 "\t\t" + (float) loc.getLatitude() + ", " +
+					 (float) loc.getLongitude() +
+					 ", " + (float) loc.getDepth());
+		 }
+		 else {
+			 Location loc1 = ruptureSurface.getLocation(0, 0);
+			 Location loc2 = ruptureSurface.getLocation(0,
+					 ruptureSurface.getNumCols() - 1);
+			 Location loc3 = ruptureSurface.getLocation(ruptureSurface.getNumRows() -
+					 1, 0);
+			 Location loc4 = ruptureSurface.getLocation(ruptureSurface.getNumRows() -
+					 1,
+					 ruptureSurface.getNumCols() - 1);
+			 info2 = new String("\tRup. Surf. Corner Locations (lat, lon, depth (km):" +
+					 "\n\n" +
+					 "\t\t" + (float) loc1.getLatitude() + ", " +
+					 (float) loc1.getLongitude() + ", " +
+					 (float) loc1.getDepth() + "\n" +
+					 "\t\t" + (float) loc2.getLatitude() + ", " +
+					 (float) loc2.getLongitude() + ", " +
+					 (float) loc2.getDepth() + "\n" +
+					 "\t\t" + (float) loc3.getLatitude() + ", " +
+					 (float) loc3.getLongitude() + ", " +
+					 (float) loc3.getDepth() + "\n" +
+					 "\t\t" + (float) loc4.getLatitude() + ", " +
+					 (float) loc4.getLongitude() + ", " +
+					 (float) loc4.getDepth() + "\n");
+		 }
+		 return info1 + info2;
+	 }
+
+
+	 /**
+	  * Sets the rupture index from given source.
+	  * @param sourceIndex int source of the rupture
+	  * @param sourceName String Name of the Source
+	  * @param ruptureIndex int rupture index of the given source
+	  *
+	  */
+	 public void setRuptureIndexAndSourceInfo(int sourceIndex,String sourceName,
+			 int ruptureIndex){
+		 srcIndex = sourceIndex;
+		 srcName = sourceName;
+		 rupIndex = ruptureIndex;
+	 }
+
+
+	 /**
+	  * Returns the rupture index as defined by the Source
+	  * @return int
+	  */
+	 public int getRuptureIndex(){
+		 return rupIndex;
+	 }
+
+
+
+	 /**
+	  * Returns the Metadata for the rupture of a given source. Following information
+	  * is represented as a single line for the rupture.
+	  * <ul>
+	  *   <li>Source Index
+	  *   <li>Rupture Index
+	  *   <li>Magnitude
+	  *   <li>Probablity
+	  *   <li>Ave. Rake
+	  *  <p>If rupture surface is a point surface then point surface locations are
+	  *  included in it.So the next 3 elements are :</p>
+	  *   <li>Point Surface Latitude
+	  *   <li>Point Surface Longitude
+	  *   <li>Point Surface Depth
+	  *   <li>Source Name
+	  * </ul>
+	  *
+	  * Each element in the single line is seperated by a tab ("\t").
+	  * @return String
+	  */
+	 public String getRuptureMetadata(){
+		 //rupture Metadata
+		 String ruptureMetadata;
+		 ruptureMetadata = srcIndex + "\t";
+		 ruptureMetadata += rupIndex + "\t";
+		 ruptureMetadata += (float)mag + "\t";
+		 ruptureMetadata += (float)probability + "\t";
+		 ruptureMetadata += (float)aveRake + "\t";
+		 ruptureMetadata += (float)ruptureSurface.getAveDip()+"\t";
+		 ruptureMetadata += "\""+srcName+"\"";
+		 return ruptureMetadata;
+
+	 }
+
+	 /**
+	  * Clones the eqk rupture and returns the new cloned object
+	  * @return
+	  */
+	 public Object clone() {
+		 ProbEqkRupture eqkRuptureClone=new ProbEqkRupture();
+		 eqkRuptureClone.setAveRake(this.aveRake);
+		 eqkRuptureClone.setMag(this.mag);
+		 eqkRuptureClone.setRuptureSurface(this.ruptureSurface);
+		 eqkRuptureClone.setHypocenterLocation(this.hypocenterLocation);
+		 eqkRuptureClone.setProbability(this.probability);
+		 return eqkRuptureClone;
+	 }
 
 
 

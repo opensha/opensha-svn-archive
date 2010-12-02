@@ -70,7 +70,7 @@ public interface ERF_EpistemicListAPI extends EqkRupForecastBaseAPI{
    * relative weights for each ERF
    * @return : ArrayList of Double values
    */
-  public ArrayList getRelativeWeightsList();
+  public ArrayList<Double> getRelativeWeightsList();
 
 
   /**
