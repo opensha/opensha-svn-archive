@@ -51,6 +51,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupFore
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
+import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
 import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
 
@@ -92,7 +93,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	private SetTRTinIMR_FromSourceParam setTRTinIMR_FromSourceParam;
 	
 	// This tells the calculator what to do if the TRT is not supported by the IMR
-	NonSupportedTRT_OptionsParam nonSupportedTRT_OptionsParam;
+	private NonSupportedTRT_OptionsParam nonSupportedTRT_OptionsParam;
 	
 
 	private ParameterList adjustableParams;

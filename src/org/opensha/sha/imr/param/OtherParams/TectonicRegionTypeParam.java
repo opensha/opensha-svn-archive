@@ -20,6 +20,7 @@
 package org.opensha.sha.imr.param.OtherParams;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.StringParameter;
@@ -70,11 +71,25 @@ public class TectonicRegionTypeParam extends StringParameter {
 		super(NAME, options);
 		// check that options are supported
 		ArrayList<String> strings = options.getAllowedStrings();
-		for(int i=0; i< strings.size();i++)
+		for(int i=0; i< strings.size();i++) {
 			if (!TectonicRegionType.isValidType((String)strings.get(i))) throw new RuntimeException("Constraint type not supported by TectonicRegionTypeParam");
+		}
 	    setInfo(INFO);
 	    setDefaultValue(defaultValue);
 	    setNonEditable();
+	}
+	
+	private static StringConstraint toStringConst(Collection<TectonicRegionType> options) {
+		StringConstraint sconst = new StringConstraint();
+		for (TectonicRegionType trt : options) {
+			sconst.addString(trt.toString());
+		}
+		sconst.setNonEditable();
+		return sconst;
+	}
+	
+	public TectonicRegionTypeParam(Collection<TectonicRegionType> options, TectonicRegionType defaultValue) {
+		this(toStringConst(options), defaultValue.toString());
 	}
 	
 	/**
