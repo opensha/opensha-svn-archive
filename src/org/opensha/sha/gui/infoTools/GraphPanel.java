@@ -45,6 +45,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
@@ -70,6 +71,7 @@ import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.gui.plot.jfreechart.JFreeLogarithmicAxis;
 import org.opensha.commons.gui.plot.jfreechart.MyTickUnits;
+import org.opensha.commons.util.CustomFileFilter;
 import org.opensha.commons.util.DataUtil;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 
@@ -101,6 +103,8 @@ public class GraphPanel extends JSplitPane {
 
 	// mesage needed in case of show data if plot is not available
 	private final static String NO_PLOT_MSG = "No Plot Data Available";
+	
+	JFileChooser fileChooser;
 
 	/**
 	 * default color scheme for plotting curves
@@ -996,37 +1000,44 @@ public class GraphPanel extends JSplitPane {
 		}
 	}
 
-
-
 	/**
 	 * Opens a file chooser and gives the user an opportunity to save the chart
-	 * in PNG format if plot is visible.
-	 * If data window is visible then saves the data to a file on users machine.
+	 * in PDF/PNG/TXT format.
 	 *
 	 * @throws IOException if there is an I/O error.
 	 */
 	public void save() throws IOException {
-
-		JFileChooser fileChooser = new JFileChooser();
+		if (fileChooser == null) {
+			fileChooser = new JFileChooser();
+			CustomFileFilter pdfChooser = new CustomFileFilter("pdf", "PDF File");
+			CustomFileFilter pngChooser = new CustomFileFilter("png", "PNG File");
+			CustomFileFilter txtChooser = new CustomFileFilter("txt", "TXT File");
+			
+			fileChooser.addChoosableFileFilter(pdfChooser);
+			fileChooser.addChoosableFileFilter(pngChooser);
+			fileChooser.addChoosableFileFilter(txtChooser);
+			fileChooser.setAcceptAllFileFilterUsed(false);
+			fileChooser.setFileFilter(pdfChooser);
+		}
 		int option = fileChooser.showSaveDialog(this);
 		String fileName = null;
 		if (option == JFileChooser.APPROVE_OPTION) {
 			fileName = fileChooser.getSelectedFile().getAbsolutePath();
-			if (!fileName.endsWith(".pdf") && graphOn) {
-				fileName = fileName + ".pdf";
+			CustomFileFilter filter = (CustomFileFilter) fileChooser.getFileFilter();
+			String ext = filter.getExtention();
+			if (!fileName.toLowerCase().endsWith("."+ext)) {
+				fileName = fileName + "." + ext;
 			}
-			else if (!graphOn)
-				fileName = fileName + ".txt";
+			if (ext.equals("pdf")) {
+				saveAsPDF(fileName);
+			} else if (ext.equals("png")) {
+				saveAsPNG(fileName);
+			} else if (ext.equals("txt")) {
+				DataUtil.save(fileName, dataTextArea.getText());
+			} else {
+				throw new RuntimeException("Unknown extention selected: "+ext);
+			}
 		}
-		else {
-			return;
-		}
-
-		if (graphOn)
-			saveAsPDF(fileName);
-		//chartPanel.doSaveAs();
-		else
-			DataUtil.save(fileName, dataTextArea.getText());
 	}
 
 	/**

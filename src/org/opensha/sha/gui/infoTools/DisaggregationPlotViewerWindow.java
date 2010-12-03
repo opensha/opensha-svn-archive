@@ -53,6 +53,8 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
 import org.jpedal.PdfDecoder;
+import org.opensha.commons.util.CustomFileFilter;
+import org.opensha.commons.util.DataUtil;
 import org.opensha.commons.util.FileUtils;
 
 import com.lowagie.text.Document;
@@ -122,6 +124,8 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
 
 	//Strings for getting the different disaggregation info.
 	private String meanModeText,metadataText,binDataText,sourceDataText;
+	
+	private JFileChooser fileChooser;
 
 
 	/**
@@ -295,18 +299,39 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
 	 * @throws IOException if there is an I/O error.
 	 */
 	protected void save() throws IOException {
-		JFileChooser fileChooser = new JFileChooser();
+		if (fileChooser == null) {
+			fileChooser = new JFileChooser();
+			CustomFileFilter pdfChooser = new CustomFileFilter("pdf", "PDF File");
+			CustomFileFilter txtChooser = new CustomFileFilter("txt", "TXT File");
+			
+			fileChooser.addChoosableFileFilter(pdfChooser);
+			fileChooser.addChoosableFileFilter(txtChooser);
+			fileChooser.setAcceptAllFileFilterUsed(false);
+			fileChooser.setFileFilter(pdfChooser);
+		}
 		int option = fileChooser.showSaveDialog(this);
 		String fileName = null;
 		if (option == JFileChooser.APPROVE_OPTION) {
 			fileName = fileChooser.getSelectedFile().getAbsolutePath();
-			if (!fileName.endsWith(".pdf"))
-				fileName = fileName + ".pdf";
+			CustomFileFilter filter = (CustomFileFilter) fileChooser.getFileFilter();
+			String ext = filter.getExtention();
+			if (!fileName.toLowerCase().endsWith("."+ext)) {
+				fileName = fileName + "." + ext;
+			}
+			if (ext.equals("pdf")) {
+				saveAsPDF(fileName);
+			} else if (ext.equals("txt")) {
+				DataUtil.save(fileName, getDissaggText());
+			}
 		}
-		else {
-			return;
-		}
-		saveAsPDF(fileName);
+
+	}
+	
+	private String getDissaggText() {
+		return "Mean/Mode Metadata :\n"+meanModeText+
+		"\n\n"+"Disaggregation Plot Parameters Info :\n"+
+		metadataText+"\n\n"+"Disaggregation Bin Data :\n"+binDataText+"\n\n"+
+		"Disaggregation Source List Info:\n"+sourceDataText;
 	}
 
 	/**
@@ -323,10 +348,7 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
 		String[] pdfFiles = new String[2];
 		try {
 
-			String disaggregationInfoString = "Mean/Mode Metadata :\n"+meanModeText+
-			"\n\n"+"Disaggregation Plot Parameters Info :\n"+
-			metadataText+"\n\n"+"Disaggregation Bin Data :\n"+binDataText+"\n\n"+
-			"Disaggregation Source List Info:\n"+sourceDataText;
+			String disaggregationInfoString = getDissaggText();
 
 			pdfFiles[0] = imgFileName;
 			pdfFiles[1] = fileName+".tmp";

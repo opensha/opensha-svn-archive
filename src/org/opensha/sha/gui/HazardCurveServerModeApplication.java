@@ -439,6 +439,8 @@ ScalarIMRChangeListener {
 		fileMenu.add(closeMenuItem);
 		menuBar.add(fileMenu);
 		menuBar.add(buildHelpMenu());
+		
+		enableMenuButtons();
 
 
 		// ======== init toolbar ======== TODO delayed clean
@@ -1128,6 +1130,7 @@ ScalarIMRChangeListener {
 		clearButton.setEnabled(false);
 		peelButton.setEnabled(false);
 		buttonControlPanel.setEnabled(false);
+		enableMenuButtons();
 		validate();
 		repaint();
 	}
@@ -1250,6 +1253,13 @@ ScalarIMRChangeListener {
 		peelButton.setEnabled(b);
 		buttonControlPanel.setEnabled(b);
 		progressCheckBox.setEnabled(b);
+		enableMenuButtons();
+	}
+	
+	private void enableMenuButtons() {
+		boolean enableSavePrint = functionList != null && functionList.size() > 0;
+		saveMenuItem.setEnabled(enableSavePrint);
+		printMenuItem.setEnabled(enableSavePrint);
 	}
 
 
@@ -2133,6 +2143,7 @@ ScalarIMRChangeListener {
 	public void addCurve (
 			ArbitrarilyDiscretizedFunc function) {
 		functionList.add(function);
+		enableMenuButtons();
 		ArrayList<PlotCurveCharacterstics> plotFeaturesList = getPlottingFeatures();
 		plotFeaturesList.add(new PlotCurveCharacterstics(
 				PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,

@@ -788,6 +788,8 @@ CurveDisplayAppAPI,GraphWindowAPI {
 		createHelpMenu();
 		// Big function here, sets all the AttenuationRelationship stuff and puts in sheetsPanel and
 		// inputsPanel
+		
+		enableMenuButtons();
 
 		this.setVisible( true );
 	}
@@ -955,7 +957,14 @@ CurveDisplayAppAPI,GraphWindowAPI {
 		if ( D )  System.out.println( S + "Ending" );
 
 	}
-
+	
+	private void enableMenuButtons() {
+		boolean enableSavePrint = functionList != null && functionList.size() > 0;
+		saveButton.setEnabled(enableSavePrint);
+		fileSaveMenu.setEnabled(enableSavePrint);
+		printButton.setEnabled(enableSavePrint);
+		filePrintMenu.setEnabled(enableSavePrint);
+	}
 
 	/**
 	 *  Adds a feature to the GraphPanel attribute of the AttenuationRelationshipApplet object
@@ -968,7 +977,8 @@ CurveDisplayAppAPI,GraphWindowAPI {
 		togglePlot();
 		if (isWhite) graphPanel.setPlotBackgroundColor(Color.white);
 		else graphPanel.setPlotBackgroundColor(Color.black);
-
+		
+		enableMenuButtons();
 	}
 
 	/**
@@ -1004,6 +1014,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 		}
 		customAxis = false;
 		mainSplitPane.setDividerLocation( newLoc );
+		enableMenuButtons();
 	}
 
 
