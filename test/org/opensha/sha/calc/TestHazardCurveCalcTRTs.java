@@ -1,6 +1,9 @@
 package org.opensha.sha.calc;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -16,11 +19,8 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.sha.calc.params.IncludeMagDistFilterParam;
-import org.opensha.sha.calc.params.MagDistCutoffParam;
 import org.opensha.sha.calc.params.MaxDistanceParam;
 import org.opensha.sha.calc.params.NonSupportedTRT_OptionsParam;
-import org.opensha.sha.calc.params.NumStochasticEventSetsParam;
 import org.opensha.sha.calc.params.SetTRTinIMR_FromSourceParam;
 import org.opensha.sha.earthquake.ERFTestSubset;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
@@ -28,6 +28,18 @@ import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
 import org.opensha.sha.util.TectonicRegionType;
 
+/**
+ * This tests the hazard curve calculator's handling of the TRT parameters.
+ * 
+ * All of the tests use a fake ERF, which contains a single source. That source
+ * has a single rupture, where the tectonic region is set to the given rupture.
+ * This testing with a single rupture allows me to verify that the TRT parameter
+ * is being set correctly in the IMR (with the help of parameter change listeners).
+ * There is also a fake IMR which takes a list of supported TRT's in its constructor.
+ * 
+ * @author kevin
+ *
+ */
 public class TestHazardCurveCalcTRTs implements ParameterChangeListener {
 	
 	private static HashMap<TectonicRegionType, ERFTestSubset> singleERFMaps;
@@ -88,6 +100,14 @@ public class TestHazardCurveCalcTRTs implements ParameterChangeListener {
 					calc.getAdjustableParams().getParameter(NonSupportedTRT_OptionsParam.NAME);
 	}
 	
+	/**
+	 * This simply tests the case where the TRT isn't supposed to be set by the source, but
+	 * rather the IMR's parameter is maintained. It sets the setTRTinIMR_FromSourceParam to
+	 * false, then does calculations with ERFs of all sorts of TRTs. With each calculation,
+	 * it verifies that the TRT parameter is never changed.
+	 * 
+	 * @throws RemoteException
+	 */
 	@Test
 	public void testHCSetBySourceFalse() throws RemoteException {
 		setTRTinIMR_FromSourceParam.setValue(false);
@@ -110,6 +130,14 @@ public class TestHazardCurveCalcTRTs implements ParameterChangeListener {
 		}
 	}
 	
+	/**
+	 * This tests the case where the TRT param should be set by the source, and that TRT is supported by the IMR. 
+	 * 
+	 * It verifies that the TRT param is being set to the source's TRT (via listeners), and that the TRT param is
+	 * set back to the original value at the end of the calculation. 
+	 * 
+	 * @throws RemoteException
+	 */
 	@Test
 	public void testHCSetBySourceTrueSupported() throws RemoteException {
 		setTRTinIMR_FromSourceParam.setValue(true);
@@ -156,6 +184,14 @@ public class TestHazardCurveCalcTRTs implements ParameterChangeListener {
 		}
 	}
 	
+	/**
+	 * This tests when the nonSupportedTRT_OptionsParam is set to use the default value 
+	 * 
+	 * it does calculations with multiple unsupported TRT's, and verifies via listeners that the
+	 * value used for calculation is always the default value for the TRT param 
+	 * 
+	 * @throws RemoteException
+	 */
 	@Test
 	public void testHCSetBySourceUnsupportedAsDefault() throws RemoteException {
 		setTRTinIMR_FromSourceParam.setValue(true);
@@ -194,6 +230,12 @@ public class TestHazardCurveCalcTRTs implements ParameterChangeListener {
 		assertEquals("event stack should be empty", 0, eventStack.size());
 	}
 	
+	/**
+	 * same as testHCSetBySourceUnsupportedAsDefault, except it tests that the original value of the
+	 * IMR's TRT paramis used for calculation when nonSupportedTRT_OptionsParam is set as such. 
+	 * 
+	 * @throws RemoteException
+	 */
 	@Test
 	public void testHCSetBySourceUnsupportedUseOrig() throws RemoteException {
 		setTRTinIMR_FromSourceParam.setValue(true);
@@ -224,6 +266,13 @@ public class TestHazardCurveCalcTRTs implements ParameterChangeListener {
 		assertTrue("TRT should still be orig", trtParam.getValueAsTRT() == TectonicRegionType.SUBDUCTION_SLAB);
 	}
 	
+	/**
+	 * this tests when nonSupportedTRT_OptionsParam is set to throw an exception on unsupported TRT's 
+	 * 
+	 * it simply checks that an exception is thrown in the unsupported case, and is not thrown when it's supported.
+	 * 
+	 * @throws RemoteException
+	 */
 	@Test
 	public void testHCSetBySourceUnsupportedThrow() throws RemoteException {
 		setTRTinIMR_FromSourceParam.setValue(true);
