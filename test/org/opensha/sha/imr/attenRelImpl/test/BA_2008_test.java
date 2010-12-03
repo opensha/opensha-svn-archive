@@ -139,7 +139,7 @@ public class BA_2008_test extends NGATest implements ParameterChangeWarningListe
 			testDataLines = FileUtils.loadFile(file.getAbsolutePath());
 			int numLines = testDataLines.size();
 			for(int j=1;j<numLines;++j){
-				System.out.println("Doing "+j+" of "+numLines);
+				//System.out.println("Doing "+j+" of "+numLines);
 				String fileLine = (String)testDataLines.get(j);
 				StringTokenizer st = new StringTokenizer(fileLine);
 				double mag = Double.parseDouble(st.nextToken().trim());

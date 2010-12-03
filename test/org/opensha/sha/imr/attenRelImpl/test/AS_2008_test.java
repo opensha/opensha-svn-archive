@@ -188,7 +188,7 @@ public class AS_2008_test extends NGATest {
 				double dist_jb;
 				double vs30;
 				try {
-					System.out.println("Doing "+j+" of "+numLines);
+					//System.out.println("Doing "+j+" of "+numLines);
 					String fileLine = (String)testDataLines.get(j);
 					st = new StringTokenizer(fileLine);
 					mag = Double.parseDouble(st.nextToken().trim());
