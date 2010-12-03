@@ -113,9 +113,6 @@ import org.opensha.sha.imr.attenRelImpl.depricated.BA_2006_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.depricated.CB_2006_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.depricated.CY_2006_AttenRel;
 
-import scratch.christine.attenRelImpl.BS_2003b_AttenRel;
-import scratch.jennie.attenRelImpl.ToroEtAl_1997_AttenRel;
-
 /**
  *  <b>Title:</b> AttenuationRelationshipApplet<br>
  *  <b>Description:</b> Applet that allows testing of independent and dependent
@@ -313,12 +310,12 @@ CurveDisplayAppAPI,GraphWindowAPI {
 		attenRelClasses.add(ShakeMap_2003_AttenRel.class.getName());
 		imNames.add(SEA_1999_AttenRel.NAME);
 		attenRelClasses.add(SEA_1999_AttenRel.class.getName());
-		imNames.add(ToroEtAl_1997_AttenRel.NAME);
-		attenRelClasses.add(ToroEtAl_1997_AttenRel.class.getName());
+//		imNames.add(ToroEtAl_1997_AttenRel.NAME);
+//		attenRelClasses.add(ToroEtAl_1997_AttenRel.class.getName());
 		//    	imNames.add(GouletEtAl_2010_AttenRel.NAME);
 		//    	attenRelClasses.add(GOULET_2010_CLASS_NAME);
-		imNames.add(BS_2003b_AttenRel.NAME);
-		attenRelClasses.add(BS_2003b_AttenRel.class.getName());
+//		imNames.add(BS_2003b_AttenRel.NAME);
+//		attenRelClasses.add(BS_2003b_AttenRel.class.getName());
 		imNames.add(McVerryetal_2000_AttenRel.NAME);
 		attenRelClasses.add(McVerryetal_2000_AttenRel.class.getName());
 
