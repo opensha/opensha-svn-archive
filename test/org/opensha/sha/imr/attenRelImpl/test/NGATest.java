@@ -33,7 +33,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 
 public abstract class NGATest implements ParameterChangeWarningListener {
 
-	public static double tolerance = 0.5;
+	public static double tolerance = 0.06;
 
 	private String dir;
 
