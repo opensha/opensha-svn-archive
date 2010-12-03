@@ -18,7 +18,8 @@ public class EqksInGeoBlock {
 	ArrayList<Double> ratesInside;			   // this holds the nucleation rate for each rupture inside the block
 	ArrayList<Double> fractInside;			   // this holds the fraction of the rupture that's inside the block
 	ArrayList<Double> mag;
-	ArrayList<String> srcName;
+	Location blockCenterLoc;
+	double totalRateInside = -1;
 
 	
 	public EqksInGeoBlock(double minLat, double maxLat, double minLon, double maxLon, 
@@ -34,7 +35,8 @@ public class EqksInGeoBlock {
 		ratesInside = new ArrayList<Double>();
 		fractInside = new ArrayList<Double>();
 		mag = new ArrayList<Double>();
-		srcName = new ArrayList<String>();
+		blockCenterLoc = new Location((minLat+maxLat)/2,(minLon+maxLon)/2,(minDepth+maxDepth)/2);
+		
 	}
 	
 	
@@ -57,6 +59,8 @@ public class EqksInGeoBlock {
 		
 	}
 	
+	public Location getBlockCenterLoc() {return blockCenterLoc;}
+	
 	
 	public void writeResults() {
 		for(int i=0; i<srcIndices.size();i++) {
@@ -71,9 +75,11 @@ public class EqksInGeoBlock {
 	}
 	
 	public double getTotalRateInside() {
-		double totRate=0;
-		for(Double rate:this.ratesInside) totRate += rate;
-		return totRate;
+		if(totalRateInside == -1) {
+			totalRateInside=0;
+			for(Double rate:this.ratesInside) totalRateInside += rate;
+		}
+		return totalRateInside;
 	}
 	
 	
@@ -138,7 +144,7 @@ public class EqksInGeoBlock {
 	 * @param numAlongDepth
 	 * @return
 	 */
-	public ArrayList<EqksInGeoBlock> getSubBlocks(int numAlongLatLon, int numAlongDepth) {
+	public ArrayList<EqksInGeoBlock> getSubBlocks(int numAlongLatLon, int numAlongDepth, EqkRupForecast erf) {
 		ArrayList<EqksInGeoBlock> subBlocks = new ArrayList<EqksInGeoBlock>();
 		double forecastDuration = erf.getTimeSpan().getDuration();
 		int numSubBlocks = numAlongLatLon*numAlongLatLon*numAlongDepth;
@@ -174,9 +180,9 @@ public class EqksInGeoBlock {
 			EqksInGeoBlock block = subBlocks.get(b);
 			double rate=block.getTotalRateInside();
 			totRate += rate;
-			System.out.println("/nBlock "+b+" rate = "+rate);
+//			System.out.println("/nBlock "+b+" rate = "+rate);
 		}
-		System.out.println("\nRate Check: "+totRate+" vs "+this.getTotalRateInside());
+//		System.out.println("/nRate Check: "+totRate+" vs "+this.getTotalRateInside());
 		
 		return subBlocks;
 	}
@@ -231,13 +237,13 @@ public class EqksInGeoBlock {
 		
 		// Do 2 sub blocks
 		startTime=System.currentTimeMillis();
-		eqksInGeoBlock.getSubBlocks(2,2);
+		eqksInGeoBlock.getSubBlocks(2,2,meanUCERF2);
 		runtime = (System.currentTimeMillis()-startTime)/1000;
 		System.out.println("2 slices sub blocks took "+runtime+" seconds");
 
 		// Do 4 sub blocks
 		startTime=System.currentTimeMillis();
-		eqksInGeoBlock.getSubBlocks(2,2);
+		eqksInGeoBlock.getSubBlocks(2,2,meanUCERF2);
 		runtime = (System.currentTimeMillis()-startTime)/1000;
 		System.out.println("4 slices sub blocks took "+runtime+" seconds");
 
