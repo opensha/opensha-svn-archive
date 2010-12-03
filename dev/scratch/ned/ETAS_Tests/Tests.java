@@ -196,100 +196,15 @@ public class Tests extends ArrayList<Integer> {
 		}
 	}
 	
-	
-	
-	public void makeAllEqksInGeoBlocks() {
-		CaliforniaRegions.RELM_GRIDDED region = new CaliforniaRegions.RELM_GRIDDED();
-		
-		ArrayList<EqksInGeoBlock> subBlocks = new ArrayList<EqksInGeoBlock>();
-		for(Location loc: region) {
-			EqksInGeoBlock subBlock = new EqksInGeoBlock(loc,region.getSpacing(),0,16);
-			subBlocks.add(subBlock);
-		}
-		System.out.println(subBlocks.size());
-		
-		long startTime=System.currentTimeMillis();
 
-		// Create UCERF2 instance
-		int duration = 1;
-		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
-		meanUCERF2.setParameter(UCERF2.RUP_OFFSET_PARAM_NAME, new Double(10.0));
-		meanUCERF2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_POISSON);
-		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
-		meanUCERF2.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
-		meanUCERF2.getTimeSpan().setDuration(duration);
-		meanUCERF2.updateForecast();
-		
-		double runtime = (System.currentTimeMillis()-startTime)/1000;
-		System.out.println("ERF instantiation took "+runtime+" seconds");
 
-		double forecastDuration = meanUCERF2.getTimeSpan().getDuration();
-		double rateUnAssigned = 0;
-		int numSrc = meanUCERF2.getNumSources();
-//		for(int s=0;s<1;s++) {	// 314
-		for(int s=0;s<numSrc;s++) {
-			ProbEqkSource src = meanUCERF2.getSource(s);
-//			System.out.println(s+"\t"+src.getName()+"\t"+numSrc);
-			int numRups = src.getNumRuptures();
-			for(int r=0; r<numRups;r++) {
-//			for(int r=0; r<1;r++) {
-				ProbEqkRupture rup = src.getRupture(r);
-				ArbDiscrEmpiricalDistFunc numInEachNode = new ArbDiscrEmpiricalDistFunc(); // node on x-axis and num on y-axis
-				EvenlyGriddedSurfaceAPI surface = rup.getRuptureSurface();
-				double rate = rup.getMeanAnnualRate(forecastDuration);
-				int numUnAssigned=0;
-				for(Location loc: surface) {
-					int nodeIndex = region.indexForLocation(loc);
-					if(nodeIndex != -1)
-						numInEachNode.set((double)nodeIndex,1.0);
-					else
-						numUnAssigned +=1;
-				}
-//				System.out.println(numInEachNode);
-				int numNodes = numInEachNode.getNum();
-				if(numNodes>0) {
-					for(int i=0;i<numNodes;i++) {
-						int nodeIndex = (int)Math.round(numInEachNode.getX(i));
-						double fracInside = numInEachNode.getY(i)/surface.size();
-						double nodeRate = rate*fracInside;	// fraction of rate in node
-//						if(nodeIndex <0 || nodeIndex >(subBlocks.size()-1))
-//							System.out.println(nodeIndex);
-						subBlocks.get(nodeIndex).processRate(nodeRate, fracInside, s, r, rup.getMag());
-					}
-				}
-				float fracUnassigned = (float)numUnAssigned/(float)surface.size();
-				if(numUnAssigned>0) System.out.println(fracUnassigned+" of rup "+r+" were unassigned for source "+s+" ("+meanUCERF2.getSource(s).getName()+")");
-				rateUnAssigned += rate*fracUnassigned;
-			}
-		}
-			
-			System.out.println("rateUnAssigned = "+rateUnAssigned);
-			System.out.println("TESTING RESULT");
-			double testRate1=0;
-			for(EqksInGeoBlock block: subBlocks) {
-				testRate1+=block.getTotalRateInside();
-			}
-			testRate1+=rateUnAssigned;
-			
-			double testRate2=0;
-			for(int s=0;s<numSrc;s++) {
-				ProbEqkSource src = meanUCERF2.getSource(s);
-				int numRups = src.getNumRuptures();
-				for(int r=0; r<numRups;r++) {
-					testRate2 += src.getRupture(r).getMeanAnnualRate(forecastDuration);
-				}
-			}
-			System.out.println("\tRate1="+testRate1);
-			System.out.println("\tRate2="+testRate2);
-	}
-	
+
 	
 	
 	
 	public static void main(String[] args) {
 		long startTime=System.currentTimeMillis();
 		Tests tests = new Tests();
-		tests.makeAllEqksInGeoBlocks();
 //		tests.computeDistDecayBias();
 //		tests.mkProjectPlanETAS_FigureData();
 		int runtime = (int)(System.currentTimeMillis()-startTime)/1000;
