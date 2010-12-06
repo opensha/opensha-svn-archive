@@ -517,7 +517,9 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 		dipLabel.setTextAsHTML(dipEst, DIP, PROB);
 
 		// Dip LocationVector Label
-		dipDirectionLabel.setTextAsHTML(DIP_DIRECTION, ""+selectedFaultSection.getDipDirection());
+		String label = ""+selectedFaultSection.getDipDirection();
+		label += " (calculated val: "+selectedFaultSection.getFaultTrace().getDipDirection()+")";
+		dipDirectionLabel.setTextAsHTML(DIP_DIRECTION, label);
 
 		// rake
 		Estimate rakeEst = null;
