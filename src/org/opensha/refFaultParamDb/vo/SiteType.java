@@ -22,7 +22,7 @@ package org.opensha.refFaultParamDb.vo;
 /**
  * <p>Title: SiteType.java </p>
  * <p>Description: This saves the various site types associated with a
- * paloe site. Example of site types are : �trench�, �geologic�, �survey/cultural� </p>
+ * paloe site. Example of site types are : 'trench', 'geologic', 'survey/cultural' </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author not attributable

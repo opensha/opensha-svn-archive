@@ -35,9 +35,9 @@ public class MinMaxPrefEstimate extends Estimate{
   public final static String NAME  =  "Min, Max and Preferred";
   private double pref;
   private double minProb, maxProb, prefProb;
-  private final static double tol = 1e-6;
-  private final static String MSG_INVALID_X_VALS = "Error: Preferred value should be �  Min &"+
-                                  "\n"+"Max should be � Preferred";
+//  private final static double tol = 1e-6;
+//  private final static String MSG_INVALID_X_VALS = "Error: Preferred value should be �  Min &"+
+//                                  "\n"+"Max should be � Preferred";
   private final static String MSG_INVALID_PROB_VALS = "Error: Preferred Prob should be > Min Prob &"+
   "\n"+"Max Prob should be >  Preferred Prob";
 

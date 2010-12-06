@@ -696,12 +696,12 @@ System.out.println("numRupRejected="+numRupRejected);
 		"\n  Mbar = " + (float) Mbar +
 		"\n  Dbar = " + (float) Dbar +
 		"\n  Ebar = " + (float) Ebar + "\n" +
-		"\n  " + mm_l+" � Mmode < " + mm_u +
-		"\n  " + dm_l+" � Dmode < " + dm_u;
+		"\n  " + mm_l+" ≤ Mmode < " + mm_u +
+		"\n  " + dm_l+" ≤ Dmode < " + dm_u;
 		/*if( E_mode3D == Double.NEGATIVE_INFINITY || E_mode3D == Double.POSITIVE_INFINITY)
       results += "\n  Emode = " + E_mode3D;
     else
-      results += "\n  " + em_l+" � Emode < " + em_u;*/
+      results += "\n  " + em_l+" ≤ Emode < " + em_u;*/
 		results += "\n"+epsilonRangeString;
 
 		if(totalRate == 0.0)
@@ -733,8 +733,8 @@ System.out.println("numRupRejected="+numRupRejected);
 		DecimalFormat f3 = new DecimalFormat("000.00");
 		double totPercent, percent;
 
-		String binInfo = "Dist\tMag\tE�-2\t-2<E�-1\t-1<E�-0.5\t "+
-		"-0.5>E�0\t 0<E�0.5\t 0.5<E�1\t 1<E�2\t 2>E \n";
+		String binInfo = "Dist\tMag\tE≤-2\t-2<E≤-1\t-1<E≤-0.5\t "+
+		"-0.5>E≤0\t 0<E≤0.5\t 0.5<E≤1\t 1<E≤2\t 2>E \n";
 		binInfo += "-----\t----\t------\t------\t-------\t" +
 		"-------\t-------\t-------\t-------\t------\n";
 		for (int i = 0; i < dist_center.length; ++i) {
@@ -995,13 +995,13 @@ System.out.println("numRupRejected="+numRupRejected);
 			}
 
 
-			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"0.0 0.75 13 0.0 12 CB e<-2\" > temp_label");
-			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"0.9 0.75 13 0.0 12 CB -2<e<-1\" >> temp_label");
-			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"1.8 0.75 13 0.0 12 CB -1<e<-0.5\" >> temp_label");
-			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"2.7 0.75 13 0.0 12 CB -0.5<e<0\" >> temp_label");
-			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"3.6 0.75 13 0.0 12 CB 0<e<0.5\" >> temp_label");
-			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"4.5 0.75 13 0.0 12 CB 0.5<e<1\" >> temp_label");
-			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"5.4 0.75 13 0.0 12 CB 1<e<2\" >> temp_label");
+			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"0.0 0.75 13 0.0 12 CB e≤-2\" > temp_label");
+			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"0.9 0.75 13 0.0 12 CB -2<e≤-1\" >> temp_label");
+			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"1.8 0.75 13 0.0 12 CB -1<e≤-0.5\" >> temp_label");
+			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"2.7 0.75 13 0.0 12 CB -0.5<e≤0\" >> temp_label");
+			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"3.6 0.75 13 0.0 12 CB 0<e≤0.5\" >> temp_label");
+			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"4.5 0.75 13 0.0 12 CB 0.5<e≤1\" >> temp_label");
+			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"5.4 0.75 13 0.0 12 CB 1<e≤2\" >> temp_label");
 			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"6.3 0.75 13 0.0 12 CB 2<e\" >> temp_label");
 			// on gravity we used -X-2.45, but for some reason that puts stuff to the right
 			// on opensha.usc.edu

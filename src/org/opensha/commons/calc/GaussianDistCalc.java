@@ -307,8 +307,8 @@ public final class GaussianDistCalc {
 	 *
 	 *
 	 * @param exceedProb  The target exceedance probability
-	 * @param lowerTruncLevel   The lower truncation level must be � 0
-	 * @param upperTruncLevel  The upper truncation level must be � 0
+	 * @param lowerTruncLevel   The lower truncation level must be < 0
+	 * @param upperTruncLevel  The upper truncation level must be ≥ 0
 	 * @param tolerance   The tolerance
 	 * @return  The SRV found for the target exceedProb
 	 */
@@ -317,7 +317,7 @@ public final class GaussianDistCalc {
 		if(lowerTruncLevel >= 0 )
 			throw new RuntimeException("GaussianDistCalc.getStandRandVar(): lowerTruncLevel should be < 0");
 		if(upperTruncLevel < 0 )
-			throw new RuntimeException("GaussianDistCalc.getStandRandVar(): upperTruncLevel should be � 0");
+			throw new RuntimeException("GaussianDistCalc.getStandRandVar(): upperTruncLevel should be ≥ 0");
 
 
 		float delta = 1;

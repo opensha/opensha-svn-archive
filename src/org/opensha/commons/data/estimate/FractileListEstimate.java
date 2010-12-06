@@ -82,7 +82,7 @@ public class FractileListEstimate extends Estimate {
      max = func.getMaxX();
      min = func.getMinX();
      int numValues = func.getNum();
-     // check that 0�Y�1
+     // check that 0≤Y≤1
      double y,y_last=-1;
      double sum=0;
      for(int i = 0; i<numValues;++i) {

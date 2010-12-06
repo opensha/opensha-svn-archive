@@ -27,7 +27,7 @@ import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
  *
  * <b>Description:</b>  This implements the "Hanks & Bakun (2002) Mag-Area Rel.",
  * published in the Bulletin of the Seismological Society of America
- * (Vol. 92, No. 5, pp. 1841�1846, June 2002).
+ * (Vol. 92, No. 5, pp. 1841-1846, June 2002).
  * The equation is Mag=3.98+log10(Area) if Area less than or equal to 537, or 
  * Mag=3.07+(4/3)log10(Area) if Area greater than 537.<p>
  *

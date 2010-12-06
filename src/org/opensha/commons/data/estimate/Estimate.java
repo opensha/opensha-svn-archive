@@ -38,7 +38,7 @@ public abstract class Estimate {
   protected final static String EST_MSG_MAX_LT_MIN = "Error: Minimum must be less than Maximum";
   protected final static String EST_MSG_NOT_NORMALIZED = "Error: The probability values do not sum to 1";
   protected final static String EST_MSG_PROB_POSITIVE = "Error: All probability values must be positive";
-  protected final static String EST_MSG_INVLID_RANGE = "Error: All probabilities must be � 0 and � 1";
+  protected final static String EST_MSG_INVLID_RANGE = "Error: All probabilities must be ≥ 0 and ≤ 1";
   protected final static String EST_MSG_FIRST_LAST_PROB_ZERO = "Error: First and Last probability values must be 0";
   protected final static String MSG_INVALID_STDDEV = "Error: Standard deviation must be positive.";
   protected final static String MSG_ALL_PROB_ZERO = "Error: At least one probability value must be > 0.";

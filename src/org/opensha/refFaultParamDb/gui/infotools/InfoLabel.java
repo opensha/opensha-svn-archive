@@ -380,7 +380,7 @@ public class InfoLabel extends JLabel {
    text+=  "Min =&nbsp;&nbsp;"+minXStr+"  ["+minProbStr+"]<br>";
    text+=  "Pref =&nbsp;&nbsp;"+prefXStr+"  ["+prefProbStr+"]<br>";
    text+=  "Max =&nbsp;&nbsp;"+maxXStr+"  ["+maxProbStr+"]<br>";
-   text+=  "<br> Numbers in brackets are probabilities that "+xAxisName+" is � each value.<br>";
+   text+=  "<br> Numbers in brackets are probabilities that "+xAxisName+" is ≥ each value.<br>";
 
    return text;
  }
