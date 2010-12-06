@@ -179,6 +179,19 @@ public class DeformationModelDB_DAO {
 		} catch(SQLException e) { throw new QueryException(e.getMessage()); }
 		return deformationModel;
 	}
+	
+	/**
+	 * Removes the given fault section from all models
+	 * 
+	 * @param faultSectionId
+	 * @return
+	 */
+	public int removeSectionFromAllModels(int faultSectionId) {
+		String sql = "delete from "+TABLE_NAME+" where "+SECTION_ID+"="+faultSectionId;
+		try {
+			return dbAccessAPI.insertUpdateOrDeleteData(sql);
+		} catch(SQLException e) { throw new UpdateException(e.getMessage()); }
+	}
 
 	/**
 	 * This removes all the rows from the table which associates faultsection names with a particular deformation model

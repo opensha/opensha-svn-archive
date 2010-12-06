@@ -215,7 +215,7 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 				ArrayList faultSectionIdList = this.tableModel.getSelectedFaultSectionsId();
 				String selectedFaultModel = (String)this.faultModelsParam.getValue();
 				int faultModelId = this.getFaultModelId(selectedFaultModel);
-				this.faultModelSectionDB_DAO.addFaultModelSections(faultModelId, faultSectionIdList);
+				this.faultModelSectionDB_DAO.replaceFaultSectionIDs(faultModelId, faultSectionIdList);
 				JOptionPane.showMessageDialog(this, MSG_UPDATE_MODEL_SUCCESS);
 			} else if(source == this.selectAllButton) { // select All 
 				 setAllRowsSelection(true);

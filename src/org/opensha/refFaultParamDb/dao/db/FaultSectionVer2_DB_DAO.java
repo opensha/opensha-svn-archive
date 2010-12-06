@@ -464,6 +464,10 @@ public class FaultSectionVer2_DB_DAO {
 		String sql = "delete from "+TABLE_NAME+" where "+SECTION_ID+"="+faultSectionId;
 		try {
 			dbAccess.insertUpdateOrDeleteData(sql);
+			FaultModelDB_DAO fm2db = new FaultModelDB_DAO(dbAccess);
+			fm2db.removeSectionFromAllModels(faultSectionId);
+			DeformationModelDB_DAO dm2db = new DeformationModelDB_DAO(dbAccess);
+			dm2db.removeSectionFromAllModels(faultSectionId);
 		} catch(SQLException e) { throw new UpdateException(e.getMessage()); }
 	}
 
