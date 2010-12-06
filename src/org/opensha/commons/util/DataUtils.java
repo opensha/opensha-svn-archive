@@ -210,7 +210,7 @@ public class DataUtils {
 		/**
 		 * Add a new value to the tracker. Min/Max/Average will be updated.
 		 * 
-		 * @param val - value to be added
+		 * @param val value to be added
 		 */
 		public void addValue(double val) {
 			if (val < min) min = val;

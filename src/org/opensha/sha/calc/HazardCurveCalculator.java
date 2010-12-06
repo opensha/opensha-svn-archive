@@ -51,7 +51,6 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupFore
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
-import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
 import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
 
@@ -71,6 +70,10 @@ import org.opensha.sha.util.TectonicRegionType;
 public class HazardCurveCalculator extends UnicastRemoteObject
 implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	protected final static String C = "HazardCurveCalculator";
 	protected final static boolean D = false;
 
@@ -140,51 +143,34 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	}
 
 
-	/**
-	 * This sets the maximum distance of sources to be considered in the calculation.
-	 * Sources more than this distance away are ignored.  This is simply a direct
-	 * way of setting the parameter.
-	 * Default value is 250 km.
-	 *
-	 * @param distance: the maximum distance in km
-	 */
+	@Override
 	public void setMaxSourceDistance(double distance) throws java.rmi.RemoteException{
 		maxDistanceParam.setValue(distance);
 	}
 
 
+	@Override
 	public void setNumStochEventSetRealizations(int numRealizations) {
 		numStochEventSetRealizationsParam.setValue(numRealizations);
 	}
 
-	/**
-	 * This is a direct way of getting the distance cutoff from that parameter
-	 */
+	@Override
 	public double getMaxSourceDistance() throws java.rmi.RemoteException { 
 		return maxDistanceParam.getValue().doubleValue(); 
 	}
 
-	/**
-	 * This sets the mag-dist filter function (distance on x-axis and 
-	 * mag on y-axis), and also sets the value of includeMagDistFilterParam 
-	 * as true.
-	 * @param magDistfunc
-	 */
+	@Override
 	public void setMagDistCutoffFunc(ArbitrarilyDiscretizedFunc magDistfunc)  throws java.rmi.RemoteException{
 		includeMagDistFilterParam.setValue(true);
 		magDistCutoffParam.setValue(magDistfunc);
 	}
 
+	@Override
 	public void setIncludeMagDistCutoff(boolean include)  throws java.rmi.RemoteException{
 		this.includeMagDistFilterParam.setValue(include);
 	}
 
-
-	/**
-	 * This gets the mag-dist filter function (distance on x-axis and 
-	 * mag on y-axis), returning null if the includeMagDistFilterParam
-	 * has been set to false.
-	 */
+	@Override
 	public ArbitrarilyDiscretizedFunc getMagDistCutoffFunc()  throws java.rmi.RemoteException{
 		if(includeMagDistFilterParam.getValue())
 			return magDistCutoffParam.getValue();
@@ -193,12 +179,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	}
 
 
-	/**
-	 * This returns the annualized-rate function for the hazard curve
-	 * and duration passed in.
-	 * @param hazFunction Discretized Hazard Function
-	 * @return DiscretizedFuncAPI Annualized Rate Curve
-	 */
+	@Override
 	public DiscretizedFuncAPI getAnnualizedRates(DiscretizedFuncAPI hazFunction,double years) 
 	throws java.rmi.RemoteException{
 		DiscretizedFuncAPI annualizedRateFunc = (DiscretizedFuncAPI)hazFunction.deepClone();
@@ -212,20 +193,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 
 
 
-	/**
-	 * This function computes a hazard curve for the given Site, IMR, ERF, and 
-	 * discretized function, where the latter supplies the x-axis values (the IMLs) for the 
-	 * computation, and the result (probability) is placed in the y-axis values of this function.
-	 * This always applies a source and rupture distance cutoff using the value of the
-	 * maxDistanceParam parameter (set to a very high value if you don't want this).  It also 
-	 * applies a magnitude-dependent distance cutoff on the sources if the value of 
-	 * includeMagDistFilterParam is "true" and using the function in magDistCutoffParam.
-	 * @param hazFunction: This function is where the hazard curve is placed
-	 * @param site: site object
-	 * @param imr: selected IMR object
-	 * @param eqkRupForecast: selected Earthquake rup forecast
-	 * @return
-	 */
+	@Override
 	public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI hazFunction,
 			Site site, ScalarIntensityMeasureRelationshipAPI imr, 
 			EqkRupForecastAPI eqkRupForecast)
@@ -233,28 +201,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		return getHazardCurve(hazFunction, site, TRTUtils.wrapInHashMap(imr), eqkRupForecast);
 	}
 
-
-
-	/**
-	 * This function computes a hazard curve for the given Site, imrMap, ERF, and 
-	 * discretized function, where the latter supplies the x-axis values (the IMLs) for the 
-	 * computation, and the result (probability) is placed in the y-axis values of this function.
-	 * This always applies a source and rupture distance cutoff using the value of the
-	 * maxDistanceParam parameter (set to a very high value if you don't want this).  It also 
-	 * applies a magnitude-dependent distance cutoff on the sources if the value of 
-	 * includeMagDistFilterParam is "true" and using the function in magDistCutoffParam.
-	 * @param hazFunction: This function is where the hazard curve is placed
-	 * @param site: site object
-	 * @param imrMap: this Hashtable<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI> 
-	 * specifies which IMR to use with each tectonic region.  If only one exists in the Hashtable 
-	 * then the associated TectonicRegionType is ignored and this IRM is used with all sources.  
-	 * If multiple IMRs exist, then we set the TectonicRegionTypeParameter in the IMR to the 
-	 * associated value in case the IMR supports multiple TectonicRegionTypes.  If the IMR does not 
-	 * support the assigned TectonicRegionType (which is allowed for flexibility) then we set the
-	 * TectonicRegionTypeParameter to it's default value (since it may support more than one other type).
-	 * @param eqkRupForecast: selected Earthquake rup forecast
-	 * @return
-	 */
+	@Override
 	public DiscretizedFuncAPI getHazardCurve(
 			DiscretizedFuncAPI hazFunction,
 			Site site,
@@ -442,23 +389,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		return hazFunction;
 	}
 
-
-	/**
-	 * This function computes an average hazard curve from a number of stochastic event sets
-	 * for the given Site, IMR, eqkRupForecast, where the number of event-set realizations
-	 * is specified as the value in numStochEventSetRealizationsParam. The passed in 
-	 * discretized function supplies the x-axis values (the IMLs) 
-	 * for the computation, and the result (probability) is placed in the 
-	 * y-axis values of this function. This always applies a rupture distance 
-	 * cutoff using the value of the maxDistanceParam parameter (set to a very high 
-	 * value if you don't want this).  This does not (yet?) apply the magnitude-dependent 
-	 * distance cutoff represented by includeMagDistFilterParam and magDistCutoffParam.
-	 * @param hazFunction: This function is where the hazard curve is placed
-	 * @param site: site object
-	 * @param imr: selected IMR object
-	 * @param eqkRupForecast: selected Earthquake rup forecast
-	 * @return
-	 */
+	@Override
 	public DiscretizedFuncAPI getAverageEventSetHazardCurve(DiscretizedFuncAPI hazFunction,
 			Site site, ScalarIntensityMeasureRelationshipAPI imr, 
 			EqkRupForecastAPI eqkRupForecast)
@@ -492,24 +423,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		return hazFunction;
 	}
 
-
-
-	/**
-	 * This function computes a hazard curve for the given Site, IMR, and event set
-	 * (eqkRupList), where it is assumed that each of the events occur (probability 
-	 * of each is 1.0). The passed in discretized function supplies the x-axis values 
-	 * (the IMLs) for the computation, and the result (probability) is placed in the 
-	 * y-axis values of this function. This always applies a rupture distance 
-	 * cutoff using the value of the maxDistanceParam parameter (set to a very high 
-	 * value if you don't want this).  This does not (yet?) apply the magnitude-dependent 
-	 * distance cutoff represented by includeMagDistFilterParam and magDistCutoffParam.
-	 * @param hazFunction: This function is where the hazard curve is placed
-	 * @param site: site object
-	 * @param imr: selected IMR object
-	 * @param eqkRupForecast: selected Earthquake rup forecast
-	 * @param updateCurrRuptures: tells whether to update current ruptures (for the getCurrRuptures() method used for progress bars)
-	 * @return
-	 */
+	@Override
 	public DiscretizedFuncAPI getEventSetHazardCurve(DiscretizedFuncAPI hazFunction,
 			Site site, ScalarIntensityMeasureRelationshipAPI imr, 
 			ArrayList<EqkRupture> eqkRupList, boolean updateCurrRuptures)
@@ -524,7 +438,6 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		((AttenuationRelationship)imr).resetParameterEventListeners();
 
 		// declare some varibles used in the calculation
-		double distance;
 		int k;
 
 		// get the number of points
@@ -532,7 +445,6 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 
 		// define distance filtering stuff
 		double maxDistance = maxDistanceParam.getValue();
-		boolean includeMagDistFilter = includeMagDistFilterParam.getValue();
 
 		// set the maximum distance in the attenuation relationship
 		imr.setUserMaxDistance(maxDistance);
@@ -543,8 +455,6 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 			totRuptures = totRups;
 			currRuptures = 0;
 		}
-
-		int numRupRejected =0;
 
 		// initialize the hazard function to 1.0 (initial total non-exceedance probability)
 		initDiscretizeValues(hazFunction, 1.0);
@@ -602,16 +512,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 
 
 
-	/**
-	 * This computes the "deterministic" exceedance curve for the given Site, IMR, and ProbEqkrupture
-	 * (conditioned on the event actually occurring).  The hazFunction passed in provides the x-axis
-	 * values (the IMLs) and the result (probability) is placed in the y-axis values of this function.
-	 * @param hazFunction: This function is where the deterministic hazard curve is placed
-	 * @param site: site object
-	 * @param imr: selected IMR object
-	 * @param rupture: Single Earthquake Rupture
-	 * @return
-	 */
+	@Override
 	public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI hazFunction,
 			Site site, ScalarIntensityMeasureRelationshipAPI imr, EqkRupture rupture) throws
 			java.rmi.RemoteException {
@@ -643,30 +544,17 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		return hazFunction;
 	}
 
-
-
-	/**
-	 *
-	 * @returns the current rupture being traversed
-	 * @throws java.rmi.RemoteException
-	 */
+	@Override
 	public int getCurrRuptures() throws java.rmi.RemoteException{
 		return this.currRuptures;
 	}
 
-	/**
-	 *
-	 * @returns the total number of ruptures in the earthquake rupture forecast model
-	 * @throws java.rmi.RemoteException
-	 */
+	@Override
 	public int getTotRuptures() throws java.rmi.RemoteException{
 		return this.totRuptures;
 	}
 
-	/**
-	 * stops the Hazard Curve calculations.
-	 * @throws java.rmi.RemoteException
-	 */
+	@Override
 	public void stopCalc() throws java.rmi.RemoteException{
 		sourceIndex = numSources;
 	}
@@ -682,20 +570,12 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 			arb.set(i,val);
 	}
 
-	/**
-	 *
-	 * @returns the adjustable ParameterList
-	 */
+	@Override
 	public ParameterList getAdjustableParams()  throws java.rmi.RemoteException{
 		return this.adjustableParams;
 	}
 
-
-	/**
-	 *
-	 * @returns This was created so new instances of this calculator could be
-	 * given pointers to a set of parameter that already exist.
-	 */
+	@Override
 	public void setAdjustableParams(ParameterList paramList)  throws java.rmi.RemoteException{
 		this.adjustableParams = paramList;
 		this.maxDistanceParam = (MaxDistanceParam)paramList.getParameter(MaxDistanceParam.NAME);
@@ -710,13 +590,8 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 			(NonSupportedTRT_OptionsParam)paramList.getParameter(NonSupportedTRT_OptionsParam.NAME);
 	}
 
-
-	/**
-	 * get the adjustable parameters
-	 *
-	 * @return
-	 */
-	public ListIterator getAdjustableParamsIterator()  throws java.rmi.RemoteException{
+	@Override
+	public ListIterator<ParameterAPI<?>> getAdjustableParamsIterator()  throws java.rmi.RemoteException{
 		return adjustableParams.getParametersIterator();
 	}
 
@@ -736,9 +611,9 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		imr.setIntensityMeasure("PGA");
 
 		Site site = new Site();
-		ListIterator it = imr.getSiteParamsIterator();
+		ListIterator<ParameterAPI<?>> it = imr.getSiteParamsIterator();
 		while(it.hasNext())
-			site.addParameter((ParameterAPI)it.next());
+			site.addParameter(it.next());
 		site.setLocation(new Location(34,-118));
 
 		EqkRupForecast eqkRupForecast = new Frankel96_EqkRupForecast();
