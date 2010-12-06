@@ -135,10 +135,10 @@ java.io.Serializable{
 	private ParameterListParameter parameterListParameterForDepths ;
 
 	/**
-	 * DoubleParameter for Ave. Dip LocationVector, if the person has selected
+	 * DoubleParameter for Ave. Dip Direction, if the person has selected
 	 * Stirling Fault Model
 	 */
-	public static final String DIP_DIRECTION_PARAM_NAME = "Ave. Dip LocationVector";
+	public static final String DIP_DIRECTION_PARAM_NAME = "Ave. Dip Direction";
 	//used only when stirling fault model is selected
 	private static final Double DEFAULT_DIP_DIRECTION = null;
 	private static final String DIP_DIRECTION_PARAM_UNITS = "degrees";
@@ -650,7 +650,7 @@ java.io.Serializable{
 				}
 				//make the object for the Stirling gridded fault
 				if(fltType.equalsIgnoreCase(this.STIRLING)){
-					//checking to see if the Dip LocationVector Param value is null then assign default Double.NaN
+					//checking to see if the Dip Direction Param value is null then assign default Double.NaN
 					//else assign the dip direction value.
 					Double aveDipDir = (Double)dipDirectionParam.getValue();
 					if(aveDipDir == null)
@@ -734,7 +734,7 @@ java.io.Serializable{
 	}
 
 	/**
-	 * Sets the Average Dip LocationVector for the evenly discritized fault.
+	 * Sets the Average Dip Direction for the evenly discritized fault.
 	 * By Default its value is NaN and its value can only be set if one has
 	 * selected the Fault type to be Stirling
 	 */

@@ -252,7 +252,7 @@ public class DeformationModelFileWriter implements Runnable {
 			"#Ave Upper Seis Depth (km)\n"+
 			"#Ave Lower Seis Depth (km)\n"+
 			"#Ave Dip (degrees)\n"+
-			"#Ave Dip LocationVector\n"+
+			"#Ave Dip Direction\n"+
 			"#Ave Long Term Slip Rate\n"+
 			"#Ave Aseismic Slip Factor\n"+
 			"#Ave Rake\n"+

@@ -286,7 +286,7 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 				, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
 				new Insets(0, 0, 0, 0), 0, 0));
 
-		// dip LocationVector
+		// dip direction
 		float dipDirection = this.selectedFaultSection.getDipDirection();
 		Double val;
 		if(Double.isNaN(dipDirection)) val = null;

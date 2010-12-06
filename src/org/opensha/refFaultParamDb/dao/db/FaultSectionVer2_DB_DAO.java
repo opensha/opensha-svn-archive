@@ -48,7 +48,7 @@ import org.opensha.sha.faultSurface.FaultTrace;
  */
 
 public class FaultSectionVer2_DB_DAO {
-	private final static String TABLE_NAME = "Fault_Section";
+	public final static String TABLE_NAME = "Fault_Section";
 	public final static String SEQUENCE_NAME = "Fault_Section_Sequence";
 	public final static String SECTION_ID = "Section_Id";
 	public final static String AVE_LONG_TERM_SLIP_RATE_EST = "Ave_Long_Term_Slip_Rate_Est";

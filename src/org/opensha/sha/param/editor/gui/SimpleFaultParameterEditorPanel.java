@@ -123,7 +123,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
 
 
   /**
-   * DoubleParameter for Ave. Dip LocationVector, if the person has selected
+   * DoubleParameter for Ave. Dip Direction, if the person has selected
    * Stirling Fault Model
    */
   private ConstrainedDoubleParameterEditor dipDirectionParamEditor ;
@@ -155,7 +155,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
     if(!showFaultName)
       this.editor.getParameterEditor(SimpleFaultParameter.FAULT_NAME).setVisible(false);
 
-    //Make the Dip LocationVector parameter visible only if Fault type selected is Stirling
+    //Make the Dip Direction parameter visible only if Fault type selected is Stirling
     if(faultTypeEditor.isVisible()){
       if(((String)faultTypeEditor.getParameter().getValue()).equals(SimpleFaultParameter.STIRLING))
         dipDirectionParamEditor.setVisible(true);
@@ -250,7 +250,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
     //create the String parameter if the dip is one
     StringParameter faultTypeParam = (StringParameter)surfaceParam.getFaultTypeParam();
     faultTypeParam.addParameterChangeListener(this);
-    //getting the Dip LocationVector Parameter
+    //getting the Dip Direction Parameter
     DoubleParameter dipDirectionParam = (DoubleParameter)surfaceParam.getDipDirectionParam();
     dipDirectionParam.addParameterChangeFailListener(this);
     dipDirectionParam.addParameterChangeListener(this);
@@ -353,7 +353,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
   }
 
   /**
-   * Sets the Average Dip LocationVector for the evenly discritized fault.
+   * Sets the Average Dip Direction for the evenly discritized fault.
    * By Default its value is NaN and its value can only be set if one has
    * selected the Fault type to be Stirling
    */

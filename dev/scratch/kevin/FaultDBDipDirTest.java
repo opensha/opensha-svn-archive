@@ -8,12 +8,23 @@ import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
 
 public class FaultDBDipDirTest {
+	
+	private static void removeAllDipDirs(DB_AccessAPI db) throws SQLException {
+		// warning this will delete ALL of them!
+		String sql = "UPDATE "+FaultSectionVer2_DB_DAO.TABLE_NAME
+						+" SET "+FaultSectionVer2_DB_DAO.DIP_DIRECTION+"=NULL";
+		db.insertUpdateOrDeleteData(sql);
+	}
 
 	/**
 	 * @param args
+	 * @throws SQLException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws SQLException {
 		DB_AccessAPI db = DB_ConnectionPool.getDB3ReadOnlyConn();
+		
+		removeAllDipDirs(db);
+		System.exit(0);
 		
 		FaultSectionVer2_DB_DAO secs2db = new FaultSectionVer2_DB_DAO(db);
 		for (FaultSectionData fault : secs2db.getAllFaultSections()) {
