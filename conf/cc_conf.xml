@@ -48,7 +48,7 @@
 						logdir="${logdir}">
 				<always address="kmilner@usc.edu" />
 				<!--<failure address="kmilner@usc.edu" />-->
-				<always address="pmpowers@caltech.edu" />
+				<always address="pmpowers@usgs.gov" />
 			</htmlemail>
 
 		</publishers>
