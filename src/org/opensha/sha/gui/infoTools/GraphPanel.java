@@ -45,7 +45,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
@@ -57,6 +56,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.TickUnits;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
+import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.AbstractXYItemRenderer;
 import org.jfree.chart.renderer.xy.StackedXYBarRenderer;
@@ -608,6 +608,7 @@ public class GraphPanel extends JSplitPane {
 			//to be send to JFreechart for plotting.
 			drawCurvesUsingPlottingFeatures(lineType,color,lineWidth,dataIndex);
 		}
+		plot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
 
 		plot.setBackgroundAlpha( .8f );
 
