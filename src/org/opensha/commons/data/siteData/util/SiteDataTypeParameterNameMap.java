@@ -20,7 +20,6 @@
 package org.opensha.commons.data.siteData.util;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.siteData.SiteDataAPI;
@@ -31,7 +30,6 @@ import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.util.SiteTranslator;
-import org.opensha.sha.util.TectonicRegionType;
 
 /**
  * This class represents an N to N mapping between site data types and parameter names. If
@@ -126,9 +124,8 @@ public class SiteDataTypeParameterNameMap extends NtoNMap<String, String> {
 	 * @return
 	 */
 	public boolean isTypeApplicable(String type,
-			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap) {
-		for (TectonicRegionType trt : imrMap.keySet()) {
-			ScalarIntensityMeasureRelationshipAPI imr = imrMap.get(trt);
+			Collection<ScalarIntensityMeasureRelationshipAPI> imrs) {
+		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
 			if (isTypeApplicable(type, imr))
 				return true;
 		}
@@ -156,8 +153,8 @@ public class SiteDataTypeParameterNameMap extends NtoNMap<String, String> {
 	 * @return
 	 */
 	public boolean isTypeApplicable(SiteDataValue<?> value,
-			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap) {
-		return isTypeApplicable(value.getDataType(), imrMap);
+			Collection<ScalarIntensityMeasureRelationshipAPI> imrs) {
+		return isTypeApplicable(value.getDataType(), imrs);
 	}
 	
 	private void printParamsForType(String type) {

@@ -77,7 +77,7 @@ public class SiteDataControlPanel extends ControlPanel implements ScalarIMRChang
 		imrGuiBean.addIMRChangeListener(this);
 		
 		dataGuiBean = new OrderedSiteDataGUIBean(
-				OrderedSiteDataProviderList.createCachedSiteDataProviderDefaults(), imrGuiBean.getIMRMap());
+				OrderedSiteDataProviderList.createCachedSiteDataProviderDefaults(), imrGuiBean.getIMRMap().values());
 		
 		viewButton.addActionListener(this);
 		setButton.addActionListener(this);
@@ -100,7 +100,7 @@ public class SiteDataControlPanel extends ControlPanel implements ScalarIMRChang
 	}
 
 	public void imrChange(ScalarIMRChangeEvent event) {
-		dataGuiBean.setIMR(event.getNewIMRs());
+		dataGuiBean.setIMR(event.getNewIMRs().values());
 		enableButtons();
 	}
 	

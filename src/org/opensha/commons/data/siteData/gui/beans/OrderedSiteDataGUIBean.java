@@ -27,7 +27,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collection;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -50,7 +50,6 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.util.SiteTranslator;
-import org.opensha.sha.util.TectonicRegionType;
 
 public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, ListSelectionListener {
 	
@@ -61,7 +60,7 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 
 	private OrderedSiteDataProviderList list;
 	
-	HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap;
+	private Collection<ScalarIntensityMeasureRelationshipAPI> imrs;
 	
 	private SiteDataTypeParameterNameMap map = SiteTranslator.DATA_TYPE_PARAM_NAME_MAP;
 	
@@ -92,10 +91,10 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 	}
 	
 	public OrderedSiteDataGUIBean(OrderedSiteDataProviderList list,
-			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap) {
+			Collection<ScalarIntensityMeasureRelationshipAPI> imrs) {
 		super(new BorderLayout());
 		
-		this.imrMap = imrMap;
+		this.imrs = imrs;
 		
 		cellRenderer = new SiteDataCellRenderer(list.size());
 		
@@ -190,7 +189,7 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 		for (int i=0; i<list.size(); i++) {
 			SiteDataAPI<?> provider = list.getProvider(i);
 			cellRenderer.setType(i, provider.getDataType());
-			if (imrMap == null || map.isTypeApplicable(provider.getDataType(), imrMap)) {
+			if (imrs == null || map.isTypeApplicable(provider.getDataType(), imrs)) {
 				if (list.isEnabled(i)) {
 					names.add((num) + ". " + provider.getName() + " (" + provider.getDataType() + ")");
 					num++;
@@ -214,14 +213,13 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 	}
 	
 	public void setIMR(ScalarIntensityMeasureRelationshipAPI imr) {
-		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap =
-			new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
-		imrMap.put(TectonicRegionType.ACTIVE_SHALLOW, imr);
-		setIMR(imrMap);
+		Collection<ScalarIntensityMeasureRelationshipAPI> imrs = new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
+		imrs.add(imr);
+		setIMR(imrs);
 	}
 	
-	public void setIMR(HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap) {
-		this.imrMap = imrMap;
+	public void setIMR(Collection<ScalarIntensityMeasureRelationshipAPI> imrs) {
+		this.imrs = imrs;
 		for (int i=0; i<list.size(); i++)
 			list.setEnabled(i, true);
 		this.updateList();
