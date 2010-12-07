@@ -1,4 +1,4 @@
-package org.opensha.sha.imr.attenRelImpl.test.AttenRelResultSetFiles;
+package org.opensha.sha.imr.attenRelImpl.test;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -305,7 +305,7 @@ public class Verify_ZhaoEtAl_2006 {
 		soilStr = ZhaoEtAl_2006_AttenRel.SITE_TYPE_ROCK;
         imr.getParameter(imr.SITE_TYPE_NAME).setValue(soilStr);
         // Tectonic region
-		tecRegStr = TectonicRegionType.SUBDUCTION_INTERFACE.toString();
+		tecRegStr = TectonicRegionType.SUBDUCTION_SLAB.toString();
 		imr.getParameter(TectonicRegionTypeParam.NAME).setValue(tecRegStr);
 		// Magnitude
 		((WarningDoubleParameter)imr.getParameter(MagParam.NAME)).setValueIgnoreWarning(new Double(mag));
@@ -345,7 +345,7 @@ public class Verify_ZhaoEtAl_2006 {
 		// Verification table
         fle = "zhao_r30.0_m5.0_dep30_interf_site1.dat";
         // Output file 
-        outFle = outDir+ String.format("spcCheck_r%.1f_m%.1f_dep%.1f_slab_rock.txt",dst,mag,dep);
+        outFle = outDir+ String.format("spcCheck_r%.1f_m%.1f_dep%.1f_interface_rock.txt",dst,mag,dep);
         // Message
         System.out.printf(" ---------------------------------------------------------------\n");
         System.out.printf(" Checking spectral accelerations for m=%.1f rRup=%.1f[km] depth=%.1f[km]\n",mag,dst,dep);
