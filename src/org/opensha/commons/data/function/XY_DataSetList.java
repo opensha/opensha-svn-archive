@@ -46,7 +46,7 @@ import org.opensha.commons.exceptions.XY_DataSetException;
  * @author Steven W. Rock
  * @version 1.0
  */
-public class XY_DataSetList implements NamedObjectAPI{
+public class XY_DataSetList extends ArrayList<XY_DataSetAPI> {
 
 
     /**
@@ -63,10 +63,6 @@ public class XY_DataSetList implements NamedObjectAPI{
 
     /* Boolean debugging variable to switch on and off debug printouts */
     protected final static boolean D = false;
-
-
-    /** List of XY_DatasetAPI. This is the internal data storage for the functions. */
-    protected ArrayList<XY_DataSetAPI> functions = new ArrayList<XY_DataSetAPI>();
 
     /** Every function list has a information string that can be used in displays, etc. */
     protected String info = "";
@@ -132,194 +128,6 @@ public class XY_DataSetList implements NamedObjectAPI{
     /* **************************/
     /** @todo  Function Helpers */
     /* **************************/
-
-    /** returns true if a function exists at the specified index */
-    private boolean hasFunctionAtIndex(int index){
-        if( (index + 1) > functions.size() ) return false;
-        else return true;
-    }
-
-    /**
-     * Returns the function at the specified index, else null if no function
-     * exists at that index.
-     */
-    private XY_DataSetAPI getFunction(int index){
-        return functions.get(index);
-    }
-
-
-    /**
-     * Currently only returns true. Further
-     * functionality may be added in the future or by subclasses.
-     * @param function
-     * @return
-     */
-    public boolean isFuncAllowed(XY_DataSetAPI function){
-        return true;
-    }
-
-    /* ******************************/
-    /** @todo  Basic List functions */
-    /* ******************************/
-
-    /** Removes all function references from this list */
-    public void clear(){ functions.clear(); }
-
-    /** Returns an ordered FIFO iterator over each function in the list */
-    public ListIterator<XY_DataSetAPI> listIterator(){ return functions.listIterator( );  }
-
-    /** Returns an iterator over the functions in the lsit, no guarentee of order */
-    public Iterator<XY_DataSetAPI> iterator(){ return functions.iterator( ); }
-
-    /** Returns the number of functions in the list */
-    public int size(){ return functions.size(); }
-
-    /**
-     * Returns the index of the first occurrence of the function in this
-     * list; returns -1 if the object is not found. Uses equals() to determing
-     * if the same.
-     * @param function
-     * @return
-     */
-    public int indexOf(XY_DataSetAPI function){
-        int counter = 0;
-        ListIterator<XY_DataSetAPI> it = listIterator();
-        while( it.hasNext() ){
-            XY_DataSetAPI f1 = (XY_DataSetAPI)it.next();
-            if( f1.equals(function) ) return counter;
-            counter++;
-        }
-        return -1;
-    }
-
-    /**
-     * Removes the function at the specified index
-     * @param index
-     */
-    public void remove(int index){
-      //System.out.println("Number in list:"+functions.size());
-      functions.remove(index);
-    }
-
-    /**
-     * Removes the specified function if it exists as determined by equals().
-     * This function iterates over the list, comapring each stored function to the
-     * input argument. May be time consuming if many functions in the list.
-     * @param function
-     */
-    public void remove(XY_DataSetAPI function){
-        ListIterator<XY_DataSetAPI> it = listIterator();
-        if( it != null ) {
-            while(it.hasNext() ){
-                XY_DataSetAPI f1 = (org.opensha.commons.data.function.XY_DataSetAPI)it.next();
-                if( f1.equals(function) ) {
-                    functions.remove(f1);
-                    return;
-                }
-            }
-        }
-    }
-
-    /**
-     * Removes any functions in the passed in list that exist
-     * in this list. Only removes the union of these two function
-     * list. Will leave functions in this list that doesn't exist
-     * in second. Use clear() to compleatly empty this list. This
-     * function calls remove() on every function in the passed in list.
-     * @param list
-     */
-    public void removeAll(XY_DataSetList list){
-        ListIterator<XY_DataSetAPI> it = list.listIterator();
-        while( it.hasNext() ){
-            XY_DataSetAPI function = (XY_DataSetAPI)it.next();
-            remove(function);
-        }
-    }
-
-
-    /**
-     * Checks if the XY_DataSetAPI exists in the list. Loops through
-     * each function in the list and calls function.equals( function2 )
-     * against the passed in function to determine if this function exists.
-     */
-    public boolean contains(XY_DataSetAPI function){
-        ListIterator<XY_DataSetAPI> it = listIterator();
-        if( it != null ) {
-            while(it.hasNext() ){
-                XY_DataSetAPI f1 = (org.opensha.commons.data.function.XY_DataSetAPI)it.next();
-                if( f1.equals(function) ) return true;
-            }
-            return false;
-        }
-        else return false;
-    }
-
-    /**
-     * Verifies that the passed in list is a subset of this list. Loops through
-     * each function in the passes in list and calls contains( function2 )
-     * against the passed in function to determine if this function exists.
-     */
-    public boolean containsAll(XY_DataSetList list){
-        ListIterator<XY_DataSetAPI> it = list.listIterator();
-        while( it.hasNext() ){
-            XY_DataSetAPI function = (XY_DataSetAPI)it.next();
-            if( !contains(function) ) return false;
-        }
-        return true;
-    }
-
-
-    /**
-     * Adds the XY_DataSetAPI if it doesn't exist based on the equals() method,
-     * else throws exception. This function first checks if the passed in function
-     * is allowed. In this class specification all functions are allowed.
-     * Subclasses may further restrict this.
-     */
-    public void add(XY_DataSetAPI function) throws XY_DataSetException{
-
-        if( !isFuncAllowed(function) ) throw new XY_DataSetException(C + ": add(): " + "This function is not allowed.");
-        //if( contains(function) ) throw new DiscretizedFunction2DException(C + ": add(): " + "This function is already in the list.");
-        functions.add( function );
-
-    }
-
-
-    /**
-     * Adds all XY_DataSetAPI of the DiscretizedFuncList to this one, if the
-     * named XY_DataSetAPI is not already in the list.
-     */
-    public void addAll(XY_DataSetList list) throws XY_DataSetException{
-
-        ListIterator<XY_DataSetAPI> it = list.listIterator();
-        while( it.hasNext() ){
-            XY_DataSetAPI function = (XY_DataSetAPI)it.next();
-            try{ add(function); }
-            catch( XY_DataSetException ex) {}
-        }
-
-
-
-    }
-
-    /**
-     * Returns the XY_DataSetAPI at the specified index. If index is larger than the number
-     * of functions, null is returned.
-     * @param index into the list.
-     * @return XY_DataSetAPI function of interest.
-     */
-    public XY_DataSetAPI get(int index){
-        XY_DataSetAPI f = null;
-        if( hasFunctionAtIndex(index) )  f = (XY_DataSetAPI)functions.get(index);
-        return f;
-    }
-
-    /**
-     * Updates an existing function in the list or adds it if it doesn't exist. This
-     * function simply calls remove() then add().
-     */
-    public void update(XY_DataSetAPI function)  { remove(function); add(function); }
-
-
 
     /**
      * Returns true if all the DisctetizedFunctions in this list are equal.
@@ -399,7 +207,7 @@ public class XY_DataSetList implements NamedObjectAPI{
      */
     public String toString(){
 
-        String S = C + ": toString(): ";
+//        String S = C + ": toString(): ";
 
         StringBuffer b = new StringBuffer();
         b.append("\n");
@@ -408,7 +216,6 @@ public class XY_DataSetList implements NamedObjectAPI{
         b.append("Number of Data Sets: " + this.size() + '\n');
 
         ListIterator<XY_DataSetAPI> it = listIterator();
-        boolean first = true;
         int counter = 0;
         while( it.hasNext() ){
 
@@ -464,7 +271,7 @@ public class XY_DataSetList implements NamedObjectAPI{
 
         Number[][] model = new Number[numSets][numPoints];
         double[] xx = new double[numPoints];
-        String[] rows = new String[numPoints];
+//        String[] rows = new String[numPoints];
 
         ListIterator<XY_DataSetAPI> it1 = listIterator();
         boolean first = true;
