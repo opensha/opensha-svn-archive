@@ -13,6 +13,7 @@ import javax.imageio.ImageIO;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.opensha.commons.data.siteData.gui.SiteDataCombinedApp;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGeneratorApplet;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.util.IconGen;
@@ -269,7 +270,11 @@ public class JNLPGen {
 		/*		GMT Map Generator			*/
 		appsToBuild.add(new JNLPGen(GMT_MapGeneratorApplet.class,
 				GMT_MapGeneratorApplet.APP_SHORT_NAME, 
-				GMT_MapGeneratorApplet.APP_NAME, "GMT", true));
+				GMT_MapGeneratorApplet.APP_NAME, "GMT", false));
+		/*		Site Data App				*/
+		appsToBuild.add(new JNLPGen(SiteDataCombinedApp.class,
+				SiteDataCombinedApp.APP_SHORT_NAME, 
+				SiteDataCombinedApp.APP_NAME, "SD", false));
 		
 		for (ServerPrefs myPrefs : prefsToBuild) {
 			String distOutDir = outputDir + File.separator + myPrefs.getBuildType();

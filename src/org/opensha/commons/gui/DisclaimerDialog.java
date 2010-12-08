@@ -54,7 +54,7 @@ public class DisclaimerDialog extends JDialog implements ActionListener {
 	
 	private static final String disclaimerPrefPrefix = "disc_accpted_";
 	
-	public DisclaimerDialog(String appName, String shortName, ApplicationVersion version) throws IOException {
+	public DisclaimerDialog(String appName, String shortName, ApplicationVersion version) {
 		this.appName = appName;
 		this.shortName = shortName;
 		this.version = version;

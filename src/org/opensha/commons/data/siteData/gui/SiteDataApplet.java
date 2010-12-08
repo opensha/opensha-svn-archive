@@ -92,7 +92,6 @@ public class SiteDataApplet extends Applet implements ActionListener {
 				
 				loc = new Location(lat, lon);
 			} catch (Exception e1) {
-				e1.printStackTrace();
 				JOptionPane.showMessageDialog(this, "Please enter a valid location!", "Invalid location!",
 						JOptionPane.ERROR_MESSAGE);
 				return;

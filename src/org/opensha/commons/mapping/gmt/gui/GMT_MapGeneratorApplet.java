@@ -194,7 +194,7 @@ public class GMT_MapGeneratorApplet extends Applet{
 		return null;
 	}
 	//Main method
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
 		GMT_MapGeneratorApplet applet = new GMT_MapGeneratorApplet();
 		applet.isStandalone = true;
