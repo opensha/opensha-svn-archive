@@ -21,6 +21,7 @@ public class DefaultExceptoinHandler implements UncaughtExceptionHandler {
 
 	@Override
 	public void uncaughtException(Thread t, Throwable e) {
+		e.printStackTrace();
 		BugReport bug = new BugReport(e, null, appName, appVersion, app);
 		BugReportDialog dialog = new BugReportDialog(parent, bug, false);
 		dialog.setVisible(true);
