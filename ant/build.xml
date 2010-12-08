@@ -160,11 +160,13 @@
 		<!-- so the regular delete statement wasn't deleting sym links properly, thus
 			the ugly exec'd delete below -->
 		<exec executable="/bin/rm" failonerror="true">
+			<arg value="-v"/>
 			<arg value="-f"/>
 			<arg value="${server.apps.dir}/${app.short.name}/${app.build.type}/${app.short.name}.jar"/>
 		</exec>
 		<!-- set up a link to the new most recent build -->
 		<exec executable="/bin/ln" failonerror="true">
+			<arg value="-v"/>
 			<arg value="-s"/>
 			<arg value="${server.apps.dir}/${app.short.name}/${app.build.type}/${app.jar.name}"/>
 			<arg value="${server.apps.dir}/${app.short.name}/${app.build.type}/${app.short.name}.jar"/>
