@@ -37,7 +37,8 @@ import org.junit.runners.Suite;;
 	BA_2008_test.class,
 	CB_2008_test.class,
 	CY_2008_test.class,
-	NGA08_Site_EqkRup_Tests.class
+	NGA08_Site_EqkRup_Tests.class,
+	ZhaoEtAl_2006_test.class
 })
 
 

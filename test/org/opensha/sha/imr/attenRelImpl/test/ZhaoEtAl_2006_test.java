@@ -39,62 +39,54 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class ZhaoEtAl_2006_test {
 
-	private static final double THRESH = 0.05;
+	private static final double THRESH = 0.06;
 
 	private static final boolean failWhenAbove = true;
 
 	ZhaoEtAl_2006_AttenRel imr;
-	StirlingGriddedSurface fltSurf;
-	double mLa, mLo;
 	WC1994_MagLengthRelationship magLenRel;
-	double rake = 90.0;
 
 	@Before
 	public void setUp() {
 		imr = new ZhaoEtAl_2006_AttenRel(null);
 		imr.setParamDefaults();
 
-		double aveDip = 90.0;
-		double lowerSeisDepth = 5.0;
-		double upperSeisDept = 10.0;
+		// Calculate magnitude from the fault trace 
+		magLenRel = new WC1994_MagLengthRelationship();
+	}
 
-		// Create fault trace 
+	private EqkRupture getRup(double mag, double depth, double aveDip, double lowerSeisDepth,
+			double upperSeisDept, double rake) {
+		
 		FaultTrace ftrace = new FaultTrace("test");
 		ftrace.add(new Location(45.00,10.00));
 		ftrace.add(new Location(46.00,10.00));
-
-		// Calculate magnitude from the fault trace 
-		magLenRel = new WC1994_MagLengthRelationship();
-
-		// Create fault surface 
-		SimpleFaultData fltDat =  new SimpleFaultData(aveDip,upperSeisDept,lowerSeisDepth,ftrace);
-		fltSurf = new StirlingGriddedSurface(fltDat,10.0);
-
+		SimpleFaultData fltDat = new SimpleFaultData(aveDip,upperSeisDept,lowerSeisDepth,ftrace);
+		StirlingGriddedSurface fltSurf	= new StirlingGriddedSurface(fltDat,5.0);
+		
 		// Find hypocenter
-		mLo = 0.0;
-		mLa = 0.0;
+		double mLo = 0.0;
+		double mLa = 0.0;
 		LocationList locl = fltSurf.getLocationList();
 		Iterator<Location> iter = locl.iterator();
 		double cnt = 0.0;
 		while (iter.hasNext()){
 			cnt++;
-			mLo += iter.next().getLongitude();
-			mLa += iter.next().getLatitude();
+			Location loc = iter.next();
+			mLo += loc.getLongitude();
+			mLa += loc.getLatitude();
 		}
 
 		// Create the hypocenter location
 		mLo = mLo/cnt;
 		mLa = mLa/cnt;
-	}
-
-	private EqkRupture getRup(double mag, double depth) {
+		
 		Location hypo = new Location(mLa,mLo,depth);
 		return new EqkRupture(mag,rake,fltSurf,hypo);
 	}
 
-	private void doTest(double mag, double distance, double depth, String siteType, String trt, String fochMech, String fName) {
+	private void doTest(EqkRupture rup, double distance, double depth, String siteType, String trt, String fochMech, String fName) {
 		// Set the rupture
-		EqkRupture rup = getRup(mag, depth);
 		imr.setEqkRupture(rup);
 		// Set site conditions 
 		imr.getParameter(ZhaoEtAl_2006_AttenRel.SITE_TYPE_NAME).setValue(siteType);
@@ -103,7 +95,7 @@ public class ZhaoEtAl_2006_test {
 		if (fochMech != null)
 			imr.getParameter(FaultTypeParam.NAME).setValue(fochMech);
 		// Magnitude
-		((WarningDoubleParameter)imr.getParameter(MagParam.NAME)).setValueIgnoreWarning(new Double(mag));
+		((WarningDoubleParameter)imr.getParameter(MagParam.NAME)).setValueIgnoreWarning(new Double(rup.getMag()));
 		// Distance 
 		((WarningDoublePropagationEffectParameter)imr.getParameter(DistanceRupParameter.NAME))
 		.setValueIgnoreWarning(new Double(distance));
@@ -170,9 +162,11 @@ public class ZhaoEtAl_2006_test {
 		String siteType = ZhaoEtAl_2006_AttenRel.SITE_TYPE_ROCK;
 		String trt = TectonicRegionType.SUBDUCTION_INTERFACE.toString();
 		String fochMech = null;
+		
+		EqkRupture rup = getRup(mag, depth, 90, 15, 25, 90);
 
 		String fName = "zhao_r22.3_m6.5_dep20.0_interf_site1.dat";
-		doTest(mag, distance, depth, siteType, trt, fochMech, fName);	
+		doTest(rup, distance, depth, siteType, trt, fochMech, fName);	
 	}
 
 	@Test
@@ -183,9 +177,11 @@ public class ZhaoEtAl_2006_test {
 		String siteType = ZhaoEtAl_2006_AttenRel.SITE_TYPE_HARD_SOIL;
 		String trt = TectonicRegionType.SUBDUCTION_INTERFACE.toString();
 		String fochMech = null;
+		
+		EqkRupture rup = getRup(mag, depth, 90, 15, 25, 90);
 
 		String fName = "zhao_r22.3_m6.5_dep20.0_interf_site2.dat";
-		doTest(mag, distance, depth, siteType, trt, fochMech, fName);	
+		doTest(rup, distance, depth, siteType, trt, fochMech, fName);	
 	}
 
 	@Test
@@ -196,9 +192,11 @@ public class ZhaoEtAl_2006_test {
 		String siteType = ZhaoEtAl_2006_AttenRel.SITE_TYPE_MEDIUM_SOIL;
 		String trt = TectonicRegionType.SUBDUCTION_INTERFACE.toString();
 		String fochMech = null;
+		
+		EqkRupture rup = getRup(mag, depth, 90, 15, 25, 90);
 
 		String fName = "zhao_r22.3_m6.5_dep20.0_interf_site3.dat";
-		doTest(mag, distance, depth, siteType, trt, fochMech, fName);	
+		doTest(rup, distance, depth, siteType, trt, fochMech, fName);	
 	}
 
 	@Test
@@ -209,9 +207,11 @@ public class ZhaoEtAl_2006_test {
 		String siteType = ZhaoEtAl_2006_AttenRel.SITE_TYPE_SOFT_SOIL;
 		String trt = TectonicRegionType.SUBDUCTION_INTERFACE.toString();
 		String fochMech = null;
+		
+		EqkRupture rup = getRup(mag, depth, 90, 15, 25, 90);
 
 		String fName = "zhao_r22.3_m6.5_dep20.0_interf_site4.dat";
-		doTest(mag, distance, depth, siteType, trt, fochMech, fName);	
+		doTest(rup, distance, depth, siteType, trt, fochMech, fName);	
 	}
 
 	@Test
@@ -222,9 +222,11 @@ public class ZhaoEtAl_2006_test {
 		String siteType = ZhaoEtAl_2006_AttenRel.SITE_TYPE_ROCK;
 		String trt = TectonicRegionType.ACTIVE_SHALLOW.toString();
 		String fochMech = ZhaoEtAl_2006_AttenRel.FLT_FOC_MECH_REVERSE;
+		
+		EqkRupture rup = getRup(mag, depth, 90, 5, 10, 90);
 
 		String fName = "zhao_r20.0_m6.5_dep10.0_shallow_reverse_site1.dat";
-		doTest(mag, distance, depth, siteType, trt, fochMech, fName);	
+		doTest(rup, distance, depth, siteType, trt, fochMech, fName);	
 	}
 
 	@Test
@@ -236,8 +238,10 @@ public class ZhaoEtAl_2006_test {
 		String trt = TectonicRegionType.ACTIVE_SHALLOW.toString();
 		String fochMech = ZhaoEtAl_2006_AttenRel.FLT_FOC_MECH_NORMAL;
 
+		EqkRupture rup = getRup(mag, depth, 90, 5, 10, 90);
+		
 		String fName = "zhao_r20.0_m6.5_dep10.0_shallow_normal_site1.dat";
-		doTest(mag, distance, depth, siteType, trt, fochMech, fName);
+		doTest(rup, distance, depth, siteType, trt, fochMech, fName);
 	}
 
 	@Test
@@ -249,21 +253,40 @@ public class ZhaoEtAl_2006_test {
 		String trt = TectonicRegionType.SUBDUCTION_SLAB.toString();
 		String fochMech = null;
 
+		EqkRupture rup = getRup(mag, depth, 90, 15, 25, 90);
+		
 		String fName = "zhao_r22.3_m6.5_dep20.0_slab_site1.dat";
-		doTest(mag, distance, depth, siteType, trt, fochMech, fName);
+		doTest(rup, distance, depth, siteType, trt, fochMech, fName);
 	}
 
 	@Test
-	public void testInterfaceRockDep30() {
-		double mag = 5.0;
+	public void testInterfaceRockDist30() {
+		double mag = 6.5;
 		double distance = 30.0;
-		double depth = 30.0;
+		double depth = 20.0;
 		String siteType = ZhaoEtAl_2006_AttenRel.SITE_TYPE_ROCK;
 		String trt = TectonicRegionType.SUBDUCTION_INTERFACE.toString();
 		String fochMech = null;
 
-		String fName = "zhao_r30.0_m5.0_dep30_interf_site1.dat";
-		doTest(mag, distance, depth, siteType, trt, fochMech, fName);
+		EqkRupture rup = getRup(mag, depth, 90, 15, 25, 90);
+		
+		String fName = "zhao_r30.0_m6.5_dep20.0_interf_site1.dat";
+		doTest(rup, distance, depth, siteType, trt, fochMech, fName);
+	}
+	
+	@Test
+	public void testSlabRockDist150() {
+		double mag = 7.0;
+		double distance = 150;
+		double depth = 130;
+		String siteType = ZhaoEtAl_2006_AttenRel.SITE_TYPE_ROCK;
+		String trt = TectonicRegionType.SUBDUCTION_SLAB.toString();
+		String fochMech = null;
+
+		EqkRupture rup = getRup(mag, depth, 90, depth-5.0, depth+5.0, 90);
+		
+		String fName = "zhao_r150.0_m7.0_dep130.0_slab_site1.dat";
+		doTest(rup, distance, depth, siteType, trt, fochMech, fName);
 	}
 
 	/**
