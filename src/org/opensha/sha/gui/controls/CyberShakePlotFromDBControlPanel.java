@@ -451,11 +451,13 @@ extends ControlPanel implements ParameterChangeListener {
 			}
 			imString = im.toString();
 			this.submitButton.setEnabled(true);
+			paramSettingButton.setEnabled(true);
 		} else {
 			imStrings.add("");
 			imString = "";
 			im = null;
 			this.submitButton.setEnabled(false);
+			paramSettingButton.setEnabled(false);
 		}
 
 		saPeriodParam = new StringParameter(this.SA_PERIOD_SELECTOR_PARAM,
@@ -705,8 +707,17 @@ extends ControlPanel implements ParameterChangeListener {
 	}
 	
 	private void setRobPlotParams(ActionEvent actionEvent) {
+		ArrayList<PlotCurveCharacterstics> chars = application.getPlottingFeatures();
+		if (chars == null || chars.size() == 0) {
+			JOptionPane.showMessageDialog(this.frame, "Plot params cannot be set when no plots are showing.",
+					"Can't set Plot Params", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
 		this.setPlotLabels();
-		float period = (float)this.getPeriodDouble();
+		float period = 3f;
+		try {
+			period = (float)this.getPeriodDouble();
+		} catch (Exception e) {}
 		application.setY_Log(true);
 		double xMin = 0.0;
 		double xMax = 2;
@@ -722,8 +733,18 @@ extends ControlPanel implements ParameterChangeListener {
 	}
 	
 	private void setTomPlotParams(ActionEvent actionEvent) {
-		if (isDeterministic)
+		if (isDeterministic) {
+			JOptionPane.showMessageDialog(this.frame, "Tom Plot params cannot be set for deterministic curves.",
+					"Can't set Plot Params", JOptionPane.ERROR_MESSAGE);
 			return;
+		}
+		ArrayList<PlotCurveCharacterstics> chars = application.getPlottingFeatures();
+		
+		if (chars == null || chars.size() == 0) {
+			JOptionPane.showMessageDialog(this.frame, "Plot params cannot be set when no plots are showing.",
+					"Can't set Plot Params", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
 //		float period = (float)this.getPeriodDouble();
 		double xMin = Double.parseDouble("1.0E-2");
 		double xMax = 3;
@@ -734,8 +755,6 @@ extends ControlPanel implements ParameterChangeListener {
 		setSiteParams();
 		setEqkRupForecastParams();
 		application.setCurveXValues(createUSGS_PGA_Function());
-		
-		ArrayList<PlotCurveCharacterstics> chars = application.getPlottingFeatures();
 		
 		// assume cybershake is first
 		if (chars.size() >= 1) {
@@ -775,6 +794,8 @@ extends ControlPanel implements ParameterChangeListener {
 	}
 	
 	private void setPlotLabels() {
+		if (im == null)
+			return;
 		String name = this.selectedSite.name;
 		String short_name = this.selectedSite.short_name;
 		if (name.equals(short_name))

@@ -2076,6 +2076,8 @@ ScalarIMRChangeListener {
 		if (this.cvmControlPanel == null)
 			cvmControlPanel = new SiteDataControlPanel(this, this.imrGuiBean,
 					this.siteGuiBean);
+		if (!cvmControlPanel.isInitialized())
+			cvmControlPanel.init();
 		return cvmControlPanel;
 	}
 
