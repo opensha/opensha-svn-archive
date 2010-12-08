@@ -39,6 +39,7 @@ import javax.swing.JTextArea;
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedDoubleParameterEditor;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
@@ -95,6 +96,7 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 	private StringParameter faultSectionNameParam;
 	// source
 	private final static String SOURCE = "Source";
+	private final static String SOURCE_ADD = "new...";
 	private StringParameter sectionSourceParam;
 
 	// long term slip rate estimate
@@ -173,9 +175,11 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 	private boolean isEdit = false;
 
 	private DB_AccessAPI dbConnection;
+	private SectionSourceDB_DAO sectionSourceDB_DAO;
 
 	public EditFaultSection(DB_AccessAPI dbConnection, FaultSectionData faultSection, ViewFaultSection viewFaultSection) {
 		this.dbConnection = dbConnection;
+		sectionSourceDB_DAO = new SectionSourceDB_DAO(dbConnection);
 		try {
 			if(faultSection!=null) { // edit the fault section
 				this.selectedFaultSection = faultSection;
@@ -266,14 +270,14 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 				new Insets(0, 0, 0, 0), 0, 0));
 
 		// fault section sources
-		SectionSourceDB_DAO sectionSourceDB_DAO = new SectionSourceDB_DAO(dbConnection);
-		ArrayList sectionSourcesList = sectionSourceDB_DAO.getAllSectionSource();
-		ArrayList sectionSourceNamesList = new ArrayList();
+		ArrayList<SectionSource> sectionSourcesList = sectionSourceDB_DAO.getAllSectionSource();
+		ArrayList<String> sectionSourceNamesList = new ArrayList<String>();
 		for(int i=0; i<sectionSourcesList.size(); ++i)
-			sectionSourceNamesList.add(((SectionSource)sectionSourcesList.get(i)).getSectionSourceName());
+			sectionSourceNamesList.add(sectionSourcesList.get(i).getSectionSourceName());
+		sectionSourceNamesList.add(SOURCE_ADD);
 		sectionSourceParam = new StringParameter(SOURCE, sectionSourceNamesList, (String)sectionSourceNamesList.get(0));
-		ConstrainedStringParameterEditor sectionSourceParamEditor = new ConstrainedStringParameterEditor(sectionSourceParam);
-		leftPanel.add(sectionSourceParamEditor, new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
+		sectionSourceParam.addParameterChangeListener(this);
+		leftPanel.add(sectionSourceParam.getEditor(), new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
 				, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
 				new Insets(0, 0, 0, 0), 0, 0));
 
@@ -398,6 +402,8 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 		// section name
 		selectedFaultSection.setSectionName((String)this.faultSectionNameParam.getValue());
 		// section source (2002, CFM, new)
+		if (sectionSourceParam.getValue().equals(SOURCE_ADD))
+			addNewSource();
 		this.selectedFaultSection.setSource((String)sectionSourceParam.getValue());
 		// slip rate
 		if(((String)slipRateTypeParam.getValue()).equalsIgnoreCase(KNOWN)) {
@@ -529,10 +535,33 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 	public void parameterChange(ParameterChangeEvent event) {
 		String name = event.getParameterName();
 
-		if(name.equalsIgnoreCase(RAKE_TYPE_PARAM_NAME)) { // rake type param/ whether rake is known/unknown
+		if (name.equalsIgnoreCase(RAKE_TYPE_PARAM_NAME)) { // rake type param/ whether rake is known/unknown
 			setRakeVisibility();
-		} else if(name.equalsIgnoreCase(SLIP_RATE_TYPE_PARAM_NAME)) { // whether slip rate is known/unknown
+		} else if (name.equalsIgnoreCase(SLIP_RATE_TYPE_PARAM_NAME)) { // whether slip rate is known/unknown
 			setSlipRateVisibility();
+		} else if (name.equals(SOURCE)) {
+			if (sectionSourceParam.getValue().equals(SOURCE_ADD))
+				addNewSource();
+		}
+	}
+	
+	private void addNewSource() {
+		String defaultName = "(name)";
+		String name = JOptionPane.showInputDialog("New Source Name", defaultName);
+		StringConstraint constr = (StringConstraint) sectionSourceParam.getConstraint();
+		if (name == null || name.length() == 0 || name.equals(defaultName)) {
+			sectionSourceParam.setValue(constr.getAllowedStrings().get(0));
+			sectionSourceParam.getEditor().setParameter(sectionSourceParam);
+		} else {
+			sectionSourceDB_DAO.addSectionSource(name);
+			ArrayList<String> names = new ArrayList<String>();
+			for (SectionSource source : sectionSourceDB_DAO.getAllSectionSource()) {
+				names.add(source.getSectionSourceName());
+			}
+			names.add(SOURCE_ADD);
+			constr.setStrings(names);
+			sectionSourceParam.setValue(name);
+			sectionSourceParam.getEditor().setParameter(sectionSourceParam);
 		}
 	}
 

@@ -27,4 +27,36 @@ public class DefaultExceptoinHandler implements UncaughtExceptionHandler {
 		dialog.setVisible(true);
 	}
 
+	public String getAppName() {
+		return appName;
+	}
+
+	public void setAppName(String appName) {
+		this.appName = appName;
+	}
+
+	public ApplicationVersion getAppVersion() {
+		return appVersion;
+	}
+
+	public void setAppVersion(ApplicationVersion appVersion) {
+		this.appVersion = appVersion;
+	}
+
+	public Object getApp() {
+		return app;
+	}
+
+	public void setApp(Object app) {
+		this.app = app;
+	}
+
+	public Component getParent() {
+		return parent;
+	}
+
+	public void setParent(Component parent) {
+		this.parent = parent;
+	}
+
 }

@@ -85,6 +85,32 @@ public class SectionSourceDB_DAO  {
 	public ArrayList<SectionSource> getAllSectionSource() {
 		return query(" ");
 	}
+	
+	public int addSectionSource(String name) {
+		if (name == null)
+			throw new NullPointerException("new section source name can't be null!");
+		if (name.length() == 0)
+			throw new IllegalArgumentException("new section source name can't be blank!");
+		int maxID = 1;
+		for (SectionSource source : getAllSectionSource()) {
+			if (source.getSourceId() > maxID)
+				maxID = source.getSourceId();
+			if (source.getSectionSourceName().equals(name))
+				throw new RuntimeException("Section source '"+name+"' already exists!");
+		}
+		int sourceID = maxID + 1;
+		
+		String sql = "INSERT INTO "+TABLE_NAME+" ("+SECTION_SOURCE_ID+", "+SECTION_SOURCE_NAME+") ";
+		sql += "\nVALUES ("+sourceID+", '"+name+"')";
+		
+		System.out.println(sql);
+		
+		try {
+			return dbAccessAPI.insertUpdateOrDeleteData(sql);
+		} catch (SQLException e) {
+			throw new QueryException(e);
+		}
+	}
 
 
 	private ArrayList<SectionSource> query(String condition) throws QueryException {
@@ -96,7 +122,7 @@ public class SectionSourceDB_DAO  {
 			while(rs.next()) sectionSourceList.add(new SectionSource(rs.getInt(SECTION_SOURCE_ID),
 					rs.getString(SECTION_SOURCE_NAME)));
 			rs.close();
-		} catch(SQLException e) { throw new QueryException(e.getMessage()); }
+		} catch(SQLException e) { throw new QueryException(e); }
 		return sectionSourceList;
 	}
 

@@ -23,6 +23,7 @@ import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -50,6 +51,8 @@ import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.util.ApplicationVersion;
+import org.opensha.commons.util.bugReports.DefaultExceptoinHandler;
 import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
@@ -92,14 +95,39 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
 	
 	
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	public final static String APP_NAME =
+		"California Reference Geologic Fault Parameter (Paleo Site) GUI";
+	public final static String APP_SHORT_NAME = "PaleoSites";
+	
+	private static ApplicationVersion version;
+	
+	private static DefaultExceptoinHandler eh;
+	
+	/**
+	 * Returns the Application version
+	 * @return ApplicationVersion
+	 */
+	public static ApplicationVersion getAppVersion(){
+		if (version == null) {
+			try {
+				version = ApplicationVersion.loadBuildVersion();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return version;
+	}
+
 	private final static DB_AccessAPI dbConnection = DB_ConnectionPool.getLatestReadWriteConn();
 
 	private final static int WIDTH = 925;
 	private final static int HEIGHT = 800;
 
-	public final static String APP_NAME =
-		"California Reference Geologic Fault Parameter (Paleo Site) GUI";
-	public final static String APP_SHORT_NAME = "PaleoSites";
 	private final static String TIMESPAN_PARAM_NAME = "TimeSpans";
 	private final static String DATA_SPECIFIC_TO_TIME_INTERVALS =
 		"Data currently in this database";
@@ -156,9 +184,11 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
 	 * information about a user selected site
 	 */
 	public PaleoSiteApp2() {
+		eh.setApp(this);
+		eh.setParent(this);
 		combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(dbConnection);
 		try {
-			setTitle(APP_NAME);
+			setTitle(APP_NAME + " ("+getAppVersion()+")");
 			jbInit();
 			addTimeSpansPanel();
 			addSitesPanel(); // add the available sites from database for viewing
@@ -646,6 +676,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
 	}
 
 	public static void main(String args[]) {
+		eh = new DefaultExceptoinHandler(APP_SHORT_NAME, getAppVersion(), null, null);
 		new LoginWindow(dbConnection, PaleoSiteApp2.class.getName());
 	}
 }
