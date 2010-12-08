@@ -68,8 +68,8 @@ public class ServerPrefUtils {
 	 * when applications are final and being distributed, the the development prefs should be used when
 	 * changes are being made that would break the currently released apps.
 	 * 
-	 * In practice, this means that it should be development prefs on trunk, and production prefs
-	 * on release branches
+	 * In practice, this means that it should be development prefs on trunk and nightly builds, and production
+	 * prefs on release branches and distribution applications.
 	 */
 	public static final ServerPrefs SERVER_PREFS = ServerPrefs.DEV_PREFS;
 	
