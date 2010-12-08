@@ -50,30 +50,66 @@ public enum ServerPrefs {
 		this.buildType = buildType;
 	}
 
+	/**
+	 * The the base URL for servlets, for example: http://opensha.usc.edu:8080/OpenSHA/
+	 * 
+	 * @return servlet base URL
+	 */
 	public String getServletBaseURL() {
 		return servletURL;
 	}
 	
+	/**
+	 * The RMI port used for all RMI applications. This will differ based if this is a development
+	 * or production release.
+	 * 
+	 * @return RMI port number
+	 */
 	public int getRMIPort() {
 		return rmiPort;
 	}
 	
+	/**
+	 * The base URL for all RMI lookups 
+	 * 
+	 * @return RMI base URL
+	 */
 	public String getRMIBaseURL() {
 		return "rmi://"+hostName+":"+rmiPort+"/";
 	}
 
+	/**
+	 * String designating the build type, such as "nightly" or "dist".
+	 * 
+	 * @return build type string
+	 */
 	public String getBuildType() {
 		return buildType;
 	}
 	
+	/**
+	 * The host name of the server being used, such as "opensha.usc.edu"
+	 * 
+	 * @return server host hame
+	 */
 	public String getHostName() {
 		return hostName;
 	}
 	
+	/**
+	 * The minimum socket port used by RMI
+	 * 
+	 * @return min socket port used by RMI
+	 */
 	public int getMinRMISocketPort() {
 		return ServerPrefUtils.OPENSHA_RMI_SOCKET_MIN_PORT;
 	}
 	
+	/**
+	 * The maximum socket port used by RMI
+	 * 
+	 * @return max socket port used by RMI
+	 */
 	public int getMaxRMISocketPort() {
 		return ServerPrefUtils.OPENSHA_RMI_SOCKET_MAX_PORT;
 	}

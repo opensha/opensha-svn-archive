@@ -7,6 +7,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import org.opensha.commons.util.ApplicationVersion;
+import org.opensha.commons.util.ServerPrefUtils;
 
 
 public class BugReport {
@@ -124,6 +125,7 @@ public class BugReport {
 		String summary = "Bug in " + appName;
 		String description = "Application: " + appName + "\n" +
 						"Version: " + appVersion + "\n" +
+						"Bulid Type: " + ServerPrefUtils.SERVER_PREFS.getBuildType() + "\n" +
 						"Steps to reproduce: (PLEASE FILL IN)\n" +
 						"Other info: (PLEASE FILL IN)";
 		if (metadata != null && metadata.length() > 0) {
