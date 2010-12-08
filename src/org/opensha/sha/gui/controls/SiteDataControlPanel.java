@@ -67,7 +67,7 @@ public class SiteDataControlPanel extends ControlPanel implements ScalarIMRChang
 	private JButton viewButton = new JButton("View Data");
 	
 	private static final String SET_ALL_IMRS = "All IMRs";
-	private static final String SET_SELECTED_IMR = "Selected IMR only";
+	private static final String SET_SELECTED_IMR = "Selected IMR(s) only";
 	private static final String SET_DEFAULT = SET_SELECTED_IMR;
 	private JComboBox allSingleComboBox;
 	
