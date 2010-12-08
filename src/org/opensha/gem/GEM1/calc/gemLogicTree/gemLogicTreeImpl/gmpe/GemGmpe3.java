@@ -9,10 +9,10 @@ import org.opensha.gem.GEM1.calc.gemLogicTree.GemLogicTree;
 import org.opensha.gem.GEM1.calc.gemLogicTree.GemLogicTreeBranch;
 import org.opensha.gem.GEM1.calc.gemLogicTree.GemLogicTreeBranchingLevel;
 import org.opensha.gem.GEM1.scratch.AtkBoo_2006_AttenRel;
-import org.opensha.gem.GEM1.scratch.ZhaoEtAl_2006_AttenRel;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.ZhaoEtAl_2006_AttenRel;
 import org.opensha.sha.util.TectonicRegionType;
 
 public class GemGmpe3 {

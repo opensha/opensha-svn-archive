@@ -17,7 +17,6 @@ import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.DoubleDiscreteParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.WarningDoubleParameter;
-import org.opensha.gem.GEM1.scratch.ZhaoEtAl_2006_AttenRel;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.SimpleFaultData;
@@ -25,6 +24,7 @@ import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.imr.AttenuationRelationship;
 
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.attenRelImpl.ZhaoEtAl_2006_AttenRel;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;

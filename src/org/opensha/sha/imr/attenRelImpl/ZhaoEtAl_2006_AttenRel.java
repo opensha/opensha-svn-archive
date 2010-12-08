@@ -1,4 +1,4 @@
-package org.opensha.gem.GEM1.scratch;
+package org.opensha.sha.imr.attenRelImpl;
 
 import java.net.MalformedURLException;
 import java.net.URL;
