@@ -123,16 +123,16 @@ public class BugReport {
 	public BugReport(Throwable t, String metadata,
 			String appName, ApplicationVersion appVersion, Object buggyComp) {
 		String summary = "Bug in " + appName;
-		String description = "Application: " + appName + "\n" +
+		String description = "Steps to reproduce: (PLEASE FILL IN)\n\n" +
+						"Other info: (PLEASE FILL IN)\n\n" +
+						"Application: " + appName + "\n" +
 						"Version: " + appVersion + "\n" +
-						"Bulid Type: " + ServerPrefUtils.SERVER_PREFS.getBuildType() + "\n" +
-						"Steps to reproduce: (PLEASE FILL IN)\n" +
-						"Other info: (PLEASE FILL IN)";
+						"Bulid Type: " + ServerPrefUtils.SERVER_PREFS.getBuildType();
 		if (metadata != null && metadata.length() > 0) {
 			description += "\n\nMetadata:\n" + metadata;
 		}
 		if (t != null) {
-			description += "\n\nExcpetion:\n{{{\n" + getStackTrace(t)+"\n}}}\n";
+			description += "\n\nException:\n{{{\n" + getStackTrace(t)+"\n}}}\n";
 		}
 		
 		Component component;

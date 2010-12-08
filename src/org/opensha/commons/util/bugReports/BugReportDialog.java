@@ -172,20 +172,19 @@ public class BugReportDialog extends JDialog implements ActionListener, Hyperlin
 		JPanel bottomCenter = new JPanel();
 		bottomCenter.setLayout(new BoxLayout(bottomCenter, BoxLayout.Y_AXIS));
 		
-		JLabel emailLabel = new JLabel("Your E-mail Address: ");
+		bottomCenter.add(wrapInPanel(submitBugButton, mainColor));
+		bottomCenter.setBackground(mainColor);
+		submitBugButton.addActionListener(this);
+		
+		JLabel emailLabel = new JLabel("Your E-mail Address (optional): ");
 		JPanel emailPanel = new JPanel();
 		emailPanel.setLayout(new BoxLayout(emailPanel, BoxLayout.X_AXIS));
 		emailPanel.add(emailLabel);
 		emailPanel.add(emailField);
-		emailPanel.setPreferredSize(new Dimension(300, 20));
+		emailPanel.setPreferredSize(new Dimension(400, 20));
 		emailPanel.setBackground(mainColor);
-		emailPanel.setMaximumSize(new Dimension(300, 20));
-		
+		emailPanel.setMaximumSize(new Dimension(400, 20));
 		bottomCenter.add(wrapInPanel(emailPanel, mainColor));
-		
-		bottomCenter.add(wrapInPanel(submitBugButton, mainColor));
-		bottomCenter.setBackground(mainColor);
-		submitBugButton.addActionListener(this);
 		
 		centerPanel.add(wrapInPanel(bottomCenter, mainColor));
 		
