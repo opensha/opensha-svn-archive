@@ -65,7 +65,6 @@ import com.google.common.primitives.Doubles;
 
 public class DefaultCatalog implements Catalog {
 
-	
 	private Map<DataType, Object> dataMap;
 	private boolean readable = false;
 	private int size = -1;
@@ -237,7 +236,9 @@ public class DefaultCatalog implements Catalog {
 	 */
 	public Catalog deriveCatalog(int[] indices, Catalog catalog) {
 		for (DataType type : dataMap.keySet()) {
-			catalog.addData(type, deriveData(type, indices));
+			if (catalog.contains(type)) {
+				catalog.addData(type, deriveData(type, indices));
+			}
 		}
 		return catalog;
 	}
@@ -251,7 +252,7 @@ public class DefaultCatalog implements Catalog {
 	 * @throws IOException if unable to write catalog to file
 	 */
 	public void writeCatalog(File file, CatalogWriter writer)
-																throws IOException {
+			throws IOException {
 		writer.process(this, file);
 	}
 
@@ -307,7 +308,7 @@ public class DefaultCatalog implements Catalog {
 	 *         the file
 	 */
 	public void readCatalog(File file, Element meta) throws IOException,
-													ClassNotFoundException {
+			ClassNotFoundException {
 		checkNotNull(file, "Supplied file is null");
 		checkNotNull(meta, "Supplied metadata is null");
 		ObjectInputStream in = null;
@@ -474,22 +475,14 @@ public class DefaultCatalog implements Catalog {
 		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss z");
 		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 		e.addAttribute(EVENT_COUNT, Integer.toString(size));
-		e.add(createBoundElement(MIN_LAT, minVals.get(LATITUDE)
-			.toString()));
-		e.add(createBoundElement(MAX_LAT, maxVals.get(LATITUDE)
-			.toString()));
-		e.add(createBoundElement(MIN_LON, minVals.get(LONGITUDE)
-			.toString()));
-		e.add(createBoundElement(MAX_LON, maxVals.get(LONGITUDE)
-			.toString()));
-		e.add(createBoundElement(MIN_DEPTH, minVals.get(DEPTH)
-			.toString()));
-		e.add(createBoundElement(MAX_DEPTH, maxVals.get(DEPTH)
-			.toString()));
-		e.add(createBoundElement(MIN_MAG, minVals.get(MAGNITUDE)
-			.toString()));
-		e.add(createBoundElement(MAX_MAG, maxVals.get(MAGNITUDE)
-			.toString()));
+		e.add(createBoundElement(MIN_LAT, minVals.get(LATITUDE).toString()));
+		e.add(createBoundElement(MAX_LAT, maxVals.get(LATITUDE).toString()));
+		e.add(createBoundElement(MIN_LON, minVals.get(LONGITUDE).toString()));
+		e.add(createBoundElement(MAX_LON, maxVals.get(LONGITUDE).toString()));
+		e.add(createBoundElement(MIN_DEPTH, minVals.get(DEPTH).toString()));
+		e.add(createBoundElement(MAX_DEPTH, maxVals.get(DEPTH).toString()));
+		e.add(createBoundElement(MIN_MAG, minVals.get(MAGNITUDE).toString()));
+		e.add(createBoundElement(MAX_MAG, maxVals.get(MAGNITUDE).toString()));
 		e.add(createBoundElement(MIN_DATE, sdf.format(minDate)));
 		e.add(createBoundElement(MAX_DATE, sdf.format(maxDate)));
 		return e;
