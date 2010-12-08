@@ -32,6 +32,7 @@ import org.opensha.commons.data.siteData.util.SiteDataTypeParameterNameMap;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.WarningDoubleParameter;
+import org.opensha.commons.param.WarningParameterAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
@@ -63,7 +64,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
  * <LI> Basin-Depth-2.5 (the depth in m where the shear-wave velocity equals 2.5 km/sec)
  * <LI> Basin-Depth-1.0 (the depth in m where the shear-wave velocity equals 1.0 km/sec)
  * </UL>
- * <p>All of these translations were authorizedby the attenuation-rlationship authors
+ * <p>All of these translations were authorized by the attenuation-rlationship authors
  * (except for Sadigh, who used a dataset similar to Abrahamson & Silve (1997) so that
  * translation is applied).  The main method tests the translations of all currently
  * implemented attenuation-relationship site-related parameters.<p>
@@ -77,11 +78,15 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
  * @author: Ned Field, Nitin Gupta, Vipin Gupta, and Kevin Milner
  * @version 1.0
  */
-
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class SiteTranslator
 implements java.io.Serializable {
 
-	private final static String C = "SiteTranslator";
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private final static boolean D = false;
 
 	public final static String WILLS_B = "B";
@@ -314,8 +319,8 @@ implements java.io.Serializable {
 	 * Convenience method to set all site params in the given attenuation relationship instance from a single
 	 * site data value. Returns true if at least one parameter was set.
 	 * 
-	 * @param imr
-	 * @param datas
+	 * @param imr IMR for which to set params
+	 * @param data data value used to set IMR params
 	 * @return true if at least one parameter was set.
 	 */
 	public boolean setAllSiteParams(ScalarIntensityMeasureRelationshipAPI imr, SiteDataValue<?> data) {
@@ -325,26 +330,26 @@ implements java.io.Serializable {
 	}
 	
 	/**
-	 * Convenience method to set all site params in the given IMR/Tectonic Region mapping from a single
+	 * Convenience method to set all site params in the given collection of IMRs from a single
 	 * site data value. Returns true if at least one parameter was set.
 	 * 
-	 * @param imrMap
-	 * @param datas
+	 * @param imrs collection of IMRs for which to set params
+	 * @param data data value used to set IMR params
 	 * @return true if at least one parameter was set.
 	 */
-	public boolean setAllSiteParams(HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap,
+	public boolean setAllSiteParams(Collection<ScalarIntensityMeasureRelationshipAPI> imrs,
 			SiteDataValue<?> data) {
 		Collection<SiteDataValue<?>> datas = new ArrayList<SiteDataValue<?>>();
 		datas.add(data);
-		return setAllSiteParams(imrMap, datas);
+		return setAllSiteParams(imrs, datas);
 	}
 	
 	/**
-	 * Convenience method to set all site params in the given attenuation relationship instance from the given
+	 * Convenience method to set all site params in the given IMR instance from the given
 	 * set of data. Returns true if at least one parameter was set.
 	 * 
-	 * @param imr
-	 * @param datas
+	 * @param imr IMR for which to set params
+	 * @param datas collection of data values used to set IMR params
 	 * @return true if at least one parameter was set.
 	 */
 	public boolean setAllSiteParams(ScalarIntensityMeasureRelationshipAPI imr, Collection<SiteDataValue<?>> datas) {
@@ -362,19 +367,18 @@ implements java.io.Serializable {
 	}
 	
 	/**
-	 * Convenience method to set all site params in the given IMR/Tectonic Region mapping from the given
+	 * Convenience method to set all site params in the given collection of IMRs from the given
 	 * set of data. Returns true if at least one parameter was set.
 	 * 
-	 * @param imrMap
-	 * @param datas
+	 * @param imrs collection of IMRs for which to set params
+	 * @param datas collection of data values used to set IMR params
 	 * @return true if at least one parameter was set.
 	 */
-	public boolean setAllSiteParams(HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap,
+	public boolean setAllSiteParams(Collection<ScalarIntensityMeasureRelationshipAPI> imrs,
 			Collection<SiteDataValue<?>> datas) {
 		boolean setSomething = false;
 		
-		for (TectonicRegionType trt : imrMap.keySet()) {
-			ScalarIntensityMeasureRelationshipAPI imr = imrMap.get(trt);
+		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
 			if (this.setAllSiteParams(imr, datas))
 				setSomething = true;
 		}
@@ -408,6 +412,13 @@ implements java.io.Serializable {
 		return vsValue != null && !vsValue.isNaN() && vsValue > 0;
 	}
 	
+	private static void setValueIgnoreWarning(ParameterAPI param, Object value) {
+		if (param instanceof WarningParameterAPI)
+			((WarningParameterAPI)param).setValueIgnoreWarning(value);
+		else
+			param.setValue(value);
+	}
+	
 	/**
 	 * Set the Vs30 param for the given set to site data. If a Vs30 value is available in the data,
 	 * and is highest priority,that is used. Otherwise if a Wills Site Classification is available,
@@ -430,7 +441,7 @@ implements java.io.Serializable {
 				if (D) System.out.println("setSiteParamsForData: Got VS: " + vsValue);
 				if (isVS30ValueValid(vsValue)) {
 					if (D) System.out.println("setSiteParamsForData: +++ Set VS30 param: " + vsValue);
-					param.setValue(vsValue);
+					setValueIgnoreWarning(param, vsValue);
 					return true;
 				}
 			} else if (data.getDataType().equals(SiteDataAPI.TYPE_WILLS_CLASS)) {
@@ -440,7 +451,7 @@ implements java.io.Serializable {
 						+ " from " + data.getValue());
 				if (isVS30ValueValid(vsValue)) {
 					if (D) System.out.println("setSiteParamsForData: +++ Set VS30 param: " + vsValue);
-					param.setValue(vsValue);
+					setValueIgnoreWarning(param, vsValue);
 					return true;
 				}
 			}
@@ -504,10 +515,7 @@ implements java.io.Serializable {
 					continue;
 				}
 				if (D) System.out.println("setSiteParamsForData: +++ Setting dep 2.5: " + val);
-				if (param instanceof WarningDoubleParameter)
-					((WarningDoubleParameter)param).setValueIgnoreWarning(val);
-				else
-					param.setValue(val);
+				setValueIgnoreWarning(param, val);
 				return true;
 			}
 		}
@@ -532,7 +540,7 @@ implements java.io.Serializable {
 					val = val * 1000d;
 				}
 				if (D) System.out.println("setSiteParamsForData: +++ Setting dep 1.0: " + val);
-				param.setValue(val);
+				setValueIgnoreWarning(param, val);
 				return true;
 			}
 		}
@@ -678,22 +686,22 @@ implements java.io.Serializable {
 			if (data.getDataType().equals(SiteDataAPI.TYPE_WILLS_CLASS)) {
 				String wc = (String)data.getValue();
 				if (wc.equals(WILLS_DE) || wc.equals(WILLS_D) || wc.equals(WILLS_CD)) {
-					param.setValue(new Double(5.0));
+					setValueIgnoreWarning(param, new Double(5.0));
 					return true;
 				}
 				else if (wc.equals(WILLS_C)) {
-					param.setValue(new Double(1.0));
+					setValueIgnoreWarning(param, new Double(1.0));
 					return true;
 				}
 				else if (wc.equals(WILLS_BC) || wc.equals(WILLS_B)) {
-					param.setValue(new Double(0.0));
+					setValueIgnoreWarning(param, new Double(0.0));
 					return true;
 				}
 			} else if (data.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_2_5)) {
 				Double depth = (Double)data.getValue();
 				if (depth.isNaN())
-					return false;
-				param.setValue(depth);
+					continue;
+				setValueIgnoreWarning(param, depth);
 				return true;
 			}
 		}

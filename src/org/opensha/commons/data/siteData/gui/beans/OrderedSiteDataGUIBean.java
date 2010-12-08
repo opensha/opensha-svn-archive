@@ -46,7 +46,6 @@ import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.util.SiteDataTypeParameterNameMap;
-import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.util.SiteTranslator;
@@ -353,7 +352,6 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 		
 		metadataArea.setCaretPosition(0);
 		
-		ParameterList paramList = currentData.getAdjustableParameterList();
 		if (paramEdit != null) {
 			this.dataPanel.remove(paramEdit);
 		}

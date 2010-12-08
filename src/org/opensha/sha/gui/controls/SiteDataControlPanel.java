@@ -21,14 +21,16 @@ package org.opensha.sha.gui.controls;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
@@ -38,18 +40,21 @@ import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
 import org.opensha.commons.geo.Location;
-import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMR_MultiGuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
 import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 import org.opensha.sha.util.SiteTranslator;
-import org.opensha.sha.util.TectonicRegionType;
 
 public class SiteDataControlPanel extends ControlPanel implements ScalarIMRChangeListener,
 					ActionListener, ChangeListener {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public static final String NAME = "Set Site Params from Web Services";
 	
 	private IMR_MultiGuiBean imrGuiBean;
@@ -60,6 +65,14 @@ public class SiteDataControlPanel extends ControlPanel implements ScalarIMRChang
 	
 	private JButton setButton = new JButton("Set IMR Params");
 	private JButton viewButton = new JButton("View Data");
+	
+	private static final String SET_ALL_IMRS = "All IMRs";
+	private static final String SET_SELECTED_IMR = "Selected IMR only";
+	private static final String SET_DEFAULT = SET_SELECTED_IMR;
+	private JComboBox allSingleComboBox;
+	
+	private Collection<ScalarIntensityMeasureRelationshipAPI> selectedIMRs;
+	private Collection<ScalarIntensityMeasureRelationshipAPI> allIMRs;
 	
 	private SiteTranslator trans = null;
 	
@@ -75,6 +88,8 @@ public class SiteDataControlPanel extends ControlPanel implements ScalarIMRChang
 	public void doinit() {
 		frame = new JFrame();
 		imrGuiBean.addIMRChangeListener(this);
+		allIMRs = imrGuiBean.getIMRs();
+		selectedIMRs = imrGuiBean.getIMRMap().values();
 		
 		dataGuiBean = new OrderedSiteDataGUIBean(
 				OrderedSiteDataProviderList.createCachedSiteDataProviderDefaults(), imrGuiBean.getIMRMap().values());
@@ -82,26 +97,48 @@ public class SiteDataControlPanel extends ControlPanel implements ScalarIMRChang
 		viewButton.addActionListener(this);
 		setButton.addActionListener(this);
 		
+		String[] comboItems = { SET_SELECTED_IMR, SET_ALL_IMRS };
+		allSingleComboBox = new JComboBox(comboItems);
+		allSingleComboBox.setMaximumSize(new Dimension(200, 30));
+		allSingleComboBox.setSelectedItem(SET_DEFAULT);
+		allSingleComboBox.addActionListener(this);
+		
 		JPanel bottomPanel = new JPanel();
 		bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
 		
+		bottomPanel.add(allSingleComboBox);
 		bottomPanel.add(setButton);
 		bottomPanel.add(viewButton);
 		
 		mainPanel.add(dataGuiBean, BorderLayout.CENTER);
 		mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 		
-		enableButtons();
+		updateIMRs();
 		dataGuiBean.getProviderList().addChangeListener(this);
 		
 		frame.setContentPane(mainPanel);
 		frame.setSize(OrderedSiteDataGUIBean.width, 600);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	}
+	
+	private void updateIMRs() {
+		if (isSetAllSelected()) {
+//			System.out.println("Setting for all!");
+			dataGuiBean.setIMR(allIMRs);
+		} else {
+//			System.out.println("Setting for selected!");
+			dataGuiBean.setIMR(selectedIMRs);
+		}
+		enableButtons();
+	}
+	
+	public boolean isSetAllSelected() {
+		return SET_ALL_IMRS.equals(allSingleComboBox.getSelectedItem());
+	}
 
 	public void imrChange(ScalarIMRChangeEvent event) {
-		dataGuiBean.setIMR(event.getNewIMRs().values());
-		enableButtons();
+		selectedIMRs = event.getNewIMRs().values();
+		updateIMRs();
 	}
 	
 	public void setSiteParams() {
@@ -118,7 +155,10 @@ public class SiteDataControlPanel extends ControlPanel implements ScalarIMRChang
 			trans = new SiteTranslator();
 		}
 		
-		trans.setAllSiteParams(imrGuiBean.getIMRMap(), data);
+		if (isSetAllSelected())
+			trans.setAllSiteParams(allIMRs, data);
+		else
+			trans.setAllSiteParams(selectedIMRs, data);
 		
 		this.siteGuiBean.getParameterListEditor().refreshParamEditor();
 		frame.dispose();
@@ -148,6 +188,8 @@ public class SiteDataControlPanel extends ControlPanel implements ScalarIMRChang
 		} else if (e.getSource() == viewButton) {
 			ArrayList<SiteDataValue<?>> data = loadData(true);
 			this.displayData(data);
+		} else if (e.getSource() == allSingleComboBox) {
+			updateIMRs();
 		}
 	}
 	
