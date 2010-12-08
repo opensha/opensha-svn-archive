@@ -6,6 +6,15 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * This class contains constants for the ServerPrefs enum. It also always contains a pointer to
+ * the ServerPrefs instance in use, <code>ServerPrefUtils.SERVER_PREFS</code>.
+ * 
+ * It should be used when looking up the current tomcat URL, or other server preferences.
+ * 
+ * @author kevin
+ *
+ */
 public class ServerPrefUtils {
 	
 	public static final DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");

@@ -21,6 +21,16 @@ package org.opensha.commons.util;
 
 import java.util.NoSuchElementException;
 
+/**
+ * This enum stores preferences for servers that OpenSHA connects to. This includes hostnames
+ * for servers such as apache tomcat, port numbers for RMI, and the current build type.
+ * 
+ * To get the server prefs instance in use by this build, use <code>ServerPrefUtils.SERVER_PREFS</code>.
+ * 
+ * @author kevin
+ * @see ServerPrefUtils
+ *
+ */
 public enum ServerPrefs {
 	
 	/**
