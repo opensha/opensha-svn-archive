@@ -43,8 +43,8 @@ public class SiteDataApplet extends Applet implements ActionListener {
 	
 	private OrderedSiteDataGUIBean bean;
 	
-	private JTextField latField = new JTextField(8);
-	private JTextField lonField = new JTextField(8);
+	private JTextField latField = new JTextField("34.053", 8);
+	private JTextField lonField = new JTextField("-118.243", 8);
 	
 	private JButton prefButton = new JButton("View Preffered Data");
 	private JButton allButton = new JButton("View All Available Data");
@@ -103,7 +103,7 @@ public class SiteDataApplet extends Applet implements ActionListener {
 				datas = list.getAllAvailableData(loc);
 			else
 				datas = list.getBestAvailableData(loc);
-			OrderedSiteDataGUIBean.showDataDisplayDialog(datas, this);
+			OrderedSiteDataGUIBean.showDataDisplayDialog(datas, this, loc);
 		}
 	}
 	

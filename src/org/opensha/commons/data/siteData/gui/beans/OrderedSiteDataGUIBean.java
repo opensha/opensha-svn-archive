@@ -46,6 +46,7 @@ import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.util.SiteDataTypeParameterNameMap;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.util.SiteTranslator;
@@ -368,12 +369,23 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 	}
 	
 	public static Component getDataDisplayComponent(ArrayList<SiteDataValue<?>> datas) {
+		return getDataDisplayComponent(datas, null);
+	}
+	
+	public static Component getDataDisplayComponent(ArrayList<SiteDataValue<?>> datas, Location loc) {
 		String text;
 		
-		if (datas == null || datas.size() == 0) {
-			text = "No data available";
-		} else {
+		if (loc == null)
 			text = "";
+		else
+			text = "Site data for Location: "+loc.getLatitude()+", "+loc.getLongitude();
+		
+		if (datas == null || datas.size() == 0) {
+			if (text.length() > 0)
+				text += "\n\n";
+			text += "No data available";
+		} else {
+			text += "";
 			for (SiteDataValue<?> data : datas) {
 				if (text.length() > 0)
 					text += "\n\n";
@@ -398,7 +410,11 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 	}
 	
 	public static void showDataDisplayDialog(ArrayList<SiteDataValue<?>> datas, Component parent) {
-		Component comp = getDataDisplayComponent(datas);
+		showDataDisplayDialog(datas, parent, null);
+	}
+	
+	public static void showDataDisplayDialog(ArrayList<SiteDataValue<?>> datas, Component parent, Location loc) {
+		Component comp = getDataDisplayComponent(datas, loc);
 		
 		JOptionPane.showMessageDialog(parent, comp, "Site Data Values", JOptionPane.INFORMATION_MESSAGE);
 	}

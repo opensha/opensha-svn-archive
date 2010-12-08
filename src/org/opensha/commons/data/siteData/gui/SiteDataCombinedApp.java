@@ -17,7 +17,7 @@ public class SiteDataCombinedApp extends JFrame {
 	private static final long serialVersionUID = 1L;
 	
 	public final static String APP_NAME = "Site Data Application";
-	public final static String APP_SHORT_NAME = "SiteDataApp";
+	public final static String APP_SHORT_NAME = "SiteData";
 	
 	private static ApplicationVersion version;
 	

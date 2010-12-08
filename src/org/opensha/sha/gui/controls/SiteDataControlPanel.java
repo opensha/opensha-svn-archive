@@ -165,7 +165,7 @@ public class SiteDataControlPanel extends ControlPanel implements ScalarIMRChang
 	}
 	
 	public void displayData(ArrayList<SiteDataValue<?>> datas) {
-		OrderedSiteDataGUIBean.showDataDisplayDialog(datas, frame);
+		OrderedSiteDataGUIBean.showDataDisplayDialog(datas, frame, siteGuiBean.getSite().getLocation());
 	}
 	
 	private ArrayList<SiteDataValue<?>> loadData() {
