@@ -41,13 +41,22 @@ import org.opensha.commons.geo.Location;
 
 public class SiteDataApplet extends Applet implements ActionListener {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private OrderedSiteDataGUIBean bean;
 	
 	private JTextField latField = new JTextField("34.053", 8);
 	private JTextField lonField = new JTextField("-118.243", 8);
 	
 	private JButton prefButton = new JButton("View Preffered Data");
+	private String prefButtonInfo = "This retrieves and displays the first valid value of each data type\n" +
+			"from the currently enabled data sources, in order of priority.";
 	private JButton allButton = new JButton("View All Available Data");
+	private String allButtonInfo = "This retrieves and displays all data values\n" +
+	"from the currently enabled data sources, in order of priority.";
 	
 	public SiteDataApplet() {
 		bean = new OrderedSiteDataGUIBean(OrderedSiteDataProviderList.createCachedSiteDataProviderDefaults());
@@ -63,7 +72,9 @@ public class SiteDataApplet extends Applet implements ActionListener {
 		
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+		prefButton.setToolTipText(prefButtonInfo);
 		buttonPanel.add(prefButton);
+		allButton.setToolTipText(allButtonInfo);
 		buttonPanel.add(allButton);
 		
 		JPanel bottomPanel = new JPanel(new BorderLayout());
