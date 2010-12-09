@@ -52,11 +52,11 @@ public class SiteDataApplet extends Applet implements ActionListener {
 	private JTextField lonField = new JTextField("-118.243", 8);
 	
 	private JButton prefButton = new JButton("View Preffered Data");
-	private String prefButtonInfo = "This retrieves and displays the first valid value of each data type\n" +
-			"from the currently enabled data sources, in order of priority.";
+	private String prefButtonInfo = "<html>This retrieves and displays the first valid value of each data type<br>" +
+			"from the currently enabled data sources, in order of priority.</html>";
 	private JButton allButton = new JButton("View All Available Data");
-	private String allButtonInfo = "This retrieves and displays all data values\n" +
-	"from the currently enabled data sources, in order of priority.";
+	private String allButtonInfo = "<html>This retrieves and displays all data values from the<br>" +
+	"currently enabled data sources, in order of priority.</html>";
 	
 	public SiteDataApplet() {
 		bean = new OrderedSiteDataGUIBean(OrderedSiteDataProviderList.createCachedSiteDataProviderDefaults());

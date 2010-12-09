@@ -56,8 +56,17 @@ public class SiteDataMapApplet extends Applet implements ActionListener, ListSel
 	private GMT_MapGuiBean mapBean;
 	
 	private JButton mapButton = new JButton("Create Map");
+	private String mapButtonInfo =		"<html>This creates a map for each of the currently<br>" +
+										"selected data sources.</html>";
 	private JButton mapMultiButton = new JButton("Create Mosaic Map");
+	private String mapMultiButtonInfo =	"<html>This creates single map from all of the currently selected data<br>" +
+										"sources. At each point, the first valid value (in order of priority)<br>" +
+										"is used.<br><br>" +
+										"<b>Note that all data sources must be of the same data<br>" +
+										"type to enable mosaic maps.</b></html>";
 	private JButton regionButton = new JButton("Set Region from Data");
+	private String regionButtonInfo =	"<html>This sets the region in the map attribes settings to equal<br>" +
+										"the applicable region for the current data source(s).</html>";
 	
 	public SiteDataMapApplet() {
 		dataBean = new OrderedSiteDataGUIBean(OrderedSiteDataProviderList.createSiteDataMapProviders());
@@ -75,8 +84,11 @@ public class SiteDataMapApplet extends Applet implements ActionListener, ListSel
 		
 		JPanel bottomPanel = new JPanel();
 		bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
+		mapButton.setToolTipText(mapButtonInfo);
 		bottomPanel.add(mapButton);
+		mapMultiButton.setToolTipText(mapMultiButtonInfo);
 		bottomPanel.add(mapMultiButton);
+		regionButton.setToolTipText(regionButtonInfo);
 		bottomPanel.add(regionButton);
 		
 		JPanel centerPanel = new JPanel();
