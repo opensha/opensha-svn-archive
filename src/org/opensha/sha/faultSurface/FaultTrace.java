@@ -84,7 +84,13 @@ public class FaultTrace extends LocationList implements NamedObjectAPI {
 	}
 
 	/**
-	 * This returns the average strike (weight average by length)
+	 * This returns the average strike (weight average by length).
+	 * <br>
+	 * <br>Note that this method is significantly slower than {@link #getStrikeDirection()}, while 
+	 * providing almost identical results (typically ~0.08 degrees). See 
+	 * <a href="https://opensha.org/trac/wiki/StrikeDirectionMethods">StrikeDirectionMethods</a> for more
+	 * information.
+	 * 
 	 * @return
 	 */
 	public double getAveStrike() {
@@ -124,7 +130,12 @@ public class FaultTrace extends LocationList implements NamedObjectAPI {
 	}
 
 	/**
-	 * This returns the strike direction (between 0 and 360 degrees) defined by the first and last points only
+	 * This returns the strike direction (between 0 and 360 degrees) defined by the first and last points only.
+	 * <br><br>
+	 * It is significantly faster than {@link #getAveStrike()} and returns almost identical results,
+	 * typically ~0.08 degrees. See 
+	 * <a href="https://opensha.org/trac/wiki/StrikeDirectionMethods">StrikeDirectionMethods</a> for more
+	 * information.
 	 * 
 	 * @return strike direction
 	 */
