@@ -44,7 +44,7 @@ NamedObjectAPI, ParameterChangeListener {
 	private static final long serialVersionUID = 1234567890987654353L;	
 
 	// Name of IMR
-	public final static String NAME = "ZhaoEtAl (2006) UNVERIFIED";
+	public final static String NAME = "ZhaoEtAl (2006)";
 	// Coefficients
 	// index -1 is for PGA
 	// coefficients Table 4 (page 903)
