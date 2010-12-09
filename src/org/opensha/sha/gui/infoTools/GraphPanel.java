@@ -30,6 +30,7 @@ import java.awt.PrintJob;
 import java.awt.Rectangle;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.print.PrinterException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -1136,17 +1137,13 @@ public class GraphPanel extends JSplitPane {
 		if(graphOn)
 			chartPanel.createChartPrintJob();
 		else{
-			Properties p = new Properties();
-			PrintJob pjob = this.getToolkit().getPrintJob(frame,"Printing" , p);
-			if (pjob != null) {
-				Graphics pg = pjob.getGraphics();
-				if (pg != null) {
-					DataUtil.print(pjob, pg, dataTextArea.getText());
-					pg.dispose();
-				}
-				pjob.end();
+			try {
+				dataTextArea.print();
+			} catch (PrinterException e) {
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(this, "Printing failed:\n"+e.getMessage(),
+						"Printing Failed!", JOptionPane.ERROR_MESSAGE);
 			}
-
 		}
 	}
 
