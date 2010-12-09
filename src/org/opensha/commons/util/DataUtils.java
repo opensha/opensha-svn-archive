@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 
 import com.google.common.primitives.Ints;
 
@@ -36,6 +37,8 @@ import com.google.common.primitives.Ints;
  * @version $Id:$
  */
 public class DataUtils {
+
+    private static Random random;
 
 	// no instantiation
 	private DataUtils() {}
@@ -148,6 +151,23 @@ public class DataUtils {
 		Arrays.sort(data);
 		return Ints.toArray(indices);
 	}
+
+	
+    /**
+     * Creates an array of random <code>double</code> values. Method re-seeds
+     * the random generator with the current time on each call.
+     * @param length of output array
+     * @return the array of random <code>double</code>s
+     */
+    public static double[] randomValues(int length) {
+    	if (random == null) random = new Random();
+        double[] sequence = new double[length];
+        random.setSeed(System.currentTimeMillis());
+        for (int i=0; i<length; i++) {
+            sequence[i] = random.nextFloat();
+        }
+        return sequence;
+    }
 
 	/**
 	 * Returns the percent difference between two values.
