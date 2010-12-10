@@ -218,9 +218,11 @@ public class DefaultCatalog implements Catalog {
 	 * @return the data array
 	 * @throws NullPointerException if index array is <code>null</code>
 	 * @throws IndexOutOfBoundsException if any indices are out of range
+	 * 
+	 * TODO better argument checking
 	 */
 	public Object deriveData(DataType type, int[] indices) {
-		if (dataMap.get(type) != null) return null;
+		if (!contains(type)) return null;
 		return DataUtils.arraySelect(dataMap.get(type), indices);
 	}
 
@@ -233,10 +235,12 @@ public class DefaultCatalog implements Catalog {
 	 * @return a reference to the output catalog provided
 	 * @throws NullPointerException if index array is <code>null</code>
 	 * @throws IndexOutOfBoundsException if any indices are out of range
+	 * 
+	 * TODO better argument checking
 	 */
 	public Catalog deriveCatalog(int[] indices, Catalog catalog) {
 		for (DataType type : dataMap.keySet()) {
-			if (catalog.contains(type)) {
+			if (contains(type)) {
 				catalog.addData(type, deriveData(type, indices));
 			}
 		}
