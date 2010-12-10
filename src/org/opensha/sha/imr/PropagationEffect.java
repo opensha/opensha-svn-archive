@@ -53,7 +53,7 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 	private final static boolean D = false;
 
 	private boolean APPROX_HORZ_DIST = true;
-	private boolean POINT_SRC_CORR = true;
+	private boolean POINT_SRC_CORR = false;
 
 	// Seis depth
 	double seisDepth = DistanceSeisParameter.seisDepth;
