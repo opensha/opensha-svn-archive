@@ -1,10 +1,7 @@
 package scratch.ned.ETAS_Tests;
 
-import java.util.ArrayList;
 
-import org.apache.commons.math.util.MathUtils;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 
 public class ETAS_Utils {
 	
