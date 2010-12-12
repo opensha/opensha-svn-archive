@@ -160,10 +160,13 @@ public class CodeTests {
 		
 		CodeTests tests = new CodeTests();
 		
+		// this tests IntegerPDF_FunctionSampler:
 //		System.out.println("testIntegerPDF_FunctionSampler passes = "+tests.testIntegerPDF_FunctionSampler());
 		
+		// This tests ETAS_Utils.getDefaultRandomTimeOfEvent(*)
 //		System.out.println("testGetDefaultRandomTimeOfEvent passes = "+tests.testGetDefaultRandomTimeOfEvent(0, 10, 0.01));
 
+		// This tests ETAS_Utils.getPoissonRandomNumber(lambda)
 		System.out.println("testGetPoissonRandomNumber passes = "+tests.testGetPoissonRandomNumber(5));
 		 
 	}

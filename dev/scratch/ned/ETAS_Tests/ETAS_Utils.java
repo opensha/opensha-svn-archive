@@ -105,6 +105,19 @@ public class ETAS_Utils {
 	}
 	
 	
+	/**
+	 * This returns the expected number of primary aftershocks as a function of time using
+	 * Equation (1) of Felzer (2009, SRL, v 80, p 21-25, doi: 10.1785/gssrl.80.1.21)
+	 * @param k
+	 * @param p
+	 * @param magMain
+	 * @param magMin
+	 * @param c
+	 * @param tMin
+	 * @param tMax
+	 * @param tDelta
+	 * @return
+	 */
 	public EvenlyDiscretizedFunc getNumWithTimeFunc(double k, double p, double magMain, double magMin, double c, double tMin, double tMax, double tDelta) {
 		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(tMin+tDelta/2, tMax-tDelta/2, (int)Math.round((tMax-tMin)/tDelta));
 		for(int i=0;i<func.getNum();i++) {
