@@ -2,12 +2,14 @@ package scratch.ned.ETAS_Tests;
 
 import java.util.ArrayList;
 
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
+import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 
 public class EqksInGeoBlock {
 	
@@ -20,6 +22,9 @@ public class EqksInGeoBlock {
 	ArrayList<Double> mag;
 	Location blockCenterLoc;
 	double totalRateInside = -1;
+	
+	IntegerPDF_FunctionSampler randomEqkRupSampler;
+
 
 	
 	public EqksInGeoBlock(double minLat, double maxLat, double minLon, double maxLon, 
@@ -191,6 +196,28 @@ public class EqksInGeoBlock {
 		return this.srcIndices.size();
 	}
 	
+	
+	/**
+	 * Still need to modify location if point source or set hypocenter if finite source?
+	 * (or do that in what calls this?)
+	 * @return
+	 */
+	public ProbEqkRupture getRandomRupture() {
+		// make random sampler if it doesn't already exist
+		if(randomEqkRupSampler == null) {
+			randomEqkRupSampler = new IntegerPDF_FunctionSampler(srcIndices.size());
+			for(int i=0;i<srcIndices.size();i++) 
+				randomEqkRupSampler.set(i,ratesInside.get(i));
+		}
+		int localRupIndex = randomEqkRupSampler.getRandomInt();
+		int iSrc=srcIndices.get(localRupIndex);
+		int iRup = srcRupIndices.get(localRupIndex);
+		ProbEqkRupture rup = erf.getRupture(iSrc, iRup);
+//		rup.setRuptureIndexAndSourceInfo(iSrc, "ETAS Event", iRup);
+		return rup;
+	}
+	
+	
 
 	private boolean isLocInside(Location loc) {
 		if(     loc.getLatitude()>=minLat && loc.getLatitude()< maxLat && 
@@ -199,6 +226,44 @@ public class EqksInGeoBlock {
 			return true;
 		else
 			return false;
+	}
+	
+	
+	public void testRandomSampler() {
+		System.out.println("starting random sampling test");
+		
+		// do this to make sure randomEqkRupSampler has been created
+		if(randomEqkRupSampler == null) {
+			randomEqkRupSampler = new IntegerPDF_FunctionSampler(srcIndices.size());
+			for(int i=0;i<srcIndices.size();i++) 
+				randomEqkRupSampler.set(i,ratesInside.get(i));
+		}
+		
+		int numEvents=ratesInside.size();
+		
+		EvenlyDiscretizedFunc testFunc = new EvenlyDiscretizedFunc(0.0, numEvents, 1.0);
+		int numSamples=100000000;
+		int thresh = 10000000, threshIncr=10000000;
+		for(int i=0;i<numSamples;i++) {
+			testFunc.add(randomEqkRupSampler.getRandomInt(),1.0);
+			if(i==thresh){
+				System.out.println("\t"+((float)thresh/(float)numSamples));
+				thresh+=threshIncr;
+			}
+		}
+		for(int i=0;i<testFunc.getNum();i++) testFunc.set(i,testFunc.getY(i)/numSamples);
+		
+		
+		// make orig dist for plotting comparison
+		EvenlyDiscretizedFunc origFunc = new EvenlyDiscretizedFunc(0.0, numEvents, 1.0);
+		for(int i=0;i<numEvents;i++) origFunc.set(i,ratesInside.get(i)/getTotalRateInside());
+		
+		// plot functions
+		ArrayList funcs = new ArrayList();
+		funcs.add(origFunc);
+		funcs.add(testFunc);
+		GraphiWindowAPI_Impl sr_graph = new GraphiWindowAPI_Impl(funcs, "");  
+
 	}
 
 

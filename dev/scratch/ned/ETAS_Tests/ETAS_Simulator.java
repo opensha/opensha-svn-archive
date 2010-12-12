@@ -6,6 +6,7 @@ import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -20,7 +21,7 @@ public class ETAS_Simulator {
 	EqkRupForecast erf;
 	
 	
-	public ETAS_Simulator(EqkRupForecast erf,GriddedRegion griddedRegion) {
+	public ETAS_Simulator(EqkRupForecast erf,GriddedRegion griddedRegion, boolean adaptiveBlocks) {
 		this.erf = erf;
 		this.griddedRegion = griddedRegion;
 
@@ -30,11 +31,11 @@ public class ETAS_Simulator {
 /*		ProbEqkRupture rup = new ProbEqkRupture();
 		rup.setMag(5);
 		rup.setPointSurface(new Location(34,-118,5));
-*/		
+	*/	
 		// 68	S. San Andreas;CH+CC+BB+NM+SM+NSB+SSB+BG+CO	 #rups=8
 		ProbEqkRupture rup = erf.getSource(68).getRupture(0);
 
-		ETAS_PrimaryEventSampler sampler = new ETAS_PrimaryEventSampler(rup,blockList, erf, 1.4,2.0);
+		ETAS_PrimaryEventSampler sampler = new ETAS_PrimaryEventSampler(rup,blockList, erf, 1.4,2.0, adaptiveBlocks);
 		sampler.writeRelBlockProbToFile();
 	}
 
@@ -126,6 +127,9 @@ public class ETAS_Simulator {
 		runtime = (System.currentTimeMillis()-startTime)/1000;
 		System.out.println("Making sub-blocks took "+runtime+" seconds");
 		*/
+		
+//		blockList.get(0).testRandomSampler();
+		
 	}
 
 
@@ -154,7 +158,7 @@ public class ETAS_Simulator {
 		//for(int s=0;s<200;s++) System.out.println(s+"\t"+meanUCERF2.getSource(s).getName()+"\t #rups="+meanUCERF2.getSource(s).getNumRuptures());
 
 		startTime=System.currentTimeMillis();
-		ETAS_Simulator tests = new ETAS_Simulator(meanUCERF2,griddedRegion);
+		ETAS_Simulator tests = new ETAS_Simulator(meanUCERF2,griddedRegion, true);
 		runtime = (int)(System.currentTimeMillis()-startTime)/1000;
 		System.out.println("Tests Run took "+runtime+" seconds");
 	}

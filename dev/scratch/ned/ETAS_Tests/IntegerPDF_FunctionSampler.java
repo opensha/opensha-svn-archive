@@ -7,6 +7,16 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 
+
+/**
+ * This class stores integer values in the X axis and the relative probability associated with each integer
+ * in the Y axis (representing a PDF of integer values). The x-axis ranges from zero to the number of points 
+ * minus one (i.e, the x-axis values are the same as the x-axis indices).  Once the relative probabilities have
+ * been populated in the y-axis, random samples can be obtained from the distribution using the getRandomInt()
+ * method.
+ * @author field
+ *
+ */
 public class IntegerPDF_FunctionSampler extends EvenlyDiscretizedFunc {
 	
 	boolean dataChane = true;
@@ -106,49 +116,5 @@ public class IntegerPDF_FunctionSampler extends EvenlyDiscretizedFunc {
 
 	
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		
-		int numIntegers = 100;
-		IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(numIntegers);
-		double total=0;
-		for(int i=0;i<numIntegers;i++) {
-			sampler.set(i,Math.random());
-			total+=sampler.getY(i);
-		}
-		for(int i=0;i<numIntegers;i++) {
-			sampler.set(i,sampler.getY(i)/total);
-		}
-
-		/*
-		IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(5);
-		sampler.set(0,1);
-		sampler.set(1,1);
-		sampler.set(2,1);
-		sampler.set(3,1);
-		sampler.set(4,1);
-		
-		System.out.println(sampler.getInt(0.8));
-		*/
-		
-		/**/
-		EvenlyDiscretizedFunc testFunc = new EvenlyDiscretizedFunc(0.0, numIntegers, 1.0);
-		int numSamples=100000000;
-		for(int i=0;i<numSamples;i++) {
-			testFunc.add(sampler.getRandomInt(),1.0);
-		}
-		for(int i=0;i<testFunc.getNum();i++) testFunc.set(i,testFunc.getY(i)/numSamples);
-//		System.out.println(testFunc);
-		
-		
-		ArrayList funcs = new ArrayList();
-		funcs.add(sampler);
-		funcs.add(testFunc);
-		GraphiWindowAPI_Impl sr_graph = new GraphiWindowAPI_Impl(funcs, "");  
-		 
-	}
 
 }
