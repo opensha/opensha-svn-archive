@@ -26,6 +26,10 @@ import scratch.vipin.relm.RELM_ERF_ToGriddedHypoMagFreqDistForecast;
  * @author field
  *
  */
+
+/**
+ * This contains some misc test stuff (just trying different things)
+ */
 public class Tests extends ArrayList<Integer> {
 	
 	
