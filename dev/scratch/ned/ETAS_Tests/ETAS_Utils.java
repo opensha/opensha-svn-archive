@@ -127,10 +127,18 @@ public class ETAS_Utils {
 		return func;
 	}
 
+	/**
+	 * This returns the expected number of primary aftershocks as a function of 
+	 * time using the default ETAS parameter values for CA from Hardebeck et al. 
+	 * (2008, JGR, v 113, B08310, doi:10.1029/2007JB005410):
+	 * @param magMain
+	 * @param tMin
+	 * @param tMax
+	 * @param tDelta
+	 * @return
+	 */
 	public EvenlyDiscretizedFunc getDefaultNumWithTimeFunc(double magMain, double tMin, double tMax, double tDelta) {
 		return getNumWithTimeFunc(k_DEFAULT, p_DEFAULT, magMain, magMin_DEFAULT, c_DEFAULT, tMin, tMax, tDelta);
 	}
-	
-
 
 }
