@@ -27,8 +27,10 @@ import static org.opensha.commons.geo.GeoTools.EARTH_RADIUS_MEAN;
 
 import java.awt.geom.Line2D;
 import java.util.Collection;
+import java.util.ListIterator;
 
 import org.apache.commons.math.util.MathUtils;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 
 /**
  * This class contains static utility methods to operate on geographic
@@ -292,6 +294,52 @@ public final class LocationUtils {
 		return ((x2) * (-y3) - (-x3) * (y2))
 			/ Math.sqrt((x2) * (x2) + (y2) * (y2)) * EARTH_RADIUS_MEAN;
 	}
+	
+	/**
+	 * Calculates the shortest distance between the <code>Location</code>s and
+	 * the EventlyGridddedSurface by simply looping over all the locations in
+	 * the surface and keeping the smallest one obtained from {@link #horzDistance(Location, Location)}.
+	 * 
+	 * @param loc a <code>Location</code>
+	 * @param rupSurf an EvenlyGriddedSurfaceAPI
+	 * @return
+	 */
+	public static double distanceToSurf(Location loc, EvenlyGriddedSurfaceAPI rupSurf) {
+		double minDistance = Double.MAX_VALUE;
+		double horzDist, vertDist, totalDist;
+		for(Location loc2: rupSurf) {
+			horzDist = horzDistance(loc, loc2);
+			vertDist = vertDistance(loc, loc2);
+			totalDist = horzDist * horzDist + vertDist * vertDist;
+			if( totalDist < minDistance ) minDistance = totalDist;
+		}
+		return Math.pow ( minDistance , 0.5 );
+	}
+
+	/**
+	 * Calculates the shortest distance between the <code>Location</code>s and
+	 * the EventlyGridddedSurface by simply looping over all the locations in
+	 * the surface and keeping the smallest one obtained from 
+	 * {@link #horzDistanceFast(Location, Location)}.
+	 * 
+	 * @param loc a <code>Location</code>
+	 * @param rupSurf an EvenlyGriddedSurfaceAPI
+	 * @return
+	 */
+	public static double distanceToSurfFast(Location loc, EvenlyGriddedSurfaceAPI rupSurf) {
+		double minDistance = Double.MAX_VALUE;
+		double horzDist, vertDist, totalDist;
+		
+		for(Location loc2: rupSurf) {
+			horzDist = horzDistanceFast(loc, loc2);
+			vertDist = vertDistance(loc, loc2);
+			totalDist = horzDist * horzDist + vertDist * vertDist;
+			if( totalDist < minDistance ) minDistance = totalDist;
+		}
+		return Math.pow ( minDistance , 0.5 );
+	}
+
+	
 
 	/**
 	 * Computes the shortest distance between a point and a line segment (i.e.
