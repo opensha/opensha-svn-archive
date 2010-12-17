@@ -21,10 +21,12 @@ package org.opensha.sha.gui.infoTools;
 
 import java.awt.Color;
 
+import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
+
 /**
  * <p>Title: PlotCurveCharacterstics</p>
- * <p>Description: This class handle characterstic feature of each curve, like
- * its color, linetype(rendrer type), width</p>
+ * <p>Description: This class handle characterstic feature of each curve, like its color, linetype(rendrer type), width</p>
+ * Options are given in the PlotColorAndLineTypeSelectorControlPanel class.
  * @author : Nitin Gupta
  * @version 1.0
  */
