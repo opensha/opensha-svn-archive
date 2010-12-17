@@ -189,5 +189,11 @@ NamedObjectAPI,java.io.Serializable{
 		}
 		return func;
 	}
+	
+	public double getSumOfY_Vals() {
+		double sum=0;
+		for(int i=0; i<getNum();i++) sum += getY(i);
+		return sum;
+	}
 
 }
