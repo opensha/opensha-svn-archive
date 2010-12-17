@@ -5,28 +5,47 @@ import java.util.ArrayList;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 
+/**
+ * This class store information about all ruptures that nucleate inside this geographic block
+ * @author field
+ *
+ */
 public class EqksInGeoBlock {
 	
-	double minLat, maxLat, minLon,maxLon, minDepth, maxDepth;
-	EqkRupForecast erf;
-	ArrayList<Integer> srcIndices;     // this stores the source index for each rupture that nucleates inside the block
-	ArrayList<Integer> srcRupIndices;  // this stores the ruptures index (inside the source) for each rupture that nucleates inside the block
-	ArrayList<Double> ratesInside;			   // this holds the nucleation rate for each rupture inside the block
-	ArrayList<Double> fractInside;			   // this holds the fraction of the rupture that's inside the block
-	ArrayList<Double> mag;
+	double minLat, maxLat, minLon,maxLon, minDepth, maxDepth; // the dimensions of the block
+	EqkRupForecast erf;					// reference to the erf this block is used with
+	
+	// these lists hold information about each rupture that nucleates in this block
+	ArrayList<Integer> srcIndexList;	// this stores the source index for each rupture that nucleates inside the block
+	ArrayList<Integer> rupIndexList;	// this stores the ruptures index (inside the source)
+	ArrayList<Double> rateInsideList;	// this holds the nucleation rate for each rupture inside the block
+	ArrayList<Double> fractInsideList;	// this holds the fraction of the rupture that's inside the block
+	ArrayList<Double> magList;			// this holds the magnitude for the ruptures that nucleate inside
+	
 	Location blockCenterLoc;
+	
 	double totalRateInside = -1;
+	double blockVolume = -1;
 	
-	IntegerPDF_FunctionSampler randomEqkRupSampler;
+	IntegerPDF_FunctionSampler randomEqkRupSampler;	// this is for random sampling of ruptures
 
 
-	
+	/**
+	 * Constructor that takes limits to define the blocks
+	 * @param minLat
+	 * @param maxLat
+	 * @param minLon
+	 * @param maxLon
+	 * @param minDepth
+	 * @param maxDepth
+	 */
 	public EqksInGeoBlock(double minLat, double maxLat, double minLon, double maxLon, 
 			double minDepth, double maxDepth) {
 		this.minLat=minLat;
@@ -35,16 +54,23 @@ public class EqksInGeoBlock {
 		this.maxLon=maxLon;
 		this.minDepth=minDepth;
 		this.maxDepth=maxDepth;
-		srcIndices = new ArrayList<Integer>();
-		srcRupIndices = new ArrayList<Integer>();
-		ratesInside = new ArrayList<Double>();
-		fractInside = new ArrayList<Double>();
-		mag = new ArrayList<Double>();
+		srcIndexList = new ArrayList<Integer>();
+		rupIndexList = new ArrayList<Integer>();
+		rateInsideList = new ArrayList<Double>();
+		fractInsideList = new ArrayList<Double>();
+		magList = new ArrayList<Double>();
 		blockCenterLoc = new Location((minLat+maxLat)/2,(minLon+maxLon)/2,(minDepth+maxDepth)/2);
 		
 	}
 	
 	
+	/**
+	 * Constructor that takes bin center and width info to define the lat/lon bounds of the block
+	 * @param blockCenerLoc
+	 * @param latLonBlockWidth
+	 * @param minDepth
+	 * @param maxDepth
+	 */
 	public EqksInGeoBlock(Location blockCenerLoc, double latLonBlockWidth, double minDepth, double maxDepth) {
 		this(blockCenerLoc.getLatitude()-latLonBlockWidth/2, 
 				blockCenerLoc.getLatitude()+latLonBlockWidth/2, 
@@ -54,7 +80,16 @@ public class EqksInGeoBlock {
 	}
 
 	
-	
+	/**
+	 * This constructor takes and processes an ERF too
+	 * @param minLat
+	 * @param maxLat
+	 * @param minLon
+	 * @param maxLon
+	 * @param minDepth
+	 * @param maxDepth
+	 * @param erf
+	 */
 	public EqksInGeoBlock(double minLat, double maxLat, double minLon, double maxLon, 
 			double minDepth, double maxDepth, EqkRupForecast erf) {
 		
@@ -64,32 +99,75 @@ public class EqksInGeoBlock {
 		
 	}
 	
+	/**
+	 * This returns the center location of the block
+	 * @return
+	 */
 	public Location getBlockCenterLoc() {return blockCenterLoc;}
 	
 	
+	/**
+	 * This writes to system the following for each rupture that nucleates inside the block:
+	 * srcIndex, rupIndex, rateInside, fractInside, and srcName (if erf given)
+	 */
 	public void writeResults() {
-		for(int i=0; i<srcIndices.size();i++) {
-			System.out.print(i+"\t"+srcIndices.get(i)+"\t"+srcRupIndices.get(i)+"\t"+
-					ratesInside.get(i)+"\t"+fractInside.get(i)+"\t"+
-					mag.get(i));
+		for(int i=0; i<srcIndexList.size();i++) {
+			System.out.print(i+"\t"+srcIndexList.get(i)+"\t"+rupIndexList.get(i)+"\t"+
+					rateInsideList.get(i)+"\t"+fractInsideList.get(i)+"\t"+
+					magList.get(i));
 			if(erf != null)
-				System.out.print("\t"+erf.getSource(srcIndices.get(i)).getName()+"\n");
+				System.out.print("\t"+erf.getSource(srcIndexList.get(i)).getName()+"\n");
 			else
 				System.out.print("\n");
 		}
 	}
 	
+	/**
+	 * This returns the approximate volume of the block
+	 * (useful for normalizing rates into rate densities)
+	 * @return volume in sq km
+	 */
+	public double getBlockVolume() {
+		if(blockVolume == -1) {
+			Location loc1 = new Location(minLat,minLon);
+			Location loc2 = new Location(minLat,maxLon);
+			Location loc3 = new Location(maxLat,minLon);
+			double distLat = LocationUtils.horzDistanceFast(loc1, loc3);
+			double distLon = LocationUtils.horzDistanceFast(loc1, loc2);
+			blockVolume = distLat*distLon*(maxDepth-minDepth);
+		}
+		return blockVolume;
+	}
+	
+	
+	/**
+	 * This returns the cube-root of the block volume
+	 * (ave block size)
+	 * @return
+	 */
+	public double getAveBlockSize() {
+		return Math.pow(getBlockVolume(),1/3);
+	}
+	
+	
+	
+	/**
+	 * This gives the total rate at which ruptures nucleate inside the block
+	 * @return
+	 */
 	public double getTotalRateInside() {
 		if(totalRateInside == -1) {
 			totalRateInside=0;
-			for(Double rate:this.ratesInside) totalRateInside += rate;
+			for(Double rate:this.rateInsideList) totalRateInside += rate;
 		}
 		return totalRateInside;
 	}
 	
 	
-	
-	public void processERF() {
+	/**
+	 * This processes the ERF to generate the information for  ruptures that nucleate inside the block
+	 */
+	private void processERF() {
 		int numSrc = erf.getNumSources();
 		double forecastDuration = erf.getTimeSpan().getDuration();
 		for(int s=0;s<numSrc;s++) {
@@ -103,7 +181,8 @@ public class EqksInGeoBlock {
 	
 	
 	/**
-	 * This processes a given rupture
+	 * This processes a given rupture (determines whether it 
+	 * nucleates inside and saves info if it does)
 	 * @param rup
 	 * @param srcIndex
 	 * @param rupIndex
@@ -118,23 +197,31 @@ public class EqksInGeoBlock {
 			for(Location loc : locList)
 				if(isLocInside(loc)) numLocInside+=1;
 			if(numLocInside>0) {
-				fractInside.add((double)numLocInside/(double)numLoc);
-				ratesInside.add((double)rate*(double)numLocInside/(double)numLoc);
-				srcIndices.add(srcIndex);
-				srcRupIndices.add(rupIndex);
-				mag.add(rup.getMag());
+				fractInsideList.add((double)numLocInside/(double)numLoc);
+				rateInsideList.add((double)rate*(double)numLocInside/(double)numLoc);
+				srcIndexList.add(srcIndex);
+				rupIndexList.add(rupIndex);
+				magList.add(rup.getMag());
 			}			
 		}
 	}
 	
 	
+	/**
+	 * This adds to the given info to the lists (e.g., if determined externally)
+	 * @param rate
+	 * @param fracInside
+	 * @param srcIndex
+	 * @param rupIndex
+	 * @param magnitude
+	 */
 	public void processRate(double rate, double fracInside, int srcIndex, int rupIndex, double magnitude) {
 		if(rate > 0) {
-			fractInside.add(fracInside);
-			ratesInside.add(rate);
-			srcIndices.add(srcIndex);
-			srcRupIndices.add(rupIndex);
-			mag.add(magnitude);
+			fractInsideList.add(fracInside);
+			rateInsideList.add(rate);
+			srcIndexList.add(srcIndex);
+			rupIndexList.add(rupIndex);
+			magList.add(magnitude);
 		}			
 	}
 
@@ -144,7 +231,7 @@ public class EqksInGeoBlock {
 	 * dimensions, making the final number of blocks = numAlongLatLon*numAlongLatLon*numAlongDepth 
 	 * 
 	 * Important: this assumes that any point sources within the block should be equally divided among
-	 * sub blocks.
+	 * the sub blocks.
 	 * @param numAlongLatLon
 	 * @param numAlongDepth
 	 * @return
@@ -164,8 +251,8 @@ public class EqksInGeoBlock {
 					double subMaxDepth = subMinDepth+(maxDepth-minDepth)/(double)numAlongDepth;
 					EqksInGeoBlock subBlock = new EqksInGeoBlock(subMinLat, subMaxLat, subMinLon, subMaxLon, subMinDepth, subMaxDepth);
 					for(int r=0; r<getNumRupsInside();r++) {
-						int iSrc = srcIndices.get(r);
-						int iRup = srcRupIndices.get(r);
+						int iSrc = srcIndexList.get(r);
+						int iRup = rupIndexList.get(r);
 						ProbEqkRupture rup = erf.getRupture(iSrc, iRup);
 						if(rup.getRuptureSurface().size() > 1)
 							subBlock.processRupture(rup, iSrc, iRup, forecastDuration);	
@@ -192,33 +279,42 @@ public class EqksInGeoBlock {
 		return subBlocks;
 	}
 	
+	/**
+	 * This returns the number of ruptures that nucleate inside the block
+	 * @return
+	 */
 	public int getNumRupsInside() {
-		return this.srcIndices.size();
+		return this.srcIndexList.size();
 	}
 	
 	
 	/**
 	 * Still need to modify location if point source or set hypocenter if finite source?
-	 * (or do that in what calls this?)
+	 * (or do that in what calls this?).  Should also clone the rupture and set it as an
+	 * obs and/or aftershock
 	 * @return
 	 */
 	public ProbEqkRupture getRandomRupture() {
 		// make random sampler if it doesn't already exist
 		if(randomEqkRupSampler == null) {
-			randomEqkRupSampler = new IntegerPDF_FunctionSampler(srcIndices.size());
-			for(int i=0;i<srcIndices.size();i++) 
-				randomEqkRupSampler.set(i,ratesInside.get(i));
+			randomEqkRupSampler = new IntegerPDF_FunctionSampler(srcIndexList.size());
+			for(int i=0;i<srcIndexList.size();i++) 
+				randomEqkRupSampler.set(i,rateInsideList.get(i));
 		}
 		int localRupIndex = randomEqkRupSampler.getRandomInt();
-		int iSrc=srcIndices.get(localRupIndex);
-		int iRup = srcRupIndices.get(localRupIndex);
+		int iSrc=srcIndexList.get(localRupIndex);
+		int iRup = rupIndexList.get(localRupIndex);
 		ProbEqkRupture rup = erf.getRupture(iSrc, iRup);
 //		rup.setRuptureIndexAndSourceInfo(iSrc, "ETAS Event", iRup);
 		return rup;
 	}
 	
 	
-
+	/**
+	 * This tells whether the given location is inside the block
+	 * @param loc
+	 * @return
+	 */
 	private boolean isLocInside(Location loc) {
 		if(     loc.getLatitude()>=minLat && loc.getLatitude()< maxLat && 
 				loc.getLongitude()>=minLon && loc.getLongitude()< maxLon &&
@@ -227,44 +323,8 @@ public class EqksInGeoBlock {
 		else
 			return false;
 	}
-	
-	
-	public void testRandomSampler() {
-		System.out.println("starting random sampling test");
-		
-		// do this to make sure randomEqkRupSampler has been created
-		if(randomEqkRupSampler == null) {
-			randomEqkRupSampler = new IntegerPDF_FunctionSampler(srcIndices.size());
-			for(int i=0;i<srcIndices.size();i++) 
-				randomEqkRupSampler.set(i,ratesInside.get(i));
-		}
-		
-		int numEvents=ratesInside.size();
-		
-		EvenlyDiscretizedFunc testFunc = new EvenlyDiscretizedFunc(0.0, numEvents, 1.0);
-		int numSamples=100000000;
-		int thresh = 10000000, threshIncr=10000000;
-		for(int i=0;i<numSamples;i++) {
-			testFunc.add(randomEqkRupSampler.getRandomInt(),1.0);
-			if(i==thresh){
-				System.out.println("\t"+((float)thresh/(float)numSamples));
-				thresh+=threshIncr;
-			}
-		}
-		for(int i=0;i<testFunc.getNum();i++) testFunc.set(i,testFunc.getY(i)/numSamples);
-		
-		
-		// make orig dist for plotting comparison
-		EvenlyDiscretizedFunc origFunc = new EvenlyDiscretizedFunc(0.0, numEvents, 1.0);
-		for(int i=0;i<numEvents;i++) origFunc.set(i,ratesInside.get(i)/getTotalRateInside());
-		
-		// plot functions
-		ArrayList funcs = new ArrayList();
-		funcs.add(origFunc);
-		funcs.add(testFunc);
-		GraphiWindowAPI_Impl sr_graph = new GraphiWindowAPI_Impl(funcs, "");  
 
-	}
+
 
 
 	/**
@@ -312,7 +372,5 @@ public class EqksInGeoBlock {
 		runtime = (System.currentTimeMillis()-startTime)/1000;
 		System.out.println("4 slices sub blocks took "+runtime+" seconds");
 
-
 	}
-
 }

@@ -40,12 +40,12 @@ public class CodeTests {
 		}
 		for(int i=0;i<testFunc.getNum();i++) testFunc.set(i,testFunc.getY(i)/numSamples);
 		
-/*		//  Plot comparison
+/**/		//  Plot comparison
 		ArrayList funcs = new ArrayList();
 		funcs.add(sampler);
 		funcs.add(testFunc);
 		GraphiWindowAPI_Impl sr_graph = new GraphiWindowAPI_Impl(funcs, "");  
-*/		
+		
 		double maxDiff =0;
 		for(int i=0;i<testFunc.getNum();i++) {
 			double diff = Math.abs(testFunc.getY(i)-sampler.getY(i));
@@ -161,13 +161,13 @@ public class CodeTests {
 		CodeTests tests = new CodeTests();
 		
 		// this tests IntegerPDF_FunctionSampler:
-//		System.out.println("testIntegerPDF_FunctionSampler passes = "+tests.testIntegerPDF_FunctionSampler());
+		System.out.println("testIntegerPDF_FunctionSampler passes = "+tests.testIntegerPDF_FunctionSampler());
 		
 		// This tests ETAS_Utils.getDefaultRandomTimeOfEvent(*)
 //		System.out.println("testGetDefaultRandomTimeOfEvent passes = "+tests.testGetDefaultRandomTimeOfEvent(0, 10, 0.01));
 
 		// This tests ETAS_Utils.getPoissonRandomNumber(lambda)
-		System.out.println("testGetPoissonRandomNumber passes = "+tests.testGetPoissonRandomNumber(5));
+//		System.out.println("testGetPoissonRandomNumber passes = "+tests.testGetPoissonRandomNumber(5));
 		 
 	}
 

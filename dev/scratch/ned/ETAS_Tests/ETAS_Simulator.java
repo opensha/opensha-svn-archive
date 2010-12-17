@@ -30,12 +30,14 @@ public class ETAS_Simulator {
 		//  Point source rupture:
 /*		ProbEqkRupture rup = new ProbEqkRupture();
 		rup.setMag(5);
-		rup.setPointSurface(new Location(34,-118,5));
-	*/	
+		rup.setPointSurface(new Location(34,-118,8));
+//		rup.setPointSurface(new Location(34.0125,	-118.0125,	6.0));
+*/	
 		// 68	S. San Andreas;CH+CC+BB+NM+SM+NSB+SSB+BG+CO	 #rups=8
 		ProbEqkRupture rup = erf.getSource(68).getRupture(0);
 
 		ETAS_PrimaryEventSampler sampler = new ETAS_PrimaryEventSampler(rup,blockList, erf, 1.4,2.0, adaptiveBlocks);
+		sampler.testRandomDistanceDecay();
 		sampler.writeRelBlockProbToFile();
 	}
 
@@ -44,8 +46,8 @@ public class ETAS_Simulator {
 
 		blockList = new ArrayList<EqksInGeoBlock>();
 		for(Location loc: griddedRegion) {
-			EqksInGeoBlock subBlock = new EqksInGeoBlock(loc,griddedRegion.getSpacing(),0,16);
-			blockList.add(subBlock);
+			EqksInGeoBlock block = new EqksInGeoBlock(loc,griddedRegion.getSpacing(),0,16);
+			blockList.add(block);
 		}
 		System.out.println("Number of Blocks: "+blockList.size()+" should be("+griddedRegion.getNodeCount()+")");
 

@@ -19,7 +19,7 @@ import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
  */
 public class IntegerPDF_FunctionSampler extends EvenlyDiscretizedFunc {
 	
-	boolean dataChane = true;
+	boolean dataChange = true;
 	double[] cumDistVals;
 	
 	/**
@@ -56,15 +56,15 @@ public class IntegerPDF_FunctionSampler extends EvenlyDiscretizedFunc {
 	
 	
 	/**
-	 * This returns the integer value corresponding to the given probability (between 0 and 1)
+	 * This returns the integer value corresponding to the given probability (between 0 and 1).
 	 * @param prob - a value between 0 and 1.
 	 * @return
 	 */
 	private int getInt(double prob) {
 		// update if needed
-		if(dataChane) {
+		if(dataChange) {
 			updateCumDistVals();
-			dataChane=false;
+			dataChange=false;
 		}
 		
 		// this is needed because the first one is never accessed in the algorithm below
@@ -80,6 +80,14 @@ public class IntegerPDF_FunctionSampler extends EvenlyDiscretizedFunc {
 			else
 				indexLow=testIndex;
 		}
+		/*
+		if(indexHigh == this.getNum()) {
+			System.out.println("Error: "+prob+"\n");
+			ArrayList funcs = new ArrayList();
+			funcs.add(this);
+			GraphiWindowAPI_Impl sr_graph = new GraphiWindowAPI_Impl(funcs, "");  
+		}
+		*/
 		return indexHigh;
 	}
 	
@@ -87,31 +95,31 @@ public class IntegerPDF_FunctionSampler extends EvenlyDiscretizedFunc {
 	// override the following to record that data has changed
 	public void set(Point2D point) throws Point2DException {
 		super.set(point);
-		dataChane = true;
+		dataChange = true;
 	}
 	public void set(double x, double y) throws Point2DException {
 		super.set(x,y);
-		dataChane = true;
+		dataChange = true;
 	}
 	public void add(double x, double y) throws Point2DException {
 		super.add(x, y);
-		dataChane = true;
+		dataChange = true;
 	}
 	public void set(int index, double y) throws Point2DException {
 		super.set(index, y);
-		dataChane = true;
+		dataChange = true;
 	}
 	public void add(int index, double y) throws Point2DException {
 		super.add(index, y);
-		dataChane = true;
+		dataChange = true;
 	}
 	public void set(double min, int num, double delta) {
 		super.set(min, num, delta);
-		dataChane = true;
+		dataChange = true;
 	}
 	public void set(double min, double max, int num) {
 		super.set(min,max,num);
-		dataChane = true;
+		dataChange = true;
 	}
 
 	
