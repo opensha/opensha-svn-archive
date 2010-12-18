@@ -30,13 +30,18 @@ public class ETAS_Simulator {
 		//  Point source rupture:
 /*		ProbEqkRupture rup = new ProbEqkRupture();
 		rup.setMag(5);
-		rup.setPointSurface(new Location(34,-118,8));
-//		rup.setPointSurface(new Location(34.0125,	-118.0125,	6.0));
-*/	
+//		rup.setPointSurface(new Location(34,-118,8));
+//		rup.setPointSurface(new Location(34.00625,-118.00625,7));
+		rup.setPointSurface(new Location(34.0125,	-118.0125,	6.0)); // this will have a zero distance
+	*/
 		// 68	S. San Andreas;CH+CC+BB+NM+SM+NSB+SSB+BG+CO	 #rups=8
 		ProbEqkRupture rup = erf.getSource(68).getRupture(0);
+		
+		// 236	Pitas Point (Lower, West)	 #rups=19	13.0 (shallowest dipping)
+//		ProbEqkRupture rup = erf.getSource(236).getRupture(0);
 
-		ETAS_PrimaryEventSampler sampler = new ETAS_PrimaryEventSampler(rup,blockList, erf, 1.4,2.0, adaptiveBlocks);
+
+		ETAS_PrimaryEventSampler sampler = new ETAS_PrimaryEventSampler(rup,blockList, erf, 1.4,2.0, adaptiveBlocks, true);
 		sampler.testRandomDistanceDecay();
 		sampler.writeRelBlockProbToFile();
 	}
@@ -150,6 +155,7 @@ public class ETAS_Simulator {
 		meanUCERF2.setParameter(UCERF2.RUP_OFFSET_PARAM_NAME, new Double(10.0));
 		meanUCERF2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_POISSON);
 		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
+//		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
 		meanUCERF2.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
 		meanUCERF2.getTimeSpan().setDuration(duration);
 		meanUCERF2.updateForecast();
@@ -157,12 +163,14 @@ public class ETAS_Simulator {
 		System.out.println("ERF instantiation took "+runtime+" seconds");
 		
 		// print out first 200 source names
-		//for(int s=0;s<200;s++) System.out.println(s+"\t"+meanUCERF2.getSource(s).getName()+"\t #rups="+meanUCERF2.getSource(s).getNumRuptures());
-
+//		for(int s=0;s<meanUCERF2.getNumSources();s++) System.out.println(s+"\t"+meanUCERF2.getSource(s).getName()+"\t #rups="+
+//				meanUCERF2.getSource(s).getNumRuptures()+"\t"+meanUCERF2.getSource(s).getRupture(0).getRuptureSurface().getAveDip());
+/**/
 		startTime=System.currentTimeMillis();
 		ETAS_Simulator tests = new ETAS_Simulator(meanUCERF2,griddedRegion, true);
 		runtime = (int)(System.currentTimeMillis()-startTime)/1000;
 		System.out.println("Tests Run took "+runtime+" seconds");
+		
 	}
 
 }
