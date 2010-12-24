@@ -48,17 +48,17 @@ public class NSHMP_GridSourceGenerator implements Serializable {
 	private double[] sumOfAllAvals;
 	private int numAvals;
 	// a-val and mmax values
-	private double[] agrd_brawly_out, agrd_creeps_out, agrd_cstcal_out, agrd_deeps_out,
+	protected double[] agrd_brawly_out, agrd_creeps_out, agrd_cstcal_out, agrd_deeps_out,
 	agrd_mendos_out, agrd_wuscmp_out, agrd_wusext_out, agrd_impext_out, area1new_agrid, 
 	area2new_agrid, area3new_agrid, area4new_agrid,mojave_agrid, sangreg_agrid,
 	fltmmaxAll21ch_out6, fltmmaxAll21gr_out6, fltmmaxAll24ch_out6, fltmmaxAll24gr_out6;
 
-	private final static double B_VAL = 0.8;
-	private final static double B_VAL_CREEPING = 0.9;
-	private final static double DELTA_MAG = 0.1;
+	protected final static double B_VAL = 0.8;
+	protected final static double B_VAL_CREEPING = 0.9;
+	protected final static double DELTA_MAG = 0.1;
 
-	private final double C_ZONES_MAX_MAG = 7.6;
-	private final double DEFAULT_MAX_MAG=7.0;
+	protected final double C_ZONES_MAX_MAG = 7.6;
+	protected final double DEFAULT_MAX_MAG=7.0;
 	
 	private double[] fracStrikeSlip,fracNormal,fracReverse;
 
