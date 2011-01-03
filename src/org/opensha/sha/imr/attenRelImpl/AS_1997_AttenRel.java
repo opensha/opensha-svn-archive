@@ -627,6 +627,7 @@ NamedObjectAPI {
 		}
 	}
 
+	@Override
 	public void setParamDefaults() {
 
 		siteTypeParam.setValue(SITE_TYPE_DEFAULT);

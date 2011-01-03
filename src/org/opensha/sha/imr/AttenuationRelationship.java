@@ -814,6 +814,7 @@ extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationsh
 		sigmaTruncTypeParam = new SigmaTruncTypeParam();
 		sigmaTruncLevelParam = new SigmaTruncLevelParam();
 		tectonicRegionTypeParam = new TectonicRegionTypeParam();
+		tectonicRegionTypeParam.setValueAsDefault();
 
 		// Put parameters in the otherParams list:
 		otherParams.clear();
