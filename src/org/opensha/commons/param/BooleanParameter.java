@@ -77,7 +77,10 @@ implements  java.io.Serializable{
 	 *      a DoubleParameter, or DoubleDiscreteParameter.
 	 */
 	public int compareTo( Object obj ) throws UnsupportedOperationException {
-		throw new java.lang.UnsupportedOperationException("This method not implemented yet");
+		if (obj instanceof BooleanParameter)
+			return value.compareTo(((BooleanParameter)obj).getValue());
+		else
+			throw new ClassCastException("Cannot call compareTo on an object other than a boolean parameter");
 	}
 
 	/**
