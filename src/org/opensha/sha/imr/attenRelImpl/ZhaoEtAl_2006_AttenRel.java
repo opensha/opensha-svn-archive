@@ -415,6 +415,7 @@ NamedObjectAPI, ParameterChangeListener {
 		pgaParam.setValueAsDefault();
 		stdDevTypeParam.setValueAsDefault();
 		siteTypeParam.setValue(SITE_TYPE_DEFAULT);
+		componentParam.setValueAsDefault();
 
 		mag = ((Double) magParam.getValue()).doubleValue();
 		rRup = ((Double) distanceRupParam.getValue()).doubleValue();
