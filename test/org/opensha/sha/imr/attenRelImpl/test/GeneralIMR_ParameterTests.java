@@ -12,18 +12,26 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.exceptions.WarningException;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.imr.IntensityMeasureRelationship;
 import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.RakeParam;
 
 /**
  * This class does general parameter setting tests for each IMR included in our applications.
@@ -163,8 +171,22 @@ public class GeneralIMR_ParameterTests {
 		Site site = new Site(loc);
 		
 		Iterator<ParameterAPI<?>> it = imr.getSiteParamsIterator();
-		while (it.hasNext())
-			site.addParameter(it.next());
+		while (it.hasNext()) {
+			ParameterAPI<?> param = (ParameterAPI)it.next().clone();
+			if (param instanceof DoubleParameter) {
+				DoubleParameter dparam = (DoubleParameter)param;
+				double rVal = Math.random();
+				if (dparam.isAllowed(dparam.getValue() + rVal))
+					try {
+						dparam.setValue(dparam.getValue() + rVal);
+					} catch (WarningException e) {}
+				else if (dparam.isAllowed(dparam.getValue() - rVal))
+					try {
+						dparam.setValue(dparam.getValue() - rVal);
+					} catch (WarningException e) {}
+			}
+			site.addParameter(param);
+		}
 		
 		return site;
 	}
@@ -224,6 +246,69 @@ public class GeneralIMR_ParameterTests {
 		assertEquals(shortName+": setAll didn't change the site object", site2, imr.getSite());
 		assertDistanceParamsValid(site2, rup1);
 		
+	}
+	
+	private void verifyRupParams(EqkRupture rup) {
+		EvenlyGriddedSurfaceAPI surf = rup.getRuptureSurface();
+		try {
+			DipParam dipParam = (DipParam)imr.getParameter(DipParam.NAME);
+			assertEquals(shortName+": dip not set correctly",
+					surf.getAveDip(), dipParam.getValue().doubleValue(), 0.00001);
+		} catch (ParameterException e) {}
+		
+		try {
+			MagParam magParam = (MagParam)imr.getParameter(MagParam.NAME);
+			assertEquals(shortName+": magnitude not set correctly",
+					rup.getMag(), magParam.getValue().doubleValue(), 0.00001);
+		} catch (ParameterException e) {}
+		
+		try {
+			RakeParam rakeParam = (RakeParam)imr.getParameter(RakeParam.NAME);
+			assertEquals(shortName+": rake not set correctly",
+					rup.getAveRake(), rakeParam.getValue().doubleValue(), 0.00001);
+		} catch (ParameterException e) {}
+	}
+	
+	/**
+	 * this tests that rupture parameters are correctly set when setEqkRupture is called
+	 */
+	@Test
+	public void testSetRupParams() {
+		imr.setParamDefaults();
+		
+		imr.setEqkRupture(rup1);
+		verifyRupParams(rup1);
+		
+		imr.setEqkRupture(rup2);
+		verifyRupParams(rup2);
+		
+		imr.setEqkRupture(rup1);
+		verifyRupParams(rup1);
+	}
+	
+	private void verifySiteParams(Site site) {
+		Iterator<ParameterAPI<?>> it = site.getParametersIterator();
+		while (it.hasNext()) {
+			ParameterAPI<?> param = it.next();
+			
+			assertEquals(shortName+": param '"+param.getName()+"' not set with setSite",
+					param.getValue(), imr.getParameter(param.getName()).getValue());
+		}
+	}
+	
+	@Test
+	public void testSetSiteParams() {
+		Site site1 = createSite(new Location(34, -118));
+		Site site2 = createSite(new Location(34.5, -118.3));
+		
+		imr.setSite(site1);
+		verifySiteParams(site1);
+		
+		imr.setSite(site2);
+		verifySiteParams(site2);
+		
+		imr.setSite(site1);
+		verifySiteParams(site1);
 	}
 
 }

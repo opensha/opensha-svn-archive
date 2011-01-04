@@ -515,6 +515,10 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	public void setSite(Site site) {
 		this.site = site;
 		
+		for (ParameterAPI param : siteParams) {
+			param.setValue(site.getParameter(param.getName()).getValue());
+		}
+		
 		propEffect.setSite(site);
 		if (PROP_EFFECT_SPEEDUP && propEffect.getEqkRupture() != null) {
 			setPropagationEffect(propEffect);
