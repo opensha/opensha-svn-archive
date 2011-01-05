@@ -103,7 +103,8 @@
 				destdir="${build}"
 				fork="yes"
 				includes="${javac.includes}"
-				excludes="${javac.excludes}">
+				excludes="${javac.excludes}"
+			 	encoding="utf-8">
 			<classpath>
 				<pathelement location="${build}"/>
 				<path refid="library.classpath" />

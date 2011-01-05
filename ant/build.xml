@@ -44,7 +44,9 @@
 	</path>
 
 	<target name="compile">
-		<javac debug="true" deprecation="false" optimize="true" destdir="${tmpdest}" nowarn="true" source="1.5" target="1.5" failonerror="yes" verbose="no" fork="yes" memoryInitialSize="512m" memoryMaximumSize="1024m">
+		<javac debug="true" deprecation="false" optimize="true" destdir="${tmpdest}" nowarn="true"
+			source="1.5" target="1.5" failonerror="yes" verbose="no" fork="yes" encoding="utf-8"
+			memoryInitialSize="512m" memoryMaximumSize="1024m">
 			<classpath>
 				<pathelement location="${build}" />
 				<path refid="library.classpath" />
@@ -61,7 +63,9 @@
 	</target>
 
 	<target name="compile.tets" depends="">
-		<javac debug="true" deprecation="false" optimize="true" destdir="${build}" nowarn="true" source="1.5" target="1.5" failonerror="yes" verbose="no" fork="yes" memoryInitialSize="512m" memoryMaximumSize="1024m">
+		<javac debug="true" deprecation="false" optimize="true" destdir="${build}" nowarn="true"
+			source="1.5" target="1.5" failonerror="yes" verbose="no" fork="yes" encoding="utf-8"
+			memoryInitialSize="512m" memoryMaximumSize="1024m">
 			<classpath>
 				<pathelement location="${build}" />
 				<path refid="library.classpath" />
