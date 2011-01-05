@@ -56,6 +56,7 @@ import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.TickUnits;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.chart.plot.XYPlot;
@@ -149,8 +150,8 @@ public class GraphPanel extends JSplitPane {
 	// Create the x-axis and y-axis - either normal or log
 	//xaxis1 and yAxis1 replica of the x-Axis and y-Axis object, in case error occurs
 	//and we have revert back the Axis
-	NumberAxis xAxis, xAxis1 ;
-	NumberAxis yAxis, yAxis1;
+	ValueAxis xAxis, xAxis1 ;
+	ValueAxis yAxis, yAxis1;
 
 	// light blue color
 	private Color lightBlue = new Color( 200, 200, 230 );
@@ -482,7 +483,8 @@ public class GraphPanel extends JSplitPane {
 			//if (!xLog)
 			//  xAxis.setAutoRangeIncludesZero(true);
 			// else
-			xAxis.setAutoRangeIncludesZero( false );
+			if (xAxis instanceof NumberAxis)
+				((NumberAxis)xAxis).setAutoRangeIncludesZero( false );
 			xAxis.setStandardTickUnits(units);
 			xAxis.setTickMarksVisible(false);
 			//Axis label font
@@ -515,10 +517,12 @@ public class GraphPanel extends JSplitPane {
 			if(yLog) yAxis = new JFreeLogarithmicAxis(yAxisName);
 			else yAxis = new NumberAxis( yAxisName );
 
-			if (!yLog)
-				yAxis.setAutoRangeIncludesZero(true);
-			else
-				yAxis.setAutoRangeIncludesZero( false );
+			if (yAxis instanceof NumberAxis) {
+				if (!yLog)
+					((NumberAxis)yAxis).setAutoRangeIncludesZero(true);
+				else
+					((NumberAxis)yAxis).setAutoRangeIncludesZero( false );
+			}
 
 			yAxis.setStandardTickUnits(units);
 			yAxis.setTickMarksVisible(false);
