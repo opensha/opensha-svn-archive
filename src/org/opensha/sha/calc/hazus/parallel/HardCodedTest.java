@@ -137,8 +137,8 @@ public class HardCodedTest {
 
 	public static void main(String args[]) throws IOException, InvocationTargetException {
 		int years = 50;
-		int startYear = 2010;
-//		int startYear = -1;
+//		int startYear = 2010;
+		int startYear = -1;
 		boolean includeBackSeis = true;
 		EqkRupForecast erf = getERF(years, startYear, includeBackSeis);
 		
