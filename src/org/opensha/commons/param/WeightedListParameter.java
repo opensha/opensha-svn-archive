@@ -1,10 +1,11 @@
 package org.opensha.commons.param;
 
 import org.dom4j.Element;
+import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.WeightedList;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
 
-public class WeightedListParameter<E> extends DependentParameter<WeightedList<E>> {
+public class WeightedListParameter<E extends NamedObjectAPI> extends DependentParameter<WeightedList<? extends NamedObjectAPI>> {
 	
 	public WeightedListParameter(String name, WeightedList<E> value) {
 		super(name, null, null, value);

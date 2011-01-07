@@ -1,11 +1,14 @@
 package org.opensha.commons.data;
 
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 
 public class WeightedList<E> {
 	
 	private ArrayList<E> objects;
 	private ArrayList<Double> weights;
+	
+	private boolean forceNormalization = false;
 	
 	public WeightedList() {
 		this(new ArrayList<E>(), new ArrayList<Double>());
@@ -16,44 +19,41 @@ public class WeightedList<E> {
 	}
 	
 	/**
-	 * This checks that the weight and object lists have the same number of items, and that the
-	 * weights sum to 1.
+	 * This checks that the weight and object lists are non null and have the same number of items.
+	 * If normalization is forced, then it is checked here.
 	 * 
 	 * @param objects
 	 * @param weights
-	 * @throws IllegalStateException
+	 * @throws IllegalStateException if lists are of different sizes
+	 * @throws IllegalArgumentException if lists are null
 	 */
-	private static void validate(ArrayList<?> objects, ArrayList<Double> weights) throws IllegalStateException {
-		if (objects == null && weights != null)
-			throw new IllegalStateException("objects are null but weights are not!");
-		else if (objects != null && weights == null)
-			throw new IllegalStateException("weights are null but objects are not!");
-		else if (objects == null && weights == null)
-			return;
+	private void validate(ArrayList<?> objects, ArrayList<Double> weights)
+	throws IllegalStateException, IllegalArgumentException {
+		if (objects == null)
+			throw new IllegalArgumentException("object list cannot be null!");
+		if (weights == null)
+			throw new IllegalArgumentException("weights list cannot be null!");
 		
 		if (objects.size() != weights.size())
 			throw new IllegalStateException("object and weight lists must be the same size!");
 		
-		if (weights.size() > 0) {
-			double sum = 0;
-			for (double weight : weights)
-				sum += weight;
-			if ((float)sum != 1f)
-				throw new IllegalStateException("wights must sum to 1");
+		if (forceNormalization && weights.size() > 0) {
+			if (!isNormalized(weights))
+				throw new IllegalStateException("wights must sum to 1 (current sum: "+getWeightSum()+")");
 		}
 	}
 	
-	/**
-	 * Adds the given object to the list, and sets the weights (which must be adjusted for the new
-	 * object).
-	 * 
-	 * @param object
-	 * @param newWeights
-	 * @throws IllegalStateException if the weights are invalid
-	 */
-	public void add(E object, ArrayList<Double> newWeights) throws IllegalStateException {
+	public void add(E object, double weight) throws IllegalStateException {
 		this.objects.add(object);
-		setWeights(newWeights);
+		this.weights.add(weight);
+		
+		try {
+			validate(objects, weights);
+		} catch (RuntimeException e) {
+			this.objects.remove(objects.size()-1);
+			this.weights.remove(weights.size()-1);
+			throw e;
+		}
 	}
 	
 	/**
@@ -76,6 +76,17 @@ public class WeightedList<E> {
 		set(objects, weights);
 	}
 	
+	public void setWeight(int i, double weight) {
+		double orig = weights.get(i);
+		this.weights.set(i, weight);
+		try {
+			validate(objects, weights);
+		} catch (RuntimeException e) {
+			this.weights.set(i, orig);
+			throw e;
+		}
+	}
+	
 	/**
 	 * Set both the objects and the weights
 	 * 
@@ -88,6 +99,10 @@ public class WeightedList<E> {
 		
 		this.objects = objects;
 		this.weights = weights;
+		
+//		System.out.println("***** Set called *****");
+//		for (double weight : weights)
+//			System.out.println(weight);
 	}
 	
 	public int size() {
@@ -99,11 +114,88 @@ public class WeightedList<E> {
 	}
 	
 	public double getWeight(E object) {
-		return getWeight(objects.indexOf(object));
+		int ind = objects.indexOf(object);
+		if (ind < 0)
+			throw new NoSuchElementException();
+		return getWeight(ind);
 	}
 	
 	public E get(int i) {
 		return objects.get(i);
+	}
+	
+	public boolean areWeightsEqual() {
+		if (weights.size() == 0)
+			return false;
+		double wt0 = weights.get(0);
+		
+		for (double weight : weights)
+			if (weight != wt0)
+				return false;
+		return true;
+	}
+	
+	public void setWeightsEqual() {
+		if (areWeightsEqual())
+			return;
+		
+		double wt = 1d / (double)size();
+		
+		setWeightsToConstant(wt);
+	}
+	
+	public void setWeightsToConstant(double weight) {
+		ArrayList<Double> newWeights = new ArrayList<Double>();
+		for (int i=0; i<size(); i++)
+			newWeights.add(weight);
+		
+		setWeights(newWeights);
+	}
+	
+	public void normalize() {
+		if (isNormalized())
+			return;
+		
+		double sum = getWeightSum();
+		ArrayList<Double> newWeights = new ArrayList<Double>();
+		
+		for (double weight : weights) {
+			double newWeight = weight / sum;
+			newWeights.add(newWeight);
+		}
+		
+		setWeights(newWeights);
+	}
+	
+	
+	public double getWeightSum() {
+		return getWeightSum(weights);
+	}
+	
+	private static double getWeightSum(ArrayList<Double> weights) {
+		double sum = 0;
+		for (double weight : weights)
+			sum += weight;
+		return sum;
+	}
+	
+	public boolean isNormalized() {
+		return isNormalized(weights);
+	}
+	
+	private static boolean isNormalized(ArrayList<Double> weights) {
+		float sum = (float)getWeightSum(weights);
+		return sum == 1f;
+	}
+	
+	public void setForceNormalization(boolean forceNormalization) {
+		this.forceNormalization = forceNormalization;
+		if (forceNormalization)
+			normalize();
+	}
+	
+	public boolean isForceNormalization() {
+		return forceNormalization;
 	}
 
 }
