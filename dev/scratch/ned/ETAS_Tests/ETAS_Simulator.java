@@ -159,14 +159,14 @@ public class ETAS_Simulator {
 		//  Point source rupture:
 		ProbEqkRupture rup = new ProbEqkRupture();
 		rup.setMag(5);
-		/*
+		/**/
 		// point source at edge of sub-blocks
 		rup.setPointSurface(new Location(34,-118,8));
 		sampler = new ETAS_PrimaryEventSampler(rup,blockList, erf, distDecay, minDist, adaptiveBlocks, includeBlockRates);
 		sampler.testRandomDistanceDecay("M5 Point Src at 34,-118,8");
 		sampler.plotBlockProbMap();
 
-		
+	/*	
 		// point source in midpoint of sub block
 		rup.setPointSurface(new Location(34.00625,-118.00625,7));
 		sampler = new ETAS_PrimaryEventSampler(rup,blockList, erf, distDecay, minDist, adaptiveBlocks, includeBlockRates);
@@ -176,14 +176,14 @@ public class ETAS_Simulator {
 		rup.setPointSurface(new Location(34.0125,	-118.0125,	6.0));
 		sampler = new ETAS_PrimaryEventSampler(rup,blockList, erf, distDecay, minDist, adaptiveBlocks, includeBlockRates);
 		sampler.testRandomDistanceDecay("M5 Point Src at 34.0125,-118.0125,6.0");
-*/		
+		
 
 		// 68	S. San Andreas;CH+CC+BB+NM+SM+NSB+SSB+BG+CO	 #rups=8
 		rup = erf.getSource(68).getRupture(0);
 		sampler = new ETAS_PrimaryEventSampler(rup,blockList, erf, distDecay, minDist, adaptiveBlocks, includeBlockRates);
 		sampler.testRandomDistanceDecay("SSAF Wall-to-wall Rupture; M="+rup.getMag());
 		sampler.plotBlockProbMap();
-/*
+
 		// 236	Pitas Point (Lower, West)	 #rups=19	13.0 (shallowest dipping rupture I could find)
 		rup = erf.getSource(236).getRupture(0);
 		sampler = new ETAS_PrimaryEventSampler(rup,blockList, erf, distDecay, minDist, adaptiveBlocks, includeBlockRates);

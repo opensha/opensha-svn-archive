@@ -12,6 +12,7 @@ import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
+import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -311,27 +312,29 @@ public class ETAS_PrimaryEventSampler {
 	
 	public void plotBlockProbMap() {
 		
-		GMT_MapGenerator magGen = new GMT_MapGenerator();
-		magGen.setParameter(GMT_MapGenerator.GMT_SMOOTHING_PARAM_NAME, false);
-		magGen.setParameter(GMT_MapGenerator.TOPO_RESOLUTION_PARAM_NAME, GMT_MapGenerator.TOPO_RESOLUTION_NONE);
-		magGen.setParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME,31.5);		// -R-125.4/-113.0/31.5/43.0
-		magGen.setParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME,43.0);
-		magGen.setParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME,-125.4);
-		magGen.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME,-113.0);
+		GMT_MapGenerator mapGen = new GMT_MapGenerator();
+		mapGen.setParameter(GMT_MapGenerator.GMT_SMOOTHING_PARAM_NAME, false);
+		mapGen.setParameter(GMT_MapGenerator.TOPO_RESOLUTION_PARAM_NAME, GMT_MapGenerator.TOPO_RESOLUTION_NONE);
+		mapGen.setParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME,31.5);		// -R-125.4/-113.0/31.5/43.0
+		mapGen.setParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME,43.0);
+		mapGen.setParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME,-125.4);
+		mapGen.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME,-113.0);
+		mapGen.setParameter(GMT_MapGenerator.LOG_PLOT_NAME,true);
 		ArbDiscrGeoDataSet xyzDataSet = new ArbDiscrGeoDataSet(true);
 		for(int i=0; i<revisedBlockList.size();i++) {
 			EqksInGeoBlock block = revisedBlockList.get(i);
 			Location loc = block.getBlockCenterLoc();
 //			double rate = block.getTotalRateInside();
-			double prob = relBlockProb[i];
+			double prob = relBlockProb[i]/block.getBlockVolume();
 			xyzDataSet.set(loc, prob);
 		}
-		String scaleLabel ="test";
-		String metadata = "test";
+		String scaleLabel ="test label";
+		String metadata = "";
 		String dirName = "test";
 		
 		try {
-			String name = magGen.makeMapUsingServlet(xyzDataSet, scaleLabel, metadata, dirName);
+			String name = mapGen.makeMapUsingServlet(xyzDataSet, scaleLabel, metadata, dirName);
+			metadata += GMT_MapGuiBean.getClickHereHTML(mapGen.getGMTFilesWebAddress());
 			ImageViewerWindow imgView = new ImageViewerWindow(name,metadata, true);
 			System.out.println("GMT Plot Filename: "+name);
 		} catch (GMT_MapException e) {
