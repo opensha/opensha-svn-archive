@@ -190,10 +190,15 @@ NamedObjectAPI,java.io.Serializable{
 		return func;
 	}
 	
-	public double getSumOfY_Vals() {
+	public double calcSumOfY_Vals() {
 		double sum=0;
 		for(int i=0; i<getNum();i++) sum += getY(i);
 		return sum;
 	}
+	
+	public void multiplyY_ValsBy(double val) {
+		for(int i=0; i<getNum();i++) this.set(i, val*getY(i));
+	}
+
 
 }
