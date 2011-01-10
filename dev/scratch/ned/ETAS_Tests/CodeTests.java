@@ -18,22 +18,15 @@ public class CodeTests {
 	/**
 	 * This test the IntegerPDF_FunctionSampler class
 	 */
-	public boolean testIntegerPDF_FunctionSampler() {
-		int numIntegers = 100;
-		IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(numIntegers);
-		double total=0;
+	public boolean testIntegerPDF_FunctionSampler(IntegerPDF_FunctionSampler sampler) {
 		
-		// populate probabilities with random values
-		for(int i=0;i<numIntegers;i++) {
-			sampler.set(i,Math.random());
-			total+=sampler.getY(i);
-		}
-		for(int i=0;i<numIntegers;i++) {
-			sampler.set(i,sampler.getY(i)/total);
-		}
+		// make sure sampler is normalized
+		double total = sampler.calcSumOfY_Vals();
+		sampler.multiplyY_ValsBy(1.0/total);
+		
 		
 		// now check that monte carlo sampling of the function converges to y-axis values
-		EvenlyDiscretizedFunc testFunc = new EvenlyDiscretizedFunc(0.0, numIntegers, 1.0);
+		EvenlyDiscretizedFunc testFunc = new EvenlyDiscretizedFunc(sampler.getX(0), sampler.getNum(), sampler.getDelta());
 		int numSamples=100000000;
 		for(int i=0;i<numSamples;i++) {
 			testFunc.add(sampler.getRandomInt(),1.0);
@@ -161,7 +154,18 @@ public class CodeTests {
 		CodeTests tests = new CodeTests();
 		
 		// this tests IntegerPDF_FunctionSampler:
-		System.out.println("testIntegerPDF_FunctionSampler passes = "+tests.testIntegerPDF_FunctionSampler());
+		int numIntegers = 100;
+		IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(numIntegers);
+		double total=0;
+		for(int i=0;i<numIntegers;i++)
+			sampler.set(i,Math.random());
+		sampler.set(50,0.0);
+		sampler.set(51,0.0);
+		for(int i=0;i<numIntegers;i++)
+			total+=sampler.getY(i);
+		for(int i=0;i<numIntegers;i++)
+			sampler.set(i,sampler.getY(i)/total);
+		System.out.println("testIntegerPDF_FunctionSampler passes = "+tests.testIntegerPDF_FunctionSampler(sampler));
 		
 		// This tests ETAS_Utils.getDefaultRandomTimeOfEvent(*)
 //		System.out.println("testGetDefaultRandomTimeOfEvent passes = "+tests.testGetDefaultRandomTimeOfEvent(0, 10, 0.01));
@@ -170,5 +174,7 @@ public class CodeTests {
 //		System.out.println("testGetPoissonRandomNumber passes = "+tests.testGetPoissonRandomNumber(5));
 		 
 	}
+	
+	
 
 }

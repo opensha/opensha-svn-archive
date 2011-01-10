@@ -1,16 +1,20 @@
 package scratch.ned.ETAS_Tests;
 
 import java.util.ArrayList;
+import java.util.ListIterator;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 
 /**
  * This class store information about all ruptures that nucleate inside this geographic block
@@ -108,13 +112,15 @@ public class EqksInGeoBlock {
 	
 	/**
 	 * This writes to system the following for each rupture that nucleates inside the block:
-	 * srcIndex, rupIndex, rateInside, fractInside, and srcName (if erf given)
+	 * srcIndex, rupIndex, rateInside, fractInside, randomEqkRupSampler.getY(i), and srcName (if erf given)
 	 */
 	public void writeResults() {
+		// do the following to make sure randomEqkRupSampler has been created
+		getRandomRuptureIndices();
 		for(int i=0; i<srcIndexList.size();i++) {
 			System.out.print(i+"\t"+srcIndexList.get(i)+"\t"+rupIndexList.get(i)+"\t"+
 					rateInsideList.get(i)+"\t"+fractInsideList.get(i)+"\t"+
-					magList.get(i));
+					magList.get(i)+"\t"+randomEqkRupSampler.getY(i));
 			if(erf != null)
 				System.out.print("\t"+erf.getSource(srcIndexList.get(i)).getName()+"\n");
 			else
@@ -156,6 +162,7 @@ public class EqksInGeoBlock {
 	 * @return
 	 */
 	public double getTotalRateInside() {
+		// check to see whether it's already been calculated
 		if(totalRateInside == -1) {
 			totalRateInside=0;
 			for(Double rate:this.rateInsideList) totalRateInside += rate;
@@ -291,7 +298,7 @@ public class EqksInGeoBlock {
 	/**
 	 * Still need to modify location if point source or set hypocenter if finite source?
 	 * (or do that in what calls this?).  Should also clone the rupture and set it as an
-	 * obs and/or aftershock
+	 * obs and/or aftershock?
 	 * @return
 	 */
 	public ProbEqkRupture getRandomRupture() {
@@ -307,6 +314,69 @@ public class EqksInGeoBlock {
 		ProbEqkRupture rup = erf.getRupture(iSrc, iRup);
 //		rup.setRuptureIndexAndSourceInfo(iSrc, "ETAS Event", iRup);
 		return rup;
+	}
+	
+	
+	/**
+	 * This returns the source index (in the 0th array element) and rupture index 
+	 * (in the 1st array element) for a randomly sampled rupture.
+	 * @return
+	 */
+	public int[] getRandomRuptureIndices() {
+		// make random sampler if it doesn't already exist
+		if(randomEqkRupSampler == null) {
+			randomEqkRupSampler = new IntegerPDF_FunctionSampler(srcIndexList.size());
+			for(int i=0;i<srcIndexList.size();i++) 
+				randomEqkRupSampler.set(i,rateInsideList.get(i));
+		}
+		
+		int[] indices = new int[2];
+		int localRupIndex = randomEqkRupSampler.getRandomInt();
+		indices[0] = srcIndexList.get(localRupIndex);
+		indices[1] = rupIndexList.get(localRupIndex);
+		return indices;
+	}
+	
+	
+	public IntegerPDF_FunctionSampler getRandomSampler() {
+		if(randomEqkRupSampler == null) {
+			randomEqkRupSampler = new IntegerPDF_FunctionSampler(srcIndexList.size());
+			for(int i=0;i<srcIndexList.size();i++) 
+				randomEqkRupSampler.set(i,rateInsideList.get(i));
+		}
+		return randomEqkRupSampler;
+	}
+	
+	
+	/**
+	 * This assigns a random hypocentral location for the passed-in rupture.  
+	 * If the rupture is a point source the location is chosen at random from
+	 * within the block (assuming a uniform distribution).  If the rupture has a
+	 * finite surface, the hypocentral location is chosen randomly among those surface
+	 * locations that are inside the block (again, a uniform distribution).
+	 * @param rupture
+	 * @return
+	 */
+	public void setRandomHypocenterLoc(EqkRupture rupture) {
+		EvenlyGriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
+		if(rupSurface.size() == 1) { // randomly assign a point inside the block assuming uniform distribution
+			double lat = minLat + Math.random()*(maxLat-minLat);
+			double lon = minLon + Math.random()*(maxLon-minLon);
+			double depth = minDepth + Math.random()*(maxDepth-minDepth);
+			rupture.setHypocenterLocation(new Location(lat,lon,depth));
+		}
+		else {
+			ArrayList<Location> locsInside = new ArrayList<Location>();
+			ListIterator<Location> locs = rupSurface.getLocationsIterator();
+			while(locs.hasNext()) {
+				Location loc = locs.next();
+				if(isLocInside(loc)) 
+					locsInside.add(loc);
+			}
+			// now choose a random index from the locsInside list
+			double randIndex = Math.round(locsInside.size()*Math.random()-0.5);
+			rupture.setHypocenterLocation(locsInside.get((int)randIndex));
+		}
 	}
 	
 	
@@ -373,4 +443,25 @@ public class EqksInGeoBlock {
 		System.out.println("4 slices sub blocks took "+runtime+" seconds");
 
 	}
+	
+	/** This computes the expected mag-freq dist for the block
+	 * 
+	 * @return
+	 */
+	public ArbIncrementalMagFreqDist getMagProbDist() {
+		ArbIncrementalMagFreqDist magDist = new ArbIncrementalMagFreqDist(2.05, 8.95, 70);
+		for(int j=0; j<magList.size(); j++)
+			magDist.addResampledMagRate(magList.get(j), rateInsideList.get(j), true);
+		magDist.scaleToCumRate(2.05, 1);
+		return magDist;
+	}
+
+	
+	
+	public ArrayList<Double> getRateInsideList() {return rateInsideList; }
+	
+	public ArrayList<Integer> getSrcIndexList() {return srcIndexList; }
+	
+	public ArrayList<Double> getMagList() {return magList; }
+
 }

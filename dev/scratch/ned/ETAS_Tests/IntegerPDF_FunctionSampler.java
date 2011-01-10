@@ -122,7 +122,4 @@ public class IntegerPDF_FunctionSampler extends EvenlyDiscretizedFunc {
 		dataChange = true;
 	}
 
-	
-
-
 }

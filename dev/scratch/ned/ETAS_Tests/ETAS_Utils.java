@@ -2,6 +2,7 @@ package scratch.ned.ETAS_Tests;
 
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.apache.commons.math.random.RandomDataImpl;
 
 public class ETAS_Utils {
 	
@@ -9,6 +10,8 @@ public class ETAS_Utils {
 	double p_DEFAULT = 1.34;
 	double magMin_DEFAULT = 2.5;
 	double c_DEFAULT = 0.095;
+	
+	RandomDataImpl randomDataImpl = new RandomDataImpl();
 	
 	/**
 	 * This returns the expected number of primary aftershocks between time tMin and tMax for an ETAS sequence
@@ -49,6 +52,8 @@ public class ETAS_Utils {
 	 * @return
 	 */
 	public int getPoissonRandomNumber(double lambda) {
+		return (int) randomDataImpl.nextPoisson(lambda);
+		/*
 	    double L = Math.exp(-lambda);
 	    int k = 0;
 	    double p = 1;
@@ -58,6 +63,7 @@ public class ETAS_Utils {
 	        p = p * u;
 	    } while (p > L);
 	    return k - 1;
+	    */
 	}
 	
 	
