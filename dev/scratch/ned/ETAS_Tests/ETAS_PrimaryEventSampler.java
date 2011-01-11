@@ -5,10 +5,12 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
@@ -175,7 +177,7 @@ public class ETAS_PrimaryEventSampler {
 //				System.out.println("\tProblem block index="+i+"\t"+this.revisedBlockDistances.get(i)+"\t"+this.revisedBlockDistances.get(i+1));
 			randomBlockSampler.set(i,relBlockProb[i]);
 		}
-		System.out.println("should equal 1.0:\t"+randomBlockSampler.calcSumOfY_Vals());
+		System.out.println("check that randomBlockSampler values sum to 1.0:\t"+randomBlockSampler.calcSumOfY_Vals());
 		System.out.println("Done computing relative block probabilities");
 	}
 	
@@ -310,7 +312,7 @@ public class ETAS_PrimaryEventSampler {
 		}
 	}
 	
-	public void plotBlockProbMap() {
+	public void plotBlockProbMap(String label) {
 		
 		GMT_MapGenerator mapGen = new GMT_MapGenerator();
 		mapGen.setParameter(GMT_MapGenerator.GMT_SMOOTHING_PARAM_NAME, false);
@@ -320,23 +322,28 @@ public class ETAS_PrimaryEventSampler {
 		mapGen.setParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME,-125.4);
 		mapGen.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME,-113.0);
 		mapGen.setParameter(GMT_MapGenerator.LOG_PLOT_NAME,true);
-		ArbDiscrGeoDataSet xyzDataSet = new ArbDiscrGeoDataSet(true);
+
+		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
+		GriddedGeoDataSet xyzDataSet = new GriddedGeoDataSet(griddedRegion, true);
+		
+		// initialize values to zero
+		for(int i=0; i<xyzDataSet.size();i++) xyzDataSet.set(i, 0);
+		
 		for(int i=0; i<revisedBlockList.size();i++) {
 			EqksInGeoBlock block = revisedBlockList.get(i);
-			Location loc = block.getBlockCenterLoc();
-//			double rate = block.getTotalRateInside();
-			double prob = relBlockProb[i]/block.getBlockVolume();
-			xyzDataSet.set(loc, prob);
+			int locIndex = griddedRegion.indexForLocation(block.getBlockCenterLoc());
+			double totProbInCell = relBlockProb[i]+xyzDataSet.get(locIndex);
+			xyzDataSet.set(locIndex, totProbInCell);
 		}
-		String scaleLabel ="test label";
+//		System.out.println("Min & Max Z: "+xyzDataSet.getMinZ()+"\t"+xyzDataSet.getMaxZ());
 		String metadata = "";
 		String dirName = "test";
 		
 		try {
-			String name = mapGen.makeMapUsingServlet(xyzDataSet, scaleLabel, metadata, dirName);
+			String name = mapGen.makeMapUsingServlet(xyzDataSet, "Prob from "+label, metadata, dirName);
 			metadata += GMT_MapGuiBean.getClickHereHTML(mapGen.getGMTFilesWebAddress());
 			ImageViewerWindow imgView = new ImageViewerWindow(name,metadata, true);
-			System.out.println("GMT Plot Filename: "+name);
+//			System.out.println("GMT Plot Filename: "+name);
 		} catch (GMT_MapException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -348,9 +355,10 @@ public class ETAS_PrimaryEventSampler {
 		
 	}
 	
+	
 	public void testRandomDistanceDecay(String plotTitle) {
 		double deltaDist = 10;
-		int num = (int)(2000.0/deltaDist)+1;
+		int num = (int)(2200.0/deltaDist)+1;
 
 		EvenlyDiscretizedFunc distHist = new EvenlyDiscretizedFunc(deltaDist/2, num, deltaDist);
 		distHist.setTolerance(5);
@@ -384,6 +392,8 @@ public class ETAS_PrimaryEventSampler {
 		plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,Color.RED, 2));
 		plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,Color.BLUE, 2));
 		sr_graph.setPlottingFeatures(plotChars);
+		sr_graph.setX_AxisLabel("Distance (km)");
+		sr_graph.setY_AxisLabel("Probability");
 		
 	}
 	

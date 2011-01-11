@@ -18,6 +18,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 import scratch.ned.ETAS_Tests.MeanUCERF2.MeanUCERF2_ETAS;
 
@@ -33,6 +34,12 @@ public class ETAS_Simulator {
 	double tMax=360;
 	boolean useAdaptiveBlocks=true;
 	boolean includeBlockRates=true;
+	
+	
+	ArrayList<PrimaryAftershock> primaryAftershockList;
+	ETAS_PrimaryEventSampler etas_sampler;
+	EqkRupture parentRup;
+	double expectedNumAftershocks;
 
 	
 	
@@ -47,19 +54,58 @@ public class ETAS_Simulator {
 	/**
 	 * This returns a list of randomly sampled primary aftershocks
 	 * @param parentRup
-	 * @param blockList
-	 * @param erf
-	 * @param distDecay
-	 * @param minDist
-	 * @param useAdaptiveBlocks
-	 * @param includeBlockRates
-	 * @param tMin
-	 * @param tMax
-	 * @return
+	 * @return list of PrimaryAftershock objects
 	 */
 	public ArrayList<PrimaryAftershock> getPrimaryAftershocksList(EqkRupture parentRup) {
 		
-		// This makes the original MFD from the ERF
+		this.parentRup=parentRup;
+		
+		System.out.println("Main Shock Mag = "+parentRup.getMag()+"\tMin & Max time (days): "+tMin+"; "+tMax);
+				
+		// compute the number of primary aftershocks:
+		expectedNumAftershocks = etasUtils.getDefaultExpectedNumEvents(parentRup.getMag(), tMin, tMax);
+		int numAftershocks = etasUtils.getPoissonRandomNumber(expectedNumAftershocks);
+		System.out.println("Expected num primary aftershocks = "+expectedNumAftershocks+"\tSampled num = "+numAftershocks);
+		
+		// Make the ETAS sampler for the given main shock:
+		etas_sampler = new ETAS_PrimaryEventSampler(parentRup,blockList, erf, distDecay,minDist, useAdaptiveBlocks, includeBlockRates);
+		
+		// Write spatial probability dist data to file:
+//		ETAS_sampler.writeRelBlockProbToFile();
+
+		// Now make the list of aftershocks:
+		primaryAftershockList = new ArrayList<PrimaryAftershock>();
+		for (int i = 0; i < numAftershocks; i++) {
+			primaryAftershockList.add(etas_sampler.samplePrimaryAftershock(etasUtils.getDefaultRandomTimeOfEvent(tMin, tMax)));
+		}
+		
+		return primaryAftershockList;
+		
+	}
+		
+	
+	/**
+	 * This generates two mag-freq dist plots for the primary aftershock sequence.
+	 * @param srcIndex - include if you want to show that for specific source (leave null otherwise)
+	 */
+	public void plotMagFreqDists(Integer srcIndex, String info) {
+		
+		// FIRST PLOT MAG-PROB DISTS
+		
+		// get the expected mag-prob dist for the aftershock sequence:
+		ArbIncrementalMagFreqDist expMagProbDist = etas_sampler.getMagProbDist();
+		expMagProbDist.setName("Expected Mag-Prob Dist for Sequence");
+		expMagProbDist.setInfo(" ");
+
+		// get the observed mag-prob dist for the sampled set of events 
+		ArbIncrementalMagFreqDist obsMagProbDist = new ArbIncrementalMagFreqDist(2.05,8.95, 70);
+		for (PrimaryAftershock event : primaryAftershockList)
+			obsMagProbDist.addResampledMagRate(event.getMag(), 1.0, true);
+		obsMagProbDist.scaleToCumRate(2.05, 1);	// normalize to 1.0
+		obsMagProbDist.setName("Observed Mag-Prob Dist for Sequence");
+		obsMagProbDist.setInfo(" ");
+
+		// This makes an MFD of the original, total ERF (for entire region)
 		ArbIncrementalMagFreqDist origMagDist = new ArbIncrementalMagFreqDist(2.05, 8.95, 70);
 		double duration = erf.getTimeSpan().getDuration();
 		for(int s=0;s<erf.getNumSources();s++) {
@@ -70,39 +116,61 @@ public class ETAS_Simulator {
 			}			
 		}
 		origMagDist.scaleToCumRate(2.05, 1);
+		origMagDist.setName("Total Mag-Prob Dist for ERF");
+		origMagDist.setInfo(" ");
 		
-
-		ArrayList<PrimaryAftershock> aftershockList = null;
-		ETAS_PrimaryEventSampler ETAS_sampler = new ETAS_PrimaryEventSampler(parentRup,blockList, erf, distDecay,minDist, useAdaptiveBlocks, includeBlockRates);
-		ArbIncrementalMagFreqDist magProbDist = ETAS_sampler.getMagProbDist();
-//		System.out.println(magProbDist);
-//		ETAS_sampler.writeRelBlockProbToFile();
-		System.out.println(parentRup.getMag()+"\t"+tMin+"\t"+tMax);
-		double expectedNum = etasUtils.getDefaultExpectedNumEvents(parentRup.getMag(), tMin, tMax);
-		int numAftershocks = etasUtils.getPoissonRandomNumber(expectedNum);
-		System.out.println("Expected num = "+expectedNum+"\tSampled num = "+numAftershocks);
+		// Plot these MFDs
+		ArrayList funcs = new ArrayList();
+		funcs.add(origMagDist);
+		funcs.add(expMagProbDist);
+		funcs.add(obsMagProbDist);
+		GraphiWindowAPI_Impl sr_graph = new GraphiWindowAPI_Impl(funcs, "Mag-Prob Dists for "+info); 
+		sr_graph.setX_AxisLabel("Mag");
+		sr_graph.setY_AxisLabel("Probability");
+		sr_graph.setYLog(true);
 		
-		//
-		ArbIncrementalMagFreqDist magDist = new ArbIncrementalMagFreqDist(2.05, 8.95, 70);
-		System.out.print("\n");
-//		for(int j=0; j<50; j++) {
-//			System.out.print(j+", ");
-			aftershockList = new ArrayList<PrimaryAftershock>();
-			for(int i=0; i<numAftershocks;i++) {
-				aftershockList.add(ETAS_sampler.samplePrimaryAftershock(etasUtils.getDefaultRandomTimeOfEvent(tMin, tMax)));
-			}
-			for(PrimaryAftershock event : aftershockList)
-				magDist.addResampledMagRate(event.getMag(), 1.0, true);			
-//		}
-		System.out.print("\n");
-		magDist.scaleToCumRate(2.05, 1);
-//		System.out.println(magDist);
+		
+		// NOW PLOT EXPECTED CUM MAG-FREQ DISTS FOR TIME SPAN
+		
+		ArrayList funcs2 = new ArrayList();
+		double days = tMax-tMin;
+		
+		// get expected cum MFD for sequence
+		EvenlyDiscretizedFunc expCumDist = expMagProbDist.getCumRateDist();
+		expCumDist.multiplyY_ValsBy(expectedNumAftershocks);
+		expCumDist.setName("Expected num greater then M in "+(float)days+" days");
+		expCumDist.setInfo(" ");
+		funcs2.add(expCumDist);
 
-		/**/
+		if(srcIndex != null) {
+			EvenlyDiscretizedFunc expCumDistForSource = etas_sampler.getMagProbDistForSource(srcIndex).getCumRateDist();
+			expCumDistForSource.multiplyY_ValsBy(expectedNumAftershocks);
+			expCumDistForSource.setName("Expected num greater then M in "+(float)days+" days for source: "+erf.getSource(srcIndex).getName());
+			expCumDistForSource.setInfo(" ");
+			funcs2.add(expCumDistForSource);
+		}
+		
+		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(1.0, 1.0,2.55,8.95, 65);
+		double scaleBy = expectedNumAftershocks/gr.getY(2.55);
+		gr.multiplyY_ValsBy(scaleBy);
+		funcs2.add(gr);
+
+		GraphiWindowAPI_Impl sr_graph2 = new GraphiWindowAPI_Impl(funcs2, "Expected Number of Events for "+info); 
+		sr_graph2.setX_AxisLabel("Mag");
+		sr_graph2.setY_AxisLabel("Expected Num");
+		sr_graph2.setYLog(true);
+
+	}
+	
+	
+	/**
+	 * This writes aftershock data to a file
+	 */
+	public void writeAftershockDataToFile() {
 		try{
 			FileWriter fw1 = new FileWriter("/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_Tests/aftershockList.txt");
 			fw1.write("mag\ttime\tdist\tblockID\n");
-			for(PrimaryAftershock event: aftershockList) {
+			for(PrimaryAftershock event: primaryAftershockList) {
 				double dist = LocationUtils.distanceToSurfFast(event.getHypocenterLocation(), parentRup.getRuptureSurface());
 				fw1.write((float)event.getMag()+"\t"+(float)event.getOriginTime()+"\t"+(float)dist+"\t"+event.getParentID()+
 						"\t"+event.getSourceIndex()+"\t"+event.getRupIndex()+"\n");
@@ -111,87 +179,10 @@ public class ETAS_Simulator {
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
-		
-		
-		ArrayList funcs = new ArrayList();
-		origMagDist.setName("from ERF");
-		magProbDist.setName("from ETAS_PrimaryEventSampler");
-		magDist.setName("from random samples");
-		funcs.add(origMagDist);
-		funcs.add(magProbDist);
-		funcs.add(magDist);
-//		funcs.add(ETAS_sampler.getRevisedBlockList().get(5880).getMagProbDist());
-		GraphiWindowAPI_Impl sr_graph = new GraphiWindowAPI_Impl(funcs, ""); 
-		
-		
-		// plot expected number greater than mag
-		EvenlyDiscretizedFunc expCumDist = magProbDist.getCumRateDist();
-		expCumDist.multiplyY_ValsBy(expectedNum);
-		ArbIncrementalMagFreqDist magProbDistForSrc = ETAS_sampler.getMagProbDistForSource(195);
-		EvenlyDiscretizedFunc expCumDistForSource = magProbDistForSrc.getCumRateDist();
-		expCumDistForSource.multiplyY_ValsBy(expectedNum);
-
-		double days = tMax-tMin;
-		expCumDist.setInfo("Expected num greater then M in "+(float)days+" days");
-		expCumDistForSource.setInfo("Expected num greater then M in "+(float)days+" days for source");
-		ArrayList funcs2 = new ArrayList();
-		funcs2.add(expCumDist);
-		funcs2.add(expCumDistForSource);
-		GraphiWindowAPI_Impl sr_graph2 = new GraphiWindowAPI_Impl(funcs2, "Expected Number of Events"); 
-
-/*		
-		CodeTests tests = new CodeTests();
-		boolean testResult = tests.testIntegerPDF_FunctionSampler(ETAS_sampler.getRevisedBlockList().get(5880).getRandomSampler());
-		System.out.println("test passed = "+testResult);
-		System.out.println("Results for block 5880");
-		ETAS_sampler.getRevisedBlockList().get(5880).writeResults();
-*/
-		
-		return aftershockList;
 	}
 	
 	
 	
-	public void testDistanceDecays(boolean adaptiveBlocks, boolean includeBlockRates) {
-		
-		ETAS_PrimaryEventSampler sampler;
-		
-		//  Point source rupture:
-		ProbEqkRupture rup = new ProbEqkRupture();
-		rup.setMag(5);
-		/**/
-		// point source at edge of sub-blocks
-		rup.setPointSurface(new Location(34,-118,8));
-		sampler = new ETAS_PrimaryEventSampler(rup,blockList, erf, distDecay, minDist, adaptiveBlocks, includeBlockRates);
-		sampler.testRandomDistanceDecay("M5 Point Src at 34,-118,8");
-		sampler.plotBlockProbMap();
-
-	/*	
-		// point source in midpoint of sub block
-		rup.setPointSurface(new Location(34.00625,-118.00625,7));
-		sampler = new ETAS_PrimaryEventSampler(rup,blockList, erf, distDecay, minDist, adaptiveBlocks, includeBlockRates);
-		sampler.testRandomDistanceDecay("M5 Point Src at 34.00625,-118.00625,7");
-
-		// point source in center of sub block
-		rup.setPointSurface(new Location(34.0125,	-118.0125,	6.0));
-		sampler = new ETAS_PrimaryEventSampler(rup,blockList, erf, distDecay, minDist, adaptiveBlocks, includeBlockRates);
-		sampler.testRandomDistanceDecay("M5 Point Src at 34.0125,-118.0125,6.0");
-		
-
-		// 68	S. San Andreas;CH+CC+BB+NM+SM+NSB+SSB+BG+CO	 #rups=8
-		rup = erf.getSource(68).getRupture(0);
-		sampler = new ETAS_PrimaryEventSampler(rup,blockList, erf, distDecay, minDist, adaptiveBlocks, includeBlockRates);
-		sampler.testRandomDistanceDecay("SSAF Wall-to-wall Rupture; M="+rup.getMag());
-		sampler.plotBlockProbMap();
-
-		// 236	Pitas Point (Lower, West)	 #rups=19	13.0 (shallowest dipping rupture I could find)
-		rup = erf.getSource(236).getRupture(0);
-		sampler = new ETAS_PrimaryEventSampler(rup,blockList, erf, distDecay, minDist, adaptiveBlocks, includeBlockRates);
-		sampler.testRandomDistanceDecay("Pitas Point (shallowest dipping source); M="+rup.getMag()+"; AveDip="+rup.getRuptureSurface().getAveDip());
-*/
-//		sampler.writeRelBlockProbToFile();
-	}
-
 	
 	/**
 	 * This creates an EqksInGeoBlock for the given ERF at each point in the GriddedRegion region
@@ -213,8 +204,8 @@ public class ETAS_Simulator {
 		double rateUnAssigned = 0;
 		int numSrc = erf.getNumSources();
 		for(int s=0;s<numSrc;s++) {
-// if(s>42 && s<98) continue;
-// if(s==128)  continue;
+// if(s>42 && s<98) continue; // Exclude SSAF
+if(s==195)  continue;	// Exclude Landers
 			ProbEqkSource src = erf.getSource(s);
 			//			System.out.println(s+"\t"+src.getName()+"\t"+numSrc);
 			int numRups = src.getNumRuptures();
@@ -297,20 +288,23 @@ public class ETAS_Simulator {
 	 */
 	public static void main(String[] args) {
 		
+		
+		// make the gridded region
 		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
 		
+		// write the expected number of primary aftershocks for different mags
 		ETAS_Utils utils = new ETAS_Utils();
 		System.out.println("Num primary aftershocks for mag:");
 		for(int i=2;i<9;i++) {
 			System.out.println("\t"+i+"\t"+utils.getDefaultExpectedNumEvents((double)i, 0, 365));
 		}
-				
 		
-		/*	*/
-		// Create UCERF2 instance
+		// for keeping track of runtime:
+		long startRunTime=System.currentTimeMillis();
+
+		// Create the UCERF2 instance
 		System.out.println("Starting ERF instantiation");
-		long startTime=System.currentTimeMillis();
-		int duration = 1;
+		double forecastDuration = 1.0;	// years
 		MeanUCERF2_ETAS meanUCERF2 = new MeanUCERF2_ETAS();
 		meanUCERF2.setParameter(UCERF2.RUP_OFFSET_PARAM_NAME, new Double(10.0));
 		meanUCERF2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_POISSON);
@@ -318,37 +312,75 @@ public class ETAS_Simulator {
 		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
 //		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
 		meanUCERF2.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
-		meanUCERF2.getTimeSpan().setDuration(duration);
+		meanUCERF2.getTimeSpan().setDuration(forecastDuration);
 		meanUCERF2.updateForecast();
-		double runtime = (System.currentTimeMillis()-startTime)/1000;
+		double runtime = (System.currentTimeMillis()-startRunTime)/1000;
 		System.out.println("ERF instantiation took "+runtime+" seconds");
 		
-		// print out first sources
-//		for(int s=meanUCERF2.getNumSources()-1;s>meanUCERF2.getNumSources()-100;s--) System.out.println(meanUCERF2.getSource(s).getName()+"\t"+meanUCERF2.getSource(s).getRupture(0).getMag());
-//		for(int s=0;s<100;s++) System.out.println(meanUCERF2.getSource(s).getName()+"\t"+meanUCERF2.getSource(s).getRupture(0).getMag());
-//		for(int s=0;s<meanUCERF2.getNumSources();s++) System.out.println(s+"\t"+meanUCERF2.getSource(s).getName()+"\t #rups="+
-//				meanUCERF2.getSource(s).getNumRuptures()+"\t"+meanUCERF2.getSource(s).getRupture(0).getRuptureSurface().getAveDip());
-/**/
-		startTime=System.currentTimeMillis();
+		/*
+		// print info about sources
+		for(int s=0;s<meanUCERF2.getNumSources();s++) {
+			System.out.println(s+"\t"+meanUCERF2.getSource(s).getName()+"\t #rups="+
+				meanUCERF2.getSource(s).getNumRuptures()+"\t"+meanUCERF2.getSource(s).getRupture(0).getRuptureSurface().getAveDip());
+			if(s==195) {
+				ProbEqkSource landersSrc = meanUCERF2.getSource(s);
+				for(int r=0; r<landersSrc.getNumRuptures(); r++ )
+					System.out.println("\tLanders rup "+r+"; M="+landersSrc.getRupture(r).getMag());
+			}
+		}
+		*/
+		
+		// for keeping track of runtimes:
+		startRunTime=System.currentTimeMillis();
+		
+		// Create the ETAS simulator
 		ETAS_Simulator etasSimulator = new ETAS_Simulator(meanUCERF2,griddedRegion);
 		
-		// Full SSAF rupture
-//		ProbEqkRupture rup = meanUCERF2.getSource(68).getRupture(0);
+		ProbEqkRupture mainShock;
 		
-		// Landers Rupture
-//		ProbEqkRupture rup = meanUCERF2.getSource(195).getRupture(0);
+		// NOW RUN TESTS FOR VARIOUS MAIN SHOCKS
+		
+/*	
+		//  Point source at edge of sub-blocks
+		mainShock = new ProbEqkRupture();
+		mainShock.setMag(5);
+		mainShock.setPointSurface(new Location(34,-118,8));
+		etasSimulator.runTests(mainShock,"M5 Pt Src at 34,-118,8 (sub-block edge)",null);
+		
+		// Point source in midpoint of sub block
+		mainShock.setPointSurface(new Location(34.00625,-118.00625,7));
+		etasSimulator.runTests(mainShock,"M5 Pt Src at 34.00625,-118.00625,7 (sub-block mid)",null);
 
-//		ProbEqkRupture rup = new ProbEqkRupture();
-//		rup.setMag(6);
-//		rup.setPointSurface(new Location(33.35028,-115.7167));
+		// point source in center of sub block
+		mainShock.setPointSurface(new Location(34.0125,	-118.0125,	6.0));
+		etasSimulator.runTests(mainShock,"M5 Pt Src at 34.0125,-118.0125,6.0 (sub-block center)",null);
 
-//		ArrayList<PrimaryAftershock> aftershockList = etasSimulator.getPrimaryAftershocksList(rup);
-//		System.out.println("aftershockList size = "+aftershockList.size());
+		// 68	S. San Andreas;CH+CC+BB+NM+SM+NSB+SSB+BG+CO	 #rups=8
+		mainShock = meanUCERF2.getSource(68).getRupture(4);
+		etasSimulator.runTests(mainShock,"SSAF Wall-to-wall Rupture; M="+mainShock.getMag(), null);
+*/
+/**/	
+		// 195	Landers Rupture	 #rups=46 (rup 41 if M 7.25)
+		mainShock = meanUCERF2.getSource(195).getRupture(41);
+		etasSimulator.runTests(mainShock,"Landers Rupture; M="+mainShock.getMag(), 195);
+
+/*
+		// 236	Pitas Point (Lower, West)	 #rups=19	13.0 (shallowest dipping rupture I could find)
+		mainShock = meanUCERF2.getSource(236).getRupture(10);
+		String info = "Pitas Point (shallowest dipping source); M="+mainShock.getMag()+"; AveDip="+mainShock.getRuptureSurface().getAveDip();
+		etasSimulator.runTests(mainShock,info,null);
+
+*/
+//		System.out.println("Tests Run took "+runtime+" seconds");
+		
+	}
 	
-		etasSimulator.testDistanceDecays(true,true);
-		runtime = (int)(System.currentTimeMillis()-startTime)/1000;
-		System.out.println("Tests Run took "+runtime+" seconds");
-		
+	public void runTests(ProbEqkRupture rup, String info, Integer srcIndex) {
+		ArrayList<PrimaryAftershock> aftershockList = getPrimaryAftershocksList(rup);
+		System.out.println("aftershockList size = "+aftershockList.size());
+		plotMagFreqDists(srcIndex, info);
+		etas_sampler.testRandomDistanceDecay(info);
+		etas_sampler.plotBlockProbMap(info);
 	}
 
 }
