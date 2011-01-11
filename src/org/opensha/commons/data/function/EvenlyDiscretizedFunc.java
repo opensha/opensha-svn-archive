@@ -273,7 +273,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 */
 	public int getXIndex( double x) throws Point2DException{
 
-		int i = Math.round((float)((x-minX)/delta));
+		int i = (int)Math.round((double)((x-minX)/delta));
 		if( withinTolerance(x, this.getX(i) ))
 			return i;
 		else
