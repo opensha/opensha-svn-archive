@@ -34,9 +34,9 @@ import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 public class ETAS_PrimaryEventSampler {
 	
 	ArrayList<EqksInGeoBlock> origBlockList;	// the original list of blocks given
-	ArrayList<EqksInGeoBlock> revisedBlockList;	// a revised list (in case some close to main shock need to be more densely sampled
+	ArrayList<EqksInGeoBlock> revisedBlockList;	// a revised list (in case some close to main shock need to be more densely sampled)
 	ArrayList<Double> revisedBlockDistances;	// distances to parentRup for the revised blocks
-	EqkRupture parentRup;					// the main shock
+	EqkRupture parentRup;						// the main shock
 	EqkRupForecast erf;							// the ERF from which primary aftershocks will be sampled
 	double[] relBlockProb;						// the relative probability that each block will nucleate an event (REDUNDANT WITH randomBlockSampler BELOW)
 	int numBlocks;
@@ -75,8 +75,10 @@ public class ETAS_PrimaryEventSampler {
 		int counter=0, counterThresh = origBlockList.size()/20, counterIncr=counterThresh;
 		double minBlockDist=Double.MAX_VALUE;
 		int minDistIndex=-1;
+		// compute distance from rupture to center of each block (and subdivide close blocks if specified)
 		for(EqksInGeoBlock origBlock : origBlockList) {
 			counter++;
+			// write progress
 			if(counter>counterThresh) {
 				double perc = 100*counter/origBlockList.size();
 				System.out.print(", "+(int)perc);
@@ -104,7 +106,6 @@ public class ETAS_PrimaryEventSampler {
 						minBlockDist=dist2;
 						minDistIndex = revisedBlockDistances.size()-1;
 					}
-
 				}
 			}
 		}
@@ -169,12 +170,9 @@ public class ETAS_PrimaryEventSampler {
 		}
 		
 		// final normalization and to create the random block sampler
-//		System.out.println("total="+total);
 		randomBlockSampler = new IntegerPDF_FunctionSampler(numBlocks);
 		for(int i=0; i<numBlocks;i++) {
 			relBlockProb[i] /= total;
-//			if(Double.isNaN(relBlockProb[i])) 
-//				System.out.println("\tProblem block index="+i+"\t"+this.revisedBlockDistances.get(i)+"\t"+this.revisedBlockDistances.get(i+1));
 			randomBlockSampler.set(i,relBlockProb[i]);
 		}
 		System.out.println("check that randomBlockSampler values sum to 1.0:\t"+randomBlockSampler.calcSumOfY_Vals());
@@ -202,6 +200,7 @@ public class ETAS_PrimaryEventSampler {
 			for(int j=0; j<blockMagProbDist.getNum(); j++)
 				magDist.addResampledMagRate(blockMagProbDist.getX(j), blockProb*blockMagProbDist.getY(j), true);
 		}
+		// now normalize
 		double total = magDist.calcSumOfY_Vals();
 		magDist.scaleToCumRate(2.05, 1.0/total);
 		return magDist;
@@ -240,7 +239,7 @@ public class ETAS_PrimaryEventSampler {
 	public PrimaryAftershock samplePrimaryAftershock(double originTime) {
 		int blockIndex = sampleRandomBlockIndex();
 		EqksInGeoBlock block = revisedBlockList.get(blockIndex);
-		int[] indices = block.getRandomRuptureIndices();
+		int[] indices = block.getRandomRuptureIndices();  // this returns the source and rupture index of the randomly chosen rupture
 		ProbEqkRupture rup = (ProbEqkRupture)erf.getRupture(indices[0], indices[1]);
 /*
 		if(rup.getMag()>7.8) {
@@ -252,7 +251,7 @@ public class ETAS_PrimaryEventSampler {
 		aftershock.setParentID(blockIndex);
 		aftershock.setSourceIndex(indices[0]);
 		aftershock.setRupIndex(indices[1]);
-		// assing a hypocenter
+		// assign a hypocenter
 		block.setRandomHypocenterLoc(aftershock);
 		aftershock.setOriginTime(originTime);
 		return aftershock;
@@ -298,7 +297,7 @@ public class ETAS_PrimaryEventSampler {
 		for(int i=0;i<numBlocks;i++)  origFunc.set(i,relBlockProb[i]);
 		
 		try{
-			FileWriter fw1 = new FileWriter("/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_Tests/relBlockProbs.txt");
+			FileWriter fw1 = new FileWriter("/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_Tests/computedData/relBlockProbs.txt");
 			fw1.write("index\tlat\tlon\tdepth\trelProb\trandProbs\tvol\tblockDist\n");
 			for(int i=0;i<numBlocks;i++) {
 				Location loc = revisedBlockList.get(i).getBlockCenterLoc();
@@ -355,7 +354,10 @@ public class ETAS_PrimaryEventSampler {
 		
 	}
 	
-	
+	/**
+	 * This compares a simulated distance decay histogram with the expected histogram
+	 * @param plotTitle
+	 */
 	public void testRandomDistanceDecay(String plotTitle) {
 		double deltaDist = 10;
 		int num = (int)(2200.0/deltaDist)+1;

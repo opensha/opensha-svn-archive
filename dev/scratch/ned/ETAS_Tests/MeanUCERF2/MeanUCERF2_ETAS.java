@@ -9,6 +9,6 @@ package scratch.ned.ETAS_Tests.MeanUCERF2;
 public class MeanUCERF2_ETAS extends org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2 {
 	
 	public MeanUCERF2_ETAS() {
-		nshmp_gridSrcGen = new NSHMP_GridSourceGeneratorMod();
+		nshmp_gridSrcGen = new NSHMP_GridSourceGeneratorMod2();
 	}
 }

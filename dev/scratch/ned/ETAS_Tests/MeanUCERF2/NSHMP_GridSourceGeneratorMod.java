@@ -37,7 +37,7 @@ public class NSHMP_GridSourceGeneratorMod extends NSHMP_GridSourceGenerator {
 
 	
 	/**
-	 * Here I simply replace occrrances of "5.0" in parent's version with "2.5".
+	 * Here I simply replace occurrences of "5.0" in parent's version with "2.5".
 	 */
 	public SummedMagFreqDist getTotMFD_atLoc(int locIndex, boolean includeC_zones, 
 			boolean applyBulgeReduction, boolean applyMaxMagGrid, boolean includeFixedRakeSources, 
