@@ -1,0 +1,873 @@
+
+San Andreas (Offshore) Subsection:1  connections:
+
+	San Andreas (Offshore) Subsection:2	0.18787625
+
+San Andreas (Offshore) Subsection:2  connections:
+
+	San Andreas (Offshore) Subsection:1	0.0
+	San Andreas (Offshore) Subsection:3	239.49742
+
+San Andreas (Offshore) Subsection:3  connections:
+
+	San Andreas (Offshore) Subsection:2	0.0
+	San Andreas (Offshore) Subsection:4	171.96896
+
+San Andreas (Offshore) Subsection:4  connections:
+
+	San Andreas (Offshore) Subsection:3	0.0
+	San Andreas (Offshore) Subsection:5	195.35828
+
+San Andreas (Offshore) Subsection:5  connections:
+
+	San Andreas (Offshore) Subsection:4	0.0
+	San Andreas (Offshore) Subsection:6	849.23785
+
+San Andreas (Offshore) Subsection:6  connections:
+
+	San Andreas (Offshore) Subsection:5	0.0
+	San Andreas (Offshore) Subsection:7	28.544674
+
+San Andreas (Offshore) Subsection:7  connections:
+
+	San Andreas (Offshore) Subsection:6	0.0
+	San Andreas (Offshore) Subsection:8	304.38245
+
+San Andreas (Offshore) Subsection:8  connections:
+
+	San Andreas (Offshore) Subsection:7	0.0
+	San Andreas (Offshore) Subsection:9	687.8765
+
+San Andreas (Offshore) Subsection:9  connections:
+
+	San Andreas (Offshore) Subsection:8	0.0
+	San Andreas (Offshore) Subsection:10	282.8286
+
+San Andreas (Offshore) Subsection:10  connections:
+
+	San Andreas (Offshore) Subsection:9	0.0
+	San Andreas (Offshore) Subsection:11	34.26587
+	San Andreas (Peninsula) Subsection:9	0.0
+
+San Andreas (Offshore) Subsection:11  connections:
+
+	San Andreas (Offshore) Subsection:10	0.0
+	San Andreas (Offshore) Subsection:12	897.3248
+
+San Andreas (Offshore) Subsection:12  connections:
+
+	San Andreas (Offshore) Subsection:11	0.0
+	San Andreas (Offshore) Subsection:13	140.25136
+
+San Andreas (Offshore) Subsection:13  connections:
+
+	San Andreas (Offshore) Subsection:12	0.0
+	San Andreas (Offshore) Subsection:14	522.59033
+
+San Andreas (Offshore) Subsection:14  connections:
+
+	San Andreas (Offshore) Subsection:13	0.0
+	San Andreas (Offshore) Subsection:15	323.12247
+	Greenville (No) Subsection:4	7.6796083
+	Greenville (So) Subsection:3	1.8916011
+	Mount Diablo Thrust Subsection:1	3.2349782
+
+San Andreas (Offshore) Subsection:15  connections:
+
+	San Andreas (Offshore) Subsection:14	0.0
+	San Andreas (Offshore) Subsection:16	897.7725
+
+San Andreas (Offshore) Subsection:16  connections:
+
+	San Andreas (Offshore) Subsection:15	0.0
+	San Andreas (Offshore) Subsection:17	74.780945
+
+San Andreas (Offshore) Subsection:17  connections:
+
+	San Andreas (Offshore) Subsection:16	0.0
+	San Andreas (Offshore) Subsection:18	175.12392
+
+San Andreas (Offshore) Subsection:18  connections:
+
+	San Andreas (Offshore) Subsection:17	0.0
+	San Andreas (Offshore) Subsection:19	255.18512
+
+San Andreas (Offshore) Subsection:19  connections:
+
+	San Andreas (Offshore) Subsection:18	0.0
+	San Andreas (Offshore) Subsection:20	191.14883
+
+San Andreas (Offshore) Subsection:20  connections:
+
+	San Andreas (Offshore) Subsection:19	0.0
+	San Andreas (Offshore) Subsection:21	351.7648
+
+San Andreas (Offshore) Subsection:21  connections:
+
+	San Andreas (Offshore) Subsection:20	0.0
+	San Andreas (Offshore) Subsection:22	22.180016
+
+San Andreas (Offshore) Subsection:22  connections:
+
+	San Andreas (Offshore) Subsection:21	0.0
+	San Andreas (Offshore) Subsection:23	144.13667
+
+San Andreas (Offshore) Subsection:23  connections:
+
+	San Andreas (Offshore) Subsection:22	0.0
+	San Andreas (Offshore) Subsection:24	372.44772
+
+San Andreas (Offshore) Subsection:24  connections:
+
+	San Andreas (Offshore) Subsection:23	0.0
+	San Andreas (Offshore) Subsection:25	304.03217
+
+San Andreas (Offshore) Subsection:25  connections:
+
+	San Andreas (Offshore) Subsection:24	0.0
+	San Andreas (North Coast) Subsection:27	3.6316953
+
+San Andreas (North Coast) Subsection:1  connections:
+
+	San Andreas (North Coast) Subsection:2	13.341942
+
+San Andreas (North Coast) Subsection:2  connections:
+
+	San Andreas (North Coast) Subsection:1	0.0
+	San Andreas (North Coast) Subsection:3	305.22156
+
+San Andreas (North Coast) Subsection:3  connections:
+
+	San Andreas (North Coast) Subsection:2	0.0
+	San Andreas (North Coast) Subsection:4	550.9211
+
+San Andreas (North Coast) Subsection:4  connections:
+
+	San Andreas (North Coast) Subsection:3	0.0
+	San Andreas (North Coast) Subsection:5	406.79187
+
+San Andreas (North Coast) Subsection:5  connections:
+
+	San Andreas (North Coast) Subsection:4	0.0
+	San Andreas (North Coast) Subsection:6	237.30254
+	San Gregorio (So) Subsection:1	0.0
+
+San Andreas (North Coast) Subsection:6  connections:
+
+	San Andreas (North Coast) Subsection:5	0.0
+	San Andreas (North Coast) Subsection:7	778.3891
+
+San Andreas (North Coast) Subsection:7  connections:
+
+	San Andreas (North Coast) Subsection:6	0.0
+	San Andreas (North Coast) Subsection:8	245.50906
+
+San Andreas (North Coast) Subsection:8  connections:
+
+	San Andreas (North Coast) Subsection:7	0.0
+	San Andreas (North Coast) Subsection:9	270.25568
+
+San Andreas (North Coast) Subsection:9  connections:
+
+	San Andreas (North Coast) Subsection:8	0.0
+	San Andreas (North Coast) Subsection:10	801.78735
+
+San Andreas (North Coast) Subsection:10  connections:
+
+	San Andreas (North Coast) Subsection:9	0.0
+	San Andreas (North Coast) Subsection:11	279.92725
+
+San Andreas (North Coast) Subsection:11  connections:
+
+	San Andreas (North Coast) Subsection:10	0.0
+	San Andreas (North Coast) Subsection:12	797.0393
+
+San Andreas (North Coast) Subsection:12  connections:
+
+	San Andreas (North Coast) Subsection:11	0.0
+	San Andreas (North Coast) Subsection:13	8.393934
+
+San Andreas (North Coast) Subsection:13  connections:
+
+	San Andreas (North Coast) Subsection:12	0.0
+	San Andreas (North Coast) Subsection:14	351.99448
+
+San Andreas (North Coast) Subsection:14  connections:
+
+	San Andreas (North Coast) Subsection:13	0.0
+	San Andreas (North Coast) Subsection:15	79.5718
+
+San Andreas (North Coast) Subsection:15  connections:
+
+	San Andreas (North Coast) Subsection:14	0.0
+	San Andreas (North Coast) Subsection:16	59.523136
+
+San Andreas (North Coast) Subsection:16  connections:
+
+	San Andreas (North Coast) Subsection:15	0.0
+	San Andreas (North Coast) Subsection:17	39.858715
+
+San Andreas (North Coast) Subsection:17  connections:
+
+	San Andreas (North Coast) Subsection:16	0.0
+	San Andreas (North Coast) Subsection:18	410.91214
+	San Andreas (Peninsula) Subsection:13	0.0
+
+San Andreas (North Coast) Subsection:18  connections:
+
+	San Andreas (North Coast) Subsection:17	0.0
+	San Andreas (North Coast) Subsection:19	883.8793
+
+San Andreas (North Coast) Subsection:19  connections:
+
+	San Andreas (North Coast) Subsection:18	0.0
+	San Andreas (North Coast) Subsection:20	377.39288
+
+San Andreas (North Coast) Subsection:20  connections:
+
+	San Andreas (North Coast) Subsection:19	0.0
+	San Andreas (North Coast) Subsection:21	283.13922
+
+San Andreas (North Coast) Subsection:21  connections:
+
+	San Andreas (North Coast) Subsection:20	0.0
+	San Andreas (North Coast) Subsection:22	374.5218
+
+San Andreas (North Coast) Subsection:22  connections:
+
+	San Andreas (North Coast) Subsection:21	0.0
+	San Andreas (North Coast) Subsection:23	238.79634
+
+San Andreas (North Coast) Subsection:23  connections:
+
+	San Andreas (North Coast) Subsection:22	0.0
+	San Andreas (North Coast) Subsection:24	884.79596
+	Greenville (So) Subsection:2	8.067351
+
+San Andreas (North Coast) Subsection:24  connections:
+
+	San Andreas (North Coast) Subsection:23	0.0
+	San Andreas (North Coast) Subsection:25	377.77423
+
+San Andreas (North Coast) Subsection:25  connections:
+
+	San Andreas (North Coast) Subsection:24	0.0
+	San Andreas (North Coast) Subsection:26	103.09205
+
+San Andreas (North Coast) Subsection:26  connections:
+
+	San Andreas (North Coast) Subsection:25	0.0
+	San Andreas (North Coast) Subsection:27	307.96588
+
+San Andreas (North Coast) Subsection:27  connections:
+
+	San Andreas (North Coast) Subsection:26	0.0
+	San Andreas (North Coast) Subsection:28	204.26521
+	San Andreas (Offshore) Subsection:25	0.0
+
+San Andreas (North Coast) Subsection:28  connections:
+
+	San Andreas (North Coast) Subsection:27	0.0
+	San Andreas (North Coast) Subsection:29	135.96814
+	Rodgers Creek Subsection:1	2.9938116
+
+San Andreas (North Coast) Subsection:29  connections:
+
+	San Andreas (North Coast) Subsection:28	0.0
+	San Andreas (North Coast) Subsection:30	863.5767
+	San Gregorio (No) Subsection:5	0.0
+
+San Andreas (North Coast) Subsection:30  connections:
+
+	San Andreas (North Coast) Subsection:29	0.0
+	San Andreas (North Coast) Subsection:31	646.5611
+
+San Andreas (North Coast) Subsection:31  connections:
+
+	San Andreas (North Coast) Subsection:30	0.0
+	San Andreas (North Coast) Subsection:32	843.2829
+
+San Andreas (North Coast) Subsection:32  connections:
+
+	San Andreas (North Coast) Subsection:31	0.0
+	San Andreas (North Coast) Subsection:33	764.58624
+
+San Andreas (North Coast) Subsection:33  connections:
+
+	San Andreas (North Coast) Subsection:32	0.0
+	San Andreas (North Coast) Subsection:34	99.01662
+
+San Andreas (North Coast) Subsection:34  connections:
+
+	San Andreas (North Coast) Subsection:33	0.0
+	San Andreas (North Coast) Subsection:35	475.48972
+	Concord Subsection:2	0.030480832
+
+San Andreas (North Coast) Subsection:35  connections:
+
+	San Andreas (North Coast) Subsection:34	0.0
+
+San Andreas (Peninsula) Subsection:1  connections:
+
+	San Andreas (Peninsula) Subsection:2	632.8763
+
+San Andreas (Peninsula) Subsection:2  connections:
+
+	San Andreas (Peninsula) Subsection:1	0.0
+	San Andreas (Peninsula) Subsection:3	690.2037
+
+San Andreas (Peninsula) Subsection:3  connections:
+
+	San Andreas (Peninsula) Subsection:2	0.0
+	San Andreas (Peninsula) Subsection:4	106.65044
+
+San Andreas (Peninsula) Subsection:4  connections:
+
+	San Andreas (Peninsula) Subsection:3	0.0
+	San Andreas (Peninsula) Subsection:5	534.4208
+
+San Andreas (Peninsula) Subsection:5  connections:
+
+	San Andreas (Peninsula) Subsection:4	0.0
+	San Andreas (Peninsula) Subsection:6	109.30716
+
+San Andreas (Peninsula) Subsection:6  connections:
+
+	San Andreas (Peninsula) Subsection:5	0.0
+	San Andreas (Peninsula) Subsection:7	286.07864
+
+San Andreas (Peninsula) Subsection:7  connections:
+
+	San Andreas (Peninsula) Subsection:6	0.0
+	San Andreas (Peninsula) Subsection:8	611.98596
+
+San Andreas (Peninsula) Subsection:8  connections:
+
+	San Andreas (Peninsula) Subsection:7	0.0
+	San Andreas (Peninsula) Subsection:9	629.58124
+	Green Valley (So) Subsection:2	0.0
+
+San Andreas (Peninsula) Subsection:9  connections:
+
+	San Andreas (Peninsula) Subsection:8	0.0
+	San Andreas (Peninsula) Subsection:10	771.1054
+	San Andreas (Offshore) Subsection:10	0.0
+
+San Andreas (Peninsula) Subsection:10  connections:
+
+	San Andreas (Peninsula) Subsection:9	0.0
+	San Andreas (Peninsula) Subsection:11	838.16754
+
+San Andreas (Peninsula) Subsection:11  connections:
+
+	San Andreas (Peninsula) Subsection:10	0.0
+	San Andreas (Peninsula) Subsection:12	825.66925
+
+San Andreas (Peninsula) Subsection:12  connections:
+
+	San Andreas (Peninsula) Subsection:11	0.0
+	San Andreas (Peninsula) Subsection:13	338.62027
+
+San Andreas (Peninsula) Subsection:13  connections:
+
+	San Andreas (Peninsula) Subsection:12	0.0
+	San Andreas (Peninsula) Subsection:14	170.16035
+	San Andreas (North Coast) Subsection:17	0.0
+
+San Andreas (Peninsula) Subsection:14  connections:
+
+	San Andreas (Peninsula) Subsection:13	0.0
+	Hayward (No) Subsection:3	7.226331
+
+Rodgers Creek Subsection:1  connections:
+
+	Rodgers Creek Subsection:2	487.15094
+	San Andreas (North Coast) Subsection:28	0.0
+
+Rodgers Creek Subsection:2  connections:
+
+	Rodgers Creek Subsection:1	0.0
+	Rodgers Creek Subsection:3	336.99814
+
+Rodgers Creek Subsection:3  connections:
+
+	Rodgers Creek Subsection:2	0.0
+	Rodgers Creek Subsection:4	603.25305
+
+Rodgers Creek Subsection:4  connections:
+
+	Rodgers Creek Subsection:3	0.0
+	Rodgers Creek Subsection:5	543.03375
+
+Rodgers Creek Subsection:5  connections:
+
+	Rodgers Creek Subsection:4	0.0
+	Rodgers Creek Subsection:6	826.99634
+
+Rodgers Creek Subsection:6  connections:
+
+	Rodgers Creek Subsection:5	0.0
+	Rodgers Creek Subsection:7	120.18019
+
+Rodgers Creek Subsection:7  connections:
+
+	Rodgers Creek Subsection:6	0.0
+	Rodgers Creek Subsection:8	779.7527
+
+Rodgers Creek Subsection:8  connections:
+
+	Rodgers Creek Subsection:7	0.0
+	Rodgers Creek Subsection:9	753.016
+
+Rodgers Creek Subsection:9  connections:
+
+	Rodgers Creek Subsection:8	0.0
+	Rodgers Creek Subsection:10	641.1332
+
+Rodgers Creek Subsection:10  connections:
+
+	Rodgers Creek Subsection:9	0.0
+	Rodgers Creek Subsection:11	428.63806
+	Green Valley (So) Subsection:2	0.0
+
+Rodgers Creek Subsection:11  connections:
+
+	Rodgers Creek Subsection:10	0.0
+
+Hayward (No) Subsection:1  connections:
+
+	Hayward (No) Subsection:2	783.00183
+
+Hayward (No) Subsection:2  connections:
+
+	Hayward (No) Subsection:1	0.0
+	Hayward (No) Subsection:3	639.8224
+
+Hayward (No) Subsection:3  connections:
+
+	Hayward (No) Subsection:2	0.0
+	Hayward (No) Subsection:4	577.27655
+	San Andreas (Peninsula) Subsection:14	0.0
+
+Hayward (No) Subsection:4  connections:
+
+	Hayward (No) Subsection:3	0.0
+	Hayward (No) Subsection:5	201.93161
+
+Hayward (No) Subsection:5  connections:
+
+	Hayward (No) Subsection:4	0.0
+	Hayward (No) Subsection:6	629.5811
+
+Hayward (No) Subsection:6  connections:
+
+	Hayward (No) Subsection:5	0.0
+
+Hayward (So) Subsection:1  connections:
+
+	Hayward (So) Subsection:2	293.03348
+
+Hayward (So) Subsection:2  connections:
+
+	Hayward (So) Subsection:1	0.0
+	Hayward (So) Subsection:3	645.13214
+
+Hayward (So) Subsection:3  connections:
+
+	Hayward (So) Subsection:2	0.0
+	Hayward (So) Subsection:4	151.46758
+
+Hayward (So) Subsection:4  connections:
+
+	Hayward (So) Subsection:3	0.0
+	Hayward (So) Subsection:5	740.5432
+
+Hayward (So) Subsection:5  connections:
+
+	Hayward (So) Subsection:4	0.0
+	Hayward (So) Subsection:6	259.5073
+
+Hayward (So) Subsection:6  connections:
+
+	Hayward (So) Subsection:5	0.0
+	Hayward (So) Subsection:7	827.1741
+
+Hayward (So) Subsection:7  connections:
+
+	Hayward (So) Subsection:6	0.0
+	Hayward (So) Subsection:8	610.24005
+
+Hayward (So) Subsection:8  connections:
+
+	Hayward (So) Subsection:7	0.0
+	Hayward (So) Subsection:9	396.5994
+
+Hayward (So) Subsection:9  connections:
+
+	Hayward (So) Subsection:8	0.0
+
+Calaveras (No) Subsection:1  connections:
+
+	Calaveras (No) Subsection:2	486.04974
+
+Calaveras (No) Subsection:2  connections:
+
+	Calaveras (No) Subsection:1	0.0
+	Calaveras (No) Subsection:3	621.5377
+
+Calaveras (No) Subsection:3  connections:
+
+	Calaveras (No) Subsection:2	0.0
+	Calaveras (No) Subsection:4	93.47353
+	San Gregorio (So) Subsection:9	0.0
+
+Calaveras (No) Subsection:4  connections:
+
+	Calaveras (No) Subsection:3	0.0
+	Calaveras (No) Subsection:5	113.77175
+
+Calaveras (No) Subsection:5  connections:
+
+	Calaveras (No) Subsection:4	0.0
+	Calaveras (No) Subsection:6	495.67932
+
+Calaveras (No) Subsection:6  connections:
+
+	Calaveras (No) Subsection:5	0.0
+	Calaveras (No) Subsection:7	873.4025
+
+Calaveras (No) Subsection:7  connections:
+
+	Calaveras (No) Subsection:6	0.0
+
+Calaveras (Central) Subsection:1  connections:
+
+	Calaveras (Central) Subsection:2	616.49384
+
+Calaveras (Central) Subsection:2  connections:
+
+	Calaveras (Central) Subsection:1	0.0
+	Calaveras (Central) Subsection:3	357.4897
+
+Calaveras (Central) Subsection:3  connections:
+
+	Calaveras (Central) Subsection:2	0.0
+	Calaveras (Central) Subsection:4	152.17181
+
+Calaveras (Central) Subsection:4  connections:
+
+	Calaveras (Central) Subsection:3	0.0
+	Calaveras (Central) Subsection:5	669.92285
+
+Calaveras (Central) Subsection:5  connections:
+
+	Calaveras (Central) Subsection:4	0.0
+	Calaveras (Central) Subsection:6	536.8612
+
+Calaveras (Central) Subsection:6  connections:
+
+	Calaveras (Central) Subsection:5	0.0
+	Calaveras (Central) Subsection:7	713.00323
+
+Calaveras (Central) Subsection:7  connections:
+
+	Calaveras (Central) Subsection:6	0.0
+	Calaveras (Central) Subsection:8	539.20636
+
+Calaveras (Central) Subsection:8  connections:
+
+	Calaveras (Central) Subsection:7	0.0
+	Calaveras (Central) Subsection:9	231.79366
+
+Calaveras (Central) Subsection:9  connections:
+
+	Calaveras (Central) Subsection:8	0.0
+	Calaveras (Central) Subsection:10	214.24356
+
+Calaveras (Central) Subsection:10  connections:
+
+	Calaveras (Central) Subsection:9	0.0
+	Calaveras (Central) Subsection:11	619.2267
+
+Calaveras (Central) Subsection:11  connections:
+
+	Calaveras (Central) Subsection:10	0.0
+
+Calaveras (So) Subsection:1  connections:
+
+	Calaveras (So) Subsection:2	280.14767
+
+Calaveras (So) Subsection:2  connections:
+
+	Calaveras (So) Subsection:1	0.0
+	Calaveras (So) Subsection:3	456.81857
+
+Calaveras (So) Subsection:3  connections:
+
+	Calaveras (So) Subsection:2	0.0
+	Calaveras (So) Subsection:4	470.15408
+
+Calaveras (So) Subsection:4  connections:
+
+	Calaveras (So) Subsection:3	0.0
+
+Green Valley (No) Subsection:1  connections:
+
+	Green Valley (No) Subsection:2	126.80843
+
+Green Valley (No) Subsection:2  connections:
+
+	Green Valley (No) Subsection:1	0.0
+	Green Valley (No) Subsection:3	787.67535
+
+Green Valley (No) Subsection:3  connections:
+
+	Green Valley (No) Subsection:2	0.0
+
+Green Valley (So) Subsection:1  connections:
+
+	Green Valley (So) Subsection:2	739.5103
+
+Green Valley (So) Subsection:2  connections:
+
+	Green Valley (So) Subsection:1	0.0
+	Green Valley (So) Subsection:3	601.5449
+	San Andreas (Peninsula) Subsection:8	0.0
+	Rodgers Creek Subsection:10	0.0
+
+Green Valley (So) Subsection:3  connections:
+
+	Green Valley (So) Subsection:2	0.0
+	Green Valley (So) Subsection:4	764.6153
+
+Green Valley (So) Subsection:4  connections:
+
+	Green Valley (So) Subsection:3	0.0
+
+Concord Subsection:1  connections:
+
+	Concord Subsection:2	555.47394
+	San Gregorio (So) Subsection:6	0.0
+
+Concord Subsection:2  connections:
+
+	Concord Subsection:1	0.0
+	Concord Subsection:3	138.53134
+	San Andreas (North Coast) Subsection:34	0.0
+
+Concord Subsection:3  connections:
+
+	Concord Subsection:2	0.0
+
+San Gregorio (No) Subsection:1  connections:
+
+	San Gregorio (No) Subsection:2	625.7404
+
+San Gregorio (No) Subsection:2  connections:
+
+	San Gregorio (No) Subsection:1	0.0
+	San Gregorio (No) Subsection:3	851.6435
+
+San Gregorio (No) Subsection:3  connections:
+
+	San Gregorio (No) Subsection:2	0.0
+	San Gregorio (No) Subsection:4	625.13995
+
+San Gregorio (No) Subsection:4  connections:
+
+	San Gregorio (No) Subsection:3	0.0
+	San Gregorio (No) Subsection:5	860.81146
+
+San Gregorio (No) Subsection:5  connections:
+
+	San Gregorio (No) Subsection:4	0.0
+	San Gregorio (No) Subsection:6	804.29364
+	San Andreas (North Coast) Subsection:29	0.0
+
+San Gregorio (No) Subsection:6  connections:
+
+	San Gregorio (No) Subsection:5	0.0
+	San Gregorio (No) Subsection:7	588.5599
+
+San Gregorio (No) Subsection:7  connections:
+
+	San Gregorio (No) Subsection:6	0.0
+	San Gregorio (No) Subsection:8	32.47849
+
+San Gregorio (No) Subsection:8  connections:
+
+	San Gregorio (No) Subsection:7	0.0
+	San Gregorio (No) Subsection:9	85.11062
+
+San Gregorio (No) Subsection:9  connections:
+
+	San Gregorio (No) Subsection:8	0.0
+	San Gregorio (No) Subsection:10	306.24402
+
+San Gregorio (No) Subsection:10  connections:
+
+	San Gregorio (No) Subsection:9	0.0
+	San Gregorio (No) Subsection:11	193.9727
+
+San Gregorio (No) Subsection:11  connections:
+
+	San Gregorio (No) Subsection:10	0.0
+	San Gregorio (No) Subsection:12	637.43945
+
+San Gregorio (No) Subsection:12  connections:
+
+	San Gregorio (No) Subsection:11	0.0
+	San Gregorio (No) Subsection:13	459.48965
+
+San Gregorio (No) Subsection:13  connections:
+
+	San Gregorio (No) Subsection:12	0.0
+	San Gregorio (No) Subsection:14	356.48987
+
+San Gregorio (No) Subsection:14  connections:
+
+	San Gregorio (No) Subsection:13	0.0
+	San Gregorio (No) Subsection:15	957.14105
+
+San Gregorio (No) Subsection:15  connections:
+
+	San Gregorio (No) Subsection:14	0.0
+	San Gregorio (No) Subsection:16	774.5724
+
+San Gregorio (No) Subsection:16  connections:
+
+	San Gregorio (No) Subsection:15	0.0
+	San Gregorio (No) Subsection:17	648.38544
+
+San Gregorio (No) Subsection:17  connections:
+
+	San Gregorio (No) Subsection:16	0.0
+	San Gregorio (No) Subsection:18	578.1807
+
+San Gregorio (No) Subsection:18  connections:
+
+	San Gregorio (No) Subsection:17	0.0
+	San Gregorio (No) Subsection:19	43.029957
+
+San Gregorio (No) Subsection:19  connections:
+
+	San Gregorio (No) Subsection:18	0.0
+
+San Gregorio (So) Subsection:1  connections:
+
+	San Gregorio (So) Subsection:2	184.56006
+	San Andreas (North Coast) Subsection:5	0.0
+
+San Gregorio (So) Subsection:2  connections:
+
+	San Gregorio (So) Subsection:1	0.0
+	San Gregorio (So) Subsection:3	582.7601
+
+San Gregorio (So) Subsection:3  connections:
+
+	San Gregorio (So) Subsection:2	0.0
+	San Gregorio (So) Subsection:4	198.14384
+
+San Gregorio (So) Subsection:4  connections:
+
+	San Gregorio (So) Subsection:3	0.0
+	San Gregorio (So) Subsection:5	292.99365
+
+San Gregorio (So) Subsection:5  connections:
+
+	San Gregorio (So) Subsection:4	0.0
+	San Gregorio (So) Subsection:6	798.4857
+
+San Gregorio (So) Subsection:6  connections:
+
+	San Gregorio (So) Subsection:5	0.0
+	San Gregorio (So) Subsection:7	737.0222
+	Concord Subsection:1	0.0
+
+San Gregorio (So) Subsection:7  connections:
+
+	San Gregorio (So) Subsection:6	0.0
+	San Gregorio (So) Subsection:8	269.29214
+
+San Gregorio (So) Subsection:8  connections:
+
+	San Gregorio (So) Subsection:7	0.0
+	San Gregorio (So) Subsection:9	447.3339
+
+San Gregorio (So) Subsection:9  connections:
+
+	San Gregorio (So) Subsection:8	0.0
+	San Gregorio (So) Subsection:10	716.04614
+	Calaveras (No) Subsection:3	0.0
+
+San Gregorio (So) Subsection:10  connections:
+
+	San Gregorio (So) Subsection:9	0.0
+	San Gregorio (So) Subsection:11	587.6073
+
+San Gregorio (So) Subsection:11  connections:
+
+	San Gregorio (So) Subsection:10	0.0
+	San Gregorio (So) Subsection:12	810.21576
+
+San Gregorio (So) Subsection:12  connections:
+
+	San Gregorio (So) Subsection:11	0.0
+
+Greenville (No) Subsection:1  connections:
+
+	Greenville (No) Subsection:2	126.62184
+
+Greenville (No) Subsection:2  connections:
+
+	Greenville (No) Subsection:1	0.0
+	Greenville (No) Subsection:3	680.02686
+
+Greenville (No) Subsection:3  connections:
+
+	Greenville (No) Subsection:2	0.0
+	Greenville (No) Subsection:4	592.3297
+
+Greenville (No) Subsection:4  connections:
+
+	Greenville (No) Subsection:3	0.0
+	San Andreas (Offshore) Subsection:14	0.0
+
+Greenville (So) Subsection:1  connections:
+
+	Greenville (So) Subsection:2	326.46988
+
+Greenville (So) Subsection:2  connections:
+
+	Greenville (So) Subsection:1	0.0
+	Greenville (So) Subsection:3	364.1807
+	San Andreas (North Coast) Subsection:23	0.0
+
+Greenville (So) Subsection:3  connections:
+
+	Greenville (So) Subsection:2	0.0
+	Greenville (So) Subsection:4	397.41046
+	San Andreas (Offshore) Subsection:14	0.0
+
+Greenville (So) Subsection:4  connections:
+
+	Greenville (So) Subsection:3	0.0
+
+Mount Diablo Thrust Subsection:1  connections:
+
+	Mount Diablo Thrust Subsection:2	449.94693
+	San Andreas (Offshore) Subsection:14	0.0
+
+Mount Diablo Thrust Subsection:2  connections:
+
+	Mount Diablo Thrust Subsection:1	0.0
+	Mount Diablo Thrust Subsection:3	310.1411
+
+Mount Diablo Thrust Subsection:3  connections:
+
+	Mount Diablo Thrust Subsection:2	0.0
+	Mount Diablo Thrust Subsection:4	109.333015
+
+Mount Diablo Thrust Subsection:4  connections:
+
+	Mount Diablo Thrust Subsection:3	0.0

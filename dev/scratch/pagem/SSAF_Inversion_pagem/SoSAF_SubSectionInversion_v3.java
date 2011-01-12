@@ -72,7 +72,7 @@ public class SoSAF_SubSectionInversion_v3 {
 	// slip of the average mag
 	private double gaussMFD_slipCorr;
 
-	private int maxSubsectionLength;
+	private double maxSubsectionLength;
 	private int numSegForSmallestRups; // this sets the number of segments for
 										// the smallest ruptures (either 1 or 2
 										// for now).. e.g., if subsections are
@@ -237,20 +237,17 @@ public class SoSAF_SubSectionInversion_v3 {
 				/**/
 				fw.write("/sw/bin/xyz2grd " + PATH + "segPartMFDsData.txt -G"
 						+ PATH + "temp.grd -I1.0/0.1 " + region + " -H1\n");
-				fw
-						.write("/sw/bin/gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p HEADER_FONT_SIZE 22p\n");
+				fw.write("/sw/bin/gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p HEADER_FONT_SIZE 22p\n");
 				fw.write("/sw/bin/grdimage " + PATH
 						+ "temp.grd -X1.0i  -Y3i  -JX6i/3i  -C" + ROOT_PATH
 						+ "final.cpt  -P -T  -E72 -K " + region + "  > " + PATH
 						+ "plotSectMFDs.ps\n");
-				fw
-						.write("/sw/bin/psscale -Ba1.0:log10_Rate: -D3i/-1i/6i/0.3ih -C"
+				fw.write("/sw/bin/psscale -Ba1.0:log10_Rate: -D3i/-1i/6i/0.3ih -C"
 								+ ROOT_PATH
 								+ "final.cpt -O -K -N70 >> "
 								+ PATH
 								+ "plotSectMFDs.ps\n");
-				fw
-						.write("/sw/bin/psbasemap -B5.0:sub_section:/0.5:mag:eWnS:.Incremental_Participcation_MFD:  -JX6i/3i  "
+				fw.write("/sw/bin/psbasemap -B5.0:sub_section:/0.5:mag:eWnS:.Incremental_Participcation_MFD:  -JX6i/3i  "
 								+ region
 								+ " -K -O  >> "
 								+ PATH
@@ -263,8 +260,7 @@ public class SoSAF_SubSectionInversion_v3 {
 						+ "temp.grd -Y4i  -JX6i/3i  -C" + ROOT_PATH
 						+ "final.cpt  -P -T  -E72 -K -O " + region + "  >> "
 						+ PATH + "plotSectMFDs.ps\n");
-				fw
-						.write("/sw/bin/psbasemap -B5.0/0.5:mag:eWNs:.Cumulative_Participcation_MFD:  -JX6i/3i  "
+				fw.write("/sw/bin/psbasemap -B5.0/0.5:mag:eWNs:.Cumulative_Participcation_MFD:  -JX6i/3i  "
 								+ region
 								+ "  -O  >> "
 								+ PATH
@@ -345,20 +341,17 @@ public class SoSAF_SubSectionInversion_v3 {
 				/**/
 				fw.write("/sw/bin/xyz2grd " + PATH + "rupSlipRateData.txt -G"
 						+ PATH + "temp.grd -I1.0/1.0 " + region + " -H1\n");
-				fw
-						.write("/sw/bin/gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p HEADER_FONT_SIZE 22p\n");
+				fw.write("/sw/bin/gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p HEADER_FONT_SIZE 22p\n");
 				fw.write("/sw/bin/grdimage " + PATH
 						+ "temp.grd -X1.25i  -Y3i  -JX6i/7i  -C" + ROOT_PATH
 						+ "final.cpt  -P -T -K " + region + "  > " + PATH
 						+ "plotForRupSlipRates.ps\n");
-				fw
-						.write("/sw/bin/psscale -Ba1.0:log10_Rate: -D3i/-1i/6i/0.3ih -C"
+				fw.write("/sw/bin/psscale -Ba1.0:log10_Rate: -D3i/-1i/6i/0.3ih -C"
 								+ ROOT_PATH
 								+ "final.cpt -O -K -N70 >> "
 								+ PATH
 								+ "plotForRupSlipRates.ps\n");
-				fw
-						.write("/sw/bin/psbasemap -B5.0:sub_section:/5:rupture:eWnS:.Rupture_Slip_Rates:  -JX6i/7i  "
+				fw.write("/sw/bin/psbasemap -B5.0:sub_section:/5:rupture:eWnS:.Rupture_Slip_Rates:  -JX6i/7i  "
 								+ region
 								+ " -O  >> "
 								+ PATH
@@ -370,14 +363,12 @@ public class SoSAF_SubSectionInversion_v3 {
 						+ "temp.grd -X1.25i  -Y3i  -JX6i/7i  -C" + ROOT_PATH
 						+ "final.cpt  -P -T -K " + region + "  > " + PATH
 						+ "plotForRupRates.ps\n");
-				fw
-						.write("/sw/bin/psscale -Ba1.0:log10_Rate: -D3i/-1i/6i/0.3ih -C"
+				fw.write("/sw/bin/psscale -Ba1.0:log10_Rate: -D3i/-1i/6i/0.3ih -C"
 								+ ROOT_PATH
 								+ "final.cpt -O -K -N70 >> "
 								+ PATH
 								+ "plotForRupRates.ps\n");
-				fw
-						.write("/sw/bin/psbasemap -B5.0:sub_section:/5:rupture:eWnS:.Rupture_Rates:  -JX6i/7i  "
+				fw.write("/sw/bin/psbasemap -B5.0:sub_section:/5:rupture:eWnS:.Rupture_Rates:  -JX6i/7i  "
 								+ region
 								+ " -O  >> "
 								+ PATH
@@ -439,7 +430,7 @@ public class SoSAF_SubSectionInversion_v3 {
 	 *            if > 1, this boxcar-smoothes slip rates over the number given
 	 *            (use odd number)
 	 */
-	public void doInversion(int maxSubsectionLength, int numSegForSmallestRups,
+	public void doInversion(double maxSubsectionLength, int numSegForSmallestRups,
 			String deformationModel, String slipModelType,
 			MagAreaRelationship magAreaRel, double relativeSegRateWt,
 			double relative_aPrioriRupWt, double relative_smoothnessWt, double relativeSlipRateSmoothnessWt,
@@ -919,8 +910,8 @@ public class SoSAF_SubSectionInversion_v3 {
 		 */
 
 		// SOLVE THE INVERSE PROBLEM
-		// rupRateSolution = getNNLS_solution(C_wted, d_wted);
-		rupRateSolution = getSimulatedAnnealing_solution(C_wted, d_wted);
+		rupRateSolution = getNNLS_solution(C_wted, d_wted);
+		// rupRateSolution = getSimulatedAnnealing_solution(C_wted, d_wted);
 		
 		//System.out.print("\n");
 		//System.out.print("rupRateSolution:\n");
@@ -1756,7 +1747,7 @@ public class SoSAF_SubSectionInversion_v3 {
 		Ebest = E;
 		System.out.println("Starting energy = " + Ebest);
 		
-		numiter = 100000;
+		numiter = 50000;
 		for (iter = 1; iter <= numiter; iter++) {
 			
 			
@@ -2550,16 +2541,16 @@ public class SoSAF_SubSectionInversion_v3 {
 		long runTime = System.currentTimeMillis();
 		// System.out.println("Starting Inversion");
 
-		int maxSubsectionLength = 7;
-		int numSegForSmallestRups = 2;
+		double maxSubsectionLength = 7;  // 7
+		int numSegForSmallestRups = 2;  // 2
 		String deformationModel = "D2.1";
 		String slipModelType = TAPERED_SLIP_MODEL;
 		MagAreaRelationship magAreaRel = new HanksBakun2002_MagAreaRel();
 		// MagAreaRelationship magAreaRel = new Ellsworth_B_WG02_MagAreaRel();
-		double relativeSegRateWt = 1;
-		double relative_aPrioriRupWt = 1;
+		double relativeSegRateWt = 1;  // 1
+		double relative_aPrioriRupWt = 1;  // 1
 		double relative_smoothnessWt = 0; // 10 (Ned) or 10000(MP)
-		double relativeSlipRateSmoothnessWt = 1000; // 1000
+		double relativeSlipRateSmoothnessWt = 0; // 1000
 		boolean wtedInversion = true;
 		double minRupRate = 0;
 		boolean applyProbVisible = true;
@@ -2573,7 +2564,7 @@ public class SoSAF_SubSectionInversion_v3 {
 		// double grConstraintRateScaleFactor = 0.83; // for case where b=0
 		double grConstraintBvalue = 1;
 		double grConstraintRateScaleFactor = 0.89; // for case where b=1
-		double relative_aPrioriSegRateWt = 0;
+		double relative_aPrioriSegRateWt = 1;
 
 		soSAF_SubSections.doInversion(maxSubsectionLength,
 				numSegForSmallestRups, deformationModel, slipModelType,
