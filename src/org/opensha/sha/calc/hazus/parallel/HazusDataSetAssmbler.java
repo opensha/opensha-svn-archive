@@ -136,8 +136,17 @@ public class HazusDataSetAssmbler {
 		fw.close();
 	}
 	
+	/**
+	 * prob = 1−(e^−(years/returnPeriod))
+	 * 
+	 * @param curve
+	 * @param returnPeriod
+	 * @param years
+	 * @return
+	 */
 	private static double getValFromCurve(ArbitrarilyDiscretizedFunc curve, double returnPeriod, int years) {
-		double probVal = ((double)years) / returnPeriod;
+//		double probVal = ((double)years) / returnPeriod;
+		double probVal = 1-Math.exp(-(double)years/returnPeriod);
 		try {
 			return curve.getFirstInterpolatedX_inLogXLogYDomain(probVal);
 		} catch (Exception e) {
