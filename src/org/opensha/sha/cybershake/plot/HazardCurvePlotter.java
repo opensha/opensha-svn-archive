@@ -305,7 +305,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		}
 		
 		if (siteName == null) {
-			siteName = site2db.getSiteFromDB(run.getSiteID()).name;
+			siteName = site2db.getSiteFromDB(run.getSiteID()).short_name;
 		}
 		
 		System.out.println("Plotting curve(s) for site " + siteName + "=" + run.getSiteID() + ", RunID=" + runID);
