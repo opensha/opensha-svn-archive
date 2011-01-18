@@ -21,12 +21,9 @@ package org.opensha.commons.util;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
-import org.opensha.commons.data.xyz.XYZ_DataSet;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 
@@ -98,6 +95,27 @@ public class XYZClosestPointFinder {
 			return closeVal;
 		else
 			return Double.NaN;
+	}
+	
+	public Location getClosestLoc(Location pt1, double tolerance) {
+		double closest = Double.MAX_VALUE;
+		Location closestLoc = null;
+		
+		for (int i=0; i<dataset.size(); i++) {
+			Location pt2 = dataset.getLocation(i);
+//			double val = dataset.get(i);
+//			double dist = Math.pow(val[0] - lat, 2) + Math.pow(val[1] - lon, 2);
+			double dist = LocationUtils.horzDistanceFast(pt1, pt2);
+			if (dist < closest) {
+				closest = dist;
+				closestLoc = pt2;
+			}
+		}
+		
+		if (closest < tolerance)
+			return closestLoc;
+		else
+			return null;
 	}
 	
 	/**

@@ -2,17 +2,9 @@ package org.opensha.commons.param.editor;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-import javax.swing.BoxLayout;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.JTextField;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.WeightedList;
