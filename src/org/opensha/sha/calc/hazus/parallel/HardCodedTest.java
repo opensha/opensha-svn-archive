@@ -167,7 +167,7 @@ public class HardCodedTest {
 		String spacingFile = "/home/scec-00/kmilner/hazMaps/"+spacingCode+"grid.csv";
 		LocationList locs = loadCSV(new File(spacingFile));
 		
-		ArrayList<SiteDataAPI<?>> provs;
+		ArrayList<SiteDataAPI<?>> provs = null;
 		if (hardcodedVal == null) {
 			provs = new ArrayList<SiteDataAPI<?>>();
 			SiteDataTypeParameterNameMap siteDataMap = SiteTranslator.DATA_TYPE_PARAM_NAME_MAP;
