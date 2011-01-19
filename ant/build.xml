@@ -148,15 +148,26 @@
 		</java>
 	</target>
 	
-	<!-- This copies the jar from the build dist dir to the web dir -->
-	<target name="copy.server.jar" if="server.apps.dir">
-		<!-- copy all of the JNLP's and icons -->
+	<target name="copy.jnlps" if="project.jnlp.dir">
 		<copy todir="${server.apps.dir}/${app.short.name}/${app.build.type}">
 			<fileset dir="${project.jnlp.dir}/${app.build.type}">
 				<include name="${app.short.name}.jnlp"/>
 				<include name="icons/${app.short.name}*"/>
 			</fileset>
 		</copy>
+	</target>
+	
+	<!-- This copies the jar from the build dist dir to the web dir
+		VARIABLES:
+		* server.apps.dir - path where jars are stored
+		* app.short.name - short name of the app
+		* app.build.type - build type, either "nightly" or "dist"
+		* project.jnlp.dir - if present, dir that JNLPs reside in
+		* app.jar - path to app jar file
+		-->
+	<target name="copy.server.jar" if="server.apps.dir">
+		<!-- copy all of the JNLP's and icons -->
+		<antcall target="copy.jnlps"/>
 		<!-- copy the jar file -->
 		<copy file="${app.jar}"
 			todir="${server.apps.dir}/${app.short.name}/${app.build.type}/"/>

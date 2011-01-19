@@ -19,6 +19,8 @@
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
 <project basedir="." default="jar.full.dist" name="Compile">
+	
+	<import file="include/utils.xml"/>
 
 	<property name="build" value="../build" />
 	<property name="tmpdest" value="${build}" />
@@ -27,21 +29,84 @@
 	<property name="dev" value="../dev/" />
 	<property name="lib.dir" value="../lib" />
 	
+	<target name="build.nightly">
+		<property name="server.apps.dir" value="/var/www/html/dev" />
+		<property name="app.build.type" value="nightly" />
+		<property name="sign.jars" value="true" />
+		<antcall target="build.all"/>
+	</target>
+	
+	<target name="build.dist">
+		<property name="server.apps.dir" value="/var/www/html/dev" />
+		<property name="app.build.type" value="dist" />
+		<property name="sign.jars" value="true" />
+		<antcall target="build.all"/>
+	</target>
+	
+	<target name="build.all">
+		<antcall target="jar.lite"/>
+		<antcall target="jar.commons"/>
+		<antcall target="jar.full.dist"/>
+	</target>
+	
 	<target name="pre.jar" depends="">
 		<ant antfile="build.xml" target="pre.jar"/>
+		<if>
+			<equals arg1="${app.build.type}" arg2="dist"/>
+			<then>
+				<runtarget target="set.app.version.only" />
+			</then>
+			<else>
+				<runtarget target="set.app.version" />
+			</else>
+		</if>
+	</target>
+	
+	<target name="copy.sign.clean">
+		<delete dir="${tmpdest}" failonerror="yes" verbose="no" />
+		<ant antfile="build.xml" target="sign.jar"/>
+		<ant antfile="build.xml" target="copy.server.jar"/>
 	</target>
 
-	<target name="jar.classes.only" depends="pre.jar">
-		<jar destfile="${dist}/OpenSHA_classes_only.jar" basedir="${build}" />
-		<delete dir="${tmpdest}" failonerror="yes" verbose="no" />
+	<target name="jar.lite" depends="pre.jar">
+		<property name="app.short.name" value="opensha-lite" />
+		<property name="app.jar.name" value="${app.short.name}-${app.version}.jar" />
+		<property name="app.jar" value="${dist}/${app.jar.name}" />
+		
+		<jar destfile="${app.jar}" basedir="${build}" />
+		
+		<antcall target="copy.sign.clean"/>
+	</target>
+	
+	<target name="jar.commons" depends="pre.jar">
+		<property name="app.short.name" value="opensha-commons" />
+		<property name="app.jar.name" value="${app.short.name}-${app.version}.jar" />
+		<property name="app.jar" value="${dist}/${app.jar.name}" />
+		
+		<jar destfile="${app.jar}" basedir="${build}"
+			includes="org/opensha/commons/**/*.class" />
+		
+		<antcall target="copy.sign.clean"/>
 	</target>
 	
 	<target name="jar.full.dist" depends="pre.jar">
+		<property name="app.short.name" value="opensha-complete" />
+		<property name="app.jar.name" value="${app.short.name}-${app.version}.jar" />
+		<property name="app.jar" value="${dist}/${app.jar.name}" />
+		
 		<ant antfile="build.xml" target="unjar.libs.common"/>
 		<ant antfile="build.xml" target="resource.all"/>
 		<delete dir="${tmpdest}/META-INF" failonerror="yes" verbose="no" />
-		<jar destfile="${dist}/OpenSHA_complete.jar" basedir="${build}" />
-		<!-- <delete dir="${tmpdest}" failonerror="yes" verbose="no" /> -->
+		<jar destfile="${app.jar}" basedir="${build}" />
+		
+		<if>
+			<equals arg1="${app.build.type}" arg2=""/>
+			<then>
+				<move file="{app.jar}" tofile="OpenSHA_complete.jar"/>
+			</then>
+		</if>
+		
+		<antcall target="copy.sign.clean"/>
 	</target>
 	
 </project>

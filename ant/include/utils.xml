@@ -58,6 +58,10 @@
 	<property name="prop.file.comment" value="OpensHA version file. Do NOT edit!" />
 	<property file="${prop.file.name}" />
 	<!--<var name="app.version" value="test" />-->
+	<target name="set.app.version.only">
+		<var name="app.version"
+			value="${major.version}.${minor.version}.${build.number}"/>
+	</target>
 	<target name="set.app.version">
 		<svn>
 			<wcVersion path=".." prefix="svn." />

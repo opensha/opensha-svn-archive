@@ -41,6 +41,7 @@
 	<target name="svn.update.app.build" depends="svn.update.build">
 		<ant antfile="MultiAppBuilder.xml" target="build.nightly"/>
 		<antcall target="restart.tomcat"/>
+		<ant antfile="CompleteJar.xml" target="build.nightly"/>
 	</target>
 	
 	<target name="svn.build.run.daily.coverage" depends="svn.update.build">
