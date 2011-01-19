@@ -34,6 +34,7 @@ import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.NGA_2008_Averaged_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.NGA_2008_Averaged_AttenRel_NoAS;
 import org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
@@ -98,7 +99,8 @@ public class HardCodedTest {
 	}
 	
 	private static ScalarIntensityMeasureRelationshipAPI getNGA_2008IMR() {
-		ScalarIntensityMeasureRelationshipAPI imr = new NGA_2008_Averaged_AttenRel(null);
+//		ScalarIntensityMeasureRelationshipAPI imr = new NGA_2008_Averaged_AttenRel(null);
+		ScalarIntensityMeasureRelationshipAPI imr = new NGA_2008_Averaged_AttenRel_NoAS(null);
 		imr.setParamDefaults();
 		return imr;
 	}
@@ -142,6 +144,9 @@ public class HardCodedTest {
 		boolean includeBackSeis = true;
 		EqkRupForecast erf = getERF(years, startYear, includeBackSeis);
 		
+		SiteDataValue<?> hardcodedVal =
+			new SiteDataValue<String>(SiteDataAPI.TYPE_WILLS_CLASS, SiteDataAPI.TYPE_FLAG_INFERRED, "B");
+		
 		double sigmaTrunc = 0;
 		ScalarIntensityMeasureRelationshipAPI imr = getIMR(sigmaTrunc);
 		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap =
@@ -162,14 +167,17 @@ public class HardCodedTest {
 		String spacingFile = "/home/scec-00/kmilner/hazMaps/"+spacingCode+"grid.csv";
 		LocationList locs = loadCSV(new File(spacingFile));
 		
-		ArrayList<SiteDataAPI<?>> provs = new ArrayList<SiteDataAPI<?>>();
-		SiteDataTypeParameterNameMap siteDataMap = SiteTranslator.DATA_TYPE_PARAM_NAME_MAP;
-		if (siteDataMap.isTypeApplicable(SiteDataAPI.TYPE_VS30, imr))
-			provs.add(new WillsMap2006());
-		if (siteDataMap.isTypeApplicable(SiteDataAPI.TYPE_DEPTH_TO_2_5, imr))
-			provs.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5));
-		if (siteDataMap.isTypeApplicable(SiteDataAPI.TYPE_DEPTH_TO_1_0, imr))
-			provs.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0));
+		ArrayList<SiteDataAPI<?>> provs;
+		if (hardcodedVal == null) {
+			provs = new ArrayList<SiteDataAPI<?>>();
+			SiteDataTypeParameterNameMap siteDataMap = SiteTranslator.DATA_TYPE_PARAM_NAME_MAP;
+			if (siteDataMap.isTypeApplicable(SiteDataAPI.TYPE_VS30, imr))
+				provs.add(new WillsMap2006());
+			if (siteDataMap.isTypeApplicable(SiteDataAPI.TYPE_DEPTH_TO_2_5, imr))
+				provs.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5));
+			if (siteDataMap.isTypeApplicable(SiteDataAPI.TYPE_DEPTH_TO_1_0, imr))
+				provs.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0));
+		}
 		
 		if (constrainBasinMin) {
 			// constrain basin depth to default minimums
@@ -202,21 +210,28 @@ public class HardCodedTest {
 		}
 		
 		ArrayList<SiteDataValue<?>>[] siteData = new ArrayList[locs.size()];
-		for (SiteDataAPI<?> prov : provs) {
-			SiteDataValueList<?> vals = prov.getAnnotatedValues(locs);
+		if (hardcodedVal == null) {
+			for (SiteDataAPI<?> prov : provs) {
+				SiteDataValueList<?> vals = prov.getAnnotatedValues(locs);
+				for (int i=0; i<siteData.length; i++) {
+					if (siteData[i] == null)
+						siteData[i] = new ArrayList<SiteDataValue<?>>();
+					SiteDataValue<?> val = vals.getValue(i);
+//					if ((val.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_2_5)
+//							&& (Double)val.getValue() > DepthTo2pt5kmPerSecParam.MAX)
+//							|| (val.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_1_0)
+//							&& (Double)val.getValue() > DepthTo1pt0kmPerSecParam.MAX)) {
+//						System.out.println("Got a super high: " + val);
+//						val = new SiteDataValue<Double>(val.getDataType(),
+//								val.getDataMeasurementType(), Double.NaN);
+//					}
+					siteData[i].add(val);
+				}
+			}
+		} else {
 			for (int i=0; i<siteData.length; i++) {
-				if (siteData[i] == null)
-					siteData[i] = new ArrayList<SiteDataValue<?>>();
-				SiteDataValue<?> val = vals.getValue(i);
-//				if ((val.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_2_5)
-//						&& (Double)val.getValue() > DepthTo2pt5kmPerSecParam.MAX)
-//						|| (val.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_1_0)
-//						&& (Double)val.getValue() > DepthTo1pt0kmPerSecParam.MAX)) {
-//					System.out.println("Got a super high: " + val);
-//					val = new SiteDataValue<Double>(val.getDataType(),
-//							val.getDataMeasurementType(), Double.NaN);
-//				}
-				siteData[i].add(val);
+				siteData[i] = new ArrayList<SiteDataValue<?>>();
+				siteData[i].add(hardcodedVal);
 			}
 		}
 		
