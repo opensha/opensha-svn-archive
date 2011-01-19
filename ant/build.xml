@@ -325,8 +325,8 @@
 	
 	<target name="resource.app.icons" if="app.short.name">
 		<copy todir="${build}/resources/images/icons" overwrite="true">
-			<fileset dir="${project.jnlp.dir}/${app.build.type}/icons">
-				<include name="${app.short.name}*.png" />
+			<fileset dir=".">
+				<include name="${project.jnlp.dir}/${app.build.type}/icons/${app.short.name}*.png" />
 			</fileset>
 		</copy>
 	</target>
