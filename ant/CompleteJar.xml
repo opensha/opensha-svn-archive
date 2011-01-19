@@ -102,7 +102,7 @@
 		<if>
 			<equals arg1="${app.build.type}" arg2="$${app.build.type}"/>
 			<then>
-				<move file="${app.jar}" tofile="OpenSHA_complete.jar"/>
+				<move file="${app.jar}" tofile="${dist}/OpenSHA_complete.jar"/>
 			</then>
 		</if>
 		
