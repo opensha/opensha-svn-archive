@@ -94,7 +94,7 @@ ParameterAPI<E>, java.io.Serializable
 	protected boolean editable = true;
 
 	/** The value object of this Parameter, subclasses will define the object type. */
-	protected E value = null;
+	protected E value;
 
 
 	/** The default value object of this Parameter, subclasses will define the object type. */
@@ -520,13 +520,16 @@ ParameterAPI<E>, java.io.Serializable
 		xml.addAttribute("type", getType());
 		xml.addAttribute("units", getUnits());
 		Object val = getValue();
-		if (val == null)
+		if (val == null) {
+			System.out.println("param '"+name+"' saving xml with null value!");
 			xml.addAttribute("value", "");
-		else {
+		} else {
 			if (val instanceof XMLSaveable) {
+				System.out.println("param '"+name+"' saving xml with XMLSaveable!");
 				Element valEl = xml.addElement(XML_COMPLEX_VAL_EL_NAME);
 				((XMLSaveable)val).toXMLMetadata(valEl);
 			} else {
+				System.out.println("param '"+name+"' saving xml with toString!");
 				xml.addAttribute("value", val.toString());
 			}
 		}

@@ -110,8 +110,16 @@ public class CSVSimMeshConvert {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		String dir = "/home/kevin/OpenSHA/hope_2011_01/final2_3";
-		String fName = "final2_3.csv";
+//		String dir = "/home/kevin/OpenSHA/hope_2011_01/final2_3";
+//		String dir = "/home/kevin/OpenSHA/hope_2011_01/g6d3";
+//		String dir = "/home/kevin/OpenSHA/hope_2011_01/g7d1_final";
+//		String dir = "/home/kevin/OpenSHA/hope_2011_01/v1d3_final";
+		String dir = "/home/kevin/OpenSHA/hope_2011_01/final2_4";
+//		String fName = "final2_3.csv";
+//		String fName = "g6d3.csv";
+//		String fName = "g7d1_final.csv";
+//		String fName = "v1d3_final.csv";
+		String fName = "final2_4.csv";
 		handleFile(dir, fName);
 	}
 

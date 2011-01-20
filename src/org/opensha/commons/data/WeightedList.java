@@ -1,9 +1,15 @@
 package org.opensha.commons.data;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
-public class WeightedList<E> {
+import org.dom4j.Element;
+import org.opensha.commons.metadata.XMLSaveable;
+
+public class WeightedList<E> implements XMLSaveable {
+	
+	public static final String XML_METADATA_NAME = "WeightedList";
 	
 	private ArrayList<E> objects;
 	private ArrayList<Double> weights;
@@ -196,6 +202,44 @@ public class WeightedList<E> {
 	
 	public boolean isForceNormalization() {
 		return forceNormalization;
+	}
+	
+	private static String getName(Object obj) {
+		if (obj instanceof NamedObjectAPI)
+			return ((NamedObjectAPI)obj).getName();
+		else
+			return obj.toString();
+	}
+
+	@Override
+	public Element toXMLMetadata(Element root) {
+		Element el = root.addElement(XML_METADATA_NAME);
+		
+		for (int i=0; i<size(); i++) {
+			Element valEl = el.addElement("Element");
+			valEl.addAttribute("index", i+"");
+			valEl.addAttribute("name", getName(objects.get(i)));
+			valEl.addAttribute("weight", getWeight(i)+"");
+		}
+		
+		return root;
+	}
+	
+	public void setWeightsFromXMLMetadata(Element el) {
+		ArrayList<Double> weights = new ArrayList<Double>();
+		for (int i=0; i<size(); i++) {
+			weights.add(null);
+		}
+		for (Element valEl : (List<Element>)el.elements()) {
+			int valI = Integer.parseInt(valEl.attributeValue("index"));
+			double weight = Double.parseDouble(valEl.attributeValue("weight"));
+			
+			weights.set(valI, weight);
+		}
+		for (Double weight : weights)
+			if (weight == null)
+				throw new IllegalArgumentException("Given XML element doesn't have a mapping for each element!");
+		setWeights(weights);
 	}
 
 }
