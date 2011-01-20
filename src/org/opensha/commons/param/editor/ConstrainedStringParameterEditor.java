@@ -146,6 +146,12 @@ public class ConstrainedStringParameterEditor
         int numConstriants = ((StringConstraint)constraint).size();
         if(numConstriants < 1)
             throw new ConstraintException(S + "There are no constraints present, unable to build editor selection list.");
+        
+        if (model.isNullAllowed())
+        	throw new ConstraintException("null cannot be allowed for a constrained string parameter editor");
+        
+        if (model.getValue() == null)
+        	throw new NullPointerException(S + "Input Parameter model's value cannot be null");
 
         if(D) System.out.println(S + "Ending");
     }
