@@ -944,9 +944,13 @@ ScalarIMRChangeListener {
 			cancelButton.setEnabled(false);
 			// disaggCalc = null;
 			calcThread = null;
-		} catch (Exception e) {
-			e.printStackTrace();
-			BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+		} catch (ThreadDeath t) {
+			// expected if you cancelled it
+//			System.out.println("Caught ThreadDeath");
+			setButtonsEnable(true);
+		} catch (Throwable t) {
+			t.printStackTrace();
+			BugReport bug = new BugReport(t, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
 			BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 			bugDialog.setVisible(true);
 			setButtonsEnable(true);
