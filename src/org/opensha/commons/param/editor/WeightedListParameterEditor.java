@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.ArrayList;
 
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 import org.opensha.commons.data.NamedObjectAPI;
@@ -12,7 +13,7 @@ import org.opensha.commons.gui.WeightedListGUI;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.WeightedListParameter;
 
-public class WeightedListParameterEditor extends ParameterEditor {
+public class WeightedListParameterEditor extends NewParameterEditor<WeightedList<? extends NamedObjectAPI>> {
 
 	/**
 	 * 
@@ -30,38 +31,8 @@ public class WeightedListParameterEditor extends ParameterEditor {
 	}
 	
 	@Override
-	public void setParameter(ParameterAPI model) {
-		if (!(model instanceof WeightedListParameter))
-			throw new IllegalArgumentException("parameter must be a WeightedListParameter");
-		super.setParameter(model);
-	}
-
-	@Override
-	protected void addWidget() {
-		WeightedList<? extends NamedObjectAPI> list = (WeightedList<? extends NamedObjectAPI>) model.getValue();
-		
-		if (gui == null) {
-			gui = new WeightedListGUI(list);
-			gui.setPreferredSize(new Dimension(400, 600));
-//			gui.setMinimumSize(new Dimension(100, 100));
-			widgetPanel.setLayout(new BorderLayout());
-		} else {
-			gui.setList(list);
-		}
-		
-		gui.invalidate();
-		widgetPanel.add(gui, BorderLayout.CENTER);
-	}
-
-	@Override
-	protected void removeWidget() {
-		widgetPanel.removeAll();
-	}
-
-	@Override
 	public void setEnabled(boolean isEnabled) {
 		gui.setEnabled(isEnabled);
-		super.setEnabled(isEnabled);
 	}
 	
 	private static class TestClass implements NamedObjectAPI {
@@ -102,6 +73,35 @@ public class WeightedListParameterEditor extends ParameterEditor {
 		frame.setContentPane(new WeightedListParameterEditor(param));
 //		frame.pack();
 		frame.setVisible(true);
+	}
+
+	@Override
+	public boolean isParameterSupported(
+			ParameterAPI<WeightedList<? extends NamedObjectAPI>> param) {
+		return true;
+	}
+
+	@Override
+	protected JComponent buildWidget() {
+		if (gui == null) {
+			gui = new WeightedListGUI(getList());
+		}
+//		gui.setPreferredSize(new Dimension(400, 600));
+		return gui;
+	}
+	
+	private WeightedList<? extends NamedObjectAPI> getList() {
+		ParameterAPI<WeightedList<? extends NamedObjectAPI>> param = getParameter();
+		if (param == null)
+			return null;
+		else
+			return param.getValue();
+	}
+
+	@Override
+	protected JComponent updateWidget() {
+		gui.setList(getList());
+		return gui;
 	}
 
 }

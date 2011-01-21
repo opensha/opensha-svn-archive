@@ -280,7 +280,7 @@ public class TranslatedWarningDoubleParameter
       * @param  value                    Description of the Parameter
       * @exception  ConstraintException  Description of the Exception
       */
-     public void unableToSetValue( Double value ) throws ConstraintException {
+     public void unableToSetValue( Object value ) throws ConstraintException {
        param.unableToSetValue(value);
      }
 

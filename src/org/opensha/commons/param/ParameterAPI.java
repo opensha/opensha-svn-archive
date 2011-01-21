@@ -166,7 +166,7 @@ public interface ParameterAPI<E> extends NamedObjectAPI, Comparable, XMLSaveable
 
 
      /** Needs to be called by subclasses when field change fails due to constraint problems. */
-     public void unableToSetValue( E value ) throws ConstraintException;
+     public void unableToSetValue( Object value ) throws ConstraintException;
 
 
 

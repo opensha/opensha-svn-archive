@@ -1,18 +1,19 @@
 package org.opensha.commons.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -20,14 +21,11 @@ import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.Document;
 
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.WeightedList;
 
-public class WeightedListGUI extends JPanel implements ChangeListener, DocumentListener, ItemListener {
+public class WeightedListGUI extends JPanel implements ChangeListener, ItemListener, KeyListener, FocusListener {
 	
 	/**
 	 * 
@@ -123,8 +121,10 @@ public class WeightedListGUI extends JPanel implements ChangeListener, DocumentL
 		for (JSlider slide : sliders)
 			slide.addChangeListener(this);
 		
-		for (JTextField field : textFields)
-			field.getDocument().addDocumentListener(this);
+		for (JTextField field : textFields) {
+			field.addKeyListener(this);
+			field.addFocusListener(this);
+		}
 		
 		editorsScroll.setPreferredSize(new Dimension(200, 200));
 		editorsScroll.setMinimumSize(new Dimension(200, 200));
@@ -207,29 +207,6 @@ public class WeightedListGUI extends JPanel implements ChangeListener, DocumentL
 			}
 		}
 	}
-	
-	private void textUpdated(Document doc) {
-		for (JTextField field : textFields) {
-			if (field.getDocument() == doc) {
-				// TODO
-			}
-		}
-	}
-	
-	@Override
-	public void insertUpdate(DocumentEvent e) {
-		textUpdated(e.getDocument());
-	}
-
-	@Override
-	public void removeUpdate(DocumentEvent e) {
-		textUpdated(e.getDocument());
-	}
-
-	@Override
-	public void changedUpdate(DocumentEvent e) {
-		textUpdated(e.getDocument());
-	}
 
 	@Override
 	public void setEnabled(boolean enabled) {
@@ -238,6 +215,49 @@ public class WeightedListGUI extends JPanel implements ChangeListener, DocumentL
 		for (JTextField field : textFields)
 			field.setEnabled(false);
 		super.setEnabled(enabled);
+	}
+
+	@Override
+	public void focusGained(FocusEvent e) {}
+
+	@Override
+	public void focusLost(FocusEvent e) {
+//		System.out.println("FocusLost");
+		textUpdated(e.getComponent());
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+//		System.out.println("KeyTyped");
+		if (e.getKeyChar() == '\n')
+			textUpdated(e.getComponent());
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {}
+
+	@Override
+	public void keyReleased(KeyEvent e) {}
+	
+	private void resetText(int i) {
+		textFields.get(i).setText(df.format(list.getWeight(i)));
+	}
+	
+	private void textUpdated(Component comp) {
+		for (int i=0; i<textFields.size(); i++) {
+			JTextField field = textFields.get(i);
+			if (field == comp) {
+				try {
+					double weight = Double.parseDouble(field.getText());
+					if (weight > 1)
+						resetText(i);
+					else
+						weightUpdated(i, weight);
+				} catch (NumberFormatException e) {
+					resetText(i);
+				}
+			}
+		}
 	}
 
 }

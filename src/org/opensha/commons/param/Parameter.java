@@ -249,7 +249,7 @@ ParameterAPI<E>, java.io.Serializable
 	 *  Needs to be called by subclasses when field change fails
 	 *  due to constraint problems.
 	 */
-	public void unableToSetValue( E value ) throws ConstraintException {
+	public void unableToSetValue( Object value ) throws ConstraintException {
 
 		String S = C + ": unableToSetValue():";
 		org.opensha.commons.param.event.ParameterChangeFailEvent event =

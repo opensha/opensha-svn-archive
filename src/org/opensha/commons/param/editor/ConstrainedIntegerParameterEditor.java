@@ -21,6 +21,8 @@ package org.opensha.commons.param.editor;
 
 import java.awt.Color;
 
+import javax.swing.JComponent;
+
 import org.opensha.commons.param.IntegerConstraint;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.WarningParameterAPI;
@@ -45,103 +47,73 @@ import org.opensha.commons.util.ParamUtils;
 public class ConstrainedIntegerParameterEditor extends IntegerParameterEditor
 {
 
-    /** Class name for debugging. */
-    protected final static String C = "ConstrainedIntegerParameterEditor";
-    /** If true print out debug statements. */
-    protected final static boolean D = false;
+	/** Class name for debugging. */
+	protected final static String C = "ConstrainedIntegerParameterEditor";
+	/** If true print out debug statements. */
+	protected final static boolean D = false;
 
-    /** No-Arg constructor calls parent constructtor */
-    public ConstrainedIntegerParameterEditor() { super(); }
+	/** No-Arg constructor calls parent constructtor */
+	public ConstrainedIntegerParameterEditor() { super(); }
 
-    /**
-     * Constructor that sets the parameter that it edits.
-     * Only calls the super() function.
-     */
-    public ConstrainedIntegerParameterEditor(ParameterAPI model)
-	    throws Exception{
-        super(model);
-        this.setParameter(model);
-    }
+	/**
+	 * Constructor that sets the parameter that it edits.
+	 * Only calls the super() function.
+	 */
+	public ConstrainedIntegerParameterEditor(ParameterAPI model)
+	throws Exception{
+		super(model);
+		this.setParameter(model);
+	}
 
+	@Override
+	protected JComponent buildWidget() {
+		// TODO Auto-generated method stub
+		IntegerTextField comp = (IntegerTextField)super.buildWidget();
+		
+		IntegerConstraint constraint =getConstraint();
+		if(constraint.getMax().doubleValue()==constraint.getMin().doubleValue()){
+			comp.setEditable(false);
+			comp.setForeground( Color.blue );
+//			comp.setBorder( CONST_BORDER ); // TODO
+		}
+		
+		return comp;
+	}
 
-    /**
-     * Calls the super().;setFunction() and uses the constraints
-     * to set the JTextField tooltip to show the constraint values.
-     */
-    public void setParameter(ParameterAPI model) {
+	/**
+	 * @returns the IntegerConstraint
+	 */
+	protected IntegerConstraint getConstraint(){
+		//Integer constraint declaration
+		IntegerConstraint constraint;
+		
+		ParameterAPI<Integer> param = getParameter();
 
-        String S = C + ": setParameter(): ";
-        if(D) System.out.println(S.concat("Starting"));
+		if( ParamUtils.isWarningParameterAPI( param ) ){
+			constraint = (IntegerConstraint)((WarningParameterAPI)param).getWarningConstraint();
+			if( constraint == null ) constraint = (IntegerConstraint) param.getConstraint();
+		}
+		else
+			constraint = (IntegerConstraint) param.getConstraint();
 
-        super.setParameter(model);
+		return constraint;
+	}
 
-        setToolTipText();
-        this.setNameLabelToolTip(model.getInfo());
-
-        if(D) System.out.println(S.concat("Ending"));
-    }
-
-    /** This is where the IntegerTextField for the Constraint IntegerParameter
-     * It checks if the min and max constraint value are same then change the
-     * font and size of the valueEditor and widgetPanel
-     * is defined and configured. */
-    protected void addWidget() {
-      String S = C + "ConstrainedDoubleParameterEditor: addWidget(): ";
-      if(D) System.out.println(S + "Starting");
-      super.addWidget();
-      IntegerConstraint constraint =getConstraint();
-      if(constraint.getMax().doubleValue()==constraint.getMin().doubleValue()){
-        if (  valueEditor != null ) {
-          ((IntegerTextField) valueEditor).setEditable(false);
-          ((IntegerTextField) valueEditor).setMinimumSize( LABEL_DIM );
-          ((IntegerTextField) valueEditor).setFont( JCOMBO_FONT );
-          ((IntegerTextField) valueEditor).setForeground( Color.blue );
-          ((IntegerTextField) valueEditor).setBorder( CONST_BORDER );
-          widgetPanel.setBackground(STRING_BACK_COLOR);
-          widgetPanel.setForeground( Color.blue );
-        }
-      }
-
-      if(D) System.out.println(S + "Ending");
-    }
-
-
-    /**
-     * @returns the IntegerConstraint
-     */
-    protected IntegerConstraint getConstraint(){
-      //Integer constraint declaration
-      IntegerConstraint constraint;
-
-      if( ParamUtils.isWarningParameterAPI( model ) ){
-        constraint = (IntegerConstraint)((WarningParameterAPI)model).getWarningConstraint();
-        if( constraint == null ) constraint = (IntegerConstraint) model.getConstraint();
-      }
-      else
-       constraint = (IntegerConstraint) model.getConstraint();
-
-      return constraint;
-    }
-
-    /**
-    * Updates the NumericTextField string with the parameter value. Used when
-    * the parameter is set for the first time, or changed by a background
-    * process independently of the GUI. This could occur with a ParameterChangeFail
-    * event.
-    */
-   public void refreshParamEditor(){
-      super.refreshParamEditor();
-      setToolTipText();
-
-   }
-
-   /**
-    * set the tool tip contraint text
-    */
-   private void setToolTipText() {
-     IntegerConstraint constraint =getConstraint();
-     valueEditor.setToolTipText( "Min = " + constraint.getMin().toString() + "; Max = " + constraint.getMax().toString() );
-   }
+	/**
+	 * set the tool tip contraint text
+	 */
+	@Override
+	protected String getParamToolTipText() {
+		IntegerConstraint constraint =getConstraint();
+		String text = super.getParamToolTipText();
+		if (text == null || text.length() == 0) {
+			text = "";
+		} else {
+			text += "\n";
+		}
+		text += "Min = " + constraint.getMin().toString() + "; Max = " + constraint.getMax().toString();
+		return text;
+	}
 
 
 }

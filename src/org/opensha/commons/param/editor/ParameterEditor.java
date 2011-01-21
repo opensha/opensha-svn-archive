@@ -73,7 +73,7 @@ import org.opensha.commons.param.ParameterAPI;
  * @created    April 17, 2002
  * @version    1.0
  */
-public class ParameterEditor
+public abstract class ParameterEditor
          extends JPanel
          implements
         ParameterEditorAPI,
