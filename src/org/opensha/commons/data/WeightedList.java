@@ -242,4 +242,13 @@ public class WeightedList<E> implements XMLSaveable {
 		setWeights(weights);
 	}
 
+	@Override
+	public String toString() {
+		String str = "Weighted List: "+size()+" elements";
+		for (int i=0; i<size(); i++) {
+			str += "\n* "+getName(get(i))+":\t"+getWeight(i);
+		}
+		return str;
+	}
+
 }
