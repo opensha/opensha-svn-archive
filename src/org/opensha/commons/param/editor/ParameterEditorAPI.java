@@ -56,7 +56,7 @@ public interface ParameterEditorAPI<E> {
      * Needs to be called by subclasses when editable widget field change fails
      * due to constraint problems. Allows rollback to the previous good value.
      */
-    public void unableToSetValue( E object );
+    public void unableToSetValue( Object object );
 
     /**
      * Called when the parameter has changed independently from
