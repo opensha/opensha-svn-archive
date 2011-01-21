@@ -56,6 +56,10 @@ extends DependentParameter<Integer>
 implements DependentParameterAPI<Integer>, ParameterAPI<Integer>
 {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/** Class name for debugging. */
 	protected final static String C = "IntegerParameter";
 	/** If true print out debug statements. */
