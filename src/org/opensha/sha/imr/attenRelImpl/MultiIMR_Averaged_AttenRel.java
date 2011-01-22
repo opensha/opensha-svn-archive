@@ -19,6 +19,7 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.WeightedListParameter;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.sha.earthquake.EqkRupture;
@@ -55,6 +56,9 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	
 	private ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs;
 	private WeightedList<ScalarIntensityMeasureRelationshipAPI> weights;
+	
+	public static final String IMR_WEIGHTS_PARAM_NAME = "IMR Weights";
+	private WeightedListParameter<ScalarIntensityMeasureRelationshipAPI> weightsParam;
 	
 	public static final String PROP_EFFECT_SPEEDUP_PARAM_NAME = "Prop. Effect. Speedup";
 	public static final Boolean PROP_EFFECT_SPEEDUP_DEFAULT = true;
@@ -99,6 +103,9 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 			weights.normalize();
 		} else {
 			weights.setWeights(newWeights);
+		}
+		if (weightsParam != null && weightsParam.isParameterEditorBuilt()) {
+			weightsParam.getEditor().refreshParamEditor();
 		}
 	}
 
@@ -377,9 +384,15 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	@Override
 	protected void initOtherParams() {
 		super.initOtherParams();
+		
 		propEffectSpeedupParam = new BooleanParameter(PROP_EFFECT_SPEEDUP_PARAM_NAME);
 		propEffectSpeedupParam.setDefaultValue(PROP_EFFECT_SPEEDUP_DEFAULT);
 		otherParams.addParameter(propEffectSpeedupParam);
+		
+		weightsParam = new WeightedListParameter<ScalarIntensityMeasureRelationshipAPI>(IMR_WEIGHTS_PARAM_NAME, null);
+		weightsParam.setValue(weights);
+		otherParams.addParameter(weightsParam);
+		
 		// link up default params
 		linkParams(otherParams);
 		HashMap<String, ArrayList<ParameterAPI<?>>> newParams = new HashMap<String, ArrayList<ParameterAPI<?>>>();
@@ -583,8 +596,11 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	}
 	
 	private double getWeightedValue(double[] vals) {
-		if (!weights.isNormalized())
+		if (!weights.isNormalized()) {
 			weights.normalize();
+			if (weightsParam != null && weightsParam.isParameterEditorBuilt())
+				weightsParam.getEditor().refreshParamEditor();
+		}
 		double weighted = weights.getWeightedAverage(vals);
 		if (D && Double.isNaN(weighted)) {
 			System.out.println("Got a NaN!");
@@ -787,10 +803,10 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 
 	@Override
 	public void setParamDefaults() {
-//		System.out.println("Setting defaults...");
-//		System.out.println("BEFORE: speedup: " + propEffectSpeedupParam.getValue());
 		propEffectSpeedupParam.setValueAsDefault();
-//		System.out.println("AFTER: speedup: " + propEffectSpeedupParam.getValue());
+		if (weightsParam.getValue() == null)
+			weightsParam.setValue(weights);
+//			throw new IllegalStateException("weights param value can't be null!");
 		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
 			imr.setParamDefaults();
 		}
