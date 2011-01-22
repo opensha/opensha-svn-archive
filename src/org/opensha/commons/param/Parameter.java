@@ -521,15 +521,12 @@ ParameterAPI<E>, java.io.Serializable
 		xml.addAttribute("units", getUnits());
 		Object val = getValue();
 		if (val == null) {
-			System.out.println("param '"+name+"' saving xml with null value!");
 			xml.addAttribute("value", "");
 		} else {
 			if (val instanceof XMLSaveable) {
-				System.out.println("param '"+name+"' saving xml with XMLSaveable!");
 				Element valEl = xml.addElement(XML_COMPLEX_VAL_EL_NAME);
 				((XMLSaveable)val).toXMLMetadata(valEl);
 			} else {
-				System.out.println("param '"+name+"' saving xml with toString!");
 				xml.addAttribute("value", val.toString());
 			}
 		}
