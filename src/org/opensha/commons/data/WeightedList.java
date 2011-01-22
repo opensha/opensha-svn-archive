@@ -213,7 +213,7 @@ public class WeightedList<E> implements XMLSaveable {
 		return forceNormalization;
 	}
 	
-	private static String getName(Object obj) {
+	public static String getName(Object obj) {
 		if (obj instanceof NamedObjectAPI)
 			return ((NamedObjectAPI)obj).getName();
 		else

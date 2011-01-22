@@ -1,12 +1,11 @@
 package org.opensha.commons.param;
 
 import org.dom4j.Element;
-import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.WeightedList;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.WeightedListParameterEditor;
 
-public class WeightedListParameter<E extends NamedObjectAPI> extends DependentParameter<WeightedList<? extends NamedObjectAPI>> {
+public class WeightedListParameter<E> extends DependentParameter<WeightedList<E>> {
 	
 	WeightedListParameterEditor paramEdit;
 	
@@ -39,14 +38,15 @@ public class WeightedListParameter<E extends NamedObjectAPI> extends DependentPa
 
 	@Override
 	public String getMetadataString() {
-		WeightedList<? extends NamedObjectAPI> val = getValue();
+		WeightedList<E> val = getValue();
 		if(val !=null) {
 			String str = name+" = [";
 			
 			for (int i=0; i<val.size(); i++) {
 				if (i > 0)
 					str += ", ";
-				str += "'"+val.get(i).getName()+"': "+val.getWeight(i);
+				String name = WeightedList.getName(val.get(i));
+				str += "'"+name+"': "+val.getWeight(i);
 			}
 			
 			str += "]";

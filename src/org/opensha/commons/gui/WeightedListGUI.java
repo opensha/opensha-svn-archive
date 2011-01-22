@@ -22,7 +22,6 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.WeightedList;
 
 public class WeightedListGUI extends JPanel implements ChangeListener, ItemListener, KeyListener, FocusListener {
@@ -37,7 +36,7 @@ public class WeightedListGUI extends JPanel implements ChangeListener, ItemListe
 	private ArrayList<JSlider> sliders;
 	private ArrayList<JTextField> textFields;
 	
-	private WeightedList<? extends NamedObjectAPI> list;
+	private WeightedList<?> list;
 	
 	private JScrollPane editorsScroll;
 	private JPanel editorsPanel;
@@ -50,7 +49,7 @@ public class WeightedListGUI extends JPanel implements ChangeListener, ItemListe
 	
 	private JComboBox setCombo;
 	
-	public WeightedListGUI(WeightedList<? extends NamedObjectAPI> list) {
+	public WeightedListGUI(WeightedList<?> list) {
 		super(new BorderLayout());
 		
 		init();
@@ -79,7 +78,7 @@ public class WeightedListGUI extends JPanel implements ChangeListener, ItemListe
 		this.add(setCombo, BorderLayout.SOUTH);
 	}
 	
-	public void setList(WeightedList<? extends NamedObjectAPI> list) {
+	public void setList(WeightedList<?> list) {
 		this.list = list;
 		editorsPanel.removeAll();
 		
@@ -92,7 +91,7 @@ public class WeightedListGUI extends JPanel implements ChangeListener, ItemListe
 		editorsPanel.setLayout(new BoxLayout(editorsPanel, BoxLayout.Y_AXIS));
 		
 		for (int i=0; i<list.size(); i++) {
-			NamedObjectAPI obj = list.get(i);
+			Object obj = list.get(i);
 			
 			JSlider slide = new JSlider(weightToPos(list.getWeightValueMin()), weightToPos(list.getWeightValueMax()));
 			JTextField field = new JTextField(5);
@@ -103,7 +102,7 @@ public class WeightedListGUI extends JPanel implements ChangeListener, ItemListe
 			JPanel editorPanel = new JPanel();
 			editorPanel.setLayout(new BoxLayout(editorPanel, BoxLayout.X_AXIS));
 			
-			String name = obj.getName();
+			String name = WeightedList.getName(obj);
 			
 			editorsPanel.add(new JLabel(name));
 			editorPanel.add(slide);
