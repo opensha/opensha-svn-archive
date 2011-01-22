@@ -317,5 +317,45 @@ public class WeightedList<E> implements XMLSaveable {
 	public boolean isWeightWithinRange(double weight) {
 		return (float)weight <= (float)weightValueMax && (float)weight >= (float)weightValueMin;
 	}
+	
+	/**
+	 * Returns the sum of each value multiplied by its respective weight.
+	 * 
+	 * @param values values to return the weighted average
+	 * @return weighted average
+	 * @throws IllegalArgumentException if the size of <code>values</code> doesn't match
+	 * the size of this list.
+	 */
+	public double getWeightedAverage(ArrayList<Double> values) {
+		if (values.size() != weights.size())
+			throw new IllegalArgumentException("values.size() != weights.size()");
+		double weighted = 0;
+		for (int i=0; i<values.size(); i++) {
+			double val = values.get(i);
+			double weight = weights.get(i);
+			weighted += val * weight;
+		}
+		return weighted;
+	}
+	
+	/**
+	 * Returns the sum of each value multiplied by its respective weight.
+	 * 
+	 * @param values values to return the weighted average
+	 * @return weighted average
+	 * @throws IllegalArgumentException if the size of <code>values</code> doesn't match
+	 * the size of this list.
+	 */
+	public double getWeightedAverage(double[] values) {
+		if (values.length != weights.size())
+			throw new IllegalArgumentException("values.size() != weights.size()");
+		double weighted = 0;
+		for (int i=0; i<values.length; i++) {
+			double val = values[i];
+			double weight = weights.get(i);
+			weighted += val * weight;
+		}
+		return weighted;
+	}
 
 }

@@ -25,6 +25,10 @@ public class WeightedListParameter<E> extends DependentParameter<WeightedList<E>
 			paramEdit = new WeightedListParameterEditor(this);
 		return paramEdit;
 	}
+	
+	public boolean isParameterEditorBuilt() {
+		return paramEdit != null;
+	}
 
 	@Override
 	public boolean setIndividualParamValueFromXML(Element el) {
