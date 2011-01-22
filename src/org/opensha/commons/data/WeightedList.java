@@ -16,6 +16,9 @@ public class WeightedList<E> implements XMLSaveable {
 	
 	private boolean forceNormalization = false;
 	
+	private double weightValueMin = 0;
+	private double weightValueMax = 1;
+	
 	public WeightedList() {
 		this(new ArrayList<E>(), new ArrayList<Double>());
 	}
@@ -46,6 +49,12 @@ public class WeightedList<E> implements XMLSaveable {
 		if (forceNormalization && weights.size() > 0) {
 			if (!isNormalized(weights))
 				throw new IllegalStateException("wights must sum to 1 (current sum: "+getWeightSum()+")");
+		}
+		
+		for (double weight : weights) {
+			if (!isWeightWithinRange(weight))
+				throw new IllegalArgumentException("weight of '"+weight+"' is outside of range " +
+						+weightValueMin+" <= weight <= "+weightValueMax);
 		}
 	}
 	
@@ -249,6 +258,64 @@ public class WeightedList<E> implements XMLSaveable {
 			str += "\n* "+getName(get(i))+":\t"+getWeight(i);
 		}
 		return str;
+	}
+
+	/**
+	 * Get the minumum weight value allowed.
+	 * 
+	 * @return minumum weight value allowed.
+	 */
+	public double getWeightValueMin() {
+		return weightValueMin;
+	}
+
+	/**
+	 * Set the minimum weight value allowed.
+	 * 
+	 * @param weightValueMax
+	 */
+	public void setWeightValueMin(double weightValueMin) {
+		if (weightValueMin > weightValueMax)
+			throw new IllegalArgumentException("min cannot be greater than max!");
+		double oldVal = this.weightValueMin;
+		this.weightValueMin = weightValueMin;
+		try {
+			validate(objects, weights);
+		} catch (RuntimeException e) {
+			this.weightValueMin = oldVal;
+			throw e;
+		}
+	}
+
+	/**
+	 * Get the maximum weight value allowed.
+	 * 
+	 * @return maximum weight value allowed.
+	 */
+	public double getWeightValueMax() {
+		return weightValueMax;
+	}
+
+	/**
+	 * Set the maximum weight value allowed.
+	 * 
+	 * @param listValueMax
+	 */
+	public void setWeightValueMax(double weightValueMax) {
+		if (weightValueMax < weightValueMin)
+			throw new IllegalArgumentException("max cannot be less than min!");
+		double oldVal = this.weightValueMax;
+		this.weightValueMax = weightValueMax;
+		try {
+			validate(objects, weights);
+		} catch (RuntimeException e) {
+			this.weightValueMax = oldVal;
+			throw e;
+		}
+	}
+	
+	public boolean isWeightWithinRange(double weight) {
+		return (float)weight <= (float)weightValueMax && (float)weight >= (float)weightValueMin;
 	}
 
 }

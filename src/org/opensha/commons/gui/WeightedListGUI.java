@@ -94,7 +94,7 @@ public class WeightedListGUI extends JPanel implements ChangeListener, ItemListe
 		for (int i=0; i<list.size(); i++) {
 			NamedObjectAPI obj = list.get(i);
 			
-			JSlider slide = new JSlider(0, 100);
+			JSlider slide = new JSlider(weightToPos(list.getWeightValueMin()), weightToPos(list.getWeightValueMax()));
 			JTextField field = new JTextField(5);
 			
 			sliders.add(slide);
@@ -249,7 +249,7 @@ public class WeightedListGUI extends JPanel implements ChangeListener, ItemListe
 			if (field == comp) {
 				try {
 					double weight = Double.parseDouble(field.getText());
-					if (weight > 1)
+					if (!list.isWeightWithinRange(weight))
 						resetText(i);
 					else
 						weightUpdated(i, weight);

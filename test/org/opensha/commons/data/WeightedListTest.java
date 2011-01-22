@@ -227,5 +227,42 @@ public class WeightedListTest {
 	public void testGetWeightNotInList() {
 		testList.getWeight("sdafsdafsdhkfhsfad");
 	}
+	
+	@Test(expected=IllegalArgumentException.class)
+	public void testSetBadWeightMax() {
+		testList.setWeightValueMax(-1);
+	}
+	
+	@Test(expected=IllegalArgumentException.class)
+	public void testSetBadWeightMin() {
+		testList.setWeightValueMin(1.1);
+	}
+	
+	@Test
+	public void testSetWeightMaxBelowValues() {
+		testList.setWeightsToConstant(1.0);
+		assertEquals("should have started at 1", 1d, testList.getWeightValueMax(), 0.00001);
+		try {
+			testList.setWeightValueMax(0.5);
+			fail("should have thrown exception");
+		} catch (Exception e) {}
+		assertEquals("should not have changed with bad set", 1d, testList.getWeightValueMax(), 0.00001);
+	}
+	
+	@Test
+	public void testSetWeightMinAboveValues() {
+		testList.setWeightsToConstant(0.2);
+		assertEquals("should have started at 1", 0d, testList.getWeightValueMin(), 0.00001);
+		try {
+			testList.setWeightValueMin(0.5);
+			fail("should have thrown exception");
+		} catch (Exception e) {}
+		assertEquals("should not have changed with bad set", 0d, testList.getWeightValueMin(), 0.00001);
+	}
+	
+	@Test(expected=IllegalArgumentException.class)
+	public void testSetWeightOutsideRange() {
+		testList.setWeight(0, 1.1);
+	}
 
 }
