@@ -46,22 +46,32 @@ public class ExcelVerificationWriter {
 			HSSFRow mLnRow = sheet.getRow(curRow++);
 			HSSFRow interSTDRow = sheet.getRow(curRow++);
 			HSSFRow intraSTDRow = sheet.getRow(curRow++);
-			HSSFRow mIMLRow = sheet.getRow(curRow++);
-			curRow++; // medIML
-			HSSFRow mDamage_mIMLRow = sheet.getRow(curRow++);
-			curRow++; // deltaj_mIML
-			curRow++; // betaj_mIML
-			curRow++; // medDamage_mIML
-			HSSFRow hDamage_mIMLRow = sheet.getRow(curRow++);
-			HSSFRow lDamage_mIMLRow = sheet.getRow(curRow++);
+			HSSFRow medIMLRow = sheet.getRow(curRow++);
 			HSSFRow imlHighInterRow = sheet.getRow(curRow++);
 			HSSFRow imlLowInterRow = sheet.getRow(curRow++);
 			HSSFRow imlHighIntraRow = sheet.getRow(curRow++);
 			HSSFRow imlLowIntraRow = sheet.getRow(curRow++);
+			HSSFRow mDamage_medIMLRow = sheet.getRow(curRow++);
 			HSSFRow mDamage_hInterRow = sheet.getRow(curRow++);
 			HSSFRow mDamage_lInterRow = sheet.getRow(curRow++);
 			HSSFRow mDamage_hIntraRow = sheet.getRow(curRow++);
 			HSSFRow mDamage_lIntraRow = sheet.getRow(curRow++);
+			HSSFRow deltaJ_medIMLRow = sheet.getRow(curRow++);
+			curRow++; //betaJ_medIML
+			HSSFRow deltaJ_hInterRow = sheet.getRow(curRow++);
+			HSSFRow deltaJ_lInterRow = sheet.getRow(curRow++);
+			HSSFRow deltaJ_hIntraRow = sheet.getRow(curRow++);
+			HSSFRow deltaJ_lIntraRow = sheet.getRow(curRow++);
+			HSSFRow medDamage_medIML = sheet.getRow(curRow++);
+			HSSFRow hDamage_medIMLRow = sheet.getRow(curRow++);
+			HSSFRow lDamage_medIMLRow = sheet.getRow(curRow++);
+			HSSFRow medDamage_hInterRow = sheet.getRow(curRow++);
+			HSSFRow medDamage_lInterRow = sheet.getRow(curRow++);
+			HSSFRow medDamage_hIntraRow = sheet.getRow(curRow++);
+			HSSFRow medDamage_lIntraRow = sheet.getRow(curRow++);
+			
+			
+			
 			curRow++; // separator row
 			
 			for (int rupID=0; rupID<numRups; rupID++) {
@@ -72,10 +82,10 @@ public class ExcelVerificationWriter {
 				mLnRow.getCell(cellNum).setCellValue(res.getMLnIML());
 				interSTDRow.getCell(cellNum).setCellValue(res.getInterSTD());
 				intraSTDRow.getCell(cellNum).setCellValue(res.getIntraSTD());
-				mIMLRow.getCell(cellNum).setCellValue(res.getMIML());
-				mDamage_mIMLRow.getCell(cellNum).setCellValue(res.getMDamage_mIML());
-				hDamage_mIMLRow.getCell(cellNum).setCellValue(res.getHDamage_mIML());
-				lDamage_mIMLRow.getCell(cellNum).setCellValue(res.getLDamage_mIML());
+				medIMLRow.getCell(cellNum).setCellValue(res.getMedIML());
+				mDamage_medIMLRow.getCell(cellNum).setCellValue(res.getMDamage_medIML());
+				hDamage_medIMLRow.getCell(cellNum).setCellValue(res.getHDamage_medIML());
+				lDamage_medIMLRow.getCell(cellNum).setCellValue(res.getLDamage_medIML());
 				imlHighInterRow.getCell(cellNum).setCellValue(res.getIML_hInter());
 				imlLowInterRow.getCell(cellNum).setCellValue(res.getIML_lInter());
 				System.out.println(imlHighIntraRow.getCell(0).getStringCellValue());
@@ -86,6 +96,18 @@ public class ExcelVerificationWriter {
 				mDamage_lInterRow.getCell(cellNum).setCellValue(res.getMDamage_lInter());
 				mDamage_hIntraRow.getCell(cellNum).setCellValue(res.getMDamage_hIntra());
 				mDamage_lIntraRow.getCell(cellNum).setCellValue(res.getMDamage_lIntra());
+				medDamage_hInterRow.getCell(cellNum).setCellValue(res.getMedDamage_hInter());
+				medDamage_lInterRow.getCell(cellNum).setCellValue(res.getMedDamage_lInter());
+				medDamage_hIntraRow.getCell(cellNum).setCellValue(res.getMedDamage_hIntra());
+				medDamage_lIntraRow.getCell(cellNum).setCellValue(res.getMedDamage_lIntra());
+				
+				deltaJ_medIMLRow.getCell(cellNum).setCellValue(res.getDeltaJ_medIML());
+				deltaJ_hInterRow.getCell(cellNum).setCellValue(res.getDeltaJ_imlHighInter());
+				deltaJ_lInterRow.getCell(cellNum).setCellValue(res.getDeltaJ_imlLowInter());
+				deltaJ_hIntraRow.getCell(cellNum).setCellValue(res.getDeltaJ_imlHighIntra());
+				deltaJ_lIntraRow.getCell(cellNum).setCellValue(res.getDeltaJ_imlLowIntra());
+				
+				medDamage_medIML.getCell(cellNum).setCellValue(res.getMedDamage_medIML());
 			}
 		}
 		int numLs = results.get(0).getL().length;
@@ -95,6 +117,8 @@ public class ExcelVerificationWriter {
 			HSSFRow mValueRow = sheet.getRow(curRow++);
 			HSSFRow hValueRow = sheet.getRow(curRow++);
 			HSSFRow lValueRow = sheet.getRow(curRow++);
+			HSSFRow betaVJRow = sheet.getRow(curRow++);
+			HSSFRow medValueRow = sheet.getRow(curRow++);
 			
 			curRow += numLs*2; // skip the Ls
 			curRow++; // other data
@@ -109,6 +133,8 @@ public class ExcelVerificationWriter {
 				mValueRow.getCell(cellNum).setCellValue(res.getMValue());
 				hValueRow.getCell(cellNum).setCellValue(res.getHValue());
 				lValueRow.getCell(cellNum).setCellValue(res.getLValue());
+				betaVJRow.getCell(cellNum).setCellValue(res.getBetaVJ());
+				medValueRow.getCell(cellNum).setCellValue(res.getMedValue());
 			}
 		}
 		
