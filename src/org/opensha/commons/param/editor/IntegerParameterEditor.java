@@ -59,7 +59,7 @@ public class IntegerParameterEditor extends NewParameterEditor<Integer> implemen
 	/** Class name for debugging. */
 	protected final static String C = "IntegerParameterEditor";
 	/** If true print out debug statements. */
-	protected final static boolean D = true;
+	protected final static boolean D = false;
 
 	/** No-Arg constructor calls parent constructor */
 	public IntegerParameterEditor() { super(); }

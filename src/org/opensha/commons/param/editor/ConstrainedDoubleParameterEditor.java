@@ -19,10 +19,6 @@
 
 package org.opensha.commons.param.editor;
 
-import java.awt.Color;
-
-import javax.swing.border.Border;
-
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.WarningParameterAPI;
@@ -44,6 +40,11 @@ import org.opensha.commons.util.ParamUtils;
  */
 public class ConstrainedDoubleParameterEditor extends DoubleParameterEditor{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	/** Class name for debugging. */
 	protected final static String C = "ConstrainedDoubleParameterEditor";
 	/** If true print out debug statements. */

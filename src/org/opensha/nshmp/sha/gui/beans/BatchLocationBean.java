@@ -501,7 +501,7 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 			newFileName = chooser.getSelectedFile().getAbsolutePath();
 			try {
 				batParam.setValue(newFileName);
-				( (JTextField) batEditor.getValueEditor()).setText(newFileName);
+				batParam.getEditor().refreshParamEditor();
 			} catch (Exception ex) {
 				batParam.unableToSetValue(newFileName);
 			}
@@ -519,7 +519,7 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 				newOutFile += ".xls";
 			try {
 				outParam.setValue(newOutFile);
-				( (JTextField) outEditor.getValueEditor()).setText(newOutFile);
+				outParam.getEditor().refreshParamEditor();
 			} catch (Exception ex) {
 				outParam.unableToSetValue(newOutFile);
 			}

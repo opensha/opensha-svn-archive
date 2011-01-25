@@ -27,6 +27,7 @@ import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.StringParameterEditor;
 
 /**
@@ -61,7 +62,7 @@ public class StringParameter
     /** If true print out debug statements. */
     protected final static boolean D = false;
     
-    private transient ParameterEditor paramEdit = null;
+    private transient ParameterEditorAPI<String> paramEdit = null;
 
     /**
      * Constructor doesn't specify a constraint, all values allowed. This
@@ -320,7 +321,7 @@ public class StringParameter
 		return true;
 	}
 
-	public ParameterEditor getEditor() {
+	public ParameterEditorAPI<String> getEditor() {
 		if (paramEdit == null) {
 			if (constraint == null)
 				try {

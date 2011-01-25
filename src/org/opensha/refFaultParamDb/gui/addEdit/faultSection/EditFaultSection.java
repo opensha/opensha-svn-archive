@@ -277,7 +277,7 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 		sectionSourceNamesList.add(SOURCE_ADD);
 		sectionSourceParam = new StringParameter(SOURCE, sectionSourceNamesList, (String)sectionSourceNamesList.get(0));
 		sectionSourceParam.addParameterChangeListener(this);
-		leftPanel.add(sectionSourceParam.getEditor(), new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
+		leftPanel.add(sectionSourceParam.getEditor().getComponent(), new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
 				, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
 				new Insets(0, 0, 0, 0), 0, 0));
 

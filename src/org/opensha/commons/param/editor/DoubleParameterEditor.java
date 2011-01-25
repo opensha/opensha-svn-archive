@@ -25,7 +25,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import javax.swing.JComponent;
-import javax.swing.border.Border;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.WarningException;
@@ -54,6 +53,11 @@ import org.opensha.commons.param.ParameterAPI;
 public class DoubleParameterEditor extends NewParameterEditor<Double> implements FocusListener, KeyListener
 {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	/** Class name for debugging. */
 	protected final static String C = "DoubleParameterEditor";
 	/** If true print out debug statements. */

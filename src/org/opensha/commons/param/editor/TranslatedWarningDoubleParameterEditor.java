@@ -19,16 +19,10 @@
 
 package org.opensha.commons.param.editor;
 
-import javax.swing.border.Border;
-
 import org.opensha.commons.exceptions.ConstraintException;
-import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.TranslatedWarningDoubleParameter;
-import org.opensha.commons.param.WarningParameterAPI;
 import org.opensha.commons.param.translate.TranslatorAPI;
-import org.opensha.commons.util.ParamUtils;
 
 
 
@@ -55,6 +49,11 @@ import org.opensha.commons.util.ParamUtils;
  */
 public class TranslatedWarningDoubleParameterEditor extends ConstrainedDoubleParameterEditor {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	/** Class name for debugging. */
 	protected final static String C = "TranslatedWarningDoubleParameterEditor";
 	/** If true print out debug statements. */
