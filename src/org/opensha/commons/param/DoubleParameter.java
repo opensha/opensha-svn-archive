@@ -26,6 +26,7 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.editor.ConstrainedDoubleParameterEditor;
 import org.opensha.commons.param.editor.DoubleParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditorAPI;
 
 
 
@@ -54,7 +55,7 @@ implements DependentParameterAPI<Double>, ParameterAPI<Double>
 	/** If true print out debug statements. */
 	protected final static boolean D = false;
 
-	private transient ParameterEditor paramEdit = null;
+	private transient ParameterEditorAPI<Double> paramEdit = null;
 
 	/**
 	 *  No constraints specified, all values allowed. Sets the name of this
@@ -480,7 +481,7 @@ implements DependentParameterAPI<Double>, ParameterAPI<Double>
 	}
 
 
-	public ParameterEditor getEditor() {
+	public ParameterEditorAPI<Double> getEditor() {
 		if (paramEdit == null) {
 			try {
 				if (constraint == null)

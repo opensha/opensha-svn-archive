@@ -79,7 +79,7 @@ public abstract class NewParameterEditor<E> extends LabeledBorderPanel implement
 	}
 
 	@Override
-	public final void unableToSetValue(Object value) {
+	public void unableToSetValue(Object value) {
 		param.unableToSetValue(value);
 	}
 
@@ -161,6 +161,8 @@ public abstract class NewParameterEditor<E> extends LabeledBorderPanel implement
 				this.add(widget);
 			}
 		}
+		super.setToolTipText(getLabelToolTipText());
+		widget.setToolTipText(getWidgetToolTipText());
 		//		mainPanel.setMinimumSize( WIGET_PANEL_DIM );
 		//		mainPanel.setPreferredSize( WIGET_PANEL_DIM );
 		editorPanel.invalidate();
@@ -188,14 +190,26 @@ public abstract class NewParameterEditor<E> extends LabeledBorderPanel implement
 	 * @return updated component, or new component/null if it needs to be rebuilt
 	 */
 	protected abstract JComponent updateWidget();
+	
+	/**
+	 * 
+	 * @return tool tip text for the parameter label. can be overridden if constraint specific text
+	 * needs to be added.
+	 */
+	protected String getLabelToolTipText() {
+		String info = param.getInfo();
+		if (info == null || info.length() == 0 || info.equals(" "))
+			return null;
+		return info;
+	}
 
 	/**
 	 * 
-	 * @return tool tip text for the parameter. can be overridden if constraing specific text
+	 * @return tool tip text for the parameter. can be overridden if constraint specific text
 	 * needs to be added.
 	 */
-	protected String getParamToolTipText() {
-		return param.getInfo();
+	protected String getWidgetToolTipText() {
+		return getLabelToolTipText();
 	}
 
 	private void removeWidget() {

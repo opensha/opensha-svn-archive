@@ -24,6 +24,7 @@ import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.sha.earthquake.EqkRupture;
 
 /**
@@ -156,8 +157,8 @@ public abstract class PropagationEffectParameter<E>
      */
     public abstract Object clone();
     
-    public ParameterEditor getEditor() {
-    	return null;
-    }
+//    public ParameterEditorAPI<Double> getEditor() {
+//    	return null;
+//    }
 
 }

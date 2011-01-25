@@ -35,6 +35,7 @@ import org.opensha.commons.param.WarningParameterAPI;
 import org.opensha.commons.param.editor.ConstrainedDoubleParameterEditor;
 import org.opensha.commons.param.editor.DoubleParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 
@@ -60,7 +61,7 @@ extends PropagationEffectParameter<Double>
 implements WarningParameterAPI<Double>
 {
 
-	private transient ParameterEditor paramEdit = null;
+	private transient ParameterEditorAPI<Double> paramEdit = null;
 
 	/** The warning constraint for this Parameter. */
 	protected DoubleConstraint warningConstraint = null;
@@ -355,7 +356,7 @@ implements WarningParameterAPI<Double>
 	 */
 	public abstract Object clone();
 
-	public ParameterEditor getEditor() {
+	public ParameterEditorAPI<Double> getEditor() {
 		if (paramEdit == null) {
 			try {
 				if (constraint == null)

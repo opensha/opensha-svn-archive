@@ -103,9 +103,9 @@ public class ConstrainedIntegerParameterEditor extends IntegerParameterEditor
 	 * set the tool tip contraint text
 	 */
 	@Override
-	protected String getParamToolTipText() {
+	protected String getWidgetToolTipText() {
 		IntegerConstraint constraint =getConstraint();
-		String text = super.getParamToolTipText();
+		String text = super.getWidgetToolTipText();
 		if (text == null || text.length() == 0) {
 			text = "";
 		} else {

@@ -57,7 +57,7 @@ public class DoubleValueWeightParameterEditor extends ParameterEditor
 	private final static String WEIGHT = "Weight";
 	protected DoubleParameter valueParameter;
 	protected DoubleParameter weightParameter;
-	private ParameterEditor valueParameterEditor, weightParameterEditor;
+	private ParameterEditorAPI<Double> valueParameterEditor, weightParameterEditor;
 	protected final static Dimension PANEL_DIM = new Dimension( 100, 50);
 
 	/**
@@ -99,9 +99,9 @@ public class DoubleValueWeightParameterEditor extends ParameterEditor
     	  this.setToolTipText(model.getInfo());
     	 //panel.add(new JLabel(model.getName()), new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0, 
     		//	 GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );	 
-    	 widgetPanel.add(this.valueParameterEditor, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0, 
+    	 widgetPanel.add(this.valueParameterEditor.getComponent(), new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0, 
     			 GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-    	 widgetPanel.add(this.weightParameterEditor, new GridBagConstraints( 1, 0, 1, 1, 1.0, 1.0, 
+    	 widgetPanel.add(this.weightParameterEditor.getComponent(), new GridBagConstraints( 1, 0, 1, 1, 1.0, 1.0, 
     			 GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     	 widgetPanel.setMinimumSize(PANEL_DIM);
     	 widgetPanel.setPreferredSize(PANEL_DIM);

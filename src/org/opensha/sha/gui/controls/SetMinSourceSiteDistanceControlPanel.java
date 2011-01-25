@@ -28,6 +28,7 @@ import javax.swing.JFrame;
 
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.editor.DoubleParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.params.MaxDistanceParam;
 
@@ -48,7 +49,7 @@ public class SetMinSourceSiteDistanceControlPanel extends JFrame {
    private MaxDistanceParam distanceParam =
        new MaxDistanceParam();
    // double param editor
-  private DoubleParameterEditor distanceEditor=new DoubleParameterEditor();
+  private ParameterEditorAPI<Double> distanceEditor=distanceParam.getEditor();
   GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   /**
@@ -70,7 +71,7 @@ public class SetMinSourceSiteDistanceControlPanel extends JFrame {
     this.getContentPane().setLayout(gridBagLayout1);
     // add the distance editor to the window
     distanceEditor.setParameter(distanceParam);
-    this.getContentPane().add(distanceEditor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+    this.getContentPane().add(distanceEditor.getComponent(),  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 8, 7), 0, 0));
   }
 

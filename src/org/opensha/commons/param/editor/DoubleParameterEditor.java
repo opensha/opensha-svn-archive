@@ -20,8 +20,11 @@
 package org.opensha.commons.param.editor;
 
 import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
+import javax.swing.JComponent;
 import javax.swing.border.Border;
 
 import org.opensha.commons.exceptions.ConstraintException;
@@ -48,246 +51,225 @@ import org.opensha.commons.param.ParameterAPI;
  * @author Steven W. Rock
  * @version 1.0
  */
-public class DoubleParameterEditor extends ParameterEditor
+public class DoubleParameterEditor extends NewParameterEditor<Double> implements FocusListener, KeyListener
 {
 
-    /** Class name for debugging. */
-    protected final static String C = "DoubleParameterEditor";
-    /** If true print out debug statements. */
-    protected final static boolean D = false;
+	/** Class name for debugging. */
+	protected final static String C = "DoubleParameterEditor";
+	/** If true print out debug statements. */
+	protected final static boolean D = false;
+	
+	private NumericTextField widget;
+	
+	private boolean focusLostProcessing = false;
+	private boolean keyTypeProcessing = false;
 
-    /** No-Arg constructor calls parent constructtor */
-    public DoubleParameterEditor() { super(); }
+	/** No-Arg constructor calls parent constructtor */
+	protected DoubleParameterEditor() { super(); }
 
-    /**
-     * Constructor that sets the parameter that it edits.
-     *
-     * Note: When calling the super() constuctor addWidget() is called
-     * which configures the NumericTextField as the editor widget. <p>
-     */
-     public DoubleParameterEditor(ParameterAPI model) throws Exception {
+	/**
+	 * Constructor that sets the parameter that it edits.
+	 *
+	 * Note: When calling the super() constuctor addWidget() is called
+	 * which configures the NumericTextField as the editor widget. <p>
+	 */
+	public DoubleParameterEditor(ParameterAPI model) throws Exception {
 
-        super(model);
+		super(model);
+	}
 
-        String S = C + ": Constructor(model): ";
-        if(D) System.out.println(S + "Starting");
+	@Override
+	protected JComponent buildWidget() {
+		String S = C + "DoubleParameterEditor: addWidget(): ";
+		if(D) System.out.println(S + "Starting");
 
-        this.setParameter(model);
+		widget = new NumericTextField();
+		widget.setMinimumSize( LABEL_DIM );
+		widget.setPreferredSize( LABEL_DIM );
+		widget.setBorder(ETCHED);
+		widget.setFont(DEFAULT_FONT);
 
-        if(D) System.out.println(S + "Ending");
+		widget.addFocusListener( this );
+		widget.addKeyListener( this );
+		
+		updateWidget();
 
-    }
+		if(D) System.out.println(S + "Ending");
+		
+		return widget;
+	}
 
-    /**
-     * The parameter is checked that it is not null and a
-     * DoubleDiscreteParameter. If any of these fails an error is thrown.
-     */
-    private void verifyModel(ParameterAPI model) throws ConstraintException{
+	/**
+	 * Called everytime a key is typed in the text field to validate it
+	 * as a valid number character ( digits, - sign in first position, etc. ).
+	 */
+	public void keyTyped(KeyEvent e) throws NumberFormatException {
 
-        String S = C + ": Constructor(model): ";
-        if(D) System.out.println(S + "Starting");
+		String S = C + ": keyTyped(): ";
+		if(D) System.out.println(S + "Starting");
 
-        if (model == null) {
-            throw new NullPointerException(S + "Input Parameter model cannot be null");
-        }
-
-        if (!(model instanceof DoubleParameter))
-            throw new ConstraintException(S + "Input model parameter must be a DoubleParameter.");
-
-        if(D) System.out.println(S + "Ending");
-    }
-
-
-    /** Currently does nothing */
-    public void setAsText(String string) throws IllegalArgumentException { }
-
-    /** Passes in a new Parameter with name to set as the parameter to be editing */
-    protected void setWidgetObject(String name, Object obj) {
-        String S = C + ": setWidgetObject(): ";
-        if(D) System.out.println(S + "Starting");
-
-
-        super.setWidgetObject(name, obj);
-
-        if ( ( obj != null ) &&  ( valueEditor != null ) )
-            ((NumericTextField) valueEditor).setText(obj.toString());
-
-        if(D) System.out.println(S + "Ending");
-    }
-
-    /** Allwos customization of the NumericTextField border */
-    public void setWidgetBorder(Border b){
-        ((NumericTextField)valueEditor).setBorder(b);
-    }
-
-    /** This is where the NumericTextField is defined and configured. */
-    protected void addWidget() {
-        String S = C + "DoubleParameterEditor: addWidget(): ";
-        if(D) System.out.println(S + "Starting");
-
-        valueEditor = new NumericTextField();
-        valueEditor.setMinimumSize( LABEL_DIM );
-        valueEditor.setPreferredSize( LABEL_DIM );
-        valueEditor.setBorder(ETCHED);
-        valueEditor.setFont(this.DEFAULT_FONT);
-
-        valueEditor.addFocusListener( this );
-        valueEditor.addKeyListener( this );
-
-        widgetPanel.add(valueEditor, ParameterEditor.WIDGET_GBC);
-
-        if(D) System.out.println(S + "Ending");
-    }
-
-    /**
-     * Called everytime a key is typed in the text field to validate it
-     * as a valid number character ( digits, - sign in first position, etc. ).
-     */
-    public void keyTyped(KeyEvent e) throws NumberFormatException {
-
-        String S = C + ": keyTyped(): ";
-        if(D) System.out.println(S + "Starting");
-        super.keyTyped(e);
-
-        keyTypeProcessing = false;
-        if( focusLostProcessing == true ) return;
+		keyTypeProcessing = false;
+		if( focusLostProcessing == true ) return;
 
 
-        if (e.getKeyChar() == '\n') {
-            keyTypeProcessing = true;
-            if(D) System.out.println(S + "Return key typed");
-            String value = ((NumericTextField) valueEditor).getText();
+		if (e.getKeyChar() == '\n') {
+			keyTypeProcessing = true;
+			if(D) System.out.println(S + "Return key typed");
+			String value = ((NumericTextField) widget).getText();
 
-            if(D) System.out.println(S + "New Value = " + value);
-            try {
-                Double d = null;
-                 if( !value.equals( "" ) ) d = new Double(value);
-                setValue(d);
-                refreshParamEditor();
-                valueEditor.validate();
-                valueEditor.repaint();
-            }
-            catch (ConstraintException ee) {
-                if(D) System.out.println(S + "Error = " + ee.toString());
+			if(D) System.out.println(S + "New Value = " + value);
+			try {
+				Double d = null;
+				if( !value.equals( "" ) ) d = new Double(value);
+				setValue(d);
+				refreshParamEditor();
+				widget.validate();
+				widget.repaint();
+			}
+			catch (ConstraintException ee) {
+				if(D) System.out.println(S + "Error = " + ee.toString());
 
-                Object obj = getValue();
-                if( obj != null )
-                    ((NumericTextField) valueEditor).setText(obj.toString());
-                else ((NumericTextField) valueEditor).setText( "" );
+				Object obj = getValue();
+				if( obj != null )
+					widget.setText(obj.toString());
+				else
+					widget.setText( "" );
 
-                if( !catchConstraint ){ this.unableToSetValue(value); }
-                keyTypeProcessing = false;
-            }
-            catch (NumberFormatException ee) {
-                if(D) System.out.println(S + "Error = " + ee.toString());
+				this.unableToSetValue(value);
+				keyTypeProcessing = false;
+			}
+			catch (NumberFormatException ee) {
+				if(D) System.out.println(S + "Error = " + ee.toString());
 
-                Object obj = getValue();
-                if( obj != null )
-                    ((NumericTextField) valueEditor).setText(obj.toString());
-                else ((NumericTextField) valueEditor).setText( "" );
+				Object obj = getValue();
+				if( obj != null )
+					widget.setText(obj.toString());
+				else
+					widget.setText( "" );
 
-                if( !catchConstraint ){ this.unableToSetValue(value); }
-                keyTypeProcessing = false;
-            }
-            catch (WarningException ee){
-                keyTypeProcessing = false;
-                refreshParamEditor();
-                valueEditor.validate();
-                valueEditor.repaint();
-            }
-        }
+				this.unableToSetValue(value);
+				keyTypeProcessing = false;
+			}
+			catch (WarningException ee){
+				keyTypeProcessing = false;
+				refreshParamEditor();
+				widget.validate();
+				widget.repaint();
+			}
+		}
 
-        keyTypeProcessing = false;
-        if(D) System.out.println(S + "Ending");
-    }
+		keyTypeProcessing = false;
+		if(D) System.out.println(S + "Ending");
+	}
 
-    /**
-     * Called when the user clicks on another area of the GUI outside
-     * this editor panel. This synchornizes the editor text field
-     * value to the internal parameter reference.
-     */
-    public void focusLost(FocusEvent e)throws ConstraintException {
-
-
-        String S = C + ": focusLost(): ";
-        if(D) System.out.println(S + "Starting");
-        focusLostProcessing = false;
-        if( keyTypeProcessing == true ) return;
-        focusLostProcessing = true;
-
-        String value = ((NumericTextField) valueEditor).getText();
-        try {
-
-            Double d = null;
-            if( !value.equals( "" ) ) d = new Double(value);
-            setValue(d);
-            refreshParamEditor();
-            valueEditor.validate();
-            valueEditor.repaint();
-        }
-        catch (ConstraintException ee) {
-            if(D) System.out.println(S + "Error = " + ee.toString());
-
-            Object obj = getValue();
-            if( obj != null )
-                ((NumericTextField) valueEditor).setText(obj.toString());
-            else ((NumericTextField) valueEditor).setText( "" );
-
-            if( !catchConstraint ){ this.unableToSetValue(value); }
-            focusLostProcessing = false;
-        }
-        catch (NumberFormatException ee) {
-                if(D) System.out.println(S + "Error = " + ee.toString());
-
-                Object obj = getValue();
-                if( obj != null )
-                    ((NumericTextField) valueEditor).setText(obj.toString());
-                else ((NumericTextField) valueEditor).setText( "" );
-
-                if( !catchConstraint ){ this.unableToSetValue(value); }
-                keyTypeProcessing = false;
-            }
-        catch (WarningException ee){
-            focusLostProcessing = false;
-            refreshParamEditor();
-            valueEditor.validate();
-            valueEditor.repaint();
-        }
-        focusLostProcessing = false;
-        if(D) System.out.println(S + "Ending");
-    }
-
-    /** Sets the parameter to be edited. */
-    public void setParameter(ParameterAPI model) {
-        String S = C + ": setParameter(): ";
-        if(D) System.out.println(S + "Starting");
-
-        super.setParameter(model);
-        ((NumericTextField) valueEditor).setToolTipText("No Constraints");
-
-        String info = model.getInfo();
-        if( (info != null ) && !( info.equals("") ) ){
-            this.nameLabel.setToolTipText( info );
-        }
-        else this.nameLabel.setToolTipText( null);
+	/**
+	 * Called when the user clicks on another area of the GUI outside
+	 * this editor panel. This synchornizes the editor text field
+	 * value to the internal parameter reference.
+	 */
+	public void focusLost(FocusEvent e)throws ConstraintException {
 
 
-        if(D) System.out.println(S + "Ending");
-    }
+		String S = C + ": focusLost(): ";
+		if(D) System.out.println(S + "Starting");
+		focusLostProcessing = false;
+		if( keyTypeProcessing == true ) return;
+		focusLostProcessing = true;
 
-    /**
-     * Updates the NumericTextField string with the parameter value. Used when
-     * the parameter is set for the first time, or changed by a background
-     * process independently of the GUI. This could occur with a ParameterChangeFail
-     * event.
-     */
-    public void refreshParamEditor(){
+		String value = ((NumericTextField) widget).getText();
+		try {
 
-        Object obj = model.getValue();
-        if( obj != null )
-            ((NumericTextField) valueEditor).setText( obj.toString() );
+			Double d = null;
+			if( !value.equals( "" ) ) d = new Double(value);
+			setValue(d);
+			refreshParamEditor();
+			widget.validate();
+			widget.repaint();
+		}
+		catch (ConstraintException ee) {
+			if(D) System.out.println(S + "Error = " + ee.toString());
 
-        else ((NumericTextField) valueEditor).setText( "" ) ;
+			Object obj = getValue();
+			if( obj != null )
+				widget.setText(obj.toString());
+			else
+				widget.setText( "" );
 
-    }
+			this.unableToSetValue(value);
+			focusLostProcessing = false;
+		}
+		catch (NumberFormatException ee) {
+			if(D) System.out.println(S + "Error = " + ee.toString());
+
+			Object obj = getValue();
+			if( obj != null )
+				widget.setText(obj.toString());
+			else
+				widget.setText( "" );
+
+			this.unableToSetValue(value);
+			keyTypeProcessing = false;
+		}
+		catch (WarningException ee){
+			focusLostProcessing = false;
+			refreshParamEditor();
+			widget.validate();
+			widget.repaint();
+		}
+		focusLostProcessing = false;
+		if(D) System.out.println(S + "Ending");
+	}
+
+//	/** Sets the parameter to be edited. */
+//	public void setParameter(ParameterAPI model) {
+//		String S = C + ": setParameter(): ";
+//		if(D) System.out.println(S + "Starting");
+//
+//		super.setParameter(model);
+//		((NumericTextField) valueEditor).setToolTipText("No Constraints");
+//
+//		String info = model.getInfo();
+//		if( (info != null ) && !( info.equals("") ) ){
+//			this.nameLabel.setToolTipText( info );
+//		}
+//		else this.nameLabel.setToolTipText( null);
+//
+//
+//		if(D) System.out.println(S + "Ending");
+//	}
+
+	@Override
+	public boolean isParameterSupported(ParameterAPI<Double> param) {
+		if (param == null)
+			return false;
+
+		if (!(param instanceof DoubleParameter))
+			return false;
+		
+		return true;
+	}
+
+	@Override
+	public void setEnabled(boolean enabled) {
+		widget.setEditable(enabled);
+	}
+
+	@Override
+	protected JComponent updateWidget() {
+		Double val = getValue();
+		if (val == null)
+			widget.setText("");
+		else
+			widget.setText(val.toString());
+		return widget;
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {}
+
+	@Override
+	public void keyReleased(KeyEvent e) {}
+
+	@Override
+	public void focusGained(FocusEvent e) {}
 }
