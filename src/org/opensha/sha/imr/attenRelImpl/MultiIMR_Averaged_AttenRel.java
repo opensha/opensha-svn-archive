@@ -383,7 +383,10 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 
 	@Override
 	protected void initOtherParams() {
-		super.initOtherParams();
+		 // we actually shouldn't call this here. Instead just use the params from the IMRs.
+//		super.initOtherParams();
+		// link up default params
+//		linkParams(otherParams);
 		
 		propEffectSpeedupParam = new BooleanParameter(PROP_EFFECT_SPEEDUP_PARAM_NAME);
 		propEffectSpeedupParam.setDefaultValue(PROP_EFFECT_SPEEDUP_DEFAULT);
@@ -393,8 +396,6 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		weightsParam.setValue(weights);
 		otherParams.addParameter(weightsParam);
 		
-		// link up default params
-		linkParams(otherParams);
 		HashMap<String, ArrayList<ParameterAPI<?>>> newParams = new HashMap<String, ArrayList<ParameterAPI<?>>>();
 		// now gather new params from IMRs
 		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
