@@ -143,42 +143,26 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 			Object defaultVal = imrs.get(0).getParameter(paramName).getDefaultValue();
 			if (defaultVal == null)
 				defaultVal = imrs.get(0).getParameter(paramName).getValue();
-			ParameterAPI masterParam = null;
-			if (paramName.equals(Vs30_Param.NAME)) {
-				vs30Param = new Vs30_Param();
-				masterParam = vs30Param;
-			} else if (paramName.equals(Vs30_TypeParam.NAME)) {
-				vs30_TypeParam = new Vs30_TypeParam();
-				masterParam = vs30_TypeParam;
-			} else if (paramName.equals(DepthTo2pt5kmPerSecParam.NAME)) {
-				depthTo2pt5kmPerSecParam = new DepthTo2pt5kmPerSecParam();
-				masterParam = depthTo2pt5kmPerSecParam;
-			} else if (paramName.equals(DepthTo1pt0kmPerSecParam.NAME)) {
-				depthTo1pt0kmPerSecParam = new DepthTo1pt0kmPerSecParam();
-				masterParam = depthTo1pt0kmPerSecParam;
-			} else {
-				// it's a custom param not in the atten rel abstract class
-				if (D) System.out.println(SHORT_NAME+": " + paramName + " is a custom param!");
-			}
+			ParameterAPI masterParam = imrs.get(0).getParameter(paramName);
+//			if (paramName.equals(Vs30_Param.NAME)) {
+//				vs30Param = masterParam;
+//			} else if (paramName.equals(Vs30_TypeParam.NAME)) {
+//				vs30_TypeParam = new Vs30_TypeParam();
+//				masterParam = vs30_TypeParam;
+//			} else if (paramName.equals(DepthTo2pt5kmPerSecParam.NAME)) {
+//				depthTo2pt5kmPerSecParam = new DepthTo2pt5kmPerSecParam();
+//				masterParam = depthTo2pt5kmPerSecParam;
+//			} else if (paramName.equals(DepthTo1pt0kmPerSecParam.NAME)) {
+//				depthTo1pt0kmPerSecParam = new DepthTo1pt0kmPerSecParam();
+//				masterParam = depthTo1pt0kmPerSecParam;
+//			} else {
+//				// it's a custom param not in the atten rel abstract class
+//				if (D) System.out.println(SHORT_NAME+": " + paramName + " is a custom param!");
+//			}
 			
-			for (int i=0; i<imrs.size(); i++) {
+			for (int i=1; i<imrs.size(); i++) {
 				ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
 				ParameterAPI imrParam = imr.getParameter(paramName);
-				if (i == 0) {
-					if (masterParam == null) {
-						// in this case, we're using the first instance of this param as the master
-						masterParam = imrParam;
-						trySetDefault(defaultVal, masterParam);
-						masterParam.setValue(defaultVal);
-						continue;
-					} else {
-						trySetDefault(defaultVal, masterParam);
-						masterParam.setValue(defaultVal);
-					}
-				} else {
-					if (masterParam.getDefaultValue() != null)
-						masterParam.setValueAsDefault();
-				}
 				trySetDefault(defaultVal, imrParam);
 				// link the master param to this imr's param
 				new ParamLinker(masterParam, imrParam);

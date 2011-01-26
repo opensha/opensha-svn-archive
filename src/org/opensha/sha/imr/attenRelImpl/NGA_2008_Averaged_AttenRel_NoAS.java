@@ -20,6 +20,9 @@ public class NGA_2008_Averaged_AttenRel_NoAS extends MultiIMR_Averaged_AttenRel 
 		imrs.add(new CB_2008_AttenRel(listener));
 		imrs.add(new BA_2008_AttenRel(listener));
 		imrs.add(new CY_2008_AttenRel(listener));
+		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+			imr.setParamDefaults();
+		}
 		return imrs;
 	}
 	

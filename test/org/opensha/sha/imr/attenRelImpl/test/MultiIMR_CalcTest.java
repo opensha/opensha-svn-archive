@@ -75,6 +75,13 @@ public class MultiIMR_CalcTest {
 
 		hc = new HazardCurveCalculator();
 	}
+	
+	private static MultiIMR_Averaged_AttenRel buildMulti(ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs,
+			Boolean propEffectSpeedup) {
+		MultiIMR_Averaged_AttenRel multi = new MultiIMR_Averaged_AttenRel(imrs);
+		multi.getParameter(MultiIMR_Averaged_AttenRel.PROP_EFFECT_SPEEDUP_PARAM_NAME).setValue(propEffectSpeedup);
+		return multi;
+	}
 
 	protected static ArrayList<ScalarIntensityMeasureRelationshipAPI> createNGAs(boolean setParamDefaults) {
 		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
@@ -121,7 +128,7 @@ public class MultiIMR_CalcTest {
 	public void testMultiIMRs_SA01() throws RemoteException {
 		ArrayList<ScalarIntensityMeasureRelationshipAPI> ngas1 = createNGAs(true);
 		ArrayList<ScalarIntensityMeasureRelationshipAPI> ngas2 = createNGAs(true);
-		testMultiIMRAverageCurve(new MultiIMR_Averaged_AttenRel(ngas1), ngas2, SA_Param.NAME, 1.0);
+		testMultiIMRAverageCurve(buildMulti(ngas1, false), ngas2, SA_Param.NAME, 1.0);
 	}
 
 	@Test
@@ -192,7 +199,7 @@ public class MultiIMR_CalcTest {
 		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs =
 			new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
 		imrs.add(imr);
-		MultiIMR_Averaged_AttenRel multi = new MultiIMR_Averaged_AttenRel(imrs);
+		MultiIMR_Averaged_AttenRel multi = buildMulti(imrs, false);
 		return multi;
 	}
 
@@ -202,7 +209,7 @@ public class MultiIMR_CalcTest {
 			new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
 		imrs.add(imr1);
 		imrs.add(imr2);
-		MultiIMR_Averaged_AttenRel multi = new MultiIMR_Averaged_AttenRel(imrs);
+		MultiIMR_Averaged_AttenRel multi = buildMulti(imrs, false);
 		return multi;
 	}
 
@@ -317,11 +324,15 @@ public class MultiIMR_CalcTest {
 			if (ySingleAvg == yMulti && ySingleAvg != 0d)
 				perfectMatches++;
 
+			double absDiff = Math.abs(ySingleAvg - yMulti);
 			double diff = DataUtils.getPercentDiff(ySingleAvg, yMulti);
 			String vals = ySingleAvg + ", " + yMulti + ", PDIFF: " + diff;
-			assertTrue(meta+" PDiff1 greater than "+max_avg_curve_pt_diff+"\n"+vals, diff < max_avg_curve_pt_diff);
-
-			tracker1.addValue(diff);
+			if (absDiff > 1e-10) {
+				assertTrue(meta+" PDiff1 greater than "+max_avg_curve_pt_diff+"\n"+vals,
+						diff < max_avg_curve_pt_diff || absDiff < 1e-10);
+				
+				tracker1.addValue(diff);
+			}
 			String singleVals = null;
 			for (DiscretizedFuncAPI singleCurve : singleCurves) {
 				if (singleVals == null)
@@ -330,7 +341,8 @@ public class MultiIMR_CalcTest {
 					singleVals += "\t";
 				singleVals += "("+(float)singleCurve.getY(j)+")";
 			}
-			System.out.println(x+"\t"+(float)yMulti+"\t"+(float)ySingleAvg+"\t"+(float)diff+"\t"+singleVals);
+			System.out.println("x: "+x+"\tmulti: "+(float)yMulti+"\tsingleAvg: "+(float)ySingleAvg
+					+"\tpDiff: "+(float)diff+"\tind vals: "+singleVals);
 		}
 		//		System.out.println(multiCurve);
 		//		System.out.println(averageCurve);
@@ -427,7 +439,7 @@ public class MultiIMR_CalcTest {
 		imrs.add(cb08_multi);
 		imrs.add(ba08_multi);
 
-		MultiIMR_Averaged_AttenRel multiIMR = new MultiIMR_Averaged_AttenRel(imrs);
+		MultiIMR_Averaged_AttenRel multiIMR = buildMulti(imrs, false);
 
 		setIMT(multiIMR, imt, period);
 		setIMT(cb08_master, imt, period);
