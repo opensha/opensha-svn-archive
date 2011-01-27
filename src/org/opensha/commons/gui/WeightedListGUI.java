@@ -36,6 +36,8 @@ public class WeightedListGUI extends JPanel implements ChangeListener, ItemListe
 	private ArrayList<JSlider> sliders;
 	private ArrayList<JTextField> textFields;
 	
+	public static final int MINIMUM_WIDTH = 200;
+	
 	private WeightedList<?> list;
 	
 	private JScrollPane editorsScroll;
@@ -126,7 +128,7 @@ public class WeightedListGUI extends JPanel implements ChangeListener, ItemListe
 		}
 		
 		editorsScroll.setPreferredSize(new Dimension(200, 200));
-		editorsScroll.setMinimumSize(new Dimension(200, 200));
+//		editorsScroll.setMinimumSize(new Dimension(200, 200));
 		
 		editorsScroll.invalidate();
 	}

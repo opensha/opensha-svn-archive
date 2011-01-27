@@ -161,11 +161,14 @@ public abstract class NewParameterEditor<E> extends LabeledBorderPanel implement
 				this.add(widget);
 			}
 		}
+		widget.validate();
+		this.validate();
 		super.setToolTipText(getLabelToolTipText());
 		widget.setToolTipText(getWidgetToolTipText());
 		//		mainPanel.setMinimumSize( WIGET_PANEL_DIM );
 		//		mainPanel.setPreferredSize( WIGET_PANEL_DIM );
 		editorPanel.invalidate();
+		
 	}
 
 	@Override
@@ -212,7 +215,7 @@ public abstract class NewParameterEditor<E> extends LabeledBorderPanel implement
 		return getLabelToolTipText();
 	}
 
-	private void removeWidget() {
+	protected void removeWidget() {
 		if (widget != null)
 			super.remove(widget);
 	}
