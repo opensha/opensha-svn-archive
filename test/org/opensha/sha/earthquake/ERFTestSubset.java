@@ -121,8 +121,10 @@ public class ERFTestSubset implements EqkRupForecastAPI {
 	}
 	
 	public void includeSource(int sourceID) {
-		if (sourceIDMap.containsKey(new Integer(sourceID)))
+		if (sourceIDMap.containsValue(new Integer(sourceID))) {
+			System.out.println("source "+sourceID+" already included!");
 			return; // it's already included
+		}
 		if (sourceID < 0 || sourceID >= baseERF.getNumSources())
 			throw new IndexOutOfBoundsException("source ID to include is out of bounds!");
 		int newID = this.getNumSources();

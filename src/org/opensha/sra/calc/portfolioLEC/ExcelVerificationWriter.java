@@ -34,13 +34,28 @@ public class ExcelVerificationWriter {
 		ArrayList<PortfolioRuptureResults> results = new ArrayList<PortfolioRuptureResults>();
 		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
 			for (int rupID=0; rupID<erf.getNumRuptures(sourceID); rupID++) {
+				System.out.println("Adding rup: "+sourceID+","+rupID);
 				results.add(rupResults[sourceID][rupID]);
 			}
 		}
 		int numRups = results.size();
+		System.out.println("NUM RESULTS: " + numRups);
 		int numAssets = results.get(0).getAssetRupResults().size();
 		
-		int curRow = 4;
+		int curRow = 1;
+		HSSFRow rupIDRow = sheet.getRow(curRow++);
+		HSSFRow rupProbRow = sheet.getRow(curRow++);
+		
+		int myRupID = 0;
+		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
+			for (int rupID=0; rupID<erf.getNumRuptures(sourceID); rupID++) {
+				int colNum = 1+myRupID;
+				rupIDRow.getCell(colNum).setCellValue(""+myRupID++);
+				rupProbRow.getCell(colNum).setCellValue(""+erf.getRupture(sourceID, rupID).getProbability());
+			}
+		}
+		
+		curRow++; // separator
 		// this is for the ASSETS part
 		for (int assetNum=0; assetNum<numAssets; assetNum++) {
 			HSSFRow mLnRow = sheet.getRow(curRow++);
@@ -88,8 +103,8 @@ public class ExcelVerificationWriter {
 				lDamage_medIMLRow.getCell(cellNum).setCellValue(res.getLDamage_medIML());
 				imlHighInterRow.getCell(cellNum).setCellValue(res.getIML_hInter());
 				imlLowInterRow.getCell(cellNum).setCellValue(res.getIML_lInter());
-				System.out.println(imlHighIntraRow.getCell(0).getStringCellValue());
-				System.out.println(imlHighIntraRow.getCell(cellNum).getStringCellValue());
+//				System.out.println(imlHighIntraRow.getCell(0).getStringCellValue());
+//				System.out.println(imlHighIntraRow.getCell(cellNum).getStringCellValue());
 				imlHighIntraRow.getCell(cellNum).setCellValue(res.getIML_hIntra());
 				imlLowIntraRow.getCell(cellNum).setCellValue(res.getIML_lIntra());
 				mDamage_hInterRow.getCell(cellNum).setCellValue(res.getMDamage_hInter());
@@ -120,7 +135,25 @@ public class ExcelVerificationWriter {
 			HSSFRow betaVJRow = sheet.getRow(curRow++);
 			HSSFRow medValueRow = sheet.getRow(curRow++);
 			
-			curRow += numLs*2; // skip the Ls
+			// portfolio section
+			HSSFRow[] lRows = new HSSFRow[numLs];
+			HSSFRow[] lSquaredRows = new HSSFRow[numLs];
+			
+			for (int lInd=0; lInd<numLs; lInd++) {
+				lRows[lInd] = sheet.getRow(curRow++);
+				lSquaredRows[lInd] = sheet.getRow(curRow++);
+			}
+			for (int rupID=0; rupID<numRups; rupID++) {
+				PortfolioRuptureResults rupResult = results.get(rupID);
+				int cellNum = 1+rupID;
+				
+				for (int lInd=0; lInd<numLs; lInd++) {
+					double lVal = rupResult.getL_indv()[assetNum][lInd];
+					lRows[lInd].getCell(cellNum).setCellValue(lVal);
+					lSquaredRows[lInd].getCell(cellNum).setCellValue(lVal*lVal);
+				}
+			}
+//			curRow += numLs*2; // skip the Ls
 			curRow++; // other data
 			curRow++; // other data
 			curRow++; // separator row

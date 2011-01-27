@@ -9,14 +9,16 @@ public class PortfolioRuptureResults {
 	private ArrayList<AssetRuptureResult> assetRupResults;
 	private double[] l;
 	private double[] lSquared;
+	private double[][] l_indv;
 	private ArbitrarilyDiscretizedFunc exceedanceProbs;
 	
 	double w0, wi, e_LgivenS, e_LSuqaredGivenS, varLgivenS, deltaSquaredSubLgivenS,
 			thetaSubLgivenS, betaSubLgivenS;
 	
 	public PortfolioRuptureResults(
-			ArrayList<AssetRuptureResult> assetRupResults, double[] l,
-			double[] lSquared, ArbitrarilyDiscretizedFunc exceedanceProbs,
+			ArrayList<AssetRuptureResult> assetRupResults,
+			double[] l, double[] lSquared, double[][] l_indv,
+			ArbitrarilyDiscretizedFunc exceedanceProbs,
 			double w0, double wi, double e_LgivenS, double e_LSuqaredGivenS,
 			double varLgivenS, double deltaSquaredSubLgivenS,
 			double thetaSubLgivenS, double betaSubLgivenS) {
@@ -24,6 +26,7 @@ public class PortfolioRuptureResults {
 		this.assetRupResults = assetRupResults;
 		this.l = l;
 		this.lSquared = lSquared;
+		this.l_indv = l_indv;
 		this.exceedanceProbs = exceedanceProbs;
 		this.w0 = w0;
 		this.wi = wi;
@@ -45,6 +48,10 @@ public class PortfolioRuptureResults {
 
 	public double[] getLSquared() {
 		return lSquared;
+	}
+
+	public double[][] getL_indv() {
+		return l_indv;
 	}
 
 	public ArbitrarilyDiscretizedFunc getExceedanceProbs() {

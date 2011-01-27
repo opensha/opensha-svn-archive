@@ -36,16 +36,17 @@ public class PortfolioLossExceedenceCurveCalculatorTest {
 		if (smallERF) {
 			ERFTestSubset erf = new ERFTestSubset(new Frankel96_AdjustableEqkRupForecast());
 			erf.updateForecast();
+			erf.includeSource(281);
+			erf.includeSource(22);
+			erf.includeSource(48);
+//			erf.includeSource(179);
+//			erf.includeSource(63);
+//			erf.includeSource(172);
 			erf.includeSource(0);
-			erf.includeSource(1);
-			erf.includeSource(2);
-			erf.includeSource(3);
-			erf.includeSource(4);
-			erf.includeSource(5);
-			erf.includeSource(6);
-			erf.includeSource(7);
-			erf.includeSource(8);
-			erf.includeSource(9);
+//			erf.includeSource(1);
+//			erf.includeSource(282);
+//			erf.includeSource(181);
+			erf.includeSource(51);
 			PortfolioLossExceedenceCurveCalculatorTest.erf = erf;
 		} else {
 			Frankel96_AdjustableEqkRupForecast erf = new Frankel96_AdjustableEqkRupForecast();
@@ -69,11 +70,11 @@ public class PortfolioLossExceedenceCurveCalculatorTest {
 		VulnerabilityServletAccessor accessor = new VulnerabilityServletAccessor();
 		
 		MonetaryValue value1 = new MonetaryHighLowValue(220000.0, 330000.0, 110000.0, 2007);
-		Site site1 = new Site(new Location(33.15, -118.12));
+		Site site1 = new Site(new Location(34, -118));
 		Vulnerability vuln1 = accessor.getVuln("C1H-h-AGR1-DF");
 		
 		MonetaryValue value2 = new MonetaryHighLowValue(200000.0, 300000.0, 100000.0, 2004);
-		Site site2 = new Site(new Location(33.11, -118.19));
+		Site site2 = new Site(new Location(34.1, -117.9));
 		Vulnerability vuln2 = accessor.getVuln("C1H-h-COM10-DF");
 		
 		ListIterator<ParameterAPI<?>> it = imr.getSiteParamsIterator();

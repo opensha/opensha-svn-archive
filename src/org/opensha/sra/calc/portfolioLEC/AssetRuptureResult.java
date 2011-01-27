@@ -75,6 +75,12 @@ public class AssetRuptureResult {
 		this.medValue = medValue;
 		this.hValue = hValue;
 		this.lValue = lValue;
+		
+		this.deltaJ_medIML = deltaJ_medIML;
+		this.deltaJ_imlHighInter = deltaJ_imlHighInter;
+		this.deltaJ_imlLowInter = deltaJ_imlLowInter;
+		this.deltaJ_imlHighIntra = deltaJ_imlHighIntra;
+		this.deltaJ_imlLowIntra = deltaJ_imlLowIntra;
 	}
 	public double getMedIML() {
 		return medIML;
