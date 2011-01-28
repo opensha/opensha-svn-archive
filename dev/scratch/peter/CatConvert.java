@@ -19,7 +19,7 @@ import org.opensha.commons.eq.cat.io.Reader_SCEDC;
 public class CatConvert {
 	
 	private static Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("PDT"));
-	
+	//
 	// El-Mayor-Cucapah.cat
 	//		start: 01-01-2010
 	//		  end: 12-09-2010
@@ -29,7 +29,7 @@ public class CatConvert {
 		Catalog catOut = null;
 		try {
 			File in = new File("tmp/cat_gen/El-Mayor-Cucapah.cat");
-			File out = new File("tmp/cat_gen/El-Mayor-Cucapah_Mgt4.js");
+			File out = new File("tmp/cat_gen/El-Mayor-Cucapah_Mgt3.js");
 			MutableCatalog cat = new MutableCatalog(in, new Reader_SCEDC(20000));
 			System.out.println(" Source Size: " + cat.size());
 			cal.set(2010,0,1,0,0,0);
@@ -38,7 +38,7 @@ public class CatConvert {
 			long end = cal.getTimeInMillis();
 			ExtentsFilter filter = new ExtentsFilter();
 			filter.setDates(start, end);
-			filter.setMagnitudes(4, 8);
+			filter.setMagnitudes(3, 8);
 			int[] idx = filter.process(cat);
 			catOut = cat.deriveCatalog(idx, new MutableCatalog());
 			System.out.println("Trimmed Size: " + catOut.size());
