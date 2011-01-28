@@ -139,11 +139,11 @@ public class UCERF2 extends EqkRupForecast {
 	private StringParameter floaterTypeParam;
 	
 	// rate for M>=5
-	public final static String TOT_MAG_RATE_PARAM_NAME = "Total M�5 Rate";
+	public final static String TOT_MAG_RATE_PARAM_NAME = "Total M≥5 Rate";
 	public final static Double TOT_MAG_RATE_MIN = new Double(2.0);
 	public final static Double TOT_MAG_RATE_MAX = new Double(20.0);
 	public final static Double TOT_MAG_RATE_DEFAULT = new Double(3.6);
-	private final static String TOT_MAG_RATE_INFO = "Total rate of M�5 events in the RELM test region (e.g, 3.60 for no aftershocks, or 7.84 including aftershocks)";
+	private final static String TOT_MAG_RATE_INFO = "Total rate of M≥5 events in the RELM test region (e.g, 3.60 for no aftershocks, or 7.84 including aftershocks)";
 	private DoubleParameter totalMagRateParam ;
 
 	// Aftershock/Foreshock Fraction
@@ -935,7 +935,7 @@ public class UCERF2 extends EqkRupForecast {
 	 */
 	private void  makeBackgroundGridSources() {
 
-		// get the total rate of M�5 events & b-value
+		// get the total rate of M≥5 events & b-value
 		double rate = ((Double)totalMagRateParam.getValue()).doubleValue();
 		double bValue = ((Double)regionB_ValParam.getValue()).doubleValue();
 

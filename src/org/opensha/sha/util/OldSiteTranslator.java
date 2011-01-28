@@ -101,7 +101,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
  * <LI> Very-Firm-Soil	        if CD
  * <LI> Soft-Rock		if C
  * <LI> BC-Bounday              if BC
- * <LI> Firm-Rock		if B�
+ * <LI> Firm-Rock		if B
  * </UL>
  *
  * ShakeMap_2003_AttenRel.WILLS_SITE_NAME (ShakeMap (2003))<p>

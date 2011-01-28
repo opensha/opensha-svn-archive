@@ -278,7 +278,7 @@ public class ReportBulgeFigures {
 									" , " + slipModelOptions.get(islip));
 							continue;
 						}
-						// print out pred rate of M�6.5 and ratio with respect to obsBestFitCumMFD at same mag
+						// print out pred rate of M≥6.5 and ratio with respect to obsBestFitCumMFD at same mag
 						double predCumRate = getTotalMFD().getCumRate(6.5);
 
 						System.out.println((float)(predCumRate/obVal)+" , "+(float)predCumRate+" , "+magAreaOptions.get(imag)+
@@ -343,7 +343,7 @@ public class ReportBulgeFigures {
 											" , " + slipModelOptions.get(islip));
 									continue;
 								}
-								// print out pred rate of M�6.5 and ratio with respect to obsBestFitCumMFD at same mag
+								// print out pred rate of M≥6.5 and ratio with respect to obsBestFitCumMFD at same mag
 								double predCumRate = ucerf2.getTotalMFD().getCumRate(6.5);
 								ratio = (predCumRate/obVal);
 								str = (float)(predCumRate/obVal)+" , "+(float)predCumRate+" , "+magAreaOptions.get(imag)+

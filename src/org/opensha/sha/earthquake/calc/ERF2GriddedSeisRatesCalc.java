@@ -244,12 +244,12 @@ for(int m=0;m<testFunc.getNum();m++)
         magRateDist.add(null);
       }
       else {
-    	  // get the cumulative dist of the ArbDiscrFunc (sum of values � X)
+    	  // get the cumulative dist of the ArbDiscrFunc (sum of values ≤ X)
         ArbitrarilyDiscretizedFunc cumDist = funcs[i].getCumDist();
         //if(i==0) System.out.println("cum function>>>>>>\n"+func.toString());
         int numMags = cumDist.getNum();
         ArbitrarilyDiscretizedFunc magRateFunction = new ArbitrarilyDiscretizedFunc();
-        // now convert it to the cumulative mag-freq-dist (sum of values � each mag)
+        // now convert it to the cumulative mag-freq-dist (sum of values ≤ each mag)
         magRateFunction.set(cumDist.getX(0), cumDist.getY(numMags- 1));
         for (int magIndex=1; magIndex < numMags;  ++magIndex) {
           double rates = cumDist.getY(numMags- 1) - cumDist.getY(magIndex-1);

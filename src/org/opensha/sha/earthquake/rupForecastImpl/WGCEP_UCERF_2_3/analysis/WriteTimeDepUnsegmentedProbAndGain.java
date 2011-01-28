@@ -50,7 +50,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.A_Faults.A_Fau
 public class WriteTimeDepUnsegmentedProbAndGain {
 	private final static String PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/analysis/files/";
 	
-	private final static String README_TEXT = "This Excel spreadsheet tabulates Rupture Probability, Rupture Prob for Mag�6.7, "+
+	private final static String README_TEXT = "This Excel spreadsheet tabulates Rupture Probability, Rupture Prob for Mag≥6.7, "+
 		" andRupture Gain (each on a different sheet) for all Type-A fault (including unsegmented models, which is why segment "+
 		" rates are not listed) and for various logic-tree branches."+
 		" The exact parameter settings for each logic-tree branch are listed in the \"Parameter Settings\""+

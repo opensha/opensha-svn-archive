@@ -519,18 +519,18 @@ ParameterChangeFailListener, ActionListener{
 		xValsParamListEditor = new ParameterListEditor(xValsParamList);
 		xValsParamListEditor.setTitle(X_TITLE_SUFFIX);
 
-		this.minProbParamName = "Prob (� Min)";
+		this.minProbParamName = "Prob (≥ Min)";
 		minProbParam = new DoubleParameter(minProbParamName,0,1);
-		this.maxProbParamName = "Prob (� Max)";
+		this.maxProbParamName = "Prob (≤ Max)";
 		maxProbParam = new DoubleParameter(maxProbParamName,0,1);
-		this.prefferedProbParamName = "Prob (� Preferred)";
+		this.prefferedProbParamName = "Prob (≥ Preferred)";
 		prefferedProbParam = new DoubleParameter(prefferedProbParamName,0,1);
 		ParameterList probParamList = new ParameterList();
 		probParamList.addParameter(minProbParam);
 		probParamList.addParameter(prefferedProbParam);
 		probParamList.addParameter(maxProbParam);
 		probValsParamListEditor = new ParameterListEditor(probParamList);
-		probValsParamListEditor.setTitle("Probability � Values");
+		probValsParamListEditor.setTitle("Probability ≈ Values");
 
 		//setEstimateButton = new JButton("Set Estimate");
 		viewEstimateButton = new JButton("Plot & Set Estimate");

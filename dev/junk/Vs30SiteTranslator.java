@@ -23,15 +23,15 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
  Abrahamson & Silva (1997) & Abrahamson (2000):
  ----------------------------------------------
 
- NA 				if Vs30�180
- Deep-Soil			if Vs30 � 400 m/s & Basin-Depth-2.5 � 100 m
+ NA 				if Vs30≤180
+ Deep-Soil			if Vs30 ≤ 400 m/s & Basin-Depth-2.5 ≤ 100 m
  Rock/Shallow-Soil		otherwise
 
  Sadigh et al. (1997):
  ---------------------
 
- NA 				if Vs30�180
- Deep-Soil			if Vs30 � 400 m/s & Basin-Depth-2.5 � 100 m
+ NA 				if Vs30≤180
+ Deep-Soil			if Vs30 ≤ 400 m/s & Basin-Depth-2.5 ≤ 100 m
  Rock				otherwise
 
  Boore et al. (1997)
@@ -42,12 +42,12 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
  Campbell (1997)
  ---------------
 
- NA 				if Vs30�180
- Firm-Soil			if 180<Vs30�400
- Soft-Rock			if 400<Vs30�500
- Hard-Rock			if 500>Vs30
+ NA 				if Vs30 ≤ 180
+ Firm-Soil			if 180 < Vs30 ≤ 400
+ Soft-Rock			if 400 < Vs30 ≤ 500
+ Hard-Rock			if 500 > Vs30
 
- Campbell-Basin-Depth = 0                    		if Vs30 � 400
+ Campbell-Basin-Depth = 0                    	if Vs30 ≥ 400
  Campbell-Basin-Depth = Basin-Depth-2.5      	if Vs30 < 400
 
  Field (2000)
@@ -59,11 +59,11 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
  Campbell & Bozorgnia (2003)
  ---------------------------
 
- NA 			if Vs30�180
- Firm-Soil		if 180<Vs30�300
- Very-Firm-Soil	        if 300<Vs30�400
- Soft-Rock		if 400<Vs30�500
- Firm-Rock		if 500>Vs30
+ NA 			if Vs30 ≤ 180
+ Firm-Soil		if 180 < Vs30 ≤ 300
+ Very-Firm-Soil	if 300 < Vs30 ≤ 400
+ Soft-Rock		if 400 < Vs30 ≤ 500
+ Firm-Rock		if 500 > Vs30
 
  ShakeMap (2003)
  ---------------

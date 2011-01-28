@@ -1278,7 +1278,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 	     }
 	     
 	     System.out.println("Background Sources:");
-//	     double backCorr = 0.83;  // this brings the total rate of forecasted M�5 events equal to Karen's 3.3
+//	     double backCorr = 0.83;  // this brings the total rate of forecasted M≥5 events equal to Karen's 3.3
 	     double backCorr = 1.0;  
 	     for(int i=0; i < frankCast.frankelBackgrSeisSources.size(); i++) {
 	    	 ProbEqkSource source = (ProbEqkSource) frankCast.frankelBackgrSeisSources.get(i);

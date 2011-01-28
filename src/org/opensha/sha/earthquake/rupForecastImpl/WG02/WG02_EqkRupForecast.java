@@ -200,7 +200,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast{
     String interation = st.nextToken().toString();
 
     // 2nd line is background seismicity stuff
-    // the vals are N(M�M1), b_val, M1, M2 -- Extrapolate this down to M = 5.0! (M1 > 5.0)
+    // the vals are N(M≥M1), b_val, M1, M2 -- Extrapolate this down to M = 5.0! (M1 > 5.0)
     st = new StringTokenizer(it.next().toString());
 
     // make the background source if it's desired
@@ -283,7 +283,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast{
       // line with the GR tail stuff
       st = new StringTokenizer(it.next().toString());
       // skipping for now
-      // vals are M1, M2, N(M�M1), b_val
+      // vals are M1, M2, N(M ≥ M1), b_val
       if(grTailValue.equals(WG02_ERF_Epistemic_List.SEIS_INCLUDE)) {
 
         tail_M1 = new Double(st.nextToken()).doubleValue();

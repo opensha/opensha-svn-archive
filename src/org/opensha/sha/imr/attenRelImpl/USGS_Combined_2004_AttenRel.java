@@ -97,7 +97,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
  * Important Notes:
  * <UL>
  * The Borcherdt (1994) nonlinear amplification factors are applied as given in appendix-equations
- * 7a or 7b (for periods � 0.5 and  > 0.5 seconds, respectively) using a reference velocity of 760 m/sec
+ * 7a or 7b (for periods ≤ 0.5 and  > 0.5 seconds, respectively) using a reference velocity of 760 m/sec
  * (and with the mv and ma coefficients linearly interpolated at intermediate input ground motions).
  * Applying the mid-period amplification factors above 2.0 seconds for SA may not be legitimate. <p>
  * For the one relationship that has a site-type dependent standard deviation
@@ -148,7 +148,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
  * I checked that the amplification factors being applied are correct in two ways: 1) I divided map
  * data with site effects by a rock-site map (vs30=760), and then divided the log of this amp factor
  * by log(760/vs30), and confirmed that the result plotted versus rock-pga is close to the functional form
- * of ma (or mv for periods � 0.5) versus rock-pga in the Borcherdt2004_SiteAmpCalc (the match
+ * of ma (or mv for periods ≥ 0.5) versus rock-pga in the Borcherdt2004_SiteAmpCalc (the match
  * is not exact because amp factors are applied to each relationship before taking the average);
  * 2) I wrote out the ma (or mv) and amp values in the Borcherdt2004_SiteAmpCalc to make sure they
  * are correct.  Everything looked good.

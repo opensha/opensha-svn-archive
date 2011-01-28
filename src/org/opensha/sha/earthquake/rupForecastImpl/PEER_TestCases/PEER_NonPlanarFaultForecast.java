@@ -444,7 +444,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast{
 
        if(D) {
          System.out.println(S);
-         System.out.println("   rate�5="+(float)grMagFreqDist.getCumRate(5.05));
+         System.out.println("   rate≥5="+(float)grMagFreqDist.getCumRate(5.05));
          System.out.println("   segType = "+segType);
          System.out.println("   faultModel = "+faultModel);
          System.out.println("   magUpper = "+magUpper);

@@ -226,7 +226,7 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
       double depthUpper =((Double)this.depthUpperParam.getValue()).doubleValue();
 
       if (depthUpper > depthLower)
-          throw new RuntimeException("Upper Seis Depth must be � Lower Seis Depth");
+          throw new RuntimeException("Upper Seis Depth must be ≤ Lower Seis Depth");
 
       //gets the change in latitude for grid spacing specified
       Location gridCenter = new Location(LAT_CENTER, LONG_CENTER);

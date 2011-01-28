@@ -163,7 +163,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
     * is preserved (although the total moment rates of the two functions may differ if any
     * endpoints were ignored).  Otherwise total rates are preserved (assuming no endpoints are
     * ignored). Discretization of this MFD should  be same (or more densely discretized) than 
-    * that passed in or significant biases will result from the rounding (due to � rules for
+    * that passed in or significant biases will result from the rounding (due to ≥ rules for
     * values exactly halfway between).
     *  
     * @param func the new Magnitude Frequency distribution to be added
@@ -188,7 +188,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
     * value (ignoring those out of range).  If the preserveRates boolean is false, then the moment 
     * rate of the point is preserved (assuming it's in range).  Otherwise the rate of that point 
     * is preserved. Discretization of this MFD should  be same (or more densely discretized) than 
-    * that passed in or significant biases will result from the rounding (due to � rules for
+    * that passed in or significant biases will result from the rounding (due to ≥ rules for
     * values exactly halfway between).
     * @param mag & rate to be added
     * @param preserveRates specifies whether to preserve rates or moment rates

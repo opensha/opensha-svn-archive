@@ -20,12 +20,16 @@ public class CatConvert {
 	
 	private static Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("PDT"));
 	//
-	// pp test
+	// fjk
+
 	//
+	private String test;
+	
 	// El-Mayor-Cucapah.cat
 	//		start: 01-01-2010
 	//		  end: 12-09-2010
 
+	//
 	public static void main(String[] args) {
 
 		Catalog catOut = null;
@@ -54,6 +58,7 @@ public class CatConvert {
 			ioe.printStackTrace();
 		}
 	}
+	 
 	
 	
 }

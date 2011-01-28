@@ -52,8 +52,8 @@ public class WriteTimeDepSegmentedProbAndGain {
 	private final static String PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/analysis/files/";
 
 	
-	private final static String README_TEXT = "This Excel spreadsheet tabulates Rupture Probability, Rupture Prob for Mag�6.7, "+
-		"Rupture Gain, Segment Probability, Segment Prob for M�6.7, Segment Gain, Segment Rate, and Segment Recurrence"+
+	private final static String README_TEXT = "This Excel spreadsheet tabulates Rupture Probability, Rupture Prob for Mag≥6.7, "+
+		"Rupture Gain, Segment Probability, Segment Prob for M≥6.7, Segment Gain, Segment Rate, and Segment Recurrence"+
 		" Interval (each on a different sheet) for all Type-A fault segmented models,"+
 		" and for various logic-tree branches."+
 		" The exact parameter settings for each logic-tree branch are listed in the \"Parameter Settings\""+
