@@ -20,6 +20,8 @@ public class CatConvert {
 	
 	private static Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("PDT"));
 	//
+	// pp test
+	//
 	// El-Mayor-Cucapah.cat
 	//		start: 01-01-2010
 	//		  end: 12-09-2010
