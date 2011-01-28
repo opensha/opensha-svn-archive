@@ -6,8 +6,6 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
-import org.opensha.commons.data.xyz.ArrayBasedGeoDataSet;
-import org.opensha.commons.data.xyz.ArrayListBasedGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.geo.GriddedRegion;
@@ -21,20 +19,10 @@ public class CSVSimMeshConvert {
 		
 		System.out.println("loaded "+csv.getNumLines()+" from "+fName);
 		
-//		GeoDataSet pgv = new ArbDiscrGeoDataSet(true);
-//		GeoDataSet pga = new ArbDiscrGeoDataSet(true);
-//		GeoDataSet sa03 = new ArbDiscrGeoDataSet(true);
-//		GeoDataSet sa10 = new ArbDiscrGeoDataSet(true);
-		
-//		GeoDataSet pgv = new ArrayListBasedGeoDataSet(true);
-//		GeoDataSet pga = new ArrayListBasedGeoDataSet(true);
-//		GeoDataSet sa03 = new ArrayListBasedGeoDataSet(true);
-//		GeoDataSet sa10 = new ArrayListBasedGeoDataSet(true);
-		
-		ArrayBasedGeoDataSet pgv = new ArrayBasedGeoDataSet(true, csv.getNumLines());
-		ArrayBasedGeoDataSet pga = new ArrayBasedGeoDataSet(true, csv.getNumLines());
-		ArrayBasedGeoDataSet sa03 = new ArrayBasedGeoDataSet(true, csv.getNumLines());
-		ArrayBasedGeoDataSet sa10 = new ArrayBasedGeoDataSet(true, csv.getNumLines());
+		GeoDataSet pgv = new ArbDiscrGeoDataSet(true);
+		GeoDataSet pga = new ArbDiscrGeoDataSet(true);
+		GeoDataSet sa03 = new ArbDiscrGeoDataSet(true);
+		GeoDataSet sa10 = new ArbDiscrGeoDataSet(true);
 		
 		System.out.println("populating GeoDataSet's");
 		for (int i=0; i<csv.getNumLines(); i++) {
@@ -47,10 +35,10 @@ public class CSVSimMeshConvert {
 			double sa10Val = Double.parseDouble(line.get(5));
 			Location loc = new Location(lat, lon);
 			
-			pgv.set(i, loc, pgvVal);
-			pga.set(i, loc, pgaVal);
-			sa03.set(i, loc, sa03Val);
-			sa10.set(i, loc, sa10Val);
+			pgv.set(loc, pgvVal);
+			pga.set(loc, pgaVal);
+			sa03.set(loc, sa03Val);
+			sa10.set(loc, sa10Val);
 		}
 		
 		double spacing = 0.016667;
@@ -114,12 +102,14 @@ public class CSVSimMeshConvert {
 //		String dir = "/home/kevin/OpenSHA/hope_2011_01/g6d3";
 //		String dir = "/home/kevin/OpenSHA/hope_2011_01/g7d1_final";
 //		String dir = "/home/kevin/OpenSHA/hope_2011_01/v1d3_final";
-		String dir = "/home/kevin/OpenSHA/hope_2011_01/final2_4";
+//		String dir = "/home/kevin/OpenSHA/hope_2011_01/final2_4";
+		String dir = "/home/kevin/OpenSHA/hope_2011_01/M8_final";
 //		String fName = "final2_3.csv";
 //		String fName = "g6d3.csv";
 //		String fName = "g7d1_final.csv";
 //		String fName = "v1d3_final.csv";
-		String fName = "final2_4.csv";
+//		String fName = "final2_4.csv";
+		String fName = "M8_final.csv";
 		handleFile(dir, fName);
 	}
 

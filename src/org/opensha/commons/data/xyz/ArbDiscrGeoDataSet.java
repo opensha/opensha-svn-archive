@@ -40,7 +40,7 @@ public class ArbDiscrGeoDataSet extends AbstractGeoDataSet {
 	public void set(Location loc, double value) {
 		if (loc == null)
 			throw new NullPointerException("Location cannot be null");
-		if (!points.contains(loc))
+		if (!contains(loc))
 			points.add(loc);
 		map.put(loc, value);
 	}
@@ -62,7 +62,7 @@ public class ArbDiscrGeoDataSet extends AbstractGeoDataSet {
 
 	@Override
 	public boolean contains(Location loc) {
-		return points.contains(loc);
+		return map.containsKey(loc);
 	}
 	
 	public static ArbDiscrGeoDataSet loadXYZFile(String fileName, boolean latitudeX)

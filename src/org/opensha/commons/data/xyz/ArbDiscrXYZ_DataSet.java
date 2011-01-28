@@ -102,7 +102,7 @@ public class ArbDiscrXYZ_DataSet extends AbstractXYZ_DataSet {
 
 	@Override
 	public boolean contains(Point2D point) {
-		return points.contains(point);
+		return map.containsKey(point);
 	}
 
 	@Override

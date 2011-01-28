@@ -281,8 +281,8 @@ public class TestArbDiscrXYZ_DataSet {
 		assertEquals("value list size incorrect", data.size(), valList.size());
 		
 		for (int i=0; i<data.size(); i++) {
-			assertEquals("point from list doesn't equal point at index", data.getPoint(i), pointList.get(i));
-			assertEquals("value from list doesn't equal value at index", data.get(i), valList.get(i), 0d);
+			assertEquals("point from list at "+i+" doesn't equal point at index", data.getPoint(i), pointList.get(i));
+			assertEquals("value from list at "+i+" doesn't equal value at index", data.get(i), valList.get(i), 0d);
 		}
 	}
 	

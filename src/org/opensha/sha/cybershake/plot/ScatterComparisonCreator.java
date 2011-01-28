@@ -176,8 +176,8 @@ public class ScatterComparisonCreator {
 		int sgtVarID = 5;
 		int imTypeID = 21;
 		
-		boolean isProbAt_IML = false;
-		double val = 0.0;
+		boolean isProbAt_IML = true;
+		double val = 0.2;
 		
 		System.out.println("Creating Scatter Creator");
 		int erfID = 35;

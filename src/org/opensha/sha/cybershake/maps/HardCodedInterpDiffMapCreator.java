@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.data.xyz.AbstractGeoDataSet;
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.Location;
@@ -165,7 +166,7 @@ public class HardCodedInterpDiffMapCreator {
 		}
 	}
 	
-	private static ArbDiscrGeoDataSet loadBaseMap(boolean singleDay, boolean isProbAt_IML,
+	private static AbstractGeoDataSet loadBaseMap(boolean singleDay, boolean isProbAt_IML,
 			double val, int imTypeID, String name) throws FileNotFoundException, IOException {
 		int period;
 		if (imTypeID == 11)
@@ -231,8 +232,9 @@ public class HardCodedInterpDiffMapCreator {
 			boolean isProbAt_IML = true;
 			double val = 0.2;
 			String baseMapName = "cb2008";
-			ModProbConfig config = ModProbConfigFactory.getScenarioConfig(BombayBeachHazardCurveCalc.PARKFIELD_LOC);
-			boolean probGain = true;
+			ModProbConfig config = null;
+//			ModProbConfig config = ModProbConfigFactory.getScenarioConfig(BombayBeachHazardCurveCalc.PARKFIELD_LOC);
+			boolean probGain = false;
 			String customLabel;
 			if (probGain)
 				customLabel = "Probability Gain";
@@ -278,7 +280,7 @@ public class HardCodedInterpDiffMapCreator {
 		boolean singleDay = config != null;
 		double baseMapRes = 0.005;
 		System.out.println("Loading basemap...");
-		ArbDiscrGeoDataSet baseMap;
+		AbstractGeoDataSet baseMap;
 		if (!probGain) {
 			baseMap = loadBaseMap(singleDay, isProbAt_IML, val, imTypeID, baseMapName);
 			System.out.println("Basemap has " + baseMap.size() + " points");
@@ -287,7 +289,7 @@ public class HardCodedInterpDiffMapCreator {
 		}
 		
 		System.out.println("Fetching curves...");
-		ArbDiscrGeoDataSet scatterData;
+		AbstractGeoDataSet scatterData;
 		if (singleDay)
 			scatterData = getCustomScatter(config, imTypeID, isProbAt_IML, val);
 		else
@@ -302,7 +304,7 @@ public class HardCodedInterpDiffMapCreator {
 		CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
 				"/resources/cpt/MaxSpectrum2.cpt"));
 		
-		ArbDiscrGeoDataSet refScatter = null;
+		AbstractGeoDataSet refScatter = null;
 		if (probGain) {
 			ModProbConfig timeIndepModProb = ModProbConfigFactory.getModProbConfig(1);
 			refScatter = getCustomScatter(timeIndepModProb, imTypeID, isProbAt_IML, val);
