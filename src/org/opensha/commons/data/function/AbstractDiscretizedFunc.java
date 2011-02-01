@@ -93,16 +93,40 @@ NamedObjectAPI,java.io.Serializable{
 			throw new InvalidRangeException("Tolerance must be larger or equal to 0");
 		tolerance = newTolerance;
 	}
+	
+	private boolean areBothNull(String first, String second) {
+		return first == null && second == null;
+	}
+	
+	private boolean isOneNull(String first, String second) {
+		return first == null || second == null;
+	}
+	
+	private boolean isSameWithNull(String first, String second) {
+		if (areBothNull(first, second))
+			return true;
+		if (isOneNull(first, second))
+			return false;
+		return first.equals(second);
+	}
 
 	/**
 	 * Default equals for all Discretized Functions. Determines if two functions
 	 * are the same by comparing that the name and info are the same. Can
 	 * be overridden by subclasses for different requirements
 	 */
-	public boolean equals(XY_DataSetAPI function){
-		if (!(function instanceof DiscretizedFuncAPI))
+	public boolean equals(Object obj){
+//		if (true)
+//			return true;
+		if (!(obj instanceof DiscretizedFuncAPI))
 			return false;
-		if( !getName().equals(function.getName() )  ) return false;
+		DiscretizedFuncAPI function = (DiscretizedFuncAPI)obj;
+		if (!isSameWithNull(getName(), function.getName()))
+			return false;
+			
+		if ((getName() == null && function.getName() != null) ||
+				(getName() != null && !getName().equals(function.getName() )))
+			return false;
 
 		if( D ) {
 			String S = C + ": equals(): ";
@@ -111,7 +135,9 @@ NamedObjectAPI,java.io.Serializable{
 
 		}
 
-		if( !getInfo().equals(function.getInfo() )  ) return false;
+		if (!isSameWithNull(getInfo(), function.getInfo()))
+			return false;
+//		if( !getInfo().equals(function.getInfo() )  ) return false;
 		return true;
 	}
 

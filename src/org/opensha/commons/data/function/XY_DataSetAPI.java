@@ -135,12 +135,12 @@ public interface XY_DataSetAPI extends NamedObjectAPI, XMLSaveable, Serializable
 	 */
 	public String toString();
 
-	/**
-	 * Determines if two lists are equal. Typical implementation would verify
-	 * same number of points, and the all points are equal, using the DataPoint2D
-	 * equals() function.
-	 */
-	public boolean equals( XY_DataSetAPI function );
+//	/**
+//	 * Determines if two lists are equal. Typical implementation would verify
+//	 * same number of points, and the all points are equal, using the DataPoint2D
+//	 * equals() function.
+//	 */
+//	public boolean equals( XY_DataSetAPI function );
 
 	/**
 	 * prints out the state of the list, such as number of points,

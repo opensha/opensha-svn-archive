@@ -64,7 +64,10 @@ public class XY_DataSet extends AbstractXY_DataSet {
 	}
 
 	@Override
-	public boolean equals(XY_DataSetAPI function) {
+	public boolean equals(Object obj) {
+		if (!(obj instanceof XY_DataSet))
+			return false;
+		XY_DataSet function = (XY_DataSet)obj;
 		if( !getName().equals(function.getName() )  ) return false;
 
 		if( !getInfo().equals(function.getInfo() )  ) return false;

@@ -279,27 +279,14 @@ implements DependentParameterAPI<E>
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	/**
-	 * This should set the value of this individual parameter. The values of the independent parameters
-	 * will be set by the final setValueFromXMLMetadata method
-	 * 
-	 * @param el
-	 * @return
-	 */
-	public abstract boolean setIndividualParamValueFromXML(Element el);
-
-	public final boolean setValueFromXMLMetadata(Element el) {
-		// first set the value of this parameter
-		boolean success = this.setIndividualParamValueFromXML(el);
-
-		if (!success)
-			return false;
-
+	
+	protected final boolean setIndepParamsFromXML(Element el) {
 		Element depParamsEl = el.element(DependentParameterAPI.XML_INDEPENDENT_PARAMS_NAME);
 
 		if (depParamsEl == null)
 			return true;
+		
+		boolean success = true;
 
 		Iterator<Element> it = depParamsEl.elementIterator();
 		while (it.hasNext()) {

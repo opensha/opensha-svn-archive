@@ -22,6 +22,7 @@ package org.opensha.commons.param;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
+import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
@@ -68,6 +69,7 @@ ParameterAPI<E>, java.io.Serializable
 	public final static String XML_GROUP_METADATA_NAME = "Parameters";
 	public final static String XML_METADATA_NAME = "Parameter";
 	public final static String XML_COMPLEX_VAL_EL_NAME = "ComplexValue";
+	public final static String XML_NULL_VALUE = "(null)";
 	/** If true print out debug statements. */
 	protected final static boolean D = false;
 
@@ -521,7 +523,7 @@ ParameterAPI<E>, java.io.Serializable
 		xml.addAttribute("units", getUnits());
 		Object val = getValue();
 		if (val == null) {
-			xml.addAttribute("value", "");
+			xml.addAttribute("value", XML_NULL_VALUE);
 		} else {
 			if (val instanceof XMLSaveable) {
 				Element valEl = xml.addElement(XML_COMPLEX_VAL_EL_NAME);
@@ -542,6 +544,47 @@ ParameterAPI<E>, java.io.Serializable
 			}
 		}
 		return root;
+	}
+	
+	/**
+	 * This should set the value of this individual parameter. The values of the independent parameters
+	 * will be set by the final setValueFromXMLMetadata method
+	 * 
+	 * @param el
+	 * @return
+	 */
+	protected abstract boolean setIndividualParamValueFromXML(Element el);
+	
+	public final boolean setValueFromXMLMetadata(Element el) {
+		boolean setToNull = false;
+		
+		// first check for null
+		Attribute valueAtt = el.attribute("value");
+		if (valueAtt != null) {
+			if (valueAtt.getValue().equals(XML_NULL_VALUE)) {
+				try {
+					this.setValue(null);
+					setToNull = true;
+				} catch (ConstraintException e) {
+					return false;
+				} catch (ParameterException e) {
+					return false;
+				}
+			}
+		}
+		
+		boolean success = true;
+		// first set the value of this parameter
+		if (!setToNull)
+			success = this.setIndividualParamValueFromXML(el);
+
+		if (!success)
+			return false;
+		
+		if (this instanceof DependentParameter) {
+			success = ((DependentParameter)this).setIndepParamsFromXML(el);
+		}
+		return success;
 	}
 
 	//    public boolean setValueFromXMLMetadata(Element el) {

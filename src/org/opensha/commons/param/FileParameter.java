@@ -19,12 +19,6 @@ public class FileParameter extends Parameter<File> {
 	}
 
 	@Override
-	public boolean setValueFromXMLMetadata(Element el) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public int compareTo(Object parameter) throws ClassCastException {
 		// TODO Auto-generated method stub
 		return 0;
@@ -40,6 +34,11 @@ public class FileParameter extends Parameter<File> {
 	@Override
 	public Object clone() {
 		return new FileParameter(this.getName(), this.getValue());
+	}
+
+	@Override
+	public boolean setIndividualParamValueFromXML(Element el) {
+		return false;
 	}
 
 }
