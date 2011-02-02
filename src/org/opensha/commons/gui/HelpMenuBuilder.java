@@ -41,6 +41,7 @@ public class HelpMenuBuilder implements ActionListener {
 		this.appName = appName;
 		this.appShortName = appShortName;
 		this.appVersion = appVersion;
+		this.application = application;
 	}
 	
 	public void setGuideURL(String guideURL) {
@@ -87,7 +88,7 @@ public class HelpMenuBuilder implements ActionListener {
 		
 		helpMenu.addSeparator();
 		
-		aboutItem = new JMenuItem("About/Disclaimer");
+		aboutItem = new JMenuItem("About - License");
 		aboutItem.addActionListener(this);
 		helpMenu.add(aboutItem);
 		
@@ -137,6 +138,7 @@ public class HelpMenuBuilder implements ActionListener {
 			if (appVersionDialog ==  null) {
 				appVersionDialog = new AppVersionDialog(appName, appVersion);
 			}
+			System.out.println("pp: " + application);
 			appVersionDialog.setLocationRelativeTo(application);
 			appVersionDialog.setVisible(true);
 		}

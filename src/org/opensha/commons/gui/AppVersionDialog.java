@@ -1,48 +1,67 @@
 package org.opensha.commons.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Insets;
+import java.awt.Dimension;
 
+import javax.swing.BoxLayout;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import org.opensha.commons.util.ApplicationVersion;
+import org.opensha.ui.components.Resources;
 
+/**
+ * Class for an OpenSHA application 'About' dialog.
+ * 
+ * @author Peter Powers
+ * @version $Id:$
+ */
 public class AppVersionDialog extends JDialog {
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-	
-	private JTextArea textArea;
-	private JScrollPane textScroll;
+	private static final int margin = 16;
 
+	/**
+	 * Constructs a new 'About' dialog for OpenSHA applications with a logo
+	 * and license/disclaimer panel.
+	 * 
+	 * @param appName to use
+	 * @param appVersion to use
+	 */
 	public AppVersionDialog(String appName, ApplicationVersion appVersion) {
-		this.setLayout(new BorderLayout());
+		setResizable(false);
+		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		setPreferredSize(new Dimension(600, 320));
+		setLayout(new BorderLayout());
+		setResizable(false);
 		
-		String license = DisclaimerDialog.getLicense();
+		// app info
+		JPanel infoPanel = new JPanel();
+		infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.X_AXIS));
+		JLabel appIcon = new JLabel(Resources.getLogo64());
+		appIcon.setBorder(new EmptyBorder(margin, 0, margin, margin));
+		infoPanel.add(appIcon);
+		StringBuilder sb = new StringBuilder();
+		sb.append("<html><b>").append(appName);
+		sb.append("<br/>Version: ").append(appVersion).append("</b></html>");
+		JLabel appInfo = new JLabel(sb.toString());
+		infoPanel.add(appInfo);
+
+		// layout
+		JPanel p = new JPanel(new BorderLayout());
+		p.setBorder(new EmptyBorder(0,margin,margin,margin));
+		p.add(infoPanel, BorderLayout.PAGE_START);
+		p.add(DisclaimerDialog.getLicensePanel(), BorderLayout.CENTER);
+		getContentPane().add(p);
 		
-		textArea = new JTextArea(license);
-		textArea.setLineWrap(true);
-		textArea.setWrapStyleWord(true);
-		textArea.setEditable(false);
-		textScroll = new JScrollPane(textArea);
-		textScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		
-		this.add(textScroll, BorderLayout.CENTER);
-		String versionText = "<html><b>Application:</b> "+appName;
-		versionText += "<br><b>Version:</b> " + appVersion+"</html>";
-		
-		JLabel versionLabel = new JLabel(versionText);
-		versionLabel.setBorder(new EmptyBorder(new Insets(3, 3, 3, 3)));
-		
-		this.add(versionLabel, BorderLayout.SOUTH);
-		
-		this.setSize(600, 500);
+		pack();
+	}
+	
+	public static void main(String[] args) {
+		JDialog d = new AppVersionDialog("Test", new ApplicationVersion(1,2,3));
+		d.setVisible(true);
 	}
 
 }
