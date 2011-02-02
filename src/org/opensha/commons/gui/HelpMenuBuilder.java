@@ -138,7 +138,7 @@ public class HelpMenuBuilder implements ActionListener {
 			if (appVersionDialog ==  null) {
 				appVersionDialog = new AppVersionDialog(appName, appVersion);
 			}
-			System.out.println("pp: " + application);
+//			System.out.println("pp: " + application);
 			appVersionDialog.setLocationRelativeTo(application);
 			appVersionDialog.setVisible(true);
 		}
