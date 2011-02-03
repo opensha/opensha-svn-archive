@@ -189,6 +189,7 @@ extends HttpServlet {
 		
 		ArrayList<String> gmtMapScript = gmt.getGMT_ScriptLines(map, newDir);
 
+		System.out.println("Writing file and data for map: "+plotDirName);
 		//creating a new gmt script for the user and writing it ot the directory created for the user
 		FileWriter fw = new FileWriter(gmtScriptFile);
 		BufferedWriter bw = new BufferedWriter(fw);
@@ -214,17 +215,21 @@ extends HttpServlet {
 			ArbDiscrGeoDataSet.writeXYZFile(griddedData, newDir + "/" + new File(map.getXyzFileName()).getName());
 		}
 
+		System.out.println("Running command GMT for map: "+plotDirName);
 		//running the gmtScript file
 		String[] command = {
 				"sh", "-c", "/bin/bash " + gmtScriptFile};
 		RunScript.runScript(command);
 
+		System.out.println("Zipping results for map: "+plotDirName);
 		//create the Zip file for all the files generated
 		FileUtils.createZipFile(newDir);
 		//URL path to folder where all GMT related files and map data file for this
 		//calculations reside.
 		String mapImagePath = GMT_URL_PATH + GMT_DATA_DIR +
 		plotDirName + SystemUtils.FILE_SEPARATOR;
+		
+		System.out.println("DONE. Map URL for '"+plotDirName+"': "+mapImagePath);
 		
 		return mapImagePath;
 	}

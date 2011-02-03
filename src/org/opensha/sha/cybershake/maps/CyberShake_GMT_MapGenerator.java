@@ -70,7 +70,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 	}
 	
 	public ArrayList<String> getGMT_ScriptLines(InterpDiffMap map, String dir) throws GMT_MapException {
-		System.out.println("Generating map for dir: " + dir);
+		System.out.println("Generating map script for dir: " + dir);
 		
 		if (!dir.endsWith(File.separator))
 			dir += File.separator;
@@ -391,6 +391,8 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		}
 		
 		GMT_MapGenerator.addCleanup(gmtCommandLines, rmFiles);
+		
+		System.out.println("DONE generating map script for dir: " + dir);
 		
 		return gmtCommandLines;
 	}
