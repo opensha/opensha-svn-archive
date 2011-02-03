@@ -24,7 +24,7 @@ public class CS_InterpDiffMapServletAccessor {
 				map.setGriddedData(gridded);
 			}
 			if (scatter != null) {
-				scatter = gridded.copy();
+				scatter = scatter.copy();
 				scatter.log();
 				map.setScatter(scatter);
 			}
