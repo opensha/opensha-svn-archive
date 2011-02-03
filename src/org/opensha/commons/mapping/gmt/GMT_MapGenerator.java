@@ -530,7 +530,8 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			String scaleLabel, String metadata, String dirName)
 	throws GMT_MapException,RuntimeException{
 		GMT_Map map = getGMTMapSpecification(xyzDataSet);
-		map.setCustomLabel(scaleLabel);
+		if (scaleLabel != null && scaleLabel.length() > 0 && !scaleLabel.equals(" "))
+			map.setCustomLabel(scaleLabel);
 		
 		return this.makeMapUsingServlet(map, metadata, dirName);
 	}
