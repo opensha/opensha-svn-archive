@@ -36,7 +36,9 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			Location loc = scatterData.getLocation(i);
 			
 			double scatterVal = scatterData.get(i);
+			System.out.println("Getting closet val for scatter "+i);
 			double closestVal = xyz.getClosestVal(loc);
+			System.out.println("done. val="+closestVal);
 //			System.out.println("scatterVal: " + scatterVal);
 //			System.out.println("closestVal: " + closestVal);
 			
