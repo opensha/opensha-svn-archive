@@ -27,6 +27,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 	public static int[] dpis = {72, 150, 300};
 	
 	public static GeoDataSet getDiffs(GeoDataSet baseMap, GeoDataSet scatterData) {
+		System.out.println("Generating diffs for interpolation...");
 		GeoDataSet diffs = new ArbDiscrGeoDataSet(baseMap.isLatitudeX());
 		
 		XYZClosestPointFinder xyz = new XYZClosestPointFinder(baseMap);
@@ -43,6 +44,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			
 			diffs.set(lat, lon, scatterVal - closestVal);
 		}
+		System.out.println("DONE");
 		
 		return diffs;
 	}
