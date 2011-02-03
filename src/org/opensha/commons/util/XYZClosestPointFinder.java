@@ -77,22 +77,10 @@ public class XYZClosestPointFinder {
 	 * @return
 	 */
 	public double getClosestVal(Location pt1, double tolerance) {
-		double closest = Double.MAX_VALUE;
-		double closeVal = 0;
+		Location closest = getClosestLoc(pt1, tolerance);
 		
-		for (int i=0; i<dataset.size(); i++) {
-			Location pt2 = dataset.getLocation(i);
-			double val = dataset.get(i);
-//			double dist = Math.pow(val[0] - lat, 2) + Math.pow(val[1] - lon, 2);
-			double dist = LocationUtils.horzDistanceFast(pt1, pt2);
-			if (dist < closest) {
-				closest = dist;
-				closeVal = val;
-			}
-		}
-		
-		if (closest < tolerance)
-			return closeVal;
+		if (closest != null)
+			return dataset.get(closest);
 		else
 			return Double.NaN;
 	}

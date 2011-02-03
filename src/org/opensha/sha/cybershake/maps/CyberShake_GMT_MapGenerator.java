@@ -34,15 +34,13 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		
 		for (int i=0; i<scatterData.size(); i++) {
 			Location loc = scatterData.getLocation(i);
-			double lat = loc.getLatitude();
-			double lon = loc.getLongitude();
 			
 			double scatterVal = scatterData.get(i);
-			double closestVal = xyz.getClosestVal(lat, lon);
+			double closestVal = xyz.getClosestVal(loc);
 //			System.out.println("scatterVal: " + scatterVal);
 //			System.out.println("closestVal: " + closestVal);
 			
-			diffs.set(lat, lon, scatterVal - closestVal);
+			diffs.set(loc, scatterVal - closestVal);
 		}
 		System.out.println("DONE");
 		
