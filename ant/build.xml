@@ -305,7 +305,10 @@
 		<copy todir="${build}/resources/images" overwrite="true">
 			<fileset dir="${src}/resources/images" />
 		</copy>
-		
+
+		<copy file="${src}/resources/LICENSE.html" 
+			tofile="${build}/resources/LICENSE.html" overwrite="true" />
+
 		<antcall target="resource.app.icons" />
 		
 		<copy todir="${build}/resources/help" overwrite="true">
