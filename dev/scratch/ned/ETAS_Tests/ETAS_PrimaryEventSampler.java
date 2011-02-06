@@ -95,9 +95,9 @@ public class ETAS_PrimaryEventSampler {
 			}
 			else {  // apply adaptive block sizes
 				if (dist > ADAPT_BLOCK_DIST1) 
-					subBlocks = origBlock.getSubBlocks(2, 2, erf);
+					subBlocks = origBlock.getSubBlocks(3, 3, erf);
 				else 
-					subBlocks = origBlock.getSubBlocks(4, 4, erf);
+					subBlocks = origBlock.getSubBlocks(6, 6, erf);
 				for(EqksInGeoBlock subBlock:subBlocks) {
 					double dist2 = LocationUtils.distanceToSurfFast(subBlock.getBlockCenterLoc(), rupSurf);
 					revisedBlockDistances.add(dist2);

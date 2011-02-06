@@ -374,17 +374,17 @@ public class ETAS_Simulator {
 		// point source in center of sub block
 		mainShock.setPointSurface(new Location(34.0125,	-118.0125,	6.0));
 		etasSimulator.runTests(mainShock,"M5 Pt Src at 34.0125,-118.0125,6.0 (sub-block center)",null);
-
+*/
 		// 68	S. San Andreas;CH+CC+BB+NM+SM+NSB+SSB+BG+CO	 #rups=8
 		mainShock = meanUCERF2.getSource(68).getRupture(4);
 		etasSimulator.runTests(mainShock,"SSAF Wall-to-wall Rupture; M="+mainShock.getMag(), null);
-*/
-/**/	
+
+/*	
 		// 195	Landers Rupture	 #rups=46 (rup 41 for M 7.25)
 		mainShock = meanUCERF2.getSource(195).getRupture(41);
 		etasSimulator.runTests(mainShock,"Landers Rupture; M="+mainShock.getMag(), 195);
 
-/*
+
 		// 236	Pitas Point (Lower, West)	 #rups=19	13.0 (shallowest dipping rupture I could find)
 		mainShock = meanUCERF2.getSource(236).getRupture(10);
 		String info = "Pitas Point (shallowest dipping source); M="+mainShock.getMag()+"; AveDip="+mainShock.getRuptureSurface().getAveDip();
