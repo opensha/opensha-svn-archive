@@ -20,6 +20,7 @@
 package org.opensha.nshmp.param.editor;
 
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.ParameterAPI;
@@ -37,31 +38,23 @@ import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 
 public class EditableConstrainedStringParameterEditor extends ConstrainedStringParameterEditor {
 
-  /**
-   * Constructor
-   */
-  public EditableConstrainedStringParameterEditor() {
-  }
+	/**
+	 *
+	 * @param model
+	 * @throws ConstraintException
+	 */
+	public EditableConstrainedStringParameterEditor(ParameterAPI model) throws ConstraintException {
+		super(model);
+	}
 
-  /**
-   *
-   * @param model
-   * @throws ConstraintException
-   */
-  public EditableConstrainedStringParameterEditor(ParameterAPI model) throws ConstraintException {
-    super(model);
-  }
-
-  /**
-   * The implementation is same as for ConstrainedStringParameterEditor. The only
-   * addition here is that JComboBox has been made editable in this case.
-   */
-  protected void addWidget() {
-    super.addWidget();
-		this.valueEditor.setSize(1000,50);
-    if(this.valueEditor instanceof JComboBox) {
-      JComboBox pickList = (JComboBox)valueEditor;
-      pickList.setEditable(true);
-    }
-  }
+	@Override
+	protected JComponent buildWidget() {
+		JComponent widget = super.buildWidget();
+		widget.setSize(1000,50);
+		if (widget instanceof JComboBox) {
+			JComboBox pickList = (JComboBox)widget;
+			pickList.setEditable(true);
+		}
+		return widget;
+	}
 }

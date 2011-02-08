@@ -174,9 +174,10 @@ public class IRC_GuiBean
         0));
     groundMotionParamEditor = new ConstrainedStringParameterEditor(
         groundMotionParam);
-		groundMotionParamEditor.getValueEditor().setToolTipText(
+		groundMotionParamEditor.getParameter().setInfo(
 			"The parameter shown is the only selection available for " +
 			"new structures.");
+		groundMotionParamEditor.refreshParamEditor();
 
     spectraType = (String) groundMotionParam.getValue();
   }

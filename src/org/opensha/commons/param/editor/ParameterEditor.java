@@ -555,5 +555,10 @@ public abstract class ParameterEditor
 		return this;
 	}
 
+	@Override
+	public void setEditorBorder(Border b) {
+		setBorder(b);
+	}
+
 }
 

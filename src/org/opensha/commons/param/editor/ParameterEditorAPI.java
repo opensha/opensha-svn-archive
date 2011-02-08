@@ -21,6 +21,7 @@ package org.opensha.commons.param.editor;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
 
 import org.opensha.commons.param.ParameterAPI;
 
@@ -86,6 +87,8 @@ public interface ParameterEditorAPI<E> {
     public boolean isVisible();
     
     public JComponent getComponent();
+    
+    public void setEditorBorder(Border b);
 
 }
 

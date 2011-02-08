@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -41,6 +42,7 @@ import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
@@ -308,7 +310,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 		// this is hard coding for increasing the IMR font
 		// the colors used here are from ParameterEditor
 		
-		JPanel panel = ((ParameterEditor)listEditor.getParameterEditor(ERF_PARAM_NAME)).getOuterPanel();
+		ParameterEditorAPI<?> edit = listEditor.getParameterEditor(ERF_PARAM_NAME);
 		TitledBorder titledBorder1 = new TitledBorder(
 				BorderFactory.createLineBorder(
 						new Color( 80, 80, 140 ),3),ERF_PARAM_NAME);
@@ -316,7 +318,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 		Font DEFAULT_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 13 );
 		titledBorder1.setTitleFont(DEFAULT_LABEL_FONT);
 		Border border1 = BorderFactory.createCompoundBorder(titledBorder1,BorderFactory.createEmptyBorder(0,0,3,0));
-		panel.setBorder(border1);
+		edit.setEditorBorder(border1);
 		createTimeSpanPanel();
 		this.validate();
 		this.repaint();

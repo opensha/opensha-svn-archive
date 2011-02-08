@@ -208,8 +208,9 @@ public class NEHRP_GuiBean_bak
         0));
     groundMotionParamEditor = new ConstrainedStringParameterEditor(
         groundMotionParam);
-		groundMotionParamEditor.getValueEditor().setToolTipText(
+		groundMotionParamEditor.getParameter().setInfo(
 			"The parameter shown is the only selectio available for new structures.");
+		groundMotionParamEditor.refreshParamEditor();
     spectraType = (String) groundMotionParam.getValue();
   }
 

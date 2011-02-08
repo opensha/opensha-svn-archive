@@ -7,6 +7,7 @@ import java.awt.Font;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 
@@ -100,7 +101,7 @@ public abstract class NewParameterEditor<E> extends LabeledBorderPanel implement
 		updateTitle();
 		refreshParamEditor();
 	}
-	
+
 	/**
 	 * Abstract method that allows subclasses to define if a specific parameter is valid. An editor
 	 * could, for example, disallow null parameters or only allow parameters with a specific type
@@ -168,7 +169,7 @@ public abstract class NewParameterEditor<E> extends LabeledBorderPanel implement
 		//		mainPanel.setMinimumSize( WIGET_PANEL_DIM );
 		//		mainPanel.setPreferredSize( WIGET_PANEL_DIM );
 		editorPanel.invalidate();
-		
+
 	}
 
 	@Override
@@ -180,7 +181,7 @@ public abstract class NewParameterEditor<E> extends LabeledBorderPanel implement
 	 * @return widget editing component to be displayed in the editor
 	 */
 	protected abstract JComponent buildWidget();
-	
+
 	/**
 	 * This is called by <code>refreshParamEditor</code> when the parameters value is changed externally
 	 * and the widget needs to be updated to reflect the new value. If the widget can be simply updated
@@ -193,7 +194,7 @@ public abstract class NewParameterEditor<E> extends LabeledBorderPanel implement
 	 * @return updated component, or new component/null if it needs to be rebuilt
 	 */
 	protected abstract JComponent updateWidget();
-	
+
 	/**
 	 * 
 	 * @return tool tip text for the parameter label. can be overridden if constraint specific text
@@ -219,9 +220,26 @@ public abstract class NewParameterEditor<E> extends LabeledBorderPanel implement
 		if (widget != null)
 			super.remove(widget);
 	}
-	
+
 	protected final JComponent getWidget() {
 		return widget;
+	}
+
+	@Override
+	public void setEditorBorder(Border border) {
+		mainPanel.setBorder(border);
+	}
+
+	public static JLabel makeSingleConstraintValueLabel( String label ) {
+
+		JLabel l = new JLabel();
+		l.setPreferredSize( LABEL_DIM );
+		l.setMinimumSize( LABEL_DIM );
+//		l.setFont( JCOMBO_FONT );
+		l.setForeground( Color.blue );
+		l.setBorder( CONST_BORDER );
+		l.setText( label );
+		return l;
 	}
 
 }
