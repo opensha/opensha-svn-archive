@@ -92,9 +92,9 @@ public class CreateRupturesFromSections {
 		// make the list of SectionCluser objects 
 		// (each represents a set of nearby subsections and computes the possible
 		//  "ruptures", each defined as a list of subsections in that rupture)
-		System.out.println("Starting makeClusterList()");
-		makeClusterList();
-		System.out.println("Done with makeClusterList()");
+//		System.out.println("Starting makeClusterList()");
+//		makeClusterList();
+//		System.out.println("Done with makeClusterList()");
 
 		
 		// saves list to a file
@@ -355,10 +355,10 @@ System.out.println("Working on rupture list for cluster "+i);
 					  System.out.print("\t"+progress);
 					  progress += progressInterval;
 				  }
-				  StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultData(false), 2.0);
+				  StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultData(false), 2.0, 2.0);
 
 				  for(int b=a+1;b<numSubSections;b++) {
-					  StirlingGriddedSurface surf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(b).getSimpleFaultData(false), 2.0);
+					  StirlingGriddedSurface surf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(b).getSimpleFaultData(false), 2.0, 2.0);
 					  double minDist = surf1.getMinDistance(surf2);
 					  subSectionDistances[a][b] = minDist;
 					  subSectionDistances[b][a] = minDist;
@@ -563,7 +563,7 @@ System.out.println(newCluster.size()+"\tsubsections in cluster #"+sectionCluster
 	 * This writes out the close subsections to each subsection (and the distance)
 	 */
 	public void writeCloseSubSections() {
-		if (D) System.out.print("writing file...");
+		System.out.print("writing file...");
 		try{
 			// FileWriter fw = new FileWriter("/Users/field/workspace/OpenSHA/dev/scratch/ned/rupsInFaultSystem/closeSubSections.txt");
 			FileWriter fw = new FileWriter("/Users/field/workspace/OpenSHA/dev/scratch/ned/rupsInFaultSystem/closeSubSections.txt");
@@ -584,7 +584,7 @@ System.out.println(newCluster.size()+"\tsubsections in cluster #"+sectionCluster
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
-		if (D) System.out.println(" - done");
+		System.out.println(" - done");
 
 	}
 	
