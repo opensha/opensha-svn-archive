@@ -54,6 +54,9 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 	protected final static String ERR = " is null, unable to process.";
 
 
+	/**
+	 * This applies the  grid spacing exactly as given (trimming any remainder from the ends),
+	 */
 	public FrankelGriddedSurface( SimpleFaultData simpleFaultData,
 			double gridSpacing)
 	throws FaultException {
@@ -62,7 +65,9 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 		createEvenlyGriddedSurface();
 	}
 
-
+	/**
+	 * This applies the  grid spacing exactly as given (trimming any remainder from the ends),
+	 */
 	public FrankelGriddedSurface( FaultTrace faultTrace,
 			double aveDip,
 			double upperSeismogenicDepth,
@@ -90,6 +95,14 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 		createEvenlyGriddedSurface();
 	}
 	
+	/**
+	 * This will fit the length & DDW of the fault exactly (no trimming) by adjusting the grid spacing
+	 * to just below the grid spacings given
+	 * @param simpleFaultData
+	 * @param maxGridSpacingAlong
+	 * @param maxGridSpacingDown
+	 * @throws FaultException
+	 */
     public FrankelGriddedSurface(SimpleFaultData simpleFaultData, double maxGridSpacingAlong, double maxGridSpacingDown) throws FaultException {
         super(simpleFaultData, maxGridSpacingAlong, maxGridSpacingDown);
         createEvenlyGriddedSurface();

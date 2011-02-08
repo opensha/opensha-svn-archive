@@ -65,14 +65,11 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
 		this.aveDipDir=simpleFaultData.getAveDipDir();
 		createEvenlyGriddedSurface();
 	}
-
-	public StirlingGriddedSurface(SimpleFaultData simpleFaultData, double maxGridSpacingAlong, double maxGridSpacingDown) throws FaultException {
-		super(simpleFaultData, maxGridSpacingAlong, maxGridSpacingDown);
-		this.aveDipDir=simpleFaultData.getAveDipDir();
-		createEvenlyGriddedSurface();
-	}
-
-
+	
+	/**
+	 * This applies the  grid spacing exactly as given (trimming any remainder from the ends),
+	 * and applies the ave-dip direction as computed from the faultTrace.
+	 */
 	public StirlingGriddedSurface(FaultTrace faultTrace, double aveDip, double upperSeismogenicDepth,
 			double lowerSeismogenicDepth, double gridSpacing) throws FaultException {
 
@@ -80,16 +77,25 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
 		createEvenlyGriddedSurface();
 	}
 
-	/*
-    public StirlingGriddedSurface( SimpleFaultData simpleFaultData, double gridSpacing,double aveDipDir)
-                                        throws FaultException {
 
-        super(simpleFaultData, gridSpacing);
-        this.aveDipDir = aveDipDir;
-        createEvenlyGriddedSurface();
-    }
+	/**
+	 * This will fit the length & DDW of the fault exactly (no trimming) by adjusting the grid spacing
+	 * to just below the grid spacings given
+	 * @param simpleFaultData
+	 * @param maxGridSpacingAlong
+	 * @param maxGridSpacingDown
+	 * @throws FaultException
 	 */
+	public StirlingGriddedSurface(SimpleFaultData simpleFaultData, double maxGridSpacingAlong, double maxGridSpacingDown) throws FaultException {
+		super(simpleFaultData, maxGridSpacingAlong, maxGridSpacingDown);
+		this.aveDipDir=simpleFaultData.getAveDipDir();
+		createEvenlyGriddedSurface();
+	}
 
+	/**
+	 * This applies the  grid spacing exactly as given (trimming any remainder from the ends),
+	 * and applies the given ave-dip direction (rather than computing this from the the faultTrace).
+	 */
 	public StirlingGriddedSurface( FaultTrace faultTrace, double aveDip, double upperSeismogenicDepth,
 			double lowerSeismogenicDepth, double gridSpacing,double aveDipDir )
 	throws FaultException {
