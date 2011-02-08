@@ -201,6 +201,8 @@ public abstract class NewParameterEditor<E> extends LabeledBorderPanel implement
 	 * needs to be added.
 	 */
 	protected String getLabelToolTipText() {
+		if (param == null)
+			return null;
 		String info = param.getInfo();
 		if (info == null || info.length() == 0 || info.equals(" "))
 			return null;
