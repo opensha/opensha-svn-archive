@@ -53,12 +53,12 @@ public class FaultTraceUtils {
 		while(index<numLocs && subSectionTraceList.size()<numSubSections) {
 			FaultTrace subSectionTrace = new FaultTrace(faultTrace.getName()+" "+(subSectionTraceList.size()+1));
 			subSectionTraceList.add(subSectionTrace);
-			subSectionTrace.add(prevLoc);
+			subSectionTrace.add(prevLoc); // the first location
 			++index;
 			distance = 0;
 			while(true && index<faultTrace.getNumLocations()) {
 				Location nextLoc = faultTrace.get(index);
-				distLocs = LocationUtils.horzDistanceFast(prevLoc, nextLoc);
+				distLocs = LocationUtils.horzDistance(prevLoc, nextLoc);
 				distance+= distLocs;
 				if(distance<subSecLength) { // if sub section length is greater than distance, then get next point on trace
 					prevLoc = nextLoc;
