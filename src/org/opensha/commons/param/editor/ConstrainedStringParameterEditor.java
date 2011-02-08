@@ -21,13 +21,9 @@ package org.opensha.commons.param.editor;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
-import java.util.ListIterator;
-import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
@@ -87,114 +83,6 @@ implements ItemListener
 
 		super(model);
 	}
-
-//	/**
-//	 * The parameter is checked that it is a
-//	 * DoubleDiscreteParameter, and the constraint is checked that it is a
-//	 * DoubleDiscreteConstraint. Then the constraints are checked that
-//	 * there is at least one. If any of these fails an error is thrown.
-//	 */
-//	protected void verifyModel(ParameterAPI model) throws ConstraintException{
-//
-//		String S = C + ": Constructor(model): ";
-//		if(D) System.out.println(S + "Starting");
-//
-//		if (model == null) {
-//			throw new NullPointerException(S + "Input Parameter model cannot be null");
-//		}
-//
-//		if (!(model instanceof StringParameter))
-//			throw new ConstraintException(S + "Input model parameter must be a StringParameter.");
-//
-//		ParameterConstraintAPI constraint = model.getConstraint();
-//
-//		if (!(constraint instanceof StringConstraint))
-//			throw new ConstraintException(S + "Input model constraints must be a StringConstraint.");
-//
-//		int numConstriants = ((StringConstraint)constraint).size();
-//		if(numConstriants < 1)
-//			throw new ConstraintException(S + "There are no constraints present, unable to build editor selection list.");
-//
-//		if (model.isNullAllowed())
-//			throw new ConstraintException("null cannot be allowed for a constrained string parameter editor");
-//
-//		if (model.getValue() == null)
-//			throw new NullPointerException(S + "Input Parameter model's value cannot be null");
-//
-//		if(D) System.out.println(S + "Ending");
-//	}
-
-//	/**
-//	 * Set's the name label, and the picklist value from the passed in
-//	 * values, i.e. model sets the gui
-//	 */
-//	protected void setWidgetObject(String name, Object obj) {
-//		String S = C + ": setWidgetObject(): ";
-//		if(D) System.out.println(S + "Starting: Name = " + name + ": Object = " + obj.toString());
-//
-//		super.setWidgetObject(name, obj);
-//
-//		if ( ( obj != null ) && ( valueEditor != null ) && ( valueEditor instanceof JComboBox ) )
-//			((JComboBox) valueEditor).setSelectedItem(obj.toString());
-//
-//		if(D) System.out.println(S + "Ending");
-//	}
-
-//	/**
-//	 * This is where the JComboBox picklist is defined and configured.
-//	 * This function adds a little more intellegence in that if there
-//	 * is only one constraint, it only adds a lable instead of a picklist.
-//	 * No need to give a list of choices when there is only one allowed
-//	 * value.
-//	 */
-//	protected void addWidget() {
-//		String S = C + ": addWidget(): ";
-//		if(D) System.out.println(S + "Starting");
-//
-//		//if(widgetPanel != null) widgetPanel.removeAll();
-//		if (model != null) {
-//
-//			StringConstraint con =
-//				(StringConstraint) ((StringParameter) model).getConstraint();
-//
-//			ListIterator it = con.listIterator();
-//			Vector strs = new Vector();
-//			while (it.hasNext()) {
-//				String str = it.next().toString();
-//				if (!strs.contains(str)) strs.add(str);
-//			}
-//
-//			if(strs.size() > 1){
-//				JComboBox jcb = new JComboBox(strs);
-//				jcb.setMaximumRowCount(32);
-//				valueEditor = jcb;
-//				valueEditor.setPreferredSize(JCOMBO_DIM);
-//				valueEditor.setMinimumSize(JCOMBO_DIM);
-//				valueEditor.setFont(JCOMBO_FONT);
-//				//valueEditor.setBackground(this.BACK_COLOR);
-//				((JComboBox) valueEditor).addItemListener(this);
-//				valueEditor.addFocusListener( this );
-//				widgetPanel.add(valueEditor, COMBO_WIDGET_GBC);
-//				widgetPanel.setBackground(null);
-//				widgetPanel.validate();
-//				widgetPanel.repaint();
-//			}
-//			else{
-//				valueEditor = makeConstantEditor( strs.get(0).toString() );
-//				widgetPanel.setBackground(STRING_BACK_COLOR);
-//				widgetPanel.add(valueEditor, WIDGET_GBC);
-//			}
-//
-//
-//			//widgetPanel.add(valueEditor,
-//			//      new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, 10, 2,
-//			//               new Insets(1, 1, 0, 1), 0,
-//			//             0));
-//
-//		}
-//
-//		if(D) System.out.println(S + "Ending");
-//	}
 
 	/**
 	 * Called whenever a user picks a new value in the picklist, i.e.

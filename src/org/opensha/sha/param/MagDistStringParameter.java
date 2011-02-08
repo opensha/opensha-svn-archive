@@ -11,7 +11,6 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.sha.param.editor.MagDistStringParameterEditor;
 
