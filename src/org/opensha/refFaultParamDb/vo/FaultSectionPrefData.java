@@ -41,6 +41,8 @@ public class FaultSectionPrefData  implements NamedObjectAPI, java.io.Serializab
 	private double aseismicSlipFactor;
 	private FaultTrace faultTrace;
 	private float dipDirection;
+	private String parentSectionName;
+	private int parentSectionId=-1;
 
 	public String getShortName() {
 		return this.shortName;
@@ -143,11 +145,35 @@ public class FaultSectionPrefData  implements NamedObjectAPI, java.io.Serializab
 	public void setSectionId(int sectionId) {
 		this.sectionId = sectionId;
 	}
+	/**
+	 * This is the ID of the parent section if this is a subsection
+	 */
+	public int getParentSectionId() {
+		return parentSectionId;
+	}
+	/**
+	 * This is the ID of the parent section if this is a subsection
+	 */
+	public void setParentSectionId(int parentSectionId) {
+		this.parentSectionId = parentSectionId;
+	}
 	public String getSectionName() {
 		return sectionName;
 	}
 	public void setSectionName(String sectionName) {
 		this.sectionName = sectionName;
+	}
+	/**
+	 * This is the name of the parent section if this is a subsection
+	 */
+	public String getParentSectionName() {
+		return parentSectionName;
+	}
+	/**
+	 * This is the name of the parent section if this is a subsection
+	 */
+	public void setParentSectionName(String parentSectionName) {
+		this.parentSectionName = parentSectionName;
 	}
 	public double getLength() {
 		return this.faultTrace.getTraceLength();
@@ -157,7 +183,8 @@ public class FaultSectionPrefData  implements NamedObjectAPI, java.io.Serializab
 	}
 
 	/**
-	 * Get a list of all sub sections
+	 * Get a list of all sub sections.  This version makes the subsection names the same as the parent plus " Subsection: #+1" and
+	 * subsection IDs = 1000*parentId+#, where # is the ith subsection
 	 * 
 	 * @param maxSubSectionLen
 	 * @return
@@ -169,12 +196,39 @@ public class FaultSectionPrefData  implements NamedObjectAPI, java.io.Serializab
 			FaultSectionPrefData subSection = new FaultSectionPrefData();
 			subSection.setFaultSectionPrefData(this);
 			subSection.setFaultTrace(equalLengthSubsTrace.get(i));
-			subSection.setSectionId(this.sectionId*1000+i);
+			subSection.setSectionId(sectionId*1000+i);
+			subSection.setSectionName(sectionName+" Subsection:"+(i+1));
+			subSection.setParentSectionId(sectionId);
+			subSection.setParentSectionName(sectionName);
 			subSectionList.add(subSection);
-			subSection.setSectionName(this.sectionName+" Subsection:"+(i+1));
 		}
 		return subSectionList;
 	}
+	
+	/**
+	 * Get a list of all sub sections.  This version makes the subsection names the same as the parent plus " Subsection: #+1" and
+	 * subsection IDs = startId+#, where # is the ith subsection
+	 * 
+	 * @param maxSubSectionLen
+	 * @param startId - the index of the first subsection
+	 * @return
+	 */
+	public ArrayList<FaultSectionPrefData> getSubSectionsList(double maxSubSectionLen, int startId) {
+		ArrayList<FaultTrace> equalLengthSubsTrace = FaultTraceUtils.getEqualLengthSubsectionTraces(this.faultTrace, maxSubSectionLen);
+		ArrayList<FaultSectionPrefData> subSectionList = new ArrayList<FaultSectionPrefData>();
+		for(int i=0; i<equalLengthSubsTrace.size(); ++i) {
+			FaultSectionPrefData subSection = new FaultSectionPrefData();
+			subSection.setFaultSectionPrefData(this);
+			subSection.setFaultTrace(equalLengthSubsTrace.get(i));
+			subSection.setSectionId(startId+i);
+			subSection.setSectionName(sectionName+" Subsection:"+(i+1));
+			subSection.setParentSectionId(sectionId);
+			subSection.setParentSectionName(sectionName);
+			subSectionList.add(subSection);
+		}
+		return subSectionList;
+	}
+
 
 	public double getSlipRateStdDev() {
 		return slipRateStdDev;
