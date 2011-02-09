@@ -151,7 +151,7 @@ public class HardCodedTest {
 		SiteDataValue<?> hardcodedVal =
 			new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30, SiteDataAPI.TYPE_FLAG_INFERRED, 760.0);
 		
-		double sigmaTrunc = 0;
+		double sigmaTrunc = 3;
 		ScalarIntensityMeasureRelationshipAPI imr = getIMR(sigmaTrunc);
 		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap =
 			TRTUtils.wrapInHashMap(imr);
