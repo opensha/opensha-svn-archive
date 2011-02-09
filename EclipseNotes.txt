@@ -8,3 +8,22 @@
 	3.  In the "VM arguments", please right "-Xmx500M".
 
 	4. Then hit the "Run" button.
+
+To update the OpenSHA jar file in the SCEC VDO project
+
+	Run 'ant/CompleteJar.xml' as an ant build. This will create the file, 
+	'dist/OpenSHA_complete.jar'. This then needs to be moved to 
+	scec_vdo_new/lib/opensha.jar. Then refresh your SCEC-VDO project, and run it.
+
+	It's best to not commit the updated jar files to SCEC-VDO unless an update is 
+	necessary for everyone, as they are stored in binary in the repository and 
+	cause its size to grow very quickly.
+
+To have SCEC VDO access the OpenSHA project rather than the jar file:
+
+	* Go to the properties for the SCEC-VDO project (right click -> Properties)
+	* Select the "Libraries" tab.
+	* Select "opensha.jar" and hit "Remove"
+	* Select the "Projects" tab.
+	* Hit "add" then select the OpenSHA project
+	* Hit "OK" in all dialogs.
