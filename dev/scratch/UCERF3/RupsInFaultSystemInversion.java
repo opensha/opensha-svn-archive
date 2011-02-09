@@ -7,7 +7,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 public class RupsInFaultSystemInversion {
 
-	protected final static boolean D = false;  // for debugging
+	protected final static boolean D = true;  // for debugging
 
 
 	ArrayList<FaultSectionPrefData> faultSectionData;
@@ -37,6 +37,7 @@ public class RupsInFaultSystemInversion {
 			double[][] sectionDistances, double[][] subSectionAzimuths, double maxJumpDist, 
 			double maxAzimuthChange, double maxTotAzimuthChange, int minNumSectInRup) {
 
+		if(D) System.out.println("Instantiating RupsInFaultSystemInversion");
 		this.faultSectionData = faultSectionData;
 		this.sectionDistances = sectionDistances;
 		this.sectionAzimuths = subSectionAzimuths;
@@ -46,9 +47,9 @@ public class RupsInFaultSystemInversion {
 		this.minNumSectInRup=minNumSectInRup;
 
 		// write out settings if in debug mode
-		if(D) System.out.println("faultSectionData = "+faultSectionData +
-				"; sectionDistances = "+sectionDistances +
-				"; subSectionAzimuths = "+subSectionAzimuths +
+		if(D) System.out.println("faultSectionData.size() = "+faultSectionData.size() +
+				"; sectionDistances.length = "+sectionDistances.length +
+				"; subSectionAzimuths.length = "+subSectionAzimuths.length +
 				"; maxJumpDist = "+maxJumpDist +
 				"; maxAzimuthChange = "+maxAzimuthChange + 
 				"; maxTotAzimuthChange = "+maxTotAzimuthChange +
@@ -62,7 +63,10 @@ public class RupsInFaultSystemInversion {
 		numSections = faultSectionData.size();
 
 		// make the list of nearby sections for each section (branches)
+		if(D) System.out.println("Making sectionConnectionsListList");
 		computeCloseSubSectionsListList();
+		if(D) System.out.println("Done making sectionConnectionsListList");
+
 
 		// make the list of SectionCluster objects 
 		// (each represents a set of nearby sections and computes the possible
@@ -71,7 +75,7 @@ public class RupsInFaultSystemInversion {
 		makeClusterList();
 
 		for(int i=0;i<this.sectionClusterList.size(); i++)
-			System.out.println("Cluster "+i+" has "+getCluster(i).size()+" sections");
+			System.out.println("Cluster "+i+" has "+getCluster(i).size()+" sections & "+getCluster(i).getNumRuptures()+" ruptures");
 //			System.out.println("Cluster "+i+" has "+getCluster(i).getNumRuptures()+" ruptures");
 		
 	}

@@ -46,9 +46,11 @@ public class TestInversion {
 		 * D2.6 = 87
 		 */
 		deformationModelId = 82;
+		if(D) System.out.println("Making subsections...");
 		createSubSections(false, subSectionLength);
 		calcSubSectionDistances();
 		calcSubSectionAzimuths();
+		/**/
 		rupsInFaultSysInv = new RupsInFaultSystemInversion(subSectionPrefDataList,
 				subSectionDistances, subSectionAzimuths, maxJumpDist, 
 				maxAzimuthChange, maxTotAzimuthChange, minNumSectInRup);
@@ -135,8 +137,8 @@ public class TestInversion {
 
 		// construct filename
 		String name = deformationModelId+"_"+(int)(maxSubSectionLength*1000)+"_Distances";
-//		String fullpathname = "/Users/pagem/eclipse/workspace/OpenSHA/dev/scratch/pagem/rupsInFaultSystem/PreComputedSubSectionDistances/"+name;
-		  String fullpathname = "/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/preComputedData/"+name;
+//		String fullpathname = "/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/preComputedData/"+name;
+		String fullpathname = "dev/scratch/UCERF3/preComputedData/"+name;
 		File file = new File (fullpathname);
 
 		// Read data if already computed and saved
@@ -204,7 +206,8 @@ public class TestInversion {
 
 		  // construct filename
 		  String name = deformationModelId+"_"+(int)(maxSubSectionLength*1000)+"_Azimuths";
-		  String fullpathname = "/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/preComputedData/"+name;
+//		  String fullpathname = "/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/preComputedData/"+name;
+		  String fullpathname = "dev/scratch/UCERF3/preComputedData/"+name;
 		  File file = new File (fullpathname);
 		  
 		  // Read data if already computed and saved
@@ -269,6 +272,9 @@ public class TestInversion {
 	 */
 	public static void main(String[] args) {
 		TestInversion test = new TestInversion();
+//		RupsInFaultSystemInversion inversion = test.getRupsInFaultSystemInversion();
+//		for(int i=0; i<inversion.getNumClusters(); i++)
+//			System.out.println("Cluster "+i+" has "+inversion.getCluster(i).getNumRuptures()+" ruptures");
 	}
 
 }

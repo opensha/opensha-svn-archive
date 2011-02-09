@@ -13,6 +13,8 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
  */
 public class SectionCluster extends ArrayList<Integer> {
 	
+	protected final static boolean D = true;  // for debugging
+	
 	ArrayList<FaultSectionPrefData> sectionDataList;
 	ArrayList<Integer> allSectionsIdList = null;
 	ArrayList<ArrayList<Integer>> sectionConnectionsListList;
@@ -152,18 +154,20 @@ public class SectionCluster extends ArrayList<Integer> {
 			}
 			
 			// Iterate
+			if(numRupsAdded<100)	// FOR DEBUGGING!
 			addRuptures(newList);
 		}
 	}
 
 	
 	private void computeRupList() {
+//		if(D) System.out.println("Computing Rupture List in SectionCluster");
 //		System.out.println("Cluster: "+this);
 		rupListIndices = new ArrayList<ArrayList<Integer>>();
 		int progress = 0;
 		int progressIncrement = 5;
 		numRupsAdded=0;
-		System.out.print("% Done:\t");
+//		System.out.print("% Done:\t");
 		// loop over every section as the first in the rupture
 //		for(int s=0;s<size();s++) {
 		for(int s=0;s<1;s++) {	// Debugging: only compute ruptures from first section
