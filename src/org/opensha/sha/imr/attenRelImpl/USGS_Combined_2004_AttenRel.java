@@ -215,9 +215,7 @@ NamedObjectAPI {
 	 */
 	public USGS_Combined_2004_AttenRel(ParameterChangeWarningListener
 			warningListener) {
-
-		super();
-
+		
 		this.warningListener = warningListener;
 
 		initSupportedIntensityMeasureParams();

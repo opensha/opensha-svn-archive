@@ -196,8 +196,6 @@ NamedObjectAPI {
 	 */
 	public WC94_DisplMagRel(ParameterChangeWarningListener warningListener) {
 
-		super();
-
 		this.warningListener = warningListener;
 
 		initCoefficients(); // This must be called before the next one
@@ -216,8 +214,6 @@ NamedObjectAPI {
 	 *  No-Arg constructor. This initializes several ParameterList objects.
 	 */
 	public WC94_DisplMagRel() {
-
-		super();
 
 		initCoefficients(); // This must be called before the next one
 		initSupportedIntensityMeasureParams();

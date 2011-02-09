@@ -167,8 +167,6 @@ public class BA_2006_AttenRel
   public BA_2006_AttenRel(ParameterChangeWarningListener
                                     warningListener) {
 
-    super();
-
     this.warningListener = warningListener;
 
     initSupportedIntensityMeasureParams();

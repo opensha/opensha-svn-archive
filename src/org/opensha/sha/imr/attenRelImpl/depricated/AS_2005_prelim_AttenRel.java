@@ -226,8 +226,6 @@ public class AS_2005_prelim_AttenRel
    */
   public AS_2005_prelim_AttenRel(ParameterChangeWarningListener warningListener) {
 
-    super();
-
     this.warningListener = warningListener;
 
     initSupportedIntensityMeasureParams();

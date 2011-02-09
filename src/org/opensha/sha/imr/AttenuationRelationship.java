@@ -322,9 +322,7 @@ extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationsh
 	 *  Constructor for the AttenuationRelationship object - subclasses should execute the
 	 *  various init*() methods (in proper order)
 	 */
-	public AttenuationRelationship() {
-		super();
-	}
+	public AttenuationRelationship() {}
 
 	/**
 	 * This method sets the user-defined distance beyond which ground motion is

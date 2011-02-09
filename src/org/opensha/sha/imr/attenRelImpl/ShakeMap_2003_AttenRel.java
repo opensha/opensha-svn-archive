@@ -209,9 +209,6 @@ NamedObjectAPI {
 	 *  No-Arg constructor. This initializes several ParameterList objects.
 	 */
 	public ShakeMap_2003_AttenRel(ParameterChangeWarningListener warningListener) {
-
-		super();
-
 		this.warningListener = warningListener;
 
 		initCoefficients(); // This must be called before the next one

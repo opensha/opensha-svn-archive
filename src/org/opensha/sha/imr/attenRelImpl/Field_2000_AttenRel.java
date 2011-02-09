@@ -275,8 +275,7 @@ NamedObjectAPI {
 	 *  No-Arg constructor. This initializes several ParameterList objects.
 	 */
 	public Field_2000_AttenRel(ParameterChangeWarningListener warningListener) {
-
-		super();
+		
 
 		this.warningListener = warningListener;
 

@@ -368,8 +368,6 @@ public class CY_2006_AttenRel
    */
   public CY_2006_AttenRel(ParameterChangeWarningListener warningListener) {
 
-    super();
-
     this.warningListener = warningListener;
 
     initSupportedIntensityMeasureParams();

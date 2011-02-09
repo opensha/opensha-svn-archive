@@ -212,8 +212,6 @@ NamedObjectAPI, ParameterChangeListener {
 	 */
 	public CY_2008_AttenRel(ParameterChangeWarningListener warningListener) {
 
-		super();
-
 		this.warningListener = warningListener;
 
 		initSupportedIntensityMeasureParams();

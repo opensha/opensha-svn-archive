@@ -146,8 +146,6 @@ NamedObjectAPI {
 
 	public BC_2004_AttenRel(ParameterChangeWarningListener warningListener) {
 
-		super();
-
 		this.warningListener = warningListener;
 
 		as_1997_attenRel = new AS_1997_AttenRel(warningListener);

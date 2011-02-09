@@ -147,6 +147,8 @@ implements IntensityMeasureRelationshipAPI {
 	//this flag keeps track of whether the intensity measure has changed
 	protected boolean intensityMeasureChanged;
 
+	protected transient ParameterChangeWarningListener listener = null;
+	
 	/**
 	 *  No-Arg Constructor for the IntensityMeasureRelationship object. This only
 	 *  creates one parameter (exceedProbParam) used by some subclasses.
@@ -157,6 +159,15 @@ implements IntensityMeasureRelationshipAPI {
 		exceedProbParam.setNonEditable();
 	}
 
+	/**
+	 * Sets a parameter change listener.
+	 * @param listener
+	 */
+	public void setWarningListener(ParameterChangeWarningListener listener) {
+		this.listener = listener;
+	}
+	
+	
 	/**
 	 *  Returns name of the IntensityMeasureRelationship.
 	 *

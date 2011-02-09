@@ -390,8 +390,6 @@ NamedObjectAPI {
 	 */
 	public CB_2003_AttenRel(ParameterChangeWarningListener warningListener) {
 
-		super();
-
 		this.warningListener = warningListener;
 
 		initCoefficients(); // These must be called before the next one

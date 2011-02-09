@@ -189,8 +189,6 @@ public class CB_2006_AttenRel
    */
   public CB_2006_AttenRel(ParameterChangeWarningListener warningListener) {
 
-    super();
-    
     this.warningListener = warningListener;
     //readCoeffFile();
     initSupportedIntensityMeasureParams();

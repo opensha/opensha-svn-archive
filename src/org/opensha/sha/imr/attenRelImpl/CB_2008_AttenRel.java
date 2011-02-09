@@ -171,8 +171,6 @@ NamedObjectAPI, ParameterChangeListener {
 	 */
 	public CB_2008_AttenRel(ParameterChangeWarningListener warningListener) {
 
-		super();
-
 		this.warningListener = warningListener;
 		readCoeffFile();
 		initSupportedIntensityMeasureParams();

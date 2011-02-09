@@ -245,9 +245,6 @@ NamedObjectAPI, ParameterChangeListener {
 	 *  This initializes several ParameterList objects.
 	 */
 	public ZhaoEtAl_2006_AttenRel(ParameterChangeWarningListener warningListener) {
-
-		super();
-
 		this.warningListener = warningListener;
 
 		initSupportedIntensityMeasureParams();

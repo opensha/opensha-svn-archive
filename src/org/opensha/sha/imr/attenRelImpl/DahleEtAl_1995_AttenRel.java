@@ -204,8 +204,7 @@ NamedObjectAPI {
 	 *  No-Arg constructor. This initializes several ParameterList objects.
 	 */
 	public DahleEtAl_1995_AttenRel(ParameterChangeWarningListener warningListener) {
-
-		super();
+		
 		this.warningListener = warningListener;
 		initCoefficients(); // This must be called before the next one
 		initSupportedIntensityMeasureParams();

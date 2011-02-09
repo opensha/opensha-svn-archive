@@ -130,7 +130,6 @@ public class InterpolatedSA_AttenRelWrapper
   public InterpolatedSA_AttenRelWrapper(ParameterChangeWarningListener warningListener, 
 		  AttenuationRelationship attenRelToWrap) {
 
-    super();
     this.attenRelToWrap = attenRelToWrap;
     attenRelToWrap.setIntensityMeasure(SA_Param.NAME);  // set this now and forever
     

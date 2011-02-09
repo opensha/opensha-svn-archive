@@ -243,9 +243,7 @@ NamedObjectAPI {
 	 *  No-Arg constructor. This initializes several ParameterList objects.
 	 */
 	public SiteSpecific_2006_AttenRel(ParameterChangeWarningListener warningListener) {
-
-		super();
-
+		
 		this.warningListener = warningListener;
 		initCoeffFunctionlist();
 		initRockAttenuationRealtionships();

@@ -210,8 +210,7 @@ NamedObjectAPI, ParameterChangeListener {
 	 */
 	public McVerryetal_2000_AttenRel(ParameterChangeWarningListener
 			warningListener) {
-
-		super();
+		
 
 		this.warningListener = warningListener;
 
