@@ -27,6 +27,8 @@ public class TestInversion {
 	double subSectionDistances[][],subSectionAzimuths[][];
 	double maxSubSectionLength;
 	
+	String subsectsNameForFile;
+	
 	RupsInFaultSystemInversion rupsInFaultSysInv;
 
 	int deformationModelId;
@@ -47,14 +49,14 @@ public class TestInversion {
 		 */
 		deformationModelId = 82;
 		if(D) System.out.println("Making subsections...");
-		createSubSections(false, subSectionLength);
+		createAllSubSections(false, subSectionLength);
 		calcSubSectionDistances();
 		calcSubSectionAzimuths();
-		/**/
+		/*
 		rupsInFaultSysInv = new RupsInFaultSystemInversion(subSectionPrefDataList,
 				subSectionDistances, subSectionAzimuths, maxJumpDist, 
 				maxAzimuthChange, maxTotAzimuthChange, minNumSectInRup);
-		
+		*/
 //		rupsInFaultSysInv.writeCloseSubSections();
 	}
 	
@@ -64,12 +66,15 @@ public class TestInversion {
 
 
 	/**
-	 * This gets the section data, creates subsections, and fills in arrays giving the 
-	 * name of section endpoints, angles between section endpoints, and distances between
-	 * section endpoints (these latter arrays are for sections, not subsections)
+	 * This gets all section data & creates subsections
 	 * @param includeSectionsWithNaN_slipRates
 	 */
-	private void createSubSections(boolean includeSectionsWithNaN_slipRates, double maxSubSectionLength) {
+	private void createAllSubSections(boolean includeSectionsWithNaN_slipRates, double maxSubSectionLength) {
+
+		if(includeSectionsWithNaN_slipRates)
+			subsectsNameForFile = "all_1_";
+		else
+			subsectsNameForFile = "all_0_";
 
 		this.maxSubSectionLength=maxSubSectionLength;
 		// fetch the sections
@@ -95,20 +100,6 @@ public class TestInversion {
 				}	 
 		}
 
-		/*	
-		  // find and print max Down-dip width
-		  double maxDDW=0;
-		  int index=-1;
-		  for(int i=0; i<allFaultSectionPrefData.size(); i++) {
-			  double ddw = allFaultSectionPrefData.get(i).getDownDipWidth();
-			  if(ddw>maxDDW) {
-				  maxDDW = ddw;
-				  index=i;
-			  }
-		  }
-		  System.out.println("Max Down-Dip Width = "+maxDDW+" for "+allFaultSectionPrefData.get(index).getSectionName());
-		 	*/
-
 		// make subsection data
 		subSectionPrefDataList = new ArrayList<FaultSectionPrefData>();
 		int subSectionIndex=0;
@@ -126,6 +117,48 @@ public class TestInversion {
 	}
 	
 	
+	/**
+	 * This gets all section data & creates subsections
+	 * @param includeSectionsWithNaN_slipRates
+	 */
+	private void createBayAreaSubSections(boolean includeSectionsWithNaN_slipRates, double maxSubSectionLength) {
+
+		if(includeSectionsWithNaN_slipRates)
+			subsectsNameForFile = "bayArea_1_";
+		else
+			subsectsNameForFile = "bayArea_0_";
+
+		this.maxSubSectionLength=maxSubSectionLength;
+
+		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();	
+		
+		ArrayList<Integer> faultSectionIds = new ArrayList<Integer>();
+		faultSectionIds.add(32);	// 32:San Andreas (Parkfield)
+		faultSectionIds.add(285);	// 285:San Andreas (Cholame) rev
+		faultSectionIds.add(300);	// 300:San Andreas (Carrizo) rev
+		faultSectionIds.add(287);	// 287:San Andreas (Big Bend)
+		faultSectionIds.add(286);	// 286:San Andreas (Mojave N)
+		faultSectionIds.add(301);	// 301:San Andreas (Mojave S)
+		faultSectionIds.add(282);	// 282:San Andreas (San Bernardino N)
+		faultSectionIds.add(283);	// 283:San Andreas (San Bernardino S)
+		faultSectionIds.add(284);	// 284:San Andreas (San Gorgonio Pass-Garnet HIll)
+		faultSectionIds.add(295);	// 295:San Andreas (Coachella) rev
+
+
+		subSectionPrefDataList = new ArrayList<FaultSectionPrefData>();
+		int subsectIndex = 0;
+		for (int i = 0; i < faultSectionIds.size(); ++i) {
+			FaultSectionPrefData faultSectionPrefData = deformationModelPrefDB
+					.getFaultSectionPrefData(deformationModelId, faultSectionIds.get(i));
+			subSectionPrefDataList.addAll(faultSectionPrefData.getSubSectionsList(maxSubSectionLength,subsectIndex));
+		}
+		
+		numSubSections = subSectionPrefDataList.size();
+		if(D) System.out.println("numSubsections = "+numSubSections);
+	}
+
+	
+	
 
 	/**
 	 * This computes the distances between subsection if it hasn't already been done.
@@ -136,7 +169,7 @@ public class TestInversion {
 		subSectionDistances = new double[numSubSections][numSubSections];
 
 		// construct filename
-		String name = deformationModelId+"_"+(int)(maxSubSectionLength*1000)+"_Distances";
+		String name = subsectsNameForFile+deformationModelId+"_"+(int)(maxSubSectionLength*1000)+"_Distances";
 //		String fullpathname = "/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/preComputedData/"+name;
 		String fullpathname = "dev/scratch/UCERF3/preComputedData/"+name;
 		File file = new File (fullpathname);
@@ -205,7 +238,7 @@ public class TestInversion {
 		  subSectionAzimuths = new double[numSubSections][numSubSections];
 
 		  // construct filename
-		  String name = deformationModelId+"_"+(int)(maxSubSectionLength*1000)+"_Azimuths";
+		  String name = subsectsNameForFile+deformationModelId+"_"+(int)(maxSubSectionLength*1000)+"_Azimuths";
 //		  String fullpathname = "/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/preComputedData/"+name;
 		  String fullpathname = "dev/scratch/UCERF3/preComputedData/"+name;
 		  File file = new File (fullpathname);
