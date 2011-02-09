@@ -60,11 +60,11 @@ public class TestInversion {
 		createAllSubSections(false, subSectionLength);
 		calcSubSectionDistances();
 		calcSubSectionAzimuths();
-		/*
+		
 		rupsInFaultSysInv = new RupsInFaultSystemInversion(subSectionPrefDataList,
 				subSectionDistances, subSectionAzimuths, maxJumpDist, 
 				maxAzimuthChange, maxTotAzimuthChange, minNumSectInRup);
-		*/
+		
 //		rupsInFaultSysInv.writeCloseSubSections();
 	}
 	
