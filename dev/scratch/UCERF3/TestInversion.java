@@ -33,7 +33,15 @@ public class TestInversion {
 
 	int deformationModelId;
 	
+	private File precomputedDataDir;
+	
 	public TestInversion() {
+		this(new File("dev/scratch/UCERF3/preComputedData/"));
+	}
+	
+	public TestInversion(File precomputedDataDir) {
+		this.precomputedDataDir = precomputedDataDir;
+		
 		double subSectionLength = 0.5;  // in units of seimogenic thickness
 		double maxJumpDist = 5.0;
 		double maxAzimuthChange = 45;
@@ -171,7 +179,8 @@ public class TestInversion {
 		// construct filename
 		String name = subsectsNameForFile+deformationModelId+"_"+(int)(maxSubSectionLength*1000)+"_Distances";
 //		String fullpathname = "/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/preComputedData/"+name;
-		String fullpathname = "dev/scratch/UCERF3/preComputedData/"+name;
+		String fullpathname = precomputedDataDir.getAbsolutePath()+File.separator+name;
+//		String fullpathname = "dev/scratch/UCERF3/preComputedData/"+name;
 		File file = new File (fullpathname);
 
 		// Read data if already computed and saved
@@ -240,7 +249,8 @@ public class TestInversion {
 		  // construct filename
 		  String name = subsectsNameForFile+deformationModelId+"_"+(int)(maxSubSectionLength*1000)+"_Azimuths";
 //		  String fullpathname = "/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/preComputedData/"+name;
-		  String fullpathname = "dev/scratch/UCERF3/preComputedData/"+name;
+//		  String fullpathname = "dev/scratch/UCERF3/preComputedData/"+name;
+		  String fullpathname = precomputedDataDir.getAbsolutePath()+File.separator+name;
 		  File file = new File (fullpathname);
 		  
 		  // Read data if already computed and saved
