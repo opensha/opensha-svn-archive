@@ -144,8 +144,11 @@ public class HardCodedTest {
 		boolean includeBackSeis = true;
 		EqkRupForecast erf = getERF(years, startYear, includeBackSeis);
 		
+//		SiteDataValue<?> hardcodedVal =
+//			new SiteDataValue<String>(SiteDataAPI.TYPE_WILLS_CLASS, SiteDataAPI.TYPE_FLAG_INFERRED, "B");
+		boolean nullBasin = true;
 		SiteDataValue<?> hardcodedVal =
-			new SiteDataValue<String>(SiteDataAPI.TYPE_WILLS_CLASS, SiteDataAPI.TYPE_FLAG_INFERRED, "B");
+			new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30, SiteDataAPI.TYPE_FLAG_INFERRED, 760.0);
 		
 		double sigmaTrunc = 0;
 		ScalarIntensityMeasureRelationshipAPI imr = getIMR(sigmaTrunc);
@@ -246,7 +249,13 @@ public class HardCodedTest {
 			while (it.hasNext()) {
 				ParameterAPI<?> siteParam = it.next();
 				ParameterAPI clonedParam = (ParameterAPI) siteParam.clone();
-				trans.setParameterValue(clonedParam, datas);
+				if (nullBasin &&
+						(clonedParam instanceof DepthTo2pt5kmPerSecParam
+								|| clonedParam instanceof DepthTo1pt0kmPerSecParam)) {
+					clonedParam.setValue(null);
+				} else {
+					trans.setParameterValue(clonedParam, datas);
+				}
 				site.addParameter(clonedParam);
 			}
 			sites.add(site);
