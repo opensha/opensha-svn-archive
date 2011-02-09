@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.CSVFile;
@@ -158,6 +159,16 @@ public class HardCodedTest {
 			new ArrayList<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>>();
 		imrMaps.add(imrMap);
 		
+		Iterator<ParameterAPI<?>> imrSiteParamsIt = imr.getSiteParamsIterator();
+		while (imrSiteParamsIt.hasNext()) {
+			ParameterAPI<?> param =imrSiteParamsIt.next();
+			String paramName = param.getName();
+			if (nullBasin && (paramName.equals(DepthTo2pt5kmPerSecParam.NAME)
+								|| paramName.equals(DepthTo1pt0kmPerSecParam.NAME))) {
+				param.setValue(null);
+			}
+		}
+		
 		double spacing = 0.1;
 //		double spacing = 0.05;
 		String spacingCode = ""+(int)(spacing * 100d);
@@ -249,9 +260,10 @@ public class HardCodedTest {
 			while (it.hasNext()) {
 				ParameterAPI<?> siteParam = it.next();
 				ParameterAPI clonedParam = (ParameterAPI) siteParam.clone();
+				String paramName = siteParam.getName();
 				if (nullBasin &&
-						(clonedParam instanceof DepthTo2pt5kmPerSecParam
-								|| clonedParam instanceof DepthTo1pt0kmPerSecParam)) {
+						(paramName.equals(DepthTo2pt5kmPerSecParam.NAME)
+								|| paramName.equals(DepthTo1pt0kmPerSecParam.NAME))) {
 					clonedParam.setValue(null);
 				} else {
 					trans.setParameterValue(clonedParam, datas);
