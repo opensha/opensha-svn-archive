@@ -47,6 +47,7 @@ public class TestInversion {
 		double maxAzimuthChange = 45;
 		double maxTotAzimuthChange = 90;
 		int minNumSectInRup = 2;
+		
 		/** Set the deformation model
 		 * D2.1 = 82
 		 * D2.2 = 83
@@ -56,16 +57,19 @@ public class TestInversion {
 		 * D2.6 = 87
 		 */
 		deformationModelId = 82;
+		
 		if(D) System.out.println("Making subsections...");
 		createAllSubSections(false, subSectionLength);
+		
 		calcSubSectionDistances();
+		
 		calcSubSectionAzimuths();
 		
 		rupsInFaultSysInv = new RupsInFaultSystemInversion(subSectionPrefDataList,
 				subSectionDistances, subSectionAzimuths, maxJumpDist, 
 				maxAzimuthChange, maxTotAzimuthChange, minNumSectInRup);
 		
-//		rupsInFaultSysInv.writeCloseSubSections();
+		rupsInFaultSysInv.writeCloseSubSections(precomputedDataDir.getAbsolutePath()+File.separator+"closeSubSections.txt");
 	}
 	
 	public RupsInFaultSystemInversion getRupsInFaultSystemInversion() {

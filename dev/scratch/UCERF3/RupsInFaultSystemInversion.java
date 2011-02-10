@@ -194,6 +194,10 @@ public class RupsInFaultSystemInversion {
 		}
 	}
 
+	
+	public ArrayList<ArrayList<Integer>> getCloseSubSectionsListList() {
+		return sectionConnectionsListList;
+	}
 
 
 	private void makeClusterList() {
@@ -236,10 +240,11 @@ public class RupsInFaultSystemInversion {
 	/**
 	 * This writes out the close subsections to each subsection (and the distance)
 	 */
-	public void writeCloseSubSections() {
+	public void writeCloseSubSections(String filePathAndName) {
 		if (D) System.out.print("writing file closeSubSections.txt");
 		try{
-			FileWriter fw = new FileWriter("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/closeSubSections.txt");
+//			FileWriter fw = new FileWriter("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/closeSubSections.txt");
+			FileWriter fw = new FileWriter(filePathAndName);
 			//			FileWriter fw = new FileWriter("/Users/pagem/eclipse/workspace/OpenSHA/dev/scratch/pagem/rupsInFaultSystem/closeSubSections.txt");
 			String outputString = new String();
 
