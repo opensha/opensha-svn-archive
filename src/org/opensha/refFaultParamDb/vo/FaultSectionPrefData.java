@@ -197,7 +197,7 @@ public class FaultSectionPrefData  implements NamedObjectAPI, java.io.Serializab
 			subSection.setFaultSectionPrefData(this);
 			subSection.setFaultTrace(equalLengthSubsTrace.get(i));
 			subSection.setSectionId(sectionId*1000+i);
-			subSection.setSectionName(sectionName+" Subsection:"+(i+1));
+			subSection.setSectionName(sectionName+" Subsection "+(i+1));
 			subSection.setParentSectionId(sectionId);
 			subSection.setParentSectionName(sectionName);
 			subSectionList.add(subSection);
@@ -221,7 +221,7 @@ public class FaultSectionPrefData  implements NamedObjectAPI, java.io.Serializab
 			subSection.setFaultSectionPrefData(this);
 			subSection.setFaultTrace(equalLengthSubsTrace.get(i));
 			subSection.setSectionId(startId+i);
-			subSection.setSectionName(sectionName+" Subsection:"+(i+1));
+			subSection.setSectionName(sectionName+" Subsection "+(i+1));
 			subSection.setParentSectionId(sectionId);
 			subSection.setParentSectionName(sectionName);
 			subSectionList.add(subSection);
