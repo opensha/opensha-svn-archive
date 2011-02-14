@@ -5,6 +5,20 @@ import java.util.ArrayList;
 import org.opensha.commons.geo.Location;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
+
+/**
+ * This does the "Grand Inversion" for UCERF3 (or other ERFs)
+ * 
+ * Important Notes:
+ * 
+ * 1) If the sections are actually subsections of larger sections, then the method 
+ * computeCloseSubSectionsListList() only allows one connection between parent sections
+ * (to avoid ruptures jumping back and forth for closely spaced and parallel sections).
+ * Is this potentially problematic?
+ * 
+ * @author field & Page
+ *
+ */
 public class RupsInFaultSystemInversion {
 
 	protected final static boolean D = true;  // for debugging
@@ -25,7 +39,7 @@ public class RupsInFaultSystemInversion {
 
 	/**
 	 * 
-	 * @param faultSectionData - this assumes subsections (if any) are in proper order (define this)
+	 * @param faultSectionData - this assumes subsections (if any) are in proper order (have adjacent indices)
 	 * @param sectionDistances
 	 * @param subSectionAzimuths
 	 * @param maxJumpDist
@@ -124,7 +138,9 @@ public class RupsInFaultSystemInversion {
 	 * For each section, create a list of sections that are within maxJumpDist.  
 	 * This generates an ArrayList of ArrayLists (named sectionConnectionsList).  
 	 * Reciprocal duplicates are not filtered out.
-	 * Note that special things are done for subsections (doc that here)
+	 * If sections are actually subsections (meaning getParentSectionId() != -1), then each parent section can only
+	 * have one connection to another parent section (whichever subsections are closest).  This prevents parallel 
+	 * and closely space faults from having connections back and forth all the way down the section.
 	 */
 	private void computeCloseSubSectionsListList() {
 
@@ -139,7 +155,8 @@ public class RupsInFaultSystemInversion {
 		ArrayList<FaultSectionPrefData> newList = new ArrayList<FaultSectionPrefData>();
 		for(int i=0; i<faultSectionData.size();i++) {
 			FaultSectionPrefData subSect = faultSectionData.get(i);
-			if(subSect.getParentSectionId() != lastID) {
+			int parentID = subSect.getParentSectionId();
+			if(parentID != lastID || parentID == -1) { // -1 means there is no parent
 				newList = new ArrayList<FaultSectionPrefData>();
 				subSectionDataListList.add(newList);
 				lastID = subSect.getParentSectionId();

@@ -9,12 +9,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import scratch.UCERF3.utils.FaultSectionDataWriter;
 import org.opensha.commons.data.NamedObjectComparator;
 import org.opensha.commons.exceptions.FaultException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
+import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
@@ -26,6 +28,7 @@ public class TestInversion {
 	int numSubSections;
 	double subSectionDistances[][],subSectionAzimuths[][];
 	double maxSubSectionLength;
+	boolean includeSectionsWithNaN_slipRates;
 	
 	String subsectsNameForFile;
 	
@@ -42,11 +45,12 @@ public class TestInversion {
 	public TestInversion(File precomputedDataDir) {
 		this.precomputedDataDir = precomputedDataDir;
 		
-		double subSectionLength = 0.5;  // in units of seimogenic thickness
+		maxSubSectionLength = 0.5;  // in units of seimogenic thickness
 		double maxJumpDist = 5.0;
 		double maxAzimuthChange = 45;
 		double maxTotAzimuthChange = 90;
 		int minNumSectInRup = 2;
+		includeSectionsWithNaN_slipRates = false;
 		
 		/** Set the deformation model
 		 * D2.1 = 82
@@ -59,7 +63,8 @@ public class TestInversion {
 		deformationModelId = 82;
 		
 		if(D) System.out.println("Making subsections...");
-		createAllSubSections(false, subSectionLength);
+		createAllSubSections();
+//		createBayAreaSubSections(false, subSectionLength);
 		
 		calcSubSectionDistances();
 		
@@ -69,7 +74,7 @@ public class TestInversion {
 				subSectionDistances, subSectionAzimuths, maxJumpDist, 
 				maxAzimuthChange, maxTotAzimuthChange, minNumSectInRup);
 		
-		rupsInFaultSysInv.writeCloseSubSections(precomputedDataDir.getAbsolutePath()+File.separator+"closeSubSections.txt");
+//		rupsInFaultSysInv.writeCloseSubSections(precomputedDataDir.getAbsolutePath()+File.separator+"closeSubSections.txt");
 	}
 	
 	public RupsInFaultSystemInversion getRupsInFaultSystemInversion() {
@@ -81,14 +86,13 @@ public class TestInversion {
 	 * This gets all section data & creates subsections
 	 * @param includeSectionsWithNaN_slipRates
 	 */
-	private void createAllSubSections(boolean includeSectionsWithNaN_slipRates, double maxSubSectionLength) {
+	private void createAllSubSections() {
 
 		if(includeSectionsWithNaN_slipRates)
 			subsectsNameForFile = "all_1_";
 		else
 			subsectsNameForFile = "all_0_";
 
-		this.maxSubSectionLength=maxSubSectionLength;
 		// fetch the sections
 		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
 		ArrayList<FaultSectionPrefData> allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelId);
@@ -312,6 +316,17 @@ public class TestInversion {
 		  }
 	  }
 	  
+	  
+	  public void writeSectionsToFile(String filePathAndName) {
+		  ArrayList<String> metaData = new ArrayList<String>();
+		  metaData.add("deformationModelId = "+deformationModelId);
+		  metaData.add("includeSectionsWithNaN_slipRates = "+includeSectionsWithNaN_slipRates);
+		  metaData.add("maxSubSectionLength = "+maxSubSectionLength+"  (in units of section down-dip width)");
+		  FaultSectionDataWriter.writeSectionsToFile(subSectionPrefDataList, 
+					metaData, filePathAndName);
+
+	  }
+	  
 
 
 	/**
@@ -319,6 +334,7 @@ public class TestInversion {
 	 */
 	public static void main(String[] args) {
 		TestInversion test = new TestInversion();
+		test.writeSectionsToFile("dev/scratch/UCERF3/exampleSubSectDataFile");
 //		RupsInFaultSystemInversion inversion = test.getRupsInFaultSystemInversion();
 //		for(int i=0; i<inversion.getNumClusters(); i++)
 //			System.out.println("Cluster "+i+" has "+inversion.getCluster(i).getNumRuptures()+" ruptures");
