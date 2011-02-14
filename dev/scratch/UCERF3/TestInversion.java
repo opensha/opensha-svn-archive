@@ -45,7 +45,7 @@ public class TestInversion {
 	public TestInversion(File precomputedDataDir) {
 		this.precomputedDataDir = precomputedDataDir;
 		
-		maxSubSectionLength = 0.5;  // in units of seimogenic thickness
+		maxSubSectionLength = 0.5;  // in units of seismogenic thickness
 		double maxJumpDist = 5.0;
 		double maxAzimuthChange = 45;
 		double maxTotAzimuthChange = 90;
@@ -63,8 +63,8 @@ public class TestInversion {
 		deformationModelId = 82;
 		
 		if(D) System.out.println("Making subsections...");
-		createAllSubSections();
-//		createBayAreaSubSections(false, subSectionLength);
+//		createAllSubSections();
+		createBayAreaSubSections(false, 7); 
 		
 		calcSubSectionDistances();
 		
