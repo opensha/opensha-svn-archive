@@ -73,8 +73,10 @@ public class RupsInFaultSystemInversion {
 
 		// check that indices are same as IDs
 		for(int i=0; i<faultSectionData.size();i++)
-			if(faultSectionData.get(i).getSectionId() != i)
+			if(faultSectionData.get(i).getSectionId() != i) {
+				System.out.println("i = "+i+ " & SectionId = "+faultSectionData.get(i).getSectionId());
 				throw new RuntimeException("RupsInFaultSystemInversion: Error - indices of faultSectionData don't match IDs");
+			}
 
 		numSections = faultSectionData.size();
 
