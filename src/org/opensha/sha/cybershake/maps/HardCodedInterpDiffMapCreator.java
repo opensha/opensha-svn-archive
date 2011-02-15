@@ -223,35 +223,35 @@ public class HardCodedInterpDiffMapCreator {
 	 */
 	public static void main(String[] args){
 		try {
-			boolean logPlot = true;
+			boolean logPlot = false;
 			int imTypeID = 21;
 			Double customMin = null;
 			Double customMax = null;
 			
 			
-			boolean isProbAt_IML = true;
-			double val = 0.2;
-			String baseMapName = "cb2008";
-			ModProbConfig config = null;
-//			ModProbConfig config = ModProbConfigFactory.getScenarioConfig(BombayBeachHazardCurveCalc.PARKFIELD_LOC);
-			boolean probGain = false;
-			String customLabel;
-			if (probGain)
-				customLabel = "Probability Gain";
-			else
-				customLabel = "POE "+(float)val+"G 3sec SA in 1 day";
-			if (logPlot && !probGain) {
-				customMin = -8.259081006598409;
-//				customMax = -3.25;
-				customMax = -2.5;
-			}
-			
-//			ModProbConfig config = null;
-//			boolean isProbAt_IML = false;
-//			double val = 0.0004;
+//			boolean isProbAt_IML = true;
+//			double val = 0.2;
 //			String baseMapName = "cb2008";
-//			String customLabel = "3sec SA, 2% in 50 yrs";
+//			ModProbConfig config = null;
+////			ModProbConfig config = ModProbConfigFactory.getScenarioConfig(BombayBeachHazardCurveCalc.PARKFIELD_LOC);
 //			boolean probGain = false;
+//			String customLabel;
+//			if (probGain)
+//				customLabel = "Probability Gain";
+//			else
+//				customLabel = "POE "+(float)val+"G 3sec SA in 1 day";
+//			if (logPlot && !probGain) {
+//				customMin = -8.259081006598409;
+////				customMax = -3.25;
+//				customMax = -2.5;
+//			}
+			
+			ModProbConfig config = null;
+			boolean isProbAt_IML = false;
+			double val = 0.0004;
+			String baseMapName = "cb2008";
+			String customLabel = "3sec SA, 2% in 50 yrs";
+			boolean probGain = false;
 			
 			
 			String addr = getMap(logPlot, imTypeID, customMin, customMax,
@@ -268,7 +268,9 @@ public class HardCodedInterpDiffMapCreator {
 		}
 	}
 	
-	protected static InterpDiffMapType[] normPlotTypes = null;
+//	protected static InterpDiffMapType[] normPlotTypes = null;
+	protected static InterpDiffMapType[] normPlotTypes = { InterpDiffMapType.INTERP_NOMARKS,
+			InterpDiffMapType.INTERP_MARKS, InterpDiffMapType.BASEMAP, InterpDiffMapType.DIFF};
 	protected static InterpDiffMapType[] gainPlotTypes = 
 			{ InterpDiffMapType.INTERP_NOMARKS, InterpDiffMapType.INTERP_MARKS};
 	
