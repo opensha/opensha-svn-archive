@@ -115,7 +115,6 @@ public class RupsInFaultSystemInversion {
 		// make the list of SectionCluster objects 
 		// (each represents a set of nearby sections and computes the possible
 		//  "ruptures", each defined as a list of sections in that rupture)
-		/* */
 		makeClusterList();
 
 //		for(int i=0;i<this.sectionClusterList.size(); i++)
