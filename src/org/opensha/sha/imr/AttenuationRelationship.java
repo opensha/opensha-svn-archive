@@ -385,7 +385,7 @@ extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationsh
 
 	/**
 	 *  Calculates the value of each propagation effect parameter from the
-	 *  current Site and ProbEqkRupture objects. <P>
+	 *  current Site and ProbEqkRupture objects.
 	 */
 	protected abstract void setPropagationEffectParams();
 
