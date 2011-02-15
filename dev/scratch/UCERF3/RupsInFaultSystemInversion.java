@@ -51,12 +51,12 @@ public class RupsInFaultSystemInversion {
 	ArrayList<SectionCluster> sectionClusterList;
 	
 	// slip model:
-	private String slipModelType;
 	public final static String CHAR_SLIP_MODEL = "Characteristic (Dsr=Ds)";
 	public final static String UNIFORM_SLIP_MODEL = "Uniform/Boxcar (Dsr=Dr)";
 	public final static String WG02_SLIP_MODEL = "WGCEP-2002 model (Dsr prop to Vs)";
 	public final static String TAPERED_SLIP_MODEL = "Tapered Ends ([Sin(x)]^0.5)";
-	
+	private String slipModelType = TAPERED_SLIP_MODEL;
+
 	private static EvenlyDiscretizedFunc taperedSlipPDF, taperedSlipCDF;
 
 
@@ -377,7 +377,10 @@ public class RupsInFaultSystemInversion {
 	
 	/**
 	 * This gets the slip on each section based on the value of slipModelType.
-	 * The slips are in meters.
+	 * The slips are in meters.  Note that taper slipped model wts slips by area
+	 * to maintain moment balance (so it doesn't plot perfectly); do something about this?
+	 * 
+	 * This has been spot checked, but needs a formal test.
 	 *
 	 */
 	public double[] getSlipOnSectionsForRup(ArrayList<Integer> sectIndicesForRup) {
@@ -398,12 +401,15 @@ public class RupsInFaultSystemInversion {
 			index += 1;
 		}
 			 
-		double rupMeanMoment = MomentMagCalc.getMoment(magAreaRel.getMedianMag(rupAreaInKM));
+		double mag = magAreaRel.getMedianMag(rupAreaInKM);
+		double rupMeanMoment = MomentMagCalc.getMoment(mag);
 		// the above is meanMoment in case we add aleatory uncertainty later (aveMoment needed below); 
 		// the above will have to be corrected accordingly as in SoSAF_SubSectionInversion
 		// (mean moment != moment of mean mag if aleatory uncertainty included)
 		
 		double aveSlip = rupMeanMoment/(rupAreaInKM*1e6*FaultMomentCalc.SHEAR_MODULUS);  // 1e6 converts to meters
+		if(D) System.out.println("RupMag = "+mag+"\tAveSlip = "+aveSlip+"\t"+slipModelType);
+
 		
 		// for case segment slip is independent of rupture (constant), and equal to slip-rate * MRI
 		if(slipModelType.equals(CHAR_SLIP_MODEL)) {
@@ -454,32 +460,27 @@ public class RupsInFaultSystemInversion {
 				slipsForRup[s] = aveSlip*scaleFactor;
 				normBegin = normEnd;
 			}
-			/*
-				if(rup == num_rup-1) { // check results
-					double d_aveTest=0;
-					for(int seg=0; seg<num_seg; seg++)
-						d_aveTest += segSlipInRup[seg][rup]*segArea[seg]/rupArea[rup];
-					System.out.println("AveSlipCheck: " + (float) (d_aveTest/aveSlip));
-				}
-			 */
 		}
 		else throw new RuntimeException("slip model not supported");
-		
+/*		
 		// check the average
-		double aveCalcSlip =0;
 		if(D) {
-			for(int s=0; s<slipsForRup.length; s++) {
+			double aveCalcSlip =0;
+			for(int s=0; s<slipsForRup.length; s++)
 				aveCalcSlip += slipsForRup[s]*sectArea[s];
-				aveCalcSlip /= rupAreaInKM;
-				System.out.println("AveSlip & CalcAveSlip:\t"+(float)aveSlip+"\t"+(float)aveCalcSlip);
-			}				
+			aveCalcSlip /= rupAreaInKM;
+			System.out.println("AveSlip & CalcAveSlip:\t"+(float)aveSlip+"\t"+(float)aveCalcSlip);
 		}
 
 		if (D) {
-			System.out.println("\tsectionSlip\tsectSlipRate");
-			for(int s=0; s<slipsForRup.length; s++) System.out.println(s+"\t"+(float)slipsForRup[s]+"\t"+(float)faultSectionData.get(sectIndicesForRup.get(s)).getAveLongTermSlipRate());
+			System.out.println("\tsectionSlip\tsectSlipRate\tsectArea");
+			for(int s=0; s<slipsForRup.length; s++) {
+				FaultSectionPrefData sectData = faultSectionData.get(sectIndicesForRup.get(s));
+				System.out.println(s+"\t"+(float)slipsForRup[s]+"\t"+(float)sectData.getAveLongTermSlipRate()+"\t"+sectArea[s]);
+			}
+					
 		}
-
+*/
 		return slipsForRup;		
 	}
 
