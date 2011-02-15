@@ -79,7 +79,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
  * @version    1.0
  */
 
-
+@Deprecated
 public class AS_2005_prelim_AttenRel
     extends AttenuationRelationship implements
     ScalarIntensityMeasureRelationshipAPI,
