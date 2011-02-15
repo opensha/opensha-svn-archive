@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import scratch.UCERF3.utils.FaultSectionDataWriter;
+
+import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.data.NamedObjectComparator;
 import org.opensha.commons.exceptions.FaultException;
 import org.opensha.commons.geo.Location;
@@ -53,6 +56,7 @@ public class TestInversion {
 		double maxRakeDiff = 90;
 		int minNumSectInRup = 2;
 		includeSectionsWithNaN_slipRates = false;
+		MagAreaRelationship magAreaRel = new Ellsworth_B_WG02_MagAreaRel();
 		
 		/** Set the deformation model
 		 * D2.1 = 82
@@ -74,7 +78,7 @@ public class TestInversion {
 		
 		rupsInFaultSysInv = new RupsInFaultSystemInversion(subSectionPrefDataList,
 				subSectionDistances, subSectionAzimuths, maxJumpDist, 
-				maxAzimuthChange, maxStrikeDiff, maxRakeDiff, minNumSectInRup, null);
+				maxAzimuthChange, maxStrikeDiff, maxRakeDiff, minNumSectInRup, magAreaRel);
 		
 //		rupsInFaultSysInv.writeCloseSubSections(precomputedDataDir.getAbsolutePath()+File.separator+"closeSubSections.txt");
 	}
@@ -340,9 +344,7 @@ public class TestInversion {
 	public static void main(String[] args) {
 		TestInversion test = new TestInversion();
 			
-		test.writeSectionsToFile("dev/scratch/UCERF3/exampleSubSectDataFile");
-		
-//		RupsInFaultSystemInversion rupsInFaultSysInv = test.getRupsInFaultSystemInversion();
+//		test.writeSectionsToFile("dev/scratch/UCERF3/exampleSubSectDataFile");
 
 //		RupsInFaultSystemInversion inversion = test.getRupsInFaultSystemInversion();
 //		for(int i=0; i<inversion.getNumClusters(); i++)
