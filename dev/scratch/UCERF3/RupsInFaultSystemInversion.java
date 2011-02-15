@@ -26,7 +26,7 @@ public class RupsInFaultSystemInversion {
 
 	ArrayList<FaultSectionPrefData> faultSectionData;
 	double sectionDistances[][],sectionAzimuths[][];;
-	double maxJumpDist, maxAzimuthChange, maxTotAzimuthChange;
+	double maxJumpDist, maxAzimuthChange, maxStrikeDiff, maxRakeDiff;
 	int minNumSectInRup;
 
 	String endPointNames[];
@@ -49,7 +49,7 @@ public class RupsInFaultSystemInversion {
 	 */
 	public RupsInFaultSystemInversion(ArrayList<FaultSectionPrefData> faultSectionData,
 			double[][] sectionDistances, double[][] subSectionAzimuths, double maxJumpDist, 
-			double maxAzimuthChange, double maxTotAzimuthChange, int minNumSectInRup) {
+			double maxAzimuthChange, double maxStrikeDiff, double maxRakeDiff, int minNumSectInRup) {
 
 		if(D) System.out.println("Instantiating RupsInFaultSystemInversion");
 		this.faultSectionData = faultSectionData;
@@ -57,7 +57,8 @@ public class RupsInFaultSystemInversion {
 		this.sectionAzimuths = subSectionAzimuths;
 		this.maxJumpDist=maxJumpDist;
 		this.maxAzimuthChange=maxAzimuthChange; 
-		this.maxTotAzimuthChange=maxTotAzimuthChange;
+		this.maxStrikeDiff=maxStrikeDiff;
+		this.maxRakeDiff=maxRakeDiff;
 		this.minNumSectInRup=minNumSectInRup;
 
 		// write out settings if in debug mode
@@ -66,7 +67,8 @@ public class RupsInFaultSystemInversion {
 				"; subSectionAzimuths.length = "+subSectionAzimuths.length +
 				"; maxJumpDist = "+maxJumpDist +
 				"; maxAzimuthChange = "+maxAzimuthChange + 
-				"; maxTotAzimuthChange = "+maxTotAzimuthChange +
+				"; maxStrikeDiff = "+maxStrikeDiff +
+				"; maxRakeDiff = "+maxRakeDiff +
 				"; minNumSectInRup = "+minNumSectInRup);
 
 		// check that indices are same as IDs
@@ -228,7 +230,7 @@ public class RupsInFaultSystemInversion {
 			if (D) System.out.println("WORKING ON CLUSTER #"+(sectionClusterList.size()+1));
 			int firstSubSection = availableSections.get(0);
 			SectionCluster newCluster = new SectionCluster(faultSectionData, minNumSectInRup,sectionConnectionsListList,
-					sectionAzimuths, maxAzimuthChange, maxTotAzimuthChange);
+					sectionAzimuths, maxAzimuthChange, maxStrikeDiff, maxRakeDiff);
 			newCluster.add(firstSubSection);
 			if (D) System.out.println("\tfirst is "+faultSectionData.get(firstSubSection).getName());
 			addLinks(firstSubSection, newCluster);

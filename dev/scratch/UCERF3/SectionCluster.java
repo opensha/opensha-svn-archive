@@ -25,7 +25,7 @@ public class SectionCluster extends ArrayList<Integer> {
 	ArrayList<ArrayList<Integer>> rupListIndices;			// elements here are section IDs (same as indices in sectonDataList)
 	int minNumSectInRup;
 	int numRupsAdded;
-	double maxAzimuthChange, maxTotAzimuthChange;
+	double maxAzimuthChange, maxStrikeDiff, maxRakeDiff;
 	double[][] sectionAzimuths;
 	
 	
@@ -40,13 +40,14 @@ public class SectionCluster extends ArrayList<Integer> {
 	 */
 	public SectionCluster(ArrayList<FaultSectionPrefData> sectionDataList, int minNumSectInRup, 
 			ArrayList<ArrayList<Integer>> sectionConnectionsListList, double[][] sectionAzimuths,
-			double maxAzimuthChange, double maxTotAzimuthChange) {
+			double maxAzimuthChange, double maxStrikeDiff, double maxRakeDiff) {
 		this.sectionDataList = sectionDataList;
 		this.minNumSectInRup = minNumSectInRup;
 		this.sectionConnectionsListList = sectionConnectionsListList;
 		this.sectionAzimuths = sectionAzimuths;
 		this.maxAzimuthChange = maxAzimuthChange;
-		this.maxTotAzimuthChange = maxTotAzimuthChange;
+		this.maxStrikeDiff = maxStrikeDiff;
+		this.maxRakeDiff = maxRakeDiff;
 	}
 	
 	
@@ -208,7 +209,7 @@ public class SectionCluster extends ArrayList<Integer> {
 		System.out.println(numRupsAdded + " potential ruptures");
 		
 		// Remove ruptures where subsection strikes have too big a spread
-		double MAXstrikeDiff = 90;  //maximum allowed difference in strikes between any two subsections in the same rupture, in degrees
+		// double maxStrikeDiff = 90;  //maximum allowed difference in strikes between any two subsections in the same rupture, in degrees
 		ArrayList<ArrayList<Integer>> toRemove = new ArrayList<ArrayList<Integer>>();
 		for(int r=0; r< numRupsAdded;r++) {
 			ArrayList<Integer> rup = rupListIndices.get(r);
@@ -216,12 +217,12 @@ public class SectionCluster extends ArrayList<Integer> {
 			ArrayList<Double> strikes = new ArrayList<Double>(rup.size());
 			for (int i=0; i<rup.size(); i++) {
 			//  System.out.println("Avg. strike = " + subSectionPrefDataList.get(rup.get(i)).getFaultTrace().getAveStrike());
-				if (subSectionPrefDataList.get(rup.get(i)).getFaultTrace().getAveStrike()<0)
+				if (sectionDataList.get(rup.get(i)).getFaultTrace().getAveStrike()<0)
 					System.out.println("Error:										Strike < 0 !!!");
-				if (subSectionPrefDataList.get(rup.get(i)).getFaultTrace().getAveStrike()<180)
-					strikes.add(subSectionPrefDataList.get(rup.get(i)).getFaultTrace().getAveStrike());	
+				if (sectionDataList.get(rup.get(i)).getFaultTrace().getAveStrike()<180)
+					strikes.add(sectionDataList.get(rup.get(i)).getFaultTrace().getAveStrike());	
 				else
-					strikes.add(subSectionPrefDataList.get(rup.get(i)).getFaultTrace().getAveStrike()-180);	
+					strikes.add(sectionDataList.get(rup.get(i)).getFaultTrace().getAveStrike()-180);	
 					
 			}
 		    Collections.sort(strikes);
@@ -232,7 +233,7 @@ public class SectionCluster extends ArrayList<Integer> {
 		    anglediffs.add(strikes.get(0)+180-strikes.get(rup.size()-1));
 		    double strikeDiff = 180-Collections.max(anglediffs);
 		    //System.out.println("strikeDiff = " + strikeDiff);
-		    if (strikeDiff>MAXstrikeDiff) {
+		    if (strikeDiff>maxStrikeDiff) {
 		    	toRemove.add(rup);
 		    }
 		}
@@ -246,13 +247,13 @@ public class SectionCluster extends ArrayList<Integer> {
 		System.out.println(numRupsAdded + " ruptures that pass subsection strikes test");
 		
 		// Remove ruptures where subsection rakes have too big a spread
-		double MAXrakeDiff = 90;  //maximum allowed difference in strikes between any two subsections in the same rupture, in degrees
+		// double maxRakeDiff = 90;  //maximum allowed difference in strikes between any two subsections in the same rupture, in degrees
 		ArrayList<ArrayList<Integer>> toRemove2 = new ArrayList<ArrayList<Integer>>();
 		for(int r=0; r< numRupsAdded;r++) {
 			ArrayList<Integer> rup = rupListIndices.get(r);
 			ArrayList<Double> rakes = new ArrayList<Double>(rup.size());
 			for (int i=0; i<rup.size(); i++) 		 {		
-				rakes.add(subSectionPrefDataList.get(rup.get(i)).getAveRake()); }
+				rakes.add(sectionDataList.get(rup.get(i)).getAveRake()); }
 		    Collections.sort(rakes);
 			ArrayList<Double> anglediffs2 = new ArrayList<Double>(rup.size());
 		    for (int i=0; i<rup.size()-1; i++) {
@@ -260,7 +261,7 @@ public class SectionCluster extends ArrayList<Integer> {
 		    }
 		    anglediffs2.add(rakes.get(0)+360-rakes.get(rup.size()-1));
 		    double rakeDiff = 360-Collections.max(anglediffs2);
-		    if (rakeDiff>MAXrakeDiff) {
+		    if (rakeDiff>maxRakeDiff) {
 		    	toRemove2.add(rup);
 		    }
 		}
