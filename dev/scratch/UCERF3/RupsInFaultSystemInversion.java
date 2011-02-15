@@ -374,12 +374,13 @@ public class RupsInFaultSystemInversion {
 		}
 	}
 
+	
 	/**
 	 * This gets the slip on each section based on the value of slipModelType.
 	 * The slips are in meters.
 	 *
 	 */
-	private double[] getSlipOnSectionsForRup(ArrayList<Integer> sectIndicesForRup) {
+	public double[] getSlipOnSectionsForRup(ArrayList<Integer> sectIndicesForRup) {
 		
 		double[] slipsForRup = new double[sectIndicesForRup.size()];
 		
@@ -464,7 +465,20 @@ public class RupsInFaultSystemInversion {
 		}
 		else throw new RuntimeException("slip model not supported");
 		
-		if (D) for(int s=0; s<slipsForRup.length; s++) System.out.println(s+"\t"+slipsForRup[s]);
+		// check the average
+		double aveCalcSlip =0;
+		if(D) {
+			for(int s=0; s<slipsForRup.length; s++) {
+				aveCalcSlip += slipsForRup[s]*sectArea[s];
+				aveCalcSlip /= rupAreaInKM;
+				System.out.println("AveSlip & CalcAveSlip:\t"+(float)aveSlip+"\t"+(float)aveCalcSlip);
+			}				
+		}
+
+		if (D) {
+			System.out.println("\tsectionSlip\tsectSlipRate");
+			for(int s=0; s<slipsForRup.length; s++) System.out.println(s+"\t"+(float)slipsForRup[s]+"\t"+(float)faultSectionData.get(sectIndicesForRup.get(s)).getAveLongTermSlipRate());
+		}
 
 		return slipsForRup;		
 	}
