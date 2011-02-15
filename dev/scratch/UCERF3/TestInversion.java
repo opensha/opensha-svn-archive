@@ -69,9 +69,9 @@ public class TestInversion {
 		deformationModelId = 82;
 		
 		if(D) System.out.println("Making subsections...");
-		createAllSubSections();
-//		createBayAreaSubSections(); 
-/*		
+//		createAllSubSections();
+		createBayAreaSubSections(); 
+		
 		calcSubSectionDistances();
 		
 		calcSubSectionAzimuths();
@@ -79,7 +79,7 @@ public class TestInversion {
 		rupsInFaultSysInv = new RupsInFaultSystemInversion(subSectionPrefDataList,
 				subSectionDistances, subSectionAzimuths, maxJumpDist, 
 				maxAzimuthChange, maxStrikeDiff, maxRakeDiff, minNumSectInRup, magAreaRel);
-	*/	
+		
 //		rupsInFaultSysInv.writeCloseSubSections(precomputedDataDir.getAbsolutePath()+File.separator+"closeSubSections.txt");
 	}
 	
@@ -156,23 +156,23 @@ public class TestInversion {
 		
 		ArrayList<Integer> faultSectionIds = new ArrayList<Integer>();
 		// Bay Area Faults
-		faultSectionIds.add(131);	
-		faultSectionIds.add(130);	
-		faultSectionIds.add(133);	
-		faultSectionIds.add(120);	
-		faultSectionIds.add(63);	
-		faultSectionIds.add(64);	
-		faultSectionIds.add(8);	
+		faultSectionIds.add(26);	
+		faultSectionIds.add(27);	
+		faultSectionIds.add(67);	
+		faultSectionIds.add(25);	
+		faultSectionIds.add(68);	
+		faultSectionIds.add(69);	
+		faultSectionIds.add(4);	
+		faultSectionIds.add(5);	
+		faultSectionIds.add(55);
+		faultSectionIds.add(71);	
+		faultSectionIds.add(1);	
+		faultSectionIds.add(3);	
+		faultSectionIds.add(12);	
+		faultSectionIds.add(29);
+		faultSectionIds.add(6);
 		faultSectionIds.add(7);	
-		faultSectionIds.add(9);
-		faultSectionIds.add(57);	
-		faultSectionIds.add(58);	
-		faultSectionIds.add(18);	
-		faultSectionIds.add(140);	
-		faultSectionIds.add(141);
-		faultSectionIds.add(59);
-		faultSectionIds.add(60);	
-		faultSectionIds.add(95);	
+		faultSectionIds.add(2);	
 
 
 		subSectionPrefDataList = new ArrayList<FaultSectionPrefData>();
