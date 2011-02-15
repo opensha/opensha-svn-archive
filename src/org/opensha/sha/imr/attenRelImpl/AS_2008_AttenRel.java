@@ -121,12 +121,9 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 public class AS_2008_AttenRel extends AttenuationRelationship implements
 		ParameterChangeListener {
 
-	// Name of IMR
+	/** Name of IMR */
 	public final static String NAME = "Abrahamson & Silva (2008)";
 
-	// Coeff file
-	//	private final static String AS_2008_CoeffFile = "org" + File.separator + "opensha" + File.separator + "sha"
-	//			+ File.separator + "imr" + File.separator + "attenRelImpl" + File.separator + "as_2008_coeff.txt";
 	private final static String AS_2008_CoeffFile = "as_2008_coeff.txt";
 
 	// Debugging stuff
@@ -137,7 +134,6 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 
 	// URL Info String
 	private final static String URL_INFO_STRING = "http://www.opensha.org/glossary-attenuationRelation-ABRAHAM_SILVA_2008";
-
 
 	// style of faulting param options
 	public final static String FLT_TYPE_STRIKE_SLIP = "Strike-Slip";
@@ -151,7 +147,7 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 	private double rRup, distRupMinusJB_OverRup, distRupMinusDistX_OverRup;
 	private String component, stdDevType;
 
-	private boolean parameterChange, rock_pga_is_not_fresh;
+	private boolean rock_pga_is_not_fresh;
 
 	// Local variables declaration
 	double[] per,VLIN,b,a1,a2,a8,a10,a12,a13,a14,a15,a16,a18,s1e,s2e,s1m,s2m,s3,s4,rho;
@@ -170,26 +166,26 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 	private PropagationEffect propagationEffect;
 
 	// values for warning parameters
-	protected final static Double MAG_WARN_MIN = new Double(4.0);
-	protected final static Double MAG_WARN_MAX = new Double(8.5);
-	protected final static Double DISTANCE_RUP_WARN_MIN = new Double(0.0);
-	protected final static Double DISTANCE_RUP_WARN_MAX = new Double(200.0);
-	protected final static Double DISTANCE_JB_WARN_MIN = new Double(0.0);
-	protected final static Double DISTANCE_JB_WARN_MAX = new Double(200.0);
-	protected final static Double DISTANCE_MINUS_WARN_MIN = new Double(0.0);
-	protected final static Double DISTANCE_MINUS_WARN_MAX = new Double(50.0);
-	protected final static Double DISTANCE_X_WARN_MIN = new Double(-300.0);
-	protected final static Double DISTANCE_X_WARN_MAX = new Double(300.0);
-	protected final static Double VS30_WARN_MIN = new Double(150.0);
-	protected final static Double VS30_WARN_MAX = new Double(1500.0);
-	protected final static Double DEPTH_1pt0_WARN_MIN = new Double(0.0);
-	protected final static Double DEPTH_1pt0_WARN_MAX = new Double(10000);
-	protected final static Double DIP_WARN_MIN = new Double(15.0);
-	protected final static Double DIP_WARN_MAX = new Double(90.0);
-	protected final static Double RUP_TOP_WARN_MIN = new Double(0.0);
-	protected final static Double RUP_TOP_WARN_MAX = new Double(15.0);
-	protected final static Double RUP_WIDTH_WARN_MIN = new Double(0.0);
-	protected final static Double RUP_WIDTH_WARN_MAX = new Double(100.0);
+	private final static double MAG_WARN_MIN = 4.0;
+	private final static double MAG_WARN_MAX = 8.5;
+	private final static double DISTANCE_RUP_WARN_MIN = 0.0;
+	private final static double DISTANCE_RUP_WARN_MAX = 200.0;
+	private final static double DISTANCE_JB_WARN_MIN = 0.0;
+	private final static double DISTANCE_JB_WARN_MAX = 200.0;
+	private final static double DISTANCE_MINUS_WARN_MIN = 0.0;
+	private final static double DISTANCE_MINUS_WARN_MAX = 50.0;
+	private final static double DISTANCE_X_WARN_MIN = -300.0;
+	private final static double DISTANCE_X_WARN_MAX = 300.0;
+	private final static double VS30_WARN_MIN = 150.0;
+	private final static double VS30_WARN_MAX = 1500.0;
+	private final static double DEPTH_1pt0_WARN_MIN = 0.0;
+	private final static double DEPTH_1pt0_WARN_MAX = 10000;
+	private final static double DIP_WARN_MIN = 15.0;
+	private final static double DIP_WARN_MAX = 90.0;
+	private final static double RUP_TOP_WARN_MIN = 0.0;
+	private final static double RUP_TOP_WARN_MAX = 15.0;
+	private final static double RUP_WIDTH_WARN_MIN = 0.0;
+	private final static double RUP_WIDTH_WARN_MAX = 100.0;
 
 	/**
 	 *  This initializes several ParameterList objects.
@@ -219,12 +215,30 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 		setParamDefaults();
 	}
 
-
+//	private double[] per = {-1, 0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.75, 1, 1.5, 2, 3, 4, 5, 7.5, 10};
+//	private double[] VLIN = {400, 865.1, 865.1, 865.1, 907.8, 994.5, 1053.5, 1085.7, 1032.5, 877.6, 748.2, 654.3, 587.1, 503, 456.6, 410.5, 400, 400, 400, 400, 400, 400, 400, 400};
+//	private double[] b = {-1.955, -1.186, -1.186, -1.219, -1.273, -1.308, -1.346, -1.471, -1.624, -1.931, -2.188, -2.381, -2.518, -2.657, -2.669, -2.401, -1.955, -1.025, -0.299, 0, 0, 0, 0, 0};
+//	private double[] a1 = {5.7578, 0.804, 0.8111, 0.855, 0.962, 1.037, 1.133, 1.375, 1.563, 1.716, 1.687, 1.646, 1.601, 1.511, 1.397, 1.137, 0.915, 0.510, 0.192, -0.280, -0.639, -0.936, -1.527, -1.993};
+//	private double[] a2 = {-0.9046, -0.9679, -0.9679, -0.9774, -1.0024, -1.0289, -1.0508, -1.081, -1.0833, -1.0357, -0.97, -0.9202, -0.8974, -0.8677, -0.8475, -0.8206, -0.8088, -0.7995, -0.796, -0.796, -0.796, -0.796, -0.796, -0.796};
+//	private double[] a8 = {-0.12, -0.0372, -0.0372, -0.0372, -0.0372, -0.0315, -0.0271, -0.0191, -0.0166, -0.0254, -0.0396, -0.0539, -0.0656, -0.0807, -0.0924, -0.1137, -0.1289, -0.1534, -0.1708, -0.1954, -0.2128, -0.2263, -0.2509, -0.2683};
+//	private double[] a10 = {1.539, 0.9445, 0.9445, 0.9834, 1.0471, 1.0884, 1.1333, 1.2808, 1.4613, 1.8071, 2.0773, 2.2794, 2.4201, 2.551, 2.5395, 2.1493, 1.5705, 0.3991, -0.6072, -0.96, -0.96, -0.9208, -0.77, -0.663};
+//	private double[] a12 = {0.08, 0, 0, 0, 0, 0, 0, 0, 0, 0.0181, 0.0309, 0.0409, 0.0491, 0.0619, 0.0719, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08};
+//	private double[] a13 = {-0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06};
+//	private double[] a14 = {0.7, 1.08, 1.08, 1.08, 1.1331, 1.1708, 1.2, 1.2, 1.2, 1.1683, 1.1274, 1.0956, 1.0697, 1.0288, 0.9971, 0.9395, 0.8985, 0.8409, 0.8, 0.4793, 0.2518, 0.0754, 0, 0};
+//	private double[] a15 = {-0.39, -0.35, -0.35, -0.35, -0.35, -0.35, -0.35, -0.35, -0.35, -0.35, -0.35, -0.35, -0.35, -0.35, -0.3191, -0.2629, -0.223, -0.1668, -0.127, -0.0708, -0.0309, 0, 0, 0};
+//	private double[] a16 = {0.63, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.8423, 0.7458, 0.5704, 0.446, 0.2707, 0.1463, -0.0291, -0.1535, -0.25, -0.25, -0.25};
+//	private double[] a18 = {0, -0.0067, -0.0067, -0.0067, -0.0067, -0.0067, -0.0076, -0.0093, -0.0093, -0.0093, -0.0083, -0.0069, -0.0057, -0.0039, -0.0025, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+//	private double[] s1e = {0.59, 0.59, 0.59, 0.59, 0.605, 0.615, 0.623, 0.63, 0.63, 0.63, 0.63, 0.63, 0.63, 0.63, 0.63, 0.63, 0.63, 0.615, 0.604, 0.589, 0.578, 0.57, 0.611, 0.64};
+//	private double[] s2e = {0.47, 0.47, 0.47, 0.47, 0.478, 0.483, 0.488, 0.495, 0.501, 0.509, 0.514, 0.518, 0.522, 0.527, 0.532, 0.539, 0.545, 0.552, 0.558, 0.565, 0.57, 0.587, 0.618, 0.64};
+//	private double[] s1m = {0.576, 0.576, 0.576, 0.576, 0.591, 0.602, 0.61, 0.617, 0.617, 0.616, 0.614, 0.612, 0.611, 0.608, 0.606, 0.602, 0.594, 0.566, 0.544, 0.527, 0.515, 0.51, 0.572, 0.612};
+//	private double[] s2m = {0.453, 0.453, 0.453, 0.453, 0.461, 0.466, 0.471, 0.479, 0.485, 0.491, 0.495, 0.497, 0.499, 0.501, 0.504, 0.506, 0.503, 0.497, 0.491, 0.5, 0.505, 0.529, 0.579, 0.612};
+//	private double[] s3 = {0.42, 0.47, 0.42, 0.42, 0.462, 0.492, 0.515, 0.55, 0.55, 0.55, 0.52, 0.497, 0.479, 0.449, 0.426, 0.385, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35};
+//	private double[] s4 = {0.3, 0.3, 0.3, 0.3, 0.305, 0.309, 0.312, 0.317, 0.321, 0.326, 0.329, 0.332, 0.335, 0.338, 0.341, 0.346, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35};
+//	private double[] rho = {0.74, 1, 1, 1, 0.991, 0.982, 0.973, 0.952, 0.929, 0.896, 0.874, 0.856, 0.841, 0.818, 0.783, 0.68, 0.607, 0.504, 0.431, 0.328, 0.255, 0.2, 0.2, 0.2};
 
 	@SuppressWarnings("unchecked")
 	private void readCoeffFile(){
 		try{
-			//			ArrayList<String> coeff= FileUtils.loadJarFile(AS_2008_CoeffFile);
 			ArrayList<String> coeff= FileUtils.loadFile(this.getClass().getResource(AS_2008_CoeffFile));
 			//reading the Period
 			String perLine = coeff.get(0);
@@ -439,6 +453,7 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 	 * @param  eqkRupture  The new eqkRupture value
 	 * @throws InvalidRangeException thrown if rake is out of bounds
 	 */
+	@Override
 	public void setEqkRupture(EqkRupture eqkRupture) throws InvalidRangeException {
 
 		magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
@@ -471,32 +486,17 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 
 	}
 
-
-	/**
-	 *  This sets the site-related parameter (siteTypeParam) based on what is in
-	 *  the Site object passed in (the Site object must have a parameter with
-	 *  the same name as that in siteTypeParam).  This also sets the internally held
-	 *  Site object as that passed in.
-	 *
-	 * @param  site             The new site object
-	 * @throws ParameterException Thrown if the Site object doesn't contain a
-	 * Vs30 parameter
-	 */
+	@Override
 	public void setSite(Site site) throws ParameterException {
-
 		vs30Param.setValue((Double)site.getParameter(Vs30_Param.NAME).getValue());
-		depthTo1pt0kmPerSecParam.setValueIgnoreWarning((Double)site.getParameter(DepthTo1pt0kmPerSecParam.NAME).
-				getValue());
+		depthTo1pt0kmPerSecParam.setValueIgnoreWarning(
+			(Double)site.getParameter(DepthTo1pt0kmPerSecParam.NAME).getValue());
 		vs30_TypeParam.setValue((String)site.getParameter(Vs30_TypeParam.NAME).getValue());
-
 		this.site = site;
 		setPropagationEffectParams();
 	}
 
-	/**
-	 * This sets the two propagation-effect parameters (distanceRupParam and
-	 * distRupMinusJB_OverRupParam) based on the current site and eqkRupture.  
-	 */
+	@Override
 	protected void setPropagationEffectParams() {
 
 		if ( (this.site != null) && (this.eqkRupture != null)) {
@@ -550,7 +550,7 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 		else if (im.getName().equalsIgnoreCase(PGA_Param.NAME)) {
 			iper = 1;
 		}
-		parameterChange = true;
+		//parameterChange = true;
 		intensityMeasureChanged = false;
 	}
 
@@ -640,10 +640,7 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 		}
 	}
 
-
-	/**
-	 * @return    The stdDev value
-	 */
+	@Override
 	public double getStdDev() {
 
 		if (intensityMeasureChanged) {
@@ -661,10 +658,7 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 		return stdDev;
 	}
 
-	/**
-	 * Allows the user to set the default parameter values for the selected Attenuation
-	 * Relationship.
-	 */
+	@Override
 	public void setParamDefaults() {
 
 		magParam.setValueAsDefault();
@@ -883,27 +877,21 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 
 	}
 
-	/**
-	 * get the name of this IMR
-	 *
-	 * @returns the name of this IMR
-	 */
+	@Override
 	public String getName() {
 		return NAME;
 	}
 
-	/**
-	 * Returns the Short Name of each AttenuationRelationship
-	 * @return String
-	 */
+	@Override
 	public String getShortName() {
 		return SHORT_NAME;
 	}
 
-	/**
-	 * Returns the index for Td, to be used in getMean for constant displacement model
+	/*
+	 * Returns the index for Td, to be used in getMean for constant 
+	 * displacement model
 	 */
-	public int searchTdIndex (double Td) {
+	private int searchTdIndex (double Td) {
 		//double[] TestTd = new double[23];
 		int iTd = 22;
 		for(int i=2;i<=22;++i){
@@ -1173,9 +1161,8 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 	 */
 	public double getStdDev(int iper, String stdDevType, String component, double vs30, double pga_rock, double vsm) {
 
-		if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE))
-			return 0.0;
-		else {
+		if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE)) return 0.0;
+		
 			// Compute sigma0 (eq. 27), tau0 (eq. 28) and dterm (eq. 26) 
 			//NOTE: I created variables with the PGA suffix because it's easier to read the equations below (CGoulet)
 			double  v1, vs30Star, dterm, s1, s1PGA, s2, s2PGA,  sigma0, sigma0PGA, tau0, tau0PGA, sigmaB, sigmaBPGA, tauB, tauBPGA, sigma, tau;  
@@ -1284,27 +1271,23 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 				return tau;
 			else
 				return Double.NaN;   // just in case invalid stdDev given			  
-		}
 	}
 
-	/**
-	 * This listens for parameter changes and updates the primitive parameters accordingly
-	 * @param e ParameterChangeEvent
-	 */
+	@Override
 	public void parameterChange(ParameterChangeEvent e) {
 
 		String pName = e.getParameterName();
 		Object val = e.getNewValue();
-		parameterChange = true;
+		//parameterChange = true;
 		rock_pga_is_not_fresh = true;
 
 		//		System.out.println(pName+"\t"+val);
 
-		if (pName.equals(magParam.NAME)) {
+		if (pName.equals(MagParam.NAME)) {
 			mag = ( (Double) val).doubleValue();
 		}
 		else if (pName.equals(FaultTypeParam.NAME)) {
-			String fltType = (String)fltTypeParam.getValue();
+			String fltType = fltTypeParam.getValue();
 			if (fltType.equals(FLT_TYPE_NORMAL)) {
 				f_rv = 0 ;
 				f_nm = 1;
@@ -1371,7 +1354,7 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 			stdDevType = (String) val;
 		}
 		else if (pName.equals(ComponentParam.NAME)) {
-			component = (String)componentParam.getValue();
+			component = componentParam.getValue();
 		}
 		else if (pName.equals(PeriodParam.NAME)) {
 			intensityMeasureChanged = true;
@@ -1379,9 +1362,7 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 
 	}
 
-	/**
-	 * Allows to reset the change listeners on the parameters
-	 */
+	@Override
 	public void resetParameterEventListeners(){
 
 		magParam.removeParameterChangeListener(this);
@@ -1407,10 +1388,7 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 		this.initParameterEventListeners();
 	}
 
-	/**
-	 * Adds the parameter change listeners. This allows to listen to when-ever the
-	 * parameter is changed.
-	 */
+	@Override
 	protected void initParameterEventListeners() {
 
 		magParam.addParameterChangeListener(this);
@@ -1434,11 +1412,7 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 		saPeriodParam.addParameterChangeListener(this);
 	}
 
-	/**
-	 * This provides a URL where more info on this model can be obtained
-	 * @throws MalformedURLException if returned URL is not a valid URL.
-	 * @returns the URL to the AttenuationRelationship document on the Web.
-	 */
+	@Override
 	public URL getInfoURL() throws MalformedURLException{
 		return new URL(URL_INFO_STRING);
 	}
