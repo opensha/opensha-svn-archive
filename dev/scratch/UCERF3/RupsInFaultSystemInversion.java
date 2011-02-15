@@ -37,7 +37,7 @@ public class RupsInFaultSystemInversion {
 
 	ArrayList<FaultSectionPrefData> faultSectionData;
 	double sectionDistances[][],sectionAzimuths[][];;
-	double maxJumpDist, maxAzimuthChange, maxTotAzimuthChange;
+	double maxJumpDist, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff;
 	int minNumSectInRup;
 	MagAreaRelationship magAreaRel;
 
@@ -73,7 +73,7 @@ public class RupsInFaultSystemInversion {
 	 */
 	public RupsInFaultSystemInversion(ArrayList<FaultSectionPrefData> faultSectionData,
 			double[][] sectionDistances, double[][] subSectionAzimuths, double maxJumpDist, 
-			double maxAzimuthChange, double maxTotAzimuthChange, int minNumSectInRup,
+			double maxAzimuthChange, double maxTotAzimuthChange, double maxRakeDiff, int minNumSectInRup,
 			MagAreaRelationship magAreaRel) {
 
 		if(D) System.out.println("Instantiating RupsInFaultSystemInversion");
@@ -83,6 +83,7 @@ public class RupsInFaultSystemInversion {
 		this.maxJumpDist=maxJumpDist;
 		this.maxAzimuthChange=maxAzimuthChange; 
 		this.maxTotAzimuthChange=maxTotAzimuthChange;
+		this.maxRakeDiff=maxRakeDiff;
 		this.minNumSectInRup=minNumSectInRup;
 		this.magAreaRel=magAreaRel;
 
@@ -113,13 +114,13 @@ public class RupsInFaultSystemInversion {
 		// make the list of SectionCluster objects 
 		// (each represents a set of nearby sections and computes the possible
 		//  "ruptures", each defined as a list of sections in that rupture)
-		/* 
+		/* */
 		makeClusterList();
 
 		for(int i=0;i<this.sectionClusterList.size(); i++)
 			System.out.println("Cluster "+i+" has "+getCluster(i).size()+" sections & "+getCluster(i).getNumRuptures()+" ruptures");
 //			System.out.println("Cluster "+i+" has "+getCluster(i).getNumRuptures()+" ruptures");
-*/		
+		
 	}
 
 
@@ -256,7 +257,7 @@ public class RupsInFaultSystemInversion {
 			if (D) System.out.println("WORKING ON CLUSTER #"+(sectionClusterList.size()+1));
 			int firstSubSection = availableSections.get(0);
 			SectionCluster newCluster = new SectionCluster(faultSectionData, minNumSectInRup,sectionConnectionsListList,
-					sectionAzimuths, maxAzimuthChange, maxTotAzimuthChange);
+					sectionAzimuths, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff);
 			newCluster.add(firstSubSection);
 			if (D) System.out.println("\tfirst is "+faultSectionData.get(firstSubSection).getName());
 			addLinks(firstSubSection, newCluster);

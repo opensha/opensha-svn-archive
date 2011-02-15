@@ -74,7 +74,7 @@ public class TestInversion {
 		
 		rupsInFaultSysInv = new RupsInFaultSystemInversion(subSectionPrefDataList,
 				subSectionDistances, subSectionAzimuths, maxJumpDist, 
-				maxAzimuthChange, maxStrikeDiff, maxRakeDiff, minNumSectInRup);
+				maxAzimuthChange, maxStrikeDiff, maxRakeDiff, minNumSectInRup, null);
 		
 //		rupsInFaultSysInv.writeCloseSubSections(precomputedDataDir.getAbsolutePath()+File.separator+"closeSubSections.txt");
 	}
@@ -164,11 +164,14 @@ public class TestInversion {
 
 
 		subSectionPrefDataList = new ArrayList<FaultSectionPrefData>();
-		int subsectIndex = 0;
+		int subSectIndex = 0;
 		for (int i = 0; i < faultSectionIds.size(); ++i) {
 			FaultSectionPrefData faultSectionPrefData = deformationModelPrefDB
 					.getFaultSectionPrefData(deformationModelId, faultSectionIds.get(i));
-			subSectionPrefDataList.addAll(faultSectionPrefData.getSubSectionsList(maxSubSectionLength,subsectIndex));
+			double maxSectLength = faultSectionPrefData.getDownDipWidth()*maxSubSectionLength;
+			ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength, subSectIndex);
+			subSectIndex += subSectData.size();
+			subSectionPrefDataList.addAll(subSectData);
 		}
 		
 		numSubSections = subSectionPrefDataList.size();
