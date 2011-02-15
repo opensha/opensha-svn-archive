@@ -202,17 +202,13 @@ NamedObjectAPI, ParameterChangeListener {
 	public final static String COMPONENT_GEOMEAN = ComponentParam.COMPONENT_AVE_HORZ;
 	public final static String COMPONENT_LARGERHORIZ = ComponentParam.COMPONENT_GREATER_OF_TWO_HORZ;
 
-	// for issuing warnings:
-	private transient ParameterChangeWarningListener warningListener = null;
-
 	/**
 	 *  This initializes several ParameterList objects.
 	 */
-	public McVerryetal_2000_AttenRel(ParameterChangeWarningListener
-			warningListener) {
+	public McVerryetal_2000_AttenRel(ParameterChangeWarningListener listener) {
 		
 
-		this.warningListener = warningListener;
+		this.listener = listener;
 
 		initSupportedIntensityMeasureParams();
 		indexFromPerHashMap = new HashMap();
@@ -468,7 +464,7 @@ NamedObjectAPI, ParameterChangeListener {
 				DISTANCE_RUP_WARN_MAX);
 		warn.setNonEditable();
 		distanceRupParam.setWarningConstraint(warn);
-		distanceRupParam.addParameterChangeWarningListener(warningListener);
+		distanceRupParam.addParameterChangeWarningListener(listener);
 
 		distanceRupParam.setNonEditable();
 
@@ -498,8 +494,8 @@ NamedObjectAPI, ParameterChangeListener {
 		pgaParam.setNonEditable();
 
 		// Add the warning listeners:
-		saParam.addParameterChangeWarningListener(warningListener);
-		pgaParam.addParameterChangeWarningListener(warningListener);
+		saParam.addParameterChangeWarningListener(listener);
+		pgaParam.addParameterChangeWarningListener(listener);
 
 		// Put parameters in the supportedIMParams list:
 		supportedIMParams.clear();

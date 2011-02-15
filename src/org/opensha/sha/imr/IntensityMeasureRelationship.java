@@ -147,6 +147,8 @@ implements IntensityMeasureRelationshipAPI {
 	//this flag keeps track of whether the intensity measure has changed
 	protected boolean intensityMeasureChanged;
 
+	// TODO determine if this is actually necessary: at present 
+	// AttenuationRelationshipGuiBean and IMR_GuiBeanpass in a listener 
 	protected transient ParameterChangeWarningListener listener = null;
 	
 	/**
@@ -160,13 +162,19 @@ implements IntensityMeasureRelationshipAPI {
 	}
 
 	/**
-	 * Sets a parameter change listener.
+	 * Sets a singleton parameter change listener. As implemented, subsequent
+	 * calls to this method will change the registered listener.<br/>
+	 * <br/>
+	 * This should probably be updated with a full listener implementation.
+	 * This method was added to get rid of the listener constructors inserted
+	 * into every attenuation relationship (bad form) so they could be
+	 * reverted to no-arg constructors.
+	 * 
 	 * @param listener
 	 */
 	public void setWarningListener(ParameterChangeWarningListener listener) {
 		this.listener = listener;
 	}
-	
 	
 	/**
 	 *  Returns name of the IntensityMeasureRelationship.

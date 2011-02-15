@@ -360,15 +360,12 @@ public class CY_2006_AttenRel
   public final static String FLT_TYPE_REVERSE = "Reverse";
   public final static String FLT_TYPE_NORMAL = "Normal";
  
-  // for issuing warnings:
-  private transient ParameterChangeWarningListener warningListener = null;
-
   /**
    *  This initializes several ParameterList objects.
    */
-  public CY_2006_AttenRel(ParameterChangeWarningListener warningListener) {
+  public CY_2006_AttenRel(ParameterChangeWarningListener listener) {
 
-    this.warningListener = warningListener;
+    this.listener = listener;
 
     initSupportedIntensityMeasureParams();
     indexFromPerHashMap = new HashMap();
@@ -643,7 +640,7 @@ public class CY_2006_AttenRel
   protected void initPropagationEffectParams() {
 
     distanceRupParam = new DistanceRupParameter(0.0);
-    distanceRupParam.addParameterChangeWarningListener(warningListener);
+    distanceRupParam.addParameterChangeWarningListener(listener);
     DoubleConstraint warn = new DoubleConstraint(DISTANCE_RUP_WARN_MIN,
                                                  DISTANCE_RUP_WARN_MAX);
     warn.setNonEditable();
@@ -653,7 +650,7 @@ public class CY_2006_AttenRel
     //create distRupMinusJB_OverRupParam
     distRupMinusJB_OverRupParam = new DistRupMinusJB_OverRupParameter(0.0);
     DoubleConstraint warn2 = new DoubleConstraint(DISTANCE_MINUS_WARN_MIN, DISTANCE_MINUS_WARN_MAX);
-    distRupMinusJB_OverRupParam.addParameterChangeWarningListener(warningListener);
+    distRupMinusJB_OverRupParam.addParameterChangeWarningListener(listener);
     warn.setNonEditable();
     distRupMinusJB_OverRupParam.setWarningConstraint(warn2);
     distRupMinusJB_OverRupParam.setNonEditable();
@@ -686,8 +683,8 @@ public class CY_2006_AttenRel
 	pgaParam.setNonEditable();
 
     // Add the warning listeners:
-    saParam.addParameterChangeWarningListener(warningListener);
-    pgaParam.addParameterChangeWarningListener(warningListener);
+    saParam.addParameterChangeWarningListener(listener);
+    pgaParam.addParameterChangeWarningListener(listener);
 
     // Put parameters in the supportedIMParams list:
     supportedIMParams.clear();

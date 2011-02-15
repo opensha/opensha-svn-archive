@@ -111,9 +111,6 @@ NamedObjectAPI {
 	protected final static Double DISTANCE_RUP_WARN_MIN = new Double(0.0);
 	protected final static Double DISTANCE_RUP_WARN_MAX = new Double(200.0);
 
-	// for issuing warnings:
-	private transient ParameterChangeWarningListener warningListener = null;
-
 	/**
 	 * Determines the style of faulting from the rake angle (which
 	 * comes from the eqkRupture object) and fills in the
@@ -194,9 +191,9 @@ NamedObjectAPI {
 	/**
 	 *  No-Arg constructor. This initializes several ParameterList objects.
 	 */
-	public WC94_DisplMagRel(ParameterChangeWarningListener warningListener) {
+	public WC94_DisplMagRel(ParameterChangeWarningListener listener) {
 
-		this.warningListener = warningListener;
+		this.listener = listener;
 
 		initCoefficients(); // This must be called before the next one
 		initSupportedIntensityMeasureParams();
@@ -397,7 +394,7 @@ NamedObjectAPI {
 	 */
 	protected void initPropagationEffectParams() {
 		distanceRupParam = new DistanceRupParameter(0.0);
-		distanceRupParam.addParameterChangeWarningListener(warningListener);
+		distanceRupParam.addParameterChangeWarningListener(listener);
 		DoubleConstraint warn = new DoubleConstraint(DISTANCE_RUP_WARN_MIN,
 				DISTANCE_RUP_WARN_MAX);
 		warn.setNonEditable();
@@ -428,7 +425,7 @@ NamedObjectAPI {
 		faultDisplParam.setNonEditable();
 
 		// Add the warning listeners:
-			faultDisplParam.addParameterChangeWarningListener(warningListener);
+			faultDisplParam.addParameterChangeWarningListener(listener);
 
 		// Put parameters in the supportedIMParams list:
 			supportedIMParams.clear();

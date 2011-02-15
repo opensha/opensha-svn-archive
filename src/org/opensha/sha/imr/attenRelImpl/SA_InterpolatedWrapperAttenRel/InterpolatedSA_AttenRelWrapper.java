@@ -114,10 +114,6 @@ public class InterpolatedSA_AttenRelWrapper
   private final static String URL_INFO_STRING = null;
 
   private boolean parameterChange;
-
-  // for issuing warnings:
-  private transient ParameterChangeWarningListener warningListener = null;
-  
   
   // No arg constructor
   public InterpolatedSA_AttenRelWrapper() {}
@@ -127,13 +123,13 @@ public class InterpolatedSA_AttenRelWrapper
   /**
    *  This initializes several ParameterList objects.
    */
-  public InterpolatedSA_AttenRelWrapper(ParameterChangeWarningListener warningListener, 
+  public InterpolatedSA_AttenRelWrapper(ParameterChangeWarningListener listener, 
 		  AttenuationRelationship attenRelToWrap) {
 
     this.attenRelToWrap = attenRelToWrap;
     attenRelToWrap.setIntensityMeasure(SA_Param.NAME);  // set this now and forever
     
-    this.warningListener = warningListener;
+    this.listener = listener;
 
     initSupportedIntensityMeasureParams();
     siteParams = attenRelToWrap.getSiteParamsList();
@@ -297,7 +293,7 @@ public class InterpolatedSA_AttenRelWrapper
 	  periods = origPeriodParam.getPeriods();
 
 	  // Add the warning listeners:
-	  saInterpParam.addParameterChangeWarningListener(warningListener);
+	  saInterpParam.addParameterChangeWarningListener(listener);
 
 	  // Put parameters in the supportedIMParams list:
 	  supportedIMParams.clear();

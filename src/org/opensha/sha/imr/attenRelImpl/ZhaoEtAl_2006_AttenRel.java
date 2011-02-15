@@ -238,14 +238,11 @@ NamedObjectAPI, ParameterChangeListener {
 	protected final static Double DEPTH_HYPO_WARN_MIN = new Double(0.0);
 	protected final static Double DEPTH_HYPO_WARN_MAX = new Double(125.0);
 
-	// for issuing warnings:
-	private transient ParameterChangeWarningListener warningListener = null;
-
 	/**
 	 *  This initializes several ParameterList objects.
 	 */
-	public ZhaoEtAl_2006_AttenRel(ParameterChangeWarningListener warningListener) {
-		this.warningListener = warningListener;
+	public ZhaoEtAl_2006_AttenRel(ParameterChangeWarningListener listener) {
+		this.listener = listener;
 
 		initSupportedIntensityMeasureParams();
 		
@@ -478,7 +475,7 @@ NamedObjectAPI, ParameterChangeListener {
 	 */
 	protected void initPropagationEffectParams() {
 		distanceRupParam = new DistanceRupParameter(0.0);
-		distanceRupParam.addParameterChangeWarningListener(warningListener);
+		distanceRupParam.addParameterChangeWarningListener(listener);
 		DoubleConstraint warn = new DoubleConstraint(DISTANCE_RUP_WARN_MIN, DISTANCE_RUP_WARN_MAX);
 		warn.setNonEditable();
 		distanceRupParam.setWarningConstraint(warn);
@@ -587,8 +584,8 @@ NamedObjectAPI, ParameterChangeListener {
 		pgaParam.setNonEditable();
 
 		// Add the warning listeners:
-		saParam.addParameterChangeWarningListener(warningListener);
-		pgaParam.addParameterChangeWarningListener(warningListener);
+		saParam.addParameterChangeWarningListener(listener);
+		pgaParam.addParameterChangeWarningListener(listener);
 
 		// Put parameters in the supportedIMParams list:
 		supportedIMParams.clear();

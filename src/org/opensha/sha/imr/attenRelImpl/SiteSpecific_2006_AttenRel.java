@@ -229,10 +229,6 @@ NamedObjectAPI {
 	public final static String ROCK_ATTEN_REL_SELECT_PARAM_INFO = "Select from the "+
 	"given Rock AttenuationRelationships ";
 
-
-	// for issuing warnings:
-	private transient ParameterChangeWarningListener warningListener = null;
-
 	//Rock AttenuationRealtiobnships instances
 	private ScalarIntensityMeasureRelationshipAPI attenRel;
 
@@ -242,9 +238,9 @@ NamedObjectAPI {
 	/**
 	 *  No-Arg constructor. This initializes several ParameterList objects.
 	 */
-	public SiteSpecific_2006_AttenRel(ParameterChangeWarningListener warningListener) {
+	public SiteSpecific_2006_AttenRel(ParameterChangeWarningListener listener) {
 		
-		this.warningListener = warningListener;
+		this.listener = listener;
 		initCoeffFunctionlist();
 		initRockAttenuationRealtionships();
 		initRockAttenuationRelationshipSelectorParam();
@@ -313,7 +309,7 @@ NamedObjectAPI {
 		for(int i=0;i< size;++i){
 			try {
 				Class listenerClass = Class.forName( "org.opensha.commons.param.event.ParameterChangeWarningListener" );
-				Object[] paramObjects = new Object[]{ warningListener };
+				Object[] paramObjects = new Object[]{ listener };
 				Class[] params = new Class[]{ listenerClass };
 				Class imrClass = Class.forName((String)supportedAttenRelClasses.get(i));
 				Constructor con = imrClass.getConstructor( params );

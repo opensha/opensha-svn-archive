@@ -207,16 +207,12 @@ NamedObjectAPI {
 	public final static String UNSUPPORTED_METHOD_ERROR =
 		"This method is not supprted";
 
-	// for issuing warnings:
-	private transient ParameterChangeWarningListener warningListener = null;
-
 	/**
 	 *  No-Arg constructor. This initializes several ParameterList objects.
 	 */
-	public USGS_Combined_2004_AttenRel(ParameterChangeWarningListener
-			warningListener) {
+	public USGS_Combined_2004_AttenRel(ParameterChangeWarningListener listener) {
 		
-		this.warningListener = warningListener;
+		this.listener = listener;
 
 		initSupportedIntensityMeasureParams();
 		initEqkRuptureParams();
@@ -226,10 +222,10 @@ NamedObjectAPI {
 		initIndependentParamLists(); // Do this after the above
 
 		// init the attenuation relationships
-		as_1997_attenRel = new AS_1997_AttenRel(warningListener);
-		cb_2003_attenRel = new CB_2003_AttenRel(warningListener);
-		scemy_1997_attenRel = new SadighEtAl_1997_AttenRel(warningListener);
-		bjf_1997_attenRel = new BJF_1997_AttenRel(warningListener);
+		as_1997_attenRel = new AS_1997_AttenRel(listener);
+		cb_2003_attenRel = new CB_2003_AttenRel(listener);
+		scemy_1997_attenRel = new SadighEtAl_1997_AttenRel(listener);
+		bjf_1997_attenRel = new BJF_1997_AttenRel(listener);
 
 		// init the BC boundary site object, and set it in the attenuation relationships:
 		site_BC = new Site();
@@ -960,9 +956,9 @@ NamedObjectAPI {
 		mmiParam = new MMI_Param();
 
 		// Add the warning listeners:
-		saParam.addParameterChangeWarningListener(warningListener);
-		pgaParam.addParameterChangeWarningListener(warningListener);
-		pgvParam.addParameterChangeWarningListener(warningListener);
+		saParam.addParameterChangeWarningListener(listener);
+		pgaParam.addParameterChangeWarningListener(listener);
+		pgvParam.addParameterChangeWarningListener(listener);
 
 
 		// Put parameters in the supportedIMParams list:

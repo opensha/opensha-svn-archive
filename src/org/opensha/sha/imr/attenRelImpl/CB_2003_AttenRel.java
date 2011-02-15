@@ -160,9 +160,6 @@ NamedObjectAPI {
 	protected Hashtable horzCoefficients = new Hashtable();
 	protected Hashtable vertCoefficients = new Hashtable();
 
-	// for issuing warnings:
-	private transient ParameterChangeWarningListener warningListener = null;
-
 	/**
 	 * Sets the style of faulting from the rake & dip angles (which
 	 * come from the eqkRupture object).  It's "Thrust" if
@@ -388,9 +385,9 @@ NamedObjectAPI {
 	/**
 	 *  No-Arg constructor. This initializes several ParameterList objects.
 	 */
-	public CB_2003_AttenRel(ParameterChangeWarningListener warningListener) {
+	public CB_2003_AttenRel(ParameterChangeWarningListener listener) {
 
-		this.warningListener = warningListener;
+		this.listener = listener;
 
 		initCoefficients(); // These must be called before the next one
 		initSupportedIntensityMeasureParams();
@@ -725,7 +722,7 @@ NamedObjectAPI {
 	protected void initPropagationEffectParams() {
 
 		distanceSeisParam = new DistanceSeisParameter(3.0);
-		distanceSeisParam.addParameterChangeWarningListener(warningListener);
+		distanceSeisParam.addParameterChangeWarningListener(listener);
 		DoubleConstraint warn = new DoubleConstraint(DISTANCE_SEIS_WARN_MIN,
 				DISTANCE_SEIS_WARN_MAX);
 		warn.setNonEditable();
@@ -775,8 +772,8 @@ NamedObjectAPI {
 		pgaParam.setNonEditable();
 
 		// Add the warning listeners:
-		saParam.addParameterChangeWarningListener(warningListener);
-		pgaParam.addParameterChangeWarningListener(warningListener);
+		saParam.addParameterChangeWarningListener(listener);
+		pgaParam.addParameterChangeWarningListener(listener);
 
 		// Put parameters in the supportedIMParams list:
 		supportedIMParams.clear();

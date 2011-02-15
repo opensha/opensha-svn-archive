@@ -178,9 +178,6 @@ NamedObjectAPI {
 	protected Hashtable coefficientsBJF = new Hashtable();
 	protected Hashtable coefficientsSM = new Hashtable();
 
-	// for issuing warnings:
-	private transient ParameterChangeWarningListener warningListener = null;
-
 	/**
 	 * Determines the style of faulting from the rake angle (which
 	 * comes from the eqkRupture object) and fills in the
@@ -208,8 +205,8 @@ NamedObjectAPI {
 	/**
 	 *  No-Arg constructor. This initializes several ParameterList objects.
 	 */
-	public ShakeMap_2003_AttenRel(ParameterChangeWarningListener warningListener) {
-		this.warningListener = warningListener;
+	public ShakeMap_2003_AttenRel(ParameterChangeWarningListener listener) {
+		this.listener = listener;
 
 		initCoefficients(); // This must be called before the next one
 		initSupportedIntensityMeasureParams();
@@ -961,7 +958,7 @@ NamedObjectAPI {
 	 */
 	protected void initPropagationEffectParams() {
 		distanceJBParam = new DistanceJBParameter(0.0);
-		distanceJBParam.addParameterChangeWarningListener(warningListener);
+		distanceJBParam.addParameterChangeWarningListener(listener);
 		DoubleConstraint warn = new DoubleConstraint(DISTANCE_JB_WARN_MIN,
 				DISTANCE_JB_WARN_MAX);
 		warn.setNonEditable();
@@ -1010,9 +1007,9 @@ NamedObjectAPI {
 		mmiParam = new MMI_Param();
 
 		// Add the warning listeners:
-		saParam.addParameterChangeWarningListener(warningListener);
-		pgaParam.addParameterChangeWarningListener(warningListener);
-		pgvParam.addParameterChangeWarningListener(warningListener);
+		saParam.addParameterChangeWarningListener(listener);
+		pgaParam.addParameterChangeWarningListener(listener);
+		pgvParam.addParameterChangeWarningListener(listener);
 
 		// create supported list
 		supportedIMParams.clear();

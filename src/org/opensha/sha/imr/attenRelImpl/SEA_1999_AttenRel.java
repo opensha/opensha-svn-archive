@@ -129,9 +129,6 @@ NamedObjectAPI {
 	 */
 	protected Hashtable coefficients = new Hashtable();
 
-	// for issuing warnings:
-	private transient ParameterChangeWarningListener warningListener = null;
-
 	/**
 	 *  This sets the eqkRupture related parameter (magParam) based on the eqkRupture passed in.
 	 *  The internally held eqkRupture object is also set as that
@@ -229,9 +226,9 @@ NamedObjectAPI {
 	/**
 	 *  No-Arg constructor. This initializes several ParameterList objects.
 	 */
-	public SEA_1999_AttenRel(ParameterChangeWarningListener warningListener) {
+	public SEA_1999_AttenRel(ParameterChangeWarningListener listener) {
 		
-		this.warningListener = warningListener;
+		this.listener = listener;
 
 		initCoefficients(); // This must be called before the next one
 		initSupportedIntensityMeasureParams();
@@ -460,7 +457,7 @@ NamedObjectAPI {
 	 */
 	protected void initPropagationEffectParams() {
 		distanceJBParam = new DistanceJBParameter(0.0);
-		distanceJBParam.addParameterChangeWarningListener(warningListener);
+		distanceJBParam.addParameterChangeWarningListener(listener);
 		DoubleConstraint warn = new DoubleConstraint(DISTANCE_JB_WARN_MIN,
 				DISTANCE_JB_WARN_MAX);
 		warn.setNonEditable();
@@ -502,8 +499,8 @@ NamedObjectAPI {
 		pgaParam.setNonEditable();
 
 		// Add the warning listeners:
-		saParam.addParameterChangeWarningListener(warningListener);
-		pgaParam.addParameterChangeWarningListener(warningListener);
+		saParam.addParameterChangeWarningListener(listener);
+		pgaParam.addParameterChangeWarningListener(listener);
 
 		// Put parameters in the supportedIMParams list:
 		supportedIMParams.clear();

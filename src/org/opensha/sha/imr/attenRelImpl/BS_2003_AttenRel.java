@@ -161,17 +161,14 @@ NamedObjectAPI {
 	 */
 	protected Hashtable horzCoeffs = new Hashtable();
 
-	// for issuing warnings:
-	private transient ParameterChangeWarningListener warningListener = null;
-
 	/**
 	 *  No-Arg constructor. This initializes several ParameterList objects.
 	 */
-	public BS_2003_AttenRel(ParameterChangeWarningListener warningListener) {
+	public BS_2003_AttenRel(ParameterChangeWarningListener listener) {
 
-		this.warningListener = warningListener;
+		this.listener = listener;
 
-		as_1997_attenRel = new AS_1997_AttenRel(warningListener);
+		as_1997_attenRel = new AS_1997_AttenRel(listener);
 		// set the site type to rock
 		as_1997_attenRel.getParameter(as_1997_attenRel.SITE_TYPE_NAME).setValue(
 				as_1997_attenRel.SITE_TYPE_ROCK);

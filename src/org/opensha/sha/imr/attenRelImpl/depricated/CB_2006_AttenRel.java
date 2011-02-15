@@ -181,15 +181,12 @@ public class CB_2006_AttenRel
   public final static String FLT_TYPE_REVERSE = "Reverse";
   public final static String FLT_TYPE_NORMAL = "Normal";
 
-  // for issuing warnings:
-  private transient ParameterChangeWarningListener warningListener = null;
-
   /**
    *  This initializes several ParameterList objects.
    */
-  public CB_2006_AttenRel(ParameterChangeWarningListener warningListener) {
+  public CB_2006_AttenRel(ParameterChangeWarningListener listener) {
 
-    this.warningListener = warningListener;
+    this.listener = listener;
     //readCoeffFile();
     initSupportedIntensityMeasureParams();
     indexFromPerHashMap = new HashMap();
@@ -717,14 +714,14 @@ public class CB_2006_AttenRel
                                                  DISTANCE_RUP_WARN_MAX);
     warn.setNonEditable();
     distanceRupParam.setWarningConstraint(warn);
-    distanceRupParam.addParameterChangeWarningListener(warningListener);
+    distanceRupParam.addParameterChangeWarningListener(listener);
 
     distanceRupParam.setNonEditable();
 
     //create distRupMinusJB_OverRupParam
     distRupMinusJB_OverRupParam = new DistRupMinusJB_OverRupParameter(0.0);
     DoubleConstraint warnJB = new DoubleConstraint(DISTANCE_MINUS_WARN_MIN, DISTANCE_MINUS_WARN_MAX);
-    distRupMinusJB_OverRupParam.addParameterChangeWarningListener(warningListener);
+    distRupMinusJB_OverRupParam.addParameterChangeWarningListener(listener);
     warn.setNonEditable();
     distRupMinusJB_OverRupParam.setWarningConstraint(warnJB);
     distRupMinusJB_OverRupParam.setNonEditable();
@@ -765,10 +762,10 @@ public class CB_2006_AttenRel
 	pgdParam.setNonEditable();
     
     // Add the warning listeners:
-    saParam.addParameterChangeWarningListener(warningListener);
-    pgaParam.addParameterChangeWarningListener(warningListener);
-    pgvParam.addParameterChangeWarningListener(warningListener);
-    pgdParam.addParameterChangeWarningListener(warningListener);
+    saParam.addParameterChangeWarningListener(listener);
+    pgaParam.addParameterChangeWarningListener(listener);
+    pgvParam.addParameterChangeWarningListener(listener);
+    pgdParam.addParameterChangeWarningListener(listener);
     
     // Put parameters in the supportedIMParams list:
     supportedIMParams.clear();

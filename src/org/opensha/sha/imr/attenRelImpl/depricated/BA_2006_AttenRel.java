@@ -158,16 +158,12 @@ public class BA_2006_AttenRel
   public final static String FLT_TYPE_REVERSE = "Reverse";
   public final static String FLT_TYPE_NORMAL = "Normal";
 
-  // for issuing warnings:
-  private transient ParameterChangeWarningListener warningListener = null;
-
   /**
    *  This initializes several ParameterList objects.
    */
-  public BA_2006_AttenRel(ParameterChangeWarningListener
-                                    warningListener) {
+  public BA_2006_AttenRel(ParameterChangeWarningListener listener) {
 
-    this.warningListener = warningListener;
+    this.listener = listener;
 
     initSupportedIntensityMeasureParams();
     indexFromPerHashMap = new HashMap();
@@ -446,7 +442,7 @@ public class BA_2006_AttenRel
   protected void initPropagationEffectParams() {
 
 	distanceJBParam = new DistanceJBParameter(0.0);
-    distanceJBParam.addParameterChangeWarningListener(warningListener);
+    distanceJBParam.addParameterChangeWarningListener(listener);
     DoubleConstraint warn = new DoubleConstraint(DISTANCE_JB_WARN_MIN,
                                                  DISTANCE_JB_WARN_MAX);
     warn.setNonEditable();
@@ -484,9 +480,9 @@ public class BA_2006_AttenRel
 	pgvParam.setNonEditable();
 
     // Add the warning listeners:
-    saParam.addParameterChangeWarningListener(warningListener);
-    pgaParam.addParameterChangeWarningListener(warningListener);
-    pgvParam.addParameterChangeWarningListener(warningListener);
+    saParam.addParameterChangeWarningListener(listener);
+    pgaParam.addParameterChangeWarningListener(listener);
+    pgvParam.addParameterChangeWarningListener(listener);
 
     // Put parameters in the supportedIMParams list:
     supportedIMParams.clear();

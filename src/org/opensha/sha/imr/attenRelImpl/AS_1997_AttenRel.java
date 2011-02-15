@@ -156,15 +156,12 @@ NamedObjectAPI {
 	// coefficients that don't depend on period (but do depend on component):
 	private double a2, a4, a13, c1, c5, n;
 
-	// for issuing warnings:
-	private transient ParameterChangeWarningListener warningListener = null;
-
 	/**
 	 *  No-Arg constructor. This initializes several ParameterList objects.
 	 */
-	public AS_1997_AttenRel(ParameterChangeWarningListener warningListener) {
+	public AS_1997_AttenRel(ParameterChangeWarningListener listener) {
 
-		this.warningListener = warningListener;
+		this.listener = listener;
 
 		initCoefficients(); // This must be called before the next one
 		initSupportedIntensityMeasureParams();
@@ -733,7 +730,7 @@ NamedObjectAPI {
 	protected void initPropagationEffectParams() {
 
 		distanceRupParam = new DistanceRupParameter(0.0);
-		distanceRupParam.addParameterChangeWarningListener(warningListener);
+		distanceRupParam.addParameterChangeWarningListener(listener);
 		DoubleConstraint warn = new DoubleConstraint(DISTANCE_RUP_WARN_MIN,
 				DISTANCE_RUP_WARN_MAX);
 		warn.setNonEditable();
@@ -793,8 +790,8 @@ NamedObjectAPI {
 
 
 		// Add the warning listeners:
-		saParam.addParameterChangeWarningListener(warningListener);
-		pgaParam.addParameterChangeWarningListener(warningListener);
+		saParam.addParameterChangeWarningListener(listener);
+		pgaParam.addParameterChangeWarningListener(listener);
 
 		// Put parameters in the supportedIMParams list:
 		supportedIMParams.clear();

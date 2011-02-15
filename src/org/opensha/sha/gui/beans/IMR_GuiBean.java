@@ -428,7 +428,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 	 * @param  event  The Event which triggered this function call
 	 */
 	public void parameterChangeWarning( ParameterChangeWarningEvent e ){
-
+		System.out.println("yo - pcw");
 		String S = C + " : parameterChangeWarning(): ";
 		if(D) System.out.println(S + "Starting");
 		WarningParameterAPI param = e.getWarningParameter();

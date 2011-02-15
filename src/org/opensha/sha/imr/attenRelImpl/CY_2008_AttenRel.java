@@ -203,16 +203,13 @@ NamedObjectAPI, ParameterChangeListener {
 	// this is for computing distance metrics efficiently
 	private PropagationEffect propagationEffect;
 
-	// for issuing warnings:
-	private transient ParameterChangeWarningListener warningListener = null;
-
 
 	/**
 	 *  This initializes several ParameterList objects.
 	 */
-	public CY_2008_AttenRel(ParameterChangeWarningListener warningListener) {
+	public CY_2008_AttenRel(ParameterChangeWarningListener listener) {
 
-		this.warningListener = warningListener;
+		this.listener = listener;
 
 		initSupportedIntensityMeasureParams();
 		indexFromPerHashMap = new HashMap();
@@ -526,7 +523,7 @@ NamedObjectAPI, ParameterChangeListener {
 	protected void initPropagationEffectParams() {
 
 		distanceRupParam = new DistanceRupParameter(0.0);
-		distanceRupParam.addParameterChangeWarningListener(warningListener);
+		distanceRupParam.addParameterChangeWarningListener(listener);
 		DoubleConstraint warn = new DoubleConstraint(DISTANCE_RUP_WARN_MIN,
 				DISTANCE_RUP_WARN_MAX);
 		warn.setNonEditable();
@@ -536,7 +533,7 @@ NamedObjectAPI, ParameterChangeListener {
 		//create distRupMinusJB_OverRupParam
 		distRupMinusJB_OverRupParam = new DistRupMinusJB_OverRupParameter(0.0);
 		DoubleConstraint warn2 = new DoubleConstraint(DISTANCE_MINUS_WARN_MIN, DISTANCE_MINUS_WARN_MAX);
-		distRupMinusJB_OverRupParam.addParameterChangeWarningListener(warningListener);
+		distRupMinusJB_OverRupParam.addParameterChangeWarningListener(listener);
 		warn.setNonEditable();
 		distRupMinusJB_OverRupParam.setWarningConstraint(warn2);
 		distRupMinusJB_OverRupParam.setNonEditable();
@@ -580,9 +577,9 @@ NamedObjectAPI, ParameterChangeListener {
 		pgvParam.setNonEditable();
 
 		// Add the warning listeners:
-		saParam.addParameterChangeWarningListener(warningListener);
-		pgaParam.addParameterChangeWarningListener(warningListener);
-		pgvParam.addParameterChangeWarningListener(warningListener);
+		saParam.addParameterChangeWarningListener(listener);
+		pgaParam.addParameterChangeWarningListener(listener);
+		pgvParam.addParameterChangeWarningListener(listener);
 
 		// Put parameters in the supportedIMParams list:
 		supportedIMParams.clear();

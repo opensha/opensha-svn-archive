@@ -218,15 +218,12 @@ public class AS_2005_prelim_AttenRel
   protected final static Double ASPECT_RATIO_MIN = new Double(Double.MIN_VALUE);
   protected final static Double ASPECT_RATIO_MAX = new Double(200);
 
-  // for issuing warnings:
-  private transient ParameterChangeWarningListener warningListener = null;
-
   /**
    *  This initializes several ParameterList objects.
    */
-  public AS_2005_prelim_AttenRel(ParameterChangeWarningListener warningListener) {
+  public AS_2005_prelim_AttenRel(ParameterChangeWarningListener listener) {
 
-    this.warningListener = warningListener;
+    this.listener = listener;
 
     initSupportedIntensityMeasureParams();
     indexFromPerHashMap = new HashMap();
@@ -514,7 +511,7 @@ public class AS_2005_prelim_AttenRel
   protected void initPropagationEffectParams() {
 
     distanceRupParam = new DistanceRupParameter(0.0);
-    distanceRupParam.addParameterChangeWarningListener(warningListener);
+    distanceRupParam.addParameterChangeWarningListener(listener);
     DoubleConstraint warn = new DoubleConstraint(DISTANCE_RUP_WARN_MIN,
                                                  DISTANCE_RUP_WARN_MAX);
     warn.setNonEditable();
@@ -563,8 +560,8 @@ public class AS_2005_prelim_AttenRel
 
 
     // Add the warning listeners:
-    saParam.addParameterChangeWarningListener(warningListener);
-    pgaParam.addParameterChangeWarningListener(warningListener);
+    saParam.addParameterChangeWarningListener(listener);
+    pgaParam.addParameterChangeWarningListener(listener);
 
     // Put parameters in the supportedIMParams list:
     supportedIMParams.clear();

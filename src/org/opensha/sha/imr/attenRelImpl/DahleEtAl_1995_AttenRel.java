@@ -122,9 +122,6 @@ NamedObjectAPI {
 	 */
 	protected Hashtable coefficients = new Hashtable();
 
-	// for issuing warnings:
-	private transient ParameterChangeWarningListener warningListener = null;
-
 	/**
 	 *  This sets the eqkRupture related parameter (magParam
 	 *  based on the eqkRupture passed in.
@@ -203,9 +200,9 @@ NamedObjectAPI {
 	/**
 	 *  No-Arg constructor. This initializes several ParameterList objects.
 	 */
-	public DahleEtAl_1995_AttenRel(ParameterChangeWarningListener warningListener) {
+	public DahleEtAl_1995_AttenRel(ParameterChangeWarningListener listener) {
 		
-		this.warningListener = warningListener;
+		this.listener = listener;
 		initCoefficients(); // This must be called before the next one
 		initSupportedIntensityMeasureParams();
 		initEqkRuptureParams();
@@ -387,7 +384,7 @@ NamedObjectAPI {
 	 */
 	protected void initPropagationEffectParams() {
 		distanceRupParam = new DistanceRupParameter(0.0);
-		distanceRupParam.addParameterChangeWarningListener(warningListener);
+		distanceRupParam.addParameterChangeWarningListener(listener);
 		DoubleConstraint warn = new DoubleConstraint(DISTANCE_RUP_WARN_MIN,
 				DISTANCE_RUP_WARN_MAX);
 		warn.setNonEditable();
@@ -429,8 +426,8 @@ NamedObjectAPI {
 		pgaParam.setNonEditable();
 
 		// Add the warning listeners:
-		saParam.addParameterChangeWarningListener(warningListener);
-		pgaParam.addParameterChangeWarningListener(warningListener);
+		saParam.addParameterChangeWarningListener(listener);
+		pgaParam.addParameterChangeWarningListener(listener);
 
 		// Put parameters in the supportedIMParams list:
 		supportedIMParams.clear();
