@@ -2,8 +2,19 @@ package scratch.UCERF3;
 
 import java.io.FileWriter;
 import java.util.ArrayList;
+
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.opensha.commons.calc.FaultMomentCalc;
+import org.opensha.commons.calc.MomentMagCalc;
+import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
 
 
 /**
@@ -26,15 +37,28 @@ public class RupsInFaultSystemInversion {
 
 	ArrayList<FaultSectionPrefData> faultSectionData;
 	double sectionDistances[][],sectionAzimuths[][];;
-	double maxJumpDist, maxAzimuthChange, maxStrikeDiff, maxRakeDiff;
+	double maxJumpDist, maxAzimuthChange, maxTotAzimuthChange;
 	int minNumSectInRup;
+	MagAreaRelationship magAreaRel;
 
 	String endPointNames[];
 	Location endPointLocs[];
 	int numSections;
 	ArrayList<ArrayList<Integer>> sectionConnectionsListList, endToEndSectLinksList;
+	
+	ArrayList<SegRateConstraint> segRateConstraints;
 
 	ArrayList<SectionCluster> sectionClusterList;
+	
+	// slip model:
+	private String slipModelType;
+	public final static String CHAR_SLIP_MODEL = "Characteristic (Dsr=Ds)";
+	public final static String UNIFORM_SLIP_MODEL = "Uniform/Boxcar (Dsr=Dr)";
+	public final static String WG02_SLIP_MODEL = "WGCEP-2002 model (Dsr prop to Vs)";
+	public final static String TAPERED_SLIP_MODEL = "Tapered Ends ([Sin(x)]^0.5)";
+	
+	private static EvenlyDiscretizedFunc taperedSlipPDF, taperedSlipCDF;
+
 
 
 	/**
@@ -49,7 +73,8 @@ public class RupsInFaultSystemInversion {
 	 */
 	public RupsInFaultSystemInversion(ArrayList<FaultSectionPrefData> faultSectionData,
 			double[][] sectionDistances, double[][] subSectionAzimuths, double maxJumpDist, 
-			double maxAzimuthChange, double maxStrikeDiff, double maxRakeDiff, int minNumSectInRup) {
+			double maxAzimuthChange, double maxTotAzimuthChange, int minNumSectInRup,
+			MagAreaRelationship magAreaRel) {
 
 		if(D) System.out.println("Instantiating RupsInFaultSystemInversion");
 		this.faultSectionData = faultSectionData;
@@ -57,9 +82,9 @@ public class RupsInFaultSystemInversion {
 		this.sectionAzimuths = subSectionAzimuths;
 		this.maxJumpDist=maxJumpDist;
 		this.maxAzimuthChange=maxAzimuthChange; 
-		this.maxStrikeDiff=maxStrikeDiff;
-		this.maxRakeDiff=maxRakeDiff;
+		this.maxTotAzimuthChange=maxTotAzimuthChange;
 		this.minNumSectInRup=minNumSectInRup;
+		this.magAreaRel=magAreaRel;
 
 		// write out settings if in debug mode
 		if(D) System.out.println("faultSectionData.size() = "+faultSectionData.size() +
@@ -67,16 +92,13 @@ public class RupsInFaultSystemInversion {
 				"; subSectionAzimuths.length = "+subSectionAzimuths.length +
 				"; maxJumpDist = "+maxJumpDist +
 				"; maxAzimuthChange = "+maxAzimuthChange + 
-				"; maxStrikeDiff = "+maxStrikeDiff +
-				"; maxRakeDiff = "+maxRakeDiff +
+				"; maxTotAzimuthChange = "+maxTotAzimuthChange +
 				"; minNumSectInRup = "+minNumSectInRup);
 
 		// check that indices are same as IDs
 		for(int i=0; i<faultSectionData.size();i++)
-			if(faultSectionData.get(i).getSectionId() != i) {
-				System.out.println("i = "+i+ " & SectionId = "+faultSectionData.get(i).getSectionId());
+			if(faultSectionData.get(i).getSectionId() != i)
 				throw new RuntimeException("RupsInFaultSystemInversion: Error - indices of faultSectionData don't match IDs");
-			}
 
 		numSections = faultSectionData.size();
 
@@ -84,18 +106,20 @@ public class RupsInFaultSystemInversion {
 		if(D) System.out.println("Making sectionConnectionsListList");
 		computeCloseSubSectionsListList();
 		if(D) System.out.println("Done making sectionConnectionsListList");
+		
+		getPaleoSegRateConstraints();
 
 
 		// make the list of SectionCluster objects 
 		// (each represents a set of nearby sections and computes the possible
 		//  "ruptures", each defined as a list of sections in that rupture)
-		/* */
+		/* 
 		makeClusterList();
 
 		for(int i=0;i<this.sectionClusterList.size(); i++)
 			System.out.println("Cluster "+i+" has "+getCluster(i).size()+" sections & "+getCluster(i).getNumRuptures()+" ruptures");
 //			System.out.println("Cluster "+i+" has "+getCluster(i).getNumRuptures()+" ruptures");
-		
+*/		
 	}
 
 
@@ -232,7 +256,7 @@ public class RupsInFaultSystemInversion {
 			if (D) System.out.println("WORKING ON CLUSTER #"+(sectionClusterList.size()+1));
 			int firstSubSection = availableSections.get(0);
 			SectionCluster newCluster = new SectionCluster(faultSectionData, minNumSectInRup,sectionConnectionsListList,
-					sectionAzimuths, maxAzimuthChange, maxStrikeDiff, maxRakeDiff);
+					sectionAzimuths, maxAzimuthChange, maxTotAzimuthChange);
 			newCluster.add(firstSubSection);
 			if (D) System.out.println("\tfirst is "+faultSectionData.get(firstSubSection).getName());
 			addLinks(firstSubSection, newCluster);
@@ -287,6 +311,159 @@ public class RupsInFaultSystemInversion {
 			e.printStackTrace();
 		}
 		if (D) System.out.println(" - done");
+	}
+	
+	
+	/**
+	 * This gets the seg-rate constraints by associating locations from UCERF2 Appendix 
+	 * C to those sections created here.  This is a temporary solution until we have the new data.
+	 * Also, these data could be added to an extended version of FaultSectionPrefData (e.g., as
+	 * a list of SegRateConstraint objects, where the list would be to accomodate more than one
+	 * on a given section)
+	 */
+	private void getPaleoSegRateConstraints() {
+		String SEG_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data/Appendix_C_Table7_091807.xls";
+		segRateConstraints   = new ArrayList<SegRateConstraint>();
+		try {				
+			if(D) System.out.println("Reading Paleo Seg Rate Data from "+SEG_RATE_FILE_NAME);
+			POIFSFileSystem fs = new POIFSFileSystem(getClass().getClassLoader().getResourceAsStream(SEG_RATE_FILE_NAME));
+			HSSFWorkbook wb = new HSSFWorkbook(fs);
+			HSSFSheet sheet = wb.getSheetAt(0);
+			int lastRowIndex = sheet.getLastRowNum();
+			double lat, lon, rate, sigma, lower95Conf, upper95Conf;
+			String siteName;
+			for(int r=1; r<=lastRowIndex; ++r) {	
+				HSSFRow row = sheet.getRow(r);
+				if(row==null) continue;
+				HSSFCell cell = row.getCell(1);
+				if(cell==null || cell.getCellType()==HSSFCell.CELL_TYPE_STRING) continue;
+				lat = cell.getNumericCellValue();
+				siteName = row.getCell(0).getStringCellValue().trim();
+				lon = row.getCell(2).getNumericCellValue();
+				rate = row.getCell(3).getNumericCellValue();
+				sigma =  row.getCell(4).getNumericCellValue();
+				lower95Conf = row.getCell(7).getNumericCellValue();
+				upper95Conf =  row.getCell(8).getNumericCellValue();
+				
+				// get Closest section
+				double minDist = Double.MAX_VALUE, dist;
+				int closestFaultSectionIndex=-1;
+				Location loc = new Location(lat,lon);
+				for(int sectionIndex=0; sectionIndex<faultSectionData.size(); ++sectionIndex) {
+					dist  = faultSectionData.get(sectionIndex).getFaultTrace().minDistToLine(loc);
+					if(dist<minDist) {
+						minDist = dist;
+						closestFaultSectionIndex = sectionIndex;
+					}
+				}
+				if(minDist>2) continue; // closest fault section is at a distance of more than 2 km
+				
+				// add to Seg Rate Constraint list
+				String name = faultSectionData.get(closestFaultSectionIndex).getSectionName();
+				SegRateConstraint segRateConstraint = new SegRateConstraint(name);
+				segRateConstraint.setSegRate(closestFaultSectionIndex, rate, sigma, lower95Conf, upper95Conf);
+				if(D) System.out.println("\t"+siteName+" (lat="+lat+", lon="+lon+") associated with "+name+
+						" (section index = "+closestFaultSectionIndex+")\tdist="+(float)minDist+"\trate="+(float)rate+
+						"\tsigma="+(float)sigma+"\tlower95="+(float)lower95Conf+"\tupper95="+(float)upper95Conf);
+				segRateConstraints.add(segRateConstraint);
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * This gets the slip on each section based on the value of slipModelType.
+	 * The slips are in meters.
+	 *
+	 */
+	private double[] getSlipOnSectionsForRup(ArrayList<Integer> sectIndicesForRup) {
+		
+		double[] slipsForRup = new double[sectIndicesForRup.size()];
+		
+		// compute rupture area
+		double rupAreaInKM=0, totMoRate=0;
+		double[] sectArea = new double[sectIndicesForRup.size()];
+		double[] sectMoRate = new double[sectIndicesForRup.size()];
+		int index=0;
+		for(Integer sectIndex: sectIndicesForRup) {
+			FaultSectionPrefData sectData = faultSectionData.get(sectIndex);
+			sectArea[index] = sectData.getDownDipWidth()*sectData.getLength()*(1.0-sectData.getAseismicSlipFactor());
+			sectMoRate[index] = FaultMomentCalc.getMoment(sectArea[index]*1e6, sectData.getAveLongTermSlipRate());    // 1e6 converts to meters-sq
+			rupAreaInKM += sectArea[index];
+			totMoRate += sectMoRate[index];
+			index += 1;
+		}
+			 
+		double rupMeanMoment = MomentMagCalc.getMoment(magAreaRel.getMedianMag(rupAreaInKM));
+		// the above is meanMoment in case we add aleatory uncertainty later (aveMoment needed below); 
+		// the above will have to be corrected accordingly as in SoSAF_SubSectionInversion
+		
+		double aveSlip = rupMeanMoment/(rupAreaInKM*1e6*FaultMomentCalc.SHEAR_MODULUS);  // 1e6 converts to meters
+		
+		// for case segment slip is independent of rupture (constant), and equal to slip-rate * MRI
+		if(slipModelType.equals(CHAR_SLIP_MODEL)) {
+			throw new RuntimeException(CHAR_SLIP_MODEL+ " not yet supported");
+		}
+		// for case where ave slip computed from mag & area, and is same on all segments 
+		else if (slipModelType.equals(UNIFORM_SLIP_MODEL)) {
+			for(int s=0; s<slipsForRup.length; s++)
+				slipsForRup[s] = aveSlip;
+		}
+		// this is the model where seg slip is proportional to segment slip rate 
+		// (bumped up or down based on ratio of seg slip rate over wt-ave slip rate (where wts are seg areas)
+		else if (slipModelType.equals(WG02_SLIP_MODEL)) {
+			for(int s=0; s<slipsForRup.length; s++) {
+				slipsForRup[s] = aveSlip*sectMoRate[s]*rupAreaInKM/(totMoRate*sectArea[s]);
+			}
+		}
+		else if (slipModelType.equals(TAPERED_SLIP_MODEL)) {
+			// note that the ave slip is partitioned by area, not length; this is so the final model is moment balanced.
+
+			if(taperedSlipCDF == null) {
+				taperedSlipCDF = new EvenlyDiscretizedFunc(0, 5001, 0.0002);
+				taperedSlipPDF = new EvenlyDiscretizedFunc(0, 5001, 0.0002);
+				double x,y, sum=0;
+				int num = taperedSlipPDF.getNum();
+				for(int i=0; i<num;i++) {
+					x = taperedSlipPDF.getX(i);
+					y = Math.pow(Math.sin(x*Math.PI), 0.5);
+					taperedSlipPDF.set(i,y);
+					sum += y;
+				}
+				// now make final PDF & CDF
+				y=0;
+				for(int i=0; i<num;i++) {
+						y += taperedSlipPDF.getY(i);
+						taperedSlipCDF.set(i,y/sum);
+						taperedSlipPDF.set(i,taperedSlipPDF.getY(i)/sum);
+//						System.out.println(taperedSlipCDF.getX(i)+"\t"+taperedSlipPDF.getY(i)+"\t"+taperedSlipCDF.getY(i));
+				}
+			}
+			double normBegin=0, normEnd, scaleFactor;
+			for(int s=0; s<slipsForRup.length; s++) {
+				normEnd = normBegin + sectArea[s]/rupAreaInKM;
+				// fix normEnd values that are just past 1.0
+				if(normEnd > 1 && normEnd < 1.00001) normEnd = 1.0;
+				scaleFactor = taperedSlipCDF.getInterpolatedY(normEnd)-taperedSlipCDF.getInterpolatedY(normBegin);
+				scaleFactor /= (normEnd-normBegin);
+				slipsForRup[s] = aveSlip*scaleFactor;
+				normBegin = normEnd;
+			}
+			/*
+				if(rup == num_rup-1) { // check results
+					double d_aveTest=0;
+					for(int seg=0; seg<num_seg; seg++)
+						d_aveTest += segSlipInRup[seg][rup]*segArea[seg]/rupArea[rup];
+					System.out.println("AveSlipCheck: " + (float) (d_aveTest/aveSlip));
+				}
+			 */
+		}
+		else throw new RuntimeException("slip model not supported");
+		
+		if (D) for(int s=0; s<slipsForRup.length; s++) System.out.println(s+"\t"+slipsForRup[s]);
+
+		return slipsForRup;		
 	}
 
 
