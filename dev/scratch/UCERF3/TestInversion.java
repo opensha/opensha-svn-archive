@@ -69,9 +69,9 @@ public class TestInversion {
 		deformationModelId = 82;
 		
 		if(D) System.out.println("Making subsections...");
-//		createAllSubSections();
-		createBayAreaSubSections(); 
-		
+		createAllSubSections();
+//		createBayAreaSubSections(); 
+/*		
 		calcSubSectionDistances();
 		
 		calcSubSectionAzimuths();
@@ -79,7 +79,7 @@ public class TestInversion {
 		rupsInFaultSysInv = new RupsInFaultSystemInversion(subSectionPrefDataList,
 				subSectionDistances, subSectionAzimuths, maxJumpDist, 
 				maxAzimuthChange, maxStrikeDiff, maxRakeDiff, minNumSectInRup, magAreaRel);
-		
+	*/	
 //		rupsInFaultSysInv.writeCloseSubSections(precomputedDataDir.getAbsolutePath()+File.separator+"closeSubSections.txt");
 	}
 	
@@ -106,11 +106,11 @@ public class TestInversion {
 		//Alphabetize:
 		Collections.sort(allFaultSectionPrefData, new NamedObjectComparator());
 
-		/*		  
+		/*	*/	  
 		  // write sections IDs and names
-		  for(int i=0; i< this.allFaultSectionPrefData.size();i++)
+		  for(int i=0; i< allFaultSectionPrefData.size();i++)
 				System.out.println(allFaultSectionPrefData.get(i).getSectionId()+"\t"+allFaultSectionPrefData.get(i).getName());
-		 */
+		 
 
 		// remove those with no slip rate if appropriate
 		if(!includeSectionsWithNaN_slipRates) {
@@ -155,16 +155,24 @@ public class TestInversion {
 		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();	
 		
 		ArrayList<Integer> faultSectionIds = new ArrayList<Integer>();
-		faultSectionIds.add(32);	// 32:San Andreas (Parkfield)
-		faultSectionIds.add(285);	// 285:San Andreas (Cholame) rev
-		faultSectionIds.add(300);	// 300:San Andreas (Carrizo) rev
-		faultSectionIds.add(287);	// 287:San Andreas (Big Bend)
-		faultSectionIds.add(286);	// 286:San Andreas (Mojave N)
-		faultSectionIds.add(301);	// 301:San Andreas (Mojave S)
-		faultSectionIds.add(282);	// 282:San Andreas (San Bernardino N)
-		faultSectionIds.add(283);	// 283:San Andreas (San Bernardino S)
-		faultSectionIds.add(284);	// 284:San Andreas (San Gorgonio Pass-Garnet HIll)
-		faultSectionIds.add(295);	// 295:San Andreas (Coachella) rev
+		// Bay Area Faults
+		faultSectionIds.add(131);	
+		faultSectionIds.add(130);	
+		faultSectionIds.add(133);	
+		faultSectionIds.add(120);	
+		faultSectionIds.add(63);	
+		faultSectionIds.add(64);	
+		faultSectionIds.add(8);	
+		faultSectionIds.add(7);	
+		faultSectionIds.add(9);
+		faultSectionIds.add(57);	
+		faultSectionIds.add(58);	
+		faultSectionIds.add(18);	
+		faultSectionIds.add(140);	
+		faultSectionIds.add(141);
+		faultSectionIds.add(59);
+		faultSectionIds.add(60);	
+		faultSectionIds.add(95);	
 
 
 		subSectionPrefDataList = new ArrayList<FaultSectionPrefData>();
