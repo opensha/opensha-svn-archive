@@ -400,6 +400,7 @@ public class RupsInFaultSystemInversion {
 		double rupMeanMoment = MomentMagCalc.getMoment(magAreaRel.getMedianMag(rupAreaInKM));
 		// the above is meanMoment in case we add aleatory uncertainty later (aveMoment needed below); 
 		// the above will have to be corrected accordingly as in SoSAF_SubSectionInversion
+		// (mean moment != moment of mean mag if aleatory uncertainty included)
 		
 		double aveSlip = rupMeanMoment/(rupAreaInKM*1e6*FaultMomentCalc.SHEAR_MODULUS);  // 1e6 converts to meters
 		
