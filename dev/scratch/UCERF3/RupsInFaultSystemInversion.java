@@ -94,6 +94,7 @@ public class RupsInFaultSystemInversion {
 				"; maxJumpDist = "+maxJumpDist +
 				"; maxAzimuthChange = "+maxAzimuthChange + 
 				"; maxTotAzimuthChange = "+maxTotAzimuthChange +
+				"; maxRakeDiff = "+maxRakeDiff +
 				"; minNumSectInRup = "+minNumSectInRup);
 
 		// check that indices are same as IDs
@@ -107,9 +108,9 @@ public class RupsInFaultSystemInversion {
 		if(D) System.out.println("Making sectionConnectionsListList");
 		computeCloseSubSectionsListList();
 		if(D) System.out.println("Done making sectionConnectionsListList");
-		
-		getPaleoSegRateConstraints();
 
+		// Comment this out when using SCEC VDO (it's crashing there)
+//		getPaleoSegRateConstraints();
 
 		// make the list of SectionCluster objects 
 		// (each represents a set of nearby sections and computes the possible
@@ -117,8 +118,8 @@ public class RupsInFaultSystemInversion {
 		/* */
 		makeClusterList();
 
-		for(int i=0;i<this.sectionClusterList.size(); i++)
-			System.out.println("Cluster "+i+" has "+getCluster(i).size()+" sections & "+getCluster(i).getNumRuptures()+" ruptures");
+//		for(int i=0;i<this.sectionClusterList.size(); i++)
+//			System.out.println("Cluster "+i+" has "+getCluster(i).size()+" sections & "+getCluster(i).getNumRuptures()+" ruptures");
 //			System.out.println("Cluster "+i+" has "+getCluster(i).getNumRuptures()+" ruptures");
 		
 	}
@@ -369,7 +370,7 @@ public class RupsInFaultSystemInversion {
 				segRateConstraints.add(segRateConstraint);
 			}
 		}catch(Exception e) {
-			e.printStackTrace();
+			System.out.println("UNABLE TO READ PALEO DATA");
 		}
 	}
 

@@ -339,7 +339,7 @@ public class TestInversion {
 	 */
 	public static void main(String[] args) {
 		TestInversion test = new TestInversion();
-		test.writeSectionsToFile("dev/scratch/UCERF3/exampleSubSectDataFile");
+//		test.writeSectionsToFile("dev/scratch/UCERF3/exampleSubSectDataFile");
 //		RupsInFaultSystemInversion inversion = test.getRupsInFaultSystemInversion();
 //		for(int i=0; i<inversion.getNumClusters(); i++)
 //			System.out.println("Cluster "+i+" has "+inversion.getCluster(i).getNumRuptures()+" ruptures");
