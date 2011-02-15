@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.sha.imr.attenRelImpl.depricated;
+package org.opensha.sha.imr.attenRelImpl;
 
 import java.util.HashMap;
 

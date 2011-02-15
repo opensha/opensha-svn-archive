@@ -34,7 +34,7 @@ import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.gui.beans.EqkRuptureCreationPanel;
 import org.opensha.sha.gui.beans.MapGuiBean;
 import org.opensha.sha.gui.beans.SitesInGriddedRectangularRegionGuiBean;
-import org.opensha.sha.imr.attenRelImpl.depricated.BA_2006_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.BA_2006_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.param.SimpleFaultParameter;
 
