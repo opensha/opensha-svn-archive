@@ -38,7 +38,7 @@ import org.opensha.commons.util.ParamUtils;
  * @author Steven W. Rock
  * @version 1.0
  */
-public class ConstrainedDoubleParameterEditor extends DoubleParameterEditor{
+public class ConstrainedDoubleParameterEditor extends DoubleParameterEditor {
 
 	/**
 	 * 

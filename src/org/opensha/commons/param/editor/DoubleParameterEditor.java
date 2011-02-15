@@ -28,7 +28,6 @@ import javax.swing.JComponent;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.WarningException;
-import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterAPI;
 
 /**
@@ -245,9 +244,6 @@ public class DoubleParameterEditor extends NewParameterEditor<Double> implements
 	@Override
 	public boolean isParameterSupported(ParameterAPI<Double> param) {
 		if (param == null)
-			return false;
-
-		if (!(param instanceof DoubleParameter))
 			return false;
 		
 		return true;
