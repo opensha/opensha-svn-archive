@@ -13,7 +13,7 @@ import org.opensha.commons.util.DataUtils;
  * Catalog utilities.
  * 
  * @author Peter Powers
- * @version $Id: CatTools.java 117 2010-10-05 22:10:39Z pmpowers $
+ * @version $Id$
  */
 public class CatTools {
 

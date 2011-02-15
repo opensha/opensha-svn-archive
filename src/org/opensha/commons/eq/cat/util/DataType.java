@@ -16,7 +16,7 @@ import org.opensha.commons.geo.GeoTools;
  * Values for different catalog data types.
  * 
  * @author Peter Powers
- * @version $Id:$
+ * @version $Id$
  */
 public enum DataType {
 

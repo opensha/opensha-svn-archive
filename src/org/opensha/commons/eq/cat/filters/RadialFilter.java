@@ -16,7 +16,7 @@ import org.opensha.commons.geo.LocationUtils;
  * TODO test the merits of using extents filter first
  * 
  * @author P. Powers
- * @version $Id: RadialFilter.java 31 2010-01-18 18:04:51Z peter $
+ * @version $Id$
  */
 public class RadialFilter implements CatalogFilter {
 

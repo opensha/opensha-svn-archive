@@ -50,7 +50,7 @@ import org.opensha.commons.util.DataUtils;
  * <br/>
  * <br/>
  * @author Peter Powers
- * @version $Id: ModifiedOmoriLaw.java 31 2010-01-18 18:04:51Z peter $
+ * @version $Id$
  * 
  */
 public class Omori {    

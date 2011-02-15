@@ -13,7 +13,7 @@ package org.opensha.sra.fragility;
  * TODO revisit
  *
  * @author Peter Powers
- * @version $Id:$
+ * @version $Id$
  */
 public interface FragilityModel {
 

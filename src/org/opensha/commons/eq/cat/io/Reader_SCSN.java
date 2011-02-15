@@ -36,7 +36,7 @@ import com.google.common.primitives.Longs;
  * shorter than 60 chars; magnitude-type information is not provided with this format.
  *
  * @author Peter Powers
- * @version $Id: Reader_SCSN.java 31 2010-01-18 18:04:51Z peter $
+ * @version $Id$
  *
  */
 public class Reader_SCSN extends AbstractReader {

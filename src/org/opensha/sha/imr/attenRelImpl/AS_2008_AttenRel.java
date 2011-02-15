@@ -118,10 +118,8 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
  */
 
 
-public class AS_2008_AttenRel
-extends AttenuationRelationship implements
-ScalarIntensityMeasureRelationshipAPI,
-NamedObjectAPI, ParameterChangeListener {
+public class AS_2008_AttenRel extends AttenuationRelationship implements
+		ParameterChangeListener {
 
 	// Name of IMR
 	public final static String NAME = "Abrahamson & Silva (2008)";

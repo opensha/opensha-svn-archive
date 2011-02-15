@@ -8,7 +8,7 @@ import org.opensha.commons.eq.cat.util.DataType;
  * Catalog interface providing reference fields for primary catalog data types.
  * 
  * @author Peter Powers
- * @version $Id: Catalog.java 123 2010-11-09 15:53:48Z pmpowers $
+ * @version $Id$
  * 
  */
 public interface Catalog {

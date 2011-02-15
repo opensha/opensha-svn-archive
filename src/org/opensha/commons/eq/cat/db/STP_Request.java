@@ -24,7 +24,7 @@ import org.opensha.commons.eq.cat.util.EventType;
  * request formatting.
  * 
  * @author Peter Powers
- * @version $Id: STP_Request.java 117 2010-10-05 22:10:39Z pmpowers $
+ * @version $Id$
  */
 public class STP_Request {
 

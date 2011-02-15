@@ -16,7 +16,7 @@ import org.opensha.ui.components.Resources;
  * Class for an OpenSHA application 'About' dialog.
  * 
  * @author Peter Powers
- * @version $Id:$
+ * @version $Id$
  */
 public class AppVersionDialog extends JDialog {
 	

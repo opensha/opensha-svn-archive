@@ -14,7 +14,7 @@ import org.apache.commons.io.IOUtils;
  *
  * 
  * @author Peter Powers
- * @version $Id: Connector_NCEDC.java 31 2010-01-18 18:04:51Z peter $
+ * @version $Id$
  * 
  */
 public class Connector_NCEDC {

@@ -9,7 +9,7 @@ import org.opensha.commons.eq.cat.MutableCatalog;
  * Created on Feb 28, 2005
  * 
  * @author P. Powers
- * @version $Id: CatalogFilter.java 31 2010-01-18 18:04:51Z peter $
+ * @version $Id$
  */
 public interface CatalogFilter {
 

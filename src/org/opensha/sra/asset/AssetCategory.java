@@ -10,7 +10,7 @@ import java.util.List;
  * in loss calculations.
  * 
  * @author Peter Powers
- * @version $Id:$
+ * @version $Id$
  * @see LossType
  */
 public enum AssetCategory {

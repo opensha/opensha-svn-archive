@@ -13,7 +13,7 @@ package org.opensha.sra.asset;
  * NOTE placeholder
  *
  * @author Peter Powers
- * @version $Id:$
+ * @version $Id$
  */
 public enum LimitState {
 

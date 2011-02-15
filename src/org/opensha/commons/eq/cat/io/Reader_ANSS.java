@@ -28,7 +28,7 @@ import com.google.common.primitives.Longs;
  * </ul>
  *
  * @author Peter Powers
- * @version $Id: Reader_ANSS.java 31 2010-01-18 18:04:51Z peter $
+ * @version $Id$
  *
  */
 public class Reader_ANSS extends AbstractReader {

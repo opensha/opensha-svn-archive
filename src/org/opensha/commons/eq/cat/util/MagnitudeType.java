@@ -7,7 +7,7 @@ import java.util.Map;
  * Values for different earthquake magnitude types.
  *
  * @author Peter Powers
- * @version $Id:$
+ * @version $Id$
  */
 public enum MagnitudeType {
 

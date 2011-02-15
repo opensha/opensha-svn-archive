@@ -36,7 +36,7 @@ import org.opensha.sra.vulnerability.models.SimpleVulnerability;
  *
  * 
  * @author Peter Powers, Kevin Milner
- * @version $Id:$
+ * @version $Id$
  */
 public class PortfolioLossExceedenceCurveCalculator {
 	

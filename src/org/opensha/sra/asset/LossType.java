@@ -13,7 +13,7 @@ import java.util.List;
  * cost of loss of use.
  * 
  * @author Peter Powers
- * @version $Id:$
+ * @version $Id$
  * @see AssetCategory
  */
 public enum LossType {

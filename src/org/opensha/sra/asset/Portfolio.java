@@ -8,7 +8,7 @@ import org.opensha.commons.data.NamedObjectAPI;
  * A <code>Portfolio</code> represents a collecion of <code>Asset</code>s.
  * 
  * @author Peter Powers
- * @version $Id:$
+ * @version $Id$
  */
 public class Portfolio extends ArrayList<Asset> implements NamedObjectAPI {
 

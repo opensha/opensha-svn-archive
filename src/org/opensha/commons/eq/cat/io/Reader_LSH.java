@@ -29,7 +29,7 @@ import com.google.common.primitives.Longs;
  * <i>Notes:</i>
  *
  * @author Peter Powers
- * @version $Id: Reader_LSH.java 68 2010-06-14 16:31:49Z pmpowers $
+ * @version $Id$
  */
 public class Reader_LSH extends AbstractReader {
 

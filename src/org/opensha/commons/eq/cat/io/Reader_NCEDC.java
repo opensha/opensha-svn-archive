@@ -36,7 +36,7 @@ import com.google.common.primitives.Longs;
  * starting with a number (no comment symbol is used in header).
  *
  * @author Peter Powers
- * @version $Id: Reader_NCEDC.java 31 2010-01-18 18:04:51Z peter $
+ * @version $Id$
  *
  */
 public class Reader_NCEDC extends AbstractReader {

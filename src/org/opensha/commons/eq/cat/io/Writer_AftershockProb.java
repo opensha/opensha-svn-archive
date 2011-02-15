@@ -23,7 +23,7 @@ import org.opensha.commons.eq.cat.*;
  * lines for output (printf and fprintf functionality).
  * 
  * @author Peter Powers
- * @version $Id: Writer_AftershockProb.java 31 2010-01-18 18:04:51Z peter $
+ * @version $Id$
  * 
  */
 @Deprecated

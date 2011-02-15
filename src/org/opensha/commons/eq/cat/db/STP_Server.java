@@ -8,7 +8,7 @@ import org.dom4j.tree.DefaultElement;
  * Wrapper class for an STP server.
  * 
  * @author Peter Powers
- * @version $Id: STP_Server.java 31 2010-01-18 18:04:51Z peter $
+ * @version $Id$
  */
 public class STP_Server {
     

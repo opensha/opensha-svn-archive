@@ -12,7 +12,7 @@ import org.opensha.commons.eq.cat.io.CatalogReader;
  * on <code>getData()</code> will be faster.
  * 
  * @author Peter Powers
- * @version $Id: MutableCatalog.java 114 2010-10-05 14:37:42Z pmpowers $
+ * @version $Id$
  * 
  */
 public class MutableCatalog extends DefaultCatalog {

@@ -12,7 +12,7 @@ import javax.swing.JLabel;
  * applications such as icons and license files etc.
  * 
  * @author Peter Powers
- * @version $Id:$
+ * @version $Id$
  */
 public class Resources {
 

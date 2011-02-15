@@ -21,7 +21,7 @@ import org.opensha.sra.vulnerability.Vulnerability;
  * NOTE: Placeholder
  * 
  * @author Peter Powers
- * @version $Id:$
+ * @version $Id$
  */
 public class Asset {
 	

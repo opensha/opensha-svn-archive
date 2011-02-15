@@ -31,7 +31,7 @@ import com.google.common.primitives.Longs;
  * import the Imperial Valley catalog which uses a different velocity model.
  *
  * @author Peter Powers
- * @version $Id: Reader_SHLK.java 31 2010-01-18 18:04:51Z peter $
+ * @version $Id$
  */
 public class Reader_SHLK extends AbstractReader {
 

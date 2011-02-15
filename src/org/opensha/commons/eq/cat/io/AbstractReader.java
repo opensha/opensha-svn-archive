@@ -20,7 +20,7 @@ import org.opensha.commons.eq.cat.Catalog;
  * and should be converted first if they are not.
  * 
  * @author Peter Powers
- * @version $Id: AbstractReader.java 31 2010-01-18 18:04:51Z peter $
+ * @version $Id$
  */
 public abstract class AbstractReader implements CatalogReader {
 

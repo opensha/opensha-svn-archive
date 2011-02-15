@@ -10,7 +10,7 @@ import org.opensha.commons.eq.cat.*;
  * data for a <code>Catalog</code>.
  * 
  * @author Peter Powers
- * @version $Id: CatalogReader.java 31 2010-01-18 18:04:51Z peter $
+ * @version $Id$
  * 
  */
 public interface CatalogReader {

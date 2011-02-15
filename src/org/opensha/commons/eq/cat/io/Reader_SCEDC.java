@@ -39,7 +39,7 @@ import com.google.common.primitives.Longs;
  *  still recorded, even though all events are local.
  *
  * @author Peter Powers
- * @version $Id: Reader_SCEDC.java 31 2010-01-18 18:04:51Z peter $
+ * @version $Id$
  *
  */
 public class Reader_SCEDC extends AbstractReader {

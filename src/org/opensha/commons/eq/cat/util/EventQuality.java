@@ -9,7 +9,7 @@ import org.opensha.commons.eq.cat.Catalog;
  * Values for different earthquake event location qualities.
  * 
  * @author Peter Powers
- * @version $Id:$
+ * @version $Id$
  */
 public enum EventQuality {
 

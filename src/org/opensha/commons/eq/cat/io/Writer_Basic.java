@@ -30,7 +30,7 @@ import java.util.TimeZone;
  * format lines for output (printf and fprintf functionality).
  * 
  * @author Peter Powers
- * @version $Id: Writer_Basic.java 31 2010-01-18 18:04:51Z peter $
+ * @version $Id$
  * 
  */
 public class Writer_Basic extends AbstractWriter {

@@ -28,7 +28,7 @@ import org.opensha.commons.util.DataUtils;
  * for geographic calculations, as well as a variety of utility methods.
  *
  * @author Peter Powers
- * @version $Id:$
+ * @version $Id$
  */
 public class GeoTools {
 

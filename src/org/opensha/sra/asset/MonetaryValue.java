@@ -5,7 +5,7 @@ package org.opensha.sra.asset;
  *
  * 
  * @author Peter Powers
- * @version $Id:$
+ * @version $Id$
  */
 public class MonetaryValue implements Value {
 	

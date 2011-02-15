@@ -8,7 +8,7 @@ import Jama.Matrix;
  *
  *
  * @author Peter Powers
- * @version $Id:$
+ * @version $Id$
  */
 public final class PlaneUtils {
     

@@ -21,7 +21,7 @@ import com.google.common.primitives.Doubles;
  * checking etc
  * 
  * @author P. Powers
- * @version $Id: PolygonFilter.java 117 2010-10-05 22:10:39Z pmpowers $
+ * @version $Id$
  */
 public class PolygonFilter implements CatalogFilter {
 

@@ -8,7 +8,7 @@ import java.util.ArrayList;
  *
  * 
  * @author Peter Powers
- * @version $Id:$
+ * @version $Id$
  */
 public class Exposure extends ArrayList<Asset> {
 

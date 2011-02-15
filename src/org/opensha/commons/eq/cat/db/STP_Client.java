@@ -15,7 +15,7 @@ import org.opensha.commons.eq.cat.MutableCatalog;
  * STP connection manager.
  * 
  * @author Peter Powers
- * @version $Id: STP_Client.java 36 2010-01-19 00:11:23Z peter $
+ * @version $Id$
  */
 public class STP_Client {
 

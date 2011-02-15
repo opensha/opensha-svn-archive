@@ -29,7 +29,7 @@ import com.google.common.primitives.Longs;
  * <i>Notes:</i> This reader assumes no comment or otherwise odd lines.
  *
  * @author Peter Powers
- * @version $Id: Reader_Basic.java 31 2010-01-18 18:04:51Z peter $
+ * @version $Id$
  *
  */
 public class Reader_Basic extends AbstractReader {

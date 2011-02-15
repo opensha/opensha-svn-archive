@@ -35,7 +35,7 @@ import org.opensha.sha.imr.attenRelImpl.depricated.CY_2006_AttenRel;
  * as limited metadata such as the IMR's name and development status.
  * 
  * @author Peter Powers
- * @version $Id:$
+ * @version $Id$
  */
 public enum AttenRelImpl {
 

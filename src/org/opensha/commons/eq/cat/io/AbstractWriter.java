@@ -17,7 +17,7 @@ import org.opensha.commons.eq.cat.Catalog;
  * necessary and must also implement <code>writeLine()</code>.
  *
  * @author Peter Powers
- * @version $Id: AbstractWriter.java 31 2010-01-18 18:04:51Z peter $
+ * @version $Id$
  *
  */
 public abstract class AbstractWriter implements CatalogWriter {

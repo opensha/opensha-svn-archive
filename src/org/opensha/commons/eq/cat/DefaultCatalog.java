@@ -60,7 +60,7 @@ import com.google.common.primitives.Doubles;
  * are set each time a catalog is initialized/loaded.
  * 
  * @author Peter Powers
- * @version $Id: DefaultCatalog.java 117 2010-10-05 22:10:39Z pmpowers $
+ * @version $Id$
  */
 
 public class DefaultCatalog implements Catalog {

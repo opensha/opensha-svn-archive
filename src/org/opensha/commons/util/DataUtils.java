@@ -34,7 +34,7 @@ import com.google.common.primitives.Ints;
  * This class provides various data processing utilities.
  * 
  * @author Peter Powers
- * @version $Id:$
+ * @version $Id$
  */
 public class DataUtils {
 

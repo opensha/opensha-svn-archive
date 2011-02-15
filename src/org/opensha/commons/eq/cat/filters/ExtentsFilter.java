@@ -17,7 +17,7 @@ import org.opensha.commons.eq.cat.MutableCatalog;
  * for range searching; I believe it's currently >=min & <=max (i.e. inclusive)
  * 
  * @author Peter Powers
- * @version $Id: ExtentsFilter.java 31 2010-01-18 18:04:51Z peter $
+ * @version $Id$
  */
 public class ExtentsFilter implements CatalogFilter {
 

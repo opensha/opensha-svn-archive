@@ -24,7 +24,7 @@ import org.opensha.commons.util.DataUtils;
  * arrays.
  * 
  * @author Peter Powers
- * @version $Id:$
+ * @version $Id$
  */
 public class CatalogBrush {
 

@@ -43,7 +43,7 @@ import org.opensha.ui.components.Resources;
  * display the dialog on subsequent launches.
  * 
  * @author Kevin Milner, Peter Powers
- * @version $Id:$
+ * @version $Id$
  */
 public class DisclaimerDialog extends JDialog implements ActionListener {
 	

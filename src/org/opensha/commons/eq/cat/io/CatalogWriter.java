@@ -10,7 +10,7 @@ import org.opensha.commons.eq.cat.Catalog;
  * text files.
  * 
  * @author Peter Powers
- * @version $Id: CatalogWriter.java 31 2010-01-18 18:04:51Z peter $
+ * @version $Id$
  * 
  */
 public interface CatalogWriter {

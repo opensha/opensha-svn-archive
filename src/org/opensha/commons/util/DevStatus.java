@@ -8,7 +8,7 @@ package org.opensha.commons.util;
  * deprecated.
  * 
  * @author Peter Powers
- * @version $Id:$
+ * @version $Id$
  */
 public enum DevStatus {
 
