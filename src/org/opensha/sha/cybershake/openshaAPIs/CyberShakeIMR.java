@@ -56,6 +56,9 @@ import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 
 public class CyberShakeIMR extends AttenuationRelationship implements ParameterChangeListener {
 
+	public static final String NAME = "CyberShake Fake Attenuation Relationship";
+	public static final String SHORT_NAME = "CyberShakeIMR";
+	
 	EqkRupture curRupture = null;
 
 	/** ParameterList of all Site parameters */
@@ -409,11 +412,11 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 	}
 
 	public String getShortName() {
-		return "CyberShakeIMR";
+		return SHORT_NAME;
 	}
 
 	public String getName() {
-		return "CyberShake Fake Attenuation Relationship";
+		return NAME;
 	}
 
 	public void setParamDefaults() {
