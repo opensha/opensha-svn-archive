@@ -66,7 +66,7 @@ public class TestInversion {
 		
 		if(D) System.out.println("Making subsections...");
 //		createAllSubSections();
-		createBayAreaSubSections(false, 7); 
+		createBayAreaSubSections(); 
 		
 		calcSubSectionDistances();
 		
@@ -139,7 +139,7 @@ public class TestInversion {
 	 * This gets all section data & creates subsections
 	 * @param includeSectionsWithNaN_slipRates
 	 */
-	private void createBayAreaSubSections(boolean includeSectionsWithNaN_slipRates, double maxSubSectionLength) {
+	private void createBayAreaSubSections() {
 
 		if(includeSectionsWithNaN_slipRates)
 			subsectsNameForFile = "bayArea_1_";
@@ -339,7 +339,11 @@ public class TestInversion {
 	 */
 	public static void main(String[] args) {
 		TestInversion test = new TestInversion();
-//		test.writeSectionsToFile("dev/scratch/UCERF3/exampleSubSectDataFile");
+			
+		test.writeSectionsToFile("dev/scratch/UCERF3/exampleSubSectDataFile");
+		
+//		RupsInFaultSystemInversion rupsInFaultSysInv = test.getRupsInFaultSystemInversion();
+
 //		RupsInFaultSystemInversion inversion = test.getRupsInFaultSystemInversion();
 //		for(int i=0; i<inversion.getNumClusters(); i++)
 //			System.out.println("Cluster "+i+" has "+inversion.getCluster(i).getNumRuptures()+" ruptures");
