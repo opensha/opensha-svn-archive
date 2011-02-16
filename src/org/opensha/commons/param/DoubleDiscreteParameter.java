@@ -26,7 +26,7 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.editor.ConstrainedDoubleDiscreteParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditorAPI;
 
 /**
  * <b>Title:</b> DoubleDiscreteParameter<p>
@@ -49,12 +49,17 @@ extends DependentParameter<Double>
 implements DependentParameterAPI<Double>, ParameterAPI<Double>
 {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	/** Class name for debugging. */
 	protected final static String C = "DoubleDiscreteParameter";
 	/** If true print out debug statements. */
 	protected final static boolean D = false;
 
-	private transient ParameterEditor paramEdit = null;
+	private transient ParameterEditorAPI<Double> paramEdit = null;
 
 	/**
 	 *  Constructor for the DoubleDiscreteParameter object. No constraints
@@ -361,7 +366,7 @@ implements DependentParameterAPI<Double>, ParameterAPI<Double>
 	}
 
 
-	public ParameterEditor getEditor() {
+	public ParameterEditorAPI<Double> getEditor() {
 		if (paramEdit == null) {
 			if (constraint != null)
 				try {

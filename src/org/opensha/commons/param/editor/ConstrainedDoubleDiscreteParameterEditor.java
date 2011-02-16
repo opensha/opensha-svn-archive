@@ -19,18 +19,20 @@
 
 package org.opensha.commons.param.editor;
 
-import java.awt.event.FocusEvent;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.ListIterator;
-import java.util.Vector;
+import java.util.ArrayList;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
-import javax.swing.border.Border;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.DoubleDiscreteConstraint;
-import org.opensha.commons.param.DoubleDiscreteParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterConstraintAPI;
 
@@ -46,233 +48,131 @@ import org.opensha.commons.param.ParameterConstraintAPI;
  */
 
 public class ConstrainedDoubleDiscreteParameterEditor
-    extends ParameterEditor
-    implements ItemListener
+extends NewParameterEditor<Double>
+implements ItemListener
 {
 
-    /** Class name for debugging. */
-    protected final static String C = "ConstrainedDoubleDiscreteParameterEditor";
-    /** If true print out debug statements. */
-    protected static final boolean D = false;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
+	/** Class name for debugging. */
+	protected final static String C = "ConstrainedDoubleDiscreteParameterEditor";
+	/** If true print out debug statements. */
+	protected static final boolean D = false;
 
+	private JComponent widget;
 
-    /** No-Arg constructor calls super(); */
-    public ConstrainedDoubleDiscreteParameterEditor() { super(); }
+	/** No-Arg constructor calls super(); */
+	public ConstrainedDoubleDiscreteParameterEditor() { super(); }
 
-    /**
-     * Sets the model in this constructor. The parameter is checked that it is a
-     * DoubleDiscreteParameter, and the constraint is checked that it is a
-     * DoubleDiscreteConstraint. Then the constraints are checked that
-     * there is at least one. If any of these fails an error is thrown. <P>
-     *
-     * The widget is then added to this editor, based on the number of
-     * constraints. If only one the editor is made into a non-editable label,
-     * else a picklist of values to choose from are presented to the user.
-     * A tooltip is given to the name label if model info is available.
-     */
-    public ConstrainedDoubleDiscreteParameterEditor(ParameterAPI model)
-	    throws ConstraintException
-    {
-        super(model);
+	/**
+	 * Sets the model in this constructor. The parameter is checked that it is a
+	 * DoubleDiscreteParameter, and the constraint is checked that it is a
+	 * DoubleDiscreteConstraint. Then the constraints are checked that
+	 * there is at least one. If any of these fails an error is thrown. <P>
+	 *
+	 * The widget is then added to this editor, based on the number of
+	 * constraints. If only one the editor is made into a non-editable label,
+	 * else a picklist of values to choose from are presented to the user.
+	 * A tooltip is given to the name label if model info is available.
+	 */
+	public ConstrainedDoubleDiscreteParameterEditor(ParameterAPI<Double> model)
+	throws ConstraintException {
+		super(model);
+	}
 
-        String S = C + ": Constructor(model): ";
-        if(D) System.out.println(S + "Starting");
+	/**
+	 * Called whenever a user picks a new value in the picklist, i.e.
+	 * synchronizes the model to the new GUI value. This is where the
+	 * picklist value is set in the ParameterAPI of this editor.
+	 */
+	public void itemStateChanged(ItemEvent e) {
+		String S = C + ": itemStateChanged(): ";
+		if(D) System.out.println(S + "Starting: " + e.toString());
 
-        setParameter(model);
+		Double value = (Double) ((JComboBox) widget).getSelectedItem();
+		this.setValue(value);
 
-        if(D) System.out.println(S + "Ending");
-    }
+		if(D) System.out.println(S + "Ending");
+	}
 
-    /**
-     * Can change the parameter of this editor. Usually called once when
-     * initializing the editor. The parameter is checked that it is a
-     * DoubleDiscreteParameter, and the constraint is checked that it is a
-     * DoubleDiscreteConstraint. Then the constraints are checked that
-     * there is at least one. If any of these fails an error is thrown. <P>
-     *
-     * The widget is then added to this editor, based on the number of
-     * constraints. If only one the editor is made into a non-editable label,
-     * else a picklist of values to choose from are presented to the user.
-     * A tooltip is given to the name label if model info is available.
-     */
-    public void setParameter(ParameterAPI model) throws ConstraintException{
+	@Override
+	public boolean isParameterSupported(ParameterAPI<Double> param) {
+		if (param == null)
+			return false;
 
-        String S = C + ": setParameter(): ";
+		ParameterConstraintAPI constraint = param.getConstraint();
+		
+		if (constraint == null)
+			return false;
 
-        verifyModel(model);
-        this.model = model;
+		if (!(constraint instanceof DoubleDiscreteConstraint))
+			return false;
+		
+		DoubleDiscreteConstraint dconst = (DoubleDiscreteConstraint)constraint;
 
-        String name = model.getName();
-        Object value = model.getValue();
+		int numConstriants = dconst.size();
+		if(numConstriants < 1)
+			return false;
+		return true;
+	}
 
-        removeWidget();
-	    addWidget();
+	@Override
+	public void setEnabled(boolean enabled) {
+		// TODO Auto-generated method stub
 
-        setWidgetObject(name, value);
+	}
 
-        // Set the tool tip
-        setNameLabelToolTip(model.getInfo());
+	@Override
+	protected JComponent buildWidget() {
+		DoubleDiscreteConstraint con = ((DoubleDiscreteConstraint)
+				getParameter().getConstraint());
+		
+		ArrayList<Double> vals = con.getAllowedDoubles();
 
-    }
+		if(vals.size() > 1){
+			JComboBox combo = new JComboBox(vals.toArray());
+			combo.setMaximumRowCount(32);
+			widget = combo;
+			widget.setPreferredSize(WIGET_PANEL_DIM);
+			widget.setMinimumSize(WIGET_PANEL_DIM);
+//			widget.setFont(JCOMBO_FONT);
+			//valueEditor.setBackground(this.BACK_COLOR);
+			combo.setSelectedIndex(vals.indexOf(getParameter().getValue()));
+			combo.addItemListener(this);
+		}
+		else{
+			JLabel label = makeSingleConstraintValueLabel( vals.get(0).toString() );
+			widget = new JPanel(new BorderLayout());
+			widget.setBackground(Color.LIGHT_GRAY);
+			widget.add(label);
+//			widget.add(valueEditor, WIDGET_GBC);
+		}
+		return widget;
+	}
 
-
-    /**
-     * The parameter is checked that it is a
-     * DoubleDiscreteParameter, and the constraint is checked that it is a
-     * DoubleDiscreteConstraint. Then the constraints are checked that
-     * there is at least one. If any of these fails an error is thrown.
-     */
-    private void verifyModel(ParameterAPI model) throws ConstraintException{
-
-        String S = C + ": Constructor(model): ";
-        if(D) System.out.println(S + "Starting");
-
-        if (model == null) {
-            throw new ConstraintException(S + "Input Parameter model cannot be null");
-        }
-        if (!(model instanceof DoubleDiscreteParameter))
-            throw new ConstraintException
-                  (S + "Input model parameter must be a DoubleDiscreteParameter.");
-
-        ParameterConstraintAPI constraint = model.getConstraint();
-
-        if (!(constraint instanceof DoubleDiscreteConstraint))
-            throw new ConstraintException(S + "Input model constraints must be a DoubleDiscreteConstraint.");
-
-        int numConstriants = ((DoubleDiscreteConstraint)constraint).size();
-        if(numConstriants < 1)
-            throw new ConstraintException(S + "There are no constraints present, unable to build editor selection list.");
-
-
-        if(D) System.out.println(S + "Ending");
-    }
-
-
-    /** Not implemented */
-    public void setAsText(String string) throws IllegalArgumentException { }
-
-    /**
-     * Set's the name label, and the picklist value from the
-     * passed in values, i.e. model sets the gui
-     */
-    protected void setWidgetObject(String name, Object obj) {
-
-        String S  = C + ": setWidgetObject(): ";
-        if(D) System.out.println(S + "Starting");
-
-        super.setWidgetObject(name, obj);
-
-        if ( ( obj != null ) &&  ( valueEditor != null ) && ( valueEditor instanceof JComboBox ) )
-            ((JComboBox) valueEditor).setSelectedItem(obj.toString());
-
-        if(D) System.out.println(S + "Ending");
-    }
-
-
-     /** Allows customization of the IntegerTextField border. Currently set to do nothing.  */
-     public void setWidgetBorder(Border b){
-    }
-
-    /**
-     * Adds the editor widget, a jcombo box if the discrete constraints are
-     * larger than one, else sets to a non-editable label if there is only one value
-     * in the constraint.
-     */
-    protected void addWidget() {
-
-        String S = C + ": addWidget(): ";
-        if(D) System.out.println(S + "Starting");
-
-        if (model != null) {
-            DoubleDiscreteConstraint con = ((DoubleDiscreteConstraint)
-               ((DoubleDiscreteParameter) model).getConstraint());
-
-            ListIterator it = con.listIterator();
-            Vector strs = new Vector();
-            while (it.hasNext()) {
-                String str = it.next().toString();
-                if (!strs.contains(str)) strs.add(str);
-            }
-
-            if(strs.size() > 1){
-            	JComboBox jcb = new JComboBox(strs);
-            	jcb.setMaximumRowCount(32);
-                valueEditor = jcb;
-                valueEditor.setPreferredSize(JCOMBO_DIM);
-                //valueEditor.setBackground(this.BACK_COLOR);
-                valueEditor.setMinimumSize(JCOMBO_DIM);
-                valueEditor.setFont(JCOMBO_FONT);
-                ((JComboBox) valueEditor).addItemListener(this);
-                ((JComboBox) valueEditor).addFocusListener( this );
-                 widgetPanel.add(valueEditor, COMBO_WIDGET_GBC);
-            }
-            else{
-                valueEditor = makeConstantEditor( strs.get(0).toString() );
-                widgetPanel.setBackground(STRING_BACK_COLOR);
-                 widgetPanel.add(valueEditor, WIDGET_GBC);
-            }
-
-
-        }
-
-        if(D) System.out.println(S + "Ending");
-    }
-
-    /**
-     * Updates the IntegerTextField string with the parameter value. Used when
-     * the parameter is set for the first time, or changed by a background
-     * process independently of the GUI. This could occur with a ParameterChangeFail
-     * event.
-     */
-     public void refreshParamEditor(){
-
-        if( valueEditor instanceof JComboBox ){
-
-            Object obj = model.getValue();
-            if( obj != null )
-                ((JComboBox)valueEditor).setSelectedItem( obj.toString() );
-
-        }
-    }
-
-    /**
-     * Called whenever a user picks a new value in the picklist, i.e.
-     * synchronizes the model to the new GUI value. This is where the
-     * picklist value is set in the ParameterAPI of this editor.
-     */
-    public void itemStateChanged(ItemEvent e) {
-        String S = C + ": itemStateChanged(): ";
-        if(D) System.out.println(S + "Starting: " + e.toString());
-
-        String value = ((JComboBox) valueEditor).getSelectedItem().toString();
-        Double d = new Double(value);
-        this.setValue(d);
-
-        if(D) System.out.println(S + "Ending");
-    }
-
-    /**
-     * Called when the user clicks onthis editor panel. Calls super().
-     */
-    public void focusGained(FocusEvent e) {
-
-        String S = C + ": focusGained(): ";
-        if(D) System.out.println(S + "Starting: " + e.toString());
-
-        super.focusGained(e);
-    }
-
-    /**
-     * Called when the user clicks on another area of the GUI outside
-     * this editor panel. Calls super().
-     */
-    public void focusLost(FocusEvent e) {
-
-        String S = C + ": focusLost(): ";
-        if(D) System.out.println(S + "Starting: " + e.toString());
-
-        super.focusLost(e);
-
-    }
+	@Override
+	protected JComponent updateWidget() {
+		DoubleDiscreteConstraint con = ((DoubleDiscreteConstraint)
+				getParameter().getConstraint());
+		
+		ArrayList<Double> vals = con.getAllowedDoubles();
+		
+		if (vals.size() > 1) {
+			if (widget instanceof JComboBox) {
+				JComboBox combo = (JComboBox)widget;
+				combo.removeItemListener(this);
+				combo.setModel(new DefaultComboBoxModel(vals.toArray()));
+				combo.setSelectedIndex(vals.indexOf(getParameter().getValue()));
+				combo.addItemListener(this);
+				return widget;
+			} else {
+				return buildWidget();
+			}
+		} else {
+			return buildWidget();
+		}
+	}
 }
