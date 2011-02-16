@@ -68,7 +68,7 @@ public class SectionCluster extends ArrayList<Integer> {
 		
 	public ArrayList<ArrayList<Integer>> getRuptures() {
 //		return new ArrayList<ArrayList<Integer>>();
-		/**/
+		
 		  if(rupListIndices== null)  computeRupList();
 		  // now convert to holding subsection IDs
 		  ArrayList<ArrayList<Integer>> rupList = new ArrayList<ArrayList<Integer>>();
@@ -131,6 +131,7 @@ public class SectionCluster extends ArrayList<Integer> {
 			//	System.out.println("newPreviousAzimuthDiff=\t"+(int)newPreviousAzimuthDiff);
 				
 //				if(newLastAzimuthDiff<maxAzimuthChange && newPreviousAzimuthDiff>=maxAzimuthChange) {
+				
 				if(newLastAzimuthDiff>maxAzimuthChange) {
 			//		System.out.println("Azimuth difference is too large!");	
 					ArrayList<Integer> lastRup = rupListIndices.get(rupListIndices.size()-1);

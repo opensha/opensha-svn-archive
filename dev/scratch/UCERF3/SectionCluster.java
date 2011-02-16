@@ -25,7 +25,7 @@ public class SectionCluster extends ArrayList<Integer> {
 	ArrayList<ArrayList<Integer>> rupListIndices;			// elements here are section IDs (same as indices in sectonDataList)
 	int minNumSectInRup;
 	int numRupsAdded;
-	double maxAzimuthChange, maxStrikeDiff, maxRakeDiff;
+	double maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff;
 	double[][] sectionAzimuths;
 	
 	
@@ -37,16 +37,17 @@ public class SectionCluster extends ArrayList<Integer> {
 	 * @param sectionAzimuths
 	 * @param maxAzimuthChange
 	 * @param maxTotAzimuthChange
+	 * @param maxRakeDiff
 	 */
 	public SectionCluster(ArrayList<FaultSectionPrefData> sectionDataList, int minNumSectInRup, 
 			ArrayList<ArrayList<Integer>> sectionConnectionsListList, double[][] sectionAzimuths,
-			double maxAzimuthChange, double maxStrikeDiff, double maxRakeDiff) {
+			double maxAzimuthChange, double maxTotAzimuthChange, double maxRakeDiff) {
 		this.sectionDataList = sectionDataList;
 		this.minNumSectInRup = minNumSectInRup;
 		this.sectionConnectionsListList = sectionConnectionsListList;
 		this.sectionAzimuths = sectionAzimuths;
+		this.maxTotAzimuthChange = maxTotAzimuthChange;
 		this.maxAzimuthChange = maxAzimuthChange;
-		this.maxStrikeDiff = maxStrikeDiff;
 		this.maxRakeDiff = maxRakeDiff;
 	}
 	
@@ -117,25 +118,20 @@ public class SectionCluster extends ArrayList<Integer> {
 			System.out.println("newSect=\t"+newSect+"\t"+this.sectionDataList.get(newSect).getName());
 */	
 			
-			// check the azimuth change   // Ned had section below commented out
+			// check the azimuth change   
 			if(list.size()>2) { // make sure there are enough points to compute an azimuth change (change 2 to 3 to get previousAzimuth below)
 				double newAzimuth = sectionAzimuths[sectIndex][newSect];
 				double lastAzimuth = sectionAzimuths[lastSect][sectIndex];
+				double firstAzimuth = sectionAzimuths[list.get(0)][list.get(1)];
+				double TotAzimuthChange = Math.abs(getAzimuthDifference(firstAzimuth,newAzimuth));
 //				double previousAzimuth = sectionAzimuths[list.get(list.size()-3)][lastSect];
 				double newLastAzimuthDiff = Math.abs(getAzimuthDifference(newAzimuth,lastAzimuth));
 //				double newPreviousAzimuthDiff = Math.abs(getAzimuthDifference(newAzimuth,previousAzimuth));
-//				System.out.println("newAzimuth=\t"+(int)newAzimuth+"\t"+sectIndex+"\t"+newSect);
-//				System.out.println("lastAzimuth=\t"+(int)lastAzimuth+"\t"+lastSect+"\t"+sectIndex);
-//				System.out.println("previousAzimuth=\t"+(int)previousAzimuth+"\t"+list.get(list.size()-3)+"\t"+lastSect);
-//				System.out.println("newLastAzimuthDiff=\t"+(int)newLastAzimuthDiff);
-//				System.out.println("newPreviousAzimuthDiff=\t"+(int)newPreviousAzimuthDiff);
 
+					
 //				if(newLastAzimuthDiff<maxAzimuthChange && newPreviousAzimuthDiff>=maxAzimuthChange) {
 				if(newLastAzimuthDiff>maxAzimuthChange) {
-			//		System.out.println("Azimuth difference is too large!");	
-					ArrayList<Integer> lastRup = rupListIndices.get(rupListIndices.size()-1);
-			//		System.out.println("lastRup.get(lastRup.size()-1) = " + lastRup.get(lastRup.size()-1));
-			//		System.out.println("lastSubSect = " + lastSubSect);
+			//		ArrayList<Integer> lastRup = rupListIndices.get(rupListIndices.size()-1);
 					continue;
 			//		if(lastRup.get(lastRup.size()-1) == lastSubSect) {
 			//			//stop it from going down bad branch, and remove previous rupture since it headed this way
@@ -144,7 +140,11 @@ public class SectionCluster extends ArrayList<Integer> {
 			//			numRupsAdded -= 1;
 			//			continue;						
 			//		}
+				} 
+				if(TotAzimuthChange>maxTotAzimuthChange) {
+					continue;
 				}
+					
 			}
 
 			ArrayList<Integer> newList = (ArrayList<Integer>)list.clone();
@@ -158,12 +158,12 @@ public class SectionCluster extends ArrayList<Integer> {
 					rupCounterProgress += rupCounterProgressIncrement;
 				}
 //				System.out.println("adding: "+newList);
-				// Debugging exist after 100 ruptures
+				// Debugging exit after 100 ruptures
 //				if(numRupsAdded>100) return;
 			}
 			
 			// Iterate
-			if(numRupsAdded<100)	// FOR DEBUGGING!
+			// if(numRupsAdded<100)	// FOR DEBUGGING!
 			addRuptures(newList);
 		}
 	}
@@ -178,8 +178,8 @@ public class SectionCluster extends ArrayList<Integer> {
 		numRupsAdded=0;
 //		System.out.print("% Done:\t");
 		// loop over every section as the first in the rupture
-//		for(int s=0;s<size();s++) {
-		for(int s=0;s<1;s++) {	// Debugging: only compute ruptures from first section
+		for(int s=0;s<size();s++) {
+//		for(int s=0;s<1;s++) {	// Debugging: only compute ruptures from first section
 			// show progress
 			if(s*100/size() > progress) {
 				System.out.print(progress+"\t");
@@ -207,9 +207,10 @@ public class SectionCluster extends ArrayList<Integer> {
 		numRupsAdded = rupListIndices.size();
 		
 		System.out.println(numRupsAdded + " potential ruptures");
-		
+
+/*
 		// Remove ruptures where subsection strikes have too big a spread
-		// double maxStrikeDiff = 90;  //maximum allowed difference in strikes between any two subsections in the same rupture, in degrees
+		// System.out.println("maxStrikeDiff = "+maxStrikeDiff); //maximum allowed difference in strikes between any two subsections in the same rupture, in degrees
 		ArrayList<ArrayList<Integer>> toRemove = new ArrayList<ArrayList<Integer>>();
 		for(int r=0; r< numRupsAdded;r++) {
 			ArrayList<Integer> rup = rupListIndices.get(r);
@@ -245,9 +246,10 @@ public class SectionCluster extends ArrayList<Integer> {
 		numRupsAdded = rupListIndices.size();
 		
 		System.out.println(numRupsAdded + " ruptures that pass subsection strikes test");
+*/
 		
 		// Remove ruptures where subsection rakes have too big a spread
-		// double maxRakeDiff = 90;  //maximum allowed difference in strikes between any two subsections in the same rupture, in degrees
+		// System.out.println("maxRakeDiff = "+maxRakeDiff); //maximum allowed difference in strikes between any two subsections in the same rupture, in degrees
 		ArrayList<ArrayList<Integer>> toRemove2 = new ArrayList<ArrayList<Integer>>();
 		for(int r=0; r< numRupsAdded;r++) {
 			ArrayList<Integer> rup = rupListIndices.get(r);

@@ -50,9 +50,8 @@ public class TestInversion {
 		
 		maxSubSectionLength = 0.5;  // in units of seismogenic thickness
 		double maxJumpDist = 5.0;
-		double maxAzimuthChange = 90;
-		//double maxTotAzimuthChange = 90;
-		double maxStrikeDiff = 90;
+		double maxAzimuthChange = 45;
+		double maxTotAzimuthChange = 90;
 		double maxRakeDiff = 90;
 		int minNumSectInRup = 2;
 		includeSectionsWithNaN_slipRates = false;
@@ -78,7 +77,7 @@ public class TestInversion {
 		
 		rupsInFaultSysInv = new RupsInFaultSystemInversion(subSectionPrefDataList,
 				subSectionDistances, subSectionAzimuths, maxJumpDist, 
-				maxAzimuthChange, maxStrikeDiff, maxRakeDiff, minNumSectInRup, magAreaRel);
+				maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, minNumSectInRup, magAreaRel);
 		
 //		rupsInFaultSysInv.writeCloseSubSections(precomputedDataDir.getAbsolutePath()+File.separator+"closeSubSections.txt");
 	}

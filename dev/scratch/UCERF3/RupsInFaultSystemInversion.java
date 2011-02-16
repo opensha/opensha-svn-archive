@@ -69,6 +69,7 @@ public class RupsInFaultSystemInversion {
 	 * @param maxJumpDist
 	 * @param maxAzimuthChange
 	 * @param maxTotAzimuthChange
+	 * @param maxRakeDiff
 	 * @param minNumSectInRup
 	 */
 	public RupsInFaultSystemInversion(ArrayList<FaultSectionPrefData> faultSectionData,
@@ -82,7 +83,7 @@ public class RupsInFaultSystemInversion {
 		this.sectionAzimuths = subSectionAzimuths;
 		this.maxJumpDist=maxJumpDist;
 		this.maxAzimuthChange=maxAzimuthChange; 
-		this.maxTotAzimuthChange=maxTotAzimuthChange;
+		this.maxTotAzimuthChange=maxTotAzimuthChange; 
 		this.maxRakeDiff=maxRakeDiff;
 		this.minNumSectInRup=minNumSectInRup;
 		this.magAreaRel=magAreaRel;
