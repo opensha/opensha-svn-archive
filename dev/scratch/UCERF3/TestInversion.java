@@ -217,6 +217,7 @@ public class TestInversion {
 				for(int i=0; i<numSubSections;i++)
 					for(int j=i; j<numSubSections;j++) {
 						subSectionDistances[i][j] = data_in.readDouble();
+						subSectionDistances[j][i] = subSectionDistances[i][j];
 					}
 				data_in.close ();
 			} catch  (IOException e) {
@@ -237,7 +238,7 @@ public class TestInversion {
 //				StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultData(false), 2.0);
 				StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultData(false), 1.0, 1.0);
 
-				for(int b=a+1;b<numSubSections;b++) {
+				for(int b=a+1;b<numSubSections;b++) { // a+1 because array is initialized to zero
 //					StirlingGriddedSurface surf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(b).getSimpleFaultData(false), 2.0);
 					StirlingGriddedSurface surf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(b).getSimpleFaultData(false), 1.0, 1.0);
 					double minDist = surf1.getMinDistance(surf2);
@@ -285,7 +286,7 @@ public class TestInversion {
 			        FileInputStream file_input = new FileInputStream (file);
 			        DataInputStream data_in    = new DataInputStream (file_input );
 					  for(int i=0; i<numSubSections;i++)
-						  for(int j=i; j<numSubSections;j++) {
+						  for(int j=0; j<numSubSections;j++) {
 							  subSectionAzimuths[i][j] = data_in.readDouble();
 						  }
 			        data_in.close ();
@@ -321,7 +322,7 @@ public class TestInversion {
 				  // Wrap the FileOutputStream with a DataOutputStream
 				  DataOutputStream data_out = new DataOutputStream (file_output);
 				  for(int i=0; i<numSubSections;i++)
-					  for(int j=i; j<numSubSections;j++)
+					  for(int j=0; j<numSubSections;j++)
 						  data_out.writeDouble(subSectionAzimuths[i][j]);
 				  // Close file
 				  file_output.close ();
