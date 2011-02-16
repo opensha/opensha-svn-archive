@@ -40,7 +40,7 @@ public class NSHMP_GridSourceGeneratorMod2 extends NSHMP_GridSourceGenerator {
 	 * Here I changed the method relative to parent's in the following ways:
 	 * 
 	 *  1) occurrences of Mmin "5.0" changed to "2.5".
-	 *  2) "V_VAL" replaced with 1.0 (previously it was 0.8)
+	 *  2) "B_VAL" replaced with 1.0 (previously it was 0.8)
 	 *  3) added scaleFactor to increase a-values for consistency with cum rates including aftershocks
 	 *  
 	 */
