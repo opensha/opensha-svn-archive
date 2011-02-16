@@ -21,7 +21,7 @@ package org.opensha.commons.param;
 
 import org.dom4j.Element;
 import org.opensha.commons.param.editor.BooleanParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditorAPI;
 
 
 /**
@@ -36,6 +36,10 @@ public class BooleanParameter extends DependentParameter<Boolean>
 implements  java.io.Serializable{
 
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/** Class name for debugging. */
 	protected final static String C = "BooleanParameter";
 	/** If true print out debug statements. */
@@ -43,7 +47,7 @@ implements  java.io.Serializable{
 
 	protected final static String PARAM_TYPE ="BooleanParameter";
 
-	private transient ParameterEditor paramEdit;
+	private transient ParameterEditorAPI<Boolean> paramEdit;
 
 	/**
 	 *  No constraints specified for this parameter. Sets the name of this
@@ -109,7 +113,7 @@ implements  java.io.Serializable{
 		return true;
 	}
 
-	public ParameterEditor getEditor() {
+	public ParameterEditorAPI<Boolean> getEditor() {
 		if (paramEdit == null)
 			paramEdit = new BooleanParameterEditor(this);
 		return paramEdit;

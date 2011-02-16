@@ -112,7 +112,7 @@ public abstract class NewParameterEditor<E> extends LabeledBorderPanel implement
 	 */
 	public abstract boolean isParameterSupported(ParameterAPI<E> param);
 
-	private void updateTitle() {
+	protected void updateTitle() {
 		String label;
 		if (param == null) {
 			label = "";
