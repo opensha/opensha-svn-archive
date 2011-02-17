@@ -33,6 +33,7 @@ import java.net.MalformedURLException;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.ListIterator;
@@ -128,23 +129,28 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	private PeakAmplitudesFromDB amps2db = null;
 	private Runs2DB runs2db = null;
 	
-	CybershakeSite csSite = null;
+	private CybershakeSite csSite = null;
 	
-	SiteTranslator siteTranslator = new SiteTranslator();
+	private SiteTranslator siteTranslator = new SiteTranslator();
 	
-	HazardCurveCalculator calc;
+	private 	HazardCurveCalculator calc;
 	
 //	CybershakeERF selectedERF;
 	
-	SimpleDateFormat dateFormat = new SimpleDateFormat("MM_dd_yyyy");
+	private SimpleDateFormat dateFormat = new SimpleDateFormat("MM_dd_yyyy");
 	
 	private double manualVs30  = -1;
 	
-	double currentPeriod = -1;
+	private double currentPeriod = -1;
 	
-	HazardCurvePlotCharacteristics plotChars = HazardCurvePlotCharacteristics.createRobPlotChars();
+	private HazardCurvePlotCharacteristics plotChars = HazardCurvePlotCharacteristics.createRobPlotChars();
 	
-	OrderedSiteDataProviderList dataProviders;
+	private OrderedSiteDataProviderList dataProviders;
+	
+	private String user = "";
+	private String pass = "";
+	
+	private HazardCurveComputation curveCalc;
 	
 	public HazardCurvePlotter(DBAccess db) {
 		this.db = db;
@@ -304,6 +310,21 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			return false;
 		}
 		
+		CybershakeRun runCompare = null;
+		if (cmd.hasOption("compare-to")) {
+			int compareID = Integer.parseInt(cmd.getOptionValue("compare-to"));
+			if (compareID < 0) {
+				System.err.println("Invalid comparison run id: "+compareID);
+				return false;
+			}
+			runCompare = runs2db.getRun(compareID);
+			if (runCompare == null) {
+				System.err.println("Unknown comparison run id: "+compareID);
+				return false;
+			}
+			System.out.println("Comparing to: "+runCompare);
+		}
+		
 		if (siteName == null) {
 			siteName = site2db.getSiteFromDB(run.getSiteID()).short_name;
 		}
@@ -374,10 +395,6 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			}
 		}
 		
-		HazardCurveComputation curveCalc = null;
-		String user = "";
-		String pass = "";
-		
 		String outDir = "";
 		if (cmd.hasOption("o")) {
 			outDir = cmd.getOptionValue("o");
@@ -433,153 +450,33 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 				return false;
 			}
 			periodNum++;
-			int curveID = curve2db.getHazardCurveID(runID, im.getID());
-			int numPoints = 0;
-			if (curveID >= 0)
-				numPoints= curve2db.getNumHazardCurvePoints(curveID);
-			
-			System.out.println("Num points: " + numPoints);
-			
-			// if no curveID exists, or the curve has 0 points
-			if (curveID < 0 || numPoints < 1) {
-				if (!cmd.hasOption("n")) {
-					if (!cmd.hasOption("f")) {
-						// lets ask the user what they want to do
-						if (curveID >= 0)
-							System.out.println("A record for the selected curve exists in the database, but there " +
-									"are no data points: " + curveID + " period=" + im.getVal());
-						else
-							System.out.println("The selected curve does not exist in the database: " + run.getSiteID() + " period="
-									+ im.getVal() + " run=" + runID);
-						boolean skip = false;
-						// open up standard input
-						BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-						while (true) {
-							System.out.print("Would you like to calculate and insert it? (y/n): ");
-							try {
-								String response = in.readLine();
-								response = response.trim().toLowerCase();
-								if (response.startsWith("y")) { 
-									break;
-								} else if (response.startsWith("n")) {
-									skip = true;
-									break;
-								}
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
-						}
-						if (skip)
-							continue;
-					}
-					int count = amps2db.countAmps(runID, im);
-					if (count <= 0) {
-						System.err.println("No Peak Amps for: " + run.getSiteID() + " period="
-									+ im.getVal() + " run=" + runID);
-						return false;
-					}
-					System.out.println(count + " amps in DB");
-					if (user.equals("") && pass.equals("")) {
-						if (cmd.hasOption("pf")) {
-							String pf = cmd.getOptionValue("pf");
-							try {
-								String user_pass[] = CyberShakeDBManagementApp.loadPassFile(pf);
-								user = user_pass[0];
-								pass = user_pass[1];
-							} catch (FileNotFoundException e) {
-								e.printStackTrace();
-								System.out.println("Password file not found!");
-								return false;
-							} catch (IOException e) {
-								e.printStackTrace();
-								System.out.println("Password file not found!");
-								return false;
-							} catch (Exception e) {
-								e.printStackTrace();
-								System.out.println("Bad password file!");
-								return false;
-							}
-							if (user.equals("") || pass.equals("")) {
-								System.out.println("Bad password file!");
-								return false;
-							}
-						} else {
-							try {
-								UserAuthDialog auth = new UserAuthDialog(null, true);
-								auth.setVisible(true);
-								if (auth.isCanceled())
-									return false;
-								user = auth.getUsername();
-								pass = new String(auth.getPassword());
-							} catch (HeadlessException e) {
-								System.out.println("It looks like you can't display windows, using less secure command line password input.");
-								BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-								
-								boolean hasUser = false;
-								while (true) {
-									try {
-										if (hasUser)
-											System.out.print("Database Password: ");
-										else
-											System.out.print("Database Username: ");
-										String line = in.readLine().trim();
-										if (line.length() > 0) {
-											if (hasUser) {
-												pass = line;
-												break;
-											} else {
-												user = line;
-												hasUser = true;
-											}
-										}
-									} catch (IOException e1) {
-										e1.printStackTrace();
-									}
-								}
-							}
-						}
-					}
-					
-					DBAccess writeDB = null;
-					try {
-						writeDB = new DBAccess(Cybershake_OpenSHA_DBApplication.HOST_NAME,Cybershake_OpenSHA_DBApplication.DATABASE_NAME, user, pass);
-					} catch (IOException e) {
-						e.printStackTrace();
-						return false;
-					}
-					
-					// calculate the curve
-					if (curveCalc == null)
-						curveCalc = new HazardCurveComputation(db);
-					
-					ArbitrarilyDiscretizedFunc func = plotChars.getHazardFunc();
-					ArrayList<Double> imVals = new ArrayList<Double>();
-					for (int i=0; i<func.getNum(); i++)
-						imVals.add(func.getX(i));
-					
-					DiscretizedFuncAPI curve = curveCalc.computeHazardCurve(imVals, run, im);
-					HazardCurve2DB curve2db_write = new HazardCurve2DB(writeDB);
-					System.out.println("Inserting curve into database...");
-					if (curveID >= 0) {
-						curve2db_write.insertHazardCurvePoints(curveID, curve);
-					} else {
-						curve2db_write.insertHazardCurve(run, im.getID(), curve);
-						curveID = curve2db.getHazardCurveID(runID, im.getID());
-					}
-				} else {
-					System.out.println("Curve not found in DB, and no-add option supplied!");
+			int curveID = getCurveID(run, im, cmd);
+			if (curveID == -1)
+				// error
+				return false;
+			if (curveID == -2)
+				// skip
+				continue;
+			int compCurveID = -1;
+			if (runCompare != null) {
+				compCurveID = getCurveID(runCompare, im, cmd);
+				if (compCurveID == -1)
+					// error
 					return false;
-				}
 			}
 			Date date = curve2db.getDateForCurve(curveID);
 			String dateStr = dateFormat.format(date);
 			String periodStr = "SA_" + getPeriodStr(im.getVal()) + "sec";
-			String outFileName = siteName + "_ERF" + run.getERFID() + "_Run" + runID + "_" + periodStr + "_" + dateStr;
+			String outFileName = siteName + "_ERF" + run.getERFID() + "_Run" + runID;
+			if (compCurveID >= 0)
+				outFileName += "_CompToRun" + runCompare.getRunID();
+			outFileName += "_" + periodStr + "_" + dateStr;
 			String outFile = outDir + outFileName;
 			if (calcOnly)
 				continue;
 			boolean textOnly = types.size() == 1 && types.get(0) == TYPE_TXT;
-			ArrayList<DiscretizedFuncAPI> curves = this.plotCurve(curveID, run, textOnly);
+			ArrayList<DiscretizedFuncAPI> curves = this.plotCurve(curveID, run,
+					compCurveID, runCompare, textOnly);
 			if (curves == null) {
 				System.err.println("No points could be fetched for curve ID " + curveID + "! Skipping...");
 				continue;
@@ -612,6 +509,148 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		return atLeastOne;
 	}
 	
+	private int getCurveID(CybershakeRun run, CybershakeIM im, CommandLine cmd) {
+		int curveID = curve2db.getHazardCurveID(run.getRunID(), im.getID());
+		int numPoints = 0;
+		if (curveID >= 0)
+			numPoints= curve2db.getNumHazardCurvePoints(curveID);
+		
+		System.out.println("Num points: " + numPoints);
+		
+		// if no curveID exists, or the curve has 0 points
+		if (curveID < 0 || numPoints < 1) {
+			if (!cmd.hasOption("n")) {
+				if (!cmd.hasOption("f")) {
+					// lets ask the user what they want to do
+					if (curveID >= 0)
+						System.out.println("A record for the selected curve exists in the database, but there " +
+								"are no data points: " + curveID + " period=" + im.getVal());
+					else
+						System.out.println("The selected curve does not exist in the database: " + run.getSiteID() + " period="
+								+ im.getVal() + " run=" + run.getRunID());
+					boolean skip = false;
+					// open up standard input
+					BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+					while (true) {
+						System.out.print("Would you like to calculate and insert it? (y/n): ");
+						try {
+							String response = in.readLine();
+							response = response.trim().toLowerCase();
+							if (response.startsWith("y")) { 
+								break;
+							} else if (response.startsWith("n")) {
+								skip = true;
+								break;
+							}
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+					if (skip)
+						return -2;
+				}
+				int count = amps2db.countAmps(run.getRunID(), im);
+				if (count <= 0) {
+					System.err.println("No Peak Amps for: " + run.getSiteID() + " period="
+								+ im.getVal() + " run=" + run.getRunID());
+					return -1;
+				}
+				System.out.println(count + " amps in DB");
+				if (user.equals("") && pass.equals("")) {
+					if (cmd.hasOption("pf")) {
+						String pf = cmd.getOptionValue("pf");
+						try {
+							String user_pass[] = CyberShakeDBManagementApp.loadPassFile(pf);
+							user = user_pass[0];
+							pass = user_pass[1];
+						} catch (FileNotFoundException e) {
+							e.printStackTrace();
+							System.out.println("Password file not found!");
+							return -1;
+						} catch (IOException e) {
+							e.printStackTrace();
+							System.out.println("Password file not found!");
+							return -1;
+						} catch (Exception e) {
+							e.printStackTrace();
+							System.out.println("Bad password file!");
+							return -1;
+						}
+						if (user.equals("") || pass.equals("")) {
+							System.out.println("Bad password file!");
+							return -1;
+						}
+					} else {
+						try {
+							UserAuthDialog auth = new UserAuthDialog(null, true);
+							auth.setVisible(true);
+							if (auth.isCanceled())
+								return -1;
+							user = auth.getUsername();
+							pass = new String(auth.getPassword());
+						} catch (HeadlessException e) {
+							System.out.println("It looks like you can't display windows, using less secure command line password input.");
+							BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+							
+							boolean hasUser = false;
+							while (true) {
+								try {
+									if (hasUser)
+										System.out.print("Database Password: ");
+									else
+										System.out.print("Database Username: ");
+									String line = in.readLine().trim();
+									if (line.length() > 0) {
+										if (hasUser) {
+											pass = line;
+											break;
+										} else {
+											user = line;
+											hasUser = true;
+										}
+									}
+								} catch (IOException e1) {
+									e1.printStackTrace();
+								}
+							}
+						}
+					}
+				}
+				
+				DBAccess writeDB = null;
+				try {
+					writeDB = new DBAccess(Cybershake_OpenSHA_DBApplication.HOST_NAME,Cybershake_OpenSHA_DBApplication.DATABASE_NAME, user, pass);
+				} catch (IOException e) {
+					e.printStackTrace();
+					return -1;
+				}
+				
+				// calculate the curve
+				if (curveCalc == null)
+					curveCalc = new HazardCurveComputation(db);
+				
+				ArbitrarilyDiscretizedFunc func = plotChars.getHazardFunc();
+				ArrayList<Double> imVals = new ArrayList<Double>();
+				for (int i=0; i<func.getNum(); i++)
+					imVals.add(func.getX(i));
+				
+				DiscretizedFuncAPI curve = curveCalc.computeHazardCurve(imVals, run, im);
+				HazardCurve2DB curve2db_write = new HazardCurve2DB(writeDB);
+				System.out.println("Inserting curve into database...");
+				if (curveID >= 0) {
+					curve2db_write.insertHazardCurvePoints(curveID, curve);
+				} else {
+					curve2db_write.insertHazardCurve(run, im.getID(), curve);
+					curveID = curve2db.getHazardCurveID(run.getRunID(), im.getID());
+				}
+			} else {
+				System.out.println("Curve not found in DB, and no-add option supplied!");
+				return -1;
+			}
+		}
+		return curveID;
+	}
+	
 	public void setMaxSourceSiteDistance(int siteID) {
 		SiteInfo2DB site2db = this.getSite2DB();
 		
@@ -631,15 +670,27 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	ArrayList<String> curveNames = new ArrayList<String>();
 	
 	public ArrayList<DiscretizedFuncAPI> plotCurve(int curveID, CybershakeRun run, boolean textOnly) {
+		return plotCurve(curveID, run, -1, null, textOnly);
+	}
+	
+	public ArrayList<DiscretizedFuncAPI> plotCurve(int curveID, CybershakeRun run,
+			int compCurveID, CybershakeRun compRun, boolean textOnly) {
 		curveNames.clear();
 		System.out.println("Fetching Curve!");
 		DiscretizedFuncAPI curve = curve2db.getHazardCurve(curveID);
+		
+		DiscretizedFuncAPI compCurve;
+		if (compCurveID >= 0)
+			compCurve = curve2db.getHazardCurve(compCurveID);
+		else
+			compCurve = null;
 		
 		if (curve == null)
 			return null;
 		
 		ArrayList<PlotCurveCharacterstics> chars = new ArrayList<PlotCurveCharacterstics>();
-		chars.add(new PlotCurveCharacterstics(this.plotChars.getCyberShakeLineType(), this.plotChars.getCyberShakeColor(), 1));
+		chars.add(new PlotCurveCharacterstics(this.plotChars.getCyberShakeLineType(),
+				this.plotChars.getCyberShakeColor(), 1));
 		
 		
 		CybershakeIM im = curve2db.getIMForCurve(curveID);
@@ -657,7 +708,14 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		
 		ArrayList<DiscretizedFuncAPI> curves = new ArrayList<DiscretizedFuncAPI>();
 		curves.add(curve);
-		curveNames.add("CyberShake Hazard Curve. Site: " + csSite.toString());
+		curveNames.add("CyberShake Hazard Curve. Site: " + csSite.toString()+" Run: "+run.toString());
+		
+		if (compCurve != null) {
+			curves.add(compCurve);
+			curveNames.add("CyberShake Hazard Curve Comparison. Run: " + run.toString());
+			chars.add(new PlotCurveCharacterstics(this.plotChars.getCyberShakeLineType(),
+					Color.GRAY, 1));
+		}
 		
 		if (erf != null && attenRels.size() > 0) {
 			System.out.println("Plotting comparisons!");
@@ -1063,6 +1121,10 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		run.setRequired(false);
 		ops.addOption(run);
 		
+		Option compare = new Option("comp", "compare-to", true, "Compare to a specific Run ID");
+		compare.setRequired(false);
+		ops.addOption(compare);
+		
 		Option erfFile = new Option("ef", "erf-file", true, "XML ERF description file for comparison");
 		ops.addOption(erfFile);
 		
@@ -1134,6 +1196,13 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	}
 
 	public static void main(String args[]) throws DocumentException, InvocationTargetException {
+		
+		String[] newArgs = {"-af", "/home/kevin/workspace/OpenSHA_head_refactor/src/org/opensha/sha" +
+				"/cybershake/conf/cb2008.xml,/home/kevin/workspace/OpenSHA_head_refactor/src/org/" +
+				"opensha/sha/cybershake/conf/ba2008.xml", "-ef", "/home/kevin/workspace/OpenSHA_he" +
+						"ad_refactor/src/org/opensha/sha/cybershake/conf/MeanUCERF.xml"
+				, "-p", "3", "-o", "/tmp", "-R", "765", "--compare-to", "223"};
+		args = newArgs;
 		
 		try {
 			Options options = createOptions();
