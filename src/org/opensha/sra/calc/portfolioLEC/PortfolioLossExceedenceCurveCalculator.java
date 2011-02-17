@@ -361,13 +361,13 @@ public class PortfolioLossExceedenceCurveCalculator {
 				double sumSquares = 0;
 				for (int i=0; i<portfolio.size(); i++) {
 					AssetRuptureResult assetRupResult = assetRupResults.get(i);
-					double mDamage_mIML = assetRupResult.getMedDamage_medIML();
-					double mDamage_hIntra = assetRupResult.getMedDamage_hIntra();
-					double mDamage_lIntra = assetRupResult.getMedDamage_lIntra();
+					double medDamage_mIML = assetRupResult.getMedDamage_medIML();
+					double medDamage_hIntra = assetRupResult.getMedDamage_hIntra();
+					double medDamage_lIntra = assetRupResult.getMedDamage_lIntra();
 					// vBar ( yBar ( s sub +p ) + yBar ( s sub -p))
-					sumReg += mValue[i] * ( mDamage_mIML * mDamage_hIntra + mDamage_mIML * mDamage_lIntra );
-					sumSquares += Math.pow(mValue[i] * mDamage_mIML * mDamage_hIntra, 2)
-										+ Math.pow(mValue[i] * mDamage_mIML * mDamage_lIntra, 2);
+					sumReg += mValue[i] * ( medDamage_mIML * medDamage_hIntra + medDamage_mIML * medDamage_lIntra );
+					sumSquares += Math.pow(mValue[i] * medDamage_mIML * medDamage_hIntra, 2)
+										+ Math.pow(mValue[i] * medDamage_mIML * medDamage_lIntra, 2);
 				}
 				double e_LgivenS = w0 * l[0] + wi * (l[1] + l[2] + l[3] + l[4] + 2*l[5] + 2*l[6]
 									+ (4*portfolio.size() - 4)*l[0] + sumReg);
