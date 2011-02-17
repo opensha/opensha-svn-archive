@@ -1197,13 +1197,6 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 
 	public static void main(String args[]) throws DocumentException, InvocationTargetException {
 		
-		String[] newArgs = {"-af", "/home/kevin/workspace/OpenSHA_head_refactor/src/org/opensha/sha" +
-				"/cybershake/conf/cb2008.xml,/home/kevin/workspace/OpenSHA_head_refactor/src/org/" +
-				"opensha/sha/cybershake/conf/ba2008.xml", "-ef", "/home/kevin/workspace/OpenSHA_he" +
-						"ad_refactor/src/org/opensha/sha/cybershake/conf/MeanUCERF.xml"
-				, "-p", "3", "-o", "/tmp", "-R", "765", "--compare-to", "223"};
-		args = newArgs;
-		
 		try {
 			Options options = createOptions();
 			
