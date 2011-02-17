@@ -21,6 +21,8 @@ public class HazusDataSetAssmbler {
 	public static final String METADATA_RP_REPLACE_STR = "$RETURN_PERIOD";
 	public static final String METADATA_RP_REGEX_REPLACE_STR = "\\"+METADATA_RP_REPLACE_STR;
 	
+	public static int[] hazus_return_periods = { 100, 250, 500, 750, 1000, 1500, 2000, 2500 };
+	
 	public static DecimalFormat df = new DecimalFormat("0.000000");
 	
 	HashMap<Location, ArbitrarilyDiscretizedFunc> pgaCurves;
@@ -136,6 +138,10 @@ public class HazusDataSetAssmbler {
 		fw.close();
 	}
 	
+	public static double getProbValue(double returnPeriod, int years) {
+		return 1-Math.exp(-(double)years/returnPeriod);
+	}
+	
 	/**
 	 * prob = 1−(e^−(years/returnPeriod))
 	 * 
@@ -144,9 +150,9 @@ public class HazusDataSetAssmbler {
 	 * @param years
 	 * @return
 	 */
-	private static double getValFromCurve(ArbitrarilyDiscretizedFunc curve, double returnPeriod, int years) {
+	public static double getValFromCurve(ArbitrarilyDiscretizedFunc curve, double returnPeriod, int years) {
 //		double probVal = ((double)years) / returnPeriod;
-		double probVal = 1-Math.exp(-(double)years/returnPeriod);
+		double probVal = getProbValue(returnPeriod, years);
 		try {
 			return curve.getFirstInterpolatedX_inLogXLogYDomain(probVal);
 		} catch (Exception e) {
@@ -188,9 +194,7 @@ public class HazusDataSetAssmbler {
 		
 		ArrayList<String> fileNames = new ArrayList<String>();
 		
-		int[] rps = { 100, 250, 500, 750, 1000, 1500, 2000, 2500 };
-		
-		for (int rp : rps) {
+		for (int rp : hazus_return_periods) {
 			results = assem.assemble(rp, years);
 			fileName = "final_" + rp + ".dat";
 			assem.writeFile(dataDir+"/"+fileName, results, rp);
