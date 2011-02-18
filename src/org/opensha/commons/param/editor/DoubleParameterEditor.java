@@ -246,7 +246,7 @@ public class DoubleParameterEditor extends NewParameterEditor<Double> implements
 		if (param == null)
 			return false;
 		
-		if (!(param.getValue() instanceof Double))
+		if (param.getValue() != null && !(param.getValue() instanceof Double))
 			return false;
 		
 		return true;

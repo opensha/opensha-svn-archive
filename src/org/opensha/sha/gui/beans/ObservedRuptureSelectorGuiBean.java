@@ -46,6 +46,7 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
@@ -270,14 +271,14 @@ public class ObservedRuptureSelectorGuiBean extends JPanel implements ParameterC
     // get the panel for increasing the font and border
     // this is hard coding for increasing the IMR font
     // the colors used here are from ParameterEditor
-    JPanel panel = ((ParameterEditor)listEditor.getParameterEditor(RUPTURE_PARAM_NAME)).getOuterPanel();
+    ParameterEditorAPI<?> paramEdit = listEditor.getParameterEditor(RUPTURE_PARAM_NAME);
     TitledBorder titledBorder1 = new TitledBorder(BorderFactory.createLineBorder(new Color( 80, 80, 140 ),3),"");
     titledBorder1.setTitleColor(new Color( 80, 80, 140 ));
     Font DEFAULT_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 13 );
     titledBorder1.setTitleFont(DEFAULT_LABEL_FONT);
     titledBorder1.setTitle(RUPTURE_PARAM_NAME);
     Border border1 = BorderFactory.createCompoundBorder(titledBorder1,BorderFactory.createEmptyBorder(0,0,3,0));
-    panel.setBorder(border1);
+    paramEdit.setEditorBorder(border1);
     this.add(listEditor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0,0));
     this.validate();

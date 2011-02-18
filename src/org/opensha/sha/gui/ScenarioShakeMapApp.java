@@ -500,7 +500,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 		try{
 			erfGuiBean = new EqkRupSelectorGuiBean(erf_Classes);
 		}catch(InvocationTargetException e){
-			throw new RuntimeException("Connection to ERF's failed");
+			throw new RuntimeException("Connection to ERF's failed", e);
 		}
 		eqkRupPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
 				GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));

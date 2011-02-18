@@ -403,17 +403,13 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		// this is hard coding for increasing the IMR font
 		// the colors used here are from ParameterEditor
 		ParameterEditorAPI paramEdit = singleAttenRelParamListEditor.getParameterEditor(IMR_PARAM_NAME);
-		if (paramEdit instanceof ParameterEditor) {
-			// TODO this is pretty nasty
-			JPanel panel = ((ParameterEditor)paramEdit).getOuterPanel();
-			TitledBorder titledBorder1 = new TitledBorder(BorderFactory.createLineBorder(new Color( 80, 80, 140 ),3),"");
-			titledBorder1.setTitleColor(new Color( 80, 80, 140 ));
-			Font DEFAULT_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 13 );
-			titledBorder1.setTitleFont(DEFAULT_LABEL_FONT);
-			titledBorder1.setTitle(IMR_PARAM_NAME);
-			Border border1 = BorderFactory.createCompoundBorder(titledBorder1,BorderFactory.createEmptyBorder(0,0,3,0));
-			panel.setBorder(border1);
-		}
+		TitledBorder titledBorder1 = new TitledBorder(BorderFactory.createLineBorder(new Color( 80, 80, 140 ),3),"");
+		titledBorder1.setTitleColor(new Color( 80, 80, 140 ));
+		Font DEFAULT_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 13 );
+		titledBorder1.setTitleFont(DEFAULT_LABEL_FONT);
+		titledBorder1.setTitle(IMR_PARAM_NAME);
+		Border border1 = BorderFactory.createCompoundBorder(titledBorder1,BorderFactory.createEmptyBorder(0,0,3,0));
+		paramEdit.setEditorBorder(border1);
 		
 
 		//adding the single AttenRel Gui to the  Panel
