@@ -409,24 +409,24 @@ public class DoubleParameter extends DependentParameter<Double> {
 		return value.compareTo(param.getValue());
 	}
 
-	public static void main(String[] args) {
-		ArrayList<ParameterAPI<?>> list = new ArrayList<ParameterAPI<?>>();
-		list.add(new StringParameter("zzz"));
-		list.add(new DoubleParameter("Test double"));
-		LocationParameter lp = new LocationParameter("Loc param");
-		lp.setValue(new Location(40,-120));
-		
-		list.add(lp);
-		System.out.println("original:\n============");
-		for (ParameterAPI<?> p:list) {
-			System.out.println(p);
-		}
-		Collections.sort(list);
-		System.out.println("\nsorted:\n============");
-		for (ParameterAPI<?> p:list) {
-			System.out.println(p);
-		}
-	}
+//	public static void main(String[] args) {
+//		ArrayList<ParameterAPI<?>> list = new ArrayList<ParameterAPI<?>>();
+//		list.add(new StringParameter("zzz"));
+//		list.add(new DoubleParameter("Test double"));
+//		LocationParameter lp = new LocationParameter("Loc param");
+//		lp.setValue(new Location(40,-120));
+//		
+//		list.add(lp);
+//		System.out.println("original:\n============");
+//		for (ParameterAPI<?> p:list) {
+//			System.out.println(p);
+//		}
+//		Collections.sort(list);
+//		System.out.println("\nsorted:\n============");
+//		for (ParameterAPI<?> p:list) {
+//			System.out.println(p);
+//		}
+//	}
 
 	/**
 	 *  Set's the parameter's value.
