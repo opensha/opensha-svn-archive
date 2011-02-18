@@ -73,6 +73,8 @@ ItemListener{
 	public boolean isParameterSupported(ParameterAPI<Boolean> param) {
 		if (param == null)
 			return false;
+		if (!(param.getValue() instanceof Boolean))
+			return false;
 		return true;
 	}
 

@@ -102,6 +102,9 @@ implements ItemListener
 	public boolean isParameterSupported(ParameterAPI<Double> param) {
 		if (param == null)
 			return false;
+		
+		if (!(param.getValue() instanceof Double))
+			return false;
 
 		ParameterConstraintAPI constraint = param.getConstraint();
 		

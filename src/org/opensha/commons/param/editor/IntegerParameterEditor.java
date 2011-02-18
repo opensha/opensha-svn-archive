@@ -77,18 +77,6 @@ public class IntegerParameterEditor extends NewParameterEditor<Integer> implemen
 
 		super(model);
 
-		String S = C + ": Constructor(model): ";
-		if(D) System.out.println(S + "Starting");
-
-		// TODO move to validate step
-		if ( (model != null ) && !(model instanceof IntegerParameter))
-			throw new Exception( S + "Input model parameter must be a IntegerParameter.");
-
-		//addWidget();
-		//        updateNameLabel( model.getName() );
-		//        this.setParameter(model);
-		if(D) System.out.println(S.concat("Ending"));
-
 	}
 
 	//    /** Currently does nothing */
@@ -295,7 +283,11 @@ public class IntegerParameterEditor extends NewParameterEditor<Integer> implemen
 
 	@Override
 	public boolean isParameterSupported(ParameterAPI<Integer> param) {
-		return param == null || param instanceof IntegerParameter;
+		if (param == null)
+			return false;
+		if (!(param.getValue() instanceof Integer))
+			return false;
+		return true;
 	}
 
 }

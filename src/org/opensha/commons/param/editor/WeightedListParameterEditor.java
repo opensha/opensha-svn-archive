@@ -74,6 +74,10 @@ public class WeightedListParameterEditor extends NewParameterEditor<WeightedList
 
 	@Override
 	public boolean isParameterSupported(ParameterAPI<WeightedList<?>> param) {
+		if (param == null)
+			return false;
+		if (!(param.getValue() instanceof WeightedList))
+			return false;
 		return true;
 	}
 

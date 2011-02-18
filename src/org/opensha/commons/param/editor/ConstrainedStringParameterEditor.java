@@ -104,6 +104,9 @@ implements ItemListener
 	public boolean isParameterSupported(ParameterAPI<String> param) {
 		if (param == null)
 			return false;
+		
+		if (!(param.getValue() instanceof String))
+			return false;
 
 		if (!(param instanceof StringParameter))
 			return false;
