@@ -123,9 +123,9 @@ NamedObjectAPI, ParameterChangeListener {
 
 	// Name of IMR
 	public final static String NAME = "Campbell & Bozorgnia (2008)";
-	private final static String CB_2008_CoeffFile = "campbell_2008_coeff.txt";
+	//private final static String CB_2008_CoeffFile = "campbell_2008_coeff.txt";
 
-	double[] per,c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,k1,k2,k3,s_lny,t_lny,s_c,rho;
+	//double[] per,c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,k1,k2,k3,s_lny,t_lny,s_c,rho;
 
 	double s_lnAF = 0.3;
 	double n = 1.18;
@@ -163,13 +163,33 @@ NamedObjectAPI, ParameterChangeListener {
 	public final static String FLT_TYPE_REVERSE = "Reverse";
 	public final static String FLT_TYPE_NORMAL = "Normal";
 
-	/**
+	private double[] per = {-2, -1, 0, 0.010, 0.020, 0.030, 0.050, 0.075, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.50, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 7.5, 10.0};
+	private double[] c0 = {-5.270, 0.954, -1.715, -1.715, -1.680, -1.552, -1.209, -0.657, -0.314, -0.133, -0.486, -0.890, -1.171, -1.466, -2.569, -4.844, -6.406, -8.692, -9.701, -10.556, -11.212, -11.684, -12.505, -13.087};
+	private double[] c1 = {1.600, 0.696, 0.500, 0.500, 0.500, 0.500, 0.500, 0.500, 0.500, 0.500, 0.500, 0.500, 0.500, 0.500, 0.656, 0.972, 1.196, 1.513, 1.600, 1.600, 1.600, 1.600, 1.600, 1.600};
+	private double[] c2 = {-0.070, -0.309, -0.530, -0.530, -0.530, -0.530, -0.530, -0.530, -0.530, -0.530, -0.446, -0.362, -0.294, -0.186, -0.304, -0.578, -0.772, -1.046, -0.978, -0.638, -0.316, -0.070, -0.070, -0.070};
+	private double[] c3 = {0.000, -0.019, -0.262, -0.262, -0.262, -0.262, -0.267, -0.302, -0.324, -0.339, -0.398, -0.458, -0.511, -0.592, -0.536, -0.406, -0.314, -0.185, -0.236, -0.491, -0.770, -0.986, -0.656, -0.422};
+	private double[] c4 = {-2.000, -2.016, -2.118, -2.118, -2.123, -2.145, -2.199, -2.277, -2.318, -2.309, -2.220, -2.146, -2.095, -2.066, -2.041, -2.000, -2.000, -2.000, -2.000, -2.000, -2.000, -2.000, -2.000, -2.000};
+	private double[] c5 = {0.170, 0.170, 0.170, 0.170, 0.170, 0.170, 0.170, 0.170, 0.170, 0.170, 0.170, 0.170, 0.170, 0.170, 0.170, 0.170, 0.170, 0.170, 0.170, 0.170, 0.170, 0.170, 0.170, 0.170};
+	private double[] c6 = {4.00, 4.00, 5.60, 5.60, 5.60, 5.60, 5.74, 7.09, 8.05, 8.79, 7.60, 6.58, 6.04, 5.30, 4.73, 4.00, 4.00, 4.00, 4.00, 4.00, 4.00, 4.00, 4.00, 4.00};
+	private double[] c7 = {0.000, 0.245, 0.280, 0.280, 0.280, 0.280, 0.280, 0.280, 0.280, 0.280, 0.280, 0.280, 0.280, 0.280, 0.280, 0.280, 0.255, 0.161, 0.094, 0.000, 0.000, 0.000, 0.000, 0.000};
+	private double[] c8 = {0.000, 0.000, -0.120, -0.120, -0.120, -0.120, -0.120, -0.120, -0.099, -0.048, -0.012, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000};
+	private double[] c9 = {0.000, 0.358, 0.490, 0.490, 0.490, 0.490, 0.490, 0.490, 0.490, 0.490, 0.490, 0.490, 0.490, 0.490, 0.490, 0.490, 0.490, 0.490, 0.371, 0.154, 0.000, 0.000, 0.000, 0.000};
+	private double[] c10 = {-0.820, 1.694, 1.058, 1.058, 1.102, 1.174, 1.272, 1.438, 1.604, 1.928, 2.194, 2.351, 2.460, 2.587, 2.544, 2.133, 1.571, 0.406, -0.456, -0.820, -0.820, -0.820, -0.820, -0.820};
+	private double[] c11 = {0.300, 0.092, 0.040, 0.040, 0.040, 0.040, 0.040, 0.040, 0.040, 0.040, 0.040, 0.040, 0.040, 0.040, 0.040, 0.077, 0.150, 0.253, 0.300, 0.300, 0.300, 0.300, 0.300, 0.300};
+	private double[] c12 = {1.000, 1.000, 0.610, 0.610, 0.610, 0.610, 0.610, 0.610, 0.610, 0.610, 0.610, 0.700, 0.750, 0.850, 0.883, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000};
+	private double[] k1 = {400, 400, 865, 865, 865, 908, 1054, 1086, 1032, 878, 748, 654, 587, 503, 457, 410, 400, 400, 400, 400, 400, 400, 400, 400};
+	private double[] k2 = {0.000, -1.955, -1.186, -1.186, -1.219, -1.273, -1.346, -1.471, -1.624, -1.931, -2.188, -2.381, -2.518, -2.657, -2.669, -2.401, -1.955, -1.025, -0.299, 0.000, 0.000, 0.000, 0.000, 0.000};
+	private double[] k3 = {2.744, 1.929, 1.839, 1.839, 1.840, 1.841, 1.843, 1.845, 1.847, 1.852, 1.856, 1.861, 1.865, 1.874, 1.883, 1.906, 1.929, 1.974, 2.019, 2.110, 2.200, 2.291, 2.517, 2.744};
+	private double[] s_lny = {0.667, 0.484, 0.478, 0.478, 0.480, 0.489, 0.510, 0.520, 0.531, 0.532, 0.534, 0.534, 0.544, 0.541, 0.550, 0.568, 0.568, 0.564, 0.571, 0.558, 0.576, 0.601, 0.628, 0.667};
+	private double[] t_lny = {0.485, 0.203, 0.219, 0.219, 0.219, 0.235, 0.258, 0.292, 0.286, 0.280, 0.249, 0.240, 0.215, 0.217, 0.214, 0.227, 0.255, 0.296, 0.296, 0.326, 0.297, 0.359, 0.428, 0.485};
+	private double[] s_c = {0.290, 0.190, 0.166, 0.166, 0.166, 0.165, 0.162, 0.158, 0.170, 0.180, 0.186, 0.191, 0.198, 0.206, 0.208, 0.221, 0.225, 0.222, 0.226, 0.229, 0.237, 0.237, 0.271, 0.290};
+	private double[] rho = {0.174, 0.691, 1.000, 1.000, 0.999, 0.989, 0.963, 0.922, 0.898, 0.890, 0.871, 0.852, 0.831, 0.785, 0.735, 0.628, 0.534, 0.411, 0.331, 0.289, 0.261, 0.200, 0.174, 0.174};	/**
 	 *  This initializes several ParameterList objects.
 	 */
 	public CB_2008_AttenRel(ParameterChangeWarningListener listener) {
 
 		this.listener = listener;
-		readCoeffFile();
+		///readCoeffFile();
 		initSupportedIntensityMeasureParams();
 		indexFromPerHashMap = new HashMap();
 		for (int i = 3; i < per.length; i++) {
@@ -216,220 +236,220 @@ NamedObjectAPI, ParameterChangeListener {
 
 	}
 
-	private void readCoeffFile(){
-		try{
-			//		ArrayList<String> coeff= FileUtils.loadJarFile(CB_2008_CoeffFile);
-			ArrayList<String> coeff= FileUtils.loadFile(this.getClass().getResource(CB_2008_CoeffFile));
-			//reading the Period
-			String perLine = coeff.get(0);
-			ArrayList period = new ArrayList<Double>();
-			StringTokenizer st = new StringTokenizer(perLine);
-			int size = loadCoeffInArray(st,period);
-			per = new double[size];
-			this.createCoeffArray(period, per);
-			period = null;
-
-			//reading c0
-			String c0Line = coeff.get(1);
-			ArrayList c0List = new ArrayList<Double>();
-			st = new StringTokenizer(c0Line);
-			size =loadCoeffInArray(st,c0List);
-			c0 = new double[size];
-			this.createCoeffArray(c0List, c0);
-			c0List = null;
-
-			//reading c1
-			String c1Line = coeff.get(2);
-			ArrayList c1List = new ArrayList<Double>();
-			st = new StringTokenizer(c1Line);
-			size =loadCoeffInArray(st,c1List);
-			c1 = new double[size];
-			this.createCoeffArray(c1List, c1);
-			c1List = null;
-
-			//reading c2
-			String c2Line = coeff.get(3);
-			ArrayList c2List = new ArrayList<Double>();
-			st = new StringTokenizer(c2Line);
-			size =loadCoeffInArray(st,c2List);
-			c2 = new double[size];
-			this.createCoeffArray(c2List, c2);
-			c2List = null;
-
-			//reading c3
-			String c3Line = coeff.get(4);
-			ArrayList c3List = new ArrayList<Double>();
-			st = new StringTokenizer(c3Line);
-			size =loadCoeffInArray(st,c3List);
-			c3 = new double[size];
-			this.createCoeffArray(c3List, c3);
-			c3List = null;
-
-			//reading c4
-			String c4Line = coeff.get(5);
-			ArrayList c4List = new ArrayList<Double>();
-			st = new StringTokenizer(c4Line);
-			size =loadCoeffInArray(st,c4List);
-			c4 = new double[size];
-			this.createCoeffArray(c4List, c4);
-			c4List = null;
-
-			//reading c5
-			String c5Line = coeff.get(6);
-			ArrayList c5List = new ArrayList<Double>();
-			st = new StringTokenizer(c5Line);
-			size =loadCoeffInArray(st,c5List);
-			c5 = new double[size];
-			this.createCoeffArray(c5List, c5);
-			c5List = null;
-
-			//reading c6
-			String c6Line = coeff.get(7);
-			ArrayList c6List = new ArrayList<Double>();
-			st = new StringTokenizer(c6Line);
-			size =loadCoeffInArray(st,c6List);
-			c6 = new double[size];
-			this.createCoeffArray(c6List, c6);
-			c6List = null;
-
-			//reading c7
-			String c7Line = coeff.get(8);
-			ArrayList c7List = new ArrayList<Double>();
-			st = new StringTokenizer(c7Line);
-			size =loadCoeffInArray(st,c7List);
-			c7 = new double[size];
-			this.createCoeffArray(c7List, c7);
-			c7List = null;
-
-			//reading c8
-			String c8Line = coeff.get(9);
-			ArrayList c8List = new ArrayList<Double>();
-			st = new StringTokenizer(c8Line);
-			size =loadCoeffInArray(st,c8List);
-			c8 = new double[size];
-			this.createCoeffArray(c8List, c8);
-			c8List = null;
-
-			//reading c9
-			String c9Line = coeff.get(10);
-			ArrayList c9List = new ArrayList<Double>();
-			st = new StringTokenizer(c9Line);
-			size =loadCoeffInArray(st,c9List);
-			c9 = new double[size];
-			this.createCoeffArray(c9List, c9);
-			c9List = null;
-
-
-			//reading c10
-			String c10Line = coeff.get(11);
-			ArrayList c10List = new ArrayList<Double>();
-			st = new StringTokenizer(c10Line);
-			size =loadCoeffInArray(st,c10List);
-			c10 = new double[size];
-			this.createCoeffArray(c10List, c10);
-			c10List = null;
-
-			//reading c11
-			String c11Line = coeff.get(12);
-			ArrayList c11List = new ArrayList<Double>();
-			st = new StringTokenizer(c11Line);
-			size =loadCoeffInArray(st,c11List);
-			c11 = new double[size];
-			this.createCoeffArray(c11List, c11);
-			c11List = null;
-
-
-			//reading c12
-			String c12Line = coeff.get(13);
-			ArrayList c12List = new ArrayList<Double>();
-			st = new StringTokenizer(c12Line);
-			size =loadCoeffInArray(st,c12List);
-			c12 = new double[size];
-			this.createCoeffArray(c12List, c12);
-			c12List = null;
-
-			//reading k1
-			String k1Line = coeff.get(14);
-			ArrayList k1List = new ArrayList<Double>();
-			st = new StringTokenizer(k1Line);
-			size =loadCoeffInArray(st,k1List);
-			k1 = new double[size];
-			this.createCoeffArray(k1List, k1);
-			k1List = null;
-
-			//reading k2
-			String k2Line = coeff.get(15);
-			ArrayList k2List = new ArrayList<Double>();
-			st = new StringTokenizer(k2Line);
-			size =loadCoeffInArray(st,k2List);
-			k2 = new double[size];
-			this.createCoeffArray(k2List, k2);
-			k2List = null;
-
-			//reading k3
-			String k3Line = coeff.get(16);
-			ArrayList k3List = new ArrayList<Double>();
-			st = new StringTokenizer(k3Line);
-			size =loadCoeffInArray(st,k3List);
-			k3 = new double[size];
-			this.createCoeffArray(k3List, k3);
-			k3List = null;
-
-
-			//reading s_lny
-			String s_lnyLine = coeff.get(17);
-			ArrayList s_lnyList = new ArrayList<Double>();
-			st = new StringTokenizer(s_lnyLine);
-			size =loadCoeffInArray(st,s_lnyList);
-			s_lny = new double[size];
-			this.createCoeffArray(s_lnyList, s_lny);
-			s_lnyList = null;
-
-
-			//reading t_lny
-			String t_lnyLine = coeff.get(18);
-			ArrayList t_lnyList = new ArrayList<Double>();
-			st = new StringTokenizer(t_lnyLine);
-			size =loadCoeffInArray(st,t_lnyList);
-			t_lny = new double[size];
-			this.createCoeffArray(t_lnyList, t_lny);
-			t_lnyList = null;
-
-			//reading s_c
-			String c_lnyLine = coeff.get(19);
-			ArrayList c_lnyList = new ArrayList<Double>();
-			st = new StringTokenizer(c_lnyLine);
-			size =loadCoeffInArray(st,c_lnyList);
-			s_c = new double[size];
-			this.createCoeffArray(c_lnyList, s_c);
-			c_lnyList = null;
-
-			//reading rho
-			String rho_sLine = coeff.get(20);
-			ArrayList rho_sList = new ArrayList<Double>();
-			st = new StringTokenizer(rho_sLine);
-			size =loadCoeffInArray(st,rho_sList);
-			rho = new double[size];
-			this.createCoeffArray(rho_sList, rho);
-			rho_sList = null;
-
-
-		}catch(Exception e){
-			throw new RuntimeException(CB_2008_CoeffFile+" file Not Found", e);
-		}
-	}
-
-	private int loadCoeffInArray(StringTokenizer st,ArrayList<Double> coeff){
-		st.nextToken();
-		while(st.hasMoreTokens())
-			coeff.add(Double.parseDouble(st.nextToken().trim()));
-		return coeff.size();
-	}
-
-	private void createCoeffArray(ArrayList<Double> coeff,double c[]){
-		for(int i=0;i<c.length;++i)
-			c[i] = coeff.get(i);
-	}
+//	private void readCoeffFile(){
+//		try{
+//			//		ArrayList<String> coeff= FileUtils.loadJarFile(CB_2008_CoeffFile);
+//			ArrayList<String> coeff= FileUtils.loadFile(this.getClass().getResource(CB_2008_CoeffFile));
+//			//reading the Period
+//			String perLine = coeff.get(0);
+//			ArrayList period = new ArrayList<Double>();
+//			StringTokenizer st = new StringTokenizer(perLine);
+//			int size = loadCoeffInArray(st,period);
+//			per = new double[size];
+//			this.createCoeffArray(period, per);
+//			period = null;
+//
+//			//reading c0
+//			String c0Line = coeff.get(1);
+//			ArrayList c0List = new ArrayList<Double>();
+//			st = new StringTokenizer(c0Line);
+//			size =loadCoeffInArray(st,c0List);
+//			c0 = new double[size];
+//			this.createCoeffArray(c0List, c0);
+//			c0List = null;
+//
+//			//reading c1
+//			String c1Line = coeff.get(2);
+//			ArrayList c1List = new ArrayList<Double>();
+//			st = new StringTokenizer(c1Line);
+//			size =loadCoeffInArray(st,c1List);
+//			c1 = new double[size];
+//			this.createCoeffArray(c1List, c1);
+//			c1List = null;
+//
+//			//reading c2
+//			String c2Line = coeff.get(3);
+//			ArrayList c2List = new ArrayList<Double>();
+//			st = new StringTokenizer(c2Line);
+//			size =loadCoeffInArray(st,c2List);
+//			c2 = new double[size];
+//			this.createCoeffArray(c2List, c2);
+//			c2List = null;
+//
+//			//reading c3
+//			String c3Line = coeff.get(4);
+//			ArrayList c3List = new ArrayList<Double>();
+//			st = new StringTokenizer(c3Line);
+//			size =loadCoeffInArray(st,c3List);
+//			c3 = new double[size];
+//			this.createCoeffArray(c3List, c3);
+//			c3List = null;
+//
+//			//reading c4
+//			String c4Line = coeff.get(5);
+//			ArrayList c4List = new ArrayList<Double>();
+//			st = new StringTokenizer(c4Line);
+//			size =loadCoeffInArray(st,c4List);
+//			c4 = new double[size];
+//			this.createCoeffArray(c4List, c4);
+//			c4List = null;
+//
+//			//reading c5
+//			String c5Line = coeff.get(6);
+//			ArrayList c5List = new ArrayList<Double>();
+//			st = new StringTokenizer(c5Line);
+//			size =loadCoeffInArray(st,c5List);
+//			c5 = new double[size];
+//			this.createCoeffArray(c5List, c5);
+//			c5List = null;
+//
+//			//reading c6
+//			String c6Line = coeff.get(7);
+//			ArrayList c6List = new ArrayList<Double>();
+//			st = new StringTokenizer(c6Line);
+//			size =loadCoeffInArray(st,c6List);
+//			c6 = new double[size];
+//			this.createCoeffArray(c6List, c6);
+//			c6List = null;
+//
+//			//reading c7
+//			String c7Line = coeff.get(8);
+//			ArrayList c7List = new ArrayList<Double>();
+//			st = new StringTokenizer(c7Line);
+//			size =loadCoeffInArray(st,c7List);
+//			c7 = new double[size];
+//			this.createCoeffArray(c7List, c7);
+//			c7List = null;
+//
+//			//reading c8
+//			String c8Line = coeff.get(9);
+//			ArrayList c8List = new ArrayList<Double>();
+//			st = new StringTokenizer(c8Line);
+//			size =loadCoeffInArray(st,c8List);
+//			c8 = new double[size];
+//			this.createCoeffArray(c8List, c8);
+//			c8List = null;
+//
+//			//reading c9
+//			String c9Line = coeff.get(10);
+//			ArrayList c9List = new ArrayList<Double>();
+//			st = new StringTokenizer(c9Line);
+//			size =loadCoeffInArray(st,c9List);
+//			c9 = new double[size];
+//			this.createCoeffArray(c9List, c9);
+//			c9List = null;
+//
+//
+//			//reading c10
+//			String c10Line = coeff.get(11);
+//			ArrayList c10List = new ArrayList<Double>();
+//			st = new StringTokenizer(c10Line);
+//			size =loadCoeffInArray(st,c10List);
+//			c10 = new double[size];
+//			this.createCoeffArray(c10List, c10);
+//			c10List = null;
+//
+//			//reading c11
+//			String c11Line = coeff.get(12);
+//			ArrayList c11List = new ArrayList<Double>();
+//			st = new StringTokenizer(c11Line);
+//			size =loadCoeffInArray(st,c11List);
+//			c11 = new double[size];
+//			this.createCoeffArray(c11List, c11);
+//			c11List = null;
+//
+//
+//			//reading c12
+//			String c12Line = coeff.get(13);
+//			ArrayList c12List = new ArrayList<Double>();
+//			st = new StringTokenizer(c12Line);
+//			size =loadCoeffInArray(st,c12List);
+//			c12 = new double[size];
+//			this.createCoeffArray(c12List, c12);
+//			c12List = null;
+//
+//			//reading k1
+//			String k1Line = coeff.get(14);
+//			ArrayList k1List = new ArrayList<Double>();
+//			st = new StringTokenizer(k1Line);
+//			size =loadCoeffInArray(st,k1List);
+//			k1 = new double[size];
+//			this.createCoeffArray(k1List, k1);
+//			k1List = null;
+//
+//			//reading k2
+//			String k2Line = coeff.get(15);
+//			ArrayList k2List = new ArrayList<Double>();
+//			st = new StringTokenizer(k2Line);
+//			size =loadCoeffInArray(st,k2List);
+//			k2 = new double[size];
+//			this.createCoeffArray(k2List, k2);
+//			k2List = null;
+//
+//			//reading k3
+//			String k3Line = coeff.get(16);
+//			ArrayList k3List = new ArrayList<Double>();
+//			st = new StringTokenizer(k3Line);
+//			size =loadCoeffInArray(st,k3List);
+//			k3 = new double[size];
+//			this.createCoeffArray(k3List, k3);
+//			k3List = null;
+//
+//
+//			//reading s_lny
+//			String s_lnyLine = coeff.get(17);
+//			ArrayList s_lnyList = new ArrayList<Double>();
+//			st = new StringTokenizer(s_lnyLine);
+//			size =loadCoeffInArray(st,s_lnyList);
+//			s_lny = new double[size];
+//			this.createCoeffArray(s_lnyList, s_lny);
+//			s_lnyList = null;
+//
+//
+//			//reading t_lny
+//			String t_lnyLine = coeff.get(18);
+//			ArrayList t_lnyList = new ArrayList<Double>();
+//			st = new StringTokenizer(t_lnyLine);
+//			size =loadCoeffInArray(st,t_lnyList);
+//			t_lny = new double[size];
+//			this.createCoeffArray(t_lnyList, t_lny);
+//			t_lnyList = null;
+//
+//			//reading s_c
+//			String c_lnyLine = coeff.get(19);
+//			ArrayList c_lnyList = new ArrayList<Double>();
+//			st = new StringTokenizer(c_lnyLine);
+//			size =loadCoeffInArray(st,c_lnyList);
+//			s_c = new double[size];
+//			this.createCoeffArray(c_lnyList, s_c);
+//			c_lnyList = null;
+//
+//			//reading rho
+//			String rho_sLine = coeff.get(20);
+//			ArrayList rho_sList = new ArrayList<Double>();
+//			st = new StringTokenizer(rho_sLine);
+//			size =loadCoeffInArray(st,rho_sList);
+//			rho = new double[size];
+//			this.createCoeffArray(rho_sList, rho);
+//			rho_sList = null;
+//
+//
+//		}catch(Exception e){
+//			throw new RuntimeException(CB_2008_CoeffFile+" file Not Found", e);
+//		}
+//	}
+//
+//	private int loadCoeffInArray(StringTokenizer st,ArrayList<Double> coeff){
+//		st.nextToken();
+//		while(st.hasMoreTokens())
+//			coeff.add(Double.parseDouble(st.nextToken().trim()));
+//		return coeff.size();
+//	}
+//
+//	private void createCoeffArray(ArrayList<Double> coeff,double c[]){
+//		for(int i=0;i<c.length;++i)
+//			c[i] = coeff.get(i);
+//	}
 
 	/**
 	 *  This sets the eqkRupture related parameters (magParam
