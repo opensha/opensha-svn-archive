@@ -90,8 +90,8 @@ ItemListener{
 		widget.setMinimumSize(LABEL_DIM);
 		widget.setBorder(ETCHED);
 
-		widget.addItemListener(this);
 		widget.setSelected(getParameter().getValue());
+		widget.addItemListener(this);
 		
 		return widget;
 	}
