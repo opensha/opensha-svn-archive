@@ -19,10 +19,14 @@
 
 package org.opensha.commons.param;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.editor.ConstrainedDoubleParameterEditor;
 import org.opensha.commons.param.editor.DoubleParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditor;
@@ -43,10 +47,7 @@ import org.opensha.commons.param.editor.ParameterEditorAPI;
  * @version    1.0
  */
 
-public class DoubleParameter
-extends DependentParameter<Double>
-implements DependentParameterAPI<Double>, ParameterAPI<Double>
-{
+public class DoubleParameter extends DependentParameter<Double> {
 
 	private static final long serialVersionUID = 0xBD103F5;
 
@@ -379,30 +380,53 @@ implements DependentParameterAPI<Double>, ParameterAPI<Double>
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a DoubleParameter, or DoubleDiscreteParameter.
 	 */
-	public int compareTo( Object obj ) throws ClassCastException {
-
-		String S = C + ":compareTo(): ";
-
-		if ( !( obj instanceof DoubleParameter ) && !( obj instanceof DoubleDiscreteParameter ) ) {
-			throw new ClassCastException( S + "Object not a DoubleParameter, or DoubleDiscreteParameter, unable to compare" );
-		}
+	@Override
+	public int compareTo(ParameterAPI<Double> param) {
+//
+//		String S = C + ":compareTo(): ";
+//
+//		if ( !( obj instanceof DoubleParameter ) && !( obj instanceof DoubleDiscreteParameter ) ) {
+//			throw new ClassCastException( S + "Object not a DoubleParameter, or DoubleDiscreteParameter, unable to compare" );
+//		}
 
 		//   int result = 0;
 
-		Double n1 = ( Double ) this.getValue();
-		Double n2 = null;
-
-		if ( obj instanceof DoubleParameter ) {
-			DoubleParameter param = ( DoubleParameter ) obj;
-			n2 = ( Double ) param.getValue();
-		} else if ( obj instanceof DoubleDiscreteParameter ) {
-			DoubleDiscreteParameter param = ( DoubleDiscreteParameter ) obj;
-			n2 = ( Double ) param.getValue();
-		}
-
-		return n1.compareTo( n2 );
+//		Double n1 = ( Double ) this.getValue();
+//		Double n2 = null;
+//
+//		if ( obj instanceof DoubleParameter ) {
+//			DoubleParameter param = ( DoubleParameter ) obj;
+//			n2 = ( Double ) param.getValue();
+//		} else if ( obj instanceof DoubleDiscreteParameter ) {
+//			DoubleDiscreteParameter param = ( DoubleDiscreteParameter ) obj;
+//			n2 = ( Double ) param.getValue();
+//		}
+//		if (!(param.getValue() instanceof Double)) {
+//			return getName().compareTo(param.getName());
+//		}
+		//if (value != null && value instanceof Double)
+			
+		return value.compareTo(param.getValue());
 	}
 
+	public static void main(String[] args) {
+		ArrayList<ParameterAPI<?>> list = new ArrayList<ParameterAPI<?>>();
+		list.add(new StringParameter("zzz"));
+		list.add(new DoubleParameter("Test double"));
+		LocationParameter lp = new LocationParameter("Loc param");
+		lp.setValue(new Location(40,-120));
+		
+		list.add(lp);
+		System.out.println("original:\n============");
+		for (ParameterAPI<?> p:list) {
+			System.out.println(p);
+		}
+		Collections.sort(list);
+		System.out.println("\nsorted:\n============");
+		for (ParameterAPI<?> p:list) {
+			System.out.println(p);
+		}
+	}
 
 	/**
 	 *  Set's the parameter's value.
@@ -437,19 +461,26 @@ implements DependentParameterAPI<Double>, ParameterAPI<Double>
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a DoubleParameter, or DoubleDiscreteParameter.
 	 */
-	public boolean equals( Object obj ) throws ClassCastException {
-		String S = C + ":equals(): ";
-
-		if ( !( obj instanceof DoubleParameter ) && !( obj instanceof DoubleDiscreteParameter ) ) {
-			throw new ClassCastException( S + "Object not a DoubleParameter, or DoubleDiscreteParameter, unable to compare" );
-		}
-
-		String otherName = ( ( DoubleParameter ) obj ).getName();
-		if ( ( compareTo( obj ) == 0 ) && getName().equals( otherName ) ) {
-			return true;
-		} else {
-			return false;
-		}
+	@Override
+	public boolean equals(Object obj) {
+//		String S = C + ":equals(): ";
+//
+//		if ( !( obj instanceof DoubleParameter ) && !( obj instanceof DoubleDiscreteParameter ) ) {
+//			throw new ClassCastException( S + "Object not a DoubleParameter, or DoubleDiscreteParameter, unable to compare" );
+//		}
+//
+//		String otherName = ( ( DoubleParameter ) obj ).getName();
+//		if ( ( compareTo( obj ) == 0 ) && getName().equals( otherName ) ) {
+//			return true;
+//		} else {
+//			return false;
+//		}
+		if (this == obj) return true;
+		if (!(obj instanceof DoubleParameter)) return false;
+		DoubleParameter dp = (DoubleParameter) obj;
+		return (compareTo(dp) == 0 && getName().equals(dp.getName()));
+		
+		
 	}
 
 

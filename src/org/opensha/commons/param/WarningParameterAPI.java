@@ -112,7 +112,7 @@ public interface WarningParameterAPI<E> extends ParameterAPI<E> {
      * @exception  ClassCastException  Is thrown if the comparing object is not
      *      a DoubleParameter, or DoubleDiscreteParameter.
      */
-    public int compareTo( Object obj ) throws ClassCastException;
+    //public int compareTo( Object obj ) throws ClassCastException;
 
     /**
      *  Compares value to see if equal.

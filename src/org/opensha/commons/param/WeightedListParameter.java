@@ -15,7 +15,7 @@ public class WeightedListParameter<E> extends DependentParameter<WeightedList<E>
 	}
 
 	@Override
-	public int compareTo(Object parameter) throws ClassCastException {
+	public int compareTo(ParameterAPI<WeightedList<E>> param) {
 		return 0;
 	}
 

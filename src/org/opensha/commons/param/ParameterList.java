@@ -374,36 +374,55 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
 	 * One use will be to determine if two DisctetizedFunctions
 	 * are the same, i.e. set up with the same independent parameters.
 	 */
-	public boolean equals(ParameterList list){
-
-		// Not same size, can't be equal
-		if( this.size() != list.size() ) return false;
-
-		// Check each individual Parameter
-		ListIterator<ParameterAPI<?>> it = this.getParametersIterator();
-		while(it.hasNext()){
-
-			// This list's parameter
-			ParameterAPI<?> param1 = it.next();
-
-			// List may not contain parameter with this list's parameter name
-			if ( !list.containsParameter(param1.getName()) ) return false;
-
-			// Found two parameters with same name, check equals, actually redundent,
-			// because that is what equals does
-			ParameterAPI<?> param2 = list.getParameter(param1.getName());
-			if( !param1.equals(param2) ) return false;
-
-			// Now try compare to to see if value the same, can fail if two values
-			// are different, or if the value object types are different
-			try{ if( param1.compareTo( param2 ) != 0 ) return false; }
-			catch(ClassCastException ee) { return false; }
-
+//	public boolean equals(ParameterList list){
+//
+//		// Not same size, can't be equal
+//		if( this.size() != list.size() ) return false;
+//
+//		// Check each individual Parameter
+//		ListIterator<ParameterAPI<?>> it = this.getParametersIterator();
+//		while(it.hasNext()){
+//
+//			// This list's parameter
+//			ParameterAPI<?> param1 = it.next();
+//
+//			// List may not contain parameter with this list's parameter name
+//			if ( !list.containsParameter(param1.getName()) ) return false;
+//
+//			// Found two parameters with same name, check equals, actually redundent,
+//			// because that is what equals does
+//			ParameterAPI<?> param2 = list.getParameter(param1.getName());
+//			if( !param1.equals(param2) ) return false;
+//
+//			// Now try compare to to see if value the same, can fail if two values
+//			// are different, or if the value object types are different
+//			try{ if( param1.compareTo( param2 ) != 0 ) return false; }
+//			catch(ClassCastException ee) { return false; }
+//
+//		}
+//
+//		// Passed all tests - return true
+//		return true;
+//
+//	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (!(obj instanceof ParameterList)) return false;
+		ParameterList list = (ParameterList) obj;
+		if(size() != list.size() ) return false;
+		// forward compare
+		for (ParameterAPI<?> p:list) {
+			if (!containsParameter(p.getName())) return false;
+			if (!getParameter(p.getName()).equals(p)) return false;
 		}
-
-		// Passed all tests - return true
+		// reverse compare
+		for (ParameterAPI<?> p:this) {
+			if (!list.containsParameter(p.getName())) return false;
+			if (!list.getParameter(p.getName()).equals(p)) return false;
+		}
 		return true;
-
 	}
 
 	/**

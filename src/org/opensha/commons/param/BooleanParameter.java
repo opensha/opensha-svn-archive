@@ -32,9 +32,7 @@ import org.opensha.commons.param.editor.ParameterEditorAPI;
  * @version 1.0
  */
 
-public class BooleanParameter extends DependentParameter<Boolean>
-implements  java.io.Serializable{
-
+public class BooleanParameter extends DependentParameter<Boolean> {
 
 	/**
 	 * 
@@ -69,22 +67,13 @@ implements  java.io.Serializable{
 		super(name,null,null,value);
 	}
 
-
-	/**
-	 *  Compares the values to if this is less than, equal to, or greater than
-	 *  the comparing objects.
-	 *
-	 * @param  obj                     The object to compare this to
-	 * @return                         -1 if this value < obj value, 0 if equal,
-	 *      +1 if this value > obj value
-	 * @exception  ClassCastException  Is thrown if the comparing object is not
-	 *      a DoubleParameter, or DoubleDiscreteParameter.
-	 */
-	public int compareTo( Object obj ) throws UnsupportedOperationException {
-		if (obj instanceof BooleanParameter)
-			return value.compareTo(((BooleanParameter)obj).getValue());
-		else
-			throw new ClassCastException("Cannot call compareTo on an object other than a boolean parameter");
+	@Override
+	public int compareTo(ParameterAPI<Boolean> param) {
+		return value.compareTo(param.getValue());
+//		if (param instanceof BooleanParameter)
+//			return value.compareTo(((BooleanParameter)obj).getValue());
+//		else
+//			throw new ClassCastException("Cannot call compareTo on an object other than a boolean parameter");
 	}
 
 	/**

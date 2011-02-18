@@ -77,7 +77,10 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
  * @version    1.0
  */
 
-public interface ParameterAPI<E> extends NamedObjectAPI, Comparable, XMLSaveable {
+public interface ParameterAPI<E> extends
+		NamedObjectAPI,
+		Comparable<ParameterAPI<E>>,
+		XMLSaveable {
 
     /** Every parameter has a name, this function gets that name. */
     public String getName();
@@ -234,7 +237,7 @@ public interface ParameterAPI<E> extends NamedObjectAPI, Comparable, XMLSaveable
      * @throws  ClassCastException  Thrown if the object type of the parameter
      *      argument are not the same.
      */
-    public int compareTo( Object parameter ) throws ClassCastException;
+    //public int compareTo( Object parameter ) throws ClassCastException;
 
 
     /**

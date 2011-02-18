@@ -389,22 +389,24 @@ implements DependentParameterAPI<Integer>, ParameterAPI<Integer>
 	 * classname. The type is used to determine which parameter GUI editor
 	 * to use.
 	 */
-	public int compareTo( Object obj ) throws ClassCastException {
-
-		String S = C + ":compareTo(): ";
-
-		if ( !( obj instanceof IntegerParameter ) )
-			throw new ClassCastException( S + "Object not a IntegerParameter, unable to compare" );
-
-
-		IntegerParameter param = ( IntegerParameter ) obj;
-
-		int result = 0;
-
-		Integer n1 = ( Integer ) this.getValue();
-		Integer n2 = ( Integer ) param.getValue();
-
-		return n1.compareTo( n2 );
+	@Override
+	public int compareTo(ParameterAPI<Integer> param) {
+//
+//		String S = C + ":compareTo(): ";
+//
+//		if ( !( obj instanceof IntegerParameter ) )
+//			throw new ClassCastException( S + "Object not a IntegerParameter, unable to compare" );
+//
+//
+//		IntegerParameter param = ( IntegerParameter ) obj;
+//
+//		int result = 0;
+//
+//		Integer n1 = ( Integer ) this.getValue();
+//		Integer n2 = ( Integer ) param.getValue();
+//
+//		return n1.compareTo( n2 );
+		return value.compareTo(param.getValue());
 	}
 
 
@@ -416,17 +418,22 @@ implements DependentParameterAPI<Integer>, ParameterAPI<Integer>
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a IntegerParameter.
 	 */
-	public boolean equals( Object obj ) throws ClassCastException {
-
-		String S = C + ":equals(): ";
-
-		if ( !( obj instanceof IntegerParameter ) )
-			throw new ClassCastException( S + "Object not a IntegerParameter, unable to compare" );
-
-		String otherName = ( ( IntegerParameter ) obj ).getName();
-		if ( ( compareTo( obj ) == 0 ) && getName().equals( otherName ) )
-			return true;
-		else return false;
+	@Override
+	public boolean equals(Object obj) {
+//
+//		String S = C + ":equals(): ";
+//
+//		if ( !( obj instanceof IntegerParameter ) )
+//			throw new ClassCastException( S + "Object not a IntegerParameter, unable to compare" );
+//
+//		String otherName = ( ( IntegerParameter ) obj ).getName();
+//		if ( ( compareTo( obj ) == 0 ) && getName().equals( otherName ) )
+//			return true;
+//		else return false;
+		if (this == obj) return true;
+		if (!(obj instanceof IntegerParameter)) return false;
+		IntegerParameter ip = (IntegerParameter) obj;
+		return (compareTo(ip) == 0 && getName().equals(ip.getName()));
 
 	}
 

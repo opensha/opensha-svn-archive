@@ -41,9 +41,8 @@ import org.opensha.commons.param.editor.ParameterEditor;
  * @version 1.0
  */
 
-public class EvenlyDiscretizedFuncParameter extends DependentParameter<EvenlyDiscretizedFunc>
-implements java.io.Serializable{
-
+public class EvenlyDiscretizedFuncParameter extends
+		DependentParameter<EvenlyDiscretizedFunc> {
 
 	/** Class name for debugging. */
 	protected final static String C = "EvenlyDiscretizedFuncParameter";
@@ -144,23 +143,24 @@ implements java.io.Serializable{
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a ParameterListParameter.
 	 */
-	public int compareTo( Object obj ) {
-		String S = C + ":compareTo(): ";
+	public int compareTo(ParameterAPI<EvenlyDiscretizedFunc> param) {
+//		String S = C + ":compareTo(): ";
+//
+//		if ( !( obj instanceof EvenlyDiscretizedFunc ) ) {
+//			throw new ClassCastException( S + "Object not a DiscretizedFuncAPI, unable to compare" );
+//		}
+//
+//		EvenlyDiscretizedFuncParameter param = ( EvenlyDiscretizedFuncParameter ) obj;
 
-		if ( !( obj instanceof EvenlyDiscretizedFunc ) ) {
-			throw new ClassCastException( S + "Object not a DiscretizedFuncAPI, unable to compare" );
-		}
+		if (value == null && param.getValue() == null) return 0;
+		//int result = 0;
 
-		EvenlyDiscretizedFuncParameter param = ( EvenlyDiscretizedFuncParameter ) obj;
-
-		if( ( this.value == null ) && ( param.value == null ) ) return 0;
-		int result = 0;
-
-		EvenlyDiscretizedFunc n1 = ( EvenlyDiscretizedFunc) this.getValue();
-		EvenlyDiscretizedFunc n2 = ( EvenlyDiscretizedFunc ) param.getValue();
-
-		if(n1.equals(n2)) return 0;
-		else return -1;
+//		EvenlyDiscretizedFunc n1 = ( EvenlyDiscretizedFunc) this.getValue();
+//		EvenlyDiscretizedFunc n2 = ( EvenlyDiscretizedFunc ) param.getValue();
+//
+//		if(n1.equals(n2)) return 0;
+		if (getValue().equals(param.getValue())) return 0;
+		return -1;
 	}
 
 	/**

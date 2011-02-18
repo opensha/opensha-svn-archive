@@ -75,10 +75,8 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
  * @version 1.0
  */
 
-public class WarningDoubleParameter
-    extends DoubleParameter
-    implements WarningParameterAPI<Double>
-{
+public class WarningDoubleParameter extends DoubleParameter implements
+		WarningParameterAPI<Double> {
 
     /**
 	 * 
@@ -550,43 +548,47 @@ public class WarningDoubleParameter
      * @exception  ClassCastException  Is thrown if the comparing object is not
      *      a DoubleParameter, or DoubleDiscreteParameter.
      */
-    public int compareTo( Object obj ) throws ClassCastException {
+//	@Override
+//	public int compareTo(ParameterAPI<Double> param) {
+//
+//        String S = C + ":compareTo(): ";
+//
+//        if ( !( obj instanceof DoubleParameter )
+//            && !( obj instanceof DoubleDiscreteParameter )
+//            && !( obj instanceof WarningDoubleParameter )
+//        ) {
+//            throw new ClassCastException( S +
+//                "Object not a DoubleParameter, WarningDoubleParameter, or DoubleDiscreteParameter, unable to compare"
+//            );
+//        }
+//
+//        int result = 0;
+//
+//        Double n1 = ( Double ) this.getValue();
+//        Double n2 = null;
+//
+//        if ( obj instanceof DoubleParameter ) {
+//            DoubleParameter param = ( DoubleParameter ) obj;
+//            n2 = ( Double ) param.getValue();
+//        }
+//        else if ( obj instanceof DoubleDiscreteParameter ) {
+//            DoubleDiscreteParameter param = ( DoubleDiscreteParameter ) obj;
+//            n2 = ( Double ) param.getValue();
+//        }
+//        else if ( obj instanceof WarningDoubleParameter ) {
+//            WarningDoubleParameter param = ( WarningDoubleParameter ) obj;
+//            n2 = ( Double ) param.getValue();
+//        }
+//        //if we have set a null value in the Parameter like in the basin depth
+//        //then compareTo function fails so we retun true is both are null
+//        if(n1 == null && n2 == null)
+//          return 0;
+//
+//        return n1.compareTo( n2 );
 
-        String S = C + ":compareTo(): ";
-
-        if ( !( obj instanceof DoubleParameter )
-            && !( obj instanceof DoubleDiscreteParameter )
-            && !( obj instanceof WarningDoubleParameter )
-        ) {
-            throw new ClassCastException( S +
-                "Object not a DoubleParameter, WarningDoubleParameter, or DoubleDiscreteParameter, unable to compare"
-            );
-        }
-
-        int result = 0;
-
-        Double n1 = ( Double ) this.getValue();
-        Double n2 = null;
-
-        if ( obj instanceof DoubleParameter ) {
-            DoubleParameter param = ( DoubleParameter ) obj;
-            n2 = ( Double ) param.getValue();
-        }
-        else if ( obj instanceof DoubleDiscreteParameter ) {
-            DoubleDiscreteParameter param = ( DoubleDiscreteParameter ) obj;
-            n2 = ( Double ) param.getValue();
-        }
-        else if ( obj instanceof WarningDoubleParameter ) {
-            WarningDoubleParameter param = ( WarningDoubleParameter ) obj;
-            n2 = ( Double ) param.getValue();
-        }
-        //if we have set a null value in the Parameter like in the basin depth
-        //then compareTo function fails so we retun true is both are null
-        if(n1 == null && n2 == null)
-          return 0;
-
-        return n1.compareTo( n2 );
-    }
+//		return value.compareTo(param.getValue());
+//
+//	}
 
 
     /**
@@ -600,21 +602,28 @@ public class WarningDoubleParameter
      * @exception  ClassCastException  Is thrown if the comparing object is not
      *      a DoubleParameter, or DoubleDiscreteParameter.
      */
-    public boolean equals( Object obj ) throws ClassCastException {
-        String S = C + ":equals(): ";
+	@Override
+    public boolean equals(Object obj) {
+//        String S = C + ":equals(): ";
+//
+//        if ( !( obj instanceof DoubleParameter )
+//            && !( obj instanceof DoubleDiscreteParameter )
+//            && !( obj instanceof WarningDoubleParameter )
+//        ) {
+//            throw new ClassCastException( S + "Object not a DoubleParameter, WarningDoubleParameter, or DoubleDiscreteParameter, unable to compare" );
+//        }
+//
+//        String otherName = ( ( DoubleParameter ) obj ).getName();
+//        if ( ( compareTo( obj ) == 0 ) && getName().equals( otherName ) ) {
+//            return true;
+//        }
+//        else return false;
+        
+		if (this == obj) return true;
+		if (!(obj instanceof WarningDoubleParameter)) return false;
+		WarningDoubleParameter wdp = (WarningDoubleParameter) obj;
+		return (compareTo(wdp) == 0 && getName().equals(wdp.getName()));
 
-        if ( !( obj instanceof DoubleParameter )
-            && !( obj instanceof DoubleDiscreteParameter )
-            && !( obj instanceof WarningDoubleParameter )
-        ) {
-            throw new ClassCastException( S + "Object not a DoubleParameter, WarningDoubleParameter, or DoubleDiscreteParameter, unable to compare" );
-        }
-
-        String otherName = ( ( DoubleParameter ) obj ).getName();
-        if ( ( compareTo( obj ) == 0 ) && getName().equals( otherName ) ) {
-            return true;
-        }
-        else return false;
     }
 
 

@@ -99,23 +99,28 @@ implements java.io.Serializable{
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a ParameterListParameter.
 	 */
-	public int compareTo( Object obj ) {
-		String S = C + ":compareTo(): ";
+	@Override
+	public int compareTo(ParameterAPI<ArbitrarilyDiscretizedFunc> param) {
+		// TODO I don't think this even does a full comparison; should it
+		// be value by value
+		
+//		String S = C + ":compareTo(): ";
+//
+//		if ( !( obj instanceof ArbitrarilyDiscretizedFunc ) ) {
+//			throw new ClassCastException( S + "Object not a DiscretizedFuncAPI, unable to compare" );
+//		}
 
-		if ( !( obj instanceof ArbitrarilyDiscretizedFunc ) ) {
-			throw new ClassCastException( S + "Object not a DiscretizedFuncAPI, unable to compare" );
-		}
+		//ArbitrarilyDiscretizedFuncParameter param = ( ArbitrarilyDiscretizedFuncParameter ) obj;
 
-		ArbitrarilyDiscretizedFuncParameter param = ( ArbitrarilyDiscretizedFuncParameter ) obj;
-
-		if( ( this.value == null ) && ( param.value == null ) ) return 0;
-		int result = 0;
+		if (value == null && param.getValue() == null) return 0;
+		//int result = 0;
 
 		ArbitrarilyDiscretizedFunc n1 = ( ArbitrarilyDiscretizedFunc) this.getValue();
 		ArbitrarilyDiscretizedFunc n2 = ( ArbitrarilyDiscretizedFunc ) param.getValue();
 
 		if(n1.equals(n2)) return 0;
-		else return -1;
+		if (getValue().equals(param.getValue())) return 0;
+		return -1;
 	}
 
 	/*  This function just checks that we only allow an object of ArbitrarilyDiscretizedFunc.

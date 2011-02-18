@@ -6,6 +6,7 @@ import org.dom4j.Element;
 import org.opensha.commons.param.editor.FileParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
 
+@Deprecated
 public class FileParameter extends Parameter<File> {
 	
 	private FileParameterEditor editor;
@@ -19,7 +20,7 @@ public class FileParameter extends Parameter<File> {
 	}
 
 	@Override
-	public int compareTo(Object parameter) throws ClassCastException {
+	public int compareTo(ParameterAPI<File> param) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

@@ -83,10 +83,7 @@ import org.opensha.commons.param.translate.TranslatorAPI;
  * @version 1.0
  */
 
-public class TranslatedWarningDoubleParameter
-    implements WarningParameterAPI<Double>, DependentParameterAPI<Double>
-{
-
+public class TranslatedWarningDoubleParameter extends WarningDoubleParameter {
 
     /** Class name for debugging. */
     protected final static String C = "TranslatedWarningDoubleParameter";
@@ -130,7 +127,10 @@ public class TranslatedWarningDoubleParameter
      * Note: No translation changes are applied to the passed in parameter. It is
      * assumed that the parameter is already in translated log space.
      */
-    public TranslatedWarningDoubleParameter( WarningDoubleParameter param ) { this.param = param; }
+    public TranslatedWarningDoubleParameter(WarningDoubleParameter param) {
+    	super(param.getName() + "Translated");
+    	this.param = param;
+    }
 
     /**
      * Allows setting the translator upon construction. Overides the default LogTranslator.
@@ -143,7 +143,9 @@ public class TranslatedWarningDoubleParameter
      * values, only positive ones.
      *
      */
-    public TranslatedWarningDoubleParameter( TranslatorAPI trans ) { this(null, trans); }
+//	public TranslatedWarningDoubleParameter(TranslatorAPI trans) {
+//		this(null, trans);
+//	}
 
     /**
      * Allows setting the parameter for translation access, and setting
@@ -152,10 +154,12 @@ public class TranslatedWarningDoubleParameter
      * Note: No translation changes are applied to the passed in parameter. It is
      * assumed that the parameter is already in translated space.
      */
-    public TranslatedWarningDoubleParameter( WarningDoubleParameter param, TranslatorAPI trans ) {
-        this.trans = trans;
-        this.param = param;
-    }
+	public TranslatedWarningDoubleParameter(WarningDoubleParameter param,
+		TranslatorAPI trans) {
+		super(param.getName() + "Translated");
+		this.trans = trans;
+		this.param = param;
+	}
 
     /**
      * Public access to the wrapped parameter, allows setting the parameter.<p>
@@ -661,7 +665,9 @@ public class TranslatedWarningDoubleParameter
      * @throws  ClassCastException  Thrown if the object type of the parameter
      *      argument are not the same.
      */
-    public int compareTo( Object parameter ) throws ClassCastException{ return param.compareTo( parameter );}
+	public int compareTo(ParameterAPI<Double> param) {
+		return this.param.compareTo(param);
+	}
 
     /**
      *  Determines if the value can be edited, i.e. changed once set.
@@ -728,10 +734,10 @@ public class TranslatedWarningDoubleParameter
 		return null;
 	}
 
-	public boolean setValueFromXMLMetadata(Element el) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+//	public boolean setValueFromXMLMetadata(Element el) {
+//		// TODO Auto-generated method stub
+//		return false;
+//	}
 
 	public ParameterEditorAPI<Double> getEditor() {
 		if (paramEdit == null)

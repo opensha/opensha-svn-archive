@@ -20,6 +20,7 @@
 package org.opensha.commons.param;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.opensha.commons.exceptions.ConstraintException;
@@ -63,8 +64,8 @@ public class StringConstraint
      * @param  strings                  ArrayList of allowed strings
      * @exception  ConstraintException  Thrown if the passed in vector size is 0
      */
-    public StringConstraint( ArrayList<String> strings ) throws ConstraintException {
-        if ( strings.size() > 0 ) this.strings = strings;
+    public StringConstraint( List<String> strings ) throws ConstraintException {
+        if ( strings.size() > 0 ) this.strings.addAll(strings);
         else {
             String S = C + ": Constructor(ArrayList strings): ";
             throw new ConstraintException( S + "Input vector of constraint values cannot be empty" );

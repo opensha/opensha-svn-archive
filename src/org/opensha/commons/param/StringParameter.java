@@ -52,10 +52,7 @@ import org.opensha.commons.param.editor.StringParameterEditor;
  * @version    1.0
  */
 
-public class StringParameter
-    extends DependentParameter<String>
-    implements DependentParameterAPI<String>, ParameterAPI<String>
-{
+public class StringParameter extends DependentParameter<String> {
 
     /** Class name for debugging. */
     protected final static String C = "StringParameter";
@@ -232,23 +229,26 @@ public class StringParameter
      *      a StringParameter *
      * @see                            Comparable
      */
-    public int compareTo( Object obj ) throws ClassCastException {
-
-        String S = C + ":compareTo(): ";
-
-        if ( !( obj instanceof StringParameter ) ) {
-            throw new ClassCastException( S + "Object not a StringParameter, unable to compare" );
-        }
-
-        StringParameter param = ( StringParameter ) obj;
-
-        if( ( this.value == null ) && ( param.value == null ) ) return 0;
-        int result = 0;
-
-        String n1 = ( String ) this.getValue();
-        String n2 = ( String ) param.getValue();
-
-        return n1.compareTo( n2 );
+    @Override
+    public int compareTo(ParameterAPI<String> param) {
+//
+//        String S = C + ":compareTo(): ";
+//
+//        if ( !( obj instanceof StringParameter ) ) {
+//            throw new ClassCastException( S + "Object not a StringParameter, unable to compare" );
+//        }
+//
+//        StringParameter param = ( StringParameter ) obj;
+//
+//        if( ( this.value == null ) && ( param.value == null ) ) return 0;
+//        int result = 0;
+//
+//        String n1 = ( String ) this.getValue();
+//        String n2 = ( String ) param.getValue();
+//
+//        return n1.compareTo( n2 );
+        if (value == null && param.getValue() == null) return 0;
+        return value.compareTo(param.getValue());
     }
 
 
@@ -263,18 +263,23 @@ public class StringParameter
      * @exception  ClassCastException  Is thrown if the comparing object is not
      *      a StringParameter
      */
-    public boolean equals( Object obj ) throws ClassCastException {
-        String S = C + ":equals(): ";
-
-        if ( !( obj instanceof StringParameter ) ) {
-            throw new ClassCastException( S + "Object not a StringParameter, unable to compare" );
-        }
-
-        String otherName = ( ( StringParameter ) obj ).getName();
-        if ( ( compareTo( obj ) == 0 ) && getName().equals( otherName ) ) {
-            return true;
-        }
-        else { return false; }
+    @Override
+    public boolean equals(Object obj) {
+//        String S = C + ":equals(): ";
+//
+//        if ( !(obj instanceof StringParameter ) ) {
+//            throw new ClassCastException( S + "Object not a StringParameter, unable to compare" );
+//        }
+//
+//        String otherName = ( ( StringParameter ) obj ).getName();
+//        if ( ( compareTo( obj ) == 0 ) && getName().equals( otherName ) ) {
+//            return true;
+//        }
+//        else { return false; }
+    	
+        if (!(obj  instanceof StringParameter)) return false;
+        StringParameter sp = (StringParameter) obj;
+        return compareTo(sp) == 0 && getName().equals(sp.getName());
     }
 
 

@@ -74,9 +74,8 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
  * @version 1.0
  */
 
-public class WarningIntegerParameter
-    extends IntegerParameter
-    implements WarningParameterAPI<Integer> {
+public class WarningIntegerParameter extends IntegerParameter implements
+		WarningParameterAPI<Integer> {
 
     /** Class name for debugging. */
     protected final static String C = "WarningIntegerParameter";
@@ -543,35 +542,35 @@ public class WarningIntegerParameter
      * @exception  ClassCastException  Is thrown if the comparing object is not
      *      a IntegerParameter, or IntegerDiscreteParameter.
      */
-    public int compareTo( Object obj ) throws ClassCastException {
-
-        String S = C + ":compareTo(): ";
-
-        if ( !( obj instanceof IntegerParameter )
-            && !( obj instanceof WarningIntegerParameter )
-        ) {
-            throw new ClassCastException( S +
-                "Object not a IntegerParameter, WarningIntegerParameter, or IntegerDiscreteParameter, unable to compare"
-            );
-        }
-
-        int result = 0;
-
-        Integer n1 = ( Integer ) this.getValue();
-        Integer n2 = null;
-
-        if ( obj instanceof IntegerParameter ) {
-            IntegerParameter param = ( IntegerParameter ) obj;
-            n2 = ( Integer ) param.getValue();
-        }
-
-        else if ( obj instanceof WarningIntegerParameter ) {
-            WarningIntegerParameter param = ( WarningIntegerParameter ) obj;
-            n2 = ( Integer ) param.getValue();
-        }
-
-        return n1.compareTo( n2 );
-    }
+//    public int compareTo( Object obj ) throws ClassCastException {
+//
+//        String S = C + ":compareTo(): ";
+//
+//        if ( !( obj instanceof IntegerParameter )
+//            && !( obj instanceof WarningIntegerParameter )
+//        ) {
+//            throw new ClassCastException( S +
+//                "Object not a IntegerParameter, WarningIntegerParameter, or IntegerDiscreteParameter, unable to compare"
+//            );
+//        }
+//
+//        int result = 0;
+//
+//        Integer n1 = ( Integer ) this.getValue();
+//        Integer n2 = null;
+//
+//        if ( obj instanceof IntegerParameter ) {
+//            IntegerParameter param = ( IntegerParameter ) obj;
+//            n2 = ( Integer ) param.getValue();
+//        }
+//
+//        else if ( obj instanceof WarningIntegerParameter ) {
+//            WarningIntegerParameter param = ( WarningIntegerParameter ) obj;
+//            n2 = ( Integer ) param.getValue();
+//        }
+//
+//        return n1.compareTo( n2 );
+//    }
 
 
     /**
@@ -586,19 +585,23 @@ public class WarningIntegerParameter
      *      a IntegerParameter, or IntegerDiscreteParameter.
      */
     public boolean equals( Object obj ) throws ClassCastException {
-        String S = C + ":equals(): ";
-
-        if ( !( obj instanceof IntegerParameter )
-            && !( obj instanceof WarningIntegerParameter )
-        ) {
-            throw new ClassCastException( S + "Object not a IntegerParameter, WarningIntegerParameter, or IntegerDiscreteParameter, unable to compare" );
-        }
-
-        String otherName = ( ( IntegerParameter ) obj ).getName();
-        if ( ( compareTo( obj ) == 0 ) && getName().equals( otherName ) ) {
-            return true;
-        }
-        else return false;
+//        String S = C + ":equals(): ";
+//
+//        if ( !( obj instanceof IntegerParameter )
+//            && !( obj instanceof WarningIntegerParameter )
+//        ) {
+//            throw new ClassCastException( S + "Object not a IntegerParameter, WarningIntegerParameter, or IntegerDiscreteParameter, unable to compare" );
+//        }
+//
+//        String otherName = ( ( IntegerParameter ) obj ).getName();
+//        if ( ( compareTo( obj ) == 0 ) && getName().equals( otherName ) ) {
+//            return true;
+//        }
+//        else return false;
+		if (this == obj) return true;
+		if (!(obj instanceof WarningIntegerParameter)) return false;
+		WarningIntegerParameter wip = (WarningIntegerParameter) obj;
+		return (compareTo(wip) == 0 && getName().equals(wip.getName()));
     }
 
 

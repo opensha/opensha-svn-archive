@@ -39,8 +39,7 @@ import org.opensha.commons.param.editor.ParameterEditor;
  * @version 1.0
  */
 
-public class LocationParameter extends DependentParameter<Location>
-implements java.io.Serializable{
+public class LocationParameter extends DependentParameter<Location> {
 
 
 	/** Class name for debugging. */
@@ -335,26 +334,34 @@ implements java.io.Serializable{
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a LocationParameter.
 	 */
-	public int compareTo( Object obj ) {
-		String S = C + ":compareTo(): ";
-
-		if (! (obj instanceof LocationParameter)) {
-			throw new ClassCastException(S +
-					"Object not a LocationParameter, unable to compare");
-		}
-
-		LocationParameter param = (LocationParameter) obj;
-
-		if ( (this.value == null) && (param.value == null))return 0;
-		int result = 0;
-
-		Location n1 = (Location)this.getValue();
-		Location n2 = (Location) param.getValue();
-
-		if (n1.equals(n2))
-			return 0;
-		return -1;
-
+	@Override
+	public int compareTo(ParameterAPI<Location> param) {
+//		String S = C + ":compareTo(): ";
+//
+//		if (! (obj instanceof LocationParameter)) {
+//			throw new ClassCastException(S +
+//					"Object not a LocationParameter, unable to compare");
+//		}
+//
+//		LocationParameter param = (LocationParameter) obj;
+//
+//		if ( (this.value == null) && (param.value == null))return 0;
+//		int result = 0;
+//
+//		Location n1 = (Location)this.getValue();
+//		Location n2 = (Location) param.getValue();
+//
+//		if (n1.equals(n2))
+//			return 0;
+//		return -1;
+		
+		if (param == null) return 1;
+		if (value == null && param.getValue() == null) return 0;
+		if (value == null) return -1;
+		if (param.getValue() == null) return 1;
+		return  value.compareTo(param.getValue());
+		
+		
 	}
 
 
@@ -366,21 +373,27 @@ implements java.io.Serializable{
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a LocationParameter.
 	 */
-	public boolean equals( Object obj ) {
-		String S = C + ":equals(): ";
-
-		if (! (obj instanceof LocationParameter)) {
-			throw new ClassCastException(S +
-					"Object not a LocationParameter, unable to compare");
-		}
-
-		String otherName = ( (LocationParameter) obj).getName();
-		if ( (compareTo(obj) == 0) && getName().equals(otherName)) {
-			return true;
-		}
-		else {
-			return false;
-		}
+	@Override
+	public boolean equals(Object obj) {
+//		String S = C + ":equals(): ";
+//
+//		if (! (obj instanceof LocationParameter)) {
+//			throw new ClassCastException(S +
+//					"Object not a LocationParameter, unable to compare");
+//		}
+//
+//		String otherName = ( (LocationParameter) obj).getName();
+//		if ( (compareTo(obj) == 0) && getName().equals(otherName)) {
+//			return true;
+//		}
+//		else {
+//			return false;
+//		}
+		
+		if (this == obj) return true;
+		if (!(obj instanceof LocationParameter)) return false;
+		LocationParameter lp = (LocationParameter) obj;
+		return (compareTo(lp) == 0 && getName().equals(lp.getName()));
 	}
 
 

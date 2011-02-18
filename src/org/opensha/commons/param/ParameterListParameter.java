@@ -35,8 +35,7 @@ import org.opensha.commons.param.editor.ParameterListParameterEditor;
  * @version 1.0
  */
 
-public class ParameterListParameter extends DependentParameter<ParameterList>
-implements java.io.Serializable{
+public class ParameterListParameter extends DependentParameter<ParameterList> {
 
 
 	/** Class name for debugging. */
@@ -82,22 +81,30 @@ implements java.io.Serializable{
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a ParameterListParameter.
 	 */
-	public int compareTo( Object obj ) {
-		String S = C + ":compareTo(): ";
+	@Override
+	public int compareTo(ParameterAPI<ParameterList> param) {
+//		String S = C + ":compareTo(): ";
+//
+//		if ( !( obj instanceof ParameterListParameter ) ) {
+//			throw new ClassCastException( S + "Object not a ParameterListParameter, unable to compare" );
+//		}
+//
+//		ParameterListParameter param = ( ParameterListParameter ) obj;
+//
+//		if( ( this.value == null ) && ( param.value == null ) ) return 0;
+//		int result = 0;
+//
+//		ParameterList n1 = ( ParameterList) this.getValue();
+//		ParameterList n2 = ( ParameterList) param.getValue();
+//
+//		return n1.compareTo( n2 );
+		
+		if (param == null) return 1;
+		if (value == null && param.getValue() == null) return 0;
+		if (value == null) return -1;
+		if (param.getValue() == null) return 1;
+		return  value.compareTo(param.getValue());
 
-		if ( !( obj instanceof ParameterListParameter ) ) {
-			throw new ClassCastException( S + "Object not a ParameterListParameter, unable to compare" );
-		}
-
-		ParameterListParameter param = ( ParameterListParameter ) obj;
-
-		if( ( this.value == null ) && ( param.value == null ) ) return 0;
-		int result = 0;
-
-		ParameterList n1 = ( ParameterList) this.getValue();
-		ParameterList n2 = ( ParameterList) param.getValue();
-
-		return n1.compareTo( n2 );
 	}
 
 
@@ -124,21 +131,28 @@ implements java.io.Serializable{
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a ParameterListParameter.
 	 */
+	@Override
 	public boolean equals(Object obj) {
-		String S = C + ":equals(): ";
+//		String S = C + ":equals(): ";
+//
+//		if (! (obj instanceof ParameterListParameter)) {
+//			throw new ClassCastException(S +
+//			"Object not a ParameterListParameter, unable to compare");
+//		}
+//
+//		String otherName = ( (ParameterListParameter) obj).getName();
+//		if ( (compareTo(obj) == 0) && getName().equals(otherName)) {
+//			return true;
+//		}
+//		else {
+//			return false;
+//		}
+		
+		if (this == obj) return true;
+		if (!(obj instanceof ParameterListParameter)) return false;
+		ParameterListParameter plp = (ParameterListParameter) obj;
+		return (value.equals(plp.getValue()) && getName().equals(plp.getName()));
 
-		if (! (obj instanceof ParameterListParameter)) {
-			throw new ClassCastException(S +
-			"Object not a ParameterListParameter, unable to compare");
-		}
-
-		String otherName = ( (ParameterListParameter) obj).getName();
-		if ( (compareTo(obj) == 0) && getName().equals(otherName)) {
-			return true;
-		}
-		else {
-			return false;
-		}
 	}
 
 	/**

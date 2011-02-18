@@ -20,6 +20,7 @@
 package org.opensha.commons.param;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
@@ -46,8 +47,7 @@ import org.opensha.commons.param.editor.ParameterEditor;
  * @version 1.0
  */
 
-public class StringListParameter extends DependentParameter<ArrayList<String>>
-implements DependentParameterAPI<ArrayList<String>>, ParameterAPI<ArrayList<String>> {
+public class StringListParameter extends DependentParameter<List<String>> {
 
   /** Class name for debugging. */
   protected final static String C = "StringListParameter";
@@ -73,7 +73,7 @@ implements DependentParameterAPI<ArrayList<String>>, ParameterAPI<ArrayList<Stri
       * @throws  ConstraintException     Thrown if vector of allowed values is
       *      empty
       */
-     public StringListParameter( String name, ArrayList<String> strings ) throws ConstraintException {
+     public StringListParameter( String name, List<String> strings ) throws ConstraintException {
          this( name, new StringListConstraint( strings ), null, null );
      }
 
@@ -150,7 +150,7 @@ implements DependentParameterAPI<ArrayList<String>>, ParameterAPI<ArrayList<Stri
       * @exception  ConstraintException  Is thrown if the value is not allowed
       * @throws  ConstraintException     Is thrown if the value is not allowed
       */
-     public StringListParameter( String name, StringListConstraint constraint, String units, ArrayList<String> values )
+     public StringListParameter( String name, StringListConstraint constraint, String units, List<String> values )
               throws ConstraintException {
          super( name, constraint, units, values);
          this.value = values;
@@ -201,24 +201,25 @@ implements DependentParameterAPI<ArrayList<String>>, ParameterAPI<ArrayList<Stri
      *      a StringParameter *
      * @see                            Comparable
      */
-    public int compareTo( Object obj ) throws ClassCastException {
+    @Override
+    public int compareTo(ParameterAPI<List<String>> param) {
+//
+//        String S = C + ":compareTo(): ";
+//
+//        if ( !( obj instanceof StringListParameter ) ) {
+//            throw new ClassCastException( S + "Object not a StringListParameter, unable to compare" );
+//        }
+//
+//        StringListParameter param = ( StringListParameter ) obj;
 
-        String S = C + ":compareTo(): ";
+        if (value == null && param.getValue() == null) return 0;
+//        int result = 0;
 
-        if ( !( obj instanceof StringListParameter ) ) {
-            throw new ClassCastException( S + "Object not a StringListParameter, unable to compare" );
-        }
+        List<String> l1 = getValue();
+        List<String> l2 = param.getValue();
 
-        StringListParameter param = ( StringListParameter ) obj;
-
-        if( ( this.value == null ) && ( param.value == null ) ) return 0;
-        int result = 0;
-
-        ArrayList n1 = ( ArrayList ) this.getValue();
-        ArrayList n2 = ( ArrayList ) param.getValue();
-
-        if (n1.containsAll( n2 ) && n2.containsAll(n1)) return 0;
-        else return -1;
+        if (l1.containsAll(l2) && l2.containsAll(l1)) return 0;
+        return -1;
     }
 
 
@@ -233,18 +234,19 @@ implements DependentParameterAPI<ArrayList<String>>, ParameterAPI<ArrayList<Stri
      * @exception  ClassCastException  Is thrown if the comparing object is not
      *      a StringParameter
      */
-    public boolean equals( Object obj ) throws ClassCastException {
-        String S = C + ":equals(): ";
+    @Override
+    public boolean equals(Object obj) {
+//        String S = C + ":equals(): ";
 
-        if ( !( obj instanceof StringListParameter ) ) {
-            throw new ClassCastException( S + "Object not a StringListParameter, unable to compare" );
-        }
+        if (!(obj instanceof StringListParameter)) return false;
+//        {
+//            throw new ClassCastException( S + "Object not a StringListParameter, unable to compare" );
+//        }
 
-        String otherName = ( ( StringListParameter ) obj ).getName();
-        if ( ( compareTo( obj ) == 0 ) && getName().equals( otherName ) ) {
-            return true;
-        }
-        else { return false; }
+        StringListParameter slp = (StringListParameter) obj;
+        //String otherName = ((StringListParameter)obj).getName();
+        if (compareTo(slp) == 0 && getName().equals(slp.getName())) return true;
+        return false;
     }
 
 

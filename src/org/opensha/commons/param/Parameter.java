@@ -55,14 +55,8 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
  * @see        ParameterAPI
  * @version    1.0
  */
-public abstract class Parameter<E>
-implements
-ParameterAPI<E>, java.io.Serializable
-{
+public abstract class Parameter<E> implements ParameterAPI<E> {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	/** Class name used for debug statements and building the parameter type for getType(). */
 	protected final static String C = "Parameter";

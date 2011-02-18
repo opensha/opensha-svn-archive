@@ -39,8 +39,7 @@ import org.opensha.commons.param.editor.RegionParameterEditor;
  * @version 1.0
  */
 
-public class RegionParameter extends DependentParameter<Region>
-implements java.io.Serializable{
+public class RegionParameter extends DependentParameter<Region> {
 
 
 	/** Class name for debugging. */
@@ -259,25 +258,36 @@ implements java.io.Serializable{
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a LocationParameter.
 	 */
-	public int compareTo( Object obj ) {
-		String S = C + ":compareTo(): ";
-
-		if (! (obj instanceof RegionParameter)) {
-			throw new ClassCastException(S +
-					"Object not a RegionParameter, unable to compare");
+	@Override
+	public int compareTo(ParameterAPI<Region> param) {
+//		String S = C + ":compareTo(): ";
+//
+//		if (! (obj instanceof RegionParameter)) {
+//			throw new ClassCastException(S +
+//					"Object not a RegionParameter, unable to compare");
+//		}
+//
+//		RegionParameter param = (RegionParameter) obj;
+//
+//		if ( (this.value == null) && (param.value == null))return 0;
+//		int result = 0;
+//
+//		Region n1 = this.getValue();
+//		Region n2 = param.getValue();
+//
+//		if (n1.equals(n2))
+//			return 0;
+//		return -1;
+		if (param == null) return 1;
+		// sort null valued params
+		if (value == null && param.getValue() == null) {
+			return getName().compareTo(param.getName());
 		}
-
-		RegionParameter param = (RegionParameter) obj;
-
-		if ( (this.value == null) && (param.value == null))return 0;
-		int result = 0;
-
-		Region n1 = this.getValue();
-		Region n2 = param.getValue();
-
-		if (n1.equals(n2))
-			return 0;
-		return -1;
+		// sink null valued params to bottom
+		if (value == null) return -1;
+		if (param.getValue() == null) return 1;
+		// sort on name
+		return getName().compareTo(param.getName());
 	}
 
 
@@ -289,21 +299,30 @@ implements java.io.Serializable{
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a LocationParameter.
 	 */
+	@Override
 	public boolean equals( Object obj ) {
-		String S = C + ":equals(): ";
+//		String S = C + ":equals(): ";
+//
+//		if (! (obj instanceof LocationParameter)) {
+//			throw new ClassCastException(S +
+//					"Object not a LocationParameter, unable to compare");
+//		}
+//
+//		String otherName = ( (LocationParameter) obj).getName();
+//		if ( (compareTo(obj) == 0) && getName().equals(otherName)) {
+//			return true;
+//		}
+//		else {
+//			return false;
+//		}
 
-		if (! (obj instanceof LocationParameter)) {
-			throw new ClassCastException(S +
-					"Object not a LocationParameter, unable to compare");
-		}
+		// this equals implementatins test name and value; LocationList must
+		// have same order
 
-		String otherName = ( (LocationParameter) obj).getName();
-		if ( (compareTo(obj) == 0) && getName().equals(otherName)) {
-			return true;
-		}
-		else {
-			return false;
-		}
+		if (this == obj) return true;
+		if (!(obj instanceof RegionParameter)) return false;
+		RegionParameter rp = (RegionParameter) obj;
+		return (getName().equals(rp.getName()) && value.equals(rp.getValue()));
 	}
 
 

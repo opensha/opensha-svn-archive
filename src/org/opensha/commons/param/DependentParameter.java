@@ -51,10 +51,8 @@ import org.opensha.commons.exceptions.ParameterException;
  * @author Steven W. Rock
  * @version 1.0
  */
-public abstract class DependentParameter<E>
-extends Parameter<E>
-implements DependentParameterAPI<E>
-{
+public abstract class DependentParameter<E> extends Parameter<E> implements
+		DependentParameterAPI<E> {
 
 	/**
 	 * ArrayList to store the independent Parameters
