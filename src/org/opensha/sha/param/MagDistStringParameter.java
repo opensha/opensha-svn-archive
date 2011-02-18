@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.StringParameter;
@@ -140,23 +141,27 @@ public class MagDistStringParameter extends StringParameter {
      *      a MagDistStringParameter *
      * @see                            Comparable
      */
-    public int compareTo( Object obj ) throws ClassCastException {
+    @Override
+    public int compareTo(ParameterAPI<String> param) {
+//
+//        String S = C + ":compareTo(): ";
+//
+//        if ( !( obj instanceof MagDistStringParameter ) ) {
+//            throw new ClassCastException( S + "Object not a MagDistStringParameter, unable to compare" );
+//        }
+//
+//        MagDistStringParameter param = ( MagDistStringParameter ) obj;
+//
+//        if( ( this.value == null ) && ( param.value == null ) ) return 0;
+//        int result = 0;
+//
+//        String n1 = ( String ) this.getValue();
+//        String n2 = ( String ) param.getValue();
+//
+//        return n1.compareTo( n2 );
+        if (value == null && param.getValue() == null) return 0;
+        return value.compareTo(param.getValue());
 
-        String S = C + ":compareTo(): ";
-
-        if ( !( obj instanceof MagDistStringParameter ) ) {
-            throw new ClassCastException( S + "Object not a MagDistStringParameter, unable to compare" );
-        }
-
-        MagDistStringParameter param = ( MagDistStringParameter ) obj;
-
-        if( ( this.value == null ) && ( param.value == null ) ) return 0;
-        int result = 0;
-
-        String n1 = ( String ) this.getValue();
-        String n2 = ( String ) param.getValue();
-
-        return n1.compareTo( n2 );
     }
 
 
@@ -171,18 +176,23 @@ public class MagDistStringParameter extends StringParameter {
      * @exception  ClassCastException  Is thrown if the comparing object is not
      *      a MagDistStringParameter
      */
-    public boolean equals( Object obj ) throws ClassCastException {
-        String S = C + ":equals(): ";
+    @Override
+	public boolean equals(Object obj) {
+//        String S = C + ":equals(): ";
+//
+//        if ( !( obj instanceof MagDistStringParameter ) ) {
+//            throw new ClassCastException( S + "Object not a MagDistStringParameter, unable to compare" );
+//        }
+//
+//        String otherName = ( ( MagDistStringParameter ) obj ).getName();
+//        if ( ( compareTo( obj ) == 0 ) && getName().equals( otherName ) ) {
+//            return true;
+//        }
+//        else { return false; }
+        if (!(obj  instanceof MagDistStringParameter)) return false;
+        MagDistStringParameter mdsp = (MagDistStringParameter) obj;
+        return compareTo(mdsp) == 0 && getName().equals(mdsp.getName());
 
-        if ( !( obj instanceof MagDistStringParameter ) ) {
-            throw new ClassCastException( S + "Object not a MagDistStringParameter, unable to compare" );
-        }
-
-        String otherName = ( ( MagDistStringParameter ) obj ).getName();
-        if ( ( compareTo( obj ) == 0 ) && getName().equals( otherName ) ) {
-            return true;
-        }
-        else { return false; }
     }
 
 

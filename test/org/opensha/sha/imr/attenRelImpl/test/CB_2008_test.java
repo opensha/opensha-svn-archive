@@ -48,10 +48,12 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.AbstractDoublePropEffectParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistRupMinusDistX_OverRupParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistRupMinusJB_OverRupParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.HangingWallFlagParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.PropagationEffectParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.WarningDoublePropagationEffectParameter;
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
@@ -148,7 +150,7 @@ public class CB_2008_test extends NGATest implements ParameterChangeWarningListe
 				cb_2008.getParameter(MagParam.NAME).setValue(new Double(mag));
 
 				double rrup = Double.parseDouble(st.nextToken().trim());
-				((WarningDoublePropagationEffectParameter)cb_2008.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(rrup));
+				((AbstractDoublePropEffectParam)cb_2008.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(rrup));
 
 				double rjb = Double.parseDouble(st.nextToken().trim());
 
@@ -156,7 +158,7 @@ public class CB_2008_test extends NGATest implements ParameterChangeWarningListe
 				if(rrup==0 && rjb==0) distRupMinusJB_OverRup=0;
 				else distRupMinusJB_OverRup = (rrup-rjb)/rrup;
 
-				((WarningDoublePropagationEffectParameter)cb_2008.getParameter(DistRupMinusJB_OverRupParameter.NAME)).setValueIgnoreWarning(new Double(distRupMinusJB_OverRup));
+				((AbstractDoublePropEffectParam)cb_2008.getParameter(DistRupMinusJB_OverRupParameter.NAME)).setValueIgnoreWarning(new Double(distRupMinusJB_OverRup));
 
 				st.nextToken().trim(); // ignore R(x) ( Horizontal distance from top of rupture perpendicular to fault strike)
 

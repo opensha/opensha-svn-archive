@@ -12,10 +12,12 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
 import org.opensha.sha.imr.PropagationEffect;
+import org.opensha.sha.imr.param.PropagationEffectParams.AbstractDoublePropEffectParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceX_Parameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.PropagationEffectParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.WarningDoublePropagationEffectParameter;
 
 public class PropagationEffectTest {
@@ -53,7 +55,7 @@ public class PropagationEffectTest {
 		doTest(new PropagationEffect(), new DistanceX_Parameter());
 	}
 	
-	private void doTest(PropagationEffect propEffect, WarningDoublePropagationEffectParameter param) {
+	private void doTest(PropagationEffect propEffect, AbstractDoublePropEffectParam param) {
 		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
 			ProbEqkSource source = erf.getSource(sourceID);
 			for (int rupID=0; rupID<source.getNumRuptures(); rupID++) {

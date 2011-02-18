@@ -49,9 +49,7 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
  * @author Steven W. Rock
  * @version 1.0
  */
-public class DistanceSeisParameter
-extends WarningDoublePropagationEffectParameter {
-
+public class DistanceSeisParameter extends AbstractDoublePropEffectParam {
 
 	/** Class name used in debug strings */
 	protected final static String C = "DistanceSeisParameter";
@@ -77,10 +75,14 @@ extends WarningDoublePropagationEffectParameter {
 	 * No-Arg constructor that just calls init() with null constraints.
 	 * All value are allowed.
 	 */
-	public DistanceSeisParameter() { init(); }
+	public DistanceSeisParameter() {
+		super(NAME);
+		init();
+	}
 
 	/** This constructor sets the default value.  */
 	public DistanceSeisParameter(double defaultValue) { 
+		super(NAME);
 		init(); 
 		this.setDefaultValue(defaultValue);
 	}
@@ -90,6 +92,7 @@ extends WarningDoublePropagationEffectParameter {
 	public DistanceSeisParameter(ParameterConstraintAPI warningConstraint)
 	throws ConstraintException
 	{
+		super(NAME);
 		if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
 			throw new ConstraintException(
 					C + " : Constructor(): " +
@@ -104,6 +107,7 @@ extends WarningDoublePropagationEffectParameter {
 	public DistanceSeisParameter(ParameterConstraintAPI warningConstraint, double defaultValue)
 	throws ConstraintException
 	{
+		super(NAME);
 		if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
 			throw new ConstraintException(
 					C + " : Constructor(): " +

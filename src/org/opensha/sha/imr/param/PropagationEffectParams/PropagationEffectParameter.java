@@ -43,14 +43,8 @@ import org.opensha.sha.earthquake.EqkRupture;
  * @version 1.0
  */
 
-public abstract class PropagationEffectParameter<E>
-    extends DependentParameter<E>
-    implements
-        PropagationEffectParameterAPI<E>,
-        DependentParameterAPI<E>,
-        ParameterAPI<E>
-{
-
+public abstract class PropagationEffectParameter<E> extends
+		DependentParameter<E> implements PropagationEffectParameterAPI<E> {
 
     /* *******************/
     /** @todo  Variables */
@@ -68,17 +62,6 @@ public abstract class PropagationEffectParameter<E>
     protected EqkRupture eqkRupture = null;
 
 
-    /**
-     * This is called whenever either the Site or
-     * EqkRupture has been changed to
-     * update the value stored in this parameter. <p>
-     *
-     * Subclasses implement this in their own way. This is what
-     * differentiates different subclasses.
-     */
-    protected abstract void calcValueFromSiteAndEqkRup();
-
-
     /* ***************************/
     /** @todo  Getters / Setters */
     /* ***************************/
@@ -89,6 +72,7 @@ public abstract class PropagationEffectParameter<E>
 
 
     /** Sets the independent variables (Site and EqkRupture) then calculates and returns the value */
+    @Override
     public E getValue(EqkRupture eqkRupture, Site site){
         this.eqkRupture = eqkRupture;
         this.site = site;
@@ -97,20 +81,23 @@ public abstract class PropagationEffectParameter<E>
     }
 
     /** Sets the site and recalculates the value. The EqkRupture must have already been set */
-    public E getValue(Site site){
-        this.site = site;
-        calcValueFromSiteAndEqkRup();
-        return this.value;
-    }
+//    @Override
+//    public E getValue(Site site){
+//        this.site = site;
+//        calcValueFromSiteAndEqkRup();
+//        return this.value;
+//    }
 
     /** Sets the EqkRupture and recalculates the value. The Site must have already been set */
-    public E getValue(EqkRupture eqkRupture){
-        this.eqkRupture = eqkRupture;
-        calcValueFromSiteAndEqkRup();
-        return this.value;
-    }
+//    @Override
+//    public E getValue(EqkRupture eqkRupture){
+//        this.eqkRupture = eqkRupture;
+//        calcValueFromSiteAndEqkRup();
+//        return this.value;
+//    }
 
     /** Sets the independent variables (Site and EqkRupture) then calculates the value */
+    @Override
     public void setValue(EqkRupture eqkRupture, Site site){
         this.eqkRupture = eqkRupture;
         this.site = site;
@@ -118,23 +105,28 @@ public abstract class PropagationEffectParameter<E>
     }
 
     /** The EqkRupture and Site must have already been set */
-    public E getValue(){ return this.value; }
+//    @Override
+//    public E getValue(){ return this.value; }
 
     /** Sets the Site and the value is recalculated */
-    public void setSite(Site site){
-        this.site = site;
-        calcValueFromSiteAndEqkRup();
-    }
+//    @Override
+//    public void setSite(Site site){
+//        this.site = site;
+//        calcValueFromSiteAndEqkRup();
+//    }
     /** Returns the Site associated with this Parameter */
-    public Site getSite(){ return site; }
+//    @Override
+//    public Site getSite(){ return site; }
 
     /** Sets the EqkRupture associated with this Parameter */
-    public void setEqkRupture(EqkRupture eqkRupture){
-        this.eqkRupture = eqkRupture;
-        calcValueFromSiteAndEqkRup();
-    }
+//    @Override
+//    public void setEqkRupture(EqkRupture eqkRupture){
+//        this.eqkRupture = eqkRupture;
+//        calcValueFromSiteAndEqkRup();
+//    }
     /** Returns the EqkRupture associated with this Parameter */
-    public EqkRupture getEqkRupture(){ return eqkRupture; }
+    @Override
+//    public EqkRupture getEqkRupture(){ return eqkRupture; }
 
 
      /** function used to determine which GUI widget to use for editing this parameter in an Applet */
@@ -143,22 +135,33 @@ public abstract class PropagationEffectParameter<E>
 
 
     /** Compares the values to see if they are the same, greater than or less than. */
-    public abstract int compareTo(Object obj) throws ClassCastException;
+    //public abstract int compareTo(Object obj) throws ClassCastException;
 
     /** Compares value to see if equal */
-    public boolean equals(Object obj) throws ClassCastException{
-        if( compareTo(obj) == 0) return true;
-        else return false;
-    }
+//    public boolean equals(Object obj) throws ClassCastException{
+//        if( compareTo(obj) == 0) return true;
+//        else return false;
+//    }
 
     /**
      * Standard Java function. Creates a copy of this class instance
      * so originaly can not be modified
      */
-    public abstract Object clone();
+    //public abstract Object clone();
     
 //    public ParameterEditorAPI<Double> getEditor() {
 //    	return null;
 //    }
+    
+    /**
+     * This is called whenever either the Site or
+     * EqkRupture has been changed to
+     * update the value stored in this parameter. <p>
+     *
+     * Subclasses implement this in their own way. This is what
+     * differentiates different subclasses.
+     */
+    protected abstract void calcValueFromSiteAndEqkRup();
+
 
 }

@@ -48,10 +48,7 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
  * @version 1.0
  */
 
-public class DistanceX_Parameter
-     extends WarningDoublePropagationEffectParameter {
-
-
+public class DistanceX_Parameter extends AbstractDoublePropEffectParam {
 
     /** Class name used in debug strings */
     protected final static String C = "DistanceJBParameter";
@@ -74,10 +71,14 @@ public class DistanceX_Parameter
      * No-Arg constructor that just calls init() with null constraints.
      * All value are allowed.
      */
-    public DistanceX_Parameter() { init(); }
+	public DistanceX_Parameter() {
+		super(NAME);
+		init();
+	}
     
 	/** This constructor sets the default value.  */
 	public DistanceX_Parameter(double defaultValue) { 
+		super(NAME);
 		init(); 
 		this.setDefaultValue(defaultValue);
 	}
@@ -87,6 +88,7 @@ public class DistanceX_Parameter
     public DistanceX_Parameter(ParameterConstraintAPI warningConstraint)
         throws ConstraintException
     {
+		super(NAME);
         if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
             throw new ConstraintException(
                 C + " : Constructor(): " +
@@ -100,6 +102,7 @@ public class DistanceX_Parameter
     public DistanceX_Parameter(ParameterConstraintAPI warningConstraint, double defaultValue)
         throws ConstraintException
     {
+		super(NAME);
         if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
             throw new ConstraintException(
                 C + " : Constructor(): " +

@@ -33,7 +33,9 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.AbstractDoublePropEffectParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.PropagationEffectParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.WarningDoublePropagationEffectParameter;
 import org.opensha.sha.util.TectonicRegionType;
 
@@ -97,7 +99,7 @@ public class ZhaoEtAl_2006_test {
 		// Magnitude
 		((WarningDoubleParameter)imr.getParameter(MagParam.NAME)).setValueIgnoreWarning(new Double(rup.getMag()));
 		// Distance 
-		((WarningDoublePropagationEffectParameter)imr.getParameter(DistanceRupParameter.NAME))
+		((AbstractDoublePropEffectParam)imr.getParameter(DistanceRupParameter.NAME))
 		.setValueIgnoreWarning(new Double(distance));
 
 		System.out.println("Testing: "+fName);

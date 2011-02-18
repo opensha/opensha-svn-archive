@@ -1,22 +1,3 @@
-/*******************************************************************************
- * Copyright 2009 OpenSHA.org in partnership with
- * the Southern California Earthquake Center (SCEC, http://www.scec.org)
- * at the University of Southern California and the UnitedStates Geological
- * Survey (USGS; http://www.usgs.gov)
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
-
 package org.opensha.sha.imr.param.PropagationEffectParams;
 
 import java.util.ArrayList;
@@ -34,32 +15,20 @@ import org.opensha.commons.param.WarningDoubleParameter;
 import org.opensha.commons.param.WarningParameterAPI;
 import org.opensha.commons.param.editor.ConstrainedDoubleParameterEditor;
 import org.opensha.commons.param.editor.DoubleParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 
 /**
- * <b>Title:</b> WarningDoublePropagationEffectParameter<p>
+ * Add comments here
  *
- * <b>Description:</b> Base Propagation Effect Parameter
- * that implements the WarningParameterAPI. This class
- * is only needed and distinct from the WarningDoubleParameter
- * because multiple inheritance is not supported in Java.
- * These PropagationEffect Parameters need a different
- * base class (PropagationEffectParameter) than the
- * WarningDoubleParameter ( DoubleParameter ). It basically
- * has the same functionality. See WarningDoublepParameter
- * for further documentation.
- * <p>
- *
- * @author Steven W. Rock
- * @version 1.0
+ * 
+ * @author Peter Powers
+ * @version $Id:$
  */
-public abstract class WarningDoublePropagationEffectParameter
-extends PropagationEffectParameter<Double>
-implements WarningParameterAPI<Double>
-{
+public abstract class AbstractDoublePropEffectParam extends
+		PropagationEffectParameter<Double> implements
+		WarningParameterAPI<Double> {
 
 	private transient ParameterEditorAPI<Double> paramEdit = null;
 
@@ -96,7 +65,9 @@ implements WarningParameterAPI<Double>
 	public boolean isIgnoreWarning() { return ignoreWarning; }
 
 
-
+	protected AbstractDoublePropEffectParam(String name) {
+		setName(name);
+	}
 
 	/**
 	 * Adds a listener to receive warning events when the warning constraints are exceeded.
@@ -281,44 +252,47 @@ implements WarningParameterAPI<Double>
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a DoubleParameter, or DoubleDiscreteParameter.
 	 */
-	public int compareTo(ParameterAPI<Double> obj) {
-
-		String S = C + ":compareTo(): ";
-
-		if ( !( obj instanceof DoubleParameter )
-				&& !( obj instanceof DoubleDiscreteParameter )
-				&& !( obj instanceof WarningDoubleParameter )
-				&& !( obj instanceof WarningDoublePropagationEffectParameter )
-		) {
-			throw new ClassCastException( S +
-					"Object not a DoubleParameter, WarningDoubleParameter, DoubleDiscreteParameter, DistanceJBParameter, or WarningDoublePropagationEffectBParameter, unable to compare"
-			);
-		}
-
-		int result = 0;
-
-		Double n1 = ( Double ) this.getValue();
-		Double n2 = null;
-
-		if ( obj instanceof DoubleParameter ) {
-			DoubleParameter param = ( DoubleParameter ) obj;
-			n2 = ( Double ) param.getValue();
-		}
-		else if ( obj instanceof DoubleDiscreteParameter ) {
-			DoubleDiscreteParameter param = ( DoubleDiscreteParameter ) obj;
-			n2 = ( Double ) param.getValue();
-		}
-		else if ( obj instanceof WarningDoubleParameter ) {
-			WarningDoubleParameter param = ( WarningDoubleParameter ) obj;
-			n2 = ( Double ) param.getValue();
-		}
-
-		else if ( obj instanceof WarningDoublePropagationEffectParameter ) {
-			WarningDoublePropagationEffectParameter param = ( WarningDoublePropagationEffectParameter ) obj;
-			n2 = ( Double ) param.getValue();
-		}
-
-		return n1.compareTo( n2 );
+	@Override
+	public int compareTo(ParameterAPI<Double> param) {
+//
+//		String S = C + ":compareTo(): ";
+//
+//		if ( !( obj instanceof DoubleParameter )
+//				&& !( obj instanceof DoubleDiscreteParameter )
+//				&& !( obj instanceof WarningDoubleParameter )
+//				&& !( obj instanceof PropagationEffectParameter )
+//		) {
+//			throw new ClassCastException( S +
+//					"Object not a DoubleParameter, WarningDoubleParameter, DoubleDiscreteParameter, DistanceJBParameter, or WarningDoublePropagationEffectBParameter, unable to compare"
+//			);
+//		}
+//
+//		int result = 0;
+//
+//		Double n1 = ( Double ) this.getValue();
+//		Double n2 = null;
+//
+//		if ( obj instanceof DoubleParameter ) {
+//			DoubleParameter param = ( DoubleParameter ) obj;
+//			n2 = ( Double ) param.getValue();
+//		}
+//		else if ( obj instanceof DoubleDiscreteParameter ) {
+//			DoubleDiscreteParameter param = ( DoubleDiscreteParameter ) obj;
+//			n2 = ( Double ) param.getValue();
+//		}
+//		else if ( obj instanceof WarningDoubleParameter ) {
+//			WarningDoubleParameter param = ( WarningDoubleParameter ) obj;
+//			n2 = ( Double ) param.getValue();
+//		}
+//
+//		else if ( obj instanceof PropagationEffectParameter ) {
+//			PropagationEffectParameter param = ( PropagationEffectParameter ) obj;
+//			n2 = ( Double ) param.getValue();
+//		}
+//
+//		return n1.compareTo( n2 );
+		return value.compareTo(param.getValue());
+		// TODO override in subclasses for type comparison
 	}
 
 
@@ -332,30 +306,37 @@ implements WarningParameterAPI<Double>
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a DoubleParameter, or DoubleDiscreteParameter.
 	 */
-	public boolean equals( Object obj ) throws ClassCastException {
-		String S = C + ":equals(): ";
-
-		if ( !( obj instanceof DoubleParameter )
-				&& !( obj instanceof DoubleDiscreteParameter )
-				&& !( obj instanceof WarningDoubleParameter )
-				&& !( obj instanceof WarningDoublePropagationEffectParameter )
-		) {
-			throw new ClassCastException( S + "Object not a DoubleParameter, WarningDoubleParameter, or DoubleDiscreteParameter, unable to compare" );
-		}
-
-		ParameterAPI p = (ParameterAPI) obj;
-		String otherName = (p).getName();
-		if ( ( compareTo(p) == 0 ) && getName().equals( otherName ) ) {
-			return true;
-		}
-		else return false;
+	public boolean equals(Object obj) {
+//		String S = C + ":equals(): ";
+//
+//		if ( !( obj instanceof DoubleParameter )
+//				&& !( obj instanceof DoubleDiscreteParameter )
+//				&& !( obj instanceof WarningDoubleParameter )
+//				&& !( obj instanceof PropagationEffectParameter )
+//		) {
+//			throw new ClassCastException( S + "Object not a DoubleParameter, WarningDoubleParameter, or DoubleDiscreteParameter, unable to compare" );
+//		}
+//
+//		String otherName = ( ( ParameterAPI ) obj ).getName();
+//		PropagationEffectParameter wdpep = (PropagationEffectParameter) obj;
+//		if ( ( compareTo( wdpep ) == 0 ) && getName().equals( otherName ) ) {
+//			return true;
+//		}
+//		else return false;
+		if (this == obj) return true;
+		if (!(obj instanceof AbstractDoublePropEffectParam)) return false;
+		AbstractDoublePropEffectParam dp = (AbstractDoublePropEffectParam) obj;
+		return (compareTo(dp) == 0 && getName().equals(dp.getName()));
+		
+		// TODO this should compare objID, then class, then name, then value
+		// probably can be done in parent class; shouldn't rely on compareo
 	}
 
 	/**
 	 * Standard Java function. Creates a copy of this class instance
 	 * so originaly can not be modified
 	 */
-	public abstract Object clone();
+	//public abstract Object clone();
 
 	public ParameterEditorAPI<Double> getEditor() {
 		if (paramEdit == null) {

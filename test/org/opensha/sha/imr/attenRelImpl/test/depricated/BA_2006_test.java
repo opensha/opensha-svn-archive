@@ -42,7 +42,9 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.PropagationEffectParams.AbstractDoublePropEffectParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.PropagationEffectParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.WarningDoublePropagationEffectParameter;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
@@ -212,7 +214,7 @@ public class BA_2006_test implements ParameterChangeWarningListener{
 						((WarningDoubleParameter)ba_2006.getParameter(MagParam.NAME)).setValueIgnoreWarning(new Double(mag));
 
 						double rjb = Double.parseDouble(st.nextToken().trim());
-						((WarningDoublePropagationEffectParameter)ba_2006.getParameter(DistanceJBParameter.NAME)).setValueIgnoreWarning(new Double(rjb));
+						((AbstractDoublePropEffectParam)ba_2006.getParameter(DistanceJBParameter.NAME)).setValueIgnoreWarning(new Double(rjb));
 						st.nextToken().trim();//for rRup
 						st.nextToken().trim();//for rSeis
 						ba_2006.setIntensityMeasure(PGA_Param.NAME);

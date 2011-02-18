@@ -25,7 +25,9 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.PropagationEffectParams.AbstractDoublePropEffectParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.PropagationEffectParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.WarningDoublePropagationEffectParameter;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
@@ -248,7 +250,7 @@ public class Verify_AtkBoo_2006 {
 			} 
 			//((WarningDoubleParameter)imr.getParameter(PeriodParam.NAME)).setValueIgnoreWarning(per);
 			((WarningDoubleParameter)imr.getParameter(MagParam.NAME)).setValueIgnoreWarning(new Double(mag));
-			((WarningDoublePropagationEffectParameter)imr.getParameter(DistanceRupParameter.NAME)).
+			((AbstractDoublePropEffectParam)imr.getParameter(DistanceRupParameter.NAME)).
 				setValueIgnoreWarning(new Double(rrup));
 			((WarningDoubleParameter)imr.getParameter(Vs30_Param.NAME)).setValueIgnoreWarning(vs30);
 			((WarningDoubleParameter)imr.getParameter(StressDropParam.NAME)).setValueIgnoreWarning(sdrp);
@@ -342,7 +344,7 @@ public class Verify_AtkBoo_2006 {
 		for (int i=0; i<dat.size(); i++){
 			rrup = gmAtkBoo = dat.get(i)[1]; 
 			// Set distance
-			((WarningDoublePropagationEffectParameter)imr.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(rrup));
+			((AbstractDoublePropEffectParam)imr.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(rrup));
 
 			gmOpenSHA = imr.getMean(); // Ln GM
 			//gmOpenSHA = imr.getMean()*Math.log10(Math.E);

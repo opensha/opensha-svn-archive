@@ -17,6 +17,8 @@ import org.opensha.gem.GEM1.commons.CalculationSettings;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.PropagationEffectParams.AbstractDoublePropEffectParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.PropagationEffectParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.WarningDoublePropagationEffectParameter;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.util.TectonicRegionType;
@@ -126,7 +128,7 @@ public class GemCalcSetup {
 					// Set magnitude
 					((WarningDoubleParameter)imr.getParameter(MagParam.NAME)).setValueIgnoreWarning(new Double(mTmp));
 					// Set distance
-					((WarningDoublePropagationEffectParameter)imr.getParameter(dstStr)).
+					((AbstractDoublePropEffectParam)imr.getParameter(dstStr)).
 						setValueIgnoreWarning(new Double(dst[i]));
 					double val = Math.exp(imr.getMean() + 2.0*imr.getStdDev());
 					fun.set(dst[i],val);

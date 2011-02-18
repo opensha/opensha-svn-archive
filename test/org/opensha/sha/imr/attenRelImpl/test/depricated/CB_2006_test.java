@@ -45,8 +45,10 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PGD_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.PropagationEffectParams.AbstractDoublePropEffectParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistRupMinusJB_OverRupParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.PropagationEffectParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.WarningDoublePropagationEffectParameter;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
@@ -233,11 +235,11 @@ public class CB_2006_test implements ParameterChangeWarningListener{
 						double rjb = Double.parseDouble(st.nextToken().trim());
 
 						double rrup = Double.parseDouble(st.nextToken().trim());
-						((WarningDoublePropagationEffectParameter)cb_2006.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(rrup));
+						((AbstractDoublePropEffectParam)cb_2006.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(rrup));
 
 
 						double distRupMinusJB_OverRup = (rrup-rjb)/rrup;
-						((WarningDoublePropagationEffectParameter)cb_2006.getParameter(DistRupMinusJB_OverRupParameter.NAME)).setValueIgnoreWarning(new Double(distRupMinusJB_OverRup));
+						((AbstractDoublePropEffectParam)cb_2006.getParameter(DistRupMinusJB_OverRupParameter.NAME)).setValueIgnoreWarning(new Double(distRupMinusJB_OverRup));
 						st.nextToken().trim();
 						cb_2006.setIntensityMeasure(PGA_Param.NAME);
 						double openSHA_meanForPGA = Math.exp(cb_2006.getMean());

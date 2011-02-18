@@ -42,8 +42,7 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
  * @author Steven W. Rock
  * @version 1.0
  */
-public class DistanceRupParameter
-extends WarningDoublePropagationEffectParameter {
+public class DistanceRupParameter extends AbstractDoublePropEffectParam {
 
 	/** Class name used in debug strings */
 	protected final static String C = "DistanceRupParameter";
@@ -64,10 +63,14 @@ extends WarningDoublePropagationEffectParameter {
 
 
 	/** No-Arg constructor that calls init(). No constraint so all values are allowed.  */
-	public DistanceRupParameter() { init(); }
+	public DistanceRupParameter() {
+		super(NAME);
+		init();
+	}
 	
 	/** This constructor sets the default value.  */
 	public DistanceRupParameter(double defaultValue) { 
+		super(NAME);
 		init(); 
 		this.setDefaultValue(defaultValue);
 	}
@@ -76,8 +79,8 @@ extends WarningDoublePropagationEffectParameter {
 
 	/** Constructor that sets up constraints. This is a constrained parameter. */
 	public DistanceRupParameter(ParameterConstraintAPI warningConstraint)
-	throws ConstraintException
-	{
+		throws ConstraintException {
+		super(NAME);
 		if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
 			throw new ConstraintException(
 					C + " : Constructor(): " +
@@ -88,9 +91,9 @@ extends WarningDoublePropagationEffectParameter {
 	}
 	
     /** Constructor that sets up constraints & the default value. This is a constrained parameter. */
-    public DistanceRupParameter(ParameterConstraintAPI warningConstraint, double defaultValue)
-        throws ConstraintException
-    {
+	public DistanceRupParameter(ParameterConstraintAPI warningConstraint,
+		double defaultValue) throws ConstraintException {
+		super(NAME);
         if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
             throw new ConstraintException(
                 C + " : Constructor(): " +

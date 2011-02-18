@@ -42,9 +42,7 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
  * @author Steven W. Rock
  * @version 1.0
  */
-public class DistRupMinusJB_OverRupParameter
-     extends WarningDoublePropagationEffectParameter {
-
+public class DistRupMinusJB_OverRupParameter extends AbstractDoublePropEffectParam {
 
     /** Class name used in debug strings */
     protected final static String C = "DistanceRupMinusJB_Parameter";
@@ -63,10 +61,14 @@ public class DistRupMinusJB_OverRupParameter
 
 
     /** No-Arg constructor that calls init(). No constraint so all values are allowed.  */
-    public DistRupMinusJB_OverRupParameter() { init(); }
+	public DistRupMinusJB_OverRupParameter() {
+		super(NAME);
+		init();
+	}
     
 	/** This constructor sets the default value.  */
 	public DistRupMinusJB_OverRupParameter(double defaultValue) { 
+		super(NAME);
 		init(); 
 		this.setDefaultValue(defaultValue);
 	}
@@ -77,6 +79,7 @@ public class DistRupMinusJB_OverRupParameter
     public DistRupMinusJB_OverRupParameter(ParameterConstraintAPI warningConstraint)
         throws ConstraintException
     {
+		super(NAME);
         if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
             throw new ConstraintException(
                 C + " : Constructor(): " +
@@ -90,6 +93,7 @@ public class DistRupMinusJB_OverRupParameter
     public DistRupMinusJB_OverRupParameter(ParameterConstraintAPI warningConstraint, double defaultValue)
         throws ConstraintException
     {
+		super(NAME);
         if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
             throw new ConstraintException(
                 C + " : Constructor(): " +

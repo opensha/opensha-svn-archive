@@ -43,8 +43,7 @@ import org.opensha.commons.param.editor.estimate.ConstrainedEstimateParameterEdi
  * @version 1.0
  */
 
-public class EstimateParameter extends DependentParameter<Estimate>
-implements DependentParameterAPI<Estimate>, ParameterAPI<Estimate> {
+public class EstimateParameter extends DependentParameter<Estimate> {
 
 
 	/** Class name for debugging. */
@@ -190,8 +189,8 @@ implements DependentParameterAPI<Estimate>, ParameterAPI<Estimate> {
 	}
 
 
-
-	public int compareTo(Object parm1) {
+	@Override
+	public int compareTo(ParameterAPI<Estimate> param) {
 		/**@todo Implement this org.opensha.param.Parameter abstract method*/
 		throw new java.lang.UnsupportedOperationException(
 		"Method compareTo() not yet implemented.");

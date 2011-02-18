@@ -42,8 +42,7 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
  * @author Steven W. Rock
  * @version 1.0
  */
-public class DistanceJBParameter
-extends WarningDoublePropagationEffectParameter {
+public class DistanceJBParameter extends AbstractDoublePropEffectParam {
 
 
 
@@ -70,42 +69,46 @@ extends WarningDoublePropagationEffectParameter {
 	 * No-Arg constructor that just calls init() with null constraints.
 	 * All value are allowed.
 	 */
-	public DistanceJBParameter() { init(); }
+	public DistanceJBParameter() {
+		super(NAME);
+		init();
+	}
 	
 	/** This constructor sets the default value.  */
 	public DistanceJBParameter(double defaultValue) { 
+		super(NAME);
 		init(); 
 		this.setDefaultValue(defaultValue);
 	}
 
 
 
-	/** Constructor that sets up constraints. This is a constrained parameter. */
-	public DistanceJBParameter(ParameterConstraintAPI warningConstraint)
-	throws ConstraintException
-	{
-		if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
-			throw new ConstraintException(
-					C + " : Constructor(): " +
-					"Input constraint must be a DoubleConstraint"
-			);
-		}
-		init( (DoubleConstraint)warningConstraint );
-	}
-	
-    /** Constructor that sets up constraints & the default value. This is a constrained parameter. */
-    public DistanceJBParameter(ParameterConstraintAPI warningConstraint, double defaultValue)
-        throws ConstraintException
-    {
-        if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
-            throw new ConstraintException(
-                C + " : Constructor(): " +
-                "Input constraint must be a DoubleConstraint"
-            );
-        }
-        init( (DoubleConstraint)warningConstraint );
-        setDefaultValue(defaultValue);
-    }
+//	/** Constructor that sets up constraints. This is a constrained parameter. */
+//	public DistanceJBParameter(ParameterConstraintAPI warningConstraint)
+//	throws ConstraintException
+//	{
+//		if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
+//			throw new ConstraintException(
+//					C + " : Constructor(): " +
+//					"Input constraint must be a DoubleConstraint"
+//			);
+//		}
+//		init( (DoubleConstraint)warningConstraint );
+//	}
+//	
+//    /** Constructor that sets up constraints & the default value. This is a constrained parameter. */
+//    public DistanceJBParameter(ParameterConstraintAPI warningConstraint, double defaultValue)
+//        throws ConstraintException
+//    {
+//        if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
+//            throw new ConstraintException(
+//                C + " : Constructor(): " +
+//                "Input constraint must be a DoubleConstraint"
+//            );
+//        }
+//        init( (DoubleConstraint)warningConstraint );
+//        setDefaultValue(defaultValue);
+//    }
 
 
 	/** Initializes the constraints, name, etc. for this parameter */
@@ -121,7 +124,7 @@ extends WarningDoublePropagationEffectParameter {
 	}
 
 	/** Initializes the constraints, name, etc. for this parameter */
-	protected void init(){ init( null ); }
+	protected void init() { init(null); }
 
 	/**
 	 * Note that this does not throw a warning

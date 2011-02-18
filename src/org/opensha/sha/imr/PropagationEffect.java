@@ -31,10 +31,12 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.imr.param.PropagationEffectParams.AbstractDoublePropEffectParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceX_Parameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.PropagationEffectParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.WarningDoublePropagationEffectParameter;
 
 
@@ -234,8 +236,8 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 	 */
 	public void setParamValue( ParameterAPI param ) {
 
-		if(param instanceof WarningDoublePropagationEffectParameter)
-			((WarningDoublePropagationEffectParameter)param).setValueIgnoreWarning((Double)getParamValue(param.getName()));
+		if(param instanceof AbstractDoublePropEffectParam)
+			((AbstractDoublePropEffectParam)param).setValueIgnoreWarning((Double)getParamValue(param.getName()));
 		else
 			param.setValue(getParamValue(param.getName()));
 

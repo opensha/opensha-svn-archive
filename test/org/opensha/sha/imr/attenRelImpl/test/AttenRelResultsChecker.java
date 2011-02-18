@@ -40,6 +40,8 @@ import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.WarningDoubleParameter;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.param.PropagationEffectParams.AbstractDoublePropEffectParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.PropagationEffectParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.WarningDoublePropagationEffectParameter;
 
 
@@ -265,8 +267,8 @@ public class AttenRelResultsChecker {
 						tempParam.setValue(new Integer(paramVal));
 					if(tempParam instanceof DoubleDiscreteParameter)
 						tempParam.setValue(new Double(paramVal));
-					if(tempParam instanceof WarningDoublePropagationEffectParameter) {
-						((WarningDoublePropagationEffectParameter)tempParam).setIgnoreWarning(true);
+					if(tempParam instanceof AbstractDoublePropEffectParam) {
+						((AbstractDoublePropEffectParam)tempParam).setIgnoreWarning(true);
 						tempParam.setValue(new Double(paramVal));
 					}
 

@@ -47,36 +47,36 @@ import org.opensha.sha.earthquake.EqkRupture;
 public interface PropagationEffectParameterAPI<E> {
 
 
-     /** Sets the independent variables (Site and eqkRupture) then calculates and returns the value */
+    /** The EqkRupture and Site must have already been set */
+    //public E getValue();
+
+    /** Sets the independent variables (Site and eqkRupture) then calculates and returns the value */
     public E getValue(EqkRupture eqkRupture, Site site);
 
     /** Sets the site and recalculates the value. The ProbEqkRupture must have already been set */
-    public E getValue(Site site);
+    //public E getValue(Site site);
 
     /** Sets the EqkRupture and recalculates the value. The Site must have already been set */
-    public E getValue(EqkRupture eqkRupture);
+    //public E getValue(EqkRupture eqkRupture);
 
     /** Sets the independent variables (Site and EqkRupture) then calculates the value */
     public void setValue(EqkRupture eqkRupture, Site site);
 
-    /** The EqkRupture and Site must have already been set */
-    public E getValue();
 
     /** Sets the Site and the value is recalculated */
-    public void setSite(Site site);
+    //public void setSite(Site site);
     /** Returns the Site that set this value */
-    public Site getSite();
+    //public Site getSite();
 
     /** Sets the EqkRupture associated with this Parameter, and the value is recalculated */
-    public void setEqkRupture(EqkRupture eqkRupture);
+    //public void setEqkRupture(EqkRupture eqkRupture);
     /** Returns the EqkRupture that set this value */
-    public EqkRupture getEqkRupture();
+    //public EqkRupture getEqkRupture();
 
     /**
      * Standard Java function. Creates a copy of this class instance
      * so originaly can not be modified
      */
-    public Object clone();
-
+    //public Object clone();
 
 }

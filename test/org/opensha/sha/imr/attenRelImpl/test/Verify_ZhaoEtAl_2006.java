@@ -31,7 +31,9 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.AbstractDoublePropEffectParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.PropagationEffectParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.WarningDoublePropagationEffectParameter;
 import org.opensha.sha.util.TectonicRegionType;
 
@@ -122,7 +124,7 @@ public class Verify_ZhaoEtAl_2006 {
 		// Magnitude
 		((WarningDoubleParameter)imr.getParameter(MagParam.NAME)).setValueIgnoreWarning(new Double(mag));
 		// Distance 
-		((WarningDoublePropagationEffectParameter)imr.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(dst));
+		((AbstractDoublePropEffectParam)imr.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(dst));
 		// Verification table
 		fle = "zhao_r20.0_m6.5_dep10.0_shallow_reverse_site1.dat";
 		// Output file 
@@ -157,7 +159,7 @@ public class Verify_ZhaoEtAl_2006 {
 		// Magnitude
 		((WarningDoubleParameter)imr.getParameter(MagParam.NAME)).setValueIgnoreWarning(new Double(mag));
 		// Distance 
-		((WarningDoublePropagationEffectParameter)imr.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(dst));
+		((AbstractDoublePropEffectParam)imr.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(dst));
 		// Verification table
 		fle = "zhao_r20.0_m6.5_dep10.0_shallow_normal_site1.dat";
 		// Output file 
@@ -194,7 +196,7 @@ public class Verify_ZhaoEtAl_2006 {
 		// Magnitude
 		((WarningDoubleParameter)imr.getParameter(MagParam.NAME)).setValueIgnoreWarning(new Double(mag));
 		// Distance 
-		((WarningDoublePropagationEffectParameter)imr.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(dst));
+		((AbstractDoublePropEffectParam)imr.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(dst));
 		// Verification table
 		fle = "zhao_r22.3_m6.5_dep20.0_interf_site1.dat";
 		// Output file
@@ -225,7 +227,7 @@ public class Verify_ZhaoEtAl_2006 {
 		// Magnitude
 		((WarningDoubleParameter)imr.getParameter(MagParam.NAME)).setValueIgnoreWarning(new Double(mag));
 		// Distance 
-		((WarningDoublePropagationEffectParameter)imr.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(dst));
+		((AbstractDoublePropEffectParam)imr.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(dst));
 		// Verification table
 		fle = "zhao_r22.3_m6.5_dep20.0_interf_site2.dat";
 		// Output file 
@@ -256,7 +258,7 @@ public class Verify_ZhaoEtAl_2006 {
 		// Magnitude
 		((WarningDoubleParameter)imr.getParameter(MagParam.NAME)).setValueIgnoreWarning(new Double(mag));
 		// Distance 
-		((WarningDoublePropagationEffectParameter)imr.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(dst));
+		((AbstractDoublePropEffectParam)imr.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(dst));
 		// Verification table
 		fle = "zhao_r22.3_m6.5_dep20.0_interf_site3.dat";
 		// Output file 
@@ -287,7 +289,7 @@ public class Verify_ZhaoEtAl_2006 {
 		// Magnitude
 		((WarningDoubleParameter)imr.getParameter(MagParam.NAME)).setValueIgnoreWarning(new Double(mag));
 		// Distance 
-		((WarningDoublePropagationEffectParameter)imr.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(dst));
+		((AbstractDoublePropEffectParam)imr.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(dst));
 		// Verification table
 		fle = "zhao_r22.3_m6.5_dep20.0_interf_site4.dat";
 		// Output file 
@@ -318,7 +320,7 @@ public class Verify_ZhaoEtAl_2006 {
 		// Magnitude
 		((WarningDoubleParameter)imr.getParameter(MagParam.NAME)).setValueIgnoreWarning(new Double(mag));
 		// Distance 
-		((WarningDoublePropagationEffectParameter)imr.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(dst));
+		((AbstractDoublePropEffectParam)imr.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(dst));
 		// Verification table
 		fle = "zhao_r22.3_m6.5_dep20.0_slab_site1.dat";
 		// Output file 
@@ -385,7 +387,7 @@ public class Verify_ZhaoEtAl_2006 {
 		// Magnitude
 		((WarningDoubleParameter)imr.getParameter(MagParam.NAME)).setValueIgnoreWarning(new Double(mag));
 		// Distance 
-		((WarningDoublePropagationEffectParameter)imr.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(dst));
+		((AbstractDoublePropEffectParam)imr.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(dst));
 		// Verification table
 		fle = "zhao_r30.0_m6.5_dep20.0_interf_site1.dat";
 		// Output file 
@@ -421,7 +423,7 @@ public class Verify_ZhaoEtAl_2006 {
 		// Magnitude
 		((WarningDoubleParameter)imr.getParameter(MagParam.NAME)).setValueIgnoreWarning(new Double(mag));
 		// Distance 
-		((WarningDoublePropagationEffectParameter)imr.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(dst));
+		((AbstractDoublePropEffectParam)imr.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(dst));
 		// Verification table
 		fle = "zhao_r150.0_m7.0_dep130.0_slab_site1.dat";
 		// Output file 
