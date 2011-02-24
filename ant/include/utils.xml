@@ -63,9 +63,21 @@
 			value="${major.version}.${minor.version}.${build.number}"/>
 	</target>
 	<target name="set.app.version">
-		<svn javahl="false" svnkit="false">
-			<wcVersion path=".." prefix="svn." />
-		</svn>
+		<!-- this is in a try catch block in order to try it 2 ways,
+		one which uses the command line svn client (faster for builds),
+		and falling back on the javahl version. -->
+		<trycatch>
+			<try>
+				<svn javahl="false" svnkit="false">
+					<wcVersion path=".." prefix="svn." />
+				</svn>
+			</try>
+			<catch>
+				<svn>
+					<wcVersion path=".." prefix="svn." />
+				</svn>
+			</catch>
+		</trycatch>
 		<tstamp>
 			<format property="build.date" pattern="yyyy_MM_dd" unit="day"/>
 		</tstamp>
