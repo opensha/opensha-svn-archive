@@ -21,6 +21,7 @@
 <project basedir="." default="svn.build.run.common.tests" name="Cruise Control Build File">
 	
 	<target name="svn.update">
+		<ant antfile="test.xml"  target="pre.test.init"/>
 		<ant antfile="build.xml" target="svn.update"/>
 	</target>
 	
