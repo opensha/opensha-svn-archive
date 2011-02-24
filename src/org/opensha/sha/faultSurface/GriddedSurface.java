@@ -226,5 +226,13 @@ implements GriddedSurfaceAPI {
 	public ListIterator<Location> getLocationsIterator() {
 		return listIterator();
 	}
+	
+	public FaultTrace getRowAsTrace(int row) {
+		FaultTrace trace = new FaultTrace(null);
+		for(int col=0; col<numCols; col++)
+			trace.add(get(row, col));
+		return trace;
+	}
+
 }
 
