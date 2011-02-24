@@ -63,7 +63,7 @@
 			value="${major.version}.${minor.version}.${build.number}"/>
 	</target>
 	<target name="set.app.version">
-		<svn>
+		<svn javahl="false" svnkit="true">
 			<wcVersion path=".." prefix="svn." />
 		</svn>
 		<tstamp>
