@@ -112,5 +112,12 @@ public interface GriddedSurfaceAPI extends Container2DAPI<Location> {
 	 * @return
 	 */
 	public ListIterator<Location> getLocationsIterator();
+	
+	/**
+	 * This returns a given row as a FaultTrace object
+	 * @param row
+	 * @return FaultTrace
+	 */
+	public FaultTrace getRowAsTrace(int row);
 
 }

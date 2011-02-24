@@ -338,6 +338,14 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location> implements
 	public ListIterator<Location> getLocationsIterator() {
 		return listIterator();
 	}
+	
+	public FaultTrace getRowAsTrace(int row) {
+		FaultTrace trace = new FaultTrace(null);
+		for(int col=0; col<getNumCols(); col++)
+			trace.add(get(row, col));
+		return trace;
+	}
+
 
 
 }

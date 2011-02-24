@@ -479,6 +479,11 @@ public class PointSurface implements EvenlyGriddedSurfaceAPI {
 		return listIterator();
 	}
 
+	public FaultTrace getRowAsTrace(int row) {
+		FaultTrace trace = new FaultTrace(null);
+		trace.add(location);
+		return trace;
+	}
 
 
 }
