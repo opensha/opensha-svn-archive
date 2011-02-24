@@ -1,5 +1,7 @@
 package scratch.UCERF3;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.util.ArrayList;
 
@@ -34,6 +36,9 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRa
 public class RupsInFaultSystemInversion {
 
 	protected final static boolean D = true;  // for debugging
+	
+	final static String PALEO_DATA_FILE_NAME = "Appendix_C_Table7_091807.xls";
+
 
 
 	ArrayList<FaultSectionPrefData> faultSectionData;
@@ -46,6 +51,8 @@ public class RupsInFaultSystemInversion {
 	Location endPointLocs[];
 	int numSections;
 	ArrayList<ArrayList<Integer>> sectionConnectionsListList, endToEndSectLinksList;
+	
+	File precomputedDataDir; // this is where pre-computed data are stored (we read these to make things faster)
 	
 	ArrayList<SegRateConstraint> segRateConstraints;
 
@@ -76,7 +83,7 @@ public class RupsInFaultSystemInversion {
 	public RupsInFaultSystemInversion(ArrayList<FaultSectionPrefData> faultSectionData,
 			double[][] sectionDistances, double[][] subSectionAzimuths, double maxJumpDist, 
 			double maxAzimuthChange, double maxTotAzimuthChange, double maxRakeDiff, int minNumSectInRup,
-			MagAreaRelationship magAreaRel) {
+			MagAreaRelationship magAreaRel, File precomputedDataDir) {
 
 		if(D) System.out.println("Instantiating RupsInFaultSystemInversion");
 		this.faultSectionData = faultSectionData;
@@ -88,6 +95,7 @@ public class RupsInFaultSystemInversion {
 		this.maxRakeDiff=maxRakeDiff;
 		this.minNumSectInRup=minNumSectInRup;
 		this.magAreaRel=magAreaRel;
+		this.precomputedDataDir = precomputedDataDir;
 
 		// write out settings if in debug mode
 		if(D) System.out.println("faultSectionData.size() = "+faultSectionData.size() +
@@ -112,7 +120,7 @@ public class RupsInFaultSystemInversion {
 		if(D) System.out.println("Done making sectionConnectionsListList");
 
 		// Comment this out when using SCEC VDO (it's crashing there)
-//		getPaleoSegRateConstraints();
+		getPaleoSegRateConstraints();
 
 		// make the list of SectionCluster objects 
 		// (each represents a set of nearby sections and computes the possible
@@ -325,11 +333,12 @@ public class RupsInFaultSystemInversion {
 	 * on a given section)
 	 */
 	public ArrayList<SegRateConstraint> getPaleoSegRateConstraints() {
-		String SEG_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data/Appendix_C_Table7_091807.xls";
+		
+		String fullpathname = precomputedDataDir.getAbsolutePath()+File.separator+PALEO_DATA_FILE_NAME;
 		segRateConstraints   = new ArrayList<SegRateConstraint>();
 		try {				
-			if(D) System.out.println("Reading Paleo Seg Rate Data from "+SEG_RATE_FILE_NAME);
-			POIFSFileSystem fs = new POIFSFileSystem(getClass().getClassLoader().getResourceAsStream(SEG_RATE_FILE_NAME));
+			if(D) System.out.println("Reading Paleo Seg Rate Data from "+fullpathname);
+			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(fullpathname));
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
 			HSSFSheet sheet = wb.getSheetAt(0);
 			int lastRowIndex = sheet.getLastRowNum();

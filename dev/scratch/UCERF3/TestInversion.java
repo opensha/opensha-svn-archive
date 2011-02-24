@@ -91,7 +91,8 @@ public class TestInversion {
 		
 		rupsInFaultSysInv = new RupsInFaultSystemInversion(subSectionPrefDataList,
 				subSectionDistances, subSectionAzimuths, maxJumpDist, 
-				maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, minNumSectInRup, magAreaRel);
+				maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, minNumSectInRup, 
+				magAreaRel, precomputedDataDir);
 		
 //		rupsInFaultSysInv.writeCloseSubSections(precomputedDataDir.getAbsolutePath()+File.separator+"closeSubSections.txt");
 		

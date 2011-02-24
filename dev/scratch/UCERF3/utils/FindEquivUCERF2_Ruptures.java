@@ -50,11 +50,6 @@ public class FindEquivUCERF2_Ruptures {
 	
 		
 	
-	public FindEquivUCERF2_Ruptures(ArrayList<FaultSectionPrefData> faultSectionData) {
-		this(faultSectionData, new File("dev/scratch/UCERF3/preComputedData/"));
-	}
-	
-	
 	public FindEquivUCERF2_Ruptures(ArrayList<FaultSectionPrefData> faultSectionData, File precomputedDataDir) {
 		
 		this.faultSectionData = faultSectionData;
