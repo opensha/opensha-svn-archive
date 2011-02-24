@@ -12,6 +12,7 @@ import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.commons.util.FaultTraceUtils;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 
@@ -197,7 +198,7 @@ public class FaultSectionPrefData  implements NamedObjectAPI, java.io.Serializab
 			subSection.setFaultSectionPrefData(this);
 			subSection.setFaultTrace(equalLengthSubsTrace.get(i));
 			subSection.setSectionId(sectionId*1000+i);
-			subSection.setSectionName(sectionName+", Subsection "+(i+1));
+			subSection.setSectionName(sectionName+", Subsection "+(i));
 			subSection.setParentSectionId(sectionId);
 			subSection.setParentSectionName(sectionName);
 			subSectionList.add(subSection);
@@ -221,7 +222,7 @@ public class FaultSectionPrefData  implements NamedObjectAPI, java.io.Serializab
 			subSection.setFaultSectionPrefData(this);
 			subSection.setFaultTrace(equalLengthSubsTrace.get(i));
 			subSection.setSectionId(startId+i);
-			subSection.setSectionName(sectionName+", Subsection "+(i+1));
+			subSection.setSectionName(sectionName+", Subsection "+(i));
 			subSection.setParentSectionId(sectionId);
 			subSection.setParentSectionName(sectionName);
 			subSectionList.add(subSection);
@@ -260,6 +261,18 @@ public class FaultSectionPrefData  implements NamedObjectAPI, java.io.Serializab
 			return simpleFaultData;
 
 		}
+	}
+	
+	
+	/**
+	 * This returns a StirlingGriddedSurface with the specified grid spacing, with the option of
+	 * applying asiesmicity reductions of down-dip-width (taken equally from the top and bottom).
+	 * @param aseisReducesArea
+	 * @param gridSpacing
+	 * @return
+	 */
+	public StirlingGriddedSurface getStirlingGriddedSurface(boolean aseisReducesArea, double gridSpacing) {
+		return new StirlingGriddedSurface(getSimpleFaultData(aseisReducesArea), gridSpacing);
 	}
 
 	public Element toXMLMetadata(Element root) {
