@@ -324,7 +324,7 @@ public class RupsInFaultSystemInversion {
 	 * a list of SegRateConstraint objects, where the list would be to accomodate more than one
 	 * on a given section)
 	 */
-	private void getPaleoSegRateConstraints() {
+	public ArrayList<SegRateConstraint> getPaleoSegRateConstraints() {
 		String SEG_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data/Appendix_C_Table7_091807.xls";
 		segRateConstraints   = new ArrayList<SegRateConstraint>();
 		try {				
@@ -373,6 +373,7 @@ public class RupsInFaultSystemInversion {
 		}catch(Exception e) {
 			System.out.println("UNABLE TO READ PALEO DATA");
 		}
+		return segRateConstraints;
 	}
 
 	
@@ -409,7 +410,7 @@ public class RupsInFaultSystemInversion {
 		// (mean moment != moment of mean mag if aleatory uncertainty included)
 		
 		double aveSlip = rupMeanMoment/(rupAreaInKM*1e6*FaultMomentCalc.SHEAR_MODULUS);  // 1e6 converts to meters
-		if(D) System.out.println("RupMag = "+mag+"\tAveSlip = "+aveSlip+"\t"+slipModelType);
+		// if(D) System.out.println("RupMag = "+mag+"\tAveSlip = "+aveSlip+"\t"+slipModelType);
 
 		
 		// for case segment slip is independent of rupture (constant), and equal to slip-rate * MRI
