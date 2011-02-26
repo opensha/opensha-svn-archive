@@ -18,6 +18,12 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
+import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.sha.magdist.SummedMagFreqDist;
+
+import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures;
+import scratch.UCERF3.utils.SimulatedAnnealing;
 
 
 /**
@@ -30,6 +36,8 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRa
  * (to avoid ruptures jumping back and forth for closely spaced and parallel sections).
  * Is this potentially problematic?
  * 
+ * Aseismicity reduces area here
+ * 
  * @author field & Page
  *
  */
@@ -39,12 +47,11 @@ public class RupsInFaultSystemInversion {
 	
 	final static String PALEO_DATA_FILE_NAME = "Appendix_C_Table7_091807.xls";
 
-
-
 	ArrayList<FaultSectionPrefData> faultSectionData;
 	double sectionDistances[][],sectionAzimuths[][];;
 	double maxJumpDist, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff;
 	int minNumSectInRup;
+	
 	MagAreaRelationship magAreaRel;
 
 	String endPointNames[];
@@ -57,6 +64,16 @@ public class RupsInFaultSystemInversion {
 	ArrayList<SegRateConstraint> segRateConstraints;
 
 	ArrayList<SectionCluster> sectionClusterList;
+	
+	// rupture attributes (all in SI units)
+	double[] rupMeanMag, rupMeanMoment, rupTotMoRateAvail, rupArea, rupLength;
+	int[] clusterIndexForRup, rupIndexInClusterForRup;
+	int numRuptures=0;
+	
+	double moRateReduction;  // reduction of section slip rates to account for smaller events
+	
+	// section attributes (all in SI units)
+	double[] sectSlipRateReduced;	// this gets reduced by moRateReduction (if non zero)
 	
 	// slip model:
 	public final static String CHAR_SLIP_MODEL = "Characteristic (Dsr=Ds)";
@@ -83,7 +100,7 @@ public class RupsInFaultSystemInversion {
 	public RupsInFaultSystemInversion(ArrayList<FaultSectionPrefData> faultSectionData,
 			double[][] sectionDistances, double[][] subSectionAzimuths, double maxJumpDist, 
 			double maxAzimuthChange, double maxTotAzimuthChange, double maxRakeDiff, int minNumSectInRup,
-			MagAreaRelationship magAreaRel, File precomputedDataDir) {
+			MagAreaRelationship magAreaRel, File precomputedDataDir, double moRateReduction) {
 
 		if(D) System.out.println("Instantiating RupsInFaultSystemInversion");
 		this.faultSectionData = faultSectionData;
@@ -96,6 +113,7 @@ public class RupsInFaultSystemInversion {
 		this.minNumSectInRup=minNumSectInRup;
 		this.magAreaRel=magAreaRel;
 		this.precomputedDataDir = precomputedDataDir;
+		this.moRateReduction=moRateReduction;
 
 		// write out settings if in debug mode
 		if(D) System.out.println("faultSectionData.size() = "+faultSectionData.size() +
@@ -113,19 +131,100 @@ public class RupsInFaultSystemInversion {
 				throw new RuntimeException("RupsInFaultSystemInversion: Error - indices of faultSectionData don't match IDs");
 
 		numSections = faultSectionData.size();
+		
+		// add standard deviations here as well
+		sectSlipRateReduced = new double[numSections];
+		for(int s=0; s<numSections; s++)
+			sectSlipRateReduced[s] = faultSectionData.get(s).getAveLongTermSlipRate()*1e-3*(1-moRateReduction); // mm/yr --> m/yr; includes moRateReduction
 
 		// make the list of nearby sections for each section (branches)
 		if(D) System.out.println("Making sectionConnectionsListList");
 		computeCloseSubSectionsListList();
 		if(D) System.out.println("Done making sectionConnectionsListList");
 
-		// Comment this out when using SCEC VDO (it's crashing there)
+		// get paleoseismic constraints
 		getPaleoSegRateConstraints();
 
 		// make the list of SectionCluster objects 
 		// (each represents a set of nearby sections and computes the possible
 		//  "ruptures", each defined as a list of sections in that rupture)
 		makeClusterList();
+		
+		// calculate rupture magnitude and other attributes
+		calcRuptureAttributes();
+		
+		// plot magnitude histogram for the inversion ruptures
+		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,35,0.1);
+		magHist.setTolerance(0.2);	// this makes it a histogram
+		for(int r=0; r<getNumRupRuptures();r++) {
+			magHist.add(rupMeanMag[r], 1.0);
+		}
+		ArrayList funcs = new ArrayList();
+		funcs.add(magHist);
+//		System.out.println(magHist);
+		magHist.setName("Histogram of Inversion ruptures");
+		magHist.setInfo("(number in each mag bin)");
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Magnitude Histogram"); 
+		graph.setX_AxisLabel("Mag");
+		graph.setY_AxisLabel("Num");
+
+		
+		
+		// plot MFD for the equivalent UCERF2 ruptures 
+		FindEquivUCERF2_Ruptures findUCERF2_Rups = new FindEquivUCERF2_Ruptures(faultSectionData, precomputedDataDir);
+		SummedMagFreqDist magDist = new SummedMagFreqDist(5.05,35,0.1);
+		ArrayList<ArrayList<Integer>> ruptures = getRupList();
+		for(int r=0; r<ruptures.size();r++) {
+			ArrayList<Integer> rup = ruptures.get(r);
+			double[] magAndRate = findUCERF2_Rups.getMagAndRateForRupture(rup, rupLength[r]);
+			if(magAndRate != null)
+				magDist.addResampledMagRate(magAndRate[0], magAndRate[1], false);	// this preserves moment rate
+		}
+		magDist.setName("MFD for equiv. UCERF2 ruptures");
+		ArrayList funcs2 = new ArrayList();
+		funcs2.add(magDist);
+		funcs2.add(findUCERF2_Rups.getNcalMFD());
+		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "Mag-Freq Dist"); 
+		graph2.setX_AxisLabel("Mag");
+		graph2.setY_AxisLabel("Rate");
+		graph2.setYLog(true);
+
+
+		/*
+		// check for any multi path ruptures
+		System.out.println("Checking for multi pathing - the following ruptures have the same first and last sections");
+		System.out.println("iClust\tiRup1\tiRup2\trupLenDiff\tmaxSectLength\tsections in each...");
+		boolean problemFound = false;
+		for(int c=0;c<sectionClusterList.size();c++) {
+			ArrayList<ArrayList<Integer>> ruptures = sectionClusterList.get(c).getSectionIndicesForRuptures();
+			for(int r=0;r<ruptures.size();r++) {
+				ArrayList<Integer> rup = ruptures.get(r);
+				int numSect = rup.size();
+				int firstSectID = rup.get(0);
+				int lastSectID = rup.get(numSect-1);
+				for(int r2=r+1;r2<ruptures.size();r2++) {
+					ArrayList<Integer> rup2 = ruptures.get(r2);
+					int numSect2 = rup2.size();
+					int firstSectID2 = rup2.get(0);
+					int lastSectID2 = rup2.get(numSect2-1);
+					if((firstSectID2 == firstSectID && lastSectID2 == lastSectID) || (firstSectID2 == lastSectID && lastSectID2 == firstSectID)) {
+						double maxSectLength=faultSectionData.get(firstSectID).getLength();
+						double otherSectLength = faultSectionData.get(lastSectID).getLength();
+						if(maxSectLength<otherSectLength)
+							maxSectLength = otherSectLength;
+						double rupLenDiff = Math.abs(rupLength[r]-rupLength[r2])/1e3;
+						boolean problem = (rupLenDiff<maxSectLength);
+						System.out.println(c+"\t"+r+"\t"+r2+"\t"+(float)rupLenDiff+"\t"+(float)maxSectLength+"\t"+problem+"\t"+rup+"\t"+rup2);
+						problemFound = true;
+						//					throw new RuntimeException("Milti path problem");
+					}
+				}
+			}
+		}
+		*/
+		
+//		doInversion();
+		
 
 //		for(int i=0;i<this.sectionClusterList.size(); i++)
 //			System.out.println("Cluster "+i+" has "+getCluster(i).size()+" sections & "+getCluster(i).getNumRuptures()+" ruptures");
@@ -163,12 +262,16 @@ public class RupsInFaultSystemInversion {
 	}
 
 
+	/**
+	 * This returns the total number of ruptures
+	 * @return
+	 */
 	public int getNumRupRuptures() {
-		int num = 0;
-		for(int i=0; i<sectionClusterList.size();i++) {
-			num += sectionClusterList.get(i).getNumRuptures();
+		if(numRuptures ==0) {
+			for(int c=0; c<sectionClusterList.size();c++)
+				numRuptures += sectionClusterList.get(c).getNumRuptures();
 		}
-		return num;
+		return numRuptures;
 	}
 
 
@@ -270,7 +373,7 @@ public class RupsInFaultSystemInversion {
 					sectionAzimuths, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff);
 			newCluster.add(firstSubSection);
 			if (D) System.out.println("\tfirst is "+faultSectionData.get(firstSubSection).getName());
-			addLinks(firstSubSection, newCluster);
+			addClusterLinks(firstSubSection, newCluster);
 			// remove the used subsections from the available list
 			for(int i=0; i<newCluster.size();i++) availableSections.remove(newCluster.get(i));
 			// add this cluster to the list
@@ -281,13 +384,13 @@ public class RupsInFaultSystemInversion {
 	}
 
 
-	private void addLinks(int subSectIndex, SectionCluster list) {
+	private void addClusterLinks(int subSectIndex, SectionCluster list) {
 		ArrayList<Integer> branches = sectionConnectionsListList.get(subSectIndex);
 		for(int i=0; i<branches.size(); i++) {
 			Integer subSect = branches.get(i);
 			if(!list.contains(subSect)) {
 				list.add(subSect);
-				addLinks(subSect, list);
+				addClusterLinks(subSect, list);
 			}
 		}
 	}
@@ -384,6 +487,18 @@ public class RupsInFaultSystemInversion {
 		}
 		return segRateConstraints;
 	}
+	
+	
+	/**
+	 * This returns the section indices for the rth rupture
+	 * @param rthRup
+	 * @return
+	 */
+	public ArrayList<Integer> getSectionIndicesForRupture(int rthRup) {
+		return sectionClusterList.get(clusterIndexForRup[rthRup]).getSectionIndicesForRupture(rupIndexInClusterForRup[rthRup]);
+
+	}
+
 
 	
 	/**
@@ -394,33 +509,25 @@ public class RupsInFaultSystemInversion {
 	 * This has been spot checked, but needs a formal test.
 	 *
 	 */
-	public double[] getSlipOnSectionsForRup(ArrayList<Integer> sectIndicesForRup) {
+	public double[] getSlipOnSectionsForRup(int rthRup) {
 		
-		double[] slipsForRup = new double[sectIndicesForRup.size()];
+		ArrayList<Integer> sectionIndices = getSectionIndicesForRupture(rthRup);
+		int numSects = sectionIndices.size();
+
+		double[] slipsForRup = new double[numSects];
 		
 		// compute rupture area
-		double rupAreaInKM=0, totMoRate=0;
-		double[] sectArea = new double[sectIndicesForRup.size()];
-		double[] sectMoRate = new double[sectIndicesForRup.size()];
+		double[] sectArea = new double[numSects];
+		double[] sectMoRate = new double[numSects];
 		int index=0;
-		for(Integer sectIndex: sectIndicesForRup) {
-			FaultSectionPrefData sectData = faultSectionData.get(sectIndex);
-			sectArea[index] = sectData.getDownDipWidth()*sectData.getLength()*(1.0-sectData.getAseismicSlipFactor());
-			sectMoRate[index] = FaultMomentCalc.getMoment(sectArea[index]*1e6, sectData.getAveLongTermSlipRate());    // 1e6 converts to meters-sq
-			rupAreaInKM += sectArea[index];
-			totMoRate += sectMoRate[index];
+		for(Integer sectID: sectionIndices) {	
+			FaultSectionPrefData sectData = faultSectionData.get(sectID);
+			sectArea[index] = sectData.getLength()*sectData.getDownDipWidth()*1e6*(1.0-sectData.getAseismicSlipFactor());	// aseismicity reduces area; 1e6 for sq-km --> sq-m
+			sectMoRate[index] = FaultMomentCalc.getMoment(sectArea[index], sectSlipRateReduced[sectID]);
 			index += 1;
 		}
-			 
-		double mag = magAreaRel.getMedianMag(rupAreaInKM);
-		double rupMeanMoment = MomentMagCalc.getMoment(mag);
-		// the above is meanMoment in case we add aleatory uncertainty later (aveMoment needed below); 
-		// the above will have to be corrected accordingly as in SoSAF_SubSectionInversion
-		// (mean moment != moment of mean mag if aleatory uncertainty included)
-		
-		double aveSlip = rupMeanMoment/(rupAreaInKM*1e6*FaultMomentCalc.SHEAR_MODULUS);  // 1e6 converts to meters
-		// if(D) System.out.println("RupMag = "+mag+"\tAveSlip = "+aveSlip+"\t"+slipModelType);
-
+			 		
+		double aveSlip = rupMeanMoment[rthRup]/(rupArea[rthRup]*FaultMomentCalc.SHEAR_MODULUS);  // in meters
 		
 		// for case segment slip is independent of rupture (constant), and equal to slip-rate * MRI
 		if(slipModelType.equals(CHAR_SLIP_MODEL)) {
@@ -435,7 +542,7 @@ public class RupsInFaultSystemInversion {
 		// (bumped up or down based on ratio of seg slip rate over wt-ave slip rate (where wts are seg areas)
 		else if (slipModelType.equals(WG02_SLIP_MODEL)) {
 			for(int s=0; s<slipsForRup.length; s++) {
-				slipsForRup[s] = aveSlip*sectMoRate[s]*rupAreaInKM/(totMoRate*sectArea[s]);
+				slipsForRup[s] = aveSlip*sectMoRate[s]*rupArea[rthRup]/(rupTotMoRateAvail[rthRup]*sectArea[s]);
 			}
 		}
 		else if (slipModelType.equals(TAPERED_SLIP_MODEL)) {
@@ -463,7 +570,7 @@ public class RupsInFaultSystemInversion {
 			}
 			double normBegin=0, normEnd, scaleFactor;
 			for(int s=0; s<slipsForRup.length; s++) {
-				normEnd = normBegin + sectArea[s]/rupAreaInKM;
+				normEnd = normBegin + sectArea[s]/rupArea[rthRup];
 				// fix normEnd values that are just past 1.0
 				if(normEnd > 1 && normEnd < 1.00001) normEnd = 1.0;
 				scaleFactor = taperedSlipCDF.getInterpolatedY(normEnd)-taperedSlipCDF.getInterpolatedY(normBegin);
@@ -473,27 +580,154 @@ public class RupsInFaultSystemInversion {
 			}
 		}
 		else throw new RuntimeException("slip model not supported");
-/*		
+/*		*/
 		// check the average
 		if(D) {
 			double aveCalcSlip =0;
 			for(int s=0; s<slipsForRup.length; s++)
 				aveCalcSlip += slipsForRup[s]*sectArea[s];
-			aveCalcSlip /= rupAreaInKM;
+			aveCalcSlip /= rupArea[rthRup];
 			System.out.println("AveSlip & CalcAveSlip:\t"+(float)aveSlip+"\t"+(float)aveCalcSlip);
 		}
 
 		if (D) {
 			System.out.println("\tsectionSlip\tsectSlipRate\tsectArea");
 			for(int s=0; s<slipsForRup.length; s++) {
-				FaultSectionPrefData sectData = faultSectionData.get(sectIndicesForRup.get(s));
+				FaultSectionPrefData sectData = faultSectionData.get(sectionIndices.get(s));
 				System.out.println(s+"\t"+(float)slipsForRup[s]+"\t"+(float)sectData.getAveLongTermSlipRate()+"\t"+sectArea[s]);
 			}
 					
 		}
-*/
 		return slipsForRup;		
 	}
+	
+	
+	/**
+	 * This computes mag and various other attributes of the ruptures
+	 */
+	private void calcRuptureAttributes() {
+	
+		if(numRuptures == 0) // make sure this has been computed
+			getNumRupRuptures();
+		rupMeanMag = new double[numRuptures];
+		rupMeanMoment = new double[numRuptures];
+		rupTotMoRateAvail = new double[numRuptures];
+		rupArea = new double[numRuptures];
+		rupLength = new double[numRuptures];
+		clusterIndexForRup = new int[numRuptures];
+		rupIndexInClusterForRup = new int[numRuptures];
+				
+		int rupIndex=-1;
+		for(int c=0;c<sectionClusterList.size();c++) {
+			SectionCluster cluster = sectionClusterList.get(c);
+			ArrayList<ArrayList<Integer>> clusterRups = cluster.getSectionIndicesForRuptures();
+			for(int r=0;r<clusterRups.size();r++) {
+				rupIndex+=1;
+				clusterIndexForRup[rupIndex] = c;
+				rupIndexInClusterForRup[rupIndex] = r;
+				double totArea=0;
+				double totLength=0;
+				double totMoRate=0;
+				ArrayList<Integer> sectsInRup = clusterRups.get(r);
+				for(Integer sectID:sectsInRup) {
+					FaultSectionPrefData sectData = faultSectionData.get(sectID);
+					double length = sectData.getLength()*1e3;	// km --> m
+					totLength += length;
+					double area = length*sectData.getDownDipWidth()*1e3*(1.0-sectData.getAseismicSlipFactor());	// aseismicity reduces area; km --> m on DDW
+					totArea += area;
+					totMoRate = FaultMomentCalc.getMoment(area, sectSlipRateReduced[sectID]);
+				}
+				rupArea[rupIndex] = totArea;
+				rupLength[rupIndex] = totLength;
+				rupMeanMag[rupIndex] = magAreaRel.getMedianMag(totArea*1e-6);
+				rupMeanMoment[rupIndex] = MomentMagCalc.getMoment(rupMeanMag[rupIndex]);
+				rupTotMoRateAvail[rupIndex]=totMoRate;
+				// the above is meanMoment in case we add aleatory uncertainty later (aveMoment needed elsewhere); 
+				// the above will have to be corrected accordingly as in SoSAF_SubSectionInversion
+				// (mean moment != moment of mean mag if aleatory uncertainty included)
+				// rupMeanMoment[rupIndex] = MomentMagCalc.getMoment(rupMeanMag[rupIndex])* gaussMFD_slipCorr; // increased if magSigma >0
+			}
+		}
+
+	}
+
+
+	public void doInversion() {
+
+		System.out.println("\nNumber of sections: " + numSections + ". Number of ruptures: " + numRuptures + ".\n");
+		ArrayList<SegRateConstraint> segRateConstraints = getPaleoSegRateConstraints();
+
+		if(D) System.out.println("Getting list of ruptures ...");
+		ArrayList<ArrayList<Integer>> rupList = getRupList();
+
+		// create A matrix and data vector
+		OpenMapRealMatrix A = new OpenMapRealMatrix(numSections+segRateConstraints.size(),numRuptures);
+		double[] d = new double[numSections+segRateConstraints.size()];		
+
+		// Make sparse matrix of slip in each rupture & data vector of section slip rates
+		int numElements = 0;
+		if(D) System.out.println("\nAdding slip per rup to A matrix ...");
+		for (int rup=0; rup<numRuptures; rup++) {
+			double[] slips = getSlipOnSectionsForRup(rup);
+			for (int sect=0; sect < slips.length; sect++) {
+				A.addToEntry(sect,rup,slips[sect]);
+				if(D) numElements++;
+			}
+		}
+		for (int sect=0; sect<numSections; sect++) {
+			d[sect] = sectSlipRateReduced[sect];	
+		}
+		if(D) System.out.println("Number of nonzero elements in A matrix = "+numElements);
+
+		// Make sparse matrix of paleo event probs for each rupture & data vector of mean event rates
+		// TO DO: Add event-rate constraint weight (relative to slip rate constraint)
+		numElements = 0;
+		if(D) System.out.println("\nAdding event rates to A matrix ...");
+		OpenMapRealMatrix A2 = new OpenMapRealMatrix(segRateConstraints.size(),numRuptures);
+		for (int i=numSections; i<numSections+segRateConstraints.size(); i++) {
+			SegRateConstraint constraint = segRateConstraints.get(i-numSections);
+			d[i]=constraint.getMean()/ constraint.getStdDevOfMean();
+			double[] row = A.getRow(constraint.getSegIndex());
+			for (int rup=0; rup<numRuptures; rup++) {
+				if (row[rup]>0) {
+					A.setEntry(i,rup,getProbVisible(rupMeanMag[rup])/constraint.getStdDevOfMean());  
+					if(D) numElements++;
+
+				}
+			}
+		}
+		if(D) System.out.println("Number of new nonzero elements in A matrix = "+numElements);
+
+		// SOLVE THE INVERSE PROBLEM
+		double[] rupRateSolution = new double[numRuptures];
+		if(D) System.out.println("\nSolving inverse problem with simulated annealing ... ");
+		rupRateSolution = SimulatedAnnealing.getSolution(A,d);          
+
+	}
+	
+
+	/**
+	 * This returns the probability that the given magnitude event will be
+	 * observed at the ground surface. This is based on equation 4 of Youngs et
+	 * al. [2003, A Methodology for Probabilistic Fault Displacement Hazard
+	 * Analysis (PFDHA), Earthquake Spectra 19, 191-219] using the coefficients
+	 * they list in their appendix for "Data from Wells and Coppersmith (1993)
+	 * 276 worldwide earthquakes". Their function has the following
+	 * probabilities:
+	 * 
+	 * mag prob 5 0.10 6 0.45 7 0.87 8 0.98 9 1.00
+	 * 
+	 * @return
+	 */
+	private double getProbVisible(double mag) {
+		return Math.exp(-12.51 + mag * 2.053)
+				/ (1.0 + Math.exp(-12.51 + mag * 2.053));
+		/*
+		 * Ray & Glenn's equation if(mag <= 5) return 0.0; else if (mag <= 7.6)
+		 * return -0.0608*mag*mag + 1.1366*mag + -4.1314; else return 1.0;
+		 */
+	}
+
 
 
 

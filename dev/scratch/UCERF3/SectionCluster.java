@@ -89,6 +89,14 @@ public class SectionCluster extends ArrayList<Integer> {
 			  computeRupList();
 		  return rupListIndices;
 	}
+	
+	
+	public ArrayList<Integer> getSectionIndicesForRupture(int rthRup) {
+		  if(rupListIndices== null)
+			  computeRupList();
+		  return rupListIndices.get(rthRup);
+	}
+
 
 	
 	int rupCounterProgress =1000000;

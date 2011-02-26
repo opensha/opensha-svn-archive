@@ -8,27 +8,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Random;
 
 import scratch.UCERF3.utils.FaultSectionDataWriter;
 
-import org.opensha.commons.calc.FaultMomentCalc;
-import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.data.NamedObjectComparator;
-import org.opensha.commons.exceptions.FaultException;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.geo.Region;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.faultSurface.SimpleFaultData;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
-import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
-
-import org.apache.commons.math.linear.OpenMapRealMatrix; // for sparse matrices
 
 
 public class TestInversion {
@@ -70,6 +63,7 @@ public class TestInversion {
 		moRateReduction = 0.1;
 		includeSectionsWithNaN_slipRates = false;
 		magAreaRel = new Ellsworth_B_WG02_MagAreaRel();
+		moRateReduction = 0.1;
 		
 		/** Set the deformation model
 		 * D2.1 = 82
@@ -83,7 +77,8 @@ public class TestInversion {
 		
 		if(D) System.out.println("Making subsections...");
 //		createAllSubSections();
-		createBayAreaSubSections(); 
+//		createBayAreaSubSections(); 
+		createNorthCalSubSections();
 		
 		calcSubSectionDistances();
 		
@@ -92,7 +87,7 @@ public class TestInversion {
 		rupsInFaultSysInv = new RupsInFaultSystemInversion(subSectionPrefDataList,
 				subSectionDistances, subSectionAzimuths, maxJumpDist, 
 				maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, minNumSectInRup, 
-				magAreaRel, precomputedDataDir);
+				magAreaRel, precomputedDataDir, moRateReduction);
 		
 //		rupsInFaultSysInv.writeCloseSubSections(precomputedDataDir.getAbsolutePath()+File.separator+"closeSubSections.txt");
 		
@@ -103,9 +98,78 @@ public class TestInversion {
 		
 	}
 	
+	/**
+	 * This is needed by SCEC VDO
+	 * @return
+	 */
 	public RupsInFaultSystemInversion getRupsInFaultSystemInversion() {
 		return rupsInFaultSysInv;
 	}
+	
+	
+	/**
+	 * This gets all section data & creates subsections
+	 * @param includeSectionsWithNaN_slipRates
+	 */
+	private void createNorthCalSubSections() {
+
+		if(includeSectionsWithNaN_slipRates)
+			subsectsNameForFile = "nCal_1_";
+		else
+			subsectsNameForFile = "nCal_0_";
+
+		// fetch the sections
+		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
+		ArrayList<FaultSectionPrefData> allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelId);
+
+		//Alphabetize:
+		Collections.sort(allFaultSectionPrefData, new NamedObjectComparator());
+		
+		// remove those with no slip rate if appropriate
+		if(!includeSectionsWithNaN_slipRates) {
+			if (D)System.out.println("Removing the following due to NaN slip rate:");
+			for(int i=allFaultSectionPrefData.size()-1; i>=0;i--)
+				if(Double.isNaN(allFaultSectionPrefData.get(i).getAveLongTermSlipRate())) {
+					if(D) System.out.println("\t"+allFaultSectionPrefData.get(i).getSectionName());
+					allFaultSectionPrefData.remove(i);
+				}	 
+		}
+
+		// remove those that don't have a trace in in the N Cal RELM region
+		Region nCalRegion = new CaliforniaRegions.RELM_NOCAL();
+		ArrayList<FaultSectionPrefData> nCalFaultSectionPrefData = new ArrayList<FaultSectionPrefData>();
+		for(FaultSectionPrefData sectData:allFaultSectionPrefData) {
+			FaultTrace trace = sectData.getFaultTrace();
+			Location endLoc1 = trace.get(0);
+			Location endLoc2 = trace.get(trace.size()-1);
+			if(nCalRegion.contains(endLoc1) || nCalRegion.contains(endLoc2))
+				nCalFaultSectionPrefData.add(sectData);
+		}
+		
+		/*	*/	  
+		  // write sections IDs and names
+		if (D) {
+			System.out.println("Fault Sections in the N Cal RELM region");
+			  for(int i=0; i< nCalFaultSectionPrefData.size();i++)
+					System.out.println("\t"+nCalFaultSectionPrefData.get(i).getSectionId()+"\t"+nCalFaultSectionPrefData.get(i).getName());			
+		}
+
+
+		// make subsection data
+		subSectionPrefDataList = new ArrayList<FaultSectionPrefData>();
+		int subSectionIndex=0;
+		for(int i=0; i<nCalFaultSectionPrefData.size(); ++i) {
+			FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)nCalFaultSectionPrefData.get(i);
+			double maxSectLength = faultSectionPrefData.getDownDipWidth()*maxSubSectionLength;
+			ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength, subSectionIndex);
+			subSectionIndex += subSectData.size();
+			subSectionPrefDataList.addAll(subSectData);
+		}		
+		
+		numSubSections = subSectionPrefDataList.size();
+		if(D) System.out.println("numSubsections = "+numSubSections);
+	}
+
 
 
 	/**
@@ -145,7 +209,7 @@ public class TestInversion {
 		// make subsection data
 		subSectionPrefDataList = new ArrayList<FaultSectionPrefData>();
 		int subSectionIndex=0;
-		for(int i=0; i<numSubSections; ++i) {
+		for(int i=0; i<allFaultSectionPrefData.size(); ++i) {
 			FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)allFaultSectionPrefData.get(i);
 			double maxSectLength = faultSectionPrefData.getDownDipWidth()*maxSubSectionLength;
 			ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength, subSectionIndex);
@@ -378,7 +442,7 @@ public class TestInversion {
 		  }
 	  }
 	  
-	  
+	 // this was originally written to provide Tom Parsons the subsection data
 	  public void writeSectionsToFile(String filePathAndName) {
 		  ArrayList<String> metaData = new ArrayList<String>();
 		  metaData.add("deformationModelId = "+deformationModelId);
@@ -396,315 +460,7 @@ public class TestInversion {
 	 */
 	public static void main(String[] args) {
 		TestInversion test = new TestInversion();
-			
-//		test.writeSectionsToFile("dev/scratch/UCERF3/exampleSubSectDataFile");
-
-//		RupsInFaultSystemInversion inversion = test.getRupsInFaultSystemInversion();
-//		for(int i=0; i<inversion.getNumClusters(); i++)
-//			System.out.println("Cluster "+i+" has "+inversion.getCluster(i).getNumRuptures()+" ruptures");
 	}
-
-
-public void doInversion(RupsInFaultSystemInversion rupsInFaultSysInv) {
-	
-	this.rupsInFaultSysInv = rupsInFaultSysInv;
-
-	numRuptures = rupsInFaultSysInv.getNumRupRuptures();
-	System.out.println("\nNumber of sections: " + numSubSections + ". Number of ruptures: " + numRuptures + ".\n");
-	ArrayList<SegRateConstraint> segRateConstraints = rupsInFaultSysInv.getPaleoSegRateConstraints();
-	
-	if(D) System.out.println("Getting list of ruptures ...");
-	ArrayList<ArrayList<Integer>> rupList = rupsInFaultSysInv.getRupList();
-	
-	// Compute segment slip rates, ruptures areas & mean magnitudes of ruptures
-	if(D) System.out.println("\nComputing rupture areas and magnitudes ...");
-	computeInitialStuff(rupList);
-	
-	// create A matrix and data vector
-	OpenMapRealMatrix A = new OpenMapRealMatrix(numSubSections+segRateConstraints.size(),numRuptures);
-	double[] d = new double[numSubSections+segRateConstraints.size()];		
-	
-	// Make sparse matrix of slip in each rupture & data vector of section slip rates
-	int numElements = 0;
-	if(D) System.out.println("\nAdding slip per rup to A matrix ...");
-	for (int rup=0; rup<numRuptures; rup++) {
-		ArrayList<Integer> sectIndicesForRup = rupList.get(rup);
-		double[] slips = rupsInFaultSysInv.getSlipOnSectionsForRup(sectIndicesForRup);
-		for (int sect=0; sect < slips.length; sect++) {
-			A.addToEntry(sect,rup,slips[sect]);
-			if(D) numElements++;
-		}
-	}
-	for (int sect=0; sect<numSubSections; sect++) {
-		d[sect] = segSlipRate[sect] * (1 - moRateReduction);	
-	}
-	if(D) System.out.println("Number of nonzero elements in A matrix = "+numElements);
-	
-	// Make sparse matrix of paleo event probs for each rupture & data vector of mean event rates
-	// TO DO: Add event-rate constraint weight (relative to slip rate constraint)
-	numElements = 0;
-	if(D) System.out.println("\nAdding event rates to A matrix ...");
-	OpenMapRealMatrix A2 = new OpenMapRealMatrix(segRateConstraints.size(),numRuptures);
-	for (int i=numSubSections; i<numSubSections+segRateConstraints.size(); i++) {
-		SegRateConstraint constraint = segRateConstraints.get(i-numSubSections);
-		d[i]=constraint.getMean()/ constraint.getStdDevOfMean();
-		double[] row = A.getRow(constraint.getSegIndex());
-		for (int rup=0; rup<numRuptures; rup++) {
-			if (row[rup]>0) {
-				A.setEntry(i,rup,getProbVisible(rupMeanMag[rup])/constraint.getStdDevOfMean());  
-				if(D) numElements++;
-				
-			}
-		}
-	}
-	if(D) System.out.println("Number of new nonzero elements in A matrix = "+numElements);
-	
-
-	
-
-	// SOLVE THE INVERSE PROBLEM
-	double[] rupRateSolution = new double[numRuptures];
-	if(D) System.out.println("\nSolving inverse problem with simulated annealing ... ");
-	rupRateSolution = getSimulatedAnnealing_solution(A,d);          
-
-	}
-
-
-
-
-private static double[] getSimulatedAnnealing_solution(OpenMapRealMatrix A,
-		double[] d) {
-
-	int nRow = A.getRowDimension();
-	int nCol = A.getColumnDimension();
-
-	if(D) System.out.println("nRow = " + nRow);
-	if(D) System.out.println("nCol = " + nCol);
-	
-	double[] x = new double[nCol]; // current model
-	double[] xbest = new double[nCol]; // best model seen so far
-	double[] xnew = new double[nCol]; // new perturbed model
-	double[] initial_state = new double[nCol]; // starting model
-	double[] perturb = new double[nCol]; // perturbation to current model
-	double[] syn = new double[nRow]; // data synthetics
-	double[] misfit = new double[nRow]; // mifit between data and synthetics
-
-	double E, Enew, Ebest, T, P;
-	int i, j, iter, index;
-	int numiter=5000;
-	
-	if(D) System.out.println("Total number of iterations = " + numiter);
-	
-//	Random r = new Random(System.currentTimeMillis());
-	
-	// Set initial state (random or a priori starting model)
-	for (i = 0; i < nCol; i++) {
-		initial_state[i] = 0; // Need to Change !!!
-	//	initial_state[i] = Math.random() / 100000;
-	}
-	for (j = 0; j < nCol; j++) {
-		x[j] = initial_state[j];
-	}
-	// x=initial_state.clone();  // not sure why this doesn't work in lieu of above code
-	
-	// Initial "best" solution & its Energy
-	for (j = 0; j < nCol; j++) {
-		xbest[j] = x[j];  
-	}
-	
-	E = 0;
-	for (i = 0; i < nRow; i++) {
-		syn[i] = 0;
-		for (j = 0; j < nCol; j++) {
-			syn[i] += A.getEntry(i,j) * x[j]; // compute predicted data
-		}
-		misfit[i] = syn[i] - d[i];  // misfit between synthetics and data
-		E += Math.pow(misfit[i], 2);  // L2 norm of misfit vector
-	}
-	//E = Math.sqrt(E);
-	Ebest = E;
-	if(D) System.out.println("Starting energy = " + Ebest);
-	
-	for (iter = 1; iter <= numiter; iter++) {
-		
-		
-		// Simulated annealing "temperature"
-		// T = 1 / (double) iter; 
-		// T = 1/Math.log( (double) iter);
-		// T = Math.pow(0.999,iter-1);
-		T = Math.exp(-( (double) iter - 1));
-		
-		if ((double) iter / 1000 == Math.floor(iter / 1000)) {
-			if(D) System.out.println("Iteration # " + iter);
-		//	if(D) System.out.println("T = " + T);
-			if(D) System.out.println("Lowest energy found = " + Ebest);
-		}
-				
-		
-		// Pick neighbor of current model
-		for (j = 0; j < nCol; j++) {
-			xnew[j]=x[j];
-		}
-		
-		// Index of model to randomly perturb
-		index = (int) Math.floor(Math.random() * nCol); 
-		
-		// How much to perturb index (can be a function of T)	
-		perturb[index] = (Math.random()-0.5) * 0.001;
-		// perturb[index] =  (1/Math.sqrt(T)) * r.nextGaussian() * 0.0001 * Math.exp(1/(2*T)); 
-		// perturb[index] = T * 0.001 * Math.tan(Math.PI*Math.random() - Math.PI/2);		
-		// r = Math.random();
-		// perturb[index] = Math.signum(r-0.5) * T * 0.001 * (Math.pow(1+1/T,Math.abs(2*r-1))-1);
-		
-		// Nonnegativity constraint
-		// while (x[index] + perturb[index] < 0) {
-		// perturb[index] = (Math.random()-0.5)*0.001;
-		// }		
-		if (xnew[index] + perturb[index] < 0) {
-			perturb[index] = -xnew[index];
-		}
-		xnew[index] += perturb[index];
-		
-		// Calculate "energy" of new model (high misfit -> high energy)
-		Enew = 0;
-		for (i = 0; i < nRow; i++) {
-			syn[i] = 0;
-			for (j = 0; j < nCol; j++) {
-				syn[i] += A.getEntry(i,j) * xnew[j]; // compute predicted data
-			}
-			misfit[i] = syn[i] - d[i];  // misfit between synthetics and data
-			Enew += Math.pow(misfit[i], 2);  // L2 norm of misfit vector
-		}
-		//Enew = Math.sqrt(Enew);
-		
-		// Is this a new best?
-		if (Enew < Ebest) {
-			for (j = 0; j < nCol; j++) {
-				xbest[j] = xnew[j]; }
-			Ebest = Enew;
-		}
-
-		// Change state? Calculate transition probability P
-		if (Enew < E) {
-			P = 1; // Always keep new model if better
-		} else {
-		
-			// Sometimes keep new model if worse (depends on T)
-			P = Math.exp((E - Enew) / (double) T); 
-		}
-		
-		if (P > Math.random()) {
-			for (j = 0; j < nCol; j++) {
-				x[j]=xnew[j];
-			}
-			E = Enew;
-			//if(D) System.out.println("New soluton kept! E = " + E + ". P = " + P);
-			
-		}
-		
-	}
-
-	// Preferred model is best model seen during annealing process
-	if(D) System.out.println("Annealing schedule completed.");
-	return xbest;
-}
-
-
-
-private void computeInitialStuff(ArrayList<ArrayList<Integer>> rupList) {
-	double[] rupArea = new double[numRuptures];
-	double[] segArea = new double[numSubSections];
-	segSlipRate = new double[numSubSections];
-	double[] segSlipRateStdDev = new double[numSubSections];
-	double[] segMoRate = new double[numSubSections];
-	double minLength = Double.MAX_VALUE;
-	double maxLength = 0;
-	double minArea = Double.MAX_VALUE;
-	double maxArea = 0;
-	FaultSectionPrefData segData;
-	double totMoRate = 0;
-	double aveSegDDW = 0, aveSegLength = 0;
-	rupMeanMag = new double[numRuptures];
-//	double[] rupMeanMo = new double[numRuptures];
-	
-	for (int seg = 0; seg < numSubSections; seg++) {
-		segData = subSectionPrefDataList.get(seg);
-		segArea[seg] = segData.getDownDipWidth() * segData.getLength()
-				* 1e6 * (1.0 - segData.getAseismicSlipFactor()); // km --> m
-		segSlipRate[seg] = segData.getAveLongTermSlipRate() * 1e-3; // mm/yr --> m/yr
-		segSlipRateStdDev[seg] = segData.getSlipRateStdDev() * 1e-3; // mm/yr --> m/yr
-		segMoRate[seg] = FaultMomentCalc.getMoment(segArea[seg], segSlipRate[seg]);  
-		totMoRate += segMoRate[seg];
-		aveSegDDW += segData.getDownDipWidth();
-		aveSegLength += segData.getLength();
-
-		// keep min and max length and area
-		if (segData.getLength() < minLength)
-			minLength = segData.getLength();
-		if (segData.getLength() > maxLength)
-			maxLength = segData.getLength();
-		if (segArea[seg] / 1e6 < minArea)
-			minArea = segArea[seg] / 1e6;
-		if (segArea[seg] / 1e6 > maxArea)
-			maxArea = segArea[seg] / 1e6;
-	}
-	aveSegDDW /= numSubSections;
-	aveSegLength /= numSubSections;
-
-	if(D) System.out.println("minSegArea = "+(float)minArea+";  maxSegArea = "+(float)maxArea);
-	if(D) System.out.println("minSegLength = "+(float)minLength+";  maxSegLength = "+(float)maxLength+"");
-
-	//System.out
-	//.print("\nAverage DDW & Length of sub-sections, and implied mag of "
-	//		+ minNumSectInRup + " of these rupturing: ");
-	// double mag = this.magAreaRel.getMedianMag(minNumSectInRup*aveSegDDW*aveSegLength);
-	// round and save this for the GR constraint
-	// smallestGR_constriantMag = ((double) Math.round(mag * 10.0)) / 10.0;
-	// System.out.println((float) aveSegDDW + "\t" + (float) aveSegLength
-	//		+ "\t" + (float) mag + "\t" + smallestGR_constriantMag + "\n");
-
-	// compute rupture areas
-	for (int rup=0; rup<numRuptures; rup++) {
-		rupArea[rup] = 0;
-		ArrayList<Integer> sectIndicesForRup = rupList.get(rup);
-		for (int i=0; i < sectIndicesForRup.size(); i++) {
-			rupArea[rup] += segArea[sectIndicesForRup.get(i)];
-		}
-	}
-	
-	
-	// compute rupture mean mags from mag-area relationship
-	for (int rup = 0; rup < numRuptures; rup++) {
-		double mag = this.magAreaRel.getMedianMag(rupArea[rup] / 1e6);  //null pointer exception :(
-		// round this to nearest 10th unit
-		rupMeanMag[rup] = ((double) Math.round(10 * mag)) / 10.0;
-		// rupMeanMo[rup] = MomentMagCalc.getMoment(rupMeanMag[rup])
-		//		* gaussMFD_slipCorr; // increased if magSigma >0
-	}
-	
-}
-
-/**
- * This returns the probability that the given magnitude event will be
- * observed at the ground surface. This is based on equation 4 of Youngs et
- * al. [2003, A Methodology for Probabilistic Fault Displacement Hazard
- * Analysis (PFDHA), Earthquake Spectra 19, 191-219] using the coefficients
- * they list in their appendix for "Data from Wells and Coppersmith (1993)
- * 276 worldwide earthquakes". Their function has the following
- * probabilities:
- * 
- * mag prob 5 0.10 6 0.45 7 0.87 8 0.98 9 1.00
- * 
- * @return
- */
-private double getProbVisible(double mag) {
-	return Math.exp(-12.51 + mag * 2.053)
-			/ (1.0 + Math.exp(-12.51 + mag * 2.053));
-	/*
-	 * Ray & Glenn's equation if(mag <= 5) return 0.0; else if (mag <= 7.6)
-	 * return -0.0608*mag*mag + 1.1366*mag + -4.1314; else return 1.0;
-	 */
-}
 
 
 }

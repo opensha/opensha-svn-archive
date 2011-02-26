@@ -86,6 +86,44 @@ public class ERF_Calculator {
 		 return mfd;
   }
   
+  
+  /**
+   * This computes the total magnitude frequency distribution (equivalent poisson rates) for the
+   * ERF inside the region (only the fraction of each rupture inside the region is included)
+   * @param erf
+   * @param region
+   * @param minMag
+   * @param numMag
+   * @param deltaMag
+   * @param preserveRates - this tells whether to preserve rates or preserve moment rates
+   * @return
+   */
+  public static SummedMagFreqDist getMagFreqDistInRegion(EqkRupForecastAPI erf, Region region,
+		  double minMag,int numMag,double deltaMag, boolean preserveRates) {
+	  
+	  SummedMagFreqDist magFreqDist = new SummedMagFreqDist(minMag, numMag, deltaMag);
+	  double duration = erf.getTimeSpan().getDuration();
+	  for (int s = 0; s < erf.getNumSources(); ++s) {
+		  ProbEqkSource source = erf.getSource(s);
+		  for (int r = 0; r < source.getNumRuptures(); ++r) {
+			  ProbEqkRupture rupture = source.getRupture(r);
+			  double mag = rupture.getMag();
+			  double equivRate = rupture.getMeanAnnualRate(duration);
+			  EvenlyGriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
+			  double ptRate = equivRate/rupSurface.size();
+			  ListIterator<Location> it = rupSurface.getAllByRowsIterator();
+			  while (it.hasNext()) {
+				  //discard the pt if outside the region 
+				  if (!region.contains(it.next()))
+					  continue;
+				  magFreqDist.addResampledMagRate(mag, ptRate, preserveRates);
+			  }
+		  }
+	  }
+	  return magFreqDist;
+  }
+
+  
 	public static void main(String[] args) {
 		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
 		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
