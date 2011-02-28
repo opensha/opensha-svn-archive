@@ -57,8 +57,10 @@ public class FindEquivUCERF2_Ruptures {
 	MeanUCERF2 meanUCERF2;
 	int NUM_UCERF2_SRC=289; // this is to exclude non-CA B faults
 
+	SummedMagFreqDist mfdOfAssocRupsAndModMags;	// this is the mfd of the associated ruptures (including ave mag from mult rups)
+	SummedMagFreqDist mfdOfAssocRupsWithOrigMags;	// this is the mfd of the associated ruptures (including orig mag from all rups)
 	
-	
+	boolean[] ucerf2_rupUsed;
 		
 	/**
 	 * This ignores the non-CA type B faults in UCERF2.
@@ -134,31 +136,53 @@ public class FindEquivUCERF2_Ruptures {
 	 * non-CA type B faults (using NUM_UCERF2_SRC).
 	 * @return
 	 */
-	public SummedMagFreqDist getNcalMFD() {
+	public SummedMagFreqDist getMFD_forNcal() {
 		Region region = new CaliforniaRegions.RELM_NOCAL();
 		MeanUCERF2 erf = getMeanUCERF2_Instance();
 		SummedMagFreqDist magFreqDist = new SummedMagFreqDist(5.05,35,0.1);
 		double duration = erf.getTimeSpan().getDuration();
+		int rupIndex=-1;
 		for (int s = 0; s < NUM_UCERF2_SRC; ++s) {
 			ProbEqkSource source = erf.getSource(s);
 			for (int r = 0; r < source.getNumRuptures(); ++r) {
+				rupIndex += 1;
 				ProbEqkRupture rupture = source.getRupture(r);
 				double mag = rupture.getMag();
 				double equivRate = rupture.getMeanAnnualRate(duration);
 				EvenlyGriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
 				double ptRate = equivRate/rupSurface.size();
 				ListIterator<Location> it = rupSurface.getAllByRowsIterator();
+				double fractInside = 0;
 				while (it.hasNext()) {
 					//discard the pt if outside the region 
 					if (!region.contains(it.next()))
 						continue;
 					magFreqDist.addResampledMagRate(mag, ptRate, true);
+					fractInside += 1.0;
+				}
+				fractInside /= rupSurface.size();
+				if(fractInside > 0 && ucerf2_rupUsed[rupIndex] == false) {
+					boolean subseismogenic = (rupSurface.getSurfaceWidth() < source.getSourceSurface().getSurfaceWidth());
+					System.out.println(rupIndex+"\t"+s+"\t"+r+"\t"+(float)fractInside+"\t"+subseismogenic+"\t"+firstSectOfUCERF2_Rup[rupIndex]+
+							"\t"+lastSectOfUCERF2_Rup[rupIndex]+"\t"+(float)magOfUCERF2_Rup[rupIndex]+"\t"+source.getName());					
 				}
 			}
+			
+//			firstSectOfUCERF2_Rup, lastSectOfUCERF2_Rup, srcIndexOfUCERF2_Rup, rupIndexOfUCERF2_Rup;
+//			lengthOfUCERF2_Rup, rateOfUCERF2_Rup
 		}
 		magFreqDist.setName("N Cal MFD for UCERF2");
 		magFreqDist.setInfo("this is for the N Cal RELM region, and excludes non-ca type B faults");
 		return magFreqDist;
+	}
+	
+	
+	
+	public ArrayList<SummedMagFreqDist> getMFDsForUCERF2AssocRups(){
+		ArrayList<SummedMagFreqDist> mfds = new ArrayList<SummedMagFreqDist>();
+		mfds.add(mfdOfAssocRupsAndModMags);
+		mfds.add(mfdOfAssocRupsWithOrigMags);
+		return mfds;
 	}
 
 	
@@ -567,22 +591,24 @@ public class FindEquivUCERF2_Ruptures {
 	 * 
 	 * This assumes that characteristic ruptures on Type A faults all have the exact same rup lengths (which I confirmed)
 	 * 
+	 * Problems - inversion rups that have same ends (multi pathing) get assigned twice
+	 * 
 	 * @param sectIndicesForRup
 	 * @param rupLength
 	 * @return - double[2] where mag is in the first element and rate is in the second
 	 */
-	public double[] getMagAndRateForRupture(ArrayList<Integer> sectIndicesForRup, double rupLength) {
+	private double[] OLDgetMagAndRateForRupture(ArrayList<Integer> sectIndicesForRup, double rupLength) {
 		Integer firstSectIndex = sectIndicesForRup.get(0);
 		Integer lastSectIndex = sectIndicesForRup.get(sectIndicesForRup.size()-1);
 		ArrayList<Integer> viableUCERF2_Rups = new ArrayList<Integer>();
-		for(int i=0; i<NUM_RUPTURES;i++)
-			if(firstSectOfUCERF2_Rup[i] == firstSectIndex && lastSectOfUCERF2_Rup[i] == lastSectIndex)
-						viableUCERF2_Rups.add(i);
-		// check for ends swapped between the two ruptures
-		for(int i=0; i<NUM_RUPTURES;i++)
-			if(firstSectOfUCERF2_Rup[i] == lastSectIndex && lastSectOfUCERF2_Rup[i] == firstSectIndex)
-						viableUCERF2_Rups.add(i);
-		
+		for(int r=0; r<NUM_RUPTURES;r++) {
+			if(firstSectOfUCERF2_Rup[r] == firstSectIndex && lastSectOfUCERF2_Rup[r] == lastSectIndex)
+				viableUCERF2_Rups.add(r);
+			// check for ends swapped between the two ruptures
+			else if(firstSectOfUCERF2_Rup[r] == lastSectIndex && lastSectOfUCERF2_Rup[r] == firstSectIndex)
+				viableUCERF2_Rups.add(r);			
+		}
+
 		if(viableUCERF2_Rups.size()==0) {
 			return null;
 		}
@@ -619,6 +645,150 @@ public class FindEquivUCERF2_Ruptures {
 		}
 	}
 	
+	
+	/**
+	 * This returns the magnitude and rate of the equivalent UCERF2 ruptures by finding those that have
+	 * the same first and last section index.  If more than one UCERF2 rupture has the same end sections
+	 * (as would come from the type-A segmented models where there are diff mags for the same char rup),
+	 * then the total rate of these is returned with a magnitude that preserves the total moment rate.
+	 * 
+	 * @param sectIndicesForRup
+	 * @return - double[2] where mag is in the first element and rate is in the second
+	 */
+	private double[] getMagAndRateForRupture(ArrayList<Integer> sectIndicesForRup) {
+		Integer firstSectIndex = sectIndicesForRup.get(0);
+		Integer lastSectIndex = sectIndicesForRup.get(sectIndicesForRup.size()-1);
+		ArrayList<Integer> equivUCERF2_Rups = new ArrayList<Integer>();
+		for(int r=0; r<NUM_RUPTURES;r++) {
+			if(firstSectOfUCERF2_Rup[r] == firstSectIndex && lastSectOfUCERF2_Rup[r] == lastSectIndex)
+				equivUCERF2_Rups.add(r);
+			// check for ends swapped between the two ruptures
+			else if(firstSectOfUCERF2_Rup[r] == lastSectIndex && lastSectOfUCERF2_Rup[r] == firstSectIndex)
+				equivUCERF2_Rups.add(r);			
+		}
+
+		if(equivUCERF2_Rups.size()==0) {
+			return null;
+		}
+		else if(equivUCERF2_Rups.size()==1) {
+			int r = equivUCERF2_Rups.get(0);
+			if(ucerf2_rupUsed[r]) throw new RuntimeException("Error - UCERF2 rutpure already used");
+			ucerf2_rupUsed[r] = true;
+			double[] result = new double[2];
+			result[0]=magOfUCERF2_Rup[r];
+			result[1]=rateOfUCERF2_Rup[r];
+			mfdOfAssocRupsAndModMags.addResampledMagRate(result[0], result[1], true);
+			mfdOfAssocRupsWithOrigMags.addResampledMagRate(result[0], result[1], true);
+			return result;
+		}
+		else {
+			double totRate=0;
+			double totMoRate=0;
+			for(Integer r:equivUCERF2_Rups) {
+				if(ucerf2_rupUsed[r]) throw new RuntimeException("Error - UCERF2 rutpure already used");
+				ucerf2_rupUsed[r] = true;
+				totRate+=rateOfUCERF2_Rup[r];
+				totMoRate+=rateOfUCERF2_Rup[r]*MomentMagCalc.getMoment(magOfUCERF2_Rup[r]);
+				mfdOfAssocRupsWithOrigMags.addResampledMagRate(magOfUCERF2_Rup[r], rateOfUCERF2_Rup[r], true);
+			}
+			double aveMoment = totMoRate/totRate;
+			double mag = MomentMagCalc.getMag(aveMoment);
+			double[] result = new double[2];
+			result[0]=mag;
+			result[1]=totRate;
+			mfdOfAssocRupsAndModMags.addResampledMagRate(mag, totRate, true);
+			return result;
+		}
+	}
+
+	
+	
+	/**
+	 * This returns an array list containing the UCERF2 equivalent mag and rate for each rupture 
+	 * (or null if there is no corresponding UCERF2 rupture, which will usually be the case).
+	 * The mag and rate are in the double[] object (at index 0 and 1, respectively)
+	 * 
+	 * If more than one inversion ruptures have the same end sections (multipathing), then the one with the minimum number 
+	 * of sections get's the equivalent UCERF2 ruptures (and an exception is thrown if there are more than one inversion 
+	 * rupture that have this same minimum number of sections)
+	 * @param inversionRups
+	 * @return
+	 */
+	public ArrayList<double[]> getMagsAndRatesForRuptures(ArrayList<ArrayList<Integer>> inversionRups) {
+
+		ucerf2_rupUsed = new boolean[NUM_RUPTURES];
+		for(int r=0;r<NUM_RUPTURES;r++) ucerf2_rupUsed[r] = false;
+		
+		mfdOfAssocRupsAndModMags = new SummedMagFreqDist(5.05,35,0.1);
+		mfdOfAssocRupsAndModMags.setName("MFD for UCERF2 associated ruptures");
+		mfdOfAssocRupsAndModMags.setInfo("using modified (average) mags");
+		mfdOfAssocRupsWithOrigMags = new SummedMagFreqDist(5.05,35,0.1);
+		mfdOfAssocRupsWithOrigMags.setName("MFD for UCERF2 associated ruptures");
+		mfdOfAssocRupsWithOrigMags.setInfo("using original mags");
+
+
+		int numInvRups = inversionRups.size();
+		// first establish which ruptures to use for multi-path cases
+		boolean[] rupChecked = new boolean[numInvRups];
+		boolean[] ignoreRup = new boolean[numInvRups];
+		for(int r=0;r<numInvRups;r++) {
+			rupChecked[r] = false;
+			ignoreRup[r] = false;
+		}
+		
+		// 0 indicates not yet considered; 1 indicate it should be use; 2 indicates to not use because it's a multi-path duplicate
+		for(int r=0;r<numInvRups;r++) {
+			// if this rupture was already checkd because it was ina a multi-path list of a previous rupture
+			if(rupChecked[r])
+				continue;
+			ArrayList<Integer> rup = inversionRups.get(r);
+			int firstSectID = rup.get(0);
+			int lastSectID = rup.get(rup.size()-1);
+			ArrayList<Integer> multiPathRups = new ArrayList<Integer>();	// this will be the list of ruptures that share the same end sections
+			multiPathRups.add(r);
+			for(int r2=r+1;r2<inversionRups.size();r2++) {
+				ArrayList<Integer> rup2 = inversionRups.get(r2);
+				int firstSectID2 = rup2.get(0);
+				int lastSectID2 = rup2.get(rup2.size()-1);
+				if((firstSectID2 == firstSectID && lastSectID2 == lastSectID) || (firstSectID2 == lastSectID && lastSectID2 == firstSectID)) {
+					multiPathRups.add(r2);
+				}
+			}
+
+			if(multiPathRups.size()>1) {
+				
+				// find the minNumSections
+				int minNumSect = Integer.MAX_VALUE;
+				for(Integer i:multiPathRups)
+					if(inversionRups.get(i).size()<minNumSect) 
+						minNumSect=inversionRups.get(i).size();
+				
+				// check that only one rupture here has that minimum, and throw exception if not (since I don't know how to choose)
+				int numWithMinNumSect =0;
+				for(Integer i:multiPathRups)
+					if(inversionRups.get(i).size() == minNumSect) numWithMinNumSect += 1;
+				if(numWithMinNumSect != 1)
+					throw new RuntimeException("Problem: two inversion ruptures (with same section ends) have the same min number of sections; this case is not supported");
+
+				// now set what to do with these ruptures
+				for(Integer i:multiPathRups) {
+					rupChecked[i] = true;	// indicate that this rupture has already been considered for multi pathing (so it won't check this one again)
+					if(inversionRups.get(i).size() != minNumSect) 
+						ignoreRup[i] = true;	// take this rupture out of consideration (the one with the min stays with the default ignoreRup=false)
+				}
+			}
+		}
+		
+		
+		ArrayList<double[]> results = new ArrayList<double[]>();
+		for(int r=0; r<numInvRups; r++) {
+			if(!ignoreRup[r])
+				results.add(getMagAndRateForRupture(inversionRups.get(r)));
+			else
+				results.add(null);
+		}
+		return results;
+	}
 	
 
 	/**

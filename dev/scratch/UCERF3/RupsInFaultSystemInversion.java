@@ -153,12 +153,12 @@ public class RupsInFaultSystemInversion {
 		// calculate rupture magnitude and other attributes
 		calcRuptureAttributes();
 		
-		// plot magnitude histogram for the inversion ruptures
+		
+		// plot magnitude histogram for the inversion ruptures (how many rups at each mag)
 		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,35,0.1);
 		magHist.setTolerance(0.2);	// this makes it a histogram
-		for(int r=0; r<getNumRupRuptures();r++) {
+		for(int r=0; r<getNumRupRuptures();r++)
 			magHist.add(rupMeanMag[r], 1.0);
-		}
 		ArrayList funcs = new ArrayList();
 		funcs.add(magHist);
 //		System.out.println(magHist);
@@ -167,68 +167,34 @@ public class RupsInFaultSystemInversion {
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Magnitude Histogram"); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Num");
+		
 
-		
-		
-		// plot MFD for the equivalent UCERF2 ruptures 
+		// this is the stuff Ned is working on
+		/*
 		FindEquivUCERF2_Ruptures findUCERF2_Rups = new FindEquivUCERF2_Ruptures(faultSectionData, precomputedDataDir);
-		SummedMagFreqDist magDist = new SummedMagFreqDist(5.05,35,0.1);
-		ArrayList<ArrayList<Integer>> ruptures = getRupList();
-		for(int r=0; r<ruptures.size();r++) {
-			ArrayList<Integer> rup = ruptures.get(r);
-			double[] magAndRate = findUCERF2_Rups.getMagAndRateForRupture(rup, rupLength[r]);
-			if(magAndRate != null)
-				magDist.addResampledMagRate(magAndRate[0], magAndRate[1], false);	// this preserves moment rate
+		ArrayList<ArrayList<Integer>> rupList = getRupList();
+		findUCERF2_Rups.getMagsAndRatesForRuptures(rupList);
+		
+		System.out.println("looking now...");
+		for(ArrayList<Integer> rup:rupList) {
+			int first = rup.get(0);
+			int last = rup.get(rup.size()-1);
+			if(first == 1250 || last == 1250)
+				System.out.println(first+" & "+last);
 		}
-		magDist.setName("MFD for equiv. UCERF2 ruptures");
+		
 		ArrayList funcs2 = new ArrayList();
-		funcs2.add(magDist);
-		funcs2.add(findUCERF2_Rups.getNcalMFD());
-		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "Mag-Freq Dist"); 
+		funcs2.addAll(findUCERF2_Rups.getMFDsForUCERF2AssocRups());
+		funcs2.add(findUCERF2_Rups.getMFD_forNcal());
+		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "Mag-Freq Dists"); 
 		graph2.setX_AxisLabel("Mag");
 		graph2.setY_AxisLabel("Rate");
 		graph2.setYLog(true);
+*/
 
-
-		/*
-		// check for any multi path ruptures
-		System.out.println("Checking for multi pathing - the following ruptures have the same first and last sections");
-		System.out.println("iClust\tiRup1\tiRup2\trupLenDiff\tmaxSectLength\tsections in each...");
-		boolean problemFound = false;
-		for(int c=0;c<sectionClusterList.size();c++) {
-			ArrayList<ArrayList<Integer>> ruptures = sectionClusterList.get(c).getSectionIndicesForRuptures();
-			for(int r=0;r<ruptures.size();r++) {
-				ArrayList<Integer> rup = ruptures.get(r);
-				int numSect = rup.size();
-				int firstSectID = rup.get(0);
-				int lastSectID = rup.get(numSect-1);
-				for(int r2=r+1;r2<ruptures.size();r2++) {
-					ArrayList<Integer> rup2 = ruptures.get(r2);
-					int numSect2 = rup2.size();
-					int firstSectID2 = rup2.get(0);
-					int lastSectID2 = rup2.get(numSect2-1);
-					if((firstSectID2 == firstSectID && lastSectID2 == lastSectID) || (firstSectID2 == lastSectID && lastSectID2 == firstSectID)) {
-						double maxSectLength=faultSectionData.get(firstSectID).getLength();
-						double otherSectLength = faultSectionData.get(lastSectID).getLength();
-						if(maxSectLength<otherSectLength)
-							maxSectLength = otherSectLength;
-						double rupLenDiff = Math.abs(rupLength[r]-rupLength[r2])/1e3;
-						boolean problem = (rupLenDiff<maxSectLength);
-						System.out.println(c+"\t"+r+"\t"+r2+"\t"+(float)rupLenDiff+"\t"+(float)maxSectLength+"\t"+problem+"\t"+rup+"\t"+rup2);
-						problemFound = true;
-						//					throw new RuntimeException("Milti path problem");
-					}
-				}
-			}
-		}
-		*/
 		
 //		doInversion();
 		
-
-//		for(int i=0;i<this.sectionClusterList.size(); i++)
-//			System.out.println("Cluster "+i+" has "+getCluster(i).size()+" sections & "+getCluster(i).getNumRuptures()+" ruptures");
-//			System.out.println("Cluster "+i+" has "+getCluster(i).getNumRuptures()+" ruptures");
 		
 	}
 
