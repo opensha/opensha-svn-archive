@@ -22,7 +22,7 @@
 		</bootstrappers>
 
 		<schedule interval="300">
-			<ant antscript="${ant.bin}"
+			<ant uselogger="true" antscript="${ant.bin}"
 						buildfile="${projectdir}/ant/cc-build-test.xml"
 						target="svn.build.run.common.tests" />
 		</schedule>
@@ -74,12 +74,12 @@
 
 		<schedule>
 			<!-- This test runs nightly, building nightly jars -->
-			<ant time="0000" antscript="${ant.bin}"
+			<ant uselogger="true" time="0000" antscript="${ant.bin}"
 						buildfile="${tomcatprojectdir}/ant/cc-build-test.xml"
 						target="svn.update.app.build" />
 
 			<!-- This test runs nightly, updating the coverage site with daily tests -->
-			<ant time="0145" antscript="${ant.bin}"
+			<ant uselogger="true" time="0145" antscript="${ant.bin}"
 						buildfile="${projectdir}/ant/cc-build-test.xml"
 						target="svn.build.run.daily.coverage" />
 		</schedule>
@@ -128,7 +128,7 @@
 
 		<schedule interval="3600">
 			<!-- This test runs hourly, making sure the system is operational (servlets, should check RMI) -->
-			<ant antscript="${ant.bin}"
+			<ant uselogger="true" antscript="${ant.bin}"
 						buildfile="${projectdir}/ant/cc-build-test.xml"
 						target="run.operational.tests" />
 		</schedule>
