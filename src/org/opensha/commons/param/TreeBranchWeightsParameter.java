@@ -23,7 +23,7 @@ import java.util.ListIterator;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.TreeBranchWeightsParameterEditor;
 
 /**
@@ -49,7 +49,7 @@ implements  java.io.Serializable{
 
 	private double tolerance = .01;
 	
-	private transient ParameterEditor paramEdit = null;
+	private transient ParameterEditorAPI<ParameterList> paramEdit = null;
 
 	/**
 	 *  No constraints specified for this parameter. Sets the name of this
@@ -143,7 +143,7 @@ implements  java.io.Serializable{
 	}
 	
 	@Override
-	public ParameterEditor getEditor() {
+	public ParameterEditorAPI<ParameterList> getEditor() {
 		if (paramEdit == null)
 			paramEdit = new TreeBranchWeightsParameterEditor(this);
 		return paramEdit;

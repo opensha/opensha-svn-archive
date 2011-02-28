@@ -45,7 +45,7 @@ import org.opensha.commons.param.StringListParameter;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringListParameterEditor;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
-import org.opensha.commons.param.editor.LocationParameterEditor;
+import org.opensha.commons.param.editor.ParameterListParameterEditor;
 import org.opensha.commons.param.editor.StringParameterEditor;
 import org.opensha.commons.param.editor.estimate.ConstrainedEstimateParameterEditor;
 import org.opensha.commons.param.estimate.EstimateConstraint;
@@ -141,8 +141,8 @@ ParameterChangeListener, DbAdditionListener {
 
 	// input parameter editors
 	private StringParameterEditor siteNameParamEditor;
-	private LocationParameterEditor siteLocationParamEditor;
-	private LocationParameterEditor siteLocationParamEditor2;
+	private ParameterListParameterEditor siteLocationParamEditor;
+	private ParameterListParameterEditor siteLocationParamEditor2;
 	private ConstrainedStringParameterEditor assocWithFaultParamEditor;
 	private ConstrainedStringListParameterEditor siteTypeParamEditor;
 	private ConstrainedStringParameterEditor siteRepresentationParamEditor;
@@ -467,11 +467,11 @@ ParameterChangeListener, DbAdditionListener {
 
 		// site location parameter
 		siteLocationParam = createLocationParam(defaultLocation1);
-		siteLocationParamEditor = new LocationParameterEditor(siteLocationParam,true);
+		siteLocationParamEditor = (ParameterListParameterEditor) siteLocationParam.getEditor();
 
 		// second site location, in "Between Locations" is selected as the Site type
 		siteLocationParam2 = createLocationParam(defaultLocation2);
-		siteLocationParamEditor2 = new LocationParameterEditor(siteLocationParam2,true);
+		siteLocationParamEditor2 = (ParameterListParameterEditor) siteLocationParam2.getEditor();
 
 		// choose the fault with which this site is associated
 		assocWithFaultParam = new StringParameter(ASSOCIATED_WITH_FAULT_PARAM_NAME, faultSectionNamesList,

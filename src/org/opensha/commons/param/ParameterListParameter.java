@@ -23,7 +23,7 @@ import java.util.ListIterator;
 
 import org.dom4j.Element;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.ParameterListParameterEditor;
 
 
@@ -45,7 +45,7 @@ public class ParameterListParameter extends DependentParameter<ParameterList> {
 
 	protected final static String PARAM_TYPE ="ParameterListParameter";
 
-	private transient ParameterEditor paramEdit = null;
+	private transient ParameterEditorAPI<ParameterList> paramEdit = null;
 
 	/**
 	 *  No constraints specified for this parameter. Sets the name of this
@@ -209,7 +209,7 @@ public class ParameterListParameter extends DependentParameter<ParameterList> {
 		return false;
 	}
 
-	public ParameterEditor getEditor() {
+	public ParameterEditorAPI<ParameterList> getEditor() {
 		if (paramEdit == null)
 			paramEdit = new ParameterListParameterEditor(this);
 		return paramEdit;

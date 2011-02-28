@@ -59,57 +59,55 @@ import org.opensha.commons.param.TreeBranchWeightsParameter;
 public class TreeBranchWeightsParameterEditor extends ParameterListParameterEditor implements
 ActionListener, ItemListener{
 
-  /** Class name for debugging. */
-  protected final static String C = "TreeBranchWeightsParameterEditor";
+	/** Class name for debugging. */
+	protected final static String C = "TreeBranchWeightsParameterEditor";
 	// convenience parameter to set All weights to 0 or 1
 	private final static String AUTO_WEIGHTS_PARAM_NAME= "Set All";
 	private final static String EQUAL_WEIGHTS = "Equal Weights";
 	private final static String ZERO_WEIGHT = "Zero Weight";
 	private  JComboBox autoWeightComboBox;
 
-  //default class constructor
-  public TreeBranchWeightsParameterEditor() {}
 
-  public TreeBranchWeightsParameterEditor(ParameterAPI model){
-    super(model);
-  }
+	public TreeBranchWeightsParameterEditor(ParameterAPI<ParameterList> model){
+		super(model, true);
+	}
 
-  /**
-   * This function is called when the user click for the ParameterListParameterEditor Button
-   *
-   * @param ae
-   */
-  public void actionPerformed(ActionEvent ae ) {
-      frame = new JDialog();
-      frame.setModal(true);
-      frame.setSize(300,400);
-      frame.setTitle(param.getName());
-      frame.getContentPane().setLayout(new GridBagLayout());
-      frame.getContentPane().add(editor,new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-          ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
+	/**
+	 * This function is called when the user click for the ParameterListParameterEditor Button
+	 *
+	 * @param ae
+	 */
+	public void actionPerformed(ActionEvent ae ) {
+		frame = new JDialog();
+		frame.setModal(true);
+		frame.setSize(300,400);
+		frame.setTitle(getParameter().getName());
+		frame.getContentPane().setLayout(new GridBagLayout());
+		frame.getContentPane().add(editor,new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+				,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
 
-      frame.getContentPane().add(editor,new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-              ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
-      makeAutoWeightsParamAndEditor();
-      frame.getContentPane().add(this.autoWeightComboBox, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
-              ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
+		frame.getContentPane().add(editor,new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+				,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
+		makeAutoWeightsParamAndEditor();
+		frame.getContentPane().add(this.autoWeightComboBox, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
+				,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
 
-      
-      //Adding Button to update the forecast
-      JButton button = new JButton();
-      button.setText("Update "+param.getName());
-      button.setForeground(new Color(80,80,133));
-      button.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-          button_actionPerformed(e);
-        }
-      });
-      frame.getContentPane().add(button,new GridBagConstraints(0, 2, 1, 1, 0.0,0.0
-          ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
-      frame.setVisible(true);
-      frame.pack();
-  }
-  
+
+		//Adding Button to update the forecast
+		JButton button = new JButton();
+		button.setText("Update "+getParameter().getName());
+		button.setForeground(new Color(80,80,133));
+		button.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				button_actionPerformed(e);
+			}
+		});
+		frame.getContentPane().add(button,new GridBagConstraints(0, 2, 1, 1, 0.0,0.0
+				,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
+		frame.setVisible(true);
+		frame.pack();
+	}
+
 
 	private void makeAutoWeightsParamAndEditor() {
 		autoWeightComboBox = new JComboBox();
@@ -118,40 +116,40 @@ ActionListener, ItemListener{
 		autoWeightComboBox.addItem(EQUAL_WEIGHTS);
 		autoWeightComboBox.addItem(ZERO_WEIGHT);
 		autoWeightComboBox.addItemListener(this);
-		
+
 	}
 
-  /**
-   * This function is called when user punches the button to update the ParameterList Parameter
-   * @param e
-   */
-  protected void button_actionPerformed(ActionEvent e) {
-    ParameterList paramList = editor.getParameterList();
-    boolean doSumToOne =((TreeBranchWeightsParameter)param).doWeightsSumToOne(paramList);
-    if(doSumToOne){
-      if(parameterChangeFlag){
-        param.setValue(paramList);
-        parameterChangeFlag = false;
-      }
-      frame.dispose();
-    }
-    else{
-      JOptionPane.showMessageDialog(frame,"Parameters Value should sum to One",
-                                    "Incorrect Input",JOptionPane.ERROR_MESSAGE);
-    }
-  }
-  
-  /**
-   * This is called when user selects in Auto weight pick list
-   */
-  public void itemStateChanged(ItemEvent event) {
-	  Object source = event.getSource();
-	  if(source==this.autoWeightComboBox) {
-		  setWeightsAuto();
-	  }
-	  
-  }
-  
+	/**
+	 * This function is called when user punches the button to update the ParameterList Parameter
+	 * @param e
+	 */
+	protected void button_actionPerformed(ActionEvent e) {
+		ParameterList paramList = editor.getParameterList();
+		boolean doSumToOne =((TreeBranchWeightsParameter)getParameter()).doWeightsSumToOne(paramList);
+		if(doSumToOne){
+			if(parameterChangeFlag){
+				getParameter().setValue(paramList);
+				parameterChangeFlag = false;
+			}
+			frame.dispose();
+		}
+		else{
+			JOptionPane.showMessageDialog(frame,"Parameters Value should sum to One",
+					"Incorrect Input",JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	/**
+	 * This is called when user selects in Auto weight pick list
+	 */
+	public void itemStateChanged(ItemEvent event) {
+		Object source = event.getSource();
+		if(source==this.autoWeightComboBox) {
+			setWeightsAuto();
+		}
+
+	}
+
 	/**
 	 * Set weights automatically
 	 *
@@ -159,7 +157,7 @@ ActionListener, ItemListener{
 	private void setWeightsAuto() {
 		String weightsAutoOption = (String)autoWeightComboBox.getSelectedItem();
 		double weight=0.0;
-		ParameterList paramList  =  (ParameterList) ((ParameterListParameter)this.model).getValue();
+		ParameterList paramList  =  (ParameterList) getParameter().getValue();
 		if(weightsAutoOption==EQUAL_WEIGHTS)  { // equalize the weights
 			int numParams=0;
 			Iterator it = paramList.getParametersIterator();
@@ -178,5 +176,16 @@ ActionListener, ItemListener{
 		}
 		autoWeightComboBox.setSelectedItem(this.AUTO_WEIGHTS_PARAM_NAME);
 		this.editor.refreshParamEditor();
+	}
+
+	@Override
+	public boolean isParameterSupported(ParameterAPI<ParameterList> param) {
+		if (param == null)
+			return false;
+		
+		if (!(param instanceof TreeBranchWeightsParameter))
+			return false;
+		
+		return true;
 	}
 }

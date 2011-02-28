@@ -24,7 +24,6 @@ import java.util.ListIterator;
 import org.dom4j.Element;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.param.editor.LocationParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditor;
 
 /**
@@ -56,8 +55,6 @@ public class LocationListParameter extends DependentParameter<LocationList> {
 	private final static String LAT_PARAM_UNITS = "degrees";
 	private final static String LON_PARAM_UNITS = "degrees";
 	private final static String DEPTH_PARAM_UNITS = "Kms";
-
-	private transient ParameterEditor paramEdit = null;
 	
 	/**
 	 *  No constraints specified for this parameter. Sets the name of this
@@ -236,10 +233,8 @@ public class LocationListParameter extends DependentParameter<LocationList> {
 	}
 
 	public ParameterEditor getEditor() {
-		if (paramEdit == null) {
-			paramEdit = new LocationParameterEditor(this);
-		}
-		return paramEdit;
+		//TODO create editor if needed
+		return null;
 	}
 
 

@@ -28,8 +28,8 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.editor.ConstrainedLocationParameterEditor;
-import org.opensha.commons.param.editor.LocationParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditorAPI;
+import org.opensha.commons.param.editor.ParameterListParameterEditor;
 
 /**
  * <p>Title: LocationParameter</p>
@@ -76,7 +76,7 @@ public class LocationParameter extends DependentParameter<Location> {
 	private final static String DECIMAL_DEGREES = "Decimal Degrees";
 	private final static String KMS = "kms";
 	
-	private transient ParameterEditor paramEdit = null;
+	private transient ParameterEditorAPI<?> paramEdit = null;
 	
 	/**
 	 * No constraints specified for this parameter. Sets the name of this
@@ -453,10 +453,11 @@ public class LocationParameter extends DependentParameter<Location> {
 		return false;
 	}
 
-	public ParameterEditor getEditor() {
+	public ParameterEditorAPI<?> getEditor() {
 		if (paramEdit == null) {
 			if (constraint == null)
-				paramEdit = new LocationParameterEditor(this);
+//				paramEdit = new LocationParameterEditor(this);
+				paramEdit = new ParameterListParameterEditor(getLocationParameter());
 			else
 				paramEdit = new ConstrainedLocationParameterEditor(this);
 		}
