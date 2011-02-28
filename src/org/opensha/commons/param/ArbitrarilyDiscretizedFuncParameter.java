@@ -23,7 +23,7 @@ import org.dom4j.Element;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.param.editor.ArbitrarilyDiscretizedFuncParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditorAPI;
 
 /**
  * <p>Title: ArbitrarilyDiscretizedFuncParameter.java </p>
@@ -50,7 +50,7 @@ implements java.io.Serializable{
 	protected final static String PARAM_TYPE ="ArbitrarilyDiscretizedFuncParameter";
 	private String xUnits="";
 
-	private transient ParameterEditor paramEdit = null;
+	private transient ParameterEditorAPI<ArbitrarilyDiscretizedFunc>  paramEdit = null;
 
 	/**
 	 * No constraints specified, all values allowed. Sets the name and value.
@@ -209,7 +209,7 @@ implements java.io.Serializable{
 		return true;
 	}
 
-	public ParameterEditor getEditor() {
+	public ParameterEditorAPI<ArbitrarilyDiscretizedFunc> getEditor() {
 		if (paramEdit == null)
 			try {
 				paramEdit = new ArbitrarilyDiscretizedFuncParameterEditor(this);
