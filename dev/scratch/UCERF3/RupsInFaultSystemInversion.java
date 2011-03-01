@@ -155,6 +155,7 @@ public class RupsInFaultSystemInversion {
 		
 		
 		// plot magnitude histogram for the inversion ruptures (how many rups at each mag)
+		// comment this out if you don't want it popping up (if you're using SCEC VDO)
 		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,35,0.1);
 		magHist.setTolerance(0.2);	// this makes it a histogram
 		for(int r=0; r<getNumRupRuptures();r++)
@@ -169,28 +170,32 @@ public class RupsInFaultSystemInversion {
 		graph.setY_AxisLabel("Num");
 		
 
-		// this is the stuff Ned is working on
-		/*
+		// Now get the UCERF2 equivalent mag and rate for each inversion rupture (where there's a meaningful
+		// association).  ucerf2_magsAndRates is an ArrayList of length getRupList().size(), where each element 
+		// is a double[2] with mag in the first element and rate in the second. The element is null if there is
+		// no association.  For example, to get the UCERF2 mag and rate for the 10th Inversion rupture, do the
+		// following:
+		// 
+		//		double[] magAndRate = ucerf2_magsAndRates.get(10);
+		//		if(magAndRate != null) {
+		//			double mag = magAndRate[0];
+		//			double rate = magAndRate[1];
+		//		}
+		//
+		// Notes: 
+		//
+		// 1) files saved/read in precomputedDataDir by the following class should be 
+		// deleted any time the contents of faultSectionData or rupList change; these filenames
+		// are specified by FindEquivUCERF2_Ruptures.DATA_FILE_NAME and FindEquivUCERF2_Ruptures.INFO_FILE_NAME.
+		//
+		// 2) This currently only works for N. Cal Inversions
+		//
 		FindEquivUCERF2_Ruptures findUCERF2_Rups = new FindEquivUCERF2_Ruptures(faultSectionData, precomputedDataDir);
 		ArrayList<ArrayList<Integer>> rupList = getRupList();
-		findUCERF2_Rups.getMagsAndRatesForRuptures(rupList);
-		
-		System.out.println("looking now...");
-		for(ArrayList<Integer> rup:rupList) {
-			int first = rup.get(0);
-			int last = rup.get(rup.size()-1);
-			if(first == 1250 || last == 1250)
-				System.out.println(first+" & "+last);
-		}
-		
-		ArrayList funcs2 = new ArrayList();
-		funcs2.addAll(findUCERF2_Rups.getMFDsForUCERF2AssocRups());
-		funcs2.add(findUCERF2_Rups.getMFD_forNcal());
-		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "Mag-Freq Dists"); 
-		graph2.setX_AxisLabel("Mag");
-		graph2.setY_AxisLabel("Rate");
-		graph2.setYLog(true);
-*/
+		ArrayList<double[]> ucerf2_magsAndRates = findUCERF2_Rups.getMagsAndRatesForRuptures(rupList);
+		// the following plot verifies that associations are made properly from the perspective of mag-freq-dists
+		// this is valid only if createNorthCalSubSections() has been used in TestInversion!
+		findUCERF2_Rups.plotMFD_TestForNcal();
 
 		
 //		doInversion();

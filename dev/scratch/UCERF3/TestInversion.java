@@ -15,7 +15,10 @@ import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.data.NamedObjectComparator;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.geo.BorderType;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
@@ -108,8 +111,10 @@ public class TestInversion {
 	
 	
 	/**
-	 * This gets all section data & creates subsections
-	 * @param includeSectionsWithNaN_slipRates
+	 * This gets all section data in the N. Cal RELM region.
+	 * Note that this has to use a modified version of CaliforniaRegions.RELM_NOCAL() in 
+	 * order to not include the Parkfield section (one that uses BorderType.GREAT_CIRCLE 
+	 * rather than the default BorderType.MERCATOR_LINEAR).
 	 */
 	private void createNorthCalSubSections() {
 
@@ -136,13 +141,14 @@ public class TestInversion {
 		}
 
 		// remove those that don't have a trace in in the N Cal RELM region
-		Region nCalRegion = new CaliforniaRegions.RELM_NOCAL();
+		Region relm_nocal_reg = new CaliforniaRegions.RELM_NOCAL();
+		Region mod_relm_nocal_reg = new Region(relm_nocal_reg.getBorder(), BorderType.GREAT_CIRCLE);
 		ArrayList<FaultSectionPrefData> nCalFaultSectionPrefData = new ArrayList<FaultSectionPrefData>();
 		for(FaultSectionPrefData sectData:allFaultSectionPrefData) {
 			FaultTrace trace = sectData.getFaultTrace();
 			Location endLoc1 = trace.get(0);
 			Location endLoc2 = trace.get(trace.size()-1);
-			if(nCalRegion.contains(endLoc1) || nCalRegion.contains(endLoc2))
+			if(mod_relm_nocal_reg.contains(endLoc1) || mod_relm_nocal_reg.contains(endLoc2))
 				nCalFaultSectionPrefData.add(sectData);
 		}
 		
@@ -459,7 +465,16 @@ public class TestInversion {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
 		TestInversion test = new TestInversion();
+		
+		/* Tests for the Loc at the N. end of the Parkfield Trace
+		Region nCalRegion = new CaliforniaRegions.RELM_NOCAL();
+		System.out.println(nCalRegion.contains(new Location(36.002647,-120.56089000000001)));
+		Region mod_relm_nocal = new Region(nCalRegion.getBorder(), BorderType.GREAT_CIRCLE);
+		System.out.println(mod_relm_nocal.contains(new Location(36.002647,-120.56089000000001)));
+		*/
+
 	}
 
 
