@@ -195,7 +195,7 @@ public class RupsInFaultSystemInversion {
 		ArrayList<double[]> ucerf2_magsAndRates = findUCERF2_Rups.getMagsAndRatesForRuptures(rupList);
 		// the following plot verifies that associations are made properly from the perspective of mag-freq-dists
 		// this is valid only if createNorthCalSubSections() has been used in TestInversion!
-		findUCERF2_Rups.plotMFD_TestForNcal();
+//		findUCERF2_Rups.plotMFD_TestForNcal();
 
 		
 //		doInversion();

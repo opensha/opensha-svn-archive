@@ -29,6 +29,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -772,14 +773,37 @@ public class FindEquivUCERF2_Ruptures {
 	
 	
 	public void plotMFD_TestForNcal() {
+		ArrayList funcs = new ArrayList();
+		funcs.addAll(getMFDsForUCERF2AssocRups());
+		funcs.addAll(getMFDsForNcal());
+		funcs.add(getN_CalTotalGR_MFD());
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Mag-Freq Dists"); 
+		graph.setX_AxisLabel("Mag");
+		graph.setY_AxisLabel("Rate");
+		graph.setYLog(true);
+		graph.setY_AxisRange(1e-6, 1.0);
+		
 		ArrayList funcs2 = new ArrayList();
-		funcs2.addAll(getMFDsForUCERF2AssocRups());
-		funcs2.addAll(getMFDsForNcal());
-		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "Mag-Freq Dists"); 
+		funcs2.add(getMFDsForUCERF2AssocRups().get(1).getCumRateDistWithOffset());
+		funcs2.add(getN_CalTotalGR_MFD().getCumRateDistWithOffset());
+		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "Cum Mag-Freq Dists"); 
 		graph2.setX_AxisLabel("Mag");
 		graph2.setY_AxisLabel("Rate");
 		graph2.setYLog(true);
-
+	}
+	
+	
+	/**
+	 * This is a target GR Distribution for N Cal RELM Region (based on info from Karen)
+	 * @return
+	 */
+	public GutenbergRichterMagFreqDist getN_CalTotalGR_MFD() {
+		double totCumRateWithAftershocks = 3.4;	// From Karen; see my email to her on 3/1/11
+		GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(5.05,35,0.1);
+		grDist.setAllButTotMoRate(5.05, 8.45, totCumRateWithAftershocks, 1.0);
+		grDist.setName("Target N Cal GR Dist");
+		grDist.setInfo("Assuming Karen's total rate above 5.0 of 3.4 per yr (including aftershocks)");
+		return grDist;
 	}
 	
 
