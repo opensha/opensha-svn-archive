@@ -216,9 +216,15 @@ public abstract class IM_EventSetOutputWriter {
 				}
 				// now try to set this parameter from the site data
 				boolean success = siteTrans.setParameterValue(siteParam, siteData);
-				// if we couldn't set it from our data, use the atten rel's default
-				if (!success)
+				if (success) {
+					logger.log(Level.FINE, "Set site "+i+" param '"+siteParam.getName()
+							+"' from data. New value: "+siteParam.getValue());
+				} else {
+					// if we couldn't set it from our data, use the atten rel's default
+					logger.log(Level.FINE, "Couldn't set site "+i+" param '"+siteParam.getName()
+							+"' from data, setting to IMR default of: "+attenParam.getValue());
 					siteParam.setValue(attenParam.getValue());
+				}
 			}
 		}
 //		for (int i=0; i<sites.size(); i++) {

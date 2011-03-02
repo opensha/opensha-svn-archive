@@ -77,12 +77,19 @@ public abstract class IM_EventSetCalc_v3_0 implements IM_EventSetCalc_v3_0_API {
 			Site site = sites.get(i);
 			ArrayList<SiteDataValue<?>> dataVals = calc.getUserSiteDataValues(i);
 			if (dataVals == null) {
+				logger.log(Level.FINE, "No user site data for site "+i);
 				dataVals = new ArrayList<SiteDataValue<?>>();
+			} else {
+				for (SiteDataValue<?> dataVal : dataVals)
+					logger.log(Level.FINE, "User data value for site "+i+": "+dataVal);
 			}
 			if (providers != null) {
 				ArrayList<SiteDataValue<?>> provData = providers.getAllAvailableData(site.getLocation());
-				if (provData != null)
+				if (provData != null) {
+					for (SiteDataValue<?> dataVal : provData)
+						logger.log(Level.FINE, "Provider data value for site "+i+": "+dataVal);
 					dataVals.addAll(provData);
+				}
 			}
 			sitesData.add(dataVals);
 		}

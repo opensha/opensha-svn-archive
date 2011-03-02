@@ -69,8 +69,9 @@ public class HAZ01Writer extends IM_EventSetOutputWriter {
 		SimpleDateFormat formatter = new SimpleDateFormat("EEE, dd-MMM-yyyy HH:mm:ss zzz");
 		
 		logger.log(Level.FINEST, "Writing headers");
-		fwA.write("\"OpenSHA IM Event Set Calculator Output (HAZ01A): " + formatter.format(now) + "\"\n");
-		fwB.write("\"OpenSHA IM Event Set Calculator Output (HAZ01B): " + formatter.format(now) + "\"\n");
+		// in e-mail 3/1/2011 Keith requested the removal of these lines
+//		fwA.write("\"OpenSHA IM Event Set Calculator Output (HAZ01A): " + formatter.format(now) + "\"\n");
+//		fwB.write("\"OpenSHA IM Event Set Calculator Output (HAZ01B): " + formatter.format(now) + "\"\n");
 		fwA.write("ID,ERF,Source,Rupture,GMPE,Site,VS30,Dist,IMT,Median,LSDT,LSDE\n");
 		fwB.write("ID,ERF,Source,Rupture,Rate,Mag,SourceName\n");
 		
@@ -153,12 +154,15 @@ public class HAZ01Writer extends IM_EventSetOutputWriter {
 		for (int siteID=0; siteID<sites.size(); siteID++) {
 			logger.log(Level.FINEST, "Writing portion for site: " + siteID);
 			Site site = sites.get(siteID);
+			attenRel.setSite(site);
 			
 			HAZ01ASegment haz01a = new HAZ01ASegment(erfName, siteID, gmpe, getHAZ01IMTString(attenRel.getIntensityMeasure()));
 			
 			float vs30 = -1;
 			try {
-				vs30 = (float)(double)((Double)attenRel.getParameter(Vs30_Param.NAME).getValue());
+				attenRel.getParameter(Vs30_Param.NAME);
+				// we got here, the IMR has vs30
+				vs30 = (float)(double)((Double)site.getParameter(Vs30_Param.NAME).getValue());
 			} catch (ParameterException e) {
 				logger.log(Level.WARNING, "Selected IMR, " + attenRel.getShortName() + ", " +
 						"doesn't have Vs30...all values will be set to -1");
@@ -176,7 +180,6 @@ public class HAZ01Writer extends IM_EventSetOutputWriter {
 					PropagationEffect propEffect = new PropagationEffect(site,rup);
 					double rupDist = ((Double)propEffect.getParamValue(DistanceRupParameter.NAME)).doubleValue();
 					
-					attenRel.setSite(site);
 					double mean = attenRel.getMean();
 					stdDevParam.setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
 					double total = attenRel.getStdDev();
