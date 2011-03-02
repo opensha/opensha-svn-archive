@@ -20,6 +20,9 @@
 
 <project basedir="." default="jar.full.dist" name="Compile">
 	
+	<taskdef resource="proguard/ant/task.properties"
+	         classpath="lib/proguard4.6/proguard.jar" />
+	
 	<import file="include/utils.xml"/>
 
 	<property name="build" value="../build" />
@@ -45,7 +48,7 @@
 	
 	<target name="build.all">
 		<antcall target="jar.lite"/>
-		<antcall target="jar.commons"/>
+		<antcall target="jar.commons.pg"/>
 		<antcall target="jar.full.dist"/>
 	</target>
 	
@@ -74,6 +77,56 @@
 		<property name="app.jar" value="${dist}/${app.jar.name}" />
 		
 		<jar destfile="${app.jar}" basedir="${build}" />
+		
+		<antcall target="copy.sign.clean"/>
+	</target>
+	
+	<!-- This task uses ProGuard (http://proguard.sourceforge.net/) to create a commons
+	build which includes all dependencies. It includes OpenSHA classes outside of commons
+	that are referenced, as well as classes from libraries that are needed. -->
+	<target name="jar.commons.pg" depends="pre.jar">
+		<property name="app.short.name" value="opensha-commons" />
+		<property name="app.jar.name" value="${app.short.name}-${app.version}.jar" />
+		<property name="app.jar" value="${dist}/${app.jar.name}" />
+		
+		<property name="pre.pg.app.jar" value="${dist}/PRE-PG-${app.jar.name}" />
+		
+		<ant antfile="build.xml" target="unjar.libs.common"/>
+		<delete>
+			<fileset dir="${build}" includes="*"/>
+		</delete>
+		<delete dir="${build}/META-INF"/>
+		<ant antfile="build.xml" target="resource.misc.required"/>
+		<jar destfile="${pre.pg.app.jar}" basedir="${build}"/>
+		
+		<proguard ignorewarnings="true" warn="false" note="false">
+			-injars      ${pre.pg.app.jar}
+			-outjars     ${app.jar}
+			-libraryjars ${java.home}/lib/rt.jar
+			-keep public class org.opensha.commons.**.* {
+			    public protected *;
+			}
+			-keepclassmembers enum org.opensha.commons.* {
+			    public static *;
+			    public *;
+			}
+
+			-keepclassmembers class * implements java.io.Serializable {
+			    static final long serialVersionUID;
+			    private static final java.io.ObjectStreamField[] serialPersistentFields;
+			    private void writeObject(java.io.ObjectOutputStream);
+			    private void readObject(java.io.ObjectInputStream);
+			    java.lang.Object writeReplace();
+			    java.lang.Object readResolve();
+			}
+
+			-keepnames class * implements java.io.Serializable
+			-keep public class * extends java.util.ResourceBundle
+			-dontoptimize
+			-dontobfuscate
+		</proguard>
+		
+		<delete file="${pre.pg.app.jar}"/>
 		
 		<antcall target="copy.sign.clean"/>
 	</target>
