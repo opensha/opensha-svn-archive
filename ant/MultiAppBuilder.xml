@@ -215,13 +215,26 @@
 	</target>
 	
 	<target name="build.im.event.ascii">
+		<property name="dist" value="../dist" />
+		<property name="app.jar.name" value="IM_EventSetCalc_v3_0_ASCII.jar" />
 		<ant antfile="${app.build.file}" target="build.app">
 			<property name="app.short.name" value="IM_EventSetCalc_ASCII" />
+			<property name="dist" value="${dist}" />
+			<property name="app.jar.name" value="${app.jar.name}" />
 			<property name="app.main.class" value="org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetCalc_v3_0_ASCII" />
 			<property name="javac.includes" value="org/opensha/sha/calc/IM_EventSet/v03/IM_EventSetCalc_v3_0_ASCII.java" />
 			<property name="javac.excludes" value="" />
 			<property name="resource.target" value="resource.hazard.apps" />
 		</ant>
+		<property name="zip.dir" value="${dist}/IM_EventSetCalc_v3_0_ASCII"/>
+		<mkdir dir="${zip.dir}"/>
+		<copy file="${dist}/${app.jar.name}" todir="${zip.dir}"/>
+		<copy file="../src/org/opensha/sha/calc/IM_EventSet/v03/ExampleInputFile_v3_0_ASCII.txt"
+			todir="${zip.dir}"/>
+		<copy file="../src/org/opensha/sha/calc/IM_EventSet/v03/README_v3_0_ASCII.txt"
+			todir="${zip.dir}"/>
+		<zip basedir="${zip.dir}" zipfile="${zip.dir}.zip"/>
+		<delete dir="${zip.dir}"/>
 	</target>
 
 </project>
