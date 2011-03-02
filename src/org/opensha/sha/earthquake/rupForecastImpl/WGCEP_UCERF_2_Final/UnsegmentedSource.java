@@ -40,12 +40,12 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_TypeB_EqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.oldClasses.UCERF2_Final_StirlingGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 import org.opensha.sha.faultSurface.GriddedSubsetSurface;
-import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -268,7 +268,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 
 
 		num_seg = segmentData.getNumSegments();
-		StirlingGriddedSurface combinedGriddedSurface;
+		UCERF2_Final_StirlingGriddedSurface combinedGriddedSurface;
 		if (applyCyberShakeDDW_Corr) {
 			double ddwCorrFactor = somerville_magAreaRel.getMedianArea((sourceMag1+sourceMag2)/2)/(segmentData.getTotalArea()/1e6);
 			combinedGriddedSurface = segmentData.getCombinedGriddedSurface(UCERF2.GRID_SPACING, ddwCorrFactor);
@@ -1072,7 +1072,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 				(float)delta+"\t"+
 				(float)wt+"\t"+
 				(float)moRate+"\n");
-		StirlingGriddedSurface surface = (StirlingGriddedSurface)this.getSourceSurface();
+		UCERF2_Final_StirlingGriddedSurface surface = (UCERF2_Final_StirlingGriddedSurface)this.getSourceSurface();
 		// dip, Down dip width, upper seismogenic depth, rup Area
 		strBuffer.append((float)surface.getAveDip()+"\t"+(float)surface.getSurfaceWidth()+"\t"+
 				(float)surface.getUpperSeismogenicDepth()+"\t"+(float)surface.getSurfaceLength()+"\n");
@@ -1111,7 +1111,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		double rate = moRate/MomentMagCalc.getMoment(sourceMag);
 		double wt = 1.0;
 		strBuffer.append((float)sourceMag+"\t"+rate+"\t"+wt+"\t"+(float)moRate+"\n");
-		StirlingGriddedSurface surface = (StirlingGriddedSurface)this.getSourceSurface();
+		UCERF2_Final_StirlingGriddedSurface surface = (UCERF2_Final_StirlingGriddedSurface)this.getSourceSurface();
 		// dip, Down dip width, upper seismogenic depth, rup Area
 		strBuffer.append((float)surface.getAveDip()+"\t"+(float)surface.getSurfaceWidth()+"\t"+
 				(float)surface.getUpperSeismogenicDepth()+"\t"+(float)surface.getSurfaceLength()+"\n");

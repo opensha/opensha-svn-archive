@@ -42,8 +42,8 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.A_Fau
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.NonCA_FaultsFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelSummaryFinal;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.NSHMP_GridSourceGenerator;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.oldClasses.UCERF2_Final_StirlingGriddedSurface;
 import org.opensha.sha.earthquake.util.EqkSourceNameComparator;
-import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -132,7 +132,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 	
 	protected HashMap<String, SummedMagFreqDist> sourceMFDMapping;
 	protected HashMap<String, Double> sourceRakeMapping;
-	protected HashMap<String, StirlingGriddedSurface> sourceGriddedSurfaceMapping;
+	protected HashMap<String, UCERF2_Final_StirlingGriddedSurface> sourceGriddedSurfaceMapping;
 
 	protected NSHMP_GridSourceGenerator nshmp_gridSrcGen = new NSHMP_GridSourceGenerator();
 	protected UCERF2 ucerf2 = new UCERF2();
@@ -491,7 +491,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 			fillAdjustableParamsForA_Faults();
 			sourceMFDMapping = new HashMap<String, SummedMagFreqDist>();
 			sourceRakeMapping = new  HashMap<String, Double> ();
-			sourceGriddedSurfaceMapping = new HashMap<String, StirlingGriddedSurface>();
+			sourceGriddedSurfaceMapping = new HashMap<String, UCERF2_Final_StirlingGriddedSurface>();
 			findBranches(0,1);
 			aFaultSegmentedSources = new ArrayList<FaultRuptureSource>();
 			if(calcSummedMFDs) aFaultSummedMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG); 

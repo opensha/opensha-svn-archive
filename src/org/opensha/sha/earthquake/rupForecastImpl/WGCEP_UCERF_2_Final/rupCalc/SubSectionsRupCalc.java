@@ -26,6 +26,7 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.oldClasses.UCERF2_Final_RelativeLocation;
 import org.opensha.sha.faultSurface.FaultTrace;
 
 /**
@@ -196,13 +197,13 @@ public class SubSectionsRupCalc {
 		  int endIndex1 = trace1.getNumLocations()-1;
 		  FaultTrace trace2 = faultSectionPrefData2.getFaultTrace();
 		  int endIndex2 = trace2.getNumLocations()-1;
-		  if(LocationUtils.horzDistanceFast(trace1.get(0), trace2.get(0))<=subSectionsCutoffDist) 
+		  if(UCERF2_Final_RelativeLocation.getApproxHorzDistance(trace1.get(0), trace2.get(0))<=subSectionsCutoffDist) 
 			  return true;
-		  if(LocationUtils.horzDistanceFast(trace1.get(0), trace2.get(endIndex2))<=subSectionsCutoffDist) 
+		  if(UCERF2_Final_RelativeLocation.getApproxHorzDistance(trace1.get(0), trace2.get(endIndex2))<=subSectionsCutoffDist) 
 			  return true;
-		  if(LocationUtils.horzDistanceFast(trace1.get(endIndex1), trace2.get(0))<=subSectionsCutoffDist) 
+		  if(UCERF2_Final_RelativeLocation.getApproxHorzDistance(trace1.get(endIndex1), trace2.get(0))<=subSectionsCutoffDist) 
 			  return true;
-		  if(LocationUtils.horzDistanceFast(trace1.get(endIndex1), trace2.get(endIndex2))<=subSectionsCutoffDist) 
+		  if(UCERF2_Final_RelativeLocation.getApproxHorzDistance(trace1.get(endIndex1), trace2.get(endIndex2))<=subSectionsCutoffDist) 
 			  return true;
 		  return false;
 	  }

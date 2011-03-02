@@ -38,9 +38,9 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.EmpiricalM
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.oldClasses.UCERF2_Final_StirlingGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfFromSimpleFaultData;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -502,7 +502,7 @@ public class A_FaultSegmentedSourceGenerator {
 	 * @param rupIndex
 	 * @return
 	 */
-	public StirlingGriddedSurface getCombinedGriddedSurface(int rupIndex, boolean applyCyberShakeDDW_Corr) {
+	public UCERF2_Final_StirlingGriddedSurface getCombinedGriddedSurface(int rupIndex, boolean applyCyberShakeDDW_Corr) {
 		int[] segmentsInRup = getSegmentsInRup(rupIndex);
 		if(applyCyberShakeDDW_Corr) {
 			double ddwCorrFactor = somerville_magAreaRel.getMedianArea(rupMeanMag[rupIndex])/(rupArea[rupIndex]/1e6);
@@ -524,7 +524,7 @@ public class A_FaultSegmentedSourceGenerator {
 	 * @param rupIndex
 	 * @return
 	 */
-	public StirlingGriddedSurface getCombinedGriddedSurfaceForSource(int srcIndex, boolean applyCyberShakeDDW_Corr) {
+	public UCERF2_Final_StirlingGriddedSurface getCombinedGriddedSurfaceForSource(int srcIndex, boolean applyCyberShakeDDW_Corr) {
 		return getCombinedGriddedSurface( srcRupMapping.get(srcIndex), applyCyberShakeDDW_Corr);
 	}
 
@@ -638,7 +638,7 @@ public class A_FaultSegmentedSourceGenerator {
 		double[] modRupRate = new double[num_rup];
 		for(int i=0; i<num_rup; i++) {
 			
-			StirlingGriddedSurface rupSurf = getCombinedGriddedSurface(i, false);
+			UCERF2_Final_StirlingGriddedSurface rupSurf = getCombinedGriddedSurface(i, false);
 			double empiricalCorr = empiricalModel.getCorrection(rupSurf);
 
 			modRupRate[i] = totRupRate[i]*empiricalCorr;

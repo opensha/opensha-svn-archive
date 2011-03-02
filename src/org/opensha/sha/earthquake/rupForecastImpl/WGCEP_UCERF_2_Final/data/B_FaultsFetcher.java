@@ -12,9 +12,9 @@ import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.PrefFaultSectionDataFinal;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.oldClasses.UCERF2_Final_StirlingGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.SimpleFaultData;
-import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
 /**
  * 
@@ -193,7 +193,7 @@ public  class B_FaultsFetcher extends FaultsFetcher  implements java.io.Serializ
 				for(int i=0; i<faultSectionPredDataList.size(); ++i) {
 					simpleFaultData.add(faultSectionPredDataList.get(i).getSimpleFaultData(isAseisReducesArea));
 				}
-				StirlingGriddedSurface surface = new StirlingGriddedSurface(simpleFaultData, 1);
+				UCERF2_Final_StirlingGriddedSurface surface = new UCERF2_Final_StirlingGriddedSurface(simpleFaultData, 1);
 				// write to a file for connecting sections so that we can view them in SCEC-VDO
 				fwTrace.write("#"+(String)bFaultNames.get(index)+","+surface.getUpperSeismogenicDepth()+","+
 						surface.getLowerSeismogenicDepth()+","+surface.getAveDip()+"\n");

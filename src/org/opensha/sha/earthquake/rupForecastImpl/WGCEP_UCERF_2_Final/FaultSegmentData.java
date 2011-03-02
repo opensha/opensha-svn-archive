@@ -7,11 +7,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.opensha.commons.calc.FaultMomentCalc;
+import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegmentTimeDepData;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.oldClasses.UCERF2_Final_RelativeLocation;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.oldClasses.UCERF2_Final_StirlingGriddedSurface;
+import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.SimpleFaultData;
-import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
 /**
  * @author Vipin Gupta and Ned Field
@@ -418,7 +422,7 @@ public class FaultSegmentData implements java.io.Serializable {
 	 * 
 	 * @return
 	 */
-	public StirlingGriddedSurface getCombinedGriddedSurface(double gridSpacing, double increaseDDW_Factor) {		
+	public UCERF2_Final_StirlingGriddedSurface getCombinedGriddedSurface(double gridSpacing, double increaseDDW_Factor) {		
 		int segIndices[] = new int[this.getNumSegments()];
 		for(int i=0; i<segIndices.length; ++i) segIndices[i] = i;
 		return getCombinedGriddedSurface(segIndices, gridSpacing, increaseDDW_Factor);
@@ -433,7 +437,7 @@ public class FaultSegmentData implements java.io.Serializable {
 	 * @param segIndex List of Segment index to be included in the surface. The indices can have value from 0 to (getNumSegments()-1)
 	 * @return
 	 */
-	public StirlingGriddedSurface getCombinedGriddedSurface(int []segIndex, double gridSpacing, double increaseDDW_Factor) {
+	public UCERF2_Final_StirlingGriddedSurface getCombinedGriddedSurface(int []segIndex, double gridSpacing, double increaseDDW_Factor) {
 		ArrayList<SimpleFaultData> simpleFaultDataCloneList = new ArrayList<SimpleFaultData>();
 		int lastSegmentIndex = getNumSegments()-1;
 		
@@ -466,7 +470,7 @@ public class FaultSegmentData implements java.io.Serializable {
 				simpleFaultDataCloneList.add(simpleFaultDataClone);
 			}
 		}
-		return  new StirlingGriddedSurface(simpleFaultDataCloneList, gridSpacing);
+		return  new UCERF2_Final_StirlingGriddedSurface(simpleFaultDataCloneList, gridSpacing);
 	}
 	
 	
@@ -476,7 +480,7 @@ public class FaultSegmentData implements java.io.Serializable {
 	 * @param segIndex List of Segment index to be included in the surface. The indices can have value from 0 to (getNumSegments()-1)
 	 * @return
 	 */
-	public StirlingGriddedSurface getCombinedGriddedSurface(int[] segIndex, double gridSpacing) {
+	public UCERF2_Final_StirlingGriddedSurface getCombinedGriddedSurface(int[] segIndex, double gridSpacing) {
 		ArrayList<SimpleFaultData> simpleFaultData = new ArrayList<SimpleFaultData>();
 		int lastSegmentIndex = getNumSegments()-1;
 		
@@ -513,7 +517,7 @@ public class FaultSegmentData implements java.io.Serializable {
 			else
 				simpleFaultData.addAll((ArrayList)this.simpleFaultDataList.get(segIndex[i]));
 		}
-		return  new StirlingGriddedSurface(simpleFaultData, gridSpacing);
+		return  new UCERF2_Final_StirlingGriddedSurface(simpleFaultData, gridSpacing);
 	}
 	
 
@@ -527,7 +531,7 @@ public class FaultSegmentData implements java.io.Serializable {
 	 * 
 	 * @return
 	 */
-	public StirlingGriddedSurface getCombinedGriddedSurface(double gridSpacing) {
+	public UCERF2_Final_StirlingGriddedSurface getCombinedGriddedSurface(double gridSpacing) {
 		int segIndices[] = new int[this.getNumSegments()];
 		for(int i=0; i<segIndices.length; ++i) segIndices[i] = i;
 		return getCombinedGriddedSurface(segIndices, gridSpacing);
@@ -559,7 +563,7 @@ public class FaultSegmentData implements java.io.Serializable {
 			if(segIndex[i]<0 || segIndex[i]>lastSegmentIndex) throw new RuntimeException ("Segment indices should can have value from  0 to "+lastSegmentIndex);
 			ArrayList<FaultSectionPrefData> faultSectionPrefDataList =  (ArrayList)this.sectionToSegmentData.get(segIndex[i]);
 			for(int j=0; j<faultSectionPrefDataList.size(); ++j) {
-				area = faultSectionPrefDataList.get(j).getLength()*faultSectionPrefDataList.get(j).getDownDipWidth();
+				area = UCERF2_Final_RelativeLocation.getOldFaultLength(faultSectionPrefDataList.get(j).getFaultTrace())*faultSectionPrefDataList.get(j).getDownDipWidth();
 				totArea+=area;
 				totRake+=(area*faultSectionPrefDataList.get(j).getAveRake()); // weight the rake by section area
 			}
@@ -607,9 +611,9 @@ public class FaultSegmentData implements java.io.Serializable {
 				if(it.hasNext()) sectionsInSegString[seg]+=sectData.getSectionName()+" + ";
 				else sectionsInSegString[seg]+=sectData.getSectionName();
 				//set the area & moRate
-				segLength[seg]+= sectData.getLength()*1e3;  // converted to meters
+				segLength[seg]+= UCERF2_Final_RelativeLocation.getOldFaultLength(sectData.getFaultTrace())*1e3;  // converted to meters
 				double ddw = sectData.getDownDipWidth()*1e3; // converted to meters
-				double area = ddw*sectData.getLength()*1e3; // converted to meters-squared
+				double area = ddw*UCERF2_Final_RelativeLocation.getOldFaultLength(sectData.getFaultTrace())*1e3; // converted to meters-squared
 				double slipRate = sectData.getAveLongTermSlipRate()*1e-3;  // converted to m/sec
 				double alpha = 1.0 - sectData.getAseismicSlipFactor();  // reduction factor
 				segMoRateIgnoringAseis[seg] += FaultMomentCalc.getMoment(area,slipRate); // SI units
