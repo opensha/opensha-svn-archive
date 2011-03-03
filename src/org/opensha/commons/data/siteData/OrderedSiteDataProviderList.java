@@ -22,12 +22,14 @@ package org.opensha.commons.data.siteData;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.opensha.commons.data.Site;
 import org.opensha.commons.data.siteData.impl.CVM2BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.MeanTopoSlope;
@@ -41,6 +43,7 @@ import org.opensha.commons.data.siteData.impl.WillsMap2000;
 import org.opensha.commons.data.siteData.impl.WillsMap2000TranslatedVs30;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.util.XMLUtils;
@@ -116,6 +119,25 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 			}
 		}
 		return null;
+	}
+	
+	public ArrayList<SiteDataValueList<?>> getAllAvailableData(List<Site> sites) throws IOException {
+		LocationList locs = new LocationList();
+		for (Site site : sites) {
+			locs.add(site.getLocation());
+		}
+		return getAllAvailableData(locs);
+	}
+	
+	public ArrayList<SiteDataValueList<?>> getAllAvailableData(LocationList locs) throws IOException {
+		ArrayList<SiteDataValueList<?>> datas = new ArrayList<SiteDataValueList<?>>();
+		
+		for (SiteDataAPI<?> prov : providers) {
+			
+			datas.add(prov.getAnnotatedValues(locs));
+		}
+		
+		return datas;
 	}
 	
 	/**
