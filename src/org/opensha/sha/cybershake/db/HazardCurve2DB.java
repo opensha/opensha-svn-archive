@@ -271,8 +271,14 @@ public class HazardCurve2DB {
 	public int getHazardCurveID(int runID, int datasetID, int imTypeID) {
 		if (datasetID < 0)
 			datasetID = hd2db.getDefaultDatasetID(runs2db.getRun(runID));
+//		System.out.println("DEFAULT DATASET: "+datasetID);
+		String dIDClause;
+		if (datasetID < 0)
+			dIDClause = "Hazard_Dataset_ID IS NULL";
+		else
+			dIDClause = "Hazard_Dataset_ID="+datasetID;
 		String whereClause = "WHERE Run_ID=" + runID + " AND IM_Type_ID=" + imTypeID
-				+ " AND Hazard_Dataset_ID="+datasetID;
+				+ " AND "+dIDClause;
 		
 //		System.out.println(sql);
 		

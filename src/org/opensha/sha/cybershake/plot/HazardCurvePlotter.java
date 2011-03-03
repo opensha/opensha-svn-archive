@@ -638,10 +638,12 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 				HazardCurve2DB curve2db_write = new HazardCurve2DB(writeDB);
 				System.out.println("Inserting curve into database...");
 				if (curveID >= 0) {
+					System.out.println("Inserting with Curve_ID="+curveID);
 					curve2db_write.insertHazardCurvePoints(curveID, curve);
 				} else {
 					curve2db_write.insertHazardCurve(run, im.getID(), curve);
 					curveID = curve2db.getHazardCurveID(run.getRunID(), im.getID());
+					System.out.println("Inserted with Curve_ID="+curveID);
 				}
 			} else {
 				System.out.println("Curve not found in DB, and no-add option supplied!");
