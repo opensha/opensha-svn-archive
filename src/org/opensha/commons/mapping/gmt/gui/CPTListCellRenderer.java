@@ -14,8 +14,6 @@ import javax.swing.border.EmptyBorder;
 
 import org.opensha.commons.util.cpt.CPT;
 
-import sun.swing.DefaultLookup;
-
 public class CPTListCellRenderer extends DefaultListCellRenderer {
 
 	/**
@@ -35,8 +33,6 @@ public class CPTListCellRenderer extends DefaultListCellRenderer {
 		if (!(value instanceof CPT))
 			throw new IllegalArgumentException("JList value must be a CPT object");
 
-		Color bg = DefaultLookup.getColor(this, ui, "List.dropCellBackground");
-		Color fg = DefaultLookup.getColor(this, ui, "List.dropCellForeground");
 
 		CPT cpt = (CPT)value;
 		int width = combo.getWidth()-40;
@@ -48,10 +44,10 @@ public class CPTListCellRenderer extends DefaultListCellRenderer {
 		JPanel panel= new JPanel();
 		
 		if (isSelected) {
-			panel.setBackground(bg == null ? list.getSelectionBackground() : bg);
-			panel.setForeground(fg == null ? list.getSelectionForeground() : fg);
-			cptPanel.setBackground(bg == null ? list.getSelectionBackground() : bg);
-			cptPanel.setForeground(fg == null ? list.getSelectionForeground() : fg);
+			panel.setBackground(list.getSelectionBackground());
+			panel.setForeground(list.getSelectionForeground());
+			cptPanel.setBackground(list.getSelectionBackground());
+			cptPanel.setForeground(list.getSelectionForeground());
 		}
 		else {
 			panel.setBackground(list.getBackground());
@@ -72,7 +68,6 @@ public class CPTListCellRenderer extends DefaultListCellRenderer {
 			cptWidth = 5;
 		cptPanel.update(cpt, cptWidth-4, height-8, 0, 0);
 		
-		Dimension panelDims = new Dimension(width, height);
 		Dimension cptDims = new Dimension(cptWidth, height);
 		cptPanel.setSize(cptDims);
 		cptPanel.setPreferredSize(cptDims);
