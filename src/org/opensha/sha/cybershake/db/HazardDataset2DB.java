@@ -94,7 +94,7 @@ public class HazardDataset2DB {
 	public static void main(String[] args) {
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		Runs2DB r2db = new Runs2DB(db);
-		CybershakeRun run = r2db.getRun(571);
+		CybershakeRun run = r2db.getRun(776);
 		HazardDataset2DB hd2db = new HazardDataset2DB(db);
 		System.out.println("Dataset: " + hd2db.getDefaultDatasetID(run));
 		

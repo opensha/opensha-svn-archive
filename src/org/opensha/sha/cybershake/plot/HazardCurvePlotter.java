@@ -717,6 +717,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			curveNames.add("CyberShake Hazard Curve Comparison. Run: " + run.toString());
 			chars.add(new PlotCurveCharacterstics(this.plotChars.getCyberShakeLineType(),
 					Color.GRAY, 1));
+			compCurve.setInfo(getCyberShakeCurveInfo(compCurveID, site2db.getSiteFromDB(compRun.getRunID()), compRun, im));
 		}
 		
 		if (erf != null && attenRels.size() > 0) {
@@ -724,7 +725,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			curveNames.addAll(this.plotComparisions(curves, im, curveID, chars));
 		}
 		
-		curve.setInfo(this.getCyberShakeCurveInfo(csSite, run, im));
+		curve.setInfo(this.getCyberShakeCurveInfo(curveID, csSite, run, im));
 		
 		String title = HazardCurvePlotCharacteristics.getReplacedTitle(plotChars.getTitle(), csSite);
 		
@@ -844,11 +845,12 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		return names;
 	}
 	
-	public String getCyberShakeCurveInfo(CybershakeSite site, CybershakeRun run, CybershakeIM im) {
+	public String getCyberShakeCurveInfo(int curveID, CybershakeSite site, CybershakeRun run, CybershakeIM im) {
 		String infoString = "Site: "+ site.getFormattedName() + ";\n";
 		if (run != null)
 			infoString += run.toString() + ";\n";
 		infoString += "SA Period: " + im.getVal() + ";\n";
+		infoString += "Hazard_Curve_ID: "+curveID+";\n";
 		
 		return infoString;
 	}

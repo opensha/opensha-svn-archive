@@ -440,6 +440,8 @@ public class HazardCurve2DB {
 	
 	public void insertHazardCurve(CybershakeRun run, int imTypeID, DiscretizedFuncAPI hazardFunc) {
 		int datasetID = hd2db.getDefaultDatasetID(run);
+		if (datasetID < 0)
+			throw new RuntimeException("No dataset ID exists for run: "+run+"\nCurve cannot be inserted.");
 		insertHazardCurve(run.getRunID(), imTypeID, hazardFunc, datasetID);
 	}
 	
