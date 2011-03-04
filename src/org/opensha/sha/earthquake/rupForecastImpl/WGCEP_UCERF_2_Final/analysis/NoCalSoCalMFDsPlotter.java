@@ -25,8 +25,8 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
  *
  */
 public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
-	private final static String NO_CAL_PATH = "src/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data/logicTreeMFDs/NoCal/";
-	private final static String SO_CAL_PATH = "src/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data/logicTreeMFDs/SoCal/";
+	private final static String NO_CAL_PATH = "data/logicTreeMFDs/NoCal/";
+	private final static String SO_CAL_PATH = "data/logicTreeMFDs/SoCal/";
 	private final static double MIN_MAG = UCERF2.MIN_MAG-UCERF2.DELTA_MAG/2;
 	private final static double MAX_MAG = UCERF2.MAX_MAG-UCERF2.DELTA_MAG/2;
 	private final static int NUM_MAG = UCERF2.NUM_MAG;

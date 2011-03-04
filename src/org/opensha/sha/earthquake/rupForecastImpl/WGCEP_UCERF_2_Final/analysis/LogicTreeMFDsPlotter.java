@@ -5,9 +5,13 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.analysis;
 
 import java.awt.Color;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.StringTokenizer;
@@ -56,9 +60,9 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	protected ArrayList<IncrementalMagFreqDist> aFaultMFDsList, bFaultCharMFDsList, bFaultGRMFDsList, totMFDsList, nonCA_B_FaultsMFDsList;
 	private IncrementalMagFreqDist cZoneMFD, bckMFD, nshmp02TotMFD;
 	
-	private final static String DEFAULT_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data/logicTreeMFDs/";
-	private final static String BCK_FRAC_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data/logicTreeMFDs/BackGrdFrac0_1/";
-	private final static String BFAULT_BVAL_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data/logicTreeMFDs/BFault_BVal0/";
+	private final static String DEFAULT_PATH = "data/logicTreeMFDs/";
+	private final static String BCK_FRAC_PATH = "data/logicTreeMFDs/BackGrdFrac0_1/";
+	private final static String BFAULT_BVAL_PATH = "data/logicTreeMFDs/BFault_BVal0/";
 	
 	protected final static String A_FAULTS_MFD_FILENAME = "A_Faults_MFDs.txt";
 	protected final static String B_FAULTS_CHAR_MFD_FILENAME = "B_FaultsCharMFDs.txt";
@@ -220,7 +224,8 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	 */
 	private void saveMFDsToFile(String fileName, ArrayList<IncrementalMagFreqDist> mfdList) {
 		try {
-			FileWriter fw = new FileWriter(fileName);
+			File f = new File(UCERF2.class.getResource(fileName).toURI());
+			FileWriter fw = new FileWriter(f);
 			for(int i=0; i<mfdList.size(); ++i) {
 				IncrementalMagFreqDist mfd = mfdList.get(i);
 				fw.write("#Run "+(i+1)+"\n");
@@ -252,8 +257,9 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	 */
 	protected void readMFDsFromFile(String fileName, ArrayList<IncrementalMagFreqDist> mfdList, boolean isNSHMP02) {
 		try {
-			FileReader fr = new FileReader(fileName);
-			BufferedReader br = new BufferedReader(fr);
+			InputStream is = UCERF2.class.getResourceAsStream(fileName);
+			//FileReader fr = new FileReader(fileName);
+			BufferedReader br = new BufferedReader(new InputStreamReader(is));
 			String line = br.readLine();
 			IncrementalMagFreqDist mfd = null;
 			double mag, rate;
@@ -272,7 +278,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 				line = br.readLine();
 			}
 			br.close();
-			fr.close();
+			//fr.close();
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
