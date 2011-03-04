@@ -25,6 +25,8 @@ import java.util.ArrayList;
 
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
+import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
+import org.opensha.commons.param.CPTParameter;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.ParameterListEditor;
@@ -303,8 +305,9 @@ public class SanAndreasScenarioControlPanel extends ConfirmDialogControlPanel {
 
 
 		// Set some of the mapping params:
-		mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.CPT_FILE_PARAM_NAME).
-		setValue(GMT_MapGenerator.CPT_FILE_SHAKEMAP);
+		CPTParameter cptParam =
+			(CPTParameter)mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.CPT_PARAM_NAME);
+		cptParam.setByName(GMT_CPT_Files.SHAKEMAP.getFileName());
 		mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME).
 		setValue(GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);
 		mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME).

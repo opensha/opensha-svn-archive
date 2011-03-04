@@ -9,6 +9,8 @@ import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
+import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
+import org.opensha.commons.param.CPTParameter;
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
@@ -76,7 +78,9 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
 		mapGenerator.setParameter(GMT_MapGenerator.LOG_PLOT_NAME, new Boolean(true));
 		mapGenerator.setParameter(GMT_MapGenerator.COAST_PARAM_NAME, GMT_MapGenerator.COAST_DRAW);
 		mapGenerator.setParameter(GMT_MapGenerator.TOPO_RESOLUTION_PARAM_NAME, GMT_MapGenerator.TOPO_RESOLUTION_NONE);
-		mapGenerator.setParameter(GMT_MapGenerator.CPT_FILE_PARAM_NAME, GMT_MapGenerator.CPT_FILE_MAX_SPECTRUM);
+		CPTParameter cptParam =
+			(CPTParameter)mapGenerator.getAdjustableParamsList().getParameter(GMT_MapGenerator.CPT_PARAM_NAME);
+		cptParam.setByName(GMT_CPT_Files.MAX_SPECTRUM.getFileName());
 
 		//manual color scale
 		mapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME, GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);

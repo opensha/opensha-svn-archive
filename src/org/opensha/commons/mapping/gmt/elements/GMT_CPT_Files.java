@@ -1,6 +1,7 @@
 package org.opensha.commons.mapping.gmt.elements;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.opensha.commons.util.cpt.CPT;
 
@@ -20,7 +21,7 @@ public enum GMT_CPT_Files {
 	SHAKEMAP("Shakemap.cpt"),
 	STEP("STEP.cpt"),
 	GMT_COPPER("GMT_copper.cpt"),
-	GMT_CYCLIC("GMT_cyclic.cpt"),
+//	GMT_CYCLIC("GMT_cyclic.cpt"),
 	GMT_DRYWET("GMT_drywet.cpt"),
 	GMT_GEBCO("GMT_gebco.cpt"),
 	GMT_GLOBE("GMT_globe.cpt"),
@@ -32,13 +33,13 @@ public enum GMT_CPT_Files {
 	GMT_OCEAN("GMT_ocean.cpt"),
 	GMT_PANOPLY("GMT_panoply.cpt"),
 	GMT_POLAR("GMT_polar.cpt"),
-	GMT_RAINBOW("GMT_rainbow.cpt"),
+//	GMT_RAINBOW("GMT_rainbow.cpt"),
 	GMT_RED_2_GREEN("GMT_red2green.cpt"),
 	GMT_RELIEF("GMT_relief.cpt"),
-	GMT_SEALAND("GMT_sealand.cpt"),
+//	GMT_SEALAND("GMT_sealand.cpt"),
 	GMT_SEIS("GMT_seis.cpt"),
 	GMT_SPLIT("GMT_split.cpt"),
-	GMT_TOPO("GMT_topo.cpt"),
+//	GMT_TOPO("GMT_topo.cpt"),
 	GMT_WYSIWYG("GMT_wysiwyg.cpt");
 	
 	private String fname;
@@ -52,7 +53,18 @@ public enum GMT_CPT_Files {
 	}
 	
 	public CPT instance() throws IOException {
-		return CPT.loadFromStream(this.getClass().getResourceAsStream("/resources/cpt/"+fname));
+		CPT cpt = CPT.loadFromStream(this.getClass().getResourceAsStream("/resources/cpt/"+fname));
+		cpt.setName(fname);
+		return cpt;
+	}
+	
+	public static ArrayList<CPT> instances() throws IOException {
+		ArrayList<CPT> cpts = new ArrayList<CPT>();
+		for (GMT_CPT_Files cptFile : values()) {
+//			System.out.println("Instantiating CPT: "+cptFile.getFileName());
+			cpts.add(cptFile.instance());
+		}
+		return cpts;
 	}
 
 }

@@ -23,6 +23,8 @@ package org.opensha.sha.gui.controls;
 import java.awt.Component;
 
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
+import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
+import org.opensha.commons.param.CPTParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
@@ -144,8 +146,9 @@ public class IM_EventSetCEA_ControlPanel extends ConfirmDialogControlPanel {
 
 
 		// Set some of the mapping params:
-		mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.CPT_FILE_PARAM_NAME).
-		setValue(GMT_MapGenerator.CPT_FILE_MAX_SPECTRUM);
+		CPTParameter cptParam =
+			(CPTParameter)mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.CPT_PARAM_NAME);
+		cptParam.setByName(GMT_CPT_Files.MAX_SPECTRUM.getFileName());
 		mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME).
 		setValue(GMT_MapGenerator.COLOR_SCALE_MODE_FROMDATA);
 		mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.GMT_WEBSERVICE_NAME).setValue(new Boolean(true));

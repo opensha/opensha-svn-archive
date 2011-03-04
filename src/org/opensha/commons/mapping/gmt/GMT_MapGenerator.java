@@ -49,16 +49,19 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.mapping.gmt.GMT_Map.HighwayFile;
 import org.opensha.commons.mapping.gmt.elements.CoastAttributes;
+import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.mapping.gmt.elements.PSXYPolygon;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbolSet;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.param.BooleanParameter;
+import org.opensha.commons.param.CPTParameter;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.IntegerParameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.util.ListUtils;
 import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.RunScript;
 import org.opensha.commons.util.cpt.CPT;
@@ -172,15 +175,21 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 	protected final static Double IMAGE_WIDTH_DEFAULT = new Double(6.5);
 	DoubleParameter imageWidthParam;
 
-	public final static String CPT_FILE_PARAM_NAME = "Color Scheme";
-	protected final static String CPT_FILE_PARAM_DEFAULT = "MaxSpectrum.cpt";
-	private final static String CPT_FILE_PARAM_INFO = "Color scheme for the scale";
-	public final static String CPT_FILE_MAX_SPECTRUM = "MaxSpectrum.cpt";
-	public final static String CPT_FILE_STEP = "STEP.cpt";
-	public final static String CPT_FILE_SHAKEMAP = "Shakemap.cpt";
-	public final static String CPT_FILE_RELM = "relm_color_map.cpt";
-	public final static String CPT_FILE_GMT_POLAR = "GMT_polar.cpt";
-	StringParameter cptFileParam;
+//	public final static String CPT_FILE_PARAM_NAME = "Color Scheme";
+//	protected final static String CPT_FILE_PARAM_DEFAULT = "MaxSpectrum.cpt";
+//	private final static String CPT_FILE_PARAM_INFO = "Color scheme for the scale";
+//	public final static String CPT_FILE_MAX_SPECTRUM = "MaxSpectrum.cpt";
+//	public final static String CPT_FILE_STEP = "STEP.cpt";
+//	public final static String CPT_FILE_SHAKEMAP = "Shakemap.cpt";
+//	public final static String CPT_FILE_RELM = "relm_color_map.cpt";
+//	public final static String CPT_FILE_GMT_POLAR = "GMT_polar.cpt";
+//	StringParameter cptFileParam;
+	
+	public static final String CPT_PARAM_NAME = "Color Scheme";
+	protected final static GMT_CPT_Files CPT_PARAM_DEFAULT = GMT_CPT_Files.MAX_SPECTRUM;
+	private final static String CPT_PARAM_INFO = "Color scheme for the scale";
+	private CPTParameter cptParam;
+	
 
 	public final static String COAST_PARAM_NAME = "Coast";
 	public final static String COAST_DRAW = "Draw Boundary";
@@ -292,15 +301,16 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 		imageWidthParam = new DoubleParameter(IMAGE_WIDTH_NAME,IMAGE_WIDTH_MIN,IMAGE_WIDTH_MAX,IMAGE_WIDTH_UNITS,IMAGE_WIDTH_DEFAULT);
 		imageWidthParam.setInfo(IMAGE_WIDTH_INFO);
-
-		StringConstraint cptFileConstraint = new StringConstraint();
-		cptFileConstraint.addString( CPT_FILE_MAX_SPECTRUM );
-		cptFileConstraint.addString( CPT_FILE_STEP );
-		cptFileConstraint.addString( CPT_FILE_SHAKEMAP );
-		cptFileConstraint.addString(CPT_FILE_RELM);
-		cptFileConstraint.addString(CPT_FILE_GMT_POLAR);
-		cptFileParam = new StringParameter( CPT_FILE_PARAM_NAME, cptFileConstraint, CPT_FILE_PARAM_DEFAULT );
-		cptFileParam.setInfo( CPT_FILE_PARAM_INFO );
+		
+		ArrayList<CPT> cpts = null;
+		try {
+			cpts = GMT_CPT_Files.instances();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		cptParam = new CPTParameter(CPT_PARAM_NAME, cpts,
+				cpts.get(ListUtils.getIndexByName(cpts, CPT_PARAM_DEFAULT.getFileName())));
+		cptParam.setInfo(CPT_PARAM_INFO);
 
 		StringConstraint coastConstraint = new StringConstraint();
 		coastConstraint.addString(COAST_FILL);
@@ -370,7 +380,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		adjustableParams.addParameter(minLonParam);
 		adjustableParams.addParameter(maxLonParam);
 		adjustableParams.addParameter(gridSpacingParam);
-		adjustableParams.addParameter(cptFileParam);
+		adjustableParams.addParameter(cptParam);
 		adjustableParams.addParameter(colorScaleModeParam);
 		adjustableParams.addParameter(colorScaleMinParam);
 		adjustableParams.addParameter(colorScaleMaxParam);
@@ -450,7 +460,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 //		} catch (RegionConstraintException e) {
 //			throw new RuntimeException(e);
 //		}
-		GMT_Map map = new GMT_Map(region, xyzData, gridSpacingParam.getValue(), cptFileParam.getValue());
+		GMT_Map map = new GMT_Map(region, xyzData, gridSpacingParam.getValue(), cptParam.getValue());
 		
 		map.setXyzFileName(XYZ_FILE_NAME);
 		map.setPSFileName(PS_FILE_NAME);
@@ -966,7 +976,8 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		String grdFileName  = fileName+".grd";
 		rmFiles.add(grdFileName);
 
-		String cptFile = SCEC_GMT_DATA_PATH + (String) cptFileParam.getValue();
+		// this is not used anymore...hardcoded.
+		String cptFile = SCEC_GMT_DATA_PATH + GMT_CPT_Files.MAX_SPECTRUM.getFileName();
 
 		String colorScaleMode = (String) colorScaleModeParam.getValue();
 

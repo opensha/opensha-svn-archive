@@ -37,6 +37,7 @@ import java.util.ListIterator;
 import java.util.StringTokenizer;
 
 import org.dom4j.Element;
+import org.opensha.commons.data.NamedObjectAPI;
 
 /**
  * This class represents a GMT CPT file.
@@ -45,7 +46,7 @@ import org.dom4j.Element;
  *
  */
 
-public class CPT extends ArrayList<CPTVal> {
+public class CPT extends ArrayList<CPTVal> implements NamedObjectAPI {
 
 	/**
 	 * default serial version UID
@@ -53,6 +54,8 @@ public class CPT extends ArrayList<CPTVal> {
 	private static final long serialVersionUID = 1l;
 	private Color nanColor, belowMinColor, aboveMaxColor, gapColor;
 	public Blender blender;
+	
+	private String name;
 	
 //	int nanColor[] = new int[0];
 
@@ -67,7 +70,11 @@ public class CPT extends ArrayList<CPTVal> {
 	 * @see java.util.ArrayList
 	 */
 	public CPT() {
-		super();
+		this(null);
+	}
+	
+	public CPT(String name) {
+		this.name = name;
 		nanColor = Color.BLACK;
 		gapColor = Color.BLACK;
 		belowMinColor = Color.BLACK;
@@ -657,5 +664,14 @@ public class CPT extends ArrayList<CPTVal> {
 	public static void main(String args[]) throws FileNotFoundException, IOException {
 		CPT cpt = CPT.loadFromFile(new File("/usr/share/gmt/cpt/GMT_seis.cpt"));
 		System.out.println(cpt);
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
 	}
 }
