@@ -297,9 +297,9 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 		//NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new EvenlyGriddedNoCalRegion());
 		//plotter.generateMFDsData(NoCalSoCalMFDsPlotter.NO_CAL_PATH);
 		//plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.NO_CAL_PATH);
-		NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new CaliforniaRegions.RELM_SOCAL_GRIDDED());
-		plotter.generateMFDsData(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
-		//plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
+		NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new CaliforniaRegions.RELM_NOCAL_GRIDDED());
+//		plotter.generateMFDsData(NoCalSoCalMFDsPlotter.NO_CAL_PATH);
+		plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.NO_CAL_PATH);
 	}
 	
 }
