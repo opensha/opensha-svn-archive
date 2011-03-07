@@ -25,7 +25,9 @@ package org.opensha.commons.calc;
 // The following are needed only for the tests
 import java.text.DecimalFormat;
 
-import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+//import org.apache.commons.math.distribution.NormalDistribution;
+//import org.apache.commons.math.distribution.NormalDistributionImpl;
+//import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 
 
 /**
@@ -645,9 +647,76 @@ public final class GaussianDistCalc {
 	 *  main method for running tests
 	 */
 	public static void main(String args[]) {
-
-		System.out.println(getCDF(Double.NEGATIVE_INFINITY));
-		System.out.println(getCDF(Double.POSITIVE_INFINITY));
+		
+//		// commons.math implementations are still about 5 times slower
+//		double iml = 2.1;
+//		double mean = 3.0;
+//		double std = 0.4;
+//		double stdRndVar = (iml-mean)/std;
+//		
+//		try {
+//
+//			System.out.println("Forward");
+//			NormalDistribution nd = new NormalDistributionImpl(mean, std);
+//			double mathP = 1.0 - nd.cumulativeProbability(iml);
+//			double implP = getExceedProb(stdRndVar);
+//			System.out.println("math: " + mathP);
+//			System.out.println("impl: " + implP);
+//
+//			System.out.println("Inverse");
+//			double mathV = nd.inverseCumulativeProbability(1.0 - mathP);
+//			double implV = (getStandRandVar(implP, 0, 0, 1e-6) * std) + mean;
+//			System.out.println("math: " + mathV);
+//			System.out.println("impl: " + implV);
+//
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		
+//		try {
+//			int n = 1000000;
+//			long start, end;
+//			
+//			System.out.println("Forward");
+//			start = System.currentTimeMillis();
+//			NormalDistribution nd = new NormalDistributionImpl(mean, std);
+//			double mathP = 0;
+//			for (int i=0; i<n; i++) {
+//				 mathP = 1.0 - nd.cumulativeProbability(iml);
+//			}
+//			end = System.currentTimeMillis();
+//			System.out.println("Math: " + (((double) (end - start))/1000));
+//			start = System.currentTimeMillis();
+//			double implP = 0;
+//			for (int i=0; i<n; i++) {
+//				implP = getExceedProb(stdRndVar);
+//			}
+//			end = System.currentTimeMillis();
+//			System.out.println("Impl: " + (((double) (end - start))/1000));
+//
+//			System.out.println("Inverse");
+//			start = System.currentTimeMillis();
+//			double mathV;
+//			for (int i=0; i<n; i++) {
+//				mathV = nd.inverseCumulativeProbability(1.0 - mathP);
+//			}
+//			end = System.currentTimeMillis();
+//			System.out.println("Math: " + (((double) (end - start))/1000));
+//			start = System.currentTimeMillis();
+//			double implV;
+//			for (int i=0; i<n; i++) {
+//				implV = (getStandRandVar(implP, 0, 0, 1e-6) * std) + mean;
+//			}
+//			end = System.currentTimeMillis();
+//			System.out.println("Impl: " + (((double) (end - start))/1000));
+//
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+		
+		
+		//System.out.println(getCDF(Double.NEGATIVE_INFINITY));
+		//System.out.println(getCDF(Double.POSITIVE_INFINITY));
 		//
 		//     test_getCDF();
 		//     test_symmetry_getStandRandVar();
