@@ -260,7 +260,7 @@ public class ParameterListEditor extends LabeledBoxPanel {
 		
 		for (ParameterAPI<?> param : parameterList) {
 			ParameterEditorAPI paramEdit = param.getEditor();
-			paramEdit.setVisible(true);
+			//paramEdit.setVisible(true);
 			if (paramEdit == null)
 				throw new RuntimeException("No parameter editor exists for type: " + param.getType() + " (" + param.getClass().getName() + ")");
 			parametersName.add(param.getName());
