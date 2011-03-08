@@ -398,6 +398,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 					}
 				}
 			}
+			setMaximumRowCount(40);
 			this.setSelectedIndex(defaultIMRIndex);
 			this.comboBoxIndex = index;
 			

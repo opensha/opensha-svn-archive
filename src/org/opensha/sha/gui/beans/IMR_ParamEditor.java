@@ -52,6 +52,7 @@ public class IMR_ParamEditor extends ParameterListEditor implements ParameterCha
 			}
 		}
 		this.validate();
+		repaint();
 	}
 	
 	/**
