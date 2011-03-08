@@ -20,19 +20,14 @@
 package org.opensha.sha.gui;
 
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 import java.util.ArrayList;
 
 import org.opensha.commons.gui.DisclaimerDialog;
-import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.bugReports.BugReport;
 import org.opensha.commons.util.bugReports.BugReportDialog;
 import org.opensha.commons.util.bugReports.DefaultExceptoinHandler;
-import org.opensha.gem.GEM1.scratch.marco.testParsers.GEM1ERF;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeUCERFWrapper_ERF;
@@ -43,7 +38,6 @@ import org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.GEM.TestGEM_ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1SouthAmericaERF;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1_CEUS_ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1_GSHAP_Africa_ERF;
@@ -67,8 +61,6 @@ import org.opensha.sha.earthquake.rupForecastImpl.YuccaMountain.YuccaMountainERF
 import org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
-import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
-import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.util.IconFetcher;
 
 import scratch.christine.URS.URS_MeanUCERF2;
@@ -102,7 +94,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 
 		//adding the client based ERF's to the application
 		erf_Classes.add(Frankel96_AdjustableEqkRupForecast.class.getName());
-		erf_Classes.add(GEM1ERF.class.getName());
+//		erf_Classes.add(GEM1ERF.class.getName());
 //		erf_Classes.add(POINT_SRC_TO_LINE_ERF_CLASS_NAME);
 //		erf_Classes.add(POINT_SRC_TO_LINE_ERF_LIST_TEST_CLASS_NAME);
 		erf_Classes.add(URS_MeanUCERF2.class.getName());
@@ -132,7 +124,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 		erf_Classes.add(YuccaMountainERF_List.class.getName());
 		
 		erf_Classes.add(CyberShakeUCERFWrapper_ERF.class.getName());
-		erf_Classes.add(TestGEM_ERF.class.getName());
+//		erf_Classes.add(TestGEM_ERF.class.getName());
 		erf_Classes.add(GEM1SouthAmericaERF.class.getName());
 		erf_Classes.add(GEM1_CEUS_ERF.class.getName());
 		erf_Classes.add(GEM1_WEUS_ERF.class.getName());
