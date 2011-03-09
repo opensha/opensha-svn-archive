@@ -38,6 +38,7 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceX_Parameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.PropagationEffectParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.WarningDoublePropagationEffectParameter;
+import org.opensha.sha.util.NSHMP_Util;
 
 
 /**
@@ -54,8 +55,9 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 	private final static String C = "PropagationEffect";
 	private final static boolean D = false;
 
-	private boolean APPROX_HORZ_DIST = true;
-	private boolean POINT_SRC_CORR = false;
+	private boolean approxHorzDist = true;
+	private boolean ptSrcCorr = false;
+	private boolean nshmpPtSrcCorr = false;
 
 	// Seis depth
 	double seisDepth = DistanceSeisParameter.seisDepth;
@@ -67,8 +69,16 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 
 	// Point source correction Parameter
 	public final static String POINT_SRC_CORR_PARAM_NAME = "Point-Source Correction";
-	private final static String POINT_SRC_CORR_PARAM_INFO = "Use median distance correction for point sources";
+	private final static String POINT_SRC_CORR_PARAM_INFO = "Use median distance correction for point sources (Field)";
 	BooleanParameter pointSrcCorrParam;
+	
+	// NSHMP Point source correction Parameter; if true this will override
+	// the original point source correction algorithm; pointSrcCorrParam must
+	// also be true for this to take; only applies to M > 6 ruptures
+	public final static String NSHMP_PT_SRC_CORR_PARAM_NAME = "NSHMP Pt Src. Corr.";
+	private final static String NSHMP_PT_SRC_CORR_PARAM_INFO = "Use NSHMP mean RJB distance point source correction";
+	BooleanParameter nshmpPtSrcCorrParam;
+	
 
 	protected ParameterList adjustableParams;
 
@@ -100,18 +110,23 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 	/** No Argument consructor */
 	public PropagationEffect() {
 
-		approxDistParam = new BooleanParameter(APPROX_DIST_PARAM_NAME, new Boolean(APPROX_HORZ_DIST));
+		approxDistParam = new BooleanParameter(APPROX_DIST_PARAM_NAME, new Boolean(approxHorzDist));
 		approxDistParam.setInfo(APPROX_DIST_PARAM_INFO);
 		approxDistParam.addParameterChangeListener(this);
 
-		pointSrcCorrParam = new BooleanParameter(POINT_SRC_CORR_PARAM_NAME, new Boolean(POINT_SRC_CORR));
+		pointSrcCorrParam = new BooleanParameter(POINT_SRC_CORR_PARAM_NAME, new Boolean(ptSrcCorr));
 		pointSrcCorrParam.setInfo(POINT_SRC_CORR_PARAM_INFO);
 		pointSrcCorrParam.addParameterChangeListener(this);
+
+		nshmpPtSrcCorrParam = new BooleanParameter(NSHMP_PT_SRC_CORR_PARAM_NAME, new Boolean(nshmpPtSrcCorr));
+		nshmpPtSrcCorrParam.setInfo(NSHMP_PT_SRC_CORR_PARAM_INFO);
+		nshmpPtSrcCorrParam.addParameterChangeListener(this);
 
 		adjustableParams = new ParameterList();
 		adjustableParams.addParameter(approxDistParam);
 		adjustableParams.addParameter(pointSrcCorrParam);
-
+		adjustableParams.addParameter(nshmpPtSrcCorrParam);
+		
 	}
 
 	/** Constructor that is give Site and EqkRupture objects */
@@ -316,15 +331,22 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 				vertDist = LocationUtils.vertDistance(loc1, loc2);
 
 				// get the horizontal dist depending on desired accuracy
-				if(APPROX_HORZ_DIST)
+				if(approxHorzDist)
 					horzDist = LocationUtils.horzDistanceFast(loc1, loc2);
 				else
 					horzDist = LocationUtils.horzDistance(loc1,loc2);
 
 				// make point source correction if desired
 
-				if(numLocs == 1) {
-					if(POINT_SRC_CORR) {
+				if(numLocs == 1 && ptSrcCorr) {
+					
+					if (nshmpPtSrcCorr) {
+						double MM = eqkRupture.getMag();
+						if (MM > 6) {
+							horzDist = NSHMP_Util.getMeanRJB(MM, horzDist);
+						}
+					} else {
+						
 						// Wells and Coppersmith L(M) for "all" focal mechanisms
 						// this correction comes from work by Ned Field and Bruce Worden
 						// it assumes a vertically dipping straight fault with random
@@ -361,13 +383,13 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 					double d1, d2,min_dist;
 					loc1 = rupSurf.getLocation(0, 0);
 					loc2 = rupSurf.getLocation(1, 1);
-					if(APPROX_HORZ_DIST)
+					if(approxHorzDist)
 						d1 = LocationUtils.horzDistanceFast(loc1, loc2);
 					else
 						d1 = LocationUtils.horzDistance(loc1,loc2);
 					loc1 = rupSurf.getLocation(0, 1);
 					loc2 = rupSurf.getLocation(1, 0);
-					if(APPROX_HORZ_DIST)
+					if(approxHorzDist)
 						d2 = LocationUtils.horzDistanceFast(loc1, loc2);
 					else
 						d2 = LocationUtils.horzDistance(loc1,loc2);
@@ -388,16 +410,12 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 
 	}
 
-	/**
-	 *  This is the method called by any parameter whose value has been changed
-	 *
-	 * @param  event
-	 */
+	@Override
 	public void parameterChange( ParameterChangeEvent event ) {
-
-		APPROX_HORZ_DIST = ((Boolean)approxDistParam.getValue()).booleanValue();
-		POINT_SRC_CORR   = ((Boolean)pointSrcCorrParam.getValue()).booleanValue();
-
+		System.out.println("allo");
+		approxHorzDist = approxDistParam.getValue();
+		ptSrcCorr = pointSrcCorrParam.getValue();
+		nshmpPtSrcCorr = nshmpPtSrcCorrParam.getValue();
 	}
 
 	/**
