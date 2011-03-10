@@ -22,6 +22,7 @@ import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.IMRException;
+import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.RegionUtils;
 import org.opensha.commons.param.BooleanParameter;
@@ -37,6 +38,7 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
@@ -56,13 +58,31 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 
 /**
- * This is an implementation of the combined attenuation relationships used
- * in California for the 2008 National Seismic Hazard Mapping Program (NSHMP).
+ * This is an implementation of the combined attenuation relationships used in
+ * California for the 2008 National Seismic Hazard Mapping Program (NSHMP). The
+ * three next generation attenuation relationships (NGAs) used are:
+ * <ul>
+ * <li>{@link BA_2008_AttenRel Boore &amp; Atkinson (2008)}</li>
+ * <li>{@link CB_2008_AttenRel Cambell &amp; Bozorgnia (2008)}</li>
+ * <li>{@link CY_2008_AttenRel Chiou &amp; Youngs (2008)}</li>
+ * </ul>
  * Please take note of the following implementation details:
  * <ul>
+ * <li>Each NGA is given 1/3 weight.</li>
+ * <li>Epistemic uncertainties are considered for each NGA (see below).</li>
+ * <li></li>
+ * <li></li>
+ * <li></li>
+ * <li></li>
+ * <li></li>
+ * <li></li>
  * <li></li>
  * </ul>
  * 
+ * 
+ * <b>Additional Epistemic Uncertainty</b><br />
+ * Additional epistemic uncertainty is considered for each NGA according to the
+ * following distance and magnitude matrix:
  * <pre>
  *             M<6      6≤M<7      7≤M
  *          =============================
@@ -71,8 +91,16 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
  *   30≤D     0.400  |  0.360  |  0.310
  *          =============================
  * </pre>
- * 
- * weights 0.185 0.630 0.185
+ * For an earthquake rupture at a given distance and magnitude, the corresponding
+ * uncertainty is applied to a particular NGA with the following weights:
+ * <pre>
+ *     hazard curve           weight
+ * ======================================
+ *      mean + unc            0.185
+ *      mean                  0.630
+ *      mean - unc            0.185
+ * ======================================
+ * </pre>
  * 
  * @author Peter Powers
  * @version $Id:$
@@ -110,11 +138,12 @@ ParameterChangeListener {
 		cy08 = new NSHMP_CY_2008(listener);
 
 		arList = new ArrayList<AttenuationRelationship>();
-		arList.add(ba08);
-		arList.add(cb08);
+		//arList.add(ba08);
+		//arList.add(cb08);
 		arList.add(cy08);
 
 		propEffect = new PropagationEffect();
+		propEffect.fixDistanceJB(true);
 		
 		// these methods are called for each attenRel upon construction; we
 		// do some local cloning so that a minimal set of params may be
@@ -298,11 +327,6 @@ ParameterChangeListener {
 	@Override
 	public void setSite(Site site) {
 		this.site = site;
-		
-		// KLUDGY adding addt'l params that are required but that we want
-		// hidden and set to null so that the atten rel calcs a default value
-		//site.addParameter(param)
-		
 		propEffect.setSite(site);
 		if (propEffect.getEqkRupture() != null) {
 			setPropagationEffect(propEffect);
@@ -565,7 +589,19 @@ ParameterChangeListener {
 	//public static void main(String[] args) {
 		//RegionUtils.regionToKML(new CaliforniaRegions.RELM_NOCAL(), "relm_nocal2", Color.RED);
 	//}
-		
+	
+	/*
+	 * Returns the NSHMP interpretation of fault type based on rake; divisions
+	 * on 45 deg. diagonals. KLUDGY because the String 'constraints' for the
+	 * faultTypeParam are the same for all 3 NGA's we just use Campbells
+	 * String identifiers.
+	 */
+	private String getFaultTypeForRake(double rake) {
+		if (rake >= 45 && rake <= 135) return CB_2008_AttenRel.FLT_TYPE_REVERSE;
+		if(rake >= -135 && rake <= -45) return CB_2008_AttenRel.FLT_TYPE_NORMAL;
+		return CB_2008_AttenRel.FLT_TYPE_STRIKE_SLIP;
+	}
+	
 	private class NSHMP_BA_2008 extends BA_2008_AttenRel {
 		public NSHMP_BA_2008(ParameterChangeWarningListener listener) {
 			super(listener);
@@ -574,6 +610,10 @@ ParameterChangeListener {
 		public double getExceedProbability(double mean, double stdDev, double iml) {
 			return super.getExceedProbability(
 				mean + imrUncert, stdDev, iml);
+		}
+		@Override
+		public void setFaultTypeFromRake(double rake) {
+			fltTypeParam.setValue(getFaultTypeForRake(rake));
 		}
 	}
 
@@ -586,6 +626,10 @@ ParameterChangeListener {
 			return super.getExceedProbability(
 				mean + imrUncert, stdDev, iml);
 		}
+		@Override
+		public void setFaultTypeFromRake(double rake) {
+			fltTypeParam.setValue(getFaultTypeForRake(rake));
+		}
 	}
 
 	private class NSHMP_CY_2008 extends CY_2008_AttenRel {
@@ -597,6 +641,10 @@ ParameterChangeListener {
 			return super.getExceedProbability(
 				mean + imrUncert, stdDev, iml);
 		}
+//		@Override
+//		public void setFaultTypeFromRake(double rake) {
+//			fltTypeParam.setValue(getFaultTypeForRake(rake));
+//		}
 	}
 
 }
