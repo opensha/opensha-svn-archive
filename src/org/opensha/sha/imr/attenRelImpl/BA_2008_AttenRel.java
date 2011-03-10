@@ -23,7 +23,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 
-import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
@@ -36,7 +35,6 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.PropagationEffect;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
@@ -50,20 +48,19 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 /**
- * <b>Title:</b> BA_2008_AttenRel<p>
- *
- * <b>Description:</b> This implements the Attenuation Relationship published by Boore & Atkinson (2008,
- * "Ground-Motion Prediction Equations for the Average Horizontal Component of PGA, PGV, and 5%-Damped PSA 
- * at Spectral Periods between 0.01 s and 10.0 s", Earthquake Spectra, Volume 24, Number 1, pp. 99-138)
- * 
- *
- * Supported Intensity-Measure Parameters:<p>
+ * Implementation of the Boore &amp; Atkinson (2008) next generation attenuation
+ * relationship (NGA). See: <i>Ground-Motion Prediction Equations for the
+ * Average Horizontal Component of PGA, PGV, and 5%-Damped PSA at Spectral
+ * Periods between 0.01 s and 10.0 s", Earthquake Spectra, Volume 24, Number 1,
+ * pp. 99-138.</i>
+ * <p>
+ * Supported Intensity-Measure Parameters:
  * <UL>
  * <LI>pgaParam - Peak Ground Acceleration
  * <LI>pgaParam - Peak Ground Velocity
  * <LI>saParam - Response Spectral Acceleration
- * </UL><p>
- * Other Independent Parameters:<p>
+ * </UL>
+ * Other Independent Parameters:
  * <UL>
  * <LI>magParam - moment Magnitude
  * <LI>distanceJBParam - closest distance to surface projection of fault
@@ -71,32 +68,24 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
  * <LI>fltTypeParam - Style of faulting
  * <LI>componentParam - Component of shaking (only one)
  * <LI>stdDevTypeParam - The type of standard deviation
- * </UL></p>
+ * </UL>
+ * Verification - This model has been tested against: 1) a verification file
+ * generated independently by Ken Campbell, implemented in the JUnit test class
+ * BA_2008_test; and 2) by the test class NGA08_Site_EqkRup_Tests, which makes
+ * sure parameters are set properly when Site and EqkRupture objects are passed
+ * in.
  * 
- *<p>
- *
- * Verification - This model has been tested against: 1) a verification file generated independently by Ken Campbell,
- * implemented in the JUnit test class BA_2008_test; and  2) by the test class NGA08_Site_EqkRup_Tests, which makes sure
- * parameters are set properly when Site and EqkRupture objects are passed in.
- * 
- *</p>
- *
- *
- * @author     Edward H. Field
- * @created    November, 2008
- * @version    1.0
+ * @author Edward H. Field
+ * @created November 2008
+ * @version $Id$
  */
-
 
 public class BA_2008_AttenRel extends AttenuationRelationship implements
 		ParameterChangeListener {
 
-	// Debugging stuff
 	private final static String C = "BA_2008_AttenRel";
 	public final static String SHORT_NAME = "Boore2008";
-	private static final long serialVersionUID = 1234567890987654353L;
-
-	// Name of IMR
+	private static final long serialVersionUID = 1L;
 	public final static String NAME = "Boore & Atkinson (2008)";
 
 	// URL Info String
@@ -129,9 +118,6 @@ public class BA_2008_AttenRel extends AttenuationRelationship implements
 	double[] t_m= { 0, 0.256, 0.26, 0.262, 0.262, 0.274, 0.286, 0.32, 0.318, 0.29, 0.288, 0.267, 0.269, 0.267, 0.265, 0.299, 0.302, 0.373, 0.389, 0.401, 0.385, 0.437, 0.477, 0.477};
 	double[] s_tm= { 0, 0.56, 0.564, 0.566, 0.566, 0.576, 0.589, 0.606, 0.608, 0.594, 0.596, 0.592, 0.608, 0.603, 0.615, 0.645, 0.647, 0.679, 0.7, 0.695, 0.698, 0.744, 0.787, 0.801};
 
-
-
-
 	double a1 = 0.03;  // g
 	double pgalow=0.06; // g
 	double a2 = 0.09; // g
@@ -146,8 +132,7 @@ public class BA_2008_AttenRel extends AttenuationRelationship implements
 	private int iper;
 	private double vs30, rjb, mag;
 	private String stdDevType, fltType;
-	private boolean parameterChange;
-
+	
 	protected final static Double MAG_WARN_MIN = new Double(5);
 	protected final static Double MAG_WARN_MAX = new Double(8);
 	protected final static Double DISTANCE_JB_WARN_MIN = new Double(0.0);
@@ -159,14 +144,14 @@ public class BA_2008_AttenRel extends AttenuationRelationship implements
 	// style of faulting options
 	public final static String FLT_TYPE_UNKNOWN = "Unknown";
 	public final static String FLT_TYPE_STRIKE_SLIP = "Strike-Slip";
-	public final static String FLT_TYPE_REVERSE = "Thrust/Reverse";
+	public final static String FLT_TYPE_REVERSE = "Reverse";
 	public final static String FLT_TYPE_NORMAL = "Normal";
 
 	/**
-	 *  This initializes several ParameterList objects.
+	 * Constructs a new instance of this attenuation relationship.
+	 * @param listener
 	 */
 	public BA_2008_AttenRel(ParameterChangeWarningListener listener) {
-
 		this.listener = listener;
 
 		initSupportedIntensityMeasureParams();
@@ -182,54 +167,60 @@ public class BA_2008_AttenRel extends AttenuationRelationship implements
 
 		initIndependentParamLists(); // This must be called after the above
 		initParameterEventListeners(); //add the change listeners to the parameters
-
 	}
 
-	/**
-	 *  This sets the eqkRupture related parameters (magParam
-	 *  and fltTypeParam) based on the eqkRupture passed in.
-	 *  The internally held eqkRupture object is also set as that
-	 *  passed in.  Warning constrains are ingored.
-	 *
-	 * @param  eqkRupture  The new eqkRupture value
-	 * @throws InvalidRangeException thrown if rake is out of bounds
-	 */
-	public void setEqkRupture(EqkRupture eqkRupture) throws InvalidRangeException {
-
-		magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
-		setFaultTypeFromRake(eqkRupture.getAveRake());
+	@Override
+	public void setEqkRupture(EqkRupture eqkRupture)
+			throws InvalidRangeException {
 		this.eqkRupture = eqkRupture;
+		magParam.setValueIgnoreWarning(eqkRupture.getMag());
+		setFaultTypeFromRake(eqkRupture.getAveRake());
 		setPropagationEffectParams();
-
 	}
 
-	/**
-	 *  This sets the site-related parameter (siteTypeParam) based on what is in
-	 *  the Site object passed in (the Site object must have a parameter with
-	 *  the same name as that in siteTypeParam).  This also sets the internally held
-	 *  Site object as that passed in.
-	 *
-	 * @param  site             The new site object
-	 * @throws ParameterException Thrown if the Site object doesn't contain a
-	 * Vs30 parameter
-	 */
+	@Override
 	public void setSite(Site site) throws ParameterException {
-
-		vs30Param.setValue((Double)site.getParameter(Vs30_Param.NAME).getValue());
 		this.site = site;
+		vs30Param.setValue((Double) site.getParameter(Vs30_Param.NAME)
+			.getValue());
 		setPropagationEffectParams();
+	}
 
+	@Override
+	protected void setPropagationEffectParams() {
+		if (site != null && eqkRupture != null) {
+			distanceJBParam.getValue(eqkRupture, site);
+		}
+	}
+
+	@Override
+	public void setPropagationEffect(PropagationEffect propEffect)
+			throws InvalidRangeException, ParameterException {
+		site = propEffect.getSite();
+		eqkRupture = propEffect.getEqkRupture();
+		vs30Param.setValue((Double) site.getParameter(Vs30_Param.NAME)
+			.getValue());
+		magParam.setValueIgnoreWarning(eqkRupture.getMag());
+		setFaultTypeFromRake(eqkRupture.getAveRake());
+		propEffect.setParamValue(distanceJBParam);
 	}
 
 	/**
+	 * Set style of faulting from the rake angle. NGA report is not explicit,
+	 * but values within 30-degrees of horz for SS was how the NGA data were
+	 * defined.
 	 * 
+	 * @param rake in degrees
 	 */
-	protected void setPropagationEffectParams() {
-
-		if ( (this.site != null) && (this.eqkRupture != null)) {
-
-			distanceJBParam.setValue(eqkRupture, site);
-
+	protected void setFaultTypeFromRake(double rake) {
+		if (rake > 30 && rake < 150) {
+			fltTypeParam.setValue(FLT_TYPE_REVERSE);
+		} else if (rake > -150 && rake < -30) {
+			fltTypeParam.setValue(FLT_TYPE_NORMAL);
+		} else if (rake > 180 || rake < -180 || rake == Double.NaN) {
+			fltTypeParam.setValue(FLT_TYPE_UNKNOWN);
+		} else {
+			fltTypeParam.setValue(FLT_TYPE_STRIKE_SLIP);
 		}
 	}
 
@@ -257,7 +248,6 @@ public class BA_2008_AttenRel extends AttenuationRelationship implements
 			intValue();
 		}
 
-		parameterChange = true;
 		intensityMeasureChanged = false;
 
 	}
@@ -279,6 +269,7 @@ public class BA_2008_AttenRel extends AttenuationRelationship implements
 
 		// remember that pga4nl term uses coeff index 0
 		double pga4nl = Math.exp(getMean(0, 760, rjb, mag, fltType, 0.0));
+		
 		return getMean(iper, vs30, rjb, mag, fltType, pga4nl);
 	}
 
@@ -291,29 +282,6 @@ public class BA_2008_AttenRel extends AttenuationRelationship implements
 		}
 		return getStdDev(iper, stdDevType, fltType);
 	}
-
-	/**
-	 * Determines the style of faulting from the rake angle.  Their report is not explicit,
-	 * so these ranges come from an email that told us to decide, but that within 30-degrees
-	 * of horz for SS was how the NGA data were defined.
-	 *
-	 * @param rake                      in degrees
-	 * @throws InvalidRangeException    If not valid rake angle
-	 */
-	protected void setFaultTypeFromRake(double rake) throws InvalidRangeException {
-		if (rake<=30 && rake>=-30)
-			fltTypeParam.setValue(FLT_TYPE_STRIKE_SLIP);
-		else if (rake<=-150 || rake>=150)
-			fltTypeParam.setValue(FLT_TYPE_STRIKE_SLIP);
-		else if (rake > 30 && rake < 150)
-			fltTypeParam.setValue(FLT_TYPE_REVERSE);
-		else if (rake > -150 && rake < -30)
-			fltTypeParam.setValue(FLT_TYPE_NORMAL);
-		else
-			fltTypeParam.setValue(FLT_TYPE_UNKNOWN);
-	} 
-
-
 
 	/**
 	 * Allows the user to set the default parameter values for the selected Attenuation
@@ -333,11 +301,11 @@ public class BA_2008_AttenRel extends AttenuationRelationship implements
 		stdDevTypeParam.setValueAsDefault();
 		componentParam.setValueAsDefault();
 
-		vs30 = ( (Double) vs30Param.getValue()).doubleValue(); 
-		rjb = ( (Double) distanceJBParam.getValue()).doubleValue();
-		mag = ( (Double) magParam.getValue()).doubleValue();
-		fltType = (String) fltTypeParam.getValue();
-		stdDevType = (String) stdDevTypeParam.getValue();
+		vs30 = vs30Param.getValue(); 
+		rjb = distanceJBParam.getValue();
+		mag = magParam.getValue();
+		fltType = fltTypeParam.getValue();
+		stdDevType = stdDevTypeParam.getValue();
 	}
 
 	/**
@@ -374,30 +342,6 @@ public class BA_2008_AttenRel extends AttenuationRelationship implements
 				exceedProbIndependentParams);
 		imlAtExceedProbIndependentParams.addParameter(exceedProbParam);
 	}
-
-	/**
-	 * This sets the site and eqkRu passed in. Warning constrains are ingored.
-	 * @param propEffect
-	 * @throws ParameterException Thrown if the Site object doesn't contain a
-	 * Vs30 parameter
-	 * @throws InvalidRangeException thrown if rake is out of bounds
-	 */
-	public void setPropagationEffect(PropagationEffect propEffect) throws
-	InvalidRangeException, ParameterException {
-
-		this.site = propEffect.getSite();
-		this.eqkRupture = propEffect.getEqkRupture();
-
-		vs30Param.setValueIgnoreWarning((Double)site.getParameter(Vs30_Param.NAME).getValue());
-
-		magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
-		setFaultTypeFromRake(eqkRupture.getAveRake());
-
-		propEffect.setParamValue(distanceJBParam);
-	}
-
-
-
 
 	/**
 	 *  Creates the Site-Type parameter and adds it to the siteParams list.
@@ -447,7 +391,8 @@ public class BA_2008_AttenRel extends AttenuationRelationship implements
 		warn.setNonEditable();
 		distanceJBParam.setWarningConstraint(warn);
 		distanceJBParam.setNonEditable();
-
+		distanceJBParam.fixDistanceJB(true);
+		
 		propagationEffectParams.addParameter(distanceJBParam);
 
 	}
@@ -540,7 +485,7 @@ public class BA_2008_AttenRel extends AttenuationRelationship implements
 
 	public double getMean(int iper, double vs30, double rjb, double mag,
 			String fltType, double pga4nl) {
-
+		
 		// remember that pga4ln term uses coeff index 0
 		double Fm, Fd, Fs;
 		int U =0, S=0, N=0, R=0;
@@ -623,18 +568,17 @@ public class BA_2008_AttenRel extends AttenuationRelationship implements
 			else 
 				return Double.NaN;
 		}
-		else {
-			if(stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL))
-				return s_tm[iper];
-			else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE))
-				return 0;
-			else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTER))
-				return t_m[iper];
-			else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTRA))
-				return s[iper];
-			else 
-				return Double.NaN; 
-		}
+
+		if(stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL))
+			return s_tm[iper];
+		else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE))
+			return 0;
+		else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTER))
+			return t_m[iper];
+		else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTRA))
+			return s[iper];
+		else 
+			return Double.NaN; 
 	}
 
 	/**
@@ -645,18 +589,17 @@ public class BA_2008_AttenRel extends AttenuationRelationship implements
 
 		String pName = e.getParameterName();
 		Object val = e.getNewValue();
-		parameterChange = true;
 		if (pName.equals(DistanceJBParameter.NAME)) {
 			rjb = ( (Double) val).doubleValue();
 		}
 		else if (pName.equals(Vs30_Param.NAME)) {
 			vs30 = ( (Double) val).doubleValue();
 		}
-		else if (pName.equals(magParam.NAME)) {
+		else if (pName.equals(MagParam.NAME)) {
 			mag = ( (Double) val).doubleValue();
 		}
 		else if (pName.equals(FaultTypeParam.NAME)) {
-			fltType = (String)fltTypeParam.getValue();
+			fltType = fltTypeParam.getValue();
 		}
 		else if (pName.equals(StdDevTypeParam.NAME)) {
 			stdDevType = (String) val;

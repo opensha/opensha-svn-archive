@@ -63,21 +63,20 @@ import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 /**
- * <b>Title:</b> CB_2008_AttenRel<p>
- *
- * <b>Description:</b> This implements the Attenuation Relationship published by Campbell & Bozorgnia 
- * (2008, "NGA Ground Motion Model for the Geometric Mean Horizontal Component of PGA, PGV, PGD and 
- * 5% Damped Linear Elastic Response Spectra for Periods Ranging from 0.01 to 10 s", 
- * Earthquake Spectra, Volume 24, Number 1, pp. 139-171) <p>
- *
- * Supported Intensity-Measure Parameters:<p>
+ * Implementation of the Campbell & Bozorgnia (2008) next generation attenuation
+ * relationship. See: <i>NGA Ground Motion Model for the Geometric Mean
+ * Horizontal Component of PGA, PGV, PGD and 5% Damped Linear Elastic Response
+ * Spectra for Periods Ranging from 0.01 to 10 s", Earthquake Spectra, Volume
+ * 24, Number 1, pp. 139-171.</i>
+ * <p>
+ * Supported Intensity-Measure Parameters:
  * <UL>
  * <LI>pgaParam - Peak Ground Acceleration
  * <LI>pgvParam - Peak Ground Velocity
  * <LI>pgdParam - Peak Ground Displacement
  * <LI>saParam - Response Spectral Acceleration
- * </UL><p>
- * Other Independent Parameters:<p>
+ * </UL>
+ * Other Independent Parameters:
  * <UL>
  * <LI>magParam - moment Magnitude
  * <LI>fltTypeParam - Style of faulting
@@ -89,48 +88,38 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
  * <li>depthTo2pt5kmPerSecParam - depth to where Vs30 equals 2.5 km/sec
  * <LI>componentParam - Component of shaking
  * <LI>stdDevTypeParam - The type of standard deviation
- * </UL></p>
- * <p>
- * NOTES: distRupMinusJB_OverRupParam is used rather than distancJBParameter because the latter 
- * should not be held constant when distanceRupParameter is changed (e.g., in the 
- * AttenuationRelationshipApplet).  This includes the stipulation that the mean of 0.2-sec  (or less)  SA 
- * should not be less than that of PGA (the latter being given if so). If depthTo2pt5kmPerSec is null 
+ * </UL>
+ * NOTES: distRupMinusJB_OverRupParam is used rather than distancJBParameter
+ * because the latter should not be held constant when distanceRupParameter is
+ * changed (e.g., in the AttenuationRelationshipApplet). This includes the
+ * stipulation that the mean of 0.2-sec (or less) SA should not be less than
+ * that of PGA (the latter being given if so). If depthTo2pt5kmPerSec is null
  * (unknown), it is set as 2 km if vs30 <= 2500, and zero otherwise.
  * <p>
- * Verification - This model has been tested against: 1) a verification file generated independently by Ken Campbell,
- * implemented in the JUnit test class CB_2008_test; and  2) by the test class NGA08_Site_EqkRup_Tests, which makes sure
- * parameters are set properly when Site and EqkRupture objects are passed in.
+ * Verification - This model has been tested against: 1) a verification file
+ * generated independently by Ken Campbell, implemented in the JUnit test class
+ * CB_2008_test; and 2) by the test class NGA08_Site_EqkRup_Tests, which makes
+ * sure parameters are set properly when Site and EqkRupture objects are passed
+ * in.
  * </p>
- *
- * @author     Ned Field
- * @created    Oct., 2008
- * @version    1.0
+ * 
+ * @author Ned Field
+ * @created October 2008
+ * @version $Id$
  */
 
+public class CB_2008_AttenRel extends AttenuationRelationship implements
+		ParameterChangeListener {
 
-
-public class CB_2008_AttenRel
-extends AttenuationRelationship implements
-ScalarIntensityMeasureRelationshipAPI,
-NamedObjectAPI, ParameterChangeListener {
-
-	// Debugging stuff
 	private final static String C = "CB_2006_AttenRel";
 	private final static boolean D = false;
 	public final static String SHORT_NAME = "CB2008";
 	private static final long serialVersionUID = 1234567890987654358L;
-
-
-	// Name of IMR
 	public final static String NAME = "Campbell & Bozorgnia (2008)";
-	//private final static String CB_2008_CoeffFile = "campbell_2008_coeff.txt";
-
-	//double[] per,c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,k1,k2,k3,s_lny,t_lny,s_c,rho;
 
 	double s_lnAF = 0.3;
 	double n = 1.18;
 	double c = 1.88;
-
 
 	private HashMap indexFromPerHashMap;
 
@@ -138,9 +127,6 @@ NamedObjectAPI, ParameterChangeListener {
 	private double vs30, rJB, rRup, distRupMinusJB_OverRup, f_rv, f_nm, mag, depthTop, depthTo2pt5kmPerSec,dip;
 	private String stdDevType, component;
 	private boolean magSaturation;
-	private boolean parameterChange;
-
-	private PropagationEffect propagationEffect;
 
 	// values for warning parameters
 	protected final static Double MAG_WARN_MIN = new Double(4.0);
@@ -184,12 +170,14 @@ NamedObjectAPI, ParameterChangeListener {
 	private double[] t_lny = {0.485, 0.203, 0.219, 0.219, 0.219, 0.235, 0.258, 0.292, 0.286, 0.280, 0.249, 0.240, 0.215, 0.217, 0.214, 0.227, 0.255, 0.296, 0.296, 0.326, 0.297, 0.359, 0.428, 0.485};
 	private double[] s_c = {0.290, 0.190, 0.166, 0.166, 0.166, 0.165, 0.162, 0.158, 0.170, 0.180, 0.186, 0.191, 0.198, 0.206, 0.208, 0.221, 0.225, 0.222, 0.226, 0.229, 0.237, 0.237, 0.271, 0.290};
 	private double[] rho = {0.174, 0.691, 1.000, 1.000, 0.999, 0.989, 0.963, 0.922, 0.898, 0.890, 0.871, 0.852, 0.831, 0.785, 0.735, 0.628, 0.534, 0.411, 0.331, 0.289, 0.261, 0.200, 0.174, 0.174};	/**
-	 *  This initializes several ParameterList objects.
+
+	/**
+	 * Constructs a new instance of this attenuation relationship.
+	 * @param listener
 	 */
 	public CB_2008_AttenRel(ParameterChangeWarningListener listener) {
-
 		this.listener = listener;
-		///readCoeffFile();
+
 		initSupportedIntensityMeasureParams();
 		indexFromPerHashMap = new HashMap();
 		for (int i = 3; i < per.length; i++) {
@@ -203,326 +191,84 @@ NamedObjectAPI, ParameterChangeListener {
 
 		initIndependentParamLists(); // This must be called after the above
 		initParameterEventListeners(); //add the change listeners to the parameters
-
-		propagationEffect = new PropagationEffect();
-		propagationEffect.fixDistanceJB(true); // this ensures that it's exatly zero over the discretized rupture surfaces
-
-
-		// write coeffs as a check
-		//  per,c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,k1,k2,k3,s_lny,t_lny,s_c,rho
-		/*
-    System.out.print("\nper"); for(int i=0; i<per.length;i++) System.out.print("\t"+per[i]);
-    System.out.print("\nc0"); for(int i=0; i<c0.length;i++) System.out.print("\t"+c0[i]);
-    System.out.print("\nc1"); for(int i=0; i<c1.length;i++) System.out.print("\t"+c1[i]);
-    System.out.print("\nc2"); for(int i=0; i<c2.length;i++) System.out.print("\t"+c2[i]);
-    System.out.print("\nc3"); for(int i=0; i<c3.length;i++) System.out.print("\t"+c3[i]);
-    System.out.print("\nc4"); for(int i=0; i<c4.length;i++) System.out.print("\t"+c4[i]);
-    System.out.print("\nc5"); for(int i=0; i<c5.length;i++) System.out.print("\t"+c5[i]);
-    System.out.print("\nc6"); for(int i=0; i<c6.length;i++) System.out.print("\t"+c6[i]);
-    System.out.print("\nc7"); for(int i=0; i<c7.length;i++) System.out.print("\t"+c7[i]);
-    System.out.print("\nc8"); for(int i=0; i<c8.length;i++) System.out.print("\t"+c8[i]);
-    System.out.print("\nc9"); for(int i=0; i<c9.length;i++) System.out.print("\t"+c9[i]);
-    System.out.print("\nc10"); for(int i=0; i<c10.length;i++) System.out.print("\t"+c10[i]);
-    System.out.print("\nc11"); for(int i=0; i<c11.length;i++) System.out.print("\t"+c11[i]);
-    System.out.print("\nc12"); for(int i=0; i<c12.length;i++) System.out.print("\t"+c12[i]);
-    System.out.print("\nk1"); for(int i=0; i<k1.length;i++) System.out.print("\t"+k1[i]);
-    System.out.print("\nk2"); for(int i=0; i<k2.length;i++) System.out.print("\t"+k2[i]);
-    System.out.print("\nk3"); for(int i=0; i<k3.length;i++) System.out.print("\t"+k3[i]);
-    System.out.print("\ns_lny"); for(int i=0; i<s_lny.length;i++) System.out.print("\t"+s_lny[i]);
-    System.out.print("\nt_lny"); for(int i=0; i<t_lny.length;i++) System.out.print("\t"+t_lny[i]);
-    System.out.print("\ns_c"); for(int i=0; i<s_c.length;i++) System.out.print("\t"+s_c[i]);
-    System.out.print("\nrho"); for(int i=0; i<rho.length;i++) System.out.print("\t"+rho[i]);
-		 */
-
+		
+		propEffect = new PropagationEffect();
+		propEffect.fixDistanceJB(true);
 	}
 
-//	private void readCoeffFile(){
-//		try{
-//			//		ArrayList<String> coeff= FileUtils.loadJarFile(CB_2008_CoeffFile);
-//			ArrayList<String> coeff= FileUtils.loadFile(this.getClass().getResource(CB_2008_CoeffFile));
-//			//reading the Period
-//			String perLine = coeff.get(0);
-//			ArrayList period = new ArrayList<Double>();
-//			StringTokenizer st = new StringTokenizer(perLine);
-//			int size = loadCoeffInArray(st,period);
-//			per = new double[size];
-//			this.createCoeffArray(period, per);
-//			period = null;
-//
-//			//reading c0
-//			String c0Line = coeff.get(1);
-//			ArrayList c0List = new ArrayList<Double>();
-//			st = new StringTokenizer(c0Line);
-//			size =loadCoeffInArray(st,c0List);
-//			c0 = new double[size];
-//			this.createCoeffArray(c0List, c0);
-//			c0List = null;
-//
-//			//reading c1
-//			String c1Line = coeff.get(2);
-//			ArrayList c1List = new ArrayList<Double>();
-//			st = new StringTokenizer(c1Line);
-//			size =loadCoeffInArray(st,c1List);
-//			c1 = new double[size];
-//			this.createCoeffArray(c1List, c1);
-//			c1List = null;
-//
-//			//reading c2
-//			String c2Line = coeff.get(3);
-//			ArrayList c2List = new ArrayList<Double>();
-//			st = new StringTokenizer(c2Line);
-//			size =loadCoeffInArray(st,c2List);
-//			c2 = new double[size];
-//			this.createCoeffArray(c2List, c2);
-//			c2List = null;
-//
-//			//reading c3
-//			String c3Line = coeff.get(4);
-//			ArrayList c3List = new ArrayList<Double>();
-//			st = new StringTokenizer(c3Line);
-//			size =loadCoeffInArray(st,c3List);
-//			c3 = new double[size];
-//			this.createCoeffArray(c3List, c3);
-//			c3List = null;
-//
-//			//reading c4
-//			String c4Line = coeff.get(5);
-//			ArrayList c4List = new ArrayList<Double>();
-//			st = new StringTokenizer(c4Line);
-//			size =loadCoeffInArray(st,c4List);
-//			c4 = new double[size];
-//			this.createCoeffArray(c4List, c4);
-//			c4List = null;
-//
-//			//reading c5
-//			String c5Line = coeff.get(6);
-//			ArrayList c5List = new ArrayList<Double>();
-//			st = new StringTokenizer(c5Line);
-//			size =loadCoeffInArray(st,c5List);
-//			c5 = new double[size];
-//			this.createCoeffArray(c5List, c5);
-//			c5List = null;
-//
-//			//reading c6
-//			String c6Line = coeff.get(7);
-//			ArrayList c6List = new ArrayList<Double>();
-//			st = new StringTokenizer(c6Line);
-//			size =loadCoeffInArray(st,c6List);
-//			c6 = new double[size];
-//			this.createCoeffArray(c6List, c6);
-//			c6List = null;
-//
-//			//reading c7
-//			String c7Line = coeff.get(8);
-//			ArrayList c7List = new ArrayList<Double>();
-//			st = new StringTokenizer(c7Line);
-//			size =loadCoeffInArray(st,c7List);
-//			c7 = new double[size];
-//			this.createCoeffArray(c7List, c7);
-//			c7List = null;
-//
-//			//reading c8
-//			String c8Line = coeff.get(9);
-//			ArrayList c8List = new ArrayList<Double>();
-//			st = new StringTokenizer(c8Line);
-//			size =loadCoeffInArray(st,c8List);
-//			c8 = new double[size];
-//			this.createCoeffArray(c8List, c8);
-//			c8List = null;
-//
-//			//reading c9
-//			String c9Line = coeff.get(10);
-//			ArrayList c9List = new ArrayList<Double>();
-//			st = new StringTokenizer(c9Line);
-//			size =loadCoeffInArray(st,c9List);
-//			c9 = new double[size];
-//			this.createCoeffArray(c9List, c9);
-//			c9List = null;
-//
-//
-//			//reading c10
-//			String c10Line = coeff.get(11);
-//			ArrayList c10List = new ArrayList<Double>();
-//			st = new StringTokenizer(c10Line);
-//			size =loadCoeffInArray(st,c10List);
-//			c10 = new double[size];
-//			this.createCoeffArray(c10List, c10);
-//			c10List = null;
-//
-//			//reading c11
-//			String c11Line = coeff.get(12);
-//			ArrayList c11List = new ArrayList<Double>();
-//			st = new StringTokenizer(c11Line);
-//			size =loadCoeffInArray(st,c11List);
-//			c11 = new double[size];
-//			this.createCoeffArray(c11List, c11);
-//			c11List = null;
-//
-//
-//			//reading c12
-//			String c12Line = coeff.get(13);
-//			ArrayList c12List = new ArrayList<Double>();
-//			st = new StringTokenizer(c12Line);
-//			size =loadCoeffInArray(st,c12List);
-//			c12 = new double[size];
-//			this.createCoeffArray(c12List, c12);
-//			c12List = null;
-//
-//			//reading k1
-//			String k1Line = coeff.get(14);
-//			ArrayList k1List = new ArrayList<Double>();
-//			st = new StringTokenizer(k1Line);
-//			size =loadCoeffInArray(st,k1List);
-//			k1 = new double[size];
-//			this.createCoeffArray(k1List, k1);
-//			k1List = null;
-//
-//			//reading k2
-//			String k2Line = coeff.get(15);
-//			ArrayList k2List = new ArrayList<Double>();
-//			st = new StringTokenizer(k2Line);
-//			size =loadCoeffInArray(st,k2List);
-//			k2 = new double[size];
-//			this.createCoeffArray(k2List, k2);
-//			k2List = null;
-//
-//			//reading k3
-//			String k3Line = coeff.get(16);
-//			ArrayList k3List = new ArrayList<Double>();
-//			st = new StringTokenizer(k3Line);
-//			size =loadCoeffInArray(st,k3List);
-//			k3 = new double[size];
-//			this.createCoeffArray(k3List, k3);
-//			k3List = null;
-//
-//
-//			//reading s_lny
-//			String s_lnyLine = coeff.get(17);
-//			ArrayList s_lnyList = new ArrayList<Double>();
-//			st = new StringTokenizer(s_lnyLine);
-//			size =loadCoeffInArray(st,s_lnyList);
-//			s_lny = new double[size];
-//			this.createCoeffArray(s_lnyList, s_lny);
-//			s_lnyList = null;
-//
-//
-//			//reading t_lny
-//			String t_lnyLine = coeff.get(18);
-//			ArrayList t_lnyList = new ArrayList<Double>();
-//			st = new StringTokenizer(t_lnyLine);
-//			size =loadCoeffInArray(st,t_lnyList);
-//			t_lny = new double[size];
-//			this.createCoeffArray(t_lnyList, t_lny);
-//			t_lnyList = null;
-//
-//			//reading s_c
-//			String c_lnyLine = coeff.get(19);
-//			ArrayList c_lnyList = new ArrayList<Double>();
-//			st = new StringTokenizer(c_lnyLine);
-//			size =loadCoeffInArray(st,c_lnyList);
-//			s_c = new double[size];
-//			this.createCoeffArray(c_lnyList, s_c);
-//			c_lnyList = null;
-//
-//			//reading rho
-//			String rho_sLine = coeff.get(20);
-//			ArrayList rho_sList = new ArrayList<Double>();
-//			st = new StringTokenizer(rho_sLine);
-//			size =loadCoeffInArray(st,rho_sList);
-//			rho = new double[size];
-//			this.createCoeffArray(rho_sList, rho);
-//			rho_sList = null;
-//
-//
-//		}catch(Exception e){
-//			throw new RuntimeException(CB_2008_CoeffFile+" file Not Found", e);
-//		}
-//	}
-//
-//	private int loadCoeffInArray(StringTokenizer st,ArrayList<Double> coeff){
-//		st.nextToken();
-//		while(st.hasMoreTokens())
-//			coeff.add(Double.parseDouble(st.nextToken().trim()));
-//		return coeff.size();
-//	}
-//
-//	private void createCoeffArray(ArrayList<Double> coeff,double c[]){
-//		for(int i=0;i<c.length;++i)
-//			c[i] = coeff.get(i);
-//	}
-
-	/**
-	 *  This sets the eqkRupture related parameters (magParam
-	 *  and fltTypeParam) based on the eqkRupture passed in.
-	 *  The internally held eqkRupture object is also set as that
-	 *  passed in.  Warning constraints are ingored.
-	 *
-	 * @param  eqkRupture  The new eqkRupture value
-	 * @throws InvalidRangeException thrown if rake is out of bounds
-	 */
-	public void setEqkRupture(EqkRupture eqkRupture) throws InvalidRangeException {
-
-		magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
-
-		double rake = eqkRupture.getAveRake();
-		if(rake >30 && rake <150) {
-			fltTypeParam.setValue(FLT_TYPE_REVERSE);
-		}
-		else if(rake >-150 && rake<-30) {
-			fltTypeParam.setValue(FLT_TYPE_NORMAL);
-		}
-		else { // strike slip
-			fltTypeParam.setValue(FLT_TYPE_STRIKE_SLIP);
-		}
-
+	@Override
+	public void setEqkRupture(EqkRupture eqkRupture)
+			throws InvalidRangeException {
+		this.eqkRupture = eqkRupture;
+		magParam.setValueIgnoreWarning(eqkRupture.getMag());
+		setFaultTypeFromRake(eqkRupture.getAveRake());
 		EvenlyGriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
 		double depth = surface.getLocation(0, 0).getDepth();
 		rupTopDepthParam.setValueIgnoreWarning(depth);
-
 		dipParam.setValueIgnoreWarning(surface.getAveDip());
-
-		//	  setFaultTypeFromRake(eqkRupture.getAveRake());
-		this.eqkRupture = eqkRupture;
 		setPropagationEffectParams();
-
 	}
 
-	/**
-	 *  This sets the site-related parameter (siteTypeParam) based on what is in
-	 *  the Site object passed in (the Site object must have a parameter with
-	 *  the same name as that in siteTypeParam).  This also sets the internally held
-	 *  Site object as that passed in.
-	 *
-	 * @param  site             The new site object
-	 * @throws ParameterException Thrown if the Site object doesn't contain a
-	 * Vs30 parameter
-	 */
+	@Override
 	public void setSite(Site site) throws ParameterException {
-
-		vs30Param.setValue((Double)site.getParameter(Vs30_Param.NAME).getValue());
-		depthTo2pt5kmPerSecParam.setValueIgnoreWarning((Double)site.getParameter(DepthTo2pt5kmPerSecParam.NAME).
-				getValue());
 		this.site = site;
+		vs30Param.setValue((Double) site.getParameter(Vs30_Param.NAME)
+			.getValue());
+		depthTo2pt5kmPerSecParam.setValueIgnoreWarning((Double) site
+			.getParameter(DepthTo2pt5kmPerSecParam.NAME).getValue());
 		setPropagationEffectParams();
-
 	}
 
-	/**
-	 * This sets the two propagation-effect parameters (distanceRupParam and
-	 * distRupMinusJB_OverRupParam) based on the current site and eqkRupture.  
-	 */
+	@Override
 	protected void setPropagationEffectParams() {
+		if (site != null && eqkRupture != null) {
+			propEffect.setAll(eqkRupture, site); // use this for efficiency NOT... setAll marks pe STALE
+			propEffectUpdate();
+		}
+	}
+	
+	@Override
+	public void setPropagationEffect(PropagationEffect propEffect)
+			throws InvalidRangeException, ParameterException {
+		this.propEffect = propEffect;
+		site = propEffect.getSite();
+		eqkRupture = propEffect.getEqkRupture();
+		vs30Param.setValue((Double) site.getParameter(Vs30_Param.NAME)
+			.getValue());
+		depthTo2pt5kmPerSecParam.setValueIgnoreWarning((Double) site
+			.getParameter(DepthTo2pt5kmPerSecParam.NAME).getValue());
+		magParam.setValueIgnoreWarning(eqkRupture.getMag());
+		setFaultTypeFromRake(eqkRupture.getAveRake());
+		EvenlyGriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
+		double depth = surface.getLocation(0, 0).getDepth();
+		rupTopDepthParam.setValueIgnoreWarning(depth);
+		dipParam.setValueIgnoreWarning(surface.getAveDip());
+		propEffectUpdate();
+	}
+	
+	private void propEffectUpdate() {
+		distanceRupParam.setValueIgnoreWarning((Double)propEffect.getParamValue(DistanceRupParameter.NAME)); // this sets rRup too
+		double dist_jb = ((Double)propEffect.getParamValue(DistanceJBParameter.NAME)).doubleValue();
+		if(rRup == 0)
+			distRupMinusJB_OverRupParam.setValueIgnoreWarning(0.0);
+		else
+			distRupMinusJB_OverRupParam.setValueIgnoreWarning((rRup-dist_jb)/rRup);
+	}
 
-		if ( (this.site != null) && (this.eqkRupture != null)) {
-
-			propagationEffect.setAll(this.eqkRupture, this.site); // use this for efficiency
-			//    	System.out.println(propagationEffect.getParamValue(distanceRupParam.NAME));
-			distanceRupParam.setValueIgnoreWarning((Double)propagationEffect.getParamValue(DistanceRupParameter.NAME)); // this sets rRup too
-			double dist_jb = ((Double)propagationEffect.getParamValue(DistanceJBParameter.NAME)).doubleValue();
-			if(rRup == 0)
-				distRupMinusJB_OverRupParam.setValueIgnoreWarning(0.0);
-			else
-				distRupMinusJB_OverRupParam.setValueIgnoreWarning((rRup-dist_jb)/rRup);
+	
+	/**
+	 * Set style of faulting from the rake angle. Values derived from Campbell
+	 * and Bozorgnia PEER NGA report.
+	 * 
+	 * @param rake in degrees
+	 */
+	protected void setFaultTypeFromRake(double rake) {
+		if (rake > 30 && rake < 150) {
+			fltTypeParam.setValue(FLT_TYPE_REVERSE);
+		} else if (rake > -150 && rake < -30) {
+			fltTypeParam.setValue(FLT_TYPE_NORMAL);
+		} else {
+			fltTypeParam.setValue(FLT_TYPE_STRIKE_SLIP);
 		}
 	}
 
@@ -531,7 +277,6 @@ NamedObjectAPI, ParameterChangeListener {
 	 */
 	protected void setCoeffIndex() throws ParameterException {
 
-		// Check that parameter exists
 		if (im == null) {
 			throw new ParameterException(C +
 					": updateCoefficients(): " +
@@ -551,7 +296,6 @@ NamedObjectAPI, ParameterChangeListener {
 		else if (im.getName().equalsIgnoreCase(PGD_Param.NAME)) {
 			iper = 0;
 		}
-		parameterChange = true;
 		intensityMeasureChanged = false;
 
 	}
@@ -574,6 +318,7 @@ NamedObjectAPI, ParameterChangeListener {
 
 		// compute rJB
 		rJB = rRup - distRupMinusJB_OverRup*rRup;
+//		System.out.println(distRupMinusJB_OverRup + " " + rJB);
 
 		// set default value of basin depth based on the final value of vs30
 		// (must do this here because we get pga_rock below by passing in 1100 m/s)
@@ -614,7 +359,7 @@ NamedObjectAPI, ParameterChangeListener {
 
 		// compute rJB
 		rJB = rRup - distRupMinusJB_OverRup*rRup;
-
+		
 
 		// set default value of basin depth based on the final value of vs30
 		// (must do this here because we get pga_rock below by passing in 1100 m/s)
@@ -629,7 +374,7 @@ NamedObjectAPI, ParameterChangeListener {
 		if(vs30 < k1[iper]) 
 			pga_rock = Math.exp(getMean(2, 1100, rRup, rJB, f_rv, f_nm, mag,dip,depthTop, depthTo2pt5kmPerSec, magSaturation, 0));
 
-		component = (String)componentParam.getValue();
+		component = componentParam.getValue();
 
 		double stdDev = getStdDev(iper, stdDevType, component, vs30, pga_rock);
 
@@ -660,9 +405,9 @@ NamedObjectAPI, ParameterChangeListener {
 		stdDevTypeParam.setValueAsDefault();
 		depthTo2pt5kmPerSecParam.setValueAsDefault();
 		dipParam.setValueAsDefault();    
-		vs30 = ( (Double) vs30Param.getValue()).doubleValue(); 
-		mag = ( (Double) magParam.getValue()).doubleValue();
-		stdDevType = (String) stdDevTypeParam.getValue();
+		vs30 = vs30Param.getValue(); 
+		mag = magParam.getValue();
+		stdDevType = stdDevTypeParam.getValue();
 
 	}
 
@@ -886,7 +631,9 @@ NamedObjectAPI, ParameterChangeListener {
 			double depthTo2pt5kmPerSec,
 			boolean magSaturation, double pga_rock) {
 
-
+		// NSHM test correction
+		//distJB = (distJB < 0.5) ? 0.5 : distJB;
+		
 		double fmag,fdis,fflt,fhng,fsite,fsed;
 
 		//modeling depence on magnitude
@@ -944,7 +691,6 @@ NamedObjectAPI, ParameterChangeListener {
 
 		fhng = c9[iper]*fhngr*fhngm*fhngz*fhngd;
 
-
 		//modelling dependence on linear and non-linear site conditions
 		if(vs30< k1[iper])
 			fsite = 	c10[iper]*Math.log(vs30/k1[iper]) +
@@ -975,45 +721,41 @@ NamedObjectAPI, ParameterChangeListener {
 	 */
 	public double getStdDev(int iper, String stdDevType, String component, double vs30, double rock_pga) {
 
-		if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE))
-			return 0.0;
+		if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE)) return 0.0;
+
+		// get tau - inter-event term
+		double tau = t_lny[iper];
+
+		// compute intra-event sigma
+		double sigma;
+		if(vs30 >= k1[iper])
+			sigma = s_lny[iper];
 		else {
-
-			// get tau - inter-event term
-			double tau = t_lny[iper];
-
-			// compute intra-event sigma
-			double sigma;
-			if(vs30 >= k1[iper])
-				sigma = s_lny[iper];
-			else {
-				double s_lnYb = Math.sqrt(s_lny[iper]*s_lny[iper]-s_lnAF*s_lnAF);
-				double s_lnAb = Math.sqrt(s_lny[2]*s_lny[2]-s_lnAF*s_lnAF); // iper=2 is for PGA
-				double alpha = k2[iper]*rock_pga*((1/(rock_pga+c*Math.pow(vs30/k1[iper], n)))-1/(rock_pga+c));
-				sigma = Math.sqrt(s_lnYb*s_lnYb + s_lnAF*s_lnAF + alpha*alpha*s_lnAb*s_lnAb + 2*alpha*rho[iper]*s_lnYb*s_lnAb);
-			}
-
-			// compute total sigma
-			double sigma_total = Math.sqrt(tau*tau + sigma*sigma);
-
-			// compute multiplicative factor in case component is random horizontal
-			double random_ratio;
-			if(component.equals(ComponentParam.COMPONENT_RANDOM_HORZ))
-				random_ratio = Math.sqrt(1 + (s_c[iper]*s_c[iper])/(sigma_total*sigma_total));
-			else
-				random_ratio = 1;
-
-			// return appropriate value
-			if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL))
-				return sigma_total*random_ratio;
-			else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTRA))
-				return sigma*random_ratio;
-			else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTER))
-				return tau*random_ratio;
-			else
-				return Double.NaN;   // just in case invalid stdDev given			  
-
+			double s_lnYb = Math.sqrt(s_lny[iper]*s_lny[iper]-s_lnAF*s_lnAF);
+			double s_lnAb = Math.sqrt(s_lny[2]*s_lny[2]-s_lnAF*s_lnAF); // iper=2 is for PGA
+			double alpha = k2[iper]*rock_pga*((1/(rock_pga+c*Math.pow(vs30/k1[iper], n)))-1/(rock_pga+c));
+			sigma = Math.sqrt(s_lnYb*s_lnYb + s_lnAF*s_lnAF + alpha*alpha*s_lnAb*s_lnAb + 2*alpha*rho[iper]*s_lnYb*s_lnAb);
 		}
+
+		// compute total sigma
+		double sigma_total = Math.sqrt(tau*tau + sigma*sigma);
+
+		// compute multiplicative factor in case component is random horizontal
+		double random_ratio;
+		if(component.equals(ComponentParam.COMPONENT_RANDOM_HORZ))
+			random_ratio = Math.sqrt(1 + (s_c[iper]*s_c[iper])/(sigma_total*sigma_total));
+		else
+			random_ratio = 1;
+
+		// return appropriate value
+		if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL))
+			return sigma_total*random_ratio;
+		else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTRA))
+			return sigma*random_ratio;
+		else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTER))
+			return tau*random_ratio;
+		else
+			return Double.NaN;   // just in case invalid stdDev given			  
 	}
 
 	/**
@@ -1024,7 +766,6 @@ NamedObjectAPI, ParameterChangeListener {
 
 		String pName = e.getParameterName();
 		Object val = e.getNewValue();
-		parameterChange = true;
 		if (pName.equals(DistanceRupParameter.NAME)) {
 			rRup = ( (Double) val).doubleValue();
 		}
@@ -1040,11 +781,11 @@ NamedObjectAPI, ParameterChangeListener {
 			else
 				depthTo2pt5kmPerSec = ( (Double) val).doubleValue();
 		}
-		else if (pName.equals(magParam.NAME)) {
+		else if (pName.equals(MagParam.NAME)) {
 			mag = ( (Double) val).doubleValue();
 		}
 		else if (pName.equals(FaultTypeParam.NAME)) {
-			String fltType = (String)fltTypeParam.getValue();
+			String fltType = fltTypeParam.getValue();
 			if (fltType.equals(FLT_TYPE_NORMAL)) {
 				f_rv = 0 ;
 				f_nm = 1;
@@ -1068,7 +809,7 @@ NamedObjectAPI, ParameterChangeListener {
 			dip = ( (Double) val).doubleValue();
 		}
 		else if (pName.equals(ComponentParam.NAME)) {
-			component = (String)componentParam.getValue();
+			component = componentParam.getValue();
 		}
 		else if (pName.equals(PeriodParam.NAME)) {
 			intensityMeasureChanged = true;
@@ -1153,7 +894,6 @@ NamedObjectAPI, ParameterChangeListener {
 			loc = new Location(0,dist);
 			site.setLocation(loc);
 			attenRel.setSite(site);
-			//		  System.out.print((float)dist+"\t");
 			attenRel.getMean();
 		}
 

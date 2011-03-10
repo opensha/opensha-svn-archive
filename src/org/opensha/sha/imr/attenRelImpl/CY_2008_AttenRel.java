@@ -23,7 +23,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 
-import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
@@ -37,7 +36,6 @@ import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.PropagationEffect;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.EqkRuptureParams.AftershockParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
@@ -52,25 +50,26 @@ import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistRupMinusDistX_OverRupParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistRupMinusJB_OverRupParameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.HangingWallFlagParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
+import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 
 /**
- * <b>Title:</b> CY_2006_AttenRel<p>
- *
- * <b>Description:</b> This implements the Attenuation Relationship
- * developed by Chiou & Youngs (2008, Earthquake Spectra, Volume 24, No. 1, pages 173–215).  <p>
- *
- * Supported Intensity-Measure Parameters:<p>
+ * Implementation of the Chiou &amp; Youngs (2008) next generation attenuation
+ * relationship (NGA). See: <i>Earthquake Spectra, Volume 24, No. 1, pages
+ * 173–215.</i>
+ * <p>
+ * Supported Intensity-Measure Parameters:
  * <UL>
  * <LI>pgaParam - Peak Ground Acceleration
  * <LI>pgaParam - Peak Ground Velocity
  * <LI>saParam - Response Spectral Acceleration
- * </UL><p>
- * Other Independent Parameters:<p>
+ * </UL>
+ * Other Independent Parameters:
  * <UL>
  * <LI>magParam - moment Magnitude
  * <LI>fltTypeParam - Style of faulting
@@ -86,47 +85,38 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
  * <LI>hangingWallFlagParam - indicates whether site is on the hanging wall
  * <LI>componentParam - Component of shaking
  * <LI>stdDevTypeParam - The type of standard deviation
- * </UL></p>
- * 
- *<p>
- * NOTES: distRupMinusJB_OverRupParam is used rather than distancJBParameter because the latter 
- * should not be held constant when distanceRupParameter is changed (e.g., in the 
- * AttenuationRelationshipApplet).  The same is true for distRupMinusDistX_OverRupParam.
+ * </UL>
+ * NOTES: distRupMinusJB_OverRupParam is used rather than distancJBParameter
+ * because the latter should not be held constant when distanceRupParameter is
+ * changed (e.g., in the AttenuationRelationshipApplet). The same is true for
+ * distRupMinusDistX_OverRupParam.
  * <p>
- * When setting parameters from a passed-in EqkRupture, aftershockParam is always set to false
- * (we could change this if aftershock info is added to an EqkRupture, but it's not clear this
- * is justified).
+ * When setting parameters from a passed-in EqkRupture, aftershockParam is
+ * always set to false (we could change this if aftershock info is added to an
+ * EqkRupture, but it's not clear this is justified).
  * <p>
- * If depthTo1pt0kmPerSecParam is null, it is set from Vs30 using their equation (1).
+ * If depthTo1pt0kmPerSecParam is null, it is set from Vs30 using their equation
+ * (1).
  * <p>
- * Verification - This model has been tested against: 1) a verification file generated independently by Ken Campbell,
- * implemented in the JUnit test class CY_2008_test; and  2) by the test class NGA08_Site_EqkRup_Tests, which makes sure
- * parameters are set properly when Site and EqkRupture objects are passed in.
+ * Verification - This model has been tested against: 1) a verification file
+ * generated independently by Ken Campbell, implemented in the JUnit test class
+ * CY_2008_test; and 2) by the test class NGA08_Site_EqkRup_Tests, which makes
+ * sure parameters are set properly when Site and EqkRupture objects are passed
+ * in.
  * 
- * 
- * 
- *</p>
- * @author     Edward H. Field
- * @created    Feb, 2009
- * @version    1.0
+ * @author Edward H. Field
+ * @created February 2009
+ * @version $Id$
  */
 
+public class CY_2008_AttenRel extends AttenuationRelationship implements
+		ParameterChangeListener {
 
-
-public class CY_2008_AttenRel
-extends AttenuationRelationship implements
-ScalarIntensityMeasureRelationshipAPI,
-NamedObjectAPI, ParameterChangeListener {
-
-	// Debugging stuff
 	private final static String C = "CY_2008_AttenRel";
 	private final static boolean D = false;
-
-	// Name of IMR
 	public final static String NAME = "Chiou & Youngs (2008)";
 	public final static String SHORT_NAME = "CY2008";
-	//	private static final long serialVersionUID = 1234567890987654360L;
-
+	private static final long serialVersionUID = 1L;
 
 	// coefficients (index 22 is PGA and 23 is PGV):
 	private static final double[] period = {0.01, 0.02, 0.03, 0.04, 0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.75, 1, 1.5, 2, 3, 4, 5, 7.5, 10, 0, -1};
@@ -158,6 +148,7 @@ NamedObjectAPI, ParameterChangeListener {
 	private static final double[] sig2 = {0.3459, 0.3459, 0.3537, 0.3592, 0.3635, 0.3713, 0.3769, 0.3847, 0.3902, 0.3946, 0.3981, 0.4036, 0.4079, 0.4157, 0.4213, 0.4213, 0.4213, 0.4213, 0.4213, 0.4213, 0.4213, 0.4213, 0.3459, 0.3554};
 	private static final double[] sig3 = {0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.7999, 0.7997, 0.7988, 0.7966, 0.7792, 0.7504, 0.7136, 0.7035, 0.7006, 0.7001, 0.7, 0.7, 0.7, 0.8, 0.7504};
 	private static final double[] sig4 = {0.0663, 0.0663, 0.0663, 0.0663, 0.0663, 0.0663, 0.0663, 0.0612, 0.053, 0.0457, 0.0398, 0.0312, 0.0255, 0.0175, 0.0133, 0.009, 0.0068, 0.0045, 0.0034, 0.0027, 0.0018, 0.0014, 0.0663, 0.0133};
+	
 	private static final double c2 = 1.06;
 	private static final double c3 = 3.45;
 	private static final double c4 = -2.1;
@@ -173,42 +164,36 @@ NamedObjectAPI, ParameterChangeListener {
 	private double vs30, rRup, distRupMinusJB_OverRup, dip, mag, f_rv, f_nm, depthTop;
 	private double distRupMinusDistX_OverRup, aftershock, f_meas, f_hw;
 	private String stdDevType;
-	private boolean parameterChange;
 	private double depthTo1pt0kmPerSec;  // defined this way to support null values
 	private double lnYref;
 	private boolean lnYref_is_not_fresh;
 
 	// from page 66 of their report
-	protected final static Double MAG_WARN_MIN = new Double(4.);
-	protected final static Double MAG_WARN_MAX = new Double(8.5);
-	protected final static Double DISTANCE_RUP_WARN_MIN = new Double(0.0);
-	protected final static Double DISTANCE_RUP_WARN_MAX = new Double(200.0);
-	protected final static Double DISTANCE_MINUS_WARN_MIN = new Double(0.0);
-	protected final static Double DISTANCE_MINUS_WARN_MAX = new Double(50.0);
-	protected final static Double DISTANCE_X_WARN_MIN = new Double(-500.0);
-	protected final static Double DISTANCE_X_WARN_MAX = new Double(500.0);
-	protected final static Double VS30_WARN_MIN = new Double(150.0);
-	protected final static Double VS30_WARN_MAX = new Double(1500.0);
-	protected final static Double RUP_TOP_WARN_MIN = new Double(0);
-	protected final static Double RUP_TOP_WARN_MAX = new Double(20);
-	protected final static Double DEPTH_1pt0_WARN_MIN = new Double(0);
-	protected final static Double DEPTH_1pt0_WARN_MAX = new Double(10000);
-
+	protected final static double MAG_WARN_MIN = 4.0;
+	protected final static double MAG_WARN_MAX = 8.5;
+	protected final static double DISTANCE_RUP_WARN_MIN = 0.0;
+	protected final static double DISTANCE_RUP_WARN_MAX = 200.0;
+	protected final static double DISTANCE_MINUS_WARN_MIN = 0.0;
+	protected final static double DISTANCE_MINUS_WARN_MAX = 50.0;
+	protected final static double DISTANCE_X_WARN_MIN = -500.0;
+	protected final static double DISTANCE_X_WARN_MAX = 500.0;
+	protected final static double VS30_WARN_MIN = 150.0;
+	protected final static double VS30_WARN_MAX = 1500.0;
+	protected final static double RUP_TOP_WARN_MIN = 0;
+	protected final static double RUP_TOP_WARN_MAX = 20;
+	protected final static double DEPTH_1pt0_WARN_MIN = 0;
+	protected final static double DEPTH_1pt0_WARN_MAX = 10000;
 
 	// style of faulting options
 	public final static String FLT_TYPE_STRIKE_SLIP = "Strike-Slip";
 	public final static String FLT_TYPE_REVERSE = "Reverse";
 	public final static String FLT_TYPE_NORMAL = "Normal";
 
-	// this is for computing distance metrics efficiently
-	private PropagationEffect propagationEffect;
-
-
 	/**
-	 *  This initializes several ParameterList objects.
+	 * Constructs a new instance of this attenuation relationship.
+	 * @param listener
 	 */
 	public CY_2008_AttenRel(ParameterChangeWarningListener listener) {
-
 		this.listener = listener;
 
 		initSupportedIntensityMeasureParams();
@@ -225,105 +210,120 @@ NamedObjectAPI, ParameterChangeListener {
 		initIndependentParamLists(); // This must be called after the above
 		initParameterEventListeners(); //add the change listeners to the parameters
 
-		propagationEffect = new PropagationEffect();
-		propagationEffect.fixDistanceJB(true); // this ensures that it's exatly zero over the discretized rupture surfaces
-
-
+		propEffect = new PropagationEffect();
+		propEffect.fixDistanceJB(true);
 	}
 
-	/**
-	 *  This sets the eqkRupture related parameters (magParam
-	 *  and fltTypeParam) based on the eqkRupture passed in.
-	 *  The internally held eqkRupture object is also set as that
-	 *  passed in.  Note that this sets the aftershock parameter as
-	 *  false (since that info is not yet part of and EkqRupture).  
-	 *  Warning constrains are ignored.
-	 *
-	 * @param  eqkRupture  The new eqkRupture value
-	 * @throws InvalidRangeException thrown if rake is out of bounds
-	 */
-	public void setEqkRupture(EqkRupture eqkRupture) throws InvalidRangeException {
-
-		magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
-
-		double rake = eqkRupture.getAveRake();
-		if(rake >= 30 && rake <= 150) {
-			fltTypeParam.setValue(FLT_TYPE_REVERSE);
-		}
-		else if(rake >= -120 && rake <= -60) {
-			fltTypeParam.setValue(FLT_TYPE_NORMAL);
-		}
-		else { // strike slip
-			fltTypeParam.setValue(FLT_TYPE_STRIKE_SLIP);
-		}    
-
+	@Override
+	public void setEqkRupture(EqkRupture eqkRupture)
+			throws InvalidRangeException {
+		this.eqkRupture = eqkRupture;
+		magParam.setValueIgnoreWarning(eqkRupture.getMag());
+		setFaultTypeFromRake(eqkRupture.getAveRake());
 		EvenlyGriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
 		dipParam.setValue(surface.getAveDip());
 		double depth = surface.getLocation(0, 0).getDepth();
 		rupTopDepthParam.setValue(depth);
 		aftershockParam.setValue(false);
-		this.eqkRupture = eqkRupture;
 		setPropagationEffectParams();
 
 	}
 
-	/**
-	 *  This sets the site-related parameter (siteTypeParam) based on what is in
-	 *  the Site object passed in (the Site object must have a parameter with
-	 *  the same name as that in siteTypeParam).  This also sets the internally held
-	 *  Site object as that passed in.
-	 *
-	 * @param  site             The new site object
-	 * @throws ParameterException Thrown if the Site object doesn't contain a
-	 * Vs30 parameter
-	 */
+	@Override
 	public void setSite(Site site) throws ParameterException {
-
-		vs30Param.setValue((Double)site.getParameter(Vs30_Param.NAME).getValue());
-		depthTo1pt0kmPerSecParam.setValue((Double)site.getParameter(DepthTo1pt0kmPerSecParam.NAME).getValue());
-		vs30_TypeParam.setValue((String)site.getParameter(Vs30_TypeParam.NAME).getValue());
 		this.site = site;
+		vs30Param.setValue((Double) site.getParameter(Vs30_Param.NAME)
+			.getValue());
+		depthTo1pt0kmPerSecParam.setValue((Double) site.getParameter(
+			DepthTo1pt0kmPerSecParam.NAME).getValue());
+		vs30_TypeParam.setValue((String) site.getParameter(Vs30_TypeParam.NAME)
+			.getValue());
 		setPropagationEffectParams();
 
 	}
 
-	/**
-	 * This sets the two propagation-effect parameters (distanceRupParam and
-	 * isOnHangingWallParam) based on the current site and eqkRupture.  The
-	 * hanging-wall term is rake independent (i.e., it can apply to strike-slip or
-	 * normal faults as well as reverse and thrust).  However, it is turned off if
-	 * the dip is greater than 70 degrees.  It is also turned off for point sources
-	 * regardless of the dip.  These specifications were determined from a series of
-	 * discussions between Ned Field, Norm Abrahamson, and Ken Campbell.
-	 */
+	@Override
 	protected void setPropagationEffectParams() {
+		if (site != null && eqkRupture != null) {
+			propEffect.setAll(this.eqkRupture, this.site);
+			propEffectUpdate();
+		}
+	}
+	
+	@Override
+	public void setPropagationEffect(PropagationEffect propEffect)
+			throws InvalidRangeException, ParameterException {
+		this.propEffect = propEffect;
+		site = propEffect.getSite();
+		eqkRupture = propEffect.getEqkRupture();
+		vs30Param.setValue((Double) site.getParameter(Vs30_Param.NAME)
+			.getValue());
+		depthTo1pt0kmPerSecParam.setValue((Double) site.getParameter(
+			DepthTo1pt0kmPerSecParam.NAME).getValue());
+		vs30_TypeParam.setValue((String) site.getParameter(Vs30_TypeParam.NAME)
+			.getValue());
+		magParam.setValueIgnoreWarning(eqkRupture.getMag());
+		setFaultTypeFromRake(eqkRupture.getAveRake());
+		EvenlyGriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
+		dipParam.setValue(surface.getAveDip());
+		double depth = surface.getLocation(0, 0).getDepth();
+		rupTopDepthParam.setValue(depth);
+		aftershockParam.setValue(false);
+		propEffectUpdate();
+	}
 
-		if ( (this.site != null) && (this.eqkRupture != null)) {
-
-			propagationEffect.setAll(this.eqkRupture, this.site); // use this for efficiency
-			distanceRupParam.setValueIgnoreWarning(propagationEffect.getDistanceRup()); // this sets rRup too
-			double dist_jb = propagationEffect.getDistanceJB();
-			double distX = propagationEffect.getDistanceX();
-			if(rRup>0.0) {
-				distRupMinusJB_OverRupParam.setValueIgnoreWarning((rRup-dist_jb)/rRup);
-				if(distX >= 0.0) {  // sign determines whether it's on the hanging wall (distX is always >= 0 in distRupMinusDistX_OverRupParam)
-					distRupMinusDistX_OverRupParam.setValue((rRup-distX)/rRup);
-					hangingWallFlagParam.setValue(true);
-				}
-				else {
-					distRupMinusDistX_OverRupParam.setValue((rRup+distX)/rRup);  // switch sign of distX here
-					hangingWallFlagParam.setValue(false);
-				}
-			}
-			else {
-				distRupMinusJB_OverRupParam.setValueIgnoreWarning(0d);
-				distRupMinusDistX_OverRupParam.setValue(0d);
+	
+	private void propEffectUpdate() {
+		
+		/*
+		 * This sets the two propagation-effect parameters (distanceRupParam and
+		 * isOnHangingWallParam) based on the current site and eqkRupture. The
+		 * hanging-wall term is rake independent (i.e., it can apply to
+		 * strike-slip or normal faults as well as reverse and thrust). However,
+		 * it is turned off if the dip is greater than 70 degrees. It is also
+		 * turned off for point sources regardless of the dip. These
+		 * specifications were determined from a series of discussions between
+		 * Ned Field, Norm Abrahamson, and Ken Campbell.
+		 */
+		
+		distanceRupParam.setValueIgnoreWarning(propEffect.getDistanceRup()); // this sets rRup too
+		double dist_jb = propEffect.getDistanceJB();
+		double distX = propEffect.getDistanceX();
+		if(rRup>0.0) {
+			distRupMinusJB_OverRupParam.setValueIgnoreWarning((rRup-dist_jb)/rRup);
+			if(distX >= 0.0) {  // sign determines whether it's on the hanging wall (distX is always >= 0 in distRupMinusDistX_OverRupParam)
+				distRupMinusDistX_OverRupParam.setValue((rRup-distX)/rRup);
 				hangingWallFlagParam.setValue(true);
 			}
+			else {
+				distRupMinusDistX_OverRupParam.setValue((rRup+distX)/rRup);  // switch sign of distX here
+				hangingWallFlagParam.setValue(false);
+			}
+		}
+		else {
+			distRupMinusJB_OverRupParam.setValueIgnoreWarning(0d);
+			distRupMinusDistX_OverRupParam.setValue(0d);
+			hangingWallFlagParam.setValue(true);
 		}
 	}
 
+	
 
+	/**
+	 * Set style of faulting from the rake angle. Values derived from Chiou and
+	 * Youngs PEER NGA report.
+	 * 
+	 * @param rake in degrees
+	 */
+	protected void setFaultTypeFromRake(double rake) {
+		if (rake > 30 && rake < 150) {
+			fltTypeParam.setValue(FLT_TYPE_REVERSE);
+		} else if (rake > -120 && rake < -60) {
+			fltTypeParam.setValue(FLT_TYPE_NORMAL);
+		} else {
+			fltTypeParam.setValue(FLT_TYPE_STRIKE_SLIP);
+		}
+	}
 
 	/**
 	 * This function returns the array index for the coeffs corresponding to the chosen IMT
@@ -345,7 +345,6 @@ NamedObjectAPI, ParameterChangeListener {
 		else
 			iper = 23; // PGV
 
-		parameterChange = true;
 		intensityMeasureChanged = false;
 
 	}
@@ -356,6 +355,7 @@ NamedObjectAPI, ParameterChangeListener {
 	 */
 	public double getMean() {
 
+		
 		// check if distance is beyond the user specified max
 		if (rRup > USER_MAX_DISTANCE) {
 			return VERY_SMALL_MEAN;
@@ -365,7 +365,6 @@ NamedObjectAPI, ParameterChangeListener {
 			setCoeffIndex();// intensityMeasureChanged is set to false in this method
 			lnYref_is_not_fresh = true;
 		}
-
 
 		return getMean(iper, vs30, f_rv, f_nm, rRup, distRupMinusJB_OverRup, depthTo1pt0kmPerSec, distRupMinusDistX_OverRup, f_hw, dip, 
 				mag, depthTop, aftershock);
@@ -727,10 +726,14 @@ NamedObjectAPI, ParameterChangeListener {
 		(cg1[iper] + cg2[iper]/Math.cosh(Math.max(mag-cg3,0.0)))*rRup +
 
 		c9[iper] * f_hw * Math.tanh(distX*cosDelta*cosDelta/c9a[iper]) * (1-altDist/(rRup+0.001));
+//		c9[iper] * 0.8;
 
 		lnYref_is_not_fresh = false;
 
-
+//		double Fhw = c9[iper] * f_hw * Math.tanh(distX*cosDelta*cosDelta/c9a[iper]) * (1-altDist/(rRup+0.001));
+//		DecimalFormat df1 = new DecimalFormat("#.######");
+//		DecimalFormat df2 = new DecimalFormat("#.##");
+//		System.out.println(df2.format(mag) + " " + df1.format(rRup) + " " + df1.format(distX) + " " + df1.format(Fhw) + " " + f_hw);
 		//		System.out.println(rRup+"\t"+distanceJB+"\t"+distX+"\t"+f_hw+"\t"+lnYref);
 
 	}
@@ -791,7 +794,6 @@ NamedObjectAPI, ParameterChangeListener {
 
 		String pName = e.getParameterName();
 		Object val = e.getNewValue();
-		parameterChange = true;
 		lnYref_is_not_fresh = true;  // this could be placed below, only where really needed.
 
 		if (pName.equals(magParam.NAME)) {
