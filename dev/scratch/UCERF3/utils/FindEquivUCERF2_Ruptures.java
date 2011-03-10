@@ -16,14 +16,17 @@ import java.util.ListIterator;
 import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
@@ -78,7 +81,13 @@ public class FindEquivUCERF2_Ruptures {
 	SummedMagFreqDist mfdOfAssocRupsAndModMags;	// this is the mfd of the associated ruptures (including ave mag from mult rups)
 	SummedMagFreqDist mfdOfAssocRupsWithOrigMags;	// this is the mfd of the associated ruptures (including orig mag from all rups)
 	
+	IncrementalMagFreqDist nCal_UCERF2_BackgrMFD_WithAftShocks;
+	IncrementalMagFreqDist nCalTargetMinusBackground;
+	GutenbergRichterMagFreqDist nCalTotalTargetGR_MFD;
+	
 	boolean[] ucerf2_rupUsed;
+	
+	Region relm_nocal_reg;
 		
 	/**
 	 * See important notes given above for this class.
@@ -138,6 +147,10 @@ public class FindEquivUCERF2_Ruptures {
 			findSectionEndsForUCERF2_Rups();
 		}
 		
+		Region region = new CaliforniaRegions.RELM_NOCAL();
+		relm_nocal_reg  = new Region(region.getBorder(), BorderType.GREAT_CIRCLE);
+
+		
 //		tempWriteStuff();
 	}
 	
@@ -161,7 +174,7 @@ public class FindEquivUCERF2_Ruptures {
 	
 
 	/**
-	 * This computes 4 UCERF3 mag-freq dists for the N Cal RELM Region (modified as noted below):
+	 * This computes 4 UCERF3 mag-freq dists for the N Cal RELM Region (with the region modified as noted below):
 	 * 
 	 * 	nucleationMFD - rates of nucleation within the region (rate multiplied by fraction inside region)
 	 * 	subSeismoMFD - mfd for ruptures that are subseismogenic (multiplied by fraction inside)
@@ -183,8 +196,6 @@ public class FindEquivUCERF2_Ruptures {
 	 * @return
 	 */
 	public ArrayList<IncrementalMagFreqDist> getMFDsForNcal() {
-		Region relm_nocal_reg = new CaliforniaRegions.RELM_NOCAL();
-		Region region = new Region(relm_nocal_reg.getBorder(), BorderType.GREAT_CIRCLE);
 		MeanUCERF2 erf = getMeanUCERF2_Instance();
 		SummedMagFreqDist nucleationMFD = new SummedMagFreqDist(5.05,35,0.1);
 		SummedMagFreqDist subSeismoMFD = new SummedMagFreqDist(5.05,35,0.1);  // to show what's definitely excluded
@@ -203,7 +214,7 @@ public class FindEquivUCERF2_Ruptures {
 				ListIterator<Location> it = rupSurface.getAllByRowsIterator();
 				double fractInside = 0;
 				while (it.hasNext()) {
-					if (region.contains(it.next()))
+					if (relm_nocal_reg.contains(it.next()))
 						fractInside += 1.0;
 				}
 				fractInside /= rupSurface.size();
@@ -774,9 +785,21 @@ public class FindEquivUCERF2_Ruptures {
 	
 	public void plotMFD_TestForNcal() {
 		ArrayList funcs = new ArrayList();
-		funcs.addAll(getMFDsForUCERF2AssocRups());
+		ArrayList<SummedMagFreqDist> mfdsForUCERF2AssocRups = getMFDsForUCERF2AssocRups();
+		funcs.addAll(mfdsForUCERF2AssocRups);
 		funcs.addAll(getMFDsForNcal());
-		funcs.add(getN_CalTotalGR_MFD());
+		funcs.add(getN_CalTotalTargetGR_MFD());
+		IncrementalMagFreqDist backWshks = getN_Cal_UCERF2_BackgrMFD_WithAfterShocks();
+		funcs.add(backWshks);
+		
+		// sum 
+		SummedMagFreqDist sumMFD = new SummedMagFreqDist(5.05,35,0.1);
+		sumMFD.addIncrementalMagFreqDist(mfdsForUCERF2AssocRups.get(0));
+		sumMFD.addIncrementalMagFreqDist(backWshks);
+		sumMFD.setName("total a-priori MFD");
+		sumMFD.setName("this = getApproxN_Cal_UCERF2_BackgrMFDwAftShks() + mfdsForUCERF2AssocRups.get(0)");
+		funcs.add(sumMFD);
+		
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Mag-Freq Dists"); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Rate");
@@ -784,12 +807,18 @@ public class FindEquivUCERF2_Ruptures {
 		graph.setY_AxisRange(1e-6, 1.0);
 		
 		ArrayList funcs2 = new ArrayList();
-		funcs2.add(getMFDsForUCERF2AssocRups().get(1).getCumRateDistWithOffset());
-		funcs2.add(getN_CalTotalGR_MFD().getCumRateDistWithOffset());
+		funcs2.add(getMFDsForUCERF2AssocRups().get(0).getCumRateDistWithOffset());
+		funcs2.add(backWshks.getCumRateDistWithOffset());
+		funcs2.add(getN_CalTotalTargetGR_MFD().getCumRateDistWithOffset());
+		EvenlyDiscretizedFunc sumCumMFD = sumMFD.getCumRateDistWithOffset();
+		sumCumMFD.setName("Sum of Dataset 1 and 2 above");
+		sumCumMFD.setInfo("This is a measure of the current bulge problem in N Cal.");
+		funcs2.add(sumCumMFD);
 		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "Cum Mag-Freq Dists"); 
 		graph2.setX_AxisLabel("Mag");
 		graph2.setY_AxisLabel("Rate");
 		graph2.setYLog(true);
+		graph2.setY_AxisRange(1e-6, 10.0);
 	}
 	
 	
@@ -797,14 +826,110 @@ public class FindEquivUCERF2_Ruptures {
 	 * This is a target GR Distribution for N Cal RELM Region (based on info from Karen)
 	 * @return
 	 */
-	public GutenbergRichterMagFreqDist getN_CalTotalGR_MFD() {
+	public GutenbergRichterMagFreqDist getN_CalTotalTargetGR_MFD() {
+		if(nCalTotalTargetGR_MFD != null)
+			return nCalTotalTargetGR_MFD;
 		double totCumRateWithAftershocks = 3.4;	// From Karen; see my email to her on 3/1/11
-		GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(5.05,35,0.1);
-		grDist.setAllButTotMoRate(5.05, 8.45, totCumRateWithAftershocks, 1.0);
-		grDist.setName("Target N Cal GR Dist");
-		grDist.setInfo("Assuming Karen's total rate above 5.0 of 3.4 per yr (including aftershocks)");
-		return grDist;
+		nCalTotalTargetGR_MFD = new GutenbergRichterMagFreqDist(5.05,35,0.1);
+		nCalTotalTargetGR_MFD.setAllButTotMoRate(5.05, 8.45, totCumRateWithAftershocks, 1.0);
+		nCalTotalTargetGR_MFD.setName("Target N Cal GR Dist");
+		nCalTotalTargetGR_MFD.setInfo("Assuming Karen's total rate above 5.0 of 3.4 per yr (including aftershocks)");
+		return nCalTotalTargetGR_MFD;
 	}
+	
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public IncrementalMagFreqDist getN_CalTargetMinusBackground_MFD() {
+		if(nCalTargetMinusBackground != null)
+			return nCalTargetMinusBackground;
+		nCalTargetMinusBackground= new IncrementalMagFreqDist(5.05,35,0.1);
+		for(int m=0; m<nCalTargetMinusBackground.getNum();m++)
+			nCalTargetMinusBackground.set(m,nCalTotalTargetGR_MFD.getY(m)-nCal_UCERF2_BackgrMFD_WithAftShocks.getY(m));
+		nCalTargetMinusBackground.setName("N. Cal Target Minus Background");
+		nCalTargetMinusBackground.setInfo(" ");
+		return nCalTargetMinusBackground;
+	}
+
+	
+	
+	/**
+	 * Background here include C zones and non-CA B faults, plus aftershocks
+	 */
+	public IncrementalMagFreqDist getN_Cal_UCERF2_BackgrMFD_WithAfterShocks() {
+		
+		if(nCal_UCERF2_BackgrMFD_WithAftShocks != null)
+			return nCal_UCERF2_BackgrMFD_WithAftShocks;
+		
+		getMeanUCERF2_Instance(); 
+		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
+		meanUCERF2.updateForecast();
+		
+		SummedMagFreqDist totMFD = ERF_Calculator.getMagFreqDistInRegion(meanUCERF2, relm_nocal_reg,5.05,35,0.1, true);
+
+		IncrementalMagFreqDist faultMFD = getMFDsForNcal().get(0);
+		
+		nCal_UCERF2_BackgrMFD_WithAftShocks = new IncrementalMagFreqDist(5.05,35,0.1);
+		
+		for(int m=0; m<nCal_UCERF2_BackgrMFD_WithAftShocks.getNum();m++) {
+			double mag = nCal_UCERF2_BackgrMFD_WithAftShocks.getX(m);
+			nCal_UCERF2_BackgrMFD_WithAftShocks.set(m, totMFD.getY(mag)-faultMFD.getY(mag));
+		}
+		
+		// convert to cum MFD and add aftershocks using Karen's formula
+		EvenlyDiscretizedFunc cumBackgroundMFD = nCal_UCERF2_BackgrMFD_WithAftShocks.getCumRateDistWithOffset();
+		//now add the aftershocks
+		for(int m=0; m<cumBackgroundMFD.getNum();m++) {
+			// Karen's fraction of earthquakes >=M that are aftershocks or foreshocks = 1 - 0.039*10^(0.2*M)
+			double mag = cumBackgroundMFD.getX(m);
+			double frAshock = 1.0 - 0.039*Math.pow(10.0,0.2*mag);
+			if(frAshock<0) frAshock=0;
+			double corr = 1.0/(1.0-frAshock);
+			System.out.println("\t"+mag+"\t"+corr);
+
+			cumBackgroundMFD.set(m,cumBackgroundMFD.getY(m)*corr);
+		}
+		
+		// convert back to incremental dist
+		for(int m=0; m<nCal_UCERF2_BackgrMFD_WithAftShocks.getNum();m++) {
+			double yVal = cumBackgroundMFD.getY(m)-cumBackgroundMFD.getY(m+1);
+			nCal_UCERF2_BackgrMFD_WithAftShocks.set(m,yVal);
+			if(nCal_UCERF2_BackgrMFD_WithAftShocks.getX(m) > 7.8) nCal_UCERF2_BackgrMFD_WithAftShocks.set(m,0.0);  // fix weird values
+		}
+		
+		// finally, correct so that faultMFD + backgroundMFD = target
+		double target = getN_CalTotalTargetGR_MFD().getTotalIncrRate() - faultMFD.getTotalIncrRate();
+		double totHere = nCal_UCERF2_BackgrMFD_WithAftShocks.getTotalIncrRate();
+		for(int m=0; m<nCal_UCERF2_BackgrMFD_WithAftShocks.getNum();m++) {
+			nCal_UCERF2_BackgrMFD_WithAftShocks.set(m,nCal_UCERF2_BackgrMFD_WithAftShocks.getY(m)*target/totHere);
+		}
+		
+//System.out.println(target+"\t"+totHere);
+
+		nCal_UCERF2_BackgrMFD_WithAftShocks.setName("UCERF2 N Cal Background MFD - Approximate");
+		nCal_UCERF2_BackgrMFD_WithAftShocks.setInfo("Including C-zones, non CA B faults, and aftershocks");
+	/*	
+		totMFD.setInfo(" ");
+		totMFD.setName(" ");
+		faultMFD.setInfo(" ");
+		faultMFD.setName(" ");
+		backgroundMFD.setInfo(" ");
+		backgroundMFD.setName(" ");
+		ArrayList funcs = new ArrayList();
+		funcs.add(totMFD);
+		funcs.add(faultMFD);
+		funcs.add(backgroundMFD);
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Mag-Freq Dists"); 
+		graph.setX_AxisLabel("Mag");
+		graph.setY_AxisLabel("Rate");
+		graph.setYLog(true);
+		graph.setY_AxisRange(1e-6, 1.0);
+*/
+		return nCal_UCERF2_BackgrMFD_WithAftShocks;
+	}
+	
 	
 
 	/**

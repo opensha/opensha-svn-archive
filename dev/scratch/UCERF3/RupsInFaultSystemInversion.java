@@ -156,18 +156,18 @@ public class RupsInFaultSystemInversion {
 		
 		// plot magnitude histogram for the inversion ruptures (how many rups at each mag)
 		// comment this out if you don't want it popping up (if you're using SCEC VDO)
-		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,35,0.1);
+/*		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,35,0.1);
 		magHist.setTolerance(0.2);	// this makes it a histogram
 		for(int r=0; r<getNumRupRuptures();r++)
 			magHist.add(rupMeanMag[r], 1.0);
 		ArrayList funcs = new ArrayList();
 		funcs.add(magHist);
-//		System.out.println(magHist);
 		magHist.setName("Histogram of Inversion ruptures");
 		magHist.setInfo("(number in each mag bin)");
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Magnitude Histogram"); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Num");
+*/	
 		
 
 		// Now get the UCERF2 equivalent mag and rate for each inversion rupture (where there's a meaningful
@@ -197,7 +197,7 @@ public class RupsInFaultSystemInversion {
 		// this is valid only if createNorthCalSubSections() has been used in TestInversion!
 //		findUCERF2_Rups.plotMFD_TestForNcal();
 
-		
+	
 //		doInversion();
 		
 		
@@ -476,6 +476,9 @@ public class RupsInFaultSystemInversion {
 	 * This gets the slip on each section based on the value of slipModelType.
 	 * The slips are in meters.  Note that taper slipped model wts slips by area
 	 * to maintain moment balance (so it doesn't plot perfectly); do something about this?
+	 * 
+	 * Note that for two parallel faults that have some overlap, the slip won't be reduced
+	 * along the overlap the way things are implemented here.
 	 * 
 	 * This has been spot checked, but needs a formal test.
 	 *
