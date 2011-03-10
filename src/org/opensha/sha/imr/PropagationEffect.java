@@ -412,7 +412,6 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 
 	@Override
 	public void parameterChange( ParameterChangeEvent event ) {
-		System.out.println("allo");
 		approxHorzDist = approxDistParam.getValue();
 		ptSrcCorr = pointSrcCorrParam.getValue();
 		nshmpPtSrcCorr = nshmpPtSrcCorrParam.getValue();
