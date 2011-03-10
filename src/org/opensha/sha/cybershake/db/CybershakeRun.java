@@ -98,6 +98,7 @@ public class CybershakeRun {
 	public String toString() {
 		return "ID: " + getRunID() + ", Site_ID: " + getSiteID() + ", ERF_ID: " + getERFID() +
 				", SGT Var ID: " + getSgtVarID() + ", Rup Var Scen ID: " + getRupVarScenID() +
+				", Vel Model ID: " + getVelModelID() +
 				", SGT Time: " + format.format(getSGTTimestamp()) + ", SGT Host: " + sgtHost +
 				", PP Time: " + format.format(getPPTimestamp()) + ", PP Host: " + ppHost;
 	}
