@@ -57,7 +57,7 @@ public class NSHMP_Util {
 	/**
 	 * Returns a corrected distance value corresponding to the supplied JB
 	 * distance and magnitude. Magnitude is expected to be a 0.05 centered value
-	 * between 6 and 8 (e.g [6.05, 6.15, ... 7.55]). Distance values should be
+	 * between 6 and 7.6 (e.g [6.05, 6.15, ... 7.55]). Distance values should be
 	 * <200km. If <code>D</code> ≥ 200km, method returns D.
 	 * 
 	 * @param M magnitude
