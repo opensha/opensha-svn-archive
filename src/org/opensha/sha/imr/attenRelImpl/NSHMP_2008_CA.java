@@ -138,8 +138,8 @@ ParameterChangeListener {
 		cy08 = new NSHMP_CY_2008(listener);
 
 		arList = new ArrayList<AttenuationRelationship>();
-		//arList.add(ba08);
-		//arList.add(cb08);
+		arList.add(ba08);
+		arList.add(cb08);
 		arList.add(cy08);
 
 		propEffect = new PropagationEffect();
@@ -374,8 +374,6 @@ ParameterChangeListener {
 	public DiscretizedFuncAPI getExceedProbabilities(DiscretizedFuncAPI imls)
 			throws ParameterException {
 		
-		//System.out.println(depthTo2pt5kmPerSecParam.getValue());
-		
 		// function collator with associated weights
 		Map<DiscretizedFuncAPI, Double> funcs = new HashMap<DiscretizedFuncAPI, Double>();
 		
@@ -386,7 +384,6 @@ ParameterChangeListener {
 			// lookup M and dist
 			double mag = propEffect.getEqkRupture().getMag();
 			double dist = propEffect.getDistanceJB();
-			System.out.println("M: " + mag + " D: " + dist);
 			double uncert = getUncertainty(mag, dist);
 			for (AttenuationRelationship ar : arList) {
 				for (int i=0; i<3; i++) {
@@ -411,6 +408,7 @@ ParameterChangeListener {
 			}
 			imls.set(i, val);
 		}
+		
 		return imls;
 	}
 	
@@ -474,16 +472,6 @@ ParameterChangeListener {
 		}
 	}
 
-//	@Override
-//	public void setIntensityMeasure(ParameterAPI intensityMeasure)
-//			throws ParameterException, ConstraintException {
-//		super.setIntensityMeasure(intensityMeasure);
-//		System.out.println("IMparam: " + intensityMeasure);
-//		for (ScalarIntensityMeasureRelationshipAPI ar : arList) {
-//			ar.setIntensityMeasure(intensityMeasure);
-//		}
-//	}
-
 	@Override
 	public void setIntensityMeasure(String intensityMeasureName)
 			throws ParameterException {
@@ -495,11 +483,13 @@ ParameterChangeListener {
 
 	@Override
 	public void parameterChange(ParameterChangeEvent e) {
+		
 		// pass through changes to params we know nga's are listeneing to
 		for (AttenuationRelationship ar : arList) {
 			ParameterChangeListener pcl = (ParameterChangeListener) ar;
 			pcl.parameterChange(e);
 		}
+		
 		// pass through those changes that are picked up at calculation time
 		if (otherParams.containsParameter(e.getParameter())) {
 			for (AttenuationRelationship ar : arList) {
@@ -519,6 +509,7 @@ ParameterChangeListener {
 				}
 			}
 		}
+		
 		// handle SA period change; this is picked up independently by atten
 		// rels at calculation time so changes here need to be transmitted to
 		// children
@@ -529,6 +520,7 @@ ParameterChangeListener {
 				sap.getPeriodParam().setValue(saPeriodParam.getValue());
 			}
 		}
+		
 		// handle locals
 		if (e.getParameterName().equals(IMR_UNCERT_PARAM_NAME)) {
 			includeImrUncert = (Boolean) e.getParameter().getValue();
@@ -641,10 +633,10 @@ ParameterChangeListener {
 			return super.getExceedProbability(
 				mean + imrUncert, stdDev, iml);
 		}
-//		@Override
-//		public void setFaultTypeFromRake(double rake) {
-//			fltTypeParam.setValue(getFaultTypeForRake(rake));
-//		}
+		@Override
+		public void setFaultTypeFromRake(double rake) {
+			fltTypeParam.setValue(getFaultTypeForRake(rake));
+		}
 	}
 
 }
