@@ -226,7 +226,6 @@ public class CY_2008_AttenRel extends AttenuationRelationship implements
 		rupTopDepthParam.setValue(depth);
 		aftershockParam.setValue(false);
 		setPropagationEffectParams();
-
 	}
 
 	@Override
@@ -239,7 +238,6 @@ public class CY_2008_AttenRel extends AttenuationRelationship implements
 		vs30_TypeParam.setValue((String) site.getParameter(Vs30_TypeParam.NAME)
 			.getValue());
 		setPropagationEffectParams();
-
 	}
 
 	@Override
@@ -666,11 +664,15 @@ public class CY_2008_AttenRel extends AttenuationRelationship implements
 		// b/c of limitations of WarningDoubleParam; NSHMP sets value based on
 		// unless vs30=760±20, then its set to 40m
 		double basinDepth;
-		if(Double.isNaN(depthTo1pt0kmPerSec))
-			basinDepth = Math.exp(28.5 - 3.82*Math.log(Math.pow(vs30,8)+Math.pow(378.7,8))/8);
-		else
+		if(Double.isNaN(depthTo1pt0kmPerSec)) {
+			if (Math.abs(vs30-760) < 20) {
+				basinDepth = 40;
+			} else {
+				basinDepth = Math.exp(28.5 - 3.82*Math.log(Math.pow(vs30,8)+Math.pow(378.7,8))/8);
+			}
+		} else {
 			basinDepth = depthTo1pt0kmPerSec;
-
+		}
 		double exp1 = Math.exp(phi3[iper]*(Math.min(vs30,1130)-360));
 		double exp2 = Math.exp(phi3[iper]*(1130-360));
 
@@ -791,7 +793,6 @@ public class CY_2008_AttenRel extends AttenuationRelationship implements
 	 * @param e ParameterChangeEvent
 	 */
 	public void parameterChange(ParameterChangeEvent e) {
-
 		String pName = e.getParameterName();
 		Object val = e.getNewValue();
 		lnYref_is_not_fresh = true;  // this could be placed below, only where really needed.
