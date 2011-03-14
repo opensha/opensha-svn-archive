@@ -34,6 +34,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.MultiIMR_Averaged_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.NGA_2008_Averaged_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.NGA_2008_Averaged_AttenRel_NoAS;
 import org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel;
@@ -54,6 +55,8 @@ public class HardCodedTest {
 	
 	private static SimpleDateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm");
 	private static final boolean constrainBasinMin = false;
+	
+	private static final boolean prop_effect_speedup = true;
 	
 	private static MeanUCERF2 getUCERF2(int years, int startYear, boolean includeBackSeis) {
 		MeanUCERF2 ucerf = new MeanUCERF2();
@@ -103,6 +106,7 @@ public class HardCodedTest {
 //		ScalarIntensityMeasureRelationshipAPI imr = new NGA_2008_Averaged_AttenRel(null);
 		ScalarIntensityMeasureRelationshipAPI imr = new NGA_2008_Averaged_AttenRel_NoAS(null);
 		imr.setParamDefaults();
+		imr.getParameter(MultiIMR_Averaged_AttenRel.PROP_EFFECT_SPEEDUP_PARAM_NAME).setValue(prop_effect_speedup);
 		return imr;
 	}
 
