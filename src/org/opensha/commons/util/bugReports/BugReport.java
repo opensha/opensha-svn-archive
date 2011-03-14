@@ -128,11 +128,12 @@ public class BugReport {
 						"Application: " + appName + "\n" +
 						"Version: " + appVersion + "\n" +
 						"Bulid Type: " + ServerPrefUtils.SERVER_PREFS.getBuildType();
-		if (metadata != null && metadata.length() > 0) {
-			description += "\n\nMetadata:\n" + metadata;
-		}
+		
 		if (t != null) {
 			description += "\n\nException:\n{{{\n" + getStackTrace(t)+"\n}}}\n";
+		}
+		if (metadata != null && metadata.length() > 0) {
+			description += "\n\nMetadata:\n" + metadata;
 		}
 		
 		Component component;
