@@ -69,8 +69,8 @@ public class NSHMP_Util {
 	public static double getMeanRJB(double M, double D) {
 		int magKey = new Double(M * 100).intValue();
 		checkArgument(data.containsKey(magKey), "Invalid mag value: " + M);
-		int distKey = new Double(Math.floor(D)).intValue();
+		int distKey = (int) Math.floor(D);
 		return (D <= 200) ? data.get(magKey).get(distKey) : D;
 	}
-
+	
 }
