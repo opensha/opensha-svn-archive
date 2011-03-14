@@ -343,6 +343,11 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 					if (nshmpPtSrcCorr) {
 						double MM = eqkRupture.getMag();
 						if (MM > 6) {
+							// getMeanRJB is built on the assumption of 0.05 M
+							// centered bins. Non-UCERF erf's often do not make
+							// this assumption and are 0.1 based so we push
+							// the value down to the next closest compatible M
+							MM = (MM % 0.1 != 0.05) ? MM - 0.05 : MM;
 							horzDist = NSHMP_Util.getMeanRJB(MM, horzDist);
 						}
 					} else {
