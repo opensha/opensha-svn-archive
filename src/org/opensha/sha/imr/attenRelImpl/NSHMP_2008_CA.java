@@ -84,11 +84,11 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
  * Additional epistemic uncertainty is considered for each NGA according to the
  * following distance and magnitude matrix:
  * <pre>
- *             M<6      6≤M<7      7≤M
+ *             M<6      6%le;M<7      7&le;M
  *          =============================
  *   D<10     0.375  |  0.210  |  0.245
- * 10≤D<30    0.230  |  0.225  |  0.230
- *   30≤D     0.400  |  0.360  |  0.310
+ * 10&le;D<30    0.230  |  0.225  |  0.230
+ *   30&le;D     0.400  |  0.360  |  0.310
  *          =============================
  * </pre>
  * For an earthquake rupture at a given distance and magnitude, the corresponding
