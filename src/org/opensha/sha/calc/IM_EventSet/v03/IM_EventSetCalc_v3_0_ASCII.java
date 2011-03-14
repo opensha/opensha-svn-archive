@@ -42,6 +42,7 @@ import org.opensha.sha.calc.IM_EventSet.v03.outputImpl.HAZ01Writer;
 import org.opensha.sha.calc.IM_EventSet.v03.outputImpl.OriginalModWriter;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
+import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1_CEUS_ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
@@ -382,6 +383,8 @@ implements ParameterChangeWarningListener {
 			createUCERF1_Forecast();
 		else if (erfName.equals(MeanUCERF2.NAME))
 			createMeanUCERF2_Forecast();
+		else if (erfName.equals(GEM1_CEUS_ERF.NAME))
+			createGEM1_CEUS_Forecast();
 		else throw new RuntimeException ("Unsupported ERF");
 		forecast.getTimeSpan().setDuration(1.0);
 	}
@@ -412,6 +415,11 @@ implements ParameterChangeWarningListener {
 		forecast = new MeanUCERF2();
 		forecast.getAdjustableParameterList().getParameter(
 				UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_POISSON);
+	}
+	
+	private void createGEM1_CEUS_Forecast(){
+		logger.log(Level.FINE, "Creating GEM1 CEUS ERF");
+		forecast = new GEM1_CEUS_ERF();
 	}
 
 	private void toApplyBackGroud(String toApply){
