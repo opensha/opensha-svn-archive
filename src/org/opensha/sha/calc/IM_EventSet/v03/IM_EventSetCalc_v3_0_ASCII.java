@@ -423,10 +423,13 @@ implements ParameterChangeWarningListener {
 	}
 
 	private void toApplyBackGroud(String toApply){
-		logger.log(Level.FINE, "Setting ERF background seismicity value: " + toApply);
-		forecast.getAdjustableParameterList().getParameter(
-				Frankel02_AdjustableEqkRupForecast.
-				BACK_SEIS_NAME).setValue(toApply);
+		if (forecast.getAdjustableParameterList().containsParameter(Frankel02_AdjustableEqkRupForecast.
+				BACK_SEIS_NAME)) {
+			logger.log(Level.FINE, "Setting ERF background seismicity value: " + toApply);
+			forecast.getAdjustableParameterList().getParameter(
+					Frankel02_AdjustableEqkRupForecast.
+					BACK_SEIS_NAME).setValue(toApply);
+		}
 		if(!(forecast instanceof MeanUCERF2)) {
 			if (forecast.getAdjustableParameterList().containsParameter(
 					Frankel02_AdjustableEqkRupForecast.
