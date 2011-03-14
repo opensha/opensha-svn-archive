@@ -25,6 +25,7 @@ The first choice is which of the following Earthquake Rupture Forecasts to use:
 	NSHMP-2002 Earthquake Rupture Forecast (ERF)
 	WGCEP-UCERF-1.0 (2005)
 	WGCEP (2007) UCERF2 - Single Branch
+	GEM1 CEUS ERF
 
 All adjustable parameters for these ERFs are hard wired in the code to default/official settings; only whether to include the background/grid sources and the offset for floating ruptures are set in the input file.  
 

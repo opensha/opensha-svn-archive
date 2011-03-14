@@ -6,10 +6,11 @@
 #
 #
 # First line defines which Earthquake Rupture Forecast (ERF) to use
-# choose one of the following three choices (and remove quotes):
+# choose one of the following four choices (and remove quotes):
 # "WGCEP (2007) UCERF2 - Single Branch"
 # "USGS/CGS 2002 Adj. Cal. ERF"
 # "WGCEP UCERF 1.0 (2005)"
+# "GEM1 CEUS ERF"
 # 
 WGCEP (2007) UCERF2 - Single Branch
 #
