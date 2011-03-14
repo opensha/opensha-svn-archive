@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -93,11 +94,6 @@ public class TestInversion {
 				magAreaRel, precomputedDataDir, moRateReduction);
 		
 //		rupsInFaultSysInv.writeCloseSubSections(precomputedDataDir.getAbsolutePath()+File.separator+"closeSubSections.txt");
-		
-//		doInversion(rupsInFaultSysInv);  
-		
-		
-		
 		
 	}
 	
@@ -448,7 +444,10 @@ public class TestInversion {
 		  }
 	  }
 	  
-	 // this was originally written to provide Tom Parsons the subsection data
+
+	  /**
+	   * This writes the section data to an ASCII file
+	   */
 	  public void writeSectionsToFile(String filePathAndName) {
 		  ArrayList<String> metaData = new ArrayList<String>();
 		  metaData.add("deformationModelId = "+deformationModelId);
@@ -459,6 +458,37 @@ public class TestInversion {
 
 	  }
 	  
+	  
+	  /**
+	   * This writes the rupture sections to an ASCII file
+	   * @param filePathAndName
+	   */
+	  public void writeRupsToFiles(String filePathAndName) {
+		  FileWriter fw;
+		  try {
+			  fw = new FileWriter(filePathAndName);
+			  fw.write("rupID\tclusterID\trupInClustID\tsect1_ID\tsect2_ID\t...\n");	// header
+			  int rupIndex = 0;
+			  for(int c=0;c<rupsInFaultSysInv.getNumClusters();c++) {
+				  ArrayList<ArrayList<Integer>>  rups = rupsInFaultSysInv.getCluster(c).getSectionIndicesForRuptures();
+				  for(int r=0; r<rups.size();r++) {
+					  ArrayList<Integer> rup = rups.get(r);
+					  String line = Integer.toString(rupIndex)+"\t"+Integer.toString(c)+"\t"+Integer.toString(r);
+					  for(Integer sectID: rup) {
+						  line += "\t"+sectID;
+					  }
+					  line += "\n";
+					  fw.write(line);
+					  rupIndex+=1;
+				  }				  
+			  }
+			  fw.close();
+		  } catch (IOException e) {
+			  // TODO Auto-generated catch block
+			  e.printStackTrace();
+		  }
+	  }
+	  
 
 
 	/**
@@ -467,6 +497,10 @@ public class TestInversion {
 	public static void main(String[] args) {
 		
 		TestInversion test = new TestInversion();
+		
+		// the following was run on March 14th for N Cal case for Tom Parsons (see email that day)
+//		test.writeSectionsToFile("sectionsForTom");
+//		test.writeRupsToFiles("rupturesForTom");
 		
 		/* Tests for the Loc at the N. end of the Parkfield Trace
 		Region nCalRegion = new CaliforniaRegions.RELM_NOCAL();
