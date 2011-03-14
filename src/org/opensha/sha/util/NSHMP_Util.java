@@ -31,7 +31,7 @@ public class NSHMP_Util {
 		String magID = "#Mag";
 		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(
-				NSHMP_2008_CA.class.getResourceAsStream(rjbDatPath)));
+				NSHMP_Util.class.getResourceAsStream(rjbDatPath)));
 			String line;
 			HashMap<Integer, Double> magMap = null;
 			while ((line = br.readLine()) != null) {
@@ -58,11 +58,11 @@ public class NSHMP_Util {
 	 * Returns a corrected distance value corresponding to the supplied JB
 	 * distance and magnitude. Magnitude is expected to be a 0.05 centered value
 	 * between 6 and 7.6 (e.g [6.05, 6.15, ... 7.55]). Distance values should be
-	 * <200km. If <code>D</code> ≥ 200km, method returns D.
+	 * &le;200km. If <code>D</code> > 200km, method returns D.
 	 * 
 	 * @param M magnitude
 	 * @param D distance
-	 * @return the corrected distance or <code>D</code> if <code>D</code> ≥ 200
+	 * @return the corrected distance or <code>D</code> if <code>D</code> > 200
 	 * @throws IllegalArgumentException if <code>M</code> is not one of [6.05,
 	 *         6.15, ... 7.55]
 	 */
