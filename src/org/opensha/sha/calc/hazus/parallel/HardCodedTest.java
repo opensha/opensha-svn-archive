@@ -56,7 +56,7 @@ public class HardCodedTest {
 	private static SimpleDateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm");
 	private static final boolean constrainBasinMin = false;
 	
-	private static final boolean prop_effect_speedup = true;
+	private static final boolean prop_effect_speedup = false;
 	
 	private static MeanUCERF2 getUCERF2(int years, int startYear, boolean includeBackSeis) {
 		MeanUCERF2 ucerf = new MeanUCERF2();
