@@ -429,6 +429,9 @@ implements ParameterChangeWarningListener {
 			forecast.getAdjustableParameterList().getParameter(
 					Frankel02_AdjustableEqkRupForecast.
 					BACK_SEIS_NAME).setValue(toApply);
+		} else {
+			logger.log(Level.WARNING, "ERF doesn't contain param '"+Frankel02_AdjustableEqkRupForecast.
+					BACK_SEIS_NAME+"', ignoring setting.");
 		}
 		if(!(forecast instanceof MeanUCERF2)) {
 			if (forecast.getAdjustableParameterList().containsParameter(
@@ -444,10 +447,16 @@ implements ParameterChangeWarningListener {
 	}
 
 	private void setRupOffset(double rupOffset){
-		logger.log(Level.FINE, "Setting ERF rupture offset: " + rupOffset);
-		forecast.getAdjustableParameterList().getParameter(
-				Frankel02_AdjustableEqkRupForecast.
-				RUP_OFFSET_PARAM_NAME).setValue(new Double(rupOffset));
+		if (forecast.getAdjustableParameterList().containsParameter(Frankel02_AdjustableEqkRupForecast.
+				RUP_OFFSET_PARAM_NAME)) {
+			logger.log(Level.FINE, "Setting ERF rupture offset: " + rupOffset);
+			forecast.getAdjustableParameterList().getParameter(
+					Frankel02_AdjustableEqkRupForecast.
+					RUP_OFFSET_PARAM_NAME).setValue(new Double(rupOffset));
+		} else {
+			logger.log(Level.WARNING, "ERF doesn't contain param '"+Frankel02_AdjustableEqkRupForecast.
+					RUP_OFFSET_PARAM_NAME+"', ignoring setting.");
+		}
 		forecast.updateForecast();
 	}
 	
