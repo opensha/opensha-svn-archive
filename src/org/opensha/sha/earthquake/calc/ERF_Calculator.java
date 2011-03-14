@@ -122,6 +122,50 @@ public class ERF_Calculator {
 	  }
 	  return magFreqDist;
   }
+  
+  /**
+   * This computes the  magnitude frequency distribution (equivalent poisson rates) for each
+   * location in the supplied GriddedRegion and ERF.  This assumes a uniform distribution of 
+   * nucleations on each rupture.  Ruptures that fall outside the region are ignored.  The
+   * indices for the returned array list are the same as for the GriddedRegion.
+   * @param erf
+   * @param griddedRegion
+   * @param minMag
+   * @param numMag
+   * @param deltaMag
+   * @param preserveRates - this tells whether to preserve rates or preserve moment rates
+   * @return
+   */
+  public static ArrayList<SummedMagFreqDist> getMagFreqDistsAtLocsInRegion(EqkRupForecastAPI erf, GriddedRegion griddedRegion,
+		  double minMag,int numMag,double deltaMag, boolean preserveRates) {
+	  
+	  ArrayList<SummedMagFreqDist> magFreqDists = new ArrayList<SummedMagFreqDist>();
+	  for(Location loc:griddedRegion)
+		  magFreqDists.add(new SummedMagFreqDist(minMag, numMag, deltaMag));
+	  
+	  double duration = erf.getTimeSpan().getDuration();
+	  for (int s = 0; s < erf.getNumSources(); ++s) {
+		  ProbEqkSource source = erf.getSource(s);
+		  for (int r = 0; r < source.getNumRuptures(); ++r) {
+			  ProbEqkRupture rupture = source.getRupture(r);
+			  double mag = rupture.getMag();
+			  double equivRate = rupture.getMeanAnnualRate(duration);
+			  EvenlyGriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
+			  double ptRate = equivRate/rupSurface.size();
+			  ListIterator<Location> it = rupSurface.getAllByRowsIterator();
+			  while (it.hasNext()) {
+				  Location loc = it.next();
+				  int index = griddedRegion.indexForLocation(loc);
+				  if(index >=0)
+					  magFreqDists.get(index).addResampledMagRate(mag, ptRate, preserveRates);
+			  }
+		  }
+	  }
+	  return magFreqDists;
+  }
+
+  
+  
 
   
 	public static void main(String[] args) {
