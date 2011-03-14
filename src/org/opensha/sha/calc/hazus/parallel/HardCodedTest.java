@@ -37,6 +37,7 @@ import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.MultiIMR_Averaged_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.NGA_2008_Averaged_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.NGA_2008_Averaged_AttenRel_NoAS;
+import org.opensha.sha.imr.attenRelImpl.NSHMP_2008_CA;
 import org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
@@ -96,6 +97,12 @@ public class HardCodedTest {
 		return attenRel;
 	}
 	
+	private static ScalarIntensityMeasureRelationshipAPI getUSGSCombined2008IMR() {
+		ScalarIntensityMeasureRelationshipAPI attenRel = new NSHMP_2008_CA(null);
+		attenRel.setParamDefaults();
+		return attenRel;
+	}
+	
 	private static ScalarIntensityMeasureRelationshipAPI getCB_2008IMR() {
 		ScalarIntensityMeasureRelationshipAPI imr = new CB_2008_AttenRel(null);
 		imr.setParamDefaults();
@@ -111,7 +118,8 @@ public class HardCodedTest {
 	}
 
 	private static ScalarIntensityMeasureRelationshipAPI getIMR(double sigmaTrunc){
-		ScalarIntensityMeasureRelationshipAPI attenRel = getNGA_2008IMR();
+//		ScalarIntensityMeasureRelationshipAPI attenRel = getNGA_2008IMR();
+		ScalarIntensityMeasureRelationshipAPI attenRel = getUSGSCombined2008IMR();
 //		ScalarIntensityMeasureRelationshipAPI attenRel = getCB_2008IMR();
 		attenRel.getParameter(Vs30_Param.NAME).setValue(new Double(760));
 		if (sigmaTrunc > 0) {
