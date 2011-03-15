@@ -319,7 +319,6 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 			System.out.println("IMT "+i+": "+meta);
 			imts.add(imt);
 		}
-		System.exit(0);
 		
 		return imts;
 	}
