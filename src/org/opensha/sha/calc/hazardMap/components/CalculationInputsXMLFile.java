@@ -305,7 +305,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 			DependentParameterAPI<Double> imt = imtFromXML(testIMR, imrMapEl);
 			if (imt == null)
 				return null;
-			listsMap.put(new Integer(index), imt);
+			listsMap.put(new Integer(index), (DependentParameterAPI<Double>) imt.clone());
 		}
 		for (int i=0; i<listsMap.size(); i++) {
 			imts.add(listsMap.get(new Integer(i)));
