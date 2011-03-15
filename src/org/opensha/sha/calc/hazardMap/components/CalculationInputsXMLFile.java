@@ -22,6 +22,8 @@ import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.imr.IntensityMeasureRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.util.TectonicRegionType;
 
 /**
@@ -308,8 +310,16 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 			listsMap.put(new Integer(index), (DependentParameterAPI<Double>) imt.clone());
 		}
 		for (int i=0; i<listsMap.size(); i++) {
-			imts.add(listsMap.get(new Integer(i)));
+			DependentParameterAPI<Double> imt = listsMap.get(i);
+			String meta = imt.getName();
+			if (imt.getName().equals(SA_Param.NAME)) {
+				double period = (Double) imt.getIndependentParameter(PeriodParam.NAME).getValue();
+				meta += " (Period: "+period+" sec)";
+			}
+			System.out.println("IMT "+i+": "+meta);
+			imts.add(imt);
 		}
+		System.exit(0);
 		
 		return imts;
 	}

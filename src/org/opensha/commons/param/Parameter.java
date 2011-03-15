@@ -552,6 +552,9 @@ public abstract class Parameter<E> implements ParameterAPI<E> {
 	public final boolean setValueFromXMLMetadata(Element el) {
 		boolean setToNull = false;
 		
+//		System.out.println("setValueFromXMLMetadata: "+getName());
+		
+		boolean success = true;
 		// first check for null
 		Attribute valueAtt = el.attribute("value");
 		if (valueAtt != null) {
@@ -560,24 +563,27 @@ public abstract class Parameter<E> implements ParameterAPI<E> {
 					this.setValue(null);
 					setToNull = true;
 				} catch (ConstraintException e) {
-					return false;
+					success = false;
 				} catch (ParameterException e) {
-					return false;
+					success = false;
 				}
 			}
 		}
 		
-		boolean success = true;
+//		System.out.println("setToNull? "+setToNull);
+		
 		// first set the value of this parameter
-		if (!setToNull)
+		if (!setToNull && success)
 			success = this.setIndividualParamValueFromXML(el);
 
-		if (!success)
-			return false;
-		
 		if (this instanceof DependentParameter) {
-			success = ((DependentParameter)this).setIndepParamsFromXML(el);
+//			System.out.println("calling setIndepParamsFromXML");
+			boolean indepsuccess = ((DependentParameter)this).setIndepParamsFromXML(el);
+			if (success)
+				success = indepsuccess;
 		}
+		
+//		System.out.println("success? "+success);
 		return success;
 	}
 

@@ -101,11 +101,12 @@ public class HazardCurveSetCalculator {
 				DependentParameterAPI<Double> imtParam =
 					(DependentParameterAPI<Double>) TRTUtils.getFirstIMR(imrMap).getIntensityMeasure();
 				String imt = imtParam.getName();
+				String imtMeta = imtParam.getName();
 				if (imtParam instanceof SA_Param) {
-					imt += " (Period: "+SA_Param.getPeriodInSA_Param(imtParam)+" sec)";
+					imtMeta += " (Period: "+SA_Param.getPeriodInSA_Param(imtParam)+" sec)";
 				}
 				System.out.println("Calculating curve(s) for site " + siteCount + "/" + sites.size()
-						+ " IMR Map " + imrMapCount + "/" + imrMaps.size() + " IMT: " + imt);
+						+ " IMR Map " + imrMapCount + "/" + imrMaps.size() + " IMT: " + imtMeta);
 				CurveMetadata meta = new CurveMetadata(site, imrMap, "imrs" + imrMapCount);
 				if (archiver.isCurveCalculated(meta, calcSettings.getXValues(imt))) {
 					System.out.println("Curve already calculated, skipping...");

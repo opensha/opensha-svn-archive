@@ -279,6 +279,7 @@ public abstract class DependentParameter<E> extends Parameter<E> implements
 	}
 	
 	protected final boolean setIndepParamsFromXML(Element el) {
+//		System.out.println("Setting indep params form XML (param="+getName()+")!");
 		Element depParamsEl = el.element(DependentParameterAPI.XML_INDEPENDENT_PARAMS_NAME);
 
 		if (depParamsEl == null)
