@@ -18,6 +18,7 @@ import org.opensha.sha.calc.hazardMap.components.CurveMetadata;
 import org.opensha.sha.calc.hazardMap.components.CurveResultsArchiver;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
 
@@ -97,7 +98,12 @@ public class HazardCurveSetCalculator {
 					}
 				}
 				imrMapCount++;
-				String imt = TRTUtils.getFirstIMR(imrMap).getIntensityMeasure().getName();
+				DependentParameterAPI<Double> imtParam =
+					(DependentParameterAPI<Double>) TRTUtils.getFirstIMR(imrMap).getIntensityMeasure();
+				String imt = imtParam.getName();
+				if (imtParam instanceof SA_Param) {
+					imt += " (Period: "+SA_Param.getPeriodInSA_Param(imtParam)+" sec)";
+				}
 				System.out.println("Calculating curve(s) for site " + siteCount + "/" + sites.size()
 						+ " IMR Map " + imrMapCount + "/" + imrMaps.size() + " IMT: " + imt);
 				CurveMetadata meta = new CurveMetadata(site, imrMap, "imrs" + imrMapCount);
