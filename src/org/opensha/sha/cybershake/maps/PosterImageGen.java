@@ -15,6 +15,8 @@ import org.opensha.sha.cybershake.bombay.ModProbConfig;
 import org.opensha.sha.cybershake.bombay.ModProbConfigFactory;
 import org.opensha.sha.cybershake.bombay.ScenarioBasedModProbConfig;
 import org.opensha.sha.cybershake.maps.InterpDiffMap.InterpDiffMapType;
+import org.opensha.sha.imr.AttenRelImpl;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
 public class PosterImageGen {
 
@@ -62,7 +64,9 @@ public class PosterImageGen {
 		
 		boolean gainOnly = false;
 		
-		String baseMapName = "cb2008";
+		ScalarIntensityMeasureRelationshipAPI baseMapIMR = AttenRelImpl.CB_2008.instance(null);
+		baseMapIMR.setParamDefaults();
+		HardCodedInterpDiffMapCreator.setTruncation(baseMapIMR, 3.0);
 		
 		Double normCustomMin = -8.259081006598409;
 		Double normCustomMax = -2.5;
@@ -85,13 +89,13 @@ public class PosterImageGen {
 				if (!gainOnly) {
 					String normAddr = 
 						HardCodedInterpDiffMapCreator.getMap(logPlot, imTypeID, normCustomMin, normCustomMax,
-								isProbAt_IML, val, baseMapName, config, false, normLabel);
+								isProbAt_IML, val, baseMapIMR, config, false, normLabel);
 					saveCurves(normAddr, mainDir, name, InterpDiffMapType.INTERP_NOMARKS);
 				}
 				if (config instanceof ScenarioBasedModProbConfig) {
 					String gainAddr = 
 						HardCodedInterpDiffMapCreator.getMap(logPlot, imTypeID, gainCustomMin, gainCustomMax,
-								isProbAt_IML, val, baseMapName, config, true, gainLabel);
+								isProbAt_IML, val, baseMapIMR, config, true, gainLabel);
 					saveCurves(gainAddr, mainDir, name+"_gain", InterpDiffMapType.INTERP_NOMARKS);
 				}
 			}

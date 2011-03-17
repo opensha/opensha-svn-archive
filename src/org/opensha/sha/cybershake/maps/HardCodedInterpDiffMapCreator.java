@@ -5,6 +5,7 @@ import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -12,6 +13,7 @@ import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.AbstractGeoDataSet;
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
+import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
@@ -25,6 +27,9 @@ import org.opensha.sha.cybershake.bombay.BombayBeachHazardCurveCalc;
 import org.opensha.sha.cybershake.bombay.ModProbConfig;
 import org.opensha.sha.cybershake.bombay.ModProbConfigFactory;
 import org.opensha.sha.cybershake.bombay.ScenarioBasedModProbConfig;
+import org.opensha.sha.cybershake.db.AttenRelCurves2DB;
+import org.opensha.sha.cybershake.db.AttenRelDataSets2DB;
+import org.opensha.sha.cybershake.db.AttenRels2DB;
 import org.opensha.sha.cybershake.db.CybershakeHazardCurveRecord;
 import org.opensha.sha.cybershake.db.CybershakeRun;
 import org.opensha.sha.cybershake.db.CybershakeSite;
@@ -35,6 +40,10 @@ import org.opensha.sha.cybershake.db.HazardCurve2DB;
 import org.opensha.sha.cybershake.db.Runs2DB;
 import org.opensha.sha.cybershake.maps.InterpDiffMap.InterpDiffMapType;
 import org.opensha.sha.cybershake.maps.servlet.CS_InterpDiffMapServletAccessor;
+import org.opensha.sha.imr.AttenRelImpl;
+import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 
 public class HardCodedInterpDiffMapCreator {
 	
@@ -166,6 +175,27 @@ public class HardCodedInterpDiffMapCreator {
 		}
 	}
 	
+	private static GeoDataSet loadBaseMap(
+			ScalarIntensityMeasureRelationshipAPI imr,
+			boolean isProbAt_IML,
+			double level,
+			int imTypeID) throws SQLException {
+		
+		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		
+		AttenRels2DB ar2db = new AttenRels2DB(db);
+		int attenRelID = ar2db.getAttenRelID(imr);
+		
+		AttenRelDataSets2DB ds2db = new AttenRelDataSets2DB(db);
+		int datasetID = ds2db.getDataSetID(attenRelID, 35, 1, 1, null);
+		
+		AttenRelCurves2DB curves2db = new AttenRelCurves2DB(db);
+		GeoDataSet xyz = curves2db.fetchMap(datasetID, imTypeID, isProbAt_IML, level, true);
+		System.out.println("Got "+xyz.size()+" basemap values!");
+		
+		return xyz;
+	}
+	
 	private static AbstractGeoDataSet loadBaseMap(boolean singleDay, boolean isProbAt_IML,
 			double val, int imTypeID, String name) throws FileNotFoundException, IOException {
 		int period;
@@ -214,6 +244,14 @@ public class HardCodedInterpDiffMapCreator {
 		Color fillColor = Color.RED;
 		return new PSXYSymbol(pt, Symbol.STAR, width, penWidth, penColor, fillColor);
 	}
+	
+	protected static void setTruncation(ScalarIntensityMeasureRelationshipAPI imr, double trunc) {
+		imr.getParameter(SigmaTruncLevelParam.NAME).setValue(trunc);
+		if (trunc < 0)
+			imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE);
+		else
+			imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
+	}
 
 	/**
 	 * @param args
@@ -249,13 +287,15 @@ public class HardCodedInterpDiffMapCreator {
 			ModProbConfig config = null;
 			boolean isProbAt_IML = false;
 			double val = 0.0004;
-			String baseMapName = "cb2008";
+			ScalarIntensityMeasureRelationshipAPI baseMapIMR = AttenRelImpl.CB_2008.instance(null);
+			baseMapIMR.setParamDefaults();
+			setTruncation(baseMapIMR, 3.0);
 			String customLabel = "3sec SA, 2% in 50 yrs";
 			boolean probGain = false;
 			
 			
 			String addr = getMap(logPlot, imTypeID, customMin, customMax,
-					isProbAt_IML, val, baseMapName, config, probGain,
+					isProbAt_IML, val, baseMapIMR, config, probGain,
 					customLabel);
 			
 			System.out.println("Map address: " + addr);
@@ -276,15 +316,16 @@ public class HardCodedInterpDiffMapCreator {
 	
 	protected static String getMap(boolean logPlot, int imTypeID,
 			Double customMin, Double customMax, boolean isProbAt_IML,
-			double val, String baseMapName, ModProbConfig config,
+			double val, ScalarIntensityMeasureRelationshipAPI baseMapIMR, ModProbConfig config,
 			boolean probGain, String customLabel) throws FileNotFoundException,
-			IOException, ClassNotFoundException, GMT_MapException {
+			IOException, ClassNotFoundException, GMT_MapException, SQLException {
 		boolean singleDay = config != null;
 		double baseMapRes = 0.005;
 		System.out.println("Loading basemap...");
-		AbstractGeoDataSet baseMap;
+		GeoDataSet baseMap;
 		if (!probGain) {
-			baseMap = loadBaseMap(singleDay, isProbAt_IML, val, imTypeID, baseMapName);
+			baseMap = loadBaseMap(baseMapIMR, isProbAt_IML, val, imTypeID);
+//			baseMap = loadBaseMap(singleDay, isProbAt_IML, val, imTypeID, baseMapName);
 			System.out.println("Basemap has " + baseMap.size() + " points");
 		} else {
 			baseMap = null;
