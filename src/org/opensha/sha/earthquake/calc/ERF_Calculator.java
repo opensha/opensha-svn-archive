@@ -21,6 +21,7 @@ package org.opensha.sha.earthquake.calc;
 
 import java.awt.Color;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.ListIterator;
@@ -28,8 +29,11 @@ import java.util.ListIterator;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -143,6 +147,8 @@ public class ERF_Calculator {
 	  for(Location loc:griddedRegion)
 		  magFreqDists.add(new SummedMagFreqDist(minMag, numMag, deltaMag));
 	  
+	  SummedMagFreqDist unassignedMFD = new SummedMagFreqDist(minMag, numMag, deltaMag);
+	  
 	  double duration = erf.getTimeSpan().getDuration();
 	  for (int s = 0; s < erf.getNumSources(); ++s) {
 		  ProbEqkSource source = erf.getSource(s);
@@ -158,17 +164,60 @@ public class ERF_Calculator {
 				  int index = griddedRegion.indexForLocation(loc);
 				  if(index >=0)
 					  magFreqDists.get(index).addResampledMagRate(mag, ptRate, preserveRates);
+				  else
+					  unassignedMFD.addResampledMagRate(mag, ptRate, preserveRates);
 			  }
 		  }
 	  }
+	  System.out.println(unassignedMFD.getCumRateDistWithOffset());
 	  return magFreqDists;
+  }
+  
+  
+  /**
+   * This writes a STEP format file, which gives the lat, lon, and rates for the associated mag-freq
+   * dist on each line.
+   * @param mfds
+   * @param griddedRegion
+   * @param filePathAndName
+   */
+  public static void writeSTEP_FormatFile(ArrayList<SummedMagFreqDist> mfds, GriddedRegion griddedRegion,
+		  String filePathAndName) {
+		// The following matches the total MFD in the UCERF2 report within 1% below M 8.3
+		SummedMagFreqDist totalMFD = new SummedMagFreqDist(5.05,36,0.1);
+		for(IncrementalMagFreqDist mfd:mfds)
+			totalMFD.addResampledMagFreqDist(mfd, true);
+		System.out.println(totalMFD.getCumRateDistWithOffset());
+		
+		FileWriter fw;
+		try {
+			fw = new FileWriter(filePathAndName);
+			String header = "lat\tlon";
+			for(int m=0; m<totalMFD.getNum();m++)
+				header += "\t"+(float)totalMFD.getX(m);
+			fw.write(header+"\n");
+			for(int i=0;i<griddedRegion.getNodeCount();i++) {
+				Location loc = griddedRegion.locationForIndex(i);
+				String line = (float)loc.getLatitude()+"\t"+(float)loc.getLongitude();
+				IncrementalMagFreqDist mfd = mfds.get(i);
+				for(int m=0; m<mfd.getNum();m++)
+					line += "\t"+(float)mfd.getY(m);
+				fw.write(line+"\n");
+			}
+			fw.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
   }
 
   
   
-
-  
 	public static void main(String[] args) {
+		
+		
+		// OLD STUFF BELOW
+		/*
 		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
 		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
 //		meanUCERF2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_EMPIRICAL);
@@ -204,6 +253,8 @@ public class ERF_Calculator {
 		mfd_graph.setPlottingFeatures(plotMFD_Chars);
 		mfd_graph.setTickLabelFontSize(12);
 		mfd_graph.setAxisAndTickLabelFontSize(14);
+		
+		*/
 	}
 
 }

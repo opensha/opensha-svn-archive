@@ -329,7 +329,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 */
 	public void set(int index, double y) throws Point2DException {
 		if( index < 0 || index > ( num -1 ) ) {
-			throw new Point2DException(C + ": set(): The specified index doesn't match this function domain.");
+			throw new Point2DException(C + ": set(): The specified index ("+index+") doesn't match this function domain.");
 		}
 		points[index] = y;
 	}
