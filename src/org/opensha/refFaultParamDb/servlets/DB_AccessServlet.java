@@ -143,6 +143,7 @@ public class DB_AccessServlet extends HttpServlet{
 			}
 			//inserting new data in the table
 			else if(functionToPerform.equals(DB_AccessAPI.INSERT_UPDATE_QUERY)){
+				System.out.println("DB Servlet Insert:\n"+query);
 				int key = myBroker.insertUpdateOrDeleteData(query);
 				outputToApp.writeObject(new Integer(key));
 			}
