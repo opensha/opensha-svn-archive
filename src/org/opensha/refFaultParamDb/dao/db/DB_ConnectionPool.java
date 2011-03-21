@@ -144,6 +144,15 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
 	public static DB_AccessAPI getLatestReadWriteConn() {
 		return getDB3ReadWriteConn();
 	}
+	
+	public static DB_AccessAPI getDirectLatestReadWriteConnection() {
+		UserAuthDialog auth = new UserAuthDialog(null, true, false);
+		auth.setVisible(true);
+		auth.validate();
+		String user = auth.getUsername();
+		String pass = new String(auth.getPassword());
+		return new DB_ConnectionPool(db_prop_3_ro_file, user, pass);
+	}
 
 	private Thread runner;
 
@@ -189,6 +198,38 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
 			String dbServer = (String) p.get("dbServer");
 			String dbLogin = (String) p.get("userName");
 			String dbPassword = (String) p.get("password");
+			int minConns = Integer.parseInt( (String) p.get("minConns"));
+			int maxConns = Integer.parseInt( (String) p.get("maxConns"));
+			String logFileString = (String) p.get("logFileString");
+			double maxConnTime =
+				(new Double( (String) p.get("maxConnTime"))).doubleValue();
+
+			p.clear();
+			setupBroker(dbDriver, dbServer, dbLogin, dbPassword, minConns,
+					maxConns, logFileString, maxConnTime, false,
+					DEFAULTMAXCHECKOUTSECONDS, DEFAULTDEBUGLEVEL);
+
+		}
+		catch (FileNotFoundException f) {f.printStackTrace();}
+		catch(IOException e){ e.printStackTrace(); }
+	}
+	
+	/**
+	 * Class default constructor
+	 * Creates a new Connection Broker after reading the JDBC info from the
+	 * data file, except with the specified username and password.
+	 */
+	public DB_ConnectionPool(String resourceName, String login, String pass) {
+		Properties p = new Properties();
+		try {
+			InputStream  inpStream = this.getClass().getResourceAsStream(resourceName);
+			//        FileInputStream  inpStream =  new FileInputStream();
+			p.load(inpStream);
+			inpStream.close();
+			String dbDriver = (String) p.get("dbDriver");
+			String dbServer = (String) p.get("dbServer");
+			String dbLogin = login;
+			String dbPassword = pass;
 			int minConns = Integer.parseInt( (String) p.get("minConns"));
 			int maxConns = Integer.parseInt( (String) p.get("maxConns"));
 			String logFileString = (String) p.get("logFileString");

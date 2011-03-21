@@ -61,6 +61,7 @@ public class FaultSectionsAndModelsApp extends JFrame {
 	private final static String FAULT_SECTIONS_DIST_CALC = "Fault Sections Distance Calc";
 	
 	private final static DB_AccessAPI dbConnection = DB_ConnectionPool.getLatestReadWriteConn();
+//	private final static DB_AccessAPI dbConnection = DB_ConnectionPool.getDirectLatestReadWriteConnection();
 	
 	public FaultSectionsAndModelsApp() {
 		if (eh != null) {

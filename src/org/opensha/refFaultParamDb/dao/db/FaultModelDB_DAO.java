@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
 import org.opensha.refFaultParamDb.dao.exception.UpdateException;
+import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 
 /**
  * This class accesses the database to get/put/update the fault sections within a Fault Model
@@ -43,13 +44,15 @@ public class FaultModelDB_DAO {
 		removeModel(faultModelId); // remove all fault sections associated with this fault model
 		try {
 			if (faultSectionsIdList != null && faultSectionsIdList.size() > 0) {
-				String sql = "INSERT INTO "+TABLE_NAME+" ("+FAULT_MODEL_ID+","+SECTION_ID+")";
-				sql += "\nVALUES ";
+				String sql = "INSERT ALL";
+//				String sql = "INSERT INTO "+TABLE_NAME+" ("+FAULT_MODEL_ID+","+SECTION_ID+")";
+//				sql += "\nVALUES ";
 				for(int i=0; i<faultSectionsIdList.size(); ++i) {
-					if (i > 0)
-						sql += ", ";
+					sql += "\n INTO "+TABLE_NAME+" ("+FAULT_MODEL_ID+","+SECTION_ID+") VALUES ";
 					sql += "("+faultModelId+","+faultSectionsIdList.get(i)+")";
 				}
+				sql += "\nselect * from dual";
+				System.out.println(sql);
 				dbAccessAPI.insertUpdateOrDeleteData(sql);
 			}
 		} catch(SQLException e) { throw new InsertException(e.getMessage()); }
@@ -94,5 +97,14 @@ public class FaultModelDB_DAO {
 		try {
 			dbAccessAPI.insertUpdateOrDeleteData(sql);
 		} catch(SQLException e) { throw new UpdateException(e.getMessage()); }
+	}
+	
+	public static void main(String[] args) {
+		DB_AccessAPI ucerf2read = DB_ConnectionPool.getDB2ReadOnlyConn();
+		FaultModelDB_DAO fm_2_read = new FaultModelDB_DAO(ucerf2read);
+		FaultModelDB_DAO fm_3_write = new FaultModelDB_DAO(DB_ConnectionPool.getDirectLatestReadWriteConnection());
+		ArrayList<Integer> ids = fm_2_read.getFaultSectionIdList(41);
+		fm_3_write.replaceFaultSectionIDs(81, ids);
+		System.exit(0);
 	}
 }
