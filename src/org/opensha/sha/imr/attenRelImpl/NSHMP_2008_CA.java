@@ -39,6 +39,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.PointSurface;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
@@ -56,6 +57,7 @@ import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
+import org.opensha.sha.util.NSHMP_Util;
 
 /**
  * This is an implementation of the combined attenuation relationships used in
@@ -622,6 +624,95 @@ ParameterChangeListener {
 		public void setFaultTypeFromRake(double rake) {
 			fltTypeParam.setValue(getFaultTypeForRake(rake));
 		}
+		
+		@Override
+		public double getMean(int iper, double vs30, double rRup,
+			double distJB,double f_rv,
+			double f_nm, double mag, double dip, double depthTop,
+			double depthTo2pt5kmPerSec,
+			boolean magSaturation, double pga_rock) {
+
+			double fmag,fdis,fflt,fhng,fsite,fsed;
+	
+			//modeling depence on magnitude
+			if(mag<= 5.5)
+				fmag = c0[iper]+c1[iper]*mag;
+			else if(mag > 5.5  && mag <=6.5)
+				fmag = c0[iper]+c1[iper]*mag+c2[iper]*(mag-5.5);
+			else
+				fmag  = c0[iper]+c1[iper]*mag+c2[iper]*(mag-5.5)+c3[iper]*(mag - 6.5);
+	
+			//source to site distance
+			fdis = (c4[iper]+c5[iper]*mag)*Math.log(Math.sqrt(rRup*rRup+c6[iper]*c6[iper]));
+	
+			//style of faulting
+			double ffltz; //getting the depth top or also called Ztor in Campbell's paper
+			if(depthTop <1)
+				ffltz = depthTop;
+			else
+				ffltz = 1;
+	
+			// fault-style term
+			fflt = c7[iper]*f_rv*ffltz+c8[iper]*f_nm;
+	
+			//hanging wall effects
+			if (eqkRupture.getRuptureSurface() instanceof PointSurface) {
+				fhng = NSHMP_Util.getAvgHW_CB(mag, rRup, per[iper]);
+			} else {
+				double fhngr;
+				if(distJB == 0)
+					fhngr = 1;
+				else if(depthTop < 1 && distJB >0)
+					fhngr = (Math.max(rRup,Math.sqrt(distJB*distJB+1)) - distJB)/
+					Math.max(rRup,Math.sqrt(distJB*distJB+1));
+				else
+					fhngr = (rRup-distJB)/rRup;
+		
+				// if(pga_rock !=0) System.out.print((float)distJB+"\t"+(float)rRup+"\t"+fhngr+"\n");
+		
+				double fhngm;
+				if(mag<=6.0)
+					fhngm =0;
+				else if(mag>6.0 && mag<6.5)
+					fhngm = 2*(mag-6);
+				else
+					fhngm= 1;
+		
+				double fhngz;
+				if(depthTop >=20)
+					fhngz =0;
+				else
+					fhngz = (20-depthTop)/20;
+		
+				double fhngd;
+				if(dip <= 70)
+					fhngd =1;
+				else
+					fhngd = (90-dip)/20; 
+		
+				fhng = c9[iper]*fhngr*fhngm*fhngz*fhngd;
+			}
+	
+			//modelling dependence on linear and non-linear site conditions
+			if(vs30< k1[iper])
+				fsite = 	c10[iper]*Math.log(vs30/k1[iper]) +
+				k2[iper]*(Math.log(pga_rock+c*Math.pow(vs30/k1[iper],n)) - Math.log(pga_rock+c));
+			else if (vs30<1100)
+				fsite = (c10[iper]+k2[iper]*n)*Math.log(vs30/k1[iper]);
+			else 
+				fsite = (c10[iper]+k2[iper]*n)*Math.log(1100/k1[iper]);
+	
+			//modelling depence on shallow sediments effects and 3-D basin effects
+			if(depthTo2pt5kmPerSec<1)
+				fsed = c11[iper]*(depthTo2pt5kmPerSec - 1);
+			else if(depthTo2pt5kmPerSec <=3)
+				fsed = 0;
+			else
+				fsed = c12[iper]*k3[iper]*Math.exp(-0.75)*(1-Math.exp(-0.25*(depthTo2pt5kmPerSec-3)));
+	
+			return fmag+fdis+fflt+fhng+fsite+fsed;
+		}
+
 	}
 
 	private class NSHMP_CY_2008 extends CY_2008_AttenRel {
