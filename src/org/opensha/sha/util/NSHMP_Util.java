@@ -8,26 +8,46 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.NSHMP_2008_CA;
 
 /**
- * NSHMP Utilities. These are primarily used by NSHMP specific attenuation
- * relationships, e.g.:
- * <ul>
- * <li>{@link NSHMP_2008_CA}
- * </ul>
+ * NSHMP Utilities. These methods are primarily used by {@link NSHMP_2008_CA}.
+ *
  * @author Peter Powers
  * @version $Id:$
  */
 public class NSHMP_Util {
+	
+	// internally values are converted and/or scaled up to
+	// integers to eliminate decimal precision errors:
+	// Mag = (int) M*100
+	// Dist = (int) Math.floor(D)
+	// Period = (int) P*1000
 
-	// internally distance and mag values are scaled up to integers to
-	// eliminate decimal precision errors
-	private static Map<Integer, Map<Integer, Double>> data;
-	private static String rjbDatPath = "/resources/data/nshmp/rjbmean.dat";
+	// <Mag, <Dist, val>>
+	private static Map<Integer, Map<Integer, Double>> rjb_map;
+	// <Period <Mag, <Dist, val>>>
+	private static Map<Integer, Map<Integer, Map<Integer, Double>>> cbhw_map;
+	private static Map<Integer, Map<Integer, Map<Integer, Double>>> cyhw_map;
+
+	private static String datPath = "/resources/data/nshmp/";
+	private static String rjbDatPath = datPath + "rjbmean.dat";
+	private static String cbhwDatPath = datPath + "avghw_cb.dat";
+	private static String cyhwDatPath = datPath + "avghw_cy.dat";
 
 	static {
-		data = new HashMap<Integer, Map<Integer, Double>>();
+		rjb_map = new HashMap<Integer, Map<Integer, Double>>();
+		cbhw_map = new HashMap<Integer, Map<Integer, Map<Integer, Double>>>();
+		cyhw_map = new HashMap<Integer, Map<Integer, Map<Integer, Double>>>();
+		readRjbDat();
+		readHwDat(cbhw_map, cbhwDatPath);
+		readHwDat(cyhw_map, cyhwDatPath);
+	}
+
+	private static void readRjbDat() {
+		
 		String magID = "#Mag";
 		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(
@@ -40,7 +60,7 @@ public class NSHMP_Util {
 						magID.length() + 1).trim());
 					int magKey = new Double(mag * 100).intValue();
 					magMap = new HashMap<Integer, Double>();
-					data.put(magKey, magMap);
+					rjb_map.put(magKey, magMap);
 					continue;
 				}
 				if (line.startsWith("#")) continue;
@@ -54,23 +74,116 @@ public class NSHMP_Util {
 		}
 	}
 
+	private static void readHwDat(
+		Map<Integer, Map<Integer, Map<Integer, Double>>> map, String path) {
+		try {
+			BufferedReader br = new BufferedReader(new InputStreamReader(
+				NSHMP_Util.class.getResourceAsStream(path)));
+			String line;
+			Map<Integer, Map<Integer, Double>> periodMap = null;
+			while ((line = br.readLine()) != null) {
+				if (line.startsWith("C")) {
+					// period map
+					double per = Double.parseDouble(StringUtils.split(line)[4]);
+					int perKey = (int) (per * 1000);
+					periodMap = new HashMap<Integer, Map<Integer, Double>>();
+					map.put(perKey, periodMap);
+					continue;
+				}
+				String[] values = StringUtils.split(line);
+				if (values.length == 0) continue;
+				int distKey = Integer.parseInt(values[0]);
+				int magIdx = Integer.parseInt(values[1]);
+				int magKey = 605 + (magIdx - 1) * 10;
+				double hwVal = Double.parseDouble(values[2]);
+				Map<Integer, Double> magMap = periodMap.get(magKey);
+				if (magMap == null) {
+					magMap = new HashMap<Integer, Double>();
+					periodMap.put(magKey, magMap);
+				}
+				magMap.put(distKey, hwVal);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	/**
 	 * Returns a corrected distance value corresponding to the supplied JB
 	 * distance and magnitude. Magnitude is expected to be a 0.05 centered value
 	 * between 6 and 7.6 (e.g [6.05, 6.15, ... 7.55]). Distance values should be
-	 * &le;200km. If <code>D</code> > 200km, method returns D.
+	 * &lt;200km. If <code>D</code> &ge; 200km, method returns D.
 	 * 
 	 * @param M magnitude
 	 * @param D distance
-	 * @return the corrected distance or <code>D</code> if <code>D</code> > 200
+	 * @return the corrected distance or <code>D</code> if <code>D</code> ≥ 200
 	 * @throws IllegalArgumentException if <code>M</code> is not one of [6.05,
 	 *         6.15, ... 7.55]
 	 */
 	public static double getMeanRJB(double M, double D) {
 		int magKey = new Double(M * 100).intValue();
-		checkArgument(data.containsKey(magKey), "Invalid mag value: " + M);
-		int distKey = (int) Math.floor(D);
-		return (D <= 200) ? data.get(magKey).get(distKey) : D;
+		checkArgument(rjb_map.containsKey(magKey), "Invalid mag value: " + M);
+		int distKey = new Double(Math.floor(D)).intValue();
+		return (D <= 200) ? rjb_map.get(magKey).get(distKey) : D;
 	}
-	
+
+	/**
+	 * Returns the average hanging-wall factor appropriate for
+	 * {@link CB_2008_AttenRel} for a dipping point source at the supplied
+	 * distance and magnitude and period of interest. Magnitude is expected to
+	 * be a 0.05 centered value between 6 and 7.5 (e.g [6.05, 6.15, ... 7.45]).
+	 * Distance values should be &le;200km. If distance value is &gt200km,
+	 * method returns 0. Valid periods are those prescribed by
+	 * {@link CB_2008_AttenRel}.
+	 * 
+	 * @param M magnitude
+	 * @param D distance
+	 * @param P period
+	 * @return the hanging wall factor
+	 * @throws IllegalArgumentException if <code>M</code> is not one of [6.05,
+	 *         6.15, ... 7.45]
+	 * @throws IllegalArgumentException if <code>P</code> is not one of [-2.0
+	 *         (pgd), -1.0 (pgv), 0.0 (pga), 0.01, 0.02, 0.03, 0.04, 0.05,
+	 *         0.075, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.75, 1.0, 1.5, 2.0,
+	 *         3.0, 4.0, 5.0, 7.5, 10.0]
+	 */
+	public static double getAvgHW_CB(double M, double D, double P) {
+		return getAvgHW(cbhw_map, M, D, P);
+	}
+
+	/**
+	 * Returns the average hanging-wall factor appropriate for
+	 * {@link CY_2008_AttenRel} for a dipping point source at the supplied
+	 * distance and magnitude and period of interest. Magnitude is expected to
+	 * be a 0.05 centered value between 6 and 7.5 (e.g [6.05, 6.15, ... 7.45]).
+	 * Distance values should be &le;200km. If distance value is &gt200km,
+	 * method returns 0. Valid periods are those prescribed by
+	 * {@link CY_2008_AttenRel} (<em>Note:</em>PGV is currently missing).
+	 * 
+	 * @param M magnitude
+	 * @param D distance
+	 * @param P period
+	 * @return the hanging wall factor
+	 * @throws IllegalArgumentException if <code>M</code> is not one of [6.05,
+	 *         6.15, ... 7.45]
+	 * @throws IllegalArgumentException if <code>P</code> is not one of [-1.0
+	 *         (pgv), 0.0 (pga), 0.01, 0.02, 0.03, 0.04, 0.05, 0.075, 0.1, 0.15,
+	 *         0.2, 0.25, 0.3, 0.4, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0,
+	 *         7.5, 10.0]
+	 */
+	public static double getAvgHW_CY(double M, double D, double P) {
+		return getAvgHW(cyhw_map, M, D, P);
+	}
+
+	private static double getAvgHW(
+		Map<Integer, Map<Integer, Map<Integer, Double>>> map, double M,
+		double D, double P) {
+		int perKey = (int) (P * 1000);
+		checkArgument(map.containsKey(perKey), "Invalid period: " + P);
+		Map<Integer, Map<Integer, Double>> magMap = map.get(perKey);
+		int magKey = new Double(M * 100).intValue();
+		checkArgument(magMap.containsKey(magKey), "Invalid mag value: " + M);
+		int distKey = new Double(Math.floor(D)).intValue();
+		return (distKey > 200) ? 0 : magMap.get(magKey).get(distKey);
+	}
 }
