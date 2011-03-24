@@ -156,6 +156,7 @@ public class NSHMP_Util {
 	 * {@link CY_2008_AttenRel} for a dipping point source at the supplied
 	 * distance and magnitude and period of interest. Magnitude is expected to
 	 * be a 0.05 centered value between 6 and 7.5 (e.g [6.05, 6.15, ... 7.45]).
+	 * If there is no match for the supplied magnitude, method returns 0.
 	 * Distance values should be &le;200km. If distance value is &gt200km,
 	 * method returns 0. Valid periods are those prescribed by
 	 * {@link CY_2008_AttenRel} (<em>Note:</em>PGV is currently missing).
@@ -164,8 +165,6 @@ public class NSHMP_Util {
 	 * @param D distance
 	 * @param P period
 	 * @return the hanging wall factor
-	 * @throws IllegalArgumentException if <code>M</code> is not one of [6.05,
-	 *         6.15, ... 7.45]
 	 * @throws IllegalArgumentException if <code>P</code> is not one of [-1.0
 	 *         (pgv), 0.0 (pga), 0.01, 0.02, 0.03, 0.04, 0.05, 0.075, 0.1, 0.15,
 	 *         0.2, 0.25, 0.3, 0.4, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0,
@@ -182,7 +181,7 @@ public class NSHMP_Util {
 		checkArgument(map.containsKey(perKey), "Invalid period: " + P);
 		Map<Integer, Map<Integer, Double>> magMap = map.get(perKey);
 		int magKey = new Double(M * 100).intValue();
-		checkArgument(magMap.containsKey(magKey), "Invalid mag value: " + M);
+		if (!magMap.containsKey(magKey)) return 0;
 		int distKey = new Double(Math.floor(D)).intValue();
 		return (distKey > 200) ? 0 : magMap.get(magKey).get(distKey);
 	}
