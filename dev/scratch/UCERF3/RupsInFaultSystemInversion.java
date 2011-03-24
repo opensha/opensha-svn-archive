@@ -199,8 +199,8 @@ public class RupsInFaultSystemInversion {
 		// this is valid only if createNorthCalSubSections() has been used in TestInversion!
 //		findUCERF2_Rups.plotMFD_TestForNcal();
 
-	
-//		doInversion();
+		
+		doInversion();
 		
 		
 	}
@@ -558,22 +558,22 @@ public class RupsInFaultSystemInversion {
 		else throw new RuntimeException("slip model not supported");
 /*		*/
 		// check the average
-		if(D) {
-			double aveCalcSlip =0;
-			for(int s=0; s<slipsForRup.length; s++)
-				aveCalcSlip += slipsForRup[s]*sectArea[s];
-			aveCalcSlip /= rupArea[rthRup];
-			System.out.println("AveSlip & CalcAveSlip:\t"+(float)aveSlip+"\t"+(float)aveCalcSlip);
-		}
+//		if(D) {
+//			double aveCalcSlip =0;
+//			for(int s=0; s<slipsForRup.length; s++)
+//				aveCalcSlip += slipsForRup[s]*sectArea[s];
+//			aveCalcSlip /= rupArea[rthRup];
+//			System.out.println("AveSlip & CalcAveSlip:\t"+(float)aveSlip+"\t"+(float)aveCalcSlip);
+//		}
 
-		if (D) {
-			System.out.println("\tsectionSlip\tsectSlipRate\tsectArea");
-			for(int s=0; s<slipsForRup.length; s++) {
-				FaultSectionPrefData sectData = faultSectionData.get(sectionIndices.get(s));
-				System.out.println(s+"\t"+(float)slipsForRup[s]+"\t"+(float)sectData.getAveLongTermSlipRate()+"\t"+sectArea[s]);
-			}
-					
-		}
+//		if (D) {
+//			System.out.println("\tsectionSlip\tsectSlipRate\tsectArea");
+//			for(int s=0; s<slipsForRup.length; s++) {
+//				FaultSectionPrefData sectData = faultSectionData.get(sectionIndices.get(s));
+//				System.out.println(s+"\t"+(float)slipsForRup[s]+"\t"+(float)sectData.getAveLongTermSlipRate()+"\t"+sectArea[s]);
+//			}
+//					
+//		}
 		return slipsForRup;		
 	}
 	
@@ -645,8 +645,9 @@ public class RupsInFaultSystemInversion {
 		if(D) System.out.println("\nAdding slip per rup to A matrix ...");
 		for (int rup=0; rup<numRuptures; rup++) {
 			double[] slips = getSlipOnSectionsForRup(rup);
-			for (int sect=0; sect < slips.length; sect++) {
-				A.addToEntry(sect,rup,slips[sect]);
+			ArrayList<Integer> sects = rupList.get(rup);
+			for (int i=0; i < slips.length; i++) {
+				A.addToEntry(sects.get(i),rup,slips[i]);
 				if(D) numElements++;
 			}
 		}
@@ -657,6 +658,7 @@ public class RupsInFaultSystemInversion {
 
 		// Make sparse matrix of paleo event probs for each rupture & data vector of mean event rates
 		// TO DO: Add event-rate constraint weight (relative to slip rate constraint)
+		/*
 		numElements = 0;
 		if(D) System.out.println("\nAdding event rates to A matrix ...");
 		OpenMapRealMatrix A2 = new OpenMapRealMatrix(segRateConstraints.size(),numRuptures);
@@ -673,11 +675,63 @@ public class RupsInFaultSystemInversion {
 			}
 		}
 		if(D) System.out.println("Number of new nonzero elements in A matrix = "+numElements);
+		 */
 
 		// SOLVE THE INVERSE PROBLEM
 		double[] rupRateSolution = new double[numRuptures];
 		if(D) System.out.println("\nSolving inverse problem with simulated annealing ... ");
-		rupRateSolution = SimulatedAnnealing.getSolution(A,d);          
+		double[] initial_state = getGRStartingSolution(rupList,rupMeanMag);
+//		double[] initial_state = new double[numRuptures];
+//		for (int r=0; r<numRuptures; r++) initial_state[r]=0;
+		rupRateSolution = SimulatedAnnealing.getSolution(A,d,initial_state);    
+		
+		
+		
+		
+		
+		// Plot the rupture rates
+		if(D) System.out.println("Making plot of rupture rates . . . ");
+		ArrayList funcs = new ArrayList();		
+		EvenlyDiscretizedFunc ruprates = new EvenlyDiscretizedFunc(0,(double)rupRateSolution.length-1,rupRateSolution.length);
+		for(int i=0; i<rupRateSolution.length; i++)
+			ruprates.set(i,rupRateSolution[i]);
+		funcs.add(ruprates); 	
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Inverted Rupture Rates"); 
+		graph.setX_AxisLabel("Rupture Index");
+		graph.setY_AxisLabel("Rate");
+		
+		
+		// Plot the slip rate data vs. synthetics
+		if(D) System.out.println("Making plot of slip rate misfit . . . ");
+		ArrayList funcs2 = new ArrayList();		
+		EvenlyDiscretizedFunc syn = new EvenlyDiscretizedFunc(0,(double)numSections-1,numSections);
+		EvenlyDiscretizedFunc data = new EvenlyDiscretizedFunc(0,(double)numSections-1,numSections);
+		for (int i = 0; i < numSections; i++) {
+			for (int j = 0; j < A.getColumnDimension(); j++) {	
+				syn.add(i,A.getEntry(i,j) * rupRateSolution[j]); // compute predicted data
+			}
+			data.add(i,d[i]);
+		}	
+		funcs2.add(syn);
+		funcs2.add(data);
+		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "Slip Rate Synthetics (blue) & Data (black)"); 
+		graph2.setX_AxisLabel("Index");
+		graph2.setY_AxisLabel("Slip Rate");
+		
+		
+		// plot magnitude histogram for final rupture rates
+		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,35,0.1);
+		magHist.setTolerance(0.2);	// this makes it a histogram
+		for(int r=0; r<getNumRupRuptures();r++)
+			magHist.add(rupMeanMag[r], rupRateSolution[r]);
+		ArrayList funcs3 = new ArrayList();
+		funcs3.add(magHist);
+		magHist.setName("Magntiude Distribution of SA Solution");
+		magHist.setInfo("(number in each mag bin)");
+		GraphiWindowAPI_Impl graph3 = new GraphiWindowAPI_Impl(funcs3, "Magnitude Histogram for Final Rates"); 
+		graph.setX_AxisLabel("Mag");
+		graph.setY_AxisLabel("Num");
+		
 
 	}
 	
@@ -704,6 +758,72 @@ public class RupsInFaultSystemInversion {
 		 */
 	}
 
+	private double[] getGRStartingSolution(ArrayList<ArrayList<Integer>> rupList, double[] rupMeanMag) {
+		
+		int numRup = rupMeanMag.length;
+		double[] meanSlipRate = new double[numRup]; // mean slip rate per section for each rupture
+		double[] initial_state = new double[numRup]; // starting model
+		
+		// Find magnitude distribution of ruptures (as discretized -- not taking into account the rates)
+		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,35,0.1);
+		magHist.setTolerance(0.2);	// this makes it a histogram
+		for(int rup=0; rup<numRup;rup++)
+			magHist.add(rupMeanMag[rup], 1.0);
+		
+		// Find mean slip rate per section for each rupture
+		for (int rup=0; rup<numRup; rup++) {			
+			ArrayList<Integer> sects = rupList.get(rup);
+			meanSlipRate[rup]=0;
+			for (int i=0; i<sects.size(); i++) {
+				meanSlipRate[rup] += sectSlipRateReduced[sects.get(i)];	
+			}
+			meanSlipRate[rup] = meanSlipRate[rup]/sects.size();
+		}
+		
+		// Set up initial (non-normalized) G-R rates for each rupture, normalized by meanSlipRate
+		for (int rup=0; rup<numRup; rup++) {
+			double magToUse = rupMeanMag[rup];
+			if (magToUse<6.5)
+				magToUse = 6.5; // Use G-R rate for M6.5 for mags less than 6.5.  This prevents crazy high rates for far and few between M<6.5 rups	
+			initial_state[rup] = Math.pow(10,-magToUse) * meanSlipRate[rup] / magHist.getY(magToUse);
+		}
+		
+		// Find normalization for all ruptures (so that sum_over_rups(slip*rate)=total slip per year)
+		double totalSlipInRups=0;
+		for (int rup=0; rup<numRup; rup++) {
+			double[] slips = getSlipOnSectionsForRup(rup);
+			for (int i=0; i<slips.length; i++) 
+				totalSlipInRups += slips[i]*initial_state[rup];	
+		}
+		double targetTotalSlip=0;
+		for (int sect=0; sect<sectSlipRateReduced.length; sect++) 
+			targetTotalSlip += sectSlipRateReduced[sect];	
+		double normalization = targetTotalSlip/totalSlipInRups;
+		
+		// Adjust G-R rates to match target moment
+		for (int rup=0; rup<numRup; rup++) 
+			initial_state[rup]=initial_state[rup]*normalization;
+		
+		
+		// plot magnitude histogram for the inversion starting model
+		IncrementalMagFreqDist magHist2 = new IncrementalMagFreqDist(5.05,35,0.1);
+		magHist2.setTolerance(0.2);	// this makes it a histogram
+		for(int r=0; r<getNumRupRuptures();r++)
+			magHist2.add(rupMeanMag[r], initial_state[r]);
+		ArrayList funcs = new ArrayList();
+		funcs.add(magHist2);
+		magHist2.setName("Magntiude Distribution of Starting Model (before Annealing)");
+		magHist2.setInfo("(number in each mag bin)");
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Magnitude Histogram"); 
+		graph.setX_AxisLabel("Mag");
+		graph.setY_AxisLabel("Num");
+		
+		
+		
+		
+		return initial_state;
+		
+	}
 
 
 

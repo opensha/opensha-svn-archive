@@ -7,7 +7,7 @@ public class SimulatedAnnealing {
 	protected final static boolean D = true;  // for debugging
 
 	
-	public static double[] getSolution(OpenMapRealMatrix A, double[] d) {
+	public static double[] getSolution(OpenMapRealMatrix A, double[] d, double[] initial_state) {
 
 		int nRow = A.getRowDimension();
 		int nCol = A.getColumnDimension();
@@ -18,26 +18,22 @@ public class SimulatedAnnealing {
 		double[] x = new double[nCol]; // current model
 		double[] xbest = new double[nCol]; // best model seen so far
 		double[] xnew = new double[nCol]; // new perturbed model
-		double[] initial_state = new double[nCol]; // starting model
 		double[] perturb = new double[nCol]; // perturbation to current model
 		double[] syn = new double[nRow]; // data synthetics
 		double[] misfit = new double[nRow]; // mifit between data and synthetics
 
 		double E, Enew, Ebest, T, P;
 		int i, j, iter, index;
-		int numiter=5000;
+		int numiter = 10000;
+		
+		long runTime = System.currentTimeMillis();
 		
 		if(D) System.out.println("Total number of iterations = " + numiter);
 		
 //		Random r = new Random(System.currentTimeMillis());
 		
-		// Set initial state (random or a priori starting model)
-		for (i = 0; i < nCol; i++) {
-			initial_state[i] = 0; // Need to Change !!!
-		//	initial_state[i] = Math.random() / 100000;
-		}
 		for (j = 0; j < nCol; j++) {
-			x[j] = initial_state[j];
+			x[j] = initial_state[j]; // starting model
 		}
 		// x=initial_state.clone();  // not sure why this doesn't work in lieu of above code
 		
@@ -84,6 +80,7 @@ public class SimulatedAnnealing {
 			index = (int) Math.floor(Math.random() * nCol); 
 			
 			// How much to perturb index (can be a function of T)	
+			// perturb[index] = (Math.random()-0.5) * 0.25 * initial_state[index];  // Only use with non-zero starting model!
 			perturb[index] = (Math.random()-0.5) * 0.001;
 			// perturb[index] =  (1/Math.sqrt(T)) * r.nextGaussian() * 0.0001 * Math.exp(1/(2*T)); 
 			// perturb[index] = T * 0.001 * Math.tan(Math.PI*Math.random() - Math.PI/2);		
@@ -140,6 +137,13 @@ public class SimulatedAnnealing {
 
 		// Preferred model is best model seen during annealing process
 		if(D) System.out.println("Annealing schedule completed.");
+		
+		if(D) runTime = (System.currentTimeMillis() - runTime) / 1000;
+		if(D) System.out.println("Done with Inversion after " + runTime + " seconds.");
+		
 		return xbest;
 	}
+
+
+	
 }
