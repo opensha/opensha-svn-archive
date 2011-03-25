@@ -14,12 +14,12 @@ import org.opensha.sha.imr.attenRelImpl.NSHMP_2008_CA;
 
 /**
  * NSHMP Utilities. These methods are primarily used by {@link NSHMP_2008_CA}.
- *
+ * 
  * @author Peter Powers
  * @version $Id:$
  */
 public class NSHMP_Util {
-	
+
 	// internally values are converted and/or scaled up to
 	// integers to eliminate decimal precision errors:
 	// Mag = (int) M*100
@@ -42,12 +42,12 @@ public class NSHMP_Util {
 		cbhw_map = new HashMap<Integer, Map<Integer, Map<Integer, Double>>>();
 		cyhw_map = new HashMap<Integer, Map<Integer, Map<Integer, Double>>>();
 		readRjbDat();
-		readHwDat(cbhw_map, cbhwDatPath);
-		readHwDat(cyhw_map, cyhwDatPath);
+		readHwDat(cbhw_map, cbhwDatPath, 6.05);
+		readHwDat(cyhw_map, cyhwDatPath, 5.05);
 	}
 
 	private static void readRjbDat() {
-		
+
 		String magID = "#Mag";
 		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(
@@ -75,7 +75,8 @@ public class NSHMP_Util {
 	}
 
 	private static void readHwDat(
-		Map<Integer, Map<Integer, Map<Integer, Double>>> map, String path) {
+		Map<Integer, Map<Integer, Map<Integer, Double>>> map, String path,
+		double startMag) {
 		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(
 				NSHMP_Util.class.getResourceAsStream(path)));
@@ -94,7 +95,7 @@ public class NSHMP_Util {
 				if (values.length == 0) continue;
 				int distKey = Integer.parseInt(values[0]);
 				int magIdx = Integer.parseInt(values[1]);
-				int magKey = 605 + (magIdx - 1) * 10;
+				int magKey = (int) (startMag * 100) + (magIdx - 1) * 10;
 				double hwVal = Double.parseDouble(values[2]);
 				Map<Integer, Double> magMap = periodMap.get(magKey);
 				if (magMap == null) {
@@ -155,7 +156,7 @@ public class NSHMP_Util {
 	 * Returns the average hanging-wall factor appropriate for
 	 * {@link CY_2008_AttenRel} for a dipping point source at the supplied
 	 * distance and magnitude and period of interest. Magnitude is expected to
-	 * be a 0.05 centered value between 6 and 7.5 (e.g [6.05, 6.15, ... 7.45]).
+	 * be a 0.05 centered value between 5 and 7.5 (e.g [5.05, 6.15, ... 7.45]).
 	 * If there is no match for the supplied magnitude, method returns 0.
 	 * Distance values should be &le;200km. If distance value is &gt200km,
 	 * method returns 0. Valid periods are those prescribed by
@@ -165,10 +166,9 @@ public class NSHMP_Util {
 	 * @param D distance
 	 * @param P period
 	 * @return the hanging wall factor
-	 * @throws IllegalArgumentException if <code>P</code> is not one of [-1.0
-	 *         (pgv), 0.0 (pga), 0.01, 0.02, 0.03, 0.04, 0.05, 0.075, 0.1, 0.15,
-	 *         0.2, 0.25, 0.3, 0.4, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0,
-	 *         7.5, 10.0]
+	 * @throws IllegalArgumentException if <code>P</code> is not one of [0.0
+	 *         (pga), 0.01, 0.02, 0.03, 0.04, 0.05, 0.075, 0.1, 0.15, 0.2, 0.25,
+	 *         0.3, 0.4, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 7.5, 10.0]
 	 */
 	public static double getAvgHW_CY(double M, double D, double P) {
 		return getAvgHW(cyhw_map, M, D, P);
@@ -185,4 +185,5 @@ public class NSHMP_Util {
 		int distKey = new Double(Math.floor(D)).intValue();
 		return (distKey > 200) ? 0 : magMap.get(magKey).get(distKey);
 	}
+
 }
