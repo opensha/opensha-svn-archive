@@ -597,14 +597,17 @@ ParameterChangeListener {
 	}
 	
 	private class NSHMP_BA_2008 extends BA_2008_AttenRel {
+		
 		public NSHMP_BA_2008(ParameterChangeWarningListener listener) {
 			super(listener);
 		}
+		
 		@Override
 		public double getExceedProbability(double mean, double stdDev, double iml) {
 			return super.getExceedProbability(
 				mean + imrUncert, stdDev, iml);
 		}
+		
 		@Override
 		public void setFaultTypeFromRake(double rake) {
 			fltTypeParam.setValue(getFaultTypeForRake(rake));
@@ -612,14 +615,17 @@ ParameterChangeListener {
 	}
 
 	private class NSHMP_CB_2008 extends CB_2008_AttenRel {
+		
 		public NSHMP_CB_2008(ParameterChangeWarningListener listener) {
 			super(listener);
 		}
+		
 		@Override
 		public double getExceedProbability(double mean, double stdDev, double iml) {
 			return super.getExceedProbability(
 				mean + imrUncert, stdDev, iml);
 		}
+		
 		@Override
 		public void setFaultTypeFromRake(double rake) {
 			fltTypeParam.setValue(getFaultTypeForRake(rake));
@@ -656,8 +662,9 @@ ParameterChangeListener {
 			fflt = c7[iper]*f_rv*ffltz+c8[iper]*f_nm;
 	
 			//hanging wall effects
+			fhng = 0;
 			if (eqkRupture.getRuptureSurface() instanceof PointSurface) {
-				fhng = NSHMP_Util.getAvgHW_CB(mag, rRup, per[iper]);
+				if (dip != 90) fhng = NSHMP_Util.getAvgHW_CB(mag, rRup, per[iper]);
 			} else {
 				double fhngr;
 				if(distJB == 0)
@@ -719,15 +726,61 @@ ParameterChangeListener {
 		public NSHMP_CY_2008(ParameterChangeWarningListener listener) {
 			super(listener);
 		}
+		
 		@Override
 		public double getExceedProbability(double mean, double stdDev, double iml) {
 			return super.getExceedProbability(
 				mean + imrUncert, stdDev, iml);
 		}
+		
 		@Override
 		public void setFaultTypeFromRake(double rake) {
 			fltTypeParam.setValue(getFaultTypeForRake(rake));
 		}
+		
+		@Override
+		protected void compute_lnYref(int iper, double f_rv, double f_nm, double rRup, double distRupMinusJB_OverRup,
+			double distRupMinusDistX_OverRup, double f_hw, double dip, double mag, double depthTop, double aftershock) {
+			// compute rJB
+			double distanceJB = rRup - distRupMinusJB_OverRup*rRup;
+			double distX  = rRup - distRupMinusDistX_OverRup*rRup;
+			// System.out.println(depthTop);
+	
+			double cosDelta = Math.cos(dip*Math.PI/180);
+			double altDist = Math.sqrt(distanceJB*distanceJB+depthTop*depthTop);
+	
+			// point source hw effect approximation
+			double hw_effect = 0;
+			if (eqkRupture.getRuptureSurface() instanceof PointSurface) {
+				if (dip != 90) hw_effect = NSHMP_Util.getAvgHW_CY(mag, rRup, period[iper]);
+			} else {
+				hw_effect = c9[iper] * f_hw * Math.tanh(distX*cosDelta*cosDelta/c9a[iper]) * (1-altDist/(rRup+0.001));
+			}
+			
+			lnYref = c1[iper] + (c1a[iper]*f_rv+c1b[iper]*f_nm+c7[iper]*(depthTop-4.0))*(1-aftershock) +
+	
+			(c10[iper]+c7a[iper]*(depthTop-4.0))*aftershock +
+	
+			c2*(mag-6.0) + ((c2-c3)/cn[iper])*Math.log(1.0 + Math.exp(cn[iper]*(cm[iper]-mag))) +
+	
+			c4*Math.log(rRup+c5[iper]*Math.cosh(c6[iper]*Math.max(mag-chm,0))) +
+	
+			(c4a-c4)*0.5*Math.log(rRup*rRup+crb*crb) + 
+	
+			(cg1[iper] + cg2[iper]/Math.cosh(Math.max(mag-cg3,0.0)))*rRup +
+	
+			hw_effect;
+	
+			lnYref_is_not_fresh = false;
+	
+	//		double Fhw = c9[iper] * f_hw * Math.tanh(distX*cosDelta*cosDelta/c9a[iper]) * (1-altDist/(rRup+0.001));
+	//		DecimalFormat df1 = new DecimalFormat("#.######");
+	//		DecimalFormat df2 = new DecimalFormat("#.##");
+	//		System.out.println(df2.format(mag) + " " + df1.format(rRup) + " " + df1.format(distX) + " " + df1.format(Fhw) + " " + f_hw);
+			//		System.out.println(rRup+"\t"+distanceJB+"\t"+distX+"\t"+f_hw+"\t"+lnYref);
+
+	}
+
 	}
 
 }
