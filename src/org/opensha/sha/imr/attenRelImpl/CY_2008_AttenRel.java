@@ -165,8 +165,8 @@ public class CY_2008_AttenRel extends AttenuationRelationship implements
 	private double distRupMinusDistX_OverRup, aftershock, f_meas, f_hw;
 	private String stdDevType;
 	private double depthTo1pt0kmPerSec;  // defined this way to support null values
-	private double lnYref;
-	private boolean lnYref_is_not_fresh;
+	protected double lnYref;
+	protected boolean lnYref_is_not_fresh;
 
 	// from page 66 of their report
 	protected final static double MAG_WARN_MIN = 4.0;
