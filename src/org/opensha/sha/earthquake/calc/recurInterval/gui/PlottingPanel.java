@@ -188,7 +188,7 @@ public class PlottingPanel extends JPanel implements GraphPanelAPI, GraphWindowA
 	   *
 	   * @returns the Min X-Axis Range Value, if custom Axis is choosen
 	   */
-	  public double getMinX() {
+	  public double getUserMinX() {
 	    return this.minX;
 	  }
 
@@ -196,7 +196,7 @@ public class PlottingPanel extends JPanel implements GraphPanelAPI, GraphWindowA
 	   *
 	   * @returns the Max X-Axis Range Value, if custom axis is choosen
 	   */
-	  public double getMaxX() {
+	  public double getUserMaxX() {
 	    return this.maxX;
 	  }
 
@@ -204,7 +204,7 @@ public class PlottingPanel extends JPanel implements GraphPanelAPI, GraphWindowA
 	   *
 	   * @returns the Min Y-Axis Range Value, if custom axis is choosen
 	   */
-	  public double getMinY() {
+	  public double getUserMinY() {
 	    return this.minY;
 	  }
 
@@ -212,7 +212,7 @@ public class PlottingPanel extends JPanel implements GraphPanelAPI, GraphWindowA
 	   *
 	   * @returns the Max X-Axis Range Value, if custom axis is choosen
 	   */
-	  public double getMaxY() {
+	  public double getUserMaxY() {
 	   return this.maxY;
 	  }
 	  

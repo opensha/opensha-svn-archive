@@ -2,6 +2,7 @@ package scratch.ned.ETAS_Tests;
 
 import java.awt.Color;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
@@ -32,6 +33,8 @@ import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
  *
  */
 public class ETAS_PrimaryEventSampler {
+	
+	protected final static boolean D = false;  // for debugging
 	
 	ArrayList<EqksInGeoBlock> origBlockList;	// the original list of blocks given
 	ArrayList<EqksInGeoBlock> revisedBlockList;	// a revised list (in case some close to main shock need to be more densely sampled)
@@ -71,7 +74,7 @@ public class ETAS_PrimaryEventSampler {
 		ArrayList<EqksInGeoBlock> subBlocks = new ArrayList<EqksInGeoBlock>();
 		revisedBlockDistances = new ArrayList<Double>();
 
-		System.out.print("computing block distances");
+		if(D) System.out.print("computing block distances");
 		int counter=0, counterThresh = origBlockList.size()/20, counterIncr=counterThresh;
 		double minBlockDist=Double.MAX_VALUE;
 		int minDistIndex=-1;
@@ -81,7 +84,7 @@ public class ETAS_PrimaryEventSampler {
 			// write progress
 			if(counter>counterThresh) {
 				double perc = 100*counter/origBlockList.size();
-				System.out.print(", "+(int)perc);
+				if(D) System.out.print(", "+(int)perc);
 				counterThresh += counterIncr;
 			}
 			double dist = LocationUtils.distanceToSurfFast(origBlock.getBlockCenterLoc(), rupSurf);
@@ -110,17 +113,19 @@ public class ETAS_PrimaryEventSampler {
 			}
 		}
 		numBlocks = revisedBlockList.size();
-		
-		System.out.println("\nnum revised blocks="+numBlocks);
-		
-		System.out.println("minBlockDist ="+minBlockDist+" for block index "+minDistIndex);
+		if(D) System.out.print(" ");
 
 		// compute relative probability of each block
-		System.out.println("computing relative block probabilities");
 		relBlockProb = new double[numBlocks];
 		
 		double rupLength = parentRup.getRuptureSurface().getSurfaceLength();
-		System.out.println("rupLength="+rupLength);
+		
+		if(D) {
+			System.out.println("\nnum revised blocks="+numBlocks);
+			System.out.println("minBlockDist ="+minBlockDist+" for block index "+minDistIndex);
+			System.out.println("computing relative block probabilities");
+			System.out.println("rupLength="+rupLength);
+		}
 		
 		double total=0;
 		if(rupLength>5.0) {	// a non point source rupture
@@ -145,7 +150,7 @@ public class ETAS_PrimaryEventSampler {
 					double radius = Math.pow(vol/(4*Math.PI),0.33333);	// 4*PI*r^3;
 					closestBlockVal=getDecayFractionInsideDistance(distDecay, minDist, radius);
 					relBlockProb[i] = closestBlockVal;
-					System.out.println("Calculated wt of closest block directly; it equals: "+closestBlockVal);
+					if(D) System.out.println("Calculated wt of closest block directly; it equals: "+closestBlockVal);
 				}
 				else {
 					blockWt = vol/(2*Math.PI*(dist)+2*rupLength);
@@ -175,9 +180,12 @@ public class ETAS_PrimaryEventSampler {
 			relBlockProb[i] /= total;
 			randomBlockSampler.set(i,relBlockProb[i]);
 		}
-		System.out.println("check that randomBlockSampler values sum to 1.0:\t"+randomBlockSampler.calcSumOfY_Vals());
-		System.out.println("Done computing relative block probabilities");
+		if(D) {
+			System.out.println("check that randomBlockSampler values sum to 1.0:\t"+randomBlockSampler.calcSumOfY_Vals());
+			System.out.println("Done computing relative block probabilities");
+		}
 	}
+	
 	
 	/**
 	 * This returns a randomly sampled block for a primary aftershock
@@ -207,7 +215,8 @@ public class ETAS_PrimaryEventSampler {
 	}
 	
 	
-	/** This computes the expected mag-freq dist for the primary aftershock sequence
+	/** This computes the expected mag-freq dist for a particular source in the primary 
+	 * aftershock sequence
 	 * 
 	 * @return
 	 */
@@ -249,8 +258,8 @@ public class ETAS_PrimaryEventSampler {
 */		
 		PrimaryAftershock aftershock = new PrimaryAftershock(rup);
 		aftershock.setParentID(blockIndex);
-		aftershock.setSourceIndex(indices[0]);
-		aftershock.setRupIndex(indices[1]);
+		aftershock.setERF_SourceIndex(indices[0]);
+		aftershock.setERF_RupIndex(indices[1]);
 		// assign a hypocenter
 		block.setRandomHypocenterLoc(aftershock);
 		aftershock.setOriginTime(originTime);
@@ -311,7 +320,7 @@ public class ETAS_PrimaryEventSampler {
 		}
 	}
 	
-	public void plotBlockProbMap(String label) {
+	public String plotBlockProbMap(String label) {
 		
 		GMT_MapGenerator mapGen = new GMT_MapGenerator();
 		mapGen.setParameter(GMT_MapGenerator.GMT_SMOOTHING_PARAM_NAME, false);
@@ -351,15 +360,19 @@ public class ETAS_PrimaryEventSampler {
 			e.printStackTrace();
 		}
 		
-		
+		return "For Block Prob Map: "+mapGen.getGMTFilesWebAddress()+" (deleted at midnight)";
 	}
 	
+	
 	/**
-	 * This compares a simulated distance decay histogram with the expected histogram
-	 * @param plotTitle
+	 * This returns a function with a simulated PDF of the distance decay (from 10000000 samples) plus
+	 * the expected distance decay ((dist+minDist)^-distDecay) for the given deltaDist (where the latter, 
+	 * to close approximation, takes into account the finite deltaDist effects).
+	 * @param deltaDist
+	 * @return
 	 */
-	public void testRandomDistanceDecay(String plotTitle) {
-		double deltaDist = 10;
+	public ArrayList<EvenlyDiscretizedFunc> getDistDecayTestFuncs(double deltaDist) {
+		ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
 		int num = (int)(2200.0/deltaDist)+1;
 
 		EvenlyDiscretizedFunc distHist = new EvenlyDiscretizedFunc(deltaDist/2, num, deltaDist);
@@ -382,20 +395,40 @@ public class ETAS_PrimaryEventSampler {
 		
 		for(int i=0; i<target.getNum();i++) targetHist.add(target.getX(i), target.getY(i));
 		
-		distHist.setName("Simulated Distance Decay");
-		targetHist.setName("Target Distance Decay");
-		ArrayList funcs = new ArrayList();
+		distHist.setName("Simulated Distance Decay for Primary Aftershocks");
+		targetHist.setName("Target Distance Decay for Primary Aftershocks");
 		funcs.add(distHist);
 		funcs.add(targetHist);
-		GraphiWindowAPI_Impl sr_graph = new GraphiWindowAPI_Impl(funcs, plotTitle); 
-		sr_graph.setAxisRange(1, 1200, 1e-6, 1);
-		sr_graph.setYLog(true);
+		
+		return funcs;
+	}
+	
+	/**
+	 * This compares a simulated distance decay histogram with the expected histogram
+	 * @param plotTitle
+	 * @param pdfFileNameAndPath - give null is you don't want to save the file
+	 */
+	public void plotDistDecayTestFuncs(String plotTitle, String pdfFileNameAndPath) {
+		
+		ArrayList funcs = getDistDecayTestFuncs(10.0);
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, plotTitle); 
+		graph.setAxisRange(1, 1200, 1e-6, 1);
+		graph.setYLog(true);
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,Color.RED, 2));
 		plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,Color.BLUE, 2));
-		sr_graph.setPlottingFeatures(plotChars);
-		sr_graph.setX_AxisLabel("Distance (km)");
-		sr_graph.setY_AxisLabel("Probability");
+		graph.setPlottingFeatures(plotChars);
+		graph.setX_AxisLabel("Distance (km)");
+		graph.setY_AxisLabel("Probability");
+		
+		if(pdfFileNameAndPath != null) {
+			try {
+				graph.saveAsPDF(pdfFileNameAndPath);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		
 	}
 	

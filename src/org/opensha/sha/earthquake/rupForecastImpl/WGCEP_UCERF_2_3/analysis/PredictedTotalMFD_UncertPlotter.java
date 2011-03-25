@@ -259,7 +259,7 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinX()
 	 */
-	public double getMinX() {
+	public double getUserMinX() {
 		return 5.0;
 		//throw new UnsupportedOperationException("Method not implemented yet");
 	}
@@ -267,7 +267,7 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxX()
 	 */
-	public double getMaxX() {
+	public double getUserMaxX() {
 		return 9.255;
 		//throw new UnsupportedOperationException("Method not implemented yet");
 	}
@@ -275,7 +275,7 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinY()
 	 */
-	public double getMinY() {
+	public double getUserMinY() {
 		return 1e-4;
 		//throw new UnsupportedOperationException("Method not implemented yet");
 	}
@@ -283,7 +283,7 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxY()
 	 */
-	public double getMaxY() {
+	public double getUserMaxY() {
 		return 10;
 		//throw new UnsupportedOperationException("Method not implemented yet");
 	}

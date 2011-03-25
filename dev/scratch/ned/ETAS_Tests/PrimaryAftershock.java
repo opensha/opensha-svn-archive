@@ -38,7 +38,7 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 
 public class PrimaryAftershock extends EqkRupture {
 	
-	private int parentID, srcIndex, rupIndex;
+	private int id, parentID, srcIndex, rupIndex, generation;
 	private double originTime;
 	
 	public PrimaryAftershock() {};
@@ -64,6 +64,41 @@ public class PrimaryAftershock extends EqkRupture {
 	public void setParentID(int parentID) {
 		this.parentID = parentID;
 	}
+	
+	/**
+	 * The ID of this event
+	 * @return
+	 */
+	public int getID() {
+		return id;
+	}
+
+	
+	/**
+	 * Sets the ID of this event
+	 * @return
+	 */
+	public void setID(int id) {
+		this.id = id;
+	}
+
+	/**
+	 * The ID of this event
+	 * @return
+	 */
+	public int getGeneration() {
+		return generation;
+	}
+
+	
+	/**
+	 * Sets the ID of this event
+	 * @return
+	 */
+	public void setGeneration(int generation) {
+		this.generation = generation;
+	}
+
 
 	
 	/**
@@ -82,22 +117,19 @@ public class PrimaryAftershock extends EqkRupture {
 		this.originTime = originTime;
 	}
 
-	public void setSourceIndex(int srcIndex){
+	public void setERF_SourceIndex(int srcIndex){
 		this.srcIndex = srcIndex;
 	}
 
-	public int getSourceIndex(){
+	public int getERF_SourceIndex(){
 		return srcIndex;
 	}
 	
-	public void setRupIndex(int rupIndex){
+	public void setERF_RupIndex(int rupIndex){
 		this.rupIndex = rupIndex;
 	}
 
-	public int getRupIndex(){
+	public int getERF_RupIndex(){
 		return rupIndex;
 	}
-
-
-
 }

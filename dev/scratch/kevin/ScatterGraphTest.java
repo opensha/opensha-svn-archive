@@ -43,7 +43,7 @@ public class ScatterGraphTest implements GraphPanelAPI, PlotControllerAPI {
 		
 		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
 		XY_DataSet scatter = new XY_DataSet();
-		for (double x=0; x<getMaxX(); x++) {
+		for (double x=0; x<getUserMaxX(); x++) {
 			double y = x * 0.8;
 			y += r.nextDouble() - 0.5d;
 			System.out.println("Adding " + x + ", " + y);
@@ -64,22 +64,22 @@ public class ScatterGraphTest implements GraphPanelAPI, PlotControllerAPI {
 	}
 
 	@Override
-	public double getMaxX() {
+	public double getUserMaxX() {
 		return 10;
 	}
 
 	@Override
-	public double getMaxY() {
+	public double getUserMaxY() {
 		return 10;
 	}
 
 	@Override
-	public double getMinX() {
+	public double getUserMinX() {
 		return 0;
 	}
 
 	@Override
-	public double getMinY() {
+	public double getUserMinY() {
 		return 0;
 	}
 

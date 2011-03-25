@@ -175,8 +175,8 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 		yLog = api.getYLog();
 		customAxis = api.isCustomAxis();
 		if (customAxis)
-			buttonControlPanel.setAxisRange(api.getMinX(), api.getMaxX(), api.getMinY(),
-					api.getMaxY());
+			buttonControlPanel.setAxisRange(api.getUserMinX(), api.getUserMaxX(), api.getUserMinY(),
+					api.getUserMaxY());
 		if (xLog)
 			buttonControlPanel.setXLog(xLog);
 		if (yLog)
@@ -457,33 +457,33 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 
 	/**
 	 *
-	 * @returns the Min X-Axis Range Value, if custom Axis is choosen
+	 * @returns the Min X-Axis Range Value, if custom Axis is chosen
 	 */
-	public double getMinX() {
+	public double getUserMinX() {
 		return minXValue;
 	}
 
 	/**
 	 *
-	 * @returns the Max X-Axis Range Value, if custom axis is choosen
+	 * @returns the Max X-Axis Range Value, if custom axis is chosen
 	 */
-	public double getMaxX() {
+	public double getUserMaxX() {
 		return maxXValue;
 	}
 
 	/**
 	 *
-	 * @returns the Min Y-Axis Range Value, if custom axis is choosen
+	 * @returns the Min Y-Axis Range Value, if custom axis is chosen
 	 */
-	public double getMinY() {
+	public double getUserMinY() {
 		return minYValue;
 	}
 
 	/**
 	 *
-	 * @returns the Max Y-Axis Range Value, if custom axis is choosen
+	 * @returns the Max Y-Axis Range Value, if custom axis is chosen
 	 */
-	public double getMaxY() {
+	public double getUserMaxY() {
 		return maxYValue;
 	}
 

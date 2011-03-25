@@ -126,7 +126,7 @@ public class A_FaultsMFD_Plotter implements GraphWindowAPI {
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinX()
 	 */
-	public double getMinX() {
+	public double getUserMinX() {
 		return 6.0;
 		//throw new UnsupportedOperationException("Method not implemented yet");
 	}
@@ -134,7 +134,7 @@ public class A_FaultsMFD_Plotter implements GraphWindowAPI {
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxX()
 	 */
-	public double getMaxX() {
+	public double getUserMaxX() {
 		return 8.5;
 		//throw new UnsupportedOperationException("Method not implemented yet");
 	}
@@ -142,7 +142,7 @@ public class A_FaultsMFD_Plotter implements GraphWindowAPI {
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinY()
 	 */
-	public double getMinY() {
+	public double getUserMinY() {
 		return 1e-7;
 		//throw new UnsupportedOperationException("Method not implemented yet");
 	}
@@ -150,7 +150,7 @@ public class A_FaultsMFD_Plotter implements GraphWindowAPI {
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxY()
 	 */
-	public double getMaxY() {
+	public double getUserMaxY() {
 		return 0.1;
 		//throw new UnsupportedOperationException("Method not implemented yet");
 	}

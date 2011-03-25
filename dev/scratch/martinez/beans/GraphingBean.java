@@ -128,22 +128,22 @@ public class GraphingBean implements GuiBeanAPI, GraphPanelAPI,
 	//////////////////////////////////////////////////////////////////////////////////
 	//                 FUNCTIONS TO IMPLEMENT THE GraphPanelAPI                     //
 	//////////////////////////////////////////////////////////////////////////////////
-	public double getMaxX() {
+	public double getUserMaxX() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	public double getMaxY() {
+	public double getUserMaxY() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	public double getMinX() {
+	public double getUserMinX() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	public double getMinY() {
+	public double getUserMinY() {
 		// TODO Auto-generated method stub
 		return 0;
 	}

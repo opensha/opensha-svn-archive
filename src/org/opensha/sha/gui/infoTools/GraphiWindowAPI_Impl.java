@@ -254,30 +254,63 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinX()
 	 */
-	public double getMinX() {
-		return graphWindow.getMinX();
+	public double getUserMinX() {
+		return graphWindow.getUserMinX();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxX()
 	 */
-	public double getMaxX() {
-		return graphWindow.getMaxX();
+	public double getUserMaxX() {
+		return graphWindow.getUserMaxX();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinY()
 	 */
-	public double getMinY() {
-		return graphWindow.getMinY();
+	public double getUserMinY() {
+		return graphWindow.getUserMinY();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxY()
 	 */
-	public double getMaxY() {
-		return graphWindow.getMaxY();
+	public double getUserMaxY() {
+		return graphWindow.getUserMaxY();
 	}
+	
+	/**
+	 * This returns the current Y-axis minimum value
+	 * @return
+	 */
+	public double getY_AxisMin() {
+		return graphWindow.getY_AxisRange().getLowerBound();
+	}
+	
+	/**
+	 * This returns the current Y-axis maximum value
+	 * @return
+	 */
+	public double getY_AxisMax() {
+		return graphWindow.getY_AxisRange().getUpperBound();
+	}
+	
+	/**
+	 * This returns the current X-axis minimum value
+	 * @return
+	 */
+	public double getX_AxisMin() {
+		return graphWindow.getX_AxisRange().getLowerBound();
+	}
+	
+	/**
+	 * This returns the current X-axis maximum value
+	 * @return
+	 */
+	public double getX_AxisMax() {
+		return graphWindow.getX_AxisRange().getUpperBound();
+	}
+
 
 	/**
 	 * Set plot label font size

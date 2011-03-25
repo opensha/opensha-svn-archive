@@ -76,25 +76,25 @@ public interface GraphWindowAPI {
    *
    * @returns the Min X-Axis Range Value, if custom Axis is choosen
    */
-  public double getMinX();
+  public double getUserMinX();
 
   /**
    *
    * @returns the Max X-Axis Range Value, if custom axis is choosen
    */
-  public double getMaxX();
+  public double getUserMaxX();
 
   /**
    *
    * @returns the Min Y-Axis Range Value, if custom axis is choosen
    */
-  public double getMinY();
+  public double getUserMinY();
 
   /**
    *
    * @returns the Max Y-Axis Range Value, if custom axis is choosen
    */
-  public double getMaxY();
+  public double getUserMaxY();
 
 
 }

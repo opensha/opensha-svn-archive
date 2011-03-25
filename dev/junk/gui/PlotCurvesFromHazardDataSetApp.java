@@ -595,7 +595,7 @@ public class PlotCurvesFromHazardDataSetApp extends JApplet
    *
    * @returns the Min X-Axis Range Value, if custom Axis is choosen
    */
-  public double getMinX(){
+  public double getUserMinX(){
     return minXValue;
   }
 
@@ -603,7 +603,7 @@ public class PlotCurvesFromHazardDataSetApp extends JApplet
    *
    * @returns the Max X-Axis Range Value, if custom axis is choosen
    */
-  public double getMaxX(){
+  public double getUserMaxX(){
     return maxXValue;
   }
 
@@ -611,7 +611,7 @@ public class PlotCurvesFromHazardDataSetApp extends JApplet
    *
    * @returns the Min Y-Axis Range Value, if custom axis is choosen
    */
-  public double getMinY(){
+  public double getUserMinY(){
     return minYValue;
   }
 
@@ -619,7 +619,7 @@ public class PlotCurvesFromHazardDataSetApp extends JApplet
    *
    * @returns the Max Y-Axis Range Value, if custom axis is choosen
    */
-  public double getMaxY(){
+  public double getUserMaxY(){
     return maxYValue;
   }
 

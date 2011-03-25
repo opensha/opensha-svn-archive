@@ -74,12 +74,12 @@ public class CodeTests {
 		for(int i=0; i<histogram.getNum();i++)
 			histogram.set(i,histogram.getY(i)/(numSamples));
 		
-/*		// plot functions
+		// plot functions
 		ArrayList funcs = new ArrayList();
 		funcs.add(targetFunc);
 		funcs.add(histogram);
 		GraphiWindowAPI_Impl sr_graph = new GraphiWindowAPI_Impl(funcs, "");  
-*/		
+		
 		double maxDiff =0;
 		for(int i=0;i<targetFunc.getNum();i++) {
 			double diff = Math.abs(targetFunc.getY(i)-histogram.getY(i));
@@ -153,6 +153,7 @@ public class CodeTests {
 		
 		CodeTests tests = new CodeTests();
 		
+/*		
 		// this tests IntegerPDF_FunctionSampler:
 		int numIntegers = 100;
 		IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(numIntegers);
@@ -166,7 +167,7 @@ public class CodeTests {
 		for(int i=0;i<numIntegers;i++)
 			sampler.set(i,sampler.getY(i)/total);
 		System.out.println("testIntegerPDF_FunctionSampler passes = "+tests.testIntegerPDF_FunctionSampler(sampler));
-		
+*/		
 		// This tests ETAS_Utils.getDefaultRandomTimeOfEvent(*)
 //		System.out.println("testGetDefaultRandomTimeOfEvent passes = "+tests.testGetDefaultRandomTimeOfEvent(0, 10, 0.01));
 

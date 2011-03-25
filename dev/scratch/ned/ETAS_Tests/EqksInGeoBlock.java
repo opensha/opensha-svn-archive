@@ -303,11 +303,8 @@ public class EqksInGeoBlock {
 	 */
 	public ProbEqkRupture getRandomRupture() {
 		// make random sampler if it doesn't already exist
-		if(randomEqkRupSampler == null) {
-			randomEqkRupSampler = new IntegerPDF_FunctionSampler(srcIndexList.size());
-			for(int i=0;i<srcIndexList.size();i++) 
-				randomEqkRupSampler.set(i,rateInsideList.get(i));
-		}
+		getRandomSampler();
+		
 		int localRupIndex = randomEqkRupSampler.getRandomInt();
 		int iSrc=srcIndexList.get(localRupIndex);
 		int iRup = rupIndexList.get(localRupIndex);

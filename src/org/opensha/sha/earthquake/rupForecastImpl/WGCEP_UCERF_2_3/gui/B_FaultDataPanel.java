@@ -324,28 +324,28 @@ class MouseListener extends MouseAdapter  implements GraphWindowAPI {
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinX()
 	 */
-	public double getMinX() {
+	public double getUserMinX() {
 		throw new UnsupportedOperationException("Method not implemented yet");
 	}
 
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxX()
 	 */
-	public double getMaxX() {
+	public double getUserMaxX() {
 		throw new UnsupportedOperationException("Method not implemented yet");
 	}
 
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinY()
 	 */
-	public double getMinY() {
+	public double getUserMinY() {
 		throw new UnsupportedOperationException("Method not implemented yet");
 	}
 
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxY()
 	 */
-	public double getMaxY() {
+	public double getUserMaxY() {
 		throw new UnsupportedOperationException("Method not implemented yet");
 	}
 

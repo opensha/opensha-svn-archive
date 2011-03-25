@@ -912,7 +912,7 @@ public class General_EQSIM_Tools {
 			graph.setY_AxisLabel("Rate (per yr)");
 			graph.setX_AxisRange(4.5, 8.5);
 			double yMin = Math.pow(10,Math.floor(Math.log10(1/getSimulationDurationInYears())));
-			double yMax = graph.getMaxY();
+			double yMax = graph.getY_AxisMax();
 			if(yMin<yMax) {
 				graph.setY_AxisRange(yMin,yMax);
 				graph.setYLog(true);
@@ -971,7 +971,7 @@ public class General_EQSIM_Tools {
 			graph.setX_AxisLabel("Magnitude");
 			graph.setY_AxisLabel("Rate (per yr)");
 			graph.setX_AxisRange(4.5, 8.5);
-			double yMax = graph.getMaxY();
+			double yMax = graph.getY_AxisMax();
 			if(yMin<yMax) {
 				graph.setY_AxisRange(yMin,yMax);
 				graph.setYLog(true);
@@ -999,7 +999,7 @@ public class General_EQSIM_Tools {
 				graph.setX_AxisLabel("Magnitude");
 				graph.setY_AxisLabel("Rate (per yr)");
 				graph.setX_AxisRange(4.5, 8.5);
-				double yMax = graph.getMaxY();
+				double yMax = graph.getY_AxisMax();
 				if(yMin<yMax) {
 					graph.setY_AxisRange(yMin,yMax);
 					graph.setYLog(true);

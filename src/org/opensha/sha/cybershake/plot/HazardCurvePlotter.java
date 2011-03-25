@@ -1015,21 +1015,21 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		this.erf = erf;
 	}
 
-	public double getMaxX() {
+	public double getUserMaxX() {
 		if (currentPeriod > 0)
 			return plotChars.getXMax(currentPeriod);
 		return plotChars.getXMax();
 	}
 
-	public double getMaxY() {
+	public double getUserMaxY() {
 		return plotChars.getYMax();
 	}
 
-	public double getMinX() {
+	public double getUserMinX() {
 		return plotChars.getXMin();
 	}
 
-	public double getMinY() {
+	public double getUserMinY() {
 		return plotChars.getYMin();
 	}
 	

@@ -500,7 +500,7 @@ public class GraphPanel extends JSplitPane {
 
 			/* to set the range of the axis on the input from the user if the range combo box is selected*/
 			if(customAxis)
-				xAxis.setRange(application.getMinX(),application.getMaxX());
+				xAxis.setRange(application.getUserMinX(),application.getUserMaxX());
 
 		}catch(Exception e){
 			//e.printStackTrace();
@@ -539,7 +539,7 @@ public class GraphPanel extends JSplitPane {
 
 			/* to set the range of the axis on the input from the user if the range combo box is selected*/
 			if(customAxis)
-				yAxis.setRange(application.getMinY(),application.getMaxY());
+				yAxis.setRange(application.getUserMinY(),application.getUserMaxY());
 
 		}catch(Exception e){
 			//e.printStackTrace();

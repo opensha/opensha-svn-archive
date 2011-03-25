@@ -1,17 +1,31 @@
 package scratch.ned.ETAS_Tests;
 
 
+import java.util.ArrayList;
+
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.apache.commons.math.random.RandomDataImpl;
 
 public class ETAS_Utils {
 	
-	double k_DEFAULT = 0.008;	// units are number of events > magMain per day
-	double p_DEFAULT = 1.34;
-	double magMin_DEFAULT = 2.5;
-	double c_DEFAULT = 0.095;
+	final static double k_DEFAULT = 0.008;	// units are number of events > magMain per day
+	final static double p_DEFAULT = 1.34;
+	final static double c_DEFAULT = 0.095;
+	final static double magMin_DEFAULT = 2.5;
 	
 	RandomDataImpl randomDataImpl = new RandomDataImpl();
+	
+	
+	public static final ArrayList<String> getDefaultParametersAsStrings() {
+		ArrayList<String> strings = new ArrayList<String>();
+		strings.add("k="+k_DEFAULT);
+		strings.add("p="+p_DEFAULT);
+		strings.add("c="+c_DEFAULT);
+		strings.add("magMin="+magMin_DEFAULT);
+		return strings;
+	}
+	
+
 	
 	/**
 	 * This returns the expected number of primary aftershocks between time tMin and tMax for an ETAS sequence
@@ -20,9 +34,9 @@ public class ETAS_Utils {
 	 * @param p - must be > 1.0 (not checked)
 	 * @param magMain - main shock magnitude
 	 * @param magMin - minimum magnitude
-	 * @param c
-	 * @param tMin - beginning of forecast time window (since origin time)
-	 * @param tMax - end of forecast time window (since origin time)
+	 * @param c - days
+	 * @param tMin - beginning of forecast time window (since origin time), in days
+	 * @param tMax - end of forecast time window (since origin time), in days
 	 * @return
 	 */
 	public static double getExpectedNumEvents(double k, double p, double magMain, double magMin, double c, double tMin, double tMax) {
@@ -115,20 +129,27 @@ public class ETAS_Utils {
 	 * @param p
 	 * @param magMain
 	 * @param magMin
-	 * @param c
-	 * @param tMin
-	 * @param tMax
-	 * @param tDelta
+	 * @param c - days
+	 * @param tMin - days
+	 * @param tMax - days
+	 * @param tDelta - days
 	 * @return
 	 */
 	public EvenlyDiscretizedFunc getNumWithTimeFunc(double k, double p, double magMain, double magMin, double c, double tMin, double tMax, double tDelta) {
 		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(tMin+tDelta/2, tMax-tDelta/2, (int)Math.round((tMax-tMin)/tDelta));
 		for(int i=0;i<func.getNum();i++) {
-			double yVal = k*Math.pow(10,magMain-magMin)*Math.pow(c+func.getX(i), -p);
+			double binTmin = func.getX(i) - tDelta/2;
+			double binTmax = func.getX(i) + tDelta/2;
+			double yVal = getExpectedNumEvents(k, p, magMain, magMin, c, binTmin, binTmax);
+	//		double yVal = k*Math.pow(10,magMain-magMin)*Math.pow(c+func.getX(i), -p);
 			func.set(i,yVal);
 		}
+		func.setName("Expected Number of Primary Aftershocks for "+tDelta+"-day intervals");
+		func.setInfo("for k="+k+", p="+p+", c="+c+", magMain="+magMain+", magMin="+magMin);
 		return func;
 	}
+	
+	
 
 	/**
 	 * This returns the expected number of primary aftershocks as a function of 

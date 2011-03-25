@@ -106,18 +106,18 @@ public class EstimateViewer implements GraphWindowAPI {
    * implemented as we go with default X values limit here.
    */
 
-  public double getMinX() {
+  public double getUserMinX() {
 
     throw new java.lang.UnsupportedOperationException("Method getMinX() not yet implemented.");
   }
-  public double getMaxX() {
+  public double getUserMaxX() {
 
     throw new java.lang.UnsupportedOperationException("Method getMaxX() not yet implemented.");
   }
-  public double getMinY() {
+  public double getUserMinY() {
     throw new java.lang.UnsupportedOperationException("Method getMinY() not yet implemented.");
   }
-  public double getMaxY() {
+  public double getUserMaxY() {
 
     throw new java.lang.UnsupportedOperationException("Method getMaxY() not yet implemented.");
   }

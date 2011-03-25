@@ -94,19 +94,19 @@ public class SingleCurveDebugTest implements GraphPanelAPI, PlotControllerAPI {
 		ChartUtilities.saveChartAsPNG(new File(outFile), gp.getCartPanel().getChart(), 600, 500);
 	}
 
-	public double getMaxX() {
+	public double getUserMaxX() {
 		return Double.parseDouble("1.0E1");
 	}
 
-	public double getMaxY() {
+	public double getUserMaxY() {
 		return Double.parseDouble("1.0E0");
 	}
 
-	public double getMinX() {
+	public double getUserMinX() {
 		return Double.parseDouble("1.0E-4");
 	}
 
-	public double getMinY() {
+	public double getUserMinY() {
 		return Double.parseDouble("1.0E-16");
 	}
 

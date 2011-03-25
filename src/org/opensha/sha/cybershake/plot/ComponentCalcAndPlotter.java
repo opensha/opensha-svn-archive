@@ -159,19 +159,19 @@ public class ComponentCalcAndPlotter implements GraphPanelAPI, PlotControllerAPI
 		System.exit(0);
 	}
 
-	public double getMaxX() {
+	public double getUserMaxX() {
 		return 2;
 	}
 
-	public double getMaxY() {
+	public double getUserMaxY() {
 		return 1;
 	}
 
-	public double getMinX() {
+	public double getUserMinX() {
 		return 0;
 	}
 
-	public double getMinY() {
+	public double getUserMinY() {
 		return Double.parseDouble("1.0E-6");
 	}
 

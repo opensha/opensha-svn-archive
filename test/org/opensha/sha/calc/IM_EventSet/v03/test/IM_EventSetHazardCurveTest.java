@@ -226,19 +226,19 @@ public class IM_EventSetHazardCurveTest implements IM_EventSetCalc_v3_0_API, Gra
 		return sitesData.get(i);
 	}
 
-	public double getMaxX() {
+	public double getUserMaxX() {
 		return 1;
 	}
 
-	public double getMaxY() {
+	public double getUserMaxY() {
 		return 1;
 	}
 
-	public double getMinX() {
+	public double getUserMinX() {
 		return 0;
 	}
 
-	public double getMinY() {
+	public double getUserMinY() {
 		return 0;
 	}
 
