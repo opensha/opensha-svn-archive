@@ -127,10 +127,11 @@ ParameterChangeListener {
 	// custom params
 	private static final String IMR_UNCERT_PARAM_NAME = "IMR uncertainty";
 	private boolean includeImrUncert = true;
+	private static final String HW_EFFECT_PARAM_NAME = "Hanging Wall Effect Approx.";
+	private boolean hwEffectApprox = true;
 	private BooleanParameter ptSrcCorrParam;
 
 	// flags and tuning values
-	private double weight = 1.0;
 	private double imrUncert = 0.0;
 	
 	public NSHMP_2008_CA(ParameterChangeWarningListener listener) {
@@ -263,10 +264,14 @@ ParameterChangeListener {
 		stdDevTypeParam = new StdDevTypeParam(stdDevTypeConstraint);
 		stdDevTypeParam.setValueAsDefault();
 		
-		// alllow toggling of AttenRel epistemic uncertainty
+		// allow toggling of AttenRel epistemic uncertainty
 		BooleanParameter imrUncertParam = new BooleanParameter(
-			"IMR uncertainty", includeImrUncert);
+			IMR_UNCERT_PARAM_NAME, includeImrUncert);
 		
+		// allow toggling of hanging wall effect approximation
+		BooleanParameter hwEffectApproxParam = new BooleanParameter(
+			HW_EFFECT_PARAM_NAME, hwEffectApprox);
+
 		// display prop effect pt src correction; set generic pt src to true
 		ptSrcCorrParam = (BooleanParameter) propEffect
 			.getAdjustableParameterList().getParameter(POINT_SRC_CORR_PARAM_NAME);
@@ -280,6 +285,7 @@ ParameterChangeListener {
 		otherParams.addParameter(componentParam);
 		otherParams.addParameter(stdDevTypeParam);
 		otherParams.addParameter(imrUncertParam);
+		otherParams.addParameter(hwEffectApproxParam);
 		otherParams.addParameter(nshmpPtSrcCorrParam);
 		
 		sigmaTruncTypeParam.setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
@@ -291,6 +297,7 @@ ParameterChangeListener {
 		componentParam.addParameterChangeListener(this);
 		stdDevTypeParam.addParameterChangeListener(this);
 		imrUncertParam.addParameterChangeListener(this);
+		hwEffectApproxParam.addParameterChangeListener(this);
 		
 		// enforce default values used by NSHMP
 		for (AttenuationRelationship ar : arList) {
@@ -528,6 +535,11 @@ ParameterChangeListener {
 			includeImrUncert = (Boolean) e.getParameter().getValue();
 		}
 		
+		// handle locals
+		if (e.getParameterName().equals(HW_EFFECT_PARAM_NAME)) {
+			hwEffectApprox = (Boolean) e.getParameter().getValue();
+		}
+		
 		// toggling nshmp pt src is picked up directly by PropEffect,
 		// need to turn off basic point source correction too; TODO this
 		// could be implemented better e.g. as a choice: none | field | nshmp
@@ -663,7 +675,7 @@ ParameterChangeListener {
 	
 			//hanging wall effects
 			fhng = 0;
-			if (eqkRupture.getRuptureSurface() instanceof PointSurface) {
+			if (hwEffectApprox && eqkRupture.getRuptureSurface() instanceof PointSurface) {
 				if (dip != 90) fhng = NSHMP_Util.getAvgHW_CB(mag, rRup, per[iper]);
 			} else {
 				double fhngr;
@@ -751,7 +763,7 @@ ParameterChangeListener {
 	
 			// point source hw effect approximation
 			double hw_effect = 0;
-			if (eqkRupture.getRuptureSurface() instanceof PointSurface) {
+			if (hwEffectApprox && eqkRupture.getRuptureSurface() instanceof PointSurface) {
 				if (dip != 90) hw_effect = NSHMP_Util.getAvgHW_CY(mag, rRup, period[iper]);
 			} else {
 				hw_effect = c9[iper] * f_hw * Math.tanh(distX*cosDelta*cosDelta/c9a[iper]) * (1-altDist/(rRup+0.001));
