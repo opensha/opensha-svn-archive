@@ -131,6 +131,13 @@ public class DistanceRupParameter extends AbstractDoublePropEffectParam {
 			this.value = null;
 	}
 	
+	
+	/**
+	 * Note that this assumes the location is at the earth's surface (or at least above the rupSurface)
+	 * @param loc
+	 * @param rupSurf
+	 * @return
+	 */
 	public static double getDistance(Location loc, EvenlyGriddedSurfaceAPI rupSurf) {
 		double minDistance = Double.MAX_VALUE;
 		double horzDist, vertDist, totalDist;
