@@ -84,7 +84,8 @@ public class RupsInFaultSystemInversion {
 
 	private static EvenlyDiscretizedFunc taperedSlipPDF, taperedSlipCDF;
 
-
+	//rates and magnitudes for closest equivalents to UCERF2 ruptures
+	ArrayList<double[]> ucerf2_magsAndRates;
 
 	/**
 	 * 
@@ -169,6 +170,8 @@ public class RupsInFaultSystemInversion {
 		graph.setY_AxisLabel("Num");
 */	
 		
+		ArrayList<ArrayList<Integer>> rupList = getRupList();
+		
 
 		// Now get the UCERF2 equivalent mag and rate for each inversion rupture (where there's a meaningful
 		// association).  ucerf2_magsAndRates is an ArrayList of length getRupList().size(), where each element 
@@ -189,18 +192,15 @@ public class RupsInFaultSystemInversion {
 		// are specified by FindEquivUCERF2_Ruptures.DATA_FILE_NAME and FindEquivUCERF2_Ruptures.INFO_FILE_NAME.
 		//
 		// 2) This currently only works for N. Cal Inversions
-		//
-/*		
+		//		
 		FindEquivUCERF2_Ruptures findUCERF2_Rups = new FindEquivUCERF2_Ruptures(faultSectionData, precomputedDataDir);
-		ArrayList<ArrayList<Integer>> rupList = getRupList();
-		ArrayList<double[]> ucerf2_magsAndRates = findUCERF2_Rups.getMagsAndRatesForRuptures(rupList);
-*/
+		ucerf2_magsAndRates = findUCERF2_Rups.getMagsAndRatesForRuptures(rupList);
 		// the following plot verifies that associations are made properly from the perspective of mag-freq-dists
 		// this is valid only if createNorthCalSubSections() has been used in TestInversion!
 //		findUCERF2_Rups.plotMFD_TestForNcal();
 
 		
-		doInversion();
+		doInversion(rupList);
 		
 		
 	}
@@ -628,13 +628,14 @@ public class RupsInFaultSystemInversion {
 	}
 
 
-	public void doInversion() {
+	public void doInversion(ArrayList<ArrayList<Integer>> rupList) {
 
+		double[] rupRateSolution = new double[numRuptures];
+		double[] initial_state = new double[numRuptures];
+		int numiter=10000;  // number of simulated annealing iterations (increase this to decrease misfit)
+		
 		System.out.println("\nNumber of sections: " + numSections + ". Number of ruptures: " + numRuptures + ".\n");
 		ArrayList<SegRateConstraint> segRateConstraints = getPaleoSegRateConstraints();
-
-		if(D) System.out.println("Getting list of ruptures ...");
-		ArrayList<ArrayList<Integer>> rupList = getRupList();
 
 		// create A matrix and data vector
 		OpenMapRealMatrix A = new OpenMapRealMatrix(numSections+segRateConstraints.size(),numRuptures);
@@ -678,12 +679,12 @@ public class RupsInFaultSystemInversion {
 		 */
 
 		// SOLVE THE INVERSE PROBLEM
-		double[] rupRateSolution = new double[numRuptures];
+		
 		if(D) System.out.println("\nSolving inverse problem with simulated annealing ... ");
-		double[] initial_state = getGRStartingSolution(rupList,rupMeanMag);
-//		double[] initial_state = new double[numRuptures];
-//		for (int r=0; r<numRuptures; r++) initial_state[r]=0;
-		rupRateSolution = SimulatedAnnealing.getSolution(A,d,initial_state);    
+		initial_state = getGRStartingSolution(rupList,rupMeanMag);  // G-R initial solution
+//		initial_state = getUCERF2StartingSolution(); 				// UCERF2 rups as initial solution
+//		for (int r=0; r<numRuptures; r++) initial_state[r]=0;		// initial solution of zero rupture rates
+		rupRateSolution = SimulatedAnnealing.getSolution(A,d,initial_state, numiter);    
 		
 		
 		
@@ -764,12 +765,6 @@ public class RupsInFaultSystemInversion {
 		double[] meanSlipRate = new double[numRup]; // mean slip rate per section for each rupture
 		double[] initial_state = new double[numRup]; // starting model
 		
-		// Find magnitude distribution of ruptures (as discretized -- not taking into account the rates)
-		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,35,0.1);
-		magHist.setTolerance(0.2);	// this makes it a histogram
-		for(int rup=0; rup<numRup;rup++)
-			magHist.add(rupMeanMag[rup], 1.0);
-		
 		// Find mean slip rate per section for each rupture
 		for (int rup=0; rup<numRup; rup++) {			
 			ArrayList<Integer> sects = rupList.get(rup);
@@ -779,6 +774,18 @@ public class RupsInFaultSystemInversion {
 			}
 			meanSlipRate[rup] = meanSlipRate[rup]/sects.size();
 		}
+		
+		// Find magnitude distribution of ruptures (as discretized)
+		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,35,0.1);
+		magHist.setTolerance(0.1);	// this makes it a histogram
+		for(int rup=0; rup<numRup;rup++) {
+			// magHist.add(rupMeanMag[rup], 1.0);
+			// Each bin in the magnitude histogram should be weighted by the mean slip rates of those ruptures 
+			// (since later we weight the ruptures by the mean slip rate, which would otherwise result in a non-G-R 
+			// starting solution if the mean slip rates per rupture differed between magnitude bins)
+			magHist.add(rupMeanMag[rup], meanSlipRate[rup]);  // each bin
+		}
+		
 		
 		// Set up initial (non-normalized) G-R rates for each rupture, normalized by meanSlipRate
 		for (int rup=0; rup<numRup; rup++) {
@@ -825,7 +832,22 @@ public class RupsInFaultSystemInversion {
 		
 	}
 
+	private double[] getUCERF2StartingSolution() {
+	
+		double[] initial_state = new double[numRuptures]; // starting model
+		
+		for (int r=0; r<numRuptures; r++) {
+			double[] magAndRate = ucerf2_magsAndRates.get(r);
+			if(magAndRate != null) 
+				initial_state[r] = magAndRate[1];
+			else
+				initial_state[r] = 0;
+		
+		}
 
+		return initial_state;
+		
+	}
 
 	/**
 	 * @param args

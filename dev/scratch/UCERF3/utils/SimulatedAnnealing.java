@@ -7,7 +7,7 @@ public class SimulatedAnnealing {
 	protected final static boolean D = true;  // for debugging
 
 	
-	public static double[] getSolution(OpenMapRealMatrix A, double[] d, double[] initial_state) {
+	public static double[] getSolution(OpenMapRealMatrix A, double[] d, double[] initial_state, int numiter) {
 
 		int nRow = A.getRowDimension();
 		int nCol = A.getColumnDimension();
@@ -24,7 +24,7 @@ public class SimulatedAnnealing {
 
 		double E, Enew, Ebest, T, P;
 		int i, j, iter, index;
-		int numiter = 10000;
+		// int numiter = 100000;
 		
 		long runTime = System.currentTimeMillis();
 		

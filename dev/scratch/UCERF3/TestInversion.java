@@ -81,8 +81,8 @@ public class TestInversion {
 		
 		if(D) System.out.println("Making subsections...");
 //		createAllSubSections();
-		createBayAreaSubSections(); 
-//		createNorthCalSubSections();
+//		createBayAreaSubSections(); 
+		createNorthCalSubSections();
 		
 		calcSubSectionDistances();
 		
