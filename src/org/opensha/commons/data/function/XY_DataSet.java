@@ -132,6 +132,8 @@ public class XY_DataSet extends AbstractXY_DataSet {
 	@Override
 	public void set(Point2D point) throws Point2DException {
 		points.add(point);
+		xTracker.addValue(point.getX());
+		yTracker.addValue(point.getY());
 	}
 
 	@Override
