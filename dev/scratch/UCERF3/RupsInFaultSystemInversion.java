@@ -1,5 +1,6 @@
 package scratch.UCERF3;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -14,11 +15,14 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
+import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -80,7 +84,7 @@ public class RupsInFaultSystemInversion {
 	public final static String UNIFORM_SLIP_MODEL = "Uniform/Boxcar (Dsr=Dr)";
 	public final static String WG02_SLIP_MODEL = "WGCEP-2002 model (Dsr prop to Vs)";
 	public final static String TAPERED_SLIP_MODEL = "Tapered Ends ([Sin(x)]^0.5)";
-	private String slipModelType = TAPERED_SLIP_MODEL;
+	private String slipModelType = UNIFORM_SLIP_MODEL;
 
 	private static EvenlyDiscretizedFunc taperedSlipPDF, taperedSlipCDF;
 
@@ -629,18 +633,20 @@ public class RupsInFaultSystemInversion {
 
 
 	public void doInversion(ArrayList<ArrayList<Integer>> rupList) {
-
-		double[] rupRateSolution = new double[numRuptures];
-		double[] initial_state = new double[numRuptures];
-		int numiter=10000;  // number of simulated annealing iterations (increase this to decrease misfit)
+		
+		double relativeSegRateWt = 0.01;  // weight of paleo-rate constraint relative to slip-rate constraint
+		int numiter=0;  // number of simulated annealing iterations (increase this to decrease misfit)
+		
+		// Components of matrix equation to invert (Ax=d)
+		OpenMapRealMatrix A = new OpenMapRealMatrix(numSections+segRateConstraints.size(),numRuptures); // A matrix
+		double[] d = new double[numSections+segRateConstraints.size()];	// data vector d
+		double[] rupRateSolution = new double[numRuptures]; // final solution (x of Ax=d)
+		double[] initial_state = new double[numRuptures];  // initial guess at solution x
+		
+		ArrayList<SegRateConstraint> segRateConstraints = getPaleoSegRateConstraints();
 		
 		System.out.println("\nNumber of sections: " + numSections + ". Number of ruptures: " + numRuptures + ".\n");
-		ArrayList<SegRateConstraint> segRateConstraints = getPaleoSegRateConstraints();
-
-		// create A matrix and data vector
-		OpenMapRealMatrix A = new OpenMapRealMatrix(numSections+segRateConstraints.size(),numRuptures);
-		double[] d = new double[numSections+segRateConstraints.size()];		
-
+		
 		// Make sparse matrix of slip in each rupture & data vector of section slip rates
 		int numElements = 0;
 		if(D) System.out.println("\nAdding slip per rup to A matrix ...");
@@ -658,36 +664,44 @@ public class RupsInFaultSystemInversion {
 		if(D) System.out.println("Number of nonzero elements in A matrix = "+numElements);
 
 		// Make sparse matrix of paleo event probs for each rupture & data vector of mean event rates
-		// TO DO: Add event-rate constraint weight (relative to slip rate constraint)
-		/*
-		numElements = 0;
-		if(D) System.out.println("\nAdding event rates to A matrix ...");
-		OpenMapRealMatrix A2 = new OpenMapRealMatrix(segRateConstraints.size(),numRuptures);
-		for (int i=numSections; i<numSections+segRateConstraints.size(); i++) {
-			SegRateConstraint constraint = segRateConstraints.get(i-numSections);
-			d[i]=constraint.getMean()/ constraint.getStdDevOfMean();
-			double[] row = A.getRow(constraint.getSegIndex());
-			for (int rup=0; rup<numRuptures; rup++) {
-				if (row[rup]>0) {
-					A.setEntry(i,rup,getProbVisible(rupMeanMag[rup])/constraint.getStdDevOfMean());  
-					if(D) numElements++;
-
+		if (relativeSegRateWt > 0.0) {
+			numElements = 0;
+			if(D) System.out.println("\nAdding event rates to A matrix ...");
+			for (int i=numSections; i<numSections+segRateConstraints.size(); i++) {
+				SegRateConstraint constraint = segRateConstraints.get(i-numSections);
+				d[i]=relativeSegRateWt * constraint.getMean() / constraint.getStdDevOfMean();
+				double[] row = A.getRow(constraint.getSegIndex());
+				for (int rup=0; rup<numRuptures; rup++) {
+					if (row[rup]>0) {
+						A.setEntry(i,rup,relativeSegRateWt * getProbVisible(rupMeanMag[rup]) / constraint.getStdDevOfMean());  
+						if(D) numElements++;			
+					}
 				}
 			}
+			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numElements);
 		}
-		if(D) System.out.println("Number of new nonzero elements in A matrix = "+numElements);
-		 */
 
 		// SOLVE THE INVERSE PROBLEM
 		
 		if(D) System.out.println("\nSolving inverse problem with simulated annealing ... ");
-		initial_state = getGRStartingSolution(rupList,rupMeanMag);  // G-R initial solution
-//		initial_state = getUCERF2StartingSolution(); 				// UCERF2 rups as initial solution
+		// First pick starting solution: leave one of 3 below uncommented
+//		initial_state = getGRStartingSolution(rupList,rupMeanMag);  // G-R initial solution
+		initial_state = getUCERF2StartingSolution(); 				// UCERF2 rups as initial solution
 //		for (int r=0; r<numRuptures; r++) initial_state[r]=0;		// initial solution of zero rupture rates
+		
 		rupRateSolution = SimulatedAnnealing.getSolution(A,d,initial_state, numiter);    
 		
 		
-		
+		// Plots of misfit, magnitude distribution, rupture rates
+		PlotStuff(rupList, A, d, rupRateSolution);
+			
+
+	}
+	
+
+	
+	
+	private void PlotStuff(ArrayList<ArrayList<Integer>> rupList, OpenMapRealMatrix A, double[] d, double[] rupRateSolution) {
 		
 		
 		// Plot the rupture rates
@@ -716,26 +730,75 @@ public class RupsInFaultSystemInversion {
 		funcs2.add(syn);
 		funcs2.add(data);
 		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "Slip Rate Synthetics (blue) & Data (black)"); 
-		graph2.setX_AxisLabel("Index");
+		graph2.setX_AxisLabel("Fault Section Index");
 		graph2.setY_AxisLabel("Slip Rate");
 		
 		
+		// Plot the paleo segment rate data vs. synthetics
+		if(D) System.out.println("Making plot of event rate misfit . . . ");
+		ArrayList funcs3 = new ArrayList();		
+		EvenlyDiscretizedFunc finalEventRateFunc = new EvenlyDiscretizedFunc(0,(double)numSections-1,numSections);
+		EvenlyDiscretizedFunc finalPaleoVisibleEventRateFunc = new EvenlyDiscretizedFunc(0,(double)numSections-1,numSections);	
+		for (int r=0; r<numRuptures; r++) {
+			ArrayList<Integer> rup=rupList.get(r);
+			for (int i=0; i<rup.size(); i++) {			
+				finalEventRateFunc.add(rup.get(i),rupRateSolution[r]);  
+				finalPaleoVisibleEventRateFunc.add(rup.get(i),getProbVisible(rupMeanMag[r])*rupRateSolution[r]);  			
+			}
+		}	
+		finalEventRateFunc.setName("Total Event Rates oer Section");
+		finalPaleoVisibleEventRateFunc.setName("Paleo Visible Event Rates oer Section");
+		funcs3.add(finalEventRateFunc);
+		funcs3.add(finalPaleoVisibleEventRateFunc);	
+		int num = segRateConstraints.size();
+		ArbitrarilyDiscretizedFunc func;
+		ArrayList obs_er_funcs = new ArrayList();
+		SegRateConstraint constraint;
+		for (int c = 0; c < num; c++) {
+			func = new ArbitrarilyDiscretizedFunc();
+			constraint = segRateConstraints.get(c);
+			int seg = constraint.getSegIndex();
+			func.set((double) seg - 0.0001, constraint.getLower95Conf());
+			func.set((double) seg, constraint.getMean());
+			func.set((double) seg + 0.0001, constraint.getUpper95Conf());
+			func.setName(constraint.getFaultName());
+			funcs3.add(func);
+		}			
+		GraphiWindowAPI_Impl graph3 = new GraphiWindowAPI_Impl(funcs3, "Synthetic Event Rates (total - black & paleo visible - blue) and Paleo Data (red)");
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(
+				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLACK,
+				2));
+		plotChars.add(new PlotCurveCharacterstics(
+				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+				Color.BLUE, 2));
+		for (int c = 0; c < num; c++)
+			plotChars.add(new PlotCurveCharacterstics(
+					PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES,
+					Color.RED, 1));
+		graph3.setPlottingFeatures(plotChars);
+		graph3.setX_AxisLabel("Fault Section Index");
+		graph3.setY_AxisLabel("Event Rate (per year)");
+		
+		
 		// plot magnitude histogram for final rupture rates
+		if(D) System.out.println("Making plot of final magnitude distribution . . . ");
 		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,35,0.1);
 		magHist.setTolerance(0.2);	// this makes it a histogram
 		for(int r=0; r<getNumRupRuptures();r++)
 			magHist.add(rupMeanMag[r], rupRateSolution[r]);
-		ArrayList funcs3 = new ArrayList();
-		funcs3.add(magHist);
+		ArrayList funcs4 = new ArrayList();
+		funcs4.add(magHist);
 		magHist.setName("Magntiude Distribution of SA Solution");
 		magHist.setInfo("(number in each mag bin)");
-		GraphiWindowAPI_Impl graph3 = new GraphiWindowAPI_Impl(funcs3, "Magnitude Histogram for Final Rates"); 
-		graph.setX_AxisLabel("Mag");
-		graph.setY_AxisLabel("Num");
+		GraphiWindowAPI_Impl graph4 = new GraphiWindowAPI_Impl(funcs4, "Magnitude Histogram for Final Rates"); 
+		graph4.setX_AxisLabel("Magnitude");
+		graph4.setY_AxisLabel("Frequency (per bin)");
 		
-
+		
+		
 	}
-	
+
 
 	/**
 	 * This returns the probability that the given magnitude event will be
@@ -822,8 +885,8 @@ public class RupsInFaultSystemInversion {
 		magHist2.setName("Magntiude Distribution of Starting Model (before Annealing)");
 		magHist2.setInfo("(number in each mag bin)");
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Magnitude Histogram"); 
-		graph.setX_AxisLabel("Mag");
-		graph.setY_AxisLabel("Num");
+		graph.setX_AxisLabel("Magnitude");
+		graph.setY_AxisLabel("Frequency (per bin)");
 		
 		
 		

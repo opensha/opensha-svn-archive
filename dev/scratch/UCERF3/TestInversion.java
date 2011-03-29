@@ -14,6 +14,8 @@ import scratch.UCERF3.utils.FaultSectionDataWriter;
 
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
+import org.opensha.commons.data.NamedObjectComparator;
 import org.opensha.commons.data.NamedObjectComparator;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.BorderType;
@@ -67,6 +69,7 @@ public class TestInversion {
 		moRateReduction = 0.1;
 		includeSectionsWithNaN_slipRates = false;
 		magAreaRel = new Ellsworth_B_WG02_MagAreaRel();
+		// magAreaRel = new HanksBakun2002_MagAreaRel();
 		moRateReduction = 0.1;
 		
 		/** Set the deformation model
