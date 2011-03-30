@@ -1,53 +1,73 @@
 package org.opensha.commons.data.function;
 
+import static com.google.common.base.Preconditions.*;
+
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.dom4j.Element;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 
+import com.google.common.primitives.Doubles;
+
+/**
+ * Container for a data set of (X,Y) values. Internally, value pairs are stored
+ * as {@link Point2D}s.
+ * 
+ * @author Peter Powers
+ * @author Kevin Milner
+ * @version $Id$
+ */
 public class XY_DataSet extends AbstractXY_DataSet {
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	
 	private ArrayList<Point2D> points;
 	private MinMaxAveTracker xTracker;
 	private MinMaxAveTracker yTracker;
 	
-	public XY_DataSet() {
-		points = new ArrayList<Point2D>();
-		resetTrackers();
-	}
-	
-	public XY_DataSet(double[] xVals, double[] yVals) {
-		if(xVals.length != yVals.length)
-			throw new RuntimeException("Data longths differ");
-		points = new ArrayList<Point2D>();
-		for(int i=0; i<xVals.length;i++) set(xVals[i], yVals[i]);
-		resetTrackers();
+	/**
+	 * Initializes a new, empty data set.
+	 */
+	public XY_DataSet() { init(); }
+
+	/**
+	 * Initializes a new data set with the supplied <code>List</code>s of x and
+	 * y data
+	 * @param x values
+	 * @param y values
+	 * @throws NullPointerException if either data list is null
+	 * @throws IllegalArgumentException if either data list is empty
+	 */
+	public XY_DataSet(List<Double> x, List<Double> y) {
+		this(Doubles.toArray(x), Doubles.toArray(y));
+	}	
+
+	/**
+	 * Initializes a new data set with the supplied arrays of x and
+	 * y data
+	 * @param x values
+	 * @param y values
+	 */
+	public XY_DataSet(double[] x, double[] y) {
+		checkNotNull(x, "Supplied x-values are null");
+		checkNotNull(y, "Supplied y-values are null");
+		checkArgument(x.length > 0, "Supplied x-values are empty");
+		checkArgument(y.length > 0, "Supplied y-values are empty");
+		checkArgument(x.length == y.length, "%s [x=%s, y=%s]",
+			"Supplied data sets are different sizes", x.length, y.length);
+		init();
+		for (int i = 0; i < x.length; i++)
+			set(x[i], y[i]);
 	}
 
-	
-	public XY_DataSet(ArrayList<Double> xVals, ArrayList<Double> yVals) {
-		if(xVals.size() != yVals.size())
-			throw new RuntimeException("Data longths differ");
+	private void init() {
 		points = new ArrayList<Point2D>();
-		for(int i=0; i<xVals.size();i++) set(xVals.get(i), yVals.get(i));
-		resetTrackers();
-	}
-
-	private void resetTrackers() {
 		xTracker = new MinMaxAveTracker();
 		yTracker = new MinMaxAveTracker();
-		for (Point2D pt : points) {
-			xTracker.addValue(pt.getX());
-			yTracker.addValue(pt.getY());
-		}
 	}
 
 	@Override
