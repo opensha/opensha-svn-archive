@@ -22,11 +22,15 @@ package org.opensha.commons.util;
 import static com.google.common.base.Preconditions.*;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
+
+import org.apache.commons.math.stat.StatUtils;
+import org.opensha.commons.data.function.XY_DataSet;
 
 import com.google.common.primitives.Ints;
 
@@ -170,6 +174,69 @@ public class DataUtils {
     }
 
 	/**
+	 * Nearest neighbor binning algorithm after Silverman, B. W. (1986),
+	 * <em>Density Estimation for Statistics and Data Analysis</em>, Chapman
+	 * &amp; Hall, New York. This method is a density estimator that uses
+	 * variable width binning with a fixed sample size per bin that better
+	 * reflects the distribution of the underlying data and is particularly
+	 * useful when workgin with power-law distributed data. Bin widths are
+	 * computed as the difference between the last values in adjacent bins. In
+	 * the case of the 1st bin, the supplied origin is taken as the "last value"
+	 * of the previous bin. Bin positions are set from the median value in each
+	 * bin. Note that the supplied <code>data</code> is not modified; this
+	 * method uses a copy internally. In most cases, data will be fairly
+	 * continuous in X, however, for small <code>size</code>s it's possible to
+	 * have bins of identical values such that corresponding bin value is
+	 * Infinity. Such values are not included in the resultant data set.
+	 * 
+	 * @param data to be binned
+	 * @param origin for binning
+	 * @param size of each bin
+	 * @return an <code>XY_DataSet</code> of the binned distribution or
+	 *         <code>null</code> if the binned distribution is empty
+	 * @throws NullPointerException if the supplied <code>data</code> is
+	 *         <code>null</code>
+	 * @throws IllegalArgumentException if supplied <code>data</code> is empty,
+	 *         the bin <code>size</code> is &lt;1, or the <code>origin</code> is
+	 *         greater than all <code>data</code> values
+	 */
+	public static XY_DataSet nearestNeighborHist(double[] data, double origin,
+			int size) {
+		checkNotNull(data, "Supplied data is null");
+		checkArgument(data.length > 0, "Supplied data is empty");
+		checkArgument(size > 0, "Bin size can't be less than 1");
+		double[] localData = Arrays.copyOf(data, data.length);
+		Arrays.sort(localData);
+		int startIdx = Arrays.binarySearch(localData, origin);
+		checkArgument(startIdx < localData.length,
+			"Origin is greater than all data values");
+		startIdx = (startIdx > 0) ? startIdx : -startIdx - 1;
+		// for multipe identical values, binary search may not return
+		// the lowest index so walk down
+		while (startIdx > 0 && origin == localData[startIdx-1]) startIdx--;
+		// trim data
+		localData = Arrays.copyOfRange(localData, startIdx, localData.length);
+		int binCount = (int) Math.floor(localData.length / size);
+		// bail on an empty distribution
+		if (binCount == 0) return null;
+		List<Double> x = new ArrayList<Double>();
+		List<Double> y = new ArrayList<Double>();
+		double binLo, binHi, binDelta;
+		for (int i = 0; i < binCount; i++) {
+			int datIdx = i * size;
+			binLo = (i == 0) ? origin : localData[datIdx-1];
+			binHi = localData[datIdx + size - 1];
+			binDelta = binHi - binLo;
+			// bail on intervals of identical values
+			if (binDelta == 0) continue;
+			y.add(size / (binHi - binLo));
+			x.add(StatUtils.percentile(localData, datIdx, size, 50.0));
+		}
+		// bail on empty distribution
+		return (x.isEmpty()) ? null : new XY_DataSet(x, y);
+	}
+
+	/**
 	 * Returns the percent difference between two values.
 	 * TODO test,edit
 	 */
@@ -214,6 +281,7 @@ public class DataUtils {
 		
 		//getPercentDiff(0.)
 		
+		System.out.println(StatUtils.percentile(new double[]{9,10,11,12}, 50.0));
 	}
 	
 
