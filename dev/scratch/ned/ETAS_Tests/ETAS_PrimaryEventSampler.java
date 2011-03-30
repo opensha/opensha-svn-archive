@@ -257,7 +257,6 @@ public class ETAS_PrimaryEventSampler {
 		}
 */		
 		PrimaryAftershock aftershock = new PrimaryAftershock(rup);
-		aftershock.setParentID(blockIndex);
 		aftershock.setERF_SourceIndex(indices[0]);
 		aftershock.setERF_RupIndex(indices[1]);
 		// assign a hypocenter
@@ -320,6 +319,8 @@ public class ETAS_PrimaryEventSampler {
 		}
 	}
 	
+	
+		
 	public String plotBlockProbMap(String label) {
 		
 		GMT_MapGenerator mapGen = new GMT_MapGenerator();

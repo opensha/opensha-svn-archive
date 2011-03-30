@@ -39,7 +39,7 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 public class PrimaryAftershock extends EqkRupture {
 	
 	private int id, parentID, srcIndex, rupIndex, generation;
-	private double originTime;
+	private double originTime, distToParent=Double.NaN;
 	
 	public PrimaryAftershock() {};
 	
@@ -63,6 +63,22 @@ public class PrimaryAftershock extends EqkRupture {
 	 */
 	public void setParentID(int parentID) {
 		this.parentID = parentID;
+	}
+	
+	/**
+	 * This returns the distance to the parent (NaN if never set)
+	 * @return
+	 */
+	public double getDistanceToParent() {
+		return distToParent;
+	}
+	
+	/**
+	 * This sets the distance to parent
+	 * @param distToParent
+	 */
+	public void setDistanceToParent(double distToParent) {
+		this.distToParent = distToParent;
 	}
 	
 	/**
