@@ -126,7 +126,7 @@ public class GraphPanel extends JSplitPane {
 	private ChartPanel chartPanel;
 
 	// these are coordinates and size of the circles visible in the plot
-	private final static double SIZE = 3;
+	private final static double SIZE = 2;
 	private final static double DELTA = SIZE / 2.0;
 
 	private static Dimension minPanelSize = new Dimension(320,120);
