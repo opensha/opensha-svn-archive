@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.math.stat.descriptive.SummaryStatistics;
 import org.dom4j.Element;
 import org.opensha.commons.exceptions.Point2DException;
-import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 
 import com.google.common.primitives.Doubles;
 
@@ -26,9 +26,13 @@ public class XY_DataSet extends AbstractXY_DataSet {
 	private static final long serialVersionUID = 1L;
 	
 	private ArrayList<Point2D> points;
-	private MinMaxAveTracker xTracker;
-	private MinMaxAveTracker yTracker;
+//	private MinMaxAveTracker xTracker;
+//	private MinMaxAveTracker yTracker;
+	// TODO clean
 	
+	private SummaryStatistics xStats;
+	private SummaryStatistics yStats;
+		
 	/**
 	 * Initializes a new, empty data set.
 	 */
@@ -60,14 +64,18 @@ public class XY_DataSet extends AbstractXY_DataSet {
 		checkArgument(x.length == y.length, "%s [x=%s, y=%s]",
 			"Supplied data sets are different sizes", x.length, y.length);
 		init();
-		for (int i = 0; i < x.length; i++)
+		for (int i = 0; i < x.length; i++) {
 			set(x[i], y[i]);
+		}
 	}
 
 	private void init() {
 		points = new ArrayList<Point2D>();
-		xTracker = new MinMaxAveTracker();
-		yTracker = new MinMaxAveTracker();
+		xStats = new SummaryStatistics();
+		yStats = new SummaryStatistics();
+		
+//		xTracker = new MinMaxAveTracker();
+//		yTracker = new MinMaxAveTracker();
 	}
 
 	@Override
@@ -98,25 +106,25 @@ public class XY_DataSet extends AbstractXY_DataSet {
 	public Point2D get(int index) {
 		return points.get(index);
 	}
-
+ 
 	@Override
 	public double getMaxX() {
-		return xTracker.getMax();
+		return xStats.getMax();
 	}
 
 	@Override
 	public double getMaxY() {
-		return yTracker.getMax();
+		return yStats.getMax();
 	}
 
 	@Override
 	public double getMinX() {
-		return xTracker.getMin();
+		return xStats.getMin();
 	}
 
 	@Override
 	public double getMinY() {
-		return yTracker.getMin();
+		return yStats.getMin();
 	}
 
 	@Override
@@ -152,8 +160,8 @@ public class XY_DataSet extends AbstractXY_DataSet {
 	@Override
 	public void set(Point2D point) throws Point2DException {
 		points.add(point);
-		xTracker.addValue(point.getX());
-		yTracker.addValue(point.getY());
+		xStats.addValue(point.getX());
+		yStats.addValue(point.getY());
 	}
 
 	@Override
@@ -163,11 +171,12 @@ public class XY_DataSet extends AbstractXY_DataSet {
 
 	@Override
 	public void set(int index, double y) {
-		Point2D point = get(index);
-		if (point != null)
-			point.setLocation(point.getX(), y);
-		else
-			throw new IndexOutOfBoundsException();
+		throw new UnsupportedOperationException();
+//		Point2D point = get(index);
+//		if (point != null)
+//			point.setLocation(point.getX(), y);
+//		else
+//			throw new IndexOutOfBoundsException();
 	}
 
 	@Override
