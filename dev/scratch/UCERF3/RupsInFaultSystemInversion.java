@@ -84,7 +84,7 @@ public class RupsInFaultSystemInversion {
 	public final static String UNIFORM_SLIP_MODEL = "Uniform/Boxcar (Dsr=Dr)";
 	public final static String WG02_SLIP_MODEL = "WGCEP-2002 model (Dsr prop to Vs)";
 	public final static String TAPERED_SLIP_MODEL = "Tapered Ends ([Sin(x)]^0.5)";
-	private String slipModelType = UNIFORM_SLIP_MODEL;
+	private String slipModelType = TAPERED_SLIP_MODEL;
 
 	private static EvenlyDiscretizedFunc taperedSlipPDF, taperedSlipCDF;
 
@@ -204,7 +204,7 @@ public class RupsInFaultSystemInversion {
 //		findUCERF2_Rups.plotMFD_TestForNcal();
 
 		
-		doInversion(rupList);
+		doInversion(findUCERF2_Rups, rupList);
 		
 		
 	}
@@ -632,23 +632,37 @@ public class RupsInFaultSystemInversion {
 	}
 
 
-	public void doInversion(ArrayList<ArrayList<Integer>> rupList) {
+	public void doInversion(FindEquivUCERF2_Ruptures findUCERF2_Rups, ArrayList<ArrayList<Integer>> rupList) {
 		
-		double relativeSegRateWt = 0.01;  // weight of paleo-rate constraint relative to slip-rate constraint
+		double relativeSegRateWt = 0.01;  // weight of paleo-rate constraint relative to slip-rate constraint (recommended: 0.01)
+		double relativeMagDistWt = 0;  // weight of magnitude-distribution constraint relative to slip-rate constraint
 		int numiter=0;  // number of simulated annealing iterations (increase this to decrease misfit)
 		
+		// Find number of rows in A matrix (equals the total number of constraints)
+		int numRows=numSections + (int)Math.signum(relativeSegRateWt)*segRateConstraints.size();  // number of rows used for slip-rate and paleo-rate constraints
+		if (relativeMagDistWt > 0.0) {
+			findUCERF2_Rups.getN_Cal_UCERF2_BackgrMFD_WithAfterShocks();
+			findUCERF2_Rups.getN_CalTotalTargetGR_MFD();
+			IncrementalMagFreqDist targetMagFreqDist = findUCERF2_Rups.getN_CalTargetMinusBackground_MFD(); 
+			numRows=numRows+targetMagFreqDist.getNum(); // add number of rows used for magnitude distribution constraint
+		}
+		
+		
 		// Components of matrix equation to invert (Ax=d)
-		OpenMapRealMatrix A = new OpenMapRealMatrix(numSections+segRateConstraints.size(),numRuptures); // A matrix
-		double[] d = new double[numSections+segRateConstraints.size()];	// data vector d
+		OpenMapRealMatrix A = new OpenMapRealMatrix(numRows,numRuptures); // A matrix
+		double[] d = new double[numRows];	// data vector d
 		double[] rupRateSolution = new double[numRuptures]; // final solution (x of Ax=d)
 		double[] initial_state = new double[numRuptures];  // initial guess at solution x
 		
-		ArrayList<SegRateConstraint> segRateConstraints = getPaleoSegRateConstraints();
+		if(D) System.out.println("\nNumber of sections: " + numSections + ". Number of ruptures: " + numRuptures + ".\n");
+		if(D) System.out.println("Total number of constraints (rows): " + numRows + ".\n");
 		
-		System.out.println("\nNumber of sections: " + numSections + ". Number of ruptures: " + numRuptures + ".\n");
+		
+		
+		// PUT TOGETHER "A" MATRIX AND DATA VECTOR
 		
 		// Make sparse matrix of slip in each rupture & data vector of section slip rates
-		int numElements = 0;
+		int numElements = 0;  
 		if(D) System.out.println("\nAdding slip per rup to A matrix ...");
 		for (int rup=0; rup<numRuptures; rup++) {
 			double[] slips = getSlipOnSectionsForRup(rup);
@@ -658,11 +672,11 @@ public class RupsInFaultSystemInversion {
 				if(D) numElements++;
 			}
 		}
-		for (int sect=0; sect<numSections; sect++) {
-			d[sect] = sectSlipRateReduced[sect];	
-		}
+		for (int sect=0; sect<numSections; sect++) d[sect] = sectSlipRateReduced[sect];	
 		if(D) System.out.println("Number of nonzero elements in A matrix = "+numElements);
 
+		
+		
 		// Make sparse matrix of paleo event probs for each rupture & data vector of mean event rates
 		if (relativeSegRateWt > 0.0) {
 			numElements = 0;
@@ -681,6 +695,29 @@ public class RupsInFaultSystemInversion {
 			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numElements);
 		}
 
+		
+		
+		// Constrain Solution MFD to equal the Target UCERF2 MFD (minus background eqs)
+		if (relativeMagDistWt > 0.0) {	
+			numElements = 0;
+			if(D) System.out.println("\nAdding magnitude constraint to A matrix (match Target UCERF2 minus background) ...");
+			IncrementalMagFreqDist targetMagFreqDist = findUCERF2_Rups.getN_CalTargetMinusBackground_MFD(); 
+			targetMagFreqDist.setTolerance(0.1); // apply constraint to 0.1 magnitude-unit bins (this is 0.1 in the input MFDs also)		
+			int rowIndex = numSections + (int)Math.signum(relativeSegRateWt)*segRateConstraints.size(); // number of rows used for slip-rate and paleo-rate constraints
+			for(int rup=0; rup<numRuptures;rup++) {
+				double mag = rupMeanMag[rup];
+				A.setEntry(rowIndex+targetMagFreqDist.getXIndex(mag),rup,relativeMagDistWt);
+				numElements++;
+			}		
+			for (double m=targetMagFreqDist.getMinX(); m<=targetMagFreqDist.getMaxX(); m=m+targetMagFreqDist.getDelta()) {
+				d[rowIndex]=targetMagFreqDist.getY(m)*relativeMagDistWt;
+				rowIndex++; 
+			}
+			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numElements);
+		}
+			
+		
+		
 		// SOLVE THE INVERSE PROBLEM
 		
 		if(D) System.out.println("\nSolving inverse problem with simulated annealing ... ");
@@ -693,7 +730,7 @@ public class RupsInFaultSystemInversion {
 		
 		
 		// Plots of misfit, magnitude distribution, rupture rates
-		PlotStuff(rupList, A, d, rupRateSolution);
+		PlotStuff(rupList, A, d, rupRateSolution, relativeMagDistWt, findUCERF2_Rups);
 			
 
 	}
@@ -701,7 +738,7 @@ public class RupsInFaultSystemInversion {
 
 	
 	
-	private void PlotStuff(ArrayList<ArrayList<Integer>> rupList, OpenMapRealMatrix A, double[] d, double[] rupRateSolution) {
+	private void PlotStuff(ArrayList<ArrayList<Integer>> rupList, OpenMapRealMatrix A, double[] d, double[] rupRateSolution, double relativeMagDistWt, FindEquivUCERF2_Ruptures findUCERF2_Rups) {
 		
 		
 		// Plot the rupture rates
@@ -781,6 +818,7 @@ public class RupsInFaultSystemInversion {
 		graph3.setY_AxisLabel("Event Rate (per year)");
 		
 		
+		
 		// plot magnitude histogram for final rupture rates
 		if(D) System.out.println("Making plot of final magnitude distribution . . . ");
 		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,35,0.1);
@@ -788,9 +826,17 @@ public class RupsInFaultSystemInversion {
 		for(int r=0; r<getNumRupRuptures();r++)
 			magHist.add(rupMeanMag[r], rupRateSolution[r]);
 		ArrayList funcs4 = new ArrayList();
-		funcs4.add(magHist);
-		magHist.setName("Magntiude Distribution of SA Solution");
+		magHist.setName("Magnitude Distribution of SA Solution");
 		magHist.setInfo("(number in each mag bin)");
+		funcs4.add(magHist);
+		// If the magnitude constraint is used, add a plot of the target MFD
+		if (relativeMagDistWt > 0.0) {		
+			IncrementalMagFreqDist targetMagFreqDist = findUCERF2_Rups.getN_CalTargetMinusBackground_MFD(); 
+			targetMagFreqDist.setTolerance(0.1); 
+			targetMagFreqDist.setName("Target Magnitude Distribution");
+			targetMagFreqDist.setInfo("UCERF2 Solution minus background (with aftershocks added back in)");
+			funcs4.add(targetMagFreqDist);
+		}
 		GraphiWindowAPI_Impl graph4 = new GraphiWindowAPI_Impl(funcs4, "Magnitude Histogram for Final Rates"); 
 		graph4.setX_AxisLabel("Magnitude");
 		graph4.setY_AxisLabel("Frequency (per bin)");
@@ -882,7 +928,7 @@ public class RupsInFaultSystemInversion {
 			magHist2.add(rupMeanMag[r], initial_state[r]);
 		ArrayList funcs = new ArrayList();
 		funcs.add(magHist2);
-		magHist2.setName("Magntiude Distribution of Starting Model (before Annealing)");
+		magHist2.setName("Magnitude Distribution of Starting Model (before Annealing)");
 		magHist2.setInfo("(number in each mag bin)");
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Magnitude Histogram"); 
 		graph.setX_AxisLabel("Magnitude");

@@ -887,7 +887,7 @@ public class FindEquivUCERF2_Ruptures {
 			double frAshock = 1.0 - 0.039*Math.pow(10.0,0.2*mag);
 			if(frAshock<0) frAshock=0;
 			double corr = 1.0/(1.0-frAshock);
-			System.out.println("\t"+mag+"\t"+corr);
+			// System.out.println("\t"+mag+"\t"+corr);
 
 			cumBackgroundMFD.set(m,cumBackgroundMFD.getY(m)*corr);
 		}

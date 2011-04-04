@@ -189,10 +189,10 @@ public class SectionCluster extends ArrayList<Integer> {
 		for(int s=0;s<size();s++) {
 //		for(int s=0;s<1;s++) {	// Debugging: only compute ruptures from first section
 			// show progress
-			if(s*100/size() > progress) {
-				System.out.print(progress+"\t");
-				progress += progressIncrement;
-			}
+			//if(s*100/size() > progress) {
+			//	System.out.print(progress+"\t");
+			//	progress += progressIncrement;
+			//}
 			ArrayList<Integer> sectList = new ArrayList<Integer>();
 			int sectIndex = get(s);
 			sectList.add(sectIndex);
