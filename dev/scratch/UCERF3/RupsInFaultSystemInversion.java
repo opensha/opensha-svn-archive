@@ -56,7 +56,7 @@ public class RupsInFaultSystemInversion {
 	double maxJumpDist, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff;
 	int minNumSectInRup;
 	
-	MagAreaRelationship magAreaRel;
+	ArrayList<MagAreaRelationship> magAreaRelList;
 
 	String endPointNames[];
 	Location endPointLocs[];
@@ -105,7 +105,7 @@ public class RupsInFaultSystemInversion {
 	public RupsInFaultSystemInversion(ArrayList<FaultSectionPrefData> faultSectionData,
 			double[][] sectionDistances, double[][] subSectionAzimuths, double maxJumpDist, 
 			double maxAzimuthChange, double maxTotAzimuthChange, double maxRakeDiff, int minNumSectInRup,
-			MagAreaRelationship magAreaRel, File precomputedDataDir, double moRateReduction) {
+			ArrayList<MagAreaRelationship> magAreaRelList, File precomputedDataDir, double moRateReduction) {
 
 		if(D) System.out.println("Instantiating RupsInFaultSystemInversion");
 		this.faultSectionData = faultSectionData;
@@ -116,7 +116,7 @@ public class RupsInFaultSystemInversion {
 		this.maxTotAzimuthChange=maxTotAzimuthChange; 
 		this.maxRakeDiff=maxRakeDiff;
 		this.minNumSectInRup=minNumSectInRup;
-		this.magAreaRel=magAreaRel;
+		this.magAreaRelList=magAreaRelList;
 		this.precomputedDataDir = precomputedDataDir;
 		this.moRateReduction=moRateReduction;
 
@@ -619,7 +619,12 @@ public class RupsInFaultSystemInversion {
 				}
 				rupArea[rupIndex] = totArea;
 				rupLength[rupIndex] = totLength;
-				rupMeanMag[rupIndex] = magAreaRel.getMedianMag(totArea*1e-6);
+				double mag=0;
+				for(MagAreaRelationship magArea: magAreaRelList) {
+					mag += magArea.getMedianMag(totArea*1e-6)/magAreaRelList.size();
+				}
+				rupMeanMag[rupIndex] = mag;
+//				rupMeanMag[rupIndex] = magAreaRel.getMedianMag(totArea*1e-6);
 				rupMeanMoment[rupIndex] = MomentMagCalc.getMoment(rupMeanMag[rupIndex]);
 				rupTotMoRateAvail[rupIndex]=totMoRate;
 				// the above is meanMoment in case we add aleatory uncertainty later (aveMoment needed elsewhere); 
@@ -635,7 +640,7 @@ public class RupsInFaultSystemInversion {
 	public void doInversion(FindEquivUCERF2_Ruptures findUCERF2_Rups, ArrayList<ArrayList<Integer>> rupList) {
 		
 		double relativeSegRateWt = 0.01;  // weight of paleo-rate constraint relative to slip-rate constraint (recommended: 0.01)
-		double relativeMagDistWt = 0;  // weight of magnitude-distribution constraint relative to slip-rate constraint
+		double relativeMagDistWt = 10.0;  // weight of UCERF2 magnitude-distribution constraint relative to slip-rate constraint - WORKS ONLY FOR NORTHERN CALIFORNIA INVERSION (recommended: 10.0)
 		int numiter=0;  // number of simulated annealing iterations (increase this to decrease misfit)
 		
 		// Find number of rows in A matrix (equals the total number of constraints)
@@ -698,6 +703,7 @@ public class RupsInFaultSystemInversion {
 		
 		
 		// Constrain Solution MFD to equal the Target UCERF2 MFD (minus background eqs)
+		// WORKS ONLY FOR NORTHERN CALIFORNIA INVERSION
 		if (relativeMagDistWt > 0.0) {	
 			numElements = 0;
 			if(D) System.out.println("\nAdding magnitude constraint to A matrix (match Target UCERF2 minus background) ...");

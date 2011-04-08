@@ -68,7 +68,10 @@ public class TestInversion {
 		minNumSectInRup = 2;
 		moRateReduction = 0.1;
 		includeSectionsWithNaN_slipRates = false;
-		magAreaRel = new Ellsworth_B_WG02_MagAreaRel();
+		ArrayList<MagAreaRelationship> magAreaRelList = new ArrayList<MagAreaRelationship>();
+		magAreaRelList.add(new Ellsworth_B_WG02_MagAreaRel());
+		magAreaRelList.add(new HanksBakun2002_MagAreaRel());
+//		magAreaRel = new Ellsworth_B_WG02_MagAreaRel();
 		// magAreaRel = new HanksBakun2002_MagAreaRel();
 		moRateReduction = 0.1;
 		
@@ -94,7 +97,7 @@ public class TestInversion {
 		rupsInFaultSysInv = new RupsInFaultSystemInversion(subSectionPrefDataList,
 				subSectionDistances, subSectionAzimuths, maxJumpDist, 
 				maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, minNumSectInRup, 
-				magAreaRel, precomputedDataDir, moRateReduction);
+				magAreaRelList, precomputedDataDir, moRateReduction);
 		
 //		rupsInFaultSysInv.writeCloseSubSections(precomputedDataDir.getAbsolutePath()+File.separator+"closeSubSections.txt");
 		
