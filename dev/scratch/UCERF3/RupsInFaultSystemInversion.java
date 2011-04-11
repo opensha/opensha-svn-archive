@@ -640,7 +640,7 @@ public class RupsInFaultSystemInversion {
 	public void doInversion(FindEquivUCERF2_Ruptures findUCERF2_Rups, ArrayList<ArrayList<Integer>> rupList) {
 		
 		double relativeSegRateWt = 0.01;  // weight of paleo-rate constraint relative to slip-rate constraint (recommended: 0.01)
-		double relativeMagDistWt = 10.0;  // weight of UCERF2 magnitude-distribution constraint relative to slip-rate constraint - WORKS ONLY FOR NORTHERN CALIFORNIA INVERSION (recommended: 10.0)
+		double relativeMagDistWt = 0.0;  // weight of UCERF2 magnitude-distribution constraint relative to slip-rate constraint - WORKS ONLY FOR NORTHERN CALIFORNIA INVERSION (recommended: 10.0)
 		int numiter=0;  // number of simulated annealing iterations (increase this to decrease misfit)
 		
 		// Find number of rows in A matrix (equals the total number of constraints)

@@ -176,6 +176,23 @@ public class TestInversion {
 		
 		numSubSections = subSectionPrefDataList.size();
 		if(D) System.out.println("numSubsections = "+numSubSections);
+		
+		/*
+		if (D) {
+			System.out.println("\n\nPrinting Section Fault Trace Information:");
+			System.out.println("Section Index / Lat1 / Lon1 / Lat2 / Lat 2");
+			for (int sect=0; sect<numSubSections; sect++) {
+				FaultTrace faultTrace = subSectionPrefDataList.get(sect).getFaultTrace();
+				int numTracePts = faultTrace.getNumLocations();
+				Location loc1=faultTrace.get(0);
+				Location loc2=faultTrace.get(numTracePts-1);
+				System.out.println(sect+"\t"+loc1.getLatitude()+"\t"+loc1.getLongitude()+"\t"+loc2.getLatitude()+"\t"+loc2.getLongitude());
+			}
+			System.out.println("\n\n");
+		}
+		*/
+		
+		
 	}
 
 
