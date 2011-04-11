@@ -44,8 +44,8 @@ public class ETAS_Simulator {
 	EqkRupForecast erf;
 	ETAS_Utils etasUtils;
 //	double distDecay=1.4;
-	final static double distDecay=2;
-	double minDist=0.5;
+	double distDecay;
+	double minDist;
 //	double minDist=2.0;
 	double tMin=0;
 	double tMax=360;
@@ -704,9 +704,9 @@ public class ETAS_Simulator {
 		
 
 		// Create the ETAS simulator
-//		int srcID_ToIgnore = -1; // landers
+		int srcID_ToIgnore = -1; // landers
 //		int srcID_ToIgnore = 195; // landers
-		int srcID_ToIgnore = 223; // Northridge
+//		int srcID_ToIgnore = 223; // Northridge
 		// SSAF is 42 to 98
 		// Landers is 195
 		// Northridge is 223
@@ -736,26 +736,30 @@ public class ETAS_Simulator {
 		mainShock = meanUCERF2.getSource(68).getRupture(4);
 		etasSimulator.runTests(mainShock,"SSAF Wall-to-wall Rupture; M="+mainShock.getMag(), null);
 
-
+*/
 		// 195	Landers Rupture	 #rups=46 (rup 41 for M 7.25)
 		mainShock = meanUCERF2.getSource(195).getRupture(41);
+		double distDecay = 1.7;
+		double minDist = 0.3;
 		String info = "Landers Rupture (M="+mainShock.getMag()+"); distDecay="+distDecay;
-		etasSimulator.runTests(mainShock,info, 195, rootDir+"Landers_a_5/");
-*/
-				
+		etasSimulator.runTests(mainShock,info, 195, rootDir+"Landers_decay1pt7_withSrc/",distDecay,minDist);
+		
+/*				
 		// 223	Northridge	 #rups=13	(rup 8 for M 6.75)
 		mainShock = meanUCERF2.getSource(223).getRupture(8);
+		double distDecay = 2.0;
+		double minDist = 0.5;
 		String info = "Northridge Rupture (M="+mainShock.getMag()+"); distDecay="+distDecay;
-		etasSimulator.runTests(mainShock,info, 223, rootDir+"Northridge_decay2pt0/");
-
-		/*
+		etasSimulator.runTests(mainShock,info, 223, rootDir+"Northridge_decay2pt0_withSrc/",distDecay,minDist);
+ 
+		
 
 		// 236	Pitas Point (Lower, West)	 #rups=19	13.0 (shallowest dipping rupture I could find)
 		mainShock = meanUCERF2.getSource(236).getRupture(10);
 		String info = "Pitas Point (shallowest dipping source); M="+mainShock.getMag()+"; AveDip="+mainShock.getRuptureSurface().getAveDip();
 		etasSimulator.runTests(mainShock,info,null);
-
 */
+
 		runtime = (System.currentTimeMillis()-startRunTime)/1000;
 		System.out.println("Test Run took "+runtime+" seconds");
 		
@@ -814,7 +818,10 @@ public class ETAS_Simulator {
 	 * @param info - plotting label
 	 * @param srcIndex - the index of a source to compare results with
 	 */
-	public void runTests(ProbEqkRupture mainShock, String info, Integer srcIndex, String dirName) {
+	public void runTests(ProbEqkRupture mainShock, String info, Integer srcIndex, String dirName, double distDecay, double minDist) {
+		
+		this.distDecay = distDecay;
+		this.minDist = minDist;
 		
 		dirToSaveData = dirName;
 		
