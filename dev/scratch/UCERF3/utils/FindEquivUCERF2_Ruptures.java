@@ -28,7 +28,7 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
+import scratch.UCERF3.utils.ModUCERF2.MeanUCERF2;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
@@ -54,6 +54,7 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
  * 8) If more than one inversion ruptures have the same end sections (multi pathing), then the one with the 
  *    minimum number of sections get's the equivalent UCERF2 ruptures (see additional notes for the method
  *    getMagsAndRatesForRuptures(ArrayList<ArrayList<Integer>>)).
+ * 9) This uses a special version of MeanUCERF2 (to compute floating rupture areas as the ave of HB and EllB)
  * 
  * @author field
  */
@@ -66,7 +67,8 @@ public class FindEquivUCERF2_Ruptures {
 	private File precomputedDataDir;
 	File dataFile;
 	
-	final static int NUM_RUPTURES=11490;	// this was found after running this once
+//	final static int NUM_RUPTURES=11490;	// this was found after running this once
+	final static int NUM_RUPTURES=12463;	// this was found after running this once
 	
 	ArrayList<FaultSectionPrefData> faultSectionData;
 	
@@ -343,7 +345,7 @@ public class FindEquivUCERF2_Ruptures {
 		}
 		// another weak test to make sure nothing has changed
 		if(numUCERF2_Ruptures != NUM_RUPTURES)
-			throw new RuntimeException("problem with NUM_RUPTURES; something changed?");
+			throw new RuntimeException("problem with NUM_RUPTURES; something changed?  old="+NUM_RUPTURES+"\tnew="+numUCERF2_Ruptures);
 		
 		if(D) System.out.println("Num UCERF2 Sources to Consider = "+ucerf2_srcIndexList.size());
 		if(D) System.out.println("Num UCERF2 Ruptues to Consider = "+NUM_RUPTURES);
@@ -566,6 +568,26 @@ public class FindEquivUCERF2_Ruptures {
 					if(D) System.out.print(errorString);	
 					resultsString.add(errorString);
 				}
+				
+				// *****************************
+				// Hard coded special case fixes
+				if(firstSectOfUCERF2_Rup[rupIndex]==707 & lastSectOfUCERF2_Rup[rupIndex] < 700) {
+					String fixSectName=faultSectionData.get(608).getSectionName();
+					if(!sectName1.equals("Zayante-Vergeles, Subsection 0") || !fixSectName.equals("San Andreas (Santa Cruz Mtn), Subsection 0")) 
+						throw new RuntimeException("Problem: something changed and hard coded fix no longer applicable");
+					System.out.println("Fixing problem: "+firstSectOfUCERF2_Rup[rupIndex]+"\t"+lastSectOfUCERF2_Rup[rupIndex]);
+					firstSectOfUCERF2_Rup[rupIndex]=608;
+					sectName1 = fixSectName;
+				}
+				if(lastSectOfUCERF2_Rup[rupIndex]==707 & firstSectOfUCERF2_Rup[rupIndex] < 700) {
+					String fixSectName=faultSectionData.get(608).getSectionName();
+					if(!sectName2.equals("Zayante-Vergeles, Subsection 0") || !fixSectName.equals("San Andreas (Santa Cruz Mtn), Subsection 0")) 
+						throw new RuntimeException("Problem: something changed and hard coded fix no longer applicable");
+					System.out.println("Fixing problem: "+firstSectOfUCERF2_Rup[rupIndex]+"\t"+lastSectOfUCERF2_Rup[rupIndex]);
+					lastSectOfUCERF2_Rup[rupIndex]=608;
+					sectName2 = fixSectName;
+				}
+				// ********** End of hard-coded fix ****************
 				
 
 				String result = rupIndex+":\t"+firstSectOfUCERF2_Rup[rupIndex]+"\t"+lastSectOfUCERF2_Rup[rupIndex]+"\t("+sectName1+"   &  "+
