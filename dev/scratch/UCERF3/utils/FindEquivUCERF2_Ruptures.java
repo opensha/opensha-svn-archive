@@ -39,7 +39,22 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 /**
  * This class associates UCERF2 ruptures with inversion ruptures.  That is, for a given inversion rupture,
  * this will give a total rate and average magnitude (preserving moment rate) from UCERF2 for that rupture
- * (an average in case more than one UCERF2 associates with a given inversion rupture).
+ * (an average in case more than one UCERF2 associates with a given inversion rupture).  Right now this throws
+ * an exception if the run is not for N. Cal. (as determined by checking that  faultSectionData.size()==NUM_SECTIONS).
+ * Applying this to the entire state will require more work, mostly because S. Ca. has two alternative fault models
+ * and the greater number of faults makes associating sections at the end of ruptures more difficult.  Right now 
+ * the only N. Cal faults exhibiting a problem are those that have sub-seismogenic ruptures:
+ * 
+ * 		Big Lagoon-Bald Mtn
+ * 		Fickle Hill
+ * 		Great Valley 13 (Coalinga)
+ * 		Little Salmon (Offshore)
+ * 		Little Salmon (Onshore)
+ * 		Little Salmon Connected
+ * 		Mad River
+ * 		McKinleyville
+ * 		Table Bluff
+ * 		Trinidad
  * 
  * Important Notes:
  * 
@@ -54,7 +69,9 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
  * 8) If more than one inversion ruptures have the same end sections (multi pathing), then the one with the 
  *    minimum number of sections get's the equivalent UCERF2 ruptures (see additional notes for the method
  *    getMagsAndRatesForRuptures(ArrayList<ArrayList<Integer>>)).
- * 9) This uses a special version of MeanUCERF2 (to compute floating rupture areas as the ave of HB and EllB)
+ * 9) This uses a special version of MeanUCERF2 (that computes floating rupture areas as the ave of HB and EllB)
+ * 
+ * This class also compute various MFDs.
  * 
  * @author field
  */
@@ -67,20 +84,22 @@ public class FindEquivUCERF2_Ruptures {
 	private File precomputedDataDir;
 	File dataFile;
 	
-//	final static int NUM_RUPTURES=11490;	// this was found after running this once
 	final static int NUM_RUPTURES=12463;	// this was found after running this once
+	final static int NUM_SECTIONS=717;		// this was found after running this once
 	
 	ArrayList<FaultSectionPrefData> faultSectionData;
+	
+	Region relm_nocal_reg;
 	
 	// the following hold info about each UCERF2 rupture
 	int[] firstSectOfUCERF2_Rup, lastSectOfUCERF2_Rup, srcIndexOfUCERF2_Rup, rupIndexOfUCERF2_Rup;
 	double[] magOfUCERF2_Rup, lengthOfUCERF2_Rup, rateOfUCERF2_Rup;
 	boolean[] subSeismoUCERF2_Rup;
 	
-	MeanUCERF2 meanUCERF2;
+	MeanUCERF2 meanUCERF2;	// note that this is a special version (see notes above)
 	int NUM_UCERF2_SRC=289; // this is to exclude non-CA B faults
 
-	SummedMagFreqDist mfdOfAssocRupsAndModMags;	// this is the mfd of the associated ruptures (including ave mag from mult rups)
+	SummedMagFreqDist mfdOfAssocRupsAndModMags;		// this is the mfd of the associated ruptures (including ave mag from mult rups)
 	SummedMagFreqDist mfdOfAssocRupsWithOrigMags;	// this is the mfd of the associated ruptures (including orig mag from all rups)
 	
 	IncrementalMagFreqDist nCal_UCERF2_BackgrMFD_WithAftShocks;
@@ -88,8 +107,6 @@ public class FindEquivUCERF2_Ruptures {
 	GutenbergRichterMagFreqDist nCalTotalTargetGR_MFD;
 	
 	boolean[] ucerf2_rupUsed;
-	
-	Region relm_nocal_reg;
 		
 	/**
 	 * See important notes given above for this class.
@@ -106,14 +123,19 @@ public class FindEquivUCERF2_Ruptures {
 		this.faultSectionData = faultSectionData;
 		this.precomputedDataDir=precomputedDataDir;
 		
+		Region region = new CaliforniaRegions.RELM_NOCAL();
+		relm_nocal_reg  = new Region(region.getBorder(), BorderType.GREAT_CIRCLE);
+		// the above region is modified as noted in getMFD_forNcal() to avoid the inclusion of Parkfield
+		
+		// Make sure the sections correspond to N California (a weak test)
+		if(faultSectionData.size() != NUM_SECTIONS)
+			throw new RuntimeException("Error: Number of sections changed (this has only been verified for for N Cal. which should have )"+
+					NUM_SECTIONS+" sections; this run has "+faultSectionData.size()+")");
+		
 		String fullpathname = precomputedDataDir.getAbsolutePath()+File.separator+DATA_FILE_NAME;
 		dataFile = new File (fullpathname);
 
-//		HanksBakun2002_MagAreaRel hb_magArea = new HanksBakun2002_MagAreaRel();
-//		double m6pt5_width = Math.sqrt(hb_magArea.getMedianArea(6.55));
-//		if(D) System.out.println("Square dimention of M 6.55 event: "+(float)m6pt5_width);
-		
-		// these are what we want
+		// these are what we want to fill in here
 		firstSectOfUCERF2_Rup = new int[NUM_RUPTURES];	// contains -1 if no association
 		lastSectOfUCERF2_Rup = new int[NUM_RUPTURES];	// contains -1 if no association
 		srcIndexOfUCERF2_Rup = new int[NUM_RUPTURES];
@@ -149,11 +171,6 @@ public class FindEquivUCERF2_Ruptures {
 			findSectionEndsForUCERF2_Rups();
 		}
 		
-		Region region = new CaliforniaRegions.RELM_NOCAL();
-		relm_nocal_reg  = new Region(region.getBorder(), BorderType.GREAT_CIRCLE);
-
-		
-//		tempWriteStuff();
 	}
 	
 	
@@ -367,6 +384,14 @@ public class FindEquivUCERF2_Ruptures {
 			if (D) System.out.println("working on source "+src.getName()+" "+s+" of "+ucerf2_srcIndexList.size());
 			double srcDDW = src.getSourceSurface().getSurfaceWidth();
 			double totMoRate=0, partMoRate=0;
+			// determine if src is in N Cal.
+			EvenlyGriddedSurfaceAPI srcSurf = src.getSourceSurface();
+			Location loc1 = srcSurf.get(0, 0);
+			Location loc2 = srcSurf.get(0, srcSurf.getNumCols()-1);
+			boolean srcInsideN_Cal = false;
+			if(relm_nocal_reg.contains(loc1) || relm_nocal_reg.contains(loc2))
+				srcInsideN_Cal = true;
+
 			for(int r=0; r<src.getNumRuptures(); r++){
 				rupIndex += 1;
 				ProbEqkRupture rup = src.getRupture(r);
@@ -595,7 +620,10 @@ public class FindEquivUCERF2_Ruptures {
 //				if(D) System.out.print(result);
 				resultsString.add(result);
 				
-				if(problemSource && !problemSourceList.contains(src.getName()))
+				// check if source is inside N Cal region
+				
+				
+				if(problemSource && srcInsideN_Cal && !problemSourceList.contains(src.getName()))
 					problemSourceList.add(src.getName());
 
 
@@ -616,7 +644,7 @@ public class FindEquivUCERF2_Ruptures {
 			fw = new FileWriter(fullpathname);
 			for(String line:resultsString)
 				fw.write(line);
-			fw.write("Problem Sources:\n");
+			fw.write("N Cal Problem Sources:\n");
 			for(String line:problemSourceList)
 				fw.write(line+"\n");
 			fw.close();
@@ -822,6 +850,10 @@ public class FindEquivUCERF2_Ruptures {
 		sumMFD.setName("this = getApproxN_Cal_UCERF2_BackgrMFDwAftShks() + mfdsForUCERF2AssocRups.get(0)");
 		funcs.add(sumMFD);
 		
+		// target minus background
+		IncrementalMagFreqDist targetMinusBackground = getN_CalTargetMinusBackground_MFD();
+		funcs.add(targetMinusBackground);
+		
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Mag-Freq Dists"); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Rate");
@@ -836,6 +868,7 @@ public class FindEquivUCERF2_Ruptures {
 		sumCumMFD.setName("Sum of Dataset 1 and 2 above");
 		sumCumMFD.setInfo("This is a measure of the current bulge problem in N Cal.");
 		funcs2.add(sumCumMFD);
+		funcs2.add(targetMinusBackground.getCumRateDistWithOffset());
 		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "Cum Mag-Freq Dists"); 
 		graph2.setX_AxisLabel("Mag");
 		graph2.setY_AxisLabel("Rate");

@@ -736,7 +736,7 @@ public class RupsInFaultSystemInversion {
 		
 		
 		// Plots of misfit, magnitude distribution, rupture rates
-		PlotStuff(rupList, A, d, rupRateSolution, relativeMagDistWt, findUCERF2_Rups);
+		plotStuff(rupList, A, d, rupRateSolution, relativeMagDistWt, findUCERF2_Rups);
 			
 
 	}
@@ -744,7 +744,7 @@ public class RupsInFaultSystemInversion {
 
 	
 	
-	private void PlotStuff(ArrayList<ArrayList<Integer>> rupList, OpenMapRealMatrix A, double[] d, double[] rupRateSolution, double relativeMagDistWt, FindEquivUCERF2_Ruptures findUCERF2_Rups) {
+	private void plotStuff(ArrayList<ArrayList<Integer>> rupList, OpenMapRealMatrix A, double[] d, double[] rupRateSolution, double relativeMagDistWt, FindEquivUCERF2_Ruptures findUCERF2_Rups) {
 		
 		
 		// Plot the rupture rates
@@ -775,6 +775,52 @@ public class RupsInFaultSystemInversion {
 		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "Slip Rate Synthetics (blue) & Data (black)"); 
 		graph2.setX_AxisLabel("Fault Section Index");
 		graph2.setY_AxisLabel("Slip Rate");
+		
+		
+		// Plot the slip rate data vs. synthetics - Averaged over parent sections
+//		System.out.println("\n\nratioSR\tsynSR\tdataSR\tparentSectName");
+		String info = "index\tratio\tpredSR\tdataSR\tParentSectionName\n";
+		String parentSectName = "";
+		double aveData=0, aveSyn=0, numSubSect=0;
+		ArrayList<Double> aveDataList = new ArrayList<Double>();
+		ArrayList<Double> aveSynList = new ArrayList<Double>();
+		for (int i = 0; i < numSections; i++) {
+			if(!faultSectionData.get(i).getParentSectionName().equals(parentSectName)) {
+				if(i != 0) {
+					double ratio  = aveSyn/aveData;
+					aveSyn /= numSubSect;
+					aveData /= numSubSect;
+					info += aveSynList.size()+"\t"+(float)ratio+"\t"+(float)aveSyn+"\t"+(float)aveData+"\t"+faultSectionData.get(i-1).getParentSectionName()+"\n";
+//					System.out.println(ratio+"\t"+aveSyn+"\t"+aveData+"\t"+faultSectionData.get(i-1).getParentSectionName());
+					aveSynList.add(aveSyn);
+					aveDataList.add(aveData);
+				}
+				aveSyn=0;
+				aveData=0;
+				numSubSect=0;
+				parentSectName = faultSectionData.get(i).getParentSectionName();
+			}
+			aveSyn +=  syn.getY(i);
+			aveData +=  data.getY(i);
+			numSubSect += 1;
+		}
+		ArrayList funcs5 = new ArrayList();		
+		EvenlyDiscretizedFunc aveSynFunc = new EvenlyDiscretizedFunc(0,(double)aveSynList.size()-1,aveSynList.size());
+		EvenlyDiscretizedFunc aveDataFunc = new EvenlyDiscretizedFunc(0,(double)aveSynList.size()-1,aveSynList.size());
+		for(int i=0; i<aveSynList.size(); i++ ) {
+			aveSynFunc.set(i, aveSynList.get(i));
+			aveDataFunc.set(i, aveDataList.get(i));
+		}
+		aveSynFunc.setName("Predicted ave slip rates on parent section");
+		aveDataFunc.setName("Original (Data) ave slip rates on parent section");
+		aveSynFunc.setInfo(info);
+		funcs5.add(aveSynFunc);
+		funcs5.add(aveDataFunc);
+		GraphiWindowAPI_Impl graph5 = new GraphiWindowAPI_Impl(funcs5, "Average Slip Rates on Parent Sections"); 
+		graph5.setX_AxisLabel("Parent Section Index");
+		graph5.setY_AxisLabel("Slip Rate");
+
+
 		
 		
 		// Plot the paleo segment rate data vs. synthetics
