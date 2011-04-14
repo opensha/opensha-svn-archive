@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -o errexit
+
 #cd /usr/local/tomcat/default/webapps/OpenSHA_dev/WEB-INF
 
 echo "updating from svn"
