@@ -219,6 +219,10 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 	}
 	
 	public void setIMR(Collection<ScalarIntensityMeasureRelationshipAPI> imrs) {
+		if (imrs != null && imrs.contains(null))
+			imrs.remove(null);
+		if (imrs != null && imrs.isEmpty())
+			imrs = null;
 		this.imrs = imrs;
 		for (int i=0; i<list.size(); i++)
 			list.setEnabled(i, true);
