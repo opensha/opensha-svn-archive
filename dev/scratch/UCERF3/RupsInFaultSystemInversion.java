@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.commons.math.linear.OpenMapRealMatrix;
@@ -1009,6 +1010,39 @@ public class RupsInFaultSystemInversion {
 		return initial_state;
 		
 	}
+	
+	
+	  /**
+	   * This writes the rupture sections to an ASCII file
+	   * @param filePathAndName
+	   */
+	  public void writeRupsToFiles(String filePathAndName) {
+		  FileWriter fw;
+		  try {
+			  fw = new FileWriter(filePathAndName);
+			  fw.write("rupID\tclusterID\trupInClustID\tmag\tnumSectIDs\tsect1_ID\tsect2_ID\t...\n");	// header
+			  int rupIndex = 0;
+			  for(int c=0;c<getNumClusters();c++) {
+				  ArrayList<ArrayList<Integer>>  rups = getCluster(c).getSectionIndicesForRuptures();
+				  for(int r=0; r<rups.size();r++) {
+					  ArrayList<Integer> rup = rups.get(r);
+					  String line = Integer.toString(rupIndex)+"\t"+Integer.toString(c)+"\t"+Integer.toString(r)+"\t"+
+					  				(float)rupMeanMag[rupIndex]+"\t"+rup.size();
+					  for(Integer sectID: rup) {
+						  line += "\t"+sectID;
+					  }
+					  line += "\n";
+					  fw.write(line);
+					  rupIndex+=1;
+				  }				  
+			  }
+			  fw.close();
+		  } catch (IOException e) {
+			  // TODO Auto-generated catch block
+			  e.printStackTrace();
+		  }
+	  }
+
 
 	/**
 	 * @param args
