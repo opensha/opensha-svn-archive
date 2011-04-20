@@ -182,8 +182,8 @@ implements DisaggregationCalculatorAPI{
 			EqkRupForecast eqkRupForecast, ParameterList calcParams) throws RemoteException {
 		
 		MaxDistanceParam maxDistanceParam = (MaxDistanceParam)calcParams.getParameter(MaxDistanceParam.NAME);
-		NumStochasticEventSetsParam numStochEventSetRealizationsParam =
-			(NumStochasticEventSetsParam)calcParams.getParameter(NumStochasticEventSetsParam.NAME);
+//		NumStochasticEventSetsParam numStochEventSetRealizationsParam =
+//			(NumStochasticEventSetsParam)calcParams.getParameter(NumStochasticEventSetsParam.NAME);
 		IncludeMagDistFilterParam includeMagDistFilterParam =
 			(IncludeMagDistFilterParam)calcParams.getParameter(IncludeMagDistFilterParam.NAME);
 		MagDistCutoffParam magDistCutoffParam = (MagDistCutoffParam)calcParams.getParameter(MagDistCutoffParam.NAME);

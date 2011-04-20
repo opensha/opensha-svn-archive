@@ -30,6 +30,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.DoubleDiscreteConstraint;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringConstraint;
@@ -58,6 +59,11 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 
 	public static final String NAME = "CyberShake Fake Attenuation Relationship";
 	public static final String SHORT_NAME = "CyberShakeIMR";
+	
+	/**
+	 * distance tolerance in KM for site selection
+	 */
+	private static final double distanceTolerance = 5d;
 	
 	EqkRupture curRupture = null;
 
@@ -192,20 +198,17 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 		System.out.println("Setting the site!");
 		if (!dbConnInitialized)
 			initDB();
-		double site_tol = 0.01;
 		
 		CybershakeSite minSite = null;
 		double minDist = Double.POSITIVE_INFINITY;
 		
 		for (CybershakeSite csSite : sites) {
-			double latDist = csSite.lat - site.getLocation().getLatitude();
-			double lonDist = csSite.lon - site.getLocation().getLongitude();
-			double dist = Math.sqrt(Math.pow(latDist, 2) + Math.pow(lonDist, 2));
-			if (dist < site_tol && dist < minDist) {
+			double dist = LocationUtils.horzDistanceFast(csSite.createLocation(), site.getLocation());
+			if (dist < distanceTolerance && dist < minDist) {
 				// it's a match!
 				minSite = csSite;
 				minDist = dist;
-				System.out.println("Idedntified possible CyberShake site (dist=" + dist + "): " + csSite);
+				System.out.println("Idedntified possible CyberShake site (dist=" + dist + " KM): " + csSite);
 			}
 		}
 		this.csSite = minSite;

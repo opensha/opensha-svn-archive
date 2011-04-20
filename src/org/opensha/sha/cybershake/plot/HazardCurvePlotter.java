@@ -64,6 +64,7 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.gui.UserAuthDialog;
 import org.opensha.commons.param.DoubleDiscreteParameter;
 import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.util.ClassUtils;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.cybershake.calc.HazardCurveComputation;
 import org.opensha.sha.cybershake.db.CybershakeHazardCurveRecord;
@@ -103,7 +104,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	
 	public static final String TYPE_DEFAULT = TYPE_PDF;
 	
-	private static final String default_periods = "3";
+	protected static final String default_periods = "3";
 	
 	private double maxSourceDistance = 200;
 	
@@ -137,7 +138,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	
 //	CybershakeERF selectedERF;
 	
-	private SimpleDateFormat dateFormat = new SimpleDateFormat("MM_dd_yyyy");
+	protected static SimpleDateFormat dateFormat = new SimpleDateFormat("MM_dd_yyyy");
 	
 	private double manualVs30  = -1;
 	
@@ -158,7 +159,8 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		init();
 	}
 	
-	private int getRunID(int siteID, int erfID, int rupVarScenarioID, int sgtVarID, int velModelID) {
+	private static int getRunID(Runs2DB runs2db, HazardCurve2DB curve2db, PeakAmplitudesFromDB amps2db,
+			int siteID, int erfID, int rupVarScenarioID, int sgtVarID, int velModelID) {
 		ArrayList<Integer> runIDs = runs2db.getRunIDs(siteID, erfID, sgtVarID, velModelID, rupVarScenarioID, null, null, null, null);
 		if (runIDs == null || runIDs.size() == 0)
 			return -1;
@@ -257,24 +259,23 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		return vals;
 	}
 	
-	public boolean plotCurvesFromOptions(CommandLine cmd) {
-		
-		
-		SiteInfo2DB site2db = getSite2DB();
-		PeakAmplitudesFromDB amps2db = getAmps2DB();
-		
-		int runID;
-		String siteName = null;
+	protected static int getRunIDFromOptions(
+			Runs2DB runs2db,
+			HazardCurve2DB curve2db,
+			PeakAmplitudesFromDB amps2db,
+			SiteInfo2DB site2db,
+			CommandLine cmd) {
 		if (cmd.hasOption("run-id")) {
-			runID = Integer.parseInt(cmd.getOptionValue("run-id"));
+			int runID = Integer.parseInt(cmd.getOptionValue("run-id"));
 			if (runID < 0) {
 				System.err.println("Invalid run id '" + runID + "'!");
-				return false;
+				return -1;
 			}
+			return runID;
 		} else {
 			if (!cmd.hasOption("site"))
 				throw new IllegalArgumentException("Neither a run ID nor site short name was specified!");
-			siteName = cmd.getOptionValue("site");
+			String siteName = cmd.getOptionValue("site");
 			int siteID = site2db.getSiteId(siteName);
 			int erfID;
 			if (cmd.hasOption("erf-id"))
@@ -296,13 +297,25 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 				velModelID = Integer.parseInt(cmd.getOptionValue("vel-model-id"));
 			else
 				velModelID = -1;
-			runID = this.getRunID(siteID, erfID, rupVarScenarioID, sgtVarID, velModelID);
+			int runID = getRunID(runs2db, curve2db, amps2db, siteID, erfID, rupVarScenarioID, sgtVarID, velModelID);
 			if (runID < 0) {
 				System.err.println("No suitable run ID found! siteID: " + siteID + ", erfID: " + erfID +
 						", rupVarScenarioID: " + rupVarScenarioID + ", sgtVarID: " + sgtVarID);
-				return false;
+				return -1;
 			}
+			return runID;
 		}
+	}
+	
+	public boolean plotCurvesFromOptions(CommandLine cmd) {
+		
+		
+		SiteInfo2DB site2db = getSite2DB();
+		PeakAmplitudesFromDB amps2db = getAmps2DB();
+		
+		int runID = getRunIDFromOptions(runs2db, curve2db, amps2db, site2db, cmd);
+		if (runID < 0)
+			return false;
 		
 		CybershakeRun run = runs2db.getRun(runID);
 		if (run == null) {
@@ -325,9 +338,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			System.out.println("Comparing to: "+runCompare);
 		}
 		
-		if (siteName == null) {
-			siteName = site2db.getSiteFromDB(run.getSiteID()).short_name;
-		}
+		String siteName = site2db.getSiteFromDB(run.getSiteID()).short_name;
 		
 		System.out.println("Plotting curve(s) for site " + siteName + "=" + run.getSiteID() + ", RunID=" + runID);
 		this.setMaxSourceSiteDistance(run.getSiteID());
@@ -1101,7 +1112,11 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			throw new RuntimeException("Unsupported IMT");
 	}
 	
-	public static Options createOptions() {
+	/**
+	 * This creates all of the options necessary to select a Run ID
+	 * @return
+	 */
+	protected static Options createCommonOptions() {
 		Options ops = new Options();
 		
 		// ERF
@@ -1125,6 +1140,27 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		run.setRequired(false);
 		ops.addOption(run);
 		
+		Option site = new Option("s", "site", true, "Site short name");
+		site.setRequired(false);
+		ops.addOption(site);
+		
+		Option period = new Option("p", "period", true, "Period(s) to calculate. Multiple periods should be comma separated " +
+				"(default: "+default_periods+")");
+		period.setRequired(false);
+		ops.addOption(period);
+		
+		Option help = new Option("?", "help", false, "Display this message");
+		ops.addOption(help);
+		
+		Option output = new Option("o", "output-dir", true, "Output directory");
+		ops.addOption(output);
+		
+		return ops;
+	}
+	
+	private static Options createOptions() {
+		Options ops = createCommonOptions();
+		
 		Option compare = new Option("comp", "compare-to", true, "Compare to a specific Run ID");
 		compare.setRequired(false);
 		ops.addOption(compare);
@@ -1136,15 +1172,6 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 				"comparison. Multiple files should be comma separated");
 		ops.addOption(attenRelFiles);
 		
-		Option site = new Option("s", "site", true, "Site short name");
-		site.setRequired(false);
-		ops.addOption(site);
-		
-		Option period = new Option("p", "period", true, "Period(s) to calculate. Multiple periods should be comma separated " +
-				"(default: "+default_periods+")");
-		period.setRequired(false);
-		ops.addOption(period);
-		
 		Option pass = new Option("pf", "password-file", true, "Path to a file that contains the username and password for " + 
 				"inserting curves into the database. Format should be \"user:pass\"");
 		ops.addOption(pass);
@@ -1154,12 +1181,6 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		
 		Option force = new Option("f", "force-add", false, "Flag to add curves to db without prompt");
 		ops.addOption(force);
-		
-		Option help = new Option("?", "help", false, "Display this message");
-		ops.addOption(help);
-		
-		Option output = new Option("o", "output-dir", true, "Output directory");
-		ops.addOption(output);
 		
 		Option type = new Option("t", "type", true, "Plot save type. Options are png, pdf, jpg, and txt. Multiple types can be " + 
 				"comma separated (default is " + TYPE_DEFAULT + ")");
@@ -1185,16 +1206,16 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		return ops;
 	}
 	
-	public static void printHelp(Options options) {
+	public static void printHelp(Options options, String appName) {
 		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp( "HazardCurvePlotter", options, true );
+		formatter.printHelp( appName, options, true );
 		System.exit(2);
 	}
 	
-	public static void printUsage(Options options) {
+	public static void printUsage(Options options, String appName) {
 		HelpFormatter formatter = new HelpFormatter();
 		PrintWriter pw = new PrintWriter(System.out);
-		formatter.printUsage(pw, 80, "HazardCurvePlotter", options);
+		formatter.printUsage(pw, 80, appName, options);
 		pw.flush();
 		System.exit(2);
 	}
@@ -1204,17 +1225,19 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		try {
 			Options options = createOptions();
 			
+			String appName = ClassUtils.getClassNameWithoutPackage(HazardCurvePlotter.class);
+			
 			CommandLineParser parser = new GnuParser();
 			
 			if (args.length == 0) {
-				printUsage(options);
+				printUsage(options, appName);
 			}
 			
 			try {
 				CommandLine cmd = parser.parse( options, args);
 				
 				if (cmd.hasOption("help") || cmd.hasOption("?")) {
-					printHelp(options);
+					printHelp(options, appName);
 				}
 				
 				HazardCurvePlotter plotter = new HazardCurvePlotter(Cybershake_OpenSHA_DBApplication.db);
@@ -1233,19 +1256,19 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 					CommandLine cmd = parser.parse( helpOps, args);
 					
 					if (cmd.hasOption("help")) {
-						printHelp(options);
+						printHelp(options, appName);
 					}
 				} catch (ParseException e1) {
 					// TODO Auto-generated catch block
 //				e1.printStackTrace();
 				}
 				System.err.println(e.getMessage());
-				printUsage(options);
+				printUsage(options, appName);
 //			e.printStackTrace();
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				printUsage(options);
+				printUsage(options, appName);
 			}
 			
 			System.out.println("Done!");
