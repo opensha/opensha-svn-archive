@@ -487,29 +487,7 @@ public class TestInversion {
 	   * @param filePathAndName
 	   */
 	  public void writeRupsToFiles(String filePathAndName) {
-		  FileWriter fw;
-		  try {
-			  fw = new FileWriter(filePathAndName);
-			  fw.write("rupID\tclusterID\trupInClustID\tsect1_ID\tsect2_ID\t...\n");	// header
-			  int rupIndex = 0;
-			  for(int c=0;c<rupsInFaultSysInv.getNumClusters();c++) {
-				  ArrayList<ArrayList<Integer>>  rups = rupsInFaultSysInv.getCluster(c).getSectionIndicesForRuptures();
-				  for(int r=0; r<rups.size();r++) {
-					  ArrayList<Integer> rup = rups.get(r);
-					  String line = Integer.toString(rupIndex)+"\t"+Integer.toString(c)+"\t"+Integer.toString(r);
-					  for(Integer sectID: rup) {
-						  line += "\t"+sectID;
-					  }
-					  line += "\n";
-					  fw.write(line);
-					  rupIndex+=1;
-				  }				  
-			  }
-			  fw.close();
-		  } catch (IOException e) {
-			  // TODO Auto-generated catch block
-			  e.printStackTrace();
-		  }
+		  rupsInFaultSysInv.writeRupsToFiles(filePathAndName);
 	  }
 	  
 
@@ -521,9 +499,9 @@ public class TestInversion {
 		
 		TestInversion test = new TestInversion();
 		
-		// the following was run on March 14th for N Cal case for Tom Parsons (see email that day)
-//		test.writeSectionsToFile("sectionsForTom");
-//		test.writeRupsToFiles("rupturesForTom");
+		// the following was run on April 19th for N Cal case for Tom Parsons (see email that day)
+//		test.writeSectionsToFile("sectionsForTom041911");
+//		test.writeRupsToFiles("rupturesForTom041911");
 		
 		/* Tests for the Loc at the N. end of the Parkfield Trace
 		Region nCalRegion = new CaliforniaRegions.RELM_NOCAL();
