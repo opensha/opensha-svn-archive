@@ -129,6 +129,12 @@ public class BugReport {
 						"Version: " + appVersion + "\n" +
 						"Bulid Type: " + ServerPrefUtils.SERVER_PREFS.getBuildType();
 		
+		description += "\nJava Version: "+System.getProperty("java.version");
+		description += " ("+System.getProperty("java.vendor")+")";
+		description += "\nOperating System: "+System.getProperty("os.name");
+		description += " (arch: "+System.getProperty("os.arch");
+		description += ", version: "+System.getProperty("os.version")+")";
+		
 		if (t != null) {
 			description += "\n\nException:\n{{{\n" + getStackTrace(t)+"\n}}}\n";
 		}
