@@ -439,14 +439,18 @@
 				<include name="**/*.java" />
 			</fileset>
 
-			<doctitle><![CDATA[<h1>OpenSHA <a href="http://www.opensha.org">www.OpenSHA.org</a></h1>]]></doctitle>
-			<!-- <bottom><![CDATA[<i>Copyright &#169; 2000 Dummy Corp. All Rights Reserved.</i>]]></bottom> -->
+			<doctitle><![CDATA[<h1>a href="http://www.opensha.org">OpenSHA</a></h1>]]></doctitle>
+			<bottom><![CDATA[<i>Copyright &#169; 2011 OpenSHA.org and the University of Southern California. All Rights Reserved.</i>]]></bottom>
 			<!-- <tag name="todo" scope="all" description="To do:"/> -->
 			<!-- <link offline="true" href="http://java.sun.com/j2se/1.5.0/docs/api/" packagelistLoc="C:\tmp"/>
 			<link href="http://developer.java.sun.com/developer/products/xml/docs/api/"/> -->
+			<link offline="true" href="http://download.oracle.com/javase/6/docs/api/"
+				packagelistLoc="${src}/resources/doc/pkg-lists/jse6-package-list.txt"/>
 		</javadoc>
 		<copy todir="${javadoc.dir}" overwrite="true">
-			<fileset dir="${src}/resources/doc" />
+			<fileset dir="${src}/resources/doc">
+				<exclude name="**/pkg-lists/**" />
+			</fileset>
 		</copy>
 
 	</target>
