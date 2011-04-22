@@ -11,6 +11,8 @@
 #table-a td
 { padding: 6px 8px; border-bottom: 1px solid #CCCCCC; }
 
+a         { color: #33406e; }
+a:visited { color: #a8003b; }
 
 /* JAVADOC BASIC STYLES BELOW */
 
@@ -28,7 +30,8 @@ h1 { font-size: 145% }
 /* Font used in left-hand frame lists */
 .FrameTitleFont   { font-size: 100%; font-family: Helvetica, Arial, sans-serif }
 .FrameHeadingFont { font-size:  90%; font-family: Helvetica, Arial, sans-serif }
-.FrameItemFont    { font-size:  90%; font-family: Helvetica, Arial, sans-serif }
+.FrameItemFont    { font-size:  90%; font-family: Helvetica,Arial, sans-serif; }
+}
 
 /* Navigation bar fonts and colors */
 .NavBarCell1    { background-color:#EEEEFF;} /* Light mauve */
