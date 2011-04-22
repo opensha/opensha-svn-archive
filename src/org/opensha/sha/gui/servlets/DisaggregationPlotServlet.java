@@ -99,13 +99,17 @@ extends HttpServlet {
 
 			String gmtScriptFile = newDir + "/" + GMT_SCRIPT_FILE;
 
+			System.out.println("DisaggregationPlotServlet: fetching disagg data");
 			//gets the object for the GMT_MapGenerator script
 			DisaggregationPlotData data = (DisaggregationPlotData)inputFromApplet.readObject();
+			System.out.println("DisaggregationPlotServlet: creating disagg GMT script");
 			ArrayList<String> gmtMapScript = DisaggregationCalculator.createGMTScriptForDisaggregationPlot(data, newDir);
 
 			//Metadata content: Map Info
+			System.out.println("DisaggregationPlotServlet: fetching disagg metadata");
 			String metadata = (String) inputFromApplet.readObject();
 
+			System.out.println("DisaggregationPlotServlet: writing disagg script");
 			//creating a new gmt script for the user and writing it ot the directory created for the user
 			FileWriter fw = new FileWriter(gmtScriptFile);
 			BufferedWriter bw = new BufferedWriter(fw);
@@ -117,6 +121,7 @@ extends HttpServlet {
 
 			String metadataFile = newDir + "/" + METADATA_FILE_NAME;
 
+			System.out.println("DisaggregationPlotServlet: writing disagg metadata");
 			//creating the metadata (map Info) file in the new directory created for user
 			fw = new FileWriter(metadataFile);
 			bw = new BufferedWriter(fw);
@@ -124,16 +129,20 @@ extends HttpServlet {
 			bw.close();
 
 			//running the gmtScript file
+			System.out.println("DisaggregationPlotServlet: running disagg script");
 			String[] command = {
 					"sh", "-c", "sh " + gmtScriptFile};
 			RunScript.runScript(command);
+			System.out.println("DisaggregationPlotServlet: done running disagg script");
 
+			System.out.println("DisaggregationPlotServlet: zipping output files");
 			//create the Zip file for all the files generated
 			FileUtils.createZipFile(newDir);
 			//URL path to folder where all GMT related files and map data file for this
 			//calculations reside.
 			String mapImagePath = GMT_URL_PATH + GMT_DATA_DIR +
 			currentMilliSec + SystemUtils.FILE_SEPARATOR;
+			System.out.println("DisaggregationPlotServlet: sending image path to application");
 			//returns the URL to the folder where map image resides
 			outputToApplet.writeObject(mapImagePath);
 			outputToApplet.close();
@@ -143,6 +152,7 @@ extends HttpServlet {
 			outputToApplet.writeObject(new RuntimeException(e.getMessage()));
 			outputToApplet.close();
 		}
+		System.out.println("DisaggregationPlotServlet: DONE with disagg plot");
 	}
 
 	//Process the HTTP Post request
