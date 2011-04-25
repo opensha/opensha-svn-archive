@@ -81,6 +81,7 @@ import org.opensha.sha.cybershake.gui.CyberShakeDBManagementApp;
 import org.opensha.sha.cybershake.gui.util.AttenRelSaver;
 import org.opensha.sha.cybershake.gui.util.ERFSaver;
 import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.gui.infoTools.GraphPanelAPI;
 import org.opensha.sha.gui.infoTools.PlotControllerAPI;
@@ -323,19 +324,23 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			return false;
 		}
 		
-		CybershakeRun runCompare = null;
+		ArrayList<CybershakeRun> runCompares = null;
 		if (cmd.hasOption("compare-to")) {
-			int compareID = Integer.parseInt(cmd.getOptionValue("compare-to"));
-			if (compareID < 0) {
-				System.err.println("Invalid comparison run id: "+compareID);
-				return false;
+			runCompares = new ArrayList<CybershakeRun>();
+			for (String str : commaSplit(cmd.getOptionValue("compare-to"))) {
+				int compareID = Integer.parseInt(str);
+				if (compareID < 0) {
+					System.err.println("Invalid comparison run id: "+compareID);
+					return false;
+				}
+				CybershakeRun runCompare = runs2db.getRun(compareID);
+				if (runCompare == null) {
+					System.err.println("Unknown comparison run id: "+compareID);
+					return false;
+				}
+				System.out.println("Comparing to: "+runCompare);
+				runCompares.add(runCompare);
 			}
-			runCompare = runs2db.getRun(compareID);
-			if (runCompare == null) {
-				System.err.println("Unknown comparison run id: "+compareID);
-				return false;
-			}
-			System.out.println("Comparing to: "+runCompare);
 		}
 		
 		String siteName = site2db.getSiteFromDB(run.getSiteID()).short_name;
@@ -468,26 +473,41 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			if (curveID == -2)
 				// skip
 				continue;
-			int compCurveID = -1;
-			if (runCompare != null) {
-				compCurveID = getCurveID(runCompare, im, cmd);
-				if (compCurveID == -1)
-					// error
-					return false;
+			ArrayList<Integer> compCurveIDs = null;
+			if (runCompares != null && !runCompares.isEmpty()) {
+				compCurveIDs = new ArrayList<Integer>();
+				for (CybershakeRun runCompare : runCompares) {
+					int compCurveID = getCurveID(runCompare, im, cmd);
+					if (compCurveID == -1)
+						// error
+						return false;
+					compCurveIDs.add(compCurveID);
+				}
+				
 			}
 			Date date = curve2db.getDateForCurve(curveID);
 			String dateStr = dateFormat.format(date);
 			String periodStr = "SA_" + getPeriodStr(im.getVal()) + "sec";
 			String outFileName = siteName + "_ERF" + run.getERFID() + "_Run" + runID;
-			if (compCurveID >= 0)
-				outFileName += "_CompToRun" + runCompare.getRunID();
+			if (compCurveIDs != null) {
+				boolean first = true;
+				for (CybershakeRun runCompare : runCompares) {
+					if (first) {
+						outFileName += "_CompToRun";
+						first = false;
+					} else {
+						outFileName += "-";
+					}
+					outFileName += runCompare.getRunID();
+				}
+			}
 			outFileName += "_" + periodStr + "_" + dateStr;
 			String outFile = outDir + outFileName;
 			if (calcOnly)
 				continue;
 			boolean textOnly = types.size() == 1 && types.get(0) == TYPE_TXT;
 			ArrayList<DiscretizedFuncAPI> curves = this.plotCurve(curveID, run,
-					compCurveID, runCompare, textOnly);
+					compCurveIDs, runCompares, textOnly);
 			if (curves == null) {
 				System.err.println("No points could be fetched for curve ID " + curveID + "! Skipping...");
 				continue;
@@ -683,20 +703,25 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	ArrayList<String> curveNames = new ArrayList<String>();
 	
 	public ArrayList<DiscretizedFuncAPI> plotCurve(int curveID, CybershakeRun run, boolean textOnly) {
-		return plotCurve(curveID, run, -1, null, textOnly);
+		return plotCurve(curveID, run, null, null, textOnly);
 	}
 	
 	public ArrayList<DiscretizedFuncAPI> plotCurve(int curveID, CybershakeRun run,
-			int compCurveID, CybershakeRun compRun, boolean textOnly) {
+			ArrayList<Integer> compCurveIDs, ArrayList<CybershakeRun> compRuns, boolean textOnly) {
 		curveNames.clear();
 		System.out.println("Fetching Curve!");
 		DiscretizedFuncAPI curve = curve2db.getHazardCurve(curveID);
 		
-		DiscretizedFuncAPI compCurve;
-		if (compCurveID >= 0)
-			compCurve = curve2db.getHazardCurve(compCurveID);
-		else
-			compCurve = null;
+		ArrayList<DiscretizedFuncAPI> compCurves;
+		if (compCurveIDs != null) {
+			compCurves = new ArrayList<DiscretizedFuncAPI>();
+			for (int compCurveID : compCurveIDs) {
+				DiscretizedFuncAPI compCurve = curve2db.getHazardCurve(compCurveID);
+				compCurves.add(compCurve);
+			}
+		} else {
+			compCurves = null;
+		}
 		
 		if (curve == null)
 			return null;
@@ -721,14 +746,45 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		
 		ArrayList<DiscretizedFuncAPI> curves = new ArrayList<DiscretizedFuncAPI>();
 		curves.add(curve);
-		curveNames.add("CyberShake Hazard Curve. Site: " + csSite.toString()+" Run: "+run.toString());
+		curveNames.add("CyberShake Hazard Curve. Site: " + csSite.toString());
 		
-		if (compCurve != null) {
-			curves.add(compCurve);
-			curveNames.add("CyberShake Hazard Curve Comparison. Run: " + run.toString());
-			chars.add(new PlotCurveCharacterstics(this.plotChars.getCyberShakeLineType(),
-					Color.GRAY, 1));
-			compCurve.setInfo(getCyberShakeCurveInfo(compCurveID, site2db.getSiteFromDB(compRun.getRunID()), compRun, im));
+		if (compCurves != null && !compCurves.isEmpty()) {
+			for (int i=0; i<compCurves.size(); i++) {
+				int compCurveID = compCurveIDs.get(i);
+				CybershakeRun compRun = compRuns.get(i);
+				DiscretizedFuncAPI compCurve = compCurves.get(i);
+				curves.add(compCurve);
+				CybershakeSite compSite = site2db.getSiteFromDB(compRun.getSiteID());
+				String curveName = "CyberShake Comparison Hazard Curve. Site: " + compSite.toString();
+				
+				String lineType;
+				switch (i) {
+				case 0:
+					lineType = PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES;
+					curveName += " (solid gray line with circles)";
+					break;
+				case 1:
+					lineType = PlotColorAndLineTypeSelectorControlPanel.LINE_AND_TRIANGLES;
+					curveName += " (solid gray line with triangles)";
+					break;
+				case 2:
+					lineType = PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE;
+					curveName += " (solid gray line)";
+					break;
+				case 3:
+					lineType = PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE;
+					curveName += " (dashed gray line)";
+					break;
+				default:
+					lineType = PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES;
+					curveName += " (solid gray line with circles)";
+					break;
+				}
+				curveNames.add(curveName);
+				chars.add(new PlotCurveCharacterstics(lineType,
+						Color.GRAY, 1));
+				compCurve.setInfo(getCyberShakeCurveInfo(compCurveID, site2db.getSiteFromDB(compRun.getRunID()), compRun, im));
+			}
 		}
 		
 		if (erf != null && attenRels.size() > 0) {
@@ -739,6 +795,10 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		curve.setInfo(this.getCyberShakeCurveInfo(curveID, csSite, run, im));
 		
 		String title = HazardCurvePlotCharacteristics.getReplacedTitle(plotChars.getTitle(), csSite);
+		
+		for (int i=0; i<curves.size(); i++) {
+			curves.get(i).setName(curveNames.get(i));
+		}
 		
 		if (!textOnly) {
 			System.out.println("Plotting Curve!");
@@ -859,7 +919,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	public String getCyberShakeCurveInfo(int curveID, CybershakeSite site, CybershakeRun run, CybershakeIM im) {
 		String infoString = "Site: "+ site.getFormattedName() + ";\n";
 		if (run != null)
-			infoString += run.toString() + ";\n";
+			infoString += "Run: "+run.toString() + ";\n";
 		infoString += "SA Period: " + im.getVal() + ";\n";
 		infoString += "Hazard_Curve_ID: "+curveID+";\n";
 		
@@ -1161,7 +1221,8 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	private static Options createOptions() {
 		Options ops = createCommonOptions();
 		
-		Option compare = new Option("comp", "compare-to", true, "Compare to a specific Run ID");
+		Option compare = new Option("comp", "compare-to", true, "Compare to  aspecific Run ID" +
+				" (or multiple IDs, comma separated)");
 		compare.setRequired(false);
 		ops.addOption(compare);
 		
@@ -1221,7 +1282,8 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	}
 
 	public static void main(String args[]) throws DocumentException, InvocationTargetException {
-		
+		String[] newArgs = { "-R", "576", "--compare-to", "789,791,788" };
+		args = newArgs;
 		try {
 			Options options = createOptions();
 			
