@@ -294,6 +294,14 @@
 			</fileset>
 		</copy>
 	</target>
+	
+	<target name="resource.cybershake">
+		<copy todir="${build}/org/opensha/sha/cybershake/conf/" overwrite="true">
+			<fileset dir="${src}/org/opensha/sha/cybershake/conf/">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+	</target>
 
 	<target name="resource.misc.required">
 		<!-- Put things in here that are required by lots of our apps, but don't
@@ -350,6 +358,7 @@
 		<!--			ERF Resources				-->
 		<antcall target="resource.erfs.main" />
 		<antcall target="resource.erfs.gem" />
+		<antcall target="resource.cybershake" />
 
 		<antcall target="resource.hazard.apps.server" />
 	</target>
