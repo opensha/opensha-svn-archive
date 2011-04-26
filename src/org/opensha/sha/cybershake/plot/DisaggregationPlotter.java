@@ -212,56 +212,57 @@ public class DisaggregationPlotter {
 				try {
 					
 					
-					System.out.println("Doing test local disagg plot");
-					String dir = "/tmp/disagg";
-					System.out.println("getting disagg data");
-					DisaggregationPlotData data = disaggCalc.getDisaggPlotData();
-					double[][][] pdf3d = data.getPdf3D();
-					for (double[][] twoD : pdf3d) {
-						String line = null;
-						for (double[] oneD : twoD) {
-							String cell = null;
-							for (double d : oneD) {
-								if (cell == null)
-									cell = "[";
-								else
-									cell += ",";
-								cell += d;
-							}
-							cell += "]";
-							if (line == null)
-								line = "";
-							else
-								line += " ";
-							line += cell;
-						}
-						System.out.println(line);
-					}
-					System.out.println("creating disagg script");
-					ArrayList<String> gmtMapScript =
-						DisaggregationCalculator.createGMTScriptForDisaggregationPlot(data, dir);
-					System.out.println("writing disagg script");
-					FileWriter fw = new FileWriter(dir+"/gmtScript.txt");
-					BufferedWriter bw = new BufferedWriter(fw);
-					int size = gmtMapScript.size();
-					for (int i = 0; i < size; ++i) {
-						bw.write( (String) gmtMapScript.get(i) + "\n");
-					}
-					bw.close();
-					System.out.println("DONE. script in: "+dir);
+//					System.out.println("Doing test local disagg plot");
+//					String dir = "/tmp/disagg";
+//					System.out.println("getting disagg data");
+//					DisaggregationPlotData data = disaggCalc.getDisaggPlotData();
+//					double[][][] pdf3d = data.getPdf3D();
+//					for (double[][] twoD : pdf3d) {
+//						String line = null;
+//						for (double[] oneD : twoD) {
+//							String cell = null;
+//							for (double d : oneD) {
+//								if (cell == null)
+//									cell = "[";
+//								else
+//									cell += ",";
+//								cell += d;
+//							}
+//							cell += "]";
+//							if (line == null)
+//								line = "";
+//							else
+//								line += " ";
+//							line += cell;
+//						}
+//						System.out.println(line);
+//					}
+//					System.out.println("creating disagg script");
+//					ArrayList<String> gmtMapScript =
+//						DisaggregationCalculator.createGMTScriptForDisaggregationPlot(data, dir);
+//					System.out.println("writing disagg script");
+//					FileWriter fw = new FileWriter(dir+"/gmtScript.txt");
+//					BufferedWriter bw = new BufferedWriter(fw);
+//					int size = gmtMapScript.size();
+//					for (int i = 0; i < size; ++i) {
+//						bw.write( (String) gmtMapScript.get(i) + "\n");
+//					}
+//					bw.close();
+//					System.out.println("DONE. script in: "+dir);
 					
 					
-//					System.out.println("Fetching plot...");
-//					String address = disaggCalc.getDisaggregationPlotUsingServlet(metadata);
-//					Date date = curve2db.getDateForCurve(curveID);
-//					String dateStr = HazardCurvePlotter.dateFormat.format(date);
-//					String periodStr = "SA_" + HazardCurvePlotter.getPeriodStr(im.getVal()) + "sec";
-//					String outFileName = csSite.short_name + "_ERF" + run.getERFID() + "_Run" + run.getRunID();
-//					outFileName += "_Disagg_" + periodStr + "_" + dateStr+".pdf";
-//					File outFile = new File(outputDir.getAbsolutePath()+File.separator+outFileName);
-//					System.out.println("Downloading disagg plot to: "+outFile.getAbsolutePath());
-//					FileUtils.downloadURL(address, outFile);
-//					System.out.println("DONE.");
+					System.out.println("Fetching plot...");
+					String address = disaggCalc.getDisaggregationPlotUsingServlet(metadata);
+					address += DisaggregationCalculator.DISAGGREGATION_PLOT_PDF_NAME;
+					Date date = curve2db.getDateForCurve(curveID);
+					String dateStr = HazardCurvePlotter.dateFormat.format(date);
+					String periodStr = "SA_" + HazardCurvePlotter.getPeriodStr(im.getVal()) + "sec";
+					String outFileName = csSite.short_name + "_ERF" + run.getERFID() + "_Run" + run.getRunID();
+					outFileName += "_Disagg_"+iml+"_G_" + periodStr + "_" + dateStr+".pdf";
+					File outFile = new File(outputDir.getAbsolutePath()+File.separator+outFileName);
+					System.out.println("Downloading disagg plot to: "+outFile.getAbsolutePath());
+					FileUtils.downloadURL(address, outFile);
+					System.out.println("DONE.");
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
@@ -293,8 +294,9 @@ public class DisaggregationPlotter {
 	}
 
 	public static void main(String args[]) throws DocumentException, InvocationTargetException {
-		String[] newArgs = {"-R", "247", "-p", "3", "-i", "0.2"};
-		args = newArgs;
+//		String[] newArgs = {"-R", "247", "-p", "3", "-pr", "4.0e-4", "-i", "0.2,0.5", "-o", "/tmp"};
+//		String[] newArgs = {"--help"};
+//		args = newArgs;
 		
 		try {
 			Options options = createOptions();
