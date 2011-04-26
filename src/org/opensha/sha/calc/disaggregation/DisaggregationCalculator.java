@@ -57,6 +57,8 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
 
+import com.google.common.base.Preconditions;
+
 
 /**
  * <p>Title: DisaggregationCalculator </p>
@@ -832,18 +834,21 @@ System.out.println("numRupRejected="+numRupRejected);
 	 */
 	public String getDisaggregationPlotUsingServlet(String metadata) throws java.
 	rmi.RemoteException {
-		DisaggregationPlotData data = new DisaggregationPlotData(mag_center, mag_binEdges, dist_center, dist_binEdges,
-				maxContrEpsilonForGMT_Plot, NUM_E, pdf3D);
+		DisaggregationPlotData data = getDisaggPlotData();
 		disaggregationPlotImgWebAddr = openServletConnection(data, metadata);
 		return disaggregationPlotImgWebAddr;
 	}
-
-
+	
+	public DisaggregationPlotData getDisaggPlotData() {
+		return new DisaggregationPlotData(mag_center, mag_binEdges, dist_center, dist_binEdges,
+				maxContrEpsilonForGMT_Plot, NUM_E, pdf3D);
+	}
 
 	/**
 	 * Creates the GMT_Script lines
 	 */
 	public static ArrayList<String> createGMTScriptForDisaggregationPlot(DisaggregationPlotData data, String dir){
+		if (D) System.out.println(1);
 
 		double x_axis_length = 4.5; // in inches
 		double y_axis_length = 4.0; // in inches
@@ -853,8 +858,11 @@ System.out.println("numRupRejected="+numRupRejected);
 		// compute z-axis tick spacing & max z value
 		double z_tick = Math.ceil(data.getMaxContrEpsilonForGMT_Plot()/numTicksToDrawForZAxis);
 		double maxZVal = z_tick * numTicksToDrawForZAxis;
+		Preconditions.checkState(maxZVal > 0, "disagg max z val must be greater than 0!");
 		ArrayList<String> gmtScriptLines = new ArrayList<String>();
 		// System.out.println(maxContrEpsilonForDisaggrPlot+"\t"+z_grid+"\t"+maxZVal);
+		
+		if (D) System.out.println(2);
 		
 		double dist_binEdges[] = data.getDist_binEdges();
 		double mag_binEdges[] = data.getMag_binEdges();
@@ -871,6 +879,8 @@ System.out.println("numRupRejected="+numRupRejected);
 		float max_dist = (float) dist_binEdges[dist_binEdges.length-1];
 		float min_mag = (float) mag_binEdges[0];
 		float max_mag = (float) mag_binEdges[mag_binEdges.length-1];
+		
+		if (D) System.out.println(3);
 
 		double totDist = dist_binEdges[dist_binEdges.length-1]-dist_binEdges[0];
 		double x_tick;
@@ -889,6 +899,8 @@ System.out.println("numRupRejected="+numRupRejected);
 		else y_tick = 1.0;
 
 		double magBinWidthToInches = y_axis_length/totMag;
+		
+		if (D) System.out.println(4);
 
 		gmtScriptLines.add("#!/bin/bash");
 		gmtScriptLines.add("");
@@ -899,6 +911,7 @@ System.out.println("numRupRejected="+numRupRejected);
 		gmtScriptLines.add("");
 		
 		try{
+			if (D) System.out.println(5);
 			String region = "-R"+min_dist+"/"+max_dist+"/"+min_mag+"/"+max_mag+"/"+0+"/"+maxZVal;
 			String projection = "-JX"+x_axis_length+"i/"+y_axis_length+"i";
 			String viewAngle = "-E150/30";
@@ -918,6 +931,7 @@ System.out.println("numRupRejected="+numRupRejected);
 			gmtScriptLines.add("${COMMAND_PATH}cat << END > temp_segments");
 			//creating the grid lines on Z axis.
 			//System.out.println(z_tick+"   "+maxZVal+"   "+maxContrEpsilonForDisaggrPlot);
+			if (D) System.out.println(6);
 			for (double k = z_tick; k <= maxZVal; k += z_tick) {
 				gmtScriptLines.add(">");
 				gmtScriptLines.add(min_dist+"  "+ min_mag+" "+k);
@@ -926,6 +940,7 @@ System.out.println("numRupRejected="+numRupRejected);
 				gmtScriptLines.add(min_dist+"  "+ max_mag+"  "+k);
 				gmtScriptLines.add(+max_dist+"   "+max_mag+"  "+k);
 			}
+			if (D) System.out.println(7);
 			gmtScriptLines.add(">");
 			gmtScriptLines.add(min_dist +"   "+ max_mag+"  " + 0);
 			gmtScriptLines.add( min_dist + "  "+max_mag + "  " + maxZVal);
@@ -942,10 +957,12 @@ System.out.println("numRupRejected="+numRupRejected);
 
 			float contribution, base, top;
 			gmtScriptLines.add("${COMMAND_PATH}echo \"plotting disagg\"");
+			if (D) System.out.println(8);
 			for (int i = 0; i < dist_center.length; ++i) {
+				if (D) System.out.println(9);
 				gmtScriptLines.add("${COMMAND_PATH}echo \"plotting dist bin " + i + "\"");
 				for (int j = mag_center.length - 1; j >= 0; --j) {   // ordering here is important
-
+//					System.out.println(10);
 					double box_x_width = (dist_binEdges[i+1]- dist_binEdges[i])*distBinWidthToInches - 0.05; // lst term leaves some space
 					double box_y_width = (mag_binEdges[j+1]- mag_binEdges[j])*magBinWidthToInches - 0.05;
 					String symbol = " -So"+box_x_width+"i/"+box_y_width+"ib";
@@ -970,6 +987,7 @@ System.out.println("numRupRejected="+numRupRejected);
 					}
 				}
 			}
+			if (D) System.out.println(11);
 			
 			gmtScriptLines.add("");
 			gmtScriptLines.add("${COMMAND_PATH}echo \"plotting legend\"");
@@ -984,6 +1002,7 @@ System.out.println("numRupRejected="+numRupRejected);
 					" >> " + img_ps_file);
 
 			// each now has origin offset in the X direction
+			if (D) System.out.println(12);
 			for (int k = 1; k < numE; ++k) {
 				gmtScriptLines.add("${COMMAND_PATH}echo " + "\"" + dist_binEdges[dist_binEdges.length-1] + " " + mag_binEdges[0] + " " + (0.8*z_tick) +
 						"\"" + " | ${GMT_PATH}psxyz " + "-P -X0.9i " +
@@ -993,6 +1012,7 @@ System.out.println("numRupRejected="+numRupRejected);
 						epsilonColors[k] + "  " + viewAngle + "  " + boxPenWidth +
 						" >> " + img_ps_file);
 			}
+			if (D) System.out.println(13);
 
 
 			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"0.0 0.75 13 0.0 12 CB e<-2\" > temp_label");
@@ -1012,6 +1032,7 @@ System.out.println("numRupRejected="+numRupRejected);
 			gmtScriptLines.add("${PS2PDF_PATH} "+img_ps_file+"  "+DISAGGREGATION_PLOT_PDF_NAME);
 			gmtScriptLines.add("${CONVERT_PATH} -crop 0x0 temp.jpg "+DISAGGREGATION_PLOT_IMG_NAME);
 			gmtScriptLines.add("${COMMAND_PATH}rm temp.jpg temp_segments");
+			if (D) System.out.println(14);
 		}catch(Exception e){
 			e.printStackTrace();
 		}

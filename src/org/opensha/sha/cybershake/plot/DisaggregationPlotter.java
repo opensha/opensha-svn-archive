@@ -1,6 +1,8 @@
 package org.opensha.sha.cybershake.plot;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
@@ -23,6 +25,7 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
+import org.opensha.sha.calc.disaggregation.DisaggregationPlotData;
 import org.opensha.sha.calc.params.IncludeMagDistFilterParam;
 import org.opensha.sha.calc.params.MagDistCutoffParam;
 import org.opensha.sha.calc.params.MaxDistanceParam;
@@ -65,6 +68,18 @@ public class DisaggregationPlotter {
 	private ParameterList disaggParams;
 	
 	private File outputDir;
+	
+	// disagg plot settings
+	private double minMag = 5;
+	private int numMags = 10;
+	private double deltaMag = 0.5;
+	
+	private int numSourcesForDisag = 100;
+	
+	private boolean showSourceDistances = true;
+	
+	private double maxZAxis = Double.NaN;
+	
 	
 	public DisaggregationPlotter(
 			int runID,
@@ -182,24 +197,72 @@ public class DisaggregationPlotter {
 			for (double iml : imlLevels) {
 				try {
 					System.out.println("Disaggregating");
-					boolean success = disaggCalc.disaggregate(iml, site, imr, erf, disaggParams);
+					disaggCalc.setMagRange(minMag, numMags, deltaMag);
+					disaggCalc.setNumSourcestoShow(numSourcesForDisag);
+					disaggCalc.setShowDistances(showSourceDistances);
+					boolean success = disaggCalc.disaggregate(Math.log(iml), site, imr, erf, disaggParams);
 					if (!success)
 						throw new RuntimeException("Disagg calc failed (see errors above, if any).");
+					disaggCalc.setMaxZAxisForPlot(maxZAxis);
+					System.out.println("Done Disaggregating");
 				} catch (RemoteException e) {
 					throw new RuntimeException(e);
 				}
 				String metadata = "temp metadata";
 				try {
-					String address = disaggCalc.getDisaggregationPlotUsingServlet(metadata);
-					Date date = curve2db.getDateForCurve(curveID);
-					String dateStr = HazardCurvePlotter.dateFormat.format(date);
-					String periodStr = "SA_" + HazardCurvePlotter.getPeriodStr(im.getVal()) + "sec";
-					String outFileName = csSite.short_name + "_ERF" + run.getERFID() + "_Run" + run.getRunID();
-					outFileName += "_Disagg_" + periodStr + "_" + dateStr+".pdf";
-					File outFile = new File(outputDir.getAbsolutePath()+File.separator+outFileName);
-					System.out.println("Downloading disagg plot to: "+outFile.getAbsolutePath());
-					FileUtils.downloadURL(address, outFile);
-				} catch (RemoteException e) {
+					
+					
+					System.out.println("Doing test local disagg plot");
+					String dir = "/tmp/disagg";
+					System.out.println("getting disagg data");
+					DisaggregationPlotData data = disaggCalc.getDisaggPlotData();
+					double[][][] pdf3d = data.getPdf3D();
+					for (double[][] twoD : pdf3d) {
+						String line = null;
+						for (double[] oneD : twoD) {
+							String cell = null;
+							for (double d : oneD) {
+								if (cell == null)
+									cell = "[";
+								else
+									cell += ",";
+								cell += d;
+							}
+							cell += "]";
+							if (line == null)
+								line = "";
+							else
+								line += " ";
+							line += cell;
+						}
+						System.out.println(line);
+					}
+					System.out.println("creating disagg script");
+					ArrayList<String> gmtMapScript =
+						DisaggregationCalculator.createGMTScriptForDisaggregationPlot(data, dir);
+					System.out.println("writing disagg script");
+					FileWriter fw = new FileWriter(dir+"/gmtScript.txt");
+					BufferedWriter bw = new BufferedWriter(fw);
+					int size = gmtMapScript.size();
+					for (int i = 0; i < size; ++i) {
+						bw.write( (String) gmtMapScript.get(i) + "\n");
+					}
+					bw.close();
+					System.out.println("DONE. script in: "+dir);
+					
+					
+//					System.out.println("Fetching plot...");
+//					String address = disaggCalc.getDisaggregationPlotUsingServlet(metadata);
+//					Date date = curve2db.getDateForCurve(curveID);
+//					String dateStr = HazardCurvePlotter.dateFormat.format(date);
+//					String periodStr = "SA_" + HazardCurvePlotter.getPeriodStr(im.getVal()) + "sec";
+//					String outFileName = csSite.short_name + "_ERF" + run.getERFID() + "_Run" + run.getRunID();
+//					outFileName += "_Disagg_" + periodStr + "_" + dateStr+".pdf";
+//					File outFile = new File(outputDir.getAbsolutePath()+File.separator+outFileName);
+//					System.out.println("Downloading disagg plot to: "+outFile.getAbsolutePath());
+//					FileUtils.downloadURL(address, outFile);
+//					System.out.println("DONE.");
+				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
 			}
@@ -230,6 +293,8 @@ public class DisaggregationPlotter {
 	}
 
 	public static void main(String args[]) throws DocumentException, InvocationTargetException {
+		String[] newArgs = {"-R", "247", "-p", "3", "-i", "0.2"};
+		args = newArgs;
 		
 		try {
 			Options options = createOptions();
