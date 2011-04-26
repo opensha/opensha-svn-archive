@@ -151,6 +151,18 @@ public class TestIMT_IMR_Interactions {
 	}
 	
 	@Test
+	public void testSetSAWithNonSAIMRSelected() {
+		// this tests settting IMT to SA with an IMR selected that doesn't support SA
+		
+		imtGui.setSelectedIMT(SA_InterpolatedParam.NAME);
+		assertTrue("IMT changed to interpolated, but selected IMR doesn't support it and was not changed.",
+				imrGui.getSelectedIMR().isIntensityMeasureSupported(SA_InterpolatedParam.NAME));
+		
+		imtGui.setSelectedIMT(SA_Param.NAME);
+	}
+
+	
+	@Test
 	public void testChooserSetToDisabled() {
 		imtGui.setSelectedIMT(MMI_Param.NAME);
 		ChooserComboBox chooser = imrGui.getChooser(null);
