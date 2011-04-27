@@ -747,10 +747,10 @@ ScalarIMRChangeListener {
 	}
 
 	/* implementation KLUDGY to set focus on compute button*/
-	public void setVisible(boolean visible) {
-		super.setVisible(visible);
-		computeButton.requestFocusInWindow();
-	}
+//	public void setVisible(boolean visible) {
+//		super.setVisible(visible);
+//		computeButton.requestFocusInWindow();
+//	}
 
 	/**
 	 * Provided to allow subclasses to substitute the IMT panel.
@@ -790,6 +790,7 @@ ScalarIMRChangeListener {
 		applet.setIconImages(IconFetcher.fetchIcons(APP_SHORT_NAME));
 		//		applet.pack();
 		applet.setVisible(true);
+		applet.computeButton.requestFocusInWindow();
 	}
 
 	// static initializer for setting look & feel
