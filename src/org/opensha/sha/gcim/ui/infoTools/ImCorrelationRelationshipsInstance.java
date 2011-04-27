@@ -31,14 +31,6 @@ import org.opensha.sha.gcim.imCorrRel.imCorrRelImpl.Baker07_ImCorrRel;
 import org.opensha.sha.gcim.imCorrRel.imCorrRelImpl.BakerJayaram08_ImCorrRel;
 import org.opensha.sha.gcim.imCorrRel.imCorrRelImpl.Bradley11_ImCorrRel;
 import org.opensha.sha.gcim.imCorrRel.imCorrRelImpl.GodaAtkinson09_ImCorrRel;
-import org.opensha.sha.gcim.imCorrRel.imCorrRelImpl.depricated.Baker07_SaIa_ImCorrRel;
-import org.opensha.sha.gcim.imCorrRel.imCorrRelImpl.depricated.Baker07_SaPga_ImCorrRel;
-import org.opensha.sha.gcim.imCorrRel.imCorrRelImpl.depricated.Bradley11_AsiPga_ImCorrRel;
-import org.opensha.sha.gcim.imCorrRel.imCorrRelImpl.depricated.Bradley11_AsiSa_ImCorrRel;
-import org.opensha.sha.gcim.imCorrRel.imCorrRelImpl.depricated.Bradley11_AsiSi_ImCorrRel;
-import org.opensha.sha.gcim.imCorrRel.imCorrRelImpl.depricated.Bradley11_PgaSa_ImCorrRel;
-import org.opensha.sha.gcim.imCorrRel.imCorrRelImpl.depricated.Bradley11_SiPga_ImCorrRel;
-import org.opensha.sha.gcim.imCorrRel.imCorrRelImpl.depricated.Bradley11_SiSa_ImCorrRel;
 
 /**
  * <p>Title: ImCorrelationRelationshipsInstance </p>

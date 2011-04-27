@@ -77,6 +77,12 @@ import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.ApplicationVersion;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.sha.gcim.imr.attenRelImpl.BommerEtAl_2009_AttenRel;
+import org.opensha.sha.gcim.imr.attenRelImpl.CB_2010_CAV_AttenRel;
+import org.opensha.sha.gcim.imr.attenRelImpl.KS_2006_AttenRel;
+import org.opensha.sha.gcim.imr.attenRelImpl.ASI_WrapperAttenRel.BA_2008_ASI_AttenRel;
+import org.opensha.sha.gcim.imr.attenRelImpl.DSI_WrapperAttenRel.BA_2008_DSI_AttenRel;
+import org.opensha.sha.gcim.imr.attenRelImpl.SI_WrapperAttenRel.BA_2008_SI_AttenRel;
 import org.opensha.sha.gui.controls.AxisLimitsControlPanel;
 import org.opensha.sha.gui.controls.AxisLimitsControlPanelAPI;
 import org.opensha.sha.gui.controls.CurveDisplayAppAPI;
@@ -318,6 +324,18 @@ CurveDisplayAppAPI,GraphWindowAPI {
 //		attenRelClasses.add(BS_2003b_AttenRel.class.getName());
 		imNames.add(McVerryetal_2000_AttenRel.NAME);
 		attenRelClasses.add(McVerryetal_2000_AttenRel.class.getName());
+		imNames.add(BA_2008_SI_AttenRel.NAME);
+		attenRelClasses.add(BA_2008_SI_AttenRel.class.getName());
+		imNames.add(BA_2008_ASI_AttenRel.NAME);
+		attenRelClasses.add(BA_2008_ASI_AttenRel.class.getName());
+		imNames.add(BA_2008_DSI_AttenRel.NAME);
+		attenRelClasses.add(BA_2008_DSI_AttenRel.class.getName());
+		imNames.add(CB_2010_CAV_AttenRel.NAME);
+		attenRelClasses.add(CB_2010_CAV_AttenRel.class.getName());
+		imNames.add(KS_2006_AttenRel.NAME);
+		attenRelClasses.add(KS_2006_AttenRel.class.getName());
+		imNames.add(BommerEtAl_2009_AttenRel.NAME);
+		attenRelClasses.add(BommerEtAl_2009_AttenRel.class.getName());
 
 		//imNames.add( DAHLE_NAME, DAHLE_CLASS_NAME );
 
