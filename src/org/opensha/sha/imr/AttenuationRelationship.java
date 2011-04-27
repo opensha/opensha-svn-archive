@@ -36,6 +36,10 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
+import org.opensha.sha.gcim.imr.param.EqkRuptureParams.FocalDepthParam;
+import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.CAV_Param;
+import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.Ds575_Param;
+import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.Ds595_Param;
 import org.opensha.sha.imr.param.EqkRuptureParams.AftershockParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
@@ -234,6 +238,10 @@ extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationsh
 	protected SA_Param saParam = null;
 	protected PeriodParam saPeriodParam = null;
 	protected DampingParam saDampingParam = null;
+	// gcim
+	protected CAV_Param cavParam = null;
+	protected Ds575_Param ds575Param = null;
+	protected Ds595_Param ds595Param = null;
 
 	/**
 	 * Other Parameters
@@ -256,6 +264,8 @@ extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationsh
 	protected DipParam dipParam = null;
 	protected RupTopDepthParam rupTopDepthParam = null;
 	protected RupWidthParam rupWidthParam;
+	// gcim
+	protected FocalDepthParam focalDepthParam;
 
 	/**
 	 * Propagation Effect Parameters
