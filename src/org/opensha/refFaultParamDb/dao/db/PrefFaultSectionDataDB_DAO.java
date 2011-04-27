@@ -10,6 +10,7 @@ import java.util.HashMap;
 
 import oracle.spatial.geometry.JGeometry;
 
+import org.opensha.commons.util.PrintAndExitUncaughtExceptionHandler;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
 import org.opensha.refFaultParamDb.dao.exception.UpdateException;
@@ -280,6 +281,7 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 	 * @param args
 	 */
 	public static void main(String []args) {
+		Thread.setDefaultUncaughtExceptionHandler(new PrintAndExitUncaughtExceptionHandler());
 		try {
 			DB_AccessAPI dbAccessAPI = new ServerDB_Access(ServerDB_Access.SERVLET_URL_DB3);
 			SessionInfo.setUserName(args[0]);

@@ -179,8 +179,8 @@ public class LoginWindow extends JFrame implements ActionListener {
 				,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 58, 0, 23), 5, 0));
 		passwordPanel.add(changePassButton,  new GridBagConstraints(0, 5, 2, 1, 0.0, 0.0
 				,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 9, 26, 0), 6, 0));
-		passwordPanel.add(newUserButton,  new GridBagConstraints(2, 5, 1, 1, 0.0, 0.0
-				,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(6, 39, 26, 23), 0, 0));
+//		passwordPanel.add(newUserButton,  new GridBagConstraints(2, 5, 1, 1, 0.0, 0.0
+//				,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(6, 39, 26, 23), 0, 0));
 		/*passwordPanel.add(cancelButton, new GridBagConstraints(1, 3, 2, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets(24, 0, 24, 0), 9, 0));

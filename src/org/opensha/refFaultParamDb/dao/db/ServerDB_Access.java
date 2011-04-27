@@ -222,16 +222,19 @@ public class ServerDB_Access     implements java.io.Serializable, DB_AccessAPI {
 
 	}
 	
-	public boolean updateAllPrefData() {
-		try {
-			Object retVal = openServletConnection(UPDATE_ALL_PREF_DATA, null, null, null);
-			if (retVal instanceof Boolean)
-				return (Boolean)retVal;
+	public void updateAllPrefData() {
+		Object retVal = openServletConnection(UPDATE_ALL_PREF_DATA, null, null, null);
+		if (retVal instanceof Boolean) {
+			if ((Boolean)retVal)
+				return;
 			else
-				return false;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
+				throw new RuntimeException("Unknown error occured while updating pref data");
+		} else if (retVal instanceof RuntimeException) {
+			throw (RuntimeException)retVal;
+		} else if (retVal instanceof Exception) {
+			throw new RuntimeException((Exception)retVal);
+		} else {
+			throw new RuntimeException("Unknown error occured while updating pref data");
 		}
 	}
 

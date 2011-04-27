@@ -387,6 +387,8 @@ public class FaultSectionVer2_DB_DAO {
 
 				faultSection.setEntryDate(rs.getString(ENTRY_DATE));
 				faultSection.setSectionName(rs.getString(SECTION_NAME));
+//				System.out.println("Getting fault section: "+faultSection.getSectionName()
+//							+" ("+faultSection.getSectionId()+")");
 				faultSection.setSource(this.sectionSourceDAO.getSectionSource(rs.getInt(SECTION_SOURCE_ID)).getSectionSourceName());
 				faultSection.setAseismicSlipFactorEst(this.estimateInstancesDAO.getEstimateInstance(rs.getInt(FaultSectionVer2_DB_DAO.ASEISMIC_SLIP_FACTOR_EST)));
 				faultSection.setAveDipEst(this.estimateInstancesDAO.getEstimateInstance(rs.getInt(FaultSectionVer2_DB_DAO.AVE_DIP_EST)));
@@ -409,6 +411,9 @@ public class FaultSectionVer2_DB_DAO {
 				// fault trace
 				String sectionName = faultSection.getSectionName();
 				double upperDepth = ((MinMaxPrefEstimate)faultSection.getAveUpperDepthEst().getEstimate()).getPreferred();
+//				MinMaxPrefEstimate est = ((MinMaxPrefEstimate)faultSection.getAveUpperDepthEst().getEstimate());
+//				System.out.println(est.toString());
+//				System.out.println("Upper Depth: "+upperDepth);
 				ArrayList<JGeometry> geometries = spatialQueryResult.getGeometryObjectsList(i++);
 				FaultTrace faultTrace = getFaultTrace(sectionName, upperDepth, geometries);	
 				faultSection.setFaultTrace(faultTrace);
@@ -471,6 +476,10 @@ public class FaultSectionVer2_DB_DAO {
 		} catch(SQLException e) { throw new UpdateException(e.getMessage()); }
 	}
 
-
+	public static void main(String args[]) {
+		DB_AccessAPI db = DB_ConnectionPool.getLatestReadOnlyConn();
+		FaultSectionVer2_DB_DAO fs2db = new FaultSectionVer2_DB_DAO(db);
+		fs2db.getAllFaultSections();
+	}
 
 }
