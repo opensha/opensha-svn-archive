@@ -43,8 +43,9 @@ public class IconFetcher {
 				if (D) System.out.println("loading icon from: " + url);
 				images.add(ImageIO.read(url));
 			} catch (IOException e) {
-				e.printStackTrace();
-				System.err.println("Error reading icon from: "+url);
+				//e.printStackTrace();
+				//System.err.println("Error reading icon from: "+url);
+				return null;
 			}
 		}
 		if (images.size() == 0)
