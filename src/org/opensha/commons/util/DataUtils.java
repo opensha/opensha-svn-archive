@@ -178,7 +178,7 @@ public class DataUtils {
 	 * <em>Density Estimation for Statistics and Data Analysis</em>, Chapman
 	 * &amp; Hall, New York. This method is a density estimator that uses
 	 * variable width binning with a fixed sample size per bin that better
-	 * reflects the distribution of the underlying data and is particularly
+	 * reflects the distribution of the underlying data. It is particularly
 	 * useful when workgin with power-law distributed data. Bin widths are
 	 * computed as the difference between the last values in adjacent bins. In
 	 * the case of the 1st bin, the supplied origin is taken as the "last value"
@@ -281,7 +281,7 @@ public class DataUtils {
 		
 		//getPercentDiff(0.)
 		
-		System.out.println(StatUtils.percentile(new double[]{9,10,11,12}, 50.0));
+		System.out.println(StatUtils.percentile(new double[]{5,3,3,5,3}, 50.0));
 	}
 	
 
