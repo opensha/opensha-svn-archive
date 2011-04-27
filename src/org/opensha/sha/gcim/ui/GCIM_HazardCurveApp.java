@@ -205,7 +205,7 @@ import scratch.christine.URS.URS_MeanUCERF2;
  * @version 1.0
  */
 
-public class GCIM_HazardCurveApp extends HazardCurveServerModeApplication {
+public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 
 	/**
 	 * 
@@ -220,7 +220,7 @@ public class GCIM_HazardCurveApp extends HazardCurveServerModeApplication {
 	/**
 	 * Name of the class
 	 */
-	private final static String C = "HazardCurveServerModeApplication";
+	private final static String C = "GCIM_HazardCurveApplication";
 	// for debug purpose
 	protected final static boolean D = false;
 
@@ -786,10 +786,10 @@ public class GCIM_HazardCurveApp extends HazardCurveServerModeApplication {
 	}
 
 	/* implementation KLUDGY to set focus on compute button*/
-	public void setVisible(boolean visible) {
-		super.setVisible(visible);
-		computeButton.requestFocusInWindow();
-	}
+//	public void setVisible(boolean visible) {
+//		super.setVisible(visible);
+//		computeButton.requestFocusInWindow();
+//	}
 
 	/**
 	 * Provided to allow subclasses to substitute the IMT panel.
@@ -839,9 +839,10 @@ public class GCIM_HazardCurveApp extends HazardCurveServerModeApplication {
 		Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptoinHandler(
 				APP_SHORT_NAME, getAppVersion(), applet, applet));
 		applet.init();
-		applet.setTitle("Hazard Curve Local mode Application "+"("+getAppVersion()+")" );
+		applet.setTitle("GCIM EHazard Curve Application "+"("+getAppVersion()+")" );
 		applet.setIconImages(IconFetcher.fetchIcons(APP_SHORT_NAME));
 		applet.setVisible(true);
+		applet.computeButton.requestFocusInWindow();
 		applet.createCalcInstance();
 	}
 
@@ -2755,7 +2756,7 @@ public class GCIM_HazardCurveApp extends HazardCurveServerModeApplication {
 	 * 
 	 * @returns the Min X-Axis Range Value, if custom Axis is choosen
 	 */
-	public double getMinX() {
+	public double getUserMinX() {
 		return minXValue;
 	}
 
@@ -2763,7 +2764,7 @@ public class GCIM_HazardCurveApp extends HazardCurveServerModeApplication {
 	 * 
 	 * @returns the Max X-Axis Range Value, if custom axis is choosen
 	 */
-	public double getMaxX() {
+	public double getUserMaxX() {
 		return maxXValue;
 	}
 
@@ -2771,7 +2772,7 @@ public class GCIM_HazardCurveApp extends HazardCurveServerModeApplication {
 	 * 
 	 * @returns the Min Y-Axis Range Value, if custom axis is choosen
 	 */
-	public double getMinY() {
+	public double getUserMinY() {
 		return minYValue;
 	}
 
@@ -2779,7 +2780,7 @@ public class GCIM_HazardCurveApp extends HazardCurveServerModeApplication {
 	 * 
 	 * @returns the Max Y-Axis Range Value, if custom axis is choosen
 	 */
-	public double getMaxY() {
+	public double getUserMaxY() {
 		return maxYValue;
 	}
 
