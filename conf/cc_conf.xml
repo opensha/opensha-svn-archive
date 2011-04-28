@@ -77,6 +77,11 @@
 			<ant uselogger="true" time="0000" antscript="${ant.bin}"
 						buildfile="${tomcatprojectdir}/ant/cc-build-test.xml"
 						target="svn.update.app.build" />
+			
+			<!-- This test runs nightly, updating pref data at 1 am -->
+			<ant uselogger="true" time="0100" antscript="${ant.bin}"
+						buildfile="${tomcatprojectdir}/ant/cc-build-test.xml"
+						target="pref.fault.data.update" />
 
 			<!-- This test runs nightly, updating the coverage site with daily tests -->
 			<ant uselogger="true" time="0145" antscript="${ant.bin}"
