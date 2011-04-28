@@ -460,6 +460,16 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			atLeastOne = true;
 		}
 		
+//		String optStr = null;
+//		for (Option opt : cmd.getOptions()) {
+//			if (optStr == null)
+//				optStr = "Options: ";
+//			else
+//				optStr += ", ";
+//			optStr += opt.getArgName() + " ("+opt.getValue()+")";
+//		}
+//		System.out.println("optStr");
+		
 		for (CybershakeIM im : ims) {
 			if (im == null) {
 				System.out.println("IM not found for: site=" + siteName + " period=" + periods.get(periodNum));
@@ -1282,8 +1292,8 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	}
 
 	public static void main(String args[]) throws DocumentException, InvocationTargetException {
-		String[] newArgs = { "-R", "576", "--compare-to", "789,791,788" };
-		args = newArgs;
+//		String[] newArgs = { "-R", "576", "--compare-to", "789,791,788" };
+//		args = newArgs;
 		try {
 			Options options = createOptions();
 			
