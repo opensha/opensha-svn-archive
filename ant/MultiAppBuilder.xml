@@ -58,6 +58,7 @@
 
 	<target name="build.local">
 		<antcall target="build.hc.local" />
+		<antcall target="build.hc.gcim" />
 		<antcall target="build.hs.local" />
 		<antcall target="build.sm.local" />
 		<antcall target="build.atten.rel" />
@@ -82,6 +83,17 @@
 			<property name="app.short.name" value="HazardCurveLocal" />
 			<property name="app.main.class" value="${sha.gui.package}.HazardCurveLocalModeApplication" />
 			<property name="javac.includes"     value="${sha.gui.dir}/HazardCurveLocalModeApplication.java" />
+			<property name="javac.excludes" value="" />
+			<property name="rmi.target" value="rmi.hazard.curve" />
+			<property name="resource.target" value="resource.hazard.apps" />
+		</ant>
+	</target>
+	
+	<target name="build.hc.gcim">
+		<ant antfile="${app.build.file}" target="build.app">
+			<property name="app.short.name" value="HazardCurveLocal" />
+			<property name="app.main.class" value="org.opensha.sha.gcim.ui.GCIM_HazardCurveApp" />
+			<property name="javac.includes"     value="org/opensha/sha/gcim/ui/GCIM_HazardCurveApp.java" />
 			<property name="javac.excludes" value="" />
 			<property name="rmi.target" value="rmi.hazard.curve" />
 			<property name="resource.target" value="resource.hazard.apps" />
