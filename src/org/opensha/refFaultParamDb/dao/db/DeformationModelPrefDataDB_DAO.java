@@ -3,12 +3,16 @@
  */
 package org.opensha.refFaultParamDb.dao.db;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.opensha.commons.data.estimate.NormalEstimate;
+import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.PrintAndExitUncaughtExceptionHandler;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
 import org.opensha.refFaultParamDb.dao.exception.UpdateException;
@@ -17,6 +21,8 @@ import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+
+import com.google.common.base.Preconditions;
 
 /**
  * 
@@ -248,12 +254,38 @@ public class DeformationModelPrefDataDB_DAO {
 	}
 
 	public static void main(String[] args) {
-		DB_AccessAPI dbAccessAPI = new ServerDB_Access(ServerDB_Access.SERVLET_URL_DB3);
-		SessionInfo.setUserName(args[0]);
-		SessionInfo.setPassword(args[1]);
-		SessionInfo.setContributorInfo();
-		DeformationModelPrefDataDB_DAO defModelPrefDataDB_DAO = new DeformationModelPrefDataDB_DAO(dbAccessAPI);
-		defModelPrefDataDB_DAO.rePopulatePrefDataTable();
-		System.exit(0);
+		try {
+			Thread.setDefaultUncaughtExceptionHandler(new PrintAndExitUncaughtExceptionHandler());
+			DB_AccessAPI dbAccessAPI = new ServerDB_Access(ServerDB_Access.SERVLET_URL_DB3);
+			
+			Preconditions.checkArgument(args.length == 2, "Must have 2 arguments!");
+			
+			String user;
+			String pass;
+			if (args[0].equals("--file")) {
+				if (!new File(args[1]).exists()) {
+					throw new FileNotFoundException("Password file not found: "+args[1]);
+				}
+				String[] up = FileUtils.loadFile(args[1]).get(0).trim().split(":");
+				Preconditions.checkState(up.length == 2, "user/pass file has incorrect format" +
+						" (should be 'user:pass'");
+				user = up[0];
+				pass = up[1];
+			} else {
+				user = args[0];
+				pass = args[1];
+			}
+			
+			SessionInfo.setUserName(user);
+			SessionInfo.setPassword(pass);
+			SessionInfo.setContributorInfo();
+			DeformationModelPrefDataDB_DAO defModelPrefDataDB_DAO = new DeformationModelPrefDataDB_DAO(dbAccessAPI);
+			defModelPrefDataDB_DAO.rePopulatePrefDataTable();
+			System.exit(0);
+		} catch (Throwable t) {
+			// TODO Auto-generated catch block
+			t.printStackTrace();
+			System.exit(1);
+		}
 	}
 }
