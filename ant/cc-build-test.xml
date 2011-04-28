@@ -81,4 +81,20 @@
 		</exec>
 	</target>
 	
+	<target name="pref.fault.data.update">
+		<java
+			classname="org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO"
+			fork="true"
+			dir="../">
+			<arg value="--file"/>
+			<arg value="/usr/local/tomcat/default/webapps/OpenSHA_dev/WEB-INF/pref_update_user.dat"/>
+			<classpath>
+				<pathelement location="../classes" />
+				<fileset dir="../lib">
+					<include name="*.jar"/>
+				</fileset>
+			</classpath>
+		</java>
+	</target>
+	
 </project>
