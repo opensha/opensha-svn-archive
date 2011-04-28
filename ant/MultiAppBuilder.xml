@@ -91,7 +91,7 @@
 	
 	<target name="build.hc.gcim">
 		<ant antfile="${app.build.file}" target="build.app">
-			<property name="app.short.name" value="HazardCurveLocal" />
+			<property name="app.short.name" value="GCIM_HazardCurve" />
 			<property name="app.main.class" value="org.opensha.sha.gcim.ui.GCIM_HazardCurveApp" />
 			<property name="javac.includes"     value="org/opensha/sha/gcim/ui/GCIM_HazardCurveApp.java" />
 			<property name="javac.excludes" value="" />
