@@ -20,6 +20,7 @@ import org.opensha.commons.util.IconGen;
 import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.ServerPrefs;
 import org.opensha.commons.util.XMLUtils;
+import org.opensha.sha.gcim.ui.GCIM_HazardCurveApp;
 import org.opensha.sha.gui.HazardCurveLocalModeApplication;
 import org.opensha.sha.gui.HazardCurveServerModeApplication;
 import org.opensha.sha.gui.HazardSpectrumLocalModeApplication;
@@ -242,6 +243,9 @@ public class JNLPGen {
 		appsToBuild.add(new JNLPGen(HazardCurveLocalModeApplication.class,
 				HazardCurveLocalModeApplication.APP_SHORT_NAME, 
 				HazardCurveLocalModeApplication.APP_NAME, "HC", true));
+		appsToBuild.add(new JNLPGen(GCIM_HazardCurveApp.class,
+				GCIM_HazardCurveApp.APP_SHORT_NAME, 
+				GCIM_HazardCurveApp.APP_NAME, "GC", true));
 		appsToBuild.add(new JNLPGen(HazardCurveServerModeApplication.class,
 				HazardCurveServerModeApplication.APP_SHORT_NAME, 
 				HazardCurveServerModeApplication.APP_NAME, "HC", false));
