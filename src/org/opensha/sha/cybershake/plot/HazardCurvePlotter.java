@@ -793,7 +793,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 				curveNames.add(curveName);
 				chars.add(new PlotCurveCharacterstics(lineType,
 						Color.GRAY, 1));
-				compCurve.setInfo(getCyberShakeCurveInfo(compCurveID, site2db.getSiteFromDB(compRun.getRunID()), compRun, im));
+				compCurve.setInfo(getCyberShakeCurveInfo(compCurveID, site2db.getSiteFromDB(compRun.getSiteID()), compRun, im));
 			}
 		}
 		
