@@ -403,12 +403,16 @@ ParameterChangeFailListener, ActionListener{
 	// set the values in discrete value estimate
 	private void setDiscreteEstimateVals(DiscreteValueEstimate discreteValEst) {
 		this.chooseEstimateParam.setValue(DiscreteValueEstimate.NAME);
+		System.out.println("Est has: "+discreteValEst.getValues().getNum());
+		arbitrarilyDiscFuncParam.setValue(null);
 		this.arbitrarilyDiscFuncParam.setValue(new ArbitrarilyDiscretizedFunc(discreteValEst.getValues()));
+		arbitrarilyDiscFuncParam.getEditor().refreshParamEditor();
 	}
 
 	// set the values in integer estimate
 	private void setIntegerEstimateVals(IntegerEstimate integerEst) {
 		this.chooseEstimateParam.setValue(IntegerEstimate.NAME);
+		arbitrarilyDiscFuncParam.setValue(null);
 		this.arbitrarilyDiscFuncParam.setValue(new ArbitrarilyDiscretizedFunc(integerEst.getValues()));
 	}
 
