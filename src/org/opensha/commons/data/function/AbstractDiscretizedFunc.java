@@ -19,6 +19,7 @@
 
 package org.opensha.commons.data.function;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -112,15 +113,18 @@ NamedObjectAPI,java.io.Serializable{
 
 	/**
 	 * Default equals for all Discretized Functions. Determines if two functions
-	 * are the same by comparing that the name and info are the same. Can
-	 * be overridden by subclasses for different requirements
+	 * are the same by comparing that the name, info, and values are the same.
 	 */
 	public boolean equals(Object obj){
 //		if (true)
 //			return true;
+		if (this == obj)
+			return true;
 		if (!(obj instanceof DiscretizedFuncAPI))
 			return false;
 		DiscretizedFuncAPI function = (DiscretizedFuncAPI)obj;
+		
+		// now check names equal
 		if (!isSameWithNull(getName(), function.getName()))
 			return false;
 			
@@ -135,9 +139,22 @@ NamedObjectAPI,java.io.Serializable{
 
 		}
 
+		// now check info equal
 		if (!isSameWithNull(getInfo(), function.getInfo()))
 			return false;
 //		if( !getInfo().equals(function.getInfo() )  ) return false;
+		
+		// now check size
+		if (this.getNum() != function.getNum())
+			return false;
+		
+		// now check that the points are equal
+		for (int i=0; i<this.getNum(); i++) {
+			Point2D pt1 = this.get(i);
+			Point2D pt2 = function.get(i);
+			if (!pt1.equals(pt2))
+				return false;
+		}
 		return true;
 	}
 

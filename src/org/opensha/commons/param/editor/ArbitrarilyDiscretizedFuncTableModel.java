@@ -57,8 +57,18 @@ public class ArbitrarilyDiscretizedFuncTableModel extends AbstractTableModel {
 		if (!areFunctionPointsEqual(func, newFunc)) {
 			if (D) {
 				System.out.println("Update called with new data...");
-				System.out.println("Old First: " + func.getX(0) + ", " + func.getY(0));
-				System.out.println("New First: " + newFunc.getX(0) + ", " + newFunc.getY(0));
+				if (func == null)
+					System.out.println("old func: null");
+				else if (func.getNum() == 0)
+					System.out.println("old func: empty");
+				else
+					System.out.println("Old First: " + func.getX(0) + ", " + func.getY(0));
+				if (newFunc == null)
+					System.out.println("new func: null");
+				else if (newFunc.getNum() == 0)
+					System.out.println("new func: empty");
+				else
+					System.out.println("New First: " + newFunc.getX(0) + ", " + newFunc.getY(0));
 			}
 			this.func.clear();
 			for (int i=0; i<newFunc.getNum(); i++) {
@@ -71,8 +81,18 @@ public class ArbitrarilyDiscretizedFuncTableModel extends AbstractTableModel {
 		} else {
 			if (D) {
 				System.out.println("Update called with old data");
-				System.out.println("Old First: " + func.getX(0) + ", " + func.getY(0));
-				System.out.println("New First: " + newFunc.getX(0) + ", " + newFunc.getY(0));
+				if (func == null)
+					System.out.println("old func: null");
+				else if (func.getNum() == 0)
+					System.out.println("old func: empty");
+				else
+					System.out.println("Old First: " + func.getX(0) + ", " + func.getY(0));
+				if (newFunc == null)
+					System.out.println("new func: null");
+				else if (newFunc.getNum() == 0)
+					System.out.println("new func: empty");
+				else
+					System.out.println("New First: " + newFunc.getX(0) + ", " + newFunc.getY(0));
 			}
 		}
 		if (D) System.out.println("Update call DONE");
@@ -80,6 +100,11 @@ public class ArbitrarilyDiscretizedFuncTableModel extends AbstractTableModel {
 	
 	public static boolean areFunctionPointsEqual(ArbitrarilyDiscretizedFunc func1, ArbitrarilyDiscretizedFunc func2) {
 		// we just care about the values here.
+		
+		if (func1 == null && func2 == null)
+			return true;
+		if (func1 == null || func2 == null)
+			return false;
 		
 		// first make sure there's the same number of values
 		int size = func1.getNum();
@@ -219,6 +244,7 @@ public class ArbitrarilyDiscretizedFuncTableModel extends AbstractTableModel {
 	 */
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 		double val = (Double)aValue;
+		if (D) System.out.println("Setting value at ("+rowIndex+","+columnIndex+") to: "+val);
 		if (columnIndex == 1) {
 			// we're changing a Y...easy
 			func.set(rowIndex, val);
