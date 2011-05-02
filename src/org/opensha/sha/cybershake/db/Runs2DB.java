@@ -269,7 +269,7 @@ public class Runs2DB {
 	private ArrayList<CybershakeVelocityModel> getVelocityModels(String whereClause) {
 		String sql = "SELECT * FROM Velocity_Models";
 		if (whereClause != null && whereClause.length() > 0)
-			sql += " WHERE" + whereClause;
+			sql += " WHERE " + whereClause;
 		
 		System.out.println(sql);
 		
@@ -290,6 +290,9 @@ public class Runs2DB {
 			e.printStackTrace();
 			return null;
 		}
+		
+//		for (CybershakeVelocityModel vel : vels)
+//			System.out.println("Loaded vel model: "+vel);
 		return vels;
 	}
 	

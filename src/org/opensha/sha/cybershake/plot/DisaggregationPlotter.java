@@ -44,6 +44,8 @@ import org.opensha.sha.cybershake.openshaAPIs.CyberShakeIMR;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeUCERFWrapper_ERF;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
+import com.google.common.base.Preconditions;
+
 public class DisaggregationPlotter {
 	
 	private DBAccess db;
@@ -142,8 +144,14 @@ public class DisaggregationPlotter {
 			ArrayList<Double> probLevels,
 			ArrayList<Double> imlLevels,
 			File outputDir) {
+		// get the full run description from the DB
 		this.run = runs2db.getRun(runID);
+		Preconditions.checkNotNull(run, "Error fetching runs from DB");
+		
+		// get the IM type IDs from the periods
 		this.ims = amps2db.getIMForPeriods(periods, runID, curve2db);
+		Preconditions.checkNotNull(ims, "Error fetching IMs from DB");
+		Preconditions.checkState(!ims.isEmpty(), "must have at least 1 IM");
 		if (probLevels == null)
 			probLevels = new ArrayList<Double>();
 		this.probLevels = probLevels;
@@ -157,7 +165,20 @@ public class DisaggregationPlotter {
 		erf.updateForecast();
 		imr = new CyberShakeIMR(null);
 		imr.setParamDefaults();
+		
+		imr.setSite(site);
+		
+		imr.setForcedRunID(runID);
+		
+		// now set the IMR params
+		// hard code the IMT to SA. the period gets set later
 		imr.setIntensityMeasure(SA_Param.NAME);
+		// now we set CyberShake specific imr params
+		imr.getParameter(CyberShakeIMR.RUP_VAR_SCENARIO_PARAM).setValue(run.getRupVarScenID());
+		imr.getParameter(CyberShakeIMR.SGT_VAR_PARAM).setValue(run.getSgtVarID());
+		
+		String velModelStr = runs2db.getVelocityModel(run.getVelModelID()).toString();
+		imr.getParameter(CyberShakeIMR.VEL_MODEL_PARAM).setValue(velModelStr);
 		
 		try {
 			disaggCalc = new DisaggregationCalculator();
@@ -180,6 +201,8 @@ public class DisaggregationPlotter {
 			double period = im.getVal();
 			SA_Param.setPeriodInSA_Param(imr.getIntensityMeasure(), (int)period);
 			
+			System.out.println("IMR Metadata: "+imr.getAllParamMetadata());
+			
 			int curveID = curve2db.getHazardCurveID(run.getRunID(), im.getID());
 			DiscretizedFuncAPI curve = curve2db.getHazardCurve(curveID);
 			
@@ -191,7 +214,9 @@ public class DisaggregationPlotter {
 							" the range of the hazard curve");
 					continue;
 				}
-				imlLevels.add(curve.getFirstInterpolatedX_inLogXLogYDomain(probLevel));
+				double imLevel = curve.getFirstInterpolatedX_inLogXLogYDomain(probLevel);
+				System.out.println("converted prob of: "+probLevel+" to IML of: "+imLevel);
+				imlLevels.add(imLevel);
 			}
 			
 			for (double iml : imlLevels) {
@@ -296,6 +321,7 @@ public class DisaggregationPlotter {
 	public static void main(String args[]) throws DocumentException, InvocationTargetException {
 //		String[] newArgs = {"-R", "247", "-p", "3", "-pr", "4.0e-4", "-i", "0.2,0.5", "-o", "/tmp"};
 //		String[] newArgs = {"--help"};
+//		String[] newArgs = {"-R", "792", "-p", "3", "-pr", "4.0e-4", "-o", "/tmp"};
 //		args = newArgs;
 		
 		try {

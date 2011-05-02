@@ -32,6 +32,9 @@ import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.DoubleDiscreteConstraint;
+import org.opensha.commons.param.IntegerConstraint;
+import org.opensha.commons.param.IntegerDiscreteConstraint;
+import org.opensha.commons.param.IntegerParameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.StringParameter;
@@ -55,6 +58,8 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 
+import com.google.common.base.Preconditions;
+
 public class CyberShakeIMR extends AttenuationRelationship implements ParameterChangeListener {
 
 	public static final String NAME = "CyberShake Fake Attenuation Relationship";
@@ -73,15 +78,13 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 	/** ParameterList of all eqkRupture parameters */
 	protected ParameterList eqkRuptureParams = new ParameterList();
 
-	public static final String SA_PERIOD_SELECTOR_PARAM_NAME = "SA Period";
-	//	protected StringParameter saPeriodParam = null;
-	//	protected String saPeriod;
-
 	boolean dbConnInitialized = false;
 	DBAccess db = null;
 	SiteInfo2DB site2db = null;
 	PeakAmplitudesFromDB ampsDB = null;
 	Runs2DB runs2db = null;
+	
+	int forcedRunID = -1;
 
 	ArrayList<CybershakeSite> sites = null;
 	CybershakeSite csSite = null;
@@ -91,10 +94,10 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 	public static final String VEL_MODEL_PARAM = "Velocity Model";
 
 	//source index parameter
-	private StringParameter sgtVarParam;
+	private IntegerParameter sgtVarParam;
 
 	//rupture index parameter
-	private StringParameter rupVarScenarioParam;
+	private IntegerParameter rupVarScenarioParam;
 	
 	//vel model index parameter
 	private StringParameter velModelParam;
@@ -110,16 +113,16 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 
 	ArrayList<CybershakeIM> csIMs = null;
 
-	private boolean isInitialized = false;
-	private boolean loading = false;
+	private boolean isInitialized;
 
 	public CyberShakeIMR(ParameterChangeWarningListener listener) {
 		super();
-		loading = true;
+		isInitialized = false;
+//		loading = true;
 		initSupportedIntensityMeasureParams();
 
-		sgtVarParam = new StringParameter(SGT_VAR_PARAM, "");
-		rupVarScenarioParam = new StringParameter(RUP_VAR_SCENARIO_PARAM, "");
+		sgtVarParam = new IntegerParameter(SGT_VAR_PARAM, -1);
+		rupVarScenarioParam = new IntegerParameter(RUP_VAR_SCENARIO_PARAM, -1);
 		velModelParam = new StringParameter(VEL_MODEL_PARAM, "");
 		//		saPeriod = saPeriods.get(0);
 		//		saPeriodParam = new StringParameter(SA_PERIOD_SELECTOR_PARAM_NAME,
@@ -129,12 +132,11 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 		//		this.supportedIMParams.addParameter(saPeriodParam);
 
 		initOtherParams();
-		loading = false;
 	}
 
 	private void checkInit() {
 		// we don't want to initilize the DB connection until we know the user actually wants to use this
-		if (!isInitialized && !loading) {
+		if (!isInitialized) {
 			System.out.println("Initializing CyberShake IMR!");
 			this.initDB();
 
@@ -144,38 +146,35 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 			// SGT Variation ID
 			ArrayList<Integer> ids = ampsDB.getSGTVarIDs();
 			selectedSGTVariation = ids.get(0);
-			ArrayList<String> vals = new ArrayList<String>();
-			for (int val : ids) {
-				vals.add(val + "");
-			}
-			sgtVarParam.setValue(vals.get(0));
-			sgtVarParam.setConstraint(new StringConstraint(vals));
+			sgtVarParam.setValue(ids.get(0));
+			sgtVarParam.setConstraint(new IntegerDiscreteConstraint(ids));
 			sgtVarParam.addParameterChangeListener(this);
 
 			// Rupture Variation IDs
 			ids = ampsDB.getRupVarScenarioIDs();
 			selectedRupVarScenario = ids.get(0);
-			vals = new ArrayList<String>();
-			for (int val : ids) {
-				vals.add(val + "");
-			}
-			rupVarScenarioParam.setValue(vals.get(0));
-			rupVarScenarioParam.setConstraint(new StringConstraint(vals));
+			rupVarScenarioParam.setValue(ids.get(0));
+			rupVarScenarioParam.setConstraint(new IntegerDiscreteConstraint(ids));
 			rupVarScenarioParam.addParameterChangeListener(this);
 			
 			velModels = runs2db.getVelocityModels();
 			selectedVelModel = velModels.get(0).getID();
-			vals = new ArrayList<String>();
+			ArrayList<String> vals = new ArrayList<String>();
 			for (CybershakeVelocityModel velModel : velModels) {
 				vals.add(velModel.toString());
 			}
 			velModelParam.setValue(vals.get(0));
 			velModelParam.setConstraint(new StringConstraint(vals));
 			velModelParam.addParameterChangeListener(this);
-
-			otherParams.addParameter(rupVarScenarioParam);
-			otherParams.addParameter(sgtVarParam);
-			otherParams.addParameter(velModelParam);
+			
+			ParameterList[] listsToAdd = { otherParams, imlAtExceedProbIndependentParams,
+					exceedProbIndependentParams, meanIndependentParams, stdDevIndependentParams };
+			
+			for (ParameterList paramList : listsToAdd) {
+				paramList.addParameter(rupVarScenarioParam);
+				paramList.addParameter(sgtVarParam);
+				paramList.addParameter(velModelParam);
+			}
 
 			saPeriodParam.addParameterChangeListener(this);
 
@@ -446,11 +445,19 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 			this.curIM = getIMForPeriod((Double)event.getParameter().getValue());
 			System.out.println("We got a period of " + (Double)event.getParameter().getValue() + "! " + curIM);
 		} else if (paramName.equals(SGT_VAR_PARAM)) {
-			selectedSGTVariation = Integer.parseInt((String)sgtVarParam.getValue());
+			selectedSGTVariation = sgtVarParam.getValue();
 			//			this.reloadParams();
 		} else if (paramName.equals(RUP_VAR_SCENARIO_PARAM)) {
-			selectedRupVarScenario = Integer.parseInt((String)rupVarScenarioParam.getValue());
+			selectedRupVarScenario = rupVarScenarioParam.getValue();
 			//			this.reloadParams();
+		} else if (paramName.equals(VEL_MODEL_PARAM)) {
+			String velModelStr = velModelParam.getValue();
+			selectedVelModel = -1;
+			for (CybershakeVelocityModel velModel : velModels) {
+				if (velModelStr.equals(velModel.toString()))
+					selectedVelModel = velModel.getID();
+			}
+			Preconditions.checkState(selectedVelModel >= 0, "Vel model not found: "+velModelStr);
 		}
 
 	}
@@ -492,7 +499,11 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 
 		// if we made it this far, then it's not in the buffer...we'll need to get it manually
 //		System.out.println("Loading amps for " + erfID + " " + srcID + " " + rupID);
-		int runID = runs2db.getLatestRunID(siteID, erfID, sgtVarID, rupVarID, velModelID, null, null, null, null);
+		int runID = forcedRunID;
+		if (runID <= 0)
+			runID = runs2db.getLatestRunID(siteID, erfID, sgtVarID, rupVarID, velModelID, null, null, null, null);
+		Preconditions.checkState(runID > 0, "Couldn't get runID for: siteID="+siteID+", erfID="+erfID
+				+", sgtVarID="+sgtVarID+", rupVarID="+rupVarID+", velModelID="+velModelID);
 		ArrayList<Double> imVals = ampsDB.getIM_Values(runID, srcID, rupID, im);
 
 //		String valStr = "";
@@ -605,6 +616,17 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 		// this is called when the IMR gets activated in the GUI bean
 		checkInit();
 		return super.getOtherParamsIterator();
+	}
+
+	@Override
+	public ParameterList getOtherParamsList() {
+		// this is called when the IMR gets activated in the GUI bean
+		checkInit();
+		return super.getOtherParamsList();
+	}
+	
+	public void setForcedRunID(int forcedRunID) {
+		this.forcedRunID = forcedRunID;
 	}
 
 	public static void main(String args[]) {

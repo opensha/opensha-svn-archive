@@ -19,6 +19,7 @@
 
 package org.opensha.sha.cybershake.db;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.opensha.sha.earthquake.EqkRupForecast;
@@ -91,5 +92,18 @@ public class CybershakeSiteManager {
 		System.out.println("Deleted " + rows + " site records");
 		
 		return true;
+	}
+	
+	public static void main(String[] args) throws IOException {
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getAuthenticatedDBAccess(true, false);
+		int typeID = 1;
+		CybershakeSite site = new CybershakeSite(35.21083, -120.85611, "Diablo Canyon", "DBCN");
+		EqkRupForecast erf = MeanUCERF2_ToDB.createUCERF2ERF();
+		int erfID = 35;
+		double cutoffDistance = 200;
+		
+		insertCybershakeSite(db, site, erf, erfID, cutoffDistance, typeID);
+		
+		db.destroy();
 	}
 }

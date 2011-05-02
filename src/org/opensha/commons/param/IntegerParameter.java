@@ -22,6 +22,7 @@ package org.opensha.commons.param;
 import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.param.editor.ConstrainedIntegerDiscreteParameterEditor;
 import org.opensha.commons.param.editor.ConstrainedIntegerParameterEditor;
 import org.opensha.commons.param.editor.IntegerParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditor;
@@ -325,7 +326,7 @@ implements DependentParameterAPI<Integer>, ParameterAPI<Integer>
 		String S = C + ": setConstraint(): ";
 		checkEditable(S);
 
-		if ( !(constraint instanceof IntegerConstraint )) {
+		if ( !(constraint instanceof IntegerConstraint || constraint instanceof IntegerDiscreteConstraint)) {
 			throw new ParameterException( S +
 					"This parameter only accepts IntegerConstraints, unable to set the constraint."
 			);
@@ -469,8 +470,14 @@ implements DependentParameterAPI<Integer>, ParameterAPI<Integer>
 			try {
 				if (constraint == null)
 					paramEdit = new IntegerParameterEditor(this);
-				else
-					paramEdit = new ConstrainedIntegerParameterEditor(this);
+				else {
+					if (constraint instanceof IntegerConstraint)
+						paramEdit = new ConstrainedIntegerParameterEditor(this);
+					else if (constraint instanceof IntegerDiscreteConstraint)
+						paramEdit = new ConstrainedIntegerDiscreteParameterEditor(this);
+					else
+						throw new IllegalStateException("unknown constraint type: "+constraint);
+				}
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}

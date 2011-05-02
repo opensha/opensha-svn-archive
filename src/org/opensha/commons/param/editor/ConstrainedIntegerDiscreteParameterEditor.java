@@ -33,6 +33,7 @@ import javax.swing.JPanel;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.DoubleDiscreteConstraint;
+import org.opensha.commons.param.IntegerDiscreteConstraint;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterConstraintAPI;
 
@@ -47,8 +48,8 @@ import org.opensha.commons.param.ParameterConstraintAPI;
  * @version 1.0
  */
 
-public class ConstrainedDoubleDiscreteParameterEditor
-extends NewParameterEditor<Double>
+public class ConstrainedIntegerDiscreteParameterEditor
+extends NewParameterEditor<Integer>
 implements ItemListener
 {
 
@@ -65,7 +66,7 @@ implements ItemListener
 	private JComponent widget;
 
 	/** No-Arg constructor calls super(); */
-	public ConstrainedDoubleDiscreteParameterEditor() { super(); }
+	public ConstrainedIntegerDiscreteParameterEditor() { super(); }
 
 	/**
 	 * Sets the model in this constructor. The parameter is checked that it is a
@@ -78,7 +79,7 @@ implements ItemListener
 	 * else a picklist of values to choose from are presented to the user.
 	 * A tooltip is given to the name label if model info is available.
 	 */
-	public ConstrainedDoubleDiscreteParameterEditor(ParameterAPI<Double> model)
+	public ConstrainedIntegerDiscreteParameterEditor(ParameterAPI<Integer> model)
 	throws ConstraintException {
 		super(model);
 	}
@@ -92,18 +93,18 @@ implements ItemListener
 		String S = C + ": itemStateChanged(): ";
 		if(D) System.out.println(S + "Starting: " + e.toString());
 
-		Double value = (Double) ((JComboBox) widget).getSelectedItem();
+		Integer value = (Integer) ((JComboBox) widget).getSelectedItem();
 		this.setValue(value);
 
 		if(D) System.out.println(S + "Ending");
 	}
 
 	@Override
-	public boolean isParameterSupported(ParameterAPI<Double> param) {
+	public boolean isParameterSupported(ParameterAPI<Integer> param) {
 		if (param == null)
 			return false;
 		
-		if (!(param.getValue() instanceof Double))
+		if (!(param.getValue() instanceof Integer))
 			return false;
 
 		ParameterConstraintAPI constraint = param.getConstraint();
@@ -114,12 +115,12 @@ implements ItemListener
 		if (constraint.isNullAllowed())
 			return false;
 
-		if (!(constraint instanceof DoubleDiscreteConstraint))
+		if (!(constraint instanceof IntegerDiscreteConstraint))
 			return false;
 		
-		DoubleDiscreteConstraint dconst = (DoubleDiscreteConstraint)constraint;
+		IntegerDiscreteConstraint iconst = (IntegerDiscreteConstraint)constraint;
 
-		int numConstriants = dconst.size();
+		int numConstriants = iconst.size();
 		if(numConstriants < 1)
 			return false;
 		return true;
@@ -133,10 +134,10 @@ implements ItemListener
 
 	@Override
 	protected JComponent buildWidget() {
-		DoubleDiscreteConstraint con = ((DoubleDiscreteConstraint)
+		IntegerDiscreteConstraint con = ((IntegerDiscreteConstraint)
 				getParameter().getConstraint());
 		
-		ArrayList<Double> vals = con.getAllowedDoubles();
+		ArrayList<Integer> vals = con.getAllowed();
 
 		if(vals.size() > 1){
 			JComboBox combo = new JComboBox(vals.toArray());
@@ -161,10 +162,10 @@ implements ItemListener
 
 	@Override
 	protected JComponent updateWidget() {
-		DoubleDiscreteConstraint con = ((DoubleDiscreteConstraint)
+		IntegerDiscreteConstraint con = ((IntegerDiscreteConstraint)
 				getParameter().getConstraint());
 		
-		ArrayList<Double> vals = con.getAllowedDoubles();
+		ArrayList<Integer> vals = con.getAllowed();
 		
 		if (vals.size() > 1) {
 			if (widget instanceof JComboBox) {

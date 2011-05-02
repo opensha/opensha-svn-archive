@@ -431,8 +431,10 @@ implements DisaggregationCalculatorAPI{
 			TRTUtils.resetTRTsInIMRs(trtDefaults);
 
 		//if no rate of exceedance above a given IML then return false.
-		if (! (totalRate > 0))
+		if (! (totalRate > 0)) {
+			System.out.println("Disagg filed: totalRate: "+totalRate);
 			return false;
+		}
 
 		// sort the disaggSourceList according to contribution
 		if (numSourcesToShow > 0) {
