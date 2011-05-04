@@ -403,7 +403,7 @@
 		<unjar src="${lib.dir}/jh.jar" dest="${build}" />
 		<unjar src="${lib.dir}/guava-r07.jar" dest="${build}" />
 		<unjar src="${lib.dir}/servlet.jar" dest="${build}" />
-		<unjar src="${lib.dir}/Jama.jar" dest="${build}" />
+		<unjar src="${lib.dir}/Jama-1.0.2.jar" dest="${build}" />
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
