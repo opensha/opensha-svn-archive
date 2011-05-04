@@ -176,7 +176,7 @@ public class HazardCurveDisaggregationWindow extends JFrame {
       return;
     }
     String imgName = disaggregationPlotWebAddr +
-        DisaggregationCalculator.DISAGGREGATION_PLOT_IMG_NAME;
+        DisaggregationCalculator.DISAGGREGATION_PLOT_JPG_NAME;
     //adding the image to the Panel and returning that to the applet
     ImageViewerWindow imgView = new ImageViewerWindow(imgName, metadata,true);
   }

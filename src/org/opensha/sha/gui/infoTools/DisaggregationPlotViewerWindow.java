@@ -124,7 +124,7 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
 
 	//Strings for getting the different disaggregation info.
 	private String meanModeText,metadataText,binDataText,sourceDataText;
-	
+
 	private JFileChooser fileChooser;
 
 
@@ -303,7 +303,7 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
 			fileChooser = new JFileChooser();
 			CustomFileFilter pdfChooser = new CustomFileFilter("pdf", "PDF File");
 			CustomFileFilter txtChooser = new CustomFileFilter("txt", "TXT File");
-			
+
 			fileChooser.addChoosableFileFilter(pdfChooser);
 			fileChooser.addChoosableFileFilter(txtChooser);
 			fileChooser.setAcceptAllFileFilterUsed(false);
@@ -321,25 +321,35 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
 			if (ext.equals("pdf")) {
 				saveAsPDF(fileName);
 			} else if (ext.equals("txt")) {
-				DataUtil.save(fileName, getDissaggText());
+				saveAsTXT(fileName);
 			}
 		}
 
 	}
-	
+
 	private String getDissaggText() {
+		return getDisaggTest(meanModeText, metadataText, binDataText, sourceDataText);
+	}
+	
+	public static String getDisaggTest(String meanModeText,
+			String metadataText, String binDataText, String sourceDataText) {
 		return "Mean/Mode Metadata :\n"+meanModeText+
 		"\n\n"+"Disaggregation Plot Parameters Info :\n"+
 		metadataText+"\n\n"+"Disaggregation Bin Data :\n"+binDataText+"\n\n"+
 		"Disaggregation Source List Info:\n"+sourceDataText;
 	}
+	
+	protected void saveAsTXT(String outputFileName) {
+		saveAsTXT(outputFileName,  meanModeText, metadataText, binDataText, sourceDataText);
+	}
+	
+	public static void saveAsTXT(String outputFileName, String meanModeText,
+			String metadataText, String binDataText, String sourceDataText) {
+		DataUtil.save(outputFileName, getDisaggTest(meanModeText, metadataText, binDataText, sourceDataText));
+	}
 
-	/**
-	 * Allows the user to save the image and metadata as PDF.
-	 * This also allows to preserve the color coding of the metadata.
-	 * @throws IOException
-	 */
-	protected void saveAsPDF(String fileName) throws IOException {
+	public static void saveAsPDF(String disaggPDF_URL, String outputFileName, String meanModeText,
+			String metadataText, String binDataText, String sourceDataText) {
 		// step 1: creation of a document-object
 		Document document = new Document();
 		//document for temporary storing the metadata as pdf-file
@@ -348,10 +358,10 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
 		String[] pdfFiles = new String[2];
 		try {
 
-			String disaggregationInfoString = getDissaggText();
+			String disaggregationInfoString = getDisaggTest(meanModeText, metadataText, binDataText, sourceDataText);
 
-			pdfFiles[0] = imgFileName;
-			pdfFiles[1] = fileName+".tmp";
+			pdfFiles[0] = disaggPDF_URL;
+			pdfFiles[1] = outputFileName+".tmp";
 			//creating the temp data pdf for the Metadata
 			PdfWriter.getInstance(document_temp,
 					new FileOutputStream(pdfFiles[1]));
@@ -390,7 +400,7 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
 					// step 1: creation of a document-object
 					document = new Document(reader.getPageSizeWithRotation(1));
 					// step 2: we create a writer that listens to the document
-					writer = new PdfCopy(document, new FileOutputStream(fileName));
+					writer = new PdfCopy(document, new FileOutputStream(outputFileName));
 					// step 3: we open the document
 					document.open();
 				}
@@ -422,6 +432,15 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
 		//deleting the temporary PDF file that was created for storing the metadata
 		File f = new File(pdfFiles[1]);
 		f.delete();
+	}
+
+	/**
+	 * Allows the user to save the image and metadata as PDF.
+	 * This also allows to preserve the color coding of the metadata.
+	 * @throws IOException
+	 */
+	protected void saveAsPDF(String fileName) throws IOException {
+		saveAsPDF(imgFileName, fileName, meanModeText, metadataText, binDataText, sourceDataText);
 	}
 
 	/**

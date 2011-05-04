@@ -33,7 +33,6 @@ import java.net.MalformedURLException;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.ListIterator;
@@ -71,6 +70,7 @@ import org.opensha.sha.cybershake.db.CybershakeHazardCurveRecord;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeRun;
 import org.opensha.sha.cybershake.db.CybershakeSite;
+import org.opensha.sha.cybershake.db.CybershakeVelocityModel;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.cybershake.db.HazardCurve2DB;
@@ -97,13 +97,7 @@ import org.opensha.sha.util.SiteTranslator;
 
 public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	
-	public static final String TYPE_PDF = "pdf";
-	public static final String TYPE_PNG = "png";
-	public static final String TYPE_JPG = "jpg";
-	public static final String TYPE_JPEG = "jpeg";
-	public static final String TYPE_TXT = "txt";
-	
-	public static final String TYPE_DEFAULT = TYPE_PDF;
+	public static final PlotType PLOT_TYPE_DEFAULT = PlotType.PDF;
 	
 	protected static final String default_periods = "3";
 	
@@ -431,15 +425,15 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			manualVs30 = Double.parseDouble(vsStr);
 		}
 		
-		ArrayList<String> types;
+		ArrayList<PlotType> types;
 		
 		if (cmd.hasOption("t")) {
 			String typeStr = cmd.getOptionValue("t");
 			
-			types = commaSplit(typeStr);
+			types = PlotType.fromExtensions(commaSplit(typeStr));
 		} else {
-			types = new ArrayList<String>();
-			types.add(TYPE_PDF);
+			types = new ArrayList<PlotType>();
+			types.add(PlotType.PDF);
 		}
 		
 		if (cmd.hasOption("w")) {
@@ -515,27 +509,26 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			String outFile = outDir + outFileName;
 			if (calcOnly)
 				continue;
-			boolean textOnly = types.size() == 1 && types.get(0) == TYPE_TXT;
+			boolean textOnly = types.size() == 1 && types.get(0) == PlotType.TXT;
 			ArrayList<DiscretizedFuncAPI> curves = this.plotCurve(curveID, run,
 					compCurveIDs, runCompares, textOnly);
 			if (curves == null) {
 				System.err.println("No points could be fetched for curve ID " + curveID + "! Skipping...");
 				continue;
 			}
-			for (String type : types) {
-				type = type.toLowerCase();
+			for (PlotType type : types) {
 				
 				try {
-					if (type.equals(TYPE_PDF)) {
+					if (type == PlotType.PDF) {
 						plotCurvesToPDF(outFile + ".pdf");
 						atLeastOne = true;
-					} else if (type.equals(TYPE_PNG)) {
+					} else if (type == PlotType.PNG) {
 						plotCurvesToPNG(outFile + ".png");
 						atLeastOne = true;
-					} else if (type.equals(TYPE_JPG) || type.equals(TYPE_JPEG)) {
+					} else if (type == PlotType.JPG || type == PlotType.JPEG) {
 						plotCurvesToJPG(outFile + ".jpg");
 						atLeastOne = true;
-					} else if (type.equals(TYPE_TXT)) {
+					} else if (type == PlotType.TXT) {
 						plotCurvesToTXT(outFile + ".txt", curves);
 						atLeastOne = true;
 					} else
@@ -793,7 +786,9 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 				curveNames.add(curveName);
 				chars.add(new PlotCurveCharacterstics(lineType,
 						Color.GRAY, 1));
-				compCurve.setInfo(getCyberShakeCurveInfo(compCurveID, site2db.getSiteFromDB(compRun.getSiteID()), compRun, im));
+				CybershakeVelocityModel velModel = runs2db.getVelocityModel(run.getVelModelID());
+				compCurve.setInfo(getCyberShakeCurveInfo(compCurveID, site2db.getSiteFromDB(compRun.getSiteID()),
+						compRun, velModel, im));
 			}
 		}
 		
@@ -802,7 +797,8 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			curveNames.addAll(this.plotComparisions(curves, im, curveID, chars));
 		}
 		
-		curve.setInfo(this.getCyberShakeCurveInfo(curveID, csSite, run, im));
+		CybershakeVelocityModel velModel = runs2db.getVelocityModel(run.getVelModelID());
+		curve.setInfo(getCyberShakeCurveInfo(curveID, csSite, run, velModel, im));
 		
 		String title = HazardCurvePlotCharacteristics.getReplacedTitle(plotChars.getTitle(), csSite);
 		
@@ -926,10 +922,13 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		return names;
 	}
 	
-	public String getCyberShakeCurveInfo(int curveID, CybershakeSite site, CybershakeRun run, CybershakeIM im) {
+	public static String getCyberShakeCurveInfo(int curveID, CybershakeSite site, CybershakeRun run,
+			CybershakeVelocityModel velModel, CybershakeIM im) {
 		String infoString = "Site: "+ site.getFormattedName() + ";\n";
 		if (run != null)
 			infoString += "Run: "+run.toString() + ";\n";
+		if (velModel != null)
+			infoString += "Velocity Model: "+velModel.toString()+";\n";
 		infoString += "SA Period: " + im.getVal() + ";\n";
 		infoString += "Hazard_Curve_ID: "+curveID+";\n";
 		
@@ -1254,7 +1253,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		ops.addOption(force);
 		
 		Option type = new Option("t", "type", true, "Plot save type. Options are png, pdf, jpg, and txt. Multiple types can be " + 
-				"comma separated (default is " + TYPE_DEFAULT + ")");
+				"comma separated (default is " + PLOT_TYPE_DEFAULT.getExtension() + ")");
 		ops.addOption(type);
 		
 		Option width = new Option("w", "width", true, "Plot width (default = " + PLOT_WIDTH_DEFAULT + ")");

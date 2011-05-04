@@ -124,7 +124,8 @@ implements DisaggregationCalculatorAPI{
 
 	//Disaggregation Plot Img Name
 	public static final String DISAGGREGATION_PLOT_NAME = "DisaggregationPlot";
-	public static final String DISAGGREGATION_PLOT_IMG_NAME = DISAGGREGATION_PLOT_NAME +".jpg";
+	public static final String DISAGGREGATION_PLOT_JPG_NAME = DISAGGREGATION_PLOT_NAME +".jpg";
+	public static final String DISAGGREGATION_PLOT_PNG_NAME = DISAGGREGATION_PLOT_NAME +".png";
 	public static final String DISAGGREGATION_PLOT_PDF_NAME = DISAGGREGATION_PLOT_NAME +".pdf";
 
 	//Address to the disaggregation plot img
@@ -1030,10 +1031,11 @@ System.out.println("numRupRejected="+numRupRejected);
 			gmtScriptLines.add("${GMT_PATH}pstext temp_label -R0/8.5/0/11 -N -Jx1i -X-6.1 -P -O >> " + img_ps_file);
 			gmtScriptLines.add("");
 			gmtScriptLines.add("${COMMAND_PATH}echo \"converting postscript\"");
-			gmtScriptLines.add("${COMMAND_PATH}cat "+img_ps_file+ " |"+ "gs -sDEVICE=jpeg -sOutputFile=temp.jpg"+" -");
+//			gmtScriptLines.add("${COMMAND_PATH}cat "+img_ps_file+ " |"+ "gs -sDEVICE=jpeg -sOutputFile=temp.jpg"+" -");
 			gmtScriptLines.add("${PS2PDF_PATH} "+img_ps_file+"  "+DISAGGREGATION_PLOT_PDF_NAME);
-			gmtScriptLines.add("${CONVERT_PATH} -crop 0x0 temp.jpg "+DISAGGREGATION_PLOT_IMG_NAME);
-			gmtScriptLines.add("${COMMAND_PATH}rm temp.jpg temp_segments");
+			gmtScriptLines.add("${CONVERT_PATH} -chop 0x300 "+img_ps_file+" "+DISAGGREGATION_PLOT_JPG_NAME);
+			gmtScriptLines.add("${CONVERT_PATH} -chop 0x300 "+img_ps_file+" "+DISAGGREGATION_PLOT_PNG_NAME);
+			gmtScriptLines.add("${COMMAND_PATH}rm temp_segments");
 			if (D) System.out.println(14);
 		}catch(Exception e){
 			e.printStackTrace();

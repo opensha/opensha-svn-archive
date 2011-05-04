@@ -9,6 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -34,6 +35,7 @@ import org.opensha.sha.calc.params.SetTRTinIMR_FromSourceParam;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeRun;
 import org.opensha.sha.cybershake.db.CybershakeSite;
+import org.opensha.sha.cybershake.db.CybershakeVelocityModel;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.cybershake.db.HazardCurve2DB;
@@ -42,11 +44,14 @@ import org.opensha.sha.cybershake.db.Runs2DB;
 import org.opensha.sha.cybershake.db.SiteInfo2DB;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeIMR;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeUCERFWrapper_ERF;
+import org.opensha.sha.gui.infoTools.DisaggregationPlotViewerWindow;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
 import com.google.common.base.Preconditions;
 
 public class DisaggregationPlotter {
+	
+	public static final PlotType TYPE_DEFAULT = PlotType.PDF;
 	
 	private DBAccess db;
 	private Runs2DB runs2db;
@@ -82,15 +87,19 @@ public class DisaggregationPlotter {
 	
 	private double maxZAxis = Double.NaN;
 	
+	private ArrayList<PlotType> plotTypes;
+	
+	private HashMap<Double, Double> imlToProbsMap;
 	
 	public DisaggregationPlotter(
 			int runID,
 			ArrayList<Double> periods,
 			ArrayList<Double> probLevels,
 			ArrayList<Double> imlLevels,
-			File outputDir) {
+			File outputDir,
+			ArrayList<PlotType> plotTypes) {
 		initDB();
-		init(runID, periods, probLevels, imlLevels, outputDir);
+		init(runID, periods, probLevels, imlLevels, outputDir, plotTypes);
 	}
 	
 	public DisaggregationPlotter(CommandLine cmd) {
@@ -135,7 +144,16 @@ public class DisaggregationPlotter {
 			outputDir = new File("");
 		}
 		
-		init(runID, periods, probLevels, imlLevels, outputDir);
+		if (cmd.hasOption("t")) {
+			String typeStr = cmd.getOptionValue("t");
+			
+			plotTypes = PlotType.fromExtensions(HazardCurvePlotter.commaSplit(typeStr));
+		} else {
+			plotTypes = new ArrayList<PlotType>();
+			plotTypes.add(PlotType.PDF);
+		}
+		
+		init(runID, periods, probLevels, imlLevels, outputDir, plotTypes);
 	}
 	
 	public void init(
@@ -143,7 +161,8 @@ public class DisaggregationPlotter {
 			ArrayList<Double> periods,
 			ArrayList<Double> probLevels,
 			ArrayList<Double> imlLevels,
-			File outputDir) {
+			File outputDir,
+			ArrayList<PlotType> plotTypes) {
 		// get the full run description from the DB
 		this.run = runs2db.getRun(runID);
 		Preconditions.checkNotNull(run, "Error fetching runs from DB");
@@ -206,6 +225,7 @@ public class DisaggregationPlotter {
 			int curveID = curve2db.getHazardCurveID(run.getRunID(), im.getID());
 			DiscretizedFuncAPI curve = curve2db.getHazardCurve(curveID);
 			
+			imlToProbsMap = new HashMap<Double, Double>();
 			// convert prob values to IMLs
 			for (double probLevel : probLevels) {
 				if (probLevel > curve.getY(0)
@@ -216,6 +236,7 @@ public class DisaggregationPlotter {
 				}
 				double imLevel = curve.getFirstInterpolatedX_inLogXLogYDomain(probLevel);
 				System.out.println("converted prob of: "+probLevel+" to IML of: "+imLevel);
+				imlToProbsMap.put(imLevel, probLevel);
 				imlLevels.add(imLevel);
 			}
 			
@@ -275,24 +296,78 @@ public class DisaggregationPlotter {
 //					bw.close();
 //					System.out.println("DONE. script in: "+dir);
 					
+					boolean textOnly = plotTypes.size() == 1 && plotTypes.get(0) == PlotType.TXT;
 					
-					System.out.println("Fetching plot...");
-					String address = disaggCalc.getDisaggregationPlotUsingServlet(metadata);
-					address += DisaggregationCalculator.DISAGGREGATION_PLOT_PDF_NAME;
+					String address = null;
+					
+					if (!textOnly) {
+						System.out.println("Fetching plot...");
+						address = disaggCalc.getDisaggregationPlotUsingServlet(metadata);
+					}
+					
+					boolean isProb = imlToProbsMap.containsKey(iml);
+					double prob;
+					if (isProb)
+						prob = imlToProbsMap.get(iml);
+					else
+						prob = curve.getInterpolatedY_inLogXLogYDomain(iml);
+					
 					Date date = curve2db.getDateForCurve(curveID);
 					String dateStr = HazardCurvePlotter.dateFormat.format(date);
 					String periodStr = "SA_" + HazardCurvePlotter.getPeriodStr(im.getVal()) + "sec";
 					String outFileName = csSite.short_name + "_ERF" + run.getERFID() + "_Run" + run.getRunID();
-					outFileName += "_Disagg_"+iml+"_G_" + periodStr + "_" + dateStr+".pdf";
-					File outFile = new File(outputDir.getAbsolutePath()+File.separator+outFileName);
-					System.out.println("Downloading disagg plot to: "+outFile.getAbsolutePath());
-					FileUtils.downloadURL(address, outFile);
+					if (isProb)
+						outFileName += "_DisaggPOE_"+(float)prob;
+					else
+						outFileName += "_DisaggIML_"+(float)iml+"_G";
+					outFileName += "_" + periodStr + "_" + dateStr;
+					
+					String meanModeText;
+					if (isProb)
+						meanModeText = "Disaggregation Results for Prob = " + prob
+						+ " (for IML = " + (float) iml + ")";
+					else
+						meanModeText = "Disaggregation Results for IML = " + iml
+						+ " (for Prob = " + (float) prob + ")";
+					
+					meanModeText += disaggCalc.getMeanAndModeInfo();
+					
+					CybershakeVelocityModel velModel = runs2db.getVelocityModel(run.getVelModelID());
+					String metadataText = HazardCurvePlotter.getCyberShakeCurveInfo(curveID, csSite, run, velModel, im);
+					String binDataText = disaggCalc.getBinData();
+					String sourceDataText = disaggCalc.getDisaggregationSourceInfo();
+					
+					for (PlotType type : plotTypes) {
+						if (type == PlotType.PDF) {
+							String outputFileName = outputDir.getAbsolutePath()+File.separator+outFileName+".pdf";
+							DisaggregationPlotViewerWindow.saveAsPDF(
+									address+DisaggregationCalculator.DISAGGREGATION_PLOT_PDF_NAME,
+									outputFileName, meanModeText, metadataText, binDataText, sourceDataText);
+						} else if (type == PlotType.PNG) {
+							downloadPlot(address+ DisaggregationCalculator.DISAGGREGATION_PLOT_PNG_NAME, outFileName, "png");
+						} else if (type == PlotType.JPG || type == PlotType.JPEG) {
+							downloadPlot(address+ DisaggregationCalculator.DISAGGREGATION_PLOT_JPG_NAME, outFileName, "jpg");
+						} else if (type == PlotType.TXT) {
+							String outputFileName = outputDir.getAbsolutePath()+File.separator+outFileName+".txt";
+							DisaggregationPlotViewerWindow.saveAsTXT(outputFileName, meanModeText, metadataText,
+									binDataText, sourceDataText);
+						} else {
+							throw new IllegalArgumentException("Unknown plot type: "+type);
+						}
+					}
+					
 					System.out.println("DONE.");
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
 			}
 		}
+	}
+	
+	private void downloadPlot(String address, String outFileName, String ext) throws IOException {
+		File outFile = new File(outputDir.getAbsolutePath()+File.separator+outFileName+"."+ext);
+		System.out.println("Downloading disagg "+ext+" plot to: "+outFile.getAbsolutePath());
+		FileUtils.downloadURL(address, outFile);
 	}
 
 	/**
@@ -313,6 +388,11 @@ public class DisaggregationPlotter {
 		imls.setRequired(false);
 		ops.addOption(imls);
 		
+		Option type = new Option("t", "type", true, "Plot save type. Options are png, pdf, and txt. Multiple types can be " + 
+				"comma separated (default is " + TYPE_DEFAULT.getExtension() + ")");
+		type.setRequired(false);
+		ops.addOption(type);
+		
 		
 		
 		return ops;
@@ -321,8 +401,8 @@ public class DisaggregationPlotter {
 	public static void main(String args[]) throws DocumentException, InvocationTargetException {
 //		String[] newArgs = {"-R", "247", "-p", "3", "-pr", "4.0e-4", "-i", "0.2,0.5", "-o", "/tmp"};
 //		String[] newArgs = {"--help"};
-//		String[] newArgs = {"-R", "792", "-p", "3", "-pr", "4.0e-4", "-o", "/tmp"};
-//		args = newArgs;
+		String[] newArgs = {"-R", "792", "-p", "3", "-pr", "4.0e-4", "-t", "pdf", "-o", "D:\\Documents\\temp"};
+		args = newArgs;
 		
 		try {
 			Options options = createOptions();
