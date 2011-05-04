@@ -1327,8 +1327,7 @@ ScalarIMRChangeListener {
 			// if add on top get the name of ERF List forecast
 			if (addData)
 				prevSelectedERF_List = forecast.getName();
-
-			if (!prevSelectedERF_List.equals(forecast.getName()) && !addData) {
+			else if (prevSelectedERF_List == null || !prevSelectedERF_List.equals(forecast.getName())) {
 				JOptionPane
 				.showMessageDialog(
 						this,
