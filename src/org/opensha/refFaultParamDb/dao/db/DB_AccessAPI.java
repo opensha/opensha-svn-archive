@@ -93,6 +93,17 @@ public interface DB_AccessAPI {
 	 * @throws SQLException
 	 */
 	public int insertUpdateOrDeleteData(String sql) throws java.sql.SQLException;
+	
+	/**
+	 * Executes a batch of sql statements. if any fail, then you can optionally roll back
+	 * any changes if rollbackOnFail is true.
+	 * 
+	 * @param sqls
+	 * @param rollbackOnFail
+	 * @return array of update counts, or null if update failed
+	 */
+	public int[] insertUpdateOrDeleteBatch(ArrayList<String> sqls, boolean rollbackOnFail)
+	throws java.sql.SQLException;
 
 	/**
 	 * Insert/Update/Delete record in the database.

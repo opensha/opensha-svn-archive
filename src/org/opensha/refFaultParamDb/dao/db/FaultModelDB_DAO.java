@@ -41,9 +41,11 @@ public class FaultModelDB_DAO {
 	 */
 	public void replaceFaultSectionIDs(int faultModelId, ArrayList<Integer> faultSectionsIdList) {
 		// REMOVE all the sections from this model
-		removeModel(faultModelId); // remove all fault sections associated with this fault model
+//		removeModel(faultModelId); // remove all fault sections associated with this fault model
 		try {
 			if (faultSectionsIdList != null && faultSectionsIdList.size() > 0) {
+				ArrayList<String> sqls = new ArrayList<String>();
+				sqls.add(getRemoveSQL(faultModelId));
 				String sql = "INSERT ALL";
 //				String sql = "INSERT INTO "+TABLE_NAME+" ("+FAULT_MODEL_ID+","+SECTION_ID+")";
 //				sql += "\nVALUES ";
@@ -52,8 +54,13 @@ public class FaultModelDB_DAO {
 					sql += "("+faultModelId+","+faultSectionsIdList.get(i)+")";
 				}
 				sql += "\nselect * from dual";
-				System.out.println(sql);
-				dbAccessAPI.insertUpdateOrDeleteData(sql);
+//				System.out.println(sql);
+				sqls.add(sql);
+				int[] ret = dbAccessAPI.insertUpdateOrDeleteBatch(sqls, true);
+				if (ret == null)
+					throw new RuntimeException("Replace failed...unknown reason.");
+			} else {
+				throw new RuntimeException("Can't replace...no fault sections!");
 			}
 		} catch(SQLException e) { throw new InsertException(e.getMessage()); }
 	}
@@ -86,6 +93,10 @@ public class FaultModelDB_DAO {
 			return dbAccessAPI.insertUpdateOrDeleteData(sql);
 		} catch(SQLException e) { throw new UpdateException(e.getMessage()); }
 	}
+	
+	private String getRemoveSQL(int faultModelId) {
+		return "delete from "+TABLE_NAME+" where "+FAULT_MODEL_ID+"="+faultModelId;
+	}
 
 	/**
 	 * This removes all the rows from the table which associates faultsection names with a particular model
@@ -93,7 +104,7 @@ public class FaultModelDB_DAO {
 	 * @param faultModelId
 	 */
 	private void removeModel(int faultModelId) {
-		String sql = "delete from "+TABLE_NAME+" where "+FAULT_MODEL_ID+"="+faultModelId;
+		String sql = getRemoveSQL(faultModelId);
 		try {
 			dbAccessAPI.insertUpdateOrDeleteData(sql);
 		} catch(SQLException e) { throw new UpdateException(e.getMessage()); }

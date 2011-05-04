@@ -26,6 +26,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -44,6 +45,8 @@ import org.opensha.commons.gui.UserAuthDialog;
 import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
 import org.opensha.refFaultParamDb.gui.LoginWindow;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+
+import com.google.common.base.Preconditions;
 
 import oracle.spatial.geometry.JGeometry;
 import oracle.sql.STRUCT;
@@ -885,6 +888,34 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
 		stat.close();
 		freeConnection(conn);
 		return rows;
+	}
+	
+	public int[] insertUpdateOrDeleteBatch(ArrayList<String> sqls, boolean rollbackOnFail) throws SQLException {
+		Preconditions.checkNotNull(sqls, "SQL statement array cannot be null");
+		Preconditions.checkArgument(!sqls.isEmpty(), "SQL statement array cannot be empty");
+		Connection conn = getConnection();
+		conn.setAutoCommit(false);
+		Statement stat = conn.createStatement();
+		for (String sql : sqls) {
+			stat.addBatch(sql);
+		}
+		int[] ret = null;
+		try {
+			ret = stat.executeBatch();
+			conn.commit();
+		} catch (BatchUpdateException e) {
+			// this means that one or more statements failed
+			System.err.println("Batch update exception...");
+			e.printStackTrace();
+			if (rollbackOnFail) {
+				System.out.println("rolling back!");
+				conn.rollback();
+			}
+		}
+		stat.close();
+		freeConnection(conn);
+		
+		return ret;
 	}
 
 	/**

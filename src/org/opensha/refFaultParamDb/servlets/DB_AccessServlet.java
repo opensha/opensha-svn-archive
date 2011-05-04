@@ -131,50 +131,58 @@ public class DB_AccessServlet extends HttpServlet{
 			}
 
 			//receiving the query
-			String query = (String)inputFromApp.readObject();
+			Object query = inputFromApp.readObject();
 
 			/**
 			 * Checking the type of function that needs to be performed in the database
 			 */
 			//getting the sequence number from Data table
 			if(functionToPerform.equals(DB_AccessAPI.SEQUENCE_NUMBER)){
-				int seqNo = myBroker.getNextSequenceNumber(query);
+				int seqNo = myBroker.getNextSequenceNumber((String)query);
 				outputToApp.writeObject(new Integer(seqNo));
 			}
 			//inserting new data in the table
 			else if(functionToPerform.equals(DB_AccessAPI.INSERT_UPDATE_QUERY)){
 //				System.out.println("DB Servlet Insert:\n"+query);
-				int key = myBroker.insertUpdateOrDeleteData(query);
-				outputToApp.writeObject(new Integer(key));
+				if (query instanceof ArrayList) {
+					ArrayList<String> sqls = (ArrayList<String>)query;
+					Boolean rollbackOnFail = (Boolean)inputFromApp.readObject();
+					int[] ret = myBroker.insertUpdateOrDeleteBatch(sqls, rollbackOnFail);
+					outputToApp.writeObject(ret);
+				} else {
+					int key = myBroker.insertUpdateOrDeleteData((String)query);
+					outputToApp.writeObject(new Integer(key));
+				}
+				
 			}
 			// inserting spatial data into database
 			else if(functionToPerform.equals(DB_AccessAPI.INSERT_UPDATE_SPATIAL)){
 				ArrayList<JGeometry> geomteryObjectList = (ArrayList<JGeometry>)inputFromApp.readObject();
-				int key = myBroker.insertUpdateOrDeleteData(query, geomteryObjectList);
+				int key = myBroker.insertUpdateOrDeleteData((String)query, geomteryObjectList);
 				outputToApp.writeObject(new Integer(key));
 			}
 			//reading the data form the database
 			else if(functionToPerform.equals(DB_AccessAPI.SELECT_QUERY)){
-				CachedRowSet resultSet= myBroker.queryData(query);
+				CachedRowSet resultSet= myBroker.queryData((String)query);
 				outputToApp.writeObject(resultSet);
 			}
 			//reading the data form the database
 			else if(functionToPerform.equals(DB_AccessAPI.SELECT_QUERY_SPATIAL)){
 				String sqlWithNoSaptialColumnNames = (String)inputFromApp.readObject();
 				ArrayList<String> geomteryObjectList = (ArrayList<String>)inputFromApp.readObject();
-				SpatialQueryResult resultSet= myBroker.queryData(query,
+				SpatialQueryResult resultSet= myBroker.queryData((String)query,
 						sqlWithNoSaptialColumnNames, geomteryObjectList);
 				outputToApp.writeObject(resultSet);
 			}
 			// reset the password
 			else if(functionToPerform.equalsIgnoreCase(DB_AccessAPI.RESET_PASSWORD)) {
-				String email = query;
+				String email = (String)query;
 				String randomPass = ContributorDB_DAO.getRandomPassword();
 				String encr = ContributorDB_DAO.getEnryptedPassword(randomPass);
 				System.out.println("New random encr pw: " + encr);
 				query = "update "+ContributorDB_DAO.TABLE_NAME+" set "+ContributorDB_DAO.PASSWORD+"= '"+
 				encr+"' where "+ContributorDB_DAO.EMAIL+"='"+email+"'";
-				int key = myBroker.insertUpdateOrDeleteData(query);
+				int key = myBroker.insertUpdateOrDeleteData((String)query);
 				props.setEmailTo(email);
 				props.setEmailSubject("Login information in CA Ref Fault Param GUI");
 				String userName = contributorDAO.getContributorByEmail(email).getName();

@@ -115,6 +115,12 @@ public class PrioritizedDB_Access implements DB_AccessAPI {
 	public int insertUpdateOrDeleteData(String sql) throws SQLException {
 		return dbAccess.insertUpdateOrDeleteData(sql);
 	}
+	
+	@Override
+	public int[] insertUpdateOrDeleteBatch(ArrayList<String> sqls,
+			boolean rollbackOnFail) throws SQLException {
+		return dbAccess.insertUpdateOrDeleteBatch(sqls, rollbackOnFail);
+	}
 
 	public int insertUpdateOrDeleteData(String sql, ArrayList<JGeometry> geometryList)
 	throws SQLException {

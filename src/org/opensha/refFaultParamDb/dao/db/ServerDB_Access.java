@@ -110,6 +110,20 @@ public class ServerDB_Access     implements java.io.Serializable, DB_AccessAPI {
 			return key;
 		}
 	}
+	
+	@Override
+	public int[] insertUpdateOrDeleteBatch(ArrayList<String> sqls,
+			boolean rollbackOnFail) throws SQLException {
+		Object dataFromServlet = openServletConnection(DB_AccessAPI.
+				INSERT_UPDATE_QUERY, sqls, (Boolean)rollbackOnFail, null);
+		if (dataFromServlet instanceof SQLException) {
+			throw (SQLException) dataFromServlet;
+		}
+		else {
+			int key[] = (int[])dataFromServlet;
+			return key;
+		}
+	}
 
 	/**
 	 * Insert/Update/Delete record in the database.
@@ -247,8 +261,8 @@ public class ServerDB_Access     implements java.io.Serializable, DB_AccessAPI {
 	 * @param sql String : SQL statement
 	 * @return Object : Object returned from the servlet
 	 */
-	private Object openServletConnection(String sqlFunction, String sql,
-			String sql1, ArrayList<?> geometryList){
+	private Object openServletConnection(String sqlFunction, Object sql,
+			Object sql1, ArrayList<?> geometryList){
 
 		Object outputFromRemoteDB = null;
 		try{
