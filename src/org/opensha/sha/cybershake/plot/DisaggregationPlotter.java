@@ -401,8 +401,8 @@ public class DisaggregationPlotter {
 	public static void main(String args[]) throws DocumentException, InvocationTargetException {
 //		String[] newArgs = {"-R", "247", "-p", "3", "-pr", "4.0e-4", "-i", "0.2,0.5", "-o", "/tmp"};
 //		String[] newArgs = {"--help"};
-		String[] newArgs = {"-R", "792", "-p", "3", "-pr", "4.0e-4", "-t", "pdf", "-o", "D:\\Documents\\temp"};
-		args = newArgs;
+//		String[] newArgs = {"-R", "792", "-p", "3", "-pr", "4.0e-4", "-t", "pdf", "-o", "D:\\Documents\\temp"};
+//		args = newArgs;
 		
 		try {
 			Options options = createOptions();
