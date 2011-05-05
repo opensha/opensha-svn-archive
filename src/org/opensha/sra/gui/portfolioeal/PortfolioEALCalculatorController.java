@@ -15,12 +15,14 @@ import java.util.HashMap;
 import java.util.ListIterator;
 
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.util.CustomFileFilter;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sra.gui.portfolioeal.gui.PortfolioEALCalculatorView;
 import org.opensha.sra.vulnerability.Vulnerability;
@@ -35,9 +37,6 @@ import org.opensha.sra.vulnerability.models.curee.caltech.CCSmallHouseTypical;
 import org.opensha.sra.vulnerability.models.curee.caltech.CCTownhouseLimitedDrift;
 import org.opensha.sra.vulnerability.models.curee.caltech.CCTownhouseTypical;
 import org.opensha.sra.vulnerability.models.servlet.VulnerabilityServletAccessor;
-
-
-import com.isti.util.gui.IstiFileChooser;
 
 /**
  * The controller for the Portfolio EAL calculator.  This class is used to 
@@ -293,18 +292,24 @@ public class PortfolioEALCalculatorController implements ActionListener, ItemLis
 	 * file chooser, and sets the portfolio file to the one selected.
 	 */
 	private void openPortfolioButtonPressed() {
-		IstiFileChooser fc = IstiFileChooser.createFileChooser();
-		fc.setCurrentDirectory(new File(".").getAbsoluteFile());
-		fc.setFileFilter( new PortfolioFileFilter() );
-		int retval = fc.showOpenDialog(view);
-		if (retval == IstiFileChooser.APPROVE_OPTION) {
-			portfolioFile = fc.getSelectedFile();
+		if (chooser == null) {
+			chooser = new JFileChooser(new File(".").getAbsoluteFile());
+			CustomFileFilter csvFF = new CustomFileFilter("csv",
+				"Portfolio Files");
+			chooser.addChoosableFileFilter(csvFF);
+			chooser.setFileFilter(csvFF);
+		}
+		int retval = chooser.showOpenDialog(view);
+		if (retval == JFileChooser.APPROVE_OPTION) {
+			portfolioFile = chooser.getSelectedFile();
 			try {
 				fileName = portfolioFile.getName();
 				view.setPortfolioField(portfolioFile.getCanonicalPath());
 			} catch (IOException e) {}
 		}
 	}
+	
+	private JFileChooser chooser;
 
 	/**
 	 *  Listen for the JButtons and the JComboBox.

@@ -10,6 +10,7 @@ import javax.swing.filechooser.FileFilter;
  * @author Jeremy Leakakos
  * 
  */
+@Deprecated
 public class PortfolioFileFilter extends FileFilter {
 
 	/**

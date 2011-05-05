@@ -40,7 +40,6 @@
 		<fileset dir="${lib.dir}">
 			<include name="**/*.jar" />
 		</fileset>
-		<pathelement location="${dev}/scratch/ISTI/isti.util.jar" />
 	</path>
 
 	<target name="compile">

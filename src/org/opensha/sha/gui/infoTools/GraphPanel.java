@@ -106,7 +106,7 @@ public class GraphPanel extends JSplitPane {
 	// mesage needed in case of show data if plot is not available
 	private final static String NO_PLOT_MSG = "No Plot Data Available";
 	
-	JFileChooser fileChooser;
+	private JFileChooser chooser;
 
 	/**
 	 * default color scheme for plotting curves
@@ -1013,26 +1013,26 @@ public class GraphPanel extends JSplitPane {
 	 * @throws IOException if there is an I/O error.
 	 */
 	public void save() throws IOException {
-		if (fileChooser == null) {
-			fileChooser = new JFileChooser();
-			CustomFileFilter pdfChooser = new CustomFileFilter("pdf", "PDF File");
-			CustomFileFilter pngChooser = new CustomFileFilter("png", "PNG File");
-			CustomFileFilter txtChooser = new CustomFileFilter("txt", "TXT File");
+		if (chooser == null) {
+			chooser = new JFileChooser();
+			CustomFileFilter pdfFF = new CustomFileFilter("pdf", "PDF File");
+			CustomFileFilter pngFF = new CustomFileFilter("png", "PNG File");
+			CustomFileFilter txtFF = new CustomFileFilter("txt", "TXT File");
 			
-			fileChooser.addChoosableFileFilter(pdfChooser);
-			fileChooser.addChoosableFileFilter(pngChooser);
-			fileChooser.addChoosableFileFilter(txtChooser);
-			fileChooser.setAcceptAllFileFilterUsed(false);
-			fileChooser.setFileFilter(pdfChooser);
+			chooser.addChoosableFileFilter(pdfFF);
+			chooser.addChoosableFileFilter(pngFF);
+			chooser.addChoosableFileFilter(txtFF);
+			chooser.setAcceptAllFileFilterUsed(false);
+			chooser.setFileFilter(pdfFF);
 		}
-		int option = fileChooser.showSaveDialog(this);
+		int option = chooser.showSaveDialog(this);
 		String fileName = null;
 		if (option == JFileChooser.APPROVE_OPTION) {
-			fileName = fileChooser.getSelectedFile().getAbsolutePath();
-			CustomFileFilter filter = (CustomFileFilter) fileChooser.getFileFilter();
-			String ext = filter.getExtention();
-			if (!fileName.toLowerCase().endsWith("."+ext)) {
-				fileName = fileName + "." + ext;
+			fileName = chooser.getSelectedFile().getAbsolutePath();
+			CustomFileFilter filter = (CustomFileFilter) chooser.getFileFilter();
+			String ext = filter.getExtension();
+			if (!fileName.toLowerCase().endsWith(ext)) {
+				fileName = fileName + ext;
 			}
 			if (ext.equals("pdf")) {
 				saveAsPDF(fileName);
@@ -1041,7 +1041,7 @@ public class GraphPanel extends JSplitPane {
 			} else if (ext.equals("txt")) {
 				DataUtil.save(fileName, dataTextArea.getText());
 			} else {
-				throw new RuntimeException("Unknown extention selected: "+ext);
+				throw new RuntimeException("Unknown extension selected: "+ext);
 			}
 		}
 	}

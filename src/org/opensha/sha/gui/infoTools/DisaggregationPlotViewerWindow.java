@@ -314,7 +314,7 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
 		if (option == JFileChooser.APPROVE_OPTION) {
 			fileName = fileChooser.getSelectedFile().getAbsolutePath();
 			CustomFileFilter filter = (CustomFileFilter) fileChooser.getFileFilter();
-			String ext = filter.getExtention();
+			String ext = filter.getExtension();
 			if (!fileName.toLowerCase().endsWith("."+ext)) {
 				fileName = fileName + "." + ext;
 			}
