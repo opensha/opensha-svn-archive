@@ -246,4 +246,9 @@ Solve Our MetaData Issues.  We need to be able to do three things: 1) inform the
 	do anything.  Note that all non primitive parameter types (e.g., MagFreqDistParam and
 	SimpleFaultParam) must contain all info needed by their respective editor to recreate the
 	object; this info is stored in their dependent parameter list.
+	
+	
+-----------
+Possible future deletes:
+	resources/data/sra/vuln/CureeCaltech - not currently referenced as data is hardcoded into vulnerability classes
 
