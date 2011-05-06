@@ -65,8 +65,6 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.gui.HelpMenuBuilder;
-import org.opensha.commons.gui.OvalBorder;
-import org.opensha.commons.gui.SidesBorder;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.WarningParameterAPI;
@@ -368,9 +366,6 @@ CurveDisplayAppAPI,GraphWindowAPI {
 	Color lightBlue = new Color( 200, 200, 230 );
 	final static GridBagLayout GBL = new GridBagLayout();
 	Color background = Color.white;
-	SidesBorder topBorder = new SidesBorder( darkBlue, background, background, background );
-	SidesBorder bottomBorder = new SidesBorder( background, darkBlue, background, background );
-	OvalBorder oval = new OvalBorder( 7, 4, darkBlue, darkBlue );
 	JPanel outerPanel = new JPanel();
 	JPanel outerControlPanel = new JPanel();
 	JPanel mainPanel = new JPanel();
@@ -504,11 +499,6 @@ CurveDisplayAppAPI,GraphWindowAPI {
 	 */
 	public void init() {
 
-		oval.setBottomColor( darkBlue );
-		oval.setTopColor( darkBlue );
-		oval.setHeight( 10 );
-		oval.setWidth( 10 );
-
 		// initialize the current AttenuationRelationship
 		initAttenuationRelationshipGui();
 
@@ -571,7 +561,6 @@ CurveDisplayAppAPI,GraphWindowAPI {
 		outerPanel.setLayout( GBL );
 		mainPanel.setBorder(border1 );
 		mainPanel.setLayout( GBL );
-		titlePanel.setBorder( bottomBorder );
 		titlePanel.setMinimumSize(new Dimension(40, 40));
 		titlePanel.setPreferredSize(new Dimension(40, 40));
 		titlePanel.setLayout( GBL);
@@ -606,7 +595,6 @@ CurveDisplayAppAPI,GraphWindowAPI {
 			}
 		});
 
-		buttonPanel.setBorder( topBorder );
 		buttonPanel.setLayout(flowLayout1 );
 
 

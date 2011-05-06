@@ -66,7 +66,6 @@ public class AttenuationRelationshipWebBasedApplet
         outerPanel.setLayout( GBL );
         mainPanel.setBorder(border1 );
         mainPanel.setLayout( GBL );
-        titlePanel.setBorder( bottomBorder );
         titlePanel.setMinimumSize(new Dimension(40, 40));
         titlePanel.setPreferredSize(new Dimension(40, 40));
         titlePanel.setLayout( GBL);
@@ -100,7 +99,6 @@ public class AttenuationRelationshipWebBasedApplet
           }
         });
 
-        buttonPanel.setBorder( topBorder );
         buttonPanel.setLayout(flowLayout1 );
 
 

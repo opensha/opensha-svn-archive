@@ -67,8 +67,6 @@ import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.commons.gui.OvalBorder;
-import org.opensha.commons.gui.SidesBorder;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.gui.plot.jfreechart.MyTickUnits;
 import org.opensha.commons.param.editor.ParameterListEditor;
@@ -207,9 +205,6 @@ implements ItemListener {
 	protected boolean graphOn = false;
 	boolean isWhite = true;
 	Color background = Color.white;
-	SidesBorder topBorder = new SidesBorder( darkBlue, background, background, background );
-	SidesBorder bottomBorder = new SidesBorder( background, darkBlue, background, background );
-	OvalBorder oval = new OvalBorder( 12, 4, darkBlue, darkBlue );
 
 	int titleSize = 0;
 	private Paint[] paint;
@@ -401,14 +396,12 @@ implements ItemListener {
 		titleLabel.setFont(new java.awt.Font( "Dialog", 1, 16 ));
 		plotPanel.setLayout(GBL);
 		titlePanel.setLayout(GBL);
-		titlePanel.setBorder( bottomBorder );
 		innerPlotPanel.setLayout(GBL);
 		innerPlotPanel.setBorder(null);
 		this.getContentPane().setBackground(Color.white);
 		outerPanel.setBackground(Color.white);
 		mainPanel.setBackground(Color.white);
 		buttonPanel.setBackground(Color.white);
-		buttonPanel.setBorder( topBorder );
 		jCheckSumDist.setBackground(Color.white);
 		jCheckSumDist.setForeground(Color.red);
 		jCheckSumDist.setText("Summed Dist");

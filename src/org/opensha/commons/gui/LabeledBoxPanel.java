@@ -30,6 +30,9 @@ import java.awt.LayoutManager;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
+import javax.swing.border.MatteBorder;
 
 /**
  * <b>Title:</b> LabeledBoxPanel<p>
@@ -57,8 +60,8 @@ public class LabeledBoxPanel extends JPanel{
     protected JPanel headerPanel = new JPanel();
     protected JLabel headerLabel = new JLabel();
 
-    protected SidesBorder border = null;
-    protected SidesBorder border2 = null;
+    private Border border = null;
+    private Border border2 = null;
 
     protected static GridBagLayout GBL = new GridBagLayout();
 
@@ -149,26 +152,6 @@ public class LabeledBoxPanel extends JPanel{
         headerLabel.setText( title );
     }
 
-    /**
-     *  Sets the borderColor for the borders in this boxPanel
-     *
-     * @param  newBorderColor  The new borderColor value
-     */
-    public void setBorderColor( Color newBorderColor ) {
-        borderColor = newBorderColor;
-        if( border != null ) {
-            border.setBottomColor( borderColor );
-            border.setLeftColor( borderColor );
-            border.setRightColor( borderColor );
-            border.setTopColor( borderColor );
-        }
-        if( border2 != null ) {
-            border2.setBottomColor( borderColor );
-            border2.setLeftColor( borderColor );
-            border2.setRightColor( borderColor );
-        }
-    }
-
     public void setHeaderPanelBackgroundColor( Color background ){
         headerPanelBackgroundColor = background;
         if ( headerPanel != null ) headerPanel.setBackground( headerPanelBackgroundColor );
@@ -201,9 +184,8 @@ public class LabeledBoxPanel extends JPanel{
 
         addDefault = true;
 
-        border = new SidesBorder( borderColor, borderColor, borderColor, borderColor );
-        border2 = new SidesBorder( Color.white, borderColor, borderColor, borderColor );
-
+        border = new MatteBorder(0,0,1,0,borderColor);
+        border2 = new LineBorder(borderColor);
 
         //this.setBackground( Color.white );
         this.setBorder( border2 );

@@ -61,9 +61,6 @@ public class LabeledBorderPanel extends JPanel{
 	protected JScrollPane jScrollPane1 = new JScrollPane();
 	protected JPanel editorPanel = new JPanel();
 
-	protected SidesBorder border = null;
-	protected SidesBorder border2 = null;
-
 	protected static GridBagLayout GBL = new GridBagLayout();
 
 	protected String title;
@@ -206,7 +203,7 @@ public class LabeledBorderPanel extends JPanel{
 
 		this.setBackground( Color.white );
 		this.setFont(new java.awt.Font("Dialog", 1, 11));
-		this.setBorder( border2 );
+		this.setBorder( null );
 		this.setLayout( GBL );
 
 		editorPanel.setLayout( GBL );
