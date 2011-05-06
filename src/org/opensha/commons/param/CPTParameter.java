@@ -3,8 +3,6 @@ package org.opensha.commons.param;
 import java.util.Collection;
 import java.util.NoSuchElementException;
 
-import javax.help.UnsupportedOperationException;
-
 import org.dom4j.Element;
 import org.opensha.commons.param.editor.ConstrainedCPTParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;

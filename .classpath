@@ -17,7 +17,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/log4j-1.2.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jta-spec1_0_1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jpedal.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jh.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jaxrpc-impl.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jaxrpc-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jax-qname.jar"/>

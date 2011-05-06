@@ -12,6 +12,8 @@ import javax.swing.JMenuItem;
 import org.opensha.commons.util.ApplicationVersion;
 import org.opensha.commons.util.bugReports.BugReport;
 
+// TODO if JDesktop.browse() fails, dialog with clickable/copiable url should
+// be presented
 public class HelpMenuBuilder implements ActionListener {
 	
 	public static String OPENSHA_HOMEPAGE_URL = "http://www.opensha.org";
