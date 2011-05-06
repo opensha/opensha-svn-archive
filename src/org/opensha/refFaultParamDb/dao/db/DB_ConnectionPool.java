@@ -108,10 +108,12 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
 		return db_ver3_conn;
 	}
 	
-	public static void authenticateDBConnection(boolean exitOnCancel, boolean allowReadOnly) {
+	public static boolean authenticateDBConnection(boolean exitOnCancel, boolean allowReadOnly) {
 		UserAuthDialog auth = new UserAuthDialog(null, exitOnCancel, allowReadOnly);
 		auth.setVisible(true);
 		auth.validate();
+		if (auth.isCanceled())
+			return false;
 		if (auth.isReadOnly()) {
 			SessionInfo.setUserName(null);
 			SessionInfo.setPassword(null);
@@ -122,14 +124,15 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
 				SessionInfo.setContributorInfo();
 				if(SessionInfo.getContributor()==null)  {
 					JOptionPane.showMessageDialog(null, LoginWindow.MSG_INVALID_USERNAME_PWD);
-					return;
+					return false;
 				}
 			}catch(DBConnectException connectException) {
 				//connectException.printStackTrace();
 				JOptionPane.showMessageDialog(null, LoginWindow.MSG_INVALID_USERNAME_PWD);
-				return;
+				return false;
 			}
 		}
+		return true;
 	}
 
 	/**

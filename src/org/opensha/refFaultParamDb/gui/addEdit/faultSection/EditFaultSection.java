@@ -28,6 +28,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -76,8 +77,8 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 	private JPanel mainPanel = new JPanel();
 	private JSplitPane topSplitPane = new JSplitPane();
 	private  JSplitPane innerSplitPane = new JSplitPane();
-	private JButton cancelButton = new JButton();
-	private JButton okButton = new JButton();
+	protected JButton cancelButton = new JButton();
+	protected JButton okButton = new JButton();
 	private JPanel leftPanel = new JPanel();
 	private JPanel rightPanel = new JPanel();
 	private JPanel centerPanel = new JPanel();
@@ -239,14 +240,17 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 	}
 
 
-	private JPanel getButtonPanel() {
-		JPanel panel = new JPanel(new GridBagLayout());
-		panel.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-				, GridBagConstraints.WEST, GridBagConstraints.NONE,
-				new Insets(0, 0, 0, 0), 0, 0));
-		panel.add(cancelButton, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-				, GridBagConstraints.EAST, GridBagConstraints.NONE,
-				new Insets(0, 0 , 0, 0), 0, 0));
+	protected JPanel getButtonPanel() {
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+		panel.add(okButton);
+		panel.add(cancelButton);
+//		panel.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+//				, GridBagConstraints.WEST, GridBagConstraints.NONE,
+//				new Insets(0, 0, 0, 0), 0, 0));
+//		panel.add(cancelButton, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+//				, GridBagConstraints.EAST, GridBagConstraints.NONE,
+//				new Insets(0, 0 , 0, 0), 0, 0));
 		return panel;
 	}
 
@@ -270,16 +274,19 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 				new Insets(0, 0, 0, 0), 0, 0));
 
 		// fault section sources
-		ArrayList<SectionSource> sectionSourcesList = sectionSourceDB_DAO.getAllSectionSource();
-		ArrayList<String> sectionSourceNamesList = new ArrayList<String>();
-		for(int i=0; i<sectionSourcesList.size(); ++i)
-			sectionSourceNamesList.add(sectionSourcesList.get(i).getSectionSourceName());
-		sectionSourceNamesList.add(SOURCE_ADD);
-		sectionSourceParam = new StringParameter(SOURCE, sectionSourceNamesList, (String)sectionSourceNamesList.get(0));
-		sectionSourceParam.addParameterChangeListener(this);
-		leftPanel.add(sectionSourceParam.getEditor().getComponent(), new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
-				, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-				new Insets(0, 0, 0, 0), 0, 0));
+		if (dbConnection != null) {
+//			System.out.println("Adding source param to list!");
+			ArrayList<SectionSource> sectionSourcesList = sectionSourceDB_DAO.getAllSectionSource();
+			ArrayList<String> sectionSourceNamesList = new ArrayList<String>();
+			for(int i=0; i<sectionSourcesList.size(); ++i)
+				sectionSourceNamesList.add(sectionSourcesList.get(i).getSectionSourceName());
+			sectionSourceNamesList.add(SOURCE_ADD);
+			sectionSourceParam = new StringParameter(SOURCE, sectionSourceNamesList, (String)sectionSourceNamesList.get(0));
+			sectionSourceParam.addParameterChangeListener(this);
+			leftPanel.add(sectionSourceParam.getEditor().getComponent(), new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
+					, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+					new Insets(0, 0, 0, 0), 0, 0));
+		}
 
 		// qfault param
 		String qfaultId = this.selectedFaultSection.getQFaultId();
@@ -397,14 +404,20 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 
 		}
 	}
+	
+	protected FaultSectionData getSelectedFaultSection() {
+		return selectedFaultSection;
+	}
 
-	private void setParamsInSelectedFaultSection() {
+	public void setParamsInSelectedFaultSection() {
 		// section name
 		selectedFaultSection.setSectionName((String)this.faultSectionNameParam.getValue());
-		// section source (2002, CFM, new)
-		if (sectionSourceParam.getValue().equals(SOURCE_ADD))
-			addNewSource();
-		this.selectedFaultSection.setSource((String)sectionSourceParam.getValue());
+		if (sectionSourceParam != null) {
+			// section source (2002, CFM, new)
+			if (sectionSourceParam.getValue().equals(SOURCE_ADD))
+				addNewSource();
+			this.selectedFaultSection.setSource((String)sectionSourceParam.getValue());
+		}
 		// slip rate
 		if(((String)slipRateTypeParam.getValue()).equalsIgnoreCase(KNOWN)) {
 			avgLongTermSlipRateEstParamEditor.setEstimateInParameter();
