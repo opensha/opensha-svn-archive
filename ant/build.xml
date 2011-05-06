@@ -322,10 +322,6 @@
 
 		<antcall target="resource.app.icons" />
 		
-		<copy todir="${build}/resources/help" overwrite="true">
-			<fileset dir="${src}/resources/help" />
-		</copy>
-
 		<copy todir="${build}/resources/data/region" overwrite="true">
 			<fileset dir="${src}/resources/data/region" />
 		</copy>
