@@ -80,6 +80,7 @@ public class BugReport {
 	private String reporter;
 	private Component component;
 	private String keywords;
+	private Throwable t;
 	
 	private static String getStackTraceAsCause(Throwable cause, StackTraceElement[] causedTrace) {
 		StackTraceElement[] trace = cause.getStackTrace();
@@ -122,6 +123,8 @@ public class BugReport {
 	
 	public BugReport(Throwable t, String metadata,
 			String appName, ApplicationVersion appVersion, Object buggyComp) {
+		this.t = t;
+		
 		String summary = "Bug in " + appName;
 		String description = "Steps to reproduce: (PLEASE FILL IN)\n\n" +
 						"Other info: (PLEASE FILL IN)\n\n" +
@@ -246,6 +249,10 @@ public class BugReport {
 		}
 		
 		return new URL(link);
+	}
+	
+	public Throwable getThrowable() {
+		return t;
 	}
 
 }

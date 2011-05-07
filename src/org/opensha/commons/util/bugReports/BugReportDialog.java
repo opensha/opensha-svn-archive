@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.rmi.ConnectException;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 import javax.swing.Box;
@@ -34,6 +36,7 @@ import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.event.HyperlinkListener;
 
 import org.opensha.commons.util.ApplicationVersion;
+import org.opensha.commons.util.bugReports.knownBugImpl.ExceptionTypeKnownBugDetector;
 
 public class BugReportDialog extends JDialog implements ActionListener, HyperlinkListener {
 
@@ -51,10 +54,37 @@ public class BugReportDialog extends JDialog implements ActionListener, Hyperlin
 	
 	private JButton quitButton = new JButton("Exit Application");
 	private JButton continueButton = new JButton("Continue Using Application");
-	private JButton submitBugButton = new JButton("<html><center><b><font size=+2>Submit Bug Report</font></b><br>" +
-			"<font size=-1>(will open in web browser)</font></center></html>");
+	private static final String submitButtonTextDefault = "<html><center><b><font size=+2>Submit Bug Report</font></b><br>" +
+	"<font size=-1>(will open in web browser)</font></center></html>";
+	private static final String submitButtonTextKnownBug = "<html><center><b>I'd Still Like to Submit a Report.</font></b><br>" +
+	"<font size=-1>(will open in web browser)</center></html>";
+	private JButton submitBugButton = new JButton(submitButtonTextDefault);
 	private JButton technicalButton = new JButton("View Techical Details");
 	private JTextField emailField = new JTextField("", 100);
+	
+	// this is a list of known bugs
+	private static ArrayList<KnownBugDetector> knownBugDetectors;
+	
+	static {
+		knownBugDetectors = new ArrayList<KnownBugDetector>();
+		
+		knownBugDetectors.add(new ExceptionTypeKnownBugDetector(NumberFormatException.class, "<b>This is mostly likely" +
+				" due to an incorrectly formatted number.</b> OpenSHA currently only supports numbers with a decimal" +
+				" point, and will not work for decimal commas. For example, to specify the longitude and latitude" +
+				" of downtown Los Angeles, CA, USA, here is the correct number representation:" +
+				"<br>Latitude: 34.053 Longitude: -118.243" +
+				"<br>If you still think that this is a bug, you may submit a report by clicking below."));
+		knownBugDetectors.add(new ExceptionTypeKnownBugDetector(java.rmi.ConnectException.class, "<b>This is most likely" +
+				" a firewall issue!</b> Either your computer cannot connect to our server, or our server is" +
+				" temporarily down. Make sure that you have an internet connection and that your firewall allows" +
+				" connections to ports 40000-40500 on opensha.usc.edu. If you are still having problems, try back" +
+				" later, as the server might just be down."));
+		knownBugDetectors.add(new ExceptionTypeKnownBugDetector(java.net.ConnectException.class, "<b>This is most likely" +
+				" a firewall issue!</b> Either your computer cannot connect to our server, or our server is" +
+				" temporarily down. Make sure that you have an internet connection and that your firewall allows" +
+				" connections to port 8080 on opensha.usc.edu. If you are still having problems, try back" +
+				" later, as the server might just be down."));
+	}
 	
 	private boolean fatal;
 
@@ -62,6 +92,7 @@ public class BugReportDialog extends JDialog implements ActionListener, Hyperlin
 		if (bug == null) {
 			bug = new BugReport();
 		}
+		
 		this.fatal = fatal;
 		this.bug = bug;
 		init();
@@ -140,6 +171,14 @@ public class BugReportDialog extends JDialog implements ActionListener, Hyperlin
 		return topPanel;
 	}
 	
+	private KnownBugDetector getApplicableKnownBug() {
+		for (KnownBugDetector knownBug : knownBugDetectors) {
+			if (knownBug.isKnownBug(bug))
+				return knownBug;
+		}
+		return null;
+	}
+	
 	public JPanel getCenterPanel() {
 		JPanel centerPanel = new JPanel();
 		centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
@@ -153,11 +192,18 @@ public class BugReportDialog extends JDialog implements ActionListener, Hyperlin
 			text += "<br><br><b>It may be possible to continue to use the application, but errors " +
 				"may persist and the application may produce unexpected results.</b>";
 		
-		text += "<br><br>You can help to improve OpenSHA by submitting a bug report to our " +
-				"<a href=\""+BugReport.TRAC_URL+"\">Trac Site</a>. Click the button below which " +
-				"will launch your web browser, allowing you to submit the bug. Information on " +
-				"the bug will automatically be included. To view that information, click " +
-				"\"View Technical Details\". Note that this requires an internet connection.";
+		KnownBugDetector knownBug = getApplicableKnownBug();
+		text += "<br><br>";
+		if (knownBug == null) {
+			text += "You can help to improve OpenSHA by submitting a bug report to our " +
+					"<a href=\""+BugReport.TRAC_URL+"\">Trac Site</a>. Click the button below which " +
+					"will launch your web browser, allowing you to submit the bug. Information on " +
+					"the bug will automatically be included. To view that information, click " +
+					"\"View Technical Details\". Note that this requires an internet connection.";
+		} else {
+			submitBugButton.setText(submitButtonTextKnownBug);
+			text += knownBug.getKnownBugDescription();
+		}
 		
 		JTextPane mainText = new JTextPane();
 		mainText.setContentType("text/html");
