@@ -141,7 +141,10 @@ public class JNLPGen {
 		// shortcuts
 		if (startMenu || desktop) {
 			Element shortcutEl = infoEl.addElement("shortcut");
-			shortcutEl.addAttribute("online", !allowOffline + "");
+			// online should always be true here because if false, it will never check
+			// for updates when launched by a shortcut. it will still run fine if
+			// offline if offline-allowed is set.
+			shortcutEl.addAttribute("online", "true");
 			if (desktop)
 				shortcutEl.addElement("desktop");
 			if (startMenu) {
