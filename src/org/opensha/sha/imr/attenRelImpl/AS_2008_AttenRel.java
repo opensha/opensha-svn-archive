@@ -22,11 +22,7 @@ package org.opensha.sha.imr.attenRelImpl;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.StringTokenizer;
-
-import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
@@ -37,14 +33,12 @@ import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
-import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.PropagationEffect;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.EqkRuptureParams.AftershockParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
@@ -187,6 +181,27 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 	private final static double RUP_WIDTH_WARN_MIN = 0.0;
 	private final static double RUP_WIDTH_WARN_MAX = 100.0;
 
+	private double[] per = {-1, 0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.75, 1, 1.5, 2, 3, 4, 5, 7.5, 10};
+	private double[] VLIN = {400, 865.1, 865.1, 865.1, 907.8, 994.5, 1053.5, 1085.7, 1032.5, 877.6, 748.2, 654.3, 587.1, 503, 456.6, 410.5, 400, 400, 400, 400, 400, 400, 400, 400};
+	private double[] b = {-1.955, -1.186, -1.186, -1.219, -1.273, -1.308, -1.346, -1.471, -1.624, -1.931, -2.188, -2.381, -2.518, -2.657, -2.669, -2.401, -1.955, -1.025, -0.299, 0, 0, 0, 0, 0};
+	private double[] a1 = {5.7578, 0.804, 0.8111, 0.855, 0.962, 1.037, 1.133, 1.375, 1.563, 1.716, 1.687, 1.646, 1.601, 1.511, 1.397, 1.137, 0.915, 0.510, 0.192, -0.280, -0.639, -0.936, -1.527, -1.993};
+	private double[] a2 = {-0.9046, -0.9679, -0.9679, -0.9774, -1.0024, -1.0289, -1.0508, -1.081, -1.0833, -1.0357, -0.97, -0.9202, -0.8974, -0.8677, -0.8475, -0.8206, -0.8088, -0.7995, -0.796, -0.796, -0.796, -0.796, -0.796, -0.796};
+	private double[] a8 = {-0.12, -0.0372, -0.0372, -0.0372, -0.0372, -0.0315, -0.0271, -0.0191, -0.0166, -0.0254, -0.0396, -0.0539, -0.0656, -0.0807, -0.0924, -0.1137, -0.1289, -0.1534, -0.1708, -0.1954, -0.2128, -0.2263, -0.2509, -0.2683};
+	private double[] a10 = {1.539, 0.9445, 0.9445, 0.9834, 1.0471, 1.0884, 1.1333, 1.2808, 1.4613, 1.8071, 2.0773, 2.2794, 2.4201, 2.551, 2.5395, 2.1493, 1.5705, 0.3991, -0.6072, -0.96, -0.96, -0.9208, -0.77, -0.663};
+	private double[] a12 = {0.08, 0, 0, 0, 0, 0, 0, 0, 0, 0.0181, 0.0309, 0.0409, 0.0491, 0.0619, 0.0719, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08};
+	private double[] a13 = {-0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06};
+	private double[] a14 = {0.7, 1.08, 1.08, 1.08, 1.1331, 1.1708, 1.2, 1.2, 1.2, 1.1683, 1.1274, 1.0956, 1.0697, 1.0288, 0.9971, 0.9395, 0.8985, 0.8409, 0.8, 0.4793, 0.2518, 0.0754, 0, 0};
+	private double[] a15 = {-0.39, -0.35, -0.35, -0.35, -0.35, -0.35, -0.35, -0.35, -0.35, -0.35, -0.35, -0.35, -0.35, -0.35, -0.3191, -0.2629, -0.223, -0.1668, -0.127, -0.0708, -0.0309, 0, 0, 0};
+	private double[] a16 = {0.63, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.8423, 0.7458, 0.5704, 0.446, 0.2707, 0.1463, -0.0291, -0.1535, -0.25, -0.25, -0.25};
+	private double[] a18 = {0, -0.0067, -0.0067, -0.0067, -0.0067, -0.0067, -0.0076, -0.0093, -0.0093, -0.0093, -0.0083, -0.0069, -0.0057, -0.0039, -0.0025, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	private double[] s1e = {0.59, 0.59, 0.59, 0.59, 0.605, 0.615, 0.623, 0.63, 0.63, 0.63, 0.63, 0.63, 0.63, 0.63, 0.63, 0.63, 0.63, 0.615, 0.604, 0.589, 0.578, 0.57, 0.611, 0.64};
+	private double[] s2e = {0.47, 0.47, 0.47, 0.47, 0.478, 0.483, 0.488, 0.495, 0.501, 0.509, 0.514, 0.518, 0.522, 0.527, 0.532, 0.539, 0.545, 0.552, 0.558, 0.565, 0.57, 0.587, 0.618, 0.64};
+	private double[] s1m = {0.576, 0.576, 0.576, 0.576, 0.591, 0.602, 0.61, 0.617, 0.617, 0.616, 0.614, 0.612, 0.611, 0.608, 0.606, 0.602, 0.594, 0.566, 0.544, 0.527, 0.515, 0.51, 0.572, 0.612};
+	private double[] s2m = {0.453, 0.453, 0.453, 0.453, 0.461, 0.466, 0.471, 0.479, 0.485, 0.491, 0.495, 0.497, 0.499, 0.501, 0.504, 0.506, 0.503, 0.497, 0.491, 0.5, 0.505, 0.529, 0.579, 0.612};
+	private double[] s3 = {0.42, 0.47, 0.42, 0.42, 0.462, 0.492, 0.515, 0.55, 0.55, 0.55, 0.52, 0.497, 0.479, 0.449, 0.426, 0.385, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35};
+	private double[] s4 = {0.3, 0.3, 0.3, 0.3, 0.305, 0.309, 0.312, 0.317, 0.321, 0.326, 0.329, 0.332, 0.335, 0.338, 0.341, 0.346, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35};
+	private double[] rho = {0.74, 1, 1, 1, 0.991, 0.982, 0.973, 0.952, 0.929, 0.896, 0.874, 0.856, 0.841, 0.818, 0.783, 0.68, 0.607, 0.504, 0.431, 0.328, 0.255, 0.2, 0.2, 0.2};
+
 	/**
 	 *  This initializes several ParameterList objects.
 	 */
@@ -214,317 +229,115 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 		// do this to set the primitive types for each parameter;
 		setParamDefaults();
 	}
-
-	private double[] per = {-1, 0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.75, 1, 1.5, 2, 3, 4, 5, 7.5, 10};
-	private double[] VLIN = {400, 865.1, 865.1, 865.1, 907.8, 994.5, 1053.5, 1085.7, 1032.5, 877.6, 748.2, 654.3, 587.1, 503, 456.6, 410.5, 400, 400, 400, 400, 400, 400, 400, 400};
-	private double[] b = {-1.955, -1.186, -1.186, -1.219, -1.273, -1.308, -1.346, -1.471, -1.624, -1.931, -2.188, -2.381, -2.518, -2.657, -2.669, -2.401, -1.955, -1.025, -0.299, 0, 0, 0, 0, 0};
-	private double[] a1 = {5.7578, 0.804, 0.8111, 0.855, 0.962, 1.037, 1.133, 1.375, 1.563, 1.716, 1.687, 1.646, 1.601, 1.511, 1.397, 1.137, 0.915, 0.510, 0.192, -0.280, -0.639, -0.936, -1.527, -1.993};
-	private double[] a2 = {-0.9046, -0.9679, -0.9679, -0.9774, -1.0024, -1.0289, -1.0508, -1.081, -1.0833, -1.0357, -0.97, -0.9202, -0.8974, -0.8677, -0.8475, -0.8206, -0.8088, -0.7995, -0.796, -0.796, -0.796, -0.796, -0.796, -0.796};
-	private double[] a8 = {-0.12, -0.0372, -0.0372, -0.0372, -0.0372, -0.0315, -0.0271, -0.0191, -0.0166, -0.0254, -0.0396, -0.0539, -0.0656, -0.0807, -0.0924, -0.1137, -0.1289, -0.1534, -0.1708, -0.1954, -0.2128, -0.2263, -0.2509, -0.2683};
-	private double[] a10 = {1.539, 0.9445, 0.9445, 0.9834, 1.0471, 1.0884, 1.1333, 1.2808, 1.4613, 1.8071, 2.0773, 2.2794, 2.4201, 2.551, 2.5395, 2.1493, 1.5705, 0.3991, -0.6072, -0.96, -0.96, -0.9208, -0.77, -0.663};
-	private double[] a12 = {0.08, 0, 0, 0, 0, 0, 0, 0, 0, 0.0181, 0.0309, 0.0409, 0.0491, 0.0619, 0.0719, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08};
-	private double[] a13 = {-0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06, -0.06};
-	private double[] a14 = {0.7, 1.08, 1.08, 1.08, 1.1331, 1.1708, 1.2, 1.2, 1.2, 1.1683, 1.1274, 1.0956, 1.0697, 1.0288, 0.9971, 0.9395, 0.8985, 0.8409, 0.8, 0.4793, 0.2518, 0.0754, 0, 0};
-	private double[] a15 = {-0.39, -0.35, -0.35, -0.35, -0.35, -0.35, -0.35, -0.35, -0.35, -0.35, -0.35, -0.35, -0.35, -0.35, -0.3191, -0.2629, -0.223, -0.1668, -0.127, -0.0708, -0.0309, 0, 0, 0};
-	private double[] a16 = {0.63, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.8423, 0.7458, 0.5704, 0.446, 0.2707, 0.1463, -0.0291, -0.1535, -0.25, -0.25, -0.25};
-	private double[] a18 = {0, -0.0067, -0.0067, -0.0067, -0.0067, -0.0067, -0.0076, -0.0093, -0.0093, -0.0093, -0.0083, -0.0069, -0.0057, -0.0039, -0.0025, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-	private double[] s1e = {0.59, 0.59, 0.59, 0.59, 0.605, 0.615, 0.623, 0.63, 0.63, 0.63, 0.63, 0.63, 0.63, 0.63, 0.63, 0.63, 0.63, 0.615, 0.604, 0.589, 0.578, 0.57, 0.611, 0.64};
-	private double[] s2e = {0.47, 0.47, 0.47, 0.47, 0.478, 0.483, 0.488, 0.495, 0.501, 0.509, 0.514, 0.518, 0.522, 0.527, 0.532, 0.539, 0.545, 0.552, 0.558, 0.565, 0.57, 0.587, 0.618, 0.64};
-	private double[] s1m = {0.576, 0.576, 0.576, 0.576, 0.591, 0.602, 0.61, 0.617, 0.617, 0.616, 0.614, 0.612, 0.611, 0.608, 0.606, 0.602, 0.594, 0.566, 0.544, 0.527, 0.515, 0.51, 0.572, 0.612};
-	private double[] s2m = {0.453, 0.453, 0.453, 0.453, 0.461, 0.466, 0.471, 0.479, 0.485, 0.491, 0.495, 0.497, 0.499, 0.501, 0.504, 0.506, 0.503, 0.497, 0.491, 0.5, 0.505, 0.529, 0.579, 0.612};
-	private double[] s3 = {0.42, 0.47, 0.42, 0.42, 0.462, 0.492, 0.515, 0.55, 0.55, 0.55, 0.52, 0.497, 0.479, 0.449, 0.426, 0.385, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35};
-	private double[] s4 = {0.3, 0.3, 0.3, 0.3, 0.305, 0.309, 0.312, 0.317, 0.321, 0.326, 0.329, 0.332, 0.335, 0.338, 0.341, 0.346, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35};
-	private double[] rho = {0.74, 1, 1, 1, 0.991, 0.982, 0.973, 0.952, 0.929, 0.896, 0.874, 0.856, 0.841, 0.818, 0.783, 0.68, 0.607, 0.504, 0.431, 0.328, 0.255, 0.2, 0.2, 0.2};
-
-//	@SuppressWarnings("unchecked")
-//	private void readCoeffFile(){
-//		try{
-//			ArrayList<String> coeff= FileUtils.loadFile(this.getClass().getResource(AS_2008_CoeffFile));
-//			//reading the Period
-//			String perLine = coeff.get(0);
-//			ArrayList period = new ArrayList<Double>();
-//			StringTokenizer st = new StringTokenizer(perLine);
-//			int size = loadCoeffInArray(st,period);
-//			per = new double[size];
-//			this.createCoeffArray(period, per);
-//			period = null;
-//
-//			//reading VLIN
-//			String VLINLine = coeff.get(1);
-//			ArrayList VLINList = new ArrayList<Double>();
-//			st = new StringTokenizer(VLINLine);
-//			size =loadCoeffInArray(st,VLINList);
-//			VLIN = new double[size];
-//			this.createCoeffArray(VLINList, VLIN);
-//			VLINList = null;
-//
-//			//reading b
-//			String bLine = coeff.get(2);
-//			ArrayList bList = new ArrayList<Double>();
-//			st = new StringTokenizer(bLine);
-//			size =loadCoeffInArray(st,bList);
-//			b = new double[size];
-//			this.createCoeffArray(bList, b);
-//			bList = null;
-//
-//			//reading a1
-//			String a1Line = coeff.get(3);
-//			ArrayList a1List = new ArrayList<Double>();
-//			st = new StringTokenizer(a1Line);
-//			size =loadCoeffInArray(st,a1List);
-//			a1 = new double[size];
-//			this.createCoeffArray(a1List, a1);
-//			a1List = null;
-//
-//			//reading a2
-//			String a2Line = coeff.get(4);
-//			ArrayList a2List = new ArrayList<Double>();
-//			st = new StringTokenizer(a2Line);
-//			size =loadCoeffInArray(st,a2List);
-//			a2 = new double[size];
-//			this.createCoeffArray(a2List, a2);
-//			a2List = null;
-//
-//			//reading a8
-//			String a8Line = coeff.get(5);
-//			ArrayList a8List = new ArrayList<Double>();
-//			st = new StringTokenizer(a8Line);
-//			size =loadCoeffInArray(st,a8List);
-//			a8 = new double[size];
-//			this.createCoeffArray(a8List, a8);
-//			a8List = null;
-//
-//			//reading a10
-//			String a10Line = coeff.get(6);
-//			ArrayList a10List = new ArrayList<Double>();
-//			st = new StringTokenizer(a10Line);
-//			size =loadCoeffInArray(st,a10List);
-//			a10 = new double[size];
-//			this.createCoeffArray(a10List, a10);
-//			a10List = null;
-//
-//			//reading a12
-//			String a12Line = coeff.get(7);
-//			ArrayList a12List = new ArrayList<Double>();
-//			st = new StringTokenizer(a12Line);
-//			size =loadCoeffInArray(st,a12List);
-//			a12 = new double[size];
-//			this.createCoeffArray(a12List, a12);
-//			a12List = null;
-//
-//			//reading a13
-//			String a13Line = coeff.get(8);
-//			ArrayList a13List = new ArrayList<Double>();
-//			st = new StringTokenizer(a13Line);
-//			size =loadCoeffInArray(st,a13List);
-//			a13 = new double[size];
-//			this.createCoeffArray(a13List, a13);
-//			a13List = null;
-//
-//			//reading a14
-//			String a14Line = coeff.get(9);
-//			ArrayList a14List = new ArrayList<Double>();
-//			st = new StringTokenizer(a14Line);
-//			size =loadCoeffInArray(st,a14List);
-//			a14 = new double[size];
-//			this.createCoeffArray(a14List, a14);
-//			a14List = null;
-//
-//			//reading a15
-//			String a15Line = coeff.get(10);
-//			ArrayList a15List = new ArrayList<Double>();
-//			st = new StringTokenizer(a15Line);
-//			size =loadCoeffInArray(st,a15List);
-//			a15 = new double[size];
-//			this.createCoeffArray(a15List, a15);
-//			a15List = null;
-//
-//
-//			//reading a16
-//			String a16Line = coeff.get(11);
-//			ArrayList a16List = new ArrayList<Double>();
-//			st = new StringTokenizer(a16Line);
-//			size =loadCoeffInArray(st,a16List);
-//			a16 = new double[size];
-//			this.createCoeffArray(a16List, a16);
-//			a16List = null;
-//
-//			//reading a18
-//			String a18Line = coeff.get(12);
-//			ArrayList a18List = new ArrayList<Double>();
-//			st = new StringTokenizer(a18Line);
-//			size =loadCoeffInArray(st,a18List);
-//			a18 = new double[size];
-//			this.createCoeffArray(a18List, a18);
-//			a18List = null;
-//
-//
-//			//reading s1e
-//			String s1eLine = coeff.get(13);
-//			ArrayList s1eList = new ArrayList<Double>();
-//			st = new StringTokenizer(s1eLine);
-//			size =loadCoeffInArray(st,s1eList);
-//			s1e = new double[size];
-//			this.createCoeffArray(s1eList, s1e);
-//			s1eList = null;
-//
-//			//reading s2e
-//			String s2eLine = coeff.get(14);
-//			ArrayList s2eList = new ArrayList<Double>();
-//			st = new StringTokenizer(s2eLine);
-//			size =loadCoeffInArray(st,s2eList);
-//			s2e = new double[size];
-//			this.createCoeffArray(s2eList, s2e);
-//			s2eList = null;
-//
-//			//reading s1m
-//			String s1mLine = coeff.get(15);
-//			ArrayList s1mList = new ArrayList<Double>();
-//			st = new StringTokenizer(s1mLine);
-//			size =loadCoeffInArray(st,s1mList);
-//			s1m = new double[size];
-//			this.createCoeffArray(s1mList, s1m);
-//			s1mList = null;
-//
-//			//reading s2m
-//			String s2mLine = coeff.get(16);
-//			ArrayList s2mList = new ArrayList<Double>();
-//			st = new StringTokenizer(s2mLine);
-//			size =loadCoeffInArray(st,s2mList);
-//			s2m = new double[size];
-//			this.createCoeffArray(s2mList, s2m);
-//			s2mList = null;
-//
-//
-//			//reading s3
-//			String s3Line = coeff.get(17);
-//			ArrayList s3List = new ArrayList<Double>();
-//			st = new StringTokenizer(s3Line);
-//			size =loadCoeffInArray(st,s3List);
-//			s3 = new double[size];
-//			this.createCoeffArray(s3List, s3);
-//			s3List = null;
-//
-//
-//			//reading s4
-//			String s4Line = coeff.get(18);
-//			ArrayList s4List = new ArrayList<Double>();
-//			st = new StringTokenizer(s4Line);
-//			size =loadCoeffInArray(st,s4List);
-//			s4 = new double[size];
-//			this.createCoeffArray(s4List, s4);
-//			s4List = null;
-//
-//			//reading rho
-//			String rho_sLine = coeff.get(19);
-//			ArrayList rho_sList = new ArrayList<Double>();
-//			st = new StringTokenizer(rho_sLine);
-//			size =loadCoeffInArray(st,rho_sList);
-//			rho = new double[size];
-//			this.createCoeffArray(rho_sList, rho);
-//			rho_sList = null;
-//
-//		} catch(Exception e) {
-//			throw new RuntimeException(AS_2008_CoeffFile+" file Not Found", e);
-//			//			System.out.println(AS_2008_CoeffFile+" file Not Found");
-//			//			e.printStackTrace();
-//		}
-//	}
-//
-//	private int loadCoeffInArray(StringTokenizer st,ArrayList<Double> coeff){
-//		st.nextToken();
-//		while(st.hasMoreTokens())
-//			coeff.add(Double.parseDouble(st.nextToken().trim()));
-//		return coeff.size();
-//	}
-//
-//	private void createCoeffArray(ArrayList<Double> coeff,double c[]){
-//		for(int i=0;i<c.length;++i)
-//			c[i] = coeff.get(i);
-//	}
-
-
-	/**
-	 *  This sets the eqkRupture related parameters (magParam
-	 *  and fltTypeParam) based on the eqkRupture passed in.
-	 *  The internally held eqkRupture object is also set as that
-	 *  passed in.  Warning constraints are ignored.
-	 *
-	 * @param  eqkRupture  The new eqkRupture value
-	 * @throws InvalidRangeException thrown if rake is out of bounds
-	 */
+	
 	@Override
-	public void setEqkRupture(EqkRupture eqkRupture) throws InvalidRangeException {
-
-		magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
-
-		double rake = eqkRupture.getAveRake();
-		if(rake >30 && rake <150) {
-			fltTypeParam.setValue(FLT_TYPE_REVERSE);
-		}
-		else if(rake >-150 && rake<-30) {
-			fltTypeParam.setValue(FLT_TYPE_NORMAL);
-		}
-		else { // strike slip
-			fltTypeParam.setValue(FLT_TYPE_STRIKE_SLIP);
-		}
-
+	public void setEqkRupture(EqkRupture eqkRupture)
+			throws InvalidRangeException {
+		this.eqkRupture = eqkRupture;
+		magParam.setValueIgnoreWarning(eqkRupture.getMag());
+		setFaultTypeFromRake(eqkRupture.getAveRake());
 		EvenlyGriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
-
 		double depth = surface.getLocation(0, 0).getDepth();
-		rupTopDepthParam.setValue(depth);
-
+		rupTopDepthParam.setValueIgnoreWarning(depth);
 		dipParam.setValueIgnoreWarning(surface.getAveDip());
-
 		// this means line sources will have zero width
 		rupWidthParam.setValue(surface.getSurfaceWidth());
-
 		aftershockParam.setValue(false);
-
-		this.eqkRupture = eqkRupture;
 		setPropagationEffectParams();
-
 	}
 
 	@Override
 	public void setSite(Site site) throws ParameterException {
-		vs30Param.setValue((Double)site.getParameter(Vs30_Param.NAME).getValue());
-		depthTo1pt0kmPerSecParam.setValueIgnoreWarning(
-			(Double)site.getParameter(DepthTo1pt0kmPerSecParam.NAME).getValue());
-		vs30_TypeParam.setValue((String)site.getParameter(Vs30_TypeParam.NAME).getValue());
 		this.site = site;
+		vs30Param.setValue((Double) site.getParameter(Vs30_Param.NAME)
+			.getValue());
+		depthTo1pt0kmPerSecParam.setValueIgnoreWarning((Double) site
+			.getParameter(DepthTo1pt0kmPerSecParam.NAME).getValue());
+		vs30_TypeParam.setValue((String)site.getParameter(Vs30_TypeParam.NAME)
+			.getValue());
 		setPropagationEffectParams();
 	}
 
 	@Override
 	protected void setPropagationEffectParams() {
+		if (site != null && eqkRupture != null) {
+			propEffect.setAll(eqkRupture, site);
+			propEffectUpdate();
+		}
+	}
 
-		if ( (this.site != null) && (this.eqkRupture != null)) {
+	@Override
+	public void setPropagationEffect(PropagationEffect propEffect)
+			throws InvalidRangeException, ParameterException {
+		this.propEffect = propEffect;
+		site = propEffect.getSite();
+		eqkRupture = propEffect.getEqkRupture();
+		vs30Param.setValue((Double) site.getParameter(Vs30_Param.NAME)
+			.getValue());
+		depthTo1pt0kmPerSecParam.setValueIgnoreWarning((Double) site
+			.getParameter(DepthTo1pt0kmPerSecParam.NAME).getValue());
+		vs30_TypeParam.setValue((String)site.getParameter(Vs30_TypeParam.NAME)
+			.getValue());
+		magParam.setValueIgnoreWarning(eqkRupture.getMag());
+		setFaultTypeFromRake(eqkRupture.getAveRake());
+		EvenlyGriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
+		double depth = surface.getLocation(0, 0).getDepth();
+		rupTopDepthParam.setValueIgnoreWarning(depth);
+		dipParam.setValueIgnoreWarning(surface.getAveDip());
+		// this means line sources will have zero width
+		rupWidthParam.setValue(surface.getSurfaceWidth());
+		setPropagationEffectParams();
+		aftershockParam.setValue(false);
+		propEffectUpdate();
+	}
 
-
-			propagationEffect.setAll(this.eqkRupture, this.site); // use this for efficiency
-			distanceRupParam.setValueIgnoreWarning(propagationEffect.getDistanceRup()); // this sets rRup too
-			double dist_jb = propagationEffect.getDistanceJB();
-			double distX = propagationEffect.getDistanceX();
-			if(rRup>0.0) {
-				distRupMinusJB_OverRupParam.setValueIgnoreWarning((rRup-dist_jb)/rRup);
-				if(distX >= 0.0) {  // sign determines whether it's on the hanging wall (distX is always >= 0 in distRupMinusDistX_OverRupParam)
-					distRupMinusDistX_OverRupParam.setValue((rRup-distX)/rRup);
-					hangingWallFlagParam.setValue(true);
-				}
-				else {
-					distRupMinusDistX_OverRupParam.setValue((rRup+distX)/rRup);  // switch sign of distX here
-					//System.out.println(((rRup+distX)/rRup)+"\t"+rRup+"\t"+distX);
-					hangingWallFlagParam.setValue(false);
-				}
-				//System.out.println("rRup="+rRup+"  dist_jb="+dist_jb+"  distX="+distX+"  distRupMinusJB_OverRupParam="+
-				//distRupMinusJB_OverRupParam.getValue()+"  distRupMinusDistX_OverRupParam="+distRupMinusDistX_OverRupParam.getValue());
-			}
-			else {
-				distRupMinusJB_OverRupParam.setValueIgnoreWarning(0.0);
-				distRupMinusDistX_OverRupParam.setValue(0.0);
+	private void propEffectUpdate() {
+		
+		/*
+		 * This sets the two propagation-effect parameters (distanceRupParam and
+		 * isOnHangingWallParam) based on the current site and eqkRupture. The
+		 * hanging-wall term is rake independent (i.e., it can apply to
+		 * strike-slip or normal faults as well as reverse and thrust). However,
+		 * it is turned off if the dip is greater than 70 degrees. It is also
+		 * turned off for point sources regardless of the dip. These
+		 * specifications were determined from a series of discussions between
+		 * Ned Field, Norm Abrahamson, and Ken Campbell.
+		 */
+		
+		distanceRupParam.setValueIgnoreWarning(propEffect.getDistanceRup()); // this sets rRup too
+		double dist_jb = propEffect.getDistanceJB();
+		double distX = propEffect.getDistanceX();
+		if(rRup>0.0) {
+			distRupMinusJB_OverRupParam.setValueIgnoreWarning((rRup-dist_jb)/rRup);
+			if(distX >= 0.0) {  // sign determines whether it's on the hanging wall (distX is always >= 0 in distRupMinusDistX_OverRupParam)
+				distRupMinusDistX_OverRupParam.setValue((rRup-distX)/rRup);
 				hangingWallFlagParam.setValue(true);
 			}
+			else {
+				distRupMinusDistX_OverRupParam.setValue((rRup+distX)/rRup);  // switch sign of distX here
+				hangingWallFlagParam.setValue(false);
+			}
+		}
+		else {
+			distRupMinusJB_OverRupParam.setValueIgnoreWarning(0d);
+			distRupMinusDistX_OverRupParam.setValue(0d);
+			hangingWallFlagParam.setValue(true);
+		}
+	}
+
+	/**
+	 * Set style of faulting from the rake angle. Values derived from Abrahamson
+	 * and Silva PEER NGA report.
+	 * 
+	 * @param rake in degrees
+	 */
+	protected void setFaultTypeFromRake(double rake) {
+		if (rake > 30 && rake < 150) {
+			fltTypeParam.setValue(FLT_TYPE_REVERSE);
+		} else if (rake > -150 && rake < -30) {
+			fltTypeParam.setValue(FLT_TYPE_NORMAL);
+		} else {
+			fltTypeParam.setValue(FLT_TYPE_STRIKE_SLIP);
 		}
 	}
 
