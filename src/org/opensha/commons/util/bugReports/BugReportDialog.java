@@ -54,10 +54,11 @@ public class BugReportDialog extends JDialog implements ActionListener, Hyperlin
 	
 	private JButton quitButton = new JButton("Exit Application");
 	private JButton continueButton = new JButton("Continue Using Application");
-	private static final String submitButtonTextDefault = "<html><center><b><font size=+2>Submit Bug Report</font></b><br>" +
-	"<font size=-1>(will open in web browser)</font></center></html>";
-	private static final String submitButtonTextKnownBug = "<html><center><b>I'd Still Like to Submit a Report.</font></b><br>" +
-	"<font size=-1>(will open in web browser)</center></html>";
+	private static final String submitButtonTextDefault = "<html><center><b><font size=+2>" +
+			"Submit Bug Report</font></b><br><font size=-1>(will open in web browser)" +
+			"</font></center></html>";
+	private static final String submitButtonTextKnownBug = "<html><center><b>I'd Still Like to " +
+			"Submit a Report.</font></b><br><font size=-1>(will open in web browser)</center></html>";
 	private JButton submitBugButton = new JButton(submitButtonTextDefault);
 	private JButton technicalButton = new JButton("View Techical Details");
 	private JTextField emailField = new JTextField("", 100);
@@ -68,22 +69,37 @@ public class BugReportDialog extends JDialog implements ActionListener, Hyperlin
 	static {
 		knownBugDetectors = new ArrayList<KnownBugDetector>();
 		
-		knownBugDetectors.add(new ExceptionTypeKnownBugDetector(NumberFormatException.class, "<b>This is mostly likely" +
-				" due to an incorrectly formatted number.</b> OpenSHA currently only supports numbers with a decimal" +
-				" point, and will not work for decimal commas. For example, to specify the longitude and latitude" +
+		knownBugDetectors.add(new ExceptionTypeKnownBugDetector(NumberFormatException.class,
+				"<b>This is mostly likely due to an incorrectly formatted number.</b> OpenSHA" +
+				" currently only supports numbers with a decimal point, and will not work for" +
+				" decimal commas. For example, to specify the longitude and latitude" +
 				" of downtown Los Angeles, CA, USA, here is the correct number representation:" +
-				"<br>Latitude: 34.053 Longitude: -118.243" +
-				"<br>If you still think that this is a bug, you may submit a report by clicking below."));
-		knownBugDetectors.add(new ExceptionTypeKnownBugDetector(java.rmi.ConnectException.class, "<b>This is most likely" +
-				" a firewall issue!</b> Either your computer cannot connect to our server, or our server is" +
-				" temporarily down. Make sure that you have an internet connection and that your firewall allows" +
-				" connections to ports 40000-40500 on opensha.usc.edu. If you are still having problems, try back" +
-				" later, as the server might just be down."));
-		knownBugDetectors.add(new ExceptionTypeKnownBugDetector(java.net.ConnectException.class, "<b>This is most likely" +
-				" a firewall issue!</b> Either your computer cannot connect to our server, or our server is" +
-				" temporarily down. Make sure that you have an internet connection and that your firewall allows" +
-				" connections to port 8080 on opensha.usc.edu. If you are still having problems, try back" +
-				" later, as the server might just be down."));
+				"<br><br>Latitude: 34.053 Longitude: -118.243" +
+				"<br><br>If you still think that this is a bug, you may submit a report by clicking below."));
+		knownBugDetectors.add(new ExceptionTypeKnownBugDetector(java.rmi.ConnectException.class,
+				"<b>This is most likely a firewall issue!</b> Either your computer cannot connect" +
+				" to our server, or our server is temporarily down. Make sure that you have an" +
+				" internet connection and that your firewall allows connections to ports 40000-40500" +
+				" on opensha.usc.edu. If you are still having problems, try back later, as the server" +
+				" might just be down."));
+		knownBugDetectors.add(new ExceptionTypeKnownBugDetector(java.net.ConnectException.class,
+				"<b>This is most likely a firewall issue!</b> Either your computer cannot connect" +
+				" to our server, or our server is temporarily down. Make sure that you have an " +
+				"internet connection and that your firewall allows connections to port 8080 on" +
+				" opensha.usc.edu. If you are still having problems, try back later, as the server" +
+				" might just be down."));
+		knownBugDetectors.add(new ExceptionTypeKnownBugDetector(java.lang.IllegalStateException.class,
+				"Buffers have not been created",
+				"<b>This is a known Java bug and not related to OpenSHA.</b> It applies to versions" +
+				" of Java above 6 update 18 on Windows when changing display resolutions or running" +
+				" a full screen media player.<br>For more information on this bug, <a href=" +
+				"\"http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6933331\">Click Here</a>"));
+		knownBugDetectors.add(new ExceptionTypeKnownBugDetector(java.lang.IllegalArgumentException.class,
+				"Value \\(-?\\d+\\.?\\d*\\) is out of range.",
+				"<b>This problem might be due to an incorrectly formatted Longitude value!</b>" +
+				" Currently OpenSHA only supports longitude values in the range (-180,180). If" +
+				" this isn't the problem, please submit a bug report below.")
+				.setMessageAsRegex());
 	}
 	
 	private boolean fatal;
@@ -324,7 +340,11 @@ public class BugReportDialog extends JDialog implements ActionListener, Hyperlin
 	}
 	
 	public static void main(String args[]) throws IOException {
-		BugReport bug = new BugReport(new RuntimeException("this is my exceptoin!"),
+//		Throwable t = new RuntimeException(new IllegalArgumentException("Value (183.0) is out of range."));
+//		Throwable t = new java.net.ConnectException("asdf");
+		Throwable t = new IllegalStateException("Buffers have not been created");
+		
+		BugReport bug = new BugReport(t,
 				"Metadata is here\nmore stuff\nand done", "BugReportDialog",
 				ApplicationVersion.loadBuildVersion(), null);
 		
