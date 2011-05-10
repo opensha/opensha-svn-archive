@@ -292,6 +292,9 @@
 				<include name="**/*.txt" />
 			</fileset>
 		</copy>
+		<copy todir="${build}/resources/data/nshmp" overwrite="true">
+			<fileset dir="${src}/resources/data/nshmp" />
+		</copy>
 	</target>
 	
 	<target name="resource.cybershake">
