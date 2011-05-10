@@ -763,7 +763,7 @@ ParameterChangeListener {
 	
 			// point source hw effect approximation
 			double hw_effect = 0;
-			if (hwEffectApprox && eqkRupture.getRuptureSurface() instanceof PointSurface) {
+			if (hwEffectApprox && eqkRupture.getRuptureSurface() instanceof PointSurface && iper != 23) {
 				if (dip != 90) hw_effect = NSHMP_Util.getAvgHW_CY(mag, rRup, period[iper]);
 			} else {
 				hw_effect = c9[iper] * f_hw * Math.tanh(distX*cosDelta*cosDelta/c9a[iper]) * (1-altDist/(rRup+0.001));
