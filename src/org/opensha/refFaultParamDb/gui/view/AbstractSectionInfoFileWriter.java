@@ -1,30 +1,28 @@
-/**
- * 
- */
 package org.opensha.refFaultParamDb.gui.view;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
+
+import javax.swing.JOptionPane;
 
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 
 /**
  * @author vipingupta
  *
  */
-public class SectionInfoFileWriter implements Runnable {
+public abstract class AbstractSectionInfoFileWriter implements Runnable {
 	private  PrefFaultSectionDataDB_DAO faultSectionPrefDAO; 
 	private CalcProgressBar progressBar;
 	private int totSections;
 	private int currSection;
 	
-	public SectionInfoFileWriter(DB_AccessAPI dbConnection) {
+	public AbstractSectionInfoFileWriter(DB_AccessAPI dbConnection) {
 		faultSectionPrefDAO = new PrefFaultSectionDataDB_DAO(dbConnection);
 	}
 	
@@ -44,7 +42,10 @@ public class SectionInfoFileWriter implements Runnable {
 			t.start();
 			// write to file
 			FileWriter fw = new FileWriter(file);
-			fw.write(getFormatStringForFaultModel());
+			String header = getFileHeader();
+			if (!header.endsWith("\n"))
+				header += "\n";
+			fw.write(header);
 			
 			for(currSection=0; currSection<totSections; ++currSection) {
 				System.out.println(currSection);
@@ -56,6 +57,8 @@ public class SectionInfoFileWriter implements Runnable {
 			progressBar.showProgress(false);
 		}catch(Exception e) {
 			e.printStackTrace();
+			String message = "Error: "+e.getMessage()+"\nSee console output for more details.";
+			JOptionPane.showMessageDialog(null, message, "Error Saving File!", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	
@@ -75,13 +78,10 @@ public class SectionInfoFileWriter implements Runnable {
 	 * Write FaultSectionPrefData to the file. It does not contain slip rate and aseismic slip factor
 	 * @param faultSectionId Fault section Id for which data needs to be written to file
 	 * @param fw
+	 * @throws IOException 
 	 */
-	public  void writeForFaultModel(int faultSectionId, FileWriter fw) {
-		try{
-			writeForFaultModel(faultSectionPrefDAO.getFaultSectionPrefData(faultSectionId), fw);
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
+	public  void writeForFaultModel(int faultSectionId, FileWriter fw) throws IOException {
+		writeForFaultModel(faultSectionPrefDAO.getFaultSectionPrefData(faultSectionId), fw);
 	}
 	
 	
@@ -89,46 +89,29 @@ public class SectionInfoFileWriter implements Runnable {
 	 * Write FaultSectionPrefData to the file. It does not contain slip rate and aseismic slip factor
 	 * @param faultSectionPrefData
 	 * @param fw
+	 * @throws IOException 
 	 */
-	public  void writeForFaultModel(FaultSectionPrefData faultSectionPrefData, FileWriter fw) {
-		try{
-			fw.write(getStringForFaultModel(faultSectionPrefData));
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
+	public void writeForFaultModel(FaultSectionPrefData faultSectionPrefData, FileWriter fw) throws IOException {
+		fw.write(getFaultAsString(faultSectionPrefData));
 	}
 	
-	/**
-	 * Get String for faultSectionPrefData ( excluding slip rate and aseismic slip factor)
-	 * @param faultSectionPrefData
-	 * @return
-	 */
-	public  String getStringForFaultModel(FaultSectionPrefData faultSectionPrefData) {
-		FaultTrace faultTrace = faultSectionPrefData.getFaultTrace(); 
-		String str =  "#"+faultSectionPrefData.getSectionName()+"\n"+
-			getValue(faultSectionPrefData.getShortName())+"\n"+
-			getValue(faultSectionPrefData.getAveUpperDepth())+"\n"+
-			getValue(faultSectionPrefData.getAveLowerDepth())+"\n"+
-			getValue(faultSectionPrefData.getAveDip()) +"\n"+
-			getValue(faultSectionPrefData.getDipDirection())+"\n"+
-			getValue(faultSectionPrefData.getAveRake())+"\n"+
-			getValue(faultTrace.getTraceLength())+"\n"+
-			faultTrace.getNumLocations()+"\n";
-		// write all the point on the fault section trace
-		for(int i=0; i<faultTrace.getNumLocations(); ++i)
-			str+=(float)faultTrace.get(i).getLatitude()+"\t"+(float)faultTrace.get(i).getLongitude()+"\n";
-		return str;
-	}
-	
-	private  String getValue(double val) {
+	protected String getValue(double val) {
 		if(Double.isNaN(val)) return "Not Available";
 		else return GUI_Utils.decimalFormat.format(val);
 	}
 	
-	private String getValue(String val) {
+	protected String getValue(String val) {
 		if(val==null || val.equalsIgnoreCase("")) return "Not Available";
 		else return val;
 	}
+	
+	/**
+	 * Get String for representation for faultSectionPrefData
+	 * 
+	 * @param faultSectionPrefData
+	 * @return
+	 */
+	public abstract String getFaultAsString(FaultSectionPrefData faultSectionPrefData);
 	
 	/**
 	 * File format for writing fault sections in a fault model file.
@@ -136,19 +119,5 @@ public class SectionInfoFileWriter implements Runnable {
 	 * 
 	 * @return
 	 */
-	public  String getFormatStringForFaultModel() {
-		return "********************************\n"+ 
-			"#Section Name\n"+
-			"#Short Name\n"+
-			"#Ave Upper Seis Depth (km)\n"+
-			"#Ave Lower Seis Depth (km)\n"+
-			"#Ave Dip (degrees)\n"+
-			"#Ave Dip Direction\n"+
-			"#Ave Rake\n"+
-			"#Trace Length (derivative value) (km)\n"+
-			"#Num Trace Points\n"+
-			"#lat1 lon1\n"+
-			"#lat2 lon2\n"+
-			"********************************\n";
-	}
+	public abstract String getFileHeader();
 }

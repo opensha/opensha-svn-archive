@@ -339,12 +339,12 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 	 */
 	private void writeSubSectionsToFile(File file, double subSecLen) {
 		ArrayList faultSectionPrefDataList = prefFaultSectionDAO.getAllFaultSectionPrefData();
-		SectionInfoFileWriter sectionWriter = new SectionInfoFileWriter(dbConnection);
+		SectionInfoTextFileWriter sectionWriter = new SectionInfoTextFileWriter(dbConnection);
 		FileWriter fw;
 		try {
 			fw = new FileWriter(file);
 
-			fw.write(sectionWriter.getFormatStringForFaultModel());
+			fw.write(sectionWriter.getFileHeader());
 			//for(int i=0; i<1; ++i) {
 			int totalSubSections =0;
 			for(int i=0; i<faultSectionPrefDataList.size(); ++i) {
@@ -374,7 +374,7 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 		for(int i=0; i<faultSectionsSummaryList.size(); ++i) {
 			faultSectionIds[i] = ((FaultSectionSummary)faultSectionsSummaryList.get(i)).getSectionId();
 		}
-		SectionInfoFileWriter fileWriter = new SectionInfoFileWriter(dbConnection);
+		SectionInfoTextFileWriter fileWriter = new SectionInfoTextFileWriter(dbConnection);
 		fileWriter.writeForFaultModel(faultSectionIds, file);
 	}
 

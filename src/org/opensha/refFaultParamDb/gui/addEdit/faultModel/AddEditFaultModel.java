@@ -17,17 +17,21 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import org.apache.commons.lang.StringUtils;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.util.CustomFileFilter;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.FaultModelDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.FaultModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
-import org.opensha.refFaultParamDb.gui.view.SectionInfoFileWriter;
+import org.opensha.refFaultParamDb.gui.view.AbstractSectionInfoFileWriter;
+import org.opensha.refFaultParamDb.gui.view.SectionInfoCSVFileWriter;
+import org.opensha.refFaultParamDb.gui.view.SectionInfoTextFileWriter;
 import org.opensha.refFaultParamDb.vo.FaultModelSummary;
 
 
@@ -61,6 +65,11 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 	private final static String MSG_REMOVE_MODEL_SUCCESS = "Model Removed Successfully";
 	private final static String MSG_UPDATE_MODEL_SUCCESS = "Model Updated Successfully";
 	private final static String MSG_NO_FAULT_MODEL_EXISTS = "Currently, there is no Fault Model";
+	
+	private final static String TEXT_PARAMS_DESC = "Text File - Fault Paramaters";
+	private final static String CSV_ALL_POINTS_DESC = "CSV File - All Fault Surface Points";
+	private final static String CSV_TOP_BOTTOM_POINTS_DESC = "CSV File - Top/Bottom Fault Surface Points";
+	private JFileChooser fileChooser;
 	
 	private DB_AccessAPI dbConnection;
 	
@@ -222,10 +231,7 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 			} else if(source == this.deselectAllButton) { // deselect all
 				setAllRowsSelection(false);
 			} else if(source == this.saveButton) { // save to a text file
-				JFileChooser fileChooser = new JFileChooser();
-				fileChooser.showSaveDialog(this);
-				File file = fileChooser.getSelectedFile();
-				if(file!=null) writeSectionsToFile(file);
+				doSave();
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -233,17 +239,46 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 		}
 	}
 	
+	
+	
+	private void doSave() {
+		if (fileChooser == null) {
+			fileChooser = new JFileChooser();
+			CustomFileFilter textFilter = new CustomFileFilter("txt", TEXT_PARAMS_DESC);
+			CustomFileFilter csvAllFilter = new CustomFileFilter("csv", CSV_ALL_POINTS_DESC);
+			CustomFileFilter csvTopBottomFilter = new CustomFileFilter("csv", CSV_TOP_BOTTOM_POINTS_DESC);
+			fileChooser.addChoosableFileFilter(textFilter);
+			fileChooser.addChoosableFileFilter(csvAllFilter);
+			fileChooser.addChoosableFileFilter(csvTopBottomFilter);
+			fileChooser.setFileFilter(textFilter);
+		}
+		fileChooser.showSaveDialog(this);
+		File file = fileChooser.getSelectedFile();
+		if(file!=null) writeSectionsToFile(file);
+	}
+	
 	/**
 	 * Write fault sections to a file
 	 * @param file
 	 */
 	private void writeSectionsToFile(File file) {
-		ArrayList faultSectionIdList  = this.getFaultSectionIdList();
+		ArrayList<Integer> faultSectionIdList  = this.getFaultSectionIdList();
 		int []faultSectionIds = new int[faultSectionIdList.size()];
 		for(int i=0; i<faultSectionIdList.size(); ++i) {
 			faultSectionIds[i] = ((Integer)faultSectionIdList.get(i)).intValue();
 		}
-		SectionInfoFileWriter fileWriter = new SectionInfoFileWriter(dbConnection);
+		CustomFileFilter filter = (CustomFileFilter)fileChooser.getFileFilter();
+		AbstractSectionInfoFileWriter fileWriter;
+		if (filter.getDescription().equals(TEXT_PARAMS_DESC))
+			fileWriter = new SectionInfoTextFileWriter(dbConnection);
+		else if (filter.getDescription().equals(CSV_ALL_POINTS_DESC))
+			fileWriter = new SectionInfoCSVFileWriter(dbConnection, false);
+		else if (filter.getDescription().equals(CSV_TOP_BOTTOM_POINTS_DESC))
+			fileWriter = new SectionInfoCSVFileWriter(dbConnection, true);
+		else
+			throw new IllegalStateException("File Filter '"+filter.getDescription()+"' unknown!");
+		if (!StringUtils.endsWithIgnoreCase(file.getName(), filter.getExtension()))
+			file = new File(file.getAbsolutePath()+filter.getExtension());
 		fileWriter.writeForFaultModel(faultSectionIds, file);
 	}
 	

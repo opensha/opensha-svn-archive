@@ -10,25 +10,40 @@ import java.util.Map;
 
 import org.opensha.commons.util.FileUtils;
 
+import com.google.common.base.Preconditions;
+
 public class CSVFile<E> {
 	
 	private List<String> colNames;
 	private Map<String, ? extends List<E>> values;
 	private int listSize;
 	
+	public CSVFile(List<String> colNames) {
+		this(colNames, null);
+	}
+	
 	public CSVFile(List<String> colNames, Map<String, ? extends List<E>> values) {
-		if (colNames.size() != values.keySet().size())
-			throw new IllegalArgumentException("column names must be the same size as values!");
+		Preconditions.checkNotNull(colNames, "Column names cannot be null!");
+		if (values == null) {
+			HashMap<String, ArrayList<E>> newValues = new HashMap<String, ArrayList<E>>();
+			for (String colName : colNames) {
+				newValues.put(colName, new ArrayList<E>());
+			}
+			values = newValues;
+		}
+		Preconditions.checkArgument(colNames.size() == values.keySet().size(),
+				"column names must be the same size as values!");
 		for (String colName : colNames) {
-			if (!values.keySet().contains(colName))
-				throw new IllegalArgumentException("Column '"+colName+"' not found in values!");
+			Preconditions.checkArgument(values.keySet().contains(colName),
+					"Column '"+colName+"' not found in values!");
 		}
 		listSize = -1;
 		for (List<E> list : values.values()) {
 			if (listSize < 0)
 				listSize = list.size();
-			else if (listSize != list.size())
-				throw new IllegalArgumentException("Values lists aren't the same size!");
+			else
+				Preconditions.checkArgument(listSize == list.size(),
+						"Values lists aren't the same size!");
 		}
 		this.colNames = colNames;
 		this.values = values;
@@ -42,6 +57,18 @@ public class CSVFile<E> {
 		return colNames.size();
 	}
 	
+	public void addLine(List<E> line) {
+		Preconditions.checkNotNull(line, "Cannot add a null line!");
+		Preconditions.checkArgument(line.size() == colNames.size(), "New line must contain" +
+				" same number of values as columns");
+		
+		for (int i=0; i<line.size(); i++) {
+			String colName = colNames.get(i);
+			E value = line.get(i);
+			values.get(colName).add(value);
+		}
+	}
+	
 	public ArrayList<E> getLine(int i) {
 		ArrayList<E> line = new ArrayList<E>();
 		for (String colName : colNames) {
@@ -51,29 +78,41 @@ public class CSVFile<E> {
 		return line;
 	}
 	
-	public String getLineStr(int i) {
-		String line = null;
+	private ArrayList<E> getLineValues(int i) {
+		ArrayList<E> lineVals = new ArrayList<E>();
 		for (String colName : colNames) {
 			E val = values.get(colName).get(i);
+			lineVals.add(val);
+		}
+		return lineVals;
+	}
+	
+	public String getLineStr(int i) {
+		return getLineStr(getLineValues(i));
+	}
+	
+	public static String getLineStr(List<?> lineValues) {
+		return getLineStr(lineValues.toArray());
+	}
+	
+	public static String getLineStr(Object[] lineValues) {
+		String line = null;
+		for (Object val : lineValues) {
 			if (line == null)
 				line = "";
 			else
 				line += ",";
+			String valStr = val.toString();
+			// if it contains a comma, surround it in quotation marks if not already
+			if (valStr.contains(",") && !(valStr.startsWith("\"") && valStr.endsWith("\"")))
+				valStr = "\""+valStr+"\"";
 			line += val.toString();
 		}
 		return line;
 	}
 	
 	public String getHeader() {
-		String line = null;
-		for (String colName : colNames) {
-			if (line == null)
-				line = "";
-			else
-				line += ",";
-			line += colName;
-		}
-		return line;
+		return getLineStr(colNames);
 	}
 	
 	public void writeToFile(File file) throws IOException {
