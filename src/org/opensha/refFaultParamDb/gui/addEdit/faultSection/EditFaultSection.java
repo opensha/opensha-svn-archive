@@ -303,7 +303,7 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 		if(Double.isNaN(dipDirection)) val = null;
 		else val = new Double(dipDirection);
 		dipDirectionParam = new DoubleParameter(DIP_DIRECTION, MIN_DIP_DIRECTION, MAX_DIP_DIRECTION, val);
-		if (val == null) {
+		if (val == null && selectedFaultSection.getFaultTrace() != null) {
 			dipDirectionParam.setInfo("No value stored in db.\nCalculated value would be: "
 					+selectedFaultSection.getFaultTrace().getDipDirection());
 		}
