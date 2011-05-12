@@ -449,7 +449,7 @@
 			windowtitle="OpenSHA"
 			maxmemory="512m">
 			
-			<fileset dir="${src}/org/opensha/commons/" defaultexcludes="yes">
+			<fileset dir="${src}" defaultexcludes="yes">
 				<include name="**/*.java" />
 			</fileset>
 			
