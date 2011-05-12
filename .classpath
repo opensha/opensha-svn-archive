@@ -3,38 +3,78 @@
 	<classpathentry excluding="**/_nobuild/*" kind="src" path="dev"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="lib/xsdlib.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/xercesImpl.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/sdoapi.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/saaj-impl.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-cli-1.2.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/cli/api-release/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="lib/commons-codec-1.4.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/codec/api-release/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="lib/commons-collections-3.2.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/collections/api-release/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="lib/commons-io-2.0.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/io/api-release/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="lib/commons-lang-2.6.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/lang/api-release/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="lib/commons-logging-1.1.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/logging/commons-logging-1.1.1/apidocs/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="lib/commons-math-2.2.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/math/apidocs/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="lib/guava-r09.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://guava-libraries.googlecode.com/svn/tags/release09/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="lib/junit-4.8.2.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://kentbeck.github.com/junit/javadoc/latest/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="lib/dom4j-1.6.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://dom4j.sourceforge.net/dom4j-1.6.1/apidocs/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="lib/jfreechart-1.0.13.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jcommon-1.0.16.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/iText-2.1.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jstl.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/Jama-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/poi-3.6-20091214.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mail.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/log4j-1.2.4.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jpedal.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/saaj-impl.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/sdoapi.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jaxrpc-impl.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jaxrpc-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xsdlib.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xercesImpl.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/log4j-1.2.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jpedal.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/f2jutil.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/servlet.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/Jama-1.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/DBConnection.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/USGSUtils.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-cli-1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/ncCore-4.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jstl.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/standard.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/ojdbc5.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-codec-1.4.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/dom4j-1.6.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/poi-3.6-20091214.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/iText-2.1.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jcommon-1.0.16.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jfreechart-1.0.13.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-math-2.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-collections-3.2.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-io-2.0.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-lang-2.6.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-logging-1.1.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/guava-r09.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/junit-4.8.2.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="classes/"/>
 </classpath>
