@@ -78,6 +78,7 @@
 			<include name="scratch/**" />
 			<include name="resources/**" />
 			<include name="oracle/**" />
+			<include name="Jama/**" />
 			<include name="build.version" />
 			<include name="LICENSE.txt" />
 		</jar>
