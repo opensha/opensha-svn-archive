@@ -46,7 +46,7 @@ import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
+import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.impl.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -1255,7 +1255,7 @@ ParameterChangeListener, ParameterChangeFailListener
 			setParamsInIteratorVisible( attenRel.getExceedProbIndependentParamsIterator() );
 
 			// Hardcoded for special values
-			ParameterEditorAPI paramEditor = independentsEditor.getParameterEditor(SigmaTruncTypeParam.NAME);
+			ParameterEditor paramEditor = independentsEditor.getParameterEditor(SigmaTruncTypeParam.NAME);
 			if( paramEditor != null ){
 				String value = paramEditor.getParameter().getValue().toString();
 				toggleSigmaLevelBasedOnTypeValue(value);
@@ -1265,7 +1265,7 @@ ParameterChangeListener, ParameterChangeFailListener
 		else if ( yAxisName.equals( Y_AXIS_V4 ) ) {
 			setParamsInIteratorVisible( attenRel.getIML_AtExceedProbIndependentParamsIterator());
 			// Hardcoded for special values
-			ParameterEditorAPI paramEditor = independentsEditor.getParameterEditor(SigmaTruncTypeParam.NAME);
+			ParameterEditor paramEditor = independentsEditor.getParameterEditor(SigmaTruncTypeParam.NAME);
 			if( paramEditor != null ){
 				String value = paramEditor.getParameter().getValue().toString();
 				toggleSigmaLevelBasedOnTypeValue(value);

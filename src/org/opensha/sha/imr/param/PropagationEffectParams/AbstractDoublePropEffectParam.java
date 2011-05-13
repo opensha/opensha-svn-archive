@@ -10,7 +10,7 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.WarningParameterAPI;
 import org.opensha.commons.param.constraint.AbstractParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
+import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.impl.ConstrainedDoubleParameterEditor;
 import org.opensha.commons.param.editor.impl.DoubleParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
@@ -30,7 +30,7 @@ public abstract class AbstractDoublePropEffectParam extends
 		PropagationEffectParameter<Double> implements
 		WarningParameterAPI<Double> {
 
-	private transient ParameterEditorAPI<Double> paramEdit = null;
+	private transient ParameterEditor<Double> paramEdit = null;
 
 	/** The warning constraint for this Parameter. */
 	protected DoubleConstraint warningConstraint = null;
@@ -338,7 +338,7 @@ public abstract class AbstractDoublePropEffectParam extends
 	 */
 	//public abstract Object clone();
 
-	public ParameterEditorAPI<Double> getEditor() {
+	public ParameterEditor<Double> getEditor() {
 		if (paramEdit == null) {
 			try {
 				if (constraint == null)

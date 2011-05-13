@@ -25,7 +25,7 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
+import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.impl.TreeBranchWeightsParameterEditor;
 
 /**
@@ -51,7 +51,7 @@ implements  java.io.Serializable{
 
 	private double tolerance = .01;
 	
-	private transient ParameterEditorAPI<ParameterList> paramEdit = null;
+	private transient ParameterEditor<ParameterList> paramEdit = null;
 
 	/**
 	 *  No constraints specified for this parameter. Sets the name of this
@@ -145,7 +145,7 @@ implements  java.io.Serializable{
 	}
 	
 	@Override
-	public ParameterEditorAPI<ParameterList> getEditor() {
+	public ParameterEditor<ParameterList> getEditor() {
 		if (paramEdit == null)
 			paramEdit = new TreeBranchWeightsParameterEditor(this);
 		return paramEdit;

@@ -25,8 +25,8 @@ import java.awt.Component;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.ParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.impl.CPTParameter;
 import org.opensha.sha.calc.IM_EventSet.v01.IM_EventSetScenarioForCEA;
@@ -101,7 +101,7 @@ public class IM_EventSetCEA_ControlPanel extends ConfirmDialogControlPanel {
 		//making the ERF Gui Bean Adjustable Param not visible to the user, becuase
 		//this control panel will set the values by itself.
 		//This is done in the EqkRupSelectorGuiBean
-		ParameterEditorAPI paramEditor = erfGuiBean.getParameterEditor(erfGuiBean.RUPTURE_SELECTOR_PARAM_NAME);
+		ParameterEditor paramEditor = erfGuiBean.getParameterEditor(erfGuiBean.RUPTURE_SELECTOR_PARAM_NAME);
 		paramEditor.setValue(erfGuiBean.CREATE_RUPTURE);
 		paramEditor.refreshParamEditor();
 		EqkRuptureCreationPanel erfPanel= (EqkRuptureCreationPanel)erfGuiBean.getEqkRuptureSelectorPanel();

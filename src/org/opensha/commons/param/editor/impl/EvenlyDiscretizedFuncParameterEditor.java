@@ -35,7 +35,7 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.impl.EvenlyDiscretizedFuncParameter;
 
 /**
@@ -48,7 +48,7 @@ import org.opensha.commons.param.impl.EvenlyDiscretizedFuncParameter;
  * @author Vipin Gupta, Nitin Gupta
  * @version 1.0
  */
-public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
+public class EvenlyDiscretizedFuncParameterEditor extends AbstractParameterEditorOld
 {
 
     /**

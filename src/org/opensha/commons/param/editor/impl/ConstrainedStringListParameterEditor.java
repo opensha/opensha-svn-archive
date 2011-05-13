@@ -33,7 +33,7 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.StringListConstraint;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.impl.StringListParameter;
 
 /**
@@ -50,7 +50,7 @@ import org.opensha.commons.param.impl.StringListParameter;
  */
 
 public class ConstrainedStringListParameterEditor
-    extends ParameterEditor
+    extends AbstractParameterEditorOld
     implements ListSelectionListener
 {
 

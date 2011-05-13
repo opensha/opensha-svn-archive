@@ -27,7 +27,7 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 
 /**
  * <p>Title: LocationListParameter</p>
@@ -239,7 +239,7 @@ public class LocationListParameter extends DependentParameter<LocationList> {
 		return false;
 	}
 
-	public ParameterEditor getEditor() {
+	public AbstractParameterEditorOld getEditor() {
 		//TODO create editor if needed
 		return null;
 	}

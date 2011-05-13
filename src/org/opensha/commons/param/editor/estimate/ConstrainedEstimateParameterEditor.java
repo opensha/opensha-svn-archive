@@ -55,7 +55,7 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.estimate.EstimateConstraint;
 import org.opensha.commons.param.estimate.EstimateParameter;
@@ -85,7 +85,7 @@ import org.opensha.sha.gui.infoTools.EstimateViewer;
  * @version 1.0
  */
 
-public class ConstrainedEstimateParameterEditor  extends ParameterEditor
+public class ConstrainedEstimateParameterEditor  extends AbstractParameterEditorOld
 implements ParameterChangeListener,
 ParameterChangeFailListener, ActionListener{
 

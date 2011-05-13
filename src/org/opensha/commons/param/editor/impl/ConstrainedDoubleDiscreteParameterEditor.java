@@ -35,7 +35,7 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
-import org.opensha.commons.param.editor.NewParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditor;
 
 /**
  * <b>Title:</b> ConstrainedDoubleDiscreteParameterEditor<p>
@@ -49,7 +49,7 @@ import org.opensha.commons.param.editor.NewParameterEditor;
  */
 
 public class ConstrainedDoubleDiscreteParameterEditor
-extends NewParameterEditor<Double>
+extends AbstractParameterEditor<Double>
 implements ItemListener
 {
 

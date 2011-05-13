@@ -29,7 +29,7 @@ import javax.swing.JComponent;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.WarningException;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.editor.NewParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditor;
 
 /**
  * <b>Title:</b> DoubleParameterEditor<p>
@@ -50,7 +50,7 @@ import org.opensha.commons.param.editor.NewParameterEditor;
  * @author Steven W. Rock
  * @version 1.0
  */
-public class DoubleParameterEditor extends NewParameterEditor<Double> implements FocusListener, KeyListener
+public class DoubleParameterEditor extends AbstractParameterEditor<Double> implements FocusListener, KeyListener
 {
 
 	/**

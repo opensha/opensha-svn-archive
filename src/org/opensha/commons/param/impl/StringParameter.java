@@ -29,8 +29,8 @@ import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.ParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.impl.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.editor.impl.StringParameterEditor;
 
@@ -67,7 +67,7 @@ public class StringParameter extends DependentParameter<String> {
     /** If true print out debug statements. */
     protected final static boolean D = false;
     
-    private transient ParameterEditorAPI<String> paramEdit = null;
+    private transient ParameterEditor<String> paramEdit = null;
 
     /**
      * Constructor doesn't specify a constraint, all values allowed. This
@@ -334,7 +334,7 @@ public class StringParameter extends DependentParameter<String> {
 		return true;
 	}
 
-	public ParameterEditorAPI<String> getEditor() {
+	public ParameterEditor<String> getEditor() {
 		if (paramEdit == null) {
 			if (constraint == null)
 				try {

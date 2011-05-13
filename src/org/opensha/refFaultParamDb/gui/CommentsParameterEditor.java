@@ -34,7 +34,7 @@ import javax.swing.border.TitledBorder;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.WarningException;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.impl.StringParameter;
 
 /**
@@ -45,7 +45,7 @@ import org.opensha.commons.param.impl.StringParameter;
  * @author Vipin Gupta, Nitin Gupta
  * @version 1.0
  */
-public class CommentsParameterEditor extends ParameterEditor
+public class CommentsParameterEditor extends AbstractParameterEditorOld
 {
 
     /** Class name for debugging. */
@@ -98,7 +98,7 @@ public class CommentsParameterEditor extends ParameterEditor
         scrollPane.setMinimumSize( WIGET_PANEL_DIM );
         scrollPane.setPreferredSize( WIGET_PANEL_DIM );
 
-        widgetPanel.add(scrollPane, ParameterEditor.WIDGET_GBC);
+        widgetPanel.add(scrollPane, AbstractParameterEditorOld.WIDGET_GBC);
         widgetPanel.setBackground(null);
         widgetPanel.validate();
         widgetPanel.repaint();

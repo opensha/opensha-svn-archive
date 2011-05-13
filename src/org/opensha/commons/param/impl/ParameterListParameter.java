@@ -26,7 +26,7 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
+import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.impl.ParameterListParameterEditor;
 
 
@@ -52,7 +52,7 @@ public class ParameterListParameter extends DependentParameter<ParameterList> {
 
 	protected final static String PARAM_TYPE ="ParameterListParameter";
 
-	private transient ParameterEditorAPI<ParameterList> paramEdit = null;
+	private transient ParameterEditor<ParameterList> paramEdit = null;
 
 	/**
 	 *  No constraints specified for this parameter. Sets the name of this
@@ -216,7 +216,7 @@ public class ParameterListParameter extends DependentParameter<ParameterList> {
 		return false;
 	}
 
-	public ParameterEditorAPI<ParameterList> getEditor() {
+	public ParameterEditor<ParameterList> getEditor() {
 		if (paramEdit == null)
 			paramEdit = new ParameterListParameterEditor(this);
 		return paramEdit;

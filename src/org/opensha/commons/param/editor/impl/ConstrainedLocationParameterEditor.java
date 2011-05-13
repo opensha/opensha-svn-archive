@@ -33,7 +33,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.LocationConstraint;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.impl.LocationParameter;
 
 /**
@@ -50,7 +50,7 @@ import org.opensha.commons.param.impl.LocationParameter;
  */
 
 public class ConstrainedLocationParameterEditor
-    extends ParameterEditor
+    extends AbstractParameterEditorOld
     implements ItemListener
 {
 

@@ -35,7 +35,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.ParameterListParameter;
@@ -54,7 +54,7 @@ import org.opensha.commons.param.impl.RegionParameter;
  */
 
 public class RegionParameterEditor
-    extends ParameterEditor implements
+    extends AbstractParameterEditorOld implements
     ActionListener, ParameterChangeListener {
 
   /**

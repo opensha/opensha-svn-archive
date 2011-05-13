@@ -34,8 +34,8 @@ import org.opensha.commons.gridComputing.SubmitHostEditor;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.ParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
@@ -175,7 +175,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	}
 	
 	public void setSubmitHostsVisible(boolean visible) {
-		ParameterEditorAPI editor = this.getParameterEditor(SUBMIT_HOST_PARAM_NAME);
+		ParameterEditor editor = this.getParameterEditor(SUBMIT_HOST_PARAM_NAME);
 		editor.setVisible(visible);
 	}
 

@@ -5,7 +5,7 @@ import java.io.File;
 import org.dom4j.Element;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
+import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.impl.FileParameterEditor;
 
 @Deprecated
@@ -32,7 +32,7 @@ public class FileParameter extends Parameter<File> {
 	}
 
 	@Override
-	public ParameterEditorAPI getEditor() {
+	public ParameterEditor getEditor() {
 		if (editor == null)
 			editor = new FileParameterEditor(this);
 		return editor;

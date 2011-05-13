@@ -34,7 +34,7 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.ParameterConstraint;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
@@ -64,7 +64,7 @@ import org.opensha.sha.param.MagPDF_Parameter;
  */
 
 public class MagPDF_ParameterEditor
-    extends ParameterEditor implements ParameterChangeListener,
+    extends AbstractParameterEditorOld implements ParameterChangeListener,
     ParameterChangeFailListener,
     ActionListener,MagDistParameterEditorAPI {
 

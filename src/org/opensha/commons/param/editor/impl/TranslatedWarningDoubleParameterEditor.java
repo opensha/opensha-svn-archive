@@ -21,7 +21,7 @@ package org.opensha.commons.param.editor.impl;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.impl.TranslatedWarningDoubleParameter;
 import org.opensha.commons.param.translate.TranslatorAPI;
 
@@ -44,7 +44,7 @@ import org.opensha.commons.param.translate.TranslatorAPI;
  * parameter will be notified. Other than that there is nothing more unique about
  * this editor from the ConstrainedDoubleParameterEditor. <p>
  *
- * @see ParameterEditor
+ * @see AbstractParameterEditorOld
  * @author Steven W. Rock
  * @version 1.0
  */

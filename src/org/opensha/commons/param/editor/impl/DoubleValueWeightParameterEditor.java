@@ -27,8 +27,8 @@ import org.opensha.commons.data.ValueWeight;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleValueWeightConstraint;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.ParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.DoubleParameter;
@@ -52,7 +52,7 @@ import org.opensha.commons.param.impl.DoubleParameter;
  * @author vipingupta
  *
  */
-public class DoubleValueWeightParameterEditor extends ParameterEditor 
+public class DoubleValueWeightParameterEditor extends AbstractParameterEditorOld 
 												implements ParameterChangeListener {
 	/**
 	 * 
@@ -63,7 +63,7 @@ public class DoubleValueWeightParameterEditor extends ParameterEditor
 	private final static String WEIGHT = "Weight";
 	protected DoubleParameter valueParameter;
 	protected DoubleParameter weightParameter;
-	private ParameterEditorAPI<Double> valueParameterEditor, weightParameterEditor;
+	private ParameterEditor<Double> valueParameterEditor, weightParameterEditor;
 	protected final static Dimension PANEL_DIM = new Dimension( 100, 50);
 
 	/**

@@ -22,7 +22,7 @@ package org.opensha.commons.param.impl;
 import org.dom4j.Element;
 import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
+import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.impl.BooleanParameterEditor;
 
 
@@ -47,7 +47,7 @@ public class BooleanParameter extends DependentParameter<Boolean> {
 
 	protected final static String PARAM_TYPE ="BooleanParameter";
 
-	private transient ParameterEditorAPI<Boolean> paramEdit;
+	private transient ParameterEditor<Boolean> paramEdit;
 
 	/**
 	 *  No constraints specified for this parameter. Sets the name of this
@@ -104,7 +104,7 @@ public class BooleanParameter extends DependentParameter<Boolean> {
 		return true;
 	}
 
-	public ParameterEditorAPI<Boolean> getEditor() {
+	public ParameterEditor<Boolean> getEditor() {
 		if (paramEdit == null)
 			paramEdit = new BooleanParameterEditor(this);
 		return paramEdit;

@@ -11,10 +11,10 @@ import org.opensha.commons.mapping.gmt.gui.CPTListCellRenderer;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.ListBasedConstraint;
-import org.opensha.commons.param.editor.NewParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditor;
 import org.opensha.commons.util.cpt.CPT;
 
-public class ConstrainedCPTParameterEditor extends NewParameterEditor<CPT> implements ItemListener {
+public class ConstrainedCPTParameterEditor extends AbstractParameterEditor<CPT> implements ItemListener {
 	
 	/**
 	 * 

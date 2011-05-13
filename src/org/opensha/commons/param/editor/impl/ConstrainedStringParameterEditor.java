@@ -35,7 +35,7 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
-import org.opensha.commons.param.editor.NewParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditor;
 import org.opensha.commons.param.impl.StringParameter;
 
 /**
@@ -52,7 +52,7 @@ import org.opensha.commons.param.impl.StringParameter;
  */
 
 public class ConstrainedStringParameterEditor
-extends NewParameterEditor<String>
+extends AbstractParameterEditor<String>
 implements ItemListener
 {
 

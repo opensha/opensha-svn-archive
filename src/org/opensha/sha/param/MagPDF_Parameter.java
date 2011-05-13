@@ -30,7 +30,7 @@ import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.ParameterConstraint;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.EvenlyDiscretizedFuncParameter;
 import org.opensha.commons.param.impl.IntegerParameter;
@@ -133,7 +133,7 @@ implements java.io.Serializable
 	//paramName
 	public static final String ARB_INCR_PARAM_NAME = " Arb. Incremental Mag Dist";
 	
-	private transient ParameterEditor paramEdit = null;
+	private transient AbstractParameterEditorOld paramEdit = null;
 
 
 	/**
@@ -704,7 +704,7 @@ implements java.io.Serializable
 		return false;
 	}
 
-	public ParameterEditor getEditor() {
+	public AbstractParameterEditorOld getEditor() {
 		if (paramEdit == null)
 			paramEdit = new MagPDF_ParameterEditor(this);
 		return paramEdit;

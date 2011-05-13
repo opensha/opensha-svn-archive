@@ -32,8 +32,8 @@ import javax.swing.JOptionPane;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.ParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.impl.ConstrainedDoubleParameterEditor;
 import org.opensha.commons.param.editor.impl.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.editor.impl.IntegerParameterEditor;
@@ -59,7 +59,7 @@ import org.opensha.sha.param.SimpleFaultParameter;
  * @version 1.0
  */
 
-public class SimpleFaultParameterEditorPanel extends ParameterEditor
+public class SimpleFaultParameterEditorPanel extends AbstractParameterEditorOld
 implements ParameterChangeListener,
 ParameterChangeFailListener,
 ActionListener {
@@ -127,7 +127,7 @@ ActionListener {
 	 * DoubleParameter for Ave. Dip Direction, if the person has selected
 	 * Stirling Fault Model
 	 */
-	private ParameterEditorAPI<Double> dipDirectionParamEditor ;
+	private ParameterEditor<Double> dipDirectionParamEditor ;
 
 
 	public SimpleFaultParameterEditorPanel() {}

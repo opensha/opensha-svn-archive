@@ -30,7 +30,7 @@ import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
+import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.impl.ConstrainedDoubleDiscreteParameterEditor;
 
 /**
@@ -64,7 +64,7 @@ implements DependentParameterAPI<Double>, ParameterAPI<Double>
 	/** If true print out debug statements. */
 	protected final static boolean D = false;
 
-	private transient ParameterEditorAPI<Double> paramEdit = null;
+	private transient ParameterEditor<Double> paramEdit = null;
 
 	/**
 	 *  Constructor for the DoubleDiscreteParameter object. No constraints
@@ -380,7 +380,7 @@ implements DependentParameterAPI<Double>, ParameterAPI<Double>
 	}
 
 
-	public ParameterEditorAPI<Double> getEditor() {
+	public ParameterEditor<Double> getEditor() {
 		if (paramEdit == null) {
 			if (constraint != null)
 				try {

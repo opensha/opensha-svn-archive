@@ -29,7 +29,7 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.sha.param.editor.gui.SimpleFaultParameterEditorPanel;
 import org.opensha.sha.param.editor.gui.SimpleFaultParameterGUI;
 
@@ -43,7 +43,7 @@ import org.opensha.sha.param.editor.gui.SimpleFaultParameterGUI;
  * @version 1.0
  */
 
-public class SimpleFaultParameterEditor extends ParameterEditor
+public class SimpleFaultParameterEditor extends AbstractParameterEditorOld
     implements ActionListener {
 
 

@@ -33,7 +33,7 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.LocationConstraint;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.impl.RegionParameterEditor;
 
 /**
@@ -88,7 +88,7 @@ public class RegionParameter extends DependentParameter<Region> {
 	//location parameterlist parameter name static declaration
 	private final static String REGION_PARAMETER_LIST_PARAMETER_NAME = "Rectangular Region";
 
-	private transient ParameterEditor paramEdit = null;
+	private transient AbstractParameterEditorOld paramEdit = null;
 	
 	/**
 	 * No constraints specified for this parameter. Sets the name of this
@@ -383,7 +383,7 @@ public class RegionParameter extends DependentParameter<Region> {
 		return false;
 	}
 
-	public ParameterEditor getEditor() {
+	public AbstractParameterEditorOld getEditor() {
 		if (paramEdit == null)
 			paramEdit = new RegionParameterEditor(this);
 		return paramEdit;

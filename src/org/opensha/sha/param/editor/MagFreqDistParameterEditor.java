@@ -36,7 +36,7 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.impl.EvenlyDiscretizedFuncParameterEditor;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -67,7 +67,7 @@ import org.opensha.sha.param.MagFreqDistParameter;
  */
 
 public class MagFreqDistParameterEditor
-    extends ParameterEditor implements ParameterChangeListener,
+    extends AbstractParameterEditorOld implements ParameterChangeListener,
     ParameterChangeFailListener,
     ActionListener, MagDistParameterEditorAPI {
 

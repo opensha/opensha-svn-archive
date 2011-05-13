@@ -31,8 +31,8 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.AbstractParameterConstraint;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.ParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.impl.TranslatedWarningDoubleParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
@@ -126,7 +126,7 @@ public class TranslatedWarningDoubleParameter extends WarningDoubleParameter {
     /** Internal reference to the wrapped parameter */
     protected WarningDoubleParameter param = null;
     
-    private transient ParameterEditorAPI<Double> paramEdit = null;
+    private transient ParameterEditor<Double> paramEdit = null;
 
     /**
      * Allows setting the parameter upon construction. The translator defaults to
@@ -748,7 +748,7 @@ public class TranslatedWarningDoubleParameter extends WarningDoubleParameter {
 //		return false;
 //	}
 
-	public ParameterEditorAPI<Double> getEditor() {
+	public ParameterEditor<Double> getEditor() {
 		if (paramEdit == null)
 			try {
 				paramEdit = new TranslatedWarningDoubleParameterEditor(this);

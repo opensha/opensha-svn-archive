@@ -29,7 +29,7 @@ import java.util.NoSuchElementException;
 import org.opensha.commons.gui.LabeledBoxPanel;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
+import org.opensha.commons.param.editor.ParameterEditor;
 
 /**
  * <b>Title:</b> ParameterListEditor<p>
@@ -81,7 +81,7 @@ public class ParameterListEditor extends LabeledBoxPanel {
 	/** Both the parameterEditor and parameterName maintain the same ordering of the
 	 *  parameters. parametersEditor store the editor for each parameter name stored
 	 *  in the  parameterName variable at the same index.*/
-	protected ArrayList<ParameterEditorAPI> parameterEditors = new ArrayList<ParameterEditorAPI>();
+	protected ArrayList<ParameterEditor> parameterEditors = new ArrayList<ParameterEditor>();
 	protected ArrayList<String> parametersName = new ArrayList<String>();
 
 	/** Calls super() to configure the GUI */
@@ -126,7 +126,7 @@ public class ParameterListEditor extends LabeledBoxPanel {
 		parameterName = parameterList.getParameterName( parameterName );
 		int index = getIndexOf(parameterName);
 		if ( index != -1 ) {
-			ParameterEditorAPI editor = parameterEditors.get(index);
+			ParameterEditor editor = parameterEditors.get(index);
 			editor.setVisible( visible );
 		}
 
@@ -164,10 +164,10 @@ public class ParameterListEditor extends LabeledBoxPanel {
 
 		ParameterList visibles = new ParameterList();
 
-		Iterator<ParameterEditorAPI> it = parameterEditors.iterator();
+		Iterator<ParameterEditor> it = parameterEditors.iterator();
 		while ( it.hasNext() ) {
 
-			ParameterEditorAPI editor = it.next();
+			ParameterEditor editor = it.next();
 			if ( editor.isVisible() ) {
 				ParameterAPI param = ( ParameterAPI ) editor.getParameter();
 				visibles.addParameter( param );
@@ -195,12 +195,12 @@ public class ParameterListEditor extends LabeledBoxPanel {
 	 * @return                             Returns the found ParameterEditor for the named parameter
 	 * @exception  NoSuchElementException  Thrown if the named parameter doesn't exist.
 	 */
-	public ParameterEditorAPI getParameterEditor( String parameterName ) throws NoSuchElementException {
+	public ParameterEditor getParameterEditor( String parameterName ) throws NoSuchElementException {
 
 		parameterName = parameterList.getParameterName( parameterName );
 		int index = getIndexOf(parameterName);
 		if ( index != -1 ) {
-			ParameterEditorAPI editor = parameterEditors.get(index);
+			ParameterEditor editor = parameterEditors.get(index);
 			return editor;
 		}
 		else
@@ -219,9 +219,9 @@ public class ParameterListEditor extends LabeledBoxPanel {
 	 * event.
 	 */
 	public void refreshParamEditor() {
-		Iterator<ParameterEditorAPI> it = parameterEditors.iterator();
+		Iterator<ParameterEditor> it = parameterEditors.iterator();
 		while ( it.hasNext() ) {
-			ParameterEditorAPI editor = it.next();
+			ParameterEditor editor = it.next();
 			editor.refreshParamEditor();
 		}
 	}
@@ -237,7 +237,7 @@ public class ParameterListEditor extends LabeledBoxPanel {
 		parameterName = this.parameterList.getParameterName( parameterName );
 		int index = getIndexOf(parameterName);
 		if ( index != -1 ) {
-			ParameterEditorAPI editor = parameterEditors.get(index);
+			ParameterEditor editor = parameterEditors.get(index);
 			editor.setParameter( param );
 			parameterList.removeParameter( parameterName );
 			parameterList.addParameter( param );
@@ -264,7 +264,7 @@ public class ParameterListEditor extends LabeledBoxPanel {
 		int counter = 0;
 		
 		for (ParameterAPI<?> param : parameterList) {
-			ParameterEditorAPI paramEdit = param.getEditor();
+			ParameterEditor paramEdit = param.getEditor();
 			//paramEdit.setVisible(true);
 			if (paramEdit == null)
 				throw new RuntimeException("No parameter editor exists for type: " + param.getType() + " (" + param.getClass().getName() + ")");

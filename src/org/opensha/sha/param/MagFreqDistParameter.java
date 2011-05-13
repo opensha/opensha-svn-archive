@@ -32,7 +32,7 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.EvenlyDiscretizedFuncParameter;
 import org.opensha.commons.param.impl.IntegerParameter;
@@ -168,7 +168,7 @@ implements java.io.Serializable
 	 */
 	private ParameterList parameterList = new ParameterList();
 
-	private transient ParameterEditor paramEdit = null;
+	private transient AbstractParameterEditorOld paramEdit = null;
 
 
 	/**
@@ -1065,7 +1065,7 @@ implements java.io.Serializable
 		return false;
 	}
 
-	public ParameterEditor getEditor() {
+	public AbstractParameterEditorOld getEditor() {
 		if (paramEdit == null)
 			paramEdit = new MagFreqDistParameterEditor(this);
 		return paramEdit;

@@ -31,7 +31,7 @@ import javax.swing.border.Border;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.WarningException;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.editor.NewParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditor;
 import org.opensha.commons.param.impl.StringParameter;
 
 
@@ -51,7 +51,7 @@ import org.opensha.commons.param.impl.StringParameter;
  * @version 1.0
  */
 public class StringParameterEditor
-extends NewParameterEditor<String> implements FocusListener, KeyListener
+extends AbstractParameterEditor<String> implements FocusListener, KeyListener
 {
 	
 	private boolean focusLostProcessing = false;

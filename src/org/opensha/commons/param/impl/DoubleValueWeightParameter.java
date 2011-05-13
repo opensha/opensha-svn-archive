@@ -14,7 +14,7 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleValueWeightConstraint;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.impl.DoubleValueWeightParameterEditor;
 
 /**
@@ -40,7 +40,7 @@ public class DoubleValueWeightParameter extends DependentParameter
     /** If true print out debug statements. */
     protected final static boolean D = false;
     
-    private transient ParameterEditor paramEdit = null;
+    private transient AbstractParameterEditorOld paramEdit = null;
 
 
     /**
@@ -481,7 +481,7 @@ public class DoubleValueWeightParameter extends DependentParameter
 	}
 
 
-	public ParameterEditor getEditor() {
+	public AbstractParameterEditorOld getEditor() {
 		if (paramEdit == null) {
 			try {
 				paramEdit = new DoubleValueWeightParameterEditor(this);

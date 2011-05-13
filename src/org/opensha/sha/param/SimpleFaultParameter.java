@@ -27,7 +27,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.DoubleParameter;
@@ -165,7 +165,7 @@ java.io.Serializable{
 	private ArrayList prevDepths;
 	private ArrayList prevDips;
 
-	private transient ParameterEditor paramEdit= null;
+	private transient AbstractParameterEditorOld paramEdit= null;
 
 	/**
 	 *  No constraints specified for this parameter. Sets the name of this
@@ -870,7 +870,7 @@ java.io.Serializable{
 		return false;
 	}
 
-	public ParameterEditor getEditor() {
+	public AbstractParameterEditorOld getEditor() {
 		if (paramEdit == null)
 			paramEdit = new SimpleFaultParameterEditor(this);
 		return paramEdit;

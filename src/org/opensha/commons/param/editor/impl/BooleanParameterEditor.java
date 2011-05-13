@@ -28,7 +28,7 @@ import javax.swing.JComponent;
 import javax.swing.border.Border;
 
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.editor.NewParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditor;
 
 
 
@@ -42,7 +42,7 @@ import org.opensha.commons.param.editor.NewParameterEditor;
  * @version 1.0
  */
 
-public class BooleanParameterEditor extends NewParameterEditor<Boolean> implements
+public class BooleanParameterEditor extends AbstractParameterEditor<Boolean> implements
 ItemListener{
 
 	/**

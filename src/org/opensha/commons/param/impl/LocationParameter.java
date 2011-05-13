@@ -33,7 +33,7 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.param.constraint.impl.LocationConstraint;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
+import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.impl.ConstrainedLocationParameterEditor;
 import org.opensha.commons.param.editor.impl.ParameterListParameterEditor;
 
@@ -87,7 +87,7 @@ public class LocationParameter extends DependentParameter<Location> {
 	private final static String DECIMAL_DEGREES = "Decimal Degrees";
 	private final static String KMS = "kms";
 	
-	private transient ParameterEditorAPI<?> paramEdit = null;
+	private transient ParameterEditor<?> paramEdit = null;
 	
 	/**
 	 * No constraints specified for this parameter. Sets the name of this
@@ -464,7 +464,7 @@ public class LocationParameter extends DependentParameter<Location> {
 		return false;
 	}
 
-	public ParameterEditorAPI<?> getEditor() {
+	public ParameterEditor<?> getEditor() {
 		if (paramEdit == null) {
 			if (constraint == null)
 //				paramEdit = new LocationParameterEditor(this);

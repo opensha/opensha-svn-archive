@@ -54,8 +54,8 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.WarningParameterAPI;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.ParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.impl.DoubleParameterEditor;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -402,7 +402,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		// get the panel for increasing the font and border
 		// this is hard coding for increasing the IMR font
 		// the colors used here are from ParameterEditor
-		ParameterEditorAPI paramEdit = singleAttenRelParamListEditor.getParameterEditor(IMR_PARAM_NAME);
+		ParameterEditor paramEdit = singleAttenRelParamListEditor.getParameterEditor(IMR_PARAM_NAME);
 		TitledBorder titledBorder1 = new TitledBorder(BorderFactory.createLineBorder(new Color( 80, 80, 140 ),3),"");
 		titledBorder1.setTitleColor(new Color( 80, 80, 140 ));
 		Font DEFAULT_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 13 );

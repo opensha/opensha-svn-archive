@@ -30,7 +30,7 @@ import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.StringListConstraint;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.impl.ConstrainedStringListParameterEditor;
 
 /**
@@ -61,7 +61,7 @@ public class StringListParameter extends DependentParameter<List<String>> {
 /** Class name for debugging. */
   protected final static String C = "StringListParameter";
   
-  private transient ParameterEditor paramEdit = null;
+  private transient AbstractParameterEditorOld paramEdit = null;
 
   /**
    * Constructor doesn't specify a constraint, all values allowed. This
@@ -285,7 +285,7 @@ public class StringListParameter extends DependentParameter<List<String>> {
 
     }
 
-	public ParameterEditor getEditor() {
+	public AbstractParameterEditorOld getEditor() {
 		if (paramEdit == null) {
 			if (constraint == null)
 				paramEdit = new ConstrainedStringListParameterEditor(this);

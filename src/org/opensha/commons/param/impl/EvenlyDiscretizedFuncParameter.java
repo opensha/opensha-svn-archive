@@ -25,7 +25,7 @@ import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.impl.EvenlyDiscretizedFuncParameterEditor;
 
 /**
@@ -70,7 +70,7 @@ public class EvenlyDiscretizedFuncParameter extends
 
 	private ParameterList paramList;
 	
-	private transient ParameterEditor paramEdit = null;
+	private transient AbstractParameterEditorOld paramEdit = null;
 
 
 	/**
@@ -244,7 +244,7 @@ public class EvenlyDiscretizedFuncParameter extends
 		return false;
 	}
 
-	public ParameterEditor getEditor() {
+	public AbstractParameterEditorOld getEditor() {
 		if (paramEdit == null)
 			try {
 				paramEdit = new EvenlyDiscretizedFuncParameterEditor(this);

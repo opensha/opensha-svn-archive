@@ -7,11 +7,11 @@ import java.io.File;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.impl.FileParameter;
 
 @Deprecated
-public class FileParameterEditor extends ParameterEditor implements ActionListener {
+public class FileParameterEditor extends AbstractParameterEditorOld implements ActionListener {
 	
 	/**
 	 * 
@@ -41,7 +41,7 @@ public class FileParameterEditor extends ParameterEditor implements ActionListen
 	@Override
 	protected void addWidget() {
 		valueEditor = getBrowseButton();
-		widgetPanel.add(valueEditor, ParameterEditor.WIDGET_GBC);
+		widgetPanel.add(valueEditor, AbstractParameterEditorOld.WIDGET_GBC);
 	}
 
 	@Override

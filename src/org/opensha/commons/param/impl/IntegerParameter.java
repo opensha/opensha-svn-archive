@@ -29,7 +29,7 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.IntegerConstraint;
 import org.opensha.commons.param.constraint.impl.IntegerDiscreteConstraint;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
+import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.impl.ConstrainedIntegerDiscreteParameterEditor;
 import org.opensha.commons.param.editor.impl.ConstrainedIntegerParameterEditor;
 import org.opensha.commons.param.editor.impl.IntegerParameterEditor;
@@ -72,7 +72,7 @@ implements DependentParameterAPI<Integer>, ParameterAPI<Integer>
 	/** If true print out debug statements. */
 	protected final static boolean D = false;
 
-	private transient ParameterEditorAPI paramEdit = null;
+	private transient ParameterEditor paramEdit = null;
 	
 	/**
 	 * Constructor with no constraints specified, all values are allowed.
@@ -471,7 +471,7 @@ implements DependentParameterAPI<Integer>, ParameterAPI<Integer>
 		}
 	}
 
-	public ParameterEditorAPI getEditor() {
+	public ParameterEditor getEditor() {
 		if (paramEdit == null) {
 			try {
 				if (constraint == null)

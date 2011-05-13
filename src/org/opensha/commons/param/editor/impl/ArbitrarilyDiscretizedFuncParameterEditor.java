@@ -47,7 +47,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.editor.NewParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditor;
 import org.opensha.commons.param.editor.impl.ArbitrarilyDiscretizedFuncTableModel.ArbitrarilyDiscretizedFuncTableCellRenderer;
 import org.opensha.commons.param.impl.ArbitrarilyDiscretizedFuncParameter;
 
@@ -61,7 +61,7 @@ import org.opensha.commons.param.impl.ArbitrarilyDiscretizedFuncParameter;
  * @version 1.0
  */
 public class ArbitrarilyDiscretizedFuncParameterEditor
-extends NewParameterEditor<ArbitrarilyDiscretizedFunc>
+extends AbstractParameterEditor<ArbitrarilyDiscretizedFunc>
 implements ActionListener, DocumentListener, TableModelListener
 {
 

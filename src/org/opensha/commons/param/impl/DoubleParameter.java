@@ -31,8 +31,8 @@ import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.ParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.impl.ConstrainedDoubleParameterEditor;
 import org.opensha.commons.param.editor.impl.DoubleParameterEditor;
 
@@ -60,7 +60,7 @@ public class DoubleParameter extends DependentParameter<Double> {
 	/** If true print out debug statements. */
 	protected final static boolean D = false;
 
-	private transient ParameterEditorAPI<Double> paramEdit = null;
+	private transient ParameterEditor<Double> paramEdit = null;
 
 	/**
 	 *  No constraints specified, all values allowed. Sets the name of this
@@ -516,7 +516,7 @@ public class DoubleParameter extends DependentParameter<Double> {
 	}
 
 
-	public ParameterEditorAPI<Double> getEditor() {
+	public ParameterEditor<Double> getEditor() {
 		if (paramEdit == null) {
 			try {
 				if (constraint == null)

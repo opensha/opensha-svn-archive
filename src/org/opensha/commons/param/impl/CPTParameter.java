@@ -7,7 +7,7 @@ import org.dom4j.Element;
 import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.constraint.impl.ListBasedConstraint;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
+import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.impl.ConstrainedCPTParameterEditor;
 import org.opensha.commons.util.cpt.CPT;
 
@@ -18,7 +18,7 @@ public class CPTParameter extends DependentParameter<CPT> {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private transient ParameterEditorAPI<CPT> editor;
+	private transient ParameterEditor<CPT> editor;
 	
 	public CPTParameter(String name) {
 		this(name, null);
@@ -37,7 +37,7 @@ public class CPTParameter extends DependentParameter<CPT> {
 	}
 
 	@Override
-	public ParameterEditorAPI getEditor() {
+	public ParameterEditor getEditor() {
 		if (hasValidConstraint()) {
 			if (editor == null)
 				editor = new ConstrainedCPTParameterEditor(this);

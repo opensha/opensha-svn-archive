@@ -23,8 +23,8 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.ParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.sha.earthquake.EqkRupture;
 
 /**

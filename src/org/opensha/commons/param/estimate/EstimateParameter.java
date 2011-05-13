@@ -28,7 +28,7 @@ import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.constraint.ParameterConstraint;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.estimate.ConstrainedEstimateParameterEditor;
 
 
@@ -51,7 +51,7 @@ public class EstimateParameter extends DependentParameter<Estimate> {
 	/** If true print out debug statements. */
 	protected final static boolean D = false;
 
-	private transient ParameterEditor paramEdit = null;
+	private transient AbstractParameterEditorOld paramEdit = null;
 	
 	/**
 	 * Constructor with no constraints specified, all values are allowed.
@@ -208,7 +208,7 @@ public class EstimateParameter extends DependentParameter<Estimate> {
 		return false;
 	}
 
-	public ParameterEditor getEditor() {
+	public AbstractParameterEditorOld getEditor() {
 		if (paramEdit == null) {
 			if (constraint != null)
 				paramEdit = new ConstrainedEstimateParameterEditor(this);

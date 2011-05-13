@@ -30,7 +30,7 @@ import javax.swing.border.Border;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.WarningException;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.editor.NewParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditor;
 import org.opensha.commons.param.impl.IntegerParameter;
 
 
@@ -49,7 +49,7 @@ import org.opensha.commons.param.impl.IntegerParameter;
  * @author Steven W. Rock
  * @version 1.0
  */
-public class IntegerParameterEditor extends NewParameterEditor<Integer> implements FocusListener, KeyListener
+public class IntegerParameterEditor extends AbstractParameterEditor<Integer> implements FocusListener, KeyListener
 {
 
 	/**

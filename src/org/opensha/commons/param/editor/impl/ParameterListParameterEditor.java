@@ -34,7 +34,7 @@ import javax.swing.JDialog;
 
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.editor.NewParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.ParameterListParameter;
@@ -55,7 +55,7 @@ import org.opensha.commons.param.impl.ParameterListParameter;
  * @version 1.0
  */
 
-public class ParameterListParameterEditor extends NewParameterEditor<ParameterList> implements
+public class ParameterListParameterEditor extends AbstractParameterEditor<ParameterList> implements
 ActionListener,ParameterChangeListener{
 
 	/**

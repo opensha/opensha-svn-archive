@@ -31,8 +31,8 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.ParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.impl.ArbitrarilyDiscretizedFuncTableModel;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
@@ -335,7 +335,7 @@ public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements Par
 			return;
 		if (D) System.out.println("WaldRefreshParams start...");
 		String val = (String)coeffPresetParam.getValue();
-		ParameterEditorAPI funcEditor = this.paramEdit.getParameterEditor(COEFF_FUNC_PARAM_NAME);
+		ParameterEditor funcEditor = this.paramEdit.getParameterEditor(COEFF_FUNC_PARAM_NAME);
 		funcEditor.setEnabled(val == COEFF_CUSTOM_NAME);
 		if (D) System.out.println("WaldRefreshParams refreshing params...");
 //		funcEditor.refreshParamEditor();

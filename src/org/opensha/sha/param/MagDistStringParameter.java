@@ -11,7 +11,7 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
+import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.param.editor.MagDistStringParameterEditor;
 
@@ -26,7 +26,7 @@ public class MagDistStringParameter extends StringParameter {
     /** If true print out debug statements. */
     protected final static boolean D = false;
 
-    private transient ParameterEditorAPI<String> paramEdit = null;
+    private transient ParameterEditor<String> paramEdit = null;
 
 	/**
 	 * @param name
@@ -224,7 +224,7 @@ public class MagDistStringParameter extends StringParameter {
     }
 
 	@Override
-	public ParameterEditorAPI<String> getEditor() {
+	public ParameterEditor<String> getEditor() {
 		if (paramEdit == null) {
 			paramEdit = new MagDistStringParameterEditor(this);
 		}

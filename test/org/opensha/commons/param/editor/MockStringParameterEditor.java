@@ -7,7 +7,7 @@ import javax.swing.JPanel;
 
 import org.opensha.commons.param.ParameterAPI;
 
-public class MockStringParameterEditor extends NewParameterEditor<String> {
+public class MockStringParameterEditor extends AbstractParameterEditor<String> {
 	
 	private JPanel widget;
 	

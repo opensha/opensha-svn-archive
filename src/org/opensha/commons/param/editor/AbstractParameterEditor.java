@@ -8,13 +8,12 @@ import java.awt.Font;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.border.Border;
 
 import org.opensha.commons.gui.LabeledBorderPanel;
 import org.opensha.commons.param.ParameterAPI;
 
-public abstract class NewParameterEditor<E> extends LabeledBorderPanel implements ParameterEditorAPI<E> {
+public abstract class AbstractParameterEditor<E> extends LabeledBorderPanel implements ParameterEditor<E> {
 
 	/**
 	 * 
@@ -41,7 +40,7 @@ public abstract class NewParameterEditor<E> extends LabeledBorderPanel implement
 	/**
 	 * Default Constructor. Sets parameter to null.
 	 */
-	public NewParameterEditor() {
+	public AbstractParameterEditor() {
 		this(null);
 	}
 
@@ -50,7 +49,7 @@ public abstract class NewParameterEditor<E> extends LabeledBorderPanel implement
 	 * 
 	 * @param param
 	 */
-	public NewParameterEditor(ParameterAPI<E> param) {
+	public AbstractParameterEditor(ParameterAPI<E> param) {
 		super(new BorderLayout(), true, false);
 		this.setBackground(null);
 		editorPanel.setBackground(null);

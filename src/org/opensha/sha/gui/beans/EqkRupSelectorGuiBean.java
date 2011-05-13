@@ -33,8 +33,8 @@ import javax.swing.JScrollPane;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.ParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.impl.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -323,7 +323,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 	 * @param paramName
 	 * @returns the ParameterEditor associated with paramName
 	 */
-	public ParameterEditorAPI getParameterEditor(String paramName){
+	public ParameterEditor getParameterEditor(String paramName){
 		if(paramName.equals(RUPTURE_SELECTOR_PARAM_NAME))
 			return this.ruptureSelectorParamEditor;
 		else{
