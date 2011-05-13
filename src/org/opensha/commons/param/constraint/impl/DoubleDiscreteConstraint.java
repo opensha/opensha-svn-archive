@@ -17,13 +17,15 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param;
+package org.opensha.commons.param.constraint.impl;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
+import org.opensha.commons.param.constraint.DiscreteParameterConstraint;
+import org.opensha.commons.param.constraint.AbstractParameterConstraint;
 
 /**
  * <b>Title:</b> DoubleDiscreteConstraint<p>
@@ -38,8 +40,8 @@ import org.opensha.commons.exceptions.EditableException;
  */
 
 public class DoubleDiscreteConstraint
-    extends ParameterConstraint<Double>
-    implements DiscreteParameterConstraintAPI<Double>
+    extends AbstractParameterConstraint<Double>
+    implements DiscreteParameterConstraint<Double>
 {
 
     /**

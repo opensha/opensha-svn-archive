@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 import org.opensha.commons.exceptions.ConstraintException;
-import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 
 /**
  * <p>Title: EditableStringConstraint </p>

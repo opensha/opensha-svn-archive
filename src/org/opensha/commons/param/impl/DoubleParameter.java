@@ -28,9 +28,9 @@ import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.DependentParameter;
-import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.param.editor.ConstrainedDoubleParameterEditor;
 import org.opensha.commons.param.editor.DoubleParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditor;
@@ -331,7 +331,7 @@ public class DoubleParameter extends DependentParameter<Double> {
 	 * @throws ParameterException   Thrown if constraint is not a DoubleConstraint.
 	 * @throws EditableException    Thrown if the parameter is currently uneditable.
 	 */
-	public void setConstraint(ParameterConstraintAPI constraint)
+	public void setConstraint(ParameterConstraint constraint)
 	throws ParameterException, EditableException
 	{
 
@@ -368,7 +368,7 @@ public class DoubleParameter extends DependentParameter<Double> {
 	public String getType() {
 		String type = C;
 		// Modify if constrained
-		ParameterConstraintAPI constraint = this.constraint;
+		ParameterConstraint constraint = this.constraint;
 		if (constraint != null) type = "Constrained" + type;
 		return type;
 	}

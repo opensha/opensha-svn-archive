@@ -55,7 +55,7 @@ import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbolSet;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.param.impl.CPTParameter;
 import org.opensha.commons.param.impl.DoubleParameter;

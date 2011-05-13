@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param;
+package org.opensha.commons.param.constraint.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +25,8 @@ import java.util.ListIterator;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
+import org.opensha.commons.param.constraint.DiscreteParameterConstraint;
+import org.opensha.commons.param.constraint.AbstractParameterConstraint;
 
 /**
  * <b>Title:</b> StringConstraint<p>
@@ -39,11 +41,15 @@ import org.opensha.commons.exceptions.EditableException;
  */
 
 public class StringConstraint
-        extends ParameterConstraint<String>
-        implements DiscreteParameterConstraintAPI<String>
+        extends AbstractParameterConstraint<String>
+        implements DiscreteParameterConstraint<String>
 {
 
-    /** Class name for debugging. */
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/** Class name for debugging. */
     protected final static String C = "StringConstraint";
     /** If true print out debug statements. */
     protected final static boolean D = false;

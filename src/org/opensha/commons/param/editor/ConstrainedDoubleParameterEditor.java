@@ -19,9 +19,9 @@
 
 package org.opensha.commons.param.editor;
 
-import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.util.ParamUtils;
 
 /**

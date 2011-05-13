@@ -28,11 +28,11 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.DependentParameter;
-import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.LocationConstraint;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleConstraint;
+import org.opensha.commons.param.constraint.impl.LocationConstraint;
 import org.opensha.commons.param.editor.ConstrainedLocationParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.ParameterListParameterEditor;
@@ -265,7 +265,7 @@ public class LocationParameter extends DependentParameter<Location> {
 	 * Sets the constraint reference if it is a StringConstraint
 	 * and the parameter is currently editable, else throws an exception.
 	 */
-	public void setConstraint(ParameterConstraintAPI constraint) throws ParameterException, EditableException{
+	public void setConstraint(ParameterConstraint constraint) throws ParameterException, EditableException{
 
 		String S = C + ": setConstraint(): ";
 		checkEditable(S);

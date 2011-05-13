@@ -25,9 +25,9 @@ import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
-import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 
 
@@ -78,7 +78,7 @@ public class DistanceRupParameter extends AbstractDoublePropEffectParam {
 
 
 	/** Constructor that sets up constraints. This is a constrained parameter. */
-	public DistanceRupParameter(ParameterConstraintAPI warningConstraint)
+	public DistanceRupParameter(ParameterConstraint warningConstraint)
 		throws ConstraintException {
 		super(NAME);
 		if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
@@ -91,7 +91,7 @@ public class DistanceRupParameter extends AbstractDoublePropEffectParam {
 	}
 	
     /** Constructor that sets up constraints & the default value. This is a constrained parameter. */
-	public DistanceRupParameter(ParameterConstraintAPI warningConstraint,
+	public DistanceRupParameter(ParameterConstraint warningConstraint,
 		double defaultValue) throws ConstraintException {
 		super(NAME);
         if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
@@ -166,7 +166,7 @@ public class DistanceRupParameter extends AbstractDoublePropEffectParam {
 	public String getType() {
 		String type = "DoubleParameter";
 		// Modify if constrained
-		ParameterConstraintAPI constraint = this.constraint;
+		ParameterConstraint constraint = this.constraint;
 		if (constraint != null) type = "Constrained" + type;
 		return type;
 	}

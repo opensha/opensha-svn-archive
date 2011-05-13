@@ -28,8 +28,8 @@ import org.opensha.commons.data.estimate.MinMaxPrefEstimate;
 import org.opensha.commons.data.estimate.NormalEstimate;
 import org.opensha.commons.data.estimate.PDF_Estimate;
 import org.opensha.commons.exceptions.EditableException;
-import org.opensha.commons.param.ParameterConstraint;
-import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.constraint.AbstractParameterConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 
 
 /**
@@ -48,7 +48,7 @@ import org.opensha.commons.param.StringConstraint;
  * @version 1.0
  */
 
-public class EstimateConstraint extends ParameterConstraint<Estimate> {
+public class EstimateConstraint extends AbstractParameterConstraint<Estimate> {
 	
     /** Class name for debugging. */
     protected final static String C = "DoubleEstimateConstraint";

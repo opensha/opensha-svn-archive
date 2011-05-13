@@ -39,8 +39,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 
-import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.param.editor.ConstrainedDoubleParameterEditor;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;

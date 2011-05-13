@@ -1,10 +1,11 @@
 /**
  * 
  */
-package org.opensha.commons.param;
+package org.opensha.commons.param.constraint.impl;
 
 import org.opensha.commons.data.ValueWeight;
 import org.opensha.commons.exceptions.EditableException;
+import org.opensha.commons.param.constraint.AbstractParameterConstraint;
 
 /**
  * DoubleValueWeightConstraint : This class accepts a ValueWeight object and checks whether
@@ -13,8 +14,12 @@ import org.opensha.commons.exceptions.EditableException;
  * @author vipingupta
  *
  */
-public class DoubleValueWeightConstraint extends ParameterConstraint {
-	 /** Class name for debugging. */
+public class DoubleValueWeightConstraint extends AbstractParameterConstraint {
+	 /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/** Class name for debugging. */
     protected final static String C = "DoubleValueWeightConstraint";
     /** If true print out debug statements. */
     protected final static boolean D = false;

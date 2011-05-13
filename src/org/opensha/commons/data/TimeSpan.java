@@ -31,11 +31,11 @@ import java.util.TimeZone;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;
-import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.DoubleDiscreteConstraint;
-import org.opensha.commons.param.IntegerConstraint;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
+import org.opensha.commons.param.constraint.impl.IntegerConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.event.TimeSpanChangeListener;

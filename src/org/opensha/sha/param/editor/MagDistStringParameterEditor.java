@@ -26,8 +26,8 @@ import javax.swing.JComboBox;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
-import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -65,7 +65,7 @@ ConstrainedStringParameterEditor {
 		if (!(param instanceof MagDistStringParameter))
 			return false;
 
-		ParameterConstraintAPI constraint = param.getConstraint();
+		ParameterConstraint constraint = param.getConstraint();
 
 		if (!(constraint instanceof StringConstraint))
 			return false;

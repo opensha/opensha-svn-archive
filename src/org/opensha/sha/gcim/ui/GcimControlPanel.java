@@ -43,11 +43,11 @@ import javax.swing.JPanel;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.IntegerConstraint;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.IntegerConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
@@ -287,7 +287,7 @@ public class GcimControlPanel extends ControlPanel
 		StringBuffer b = new StringBuffer();
 		ParameterAPI param = ( ParameterAPI ) e.getSource();
 
-		ParameterConstraintAPI constraint = param.getConstraint();
+		ParameterConstraint constraint = param.getConstraint();
 		String oldValueStr = e.getOldValue().toString();
 		String badValueStr = e.getBadValue().toString();
 		String name = param.getName();

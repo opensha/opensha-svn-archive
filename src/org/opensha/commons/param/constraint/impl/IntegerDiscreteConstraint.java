@@ -1,10 +1,18 @@
-package org.opensha.commons.param;
+package org.opensha.commons.param.constraint.impl;
 
 import java.util.ArrayList;
 
+import org.opensha.commons.param.constraint.AbstractParameterConstraint;
+
+
 import com.google.common.base.Preconditions;
 
-public class IntegerDiscreteConstraint extends ParameterConstraint<Integer> {
+public class IntegerDiscreteConstraint extends AbstractParameterConstraint<Integer> {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private static final String S = "IntegerDiscreteConstraint";
 	
 	private ArrayList<Integer> allowed;

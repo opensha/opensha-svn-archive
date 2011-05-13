@@ -30,9 +30,9 @@ import javax.swing.JComboBox;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.LocationConstraint;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.LocationConstraint;
 import org.opensha.commons.param.impl.LocationParameter;
 
 /**
@@ -140,7 +140,7 @@ public class ConstrainedLocationParameterEditor
         if (!(model instanceof LocationParameter))
             throw new ConstraintException(S + "Input model parameter must be a LocationParameter.");
 
-        ParameterConstraintAPI constraint = model.getConstraint();
+        ParameterConstraint constraint = model.getConstraint();
 
         if (!(constraint instanceof LocationConstraint))
             throw new ConstraintException(S + "Input model constraints must be a LocationConstraint.");

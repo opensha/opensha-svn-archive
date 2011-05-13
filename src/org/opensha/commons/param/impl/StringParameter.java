@@ -27,8 +27,8 @@ import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
-import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
@@ -185,7 +185,7 @@ public class StringParameter extends DependentParameter<String> {
      * Sets the constraint reference if it is a StringConstraint
      * and the parameter is currently editable, else throws an exception.
      */
-    public void setConstraint(ParameterConstraintAPI constraint) throws ParameterException, EditableException{
+    public void setConstraint(ParameterConstraint constraint) throws ParameterException, EditableException{
 
         String S = C + ": setConstraint(): ";
         checkEditable(S);
@@ -209,7 +209,7 @@ public class StringParameter extends DependentParameter<String> {
     public String getType() {
         String type = C;
         // Modify if constrained
-        ParameterConstraintAPI constraint = this.constraint;
+        ParameterConstraint constraint = this.constraint;
         if (constraint != null) type = "Constrained" + type;
         return type;
     }

@@ -27,7 +27,7 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.DoubleParameter;

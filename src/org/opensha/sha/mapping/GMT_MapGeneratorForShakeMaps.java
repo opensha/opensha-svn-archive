@@ -40,7 +40,7 @@ import org.opensha.commons.mapping.gmt.elements.PSXYPolygon;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbolSet;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol.Symbol;
-import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.ServerPrefUtils;

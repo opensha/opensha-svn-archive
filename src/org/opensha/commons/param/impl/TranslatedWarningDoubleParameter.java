@@ -26,11 +26,11 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.TranslateException;
 import org.opensha.commons.exceptions.WarningException;
-import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraint;
-import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.constraint.AbstractParameterConstraint;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.TranslatedWarningDoubleParameterEditor;
@@ -454,11 +454,11 @@ public class TranslatedWarningDoubleParameter extends WarningDoubleParameter {
     // *******************************************
 
     /** Direct proxy to wrapped parameter. See that class for documentation. */
-    public void setWarningConstraint(ParameterConstraint warningConstraint){
+    public void setWarningConstraint(AbstractParameterConstraint warningConstraint){
         param.setWarningConstraint(warningConstraint); }
 
     /** Direct proxy to wrapped parameter. See that class for documentation. */
-    public ParameterConstraint getWarningConstraint() throws ParameterException{
+    public AbstractParameterConstraint getWarningConstraint() throws ParameterException{
         return param.getWarningConstraint();}
 
     /** Direct proxy to wrapped parameter. See that class for documentation. */
@@ -625,7 +625,7 @@ public class TranslatedWarningDoubleParameter extends WarningDoubleParameter {
      *
      * @return    The constraint value
      */
-    public ParameterConstraintAPI getConstraint(){
+    public ParameterConstraint getConstraint(){
 
         if( param.getConstraint() == null || !translate ) return param.getConstraint();
         DoubleConstraint constraint = (DoubleConstraint)param.getConstraint();
@@ -638,7 +638,7 @@ public class TranslatedWarningDoubleParameter extends WarningDoubleParameter {
     }
 
     /** Direct proxy to wrapped parameter. See that class for documentation. */
-    public void setConstraint(ParameterConstraintAPI constraint){ param.setConstraint(constraint); }
+    public void setConstraint(ParameterConstraint constraint){ param.setConstraint(constraint); }
 
 
     /** Direct proxy to wrapped parameter. See that class for documentation. */

@@ -27,9 +27,9 @@ import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.DoubleDiscreteConstraint;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
 import org.opensha.commons.param.editor.ConstrainedDoubleDiscreteParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
 
@@ -249,7 +249,7 @@ implements DependentParameterAPI<Double>, ParameterAPI<Double>
 	 * @throws ParameterException   Thrown if constraint is not a DoubleDiscreteConstraint
 	 * @throws EditableException    Thrown if Parameter is currently uneditable.
 	 */
-	public void setConstraint(ParameterConstraintAPI constraint)
+	public void setConstraint(ParameterConstraint constraint)
 	throws ParameterException, EditableException
 	{
 
@@ -275,7 +275,7 @@ implements DependentParameterAPI<Double>, ParameterAPI<Double>
 	public String getType() {
 		String type = C;
 		// Modify if constrained
-		ParameterConstraintAPI constraint = this.constraint;
+		ParameterConstraint constraint = this.constraint;
 		if (constraint != null) type = "Constrained" + type;
 		return type;
 	}

@@ -39,8 +39,8 @@ import javax.swing.border.TitledBorder;
 
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.editor.ConstrainedDoubleParameterEditor;
 import org.opensha.commons.param.editor.StringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -352,7 +352,7 @@ public class LocationGuiBean
 
     //if Lat and Lon parameter constraints are violated
     if (!name.equals(ZIP_CODE_PARAM_NAME)) {
-      ParameterConstraintAPI constraint = param.getConstraint();
+      ParameterConstraint constraint = param.getConstraint();
       b.append("The value ");
       b.append(badValueStr);
       b.append(" is not permitted for '");

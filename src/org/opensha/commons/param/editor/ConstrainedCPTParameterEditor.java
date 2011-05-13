@@ -8,9 +8,9 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 
 import org.opensha.commons.mapping.gmt.gui.CPTListCellRenderer;
-import org.opensha.commons.param.ListBasedConstraint;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.ListBasedConstraint;
 import org.opensha.commons.util.cpt.CPT;
 
 public class ConstrainedCPTParameterEditor extends NewParameterEditor<CPT> implements ItemListener {
@@ -37,7 +37,7 @@ public class ConstrainedCPTParameterEditor extends NewParameterEditor<CPT> imple
 		if (!(param.getValue() instanceof CPT))
 			return false;
 		
-		ParameterConstraintAPI<?> constraint = param.getConstraint();
+		ParameterConstraint<?> constraint = param.getConstraint();
 		if (constraint == null)
 			return false;
 		

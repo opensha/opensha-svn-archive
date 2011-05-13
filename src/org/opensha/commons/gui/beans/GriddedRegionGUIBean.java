@@ -21,8 +21,8 @@ package org.opensha.commons.gui.beans;
 
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.impl.DoubleParameter;
 

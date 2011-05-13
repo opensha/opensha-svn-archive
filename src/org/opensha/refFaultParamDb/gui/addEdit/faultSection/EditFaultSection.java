@@ -39,7 +39,7 @@ import javax.swing.JTextArea;
 
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.editor.ConstrainedDoubleParameterEditor;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.editor.StringParameterEditor;

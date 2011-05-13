@@ -21,7 +21,7 @@ package org.opensha.sha.param;
 
 import java.util.ArrayList;
 
-import org.opensha.commons.param.ParameterConstraint;
+import org.opensha.commons.param.constraint.AbstractParameterConstraint;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**
@@ -36,7 +36,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  */
 
 
-public class MagFreqDistConstraint extends ParameterConstraint {
+public class MagFreqDistConstraint extends AbstractParameterConstraint {
 
   /** Class name for debugging. */
   protected final static String C = "MagFreqDistConstraint";

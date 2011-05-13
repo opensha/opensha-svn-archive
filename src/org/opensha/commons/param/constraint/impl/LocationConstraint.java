@@ -17,13 +17,15 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param;
+package org.opensha.commons.param.constraint.impl;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.param.constraint.DiscreteParameterConstraint;
+import org.opensha.commons.param.constraint.AbstractParameterConstraint;
 
 /**
  * <b>Title:</b> LocationConstraint<p>
@@ -38,11 +40,15 @@ import org.opensha.commons.geo.Location;
  */
 
 public class LocationConstraint
-        extends ParameterConstraint<Location>
-        implements DiscreteParameterConstraintAPI<Location>
+        extends AbstractParameterConstraint<Location>
+        implements DiscreteParameterConstraint<Location>
 {
 
-    /** Class name for debugging. */
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/** Class name for debugging. */
     protected final static String C = "LocationConstraint";
     /** If true print out debug statements. */
     protected final static boolean D = false;

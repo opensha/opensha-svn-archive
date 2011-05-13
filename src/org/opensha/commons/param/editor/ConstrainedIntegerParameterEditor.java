@@ -23,9 +23,9 @@ import java.awt.Color;
 
 import javax.swing.JComponent;
 
-import org.opensha.commons.param.IntegerConstraint;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.constraint.impl.IntegerConstraint;
 import org.opensha.commons.util.ParamUtils;
 
 

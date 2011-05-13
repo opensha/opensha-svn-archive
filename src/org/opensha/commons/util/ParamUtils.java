@@ -19,11 +19,11 @@
 
 package org.opensha.commons.util;
 
-import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.DoubleDiscreteConstraint;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
 
 /**
  * <b>Title:</b>ParamUtils<p>
@@ -58,7 +58,7 @@ public class ParamUtils {
      * @return          boolean true if constraint is DOubleConstraint, false otherwise.
      */
     public static boolean isDoubleConstraint(ParameterAPI param) {
-        ParameterConstraintAPI constraint = param.getConstraint();
+        ParameterConstraint constraint = param.getConstraint();
         if ( constraint instanceof DoubleConstraint ) return true;
         else return false;
     }
@@ -69,7 +69,7 @@ public class ParamUtils {
      * @return          boolean if is either parameter type
      */
     public static boolean isDoubleDiscreteConstraint(ParameterAPI param) {
-        ParameterConstraintAPI constraint = param.getConstraint();
+        ParameterConstraint constraint = param.getConstraint();
         if ( constraint instanceof DoubleDiscreteConstraint ) return true;
         else return false;
     }

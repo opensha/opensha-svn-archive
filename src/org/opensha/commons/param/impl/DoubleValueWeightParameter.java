@@ -10,10 +10,10 @@ import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.DoubleValueWeightConstraint;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleValueWeightConstraint;
 import org.opensha.commons.param.editor.DoubleValueWeightParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditor;
 
@@ -310,7 +310,7 @@ public class DoubleValueWeightParameter extends DependentParameter
      * @throws ParameterException   Thrown if constraint is not a DoubleValueWeightConstraint.
      * @throws EditableException    Thrown if the parameter is currently uneditable.
      */
-    public void setConstraint(ParameterConstraintAPI constraint)
+    public void setConstraint(ParameterConstraint constraint)
         throws ParameterException, EditableException
     {
 

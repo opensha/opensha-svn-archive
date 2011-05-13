@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param;
+package org.opensha.commons.param.constraint;
 
 import org.opensha.commons.exceptions.EditableException;
 
@@ -39,16 +39,20 @@ import org.opensha.commons.exceptions.EditableException;
  * @author Steven W. Rock
  * @version 1.0
  */
-public abstract class ParameterConstraint<E> implements ParameterConstraintAPI<E> {
+public abstract class AbstractParameterConstraint<E> implements ParameterConstraint<E> {
 
-    /** Class name for debugging. */
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/** Class name for debugging. */
     protected final static String C = "ParameterConstraint";
     /** If true print out debug statements. */
     protected final static boolean D = false;
 
 
     /** No arg constructor does nothing. */
-    public ParameterConstraint() {}
+    public AbstractParameterConstraint() {}
 
     /** This value indicates if the value is editable after it is first set. */
     protected boolean editable = true;

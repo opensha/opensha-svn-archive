@@ -28,6 +28,7 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.metadata.XMLSaveable;
+import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 
 /**
@@ -81,7 +82,7 @@ public abstract class Parameter<E> implements ParameterAPI<E> {
 	protected String units = "";
 
 	/** The constraint for this Parameter. This is consulted when setting values */
-	protected ParameterConstraintAPI constraint = null;
+	protected ParameterConstraint constraint = null;
 
 	/**
 	 * This value indicates if fields and constraint in this
@@ -136,7 +137,7 @@ public abstract class Parameter<E> implements ParameterAPI<E> {
 	 * @throws  ConstraintException     This is thrown if the passes in
 	 *      parameter is not allowed.
 	 */
-	public Parameter( String name, ParameterConstraintAPI constraint, String units, E value )
+	public Parameter( String name, ParameterConstraint constraint, String units, E value )
 	throws ConstraintException {
 
 		String S = C + ": Constructor(): ";
@@ -415,7 +416,7 @@ public abstract class Parameter<E> implements ParameterAPI<E> {
 	public String getUnits() { return units; }
 
 	/** Gets the constraints of this parameter. */
-	public ParameterConstraintAPI getConstraint() { return constraint; }
+	public ParameterConstraint getConstraint() { return constraint; }
 
 
 	/**
@@ -425,7 +426,7 @@ public abstract class Parameter<E> implements ParameterAPI<E> {
 	 *
 	 * @return    The constraint value
 	 */
-	public void setConstraint(ParameterConstraintAPI constraint) throws EditableException{
+	public void setConstraint(ParameterConstraint constraint) throws EditableException{
 		checkEditable(C + ": setConstraint(): ");
 		//setting the new constraint for the parameter
 		this.constraint = constraint;

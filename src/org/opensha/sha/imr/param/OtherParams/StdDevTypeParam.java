@@ -19,7 +19,7 @@
 
 package org.opensha.sha.imr.param.OtherParams;
 
-import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.impl.StringParameter;
 
 /**

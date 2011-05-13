@@ -9,8 +9,8 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
-import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.param.editor.MagDistStringParameterEditor;
@@ -93,7 +93,7 @@ public class MagDistStringParameter extends StringParameter {
      * Sets the constraint reference if it is a StringConstraint
      * and the parameter is currently editable, else throws an exception.
      */
-    public void setConstraint(ParameterConstraintAPI constraint) throws ParameterException, EditableException{
+    public void setConstraint(ParameterConstraint constraint) throws ParameterException, EditableException{
 
         String S = C + ": setConstraint(): ";
         checkEditable(S);

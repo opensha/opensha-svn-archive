@@ -24,11 +24,11 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.IntegerConstraint;
-import org.opensha.commons.param.IntegerDiscreteConstraint;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.IntegerConstraint;
+import org.opensha.commons.param.constraint.impl.IntegerDiscreteConstraint;
 import org.opensha.commons.param.editor.ConstrainedIntegerDiscreteParameterEditor;
 import org.opensha.commons.param.editor.ConstrainedIntegerParameterEditor;
 import org.opensha.commons.param.editor.IntegerParameterEditor;
@@ -327,7 +327,7 @@ implements DependentParameterAPI<Integer>, ParameterAPI<Integer>
 	 * is currently editable. If this parameter is set non-editable
 	 * an EditableConstraint is thrown.
 	 */
-	public void setConstraint(ParameterConstraintAPI constraint) throws ParameterException{
+	public void setConstraint(ParameterConstraint constraint) throws ParameterException{
 
 		String S = C + ": setConstraint(): ";
 		checkEditable(S);
@@ -384,7 +384,7 @@ implements DependentParameterAPI<Integer>, ParameterAPI<Integer>
 	public String getType() {
 		String type = C;
 		// Modify if constrained
-		ParameterConstraintAPI constraint = this.constraint;
+		ParameterConstraint constraint = this.constraint;
 		if (constraint != null) type = "Constrained" + type;
 		return type;
 	}

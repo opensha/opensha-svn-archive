@@ -32,9 +32,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.opensha.commons.exceptions.ConstraintException;
-import org.opensha.commons.param.DoubleDiscreteConstraint;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
 
 /**
  * <b>Title:</b> ConstrainedDoubleDiscreteParameterEditor<p>
@@ -106,7 +106,7 @@ implements ItemListener
 		if (!(param.getValue() instanceof Double))
 			return false;
 
-		ParameterConstraintAPI constraint = param.getConstraint();
+		ParameterConstraint constraint = param.getConstraint();
 		
 		if (constraint == null)
 			return false;

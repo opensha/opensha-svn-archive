@@ -17,15 +17,20 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param;
+package org.opensha.commons.param.constraint.impl;
 
 import org.opensha.commons.exceptions.EditableException;
+import org.opensha.commons.param.constraint.AbstractParameterConstraint;
 
 /**
- * <b>Title:</b> DoubleConstraint<p>
+ *  <b>Title:</b> IntegerConstraint<p>
  *
- * <b>Description:</b> A doubleConstraint represents a range of allowed
- * values between a min and max double value, inclusive. The main purpose of
+ *  <b>Description:</b> Constraint Object containing a min and max integer value
+ *  allowed. Need a check that min is less that max. If min == max that means
+ *  only one discrete value is allowed <p>
+ *
+ *  <b>Description:</b> A Integer Constraint represents a range of allowed
+ * values between a min and max integer value, inclusive. The main purpose of
  * this class is to call isAllowed() which will return true if the value
  * is withing the range. Null values may or may not be allowed. See the
  * ParameterConstraint javadocs for further documentation. <p>
@@ -34,51 +39,72 @@ import org.opensha.commons.exceptions.EditableException;
  * min value is less than the max value. As an enhancement to this class
  * setting min and max could be validated that min is not greater than max. <p>
  *
- * @see ParameterConstraint
+ * @see AbstractParameterConstraint
  * @author     Sid Hellman, Steven W. Rock
- * @created    February 20, 2002
+ * @created    February 21, 2002
  * @version    1.0
  */
-public class DoubleConstraint extends ParameterConstraint<Double> {
+public class IntegerConstraint extends AbstractParameterConstraint<Integer>  {
 
-    /** Class name for debugging. */
-    protected final static String C = "DoubleConstraint";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/** Class name for debugging. */
+    protected final static String C = "IntegerConstraint";
     /** If true print out debug statements. */
     protected final static boolean D = false;
 
-
-    /** The minimum value allowed in this constraint, inclusive */
-    protected Double min = null;
+     /** The minimum value allowed in this constraint, inclusive */
+    protected Integer min = null;
     /** The maximum value allowed in this constraint, inclusive */
-    protected Double max = null;
+    protected Integer max = null;
+
 
     /** No-Arg Constructor, constraints are null so all values allowed */
-    public DoubleConstraint() { super(); }
+    public IntegerConstraint() { super(); }
 
 
     /**
-     * Constructor for the DoubleConstraint object. Sets the min and max values
-     * allowed in this constraint. No checks are performed that min and max are
-     * consistant with each other.
+     * Constructor that sets the constraints during instantiation.
+     * Sets the min and max values allowed in this constraint. No checks
+     * are performed that min and max are consistant with each other.<P>
      *
      * @param  min  The min value allowed
      * @param  max  The max value allowed
      */
-    public DoubleConstraint( double min, double max ) {
-        this.min = new Double(min);
-        this.max = new Double(max);
+    public IntegerConstraint( int min, int max ) {
+        this.min = new Integer( min );
+        this.max = new Integer( max );
+    }
+
+    /**
+     * Constructor that sets the constraints during instantiation.
+     * Sets the min and max values allowed in this constraint. No checks
+     * are performed that min and max are consistant with each other.<P>
+     *
+     * @param  min  The min value allowed
+     * @param  max  The max value allowed
+     */
+    public IntegerConstraint( Integer min, Integer max ) {
+        this.min = min;
+        this.max = max;
     }
 
 
-    /**
-     * Constructor for the DoubleConstraint object. Sets the min and max values
-     * allowed in this constraint. No checks are performed that min and max are
-     * consistant with each other.
-     *
-     * @param  min  The min value allowed
-     * @param  max  The max value allowed
-     */
-    public DoubleConstraint( Double min, Double max ) {
+    /** Sets the min and max values allowed in this constraint. No checks
+      * are performed that min and max are consistant with each other.
+      *
+      * @param  min  The new min value
+      * @param  max  The new max value
+      * @throws EditableException Thrown when the constraint or parameter
+      * containing this constraint has been made non-editable.
+      */
+    public void setMinMax( Integer min, Integer max ) throws EditableException {
+
+        String S = C + ": setMinMax(): ";
+        checkEditable(S);
+
         this.min = min;
         this.max = max;
     }
@@ -92,40 +118,23 @@ public class DoubleConstraint extends ParameterConstraint<Double> {
      * @throws EditableException Thrown when the constraint or parameter
      * containing this constraint has been made non-editable.
      */
-    public void setMinMax( double min, double max ) throws EditableException {
-        String S = C + ": setMinMax(double, double): ";
-        checkEditable(S);
-        this.min = new Double( min ) ;
-        this.max = new Double( max ) ;
+    public void setMinMax( int min, int max ) throws EditableException {
+        setMinMax( new Integer( min ), new Integer( max ) );
     }
 
 
-    /** Sets the min and max values allowed in this constraint. No checks
-     * are performed that min and max are consistant with each other.
-     *
-     * @param  min  The new min value
-     * @param  max  The new max value
-     * @throws EditableException Thrown when the constraint or parameter
-     * containing this constraint has been made non-editable.
-     */
-    public void setMinMax( Double min, Double max ) throws EditableException {
-        String S = C + ": setMinMax(Double, Double): ";
-        checkEditable(S);
-        this.min = min;
-        this.max = max;
-    }
 
 
     /** Returns the min allowed value of this constraint. */
-    public Double getMin() { return min; }
+    public Integer getMin() { return min; }
 
     /** Gets the max allowed value of this constraint */
-    public Double getMax() { return max; }
+    public Integer getMax() { return max; }
 
     /**
      * Checks if the passed in value is within the min and max, inclusive of
      * the end points. First the value is chekced if it's null and null values
-     * are allowed. Then it checks the passed in object is a Double. If the
+     * are allowed. Then it checks the passed in object is a Integer. If the
      * constraint min and max values are null, true is returned, else the value
      * is compared against the min and max values. If any of these checks fails
      * false is returned. Otherwise true is returned.
@@ -133,11 +142,12 @@ public class DoubleConstraint extends ParameterConstraint<Double> {
      * @param  obj  The object to check if allowed.
      * @return      True if this is a Double and one of the allowed values.
      */
-    public boolean isAllowed( Double d ) {
-        if( d == null ) return nullAllowed;
+    public boolean isAllowed( Integer i ) {
+        if( nullAllowed && ( i == null ) ) return true;
         if( ( min == null ) || ( max == null ) ) return true;
-        else if( ( d.compareTo(min) >= 0 ) && ( d.compareTo(max) <= 0 ) ) return true;
-        return false;
+        else if( ( i.compareTo( this.min ) >= 0 ) && ( i.compareTo( this.max ) <= 0 ) )
+            return true;
+        else return false;
     }
 
 
@@ -151,16 +161,18 @@ public class DoubleConstraint extends ParameterConstraint<Double> {
      * @param  obj  The object to check if allowed.
      * @return      True if this is one of the allowed values.
      */
-    public boolean isAllowed( double d ) { return isAllowed( new Double( d ) ); }
+    public boolean isAllowed( int i ) {
+        return isAllowed( new Integer( i ) );
+    }
 
 
-    /** returns the classname of the constraint, and the min & max as a debug string */
+    /** Returns the classname of the constraint, and the min & max as a debug string */
     public String toString() {
         String TAB = "    ";
         StringBuffer b = new StringBuffer();
-        if( name != null ) b.append( TAB + "Name = " + name + '\n' );
-        if( min != null ) b.append( TAB + "Min = " + min.toString() + '\n' );
-        if( max != null ) b.append( TAB + "Max = " + max.toString() + '\n' );
+        if( name != null) b.append( TAB + "Name = " + name + '\n' );
+        if( min != null)  b.append( TAB + "Min = " + min.toString() + '\n' );
+        if( max != null) b.append( TAB + "Max = " + max.toString() + '\n' );
         b.append( TAB + "Null Allowed = " + this.nullAllowed+ '\n' );
         return b.toString();
     }
@@ -168,7 +180,7 @@ public class DoubleConstraint extends ParameterConstraint<Double> {
 
     /** Creates a copy of this object instance so the original cannot be altered. */
     public Object clone() {
-        DoubleConstraint c1 = new DoubleConstraint( min, max );
+        IntegerConstraint c1 = new IntegerConstraint( min, max );
         c1.setName( name );
         c1.setNullAllowed( nullAllowed );
         c1.editable = true;

@@ -21,6 +21,7 @@ package org.opensha.commons.param;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.param.constraint.AbstractParameterConstraint;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 
@@ -52,10 +53,10 @@ public interface WarningParameterAPI<E> extends ParameterAPI<E> {
     public boolean isIgnoreWarning();
 
     /** Sets the warning constraint in this parameter as a ParameterConstraint. */
-    public void setWarningConstraint(ParameterConstraint warningConstraint);
+    public void setWarningConstraint(AbstractParameterConstraint warningConstraint);
 
     /** Gets the warning constraint in this parameter as a ParameterConstraint. */
-    public ParameterConstraint getWarningConstraint() throws ParameterException;
+    public AbstractParameterConstraint getWarningConstraint() throws ParameterException;
 
 
     /**

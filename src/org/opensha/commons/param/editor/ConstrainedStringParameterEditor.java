@@ -33,8 +33,8 @@ import javax.swing.JPanel;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
-import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.impl.StringParameter;
 
 /**
@@ -111,7 +111,7 @@ implements ItemListener
 		if (!(param instanceof StringParameter))
 			return false;
 
-		ParameterConstraintAPI constraint = param.getConstraint();
+		ParameterConstraint constraint = param.getConstraint();
 
 		if (!(constraint instanceof StringConstraint))
 			return false;

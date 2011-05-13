@@ -32,8 +32,8 @@ import javax.swing.JOptionPane;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -450,7 +450,7 @@ public class MagPDF_ParameterEditor
     StringBuffer b = new StringBuffer();
 
     ParameterAPI param = (ParameterAPI) e.getSource();
-    ParameterConstraintAPI constraint = param.getConstraint();
+    ParameterConstraint constraint = param.getConstraint();
     String oldValueStr = e.getOldValue().toString();
     String badValueStr = e.getBadValue().toString();
     String name = param.getName();

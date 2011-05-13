@@ -17,10 +17,11 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param;
+package org.opensha.commons.param.constraint;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
+
 
 /**
  * <b>Title:</b> DiscreteParameterConstraintAPI<p>
@@ -33,7 +34,7 @@ import java.util.ListIterator;
  * @version 1.0
  */
 
-public interface DiscreteParameterConstraintAPI<E> extends ParameterConstraintAPI<E> {
+public interface DiscreteParameterConstraint<E> extends ParameterConstraint<E> {
 
     /** Returns cloned vector of allowed values, unable to modify original values. */
     public ArrayList getAllowedValues();

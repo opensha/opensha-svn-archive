@@ -31,8 +31,8 @@ import javax.swing.event.ListSelectionListener;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
-import org.opensha.commons.param.StringListConstraint;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.StringListConstraint;
 import org.opensha.commons.param.impl.StringListParameter;
 
 /**
@@ -133,7 +133,7 @@ public class ConstrainedStringListParameterEditor
         if (!(model instanceof StringListParameter))
             throw new ConstraintException(S + "Input model parameter must be a StringListParameter.");
 
-        ParameterConstraintAPI constraint = model.getConstraint();
+        ParameterConstraint constraint = model.getConstraint();
 
         if (!(constraint instanceof StringListConstraint))
             throw new ConstraintException(S + "Input model constraints must be a StringListConstraint.");

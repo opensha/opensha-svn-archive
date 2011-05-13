@@ -33,9 +33,9 @@ import javax.swing.JOptionPane;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.editor.EvenlyDiscretizedFuncParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.ParameterListEditor;
@@ -627,7 +627,7 @@ public class MagFreqDistParameterEditor
     StringBuffer b = new StringBuffer();
 
     ParameterAPI param = (ParameterAPI) e.getSource();
-    ParameterConstraintAPI constraint = param.getConstraint();
+    ParameterConstraint constraint = param.getConstraint();
     String oldValueStr = e.getOldValue().toString();
     String badValueStr = e.getBadValue().toString();
     String name = param.getName();

@@ -29,10 +29,10 @@ import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.param.DependentParameter;
-import org.opensha.commons.param.LocationConstraint;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.LocationConstraint;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.RegionParameterEditor;
 
@@ -173,7 +173,7 @@ public class RegionParameter extends DependentParameter<Region> {
 	 * Sets the constraint reference if it is a StringConstraint
 	 * and the parameter is currently editable, else throws an exception.
 	 */
-	public void setConstraint(ParameterConstraintAPI constraint) throws ParameterException, EditableException{
+	public void setConstraint(ParameterConstraint constraint) throws ParameterException, EditableException{
 
 		String S = C + ": setConstraint(): ";
 		checkEditable(S);

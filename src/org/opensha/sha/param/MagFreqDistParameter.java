@@ -29,9 +29,9 @@ import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.EvenlyDiscretizedFuncParameter;
@@ -274,7 +274,7 @@ implements java.io.Serializable
 	 *  Sets the constraint if it is a StringConstraint and the parameter
 	 *  is currently editable.
 	 */
-	public void setConstraint(ParameterConstraintAPI constraint)
+	public void setConstraint(ParameterConstraint constraint)
 	throws ParameterException, EditableException
 	{
 

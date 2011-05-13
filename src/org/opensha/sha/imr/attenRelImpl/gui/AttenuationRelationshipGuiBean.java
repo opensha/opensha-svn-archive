@@ -38,14 +38,14 @@ import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.DiscreteParameterConstraintAPI;
-import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.DoubleDiscreteConstraint;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.constraint.DiscreteParameterConstraint;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.ParameterListEditor;
@@ -1391,9 +1391,9 @@ ParameterChangeListener, ParameterChangeFailListener
 			if ( !( param instanceof StringParameter ) && !( param instanceof BooleanParameter)) {
 
 				// If DoubleDiscreteConstraint check that it has more than one value to plot on xaxis
-				ParameterConstraintAPI constraint = param.getConstraint();
-				if ( constraint instanceof DiscreteParameterConstraintAPI ) {
-					int size = ( ( DiscreteParameterConstraintAPI ) constraint ).getAllowedValues().size();
+				ParameterConstraint constraint = param.getConstraint();
+				if ( constraint instanceof DiscreteParameterConstraint ) {
+					int size = ( ( DiscreteParameterConstraint ) constraint ).getAllowedValues().size();
 					if ( size < 2 )
 						add = false;
 				}
@@ -1492,7 +1492,7 @@ ParameterChangeListener, ParameterChangeFailListener
 			else{
 
 				// Extract constraint
-				ParameterConstraintAPI constraint = param.getConstraint();
+				ParameterConstraint constraint = param.getConstraint();
 
 				// Get min/max from Double Constraint
 				if ( ParamUtils.isDoubleConstraint( param ) ) {
@@ -1556,7 +1556,7 @@ ParameterChangeListener, ParameterChangeFailListener
 
 				// Extract constraint
 				//ParameterConstraintAPI constraint =
-				ParameterConstraintAPI constraint = param.getWarningConstraint();
+				ParameterConstraint constraint = param.getWarningConstraint();
 				if( constraint == null ) constraint = param.getConstraint();
 
 				// Get min/max from Double Constraint

@@ -1,8 +1,11 @@
-package org.opensha.commons.param;
+package org.opensha.commons.param.constraint.impl;
 
 import java.util.Collection;
 
-public class ListBasedConstraint<E> extends ParameterConstraint<E> {
+import org.opensha.commons.param.constraint.AbstractParameterConstraint;
+
+
+public class ListBasedConstraint<E> extends AbstractParameterConstraint<E> {
 	
 	/**
 	 * 

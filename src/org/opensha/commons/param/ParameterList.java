@@ -28,6 +28,8 @@ import java.util.ListIterator;
 import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.param.constraint.DiscreteParameterConstraint;
+import org.opensha.commons.param.constraint.ParameterConstraint;
 
 /**
  * <b>Title:</b> ParameterList<p>
@@ -495,12 +497,12 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
 
 			int index = getIndexOf(key);
 			ParameterAPI param = (ParameterAPI)params.get(index);
-			ParameterConstraintAPI constraint = param.getConstraint();
+			ParameterConstraint constraint = param.getConstraint();
 
 			boolean ok = true;
-			if(constraint instanceof DiscreteParameterConstraintAPI){
+			if(constraint instanceof DiscreteParameterConstraint){
 
-				int size = ((DiscreteParameterConstraintAPI)constraint).size();
+				int size = ((DiscreteParameterConstraint)constraint).size();
 				if( size < 2) ok = false;
 
 			}

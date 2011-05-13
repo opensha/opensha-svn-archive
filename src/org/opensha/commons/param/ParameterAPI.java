@@ -24,6 +24,7 @@ import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.metadata.XMLSaveable;
+import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 
@@ -99,13 +100,13 @@ public interface ParameterAPI<E> extends
      * Returns the constraint of this parameter. Each
      * subclass may store any type of constraint it likes.
      */
-    public ParameterConstraintAPI getConstraint();
+    public ParameterConstraint getConstraint();
 
     /**
      * Sets the constraints of this parameter. Each
      * subclass may store any type of constraint it likes.
      */
-    public void setConstraint(ParameterConstraintAPI constraint);
+    public void setConstraint(ParameterConstraint constraint);
 
 
     /** Returns the units of this parameter, represented as a String. */

@@ -27,6 +27,7 @@ import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.param.constraint.ParameterConstraint;
 
 /**
  * <b>Title:</b> DependentParameter<p>
@@ -85,7 +86,7 @@ public abstract class DependentParameter<E> extends Parameter<E> implements
 	 */
 	public DependentParameter(
 			String name,
-			ParameterConstraintAPI<E> constraint,
+			ParameterConstraint<E> constraint,
 			String units,
 			E value )
 	throws ConstraintException

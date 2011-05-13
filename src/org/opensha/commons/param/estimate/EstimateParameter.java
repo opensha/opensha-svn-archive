@@ -27,7 +27,7 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.estimate.ConstrainedEstimateParameterEditor;
 
@@ -163,7 +163,7 @@ public class EstimateParameter extends DependentParameter<Estimate> {
 	public String getType() {
 		String type = C;
 		// Modify if constrained
-		ParameterConstraintAPI constraint = this.constraint;
+		ParameterConstraint constraint = this.constraint;
 		if (constraint != null) type = "Constrained" + type;
 		return type;
 	}

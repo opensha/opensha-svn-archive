@@ -25,10 +25,10 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.WarningException;
-import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraint;
 import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.constraint.AbstractParameterConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.param.editor.ConstrainedDoubleParameterEditor;
 import org.opensha.commons.param.editor.DoubleParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditor;
@@ -137,7 +137,7 @@ implements WarningParameterAPI<Double>
 	 * @throws ParameterException   Thrown if the constraint is not a DoubleConstraint
 	 * @throws EditableException    Thrown if the isEditable flag set to false.
 	 */
-	public void setWarningConstraint(ParameterConstraint warningConstraint)
+	public void setWarningConstraint(AbstractParameterConstraint warningConstraint)
 	throws ParameterException, EditableException
 	{
 		if( !this.editable ) throw new EditableException(C + ": setStrings(): " +
@@ -147,7 +147,7 @@ implements WarningParameterAPI<Double>
 	}
 
 	/** Returns the warning constraint. May return null. */
-	public ParameterConstraint getWarningConstraint() throws ParameterException{
+	public AbstractParameterConstraint getWarningConstraint() throws ParameterException{
 		return warningConstraint;
 	}
 
