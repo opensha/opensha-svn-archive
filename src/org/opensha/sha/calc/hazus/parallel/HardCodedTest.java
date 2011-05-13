@@ -57,7 +57,7 @@ public class HardCodedTest {
 	private static SimpleDateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm");
 	private static final boolean constrainBasinMin = false;
 	
-	private static final boolean prop_effect_speedup = false;
+	private static final boolean prop_effect_speedup = true;
 	
 	private static MeanUCERF2 getUCERF2(int years, int startYear, boolean includeBackSeis) {
 		MeanUCERF2 ucerf = new MeanUCERF2();
@@ -118,8 +118,8 @@ public class HardCodedTest {
 	}
 
 	private static ScalarIntensityMeasureRelationshipAPI getIMR(double sigmaTrunc){
-//		ScalarIntensityMeasureRelationshipAPI attenRel = getNGA_2008IMR();
-		ScalarIntensityMeasureRelationshipAPI attenRel = getUSGSCombined2008IMR();
+		ScalarIntensityMeasureRelationshipAPI attenRel = getNGA_2008IMR();
+//		ScalarIntensityMeasureRelationshipAPI attenRel = getUSGSCombined2008IMR();
 //		ScalarIntensityMeasureRelationshipAPI attenRel = getCB_2008IMR();
 		attenRel.getParameter(Vs30_Param.NAME).setValue(new Double(760));
 		if (sigmaTrunc > 0) {
@@ -160,8 +160,9 @@ public class HardCodedTest {
 //		SiteDataValue<?> hardcodedVal =
 //			new SiteDataValue<String>(SiteDataAPI.TYPE_WILLS_CLASS, SiteDataAPI.TYPE_FLAG_INFERRED, "B");
 		boolean nullBasin = true;
-		SiteDataValue<?> hardcodedVal =
-			new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30, SiteDataAPI.TYPE_FLAG_INFERRED, 760.0);
+//		SiteDataValue<?> hardcodedVal =
+//			new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30, SiteDataAPI.TYPE_FLAG_INFERRED, 760.0);
+		SiteDataValue<?> hardcodedVal = null;
 		
 		double sigmaTrunc = 3;
 		ScalarIntensityMeasureRelationshipAPI imr = getIMR(sigmaTrunc);
