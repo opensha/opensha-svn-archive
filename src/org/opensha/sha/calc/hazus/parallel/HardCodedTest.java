@@ -159,6 +159,7 @@ public class HardCodedTest {
 					" <T/F: time dependent> <"+NSHMP_08_NAME+"/"+MultiIMR_NAME+"/"+MultiIMR_NO_AS_NAME+">"+
 					" <T/F: prop effect speedup> <T/F: back seis>"+
 					" <HardCoded Vs30 (or 'null' for site data providers>");
+			System.exit(2);
 		}
 		boolean timeDep = Boolean.parseBoolean(args[0]);
 		String imrStr = args[1];
