@@ -154,11 +154,12 @@ public class HardCodedTest {
 	private static final String MultiIMR_NO_AS_NAME = "MultiIMRnoAS";
 
 	public static void main(String args[]) throws IOException, InvocationTargetException {
-		if (args.length != 5) {
+		if (args.length != 6) {
 			System.err.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(HardCodedTest.class)+
 					" <T/F: time dependent> <"+NSHMP_08_NAME+"/"+MultiIMR_NAME+"/"+MultiIMR_NO_AS_NAME+">"+
 					" <T/F: prop effect speedup> <T/F: back seis>"+
-					" <HardCoded Vs30 (or 'null' for site data providers>");
+					" <HardCoded Vs30 (or 'null' for site data providers>+" +
+					" <dir name>");
 			System.exit(2);
 		}
 		boolean timeDep = Boolean.parseBoolean(args[0]);
@@ -172,6 +173,7 @@ public class HardCodedTest {
 		else
 			hardcodedVal = new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30, SiteDataAPI.TYPE_FLAG_INFERRED,
 					Double.parseDouble(vs30Str));
+		String dirName = args[5];
 		
 		int years = 50;
 		int startYear;
@@ -316,7 +318,8 @@ public class HardCodedTest {
 		imtXValMap.put(SA_Param.NAME, imtInfo.getDefaultHazardCurve(SA_Param.NAME));
 		CalculationSettings calcSet = new CalculationSettings(imtXValMap, 200.0);
 		
-		String jobDir = "/home/scec-00/kmilner/hazMaps/hazus_test-" + df.format(new Date()) + "/";
+//		String jobDir = "/home/scec-00/kmilner/hazMaps/hazus_test-" + df.format(new Date()) + "/";
+		String jobDir = "/home/scec-00/kmilner/hazMaps/"+dirName+"/";
 		String curveDir = jobDir + "curves/";
 		CurveResultsArchiver archiver = new AsciiFileCurveArchiver(curveDir, true, false);
 		
