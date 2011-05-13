@@ -25,6 +25,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.util.ClassUtils;
 import org.opensha.sha.calc.hazardMap.components.AsciiFileCurveArchiver;
 import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
 import org.opensha.sha.calc.hazardMap.components.CurveResultsArchiver;
@@ -56,8 +57,6 @@ public class HardCodedTest {
 	
 	private static SimpleDateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm");
 	private static final boolean constrainBasinMin = false;
-	
-	private static final boolean prop_effect_speedup = true;
 	
 	private static MeanUCERF2 getUCERF2(int years, int startYear, boolean includeBackSeis) {
 		MeanUCERF2 ucerf = new MeanUCERF2();
@@ -109,16 +108,16 @@ public class HardCodedTest {
 		return imr;
 	}
 	
-	private static ScalarIntensityMeasureRelationshipAPI getNGA_2008IMR() {
+	private static ScalarIntensityMeasureRelationshipAPI getNGA_2008IMR(boolean propEffectSpeedup) {
 //		ScalarIntensityMeasureRelationshipAPI imr = new NGA_2008_Averaged_AttenRel(null);
 		ScalarIntensityMeasureRelationshipAPI imr = new NGA_2008_Averaged_AttenRel_NoAS(null);
 		imr.setParamDefaults();
-		imr.getParameter(MultiIMR_Averaged_AttenRel.PROP_EFFECT_SPEEDUP_PARAM_NAME).setValue(prop_effect_speedup);
+		imr.getParameter(MultiIMR_Averaged_AttenRel.PROP_EFFECT_SPEEDUP_PARAM_NAME).setValue(propEffectSpeedup);
 		return imr;
 	}
 
-	private static ScalarIntensityMeasureRelationshipAPI getIMR(double sigmaTrunc){
-		ScalarIntensityMeasureRelationshipAPI attenRel = getNGA_2008IMR();
+	private static ScalarIntensityMeasureRelationshipAPI getIMR(String name, double sigmaTrunc, boolean propEffectSpeedup){
+		ScalarIntensityMeasureRelationshipAPI attenRel = getNGA_2008IMR(propEffectSpeedup);
 //		ScalarIntensityMeasureRelationshipAPI attenRel = getUSGSCombined2008IMR();
 //		ScalarIntensityMeasureRelationshipAPI attenRel = getCB_2008IMR();
 		attenRel.getParameter(Vs30_Param.NAME).setValue(new Double(760));
@@ -149,12 +148,36 @@ public class HardCodedTest {
 		
 		return locs;
 	}
+	
+	private static final String NSHMP_08_NAME = "NSHMP08";
+	private static final String MultiIMR_NAME = "MultiIMR";
+	private static final String MultiIMR_NO_AS_NAME = "MultiIMRnoAS";
 
 	public static void main(String args[]) throws IOException, InvocationTargetException {
+		if (args.length != 5) {
+			System.err.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(HardCodedTest.class)+
+					" <T/F: time dependent> <"+NSHMP_08_NAME+"/"+MultiIMR_NAME+"/"+MultiIMR_NO_AS_NAME+">"+
+					" <T/F: prop effect speedup> <T/F: back seis>"+
+					" <HardCoded Vs30 (or 'null' for site data providers>");
+		}
+		boolean timeDep = Boolean.parseBoolean(args[0]);
+		String imrStr = args[1];
+		boolean propEffectSpeedup = Boolean.parseBoolean(args[2]);
+		boolean includeBackSeis = Boolean.parseBoolean(args[3]);
+		String vs30Str = args[4];
+		SiteDataValue<?> hardcodedVal;
+		if (vs30Str.equals("null"))
+			hardcodedVal = null;
+		else
+			hardcodedVal = new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30, SiteDataAPI.TYPE_FLAG_INFERRED,
+					Double.parseDouble(vs30Str));
+		
 		int years = 50;
-//		int startYear = 2010;
-		int startYear = -1;
-		boolean includeBackSeis = true;
+		int startYear;
+		if (timeDep)
+			startYear = 2011;
+		else
+			startYear = -1;
 		EqkRupForecast erf = getERF(years, startYear, includeBackSeis);
 		
 //		SiteDataValue<?> hardcodedVal =
@@ -162,10 +185,10 @@ public class HardCodedTest {
 		boolean nullBasin = true;
 //		SiteDataValue<?> hardcodedVal =
 //			new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30, SiteDataAPI.TYPE_FLAG_INFERRED, 760.0);
-		SiteDataValue<?> hardcodedVal = null;
+//		SiteDataValue<?> hardcodedVal = null;
 		
 		double sigmaTrunc = 3;
-		ScalarIntensityMeasureRelationshipAPI imr = getIMR(sigmaTrunc);
+		ScalarIntensityMeasureRelationshipAPI imr = getIMR(imrStr, sigmaTrunc, propEffectSpeedup);
 		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap =
 			TRTUtils.wrapInHashMap(imr);
 		ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps = 
