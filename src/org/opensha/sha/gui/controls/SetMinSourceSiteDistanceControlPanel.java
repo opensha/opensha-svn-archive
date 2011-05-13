@@ -26,9 +26,9 @@ import java.awt.Insets;
 
 import javax.swing.JFrame;
 
-import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.editor.DoubleParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
+import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.params.MaxDistanceParam;
 

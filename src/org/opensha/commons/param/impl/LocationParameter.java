@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param;
+package org.opensha.commons.param.impl;
 
 import java.util.ArrayList;
 
@@ -27,6 +27,12 @@ import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.param.DependentParameter;
+import org.opensha.commons.param.DoubleConstraint;
+import org.opensha.commons.param.LocationConstraint;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ConstrainedLocationParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.ParameterListParameterEditor;
@@ -42,6 +48,11 @@ import org.opensha.commons.param.editor.ParameterListParameterEditor;
 public class LocationParameter extends DependentParameter<Location> {
 
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	/** Class name for debugging. */
 	protected final static String C = "LocationParameter";
 	/** If true print out debug statements. */

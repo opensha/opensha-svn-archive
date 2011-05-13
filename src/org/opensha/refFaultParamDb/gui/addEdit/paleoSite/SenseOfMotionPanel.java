@@ -34,12 +34,12 @@ import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.data.estimate.MinMaxPrefEstimate;
 import org.opensha.commons.data.estimate.NormalEstimate;
 import org.opensha.commons.data.estimate.PDF_Estimate;
-import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.editor.estimate.ConstrainedEstimateParameterEditor;
 import org.opensha.commons.param.estimate.EstimateParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 

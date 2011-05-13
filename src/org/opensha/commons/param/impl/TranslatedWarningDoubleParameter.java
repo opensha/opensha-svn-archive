@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param;
+package org.opensha.commons.param.impl;
 
 import java.util.ListIterator;
 
@@ -26,6 +26,11 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.TranslateException;
 import org.opensha.commons.exceptions.WarningException;
+import org.opensha.commons.param.DoubleConstraint;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterConstraint;
+import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.TranslatedWarningDoubleParameterEditor;
@@ -85,7 +90,11 @@ import org.opensha.commons.param.translate.TranslatorAPI;
 
 public class TranslatedWarningDoubleParameter extends WarningDoubleParameter {
 
-    /** Class name for debugging. */
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/** Class name for debugging. */
     protected final static String C = "TranslatedWarningDoubleParameter";
     /** If true print out debug statements. */
     protected final static boolean D = false;

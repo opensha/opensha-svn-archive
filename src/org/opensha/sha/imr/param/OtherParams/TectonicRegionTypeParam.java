@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.opensha.commons.param.StringConstraint;
-import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.util.TectonicRegionType;
 
 /**

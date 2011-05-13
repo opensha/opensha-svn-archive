@@ -17,11 +17,14 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param;
+package org.opensha.commons.param.impl;
 
 import org.dom4j.Element;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.exceptions.EditableException;
+import org.opensha.commons.param.DependentParameter;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.EvenlyDiscretizedFuncParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditor;
 
@@ -44,6 +47,10 @@ import org.opensha.commons.param.editor.ParameterEditor;
 public class EvenlyDiscretizedFuncParameter extends
 		DependentParameter<EvenlyDiscretizedFunc> {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/** Class name for debugging. */
 	protected final static String C = "EvenlyDiscretizedFuncParameter";
 	/** If true print out debug statements. */

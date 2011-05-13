@@ -1,6 +1,6 @@
 package org.opensha.sha.calc.params;
 
-import org.opensha.commons.param.BooleanParameter;
+import org.opensha.commons.param.impl.BooleanParameter;
 
 public class IncludeMagDistFilterParam extends BooleanParameter {
 	

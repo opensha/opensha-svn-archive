@@ -33,16 +33,16 @@ import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.DoubleDiscreteConstraint;
-import org.opensha.commons.param.DoubleDiscreteParameter;
-import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.IntegerConstraint;
-import org.opensha.commons.param.IntegerParameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringConstraint;
-import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.event.TimeSpanChangeListener;
+import org.opensha.commons.param.impl.DoubleDiscreteParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.IntegerParameter;
+import org.opensha.commons.param.impl.StringParameter;
 
 /**
  *  <b>Title:</b> TimeSpan<p>

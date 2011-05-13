@@ -20,7 +20,7 @@
 package org.opensha.sha.imr.param.OtherParams;
 
 import org.opensha.commons.param.StringConstraint;
-import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.impl.StringParameter;
 
 /**
  * StdDevTypeParam represents the various types of standard deviations that an IMR might 

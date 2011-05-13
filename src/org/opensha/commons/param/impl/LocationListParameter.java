@@ -17,13 +17,16 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param;
+package org.opensha.commons.param.impl;
 
 import java.util.ListIterator;
 
 import org.dom4j.Element;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.param.DependentParameter;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterEditor;
 
 /**
@@ -38,6 +41,10 @@ import org.opensha.commons.param.editor.ParameterEditor;
 public class LocationListParameter extends DependentParameter<LocationList> {
 
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/** Class name for debugging. */
 	protected final static String C = "LocationListParameter";
 	/** If true print out debug statements. */

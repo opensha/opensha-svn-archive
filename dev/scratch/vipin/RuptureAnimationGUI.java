@@ -37,10 +37,10 @@ import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.gui.plot.jfreechart.GriddedSurfaceXYDataSet;
-import org.opensha.commons.param.IntegerParameter;
 import org.opensha.commons.param.editor.IntegerParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.IntegerParameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.faultSurface.GriddedSurface;
 

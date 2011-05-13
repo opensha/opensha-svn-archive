@@ -15,9 +15,9 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_Mag
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.DoubleDiscreteParameter;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.WarningDoubleParameter;
+import org.opensha.commons.param.impl.DoubleDiscreteParameter;
+import org.opensha.commons.param.impl.WarningDoubleParameter;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.EqkRupture;

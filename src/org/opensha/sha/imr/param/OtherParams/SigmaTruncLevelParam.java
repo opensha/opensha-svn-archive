@@ -19,7 +19,7 @@
 
 package org.opensha.sha.imr.param.OtherParams;
 
-import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
 
 /**
  * SigmaTruncLevelParam, a DoubleParameter that represents where truncation occurs

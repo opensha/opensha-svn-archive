@@ -24,10 +24,10 @@ import java.awt.Insets;
 import java.util.ArrayList;
 
 import org.opensha.commons.gui.LabeledBoxPanel;
-import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditSequence;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;

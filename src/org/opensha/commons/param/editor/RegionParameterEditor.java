@@ -35,10 +35,10 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.ParameterListParameter;
-import org.opensha.commons.param.RegionParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.ParameterListParameter;
+import org.opensha.commons.param.impl.RegionParameter;
 
 /**
  * <p>Title: RegionParameterEditor</p>

@@ -37,8 +37,8 @@ import javax.swing.JOptionPane;
 
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.ParameterListParameter;
-import org.opensha.commons.param.TreeBranchWeightsParameter;
+import org.opensha.commons.param.impl.ParameterListParameter;
+import org.opensha.commons.param.impl.TreeBranchWeightsParameter;
 
 
 

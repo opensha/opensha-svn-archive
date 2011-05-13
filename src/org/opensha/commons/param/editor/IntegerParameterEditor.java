@@ -29,8 +29,8 @@ import javax.swing.border.Border;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.WarningException;
-import org.opensha.commons.param.IntegerParameter;
 import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.impl.IntegerParameter;
 
 
 

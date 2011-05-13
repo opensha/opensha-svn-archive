@@ -26,8 +26,8 @@ import javax.swing.BoxLayout;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.util.SiteTranslator;
 
 public class AddSiteDataPanel extends ParameterListEditor {

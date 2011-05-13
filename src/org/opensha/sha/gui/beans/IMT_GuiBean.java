@@ -25,13 +25,13 @@ import java.util.ListIterator;
 
 import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.DoubleDiscreteConstraint;
-import org.opensha.commons.param.DoubleDiscreteParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.DoubleDiscreteParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;

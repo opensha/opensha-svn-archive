@@ -17,12 +17,15 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param;
+package org.opensha.commons.param.impl;
 
 import java.util.ListIterator;
 
 import org.dom4j.Element;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.param.DependentParameter;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.ParameterListParameterEditor;
 
@@ -38,6 +41,10 @@ import org.opensha.commons.param.editor.ParameterListParameterEditor;
 public class ParameterListParameter extends DependentParameter<ParameterList> {
 
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/** Class name for debugging. */
 	protected final static String C = "ParameterListParameter";
 	/** If true print out debug statements. */

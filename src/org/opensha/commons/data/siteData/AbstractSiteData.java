@@ -31,11 +31,11 @@ import org.opensha.commons.data.siteData.impl.WillsMap2000;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.impl.DoubleParameter;
 
 /**
  * Abstract implementation of SiteDataAPI. It handles some of the basic methods, such as

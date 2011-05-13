@@ -10,7 +10,7 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
-import org.opensha.commons.param.CPTParameter;
+import org.opensha.commons.param.impl.CPTParameter;
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;

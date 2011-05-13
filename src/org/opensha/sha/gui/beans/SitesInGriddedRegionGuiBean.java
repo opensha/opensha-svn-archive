@@ -35,17 +35,17 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.IntegerParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.IntegerParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.util.SiteTranslator;
 
 

@@ -17,11 +17,13 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param;
+package org.opensha.commons.param.impl;
 
 import org.dom4j.Element;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.exceptions.EditableException;
+import org.opensha.commons.param.DependentParameter;
+import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.editor.ArbitrarilyDiscretizedFuncParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
 
@@ -42,6 +44,11 @@ public class ArbitrarilyDiscretizedFuncParameter extends DependentParameter<Arbi
 implements java.io.Serializable{
 
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	/** Class name for debugging. */
 	protected final static String C = "ArbitrarilyDiscretizedFuncParameter";
 	/** If true print out debug statements. */
@@ -150,7 +157,8 @@ implements java.io.Serializable{
 			throw new ClassCastException(S +
 					"Object not a DiscretizedFuncAPI, unable to compare");
 		}
-		return ((ArbitrarilyDiscretizedFunc)value).equals(((ArbitrarilyDiscretizedFuncParameter)obj).value);
+		return ((ArbitrarilyDiscretizedFunc)value)
+				.equals(((ArbitrarilyDiscretizedFuncParameter)obj).value);
 	}
 
 	/**
@@ -161,8 +169,9 @@ implements java.io.Serializable{
 	public Object clone(){
 
 		ArbitrarilyDiscretizedFuncParameter param = null;
-		param = new ArbitrarilyDiscretizedFuncParameter(name,(ArbitrarilyDiscretizedFunc)((ArbitrarilyDiscretizedFunc)value).deepClone());
-		if( param == null ) return null;
+		param = new ArbitrarilyDiscretizedFuncParameter(
+				name,(ArbitrarilyDiscretizedFunc)((ArbitrarilyDiscretizedFunc)value)
+				.deepClone());
 		param.editable = true;
 		param.info = info;
 		return param;

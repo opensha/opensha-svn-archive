@@ -8,6 +8,10 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.junit.Test;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.param.impl.ArbitrarilyDiscretizedFuncParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.IntegerParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.XMLUtils;
 

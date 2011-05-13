@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param;
+package org.opensha.commons.param.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +26,10 @@ import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.param.DependentParameter;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.StringListConstraint;
 import org.opensha.commons.param.editor.ConstrainedStringListParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditor;
 
@@ -49,7 +53,12 @@ import org.opensha.commons.param.editor.ParameterEditor;
 
 public class StringListParameter extends DependentParameter<List<String>> {
 
-  /** Class name for debugging. */
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+/** Class name for debugging. */
   protected final static String C = "StringListParameter";
   
   private transient ParameterEditor paramEdit = null;

@@ -20,7 +20,7 @@
 package org.opensha.sha.imr.param.OtherParams;
 
 import org.opensha.commons.param.StringConstraint;
-import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.impl.StringParameter;
 
 /**
  * Component Parameter, reserved for representing the component of shaking

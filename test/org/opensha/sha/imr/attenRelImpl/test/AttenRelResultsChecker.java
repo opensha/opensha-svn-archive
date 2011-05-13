@@ -31,13 +31,13 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.DoubleDiscreteParameter;
-import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.IntegerParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.WarningDoubleParameter;
+import org.opensha.commons.param.impl.DoubleDiscreteParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.IntegerParameter;
+import org.opensha.commons.param.impl.StringParameter;
+import org.opensha.commons.param.impl.WarningDoubleParameter;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.PropagationEffectParams.AbstractDoublePropEffectParam;

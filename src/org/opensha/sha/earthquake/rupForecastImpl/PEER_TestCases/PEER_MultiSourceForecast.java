@@ -29,7 +29,7 @@ import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
-import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;

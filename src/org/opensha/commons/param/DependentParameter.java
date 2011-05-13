@@ -55,6 +55,10 @@ public abstract class DependentParameter<E> extends Parameter<E> implements
 		DependentParameterAPI<E> {
 
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/**
 	 * ArrayList to store the independent Parameters
 	 */
 	protected ArrayList<ParameterAPI<?>> independentParameters = new ArrayList<ParameterAPI<?>>();

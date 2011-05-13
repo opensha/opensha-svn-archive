@@ -27,11 +27,11 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.StringConstraint;
-import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkRupture;

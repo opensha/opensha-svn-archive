@@ -1,11 +1,18 @@
-package org.opensha.commons.param;
+package org.opensha.commons.param.impl;
 
 import org.dom4j.Element;
 import org.opensha.commons.data.WeightedList;
+import org.opensha.commons.param.DependentParameter;
+import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.WeightedListParameterEditor;
 
 public class WeightedListParameter<E> extends DependentParameter<WeightedList<E>> {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	
 	WeightedListParameterEditor paramEdit;
 	

@@ -28,8 +28,8 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.StringConstraint;
-import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 import org.opensha.sha.param.MagDistStringParameter;
 

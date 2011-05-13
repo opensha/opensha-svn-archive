@@ -27,9 +27,9 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.BooleanParameter;
-import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.WarningDoubleParameter;
+import org.opensha.commons.param.impl.BooleanParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.WarningDoubleParameter;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.imr.AttenuationRelationship;

@@ -9,7 +9,7 @@ import java.util.Iterator;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.WarningDoubleParameter;
+import org.opensha.commons.param.impl.WarningDoubleParameter;
 import org.opensha.gem.GEM1.calc.gemHazardCalculator.GemComputeHazardLogicTree;
 import org.opensha.gem.GEM1.calc.gemLogicTree.gemLogicTreeImpl.gmpe.GemGmpe;
 import org.opensha.gem.GEM1.calc.gemLogicTree.gemLogicTreeImpl.gmpe.GemGmpe2;

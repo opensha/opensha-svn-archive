@@ -17,10 +17,10 @@ import java.util.Iterator;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
-import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.A_Faults.A_FaultSegmentedSourceGenerator;
 

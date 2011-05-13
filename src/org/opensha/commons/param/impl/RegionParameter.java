@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param;
+package org.opensha.commons.param.impl;
 
 import java.util.ArrayList;
 
@@ -28,6 +28,11 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.param.DependentParameter;
+import org.opensha.commons.param.LocationConstraint;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.RegionParameterEditor;
 
@@ -42,6 +47,10 @@ import org.opensha.commons.param.editor.RegionParameterEditor;
 public class RegionParameter extends DependentParameter<Region> {
 
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/** Class name for debugging. */
 	protected final static String C = "RegionParameter";
 	/** If true print out debug statements. */

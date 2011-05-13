@@ -10,7 +10,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.gem.GEM1.commons.CalculationSettings;
 import org.opensha.gem.GEM1.util.SourceType;
 import org.opensha.sha.calc.HazardCurveCalculator;

@@ -21,7 +21,7 @@ package org.opensha.sha.imr.param.IntensityMeasureParams;
 
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.WarningDoubleParameter;
+import org.opensha.commons.param.impl.WarningDoubleParameter;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodInterpolatedParam;
 
 /**

@@ -1,14 +1,20 @@
-package org.opensha.commons.param;
+package org.opensha.commons.param.impl;
 
 import java.io.File;
 
 import org.dom4j.Element;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.editor.FileParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
 
 @Deprecated
 public class FileParameter extends Parameter<File> {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private FileParameterEditor editor;
 	
 	public FileParameter(String name) {

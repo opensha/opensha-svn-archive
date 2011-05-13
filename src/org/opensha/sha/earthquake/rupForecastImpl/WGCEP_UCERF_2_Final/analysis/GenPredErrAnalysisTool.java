@@ -10,9 +10,9 @@ import java.util.Iterator;
 
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.ParameterListParameter;
 import org.opensha.commons.param.StringConstraint;
-import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.impl.ParameterListParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.A_Faults.A_FaultSegmentedSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.A_FaultsFetcher;

@@ -20,7 +20,7 @@
 package org.opensha.sha.imr.param.IntensityMeasureParams;
 
 import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.WarningDoubleParameter;
+import org.opensha.commons.param.impl.WarningDoubleParameter;
 
 /**
  * This constitutes the natural-log Arias Intensity intensity measure

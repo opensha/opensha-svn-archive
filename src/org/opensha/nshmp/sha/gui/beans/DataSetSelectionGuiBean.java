@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.impl.StringParameter;
 
 /**
  * <p>Title: DataSetSelectionGuiBean</p>

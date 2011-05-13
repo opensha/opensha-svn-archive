@@ -17,12 +17,14 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param;
+package org.opensha.commons.param.impl;
 
 import java.util.ListIterator;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.TreeBranchWeightsParameterEditor;
 

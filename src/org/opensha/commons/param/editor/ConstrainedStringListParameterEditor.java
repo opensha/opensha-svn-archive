@@ -33,7 +33,7 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.StringListConstraint;
-import org.opensha.commons.param.StringListParameter;
+import org.opensha.commons.param.impl.StringListParameter;
 
 /**
  * <b>Title:</b> ConstrainedStringParameterEditor<p>

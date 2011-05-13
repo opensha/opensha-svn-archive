@@ -20,7 +20,7 @@
 package org.opensha.sha.imr.param.SiteParams;
 
 import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.WarningDoubleParameter;
+import org.opensha.commons.param.impl.WarningDoubleParameter;
 
 /**
  * Depth 1.0 km/sec Parameter, reserved for representing the depth to where

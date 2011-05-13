@@ -20,7 +20,7 @@
 package org.opensha.sha.imr.param.EqkRuptureParams;
 
 import org.opensha.commons.param.StringConstraint;
-import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.impl.StringParameter;
 
 /**
  * FaulltTypeParam, a StringParameter for representing different

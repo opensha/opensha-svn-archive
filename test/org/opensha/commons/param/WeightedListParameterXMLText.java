@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.WeightedList;
+import org.opensha.commons.param.impl.WeightedListParameter;
 import org.opensha.commons.util.XMLUtils;
 
 public class WeightedListParameterXMLText {

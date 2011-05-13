@@ -24,7 +24,7 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.sha.calc.hazardMap.components.AsciiFileCurveArchiver;
 import org.opensha.sha.calc.hazardMap.components.CalculationSettings;

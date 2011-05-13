@@ -34,9 +34,9 @@ import javax.swing.JDialog;
 
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.ParameterListParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.ParameterListParameter;
 
 
 

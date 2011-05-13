@@ -31,14 +31,14 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.param.ArbitrarilyDiscretizedFuncParameter;
-import org.opensha.commons.param.BooleanParameter;
-import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ArbitrarilyDiscretizedFuncTableModel;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.ArbitrarilyDiscretizedFuncParameter;
+import org.opensha.commons.param.impl.BooleanParameter;
+import org.opensha.commons.param.impl.StringParameter;
 
 public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements ParameterChangeListener {
 	

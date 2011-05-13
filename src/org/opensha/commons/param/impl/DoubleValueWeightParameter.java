@@ -1,13 +1,19 @@
 /**
  * 
  */
-package org.opensha.commons.param;
+package org.opensha.commons.param.impl;
 
 import org.dom4j.Element;
 import org.opensha.commons.data.ValueWeight;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.param.DependentParameter;
+import org.opensha.commons.param.DependentParameterAPI;
+import org.opensha.commons.param.DoubleConstraint;
+import org.opensha.commons.param.DoubleValueWeightConstraint;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.editor.DoubleValueWeightParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditor;
 
@@ -25,7 +31,11 @@ import org.opensha.commons.param.editor.ParameterEditor;
  */
 public class DoubleValueWeightParameter extends DependentParameter
 				implements DependentParameterAPI, ParameterAPI {
-	  /** Class name for debugging. */
+	  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/** Class name for debugging. */
     protected final static String C = "DoubleValueWeightParameter";
     /** If true print out debug statements. */
     protected final static boolean D = false;

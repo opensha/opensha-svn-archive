@@ -7,7 +7,7 @@ import java.io.File;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 
-import org.opensha.commons.param.FileParameter;
+import org.opensha.commons.param.impl.FileParameter;
 
 @Deprecated
 public class FileParameterEditor extends ParameterEditor implements ActionListener {

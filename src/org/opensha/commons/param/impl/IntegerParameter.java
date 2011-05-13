@@ -17,15 +17,21 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param;
+package org.opensha.commons.param.impl;
 
 import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.param.DependentParameter;
+import org.opensha.commons.param.DependentParameterAPI;
+import org.opensha.commons.param.IntegerConstraint;
+import org.opensha.commons.param.IntegerDiscreteConstraint;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.editor.ConstrainedIntegerDiscreteParameterEditor;
 import org.opensha.commons.param.editor.ConstrainedIntegerParameterEditor;
 import org.opensha.commons.param.editor.IntegerParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
 
 /**

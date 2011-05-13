@@ -39,9 +39,7 @@ import javax.swing.JTextArea;
 
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.StringConstraint;
-import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedDoubleParameterEditor;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.editor.StringParameterEditor;
@@ -50,6 +48,8 @@ import org.opensha.commons.param.estimate.EstimateConstraint;
 import org.opensha.commons.param.estimate.EstimateParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;

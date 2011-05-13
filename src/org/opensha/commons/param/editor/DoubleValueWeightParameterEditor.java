@@ -25,11 +25,11 @@ import java.awt.Insets;
 
 import org.opensha.commons.data.ValueWeight;
 import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.DoubleValueWeightConstraint;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.DoubleParameter;
 
 /**
  *<b>Title:</b> DoubleValueWeightParameterEditor<p>

@@ -12,15 +12,15 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.DoubleParameterEditor;
 import org.opensha.commons.param.editor.StringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.nshmp.sha.gui.beans.GuiBeanAPI;
 
 import scratch.martinez.VulnerabilityModels.VulnerabilityModel;

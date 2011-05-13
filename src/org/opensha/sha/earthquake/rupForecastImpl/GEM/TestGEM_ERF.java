@@ -29,7 +29,7 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.RegionUtils;
-import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkSource;

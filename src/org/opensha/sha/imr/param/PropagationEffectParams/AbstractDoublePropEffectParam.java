@@ -7,17 +7,17 @@ import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.WarningException;
 import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.DoubleDiscreteParameter;
-import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterConstraint;
-import org.opensha.commons.param.WarningDoubleParameter;
 import org.opensha.commons.param.WarningParameterAPI;
 import org.opensha.commons.param.editor.ConstrainedDoubleParameterEditor;
 import org.opensha.commons.param.editor.DoubleParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
+import org.opensha.commons.param.impl.DoubleDiscreteParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.WarningDoubleParameter;
 
 /**
  * Add comments here

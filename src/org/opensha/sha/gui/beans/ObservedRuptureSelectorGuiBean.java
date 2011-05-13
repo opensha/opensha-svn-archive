@@ -44,12 +44,12 @@ import junk.nga.EqkRuptureFromNGA;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.EqkRupture;
 
 

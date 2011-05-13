@@ -1,7 +1,7 @@
 package org.opensha.sha.calc.params;
 
 import org.opensha.commons.exceptions.ConstraintException;
-import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
 
 public class MaxDistanceParam extends DoubleParameter {
 

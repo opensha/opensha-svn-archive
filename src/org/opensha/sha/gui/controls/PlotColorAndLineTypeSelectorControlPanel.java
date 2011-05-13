@@ -40,13 +40,13 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 
 import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedDoubleParameterEditor;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 /**

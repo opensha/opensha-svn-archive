@@ -14,9 +14,9 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.editor.StringParameterEditor;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;

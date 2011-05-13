@@ -20,7 +20,7 @@
 package org.opensha.sha.gcim.imr.param.EqkRuptureParams;
 
 import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.WarningDoubleParameter;
+import org.opensha.commons.param.impl.WarningDoubleParameter;
 
 /**
  * Magnitude parameter, reserved for representing source focal depth.

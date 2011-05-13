@@ -20,7 +20,7 @@
 package org.opensha.sha.imr.param.SiteParams;
 
 import org.opensha.commons.param.StringConstraint;
-import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.impl.StringParameter;
 
 /**
  *  Vs flag Parameter - indicates whether vs was measured or inferred/estimated,

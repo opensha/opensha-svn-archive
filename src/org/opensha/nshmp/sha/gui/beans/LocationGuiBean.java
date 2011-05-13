@@ -38,17 +38,17 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedDoubleParameterEditor;
 import org.opensha.commons.param.editor.StringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.nshmp.exceptions.LocationErrorException;
 
 /**

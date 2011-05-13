@@ -1,9 +1,12 @@
-package org.opensha.commons.param;
+package org.opensha.commons.param.impl;
 
 import java.util.Collection;
 import java.util.NoSuchElementException;
 
 import org.dom4j.Element;
+import org.opensha.commons.param.DependentParameter;
+import org.opensha.commons.param.ListBasedConstraint;
+import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.editor.ConstrainedCPTParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.util.cpt.CPT;

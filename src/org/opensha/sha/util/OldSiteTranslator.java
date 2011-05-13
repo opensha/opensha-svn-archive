@@ -20,7 +20,7 @@
 package org.opensha.sha.util;
 
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.WarningDoubleParameter;
+import org.opensha.commons.param.impl.WarningDoubleParameter;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel;

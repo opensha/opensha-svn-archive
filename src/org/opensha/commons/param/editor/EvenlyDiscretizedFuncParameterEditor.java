@@ -33,9 +33,9 @@ import javax.swing.JTextArea;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.Point2DException;
-import org.opensha.commons.param.EvenlyDiscretizedFuncParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.impl.EvenlyDiscretizedFuncParameter;
 
 /**
  * <b>Title:</b> EvenlyDiscretizedFuncParameterEditor<p>
