@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param.editor;
+package org.opensha.commons.param.editor.impl;
 
 import java.awt.Color;
 
@@ -47,6 +47,10 @@ import org.opensha.commons.util.ParamUtils;
 public class ConstrainedIntegerParameterEditor extends IntegerParameterEditor
 {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/** Class name for debugging. */
 	protected final static String C = "ConstrainedIntegerParameterEditor";
 	/** If true print out debug statements. */

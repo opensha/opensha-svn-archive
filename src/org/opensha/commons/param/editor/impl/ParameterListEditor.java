@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param.editor;
+package org.opensha.commons.param.editor.impl;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -29,6 +29,7 @@ import java.util.NoSuchElementException;
 import org.opensha.commons.gui.LabeledBoxPanel;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.editor.ParameterEditorAPI;
 
 /**
  * <b>Title:</b> ParameterListEditor<p>
@@ -62,6 +63,10 @@ import org.opensha.commons.param.ParameterList;
 
 public class ParameterListEditor extends LabeledBoxPanel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/** Class name for debugging. */
 	protected final static String C = "ParameterListEditor";
 	/** If true print out debug statements. */

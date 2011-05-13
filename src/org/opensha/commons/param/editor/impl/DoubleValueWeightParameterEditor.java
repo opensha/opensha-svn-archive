@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param.editor;
+package org.opensha.commons.param.editor.impl;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -27,6 +27,8 @@ import org.opensha.commons.data.ValueWeight;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleValueWeightConstraint;
+import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.DoubleParameter;
@@ -52,6 +54,10 @@ import org.opensha.commons.param.impl.DoubleParameter;
  */
 public class DoubleValueWeightParameterEditor extends ParameterEditor 
 												implements ParameterChangeListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private final static boolean D = false;
 	private final static String VALUE = "Value";
 	private final static String WEIGHT = "Weight";

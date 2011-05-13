@@ -30,8 +30,8 @@ import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.StringListConstraint;
-import org.opensha.commons.param.editor.ConstrainedStringListParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.impl.ConstrainedStringListParameterEditor;
 
 /**
  * <p>Title: StringListParameter.java </p>

@@ -26,7 +26,7 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
-import org.opensha.commons.param.editor.TreeBranchWeightsParameterEditor;
+import org.opensha.commons.param.editor.impl.TreeBranchWeightsParameterEditor;
 
 /**
  * <p>Title: TreeBranchWeightsParameter</p>

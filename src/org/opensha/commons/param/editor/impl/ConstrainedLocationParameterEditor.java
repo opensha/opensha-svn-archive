@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param.editor;
+package org.opensha.commons.param.editor.impl;
 
 import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
@@ -33,6 +33,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.LocationConstraint;
+import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.impl.LocationParameter;
 
 /**
@@ -53,7 +54,11 @@ public class ConstrainedLocationParameterEditor
     implements ItemListener
 {
 
-    /** Class name for debugging. */
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/** Class name for debugging. */
     protected final static String C = "ConstrainedLocationParameterEditor";
     /** If true print out debug statements. */
     protected final static boolean D = false;

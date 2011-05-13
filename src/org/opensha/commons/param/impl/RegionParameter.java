@@ -34,7 +34,7 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.LocationConstraint;
 import org.opensha.commons.param.editor.ParameterEditor;
-import org.opensha.commons.param.editor.RegionParameterEditor;
+import org.opensha.commons.param.editor.impl.RegionParameterEditor;
 
 /**
  * <p>Title: LocationParameter</p>

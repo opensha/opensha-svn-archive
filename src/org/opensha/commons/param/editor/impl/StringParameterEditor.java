@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param.editor;
+package org.opensha.commons.param.editor.impl;
 
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -31,6 +31,7 @@ import javax.swing.border.Border;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.WarningException;
 import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.editor.NewParameterEditor;
 import org.opensha.commons.param.impl.StringParameter;
 
 

@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param.editor;
+package org.opensha.commons.param.editor.impl;
 
 
 import java.awt.Color;
@@ -59,6 +59,10 @@ import org.opensha.commons.param.impl.TreeBranchWeightsParameter;
 public class TreeBranchWeightsParameterEditor extends ParameterListParameterEditor implements
 ActionListener, ItemListener{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/** Class name for debugging. */
 	protected final static String C = "TreeBranchWeightsParameterEditor";
 	// convenience parameter to set All weights to 0 or 1

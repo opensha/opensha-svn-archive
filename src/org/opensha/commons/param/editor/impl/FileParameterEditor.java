@@ -1,4 +1,4 @@
-package org.opensha.commons.param.editor;
+package org.opensha.commons.param.editor.impl;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -7,11 +7,16 @@ import java.io.File;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 
+import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.impl.FileParameter;
 
 @Deprecated
 public class FileParameterEditor extends ParameterEditor implements ActionListener {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JButton browseButton;
 	private JFileChooser chooser;
 	

@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param.editor;
+package org.opensha.commons.param.editor.impl;
 
 
 import java.awt.event.ItemEvent;
@@ -28,6 +28,7 @@ import javax.swing.JComponent;
 import javax.swing.border.Border;
 
 import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.editor.NewParameterEditor;
 
 
 

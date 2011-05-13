@@ -24,8 +24,8 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.editor.ArbitrarilyDiscretizedFuncParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
+import org.opensha.commons.param.editor.impl.ArbitrarilyDiscretizedFuncParameterEditor;
 
 /**
  * <p>Title: ArbitrarilyDiscretizedFuncParameter.java </p>

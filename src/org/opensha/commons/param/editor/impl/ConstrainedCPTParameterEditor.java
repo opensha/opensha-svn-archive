@@ -1,4 +1,4 @@
-package org.opensha.commons.param.editor;
+package org.opensha.commons.param.editor.impl;
 
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -11,6 +11,7 @@ import org.opensha.commons.mapping.gmt.gui.CPTListCellRenderer;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.ListBasedConstraint;
+import org.opensha.commons.param.editor.NewParameterEditor;
 import org.opensha.commons.util.cpt.CPT;
 
 public class ConstrainedCPTParameterEditor extends NewParameterEditor<CPT> implements ItemListener {

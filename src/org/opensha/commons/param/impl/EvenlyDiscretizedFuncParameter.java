@@ -25,8 +25,8 @@ import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.editor.EvenlyDiscretizedFuncParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.impl.EvenlyDiscretizedFuncParameterEditor;
 
 /**
  * <p>Title: EvenlyDiscretizedFuncParameter.java </p>

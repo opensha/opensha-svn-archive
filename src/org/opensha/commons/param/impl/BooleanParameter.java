@@ -22,8 +22,8 @@ package org.opensha.commons.param.impl;
 import org.dom4j.Element;
 import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.editor.BooleanParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
+import org.opensha.commons.param.editor.impl.BooleanParameterEditor;
 
 
 /**

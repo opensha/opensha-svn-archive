@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param.editor;
+package org.opensha.commons.param.editor.impl;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -31,6 +31,11 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 
 public class ArbitrarilyDiscretizedFuncTableModel extends AbstractTableModel {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	protected boolean D = ArbitrarilyDiscretizedFuncParameterEditor.D;
 
 	private ArbitrarilyDiscretizedFunc func;

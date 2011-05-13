@@ -17,7 +17,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.util.ListUtils;
 import org.opensha.sha.gui.beans.IMR_MultiGuiBean.EnableableCellRenderer;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;

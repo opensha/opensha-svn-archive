@@ -24,7 +24,7 @@ import javax.swing.JComponent;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.editor.impl.ConstrainedStringParameterEditor;
 
 /**
  * <p>Title: EditableConstrainedStringParameterEditor.java </p>

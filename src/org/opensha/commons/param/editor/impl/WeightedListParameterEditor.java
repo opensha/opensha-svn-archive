@@ -1,4 +1,4 @@
-package org.opensha.commons.param.editor;
+package org.opensha.commons.param.editor.impl;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 import org.opensha.commons.data.WeightedList;
 import org.opensha.commons.gui.WeightedListGUI;
 import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.editor.NewParameterEditor;
 import org.opensha.commons.param.impl.WeightedListParameter;
 
 public class WeightedListParameterEditor extends NewParameterEditor<WeightedList<?>> implements ComponentListener, ActionListener {

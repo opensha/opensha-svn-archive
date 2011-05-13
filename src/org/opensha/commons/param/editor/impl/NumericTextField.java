@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param.editor;
+package org.opensha.commons.param.editor.impl;
 
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -60,7 +60,11 @@ import org.opensha.commons.param.editor.document.NumericPlainDocument;
 public class NumericTextField extends JTextField
     implements NumericPlainDocument.InsertErrorListener {
 
-    /** Class name for debugging. */
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/** Class name for debugging. */
     protected final static String C = "NumericTextField";
     /** If true print out debug statements. */
     protected final static boolean D = false;

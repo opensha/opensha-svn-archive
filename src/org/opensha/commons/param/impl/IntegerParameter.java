@@ -29,10 +29,10 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.IntegerConstraint;
 import org.opensha.commons.param.constraint.impl.IntegerDiscreteConstraint;
-import org.opensha.commons.param.editor.ConstrainedIntegerDiscreteParameterEditor;
-import org.opensha.commons.param.editor.ConstrainedIntegerParameterEditor;
-import org.opensha.commons.param.editor.IntegerParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
+import org.opensha.commons.param.editor.impl.ConstrainedIntegerDiscreteParameterEditor;
+import org.opensha.commons.param.editor.impl.ConstrainedIntegerParameterEditor;
+import org.opensha.commons.param.editor.impl.IntegerParameterEditor;
 
 /**
  *  <b>Title:</b> IntegerParameter<p>

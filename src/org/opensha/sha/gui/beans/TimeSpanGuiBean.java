@@ -30,7 +30,7 @@ import javax.swing.JPanel;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
 
 /**
  * Time span gui.

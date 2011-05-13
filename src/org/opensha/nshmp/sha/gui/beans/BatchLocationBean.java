@@ -24,8 +24,8 @@ import javax.swing.filechooser.FileFilter;
 
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.editor.ConstrainedDoubleParameterEditor;
-import org.opensha.commons.param.editor.StringParameterEditor;
+import org.opensha.commons.param.editor.impl.ConstrainedDoubleParameterEditor;
+import org.opensha.commons.param.editor.impl.StringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;

@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param.editor;
+package org.opensha.commons.param.editor.impl;
 
 
 import java.awt.Color;
@@ -34,6 +34,7 @@ import javax.swing.JDialog;
 
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.editor.NewParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.ParameterListParameter;
@@ -57,6 +58,10 @@ import org.opensha.commons.param.impl.ParameterListParameter;
 public class ParameterListParameterEditor extends NewParameterEditor<ParameterList> implements
 ActionListener,ParameterChangeListener{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/** Class name for debugging. */
 	protected final static String C = "ParameterListParameterEditor";
 	/** If true print out debug statements. */

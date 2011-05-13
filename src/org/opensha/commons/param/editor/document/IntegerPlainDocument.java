@@ -26,8 +26,8 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
-import org.opensha.commons.param.editor.IntegerTextField;
-import org.opensha.commons.param.editor.NumericTextField;
+import org.opensha.commons.param.editor.impl.IntegerTextField;
+import org.opensha.commons.param.editor.impl.NumericTextField;
 
 /**
  * <b>Title:</b> IntegerPlainDocument<p>

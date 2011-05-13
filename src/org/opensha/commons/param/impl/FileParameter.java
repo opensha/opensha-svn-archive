@@ -5,8 +5,8 @@ import java.io.File;
 import org.dom4j.Element;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.editor.FileParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
+import org.opensha.commons.param.editor.impl.FileParameterEditor;
 
 @Deprecated
 public class FileParameter extends Parameter<File> {

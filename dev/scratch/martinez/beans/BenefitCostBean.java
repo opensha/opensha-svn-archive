@@ -13,8 +13,8 @@ import javax.swing.JSplitPane;
 
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.editor.DoubleParameterEditor;
-import org.opensha.commons.param.editor.StringParameterEditor;
+import org.opensha.commons.param.editor.impl.DoubleParameterEditor;
+import org.opensha.commons.param.editor.impl.StringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;

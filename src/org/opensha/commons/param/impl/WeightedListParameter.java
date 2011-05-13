@@ -5,7 +5,7 @@ import org.opensha.commons.data.WeightedList;
 import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
-import org.opensha.commons.param.editor.WeightedListParameterEditor;
+import org.opensha.commons.param.editor.impl.WeightedListParameterEditor;
 
 public class WeightedListParameter<E> extends DependentParameter<WeightedList<E>> {
 	

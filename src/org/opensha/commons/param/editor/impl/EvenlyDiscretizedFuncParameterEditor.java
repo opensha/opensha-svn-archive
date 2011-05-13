@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param.editor;
+package org.opensha.commons.param.editor.impl;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -35,6 +35,7 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.impl.EvenlyDiscretizedFuncParameter;
 
 /**
@@ -50,7 +51,11 @@ import org.opensha.commons.param.impl.EvenlyDiscretizedFuncParameter;
 public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
 {
 
-    /** Class name for debugging. */
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/** Class name for debugging. */
     protected final static String C = "EvenlyDiscretizedFuncParameterEditor";
     /** If true print out debug statements. */
     protected final static boolean D = false;

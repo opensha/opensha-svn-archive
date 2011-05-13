@@ -25,7 +25,7 @@ import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
-import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.editor.impl.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 

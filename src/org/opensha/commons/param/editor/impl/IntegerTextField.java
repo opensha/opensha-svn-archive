@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param.editor;
+package org.opensha.commons.param.editor.impl;
 
 import java.awt.Toolkit;
 import java.text.ParseException;
@@ -52,7 +52,11 @@ public class IntegerTextField extends JTextField
     implements IntegerPlainDocument.InsertErrorListener
 {
 
-    /** Class name for debugging. */
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/** Class name for debugging. */
     protected final static String C = "IntegerTextField";
     /** If true print out debug statements. */
     protected final static boolean D = false;

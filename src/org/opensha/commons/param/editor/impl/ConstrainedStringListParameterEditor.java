@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param.editor;
+package org.opensha.commons.param.editor.impl;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
@@ -33,6 +33,7 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.StringListConstraint;
+import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.impl.StringListParameter;
 
 /**
@@ -53,7 +54,11 @@ public class ConstrainedStringListParameterEditor
     implements ListSelectionListener
 {
 
-    /** Class name for debugging. */
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/** Class name for debugging. */
     protected final static String C = "ConstrainedStringListParameterEditor";
     /** If true print out debug statements. */
     protected final static boolean D = false;

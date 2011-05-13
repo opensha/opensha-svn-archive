@@ -30,8 +30,8 @@ import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
-import org.opensha.commons.param.editor.ConstrainedDoubleDiscreteParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
+import org.opensha.commons.param.editor.impl.ConstrainedDoubleDiscreteParameterEditor;
 
 /**
  * <b>Title:</b> DoubleDiscreteParameter<p>

@@ -17,10 +17,11 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param.editor;
+package org.opensha.commons.param.editor.impl;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.impl.TranslatedWarningDoubleParameter;
 import org.opensha.commons.param.translate.TranslatorAPI;
 

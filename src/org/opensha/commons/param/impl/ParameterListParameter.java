@@ -27,7 +27,7 @@ import org.opensha.commons.param.DependentParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
-import org.opensha.commons.param.editor.ParameterListParameterEditor;
+import org.opensha.commons.param.editor.impl.ParameterListParameterEditor;
 
 
 /**

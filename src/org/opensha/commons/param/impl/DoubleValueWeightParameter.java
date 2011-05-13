@@ -14,8 +14,8 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleValueWeightConstraint;
-import org.opensha.commons.param.editor.DoubleValueWeightParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.impl.DoubleValueWeightParameterEditor;
 
 /**
  * <b>Title:</b> DoubleValueWeightParameter<p>

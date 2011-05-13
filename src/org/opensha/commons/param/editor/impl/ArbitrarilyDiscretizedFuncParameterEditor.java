@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param.editor;
+package org.opensha.commons.param.editor.impl;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -47,7 +47,8 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.editor.ArbitrarilyDiscretizedFuncTableModel.ArbitrarilyDiscretizedFuncTableCellRenderer;
+import org.opensha.commons.param.editor.NewParameterEditor;
+import org.opensha.commons.param.editor.impl.ArbitrarilyDiscretizedFuncTableModel.ArbitrarilyDiscretizedFuncTableCellRenderer;
 import org.opensha.commons.param.impl.ArbitrarilyDiscretizedFuncParameter;
 
 /**
@@ -64,6 +65,10 @@ extends NewParameterEditor<ArbitrarilyDiscretizedFunc>
 implements ActionListener, DocumentListener, TableModelListener
 {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/** Class name for debugging. */
 	protected final static String C = "DiscretizedFuncParameterEditor";
 	/** If true print out debug statements. */
